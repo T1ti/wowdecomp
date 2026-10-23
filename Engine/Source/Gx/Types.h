@@ -109,8 +109,8 @@ enum EGxOverride {
 };
 
 enum EGxQueryParam {
-    GxQueryParam_Unk0 = 0,
-    GxQueryParam_Unk1 = 1,
+    GxQueryParam_DataSize = 0,
+    GxQueryParam_ResultAvailable = 1,
     GxQueryParams_Last = 2,
 };
 
