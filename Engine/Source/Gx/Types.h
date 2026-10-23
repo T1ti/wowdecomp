@@ -20,6 +20,11 @@ enum EGxApi {
     GxApis_Last = 6,
 };
 
+enum EGxEnable : int32_t {
+    Gx_Disable = 0,
+    Gx_Enable = 1,
+};
+
 enum EGxBlend {
     GxBlend_Opaque = 0,
     GxBlend_AlphaKey = 1,
