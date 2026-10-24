@@ -161,7 +161,7 @@ class CParticleEmitter2 {
     static uint32_t s_initCount;
     static uint8_t s_noIndexBuffer;
     static CSortableParticleQueue s_pq;
-    static float s_rndTable[CParticleEmitter2::RND_TABLE_SIZE];
+    static float m_rndTable[CParticleEmitter2::RND_TABLE_SIZE];
     static float s_viewDist;
 
     static void Destroy();
