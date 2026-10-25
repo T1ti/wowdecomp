@@ -1685,7 +1685,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
             objectPosition = this->GetRawPosition();
             transport.m_guid = this->GetTransportGUID();
 
-            if ((this->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(this)->m_movement->m_flags & 0x40000000)) {
+            if ((this->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(this)->m_movement->m_flags & MOVEMENTFLAG_HOVER)) {
                 objectPosition.z -= static_cast<CGUnit_C*>(this)->m_unit->m_unitFieldHoverheight;
             }
         }
@@ -1818,7 +1818,7 @@ attachments:
                 objectPosition = this->GetRawPosition();
                 transport.m_guid = this->GetTransportGUID();
 
-                if ((this->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(this)->m_movement->m_flags & 0x40000000)) {
+                if ((this->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(this)->m_movement->m_flags & MOVEMENTFLAG_HOVER)) {
                     objectPosition.z -= static_cast<CGUnit_C*>(this)->m_unit->m_unitFieldHoverheight;
                 }
             }

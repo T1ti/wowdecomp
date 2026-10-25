@@ -14,6 +14,7 @@
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "GameVersion.h"
 
 static const uint32_t kNullTmu = 0xFFFFFFFF;
 
@@ -1709,7 +1710,7 @@ static HWND CreateGameWindow(CGxFormat& format, void* param) {
         height += CGxDevice::s_clientAdjust.y;
     }
 
-    return CreateWindowExA(WS_EX_APPWINDOW, "GxWindowClassOpenGl", "World of Warcraft", style, format.m_pos.x, format.m_pos.y, width, height, nullptr, nullptr, instance, param);
+    return CreateWindowExA(WS_EX_APPWINDOW, "GxWindowClassOpenGl", CLIENT_NAME, style, format.m_pos.x, format.m_pos.y, width, height, nullptr, nullptr, instance, param);
 }
 
 // VERIFY: 23cf22a4 auto

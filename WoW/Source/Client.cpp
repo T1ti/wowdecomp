@@ -112,6 +112,7 @@
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/FriendList.h"
 #include "WoW/Source/WowSysMessageOutput.h"
+#include "GameVersion.h"
 
 namespace {
 
@@ -866,7 +867,7 @@ static void LoadMFIL(const char* file) {
         InitOggDecompression();
     }
 
-    SFile::SetStreamingStatus(s_streamingDiag & 1, (s_streamingDiag >> 1) & 1, (s_streamingDiag >> 2) & 1, (s_streamingDiag >> 3) & 1, 12340);
+    SFile::SetStreamingStatus(s_streamingDiag & 1, (s_streamingDiag >> 1) & 1, (s_streamingDiag >> 2) & 1, (s_streamingDiag >> 3) & 1, GAME_BUILD);
 }
 
 // VERIFY: 4b6c1aaa auto
@@ -881,7 +882,7 @@ void StartupReport(bool firstRun) {
     Blizzard::Streaming::FileManifest::SetSpeedTest(speedTest);
     StartupReportSetSpeedTest(speedTest);
     Tracker::SetLocale(CVar::Lookup("locale")->m_stringValue.m_str);
-    Tracker::SetBuildnum(12340);
+    Tracker::SetBuildnum(GAME_BUILD);
     StartupReportSendTelemetry(true, firstRun);
     World::SetFrameCntCallback(StartupReportFrameCallback);
 }
@@ -1165,7 +1166,7 @@ static void LogZoneInfo(CGObject_C* object, char* buffer, uint32_t size) {
 // VERIFY: 4c651ee9 manual
 // OFFSET: 0x00404B80
 int32_t STORMAPI WowLogHeader(char* buffer, uint32_t bufferchars) {
-    SStrPrintf(buffer, bufferchars, "WoWBuild: %d\r\n", 12340);
+    SStrPrintf(buffer, bufferchars, "WoWBuild: %d\r\n", GAME_BUILD);
 
     if (ClntObjMgrIsValid(0)) {
         CGObject_C* player = ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__);
@@ -1757,10 +1758,7 @@ bool InitializeGlobal() {
 
     g_startup_StringsDB.Load(__FILE__, __LINE__);
 
-    Startup_StringsRec* title = g_startup_StringsDB.GetRecord(1);
-    char windowTitle[260];
-    SStrCopy(windowTitle, title ? title->m_message : "World of Warcraft", STORM_MAX_STR);
-    ConsoleDeviceInitialize(windowTitle, 1, 1);
+    ConsoleDeviceInitialize(CLIENT_NAME, 1, 1);
 
     OsIMEInitialize();
     g_rndSeed.SetSeed(OsGetAsyncTimeMs());
@@ -1819,7 +1817,7 @@ int32_t CommonMain() {
         SRegSaveValue("World of Warcraft\\Client", "SendErrorLogs", 0, 1);
     }
 
-    SErrSetLogTitleString("World of WarCraft (build 12340)");
+    SErrSetLogTitleString("World of WarCraft (build " GAME_BUILD_STRING ")");
     SErrSetLogCallback(WowLogHeader);
 
     if (sendErrorLogs) {

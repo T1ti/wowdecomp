@@ -73,7 +73,7 @@ int32_t CGBag_C::FindItemSlot(const CGItem_C* item) const {
 // VERIFY: 121306f8 manual
 // OFFSET: 0x00754390
 const CGItem_C* CGBag_C::GetItemPointer(int32_t slot) const {
-    if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || static_cast<uint32_t>(slot - BANKBAG_FIRST) <= 6) && !CGBankInfo::m_banker) || slot >= this->m_numSlots) {
+    if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || static_cast<uint32_t>(slot - BANKBAG_FIRST) <= BANKBAG_LAST - BANKBAG_FIRST) && !CGBankInfo::m_banker) || slot >= this->m_numSlots) {
         return nullptr;
     }
 
@@ -85,7 +85,7 @@ const CGItem_C* CGBag_C::GetItemPointer(int32_t slot) const {
 // VERIFY: 6a3b7079 manual
 // OFFSET: 0x00754400
 CGItem_C* CGBag_C::GetItemPointer(int32_t slot) {
-    if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || static_cast<uint32_t>(slot - BANKBAG_FIRST) <= 6) && !CGBankInfo::m_banker) || slot >= this->m_numSlots) {
+    if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || static_cast<uint32_t>(slot - BANKBAG_FIRST) <= BANKBAG_LAST - BANKBAG_FIRST) && !CGBankInfo::m_banker) || slot >= this->m_numSlots) {
         return nullptr;
     }
 
@@ -101,11 +101,11 @@ int32_t CGBag_C::GetNumFreeInvSlots() {
 
     for (uint32_t slot = 0; slot < static_cast<uint32_t>(this->m_numSlots); slot++) {
         if (this->m_hasBank) {
-            if (slot <= INVSLOT_TABARD || (slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST) || (slot >= KEYRING_FIRST && slot <= KEYRING_LAST) || (slot >= BUYBACK_FIRST && slot <= BUYBACK_LAST) || slot - CURRENCYTOKEN_FIRST <= 31) {
+            if (slot <= INVSLOT_TABARD || (slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST) || (slot >= KEYRING_FIRST && slot <= KEYRING_LAST) || (slot >= BUYBACK_FIRST && slot <= BUYBACK_LAST) || slot - CURRENCYTOKEN_FIRST <= CURRENCYTOKEN_LAST - CURRENCYTOKEN_FIRST) {
                 continue;
             }
 
-            if (slot - INVSLOT_BAG0 <= 3) {
+            if (slot - INVSLOT_BAG0 <= INVSLOT_BAG3 - INVSLOT_BAG0) {
                 WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
                 CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
@@ -144,7 +144,7 @@ uint32_t CGBag_C::GetAvgEquippedDurability() const {
     int32_t maxDurability = 0;
 
     for (uint32_t slot = 0; slot <= INVSLOT_TABARD; slot++) {
-        if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || slot - BANKBAG_FIRST <= 6) && !CGBankInfo::m_banker) || static_cast<int32_t>(slot) >= this->m_numSlots) {
+        if ((this->m_hasBank && ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || slot - BANKBAG_FIRST <= BANKBAG_LAST - BANKBAG_FIRST) && !CGBankInfo::m_banker) || static_cast<int32_t>(slot) >= this->m_numSlots) {
             continue;
         }
 
@@ -183,7 +183,7 @@ int32_t CGBag_C::GetNumItems() const {
 // VERIFY: 724d9331 auto
 // OFFSET: 0x00753A50
 static int32_t __stdcall SlotMatchesSearchFlags(uint32_t slot, uint32_t flags) {
-    return (slot <= INVSLOT_TABARD && (flags & BAG_SEARCH_EQUIPMENT)) || (slot - BACKPACK_FIRST <= 15 && (flags & BAG_SEARCH_BACKPACK)) || (slot - INVSLOT_BAG0 <= 3 && (flags & BAG_SEARCH_BAG_SLOTS)) || (((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || slot - BANKBAG_FIRST <= 6) && (flags & BAG_SEARCH_BANK)) || (slot - KEYRING_FIRST <= 31 && (flags & BAG_SEARCH_KEYRING)) || (slot - CURRENCYTOKEN_FIRST <= 31 && (flags & BAG_SEARCH_CURRENCY));
+    return (slot <= INVSLOT_TABARD && (flags & BAG_SEARCH_EQUIPMENT)) || (slot - BACKPACK_FIRST <= BACKPACK_LAST - BACKPACK_FIRST && (flags & BAG_SEARCH_BACKPACK)) || (slot - INVSLOT_BAG0 <= INVSLOT_BAG3 - INVSLOT_BAG0 && (flags & BAG_SEARCH_BAG_SLOTS)) || (((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || slot - BANKBAG_FIRST <= BANKBAG_LAST - BANKBAG_FIRST) && (flags & BAG_SEARCH_BANK)) || (slot - KEYRING_FIRST <= KEYRING_LAST - KEYRING_FIRST && (flags & BAG_SEARCH_KEYRING)) || (slot - CURRENCYTOKEN_FIRST <= CURRENCYTOKEN_LAST - CURRENCYTOKEN_FIRST && (flags & BAG_SEARCH_CURRENCY));
 }
 
 // VERIFY: ddfa3202 auto

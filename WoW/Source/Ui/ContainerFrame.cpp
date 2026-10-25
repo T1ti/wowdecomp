@@ -119,7 +119,7 @@ void CGContainerInfo::UpdateCooldowns() {
 // VERIFY: 1e625228 manual
 // OFFSET: 0x005D6F20
 WOWGUID GetBagAtIndex(uint32_t index) {
-    if (index <= 10 && (index < NUM_BAG_SLOTS || CGBankInfo::m_banker)) {
+    if (index <= TOTAL_BAG_SLOTS - 1 && (index < NUM_BAG_SLOTS || CGBankInfo::m_banker)) {
         return CGContainerInfo::m_containers[index];
     }
 
@@ -355,7 +355,7 @@ int32_t UpdateInvContents(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize
     CGGameUI::m_autoStoreItemID = 0;
     CGContainerInfo::UpdateContents(guid);
 
-    if ((oldItem && oldItem->GetClassID() == 10) || (newItem && newItem->GetClassID() == 10) || slot - CURRENCYTOKEN_FIRST <= 31) {
+    if ((oldItem && oldItem->GetClassID() == 10) || (newItem && newItem->GetClassID() == 10) || slot - CURRENCYTOKEN_FIRST <= CURRENCYTOKEN_LAST - CURRENCYTOKEN_FIRST) {
         CGCurrencyTypes::EnterWorld();
     }
 

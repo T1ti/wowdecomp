@@ -35,6 +35,7 @@
 #include "WoW/Source/WowServices/Login.h"
 #include "WoW/Source/WowServices/LoginResponse.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/AccountData.h"
+#include "GameVersion.h"
 
 // STATIC: 0x00AD91F0
 static const char* s_errorTokens[] = {
@@ -731,7 +732,7 @@ int32_t SendBugOpcode(uint32_t suggestion, const char* text) {
     OsGetVersionString(line, sizeof(line));
     SStrPack(info, line, sizeof(info));
     SStrPack(info, "\n", sizeof(info));
-    SStrPrintf(line, sizeof(line), "Version:\t%s\n", "WoW [Release] Build 12340 (Jun 24 2010 23:54:57)");
+    SStrPrintf(line, sizeof(line), "Version:\t%s\n", "WoW [Release] Build " GAME_BUILD_STRING " (" GAME_BUILD_DATE " " GAME_BUILD_TIME ")");
     SStrPack(info, line, sizeof(info));
     const char* account = ClientServices::s_accountName[0] ? ClientServices::s_accountName : nullptr;
 
