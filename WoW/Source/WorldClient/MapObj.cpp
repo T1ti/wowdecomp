@@ -147,7 +147,7 @@ C3Vector s_camTargetLocal;
 C4Plane s_camPlaneLocal;
 
 // STATIC: 0x00CFBEA8
-static int32_t s_shadowInterior;
+static CMapObj::SHADOW_CONTEXT s_shadowInterior;
 
 // STATIC: 0x00CFBEB0
 static int32_t s_fogMode;
@@ -923,7 +923,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
     s_fogMode = -1;
     CMapObj::s_lightingMode = CMapObj::LIGHTING_MODE::CACHE_INVALID;
     s_lastSidnColor = 0xFFFFFFFF;
-    s_shadowInterior = -1;
+    s_shadowInterior = CMapObj::SHADOW_CONTEXT::INVALID;
 
     if (!CShaderEffect::s_enableShaders) {
         GxRsSet(GxRs_ColorMaterial, static_cast<int32_t>(2));
@@ -1002,8 +1002,8 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             if (group->m_flags & 0x48) {
                 CMapObjGroup::SetLighting(group, (material.m_flags & 0x1) == 0);
                 if (s_shadowInterior) {
-                    s_shadowInterior = 0;
-                    CShadowCache::SetShadowMapGenericInterior(0);
+                    s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
+                    CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
                     CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
                 }
 
@@ -1015,9 +1015,9 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
                     CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
                 }
 
-                if (s_shadowInterior != 1) {
-                    s_shadowInterior = 1;
-                    CShadowCache::SetShadowMapGenericInterior(1);
+                if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
+                    s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
+                    CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
                     CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
                 }
 
@@ -1039,8 +1039,8 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : 0);
         if (s_shadowInterior) {
-            s_shadowInterior = 0;
-            CShadowCache::SetShadowMapGenericInterior(0);
+            s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
+            CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
             CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
         }
 
@@ -1060,9 +1060,9 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
             CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
             SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : 0);
-            if (s_shadowInterior != 1) {
-                s_shadowInterior = 1;
-                CShadowCache::SetShadowMapGenericInterior(1);
+            if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
+                s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
+                CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
                 CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
             }
 
@@ -1352,7 +1352,7 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
     s_fogMode = -1;
     CMapObj::s_lightingMode = CMapObj::LIGHTING_MODE::CACHE_INVALID;
     s_lastSidnColor = 0xFFFFFFFF;
-    s_shadowInterior = -1;
+    s_shadowInterior = CMapObj::SHADOW_CONTEXT::INVALID;
 
     CGxTex* defaultTex = nullptr;
 
@@ -1409,14 +1409,14 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
 
         if (group->m_flags & 0x48) {
             if (s_shadowInterior) {
-                s_shadowInterior = 0;
-                CShadowCache::SetShadowMapGenericInterior(0);
+                s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
+                CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
                 CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
             }
         } else {
-            if (s_shadowInterior != 1) {
-                s_shadowInterior = 1;
-                CShadowCache::SetShadowMapGenericInterior(1);
+            if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
+                s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
+                CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
                 CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
             }
         }
@@ -1470,7 +1470,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
     s_fogMode = -1;
     CMapObj::s_lightingMode = CMapObj::LIGHTING_MODE::CACHE_INVALID;
     s_lastSidnColor = 0xFFFFFFFF;
-    s_shadowInterior = -1;
+    s_shadowInterior = CMapObj::SHADOW_CONTEXT::INVALID;
 
     int32_t fogMode = 2 - (s_curGroupIsInterior != 0);
     CGxTex* defaultTex = nullptr;
@@ -1551,9 +1551,9 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
                 CMapObjGroup::SetLighting(group, ((material.m_flags & 0x20) != 0) + 1);
             }
 
-            if (s_shadowInterior != 1) {
-                s_shadowInterior = 1;
-                CShadowCache::SetShadowMapGenericInterior(1);
+            if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
+                s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
+                CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
                 CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
             }
 
@@ -1571,8 +1571,8 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         }
 
         if (s_shadowInterior) {
-            s_shadowInterior = 0;
-            CShadowCache::SetShadowMapGenericInterior(0);
+            s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
+            CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
             CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
         }
 
@@ -1591,9 +1591,9 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
 
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::UNLIT);
         SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : 0);
-        if (s_shadowInterior != 1) {
-            s_shadowInterior = 1;
-            CShadowCache::SetShadowMapGenericInterior(1);
+        if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
+            s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
+            CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
             CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
         }
 
