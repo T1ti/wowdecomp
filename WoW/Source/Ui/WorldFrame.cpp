@@ -939,7 +939,7 @@ void CGWorldFrame::UpdateScreenEffectParams() {
 
     float glow = DayNight::GetInfo()->m_bands.m_glow * 255.0f + 512.0f;
     uint8_t glowLevel = *reinterpret_cast<uint32_t*>(&glow) >> 14;
-    int32_t underwater = 0;
+    EffectGlow::PASS_SEQUENCE underwater = EffectGlow::PASS_SEQUENCE::STANDARD_PASSES;
     uint8_t minimum = 0;
     uint8_t level = minimum;
 
@@ -952,7 +952,7 @@ void CGWorldFrame::UpdateScreenEffectParams() {
 
             if (World::SceneCamLiquidStatus(nullptr)) {
                 minimum = 84;
-                underwater = 1;
+                underwater = EffectGlow::PASS_SEQUENCE::ALTERNATE_PASSES;
             }
 
             level = drunkLevel > minimum ? drunkLevel : minimum;
