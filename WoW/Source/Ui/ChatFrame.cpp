@@ -3407,10 +3407,10 @@ const char* CGChat::GetChannelStringForDisplay(int32_t session, int32_t* type) {
         return nullptr;
     }
 
-    int32_t displayType = CGChat::s_displayChannels[session].m_type;
+    DisplayChannel::TYPE displayType = CGChat::s_displayChannels[session].m_type;
 
     if (displayType) {
-        if (displayType == 2 || displayType == 3 || displayType == 1) {
+        if (displayType == DisplayChannel::TYPE::PARTY || displayType == DisplayChannel::TYPE::RAID || displayType == DisplayChannel::TYPE::BATTLEGROUND) {
             *type = displayType;
             return "";
         }
@@ -3436,7 +3436,7 @@ const char* CGChat::GetChannelStringForDisplay(int32_t session, int32_t* type) {
         return nullptr;
     }
 
-    *type = 0;
+    *type = DisplayChannel::TYPE::CHANNEL;
     return channel->m_name;
 }
 
@@ -3729,7 +3729,7 @@ void RebuildDisplayChannelList(int32_t signal) {
     group->m_headerIndex = 0;
     group->m_collapsed = s_collapsedHeaders[0];
     group->m_flags = 0;
-    group->m_type = 4;
+    group->m_type = DisplayChannel::TYPE::HEADER;
     group->m_voiceEnabled = 0;
     group->m_count = party;
 
@@ -3749,7 +3749,7 @@ void RebuildDisplayChannelList(int32_t signal) {
             entry->m_collapsed = 0;
             entry->m_flags = 0;
             entry->m_enabled = 1;
-            entry->m_type = 2;
+            entry->m_type = DisplayChannel::TYPE::PARTY;
             entry->m_voiceEnabled = ComSatClient_HasSession(COMSATDATA::SESSION_TYPE::PARTY, "");
             entry->m_count = CGPartyInfo::GetNumPartyMembers() + 1;
 
@@ -3765,7 +3765,7 @@ void RebuildDisplayChannelList(int32_t signal) {
             entry->m_collapsed = 0;
             entry->m_flags = 0;
             entry->m_enabled = 1;
-            entry->m_type = 3;
+            entry->m_type = DisplayChannel::TYPE::RAID;
             entry->m_voiceEnabled = ComSatClient_HasSession(COMSATDATA::SESSION_TYPE::RAID, "");
             entry->m_count = CGRaidInfo::m_numMembers;
 
@@ -3783,7 +3783,7 @@ void RebuildDisplayChannelList(int32_t signal) {
             entry->m_collapsed = 0;
             entry->m_flags = 0;
             entry->m_enabled = 1;
-            entry->m_type = 1;
+            entry->m_type = DisplayChannel::TYPE::BATTLEGROUND;
             entry->m_voiceEnabled = ComSatClient_HasSession(COMSATDATA::SESSION_TYPE::BATTLEGROUND, "");
             entry->m_count = CGRaidInfo::m_numMembers;
 
@@ -3805,7 +3805,7 @@ void RebuildDisplayChannelList(int32_t signal) {
         entry->m_collapsed = s_collapsedHeaders[header];
         entry->m_flags = 0;
         entry->m_enabled = 0;
-        entry->m_type = 4;
+        entry->m_type = DisplayChannel::TYPE::HEADER;
         entry->m_voiceEnabled = 0;
         entry->m_count = 0;
 
@@ -3834,7 +3834,7 @@ void RebuildDisplayChannelList(int32_t signal) {
                     entry->m_channelIndex = i;
                     entry->m_headerIndex = -1;
                     entry->m_enabled = channel->m_unk9C == 0;
-                    entry->m_type = 0;
+                    entry->m_type = DisplayChannel::TYPE::CHANNEL;
                     entry->m_voiceEnabled = 0;
                     entry->m_count = 0;
 
@@ -3862,7 +3862,7 @@ void RebuildDisplayChannelList(int32_t signal) {
                     entry->m_headerIndex = -1;
                     entry->m_flags = 0;
                     entry->m_enabled = channel->m_unkA0 == 0;
-                    entry->m_type = 0;
+                    entry->m_type = DisplayChannel::TYPE::CHANNEL;
                     entry->m_voiceEnabled = ComSatClient_HasSession(COMSATDATA::SESSION_TYPE::CHANNEL, channel->m_name);
                     entry->m_count = 0;
 
