@@ -1,4 +1,5 @@
 #include <cstddef>
+#include "WoW/Common/Types.h"
 #include <cstdint>
 #include <cmath>
 #include <cstring>
@@ -3425,7 +3426,7 @@ static bool __stdcall ItemDisplayHasGeosetGroup(uint32_t displayID, int32_t grou
 void CCharacterComponent::GeosRenderPrep() {
     bool eyeGlow = false;
 
-    if (this->m_data.m_preferences.m_classId == 6) {
+    if (this->m_data.m_preferences.m_classId == CLASS_DEATH_KNIGHT) {
         eyeGlow = true;
     } else {
         CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, nullptr);
