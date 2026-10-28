@@ -562,7 +562,7 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
         }
     }
 
-    if ((!item || !(item->m_flags[0] & 0x10000000)) && !Spell_C_HaveSpellTokens(unit, spell, false, nullptr)) {
+    if ((!item || !(item->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_NO_REAGENT_COST)) && !Spell_C_HaveSpellTokens(unit, spell, false, nullptr)) {
         return false;
     }
 
@@ -8381,7 +8381,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         return false;
     }
 
-    if ((!item || !(const_cast<CGItem_C*>(item)->GetItemStaticFlags(0) & 0x10000000)) && !Spell_C_HaveSpellTokens(unit, &spell, true, cast)) {
+    if ((!item || !(const_cast<CGItem_C*>(item)->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_NO_REAGENT_COST)) && !Spell_C_HaveSpellTokens(unit, &spell, true, cast)) {
         ReleasePendingSpellCast(cast);
         return false;
     }

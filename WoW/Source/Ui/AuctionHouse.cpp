@@ -1204,7 +1204,7 @@ bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, int32_t showError) {
         error = ERR_AUCTION_USED_CHARGES;
     } else if (item->IsBound()) {
         error = stats->m_bonding != 4 ? ERR_AUCTION_BOUND_ITEM : ERR_AUCTION_QUEST_ITEM;
-    } else if (item->GetItemStaticFlags(0) & ITEM_FLAG_CONJURED) {
+    } else if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_CONJURED) {
         error = ERR_AUCTION_CONJURED_ITEM;
     } else if (((item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_REAL_DURATION) && static_cast<int32_t>(stats->m_duration) > 0) || stats->m_holidayId) {
         error = ERR_AUCTION_LIMITED_DURATION_ITEM;
@@ -1219,7 +1219,7 @@ bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, int32_t showError) {
             error = ERR_AUCTION_BAG;
         } else if (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
             error = ERR_AUCTION_WRAPPED_ITEM;
-        } else if (item->GetItemStaticFlags(0) & ITEM_FLAG_HAS_LOOT) {
+        } else if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_HAS_LOOT) {
             error = ERR_AUCTION_LOOT_ITEM;
         } else {
             return true;

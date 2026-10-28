@@ -4125,7 +4125,7 @@ static int32_t Script_GetItemUniqueness(lua_State* L) {
         return 0;
     }
 
-    if (stats->m_flags[0] & 0x80000) {
+    if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_UNIQUE_EQUIPPABLE) {
         lua_pushnumber(L, -1.0);
         lua_pushnumber(L, 1.0);
         return 2;
@@ -5009,7 +5009,7 @@ static int32_t Script_IsUsableItem(lua_State* L) {
         if (stats) {
             MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-            if (map && map->m_instanceType == 4 && !(stats->m_flags[0] & 0x200000)) {
+            if (map && map->m_instanceType == 4 && !(stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS)) {
                 CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
                 uint32_t cooldown;
                 uint32_t categoryCooldown;
@@ -5459,7 +5459,7 @@ static int32_t Script_DeleteCursorItem(lua_State* L) {
     uint8_t bag = player->FindSlotIndex(CGGameUI::m_cursorItemContainer);
     CGItem_C* object = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(item, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (object && (object->GetItemStaticFlags(0) & 0x20)) {
+    if (object && (object->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_NO_USER_DESTROY)) {
         CGGameUI::DisplayError(ERR_ITEM_CANT_BE_DESTROYED);
         return 0;
     }

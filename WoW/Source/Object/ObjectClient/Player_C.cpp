@@ -5994,7 +5994,7 @@ void CGPlayer_C::CountEquippedGems() {
             int32_t enchantId;
 
             if (ClntObjMgrGetActivePlayer() == this->m_obj->m_guid) {
-                enchantId = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[socket].m_id;
+                enchantId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[socket].m_id;
             } else if (socket <= 11) {
                 enchantId = inspect->m_enchants[socket];
             } else {
@@ -6256,12 +6256,12 @@ int32_t CGPlayer_C::OnPetitionRename(CDataStore* msg) {
 
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!item || !(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) || !item->m_item->m_itemFieldEnchantment[0].m_id) {
+    if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) || !item->m_item->m_itemFieldEnchantment[0].m_id) {
         return 1;
     }
 
     WOWGUID none = WOWGUID();
-    int32_t id = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+    int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
     CGPetition* petition = g_petitionCache.GetRecord(id, none, nullptr, nullptr, false);
 
     if (petition) {
@@ -6297,11 +6297,11 @@ void CGPlayer_C::TurnInGuildCharter() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-        if (!item || !(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION)) {
+        if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
             continue;
         }
 
-        int32_t id = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+        int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
         CGPetition* petition = g_petitionCache.GetRecord(id, guid, GuildCharterTurnInCallback, nullptr, false);
 
         if (!petition) {
@@ -6336,11 +6336,11 @@ void CGPlayer_C::TurnInGuildCharter() {
 
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-            if (!item || !(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION)) {
+            if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
                 continue;
             }
 
-            int32_t id = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+            int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
             CGPetition* petition = g_petitionCache.GetRecord(id, guid, GuildCharterTurnInCallback, nullptr, false);
 
             if (!petition) {
@@ -6398,11 +6398,11 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
         charter = item;
 
-        if (!item || !(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION)) {
+        if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
             continue;
         }
 
-        int32_t id = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+        int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
         CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
         if (petition && petition->m_staticType == 1 && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
@@ -6434,11 +6434,11 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
 
             charter = item;
 
-            if (!(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION)) {
+            if (!(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
                 continue;
             }
 
-            int32_t id = (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+            int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
             CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
             if (petition && petition->m_staticType == 1 && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
@@ -6608,7 +6608,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(this->m_bag.m_slots[i], TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & 0x1000)) {
+        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
             item->RequestItemPurchaseData();
         }
     }
@@ -6620,7 +6620,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(this->m_bag.m_slots[i], TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & 0x1000)) {
+        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
             item->RequestItemPurchaseData();
         }
     }
@@ -6642,7 +6642,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bag->m_slots[j], TYPE_ITEM, __FILE__, __LINE__));
 
-            if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & 0x1000)) {
+            if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
                 item->RequestItemPurchaseData();
             }
         }
@@ -6904,7 +6904,7 @@ int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
         return 0;
     }
 
-    if (stats->m_requiredSkill && !(stats->m_flags[0] & 0x20040000)) {
+    if (stats->m_requiredSkill && !(stats->m_flags[0] & (ITEM_STATIC_FLAGS::ITEM_FLAG_IS_PROSPECTABLE | ITEM_STATIC_FLAGS::ITEM_FLAG_IS_MILLABLE))) {
         int32_t index = this->GetSkillIndex(stats->m_requiredSkill);
 
         if (index < 0 || static_cast<int32_t>(this->GetSkillValue(index)) < static_cast<int32_t>(stats->m_requiredSkillRank)) {
@@ -7840,7 +7840,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestComplete(CDataStore* msg) {
 // VERIFY: 6f6228c3 manual
 // OFFSET: 0x00518B30
 uint32_t CGItem::GetEnchantmentId(int32_t slot) {
-    if (this->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) {
+    if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
         return 0;
     }
 
@@ -7860,7 +7860,7 @@ int32_t CGPlayer_C::GetCharacterPoints(int32_t index) const {
 // VERIFY: 970a6a97 manual
 // OFFSET: 0x005E8290
 uint32_t CGItem::GetEnchantmentDuration(int32_t slot) {
-    if (this->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) {
+    if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
         return 0;
     }
 
@@ -10672,7 +10672,7 @@ applyEffects:
 // VERIFY: f9d20eba manual
 // OFFSET: 0x005E82C0
 int32_t CGItem::GetEnchantmentCharges(int32_t slot) {
-    if (this->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) {
+    if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
         return 0;
     }
 

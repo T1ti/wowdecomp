@@ -457,7 +457,7 @@ void CGLootInfo::DoAutoLoot(int32_t a1) {
 
         ItemStats_C* stats = g_itemDBCache.GetRecord(slot.m_itemID, CGLootInfo::m_lootObj, nullptr, nullptr, false);
 
-        if (stats->m_bonding != 1 || stats->m_quality < 2 || (stats->m_flags[0] & 0x800) || slotType == 4) {
+        if (stats->m_bonding != 1 || stats->m_quality < 2 || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == 4) {
             SI2::PlayItemSound(ITEMSOUND_PICKUP, stats->m_displayId);
             CGPlayer_C::AutoStoreLootItem(slot.m_slot);
         } else if (!confirmShown) {
@@ -547,7 +547,7 @@ void CGLootInfo::LootSlot(uint32_t slot) {
             break;
         }
 
-        if (stats->m_bonding != 1 || stats->m_quality < 2 || (stats->m_flags[0] & 0x800) || slotType == 4) {
+        if (stats->m_bonding != 1 || stats->m_quality < 2 || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == 4) {
             SI2::PlayItemSound(ITEMSOUND_PICKUP, stats->m_displayId);
             CGPlayer_C::AutoStoreLootItem(entry.m_slot);
         } else if (player->GetBag()->ItemCountValid(entry.m_itemID, stats, entry.m_count, true)) {

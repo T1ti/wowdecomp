@@ -1100,7 +1100,7 @@ bool CGMailInfo::AddItemToOutgoingMail(uint32_t index, WOWGUID item, WOWGUID con
         }
     }
 
-    if (object->GetItemStaticFlags(0) & ITEM_FLAG_CONJURED) {
+    if (object->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_CONJURED) {
         CGGameUI::DisplayError(ERR_MAIL_CONJURED_ITEM);
         return false;
     }

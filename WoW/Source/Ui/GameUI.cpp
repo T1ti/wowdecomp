@@ -2738,7 +2738,7 @@ void CGGameUI::DeleteCursorItem() {
         return;
     }
 
-    if (item->GetItemStaticFlags(0) & 0x20) {
+    if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_NO_USER_DESTROY) {
         CGGameUI::DisplayError(ERR_ITEM_CANT_BE_DESTROYED);
         return;
     }
@@ -4739,7 +4739,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
         int32_t effect = spell.m_effect[i];
 
         if (effect == SPELL_EFFECT_ENCHANT_ITEM || effect == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY || effect == SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC) {
-            if (item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION) {
+            if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
                 return;
             }
 
@@ -4800,7 +4800,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
 
             uint32_t slot = spell.m_effect[i] != SPELL_EFFECT_ENCHANT_ITEM;
 
-            if (!(item->GetItemStaticFlags(0) & ITEM_FLAG_PETITION)) {
+            if (!(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
                 int32_t existingId = item->m_item->m_itemFieldEnchantment[slot].m_id;
 
                 if (existingId) {
@@ -4823,12 +4823,12 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
             continue;
         }
 
-        if (effect == SPELL_EFFECT_PROSPECTING && !(item->GetItemStaticFlags(0) & 0x40000)) {
+        if (effect == SPELL_EFFECT_PROSPECTING && !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_PROSPECTABLE)) {
             Spell_C_SpellFailed(cast, &spell, 17, -1, -1, 0);
             return;
         }
 
-        if (spell.m_effect[i] == SPELL_EFFECT_MILLING && !(item->GetItemStaticFlags(0) & 0x20000000)) {
+        if (spell.m_effect[i] == SPELL_EFFECT_MILLING && !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_MILLABLE)) {
             Spell_C_SpellFailed(cast, &spell, 16, -1, -1, 0);
             return;
         }
