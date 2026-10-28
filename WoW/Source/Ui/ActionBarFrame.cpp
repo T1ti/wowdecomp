@@ -188,7 +188,7 @@ int32_t CGActionBar::GetSpell(uint32_t slot, int32_t& petSpell) {
         int32_t spellId = CGActionBar::GetPetActionSpell(slot);
         SpellRec spell;
 
-        if (!g_spellDB.GetRecord(spellId, &spell) || !(spell.m_attributesExB & 0x40000)) {
+        if (!g_spellDB.GetRecord(spellId, &spell) || !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_REQ_DEAD_PET)) {
             petSpell = 1;
         }
 
@@ -257,7 +257,7 @@ int32_t CGActionBar::IsRangedAttackAction(uint32_t slot) {
     SpellRec spell;
     int32_t petSpell;
 
-    if (g_spellDB.GetRecord(CGActionBar::GetSpell(slot, petSpell), &spell) && (spell.m_attributes & 0x2) && (spell.m_attributesExB & 0x20)) {
+    if (g_spellDB.GetRecord(CGActionBar::GetSpell(slot, petSpell), &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT)) {
         return 1;
     }
 
@@ -341,7 +341,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
             return 0;
         }
 
-        if (player->m_unit->m_unitFieldFlags & 0x100000) {
+        if (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) {
             return 1;
         }
     }
@@ -402,7 +402,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
     }
 
     if (attack) {
-        return !(player->m_unit->m_unitFieldFlags & 0x20000) && !(player->m_player->m_playerFlags & 0x1000000);
+        return !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) && !(player->m_player->m_playerFlags & 0x1000000);
     }
 
     if (CGActionBar::IsItem(slot) || (CGActionBar::IsMacro(slot) && CGActionBar::HasMacro(slot))) {
@@ -580,7 +580,7 @@ uint32_t CGActionBar::GetMultiCastSlotMaskForTotemCategory(int32_t category) {
 // VERIFY: 48490470 manual
 // OFFSET: 0x005A7BC0
 int32_t IsMultiCastSpellForSlot(int32_t slot, const SpellRec* spell, int32_t* category) {
-    int32_t totem = (spell->m_attributesExG & 0x20) ? 1 : 0;
+    int32_t totem = (spell->m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_CAN_BE_MULTI_CAST) ? 1 : 0;
     *category = GetMultiCastTotemCategory(slot);
 
     if (!totem || !*category) {
@@ -683,7 +683,7 @@ const char* CGActionBar::GetRangedTexture() {
         return nullptr;
     }
 
-    if (player->m_unit->m_unitFieldFlags2 & 0x400) {
+    if (player->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_RANGED) {
         return nullptr;
     }
 
@@ -1124,7 +1124,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
             return;
         }
 
-        if (spell.m_attributes & 0x40) {
+        if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE) {
             CGGameUI::DisplayError(ERR_PASSIVE_ABILITY);
             return;
         }

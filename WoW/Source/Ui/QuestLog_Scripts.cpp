@@ -871,7 +871,7 @@ static int32_t Script_GetQuestLogRewardSpell(lua_State* L) {
 
     lua_pushstring(L, spell.m_name);
 
-    if (spell.m_attributes & 0x20) {
+    if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

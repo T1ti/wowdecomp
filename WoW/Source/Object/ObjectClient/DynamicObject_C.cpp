@@ -296,7 +296,7 @@ void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
     g_spellDB.GetRecord(this->m_dynamicObject->m_spellID, &spell);
     SpellVisualEffectNameRec* effect = this->GetVisualEffectNameRec(&spell);
 
-    if (spell.m_id && (spell.m_attributesExE & 0x40000000)) {
+    if (spell.m_id && (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE)) {
         model->m_fFlags |= 0x4;
     }
 

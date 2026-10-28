@@ -945,7 +945,7 @@ static int32_t Script_AcceptBattlefieldPort(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player && accept && !IsCurrentMapArena()) {
-        if (player->m_unit->m_unitFieldFlags & 0x800) {
+        if (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PET_IN_COMBAT) {
             CGGameUI::DisplayError(ERR_NOT_IN_COMBAT);
             lua_pushnil(L);
             return 1;

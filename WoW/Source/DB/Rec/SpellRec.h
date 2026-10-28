@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 
 class SFileImpl;
 
@@ -16,14 +17,14 @@ class SpellRec {
     /* 0004 */ int32_t m_category;
     /* 0008 */ int32_t m_dispelType;
     /* 000C */ int32_t m_mechanic;
-    /* 0010 */ int32_t m_attributes;
-    /* 0014 */ int32_t m_attributesEx;
-    /* 0018 */ int32_t m_attributesExB;
-    /* 001C */ int32_t m_attributesExC;
-    /* 0020 */ int32_t m_attributesExD;
-    /* 0024 */ int32_t m_attributesExE;
-    /* 0028 */ int32_t m_attributesExF;
-    /* 002C */ int32_t m_attributesExG;
+    /* 0010 */ SPELL_ATTR0 m_attributes;
+    /* 0014 */ SPELL_ATTR1 m_attributesEx;
+    /* 0018 */ SPELL_ATTR2 m_attributesExB;
+    /* 001C */ SPELL_ATTR3 m_attributesExC;
+    /* 0020 */ SPELL_ATTR4 m_attributesExD;
+    /* 0024 */ SPELL_ATTR5 m_attributesExE;
+    /* 0028 */ SPELL_ATTR6 m_attributesExF;
+    /* 002C */ SPELL_ATTR7 m_attributesExG;
     /* 0030 */ int32_t m_shapeshiftMask [2];
     /* 0038 */ int32_t m_shapeshiftExclude [2];
     /* 0040 */ int32_t m_targets;

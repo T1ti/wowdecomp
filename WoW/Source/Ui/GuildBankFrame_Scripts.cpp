@@ -505,7 +505,7 @@ static int32_t Script_SplitGuildBankItem(lua_State* L) {
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & 0x100000))) {
+    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI))) {
         return 0;
     }
 

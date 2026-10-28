@@ -225,11 +225,11 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
             return 0;
         }
 
-        if (!(spell.m_attributesExE & 0x8) && (pet->m_unit->m_unitFieldFlags & 0x40000)) {
+        if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_STUNNED) && (pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED)) {
             stunned++;
-        } else if (!(spell.m_attributesExE & 0x20000) && (pet->m_unit->m_unitFieldFlags & 0x800000)) {
+        } else if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_FLEEING) && (pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_FLEEING)) {
             pacified++;
-        } else if (!(spell.m_attributesExE & 0x40000) && (pet->m_unit->m_unitFieldFlags & 0x400000)) {
+        } else if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_CONFUSED) && (pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_CONFUSED)) {
             silenced++;
         }
 
@@ -371,7 +371,7 @@ int32_t Packet_Group_7(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
                     SStrCopy(name, spell.m_name, sizeof(name));
                 }
 
-                CGGameUI::DisplayError(static_cast<UIErrors>(ERR_PET_LEARN_SPELL_S + ((spell.m_attributes & 0x10) != 0)), name);
+                CGGameUI::DisplayError(static_cast<UIErrors>(ERR_PET_LEARN_SPELL_S + ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY) != 0)), name);
             }
 
             break;
@@ -460,7 +460,7 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
     if ((action.m_data & 0x3F000000) == 0x1000000) {
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(action.m_data & 0xFFFFFF, &spell) && (spell.m_attributes & 0x40)) {
+        if (g_spellDB.GetRecord(action.m_data & 0xFFFFFF, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
             return 0;
         }
     }
@@ -695,11 +695,11 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
                         return;
                     }
 
-                    if (!(spell.m_attributesExE & 0x8) && (unit->m_unit->m_unitFieldFlags & 0x40000)) {
+                    if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_STUNNED) && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED)) {
                         pacified++;
-                    } else if (!(spell.m_attributesExE & 0x20000) && (unit->m_unit->m_unitFieldFlags & 0x800000)) {
+                    } else if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_FLEEING) && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_FLEEING)) {
                         silenced++;
-                    } else if (!(spell.m_attributesExE & 0x40000) && (unit->m_unit->m_unitFieldFlags & 0x400000)) {
+                    } else if (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_CONFUSED) && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_CONFUSED)) {
                         disarmed++;
                     }
                 }
@@ -709,7 +709,7 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
                 }
             }
 
-            if (!(spell.m_attributesExD & 0x20) && player->GetPossessedUnit() != pet) {
+            if (!(spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_ALLOW_CLIENT_TARGETING) && player->GetPossessedUnit() != pet) {
                 Spell_C_StartSpellCooldown(&spell, pet);
                 break;
             }

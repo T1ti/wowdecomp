@@ -2067,7 +2067,7 @@ void CGMinimapFrame::Render() {
             WOWGUID playerGuid = param.m_player->m_obj->m_guid;
             CGUnitData* unitData = vehicle->m_unit;
 
-            if (unitData->m_unitFieldFlags & 0x1000000) {
+            if (unitData->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) {
                 const WOWGUID& controller = unitData->m_unitFieldCharmedby ? unitData->m_unitFieldCharmedby : unitData->m_unitFieldCreatedby;
 
                 if (playerGuid == controller) {
@@ -2086,11 +2086,11 @@ void CGMinimapFrame::Render() {
 
             switch (vehicleRec->m_uiLocomotionType) {
                 case 0:
-                    list = (vehicle->m_unit->m_unitFieldFlags & 0x1000000) ? &s_objInfo[MINIMAP_VEHICLE_GROUND_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_GROUND_UNOCCUPIED];
+                    list = (vehicle->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) ? &s_objInfo[MINIMAP_VEHICLE_GROUND_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_GROUND_UNOCCUPIED];
                     break;
 
                 case 1:
-                    list = (vehicle->m_unit->m_unitFieldFlags & 0x1000000) ? &s_objInfo[MINIMAP_VEHICLE_AIR_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_AIR_UNOCCUPIED];
+                    list = (vehicle->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) ? &s_objInfo[MINIMAP_VEHICLE_AIR_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_AIR_UNOCCUPIED];
                     break;
 
                 case 3:
@@ -2408,7 +2408,7 @@ static void SetMemberData(WOWGUID guid, MEMBERINFO* member, CGPlayer_C* player, 
                 bool shown = vehicleRec && (vehicleRec->m_flags & 0x10000000);
                 CGUnitData* unitData = vehicle->m_unit;
 
-                if (unitData->m_unitFieldFlags & 0x1000000) {
+                if (unitData->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) {
                     const WOWGUID& controller = unitData->m_unitFieldCharmedby ? unitData->m_unitFieldCharmedby : unitData->m_unitFieldCreatedby;
 
                     if (guid == controller && shown) {

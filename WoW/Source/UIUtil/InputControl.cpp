@@ -363,7 +363,7 @@ int32_t CGInputControl::CameraCanTurnPlayer() const {
             return 0;
         }
 
-        if ((mover->m_unit->m_unitFieldFlags & 0x40000) || mover->IsAlteredFormTransitionPreventingMovement() || mover->GetClientStandState()) {
+        if ((mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || mover->IsAlteredFormTransitionPreventingMovement() || mover->GetClientStandState()) {
             return 0;
         }
 
@@ -470,13 +470,13 @@ void CGInputControl::SetMouselookOverrideBinding(const char* key, const char* bi
 // VERIFY: 82de0c4b manual
 // OFFSET: 0x005FA0D0
 int32_t __stdcall CGInputControl::CanTurn(CGUnit_C* unit) {
-    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & 0x40000) && !unit->IsVehiclePreventingTurning();
+    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning();
 }
 
 // VERIFY: feb80d65 manual
 // OFFSET: 0x005FA110
 int32_t CGInputControl::CanSyncFreeLookFacing(CGUnit_C* unit) const {
-    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & 0x40000) && !unit->IsVehiclePreventingTurning() && (this->m_flags & INPUT_PLAYER_LOOK_MASK) && !unit->GetClientStandState();
+    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning() && (this->m_flags & INPUT_PLAYER_LOOK_MASK) && !unit->GetClientStandState();
 }
 
 // VERIFY: 83a6aa8d manual
@@ -516,7 +516,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
         return 0;
     }
 
-    if (mover->IsAlteredFormTransitionPreventingMovement() || (mover->m_unit->m_unitFieldFlags & 0x40000) || mover->GetClientStandState()) {
+    if (mover->IsAlteredFormTransitionPreventingMovement() || (mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || mover->GetClientStandState()) {
         return 0;
     }
 
@@ -1045,7 +1045,7 @@ void CGInputControl::AscendDescendPlayer(uint32_t time, CGUnit_C* unit) {
 void CGInputControl::MovePlayer(uint32_t time, CGUnit_C* unit) {
     int32_t direction = 0;
 
-    if ((unit->m_unit->m_unitFieldFlags2 & 0x40) || unit->IsVehicleCurrentlyUnstoppable()) {
+    if ((unit->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FORCE_MOVEMENT) || unit->IsVehicleCurrentlyUnstoppable()) {
         direction = 1;
     } else {
         uint32_t flags = this->m_flags;

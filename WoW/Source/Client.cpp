@@ -2065,10 +2065,10 @@ void ClientUpdateTaxiBenchmarkMode() {
     }
 
     if (s_clientTaxiBenchIsOnTaxi) {
-        if (!(player->m_unit->m_unitFieldFlags & 0x100000) || !(player->m_player->m_playerFlags & 0x20000)) {
+        if (!(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || !(player->m_player->m_playerFlags & 0x20000)) {
             ClientEndTaxiBenchmarkMode(0);
         }
-    } else if ((player->m_unit->m_unitFieldFlags & 0x100000) && (player->m_player->m_playerFlags & 0x20000)) {
+    } else if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & 0x20000)) {
         ClientBeginTaxiBenchmarkMode();
     }
 

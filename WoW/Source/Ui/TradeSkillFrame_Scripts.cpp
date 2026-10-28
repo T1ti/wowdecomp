@@ -506,7 +506,7 @@ static int32_t Script_GetTradeSkillRecipeLink(lua_State* L) {
 
     SpellRec spell;
 
-    if (!g_spellDB.GetRecord(info->m_spellId, &spell) || !(spell.m_attributes & 0x20)) {
+    if (!g_spellDB.GetRecord(info->m_spellId, &spell) || !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) {
         return 0;
     }
 

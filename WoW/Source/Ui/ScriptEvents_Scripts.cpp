@@ -298,7 +298,7 @@ static int32_t Script_UnitPlayerControlled(lua_State* L) {
     WOWGUID guid;
     CGUnit_C* unit;
 
-    if (Script_GetGUIDFromToken(lua_tolstring(L, 1, nullptr), guid, false) && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__))) && (unit->m_unit->m_unitFieldFlags & 0x8)) {
+    if (Script_GetGUIDFromToken(lua_tolstring(L, 1, nullptr), guid, false) && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__))) && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -328,7 +328,7 @@ static int32_t Script_UnitIsPossessed(lua_State* L) {
     WOWGUID guid;
     CGUnit_C* unit;
 
-    if (Script_GetGUIDFromToken(lua_tolstring(L, 1, nullptr), guid, false) && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__))) && (unit->m_unit->m_unitFieldFlags & 0x1000000)) {
+    if (Script_GetGUIDFromToken(lua_tolstring(L, 1, nullptr), guid, false) && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__))) && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -392,7 +392,7 @@ static int32_t Script_UnitOnTaxi(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_unit->m_unitFieldFlags & 0x100000)) {
+    if (unit && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -571,7 +571,7 @@ static int32_t Script_UnitAffectingCombat(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_unit->m_unitFieldFlags & 0x80000)) {
+    if (unit && (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1444,7 +1444,7 @@ static int32_t Script_PlayerCanTeleport(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     uint32_t flags = player->m_unit->m_unitFieldFlags;
 
-    if ((flags & 0x40000) || (flags & 0x800000) || (flags & 0x400000)) {
+    if ((flags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || (flags & UNIT_FLAGS::UNIT_FLAG_FLEEING) || (flags & UNIT_FLAGS::UNIT_FLAG_CONFUSED)) {
         lua_pushboolean(L, 0);
     } else {
         lua_pushboolean(L, 1);
@@ -2428,7 +2428,7 @@ static int32_t Script_UnitCastingInfo(lua_State* L) {
 
     const char* name = spell.m_name;
     const char* rank = spell.m_nameSubtext;
-    const char* displayName = spell.m_attributesExC & 4 ? "" : spell.m_name;
+    const char* displayName = spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NO_CASTING_BAR_TEXT ? "" : spell.m_name;
     CGGameObject_C* gameObject = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(unit->m_castingObject, TYPE_OBJECT, __FILE__, __LINE__));
 
     if (gameObject && (gameObject->m_obj->m_type & TYPE_GAMEOBJECT)) {
@@ -2471,7 +2471,7 @@ static int32_t Script_UnitCastingInfo(lua_State* L) {
         icon = iconRec->m_textureFilename;
     }
 
-    bool isTradeSkill = (spell.m_attributes & 0x20) != 0;
+    bool isTradeSkill = (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) != 0;
     bool notInterruptible = unit->IsCastNotInterruptible();
     lua_pushstring(L, name);
     lua_pushstring(L, rank);
@@ -2846,7 +2846,7 @@ static int32_t Script_UnitChannelInfo(lua_State* L) {
     const char* rank = spell.m_nameSubtext;
     const char* displayName;
 
-    if (SStrCmpI(lua_tolstring(L, 1, nullptr), "player", STORM_MAX_STR) || (spell.m_attributesEx & 0x20000000)) {
+    if (SStrCmpI(lua_tolstring(L, 1, nullptr), "player", STORM_MAX_STR) || (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_NAME_IN_CHANNEL_BAR)) {
         displayName = name;
     } else {
         displayName = FrameScript_GetText("CHANNELING", -1, GENDER_NOT_APPLICABLE);
@@ -2859,7 +2859,7 @@ static int32_t Script_UnitChannelInfo(lua_State* L) {
         icon = iconRec->m_textureFilename;
     }
 
-    bool tradeSkill = (spell.m_attributes & 0x20) != 0;
+    bool tradeSkill = (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) != 0;
     bool notInterruptible = unit->IsCastNotInterruptible();
     lua_pushstring(L, name);
     lua_pushstring(L, rank);

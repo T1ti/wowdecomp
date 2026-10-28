@@ -607,7 +607,7 @@ static int32_t Script_GetTrainerServiceDescription(lua_State* L) {
                 return 1;
             }
 
-            if ((spell.m_attributes & 0x20) && (spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || spell.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && spell.m_effectItemType[0]) {
+            if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) && (spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || spell.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && spell.m_effectItemType[0]) {
                 WOWGUID guid;
                 guid.m_guid = static_cast<uint32_t>(spell.m_id) | 0x1FE0000000000000ull;
                 ItemStats_C* stats = g_itemDBCache.GetRecord(spell.m_effectItemType[0], guid, TrainerItemCallback, nullptr, false);

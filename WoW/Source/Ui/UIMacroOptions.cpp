@@ -351,11 +351,11 @@ int32_t EvaluateCombat(const WOWGUID* unit, const TSGrowableArray<MacroSubstring
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     int32_t combat;
 
-    if (player && (player->m_unit->m_unitFieldFlags & 0x80000)) {
+    if (player && (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT)) {
         combat = 1;
     } else {
         CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
-        combat = pet && (pet->m_unit->m_unitFieldFlags & 0x80000);
+        combat = pet && (pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT);
     }
 
     if (args->m_count) {

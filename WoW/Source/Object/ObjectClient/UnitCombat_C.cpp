@@ -372,7 +372,7 @@ void ATTACKROUNDINFO::Unpack(CDataStore& msg) {
 // VERIFY: 49638f19 manual
 // OFFSET: 0x00755850
 void CGUnit_C::PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source) {
-    if ((this->m_unit->m_unitFieldFlags2 & 0x1) || this->GetClientStandState() == UNIT_DEAD) {
+    if ((this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || this->GetClientStandState() == UNIT_DEAD) {
         return;
     }
 
@@ -647,8 +647,8 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             if (this->IsActivePlayer()) {
                 SpellRec spell;
 
-                if (!g_spellDB.GetRecord(this->m_castSpellId, &spell) || !(spell.m_attributes & 2)) {
-                    if (!g_spellDB.GetRecord(Spell_C_GetAutoRepeatingSpell(), &spell) || !(spell.m_attributes & 2)) {
+                if (!g_spellDB.GetRecord(this->m_castSpellId, &spell) || !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT)) {
+                    if (!g_spellDB.GetRecord(Spell_C_GetAutoRepeatingSpell(), &spell) || !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT)) {
                         return;
                     }
                 }
@@ -678,7 +678,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             return;
 
         case 0x50504324: {
-            if (!target || (target->m_unit->m_unitFieldFlags2 & 1) || target->GetClientStandState() == UNIT_DEAD) {
+            if (!target || (target->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || target->GetClientStandState() == UNIT_DEAD) {
                 return;
             }
 

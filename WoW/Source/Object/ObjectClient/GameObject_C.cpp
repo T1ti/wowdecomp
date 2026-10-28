@@ -4086,7 +4086,7 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
         return false;
     }
 
-    if (player->m_unit->m_unitFieldFlags & 0x40000) {
+    if (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) {
         if (error) {
             int32_t mechanic;
             Spell_C_CancelsStun(player, nullptr, &mechanic);
@@ -4124,7 +4124,7 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
         }
     }
 
-    if ((player->m_unit->m_unitFieldFlags & 0x80000) && !this->m_owner->IsUsableInCombat()) {
+    if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) && !this->m_owner->IsUsableInCombat()) {
         if (error) {
             *error = static_cast<GAME_ERROR_TYPE>(ERR_NOT_IN_COMBAT);
         }
@@ -4132,7 +4132,7 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
         return false;
     }
 
-    if ((player->m_unit->m_unitFieldFlags & 0x80000000) && !this->m_owner->IsUsableWhileImmune()) {
+    if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE) && !this->m_owner->IsUsableWhileImmune()) {
         if (error) {
             *error = static_cast<GAME_ERROR_TYPE>(ERR_USE_CANT_IMMUNE);
         }
@@ -4269,7 +4269,7 @@ bool CGGameObject_C_Type_Ritual::CanUseNow(GAME_ERROR_TYPE* error, float* distan
     CGGameObject_C* owner = this->m_owner;
     int32_t spellId = owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 10));
 
-    if (g_spellDB.GetRecord(spellId, &spell) && (spell.m_attributes & 0x10000000) && player->IsInCombat() && !player->IgnoresAuraState(&spell)) {
+    if (g_spellDB.GetRecord(spellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL) && player->IsInCombat() && !player->IgnoresAuraState(&spell)) {
         return false;
     }
 

@@ -563,7 +563,7 @@ static int32_t Script_SetHyperlink(lua_State* L) {
 
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(spellId, &spell) && (spell.m_attributes & 0x20)) {
+        if (g_spellDB.GetRecord(spellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) {
             tooltip->SetSpell(spellId, 0, 0, 0, 0, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
         }
 
@@ -1876,7 +1876,7 @@ static int32_t Script_SetTrainerService(lua_State* L) {
             continue;
         }
 
-        if ((learned.m_attributes & 0x20) && (learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || learned.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && learned.m_effectItemType[0]) {
+        if ((learned.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) && (learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || learned.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && learned.m_effectItemType[0]) {
             WOWGUID requester;
             requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(learned.m_id)) | 0x1FE0000000000000ULL;
             WOWGUID itemGuid = WOWGUID();

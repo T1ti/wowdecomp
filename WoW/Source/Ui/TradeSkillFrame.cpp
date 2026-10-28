@@ -394,7 +394,7 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
             if ((1 << bit) & s_base64Decode[static_cast<const uint8_t*>(CGTradeSkillInfo::m_linkData)[offset]]) {
                 SpellRec spell;
 
-                if (g_spellDB.GetRecord(ability->m_spell, &spell) && (spell.m_attributes & 0x20)) {
+                if (g_spellDB.GetRecord(ability->m_spell, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) {
                     if (count == abilities.Count()) {
                         abilities.SetCount(count + 32);
                     }

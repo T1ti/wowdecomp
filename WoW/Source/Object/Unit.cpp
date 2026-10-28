@@ -32,11 +32,11 @@ uint32_t CGUnit::MirrorIndexFromFieldIndex(uint32_t fieldIndex) {
 bool CGUnit::CanSwim() const {
     uint32_t flags = this->m_unit->m_unitFieldFlags;
 
-    if (flags & 0x4000) {
+    if (flags & UNIT_FLAGS::UNIT_FLAG_CANNOT_SWIM) {
         return false;
     }
 
-    if ((flags & 0x8) || (flags & 0x800) || (flags & 0x10)) {
+    if ((flags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) || (flags & UNIT_FLAGS::UNIT_FLAG_PET_IN_COMBAT) || (flags & UNIT_FLAGS::UNIT_FLAG_EVADING_HOME)) {
         return true;
     }
 
@@ -218,7 +218,7 @@ float CGUnit::GetPowerRegen(POWER_TYPE powerType, bool inCombat) const {
 // VERIFY: 90149eb1 manual
 // OFFSET: 0x004F7250
 bool CGUnit::IsPossessedBy(const WOWGUID& guid) const {
-    return (this->m_unit->m_unitFieldFlags & 0x1000000) && *this->GetCharmerOrCreatorGuid() == guid;
+    return (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && *this->GetCharmerOrCreatorGuid() == guid;
 }
 
 // VERIFY: 3c755101 auto

@@ -4709,7 +4709,7 @@ static int32_t Script_ConfirmSummon(lua_State* L) {
 
     uint32_t flags = player->m_unit->m_unitFieldFlags;
 
-    if ((flags & 0x40000) || (flags & 0x800000) || (flags & 0x400000) || (flags & 0x80000)) {
+    if ((flags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || (flags & UNIT_FLAGS::UNIT_FLAG_FLEEING) || (flags & UNIT_FLAGS::UNIT_FLAG_CONFUSED) || (flags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT)) {
         return 0;
     }
 

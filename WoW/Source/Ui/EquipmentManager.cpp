@@ -537,7 +537,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
 
     WDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_EQUIPMENT_SET_USE));
-    bool inCombat = (player->m_unit->m_unitFieldFlags & 0x80000) != 0;
+    bool inCombat = (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) != 0;
     bool combatWarned = false;
     bool missingWarned = false;
     char buffer[3000];

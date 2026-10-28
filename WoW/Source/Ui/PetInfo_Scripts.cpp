@@ -362,7 +362,7 @@ static int32_t Script_GetPossessInfo(lua_State* L) {
             int32_t enabled = 1;
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(CGPetInfo::m_possessSpell, &spell) && spell.m_attributes < 0) {
+            if (g_spellDB.GetRecord(CGPetInfo::m_possessSpell, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_NO_AURA_CANCEL)) {
                 enabled = 0;
             }
 
@@ -637,7 +637,7 @@ static int32_t Script_PickupPetAction(lua_State* L) {
 
     CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!pet || (pet->m_unit->m_unitFieldFlags & 0x1000000)) {
+    if (!pet || (pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED)) {
         return 0;
     }
 
@@ -706,7 +706,7 @@ static int32_t Script_CastPetAction(lua_State* L) {
 
     CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
 
-    if (pet && !(pet->m_unit->m_unitFieldFlags & 0x1000000)) {
+    if (pet && !(pet->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED)) {
         PetAction cursorAction = CGGameUI::m_cursorPetAction;
         CGGameUI::ClearCursor(1, 1);
 

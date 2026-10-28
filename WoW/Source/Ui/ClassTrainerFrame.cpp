@@ -776,7 +776,7 @@ void CGClassTrainer::AddServices(uint32_t count, const int32_t* spellIds, const 
             SpellRec spell;
 
             if (g_spellDB.GetRecord(info->m_spellID, &spell)) {
-                if (spell.m_attributes & 0x40) {
+                if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE) {
                     skillLine = 3;
                 } else {
                     for (int32_t j = 0; j < 3; j++) {

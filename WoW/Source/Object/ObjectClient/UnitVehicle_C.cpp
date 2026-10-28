@@ -149,7 +149,7 @@ bool CGUnit_C::IsAlteredFormTransitionPreventingMovement() const {
         return true;
     }
 
-    if (!(this->m_unit->m_unitFieldFlags & 0x1000000) && this->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && this->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
         return true;
     }
 

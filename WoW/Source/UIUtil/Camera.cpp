@@ -662,7 +662,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
             C3Vector pivot = model->GetAttachmentPivot(attachment);
             float mountHeight = pivot.z * mountScale;
 
-            if ((unit->m_unit->m_unitFieldFlags & 0x100000) && model->HasSequence(135)) {
+            if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && model->HasSequence(135)) {
                 M2SequenceInfo mountStandInfo;
                 M2SequenceInfo mountInfo;
                 mountStandInfo.Clear();
@@ -873,7 +873,7 @@ void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, int32_t imm
     int32_t style = s_cvCameraSmoothStyle->m_intValue;
     int32_t state;
 
-    if (unit->m_unit->m_unitFieldFlags & 0x100000) {
+    if (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) {
         state = 7;
     } else {
         uint32_t moveFlags = unit->m_movement->m_flags;
@@ -1651,7 +1651,7 @@ void CGCamera::DisableFreeLook(int32_t keepSmoothing) {
 void CGCamera::EnableFreeLook() {
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(target)->m_unit->m_unitFieldFlags & 0x100000) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
+    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
         return;
     }
 
@@ -1730,7 +1730,7 @@ uint32_t CGCamera::IsBobbingAllowed(CGObject_C* target) {
         return 0;
     }
 
-    if (unit->IsJumping() || unit->m_mountModel || (unit->m_unit->m_unitFieldFlags & 0x100000)) {
+    if (unit->IsJumping() || unit->m_mountModel || (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
         return 0;
     }
 
@@ -2719,7 +2719,7 @@ void CGCamera::UpdateFreeLookFacing(float x, float y, float* pitchOut) {
 
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGUnit_C*>(target)->m_unit->m_unitFieldFlags & 0x100000) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
+    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGUnit_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
         return;
     }
 

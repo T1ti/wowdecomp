@@ -592,7 +592,7 @@ void Weather::Update() {
         if (player) {
             C3Vector delta(this->m_playerVelocityX, this->m_playerVelocityY, 0.0f);
 
-            if (sqrtf(delta.y * delta.y + delta.x * delta.x) < 1.0f || (player->m_unit->m_unitFieldFlags & 0x100000)) {
+            if (sqrtf(delta.y * delta.y + delta.x * delta.x) < 1.0f || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
                 this->m_facing = player->GetFacing();
             } else {
                 delta.Normalize();

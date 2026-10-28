@@ -1264,7 +1264,7 @@ void CGObject_C::ClearEffectList(int32_t all) {
     while (effect) {
         CEffect* next = effect->m_next;
 
-        if (!g_spellDB.GetRecord(effect->m_spellId, &spell) || !(spell.m_attributesExC & 0x100000)) {
+        if (!g_spellDB.GetRecord(effect->m_spellId, &spell) || !(spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD)) {
             effect->MoveToDestroyList();
         }
 

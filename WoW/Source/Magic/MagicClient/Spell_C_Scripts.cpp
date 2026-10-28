@@ -244,7 +244,7 @@ static int32_t Script_CancelUnitBuff(lua_State* L) {
 
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(player->GetAuraSpellId(slot), &spell) && ((player->GetAuraFlags(slot) & 0x10) || (spell.m_attributesEx & 0x4))) {
+        if (g_spellDB.GetRecord(player->GetAuraSpellId(slot), &spell) && ((player->GetAuraFlags(slot) & 0x10) || (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED))) {
             Spell_C_CancelAura(&spell, player, slot);
         }
 

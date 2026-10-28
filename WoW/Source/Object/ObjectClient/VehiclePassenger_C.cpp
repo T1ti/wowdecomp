@@ -1147,7 +1147,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     }
 
     if (model) {
-        uint32_t hidden = !(this->m_unit->m_unit->m_unitFieldFlags & 0x2000000) && (!seatRec || !(seatRec->m_flags & 0x100000)) && state;
+        uint32_t hidden = !(this->m_unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_UNINTERACTIBLE) && (!seatRec || !(seatRec->m_flags & 0x100000)) && state;
         model->m_fFlags ^= (model->m_fFlags ^ (hidden << 19)) & 0x80000;
     }
 

@@ -663,7 +663,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
         spell = &loaded;
 
-        if (loaded.m_attributesExB & 0x1000000) {
+        if (loaded.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ITEM_CAST_WITH_OWNER_SKILL) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
             if (player) {
@@ -849,7 +849,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
                 int32_t time;
 
                 if (period > 0 && (time = Spell_C_GetDuration(spell, parsePet, parseUnit, noModifiers, 0)) > 0) {
-                    int32_t total = time + ((spell->m_attributesExE & 0x200) ? period : 0);
+                    int32_t total = time + ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_EXTRA_INITIAL_PERIOD) ? period : 0);
                     minPoints = minPoints * total / period;
                     maxPoints = total * maxPoints / period;
                 } else {
@@ -986,7 +986,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
                 for (uint32_t i = 0; i < 3; i++) {
                     if (spell->m_effectAuraPeriod[i]) {
-                        if ((spell->m_attributesExE & 0x2000) && !(spell->m_attributesExC & 0x20000000)) {
+                        if ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)) {
                             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
                             if (player && player->m_unit->m_unitModCastSpeed >= 0.001f) {

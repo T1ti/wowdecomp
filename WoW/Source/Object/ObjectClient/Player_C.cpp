@@ -639,7 +639,7 @@ static void InitWeaponSkills() {
             SErrDisplayAppFatalMessage("", "", 0);
         }
 
-        if (!(rec.m_attributes & 0x40)) {
+        if (!(rec.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
             continue;
         }
 
@@ -940,7 +940,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
 
     CGUnitData* unit = this->m_unit;
 
-    if ((unit->m_unitFieldFlags & 0x100000) || unit->m_unitFieldHealth <= 0 || (unit->m_unitFieldFlags2 & 0x1) || this->IsInVehicle() || (this->m_animationState & 0x400) || this->m_castSpellId || !this->IsLocalClientControlled()) {
+    if ((unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || unit->m_unitFieldHealth <= 0 || (unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || this->IsInVehicle() || (this->m_animationState & 0x400) || this->m_castSpellId || !this->IsLocalClientControlled()) {
         return;
     }
 
@@ -948,7 +948,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
         SpellRec spellRec;
         g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spellRec);
 
-        if (!(spellRec.m_attributes & 0x8000000)) {
+        if (!(spellRec.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_SITTING)) {
             return;
         }
     }
@@ -1142,7 +1142,7 @@ bool CGPlayer_C::CanInteract(const CGUnit_C* unit) const {
         return false;
     }
 
-    return !(data->m_unitFieldFlags & 0x2000000) && npcFlags && ((unit->UnitReaction(this) >= UNIT_REACTION_NEUTRAL && this->UnitReaction(unit) >= UNIT_REACTION_NEUTRAL) || (unit->m_unit->m_unitFieldFlags2 & 0x4000));
+    return !(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_UNINTERACTIBLE) && npcFlags && ((unit->UnitReaction(this) >= UNIT_REACTION_NEUTRAL && this->UnitReaction(unit) >= UNIT_REACTION_NEUTRAL) || (unit->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_ALLOW_ENEMY_INTERACTION));
 }
 
 // VERIFY: c3ce918a manual
@@ -1338,7 +1338,7 @@ int32_t CGPlayer_C::CanLoot(const CGObject_C* object) {
         return 0;
     }
 
-    return !this->IsDeadOrGhost() && !(this->m_movement->m_flags & 0x1000) && !(this->m_unit->m_unitFieldFlags & 0x40000) && this->IsLocalClientControlled();
+    return !this->IsDeadOrGhost() && !(this->m_movement->m_flags & 0x1000) && !(this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && this->IsLocalClientControlled();
 }
 
 // VERIFY: 37ec0ce6 auto
@@ -2268,7 +2268,7 @@ int32_t CGPlayer_C::SpellUsesWeaponSkill(const SpellRec* spell) {
         return spell->m_id;
     }
 
-    if ((spell->m_attributesExB & 0x8000000) || spell->m_effect[0] == SPELL_EFFECT_WEAPON || spell->m_equippedItemClass != 2 || !spell->m_equippedItemSubclass) {
+    if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_IGNORE_WEAPONSKILL) || spell->m_effect[0] == SPELL_EFFECT_WEAPON || spell->m_equippedItemClass != 2 || !spell->m_equippedItemSubclass) {
         return spell->m_id;
     }
 
@@ -3101,7 +3101,7 @@ void CGPlayer_C::PostInitActivePlayer() {
             charmed = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(charm, TYPE_UNIT, __FILE__, __LINE__));
         }
 
-        if (charmed && (charmed->m_unit->m_unitFieldFlags & 0x1000000) && farsight == charm) {
+        if (charmed && (charmed->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && farsight == charm) {
             charmed->SetLocalClientControl(true);
             controlled = charm;
         } else {
@@ -4644,7 +4644,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int
         return;
     }
 
-    if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || (this->m_unit->m_unitFieldFlags & 0x20000) || !CGGameUI::m_hasControl) {
+    if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) || !CGGameUI::m_hasControl) {
         return;
     }
 
@@ -4686,7 +4686,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
     int32_t languageSpell = CGSpellBook::m_languageSpells.m_data[language];
 
     if (!languageSpell) {
-        if (!(this->m_unit->m_unitFieldFlags2 & 0x8)) {
+        if (!(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_COMPREHEND_LANGUAGES)) {
             return 0;
         }
 
@@ -4770,7 +4770,7 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t 
         this->m_companionSpells.Add(1, &spellId);
     }
 
-    if (spell.m_attributes & 0x20) {
+    if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
         if (skillLine) {
             HASHKEY_NONE key;
             TRADESKILLLINE* line = this->m_tradeSkillLines.Ptr(skillLine->m_id, key);
@@ -5842,7 +5842,7 @@ bool CGPlayer_C::CanSaveTabardNow() {
 // VERIFY: 042060de manual
 // OFFSET: 0x006DE230
 const CGItem_C* CGPlayer_C::EquippedItemMeetSpellRequirements(const SpellRec* spell, uint32_t slotMask) {
-    if ((this->m_unit->m_unitFieldFlags & 0x200000) || (this->m_unit->m_unitFieldFlags2 & 0x80)) {
+    if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_OFFHAND)) {
         if (this->IsDisarmed(0)) {
             slotMask &= ~0x8000;
         }
@@ -5852,7 +5852,7 @@ const CGItem_C* CGPlayer_C::EquippedItemMeetSpellRequirements(const SpellRec* sp
         }
     }
 
-    if (this->m_unit->m_unitFieldFlags2 & 0x400) {
+    if (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_RANGED) {
         slotMask &= ~0x20000;
     }
 
@@ -7965,7 +7965,7 @@ void CGPlayer_C::DelKnownSpell(int32_t spellId, int32_t silent) {
 
     bool notify = silent == 0;
 
-    if (spell.m_attributes & 0x20) {
+    if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
         SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spellId);
         SkillLineRec* skillLine = ability ? g_skillLineDB.GetRecord(ability->m_skillLine) : nullptr;
 
@@ -7996,7 +7996,7 @@ void CGPlayer_C::DelKnownSpell(int32_t spellId, int32_t silent) {
             this->RemoveEquipBypassSkill(spellId);
         }
 
-        if (notify && !(spell.m_attributes & 0x80)) {
+        if (notify && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG)) {
             if (*spell.m_nameSubtext) {
                 char text[512];
                 SStrPrintf(text, sizeof(text), "%s (%s)", spell.m_name, spell.m_nameSubtext);
@@ -8193,7 +8193,7 @@ void CGPlayer_C::ToggleSheathe() {
         return;
     }
 
-    if ((this->m_unit->m_unitFieldFlags & 0x40000) || this->m_unit->m_unitFieldHealth <= 0) {
+    if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || this->m_unit->m_unitFieldHealth <= 0) {
         return;
     }
 
@@ -8269,7 +8269,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
         return;
     }
 
-    if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || (this->m_unit->m_unitFieldFlags & 0x20000)) {
+    if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED)) {
         return;
     }
 
@@ -12641,7 +12641,7 @@ void CGPlayer_C::OnDeath() {
     CGGameUI::CloseLoot(true, false, false);
     Spell_C_CancelPlayerSpells();
 
-    if (this->m_unit->m_unitFieldFlags & 0x100000) {
+    if (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) {
         this->HandleRepopRequest(false);
     }
 }
@@ -13215,7 +13215,7 @@ static uint32_t s_textEmoteStandStates = 0x10B;
 // VERIFY: 1c3eae7c manual
 // OFFSET: 0x006DD9E0
 void CGPlayer_C::SendTextEmote(const EmotesTextRec* emote, WOWGUID target) {
-    if (!emote || (this->m_unit->m_unitFieldFlags & 0x1000000)) {
+    if (!emote || (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED)) {
         return;
     }
 
@@ -13441,7 +13441,7 @@ void CGPlayer_C::DestructActivePlayer() {
     }
 
     if (ClntObjMgrGetPlayerType() != PLAYER_BOT) {
-        if (this->m_unit->m_unitFieldFlags & 0x80000) {
+        if (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) {
             CGGameUI::SetRegenEnabled(1);
         }
 
@@ -13564,7 +13564,7 @@ int32_t CGPlayer_C::GetSpellCastingTime(const SpellRec* spell) const {
         Spell_C_ModifySpellValue(spell, time, 10);
     }
 
-    if (!(spell->m_attributes & 0x30) && !(spell->m_attributesExC & 0x20000000) && time > 0) {
+    if (!(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY | SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) && time > 0) {
         CGUnitData* unit = this->m_unit;
 
         if (fnotequal(unit->m_unitModCastSpeed, 1.0f)) {
@@ -13572,7 +13572,7 @@ int32_t CGPlayer_C::GetSpellCastingTime(const SpellRec* spell) const {
         }
     }
 
-    if (spell->m_attributes & 0x2) {
+    if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         time += 500;
     }
 
@@ -13687,7 +13687,7 @@ const CGUnitVirtualItem* CGPlayer_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, b
 
         item = &this->m_player->m_playerVisibleItems[16];
     } else if (slot == VIRTUAL_MONSTER_SLOT_RANGED) {
-        if (!ignoreDisarm && (this->m_unit->m_unitFieldFlags2 & 0x400)) {
+        if (!ignoreDisarm && (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_RANGED)) {
             return nullptr;
         }
 

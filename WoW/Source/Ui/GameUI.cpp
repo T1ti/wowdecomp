@@ -2013,7 +2013,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && !(player->m_unit->m_unitFieldFlags & 0x80000)) {
+    if (player && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT)) {
         lua_gc(L, LUA_GCSTEP, 1);
     }
 
@@ -2091,11 +2091,11 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
     if (idleTime - AUTO_SIT_IDLE_TIME >= 0) {
         if (idleTime - AUTO_LOGOUT_IDLE_TIME < 0) {
             if (player) {
-                if (!player->m_unit->m_unitFieldBytes1[0] && !(player->m_unit->m_unitFieldFlags & 0x80000) && !player->IsMounted() && !player->IsAutoTracking()) {
+                if (!player->m_unit->m_unitFieldBytes1[0] && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) && !player->IsMounted() && !player->IsAutoTracking()) {
                     player->ChangeStandState(UNIT_SITTING);
                 }
 
-                if (!(player->m_unit->m_unitFieldFlags & 0x100000) && !CGChat::m_afk) {
+                if (!(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && !CGChat::m_afk) {
                     player->SetAFK(nullptr);
                 }
             }
@@ -2655,7 +2655,7 @@ void CGGameUI::UpdateCombatMode() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    if ((player->m_unit->m_unitFieldFlags & 0x80000) || (player->m_combatModeFlags & 0x2) || player->CGUnit_C::IsInMelee()) {
+    if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) || (player->m_combatModeFlags & 0x2) || player->CGUnit_C::IsInMelee()) {
         bindings->EnableBindingMode(BINDING_MODE_1, 1);
     } else {
         bindings->EnableBindingMode(BINDING_MODE_1, 0);
@@ -3198,7 +3198,7 @@ void CGGameUI::SetCursorSpell(int32_t spellId) {
 
     if (spell.m_effect[0] == SPELL_EFFECT_ATTACK) {
         texture = CGActionBar::GetAttackTexture();
-    } else if ((spell.m_attributes & 0x2) && (spell.m_attributesExB & 0x20)) {
+    } else if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT)) {
         texture = CGActionBar::GetRangedTexture();
     }
 
@@ -3784,7 +3784,7 @@ void CGGameUI::EnterWorld() {
         ClientServices::Send2(&msg);
     }
 
-    if (player->m_unit->m_unitFieldFlags & 0x80000) {
+    if (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) {
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_REGEN_DISABLED, nullptr);
         CGGameUI::m_simpleTop->m_allowProtectedActions = 0;
         CGGameUI::UpdateCombatMode();
@@ -4201,7 +4201,7 @@ void CGGameUI::NewZoneFeedback(int32_t areaId, int32_t subzoneId, int32_t wmoGro
         CGGameUI::m_realZoneText = SStrDupA(realZoneText, __FILE__, __LINE__);
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-        if (player && !(player->m_unit->m_unitFieldFlags & 0x100000) && !CGGameUI::m_inCinematic && !CGPlayer_C::GetPendingMovie()) {
+        if (player && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && !CGGameUI::m_inCinematic && !CGPlayer_C::GetPendingMovie()) {
             CGChat::ZoneUpdate();
         }
     }
@@ -5811,7 +5811,7 @@ int32_t CGGameUI::GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t 
 void CGGameUI::SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t a4, int32_t stackSplit, int32_t playSound) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & 0x100000))) {
+    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI))) {
         return;
     }
 
@@ -6001,7 +6001,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    if (unit->m_unit->m_unitFieldFlags & 0x8) {
+    if (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) {
         if (unit->CanAttack(viewer)) {
             *color = viewer->CanAttack(unit) ? s_reactionColors[UNIT_REACTION_HOSTILE] : s_playerColors[a3];
             return;
@@ -6234,7 +6234,7 @@ void CCapturePointUIManager::Update() {
         return;
     }
 
-    if ((player->m_unit->m_unitFieldBytes2[1] & 0x1) || (player->m_unit->m_unitFieldFlags & 0x100000)) {
+    if ((player->m_unit->m_unitFieldBytes2[1] & 0x1) || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
         return;
     }
 
@@ -6308,13 +6308,13 @@ static int32_t AutoMouseOverProc(WOWGUID guid, void* param) {
             }
 
             rangeSq = distSq;
-        } else if ((unit->m_unit->m_unitFieldFlags & 0x4000000) && CGSpellBook::GetSkinningSpell(unit) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !player->CanAssist(unit, false))) {
+        } else if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_SKINNABLE) && CGSpellBook::GetSkinningSpell(unit) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !player->CanAssist(unit, false))) {
             float minRange;
             float maxRange;
             Spell_C::GetSpellRange(player, CGSpellBook::GetSkinningSpell(unit), &minRange, &maxRange, unit);
             rangeSq = maxRange * maxRange;
         } else {
-            if (!player->CanAttackNow(unit) || (player->m_unit->m_unitFieldFlags & 0x20000) || !CGGameUI::m_hasControl) {
+            if (!player->CanAttackNow(unit) || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) || !CGGameUI::m_hasControl) {
                 return 1;
             }
 
@@ -6865,7 +6865,7 @@ void CGGameUI::StopCinematicInternal(void* param) {
     DisableFadingScreen(0.25f, nullptr, nullptr);
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (player && !(player->m_unit->m_unitFieldFlags & 0x100000)) {
+    if (player && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
         CGChat::ZoneUpdate();
     }
 
@@ -7499,7 +7499,7 @@ void CGGameUI::Shutdown() {
         if (player) {
             player->ClearTrackingTarget(false, true);
 
-            if (player->m_unit->m_unitFieldFlags & 0x80000) {
+            if (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) {
                 CGGameUI::m_simpleTop->m_allowProtectedActions = 1;
                 FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_REGEN_ENABLED, nullptr);
                 CGGameUI::UpdateCombatMode();

@@ -516,7 +516,7 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
     if (restricted) {
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(Spell_C_GetTargetingSpell(), &spell) && ((spell.m_attributesExC & 0x10000000) || (spell.m_attributesExE & 0x200000))) {
+        if (g_spellDB.GetRecord(Spell_C_GetTargetingSpell(), &spell) && ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS) || (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS))) {
             return 1;
         }
     }
@@ -731,7 +731,7 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
         return;
     }
 
-    if ((unit->m_unit->m_unitFieldFlags & 0x4000000) && CGSpellBook::GetSkinningSpell(unit) && !((unit->m_obj->m_type & TYPE_PLAYER) && player->CanAssist(unit, false))) {
+    if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_SKINNABLE) && CGSpellBook::GetSkinningSpell(unit) && !((unit->m_obj->m_type & TYPE_PLAYER) && player->CanAssist(unit, false))) {
         float minRange;
         float maxRange;
         Spell_C::GetSpellRange(player, CGSpellBook::GetSkinningSpell(unit), &minRange, &maxRange, unit);
@@ -769,7 +769,7 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
         }
     }
 
-    if (!player->CanAttackNow(unit) || (player->m_unit->m_unitFieldFlags & 0x20000) || !CGGameUI::m_hasControl) {
+    if (!player->CanAttackNow(unit) || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) || !CGGameUI::m_hasControl) {
         CursorResetMode();
         return;
     }
@@ -1585,7 +1585,7 @@ void CGWorldFrame::UpdateDayNight(float deltaSec) {
         info->m_playerPos = player->GetPosition();
     }
 
-    if (player && (player->m_unit->m_unitFieldFlags & 0x100000) && (player->m_player->m_playerFlags & 0x20000)) {
+    if (player && (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & 0x20000)) {
         info->m_timeOfDay = 0;
         info->m_dayProgression = 0.5f;
         info->m_day = 0.0f;

@@ -1328,7 +1328,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
             uint32_t result = this->m_targetHitResults.m_data[i];
 
             if (result && !(this->m_flags & 0x100) && !this->m_missileIndex) {
-                if (spell && !(spell->m_attributes & 0x100)) {
+                if (spell && !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
                     unit->AddWorldText(this->m_casterGuid, static_cast<MISS_REASON>(result), spell, 0);
                     CGGameUI::ShowSpellMissFeedback(unit->m_obj->m_guid, result);
                 }
@@ -1864,7 +1864,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
         if (!(this->m_flags & 0x100)) {
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(this->m_spellID, &spell) && !(spell.m_attributes & 0x100) && !this->m_missileIndex) {
+            if (g_spellDB.GetRecord(this->m_spellID, &spell) && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG) && !this->m_missileIndex) {
                 target->AddWorldText(this->m_casterGuid, static_cast<MISS_REASON>(this->GetHitResult()), &spell, 0);
                 CGGameUI::ShowSpellMissFeedback(target->m_obj->m_guid, this->GetHitResult());
                 UnitCombatLogSpellMissed(this->m_casterGuid, target->m_obj->m_guid, this->m_spellID, this->GetHitResult(), 0, 0, 0);
@@ -2040,7 +2040,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
             this->m_model->DetachFromParent();
         }
 
-        if (spell.m_attributesExE & 0x40000000) {
+        if (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE) {
             this->m_model->m_fFlags |= 4;
         }
 

@@ -1089,7 +1089,7 @@ int32_t PushUnitAura(lua_State* L, ScriptAuraInfo* info) {
                 lua_pushnil(L);
             }
 
-            if (spell.m_attributesExG & 0x10000000) {
+            if (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF) {
                 lua_pushnumber(L, 1.0);
             } else {
                 lua_pushnil(L);
@@ -1168,7 +1168,7 @@ int32_t PushUnitAura(lua_State* L, ScriptAuraInfo* info) {
             lua_pushnil(L);
             lua_pushnil(L);
 
-            if (spell.m_attributesExG & 0x10000000) {
+            if (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF) {
                 lua_pushnumber(L, 1.0);
             } else {
                 lua_pushnil(L);

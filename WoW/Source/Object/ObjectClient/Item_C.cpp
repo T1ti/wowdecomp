@@ -1616,17 +1616,17 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
             return 0;
         }
 
-        if ((player->m_unit->m_unitFieldFlags & 0x800000) && ((spell.m_attributesExE & 0x20000) || Spell_C_CancelsFear(player, &spell, 0))) {
+        if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_FLEEING) && ((spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_FLEEING) || Spell_C_CancelsFear(player, &spell, 0))) {
             allowed = 1;
         }
 
-        if ((player->m_unit->m_unitFieldFlags & 0x400000) && ((spell.m_attributesExE & 0x40000) || Spell_C_CancelsConfuse(player, &spell, 0))) {
+        if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_CONFUSED) && ((spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_CONFUSED) || Spell_C_CancelsConfuse(player, &spell, 0))) {
             allowed = 1;
         }
 
         int32_t charmAllowed = player->IsCharmed() && Spell_C_CancelsCharm(player, &spell, 0) ? 1 : allowed;
 
-        if ((!(player->m_unit->m_unitFieldFlags & 0x100000) || !(spell.m_attributes & 0x1000000)) && !charmAllowed) {
+        if ((!(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED)) && !charmAllowed) {
             CGGameUI::DisplayError(ERR_CLIENT_LOCKED_OUT);
             return 0;
         }

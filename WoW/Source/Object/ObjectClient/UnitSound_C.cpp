@@ -562,7 +562,7 @@ void CGUnit_C::PlayFoleySound() {
 void CGUnit_C::CheckLoopSound() {
     CreatureSoundDataRec* soundData = this->GetSoundData();
 
-    if (this->m_unit->m_unitFieldHealth > 0 && !(this->m_unit->m_unitFieldFlags2 & 0x1) && soundData && soundData->m_loopSoundID && !SI2::IsPlaying(&this->m_loopSound)) {
+    if (this->m_unit->m_unitFieldHealth > 0 && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) && soundData && soundData->m_loopSoundID && !SI2::IsPlaying(&this->m_loopSound)) {
         C3Vector position = this->GetPosition();
 
         if (SI2::IsPlaying(&this->m_loopSound) || SI2::IsTooCloseToExistingSoundKit(soundData->m_loopSoundID, &position)) {

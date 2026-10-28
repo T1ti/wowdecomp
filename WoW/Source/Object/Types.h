@@ -4,6 +4,80 @@
 #include <cstddef>
 #include <cstdint>
 
+// Masks for CGUnitData::m_unitFieldFlags and m_unitFieldFlags2.
+// Names adapted from the supplied 3.3.5 UnitFlags/UnitFlags2 definitions.
+// Server-only allowed/disallowed policy masks are not part of these client fields.
+
+enum UNIT_FLAGS : uint32_t {
+    UNIT_FLAG_SERVER_CONTROLLED                   = 0x00000001u,
+    UNIT_FLAG_SPAWNING                            = 0x00000002u, // Spawning state; prevents attacks on this unit.
+    UNIT_FLAG_REMOVE_CLIENT_CONTROL               = 0x00000004u,
+    UNIT_FLAG_PLAYER_CONTROLLED                   = 0x00000008u,
+    UNIT_FLAG_EVADING_HOME                        = 0x00000010u,
+    UNIT_FLAG_PREPARATION                         = 0x00000020u,
+    UNIT_FLAG_UNKNOWN_6                           = 0x00000040u,
+    UNIT_FLAG_NON_ATTACKABLE_1                    = 0x00000080u,
+    UNIT_FLAG_IMMUNE_TO_PC                        = 0x00000100u,
+    UNIT_FLAG_IMMUNE_TO_NPC                       = 0x00000200u,
+    UNIT_FLAG_LOOTING                             = 0x00000400u,
+    UNIT_FLAG_PET_IN_COMBAT                       = 0x00000800u,
+    UNIT_FLAG_PVP_ENABLING                        = 0x00001000u, // Legacy PvP flag; current PvP state is in m_unitFieldBytes2[1].
+    UNIT_FLAG_SILENCED                            = 0x00002000u,
+    UNIT_FLAG_CANNOT_SWIM                         = 0x00004000u,
+    UNIT_FLAG_CAN_SWIM                            = 0x00008000u,
+    UNIT_FLAG_NON_ATTACKABLE_2                    = 0x00010000u,
+    UNIT_FLAG_PACIFIED                            = 0x00020000u,
+    UNIT_FLAG_STUNNED                             = 0x00040000u,
+    UNIT_FLAG_IN_COMBAT                           = 0x00080000u,
+    UNIT_FLAG_ON_TAXI                             = 0x00100000u,
+    UNIT_FLAG_DISARMED                            = 0x00200000u,
+    UNIT_FLAG_CONFUSED                            = 0x00400000u,
+    UNIT_FLAG_FLEEING                             = 0x00800000u,
+    UNIT_FLAG_POSSESSED                           = 0x01000000u,
+    UNIT_FLAG_UNINTERACTIBLE                      = 0x02000000u,
+    UNIT_FLAG_SKINNABLE                           = 0x04000000u,
+    UNIT_FLAG_MOUNT                               = 0x08000000u,
+    UNIT_FLAG_DONT_PLAY_LOOT_ANIM                 = 0x10000000u, // Suppresses loot kneeling; verified at Wow.exe 3.3.5a 0x007222A0.
+    UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT       = 0x20000000u,
+    UNIT_FLAG_SHEATHE                             = 0x40000000u,
+    UNIT_FLAG_IMMUNE                              = 0x80000000u,
+};
+
+enum UNIT_FLAGS2 : uint32_t {
+    UNIT_FLAG2_FEIGN_DEATH                        = 0x00000001u,
+    UNIT_FLAG2_HIDE_BODY                          = 0x00000002u, // Hide the body while retaining equipped models.
+    UNIT_FLAG2_IGNORE_REPUTATION                  = 0x00000004u,
+    UNIT_FLAG2_COMPREHEND_LANGUAGES               = 0x00000008u,
+    UNIT_FLAG2_MIRROR_IMAGE                       = 0x00000010u,
+    UNIT_FLAG2_DO_NOT_FADE_IN                     = 0x00000020u,
+    UNIT_FLAG2_FORCE_MOVEMENT                     = 0x00000040u,
+    UNIT_FLAG2_DISARM_OFFHAND                     = 0x00000080u,
+    UNIT_FLAG2_DISABLE_PREDICTED_STATS            = 0x00000100u, // Disable client-side stat and power prediction.
+    UNIT_FLAG2_UNKNOWN_9                          = 0x00000200u,
+    UNIT_FLAG2_DISARM_RANGED                      = 0x00000400u,
+    UNIT_FLAG2_REGENERATE_POWER                   = 0x00000800u,
+    UNIT_FLAG2_RESTRICT_PARTY_INTERACTION         = 0x00001000u,
+    UNIT_FLAG2_PREVENT_SPELL_CLICK                = 0x00002000u,
+    UNIT_FLAG2_ALLOW_ENEMY_INTERACTION            = 0x00004000u,
+    UNIT_FLAG2_CANNOT_TURN                        = 0x00008000u,
+    UNIT_FLAG2_UNKNOWN_16                         = 0x00010000u, // Checked for shared-vehicle attack restrictions; broader meaning unverified.
+    UNIT_FLAG2_PLAY_DEATH_ANIMATION               = 0x00020000u,
+    UNIT_FLAG2_ALLOW_DEBUG_SPELLS                 = 0x00040000u, // Allows SPELL_ATTR7_DEBUG_SPELL casts.
+    UNIT_FLAG2_UNKNOWN_19                         = 0x00080000u, // Bits 19-31 have no verified 3.3.5 meaning here.
+    UNIT_FLAG2_UNKNOWN_20                         = 0x00100000u,
+    UNIT_FLAG2_UNKNOWN_21                         = 0x00200000u,
+    UNIT_FLAG2_UNKNOWN_22                         = 0x00400000u,
+    UNIT_FLAG2_UNKNOWN_23                         = 0x00800000u,
+    UNIT_FLAG2_UNKNOWN_24                         = 0x01000000u,
+    UNIT_FLAG2_UNKNOWN_25                         = 0x02000000u,
+    UNIT_FLAG2_UNKNOWN_26                         = 0x04000000u,
+    UNIT_FLAG2_UNKNOWN_27                         = 0x08000000u,
+    UNIT_FLAG2_UNKNOWN_28                         = 0x10000000u,
+    UNIT_FLAG2_UNKNOWN_29                         = 0x20000000u,
+    UNIT_FLAG2_UNKNOWN_30                         = 0x40000000u,
+    UNIT_FLAG2_UNKNOWN_31                         = 0x80000000u,
+};
+
 enum ITEM_STATIC_FLAGS : uint32_t {
     // Masks for ItemStats_C::m_flags[0]; m_flags[1] is a separate domain.
     ITEM_FLAG_NO_PICKUP                               = 0x00000001u,

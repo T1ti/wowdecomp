@@ -1351,7 +1351,7 @@ void CEffect::PostInitialize() {
 
     SpellRec spell;
 
-    if (this->m_spellId && g_spellDB.GetRecord(this->m_spellId, &spell) && (spell.m_attributesExE & 0x40000000)) {
+    if (this->m_spellId && g_spellDB.GetRecord(this->m_spellId, &spell) && (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE)) {
         this->m_model->m_fFlags |= 0x4;
     }
 

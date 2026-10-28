@@ -301,7 +301,7 @@ void CGItemStatsSummary::Create() {
 // VERIFY: 7ea645b6 manual
 // OFFSET: 0x0061B5E0
 void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
-    if (!(spell->m_attributes & 0x40)) {
+    if (!(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
         return;
     }
 
@@ -2054,7 +2054,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
             this->AddEmpathyText(unit, line, sizeof(line));
         }
 
-        if ((unit->m_unit->m_unitFieldFlags & 0x4000000) && !(unit->m_obj->m_type & TYPE_PLAYER)) {
+        if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_SKINNABLE) && !(unit->m_obj->m_type & TYPE_PLAYER)) {
             this->AddSkinnableText(unit, line, sizeof(line));
         }
     }
@@ -2697,7 +2697,7 @@ static void AddSpellRangeLines(CGTooltip* tooltip, const SpellRec* spell, CGUnit
     float friendlyMin = 0.0f;
     float friendlyMax = 0.0f;
 
-    if (!brief && !(spell->m_attributes & 0x404) && !(spell->m_attributesExC & 0x40000000)) {
+    if (!brief && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_DO_NOT_DISPLAY_RANGE)) {
         if (SpellRec::IsMeleeRange(spell) && !SpellRec::HasModifier(spell, 5)) {
             char format[128];
             FormatString("MELEE_RANGE", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
@@ -2758,7 +2758,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
     char recastTime[128];
     char format[128];
 
-    if (spell->m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell->m_attributes & 0x40)) {
+    if (spell->m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
         return 1;
     }
 
@@ -2772,13 +2772,13 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
     if (time > 0) {
         FormatString(minutes ? "SPELL_CAST_TIME_MIN" : "SPELL_CAST_TIME_SEC", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
         SStrPrintf(castTime, sizeof(castTime), format, time / (minutes ? 60000.0f : 1000.0f));
-    } else if (spell->m_attributesEx & 0x44) {
+    } else if (spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) {
         FormatString("SPELL_CAST_CHANNELED", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
     } else if (time < 0) {
         FormatString("SPELL_CAST_TIME_INSTANT", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
-    } else if (spell->m_attributes & 0x404) {
+    } else if (spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) {
         FormatString("SPELL_ON_NEXT_SWING", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
-    } else if (spell->m_attributes & 2) {
+    } else if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         FormatString("SPELL_ON_NEXT_RANGED", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
     } else if (!spell->m_powerType && powerCost > 0) {
         FormatString("SPELL_CAST_TIME_INSTANT", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
@@ -2786,7 +2786,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
         FormatString("SPELL_CAST_TIME_INSTANT_NO_MANA", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
     }
 
-    if (cooldown <= 0 || (spell->m_attributesExF & 1)) {
+    if (cooldown <= 0 || (spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_COOLDOWN_ON_TOOLTIP)) {
         recastTime[0] = '\0';
     } else {
         int32_t recastMinutes = cooldown >= 60000;
@@ -2895,13 +2895,15 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
 
     int32_t first = 1;
     int32_t equipped = 1;
-    uint32_t slotMask = (spell->m_attributesExC & 0x400) ? 0x8000 : (spell->m_attributesExC & 0x1000000) ? 0x10000 : 0xFFFFFFFF;
+    uint32_t slotMask = (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON) ? 0x8000 : (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) ? 0x10000 : 0xFFFFFFFF;
 
     if (!player->EquippedItemMeetSpellRequirements(spell, slotMask)) {
         equipped = 0;
     }
 
-    if ((spell->m_attributesExC & 0x1000400) == 0x1000400 && !player->EquippedItemMeetSpellRequirements(spell, 0x10000)) {
+    constexpr uint32_t handRequirements = SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON | SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON;
+
+    if ((spell->m_attributesExC & handRequirements) == handRequirements && !player->EquippedItemMeetSpellRequirements(spell, 0x10000)) {
         equipped = 0;
     }
 
@@ -2946,7 +2948,7 @@ static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C
     }
 
     int32_t first = 1;
-    int32_t needsForm = spell->m_attributesExB & 0x80000;
+    int32_t needsForm = spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_WHILE_NOT_SHAPESHIFTED_CASTER_FORM;
 
     if (!needsForm) {
         uint32_t count = g_spellShapeshiftFormDB.m_numRecords;
@@ -3204,7 +3206,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
     int32_t tradeSkill = 0;
     int32_t createsItem = 0;
 
-    if (spell.m_attributes & 0x20) {
+    if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
         for (uint32_t i = 0; i < 3; i++) {
             int32_t effect = spell.m_effect[i];
 
@@ -3304,7 +3306,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
             result = 1;
         }
 
-        if (spell.m_attributesEx & 2) {
+        if (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_USE_ALL_MANA) {
             AddSpellUseAllPowerLine(this, &spell, display);
         }
 
@@ -5837,7 +5839,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
                         int32_t categoryRecoveryTime = spell.m_categoryRecoveryTime;
                         Spell_C_ModifySpellValue(&spell, recoveryTime, 11);
 
-                        if (spell.m_attributesExF >= 0) {
+                        if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS)) {
                             Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, 11);
                         }
 
@@ -6130,7 +6132,7 @@ static void AddItemUseEnchantLine(CGTooltip* tooltip, CGPlayer_C* player, int32_
     int32_t categoryRecoveryTime = spell.m_categoryRecoveryTime;
     Spell_C_ModifySpellValue(&spell, recoveryTime, 11);
 
-    if (spell.m_attributesExF >= 0) {
+    if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS)) {
         Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, 11);
     }
 
@@ -7418,7 +7420,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
 
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(ability->m_spell, &spell) && !(spell.m_attributes & 0xC0) && !ability->m_supercededBySpell && ability->m_acquireMethod == 2) {
+            if (g_spellDB.GetRecord(ability->m_spell, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_PASSIVE | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG)) && !ability->m_supercededBySpell && ability->m_acquireMethod == 2) {
                 if (!first) {
                     SStrPack(spells, ", ", sizeof(spells));
                 }

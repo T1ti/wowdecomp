@@ -396,7 +396,7 @@ static int32_t Script_UseContainerItem(lua_State* L) {
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
 
     if (item->GetInventoryType() && (!stats || !stats->m_startQuest)) {
-        if (CGGameUI::m_hasControl || (player->m_unit->m_unitFieldFlags & 0x100000)) {
+        if (CGGameUI::m_hasControl || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
             player->AutoEquipItem(bag->m_guid, slot, 0);
         }
 
@@ -424,7 +424,7 @@ static int32_t Script_PickupContainerItem(lua_State* L) {
     int32_t slot;
     int32_t bank;
 
-    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & 0x100000)) || !CGContainerInfo::GetLuaBagAndSlot(L, &bag, &slot, &bank)) {
+    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) || !CGContainerInfo::GetLuaBagAndSlot(L, &bag, &slot, &bank)) {
         return 0;
     }
 
@@ -787,7 +787,7 @@ static int32_t Script_SplitContainerItem(lua_State* L) {
     int32_t slot;
     int32_t bank;
 
-    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & 0x100000)) || !CGContainerInfo::GetLuaBagAndSlot(L, &bag, &slot, &bank)) {
+    if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) || !CGContainerInfo::GetLuaBagAndSlot(L, &bag, &slot, &bank)) {
         return 0;
     }
 

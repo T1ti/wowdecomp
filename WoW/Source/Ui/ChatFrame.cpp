@@ -1153,7 +1153,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
     if (type == CHAT_MSG_SAY || type == CHAT_MSG_YELL || type == CHAT_MSG_PARTY || type == CHAT_MSG_PARTY_LEADER) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(senderGuid, TYPE_UNIT, __FILE__, __LINE__));
 
-        if (unit && !(unit->m_unit->m_unitFieldFlags & 0x20000000)) {
+        if (unit && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT)) {
             char token[32];
 
             for (int32_t i = 1;;) {
@@ -6309,7 +6309,7 @@ void ComplainChat(const char* name, const char* text, uint32_t lineID) {
 void CombatLog::GetSpellLogLinkInfo(const WOWGUID& source, const WOWGUID& dest, int32_t spellId) {
     SpellRec spell;
 
-    if (!g_spellDB.GetRecord(spellId, &spell) || (spell.m_attributes & 0x180) || !*spell.m_name) {
+    if (!g_spellDB.GetRecord(spellId, &spell) || (spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) || !*spell.m_name) {
         return;
     }
 

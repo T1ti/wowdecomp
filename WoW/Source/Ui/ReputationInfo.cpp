@@ -308,7 +308,7 @@ void CGReputationInfo::SetAtWar(int32_t faction, bool atWar) {
         return;
     }
 
-    if (!atWar && player && (player->m_unit->m_unitFieldFlags & 0x80000)) {
+    if (!atWar && player && (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT)) {
         CGGameUI::DisplayError(ERR_NOT_IN_COMBAT);
         return;
     }

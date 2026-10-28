@@ -421,7 +421,7 @@ void CGNamePlateFrame::SetCastBarValues(float minValue, float maxValue, float va
 
     SpellRec spellRec;
 
-    if (!spellId || !g_spellDB.GetRecord(spellId, &spellRec) || (spellRec.m_attributes & 0x20)) {
+    if (!spellId || !g_spellDB.GetRecord(spellId, &spellRec) || (spellRec.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) {
         this->HideCastBar();
         return;
     }
