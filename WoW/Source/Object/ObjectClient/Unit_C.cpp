@@ -1616,7 +1616,11 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     CM2Model* worldModel = this->m_worldModel;
 
     if (worldModel) {
-        worldModel->m_fFlags ^= (worldModel->m_fFlags ^ (static_cast<uint8_t>(this->m_unit->m_unitFieldFlags2 >> 1) << 14)) & 0x4000;
+        if (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_HIDE_BODY) {
+            worldModel->m_fFlags |= 0x4000u;
+        } else {
+            worldModel->m_fFlags &= ~0x4000u;
+        }
     }
 
     this->UpdateDelayedSpellVisualKits();
@@ -7595,7 +7599,7 @@ int32_t CGUnit_C::IsLooting() const {
         return static_cast<bool>(target);
     }
 
-    return (this->m_unit->m_unitFieldFlags >> 10) & 1;
+    return (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_LOOTING) != 0;
 }
 
 // VERIFY: 51b8f049 auto
@@ -18565,7 +18569,7 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
         if (offHand && offHand->m_classID == 2) {
             const CGUnitVirtualItem* item;
 
-            if ((((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true), !this->IsDisarmed(0)) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && item->m_classID == 2) || static_cast<int8_t>(this->m_unit->m_unitFieldFlags2) < 0) && this->m_sheatheState == WEAPONMODE_NORMALMODE) {
+            if ((((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true), !this->IsDisarmed(0)) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && item->m_classID == 2) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_OFFHAND)) && this->m_sheatheState == WEAPONMODE_NORMALMODE) {
                 CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, SHEATHE_NONE, false);
             } else {
                 this->AddHandItem(1);
@@ -18585,7 +18589,7 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
         const WOWGUID& owner = this->m_unit->m_unitFieldCharmedby ? this->m_unit->m_unitFieldCharmedby : this->m_unit->m_unitFieldSummonedby;
 
         if (owner == ClntObjMgrGetActivePlayer()) {
-            CGPetInfo::SetIsAttackingTarget((flags >> 11) & 1);
+            CGPetInfo::SetIsAttackingTarget((flags & UNIT_FLAGS::UNIT_FLAG_PET_IN_COMBAT) != 0);
         }
     }
 

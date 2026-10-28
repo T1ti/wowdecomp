@@ -5,8 +5,8 @@
 #include <cstdint>
 
 // Masks for CGUnitData::m_unitFieldFlags and m_unitFieldFlags2.
-// Names adapted from the supplied 3.3.5 UnitFlags/UnitFlags2 definitions.
-// Server-only allowed/disallowed policy masks are not part of these client fields.
+// Names adapted from the 3.3.5 UnitFlags/UnitFlags2 definitions:
+// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Unit/UnitDefines.h
 
 enum UNIT_FLAGS : uint32_t {
     UNIT_FLAG_SERVER_CONTROLLED                   = 0x00000001u,

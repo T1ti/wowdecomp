@@ -2357,7 +2357,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
 
     if (target->m_obj->m_type & TYPE_UNIT) {
         unit = static_cast<CGUnit_C*>(target);
-        flying = (unit->m_unit->m_unitFieldFlags >> 20) & 0x1;
+        flying = (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) != 0;
         autoTracking = unit->IsAutoTracking();
 
         if (unit->IsOnFlyingSpline() || (unit->m_movement->m_flags & 0x2000000)) {

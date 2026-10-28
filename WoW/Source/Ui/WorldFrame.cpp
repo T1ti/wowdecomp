@@ -511,7 +511,7 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
         return 1;
     }
 
-    bool restricted = (unit->m_unit->m_unitFieldFlags >> 8) & 1;
+    bool restricted = unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC;
 
     if (restricted) {
         SpellRec spell;

@@ -604,7 +604,7 @@ void Weather::Update() {
                 }
             }
 
-            this->m_onTaxi = (player->m_unit->m_unitFieldFlags >> 20) & 1;
+            this->m_onTaxi = (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) != 0;
             C3Vector position = player->GetPosition();
             this->m_positionX = position.x;
             this->m_positionY = position.y;

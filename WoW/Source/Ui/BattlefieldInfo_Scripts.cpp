@@ -907,7 +907,7 @@ static int32_t Script_GetBattlefieldVehicleInfo(lua_State* L) {
     lua_pushnumber(L, x);
     lua_pushnumber(L, y);
     lua_pushstring(L, unit->GetUnitName(nullptr, true));
-    lua_pushboolean(L, (unit->m_unit->m_unitFieldFlags >> 24) & 0x1);
+    lua_pushboolean(L, (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) != 0);
 
     if (hasType) {
         lua_pushstring(L, s_vehicleTypes[vehicle->m_uiLocomotionType]);

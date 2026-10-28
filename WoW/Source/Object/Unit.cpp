@@ -40,7 +40,7 @@ bool CGUnit::CanSwim() const {
         return true;
     }
 
-    return (flags >> 15) & 1;
+    return flags & UNIT_FLAGS::UNIT_FLAG_CAN_SWIM;
 }
 
 // VERIFY: a616de1f manual
