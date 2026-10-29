@@ -133,9 +133,9 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
 // VERIFY: f8dfe4b0 manual
 // OFFSET: 0x007C10C0
 void CMapStaticEntity::SelectUnderwater(CM2Lighting* lighting) {
-    if (!(this->m_staticFlags & 0x20)) {
+    if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         lighting->m_flags = (lighting->m_flags & ~0x60) | 0x20;
-    } else if (!(this->m_staticFlags & 0x40)) {
+    } else if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP)) {
         lighting->m_flags = (lighting->m_flags & ~0x60) | 0x40;
     } else {
         float d = -this->m_liquidHeight;

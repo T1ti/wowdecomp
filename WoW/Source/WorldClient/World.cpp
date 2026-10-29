@@ -610,7 +610,7 @@ void DayNight::FindAndAddZoneLight(const C3Vector* position) {
 // VERIFY: 4cdcc272 auto
 // OFFSET: 0x0077F1E0
 int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* a4) {
-    if (!entity || !(entity->m_staticFlags & 0x20)) {
+    if (!entity || !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         return 0;
     }
 
@@ -624,12 +624,12 @@ int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float*
 // VERIFY: 52533b77 auto
 // OFFSET: 0x0077F220
 int32_t World::QueryObjectLiquidFlags(CMapEntity* entity, int32_t* flag8, int32_t* flag9) {
-    if (!entity || !(entity->m_staticFlags & 0x20)) {
+    if (!entity || !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         return 0;
     }
 
-    *flag8 = (entity->m_staticFlags >> 8) & 1;
-    *flag9 = (entity->m_staticFlags >> 9) & 1;
+    *flag8 = (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES) != 0;
+    *flag9 = (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES) != 0;
 
     return 1;
 }
@@ -662,7 +662,7 @@ int32_t World::QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* heig
 // VERIFY: 46023465 auto
 // OFFSET: 0x0077F390
 int32_t World::QueryLiquidSounds(CMapEntity* entity, float radius, TSGrowableArray<World::LiquidQueryResult>& results) {
-    if (entity->m_staticFlags & 0x1) {
+    if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {
         uint32_t distance = MAX_SOUND_EXT_LEVEL;
         entity->QueryLiquidSounds(results, &distance);
 
@@ -950,19 +950,19 @@ void World::ObjectEnableCollision(CMapBaseObj* object, int32_t enable) {
 // OFFSET: 0x007801C0
 void World::ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask) {
     if (mask & 0x1) {
-        entity->m_staticFlags ^= (entity->m_staticFlags ^ (shadow << 1)) & 0x2;
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) | ((shadow & 0x1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE : 0u);
     }
 
     if (mask & 0x2) {
-        entity->m_staticFlags ^= (entity->m_staticFlags ^ ~(shadow << 10)) & 0x800;
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) | (!(shadow & 0x2) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW : 0u);
     }
 
     if (mask & 0x4) {
-        entity->m_staticFlags ^= (entity->m_staticFlags ^ (shadow << 8)) & 0x400;
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) | ((shadow & 0x4) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE : 0u);
     }
 
     if (mask & 0x8) {
-        entity->m_staticFlags ^= (entity->m_staticFlags ^ (shadow << 10)) & 0x2000;
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) | ((shadow & 0x8) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS : 0u);
     }
 
     if (mask & 0x20) {
@@ -1079,7 +1079,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->m_vec2 = C3Vector(10000000.0f, 10000000.0f, 10000000.0f);
     entity->m_targetDiffuseLightScale = 1.0f;
     entity->m_type |= CMapBaseObj::Type_UserCreated;
-    entity->m_staticFlags = (entity->m_staticFlags & ~0xEC02) | ((flags & 0x1) << 1) | ((flags & 0x4) << 8) | (~(flags << 10) & 0x800) | (((flags >> 3) & 0x1) << 13) | ((flags & 0x10) << 11);
+    entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CREATE_CLEAR_MASK) | MapStaticFlagsFromObjectCreateFlags(flags);
     entity->m_flags = static_cast<MapObjFlag>(0);
     entity->m_func = nullptr;
     entity->unused_00B4 = 0;
@@ -1099,7 +1099,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
 
     if (entity->m_model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
-            entity->m_staticFlags |= 0x4000;
+            entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
         entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -1121,7 +1121,7 @@ void World::ObjectSetModel(CMapEntity* entity, CM2Model* model) {
         entity->m_model->Release();
     }
 
-    entity->m_staticFlags &= ~0x4000;
+    entity->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
     entity->m_model = model;
 
     if (!model) {
@@ -1129,7 +1129,7 @@ void World::ObjectSetModel(CMapEntity* entity, CM2Model* model) {
     }
 
     if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
-        entity->m_staticFlags |= 0x4000;
+        entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
     }
 
     entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -2360,7 +2360,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
         if (model) {
             model->SetAnimating(1);
 
-            uint32_t lit = !(entity->m_staticFlags & 0x4);
+            uint32_t lit = !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN);
             uint32_t flags = model->m_fFlags;
 
             if (model->m_attachParent) {
@@ -2404,7 +2404,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
         CMapBaseObjLink* next = linkList->Next(link);
         uint32_t entityFlags = entity->m_staticFlags;
 
-        if (!(force | (entityFlags & 0x1)) || !entity->m_culled || (entityFlags & 0x4)) {
+        if (!(force | (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE)) || !entity->m_culled || (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             link = next;
             continue;
         }
@@ -2430,7 +2430,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             if (model) {
                 model->SetAnimating(1);
 
-                uint32_t lit = !(entity->m_staticFlags & 0x4);
+                uint32_t lit = !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN);
                 uint32_t flags = model->m_fFlags;
 
                 if (model->m_attachParent) {
@@ -2480,8 +2480,8 @@ void CWorldScene::UpdateSortedModels() {
         if (model) {
             int32_t animating = 0;
 
-            if (!(entity->m_staticFlags & 0x4000)) {
-                if (entity->m_staticFlags & 0x400) {
+            if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER)) {
+                if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) {
                     animating = 1;
                 }
 
@@ -3618,7 +3618,7 @@ void CWorldScene::CullDoodads(CSortEntry* entry, uint16_t fadeLevel) {
         if (visible) {
             CWorldScene::AddDoodadDefModelToModelScene(doodadDef);
             CWorldScene::nDoodadsRendered++;
-        } else if ((doodadDef->m_staticFlags & 0x400) || (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) * (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) + ((doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) * (doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) + (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z) * (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z)) < 100.0f) {
+        } else if ((doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) || (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) * (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) + ((doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) * (doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) + (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z) * (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z)) < 100.0f) {
             doodadDef->m_model->SetAnimating(1);
         } else {
             doodadDef->m_model->SetAnimating(0);
@@ -3884,7 +3884,7 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 } else {
                     C3Vector delta = doodadDef->m_sphere.c - CWorldScene::s_activeWorldView;
 
-                    if ((doodadDef->m_staticFlags & 0x400) || delta.x * delta.x + delta.z * delta.z + delta.y * delta.y < 100.0f) {
+                    if ((doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) || delta.x * delta.x + delta.z * delta.z + delta.y * delta.y < 100.0f) {
                         doodadDef->m_model->SetAnimating(1);
                     } else {
                         doodadDef->m_model->SetAnimating(0);
@@ -3925,7 +3925,7 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             doodadDef->m_culled = 1;
             int32_t animate = 1;
 
-            if (!(doodadDef->m_staticFlags & 0x400)) {
+            if (!(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE)) {
                 float dz = doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z;
                 float dy = doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y;
                 float dx = doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x;
@@ -4240,7 +4240,7 @@ void World::TickObject(CMapEntity* entity) {
 // VERIFY: 8b1b26ac manual
 // OFFSET: 0x0077F2F0
 void World::ObjectSetHidden(CMapEntity* entity, int32_t hidden) {
-    entity->m_staticFlags ^= (entity->m_staticFlags ^ (4 * hidden)) & 0x4;
+    entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN) | ((hidden & 1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN : 0u);
 }
 
 // VERIFY: 8e291dc6 manual
@@ -4254,7 +4254,7 @@ int32_t World::Intersect(const C3Vector& start, const C3Vector& end, C3Vector* h
 void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
     uint32_t flags = entity->m_staticFlags;
 
-    if ((flags & 0x4000) && !entity->m_model->m_attachList) {
+    if ((flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) && !entity->m_model->m_attachList) {
         CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
         return;
     }
@@ -4264,7 +4264,7 @@ void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
     entity->m_culled = 2;
     entity->m_distanceToCamera = CWorldScene::camPlane.n.x * corner.x + CWorldScene::camPlane.n.y * corner.y + CWorldScene::camPlane.n.z * corner.z + CWorldScene::camPlane.d;
 
-    if (flags & 0x1) {
+    if (flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {
         CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
         return;
     }
@@ -4309,44 +4309,44 @@ void CWorldScene::SetCameraTarget(CMapEntity* entity, WOWGUID transportGuid) {
 // VERIFY: c79fbbdc manual
 // OFFSET: 0x007A1BC0
 void CMap::UpdateEntity(CMapEntity* entity) {
-    entity->m_staticFlags &= 0xFFFFFC96;
+    entity->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_UPDATE_CLEAR_MASK;
     entity->m_flags = static_cast<MapObjFlag>((entity->m_flags & ~0x7) | 0x1);
     CMap::LinkStaticEntity(entity);
 
-    if (entity->m_staticFlags & 0x1) {
+    if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {
         entity->UpdateMapObjLiquid();
     } else {
         int32_t liquidType;
         int32_t a4;
 
         if (CMap::QueryLiquidStatus(&entity->m_position, &liquidType, &entity->m_liquidHeight, &a4, 1)) {
-            entity->m_staticFlags |= 0x20;
+            entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID;
 
             if (entity->m_liquidHeight <= entity->m_bbox.t.z) {
-                entity->m_staticFlags |= 0x40;
+                entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
             } else {
-                entity->m_staticFlags &= ~0x40;
+                entity->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
             }
 
             entity->m_liquidType = static_cast<uint16_t>(liquidType);
         }
     }
 
-    if (!(entity->m_staticFlags & 0x2000) && (entity->m_staticFlags & 0x40) && entity->m_liquidHeight + 0.0099999998f > entity->m_position.z) {
+    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) && (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP) && entity->m_liquidHeight + 0.0099999998f > entity->m_position.z) {
         uint32_t areaId;
 
         if (CMap::QueryAreaId(entity, areaId)) {
             const LiquidTypeRec* liquid = GetLiquidTypeRecForArea(areaId, entity->m_liquidType);
 
             if (liquid && ((liquid->m_flags & 0x4) || entity->m_liquidHeight > entity->m_position.z)) {
-                entity->m_staticFlags ^= (entity->m_staticFlags ^ (liquid->m_flags << 8)) & 0x100;
-                entity->m_staticFlags ^= (entity->m_staticFlags ^ (liquid->m_flags << 8)) & 0x200;
+                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES) | ((liquid->m_flags & 0x1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES : 0u);
+                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES) | ((liquid->m_flags & 0x2) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES : 0u);
             }
         }
     }
 
     if (entity->m_flags & 0x2) {
-        if (entity->m_staticFlags & 0x1000) {
+        if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT) {
             entity->m_targetDiffuseLightScale = (2.5f - 1.0f) * (entity->m_m2DiffuseColor.a * 0.0039215689f) + 1.0f;
         } else {
             entity->m_targetDiffuseLightScale = 1.0f;
@@ -4369,7 +4369,7 @@ void CMap::UpdateEntity(CMapEntity* entity) {
     if (CShadowCache::GetShadowMode() > 1 || (entity->m_flags & 0x200) || !CMap::QueryShadow(&entity->m_position)) {
         entity->m_targetDiffuseLightScale = 2.5f;
     } else {
-        entity->m_staticFlags |= 0x8;
+        entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_SHADOWED;
         entity->m_targetDiffuseLightScale = dirLightScaleAmount;
     }
 }
@@ -4402,7 +4402,7 @@ void CWorldScene::RenderEntitys() {
 
         if (entity->m_model) {
             if (entity->m_model->IsLoaded(0, 1)) {
-                CWorldScene::CullModelSplitBody(entity->m_model, entity->unk_00A4, (entity->m_staticFlags >> 14) & 1);
+                CWorldScene::CullModelSplitBody(entity->m_model, entity->unk_00A4, (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) != 0);
             } else if (streaming) {
                 entity->m_model->LinkToAsyncHead(0);
             }
@@ -4410,18 +4410,18 @@ void CWorldScene::RenderEntitys() {
 
         CM2Model* model = entity->m_model;
 
-        if (model && model->IsLoaded(0, 0) && !(entity->m_staticFlags & 0x4)) {
+        if (model && model->IsLoaded(0, 0) && !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ entity->m_funcParam64 }, TYPE_UNIT, __FILE__, __LINE__));
 
             if (!unit) {
-                if (entity->m_staticFlags & 0x800) {
+                if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) {
                     M2SequenceInfo info;
                     info.Clear();
                     model->GetSequenceInfo(0, 0, info);
                     CWorldScene::RequestModelStreaming(model, &info.m_bounds);
                 }
             } else {
-                if ((entity->m_staticFlags & 0x800) && unit->m_unit->m_unitFieldBytes1[0] != UNIT_SUBMERGED) {
+                if ((entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) && unit->m_unit->m_unitFieldBytes1[0] != UNIT_SUBMERGED) {
                     CAaBox standBox = unit->GetStandBox();
                     CWorldScene::RequestModelStreaming(model, &standBox);
                 }
@@ -4750,7 +4750,7 @@ void World::ObjectSetUpdateCallback(CMapEntity* entity, int32_t (*func)(void*, u
 CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, MAP_OBJECT_FUNC func, void* funcParam, uintptr_t param32) {
     CMapEntity* entity = CMap::AllocEntity(0);
     entity->m_type |= CMapBaseObj::Type_UserCreated;
-    entity->m_staticFlags = (entity->m_staticFlags & 0xFFFFA390) | 0x400;
+    entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STATIC_CREATE_CLEAR_MASK) | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE;
     entity->m_flags = MAPOBJ_FLAG_UNPLACED;
     entity->m_func = nullptr;
     entity->unused_00B4 = 0;
@@ -4781,13 +4781,13 @@ CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, M
     entity->m_scale = sqrtf(matrix.a2 * matrix.a2 + matrix.a1 * matrix.a1 + matrix.a0 * matrix.a0);
     entity->m_position.x = matrix.d0;
     entity->m_position.y = matrix.d1;
-    entity->m_staticFlags |= 0x400;
+    entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE;
     entity->m_position.z = matrix.d2;
     CMap::LinkStaticEntity(entity);
 
     if (entity->m_model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
-            entity->m_staticFlags |= 0x4000;
+            entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
         entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -4805,7 +4805,7 @@ CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, M
 CMapEntity* CMap::ObjectCreateStaticEx(CM2Model* model, const C44Matrix& matrix, MAP_OBJECT_FUNC func, void* funcParam, uint64_t param64, uintptr_t param32, const char* file, int32_t line) {
     CMapEntity* entity = CMap::AllocEntity(0);
     entity->m_type |= CMapBaseObj::Type_StaticEntityEx;
-    entity->m_staticFlags = (entity->m_staticFlags & 0xFFFFA7D0) | 0x400;
+    entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STATIC_EX_CREATE_CLEAR_MASK) | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE;
     entity->m_func = nullptr;
     entity->unused_00B4 = 0;
     entity->m_flags = MAPOBJ_FLAG_UNPLACED;
@@ -4843,7 +4843,7 @@ CMapEntity* CMap::ObjectCreateStaticEx(CM2Model* model, const C44Matrix& matrix,
 
     if (entity->m_model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
-            entity->m_staticFlags |= 0x4000;
+            entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
         entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -5145,7 +5145,7 @@ void CGObject_C::PrepareToFadeInt(CMapEntity* entity, float alpha, uint64_t tran
         return;
     }
 
-    if (!entity->m_model || !entity->m_model->IsDrawable(0, 0) || alpha < 0.0099999998f || (entity->m_staticFlags & 0x4)) {
+    if (!entity->m_model || !entity->m_model->IsDrawable(0, 0) || alpha < 0.0099999998f || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
         World::ObjectDestroy(entity);
         return;
     }
@@ -5245,7 +5245,7 @@ CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, fl
     }
 
     CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(name, &position, facing, waitLoad);
-    doodadDef->m_staticFlags |= 0x2010;
+    doodadDef->m_staticFlags |= (MAP_STATIC_FLAGS::MAP_STATIC_FLAG_RUNTIME_DOODAD | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS);
     doodadDef->m_collisionGuid.m_guid = guid;
 
     if (snap) {

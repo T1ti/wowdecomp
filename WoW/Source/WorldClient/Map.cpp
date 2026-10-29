@@ -1265,11 +1265,11 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             continue;
         }
 
-        if (!(entity->m_staticFlags & 0x2)) {
+        if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE)) {
             return;
         }
 
-        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & 0x4)) {
+        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -1858,8 +1858,8 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
             for (CMapBaseObjLink* doodadLink = defGroup->m_doodadDefLinkList.Head(); doodadLink; doodadLink = defGroup->m_doodadDefLinkList.Next(doodadLink)) {
                 CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->m_owner);
 
-                if ((!doodadDef->m_model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) && !(doodadDef->m_staticFlags & 0x10000)) {
-                    doodadDef->m_staticFlags |= 0x10000;
+                if ((!doodadDef->m_model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) && !(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
+                    doodadDef->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
 
                     if (!pending) {
                         pending = 1;
@@ -1957,7 +1957,7 @@ void CMap::PrepareEntitys(int32_t addToScene) {
     }
 
     for (CMapEntity* entity = CMap::entityList.Head(); entity; entity = CMap::entityList.Next(entity)) {
-        if (!(entity->m_staticFlags & 0x4)) {
+        if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             CWorldScene::AddEntityToSortTable(entity);
         }
     }
@@ -1974,7 +1974,7 @@ void CMap::PrepareMapDoodadDefs() {
         CMapDoodadDef* next = CMap::doodadDefList.Next(doodadDef);
 
         if (!model || model->IsLoaded(0, 0)) {
-            if (!(doodadDef->m_staticFlags & 0x10)) {
+            if (!(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_RUNTIME_DOODAD)) {
                 doodadDef->UpdateBounds();
 
                 if (!(doodadDef->m_flags & MAPOBJ_FLAG_INTERIOR) && CMap::QueryShadow(&doodadDef->m_position)) {
@@ -1986,9 +1986,9 @@ void CMap::PrepareMapDoodadDefs() {
             }
 
             doodadDef->m_doodadDefLink.Unlink();
-        } else if (streaming && (doodadDef->m_staticFlags & 0x10000)) {
+        } else if (streaming && (doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
             doodadDef->m_model->LinkToAsyncHead(1);
-            doodadDef->m_staticFlags &= ~0x10000u;
+            doodadDef->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
         }
 
         doodadDef = next;
@@ -2160,7 +2160,7 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) || (doodadDef->m_staticFlags & 0x10000)) {
+        if ((doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) || (doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
             continue;
         }
 
@@ -2171,7 +2171,7 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
             *progress += static_cast<float>(loaded) / static_cast<float>(size) * scale;
         }
 
-        doodadDef->m_staticFlags |= 0x10000;
+        doodadDef->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
         remaining++;
     }
 
@@ -3530,7 +3530,7 @@ void CMap::LinkObjectToMapObjDefGroup(CMapStaticEntity* object, CMapObjDefGroup*
     link->m_ref = mapObjDefGroup;
 
     if (object->m_type & CMapBaseObj::Type_Entity) {
-        if (object->m_staticFlags & 0x2) {
+        if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
             mapObjDefGroup->m_entityLinkList.LinkToHead(link);
             return;
         }
@@ -3577,7 +3577,7 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
             link->m_ref = chunk;
 
             if (object->m_type & CMapBaseObj::Type_Entity) {
-                if (object->m_staticFlags & 0x2) {
+                if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
                     chunk->m_entityLinkList.LinkToHead(link);
                 } else {
                     chunk->m_entityLinkList.LinkToTail(link);
@@ -3719,7 +3719,7 @@ void CMap::LinkStaticEntity(CMapStaticEntity* entity, C3Vector& top, C3Vector& b
         CMap::LinkIntersectMapObjDefs(top, bottom, mid, interiorHit, groundHit, nullptr);
     }
 
-    if (entity->m_staticFlags & 0x2000) {
+    if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) {
         interiorHit[1].def = nullptr;
         groundHit[1].def = nullptr;
     }
@@ -3805,7 +3805,7 @@ void CMap::LinkStaticEntitySingle2(CMapStaticEntity* entity) {
         return;
     }
 
-    entity->m_staticFlags |= 0x1;
+    entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE;
 
     C3Vector pos(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z - (bottom.z - top.z) * groundHit[index].t);
     CMap::ClassifyStaticEntityLink(entity, groundHit[index].def, groundHit[index].group, groundHit[index].faceIndex, &pos);
@@ -3892,7 +3892,7 @@ void CMap::LinkStaticEntityMultiple2(CMapStaticEntity* entity) {
 
     if (interior) {
         CMap::LinkStaticEntityMultiple2ToMapObjDefInterior(entity, interiorHit[0].def, interiorHit[0].group);
-        entity->m_staticFlags |= 0x1;
+        entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE;
 
         C3Vector pos(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z - (bottom.z - top.z) * groundHit[0].t);
         CMap::ClassifyStaticEntityLink(entity, groundHit[0].def, groundHit[0].group, groundHit[0].faceIndex, &pos);
@@ -3918,7 +3918,7 @@ void CMap::LinkStaticEntity(CMapStaticEntity* entity) {
         static_cast<CMapEntity*>(entity)->m_groundType = -1;
     }
 
-    if (entity->m_staticFlags & 0x2000) {
+    if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) {
         CMap::LinkStaticEntityMultiple2(entity);
     } else {
         CMap::LinkStaticEntitySingle2(entity);
@@ -4377,7 +4377,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
         CAaBox bbox = def->m_bboxDoodadDef;
 
         if (!(def->m_flags & 0x80)) {
-            def->m_staticFlags |= 0x10000;
+            def->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
             CAaBox modelBox = def->m_model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(def->m_mat, modelBox, bbox);
         }
@@ -4419,11 +4419,11 @@ void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMa
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapEntity* entity = static_cast<CMapEntity*>(link->m_owner);
 
-        if (!(entity->m_staticFlags & 0x2)) {
+        if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE)) {
             break;
         }
 
-        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & 0x4)) {
+        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -4834,7 +4834,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         hitInfo->m_sphere = entity->m_sphere;
         hitInfo->m_labelPos = entity->m_vec2;
 
-        if (entity->m_staticFlags & 0x2000) {
+        if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) {
             float raised = hitInfo->m_labelPos.z + 4.0f;
             float top = entity->m_bbox.t.z + 0.1f;
             hitInfo->m_labelPos.z = top > raised ? raised : top;
@@ -6426,7 +6426,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
         current->m_worldTransform = doodadDef->m_mat;
     }
 
-    doodadDef->m_staticFlags &= ~0x1u;
+    doodadDef->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE;
     doodadDef->m_flags = static_cast<MapObjFlag>((doodadDef->m_flags & 0xFFFFFFF8) | MAPOBJ_FLAG_UNPLACED);
     CMap::LinkStaticEntity(doodadDef);
     doodadDef->ExtendChunkBounds();

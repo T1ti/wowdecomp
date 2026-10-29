@@ -453,7 +453,7 @@ void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, int32_t enable, uint16
 
             if (enable) {
                 doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags & ~(MAPOBJ_FLAG_DISABLED | MAPOBJ_FLAG_NO_HITTEST));
-                doodadDef->m_staticFlags &= ~0xE0u;
+                doodadDef->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_CACHE_MASK;
                 CMap::LinkDoodadDefToMapObjDefs(doodadDef, mapObjDef);
                 continue;
             }

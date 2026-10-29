@@ -32,7 +32,7 @@ CMapStaticEntity::CMapStaticEntity() {
     this->m_sphere.c = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_sphere.r = 0.0f;
     this->m_scale = 0.0f;
-    this->m_staticFlags &= 0xFFFE4000;
+    this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CONSTRUCTOR_CLEAR_MASK;
     this->m_distanceToCamera = 0.0f;
     this->m_liquidHeight = 0.0f;
     this->m_model = nullptr;
@@ -295,7 +295,7 @@ void CMapStaticEntity::SelectLights(CM2Lighting* lighting) {
 
             dir = CMapStaticEntity::s_interiorSunDir;
 
-            if ((this->m_staticFlags & 0x1000) != 0) {
+            if ((this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT) != 0) {
                 DayNight::DNInfo* dayNight = DayNight::GetInfo();
                 float blend = this->m_m2DiffuseColor.a / 255.0f;
 
@@ -307,7 +307,7 @@ void CMapStaticEntity::SelectLights(CM2Lighting* lighting) {
             }
         }
 
-        if ((this->m_staticFlags & 0x8000) != 0) {
+        if ((this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_USE_CHARACTER_AMBIENT) != 0) {
             ambient.x *= CMapStaticEntity::s_characterAmbient;
             ambient.y *= CMapStaticEntity::s_characterAmbient;
             ambient.z *= CMapStaticEntity::s_characterAmbient;
@@ -387,7 +387,7 @@ FogQ FogQueue::Pop() {
 // VERIFY: 5f34315e manual
 // OFFSET: 0x007A1B10
 void CMapEntity::QueryLiquidSounds(TSGrowableArray<World::LiquidQueryResult>& results, uint32_t* distance) {
-    if (!(this->m_staticFlags & 0x1)) {
+    if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE)) {
         return;
     }
 
@@ -481,7 +481,7 @@ void CMapEntity::Tick() {
     this->m_m2AmbientColor.g = static_cast<uint8_t>(g);
     this->m_m2AmbientColor.b = static_cast<uint8_t>(b);
 
-    if (!(this->m_staticFlags & 0x1) && !changed) {
+    if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) && !changed) {
         CImVector ambient = DayNight::GetInfo()->m_light1.m_ambient;
         this->m_m2AmbientColor = ambient;
         this->m_targetAmbientColor = ambient;
@@ -547,7 +547,7 @@ bool CMapStaticEntity::GetMapObjAndGroup(CMapObjDef** mapObjDef, CMapObj** mapOb
 // VERIFY: d211d73c auto
 // OFFSET: 0x007A1A30
 bool CMapEntity::UpdateMapObjLiquid() {
-    this->m_staticFlags &= ~0x60;
+    this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_STATE_MASK;
     CMapObjDef* mapObjDef;
     CMapObj* mapObj;
     CMapObjDefGroup* mapObjDefGroup;
@@ -565,14 +565,14 @@ bool CMapEntity::UpdateMapObjLiquid() {
         return false;
     }
 
-    this->m_staticFlags |= 0x20;
+    this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID;
     C3Vector world = C3Vector(local.x, local.y, level) * mapObjDef->m_mat;
     this->m_liquidHeight = world.z;
 
     if (world.z <= this->m_bbox.t.z) {
-        this->m_staticFlags |= 0x40;
+        this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
     } else {
-        this->m_staticFlags &= ~0x40;
+        this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
     }
 
     this->m_liquidType = static_cast<uint16_t>(liquidType);
@@ -607,7 +607,7 @@ bool CMapEntity::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNum, 
     this->AdjustLightmap(&color, &this->m_m2DiffuseColor, limit, &this->m_targetAmbientColor, MAX_AMBIENT);
 
     if (!flag) {
-        this->m_staticFlags &= ~0x1000;
+        this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT;
         return result;
     }
 
@@ -619,7 +619,7 @@ bool CMapEntity::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNum, 
         this->m_targetAmbientColor.InterpColor(alpha, &info->m_light1.m_ambient);
     }
 
-    this->m_staticFlags |= 0x1000;
+    this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT;
     this->m_m2DiffuseColor.a = color.a;
     return result;
 }

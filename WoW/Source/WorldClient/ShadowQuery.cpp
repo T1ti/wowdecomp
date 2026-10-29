@@ -457,7 +457,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
     minRadius[2] = 10.0f;
 
     for (CMapEntity* entity = CMap::entityList.Head(); entity; entity = CMap::entityList.Next(entity)) {
-        if (entity->m_staticFlags & 0x4) {
+        if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN) {
             continue;
         }
 
@@ -469,7 +469,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
 
         int32_t isUnit = 1;
 
-        if (!(entity->m_type & CMapBaseObj::Type_Entity) || (entity->m_staticFlags & 0x2000)) {
+        if (!(entity->m_type & CMapBaseObj::Type_Entity) || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS)) {
             isUnit = 0;
         }
 
@@ -497,7 +497,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
                 flags = entity->m_flags;
 
                 if (flags & 0x2) {
-                    if (!(entity->m_staticFlags & 0x1000)) {
+                    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT)) {
                         continue;
                     }
 

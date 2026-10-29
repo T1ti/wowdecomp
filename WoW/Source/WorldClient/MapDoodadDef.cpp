@@ -151,25 +151,25 @@ CMapDoodadDef::CMapDoodadDef() {
 // VERIFY: cf40d12f manual
 // OFFSET: 0x007C23F0
 void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
-    if (!(this->m_staticFlags & 0x80)) {
-        this->m_staticFlags = (this->m_staticFlags & ~0xE0u) | 0x80;
+    if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED)) {
+        this->m_staticFlags = (this->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_CACHE_MASK) | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
 
         for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
             CMapBaseObj* parent = link->m_ref;
 
             if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup)) {
-                this->m_staticFlags |= 0x80;
+                this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
                 C3Vector pos(this->m_position.x, this->m_position.y, this->m_bbox.b.z);
                 int32_t liquidType;
 
                 if (CMap::QueryLiquidTerrain(&pos, &liquidType, &this->m_liquidHeight, 0)) {
                     this->m_diffuseLightScale = 1.0f;
-                    this->m_staticFlags = (this->m_staticFlags & ~0x28u) | 0x20;
+                    this->m_staticFlags = (this->m_staticFlags & ~(MAP_STATIC_FLAGS::MAP_STATIC_FLAG_SHADOWED | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID;
 
                     if (this->m_liquidHeight <= this->m_bbox.t.z) {
-                        this->m_staticFlags |= 0x40;
+                        this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
                     } else {
-                        this->m_staticFlags &= ~0x40u;
+                        this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
                     }
                 }
 
@@ -181,7 +181,7 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
             CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->m_groupNum, 0);
 
             if (!group) {
-                this->m_staticFlags &= ~0x80u;
+                this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
                 continue;
             }
 
@@ -190,17 +190,17 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
             float level;
 
             if (group->QueryLiquid(localPos, &liquidType, &level)) {
-                this->m_staticFlags |= 0x20;
+                this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID;
                 C3Vector surface = C3Vector(localPos.x, localPos.y, level) * mapObjDef->m_mat;
                 this->m_liquidHeight = surface.z;
 
                 if (this->m_liquidHeight <= this->m_bbox.t.z) {
-                    this->m_staticFlags |= 0x40;
+                    this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
                 } else {
-                    this->m_staticFlags &= ~0x40u;
+                    this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP;
                 }
 
-                this->m_staticFlags |= 0x80;
+                this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
                 break;
             }
         }
@@ -329,7 +329,7 @@ bool CMapDoodadDef::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNu
     this->AdjustLightmap(&color, &this->m_m2DiffuseColor, limit, &this->m_m2AmbientColor, MAX_AMBIENT);
 
     if (!flag) {
-        this->m_staticFlags &= ~0x1000;
+        this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT;
         return result;
     }
 
@@ -341,7 +341,7 @@ bool CMapDoodadDef::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNu
         this->m_m2AmbientColor.InterpColor(alpha, &info->m_light1.m_ambient);
     }
 
-    this->m_staticFlags |= 0x1000;
+    this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT;
     this->m_m2DiffuseColor.a = color.a;
     return result;
 }
