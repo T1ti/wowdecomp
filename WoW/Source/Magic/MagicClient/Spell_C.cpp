@@ -9240,7 +9240,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_baseSpeed = spell.m_speed;
         missile->m_hitResult = 0;
         missile->m_missReason = 0;
-        missile->m_flags = 1;
+        missile->m_flags = MISSILE_FLAGS::MISSILE_FLAG_HIT;
         missile->m_scale = scale;
         missile->m_soundKitID = visual->m_missileSound;
         missile->m_impactPos = data->m_destPosition;
@@ -9263,13 +9263,13 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_motionFlags = visual->m_missileFollowGroundFlags;
 
         if (visual->m_missileFollowGroundFlags & 1) {
-            missile->m_flags |= 0x7800;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
 
         int32_t missileCount = 1;
 
         if (visual->m_missileMotion) {
-            missile->m_flags |= 0xB800;
+            missile->m_flags |= (MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_SETUP_MASK | MISSILE_FLAGS::MISSILE_FLAG_USE_MODEL_IMPACT_POSITION);
             missile->InstallMotionScriptFunction(visual->m_missileMotion);
             SpellMissileMotionRec* motion = g_spellMissileMotionDB.GetRecord(visual->m_missileMotion);
 
@@ -9285,7 +9285,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
             missile->m_pitch = data->m_elevation;
             missile->m_trajectorySpeed = data->m_missileSpeed;
             missile->m_arrivalTime = data->m_delay + missile->m_castTime;
-            missile->m_flags |= 0x10800;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         }
 
         missile->m_missileCount = missileCount;

@@ -18335,7 +18335,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
             }
 
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
-            this->m_missiles->m_flags |= 0x2000000;
+            this->m_missiles->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_USE_ANIMATED_MODEL_TRANSFORM;
             CM2Model* missileModel = this->m_missiles->m_model;
             missileModel->m_fFlags |= 0x8000;
             missileModel->m_worldTransform = transform;
@@ -18990,19 +18990,19 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
     missile->m_missReason = reflectResult;
 
     if (hit) {
-        missile->m_flags |= 1;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     }
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
         if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
-            missile->m_flags |= 4;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
 
     if (missReason == 11 && (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_REFLECTION_ONLY_DEFENDS)) {
-        missile->m_flags |= 0x8000000;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_REFLECT_AS_DEFLECT;
     }
 
     missile->m_scale = scale;
@@ -19036,7 +19036,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
         if (spellVisual->m_missileFollowGroundFlags & 1) {
-            missile->m_flags |= 0x7800;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
 
@@ -19081,7 +19081,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
             goto targetsDone;
         }
 
-        missile->m_flags |= 1;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
         missile->m_attachmentID = -1;
 
         if (hasOffset) {
@@ -19101,7 +19101,7 @@ targetsDone:
 
     if (!*target && targets->m_count) {
         if (!multiTarget && !(data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) {
-            missile->m_flags &= ~0x200u;
+            missile->m_flags &= ~MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
             goto flagsDone;
         }
 
@@ -19117,9 +19117,9 @@ targetsDone:
     }
 
     if (multiTarget) {
-        missile->m_flags |= 0x200;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
     } else {
-        missile->m_flags &= ~0x200u;
+        missile->m_flags &= ~MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
     }
 
 flagsDone:
@@ -19127,7 +19127,7 @@ flagsDone:
     int32_t missileCount = 1;
 
     if (spellVisual && spellVisual->m_missileMotion) {
-        missile->m_flags |= 0x3800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_SETUP_MASK;
         missile->InstallMotionScriptFunction(spellVisual->m_missileMotion);
         SpellMissileMotionRec* motion = g_spellMissileMotionDB.GetRecord(spellVisual->m_missileMotion);
 
@@ -19142,13 +19142,13 @@ flagsDone:
 
     if (data->m_castFlags & 0x20000) {
         missile->m_pitch = data->m_elevation;
-        missile->m_flags |= 0x10800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
     if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
-        missile->m_flags |= 0x200000;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
     missile->m_missileCount = missileCount;
@@ -19246,7 +19246,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     missile->m_castID = data->m_castCount;
     missile->m_speed = spell.m_speed;
     missile->m_baseSpeed = spell.m_speed;
-    missile->m_flags |= 1;
+    missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_hitResult = 0;
     missile->m_missReason = 0;
 
@@ -19254,7 +19254,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
         if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
-            missile->m_flags |= 4;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
 
@@ -19289,7 +19289,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
         if (spellVisual->m_missileFollowGroundFlags & 1) {
-            missile->m_flags |= 0x7800;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
 
@@ -19297,7 +19297,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     bool hasOffset = 0.0f != offset.x || 0.0f != offset.y || offset.z != 0.0f;
     missile->m_impactPos = point->m_position;
     missile->m_transportGuid = point->m_transport;
-    missile->m_flags |= 1;
+    missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_attachmentID = -1;
 
     if (hasOffset) {
@@ -19311,12 +19311,12 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         missile->m_impactPos.z = rotated.z + missile->m_impactPos.z;
     }
 
-    missile->m_flags &= ~0x200u;
+    missile->m_flags &= ~MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
     missile->m_currentTarget = 0;
     int32_t missileCount = 1;
 
     if (spellVisual && spellVisual->m_missileMotion) {
-        missile->m_flags |= 0x3800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_SETUP_MASK;
         missile->InstallMotionScriptFunction(spellVisual->m_missileMotion);
         SpellMissileMotionRec* motion = g_spellMissileMotionDB.GetRecord(spellVisual->m_missileMotion);
 
@@ -19331,13 +19331,13 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
 
     if (data->m_castFlags & 0x20000) {
         missile->m_pitch = data->m_elevation;
-        missile->m_flags |= 0x10800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
     if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
-        missile->m_flags |= 0x200000;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
     missile->m_missileCount = missileCount;
@@ -19435,7 +19435,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     missile->m_castID = data->m_castCount;
     missile->m_speed = spell.m_speed;
     missile->m_baseSpeed = spell.m_speed;
-    missile->m_flags |= 1;
+    missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_hitResult = 0;
     missile->m_missReason = 0;
 
@@ -19443,7 +19443,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
         if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
-            missile->m_flags |= 4;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
 
@@ -19478,23 +19478,23 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
         if (spellVisual->m_missileFollowGroundFlags & 1) {
-            missile->m_flags |= 0x7800;
+            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
 
     int32_t attachment = (visual->m_flags & 0x200) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
     missile->m_impactPos = points->m_data[0].m_position;
     missile->m_transportGuid = points->m_data[0].m_transport;
-    missile->m_flags |= 1;
+    missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_attachmentID = attachment;
     missile->m_attachOffset = C3Vector(visual->m_missileImpactOffset[0], -visual->m_missileImpactOffset[1], visual->m_missileImpactOffset[2]);
     missile->m_targetPoints.Set(points->m_count, points->m_data);
-    missile->m_flags |= 0x200;
+    missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
     missile->m_currentTarget = 0;
     int32_t missileCount = 1;
 
     if (spellVisual && spellVisual->m_missileMotion) {
-        missile->m_flags |= 0x3800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_SETUP_MASK;
         missile->InstallMotionScriptFunction(spellVisual->m_missileMotion);
         SpellMissileMotionRec* motion = g_spellMissileMotionDB.GetRecord(spellVisual->m_missileMotion);
 
@@ -19509,13 +19509,13 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
 
     if (data->m_castFlags & 0x20000) {
         missile->m_pitch = data->m_elevation;
-        missile->m_flags |= 0x10800;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
     if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
-        missile->m_flags |= 0x200000;
+        missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
     missile->m_missileCount = missileCount;
