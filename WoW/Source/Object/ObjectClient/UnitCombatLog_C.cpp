@@ -190,13 +190,13 @@ static const char* s_environmentalDamageTypes[6] = { "FATIGUE", "DROWNING", "FAL
 
 // INLINED
 inline CombatLogEntry::CombatLogEntry() {
-    this->m_infoFlags = 0;
+    this->m_infoFlags = COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_NONE;
     this->Clear();
 }
 
 // INLINED
 inline CombatLogEntry::~CombatLogEntry() {
-    if (this->m_infoFlags & 0x2) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_FAIL_REASON) {
         SMemFree(this->m_info.m_text, __FILE__, __LINE__, 0);
     }
 
@@ -215,7 +215,7 @@ inline InvalidatedName::~InvalidatedName() {
 // VERIFY: e107c6e5 manual
 // OFFSET: 0x0074D1E0
 void CombatLogEntry::SetFailReason(const char* reason) {
-    this->m_infoFlags |= 0x2;
+    this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_FAIL_REASON;
     this->m_info.m_text = SStrDupA(reason, __FILE__, __LINE__);
 }
 
@@ -299,30 +299,30 @@ void CombatLogEntry::Clear() {
     this->m_spellId = 0;
     this->m_spellName.Copy(static_cast<const char*>(nullptr));
 
-    if (this->m_infoFlags & 0x2) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_FAIL_REASON) {
         SMemFree(this->m_info.m_text, __FILE__, __LINE__, 0);
     }
 
-    this->m_infoFlags = 0;
+    this->m_infoFlags = COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_NONE;
 }
 
 // VERIFY: 10cdb977 manual
 // OFFSET: 0x0074D980
 void CombatLogEntry::SetMissInfo(int32_t missType, int32_t amount) {
-    this->m_infoFlags |= 0x4;
+    this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE;
     this->m_info.m_values[0] = missType;
 
     switch (missType) {
         case 2:
-            this->m_infoFlags |= 0x4000;
+            this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED;
             this->m_info.m_values[5] = amount;
             break;
         case 5:
-            this->m_infoFlags |= 0x8000;
+            this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED;
             this->m_info.m_values[6] = amount;
             break;
         case 10:
-            this->m_infoFlags |= 0x2000;
+            this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED;
             this->m_info.m_values[4] = amount;
             break;
     }
@@ -969,7 +969,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         uint32_t school = info.m_schoolMask[0];
         int32_t overkill = info.m_overkill;
         CombatLogEntry* entry = GetCombatLogEntry(info.m_attacker, target, 1, nullptr);
-        entry->m_infoFlags |= 0x10;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
         entry->m_info.m_values[2] = overkill;
         entry->m_info.m_values[4] = absorbed;
         entry->m_info.m_values[3] = school;
@@ -1107,7 +1107,7 @@ int32_t Packet_SMSG_PROCRESIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
         CombatLogEntry* entry = GetCombatLogEntry(caster, target, 8, &spell);
-        entry->m_infoFlags |= 0x4004;
+        entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED);
         entry->m_info.m_values[0] = 2;
         entry->m_info.m_values[5] = 0;
 
@@ -1142,7 +1142,7 @@ int32_t Packet_SMSG_DISPEL_FAILED(void* param, NETMESSAGE msgId, uint32_t time, 
 
             if (g_spellDB.GetRecord(failedId, &failed) && !(failed.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *failed.m_name) {
                 CombatLogEntry* entry = GetCombatLogEntry(caster, target, 39, &spell);
-                entry->m_infoFlags |= 0x100;
+                entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
                 entry->m_info.m_values[0] = failedId;
                 QueueCombatLogEntry(entry, 0);
             }
@@ -1171,7 +1171,7 @@ void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && spell.m_cumulativeAura > 1) {
         WOWGUID guid = unit->m_obj->m_guid;
         CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, (newStack <= oldStack) + 22, &spell);
-        entry->m_infoFlags |= 0xC00;
+        entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT);
         entry->m_info.m_values[2] = newStack;
         reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = a6;
         QueueCombatLogEntry(entry, 0);
@@ -1191,7 +1191,7 @@ void UnitCombatLogDamageShield(const WOWGUID& victimGuid, const WOWGUID& casterG
         }
 
         CombatLogEntry* entry = GetCombatLogEntry(victimGuid, casterGuid, 40, &spell);
-        entry->m_infoFlags |= 0x10;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
         entry->m_infoBits &= ~0x7;
         entry->m_info.m_values[1] = damage;
         entry->m_info.m_values[2] = overkill;
@@ -1291,31 +1291,31 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
         count = 11;
     }
 
-    if (this->m_infoFlags & 0x1) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_ATTACK_COUNT) {
         lua_checkstack(L, 1);
         lua_pushinteger(L, this->m_info.m_values[0]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x2) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_FAIL_REASON) {
         lua_checkstack(L, 1);
         lua_pushstring(L, this->m_info.m_text);
         count++;
     }
 
-    if (this->m_infoFlags & 0x4) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE) {
         lua_checkstack(L, 1);
         lua_pushstring(L, g_spellMissStrings[this->m_info.m_values[0]]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x8) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE) {
         lua_checkstack(L, 1);
         lua_pushstring(L, s_environmentalDamageTypes[this->m_info.m_values[0]]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x10) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE) {
         lua_checkstack(L, 9);
         lua_pushnumber(L, this->m_info.m_values[1]);
         lua_pushnumber(L, this->m_info.m_values[2]);
@@ -1360,25 +1360,25 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
         count += 9;
     }
 
-    if (this->m_infoFlags & 0x2000) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED) {
         lua_checkstack(L, 1);
         lua_pushinteger(L, this->m_info.m_values[4]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x4000) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED) {
         lua_checkstack(L, 1);
         lua_pushinteger(L, this->m_info.m_values[5]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x8000) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED) {
         lua_checkstack(L, 1);
         lua_pushinteger(L, this->m_info.m_values[6]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x20) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_HEAL) {
         lua_checkstack(L, 4);
         lua_pushnumber(L, this->m_info.m_values[0]);
         lua_pushnumber(L, this->m_info.m_values[1]);
@@ -1393,14 +1393,14 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
         count += 4;
     }
 
-    if (this->m_infoFlags & 0x40) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENERGIZE) {
         lua_checkstack(L, 2);
         lua_pushnumber(L, this->m_info.m_values[0]);
         lua_pushnumber(L, this->m_info.m_values[1]);
         count += 2;
     }
 
-    if (this->m_infoFlags & 0x80) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_POWER_DRAIN) {
         lua_checkstack(L, 3);
         lua_pushnumber(L, this->m_info.m_values[0]);
         lua_pushnumber(L, this->m_info.m_values[1]);
@@ -1414,7 +1414,7 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
         count += 3;
     }
 
-    if (this->m_infoFlags & 0x100) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL) {
         lua_checkstack(L, 2);
         lua_pushinteger(L, this->m_info.m_values[0]);
         SpellRec spell;
@@ -1430,26 +1430,26 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
         count += 3;
     }
 
-    if (this->m_infoFlags & 0x1000) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENCHANT_NAME) {
         lua_checkstack(L, 1);
         lua_pushstring(L, this->m_info.m_names[2]);
         count++;
     }
 
-    if (this->m_infoFlags & 0x200) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ITEM) {
         lua_checkstack(L, 2);
         lua_pushinteger(L, this->m_info.m_values[0]);
         lua_pushstring(L, this->m_info.m_names[1]);
         count += 2;
     }
 
-    if (this->m_infoFlags & 0x400) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE) {
         lua_checkstack(L, 1);
         lua_pushstring(L, static_cast<uint8_t>(this->m_info.m_values[1]) ? "DEBUFF" : "BUFF");
         count++;
     }
 
-    if (this->m_infoFlags & 0x800) {
+    if (this->m_infoFlags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT) {
         lua_checkstack(L, 1);
         lua_pushinteger(L, this->m_info.m_values[2]);
         count++;
@@ -1461,7 +1461,7 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
 // VERIFY: c56cea32 auto
 // OFFSET: 0x00750210
 void CombatLogEntry::SetExecuteItem(int32_t itemId) {
-    this->m_infoFlags |= 0x200;
+    this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ITEM;
     this->m_info.m_values[0] = itemId;
     PendingCombatLogData* data = GetPendingCombatLogData(this, WOWGUID{ 0 }, 4);
     data->m_id = itemId;
@@ -1542,7 +1542,7 @@ int32_t Packet_SMSG_ENCHANTMENTLOG(void* param, NETMESSAGE msgId, uint32_t time,
 
     if (enchant && !(enchant->m_flags & 0x2)) {
         CombatLogEntry* entry = GetCombatLogEntry(caster, target, caster.m_guid ? 31 : 32, nullptr);
-        entry->m_infoFlags |= 0x1000;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENCHANT_NAME;
         entry->m_info.m_names[2] = enchant->m_name;
         entry->SetExecuteItem(itemId);
         QueueCombatLogEntry(entry, 0);
@@ -1623,7 +1623,7 @@ void UnitCombatLogInterrupt(const WOWGUID& casterGuid, const WOWGUID& targetGuid
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && g_spellDB.GetRecord(interruptedSpellId, &interrupted) && !(interrupted.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *interrupted.m_name) {
         CombatLogEntry* entry = GetCombatLogEntry(casterGuid, targetGuid, 17, &spell);
-        entry->m_infoFlags |= 0x100;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
         entry->m_info.m_values[0] = interruptedSpellId;
         QueueCombatLogEntry(entry, 0);
 
@@ -1646,7 +1646,7 @@ void CombatLog::AddSpellDamageEntry(const WOWGUID& source, const WOWGUID& dest, 
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && damage) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, 18, &spell);
-        entry->m_infoFlags |= 0x1;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_ATTACK_COUNT;
         entry->m_info.m_values[0] = damage;
         QueueCombatLogEntry(entry, timeOffset);
 
@@ -1859,7 +1859,7 @@ void UnitCombatLogAuraAddedOrRemoved(CGUnit_C* unit, AuraData* aura, const Spell
 
     WOWGUID guid = unit->m_obj->m_guid;
     CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, added ? 21 : 24, spell);
-    entry->m_infoFlags |= 0x400;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
     QueueCombatLogEntry(entry, 0);
 
@@ -2000,7 +2000,7 @@ int32_t CombatLog::HandleSpellLogEnergizeLog(CDataStore* msg, int32_t timeOffset
 // OFFSET: 0x00750860
 void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t amount, int32_t overheal, int32_t absorbed, bool crit, uint32_t timeOffset) {
     CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, spell);
-    entry->m_infoFlags |= 0x20;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_HEAL;
     entry->m_info.m_values[1] = overheal;
     entry->m_info.m_values[0] = amount;
     entry->m_info.m_values[2] = absorbed;
@@ -2045,7 +2045,7 @@ void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, co
 void SendEnergizeEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t powerType, int32_t amount, uint32_t timeOffset) {
     int32_t value = amount / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(powerType));
     CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, spell);
-    entry->m_infoFlags |= 0x40;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENERGIZE;
     entry->m_info.m_values[0] = value;
     entry->m_info.m_values[1] = powerType;
     QueueCombatLogEntry(entry, timeOffset);
@@ -2062,7 +2062,7 @@ void AddPowerDrainEntry(int32_t event, const WOWGUID& source, const WOWGUID& des
     int32_t value = amount / mod;
     int32_t extraValue = extra / mod;
     CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, spell);
-    entry->m_infoFlags |= 0x80;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_POWER_DRAIN;
     entry->m_info.m_values[2] = extraValue;
     entry->m_info.m_values[0] = value;
     entry->m_info.m_values[1] = powerType;
@@ -2307,7 +2307,7 @@ void CombatLog::AddAuraReplacedEntry(const WOWGUID& source, const WOWGUID& dest,
     }
 
     CombatLogEntry* entry = GetCombatLogEntry(source, dest, stolen + 26, &spell);
-    entry->m_infoFlags |= 0x500;
+    entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE);
     entry->m_info.m_values[0] = replacedSpellId;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
     QueueCombatLogEntry(entry, timeOffset);
@@ -2336,11 +2336,11 @@ void CombatLog::AddSpellRemoveEntry(const WOWGUID& source, const WOWGUID& dest, 
     CombatLogEntry* entry = GetCombatLogEntry(remover, dest, (dispelSpellId != 0) + 28, &spell);
 
     if (dispelSpellId) {
-        entry->m_infoFlags |= 0x100;
+        entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
         entry->m_info.m_values[0] = dispelSpellId;
     }
 
-    entry->m_infoFlags |= 0x400;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
     QueueCombatLogEntry(entry, 0);
 
@@ -2360,7 +2360,7 @@ void UnitCombatLogAuraRefreshed(CGUnit_C* unit, const AuraData* aura, int32_t sp
 
     WOWGUID guid = unit->m_obj->m_guid;
     CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, 25, &spell);
-    entry->m_infoFlags |= 0x400;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = a4;
     QueueCombatLogEntry(entry, 0);
 
@@ -2380,7 +2380,7 @@ void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, 
     }
 
     CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, spell);
-    entry->m_infoFlags |= 0x10;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
     entry->m_info.m_values[3] = school;
     entry->m_info.m_values[4] = absorbed;
     entry->m_info.m_values[1] = damage;
@@ -2434,7 +2434,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
 
     if (absorbed) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
-        entry->m_infoFlags |= 0x2004;
+        entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED);
         entry->m_info.m_values[0] = 10;
         entry->m_info.m_values[4] = absorbed;
 
@@ -2445,7 +2445,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         QueueCombatLogEntry(entry, 0);
     } else if (blocked) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
-        entry->m_infoFlags |= 0x8004;
+        entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED);
         entry->m_info.m_values[0] = 5;
         entry->m_info.m_values[6] = blocked;
 
@@ -2456,7 +2456,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         QueueCombatLogEntry(entry, 0);
     } else if (resisted) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
-        entry->m_infoFlags |= 0x4004;
+        entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED);
         entry->m_info.m_values[0] = 2;
         entry->m_info.m_values[5] = resisted;
 
@@ -3035,23 +3035,23 @@ void CombatLogEntry::PackEvent(char* buffer, uint32_t size) {
 
     uint32_t flags = this->m_infoFlags;
 
-    if (flags & 0x1) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_ATTACK_COUNT) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
     }
 
-    if (flags & 0x2) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_FAIL_REASON) {
         PackQuotedString(cursor, remaining, this->m_info.m_text);
     }
 
-    if (flags & 0x4) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE) {
         PackString(cursor, remaining, g_spellMissStrings[this->m_info.m_values[0]]);
     }
 
-    if (flags & 0x8) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE) {
         PackString(cursor, remaining, s_environmentalDamageTypes[this->m_info.m_values[0]]);
     }
 
-    if (flags & 0x10) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE) {
         PackInt(cursor, remaining, this->m_info.m_values[1]);
         PackInt(cursor, remaining, this->m_info.m_values[2]);
         PackInt(cursor, remaining, this->m_info.m_values[3]);
@@ -3078,19 +3078,19 @@ void CombatLogEntry::PackEvent(char* buffer, uint32_t size) {
         }
     }
 
-    if (flags & 0x2000) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED) {
         PackInt(cursor, remaining, this->m_info.m_values[4]);
     }
 
-    if (flags & 0x4000) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED) {
         PackInt(cursor, remaining, this->m_info.m_values[5]);
     }
 
-    if (flags & 0x8000) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED) {
         PackInt(cursor, remaining, this->m_info.m_values[6]);
     }
 
-    if (flags & 0x20) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_HEAL) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
         PackInt(cursor, remaining, this->m_info.m_values[1]);
         PackInt(cursor, remaining, this->m_info.m_values[2]);
@@ -3102,18 +3102,19 @@ void CombatLogEntry::PackEvent(char* buffer, uint32_t size) {
         }
     }
 
-    if (flags & 0x40) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENERGIZE) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
         PackInt(cursor, remaining, this->m_info.m_values[1]);
     }
 
-    if (flags & 0x80000000) {
+    // Native tests POWER_DRAIN (0x80); preserve the pre-existing reconstructed bit-31 test.
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_UNUSED_31) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
         PackInt(cursor, remaining, this->m_info.m_values[1]);
         PackInt(cursor, remaining, this->m_info.m_values[2]);
     }
 
-    if (flags & 0x100) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
         SpellRec spell;
 
@@ -3126,20 +3127,20 @@ void CombatLogEntry::PackEvent(char* buffer, uint32_t size) {
         }
     }
 
-    if (flags & 0x1000) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENCHANT_NAME) {
         PackQuotedString(cursor, remaining, this->m_info.m_names[2]);
     }
 
-    if (flags & 0x200) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ITEM) {
         PackInt(cursor, remaining, this->m_info.m_values[0]);
         PackQuotedString(cursor, remaining, this->m_info.m_names[1]);
     }
 
-    if (flags & 0x400) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE) {
         PackString(cursor, remaining, this->m_info.m_values[1] ? "DEBUFF" : "BUFF");
     }
 
-    if (flags & 0x800) {
+    if (flags & COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT) {
         PackInt(cursor, remaining, this->m_info.m_values[2]);
     }
 
@@ -3157,10 +3158,10 @@ void UnitCombatLog(const WOWGUID& guid, uint32_t type, int32_t damage, int32_t a
     }
 
     CombatLogEntry* entry = GetCombatLogEntry(WOWGUID(), guid, 0, nullptr);
-    entry->m_infoFlags |= 0x8;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE;
     entry->m_info.m_values[0] = type;
     entry->m_infoBits &= ~0x7;
-    entry->m_infoFlags |= 0x10;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
     entry->m_info.m_values[3] = 1 << s_environmentalDamageSchools[type];
     entry->m_info.m_values[5] = resisted;
     entry->m_info.m_values[1] = damage;
@@ -3192,7 +3193,7 @@ void UnitCombatLogBuildingDamage(const WOWGUID& caster, const WOWGUID& owner, co
     }
 
     CombatLogEntry* entry = GetCombatLogEntry(caster, building, 47, &spell);
-    entry->m_infoFlags |= 0x10;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
     entry->m_infoBits &= ~0x7;
     entry->m_info.m_values[1] = damage;
     entry->m_info.m_values[2] = 0;
@@ -3221,7 +3222,7 @@ void UnitCombatLogBuildingHeal(const WOWGUID& caster, const WOWGUID& owner, cons
     }
 
     CombatLogEntry* entry = GetCombatLogEntry(caster, building, 48, &spell);
-    entry->m_infoFlags |= 0x20;
+    entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_HEAL;
     entry->m_info.m_values[0] = amount;
     entry->m_info.m_values[1] = 0;
     entry->m_info.m_values[2] = 0;

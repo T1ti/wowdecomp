@@ -15,6 +15,62 @@ class SpellRec;
 struct lua_State;
 struct PendingCombatLogData;
 
+// Client-built selectors for CombatLogEntry::m_info payloads; not packet flags.
+enum COMBAT_LOG_INFO_FLAGS : uint32_t
+{
+    COMBAT_LOG_INFO_FLAG_NONE = 0x00000000u,
+    // m_values[0]: number of extra attacks.
+    COMBAT_LOG_INFO_FLAG_EXTRA_ATTACK_COUNT         = 0x00000001u,
+    // m_text: owned, duplicated spell-failure reason; freed by Clear/destructor.
+    COMBAT_LOG_INFO_FLAG_FAIL_REASON                = 0x00000002u,
+    // m_values[0]: index into g_spellMissStrings.
+    COMBAT_LOG_INFO_FLAG_MISS_TYPE                  = 0x00000004u,
+    // m_values[0]: index into s_environmentalDamageTypes.
+    COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE         = 0x00000008u,
+    // m_values[1..6]: amount, overkill, school, absorbed, resisted, blocked; m_infoBits: critical/glancing/crushing.
+    COMBAT_LOG_INFO_FLAG_DAMAGE                     = 0x00000010u,
+    // m_values[0..3]: amount, overheal, absorbed, critical (low byte).
+    COMBAT_LOG_INFO_FLAG_HEAL                       = 0x00000020u,
+    // m_values[0..1]: amount, power type.
+    COMBAT_LOG_INFO_FLAG_ENERGIZE                   = 0x00000040u,
+    // m_values[0..2]: drained amount, power type, extra amount for drain/leech.
+    COMBAT_LOG_INFO_FLAG_POWER_DRAIN                = 0x00000080u,
+    // m_values[0]: extra spell ID, expanded to ID/name/school in the output.
+    COMBAT_LOG_INFO_FLAG_EXTRA_SPELL                = 0x00000100u,
+    // m_values[0]/m_names[1]: item ID/name.
+    COMBAT_LOG_INFO_FLAG_ITEM                       = 0x00000200u,
+    // m_values[1] low byte: BUFF/DEBUFF selector.
+    COMBAT_LOG_INFO_FLAG_AURA_TYPE                  = 0x00000400u,
+    // m_values[2]: new aura stack count.
+    COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT           = 0x00000800u,
+    // m_names[2]: enchantment name.
+    COMBAT_LOG_INFO_FLAG_ENCHANT_NAME               = 0x00001000u,
+    // m_values[4]: separate absorbed amount for a miss.
+    COMBAT_LOG_INFO_FLAG_ABSORBED                   = 0x00002000u,
+    // m_values[5]: separate resisted amount for a miss.
+    COMBAT_LOG_INFO_FLAG_RESISTED                   = 0x00004000u,
+    // m_values[6]: separate blocked amount for a miss.
+    COMBAT_LOG_INFO_FLAG_BLOCKED                    = 0x00008000u,
+    // No producers or consumers in the native 3.3.5 client.
+    // The existing PackEvent reconstruction nevertheless tests UNUSED_31.
+    COMBAT_LOG_INFO_FLAG_UNUSED_16                  = 0x00010000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_17                  = 0x00020000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_18                  = 0x00040000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_19                  = 0x00080000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_20                  = 0x00100000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_21                  = 0x00200000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_22                  = 0x00400000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_23                  = 0x00800000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_24                  = 0x01000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_25                  = 0x02000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_26                  = 0x04000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_27                  = 0x08000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_28                  = 0x10000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_29                  = 0x20000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_30                  = 0x40000000u,
+    COMBAT_LOG_INFO_FLAG_UNUSED_31                  = 0x80000000u,
+};
+
 struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
     /* 0008 */ uint32_t m_timestamp;
     /* 000C */ int32_t m_event;
@@ -31,7 +87,7 @@ struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
     /* 0040 */ uint32_t m_destFlags;
     /* 0044 */ int32_t m_spellId;
     /* 0048 */ RCString m_spellName;
-    /* 0054 */ uint32_t m_infoFlags;
+    /* 0054 */ uint32_t m_infoFlags; // COMBAT_LOG_INFO_FLAGS
     /* 0058 */ union {
         char* m_text;
         int32_t m_values[7];
