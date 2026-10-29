@@ -679,11 +679,11 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
 
     int32_t interruptFlags = spell->m_auraInterruptFlags;
 
-    if (((interruptFlags & 0x100) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x100))) && !(unit->m_clientFlags & 0x200000)) {
+    if (((interruptFlags & 0x100) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x100))) && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         return false;
     }
 
-    if (((interruptFlags & 0x80) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x80))) && (unit->m_clientFlags & 0x200000)) {
+    if (((interruptFlags & 0x80) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x80))) && (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         return false;
     }
 
@@ -5215,7 +5215,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         return;
     }
 
-    if (unit->m_mountDisplayId > 0 && !(unit->m_clientFlags & 0x10000000) && SpellRec::HasAura(spell, 78)) {
+    if (unit->m_mountDisplayId > 0 && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && SpellRec::HasAura(spell, 78)) {
         SpellRec mount;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
@@ -7698,7 +7698,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         caster->ChangeStandState(UNIT_STANDING);
     }
 
-    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && !caster->MountedCombatAllowed() && caster->m_mountDisplayId > 0 && !(caster->m_clientFlags & 0x10000000)) {
+    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && !caster->MountedCombatAllowed() && caster->m_mountDisplayId > 0 && !(caster->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
         if (!caster->CanAutoDismount()) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_NOT_MOUNTED, -1, -1, false);
             return;
@@ -7731,7 +7731,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     }
 
     if (caster->m_movement->m_flags & 0x2000000) {
-        if ((static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && (caster->m_mountDisplayId <= 0 || (caster->m_clientFlags & 0x10000000))) || caster->m_shapeshiftSuppressed) {
+        if ((static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && (caster->m_mountDisplayId <= 0 || (caster->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || caster->m_shapeshiftSuppressed) {
             if ((spell.m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell.m_channelInterruptFlags & 0x18)) {
                 Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_MOVING, -1, -1, false);
                 return;

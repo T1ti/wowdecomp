@@ -419,7 +419,7 @@ void CGUnit_C::OnVehicleCameraPossiblyUnneeded() {
 // VERIFY: 6c23ff21 auto
 // OFFSET: 0x0074CF30
 void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, int32_t a3) {
-    if (!(this->m_clientFlags & 0x80000) && !a3) {
+    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_POST_INIT_COMPLETE) && !a3) {
         return;
     }
 

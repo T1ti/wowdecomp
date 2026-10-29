@@ -38,7 +38,7 @@ CDataAllocator CGCharacterModelBase::s_characterModelHeap(sizeof(CGCharacterMode
 // VERIFY: 80f18f2c auto
 // OFFSET: 0x00597290
 static int32_t IsUnitDrawable(CGUnit_C* unit) {
-    if (unit->m_clientFlags & 0x400000) {
+    if (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) {
         return 0;
     }
 

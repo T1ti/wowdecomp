@@ -144,7 +144,7 @@ void PortraitInitialize() {
 // VERIFY: 59c574b9 auto
 // OFFSET: 0x00616B40
 static int32_t IsPortraitDrawable(CGUnit_C* unit) {
-    if (unit->m_clientFlags & 0x400000) {
+    if (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) {
         return 0;
     }
 
@@ -178,7 +178,7 @@ void UpdatePendingPortraits() {
             continue;
         }
 
-        if ((unit->m_clientFlags & 0x400000) && !unit->InitializeComponent()) {
+        if ((unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) && !unit->InitializeComponent()) {
             continue;
         }
 

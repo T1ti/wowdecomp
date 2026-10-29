@@ -499,7 +499,7 @@ void CGCorpse_C::OnRightClick() {
         return;
     }
 
-    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & 0x10000000)) && (this->m_corpse->m_corpseFieldDynamicFlags & 0x1)) {
+    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) && (this->m_corpse->m_corpseFieldDynamicFlags & 0x1)) {
         if (player->m_obj->m_guid != CGUnit_C::s_activeMover) {
             return;
         }

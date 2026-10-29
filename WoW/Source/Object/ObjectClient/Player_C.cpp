@@ -934,7 +934,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000)) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
         return;
     }
 
@@ -1032,7 +1032,7 @@ void CGPlayer_C::PreAnimate(CGWorldFrame* frame) {
 void CGPlayer_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) {
     this->CGUnit_C::ShouldRender(flags, culled, hidden);
 
-    if (this->IsCommentatorUberOrInArena() || ((this->m_clientFlags & 0x400000) && this->m_pendingItemCacheCount)) {
+    if (this->IsCommentatorUberOrInArena() || ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) && this->m_pendingItemCacheCount)) {
         hidden = 1;
     } else if (!s_playerRenderDisabled && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         hidden = 1;
@@ -4610,7 +4610,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int
 
     int32_t rangedSpell = s_cvAutoRangedCombat->m_intValue ? CGSpellBook::m_autoRangedSpell : 0;
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000) && !this->MountedCombatAllowed()) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed()) {
         float minRange;
         float maxRange;
 
@@ -8189,7 +8189,7 @@ void CGPlayer_C::ToggleSheathe() {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000)) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
         return;
     }
 
@@ -8780,7 +8780,7 @@ void CGPlayer_C::LootUnit(CGUnit_C* unit, bool autoInteract) {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000) && !this->MountedCombatAllowed()) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed()) {
         if (!this->CanAutoDismount()) {
             CGGameUI::DisplayError(ERR_NOT_WHILE_MOUNTED);
             return;

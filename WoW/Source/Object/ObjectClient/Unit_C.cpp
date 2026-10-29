@@ -512,7 +512,7 @@ int32_t UnitCharmedUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fi
         }
 
         unit->UpdateReaction(false);
-        unit->m_clientFlags &= ~0x1000;
+        unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_CONTROLLED_BY_VIEWER;
     }
 
     if (*static_cast<const WOWGUID*>(oldValue) == ClntObjMgrGetActivePlayer()) {
@@ -691,9 +691,9 @@ int32_t UnitHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
     unit->m_predictedHealth = unit->m_unit->m_unitFieldHealth;
 
     if (!(static_cast<float>(unit->m_unit->m_unitFieldHealth) / static_cast<int32_t>(unit->m_unit->m_unitFieldMaxhealth) < 0.2f) || unit->IsDeadOrGhost()) {
-        unit->m_clientFlags &= ~0x2;
+        unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     } else if (unit->m_bloodlevels) {
-        unit->m_clientFlags |= 0x2;
+        unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
     int32_t oldHealth = *static_cast<const int32_t*>(oldValue);
@@ -831,7 +831,7 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
     }
 
     if (this->m_missiles) {
-        if (this->m_clientFlags & 0x80000000) {
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_ANIM_EVENT_POSITION) {
             this->ReleaseMissiles(this->m_animEventPosition);
         }
 
@@ -848,16 +848,16 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
         }
     }
 
-    this->m_clientFlags &= ~0x80000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_ANIM_EVENT_POSITION;
 
-    if (this->m_clientFlags & 0x800) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING) {
         if (this->m_missiles && this->m_missiles->m_model) {
             if (this->m_missiles->m_model->IsLoaded(0, 0)) {
                 this->ReleaseMissiles();
-                this->m_clientFlags &= ~0x800;
+                this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING;
             }
         } else {
-            this->m_clientFlags &= ~0x800;
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING;
         }
     }
 
@@ -869,7 +869,7 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
         this->DestroyNamePlate();
     }
 
-    if (this->m_clientFlags & 0x2) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL) {
         this->HandleBloodPool(time);
     }
 
@@ -1130,10 +1130,10 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     if (this->m_characterComponent) {
         CCharacterComponent::FreeComponent(this->m_characterComponent);
         this->m_characterComponent = nullptr;
-        this->m_clientFlags = (this->m_clientFlags & ~0x20000) | 0x400000;
+        this->m_clientFlags = (this->m_clientFlags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
     }
 
-    this->m_clientFlags = (this->m_clientFlags & ~0x20000) | 0x400000;
+    this->m_clientFlags = (this->m_clientFlags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
     this->ApplyModelFade();
     this->ScanAuraSpellsOnDisplayUpdate();
     this->UpdateChannelEffects();
@@ -1155,9 +1155,9 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_specialIdleAnim = -1;
 
     if (this->m_modelData->m_flags & 0x40) {
-        this->m_clientFlags |= 0x2000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
-        this->m_clientFlags &= ~0x2000000;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     }
 
     if (deathAnim != ANIM_COUNT) {
@@ -1258,7 +1258,7 @@ int32_t CGUnit_C::Animate(float elapsed) {
 void CGUnit_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) {
     this->CGObject_C::ShouldRender(flags, culled, hidden);
 
-    if ((this->m_clientFlags & 0x400000) && !this->InitializeComponent()) {
+    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) && !this->InitializeComponent()) {
         hidden = 1;
     } else if (culled || hidden) {
         if (this->m_characterComponent) {
@@ -1417,7 +1417,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
         if (player && ((player->m_combatModeFlags & 0x2) || player->m_combat.m_attacking.m_guid) && player->CanAttack(this)) {
             uint32_t flashTime = s_attackFlashTime;
-            this->m_clientFlags |= 0x10;
+            this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT;
 
             if (static_cast<int32_t>(time - flashTime - 500) >= 0) {
                 s_attackFlashToggle = s_attackFlashToggle == 0;
@@ -1433,12 +1433,12 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
             s_attackTargetColor[1] = static_cast<uint8_t>(static_cast<int32_t>(t * 128.0f));
             PlayerNameTriggerColorUpdate(this->m_nameDesc);
-        } else if (this->m_clientFlags & 0x10) {
-            this->m_clientFlags &= ~0x10;
+        } else if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT) {
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT;
             PlayerNameTriggerColorUpdate(this->m_nameDesc);
         }
-    } else if (this->m_clientFlags & 0x10) {
-        this->m_clientFlags &= ~0x10;
+    } else if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT) {
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT;
         PlayerNameTriggerColorUpdate(this->m_nameDesc);
     }
 
@@ -1766,20 +1766,20 @@ void CGUnit_C::UpdateBreathState(uint32_t time) {
     int32_t liquidType;
     float height;
     int32_t a4;
-    this->m_clientFlags &= ~0x60;
+    this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_UNDERWATER_BREATH_PARTICLES | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COLD_BREATH_PARTICLES);
 
     if (World::QueryObjectLiquid(this->m_worldObject, &liquidType, &height, &a4)) {
         float headHeight = this->m_height * this->m_scale;
 
         if (headHeight + UNDERWATER_BUBBLE_THRESHOLD < height - this->GetPosition().z) {
-            this->m_clientFlags |= 0x20;
+            this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_UNDERWATER_BREATH_PARTICLES;
             this->m_nextBreathCheckTime = time + 10000;
             return;
         }
     }
 
     if (AreaListZoneHasBreathParticles(this->m_worldObject)) {
-        this->m_clientFlags |= 0x40;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COLD_BREATH_PARTICLES;
     }
 
     this->m_nextBreathCheckTime = time + 10000;
@@ -2329,12 +2329,12 @@ int32_t CGUnit_C::OnCollideFallLandNotify(uint32_t time, uint32_t oldFlags, uint
     this->OnCollideFallLand(oldFlags, jumping);
     int32_t sent = 0;
 
-    if (((this->m_clientFlags & 0x80) || this->m_movementData.GetDistanceFallen() > 0.027777778f) && this->SendMovementUpdate(time, MSG_MOVE_FALL_LAND, 0.0f, 0, 0, 0xFF)) {
+    if (((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING) || this->m_movementData.GetDistanceFallen() > 0.027777778f) && this->SendMovementUpdate(time, MSG_MOVE_FALL_LAND, 0.0f, 0, 0, 0xFF)) {
         sent = 1;
     }
 
-    if (this->m_clientFlags & 0x100000) {
-        this->m_clientFlags &= ~0x100000;
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING) {
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING;
         static_cast<CGPlayer_C*>(this)->HandleRepopRequest(true);
     }
 
@@ -2344,7 +2344,7 @@ int32_t CGUnit_C::OnCollideFallLandNotify(uint32_t time, uint32_t oldFlags, uint
 // VERIFY: dabb5164 manual
 // OFFSET: 0x0071F2C0
 void CGUnit_C::OnCollideFallReset(uint32_t time) {
-    if (this->m_clientFlags & 0x80) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING) {
         this->SendMovementUpdate(time, CMSG_MOVE_FALL_RESET, 0.0f, 0, 0, 0xFF);
     }
 }
@@ -3260,7 +3260,7 @@ int32_t CGUnit_C::CanHighlight() const {
 // VERIFY: 9904e3a0 auto
 // OFFSET: 0x00718AC0
 int32_t CGUnit_C::GetSelectionHighlightColor(CImVector* color) const {
-    if (this->m_clientFlags & 0x10) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT) {
         *color = *reinterpret_cast<const CImVector*>(s_attackTargetColor);
     } else {
         WOWGUID guid = this->m_obj->m_guid;
@@ -3410,7 +3410,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         CGUnitData* data = this->m_unit;
 
         if (!this->GetClientStandState() && !emoteFacing && !(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !(data->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_CANNOT_TURN)) {
-            if (this->m_clientFlags & 0x1) {
+            if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SCRIPTED_FACING) {
                 facing = this->m_scriptedFacing;
             } else if (!(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && !(this->m_obj->m_type & TYPE_PLAYER) && this->CanTurnWhileCasting()) {
                 bool seatAllows = true;
@@ -3433,7 +3433,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
                     if (this->GetVehicleRec() && this->m_vehicle->m_forceFacingGuid.m_guid) {
                         target = this->m_vehicle->m_forceFacingGuid;
                     } else {
-                        if (this->m_unit->m_unitChannelSpell && (this->m_clientFlags & 0x8000) && !this->IsClientControlled()) {
+                        if (this->m_unit->m_unitChannelSpell && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_TRACK_CHANNEL_TARGET) && !this->IsClientControlled()) {
                             target = this->m_unit->m_unitFieldChannelObject;
                         } else {
                             target = this->m_unit->m_unitFieldTarget;
@@ -4143,7 +4143,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         slot->m_speed = 1.0f;
     }
 
-    if (!(this->m_clientFlags & 0x80000)) {
+    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_POST_INIT_COMPLETE)) {
         blend = 0;
     }
 
@@ -4284,8 +4284,8 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     if (rec && (rec->m_weaponflags & 0x4) && !force) {
         this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
 
-        if (this->m_clientFlags & 0x10000) {
-            this->m_clientFlags &= ~0x10000;
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
             this->ShowHandItemSpellEffects(0, 0);
         }
 
@@ -4315,8 +4315,8 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
         }
 
-        if (this->m_clientFlags & 0x10000) {
-            this->m_clientFlags &= ~0x10000;
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
             this->ShowHandItemSpellEffects(0, 0);
         }
 
@@ -4326,8 +4326,8 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     if (this->m_combat.m_attacking.m_guid && IsMeleeAttackAnim(sequence)) {
         this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
 
-        if (this->m_clientFlags & 0x10000) {
-            this->m_clientFlags &= ~0x10000;
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
             this->ShowHandItemSpellEffects(0, 0);
         }
 
@@ -5592,7 +5592,7 @@ int32_t CGUnit_C::GetAuraSpellId(uint32_t index) {
 // VERIFY: 43e20507 auto
 // OFFSET: 0x0051A230
 int32_t CGUnit_C::IsMounted() const {
-    return this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000);
+    return this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING);
 }
 
 // VERIFY: cb916759 manual
@@ -5643,7 +5643,7 @@ int32_t CGUnit_C::CanBeTargetted() const {
 // VERIFY: ebdc15d6 auto
 // OFFSET: 0x006E6ED0
 int32_t CGUnit_C::IsHighlightSuppressed() const {
-    return (this->m_clientFlags >> 25) & 1;
+    return (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED) != 0;
 }
 
 // VERIFY: 48845495 auto
@@ -5722,7 +5722,7 @@ int32_t CGUnit_C::IsMissileTrajectoryUpdateWaitingForMissileRelease() const {
 // VERIFY: f0ab1eb4 auto
 // OFFSET: 0x00714AC0
 bool CGUnit_C::IsLocalClientControlled() const {
-    return (this->m_clientFlags >> 10) & 1;
+    return this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED;
 }
 
 // VERIFY: ca03fd67 auto
@@ -5731,7 +5731,7 @@ void CGUnit_C::FreeComponent() {
     if (this->m_characterComponent) {
         CCharacterComponent::FreeComponent(this->m_characterComponent);
         this->m_characterComponent = nullptr;
-        this->m_clientFlags = (this->m_clientFlags & 0xFFBDFFFF) | 0x400000;
+        this->m_clientFlags = (this->m_clientFlags & ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING)) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
     }
 }
 
@@ -5956,9 +5956,9 @@ uint32_t CGUnit_C::GetCreatureFamily() const {
 void CGUnit_C::SaveChainSpellLocation(const C3Vector* location) {
     if (location) {
         this->m_chainSpellLocation = *location;
-        this->m_clientFlags |= 0x800000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_CHAIN_SPELL_LOCATION;
     } else {
-        this->m_clientFlags &= ~0x800000;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_CHAIN_SPELL_LOCATION;
     }
 }
 
@@ -6055,7 +6055,7 @@ const char* CGUnit_C::GetPortraitTextureName() const {
 // VERIFY: 24d7a4c0 auto
 // OFFSET: 0x00715A50
 void CGUnit_C::SetAnimEventPosition(const C3Vector* position) {
-    this->m_clientFlags |= 0x80000000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_ANIM_EVENT_POSITION;
     this->m_animEventPosition = *position;
 }
 
@@ -6779,7 +6779,7 @@ bool CGUnit_C::IsClientControlled() const {
 // VERIFY: a355861f manual
 // OFFSET: 0x00716F10
 void CGUnit_C::RequestMirrorImageData() {
-    this->m_clientFlags |= 0x20000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING;
 
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_GET_MIRROR_IMAGE_DATA));
@@ -6795,7 +6795,7 @@ int32_t CGUnit_C::ChooseSpecialIdleAnim(uint32_t flags, uint32_t* anim) const {
         return (flags & 0xFFFFF800) == 0;
     }
 
-    if (this->m_clientFlags & 0x40000000) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SUPPRESS_SPECIAL_IDLE_ANIM) {
         return 0;
     }
 
@@ -7171,7 +7171,7 @@ void CGUnit_C::GetFootprintInfo(int32_t* textureId, float* size) const {
     float length;
     float width;
 
-    if (this->m_mountDisplayId <= 0 || (this->m_clientFlags & 0x10000000) || !this->m_mountModel) {
+    if (this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || !this->m_mountModel) {
         *textureId = this->m_footprintTextureId;
         float scale = this->GetTrueScale();
         length = this->m_footprintLength * scale;
@@ -7190,7 +7190,7 @@ void CGUnit_C::GetFootprintInfo(int32_t* textureId, float* size) const {
 // VERIFY: 99ea3d4f auto
 // OFFSET: 0x0071FFC0
 int32_t CGUnit_C::IsControlledByViewer() const {
-    return this->m_obj->m_guid == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == s_activeMover || (this->m_clientFlags & 0x1000);
+    return this->m_obj->m_guid == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == s_activeMover || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_CONTROLLED_BY_VIEWER);
 }
 
 // VERIFY: e21be286 manual
@@ -7621,7 +7621,7 @@ void CGUnit_C::ClearPrecastMissileModel(uint8_t castCount) {
         this->m_precastCastCount = 0;
     }
 
-    this->m_clientFlags &= ~0x1000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
 }
 
 // VERIFY: 991ba226 manual
@@ -7819,7 +7819,7 @@ void CGUnit_C::SetMaxAlpha(float alpha) {
 // VERIFY: c0baa56a auto
 // OFFSET: 0x0074B840
 int32_t CGUnit_C::VehiclePassengerIsTransitionAllowed(const VehicleSeatRec* seat, int32_t checkSeat) const {
-    return (this->m_clientFlags & 0x20000000) || (checkSeat && seat && (seat->m_flagsB & 0x1000000));
+    return (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION) || (checkSeat && seat && (seat->m_flagsB & 0x1000000));
 }
 
 // VERIFY: 71f105c7 manual
@@ -8181,7 +8181,7 @@ const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, boo
 // OFFSET: 0x0071FEF0
 C3Vector CGUnit_C::GetNamePosition() const {
     if (this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000) && this->m_worldModel->HasAttachment(29)) {
+        if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && this->m_worldModel->HasAttachment(29)) {
             return this->m_worldModel->GetAttachmentPosition(29);
         }
 
@@ -8863,7 +8863,7 @@ int32_t __stdcall CGUnit_C::ResolveSheathState(int32_t hand, const CGUnitVirtual
 // VERIFY: 4b3a0738 auto
 // OFFSET: 0x00716040
 void CGUnit_C::RequestRepopOnLanding() {
-    this->m_clientFlags |= 0x100000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING;
 }
 
 // VERIFY: 99f1723a manual
@@ -9624,12 +9624,12 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_manaRegenInterruptTime(0) {
     this->m_movement = &this->m_movementData;
     this->m_animStateFlags = 0;
-    this->m_clientFlags = 0x400000;
+    this->m_clientFlags = UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
 
     this->SetClientInitData(create, false);
 
     if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && this->m_unit->m_unitFieldHealth > 0 && this->m_bloodlevels) {
-        this->m_clientFlags |= 0x2;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
     this->m_weaponTrails[0] = nullptr;
@@ -9703,7 +9703,7 @@ void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) 
     }
 
     if (create.m_updateFlags & 0x1) {
-        this->m_clientFlags |= 0x80;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING;
         Weather* weather = World::s_weather;
         C3Vector position = this->GetPosition();
         weather->m_positionX = position.x;
@@ -9712,7 +9712,7 @@ void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) 
     }
 
     if (create.m_updateFlags & 0x400) {
-        this->m_clientFlags |= 0x40000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SUPPRESS_SPECIAL_IDLE_ANIM;
     }
 }
 
@@ -9777,9 +9777,9 @@ void CGUnit_C::RefreshDataPointers() {
     }
 
     if (this->m_unit->m_unitFieldNativedisplayid == this->m_unit->m_unitFieldDisplayid) {
-        this->m_clientFlags |= 0x100;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_USING_NATIVE_DISPLAY;
     } else {
-        this->m_clientFlags &= ~0x100u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_USING_NATIVE_DISPLAY;
     }
 
     if (this->m_modelData->m_flags & 0x8) {
@@ -9789,9 +9789,9 @@ void CGUnit_C::RefreshDataPointers() {
     }
 
     if (this->m_modelData->m_flags & 0x40) {
-        this->m_clientFlags |= 0x2000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
-        this->m_clientFlags &= ~0x2000000u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     }
 }
 
@@ -9854,16 +9854,16 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     this->CheckLoopSound();
 
     if ((create.m_updateFlags & 0x1) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
-        this->m_clientFlags &= 0xFFBDFFFF;
+        this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING);
         static_cast<CGPlayer_C*>(this)->RefreshVisibleItems();
     } else {
         if (this->m_characterComponent) {
             CCharacterComponent::FreeComponent(this->m_characterComponent);
             this->m_characterComponent = nullptr;
-            this->m_clientFlags = (this->m_clientFlags & 0xFFFDFFFF) | 0x400000;
+            this->m_clientFlags = (this->m_clientFlags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
         }
 
-        this->m_clientFlags = (this->m_clientFlags & 0xFFFDFFFF) | 0x400000;
+        this->m_clientFlags = (this->m_clientFlags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
     }
 
     this->UpdateUnitCollisionBox(1, 1);
@@ -9973,7 +9973,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
         CGBattlefieldInfo::AddVehicle(vehicleGuid);
     }
 
-    this->m_clientFlags |= 0x80000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_POST_INIT_COMPLETE;
 
     if (CGUnit_C::s_deferredClientControlUpdateGUID == this->m_obj->m_guid) {
         this->ExecuteClientControlUpdate(CGUnit_C::s_deferredClientControlUpdateGUID, CGUnit_C::s_deferredClientControlUpdateState);
@@ -10104,7 +10104,7 @@ void CGUnit_C::Reenable() {
     this->m_manaRegenInterruptTime = 0;
 
     if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && !this->IsDeadOrGhost() && this->m_bloodlevels) {
-        this->m_clientFlags |= 0x2;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
     this->m_animationState &= 0xFFFFDBFF;
@@ -10373,7 +10373,7 @@ CGUnit_C::~CGUnit_C() {
     } else if (this->m_characterComponent) {
         CCharacterComponent::FreeComponent(this->m_characterComponent);
         this->m_characterComponent = nullptr;
-        this->m_clientFlags = (this->m_clientFlags & ~0x420000) | 0x400000;
+        this->m_clientFlags = (this->m_clientFlags & ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING)) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
     }
 
     this->ClearWeaponTrailHandles();
@@ -10427,7 +10427,7 @@ CGUnit_C::~CGUnit_C() {
         this->m_precastCastCount = 0;
     }
 
-    this->m_clientFlags &= ~0x1000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
     this->DestroyVehicleData(0);
 
     if (this->m_vehiclePassenger) {
@@ -10463,7 +10463,7 @@ void CGUnit_C::Disable() {
         }
     }
 
-    this->m_clientFlags &= ~0x2;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     this->ClearThreatList();
 
     if (this->m_namePlateFrame) {
@@ -10664,7 +10664,7 @@ void CGUnit_C::Disable() {
         this->m_precastCastCount = 0;
     }
 
-    this->m_clientFlags &= ~0x1000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
 
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
@@ -10935,7 +10935,7 @@ void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
 
-    if ((modelRec && (modelRec->m_flags & 0x400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & 0x10000000) || (this->m_movementData.m_flags & 0x1000000) || ((this->m_movement->m_flags & 0xF) && !this->m_movementData.IsGravityDisabled())) {
+    if ((modelRec && (modelRec->m_flags & 0x400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & 0x1000000) || ((this->m_movement->m_flags & 0xF) && !this->m_movementData.IsGravityDisabled())) {
         this->m_movementData.OnJumpLocal(eventTime);
         return;
     }
@@ -11027,9 +11027,9 @@ int32_t CGUnit_C::BuildMovementUpdate(uint32_t time, uint32_t msgId, CDataStore*
 
     if (!(this->m_movementData.m_flags & MOVEMENTFLAG_ONTRANSPORT)) {
         if (this->m_movement->m_flags & MOVEMENTFLAG_FALLING) {
-            this->m_clientFlags |= 0x80;
+            this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING;
         } else {
-            this->m_clientFlags &= ~0x80u;
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING;
         }
     }
 
@@ -11060,11 +11060,11 @@ int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value,
     CMovement_C* movement = this->m_movement;
 
     if (movement->m_flags & (MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT)) {
-        this->m_clientFlags |= 0x4000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_TURN;
     }
 
     if (movement->m_flags & (MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN)) {
-        this->m_clientFlags |= 0x8000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_PITCH;
     }
 
     msg.Finalize();
@@ -11082,9 +11082,9 @@ int32_t CGUnit_C::HandleFloodsafeTurnEvent(uint32_t time, uint32_t msgId) {
         return 0;
     }
 
-    if (!this->m_floodsafeTurnPitch[2] || (this->m_clientFlags & 0x4000000)) {
+    if (!this->m_floodsafeTurnPitch[2] || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_TURN)) {
         this->SendMovementUpdate(time, MSG_MOVE_STOP_TURN, 0.0f, 0, 0, 255);
-        this->m_clientFlags &= ~0x4000000u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_TURN;
         this->m_floodsafeTurnPitch[2] = 0;
         return 1;
     }
@@ -11108,9 +11108,9 @@ int32_t CGUnit_C::HandleFloodsafePitchEvent(uint32_t time, uint32_t msgId) {
         return 0;
     }
 
-    if (!this->m_floodsafeTurnPitch[3] || (this->m_clientFlags & 0x8000000)) {
+    if (!this->m_floodsafeTurnPitch[3] || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_PITCH)) {
         this->SendMovementUpdate(time, MSG_MOVE_STOP_PITCH, 0.0f, 0, 0, 255);
-        this->m_clientFlags &= ~0x8000000u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_PITCH;
         this->m_floodsafeTurnPitch[3] = 0;
         return 1;
     }
@@ -11870,7 +11870,7 @@ bool CGUnit_C::CanAttackNow(const CGUnit_C* unit) const {
         }
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000) && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x800)) && !this->CanAutoDismount()) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x800)) && !this->CanAutoDismount()) {
         return false;
     }
 
@@ -12124,13 +12124,13 @@ char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitl
 void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
     SpellRec spell;
     uint32_t flags = this->m_clientFlags;
-    int32_t visible = ((flags >> 16) & 0x1) & (this->m_sheatheState == WEAPONMODE_SHEATHEDMODE) & (this->m_castSpellId == 0) & show;
+    int32_t visible = ((flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) != 0) & (this->m_sheatheState == WEAPONMODE_SHEATHEDMODE) & (this->m_castSpellId == 0) & show;
 
-    if (!force && (visible == static_cast<int32_t>((flags >> 14) & 0x1) || !(flags & 0x2000))) {
+    if (!force && (visible == static_cast<int32_t>((flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN) != 0) || !(flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS))) {
         return;
     }
 
-    flags &= ~0x2000;
+    flags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS;
     this->m_clientFlags = flags;
 
     if (visible) {
@@ -12146,19 +12146,19 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
                 SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
                 if (kit) {
-                    if (!(this->m_clientFlags & 0x4000)) {
+                    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN)) {
                         PlaySpellVisuaKitData data(&spell, kit, 2);
                         data.m_playAnim = 0;
                         this->PlaySpellVisualKit(data);
-                        this->m_clientFlags |= 0x4000;
+                        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN;
                     }
 
-                    this->m_clientFlags |= 0x2000;
+                    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS;
                 }
             }
         }
     } else {
-        this->m_clientFlags = flags & ~0x4000;
+        this->m_clientFlags = flags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN;
 
         for (uint32_t i = 0; i < (this->m_handItemSpellIds.m_count == 0xFFFFFFFF ? this->m_handItemSpellIds.m_dynamic.m_count : this->m_handItemSpellIds.m_count); i++) {
             if (!this->m_handItemSpellIds[i] || !g_spellDB.GetRecord(this->m_handItemSpellIds[i], &spell)) {
@@ -12170,7 +12170,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
 
             if (visual && visual->m_stateKit && (visual->m_flags & 0x8) && g_spellVisualKitDB.GetRecord(visual->m_stateKit)) {
                 this->ClearSpellEffect(this->m_handItemSpellIds[i], 1);
-                this->m_clientFlags |= 0x2000;
+                this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS;
             }
         }
     }
@@ -12181,15 +12181,15 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
 void CGUnit_C::SetHandItemSpellEffectsVisible(int32_t visible) {
     uint32_t flags = this->m_clientFlags;
 
-    if (visible == static_cast<int32_t>((flags >> 16) & 0x1)) {
+    if (visible == static_cast<int32_t>((flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) != 0)) {
         return;
     }
 
     if (visible) {
-        this->m_clientFlags = flags | 0x10000;
+        this->m_clientFlags = flags | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
         this->ShowHandItemSpellEffects(visible, 0);
     } else {
-        this->m_clientFlags = flags & ~0x10000;
+        this->m_clientFlags = flags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
         this->ShowHandItemSpellEffects(visible, 0);
     }
 }
@@ -12311,9 +12311,9 @@ int32_t CGUnit_C::OnPitchStart(uint32_t time, const CMovementStatus& status, int
 // VERIFY: 12d095c0 auto
 // OFFSET: 0x007188F0
 int32_t CGUnit_C::OnMoveUnRoot(uint32_t time, const CMovementStatus& status) {
-    this->m_clientFlags |= 0x20000000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
     int32_t result = this->m_movementData.OnMoveUnRoot(time, status);
-    this->m_clientFlags &= ~0x20000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
     return result;
 }
 
@@ -12950,14 +12950,14 @@ int32_t CGUnit_C::HandleMonsterMovePacket(void* param, NETMESSAGE msgId, uint32_
 // VERIFY: 6e6a311e manual
 // OFFSET: 0x0073C8E0
 void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transport, uint8_t seat, int32_t flush) {
-    this->m_clientFlags |= 0x20000000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
     if (flush) {
         this->m_movementData.FlushMoveQueue(0, 0);
     }
 
     this->m_movementData.ForceSetTransport(WOWGUID{ transport }, seat, 1);
-    this->m_clientFlags &= ~0x20000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
     if (this->m_movementData.m_transportGuid.m_guid != transport) {
         return;
@@ -13597,7 +13597,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
         this->m_auras[slot].Unpack(this, time, msg);
     }
 
-    this->m_clientFlags &= ~0x40000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SORTED_AURAS_VALID;
     this->UpdateAuraEffectMask();
     bool changed = false;
 
@@ -13817,21 +13817,21 @@ void CGUnit_C::InitActiveMover(const WOWGUID& guid) {
 // OFFSET: 0x0071C930
 void CGUnit_C::SetLocalClientControl(bool control) {
     if (control) {
-        this->m_clientFlags |= 0xC000400;
+        this->m_clientFlags |= (UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_TURN | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_PITCH);
     } else {
-        this->m_clientFlags &= ~0x400;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED;
 
         if (this->m_unit->m_unitFieldCharmedby) {
-            this->m_clientFlags |= 0x1000;
+            this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_CONTROLLED_BY_VIEWER;
         }
 
         this->m_movementData.ResetFallOnControlLoss();
     }
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        CGGameUI::OnClientControlChanged((this->m_clientFlags >> 10) & 1);
+        CGGameUI::OnClientControlChanged((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) != 0);
 
-        if (this->m_clientFlags & 0x400) {
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) {
             this->VehiclePassengerUpdateWorldCameraStateInstantly();
         }
     }
@@ -13917,7 +13917,7 @@ int32_t CGUnit_C::InitializeComponent() {
         return 0;
     }
 
-    this->m_clientFlags &= ~0x400000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
 
     if (this->m_characterComponent) {
         CCharacterComponent::FreeComponent(this->m_characterComponent);
@@ -13925,11 +13925,11 @@ int32_t CGUnit_C::InitializeComponent() {
     }
 
     if (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_MIRROR_IMAGE) {
-        if (!(this->m_clientFlags & 0x20000)) {
+        if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING)) {
             this->RequestMirrorImageData();
         }
 
-        this->m_clientFlags |= 0x400000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
         return 0;
     }
 
@@ -15296,7 +15296,7 @@ void CGUnit_C::ExecuteClientControlUpdate(WOWGUID guid, uint8_t state) {
     WOWGUID target = camera->m_targetGUID;
 
     if (target == guid) {
-        if (this->m_clientFlags & 0x400) {
+        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) {
             CGUnit_C::SetActiveMover(guid.m_guid);
             return;
         }
@@ -15304,10 +15304,10 @@ void CGUnit_C::ExecuteClientControlUpdate(WOWGUID guid, uint8_t state) {
         if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
             CGUnit_C::SetActiveMover(0);
         }
-    } else if (this->m_obj->m_guid == CGUnit_C::s_activeMover && !(this->m_clientFlags & 0x400)) {
+    } else if (this->m_obj->m_guid == CGUnit_C::s_activeMover && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED)) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(target, TYPE_OBJECT, __FILE__, __LINE__));
 
-        if (unit && (unit->m_obj->m_type & TYPE_UNIT) && (unit->m_clientFlags & 0x400)) {
+        if (unit && (unit->m_obj->m_type & TYPE_UNIT) && (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED)) {
             CGUnit_C::SetActiveMover(target.m_guid);
             return;
         }
@@ -16069,12 +16069,12 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
         return false;
     }
 
-    if (((auraInterrupt & 0x40) && (this->m_mountDisplayId <= 0 || (this->m_clientFlags & 0x10000000))) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x40) && !this->IsMounted())) {
+    if (((auraInterrupt & 0x40) && (this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x40) && !this->IsMounted())) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_MOUNTED, -1, -1, false);
         return false;
     }
 
-    if (!(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && this->m_mountDisplayId > 0 && !(this->m_clientFlags & 0x10000000) && !this->MountedCombatAllowed() && !this->CanAutoDismount()) {
+    if (!(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed() && !this->CanAutoDismount()) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_NOT_MOUNTED, -1, -1, false);
         return false;
     }
@@ -16097,12 +16097,12 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
     auraInterrupt = spell->m_auraInterruptFlags;
     int32_t channeled = spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED);
 
-    if (((auraInterrupt & 0x100) && !(this->m_clientFlags & 0x200000)) || (channeled && (spell->m_channelInterruptFlags & 0x100) && !(this->m_clientFlags & 0x200000))) {
+    if (((auraInterrupt & 0x100) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & 0x100) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_UNDERWATER, -1, -1, false);
         return false;
     }
 
-    if (((auraInterrupt & 0x80) && (this->m_clientFlags & 0x200000)) || (channeled && (spell->m_channelInterruptFlags & 0x80) && (this->m_clientFlags & 0x200000))) {
+    if (((auraInterrupt & 0x80) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & 0x80) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_ABOVEWATER, -1, -1, false);
         return false;
     }
@@ -16331,7 +16331,7 @@ void CGUnit_C::SortAuras() {
         }
     }
 
-    this->m_clientFlags |= 0x40000;
+    this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SORTED_AURAS_VALID;
 }
 
 // VERIFY: 170ff0ae manual
@@ -16341,7 +16341,7 @@ uint32_t CGUnit_C::GetSortedAuraSlot(int32_t index, const char* name, const char
         return 0xFFFFFFFF;
     }
 
-    if (!(this->m_clientFlags & 0x40000)) {
+    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SORTED_AURAS_VALID)) {
         this->SortAuras();
     }
 
@@ -17601,7 +17601,7 @@ UnitThreat* CGUnit_C::CreateThreatEntry(const WOWGUID& guid) {
     this->m_threats.Insert(entry, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
 
     if (guid == ClntObjMgrGetActivePlayer()) {
-        this->m_clientFlags |= 0x8;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY;
     }
 
     CGGameUI::ThreatMapAdd(this->m_obj->m_guid, guid);
@@ -17636,7 +17636,7 @@ bool CGUnit_C::UpdateThreatEntry(UnitThreat* entry, int32_t highestThreat, bool 
                 SI2::PlayUISound(15262);
             }
 
-            if (!(this->m_clientFlags & 0x8)) {
+            if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY)) {
                 this->AddWorldThreatUpdateText(entry->m_status, status);
             }
         }
@@ -17647,7 +17647,7 @@ bool CGUnit_C::UpdateThreatEntry(UnitThreat* entry, int32_t highestThreat, bool 
     }
 
     if (activePlayer) {
-        this->m_clientFlags &= ~0x8u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY;
         CGGameUI::UnitTooltipUpdate(this->m_obj->m_guid);
     }
 
@@ -17672,7 +17672,7 @@ void CGUnit_C::UpdateThreatStatus() {
     }
 
     if (status != highest->m_status) {
-        if (this->m_highestThreatGuid == ClntObjMgrGetActivePlayer() && !(this->m_clientFlags & 0x8)) {
+        if (this->m_highestThreatGuid == ClntObjMgrGetActivePlayer() && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY)) {
             this->AddWorldThreatUpdateText(highest->m_status, status);
 
             if (s_cvThreatPlaySounds->m_intValue) {
@@ -17685,7 +17685,7 @@ void CGUnit_C::UpdateThreatStatus() {
     }
 
     if (this->m_highestThreatGuid == ClntObjMgrGetActivePlayer()) {
-        this->m_clientFlags &= ~0x8u;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY;
         CGGameUI::UnitTooltipUpdate(this->m_obj->m_guid);
     }
 }
@@ -18065,7 +18065,7 @@ void CGUnit_C::RemoveLootEffect() {
 // VERIFY: d074dfc8 auto
 // OFFSET: 0x0073D530
 void CGUnit_C::OnLife(bool a1) {
-    this->m_clientFlags &= ~0x1u;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SCRIPTED_FACING;
     this->CheckLoopSound();
     this->m_lootableTime = 0;
     this->SetKeyBoneSequenceSpeed(this->m_worldModel, 0xFFFFFFFF, 1.0f, 0);
@@ -18276,7 +18276,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
 
         if (model) {
             if (!model->IsLoaded(0, 0)) {
-                this->m_clientFlags |= 0x800;
+                this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING;
                 break;
             }
 
@@ -18306,7 +18306,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
                         this->m_precastCastCount = 0;
                     }
 
-                    this->m_clientFlags &= ~0x1000000u;
+                    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
                 }
 
                 this->m_missiles->DeleteSelf();
@@ -18334,7 +18334,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
                 this->m_precastCastCount = 0;
             }
 
-            this->m_clientFlags &= ~0x1000000u;
+            this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
             this->m_missiles->m_flags |= 0x2000000;
             CM2Model* missileModel = this->m_missiles->m_model;
             missileModel->m_fFlags |= 0x8000;
@@ -18367,7 +18367,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
         this->m_precastCastCount = 0;
     }
 
-    this->m_clientFlags &= ~0x1000000u;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
 }
 
 // VERIFY: 402547fa manual
@@ -18414,7 +18414,7 @@ void CGUnit_C::OnChannelObjectChanged(WOWGUID oldObject, int32_t oldSpell) {
 // VERIFY: 694d4b34 manual
 // OFFSET: 0x0072BC70
 void CGUnit_C::UpdateChannelEffects() {
-    this->m_clientFlags &= ~0x8000u;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_TRACK_CHANNEL_TARGET;
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell)) {
@@ -18422,7 +18422,7 @@ void CGUnit_C::UpdateChannelEffects() {
     }
 
     if (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) {
-        this->m_clientFlags |= 0x8000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_TRACK_CHANNEL_TARGET;
 
         if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
             WOWGUID target = this->m_unit->m_unitFieldChannelObject;
@@ -18756,9 +18756,9 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
 
             if ((this->m_obj->m_type & TYPE_PLAYER) && static_cast<CGPlayer_C*>(this)->GetDrunknessTurnValue() >= 0.5f) {
                 type = SPECIALEFFECT_INEBRIATEDBUBBLES;
-            } else if (this->m_clientFlags & 0x20) {
+            } else if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_UNDERWATER_BREATH_PARTICLES) {
                 type = SPECIALEFFECT_UNDERWATERBUBBLES;
-            } else if (this->m_clientFlags & 0x40) {
+            } else if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COLD_BREATH_PARTICLES) {
                 type = SPECIALEFFECT_COLDBREATH;
             } else {
                 return;
@@ -18921,9 +18921,9 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
     float scale = 1.0f;
     CM2Model* model = nullptr;
 
-    if (this->m_precastMissileModel && !(this->m_clientFlags & 0x1000000)) {
+    if (this->m_precastMissileModel && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED)) {
         this->m_precastMissileModel->m_refCount++;
-        this->m_clientFlags |= 0x1000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
         SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
@@ -19147,7 +19147,7 @@ flagsDone:
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & 0x400) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= 0x200000;
     }
 
@@ -19181,9 +19181,9 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     float scale = 1.0f;
     CM2Model* model = nullptr;
 
-    if (this->m_precastMissileModel && !(this->m_clientFlags & 0x1000000)) {
+    if (this->m_precastMissileModel && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED)) {
         this->m_precastMissileModel->m_refCount++;
-        this->m_clientFlags |= 0x1000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
         SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
@@ -19336,7 +19336,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & 0x400) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= 0x200000;
     }
 
@@ -19370,9 +19370,9 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     float scale = 1.0f;
     CM2Model* model = nullptr;
 
-    if (this->m_precastMissileModel && !(this->m_clientFlags & 0x1000000)) {
+    if (this->m_precastMissileModel && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED)) {
         this->m_precastMissileModel->m_refCount++;
-        this->m_clientFlags |= 0x1000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
         SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
@@ -19514,7 +19514,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & 0x400) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= 0x200000;
     }
 
@@ -20578,15 +20578,15 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
         this->m_swimDepth = depth;
     }
 
-    uint32_t wasSwimming = this->m_clientFlags & 0x200000;
+    uint32_t wasSwimming = this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
 
     if ((this->m_movement->m_flags & 0x200000) || (swimDepth < depth && canSwim)) {
-        this->m_clientFlags |= 0x200000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
     } else {
-        this->m_clientFlags &= ~0x200000;
+        this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && wasSwimming != (this->m_clientFlags & 0x200000)) {
+    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && wasSwimming != (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         CGSpellBook::UpdateUsable();
     }
 }
@@ -20977,7 +20977,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                     source = this->m_obj->m_guid;
                     targets = &source;
                     count = 1;
-                } else if (this->m_clientFlags & 0x800000) {
+                } else if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_CHAIN_SPELL_LOCATION) {
                     targets = nullptr;
                     count = 0;
                 } else if (spellId == this->m_unit->m_unitChannelSpell && this->m_unit->m_unitFieldChannelObject && this->m_chainSpellTargets.Count() <= 1) {
@@ -20993,11 +20993,11 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                     count = this->m_chainSpellTargets.Count();
                 }
 
-                const C3Vector* location = (this->m_clientFlags & 0x800000) ? &this->m_chainSpellLocation : nullptr;
+                const C3Vector* location = (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_CHAIN_SPELL_LOCATION) ? &this->m_chainSpellLocation : nullptr;
                 SpellVisualsCreateChainLightning(target, effect, static_cast<int32_t>(param0), param2 != 0.0f, param3 != 0.0f, spellId, targets, count, effect->m_lightning, 12, location, this->m_lightningSequence);
                 this->m_chainSpellTargets.SetCount(0);
 
-                if ((this->m_clientFlags & 0x800000) && spell && visual && visual->m_impactAreaKit != kit->m_id) {
+                if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_CHAIN_SPELL_LOCATION) && spell && visual && visual->m_impactAreaKit != kit->m_id) {
                     SpellVisualKitRec* areaKit = g_spellVisualKitDB.GetRecord(visual->m_impactAreaKit);
                     C3Vector position = this->m_chainSpellLocation;
 
@@ -21360,7 +21360,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
     }
 
     this->UpdateObjectEffectAnimationStates();
-    this->m_clientFlags &= ~0x10000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
 }
 
 // VERIFY: 842ee456 manual
@@ -22200,11 +22200,11 @@ void CGUnit_C::OnMountDisplayChanged(int32_t displayId) {
     }
 
     if (!displayId && this->m_vehicle && this->m_vehicle->m_passengers.Head()) {
-        this->m_clientFlags |= 0x10000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
         return;
     }
 
-    this->m_clientFlags &= ~0x10000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
 
     if (current) {
         this->DestroyUnitMount(displayId == 0);
@@ -22250,11 +22250,11 @@ void CGUnit_C::Dismount() {
     }
 
     if (this->m_vehicle && this->m_vehicle->m_passengers.Head()) {
-        this->m_clientFlags |= 0x10000000;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
         return;
     }
 
-    this->m_clientFlags &= ~0x10000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
     this->DestroyUnitMount(1);
     this->m_mountDisplayId = 0;
     this->CheckLoopSound();
@@ -22275,11 +22275,11 @@ int32_t Packet_SMSG_DISMOUNT(void* param, NETMESSAGE msgId, uint32_t time, CData
     }
 
     if (unit->m_vehicle && unit->m_vehicle->m_passengers.Head()) {
-        unit->m_clientFlags |= 0x10000000;
+        unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
         return 1;
     }
 
-    unit->m_clientFlags &= ~0x10000000;
+    unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING;
     unit->DestroyUnitMount(1);
     unit->m_mountDisplayId = 0;
     unit->CheckLoopSound();
@@ -23203,7 +23203,7 @@ void CGUnit_C::RenderTargetSelection() const {
         ProjectTex::Render2d(box, color, &matrix, 0.5f, 0x200122, 1, 0.4f);
     }
 
-    if (this->m_clientFlags & 0x10) {
+    if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT) {
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
         uint32_t now = FrameTime::s_curTimeMs;
         uint32_t start = player->m_combatModeTime;
@@ -23523,7 +23523,7 @@ void CGUnit_C::AttachPrecastMissileModel(const SpellVisualRec* visual, uint8_t c
         this->m_precastCastCount = 0;
     }
 
-    this->m_clientFlags &= ~0x1000000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
 
     if (!visual || visual->m_missileAttachment == -1) {
         return;
@@ -23675,7 +23675,7 @@ void CGUnit_C::FillPartyMemberPetState(CGPartyPetState* state) {
 // OFFSET: 0x00730290
 void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
     ComponentData data;
-    this->m_clientFlags &= ~0x20000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING;
 
     if (!this->m_worldModel || !this->m_worldModel->IsLoaded(0, 0)) {
         return;
@@ -23836,7 +23836,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
     this->ApplyComponentItemsFromEffects();
     WOWGUID guid = this->m_obj->m_guid;
     CGGameUI::UnitModelUpdate(guid, 3);
-    this->m_clientFlags &= ~0x400000;
+    this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
 }
 
 // VERIFY: 3b5e7768 auto

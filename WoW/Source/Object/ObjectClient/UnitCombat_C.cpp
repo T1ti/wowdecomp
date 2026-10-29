@@ -727,7 +727,7 @@ void CGUnit_C::OnAttackStop(uint64_t target, int32_t faceTarget) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ target }, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        this->m_clientFlags |= 0x1;
+        this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SCRIPTED_FACING;
         C3Vector targetPosition = unit->GetPosition();
         C3Vector position = this->GetPosition();
         this->m_scriptedFacing = CalculateFacingTo(&position, &targetPosition);

@@ -813,9 +813,9 @@ void CVehicle_C::RemoveAllPassengersLocally() {
             movement->TryStartFallingLocal();
         }
 
-        unit->m_clientFlags |= 0x20000000;
+        unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
         movement->ForceSetTransport(WOWGUID{ 0 }, 0xFF, 1);
-        unit->m_clientFlags &= ~0x20000000;
+        unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
         passenger = next;
     }
 }

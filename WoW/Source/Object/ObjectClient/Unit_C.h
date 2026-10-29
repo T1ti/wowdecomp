@@ -293,7 +293,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0A1C */ uint32_t m_nextBloodPoolTime;
     /* 0A20 */ CCombatClient m_combat;
     /* 0A2C */ uint32_t m_stopAttackSent;
-    /* 0A30 */ uint32_t m_clientFlags;
+    /* 0A30 */ uint32_t m_clientFlags; // UNIT_CLIENT_FLAGS
     /* 0A34 */ uint32_t m_animStateFlags;
     /* 0A38 */ uint32_t m_animationState;
     /* 0A3C */ int32_t m_footprintTextureId;

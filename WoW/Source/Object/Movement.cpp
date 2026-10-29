@@ -5162,13 +5162,13 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
 
         heartbeat:
             if (event->m_eventId != MOVEEVENT_TELEPORT) {
-                this->m_unit->m_clientFlags |= 0x20000000;
+                this->m_unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
                 if (event->unk_0050 && this->HeartBeat(event) && stoppedFalling) {
                     this->m_unit->OnCollideFallLand(oldFlags, jumping);
                 }
 
-                this->m_unit->m_clientFlags &= ~0x20000000u;
+                this->m_unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
             }
 
             this->SetInterpolation(time);
@@ -5524,13 +5524,13 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
 // OFFSET: 0x006ECF80
 void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float facing, int32_t removeSpline, int32_t needAck, uint8_t seat) {
     if (this->m_flags2 & MOVEMENTFLAG2_UNK_2000) {
-        this->m_unit->m_clientFlags |= 0x20000000;
+        this->m_unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
     } else {
-        this->m_unit->m_clientFlags &= ~0x20000000;
+        this->m_unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
     }
 
     this->ForceSetTransportInt(transport, seat, 1);
-    this->m_unit->m_clientFlags &= ~0x20000000;
+    this->m_unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
     if (!(this->m_transportGuid == transport)) {
         return;

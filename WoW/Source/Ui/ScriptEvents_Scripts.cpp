@@ -1283,7 +1283,7 @@ static int32_t Script_IsOutdoors(lua_State* L) {
 static int32_t Script_IsSwimming(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_clientFlags & 0x200000)) {
+    if (player && (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1412,7 +1412,7 @@ static int32_t Script_IsFalling(lua_State* L) {
 static int32_t Script_IsMounted(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || player->m_mountDisplayId <= 0 || (player->m_clientFlags & 0x10000000)) {
+    if (!player || player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
         lua_pushnil(L);
     } else {
         lua_pushnumber(L, 1.0);
