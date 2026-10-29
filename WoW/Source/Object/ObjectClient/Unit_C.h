@@ -294,8 +294,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0A20 */ CCombatClient m_combat;
     /* 0A2C */ uint32_t m_stopAttackSent;
     /* 0A30 */ uint32_t m_clientFlags; // UNIT_CLIENT_FLAGS
-    /* 0A34 */ uint32_t m_animStateFlags;
-    /* 0A38 */ uint32_t m_animationState;
+    /* 0A34 */ uint32_t m_clientFlags2; // UNIT_CLIENT_FLAGS2
+    /* 0A38 */ uint32_t m_animFlags; // UNIT_ANIM_FLAGS
     /* 0A3C */ int32_t m_footprintTextureId;
     /* 0A40 */ int32_t m_terrainTypeId;
     /* 0A44 */ float m_footprintLength;

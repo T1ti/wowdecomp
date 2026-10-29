@@ -667,7 +667,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
                 }
             }
 
-            this->m_animationState |= 0x4000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
             return;
         }
 

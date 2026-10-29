@@ -155,7 +155,7 @@ int32_t CVehicle_C::HasHighPriorityCastingAnim() const {
     if (this->m_vehicleRec && (this->m_vehicleRec->m_flags & 0x10000)) {
         CGUnit_C* unit = this->m_unit;
 
-        if ((unit->m_animationState & 0x400) || unit->m_specialIdleAnim != -1) {
+        if ((unit->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING) || unit->m_specialIdleAnim != -1) {
             return 1;
         }
     }
@@ -176,7 +176,7 @@ int32_t CVehicle_C::HasHighPriorityAnim() const {
 
     CGUnit_C* unit = this->m_unit;
 
-    if (!(unit->m_animationState & 0x400) && unit->m_specialIdleAnim == -1) {
+    if (!(unit->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING) && unit->m_specialIdleAnim == -1) {
         return 0;
     }
 

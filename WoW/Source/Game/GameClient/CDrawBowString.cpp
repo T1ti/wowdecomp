@@ -42,7 +42,7 @@ void CDrawBowString::DrawBowString(CM2Model* model, const CM2Lighting* lighting,
     C3Vector bottom = model->GetEventPosition('BTW$');
     C3Vector hand(0.0f, 0.0f, 0.0f);
 
-    if (unit && (unit->m_animationState & 0x4000)) {
+    if (unit && (unit->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED)) {
         if (unit->m_worldModel->HasAttachment(35)) {
             hand = unit->m_worldModel->GetAttachmentPosition(35);
         } else if (unit->m_worldModel->HasAttachment(1)) {

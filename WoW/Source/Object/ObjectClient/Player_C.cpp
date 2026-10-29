@@ -940,7 +940,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
 
     CGUnitData* unit = this->m_unit;
 
-    if ((unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || unit->m_unitFieldHealth <= 0 || (unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || this->IsInVehicle() || (this->m_animationState & 0x400) || this->m_castSpellId || !this->IsLocalClientControlled()) {
+    if ((unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || unit->m_unitFieldHealth <= 0 || (unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || this->IsInVehicle() || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING) || this->m_castSpellId || !this->IsLocalClientControlled()) {
         return;
     }
 
@@ -8181,7 +8181,7 @@ static int32_t IsCastAnimation(uint32_t anim) {
 void CGPlayer_C::ToggleSheathe() {
     int32_t casting = 0;
 
-    if (this->m_unit->m_unitChannelSpell || (this->m_animationState & 0x400)) {
+    if (this->m_unit->m_unitChannelSpell || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) {
         casting = 1;
     }
 

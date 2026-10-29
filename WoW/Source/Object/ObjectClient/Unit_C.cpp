@@ -1081,7 +1081,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
 
     CreatureModelDataRec* oldModelData = this->m_modelData;
     this->RefreshDataPointers();
-    this->m_animationState &= ~0x180;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES;
     this->m_torsoKeyBone = -1;
 
     const char* fileName;
@@ -1093,7 +1093,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
         return;
     }
 
-    this->m_animationState |= 0x8000000;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_MODEL_UPDATE_IN_PROGRESS;
 
     if (this->m_nameDesc) {
         PlayerNameDelete(this->m_nameDesc);
@@ -1137,7 +1137,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->ApplyModelFade();
     this->ScanAuraSpellsOnDisplayUpdate();
     this->UpdateChannelEffects();
-    this->m_animStateFlags &= ~0x7;
+    this->m_clientFlags2 &= ~UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING;
     this->m_smoothSwimPitch = 0.0f;
 
     float facing = this->m_movementData.GetFacing(this->m_renderFacing);
@@ -1146,12 +1146,12 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_smoothSwimRoll = 0.0f;
 
     if (this->m_modelData->m_flags & 0x8) {
-        this->m_animationState |= 0x20000;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     } else {
-        this->m_animationState &= ~0x20000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     }
 
-    this->m_animationState &= 0xF932DFF3;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_DISPLAY_CHANGE;
     this->m_specialIdleAnim = -1;
 
     if (this->m_modelData->m_flags & 0x40) {
@@ -1207,7 +1207,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     }
 
     this->CreateOrDestroyObjectEffectManager();
-    this->m_animationState &= ~0x8000000;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_MODEL_UPDATE_IN_PROGRESS;
 }
 
 // VERIFY: 8b1cb3ff auto
@@ -1221,14 +1221,14 @@ int32_t CGUnit_C::Animate(float elapsed) {
 
     CMovement_C* movement = this->m_movement;
 
-    if ((movement->m_flags & 0x2200000) && ((movement->m_flags & 0x3) || (this->m_animStateFlags & 0x7))) {
+    if ((movement->m_flags & 0x2200000) && ((movement->m_flags & 0x3) || (this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING))) {
         C44Matrix matrix;
 
         if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
             this->ComputeSmoothedSwimMatrix(&matrix, elapsed, movement->m_flags & 0x2000000);
 
             if (this->m_movement->m_flags & 0x3) {
-                this->m_animStateFlags |= 0x1;
+                this->m_clientFlags2 |= UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_PITCH;
             }
         } else {
             this->GetSwimMatrix(matrix);
@@ -1317,20 +1317,20 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
     }
 
     if (model == this->m_worldModel) {
-        this->m_animationState &= ~0x180;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES;
 
         if (model->HasBone(4)) {
-            this->m_animationState |= 0x80;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_4;
         }
 
         if (model->HasBone(6)) {
-            this->m_animationState |= 0x100;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_6;
         }
 
-        if (this->m_animationState & 0x80) {
+        if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_4) {
             this->m_torsoKeyBone = 4;
         } else {
-            this->m_torsoKeyBone = (this->m_animationState & 0x100) ? 6 : -1;
+            this->m_torsoKeyBone = (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_6) ? 6 : -1;
         }
 
         this->UpdateInteractIconAttach();
@@ -1490,7 +1490,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
     uint32_t moveFlags;
 
-    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 5)) || ((moveFlags = this->m_movement->m_flags) & 0x2200000) || fixedFacing || !(this->m_animationState & 0x180)) {
+    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 5)) || ((moveFlags = this->m_movement->m_flags) & 0x2200000) || fixedFacing || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES)) {
         this->m_renderFacing = this->m_smoothTarget.m_value;
         this->m_facingVelocity = 0.0f;
         this->m_facingBlend = 0.0f;
@@ -1531,7 +1531,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
             turn = delta < 0.0f ? -(absDelta - 1.5707964f) : absDelta - 1.5707964f;
         }
 
-        if (!(this->m_movement->m_flags & 0xC) && !(this->m_animationState & 0x1)) {
+        if (!(this->m_movement->m_flags & 0xC) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL)) {
             float maxTurn = static_cast<float>(OsGetAsyncTimeMs() - this->m_lastTurnTimeMs) * 0.001f * this->m_movementData.m_turnRate * 8.0f;
             float step = absDelta < maxTurn ? absDelta : maxTurn;
             turn = (delta < 0.0f ? -step : step) + turn;
@@ -1543,7 +1543,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
         if (remaining < 0.00001f) {
             clearTwist = true;
         } else {
-            if (!this->m_mountModel && (this->m_animationState & 0x80)) {
+            if (!this->m_mountModel && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_4)) {
                 float twist = remaining;
 
                 if (this->m_obj->m_guid != CGUnit_C::s_activeMover || CGUnit_C::s_trackingType == TRACKTYPE_NONE) {
@@ -1562,7 +1562,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
                 remaining = remaining - twist;
             }
 
-            if (this->m_animationState & 0x100) {
+            if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_6) {
                 float twist = 0.7853982f <= remaining ? 0.7853982f : remaining;
                 float angle = delta < 0.0f ? -twist : twist;
                 this->m_worldModel->SetBoneFlags(6, 0x80, 0x80);
@@ -1586,22 +1586,22 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     }
 
     this->RotateWheels();
-    this->m_animationState &= ~0x1800;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING;
 
     if (!(this->m_movementData.m_flags & 0x2E0100F) && (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || !static_cast<CGPlayer_C*>(this)->m_lootTarget.m_guid) && !this->GetClientStandState()) {
         if (turn > 0.00001f) {
-            this->m_animationState |= 0x800;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT;
         } else if (turn < -0.00001f) {
-            this->m_animationState |= 0x1000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_RIGHT;
         }
 
         uint32_t sequence = this->GetObjectModel()->GetBoneSequenceId(0xFFFFFFFF);
         uint32_t flags = this->m_movement->m_flags;
         uint32_t wanted = sequence;
 
-        if ((flags & 0x10) || (this->m_animationState & 0x800)) {
+        if ((flags & 0x10) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT)) {
             wanted = 11;
-        } else if ((flags & 0x20) || (this->m_animationState & 0x1000)) {
+        } else if ((flags & 0x20) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_RIGHT)) {
             wanted = 12;
         } else if (sequence == 11 || sequence == 12) {
             wanted = 0;
@@ -1739,7 +1739,7 @@ int32_t IsRifleAnim(uint32_t animId) {
 // VERIFY: a4dab725 auto
 // OFFSET: 0x0071DE90
 int32_t CGUnit_C::CanPlayTurnAnim() {
-    if (!(this->m_movementData.m_flags & 0x30) && !(this->m_animationState & 0x1800)) {
+    if (!(this->m_movementData.m_flags & 0x30) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) {
         return 0;
     }
 
@@ -1753,7 +1753,7 @@ int32_t CGUnit_C::CanPlayTurnAnim() {
 
     uint32_t animId = this->GetCurrentTorsoAnimId();
 
-    if (IsEmoteAnim(animId) || IsSpellCastAnim(animId) || IsThrownWeaponAnim(animId) || IsBowAnim(animId) || IsRifleAnim(animId) || (this->m_animationState & 0x40000C)) {
+    if (IsEmoteAnim(animId) || IsSpellCastAnim(animId) || IsThrownWeaponAnim(animId) || IsBowAnim(animId) || IsRifleAnim(animId) || (this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE))) {
         return 0;
     }
 
@@ -1823,7 +1823,7 @@ void CGUnit_C::ProcessEmoteQueue() {
     }
 
     if (index == 4) {
-        this->m_animationState |= 0x8000;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
         this->m_emoteQueue[0].m_emote = -1;
         return;
     }
@@ -1842,7 +1842,7 @@ void CGUnit_C::ProcessEmoteQueue() {
         this->m_worldModel->GetSequenceInfo(emote->m_animID, 0, info);
         this->m_emoteQueue[index + 1].m_delay += OsGetAsyncTimeMs() + info.m_duration + 500;
     } else {
-        this->m_animationState |= 0x8000;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
         this->m_emoteQueue[0].m_emote = -1;
     }
 }
@@ -2264,8 +2264,8 @@ void CGUnit_C::Render() {
 // VERIFY: e73a5793 manual
 // OFFSET: 0x0073D2B0
 void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
-    uint32_t landing = this->m_animationState & 0x1000000;
-    this->m_animationState &= ~0x1000000;
+    uint32_t landing = this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FALL_LAND_PENDING;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FALL_LAND_PENDING;
 
     if (this->m_vehicle && this->m_vehicle->m_vehicleRec && this->m_vehicle->HasHighPriorityAnim()) {
         return;
@@ -2275,7 +2275,7 @@ void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
         return;
     }
 
-    if (this->m_animationState & 0x4000000) {
+    if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH) {
         this->PlayBaseAnimation(ANIM_DEATH_END, 0);
         return;
     }
@@ -2487,7 +2487,7 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
 
     uint32_t torsoAnim = this->GetCurrentTorsoAnimId();
 
-    if ((this->m_animationState & 0x4000000) && IsDeadOrDyingAnim(torsoAnim)) {
+    if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH) && IsDeadOrDyingAnim(torsoAnim)) {
         return 1;
     }
 
@@ -2542,7 +2542,7 @@ int32_t CGUnit_C::GetSpellVisualKitAnim(uint32_t* anim, uint32_t* kitFlags) {
 
     int32_t kitAnim;
 
-    if (!casting || !(this->m_animationState & 0x10000) || (kitAnim = kit->m_startAnimID) <= 0) {
+    if (!casting || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START) || (kitAnim = kit->m_startAnimID) <= 0) {
         kitAnim = kit->m_animID;
 
         if (kitAnim <= 0) {
@@ -2561,7 +2561,7 @@ int32_t CGUnit_C::GetSpellVisualKitAnim(uint32_t* anim, uint32_t* kitFlags) {
 // VERIFY: 2c7afb93 auto
 // OFFSET: 0x00724330
 int32_t CGUnit_C::ChooseSpellVisualKitAnim(uint32_t mask, uint32_t* anim, uint32_t* animFlags) {
-    if ((!this->m_unit->m_unitChannelSpell && !(this->m_animationState & 0x400)) || !(this->m_animationState & 0x60) || this->m_mountModel) {
+    if ((!this->m_unit->m_unitChannelSpell && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) || !(this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE)) || this->m_mountModel) {
         return (mask & ~0x1F) == 0;
     }
 
@@ -2597,7 +2597,7 @@ int32_t CGUnit_C::ChooseSpellVisualKitAnim(uint32_t mask, uint32_t* anim, uint32
 // VERIFY: a6f466cd auto
 // OFFSET: 0x0071E0D0
 int32_t CGUnit_C::ChooseCombatAnim(uint32_t mask, uint32_t* anim, uint32_t* animFlags) {
-    if (!(this->m_animationState & 0x60) || !this->m_combat.m_attacking.m_guid) {
+    if (!(this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE)) || !this->m_combat.m_attacking.m_guid) {
         return (mask & ~0x3F) == 0;
     }
 
@@ -2636,8 +2636,8 @@ int32_t CGUnit_C::ChooseShuffleAnim(uint32_t mask, uint32_t* anim) {
         return (mask & ~0x7F) == 0;
     }
 
-    if ((this->m_animationState & 0x70) && (mask & 0x40)) {
-        if (!(this->m_movementData.m_flags & MOVEMENTFLAG_TURN_LEFT) && !(this->m_animationState & 0x800)) {
+    if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_ALL) && (mask & 0x40)) {
+        if (!(this->m_movementData.m_flags & MOVEMENTFLAG_TURN_LEFT) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT)) {
             *anim = ANIM_SHUFFLE_RIGHT;
             return 1;
         }
@@ -2651,7 +2651,7 @@ int32_t CGUnit_C::ChooseShuffleAnim(uint32_t mask, uint32_t* anim) {
 // VERIFY: acc35172 manual
 // OFFSET: 0x0071E1F0
 int32_t CGUnit_C::ChooseStandStateAnim(uint32_t mask, uint32_t* anim) {
-    if (!(this->m_animationState & 0x40) || this->m_mountModel) {
+    if (!(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) || this->m_mountModel) {
         return (mask & ~0x1FF) == 0;
     }
 
@@ -2779,7 +2779,7 @@ void CGUnit_C::UpdateBaseAnimation(uint32_t animFlags, int32_t mask) {
         this->PlayBaseAnimation(anim, animFlags);
     }
 
-    if (this->m_animationState & 0x40) {
+    if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) {
         if (this->GetCurrentTorsoAnimId() == 135 && this->m_obj->m_guid == CGWorldFrame::GetActiveCamera()->m_targetGUID) {
             CGGameUI::ResetCamera(this->m_obj->m_guid);
         }
@@ -2872,7 +2872,7 @@ void CGUnit_C::UpdateClientStandState(UNITSTANDSTATE standState) {
                     break;
                 }
 
-                this->m_animationState |= 0x40;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE;
                 this->UpdateBaseAnimation(0, -1);
                 break;
             case UNIT_DEAD:
@@ -2886,7 +2886,7 @@ void CGUnit_C::UpdateClientStandState(UNITSTANDSTATE standState) {
 
                 break;
             default:
-                this->m_animationState |= 0x40;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE;
                 this->UpdateBaseAnimation(0, -1);
                 break;
         }
@@ -3372,16 +3372,16 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         this->m_smoothTarget.m_velocity = 0.0f;
 
         if ((this->m_movementData.m_flags & 0x30) || CGInputControl::GetActive()->CameraCanTurnPlayer()) {
-            this->m_animationState |= 0x1;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL;
         } else {
-            this->m_animationState &= ~0x1;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL;
             this->m_lastTurnTimeMs = OsGetAsyncTimeMs();
         }
 
         if ((this->m_movementData.m_flags & 0x30) || CGInputControl::GetActive()->IsMouseDragMoving()) {
-            this->m_animationState |= 0x2;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_MOUSE_DRAG;
         } else {
-            this->m_animationState &= ~0x2;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_MOUSE_DRAG;
         }
 
         if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {
@@ -4129,7 +4129,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
 void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation) {
     uint32_t anim = slot->m_sequenceId;
     uint32_t playing = anim;
-    bool casting = this->m_unit->m_unitChannelSpell || (this->m_animationState & 0x400);
+    bool casting = this->m_unit->m_unitChannelSpell || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING);
 
     if (this->m_combat.m_attacking.m_guid || casting || IsSpellCastOrPrecastAnim(previousAnim) || IsMeleeOrReadyAnim(previousAnim)) {
         AnimationDataRec* rec = g_animationDataDB.GetRecord(anim);
@@ -4176,38 +4176,38 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
 
     switch (GetAnimBehaviorId(anim)) {
         case 39:
-            this->m_animationState |= 0x4;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
             break;
         case 121:
-            this->m_animationState |= 0x80000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
             break;
         case 127:
-            this->m_animationState |= 0x8;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
             break;
         case 192:
         case 200:
-            this->m_animationState |= 0x40000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
             break;
         case 201:
-            this->m_animationState |= 0x400000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
             break;
         case 458:
         case 459:
         case 460:
-            this->m_animationState |= 0x2000000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION;
             break;
         default:
             break;
     }
 
     if (IsSubmergedDeathAnim(anim) && this->m_animTier == 3 && (this->m_movementData.m_flags & 0x2201000)) {
-        this->m_animationState |= 0x4000000;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH;
     } else {
-        this->m_animationState &= ~0x4000000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH;
     }
 
-    if ((this->m_animationState & 0x20000) && (IsMeleeAttackAnim(anim) || IsSpellCastAnim(anim))) {
-        this->m_animationState |= 0x2000;
+    if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT) && (IsMeleeAttackAnim(anim) || IsSpellCastAnim(anim))) {
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION;
     }
 }
 
@@ -4235,15 +4235,15 @@ int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAni
     }
 
     uint32_t moveFlags = this->m_movementData.m_flags;
-    int32_t turning = ((moveFlags & 0x30) || (this->m_animationState & 0x1800)) ? 1 : 0;
-    int32_t casting = (!this->m_unit->m_unitChannelSpell && (this->m_animationState & 0x400)) ? 1 : 0;
+    int32_t turning = ((moveFlags & 0x30) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) ? 1 : 0;
+    int32_t casting = (!this->m_unit->m_unitChannelSpell && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) ? 1 : 0;
     int32_t split = 0;
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
         split = static_cast<CGPlayer_C*>(this)->m_dance != 0;
     }
 
-    if (IsUpperBodyAnim(animId) && ((this->m_animationState & 0x1800) || (moveFlags & 0x2E000FF) || this->m_movementData.IsFalling() || this->GetClientStandState() || (IsWeaponReadyAnim(animId) && static_cast<int32_t>(this->m_unit->m_unitFieldMountdisplayid) > 0) || split)) {
+    if (IsUpperBodyAnim(animId) && ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING) || (moveFlags & 0x2E000FF) || this->m_movementData.IsFalling() || this->GetClientStandState() || (IsWeaponReadyAnim(animId) && static_cast<int32_t>(this->m_unit->m_unitFieldMountdisplayid) > 0) || split)) {
         split = 1;
     } else if ((IsJumpAnim(animId) && IsMeleeOrReadyAnim(currentAnim)) || (IsMeleeAttackAnim(animId) && (this->m_movement->m_flags & 0x1000)) || (casting && (this->m_movementData.m_flags & 0x2E0000F))) {
         split = 1;
@@ -4385,17 +4385,17 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         return;
     }
 
-    uint32_t state = this->m_animationState;
+    uint32_t state = this->m_animFlags;
 
-    if ((state & 0xC0000) && !IsDeadOrDyingAnim(animId) && !IsBirthAnim(animId)) {
+    if ((state & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN)) && !IsDeadOrDyingAnim(animId) && !IsBirthAnim(animId)) {
         return;
     }
 
-    if (state & 0x2000000) {
+    if (state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION) {
         return;
     }
 
-    if ((state & 0x2000) && !IsDeadOrDyingAnim(animId) && !IsBirthAnim(animId)) {
+    if ((state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION) && !IsDeadOrDyingAnim(animId) && !IsBirthAnim(animId)) {
         return;
     }
 
@@ -4436,7 +4436,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         hasTorso = 0;
     }
 
-    if ((this->m_animationState & 0x20) && IsMeleeAttackAnim(previousAnim) && IsMeleeAttackAnim(anim)) {
+    if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO) && IsMeleeAttackAnim(previousAnim) && IsMeleeAttackAnim(anim)) {
         this->SetKeyBoneSequenceSpeed(this->m_worldModel, hasTorso ? this->m_torsoKeyBone : 0xFFFFFFFF, 2.0f, 0);
         this->m_meleeAttackAnimId = anim;
         return;
@@ -4482,12 +4482,12 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     int32_t blendMount = blend;
     int32_t blendTorso = blend;
     int32_t blendBase = blend;
-    state = this->m_animationState;
-    uint32_t updateMount = state & 0x10;
+    state = this->m_animFlags;
+    uint32_t updateMount = state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_MOUNT;
     M2BoneSequenceInfo mountSlot = mount;
-    uint32_t updateBase = state & 0x40;
+    uint32_t updateBase = state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE;
     M2BoneSequenceInfo baseSlot = base;
-    uint32_t updateTorso = state & 0x20;
+    uint32_t updateTorso = state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO;
     M2BoneSequenceInfo torsoSlot = torso;
     M2BoneSequenceInfo newSlot = {};
     newSlot.m_sequenceId = anim;
@@ -4496,7 +4496,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     newSlot.m_speed = speed;
     int32_t keepBase = 1;
     int32_t keepTorso = 1;
-    int32_t casting = (!this->m_unit->m_unitChannelSpell && (state & 0x400)) ? 1 : 0;
+    int32_t casting = (!this->m_unit->m_unitChannelSpell && (state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) ? 1 : 0;
     int32_t split = this->ShouldSplitTorsoAnimation(anim, previousAnim);
 
     if (split && !updateTorso) {
@@ -4505,7 +4505,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
 
     int32_t vehicleBoneAnim = (this->m_torsoKeyBone != -1 && this->GetVehicleRec() && this->m_vehicle->IsBoneAnimPlaying(this->m_torsoKeyBone)) ? 1 : 0;
 
-    if (IsWeaponSpecialAnim(anim) || IsDeadOrDyingAnim(anim) || (this->m_animationState & 0x20000)) {
+    if (IsWeaponSpecialAnim(anim) || IsDeadOrDyingAnim(anim) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT)) {
         split = 0;
         updateTorso = 0;
         updateBase = 1;
@@ -4593,7 +4593,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         }
     }
 
-    if (IsWeaponSpecialAnim(anim) || IsDeadOrDyingAnim(anim) || (this->m_animationState & 0x20000)) {
+    if (IsWeaponSpecialAnim(anim) || IsDeadOrDyingAnim(anim) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT)) {
         updateTorso = 0;
         updateBase = 1;
         baseSlot = newSlot;
@@ -5812,11 +5812,11 @@ uint32_t CGUnit_C::GetCombatReadyAnim() const {
 // VERIFY: cfd62b02 auto
 // OFFSET: 0x00714F90
 int32_t CGUnit_C::ChooseRangedLoadAnim(uint32_t flags, uint32_t* anim) const {
-    if (this->m_sheatheState != WEAPONMODE_RANGEDMODE || !(this->m_animationState & 0x200)) {
+    if (this->m_sheatheState != WEAPONMODE_RANGEDMODE || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT)) {
         return (flags & 0xFFFFFF00) == 0;
     }
 
-    if (!(flags & 0x80) || (this->m_animationState & 0x4000)) {
+    if (!(flags & 0x80) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED)) {
         return 1;
     }
 
@@ -6082,9 +6082,9 @@ void CGUnit_C::SetCastImmunities(int32_t immunities) {
 // OFFSET: 0x00715AC0
 void CGUnit_C::SetCastingAutoRepeat(bool enable) {
     if (enable) {
-        this->m_animationState |= 0x200;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT;
     } else {
-        this->m_animationState &= ~0x200;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT;
     }
 }
 
@@ -6092,9 +6092,9 @@ void CGUnit_C::SetCastingAutoRepeat(bool enable) {
 // OFFSET: 0x00715AF0
 void CGUnit_C::SetCastingAnim(bool enable) {
     if (enable) {
-        this->m_animationState |= 0x400;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING;
     } else {
-        this->m_animationState &= ~0x400;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING;
     }
 }
 
@@ -6791,7 +6791,7 @@ void CGUnit_C::RequestMirrorImageData() {
 // VERIFY: a2e758f2 auto
 // OFFSET: 0x00716FD0
 int32_t CGUnit_C::ChooseSpecialIdleAnim(uint32_t flags, uint32_t* anim) const {
-    if (!(this->m_animationState & 0x40) || this->m_mountModel || this->m_animStandState != UNIT_NUMSTANDSTATES) {
+    if (!(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) || this->m_mountModel || this->m_animStandState != UNIT_NUMSTANDSTATES) {
         return (flags & 0xFFFFF800) == 0;
     }
 
@@ -6810,9 +6810,9 @@ int32_t CGUnit_C::ChooseSpecialIdleAnim(uint32_t flags, uint32_t* anim) const {
 // VERIFY: 5f734b90 auto
 // OFFSET: 0x007171C0
 int32_t CGUnit_C::ChooseEmoteAnim(uint32_t flags, uint32_t* anim) const {
-    uint32_t state = this->m_animationState;
+    uint32_t state = this->m_animFlags;
 
-    if ((!(state & 0x40) || this->m_mountModel) && !(state & 0x20)) {
+    if ((!(state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) || this->m_mountModel) && !(state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO)) {
         return (flags & 0x200) == 0;
     }
 
@@ -7860,9 +7860,9 @@ int32_t CGUnit_C::ChooseMovementAnim(uint32_t flags, uint32_t* anim) const {
         return (flags & 0xFFFFFFF8) == 0;
     }
 
-    uint32_t state = this->m_animationState;
+    uint32_t state = this->m_animFlags;
 
-    if (!(state & 0x70) || !(flags & 0x4) || (state & 0x800000) || (state & 0x2000000)) {
+    if (!(state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_ALL) || !(flags & 0x4) || (state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START) || (state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION)) {
         return 1;
     }
 
@@ -8037,13 +8037,13 @@ int32_t Packet_SMSG_MOUNTSPECIAL_ANIM(void* param, NETMESSAGE msgId, uint32_t ti
 // VERIFY: 486abade manual
 // OFFSET: 0x0071DFF0
 int32_t CGUnit_C::ChooseSubmergeAnim(uint32_t flags, uint32_t* anim) const {
-    uint32_t state = this->m_animationState;
+    uint32_t state = this->m_animFlags;
 
-    if (state & 0x400008) {
+    if (state & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE)) {
         return 1;
     }
 
-    if (!(state & 0x40) || this->m_mountModel) {
+    if (!(state & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) || this->m_mountModel) {
         return (flags & 0xFFFFFFFC) == 0;
     }
 
@@ -8343,7 +8343,7 @@ float CGUnit_C::GetRenderFacing() const {
 // OFFSET: 0x00715810
 void CGUnit_C::ResetSmoothFacing() {
     this->m_smoothSwimPitch = 0.0f;
-    this->m_animStateFlags &= ~0x7u;
+    this->m_clientFlags2 &= ~UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING;
 
     float facing = this->m_movementData.GetFacing(this->m_renderFacing);
     this->m_smoothFacing = facing;
@@ -8379,7 +8379,7 @@ void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
         return;
     }
 
-    if (this->m_animationState & 0x800004) {
+    if (this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START)) {
         return;
     }
 
@@ -8618,7 +8618,7 @@ void CGUnit_C::UpdateAmmoModel(uint32_t displayId, uint32_t invType) {
         this->m_ammoModel = CCharacterComponent::MakeAmmoModel(this->m_worldModel, &rec, ammoType);
     }
 
-    if (this->m_ammoModel && !noAttach && (this->m_animationState & 0x4000) && ammoType == 24) {
+    if (this->m_ammoModel && !noAttach && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED) && ammoType == 24) {
         this->m_ammoModel->AttachToParent(this->m_worldModel, 0x23, nullptr, 0);
     }
 }
@@ -9089,7 +9089,7 @@ void CGUnit_C::SetEmoteQueue(const QUESTGIVEREMOTENODE* nodes, uint32_t count) {
         EmotesRec* current = g_emotesDB.GetRecord(this->m_emoteQueue[i].m_emote);
 
         if (current && current->m_animID) {
-            this->m_animationState &= ~0x8000u;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
             this->m_previousSheatheState = this->m_sheatheState;
         }
     }
@@ -9159,7 +9159,7 @@ bool CGUnit_C::IsMovingToward(CGObject_C* target) const {
 // VERIFY: fbe09df2 auto
 // OFFSET: 0x00724280
 int32_t CGUnit_C::ChooseLootAnim(uint32_t flags, uint32_t* animId) {
-    if (this->m_mountModel || !(this->m_animationState & 0x40) || !this->ShouldKneelForLoot()) {
+    if (this->m_mountModel || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) || !this->ShouldKneelForLoot()) {
         return (flags & 0xFFFFFFF0) == 0;
     }
 
@@ -9269,7 +9269,7 @@ void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t seq
         return;
     }
 
-    if (this->m_animationState & 0x8000000) {
+    if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_MODEL_UPDATE_IN_PROGRESS) {
         blend = 0;
     }
 
@@ -9418,7 +9418,7 @@ void CGUnit_C::ResetKeyBoneSequences() {
     CM2Model* model = this->m_worldModel;
 
     if (model) {
-        if (this->m_animationState & 0x80) {
+        if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_4) {
             uint32_t torsoBone = this->m_torsoKeyBone;
 
             if (!this->m_vehiclePassenger || !this->m_vehiclePassenger->OverridesModelAnimation()) {
@@ -9550,7 +9550,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_nextBloodPoolTime(0),
       m_combat(),
       m_stopAttackSent(0),
-      m_animationState(0x70),
+      m_animFlags(UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_ALL),
       m_footprintTextureId(-1),
       m_terrainTypeId(-1),
       m_footprintLength(0.27777779f),
@@ -9623,7 +9623,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_powerRegenRemainder(0),
       m_manaRegenInterruptTime(0) {
     this->m_movement = &this->m_movementData;
-    this->m_animStateFlags = 0;
+    this->m_clientFlags2 = UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_NONE;
     this->m_clientFlags = UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
 
     this->SetClientInitData(create, false);
@@ -9783,9 +9783,9 @@ void CGUnit_C::RefreshDataPointers() {
     }
 
     if (this->m_modelData->m_flags & 0x8) {
-        this->m_animationState |= 0x20000;
+        this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     } else {
-        this->m_animationState &= ~0x20000u;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     }
 
     if (this->m_modelData->m_flags & 0x40) {
@@ -10107,7 +10107,7 @@ void CGUnit_C::Reenable() {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
-    this->m_animationState &= 0xFFFFDBFF;
+    this->m_animFlags &= ~(UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION);
 
     while (this->m_missiles) {
         this->m_missiles->DeleteSelf();
@@ -10622,7 +10622,7 @@ void CGUnit_C::Disable() {
         this->m_handItemSpellIds[i] = 0;
     }
 
-    this->m_animationState &= ~0x200;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT;
 
     for (int32_t i = 0; i < 2; i++) {
         if (this->m_weaponTrails[i]) {
@@ -10642,7 +10642,7 @@ void CGUnit_C::Disable() {
     this->m_emoteQueue[2].m_emote = 0;
     this->m_emoteQueue[3].m_delay = 0;
     this->m_emoteQueue[3].m_emote = 0;
-    this->m_animationState &= ~0x8000;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
     this->m_emoteQueue[0].m_emote = -1;
 
     TotemInfo* totem = CGGameUI::GetTotemInfo(this->m_obj->m_guid);
@@ -11345,7 +11345,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
 // VERIFY: d02e26a5 auto
 // OFFSET: 0x0072AFE0
 void CGUnit_C::CancelRangedMode() {
-    this->m_animationState &= ~0x4000u;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
 
     if (!CGUnit_C::s_trackingType) {
         this->ClearTrackingTarget(false, true);
@@ -11436,7 +11436,7 @@ void CGUnit_C::MoveEventHappened(uint32_t msgId) {
 
         case CMSG_MOVE_SET_CAN_FLY_ACK:
             if (!(this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) {
-                this->m_animationState &= ~0x800000u;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
             }
 
             break;
@@ -11456,7 +11456,7 @@ void CGUnit_C::MoveEventHappened(uint32_t msgId) {
                     this->PlayBaseAnimation(ANIM_JUMP_START, 0);
                 }
 
-                this->m_animationState |= 0x800000;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
             } else {
                 this->PlayUnitSound(UNITSOUNDTYPE_JUMPEND, 1);
 
@@ -11464,7 +11464,7 @@ void CGUnit_C::MoveEventHappened(uint32_t msgId) {
                     this->PlayBaseAnimation(ANIM_JUMP_LAND_RUN, 0);
                 }
 
-                this->m_animationState &= ~0x800000u;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
             }
 
             break;
@@ -11620,7 +11620,7 @@ void CGUnit_C::StopNamePlateSpellbar() {
 // VERIFY: 86d9c5c1 manual
 // OFFSET: 0x0071AB20
 bool CGUnit_C::IsCastNotInterruptible() const {
-    if (!(this->m_animStateFlags & 0x8)) {
+    if (!(this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_CAST_NOT_INTERRUPTIBLE)) {
         return false;
     }
 
@@ -11691,7 +11691,7 @@ void CGUnit_C::OnChannelUpdate(int32_t remaining) {
 // VERIFY: 3a616bc4 manual
 // OFFSET: 0x007262E0
 bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
-    this->m_animStateFlags &= ~0x8u;
+    this->m_clientFlags2 &= ~UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_CAST_NOT_INTERRUPTIBLE;
 
     if (spell->m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_NO_UI_NOT_INTERRUPTIBLE) {
         return false;
@@ -11806,7 +11806,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
         }
     }
 
-    this->m_animStateFlags |= 0x8;
+    this->m_clientFlags2 |= UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_CAST_NOT_INTERRUPTIBLE;
     return true;
 }
 
@@ -13477,7 +13477,7 @@ void CGUnit_C::SpellInterrupted(uint8_t castCount, int32_t spellId) {
         return;
     }
 
-    this->m_animationState &= ~0x400;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING;
 
     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
         this->CancelRangedMode();
@@ -14061,7 +14061,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
 
     bool track = false;
 
-    if (this->m_castSpellId && (this->m_animationState & 0x400)) {
+    if (this->m_castSpellId && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) {
         SpellRec spell;
 
         if (g_spellDB.GetRecord(this->m_castSpellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (!(spell.m_facingCasterFlags & 0x1) || this->IsInFrontOfTargetWithGuid(CGGameUI::m_lockedTarget))) {
@@ -14218,12 +14218,12 @@ void CGUnit_C::SetSheatheStateInstant() {
                         CCharacterComponent::ComponentOpenFingers(this->m_worldModel, COMP_HAND_LEFT);
                     }
 
-                    this->m_animationState &= ~0x300000;
+                    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_HANDS;
                     return;
                 }
             }
 
-            this->m_animationState &= ~0x300000;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_HANDS;
             return;
         }
 
@@ -14233,11 +14233,11 @@ void CGUnit_C::SetSheatheStateInstant() {
             }
 
             if (this->SheatheHandItem(0, 0)) {
-                this->m_animationState |= 0x100000;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             }
 
             if (this->SheatheHandItem(1, 0)) {
-                this->m_animationState |= 0x200000;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             }
 
             return;
@@ -14249,14 +14249,14 @@ void CGUnit_C::SetSheatheStateInstant() {
                 this->SheatheHandItem(1, 1);
             }
 
-            this->m_animationState &= ~0x300000;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_HANDS;
             bool rightHand;
 
             if (this->ShowRangedWeapon(false, &rightHand)) {
                 if (rightHand) {
-                    this->m_animationState |= 0x100000;
+                    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
                 } else {
-                    this->m_animationState |= 0x200000;
+                    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
                 }
             }
 
@@ -14272,7 +14272,7 @@ void CGUnit_C::SetSheatheStateInstant() {
 // VERIFY: 8485e288 manual
 // OFFSET: 0x007367B0
 int32_t CGUnit_C::UnsheatheRightWeapon() {
-    this->m_animationState |= 0x100000;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
 
     if (!this->m_previousSheatheState) {
         return 0;
@@ -14305,7 +14305,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
 // VERIFY: b1c179df manual
 // OFFSET: 0x007368B0
 int32_t CGUnit_C::UnsheatheLeftWeapon() {
-    this->m_animationState |= 0x200000;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
 
     if (!this->m_previousSheatheState) {
         return 0;
@@ -14349,14 +14349,14 @@ void CGUnit_C::SetSheatheStateAnimate() {
 
             if (right) {
                 this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState &= ~0x100000;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
                 this->UnsheatheRightWeapon();
             }
 
             if (left) {
                 this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState &= ~0x200000;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             } else {
                 this->UnsheatheLeftWeapon();
             }
@@ -14383,11 +14383,11 @@ void CGUnit_C::SetSheatheStateAnimate() {
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
                 this->SetKeyBoneSequence(this->m_worldModel, 3, 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState &= ~0x100000;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
                 this->UnsheatheLeftWeapon();
             } else {
                 this->SetKeyBoneSequence(this->m_worldModel, 2, 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState &= ~0x200000;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
                 this->UnsheatheRightWeapon();
             }
 
@@ -14405,12 +14405,12 @@ void CGUnit_C::SetSheatheStateAnimate() {
 
         if (right) {
             this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-            this->m_animationState |= 0x100000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
         }
 
         if (left) {
             this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-            this->m_animationState |= 0x200000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
         }
     } else if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
@@ -14420,10 +14420,10 @@ void CGUnit_C::SetSheatheStateAnimate() {
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
                 this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState |= 0x100000;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
                 this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
-                this->m_animationState |= 0x200000;
+                this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             }
         }
     }
@@ -14472,7 +14472,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     if (static_cast<int32_t>(sequenceId) == this->GetPrecastStartAnim()) {
-        this->m_animationState &= ~0x10000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START;
     }
 
     if (this->m_specialIdleAnim != -1 && this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
@@ -14490,31 +14490,31 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     if (behavior == 192 || behavior == 200) {
-        this->m_animationState &= ~0x40000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
     }
 
     if (behavior == 121) {
-        this->m_animationState &= ~0x80000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
     }
 
-    if ((this->m_animationState & 0x20000) && (IsMeleeAttackAnim(behavior) || IsSpellCastAnim(behavior))) {
-        this->m_animationState &= ~0x2000;
+    if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT) && (IsMeleeAttackAnim(behavior) || IsSpellCastAnim(behavior))) {
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION;
     }
 
     if (behavior == 37) {
-        this->m_animationState &= ~0x800000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
     }
 
     AnimationDataRec* ended = g_animationDataDB.GetRecord(sequenceId);
 
     if (ended && ended->m_behaviorID >= 458 && ended->m_behaviorID <= 460) {
-        this->m_animationState &= ~0x2000000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION;
     }
 
     if (interrupted) {
         switch (behavior) {
             case 39: {
-                this->m_animationState &= ~0x4;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
                 return;
             }
 
@@ -14522,22 +14522,22 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
             case 90: {
                 if (boneId == 3) {
                     C3Vector position = this->GetPosition();
-                    this->ExchangeSheathedWeapon(&position, 0, 0x100000);
+                    this->ExchangeSheathedWeapon(&position, 0, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT);
                 } else {
                     C3Vector position = this->GetPosition();
-                    this->ExchangeSheathedWeapon(&position, 1, 0x200000);
+                    this->ExchangeSheathedWeapon(&position, 1, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT);
                 }
 
                 return;
             }
 
             case 127: {
-                this->m_animationState &= ~0x8;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
                 return;
             }
 
             case 201: {
-                this->m_animationState &= ~0x400000;
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
                 return;
             }
 
@@ -14552,16 +14552,16 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
         return;
     }
 
-    if (this->m_animationState & 0x8000) {
+    if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END) {
         this->SetSheatheState(this->m_previousSheatheState, 1, 0);
-        this->m_animationState &= ~0x8000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
     }
 
     if (this->m_mountTransition && SpellVisualsIsMountTransitionFinished(this->m_mountTransition)) {
         return;
     }
 
-    this->m_animationState = (this->m_animationState & ~0x30) | 0x40;
+    this->m_animFlags = (this->m_animFlags & ~(UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_MOUNT | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO)) | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE;
 
     if ((this->m_obj->m_type & TYPE_PLAYER) && static_cast<CGPlayer_C*>(this)->m_dance) {
         static_cast<CGPlayer_C*>(this)->DanceMoveAnimComplete();
@@ -14569,7 +14569,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     this->OnBaseAnimEnd(model, boneId, sequenceId);
-    this->m_animationState |= 0x70;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_ALL;
 }
 
 // VERIFY: 9cc99e71 manual
@@ -14639,7 +14639,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
         }
 
         case 39: {
-            this->m_animationState &= ~0x4;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
             this->UpdateBaseAnimation(16, -1);
             return;
         }
@@ -14729,7 +14729,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
                 break;
             }
 
-            if (this->m_unit->m_unitChannelSpell || (this->m_animationState & 0x600)) {
+            if (this->m_unit->m_unitChannelSpell || (this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
                 this->PlayBaseAnimation(109, 16);
                 return;
             }
@@ -14739,14 +14739,14 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             }
 
             this->m_ammoModel->DetachFromParent();
-            this->m_animationState &= ~0x4000;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
             this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
             this->UpdateBaseAnimation(16, -1);
             return;
         }
 
         case 110: {
-            if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animationState & 0x400))) {
+            if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
                 break;
             }
 
@@ -14756,7 +14756,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
         case 111:
         case 112: {
-            if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animationState & 0x400))) {
+            if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
                 break;
             }
 
@@ -14777,7 +14777,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
         }
 
         case 127: {
-            this->m_animationState &= ~0x8;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
             this->UpdateBaseAnimation(16, -1);
             return;
         }
@@ -14809,7 +14809,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
         }
 
         case 201: {
-            this->m_animationState &= ~0x400000;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
             this->PlayBaseAnimation(202, 16);
             return;
         }
@@ -14831,7 +14831,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
                 break;
             }
 
-            this->PlayBaseAnimation((this->m_animationState & 0x4000000) ? 467 : 468, 16);
+            this->PlayBaseAnimation((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH) ? 467 : 468, 16);
             return;
         }
 
@@ -14864,11 +14864,11 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
 
     if (sequenceId > 88 && sequenceId <= 90) {
         if (boneId == 2) {
-            if (!(this->m_animationState & 0x200000) && this->UnsheatheLeftWeapon()) {
+            if (!(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT) && this->UnsheatheLeftWeapon()) {
                 return;
             }
         } else if (boneId == 3) {
-            if (!(this->m_animationState & 0x100000) && this->UnsheatheRightWeapon()) {
+            if (!(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT) && this->UnsheatheRightWeapon()) {
                 return;
             }
         }
@@ -14947,7 +14947,7 @@ void CGUnit_C::ExchangeSheathedWeapon(const C3Vector* position, uint32_t hand, u
     WEAPONMODE state;
     bool sheathe;
 
-    if ((flag & this->m_animationState) && (state = this->m_sheatheState) != 0) {
+    if ((flag & this->m_animFlags) && (state = this->m_sheatheState) != 0) {
         sheathe = false;
     } else {
         state = this->m_previousSheatheState;
@@ -15565,7 +15565,7 @@ void CGUnit_C::PlayEmoteAnimation(uint32_t emote) {
 
     bool flight = anim == ANIM_LIFT_OFF || anim == ANIM_LAND;
 
-    if (this->m_unit->m_unitChannelSpell || (this->m_animationState & 0x400)) {
+    if (this->m_unit->m_unitChannelSpell || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) {
         return;
     }
 
@@ -16983,7 +16983,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
         spellId = spell->m_id;
     }
 
-    this->m_animationState &= ~0x4000;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
 
     if (spell && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (type == 4 || type == 0)) {
         this->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
@@ -17018,7 +17018,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
 
         if ((a10 & 0x40) && kit->m_startAnimID >= 0) {
             this->PlayBaseAnimation(kit->m_startAnimID, animFlags);
-            this->m_animationState |= 0x10000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START;
         } else if (kit->m_animID >= 0) {
             SpellVisualKitRec* castKit = visual ? g_spellVisualKitDB.GetRecord(visual->m_castKit) : nullptr;
             bool sameAnim = castKit && castKit->m_animID > 0 && castKit->m_animID == this->GetCurrentTorsoAnimId();
@@ -17062,7 +17062,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
                 effect->Release();
             }
 
-            this->m_animationState &= ~0x10000;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START;
         }
 
         if (a6) {
@@ -18215,7 +18215,7 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool a4) {
         return;
     }
 
-    this->m_animationState &= ~0x400u;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING;
     this->m_castCount = 0;
     this->m_castSpellId = 0;
     this->m_castSchoolImmunities = 0;
@@ -18740,11 +18740,11 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
             return;
 
         case 0x4C485324:
-            this->ExchangeSheathedWeapon(position, 1, 0x200000);
+            this->ExchangeSheathedWeapon(position, 1, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT);
             return;
 
         case 0x52485324:
-            this->ExchangeSheathedWeapon(position, 0, 0x100000);
+            this->ExchangeSheathedWeapon(position, 0, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT);
             return;
 
         case 0x48544224: {
@@ -18822,8 +18822,8 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
                 this->ClearTrackingTarget(false, true);
             }
 
-            if (this->m_animationState & 0x4000) {
-                this->m_animationState &= ~0x4000u;
+            if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED) {
+                this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
             }
 
             if (this->m_missiles) {
@@ -21337,7 +21337,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
     this->m_worldModel->m_diffuseTintB = mount->m_diffuseTintB;
     this->SetMountModel(nullptr);
     this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 0, 1, 0);
-    this->m_animationState &= 0xFF77DFFB;
+    this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_MOUNT_REMOVAL;
     this->UpdateBaseAnimation(0, -1);
     this->UpdateSelectionRadius();
     this->UpdateEffectAttachments();
@@ -21437,7 +21437,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         effect->MoveToDestroyList();
     }
 
-    this->m_animationState |= 0x10;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_MOUNT;
     this->UpdateBaseAnimation(0, -1);
 
     if (this->m_obj->m_guid == CGWorldFrame::GetActiveCamera()->m_targetGUID) {
@@ -21471,26 +21471,26 @@ void CGUnit_C::MountAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t se
     }
 
     if (sequenceId == 192 || sequenceId == 200) {
-        this->m_animationState &= ~0x40000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
     }
 
     if (sequenceId == 121) {
-        this->m_animationState &= ~0x80000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
     } else if (sequenceId == 37) {
-        this->m_animationState &= ~0x800000;
+        this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
     }
 
     if (interrupted) {
         if (sequenceId == 39 || sequenceId == 187) {
-            this->m_animationState &= ~0x4;
+            this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
         }
 
         return;
     }
 
-    this->m_animationState = (this->m_animationState & ~0x60) | 0x10;
+    this->m_animFlags = (this->m_animFlags & ~(UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE)) | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_MOUNT;
     this->OnBaseAnimEnd(model, boneId, sequenceId);
-    this->m_animationState |= 0x70;
+    this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_ALL;
 }
 
 // VERIFY: 381b5889 manual
@@ -22026,10 +22026,10 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     }
 
     if (fabs(facingDelta) > 1.5707964f) {
-        this->m_animStateFlags |= 0x4;
+        this->m_clientFlags2 |= UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_FACING;
     }
 
-    if (this->m_animStateFlags & 0x4) {
+    if (this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_FACING) {
         float yawDelta = facing - this->m_smoothFacingTarget;
 
         if (yawDelta > 3.1415927f) {
@@ -22077,16 +22077,16 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     matrix->d0 = position.x;
     matrix->d1 = position.y;
     matrix->d2 = position.z;
-    uint32_t flags = this->m_animStateFlags & 0xFFFFFFF8;
-    flags |= fabs(this->m_smoothSwimPitch - targetPitch) > 0.0099999998f;
-    this->m_animStateFlags = flags;
-    flags |= fabs(this->m_smoothSwimRoll - targetRoll) <= 0.0099999998f ? 0 : 2;
-    this->m_animStateFlags = flags;
+    uint32_t flags = this->m_clientFlags2 & ~UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING;
+    flags |= fabs(this->m_smoothSwimPitch - targetPitch) > 0.0099999998f ? UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_PITCH : 0;
+    this->m_clientFlags2 = flags;
+    flags |= fabs(this->m_smoothSwimRoll - targetRoll) <= 0.0099999998f ? 0 : UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_ROLL;
+    this->m_clientFlags2 = flags;
 
     if (fabs(this->m_smoothFacingTarget - facing) <= 0.0099999998f) {
-        this->m_animStateFlags = flags;
+        this->m_clientFlags2 = flags;
     } else {
-        this->m_animStateFlags = flags | 0x4;
+        this->m_clientFlags2 = flags | UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_FACING;
     }
 }
 
@@ -22328,7 +22328,7 @@ int32_t Packet_SMSG_CANCEL_AUTO_REPEAT(void* param, NETMESSAGE msgId, uint32_t t
             Spell_C_CancelAutoRepeat(false);
         }
 
-        unit->m_animationState &= ~0x200;
+        unit->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT;
         unit->CancelRangedMode();
     }
 
@@ -22366,11 +22366,11 @@ int32_t CGUnit_C::CanPlayEmoteAnim() {
         return 0;
     }
 
-    if (this->m_unit->m_unitChannelSpell || (this->m_animationState & 0x400) || this->IsInMelee() || this->CanPlayTurnAnim()) {
+    if (this->m_unit->m_unitChannelSpell || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING) || this->IsInMelee() || this->CanPlayTurnAnim()) {
         return 0;
     }
 
-    if (this->m_sheatheState == WEAPONMODE_RANGEDMODE && (this->m_animationState & 0x200)) {
+    if (this->m_sheatheState == WEAPONMODE_RANGEDMODE && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT)) {
         return 0;
     }
 

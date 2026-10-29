@@ -877,7 +877,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
     }
 
     if (spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) {
-        if (unit->m_animationState & 0x200) {
+        if (unit->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT) {
             return;
         }
 

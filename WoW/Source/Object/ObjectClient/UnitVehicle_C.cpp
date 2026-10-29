@@ -363,7 +363,7 @@ void CGUnit_C::PlayVehicleExitEndAnimation(const VehicleSeatRec* seat, uint32_t 
 
         if (flags & 0x1000) {
             this->PlayBaseAnimation(ANIM_FALL, 0);
-            this->m_animationState |= 0x1000000;
+            this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FALL_LAND_PENDING;
             return;
         }
 
