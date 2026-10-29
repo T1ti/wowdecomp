@@ -72,8 +72,8 @@ class SpellRec {
     /* 0134 */ float m_effectRealPointsPerLevel [3];
     /* 0140 */ int32_t m_effectBasePoints [3];
     /* 014C */ int32_t m_effectMechanic [3];
-    /* 0158 */ int32_t m_implicitTargetA [3];
-    /* 0164 */ int32_t m_implicitTargetB [3];
+    /* 0158 */ SPELL_IMPLICIT_TARGET m_implicitTargetA [3];
+    /* 0164 */ SPELL_IMPLICIT_TARGET m_implicitTargetB [3];
     /* 0170 */ int32_t m_effectRadiusIndex [3];
     /* 017C */ int32_t m_effectAura [3];
     /* 0188 */ int32_t m_effectAuraPeriod [3];

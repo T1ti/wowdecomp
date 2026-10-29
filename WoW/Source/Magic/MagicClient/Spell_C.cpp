@@ -623,9 +623,9 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
         CGUnit_C* targetUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (g_autoSelfCastCVar->m_intValue) {
-            int32_t implicit = spell->m_implicitTargetA[0];
+            SPELL_IMPLICIT_TARGET implicit = spell->m_implicitTargetA[0];
 
-            if (!targetUnit || ((implicit == 21 || implicit == 35 || implicit == 57 || implicit == 61) && !unit->CanAssist(targetUnit, false))) {
+            if (!targetUnit || ((implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY || implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY || implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID || implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS) && !unit->CanAssist(targetUnit, false))) {
                 targetUnit = ClntObjMgrGetActivePlayerObj();
             }
         }
@@ -647,21 +647,21 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
                 return false;
             }
 
-            if (spell->m_implicitTargetA[0] == 6 && !unit->CanAttack(targetUnit)) {
+            if (spell->m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY && !unit->CanAttack(targetUnit)) {
                 return false;
             }
 
-            if (spell->m_implicitTargetA[0] == 21 && !unit->CanAssist(targetUnit, false)) {
+            if (spell->m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY && !unit->CanAssist(targetUnit, false)) {
                 return false;
             }
 
-            if (spell->m_implicitTargetA[0] == 35 && (!unit->IsInMyPartyOrRaid(targetUnit) || !unit->CanAssist(targetUnit, false))) {
+            if (spell->m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY && (!unit->IsInMyPartyOrRaid(targetUnit) || !unit->CanAssist(targetUnit, false))) {
                 return false;
             }
 
-            int32_t implicit = spell->m_implicitTargetA[0];
+            SPELL_IMPLICIT_TARGET implicit = spell->m_implicitTargetA[0];
 
-            if ((implicit == 57 || implicit == 61) && (!unit->IsInMyParty(targetUnit) || !unit->CanAssist(targetUnit, false))) {
+            if ((implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID || implicit == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS) && (!unit->IsInMyParty(targetUnit) || !unit->CanAssist(targetUnit, false))) {
                 return false;
             }
         } else if (spell->m_targetAuraState || targetAura) {
@@ -2993,90 +2993,90 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
 
     for (uint32_t i = 0; i < 3; i++) {
         switch (spell->m_implicitTargetA[i]) {
-            case 2:
-            case 6:
-            case 15:
-            case 16:
-            case 24:
-            case 28:
-            case 53:
-            case 54:
-            case 93:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_24:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_DYNAMIC_OBJECT_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_54:
+            case SPELL_IMPLICIT_TARGET::TARGET_CORPSE_SRC_AREA_ENEMY:
                 return 2;
         }
 
         switch (spell->m_implicitTargetB[i]) {
-            case 2:
-            case 6:
-            case 15:
-            case 16:
-            case 24:
-            case 28:
-            case 53:
-            case 54:
-            case 93:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_24:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_DYNAMIC_OBJECT_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_54:
+            case SPELL_IMPLICIT_TARGET::TARGET_CORPSE_SRC_AREA_ENEMY:
                 return 2;
         }
     }
 
     for (uint32_t i = 0; i < 3; i++) {
         switch (spell->m_implicitTargetA[i]) {
-            case 1:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
                     return 1;
                 }
 
                 break;
 
-            case 3:
-            case 4:
-            case 5:
-            case 20:
-            case 21:
-            case 27:
-            case 29:
-            case 30:
-            case 31:
-            case 33:
-            case 34:
-            case 35:
-            case 45:
-            case 56:
-            case 57:
-            case 58:
-            case 59:
-            case 61:
-            case 62:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_MASTER:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_DYNAMIC_OBJECT_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER_AREA_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNKNOWN_62:
                 return 1;
         }
 
         switch (spell->m_implicitTargetB[i]) {
-            case 1:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
                     return 1;
                 }
 
                 break;
 
-            case 3:
-            case 4:
-            case 5:
-            case 20:
-            case 21:
-            case 27:
-            case 29:
-            case 30:
-            case 31:
-            case 33:
-            case 34:
-            case 35:
-            case 45:
-            case 56:
-            case 57:
-            case 58:
-            case 59:
-            case 61:
-            case 62:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_MASTER:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_DYNAMIC_OBJECT_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER_AREA_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNKNOWN_62:
                 return 1;
         }
     }
@@ -6383,7 +6383,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
 
     char format[1024];
     format[0] = 0;
-    bool pet = spell->m_effect[0] == SPELL_EFFECT_LEARN_PET_SPELL || (spell->m_effect[0] == SPELL_EFFECT_LEARN_SPELL && spell->m_implicitTargetA[0] == 5);
+    bool pet = spell->m_effect[0] == SPELL_EFFECT_LEARN_PET_SPELL || (spell->m_effect[0] == SPELL_EFFECT_LEARN_SPELL && spell->m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET);
 
     if (pet) {
         char token[64];
@@ -7050,14 +7050,14 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
 
     for (uint32_t i = 0; i < sizeof(spell->m_implicitTargetA) / sizeof(spell->m_implicitTargetA[0]); i++) {
         switch (spell->m_implicitTargetA[i]) {
-            case 1:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (needTargets & 0x400) {
                     needTargets &= 0xFBFF;
                 }
 
                 break;
 
-            case 5:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
                 pet = true;
 
                 if (needTargets & 0x8000) {
@@ -7066,45 +7066,45 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
 
                 break;
 
-            case 6:
-            case 53:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
                 needTargets |= 0x80;
                 break;
 
-            case 21:
-            case 45:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
                 needTargets |= 0x100;
                 break;
 
-            case 23:
+            case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_TARGET:
                 needTargets |= 0x800;
                 break;
 
-            case 25:
-            case 63:
-            case 64:
-            case 65:
-            case 66:
-            case 67:
-            case 68:
-            case 69:
-            case 70:
-            case 71:
-            case 74:
-            case 75:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ANY:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ANY:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RIGHT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_LEFT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_RIGHT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK_RIGHT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK_LEFT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_LEFT:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RANDOM:
+            case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RADIUS:
                 needTargets |= 0x2;
                 break;
 
-            case 26:
+            case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_ITEM_TARGET:
                 needTargets |= 0x4000;
                 break;
 
-            case 35:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
                 needTargets |= 0x8;
                 break;
 
-            case 57:
-            case 61:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
+            case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
                 needTargets |= 0x4;
                 break;
         }
@@ -7670,7 +7670,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     bool casterIncluded = false;
 
     for (uint32_t i = 0; i < sizeof(spell.m_implicitTargetA) / sizeof(spell.m_implicitTargetA[0]); i++) {
-        if (spell.m_implicitTargetA[i] == 1 || spell.m_implicitTargetB[i] == 1) {
+        if (spell.m_implicitTargetA[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER || spell.m_implicitTargetB[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER) {
             targets.m_count = 1;
             targets.m_data[0] = caster;
             casterIncluded = true;
@@ -7945,67 +7945,67 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
     bool noTarget = false;
 
     switch (spell->m_implicitTargetA[0]) {
-        case 1:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
             if (needTargets & 0x400) {
                 s_needTargets = needTargets & ~0x400u;
             }
 
             break;
 
-        case 5:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
             if (needTargets & 0x8000) {
                 s_needTargets = needTargets & ~0x8000u;
             }
 
             break;
 
-        case 6:
-        case 53:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
             s_needTargets = needTargets | 0x80;
             break;
 
-        case 16:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ENEMY:
             noTarget = true;
             break;
 
-        case 21:
-        case 45:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
             s_needTargets = needTargets | 0x100;
             break;
 
-        case 23:
+        case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_TARGET:
             s_needTargets = needTargets | 0x800;
             break;
 
-        case 25:
-        case 63:
-        case 64:
-        case 65:
-        case 66:
-        case 67:
-        case 68:
-        case 69:
-        case 70:
-        case 71:
-        case 74:
-        case 75:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ANY:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ANY:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RIGHT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_LEFT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_RIGHT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK_RIGHT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_BACK_LEFT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_LEFT:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RANDOM:
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RADIUS:
             s_needTargets = needTargets | 0x2;
             break;
 
-        case 26:
+        case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_ITEM_TARGET:
             s_needTargets = needTargets | 0x4000;
             break;
 
-        case 35:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
             s_needTargets = needTargets | 0x8;
             break;
 
-        case 57:
-        case 61:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
             s_needTargets = needTargets | 0x4;
             break;
 
-        case 89: {
+        case SPELL_IMPLICIT_TARGET::TARGET_DEST_TRAJECTORY: {
             SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell->m_spellMissileID);
 
             if (missile && (missile->m_flags & 0x1)) {
@@ -8015,7 +8015,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
             break;
         }
 
-        case 90:
+        case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_NON_COMBAT_PET:
             s_needTargets = needTargets | 0x10000;
             break;
     }

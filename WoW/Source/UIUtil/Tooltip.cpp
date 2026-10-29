@@ -5497,7 +5497,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
 
         CGUnit_C* learner;
 
-        if (spell.m_implicitTargetA[0] == 5 || spell.m_implicitTargetB[0] == 5) {
+        if (spell.m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET || spell.m_implicitTargetB[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET) {
             CGUnitData* unit = player->m_unit;
             learner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(unit->m_unitFieldCharm ? unit->m_unitFieldCharm : unit->m_unitFieldSummon, TYPE_UNIT, __FILE__, __LINE__));
         } else {

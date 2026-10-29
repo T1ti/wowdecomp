@@ -15953,7 +15953,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
             }
         }
 
-        if (spell->m_implicitTargetA[i] == 5 || spell->m_implicitTargetB[i] == 5) {
+        if (spell->m_implicitTargetA[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET || spell->m_implicitTargetB[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET) {
             const WOWGUID* controlled = &this->m_unit->m_unitFieldCharm;
 
             if (!*controlled) {

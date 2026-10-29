@@ -446,7 +446,7 @@ void CGClassTrainer::RefreshList() {
 
             int32_t spellId;
 
-            if (effect == SPELL_EFFECT_LEARN_SPELL && spell.m_implicitTargetA[e] != 5) {
+            if (effect == SPELL_EFFECT_LEARN_SPELL && spell.m_implicitTargetA[e] != SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET) {
                 spellId = spell.m_effectTriggerSpell[e];
                 teaches = true;
             } else {
@@ -724,7 +724,7 @@ static int32_t GetSkillLineFromService(int32_t spellId) {
     int32_t effect = -1;
 
     for (int32_t i = 0; i < 3; i++) {
-        if (spell.m_effect[i] == SPELL_EFFECT_LEARN_SPELL && spell.m_implicitTargetA[i] != 5) {
+        if (spell.m_effect[i] == SPELL_EFFECT_LEARN_SPELL && spell.m_implicitTargetA[i] != SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET) {
             effect = i;
             break;
         }

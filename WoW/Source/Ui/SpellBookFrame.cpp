@@ -349,7 +349,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
     }
 
     for (uint32_t i = 0; i < 3; i++) {
-        if (spell.m_effect[i] != SPELL_EFFECT_DISPEL || spell.m_implicitTargetA[i] == 6) {
+        if (spell.m_effect[i] != SPELL_EFFECT_DISPEL || spell.m_implicitTargetA[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY) {
             continue;
         }
 
@@ -366,7 +366,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         }
     }
 
-    if (spell.m_effect[0] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF && spell.m_implicitTargetA[0] == 6) {
+    if (spell.m_effect[0] == SPELL_EFFECT_STEAL_BENEFICIAL_BUFF && spell.m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY) {
         SpellDispelTypeRec* dispel = g_spellDispelTypeDB.GetRecord(spell.m_effectMiscValue[0]);
 
         if (dispel && dispel->m_mask) {
@@ -1990,7 +1990,7 @@ int32_t CGSpellBook::FindRaidBuff(int32_t spellId) {
 
     SpellRec spell;
 
-    if (!g_spellDB.GetRecord(spellId, &spell) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_HIDE_IN_RAID_FILTER) || spell.m_implicitTargetA[0] == 1) {
+    if (!g_spellDB.GetRecord(spellId, &spell) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_HIDE_IN_RAID_FILTER) || spell.m_implicitTargetA[0] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER) {
         return 0;
     }
 
