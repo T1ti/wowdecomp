@@ -517,11 +517,11 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
         bool attack = spell->m_effect[0] == SPELL_EFFECT_ATTACK || (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT);
         uint32_t flags = static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags;
 
-        if (flags & 0x1000000) {
+        if (flags & PLAYER_FLAGS::PLAYER_FLAG_DISABLE_ATTACKS) {
             if (attack || Spell_C_IsRestrictedAbility(spell)) {
                 return false;
             }
-        } else if (!attack && (flags & 0x800000)) {
+        } else if (!attack && (flags & PLAYER_FLAGS::PLAYER_FLAG_RESTRICT_NON_ATTACK_SPELLS)) {
             return false;
         }
     }
@@ -8321,12 +8321,12 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         uint32_t flags = static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags;
 
-        if (flags & 0x1000000) {
+        if (flags & PLAYER_FLAGS::PLAYER_FLAG_DISABLE_ATTACKS) {
             if (melee || Spell_C_IsRestrictedAbility(&spell)) {
                 Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW, -1, -1, false);
                 return false;
             }
-        } else if (!melee && (flags & 0x800000)) {
+        } else if (!melee && (flags & PLAYER_FLAGS::PLAYER_FLAG_RESTRICT_NON_ATTACK_SPELLS)) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW, -1, -1, false);
             return false;
         }

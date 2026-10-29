@@ -3656,7 +3656,7 @@ void CGGameUI::UpdateCorpseLocation() {
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x10) && CGBattlefieldInfo::m_instanceType != 4) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != 4) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(MSG_CORPSE_QUERY));
         msg.Finalize();
@@ -6486,7 +6486,7 @@ int32_t CGGameUI::MessageHandler(void* param, NETMESSAGE msgId, uint32_t time, C
                 msg->Get(reinterpret_cast<uint32_t&>(actualMapId));
                 msg->Get(reinterpret_cast<uint32_t&>(transport));
 
-                if (player && (player->m_player->m_playerFlags & 0x10)) {
+                if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
                     CGGameUI::SetCorpseLocation(mapId, position, actualMapId, transport);
                 }
             } else {
@@ -7027,7 +7027,7 @@ static int32_t AreaSpiritHealerCheck(WOWGUID guid, void* param) {
 void CGGameUI::UpdateAreaSpiritHealerDistance() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || !(player->m_player->m_playerFlags & 0x10)) {
+    if (!player || !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
         CGGameUI::SetAreaSpiritHealer(WOWGUID());
         return;
     }

@@ -160,7 +160,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
         return 1;
     }
 
-    if (!(player->m_player->m_playerFlags & 0x400)) {
+    if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM)) {
         if (player->CanEquipItemsInThisForm()) {
             component->RemoveItemBySlot(INVSLOT_HEAD);
         }

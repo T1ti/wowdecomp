@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -49,7 +50,7 @@ class CGPlayer {
 class CGPlayerData {
     public:
     /* 0000 */ WOWGUID m_playerDuelArbiter;
-    /* 0008 */ uint32_t m_playerFlags;
+    /* 0008 */ PLAYER_FLAGS m_playerFlags;
     /* 000C */ uint32_t m_playerGuildid;
     /* 0010 */ uint32_t m_playerGuildrank;
     /* 0014 */ uint8_t m_playerBytes [4];

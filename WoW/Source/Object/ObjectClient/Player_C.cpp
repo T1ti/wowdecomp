@@ -562,7 +562,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
         if (component) {
             component->SetHairStyle(player->m_player->m_playerBytes[2], nullptr);
 
-            if (!(player->m_player->m_playerFlags & 0x400) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
+            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
@@ -594,7 +594,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
         if (component) {
             component->SetBeardStyle(player->m_player->m_playerBytes2[0], true, nullptr);
 
-            if (!(player->m_player->m_playerFlags & 0x400) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
+            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
@@ -1131,7 +1131,7 @@ void CGPlayer_C::SetAutoLoot(int32_t autoLoot) {
 bool CGPlayer_C::CanInteract(const CGUnit_C* unit) const {
     bool isPlayer = (this->m_obj->m_type & TYPE_PLAYER) != 0;
 
-    if (isPlayer && (this->m_player->m_playerFlags & 0x10) && (!unit->m_creatureCacheEntry || !(unit->m_creatureCacheEntry->m_typeFlags & 0x2))) {
+    if (isPlayer && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && (!unit->m_creatureCacheEntry || !(unit->m_creatureCacheEntry->m_typeFlags & 0x2))) {
         return false;
     }
 
@@ -2093,7 +2093,7 @@ uint32_t CGPlayer_C::GetCreatureTracking() const {
 // VERIFY: 43e0888c manual
 // OFFSET: 0x006DAC10
 bool CGPlayer_C::IsDeadOrGhost() const {
-    return this->m_unit->m_unitFieldHealth <= 0 || ((this->m_player->m_playerFlags >> 4) & 1);
+    return this->m_unit->m_unitFieldHealth <= 0 || (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST);
 }
 
 // VERIFY: 3028b833 auto
@@ -2121,7 +2121,7 @@ int32_t CGPlayer_C::GetSkillIndex(int32_t skillId) const {
 // VERIFY: 43bc2c57 manual
 // OFFSET: 0x006DC8D0
 void CGPlayer_C::GetAFKText(char* buffer, uint32_t size) const {
-    if ((this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGChat::m_afk) || (this->m_player->m_playerFlags & 0x2)) {
+    if ((this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGChat::m_afk) || (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK)) {
         const char* text = FrameScript_GetText("CHAT_FLAG_AFK", -1, GENDER_NOT_APPLICABLE);
 
         if (text && *text) {
@@ -2133,7 +2133,7 @@ void CGPlayer_C::GetAFKText(char* buffer, uint32_t size) const {
 // VERIFY: 817b7a91 manual
 // OFFSET: 0x006DC940
 void CGPlayer_C::GetDNDText(char* buffer, uint32_t size) const {
-    if (this->m_player->m_playerFlags & 0x4) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) {
         const char* text = FrameScript_GetText("CHAT_FLAG_DND", -1, GENDER_NOT_APPLICABLE);
 
         if (text && *text) {
@@ -2147,7 +2147,7 @@ void CGPlayer_C::GetDNDText(char* buffer, uint32_t size) const {
 void CGPlayer_C::GetGMText(char* buffer, uint32_t size) const {
     uint32_t flags = this->m_player->m_playerFlags;
 
-    if ((flags & 0x8) && !((flags >> 15) & 1)) {
+    if ((flags & PLAYER_FLAGS::PLAYER_FLAG_GM) && !(flags & PLAYER_FLAGS::PLAYER_FLAG_DEVELOPER)) {
         const char* text = FrameScript_GetText("CHAT_FLAG_GM", -1, GENDER_NOT_APPLICABLE);
 
         if (text && *text) {
@@ -2159,7 +2159,7 @@ void CGPlayer_C::GetGMText(char* buffer, uint32_t size) const {
 // VERIFY: 66d20b22 manual
 // OFFSET: 0x006DC9D0
 void CGPlayer_C::GetDevText(char* buffer, uint32_t size) const {
-    if (this->m_player->m_playerFlags & 0x8000) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DEVELOPER) {
         SStrPack(buffer, "<Dev>", size);
     }
 }
@@ -2202,9 +2202,9 @@ const VisibleItem_C* CGPlayer_C::GetVisibleItem(int32_t slot) const {
 void CGPlayer_C::SetPvpCooldownTimestamp(uint32_t flags) {
     uint32_t playerFlags = this->m_player->m_playerFlags;
 
-    if (playerFlags & 0x200) {
+    if (playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) {
         this->m_pvpCooldownTimestamp = 0;
-    } else if (!((playerFlags >> 18) & 1) || !(flags & 0x40000)) {
+    } else if (!(playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_TIMER_ACTIVE) || !(flags & PLAYER_FLAGS::PLAYER_FLAG_PVP_TIMER_ACTIVE)) {
         this->m_pvpCooldownTimestamp = FrameTime::s_curTimeMs + 300000;
     }
 }
@@ -2212,7 +2212,7 @@ void CGPlayer_C::SetPvpCooldownTimestamp(uint32_t flags) {
 // VERIFY: c787d6b7 manual
 // OFFSET: 0x006DE7A0
 int32_t CGPlayer_C::GetPVPToggleTimer() const {
-    if (!(this->m_player->m_playerFlags & 0x40000)) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_TIMER_ACTIVE)) {
         return 300000;
     }
 
@@ -2240,7 +2240,7 @@ int32_t CGPlayer_C::IsCommentatorUberOrInArena() const {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
     uint32_t flags = this->m_player->m_playerFlags;
 
-    return ((flags >> 19) & 1) && (((flags >> 22) & 1) || (map && map->m_instanceType == 4));
+    return (flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR) && ((flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR_UBER) || (map && map->m_instanceType == 4));
 }
 
 // VERIFY: 881f2596 manual
@@ -3132,9 +3132,9 @@ void CGPlayer_C::PostInitActivePlayer() {
     Spell_C_SetPlayerClass(this->m_unit->m_unitFieldBytes0[1]);
     this->CountEquippedGems();
 
-    if (this->m_player->m_playerFlags & 0x200) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) {
         this->m_pvpCooldownTimestamp = 0;
-    } else if (!(this->m_player->m_playerFlags & 0x40000)) {
+    } else if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_TIMER_ACTIVE)) {
         this->m_pvpCooldownTimestamp = FrameTime::s_curTimeMs + 300000;
     }
 
@@ -4648,7 +4648,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int
         return;
     }
 
-    if (this->m_player->m_playerFlags & 0x1000000) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DISABLE_ATTACKS) {
         CGGameUI::DisplayError(ERR_CLIENT_LOCKED_OUT);
         return;
     }
@@ -6164,7 +6164,7 @@ void __stdcall CGPlayer_C::ShopFromMerchant(const WOWGUID& guid) {
 // VERIFY: e4ffe0d2 manual
 // OFFSET: 0x006DB010
 void CGPlayer_C::TalkToSpiritHealer(const WOWGUID& guid) {
-    if (!(this->m_player->m_playerFlags & 0x10)) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
         return;
     }
 
@@ -6201,7 +6201,7 @@ void CGPlayer_C::TalkToSpiritHealer(const WOWGUID& guid) {
 // VERIFY: 25092c88 manual
 // OFFSET: 0x006DB180
 void CGPlayer_C::TalkToSpiritGuide(const WOWGUID& guid) {
-    if (this->m_player->m_playerFlags & 0x10) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
         WOWGUID none = { 0 };
         CGGameUI::SetAreaSpiritHealer(none);
         CGGameUI::SetAreaSpiritHealer(guid);
@@ -6215,7 +6215,7 @@ void CGPlayer_C::HideHelm() {
         this->m_characterComponent->RemoveItemBySlot(static_cast<INVENTORY_SLOTS>(0));
     }
 
-    if (!(this->m_player->m_playerFlags & 0x400) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_HELM));
         msg.Put(static_cast<uint8_t>(0));
@@ -6233,7 +6233,7 @@ void CGPlayer_C::HideCloak() {
         this->m_characterComponent->RemoveItemBySlot(static_cast<INVENTORY_SLOTS>(14));
     }
 
-    if (!(this->m_player->m_playerFlags & 0x800) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_CLOAK));
         msg.Put(static_cast<uint8_t>(0));
@@ -8273,7 +8273,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
         return;
     }
 
-    if (!CGGameUI::m_hasControl || (this->m_player->m_playerFlags & 0x1000000)) {
+    if (!CGGameUI::m_hasControl || (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DISABLE_ATTACKS)) {
         return;
     }
 
@@ -9415,7 +9415,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
                     return 1;
                 }
 
-                if (!(player->m_player->m_playerFlags & 0x2000000)) {
+                if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_NO_XP_GAIN)) {
                     CGGameUI::DisplayError(ERR_ZONE_EXPLORED_XP, area->m_areaName, experience);
                 }
             }
@@ -9678,7 +9678,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             msg->Get(position.y);
             msg->Get(position.z);
 
-            if (!player || (player->m_player->m_playerFlags & 0x10)) {
+            if (!player || (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
                 position = C3Vector(0.0f, 0.0f, 0.0f);
                 CGGameUI::SetDeathReleaseLocation(-1, position);
             } else {
@@ -10362,7 +10362,7 @@ void CGPlayer_C::EquipVisibleItem(const VisibleItem_C* item, int32_t slot) {
         return;
     }
 
-    if ((slot == 0 && (this->m_player->m_playerFlags & 0x400)) || (slot == 14 && (this->m_player->m_playerFlags & 0x800))) {
+    if ((slot == 0 && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM)) || (slot == 14 && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK))) {
         return;
     }
 
@@ -10469,7 +10469,7 @@ void CGPlayer_C::ShowHelm() {
         this->m_characterComponent->AddItemBySlot(static_cast<INVENTORY_SLOTS>(0), head->GetDisplayID(), 0);
     }
 
-    if ((this->m_player->m_playerFlags & 0x400) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_HELM));
         msg.Put(static_cast<uint8_t>(1));
@@ -10489,7 +10489,7 @@ void CGPlayer_C::ShowCloak() {
         this->m_characterComponent->AddItemBySlot(static_cast<INVENTORY_SLOTS>(14), back->GetDisplayID(), 0);
     }
 
-    if ((this->m_player->m_playerFlags & 0x800) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_CLOAK));
         msg.Put(static_cast<uint8_t>(1));
@@ -12611,7 +12611,7 @@ void CGPlayer_C::UpdateRepopTimer() {
 
     if (bytes & 0x10) {
         CGGameUI::SetRepopTimeLeft(0);
-    } else if ((bytes & 0x8) && !(this->m_player->m_playerFlags & 0x4000)) {
+    } else if ((bytes & 0x8) && !(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS)) {
         CGGameUI::SetRepopTimeLeft(360000);
     } else {
         CGGameUI::ClearRepopTime();
@@ -13089,7 +13089,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
 // VERIFY: 646d304f manual
 // OFFSET: 0x006DF710
 void CGPlayer_C::UpdateGhostStatus() {
-    if (this->m_player->m_playerFlags & 0x10) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
         CGTutorial::TriggerTutorial(24);
     } else {
         CGGameUI::SetAreaSpiritHealer(WOWGUID());
@@ -13111,34 +13111,34 @@ void CGPlayer_C::UpdateGhostStatus() {
 void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
     uint32_t changed = oldFlags ^ this->m_player->m_playerFlags;
 
-    if (changed & 0x800E) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_NAME_TAGS_MASK) {
         PlayerNameTriggerNameRegenerate(this->m_nameDesc);
 
         if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-            CGChat::m_afk = this->m_player->m_playerFlags & 0x2;
+            CGChat::m_afk = this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK;
         }
     }
 
-    if (changed & 0x40300) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_PVP_STATUS_MASK) {
         this->SetPvpCooldownTimestamp(oldFlags);
     }
 
-    if (changed & 0xC00) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_HIDE_EQUIPMENT_MASK) {
         UpdateModelForUI(this->m_obj->m_guid, 3);
     }
 
     Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_PLAYER_FLAGS_CHANGED);
 
-    if (changed & 0x400) {
-        if (this->m_player->m_playerFlags & 0x400) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) {
             this->HideHelm();
         } else {
             this->ShowHelm();
         }
     }
 
-    if (changed & 0x800) {
-        if (this->m_player->m_playerFlags & 0x800) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) {
             this->HideCloak();
         } else {
             this->ShowCloak();
@@ -13149,12 +13149,12 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
         return;
     }
 
-    if (changed & 0x10) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
         this->UpdateGhostStatus();
     }
 
-    if (changed & 0x20) {
-        if (this->m_player->m_playerFlags & 0x20) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_RESTING) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_RESTING) {
             CGTutorial::TriggerTutorial(29);
             CGTutorial::TriggerTutorial(30);
         }
@@ -13162,10 +13162,10 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_UPDATE_RESTING, nullptr);
     }
 
-    if (changed & 0x200) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) {
         const char* text;
 
-        if (this->m_player->m_playerFlags & 0x200) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) {
             CGGameUI::DisplayError(ERR_PVP_TOGGLE_ON);
             text = FrameScript_GetText("PVP_TOGGLE_ON_VERBOSE", -1, GENDER_NOT_APPLICABLE);
         } else {
@@ -13176,32 +13176,32 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
         CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
-    if (changed & 0x3000) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_PLAY_TIME_MASK) {
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYTIME_CHANGED, nullptr);
     }
 
-    if (changed & 0x20000) {
-        if (this->m_player->m_playerFlags & 0x20000) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK) {
             FrameScript_SignalEvent(SCRIPT_EVENT_ENABLE_TAXI_BENCHMARK, nullptr);
         } else {
             FrameScript_SignalEvent(SCRIPT_EVENT_DISABLE_TAXI_BENCHMARK, nullptr);
         }
     }
 
-    if (changed & 0x1800000) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_SPELL_RESTRICTIONS_MASK) {
         CGSpellBook::UpdateUsable();
     }
 
-    if (changed & 0x2000000) {
-        if (this->m_player->m_playerFlags & 0x2000000) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_NO_XP_GAIN) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_NO_XP_GAIN) {
             FrameScript_SignalEvent(SCRIPT_EVENT_DISABLE_XP_GAIN, nullptr);
         } else {
             FrameScript_SignalEvent(SCRIPT_EVENT_ENABLE_XP_GAIN, nullptr);
         }
     }
 
-    if (changed & 0x10000) {
-        if (this->m_player->m_playerFlags & 0x10000) {
+    if (changed & PLAYER_FLAGS::PLAYER_FLAG_LOW_LEVEL_RAID_ENABLED) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_LOW_LEVEL_RAID_ENABLED) {
             FrameScript_SignalEvent(SCRIPT_EVENT_ENABLE_LOW_LEVEL_RAID, nullptr);
         } else {
             FrameScript_SignalEvent(SCRIPT_EVENT_DISABLE_LOW_LEVEL_RAID, nullptr);
@@ -14332,7 +14332,7 @@ void CGPlayer_C::SetAFK(const char* message) {
     }
 
     if (!CGChat::m_afk) {
-        if (this->m_player->m_playerFlags & 0x4) {
+        if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) {
             CGChat::AddChatMessage(FrameScript_GetText("CLEARED_DND", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
@@ -14400,7 +14400,7 @@ void CGPlayer_C::EquipItem(CGItem_C* item) {
 void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
     state->m_flags = 1;
 
-    if (this->m_player->m_playerFlags & 0x10) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
         state->m_flags = 9;
     }
 
@@ -14416,11 +14416,11 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
         state->m_flags |= 0x4;
     }
 
-    if (this->m_player->m_playerFlags & 0x2) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK) {
         state->m_flags |= 0x40;
     }
 
-    if (this->m_player->m_playerFlags & 0x4) {
+    if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) {
         state->m_flags |= 0x80;
     }
 

@@ -169,7 +169,7 @@ static int32_t Script_SendChatMessage(lua_State* L) {
     }
 
     if (type == CHAT_MSG_DND) {
-        if (!(player->m_player->m_playerFlags & 0x4) && !*text) {
+        if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) && !*text) {
             text = FrameScript_GetText("DEFAULT_DND_MESSAGE", -1, GENDER_NOT_APPLICABLE);
         }
 

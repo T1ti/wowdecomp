@@ -478,7 +478,7 @@ static int32_t Script_UnitIsGhost(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & 0x10)) {
+        if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -1134,7 +1134,7 @@ static int32_t Script_IsXPUserDisabled(lua_State* L) {
         return 0;
     }
 
-    lua_pushboolean(L, (player->m_player->m_playerFlags >> 25) & 1);
+    lua_pushboolean(L, (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_NO_XP_GAIN) != 0);
     return 1;
 }
 
@@ -1325,7 +1325,7 @@ static int32_t Script_IsGuildLeader(lua_State* L) {
 static int32_t Script_IsResting(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x20)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_RESTING)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1380,7 +1380,7 @@ static int32_t Script_UnitPVPRank(lua_State* L) {
 static int32_t Script_IsOutOfBounds(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x4000)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1584,7 +1584,7 @@ static int32_t Script_UnitIsPartyLeader(lua_State* L) {
     Script_GetGUIDFromToken(token, guid, false);
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
-    if ((player && (player->m_player->m_playerFlags & 1)) || CGPartyInfo::m_leader == guid) {
+    if ((player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GROUP_LEADER)) || CGPartyInfo::m_leader == guid) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -2055,7 +2055,7 @@ static int32_t Script_UnitIsDND(lua_State* L) {
     uint32_t dnd;
 
     if (player) {
-        dnd = player->m_player->m_playerFlags >> 2;
+        dnd = player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND;
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
 
@@ -2067,7 +2067,7 @@ static int32_t Script_UnitIsDND(lua_State* L) {
         dnd = static_cast<uint8_t>(state->m_flags) >> 7;
     }
 
-    if (dnd & 1) {
+    if (dnd) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -4174,7 +4174,7 @@ static int32_t Script_GetPlayerInfoByGUID(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     NameCache* record;
 
-    if (player && (player->m_player->m_playerFlags & 0x80000)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR)) {
         record = g_nameDBCache.GetRecord(guid.m_guid, guid, &NameQueryCallback, nullptr, true);
     } else {
         WOWGUID none = WOWGUID();
@@ -4437,7 +4437,7 @@ static int32_t Script_UnitIsAFK(lua_State* L) {
             return 1;
         }
 
-        afk = (player->m_player->m_playerFlags & 0x2) != 0;
+        afk = (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK) != 0;
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid);
 

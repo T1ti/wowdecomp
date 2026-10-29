@@ -1524,7 +1524,7 @@ uint32_t CMovement_C::GetFacetQueryFlags() const {
 
     CGUnit_C* unit = this->m_unit;
 
-    if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & 0x10)) {
+    if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
         flags |= 0x8000;
     }
 
@@ -6926,7 +6926,7 @@ void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float di
     uint32_t flags = this->m_unit->IsClientControlled() ? 0x111 : 0x2111;
     CGUnit_C* unit = this->m_unit;
 
-    if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & 0x10)) {
+    if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
         flags |= 0x8000;
     }
 

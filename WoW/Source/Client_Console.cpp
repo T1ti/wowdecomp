@@ -287,7 +287,7 @@ int32_t CCommand_ToggleHelm(const char* command, const char* arguments) {
     if (player) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_HELM));
-        msg.Put(static_cast<uint8_t>((player->m_player->m_playerFlags >> 10) & 1));
+        msg.Put(static_cast<uint8_t>((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) != 0));
         msg.Finalize();
         ClientServices::SendPacket(&msg);
     }
@@ -303,7 +303,7 @@ int32_t CCommand_ToggleCloak(const char* command, const char* arguments) {
     if (player) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_CLOAK));
-        msg.Put(static_cast<uint8_t>((player->m_player->m_playerFlags >> 11) & 1));
+        msg.Put(static_cast<uint8_t>((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) != 0));
         msg.Finalize();
         ClientServices::SendPacket(&msg);
     }

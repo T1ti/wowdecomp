@@ -240,7 +240,7 @@ void CGUnit_C::OnDeathAnimate() {
 
     this->PlayDeathAnimation(0);
 
-    if (!(this->m_obj->m_type & TYPE_PLAYER) || !(static_cast<CGPlayer_C*>(this)->m_player->m_playerFlags & 0x4000)) {
+    if (!(this->m_obj->m_type & TYPE_PLAYER) || !(static_cast<CGPlayer_C*>(this)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS)) {
         this->OnAiReaction(4);
     }
 

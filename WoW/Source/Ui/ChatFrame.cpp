@@ -1241,7 +1241,7 @@ emoteDone:
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     char translated[3000];
 
-    if (player && (player->m_player->m_playerFlags & 0x8)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GM)) {
         language = 0;
         SStrCopy(translated, text, sizeof(translated));
     } else if (language && player) {
@@ -1284,7 +1284,7 @@ emoteDone:
         }
     }
 
-    if (type != CHAT_MSG_FILTERED && (!flags || (SStrCmp(flags, "GM", STORM_MAX_STR) && SStrCmp(flags, "DEV", STORM_MAX_STR))) && (!player || !(player->m_player->m_playerFlags & 0x8)) && g_spamFilterCVar->m_intValue && type && SpamFilter(translated, false)) {
+    if (type != CHAT_MSG_FILTERED && (!flags || (SStrCmp(flags, "GM", STORM_MAX_STR) && SStrCmp(flags, "DEV", STORM_MAX_STR))) && (!player || !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GM)) && g_spamFilterCVar->m_intValue && type && SpamFilter(translated, false)) {
         if (type == CHAT_MSG_WHISPER && senderGuid) {
             CDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_CHAT_REPORT_FILTERED));
@@ -4035,7 +4035,7 @@ void CGChat::ProcessPendingChatQueue() {
 // OFFSET: 0x0050DF80
 void CGChat::EnterWorld() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    CGChat::m_afk = player && (player->m_player->m_playerFlags & 0x2) ? 1 : 0;
+    CGChat::m_afk = player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK) ? 1 : 0;
     s_queueChat = 0;
     CGChat::ProcessPendingChatQueue();
 }

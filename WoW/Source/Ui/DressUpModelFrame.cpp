@@ -556,7 +556,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
 
                     hand = 16;
                 } else {
-                    if (slot == 0 ? (player->m_player->m_playerFlags & 0x400) != 0 : slot == 14 ? (player->m_player->m_playerFlags & 0x800) != 0 : slot == 17) {
+                    if (slot == 0 ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) != 0 : slot == 14 ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) != 0 : slot == 17) {
                         continue;
                     }
 

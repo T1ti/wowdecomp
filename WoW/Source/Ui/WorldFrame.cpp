@@ -1398,7 +1398,7 @@ void CGWorldFrame::UpdateScreenEffect() {
             }
         }
 
-        if ((player->m_player->m_playerFlags & 0x10) && CGBattlefieldInfo::m_instanceType != 4) {
+        if ((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != 4) {
             CGWorldFrame::SetScreenEffect(1);
             return;
         }
@@ -1585,7 +1585,7 @@ void CGWorldFrame::UpdateDayNight(float deltaSec) {
         info->m_playerPos = player->GetPosition();
     }
 
-    if (player && (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & 0x20000)) {
+    if (player && (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         info->m_timeOfDay = 0;
         info->m_dayProgression = 0.5f;
         info->m_day = 0.0f;

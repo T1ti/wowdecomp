@@ -1651,7 +1651,7 @@ void CGCamera::DisableFreeLook(int32_t keepSmoothing) {
 void CGCamera::EnableFreeLook() {
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
+    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         return;
     }
 
@@ -2398,7 +2398,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
     if (flying && !this->m_wasFlying) {
         this->SetDesiredYawAngle(0.0f, 0.0f, 1.0f, OsGetAsyncTimeMs());
 
-        if (unit && (unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & 0x20000)) {
+        if (unit && (unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
             this->SetDesiredPitchAngle(0.0f, 0.0f, 1.0f, OsGetAsyncTimeMs());
         }
     }
@@ -2719,7 +2719,7 @@ void CGCamera::UpdateFreeLookFacing(float x, float y, float* pitchOut) {
 
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGUnit_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & 0x20000)) {
+    if (target && (target->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGUnit_C*>(target)->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (static_cast<CGPlayer_C*>(target)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         return;
     }
 
@@ -3040,7 +3040,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     if (view == 6) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-        if (!(player->m_player->m_playerFlags & 0x80000)) {
+        if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR)) {
             return;
         }
     }

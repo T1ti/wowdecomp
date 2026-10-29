@@ -468,7 +468,7 @@ uint64_t CGCommentator::GetArenaMember(int32_t index) {
     CGCommentator::MapInfo* map;
     CGCommentator::InstanceInfo* instance;
 
-    if (!player || !(player->m_player->m_playerFlags & 0x80000) || !this->GetCommentatorInfo(&map, &instance)) {
+    if (!player || !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR) || !this->GetCommentatorInfo(&map, &instance)) {
         return 0;
     }
 

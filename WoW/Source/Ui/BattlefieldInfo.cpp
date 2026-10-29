@@ -1812,7 +1812,7 @@ void CGBattlefieldInfo::RequestBattlegroundInstanceInfo(uint32_t index) {
     if (player->m_unit->m_unitFieldLevel >= player->m_player->m_playerFieldMaxLevel) {
         flag = 0;
     } else {
-        flag = (player->m_player->m_playerFlags >> 25) & 1;
+        flag = (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_NO_XP_GAIN) != 0;
     }
 
     msg.Put(flag);

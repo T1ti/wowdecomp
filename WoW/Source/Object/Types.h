@@ -4,6 +4,68 @@
 #include <cstddef>
 #include <cstdint>
 
+// CGPlayerData::m_playerFlags; names describe the 3.3.5 client behavior.
+// Behavioral names are reconstructed where the original names are unknown.
+// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Player/Player.h
+enum PLAYER_FLAGS : uint32_t {
+    PLAYER_FLAG_GROUP_LEADER                       = 0x00000001u,
+    PLAYER_FLAG_AFK                                = 0x00000002u,
+    PLAYER_FLAG_DND                                = 0x00000004u,
+    PLAYER_FLAG_GM                                 = 0x00000008u,
+    PLAYER_FLAG_GHOST                              = 0x00000010u,
+    PLAYER_FLAG_RESTING                            = 0x00000020u,
+    // Called VOICE_CHAT in some references; current meaning is not established.
+    PLAYER_FLAG_UNKNOWN_6                          = 0x00000040u,
+    // Legacy FFA PvP name; current meaning is not established.
+    PLAYER_FLAG_UNKNOWN_7                          = 0x00000080u,
+    PLAYER_FLAG_CONTESTED_PVP                      = 0x00000100u,
+    // GetPVPDesired()/the manual PvP toggle request, separate from the unit PvP state.
+    PLAYER_FLAG_PVP_DESIRED                        = 0x00000200u,
+    PLAYER_FLAG_HIDE_HELM                          = 0x00000400u,
+    PLAYER_FLAG_HIDE_CLOAK                         = 0x00000800u,
+    // PartialPlayTime() status; historically PLAYED_LONG_TIME.
+    PLAYER_FLAG_PARTIAL_PLAY_TIME                  = 0x00001000u,
+    // NoPlayTime() status; historically PLAYED_TOO_LONG.
+    PLAYER_FLAG_NO_PLAY_TIME                       = 0x00002000u,
+    PLAYER_FLAG_OUT_OF_BOUNDS                      = 0x00004000u,
+    // Shows the <Dev> tag and suppresses the ordinary GM tag.
+    PLAYER_FLAG_DEVELOPER                          = 0x00008000u,
+    PLAYER_FLAG_LOW_LEVEL_RAID_ENABLED             = 0x00010000u,
+    PLAYER_FLAG_TAXI_BENCHMARK                     = 0x00020000u,
+    PLAYER_FLAG_PVP_TIMER_ACTIVE                   = 0x00040000u,
+    // CommentatorGetMode() returns mode 1; not the privileged mode-2 bit.
+    PLAYER_FLAG_COMMENTATOR                        = 0x00080000u,
+    PLAYER_FLAG_UNKNOWN_20                         = 0x00100000u,
+    PLAYER_FLAG_UNKNOWN_21                         = 0x00200000u,
+    // Commentator mode 2, with instance/player administration privileges.
+    PLAYER_FLAG_COMMENTATOR_UBER                   = 0x00400000u,
+    // Casting is restricted to ATTACK effects or spells using the ranged slot.
+    PLAYER_FLAG_RESTRICT_NON_ATTACK_SPELLS         = 0x00800000u,
+    // Blocks attacks and abilities that initiate combat or modify the next swing.
+    PLAYER_FLAG_DISABLE_ATTACKS                    = 0x01000000u,
+    PLAYER_FLAG_NO_XP_GAIN                         = 0x02000000u,
+    PLAYER_FLAG_UNKNOWN_26                         = 0x04000000u,
+    PLAYER_FLAG_UNKNOWN_27                         = 0x08000000u,
+    PLAYER_FLAG_UNKNOWN_28                         = 0x10000000u,
+    PLAYER_FLAG_UNKNOWN_29                         = 0x20000000u,
+    PLAYER_FLAG_UNKNOWN_30                         = 0x40000000u,
+    PLAYER_FLAG_UNKNOWN_31                         = 0x80000000u,
+
+    PLAYER_FLAG_NAME_TAGS_MASK = PLAYER_FLAG_AFK
+        | PLAYER_FLAG_DND
+        | PLAYER_FLAG_GM
+        | PLAYER_FLAG_DEVELOPER,
+    PLAYER_FLAG_PVP_STATUS_MASK = PLAYER_FLAG_CONTESTED_PVP
+        | PLAYER_FLAG_PVP_DESIRED
+        | PLAYER_FLAG_PVP_TIMER_ACTIVE,
+    PLAYER_FLAG_HIDE_EQUIPMENT_MASK = PLAYER_FLAG_HIDE_HELM
+        | PLAYER_FLAG_HIDE_CLOAK,
+    PLAYER_FLAG_PLAY_TIME_MASK = PLAYER_FLAG_PARTIAL_PLAY_TIME
+        | PLAYER_FLAG_NO_PLAY_TIME,
+    PLAYER_FLAG_SPELL_RESTRICTIONS_MASK = PLAYER_FLAG_RESTRICT_NON_ATTACK_SPELLS
+        | PLAYER_FLAG_DISABLE_ATTACKS,
+};
+
 // Masks for CGUnitData::m_unitFieldFlags and m_unitFieldFlags2.
 // Names adapted from the 3.3.5 UnitFlags/UnitFlags2 definitions:
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Unit/UnitDefines.h

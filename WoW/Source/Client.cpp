@@ -2012,7 +2012,7 @@ int32_t STORMAPI SendErrorLog(uint32_t errorcode, const char* description, const
 static void ClientBeginTaxiBenchmarkMode() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || !(player->m_player->m_playerFlags & 0x20000)) {
+    if (!player || !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         return;
     }
 
@@ -2065,10 +2065,10 @@ void ClientUpdateTaxiBenchmarkMode() {
     }
 
     if (s_clientTaxiBenchIsOnTaxi) {
-        if (!(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || !(player->m_player->m_playerFlags & 0x20000)) {
+        if (!(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) || !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
             ClientEndTaxiBenchmarkMode(0);
         }
-    } else if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & 0x20000)) {
+    } else if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         ClientBeginTaxiBenchmarkMode();
     }
 

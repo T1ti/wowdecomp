@@ -1001,7 +1001,7 @@ static int32_t Script_GetBindLocation(lua_State* L) {
 static int32_t Script_IsPVPTimerRunning(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x40000)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_TIMER_ACTIVE)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1015,7 +1015,7 @@ static int32_t Script_IsPVPTimerRunning(lua_State* L) {
 static int32_t Script_ShowingHelm(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && !(player->m_player->m_playerFlags & 0x400)) {
+    if (player && !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1029,7 +1029,7 @@ static int32_t Script_ShowingHelm(lua_State* L) {
 static int32_t Script_ShowingCloak(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && !(player->m_player->m_playerFlags & 0x800)) {
+    if (player && !(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1043,7 +1043,7 @@ static int32_t Script_ShowingCloak(lua_State* L) {
 static int32_t Script_GetTaxiBenchmarkMode(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x20000)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_TAXI_BENCHMARK)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1057,7 +1057,7 @@ static int32_t Script_GetTaxiBenchmarkMode(lua_State* L) {
 static int32_t Script_GetAllowLowLevelRaid(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & 0x10000)) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_LOW_LEVEL_RAID_ENABLED)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1072,7 +1072,7 @@ static int32_t Script_PartialPlayTime(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     int32_t partial;
 
-    if (player && (partial = (player->m_player->m_playerFlags & 0x1000) != 0)) {
+    if (player && (partial = (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PARTIAL_PLAY_TIME) != 0)) {
         lua_pushnumber(L, partial);
         return 1;
     }
@@ -1087,7 +1087,7 @@ static int32_t Script_NoPlayTime(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     int32_t none;
 
-    if (player && (none = (player->m_player->m_playerFlags & 0x2000) != 0)) {
+    if (player && (none = (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_NO_PLAY_TIME) != 0)) {
         lua_pushnumber(L, none);
         return 1;
     }
@@ -1100,7 +1100,7 @@ static int32_t Script_NoPlayTime(lua_State* L) {
 // OFFSET: 0x0051BCA0
 static int32_t Script_GetPVPDesired(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    uint32_t desired = player ? (player->m_player->m_playerFlags >> 9) & 1 : 0;
+    uint32_t desired = player ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) != 0 : 0;
     lua_pushnumber(L, desired);
     return 1;
 }
