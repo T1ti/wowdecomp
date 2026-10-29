@@ -275,6 +275,18 @@ void CGUIBindingsStatus::Add(STATUS_TYPE severity, const char* format, ...) {
     DebugLog(buffer);
 }
 
+// INLINED
+KEYCOMMAND::KEYCOMMAND() {
+    this->m_function = -1;
+}
+
+// INLINED
+KEYCOMMAND::~KEYCOMMAND() {
+    if (this->m_function != -1) {
+        FrameScript_ReleaseFunction(this->m_function);
+    }
+}
+
 // VERIFY: 5ba4a2e0 manual
 // OFFSET: 0x00560300
 OVERRIDEKEYBINDING::~OVERRIDEKEYBINDING() {

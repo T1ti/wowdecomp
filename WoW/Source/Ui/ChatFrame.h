@@ -148,12 +148,16 @@ class SPAMCHECK : public TSHashObject<SPAMCHECK, HASHKEY_STR> {
     public:
     /* 0018 */ bool m_filtered;
     /* 001C */ char* m_filteredText;
+
+    ~SPAMCHECK();
 };
 
 class PROFANITYCHECK : public TSHashObject<PROFANITYCHECK, HASHKEY_STR> {
     public:
     /* 0018 */ bool m_filtered;
     /* 001C */ char* m_filteredText;
+
+    ~PROFANITYCHECK();
 };
 
 struct PENDINGUSERLIST : public TSLinkedNode<PENDINGUSERLIST> {
@@ -184,6 +188,7 @@ class ChatChannel {
     /* 00A5 */ uint8_t m_unkA5;
 
     ChatChannel();
+    ~ChatChannel();
 };
 
 struct DisplayChannel {

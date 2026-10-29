@@ -257,6 +257,8 @@ struct HASHKEY_STRI : public HASHKEY_STR {
 struct HASHKEY_UTF8I {
     /* 0000 */ char* m_str;
 
+    HASHKEY_UTF8I();
+    ~HASHKEY_UTF8I();
     HASHKEY_UTF8I& operator=(const char* str);
     bool operator==(const char* str);
 };
@@ -1565,6 +1567,18 @@ inline HASHKEY_STRI& HASHKEY_STRI::operator=(const char* str) {
 // INLINED
 inline bool HASHKEY_STRI::operator==(const char* str) {
     return SStrCmpI(this->m_str, str, STORM_MAX_STR) == 0;
+}
+
+// INLINED
+inline HASHKEY_UTF8I::HASHKEY_UTF8I() {
+    this->m_str = nullptr;
+}
+
+// INLINED
+inline HASHKEY_UTF8I::~HASHKEY_UTF8I() {
+    if (this->m_str) {
+        SMemFree(this->m_str, __FILE__, __LINE__, 0);
+    }
 }
 
 // INLINED

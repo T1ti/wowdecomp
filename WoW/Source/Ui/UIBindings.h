@@ -36,6 +36,9 @@ struct KEYCOMMAND : public TSHashObject<KEYCOMMAND, HASHKEY_STRI> {
     /* 0020 */ int32_t m_runOnUp;
     /* 0024 */ int32_t m_pressure;
     /* 0028 */ int32_t m_angle;
+
+    KEYCOMMAND();
+    ~KEYCOMMAND();
 };
 
 struct OVERRIDEKEYBINDINGENTRY : public TSLinkedNode<OVERRIDEKEYBINDINGENTRY> {

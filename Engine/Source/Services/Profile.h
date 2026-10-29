@@ -25,6 +25,8 @@ namespace ProfileInternal {
 
     struct SECTION : public TSHashObject<SECTION, HASHKEY_CONSTSTRI> {
         /* 0018 */ TSHashTable<KEYVALUE, HASHKEY_CONSTSTRI> m_keys;
+
+        ~SECTION();
     };
 
     struct PROFILE : public CHandleObject {

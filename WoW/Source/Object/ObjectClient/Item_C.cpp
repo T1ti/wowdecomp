@@ -59,6 +59,14 @@ static TSHashTable<INVENTORYART, HASHKEY_NONE> s_inventoryArt;
 // STATIC: 0x00CA1168
 static TSHashTable<ITEMBYNAME, HASHKEY_UTF8I> s_itemByName;
 
+// INLINED
+INVENTORYART::~INVENTORYART() {
+    if (this->m_texture) {
+        SMemFree(this->m_texture, __FILE__, __LINE__, 0);
+        this->m_texture = nullptr;
+    }
+}
+
 // VERIFY: 1390e3e9 manual
 // OFFSET: 0x00707720
 static int32_t OnUpdateStackCount(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {

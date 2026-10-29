@@ -26,6 +26,8 @@ struct HashedNode : public TSHashObject<HashedNode, HASHKEY_STRI> {
     /* 0018 */ XMLNode* m_node;
     /* 001C */ const char* m_taint;
     /* 0020 */ bool m_locked;
+
+    ~HashedNode();
 };
 
 CSimpleFrame* Create_SimpleButton(CSimpleFrame* parent);

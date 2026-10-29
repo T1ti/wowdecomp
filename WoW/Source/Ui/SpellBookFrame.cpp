@@ -138,6 +138,11 @@ static TSHashTable<SPELLSBYNAME, HASHKEY_UTF8I> s_spellsByName;
 // STATIC: 0x00BE8E8C
 TSGrowableArray<int32_t> CGSpellBook::m_unlearnedSpells;
 
+// INLINED
+SPELLSBYNAME::~SPELLSBYNAME() {
+    this->m_spells.Clear();
+}
+
 // VERIFY: ee08c995 manual
 // OFFSET: 0x0053CF10
 void CGSpellBook::UpdateUsable() {

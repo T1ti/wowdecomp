@@ -226,6 +226,20 @@ const char* s_sexNames[3] = { "Male", "Female", "NOSEX" };
 PORTRAITCACHE::PORTRAITCACHE() : m_dirty(1), m_texture(nullptr), m_prev(nullptr), m_next(nullptr) {
 }
 
+// INLINED
+PORTRAITCACHE::~PORTRAITCACHE() {
+    if (this->m_texture) {
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_texture));
+    }
+}
+
+// INLINED
+ITEMPORTRAIT::~ITEMPORTRAIT() {
+    if (this->m_texture) {
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_texture));
+    }
+}
+
 // VERIFY: 3458775d auto
 // OFFSET: 0x00616950
 static void PortraitCacheTouch(PORTRAITCACHE** head, PORTRAITCACHE* entry) {
@@ -663,7 +677,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         UNITPORTRAIT* portrait = s_unitPortraits.Ptr(displayId, HASHKEY_DWORD{ displayId });
 
         if (!portrait) {
-            portrait = s_unitPortraits.InternalNewNode(displayId, 0, 0);
+            portrait = s_unitPortraits.New(displayId, HASHKEY_DWORD{ displayId }, 0, 0);
         }
 
         cache = &portrait->m_cache;

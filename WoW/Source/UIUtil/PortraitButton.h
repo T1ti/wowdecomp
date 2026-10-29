@@ -21,6 +21,7 @@ struct PORTRAITCACHE {
     /* 001C */ PORTRAITCACHE* m_next;
 
     PORTRAITCACHE();
+    ~PORTRAITCACHE();
 };
 
 struct PLAYERPORTRAIT : public TSHashObject<PLAYERPORTRAIT, CHashKeyGUID> {
@@ -30,6 +31,8 @@ struct PLAYERPORTRAIT : public TSHashObject<PLAYERPORTRAIT, CHashKeyGUID> {
 struct ITEMPORTRAIT : public TSHashObject<ITEMPORTRAIT, HASHKEY_STRI> {
     /* 0018 */ CTexture* m_texture;
     /* 001C */ TSGrowableArray<CImVector> m_texels;
+
+    ~ITEMPORTRAIT();
 };
 
 struct PORTRAITREQUEST : public TSLinkedNode<PORTRAITREQUEST> {

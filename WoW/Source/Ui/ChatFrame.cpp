@@ -785,6 +785,20 @@ void CGChat::SendIgnoredResponse(WOWGUID guid, uint8_t a2) {
     ClientServices::Send2(&msg);
 }
 
+// INLINED
+PROFANITYCHECK::~PROFANITYCHECK() {
+    if (this->m_filteredText) {
+        SMemFree(this->m_filteredText, __FILE__, __LINE__, 0);
+    }
+}
+
+// INLINED
+SPAMCHECK::~SPAMCHECK() {
+    if (this->m_filteredText) {
+        SMemFree(this->m_filteredText, __FILE__, __LINE__, 0);
+    }
+}
+
 // VERIFY: 7953750b manual
 // OFFSET: 0x005016B0
 THROTTLEDCHAT::~THROTTLEDCHAT() {
@@ -5596,6 +5610,11 @@ ChatChannel::ChatChannel() {
     this->m_unkA5 = 0;
     this->m_unk9C = 1;
     this->m_unkA0 = 1;
+}
+
+// INLINED
+ChatChannel::~ChatChannel() {
+    this->m_pendingUsers.Clear();
 }
 
 // VERIFY: 2c5750ac auto

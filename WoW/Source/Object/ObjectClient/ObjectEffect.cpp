@@ -51,6 +51,14 @@ CObjectEffectModifier::CObjectEffectModifier() {
 }
 
 // INLINED
+CObjectEffectModifier::~CObjectEffectModifier() {
+    if (this->m_params) {
+        delete[] this->m_params;
+        this->m_params = nullptr;
+    }
+}
+
+// INLINED
 void CObjectEffectModifier::Init(const ObjectEffectModifierRec* rec) {
     this->m_inputType = rec->m_inputType;
     this->m_outputType = rec->m_outputType;
@@ -236,6 +244,42 @@ void InitObjectEffectStateMap() {
     s_objectEffectAnimStateMap[ANIM_CUSTOM_3].m_animID = ANIM_CUSTOM_3;
     s_objectEffectAnimStateMap[ANIM_CUSTOM_3].m_stateID = 80;
     s_objectEffectAnimStateMap[ANIM_CUSTOM_3].m_altStateID = 0;
+}
+
+// OFFSET: 0x006F2020
+CObjectEffectDef::~CObjectEffectDef() {
+    if (this->m_modifier) {
+        delete this->m_modifier;
+        this->m_modifier = nullptr;
+    }
+}
+
+// OFFSET: 0x006F3040
+CObjectEffectGroupDef::~CObjectEffectGroupDef() {
+    this->m_enterEffects.Clear();
+    this->m_loopEffects.Clear();
+    this->m_exitEffects.Clear();
+    this->m_eventEffects.Clear();
+}
+
+// OFFSET: 0x006F5830
+CObjectEffectPackageDef::~CObjectEffectPackageDef() {
+    for (OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP* lookup = this->m_stateGroupRefs.m_fulllist.Head(); lookup; lookup = this->m_stateGroupRefs.Next(lookup)) {
+        lookup->m_groupDefRefs.Clear();
+    }
+
+    this->m_stateGroupRefs.Clear();
+
+    for (OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP* lookup = this->m_eventGroupRefs.m_fulllist.Head(); lookup; lookup = this->m_eventGroupRefs.Next(lookup)) {
+        lookup->m_groupDefRefs.Clear();
+    }
+
+    this->m_eventGroupRefs.Clear();
+}
+
+// INLINED
+OBJ_EFFECT_GROUP_LOOKUP::~OBJ_EFFECT_GROUP_LOOKUP() {
+    this->m_effects.Clear();
 }
 
 // VERIFY: 56342ab3 auto

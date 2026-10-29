@@ -118,6 +118,20 @@ bool HASHKEY_TEXTUREFILE::operator==(const HASHKEY_TEXTUREFILE& key) const {
 }
 
 // INLINED
+CGxTexCache::CGxTexCache() {
+    this->m_gxTex = nullptr;
+    this->m_time = 0;
+    this->m_size = 0;
+}
+
+// INLINED
+CGxTexCache::~CGxTexCache() {
+    if (this->m_gxTex) {
+        GxTexDestroy(this->m_gxTex);
+    }
+}
+
+// INLINED
 CMipBitsCache::CMipBitsCache() {
     this->m_bits = nullptr;
 }

@@ -138,12 +138,20 @@ void CGInputControl::UpdateMouseMode(int32_t force) {
 }
 
 // INLINED
+MOUSELOOKBINDING::~MOUSELOOKBINDING() {
+    if (this->m_binding) {
+        SMemFree(this->m_binding, __FILE__, __LINE__, 0);
+    }
+}
+
+// INLINED
 CGInputControl::~CGInputControl() {
     if (this->m_wowMouse) {
         delete this->m_wowMouse;
     }
 
     this->m_wowMouse = nullptr;
+    this->m_mouseLookBindings.Clear();
 }
 
 // VERIFY: e79550cf manual

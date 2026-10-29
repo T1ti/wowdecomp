@@ -17,6 +17,8 @@ struct lua_State;
 
 struct MOUSELOOKBINDING : public TSHashObject<MOUSELOOKBINDING, HASHKEY_STRI> {
     /* 0018 */ char* m_binding;
+
+    ~MOUSELOOKBINDING();
 };
 
 class CMouseEvent;

@@ -44,6 +44,8 @@ struct OBJ_EFFECT_REF_LOOKUP : public TSHashObject<OBJ_EFFECT_REF_LOOKUP, HASHKE
 
 struct OBJ_EFFECT_GROUP_LOOKUP : public TSHashObject<OBJ_EFFECT_GROUP_LOOKUP, HASHKEY_NONE> {
     /* 0018 */ TSHashTable<OBJ_EFFECT_REF_LOOKUP, HASHKEY_NONE> m_effects;
+
+    ~OBJ_EFFECT_GROUP_LOOKUP();
 };
 
 struct OBJ_EFFECT_REF_LIST_LOOKUP : public TSHashObject<OBJ_EFFECT_REF_LIST_LOOKUP, HASHKEY_NONE> {
@@ -100,6 +102,7 @@ class CObjectEffectModifier {
     /* 0014 */ int32_t m_id;
 
     CObjectEffectModifier();
+    ~CObjectEffectModifier();
     void Apply(CObjectEffectManager* manager, CObjectEffect* effect);
     void Init(const ObjectEffectModifierRec* rec);
     void SetParam(int32_t index, float value);
@@ -127,6 +130,8 @@ class CObjectEffectDef : public TSLinkedNode<CObjectEffectDef> {
     /* 0014 */ int32_t m_attachment;
     /* 0018 */ C3Vector m_offset;
     /* 0024 */ CObjectEffectModifier* m_modifier;
+
+    ~CObjectEffectDef();
 };
 
 class CObjectEffectGroupDef : public TSLinkedNode<CObjectEffectGroupDef> {
@@ -136,6 +141,8 @@ class CObjectEffectGroupDef : public TSLinkedNode<CObjectEffectGroupDef> {
     /* 0018 */ TSList<CObjectEffectDefRef> m_loopEffects;
     /* 0024 */ TSList<CObjectEffectDefRef> m_exitEffects;
     /* 0030 */ TSList<CObjectEffectDefRef> m_eventEffects;
+
+    ~CObjectEffectGroupDef();
 };
 
 struct OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP : public TSHashObject<OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP, HASHKEY_NONE> {
@@ -147,6 +154,8 @@ class CObjectEffectPackageDef : public TSLinkedNode<CObjectEffectPackageDef> {
     /* 0008 */ int32_t m_id;
     /* 000C */ TSHashTable<OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP, HASHKEY_NONE> m_stateGroupRefs;
     /* 0034 */ TSHashTable<OBJ_EFFECT_GROUP_DEF_REF_LIST_LOOKUP, HASHKEY_NONE> m_eventGroupRefs;
+
+    ~CObjectEffectPackageDef();
 };
 
 struct OBJ_EFFECT_DEF_LOOKUP : public TSHashObject<OBJ_EFFECT_DEF_LOOKUP, HASHKEY_NONE> {

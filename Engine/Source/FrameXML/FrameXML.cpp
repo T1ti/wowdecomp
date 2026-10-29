@@ -220,6 +220,13 @@ CSimpleFrame* Create_SimpleFrame(CSimpleFrame* parent) {
     return data ? new (data) CSimpleFrame(parent) : nullptr;
 }
 
+// INLINED
+HashedNode::~HashedNode() {
+    if (this->m_node) {
+        delete this->m_node;
+    }
+}
+
 // VERIFY: f5a4d98a auto
 // OFFSET: 0x00812B90
 void FrameXML_FreeHashNodes() {

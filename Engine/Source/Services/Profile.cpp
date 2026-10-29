@@ -136,6 +136,11 @@ void ProfileInternal::STRINGBLOCK::FreeString(TSList<STRINGBLOCK, TSGetLink<STRI
     }
 }
 
+// INLINED
+ProfileInternal::SECTION::~SECTION() {
+    this->m_keys.Clear();
+}
+
 // VERIFY: 2d27ed1d manual
 // OFFSET: [0x004BCF60, 0x004BCFE0]
 ProfileInternal::PROFILE::~PROFILE() {
