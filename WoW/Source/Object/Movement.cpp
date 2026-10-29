@@ -4749,7 +4749,8 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
     while ((event = this->m_moveQueue.Head()) && static_cast<int32_t>(time - event->m_eventTime) >= 0) {
         CGUnit_C* unit = this->m_unit;
 
-        if ((unit->m_vehiclePassenger && (unit->m_vehiclePassenger->m_flags & 0x200)) || (event->m_eventId == MOVEEVENT_TELEPORT && CGUnit_C::MaybeDeferTeleport(&event->m_transportGuid))) {
+        if ((unit->m_vehiclePassenger && (unit->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM))
+            || (event->m_eventId == MOVEEVENT_TELEPORT && CGUnit_C::MaybeDeferTeleport(&event->m_transportGuid))) {
             return 2;
         }
 
@@ -5562,7 +5563,9 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
 // VERIFY: 930c3840 manual
 // OFFSET: 0x006EB730
 int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, int32_t force) {
-    if ((!this->m_spline || (this->m_spline->m_flags & 0x400)) && this->m_unit->m_vehiclePassenger && (this->m_unit->m_vehiclePassenger->m_flags & 0x200)) {
+    if ((!this->m_spline || (this->m_spline->m_flags & 0x400))
+        && this->m_unit->m_vehiclePassenger
+        && (this->m_unit->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM)) {
         return 0;
     }
 
@@ -5848,7 +5851,7 @@ void CMovement_C::FlushMoveQueue(int32_t a1, int32_t a2) {
     s_flushingQueue = 1;
 
     if (passenger && passenger->m_deferredTransitionSpline) {
-        if (passenger->m_flags & 0x200) {
+        if (passenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM) {
             passenger->StopWaitingForVehicleTransitionAnim();
         } else {
             passenger->DeleteAllDeferredVehicleTransitionAnimSplines();

@@ -15,6 +15,50 @@ class CGUnit_C;
 class CVehicle_C;
 class VehicleSeatRec;
 
+// Client runtime state, initialized to zero by Alloc; separate from VehicleSeatRec flags.
+// Names describe verified 3.3.5 behavior; original enumerator names are unavailable.
+enum VEHICLE_PASSENGER_FLAGS : uint32_t {
+    VEHICLE_PASSENGER_FLAG_NONE                                = 0x00000000u,
+    VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED                 = 0x00000001u,
+    VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE               = 0x00000002u,
+    VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE               = 0x00000004u,
+    VEHICLE_PASSENGER_FLAG_MOVEMENT_STOPPED                    = 0x00000008u,
+    VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM                 = 0x00000010u,
+    VEHICLE_PASSENGER_FLAG_SEAT_OFFSET_COMPUTED                = 0x00000020u,
+    VEHICLE_PASSENGER_FLAG_HAS_PASSENGER_ATTACHMENT            = 0x00000040u,
+    VEHICLE_PASSENGER_FLAG_TRANSITION_ANIM_WAIT_TIMED          = 0x00000080u,
+    VEHICLE_PASSENGER_FLAG_TRANSITION_ANIM_ENTERING            = 0x00000100u,
+    VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM         = 0x00000200u,
+    VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT                      = 0x00000400u,
+    VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS             = 0x00000800u,
+    VEHICLE_PASSENGER_FLAG_WORLD_FACING_LOCKED                 = 0x00001000u,
+
+    // No meaning or writer has been recovered for the remaining bits.
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_13                          = 0x00002000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_14                          = 0x00004000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_15                          = 0x00008000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_16                          = 0x00010000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_17                          = 0x00020000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_18                          = 0x00040000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_19                          = 0x00080000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_20                          = 0x00100000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_21                          = 0x00200000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_22                          = 0x00400000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_23                          = 0x00800000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_24                          = 0x01000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_25                          = 0x02000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_26                          = 0x04000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_27                          = 0x08000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_28                          = 0x10000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_29                          = 0x20000000u,
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_30                          = 0x40000000u,
+    // The existing callback tests bit 31; 3.3.5 tests bit 7 at 0x00749D6C instead.
+    VEHICLE_PASSENGER_FLAG_UNKNOWN_31                          = 0x80000000u,
+
+    VEHICLE_PASSENGER_FLAG_ANIM_START_DONE_MASK = VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE
+        | VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE,
+};
+
 struct VehiclePassengerRescueTransition {
     /* 0000 */ WOWGUID m_passengerGuid;
     /* 0008 */ WOWGUID m_vehicleGuid;
@@ -54,7 +98,7 @@ class CVehiclePassenger_C {
     /* 0004 */ CVehiclePassenger_C* m_prev;
     /* 0008 */ CVehiclePassenger_C* m_next;
     /* 000C */ CGUnit_C* m_unit;
-    /* 0010 */ uint32_t m_flags;
+    /* 0010 */ uint32_t m_flags; // VEHICLE_PASSENGER_FLAGS
     /* 0014 */ uint32_t m_state;
     /* 0018 */ uint32_t m_prevState;
     /* 001C */ uint32_t unused_001C;

@@ -879,7 +879,7 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
         this->HandleTracking(0.0f, 0.0f);
     }
 
-    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_flags & 0x10)) {
+    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM)) {
         this->UpdateWorldObject(0);
     }
 
@@ -965,7 +965,11 @@ void CGUnit_C::UpdateWorldObject(int32_t a2) {
         C44Matrix matrix;
         CM2Model* model = this->GetObjectModel();
 
-        if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state && (this->m_vehiclePassenger->m_flags & 0x10) && model && (model->m_fFlags & 0x8000)) {
+        if (this->m_vehiclePassenger
+            && this->m_vehiclePassenger->m_state
+            && (this->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM)
+            && model
+            && (model->m_fFlags & 0x8000)) {
             matrix = model->GetAnimatedWorldTransform();
         } else {
             matrix = this->GetMatrix();
@@ -1280,7 +1284,9 @@ void CGUnit_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) {
 
         if (model && (model->m_fFlags & 0x4000) && !child) {
             hidden = 1;
-        } else if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state && (this->m_vehiclePassenger->m_flags & 0x400)) {
+        } else if (this->m_vehiclePassenger
+            && this->m_vehiclePassenger->m_state
+            && (this->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT)) {
             hidden = 1;
         }
     }
