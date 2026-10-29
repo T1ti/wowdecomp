@@ -19,7 +19,7 @@ CDataAllocator CSimpleModelFFX::s_simpleModelFFXHeap(sizeof(CSimpleModelFFX), 5)
 // VERIFY: 14316163 auto
 // OFFSET: 0x004E5EA0
 static void AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param) {
-    if (eventId == 0x4F534424) {
+    if (eventId == M2_EVENT_ID::PlayOneShotSoundKit_DSO) {
         SI2::PlaySoundKit(static_cast<int32_t>(data), nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
     }
 }

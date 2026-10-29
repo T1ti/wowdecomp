@@ -3389,52 +3389,52 @@ static void GameObject_C_PlayAnimatedSound(uint32_t displayId, int32_t index, co
 // OFFSET: 0x0070C050
 void GameObject_C_ProcessAnimEvent(uint32_t eventId, uint32_t displayId, uint32_t data, const C3Vector& position, SE2SoundKitObject* sound) {
     switch (eventId) {
-        case '0OG$':
+        case M2_EVENT_ID::GameObjectSound_GO0:
             GameObject_C_PlayAnimatedSound(displayId, 0, position, sound);
             break;
 
-        case '1OG$':
+        case M2_EVENT_ID::GameObjectSound_GO1:
             GameObject_C_PlayAnimatedSound(displayId, 1, position, sound);
             break;
 
-        case '2OG$':
+        case M2_EVENT_ID::GameObjectSound_GO2:
             GameObject_C_PlayAnimatedSound(displayId, 2, position, sound);
             break;
 
-        case '3OG$':
+        case M2_EVENT_ID::GameObjectSound_GO3:
             GameObject_C_PlayAnimatedSound(displayId, 3, position, sound);
             break;
 
-        case '4OG$':
+        case M2_EVENT_ID::GameObjectSound_GO4:
             GameObject_C_PlayAnimatedSound(displayId, 4, position, sound);
             break;
 
-        case '5OG$':
+        case M2_EVENT_ID::GameObjectSound_GO5:
             GameObject_C_PlayAnimatedSound(displayId, 5, position, sound);
             break;
 
-        case '0CG$':
+        case M2_EVENT_ID::GameObjectCustomSound_GC0:
             GameObject_C_PlayAnimatedSound(displayId, 6, position, sound);
             break;
 
-        case '1CG$':
+        case M2_EVENT_ID::GameObjectCustomSound_GC1:
             GameObject_C_PlayAnimatedSound(displayId, 7, position, sound);
             break;
 
-        case '2CG$':
+        case M2_EVENT_ID::GameObjectCustomSound_GC2:
             GameObject_C_PlayAnimatedSound(displayId, 8, position, sound);
             break;
 
-        case '3CG$':
+        case M2_EVENT_ID::GameObjectCustomSound_GC3:
             GameObject_C_PlayAnimatedSound(displayId, 9, position, sound);
             break;
 
-        case 'DNS$':
-        case 'OSD$':
+        case M2_EVENT_ID::PlaySoundKit_SND:
+        case M2_EVENT_ID::PlayOneShotSoundKit_DSO:
             SI2::PlaySoundKit(data, &position, nullptr, nullptr, 0, nullptr, 1, 0);
             break;
 
-        case 'LSD$':
+        case M2_EVENT_ID::PlayLoopingSoundKit_DSL:
             if (sound && !SI2::IsPlaying(sound) && !SI2::IsTooCloseToExistingSoundKit(data, &position)) {
                 SE2SoundKitProperties properties;
                 properties.ResetToDefaults();
@@ -3449,7 +3449,7 @@ void GameObject_C_ProcessAnimEvent(uint32_t eventId, uint32_t displayId, uint32_
 
             break;
 
-        case 'KHS$': {
+        case M2_EVENT_ID::CameraShake_SHK: {
             SpellEffectCameraShakesRec* shakes = g_spellEffectCameraShakesDB.GetRecord(data);
 
             if (shakes) {

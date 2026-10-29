@@ -48,7 +48,7 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
     CMapDoodadDef* doodadDef = reinterpret_cast<CMapDoodadDef*>(static_cast<uintptr_t>(param));
 
     switch (eventId) {
-        case 'LSD$': {
+        case M2_EVENT_ID::PlayLoopingSoundKit_DSL: {
             if (SI2::IsPlaying(&doodadDef->m_soundKitObject) || SI2::IsTooCloseToExistingSoundKit(data, position)) {
                 break;
             }
@@ -65,15 +65,15 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             break;
         }
 
-        case 'OSD$':
+        case M2_EVENT_ID::PlayOneShotSoundKit_DSO:
             SI2::PlaySoundKit(data, position, nullptr, nullptr, 0, nullptr, 1, 0);
             break;
 
-        case 'ESD$':
+        case M2_EVENT_ID::StopSoundKit_DSE:
             SI2::StopSound(&doodadDef->m_soundKitObject, 0, -1.0f, 1);
             break;
 
-        case 'TWE$': {
+        case M2_EVENT_ID::ObjectPackageEnterState2_EWT: {
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
@@ -86,7 +86,7 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             break;
         }
 
-        case 'CAE$': {
+        case M2_EVENT_ID::ObjectPackageEnterState3_EAC: {
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
@@ -99,7 +99,7 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             break;
         }
 
-        case 'VME$': {
+        case M2_EVENT_ID::ObjectPackageEnterState4_EMV: {
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
@@ -112,7 +112,7 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             break;
         }
 
-        case 'CDE$': {
+        case M2_EVENT_ID::ObjectPackageEnterState5_EDC: {
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {

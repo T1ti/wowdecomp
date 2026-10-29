@@ -1082,8 +1082,8 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
 
     CM2Model* model = this->GetObjectModel();
 
-    if (model && model->IsLoaded(0, 0) && (model->m_fFlags & 0x8000) && model->HasEvent('MIA$')) {
-        *launch = model->GetEventPosition('MIA$');
+    if (model && model->IsLoaded(0, 0) && (model->m_fFlags & 0x8000) && model->HasEvent(M2_EVENT_ID::MissileFirePosition_AIM)) {
+        *launch = model->GetEventPosition(M2_EVENT_ID::MissileFirePosition_AIM);
     } else {
         *launch = this->GetMissileFirePosition();
         this->OverrideMissileFirePos(launch, spell);

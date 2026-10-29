@@ -7965,16 +7965,16 @@ C3Vector CGUnit_C::GetMissileFirePosition() const {
     CM2Model* model = this->m_worldModel;
 
     if (model && model->IsLoaded(0, 0)) {
-        if (model->HasEvent(0x4C534324)) {
-            return model->GetEventPosition(0x4C534324);
+        if (model->HasEvent(M2_EVENT_ID::MissileReleaseLeft_CSL)) {
+            return model->GetEventPosition(M2_EVENT_ID::MissileReleaseLeft_CSL);
         }
 
-        if (model->HasEvent(0x52534324)) {
-            return model->GetEventPosition(0x52534324);
+        if (model->HasEvent(M2_EVENT_ID::MissileReleaseRight_CSR)) {
+            return model->GetEventPosition(M2_EVENT_ID::MissileReleaseRight_CSR);
         }
 
-        if (model->HasEvent(0x54534324)) {
-            return model->GetEventPosition(0x54534324);
+        if (model->HasEvent(M2_EVENT_ID::MissileRelease_CST)) {
+            return model->GetEventPosition(M2_EVENT_ID::MissileRelease_CST);
         }
 
         if (this->m_vehiclePassenger) {
@@ -13970,7 +13970,7 @@ int32_t CGUnit_C::InitializeComponent() {
 // VERIFY: caa0a36b manual
 // OFFSET: 0x0071AAB0
 void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
-    if (model->HasEvent('TTW$') && model->HasEvent('BTW$')) {
+    if (model->HasEvent(M2_EVENT_ID::WeaponTop_WTT) && model->HasEvent(M2_EVENT_ID::WeaponBottom_WTB)) {
         model->m_fFlags |= 0x20;
         model->m_drawCallback = &CDrawBowString::UnitDrawBowStringCB;
         model->m_drawArg = arg;
@@ -18626,128 +18626,128 @@ void CGUnit_C::AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_t even
 // OFFSET: 0x00732650
 void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time) {
     switch (eventId) {
-        case 0x48414324:
-        case 0x48544424:
-        case 0x50504324:
-        case 0x50574224:
-        case 0x53534324:
-        case 0x30484124:
-        case 0x31484124:
-        case 0x32484124:
-        case 0x33484124:
+        case M2_EVENT_ID::ResolveAttackRound_CAH:
+        case M2_EVENT_ID::Death_DTH:
+        case M2_EVENT_ID::CombatDefense_CPP:
+        case M2_EVENT_ID::RangedWeaponPull_BWP:
+        case M2_EVENT_ID::PlayWeaponSwooshSound_CSS:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH0:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH1:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH2:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH3:
             this->HandleCombatAnimEvent(eventId, data, position, time);
             return;
 
-        case 0x31444624:
-        case 0x32444624:
-        case 0x33444624:
-        case 0x34444624:
-        case 0x35444624:
-        case 0x36444624:
-        case 0x37444624:
-        case 0x38444624:
-        case 0x39444624:
-        case 0x58444624:
+        case M2_EVENT_ID::PlayFidgetSound1_FD1:
+        case M2_EVENT_ID::PlayFidgetSound2_FD2:
+        case M2_EVENT_ID::PlayFidgetSound3_FD3:
+        case M2_EVENT_ID::PlayFidgetSound4_FD4:
+        case M2_EVENT_ID::PlayFidgetSound5_FD5:
+        case M2_EVENT_ID::FidgetSound6_FD6:
+        case M2_EVENT_ID::FidgetSound7_FD7:
+        case M2_EVENT_ID::FidgetSound8_FD8:
+        case M2_EVENT_ID::FidgetSound9_FD9:
+        case M2_EVENT_ID::PlayStandSound_FDX:
             this->HandlePlayStandSound(eventId, data);
             return;
 
-        case 0x4C534324:
-        case 0x52534324:
-        case 0x54534324:
+        case M2_EVENT_ID::MissileReleaseLeft_CSL:
+        case M2_EVENT_ID::MissileReleaseRight_CSR:
+        case M2_EVENT_ID::MissileRelease_CST:
             if (this->m_missiles) {
                 this->SetAnimEventPosition(position);
             }
             return;
 
-        case 0x304C4224:
-        case 0x304C4624:
-        case 0x304C5224:
-        case 0x304C5324:
-        case 0x304C5724:
-        case 0x314C4224:
-        case 0x314C4624:
-        case 0x314C5224:
-        case 0x314C5324:
-        case 0x314C5724:
-        case 0x324C4224:
-        case 0x324C4624:
-        case 0x324C5224:
-        case 0x324C5324:
-        case 0x324C5724:
-        case 0x334C4224:
-        case 0x334C4624:
-        case 0x334C5224:
-        case 0x334C5324:
-        case 0x334C5724:
+        case M2_EVENT_ID::FootLeft_BL0:
+        case M2_EVENT_ID::FootLeft_FL0:
+        case M2_EVENT_ID::FootLeft_RL0:
+        case M2_EVENT_ID::FootLeft_SL0:
+        case M2_EVENT_ID::FootLeft_WL0:
+        case M2_EVENT_ID::FootLeft_BL1:
+        case M2_EVENT_ID::FootLeft_FL1:
+        case M2_EVENT_ID::FootLeft_RL1:
+        case M2_EVENT_ID::FootLeft_SL1:
+        case M2_EVENT_ID::FootLeft_WL1:
+        case M2_EVENT_ID::FootLeft_BL2:
+        case M2_EVENT_ID::FootLeft_FL2:
+        case M2_EVENT_ID::FootLeft_RL2:
+        case M2_EVENT_ID::FootLeft_SL2:
+        case M2_EVENT_ID::FootLeft_WL2:
+        case M2_EVENT_ID::FootLeft_BL3:
+        case M2_EVENT_ID::FootLeft_FL3:
+        case M2_EVENT_ID::FootLeft_RL3:
+        case M2_EVENT_ID::FootLeft_SL3:
+        case M2_EVENT_ID::FootLeft_WL3:
             this->FootstepAnimEventHit(position, 1);
             return;
 
-        case 0x30524224:
-        case 0x30524624:
-        case 0x30525224:
-        case 0x30525324:
-        case 0x30525724:
-        case 0x31524224:
-        case 0x31524624:
-        case 0x31525224:
-        case 0x31525324:
-        case 0x31525724:
-        case 0x32524224:
-        case 0x32524624:
-        case 0x32525224:
-        case 0x32525324:
-        case 0x32525724:
-        case 0x33524224:
-        case 0x33524624:
-        case 0x33525224:
-        case 0x33525324:
-        case 0x33525724:
+        case M2_EVENT_ID::FootRight_BR0:
+        case M2_EVENT_ID::FootRight_FR0:
+        case M2_EVENT_ID::FootRight_RR0:
+        case M2_EVENT_ID::FootRight_SR0:
+        case M2_EVENT_ID::FootRight_WR0:
+        case M2_EVENT_ID::FootRight_BR1:
+        case M2_EVENT_ID::FootRight_FR1:
+        case M2_EVENT_ID::FootRight_RR1:
+        case M2_EVENT_ID::FootRight_SR1:
+        case M2_EVENT_ID::FootRight_WR1:
+        case M2_EVENT_ID::FootRight_BR2:
+        case M2_EVENT_ID::FootRight_FR2:
+        case M2_EVENT_ID::FootRight_RR2:
+        case M2_EVENT_ID::FootRight_SR2:
+        case M2_EVENT_ID::FootRight_WR2:
+        case M2_EVENT_ID::FootRight_BR3:
+        case M2_EVENT_ID::FootRight_FR3:
+        case M2_EVENT_ID::FootRight_RR3:
+        case M2_EVENT_ID::FootRight_SR3:
+        case M2_EVENT_ID::FootRight_WR3:
             this->FootstepAnimEventHit(position, 0);
             return;
 
-        case 0x30475624:
-        case 0x31475624:
-        case 0x32475624:
-        case 0x33475624:
-        case 0x34475624:
-        case 0x35475624:
-        case 0x36475624:
-        case 0x37475624:
-        case 0x38475624:
+        case M2_EVENT_ID::VehicleBoneGrab_VG0:
+        case M2_EVENT_ID::VehicleBoneGrab_VG1:
+        case M2_EVENT_ID::VehicleBoneGrab_VG2:
+        case M2_EVENT_ID::VehicleBoneGrab_VG3:
+        case M2_EVENT_ID::VehicleBoneGrab_VG4:
+        case M2_EVENT_ID::VehicleBoneGrab_VG5:
+        case M2_EVENT_ID::VehicleBoneGrab_VG6:
+        case M2_EVENT_ID::VehicleBoneGrab_VG7:
+        case M2_EVENT_ID::VehicleBoneGrab_VG8:
             if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {
                 this->m_vehicle->HandleBoneAnimGrabEvent(boneId, eventId);
             }
             return;
 
-        case 0x30545624:
-        case 0x31545624:
-        case 0x32545624:
-        case 0x33545624:
-        case 0x34545624:
-        case 0x35545624:
-        case 0x36545624:
-        case 0x37545624:
-        case 0x38545624:
+        case M2_EVENT_ID::VehicleBoneThrow_VT0:
+        case M2_EVENT_ID::VehicleBoneThrow_VT1:
+        case M2_EVENT_ID::VehicleBoneThrow_VT2:
+        case M2_EVENT_ID::VehicleBoneThrow_VT3:
+        case M2_EVENT_ID::VehicleBoneThrow_VT4:
+        case M2_EVENT_ID::VehicleBoneThrow_VT5:
+        case M2_EVENT_ID::VehicleBoneThrow_VT6:
+        case M2_EVENT_ID::VehicleBoneThrow_VT7:
+        case M2_EVENT_ID::VehicleBoneThrow_VT8:
             if (this->GetVehicleRec()) {
                 this->m_vehicle->HandleBoneAnimThrowEvent(boneId, eventId);
             }
             return;
 
-        case 0x44435324:
+        case M2_EVENT_ID::PlayDirectedSpellCastSound_SCD:
             if (this->m_soundData) {
                 SI2::PlaySoundKit(this->m_soundData->m_spellCastDirectedSoundID, position, nullptr, nullptr, 0, nullptr, 1, 0);
             }
             return;
 
-        case 0x4C485324:
+        case M2_EVENT_ID::ExchangeSheathedWeaponLeft_SHL:
             this->ExchangeSheathedWeapon(position, 1, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT);
             return;
 
-        case 0x52485324:
+        case M2_EVENT_ID::ExchangeSheathedWeaponRight_SHR:
             this->ExchangeSheathedWeapon(position, 0, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT);
             return;
 
-        case 0x48544224: {
+        case M2_EVENT_ID::Breath_BTH: {
             if (ClntObjMgrGetPlayerType() == PLAYER_BOT || !this->m_modelData || (this->m_modelData->m_flags & 2)) {
                 return;
             }
@@ -18773,51 +18773,51 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
             return;
         }
 
-        case 0x474D5324:
+        case M2_EVENT_ID::PlaySubmergeSound_SMG:
             if (this->m_soundData) {
                 SI2::PlaySoundKit(this->m_soundData->m_submergeSoundID, position, nullptr, nullptr, 0, nullptr, 1, 0);
             }
             return;
 
-        case 0x444D5324:
+        case M2_EVENT_ID::PlaySubmergedSound_SMD:
             if (this->m_soundData) {
                 SI2::PlaySoundKit(this->m_soundData->m_submergedSoundID, position, nullptr, nullptr, 0, nullptr, 1, 0);
             }
             return;
 
-        case 0x474E5724:
+        case M2_EVENT_ID::PlayWingFlapSound_WNG:
             this->PlayUnitSound(UNITSOUNDTYPE_WINGFLAP, 0);
             return;
 
-        case 0x47475724:
+        case M2_EVENT_ID::PlayWingGlideSound_WGG:
             this->PlayUnitSound(UNITSOUNDTYPE_WINGGLIDE, 0);
             return;
 
-        case 0x44534524:
+        case M2_EVENT_ID::PlayEmoteStateSound_ESD:
             this->PlayEmoteStateSound(position);
             return;
 
-        case 0x44534624:
+        case M2_EVENT_ID::Footfall_FSD:
             this->HandleFootfallAnimEvent(*position);
             return;
 
-        case 0x44534324:
+        case M2_EVENT_ID::PlayEmoteSound_CSD:
             this->PlayEmoteSound(data, true, -1);
             return;
 
-        case 0x44525424:
+        case M2_EVENT_ID::SpellEventSound_TRD:
             if (this->m_obj->m_type & TYPE_PLAYER) {
                 static_cast<CGPlayer_C*>(this)->HandleSpellEventSound();
             }
             return;
 
-        case 0x54524224:
+        case M2_EVENT_ID::PlayBirthSound_BRT:
             if (this->m_soundData) {
                 SI2::PlaySoundKit(this->m_soundData->m_birthSoundID, position, nullptr, nullptr, 0, nullptr, 1, 0);
             }
             return;
 
-        case 0x52574224: {
+        case M2_EVENT_ID::RangedWeaponRelease_BWR: {
             if (!CGUnit_C::s_trackingType) {
                 this->ClearTrackingTarget(false, true);
             }

@@ -2201,11 +2201,11 @@ void CGCamera::UpdateMountHeightOrOffset(CGUnit_C* unit) {
         return;
     }
 
-    if (mount->HasEvent(0x414D4324)) {
+    if (mount->HasEvent(M2_EVENT_ID::CameraPosition_CMA)) {
         this->m_heightChangedTimeMs = OsGetAsyncTimeMs();
         this->m_mountHeight = 0.0f;
 
-        float height = mount->GetEventPosition(0x414D4324).z - mount->GetWorldPosition().z;
+        float height = mount->GetEventPosition(M2_EVENT_ID::CameraPosition_CMA).z - mount->GetWorldPosition().z;
         float delta = fabsf(height - this->m_targetHeightFar);
         this->m_flags |= 0x80;
 
@@ -2215,8 +2215,8 @@ void CGCamera::UpdateMountHeightOrOffset(CGUnit_C* unit) {
             this->m_targetHeightSwim = height;
         }
     } else if (!(this->m_state & 0x800000)) {
-        if (mount->HasEvent(0x4D464324)) {
-            this->m_mountHeight = mount->GetEventPivot(0x4D464324).z;
+        if (mount->HasEvent(M2_EVENT_ID::MountHeightOffset_CFM)) {
+            this->m_mountHeight = mount->GetEventPivot(M2_EVENT_ID::MountHeightOffset_CFM).z;
         }
 
         this->m_state |= 0x800000;

@@ -383,7 +383,7 @@ void CEffect::EffectEvent(CM2Model* model, uint32_t boneId, uint32_t eventId, ui
         return;
     }
 
-    if (eventId == 0x444E5324) {
+    if (eventId == M2_EVENT_ID::PlaySoundKit_SND) {
         if ((object->m_obj->m_type & TYPE_UNIT) && object->IsActiveMover()) {
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
@@ -405,7 +405,7 @@ void CEffect::EffectEvent(CM2Model* model, uint32_t boneId, uint32_t eventId, ui
         if (!(effect->m_flags & 0x200000)) {
             SI2::AttachToObject(&effect->m_soundKitObject, object->m_obj->m_guid);
         }
-    } else if (eventId == 0x54494824 && (object->m_obj->m_type & TYPE_UNIT)) {
+    } else if (eventId == M2_EVENT_ID::PlayWoundAnimKit_HIT && (object->m_obj->m_type & TYPE_UNIT)) {
         object->PlayWoundAnimKit(0);
     }
 }
@@ -1640,7 +1640,7 @@ void CEffect::InitProceduralEffect(int32_t expireTime, int32_t param, uint32_t s
 // VERIFY: 78e5d527 manual
 // OFFSET: 0x006F8F50
 void CEffect::DrawFishingString(CM2Model* model, const CM2Lighting* lighting, void* arg) {
-    if (!model->HasEvent('HCC$')) {
+    if (!model->HasEvent(M2_EVENT_ID::FishingPole_CCH)) {
         return;
     }
 
@@ -1651,7 +1651,7 @@ void CEffect::DrawFishingString(CM2Model* model, const CM2Lighting* lighting, vo
         return;
     }
 
-    C3Vector start = model->GetEventPosition('HCC$');
+    C3Vector start = model->GetEventPosition(M2_EVENT_ID::FishingPole_CCH);
     C3Vector end = bobber->GetPosition();
     end.z = bobber->GetScale() * bobber->m_height * 0.2f + end.z;
     float dx = end.x - start.x;

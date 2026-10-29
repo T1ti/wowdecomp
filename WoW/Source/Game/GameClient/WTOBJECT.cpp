@@ -174,13 +174,13 @@ bool SWING::BuildVertexBuffer(uint32_t time, const C3Vector& top, const C3Vector
 // VERIFY: 1e058dc3 auto
 // OFFSET: 0x007E4F50
 static void WeaponTrailCallback(CM2Model* model, const CM2Lighting* lighting, void* arg) {
-    if (!model->HasEvent('BTW$') || !model->HasEvent('TTW$')) {
+    if (!model->HasEvent(M2_EVENT_ID::WeaponTrailBottom_WTB) || !model->HasEvent(M2_EVENT_ID::WeaponTrailTop_WTT)) {
         return;
     }
 
     uint32_t time = FrameTime::s_curTimeMs;
-    C3Vector bottom = model->GetEventPosition('BTW$');
-    C3Vector top = model->GetEventPosition('TTW$');
+    C3Vector bottom = model->GetEventPosition(M2_EVENT_ID::WeaponTrailBottom_WTB);
+    C3Vector top = model->GetEventPosition(M2_EVENT_ID::WeaponTrailTop_WTT);
     WTOBJECT* trail = static_cast<WTOBJECT*>(arg);
 
     if (!trail->m_swing->BuildVertexBuffer(time, top, bottom)) {

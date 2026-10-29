@@ -275,12 +275,12 @@ SpellVisualEffectNameRec* CGDynamicObject_C::GetVisualEffectNameRec(const SpellR
 void CGDynamicObject_C::HandleAnimEvent(uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time) {
     SpellEffectCameraShakesRec* shakes = g_spellEffectCameraShakesDB.GetRecord(data);
 
-    if (eventId == 0x444E5324) {
+    if (eventId == M2_EVENT_ID::PlaySoundKit_SND) {
         SI2::PlaySoundKit(data, position, nullptr, nullptr, 0, nullptr, 1, 0);
         return;
     }
 
-    if (eventId == 0x4B485324 && shakes) {
+    if (eventId == M2_EVENT_ID::CameraShake_SHK && shakes) {
         for (uint32_t i = 0; i < 3; i++) {
             CGWorldFrame::GetActiveCamera()->AddShakeById(shakes->m_cameraShake[i], position);
         }

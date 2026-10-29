@@ -212,28 +212,28 @@ void CGUnit_C::PlayDeathThud() {
 // OFFSET: 0x007471A0
 void CGUnit_C::HandlePlayStandSound(uint32_t eventId, int32_t unused_a3) {
     switch (eventId) {
-        case 0x31444624:
+        case M2_EVENT_ID::PlayFidgetSound1_FD1:
             this->PlayFidgetSound(0);
             break;
-        case 0x32444624:
+        case M2_EVENT_ID::PlayFidgetSound2_FD2:
             this->PlayFidgetSound(1);
             break;
-        case 0x33444624:
+        case M2_EVENT_ID::PlayFidgetSound3_FD3:
             this->PlayFidgetSound(2);
             break;
-        case 0x34444624:
+        case M2_EVENT_ID::PlayFidgetSound4_FD4:
             this->PlayFidgetSound(3);
             break;
-        case 0x35444624:
+        case M2_EVENT_ID::PlayFidgetSound5_FD5:
             this->PlayFidgetSound(4);
             break;
-        case 0x36444624:
-        case 0x37444624:
-        case 0x38444624:
-        case 0x39444624:
+        case M2_EVENT_ID::FidgetSound6_FD6:
+        case M2_EVENT_ID::FidgetSound7_FD7:
+        case M2_EVENT_ID::FidgetSound8_FD8:
+        case M2_EVENT_ID::FidgetSound9_FD9:
             this->GetSoundData();
             break;
-        case 0x58444624:
+        case M2_EVENT_ID::PlayStandSound_FDX:
             this->PlayStandSound();
             break;
     }

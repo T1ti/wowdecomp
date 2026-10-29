@@ -80,8 +80,8 @@ C3Vector LightningObject::GetCasterPosition(CGUnit_C* unit, uint32_t attachment,
             return unit->GetAttachmentPositionForEffect(attachment, offset, raw);
         }
 
-        if (model->HasEvent(0x4C534324)) {
-            return offset * model->GetEventWorldTransform(0x4C534324);
+        if (model->HasEvent(M2_EVENT_ID::MissileReleaseLeft_CSL)) {
+            return offset * model->GetEventWorldTransform(M2_EVENT_ID::MissileReleaseLeft_CSL);
         }
 
         if (offset.x != 0.0f || offset.y != 0.0f || offset.z != 0.0f) {
@@ -760,7 +760,7 @@ Shard::~Shard() {
 // VERIFY: 58b50d0a auto
 // OFFSET: 0x007F9D80
 static void ShardAnimEventCallback(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param) {
-    if ((++s_shardEventCount & 3) == 0 && eventId == 0x444E5324) {
+    if ((++s_shardEventCount & 3) == 0 && eventId == M2_EVENT_ID::PlaySoundKit_SND) {
         SI2::PlaySoundKit(data, position, nullptr, nullptr, 0, nullptr, 1, 0);
     }
 }
@@ -1003,22 +1003,22 @@ int32_t MountTransitionObject::UpdateCharacterData() {
     float rate = 1.0f / static_cast<float>(info.m_endTime - info.m_startTime);
     this->m_animRate = rate;
     uint32_t anim = unit->GetCurrentTorsoAnimId();
-    uint32_t riseStart = model->GetEventSequenceTime(anim, 0x42545324);
-    uint32_t riseEnd = model->GetEventSequenceTime(anim, 0x45545324);
+    uint32_t riseStart = model->GetEventSequenceTime(anim, M2_EVENT_ID::MountTransitionBegin_STB);
+    uint32_t riseEnd = model->GetEventSequenceTime(anim, M2_EVENT_ID::MountTransitionEnd_STE);
     this->m_riseStart = static_cast<float>(riseStart) * rate;
     this->m_riseEnd = rate * static_cast<float>(riseEnd);
     this->m_riseRate = 1.0f / (this->m_riseEnd - this->m_riseStart);
 
-    if (mountModel->HasEvent(0x42545324)) {
-        this->m_eventPivot = mountModel->GetEventPivot(0x42545324);
+    if (mountModel->HasEvent(M2_EVENT_ID::MountTransitionBegin_STB)) {
+        this->m_eventPivot = mountModel->GetEventPivot(M2_EVENT_ID::MountTransitionBegin_STB);
     }
 
     C44Matrix world = unit->m_worldModel->m_worldTransform;
     this->m_eventPivot *= world;
     world = unit->m_worldModel->m_worldTransform;
     this->m_jumpVector = *reinterpret_cast<const C3Vector*>(&world.d0) - this->m_eventPivot;
-    uint32_t jumpStart = mountModel->GetEventSequenceTime(127, 0x42545324);
-    uint32_t jumpEnd = mountModel->GetEventSequenceTime(127, 0x45545324);
+    uint32_t jumpStart = mountModel->GetEventSequenceTime(127, M2_EVENT_ID::MountTransitionBegin_STB);
+    uint32_t jumpEnd = mountModel->GetEventSequenceTime(127, M2_EVENT_ID::MountTransitionEnd_STE);
     this->m_jumpStart = static_cast<float>(jumpStart) * rate;
     this->m_jumpEnd = rate * static_cast<float>(jumpEnd);
     this->m_jumpRate = this->m_jumpEnd - this->m_jumpStart;

@@ -38,8 +38,8 @@ void CDrawBowString::DrawBowString(CM2Model* model, const CM2Lighting* lighting,
         color = swapped;
     }
 
-    C3Vector top = model->GetEventPosition('TTW$');
-    C3Vector bottom = model->GetEventPosition('BTW$');
+    C3Vector top = model->GetEventPosition(M2_EVENT_ID::WeaponTop_WTT);
+    C3Vector bottom = model->GetEventPosition(M2_EVENT_ID::WeaponBottom_WTB);
     C3Vector hand(0.0f, 0.0f, 0.0f);
 
     if (unit && (unit->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED)) {

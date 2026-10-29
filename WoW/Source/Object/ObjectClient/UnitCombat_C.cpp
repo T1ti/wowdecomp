@@ -565,29 +565,29 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
     }
 
     switch (eventId) {
-        case 0x30484124:
-        case 0x31484124:
-        case 0x32484124:
-        case 0x33484124:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH0:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH1:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH2:
+        case M2_EVENT_ID::PlayCustomAttackSound_AH3:
             if (this->m_lastAttackRound.m_damage && attacker && attacker->m_soundData) {
                 SE2SoundKitProperties properties;
                 properties.ResetToDefaults();
                 properties.m_group = 14;
 
                 switch (eventId) {
-                    case 0x30484124:
+                    case M2_EVENT_ID::PlayCustomAttackSound_AH0:
                         SI2::PlaySoundKit(attacker->m_soundData->m_customAttack[0], position, nullptr, &properties, 0, nullptr, 1, 0);
                         break;
 
-                    case 0x31484124:
+                    case M2_EVENT_ID::PlayCustomAttackSound_AH1:
                         SI2::PlaySoundKit(attacker->m_soundData->m_customAttack[1], position, nullptr, &properties, 0, nullptr, 1, 0);
                         break;
 
-                    case 0x32484124:
+                    case M2_EVENT_ID::PlayCustomAttackSound_AH2:
                         SI2::PlaySoundKit(attacker->m_soundData->m_customAttack[2], position, nullptr, &properties, 0, nullptr, 1, 0);
                         break;
 
-                    case 0x33484124:
+                    case M2_EVENT_ID::PlayCustomAttackSound_AH3:
                         SI2::PlaySoundKit(attacker->m_soundData->m_customAttack[3], position, nullptr, &properties, 0, nullptr, 1, 0);
                         break;
                 }
@@ -595,7 +595,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
                 this->m_lastAttackRound.m_hitInfo |= 0x200000;
             }
 
-        case 0x48414324:
+        case M2_EVENT_ID::ResolveAttackRound_CAH:
             if (attacker) {
                 VICTIMSTATES victimState = attacker->m_lastAttackRound.m_victimState;
 
@@ -622,7 +622,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             this->m_lastAttackRound.m_target = WOWGUID();
             return;
 
-        case 0x53534324: {
+        case M2_EVENT_ID::PlayWeaponSwooshSound_CSS: {
             if (!attacker) {
                 return;
             }
@@ -643,7 +643,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             return;
         }
 
-        case 0x50574224: {
+        case M2_EVENT_ID::RangedWeaponPull_BWP: {
             if (this->IsActivePlayer()) {
                 SpellRec spell;
 
@@ -671,13 +671,13 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             return;
         }
 
-        case 0x48544424:
+        case M2_EVENT_ID::Death_DTH:
             this->PlayDeathThud();
             this->ShakeCameraOnHit();
             this->ShowLootEffect();
             return;
 
-        case 0x50504324: {
+        case M2_EVENT_ID::CombatDefense_CPP: {
             if (!target || (target->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) || target->GetClientStandState() == UNIT_DEAD) {
                 return;
             }

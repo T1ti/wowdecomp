@@ -185,7 +185,7 @@ void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
 // VERIFY: 61c6f157 auto
 // OFFSET: 0x004E0110
 void CCharacterSelection::ModelLoadedCallback(CM2Model* model, void* arg) {
-    if (model->HasEvent('TTW$') && model->HasEvent('BTW$')) {
+    if (model->HasEvent(M2_EVENT_ID::WeaponTop_WTT) && model->HasEvent(M2_EVENT_ID::WeaponBottom_WTB)) {
         model->m_fFlags |= 0x20;
         model->m_drawCallback = &CDrawBowString::GlueDrawBowStringCB;
         model->m_drawArg = arg;
