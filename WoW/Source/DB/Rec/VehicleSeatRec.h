@@ -8,7 +8,7 @@ class SFileImpl;
 
 // Imported verbatim from VehicleSeat.dbc; keep signed 32-bit record storage.
 // Names describe 3.3.5 client behavior checked against the supplied 720-row CSV.
-// Unobserved or unresolved meanings remain UNKNOWN; server-only guesses are omitted.
+// UNUSED: no observed client use or set rows; UNKNOWN: meaning remains unresolved.
 enum VEHICLE_SEAT_FLAGS : int32_t {
     VEHICLE_SEAT_FLAG_NONE                                         = 0x00000000,
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                     = 0x00000001,
@@ -78,12 +78,12 @@ enum VEHICLE_SEAT_FLAGS_B : int32_t {
     VEHICLE_SEAT_FLAG_B_FORCE_ENTER_ANIM_FACING                    = 0x00800000,
     VEHICLE_SEAT_FLAG_B_ALLOW_PASSENGER_TRANSITION                 = 0x01000000,
     VEHICLE_SEAT_FLAG_B_UNKNOWN_25                                 = 0x02000000,
-    VEHICLE_SEAT_FLAG_B_UNKNOWN_26                                 = 0x04000000,
+    VEHICLE_SEAT_FLAG_B_UNUSED_26                                  = 0x04000000,
     VEHICLE_SEAT_FLAG_B_UNKNOWN_27                                 = 0x08000000,
     VEHICLE_SEAT_FLAG_B_UNKNOWN_28                                 = 0x10000000,
-    VEHICLE_SEAT_FLAG_B_UNKNOWN_29                                 = 0x20000000,
+    VEHICLE_SEAT_FLAG_B_UNUSED_29                                  = 0x20000000,
     VEHICLE_SEAT_FLAG_B_UNKNOWN_30                                 = 0x40000000,
-    VEHICLE_SEAT_FLAG_B_UNKNOWN_31                                 = (-2147483647 - 1),
+    VEHICLE_SEAT_FLAG_B_UNUSED_31                                  = (-2147483647 - 1),
 
     VEHICLE_SEAT_FLAG_B_CAMERA_FACING_INTERPOLATION_MASK = VEHICLE_SEAT_FLAG_B_CAMERA_INTERPOLATE_POSITION
         | VEHICLE_SEAT_FLAG_B_CAMERA_INTERPOLATE_FACING,
