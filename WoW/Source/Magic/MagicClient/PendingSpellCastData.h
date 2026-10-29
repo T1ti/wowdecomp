@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -17,7 +18,7 @@ class PendingSpellCastData {
     /* 0018 */ uint32_t m_spellId;
     /* 001C */ uint8_t m_castCount;
     /* 001D */ uint8_t unused_001D [3];
-    /* 0020 */ uint32_t m_targetFlags;
+    /* 0020 */ uint32_t m_targetFlags; // SPELL_TARGET_TYPE
     /* 0024 */ uint32_t unused_0024;
     /* 0028 */ WOWGUID m_objectTarget;
     /* 0030 */ WOWGUID m_itemTarget;

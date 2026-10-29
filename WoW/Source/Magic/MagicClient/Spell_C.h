@@ -190,7 +190,7 @@ bool Spell_C_CanTargetObject(const CGGameObject_C* object);
 bool Spell_C_IsTargeting();
 bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID target, uint8_t* inRange, bool report, PendingSpellCast* cast);
 extern PendingSpellCast* s_targetingSpell;
-extern uint32_t s_needTargets;
+extern uint32_t s_needTargets; // SPELL_TARGET_TYPE
 int32_t Spell_C_IsCursorWorldObjectHousing();
 void Spell_C_CursorWorldObjectRotate();
 void Spell_C_CancelPlayerSpells();

@@ -799,6 +799,103 @@ enum SPELL_EFFECT : int32_t
     TOTAL_SPELL_EFFECTS
 };
 
+// Current target requirements and serialized target flags used by s_needTargets,
+// SpellRec::m_targets, and PendingSpellCastData::m_targetFlags.
+// The 0.5.3 SPELL_TARGET_TYPE enum used ordinals; these are 3.3.5 bit masks.
+enum SPELL_TARGET_TYPE : uint32_t
+{
+    TARGET_FLAG_NONE = 0x00000000u,
+    // No verified current-client meaning; do not assume this is the old CASTER ordinal.
+    TARGET_FLAG_UNKNOWN_0                    = 0x00000001u,
+    TARGET_FLAG_UNIT                         = 0x00000002u,
+    // Raid requirement, resolved by the target-selection code.
+    TARGET_FLAG_UNIT_RAID                    = 0x00000004u,
+    // Party requirement, resolved by the target-selection code.
+    TARGET_FLAG_UNIT_PARTY                   = 0x00000008u,
+    TARGET_FLAG_ITEM                         = 0x00000010u,
+    // Packed transport GUID followed by three position floats.
+    TARGET_FLAG_SOURCE_LOCATION              = 0x00000020u,
+    // Packed transport GUID followed by three position floats.
+    TARGET_FLAG_DEST_LOCATION                = 0x00000040u,
+    TARGET_FLAG_UNIT_ENEMY                   = 0x00000080u,
+    TARGET_FLAG_UNIT_ALLY                    = 0x00000100u,
+    TARGET_FLAG_CORPSE_ENEMY                 = 0x00000200u,
+    // Dead-unit requirement; does not by itself add a GUID to WriteTargetInfo.
+    TARGET_FLAG_UNIT_DEAD                    = 0x00000400u,
+    TARGET_FLAG_GAMEOBJECT                   = 0x00000800u,
+    TARGET_FLAG_TRADE_ITEM                   = 0x00001000u,
+    TARGET_FLAG_STRING                       = 0x00002000u,
+    // A gameobject or item may satisfy this selection requirement.
+    TARGET_FLAG_GAMEOBJECT_ITEM              = 0x00004000u,
+    TARGET_FLAG_CORPSE_ALLY                  = 0x00008000u,
+    // Noncombat pet selector, matching Spell_C_CanTargetNonCombatPet.
+    TARGET_FLAG_UNIT_NON_COMBAT_PET          = 0x00010000u,
+    // Glyph selection is completed through PendingSpellCastData::m_glyphSlot.
+    TARGET_FLAG_GLYPH_SLOT                   = 0x00020000u,
+    // Sometimes called DEST_TARGET in references; no verified use in this source.
+    TARGET_FLAG_UNKNOWN_18                   = 0x00040000u,
+    // Used by OnSpellGo: count, then position/transport-GUID pairs for missile target points.
+    TARGET_FLAG_TARGET_POINTS                = 0x00080000u,
+    // References guess UNIT_PASSENGER; no verified use in this source.
+    TARGET_FLAG_UNKNOWN_20                   = 0x00100000u,
+    TARGET_FLAG_UNKNOWN_21                   = 0x00200000u,
+    TARGET_FLAG_UNKNOWN_22                   = 0x00400000u,
+    TARGET_FLAG_UNKNOWN_23                   = 0x00800000u,
+    TARGET_FLAG_UNKNOWN_24                   = 0x01000000u,
+    TARGET_FLAG_UNKNOWN_25                   = 0x02000000u,
+    TARGET_FLAG_UNKNOWN_26                   = 0x04000000u,
+    TARGET_FLAG_UNKNOWN_27                   = 0x08000000u,
+    TARGET_FLAG_UNKNOWN_28                   = 0x10000000u,
+    TARGET_FLAG_UNKNOWN_29                   = 0x20000000u,
+    TARGET_FLAG_UNKNOWN_30                   = 0x40000000u,
+    TARGET_FLAG_UNKNOWN_31                   = 0x80000000u,
+
+    TARGET_FLAG_LOCATION_MASK = TARGET_FLAG_SOURCE_LOCATION
+        | TARGET_FLAG_DEST_LOCATION,
+    TARGET_FLAG_ITEM_GUID_MASK = TARGET_FLAG_ITEM
+        | TARGET_FLAG_TRADE_ITEM,
+    // GUID payload masks are the exact masks used by WriteTargetInfo/SpellGetCastTargets.
+    TARGET_FLAG_OBJECT_GUID_MASK = TARGET_FLAG_UNIT
+        | TARGET_FLAG_CORPSE_ENEMY
+        | TARGET_FLAG_GAMEOBJECT
+        | TARGET_FLAG_CORPSE_ALLY
+        | TARGET_FLAG_UNIT_NON_COMBAT_PET,
+    TARGET_FLAG_ITEM_SELECTION_MASK = TARGET_FLAG_ITEM
+        | TARGET_FLAG_GAMEOBJECT_ITEM,
+    TARGET_FLAG_GAMEOBJECT_MASK = TARGET_FLAG_GAMEOBJECT
+        | TARGET_FLAG_GAMEOBJECT_ITEM,
+    TARGET_FLAG_CORPSE_MASK = TARGET_FLAG_CORPSE_ENEMY
+        | TARGET_FLAG_CORPSE_ALLY,
+    TARGET_FLAG_DEAD_MASK = TARGET_FLAG_CORPSE_ENEMY
+        | TARGET_FLAG_UNIT_DEAD
+        | TARGET_FLAG_CORPSE_ALLY,
+    TARGET_FLAG_FRIENDLY_UNIT_MASK = TARGET_FLAG_UNIT_RAID
+        | TARGET_FLAG_UNIT_PARTY
+        | TARGET_FLAG_UNIT_ALLY,
+    TARGET_FLAG_UNIT_OR_CORPSE_GUID_MASK = TARGET_FLAG_UNIT
+        | TARGET_FLAG_CORPSE_ENEMY
+        | TARGET_FLAG_CORPSE_ALLY
+        | TARGET_FLAG_UNIT_NON_COMBAT_PET,
+    // Exact UI-selection masks; these are broader than plain object-kind masks.
+    TARGET_FLAG_UNIT_SELECTION_MASK = TARGET_FLAG_UNIT
+        | TARGET_FLAG_UNIT_RAID
+        | TARGET_FLAG_UNIT_PARTY
+        | TARGET_FLAG_UNIT_ENEMY
+        | TARGET_FLAG_UNIT_ALLY
+        | TARGET_FLAG_CORPSE_ENEMY
+        | TARGET_FLAG_UNIT_DEAD
+        | TARGET_FLAG_CORPSE_ALLY
+        | TARGET_FLAG_UNIT_NON_COMBAT_PET,
+    TARGET_FLAG_SELF_SELECTION_MASK = TARGET_FLAG_UNIT
+        | TARGET_FLAG_UNIT_RAID
+        | TARGET_FLAG_UNIT_PARTY
+        | TARGET_FLAG_UNIT_ALLY
+        | TARGET_FLAG_UNIT_DEAD
+        | TARGET_FLAG_CORPSE_ALLY,
+    // Preserve the legacy 16-bit truncation in RangeCheckSelected.
+    TARGET_FLAG_LOW_16_MASK = 0x0000FFFFu,
+};
+
 // SpellRec::m_implicitTargetA/B target IDs, separate from the m_targets bitmask.
 // Based on the 3.3.5 target definitions and classification; UNKNOWN slots are intentional.
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/SharedDefines.h#L1428

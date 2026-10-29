@@ -301,7 +301,7 @@ void CGUnit_C::UpdateMissileTrajectory() {
     PendingSpellCast* cast = GetPendingSpellCast(this->m_castCount, this->m_castSpellId, guid);
 
     if (cast && !cast->m_isTrajectoryCast && visual && visual->m_hasMissile && kit && kit->m_animID > 0 && !(visual->m_flags & 0x4)) {
-        cast->m_data.m_targetFlags |= 0x40;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
         cast->m_data.m_elevation = 0.0f;
         cast->m_data.m_destPos = C3Vector(0.0f, 0.0f, 0.0f);
         cast->m_data.m_missileSpeed = 1.0f;
@@ -1329,7 +1329,7 @@ void CGUnit_C::SendFinalMissileTrajectoryUpdate() {
     PendingSpellCast* cast = GetPendingSpellCast(this->m_castCount, this->m_castSpellId, guid);
 
     if (cast) {
-        cast->m_data.m_targetFlags |= 0x40;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
         cast->m_data.m_destPos = impact;
         cast->m_isTrajectoryCast = 1;
 

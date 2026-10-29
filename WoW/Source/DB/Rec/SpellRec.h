@@ -27,7 +27,7 @@ class SpellRec {
     /* 002C */ SPELL_ATTR7 m_attributesExG;
     /* 0030 */ int32_t m_shapeshiftMask [2];
     /* 0038 */ int32_t m_shapeshiftExclude [2];
-    /* 0040 */ int32_t m_targets;
+    /* 0040 */ int32_t m_targets; // SPELL_TARGET_TYPE
     /* 0044 */ int32_t m_targetCreatureType;
     /* 0048 */ int32_t m_requiresSpellFocus;
     /* 004C */ int32_t m_facingCasterFlags;

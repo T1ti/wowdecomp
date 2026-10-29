@@ -16107,7 +16107,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
         return false;
     }
 
-    if ((channeled && (spell->m_channelInterruptFlags & 0x18) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & 0x60)) || ((spell->m_interruptFlags & 0x1) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & 0x60) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & 0x18)))) {
+    if ((channeled && (spell->m_channelInterruptFlags & 0x18) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) || ((spell->m_interruptFlags & 0x1) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & 0x18)))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_MOVING, -1, -1, false);
         return false;
     }
@@ -19053,14 +19053,14 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
             missile->m_impactPos = object->GetPosition();
         }
     } else {
-        if ((data->m_targetFlags & 0x60) == 0x60) {
+        if ((data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) == SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) {
             missile->m_position = data->m_sourcePos;
             missile->m_impactPos = data->m_destPos;
             missile->m_transportGuid = data->m_destTarget;
-        } else if (data->m_targetFlags & 0x40) {
+        } else if (data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) {
             missile->m_impactPos = data->m_destPos;
             missile->m_transportGuid = data->m_destTarget;
-        } else if (data->m_targetFlags & 0x20) {
+        } else if (data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_SOURCE_LOCATION) {
             missile->m_impactPos = data->m_sourcePos;
             missile->m_transportGuid = data->m_sourceTarget;
         } else {
@@ -19100,7 +19100,7 @@ targetsDone:
     uint32_t multiTarget = spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_BOUNCY_CHAIN_MISSILES;
 
     if (!*target && targets->m_count) {
-        if (!multiTarget && !(data->m_targetFlags & 0x60)) {
+        if (!multiTarget && !(data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) {
             missile->m_flags &= ~0x200u;
             goto flagsDone;
         }

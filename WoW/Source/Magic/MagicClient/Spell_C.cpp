@@ -112,7 +112,7 @@ static int32_t s_autoRangedCombatSpell;
 static int32_t s_autoRepeatingSpell;
 
 // STATIC: 0x00D3F4E0
-uint32_t s_needTargets;
+uint32_t s_needTargets; // SPELL_TARGET_TYPE
 
 // STATIC: 0x00D3F4E4
 PendingSpellCast* s_targetingSpell;
@@ -265,16 +265,16 @@ bool Spell_C_HandleTerrainClick(const CTerrainClickEvent& evt) {
 
     uint32_t needTargets = s_needTargets;
 
-    if (needTargets & 0x20) {
+    if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_SOURCE_LOCATION) {
         spell->m_data.m_sourceTarget = evt.m_guid;
         spell->m_data.m_sourcePos = evt.m_point;
-        spell->m_data.m_targetFlags |= 0x20;
-        needTargets &= ~0x20u;
-    } else if (needTargets & 0x40) {
+        spell->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_SOURCE_LOCATION;
+        needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_SOURCE_LOCATION;
+    } else if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) {
         spell->m_data.m_destTarget = evt.m_guid;
         spell->m_data.m_destPos = evt.m_point;
-        spell->m_data.m_targetFlags |= 0x40;
-        needTargets &= ~0x40u;
+        spell->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
+        needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
     } else {
         return false;
     }
@@ -731,7 +731,7 @@ void Spell_C_Initialize() {
     ClientServices::SetMessageHandler(SMSG_SET_PROJECTILE_POSITION, Packet_SMSG_SET_PROJECTILE_POSITION, nullptr);
     ClientServices::SetMessageHandler(SMSG_RESET_RANGED_COMBAT_TIMER, Packet_SMSG_MEETINGSTONE_IN_PROGRESS, nullptr);
     ClientServices::SetMessageHandler(SMSG_RESUME_CAST_BAR, Packet_SMSG_UNIT_SPELLCAST_START, nullptr);
-    s_needTargets = 0;
+    s_needTargets = SPELL_TARGET_TYPE::TARGET_FLAG_NONE;
     s_targetingSpell = nullptr;
     memset(s_spellFlatModifiers, 0, sizeof(s_spellFlatModifiers));
     memset(s_spellPctModifiers, 0, sizeof(s_spellPctModifiers));
@@ -903,7 +903,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
             unit->PlaySpellVisualKit(kitData);
         }
 
-        if (unit->IsActivePlayer() && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (data->m_targetFlags & 0x2) && data->m_objectTarget.m_guid) {
+        if (unit->IsActivePlayer() && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && data->m_objectTarget.m_guid) {
             if (!(spell->m_facingCasterFlags & 0x1) || unit->IsInFrontOfTargetWithGuid(data->m_objectTarget)) {
                 unit->SetTrackingTarget(data->m_objectTarget, TRACKTYPE_SPELLPRECAST);
             }
@@ -1082,7 +1082,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         unit->ReleaseMissiles();
         WOWGUID target;
 
-        if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (this->m_data.m_targetFlags & 0x2) && this->m_data.m_objectTarget.m_guid) {
+        if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && this->m_data.m_objectTarget.m_guid) {
             target = this->m_data.m_objectTarget;
         } else {
             target = CGGameUI::m_lockedTarget;
@@ -1091,7 +1091,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) {
             unit->SetTrackingTarget(target, TRACKTYPE_SPELLPRECAST);
         }
-    } else if ((this->m_data.m_targetFlags & 0x2) && this->m_data.m_objectTarget.m_guid && this->m_data.m_objectTarget == ClntObjMgrGetActivePlayer()) {
+    } else if ((this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && this->m_data.m_objectTarget.m_guid && this->m_data.m_objectTarget == ClntObjMgrGetActivePlayer()) {
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
         if (player && !unit->CanAssist(player, false)) {
@@ -1295,7 +1295,7 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
     }
 
     if (cast == s_targetingSpell) {
-        s_needTargets = 0;
+        s_needTargets = SPELL_TARGET_TYPE::TARGET_FLAG_NONE;
         s_targetingSpell = nullptr;
         CursorSetResetMode(POINT_CURSOR);
         CursorSetMode(POINT_CURSOR);
@@ -1830,7 +1830,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
     uint32_t now = OsGetAsyncTimeMs();
 
-    if (this->m_data.m_targetFlags & 0x40) {
+    if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) {
         uint8_t count = 0;
         msg->Get(count);
 
@@ -1841,13 +1841,13 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
     uint32_t pointCount = 0;
 
-    if (this->m_data.m_targetFlags & 0x80000) {
+    if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_TARGET_POINTS) {
         msg->Get(pointCount);
     }
 
     TSStackArray<SpellCastTargetPoint> points(static_cast<SpellCastTargetPoint*>(alloca(sizeof(SpellCastTargetPoint) * pointCount)), pointCount, 1);
 
-    if (this->m_data.m_targetFlags & 0x80000) {
+    if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_TARGET_POINTS) {
         uint32_t valid = 0;
 
         for (uint32_t i = 0; i < pointCount; i++) {
@@ -1923,7 +1923,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     C3Vector destLocation = this->m_data.GetDestLocation();
 
     if (unit && spell.m_speed != 0.0f) {
-        if (this->m_data.m_targetFlags & 0x40) {
+        if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) {
             C3Vector position = unit->GetPosition();
             float dx = position.x - destLocation.x;
             float dy = position.y - destLocation.y;
@@ -1944,7 +1944,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             }
         }
 
-        if (this->m_data.m_targetFlags & 0x80000) {
+        if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_TARGET_POINTS) {
             for (uint32_t i = 0; i < points.m_count; i++) {
                 const SpellCastTargetPoint& point = points.m_data[i];
                 C3Vector position = unit->GetPosition();
@@ -2033,7 +2033,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             unit->SaveChainSpellTargets(targets);
             bool chainLocation = (visual->m_flags & 0x1) && targets.m_count;
 
-            if ((this->m_data.m_targetFlags & 0x40) && !chainLocation) {
+            if ((this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) && !chainLocation) {
                 unit->SaveChainSpellLocation(&destLocation);
             } else {
                 unit->SaveChainSpellLocation(nullptr);
@@ -2051,7 +2051,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             unit->PlaySpellVisualKit(kitData);
         }
 
-        if (this->m_data.m_targetFlags & 0x40) {
+        if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) {
             SpellVisualKitRec* instantKit = g_spellVisualKitDB.GetRecord(visual->m_instantAreaKit);
 
             if (instantKit && unit) {
@@ -2091,7 +2091,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             }
         }
 
-        if (this->m_data.m_targetFlags & 0x80000) {
+        if (this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_TARGET_POINTS) {
             for (uint32_t i = 0; i < points.m_count; i++) {
                 SpellCastTargetPoint& point = points.m_data[i];
                 SpellVisualKitRec* instantKit = g_spellVisualKitDB.GetRecord(visual->m_instantAreaKit);
@@ -2436,7 +2436,7 @@ const SpellVisualRec* GetSpellVisual(const SpellRec* spell) {
 // VERIFY: 8f243d8d manual
 // OFFSET: 0x007FD750
 bool Spell_C_CanTargetTerrain() {
-    return (s_needTargets & 0x60) != 0;
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) != 0;
 }
 
 // VERIFY: 4bd9ca55 auto
@@ -2454,61 +2454,61 @@ void SpellSetFeedPetSpell(int32_t spellId) {
 // VERIFY: 54519a8f manual
 // OFFSET: 0x007FD650
 bool Spell_C_CanTargetUnits() {
-    return (s_needTargets & 0x1878E) != 0;
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_SELECTION_MASK) != 0;
 }
 
 // VERIFY: 80b9e977 manual
 // OFFSET: 0x007FD670
 bool Spell_C_CanTargetParty() {
-    return (s_needTargets & 0x408) != 0;
+    return (s_needTargets & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) != 0;
 }
 
 // VERIFY: d32e5cfd manual
 // OFFSET: 0x007FD690
 bool Spell_C_CanTargetRaid() {
-    return (s_needTargets & 0x404) != 0;
+    return (s_needTargets & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) != 0;
 }
 
 // VERIFY: d2ed91ed manual
 // OFFSET: 0x007FD6B0
 bool Spell_C_CanTargetFriends() {
-    return (s_needTargets & 0x500) != 0;
+    return (s_needTargets & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) != 0;
 }
 
 // VERIFY: f50aa77f manual
 // OFFSET: 0x007FD6D0
 bool Spell_C_CanTargetEnemies() {
-    return (s_needTargets & 0x480) != 0;
+    return (s_needTargets & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) != 0;
 }
 
 // VERIFY: 3a1d8303 manual
 // OFFSET: 0x007FD6F0
 bool Spell_C_CanTargetAlive() {
-    return (s_needTargets & 0x8600) == 0;
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) == 0;
 }
 
 // VERIFY: f7300290 auto
 // OFFSET: 0x007FD710
 bool Spell_C_CanTargetFriendCorpses() {
-    return (s_needTargets >> 15) & 1;
+    return s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
 }
 
 // VERIFY: 9cd298b5 auto
 // OFFSET: 0x007FD720
 bool Spell_C_CanTargetEnemyCorpses() {
-    return (s_needTargets >> 9) & 1;
+    return s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
 }
 
 // VERIFY: 18b19838 manual
 // OFFSET: 0x007FD730
 bool Spell_C_CanTargetObjects() {
-    return (s_needTargets & 0x4800) != 0;
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK) != 0;
 }
 
 // VERIFY: f1612f08 auto
 // OFFSET: 0x007FD780
 bool Spell_C_CanTargetNonCombatPet() {
-    return (s_needTargets >> 16) & 1;
+    return s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET;
 }
 
 // VERIFY: 238bd596 manual
@@ -2524,11 +2524,11 @@ bool Spell_C_CanTargetCorpse(const CGCorpse_C* corpse) {
         return false;
     }
 
-    if (s_needTargets & 0x8000) {
+    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) {
         return !(corpse->m_corpse->m_corpseFieldFlags & 1) && caster->CanAssist(corpse);
     }
 
-    if (s_needTargets & 0x200) {
+    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) {
         return !(corpse->m_corpse->m_corpseFieldFlags & 1) && !caster->CanAssist(corpse);
     }
 
@@ -2538,13 +2538,13 @@ bool Spell_C_CanTargetCorpse(const CGCorpse_C* corpse) {
 // VERIFY: f486f02f manual
 // OFFSET: 0x007FFF20
 bool Spell_C_CanTargetObject(const CGGameObject_C* object) {
-    return (s_needTargets & 0x4800) && (object->m_obj->m_type & TYPE_GAMEOBJECT) && object->IsValidTargetForSpell(s_targetingSpell->m_data.m_castItem, s_targetingSpell->m_data.m_spellId);
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK) && (object->m_obj->m_type & TYPE_GAMEOBJECT) && object->IsValidTargetForSpell(s_targetingSpell->m_data.m_castItem, s_targetingSpell->m_data.m_spellId);
 }
 
 // VERIFY: 6491424d auto
 // OFFSET: 0x00801880
 bool Spell_C_CanTargetMe() {
-    if (s_needTargets & 0x850E) {
+    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_SELF_SELECTION_MASK) {
         SpellRec spell;
         g_spellDB.GetRecord(s_targetingSpell->m_data.m_spellId, &spell);
 
@@ -2563,7 +2563,7 @@ bool Spell_C_CanTargetDead() {
         return false;
     }
 
-    if (s_needTargets & 0x8600) {
+    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) {
         return true;
     }
 
@@ -2600,7 +2600,7 @@ bool Spell_C_TargetingSpellAllowsTerrain() {
 // VERIFY: 50b87c34 manual
 // OFFSET: 0x007FFC40
 CGUnit_C* Spell_C_TargetImpliedTarget(CGUnit_C* target, const SpellRec* spell, uint32_t needTargets, CGUnit_C* caster) {
-    if (needTargets & 0x10C) {
+    if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_FRIENDLY_UNIT_MASK) {
         if (!caster->CanAttack(target)) {
             return target;
         }
@@ -2612,22 +2612,22 @@ CGUnit_C* Spell_C_TargetImpliedTarget(CGUnit_C* target, const SpellRec* spell, u
             return nullptr;
         }
 
-        if ((needTargets & 0x8) && caster->IsInMyPartyOrRaid(implied)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY) && caster->IsInMyPartyOrRaid(implied)) {
             return implied;
         }
 
-        if ((needTargets & 0x4) && caster->IsInMyParty(implied)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID) && caster->IsInMyParty(implied)) {
             return implied;
         }
 
-        if (needTargets & 0x100) {
+        if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) {
             return implied;
         }
 
         return nullptr;
     }
 
-    if (needTargets & 0x80) {
+    if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
         bool ignoreFlags = spell && (spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC);
 
         if (caster->CanAssist(target, ignoreFlags)) {
@@ -2741,43 +2741,43 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
         uint32_t needTargets = s_needTargets;
 
         if (health <= 0) {
-            if (!(data->m_unitDynamicFlags & 0x20) && !(needTargets & 0x8600) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+            if (!(data->m_unitDynamicFlags & 0x20) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
                 return false;
             }
         }
 
-        if (health > 0 && (needTargets & 0x400)) {
+        if (health > 0 && (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) {
             return false;
         }
 
-        if ((needTargets & 0x8) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
             valid = true;
-        } else if ((s_needTargets & 0x4) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
             valid = true;
-        } else if ((s_needTargets & 0x100) && caster->CanAssist(unit, spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && caster->CanAssist(unit, spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
             valid = true;
-        } else if ((s_needTargets & 0x80) && caster->CanAttack(unit)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && caster->CanAttack(unit)) {
             valid = true;
         } else {
             needTargets = s_needTargets;
 
-            if ((needTargets & 0x2) && (!(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS) || (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS))) {
+            if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && (!(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS) || (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS))) {
                 valid = true;
-            } else if ((needTargets & 0x8000) && data->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || data->m_unitFieldPetnumber)) {
+            } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && data->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || data->m_unitFieldPetnumber)) {
                 if (!caster->CanAssist(unit, false)) {
                     return false;
                 }
 
                 valid = true;
-            } else if ((needTargets & 0x200) && data->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
+            } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && data->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
                 if (caster->CanAssist(unit, false)) {
                     return false;
                 }
 
                 valid = true;
-            } else if ((needTargets & 0x10000) && unit->GetCreatureType() == 12) {
+            } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET) && unit->GetCreatureType() == 12) {
                 valid = true;
-            } else if ((s_needTargets & 0x100) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_ON_CHARMED_TARGETS) && unit->IsCharmed() && caster->CanAttack(unit)) {
+            } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_ON_CHARMED_TARGETS) && unit->IsCharmed() && caster->CanAttack(unit)) {
                 valid = true;
             }
         }
@@ -2786,22 +2786,22 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
             return false;
         }
     } else if (type & TYPE_ITEM) {
-        if (!(s_needTargets & 0x4010)) {
+        if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
             return false;
         }
     } else if (type & TYPE_GAMEOBJECT) {
-        if (!(s_needTargets & 0x4800) || !static_cast<CGGameObject_C*>(object)->IsValidTargetForSpell(targeting->m_data.m_castItem, targeting->m_data.m_spellId)) {
+        if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK) || !static_cast<CGGameObject_C*>(object)->IsValidTargetForSpell(targeting->m_data.m_castItem, targeting->m_data.m_spellId)) {
             return false;
         }
     } else if (type & TYPE_CORPSE) {
         const CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
         bool friendly = false;
 
-        if ((s_needTargets & 0x8000) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && caster->CanAssist(corpse)) {
             friendly = true;
         }
 
-        if (!((s_needTargets & 0x200) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && !caster->CanAssist(corpse)) && !friendly) {
+        if (!((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && !caster->CanAssist(corpse)) && !friendly) {
             return false;
         }
     } else {
@@ -2983,11 +2983,11 @@ bool SpellRec::HasAura(const SpellRec* spell, int32_t aura) {
 // VERIFY: 86c68872 auto
 // OFFSET: 0x007FE1B0
 int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
-    if (spell->m_targets & 0x100) {
+    if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) {
         return 1;
     }
 
-    if (spell->m_targets & 0x80) {
+    if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
         return 2;
     }
 
@@ -4222,7 +4222,7 @@ PendingSpellCast* Spell_C_GetTargetingSpellCast() {
 // VERIFY: 1e96df1d auto
 // OFFSET: 0x007FD760
 int32_t Spell_C_CanTargetItems() {
-    return (s_needTargets & 0x4010) != 0;
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) != 0;
 }
 
 // VERIFY: e4e8f874 auto
@@ -5354,7 +5354,7 @@ bool Spell_C_IsCastingInterruptedByCombat(const WOWGUID& guid) {
 // VERIFY: 839db5ad manual
 // OFFSET: 0x00803EE0
 int32_t Spell_C_HandleTerrainRay(const CTerrainClickEvent& evt, bool checkRange) {
-    if (!(s_needTargets & 0x60)) {
+    if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) {
         return 1;
     }
 
@@ -6143,11 +6143,11 @@ static UIErrors GetSpellFailedError(int32_t reason, const SpellRec* spell, int32
             return ERR_GENERIC_NO_TARGET;
 
         case SPELL_FAILED_BAD_TARGETS:
-            if (spell->m_targets & 0x10) {
+            if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM) {
                 return ERR_INVALID_ITEM_TARGET;
             }
 
-            if (spell->m_targets & 0x20000) {
+            if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT) {
                 return ERR_INVALID_GLYPH_SLOT;
             }
 
@@ -6937,7 +6937,7 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
         return true;
     }
 
-    if ((spell->m_targets & 0x10) || spell->m_equippedItemClass < 0 || !spell->m_equippedItemSubclass) {
+    if ((spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM) || spell->m_equippedItemClass < 0 || !spell->m_equippedItemSubclass) {
         return true;
     }
 
@@ -7051,8 +7051,8 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
     for (uint32_t i = 0; i < sizeof(spell->m_implicitTargetA) / sizeof(spell->m_implicitTargetA[0]); i++) {
         switch (spell->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
-                if (needTargets & 0x400) {
-                    needTargets &= 0xFBFF;
+                if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD) {
+                    needTargets &= (SPELL_TARGET_TYPE::TARGET_FLAG_LOW_16_MASK & ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD);
                 }
 
                 break;
@@ -7060,24 +7060,24 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
                 pet = true;
 
-                if (needTargets & 0x8000) {
-                    needTargets &= 0x7FFF;
+                if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) {
+                    needTargets &= (SPELL_TARGET_TYPE::TARGET_FLAG_LOW_16_MASK & ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY);
                 }
 
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
-                needTargets |= 0x80;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
-                needTargets |= 0x100;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_TARGET:
-                needTargets |= 0x800;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ANY:
@@ -7092,32 +7092,32 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_LEFT:
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RANDOM:
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RADIUS:
-                needTargets |= 0x2;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_ITEM_TARGET:
-                needTargets |= 0x4000;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_ITEM;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
-                needTargets |= 0x8;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY;
                 break;
 
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
-                needTargets |= 0x4;
+                needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID;
                 break;
         }
     }
 
-    if (pet && !(needTargets & 0x2)) {
+    if (pet && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT)) {
         object = ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_OBJECT, __FILE__, __LINE__);
 
         if (!object) {
             return false;
         }
 
-        needTargets |= 0x2;
+        needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
     }
 
     uint8_t flag = 0;
@@ -7147,37 +7147,37 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
 
         int32_t health = unit->m_unit->m_unitFieldHealth;
 
-        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(needTargets & 0x8600) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
             return false;
         }
 
-        if (health > 0 && (needTargets & 0x400)) {
+        if (health > 0 && (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) {
             return false;
         }
 
-        if ((needTargets & 0x8) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
             check = true;
-        } else if ((needTargets & 0x4) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
             check = true;
-        } else if ((needTargets & 0x100) && caster->CanAssist(unit, spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && caster->CanAssist(unit, spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
             check = true;
-        } else if ((needTargets & 0x80) && caster->CanAttack(unit)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && caster->CanAttack(unit)) {
             check = true;
-        } else if ((needTargets & 0x2) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC)) {
             check = true;
-        } else if ((needTargets & 0x8000) && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
             if (!caster->CanAssist(unit, false)) {
                 return false;
             }
 
             check = true;
-        } else if ((needTargets & 0x200) && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER) && !caster->CanAssist(unit, false)) {
+        } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER) && !caster->CanAssist(unit, false)) {
             check = true;
         } else {
             return false;
         }
     } else if (type & TYPE_GAMEOBJECT) {
-        if (!(needTargets & 0x4800)) {
+        if (!(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK)) {
             return false;
         }
 
@@ -7185,11 +7185,11 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
     } else if (type & TYPE_CORPSE) {
         const CGCorpse_C* corpse = static_cast<const CGCorpse_C*>(object);
 
-        if ((needTargets & 0x8000) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
             flag = 1;
         }
 
-        if ((needTargets & 0x200) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
             check = true;
         } else if (flag) {
             check = true;
@@ -7575,7 +7575,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
             return 0;
         }
 
-        cast->m_data.m_targetFlags |= 0x60;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK;
         cast->m_data.m_sourcePos = C3Vector(0.0f, 0.0f, 0.0f);
         cast->m_data.m_destPos = C3Vector(0.0f, 0.0f, 0.0f);
         cast->m_data.m_elevation = 0.0f;
@@ -7610,7 +7610,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
         arrival = limit;
     }
 
-    cast->m_data.m_targetFlags |= 0x60;
+    cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK;
     cast->m_data.m_sourcePos = launch;
     cast->m_data.m_destPos = impact;
     cast->m_data.m_elevation = *pitch;
@@ -7684,7 +7684,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
 
     int32_t reason;
 
-    if (!ValidateSpellTarget(caster, &spell, targets.m_count, targets.m_data, &reason, casterIncluded) || (cast->m_data.m_itemTarget && !(cast->m_data.m_targetFlags & 0x1000) && !CheckItemRequirement(cast, &spell, cast->m_data.m_itemTarget, &reason))) {
+    if (!ValidateSpellTarget(caster, &spell, targets.m_count, targets.m_data, &reason, casterIncluded) || (cast->m_data.m_itemTarget && !(cast->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_TRADE_ITEM) && !CheckItemRequirement(cast, &spell, cast->m_data.m_itemTarget, &reason))) {
         Spell_C_SpellFailed(cast, &spell, reason, -1, -1, false);
         return;
     }
@@ -7946,22 +7946,22 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
 
     switch (spell->m_implicitTargetA[0]) {
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
-            if (needTargets & 0x400) {
-                s_needTargets = needTargets & ~0x400u;
+            if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD) {
+                s_needTargets = needTargets & ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD;
             }
 
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET:
-            if (needTargets & 0x8000) {
-                s_needTargets = needTargets & ~0x8000u;
+            if (needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) {
+                s_needTargets = needTargets & ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             }
 
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
-            s_needTargets = needTargets | 0x80;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_DEST_AREA_ENEMY:
@@ -7970,11 +7970,11 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ALLY:
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_CHAIN_HEAL_ALLY:
-            s_needTargets = needTargets | 0x100;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_TARGET:
-            s_needTargets = needTargets | 0x800;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ANY:
@@ -7989,42 +7989,42 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_FRONT_LEFT:
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RANDOM:
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_RADIUS:
-            s_needTargets = needTargets | 0x2;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_GAMEOBJECT_ITEM_TARGET:
-            s_needTargets = needTargets | 0x4000;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_ITEM;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_PARTY:
-            s_needTargets = needTargets | 0x8;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_RAID:
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
-            s_needTargets = needTargets | 0x4;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID;
             break;
 
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TRAJECTORY: {
             SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell->m_spellMissileID);
 
             if (missile && (missile->m_flags & 0x1)) {
-                s_needTargets = needTargets & ~0x40u;
+                s_needTargets = needTargets & ~SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
             }
 
             break;
         }
 
         case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_NON_COMBAT_PET:
-            s_needTargets = needTargets | 0x10000;
+            s_needTargets = needTargets | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET;
             break;
     }
 
-    if ((s_needTargets & 0x2000) && s_targetString[0]) {
+    if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_STRING) && s_targetString[0]) {
         SStrPrintf(cast->m_data.m_targetString, sizeof(cast->m_data.m_targetString), "%s", s_targetString);
-        s_needTargets &= ~0x2000u;
+        s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_STRING;
         s_targetString[0] = 0;
-        cast->m_data.m_targetFlags |= 0x2000;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_STRING;
     }
 
     if (!s_needTargets) {
@@ -8040,10 +8040,10 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
             if (implied != unit) {
                 target = implied->m_obj->m_guid;
             }
-        } else if ((s_needTargets & 0x8) | 0x104) {
-            s_needTargets |= 0x80;
-        } else if (s_needTargets & 0x80) {
-            s_needTargets |= 0x100;
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY) | (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID | SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY)) {
+            s_needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY;
+        } else if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
+            s_needTargets |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
         }
     }
 
@@ -8475,7 +8475,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             return false;
         }
 
-        if ((s_needTargets & 0x80) && (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> 32)) != 0xFFFFFFFF && (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IMPLIED_TARGETING) || !(s_needTargets & 0x10C))) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> 32)) != 0xFFFFFFFF && (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IMPLIED_TARGETING) || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_FRIENDLY_UNIT_MASK))) {
             Spell_C_SpellFailed(cast, &spell, CGGameUI::m_lockedTarget ? SPELL_FAILED_BAD_TARGETS : SPELL_FAILED_BAD_IMPLICIT_TARGETS, -1, -1, false);
             return false;
         }
@@ -8604,10 +8604,10 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
 
             object = unit;
 
-            if (s_needTargets & 0x10C) {
-                s_needTargets &= ~0x80u;
-            } else if (s_needTargets & 0x80) {
-                s_needTargets &= ~0x100u;
+            if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_FRIENDLY_UNIT_MASK) {
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY;
+            } else if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
             }
         }
 
@@ -8625,132 +8625,132 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
 
         int32_t health = unit->m_unit->m_unitFieldHealth;
 
-        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(s_needTargets & 0x8600) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
             return false;
         }
 
-        if (health > 0 && (s_needTargets & 0x400)) {
+        if (health > 0 && (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD)) {
             return false;
         }
 
-        if ((s_needTargets & 0x8) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x8u;
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY) && caster->IsInMyPartyOrRaid(unit) && caster->CanAssist(unit, false)) {
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_PARTY;
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
 
             if (unit->m_unit->m_unitFieldHealth <= 0) {
-                s_needTargets &= ~0x400u;
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD;
             }
 
             result = true;
-        } else if ((s_needTargets & 0x4) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x4u;
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID) && caster->IsInMyParty(unit) && caster->CanAssist(unit, false)) {
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_RAID;
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
 
             if (unit->m_unit->m_unitFieldHealth <= 0) {
-                s_needTargets &= ~0x400u;
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD;
             }
 
             result = true;
-        } else if ((s_needTargets & 0x100) && caster->CanAssist(unit, spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x100u;
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && caster->CanAssist(unit, spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC)) {
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
 
             if (unit->m_unit->m_unitFieldHealth <= 0) {
-                s_needTargets &= ~0x400u;
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD;
             }
 
             result = true;
-        } else if ((s_needTargets & 0x80) && caster->CanAttack(unit)) {
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x80u;
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && caster->CanAttack(unit)) {
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY;
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
 
             if (unit->m_unit->m_unitFieldHealth <= 0) {
-                s_needTargets &= ~0x400u;
+                s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_DEAD;
             }
 
             result = true;
-        } else if ((s_needTargets & 0x2) && (!(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS) || (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS))) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && (!(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC) || (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_AND_TARGET_RESTRICTIONS) || (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS))) {
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x2;
-            uint32_t remaining = s_needTargets & ~0x2u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            uint32_t remaining = s_needTargets & ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
             s_needTargets = remaining;
 
             if (unit->m_unit->m_unitFieldHealth <= 0) {
-                s_needTargets = remaining & 0xFFFF79FF;
+                s_needTargets = remaining & ~SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK;
             }
 
             result = true;
-        } else if ((s_needTargets & 0x8000) && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
             if (!caster->CanAssist(unit, false)) {
                 return result;
             }
 
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x8000u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             result = true;
-        } else if ((s_needTargets & 0x200) && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
             if (caster->CanAssist(unit, false)) {
                 return result;
             }
 
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x2;
-            s_needTargets &= ~0x200u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
             result = true;
-        } else if (s_needTargets & 0x10000) {
+        } else if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET) {
             if (unit->GetCreatureType() != 12) {
                 return result;
             }
 
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x10000;
-            s_needTargets &= ~0x10000u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET;
             result = true;
-        } else if ((s_needTargets & 0x100) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_ON_CHARMED_TARGETS) && unit->IsCharmed() && !caster->CanAttack(unit)) {
+        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_ON_CHARMED_TARGETS) && unit->IsCharmed() && !caster->CanAttack(unit)) {
             cast->m_data.m_objectTarget = unit->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x100;
-            s_needTargets &= ~0x100u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY;
             result = true;
         } else {
             return result;
         }
     } else if (type & TYPE_ITEM) {
-        if (!(s_needTargets & 0x4010)) {
+        if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
             return result;
         }
 
         cast->m_data.m_itemTarget = object->m_obj->m_guid;
-        cast->m_data.m_targetFlags |= 0x10;
-        s_needTargets &= 0xFFFFBFEF;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_ITEM;
+        s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK;
         result = true;
     } else if (type & TYPE_GAMEOBJECT) {
-        if (!(s_needTargets & 0x4800)) {
+        if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK)) {
             return result;
         }
 
         cast->m_data.m_objectTarget = object->m_obj->m_guid;
-        cast->m_data.m_targetFlags |= 0x800;
-        s_needTargets &= 0xFFFFB7FF;
+        cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT;
+        s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT_MASK;
         result = true;
     } else if (type & TYPE_CORPSE) {
         CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
 
-        if ((s_needTargets & 0x8000) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x8000;
-            s_needTargets &= ~0x8000u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             result = true;
         }
 
-        if ((s_needTargets & 0x200) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
-            cast->m_data.m_targetFlags |= 0x200;
-            s_needTargets &= ~0x200u;
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
             result = true;
         } else if (!result) {
             return result;
@@ -8759,7 +8759,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
         return result;
     }
 
-    if ((cast->m_data.m_targetFlags & 0x18202) && cast->m_data.m_objectTarget == object->m_obj->m_guid) {
+    if ((cast->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_OR_CORPSE_GUID_MASK) && cast->m_data.m_objectTarget == object->m_obj->m_guid) {
         uint8_t tooFar;
 
         if (!RangeCheck(caster, cast->m_data.m_spellId, object, &tooFar)) {
@@ -8829,9 +8829,9 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
         cast->m_data.m_glyphSlot = socket;
         bool result = false;
 
-        if (s_needTargets & 0x20000) {
-            cast->m_data.m_targetFlags |= 0x20000;
-            s_needTargets &= ~0x20000u;
+        if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT) {
+            cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT;
+            s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT;
             result = true;
 
             if (!s_needTargets) {
@@ -8849,13 +8849,13 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
 // VERIFY: d31bf1c5 auto
 // OFFSET: 0x0080C5F0
 int32_t Spell_C_TargetTradeItem() {
-    if (!(s_needTargets & 0x4010) || !CGTradeInfo::m_targetItemID[6]) {
+    if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) || !CGTradeInfo::m_targetItemID[6]) {
         return 0;
     }
 
     PendingSpellCast* cast = s_targetingSpell;
-    cast->m_data.m_targetFlags |= 0x1000;
-    s_needTargets &= 0xFFFFBFEF;
+    cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_TRADE_ITEM;
+    s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK;
     cast->m_data.m_itemTarget.m_guid = 6;
 
     if (!s_needTargets) {
@@ -8951,9 +8951,9 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
 
     uint32_t targetFlags = data->m_targetFlags;
     int32_t hit = missReasons == nullptr;
-    bool unitTargets = !(targetFlags & 0x60) || (visual->m_flags & 0x1);
+    bool unitTargets = !(targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) || (visual->m_flags & 0x1);
 
-    if (targets.m_count && (targetFlags & 0x802) && unitTargets) {
+    if (targets.m_count && (targetFlags & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT)) && unitTargets) {
         for (uint32_t i = 0; i < targets.m_count; i++) {
             if (ClntObjMgrObjectPtr(targets.m_data[i], TYPE_OBJECT, __FILE__, __LINE__)) {
                 uint32_t reflectResult = reflectResults ? reflectResults->m_data[i] : 0;
@@ -8961,7 +8961,7 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
                 unit->CreateMissile(&targets.m_data[i], data, ammoDisplayId, ammoInventoryType, hit, missReason, reflectResult, visual, spell->m_id, &targets, nullptr, nullptr, delay);
             }
         }
-    } else if ((targetFlags & 0x60) && (targets.m_count || !(visual->m_flags & 0x100))) {
+    } else if ((targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && (targets.m_count || !(visual->m_flags & 0x100))) {
         WOWGUID none = { 0 };
         unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, missReasons == nullptr, 1, 0, visual, spell->m_id, &targets, missReasons, reflectResults, delay);
     }

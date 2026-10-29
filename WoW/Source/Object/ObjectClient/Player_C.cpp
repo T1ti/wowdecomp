@@ -2264,7 +2264,7 @@ int32_t Player_C_SetPlayerRenderDisabled(int32_t disabled) {
 // VERIFY: d4574fd6 auto
 // OFFSET: 0x006D4920
 int32_t CGPlayer_C::SpellUsesWeaponSkill(const SpellRec* spell) {
-    if (spell->m_targets & 0x10) {
+    if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM) {
         return spell->m_id;
     }
 
