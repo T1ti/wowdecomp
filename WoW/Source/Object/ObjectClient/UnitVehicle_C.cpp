@@ -246,7 +246,9 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
         return animVehicle->CanPlayBoneAnim(anim) ? 1 : 0;
     }
 
-    if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & 0x40) ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITH_FLAG2_40 : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITHOUT_FLAG2_40))) {
+    if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+        ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT
+        : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT))) {
         return 0;
     }
 
@@ -308,7 +310,9 @@ int32_t CGUnit_C::VehiclePassengerStartWaitingForVehicleTransitionAnim(uint64_t 
             animVehicle->SetBoneAnimForceFacing(this->m_obj->m_guid, seatRec->m_field33512213034);
         }
     } else {
-        if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & 0x40) ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITH_FLAG2_40 : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITHOUT_FLAG2_40))
+        if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+            ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT
+            : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT))
             || static_cast<uint32_t>(seatRec->m_vehicleExitAnim) > 0x1F9
             || !animVehicle->PlayBoneAnim(seatRec->m_vehicleExitAnimBone, seatRec->m_vehicleExitAnim)) {
             return 0;
@@ -502,7 +506,9 @@ void CGUnit_C::OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWGUID
 // VERIFY: 561780c9 auto
 // OFFSET: 0x0074BB60
 int32_t CGUnit_C::ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* seat) const {
-    return seat->m_flags & ((this->m_movementData.m_flags2 & 0x40) ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_WITH_FLAG2_40 : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_WITHOUT_FLAG2_40);
+    return seat->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+        ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_VOLUNTARY_EXIT
+        : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_FORCED_EXIT);
 }
 
 // VERIFY: d8212e45 auto

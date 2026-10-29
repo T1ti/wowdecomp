@@ -14,9 +14,9 @@ enum VEHICLE_SEAT_FLAGS : int32_t {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                     = 0x00000001,
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE                      = 0x00000002,
     VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE                      = 0x00000004,
-    // Exit modes are selected by movement-data flags2 bit 0x40.
-    // Voluntary/forced labels for that separate domain are not established here.
-    VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_WITH_FLAG2_40                  = 0x00000008,
+    // Exit mode follows MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY (0x40).
+    // A cleared movement bit selects the forced-exit animation.
+    VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_VOLUNTARY_EXIT              = 0x00000008,
     VEHICLE_SEAT_FLAG_UNKNOWN_4                                    = 0x00000010,
     VEHICLE_SEAT_FLAG_ENTER_EASE_IN                                = 0x00000020,
     VEHICLE_SEAT_FLAG_ENTER_EASE_OUT                               = 0x00000040,
@@ -28,11 +28,11 @@ enum VEHICLE_SEAT_FLAGS : int32_t {
     VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL                         = 0x00001000,
     VEHICLE_SEAT_FLAG_CAN_CAST_SHAPESHIFT_SPELL                    = 0x00002000,
     VEHICLE_SEAT_FLAG_CAN_ATTACK                                   = 0x00004000,
-    VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_WITHOUT_FLAG2_40               = 0x00008000,
+    VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_FORCED_EXIT                 = 0x00008000,
     VEHICLE_SEAT_FLAG_UNKNOWN_16                                   = 0x00010000,
     VEHICLE_SEAT_FLAG_HAS_VEHICLE_RIDE_ANIM                        = 0x00020000,
-    VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITH_FLAG2_40          = 0x00040000,
-    VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_WITHOUT_FLAG2_40       = 0x00080000,
+    VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT      = 0x00040000,
+    VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT         = 0x00080000,
     VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE                     = 0x00100000,
     VEHICLE_SEAT_FLAG_FORCE_EXIT_END_ANIM                          = 0x00200000,
     VEHICLE_SEAT_FLAG_HAS_VEHICLE_ENTER_ANIM                       = 0x00400000,
