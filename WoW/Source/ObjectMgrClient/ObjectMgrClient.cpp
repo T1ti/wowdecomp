@@ -1187,11 +1187,11 @@ static int32_t PostInitObject(uint32_t time, CDataStore* msg, bool reenable) {
         return 0;
     }
 
-    if ((object->m_modelFlags & 0x20000) && (object->m_obj->m_type & TYPE_UNIT)) {
+    if ((object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING) && (object->m_obj->m_type & TYPE_UNIT)) {
       static_cast<CGUnit_C*>(object)->SetClientInitData(create, object->m_obj->m_guid == ClntObjMgrGetActivePlayer());
     }
 
-    if (object->m_modelFlags & 0x40000) {
+    if (object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
         return CallMirrorHandlers(msg, true, guid);
     }
 
@@ -1738,7 +1738,7 @@ void ClntObjMgrUnlockObject(WOWGUID guid, const char* fileName, int32_t lineNumb
 
     object->SetObjectLocked(0);
 
-    if (object->IsObjectLocked() || !(object->m_modelFlags & 0x100000)) {
+    if (object->IsObjectLocked() || !(object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING)) {
         return;
     }
 

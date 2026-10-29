@@ -13510,7 +13510,7 @@ CGPlayer_C::~CGPlayer_C() {
     this->m_proficiencySpells.InternalClear(0);
     this->m_pendingItemExpirations.Clear();
 
-    if (!(this->m_modelFlags & 0x10000)) {
+    if (!(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         CGPartyInfo::EnableMember(this, 0);
         CGRaidInfo::EnableMember(this, 0);
     }

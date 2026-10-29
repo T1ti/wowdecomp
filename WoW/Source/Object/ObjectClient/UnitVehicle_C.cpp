@@ -713,7 +713,7 @@ void CGUnit_C::CreateVehicleData(const CClientObjCreate* create, int32_t vehicle
 
     this->m_vehicle = CVehicle_C::Create(create, this, vehicleId);
 
-    if ((this->m_modelFlags & 0x40000) && this->IsActivePlayer()) {
+    if ((this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && this->IsActivePlayer()) {
         this->SignalPlayerGainsVehicleDataEvent();
     }
 }

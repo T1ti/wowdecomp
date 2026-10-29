@@ -1308,7 +1308,7 @@ int32_t CalculateExperience(int32_t questId, int32_t level) {
 int32_t CGQuestLog::IsOnQuest(int32_t questId) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || (player->m_modelFlags & 0x10000)) {
+    if (!player || (player->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         return 0;
     }
 

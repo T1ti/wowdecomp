@@ -1047,7 +1047,7 @@ int32_t PushUnitAura(lua_State* L, ScriptAuraInfo* info) {
             return 0;
         }
 
-        if (!(unit->m_modelFlags & 0x10000)) {
+        if (!(unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
             uint32_t slot = unit->GetSortedAuraSlot(info->m_index, info->m_name, info->m_rank, info->m_filter);
             SpellRec spell;
 

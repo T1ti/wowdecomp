@@ -3947,7 +3947,7 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
             CGPetInfo::GetPet(0);
         }
 
-        if (!(unit->m_modelFlags & 0x10000)) {
+        if (!(unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
             uint32_t slot = unit->GetSortedAuraSlot(info->m_index, info->m_name, info->m_rank, info->m_filter);
 
             if (static_cast<int32_t>(slot) < 0) {

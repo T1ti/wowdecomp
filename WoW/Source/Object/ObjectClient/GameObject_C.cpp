@@ -265,7 +265,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
     WOWGUID guid = object->m_obj->m_guid;
     object->m_nameDesc = ObjectNameCreate(guid);
 
-    if (!this->m_proxy.m_uniqueId || !(this->m_owner->m_modelFlags & 0x10000)) {
+    if (!this->m_proxy.m_uniqueId || !(this->m_owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         World::FreeDestructibleProxy(&this->m_proxy);
     }
 }
@@ -309,10 +309,10 @@ void CGGameObject_C::CheckForPassiveHighlight() {
     CGPlayer_C* player;
 
     if ((this->m_gameObject->m_dynamicFlags & 0x8) || ((player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__))) != nullptr && player->CanTrackObject(this))) {
-        this->m_modelFlags |= 0x400000;
+        this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT;
         this->ShowLootEffect();
     } else {
-        this->m_modelFlags &= ~0x400000;
+        this->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT;
 
         if (this->m_lootEffect) {
             if (this->m_lootEffect->m_attachParent) {
@@ -887,7 +887,7 @@ void CGGameObject_C_TypeAnimated::Disable() {
 int32_t CGGameObject_C_TypeAnimated::Animate(float elapsed) {
     CGGameObject_C* owner = this->m_owner;
 
-    if (owner->m_modelFlags & 0x100000) {
+    if (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) {
         CM2Model* model = owner->m_worldModel;
 
         if (model && model->IsLoaded(0, 0) && !model->m_animatePrev) {
@@ -1004,7 +1004,7 @@ void CGGameObject_C_TypeAnimated::UpdateDisplay(uint32_t time) {
 // VERIFY: 2da8644c auto
 // OFFSET: 0x0070D690
 void CGGameObject_C_TypeAnimated::UpdateState(int32_t oldState, int32_t newState) {
-    if (this->m_owner->m_modelFlags & 0x20000) {
+    if (this->m_owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING) {
         return;
     }
 
@@ -1639,7 +1639,7 @@ CGGameObject_C::~CGGameObject_C() {
         g_gameObjectDBCache.CancelCallback(this->m_obj->m_entryID, &GameObjectStatsCallback, this);
     }
 
-    this->m_modelFlags &= ~0x400000;
+    this->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT;
 
     if (this->m_lootEffect) {
         if (this->m_lootEffect->m_attachParent) {
@@ -2689,7 +2689,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
     CAaBox box = model->GetBoundingBox();
     this->m_height = box.t.z - box.b.z;
 
-    if ((this->m_modelFlags & 0x40000) && !(this->m_modelFlags & 0x10000)) {
+    if ((this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && !(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         this->UpdateWorldObject(0);
     }
 
@@ -2701,8 +2701,8 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
     this->m_typeData->UpdateDisabled();
     this->UpdateInteractIconAttach();
 
-    if (this->m_modelFlags & 0x400000) {
-        this->m_modelFlags |= 0x400000;
+    if (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT) {
+        this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT;
         this->ShowLootEffect();
     }
 
@@ -3185,7 +3185,7 @@ bool CGGameObject_C_TypeBase::CanUse() const {
 
     uint32_t flags = owner->m_gameObject->m_flags;
 
-    if ((flags & 0x11) || (owner->m_modelFlags & 0x100000) || ((flags & 0x4) && !(dynamicFlags & 0x1))) {
+    if ((flags & 0x11) || (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) || ((flags & 0x4) && !(dynamicFlags & 0x1))) {
         return false;
     }
 
@@ -3319,7 +3319,7 @@ void CGGameObject_C_TypeAnimated::HandleAnimFinished() {
         case ANIMSTATE_CUSTOM1:
         case ANIMSTATE_CUSTOM2:
         case ANIMSTATE_CUSTOM3:
-            if (!(this->m_owner->m_modelFlags & 0x100000)) {
+            if (!(this->m_owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING)) {
                 this->UpdateState(this->m_owner->m_displayState, this->m_owner->m_displayState);
             }
 
@@ -3974,7 +3974,7 @@ int32_t CGGameObject_C_TypeBase::CheckRange() const {
 void CGGameObject_C_TypeAnimated::OnUpdateAnimProgress() {
     CGGameObject_C* owner = this->m_owner;
 
-    if (!(owner->m_modelFlags & 0x20000) && owner->IsObjectModelLoaded() && this->m_owner->m_worldModel) {
+    if (!(owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING) && owner->IsObjectModelLoaded() && this->m_owner->m_worldModel) {
         this->SetSequence(this->m_owner->m_worldModel);
     }
 }

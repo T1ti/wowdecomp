@@ -6968,7 +6968,7 @@ void CGGameUI::UpdateInteractTarget() {
     bool clear = false;
     CGObject_C* object = ClntObjMgrObjectPtr(CGGameUI::m_interactTarget, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (!object || (object->m_modelFlags & 0x10000)) {
+    if (!object || (object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         CGGameUI::ClearInteractTarget(CGGameUI::m_interactTarget, 0);
         return;
     }

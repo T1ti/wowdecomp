@@ -576,7 +576,7 @@ static int32_t Script_SaveEquipmentSet(lua_State* L) {
                 } else {
                     CGItem_C* item = player->GetBag()->GetItemPointer(slot);
 
-                    if (item && !(item->m_modelFlags & 0x10000)) {
+                    if (item && !(item->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
                         displayId = item->GetDisplayID();
                     }
                 }

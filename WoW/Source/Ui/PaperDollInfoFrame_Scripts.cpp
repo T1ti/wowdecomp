@@ -69,7 +69,7 @@ static int32_t Script_GetInventoryItemTexture(lua_State* L) {
             } else {
                 const CGItem_C* item = static_cast<const CGBag_C*>(unit->GetBag())->GetItemPointer(slot);
 
-                if (item && !(item->m_modelFlags & 0x10000)) {
+                if (item && !(item->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
                     displayId = item->GetDisplayID();
                 }
             }

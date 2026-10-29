@@ -1631,7 +1631,7 @@ void CGWorldFrame::UpdateObject(CGObject_C* object, uint32_t flags) {
         return;
     }
 
-    if ((object->m_obj->m_type & (TYPE_UNIT | TYPE_GAMEOBJECT | TYPE_CORPSE)) && visible && !(object->m_modelFlags & 0x100000)) {
+    if ((object->m_obj->m_type & (TYPE_UNIT | TYPE_GAMEOBJECT | TYPE_CORPSE)) && visible && !(object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING)) {
         CModelRecord* record;
 
         if (this->m_freeModelList.IsEmpty()) {
@@ -1813,12 +1813,12 @@ int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid,
     }
 
     if (flags & 4) {
-        object->m_modelFlags |= 0x800000;
+        object->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT;
     } else {
-        object->m_modelFlags &= ~0x800000;
+        object->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT;
     }
 
-    if (!(object->m_modelFlags & 0x10000) && object->IsReadyToDraw()) {
+    if (!(object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED) && object->IsReadyToDraw()) {
         frame->UpdateObject(object, flags);
         return 1;
     }

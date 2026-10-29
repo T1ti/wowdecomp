@@ -206,7 +206,7 @@ void CGObject_C::AddWorldObject() {
 
     this->m_worldObject = CMap::ObjectCreate(this->GetObjectModel(), CGWorldFrame::ObjectEnumProc, nullptr, this->m_obj->m_guid.m_guid, 0, flags);
 
-    if ((this->m_modelFlags & 0x40000) && !(this->m_modelFlags & 0x20000)) {
+    if ((this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && !(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING)) {
         this->UpdateWorldObject(0);
     }
 }
@@ -299,7 +299,7 @@ void CGObject_C::ObjectNameVisibilityChanged() {
 // OFFSET: 0x00743FF0
 void CGObject_C::PostReenable() {
     this->RefreshInteractIcon();
-    this->m_modelFlags &= ~0x20000;
+    this->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING;
 
     if (!this->m_worldObject && this->GetObjectModel()) {
         this->AddWorldObject();
@@ -309,7 +309,8 @@ void CGObject_C::PostReenable() {
 // VERIFY: c5f08860 auto
 // OFFSET: 0x00744DB0
 void CGObject_C::Reenable() {
-    this->m_modelFlags = (this->m_modelFlags & ~0x10000) | 0x20000;
+    this->m_modelFlags = (this->m_modelFlags & ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)
+        | OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING;
     this->m_scale = this->GetScale();
     this->m_scaleChangeTime = 0;
     uint32_t time = this->ShouldFadeIn() ? 1000 : 0;
@@ -339,7 +340,8 @@ void CGObject_C::Disable() {
     this->m_fadeDuration = 0;
     this->m_fadeEndAlpha = 0;
     this->m_alpha = 0;
-    this->m_modelFlags = (this->m_modelFlags & 0xF8FFFFFF) | 0x10000;
+    this->m_modelFlags = (this->m_modelFlags & ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_HIGHLIGHT_MASK)
+        | OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED;
     this->m_disableTime = FrameTime::s_curTimeMs;
 }
 
@@ -977,7 +979,7 @@ int32_t CGObject_C::GetQuestGiverCursor(int32_t highlighted) {
 // VERIFY: 02ef1834 auto
 // OFFSET: 0x00743BC0
 void CGObject_C::HideHighlightType(HIGHLIGHTTYPE type) {
-    this->m_modelFlags &= ~(1 << (type + 24));
+    this->m_modelFlags &= ~(1 << (type + OBJECT_MODEL_HIGHLIGHT_TYPE_SHIFT));
 
     if (s_highlightedObjectGuid == this->m_obj->m_guid) {
         s_highlightedObjectGuid = WOWGUID();
@@ -989,7 +991,7 @@ void CGObject_C::HideHighlightType(HIGHLIGHTTYPE type) {
 
     CM2Model* model = this->GetObjectModel();
 
-    if (model && !(this->m_modelFlags & 0x7000000)) {
+    if (model && !(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_HIGHLIGHT_MASK)) {
         model->m_emissiveTintR = 0.0f;
         model->m_emissiveTintG = 0.0f;
         model->m_emissiveTintB = 0.0f;
@@ -1000,7 +1002,7 @@ void CGObject_C::HideHighlightType(HIGHLIGHTTYPE type) {
 // VERIFY: 9da10cdf manual
 // OFFSET: 0x007433D0
 int32_t CGObject_C::IsObjectLocked() {
-    return (this->m_modelFlags & 0xFFFF) != 0;
+    return (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_LOCK_COUNT_MASK) != 0;
 }
 
 // VERIFY: b07b7284 auto
@@ -1035,14 +1037,14 @@ void CGObject_C::ModelChanged() {
         this->m_height = 0.0f;
     }
 
-    if (!(this->m_modelFlags & 0x10000)) {
+    if (!(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         this->UpdateWorldObject(0);
     }
 
     if (loaded) {
-        this->m_modelFlags &= ~0x200000;
+        this->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_BOUNDS_DIRTY;
     } else {
-        this->m_modelFlags |= 0x200000;
+        this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_BOUNDS_DIRTY;
     }
 }
 
@@ -1084,16 +1086,16 @@ void CGObject_C::SetBlock(int32_t index, uint32_t value) {
 // VERIFY: 9a9e12cb auto
 // OFFSET: 0x00743320
 void CGObject_C::SetBoundsDirty() {
-    this->m_modelFlags |= 0x200000;
+    this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_BOUNDS_DIRTY;
 }
 
 // VERIFY: a177f7a1 auto
 // OFFSET: 0x00743420
 void CGObject_C::SetDisablePending(int32_t pending) {
     if (pending) {
-        this->m_modelFlags |= 0x100000;
+        this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING;
     } else {
-        this->m_modelFlags &= ~0x100000;
+        this->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING;
     }
 }
 
@@ -1139,7 +1141,7 @@ CM2Model* CGObject_C::SetModelStart(CM2Model* model) {
 void CGObject_C::SetObjectLocked(int32_t locked) {
     uint32_t count = this->m_modelFlags;
 
-    if (locked && count != 0xFFFF) {
+    if (locked && count != OBJECT_MODEL_FLAGS::OBJECT_MODEL_LOCK_COUNT_MASK) {
         this->m_modelFlags = count + 1;
     } else if (count) {
         this->m_modelFlags = count - 1;
@@ -1217,7 +1219,7 @@ void CGObject_C::SetTypeID(OBJECT_TYPE_ID typeId) {
 // VERIFY: 18198d8d auto
 // OFFSET: 0x00743C70
 void CGObject_C::ShowHighlightType(HIGHLIGHTTYPE type) {
-    this->m_modelFlags |= 1 << (type + 24);
+    this->m_modelFlags |= 1 << (type + OBJECT_MODEL_HIGHLIGHT_TYPE_SHIFT);
 
     if (this->IsHighlightSuppressed()) {
         return;
@@ -1236,7 +1238,7 @@ void CGObject_C::ShowHighlightType(HIGHLIGHTTYPE type) {
     model->m_emissiveTintG = info->m_light1.m_ambient.g * (1.0f / 255.0f);
     model->m_emissiveTintB = info->m_light1.m_ambient.b * (1.0f / 255.0f);
 
-    if ((this->m_modelFlags & 0x7000000) != 0x4000000) {
+    if ((this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_HIGHLIGHT_MASK) != OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_UNKNOWN_26) {
         model->unk_01B8 = 1.0f;
     }
 }
@@ -1344,7 +1346,7 @@ CGObject_C::CGObject_C(uint32_t time, const CClientObjCreate& create) {
     this->m_nameDesc = nullptr;
     this->m_worldModel = nullptr;
     this->m_worldObject = nullptr;
-    this->m_modelFlags = 0;
+    this->m_modelFlags = OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_NONE;
     this->m_fadeStartTime = 0;
     this->m_fadeDuration = 0;
     this->m_alpha = 0;
@@ -1375,7 +1377,7 @@ void CGObject_C::Initialize() {
 // VERIFY: 64b6f506 auto
 // OFFSET: 0x00744A50
 void CGObject_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3) {
-    this->m_modelFlags |= 0x40000;
+    this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED;
     this->DoFade(this->GetBaseAlpha(), this->ShouldFadeIn() ? 1000 : 0);
     this->RefreshInteractIcon();
     this->m_scaleChangeTime = 0;

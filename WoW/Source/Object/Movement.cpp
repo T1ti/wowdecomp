@@ -864,7 +864,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
     }
 
     if (transport) {
-        int32_t reason = !(this->m_unit->m_modelFlags & 0x40000) && (!this->m_spline || (this->m_spline->m_flags & 0x400));
+        int32_t reason = !(this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && (!this->m_spline || (this->m_spline->m_flags & 0x400));
 
         if (!MovementAddToTransport(this, transport, reason)) {
             return 0;
@@ -4726,7 +4726,7 @@ uint32_t CMovement_C::RequestMove(uint32_t time, uint32_t elapsed, const C3Vecto
     C3Vector target(move.x + this->m_anchorPos.x, this->m_anchorPos.y + move.y, this->m_anchorPos.z + move.z);
     CGUnit_C* unit = this->m_unit;
 
-    if (unit->m_obj->m_guid == CGUnit_C::s_activeMover || !this->m_spline || (unit->m_modelFlags & 0x800000)) {
+    if (unit->m_obj->m_guid == CGUnit_C::s_activeMover || !this->m_spline || (unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT)) {
         C3Vector delta(target.x - this->m_position.x, target.y - this->m_position.y, target.z - this->m_position.z);
         return this->CollideRequestMove(time, elapsed, delta);
     }
@@ -5352,7 +5352,7 @@ done:
         ConsolePrintf("Mover at invalid position");
     }
 
-    this->m_unit->m_modelFlags &= ~0x800000u;
+    this->m_unit->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT;
 }
 
 // VERIFY: 8023e94a manual
@@ -5631,7 +5631,7 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
     this->m_flags2 = status.m_moveExtraFlags;
     this->UpdateBaseStatus(status);
 
-    if (this->m_unit->m_modelFlags & 0x40000) {
+    if (this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
         this->UpdateTransportStatus(WOWGUID{ CMovementShared::UpdateTransportStatus(status) }, status.m_transportSeat);
     }
 

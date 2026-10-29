@@ -826,7 +826,7 @@ void CGUnit_C::PostAnimate(CGWorldFrame* worldFrame) {
 void CGUnit_C::UpdateDisplay(uint32_t time) {
     this->UpdateCritterDisplay();
 
-    if ((this->m_modelFlags & 0x200000) && this->GetObjectModel()->IsLoaded(0, 0)) {
+    if ((this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_BOUNDS_DIRTY) && this->GetObjectModel()->IsLoaded(0, 0)) {
         this->ModelChanged();
     }
 
@@ -1344,7 +1344,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         SysMsgPrintf(SYSMSG_ERROR, 0x10, "MOUNTDISPLAYIDNOMOUNTATTACHMENT|%d", this->m_mountDisplayId);
     }
 
-    if (this->m_modelFlags & 0x40000) {
+    if (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
         this->UpdateBaseAnimation(true, -1);
 
         AnimationDataRec* animRec = g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId());
@@ -3984,7 +3984,10 @@ int32_t AnimationData::FindIdByBehaviorAndTier(uint32_t behavior, int32_t tier, 
 uint32_t CGUnit_C::ResolveAnimForModel(uint32_t animId, CM2Model* model) {
     int32_t tier = this->m_animTier;
 
-    if (!(this->m_modelFlags & 0x40000) || (this->m_modelFlags & 0x20000) || !this->GetObjectModel() || !this->GetObjectModel()->IsLoaded(0, 0)) {
+    if (!(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED)
+        || (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING)
+        || !this->GetObjectModel()
+        || !this->GetObjectModel()->IsLoaded(0, 0)) {
         return animId;
     }
 
@@ -4369,7 +4372,10 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
 // VERIFY: 4d39ab41 manual
 // OFFSET: 0x007385C0
 void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
-    if (!(this->m_modelFlags & 0x40000) || (this->m_modelFlags & 0x20000) || !this->GetObjectModel() || !this->m_worldModel) {
+    if (!(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED)
+        || (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING)
+        || !this->GetObjectModel()
+        || !this->m_worldModel) {
         return;
     }
 

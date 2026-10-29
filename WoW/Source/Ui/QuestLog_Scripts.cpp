@@ -1165,7 +1165,13 @@ static int32_t Script_IsUnitOnQuest(lua_State* L) {
     CGPlayer_C* member;
     WOWGUID guid;
 
-    if (index >= 0 && index < CGQuestLog::m_numQuest && !CGQuestLog::m_quests[index].m_isHeader && (questId = CGQuestLog::m_quests[index].m_questId) && (guid = GetGuidByKeyword(lua_tolstring(L, 2, nullptr)), CGPartyInfo::IsMember(guid)) && (member = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__))) && !(member->m_modelFlags & 0x10000)) {
+    if (index >= 0
+        && index < CGQuestLog::m_numQuest
+        && !CGQuestLog::m_quests[index].m_isHeader
+        && (questId = CGQuestLog::m_quests[index].m_questId)
+        && (guid = GetGuidByKeyword(lua_tolstring(L, 2, nullptr)), CGPartyInfo::IsMember(guid))
+        && (member = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__)))
+        && !(member->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
         for (uint32_t slot = 0; slot < 25; slot++) {
             PlayerQuestLogEntry* entry = member->GetQuestLogEntry(slot);
 

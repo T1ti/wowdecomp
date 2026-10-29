@@ -36,6 +36,39 @@ class SpellVisualRec;
 enum OUT_OF_RANGE_TYPE : int32_t;
 enum SPELL_VISUAL_KIT_TYPE : int32_t;
 
+// Client runtime state: the low 16 bits are a lock count, not independent flags.
+// High-bit names describe verified behavior; unknown bits keep their numeric positions.
+enum OBJECT_MODEL_FLAGS : uint32_t {
+    OBJECT_MODEL_FLAG_NONE                         = 0x00000000u,
+    // SetObjectLocked currently compares the whole word at its count boundaries.
+    // Native 3.3.5 checks the low 16 bits at 0x007433ED; preserve source behavior.
+    OBJECT_MODEL_LOCK_COUNT_MASK                   = 0x0000FFFFu,
+    OBJECT_MODEL_FLAG_DISABLED                     = 0x00010000u,
+    OBJECT_MODEL_FLAG_POST_REENABLE_PENDING        = 0x00020000u,
+    OBJECT_MODEL_FLAG_POST_INITED                  = 0x00040000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_19                   = 0x00080000u,
+    OBJECT_MODEL_FLAG_DISABLE_PENDING              = 0x00100000u,
+    OBJECT_MODEL_FLAG_BOUNDS_DIRTY                 = 0x00200000u,
+    OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT            = 0x00400000u,
+    OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT             = 0x00800000u,
+    OBJECT_MODEL_FLAG_HIGHLIGHT_OBJSELECTION       = 0x01000000u,
+    OBJECT_MODEL_FLAG_HIGHLIGHT_MOUSEOVER          = 0x02000000u,
+    // Third highlight bit is tested independently; its purpose is unresolved.
+    OBJECT_MODEL_FLAG_UNKNOWN_26                   = 0x04000000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_27                   = 0x08000000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_28                   = 0x10000000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_29                   = 0x20000000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_30                   = 0x40000000u,
+    OBJECT_MODEL_FLAG_UNKNOWN_31                   = 0x80000000u,
+
+    OBJECT_MODEL_FLAG_HIGHLIGHT_MASK = OBJECT_MODEL_FLAG_HIGHLIGHT_OBJSELECTION
+        | OBJECT_MODEL_FLAG_HIGHLIGHT_MOUSEOVER
+        | OBJECT_MODEL_FLAG_UNKNOWN_26,
+};
+
+// Keep the original signed shift-index arithmetic in Show/HideHighlightType.
+constexpr int32_t OBJECT_MODEL_HIGHLIGHT_TYPE_SHIFT = 24;
+
 class CHashKeyGUID {
     public:
     /* 0000 */ WOWGUID m_guid;
@@ -102,7 +135,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     /* 00B0 */ PLAYERNAMEDESC* m_nameDesc;
     /* 00B4 */ CM2Model* m_worldModel;
     /* 00B8 */ CMapEntity* m_worldObject;
-    /* 00BC */ uint32_t m_modelFlags;
+    /* 00BC */ uint32_t m_modelFlags; // OBJECT_MODEL_FLAGS and low-16-bit lock count
     /* 00C0 */ uint32_t m_fadeStartTime;
     /* 00C4 */ uint32_t m_fadeDuration;
     /* 00C8 */ uint8_t m_alpha;

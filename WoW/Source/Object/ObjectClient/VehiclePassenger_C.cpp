@@ -1134,7 +1134,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MOVEMENT_STOPPED;
     CM2Model* model = this->m_unit->GetObjectModel();
 
-    if ((this->m_unit->m_modelFlags & 0x40000) && model && (model->m_fFlags & 0x8000)) {
+    if ((this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && model && (model->m_fFlags & 0x8000)) {
         this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
     } else {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
@@ -1942,7 +1942,7 @@ void CVehiclePassenger_C::UpdateModel() {
         model->SetWorldTransform(position, facing, scale, up, 0xFFFFFFFF);
     }
 
-    if (this->m_unit->m_modelFlags & 0x40000) {
+    if (this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
         this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
     } else {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
