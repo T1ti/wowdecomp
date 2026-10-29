@@ -2240,7 +2240,9 @@ int32_t CGPlayer_C::IsCommentatorUberOrInArena() const {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
     uint32_t flags = this->m_player->m_playerFlags;
 
-    return (flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR) && ((flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR_UBER) || (map && map->m_instanceType == 4));
+    return (flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR)
+        && ((flags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR_UBER) || (map
+        && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD));
 }
 
 // VERIFY: 881f2596 manual
@@ -2870,7 +2872,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
     CGPartyInfo::EnableMember(this, 1);
     CGRaidInfo::EnableMember(this, 1);
 
-    if (CGBattlefieldInfo::m_instanceType == 4 && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
         WOWGUID guid = this->m_obj->m_guid;
         CGBattlefieldInfo::AddArenaOpponent(guid);
 
@@ -2912,7 +2914,7 @@ void CGPlayer_C::PostReenable() {
     CGPartyInfo::EnableMember(this, 1);
     CGRaidInfo::EnableMember(this, 1);
 
-    if (CGBattlefieldInfo::m_instanceType == 4 && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
         WOWGUID guid = this->m_obj->m_guid;
         CGBattlefieldInfo::AddArenaOpponent(guid);
 

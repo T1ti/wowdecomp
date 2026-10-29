@@ -176,7 +176,7 @@ static CWOWClientStatus* s_loadAddOnStatus;
 static int32_t s_loadAddOnDepth;
 
 // STATIC: 0x00AC8074
-static const char* s_instanceTypeTokens[5] = { "none", "party", "raid", "pvp", "arena" };
+static const char* s_instanceTypeTokens[] = { "none", "party", "raid", "pvp", "arena" };
 
 // VERIFY: 2dd9570a auto
 // OFFSET: 0x005109D0
@@ -1941,18 +1941,20 @@ static int32_t Script_IsInInstance(lua_State* L) {
 
     if (!map) {
         lua_pushnil(L);
-        lua_pushstring(L, s_instanceTypeTokens[0]);
+        lua_pushstring(L, s_instanceTypeTokens[MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED]);
         return 2;
     }
 
-    if (map->m_instanceType) {
+    if (map->m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
     uint32_t type = map->m_instanceType;
-    lua_pushstring(L, type < sizeof(s_instanceTypeTokens) / sizeof(s_instanceTypeTokens[0]) ? s_instanceTypeTokens[type] : s_instanceTypeTokens[0]);
+    lua_pushstring(L, type < sizeof(s_instanceTypeTokens) / sizeof(*s_instanceTypeTokens)
+        ? s_instanceTypeTokens[type]
+        : s_instanceTypeTokens[MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED]);
     return 2;
 }
 
@@ -2396,7 +2398,7 @@ static int32_t Script_GetInstanceInfo(lua_State* L) {
 
     if (!map) {
         lua_pushnil(L);
-        lua_pushstring(L, s_instanceTypeTokens[0]);
+        lua_pushstring(L, s_instanceTypeTokens[MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED]);
         lua_pushnumber(L, 0.0);
         lua_pushstring(L, "");
         lua_pushnumber(L, 0.0);
@@ -2407,7 +2409,9 @@ static int32_t Script_GetInstanceInfo(lua_State* L) {
 
     lua_pushstring(L, map->m_mapName);
     uint32_t type = map->m_instanceType;
-    lua_pushstring(L, type < 5 ? s_instanceTypeTokens[type] : s_instanceTypeTokens[0]);
+    lua_pushstring(L, type < sizeof(s_instanceTypeTokens) / sizeof(*s_instanceTypeTokens)
+        ? s_instanceTypeTokens[type]
+        : s_instanceTypeTokens[MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED]);
     uint32_t difficulty = CGGameUI::m_instanceDifficulty;
     lua_pushnumber(L, difficulty + 1);
     MapDifficultyRec* rec = GetMapDifficultyEntryByMapIdAndDifficulty(mapId, difficulty, nullptr);
@@ -3966,7 +3970,7 @@ static int32_t Script_ResurrectHasSickness(lua_State* L) {
 // VERIFY: 89a5aed4 auto
 // OFFSET: 0x00515A00
 static int32_t Script_ResurrectHasTimer(lua_State* L) {
-    if (CGBattlefieldInfo::m_instanceType == 4 || !CGPlayer_C::s_resurrectOfferUseTimer) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD || !CGPlayer_C::s_resurrectOfferUseTimer) {
         lua_pushnil(L);
         return 1;
     }
@@ -5009,7 +5013,7 @@ static int32_t Script_IsUsableItem(lua_State* L) {
         if (stats) {
             MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-            if (map && map->m_instanceType == 4 && !(stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS)) {
+            if (map && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && !(stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS)) {
                 CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
                 uint32_t cooldown;
                 uint32_t categoryCooldown;

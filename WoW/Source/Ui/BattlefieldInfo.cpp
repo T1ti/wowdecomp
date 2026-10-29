@@ -282,7 +282,7 @@ void CGBattlefieldInfo::LeaveWorld() {
     }
 
     CGBattlefieldInfo::m_instances.Clear();
-    CGBattlefieldInfo::m_instanceType = 0;
+    CGBattlefieldInfo::m_instanceType = MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED;
 }
 
 // VERIFY: cf91ab36 manual
@@ -437,7 +437,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
             CGBattlefieldInfo::m_instanceStartTime = 0;
             CGBattlefieldInfo::m_numWorldStateStats = 0;
             CGBattlefieldInfo::m_activeMapID = 0;
-            CGBattlefieldInfo::m_instanceType = 0;
+            CGBattlefieldInfo::m_instanceType = MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_NOT_INSTANCED;
             CGBattlefieldInfo::m_activeIndex = -1;
             CGLCD::ShowBattlefieldScreen();
         }
@@ -841,7 +841,7 @@ void CGBattlefieldInfo::JoinBattlefield(uint32_t index, int32_t asGroup, int32_t
 
     MapRec* map;
 
-    if (!arena && (map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID)) && map->m_instanceType == 3) {
+    if (!arena && (map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID)) && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PVP_BATTLEFIELD) {
         CGGameUI::DisplayError(ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND);
         return;
     }
@@ -875,7 +875,7 @@ void CGBattlefieldInfo::JoinBattlefield(uint32_t index, int32_t asGroup, int32_t
 // VERIFY: 40539af6 manual
 // OFFSET: 0x0054CE30
 void CGBattlefieldInfo::RequestScoreData() {
-    if (CGBattlefieldInfo::m_nextLogUpdate && (CGBattlefieldInfo::m_mapDone || CGBattlefieldInfo::m_instanceType == 4)) {
+    if (CGBattlefieldInfo::m_nextLogUpdate && (CGBattlefieldInfo::m_mapDone || CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD)) {
         return;
     }
 
@@ -1072,7 +1072,7 @@ int32_t Packet_SMSG_ARENA_OPPONENT_UPDATE(void* param, NETMESSAGE msgId, uint32_
     WOWGUID guid;
     msg->Get(guid.m_guid);
 
-    if (CGBattlefieldInfo::m_instanceType == 4) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
         CGBattlefieldInfo::OnArenaUnitDestroyed(guid);
     }
 
@@ -1344,7 +1344,7 @@ void CGBattlefieldInfo::RemoveVehicle(const WOWGUID& guid) {
 // OFFSET: 0x0054A700
 bool IsCurrentMapArena() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
-    return map && map->m_instanceType == 3;
+    return map && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PVP_BATTLEFIELD;
 }
 
 // VERIFY: 9d869e6b manual
@@ -1491,7 +1491,7 @@ void BattlefieldNameCacheCallback() {
         WOWGUID none = WOWGUID();
         NameCache* name = g_nameDBCache.GetRecord(CGBattlefieldInfo::m_scores[i]->m_guid.m_guid, none, nullptr, nullptr, false);
 
-        if (CGBattlefieldInfo::m_instanceType != 4) {
+        if (CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
             int32_t faction = 0;
 
             if (name) {

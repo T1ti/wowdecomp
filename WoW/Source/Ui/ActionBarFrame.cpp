@@ -294,7 +294,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
         if (stats) {
             MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-            if (map && map->m_instanceType == 4 && !(stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS)) {
+            if (map && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && !(stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS)) {
                 CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
                 int32_t charges;
                 uint32_t cooldown;

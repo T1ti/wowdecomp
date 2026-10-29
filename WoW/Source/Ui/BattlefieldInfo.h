@@ -92,7 +92,7 @@ class CGBattlefieldInfo {
     static WOWGUID m_arenaOpponentPets[5][2];
     static WOWGUID m_arenaOpponents[5];
     static CGPartyMemberState m_arenaOpponentStats[5];
-    static int32_t m_instanceType;
+    static int32_t m_instanceType; // MAP_INSTANCE_TYPE, copied from MapRec
     static int32_t m_activeIndex;
     static BattlefieldStatus m_status[2];
     static uint32_t m_activeMapID;

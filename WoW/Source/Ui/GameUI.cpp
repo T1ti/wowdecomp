@@ -1392,7 +1392,7 @@ int32_t CGGameUI::CanResetInstance() {
 
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && (map->m_instanceType == 1 || map->m_instanceType == 2)) {
+    if (map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON)) {
         uint32_t difficulty = CGGameUI::GetCurrentDungeonDifficulty();
 
         if (difficulty > 3 || !GetMapResetTime(map->m_id, difficulty)) {
@@ -1400,7 +1400,7 @@ int32_t CGGameUI::CanResetInstance() {
         }
     }
 
-    if (!g_mapDB.GetRecord(CGGameUI::m_iMapID) || (map->m_instanceType != 1 && map->m_instanceType != 2)) {
+    if (!g_mapDB.GetRecord(CGGameUI::m_iMapID) || (map->m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON && map->m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON)) {
         return 0;
     }
 
@@ -1422,7 +1422,7 @@ void CGGameUI::SetLastInstanceTime(uint32_t time, int32_t mapId, int32_t current
 
     MapRec* map = g_mapDB.GetRecord(mapId);
 
-    if (map && (map->m_instanceType == 1 || map->m_instanceType == 2)) {
+    if (map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON)) {
         uint32_t difficulty = CGGameUI::GetCurrentDungeonDifficulty();
 
         if (difficulty > 3 || !GetMapResetTime(map->m_id, difficulty)) {
@@ -3427,7 +3427,7 @@ void CGGameUI::UpdateThreatWarningEnabled(int32_t value) {
         CGGameUI::m_threatWarningEnabled = 0;
     } else if (value == 1) {
         MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
-        CGGameUI::m_threatWarningEnabled = map && (map->m_instanceType == 1 || map->m_instanceType == 2);
+        CGGameUI::m_threatWarningEnabled = map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON);
     } else if (value == 2 && !CGPartyInfo::m_members[0] && !CGRaidInfo::m_numMembers) {
         CGGameUI::m_threatWarningEnabled = 0;
     } else {
@@ -3649,14 +3649,14 @@ void CGGameUI::UpdateCorpseLocation() {
     if (CGGameUI::m_corpseInRange) {
         CGGameUI::m_corpseInRange = 0;
 
-        if (CGBattlefieldInfo::m_instanceType != 4) {
+        if (CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
             FrameScript_SignalEvent(SCRIPT_EVENT_CORPSE_OUT_OF_RANGE, nullptr);
         }
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != 4) {
+    if (player && (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(MSG_CORPSE_QUERY));
         msg.Finalize();
@@ -3806,7 +3806,7 @@ void CGGameUI::EnterWorld() {
 
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && (map->m_instanceType == 3 || map->m_instanceType == 4)) {
+    if (map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PVP_BATTLEFIELD || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD)) {
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_ENTERING_BATTLEGROUND, nullptr);
     }
 
@@ -6013,7 +6013,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
         }
 
         uint8_t pvpFlags = unit->m_unit->m_unitFieldBytes2[1];
-        bool pvp = (pvpFlags & 1) && !(pvpFlags & 8) && !(viewer->m_unit->m_unitFieldBytes2[1] & 8) && CGBattlefieldInfo::m_instanceType != 4;
+        bool pvp = (pvpFlags & 1) && !(pvpFlags & 8) && !(viewer->m_unit->m_unitFieldBytes2[1] & 8) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
 
         if (a3) {
             if (CGPartyInfo::IsMemberOrPet(guid) && CGPartyInfo::m_realNumMembers) {
@@ -6495,7 +6495,7 @@ int32_t CGGameUI::MessageHandler(void* param, NETMESSAGE msgId, uint32_t time, C
                 if (CGGameUI::m_corpseInRange) {
                     CGGameUI::m_corpseInRange = 0;
 
-                    if (CGBattlefieldInfo::m_instanceType != 4) {
+                    if (CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
                         FrameScript_SignalEvent(SCRIPT_EVENT_CORPSE_OUT_OF_RANGE, nullptr);
                     }
                 }
@@ -6917,7 +6917,7 @@ static void UpdateCorpseRange(int32_t inRange) {
 
     CGGameUI::m_corpseInRange = inRange;
 
-    if (CGBattlefieldInfo::m_instanceType == 4) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
         return;
     }
 
@@ -7089,7 +7089,7 @@ void CGGameUI::SendRaidDifficultyMessage() {
 
     map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map->m_instanceType == 2) {
+    if (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON) {
         MapDifficultyRec* difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(CGGameUI::m_iCurrentMapID, CGGameUI::m_instanceDifficulty, nullptr);
         CGGameUI::DisplayError(ERR_RAID_DIFFICULTY_CHANGED_S, FrameScript_GetText(difficulty->m_difficultystring, -1, GENDER_NOT_APPLICABLE));
     } else {

@@ -1832,7 +1832,7 @@ static int32_t Script_GetSavedInstanceInfo(lua_State* L) {
     lua_pushboolean(L, info->m_locked);
     lua_pushboolean(L, info->m_extended);
     lua_pushnumber(L, static_cast<uint32_t>(info->m_instanceID >> 32));
-    lua_pushboolean(L, map->m_instanceType == 2);
+    lua_pushboolean(L, map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON);
     lua_pushnumber(L, GetMaxPlayersForMap(map, info->m_difficulty));
     MapDifficultyRec* entry = GetMapDifficultyEntryByMapIdAndDifficulty(mapId, difficulty, nullptr);
 

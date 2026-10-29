@@ -145,7 +145,7 @@ static int32_t Script_GetBattlefieldTeamInfo(lua_State* L) {
 // VERIFY: 978fd379 auto
 // OFFSET: 0x00549AD0
 static int32_t Script_IsActiveBattlefieldArena(lua_State* L) {
-    if (CGBattlefieldInfo::m_instanceType == 4) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

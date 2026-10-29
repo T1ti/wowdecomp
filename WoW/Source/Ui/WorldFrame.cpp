@@ -1398,7 +1398,7 @@ void CGWorldFrame::UpdateScreenEffect() {
             }
         }
 
-        if ((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != 4) {
+        if ((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
             CGWorldFrame::SetScreenEffect(1);
             return;
         }

@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <new>
 #include "ObjectMgrClient.h"
+#include "WoW/Source/DB/Rec/MapRec.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/Base/ObjectAlloc.h"
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
@@ -1566,7 +1567,7 @@ static void UpdateOutOfRangeObjects(CDataStore* msg) {
             continue;
         }
 
-        if (CGBattlefieldInfo::m_instanceType == 4) {
+        if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
             WOWGUID objectGuid = object->m_obj->m_guid;
             CGBattlefieldInfo::OnArenaUnitOutOfRange(objectGuid);
         }

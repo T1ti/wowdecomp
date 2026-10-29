@@ -228,11 +228,11 @@ void CGRaidInfo::SetRaidTarget(uint32_t index, const WOWGUID& guid) {
 int32_t CGRaidInfo::IsPVPRaid() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && map->m_instanceType == 3) {
+    if (map && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PVP_BATTLEFIELD) {
         return 1;
     }
 
-    return map->m_instanceType == 4;
+    return map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
 }
 
 // VERIFY: 0cb73745 auto

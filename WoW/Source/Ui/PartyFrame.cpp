@@ -451,7 +451,7 @@ void CGPartyInfo::SetOptOutOfLoot(int32_t optOut) {
 bool CGGameUI::CanChangePlayerDifficulty() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (!map || map->m_instanceType != 2 || !CGGameUI::IsDynamicDifficultyMap()) {
+    if (!map || map->m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON || !CGGameUI::IsDynamicDifficultyMap()) {
         return false;
     }
 
