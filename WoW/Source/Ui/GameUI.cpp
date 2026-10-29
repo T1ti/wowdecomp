@@ -5195,7 +5195,7 @@ void TargetNearestEnemy(int32_t reverse, int32_t type) {
                 if (player->GetTransportGUID() == searcher->m_obj->m_guid.m_guid) {
                     VehicleSeatRec* seat = player->m_vehiclePassenger ? player->m_vehiclePassenger->m_seatRec : nullptr;
 
-                    if (seat && (seat->m_flags & 0x4000)) {
+                    if (seat && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_ATTACK)) {
                         searcher = player;
                         ClntObjMgrEnumVisibleObjects(TargetUpdateProc, player);
                     }
@@ -5988,7 +5988,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
 
         VehicleSeatRec* seat = viewer->m_vehiclePassenger ? viewer->m_vehiclePassenger->m_seatRec : nullptr;
 
-        if (seat && (seat->m_flags & 0x100000)) {
+        if (seat && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)) {
             CGUnit_C* vehicle = viewer->GetVehicleUnit();
 
             if (vehicle) {

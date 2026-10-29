@@ -258,7 +258,7 @@ int32_t EvaluateVehicleUI(const WOWGUID* unit, const TSGrowableArray<MacroSubstr
     VehicleSeatRec* seat = GetVehicleSeatRec(&guid);
 
     if (seat) {
-        return seat->m_flags & 0x20000000;
+        return seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_UI;
     }
 
     return 0;
@@ -270,7 +270,7 @@ int32_t EvaluateUnitHasVehicleUI(const WOWGUID* unit, const TSGrowableArray<Macr
     VehicleSeatRec* seat = GetVehicleSeatRec(unit);
 
     if (seat) {
-        return seat->m_flags & 0x20000000;
+        return seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_UI;
     }
 
     return 0;

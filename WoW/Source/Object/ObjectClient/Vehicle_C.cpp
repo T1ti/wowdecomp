@@ -309,7 +309,7 @@ int32_t CVehicle_C::GetVirtualSeatInfo(int32_t virtualSeat, const char*& type, c
         return 0;
     }
 
-    if (seatRec->m_flags & 0x800) {
+    if (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL) {
         type = vehicle == this ? s_vehicleSeatTypes[1] : s_vehicleSeatTypes[2];
     } else {
         type = s_vehicleSeatTypes[0];
@@ -324,8 +324,8 @@ int32_t CVehicle_C::GetVirtualSeatInfo(int32_t virtualSeat, const char*& type, c
         occupant = nullptr;
     }
 
-    canEject = seatRec->m_flagsB & 0x20;
-    canSwitch = (seatRec->m_flags >> 26) & 1;
+    canEject = seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_EJECTABLE;
+    canSwitch = (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0;
     return 1;
 }
 

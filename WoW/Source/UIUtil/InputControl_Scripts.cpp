@@ -13,6 +13,7 @@
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/Object/ObjectClient/Vehicle_C.h"
 #include "WoW/Source/DB/Rec/VehicleRec.h"
+#include "WoW/Source/DB/Rec/VehicleSeatRec.h"
 #include <cmath>
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "WoW/Source/Ui/Types.h"
@@ -486,7 +487,7 @@ static int32_t Script_VehicleAimGetAngle(lua_State* L) {
 // VERIFY: b1728266 manual
 // OFFSET: 0x005FB970
 static int32_t Script_IsUsingVehicleControls(lua_State* L) {
-    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x800000)) {
+    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_IS_USING_VEHICLE_CONTROLS)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -498,7 +499,7 @@ static int32_t Script_IsUsingVehicleControls(lua_State* L) {
 // VERIFY: 5b29d740 auto
 // OFFSET: 0x005FB9C0
 static int32_t Script_CanExitVehicle(lua_State* L) {
-    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x2000000)) {
+    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -510,7 +511,7 @@ static int32_t Script_CanExitVehicle(lua_State* L) {
 // VERIFY: 19ba3dd9 auto
 // OFFSET: 0x005FBA10
 static int32_t Script_CanSwitchVehicleSeats(lua_State* L) {
-    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x4000000)) {
+    if (CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_SWITCH)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -703,7 +704,7 @@ static int32_t Script_VehicleExit(lua_State* L) {
         return 0;
     }
 
-    if (!CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x2000000)) {
+    if (!CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
         CGGameUI::DisplayError(ERR_SPELL_FAILED_S, FrameScript_GetText("SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW", -1, GENDER_NOT_APPLICABLE));
         return 0;
     }
@@ -717,7 +718,7 @@ static int32_t Script_VehicleExit(lua_State* L) {
 static int32_t Script_VehiclePrevSeat(lua_State* L) {
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (mover && CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x4000000)) {
+    if (mover && CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_SWITCH)) {
         mover->VehiclePrevSeat();
     }
 
@@ -729,7 +730,7 @@ static int32_t Script_VehiclePrevSeat(lua_State* L) {
 static int32_t Script_VehicleNextSeat(lua_State* L) {
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (mover && CGInputControl::s_inputControl->IsVehicleSeatFlagSet(0x4000000)) {
+    if (mover && CGInputControl::s_inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_SWITCH)) {
         mover->VehicleNextSeat();
     }
 

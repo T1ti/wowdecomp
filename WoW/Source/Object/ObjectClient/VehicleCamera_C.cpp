@@ -195,7 +195,7 @@ int32_t CVehicleCamera_C::IsHierarchyChasingFacing() const {
             if (!transitioning) {
                 int32_t flags = seat->m_flagsB;
 
-                if ((flags & 0x80) && (flags & 0x40000)) {
+                if ((flags & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING) && (flags & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_CHASE)) {
                     return 1;
                 }
             } else {
@@ -206,7 +206,7 @@ int32_t CVehicleCamera_C::IsHierarchyChasingFacing() const {
                 if (state == 3) {
                     int32_t flags = seat->m_flagsB;
 
-                    if ((flags & 0x40) && (flags & 0x20000)) {
+                    if ((flags & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING) && (flags & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_CHASE)) {
                         return 1;
                     }
                 }
@@ -247,7 +247,7 @@ int32_t CVehicleCamera_C::UpdateTransitionFlags() {
         smooth = 0;
     } else {
         transitioning = 1;
-        smooth = this->m_seatRec && (this->m_seatRec->m_flagsB & 0x1);
+        smooth = this->m_seatRec && (this->m_seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_INTERPOLATE_POSITION);
     }
 
     if (smooth) {
@@ -258,7 +258,7 @@ int32_t CVehicleCamera_C::UpdateTransitionFlags() {
 
     int32_t result = 0;
 
-    if (transitioning && this->m_seatRec && (this->m_seatRec->m_flagsB & 0x80001)) {
+    if (transitioning && this->m_seatRec && (this->m_seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_FACING_INTERPOLATION_MASK)) {
         result = 1;
     }
 
@@ -286,10 +286,10 @@ float CVehicleCamera_C::GetTransitionProgress(uint32_t time) const {
 
     if (state == 1 || state == 2) {
         waiting = passenger && passenger->m_state == 2;
-        mask = 0x40;
+        mask = VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING;
     } else {
         waiting = passenger && passenger->m_state == 5;
-        mask = 0x80;
+        mask = VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING;
     }
 
     if (waiting && (!this->m_seatRec || !(mask & this->m_seatRec->m_flagsB))) {
@@ -429,7 +429,10 @@ C3Vector CVehicleCamera_C::ComputeEndWorldPosition(CGUnit_C* target) {
     if (state == 1 || state == 2 || state == 3) {
         transitioning = 1;
 
-        if (target == this->m_unit && this->m_seatRec && (this->m_seatRec->m_flagsB & 0x200) && this->m_unit->m_vehiclePassenger) {
+        if (target == this->m_unit
+            && this->m_seatRec
+            && (this->m_seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_USE_VEHICLE_POSITION)
+            && this->m_unit->m_vehiclePassenger) {
             CGUnit_C* vehicle = this->m_unit->m_vehiclePassenger->GetVehicleUnit();
 
             if (vehicle) {
@@ -453,7 +456,7 @@ C3Vector CVehicleCamera_C::ComputeEndWorldPosition(CGUnit_C* target) {
 
         C3Vector raw(0.0f, 0.0f, 0.0f);
 
-        if (transitioning && this->m_seatRec && (this->m_seatRec->m_flagsB & 0x100)) {
+        if (transitioning && this->m_seatRec && (this->m_seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_USE_MODEL_POSITION)) {
             C3Vector model = unit->m_vehiclePassenger ? unit->m_vehiclePassenger->GetEndPosition() : unit->GetModelPosition();
             raw = model;
             raw = unit->m_movement->GetRawPosition(raw);
@@ -644,7 +647,7 @@ void CVehicleCamera_C::UpdatePosition(CGUnit_C* target, uint32_t time, float pro
         return;
     }
 
-    int32_t mask = state == 2 || state == 3 ? 0x20000 : 0x40000;
+    int32_t mask = state == 2 || state == 3 ? VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_CHASE : VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_CHASE;
 
     if (this->m_seatRec && (mask & this->m_seatRec->m_flagsB)) {
         C3Vector raw = end;
@@ -724,7 +727,7 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
     } else if (state == 1 || state == 4) {
         facing = this->m_startFacing;
     } else {
-        int32_t mask = state != 2 ? 0x40000 : 0x20000;
+        int32_t mask = state != 2 ? VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_CHASE : VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_CHASE;
 
         if (this->m_seatRec && (mask & this->m_seatRec->m_flagsB)) {
             if (progress >= 0.99999899f) {
@@ -884,7 +887,7 @@ void CVehicleCamera_C::SetTarget(WOWGUID target, WOWGUID next) {
 // VERIFY: 853b5bce manual
 // OFFSET: 0x0075A930
 void CVehicleCamera_C::MaybeChangeTarget(CGUnit_C* vehicle, VehicleSeatRec* seat, int32_t exiting, WOWGUID& relativeTo) {
-    if (!exiting && vehicle && seat && (seat->m_flags & 0x800)) {
+    if (!exiting && vehicle && seat && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)) {
         WOWGUID target = vehicle->m_obj->m_guid;
         relativeTo.m_guid = vehicle->GetTransportGUID();
         this->m_relativeToGuid = WOWGUID();
@@ -903,7 +906,7 @@ void CVehicleCamera_C::MaybeChangeTarget(CGUnit_C* vehicle, VehicleSeatRec* seat
 
     if (!vehicle) {
         this->m_relativeToGuid.m_guid = this->m_unit->GetTransportGUID();
-    } else if (exiting || (seat && (seat->m_flagsB & 0x80001))) {
+    } else if (exiting || (seat && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_FACING_INTERPOLATION_MASK))) {
         CGUnit_C* root = vehicle->m_vehiclePassenger ? vehicle->m_vehiclePassenger->GetStoredRootVehicleUnit() : vehicle->FindRootVehicle(nullptr);
         CGUnit_C* unit = root ? root : vehicle;
         this->m_relativeToGuid.m_guid = unit->GetTransportGUID();
@@ -971,11 +974,11 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
     } else if (!seat) {
         this->m_motionDuration = static_cast<uint32_t>(500.0f);
         this->m_flags &= ~0x1;
-    } else if (!exiting && (seat->m_flagsB & 0x40)) {
+    } else if (!exiting && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING)) {
         delay = seat->m_field33512213044;
         this->m_motionDuration = CMath::fint_(seat->m_field33512213045 * 1000.0f);
         this->m_flags |= 0x1;
-    } else if (exiting && (seat->m_flagsB & 0x80)) {
+    } else if (exiting && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING)) {
         delay = seat->m_field33512213046;
         this->m_motionDuration = CMath::fint_(seat->m_field33512213047 * 1000.0f);
         this->m_flags |= 0x1;

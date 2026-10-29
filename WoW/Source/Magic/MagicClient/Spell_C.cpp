@@ -5287,7 +5287,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
                 if (vehicle) {
                     VehicleSeatRec* seatRec = vehicle->GetVehicleSeatRec(seat);
 
-                    if (seatRec && (seatRec->m_flags & 0x2000000)) {
+                    if (seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
                         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
                         if (mover) {
@@ -5312,7 +5312,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
             CGInputControl* input = CGInputControl::GetActive();
             CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (mover && input->IsVehicleSeatFlagSet(0x2000000)) {
+            if (mover && input->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
                 mover->VehicleExit();
             }
         }
@@ -8255,18 +8255,18 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             VehicleSeatRec* seat = vehicle->GetVehicleSeatRec(unit->m_movementData.m_transportSeat);
 
             if (seat) {
-                uint32_t required = 0;
+                uint32_t required = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_NONE;
 
                 if (SpellAppliesNonStanceShapeshift(&spell)) {
-                    required = 0x2000;
+                    required = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CAST_SHAPESHIFT_SPELL;
                 }
 
                 if (SpellRec::HasAura(&spell, 78)) {
-                    required |= 0x1000;
+                    required |= VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL;
                 }
 
                 if (!required) {
-                    required = 0x4000;
+                    required = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_ATTACK;
                 }
 
                 if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_WHILE_RIDING_VEHICLE) && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && (seat->m_flags & required) != required) {
@@ -8274,7 +8274,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
                     return false;
                 }
 
-                if ((unit->m_obj->m_type & TYPE_PLAYER) && (seat->m_flags & 0x40000800)) {
+                if ((unit->m_obj->m_type & TYPE_PLAYER) && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CONTROLLED_SUMMON_RESTRICTION_MASK)) {
                     for (uint32_t i = 0; i < sizeof(spell.m_effect) / sizeof(spell.m_effect[0]); i++) {
                         for (int32_t j = 0; j < 4; j++) {
                             if (spell.m_effect[i] != j) {

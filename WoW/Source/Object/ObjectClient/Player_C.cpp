@@ -1113,7 +1113,7 @@ bool CGPlayer_C::VehicleAllowsInteraction() const {
     }
 
     VehicleSeatRec* seat = transport->m_vehicle->GetVehicleSeatRec(static_cast<uint8_t>(this->m_movementData.m_transportSeat));
-    return seat && (seat->m_flags & 0x80000000);
+    return seat && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ALLOWS_INTERACTION);
 }
 
 // VERIFY: eb153e9f auto
@@ -8304,7 +8304,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
         CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(transport, TYPE_UNIT, __FILE__, __LINE__));
         VehicleSeatRec* seat;
 
-        if (!vehicle || !(seat = vehicle->GetVehicleSeatRec(this->m_movementData.m_transportSeat)) || !(seat->m_flags & 0x4000)) {
+        if (!vehicle || !(seat = vehicle->GetVehicleSeatRec(this->m_movementData.m_transportSeat)) || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_ATTACK)) {
             return;
         }
     }

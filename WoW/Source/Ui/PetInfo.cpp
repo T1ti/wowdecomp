@@ -974,7 +974,7 @@ void CGPetInfo::PetDismiss() {
             if (mover->m_vehicle) {
                 VehicleSeatRec* seatRec = mover->m_vehicle->GetVehicleSeatRec(seat);
 
-                if (seatRec && (seatRec->m_flags & 0x2000000)) {
+                if (seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
                     if (player->m_vehiclePassenger) {
                         player->m_vehiclePassenger->StopMovement();
                     }

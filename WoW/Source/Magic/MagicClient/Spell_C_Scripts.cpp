@@ -254,7 +254,7 @@ static int32_t Script_CancelUnitBuff(lua_State* L) {
     CGInputControl* input = CGInputControl::GetActive();
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!input || !mover || !input->IsVehicleSeatFlagSet(0x2000000)) {
+    if (!input || !mover || !input->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
         return 0;
     }
 

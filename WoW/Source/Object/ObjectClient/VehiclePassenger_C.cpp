@@ -333,7 +333,7 @@ void CVehiclePassenger_C::StartWaitingForVehicleTransitionAnim(WOWGUID guid, uin
     this->m_transitionAnimGuid = guid;
     this->m_transitionAnimSeat = seat;
 
-    if (seatRec->m_flags & (entering ? 0x8000000 : 0x10000000)) {
+    if (seatRec->m_flags & (entering ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_TRANSITION_ANIM_ENTER_TIMER : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_TRANSITION_ANIM_EXIT_TIMER)) {
         float duration = entering ? seatRec->m_field33512213037 : seatRec->m_field33512213038;
         uint32_t timeout = static_cast<uint32_t>(duration * 1000.0f);
 
@@ -395,7 +395,7 @@ int32_t CVehiclePassenger_C::ChooseSeatExitAnim(uint32_t flags, uint32_t* anim) 
 
     const VehicleSeatRec* seat = this->m_seatRec;
 
-    if (!seat || state != 3 || !(seat->m_flags & 0x4)) {
+    if (!seat || state != 3 || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         return 0;
     }
 
@@ -431,7 +431,7 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
     switch (this->m_state) {
         case 1:
         case 2: {
-            if (!(seat->m_flags & 0x1)) {
+            if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER)) {
                 return 506;
             }
 
@@ -447,7 +447,7 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
         }
 
         case 3: {
-            if (!(seat->m_flags & 0x2)) {
+            if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) {
                 return 506;
             }
 
@@ -683,7 +683,7 @@ C3Vector CVehiclePassenger_C::ComputeStartWorldPosition(const C3Vector& offset, 
 void CVehiclePassenger_C::OnAnimEnd(uint32_t anim) {
     const VehicleSeatRec* seat = this->m_seatRec;
 
-    if (this->GetLowerAnim(seat) != 506 && seat && this->m_state == 3 && (seat->m_flags & 0x4)) {
+    if (this->GetLowerAnim(seat) != 506 && seat && this->m_state == 3 && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         int32_t upper;
 
         if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE) || (upper = seat->m_rideUpperAnimStart) == -1) {
@@ -775,7 +775,7 @@ void CVehiclePassenger_C::StartAddingPendingRescueTransitions() {
 // VERIFY: f56a1f77 auto
 // OFFSET: 0x00747BD0
 int32_t CVehiclePassenger_C::GetUpperAnim(const VehicleSeatRec* seat) const {
-    if (!seat || this->m_state != 3 || !(seat->m_flags & 0x4)) {
+    if (!seat || this->m_state != 3 || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         return ANIM_COUNT;
     }
 
@@ -994,11 +994,11 @@ void CVehiclePassenger_C::UpdateBlend(uint32_t time, VehicleSeatRec* seatRec) {
     uint32_t easeOut;
 
     if (this->m_state == 2) {
-        easeIn = 0x20;
-        easeOut = 0x40;
+        easeIn = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ENTER_EASE_IN;
+        easeOut = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ENTER_EASE_OUT;
     } else if (this->m_state == 5) {
-        easeIn = 0x80;
-        easeOut = 0x100;
+        easeIn = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_EXIT_EASE_IN;
+        easeOut = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_EXIT_EASE_OUT;
     } else {
         return;
     }
@@ -1023,7 +1023,7 @@ static void SignalVehicleTransitionEvent(WOWGUID guid, const VehicleRec* vehicle
     bool hasVehicleUI;
 
     if (seatRec) {
-        controlSeat = (seatRec->m_flags & 0x20000000) != 0;
+        controlSeat = (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_UI) != 0;
         skin = static_cast<uint32_t>(seatRec->m_uiSkin) < 2 ? s_vehicleSkinNames[seatRec->m_uiSkin] : "";
         SoundEntriesRec* soundRec = g_soundEntriesDB.GetRecord(seatRec->m_enterUisoundID);
 
@@ -1031,7 +1031,7 @@ static void SignalVehicleTransitionEvent(WOWGUID guid, const VehicleRec* vehicle
             sound = soundRec->m_name;
         }
 
-        hasVehicleUI = (seatRec->m_flags & 0x800) != 0;
+        hasVehicleUI = (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL) != 0;
     } else {
         controlSeat = false;
         skin = "";
@@ -1071,7 +1071,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
             if (vehicle && vehicle->m_vehicle) {
                 VehicleSeatRec* oldSeat = vehicle->m_vehicle->GetVehicleSeatRec(this->m_seat);
 
-                if (oldSeat && (oldSeat->m_flags & 0x20000)) {
+                if (oldSeat && (oldSeat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_RIDE_ANIM)) {
                     boneVehicle->RemoveBoneAnimListener(oldSeat->m_vehicleEnterAnimBone, this->m_unit->m_obj->m_guid);
                 }
             }
@@ -1127,7 +1127,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         }
     }
 
-    if (state == 3 && seatRec && (seatRec->m_flagsB & 0x10000)) {
+    if (state == 3 && seatRec && (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_MIRROR_VEHICLE_ANIMS)) {
         this->StartMirroringVehicleAnims();
     }
 
@@ -1154,7 +1154,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     }
 
     if (model) {
-        uint32_t hidden = !(this->m_unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_UNINTERACTIBLE) && (!seatRec || !(seatRec->m_flags & 0x100000)) && state;
+        uint32_t hidden = !(this->m_unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_UNINTERACTIBLE) && (!seatRec || !(seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)) && state;
         model->m_fFlags ^= (model->m_fFlags ^ (hidden << 19)) & 0x80000;
     }
 
@@ -1192,7 +1192,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         root = vehicle->GetRootVehicleUnit();
     }
 
-    if (seatRec && (seatRec->m_flags & 0x200)) {
+    if (seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HIDE_PASSENGER)) {
         if ((this->m_state == 1 || this->m_state == 2) && (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT)) {
             CGUnit_C* oldVehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_vehicleGuid, TYPE_UNIT, __FILE__, __LINE__));
             CGUnit_C* oldRoot = oldVehicle ? oldVehicle->GetRootVehicleUnit() : nullptr;
@@ -1235,7 +1235,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     if (camera && ClntObjMgrGetActivePlayer() == guid && (camera->m_targetGUID == guid || camera->m_targetGUID == this->m_vehicleGuid)) {
         uint32_t current = this->m_state;
 
-        if ((current == 1 || current == 2 || current == 3) && vehicle && seatRec && (seatRec->m_flags & 0x800)) {
+        if ((current == 1 || current == 2 || current == 3) && vehicle && seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)) {
             camera->SetTarget(vehicle, 0);
         } else {
             camera->SetTarget(this->m_unit, 0);
@@ -1245,7 +1245,11 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED;
     CVehicle_C* vehicleObject = vehicle ? vehicle->m_vehicle : nullptr;
 
-    if (this->m_state == 3 && vehicleObject && seatRec && (seatRec->m_flags & 0x20000) && seatRec->m_vehicleRideAnimLoop < 506) {
+    if (this->m_state == 3
+        && vehicleObject
+        && seatRec
+        && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_RIDE_ANIM)
+        && seatRec->m_vehicleRideAnimLoop < 506) {
         CVehicle_C* boneVehicle = vehicleObject->FindVehicleToPlayBoneAnim();
 
         if (boneVehicle->PlayBoneAnim(seatRec->m_vehicleEnterAnimBone, seatRec->m_vehicleRideAnimLoop)) {
@@ -1495,7 +1499,7 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
             }
 
             lookup = this->m_vehicleGuid;
-        } else if (!(seatRec->m_flags & 0x1) || seatRec->m_enterSpeed <= 0.0001f) {
+        } else if (!(seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER) || seatRec->m_enterSpeed <= 0.0001f) {
             lookup = vehicleGuid;
         } else {
             state = seatRec->m_field33512213004 <= 0.0001f ? 2 : 1;

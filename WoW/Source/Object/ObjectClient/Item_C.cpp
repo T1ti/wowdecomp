@@ -1548,7 +1548,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
         if (vehicle) {
             VehicleSeatRec* seat = vehicle->GetVehicleSeatRec(player->m_movementData.m_transportSeat);
 
-            if (seat && !(seat->m_flags & 0x4000)) {
+            if (seat && !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_ATTACK)) {
                 CGGameUI::DisplayError(ERR_CLIENT_LOCKED_OUT);
                 return 0;
             }

@@ -3427,7 +3427,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
                     if (transport) {
                         VehicleSeatRec* seat = transport->GetVehicleSeatRec(this->m_movementData.m_transportSeat);
 
-                        if (seat && !(seat->m_flags & 0x400)) {
+                        if (seat && !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ALLOW_TURNING)) {
                             seatAllows = false;
                         }
                     }
@@ -7831,7 +7831,7 @@ void CGUnit_C::SetMaxAlpha(float alpha) {
 // VERIFY: c0baa56a auto
 // OFFSET: 0x0074B840
 int32_t CGUnit_C::VehiclePassengerIsTransitionAllowed(const VehicleSeatRec* seat, int32_t checkSeat) const {
-    return (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION) || (checkSeat && seat && (seat->m_flagsB & 0x1000000));
+    return (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION) || (checkSeat && seat && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_ALLOW_PASSENGER_TRANSITION));
 }
 
 // VERIFY: 71f105c7 manual
@@ -14596,9 +14596,9 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             bool ride;
 
             if (passenger->GetLowerAnim(seat) != 506) {
-                ride = (seat->m_flags & 0x2) && (static_cast<int32_t>(sequenceId) == seat->m_rideAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideAnimLoop);
+                ride = (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE) && (static_cast<int32_t>(sequenceId) == seat->m_rideAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideAnimLoop);
             } else {
-                ride = (seat->m_flags & 0x4) && (static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimLoop);
+                ride = (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE) && (static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimLoop);
             }
 
             if (ride) {

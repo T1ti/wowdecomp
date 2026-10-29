@@ -326,7 +326,7 @@ CGUnit_C* GetVehicleUnitPtr() {
 
     VehicleSeatRec* seat = vehicle->m_vehicle->GetVehicleSeatRec(mover->m_movementData.m_transportSeat);
 
-    if (!seat || !(seat->m_flags & 0x800)) {
+    if (!seat || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)) {
         return mover;
     }
 

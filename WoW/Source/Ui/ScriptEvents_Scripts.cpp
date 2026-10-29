@@ -1117,7 +1117,7 @@ static int32_t Script_CanSwitchVehicleSeat(lua_State* L) {
     CGInputControl* inputControl = CGInputControl::GetActive();
 
     if (inputControl) {
-        lua_pushboolean(L, inputControl->IsVehicleSeatFlagSet(0x4000000));
+        lua_pushboolean(L, inputControl->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_SWITCH));
     } else {
         lua_pushboolean(L, 0);
     }
@@ -2266,7 +2266,15 @@ static int32_t Script_CanEjectPassengerFromSeat(lua_State* L) {
     CGUnit_C* passenger;
     VehicleSeatRec* seatRec;
 
-    if (mover && (root = mover->FindRootVehicle(nullptr)) && root->m_vehicle && root->m_vehicle->m_vehicleRec && root->m_vehicle->GetVehicleAndSeatFromVirtualSeat(seatIndex - 1, vehicle, seat) && (passenger = const_cast<CVehicle_C*>(vehicle)->FindPassengerUnit(seat)) && passenger->FindRootVehicle(mover) == mover && (seatRec = vehicle->GetVehicleSeatRec(seat)) && (seatRec->m_flagsB & 0x20)) {
+    if (mover
+        && (root = mover->FindRootVehicle(nullptr))
+        && root->m_vehicle
+        && root->m_vehicle->m_vehicleRec
+        && root->m_vehicle->GetVehicleAndSeatFromVirtualSeat(seatIndex - 1, vehicle, seat)
+        && (passenger = const_cast<CVehicle_C*>(vehicle)->FindPassengerUnit(seat))
+        && passenger->FindRootVehicle(mover) == mover
+        && (seatRec = vehicle->GetVehicleSeatRec(seat))
+        && (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_EJECTABLE)) {
         canEject = 1;
     }
 
@@ -2762,7 +2770,7 @@ static int32_t Script_UnitHasVehicleUI(lua_State* L) {
     VehicleSeatRec* seat = GetVehicleSeatRecAsPassengerFromLua(L);
 
     if (seat) {
-        lua_pushboolean(L, seat->m_flags & 0x20000000);
+        lua_pushboolean(L, seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_UI);
     } else {
         lua_pushboolean(L, 0);
     }
@@ -4056,7 +4064,7 @@ static int32_t Script_UnitInVehicleControlSeat(lua_State* L) {
     VehicleSeatRec* seat = GetVehicleSeatRecAsPassengerFromLua(L);
 
     if (seat) {
-        lua_pushboolean(L, seat->m_flags & 0x800);
+        lua_pushboolean(L, seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL);
     } else {
         lua_pushboolean(L, 0);
     }
@@ -4070,7 +4078,7 @@ static int32_t Script_UnitTargetsVehicleInRaidUI(lua_State* L) {
     VehicleSeatRec* seat = GetVehicleSeatRecAsPassengerFromLua(L);
 
     if (seat) {
-        lua_pushboolean(L, seat->m_flagsB & 0x8);
+        lua_pushboolean(L, seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_TARGETS_IN_RAID_UI);
     } else {
         lua_pushboolean(L, 0);
     }
