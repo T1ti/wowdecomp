@@ -28,18 +28,18 @@
 
 // STATIC: 0x00A14F70
 static const AuctionItemClass s_auctionClasses[CGAuctionHouse::NUM_CLASS_FILTERS] = {
-    { 2, 1 },
-    { 4, 1 },
-    { 1, 1 },
-    { 0, 1 },
-    { 16, 1 },
-    { 7, 1 },
-    { 6, 1 },
-    { 11, 1 },
-    { 9, 1 },
-    { 3, 1 },
-    { 15, 1 },
-    { 12, 0 },
+    { ITEM_CLASS::ITEM_CLASS_WEAPON, 1 },
+    { ITEM_CLASS::ITEM_CLASS_ARMOR, 1 },
+    { ITEM_CLASS::ITEM_CLASS_CONTAINER, 1 },
+    { ITEM_CLASS::ITEM_CLASS_CONSUMABLE, 1 },
+    { ITEM_CLASS::ITEM_CLASS_GLYPH, 1 },
+    { ITEM_CLASS::ITEM_CLASS_TRADE_GOODS, 1 },
+    { ITEM_CLASS::ITEM_CLASS_PROJECTILE, 1 },
+    { ITEM_CLASS::ITEM_CLASS_QUIVER, 1 },
+    { ITEM_CLASS::ITEM_CLASS_RECIPE, 1 },
+    { ITEM_CLASS::ITEM_CLASS_GEM, 1 },
+    { ITEM_CLASS::ITEM_CLASS_MISCELLANEOUS, 1 },
+    { ITEM_CLASS::ITEM_CLASS_QUEST, 0 },
 };
 
 // STATIC: 0x00A14FD0
@@ -172,7 +172,7 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
     for (uint32_t i = 0; i < CGAuctionHouse::NUM_INVENTORY_FILTERS; i++) {
         lua_pushstring(L, s_auctionInvTypes[i].m_token);
 
-        if (s_auctionClasses[classIndex].m_classID == 4) {
+        if (s_auctionClasses[classIndex].m_classID == ITEM_CLASS::ITEM_CLASS_ARMOR) {
             if (subClass) {
                 if ((subClass != 1 || s_auctionInvTypes[i].m_invType != INVTYPE_CLOAK) && s_auctionInvTypes[i].unk_0028) {
                     lua_pushnil(L);

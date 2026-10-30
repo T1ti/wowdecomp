@@ -3541,7 +3541,7 @@ void GetScalingStatDamage(const ScalingStatValuesRec* values, uint32_t flags, fl
 // VERIFY: 64b947f2 manual
 // OFFSET: 0x0061A8F0
 int32_t GetFeralAttackPower(const ItemStats_C* stats, float damage) {
-    if (stats->m_class == 2 && (s_inventoryTypeSlots[stats->m_inventoryType] & 0x8000)) {
+    if (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && (s_inventoryTypeSlots[stats->m_inventoryType] & 0x8000)) {
         double dps = damage / (stats->m_delay * 0.001f);
 
         if (dps > 54.81f) {
@@ -4317,7 +4317,7 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
     if (item && item->IsBound()) {
         if (stats->m_bonding == 4) {
             FormatString("ITEM_BIND_QUEST", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
-        } else if (stats->m_class != 10) {
+        } else if (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY) {
             if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_BOUND_TO_ACCOUNT) {
                 FormatString("ITEM_ACCOUNTBOUND", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             } else {
@@ -4326,7 +4326,7 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
         }
     }
 
-    if (stats->m_bonding && !text[0] && (stats->m_class != 10 || *requester == CGLootInfo::m_lootObj)) {
+    if (stats->m_bonding && !text[0] && (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY || *requester == CGLootInfo::m_lootObj)) {
         if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_BOUND_TO_ACCOUNT) {
             FormatString("ITEM_BIND_TO_ACCOUNT", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
         } else {
@@ -4354,7 +4354,7 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
         tooltip->AddLine(text, nullptr, textColor, textColor, 0);
     }
 
-    if (stats->m_class != 10) {
+    if (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY) {
         if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_UNIQUE_EQUIPPABLE) {
             FormatString("ITEM_UNIQUE_EQUIPPABLE", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             tooltip->AddLine(text, nullptr, textColor, textColor, 0);
@@ -4441,7 +4441,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         return;
     }
 
-    if (stats->m_class == 16) {
+    if (stats->m_class == ITEM_CLASS::ITEM_CLASS_GLYPH) {
         for (uint32_t i = 0; i < 5; i++) {
             SpellRec spell;
 
@@ -4468,7 +4468,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         SStrCopy(subClassName, subClass->m_displayName, sizeof(subClassName));
     }
 
-    if (stats->m_class != 6) {
+    if (stats->m_class != ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
         const char* text = FrameScript_GetText(s_inventoryTypeTokens[stats->m_inventoryType], -1, GENDER_NOT_APPLICABLE);
         SStrCopy(slot, text, sizeof(slot));
 
@@ -4476,7 +4476,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
             slot[0] = '\0';
         }
     } else {
-        ItemClassRec* itemClass = g_itemClassDB.GetRecord(6);
+        ItemClassRec* itemClass = g_itemClassDB.GetRecord(ITEM_CLASS::ITEM_CLASS_PROJECTILE);
 
         if (itemClass && itemClass->m_className && *itemClass->m_className) {
             SStrCopy(slot, itemClass->m_className, sizeof(slot));
@@ -4490,7 +4490,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
     uint32_t proficiency = CGPlayer_C::GetProficiency(stats->m_class);
 
     if (proficiency && !((1 << stats->m_subClass) & proficiency)) {
-        if (stats->m_class == 2) {
+        if (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             int32_t prerequisite = subClass->m_prerequisiteProficiency;
 
             if (prerequisite != -1) {
@@ -4511,7 +4511,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         } else {
             int32_t alternate = -1;
 
-            if (values && distribution && stats->m_class == 4 && (stats->m_subClass == 4 || stats->m_subClass == 3)) {
+            if (values && distribution && stats->m_class == ITEM_CLASS::ITEM_CLASS_ARMOR && (stats->m_subClass == 4 || stats->m_subClass == 3)) {
                 ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
                 if (playerClass) {
@@ -4529,7 +4529,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
                 for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
                     ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(i);
 
-                    if (rec && rec->m_classID == 4 && rec->m_subClassID == alternate) {
+                    if (rec && rec->m_classID == ITEM_CLASS::ITEM_CLASS_ARMOR && rec->m_subClassID == alternate) {
                         if (rec->m_displayName && *rec->m_displayName) {
                             SStrCopy(subClassName, rec->m_displayName, sizeof(subClassName));
                         }
@@ -4598,7 +4598,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
                 SStrPrintf(format, sizeof(format), "SPELL_SCHOOL%d_CAP", stats->m_damageType[i]);
                 SStrCopy(school, FrameScript_GetText(format, -1, GENDER_NOT_APPLICABLE), sizeof(school));
 
-                if (stats->m_class == 6) {
+                if (stats->m_class == ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
                     float ammo = (minDamage + maxDamage) * 0.5f;
                     SStrCopy(format, FrameScript_GetText(first ? "AMMO_SCHOOL_DAMAGE_TEMPLATE" : "PLUS_AMMO_SCHOOL_DAMAGE_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
                     SStrPrintf(text, sizeof(text), format, static_cast<double>(ammo), school);
@@ -4610,7 +4610,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
                     SStrPrintf(text, sizeof(text), format, minDamage, maxDamage, school);
                 }
             } else {
-                if (stats->m_class == 6) {
+                if (stats->m_class == ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
                     float ammo = 0.5f * (minDamage + maxDamage);
                     SStrCopy(format, FrameScript_GetText(first ? "AMMO_DAMAGE_TEMPLATE" : "PLUS_AMMO_DAMAGE_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
                     SStrPrintf(text, sizeof(text), format, static_cast<double>(ammo));
@@ -4623,7 +4623,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
                 }
             }
 
-            if (!first || stats->m_class != 2) {
+            if (!first || stats->m_class != ITEM_CLASS::ITEM_CLASS_WEAPON) {
                 speed[0] = '\0';
             } else {
                 SStrCopy(format, FrameScript_GetText("SPEED", -1, GENDER_NOT_APPLICABLE), sizeof(format));
@@ -4636,7 +4636,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
         }
     }
 
-    if (!first && stats->m_class == 2) {
+    if (!first && stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         SStrCopy(format, FrameScript_GetText("DPS_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
         SStrPrintf(text, sizeof(text), format, static_cast<double>(average / (static_cast<float>(static_cast<int32_t>(stats->m_delay)) * 0.001f)));
         tooltip->AddLine(text, nullptr, textColor, textColor, 0);
@@ -5437,7 +5437,7 @@ static void AddItemLevelLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPl
     if (showItemLevel && showItemLevel->m_intValue) {
         uint32_t itemClass = stats->m_class;
 
-        if (itemClass == 2 || itemClass == 4 || itemClass == 5 || itemClass == 6) {
+        if (itemClass == ITEM_CLASS::ITEM_CLASS_WEAPON || itemClass == ITEM_CLASS::ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS::ITEM_CLASS_REAGENT || itemClass == ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
             SStrCopy(format, FrameScript_GetText("ITEM_LEVEL", -1, GENDER_NOT_APPLICABLE), sizeof(format));
             SStrPrintf(text, sizeof(text), format, stats->m_itemLevel);
             tooltip->AddLine(text, nullptr, textColor, textColor, 0);

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Common/ItemTypes.h"
 
 class SFileImpl;
 

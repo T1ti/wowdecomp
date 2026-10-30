@@ -75,9 +75,9 @@ void SI2::PlayParrySound(const CGUnitVirtualItem* weapon, const CGUnitVirtualIte
     int32_t type = 6;
 
     if (defender) {
-        if (defender->m_classID == 2) {
+        if (defender->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             type = 6 - CGItem_C::IsMetal(defender->m_material);
-        } else if (defender->m_classID == 4) {
+        } else if (defender->m_classID == ITEM_CLASS::ITEM_CLASS_ARMOR) {
             type = 4 - CGItem_C::IsMetal(defender->m_material);
         }
     }

@@ -125,7 +125,7 @@ static int32_t Script_OffhandHasWeapon(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     CGItem_C* item = player ? player->m_bag.GetItemPointer(16) : nullptr;
 
-    if (item && item->GetClassID() == 2) {
+    if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -156,7 +156,7 @@ static int32_t Script_HasWandEquipped(lua_State* L) {
     if (player && static_cast<uint32_t>(player->m_bag.m_numSlots) > 17 && player->m_bag.m_slots[17]) {
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(player->m_bag.m_slots[17], TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && item->GetSubtypeID() == 19) {
+        if (item && item->GetSubtypeID() == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND) {
             lua_pushnumber(L, 1.0);
             return 1;
         }

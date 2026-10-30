@@ -218,7 +218,7 @@ static int32_t s_areaTriggerMapID;
 static int32_t s_defenseSpellId;
 
 // STATIC: 0x00C9D4F0
-static uint32_t s_proficiency[17];
+static uint32_t s_proficiency[ITEM_CLASS::NUM_ITEM_CLASSES];
 
 // STATIC: 0x00C9D534
 static uint32_t s_bindAreaId;
@@ -471,7 +471,7 @@ static int32_t GetWeaponSubClassCount(int32_t* count) {
     while (index--) {
         const ItemSubClassRec* rec = index >= 0 && index < g_itemSubClassDB.m_numRecords ? &g_itemSubClassDB.m_records[index] : nullptr;
 
-        if (rec->m_classID == 2) {
+        if (rec->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             found = 1;
 
             if (maxSubClass <= rec->m_subClassID) {
@@ -647,7 +647,7 @@ static void InitWeaponSkills() {
             s_defenseSpellId = rec.m_id;
         }
 
-        if (rec.m_equippedItemClass != 2) {
+        if (rec.m_equippedItemClass != ITEM_CLASS::ITEM_CLASS_WEAPON) {
             continue;
         }
 
@@ -855,7 +855,7 @@ void CGPlayer_C::Shutdown() {
 void PlayerClientInitialize() {
     CGPlayer_C::PlayerInitializeMessageHandlers();
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < ITEM_CLASS::NUM_ITEM_CLASSES; i++) {
         s_proficiency[i] = 0;
     }
 
@@ -2270,7 +2270,7 @@ int32_t CGPlayer_C::SpellUsesWeaponSkill(const SpellRec* spell) {
         return spell->m_id;
     }
 
-    if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_IGNORE_WEAPONSKILL) || spell->m_effect[0] == SPELL_EFFECT_WEAPON || spell->m_equippedItemClass != 2 || !spell->m_equippedItemSubclass) {
+    if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_IGNORE_WEAPONSKILL) || spell->m_effect[0] == SPELL_EFFECT_WEAPON || spell->m_equippedItemClass != ITEM_CLASS::ITEM_CLASS_WEAPON || !spell->m_equippedItemSubclass) {
         return spell->m_id;
     }
 
@@ -6901,7 +6901,7 @@ int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
 
     uint8_t itemClass = static_cast<uint8_t>(stats->m_class);
 
-    if (itemClass < 17 && s_proficiency[itemClass] && !(s_proficiency[itemClass] & (1 << stats->m_subClass))) {
+    if (itemClass < ITEM_CLASS::NUM_ITEM_CLASSES && s_proficiency[itemClass] && !(s_proficiency[itemClass] & (1 << stats->m_subClass))) {
         error = ERR_PROFICIENCY_NEEDED;
         return 0;
     }
@@ -10235,7 +10235,7 @@ void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
             }
         }
 
-        if (itemObject->GetClassID() == 6) {
+        if (itemObject->GetClassID() == ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
             clearMode = 1;
             msg.Put(static_cast<uint32_t>(CMSG_SET_AMMO));
             msg.Put(static_cast<uint32_t>(itemObject->m_obj->m_entryID));
@@ -10444,7 +10444,7 @@ void CGPlayer_C::GetRangedAttackSkillRank(int32_t& rank, int32_t& bonus) {
     int32_t spellId = 0;
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-    if (!item || item->m_classID == 2) {
+    if (!item || item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         uint32_t subclass = item ? item->m_subclassID : ClientDBGetUnarmedWeapon();
 
         if (subclass < s_weaponSkills.m_count) {
@@ -10855,7 +10855,7 @@ int32_t CGPlayer_C::GetSkillLineForSlot(int32_t hand) {
     if (hand < 3) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(static_cast<VIRTUAL_MONSTER_SLOT>(hand), false);
 
-        if (!item || item->m_classID == 2) {
+        if (!item || item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             uint32_t subclass = item ? item->m_subclassID : ClientDBGetUnarmedWeapon();
 
             if (subclass < s_weaponSkills.Count()) {
@@ -13644,7 +13644,7 @@ void CGPlayer_C::GetAttackSkillRank(int32_t hand, int32_t& rank, int32_t& bonus)
 
         if (!item) {
             subclass = ClientDBGetUnarmedWeapon();
-        } else if (item->m_classID == 2) {
+        } else if (item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             subclass = item->m_subclassID;
         } else {
             subclass = 0xFFFFFFFF;

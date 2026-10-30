@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Common/ItemTypes.h"
 #include "Engine/Source/Model2/Attachment.h"
 
 struct CharColorList;

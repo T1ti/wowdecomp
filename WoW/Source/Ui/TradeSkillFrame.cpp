@@ -522,14 +522,14 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                     info->m_invTypeMask = 0x4000000;
                 }
             } else {
-                info->m_itemClass = -1;
+                info->m_itemClass = ITEM_CLASS::ITEM_CLASS_NONE;
                 info->m_itemSubClass = -1;
                 info->m_itemLevel = 0;
                 info->m_invTypeMask = 0x4000000;
 
-                if (spell.m_equippedItemClass == 2) {
+                if (spell.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_WEAPON) {
                     info->m_invTypeMask = (spell.m_equippedItemSubclass & 0x1) ? 0x800000 : 0x1000000;
-                } else if (spell.m_equippedItemClass == 4) {
+                } else if (spell.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_ARMOR) {
                     if (spell.m_equippedItemInvTypes) {
                         info->m_invTypeMask = 0;
 

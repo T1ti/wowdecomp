@@ -3303,7 +3303,7 @@ static int32_t Script_UnitAttackSpeed(lua_State* L) {
         offHand.m_guid = static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(16);
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(offHand, TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && item->GetClassID() == 2 && (ClntObjMgrGetActivePlayerObj() != unit || CGPlayer_C::CanDualWield())) {
+        if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_WEAPON && (ClntObjMgrGetActivePlayerObj() != unit || CGPlayer_C::CanDualWield())) {
             lua_pushnumber(L, unit->m_unit->m_unitFieldBaseattacktime[1] * 0.001);
             return 2;
         }

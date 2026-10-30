@@ -93,7 +93,7 @@ static int32_t OnUpdateStackCount(WOWGUID guid, uint32_t fieldOffset, uint32_t f
         CGCharacterInfo::UpdateItem(item->m_obj->m_guid);
         CGQuestLog::UpdateQuestItem(item->m_obj->m_entryID);
 
-        if (stats && stats->m_class == 10) {
+        if (stats && stats->m_class == ITEM_CLASS::ITEM_CLASS_MONEY) {
             CGCurrencyTypes::EnterWorld();
         }
 
@@ -1272,21 +1272,21 @@ int32_t CGItem_C::GetRepairCost() {
 
     uint32_t itemClass = this->GetClassID();
 
-    if (itemClass != 2 && itemClass != 4) {
+    if (itemClass != ITEM_CLASS::ITEM_CLASS_WEAPON && itemClass != ITEM_CLASS::ITEM_CLASS_ARMOR) {
         return 0;
     }
 
     uint32_t subClass = this->GetSubtypeID();
     int32_t cost;
 
-    if (itemClass == 2) {
+    if (itemClass == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         if (subClass > 21) {
             return 0;
         }
 
         cost = costs->m_weaponSubClassCost[subClass];
     } else {
-        if (itemClass != 4 || subClass > 8) {
+        if (itemClass != ITEM_CLASS::ITEM_CLASS_ARMOR || subClass > 8) {
             return 0;
         }
 
@@ -1812,7 +1812,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     }
 
     if (slot == 0xFFFFFFFF) {
-        return rec->m_classID == 6;
+        return rec->m_classID == ITEM_CLASS::ITEM_CLASS_PROJECTILE;
     }
 
     if (slot == 17) {
@@ -1823,7 +1823,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
         return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
     }
 
-    if ((slot != 15 && slot != 16) || rec->m_classID != 2) {
+    if ((slot != 15 && slot != 16) || rec->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         if (slot >= 23) {
             return 1;
         }
@@ -1839,7 +1839,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
         return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
     }
 
-    if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_REPORT_TO_GUILD_CHAT) || rec->m_subclassID == 13) {
+    if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_REPORT_TO_GUILD_CHAT) || rec->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FIST_WEAPON) {
         return 0;
     }
 

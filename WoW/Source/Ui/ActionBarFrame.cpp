@@ -691,7 +691,7 @@ const char* CGActionBar::GetRangedTexture() {
     WOWGUID guid = 17 < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[17] : WOWGUID();
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!item || item->GetSubtypeID() == 16) {
+    if (!item || item->GetSubtypeID() == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN) {
         return nullptr;
     }
 

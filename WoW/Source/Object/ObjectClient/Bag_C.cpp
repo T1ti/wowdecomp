@@ -109,7 +109,7 @@ int32_t CGBag_C::GetNumFreeInvSlots() {
                 WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
                 CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-                if (item && item->GetClassID() == 1) {
+                if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_CONTAINER) {
                     freeSlots += item->GetBag()->GetNumFreeInvSlots();
                 }
 

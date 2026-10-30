@@ -216,7 +216,7 @@ static int32_t Script_GetTradeSkillSubClasses(lua_State* L) {
     for (uint32_t i = 0; i < count; i++) {
         TradeSkillSubClassInfo* subClass = i < CGTradeSkillInfo::m_numSubClasses ? CGTradeSkillInfo::m_subClassList.m_data[i] : nullptr;
 
-        if (subClass->m_itemClass == -1 && subClass->m_itemSubClass == -1) {
+        if (subClass->m_itemClass == ITEM_CLASS::ITEM_CLASS_NONE && subClass->m_itemSubClass == -1) {
             SkillLineRec* skillLine = g_skillLineDB.GetRecord(CGTradeSkillInfo::m_skillLineID);
 
             if (skillLine) {
@@ -309,7 +309,7 @@ static int32_t Script_GetTradeSkillInfo(lua_State* L) {
 
     if (index < CGTradeSkillInfo::m_numDisplayEntries && (info = CGTradeSkillInfo::m_displayList.m_data[index])) {
         if (info->m_spellId == -1) {
-            bool skillHeader = info->m_itemClass == -1 && info->m_itemSubClass == -1;
+            bool skillHeader = info->m_itemClass == ITEM_CLASS::ITEM_CLASS_NONE && info->m_itemSubClass == -1;
             ItemSubClassRec* rec = nullptr;
 
             if (!skillHeader) {

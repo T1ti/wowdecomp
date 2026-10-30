@@ -403,7 +403,7 @@ static int32_t Script_UseContainerItem(lua_State* L) {
         return 0;
     }
 
-    if (stats && stats->m_class == 16) {
+    if (stats && stats->m_class == ITEM_CLASS::ITEM_CLASS_GLYPH) {
         FrameScript_SignalEvent(SCRIPT_EVENT_USE_GLYPH, nullptr);
     }
 

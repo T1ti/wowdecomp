@@ -3543,7 +3543,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             }
         }
 
-        if (stats->m_class == 1) {
+        if (stats->m_class == ITEM_CLASS::ITEM_CLASS_CONTAINER) {
             CGTutorial::TriggerTutorial(9);
         }
 
@@ -3575,7 +3575,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
-    if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == INVTYPE_RANGED || stats->m_inventoryType == INVTYPE_RANGEDRIGHT) && player->m_unit->m_classID != CLASS_HUNTER) || (stats->m_class == 2 && stats->m_subClass == 19)) {
+    if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == INVTYPE_RANGED || stats->m_inventoryType == INVTYPE_RANGEDRIGHT) && player->m_unit->m_classID != CLASS_HUNTER) || (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && stats->m_subClass == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND)) {
         CGTutorial::TriggerTutorial(43);
     }
 }
@@ -4746,7 +4746,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
             bool matchesSubclass = false;
 
             if (spell.m_effectMiscValueB[i]) {
-                const ItemSubClassRec* subclass = SDBItemSubclassGetSubClassRec(7, spell.m_effectMiscValueB[i]);
+                const ItemSubClassRec* subclass = SDBItemSubclassGetSubClassRec(ITEM_CLASS::ITEM_CLASS_TRADE_GOODS, spell.m_effectMiscValueB[i]);
 
                 if (subclass && subclass->m_subClassID == static_cast<int32_t>(item->GetSubtypeID()) && subclass->m_classID == static_cast<int32_t>(item->GetClassID())) {
                     matchesSubclass = true;

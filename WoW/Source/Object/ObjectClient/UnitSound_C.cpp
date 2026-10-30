@@ -331,11 +331,11 @@ bool CGUnit_C::GetWeaponSwingType(bool offhand, WEAPONSWING_SOUNDTYPES* swingTyp
 
     const CGUnitVirtualItem* item = this->GetVirtualItem(static_cast<VIRTUAL_MONSTER_SLOT>(offhand == false), false);
 
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         return false;
     }
 
-    const ItemSubClassRec* subClass = SDBItemSubclassGetSubClassRec(2, item->m_subclassID);
+    const ItemSubClassRec* subClass = SDBItemSubclassGetSubClassRec(ITEM_CLASS::ITEM_CLASS_WEAPON, item->m_subclassID);
 
     if (subClass) {
         *swingType = static_cast<WEAPONSWING_SOUNDTYPES>(subClass->m_weaponSwingSize);

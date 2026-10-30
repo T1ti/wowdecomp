@@ -30,10 +30,10 @@ static uint32_t s_nextVictimImpactTime;
 const CGUnitVirtualItem* CGUnit_C::GetParryingItem(bool offhand) const {
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
 
-    if (offhand || (item && item->m_classID != 2)) {
+    if (offhand || (item && item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON)) {
         item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
-        if (item && item->m_classID != 2 && item->m_classID != 4) {
+        if (item && item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON && item->m_classID != ITEM_CLASS::ITEM_CLASS_ARMOR) {
             return nullptr;
         }
     }
@@ -89,7 +89,7 @@ const CGUnitVirtualItem* CGUnit_C::GetAttackingWeapon(COMBATHAND hand, bool requ
 
     const CGUnitVirtualItem* item = this->GetVirtualItem(static_cast<VIRTUAL_MONSTER_SLOT>(hand != 0), false);
 
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         return nullptr;
     }
 
@@ -384,7 +384,7 @@ void CGUnit_C::PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source
 
     if (attacker && attacker->m_sheatheState) {
         const CGUnitVirtualItem* item = attacker->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
-        weapon = item && item->m_classID == 2 ? item : nullptr;
+        weapon = item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON ? item : nullptr;
     }
 
     WOWGUID mover = CGUnit_C::s_activeMover;
@@ -406,7 +406,7 @@ void CGUnit_C::PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source
             this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
             const CGUnitVirtualItem* shield = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
-            if (shield && shield->m_classID != 2 && shield->m_classID != 4) {
+            if (shield && shield->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON && shield->m_classID != ITEM_CLASS::ITEM_CLASS_ARMOR) {
                 shield = nullptr;
             }
 
@@ -667,7 +667,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             this->PlayRangedItemPull();
             const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-            if (!item || item->m_classID != 2 || (item->m_subclassID != 3 && item->m_subclassID != 18)) {
+            if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON || (item->m_subclassID != ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_GUN && item->m_subclassID != ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW)) {
                 if (this->m_ammoModel && !this->m_ammoModel->m_attachParent) {
                     this->m_ammoModel->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDARROW, nullptr, 0);
                 }

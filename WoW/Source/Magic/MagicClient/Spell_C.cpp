@@ -6805,7 +6805,7 @@ int32_t Spell_C_WasItemRecentlyUsed(int32_t itemId) {
 static int32_t FindAmmoByType(const CGItem_C* item, void* param) {
     AmmoSearch* search = static_cast<AmmoSearch*>(param);
 
-    if (item->GetClassID() == 6 && item->GetSubtypeID() == search->m_ammoType) {
+    if (item->GetClassID() == ITEM_CLASS::ITEM_CLASS_PROJECTILE && item->GetSubtypeID() == search->m_ammoType) {
         if (!search->m_ammoId || item->m_obj->m_entryID == search->m_ammoId) {
             search->m_item = item;
             return 1;
@@ -8545,7 +8545,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     } else if (s_autoRepeatingSpell) {
         SpellRec autoRepeat;
 
-        if (g_spellDB.GetRecord(s_autoRepeatingSpell, &autoRepeat) && autoRepeat.m_equippedItemClass == 2 && (autoRepeat.m_equippedItemSubclass & 0x80000)) {
+        if (g_spellDB.GetRecord(s_autoRepeatingSpell, &autoRepeat) && autoRepeat.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_WEAPON && (autoRepeat.m_equippedItemSubclass & 0x80000)) {
             Spell_C_CancelAutoRepeat(true);
         }
     }

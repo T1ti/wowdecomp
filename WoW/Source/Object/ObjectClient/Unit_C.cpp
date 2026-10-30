@@ -5760,19 +5760,19 @@ int32_t CGUnit_C::ShouldFadeout() {
 // VERIFY: 8b66139f auto
 // OFFSET: 0x00714C80
 int32_t __stdcall CGUnit_C::IsTwoHanded(const CGUnitVirtualItem* item) {
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         return 0;
     }
 
     switch (item->m_subclassID) {
-        case 1:
-        case 5:
-        case 6:
-        case 8:
-        case 10:
-        case 12:
-        case 17:
-        case 20:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_POLEARM:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_STAFF:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SPEAR:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FISHING_POLE:
             return 1;
 
         default:
@@ -5785,36 +5785,36 @@ int32_t __stdcall CGUnit_C::IsTwoHanded(const CGUnitVirtualItem* item) {
 uint32_t CGUnit_C::GetCombatReadyAnim() const {
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
 
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
     }
 
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         return ANIM_READY_UNARMED;
     }
 
     uint32_t anim = ANIM_READY_2H - (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false) != nullptr);
 
     switch (item->m_subclassID) {
-        case 0:
-        case 4:
-        case 7:
-        case 11:
-        case 13:
-        case 14:
-        case 15:
-        case 20:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_DAGGER:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FISHING_POLE:
             return ANIM_READY_1H;
 
-        case 1:
-        case 5:
-        case 8:
-        case 12:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC2:
             return anim;
 
-        case 6:
-        case 10:
-        case 17:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_POLEARM:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_STAFF:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SPEAR:
             return ANIM_READY_2HL;
 
         default:
@@ -5836,28 +5836,28 @@ int32_t CGUnit_C::ChooseRangedLoadAnim(uint32_t flags, uint32_t* anim) const {
     *anim = ANIM_READY_UNARMED;
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-    if (!item || item->m_classID != 2) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         return 1;
     }
 
     switch (item->m_subclassID) {
-        case 2: {
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_BOW: {
             *anim = ANIM_LOAD_BOW;
             return 1;
         }
 
-        case 3:
-        case 18: {
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_GUN:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW: {
             *anim = ANIM_LOAD_RIFLE;
             return 1;
         }
 
-        case 16: {
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN: {
             *anim = ANIM_LOAD_THROWN;
             return 1;
         }
 
-        case 19: {
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND: {
             *anim = ANIM_HOLD_THROWN;
             return 1;
         }
@@ -6381,13 +6381,13 @@ int32_t CGUnit_C::IsDisarmed(int32_t hand) const {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true);
 
         if (!hand) {
-            return item && item->m_classID == 2;
+            return item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON;
         }
 
         if (!this->IsDisarmed(0)) {
             const CGUnitVirtualItem* offhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true);
 
-            if (offhand && offhand->m_classID == 2) {
+            if (offhand && offhand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
                 return 1;
             }
         }
@@ -8158,7 +8158,7 @@ const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, boo
             const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true);
 
             if (item) {
-                if (item->m_classID != 2) {
+                if (item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
                     return &this->m_virtualItem[VIRTUAL_MONSTER_SLOT_MAINHAND];
                 }
 
@@ -8172,7 +8172,7 @@ const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, boo
             if (!this->IsDisarmed(0)) {
                 const CGUnitVirtualItem* offhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true);
 
-                if (offhand && offhand->m_classID == 2) {
+                if (offhand && offhand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
                     return nullptr;
                 }
             }
@@ -8621,7 +8621,7 @@ void CGUnit_C::UpdateAmmoModel(uint32_t displayId, uint32_t invType) {
         ammoType = invType;
     }
 
-    if (ranged && ranged->m_classID == 2 && (ranged->m_subclassID == 3 || ranged->m_subclassID == 18)) {
+    if (ranged && ranged->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && (ranged->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_GUN || ranged->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW)) {
         noAttach = 1;
     }
 
@@ -8865,7 +8865,7 @@ int32_t __stdcall CGUnit_C::ResolveSheathState(int32_t hand, const CGUnitVirtual
             return WEAPONMODE_SHEATHEDMODE;
         }
     } else if (hand == WEAPONMODE_SHEATHEDMODE) {
-        if ((offHand && offHand->m_inventoryType == INVTYPE_SHIELD) || (mainHand && mainHand->m_classID == 2) || (offHand && offHand->m_classID == 2)) {
+        if ((offHand && offHand->m_inventoryType == INVTYPE_SHIELD) || (mainHand && mainHand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) || (offHand && offHand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON)) {
             return WEAPONMODE_NORMALMODE;
         }
     }
@@ -13405,38 +13405,38 @@ void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_OFFHAND) {
         const CGUnitVirtualItem* offhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
-        if (offhand && offhand->m_classID == 2) {
-            anim = (offhand->m_subclassID == 15) + ANIM_ATTACK_OFF;
+        if (offhand && offhand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
+            anim = (offhand->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_DAGGER) + ANIM_ATTACK_OFF;
         } else {
             anim = ANIM_ATTACK_UNARMED_OFF;
         }
     } else {
         const CGUnitVirtualItem* mainhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
 
-        if (mainhand && mainhand->m_classID == 2) {
+        if (mainhand && mainhand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             uint32_t oneHanded = 18 - (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false) != nullptr);
 
             switch (mainhand->m_subclassID) {
-                case 0:
-                case 4:
-                case 7:
-                case 11:
-                case 14:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
                     anim = ANIM_ATTACK_1H;
                     break;
-                case 1:
-                case 5:
-                case 8:
-                case 12:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE2:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE2:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD2:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC2:
                     anim = oneHanded;
                     break;
-                case 6:
-                case 10:
-                case 17:
-                case 20:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_POLEARM:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_STAFF:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SPEAR:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FISHING_POLE:
                     anim = ANIM_ATTACK_2HL;
                     break;
-                case 15:
+                case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_DAGGER:
                     anim = ANIM_ATTACK_1H_PIERCE;
                     break;
             }
@@ -14063,7 +14063,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
         child->m_refCount++;
         this->m_rangedWeaponModel->SetSequenceCallback(nullptr, 0);
 
-        if (item->m_classID == 2 && item->m_subclassID == 2) {
+        if (item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_BOW) {
             this->m_rangedWeaponModel->SetLoadedCallback(&CGUnit_C::BowModelLoaded, this);
         }
     }
@@ -18575,10 +18575,10 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
     if (changed & UNIT_FLAGS::UNIT_FLAG_DISARMED) {
         const CGUnitVirtualItem* mainHand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true);
 
-        if (mainHand && mainHand->m_classID == 2) {
+        if (mainHand && mainHand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             const CGUnitVirtualItem* item;
 
-            if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true)) && item->m_classID == 2 && this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
+            if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true)) && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
                 CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(this->m_sheatheState ? 0 : mainHand->m_sheatheType), false);
             } else {
                 if (this->unk_0988) {
@@ -18591,10 +18591,10 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
 
         const CGUnitVirtualItem* offHand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true);
 
-        if (offHand && offHand->m_classID == 2) {
+        if (offHand && offHand->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             const CGUnitVirtualItem* item;
 
-            if ((((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true), !this->IsDisarmed(0)) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && item->m_classID == 2) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_OFFHAND)) && this->m_sheatheState == WEAPONMODE_NORMALMODE) {
+            if ((((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true), !this->IsDisarmed(0)) && (item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_OFFHAND)) && this->m_sheatheState == WEAPONMODE_NORMALMODE) {
                 CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, SHEATHE_NONE, false);
             } else {
                 this->AddHandItem(1);
@@ -18894,7 +18894,7 @@ void CGUnit_C::PlayParryAnimation() {
 
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
 
-    if (!item || item->m_classID != 2 || !this->m_unit->m_sheatheState) {
+    if (!item || item->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON || !this->m_unit->m_sheatheState) {
         this->PlayBaseAnimation(ANIM_PARRY_UNARMED, 0);
         return;
     }
@@ -18902,30 +18902,30 @@ void CGUnit_C::PlayParryAnimation() {
     uint32_t twoHandAnim = ANIM_PARRY_2H - (this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false) != nullptr);
 
     switch (item->m_subclassID) {
-        case 0:
-        case 4:
-        case 7:
-        case 11:
-        case 14:
-        case 15:
-        case 20:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_DAGGER:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FISHING_POLE:
             this->PlayBaseAnimation(ANIM_PARRY_1H, 0);
             break;
 
-        case 1:
-        case 5:
-        case 8:
-        case 12:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_MACE2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SWORD2:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_EXOTIC2:
             this->PlayBaseAnimation(twoHandAnim, 0);
             break;
 
-        case 6:
-        case 10:
-        case 17:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_POLEARM:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_STAFF:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_SPEAR:
             this->PlayBaseAnimation(ANIM_PARRY_2HL, 0);
             break;
 
-        case 13:
+        case ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
             this->PlayBaseAnimation(ANIM_PARRY_UNARMED, 0);
             break;
 
@@ -19021,7 +19021,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-        if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
+        if (item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && (item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_BOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN)) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
@@ -19278,7 +19278,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-        if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
+        if (item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && (item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_BOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN)) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
@@ -19467,7 +19467,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-        if (item && item->m_classID == 2 && (item->m_subclassID == 2 || item->m_subclassID == 18 || item->m_subclassID == 16)) {
+        if (item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON && (item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_BOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_CROSSBOW || item->m_subclassID == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN)) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT;
         }
     }
@@ -19713,7 +19713,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
     if (hand == 0) {
         const CGUnitVirtualItem* mainItem;
 
-        if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (mainItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true)) && mainItem->m_classID == 2) {
+        if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) && (mainItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true)) && mainItem->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             return;
         }
 
@@ -19726,7 +19726,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         if (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_DISARMED) {
             this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, true);
 
-            if (!this->IsDisarmed(0) && (offItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && offItem->m_classID == 2) {
+            if (!this->IsDisarmed(0) && (offItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true)) && offItem->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
                 return;
             }
         }
@@ -19737,7 +19737,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
 
         const CGUnitVirtualItem* mainItem;
 
-        if (!(this->m_obj->m_type & TYPE_PLAYER) && (mainItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false)) && mainItem->m_classID == 2) {
+        if (!(this->m_obj->m_type & TYPE_PLAYER) && (mainItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false)) && mainItem->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             uint8_t subclass = mainItem->m_subclassID;
 
             if (subclass == 1 || subclass == 5 || subclass == 8 || subclass == 10 || subclass == 12 || subclass == 6 || subclass == 17 || subclass == 20) {
@@ -23931,7 +23931,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
                 if (!this->IsDisarmed(0)) {
                     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, true);
 
-                    if (item && item->m_classID == 2) {
+                    if (item && item->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
                         hide = true;
                     }
                 }

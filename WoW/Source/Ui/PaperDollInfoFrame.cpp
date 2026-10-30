@@ -340,7 +340,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
         if (cursorItem) {
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(cursorItem, TYPE_ITEM, __FILE__, __LINE__));
 
-            if (item && item->GetClassID() == 6) {
+            if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
                 CDataStore msg;
                 msg.Put(static_cast<uint32_t>(CMSG_SET_AMMO));
                 msg.Put(static_cast<uint32_t>(item->m_obj->m_entryID));
