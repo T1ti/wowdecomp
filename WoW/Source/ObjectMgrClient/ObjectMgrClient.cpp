@@ -1336,7 +1336,7 @@ static int32_t CreateObject(CDataStore* msg, uint32_t time) {
         return 0;
     }
 
-    if (create.m_updateFlags & 0x1) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) {
         s_curMgr->m_playerGuid = guid;
     }
 

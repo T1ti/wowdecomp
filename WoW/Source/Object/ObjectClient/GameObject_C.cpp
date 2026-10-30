@@ -1902,7 +1902,7 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
 
     ClntObjMgrHideObject(this->m_obj->m_guid);
 
-    if (create.m_updateFlags & 0x2) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_TRANSPORT) {
         this->m_transportTimeOffset = create.m_transportTime - time;
     }
 

@@ -9692,7 +9692,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
 
     this->RefreshDataPointers();
 
-    if (create.m_updateFlags & 0x1) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) {
         this->InitializeActivePlayerComponent();
     }
 }
@@ -9702,7 +9702,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
 void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) {
     this->m_combat.SetClientInitData(create);
 
-    if (create.m_updateFlags & 0x80) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_VEHICLE) {
         this->CreateVehicleData(&create, create.m_vehicleId);
     }
 
@@ -9710,14 +9710,14 @@ void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) 
         return;
     }
 
-    int32_t activePlayer = create.m_updateFlags & 0x1;
+    int32_t activePlayer = create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF;
     this->m_movementData.SetUpdateInfo(OsGetAsyncTimeMs(), &create.m_move, activePlayer);
 
     if (this->m_movementData.m_flags & MOVEMENTFLAG_FALLING_FAR) {
         this->OnCollideFalling();
     }
 
-    if (create.m_updateFlags & 0x1) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING;
         Weather* weather = World::s_weather;
         C3Vector position = this->GetPosition();
@@ -9726,7 +9726,7 @@ void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) 
         weather->m_positionZ = position.z;
     }
 
-    if (create.m_updateFlags & 0x400) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_NO_BIRTH_ANIM) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SUPPRESS_SPECIAL_IDLE_ANIM;
     }
 }
@@ -9868,7 +9868,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->CheckLoopSound();
 
-    if ((create.m_updateFlags & 0x1) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
+    if ((create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
         this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING);
         static_cast<CGPlayer_C*>(this)->RefreshVisibleItems();
     } else {

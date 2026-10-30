@@ -2833,7 +2833,7 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
     this->m_dance = nullptr;
     this->m_danceMoveIndex = 0;
 
-    if (create.m_updateFlags & 0x1) {
+    if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) {
         Spell_C_SeedMissileTrajectorySequence(static_cast<uint32_t>(this->m_obj->m_guid.m_guid));
     }
 
