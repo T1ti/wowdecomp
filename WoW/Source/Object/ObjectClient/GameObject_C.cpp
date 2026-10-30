@@ -103,7 +103,7 @@ static const uint32_t s_oneShotAnims[7] = { 0xFFFFFFFF, ANIMSTATE_SPAWN, ANIMSTA
 static uint32_t s_buildingDamageColor = 0xFFFF8400;
 
 // STATIC: 0x00ADA938
-uint32_t CGGameObject_C_TypeAnimated::s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES] = { 145, 147, 148, 149, 146, 150, 151, 152, 153, 154, 155, 156, 157 };
+uint32_t CGGameObject_C_TypeAnimated::s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES] = { ANIM_GAMEOBJ_SPAWN, ANIM_GAMEOBJ_CLOSED, ANIM_GAMEOBJ_OPEN, ANIM_GAMEOBJ_OPENED, ANIM_GAMEOBJ_CLOSE, ANIM_GAMEOBJ_DESTROY, ANIM_GAMEOBJ_DESTROYED, ANIM_GAMEOBJ_REBUILD, ANIM_GAMEOBJ_CUSTOM0, ANIM_GAMEOBJ_CUSTOM1, ANIM_GAMEOBJ_CUSTOM2, ANIM_GAMEOBJ_CUSTOM3, ANIM_GAMEOBJ_DESPAWN };
 
 // STATIC: 0x00ADA978
 const char* CGGameObject_C_TypeAnimated::s_animStateNames[NUM_GAMEOBJ_ANIMSTATES] = { "Spawn", "Closed", "Opening", "Open", "Closing", "Destroying", "Destroyed", "Rebuilding", "Custom0", "Custom1", "Custom2", "Custom3", "Despawn" };
@@ -1141,23 +1141,23 @@ void CGGameObject_C_Type_WorldObj::SequenceFinishedHandler(CM2Model* model, uint
     uint32_t next;
 
     switch (sequenceId) {
-        case 146: {
-            next = 147;
+        case ANIM_GAMEOBJ_CLOSE: {
+            next = ANIM_GAMEOBJ_CLOSED;
             break;
         }
 
-        case 148: {
-            next = 149;
+        case ANIM_GAMEOBJ_OPEN: {
+            next = ANIM_GAMEOBJ_OPENED;
             break;
         }
 
-        case 162: {
-            next = 163;
+        case ANIM_SHIP_START: {
+            next = ANIM_SHIP_MOVING;
             break;
         }
 
-        case 164: {
-            next = 0;
+        case ANIM_SHIP_STOP: {
+            next = ANIM_GAMEOBJ_STAND;
             break;
         }
 
@@ -1189,8 +1189,8 @@ CGGameObject_C_Type_DestructibleBuilding::CGGameObject_C_Type_DestructibleBuildi
 // VERIFY: 3e8f3f39 auto
 // OFFSET: 0x0070B870
 void CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param) {
-    if (!interrupted && sequenceId != 154) {
-        model->SetBoneSequence(0xFFFFFFFF, 154, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (!interrupted && sequenceId != ANIM_GAMEOBJ_CUSTOM1) {
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM1, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1301,7 +1301,7 @@ uint16_t CGGameObject_C_Type_DestructibleBuilding::GetAmbientDoodadSet(int32_t s
 // OFFSET: 0x0070B800
 void CGGameObject_C_Type_DestructibleBuilding::DestructSequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param) {
     if (!interrupted && sequenceId) {
-        model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1312,10 +1312,10 @@ void CGGameObject_C_Type_DestructibleBuilding::ImpactEffectSequenceFinishedHandl
         return;
     }
 
-    if (sequenceId == 153) {
-        model->SetBoneSequence(0xFFFFFFFF, 154, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (sequenceId == ANIM_GAMEOBJ_CUSTOM0) {
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM1, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
-        model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1326,10 +1326,10 @@ void CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler(CM2Mod
         return;
     }
 
-    if (sequenceId == 153 || sequenceId == 154) {
-        model->SetBoneSequence(0xFFFFFFFF, 155, 0xFFFFFFFF, 0, 1.0f, 1, 1);
-    } else if (sequenceId == 155) {
-        model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (sequenceId == ANIM_GAMEOBJ_CUSTOM0 || sequenceId == ANIM_GAMEOBJ_CUSTOM1) {
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM2, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    } else if (sequenceId == ANIM_GAMEOBJ_CUSTOM2) {
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1405,7 +1405,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateObjectEffectState(uint32_t anim)
     }
 
     switch (anim) {
-        case 0: {
+        case ANIM_GAMEOBJ_STAND: {
             manager->EnterState(2, 1, 0);
             this->m_owner->m_effectManager->ExitState(3, 1);
             this->m_owner->m_effectManager->ExitState(4, 1);
@@ -1413,7 +1413,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateObjectEffectState(uint32_t anim)
             break;
         }
 
-        case 162: {
+        case ANIM_SHIP_START: {
             manager->EnterState(3, 1, 0);
             this->m_owner->m_effectManager->ExitState(2, 1);
             this->m_owner->m_effectManager->ExitState(4, 1);
@@ -1421,7 +1421,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateObjectEffectState(uint32_t anim)
             break;
         }
 
-        case 163: {
+        case ANIM_SHIP_MOVING: {
             manager->EnterState(4, 1, 0);
             this->m_owner->m_effectManager->ExitState(3, 1);
             this->m_owner->m_effectManager->ExitState(2, 1);
@@ -1429,7 +1429,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateObjectEffectState(uint32_t anim)
             break;
         }
 
-        case 164: {
+        case ANIM_SHIP_STOP: {
             manager->EnterState(5, 1, 0);
             this->m_owner->m_effectManager->ExitState(3, 1);
             this->m_owner->m_effectManager->ExitState(4, 1);
@@ -2285,7 +2285,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
             continue;
         }
 
-        World::ObjectSetSequence(this->m_worldObject, 155, 0, set);
+        World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM2, 0, set);
         World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler, static_cast<uint64_t>(static_cast<int32_t>(set + offset)) | (static_cast<uint64_t>(reinterpret_cast<uintptr_t>(this)) << 32), set);
         World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         uint16_t target = set + offset;
@@ -2306,7 +2306,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
             World::ObjectMoveDoodads(this->m_worldObject, 100 * (this->m_previousState + 1) + set, this->m_states[this->m_previousState].m_object, set);
             World::ObjectSetSequenceFinishedCallback(this->m_states[this->m_previousState].m_object, nullptr, 0, set);
             World::ObjectSetDoodadsEnabled(this->m_states[this->m_previousState].m_object, 0, set);
-            World::ObjectSetSequence(this->m_states[this->m_previousState].m_object, 0, 0, set);
+            World::ObjectSetSequence(this->m_states[this->m_previousState].m_object, ANIM_GAMEOBJ_STAND, 0, set);
             World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
     }
@@ -2380,7 +2380,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 
         if (set) {
             World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, set);
-            World::ObjectSetSequence(this->m_worldObject, 153, 0, set);
+            World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, set);
             World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::DestructSequenceFinishedHandler, set, set);
             World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
@@ -2415,7 +2415,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 
     if (ambient) {
         World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, ambient);
-        World::ObjectSetSequence(this->m_worldObject, 153, 0, ambient);
+        World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
         World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
         World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
     }
@@ -2433,7 +2433,7 @@ void CGGameObject_C_Type_DestructibleBuilding::OnUpdateFlags(uint32_t changed) {
 
         if (set) {
             World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, set);
-            World::ObjectSetSequence(this->m_worldObject, 153, 0, set);
+            World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, set);
             World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::ImpactEffectSequenceFinishedHandler, set, set);
             World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
@@ -2482,7 +2482,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
 
             if (ambient) {
                 World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, ambient);
-                World::ObjectSetSequence(this->m_worldObject, 153, 0, ambient);
+                World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
                 World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
                 World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
             }
@@ -3030,40 +3030,40 @@ void CGGameObject_C_TypeAnimated::SetSequence(CM2Model* model) {
 
     if (model->IsLoaded(0, 0) && !model->HasSequence(sequence)) {
         switch (sequence) {
-            case 146:
-                if (!model->HasSequence(148)) {
-                    sequence = 147;
+            case ANIM_GAMEOBJ_CLOSE:
+                if (!model->HasSequence(ANIM_GAMEOBJ_OPEN)) {
+                    sequence = ANIM_GAMEOBJ_CLOSED;
                 }
 
                 break;
 
-            case 147:
-                if (!model->HasSequence(146)) {
-                    if (!model->HasSequence(148)) {
-                        sequence = 0;
+            case ANIM_GAMEOBJ_CLOSED:
+                if (!model->HasSequence(ANIM_GAMEOBJ_CLOSE)) {
+                    if (!model->HasSequence(ANIM_GAMEOBJ_OPEN)) {
+                        sequence = ANIM_GAMEOBJ_STAND;
                         goto effects;
                     }
 
-                    sequence = 148;
+                    sequence = ANIM_GAMEOBJ_OPEN;
                     speed = 0.0f;
                 }
 
                 break;
 
-            case 148:
-                if (!model->HasSequence(146)) {
-                    sequence = model->HasSequence(150) ? 150 : 149;
+            case ANIM_GAMEOBJ_OPEN:
+                if (!model->HasSequence(ANIM_GAMEOBJ_CLOSE)) {
+                    sequence = model->HasSequence(ANIM_GAMEOBJ_DESTROY) ? ANIM_GAMEOBJ_DESTROY : ANIM_GAMEOBJ_OPENED;
                 }
 
                 break;
 
-            case 149:
-                if (!model->HasSequence(148)) {
-                    if (model->HasSequence(146)) {
-                        sequence = 146;
+            case ANIM_GAMEOBJ_OPENED:
+                if (!model->HasSequence(ANIM_GAMEOBJ_OPEN)) {
+                    if (model->HasSequence(ANIM_GAMEOBJ_CLOSE)) {
+                        sequence = ANIM_GAMEOBJ_CLOSE;
                         speed = 0.0f;
                     } else {
-                        sequence = 151;
+                        sequence = ANIM_GAMEOBJ_DESTROYED;
                     }
                 }
 

@@ -563,44 +563,44 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
 
         switch (unit->GetClientStandState()) {
             case 1:
-                sequence = 97;
+                sequence = ANIM_SIT_GROUND;
                 break;
 
             case 3:
-                sequence = 100;
+                sequence = ANIM_SLEEP;
                 break;
 
             case 4:
-                sequence = 102;
+                sequence = ANIM_SIT_CHAIR_LOW;
                 break;
 
             case 5:
-                sequence = 103;
+                sequence = ANIM_SIT_CHAIR_MED;
                 break;
 
             case 6:
-                sequence = 104;
+                sequence = ANIM_SIT_CHAIR_HIGH;
                 break;
 
             case 7:
-                sequence = 6;
+                sequence = ANIM_DEAD;
                 break;
 
             case 8:
-                sequence = 115;
+                sequence = ANIM_KNEEL_LOOP;
                 break;
 
             default:
-                sequence = 0;
+                sequence = ANIM_STAND;
                 break;
         }
 
         if (s_cvCameraHeightIgnoreStandState->m_intValue) {
-            sequence = 0;
+            sequence = ANIM_STAND;
         }
 
         if (unit->m_mountModel) {
-            sequence = 91;
+            sequence = ANIM_MOUNT;
             attachment = 0;
         }
 
@@ -608,7 +608,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         M2SequenceInfo sequenceInfo;
         standInfo.Clear();
         sequenceInfo.Clear();
-        worldModel->GetSequenceInfo(0, 0, standInfo);
+        worldModel->GetSequenceInfo(ANIM_STAND, 0, standInfo);
         worldModel->GetSequenceInfo(sequence, 0, sequenceInfo);
         standInfo.m_bounds *= scale;
         sequenceInfo.m_bounds *= scale;
@@ -638,16 +638,16 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         this->m_targetHeightSwim = height + this->m_targetHeightSwim;
 
         if (!worldModel->HasSequence(sequence)) {
-            sequence = 0;
+            sequence = ANIM_STAND;
         }
 
-        if (worldModel->HasSequence(42)) {
+        if (worldModel->HasSequence(ANIM_SWIM)) {
             M2SequenceInfo swimStandInfo;
             M2SequenceInfo swimInfo;
             swimStandInfo.Clear();
             swimInfo.Clear();
-            worldModel->GetSequenceInfo(0, 0, swimStandInfo);
-            worldModel->GetSequenceInfo(42, 0, swimInfo);
+            worldModel->GetSequenceInfo(ANIM_STAND, 0, swimStandInfo);
+            worldModel->GetSequenceInfo(ANIM_SWIM, 0, swimInfo);
             swimStandInfo.m_bounds *= scale;
             swimInfo.m_bounds *= scale;
             this->m_targetHeightSwim -= swimStandInfo.m_bounds.t.z - swimInfo.m_bounds.t.z;
@@ -655,7 +655,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
 
         this->m_targetHeightNear -= standOffset;
 
-        if (sequence == 91) {
+        if (sequence == ANIM_MOUNT) {
             this->m_targetHeightFar -= standOffset;
         }
 
@@ -663,13 +663,13 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
             C3Vector pivot = model->GetAttachmentPivot(attachment);
             float mountHeight = pivot.z * mountScale;
 
-            if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && model->HasSequence(135)) {
+            if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) && model->HasSequence(ANIM_FLY)) {
                 M2SequenceInfo mountStandInfo;
                 M2SequenceInfo mountInfo;
                 mountStandInfo.Clear();
                 mountInfo.Clear();
-                model->GetSequenceInfo(0, 0, mountStandInfo);
-                model->GetSequenceInfo(135, 0, mountInfo);
+                model->GetSequenceInfo(ANIM_STAND, 0, mountStandInfo);
+                model->GetSequenceInfo(ANIM_FLY, 0, mountInfo);
                 mountStandInfo.m_bounds *= mountScale;
                 mountInfo.m_bounds *= mountScale;
                 mountHeight -= mountStandInfo.m_bounds.t.z - mountInfo.m_bounds.t.z;
@@ -1793,7 +1793,7 @@ void CGCamera::OnVehicleCameraDestroyed() {
 void CGCamera::ResetModelCamera() {
     this->m_someTime = OsGetAsyncTimeMs();
     this->GetScene()->SetTime(0);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1);
 }
 
 // VERIFY: 24591d4d auto
@@ -2588,7 +2588,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
                     if (model && model->IsLoaded(0, 0)) {
                         M2SequenceInfo info;
                         info.Clear();
-                        model->GetSequenceInfo(0, 0, info);
+                        model->GetSequenceInfo(ANIM_STAND, 0, info);
                         fadeEnd = vehicleRec->m_cameraFadeDistScalarMin * info.m_radius;
                         fadeStart = info.m_radius * vehicleRec->m_cameraFadeDistScalarMax;
                         distance = C3Vector::Distance(this->m_position, model->GetWorldPosition());
@@ -4191,7 +4191,7 @@ int32_t CGCamera::FinishLoadingModel() {
     this->m_state |= 0x4;
     this->m_someTime = OsGetAsyncTimeMs();
     this->GetScene()->SetTime(0);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1);
     this->m_model->SetAnimating(1);
     C3Vector cameraPos;
     this->GetScene()->Animate(cameraPos);

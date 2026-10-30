@@ -8161,16 +8161,16 @@ void CGPlayer_C::MeleeModeLeave() {
 // OFFSET: 0x006CEB10
 static int32_t IsCastAnimation(uint32_t anim) {
     switch (anim) {
-        case 46:
-        case 49:
-        case 105:
-        case 106:
-        case 107:
-        case 108:
-        case 109:
-        case 110:
-        case 111:
-        case 112:
+        case ANIM_ATTACK_BOW:
+        case ANIM_ATTACK_RIFLE:
+        case ANIM_LOAD_BOW:
+        case ANIM_LOAD_RIFLE:
+        case ANIM_ATTACK_THROWN:
+        case ANIM_READY_THROWN:
+        case ANIM_HOLD_BOW:
+        case ANIM_HOLD_RIFLE:
+        case ANIM_HOLD_THROWN:
+        case ANIM_LOAD_THROWN:
             return 1;
 
         default:
@@ -8214,8 +8214,8 @@ void CGPlayer_C::ToggleSheathe() {
             return;
         }
 
-        int32_t hasSheathe = model->HasSequence(90);
-        int32_t hasUnsheathe = model->HasSequence(89);
+        int32_t hasSheathe = model->HasSequence(ANIM_HIP_SHEATH);
+        int32_t hasUnsheathe = model->HasSequence(ANIM_SHEATH);
 
         if (!hasSheathe || !hasUnsheathe || !model->HasBone(3) || !model->HasBone(2)) {
             return;

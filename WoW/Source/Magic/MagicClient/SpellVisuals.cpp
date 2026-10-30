@@ -826,7 +826,7 @@ void BlizzardObject::Render(int32_t visible) {
 
         if (!shard->m_started) {
             shard->m_started = 1;
-            shard->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            shard->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         }
 
         shard->m_model->SetAnimating(1);

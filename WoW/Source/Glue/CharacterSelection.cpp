@@ -462,7 +462,7 @@ void CCharacterSelection::ShowCharacter() {
         characterModel->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
         characterModel->m_lightingArg = CCharacterSelection::m_modelFrame->m_lightArray2;
 
-        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
 
         for (uint32_t slot = 0; slot < 23; slot++) {
             int32_t displayID = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemDisplayID[slot];
@@ -579,7 +579,7 @@ void CCharacterSelection::ShowCharacter() {
             petModel->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
             petModel->m_lightingArg = CCharacterSelection::m_modelFrame->m_lightArray3;
 
-            CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
             CCharacterComponent::ReplaceMonsterSkin(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel, displayRec, modelRec);
             C44Matrix matrix(scale);
             CM2Model* scaledModel = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel;

@@ -1,4 +1,5 @@
 #include "MapDoodadDef.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include "WoW/Source/WorldClient/WorldLightingConstants.h"
 #include "Engine/Source/Model2/M2Data.h"
 #include "Engine/Source/Model2/M2Light.h"
@@ -244,7 +245,7 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
     doodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(doodadDef));
     doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
     doodadDef->m_model->m_lightingArg = doodadDef;
-    doodadDef->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    doodadDef->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
 
     if (waitForLoad) {
         doodadDef->m_model->IsLoaded(1, 0);

@@ -608,7 +608,7 @@ void CVehicle_C::StartMirroringAnimsToPassengers() {
 int32_t CVehicle_C::PlayBoneAnim(uint32_t boneId, uint32_t animId) {
     CM2Model* model = this->m_unit->GetObjectModel();
 
-    if (!model || animId > 505) {
+    if (!model || animId > (ANIM_COUNT - 1)) {
         return 0;
     }
 
@@ -626,7 +626,7 @@ int32_t CVehicle_C::CanPlayBoneAnim(uint32_t animId) const {
         return 0;
     }
 
-    return animId <= 0x1F9;
+    return animId <= (ANIM_COUNT - 1);
 }
 
 // VERIFY: 86ddcfee manual
@@ -692,7 +692,7 @@ void CVehicle_C::PlayBoneAnimOrFallback(CM2Model* model, uint32_t boneId) {
     uint32_t bone = boneId == 26 ? 0xFFFFFFFF : boneId;
 
     if (!this->m_unit->UnsetKeyBoneSequence(model, bone, 1, 1, 0)) {
-        this->BoneAnimEndHandler(model, bone, 0xFFFFFFFF, 1, 0);
+        this->BoneAnimEndHandler(model, bone, INVALID_ANIMATION, 1, 0);
         this->m_unit->UpdateBaseAnimation(0, -1);
     }
 }
@@ -728,7 +728,7 @@ void CVehicle_C::RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid) {
     }
 
     if (!this->m_unit->UnsetKeyBoneSequence(model, boneId, 1, 1, 0)) {
-        this->BoneAnimEndHandler(model, boneId, 0xFFFFFFFF, 1, 0);
+        this->BoneAnimEndHandler(model, boneId, INVALID_ANIMATION, 1, 0);
         this->m_unit->UpdateBaseAnimation(0, -1);
     }
 }

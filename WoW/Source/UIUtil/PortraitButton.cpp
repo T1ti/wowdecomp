@@ -592,7 +592,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         C3Vector target(0.0f, 0.0f, 0.0f);
         M2SequenceInfo info;
         info.Clear();
-        model->GetSequenceInfo(0, 0, info);
+        model->GetSequenceInfo(ANIM_STAND, 0, info);
         C3Vector position;
         position.x = info.m_radius * 1.7f + info.m_center.x;
         target = info.m_center;
@@ -605,7 +605,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
     }
 
     CCharacterComponent::RemoveVisuals(model);
-    model->SetBoneSequence(0xFFFFFFFF, 0, 0, 0, 0.0f, 0, 1);
+    model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0, 0, 0.0f, 0, 1);
 
     float viewportMinX;
     float viewportMaxX;

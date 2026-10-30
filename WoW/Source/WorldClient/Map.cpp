@@ -1,4 +1,5 @@
 #include "Map.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include "WoW/Source/WorldClient/WorldLightingConstants.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/ShaderEffect/ShadowCache.h"
@@ -2642,7 +2643,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
         mapDoodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(mapDoodadDef));
         mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
         mapDoodadDef->m_model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        mapDoodadDef->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 
     return mapDoodadDef;
@@ -2725,7 +2726,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
         mapDoodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(mapDoodadDef));
         mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
         mapDoodadDef->m_model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        mapDoodadDef->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 
     return mapDoodadDef;

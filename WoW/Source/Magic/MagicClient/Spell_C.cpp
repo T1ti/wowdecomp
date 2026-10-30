@@ -1262,7 +1262,7 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
             uint32_t sequenceId = unit->m_worldModel->GetBoneSequenceId(unit->m_torsoKeyBone);
             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_precastKit);
 
-            if (kit && kit->m_animID > 0 && sequenceId != 0xFFFFFFFF && static_cast<uint32_t>(kit->m_animID) == sequenceId) {
+            if (kit && kit->m_animID > 0 && sequenceId != INVALID_ANIMATION && static_cast<uint32_t>(kit->m_animID) == sequenceId) {
                 unit->OnKeyBoneAnimEnd(unit->m_worldModel, unit->m_torsoKeyBone, kit->m_animID);
             }
         }

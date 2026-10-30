@@ -131,10 +131,10 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
 
     if (World::QueryObjectLiquid(entity, &liquidType, &height, &liquidFlags) && height - position.z > 0.6666667f) {
         this->m_corpseFlags |= 0x2;
-        model->SetBoneSequence(0xFFFFFFFF, 132, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_DROWNED, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
         this->m_corpseFlags &= ~0x2;
-        model->SetBoneSequence(0xFFFFFFFF, 6, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_DEAD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 
     if (this->m_component) {
@@ -386,9 +386,9 @@ void CGCorpse_C::ModelLoaded(CM2Model* model) {
     this->CGObject_C::ModelLoaded(model);
 
     if (this->m_corpseFlags & 0x2) {
-        model->SetBoneSequence(0xFFFFFFFF, 132, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_DROWNED, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
-        model->SetBoneSequence(0xFFFFFFFF, 6, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_DEAD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 
     this->m_selectionRadius = model->GetBoundingSphere().r * 0.5f;

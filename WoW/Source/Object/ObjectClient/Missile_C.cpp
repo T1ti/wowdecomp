@@ -555,7 +555,7 @@ int32_t CMissile::AttachToVictim(CGUnit_C* victim, uint32_t duration) {
     this->m_mapEntity = nullptr;
     this->Link(link);
     this->m_destroyTime = destroyTime;
-    this->m_model->SetBoneSequence(0xFFFFFFFF, 191, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_IMPACT, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     this->m_model->AttachToParent(victim->m_worldModel, this->m_attachmentID, nullptr, 0);
     C44Matrix attach = victim->m_worldModel->GetAttachmentWorldTransform(this->m_attachmentID);
     C44Matrix world = this->m_model->m_worldTransform;
@@ -876,7 +876,7 @@ void CMissile::BeginWaitingForModelFX(int32_t disableEffects) {
 
     if (this->m_model && this->m_model->IsLoaded(0, 0) && (this->m_model->m_fFlags & 0x8000)) {
         if (!this->m_fizzleTime) {
-            this->m_model->SetBoneSequence(0xFFFFFFFF, 191, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_IMPACT, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         }
 
         if (target) {
@@ -1661,7 +1661,7 @@ void CMissile::CalcPosition(int32_t advance) {
         this->m_victimAnimTime = 0;
 
         if (targetIsUnit) {
-            uint32_t animId = (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) ? 24 : 30;
+            uint32_t animId = (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) ? ANIM_SHIELD_BLOCK : ANIM_DODGE;
             M2SequenceInfo info;
             info.Clear();
             target->m_worldModel->GetSequenceInfo(animId, 0, info);
@@ -1876,10 +1876,10 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
         if (!(this->m_flags & (MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY | MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK | MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT))) {
             M2SequenceInfo info;
             info.Clear();
-            target->m_worldModel->GetSequenceInfo(30, 0, info);
+            target->m_worldModel->GetSequenceInfo(ANIM_DODGE, 0, info);
 
             if (info.m_animId) {
-                target->PlayBaseAnimation(30, 0);
+                target->PlayBaseAnimation(ANIM_DODGE, 0);
             }
         }
 
@@ -1936,7 +1936,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
                 this->m_transportGuid = WOWGUID();
 
                 if (this->m_model) {
-                    this->m_model->SetBoneSequence(0xFFFFFFFF, 198, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_DEFLECT, 0xFFFFFFFF, 0, 1.0f, 1, 1);
                 }
 
                 this->m_flags = (this->m_flags & ~(MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY | MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT)) | MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY;
@@ -2085,7 +2085,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
             this->m_duration = static_cast<uint32_t>(static_cast<int64_t>(distance / this->m_speed * 1000.0f));
 
             if (target && (this->m_flags & (MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK | MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT))) {
-                uint32_t animId = (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) ? 24 : 30;
+                uint32_t animId = (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) ? ANIM_SHIELD_BLOCK : ANIM_DODGE;
                 M2SequenceInfo info;
                 info.Clear();
                 target->m_worldModel->GetSequenceInfo(animId, 0, info);
@@ -2103,18 +2103,18 @@ void CMissile::FireMissiles(const C3Vector* position) {
 
         if (!this->m_currentTarget) {
             if (this->m_initialDistance <= 0.0f) {
-                this->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
             } else {
                 float speedScale;
                 M2SequenceInfo info;
 
-                if (this->m_model->IsLoaded(0, 0) && this->m_model->HasSequence(144) && (info.Clear(), this->m_model->GetSequenceInfo(144, 0, info), info.m_flags & 1)) {
+                if (this->m_model->IsLoaded(0, 0) && this->m_model->HasSequence(ANIM_ITEM_INFLIGHT) && (info.Clear(), this->m_model->GetSequenceInfo(ANIM_ITEM_INFLIGHT, 0, info), info.m_flags & 1)) {
                     speedScale = info.m_duration * this->m_speed * 0.001f / distance;
                 } else {
                     speedScale = 1.0f;
                 }
 
-                this->m_model->SetBoneSequence(0xFFFFFFFF, 144, 0, 0, speedScale, 1, 1);
+                this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_INFLIGHT, 0, 0, speedScale, 1, 1);
             }
         }
     }

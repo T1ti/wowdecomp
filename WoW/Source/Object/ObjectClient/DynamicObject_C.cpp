@@ -39,9 +39,9 @@ static void AnimFinishedCallback(CM2Model* model, uint32_t boneId, uint32_t sequ
     }
 
     if (object->m_stateFlags & 0x1) {
-        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, 158, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_HOLD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
-        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -228,10 +228,10 @@ void CGDynamicObject_C::HandleOutOfRange(OUT_OF_RANGE_TYPE type) {
 
     CM2Model* model = this->GetObjectModel();
 
-    if (model && model->IsLoaded(0, 0) && model->HasSequence(159)) {
+    if (model && model->IsLoaded(0, 0) && model->HasSequence(ANIM_EFFECT_DECAY)) {
         ClntObjMgrLockObject(this->m_obj->m_guid);
         model->SetSequenceCallback(reinterpret_cast<void*>(&DynamicObjectDecayHandler), reinterpret_cast<uintptr_t>(this));
-        model->SetBoneSequence(0xFFFFFFFF, 159, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -291,7 +291,7 @@ void CGDynamicObject_C::HandleAnimEvent(uint32_t eventId, uint32_t data, const C
 // OFFSET: 0x00704D90
 void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
     CGObject_C::ModelLoaded(model);
-    this->m_stateFlags ^= (this->GetObjectModel()->HasSequence(158) ^ this->m_stateFlags) & 0x1;
+    this->m_stateFlags ^= (this->GetObjectModel()->HasSequence(ANIM_EFFECT_HOLD) ^ this->m_stateFlags) & 0x1;
     SpellRec spell;
     g_spellDB.GetRecord(this->m_dynamicObject->m_spellID, &spell);
     SpellVisualEffectNameRec* effect = this->GetVisualEffectNameRec(&spell);
@@ -322,8 +322,8 @@ void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
         this->DoFade(1.0f, 0);
     }
 
-    if (this->GetObjectModel()->HasSequence(127)) {
-        this->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, 127, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (this->GetObjectModel()->HasSequence(ANIM_BIRTH)) {
+        this->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -414,7 +414,7 @@ void CGDynamicObject_C::UpdateDisplay(uint32_t time) {
     if (model) {
         model->SetEmittersEnabled(1);
         model->SetRibbonsEnabled(1);
-        model->SetBoneSequence(0xFFFFFFFF, 127, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         this->ObjectVisKitProc();
     }
 }

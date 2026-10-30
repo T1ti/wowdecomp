@@ -1093,7 +1093,7 @@ int32_t CM2Model::HasSequence(uint32_t id) {
 // OFFSET: 0x00825F40
 uint32_t CM2Model::ResolveSequenceFallback(uint32_t id) {
     if (id >= ANIM_COUNT) {
-        return 0xFFFFFFFF;
+        return INVALID_ANIMATION;
     }
 
     if (!(this->m_fFlags & 1)) {
@@ -1130,13 +1130,13 @@ uint32_t CM2Model::ResolveSequenceFallback(uint32_t id) {
         }
     }
 
-    return 0xFFFFFFFF;
+    return INVALID_ANIMATION;
 }
 
 // VERIFY: af94bf41 manual
 // OFFSET: 0x00826050
 int32_t CM2Model::IsSequenceLoaded(uint32_t id) {
-    if (id >= 506) {
+    if (id >= ANIM_COUNT) {
         return 0;
     }
 
@@ -1480,13 +1480,13 @@ uint32_t CM2Model::GetBoneSequenceAnimId(uint32_t boneId, uint32_t* variation) {
     }
 
     if (index >= data->m_bones.m_count) {
-        return 0xFFFFFFFF;
+        return INVALID_ANIMATION;
     }
 
     uint16_t sequenceIndex = this->m_bones[index].m_sequence.m_sequenceIndex;
 
     if (sequenceIndex >= data->m_sequences.m_count) {
-        return 0xFFFFFFFF;
+        return INVALID_ANIMATION;
     }
 
     if (variation) {
@@ -3711,7 +3711,7 @@ M2ModelBone::M2ModelBone() {
     this->m_proceduralTransform = nullptr;
     this->m_flags = 0;
     this->m_blendWeightMax = 1.0f;
-    this->m_sequenceId = 0xFFFFFFFF;
+    this->m_sequenceId = INVALID_ANIMATION;
     this->m_variationIndex = 0;
     this->m_blendEndTime = 0;
     this->m_animListPrev = nullptr;
@@ -4606,7 +4606,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
         M2BoneSequenceInfo state;
         this->GetBoneSequenceInfo(0xFFFFFFFF, state);
 
-        if (state.m_sequenceId != 0xFFFFFFFF) {
+        if (state.m_sequenceId != INVALID_ANIMATION) {
             M2SequenceInfo info;
             info.m_bounds.b = C3Vector(0.0f, 0.0f, 0.0f);
             info.m_bounds.t = C3Vector(0.0f, 0.0f, 0.0f);
@@ -6765,7 +6765,7 @@ void CM2Model::UnsetBoneSequence(uint32_t boneId, int32_t blend, int32_t primary
         bone->m_sequence.m_speed = 0.0f;
         bone->m_sequence.m_sequenceIndex = 0xFFFF;
         bone->m_sequence.m_invSpeed = 0.0f;
-        bone->m_sequenceId = 0xFFFFFFFF;
+        bone->m_sequenceId = INVALID_ANIMATION;
         bone->m_variationIndex = 0;
         bone->m_sequence.m_startTime = 0;
         bone->m_sequence.m_endTime = 0;
@@ -6783,7 +6783,7 @@ void CM2Model::UnsetBoneSequence(uint32_t boneId, int32_t blend, int32_t primary
 // VERIFY: 6d0c8da6 manual
 // OFFSET: 0x00832AB0
 void CM2Model::SetBoneSequence(uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary) {
-    if (sequenceId == 0xFFFFFFFF) {
+    if (sequenceId == INVALID_ANIMATION) {
         this->UnsetBoneSequence(boneId, blend, primary);
         return;
     }
@@ -7550,13 +7550,13 @@ int32_t CM2Model::InitializeLoaded() {
     this->m_fFlags = (this->m_fFlags & 0xFFFFF7FC) | 0x801;
 
     M2SequenceFallback fallback;
-    uint16_t standId = this->SequenceFallbackById(&fallback, 0)->m_id;
+    uint16_t standId = this->SequenceFallbackById(&fallback, ANIM_STAND)->m_id;
 
     if (!(this->m_fFlags & 1)) {
         this->WaitForLoad(nullptr);
     }
 
-    uint32_t sequenceId = this->HasSequence(this->m_shared->m_data, standId) ? 0 : data->m_sequences[0].m_id;
+    uint32_t sequenceId = this->HasSequence(this->m_shared->m_data, standId) ? ANIM_STAND : data->m_sequences[0].m_id;
     this->SetBoneSequence(0xFFFFFFFF, sequenceId, 0xFFFFFFFF, 0, 1.0f, 0, 1);
 
     if (this->m_sequenceCallback || data->m_sequences.m_count > 1 || (this->m_eventCallback && data->m_events.m_count)) {
@@ -7668,7 +7668,7 @@ void CM2Model::AttachToScene(CM2Scene* scene) {
         }
 
         M2SequenceFallback fallback;
-        uint32_t sequenceId = this->HasSequence(data, this->SequenceFallbackById(&fallback, 0)->m_id) ? 0 : data->m_sequences[0].m_id;
+        uint32_t sequenceId = this->HasSequence(data, this->SequenceFallbackById(&fallback, ANIM_STAND)->m_id) ? ANIM_STAND : data->m_sequences[0].m_id;
         this->SetBoneSequence(0xFFFFFFFF, sequenceId, 0xFFFFFFFF, 0, 1.0f, 0, 1);
     } else {
         for (CM2ModelCall* call = this->m_modelCallList; call; call = call->m_next) {

@@ -4417,7 +4417,7 @@ void CWorldScene::RenderEntitys() {
                 if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) {
                     M2SequenceInfo info;
                     info.Clear();
-                    model->GetSequenceInfo(0, 0, info);
+                    model->GetSequenceInfo(ANIM_STAND, 0, info);
                     CWorldScene::RequestModelStreaming(model, &info.m_bounds);
                 }
             } else {

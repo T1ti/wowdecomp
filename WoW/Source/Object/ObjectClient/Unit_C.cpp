@@ -842,7 +842,7 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
             this->ReleaseMissiles(position);
         }
 
-        if (this->m_specialIdleAnim == -1 || !IsSpecialIdleAnim(this->m_specialIdleAnim)) {
+        if (this->m_specialIdleAnim == INVALID_ANIMATION || !IsSpecialIdleAnim(this->m_specialIdleAnim)) {
             C3Vector position(0.0f, 0.0f, 0.0f);
             position = this->GetMissileFirePosition();
             this->ReleaseMissiles(position);
@@ -1157,7 +1157,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     }
 
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_DISPLAY_CHANGE;
-    this->m_specialIdleAnim = -1;
+    this->m_specialIdleAnim = INVALID_ANIMATION;
 
     if (this->m_modelData->m_flags & 0x40) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
@@ -1170,7 +1170,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     } else {
         uint32_t currentAnim = this->GetCurrentTorsoAnimId();
 
-        if (!currentAnim && torsoAnim != ANIM_COUNT && torsoAnim != 0xFFFFFFFF && this->m_movementData.IsFalling()) {
+        if (!currentAnim && torsoAnim != ANIM_COUNT && torsoAnim != INVALID_ANIMATION && this->m_movementData.IsFalling()) {
             this->PlayBaseAnimation(torsoAnim, 0);
         } else {
             bool dying = false;
@@ -1350,7 +1350,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
 
         AnimationDataRec* animRec = g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId());
 
-        if (animRec && animRec->m_behaviorID == 127) {
+        if (animRec && animRec->m_behaviorID == ANIM_BIRTH) {
             this->m_fadeDuration = 0;
             this->m_alpha = this->m_fadeEndAlpha;
         }
@@ -1637,40 +1637,40 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 // OFFSET: 0x0071D940
 int32_t IsEmoteAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 60:
-        case 61:
-        case 62:
-        case 63:
-        case 64:
-        case 65:
-        case 66:
-        case 67:
-        case 68:
-        case 69:
-        case 70:
-        case 71:
-        case 72:
-        case 73:
-        case 74:
-        case 76:
-        case 77:
-        case 78:
-        case 80:
-        case 81:
-        case 82:
-        case 83:
-        case 84:
-        case 113:
-        case 136:
-        case 137:
-        case 138:
-        case 178:
-        case 185:
-        case 186:
-        case 195:
+        case ANIM_EMOTE_TALK:
+        case ANIM_EMOTE_EAT:
+        case ANIM_EMOTE_WORK:
+        case ANIM_EMOTE_USE_STANDING:
+        case ANIM_EMOTE_TALK_EXCLAMATION:
+        case ANIM_EMOTE_TALK_QUESTION:
+        case ANIM_EMOTE_BOW:
+        case ANIM_EMOTE_WAVE:
+        case ANIM_EMOTE_CHEER:
+        case ANIM_EMOTE_DANCE:
+        case ANIM_EMOTE_LAUGH:
+        case ANIM_EMOTE_SLEEP:
+        case ANIM_EMOTE_SIT_GROUND:
+        case ANIM_EMOTE_RUDE:
+        case ANIM_EMOTE_ROAR:
+        case ANIM_EMOTE_KISS:
+        case ANIM_EMOTE_CRY:
+        case ANIM_EMOTE_CHICKEN:
+        case ANIM_EMOTE_APPLAUD:
+        case ANIM_EMOTE_SHOUT:
+        case ANIM_EMOTE_FLEX:
+        case ANIM_EMOTE_SHY:
+        case ANIM_EMOTE_POINT:
+        case ANIM_EMOTE_SALUTE:
+        case ANIM_EMOTE_WORK_NO_SHEATHE:
+        case ANIM_EMOTE_STUN_NO_SHEATHE:
+        case ANIM_EMOTE_USE_STANDING_NO_SHEATHE:
+        case ANIM_DRUID_BEAR_MAUL:
+        case ANIM_EMOTE_YES:
+        case ANIM_EMOTE_NO:
+        case ANIM_EMOTE_TRAIN:
             return 1;
         default:
             return 0;
@@ -1681,14 +1681,14 @@ int32_t IsEmoteAnim(uint32_t animId) {
 // OFFSET: 0x0071D380
 int32_t IsSpellCastAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 2:
-        case 32:
-        case 33:
-        case 53:
-        case 54:
+        case ANIM_SPELL:
+        case ANIM_SPELL_CAST:
+        case ANIM_SPELL_CAST_AREA:
+        case ANIM_SPELL_CAST_DIRECTED:
+        case ANIM_SPELL_CAST_OMNI:
             return 1;
         default:
             return 0;
@@ -1703,7 +1703,7 @@ int32_t IsThrownWeaponAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior == 107 || (behavior > 110 && behavior <= 112)) {
+        if (behavior == ANIM_ATTACK_THROWN || (behavior > ANIM_HOLD_RIFLE && behavior <= ANIM_LOAD_THROWN)) {
             return 1;
         }
     }
@@ -1719,7 +1719,7 @@ int32_t IsBowAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior == 46 || behavior == 105 || behavior == 109) {
+        if (behavior == ANIM_ATTACK_BOW || behavior == ANIM_LOAD_BOW || behavior == ANIM_HOLD_BOW) {
             return 1;
         }
     }
@@ -1735,7 +1735,7 @@ int32_t IsRifleAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior == 49 || behavior == 106 || behavior == 110) {
+        if (behavior == ANIM_ATTACK_RIFLE || behavior == ANIM_LOAD_RIFLE || behavior == ANIM_HOLD_RIFLE) {
             return 1;
         }
     }
@@ -2374,42 +2374,42 @@ void CGUnit_C::SendSplineDone(uint32_t time, uint32_t splineId) {
 // OFFSET: 0x0071D590
 int32_t IsMeleeAttackAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 10:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 30:
-        case 36:
-        case 57:
-        case 58:
-        case 59:
-        case 85:
-        case 86:
-        case 87:
-        case 88:
-        case 95:
-        case 117:
-        case 118:
-        case 170:
-        case 171:
-        case 172:
-        case 173:
-        case 174:
-        case 175:
-        case 176:
-        case 177:
-        case 178:
-        case 179:
-        case 212:
+        case ANIM_COMBAT_CRITICAL:
+        case ANIM_ATTACK_UNARMED:
+        case ANIM_ATTACK_1H:
+        case ANIM_ATTACK_2H:
+        case ANIM_ATTACK_2HL:
+        case ANIM_PARRY_UNARMED:
+        case ANIM_PARRY_1H:
+        case ANIM_PARRY_2H:
+        case ANIM_PARRY_2HL:
+        case ANIM_SHIELD_BLOCK:
+        case ANIM_DODGE:
+        case ANIM_BLOCK:
+        case ANIM_SPECIAL_1H:
+        case ANIM_SPECIAL_2H:
+        case ANIM_SHIELD_BASH:
+        case ANIM_ATTACK_1H_PIERCE:
+        case ANIM_ATTACK_2H_LOOSE_PIERCE:
+        case ANIM_ATTACK_OFF:
+        case ANIM_ATTACK_OFF_PIERCE:
+        case ANIM_KICK:
+        case ANIM_ATTACK_UNARMED_OFF:
+        case ANIM_SPECIAL_UNARMED:
+        case ANIM_DRUID_CAT_POUNCE:
+        case ANIM_DRUID_CAT_RIP:
+        case ANIM_DRUID_CAT_RAKE:
+        case ANIM_DRUID_CAT_RAVAGE:
+        case ANIM_DRUID_CAT_CLAW:
+        case ANIM_DRUID_CAT_COWER:
+        case ANIM_DRUID_BEAR_SWIPE:
+        case ANIM_DRUID_BEAR_BITE:
+        case ANIM_DRUID_BEAR_MAUL:
+        case ANIM_DRUID_BEAR_BASH:
+        case ANIM_MUTILATE:
             return 1;
         default:
             return 0;
@@ -2511,7 +2511,7 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
     uint32_t moveFlags = this->m_movementData.m_flags;
 
     if ((!(moveFlags & MOVEMENTFLAG_FALLING) || !(moveFlags & MOVEMENTFLAG_FALLING_FAR)) && !IsDyingAnim(torsoAnim) && (mask & 0x1)) {
-        *anim = (moveFlags & MOVEMENTFLAG_SWIMMING) ? 132 : 6;
+        *anim = (moveFlags & MOVEMENTFLAG_SWIMMING) ? ANIM_DROWNED : ANIM_DEAD;
     }
 
     return 1;
@@ -2520,7 +2520,7 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
 // VERIFY: 4075ac71 manual
 // OFFSET: 0x007224D0
 int32_t CGUnit_C::GetSpellVisualKitAnim(uint32_t* anim, uint32_t* kitFlags) {
-    if (this->m_specialIdleAnim != -1) {
+    if (this->m_specialIdleAnim != INVALID_ANIMATION) {
         return 0;
     }
 
@@ -2623,9 +2623,9 @@ int32_t CGUnit_C::ChooseCombatAnim(uint32_t mask, uint32_t* anim, uint32_t* anim
 
     int32_t meleeAnim = this->m_meleeAttackAnimId;
 
-    if (meleeAnim == -1) {
+    if (meleeAnim == INVALID_ANIMATION) {
         if (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
-            *anim = 41;
+            *anim = ANIM_SWIM_IDLE;
             return 1;
         }
 
@@ -2668,13 +2668,13 @@ int32_t CGUnit_C::ChooseStandStateAnim(uint32_t mask, uint32_t* anim) {
         case UNIT_STANDING:
             switch (this->m_animStandState) {
                 case UNIT_SITTING:
-                    standAnim = 98;
+                    standAnim = ANIM_SIT_GROUND_UP;
                     break;
                 case UNIT_SLEEPING:
-                    standAnim = 101;
+                    standAnim = ANIM_SLEEP_UP;
                     break;
                 case UNIT_KNEEL:
-                    standAnim = 116;
+                    standAnim = ANIM_KNEEL_END;
                     break;
                 default:
                     return (mask & ~0x1FF) == 0;
@@ -2682,10 +2682,10 @@ int32_t CGUnit_C::ChooseStandStateAnim(uint32_t mask, uint32_t* anim) {
 
             break;
         case UNIT_SITTING:
-            standAnim = (!this->m_animStandState || this->GetCurrentTorsoAnimId() == 96) ? 96 : 97;
+            standAnim = (!this->m_animStandState || this->GetCurrentTorsoAnimId() == ANIM_SIT_GROUND_DOWN) ? ANIM_SIT_GROUND_DOWN : ANIM_SIT_GROUND;
             break;
         case UNIT_SLEEPING:
-            standAnim = (this->m_animStandState != UNIT_STANDING) + 99;
+            standAnim = (this->m_animStandState != UNIT_STANDING) + ANIM_SLEEP_DOWN;
 
             if (standAnim == ANIM_COUNT) {
                 return 1;
@@ -2693,13 +2693,13 @@ int32_t CGUnit_C::ChooseStandStateAnim(uint32_t mask, uint32_t* anim) {
 
             break;
         case UNIT_SITTINGCHAIRLOW:
-            standAnim = 102;
+            standAnim = ANIM_SIT_CHAIR_LOW;
             break;
         case UNIT_SITTINGCHAIRMEDIUM:
-            standAnim = 103;
+            standAnim = ANIM_SIT_CHAIR_MED;
             break;
         case UNIT_SITTINGCHAIRHIGH:
-            standAnim = 104;
+            standAnim = ANIM_SIT_CHAIR_HIGH;
             break;
         case UNIT_DEAD:
             if (this->m_animStandState == UNIT_DEAD) {
@@ -2707,14 +2707,14 @@ int32_t CGUnit_C::ChooseStandStateAnim(uint32_t mask, uint32_t* anim) {
             }
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING) {
-                standAnim = 132;
+                standAnim = ANIM_DROWNED;
             } else {
-                standAnim = this->HasAnim466() ? ANIM_DEATH_END_HOLD : 6;
+                standAnim = this->HasAnim466() ? ANIM_DEATH_END_HOLD : ANIM_DEAD;
             }
 
             break;
         case UNIT_KNEEL:
-            standAnim = (this->m_animStandState != UNIT_STANDING) + 114;
+            standAnim = (this->m_animStandState != UNIT_STANDING) + ANIM_KNEEL_START;
 
             if (standAnim == ANIM_COUNT) {
                 return 1;
@@ -2750,7 +2750,7 @@ uint32_t CGUnit_C::ChooseAnimation(uint32_t mask, uint32_t* animFlags, int32_t* 
         return anim;
     }
 
-    if (this->m_pendingAnimId != -1) {
+    if (this->m_pendingAnimId != INVALID_ANIMATION) {
         return this->m_pendingAnimId;
     }
 
@@ -2758,7 +2758,7 @@ uint32_t CGUnit_C::ChooseAnimation(uint32_t mask, uint32_t* animFlags, int32_t* 
         *usedDefault = 1;
     }
 
-    if (this->m_awaitingEndAnimId == -1) {
+    if (this->m_awaitingEndAnimId == INVALID_ANIMATION) {
         this->ChooseDefaultAnim(anim, 0);
     }
 
@@ -2787,7 +2787,7 @@ void CGUnit_C::UpdateBaseAnimation(uint32_t animFlags, int32_t mask) {
     }
 
     if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_BASE) {
-        if (this->GetCurrentTorsoAnimId() == 135 && this->m_obj->m_guid == CGWorldFrame::GetActiveCamera()->m_targetGUID) {
+        if (this->GetCurrentTorsoAnimId() == ANIM_FLY && this->m_obj->m_guid == CGWorldFrame::GetActiveCamera()->m_targetGUID) {
             CGGameUI::ResetCamera(this->m_obj->m_guid);
         }
 
@@ -3240,9 +3240,9 @@ void CGUnit_C::ObjectNameVisibilityChanged() {
     }
 
     if (PlayerNameShowing(this->m_nameDesc) || this->m_namePlateFrame) {
-        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, 190, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, ANIM_STAND_HIGH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
-        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -3588,40 +3588,40 @@ int32_t IsFullBodyAnim(uint32_t animId) {
     }
 
     switch (rec->m_behaviorID) {
-        case 0:
-        case 1:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 37:
-        case 38:
-        case 39:
-        case 40:
-        case 41:
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-        case 92:
-        case 93:
-        case 94:
-        case 95:
-        case 119:
-        case 120:
-        case 127:
-        case 131:
-        case 132:
-        case 135:
-        case 143:
-        case 187:
-        case 193:
+        case ANIM_STAND:
+        case ANIM_DEATH:
+        case ANIM_STOP:
+        case ANIM_WALK:
+        case ANIM_RUN:
+        case ANIM_DEAD:
+        case ANIM_STAND_WOUND:
+        case ANIM_COMBAT_WOUND:
+        case ANIM_COMBAT_CRITICAL:
+        case ANIM_SHUFFLE_LEFT:
+        case ANIM_SHUFFLE_RIGHT:
+        case ANIM_WALKBACKWARDS:
+        case ANIM_JUMP_START:
+        case ANIM_JUMP:
+        case ANIM_JUMP_END:
+        case ANIM_FALL:
+        case ANIM_SWIM_IDLE:
+        case ANIM_SWIM:
+        case ANIM_SWIM_LEFT:
+        case ANIM_SWIM_RIGHT:
+        case ANIM_SWIM_BACKWARDS:
+        case ANIM_RUN_RIGHT:
+        case ANIM_RUN_LEFT:
+        case ANIM_MOUNT_SPECIAL:
+        case ANIM_KICK:
+        case ANIM_STEALTH_WALK:
+        case ANIM_STEALTH_STAND:
+        case ANIM_BIRTH:
+        case ANIM_DROWN:
+        case ANIM_DROWNED:
+        case ANIM_FLY:
+        case ANIM_SPRINT:
+        case ANIM_JUMP_LAND_RUN:
+        case ANIM_HOVER:
             return 1;
         default:
             return 0;
@@ -3632,23 +3632,23 @@ int32_t IsFullBodyAnim(uint32_t animId) {
 // OFFSET: 0x00714E80
 int32_t IsLocomotionAnimId(uint32_t animId) {
     switch (animId) {
-        case 4:
-        case 5:
-        case 11:
-        case 12:
-        case 13:
-        case 37:
-        case 38:
-        case 39:
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-        case 119:
-        case 135:
-        case 143:
-        case 187:
-        case 223:
+        case ANIM_WALK:
+        case ANIM_RUN:
+        case ANIM_SHUFFLE_LEFT:
+        case ANIM_SHUFFLE_RIGHT:
+        case ANIM_WALKBACKWARDS:
+        case ANIM_JUMP_START:
+        case ANIM_JUMP:
+        case ANIM_JUMP_END:
+        case ANIM_SWIM:
+        case ANIM_SWIM_LEFT:
+        case ANIM_SWIM_RIGHT:
+        case ANIM_SWIM_BACKWARDS:
+        case ANIM_STEALTH_WALK:
+        case ANIM_FLY:
+        case ANIM_SPRINT:
+        case ANIM_JUMP_LAND_RUN:
+        case ANIM_STEALTH_RUN:
             return 1;
         default:
             return 0;
@@ -3670,7 +3670,7 @@ int32_t IsMeleeOrReadyAnim(uint32_t animId) {
 
     int32_t behavior = rec->m_behaviorID;
 
-    if (behavior < 25 || behavior > 29) {
+    if (behavior < ANIM_READY_UNARMED || behavior > ANIM_READY_BOW) {
         return 0;
     }
 
@@ -3692,7 +3692,7 @@ int32_t IsSpellCastOrPrecastAnim(uint32_t animId) {
 
     int32_t behavior = rec->m_behaviorID;
 
-    if (behavior < 51 || behavior > 52) {
+    if (behavior < ANIM_READY_SPELL_DIRECTED || behavior > ANIM_READY_SPELL_OMNI) {
         return 0;
     }
 
@@ -3707,7 +3707,7 @@ int32_t IsSpellPrecastAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 51 && behavior <= 52) {
+        if (behavior >= ANIM_READY_SPELL_DIRECTED && behavior <= ANIM_READY_SPELL_OMNI) {
             return 1;
         }
     }
@@ -3719,119 +3719,119 @@ int32_t IsSpellPrecastAnim(uint32_t animId) {
 // OFFSET: 0x0071D800
 int32_t IsUpperBodyAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 2:
-        case 8:
-        case 9:
-        case 10:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30:
-        case 31:
-        case 32:
-        case 33:
-        case 34:
-        case 35:
-        case 36:
-        case 46:
-        case 47:
-        case 48:
-        case 49:
-        case 51:
-        case 52:
-        case 53:
-        case 54:
-        case 55:
-        case 56:
-        case 57:
-        case 58:
-        case 59:
-        case 60:
-        case 61:
-        case 62:
-        case 63:
-        case 64:
-        case 65:
-        case 66:
-        case 67:
-        case 68:
-        case 69:
-        case 70:
-        case 71:
-        case 72:
-        case 73:
-        case 74:
-        case 76:
-        case 77:
-        case 78:
-        case 80:
-        case 81:
-        case 82:
-        case 83:
-        case 84:
-        case 85:
-        case 86:
-        case 87:
-        case 88:
-        case 89:
-        case 90:
-        case 105:
-        case 106:
-        case 107:
-        case 108:
-        case 109:
-        case 110:
-        case 111:
-        case 112:
-        case 113:
-        case 117:
-        case 118:
-        case 122:
-        case 123:
-        case 124:
-        case 125:
-        case 128:
-        case 129:
-        case 130:
-        case 133:
-        case 134:
-        case 136:
-        case 137:
-        case 138:
-        case 153:
-        case 154:
-        case 155:
-        case 156:
-        case 185:
-        case 186:
-        case 195:
-        case 213:
-        case 214:
-        case 215:
-        case 216:
-        case 217:
-        case 218:
-        case 219:
-        case 220:
-        case 221:
-        case 222:
-        case 225:
+        case ANIM_SPELL:
+        case ANIM_STAND_WOUND:
+        case ANIM_COMBAT_WOUND:
+        case ANIM_COMBAT_CRITICAL:
+        case ANIM_STUN:
+        case ANIM_HANDS_CLOSED:
+        case ANIM_ATTACK_UNARMED:
+        case ANIM_ATTACK_1H:
+        case ANIM_ATTACK_2H:
+        case ANIM_ATTACK_2HL:
+        case ANIM_PARRY_UNARMED:
+        case ANIM_PARRY_1H:
+        case ANIM_PARRY_2H:
+        case ANIM_PARRY_2HL:
+        case ANIM_SHIELD_BLOCK:
+        case ANIM_READY_UNARMED:
+        case ANIM_READY_1H:
+        case ANIM_READY_2H:
+        case ANIM_READY_2HL:
+        case ANIM_READY_BOW:
+        case ANIM_DODGE:
+        case ANIM_SPELL_PRECAST:
+        case ANIM_SPELL_CAST:
+        case ANIM_SPELL_CAST_AREA:
+        case ANIM_NPC_WELCOME:
+        case ANIM_NPC_GOODBYE:
+        case ANIM_BLOCK:
+        case ANIM_ATTACK_BOW:
+        case ANIM_FIRE_BOW:
+        case ANIM_READY_RIFLE:
+        case ANIM_ATTACK_RIFLE:
+        case ANIM_READY_SPELL_DIRECTED:
+        case ANIM_READY_SPELL_OMNI:
+        case ANIM_SPELL_CAST_DIRECTED:
+        case ANIM_SPELL_CAST_OMNI:
+        case ANIM_BATTLE_ROAR:
+        case ANIM_READY_ABILITY:
+        case ANIM_SPECIAL_1H:
+        case ANIM_SPECIAL_2H:
+        case ANIM_SHIELD_BASH:
+        case ANIM_EMOTE_TALK:
+        case ANIM_EMOTE_EAT:
+        case ANIM_EMOTE_WORK:
+        case ANIM_EMOTE_USE_STANDING:
+        case ANIM_EMOTE_TALK_EXCLAMATION:
+        case ANIM_EMOTE_TALK_QUESTION:
+        case ANIM_EMOTE_BOW:
+        case ANIM_EMOTE_WAVE:
+        case ANIM_EMOTE_CHEER:
+        case ANIM_EMOTE_DANCE:
+        case ANIM_EMOTE_LAUGH:
+        case ANIM_EMOTE_SLEEP:
+        case ANIM_EMOTE_SIT_GROUND:
+        case ANIM_EMOTE_RUDE:
+        case ANIM_EMOTE_ROAR:
+        case ANIM_EMOTE_KISS:
+        case ANIM_EMOTE_CRY:
+        case ANIM_EMOTE_CHICKEN:
+        case ANIM_EMOTE_APPLAUD:
+        case ANIM_EMOTE_SHOUT:
+        case ANIM_EMOTE_FLEX:
+        case ANIM_EMOTE_SHY:
+        case ANIM_EMOTE_POINT:
+        case ANIM_ATTACK_1H_PIERCE:
+        case ANIM_ATTACK_2H_LOOSE_PIERCE:
+        case ANIM_ATTACK_OFF:
+        case ANIM_ATTACK_OFF_PIERCE:
+        case ANIM_SHEATH:
+        case ANIM_HIP_SHEATH:
+        case ANIM_LOAD_BOW:
+        case ANIM_LOAD_RIFLE:
+        case ANIM_ATTACK_THROWN:
+        case ANIM_READY_THROWN:
+        case ANIM_HOLD_BOW:
+        case ANIM_HOLD_RIFLE:
+        case ANIM_HOLD_THROWN:
+        case ANIM_LOAD_THROWN:
+        case ANIM_EMOTE_SALUTE:
+        case ANIM_ATTACK_UNARMED_OFF:
+        case ANIM_SPECIAL_UNARMED:
+        case ANIM_EATING_LOOP:
+        case ANIM_USE_STANDING_LOOP:
+        case ANIM_CHANNEL_CAST_DIRECTED:
+        case ANIM_CHANNEL_CAST_OMNI:
+        case ANIM_USE_STANDING_START:
+        case ANIM_USE_STANDING_END:
+        case ANIM_CREATURE_SPECIAL:
+        case ANIM_FISHING_CAST:
+        case ANIM_FISHING_LOOP:
+        case ANIM_EMOTE_WORK_NO_SHEATHE:
+        case ANIM_EMOTE_STUN_NO_SHEATHE:
+        case ANIM_EMOTE_USE_STANDING_NO_SHEATHE:
+        case ANIM_CUSTOM_0:
+        case ANIM_CUSTOM_1:
+        case ANIM_CUSTOM_2:
+        case ANIM_CUSTOM_3:
+        case ANIM_EMOTE_YES:
+        case ANIM_EMOTE_NO:
+        case ANIM_EMOTE_TRAIN:
+        case ANIM_CUSTOM_SPELL_01:
+        case ANIM_CUSTOM_SPELL_02:
+        case ANIM_CUSTOM_SPELL_03:
+        case ANIM_CUSTOM_SPELL_04:
+        case ANIM_CUSTOM_SPELL_05:
+        case ANIM_CUSTOM_SPELL_06:
+        case ANIM_CUSTOM_SPELL_07:
+        case ANIM_CUSTOM_SPELL_08:
+        case ANIM_CUSTOM_SPELL_09:
+        case ANIM_CUSTOM_SPELL_10:
+        case ANIM_COWER:
             return 1;
         default:
             return 0;
@@ -3846,7 +3846,7 @@ int32_t IsWeaponReadyAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 25 && behavior <= 29) {
+        if (behavior >= ANIM_READY_UNARMED && behavior <= ANIM_READY_BOW) {
             return 1;
         }
     }
@@ -3862,7 +3862,7 @@ int32_t IsWeaponSpecialAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 57 && (behavior <= 58 || behavior == 118)) {
+        if (behavior >= ANIM_SPECIAL_1H && (behavior <= ANIM_SPECIAL_2H || behavior == ANIM_SPECIAL_UNARMED)) {
             return 1;
         }
     }
@@ -3878,7 +3878,7 @@ int32_t IsJumpAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 37 && (behavior <= 39 || behavior == 187)) {
+        if (behavior >= ANIM_JUMP_START && (behavior <= ANIM_JUMP_END || behavior == ANIM_JUMP_LAND_RUN)) {
             return 1;
         }
     }
@@ -3894,7 +3894,7 @@ int32_t IsJumpLandAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior == 39 || behavior == 187) {
+        if (behavior == ANIM_JUMP_END || behavior == ANIM_JUMP_LAND_RUN) {
             return 1;
         }
     }
@@ -3910,7 +3910,7 @@ int32_t IsFishingAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 133 && behavior <= 134) {
+        if (behavior >= ANIM_FISHING_CAST && behavior <= ANIM_FISHING_LOOP) {
             return 1;
         }
     }
@@ -3922,19 +3922,19 @@ int32_t IsFishingAnim(uint32_t animId) {
 // OFFSET: 0x0071D2E0
 int32_t IsRangedWeaponAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 46:
-        case 49:
-        case 105:
-        case 106:
-        case 107:
-        case 108:
-        case 109:
-        case 110:
-        case 111:
-        case 112:
+        case ANIM_ATTACK_BOW:
+        case ANIM_ATTACK_RIFLE:
+        case ANIM_LOAD_BOW:
+        case ANIM_LOAD_RIFLE:
+        case ANIM_ATTACK_THROWN:
+        case ANIM_READY_THROWN:
+        case ANIM_HOLD_BOW:
+        case ANIM_HOLD_RIFLE:
+        case ANIM_HOLD_THROWN:
+        case ANIM_LOAD_THROWN:
             return 1;
         default:
             return 0;
@@ -4144,7 +4144,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
     if (this->m_combat.m_attacking.m_guid || casting || IsSpellCastOrPrecastAnim(previousAnim) || IsMeleeOrReadyAnim(previousAnim)) {
         AnimationDataRec* rec = g_animationDataDB.GetRecord(anim);
 
-        if ((rec && rec->m_behaviorID >= 25 && rec->m_behaviorID <= 29) || !anim) {
+        if ((rec && rec->m_behaviorID >= ANIM_READY_UNARMED && rec->m_behaviorID <= ANIM_READY_BOW) || !anim) {
             slot->m_variationIndex = 0;
         }
     }
@@ -4157,7 +4157,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         blend = 0;
     }
 
-    if (!keepVariation && anim != 0xFFFFFFFF && slot->m_variationIndex != 0xFFFFFFFF) {
+    if (!keepVariation && anim != INVALID_ANIMATION && slot->m_variationIndex != 0xFFFFFFFF) {
         M2SequenceInfo info;
         info.Clear();
         this->m_worldModel->GetSequenceInfo(anim, 0, info);
@@ -4178,32 +4178,32 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         return;
     }
 
-    if (playing == 0xFFFFFFFF || (torso && this->m_torsoKeyBone == -1)) {
+    if (playing == INVALID_ANIMATION || (torso && this->m_torsoKeyBone == -1)) {
         return;
     }
 
     this->SetKeyBoneSequence(this->m_worldModel, bone, playing, slot->m_variationIndex, slot->m_time, slot->m_speed, blend, 1, 0);
 
     switch (GetAnimBehaviorId(anim)) {
-        case 39:
+        case ANIM_JUMP_END:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
             break;
-        case 121:
+        case ANIM_KNOCKDOWN:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
             break;
-        case 127:
+        case ANIM_BIRTH:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
             break;
-        case 192:
-        case 200:
+        case ANIM_LIFT_OFF:
+        case ANIM_LAND:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
             break;
-        case 201:
+        case ANIM_SUBMERGE:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
             break;
-        case 458:
-        case 459:
-        case 460:
+        case ANIM_TO_FLY:
+        case ANIM_TO_HOVER:
+        case ANIM_TO_GROUND:
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION;
             break;
         default:
@@ -4224,7 +4224,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
 // VERIFY: 745c0966 manual
 // OFFSET: 0x00723E30
 int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim) {
-    if (currentAnim == 0xFFFFFFFF) {
+    if (currentAnim == INVALID_ANIMATION) {
         return 0;
     }
 
@@ -4282,11 +4282,11 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     uint32_t sequence;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
+        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
         }
     } else {
-        sequence = 0xFFFFFFFF;
+        sequence = INVALID_ANIMATION;
     }
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(sequence);
@@ -4307,7 +4307,7 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
             this->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
         }
 
-        if (sequence != 105 && sequence != 106 && sequence != 112 && !IsRangedWeaponAnim(sequence) && rec) {
+        if (sequence != ANIM_LOAD_BOW && sequence != ANIM_LOAD_RIFLE && sequence != ANIM_LOAD_THROWN && !IsRangedWeaponAnim(sequence) && rec) {
             if (rec->m_weaponflags & 0x10) {
                 this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
             } else if (rec->m_weaponflags & 0x20) {
@@ -4381,14 +4381,14 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     }
 
     if (!this->GetObjectModel()->IsLoaded(0, 0) || !this->m_worldModel->IsLoaded(0, 0)) {
-        if (animId != 0xFFFFFFFF) {
+        if (animId != INVALID_ANIMATION) {
             this->m_pendingAnimId = animId;
         }
 
         return;
     }
 
-    this->m_pendingAnimId = -1;
+    this->m_pendingAnimId = INVALID_ANIMATION;
 
     if (this->IsDeadOrAttachmentDying() && !IsDeadOrDyingAnim(animId)) {
         return;
@@ -4441,7 +4441,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     uint32_t previousAnim;
     int32_t hasTorso;
 
-    if (torso.m_sequenceId != 0xFFFFFFFF) {
+    if (torso.m_sequenceId != INVALID_ANIMATION) {
         previousAnim = torso.m_sequenceId;
         hasTorso = 1;
     } else {
@@ -4456,7 +4456,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     }
 
     uint32_t trail = this->m_pendingWeaponTrail[1];
-    this->m_meleeAttackAnimId = -1;
+    this->m_meleeAttackAnimId = INVALID_ANIMATION;
 
     if (trail) {
         this->UpdateWeaponTrails(&this->m_pendingWeaponTrail[0], trail);
@@ -4543,17 +4543,17 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
             blendBase = 0;
             keepBase = 0;
         }
-    } else if (anim == 61) {
+    } else if (anim == ANIM_EMOTE_EAT) {
         keepTorso = 0;
         updateTorso = 1;
         torsoSlot = newSlot;
-    } else if (anim == 62 && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
+    } else if (anim == ANIM_EMOTE_WORK && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         keepTorso = 0;
         updateTorso = 1;
         updateBase = 0;
         torsoSlot = newSlot;
     } else if (split) {
-        if ((IsEmoteAnim(anim) && anim != 69) || (!casting && !IsMeleeOrReadyAnim(previousAnim) && !IsSpellCastOrPrecastAnim(previousAnim) && this->m_sheatheState != WEAPONMODE_RANGEDMODE)) {
+        if ((IsEmoteAnim(anim) && anim != ANIM_EMOTE_DANCE) || (!casting && !IsMeleeOrReadyAnim(previousAnim) && !IsSpellCastOrPrecastAnim(previousAnim) && this->m_sheatheState != WEAPONMODE_RANGEDMODE)) {
             keepTorso = 0;
             updateTorso = 1;
             torsoSlot = newSlot;
@@ -4563,7 +4563,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
             updateTorso = 1;
 
             if ((this->m_movementData.m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movementData.m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
-                baseSlot.m_sequenceId = this->ResolveAnimForModel(41, nullptr);
+                baseSlot.m_sequenceId = this->ResolveAnimForModel(ANIM_SWIM_IDLE, nullptr);
                 baseSlot.m_speed = 1.0f;
                 baseSlot.m_variationIndex = 0xFFFFFFFF;
                 baseSlot.m_time = 0;
@@ -4588,7 +4588,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     } else if (((IsMeleeOrReadyAnim(previousAnim) && (IsWeaponReadyAnim(anim) || !anim)) || (IsSpellCastOrPrecastAnim(previousAnim) && (IsSpellPrecastAnim(anim) || IsWeaponReadyAnim(anim) || !anim))) && hasTorso && !vehicleBoneAnim) {
         updateTorso = 1;
         keepBase = 1;
-        torsoSlot.m_sequenceId = 0xFFFFFFFF;
+        torsoSlot.m_sequenceId = INVALID_ANIMATION;
         keepTorso = 0;
         baseSlot = torso;
     } else {
@@ -4672,16 +4672,16 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
 
     if (vehicleBoneAnim) {
         updateTorso = 0;
-        previousAnim = 0xFFFFFFFF;
+        previousAnim = INVALID_ANIMATION;
     }
 
     if (this->m_mountModel && torsoSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId) && baseSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId)) {
         updateTorso = 0;
-        previousAnim = 0xFFFFFFFF;
+        previousAnim = INVALID_ANIMATION;
         this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, 1, 0, 0);
     }
 
-    if (updateMount && this->m_mountModel && mountSlot.m_sequenceId != 0xFFFFFFFF && (mount.m_sequenceId != mountSlot.m_sequenceId || fabsf(mount.m_speed - mountSlot.m_speed) > 0.01f)) {
+    if (updateMount && this->m_mountModel && mountSlot.m_sequenceId != INVALID_ANIMATION && (mount.m_sequenceId != mountSlot.m_sequenceId || fabsf(mount.m_speed - mountSlot.m_speed) > 0.01f)) {
         this->SetKeyBoneSequence(this->m_mountModel, 0xFFFFFFFF, mountSlot.m_sequenceId, mountSlot.m_variationIndex, mountSlot.m_time, mountSlot.m_speed, blendMount, 1, 0);
     }
 
@@ -4696,10 +4696,10 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         this->UnsetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, 1, 0, 0);
     }
 
-    if ((!updateBase || torsoSlot.m_sequenceId != 0xFFFFFFFF || baseSlot.m_sequenceId != torso.m_sequenceId) && updateTorso) {
+    if ((!updateBase || torsoSlot.m_sequenceId != INVALID_ANIMATION || baseSlot.m_sequenceId != torso.m_sequenceId) && updateTorso) {
         int32_t torsoBlend;
 
-        if (torso.m_sequenceId == 0xFFFFFFFF && torsoSlot.m_sequenceId == base.m_sequenceId) {
+        if (torso.m_sequenceId == INVALID_ANIMATION && torsoSlot.m_sequenceId == base.m_sequenceId) {
             torsoBlend = 0;
             blendBase = 1;
         } else {
@@ -5842,23 +5842,23 @@ int32_t CGUnit_C::ChooseRangedLoadAnim(uint32_t flags, uint32_t* anim) const {
 
     switch (item->m_subclassID) {
         case 2: {
-            *anim = 105;
+            *anim = ANIM_LOAD_BOW;
             return 1;
         }
 
         case 3:
         case 18: {
-            *anim = 106;
+            *anim = ANIM_LOAD_RIFLE;
             return 1;
         }
 
         case 16: {
-            *anim = 112;
+            *anim = ANIM_LOAD_THROWN;
             return 1;
         }
 
         case 19: {
-            *anim = 111;
+            *anim = ANIM_HOLD_THROWN;
             return 1;
         }
 
@@ -6812,11 +6812,11 @@ int32_t CGUnit_C::ChooseSpecialIdleAnim(uint32_t flags, uint32_t* anim) const {
         return 0;
     }
 
-    if (!this->m_worldModel->HasSequence(127)) {
+    if (!this->m_worldModel->HasSequence(ANIM_BIRTH)) {
         return (flags & 0xFFFFFFFC) == 0;
     }
 
-    *anim = 127;
+    *anim = ANIM_BIRTH;
     return 1;
 }
 
@@ -6852,7 +6852,7 @@ int32_t CGUnit_C::ChooseEmoteAnim(uint32_t flags, uint32_t* anim) const {
 // OFFSET: 0x00717260
 uint32_t CGUnit_C::GetCurrentTorsoAnimId() const {
     if (!this->m_worldModel || !this->m_worldModel->IsLoaded(0, 0)) {
-        return 0xFFFFFFFF;
+        return INVALID_ANIMATION;
     }
 
     if (this->m_torsoKeyBone == -1) {
@@ -6861,7 +6861,7 @@ uint32_t CGUnit_C::GetCurrentTorsoAnimId() const {
 
     uint32_t anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone);
 
-    if (anim == 0xFFFFFFFF) {
+    if (anim == INVALID_ANIMATION) {
         return this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
     }
 
@@ -6875,7 +6875,7 @@ uint32_t CGUnit_C::GetCurrentBaseAnimId() const {
         return this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
     }
 
-    return 0xFFFFFFFF;
+    return INVALID_ANIMATION;
 }
 
 // VERIFY: 6b5cc13c auto
@@ -6885,13 +6885,13 @@ uint32_t CGUnit_C::GetCurrentMountAnimId() const {
         return this->m_mountModel->GetBoneSequenceId(0xFFFFFFFF);
     }
 
-    return 0xFFFFFFFF;
+    return INVALID_ANIMATION;
 }
 
 // VERIFY: ab38fe5b manual
 // OFFSET: 0x007173F0
 void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequenceInfo* base, M2BoneSequenceInfo* torso, int32_t keepFinished) const {
-    mount->m_sequenceId = 0;
+    mount->m_sequenceId = ANIM_STAND;
     mount->m_variationIndex = 0;
     mount->m_time = 0;
     mount->m_speed = 0.0f;
@@ -6911,13 +6911,13 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     }
 
     if (mount->m_finished) {
-        mount->m_sequenceId = 0xFFFFFFFF;
+        mount->m_sequenceId = INVALID_ANIMATION;
         mount->m_speed = 1.0f;
         mount->m_variationIndex = 0xFFFFFFFF;
         mount->m_time = 0;
     }
 
-    base->m_sequenceId = 0;
+    base->m_sequenceId = ANIM_STAND;
     base->m_variationIndex = 0;
     base->m_time = 0;
     base->m_speed = 0.0f;
@@ -6932,13 +6932,13 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     }
 
     if (base->m_finished && !keepFinished) {
-        base->m_sequenceId = 0xFFFFFFFF;
+        base->m_sequenceId = INVALID_ANIMATION;
         base->m_speed = 1.0f;
         base->m_variationIndex = 0xFFFFFFFF;
         base->m_time = 0;
     }
 
-    torso->m_sequenceId = 0;
+    torso->m_sequenceId = ANIM_STAND;
     torso->m_variationIndex = 0;
     torso->m_time = 0;
     torso->m_speed = 0.0f;
@@ -6958,7 +6958,7 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     }
 
     if (torso->m_finished && !keepFinished) {
-        torso->m_sequenceId = 0xFFFFFFFF;
+        torso->m_sequenceId = INVALID_ANIMATION;
         torso->m_speed = 1.0f;
         torso->m_variationIndex = 0xFFFFFFFF;
         torso->m_time = 0;
@@ -7121,18 +7121,18 @@ int32_t __stdcall CGUnit_C::MaybeDeferTeleport(const WOWGUID* transport) {
 // VERIFY: 013dc073 auto
 // OFFSET: 0x0071DF30
 int32_t CGUnit_C::OverrideAnimForFlying(uint32_t* anim) const {
-    if (anim[0] == 0xFFFFFFFF) {
+    if (anim[0] == INVALID_ANIMATION) {
         return 0;
     }
 
     M2SequenceInfo info = {};
     this->m_worldModel->GetSequenceInfo(anim[0], anim[1], info);
 
-    if (info.m_animId && info.m_animId != 8 && info.m_animId != 25) {
+    if (info.m_animId && info.m_animId != ANIM_STAND_WOUND && info.m_animId != ANIM_READY_UNARMED) {
         return 0;
     }
 
-    anim[0] = 193;
+    anim[0] = ANIM_HOVER;
     anim[1] = 0xFFFFFFFF;
     return 1;
 }
@@ -7497,7 +7497,7 @@ float CGUnit_C::GetTorsoAnimProgress() const {
     }
 
     M2BoneSequenceInfo info;
-    info.m_sequenceId = 0;
+    info.m_sequenceId = ANIM_STAND;
     info.m_variationIndex = 0;
     info.m_time = 0;
     info.m_speed = 0.0f;
@@ -7510,7 +7510,7 @@ float CGUnit_C::GetTorsoAnimProgress() const {
         this->m_worldModel->GetBoneSequenceInfo(this->m_torsoKeyBone, info);
     }
 
-    if (info.m_sequenceId == 0xFFFFFFFF) {
+    if (info.m_sequenceId == INVALID_ANIMATION) {
         this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
     }
 
@@ -7667,7 +7667,7 @@ int32_t IsBirthAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior == 127 || (behavior > 200 && behavior <= 202)) {
+        if (behavior == ANIM_BIRTH || (behavior > ANIM_LAND && behavior <= ANIM_SUBMERGED)) {
             return 1;
         }
     }
@@ -7683,7 +7683,7 @@ int32_t IsSubmergedDeathAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 466 && (behavior <= 468 || behavior == 472)) {
+        if (behavior >= ANIM_DEATH_START && (behavior <= ANIM_DEATH_END || behavior == ANIM_DEATH_END_HOLD)) {
             return 1;
         }
     }
@@ -7702,15 +7702,15 @@ int32_t IsCorpseAnim(uint32_t animId) {
 
     int32_t behavior = rec->m_behaviorID;
 
-    if (behavior > 468) {
-        return behavior == 472;
+    if (behavior > ANIM_DEATH_END) {
+        return behavior == ANIM_DEATH_END_HOLD;
     }
 
-    if (behavior >= 467) {
+    if (behavior >= ANIM_DEATH_LOOP) {
         return 1;
     }
 
-    return behavior == 6 || behavior == 132;
+    return behavior == ANIM_DEAD || behavior == ANIM_DROWNED;
 }
 
 // VERIFY: 1b5d614f auto
@@ -7721,7 +7721,7 @@ int32_t IsAirborneAnim(uint32_t animId) {
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
-        if (behavior >= 37 && (behavior <= 40 || behavior == 467)) {
+        if (behavior >= ANIM_JUMP_START && (behavior <= ANIM_FALL || behavior == ANIM_DEATH_LOOP)) {
             return 1;
         }
     }
@@ -7740,11 +7740,11 @@ int32_t IsDyingAnim(uint32_t animId) {
 
     int32_t behavior = rec->m_behaviorID;
 
-    if (behavior > 131) {
-        if (behavior < 466 || behavior > 467) {
+    if (behavior > ANIM_DROWN) {
+        if (behavior < ANIM_DEATH_START || behavior > ANIM_DEATH_LOOP) {
             return 0;
         }
-    } else if (behavior != 131 && behavior != 1) {
+    } else if (behavior != ANIM_DROWN && behavior != ANIM_DEATH) {
         return 0;
     }
 
@@ -7762,11 +7762,11 @@ int32_t IsDeadOrDyingAnim(uint32_t animId) {
 
     int32_t behavior = rec->m_behaviorID;
 
-    if (behavior > 132) {
-        if (behavior < 466 || (behavior > 468 && behavior != 472)) {
+    if (behavior > ANIM_DROWNED) {
+        if (behavior < ANIM_DEATH_START || (behavior > ANIM_DEATH_END && behavior != ANIM_DEATH_END_HOLD)) {
             return 0;
         }
-    } else if (behavior < 131 && behavior != 1 && behavior != 6) {
+    } else if (behavior < ANIM_DROWN && behavior != ANIM_DEATH && behavior != ANIM_DEAD) {
         return 0;
     }
 
@@ -7782,7 +7782,7 @@ int32_t GetAnimBehaviorId(uint32_t animId) {
         return rec->m_behaviorID;
     }
 
-    return 506;
+    return ANIM_COUNT;
 }
 
 // VERIFY: 211bd0bd auto
@@ -8022,11 +8022,11 @@ bool CGUnit_C::AnimSuppressesMovement() const {
 
     uint32_t anim;
 
-    if (this->m_torsoKeyBone == -1 || (anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
+    if (this->m_torsoKeyBone == -1 || (anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
         anim = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
     }
 
-    if (anim > 505) {
+    if (anim > (ANIM_COUNT - 1)) {
         return false;
     }
 
@@ -8219,7 +8219,7 @@ bool CGUnit_C::DoNotPlayWoundAnim() const {
         return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM) != 0;
     }
 
-    return this->GetCurrentTorsoAnimId() == 121;
+    return this->GetCurrentTorsoAnimId() == ANIM_KNOCKDOWN;
 }
 
 // VERIFY: 54fb09a7 manual
@@ -8388,7 +8388,7 @@ float CGUnit_C::GetSmoothFacing() const {
 void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
     CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
 
-    if (passenger && passenger->m_state == 3 && passenger->GetLowerAnim(passenger->m_seatRec) != 506) {
+    if (passenger && passenger->m_state == 3 && passenger->GetLowerAnim(passenger->m_seatRec) != ANIM_COUNT) {
         return;
     }
 
@@ -8398,7 +8398,7 @@ void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
 
     uint32_t torso = this->GetCurrentTorsoAnimId();
 
-    if (!force && GetAnimBehaviorId(torso) == 464) {
+    if (!force && GetAnimBehaviorId(torso) == ANIM_SETTLE) {
         anim = torso;
         return;
     }
@@ -8731,7 +8731,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
             return;
         }
 
-        if (sequences[0].m_sequenceId < 506) {
+        if (sequences[0].m_sequenceId < ANIM_COUNT) {
             sequences[0].m_sequenceId = this->m_mountModel->ResolveSequenceFallback(sequences[0].m_sequenceId);
         }
     }
@@ -8741,11 +8741,11 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
             return;
         }
 
-        if (sequences[1].m_sequenceId < 506) {
+        if (sequences[1].m_sequenceId < ANIM_COUNT) {
             sequences[1].m_sequenceId = this->m_worldModel->ResolveSequenceFallback(sequences[1].m_sequenceId);
         }
 
-        if (sequences[2].m_sequenceId < 506) {
+        if (sequences[2].m_sequenceId < ANIM_COUNT) {
             sequences[2].m_sequenceId = this->m_worldModel->ResolveSequenceFallback(sequences[2].m_sequenceId);
         }
     }
@@ -8758,7 +8758,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
     int32_t count = 0;
 
     for (int32_t slot = 0; slot < 3; slot++) {
-        if (sequences[slot].m_sequenceId != 0xFFFFFFFF) {
+        if (sequences[slot].m_sequenceId != INVALID_ANIMATION) {
             states[count].m_state = FindObjectEffectStateFromAnimID(sequences[slot].m_sequenceId, sequences[slot].m_variationIndex);
             states[count].m_slot = slot;
             count++;
@@ -9184,7 +9184,7 @@ int32_t CGUnit_C::ChooseLootAnim(uint32_t flags, uint32_t* animId) {
         }
 
         if (flags & 0x8) {
-            *animId = 189;
+            *animId = ANIM_LOOT_UP;
         }
 
         return 1;
@@ -9194,7 +9194,7 @@ int32_t CGUnit_C::ChooseLootAnim(uint32_t flags, uint32_t* animId) {
         return 1;
     }
 
-    *animId = 50;
+    *animId = ANIM_LOOT;
     return 1;
 }
 
@@ -9292,7 +9292,7 @@ void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t seq
 
     if (model->IsLoaded(0, 0) && model->HasBone(boneId) && (model->GetBoneSequenceInfo(boneId, info), info.m_sequenceId == sequenceId) && time && fabs(speed) > 0.001f && info.m_finished) {
         if (boneId == 0xFFFFFFFF || boneId == 26) {
-            model->SetBoneSequence(boneId, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            model->SetBoneSequence(boneId, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         } else {
             model->UnsetBoneSequence(boneId, blend, primary);
         }
@@ -9453,11 +9453,11 @@ void CGUnit_C::ResetKeyBoneSequences() {
             }
         }
 
-        this->SetKeyBoneSequence(model, 0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
     }
 
     if (this->m_mountModel) {
-        this->SetKeyBoneSequence(this->m_mountModel, 0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_mountModel, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
     }
 }
 
@@ -9611,12 +9611,12 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_previousSheatheState(static_cast<WEAPONMODE>(this->m_unit->m_unitFieldBytes2[0])),
       m_sheatheState(static_cast<WEAPONMODE>(this->m_unit->m_unitFieldBytes2[0])),
       m_chainSpellLocation(0.0f, 0.0f, 0.0f),
-      m_mountAnimBehaviorId(91),
+      m_mountAnimBehaviorId(ANIM_MOUNT),
       m_animTier(0),
       m_torsoKeyBone(-1),
-      m_meleeAttackAnimId(-1),
-      m_pendingAnimId(-1),
-      m_awaitingEndAnimId(-1),
+      m_meleeAttackAnimId(INVALID_ANIMATION),
+      m_pendingAnimId(INVALID_ANIMATION),
+      m_awaitingEndAnimId(INVALID_ANIMATION),
       m_namePlateFrame(nullptr),
       m_chatBubble(nullptr),
       m_masterLooter(),
@@ -9632,7 +9632,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_missileTrajectoryReleased(0),
       m_wheelMask(0),
       m_lastWheelUpdateTime(0),
-      m_specialIdleAnim(-1),
+      m_specialIdleAnim(INVALID_ANIMATION),
       m_precastMissileModel(nullptr),
       m_predictedHealth(this->m_unit->m_unitFieldHealth),
       m_powerRegenRemainder(0),
@@ -9948,12 +9948,12 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
             sequenceId = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
         }
     } else {
-        sequenceId = 0xFFFFFFFF;
+        sequenceId = INVALID_ANIMATION;
     }
 
     AnimationDataRec* anim = g_animationDataDB.GetRecord(sequenceId);
 
-    if (anim && anim->m_behaviorID == 127) {
+    if (anim && anim->m_behaviorID == ANIM_BIRTH) {
         this->m_fadeDuration = 0;
         this->m_alpha = this->m_fadeEndAlpha;
     }
@@ -11381,7 +11381,7 @@ void CGUnit_C::CancelRangedMode() {
     CM2Model* model = this->m_rangedWeaponModel;
 
     if (model && model->IsLoaded(0, 0) && model->GetBoneSequenceId(0xFFFFFFFF) != 161) {
-        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
 
@@ -13190,7 +13190,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
                         if ((this->m_animTier == 3 && (animType == 0 || animType == 2)) || (this->m_animTier == 2 && animType == 0)) {
                             M2SequenceInfo info;
                             info.Clear();
-                            this->GetObjectModel()->GetSequenceInfo(463, 0, info);
+                            this->GetObjectModel()->GetSequenceInfo(ANIM_FLY_TO_GROUND, 0, info);
 
                             if (duration > info.m_duration + animStart) {
                                 animStart = duration - info.m_duration;
@@ -13400,15 +13400,15 @@ void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
     }
 
     bool skipAnimation = info.m_meleeSpellId != 0;
-    uint32_t anim = 16;
+    uint32_t anim = ANIM_ATTACK_UNARMED;
 
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_OFFHAND) {
         const CGUnitVirtualItem* offhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
         if (offhand && offhand->m_classID == 2) {
-            anim = (offhand->m_subclassID == 15) + 87;
+            anim = (offhand->m_subclassID == 15) + ANIM_ATTACK_OFF;
         } else {
-            anim = 117;
+            anim = ANIM_ATTACK_UNARMED_OFF;
         }
     } else {
         const CGUnitVirtualItem* mainhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
@@ -13422,7 +13422,7 @@ void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
                 case 7:
                 case 11:
                 case 14:
-                    anim = 17;
+                    anim = ANIM_ATTACK_1H;
                     break;
                 case 1:
                 case 5:
@@ -13434,10 +13434,10 @@ void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
                 case 10:
                 case 17:
                 case 20:
-                    anim = 19;
+                    anim = ANIM_ATTACK_2HL;
                     break;
                 case 15:
-                    anim = 85;
+                    anim = ANIM_ATTACK_1H_PIERCE;
                     break;
             }
         }
@@ -14306,7 +14306,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14315,7 +14315,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
 
         if (item && (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN)) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14339,7 +14339,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14348,7 +14348,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
 
         if (item && item->m_inventoryType != INVTYPE_RANGEDRIGHT && item->m_inventoryType != INVTYPE_THROWN) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14369,14 +14369,14 @@ void CGUnit_C::SetSheatheStateAnimate() {
             const CGUnitVirtualItem* left = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
             if (right) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
                 this->UnsheatheRightWeapon();
             }
 
             if (left) {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             } else {
                 this->UnsheatheLeftWeapon();
@@ -14403,11 +14403,11 @@ void CGUnit_C::SetSheatheStateAnimate() {
             }
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
                 this->UnsheatheLeftWeapon();
             } else {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
                 this->UnsheatheRightWeapon();
             }
@@ -14425,12 +14425,12 @@ void CGUnit_C::SetSheatheStateAnimate() {
         const CGUnitVirtualItem* left = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
         if (right) {
-            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
         }
 
         if (left) {
-            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
         }
     } else if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
@@ -14440,10 +14440,10 @@ void CGUnit_C::SetSheatheStateAnimate() {
             this->ShowRangedWeapon(true, nullptr);
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? 90 : 89, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             }
         }
@@ -14478,13 +14478,13 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     if (this->m_awaitingEndAnimId == static_cast<int32_t>(sequenceId)) {
-        this->m_awaitingEndAnimId = -1;
+        this->m_awaitingEndAnimId = INVALID_ANIMATION;
     }
 
     AnimationDataRec* anim = g_animationDataDB.GetRecord(sequenceId);
-    int32_t behavior = anim ? anim->m_behaviorID : 506;
+    int32_t behavior = anim ? anim->m_behaviorID : ANIM_COUNT;
 
-    if (behavior == 1 || behavior == 131 || behavior == 468) {
+    if (behavior == ANIM_DEATH || behavior == ANIM_DROWN || behavior == ANIM_DEATH_END) {
         if (!this->m_lootableTime) {
             this->m_lootableTime = FrameTime::s_curTimeMs;
         }
@@ -14496,25 +14496,25 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START;
     }
 
-    if (this->m_specialIdleAnim != -1 && this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
+    if (this->m_specialIdleAnim != INVALID_ANIMATION && this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         int32_t torso = this->m_torsoKeyBone != -1 && static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == this->m_specialIdleAnim;
         int32_t special = this->m_specialIdleAnim;
         int32_t base = static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF)) == special;
 
         if ((static_cast<int32_t>(sequenceId) == special && (!torso || !base)) || (!torso && !base)) {
-            this->m_specialIdleAnim = -1;
+            this->m_specialIdleAnim = INVALID_ANIMATION;
         }
     }
 
     if (IsMeleeAttackAnim(sequenceId) && !IsMeleeAttackAnim(this->m_meleeAttackAnimId)) {
-        this->m_meleeAttackAnimId = -1;
+        this->m_meleeAttackAnimId = INVALID_ANIMATION;
     }
 
-    if (behavior == 192 || behavior == 200) {
+    if (behavior == ANIM_LIFT_OFF || behavior == ANIM_LAND) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
     }
 
-    if (behavior == 121) {
+    if (behavior == ANIM_KNOCKDOWN) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
     }
 
@@ -14522,25 +14522,25 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION;
     }
 
-    if (behavior == 37) {
+    if (behavior == ANIM_JUMP_START) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
     }
 
     AnimationDataRec* ended = g_animationDataDB.GetRecord(sequenceId);
 
-    if (ended && ended->m_behaviorID >= 458 && ended->m_behaviorID <= 460) {
+    if (ended && ended->m_behaviorID >= ANIM_TO_FLY && ended->m_behaviorID <= ANIM_TO_GROUND) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_ANIM_TIER_TRANSITION;
     }
 
     if (interrupted) {
         switch (behavior) {
-            case 39: {
+            case ANIM_JUMP_END: {
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
                 return;
             }
 
-            case 89:
-            case 90: {
+            case ANIM_SHEATH:
+            case ANIM_HIP_SHEATH: {
                 if (boneId == 3) {
                     C3Vector position = this->GetPosition();
                     this->ExchangeSheathedWeapon(&position, 0, UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT);
@@ -14552,12 +14552,12 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
                 return;
             }
 
-            case 127: {
+            case ANIM_BIRTH: {
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
                 return;
             }
 
-            case 201: {
+            case ANIM_SUBMERGE: {
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
                 return;
             }
@@ -14604,7 +14604,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
         if (seat) {
             bool ride;
 
-            if (passenger->GetLowerAnim(seat) != 506) {
+            if (passenger->GetLowerAnim(seat) != ANIM_COUNT) {
                 ride = (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE) && (static_cast<int32_t>(sequenceId) == seat->m_rideAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideAnimLoop);
             } else {
                 ride = (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE) && (static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimStart || static_cast<int32_t>(sequenceId) == seat->m_rideUpperAnimLoop);
@@ -14617,30 +14617,30 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
         }
     }
 
-    uint32_t next = 506;
+    uint32_t next = ANIM_COUNT;
     AnimationDataRec* anim = g_animationDataDB.GetRecord(sequenceId);
-    int32_t behavior = anim ? anim->m_behaviorID : 506;
+    int32_t behavior = anim ? anim->m_behaviorID : ANIM_COUNT;
 
-    if (behavior >= 458 && behavior <= 460) {
-        this->PlayBaseAnimation(464, 16);
+    if (behavior >= ANIM_TO_FLY && behavior <= ANIM_TO_GROUND) {
+        this->PlayBaseAnimation(ANIM_SETTLE, 16);
         return;
     }
 
     switch (behavior) {
-        case 1: {
+        case ANIM_DEATH: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, 6, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_DEAD, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
 
-        case 6:
-        case 472: {
+        case ANIM_DEAD:
+        case ANIM_DEATH_END_HOLD: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
@@ -14649,46 +14649,46 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 37:
-        case 38: {
+        case ANIM_JUMP_START:
+        case ANIM_JUMP: {
             if (this->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
                 break;
             }
 
-            this->PlayBaseAnimation(38, 16);
+            this->PlayBaseAnimation(ANIM_JUMP, 16);
             return;
         }
 
-        case 39: {
+        case ANIM_JUMP_END: {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
             this->UpdateBaseAnimation(16, -1);
             return;
         }
 
-        case 40: {
-            this->PlayBaseAnimation(40, 16);
+        case ANIM_FALL: {
+            this->PlayBaseAnimation(ANIM_FALL, 16);
             return;
         }
 
-        case 50: {
-            this->PlayBaseAnimation(188, 16);
+        case ANIM_LOOT: {
+            this->PlayBaseAnimation(ANIM_LOOT_HOLD, 16);
             return;
         }
 
-        case 69: {
+        case ANIM_EMOTE_DANCE: {
             if (this->IsInCombat() || this->m_combat.m_attacking.m_guid) {
                 break;
             }
 
-            this->PlayBaseAnimation(69, 16);
+            this->PlayBaseAnimation(ANIM_EMOTE_DANCE, 16);
             return;
         }
 
-        case 96:
-        case 97: {
-            next = (this->GetClientStandState() != UNIT_SITTING) + 97;
+        case ANIM_SIT_GROUND_DOWN:
+        case ANIM_SIT_GROUND: {
+            next = (this->GetClientStandState() != UNIT_SITTING) + ANIM_SIT_GROUND;
 
-            if (next == 506) {
+            if (next == ANIM_COUNT) {
                 break;
             }
 
@@ -14696,11 +14696,11 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 99:
-        case 100: {
-            next = (this->GetClientStandState() != UNIT_SLEEPING) + 100;
+        case ANIM_SLEEP_DOWN:
+        case ANIM_SLEEP: {
+            next = (this->GetClientStandState() != UNIT_SLEEPING) + ANIM_SLEEP;
 
-            if (next == 506) {
+            if (next == ANIM_COUNT) {
                 break;
             }
 
@@ -14708,50 +14708,50 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 102: {
+        case ANIM_SIT_CHAIR_LOW: {
             if (this->GetClientStandState() != UNIT_SITTINGCHAIRLOW) {
                 break;
             }
 
-            this->PlayBaseAnimation(102, 16);
+            this->PlayBaseAnimation(ANIM_SIT_CHAIR_LOW, 16);
             return;
         }
 
-        case 103: {
+        case ANIM_SIT_CHAIR_MED: {
             if (this->GetClientStandState() != UNIT_SITTINGCHAIRMEDIUM) {
                 break;
             }
 
-            this->PlayBaseAnimation(103, 16);
+            this->PlayBaseAnimation(ANIM_SIT_CHAIR_MED, 16);
             return;
         }
 
-        case 104: {
+        case ANIM_SIT_CHAIR_HIGH: {
             if (this->GetClientStandState() != UNIT_SITTINGCHAIRHIGH) {
                 break;
             }
 
-            this->PlayBaseAnimation(104, 16);
+            this->PlayBaseAnimation(ANIM_SIT_CHAIR_HIGH, 16);
             return;
         }
 
-        case 105: {
-            this->PlayBaseAnimation(109, 16);
+        case ANIM_LOAD_BOW: {
+            this->PlayBaseAnimation(ANIM_HOLD_BOW, 16);
             return;
         }
 
-        case 106: {
-            this->PlayBaseAnimation(110, 16);
+        case ANIM_LOAD_RIFLE: {
+            this->PlayBaseAnimation(ANIM_HOLD_RIFLE, 16);
             return;
         }
 
-        case 109: {
+        case ANIM_HOLD_BOW: {
             if (!this->m_rangedWeaponModel) {
                 break;
             }
 
             if (this->m_unit->m_unitChannelSpell || (this->m_animFlags & (UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
-                this->PlayBaseAnimation(109, 16);
+                this->PlayBaseAnimation(ANIM_HOLD_BOW, 16);
                 return;
             }
 
@@ -14761,35 +14761,35 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
             this->m_ammoModel->DetachFromParent();
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
-            this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
             this->UpdateBaseAnimation(16, -1);
             return;
         }
 
-        case 110: {
+        case ANIM_HOLD_RIFLE: {
             if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
                 break;
             }
 
-            this->PlayBaseAnimation(110, 16);
+            this->PlayBaseAnimation(ANIM_HOLD_RIFLE, 16);
             return;
         }
 
-        case 111:
-        case 112: {
+        case ANIM_HOLD_THROWN:
+        case ANIM_LOAD_THROWN: {
             if (!this->m_rangedWeaponModel || (!this->m_unit->m_unitChannelSpell && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING))) {
                 break;
             }
 
-            this->PlayBaseAnimation(111, 16);
+            this->PlayBaseAnimation(ANIM_HOLD_THROWN, 16);
             return;
         }
 
-        case 114:
-        case 115: {
-            next = (this->GetClientStandState() != UNIT_KNEEL) + 115;
+        case ANIM_KNEEL_START:
+        case ANIM_KNEEL_LOOP: {
+            next = (this->GetClientStandState() != UNIT_KNEEL) + ANIM_KNEEL_LOOP;
 
-            if (next == 506) {
+            if (next == ANIM_COUNT) {
                 break;
             }
 
@@ -14797,25 +14797,25 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 127: {
+        case ANIM_BIRTH: {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_BIRTH;
             this->UpdateBaseAnimation(16, -1);
             return;
         }
 
-        case 131: {
+        case ANIM_DROWN: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, 132, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_DROWNED, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
 
-        case 132: {
+        case ANIM_DROWNED: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
@@ -14823,22 +14823,22 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 133: {
+        case ANIM_FISHING_CAST: {
             this->CreateFishingLineEffect();
-            this->PlayBaseAnimation(134, 16);
+            this->PlayBaseAnimation(ANIM_FISHING_LOOP, 16);
             return;
         }
 
-        case 201: {
+        case ANIM_SUBMERGE: {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_SUBMERGE;
-            this->PlayBaseAnimation(202, 16);
+            this->PlayBaseAnimation(ANIM_SUBMERGED, 16);
             return;
         }
 
-        case 464: {
+        case ANIM_SETTLE: {
             this->ChooseDefaultAnim(next, 1);
 
-            if (next == 506) {
+            if (next == ANIM_COUNT) {
                 break;
             }
 
@@ -14846,24 +14846,24 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
             return;
         }
 
-        case 466:
-        case 467: {
+        case ANIM_DEATH_START:
+        case ANIM_DEATH_LOOP: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
 
-            this->PlayBaseAnimation((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH) ? 467 : 468, 16);
+            this->PlayBaseAnimation((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH) ? ANIM_DEATH_LOOP : ANIM_DEATH_END, 16);
             return;
         }
 
-        case 468: {
+        case ANIM_DEATH_END: {
             if (!this->IsDeadOrAttachmentDying()) {
                 break;
             }
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, this->ResolveAnimForModel(472, nullptr), info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, 0xFFFFFFFF, this->ResolveAnimForModel(ANIM_DEATH_END_HOLD, nullptr), info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
@@ -14879,11 +14879,11 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 // VERIFY: 81228148 manual
 // OFFSET: 0x00737BD0
 void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequenceId) {
-    if (sequenceId == 15) {
+    if (sequenceId == ANIM_HANDS_CLOSED) {
         return;
     }
 
-    if (sequenceId > 88 && sequenceId <= 90) {
+    if (sequenceId > ANIM_ATTACK_OFF_PIERCE && sequenceId <= ANIM_HIP_SHEATH) {
         if (boneId == 2) {
             if (!(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT) && this->UnsheatheLeftWeapon()) {
                 return;
@@ -14896,7 +14896,7 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
     }
 
     M2BoneSequenceInfo torso;
-    torso.m_sequenceId = 0xFFFFFFFF;
+    torso.m_sequenceId = INVALID_ANIMATION;
     torso.m_variationIndex = 0xFFFFFFFF;
     torso.m_time = 0;
     torso.m_speed = 1.0f;
@@ -14904,27 +14904,27 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
     torso.m_endTime = 0;
     torso.m_finished = 0;
     torso.m_complete = 0;
-    uint32_t anim = 0xFFFFFFFF;
+    uint32_t anim = INVALID_ANIMATION;
     int32_t unsetTorso = 0;
     int32_t usedDefault = 0;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         uint32_t animFlags = 0;
-        uint32_t chosen = this->ChooseAnimation(0xFFFFFFFF, &animFlags, &usedDefault);
+        uint32_t chosen = this->ChooseAnimation(INVALID_ANIMATION, &animFlags, &usedDefault);
         anim = this->ResolveAnimForModel(chosen, nullptr);
         torso.m_sequenceId = anim;
         CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
         const VehicleSeatRec* seat = passenger ? passenger->m_seatRec : nullptr;
-        int32_t ridingLower = passenger && passenger->m_state == 3 && passenger->GetLowerAnim(seat) != 506;
+        int32_t ridingLower = passenger && passenger->m_state == 3 && passenger->GetLowerAnim(seat) != ANIM_COUNT;
 
         if (static_cast<int32_t>(boneId) == this->m_torsoKeyBone) {
-            if (!usedDefault && chosen == 506 && ridingLower) {
+            if (!usedDefault && chosen == ANIM_COUNT && ridingLower) {
                 this->UpdateObjectEffectAnimationStates();
                 return;
             }
         }
 
-        if (static_cast<int32_t>(boneId) != this->m_torsoKeyBone || !ridingLower || this->m_vehiclePassenger->GetUpperAnim(seat) == 506) {
+        if (static_cast<int32_t>(boneId) != this->m_torsoKeyBone || !ridingLower || this->m_vehiclePassenger->GetUpperAnim(seat) == ANIM_COUNT) {
             uint32_t current = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
 
             if (!IsUpperBodyAnim(anim) || !this->ShouldSplitTorsoAnimation(anim, current) || anim == current) {
@@ -15576,7 +15576,7 @@ void CGUnit_C::PlayEmoteAnimation(uint32_t emote) {
 
     int32_t anim = rec->m_animID;
 
-    if (anim < 0 || anim >= 506) {
+    if (anim < 0 || anim >= ANIM_COUNT) {
         return;
     }
 
@@ -16720,7 +16720,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
                             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
                             if (kit && kit->m_animID >= 0 && this->m_mountAnimBehaviorId == kit->m_animID) {
-                                this->m_mountAnimBehaviorId = 91;
+                                this->m_mountAnimBehaviorId = ANIM_MOUNT;
                             }
                         }
                     }
@@ -16996,7 +16996,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 // OFFSET: 0x0071D510
 static int32_t IsWoundAnim(int32_t animId) {
     AnimationDataRec* anim = g_animationDataDB.GetRecord(animId);
-    return anim && anim->m_behaviorID >= 8 && anim->m_behaviorID <= 10;
+    return anim && anim->m_behaviorID >= ANIM_STAND_WOUND && anim->m_behaviorID <= ANIM_COMBAT_CRITICAL;
 }
 
 // VERIFY: 810cddf4 manual
@@ -17140,13 +17140,13 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     uint32_t keyBone = this->m_torsoKeyBone;
 
     if (crit) {
-        animId = 10;
+        animId = ANIM_COMBAT_CRITICAL;
     } else if (this->m_combat.m_attacking.m_guid) {
-        animId = 9;
+        animId = ANIM_COMBAT_WOUND;
     } else {
-        animId = 8;
+        animId = ANIM_STAND_WOUND;
 
-        if (!this->m_mountModel && !(this->m_movement->m_flags & MOVEMENTFLAG_LOCOMOTION_MASK) && !this->m_movementData.IsSplineFlyerOrHovering() && !this->IsSitting() && GetAnimBehaviorId(this->GetCurrentTorsoAnimId()) != 98) {
+        if (!this->m_mountModel && !(this->m_movement->m_flags & MOVEMENTFLAG_LOCOMOTION_MASK) && !this->m_movementData.IsSplineFlyerOrHovering() && !this->IsSitting() && GetAnimBehaviorId(this->GetCurrentTorsoAnimId()) != ANIM_SIT_GROUND_UP) {
             keyBone = 0xFFFFFFFF;
         }
     }
@@ -18858,13 +18858,13 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
                     eventPosition = this->m_worldModel->GetAttachmentPosition(35);
 
                     if (this->m_rangedWeaponModel) {
-                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
                     }
                 } else if (IsRifleAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(36)) {
                     eventPosition = this->m_worldModel->GetAttachmentPosition(36);
 
                     if (this->m_rangedWeaponModel) {
-                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 161, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_BOWRELEASE, 0xFFFFFFFF, 0, 1.0f, 1, 1);
                     }
                 } else {
                     eventPosition = *position;
@@ -18999,7 +18999,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
 
     AnimationDataRec* animation = g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId());
 
-    if (animation && (animation->m_behaviorID == 49 || animation->m_behaviorID == 106 || animation->m_behaviorID == 110)) {
+    if (animation && (animation->m_behaviorID == ANIM_ATTACK_RIFLE || animation->m_behaviorID == ANIM_LOAD_RIFLE || animation->m_behaviorID == ANIM_HOLD_RIFLE)) {
         model->m_fadeAlpha = 0.0f;
     }
 
@@ -19259,7 +19259,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
 
     AnimationDataRec* animation = g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId());
 
-    if (animation && (animation->m_behaviorID == 49 || animation->m_behaviorID == 106 || animation->m_behaviorID == 110)) {
+    if (animation && (animation->m_behaviorID == ANIM_ATTACK_RIFLE || animation->m_behaviorID == ANIM_LOAD_RIFLE || animation->m_behaviorID == ANIM_HOLD_RIFLE)) {
         model->m_fadeAlpha = 0.0f;
     }
 
@@ -19448,7 +19448,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
 
     AnimationDataRec* animation = g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId());
 
-    if (animation && (animation->m_behaviorID == 49 || animation->m_behaviorID == 106 || animation->m_behaviorID == 110)) {
+    if (animation && (animation->m_behaviorID == ANIM_ATTACK_RIFLE || animation->m_behaviorID == ANIM_LOAD_RIFLE || animation->m_behaviorID == ANIM_HOLD_RIFLE)) {
         model->m_fadeAlpha = 0.0f;
     }
 
@@ -19636,14 +19636,14 @@ bool CGUnit_C::IsTracked() const {
 // OFFSET: 0x0071D450
 int32_t IsUnarmedAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = rec ? rec->m_behaviorID : 506;
+    int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 16:
-        case 20:
-        case 25:
-        case 117:
-        case 118:
+        case ANIM_ATTACK_UNARMED:
+        case ANIM_PARRY_UNARMED:
+        case ANIM_READY_UNARMED:
+        case ANIM_ATTACK_UNARMED_OFF:
+        case ANIM_SPECIAL_UNARMED:
             return 1;
 
         default:
@@ -19663,10 +19663,10 @@ void CGUnit_C::ClearWeaponTrail(int32_t hand) {
 // VERIFY: 84f2e615 auto
 // OFFSET: 0x00721ED0
 int32_t CGUnit_C::IsPlayingUnarmedAnim() {
-    uint32_t sequence = 0xFFFFFFFF;
+    uint32_t sequence = INVALID_ANIMATION;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
+        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
         }
     }
@@ -20645,7 +20645,7 @@ void CGUnit_C::UpdateFlightStatus(uint32_t time) {
 
             if (bound - 2.0f < this->GetPosition().z + collisionHeight) {
                 if (!this->GetVehicleRec() || !this->m_vehicle->HasHighPriorityAnim()) {
-                    this->PlayBaseAnimation(45, 0);
+                    this->PlayBaseAnimation(ANIM_SWIM_BACKWARDS, 0);
                     this->PlayWoundAnimKit(0);
                 }
 
@@ -21231,14 +21231,14 @@ void CGUnit_C::UpdateCritterDisplay() {
 // OFFSET: 0x0071D450
 static int32_t IsWeaponAnimBehavior(uint32_t animId) {
     AnimationDataRec* animation = g_animationDataDB.GetRecord(animId);
-    int32_t behavior = animation ? animation->m_behaviorID : 506;
+    int32_t behavior = animation ? animation->m_behaviorID : ANIM_COUNT;
 
     switch (behavior) {
-        case 16:
-        case 20:
-        case 25:
-        case 117:
-        case 118:
+        case ANIM_ATTACK_UNARMED:
+        case ANIM_PARRY_UNARMED:
+        case ANIM_READY_UNARMED:
+        case ANIM_ATTACK_UNARMED_OFF:
+        case ANIM_SPECIAL_UNARMED:
             return 1;
 
         default:
@@ -21252,11 +21252,11 @@ bool CGUnit_C::IsPlayingWeaponAnim() const {
     uint32_t sequence;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
+        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
         }
     } else {
-        sequence = 0xFFFFFFFF;
+        sequence = INVALID_ANIMATION;
     }
 
     if (IsWeaponAnimBehavior(sequence)) {
@@ -21361,7 +21361,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
     this->m_worldModel->m_diffuseTintG = mount->m_diffuseTintG;
     this->m_worldModel->m_diffuseTintB = mount->m_diffuseTintB;
     this->SetMountModel(nullptr);
-    this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 0, 1, 0);
+    this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1, 0);
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_MOUNT_REMOVAL;
     this->UpdateBaseAnimation(0, -1);
     this->UpdateSelectionRadius();
@@ -21492,21 +21492,21 @@ void CGUnit_C::MountAnimEndCallback(CM2Model* model, uint32_t boneId, uint32_t s
 // OFFSET: 0x0073BFF0
 void CGUnit_C::MountAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time) {
     if (this->m_awaitingEndAnimId == static_cast<int32_t>(sequenceId)) {
-        this->m_awaitingEndAnimId = -1;
+        this->m_awaitingEndAnimId = INVALID_ANIMATION;
     }
 
-    if (sequenceId == 192 || sequenceId == 200) {
+    if (sequenceId == ANIM_LIFT_OFF || sequenceId == ANIM_LAND) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_LIFT_OFF_OR_LAND;
     }
 
-    if (sequenceId == 121) {
+    if (sequenceId == ANIM_KNOCKDOWN) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_KNOCKDOWN;
-    } else if (sequenceId == 37) {
+    } else if (sequenceId == ANIM_JUMP_START) {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
     }
 
     if (interrupted) {
-        if (sequenceId == 39 || sequenceId == 187) {
+        if (sequenceId == ANIM_JUMP_END || sequenceId == ANIM_JUMP_LAND_RUN) {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_LANDING;
         }
 
@@ -21644,17 +21644,17 @@ int32_t IsSpecialIdleAnim(uint32_t animId) {
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
-    if (rec && rec->m_behaviorID == 107) {
+    if (rec && rec->m_behaviorID == ANIM_ATTACK_THROWN) {
         return 1;
     }
 
     rec = g_animationDataDB.GetRecord(animId);
 
-    if (rec && rec->m_behaviorID == 46) {
+    if (rec && rec->m_behaviorID == ANIM_ATTACK_BOW) {
         return 1;
     }
 
-    return GetAnimBehaviorId(animId) == 49;
+    return GetAnimBehaviorId(animId) == ANIM_ATTACK_RIFLE;
 }
 
 // VERIFY: 597f8f44 manual

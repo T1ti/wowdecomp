@@ -405,14 +405,14 @@ int32_t CVehiclePassenger_C::ChooseSeatExitAnim(uint32_t flags, uint32_t* anim) 
     if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE) || seat->m_rideUpperAnimStart == -1) {
         exitAnim = seat->m_rideUpperAnimLoop;
 
-        if (exitAnim == -1) {
+        if (exitAnim == INVALID_ANIMATION) {
             return 0;
         }
     } else {
         exitAnim = seat->m_rideUpperAnimStart;
     }
 
-    if (exitAnim != 506) {
+    if (exitAnim != ANIM_COUNT) {
         *anim = exitAnim;
         return 1;
     }
@@ -424,7 +424,7 @@ int32_t CVehiclePassenger_C::ChooseSeatExitAnim(uint32_t flags, uint32_t* anim) 
 // OFFSET: 0x00747B20
 int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
     if (!seat) {
-        return 506;
+        return ANIM_COUNT;
     }
 
     int32_t anim;
@@ -433,14 +433,14 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
         case 1:
         case 2: {
             if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER)) {
-                return 506;
+                return ANIM_COUNT;
             }
 
             if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE) || (anim = seat->m_enterAnimStart) == -1) {
                 anim = seat->m_enterAnimLoop;
 
-                if (anim == -1) {
-                    return 506;
+                if (anim == INVALID_ANIMATION) {
+                    return ANIM_COUNT;
                 }
             }
 
@@ -449,14 +449,14 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
 
         case 3: {
             if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) {
-                return 506;
+                return ANIM_COUNT;
             }
 
             if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE) || (anim = seat->m_rideAnimStart) == -1) {
                 anim = seat->m_rideAnimLoop;
 
-                if (anim == -1) {
-                    return 506;
+                if (anim == INVALID_ANIMATION) {
+                    return ANIM_COUNT;
                 }
             }
 
@@ -466,14 +466,14 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
         case 4:
         case 5: {
             if (!this->m_unit->ShouldUseVehicleSeatExitAnimation(seat)) {
-                return 506;
+                return ANIM_COUNT;
             }
 
             if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE) || (anim = seat->m_exitAnimStart) == -1) {
                 anim = seat->m_exitAnimLoop;
 
-                if (anim == -1) {
-                    return 506;
+                if (anim == INVALID_ANIMATION) {
+                    return ANIM_COUNT;
                 }
             }
 
@@ -481,7 +481,7 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
         }
 
         default: {
-            return 506;
+            return ANIM_COUNT;
         }
     }
 
@@ -528,8 +528,8 @@ void CVehiclePassenger_C::StartMirroringVehicleAnims() {
     M2BoneSequenceInfo info;
     vehicleModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
 
-    if (info.m_sequenceId >= 506) {
-        model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (info.m_sequenceId >= ANIM_COUNT) {
+        model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
         model->SetBoneSequence(0xFFFFFFFF, info.m_sequenceId, info.m_variationIndex, info.m_time, info.m_speed, 1, 1);
     }
@@ -545,7 +545,7 @@ void CVehiclePassenger_C::StartMirroringVehicleAnims() {
 
             vehicleModel->GetBoneSequenceInfo(bone, info);
 
-            if (info.m_sequenceId < 506) {
+            if (info.m_sequenceId < ANIM_COUNT) {
                 model->SetBoneSequence(bone, info.m_sequenceId, info.m_variationIndex, info.m_time, info.m_speed, 1, 1);
                 continue;
             }
@@ -684,20 +684,20 @@ C3Vector CVehiclePassenger_C::ComputeStartWorldPosition(const C3Vector& offset, 
 void CVehiclePassenger_C::OnAnimEnd(uint32_t anim) {
     const VehicleSeatRec* seat = this->m_seatRec;
 
-    if (this->GetLowerAnim(seat) != 506 && seat && this->m_state == 3 && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
+    if (this->GetLowerAnim(seat) != ANIM_COUNT && seat && this->m_state == 3 && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         int32_t upper;
 
         if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE) || (upper = seat->m_rideUpperAnimStart) == -1) {
             upper = seat->m_rideUpperAnimLoop;
 
-            if (upper == -1) {
+            if (upper == INVALID_ANIMATION) {
                 this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_ANIM_START_DONE_MASK;
                 return;
             }
         }
 
-        if (upper != 506) {
-            if (anim == 0xFFFFFFFF || anim == 26) {
+        if (upper != ANIM_COUNT) {
+            if (anim == INVALID_ANIMATION || anim == ANIM_READY_1H) {
                 this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_LOWER_ANIM_START_DONE;
             } else {
                 this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE;
@@ -723,7 +723,7 @@ int32_t CVehiclePassenger_C::PickHighPriorityAnimation(int32_t unused_a2, uint32
 
     int32_t lower = this->GetLowerAnim(this->m_seatRec);
 
-    if (lower == 506) {
+    if (lower == ANIM_COUNT) {
         return 0;
     }
 
@@ -785,7 +785,7 @@ int32_t CVehiclePassenger_C::GetUpperAnim(const VehicleSeatRec* seat) const {
     if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE) || (anim = seat->m_rideUpperAnimStart) == -1) {
         anim = seat->m_rideUpperAnimLoop;
 
-        if (anim == -1) {
+        if (anim == INVALID_ANIMATION) {
             return ANIM_COUNT;
         }
     }
@@ -1177,7 +1177,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
                 anim = ANIM_JUMP_LAND_RUN;
             }
         } else {
-            anim = 0xFFFFFFFF;
+            anim = INVALID_ANIMATION;
         }
 
         this->m_unit->PlayVehicleExitEndAnimation(seatRec, anim);
@@ -1250,7 +1250,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         && vehicleObject
         && seatRec
         && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_RIDE_ANIM)
-        && seatRec->m_vehicleRideAnimLoop < 506) {
+        && seatRec->m_vehicleRideAnimLoop < ANIM_COUNT) {
         CVehicle_C* boneVehicle = vehicleObject->FindVehicleToPlayBoneAnim();
 
         if (boneVehicle->PlayBoneAnim(seatRec->m_vehicleEnterAnimBone, seatRec->m_vehicleRideAnimLoop)) {

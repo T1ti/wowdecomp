@@ -240,7 +240,7 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
 
         uint32_t anim = seatRec->m_vehicleEnterAnim;
 
-        if (anim > 0x1F9) {
+        if (anim > (ANIM_COUNT - 1)) {
             return 0;
         }
 
@@ -254,7 +254,7 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
     }
 
     uint32_t anim = seatRec->m_vehicleExitAnim;
-    return anim <= 0x1F9 && animVehicle->CanPlayBoneAnim(anim);
+    return anim <= (ANIM_COUNT - 1) && animVehicle->CanPlayBoneAnim(anim);
 }
 
 // VERIFY: 0d563d24 manual
@@ -300,7 +300,7 @@ int32_t CGUnit_C::VehiclePassengerStartWaitingForVehicleTransitionAnim(uint64_t 
 
     if (entering) {
         if (!(seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_ENTER_ANIM)
-            || static_cast<uint32_t>(seatRec->m_vehicleEnterAnim) > 0x1F9
+            || static_cast<uint32_t>(seatRec->m_vehicleEnterAnim) > (ANIM_COUNT - 1)
             || !animVehicle->PlayBoneAnim(seatRec->m_field33512213034, seatRec->m_vehicleEnterAnim)) {
             return 0;
         }
@@ -314,7 +314,7 @@ int32_t CGUnit_C::VehiclePassengerStartWaitingForVehicleTransitionAnim(uint64_t 
         if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
             ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT
             : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT))
-            || static_cast<uint32_t>(seatRec->m_vehicleExitAnim) > 0x1F9
+            || static_cast<uint32_t>(seatRec->m_vehicleExitAnim) > (ANIM_COUNT - 1)
             || !animVehicle->PlayBoneAnim(seatRec->m_vehicleExitAnimBone, seatRec->m_vehicleExitAnim)) {
             return 0;
         }
@@ -369,7 +369,7 @@ CGUnit_C* CGUnit_C::GetRootVehicleUnit() {
 // VERIFY: 218b4093 auto
 // OFFSET: 0x0074B9C0
 void CGUnit_C::PlayVehicleExitEndAnimation(const VehicleSeatRec* seat, uint32_t anim) {
-    if (!seat || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_FORCE_EXIT_END_ANIM) || anim == 0xFFFFFFFF) {
+    if (!seat || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_FORCE_EXIT_END_ANIM) || anim == INVALID_ANIMATION) {
         uint32_t flags = this->m_movement->m_flags;
 
         if (flags & MOVEMENTFLAG_FALLING) {
@@ -383,7 +383,7 @@ void CGUnit_C::PlayVehicleExitEndAnimation(const VehicleSeatRec* seat, uint32_t 
             return;
         }
 
-        if ((flags & MOVEMENTFLAG_FLYING) || anim == 0xFFFFFFFF) {
+        if ((flags & MOVEMENTFLAG_FLYING) || anim == INVALID_ANIMATION) {
             return;
         }
     }

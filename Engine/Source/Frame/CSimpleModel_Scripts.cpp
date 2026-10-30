@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Frame/CSimpleModel.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
 #include "Engine/Source/Model2/M2Light.h"
@@ -172,9 +173,9 @@ static int32_t Script_SetSequence(lua_State* L) {
 
     uint32_t sequence = static_cast<uint32_t>(lua_tonumber(L, 2));
 
-    if (sequence >= 506) {
+    if (sequence >= ANIM_COUNT) {
         const char* name = model->GetName();
-        luaL_error(L, "Error: %s:SetSequence(sequence) exceeds valid range of 0 - %d", name ? name : "<unnamed>", 506);
+        luaL_error(L, "Error: %s:SetSequence(sequence) exceeds valid range of 0 - %d", name ? name : "<unnamed>", ANIM_COUNT);
         return 0;
     }
 

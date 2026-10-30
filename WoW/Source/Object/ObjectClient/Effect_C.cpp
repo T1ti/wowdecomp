@@ -371,7 +371,7 @@ void CEffect::CreateModelFromEffect(CM2Model* model, void* arg) {
         effect->SetEmissionRateIgnoresDistance(1);
     }
 
-    model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
 }
 
 // VERIFY: 392d7fa2 manual
@@ -1441,7 +1441,7 @@ void CEffect::PostInitialize() {
 // VERIFY: 5e1b1086 auto
 // OFFSET: 0x006F7480
 static void MountTransitionSequenceCB(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param) {
-    if (sequenceId != 127) {
+    if (sequenceId != ANIM_BIRTH) {
         return;
     }
 
@@ -1596,7 +1596,7 @@ int32_t CEffect::LoadMountTransitionModel() {
     this->m_model->SetSequenceCallback(reinterpret_cast<void*>(&MountTransitionSequenceCB), reinterpret_cast<uintptr_t>(this));
     this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
     CCharacterComponent::ReplaceMonsterSkin(this->m_model, display, modelData);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, 127, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     CM2Model* model = this->m_model;
 
     if (model->m_attachParent) {

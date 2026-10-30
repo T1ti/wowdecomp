@@ -414,7 +414,7 @@ void CCharacterComponent::ComponentCloseFingers(CM2Model* model, COMP_HAND_SLOT 
     }
 
     for (uint32_t bone = first; bone <= last; bone++) {
-        model->SetBoneSequence(bone, 15, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+        model->SetBoneSequence(bone, ANIM_HANDS_CLOSED, 0xFFFFFFFF, 0, 1.0f, 0, 1);
     }
 }
 
@@ -2106,7 +2106,7 @@ CM2Model* CCharacterComponent::MakeAmmoModel(CM2Model* model, const ItemDisplayI
         return nullptr;
     }
 
-    ammoModel->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    ammoModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     CTexture* texture = CreateTexture(texturePath, &s_status);
 
     if (!texture) {

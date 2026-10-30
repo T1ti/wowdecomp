@@ -196,7 +196,7 @@ void CGUnit_C::PlayVictimRound(const ATTACKROUNDINFO& info) {
 void CGUnit_C::PlayRangedItemPull() {
     CM2Model* ranged = this->m_rangedWeaponModel;
 
-    if (!ranged || !ranged->IsLoaded(0, 0) || !ranged->HasSequence(160)) {
+    if (!ranged || !ranged->IsLoaded(0, 0) || !ranged->HasSequence(ANIM_ITEM_BOWPULL)) {
         return;
     }
 
@@ -205,12 +205,12 @@ void CGUnit_C::PlayRangedItemPull() {
     }
 
     M2BoneSequenceInfo info;
-    info.m_sequenceId = 0xFFFFFFFF;
+    info.m_sequenceId = INVALID_ANIMATION;
 
     if (this->m_torsoKeyBone == 4) {
         this->m_worldModel->GetBoneSequenceInfo(4, info);
 
-        if (info.m_sequenceId == 0xFFFFFFFF) {
+        if (info.m_sequenceId == INVALID_ANIMATION) {
             this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
         }
     } else {
@@ -230,8 +230,8 @@ void CGUnit_C::PlayRangedItemPull() {
 
     M2SequenceInfo sequence;
     sequence.Clear();
-    this->m_rangedWeaponModel->GetSequenceInfo(160, 0, sequence);
-    this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, 160, 0, 0, static_cast<float>(static_cast<int32_t>(sequence.m_duration)) / remaining, 1, 1);
+    this->m_rangedWeaponModel->GetSequenceInfo(ANIM_ITEM_BOWPULL, 0, sequence);
+    this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_BOWPULL, 0, 0, static_cast<float>(static_cast<int32_t>(sequence.m_duration)) / remaining, 1, 1);
 }
 
 // VERIFY: ee364054 manual

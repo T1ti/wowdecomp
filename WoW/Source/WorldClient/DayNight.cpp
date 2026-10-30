@@ -1,4 +1,5 @@
 #include "WoW/Source/WorldClient/DayNight__DNInfo.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include <cmath>
 #include <new>
 #include <typeinfo>
@@ -555,7 +556,7 @@ void DayNight::SyncSkyAnimWithTime(DNOverrideSky* sky, int32_t minutes) {
     if (abs(minutes - static_cast<int32_t>(sky->m_lastTimeOfDay)) >= 2 && (sky->m_flags & 1)) {
         float speed = 0.000000011574074f * length;
         uint32_t time = static_cast<uint32_t>(length * (minutes * 0.00069444446f));
-        sky->m_model->SetBoneSequence(0xFFFFFFFF, 0, 0xFFFFFFFF, time, speed, 1, 1);
+        sky->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, time, speed, 1, 1);
     }
 
     sky->m_lastTimeOfDay = minutes;
