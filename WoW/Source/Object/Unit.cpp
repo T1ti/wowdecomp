@@ -1,4 +1,5 @@
 #include "Unit.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/CMoveSpline.h"
 #include "WoW/Source/Object/Movement.h"
 #include "WoW/Source/Object/Object.h"
@@ -56,18 +57,18 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
         return 0;
     }
 
-    if ((emoteFlags & 0x80) && (this->m_movement->m_flags & 0x200000)) {
+    if ((emoteFlags & 0x80) && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
         return 0;
     }
 
     if (emoteFlags & 0x8000) {
         CMoveSpline* spline = this->m_movement->m_spline;
 
-        if (spline && !(spline->m_flags & 0x400) && (spline->m_flags & 0x2000)) {
+        if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
             return 0;
         }
 
-        if (this->m_movement->m_flags & 0x2000000) {
+        if (this->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
             return 0;
         }
     }
@@ -80,7 +81,7 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
         }
     }
 
-    if ((emoteFlags & 0x4000) && (this->m_movement->m_flags & 0xC010FF)) {
+    if ((emoteFlags & 0x4000) && (this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
         *standUp = 1;
     }
 
@@ -144,7 +145,7 @@ int32_t CGUnit::HasAuraState(int32_t state) const {
 int32_t CGUnit::IsOnFlyingSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & 0x400) && (spline->m_flags & 0x2000)) {
+    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
         return 1;
     }
 
@@ -155,7 +156,7 @@ int32_t CGUnit::IsOnFlyingSpline() const {
 // OFFSET: 0x005F9810
 int32_t CGUnit::IsOnSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
-    return spline && !(spline->m_flags & 0x400);
+    return spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE);
 }
 
 // VERIFY: ea2cbe01 auto
@@ -167,7 +168,7 @@ int32_t CGUnit::IsJumping() const {
 // VERIFY: 4e64bda0 auto
 // OFFSET: 0x005FA9E0
 int32_t CGUnit::CanMove() const {
-    return this->m_unit->m_unitFieldHealth > 0 && !(this->m_movement->m_flags & 0x100A00) && this->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD;
+    return this->m_unit->m_unitFieldHealth > 0 && !(this->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && this->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD;
 }
 
 // VERIFY: 68641d42 auto

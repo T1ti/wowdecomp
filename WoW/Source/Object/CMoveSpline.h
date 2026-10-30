@@ -25,7 +25,7 @@ class CMoveSpline {
     /* 000C */ uint32_t unused_000C;
     /* 0010 */ CMoveSplineFaceData m_face;
     /* 001C */ uint32_t unused_001C;
-    /* 0020 */ uint32_t m_flags;
+    /* 0020 */ uint32_t m_flags; // SplineFlags
     /* 0024 */ uint32_t m_timePassed;
     /* 0028 */ uint32_t m_start;
     /* 002C */ uint32_t m_duration;

@@ -1,4 +1,5 @@
 #include "Spell_C.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Magic/Types.h"
@@ -3613,7 +3614,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
             }
         }
 
-        if (targetUnit && (caster->m_movement->m_flags & 0x100D) && (targetUnit->m_movement->m_flags & 0x100D) && !caster->IsRunning() && !targetUnit->IsRunning() && ((rec->m_flags & 1) || (targetUnit->m_obj->m_type & TYPE_PLAYER))) {
+        if (targetUnit && (caster->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && (targetUnit->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && !caster->IsRunning() && !targetUnit->IsRunning() && ((rec->m_flags & 1) || (targetUnit->m_obj->m_type & TYPE_PLAYER))) {
             bonus += 2.6666667f;
         }
     }
@@ -7732,7 +7733,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         }
     }
 
-    if (caster->m_movement->m_flags & 0x2000000) {
+    if (caster->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
         if ((static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && (caster->m_mountDisplayId <= 0 || (caster->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || caster->m_shapeshiftSuppressed) {
             if ((spell.m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell.m_channelInterruptFlags & 0x18)) {
                 Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_MOVING, -1, -1, false);

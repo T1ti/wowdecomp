@@ -1,4 +1,5 @@
 #include "MapWeather.h"
+#include "WoW/Source/Object/Types.h"
 #include <cmath>
 #include <cstdint>
 #include "Engine/Source/Base/Handle.h"
@@ -242,7 +243,7 @@ void Snow::UpdatePackets() {
         if (active) {
             CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(active, TYPE_PLAYER, __FILE__, __LINE__));
 
-            if (player && player->m_movement->m_spline && !(player->m_movement->m_spline->m_flags & 0x400)) {
+            if (player && player->m_movement->m_spline && !(player->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
                 C3Spline_CatmullRom* spline = player->GetSpline();
 
                 if (spline && spline->m_pointCount > 2) {

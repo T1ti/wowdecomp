@@ -1,4 +1,5 @@
 #include "InputControl.h"
+#include "WoW/Source/Object/Types.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -36,7 +37,7 @@ static int32_t Script_JumpOrAscendStart(lua_State* L) {
 
     input->ToggleControlBit(INPUT_ASCEND_PLAYER_KEY, 1, CSimpleTop::s_eventTime, 0);
 
-    if (mover->m_movement->m_flags & 0x2200000) {
+    if (mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
         return 0;
     }
 

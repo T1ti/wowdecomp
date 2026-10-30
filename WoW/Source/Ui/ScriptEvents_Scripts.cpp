@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
@@ -1397,7 +1398,7 @@ static int32_t Script_IsFalling(lua_State* L) {
     if (player) {
         uint32_t flags = player->m_movement->m_flags;
 
-        if ((flags & 0x1000) && !(flags & 0x800)) {
+        if ((flags & MOVEMENTFLAG_FALLING) && !(flags & MOVEMENTFLAG_ROOT)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -1720,7 +1721,7 @@ static int32_t Script_IsFlying(lua_State* L) {
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ unit->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
     }
 
-    if (unit && (unit->m_movement->m_flags & 0x2000000)) {
+    if (unit && (unit->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

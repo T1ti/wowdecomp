@@ -3056,7 +3056,7 @@ static int32_t Script_SitStandOrDescendStart(lua_State* L) {
 
     DescendStart();
 
-    if (player->m_movement->m_flags & 0x2000000) {
+    if (player->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
         return 0;
     }
 

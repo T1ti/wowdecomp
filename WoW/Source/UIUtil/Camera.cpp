@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/Coordinate.h"
 #include <cmath>
 #include <cstring>
@@ -878,7 +879,7 @@ void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, int32_t imm
     } else {
         uint32_t moveFlags = unit->m_movement->m_flags;
 
-        if (moveFlags & (MOVEMENTFLAG_FLYING | MOVEMENTFLAG_SWIMMING)) {
+        if (moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
             state = 6;
         } else if (moveFlags & MOVEMENTFLAG_FALLING) {
             state = 0;
@@ -888,12 +889,12 @@ void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, int32_t imm
             state = 8;
         } else if (this->m_state & 0x1000) {
             state = 1;
-        } else if (moveFlags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD)) {
+        } else if (moveFlags & MOVEMENTFLAG_MOVE_MASK) {
             state = 4;
-        } else if (moveFlags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+        } else if (moveFlags & MOVEMENTFLAG_STRAFE_MASK) {
             state = 5;
         } else {
-            state = (moveFlags & (MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT)) ? 9 : 2;
+            state = (moveFlags & MOVEMENTFLAG_TURN_MASK) ? 9 : 2;
         }
     }
 
@@ -1533,7 +1534,7 @@ uint32_t CGCamera::CanSmoothTargetFacing(CGObject_C* target) {
 
     uint32_t moveFlags = static_cast<CGUnit_C*>(target)->m_movement->m_flags;
 
-    if (moveFlags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+    if (moveFlags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) {
         return 0;
     }
 
@@ -1726,7 +1727,7 @@ uint32_t CGCamera::IsBobbingAllowed(CGObject_C* target) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(target);
     uint32_t moveFlags = unit->m_movement->m_flags;
 
-    if ((moveFlags & (MOVEMENTFLAG_FLYING | MOVEMENTFLAG_SWIMMING)) || (moveFlags & MOVEMENTFLAG_FALLING)) {
+    if ((moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (moveFlags & MOVEMENTFLAG_FALLING)) {
         return 0;
     }
 
@@ -2052,7 +2053,7 @@ void CGCamera::SetVehicleZoomEnabled(int32_t enabled, float duration, int32_t an
 int32_t CGCamera::ShouldSmoothPitch(float minPitch, float maxPitch) {
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_UNIT, __FILE__, __LINE__);
 
-    return target && !(this->m_state & 0x1) && s_cvCameraSmoothPitch->m_intValue && !(static_cast<CGUnit_C*>(target)->m_movement->m_flags & (MOVEMENTFLAG_FLYING | MOVEMENTFLAG_SWIMMING)) && (minPitch > this->m_pitch || maxPitch < this->m_pitch);
+    return target && !(this->m_state & 0x1) && s_cvCameraSmoothPitch->m_intValue && !(static_cast<CGUnit_C*>(target)->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && (minPitch > this->m_pitch || maxPitch < this->m_pitch);
 }
 
 // VERIFY: d2778348 manual
@@ -2360,14 +2361,14 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         flying = (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) != 0;
         autoTracking = unit->IsAutoTracking();
 
-        if (unit->IsOnFlyingSpline() || (unit->m_movement->m_flags & 0x2000000)) {
+        if (unit->IsOnFlyingSpline() || (unit->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
             onFlyingSpline = 1;
         }
 
-        swimming = unit->m_movement->m_flags & 0x200000;
+        swimming = unit->m_movement->m_flags & MOVEMENTFLAG_SWIMMING;
 
         CMoveSpline* spline = unit->m_movement->m_spline;
-        int32_t splineControlled = spline && !(spline->m_flags & 0x400) ? 1 : 0;
+        int32_t splineControlled = spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) ? 1 : 0;
 
         unitPitch = unit->GetPitch();
         this->UpdateMountHeightOrOffset(unit);

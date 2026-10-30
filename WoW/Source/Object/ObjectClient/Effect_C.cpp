@@ -1,4 +1,5 @@
 #include "Effect_C.h"
+#include "WoW/Source/Object/Types.h"
 #include <cstring>
 #include <cmath>
 #include "Engine/Source/Storm/H/storm.h"
@@ -1202,7 +1203,7 @@ void CEffect::EffectUpdate() {
             if (this->m_flags & 0x4000) {
                 this->m_position = unit->GetRawPosition();
 
-                if (unit->m_movement->m_flags & 0x40000000) {
+                if (unit->m_movement->m_flags & MOVEMENTFLAG_HOVER) {
                     this->m_position.z -= unit->m_unit->m_unitFieldHoverheight;
                 }
 

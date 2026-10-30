@@ -30,8 +30,8 @@ class CMovementShared : public CPassenger {
 
     /* 0030 */ TSLink<void> m_globalUnitsLink;
     /* 0038 */ C3Vector m_groundNormal;
-    /* 0044 */ uint32_t m_flags;
-    /* 0048 */ uint16_t m_flags2;
+    /* 0044 */ uint32_t m_flags; // MovementFlags
+    /* 0048 */ uint16_t m_flags2; // MovementFlags2
     /* 004A */ uint8_t m_transportSeat;
     /* 004B */ uint8_t unused_004B;
     /* 004C */ C3Vector m_anchorPos;

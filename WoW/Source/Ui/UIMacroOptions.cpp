@@ -1,4 +1,5 @@
 #include "UIMacroOptions.h"
+#include "WoW/Source/Object/Types.h"
 #include <cstring>
 #include "Engine/Source/Frame/CSimpleButton.h"
 #include "Engine/Source/Frame/CSimpleTop.h"
@@ -464,7 +465,7 @@ int32_t EvaluateSwimming(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
 // OFFSET: 0x005EFAA0
 int32_t EvaluateFlying(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>* args) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    int32_t flying = player && (player->m_movement->m_flags & 0x2000000);
+    int32_t flying = player && (player->m_movement->m_flags & MOVEMENTFLAG_FLYING);
 
     if (args->m_count) {
         return flying == args->m_data->ToNumber();

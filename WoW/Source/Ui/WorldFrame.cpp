@@ -1,4 +1,5 @@
 #include "WorldFrame.h"
+#include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/ConvertUTF.h"
 #include <cstring>
 #include <typeinfo>
@@ -634,7 +635,7 @@ uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t a1) {
         uint32_t moveFlags = mover->m_movement->m_flags;
         flags = 1;
 
-        if ((moveFlags & 0x10000000) && !(moveFlags & 0x200000)) {
+        if ((moveFlags & MOVEMENTFLAG_WATERWALKING) && !(moveFlags & MOVEMENTFLAG_SWIMMING)) {
             flags = 3;
         }
     }

@@ -1,4 +1,5 @@
 #include "GameObject_C.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/Item_C.h"
 #include <cmath>
 #include <cstring>
@@ -2261,7 +2262,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
     if (this->m_worldObject && state > current && state != 3 && state) {
         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-        if (mover && !mover->HasVehicleTransport() && !(mover->m_movement->m_flags & 0x2000000)) {
+        if (mover && !mover->HasVehicleTransport() && !(mover->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
             CAaBox extents;
             extents.b = C3Vector(0.0f, 0.0f, 0.0f);
             extents.t = C3Vector(0.0f, 0.0f, 0.0f);
@@ -3588,7 +3589,7 @@ void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
     for (CPassenger* passenger = this->m_passengers.Head(); passenger; passenger = this->m_passengers.Next(passenger)) {
         CMovementShared* movement = static_cast<CMovementShared*>(passenger);
 
-        if (this->m_worldObjectReady && (passenger->m_passengerFlags & 0x1) && (movement->m_flags & 0x8000000)) {
+        if (this->m_worldObjectReady && (passenger->m_passengerFlags & 0x1) && (movement->m_flags & MOVEMENTFLAG_SPLINE_ENABLED)) {
             movement->ClearSplineEnabled();
         }
 

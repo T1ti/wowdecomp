@@ -20,8 +20,8 @@ class CPlayerMoveEvent {
     /* 0020 */ float m_pitch;
     /* 0024 */ uint32_t unused_0024;
     /* 0028 */ WOWGUID m_transportGuid;
-    /* 0030 */ uint32_t m_moveFlags;
-    /* 0034 */ uint16_t m_moveExtraFlags;
+    /* 0030 */ uint32_t m_moveFlags; // MovementFlags
+    /* 0034 */ uint16_t m_moveExtraFlags; // MovementFlags2
     /* 0036 */ uint16_t unused_0036;
     /* 0038 */ uint32_t m_fallTime;
     /* 003C */ float m_value;

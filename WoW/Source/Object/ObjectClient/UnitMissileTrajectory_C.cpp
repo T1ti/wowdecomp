@@ -1,4 +1,5 @@
 #include "UnitMissileTrajectory_C.h"
+#include "WoW/Source/Object/Types.h"
 #include <new>
 #include "Engine/Source/Base/ObjectAlloc.h"
 #include "Engine/Source/Storm/H/storm.h"
@@ -1131,7 +1132,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
         root = this;
     }
 
-    if (!(this->m_movement->m_flags & 0x2200000) && model && (model->m_fFlags & 0x8000)) {
+    if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && model && (model->m_fFlags & 0x8000)) {
         C44Matrix transform = model->GetAnimatedWorldTransform();
 
         if (transform.c2 < 1.0f) {

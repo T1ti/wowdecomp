@@ -1,4 +1,5 @@
 #include "BattlefieldInfo.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
@@ -957,7 +958,7 @@ static int32_t Script_AcceptBattlefieldPort(lua_State* L) {
             return 1;
         }
 
-        if (player->m_movement->m_flags & 0x1000) {
+        if (player->m_movement->m_flags & MOVEMENTFLAG_FALLING) {
             CGGameUI::DisplayError(ERR_NOT_WHILE_FALLING);
             lua_pushnil(L);
             return 1;

@@ -1,4 +1,5 @@
 #include "VehiclePassenger_C.h"
+#include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/Base/ObjectAlloc.h"
 #include "Engine/Source/Model2/M2Model.h"
@@ -1172,7 +1173,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         if (seatRec) {
             anim = seatRec->m_exitAnimEnd;
 
-            if (anim == ANIM_JUMP_END && (this->m_unit->m_movement->m_flags & 0xF)) {
+            if (anim == ANIM_JUMP_END && (this->m_unit->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
                 anim = ANIM_JUMP_LAND_RUN;
             }
         } else {

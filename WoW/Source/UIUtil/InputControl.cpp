@@ -1,4 +1,5 @@
 #include <cmath>
+#include "WoW/Source/Object/Types.h"
 #include <cstdint>
 #include <new>
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
@@ -342,7 +343,7 @@ int32_t __stdcall CGInputControl::CanControl(CGUnit_C* unit) {
 
     CMoveSpline* spline = unit->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & 0x400)) {
+    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
         return 0;
     }
 
@@ -367,7 +368,7 @@ int32_t CGInputControl::CameraCanTurnPlayer() const {
 
         CMoveSpline* spline = mover->m_movement->m_spline;
 
-        if (spline && !(spline->m_flags & 0x400)) {
+        if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
             return 0;
         }
 
@@ -520,7 +521,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
 
     CMoveSpline* spline = mover->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & 0x400)) {
+    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
         return 0;
     }
 
@@ -530,7 +531,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
 
     CMovement_C* movement = mover->m_movement;
 
-    if ((movement->m_flags2 & 0x20) && !(movement->m_flags & 0x2200000)) {
+    if ((movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING) && !(movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         VehicleRec* rec = mover->GetVehicleRec();
 
         if (!rec || !(rec->m_flags & 0x40000)) {
@@ -562,7 +563,7 @@ int32_t __stdcall CGInputControl::CanMove(CGUnit_C* unit) {
         return 0;
     }
 
-    return unit->m_unit->m_unitFieldHealth > 0 && !(unit->m_movement->m_flags & 0x100A00) && unit->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD && !unit->HasVehicleTransport();
+    return unit->m_unit->m_unitFieldHealth > 0 && !(unit->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && unit->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD && !unit->HasVehicleTransport();
 }
 
 // VERIFY: d0f5f494 auto
@@ -643,7 +644,7 @@ void CGInputControl::OnUpdate(float elapsed) {
         }
     }
 
-    if (mover->m_movement->m_flags & 0xC0) {
+    if (mover->m_movement->m_flags & MOVEMENTFLAG_PITCH_MASK) {
         CGInputControl::SendUIVehicleAngleUpdate(mover->GetPitch());
     }
 }
@@ -716,7 +717,7 @@ void CGInputControl::CameraTurnPlayer(uint32_t time, float facing) {
         mover->ConvertVehicleCameraRelativeFacingToTransportRelativeFacing(facing);
     }
 
-    if (mover->m_movement->m_flags2 & 0x8) {
+    if (mover->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) {
         if (!this->m_facingOverrideActive || this->m_facingOverride != facing) {
             mover->OnTurnToAngleLocal(time, facing);
             this->m_facingOverride = facing;
@@ -764,7 +765,7 @@ void CGInputControl::SetPlayerPitch(CGUnit_C* unit, uint32_t time, float pitch) 
         }
     }
 
-    if (unit->m_movement->m_flags2 & 0x10) {
+    if (unit->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_PITCHING) {
         if (!this->m_vehicleAimValid || this->m_vehicleAim != pitch) {
             unit->OnPitchToAngleLocal(time, pitch);
             this->m_vehicleAim = pitch;
@@ -990,7 +991,7 @@ void CGInputControl::AscendDescendPlayer(uint32_t time, CGUnit_C* unit) {
     CMovement_C* movement = unit->m_movement;
     uint32_t moveFlags = movement->m_flags;
 
-    if (!(moveFlags & 0x2200000)) {
+    if (!(moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         this->m_flags &= ~INPUT_ASCEND_DESCEND_PLAYER_SENT;
         return;
     }
@@ -1002,14 +1003,14 @@ void CGInputControl::AscendDescendPlayer(uint32_t time, CGUnit_C* unit) {
         direction--;
     }
 
-    if (movement->m_flags2 & 0x10) {
+    if (movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_PITCHING) {
         if (direction > 0) {
-            if (!(flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (moveFlags & 0x80)) {
+            if (!(flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (moveFlags & MOVEMENTFLAG_PITCH_DOWN)) {
                 unit->OnPitchStartLocal(time, 1);
                 this->m_flags |= INPUT_ASCEND_DESCEND_PLAYER_SENT;
             }
         } else if (direction < 0) {
-            if (!(flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (moveFlags & 0x40)) {
+            if (!(flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (moveFlags & MOVEMENTFLAG_PITCH_UP)) {
                 unit->OnPitchStartLocal(time, 0);
                 this->m_flags |= INPUT_ASCEND_DESCEND_PLAYER_SENT;
             }
@@ -1036,12 +1037,12 @@ void CGInputControl::AscendDescendPlayer(uint32_t time, CGUnit_C* unit) {
     }
 
     if (direction > 0) {
-        if (!(this->m_flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (unit->m_movement->m_flags & 0x800000)) {
+        if (!(this->m_flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (unit->m_movement->m_flags & MOVEMENTFLAG_DESCENDING)) {
             unit->OnAscendDescendStartLocal(time, 1);
             this->m_flags |= INPUT_ASCEND_DESCEND_PLAYER_SENT;
         }
     } else {
-        if (!(this->m_flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (unit->m_movement->m_flags & 0x400000)) {
+        if (!(this->m_flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (unit->m_movement->m_flags & MOVEMENTFLAG_ASCENDING)) {
             unit->OnAscendDescendStartLocal(time, 0);
             this->m_flags |= INPUT_ASCEND_DESCEND_PLAYER_SENT;
         }
@@ -1098,12 +1099,12 @@ void CGInputControl::MovePlayer(uint32_t time, CGUnit_C* unit) {
     }
 
     if (direction > 0) {
-        if (!(this->m_flags & INPUT_MOVE_PLAYER_SENT) || (unit->m_movement->m_flags & 0x2)) {
+        if (!(this->m_flags & INPUT_MOVE_PLAYER_SENT) || (unit->m_movement->m_flags & MOVEMENTFLAG_BACKWARD)) {
             unit->OnMoveStartLocal(time, 1);
             this->m_flags |= INPUT_MOVE_PLAYER_SENT;
         }
     } else {
-        if (!(this->m_flags & INPUT_MOVE_PLAYER_SENT) || (unit->m_movement->m_flags & 0x1)) {
+        if (!(this->m_flags & INPUT_MOVE_PLAYER_SENT) || (unit->m_movement->m_flags & MOVEMENTFLAG_FORWARD)) {
             unit->OnMoveStartLocal(time, 0);
             this->m_flags |= INPUT_MOVE_PLAYER_SENT;
         }
@@ -1290,7 +1291,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, int32_t a2) {
     if (canTurn) {
         this->TurnPlayer(time, mover);
 
-        if ((mover->m_movement->m_flags & 0x2200000) || (mover->m_movement->m_flags2 & 0x20)) {
+        if ((mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (mover->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
             this->PitchPlayer(time, mover);
         }
     } else {
@@ -1303,7 +1304,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, int32_t a2) {
         }
 
         if (this->m_flags & INPUT_PITCH_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline() && (mover->m_movement->m_flags & 0x2200000)) {
+            if (!mover->m_movement->IsOnSpline() && (mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
                 mover->OnPitchStopLocal(time);
             }
 

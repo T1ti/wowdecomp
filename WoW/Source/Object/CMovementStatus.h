@@ -13,8 +13,8 @@ class CMovementStatus {
     /* 0000 */ uint32_t m_gameTime;
     /* 0004 */ uint32_t unused_0004;
     /* 0008 */ WOWGUID m_transportGuid;
-    /* 0010 */ uint32_t m_moveFlags;
-    /* 0014 */ uint16_t m_moveExtraFlags;
+    /* 0010 */ uint32_t m_moveFlags; // MovementFlags
+    /* 0014 */ uint16_t m_moveExtraFlags; // MovementFlags2
     /* 0016 */ uint8_t m_transportSeat;
     /* 0017 */ uint8_t m_uint17;
     /* 0018 */ C3Vector m_transportPosition;

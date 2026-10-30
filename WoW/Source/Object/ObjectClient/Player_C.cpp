@@ -955,11 +955,11 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
 
     uint32_t moveFlags = this->m_movement->m_flags;
 
-    if ((moveFlags & 0x30) && (standState == UNIT_SLEEPING || standState == UNIT_SITTING)) {
+    if ((moveFlags & MOVEMENTFLAG_TURN_MASK) && (standState == UNIT_SLEEPING || standState == UNIT_SITTING)) {
         return;
     }
 
-    if (standState && (moveFlags & 0x2E0100F)) {
+    if (standState && (moveFlags & MOVEMENTFLAG_LOCOMOTION_MASK)) {
         return;
     }
 
@@ -1338,7 +1338,7 @@ int32_t CGPlayer_C::CanLoot(const CGObject_C* object) {
         return 0;
     }
 
-    return !this->IsDeadOrGhost() && !(this->m_movement->m_flags & 0x1000) && !(this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && this->IsLocalClientControlled();
+    return !this->IsDeadOrGhost() && !(this->m_movement->m_flags & MOVEMENTFLAG_FALLING) && !(this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && this->IsLocalClientControlled();
 }
 
 // VERIFY: 37ec0ce6 auto
@@ -3009,7 +3009,7 @@ void CGPlayer_C::UpdateActiveMoverDisplay(uint32_t time) {
         return;
     }
 
-    if (drunkness <= 0.0f || !(this->m_movement->m_flags & 0xF)) {
+    if (drunkness <= 0.0f || !(this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
         return;
     }
 
@@ -3017,12 +3017,12 @@ void CGPlayer_C::UpdateActiveMoverDisplay(uint32_t time) {
         return;
     }
 
-    if (!(this->m_movement->m_flags & 0x30) || CGInputControl::GetActive()->CameraCanTurnPlayer()) {
+    if (!(this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) || CGInputControl::GetActive()->CameraCanTurnPlayer()) {
         this->OnSetRawFacingLocal(time, CMath::normalizeangle0to2pi_(this->GetRawFacing() + offset));
     }
 
-    if ((this->m_movement->m_flags & 0x2200000) || (this->m_movement->m_flags2 & 0x20)) {
-        if (CGInputControl::GetActive()->CameraCanTurnPlayer() || !(this->m_movementData.m_flags & 0xC0)) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+        if (CGInputControl::GetActive()->CameraCanTurnPlayer() || !(this->m_movementData.m_flags & MOVEMENTFLAG_PITCH_MASK)) {
             this->OnSetPitchLocal(time, ClampPitch(this->GetPitch() + offset * 4.0f));
         }
     }
@@ -3055,7 +3055,7 @@ static int32_t AuraVisionUpdateHandler(WOWGUID guid, void* param) {
 // VERIFY: ef96589a manual
 // OFFSET: 0x006E7F50
 void CGPlayer_C::PostInitActivePlayer() {
-    this->m_movementData.m_flags |= 0x200;
+    this->m_movementData.m_flags |= MOVEMENTFLAG_ONTRANSPORT;
     this->SetActiveMirrorHandlers();
     SI2::InitVocalErrorSounds(this->m_unit->m_unitFieldBytes0[0], this->m_player->m_playerBytes3[0]);
     CGSpellBook::ClearSpells();
@@ -3591,7 +3591,7 @@ int32_t Packet_SMSG_EMOTE(void* param, NETMESSAGE msgId, uint32_t time, CDataSto
     msg->Get(guid.m_guid);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && unit->m_unit->m_unitFieldBytes1[0] != UNIT_SLEEPING && !(unit->m_movement->m_flags & 0x200000)) {
+    if (unit && unit->m_unit->m_unitFieldBytes1[0] != UNIT_SLEEPING && !(unit->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
         unit->PlayEmoteAnimation(emote);
     }
 
@@ -8403,7 +8403,7 @@ int32_t CGPlayer_C::AutoCombatModeEventHandler(const void* data, void* param) {
 
         C3Vector direction = player->m_movementData.GetDirection();
 
-        if (direction.y * toTarget.y + direction.z * toTarget.z + direction.x * toTarget.x > 0.0f && !(player->m_movement->m_flags & 0x33) && maxRange * maxRange > distanceSq && Spell_C::CastSpell(CGSpellBook::m_autoRangedSpell, nullptr, target->m_obj->m_guid, false)) {
+        if (direction.y * toTarget.y + direction.z * toTarget.z + direction.x * toTarget.x > 0.0f && !(player->m_movement->m_flags & (MOVEMENTFLAG_MOVE_MASK | MOVEMENTFLAG_TURN_MASK)) && maxRange * maxRange > distanceSq && Spell_C::CastSpell(CGSpellBook::m_autoRangedSpell, nullptr, target->m_obj->m_guid, false)) {
             Spell_C_ClearLastAutoRangedCombatError();
         }
     }
@@ -8611,7 +8611,7 @@ int32_t CGPlayer_C::OnLootResponse(uint32_t time, CDataStore* msg) {
 
         CGGameUI::OpenLoot(object, coins, static_cast<LOOT_ACQUIRE>(lootAcquire));
 
-        if (this->m_movement->m_flags & 0xC000FF) {
+        if (this->m_movement->m_flags & (MOVEMENTFLAG_MOTION_MASK | MOVEMENTFLAG_ASCEND_DESCEND_MASK)) {
             CGGameUI::CloseLoot(true, true, false);
         }
 
@@ -8724,7 +8724,7 @@ int32_t CGPlayer_C::OnLootReleaseResponse(CDataStore* msg) {
 // VERIFY: 346301d0 manual
 // OFFSET: 0x006DAC40
 void CGPlayer_C::LootCorpse(CGCorpse_C* corpse, bool autoInteract) {
-    if (!this->CanLoot(corpse) || !corpse->CanBeLooted() || (this->m_movement->m_flags & 0xC010FF)) {
+    if (!this->CanLoot(corpse) || !corpse->CanBeLooted() || (this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
         return;
     }
 
@@ -8778,7 +8778,7 @@ void CGPlayer_C::LootUnit(CGUnit_C* unit, bool autoInteract) {
         }
     }
 
-    if (this->m_movement->m_flags & 0xC010FF) {
+    if (this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK) {
         return;
     }
 

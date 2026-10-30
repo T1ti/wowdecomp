@@ -1,4 +1,5 @@
 #include "UnitVehicle_C.h"
+#include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/Tempest/CMath.h"
@@ -371,18 +372,18 @@ void CGUnit_C::PlayVehicleExitEndAnimation(const VehicleSeatRec* seat, uint32_t 
     if (!seat || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_FORCE_EXIT_END_ANIM) || anim == 0xFFFFFFFF) {
         uint32_t flags = this->m_movement->m_flags;
 
-        if (flags & 0x1000) {
+        if (flags & MOVEMENTFLAG_FALLING) {
             this->PlayBaseAnimation(ANIM_FALL, 0);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FALL_LAND_PENDING;
             return;
         }
 
-        if (flags & 0x200000) {
+        if (flags & MOVEMENTFLAG_SWIMMING) {
             this->PlayBaseAnimation(ANIM_SWIM_IDLE, 0);
             return;
         }
 
-        if ((flags & 0x2000000) || anim == 0xFFFFFFFF) {
+        if ((flags & MOVEMENTFLAG_FLYING) || anim == 0xFFFFFFFF) {
             return;
         }
     }
@@ -520,7 +521,7 @@ uint32_t CGUnit_C::IsVehicleCurrentlyUnstoppable() const {
         return 0;
     }
 
-    return vehicle->m_flags & ((this->m_movement->m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ? 0x100 : 0x80);
+    return vehicle->m_flags & ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) ? 0x100 : 0x80);
 }
 
 // VERIFY: 2533cf6d auto

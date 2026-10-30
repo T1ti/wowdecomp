@@ -1,4 +1,5 @@
 #include "WoW/Source/Magic/Types.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "Unit_C.h"
 #include <cmath>
@@ -1225,13 +1226,13 @@ int32_t CGUnit_C::Animate(float elapsed) {
 
     CMovement_C* movement = this->m_movement;
 
-    if ((movement->m_flags & 0x2200000) && ((movement->m_flags & 0x3) || (this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING))) {
+    if ((movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && ((movement->m_flags & MOVEMENTFLAG_MOVE_MASK) || (this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING))) {
         C44Matrix matrix;
 
         if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-            this->ComputeSmoothedSwimMatrix(&matrix, elapsed, movement->m_flags & 0x2000000);
+            this->ComputeSmoothedSwimMatrix(&matrix, elapsed, movement->m_flags & MOVEMENTFLAG_FLYING);
 
-            if (this->m_movement->m_flags & 0x3) {
+            if (this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK) {
                 this->m_clientFlags2 |= UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_PITCH;
             }
         } else {
@@ -1496,21 +1497,21 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
     uint32_t moveFlags;
 
-    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 5)) || ((moveFlags = this->m_movement->m_flags) & 0x2200000) || fixedFacing || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES)) {
+    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 5)) || ((moveFlags = this->m_movement->m_flags) & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || fixedFacing || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES)) {
         this->m_renderFacing = this->m_smoothTarget.m_value;
         this->m_facingVelocity = 0.0f;
         this->m_facingBlend = 0.0f;
-    } else if (moveFlags & 0xC) {
-        float offset = (this->m_movementData.m_flags & 0x3) ? 0.7853982f : 1.5707964f;
-        uint32_t direction = this->m_movementData.m_flags & 0x6;
+    } else if (moveFlags & MOVEMENTFLAG_STRAFE_MASK) {
+        float offset = (this->m_movementData.m_flags & MOVEMENTFLAG_MOVE_MASK) ? 0.7853982f : 1.5707964f;
+        uint32_t direction = this->m_movementData.m_flags & (MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT);
 
-        if (direction == 6 || !direction) {
+        if (direction == (MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT) || !direction) {
             offset = -offset;
         }
 
         this->m_facingBlend = 1.0f;
         this->SmoothFacingAngle(CMath::normalizeAnglePi(CMath::normalizeAnglePi(offset + (this->m_smoothTarget.m_value - this->m_renderFacing)) + this->m_renderFacing));
-    } else if (moveFlags & 0x1003) {
+    } else if (moveFlags & (MOVEMENTFLAG_MOVE_MASK | MOVEMENTFLAG_FALLING)) {
         if (0.0f < this->m_facingBlend) {
             this->m_facingBlend = this->m_facingBlend - CGWorldFrame::s_currentWorldFrame->m_elapsedSec * 2.5f;
 
@@ -1537,7 +1538,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
             turn = delta < 0.0f ? -(absDelta - 1.5707964f) : absDelta - 1.5707964f;
         }
 
-        if (!(this->m_movement->m_flags & 0xC) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL)) {
+        if (!(this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL)) {
             float maxTurn = static_cast<float>(OsGetAsyncTimeMs() - this->m_lastTurnTimeMs) * 0.001f * this->m_movementData.m_turnRate * 8.0f;
             float step = absDelta < maxTurn ? absDelta : maxTurn;
             turn = (delta < 0.0f ? -step : step) + turn;
@@ -1594,7 +1595,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     this->RotateWheels();
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING;
 
-    if (!(this->m_movementData.m_flags & 0x2E0100F) && (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || !static_cast<CGPlayer_C*>(this)->m_lootTarget.m_guid) && !this->GetClientStandState()) {
+    if (!(this->m_movementData.m_flags & MOVEMENTFLAG_LOCOMOTION_MASK) && (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() || !static_cast<CGPlayer_C*>(this)->m_lootTarget.m_guid) && !this->GetClientStandState()) {
         if (turn > 0.00001f) {
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT;
         } else if (turn < -0.00001f) {
@@ -1605,9 +1606,9 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
         uint32_t flags = this->m_movement->m_flags;
         uint32_t wanted = sequence;
 
-        if ((flags & 0x10) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT)) {
+        if ((flags & MOVEMENTFLAG_TURN_LEFT) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_LEFT)) {
             wanted = 11;
-        } else if ((flags & 0x20) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_RIGHT)) {
+        } else if ((flags & MOVEMENTFLAG_TURN_RIGHT) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_RIGHT)) {
             wanted = 12;
         } else if (sequence == 11 || sequence == 12) {
             wanted = 0;
@@ -1745,7 +1746,7 @@ int32_t IsRifleAnim(uint32_t animId) {
 // VERIFY: a4dab725 auto
 // OFFSET: 0x0071DE90
 int32_t CGUnit_C::CanPlayTurnAnim() {
-    if (!(this->m_movementData.m_flags & 0x30) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) {
+    if (!(this->m_movementData.m_flags & MOVEMENTFLAG_TURN_MASK) && !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) {
         return 0;
     }
 
@@ -1911,9 +1912,9 @@ void CGUnit_C::RotateWheels() {
     float elapsed = elapsedMs * 0.001f;
     float distance;
 
-    if (flags & 0xD) {
+    if (flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD)) {
         distance = movement->m_currentSpeed * elapsed;
-    } else if (flags & 0x2) {
+    } else if (flags & MOVEMENTFLAG_BACKWARD) {
         distance = -(movement->m_currentSpeed * elapsed);
     } else {
         distance = 0.0f;
@@ -1921,9 +1922,9 @@ void CGUnit_C::RotateWheels() {
 
     float turn;
 
-    if (flags & 0x10) {
+    if (flags & MOVEMENTFLAG_TURN_LEFT) {
         turn = (-movement->m_turnRate - this->m_smoothTarget.m_velocity) * elapsed;
-    } else if (flags & 0x20) {
+    } else if (flags & MOVEMENTFLAG_TURN_RIGHT) {
         turn = (movement->m_turnRate - this->m_smoothTarget.m_velocity) * elapsed;
     } else {
         turn = -(elapsed * this->m_smoothTarget.m_velocity);
@@ -1931,7 +1932,7 @@ void CGUnit_C::RotateWheels() {
 
     CMoveSpline* spline = movement->m_spline;
 
-    if ((spline && !(spline->m_flags & 0x400) && (spline->m_flags & 0x2000)) || (flags & 0x2200000)) {
+    if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         for (int32_t i = 0; i < 8; i++) {
             if ((1 << i) & this->m_wheelMask) {
                 model->SetBoneFlags(i + 27, 0x80, 0x80);
@@ -1999,9 +2000,9 @@ void CGUnit_C::CreateRipple(uint32_t a2) {
     } else {
         uint32_t flags = this->m_movement->m_flags;
 
-        if (flags & 0xF) {
+        if (flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) {
             type = 2;
-        } else if (flags & 0x30) {
+        } else if (flags & MOVEMENTFLAG_TURN_MASK) {
             type = 1;
         }
     }
@@ -2074,23 +2075,23 @@ void CGUnit_C::CreateRipple(uint32_t a2) {
         angle = facing;
         uint32_t flags = this->m_movement->m_flags;
 
-        if (flags & 0x4) {
-            if (flags & 0x1) {
+        if (flags & MOVEMENTFLAG_STRAFE_LEFT) {
+            if (flags & MOVEMENTFLAG_FORWARD) {
                 angle = angle + 0.7853982f;
-            } else if (flags & 0x2) {
+            } else if (flags & MOVEMENTFLAG_BACKWARD) {
                 angle = angle + 2.3561945f;
             } else {
                 angle = angle + 1.5707964f;
             }
-        } else if (flags & 0x8) {
-            if (flags & 0x1) {
+        } else if (flags & MOVEMENTFLAG_STRAFE_RIGHT) {
+            if (flags & MOVEMENTFLAG_FORWARD) {
                 angle = angle - 0.7853982f;
-            } else if (flags & 0x2) {
+            } else if (flags & MOVEMENTFLAG_BACKWARD) {
                 angle = angle - 2.3561945f;
             } else {
                 angle = angle - 1.5707964f;
             }
-        } else if (flags & 0x2) {
+        } else if (flags & MOVEMENTFLAG_BACKWARD) {
             angle = angle + 3.1415927f;
         }
     } else {
@@ -2287,22 +2288,22 @@ void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
     }
 
     if (jumping || (oldFlags & MOVEMENTFLAG_FALLING_FAR) || landing) {
-        if (!(this->m_movement->m_flags & 0x2200000)) {
+        if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
             uint32_t flags = this->m_movementData.m_flags;
 
-            if (!(flags & 0xF)) {
+            if (!(flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
                 this->PlayUnitSound(UNITSOUNDTYPE_JUMPEND, 1);
                 this->PlayBaseAnimation(ANIM_JUMP_END, 0);
                 return;
             }
 
-            if (!(flags & 0x2) && !(flags & 0x100) && !this->IsRunning()) {
+            if (!(flags & MOVEMENTFLAG_BACKWARD) && !(flags & MOVEMENTFLAG_WALKING) && !this->IsRunning()) {
                 this->PlayUnitSound(UNITSOUNDTYPE_JUMPEND, 1);
                 this->PlayBaseAnimation(ANIM_JUMP_LAND_RUN, 0);
                 return;
             }
         }
-    } else if (!((this->m_movement->m_flags ^ oldFlags) & 0x40F)) {
+    } else if (!((this->m_movement->m_flags ^ oldFlags) & (MOVEMENTFLAG_HORIZONTAL_MOVE_MASK | MOVEMENTFLAG_DISABLE_GRAVITY))) {
         return;
     }
 
@@ -2623,7 +2624,7 @@ int32_t CGUnit_C::ChooseCombatAnim(uint32_t mask, uint32_t* anim, uint32_t* anim
     int32_t meleeAnim = this->m_meleeAttackAnimId;
 
     if (meleeAnim == -1) {
-        if (this->m_movement->m_flags & 0x2200000) {
+        if (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
             *anim = 41;
             return 1;
         }
@@ -3377,14 +3378,14 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         this->m_smoothTarget.m_value = facing;
         this->m_smoothTarget.m_velocity = 0.0f;
 
-        if ((this->m_movementData.m_flags & 0x30) || CGInputControl::GetActive()->CameraCanTurnPlayer()) {
+        if ((this->m_movementData.m_flags & MOVEMENTFLAG_TURN_MASK) || CGInputControl::GetActive()->CameraCanTurnPlayer()) {
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL;
         } else {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_CAMERA_CONTROL;
             this->m_lastTurnTimeMs = OsGetAsyncTimeMs();
         }
 
-        if ((this->m_movementData.m_flags & 0x30) || CGInputControl::GetActive()->IsMouseDragMoving()) {
+        if ((this->m_movementData.m_flags & MOVEMENTFLAG_TURN_MASK) || CGInputControl::GetActive()->IsMouseDragMoving()) {
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_MOUSE_DRAG;
         } else {
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_OR_MOUSE_DRAG;
@@ -3412,7 +3413,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         }
     }
 
-    if (!(this->m_movement->m_flags & 0xF)) {
+    if (!(this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
         CGUnitData* data = this->m_unit;
 
         if (!this->GetClientStandState() && !emoteFacing && !(data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !(data->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_CANNOT_TURN)) {
@@ -4209,7 +4210,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
             break;
     }
 
-    if (IsSubmergedDeathAnim(anim) && this->m_animTier == 3 && (this->m_movementData.m_flags & 0x2201000)) {
+    if (IsSubmergedDeathAnim(anim) && this->m_animTier == 3 && (this->m_movementData.m_flags & (MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK | MOVEMENTFLAG_FALLING))) {
         this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH;
     } else {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_AIRBORNE_DEATH;
@@ -4244,7 +4245,7 @@ int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAni
     }
 
     uint32_t moveFlags = this->m_movementData.m_flags;
-    int32_t turning = ((moveFlags & 0x30) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) ? 1 : 0;
+    int32_t turning = ((moveFlags & MOVEMENTFLAG_TURN_MASK) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING)) ? 1 : 0;
     int32_t casting = (!this->m_unit->m_unitChannelSpell && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) ? 1 : 0;
     int32_t split = 0;
 
@@ -4252,9 +4253,9 @@ int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAni
         split = static_cast<CGPlayer_C*>(this)->m_dance != 0;
     }
 
-    if (IsUpperBodyAnim(animId) && ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING) || (moveFlags & 0x2E000FF) || this->m_movementData.IsFalling() || this->GetClientStandState() || (IsWeaponReadyAnim(animId) && static_cast<int32_t>(this->m_unit->m_unitFieldMountdisplayid) > 0) || split)) {
+    if (IsUpperBodyAnim(animId) && ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING) || (moveFlags & (MOVEMENTFLAG_MOTION_MASK | MOVEMENTFLAG_ASCEND_DESCEND_MASK | MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) || this->m_movementData.IsFalling() || this->GetClientStandState() || (IsWeaponReadyAnim(animId) && static_cast<int32_t>(this->m_unit->m_unitFieldMountdisplayid) > 0) || split)) {
         split = 1;
-    } else if ((IsJumpAnim(animId) && IsMeleeOrReadyAnim(currentAnim)) || (IsMeleeAttackAnim(animId) && (this->m_movement->m_flags & 0x1000)) || (casting && (this->m_movementData.m_flags & 0x2E0000F))) {
+    } else if ((IsJumpAnim(animId) && IsMeleeOrReadyAnim(currentAnim)) || (IsMeleeAttackAnim(animId) && (this->m_movement->m_flags & MOVEMENTFLAG_FALLING)) || (casting && (this->m_movementData.m_flags & (MOVEMENTFLAG_TRANSLATION_MASK | MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)))) {
         split = 1;
     } else {
         split = 0;
@@ -4268,7 +4269,7 @@ int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAni
         split = 0;
     }
 
-    if ((casting || this->m_unit->m_unitChannelSpell || this->m_combat.m_attacking.m_guid) && turning && !(this->m_movement->m_flags & 0xC)) {
+    if ((casting || this->m_unit->m_unitChannelSpell || this->m_combat.m_attacking.m_guid) && turning && !(this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK)) {
         split = 0;
     }
 
@@ -4474,7 +4475,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     info.Clear();
     this->GetObjectModel()->GetSequenceInfo(anim, 0, info);
 
-    if (0.0f != info.m_moveSpeed && IsLocomotionAnimId(anim) && (this->m_movementData.m_flags & 0xC0000F)) {
+    if (0.0f != info.m_moveSpeed && IsLocomotionAnimId(anim) && (this->m_movementData.m_flags & MOVEMENTFLAG_TRANSLATION_MASK)) {
         speed = this->m_movementData.GetBaseSpeed(0) / fabsf(info.m_moveSpeed);
 
         if (info.m_duration) {
@@ -4546,7 +4547,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         keepTorso = 0;
         updateTorso = 1;
         torsoSlot = newSlot;
-    } else if (anim == 62 && (this->m_movement->m_flags & 0x2200000)) {
+    } else if (anim == 62 && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         keepTorso = 0;
         updateTorso = 1;
         updateBase = 0;
@@ -4561,7 +4562,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
             torsoSlot = newSlot;
             updateTorso = 1;
 
-            if ((this->m_movementData.m_flags & 0x2200000) && !(this->m_movementData.m_flags & 0xF)) {
+            if ((this->m_movementData.m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movementData.m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
                 baseSlot.m_sequenceId = this->ResolveAnimForModel(41, nullptr);
                 baseSlot.m_speed = 1.0f;
                 baseSlot.m_variationIndex = 0xFFFFFFFF;
@@ -4595,7 +4596,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         baseSlot = newSlot;
     }
 
-    if (this->m_movementData.IsSplineFlyerOrHovering() && !(this->m_movement->m_flags & 0x2200000)) {
+    if (this->m_movementData.IsSplineFlyerOrHovering() && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         if (this->OverrideAnimForFlying(&baseSlot.m_sequenceId)) {
             keepBase = 0;
         }
@@ -7868,7 +7869,7 @@ int32_t CGUnit_C::IsRunning() const {
 int32_t CGUnit_C::ChooseMovementAnim(uint32_t flags, uint32_t* anim) const {
     uint32_t moveFlags = this->m_movementData.m_flags;
 
-    if (!(moveFlags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT))) {
+    if (!(moveFlags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
         return (flags & 0xFFFFFFF8) == 0;
     }
 
@@ -7878,8 +7879,8 @@ int32_t CGUnit_C::ChooseMovementAnim(uint32_t flags, uint32_t* anim) const {
         return 1;
     }
 
-    if (moveFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) {
-        if (moveFlags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+    if (moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
+        if (moveFlags & MOVEMENTFLAG_STRAFE_MASK) {
             *anim = ANIM_SWIM_RIGHT - ((moveFlags & MOVEMENTFLAG_STRAFE_LEFT) != 0);
             return 1;
         }
@@ -8402,7 +8403,7 @@ void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
         return;
     }
 
-    if (this->m_movementData.m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) {
+    if (this->m_movementData.m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
         anim = ANIM_SWIM_IDLE;
         return;
     }
@@ -9021,7 +9022,7 @@ bool CGUnit_C::GetFlashColor(uint32_t time, CImVector& color) {
 // OFFSET: 0x0071AE80
 int32_t CGUnit_C::IsFacingUnchangedSinceSent() const {
     if (fabs(this->GetRawFacing() - this->m_lastSentFacing) < MOUSE_LOOK_SEND_FACING_DELTA) {
-        if (!(this->m_movement->m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+        if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
             return 1;
         }
 
@@ -10953,12 +10954,12 @@ void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
 
-    if ((modelRec && (modelRec->m_flags & 0x400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & 0x1000000) || ((this->m_movement->m_flags & 0xF) && !this->m_movementData.IsGravityDisabled())) {
+    if ((modelRec && (modelRec->m_flags & 0x400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
         this->m_movementData.OnJumpLocal(eventTime);
         return;
     }
 
-    if ((this->m_movement->m_flags & 0x30) || this->IsDeepInLiquid()) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) || this->IsDeepInLiquid()) {
         return;
     }
 
@@ -11060,7 +11061,7 @@ int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value,
     CDataStore msg;
     this->m_lastSentFacing = this->GetRawFacing();
 
-    if ((this->m_movement->m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
         this->m_lastSentPitch = this->GetPitch();
     }
 
@@ -11077,11 +11078,11 @@ int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value,
 
     CMovement_C* movement = this->m_movement;
 
-    if (movement->m_flags & (MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT)) {
+    if (movement->m_flags & MOVEMENTFLAG_TURN_MASK) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_TURN;
     }
 
-    if (movement->m_flags & (MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN)) {
+    if (movement->m_flags & MOVEMENTFLAG_PITCH_MASK) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FORCE_STOP_PITCH;
     }
 
@@ -11194,7 +11195,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
         return;
     }
 
-    this->m_effectManager->EnterState((this->m_movement->m_flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) ? 0x25 : 0x26, 1, 0);
+    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? 0x25 : 0x26, 1, 0);
 
     if (this->m_movement->m_flags & MOVEMENTFLAG_ASCENDING) {
         this->m_effectManager->EnterState(0x6, 1, 0);
@@ -11202,7 +11203,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
         this->m_effectManager->EnterState(0x7, 1, 0);
     }
 
-    this->m_effectManager->EnterState((this->m_movement->m_flags & (MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT)) ? 0x2F : 0x30, 1, 0);
+    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? 0x2F : 0x30, 1, 0);
 
     if (this->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
         this->m_effectManager->EnterState(0x3D, 1, 0);
@@ -11215,7 +11216,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
             this->m_effectManager->EnterState(0x3F, 1, 0);
         }
 
-        if (this->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+        if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
             this->m_effectManager->EnterState(0x42, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
@@ -11237,7 +11238,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
             this->m_effectManager->EnterState(0x33, 1, 0);
         }
 
-        if (this->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+        if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
             this->m_effectManager->EnterState(0x36, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
@@ -11259,7 +11260,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
             this->m_effectManager->EnterState(0x39, 1, 0);
         }
 
-        if (this->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) {
+        if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
             this->m_effectManager->EnterState(0x3C, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
@@ -11274,7 +11275,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
 
     uint32_t flags = this->m_movement->m_flags;
 
-    if (!(flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD))) {
+    if (!(flags & MOVEMENTFLAG_MOVE_MASK)) {
         this->m_effectManager->ExitState(0x31, 1);
         this->m_effectManager->ExitState(0x32, 1);
         this->m_effectManager->ExitState(0x33, 1);
@@ -11312,7 +11313,7 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
 
     flags = this->m_movement->m_flags;
 
-    if (!(flags & (MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT))) {
+    if (!(flags & MOVEMENTFLAG_STRAFE_MASK)) {
         this->m_effectManager->ExitState(0x34, 1);
         this->m_effectManager->ExitState(0x35, 1);
         this->m_effectManager->ExitState(0x36, 1);
@@ -11348,8 +11349,8 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
         this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? 0x3B : 0x3A, 1);
     }
 
-    this->m_effectManager->ExitState((this->m_movement->m_flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT)) ? 0x26 : 0x25, 1);
-    this->m_effectManager->ExitState((this->m_movement->m_flags & (MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT)) ? 0x30 : 0x2F, 1);
+    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? 0x26 : 0x25, 1);
+    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? 0x30 : 0x2F, 1);
 
     if (!(this->m_movement->m_flags & MOVEMENTFLAG_ASCENDING)) {
         this->m_effectManager->ExitState(0x6, 1);
@@ -11439,7 +11440,7 @@ void CGUnit_C::MoveEventHappened(uint32_t msgId) {
         case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
         case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:
         case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
-            if (this->m_movement->m_flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING)) {
+            if (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) {
                 this->UpdateBaseAnimation(false, -1);
             }
 
@@ -11514,7 +11515,7 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
         case MSG_MOVE_START_PITCH_DOWN:
         case MSG_MOVE_STOP_PITCH:
         case MSG_MOVE_SET_PITCH:
-            if (!(this->m_movement->m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+            if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
                 return 0;
             }
 
@@ -11569,7 +11570,7 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
             case CMSG_FORCE_MOVE_UNROOT_ACK:
                 CGInputControl::GetActive()->UpdatePlayer(eventTime, 1);
 
-                if (!(this->m_movement->m_flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING))) {
+                if (!(this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
                     this->HandlePendingTrackEvents();
                 }
 
@@ -11577,7 +11578,7 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
 
             case MSG_MOVE_STOP:
             case MSG_MOVE_STOP_STRAFE:
-                if (!(this->m_movement->m_flags & (MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT | MOVEMENTFLAG_TURN_LEFT | MOVEMENTFLAG_TURN_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING))) {
+                if (!(this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
                     this->HandlePendingTrackEvents();
                 }
 
@@ -12338,7 +12339,7 @@ int32_t CGUnit_C::OnMoveUnRoot(uint32_t time, const CMovementStatus& status) {
 // VERIFY: 9c252b1d auto
 // OFFSET: 0x007189A0
 int32_t CGUnit_C::OnUnitMoveEvent(uint32_t time, const CMovementStatus& status) {
-    if (this->m_vehiclePassenger && (status.m_moveExtraFlags & 0x2000)) {
+    if (this->m_vehiclePassenger && (status.m_moveExtraFlags & MOVEMENTFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM)) {
         this->VehiclePassengerStartWaitingForVehicleTransitionAnim(status.m_transportGuid.m_guid, status.m_transportSeat);
     }
 
@@ -13265,13 +13266,13 @@ void CGUnit_C::SetActiveMover(uint64_t guid) {
             oldMover->ClearTrackingTarget(false, true);
         }
 
-        oldMover->m_movementData.m_flags &= ~0x80000000;
+        oldMover->m_movementData.m_flags &= ~MOVEMENTFLAG_STATUS_APPLIED;
 
         if (CGUnit_C::s_activeMover != ClntObjMgrGetActivePlayer()) {
-            oldMover->m_movementData.m_flags &= ~0x200;
+            oldMover->m_movementData.m_flags &= ~MOVEMENTFLAG_ONTRANSPORT;
         }
 
-        if (!oldMover->m_movement->m_spline || (oldMover->m_movement->m_spline->m_flags & 0x400)) {
+        if (!oldMover->m_movement->m_spline || (oldMover->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
             oldMover->m_movementData.OnUnsetActiveMover();
 
             if (oldMover->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
@@ -13296,8 +13297,8 @@ void CGUnit_C::SetActiveMover(uint64_t guid) {
         if (CGUnit_C::s_activeMover != ClntObjMgrGetActivePlayer()) {
             CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-            if (player->m_movement->m_flags & 0x200) {
-                mover->m_movementData.m_flags |= 0x200;
+            if (player->m_movement->m_flags & MOVEMENTFLAG_ONTRANSPORT) {
+                mover->m_movementData.m_flags |= MOVEMENTFLAG_ONTRANSPORT;
             }
         }
 
@@ -13814,7 +13815,7 @@ void CGUnit_C::InitActiveMover(const WOWGUID& guid) {
     CGInputControl::GetActive()->UpdatePlayer(time, 1);
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (mover->m_movement->m_flags & 0xC0100F) {
+    if (mover->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) {
         mover->m_movementData.UpdateHeartbeatTimerA(time);
     }
 
@@ -14648,7 +14649,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
         case 37:
         case 38: {
-            if (this->m_movement->m_flags & 0x2000000) {
+            if (this->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
                 break;
             }
 
@@ -15601,7 +15602,7 @@ void CGUnit_C::RequestTalkEmote(TALKANIMATION index) {
         return;
     }
 
-    if (this->m_movement->m_flags & 0x200000) {
+    if (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING) {
         return;
     }
 
@@ -16125,7 +16126,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
         return false;
     }
 
-    if ((channeled && (spell->m_channelInterruptFlags & 0x18) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) || ((spell->m_interruptFlags & 0x1) && (this->m_movement->m_flags & 0xC0100F) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & 0x18)))) {
+    if ((channeled && (spell->m_channelInterruptFlags & 0x18) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) || ((spell->m_interruptFlags & 0x1) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & 0x18)))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_MOVING, -1, -1, false);
         return false;
     }
@@ -17143,7 +17144,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     } else {
         animId = 8;
 
-        if (!this->m_mountModel && !(this->m_movement->m_flags & 0x2E0100F) && !this->m_movementData.IsSplineFlyerOrHovering() && !this->IsSitting() && GetAnimBehaviorId(this->GetCurrentTorsoAnimId()) != 98) {
+        if (!this->m_mountModel && !(this->m_movement->m_flags & MOVEMENTFLAG_LOCOMOTION_MASK) && !this->m_movementData.IsSplineFlyerOrHovering() && !this->IsSitting() && GetAnimBehaviorId(this->GetCurrentTorsoAnimId()) != 98) {
             keyBone = 0xFFFFFFFF;
         }
     }
@@ -18280,7 +18281,7 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool a4) {
     }
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        CGGameUI::CloseLoot(true, (this->m_movement->m_flags & 0xC0100F) != 0, false);
+        CGGameUI::CloseLoot(true, (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) != 0, false);
     }
 }
 
@@ -20537,7 +20538,7 @@ void CGUnit_C::StartSwimming(uint32_t time, int32_t spline) {
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_movementData.OnSwimStartLocal(time);
         CGTutorial::TriggerTutorial(27);
-    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & 0x400))) {
+    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
         this->m_movementData.OnSplineStartSwim();
     } else {
         this->m_movementData.OnSwimStart(time);
@@ -20549,7 +20550,7 @@ void CGUnit_C::StartSwimming(uint32_t time, int32_t spline) {
 void CGUnit_C::StopSwimming(uint32_t time, int32_t spline) {
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_movementData.OnSwimStopLocal(time);
-    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & 0x400))) {
+    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
         this->m_movementData.OnSplineStopSwim();
     } else {
         this->m_movementData.OnSwimStop(time);
@@ -20559,7 +20560,7 @@ void CGUnit_C::StopSwimming(uint32_t time, int32_t spline) {
 // VERIFY: 4865e105 manual
 // OFFSET: 0x00730D10
 void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
-    if (this->m_movement->m_flags2 & 0x4) {
+    if (this->m_movement->m_flags2 & MOVEMENTFLAG2_DISABLE_GRAVITY) {
         return;
     }
 
@@ -20578,12 +20579,12 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
     float exitDepth = swimDepth - 0.027777778f;
     uint32_t flags = this->m_movement->m_flags;
 
-    if (flags & 0x200000) {
-        if ((flags & 0x400000) && depth - swimDepth <= 0.33333334f && this->IsActiveMover()) {
+    if (flags & MOVEMENTFLAG_SWIMMING) {
+        if ((flags & MOVEMENTFLAG_ASCENDING) && depth - swimDepth <= 0.33333334f && this->IsActiveMover()) {
             this->TryJumpOrAscend(time);
         }
 
-        if (!(this->m_movementData.m_flags & 0x2000000) && (!inLiquid || exitDepth > depth || !canSwim)) {
+        if (!(this->m_movementData.m_flags & MOVEMENTFLAG_FLYING) && (!inLiquid || exitDepth > depth || !canSwim)) {
             this->StopSwimming(time, a3);
         }
     } else {
@@ -20602,7 +20603,7 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
 
     uint32_t wasSwimming = this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
 
-    if ((this->m_movement->m_flags & 0x200000) || (swimDepth < depth && canSwim)) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING) || (swimDepth < depth && canSwim)) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
     } else {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
@@ -20618,12 +20619,12 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
 void CGUnit_C::UpdateFlightStatus(uint32_t time) {
     uint32_t flags = this->m_movementData.m_flags;
 
-    if (!(flags & 0x1000000)) {
+    if (!(flags & MOVEMENTFLAG_CAN_FLY)) {
         return;
     }
 
-    if (!(flags & 0x2000000)) {
-        if (!this->m_movementData.IsJumpingUp() && (this->m_movementData.m_flags & 0x1000) && this->IsActiveMover() && this->GetHeightAboveGround() >= 1.5f) {
+    if (!(flags & MOVEMENTFLAG_FLYING)) {
+        if (!this->m_movementData.IsJumpingUp() && (this->m_movementData.m_flags & MOVEMENTFLAG_FALLING) && this->IsActiveMover() && this->GetHeightAboveGround() >= 1.5f) {
             this->m_movementData.OnFlightLocal(time, 1);
             CGUnit_C::s_flightStatusTime = time;
         }
@@ -21538,7 +21539,7 @@ void CGUnit_C::PostShutdown() {
 // VERIFY: dc577adb manual
 // OFFSET: 0x00723A50
 void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
-    if (this->m_unit->m_unitFieldPetnumber || (this->m_movement->m_flags & 0x40000000) || (this->m_unit->m_unitFieldBytes1[2] & 0x2) || this->GetTransportGUID()) {
+    if (this->m_unit->m_unitFieldPetnumber || (this->m_movement->m_flags & MOVEMENTFLAG_HOVER) || (this->m_unit->m_unitFieldBytes1[2] & 0x2) || this->GetTransportGUID()) {
         return;
     }
 
@@ -21571,7 +21572,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         CGWorldFrame::GetActiveCamera()->AddShakeById(this->m_modelData->m_footstepShakeSize, position);
     }
 
-    if (distanceSquared > 625.0f || (this->m_movement->m_flags & 0x2) || (this->m_modelData->m_flags & 0x1) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
+    if (distanceSquared > 625.0f || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & 0x1) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
         return;
     }
 
@@ -21951,12 +21952,12 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     uint32_t moveFlags = this->m_movement->m_flags;
     float pitch;
 
-    if (moveFlags & 0x3) {
+    if (moveFlags & MOVEMENTFLAG_MOVE_MASK) {
         uint32_t flags = this->m_movementData.m_flags;
 
-        if (flags & 0x400000) {
+        if (flags & MOVEMENTFLAG_ASCENDING) {
             pitch = 0.78539819f;
-        } else if (flags & 0x800000) {
+        } else if (flags & MOVEMENTFLAG_DESCENDING) {
             pitch = -0.78539819f;
         } else {
             pitch = this->m_movementData.m_pitch;
@@ -21968,13 +21969,13 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     float basePitch = 0.0f;
     float targetPitch = pitch;
 
-    if (this->m_movementData.m_flags & 0xC) {
+    if (this->m_movementData.m_flags & MOVEMENTFLAG_STRAFE_MASK) {
         targetPitch = 0.0f;
     } else {
         basePitch = pitch;
     }
 
-    if ((moveFlags & 0x2) && (this->m_movementData.m_flags & 0xC00000)) {
+    if ((moveFlags & MOVEMENTFLAG_BACKWARD) && (this->m_movementData.m_flags & MOVEMENTFLAG_ASCEND_DESCEND_MASK)) {
         targetPitch = basePitch * -1.0f;
     }
 
@@ -22024,7 +22025,7 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
         float rollDelta = targetRoll - this->m_smoothSwimRoll;
         float rate = elapsed * 1.5707964f;
 
-        if (!(this->m_movement->m_flags & 0x3)) {
+        if (!(this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK)) {
             rate = rate * 4.0f;
         }
 
@@ -22376,11 +22377,11 @@ int32_t CGUnit_C::CanPlayEmoteAnim() {
 
     uint32_t flags = this->m_movementData.m_flags;
 
-    if ((flags & 0x1000) && (flags & 0x2000)) {
+    if ((flags & MOVEMENTFLAG_FALLING) && (flags & MOVEMENTFLAG_FALLING_FAR)) {
         return 0;
     }
 
-    if (this->IsJumping() || !(flags & 0xF)) {
+    if (this->IsJumping() || !(flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
         return 0;
     }
 
@@ -22447,7 +22448,7 @@ void CGUnit_C::TrackingStopMove(uint32_t time) {
 
     CGInputControl::GetActive()->ToggleControlBit(INPUT_TRACKING_MOVE, 0, time, 0);
 
-    if (CGInputControl::GetActive()->CanControl(this) && (this->m_movement->m_flags & 0x3)) {
+    if (CGInputControl::GetActive()->CanControl(this) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK)) {
         CGUnit_C::s_trackingFlags |= 0x1;
         this->m_movementData.OnMoveStopLocal(time);
         CGInputControl::GetActive()->UpdateMoveStopped();
@@ -22562,7 +22563,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
     CGUnit_C::s_trackingDirection = facing;
     CGUnit_C::s_trackingGUID = *guid;
     CGUnit_C::s_trackingPosition = *position;
-    s_trackingTurnRate = (this->m_movement->m_flags2 & 0x8) ? this->m_movement->m_turnRate : 3.1415927f;
+    s_trackingTurnRate = (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : 3.1415927f;
     CGUnit_C::s_trackingStuckCount = 0;
     s_trackingInteractDistance = sqrt(s_trackingInteractDistanceSq);
     CGUnit_C::s_unused_CA11D0 = 0.0f;
@@ -22847,7 +22848,7 @@ void CGUnit_C::SetTrackingDirection(const C3Vector& direction) {
     dir.y *= scale;
     dir.z *= scale;
 
-    bool flying = (this->m_movement->m_flags & 0x2200000) != 0;
+    bool flying = (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) != 0;
     float up = fabs((dir.x + dir.y) * 0.0f + dir.z);
 
     if (flying) {
@@ -22943,7 +22944,7 @@ bool CGUnit_C::HandleTrackingFacing(float facing, float maxTurn, uint32_t time) 
 
     CMovementShared* movement = this->m_movement;
 
-    if (movement->m_flags2 & 0x8) {
+    if (movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) {
         s_trackingTurnRate = movement->m_turnRate;
     } else if (3.1415927f == s_trackingTurnRate) {
         s_trackingTurnRate = (delta <= 2.0943952f || delta >= 4.1887903f ? 800.0f : 1200.0f) * 0.017453292f;
@@ -23009,7 +23010,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     float dz = position.z - target.z;
     float distSq2 = dx * dx + dy * dy;
     float distSq3 = dz * dz + distSq2;
-    float distSq = ((this->m_movement->m_flags & 0x2200000) || (this->m_movementData.m_flags & 0x1000000)) ? distSq3 : distSq2;
+    float distSq = ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) ? distSq3 : distSq2;
 
     if (s_clickToMoveActions[CGUnit_C::s_trackingType].m_enabled && 0.0f != s_clickToMoveActions[CGUnit_C::s_trackingType].m_stopDistanceSq && !(distSq < s_clickToMoveActions[CGUnit_C::s_trackingType].m_stopDistanceSq)) {
         this->ClearTrackingTarget(false, true);
@@ -23056,7 +23057,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     if (drunkness > 0.0f) {
         moving = true;
 
-        if ((this->m_movement->m_flags & 0xF) && (CGUnit_C::s_trackingFlags & 0x2)) {
+        if ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && (CGUnit_C::s_trackingFlags & 0x2)) {
             desired = this->GetFacing() + turnOffset;
         }
     }
@@ -23081,10 +23082,10 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     bool pitching = false;
     uint32_t moveFlags = this->m_movement->m_flags;
 
-    if ((moveFlags & 0x2200000) && useTarget && s_trackingStuckDistanceSq < distSq3) {
+    if ((moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && useTarget && s_trackingStuckDistanceSq < distSq3) {
         float pitch;
 
-        if (moving && (moveFlags & 0x3) && (CGUnit_C::s_trackingFlags & 0x4)) {
+        if (moving && (moveFlags & MOVEMENTFLAG_MOVE_MASK) && (CGUnit_C::s_trackingFlags & 0x4)) {
             pitch = this->GetPitch() + turnOffset;
         } else {
             pitch = CGUnit_C::ComputeTrackingElevationAngle(target, position);
@@ -23111,7 +23112,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
         }
     }
 
-    if ((this->m_movement->m_flags & 0x3) && !turning && !pitching && s_clickToMoveActions[CGUnit_C::s_trackingType].m_detectStuck) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK) && !turning && !pitching && s_clickToMoveActions[CGUnit_C::s_trackingType].m_detectStuck) {
         float mx = position.x - start.x;
         float my = position.y - start.y;
         float mz = position.z - start.z;
@@ -23146,7 +23147,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     // STATIC: 0x00CA12A8
     static float s_flightAngleCos = cos(0.7853981852531433);
 
-    if (!pitching && useTarget && !(this->m_movement->m_flags & 0x2200000) && (this->m_movementData.m_flags & 0x1000000)) {
+    if (!pitching && useTarget && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) {
         C3Vector dir;
         dir.x = target.x - position.x;
         dir.y = target.y - position.y;
@@ -23165,7 +23166,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
 
     float speed;
 
-    if (this->m_movementData.m_flags & 0x100) {
+    if (this->m_movementData.m_flags & MOVEMENTFLAG_WALKING) {
         speed = this->m_movementData.m_walkSpeed;
     } else {
         speed = this->m_movementData.m_runSpeed;
@@ -23173,7 +23174,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
 
     int32_t canMove = (!pitching || !overshoot) && this->CGUnit::CanMove() && this->IsActiveMover() && this->m_unit->m_unitFieldHealth > 0 && !this->CGUnit::IsOnSpline() && !this->AnimSuppressesMovement();
 
-    if (canMove == static_cast<int32_t>(this->m_movement->m_flags & 0x3)) {
+    if (canMove == static_cast<int32_t>(this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK)) {
         return;
     }
 

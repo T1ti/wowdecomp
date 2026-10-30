@@ -1,4 +1,5 @@
 #include "UnitCombat_C.h"
+#include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/Model2/M2Model.h"
@@ -654,7 +655,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
                 }
             }
 
-            if (this->m_movementData.m_flags & 0x2E0100F) {
+            if (this->m_movementData.m_flags & MOVEMENTFLAG_LOCOMOTION_MASK) {
                 return;
             }
 
