@@ -583,7 +583,7 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
 
     int32_t reason;
 
-    if (!unit->CheckShapeshiftRules(spell, &reason) && (reason == 94 || !unit->CanAutoUnshift())) {
+    if (!unit->CheckShapeshiftRules(spell, &reason) && (reason == SpellCastResult::SPELL_FAILED_ONLY_SHAPESHIFT || !unit->CanAutoUnshift())) {
         return false;
     }
 
@@ -1275,16 +1275,16 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
     }
 
     switch (reason) {
-        case 187:
+        case SpellCastResult::SPELL_FAILED_UNKNOWN:
             Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 330);
             break;
-        case 24:
-        case 27:
-        case 105:
+        case SpellCastResult::SPELL_FAILED_CHARMED:
+        case SpellCastResult::SPELL_FAILED_DONT_REPORT:
+        case SpellCastResult::SPELL_FAILED_SPELL_IN_PROGRESS:
             Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 327);
             break;
-        case 40:
-        case 41:
+        case SpellCastResult::SPELL_FAILED_INTERRUPTED:
+        case SpellCastResult::SPELL_FAILED_INTERRUPTED_COMBAT:
             Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 328);
             break;
         default:
@@ -1308,7 +1308,7 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
         input->UpdateMouseMode(0);
     }
 
-    if (reason != 187 && cast->m_data.m_castCount && spell->m_spellMissileID > 0) {
+    if (reason != SpellCastResult::SPELL_FAILED_UNKNOWN && cast->m_data.m_castCount && spell->m_spellMissileID > 0) {
         SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell->m_spellMissileID);
 
         if (missile && (missile->m_flags & 0x1)) {
@@ -1480,7 +1480,7 @@ int32_t Packet_SMSG_SPELL_FAILURE(void* param, NETMESSAGE msgId, uint32_t time, 
     if (unit) {
         SI2::PlaySpellFizzleSound(spellId, unit);
 
-        if (unit->IsActivePlayer() && (reason == 52 || reason == 53 || reason == 54)) {
+        if (unit->IsActivePlayer() && (reason == SpellCastResult::SPELL_FAILED_NEED_AMMO || reason == SpellCastResult::SPELL_FAILED_NEED_AMMO_POUCH || reason == SpellCastResult::SPELL_FAILED_NEED_EXOTIC_AMMO)) {
             Spell_C_CancelAutoRepeat(true);
         }
 
@@ -1919,7 +1919,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
     if (!hidden) {
         s_lastFailedSpellId = 0;
-        HandleSpellFailedOrGo(unit, this, &spell, 187);
+        HandleSpellFailedOrGo(unit, this, &spell, SpellCastResult::SPELL_FAILED_UNKNOWN);
     }
 
     uint32_t arrival = now;
@@ -5798,17 +5798,17 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
     char text[1024];
 
     switch (reason) {
-        case 1:
+        case SpellCastResult::SPELL_FAILED_AFFECTING_COMBAT:
             CGGameUI::DisplayError(ERR_PET_SPELL_AFFECTING_COMBAT);
             break;
 
-        case 23:
+        case SpellCastResult::SPELL_FAILED_CASTER_DEAD:
             CGGameUI::DisplayError(ERR_PET_SPELL_DEAD);
             break;
 
-        case 29:
-        case 30:
-        case 31: {
+        case SpellCastResult::SPELL_FAILED_EQUIPPED_ITEM_CLASS:
+        case SpellCastResult::SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND:
+        case SpellCastResult::SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
             bool found = false;
 
@@ -5835,19 +5835,19 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 56:
+        case SpellCastResult::SPELL_FAILED_NOPATH:
             CGGameUI::DisplayError(ERR_PET_SPELL_NOPATH);
             break;
 
-        case 57:
+        case SpellCastResult::SPELL_FAILED_NOT_BEHIND:
             CGGameUI::DisplayError(ERR_PET_SPELL_NOT_BEHIND);
             break;
 
-        case 67:
+        case SpellCastResult::SPELL_FAILED_NOT_READY:
             CGGameUI::DisplayError((spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY) ? ERR_ABILITY_COOLDOWN : ERR_SPELL_COOLDOWN);
             break;
 
-        case 85: {
+        case SpellCastResult::SPELL_FAILED_NO_POWER: {
             PowerDisplayRec* display = g_powerDisplayDB.GetRecord(spell->m_powerDisplayID);
 
             if (display) {
@@ -5863,7 +5863,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 94: {
+        case SpellCastResult::SPELL_FAILED_ONLY_SHAPESHIFT: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             uint32_t count = g_spellShapeshiftFormDB.m_numRecords;
 
@@ -5888,11 +5888,11 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 97:
+        case SpellCastResult::SPELL_FAILED_OUT_OF_RANGE:
             CGGameUI::DisplayError(ERR_PET_SPELL_OUT_OF_RANGE);
             break;
 
-        case 101: {
+        case SpellCastResult::SPELL_FAILED_REQUIRES_AREA: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             AreaTableRec* area = g_areaTableDB.GetRecord(misc1);
 
@@ -5904,7 +5904,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 102: {
+        case SpellCastResult::SPELL_FAILED_REQUIRES_SPELL_FOCUS: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             SpellFocusObjectRec* focus = g_spellFocusObjectDB.GetRecord(misc1);
 
@@ -5916,15 +5916,15 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 103:
+        case SpellCastResult::SPELL_FAILED_ROOTED:
             CGGameUI::DisplayError(ERR_PET_SPELL_ROOTED);
             break;
 
-        case 109:
+        case SpellCastResult::SPELL_FAILED_TARGETS_DEAD:
             CGGameUI::DisplayError(ERR_PET_SPELL_TARGETS_DEAD);
             break;
 
-        case 147: {
+        case SpellCastResult::SPELL_FAILED_PREVENTED_BY_MECHANIC: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(misc1);
 
@@ -5936,7 +5936,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             break;
         }
 
-        case 172:
+        case SpellCastResult::SPELL_FAILED_CUSTOM_ERROR:
             GetCustomSpellFailedString(text, sizeof(text), misc1);
             break;
 
@@ -6377,7 +6377,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(cast->m_data.m_caster, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            HandleSpellFailedOrGo(unit, cast, spell, 27);
+            HandleSpellFailedOrGo(unit, cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
             FinishPendingSpellCast(cast, spell, unit);
         }
 
@@ -7345,7 +7345,7 @@ static bool CheckEnchantItemLevel(const PendingSpellCast* cast, const SpellRec* 
     CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(cast->m_data.m_caster, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!caster) {
-        *reason = 27;
+        *reason = SpellCastResult::SPELL_FAILED_DONT_REPORT;
         return false;
     }
 
@@ -7359,11 +7359,11 @@ static bool CheckEnchantItemLevel(const PendingSpellCast* cast, const SpellRec* 
 
     if (level < spell->m_baseLevel) {
         if (!(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF)) {
-            *reason = 48;
+            *reason = SpellCastResult::SPELL_FAILED_LOWLEVEL;
             return false;
         }
     } else if (maxLevel > 0 && static_cast<int32_t>(stats->m_itemLevel) > maxLevel) {
-        *reason = 36;
+        *reason = SpellCastResult::SPELL_FAILED_HIGHLEVEL;
         return false;
     }
 
@@ -7380,7 +7380,7 @@ static bool CheckItemRequirement(const PendingSpellCast* cast, const SpellRec* s
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(itemGuid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item) {
-        *reason = 178;
+        *reason = SpellCastResult::SPELL_FAILED_NO_VALID_TARGETS;
         return false;
     }
 
@@ -7448,7 +7448,7 @@ static bool ValidateSpellTarget(CGUnit_C* caster, const SpellRec* spell, uint32_
         } while (i);
 
         if (!valid) {
-            *reason = 111;
+            *reason = SpellCastResult::SPELL_FAILED_TARGET_AURASTATE;
             return false;
         }
     }
@@ -7467,7 +7467,7 @@ static bool ValidateSpellTarget(CGUnit_C* caster, const SpellRec* spell, uint32_
         } while (i);
 
         if (!valid) {
-            *reason = 110;
+            *reason = SpellCastResult::SPELL_FAILED_TARGET_AFFECTING_COMBAT;
             return false;
         }
     }
@@ -7545,7 +7545,7 @@ static bool ValidateSpellTarget(CGUnit_C* caster, const SpellRec* spell, uint32_
         }
     }
 
-    *reason = dispel ? 86 : 87;
+    *reason = dispel ? SpellCastResult::SPELL_FAILED_NOTHING_TO_DISPEL : SpellCastResult::SPELL_FAILED_NOTHING_TO_STEAL;
     return false;
 }
 
@@ -7715,7 +7715,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     }
 
     if (!caster->CheckShapeshiftRules(&spell, &reason)) {
-        if (reason == 94 || !caster->CanAutoUnshift()) {
+        if (reason == SpellCastResult::SPELL_FAILED_ONLY_SHAPESHIFT || !caster->CanAutoUnshift()) {
             Spell_C_SpellFailed(cast, &spell, reason, -1, -1, false);
             return;
         }
