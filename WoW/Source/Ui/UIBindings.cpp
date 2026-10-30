@@ -1645,67 +1645,67 @@ void CGUIBindings::SetOverrideBinding(void* owner, int32_t priority, const char*
 // OFFSET: 0x0055DF30
 int32_t MouseButtonToIndex(uint32_t button) {
     switch (button) {
-        case 0x1:
+        case MOUSEBUTTON::MOUSE_BUTTON_LEFT:
             return 1;
-        case 0x2:
+        case MOUSEBUTTON::MOUSE_BUTTON_MIDDLE:
             return 3;
-        case 0x4:
+        case MOUSEBUTTON::MOUSE_BUTTON_RIGHT:
             return 2;
-        case 0x8:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON1:
             return 4;
-        case 0x10:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON2:
             return 5;
-        case 0x20:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON3:
             return 6;
-        case 0x40:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON4:
             return 7;
-        case 0x80:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON5:
             return 8;
-        case 0x100:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON6:
             return 9;
-        case 0x200:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON7:
             return 10;
-        case 0x400:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON8:
             return 11;
-        case 0x800:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON9:
             return 12;
-        case 0x1000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON10:
             return 13;
-        case 0x2000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON11:
             return 14;
-        case 0x4000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON12:
             return 15;
-        case MOUSE_BUTTON_XBUTTON13:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON13:
             return 16;
-        case MOUSE_BUTTON_XBUTTON14:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON14:
             return 17;
-        case MOUSE_BUTTON_XBUTTON15:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON15:
             return 18;
-        case MOUSE_BUTTON_XBUTTON16:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON16:
             return 19;
-        case MOUSE_BUTTON_XBUTTON17:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON17:
             return 20;
-        case MOUSE_BUTTON_XBUTTON18:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON18:
             return 21;
-        case MOUSE_BUTTON_XBUTTON19:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON19:
             return 22;
-        case MOUSE_BUTTON_XBUTTON20:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON20:
             return 23;
-        case MOUSE_BUTTON_XBUTTON21:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON21:
             return 24;
-        case MOUSE_BUTTON_XBUTTON22:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON22:
             return 25;
-        case MOUSE_BUTTON_XBUTTON23:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON23:
             return 26;
-        case MOUSE_BUTTON_XBUTTON24:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON24:
             return 27;
-        case MOUSE_BUTTON_XBUTTON25:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON25:
             return 28;
-        case MOUSE_BUTTON_XBUTTON26:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON26:
             return 29;
-        case MOUSE_BUTTON_XBUTTON27:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON27:
             return 30;
-        case MOUSE_BUTTON_XBUTTON28:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON28:
             return 31;
         default:
             return 0;

@@ -546,67 +546,67 @@ void CSimpleButton::UpdateTextState(CSimpleButtonState state) {
 // OFFSET: 0x0096F530
 const char* GetMouseButtonName(uint32_t button) {
     switch (button) {
-        case 0x1:
+        case MOUSEBUTTON::MOUSE_BUTTON_LEFT:
             return "LeftButton";
-        case 0x2:
+        case MOUSEBUTTON::MOUSE_BUTTON_MIDDLE:
             return "MiddleButton";
-        case 0x4:
+        case MOUSEBUTTON::MOUSE_BUTTON_RIGHT:
             return "RightButton";
-        case 0x8:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON1:
             return "Button4";
-        case 0x10:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON2:
             return "Button5";
-        case 0x20:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON3:
             return "Button6";
-        case 0x40:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON4:
             return "Button7";
-        case 0x80:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON5:
             return "Button8";
-        case 0x100:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON6:
             return "Button9";
-        case 0x200:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON7:
             return "Button10";
-        case 0x400:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON8:
             return "Button11";
-        case 0x800:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON9:
             return "Button12";
-        case 0x1000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON10:
             return "Button13";
-        case 0x2000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON11:
             return "Button14";
-        case 0x4000:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON12:
             return "Button15";
-        case MOUSE_BUTTON_XBUTTON13:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON13:
             return "Button16";
-        case MOUSE_BUTTON_XBUTTON14:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON14:
             return "Button17";
-        case MOUSE_BUTTON_XBUTTON15:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON15:
             return "Button18";
-        case MOUSE_BUTTON_XBUTTON16:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON16:
             return "Button19";
-        case MOUSE_BUTTON_XBUTTON17:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON17:
             return "Button20";
-        case MOUSE_BUTTON_XBUTTON18:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON18:
             return "Button21";
-        case MOUSE_BUTTON_XBUTTON19:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON19:
             return "Button22";
-        case MOUSE_BUTTON_XBUTTON20:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON20:
             return "Button23";
-        case MOUSE_BUTTON_XBUTTON21:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON21:
             return "Button24";
-        case MOUSE_BUTTON_XBUTTON22:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON22:
             return "Button25";
-        case MOUSE_BUTTON_XBUTTON23:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON23:
             return "Button26";
-        case MOUSE_BUTTON_XBUTTON24:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON24:
             return "Button27";
-        case MOUSE_BUTTON_XBUTTON25:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON25:
             return "Button28";
-        case MOUSE_BUTTON_XBUTTON26:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON26:
             return "Button29";
-        case MOUSE_BUTTON_XBUTTON27:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON27:
             return "Button30";
-        case MOUSE_BUTTON_XBUTTON28:
+        case MOUSEBUTTON::MOUSE_BUTTON_XBUTTON28:
             return "Button31";
         default:
             return "UNKNOWN";
