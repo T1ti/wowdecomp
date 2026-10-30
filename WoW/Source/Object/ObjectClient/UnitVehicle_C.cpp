@@ -597,7 +597,7 @@ void CGUnit_C::VehiclePassengerUpdateWorldCameraState(VehicleRec* vehicleRec, Ve
         return;
     }
 
-    uint32_t restoreZoom = camera->m_flags & 0x20;
+    uint32_t restoreZoom = camera->m_flags & CGCamera::FLAGS::FLAG_VEHICLE_EXIT_ZOOM;
     CGUnit_C::s_vehiclePassengerCameraVehicle = vehicleRec;
     CGUnit_C::s_vehiclePassengerCameraActive = active;
     CGUnit_C::s_vehiclePassengerCameraSeat = seatRec;

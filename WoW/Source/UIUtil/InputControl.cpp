@@ -381,7 +381,7 @@ int32_t CGInputControl::CameraCanTurnPlayer() const {
         }
     }
 
-    if (!(camera->m_state & 0x1)) {
+    if (!(camera->m_state & CGCamera::STATE_FLAGS::STATE_FREE_LOOK)) {
         return 0;
     }
 

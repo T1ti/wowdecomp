@@ -74,6 +74,56 @@ class CGInputControl;
 
 class CGCamera : public CSimpleCamera {
     public:
+    // Reconstructed names from 3.3.5 runtime writers/readers; not packet or model-file flags.
+    enum STATE_FLAGS : uint32_t {
+        STATE_NONE                           = 0x00000000u, // No runtime state bits.
+        STATE_FREE_LOOK                      = 0x00000001u, // SetModeFreeLook / SetModeNormal.
+        STATE_UNDERWATER_INITIALIZED         = 0x00000002u, // CheckUnderwater has sampled the liquid state.
+        STATE_LOADED                         = 0x00000004u, // Target or model camera setup has finished.
+        STATE_TELESCOPE                      = 0x00000008u, // Telescope view is active.
+        STATE_INITIALIZED                    = 0x00000010u, // Constructor setup finished; cleared before destruction.
+        STATE_FREE_LOOK_DISABLED             = 0x00000020u, // DisableFreeLook gate used by custom-view smoothing.
+        STATE_VIEW_MODIFIED                  = 0x00000040u, // Mouse/zoom motion changed the current preset view.
+        STATE_HEIGHT_INITIALIZED             = 0x00000080u, // First height request snaps instead of interpolating.
+        STATE_TRACKING                       = 0x00000100u, // UpdateTrackingState is tracking a target.
+        STATE_BOBBING                        = 0x00000200u, // Movement bobbing is active.
+        STATE_UNCONTROLLED                   = 0x00001000u, // Uncontrolled target holds an ignore-facing reference.
+        STATE_TRACKING_IGNORES_FACING        = 0x00002000u, // Tracking holds its own ignore-facing reference.
+        STATE_FREE_LOOK_FACING               = 0x00004000u, // Use m_freeLookYaw when restoring target facing.
+        STATE_TELESCOPE_ENTERING             = 0x00008000u, // Telescope entry fade/FoV transition.
+        STATE_DISTANCE_COLLISION             = 0x00010000u, // World collision shortened camera distance.
+        STATE_HEIGHT_COLLISION               = 0x00020000u, // World collision shortened the vertical probe.
+        STATE_LIQUID_SURFACED                = 0x00100000u, // Target is in the shallow/surface side of the liquid test.
+        STATE_LIQUID_SUBMERGED               = 0x00200000u, // Liquid depth exceeds target height minus the margin.
+        STATE_SMOOTH_FLYING_HEIGHT           = 0x00400000u, // m_smoothFlyingHeight interpolation is active.
+        STATE_MOUNT_HEIGHT_INITIALIZED       = 0x00800000u, // Mount-height fallback has been sampled for this target.
+        STATE_SMOOTH_YAW                     = 0x01000000u, // m_smoothYaw interpolation is active.
+        STATE_SMOOTH_PITCH                   = 0x02000000u, // m_smoothPitch interpolation is active.
+        STATE_SMOOTH_DISTANCE                = 0x04000000u, // m_smoothDistance interpolation is active.
+        STATE_SMOOTH_TARGET_OFFSET           = 0x08000000u, // m_smoothTargetOffset interpolation is active.
+        STATE_SMOOTH_GROUND_TILT             = 0x10000000u, // m_smoothGroundTilt interpolation is active.
+        STATE_SMOOTH_HEIGHT                  = 0x20000000u, // m_smoothHeight interpolation is active.
+        STATE_SMOOTH_FOV                     = 0x40000000u, // m_smoothFoV interpolation is active.
+        STATE_TELESCOPE_LEAVING              = 0x80000000u, // Telescope exit fade/FoV transition.
+        // No active writer/reader for bits 10, 11, 18 or 19 in the reviewed client.
+        STATE_COLLISION_MASK = STATE_DISTANCE_COLLISION | STATE_HEIGHT_COLLISION,
+        STATE_LIQUID_MASK = STATE_LIQUID_SURFACED | STATE_LIQUID_SUBMERGED,
+        STATE_TELESCOPE_TRANSITION_MASK = STATE_TELESCOPE_ENTERING | STATE_TELESCOPE_LEAVING,
+    };
+
+    enum FLAGS : uint32_t {
+        FLAG_NONE                            = 0x00000000u, // No behavior overrides.
+        FLAG_AUTO_INTERACT                   = 0x00000001u, // Cached autoInteract setting.
+        FLAG_TARGET_FREE_LOOK                = 0x00000002u, // SetTarget requested free-look mode.
+        FLAG_PRESERVE_FREE_LOOK_FACING       = 0x00000004u, // SyncFreeLookFacing retains its free-look facing after clamping.
+        FLAG_VEHICLE_ZOOM_MIN                = 0x00000008u, // Vehicle-seat minimum zoom override is present.
+        FLAG_VEHICLE_ZOOM_MAX                = 0x00000010u, // Vehicle-seat maximum zoom override is present.
+        FLAG_VEHICLE_EXIT_ZOOM               = 0x00000020u, // Vehicle exit zoom distance override is present.
+        FLAG_ZOOM_TO_DISTANCE                = 0x00000040u, // ZoomToDistance motion is active.
+        FLAG_MOUNT_CAMERA_POSITION           = 0x00000080u, // Mount CameraPosition event supplies the target heights.
+        // The reviewed runtime uses only the low eight bits.
+    };
+
     int32_t GetCameraDistance(float& distance, const C3Vector& position, const C3Vector& target, uint32_t flags);
     void ResetView(int32_t view);
     void SetView(int32_t view, int32_t blendStyle, int32_t transition);
@@ -112,8 +162,8 @@ class CGCamera : public CSimpleCamera {
     /* 0084 */ uint32_t unused_0084;
     /* 0088 */ WOWGUID m_targetGUID;
     /* 0090 */ WOWGUID m_guid0090;
-    /* 0098 */ uint32_t m_state;
-    /* 009C */ uint32_t m_flags;
+    /* 0098 */ uint32_t m_state; // STATE_FLAGS
+    /* 009C */ uint32_t m_flags; // FLAGS
     /* 00A0 */ WOWGUID m_relativeTo;
     /* 00A8 */ float m_terrainTilt;
     /* 00AC */ int32_t m_ignoreFacingRefs;
