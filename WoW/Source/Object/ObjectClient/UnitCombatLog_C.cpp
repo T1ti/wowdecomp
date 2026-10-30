@@ -937,7 +937,7 @@ bool ShouldShowFeedback(const ATTACKROUNDINFO& info) {
 // VERIFY: 9b0ab217 manual
 // OFFSET: 0x007512B0
 void UnitCombatLog(const ATTACKROUNDINFO& info) {
-    if (info.m_hitInfo & 0x800000) {
+    if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_RAGE_GAIN) {
         CGUnit_C* attacker = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(info.m_attacker, TYPE_UNIT, __FILE__, __LINE__));
 
         if (attacker) {
@@ -956,15 +956,15 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         int32_t resisted = 0;
         int32_t absorbed = 0;
 
-        for (uint32_t i = 0; i < 2 && info.m_schoolMask[i]; i++) {
+        for (uint32_t i = 0; i < ATTACKROUNDINFO::MAX_DAMAGE_TYPES && info.m_schoolMask[i]; i++) {
             resisted += info.m_resisted[i];
             absorbed += info.m_absorbed[i];
         }
 
-        WOWGUID target = info.m_target;
-        bool crushing = (info.m_hitInfo & 0x20000) != 0;
-        bool glancing = (info.m_hitInfo >> 16) & 1;
-        bool critical = (info.m_hitInfo & 0x200) != 0;
+        WOWGUID target = info.m_victim;
+        bool crushing = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRUSHING) != 0;
+        bool glancing = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_GLANCING) != 0;
+        bool critical = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL) != 0;
         int32_t blocked = info.m_blocked;
         uint32_t school = info.m_schoolMask[0];
         int32_t overkill = info.m_overkill;
@@ -996,20 +996,20 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         return;
     }
 
-    WOWGUID target = info.m_target;
+    WOWGUID target = info.m_victim;
     CombatLogEntry* entry;
 
-    if (info.m_hitInfo & 0x10) {
+    if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_MISS) {
         entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
         entry->SetMissInfo(1, 0);
 
         if (s_combatTextActiveUnit == target) {
             SendToCombatText(3);
         }
-    } else if (info.m_hitInfo & 0x20) {
+    } else if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_ABSORB) {
         int32_t absorbed = 0;
 
-        for (uint32_t i = 0; i < 2 && info.m_schoolMask[i]; i++) {
+        for (uint32_t i = 0; i < ATTACKROUNDINFO::MAX_DAMAGE_TYPES && info.m_schoolMask[i]; i++) {
             absorbed += info.m_absorbed[i];
         }
 
@@ -1019,10 +1019,10 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         if (s_combatTextActiveUnit == target) {
             SendToCombatText(12);
         }
-    } else if (info.m_hitInfo & 0x80) {
+    } else if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_RESIST) {
         int32_t resisted = 0;
 
-        for (uint32_t i = 0; i < 2 && info.m_schoolMask[i]; i++) {
+        for (uint32_t i = 0; i < ATTACKROUNDINFO::MAX_DAMAGE_TYPES && info.m_schoolMask[i]; i++) {
             resisted += info.m_resisted[i];
         }
 
@@ -2546,19 +2546,20 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
     uint8_t debug = 0;
     msg->Get(debug);
 
+    // The spell packet has its own hit bits; UNIT_COMBAT expects HIT_INFO_FLAGS.
     bool crit = (hitInfo & 0x2) != 0;
-    uint32_t flags = crit ? 0x200 : 0;
+    uint32_t feedbackHitInfo = crit ? HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL : HIT_INFO_FLAGS::HIT_INFO_FLAG_NONE;
 
     if (absorbed) {
-        flags |= 0x20;
+        feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_ABSORB;
     }
 
     if (blocked) {
-        flags |= 0x2000;
+        feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_BLOCK;
     }
 
     if (resisted) {
-        flags |= 0x80;
+        feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_RESIST;
     }
 
     SpellRec spell;
@@ -2568,7 +2569,7 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
         UnitCombatLogSplitDamage(caster, target, spellId, damage, overkill, school, absorbed, resisted, blocked, hitInfo, timeOffset);
 
         if (found && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
-            CGGameUI::ShowCombatFeedback(target, damage, school, flags);
+            CGGameUI::ShowCombatFeedback(target, damage, school, feedbackHitInfo);
         }
 
         return 1;
@@ -2578,7 +2579,7 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
     UnitCombatLogSpellDamage(source, target, spellId, damage, overkill, school, absorbed, resisted, blocked, hitInfo, periodic, timeOffset);
 
     if (found && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
-        CGGameUI::ShowCombatFeedback(target, damage, school, flags);
+        CGGameUI::ShowCombatFeedback(target, damage, school, feedbackHitInfo);
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(target, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
@@ -2672,22 +2673,22 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
                         unit->AddWorldText(caster, MISS_RESIST, &spell, true);
                     }
 
-                    uint32_t flags = 0;
+                    uint32_t feedbackHitInfo = HIT_INFO_FLAGS::HIT_INFO_FLAG_NONE;
 
                     if (absorbed) {
-                        flags = 0x20;
+                        feedbackHitInfo = HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_ABSORB;
                     }
 
                     if (resisted) {
-                        flags |= 0x80;
+                        feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_RESIST;
                     }
 
                     if (crit) {
-                        flags |= 0x200;
+                        feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL;
                         hitInfo = 2;
                     }
 
-                    CGGameUI::ShowCombatFeedback(target, damage, school, flags);
+                    CGGameUI::ShowCombatFeedback(target, damage, school, feedbackHitInfo);
                 }
 
                 UnitCombatLogSpellDamage(caster, target, spellId, damage, overkill, school, absorbed, resisted, 0, hitInfo, true, timeOffset);

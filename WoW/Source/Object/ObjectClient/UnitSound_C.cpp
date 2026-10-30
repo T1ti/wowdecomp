@@ -64,12 +64,14 @@ static void UnitSoundLoadDeathThuds() {
 // OFFSET: 0x00746540
 void CGUnit_C::SetImpactKitEffect(bool offhand, const ATTACKROUNDINFO* info, const C3Vector* position) {
     CGUnit_C* attacker = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(info->m_attacker, TYPE_UNIT, __FILE__, __LINE__));
-    const CGUnitVirtualItem* weapon = attacker ? attacker->GetAttackingWeapon(static_cast<COMBATHAND>((info->m_hitInfo >> 2) & 1), false) : nullptr;
+    const CGUnitVirtualItem* weapon = attacker
+        ? attacker->GetAttackingWeapon((info->m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_OFFHAND) ? COMBAT_OFFHAND : COMBAT_MAINHAND, false)
+        : nullptr;
     const CGUnitVirtualItem* parry = this->GetParryingItem(offhand);
 
     if (parry) {
-        int32_t self = s_activeMover == info->m_attacker || s_activeMover == info->m_target;
-        SI2::PlayParrySound(weapon, parry, info->m_hitInfo & 0x200, position, self);
+        int32_t self = s_activeMover == info->m_attacker || s_activeMover == info->m_victim;
+        SI2::PlayParrySound(weapon, parry, info->m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL, position, self);
     }
 }
 

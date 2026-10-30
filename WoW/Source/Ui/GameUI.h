@@ -253,11 +253,11 @@ class CGGameUI {
     static void HandleDisplaySizeChanged(const CSizeEvent& evt);
     static void DisplayError(UIErrors error, ...);
     static int32_t IsAutoLooting();
-    static void ShowCombatFeedback(const WOWGUID& guid, int32_t amount, uint32_t schoolMask, uint32_t flags);
+    static void ShowCombatFeedback(const WOWGUID& guid, int32_t amount, uint32_t schoolMask, uint32_t hitInfo);
     static void ShowSpellMissFeedback(const WOWGUID& guid, int32_t reason);
     static void ShowHealingFeedback(const WOWGUID& guid, int32_t amount, bool crit);
     static void ShowEnergizeFeedback(const WOWGUID& guid, int32_t powerType, int32_t amount);
-    static void SignalUnitCombat(const WOWGUID& guid, const char* action, int32_t amount, uint32_t schoolMask, uint32_t flags);
+    static void SignalUnitCombat(const WOWGUID& guid, const char* action, int32_t amount, uint32_t schoolMask, uint32_t hitInfo);
     static void ShowCombatFeedbackAttackRoundInfo(const ATTACKROUNDINFO* info);
     static void HandleFocusChanged(const CFocusEvent& evt);
     static int32_t Idle(const void* data, void* param);

@@ -4576,7 +4576,7 @@ void CGGameUI::ShowSpellMissFeedback(const WOWGUID& guid, int32_t reason) {
 // OFFSET: 0x00513480
 void CGGameUI::ShowHealingFeedback(const WOWGUID& guid, int32_t amount, bool crit) {
     if (amount) {
-        CGGameUI::SignalUnitCombat(guid, "HEAL", amount, GetPhysicalDamageClassMask(), crit ? 0x200 : 0);
+        CGGameUI::SignalUnitCombat(guid, "HEAL", amount, GetPhysicalDamageClassMask(), crit ? HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL : HIT_INFO_FLAGS::HIT_INFO_FLAG_NONE);
     }
 }
 
@@ -4585,22 +4585,22 @@ void CGGameUI::ShowEnergizeFeedback(const WOWGUID& guid, int32_t powerType, int3
 
 // VERIFY: c776ed02 auto
 // OFFSET: 0x005132C0
-void CGGameUI::SignalUnitCombat(const WOWGUID& guid, const char* action, int32_t amount, uint32_t schoolMask, uint32_t flags) {
+void CGGameUI::SignalUnitCombat(const WOWGUID& guid, const char* action, int32_t amount, uint32_t schoolMask, uint32_t hitInfo) {
     const char* modifier = "";
 
     if (amount <= 0) {
-        if (flags & 0x20) {
+        if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_ABSORB) {
             modifier = "ABSORB";
-        } else if (flags & 0x2000) {
+        } else if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_BLOCK) {
             modifier = "BLOCK";
-        } else if (flags & 0x80) {
+        } else if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_RESIST) {
             modifier = "RESIST";
         }
-    } else if (flags & 0x200) {
+    } else if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL) {
         modifier = "CRITICAL";
-    } else if (flags & 0x10000) {
+    } else if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_GLANCING) {
         modifier = "GLANCING";
-    } else if (flags & 0x20000) {
+    } else if (hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRUSHING) {
         modifier = "CRUSHING";
     }
 
@@ -4688,8 +4688,8 @@ void CGGameUI::CastSpiritHealSpell() {
 
 // VERIFY: cd2d4923 auto
 // OFFSET: 0x00513380
-void CGGameUI::ShowCombatFeedback(const WOWGUID& guid, int32_t amount, uint32_t schoolMask, uint32_t flags) {
-    CGGameUI::SignalUnitCombat(guid, "WOUND", amount, schoolMask, flags);
+void CGGameUI::ShowCombatFeedback(const WOWGUID& guid, int32_t amount, uint32_t schoolMask, uint32_t hitInfo) {
+    CGGameUI::SignalUnitCombat(guid, "WOUND", amount, schoolMask, hitInfo);
 }
 
 // STATIC: 0x00BD08D8
@@ -5285,7 +5285,7 @@ void CGGameUI::ShowCombatFeedbackAttackRoundInfo(const ATTACKROUNDINFO* info) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    CGGameUI::SignalUnitCombat(info->m_target, s_victimStateTokens[info->m_victimState], info->m_damage, info->m_schoolMask[0], info->m_hitInfo);
+    CGGameUI::SignalUnitCombat(info->m_victim, s_victimStateTokens[info->m_victimState], info->m_damage, info->m_schoolMask[0], info->m_hitInfo);
 }
 
 // VERIFY: 632abec5 auto

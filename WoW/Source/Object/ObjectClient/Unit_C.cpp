@@ -9513,11 +9513,13 @@ ATTACKROUNDINFO::ATTACKROUNDINFO() {
     }
 
     for (int32_t i = 0; i < 8; i++) {
-        this->unk_006C[i] = 0.0f;
+        this->m_unknownDebugFloats[i] = 0.0f;
     }
 
-    for (int32_t i = 0; i < 5; i++) {
-        this->unk_008C[i] = 0;
+    this->m_sinceLastSwing = 0;
+
+    for (int32_t i = 0; i < 4; i++) {
+        this->unk_0090[i] = 0;
     }
 }
 
@@ -13393,14 +13395,14 @@ ATTACKROUNDINFO& ATTACKROUNDINFO::operator=(const ATTACKROUNDINFO& other) {
 // VERIFY: f7a53fa2 auto
 // OFFSET: 0x00755130
 void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
-    if (this->m_unit->m_unitFieldHealth <= 0 || (info.m_hitInfo & 0x40000)) {
+    if (this->m_unit->m_unitFieldHealth <= 0 || (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_SKIP_ATTACKER_ROUND)) {
         return;
     }
 
     bool skipAnimation = info.m_meleeSpellId != 0;
     uint32_t anim = 16;
 
-    if (info.m_hitInfo & 0x4) {
+    if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_OFFHAND) {
         const CGUnitVirtualItem* offhand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
         if (offhand && offhand->m_classID == 2) {
@@ -13446,7 +13448,7 @@ void CGUnit_C::PlayAttackerRound(const ATTACKROUNDINFO& info) {
     }
 
     if (info.m_victimState) {
-        this->PlayUnitSound(static_cast<UNITSOUNDTYPE>((info.m_hitInfo >> 9) & 0x1), 0);
+        this->PlayUnitSound((info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL) ? UNITSOUNDTYPE_EXERTIONCRITICAL : UNITSOUNDTYPE_EXERTION, 0);
     }
 }
 
