@@ -21,7 +21,7 @@ enum CREATURE_TYPE_FLAGS : uint32_t
     // Selects the more-audible NPC sound classes.
     CREATURE_TYPE_FLAG_MORE_AUDIBLE                          = 0x00000020u,
     // Skips harmful-spell vertex tint and flash effects; no spell-attackability check here.
-    CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING            = 0x00000040u,
+    CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING            = 0x00000040u, // TrinityCore: CREATURE_TYPE_FLAG_SPELL_ATTACKABLE
     CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD                   = 0x00000080u,
     CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM                   = 0x00000100u,
     CREATURE_TYPE_FLAG_SKIN_WITH_MINING                      = 0x00000200u,
@@ -32,27 +32,27 @@ enum CREATURE_TYPE_FLAGS : uint32_t
     // Removes the spawn UID from combat-log GUIDs.
     CREATURE_TYPE_FLAG_MASK_UID                              = 0x00004000u,
     CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING                 = 0x00008000u,
-    CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC                       = 0x00010000u,
+    CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC                       = 0x00010000u, // Alternative reference name: CREATURE_TYPE_FLAG_EXOTIC_PET
     CREATURE_TYPE_FLAG_USE_MODEL_COLLISION_SIZE              = 0x00020000u,
     CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT     = 0x00040000u,
     CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES                 = 0x00080000u,
     CREATURE_TYPE_FLAG_NO_NAME_PLATE                         = 0x00100000u,
     // Suppresses parry, dodge/deflect and block responses to the combat-defense event.
-    CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS            = 0x00200000u,
+    CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS            = 0x00200000u, // TrinityCore: CREATURE_TYPE_FLAG_DO_NOT_PLAY_MOUNTED_ANIMATIONS
     CREATURE_TYPE_FLAG_LINK_ALL                              = 0x00400000u,
     // Restricts gossip interaction to m_unitFieldCreatedby in this client.
-    CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR              = 0x00800000u,
+    CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR              = 0x00800000u, // TrinityCore: CREATURE_TYPE_FLAG_INTERACT_ONLY_WITH_CREATOR
     // Suppresses OnAiReaction(4), which selects m_soundDeathID.
-    CREATURE_TYPE_FLAG_NO_DEATH_SCREAM                       = 0x01000000u,
+    CREATURE_TYPE_FLAG_NO_DEATH_SCREAM                       = 0x01000000u, // TrinityCore: CREATURE_TYPE_FLAG_DO_NOT_PLAY_UNIT_EVENT_SOUNDS
     CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB                    = 0x02000000u,
     // Allows cooperation for party/raid-targeted helpful spells.
     CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT                    = 0x04000000u,
     CREATURE_TYPE_FLAG_FORCE_GOSSIP                          = 0x08000000u,
     CREATURE_TYPE_FLAG_DO_NOT_SHEATHE                        = 0x10000000u,
     // No 3.3.5 client reader; all three high bits are clear in the supplied cache.
-    CREATURE_TYPE_FLAG_UNUSED_29                             = 0x20000000u,
-    CREATURE_TYPE_FLAG_UNUSED_30                             = 0x40000000u,
-    CREATURE_TYPE_FLAG_UNUSED_31                             = 0x80000000u,
+    CREATURE_TYPE_FLAG_UNUSED_29                             = 0x20000000u, // TrinityCore: CREATURE_TYPE_FLAG_DO_NOT_TARGET_ON_INTERACTION (unverified for 3.3.5)
+    CREATURE_TYPE_FLAG_UNUSED_30                             = 0x40000000u, // TrinityCore: CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME (unverified for 3.3.5)
+    CREATURE_TYPE_FLAG_UNUSED_31                             = 0x80000000u, // TrinityCore: CREATURE_TYPE_FLAG_QUEST_BOSS (unverified for 3.3.5)
 };
 
 class CreatureStats {
