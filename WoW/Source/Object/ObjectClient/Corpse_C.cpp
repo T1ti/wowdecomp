@@ -178,7 +178,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
         this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(effect->m_fileName, 0);
 
         if (this->m_lootEffect) {
-            this->m_lootEffect->AttachToParent(this->m_worldModel, 19, nullptr, 0);
+            this->m_lootEffect->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, nullptr, 0);
         }
     }
 
@@ -284,7 +284,7 @@ void CGCorpse_C::ShowLootEffect() {
     this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(effect->m_fileName, 0);
 
     if (this->m_lootEffect) {
-        this->m_lootEffect->AttachToParent(this->m_worldModel, 19, nullptr, 0);
+        this->m_lootEffect->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, nullptr, 0);
     }
 }
 

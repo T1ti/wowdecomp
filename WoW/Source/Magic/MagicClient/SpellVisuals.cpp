@@ -76,7 +76,7 @@ C3Vector LightningObject::GetCasterPosition(CGUnit_C* unit, uint32_t attachment,
     position.z = unit->m_scale * unit->m_height * 0.75f + base.z;
 
     if (model && model->IsLoaded(0, 0) && (model->m_fFlags & 0x8000)) {
-        if (attachment != 0xFFFFFFFF && unit->HasAttachmentForEffect(attachment, raw)) {
+        if (attachment != MODEL_ATTACHMENT_ID::ATTACH_NONE && unit->HasAttachmentForEffect(attachment, raw)) {
             return unit->GetAttachmentPositionForEffect(attachment, offset, raw);
         }
 
@@ -104,8 +104,8 @@ C3Vector LightningObject::GetImpactPosition(CGUnit_C* unit, uint32_t spellId) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
-        if (model->IsLoaded(0, 0) && (model->m_fFlags & 0x8000) && model->HasAttachment(34)) {
-            return model->GetAttachmentPosition(34);
+        if (model->IsLoaded(0, 0) && (model->m_fFlags & 0x8000) && model->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL)) {
+            return model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL);
         }
 
         return position;
@@ -435,7 +435,7 @@ void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* tran
     }
 
     C3Vector world = model->GetWorldPosition();
-    C3Vector attach = model->GetAttachmentPosition(0);
+    C3Vector attach = model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     jump->x = attach.x - world.x;
     jump->y = attach.y - world.y;
     jump->z = attach.z - world.z;
@@ -993,11 +993,11 @@ int32_t MountTransitionObject::UpdateCharacterData() {
         mountModel = unit->m_mountTransitionEffect->m_model;
     }
 
-    if (!model || !model->IsLoaded(0, 0) || !mountModel || !mountModel->IsLoaded(0, 0) || !mountModel->HasAttachment(0)) {
+    if (!model || !model->IsLoaded(0, 0) || !mountModel || !mountModel->IsLoaded(0, 0) || !mountModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_SHIELD)) {
         return 0;
     }
 
-    this->m_attachPivot = mountModel->GetAttachmentPivot(0);
+    this->m_attachPivot = mountModel->GetAttachmentPivot(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     M2BoneSequenceInfo info;
     model->GetBoneSequenceInfo(0xFFFFFFFF, info);
     float rate = 1.0f / static_cast<float>(info.m_endTime - info.m_startTime);

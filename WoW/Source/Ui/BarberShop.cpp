@@ -178,7 +178,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
             CM2Model* attached = nullptr;
 
             for (CM2Model* child = player->m_worldModel->m_attachList; child; child = child->m_attachNext) {
-                if (child->m_attachmentId == 2) {
+                if (child->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL) {
                     child->m_refCount++;
                     attached = child;
                     attached->DetachFromParent();
@@ -189,7 +189,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
             CCharacterComponent::RemoveHandItem(attached, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(offhand->GetSheatheType()), offhand->GetInventoryType() == INVTYPE_SHIELD);
 
             if (attached) {
-                attached->AttachToParent(attached, 2, nullptr, 0);
+                attached->AttachToParent(attached, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);
                 attached->Release();
             }
         } else {

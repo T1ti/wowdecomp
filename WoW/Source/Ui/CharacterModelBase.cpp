@@ -267,14 +267,14 @@ void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
     model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
-        if (attached->m_attachmentId == 2) {
+        if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL) {
             CCharacterComponent::ComponentCloseFingers(model, COMP_HAND_LEFT);
             break;
         }
     }
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
-        if (attached->m_attachmentId == 1) {
+        if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
             CCharacterComponent::ComponentCloseFingers(model, COMP_HAND_RIGHT);
             break;
         }

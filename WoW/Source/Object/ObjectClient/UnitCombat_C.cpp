@@ -109,7 +109,7 @@ const CGUnitVirtualItem* CGUnit_C::GetAttackingWeapon(COMBATHAND hand, bool requ
         return nullptr;
     }
 
-    while (attached->m_attachmentId != (hand != 0) + 1) {
+    while (attached->m_attachmentId != (hand != 0) + MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
         attached = attached->m_attachNext;
 
         if (!attached) {
@@ -263,7 +263,7 @@ void CGUnit_C::ShowBloodSpurt(const WOWGUID& attacker, int32_t large) {
         return;
     }
 
-    GEOCOMPONENTLINKS attachType = ATTACH_TORSOBLOODFRONT;
+    MODEL_ATTACHMENT_ID attachType = ATTACH_TORSOBLOODFRONT;
     CGUnit_C* attackerUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(attacker, TYPE_UNIT, __FILE__, __LINE__));
 
     if (attackerUnit) {
@@ -669,7 +669,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
 
             if (!item || item->m_classID != 2 || (item->m_subclassID != 3 && item->m_subclassID != 18)) {
                 if (this->m_ammoModel && !this->m_ammoModel->m_attachParent) {
-                    this->m_ammoModel->AttachToParent(this->m_worldModel, 35, nullptr, 0);
+                    this->m_ammoModel->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDARROW, nullptr, 0);
                 }
             }
 

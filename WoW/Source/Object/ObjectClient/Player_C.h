@@ -434,8 +434,8 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     float GetCombatRatingPct(int32_t rating);
     bool LoadGuildTextures(int32_t displayId);
     static void TabardDrawCallback(int32_t guildID, const WOWGUID& guid, void* param, bool success);
-    void UpdateHandItemVisual(GEOCOMPONENTLINKS link, int32_t hand);
-    void UpdateObjComponentVisuals(const VisibleItem_C* item, GEOCOMPONENTLINKS link);
+    void UpdateHandItemVisual(MODEL_ATTACHMENT_ID link, int32_t hand);
+    void UpdateObjComponentVisuals(const VisibleItem_C* item, MODEL_ATTACHMENT_ID link);
     void UpdateObjComponentVisualsSlot(const VisibleItem_C* item, int32_t slot);
     void PostInitActivePlayer();
     void UpdatePartyMemberState();

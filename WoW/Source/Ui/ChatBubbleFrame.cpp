@@ -224,9 +224,9 @@ bool CGChatBubbleFrame::Update(CGUnit_C* player, CGUnit_C* unit) {
     C3Vector attachment;
 
     if (unit->IsMounted()) {
-        attachment = unit->GetAttachmentPosition(29, nullptr);
+        attachment = unit->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED, nullptr);
     } else {
-        attachment = unit->GetAttachmentPosition(18, nullptr);
+        attachment = unit->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME, nullptr);
     }
 
     this->m_height = attachment.z - unit->GetModelPosition().z;

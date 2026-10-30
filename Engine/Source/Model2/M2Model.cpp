@@ -1950,7 +1950,7 @@ void CM2Model::DetachFromParent() {
     this->m_attachPrev = nullptr;
     this->m_attachNext = nullptr;
     this->m_attachParent = nullptr;
-    this->m_attachmentId = 0xFFFFFFFF;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_frameOfReference = nullptr;
 
     if (release) {
@@ -1981,7 +1981,7 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
             model->m_attachPrev = nullptr;
             model->m_attachNext = nullptr;
             model->m_attachParent = nullptr;
-            model->m_attachmentId = 0xFFFFFFFF;
+            model->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
             model->m_frameOfReference = nullptr;
 
             if (release) {
@@ -3769,7 +3769,7 @@ CM2Model::CM2Model() {
     this->m_animListHead = 0xFFFF;
     this->m_attachmentIndex = 0xFFFF;
     this->m_frameStamp = 0xFFFFFFFF;
-    this->m_attachmentId = 0xFFFFFFFF;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_worldTransform.a0 = 1.0f;
     this->m_worldTransform.b1 = 1.0f;
     this->m_worldTransform.c2 = 1.0f;
@@ -6649,7 +6649,7 @@ CM2Model::~CM2Model() {
         child->m_attachPrev = nullptr;
         child->m_attachNext = nullptr;
         child->m_attachParent = nullptr;
-        child->m_attachmentId = 0xFFFFFFFF;
+        child->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
         child->m_frameOfReference = nullptr;
 
         if (release) {

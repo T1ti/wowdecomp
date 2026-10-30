@@ -558,7 +558,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         }
 
         CM2Model* worldModel = unit->m_worldModel;
-        uint32_t attachment = 0xFFFFFFFF;
+        uint32_t attachment = MODEL_ATTACHMENT_ID::ATTACH_NONE;
         uint32_t sequence;
 
         switch (unit->GetClientStandState()) {
@@ -601,7 +601,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
 
         if (unit->m_mountModel) {
             sequence = ANIM_MOUNT;
-            attachment = 0;
+            attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
         }
 
         M2SequenceInfo standInfo;
@@ -616,8 +616,8 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         float standOffset = standInfo.m_bounds.t.z - sequenceInfo.m_bounds.t.z;
         float height;
 
-        if (worldModel->HasAttachment(0x11)) {
-            C3Vector pivot = worldModel->GetAttachmentPivot(0x11);
+        if (worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_BREATH)) {
+            C3Vector pivot = worldModel->GetAttachmentPivot(MODEL_ATTACHMENT_ID::ATTACH_BREATH);
 
             if (CGBarberShop::m_barberShopEnabled && unit->IsActivePlayer()) {
                 height = (pivot.z + 0.097222224f - standOffset) * scale;
@@ -659,7 +659,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
             this->m_targetHeightFar -= standOffset;
         }
 
-        if (attachment != 0xFFFFFFFF && model->HasAttachment(attachment)) {
+        if (attachment != MODEL_ATTACHMENT_ID::ATTACH_NONE && model->HasAttachment(attachment)) {
             C3Vector pivot = model->GetAttachmentPivot(attachment);
             float mountHeight = pivot.z * mountScale;
 

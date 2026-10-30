@@ -486,16 +486,16 @@ int32_t CCharacterComponent::ComposeHelmModelFilePath(const ChrRacesRec* raceRec
 
 // VERIFY: b4f875e0 manual
 // OFFSET: 0x004E7940
-GEOCOMPONENTLINKS CCharacterComponent::GetSheatheLink(SHEATHE_TYPE sheatheType, bool mainHand) {
+MODEL_ATTACHMENT_ID CCharacterComponent::GetSheatheLink(SHEATHE_TYPE sheatheType, bool mainHand) {
     switch (sheatheType) {
         case SHEATHE_MAINHAND:
-            return static_cast<GEOCOMPONENTLINKS>(ATTACH_SHEATH_OFFHAND - (mainHand != 0));
+            return static_cast<MODEL_ATTACHMENT_ID>(ATTACH_SHEATH_OFFHAND - (mainHand != 0));
 
         case SHEATHE_BACK:
-            return static_cast<GEOCOMPONENTLINKS>(ATTACH_BACK_OFFHAND - (mainHand != 0));
+            return static_cast<MODEL_ATTACHMENT_ID>(ATTACH_LARGEWEAPONRIGHT - (mainHand != 0));
 
         case SHEATHE_HIP:
-            return static_cast<GEOCOMPONENTLINKS>(ATTACH_HIP_OFFHAND - (mainHand != 0));
+            return static_cast<MODEL_ATTACHMENT_ID>(ATTACH_HIPWEAPONRIGHT - (mainHand != 0));
 
         case SHEATHE_SHIELD:
             return ATTACH_SHEATH_SHIELD;
@@ -507,16 +507,16 @@ GEOCOMPONENTLINKS CCharacterComponent::GetSheatheLink(SHEATHE_TYPE sheatheType, 
 
 // VERIFY: 0e3f578e manual
 // OFFSET: 0x004E79A0
-void CCharacterComponent::RemoveLinkpt(CM2Model* model, GEOCOMPONENTLINKS link) {
+void CCharacterComponent::RemoveLinkpt(CM2Model* model, MODEL_ATTACHMENT_ID link) {
     if (link == ATTACH_NONE) {
         return;
     }
 
-    if (link == ATTACH_SHIELD || link == ATTACH_HANDLEFT) {
+    if (link == ATTACH_SHIELD || link == ATTACH_HANDL) {
         for (uint32_t bone = 13; bone <= 17; bone++) {
             model->UnsetBoneSequence(bone, 0, 1);
         }
-    } else if (link == ATTACH_HANDRIGHT) {
+    } else if (link == ATTACH_HANDR) {
         for (uint32_t bone = 8; bone <= 12; bone++) {
             model->UnsetBoneSequence(bone, 0, 1);
         }
@@ -912,8 +912,8 @@ char* CCharacterComponent::GetTabardBorderFileName(COMPONENT_SECTIONS section, i
 
 // VERIFY: 9acefab0 manual
 // OFFSET: 0x004E82B0
-void CCharacterComponent::SetItemSlotUsingAttachSlot(ITEM_SLOT itemSlot, GEOCOMPONENTLINKS link) {
-    if (static_cast<uint32_t>(link) < NUM_ATTACH_LINKS) {
+void CCharacterComponent::SetItemSlotUsingAttachSlot(ITEM_SLOT itemSlot, MODEL_ATTACHMENT_ID link) {
+    if (static_cast<uint32_t>(link) < NUM_ATTACH_SLOTS) {
         this->m_itemSlotForAttachSlot[link] = itemSlot;
     }
 }
@@ -2035,7 +2035,7 @@ static void ReplaceParticleColor(int32_t particleColorID, CM2Model* model) {
 
 // VERIFY: a5287802 manual
 // OFFSET: 0x004EAA70
-void CCharacterComponent::AddLink(CM2Model* parent, GEOCOMPONENTLINKS link, const char* modelPath, const char* texturePath, int32_t itemVisual, const ItemDisplayInfoRec* displayRec) {
+void CCharacterComponent::AddLink(CM2Model* parent, MODEL_ATTACHMENT_ID link, const char* modelPath, const char* texturePath, int32_t itemVisual, const ItemDisplayInfoRec* displayRec) {
     if (!parent) {
         return;
     }
@@ -2063,9 +2063,9 @@ void CCharacterComponent::AddLink(CM2Model* parent, GEOCOMPONENTLINKS link, cons
     parent->DetachAllChildrenById(link);
     model->AttachToParent(parent, link, nullptr, 0);
 
-    if (link == ATTACH_HANDRIGHT) {
+    if (link == ATTACH_HANDR) {
         CCharacterComponent::ComponentCloseFingers(parent, COMP_HAND_RIGHT);
-    } else if (link == ATTACH_HANDLEFT) {
+    } else if (link == ATTACH_HANDL) {
         CCharacterComponent::ComponentCloseFingers(parent, COMP_HAND_LEFT);
     }
 
@@ -2123,20 +2123,20 @@ CM2Model* CCharacterComponent::MakeAmmoModel(CM2Model* model, const ItemDisplayI
 
 // VERIFY: eb4afbd7 manual
 // OFFSET: 0x004EACD0
-GEOCOMPONENTLINKS CCharacterComponent::AddHandItem(CM2Model* model, const ItemDisplayInfoRec* displayRec, INVENTORY_SLOTS invSlot, SHEATHE_TYPE sheatheType, bool sheathed, bool shield, bool mainHand, int32_t itemVisual) {
+MODEL_ATTACHMENT_ID CCharacterComponent::AddHandItem(CM2Model* model, const ItemDisplayInfoRec* displayRec, INVENTORY_SLOTS invSlot, SHEATHE_TYPE sheatheType, bool sheathed, bool shield, bool mainHand, int32_t itemVisual) {
     if (!model || !displayRec || static_cast<uint32_t>(invSlot) > INVSLOT_TABARD) {
         return ATTACH_NONE;
     }
 
     const char* folder = "Item\\ObjectComponents\\Weapon\\";
-    GEOCOMPONENTLINKS hand;
-    GEOCOMPONENTLINKS sheath;
+    MODEL_ATTACHMENT_ID hand;
+    MODEL_ATTACHMENT_ID sheath;
 
     if (invSlot == INVSLOT_MAINHAND || (invSlot == INVSLOT_RANGED && mainHand)) {
-        hand = ATTACH_HANDRIGHT;
+        hand = ATTACH_HANDR;
         sheath = CCharacterComponent::GetSheatheLink(sheatheType, true);
     } else if (invSlot == INVSLOT_OFFHAND) {
-        hand = ATTACH_HANDLEFT;
+        hand = ATTACH_HANDL;
         sheath = CCharacterComponent::GetSheatheLink(sheatheType, false);
 
         if (shield) {
@@ -2144,7 +2144,7 @@ GEOCOMPONENTLINKS CCharacterComponent::AddHandItem(CM2Model* model, const ItemDi
             hand = ATTACH_SHIELD;
         }
     } else if (invSlot == INVSLOT_RANGED) {
-        hand = ATTACH_HANDLEFT;
+        hand = ATTACH_HANDL;
         sheath = CCharacterComponent::GetSheatheLink(sheatheType, false);
     } else {
         return ATTACH_NONE;
@@ -2153,7 +2153,7 @@ GEOCOMPONENTLINKS CCharacterComponent::AddHandItem(CM2Model* model, const ItemDi
     CCharacterComponent::RemoveLinkpt(model, hand);
     CCharacterComponent::RemoveLinkpt(model, sheath);
 
-    GEOCOMPONENTLINKS link = sheathed ? sheath : hand;
+    MODEL_ATTACHMENT_ID link = sheathed ? sheath : hand;
 
     if (model->IsLoaded(0, 0) && !model->HasAttachment(link)) {
         return ATTACH_NONE;
@@ -2176,22 +2176,22 @@ GEOCOMPONENTLINKS CCharacterComponent::AddHandItem(CM2Model* model, const ItemDi
 // VERIFY: 9faafec0 auto
 // OFFSET: 0x004EAF70
 void CCharacterComponent::RemoveVisuals(CM2Model* model) {
-    model->DetachAllChildrenById(15);
-    model->DetachAllChildrenById(16);
-    model->DetachAllChildrenById(17);
-    model->DetachAllChildrenById(18);
-    model->DetachAllChildrenById(29);
-    model->DetachAllChildrenById(19);
-    model->DetachAllChildrenById(20);
-    model->DetachAllChildrenById(38);
-    model->DetachAllChildrenById(21);
-    model->DetachAllChildrenById(22);
-    model->DetachAllChildrenById(23);
-    model->DetachAllChildrenById(24);
-    model->DetachAllChildrenById(25);
-    model->DetachAllChildrenById(34);
-    model->DetachAllChildrenById(35);
-    model->DetachAllChildrenById(12);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODBACK);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_BREATH);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_HEAD);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_SPELLHANDDIRECTED);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLLEFTHAND);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL1);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW);
+    model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_BACK);
     model->m_emissiveTintR = 0.0f;
     model->m_emissiveTintG = 0.0f;
     model->m_fadeAlpha = 1.0f;
@@ -2208,14 +2208,14 @@ void CCharacterComponent::RemoveHandItem(CM2Model* model, INVENTORY_SLOTS invSlo
         return;
     }
 
-    GEOCOMPONENTLINKS hand = ATTACH_NONE;
-    GEOCOMPONENTLINKS sheath = ATTACH_NONE;
+    MODEL_ATTACHMENT_ID hand = ATTACH_NONE;
+    MODEL_ATTACHMENT_ID sheath = ATTACH_NONE;
 
     if (invSlot == INVSLOT_MAINHAND) {
-        hand = ATTACH_HANDRIGHT;
+        hand = ATTACH_HANDR;
         sheath = CCharacterComponent::GetSheatheLink(sheatheType, true);
     } else if (invSlot > INVSLOT_MAINHAND && invSlot <= INVSLOT_RANGED) {
-        hand = ATTACH_HANDLEFT;
+        hand = ATTACH_HANDL;
         sheath = CCharacterComponent::GetSheatheLink(sheatheType, false);
 
         if (shield) {
@@ -3722,8 +3722,8 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
         }
 
         case ITEMSLOT_SHOULDER:
-            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(6));
-            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(5));
+            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
+            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
             this->m_itemDisplayID[itemSlot] = 0;
             return;
 
@@ -4010,7 +4010,7 @@ int32_t CCharacterComponent::BuildShoulderItemPaths(ItemDisplayInfoRec& rec, con
 int32_t CCharacterComponent::AreShoulderModelsCorrect() {
     CM2Model* left = this->m_data.m_model->m_attachList;
 
-    while (left && left->m_attachmentId != 6) {
+    while (left && left->m_attachmentId != MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL) {
         left = left->m_attachNext;
     }
 
@@ -4020,7 +4020,7 @@ int32_t CCharacterComponent::AreShoulderModelsCorrect() {
 
     CM2Model* right = this->m_data.m_model->m_attachList;
 
-    while (right && right->m_attachmentId != 5) {
+    while (right && right->m_attachmentId != MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR) {
         right = right->m_attachNext;
     }
 
@@ -4060,11 +4060,11 @@ void CCharacterComponent::AddShoulders(int32_t itemVisual) {
     }
 
     if (leftModel[0]) {
-        CCharacterComponent::AddLink(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(6), leftModel, leftTexture, itemVisual, displayRec);
+        CCharacterComponent::AddLink(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL, leftModel, leftTexture, itemVisual, displayRec);
     }
 
     if (rightModel[0]) {
-        CCharacterComponent::AddLink(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(5), rightModel, rightTexture, itemVisual, displayRec);
+        CCharacterComponent::AddLink(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR, rightModel, rightTexture, itemVisual, displayRec);
     }
 }
 
@@ -5573,8 +5573,8 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
         case ITEMSLOT_SHOULDER:
             if (!this->AreShoulderModelsCorrect()) {
                 if (this->m_itemDisplayID[ITEMSLOT_SHOULDER]) {
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(6));
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, static_cast<GEOCOMPONENTLINKS>(5));
+                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
+                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
                 }
 
                 this->AddShoulders(itemVisual);

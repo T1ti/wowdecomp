@@ -31,7 +31,7 @@ static uint32_t s_lastStandSoundTime;
 static TSFixedArray<DEATTHUDSOUNDINFO> s_deathThudSounds[5];
 
 // STATIC: 0x00ADB630
-static const float s_attachmentHeights[50] = { 1.0f, 1.0f, 1.0f, 1.5f, 1.5f, 1.8f, 1.8f, 0.5f, 0.5f, 1.0f, 1.0f, 2.0f, 1.5f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 2.5f, 0.0f, 2.0f, 1.5f, 1.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 1.5f, 1.5f, 1.0f, 1.0f, 1.5f, 1.0f, 1.0f, 2.5f, 1.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+static const float s_attachmentHeights[MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS] = { 1.0f, 1.0f, 1.0f, 1.5f, 1.5f, 1.8f, 1.8f, 0.5f, 0.5f, 1.0f, 1.0f, 2.0f, 1.5f, 1.0f, 1.0f, 1.0f, 1.0f, 2.0f, 2.5f, 0.0f, 2.0f, 1.5f, 1.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 3.0f, 1.5f, 1.5f, 1.0f, 1.0f, 1.5f, 1.0f, 1.0f, 2.5f, 1.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 // STATIC: 0x00ADB674
 static float s_emoteSoundHeight = 2.0f;
@@ -462,7 +462,7 @@ C3Vector CGUnit_C::GetAttachmentPosition(uint32_t attachId, const C3Vector* offs
         position = *offset;
     }
 
-    if (attachId <= 49) {
+    if (attachId <= (MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS - 1)) {
         position.z = s_attachmentHeights[attachId] + position.z;
     }
 
@@ -643,8 +643,8 @@ void CGUnit_C::PlayEmoteSound(int32_t soundKitId, bool checkCVars, int32_t fileI
     C3Vector position;
     CM2Model* model = this->m_worldModel;
 
-    if (model && model->IsLoaded(0, 0) && model->HasAttachment(17)) {
-        position = model->GetAttachmentPosition(17);
+    if (model && model->IsLoaded(0, 0) && model->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_BREATH)) {
+        position = model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_BREATH);
     } else {
         C3Vector offset(0.0f, 0.0f, s_emoteSoundHeight);
         C3Vector base = this->m_vehiclePassenger ? this->GetModelPosition() : this->GetPosition();
@@ -762,7 +762,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
         return;
     }
 
-    C3Vector position = this->GetAttachmentPosition(17, nullptr);
+    C3Vector position = this->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_BREATH, nullptr);
     static CVar* s_listenerAtCharacter = CVar::Lookup("Sound_ListenerAtCharacter");
     int32_t activeMover;
     int32_t listenerAtCharacter;

@@ -10276,16 +10276,16 @@ void CGPlayer_C::UpdateObjComponentVisualsSlot(const VisibleItem_C* item, int32_
     if (this->m_sheatheState) {
         if (slot == 15) {
             this->UpdateObjComponentVisuals(item, CCharacterComponent::GetSheatheLink(sheatheType, true));
-            this->UpdateObjComponentVisuals(item, static_cast<GEOCOMPONENTLINKS>(1));
+            this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_HANDR);
         } else if (const_cast<VisibleItem_C*>(item)->GetInventoryType() == 14) {
-            this->UpdateObjComponentVisuals(item, static_cast<GEOCOMPONENTLINKS>(0));
+            this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
         } else {
             this->UpdateObjComponentVisuals(item, CCharacterComponent::GetSheatheLink(sheatheType, false));
-            this->UpdateObjComponentVisuals(item, static_cast<GEOCOMPONENTLINKS>(2));
+            this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_HANDL);
         }
     } else {
-        GEOCOMPONENTLINKS link = CCharacterComponent::GetSheatheLink(sheatheType, slot == 15);
-        this->UpdateObjComponentVisuals(item, static_cast<GEOCOMPONENTLINKS>((slot != 15) + 1));
+        MODEL_ATTACHMENT_ID link = CCharacterComponent::GetSheatheLink(sheatheType, slot == 15);
+        this->UpdateObjComponentVisuals(item, static_cast<MODEL_ATTACHMENT_ID>((slot != 15) + MODEL_ATTACHMENT_ID::ATTACH_HANDR));
         this->UpdateObjComponentVisuals(item, link);
     }
 }
@@ -10502,7 +10502,7 @@ void CGPlayer_C::ShowCloak() {
 
 // VERIFY: 008ff140 manual
 // OFFSET: 0x006E1290
-void CGPlayer_C::UpdateHandItemVisual(GEOCOMPONENTLINKS link, int32_t hand) {
+void CGPlayer_C::UpdateHandItemVisual(MODEL_ATTACHMENT_ID link, int32_t hand) {
     uint32_t slot;
 
     if (hand == 0) {
@@ -10578,7 +10578,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             }
 
             for (CM2Model* attached = this->m_worldModel->m_attachList; attached; attached = attached->m_attachNext) {
-                if (attached->m_attachmentId == 1) {
+                if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
                     attached->m_refCount++;
                     detached = attached;
                     attached->DetachFromParent();
@@ -10589,7 +10589,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
 
             if (detached) {
-                detached->AttachToParent(this->m_worldModel, 1, nullptr, 0);
+                detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDR, nullptr, 0);
                 detached->Release();
             }
 
@@ -10604,7 +10604,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             }
 
             for (CM2Model* attached = this->m_worldModel->m_attachList; attached; attached = attached->m_attachNext) {
-                if (attached->m_attachmentId == 2) {
+                if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL) {
                     attached->m_refCount++;
                     detached = attached;
                     attached->DetachFromParent();
@@ -10615,7 +10615,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
 
             if (detached) {
-                detached->AttachToParent(this->m_worldModel, 2, nullptr, 0);
+                detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);
                 detached->Release();
             }
 
@@ -10624,7 +10624,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
         case 17:
             if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
                 uint32_t inventoryType = old->GetInventoryType();
-                this->m_worldModel->DetachAllChildrenById(inventoryType == INVTYPE_RANGEDRIGHT || inventoryType == INVTYPE_THROWN ? 1 : 2);
+                this->m_worldModel->DetachAllChildrenById(inventoryType == INVTYPE_RANGEDRIGHT || inventoryType == INVTYPE_THROWN ? MODEL_ATTACHMENT_ID::ATTACH_HANDR : MODEL_ATTACHMENT_ID::ATTACH_HANDL);
             }
 
             if (this->m_characterComponent) {
@@ -14039,7 +14039,7 @@ void CGPlayer_C::StartGiftWrap(CGItem_C* item) {
 
 // VERIFY: 35dbeab8 manual
 // OFFSET: 0x006D6BA0
-void CGPlayer_C::UpdateObjComponentVisuals(const VisibleItem_C* item, GEOCOMPONENTLINKS link) {
+void CGPlayer_C::UpdateObjComponentVisuals(const VisibleItem_C* item, MODEL_ATTACHMENT_ID link) {
     int32_t visual = const_cast<VisibleItem_C*>(item)->GetItemEnchantmentVisualID();
 
     if (visual == -1) {

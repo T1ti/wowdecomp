@@ -9247,7 +9247,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_scale = scale;
         missile->m_soundKitID = visual->m_missileSound;
         missile->m_impactPos = data->m_destPosition;
-        missile->m_attachmentID = -1;
+        missile->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
         float height = visual->m_missileFollowGroundHeight * 0.001f;
 
         if (height <= 0.25f) {

@@ -90,8 +90,8 @@ class CCharacterComponent {
     static CompSectionInfo s_sectionInfoRaw[NUM_COMPONENT_SECTIONS];
     static MipBits* s_textureBuffer;
 
-    static GEOCOMPONENTLINKS AddHandItem(CM2Model* model, const ItemDisplayInfoRec* displayRec, INVENTORY_SLOTS invSlot, SHEATHE_TYPE sheatheType, bool sheathed, bool shield, bool mainHand, int32_t itemVisual);
-    static void AddLink(CM2Model* parent, GEOCOMPONENTLINKS link, const char* modelPath, const char* texturePath, int32_t itemVisual, const ItemDisplayInfoRec* displayRec);
+    static MODEL_ATTACHMENT_ID AddHandItem(CM2Model* model, const ItemDisplayInfoRec* displayRec, INVENTORY_SLOTS invSlot, SHEATHE_TYPE sheatheType, bool sheathed, bool shield, bool mainHand, int32_t itemVisual);
+    static void AddLink(CM2Model* parent, MODEL_ATTACHMENT_ID link, const char* modelPath, const char* texturePath, int32_t itemVisual, const ItemDisplayInfoRec* displayRec);
     static CCharacterComponent* AllocComponent();
     static CComponentMipBits* AllocComponentMipBits(EGxTexFormat format);
     static CComponentRequest* AllocComponentRequest();
@@ -112,7 +112,7 @@ class CCharacterComponent {
     static int32_t GetNumHairColorsForStyle(int32_t raceID, int32_t sexID, int32_t classID, int32_t hairStyleID, COMPONENT_CONTEXT context);
     static int32_t GetNumHairStylesForColor(int32_t raceID, int32_t sexID, int32_t classID, int32_t hairColorID, COMPONENT_CONTEXT context);
     static int32_t GetNumSkins(int32_t raceID, int32_t sexID, int32_t classID, COMPONENT_CONTEXT context);
-    static GEOCOMPONENTLINKS GetSheatheLink(SHEATHE_TYPE sheatheType, bool mainHand);
+    static MODEL_ATTACHMENT_ID GetSheatheLink(SHEATHE_TYPE sheatheType, bool mainHand);
     static char* GetTabardBackgroundFileName(COMPONENT_SECTIONS section, int32_t background, char* buffer, int32_t size);
     static char* GetTabardBorderFileName(COMPONENT_SECTIONS section, int32_t border, int32_t color, char* buffer, int32_t size);
     static char* GetTabardEmblemFileName(COMPONENT_SECTIONS section, int32_t emblem, int32_t color, char* buffer, int32_t size);
@@ -135,7 +135,7 @@ class CCharacterComponent {
     static void ProcessComponentFinishedList(int32_t all);
     static void ProcessComponentRequest(CComponentRequest* request);
     static void RemoveHandItem(CM2Model* model, INVENTORY_SLOTS invSlot, SHEATHE_TYPE sheatheType, bool shield);
-    static void RemoveLinkpt(CM2Model* model, GEOCOMPONENTLINKS link);
+    static void RemoveLinkpt(CM2Model* model, MODEL_ATTACHMENT_ID link);
     static void RemoveVisuals(CM2Model* model);
     static void ReplaceMonsterSkin(CM2Model* model, const CreatureDisplayInfoRec* displayRec, const CreatureModelDataRec* modelRec);
     static void ThreadDestroy();
@@ -156,7 +156,7 @@ class CCharacterComponent {
     /* 01D0 */ CharacterSection m_section [10];
     /* 0428 */ uint32_t m_itemDisplayID [12];
     /* 0458 */ uint32_t m_handItemDisplayID [3];
-    /* 0464 */ int32_t m_itemSlotForAttachSlot [50];
+    /* 0464 */ int32_t m_itemSlotForAttachSlot [MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS];
     /* 052C */ CComponentRequest* m_request;
 
     CCharacterComponent();
@@ -227,7 +227,7 @@ class CCharacterComponent {
     void SetHairColor(int32_t hairColorID, bool loadHair, const char* debug);
     void SetHairStyle(int32_t hairStyleID, const char* debug);
     void SetHandItemDisplay(int32_t displayID, uint32_t hand, INVENTORY_SLOTS invSlot, bool shield);
-    void SetItemSlotUsingAttachSlot(ITEM_SLOT itemSlot, GEOCOMPONENTLINKS link);
+    void SetItemSlotUsingAttachSlot(ITEM_SLOT itemSlot, MODEL_ATTACHMENT_ID link);
     void SetMainHandItemDisplay(int32_t displayID);
     void SetOffHandItemDisplay(int32_t displayID);
     void SetShieldItemDisplay(int32_t displayID);

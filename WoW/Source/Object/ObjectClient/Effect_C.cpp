@@ -247,7 +247,7 @@ void CEffect::AddFishingLine(CGObject_C* object, const WOWGUID& target) {
 
     CM2Model* line = model->m_attachList;
 
-    while (line && line->m_attachmentId != 1) {
+    while (line && line->m_attachmentId != MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
         line = line->m_attachNext;
     }
 
@@ -263,7 +263,7 @@ void CEffect::AddFishingLine(CGObject_C* object, const WOWGUID& target) {
 // VERIFY: 9ce5579d manual
 // OFFSET: 0x006F9D70
 CEffect::CEffect() {
-    this->m_attachmentId = -1;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_model = nullptr;
     this->m_lineModel = nullptr;
     this->m_sourceGuid = WOWGUID();
@@ -423,7 +423,7 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
     this->m_effectNameRec = effectName;
     CEffect::DestroyMatchingEffects(object, effectName, attachType, spellId, kit ? kit->m_id : 0, attach);
 
-    if (attachType == -1) {
+    if (attachType == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
         DebugLog("**** CEffect::AddEffect called with ATTACH_NONE\n");
     }
 
@@ -461,7 +461,7 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
 // VERIFY: 2eb5c934 auto
 // OFFSET: 0x006F8A60
 void __stdcall CEffect::DestroyMatchingEffects(CGObject_C* object, const SpellVisualEffectNameRec* effectName, int32_t attachType, int32_t spellId, int32_t kitId, const SpellVisualKitModelAttachRec* attach) {
-    if (attachType == -1) {
+    if (attachType == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
         return;
     }
 
@@ -544,7 +544,7 @@ void CEffect::AddAnimKitEffect(int32_t spellId, const SpellVisualKitRec* kit, co
 }
 
 // STATIC: 0x00A32AF4
-static const int32_t s_specialUnitEffectAttachments[] = { 50, 50, 17, 17, 19, 19, 19, 17, 19, 19, 34, 19 };
+static const int32_t s_specialUnitEffectAttachments[] = { MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS, MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS, MODEL_ATTACHMENT_ID::ATTACH_BREATH, MODEL_ATTACHMENT_ID::ATTACH_BREATH, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_BREATH, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE };
 
 // VERIFY: f48d6796 auto
 // OFFSET: 0x006F8F40
@@ -565,7 +565,7 @@ void CEffect::AddSpecialEffect(int32_t type, const WOWGUID& target, void (*callb
 
     int32_t attachment = s_specialUnitEffectAttachments[type];
 
-    if (attachment == 50 || !unit->m_worldModel) {
+    if (attachment == MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS || !unit->m_worldModel) {
         return;
     }
 
@@ -575,7 +575,7 @@ void CEffect::AddSpecialEffect(int32_t type, const WOWGUID& target, void (*callb
     this->m_attachmentId = attachment;
 
     if (unit->m_worldModel->IsLoaded(0, 0) && !unit->m_worldModel->HasAttachment(this->m_attachmentId)) {
-        this->m_attachmentId = 19;
+        this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     }
 
     this->m_effectNameRec = g_spellVisualEffectNameDB.GetRecord(s_specialUnitEffectIDs[type]);
@@ -878,7 +878,7 @@ void CEffect::CleanUpStaticLists() {
 void CEffect::AddLootEffect(CGUnit_C* unit, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param)) {
     this->m_sourceGuid = unit->m_obj->m_guid;
     this->m_flags = 0x8;
-    this->m_attachmentId = 19;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     const SpellVisualEffectNameRec* effectName = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
     this->m_effectNameRec = effectName;
     this->m_model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0);
@@ -1067,7 +1067,7 @@ C44Matrix* CEffect::TransformPosition(C44Matrix* matrix, CGObject_C* object) {
 // VERIFY: 03a1abb4 manual
 // OFFSET: 0x006F8C50
 int32_t CEffect::UpdateAttachment() {
-    if (this->m_attachmentId == -1) {
+    if (this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
         if (this->m_model && this->m_model->m_attachParent) {
             this->m_model->DetachFromParent();
         }
@@ -1108,7 +1108,7 @@ int32_t CEffect::UpdateAttachment() {
 
     CreatureModelDataRec* modelData = (object->m_obj->m_type & TYPE_UNIT) ? static_cast<CGUnit_C*>(object)->GetModelData() : nullptr;
 
-    if ((this->m_attachmentId == 2 || this->m_attachmentId == 1) && modelData) {
+    if ((this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL || this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) && modelData) {
         CreatureModelDataRec* data = static_cast<CGUnit_C*>(object)->GetModelData();
 
         if (data && (data->m_flags & 0x10)) {
@@ -1456,7 +1456,7 @@ static void MountTransitionSequenceCB(CM2Model* model, uint32_t boneId, uint32_t
 // OFFSET: 0x006F7D60
 void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t a8, WOWGUID transport) {
     this->m_effectNameRec = effectName;
-    this->m_attachmentId = -1;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_sourceGuid = WOWGUID();
     this->m_targetGuid = WOWGUID();
     this->m_position = *position;
@@ -1713,7 +1713,7 @@ void CEffect::AddMountTransition(uint32_t spellId, const SpellVisualKitRec* kit,
     this->m_sourceGuid = *guid;
     this->m_spellId = spellId;
     this->m_kitRec = kit;
-    this->m_attachmentId = 19;
+    this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_sourceGuid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!unit) {

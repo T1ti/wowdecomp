@@ -283,9 +283,9 @@ float PlayerNameComputeScale(CGObject_C* object) {
 
     if (object->m_obj->m_type & TYPE_UNIT) {
         height = static_cast<CGUnit_C*>(object)->GetStandHeight();
-    } else if (object->m_worldModel && object->m_worldModel->IsLoaded(0, 0) && object->m_worldModel->HasAttachment(18)) {
+    } else if (object->m_worldModel && object->m_worldModel->IsLoaded(0, 0) && object->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
         CM2Model* model = object->m_worldModel;
-        float attachZ = model->GetAttachmentPosition(18).z;
+        float attachZ = model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME).z;
         height = attachZ - model->GetWorldPosition().z;
     } else {
         height = object->m_height * object->m_scale * 1.25f;

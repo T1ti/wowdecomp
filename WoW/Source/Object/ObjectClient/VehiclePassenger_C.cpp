@@ -958,7 +958,7 @@ void CVehiclePassenger_C::ExecutePendingRescueTransitions() {
 }
 
 // STATIC: 0x00A2D3F0
-static const uint32_t s_seatAttachments[22] = { 20, 34, 19, 21, 22, 17, 23, 24, 25, 15, 16, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 0 };
+static const uint32_t s_seatAttachments[22] = { MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_HEAD, MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLLEFTHAND, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND, MODEL_ATTACHMENT_ID::ATTACH_BREATH, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL1, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3, MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT, MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODBACK, MODEL_ATTACHMENT_ID::ATTACH_SPELLHANDOMNI, MODEL_ATTACHMENT_ID::ATTACH_SPELLHANDDIRECTED, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT1, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT2, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT3, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT4, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT5, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT6, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT7, MODEL_ATTACHMENT_ID::ATTACH_VEHICLESEAT8, MODEL_ATTACHMENT_ID::ATTACH_SHIELD };
 
 // VERIFY: aa11b3c6 auto
 // OFFSET: 0x00716450
@@ -1362,7 +1362,7 @@ void CVehiclePassenger_C::ComputeSeatPos(CGUnit_C* vehicle, CM2Model* model, Veh
         this->ComputeSeatOffset(seat, ownModel);
     }
 
-    uint32_t attachment = static_cast<uint32_t>(seat->m_attachmentID) >= 22 ? 0xFFFFFFFF : s_seatAttachments[seat->m_attachmentID];
+    uint32_t attachment = static_cast<uint32_t>(seat->m_attachmentID) >= 22 ? MODEL_ATTACHMENT_ID::ATTACH_NONE : s_seatAttachments[seat->m_attachmentID];
 
     if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_SEAT_OFFSET_COMPUTED)
         && (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HAS_PASSENGER_ATTACHMENT)) {
@@ -1856,7 +1856,7 @@ void CVehiclePassenger_C::UpdateModel() {
         scale = this->m_unit->GetTrueScale();
         up = this->m_unit->m_movement->GetGroundNormal();
         parent = nullptr;
-        attachment = 0;
+        attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
     } else if (this->IsInTransitionMotion()) {
         float arc;
 
@@ -1881,7 +1881,7 @@ void CVehiclePassenger_C::UpdateModel() {
         scale = this->m_unit->GetTrueScale();
         up = C3Vector(0.0f, 0.0f, 1.0f);
         parent = nullptr;
-        attachment = 0;
+        attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
     } else if (this->m_state == 3) {
         if (!vehicle) {
             return;
@@ -1894,7 +1894,7 @@ void CVehiclePassenger_C::UpdateModel() {
         CM2Model* vehicleModel = vehicle->GetObjectModel();
 
         if (vehicleModel && vehicleModel->IsLoaded(0, 0)) {
-            attachment = static_cast<uint32_t>(seatRec->m_attachmentID) >= 22 ? 0xFFFFFFFF : s_seatAttachments[seatRec->m_attachmentID];
+            attachment = static_cast<uint32_t>(seatRec->m_attachmentID) >= 22 ? MODEL_ATTACHMENT_ID::ATTACH_NONE : s_seatAttachments[seatRec->m_attachmentID];
             this->ComputeModelTransform(matrix, vehicleModel, vehicle, seatRec, attachment, this->m_unit->m_smoothTarget.m_value);
             parent = vehicleModel;
             useMatrix = 1;
@@ -1904,7 +1904,7 @@ void CVehiclePassenger_C::UpdateModel() {
             scale = this->m_unit->GetTrueScale();
             up = this->m_unit->GetGroundNormal();
             parent = nullptr;
-            attachment = 0;
+            attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
         }
     } else {
         if (!(this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_SEAT_OFFSET_COMPUTED)) {
@@ -1916,7 +1916,7 @@ void CVehiclePassenger_C::UpdateModel() {
         CM2Model* oldModel;
 
         if (this->m_vehicleGuid && (oldVehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_vehicleGuid, TYPE_UNIT, __FILE__, __LINE__))) != nullptr && ((oldSeat = oldVehicle->GetVehicleSeatRec(this->m_seat)), (oldModel = oldVehicle->GetObjectModel()), oldSeat) && oldSeat->m_attachmentID >= 0 && oldModel && oldModel->IsLoaded(0, 0)) {
-            attachment = static_cast<uint32_t>(seatRec->m_attachmentID) >= 22 ? 0xFFFFFFFF : s_seatAttachments[oldSeat->m_attachmentID];
+            attachment = static_cast<uint32_t>(seatRec->m_attachmentID) >= 22 ? MODEL_ATTACHMENT_ID::ATTACH_NONE : s_seatAttachments[oldSeat->m_attachmentID];
             this->ComputeModelTransform(matrix, oldModel, vehicle, oldSeat, attachment, this->m_startTargetFacing);
             parent = oldModel;
             useMatrix = 1;
@@ -1926,7 +1926,7 @@ void CVehiclePassenger_C::UpdateModel() {
             scale = this->m_unit->GetTrueScale();
             up = this->m_unit->GetGroundNormal();
             parent = nullptr;
-            attachment = 0;
+            attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
         }
     }
 

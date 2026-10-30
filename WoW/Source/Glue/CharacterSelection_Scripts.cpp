@@ -302,11 +302,11 @@ static int32_t Script_GetCharacterListUpdate(lua_State* L) {
     CCharacterSelection::s_characterList.SetCount(0);
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(0);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     }
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(1);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDR);
     }
 
     CGlueMgr::GetCharacterList();

@@ -317,7 +317,7 @@ static ClickToMoveActionInfo s_clickToMoveActions[12] = {
 };
 
 // STATIC: 0x00ADAA20
-static const uint32_t s_effectAttachmentIds[16] = { 20, 34, 19, 21, 22, 17, 23, 24, 25, 15, 16, 37, 38, 22, 47, 48 };
+static const uint32_t s_effectAttachmentIds[16] = { MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_HEAD, MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLLEFTHAND, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND, MODEL_ATTACHMENT_ID::ATTACH_BREATH, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL1, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3, MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT, MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODBACK, MODEL_ATTACHMENT_ID::ATTACH_SPELLHANDOMNI, MODEL_ATTACHMENT_ID::ATTACH_SPELLHANDDIRECTED, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND, MODEL_ATTACHMENT_ID::ATTACH_LEFTFOOT, MODEL_ATTACHMENT_ID::ATTACH_RIGHTFOOT };
 
 // STATIC: 0x00CA1190
 static int32_t s_lastNPCSoundCount;
@@ -1208,7 +1208,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     }
 
     if (this->m_mountModel) {
-        model->AttachToParent(this->m_mountModel, 0, nullptr, 0);
+        model->AttachToParent(this->m_mountModel, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
     }
 
     this->CreateOrDestroyObjectEffectManager();
@@ -1341,7 +1341,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         }
 
         this->UpdateInteractIconAttach();
-    } else if (model == this->m_mountModel && !this->m_mountModel->HasAttachment(0)) {
+    } else if (model == this->m_mountModel && !this->m_mountModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_SHIELD)) {
         SysMsgPrintf(SYSMSG_ERROR, 0x10, "MOUNTDISPLAYIDNOMOUNTATTACHMENT|%d", this->m_mountDisplayId);
     }
 
@@ -6423,14 +6423,14 @@ void CGUnit_C::UpdateInteractIconAttach() {
 
     uint32_t attachment;
 
-    if (this->m_mountModel && this->m_worldModel->HasAttachment(29)) {
-        attachment = 29;
+    if (this->m_mountModel && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED)) {
+        attachment = MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED;
     } else {
-        if (!this->m_worldModel->HasAttachment(18)) {
+        if (!this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
             return;
         }
 
-        attachment = 18;
+        attachment = MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME;
     }
 
     this->m_interactIcon->AttachToParent(this->m_worldModel, attachment, nullptr, 0);
@@ -8194,12 +8194,12 @@ const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, boo
 // OFFSET: 0x0071FEF0
 C3Vector CGUnit_C::GetNamePosition() const {
     if (this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && this->m_worldModel->HasAttachment(29)) {
-            return this->m_worldModel->GetAttachmentPosition(29);
+        if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED)) {
+            return this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED);
         }
 
-        if (this->m_worldModel->HasAttachment(18)) {
-            return this->m_worldModel->GetAttachmentPosition(18);
+        if (this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
+            return this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME);
         }
     }
 
@@ -8232,7 +8232,7 @@ void CGUnit_C::CreateFishingLineEffect() {
     }
 
     for (CM2Model* attached = this->m_worldModel->m_attachList; attached; attached = attached->m_attachNext) {
-        if (attached->m_attachmentId == 1) {
+        if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
             if (!this->m_fishingLineEffect) {
                 void* memory = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 this->m_fishingLineEffect = memory ? new (memory) CEffect() : nullptr;
@@ -8632,7 +8632,7 @@ void CGUnit_C::UpdateAmmoModel(uint32_t displayId, uint32_t invType) {
     }
 
     if (this->m_ammoModel && !noAttach && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED) && ammoType == INVTYPE_AMMO) {
-        this->m_ammoModel->AttachToParent(this->m_worldModel, 0x23, nullptr, 0);
+        this->m_ammoModel->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDARROW, nullptr, 0);
     }
 }
 
@@ -8972,7 +8972,7 @@ C3Vector CGUnit_C::GetAttachmentPositionForEffect(uint32_t id, const C3Vector& o
     }
 
     for (CM2Model* model = this->m_worldModel->m_attachList; model; model = model->m_attachNext) {
-        if (model->m_attachmentId == 1) {
+        if (model->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
             for (int32_t attach = 4; attach >= 0; attach--) {
                 if (model->HasAttachment(attach)) {
                     return offset * model->GetAttachmentWorldTransform(attach);
@@ -14033,8 +14033,8 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     }
 
     if (!sheathed) {
-        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDRIGHT);
-        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDLEFT);
+        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDR);
+        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDL);
         this->m_worldModel->DetachAllChildrenById(ATTACH_SHIELD);
     }
 
@@ -14045,7 +14045,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
         displayRecPtr = &displayRec;
     }
 
-    GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(this->m_worldModel, displayRecPtr, INVSLOT_RANGED, static_cast<SHEATHE_TYPE>(item->m_sheatheType), sheathed, false, isRightHand, 0);
+    MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, displayRecPtr, INVSLOT_RANGED, static_cast<SHEATHE_TYPE>(item->m_sheatheType), sheathed, false, isRightHand, 0);
 
     if (this->m_characterComponent) {
         this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
@@ -14123,21 +14123,21 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
     }
 
     bool mainHand = !hand || item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN;
-    GEOCOMPONENTLINKS handLink;
+    MODEL_ATTACHMENT_ID handLink;
 
     switch (hand) {
         case 0: {
-            handLink = ATTACH_HANDRIGHT;
+            handLink = ATTACH_HANDR;
             break;
         }
 
         case 1: {
-            handLink = item->m_inventoryType != INVTYPE_SHIELD ? ATTACH_HANDLEFT : ATTACH_SHIELD;
+            handLink = item->m_inventoryType != INVTYPE_SHIELD ? ATTACH_HANDL : ATTACH_SHIELD;
             break;
         }
 
         case 2: {
-            handLink = mainHand ? ATTACH_HANDRIGHT : ATTACH_HANDLEFT;
+            handLink = mainHand ? ATTACH_HANDR : ATTACH_HANDL;
             break;
         }
 
@@ -14146,8 +14146,8 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
         }
     }
 
-    GEOCOMPONENTLINKS from;
-    GEOCOMPONENTLINKS to;
+    MODEL_ATTACHMENT_ID from;
+    MODEL_ATTACHMENT_ID to;
 
     if (sheathe) {
         from = handLink;
@@ -14181,7 +14181,7 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
         child->Release();
 
         if (handLink) {
-            COMP_HAND_SLOT slot = static_cast<COMP_HAND_SLOT>(handLink != ATTACH_HANDRIGHT);
+            COMP_HAND_SLOT slot = static_cast<COMP_HAND_SLOT>(handLink != ATTACH_HANDR);
 
             if (to == handLink) {
                 CCharacterComponent::ComponentCloseFingers(model, slot);
@@ -14218,7 +14218,7 @@ void CGUnit_C::SetSheatheStateInstant() {
                 this->SheatheHandItem(0, 1);
                 this->SheatheHandItem(1, 1);
             } else if (this->m_previousSheatheState == WEAPONMODE_RANGEDMODE) {
-                this->m_worldModel->DetachAllChildrenById(35);
+                this->m_worldModel->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW);
 
                 if (this->m_characterComponent && (this->m_obj->m_type & TYPE_PLAYER)) {
                     this->m_characterComponent->RemoveItem(ITEMSLOT_11);
@@ -14232,10 +14232,10 @@ void CGUnit_C::SetSheatheStateInstant() {
 
                 if (item) {
                     if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDRIGHT);
+                        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDR);
                         CCharacterComponent::ComponentOpenFingers(this->m_worldModel, COMP_HAND_RIGHT);
                     } else {
-                        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDLEFT);
+                        this->m_worldModel->DetachAllChildrenById(ATTACH_HANDL);
                         CCharacterComponent::ComponentOpenFingers(this->m_worldModel, COMP_HAND_LEFT);
                     }
 
@@ -14386,7 +14386,7 @@ void CGUnit_C::SetSheatheStateAnimate() {
         }
 
         case WEAPONMODE_RANGEDMODE: {
-            this->m_worldModel->DetachAllChildrenById(35);
+            this->m_worldModel->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW);
 
             if (this->m_characterComponent && (this->m_obj->m_type & TYPE_PLAYER)) {
                 this->m_characterComponent->RemoveItem(ITEMSLOT_11);
@@ -16976,7 +16976,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
         }
 
-        this->PlayEffectName(2, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDL, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
         *hasEffect = 1;
     }
 
@@ -16987,7 +16987,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
         }
 
-        this->PlayEffectName(1, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDR, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
         *hasEffect = 1;
     }
 }
@@ -18854,14 +18854,14 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
             if (this->m_missiles) {
                 C3Vector eventPosition;
 
-                if (IsBowAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(35)) {
-                    eventPosition = this->m_worldModel->GetAttachmentPosition(35);
+                if (IsBowAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW)) {
+                    eventPosition = this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW);
 
                     if (this->m_rangedWeaponModel) {
                         this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
                     }
-                } else if (IsRifleAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(36)) {
-                    eventPosition = this->m_worldModel->GetAttachmentPosition(36);
+                } else if (IsRifleAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_BULLET)) {
+                    eventPosition = this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_BULLET);
 
                     if (this->m_rangedWeaponModel) {
                         this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_BOWRELEASE, 0xFFFFFFFF, 0, 1.0f, 1, 1);
@@ -19107,7 +19107,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         }
 
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
-        missile->m_attachmentID = -1;
+        missile->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
 
         if (hasOffset) {
             C44Matrix matrix = this->m_vehiclePassenger ? this->GetModelMatrix() : this->GetMatrix();
@@ -19323,7 +19323,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     missile->m_impactPos = point->m_position;
     missile->m_transportGuid = point->m_transport;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
-    missile->m_attachmentID = -1;
+    missile->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
 
     if (hasOffset) {
         C44Matrix matrix = this->m_vehiclePassenger ? this->GetModelMatrix() : this->GetMatrix();
@@ -19717,7 +19717,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
             return;
         }
 
-        attachId = 1;
+        attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDR;
         invSlot = static_cast<INVENTORY_SLOTS>(15);
         mainHand = true;
     } else if (hand == 1) {
@@ -19745,7 +19745,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
             }
         }
 
-        attachId = 2;
+        attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDL;
         invSlot = static_cast<INVENTORY_SLOTS>(16);
         mainHand = false;
     } else {
@@ -19774,14 +19774,14 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         }
     }
 
-    GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, invSlot, sheatheType, sheathed, shield, ranged, 0);
+    MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, invSlot, sheatheType, sheathed, shield, ranged, 0);
 
     if (this->m_characterComponent) {
         this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
     }
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
-        GEOCOMPONENTLINKS visualLink = sheathed ? CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), mainHand) : static_cast<GEOCOMPONENTLINKS>(attachId);
+        MODEL_ATTACHMENT_ID visualLink = sheathed ? CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), mainHand) : static_cast<MODEL_ATTACHMENT_ID>(attachId);
         static_cast<CGPlayer_C*>(this)->UpdateHandItemVisual(visualLink, hand);
     }
 
@@ -20697,7 +20697,7 @@ void CGUnit_C::SetWeaponTrail(CM2Model* model, uint32_t hand) {
         return;
     }
 
-    uint32_t link = this->m_unit->m_sheatheState ? (hand != 0) + 1 : CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), hand == 0);
+    uint32_t link = this->m_unit->m_sheatheState ? (hand != 0) + MODEL_ATTACHMENT_ID::ATTACH_HANDR : CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), hand == 0);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
         if (attached->m_attachmentId == link) {
@@ -21430,7 +21430,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
             this->m_worldModel->DetachFromParent();
         }
 
-        this->m_worldModel->AttachToParent(this->m_mountModel, 0, nullptr, 0);
+        this->m_worldModel->AttachToParent(this->m_mountModel, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
 
         if (parent) {
             this->m_mountModel->AttachToParent(parent, attachmentId, nullptr, 0);
@@ -21830,20 +21830,20 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t displayId, uint32_t inventoryType, 
 
         switch (inventoryType) {
             case INVTYPE_HEAD:
-                attachId = 11;
+                attachId = MODEL_ATTACHMENT_ID::ATTACH_HELM;
                 break;
             case INVTYPE_SHIELD:
-                attachId = 0;
+                attachId = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
                 break;
             case INVTYPE_WEAPONOFFHAND:
-                attachId = 2;
+                attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDL;
                 break;
             case INVTYPE_AMMO:
             case INVTYPE_THROWN:
-                attachId = 0xFFFFFFFF;
+                attachId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
                 break;
             default:
-                attachId = 1;
+                attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDR;
                 break;
         }
 
@@ -21904,7 +21904,7 @@ void CGUnit_C::OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId
     ItemDisplayInfoRec displayRec;
 
     if (current && this->GetVirtualItemDisplayRec(slot, displayRec)) {
-        GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, s_virtualItemInvSlots[slot], static_cast<SHEATHE_TYPE>(current->m_sheatheType), this->m_sheatheState == WEAPONMODE_SHEATHEDMODE, current->m_inventoryType == INVTYPE_SHIELD, false, 0);
+        MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, s_virtualItemInvSlots[slot], static_cast<SHEATHE_TYPE>(current->m_sheatheType), this->m_sheatheState == WEAPONMODE_SHEATHEDMODE, current->m_inventoryType == INVTYPE_SHIELD, false, 0);
 
         if (this->m_characterComponent) {
             this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
@@ -23959,9 +23959,9 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
 
             if (ranged) {
                 if (ranged->m_inventoryType == INVTYPE_RANGEDRIGHT || ranged->m_inventoryType == INVTYPE_THROWN) {
-                    this->m_worldModel->DetachAllChildrenById(1);
+                    this->m_worldModel->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDR);
                 } else {
-                    this->m_worldModel->DetachAllChildrenById(2);
+                    this->m_worldModel->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDL);
                 }
             }
         } else {

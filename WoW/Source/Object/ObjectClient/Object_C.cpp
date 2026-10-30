@@ -528,8 +528,8 @@ void CGObject_C::UpdateDisplayInfo(int32_t force) {
 // VERIFY: 6b122e4b auto
 // OFFSET: 0x007451B0
 C3Vector CGObject_C::GetNamePosition() const {
-    if (this->m_worldModel->HasAttachment(18)) {
-        return this->m_worldModel->GetAttachmentPosition(18);
+    if (this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
+        return this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME);
     }
 
     C3Vector position = this->GetPosition();
@@ -636,8 +636,8 @@ void CGObject_C::UpdateInteractIconAttach() {
         this->m_interactIcon->DetachFromParent();
     }
 
-    if (this->m_worldModel->HasAttachment(18)) {
-        this->m_interactIcon->AttachToParent(this->m_worldModel, 18, nullptr, 0);
+    if (this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
+        this->m_interactIcon->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME, nullptr, 0);
         this->UpdateInteractIconScale();
         this->ObjectNameVisibilityChanged();
     }
@@ -1250,7 +1250,7 @@ void CGObject_C::ClearEffectList(int32_t all) {
         for (CEffect* effect = this->m_effectList; effect; effect = this->m_effectList) {
             effect->UnLinkSelf();
 
-            if (effect->m_attachmentId == -1 && effect->m_expireTime) {
+            if (effect->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_NONE && effect->m_expireTime) {
                 effect->MoveToOrphanList();
             } else {
                 effect->Release();
@@ -1660,7 +1660,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
     SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_headEffect);
 
     if (effectName) {
-        this->PlayEffectName(20, 0, spellId, kit, effectName, &flags, callback, position, data.m_someGUID, 0, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_HEAD, 0, spellId, kit, effectName, &flags, callback, position, data.m_someGUID, 0, nullptr);
         hasEffect = 1;
     }
 
@@ -1717,35 +1717,35 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_baseEffect);
 
         if (effectName) {
-            this->PlayEffectName(19, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_leftHandEffect);
 
         if (effectName) {
-            this->PlayEffectName(21, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLLEFTHAND, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_rightHandEffect);
 
         if (effectName) {
-            this->PlayEffectName(22, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_breathEffect);
 
         if (effectName) {
-            this->PlayEffectName(17, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_BREATH, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_chestEffect);
 
         if (effectName) {
-            this->PlayEffectName(34, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
@@ -1755,14 +1755,14 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
         effectName = g_spellVisualEffectNameDB.GetRecord(special->m_specialEffect[0]);
 
         if (effectName) {
-            this->PlayEffectName(23, 0, spellId, special, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL1, 0, spellId, special, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
         effectName = g_spellVisualEffectNameDB.GetRecord(data.m_impactVisualKit->m_specialEffect[1]);
 
         if (effectName) {
-            this->PlayEffectName(24, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+            this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, position, data.m_someGUID, data.m_effectFadeTime, nullptr);
             hasEffect = 1;
         }
 
@@ -1772,7 +1772,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
             goto attachments;
         }
 
-        this->PlayEffectName(25, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, data.m_position, data.m_someGUID, data.m_effectFadeTime, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3, 0, spellId, data.m_impactVisualKit, effectName, &flags, callback, data.m_position, data.m_someGUID, data.m_effectFadeTime, nullptr);
     }
 
     hasEffect = 1;
@@ -1799,7 +1799,7 @@ attachments:
             effect->InitFromUnit(*data.m_position, OsGetAsyncTimeMs(), spellId, data.m_impactVisualKit, attachEffect, &guid, flags, callback, data.m_effectFadeTime, attach, data.m_transportGUID);
             effect->Release();
             flags = (flags & ~0x411) | 0x400;
-        } else if (attach->m_attachmentID == -1) {
+        } else if (attach->m_attachmentID == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
             CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
             effect->m_expireTime = 0;
 

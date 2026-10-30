@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Model2/Attachment.h"
 
 struct CharColorList;
 class CharSectionsRec;
@@ -48,24 +49,6 @@ enum COMPONENT_SECTIONS {
 enum COMP_HAND_SLOT {
     COMP_HAND_RIGHT = 0,
     COMP_HAND_LEFT = 1,
-};
-
-enum GEOCOMPONENTLINKS {
-    ATTACH_NONE = -1,
-    ATTACH_SHIELD = 0,
-    ATTACH_HANDRIGHT = 1,
-    ATTACH_HANDLEFT = 2,
-    ATTACH_HELM = 11,
-    ATTACH_TORSOBLOODFRONT = 15,
-    ATTACH_TORSOBLOODBACK = 16,
-    ATTACH_SHEATH_MAINHAND = 26,
-    ATTACH_SHEATH_OFFHAND = 27,
-    ATTACH_SHEATH_SHIELD = 28,
-    ATTACH_BACK = 30,
-    ATTACH_BACK_OFFHAND = 31,
-    ATTACH_HIP = 32,
-    ATTACH_HIP_OFFHAND = 33,
-    NUM_ATTACH_LINKS = 50,
 };
 
 enum INVENTORY_SLOTS {

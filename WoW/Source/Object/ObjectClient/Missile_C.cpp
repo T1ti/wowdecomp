@@ -598,7 +598,7 @@ void CMissile::UpdateImpactPos() {
     C3Vector position(0.0f, 0.0f, 0.0f);
     CM2Model* model = target->m_worldModel;
 
-    if (this->m_attachmentID != -1 && model && model->HasAttachment(this->m_attachmentID) && (model->m_fFlags & 0x8000)) {
+    if (this->m_attachmentID != MODEL_ATTACHMENT_ID::ATTACH_NONE && model && model->HasAttachment(this->m_attachmentID) && (model->m_fFlags & 0x8000)) {
         position = this->m_attachOffset * model->GetAttachmentWorldTransform(this->m_attachmentID);
     } else {
         position = this->m_attachOffset;
@@ -912,7 +912,7 @@ CMissile::CMissile() {
     this->m_worldImpactPos = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_lastModelPos = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_flags = MISSILE_FLAGS::MISSILE_FLAG_NONE;
-    this->m_attachmentID = -1;
+    this->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_attachOffset = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_soundKitID = 0;
     this->m_hitResult = 0;
@@ -1558,7 +1558,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         }
     }
 
-    if ((this->m_attachmentID == -1 || !target->GetObjectModel() || !(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT) || !this->AttachToVictim(target, 5000)) && !this->PossiblyHandleBounce()) {
+    if ((this->m_attachmentID == MODEL_ATTACHMENT_ID::ATTACH_NONE || !target->GetObjectModel() || !(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_ATTACH_ON_HIT) || !this->AttachToVictim(target, 5000)) && !this->PossiblyHandleBounce()) {
         this->BeginWaitingForModelFX(0);
     }
 }
@@ -1980,21 +1980,21 @@ void CMissile::FireMissiles(const C3Vector* position) {
     }
 
     if (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) {
-        this->m_attachmentID = 0;
+        this->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
     }
 
     CGUnit_C* target = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_targetGuid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (target && target->m_worldModel && target->m_worldModel->IsLoaded(0, 0)) {
         if (!target->m_worldModel->HasAttachment(this->m_attachmentID)) {
-            if (target->m_worldModel->HasAttachment(15)) {
-                this->m_attachmentID = 15;
+            if (target->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT)) {
+                this->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT;
             } else {
-                this->m_attachmentID = target->m_worldModel->HasAttachment(19) ? 19 : -1;
+                this->m_attachmentID = target->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE) ? MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE : MODEL_ATTACHMENT_ID::ATTACH_NONE;
             }
         }
     } else if (!this->m_targetGuid || target) {
-        this->m_attachmentID = -1;
+        this->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     } else {
         if (!this->PossiblyHandleBounce()) {
             C3Vector up(1.0f, 0.0f, 0.0f);

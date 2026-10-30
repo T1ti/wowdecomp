@@ -793,12 +793,12 @@ void CGGameObject_C::UpdateInteractIconAttach() {
         this->m_interactIcon->DetachFromParent();
     }
 
-    if (!this->m_worldModel->HasAttachment(18)) {
+    if (!this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
         return;
     }
 
-    this->m_interactIcon->AttachToParent(this->m_worldModel, 18, nullptr, 0);
-    C44Matrix transform = this->m_worldModel->GetAttachmentWorldTransform(18);
+    this->m_interactIcon->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME, nullptr, 0);
+    C44Matrix transform = this->m_worldModel->GetAttachmentWorldTransform(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME);
 
     if (transform.c1 < 0.99000001f) {
         C44Matrix inverse = transform.AffineInverse();
@@ -1457,7 +1457,7 @@ void CGGameObject_C::ShowLootEffect() {
         return;
     }
 
-    this->m_lootEffect->AttachToParent(this->m_worldModel, 19, nullptr, 1);
+    this->m_lootEffect->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE, nullptr, 1);
 
     float scale = fclamp(this->GetScale() * this->m_height * 1.15f, 1.0f, 5.0f);
     C44Matrix matrix;

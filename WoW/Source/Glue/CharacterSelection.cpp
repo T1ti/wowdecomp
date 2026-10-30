@@ -142,15 +142,15 @@ void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
         return;
     }
 
-    CGlueMgr::ProcessAttachment(model, kitRec->m_headEffect, 20);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_chestEffect, 34);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_baseEffect, 19);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_leftHandEffect, 21);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_rightHandEffect, 22);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_breathEffect, 17);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[0], 23);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[1], 24);
-    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[2], 25);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_headEffect, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_HEAD);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_chestEffect, MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_baseEffect, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_leftHandEffect, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLLEFTHAND);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_rightHandEffect, MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPELLRIGHTHAND);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_breathEffect, MODEL_ATTACHMENT_ID::ATTACH_BREATH);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[0], MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL1);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[1], MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2);
+    CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[2], MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3);
 
     for (uint32_t i = 0; i < 4; i++) {
         switch (kitRec->m_charProc[i]) {
@@ -422,11 +422,11 @@ void CCharacterSelection::ShowCharacter() {
     ComponentData data;
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(0);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     }
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(1);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDR);
     }
 
     CCharacterSelection::s_charFacing = 0.0f;
@@ -498,7 +498,7 @@ void CCharacterSelection::ShowCharacter() {
 
             if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND || (slot == INVSLOT_RANGED && hunter)) {
                 if (found) {
-                    GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
+                    MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
 
                     if (slot == INVSLOT_RANGED) {
                         if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[INVSLOT_RANGED] == INVTYPE_RANGED) {
@@ -603,11 +603,11 @@ void CCharacterSelection::ShowCharacter() {
     }
 
     if (CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->AttachToParent(CCharacterSelection::m_modelFrame->m_model, 0, nullptr, 0);
+        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->AttachToParent(CCharacterSelection::m_modelFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
         CharacterSelectionDisplay::SetCharacterFacing(0.0f);
 
         if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel) {
-            CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->AttachToParent(CCharacterSelection::m_modelFrame->m_model, 1, nullptr, 0);
+            CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->AttachToParent(CCharacterSelection::m_modelFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_HANDR, nullptr, 0);
         }
     }
 
@@ -639,11 +639,11 @@ void CCharacterSelection::UpdateCharacterList() {
         FrameScript_SignalEvent(GLUE_EVENT_UPDATE_SELECTED_CHARACTER, "%d", CCharacterSelection::s_selectionIndex + 1);
 
         if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-            CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(0);
+            CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
         }
 
         if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-            CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(1);
+            CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDR);
         }
     } else {
         CCharacterSelection::s_raceRestrictions[CCharacterSelection::RACE_RESTRICTION_HUMAN] = ClientServices::Connection()->m_restrictHuman;
@@ -679,11 +679,11 @@ void CCharacterSelection::ClearCharacterList() {
     CCharacterSelection::s_characterList.SetCount(0);
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(0);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     }
 
     if (CCharacterSelection::m_modelFrame && CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(1);
+        CCharacterSelection::m_modelFrame->m_model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_HANDR);
     }
 
     CCharacterSelection::s_selectionIndex = 0;
