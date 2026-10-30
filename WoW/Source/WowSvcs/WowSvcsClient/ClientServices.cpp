@@ -245,143 +245,143 @@ static void LogConnectionStatus(WOWCS_OPS op, int32_t errorCode, int32_t initiat
     }
 
     switch (errorCode) {
-        case 0:
+        case ResponseCodes::RESPONSE_SUCCESS:
             SStrCopy(errorText, "RESPONSE_SUCCESS", sizeof(errorText));
             break;
 
-        case 1:
+        case ResponseCodes::RESPONSE_FAILURE:
             SStrCopy(errorText, "RESPONSE_FAILURE", sizeof(errorText));
             break;
 
-        case 2:
+        case ResponseCodes::RESPONSE_CANCELLED:
             SStrCopy(errorText, "RESPONSE_CANCELLED", sizeof(errorText));
             break;
 
-        case 3:
+        case ResponseCodes::RESPONSE_DISCONNECTED:
             SStrCopy(errorText, "RESPONSE_DISCONNECTED", sizeof(errorText));
             break;
 
-        case 4:
+        case ResponseCodes::RESPONSE_FAILED_TO_CONNECT:
             SStrCopy(errorText, "RESPONSE_FAILED_TO_CONNECT", sizeof(errorText));
             break;
 
-        case 5:
+        case ResponseCodes::RESPONSE_CONNECTED:
             SStrCopy(errorText, "RESPONSE_CONNECTED", sizeof(errorText));
             break;
 
-        case 6:
+        case ResponseCodes::RESPONSE_VERSION_MISMATCH:
             SStrCopy(errorText, "RESPONSE_VERSION_MISMATCH", sizeof(errorText));
             break;
 
-        case 7:
+        case ResponseCodes::CSTATUS_CONNECTING:
             SStrCopy(errorText, "CSTATUS_CONNECTING", sizeof(errorText));
             break;
 
-        case 8:
+        case ResponseCodes::CSTATUS_NEGOTIATING_SECURITY:
             SStrCopy(errorText, "CSTATUS_NEGOTIATING_SECURITY", sizeof(errorText));
             break;
 
-        case 9:
+        case ResponseCodes::CSTATUS_NEGOTIATION_COMPLETE:
             SStrCopy(errorText, "CSTATUS_NEGOTIATION_COMPLETE", sizeof(errorText));
             break;
 
-        case 10:
+        case ResponseCodes::CSTATUS_NEGOTIATION_FAILED:
             SStrCopy(errorText, "CSTATUS_NEGOTIATION_FAILED", sizeof(errorText));
             break;
 
-        case 11:
+        case ResponseCodes::CSTATUS_AUTHENTICATING:
             SStrCopy(errorText, "CSTATUS_AUTHENTICATING", sizeof(errorText));
             break;
 
-        case 12:
+        case ResponseCodes::AUTH_OK:
             SStrCopy(errorText, "AUTH_OK", sizeof(errorText));
             break;
 
-        case 13:
+        case ResponseCodes::AUTH_FAILED:
             SStrCopy(errorText, "AUTH_FAILED", sizeof(errorText));
             break;
 
-        case 14:
+        case ResponseCodes::AUTH_REJECT:
             SStrCopy(errorText, "AUTH_REJECT", sizeof(errorText));
             break;
 
-        case 15:
+        case ResponseCodes::AUTH_BAD_SERVER_PROOF:
             SStrCopy(errorText, "AUTH_BAD_SERVER_PROOF", sizeof(errorText));
             break;
 
-        case 16:
+        case ResponseCodes::AUTH_UNAVAILABLE:
             SStrCopy(errorText, "AUTH_UNAVAILABLE", sizeof(errorText));
             break;
 
-        case 17:
+        case ResponseCodes::AUTH_SYSTEM_ERROR:
             SStrCopy(errorText, "AUTH_SYSTEM_ERROR", sizeof(errorText));
             break;
 
-        case 18:
+        case ResponseCodes::AUTH_BILLING_ERROR:
             SStrCopy(errorText, "AUTH_BILLING_ERROR", sizeof(errorText));
             break;
 
-        case 19:
+        case ResponseCodes::AUTH_BILLING_EXPIRED:
             SStrCopy(errorText, "AUTH_BILLING_EXPIRED", sizeof(errorText));
             break;
 
-        case 20:
+        case ResponseCodes::AUTH_VERSION_MISMATCH:
             SStrCopy(errorText, "AUTH_VERSION_MISMATCH", sizeof(errorText));
             break;
 
-        case 21:
+        case ResponseCodes::AUTH_UNKNOWN_ACCOUNT:
             SStrCopy(errorText, "AUTH_UNKNOWN_ACCOUNT", sizeof(errorText));
             break;
 
-        case 22:
+        case ResponseCodes::AUTH_INCORRECT_PASSWORD:
             SStrCopy(errorText, "AUTH_INCORRECT_PASSWORD", sizeof(errorText));
             break;
 
-        case 23:
+        case ResponseCodes::AUTH_SESSION_EXPIRED:
             SStrCopy(errorText, "AUTH_SESSION_EXPIRED", sizeof(errorText));
             break;
 
-        case 24:
+        case ResponseCodes::AUTH_SERVER_SHUTTING_DOWN:
             SStrCopy(errorText, "AUTH_SERVER_SHUTTING_DOWN", sizeof(errorText));
             break;
 
-        case 25:
+        case ResponseCodes::AUTH_ALREADY_LOGGING_IN:
             SStrCopy(errorText, "AUTH_ALREADY_LOGGING_IN", sizeof(errorText));
             break;
 
-        case 26:
+        case ResponseCodes::AUTH_LOGIN_SERVER_NOT_FOUND:
             SStrCopy(errorText, "AUTH_LOGIN_SERVER_NOT_FOUND", sizeof(errorText));
             break;
 
-        case 27:
+        case ResponseCodes::AUTH_WAIT_QUEUE:
             SStrCopy(errorText, "AUTH_WAIT_QUEUE", sizeof(errorText));
             break;
 
-        case 35:
+        case ResponseCodes::REALM_LIST_IN_PROGRESS:
             SStrCopy(errorText, "REALM_LIST_IN_PROGRESS", sizeof(errorText));
             break;
 
-        case 36:
+        case ResponseCodes::REALM_LIST_SUCCESS:
             SStrCopy(errorText, "REALM_LIST_SUCCESS", sizeof(errorText));
             break;
 
-        case 37:
+        case ResponseCodes::REALM_LIST_FAILED:
             SStrCopy(errorText, "REALM_LIST_FAILED", sizeof(errorText));
             break;
 
-        case 38:
+        case ResponseCodes::REALM_LIST_INVALID:
             SStrCopy(errorText, "REALM_LIST_INVALID", sizeof(errorText));
             break;
 
-        case 39:
+        case ResponseCodes::REALM_LIST_REALM_NOT_FOUND:
             SStrCopy(errorText, "REALM_LIST_REALM_NOT_FOUND", sizeof(errorText));
             break;
 
-        case 74:
+        case ResponseCodes::CHAR_DELETE_FAILED_GUILD_LEADER:
             SStrCopy(errorText, "CHAR_DELETE_FAILED_GUILD_LEADER", sizeof(errorText));
             break;
 
-        case 75:
+        case ResponseCodes::CHAR_DELETE_FAILED_ARENA_CAPTAIN:
             SStrCopy(errorText, "CHAR_DELETE_FAILED_ARENA_CAPTAIN", sizeof(errorText));
             break;
 
