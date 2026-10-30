@@ -2182,13 +2182,13 @@ void CGUnit_C::RefreshInteractIcon() {
         this->m_questStatus = 0;
     }
 
-    if (this->m_unit->m_unitNpcFlags & 0x2000) {
+    if (this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
         player->UpdateTaxiStatus(this);
     } else {
         this->m_interactIconType = 0;
     }
 
-    if (!this->IsQuestGiver() && !(this->m_unit->m_unitNpcFlags & 0x2000)) {
+    if (!this->IsQuestGiver() && !(this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
         this->RemoveInteractIcon();
     }
 }
@@ -4878,7 +4878,7 @@ bool CGUnit_C::CanAutoUnshift() const {
 // VERIFY: 530432a2 manual
 // OFFSET: 0x0071C570
 int32_t CGUnit_C::IsInPartyOrRaid() const {
-    if (!(this->m_unit->m_unitNpcFlags & 0x1000000) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PREVENT_SPELL_CLICK)) {
+    if (!(this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPELL_CLICK) || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PREVENT_SPELL_CLICK)) {
         return 0;
     }
 
@@ -4954,7 +4954,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
         return false;
     }
 
-    if ((target->m_unitNpcFlags & 0x1000000) && !unit->IsInPartyOrRaid()) {
+    if ((target->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPELL_CLICK) && !unit->IsInPartyOrRaid()) {
         return false;
     }
 
@@ -6399,7 +6399,7 @@ int32_t CGUnit_C::IsDisarmed(int32_t hand) const {
 // VERIFY: d1a9830c auto
 // OFFSET: 0x007192C0
 int32_t CGUnit_C::IsQuestGiver() const {
-    return (this->m_unit->m_unitNpcFlags >> 1) & 1;
+    return (this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_QUEST_GIVER) != 0;
 }
 
 // VERIFY: 28dbc451 auto
@@ -22175,42 +22175,42 @@ int32_t Packet_SMSG_PRE_RESURRECT(void* param, NETMESSAGE msgId, uint32_t time, 
 // VERIFY: 6511af3b manual
 // OFFSET: 0x0071A0B0
 void CGUnit_C::NPCFlagChanged(uint32_t oldFlags) {
-    uint32_t flags = this->m_unit->m_unitNpcFlags;
-    uint32_t changed = oldFlags ^ flags;
+    uint32_t npcFlags = this->m_unit->m_unitNpcFlags;
+    uint32_t changedNpcFlags = oldFlags ^ npcFlags;
 
-    if ((changed & 0x1) && !(flags & 0x1) && CGGossipInfo::m_gossip == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && CGGossipInfo::m_gossip == this->m_obj->m_guid) {
         CGGossipInfo::SetGossip(WOWGUID());
     }
 
-    if (changed & 0x2) {
+    if (changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_QUEST_GIVER) {
         this->RefreshInteractIcon();
 
-        if (!(flags & 0x2) && CGQuestInfo::m_npc == this->m_obj->m_guid) {
+        if (!(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_QUEST_GIVER) && CGQuestInfo::m_npc == this->m_obj->m_guid) {
             CGQuestInfo::QuestGiverFinished(0, 0, 0);
         }
     }
 
-    if (changed & 0x2000) {
+    if (changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
         this->RefreshInteractIcon();
 
-        if (!(flags & 0x2000) && CGTaxiMap::m_unit == this->m_obj->m_guid) {
+        if (!(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) && CGTaxiMap::m_unit == this->m_obj->m_guid) {
             CGTaxiMap::CloseMap();
         }
     }
 
-    if ((changed & 0x10) && !(flags & 0x10) && CGClassTrainer::m_trainer == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER) && CGClassTrainer::m_trainer == this->m_obj->m_guid) {
         CGClassTrainer::SetTrainer(WOWGUID(), TRAINER_TYPE_GENERAL);
     }
 
-    if ((changed & 0x20000) && !(flags & 0x20000) && CGBankInfo::m_banker == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER) && CGBankInfo::m_banker == this->m_obj->m_guid) {
         CGBankInfo::SetBanker(WOWGUID());
     }
 
-    if ((changed & 0x800000) && !(flags & 0x800000) && CGGuildBankInfo::m_banker == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GUILD_BANKER) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GUILD_BANKER) && CGGuildBankInfo::m_banker == this->m_obj->m_guid) {
         CGGuildBankInfo::SetGuildBanker(WOWGUID());
     }
 
-    if ((changed & 0x4000000) && !(flags & 0x4000000) && CGMailInfo::m_object == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_MAILBOX) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_MAILBOX) && CGMailInfo::m_object == this->m_obj->m_guid) {
         CGPlayer_C::TalkToMailbox(WOWGUID());
     }
 }

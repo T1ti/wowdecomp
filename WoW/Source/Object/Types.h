@@ -112,6 +112,53 @@ enum UNIT_DYNAMIC_FLAGS : uint32_t {
     UNIT_DYNFLAG_UNUSED_31 = 0x80000000u,
 };
 
+// CGUnitData::m_unitNpcFlags; server-authored NPC services and tracking categories.
+// Keep the complete word: even unknown bits contribute to nonzero interaction gates.
+enum UNIT_NPC_FLAGS : uint32_t {
+    UNIT_NPC_FLAG_NONE = 0x00000000u,
+    UNIT_NPC_FLAG_GOSSIP = 0x00000001u,
+    UNIT_NPC_FLAG_QUEST_GIVER = 0x00000002u,
+    // No bit-specific meaning established; nonzero interaction gates still see it.
+    UNIT_NPC_FLAG_UNKNOWN_2 = 0x00000004u,
+    UNIT_NPC_FLAG_UNKNOWN_3 = 0x00000008u,
+    // Generic trainer service; class/profession bits below are minimap filters.
+    UNIT_NPC_FLAG_TRAINER = 0x00000010u,
+    UNIT_NPC_FLAG_TRAINER_CLASS = 0x00000020u,
+    UNIT_NPC_FLAG_TRAINER_PROFESSION = 0x00000040u,
+    // Generic shop service; vendor subtypes below are separate minimap filters.
+    UNIT_NPC_FLAG_VENDOR = 0x00000080u,
+    UNIT_NPC_FLAG_VENDOR_AMMO = 0x00000100u,
+    UNIT_NPC_FLAG_VENDOR_FOOD = 0x00000200u,
+    UNIT_NPC_FLAG_VENDOR_POISON = 0x00000400u,
+    UNIT_NPC_FLAG_VENDOR_REAGENT = 0x00000800u,
+    UNIT_NPC_FLAG_REPAIR = 0x00001000u,
+    UNIT_NPC_FLAG_FLIGHT_MASTER = 0x00002000u,
+    UNIT_NPC_FLAG_SPIRIT_HEALER = 0x00004000u,
+    UNIT_NPC_FLAG_SPIRIT_GUIDE = 0x00008000u,
+    UNIT_NPC_FLAG_INNKEEPER = 0x00010000u,
+    UNIT_NPC_FLAG_BANKER = 0x00020000u,
+    // PETITIONER plus TABARD_DESIGNER identifies the guild registrar in this client.
+    UNIT_NPC_FLAG_PETITIONER = 0x00040000u,
+    UNIT_NPC_FLAG_TABARD_DESIGNER = 0x00080000u,
+    UNIT_NPC_FLAG_BATTLEMASTER = 0x00100000u,
+    UNIT_NPC_FLAG_AUCTIONEER = 0x00200000u,
+    UNIT_NPC_FLAG_STABLE_MASTER = 0x00400000u,
+    // Guild bank activation sends CMSG_GUILD_BANK_ACTIVATE (0x3E6 in the target).
+    UNIT_NPC_FLAG_GUILD_BANKER = 0x00800000u,
+    // Spell-click eligibility also checks unit flags/group policy; sends CMSG_SPELL_CLICK (0x3F8).
+    UNIT_NPC_FLAG_SPELL_CLICK = 0x01000000u,
+    // Producer marks player vehicles; client uses the nonzero word plus vehicle/seat/group checks.
+    UNIT_NPC_FLAG_PLAYER_VEHICLE = 0x02000000u,
+    // NPC mailbox service; separate from the gameobject mailbox type ID.
+    UNIT_NPC_FLAG_MAILBOX = 0x04000000u,
+    // No bit-specific meanings established; preserve their contribution to nonzero tests.
+    UNIT_NPC_FLAG_UNKNOWN_27 = 0x08000000u,
+    UNIT_NPC_FLAG_UNKNOWN_28 = 0x10000000u,
+    UNIT_NPC_FLAG_UNKNOWN_29 = 0x20000000u,
+    UNIT_NPC_FLAG_UNKNOWN_30 = 0x40000000u,
+    UNIT_NPC_FLAG_UNKNOWN_31 = 0x80000000u,
+};
+
 // Masks for CGUnitData::m_unitFieldFlags and m_unitFieldFlags2.
 // Names adapted from the 3.3.5 UnitFlags/UnitFlags2 definitions:
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Unit/UnitDefines.h

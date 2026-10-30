@@ -237,8 +237,8 @@ bool CGUnit::HasSummoner() const {
 // VERIFY: 00a60867 manual
 // OFFSET: 0x004F5F80
 bool CGUnit::IsGuildMaster() const {
-    uint32_t flags = this->m_unit->m_unitNpcFlags;
-    return (flags & 0x40000) && (flags & 0x80000);
+    uint32_t npcFlags = this->m_unit->m_unitNpcFlags;
+    return (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_PETITIONER) && (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TABARD_DESIGNER);
 }
 
 // VERIFY: 124e37fd auto

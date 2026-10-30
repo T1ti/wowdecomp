@@ -125,7 +125,7 @@ struct MINIMAPMD5NAME : public TSHashObject<MINIMAPMD5NAME, HASHKEY_STRI> {
 
 struct TrackingTypeInfo {
     /* 0000 */ int32_t m_type;
-    /* 0004 */ uint32_t m_npcFlags;
+    /* 0004 */ uint32_t m_npcFlags; // m_type 1: UNIT_NPC_FLAGS mask; m_type 2: gameobject type ID.
     /* 0008 */ const char* m_name;
     /* 000C */ const char* m_texture;
     /* 0010 */ uint32_t m_classMask;

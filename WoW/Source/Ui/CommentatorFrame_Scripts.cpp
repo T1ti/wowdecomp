@@ -250,7 +250,7 @@ static int32_t Script_CommentatorSetBattlemaster(lua_State* L) {
         return 0;
     }
 
-    if (!(static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & 0x100000)) {
+    if (!(static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BATTLEMASTER)) {
         luaL_error(L, "Targeted unit is not a Battlemaster.");
         return 0;
     }

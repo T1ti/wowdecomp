@@ -687,31 +687,31 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
             return;
         }
 
-        uint32_t flags = unit->m_unit->m_unitNpcFlags;
+        uint32_t npcFlags = unit->m_unit->m_unitNpcFlags;
 
-        if (flags & 0x1000) {
+        if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR) {
             CursorSetMode(unable ? REPAIRNPC_ERROR_CURSOR : REPAIRNPC_CURSOR);
-        } else if (flags & 0x10000) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_INNKEEPER) {
             CursorSetMode(unable ? INNKEEPER_ERROR_CURSOR : INNKEEPER_CURSOR);
-        } else if (flags & 0x2000) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
             CursorSetMode(unable ? TAXI_ERROR_CURSOR : TAXI_CURSOR);
-        } else if (flags & 0x10) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER) {
             CursorSetMode(unable ? TRAINER_ERROR_CURSOR : TRAINER_CURSOR);
-        } else if ((flags & 0x4000) || (flags & 0x8000)) {
+        } else if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPIRIT_HEALER) || (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPIRIT_GUIDE)) {
             CursorSetMode(unable ? SPEAK_ERROR_CURSOR : SPEAK_CURSOR);
-        } else if ((flags & 0x20000) || (flags & 0x800000)) {
+        } else if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER) || (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GUILD_BANKER)) {
             CursorSetMode(unable ? BUY_ERROR_CURSOR : BUY_CURSOR);
-        } else if ((flags & 0x40000) || (flags & 0x80000) || unit->IsGuildMaster() || (flags & 0x100000)) {
+        } else if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_PETITIONER) || (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TABARD_DESIGNER) || unit->IsGuildMaster() || (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BATTLEMASTER)) {
             CursorSetMode(unable ? SPEAK_ERROR_CURSOR : SPEAK_CURSOR);
-        } else if (flags & 0x200000) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_AUCTIONEER) {
             CursorSetMode(unable ? BUY_ERROR_CURSOR : BUY_CURSOR);
-        } else if (flags & 0x400000) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_STABLE_MASTER) {
             CursorSetMode(unable ? SPEAK_ERROR_CURSOR : SPEAK_CURSOR);
-        } else if (flags & 0x80) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR) {
             CursorSetMode(unable ? PICKUP_ERROR_CURSOR : PICKUP_CURSOR);
-        } else if (flags & 0x1) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) {
             CursorSetMode(unable ? SPEAK_ERROR_CURSOR : SPEAK_CURSOR);
-        } else if (flags & 0x1000000) {
+        } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPELL_CLICK) {
             CursorSetMode(unable ? INTERACT_ERROR_CURSOR : INTERACT_CURSOR);
         } else if (unit->CanBeSpellClickedByLocalPlayer(player)) {
             CursorSetMode(unable ? VEHICLE_ERROR_CURSOR : VEHICLE_CURSOR);

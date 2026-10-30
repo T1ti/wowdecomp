@@ -2842,7 +2842,7 @@ void CGGameUI::Target(WOWGUID guid) {
                     CGTutorial::TriggerTutorial(17);
                 } else if (player->CanAttack(unit)) {
                     CGTutorial::TriggerTutorial(4);
-                } else if (unit->m_unit->m_unitNpcFlags & 0x2000) {
+                } else if (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
                     CGTutorial::TriggerTutorial(34);
                 } else if (unit->m_questStatus == 1) {
                     CGTutorial::TriggerTutorial(42);
@@ -7015,7 +7015,7 @@ static int32_t AreaSpiritHealerCheck(WOWGUID guid, void* param) {
     CGUnit_C* player = static_cast<CGUnit_C*>(param);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && (unit->m_unit->m_unitNpcFlags & 0x8000) && unit->CanAssist(player, false) && unit->GetDistanceToPos(player->GetPosition()) <= 400.0f) {
+    if (unit && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPIRIT_GUIDE) && unit->CanAssist(player, false) && unit->GetDistanceToPos(player->GetPosition()) <= 400.0f) {
         CGGameUI::SetAreaSpiritHealer(unit->m_obj->m_guid);
     }
 

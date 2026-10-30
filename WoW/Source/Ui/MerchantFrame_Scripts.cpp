@@ -52,7 +52,7 @@ static int32_t Script_GetNumBuybackItems(lua_State* L) {
 static int32_t Script_CanMerchantRepair(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGMerchantInfo::m_merchant, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && (unit->m_unit->m_unitNpcFlags & 0x1000)) {
+    if (unit && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -261,7 +261,7 @@ static int32_t Script_ShowRepairCursor(lua_State* L) {
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGMerchantInfo::m_merchant, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && (unit->m_unit->m_unitNpcFlags & 0x1000)) {
+    if (unit && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR)) {
         CGGameUI::ClearCursor(1, 1);
         CursorSetResetMode(REPAIR_CURSOR);
         CursorSetMode(REPAIR_CURSOR);
@@ -609,7 +609,7 @@ static int32_t Script_GetRepairAllCost(lua_State* L) {
     CGUnit_C* merchant = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGMerchantInfo::m_merchant, TYPE_UNIT, __FILE__, __LINE__));
     CGPlayer_C* player;
 
-    if (!merchant || !(merchant->m_unit->m_unitNpcFlags & 0x1000) || !(player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)))) {
+    if (!merchant || !(merchant->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR) || !(player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)))) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -683,7 +683,7 @@ static int32_t Script_GetRepairAllCost(lua_State* L) {
 static int32_t Script_RepairAllItems(lua_State* L) {
     CGUnit_C* merchant = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGMerchantInfo::m_merchant, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!merchant || !(merchant->m_unit->m_unitNpcFlags & 0x1000)) {
+    if (!merchant || !(merchant->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR)) {
         return 0;
     }
 

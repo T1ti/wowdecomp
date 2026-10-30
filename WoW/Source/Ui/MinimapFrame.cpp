@@ -207,19 +207,19 @@ static uint64_t s_hoverRaid;
 
 // STATIC: 0x00A11C50
 const TrackingTypeInfo CGMinimapFrame::s_trackingTypes[15] = {
-    { 1, 0x1000, "MINIMAP_TRACKING_REPAIR", "Repair", 0x0 },
-    { 1, 0x200, "MINIMAP_TRACKING_VENDOR_FOOD", "Food", 0x0 },
-    { 1, 0x400, "MINIMAP_TRACKING_VENDOR_POISON", "Poisons", 1u << CLASS_ROGUE },
-    { 1, 0x100, "MINIMAP_TRACKING_VENDOR_AMMO", "Ammunition", (1u << CLASS_WARRIOR) | (1u << CLASS_HUNTER) | (1u << CLASS_ROGUE) },
-    { 1, 0x800, "MINIMAP_TRACKING_VENDOR_REAGENT", "Reagents", 0x0 },
-    { 1, 0x10000, "MINIMAP_TRACKING_INNKEEPER", "Innkeeper", 0x0 },
-    { 1, 0x2000, "MINIMAP_TRACKING_FLIGHTMASTER", "FlightMaster", 0x0 },
-    { 1, 0x400000, "MINIMAP_TRACKING_STABLEMASTER", "StableMaster", 1u << CLASS_HUNTER },
-    { 1, 0x100000, "MINIMAP_TRACKING_BATTLEMASTER", "BattleMaster", 0x0 },
-    { 1, 0x20, "MINIMAP_TRACKING_TRAINER_CLASS", "Class", 0x0 },
-    { 1, 0x40, "MINIMAP_TRACKING_TRAINER_PROFESSION", "Profession", 0x0 },
-    { 1, 0x200000, "MINIMAP_TRACKING_AUCTIONEER", "Auctioneer", 0x0 },
-    { 1, 0x20000, "MINIMAP_TRACKING_BANKER", "Banker", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR, "MINIMAP_TRACKING_REPAIR", "Repair", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR_FOOD, "MINIMAP_TRACKING_VENDOR_FOOD", "Food", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR_POISON, "MINIMAP_TRACKING_VENDOR_POISON", "Poisons", 1u << CLASS_ROGUE },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR_AMMO, "MINIMAP_TRACKING_VENDOR_AMMO", "Ammunition", (1u << CLASS_WARRIOR) | (1u << CLASS_HUNTER) | (1u << CLASS_ROGUE) },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR_REAGENT, "MINIMAP_TRACKING_VENDOR_REAGENT", "Reagents", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_INNKEEPER, "MINIMAP_TRACKING_INNKEEPER", "Innkeeper", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER, "MINIMAP_TRACKING_FLIGHTMASTER", "FlightMaster", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_STABLE_MASTER, "MINIMAP_TRACKING_STABLEMASTER", "StableMaster", 1u << CLASS_HUNTER },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BATTLEMASTER, "MINIMAP_TRACKING_BATTLEMASTER", "BattleMaster", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_CLASS, "MINIMAP_TRACKING_TRAINER_CLASS", "Class", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_PROFESSION, "MINIMAP_TRACKING_TRAINER_PROFESSION", "Profession", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_AUCTIONEER, "MINIMAP_TRACKING_AUCTIONEER", "Auctioneer", 0x0 },
+    { 1, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER, "MINIMAP_TRACKING_BANKER", "Banker", 0x0 },
     { 2, 0x13, "MINIMAP_TRACKING_MAILBOX", "Mailbox", 0x0 },
     { 3, 0x0, "MINIMAP_TRACKING_TRIVIAL_QUESTS", "TrivialQuests", 0x0 },
 };
@@ -2317,7 +2317,7 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
             }
 
             if (unit->IsTracked() && player->CanInteract(unit)) {
-                if (CGMinimapFrame::s_trackingInfo->m_npcFlags & 0x40) {
+                if (CGMinimapFrame::s_trackingInfo->m_npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_PROFESSION) {
                     tracked = 1;
                 }
 

@@ -92,7 +92,7 @@ class CGUnitData {
     /* 0124 */ uint32_t m_unitDynamicFlags; // UNIT_DYNAMIC_FLAGS; raw mirror word.
     /* 0128 */ float m_unitModCastSpeed;
     /* 012C */ uint32_t m_unitCreatedBySpell;
-    /* 0130 */ uint32_t m_unitNpcFlags;
+    /* 0130 */ uint32_t m_unitNpcFlags; // UNIT_NPC_FLAGS; raw mirror word.
     /* 0134 */ uint32_t m_unitNpcEmotestate;
     /* 0138 */ int32_t m_unitFieldStat [5];
     /* 014C */ int32_t m_unitFieldPosstat [5];

@@ -886,7 +886,7 @@ void CGPlayer_C::UpdateQuestStatus(CGObject_C* object) {
 // VERIFY: c64646b5 manual
 // OFFSET: 0x006D5130
 void CGPlayer_C::UpdateTaxiStatus(CGUnit_C* unit) {
-    if (unit->UnitReaction(this) <= UNIT_REACTION_HOSTILE || !(unit->m_unit->m_unitNpcFlags & 0x2000)) {
+    if (unit->UnitReaction(this) <= UNIT_REACTION_HOSTILE || !(unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1138,7 +1138,7 @@ bool CGPlayer_C::CanInteract(const CGUnit_C* unit) const {
     CGUnitData* data = unit->m_unit;
     uint32_t npcFlags = data->m_unitNpcFlags;
 
-    if ((npcFlags & 0x1) && isPlayer && !(unit->m_obj->m_type & TYPE_PLAYER) && unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR) && data->m_unitFieldCreatedby != this->m_obj->m_guid) {
+    if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && isPlayer && !(unit->m_obj->m_type & TYPE_PLAYER) && unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR) && data->m_unitFieldCreatedby != this->m_obj->m_guid) {
         return false;
     }
 
@@ -2296,7 +2296,7 @@ void __stdcall CGPlayer_C::OnTaxiNodeStatus(CDataStore* msg) {
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && ((unit->m_unit->m_unitNpcFlags >> 13) & 1)) {
+    if (unit && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
         unit->m_interactIconType = status ? 0 : 7;
         unit->UpdateInteractIcon();
     }
@@ -2547,7 +2547,7 @@ int32_t CGPlayer_C::OnPetitionShowList(CDataStore* msg) {
         return 1;
     }
 
-    if ((unit->m_unit->m_unitNpcFlags & 0x40000) && (unit->m_unit->m_unitNpcFlags & 0x80000)) {
+    if ((unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_PETITIONER) && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TABARD_DESIGNER)) {
         CGGuildRegistrar::SetRegistrar(vendor, petitionList);
         return 1;
     }
@@ -6535,7 +6535,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
         }
     }
 
-    if (unit->m_unit->m_unitNpcFlags & 0x1) {
+    if (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) {
         CGPlayer_C::TalkToGossip(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
         return;
@@ -6549,53 +6549,53 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
 
     uint32_t npcFlags = unit->m_unit->m_unitNpcFlags;
 
-    if (npcFlags & 0x2000) {
+    if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
         CGPlayer_C::QueryTaxiNodes(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x80) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_VENDOR) {
         CGPlayer_C::ShopFromMerchant(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x10) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER) {
         CGPlayer_C::TalkToTrainer(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x4000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPIRIT_HEALER) {
         this->TalkToSpiritHealer(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x8000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_SPIRIT_GUIDE) {
         this->TalkToSpiritGuide(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x10000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_INNKEEPER) {
         this->TalkToBinder(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x20000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER) {
         CGPlayer_C::TalkToBanker(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
     } else if (unit->IsGuildMaster()) {
         CGPlayer_C::TalkToPetitionVendor(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x40000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_PETITIONER) {
         CGPlayer_C::TalkToPetitionVendor(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x80000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TABARD_DESIGNER) {
         this->TalkToTabardVendor(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x100000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BATTLEMASTER) {
         CGPlayer_C::TalkToBattleMaster(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x200000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_AUCTIONEER) {
         CGPlayer_C::TalkToAuctioneer(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x400000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_STABLE_MASTER) {
         CGPlayer_C::TalkToStableMaster(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
-    } else if (npcFlags & 0x800000) {
+    } else if (npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GUILD_BANKER) {
         CGPlayer_C::TalkToGuildBanker(guid);
         this->RequestTalkEmote(TALKANIM_TALK);
     } else if (unit->IsInPartyOrRaid()) {
         CGPlayer_C::TalkToSpellClick(guid);
     } else if (unit->CanBeSpellClickedByLocalPlayer(this)) {
         CGPlayer_C::TalkToRideVehicle(guid);
-    } else if (unit->m_unit->m_unitNpcFlags & 0x4000000) {
+    } else if (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_MAILBOX) {
         CGPlayer_C::TalkToMailbox(unit->m_obj->m_guid);
     }
 }
@@ -8827,7 +8827,7 @@ static int32_t InteractUpdateProc(WOWGUID guid, void* param) {
         }
     } else {
         if (player->CanInteract(static_cast<CGUnit_C*>(object))) {
-            if (static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & 0x2000) {
+            if (static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
                 player->UpdateTaxiStatus(static_cast<CGUnit_C*>(object));
             }
 

@@ -763,7 +763,7 @@ void CGQuestInfo::DeclineQuest() {
         return;
     }
 
-    if ((object->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & 1) && ClntObjMgrGetActivePlayerObj()) {
+    if ((object->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(object)->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && ClntObjMgrGetActivePlayerObj()) {
         CGPlayer_C::TalkToGossip(CGQuestInfo::m_npc);
         CGQuestInfo::m_responseSent = 1;
         return;
