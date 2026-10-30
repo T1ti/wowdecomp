@@ -403,7 +403,7 @@ int32_t EvaluateDead(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>*
     if (object) {
         if (object->m_unit->m_unitFieldHealth <= 0) {
             dead = 1;
-        } else if ((object->m_unit->m_unitDynamicFlags & 0x20) && !CGGameUI::IsRaidMemberOrPet(object->m_obj->m_guid)) {
+        } else if ((object->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && !CGGameUI::IsRaidMemberOrPet(object->m_obj->m_guid)) {
             dead = 1;
         } else if ((object->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(object)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
             dead = 1;

@@ -1804,7 +1804,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
         float health;
 
         if (healthUnit) {
-            health = (healthUnit->m_unit->m_unitDynamicFlags & 0x20) ? 0.0f : static_cast<float>(healthUnit->m_unit->m_unitFieldHealth);
+            health = (healthUnit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) ? 0.0f : static_cast<float>(healthUnit->m_unit->m_unitFieldHealth);
         } else if (state) {
             health = static_cast<float>(state->m_health);
         } else {
@@ -1899,7 +1899,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     int32_t showLevel = 1;
 
     if (unit) {
-        dead = unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & 0x20);
+        dead = unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD);
         unitLevel = unit->m_unit->m_unitFieldLevel;
 
         if (unit->GetCreatureType() != 10) {
@@ -2050,7 +2050,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
             this->AddLine(FrameScript_GetText("RESURRECTABLE", -1, GENDER_NOT_APPLICABLE), nullptr, greenColor, greenColor, 0);
         }
 
-        if (unit->m_unit->m_unitDynamicFlags & 0x10) {
+        if (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_EMPATHY_INFO) {
             this->AddEmpathyText(unit, line, sizeof(line));
         }
 

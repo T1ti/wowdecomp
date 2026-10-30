@@ -89,7 +89,7 @@ class CGUnitData {
     /* 0118 */ uint32_t m_unitFieldPetNameTimestamp;
     /* 011C */ uint32_t m_unitFieldPetexperience;
     /* 0120 */ uint32_t m_unitFieldPetnextlevelexp;
-    /* 0124 */ uint32_t m_unitDynamicFlags;
+    /* 0124 */ uint32_t m_unitDynamicFlags; // UNIT_DYNAMIC_FLAGS; raw mirror word.
     /* 0128 */ float m_unitModCastSpeed;
     /* 012C */ uint32_t m_unitCreatedBySpell;
     /* 0130 */ uint32_t m_unitNpcFlags;

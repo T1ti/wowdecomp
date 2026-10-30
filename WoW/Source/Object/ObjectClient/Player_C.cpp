@@ -2619,7 +2619,7 @@ bool CGPlayer_C::CanTrackUnit(const CGUnit_C* unit) {
         return false;
     }
 
-    if (((unit->m_unit->m_unitDynamicFlags >> 1) & 1) || ((flags & 0x2) && (this->m_player->m_playerFieldBytes[0] & 0x2))) {
+    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & 0x2) && (this->m_player->m_playerFieldBytes[0] & 0x2))) {
         return true;
     }
 
@@ -5772,7 +5772,7 @@ bool __stdcall CGPlayer_C::IsRAFPlayer(WOWGUID guid) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        return (player->m_unit->m_unitDynamicFlags >> 6) & 1;
+        return (player->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_REFER_A_FRIEND) != 0;
     }
 
     CGPartyMemberState* stats = CGPartyInfo::GetRemoteStats(guid);
@@ -12623,7 +12623,7 @@ void CGPlayer_C::UpdateRepopTimer() {
 // VERIFY: d3f70371 manual
 // OFFSET: 0x006DC0F0
 void CGPlayer_C::OnDeath() {
-    if (this->m_unit->m_unitDynamicFlags & 0x20) {
+    if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
         return;
     }
 
@@ -14426,7 +14426,7 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
         state->m_flags |= 0x80;
     }
 
-    if (this->m_unit->m_unitDynamicFlags & 0x40) {
+    if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_REFER_A_FRIEND) {
         state->m_flags |= 0x100;
     }
 

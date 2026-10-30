@@ -2744,7 +2744,7 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
         uint32_t needTargets = s_needTargets;
 
         if (health <= 0) {
-            if (!(data->m_unitDynamicFlags & 0x20) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+            if (!(data->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
                 return false;
             }
         }
@@ -7150,7 +7150,7 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
 
         int32_t health = unit->m_unit->m_unitFieldHealth;
 
-        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && !(needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
             return false;
         }
 
@@ -8628,7 +8628,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
 
         int32_t health = unit->m_unit->m_unitFieldHealth;
 
-        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20) && !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
+        if (health <= 0 && !(unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_DEAD_MASK) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_DEAD_TARGET)) {
             return false;
         }
 

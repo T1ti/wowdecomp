@@ -368,7 +368,7 @@ static int32_t Script_UnitHealth(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (!(unit->m_unit->m_unitDynamicFlags & 0x20) || CGGameUI::IsRaidMemberOrPet(unitGuid)) {
+        if (!(unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) || CGGameUI::IsRaidMemberOrPet(unitGuid)) {
             health = unit->GetPredictedHealth();
         } else {
             health = 0;
@@ -415,7 +415,7 @@ static int32_t Script_UnitIsFeignDeath(lua_State* L) {
     if (unit) {
         WOWGUID guid = unit->m_obj->m_guid;
 
-        if (CGGameUI::IsRaidMemberOrPet(guid) && (unit->m_unit->m_unitDynamicFlags & 0x20)) {
+        if (CGGameUI::IsRaidMemberOrPet(guid) && (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -444,7 +444,7 @@ static int32_t Script_UnitIsDead(lua_State* L) {
             return 1;
         }
 
-        if (unit->m_unit->m_unitDynamicFlags & 0x20) {
+        if (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
             guid = unit->m_obj->m_guid;
 
             if (!CGGameUI::IsRaidMemberOrPet(guid)) {
@@ -515,7 +515,7 @@ static int32_t Script_UnitIsDeadOrGhost(lua_State* L) {
             return 1;
         }
 
-        if (unit->m_unit->m_unitDynamicFlags & 0x20) {
+        if (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
             guid = unit->m_obj->m_guid;
 
             if (!CGGameUI::IsRaidMemberOrPet(guid)) {
@@ -911,7 +911,7 @@ static int32_t Script_UnitPower(lua_State* L) {
             powerType = unit->m_unit->m_unitFieldBytes0[3];
         }
 
-        if ((!(unit->m_unit->m_unitDynamicFlags & 0x20) || CGGameUI::IsRaidMemberOrPet(unit->m_obj->m_guid)) && (powerType == unit->m_unit->m_unitFieldBytes0[3] || unit->IsActivePlayer())) {
+        if ((!(unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) || CGGameUI::IsRaidMemberOrPet(unit->m_obj->m_guid)) && (powerType == unit->m_unit->m_unitFieldBytes0[3] || unit->IsActivePlayer())) {
             power = static_cast<uint32_t>(unit->GetPredictedPower(static_cast<POWER_TYPE>(powerType))) / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(powerType));
         }
     } else if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid)) {
@@ -1511,7 +1511,7 @@ static int32_t Script_UnitIsTapped(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_unit->m_unitDynamicFlags & 4)) {
+    if (unit && (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TAPPED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1530,7 +1530,7 @@ static int32_t Script_UnitIsTappedByPlayer(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_unit->m_unitDynamicFlags & 8)) {
+    if (unit && (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TAPPED_BY_PLAYER)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1549,7 +1549,7 @@ static int32_t Script_UnitIsTappedByAllThreatList(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_unit->m_unitDynamicFlags & 0x80)) {
+    if (unit && (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

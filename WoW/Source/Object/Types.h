@@ -66,6 +66,52 @@ enum PLAYER_FLAGS : uint32_t {
         | PLAYER_FLAG_DISABLE_ATTACKS,
 };
 
+// CGUnitData::m_unitDynamicFlags; a server-authored, viewer-specific update field.
+// UNUSED means no individual use in the 3.3.5 client; preserve all wire bits.
+enum UNIT_DYNAMIC_FLAGS : uint32_t {
+    UNIT_DYNFLAG_NONE = 0x00000000u,
+    // Loot eligibility/effects; the server filters this for each viewer.
+    UNIT_DYNFLAG_LOOTABLE = 0x00000001u,
+    // Explicit tracking eligibility; CanTrackUnit retains its other checks.
+    UNIT_DYNFLAG_TRACK_UNIT = 0x00000002u,
+    // Tap marker exposed by UnitIsTapped; changes send the faction/color signal.
+    UNIT_DYNFLAG_TAPPED = 0x00000004u,
+    // UnitIsTappedByPlayer; the producer includes the loot recipient and group.
+    UNIT_DYNFLAG_TAPPED_BY_PLAYER = 0x00000008u,
+    // SPECIALINFO in the producer: enables the empathy tooltip details.
+    UNIT_DYNFLAG_EMPATHY_INFO = 0x00000010u,
+    // Death presentation/life notifications, also used for feign death. Health is separate.
+    UNIT_DYNFLAG_DEAD = 0x00000020u,
+    // Recruit-a-friend linkage; also copied into remote party state.
+    UNIT_DYNFLAG_REFER_A_FRIEND = 0x00000040u,
+    // Exposed by UnitIsTappedByAllThreatList; no stronger loot rule inferred here.
+    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST = 0x00000080u,
+    UNIT_DYNFLAG_UNUSED_8 = 0x00000100u,
+    UNIT_DYNFLAG_UNUSED_9 = 0x00000200u,
+    UNIT_DYNFLAG_UNUSED_10 = 0x00000400u,
+    UNIT_DYNFLAG_UNUSED_11 = 0x00000800u,
+    UNIT_DYNFLAG_UNUSED_12 = 0x00001000u,
+    UNIT_DYNFLAG_UNUSED_13 = 0x00002000u,
+    UNIT_DYNFLAG_UNUSED_14 = 0x00004000u,
+    UNIT_DYNFLAG_UNUSED_15 = 0x00008000u,
+    UNIT_DYNFLAG_UNUSED_16 = 0x00010000u,
+    UNIT_DYNFLAG_UNUSED_17 = 0x00020000u,
+    UNIT_DYNFLAG_UNUSED_18 = 0x00040000u,
+    UNIT_DYNFLAG_UNUSED_19 = 0x00080000u,
+    UNIT_DYNFLAG_UNUSED_20 = 0x00100000u,
+    UNIT_DYNFLAG_UNUSED_21 = 0x00200000u,
+    UNIT_DYNFLAG_UNUSED_22 = 0x00400000u,
+    UNIT_DYNFLAG_UNUSED_23 = 0x00800000u,
+    UNIT_DYNFLAG_UNUSED_24 = 0x01000000u,
+    UNIT_DYNFLAG_UNUSED_25 = 0x02000000u,
+    UNIT_DYNFLAG_UNUSED_26 = 0x04000000u,
+    UNIT_DYNFLAG_UNUSED_27 = 0x08000000u,
+    UNIT_DYNFLAG_UNUSED_28 = 0x10000000u,
+    UNIT_DYNFLAG_UNUSED_29 = 0x20000000u,
+    UNIT_DYNFLAG_UNUSED_30 = 0x40000000u,
+    UNIT_DYNFLAG_UNUSED_31 = 0x80000000u,
+};
+
 // Masks for CGUnitData::m_unitFieldFlags and m_unitFieldFlags2.
 // Names adapted from the 3.3.5 UnitFlags/UnitFlags2 definitions:
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Unit/UnitDefines.h

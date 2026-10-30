@@ -2810,7 +2810,7 @@ void CGUnit_C::ClearLockedTarget() {
 
     Spell_C_CancelAutoRepeat(true);
 
-    if (!(this->m_unit->m_unitDynamicFlags & 0x20)) {
+    if (!(this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD)) {
         CGGameUI::Target(WOWGUID{ 0 });
         return;
     }
@@ -4976,7 +4976,7 @@ void CGUnit_C::OnRightClick() {
         if (vehicleAllows) {
             CGUnitData* data = this->m_unit;
 
-            if (data->m_unitFieldHealth <= 0 && !(data->m_unitDynamicFlags & 0x20) && player->IsActiveMover()) {
+            if (data->m_unitFieldHealth <= 0 && !(data->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && player->IsActiveMover()) {
                 if (this->CanBeLooted(FrameTime::s_curTimeMs)) {
                     if (player->GetClientStandState()) {
                         if (!player->CanAutoStand()) {
@@ -7041,7 +7041,7 @@ CreatureModelDataRec* CGUnit_C::GetModelData() const {
 // OFFSET: 0x00717B60
 int32_t CGUnit_C::CanBeLooted(uint32_t time) const {
     CGUnitData* unit = this->m_unit;
-    return unit->m_unitFieldHealth <= 0 && (!this->m_lootableTime || static_cast<int32_t>(time - this->m_lootableTime) >= 0) && (unit->m_unitDynamicFlags & 0x1);
+    return unit->m_unitFieldHealth <= 0 && (!this->m_lootableTime || static_cast<int32_t>(time - this->m_lootableTime) >= 0) && (unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE);
 }
 
 // VERIFY: e9e8e2f9 auto
@@ -8512,7 +8512,7 @@ void CGUnit_C::PlayNPCSound(bool greeting) {
         return;
     }
 
-    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_unit->m_unitDynamicFlags & 0x20) || !this->m_displayInfo) {
+    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) || !this->m_displayInfo) {
         return;
     }
 
@@ -10266,7 +10266,7 @@ void CGUnit_C::OnDeath() {
 
     WOWGUID guid;
 
-    if (!(this->m_unit->m_unitDynamicFlags & 0x20) || (guid = this->m_obj->m_guid, !CGGameUI::IsRaidMemberOrPet(guid))) {
+    if (!(this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) || (guid = this->m_obj->m_guid, !CGGameUI::IsRaidMemberOrPet(guid))) {
         guid = this->m_obj->m_guid;
         Spell_C_CancelSpellByTarget(guid, 109);
     }
@@ -11895,7 +11895,7 @@ bool CGUnit_C::CanAttackNow(const CGUnit_C* unit) const {
         return false;
     }
 
-    if (unit->m_unit->m_unitFieldHealth <= 0 && !(unit->m_unit->m_unitDynamicFlags & 0x20)) {
+    if (unit->m_unit->m_unitFieldHealth <= 0 && !(unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD)) {
         return false;
     }
 
@@ -18111,26 +18111,26 @@ void CGUnit_C::OnLife(bool a1) {
 // VERIFY: 8d2dd6f2 manual
 // OFFSET: 0x00740570
 void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
-    uint32_t flags = this->m_unit->m_unitDynamicFlags;
+    uint32_t dynamicFlags = this->m_unit->m_unitDynamicFlags;
 
-    if ((oldFlags & 1) && !(flags & 1)) {
+    if ((oldFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE) && !(dynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
         this->RemoveLootEffect();
-    } else if (!(oldFlags & 1) && (flags & 1)) {
+    } else if (!(oldFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE) && (dynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
         CGTutorial::TriggerTutorial(6);
     }
 
-    if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & 0x20) {
+    if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
         Script_SendUnitSignal(this->m_obj->m_guid, 18);
         Script_SendUnitSignal(this->m_obj->m_guid, this->m_unit->m_unitFieldBytes0[3] + 19);
 
-        if (this->m_unit->m_unitDynamicFlags & 0x20) {
+        if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
             this->OnDeath();
         } else {
             this->OnLife(true);
         }
     }
 
-    if (static_cast<int32_t>(this->m_unit->m_unitFieldHealth) <= 0 && (this->m_unit->m_unitDynamicFlags & 1)) {
+    if (static_cast<int32_t>(this->m_unit->m_unitFieldHealth) <= 0 && (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
         if (this->m_lootableTime) {
             this->ClearEffectList(0);
         }
@@ -18138,7 +18138,7 @@ void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
         this->ShowLootEffect();
     }
 
-    if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & 4) {
+    if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TAPPED) {
         Script_SendUnitSignal(this->m_obj->m_guid, 49);
     }
 }
@@ -18176,7 +18176,7 @@ void CGUnit_C::UpdatePetReaction() {
 // VERIFY: 632e6ebd manual
 // OFFSET: 0x00717BA0
 void CGUnit_C::ShowLootEffect() {
-    if (!(this->m_unit->m_unitDynamicFlags & 1)) {
+    if (!(this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
         return;
     }
 
@@ -20408,7 +20408,7 @@ int32_t CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* positi
         return 0;
     }
 
-    if (this->m_unit->m_unitDynamicFlags & 0x20) {
+    if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
         WOWGUID guid = this->m_obj->m_guid;
 
         if (!CGGameUI::IsRaidMemberOrPet(guid)) {
@@ -21281,7 +21281,7 @@ void CGUnit_C::DropTargetOnDeath() {
 
     Spell_C_CancelAutoRepeat(true);
 
-    if (this->m_unit->m_unitDynamicFlags & 0x20) {
+    if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
         WOWGUID guid = this->m_obj->m_guid;
 
         if (CGGameUI::IsRaidMemberOrPet(guid)) {

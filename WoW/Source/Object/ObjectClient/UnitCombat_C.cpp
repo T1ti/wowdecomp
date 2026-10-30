@@ -137,7 +137,7 @@ void CGUnit_C::StopAttack() {
 // VERIFY: f28002be manual
 // OFFSET: 0x00755E40
 void CGUnit_C::PlayVictimRound(const ATTACKROUNDINFO& info) {
-    if (this->m_unit->m_unitDynamicFlags & 0x1) {
+    if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE) {
         return;
     }
 
