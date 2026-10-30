@@ -975,7 +975,7 @@ uint32_t CMovementShared::PlotUnitMovement(uint32_t time, C3Vector* move, float*
     }
 
     float dt = time * 0.001f;
-    uint32_t mode = 0;
+    uint32_t mode = PLOT_MOVEMENT_FLAGS::PLOT_NONE;
 
     if (this->m_flags & MOVEMENTFLAG_TURN_MASK) {
         if (facing) {
@@ -983,7 +983,7 @@ uint32_t CMovementShared::PlotUnitMovement(uint32_t time, C3Vector* move, float*
         }
 
         if (!(this->m_flags & MOVEMENTFLAG_FALLING)) {
-            mode = 2;
+            mode = PLOT_MOVEMENT_FLAGS::PLOT_TURN;
         }
     }
 
@@ -993,58 +993,58 @@ uint32_t CMovementShared::PlotUnitMovement(uint32_t time, C3Vector* move, float*
         }
 
         if (!(this->m_flags & MOVEMENTFLAG_ASCEND_DESCEND_MASK)) {
-            mode |= 8;
+            mode |= PLOT_MOVEMENT_FLAGS::PLOT_PITCH;
         }
     }
 
     uint32_t flags = this->m_flags;
 
     if (flags & MOVEMENTFLAG_ASCEND_DESCEND_MASK) {
-        mode |= 0x10;
+        mode |= PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND;
     }
 
     if (flags & MOVEMENTFLAG_MOVE_MASK) {
-        mode |= 1;
+        mode |= PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD;
     }
 
     if (flags & MOVEMENTFLAG_STRAFE_MASK) {
-        mode |= 4;
+        mode |= PLOT_MOVEMENT_FLAGS::PLOT_STRAFE;
     }
 
     switch (mode) {
-        case 1:
-        case 4:
-        case 5:
-        case 12: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD:
+        case PLOT_MOVEMENT_FLAGS::PLOT_STRAFE:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE:
+        case PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_PITCH: {
             this->PlotStraight(dt, move);
             break;
         }
 
-        case 3:
-        case 6:
-        case 7:
-        case 14:
-        case 19:
-        case 22:
-        case 23: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN:
+        case PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE:
+        case PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_PITCH:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND:
+        case PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND: {
             this->PlotHorzCircularPosition(dt, move);
             break;
         }
 
-        case 9:
-        case 13: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_PITCH:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_PITCH: {
             this->PlotVertCircularPosition(dt, move);
             break;
         }
 
-        case 11:
-        case 15: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_PITCH:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_PITCH: {
             this->PlotSpiralPosition(dt, move);
             break;
         }
 
-        case 16:
-        case 18: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND:
+        case PLOT_MOVEMENT_FLAGS::PLOT_TURN | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND: {
             float z = dt * this->m_currentSpeed;
 
             if (!(flags & MOVEMENTFLAG_ASCENDING)) {
@@ -1057,9 +1057,9 @@ uint32_t CMovementShared::PlotUnitMovement(uint32_t time, C3Vector* move, float*
             break;
         }
 
-        case 17:
-        case 20:
-        case 21: {
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND:
+        case PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND:
+        case PLOT_MOVEMENT_FLAGS::PLOT_FORWARD_BACKWARD | PLOT_MOVEMENT_FLAGS::PLOT_STRAFE | PLOT_MOVEMENT_FLAGS::PLOT_ASCEND_DESCEND: {
             this->PlotAscendDescend(dt, move);
             break;
         }
