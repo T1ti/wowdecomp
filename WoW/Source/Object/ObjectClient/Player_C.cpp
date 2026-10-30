@@ -2868,7 +2868,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
     this->OnGuildChanged(0);
     CGChat::UpdateGuildStatus();
     this->Animate(0.0f);
-    this->UpdateAmmoModel(this->GetEquippedItemDisplayId(), 30);
+    this->UpdateAmmoModel(this->GetEquippedItemDisplayId(), CGUnit_C::AUTO_AMMO_INVENTORY_TYPE);
     CGPartyInfo::EnableMember(this, 1);
     CGRaidInfo::EnableMember(this, 1);
 
@@ -10565,7 +10565,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
     }
 
     const CGUnitVirtualItem* rangedItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
-    bool thrown = rangedItem && (rangedItem->m_inventoryType == 26 || rangedItem->m_inventoryType == 25);
+    bool thrown = rangedItem && (rangedItem->m_inventoryType == INVTYPE_RANGEDRIGHT || rangedItem->m_inventoryType == INVTYPE_THROWN);
     CM2Model* detached = nullptr;
 
     switch (slot) {
@@ -10624,7 +10624,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
         case 17:
             if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
                 uint32_t inventoryType = old->GetInventoryType();
-                this->m_worldModel->DetachAllChildrenById(inventoryType == 26 || inventoryType == 25 ? 1 : 2);
+                this->m_worldModel->DetachAllChildrenById(inventoryType == INVTYPE_RANGEDRIGHT || inventoryType == INVTYPE_THROWN ? 1 : 2);
             }
 
             if (this->m_characterComponent) {

@@ -4244,7 +4244,7 @@ static int32_t Script_IsConsumableItem(lua_State* L) {
         return 1;
     }
 
-    if (stats->m_inventoryType != 24 && stats->m_inventoryType != 25) {
+    if (stats->m_inventoryType != INVTYPE_AMMO && stats->m_inventoryType != INVTYPE_THROWN) {
         uint32_t i;
 
         for (i = 0; i < 5; i++) {
@@ -5156,9 +5156,9 @@ static int32_t Script_IsEquippedItemType(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player) {
-        int32_t inventoryType = -1;
+        int32_t inventoryType = INVTYPE_INVALID;
 
-        for (int32_t i = 0; i < 29; i++) {
+        for (int32_t i = 0; i < INVTYPE_COUNT; i++) {
             if (!SStrCmpI(type, s_inventoryTypeTokens[i], STORM_MAX_STR) || !SStrCmpUTF8I(type, FrameScript_GetText(s_inventoryTypeTokens[i], -1, GENDER_NOT_APPLICABLE), STORM_MAX_STR)) {
                 inventoryType = i;
                 break;
@@ -5169,7 +5169,7 @@ static int32_t Script_IsEquippedItemType(lua_State* L) {
         uint32_t slot;
         CGItem_C* item;
 
-        if (inventoryType > 0) {
+        if (inventoryType > INVTYPE_NON_EQUIP) {
             item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, 1);
         } else {
             item = player->m_bag.FindItem(&FindItemClassTypeCallback, const_cast<char*>(type), container, slot, 1);

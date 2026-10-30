@@ -174,7 +174,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
     if (offhand->GetDisplayID() && offhand->GetInventoryType() == INVTYPE_SHIELD) {
         const CGUnitVirtualItem* ranged = player->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-        if ((!ranged || (ranged->m_inventoryType != 26 && ranged->m_inventoryType != 25)) && player->m_unit->m_sheatheState == WEAPONMODE_RANGEDMODE) {
+        if ((!ranged || (ranged->m_inventoryType != INVTYPE_RANGEDRIGHT && ranged->m_inventoryType != INVTYPE_THROWN)) && player->m_unit->m_sheatheState == WEAPONMODE_RANGEDMODE) {
             CM2Model* attached = nullptr;
 
             for (CM2Model* child = player->m_worldModel->m_attachList; child; child = child->m_attachNext) {

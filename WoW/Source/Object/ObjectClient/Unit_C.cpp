@@ -8610,12 +8610,12 @@ void CGUnit_C::UpdateAmmoModel(uint32_t displayId, uint32_t invType) {
         return;
     }
 
-    uint32_t ammoType = 24;
+    uint32_t ammoType = INVTYPE_AMMO;
     const CGUnitVirtualItem* ranged = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
-    if (invType == 30) {
+    if (invType == CGUnit_C::AUTO_AMMO_INVENTORY_TYPE) {
         if (ranged) {
-            ammoType = (ranged->m_inventoryType == 25) + 24;
+            ammoType = (ranged->m_inventoryType == INVTYPE_THROWN) + INVTYPE_AMMO;
         }
     } else {
         ammoType = invType;
@@ -8631,7 +8631,7 @@ void CGUnit_C::UpdateAmmoModel(uint32_t displayId, uint32_t invType) {
         this->m_ammoModel = CCharacterComponent::MakeAmmoModel(this->m_worldModel, &rec, ammoType);
     }
 
-    if (this->m_ammoModel && !noAttach && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED) && ammoType == 24) {
+    if (this->m_ammoModel && !noAttach && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED) && ammoType == INVTYPE_AMMO) {
         this->m_ammoModel->AttachToParent(this->m_worldModel, 0x23, nullptr, 0);
     }
 }
@@ -8861,11 +8861,11 @@ bool CGUnit_C::HasAuraEffect(int32_t auraType) const {
 // OFFSET: 0x00715D00
 int32_t __stdcall CGUnit_C::ResolveSheathState(int32_t hand, const CGUnitVirtualItem* mainHand, const CGUnitVirtualItem* offHand) {
     if (hand == WEAPONMODE_NORMALMODE) {
-        if (!mainHand && (!offHand || offHand->m_inventoryType == 23)) {
+        if (!mainHand && (!offHand || offHand->m_inventoryType == INVTYPE_HOLDABLE)) {
             return WEAPONMODE_SHEATHEDMODE;
         }
     } else if (hand == WEAPONMODE_SHEATHEDMODE) {
-        if ((offHand && offHand->m_inventoryType == 14) || (mainHand && mainHand->m_classID == 2) || (offHand && offHand->m_classID == 2)) {
+        if ((offHand && offHand->m_inventoryType == INVTYPE_SHIELD) || (mainHand && mainHand->m_classID == 2) || (offHand && offHand->m_classID == 2)) {
             return WEAPONMODE_NORMALMODE;
         }
     }
@@ -9680,7 +9680,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
             item.m_subclassID = 0;
             item.m_soundOverrideSubclassID = 0;
             item.m_material = 0;
-            item.m_inventoryType = 0;
+            item.m_inventoryType = INVTYPE_NON_EQUIP;
             item.m_sheatheType = 0;
             this->m_virtualItemDisplayId[i] = 0;
         }
@@ -10160,7 +10160,7 @@ void CGUnit_C::Reenable() {
             item.m_subclassID = 0;
             item.m_soundOverrideSubclassID = 0;
             item.m_material = 0;
-            item.m_inventoryType = 0;
+            item.m_inventoryType = INVTYPE_NON_EQUIP;
             item.m_sheatheType = 0;
             this->m_virtualItemDisplayId[i] = 0;
         }
@@ -15986,7 +15986,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
                 return false;
             }
 
-            if (effect == 36) {
+            if (effect == SPELL_EFFECT_LEARN_SPELL) {
                 const WOWGUID* pet = &this->m_unit->m_unitFieldCharm;
 
                 if (!*pet) {
@@ -16210,7 +16210,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
                 return false;
             }
         } else if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_ONLY_OUTDOORS) {
-            Spell_C_SpellFailed(cast, spell, SpellRec::HasAura(spell, 78) ? SPELL_FAILED_NO_MOUNTS_ALLOWED : SPELL_FAILED_ONLY_OUTDOORS, -1, -1, false);
+            Spell_C_SpellFailed(cast, spell, SpellRec::HasAura(spell, SPELL_AURA_MOUNTED) ? SPELL_FAILED_NO_MOUNTS_ALLOWED : SPELL_FAILED_ONLY_OUTDOORS, -1, -1, false);
             return false;
         }
     }
@@ -16462,7 +16462,7 @@ void CGUnit_C::OnAuraRemoved(uint32_t index, uint8_t a3, AuraData* aura, int32_t
             CGMinimapFrame::SetTrackingSpell(0);
         }
 
-        if (CGSpellBook::IsShapeshiftSpell(spellId) && !SpellRec::HasAura(&spell, 36)) {
+        if (CGSpellBook::IsShapeshiftSpell(spellId) && !SpellRec::HasAura(&spell, SPELL_AURA_MOD_SHAPESHIFT)) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_SHAPESHIFT_FORM, nullptr);
         }
     }
@@ -16486,7 +16486,7 @@ void CGUnit_C::OnAuraAdded(uint32_t index, uint8_t a3, AuraData* aura, int32_t s
             CGMinimapFrame::SetTrackingSpell(spellId);
         }
 
-        if (CGSpellBook::IsShapeshiftSpell(spellId) && !SpellRec::HasAura(&spell, 36)) {
+        if (CGSpellBook::IsShapeshiftSpell(spellId) && !SpellRec::HasAura(&spell, SPELL_AURA_MOD_SHAPESHIFT)) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_SHAPESHIFT_FORM, nullptr);
         }
     }
@@ -19704,8 +19704,8 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         sheathed = this->m_sheatheState == WEAPONMODE_SHEATHEDMODE;
     }
 
-    bool shield = item->m_inventoryType == 14;
-    bool ranged = item->m_inventoryType == 26 || item->m_inventoryType == 25;
+    bool shield = item->m_inventoryType == INVTYPE_SHIELD;
+    bool ranged = item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN;
     uint32_t attachId;
     INVENTORY_SLOTS invSlot;
     bool mainHand;
@@ -21754,19 +21754,19 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t displayId, uint32_t inventoryType, 
     const char* path;
 
     switch (inventoryType) {
-        case 1:
+        case INVTYPE_HEAD:
             path = "Item\\ObjectComponents\\Head\\";
             break;
-        case 3:
+        case INVTYPE_SHOULDERS:
             path = "Item\\ObjectComponents\\Shoulder\\";
             break;
-        case 14:
+        case INVTYPE_SHIELD:
             path = "Item\\ObjectComponents\\Shield\\";
             break;
-        case 24:
+        case INVTYPE_AMMO:
             path = "Item\\ObjectComponents\\Ammo\\";
             break;
-        case 27:
+        case INVTYPE_QUIVER:
             path = "Item\\ObjectComponents\\Quiver\\";
             break;
         default:
@@ -21792,7 +21792,7 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t displayId, uint32_t inventoryType, 
 
     char fileName[260];
 
-    if (inventoryType == 1) {
+    if (inventoryType == INVTYPE_HEAD) {
         int32_t sex = this->m_displayInfoExtra ? this->m_displayInfoExtra->m_displaySexID : this->m_unit->m_sex;
         ChrRacesRec* race = g_chrRacesDB.GetRecord(sex);
 
@@ -21829,17 +21829,17 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t displayId, uint32_t inventoryType, 
         uint32_t attachId;
 
         switch (inventoryType) {
-            case 1:
+            case INVTYPE_HEAD:
                 attachId = 11;
                 break;
-            case 14:
+            case INVTYPE_SHIELD:
                 attachId = 0;
                 break;
-            case 22:
+            case INVTYPE_WEAPONOFFHAND:
                 attachId = 2;
                 break;
-            case 24:
-            case 25:
+            case INVTYPE_AMMO:
+            case INVTYPE_THROWN:
                 attachId = 0xFFFFFFFF;
                 break;
             default:
@@ -21888,7 +21888,7 @@ void CGUnit_C::OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId
         item.m_subclassID = 0;
         item.m_soundOverrideSubclassID = 0;
         item.m_material = 0;
-        item.m_inventoryType = 0;
+        item.m_inventoryType = INVTYPE_NON_EQUIP;
         item.m_sheatheType = 0;
     }
 
@@ -21904,7 +21904,7 @@ void CGUnit_C::OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId
     ItemDisplayInfoRec displayRec;
 
     if (current && this->GetVirtualItemDisplayRec(slot, displayRec)) {
-        GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, s_virtualItemInvSlots[slot], static_cast<SHEATHE_TYPE>(current->m_sheatheType), this->m_sheatheState == WEAPONMODE_SHEATHEDMODE, current->m_inventoryType == 14, false, 0);
+        GEOCOMPONENTLINKS link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, s_virtualItemInvSlots[slot], static_cast<SHEATHE_TYPE>(current->m_sheatheType), this->m_sheatheState == WEAPONMODE_SHEATHEDMODE, current->m_inventoryType == INVTYPE_SHIELD, false, 0);
 
         if (this->m_characterComponent) {
             this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
@@ -23942,7 +23942,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
             }
 
             if (hide && this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(this->m_sheatheState ? 0 : offHand->m_sheatheType), offHand->m_inventoryType == 14);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(this->m_sheatheState ? 0 : offHand->m_sheatheType), offHand->m_inventoryType == INVTYPE_SHIELD);
             } else {
                 this->AddHandItem(1);
             }
@@ -23958,7 +23958,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
             const CGUnitVirtualItem* ranged = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, true);
 
             if (ranged) {
-                if (ranged->m_inventoryType == 26 || ranged->m_inventoryType == 25) {
+                if (ranged->m_inventoryType == INVTYPE_RANGEDRIGHT || ranged->m_inventoryType == INVTYPE_THROWN) {
                     this->m_worldModel->DetachAllChildrenById(1);
                 } else {
                     this->m_worldModel->DetachAllChildrenById(2);

@@ -546,11 +546,11 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
     if (!CGGameUI::m_hasControl && !ignoreControl) {
         int32_t allowed = 0;
 
-        if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_FLEEING) && ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_FLEEING) || Spell_C_CancelsAuraEffect(unit, spell, 7, nullptr))) {
+        if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_FLEEING) && ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_FLEEING) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_FEAR, nullptr))) {
             allowed = 1;
         }
 
-        if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_CONFUSED) && ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_CONFUSED) || Spell_C_CancelsAuraEffect(unit, spell, 5, nullptr))) {
+        if ((unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_CONFUSED) && ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALLOW_WHILE_CONFUSED) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_CONFUSE, nullptr))) {
             allowed = 1;
         }
 
@@ -1078,7 +1078,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
     }
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
-        unit->UpdateAmmoModel(ammoDisplayId, 30);
+        unit->UpdateAmmoModel(ammoDisplayId, CGUnit_C::AUTO_AMMO_INVENTORY_TYPE);
     }
 
     if (unit->IsActivePlayer()) {
@@ -3288,57 +3288,57 @@ static bool GetEffectModifierType(int32_t effect, bool* periodic, int32_t aura, 
     *periodic = false;
 
     switch (effect) {
-        case 2:
-        case 9:
-        case 10:
-        case 17:
-        case 31:
-        case 58:
-        case 67:
-        case 75:
-        case 121:
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_HEAL:
+        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+        case SPELL_EFFECT_WEAPON_DAMAGE:
+        case SPELL_EFFECT_HEAL_MAX_HEALTH:
+        case SPELL_EFFECT_HEAL_MECHANICAL:
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
             *rounded = true;
             return true;
 
-        case 6:
-        case 27:
-        case 35:
-        case 65:
-        case 119:
-        case 128:
-        case 129:
-        case 143:
+        case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             switch (aura) {
-                case 3:
-                case 8:
-                case 20:
-                case 53:
-                case 62:
-                case 89:
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                     *rounded = true;
                     *periodic = true;
                     return true;
 
-                case 15:
-                case 43:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
                     *rounded = true;
                     return true;
 
-                case 21:
-                case 24:
-                case 63:
-                case 64:
-                case 162:
+                case SPELL_AURA_OBS_MOD_POWER:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_63:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_POWER_BURN:
                     *rounded = true;
                     return false;
             }
 
             return false;
 
-        case 8:
-        case 30:
-        case 62:
-        case 146:
+        case SPELL_EFFECT_POWER_DRAIN:
+        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_POWER_BURN:
+        case SPELL_EFFECT_ACTIVATE_RUNE:
             *rounded = true;
             return false;
     }
@@ -4520,7 +4520,7 @@ bool Spell_C_CancelsStun(const CGUnit_C* unit, const SpellRec* spell, int32_t* r
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 12, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_STUN, reason);
 }
 
 // VERIFY: 65a88e05 auto
@@ -4530,7 +4530,7 @@ bool Spell_C_CancelsSilence(const CGUnit_C* unit, const SpellRec* spell, int32_t
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 27, reason) || Spell_C_CancelsAuraEffect(unit, spell, 60, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_SILENCE, reason) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_PACIFY_SILENCE, reason);
 }
 
 // VERIFY: c9a4c918 auto
@@ -4540,7 +4540,7 @@ bool Spell_C_CancelsPacify(const CGUnit_C* unit, const SpellRec* spell, int32_t*
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 25, reason) || Spell_C_CancelsAuraEffect(unit, spell, 60, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_PACIFY, reason) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_PACIFY_SILENCE, reason);
 }
 
 // VERIFY: 851db6e3 auto
@@ -4550,7 +4550,7 @@ bool Spell_C_CancelsFear(const CGUnit_C* unit, const SpellRec* spell, int32_t* r
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 7, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_FEAR, reason);
 }
 
 // VERIFY: bb2a34cc auto
@@ -4560,7 +4560,7 @@ bool Spell_C_CancelsConfuse(const CGUnit_C* unit, const SpellRec* spell, int32_t
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 5, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_CONFUSE, reason);
 }
 
 // VERIFY: 7ba2f519 auto
@@ -4570,7 +4570,7 @@ bool Spell_C_CancelsCharm(const CGUnit_C* unit, const SpellRec* spell, int32_t* 
         *reason = 0;
     }
 
-    return Spell_C_CancelsAuraEffect(unit, spell, 6, reason) || Spell_C_CancelsAuraEffect(unit, spell, 177, reason) || Spell_C_CancelsAuraEffect(unit, spell, 2, reason);
+    return Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_CHARM, reason) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_AOE_CHARM, reason) || Spell_C_CancelsAuraEffect(unit, spell, SPELL_AURA_MOD_POSSESS, reason);
 }
 
 // VERIFY: 751283a6 manual
@@ -5151,7 +5151,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
             continue;
         }
 
-        if (self->IsActivePlayer() && SpellRec::HasAura(spell, 36) && unit->m_shapeshiftSuppressed) {
+        if (self->IsActivePlayer() && SpellRec::HasAura(spell, SPELL_AURA_MOD_SHAPESHIFT) && unit->m_shapeshiftSuppressed) {
             break;
         }
 
@@ -5218,7 +5218,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         return;
     }
 
-    if (unit->m_mountDisplayId > 0 && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && SpellRec::HasAura(spell, 78)) {
+    if (unit->m_mountDisplayId > 0 && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && SpellRec::HasAura(spell, SPELL_AURA_MOUNTED)) {
         SpellRec mount;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
@@ -5231,7 +5231,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         unit->OnMountDisplayChanged(0);
     }
 
-    if (unit->GetShapeshiftForm() && SpellRec::HasAura(spell, 36)) {
+    if (unit->GetShapeshiftForm() && SpellRec::HasAura(spell, SPELL_AURA_MOD_SHAPESHIFT)) {
         if (lua_tainted) {
             for (uint32_t i = s_shapeshiftSpells.Count(); i; ) {
                 i--;
@@ -5460,7 +5460,7 @@ bool Spell_C_IsCurrentSpell(int32_t spellId) {
         return false;
     }
 
-    if (!SpellRec::WillSummonCritter(&spell) && !SpellRec::HasAura(&spell, 36)) {
+    if (!SpellRec::WillSummonCritter(&spell) && !SpellRec::HasAura(&spell, SPELL_AURA_MOD_SHAPESHIFT)) {
         return false;
     }
 
@@ -8264,7 +8264,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
                     required = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CAST_SHAPESHIFT_SPELL;
                 }
 
-                if (SpellRec::HasAura(&spell, 78)) {
+                if (SpellRec::HasAura(&spell, SPELL_AURA_MOUNTED)) {
                     required |= VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL;
                 }
 

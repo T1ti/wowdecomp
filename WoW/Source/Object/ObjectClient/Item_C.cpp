@@ -51,7 +51,7 @@
 #include "WoW/Source/Object/Item.h"
 
 // STATIC: 0x00A2D288
-const uint32_t s_inventoryTypeSlots[29] = { 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 3072, 12288, 98304, 65536, 131072, 16384, 98304, 7864320, 262144, 16, 98304, 98304, 65536, 0, 131072, 131072, 0, 131072 };
+const uint32_t s_inventoryTypeSlots[INVTYPE_COUNT] = { 0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 3072, 12288, 98304, 65536, 131072, 16384, 98304, 7864320, 262144, 16, 98304, 98304, 65536, 0, 131072, 131072, 0, 131072 };
 
 // STATIC: 0x00CA1140
 static TSHashTable<INVENTORYART, HASHKEY_NONE> s_inventoryArt;
@@ -99,7 +99,7 @@ static int32_t OnUpdateStackCount(WOWGUID guid, uint32_t fieldOffset, uint32_t f
 
         ItemRec* rec = g_itemDB.GetRecord(item->m_obj->m_entryID);
 
-        if (rec && rec->m_inventoryType == 24) {
+        if (rec && rec->m_inventoryType == INVTYPE_AMMO) {
             CGCharacterInfo::UpdateInventoryAlerts();
         }
     }
@@ -201,11 +201,11 @@ static int32_t OnUpdateDurability(WOWGUID guid, uint32_t fieldOffset, uint32_t f
                 } else if (slot == 16) {
                     invSlot = 16;
                 } else if (slot == 17) {
-                    invSlot = (item->m_virtualItem.m_inventoryType != 26) + 15;
+                    invSlot = (item->m_virtualItem.m_inventoryType != INVTYPE_RANGEDRIGHT) + 15;
                 }
 
                 if (oldDurability > 0) {
-                    CCharacterComponent::RemoveHandItem(owner->m_worldModel, static_cast<INVENTORY_SLOTS>(invSlot), static_cast<SHEATHE_TYPE>(item->m_virtualItem.m_sheatheType), item->m_virtualItem.m_inventoryType == 14);
+                    CCharacterComponent::RemoveHandItem(owner->m_worldModel, static_cast<INVENTORY_SLOTS>(invSlot), static_cast<SHEATHE_TYPE>(item->m_virtualItem.m_sheatheType), item->m_virtualItem.m_inventoryType == INVTYPE_SHIELD);
 
                     WOWGUID ownerGuid = owner->m_obj->m_guid;
                     CGGameUI::UnitModelUpdate(ownerGuid, 3);
@@ -309,7 +309,7 @@ CGItem_C::CGItem_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(t
     this->m_virtualItem.m_material = rec ? rec->m_material : 0;
 
     rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
-    this->m_virtualItem.m_inventoryType = rec ? rec->m_inventoryType : 0;
+    this->m_virtualItem.m_inventoryType = rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
 
     rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
     this->m_virtualItem.m_sheatheType = rec ? rec->m_sheatheType : 0;
@@ -499,7 +499,7 @@ uint32_t CGItem_C::GetSubtypeID() const {
 uint32_t CGItem_C::GetInventoryType() const {
     ItemRec* rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
 
-    return rec ? rec->m_inventoryType : 0;
+    return rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
 }
 
 // VERIFY: b59c1299 auto
@@ -551,48 +551,48 @@ bool CGItem_C::HasSoulboundEnchant() {
 // OFFSET: 0x00707500
 int32_t CGItem_C::GetRandomItemSlot() const {
     ItemRec* rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
-    uint32_t inventoryType = rec ? rec->m_inventoryType : 0;
+    uint32_t inventoryType = rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
 
     switch (inventoryType) {
-        case 0:
-        case 18:
-        case 19:
-        case 24:
-        case 27:
-        case 28:
+        case INVTYPE_NON_EQUIP:
+        case INVTYPE_BAG:
+        case INVTYPE_TABARD:
+        case INVTYPE_AMMO:
+        case INVTYPE_QUIVER:
+        case INVTYPE_RELIC:
             return -1;
 
-        case 1:
-        case 4:
-        case 5:
-        case 7:
-        case 17:
-        case 20:
+        case INVTYPE_HEAD:
+        case INVTYPE_BODY:
+        case INVTYPE_CHEST:
+        case INVTYPE_LEGS:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_ROBE:
             return 0;
 
-        case 2:
-        case 9:
-        case 11:
-        case 14:
-        case 16:
-        case 23:
+        case INVTYPE_NECK:
+        case INVTYPE_WRISTS:
+        case INVTYPE_FINGER:
+        case INVTYPE_SHIELD:
+        case INVTYPE_CLOAK:
+        case INVTYPE_HOLDABLE:
             return 2;
 
-        case 3:
-        case 6:
-        case 8:
-        case 10:
-        case 12:
+        case INVTYPE_SHOULDERS:
+        case INVTYPE_WAIST:
+        case INVTYPE_FEET:
+        case INVTYPE_HANDS:
+        case INVTYPE_TRINKET:
             return 1;
 
-        case 13:
-        case 21:
-        case 22:
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
             return 3;
 
-        case 15:
-        case 25:
-        case 26:
+        case INVTYPE_RANGED:
+        case INVTYPE_THROWN:
+        case INVTYPE_RANGEDRIGHT:
             return 4;
 
         default:
@@ -1697,7 +1697,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
             return 0;
         }
 
-        if (SpellRec::HasAura(&spell, 78) && !player->CanCurrentFormMount() && player->CanAutoUnshift()) {
+        if (SpellRec::HasAura(&spell, SPELL_AURA_MOUNTED) && !player->CanCurrentFormMount() && player->CanAutoUnshift()) {
             player->CancelShapeshiftForMount();
         }
     }
@@ -1733,7 +1733,7 @@ void CGItem_C::PostInitWithStats() {
     this->m_virtualItem.m_classID = rec ? rec->m_classID : 0;
     this->m_virtualItem.m_subclassID = rec ? rec->m_subclassID : 0;
     this->m_virtualItem.m_material = rec ? rec->m_material : 0;
-    this->m_virtualItem.m_inventoryType = rec ? rec->m_inventoryType : 0;
+    this->m_virtualItem.m_inventoryType = rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
     this->m_virtualItem.m_sheatheType = rec ? rec->m_sheatheType : 0;
     this->m_virtualItem.m_soundOverrideSubclassID = rec ? rec->m_soundOverrideSubclassID : 0xFF;
     ItemDisplayInfoRec display;
@@ -1816,7 +1816,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     }
 
     if (slot == 17) {
-        if (bypass != (rec->m_inventoryType == 28)) {
+        if (bypass != (rec->m_inventoryType == INVTYPE_RELIC)) {
             return 0;
         }
 
@@ -1832,10 +1832,10 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     }
 
     if (slot == 16) {
-        if (rec->m_inventoryType != 17 && rec->m_inventoryType != 21) {
+        if (rec->m_inventoryType != INVTYPE_2HWEAPON && rec->m_inventoryType != INVTYPE_WEAPONMAINHAND) {
             return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
         }
-    } else if (rec->m_inventoryType != 22) {
+    } else if (rec->m_inventoryType != INVTYPE_WEAPONOFFHAND) {
         return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
     }
 
@@ -1854,7 +1854,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
 
         bool found = false;
 
-        for (int32_t invType = 0; invType < 29; invType++) {
+        for (int32_t invType = INVTYPE_NON_EQUIP; invType < INVTYPE_COUNT; invType++) {
             if (((1 << invType) & spell.m_equippedItemInvTypes) && (s_inventoryTypeSlots[invType] & (1 << slot))) {
                 found = true;
             }

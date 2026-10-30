@@ -1,6 +1,8 @@
 #ifndef WOW_SOURCE_UIUTIL_TOOLTIP_H
 #define WOW_SOURCE_UIUTIL_TOOLTIP_H
 
+#include "WoW/Common/ComponentCore/Types.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -47,7 +49,7 @@ class ItemLinkInfo {
     int32_t GetItemIdFromLink(const char* link);
 };
 
-extern const char* s_inventoryTypeTokens[29];
+extern const char* s_inventoryTypeTokens[INVTYPE_COUNT];
 
 class CGItemStatsSummary;
 class CGTalentGroup_C;

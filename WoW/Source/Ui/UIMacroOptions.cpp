@@ -574,9 +574,9 @@ int32_t EvaluateEquipped(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
         memcpy(text, arg.m_start, length);
         text[length] = '\0';
 
-        int32_t inventoryType = -1;
+        int32_t inventoryType = INVTYPE_INVALID;
 
-        for (int32_t j = 0; j < 29; j++) {
+        for (int32_t j = 0; j < INVTYPE_COUNT; j++) {
             if (!SStrCmpI(text, s_inventoryTypeTokens[j], 0x7FFFFFFF) || !SStrCmpUTF8I(text, FrameScript_GetText(s_inventoryTypeTokens[j], -1, GENDER_NOT_APPLICABLE), 0x7FFFFFFF)) {
                 inventoryType = j;
                 break;
@@ -587,7 +587,7 @@ int32_t EvaluateEquipped(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
         uint32_t slot;
         CGItem_C* item;
 
-        if (inventoryType > 0) {
+        if (inventoryType > INVTYPE_NON_EQUIP) {
             item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, 1);
         } else {
             item = player->m_bag.FindItem(&FindItemClassTypeCallback, text, container, slot, 1);

@@ -1,3 +1,4 @@
+#include "WoW/Common/ComponentCore/Types.h"
 #include "VisibleItem_C.h"
 #include <cstdlib>
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
@@ -42,7 +43,7 @@ uint32_t VisibleItem_C::GetInventoryType() {
     }
 
     ItemRec* rec = g_itemDB.GetRecord(abs(this->m_itemId));
-    return rec ? rec->m_inventoryType : 0;
+    return rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
 }
 
 // VERIFY: 9f906c98 auto

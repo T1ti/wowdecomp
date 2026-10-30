@@ -1697,7 +1697,7 @@ int32_t CombatLog::HandleSpellLogExecute(CDataStore* msg, int32_t timeOffset) {
     }
 
     for (int32_t i = effectCount; i > 0; i--) {
-        uint32_t effect = 0;
+        uint32_t effect = SPELL_EFFECT_NONE;
         msg->Get(effect);
         uint32_t targetCount = 0;
         msg->Get(targetCount);
@@ -1706,8 +1706,8 @@ int32_t CombatLog::HandleSpellLogExecute(CDataStore* msg, int32_t timeOffset) {
             SmartGUID target;
 
             switch (effect) {
-                case 8:
-                case 62: {
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_POWER_BURN: {
                     *msg >> target;
                     uint32_t amount = 0;
                     msg->Get(amount);
@@ -1719,13 +1719,13 @@ int32_t CombatLog::HandleSpellLogExecute(CDataStore* msg, int32_t timeOffset) {
                     break;
                 }
 
-                case 18:
-                case 113:
+                case SPELL_EFFECT_RESURRECT:
+                case SPELL_EFFECT_RESURRECT_NEW:
                     *msg >> target;
                     CombatLog::AddSpellResurrectEntry(caster, target, spellId);
                     break;
 
-                case 19: {
+                case SPELL_EFFECT_ADD_EXTRA_ATTACKS: {
                     *msg >> target;
                     uint32_t damage = 0;
                     msg->Get(damage);
@@ -1733,35 +1733,35 @@ int32_t CombatLog::HandleSpellLogExecute(CDataStore* msg, int32_t timeOffset) {
                     break;
                 }
 
-                case 24:
-                case 59:
-                case 157: {
+                case SPELL_EFFECT_CREATE_ITEM:
+                case SPELL_EFFECT_CREATE_RANDOM_ITEM:
+                case SPELL_EFFECT_CREATE_ITEM_2: {
                     uint32_t itemId = 0;
                     msg->Get(itemId);
                     CGChat::LogTradeSkillCreate(caster, itemId);
                     break;
                 }
 
-                case 28:
-                case 50:
-                case 56:
-                case 76:
-                case 81:
-                case 83:
-                case 104:
-                case 105:
-                case 106:
-                case 107:
+                case SPELL_EFFECT_SUMMON:
+                case SPELL_EFFECT_TRANS_DOOR:
+                case SPELL_EFFECT_SUMMON_PET:
+                case SPELL_EFFECT_SUMMON_OBJECT_WILD:
+                case SPELL_EFFECT_CREATE_HOUSE:
+                case SPELL_EFFECT_DUEL:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+                case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
                     *msg >> target;
                     CombatLog::AddSpellCastEntry(caster, target, spellId);
                     break;
 
-                case 33:
+                case SPELL_EFFECT_OPEN_LOCK:
                     *msg >> target;
                     CombatLog::GetSpellLogLinkInfo(caster, target, spellId);
                     break;
 
-                case 68: {
+                case SPELL_EFFECT_INTERRUPT_CAST: {
                     *msg >> target;
                     uint32_t interrupted = 0;
                     msg->Get(interrupted);
@@ -1769,19 +1769,19 @@ int32_t CombatLog::HandleSpellLogExecute(CDataStore* msg, int32_t timeOffset) {
                     break;
                 }
 
-                case 101: {
+                case SPELL_EFFECT_FEED_PET: {
                     uint32_t itemId = 0;
                     msg->Get(itemId);
                     CGChat::LogFeedPet(caster, itemId);
                     break;
                 }
 
-                case 102:
+                case SPELL_EFFECT_DISMISS_PET:
                     *msg >> target;
                     CGChat::LogDismissPet(caster, target);
                     break;
 
-                case 111: {
+                case SPELL_EFFECT_DURABILITY_DAMAGE: {
                     *msg >> target;
                     uint32_t itemId = 0;
                     msg->Get(itemId);
@@ -2644,12 +2644,12 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
     }
 
     for (int32_t i = 0; i < static_cast<int32_t>(count); i++) {
-        uint32_t auraType = 0;
+        uint32_t auraType = SPELL_AURA_NONE;
         msg->Get(auraType);
 
         switch (auraType) {
-            case 3:
-            case 89: {
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT: {
                 uint32_t damage = 0;
                 msg->Get(damage);
                 uint32_t overkill = 0;
@@ -2695,8 +2695,8 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
                 break;
             }
 
-            case 8:
-            case 20: {
+            case SPELL_AURA_PERIODIC_HEAL:
+            case SPELL_AURA_OBS_MOD_HEALTH: {
                 uint32_t amount = 0;
                 msg->Get(amount);
                 uint32_t overheal = 0;
@@ -2718,8 +2718,8 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
                 break;
             }
 
-            case 21:
-            case 24: {
+            case SPELL_AURA_OBS_MOD_POWER:
+            case SPELL_AURA_PERIODIC_ENERGIZE: {
                 uint32_t powerType = 0;
                 msg->Get(powerType);
                 uint32_t amount = 0;
@@ -2733,7 +2733,7 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
                 break;
             }
 
-            case 64: {
+            case SPELL_AURA_PERIODIC_MANA_LEECH: {
                 uint32_t powerType = 0;
                 msg->Get(powerType);
                 uint32_t amount = 0;

@@ -1,6 +1,8 @@
 #ifndef WOW_SOURCE_OBJECT_OBJECTCLIENT_ITEM_C_H
 #define WOW_SOURCE_OBJECT_OBJECTCLIENT_ITEM_C_H
 
+#include "WoW/Common/ComponentCore/Types.h"
+
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
@@ -26,7 +28,7 @@ struct ITEMBYNAME : public TSHashObject<ITEMBYNAME, HASHKEY_UTF8I> {
 
 int32_t GetItemIDByName(const char* name);
 
-extern const uint32_t s_inventoryTypeSlots[29];
+extern const uint32_t s_inventoryTypeSlots[INVTYPE_COUNT];
 
 class CGItem_C : public CGObject_C, public CGItem {
     public:

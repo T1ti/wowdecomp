@@ -1169,7 +1169,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
         }
 
         if (!CGItem_C::GetUseSpell(itemId) && ((!item && !(item = CGActionBar::FindUseEnchantItemPtr(itemId))) || !item->GetEnchantmentSpell(0))) {
-            if (!itemRec->m_inventoryType || itemRec->m_inventoryType == 18) {
+            if ((itemRec->m_inventoryType == INVTYPE_NON_EQUIP) || itemRec->m_inventoryType == INVTYPE_BAG) {
                 return;
             }
         }
@@ -1513,7 +1513,7 @@ int32_t CGActionBar::IsEquippedAction(uint32_t slot) {
     int32_t itemId = CGActionBar::GetItem(slot);
     ItemRec* item = g_itemDB.GetRecord(itemId);
 
-    if (!item || !item->m_inventoryType) {
+    if (!item || (item->m_inventoryType == INVTYPE_NON_EQUIP)) {
         return 0;
     }
 
@@ -1536,7 +1536,7 @@ int32_t CGActionBar::IsConsumableAction(uint32_t slot) {
     ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, requester, nullptr, nullptr, false);
 
     if (stats) {
-        if (stats->m_inventoryType == 24 || stats->m_inventoryType == 25) {
+        if (stats->m_inventoryType == INVTYPE_AMMO || stats->m_inventoryType == INVTYPE_THROWN) {
             return 1;
         }
 

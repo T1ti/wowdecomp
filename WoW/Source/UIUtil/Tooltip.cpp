@@ -207,7 +207,7 @@ static const char* s_colorblindSuffixes[5] = { "", "[+] ", "[++] ", "[+++] ", "[
 static const char* s_colorStrings[4] = { "|cffffffff", "|cff808080", "|cffff2020", "|cff00ff00" };
 
 // STATIC: 0x00AC7FD8
-const char* s_inventoryTypeTokens[29] = { "", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_BODY", "INVTYPE_CHEST", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_RANGED", "INVTYPE_CLOAK", "INVTYPE_2HWEAPON", "INVTYPE_BAG", "INVTYPE_TABARD", "INVTYPE_ROBE", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_AMMO", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_QUIVER", "INVTYPE_RELIC" };
+const char* s_inventoryTypeTokens[INVTYPE_COUNT] = { "", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_BODY", "INVTYPE_CHEST", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_RANGED", "INVTYPE_CLOAK", "INVTYPE_2HWEAPON", "INVTYPE_BAG", "INVTYPE_TABARD", "INVTYPE_ROBE", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_AMMO", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_QUIVER", "INVTYPE_RELIC" };
 
 // STATIC: 0x00AD6640
 const char* s_itemModTokens[49] = { "ITEM_MOD_MANA", "ITEM_MOD_HEALTH", "", "ITEM_MOD_AGILITY", "ITEM_MOD_STRENGTH", "ITEM_MOD_INTELLECT", "ITEM_MOD_SPIRIT", "ITEM_MOD_STAMINA", "", "", "", "", "ITEM_MOD_DEFENSE_SKILL_RATING", "ITEM_MOD_DODGE_RATING", "ITEM_MOD_PARRY_RATING", "ITEM_MOD_BLOCK_RATING", "ITEM_MOD_HIT_MELEE_RATING", "ITEM_MOD_HIT_RANGED_RATING", "ITEM_MOD_HIT_SPELL_RATING", "ITEM_MOD_CRIT_MELEE_RATING", "ITEM_MOD_CRIT_RANGED_RATING", "ITEM_MOD_CRIT_SPELL_RATING", "ITEM_MOD_HIT_TAKEN_MELEE_RATING", "ITEM_MOD_HIT_TAKEN_RANGED_RATING", "ITEM_MOD_HIT_TAKEN_SPELL_RATING", "ITEM_MOD_CRIT_TAKEN_MELEE_RATING", "ITEM_MOD_CRIT_TAKEN_RANGED_RATING", "ITEM_MOD_CRIT_TAKEN_SPELL_RATING", "ITEM_MOD_HASTE_MELEE_RATING", "ITEM_MOD_HASTE_RANGED_RATING", "ITEM_MOD_HASTE_SPELL_RATING", "ITEM_MOD_HIT_RATING", "ITEM_MOD_CRIT_RATING", "ITEM_MOD_HIT_TAKEN_RATING", "ITEM_MOD_CRIT_TAKEN_RATING", "ITEM_MOD_RESILIENCE_RATING", "ITEM_MOD_HASTE_RATING", "ITEM_MOD_EXPERTISE_RATING", "ITEM_MOD_ATTACK_POWER", "ITEM_MOD_RANGED_ATTACK_POWER", "", "ITEM_MOD_SPELL_HEALING_DONE", "ITEM_MOD_SPELL_DAMAGE_DONE", "ITEM_MOD_MANA_REGENERATION", "ITEM_MOD_ARMOR_PENETRATION_RATING", "ITEM_MOD_SPELL_POWER", "ITEM_MOD_HEALTH_REGEN", "ITEM_MOD_SPELL_PENETRATION", "ITEM_MOD_BLOCK_VALUE" };
@@ -4113,7 +4113,7 @@ bool ResolveItemSetItem(ItemSetTooltipData* data, int32_t pass, int32_t itemId, 
         uint32_t type = stats->m_inventoryType;
         uint32_t setType = data->m_items[i]->m_inventoryType;
 
-        if (type == setType || (type == 5 && setType == 20) || (type == 20 && setType == 5)) {
+        if (type == setType || (type == INVTYPE_CHEST && setType == INVTYPE_ROBE) || (type == INVTYPE_ROBE && setType == INVTYPE_CHEST)) {
             data->m_equipped[i] = itemId;
             return true;
         }
@@ -4431,7 +4431,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         }
     }
 
-    if (stats->m_inventoryType == 18) {
+    if (stats->m_inventoryType == INVTYPE_BAG) {
         if (subClass && subClass->m_displayName && *subClass->m_displayName) {
             SStrCopy(format, FrameScript_GetText("CONTAINER_SLOTS", -1, GENDER_NOT_APPLICABLE), sizeof(format));
             SStrPrintf(slot, sizeof(slot), format, stats->m_containerSlots, subClass->m_displayName);
@@ -4464,7 +4464,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         return;
     }
 
-    if (subClass && stats->m_inventoryType != 16 && !(subClass->m_displayFlags & 1) && subClass->m_displayName && *subClass->m_displayName) {
+    if (subClass && stats->m_inventoryType != INVTYPE_CLOAK && !(subClass->m_displayFlags & 1) && subClass->m_displayName && *subClass->m_displayName) {
         SStrCopy(subClassName, subClass->m_displayName, sizeof(subClassName));
     }
 
@@ -4541,7 +4541,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         }
     }
 
-    if (stats->m_inventoryType == 22 && !CGPlayer_C::CanDualWield()) {
+    if (stats->m_inventoryType == INVTYPE_WEAPONOFFHAND && !CGPlayer_C::CanDualWield()) {
         slotRed = 1;
     }
 
@@ -5632,11 +5632,11 @@ static int32_t CollectItemSetData(CGTooltip* tooltip, const ItemSetRec* set, CGP
             uint32_t type = item->m_inventoryType;
             uint32_t previousType = previous->m_inventoryType;
 
-            if (type == previousType && type != 11 && type != 12 && type != 13) {
+            if (type == previousType && type != INVTYPE_FINGER && type != INVTYPE_TRINKET && type != INVTYPE_WEAPON) {
                 break;
             }
 
-            if (type == 5 ? previousType == 20 : type == 20 && previousType == 5) {
+            if (type == INVTYPE_CHEST ? previousType == INVTYPE_ROBE : type == INVTYPE_ROBE && previousType == INVTYPE_CHEST) {
                 break;
             }
         }
@@ -7183,7 +7183,7 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
     if ((slots & 0x8000) || (slots & 0x10000)) {
         CGItem_C* mainHand = nullptr;
 
-        if (((slots & 0x8000) && (slots & 0x10000)) || stats->m_inventoryType == 17) {
+        if (((slots & 0x8000) && (slots & 0x10000)) || stats->m_inventoryType == INVTYPE_2HWEAPON) {
             mainHand = player->m_bag.GetItemPointer(15);
             CGItem_C* offHand = player->m_bag.GetItemPointer(16);
 

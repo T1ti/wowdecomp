@@ -73,7 +73,7 @@ int32_t PlayerEquipmentChangedHandler(WOWGUID guid, uint32_t fieldOffset, uint32
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        player->UpdateAmmoModel(player->GetEquippedAmmoDisplayId(), 24);
+        player->UpdateAmmoModel(player->GetEquippedAmmoDisplayId(), INVTYPE_AMMO);
         CGActionBar::UpdateUsable();
         FrameScript_SignalEvent(SCRIPT_EVENT_UNIT_INVENTORY_CHANGED, "%s", "player");
     }
@@ -598,7 +598,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         return false;
     }
 
-    if (slot == 16 && (stats->m_inventoryType == 22 || stats->m_inventoryType == 13) && !CGPlayer_C::CanDualWield()) {
+    if (slot == 16 && (stats->m_inventoryType == INVTYPE_WEAPONOFFHAND || stats->m_inventoryType == INVTYPE_WEAPON) && !CGPlayer_C::CanDualWield()) {
         return false;
     }
 

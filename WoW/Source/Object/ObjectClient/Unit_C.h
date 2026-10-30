@@ -145,6 +145,8 @@ class CGUnitVirtualItem {
 class UnitBloodRec;
 class CGUnit_C : public CGObject_C, public CGUnit {
     public:
+    // UpdateAmmoModel request marker: infer AMMO/THROWN from the ranged item.
+    static constexpr uint32_t AUTO_AMMO_INVENTORY_TYPE = 30;
     int32_t InitializeExtendedDisplay(CGPlayer_C* player, int32_t hasDisplayInfo);
     void ApplyComponentItemsFromEffects();
     void AddHandItem(int32_t hand);

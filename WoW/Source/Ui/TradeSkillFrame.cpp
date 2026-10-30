@@ -510,11 +510,11 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                 info->m_itemLevel = stats->m_itemLevel;
                 info->m_invTypeMask = s_inventoryTypeSlots[stats->m_inventoryType];
 
-                if (stats->m_inventoryType == 18) {
+                if (stats->m_inventoryType == INVTYPE_BAG) {
                     info->m_invTypeMask = 0x80000;
-                } else if (stats->m_inventoryType == 11) {
+                } else if (stats->m_inventoryType == INVTYPE_FINGER) {
                     info->m_invTypeMask = 0x400;
-                } else if (stats->m_inventoryType == 12) {
+                } else if (stats->m_inventoryType == INVTYPE_TRINKET) {
                     info->m_invTypeMask = 0x1000;
                 }
 
@@ -533,7 +533,7 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                     if (spell.m_equippedItemInvTypes) {
                         info->m_invTypeMask = 0;
 
-                        for (uint32_t j = 0; j < 29; j++) {
+                        for (uint32_t j = 0; j < INVTYPE_COUNT; j++) {
                             if ((1 << j) & spell.m_equippedItemInvTypes) {
                                 info->m_invTypeMask = s_inventoryTypeSlots[j];
 

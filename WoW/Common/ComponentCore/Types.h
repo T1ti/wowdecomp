@@ -147,6 +147,8 @@ enum INVENTORY_TYPES {
     INVTYPE_RANGEDRIGHT = 26,
     INVTYPE_QUIVER = 27,
     INVTYPE_RELIC = 28,
+    INVTYPE_COUNT = 29,
+    INVTYPE_INVALID = -1, // Inventory-token lookup / unfiltered query sentinel.
 };
 
 enum ITEM_SLOT {

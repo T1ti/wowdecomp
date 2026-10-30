@@ -44,20 +44,20 @@ static const AuctionItemClass s_auctionClasses[CGAuctionHouse::NUM_CLASS_FILTERS
 
 // STATIC: 0x00A14FD0
 static const AuctionInvType s_auctionInvTypes[CGAuctionHouse::NUM_INVENTORY_FILTERS] = {
-    { 1, "INVTYPE_HEAD", 1, 0 },
-    { 2, "INVTYPE_NECK", 1, 1 },
-    { 3, "INVTYPE_SHOULDER", 0, 0 },
-    { 4, "INVTYPE_BODY", 1, 1 },
-    { 5, "INVTYPE_CHEST", 0, 0 },
-    { 6, "INVTYPE_WAIST", 0, 0 },
-    { 7, "INVTYPE_LEGS", 0, 0 },
-    { 8, "INVTYPE_FEET", 0, 0 },
-    { 9, "INVTYPE_WRIST", 0, 0 },
-    { 10, "INVTYPE_HAND", 0, 0 },
-    { 11, "INVTYPE_FINGER", 1, 1 },
-    { 12, "INVTYPE_TRINKET", 1, 1 },
-    { 16, "INVTYPE_CLOAK", 0, 1 },
-    { 23, "INVTYPE_HOLDABLE", 1, 1 },
+    { INVTYPE_HEAD, "INVTYPE_HEAD", 1, 0 },
+    { INVTYPE_NECK, "INVTYPE_NECK", 1, 1 },
+    { INVTYPE_SHOULDERS, "INVTYPE_SHOULDER", 0, 0 },
+    { INVTYPE_BODY, "INVTYPE_BODY", 1, 1 },
+    { INVTYPE_CHEST, "INVTYPE_CHEST", 0, 0 },
+    { INVTYPE_WAIST, "INVTYPE_WAIST", 0, 0 },
+    { INVTYPE_LEGS, "INVTYPE_LEGS", 0, 0 },
+    { INVTYPE_FEET, "INVTYPE_FEET", 0, 0 },
+    { INVTYPE_WRISTS, "INVTYPE_WRIST", 0, 0 },
+    { INVTYPE_HANDS, "INVTYPE_HAND", 0, 0 },
+    { INVTYPE_FINGER, "INVTYPE_FINGER", 1, 1 },
+    { INVTYPE_TRINKET, "INVTYPE_TRINKET", 1, 1 },
+    { INVTYPE_CLOAK, "INVTYPE_CLOAK", 0, 1 },
+    { INVTYPE_HOLDABLE, "INVTYPE_HOLDABLE", 1, 1 },
 };
 
 // VERIFY: 95a282d9 auto
@@ -174,7 +174,7 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
 
         if (s_auctionClasses[classIndex].m_classID == 4) {
             if (subClass) {
-                if ((subClass != 1 || s_auctionInvTypes[i].m_invType != 16) && s_auctionInvTypes[i].unk_0028) {
+                if ((subClass != 1 || s_auctionInvTypes[i].m_invType != INVTYPE_CLOAK) && s_auctionInvTypes[i].unk_0028) {
                     lua_pushnil(L);
                     continue;
                 }
@@ -465,7 +465,7 @@ static int32_t Script_QueryAuctionItems(lua_State* L) {
         maxLevel = static_cast<uint8_t>(lua_tonumber(L, 3));
     }
 
-    int32_t invType = -1;
+    int32_t invType = INVTYPE_INVALID;
 
     if (lua_isnumber(L, 4)) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 4)) - 1;
