@@ -588,12 +588,12 @@ int32_t CGUnit_C::GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const {
     switch (soundType) {
         case UNITSOUNDTYPE_EXERTION:
         case UNITSOUNDTYPE_EXERTIONCRITICAL:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x20)) ? 15 : 9;
+            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? 15 : 9;
 
         case UNITSOUNDTYPE_INJURY:
         case UNITSOUNDTYPE_INJURYCRITICAL:
         case UNITSOUNDTYPE_INJURYCRUSHINGBLOW:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x20)) ? 16 : 11;
+            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? 16 : 11;
 
         default:
             return 0;
@@ -709,7 +709,7 @@ void CGUnit_C::PlayDismountSound() {
 // VERIFY: 82755190 auto
 // OFFSET: 0x007474B0
 void CGUnit_C::OnAiReaction(int32_t reaction) {
-    if (reaction == 4 && this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x1000000)) {
+    if (reaction == 4 && this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_SCREAM)) {
         return;
     }
 

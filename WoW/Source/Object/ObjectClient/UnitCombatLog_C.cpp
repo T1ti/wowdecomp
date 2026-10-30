@@ -227,7 +227,7 @@ void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid) {
     if (type == 0xF0300000 || type == 0xF0500000) {
         CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid->m_guid >> 24) & 0xFFFFFFF, *guid, nullptr, nullptr, false);
 
-        if (stats && (stats->m_typeFlags & 0x4000)) {
+        if (stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             guid->m_guid &= 0xFFFFFFFFFF000000ull;
         }
     }

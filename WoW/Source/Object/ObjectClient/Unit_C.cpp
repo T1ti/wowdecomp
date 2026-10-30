@@ -3120,7 +3120,7 @@ bool CGUnit_C::CanAttack(const CGUnit_C* unit) const {
     }
 
     if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<const CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
-        if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & 0x2)) {
+        if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS)) {
             return false;
         }
     }
@@ -4940,7 +4940,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
 
     CGUnitData* target = unit->m_unit;
 
-    if (target->m_unitFieldHealth <= 0 && !(unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & 0x80))) {
+    if (target->m_unitFieldHealth <= 0 && !(unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD))) {
         return false;
     }
 
@@ -4950,7 +4950,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
 
     CreatureStats_C* stats = unit->m_creatureCacheEntry;
 
-    if (unit->IsInCombat() && !(stats && (stats->m_typeFlags & 0x40000)) && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_ALLOW_ENEMY_INTERACTION)) {
+    if (unit->IsInCombat() && !(stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT)) && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_ALLOW_ENEMY_INTERACTION)) {
         return false;
     }
 
@@ -6137,7 +6137,7 @@ float CGUnit_C::GetTrackingTurn() {
 // OFFSET: 0x00715D70
 bool CGUnit_C::IsBossMob() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 2) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_BOSS_MOB) != 0;
     }
 
     return false;
@@ -6147,7 +6147,7 @@ bool CGUnit_C::IsBossMob() const {
 // OFFSET: 0x00715D90
 bool CGUnit_C::IsLinkAll() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 22) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_LINK_ALL) != 0;
     }
 
     return false;
@@ -6157,7 +6157,7 @@ bool CGUnit_C::IsLinkAll() const {
 // OFFSET: 0x00715DB0
 bool CGUnit_C::HasNoShadowBlob() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 25) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB) != 0;
     }
 
     return false;
@@ -6166,14 +6166,14 @@ bool CGUnit_C::HasNoShadowBlob() const {
 // VERIFY: 472a80ea manual
 // OFFSET: 0x00715DD0
 bool CGUnit_C::ShowFactionTooltip() const {
-    return !this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & 0x10);
+    return !this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP);
 }
 
 // VERIFY: 2a450047 auto
 // OFFSET: 0x00715DF0
 bool CGUnit_C::IsTreatAsRaidUnit() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 26) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0;
     }
 
     return false;
@@ -6183,7 +6183,7 @@ bool CGUnit_C::IsTreatAsRaidUnit() const {
 // OFFSET: 0x00715E10
 bool CGUnit_C::IsForceGossip() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 27) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_FORCE_GOSSIP) != 0;
     }
 
     return false;
@@ -6192,7 +6192,7 @@ bool CGUnit_C::IsForceGossip() const {
 // VERIFY: 43b9bada auto
 // OFFSET: 0x00715E30
 bool CGUnit_C::CanInteractWhileDead() const {
-    return this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x80);
+    return this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD);
 }
 
 // VERIFY: 568ed656 manual
@@ -6202,15 +6202,15 @@ uint32_t CGUnit_C::GetSkinningType() const {
         return 0;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & 0x100) {
+    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM) {
         return 1;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & 0x200) {
+    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_MINING) {
         return 2;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & 0x8000) {
+    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING) {
         return 3;
     }
 
@@ -6231,7 +6231,7 @@ void CGUnit_C::GetCursorFile(int32_t unable, char* buffer, uint32_t size) const 
 // OFFSET: 0x00715F70
 bool CGUnit_C::MountedCombatAllowed() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 11) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0;
     }
 
     return false;
@@ -6241,7 +6241,7 @@ bool CGUnit_C::MountedCombatAllowed() const {
 // OFFSET: 0x00715F90
 bool CGUnit_C::CanAidPlayers() const {
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 12) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_CAN_ASSIST) != 0;
     }
 
     return false;
@@ -6324,7 +6324,7 @@ bool CGUnit_C::DoNotLogDeath() const {
     }
 
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 10) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_MESSAGE) != 0;
     }
 
     return true;
@@ -6405,7 +6405,7 @@ int32_t CGUnit_C::IsQuestGiver() const {
 // VERIFY: 28dbc451 auto
 // OFFSET: 0x007192E0
 void CGUnit_C::UpdateInteractIcon() {
-    if (this->m_unit->m_unitFieldHealth > 0 || (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x80))) {
+    if (this->m_unit->m_unitFieldHealth > 0 || (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD))) {
         CGObject_C::UpdateInteractIcon();
     }
 }
@@ -8216,7 +8216,7 @@ bool CGUnit_C::DoNotPlayWoundAnim() const {
     }
 
     if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags >> 3) & 1;
+        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM) != 0;
     }
 
     return this->GetCurrentTorsoAnimId() == 121;
@@ -8326,7 +8326,7 @@ int32_t CGUnit_C::GetAuraIndex(int32_t spellId) {
 // VERIFY: f3ee2cc8 manual
 // OFFSET: 0x007226B0
 bool CGUnit_C::IsPetBarUsed() const {
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x2000)) {
+    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_PET_BAR)) {
         return false;
     }
 
@@ -10271,7 +10271,7 @@ void CGUnit_C::OnDeath() {
 
     this->DropTargetOnDeath();
 
-    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & 0x80)) {
+    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD)) {
         this->RemoveInteractIcon();
     }
 
@@ -11844,7 +11844,7 @@ bool CGUnit_C::CanAssist(const CGUnit_C* unit, bool ignoreFlags) const {
         return false;
     }
 
-    if (this->UnitReaction(unit) < UNIT_REACTION_FRIENDLY && (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & 0x4000000))) {
+    if (this->UnitReaction(unit) < UNIT_REACTION_FRIENDLY && (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))) {
         return false;
     }
 
@@ -11889,7 +11889,7 @@ bool CGUnit_C::CanAttackNow(const CGUnit_C* unit) const {
         }
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x800)) && !this->CanAutoDismount()) {
+    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT)) && !this->CanAutoDismount()) {
         return false;
     }
 
@@ -13732,7 +13732,7 @@ void CGUnit_C::SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t no
         return;
     }
 
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x10000000) && !noSend) {
+    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_SHEATHE) && !noSend) {
         return;
     }
 
@@ -15273,7 +15273,7 @@ bool CGUnit_C::IsInMyParty(const CGUnit_C* unit) const {
         return true;
     }
 
-    if (unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & 0x4000000)) {
+    if (unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)) {
         return true;
     }
 
@@ -20386,7 +20386,7 @@ int32_t CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* positi
         return 0;
     }
 
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x100000)) {
+    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_NAME_PLATE)) {
         return 0;
     }
 
@@ -20732,7 +20732,7 @@ int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t a2, int32_t a3) {
 
     CreatureDisplayInfoRec* displayInfo;
 
-    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & 0x20000) || !(displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid))) {
+    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_USE_MODEL_COLLISION_SIZE) || !(displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid))) {
         this->m_movementData.SetCollisionBox(0.6666667f, 2.0277777f, 1.0f, 1.0f, 0);
         return 1;
     }
@@ -21038,7 +21038,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case 1: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x40) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
+                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
                     break;
                 }
 
@@ -21074,7 +21074,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case 13: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & 0x40) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
+                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
                     break;
                 }
 

@@ -686,19 +686,19 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             VICTIMSTATES victimState = this->m_lastAttackRound.m_victimState;
 
             if (victimState == VS_PARRY) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & 0x200000)) {
+                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayParryAnimation();
                 }
 
                 this->m_lastAttackRound.m_hitInfo &= ~2u;
             } else if (victimState == VS_DODGE || victimState == VS_DEFLECT) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & 0x200000)) {
+                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayBaseAnimation(ANIM_DODGE, 0);
                 }
 
                 this->m_lastAttackRound.m_hitInfo &= ~2u;
             } else if (this->m_lastAttackRound.m_blocked) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & 0x200000)) {
+                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayBaseAnimation(ANIM_SHIELD_BLOCK, 0);
                 }
 

@@ -3684,7 +3684,7 @@ static int32_t Script_UnitGUID(lua_State* L) {
     if ((high & 0xF0F00000) == 0xF0300000 || (high & 0xF0F00000) == 0xF0500000) {
         CreatureStats_C* creature = g_creatureDBCache.GetRecord((guid.m_guid >> 24) & 0xFFFFFFF, display, nullptr, nullptr, false);
 
-        if (creature && (creature->m_typeFlags & 0x4000)) {
+        if (creature && (creature->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             display.m_guid &= 0xFFFFFFFFFF000000ULL;
         }
     }
