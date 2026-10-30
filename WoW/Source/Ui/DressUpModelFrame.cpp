@@ -518,9 +518,9 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
         this->m_component = CCharacterComponent::AllocComponent();
         model->m_refCount++;
         ComponentData data;
-        data.m_preferences.m_raceID = player->m_unit->m_unitFieldBytes0[0];
+        data.m_preferences.m_raceID = player->m_unit->m_raceID;
         data.m_preferences.m_sexID = player->m_player->m_playerBytes3[0];
-        data.m_preferences.m_classId = player->m_unit->m_unitFieldBytes0[1];
+        data.m_preferences.m_classId = player->m_unit->m_classID;
         data.m_preferences.m_skinID = player->m_player->m_playerBytes[0];
         data.m_preferences.m_faceId = player->m_player->m_playerBytes[1];
         data.m_preferences.m_hairStyleId = player->m_player->m_playerBytes[2];

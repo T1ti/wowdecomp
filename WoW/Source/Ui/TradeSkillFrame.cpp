@@ -983,8 +983,8 @@ bool CGTradeSkillInfo::GetTradeSkillListLink(int32_t spellId, char* buffer, uint
         return false;
     }
 
-    int32_t race = player->m_unit->m_unitFieldBytes0[0];
-    int32_t classId = player->m_unit->m_unitFieldBytes0[1];
+    int32_t race = player->m_unit->m_raceID;
+    int32_t classId = player->m_unit->m_classID;
     uint8_t bits = 0;
     uint8_t bit = 0;
     char* out = &buffer[SStrLen(buffer)];

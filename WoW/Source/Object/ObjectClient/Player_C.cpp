@@ -926,7 +926,7 @@ void CGPlayer_C::HandleRepopRequest(bool a2) {
 // VERIFY: 63c9a7c3 manual
 // OFFSET: 0x006DCB40
 void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
-    if (standState >= 11) {
+    if (standState >= UNIT_NUMSTANDSTATES) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -959,7 +959,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
         return;
     }
 
-    if (standState && (moveFlags & MOVEMENTFLAG_LOCOMOTION_MASK)) {
+    if ((standState != UNIT_STANDING) && (moveFlags & MOVEMENTFLAG_LOCOMOTION_MASK)) {
         return;
     }
 
@@ -984,7 +984,7 @@ void CGPlayer_C::SetClientStandState(UNITSTANDSTATE standState) {
 
     this->m_clientStandState = standState;
 
-    if (!standState) {
+    if ((standState == UNIT_STANDING)) {
         CGInputControl::GetActive()->UpdatePlayer(OsGetAsyncTimeMs(), 1);
     } else {
         if (this->IsLooting()) {
@@ -995,7 +995,7 @@ void CGPlayer_C::SetClientStandState(UNITSTANDSTATE standState) {
             this->SetCombatMode();
         }
 
-        if (standState >= UNIT_SITTINGCHAIRLOW && standState <= UNIT_SITTINGCHAIRHIGH) {
+        if (standState >= UNIT_FIRSTCHAIRSIT && standState <= UNIT_LASTCHAIRSIT) {
             return;
         }
     }
@@ -1193,7 +1193,7 @@ const char* CGPlayer_C::GetHairCustomizationName() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        ChrRacesRec* rec = g_chrRacesDB.GetRecord(player->m_unit->m_unitFieldBytes0[0]);
+        ChrRacesRec* rec = g_chrRacesDB.GetRecord(player->m_unit->m_raceID);
 
         if (rec) {
             return rec->m_hairCustomization;
@@ -1209,7 +1209,7 @@ const char* CGPlayer_C::GetFacialHairCustomizationName() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        ChrRacesRec* rec = g_chrRacesDB.GetRecord(player->m_unit->m_unitFieldBytes0[0]);
+        ChrRacesRec* rec = g_chrRacesDB.GetRecord(player->m_unit->m_raceID);
 
         if (rec) {
             return rec->m_facialHairCustomization[player->m_player->m_playerBytes3[0]];
@@ -1920,7 +1920,7 @@ void __stdcall CGPlayer_C::ReadItem(uint8_t bag, uint8_t slot) {
 // VERIFY: 9f933d46 auto
 // OFFSET: 0x006D5E70
 uint32_t CGPlayer_C::GetDefaultLanguage() const {
-    ChrRacesRec* rec = g_chrRacesDB.GetRecord(this->m_unit->m_unitFieldBytes0[0]);
+    ChrRacesRec* rec = g_chrRacesDB.GetRecord(this->m_unit->m_raceID);
 
     return rec ? rec->m_baseLanguage : 0;
 }
@@ -1980,7 +1980,7 @@ UNITSTANDSTATE CGPlayer_C::GetClientStandState() const {
         return this->m_clientStandState;
     }
 
-    return static_cast<UNITSTANDSTATE>(this->m_unit->m_unitFieldBytes1[0]);
+    return static_cast<UNITSTANDSTATE>(this->m_unit->m_standState);
 }
 
 // VERIFY: ed967909 auto
@@ -2027,7 +2027,7 @@ void __stdcall CGPlayer_C::RequestPetitionSignatures(WOWGUID petition) {
 // VERIFY: 1f8b3e30 auto
 // OFFSET: 0x006D6E90
 int32_t CGPlayer_C::GetPVPFactionIndex() const {
-    ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_unit->m_unitFieldBytes0[0]);
+    ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_unit->m_raceID);
 
     if (!raceRec) {
         return -1;
@@ -2613,13 +2613,13 @@ bool CGPlayer_C::CanTrackUnit(const CGUnit_C* unit) {
         return false;
     }
 
-    uint8_t flags = unit->m_unit->m_unitFieldBytes1[2];
+    uint8_t flags = unit->m_unit->m_visFlags;
 
-    if (flags & 0x4) {
+    if (flags & UNIT_VIS_FLAG_UNTRACKABLE) {
         return false;
     }
 
-    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & 0x2) && (this->m_player->m_playerFieldBytes[0] & 0x2))) {
+    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & UNIT_VIS_FLAG_CREEP) && (this->m_player->m_playerFieldBytes[0] & 0x2))) {
         return true;
     }
 
@@ -2862,7 +2862,7 @@ void CGPlayer_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 // VERIFY: aa03190b auto
 // OFFSET: 0x006E8280
 void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
-    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_unitFieldBytes1[0]);
+    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_standState);
     this->CGUnit_C::PostInit(time, create, reenable);
     this->GetUnitName(nullptr, 1);
     this->OnGuildChanged(0);
@@ -2897,7 +2897,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
 // VERIFY: 5414e18a auto
 // OFFSET: 0x006E6150
 void CGPlayer_C::Reenable() {
-    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_unitFieldBytes1[0]);
+    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_standState);
     this->CGUnit_C::Reenable();
     this->m_pendingItemCacheCount = 0;
 
@@ -3057,7 +3057,7 @@ static int32_t AuraVisionUpdateHandler(WOWGUID guid, void* param) {
 void CGPlayer_C::PostInitActivePlayer() {
     this->m_movementData.m_flags |= MOVEMENTFLAG_ONTRANSPORT;
     this->SetActiveMirrorHandlers();
-    SI2::InitVocalErrorSounds(this->m_unit->m_unitFieldBytes0[0], this->m_player->m_playerBytes3[0]);
+    SI2::InitVocalErrorSounds(this->m_unit->m_raceID, this->m_player->m_playerBytes3[0]);
     CGSpellBook::ClearSpells();
 
     for (uint32_t i = 0; i < s_initialSpells.Count(); i++) {
@@ -3131,7 +3131,7 @@ void CGPlayer_C::PostInitActivePlayer() {
         LoadingScreenDisable();
     }
 
-    Spell_C_SetPlayerClass(this->m_unit->m_unitFieldBytes0[1]);
+    Spell_C_SetPlayerClass(this->m_unit->m_classID);
     this->CountEquippedGems();
 
     if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_PVP_DESIRED) {
@@ -3591,7 +3591,7 @@ int32_t Packet_SMSG_EMOTE(void* param, NETMESSAGE msgId, uint32_t time, CDataSto
     msg->Get(guid.m_guid);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (unit && unit->m_unit->m_unitFieldBytes1[0] != UNIT_SLEEPING && !(unit->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
+    if (unit && unit->m_unit->m_standState != UNIT_SLEEPING && !(unit->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
         unit->PlayEmoteAnimation(emote);
     }
 
@@ -4710,7 +4710,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
         return 0;
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], languageSpell);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, languageSpell);
 
     if (!ability) {
         return 0;
@@ -4765,7 +4765,7 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t 
         return;
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spellId);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
     SkillLineRec* skillLine = ability ? g_skillLineDB.GetRecord(ability->m_skillLine) : nullptr;
 
     if (skillLine && skillLine->m_id == 778) {
@@ -6894,7 +6894,7 @@ int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
 
     CGUnitData* unit = this->m_unit;
 
-    if (static_cast<int32_t>(stats->m_requiredLevel) > static_cast<int32_t>(unit->m_unitFieldLevel) || !((1 << (unit->m_unitFieldBytes0[1] - 1)) & stats->m_allowableClass) || !((1 << (unit->m_unitFieldBytes0[0] - 1)) & stats->m_allowableRace)) {
+    if (static_cast<int32_t>(stats->m_requiredLevel) > static_cast<int32_t>(unit->m_unitFieldLevel) || !((1 << (unit->m_classID - 1)) & stats->m_allowableClass) || !((1 << (unit->m_raceID - 1)) & stats->m_allowableRace)) {
         error = ERR_CANT_USE_ITEM;
         return 0;
     }
@@ -7968,7 +7968,7 @@ void CGPlayer_C::DelKnownSpell(int32_t spellId, int32_t silent) {
     bool notify = silent == 0;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
-        SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spellId);
+        SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
         SkillLineRec* skillLine = ability ? g_skillLineDB.GetRecord(ability->m_skillLine) : nullptr;
 
         if (skillLine) {
@@ -8203,7 +8203,7 @@ void CGPlayer_C::ToggleSheathe() {
         return;
     }
 
-    if (IsCastAnimation(this->GetCurrentTorsoAnimId()) || this->GetClientStandState()) {
+    if (IsCastAnimation(this->GetCurrentTorsoAnimId()) || (this->GetClientStandState() != UNIT_STANDING)) {
         return;
     }
 
@@ -8229,7 +8229,7 @@ void CGPlayer_C::ToggleSheathe() {
     const CGUnitVirtualItem* mainHand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
     const CGUnitVirtualItem* offHand = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
     const CGUnitVirtualItem* ranged = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
-    ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(this->m_unit->m_unitFieldBytes0[1]);
+    ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
     if (!playerClass || (playerClass->m_flags & 0x8)) {
         ranged = nullptr;
@@ -8313,7 +8313,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
 
     Spell_C_CancelRangedSpells();
 
-    if (this->m_unit->m_unitFieldBytes1[0]) {
+    if ((this->m_unit->m_standState != UNIT_STANDING)) {
         this->ChangeStandState(UNIT_STANDING);
     }
 
@@ -8883,7 +8883,7 @@ int32_t SkillRankChangeHandler(WOWGUID guid, uint32_t offset, uint32_t count, co
         ConsolePrintf("Skill %d increased from %d to %d", player->GetSkillLineID(index), newRank, oldRank);
         PlayerSignalSkillStatChanges();
         SkillLineRec* skillLine = g_skillLineDB.GetRecord(player->GetSkillLineID(index));
-        const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], player->GetSkillLineID(index));
+        const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, player->GetSkillLineID(index));
 
         if (skillLine) {
             if (info && !(info->m_flags & 0x402)) {
@@ -9426,7 +9426,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
                 return 1;
             }
 
-            ChrRacesRec* race = g_chrRacesDB.GetRecord(player->m_unit->m_unitFieldBytes0[0]);
+            ChrRacesRec* race = g_chrRacesDB.GetRecord(player->m_unit->m_raceID);
 
             if (race && race->m_explorationSoundID) {
                 SI2::PlaySoundKit(race->m_explorationSoundID, nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
@@ -10108,7 +10108,7 @@ int32_t CGPlayer_C::ValidateSlot(uint32_t slot, WOWGUID item) {
         return 0;
     }
 
-    ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_unitFieldBytes0[1]);
+    ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
     if (classRec && (classRec->m_flags & 0x8)) {
         return itemObject->CanGoInSlot(slot, 1);
@@ -10452,7 +10452,7 @@ void CGPlayer_C::GetRangedAttackSkillRank(int32_t& rank, int32_t& bonus) {
         }
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spellId);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
 
     if (ability && ability->m_spell == spellId) {
         this->GetExpandedSkillRank(ability->m_skillLine, rank, bonus);
@@ -10684,7 +10684,7 @@ int32_t CGItem::GetEnchantmentCharges(int32_t slot) {
 // VERIFY: a2058e4d manual
 // OFFSET: 0x006D7070
 int32_t CGPlayer_C::GetAttackPowerContributionFromStat(int32_t stat, int32_t value) {
-    ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_unitFieldBytes0[1]);
+    ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
     if (!classRec) {
         return 0;
@@ -10719,7 +10719,7 @@ int32_t CGPlayer_C::GetAttackPowerContributionFromStat(int32_t stat, int32_t val
 // OFFSET: 0x006DE410
 float CGPlayer_C::GetCombatRatingPct(int32_t rating) {
     float base = GetGameTableValue(1, this->m_unit->m_unitFieldLevel - 1, rating);
-    float scalar = GetGameTableValue(11, rating + 1, this->m_unit->m_unitFieldBytes0[1] - 1);
+    float scalar = GetGameTableValue(11, rating + 1, this->m_unit->m_classID - 1);
 
     if (base == 0.0f || scalar == 0.0f) {
         return 0.0f;
@@ -10864,7 +10864,7 @@ int32_t CGPlayer_C::GetSkillLineForSlot(int32_t hand) {
         }
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spell);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spell);
 
     if (ability && ability->m_spell == spell) {
         return ability->m_skillLine;
@@ -13260,7 +13260,7 @@ void CGPlayer_C::SendTextEmote(const EmotesTextRec* emote, WOWGUID target) {
     uint32_t sound;
 
     if (this->m_unit->m_unitFieldNativedisplayid == this->m_unit->m_unitFieldDisplayid) {
-        sound = SI2::GetTextEmoteSoundIndex(emote->m_id, this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[2]);
+        sound = SI2::GetTextEmoteSoundIndex(emote->m_id, this->m_unit->m_raceID, this->m_unit->m_sex);
     } else {
         uint32_t sex = this->GetDisplaySex();
         uint32_t race = this->GetDisplayRace();
@@ -13596,7 +13596,7 @@ int32_t CGPlayer_C::GetSpellRank(const SpellRec* spell) const {
         rankSpell = &weaponSpell;
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], spellId);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
 
     if (!ability) {
         return 0;
@@ -13622,7 +13622,7 @@ void CGPlayer_C::GetDefenseSkillRank(int32_t& rank, int32_t& bonus) const {
     int32_t defenseSpell = s_defenseSpellId;
     bonus = 0;
     rank = 0;
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], defenseSpell);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, defenseSpell);
 
     if (ability && ability->m_spell == s_defenseSpellId) {
         this->GetExpandedSkillRank(ability->m_skillLine, rank, bonus);
@@ -13655,7 +13655,7 @@ void CGPlayer_C::GetAttackSkillRank(int32_t hand, int32_t& rank, int32_t& bonus)
         }
     }
 
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_unitFieldBytes0[0], this->m_unit->m_unitFieldBytes0[1], skillSpell);
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, skillSpell);
 
     if (ability && ability->m_spell == skillSpell) {
         this->GetExpandedSkillRank(ability->m_skillLine, rank, bonus);
@@ -13794,7 +13794,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) {
 
         if (soundType == UNITSOUNDTYPE_WINGFLAP) {
             properties.m_maxAudibleBehavior = 0;
-        } else if (soundType != UNITSOUNDTYPE_STAND && soundType != UNITSOUNDTYPE_UNKNOWN_6 && soundType != UNITSOUNDTYPE_WINGGLIDE && soundType != UNITSOUNDTYPE_JUMPSTART && soundType != UNITSOUNDTYPE_JUMPEND && soundType != UNITSOUNDTYPE_INJURY_FALL && this->m_unit->m_unitFieldBytes0[1] == CLASS_DEATH_KNIGHT) {
+        } else if (soundType != UNITSOUNDTYPE_STAND && soundType != UNITSOUNDTYPE_UNKNOWN_6 && soundType != UNITSOUNDTYPE_WINGGLIDE && soundType != UNITSOUNDTYPE_JUMPSTART && soundType != UNITSOUNDTYPE_JUMPEND && soundType != UNITSOUNDTYPE_INJURY_FALL && this->m_unit->m_classID == CLASS_DEATH_KNIGHT) {
             properties.m_useDspChain = 1;
             SI2::DK_GetPlayerFilterName(this, properties.m_dspChainName, sizeof(properties.m_dspChainName));
         }
@@ -13804,7 +13804,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) {
         properties.ResetToDefaults();
         properties.m_group = group;
 
-        if (soundType != UNITSOUNDTYPE_STAND && soundType != UNITSOUNDTYPE_UNKNOWN_6 && soundType != UNITSOUNDTYPE_WINGFLAP && soundType != UNITSOUNDTYPE_WINGGLIDE && soundType != UNITSOUNDTYPE_JUMPSTART && soundType != UNITSOUNDTYPE_JUMPEND && soundType != UNITSOUNDTYPE_INJURY_FALL && this->m_unit->m_unitFieldBytes0[1] == CLASS_DEATH_KNIGHT) {
+        if (soundType != UNITSOUNDTYPE_STAND && soundType != UNITSOUNDTYPE_UNKNOWN_6 && soundType != UNITSOUNDTYPE_WINGFLAP && soundType != UNITSOUNDTYPE_WINGGLIDE && soundType != UNITSOUNDTYPE_JUMPSTART && soundType != UNITSOUNDTYPE_JUMPEND && soundType != UNITSOUNDTYPE_INJURY_FALL && this->m_unit->m_classID == CLASS_DEATH_KNIGHT) {
             properties.m_useDspChain = 1;
             SI2::DK_GetPlayerFilterName(this, properties.m_dspChainName, sizeof(properties.m_dspChainName));
         }
@@ -14406,11 +14406,11 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
         state->m_flags = 9;
     }
 
-    if (this->m_unit->m_unitFieldBytes2[1] & 0x1) {
+    if (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP) {
         state->m_flags |= 0x2;
     }
 
-    if (this->m_unit->m_unitFieldBytes2[1] & 0x4) {
+    if (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_FFA) {
         state->m_flags |= 0x10;
     }
 
@@ -14436,7 +14436,7 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
 
     state->m_health = this->m_unit->m_unitFieldHealth;
     state->m_maxHealth = this->m_unit->m_unitFieldMaxhealth;
-    uint8_t powerType = this->m_unit->m_unitFieldBytes0[3];
+    uint8_t powerType = this->m_unit->m_displayPower;
     state->m_powerType = powerType;
     state->m_power = this->m_unit->m_unitFieldPower[powerType];
     state->m_maxPower = this->m_unit->m_unitFieldMaxpower[powerType];

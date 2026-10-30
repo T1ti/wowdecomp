@@ -504,7 +504,7 @@ void CGCorpse_C::OnRightClick() {
             return;
         }
 
-        if (player->GetClientStandState()) {
+        if ((player->GetClientStandState() != UNIT_STANDING)) {
             if (!player->CanAutoStand()) {
                 CGGameUI::DisplayError(ERR_LOOT_NOTSTANDING);
                 return;

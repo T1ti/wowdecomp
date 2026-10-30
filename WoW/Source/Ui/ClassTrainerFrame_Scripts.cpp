@@ -260,7 +260,7 @@ static int32_t Script_GetTrainerServiceSkillLine(lua_State* L) {
                     skill = g_skillLineDB.GetRecord(spell.m_effectMiscValue[i]);
                 } else {
                     int32_t spellId = effect != SPELL_EFFECT_LEARN_SPELL || spell.m_implicitTargetA[i] == SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET ? spell.m_id : spell.m_effectTriggerSpell[i];
-                    SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], spellId);
+                    SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_raceID, player->m_unit->m_classID, spellId);
 
                     if (!ability) {
                         continue;

@@ -2091,7 +2091,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
     if (idleTime - AUTO_SIT_IDLE_TIME >= 0) {
         if (idleTime - AUTO_LOGOUT_IDLE_TIME < 0) {
             if (player) {
-                if (!player->m_unit->m_unitFieldBytes1[0] && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) && !player->IsMounted() && !player->IsAutoTracking()) {
+                if ((player->m_unit->m_standState == UNIT_STANDING) && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) && !player->IsMounted() && !player->IsAutoTracking()) {
                     player->ChangeStandState(UNIT_SITTING);
                 }
 
@@ -3575,7 +3575,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
-    if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == 15 || stats->m_inventoryType == 26) && player->m_unit->m_unitFieldBytes0[1] != CLASS_HUNTER) || (stats->m_class == 2 && stats->m_subClass == 19)) {
+    if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == 15 || stats->m_inventoryType == 26) && player->m_unit->m_classID != CLASS_HUNTER) || (stats->m_class == 2 && stats->m_subClass == 19)) {
         CGTutorial::TriggerTutorial(43);
     }
 }
@@ -6012,8 +6012,8 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
             return;
         }
 
-        uint8_t pvpFlags = unit->m_unit->m_unitFieldBytes2[1];
-        bool pvp = (pvpFlags & 1) && !(pvpFlags & 8) && !(viewer->m_unit->m_unitFieldBytes2[1] & 8) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
+        uint8_t pvpFlags = unit->m_unit->m_pvpFlags;
+        bool pvp = (pvpFlags & UNIT_PVP_FLAG_PVP) && !(pvpFlags & UNIT_PVP_FLAG_SANCTUARY) && !(viewer->m_unit->m_pvpFlags & UNIT_PVP_FLAG_SANCTUARY) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
 
         if (a3) {
             if (CGPartyInfo::IsMemberOrPet(guid) && CGPartyInfo::m_realNumMembers) {
@@ -6234,7 +6234,7 @@ void CCapturePointUIManager::Update() {
         return;
     }
 
-    if ((player->m_unit->m_unitFieldBytes2[1] & 0x1) || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
+    if ((player->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP) || (player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI)) {
         return;
     }
 
@@ -7132,7 +7132,7 @@ void CGGameUI::SetRaidDifficulty(uint32_t difficulty, uint32_t unk, uint32_t inG
 // OFFSET: 0x0057EA60
 void CGGameUI::LoadMinimapTrackingState(const char* state) {
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    uint32_t classMask = player ? 1 << player->m_unit->m_unitFieldBytes0[1] : 0;
+    uint32_t classMask = player ? 1 << player->m_unit->m_classID : 0;
 
     for (uint32_t i = 0; i < 15; i++) {
         const TrackingTypeInfo& info = CGMinimapFrame::s_trackingTypes[i];

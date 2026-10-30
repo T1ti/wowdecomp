@@ -608,7 +608,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
-            if (race && !(race->m_flags & 0x1) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_unitFieldBytes0[0] != race->m_id) {
+            if (race && !(race->m_flags & 0x1) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_raceID != race->m_id) {
                 return false;
             }
         }
@@ -616,7 +616,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
             ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
-            if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_unitFieldBytes0[1] != chrClass->m_id) {
+            if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_classID != chrClass->m_id) {
                 return false;
             }
         }
@@ -651,7 +651,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
-            if (race && !(race->m_flags & 0x1) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_unitFieldBytes0[0] == race->m_id) {
+            if (race && !(race->m_flags & 0x1) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_raceID == race->m_id) {
                 allowed = 1;
             }
         }
@@ -667,7 +667,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
             ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
-            if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_unitFieldBytes0[1] == chrClass->m_id) {
+            if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_classID == chrClass->m_id) {
                 allowed = 1;
             }
         }

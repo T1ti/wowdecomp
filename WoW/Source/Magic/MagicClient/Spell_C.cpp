@@ -6432,7 +6432,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
                 return;
             }
 
-            uint32_t powerType = player->m_unit->m_unitFieldBytes0[3];
+            uint32_t powerType = player->m_unit->m_displayPower;
 
             if (powerType > POWER_TYPE_RUNIC_POWER) {
                 Spell_C_FailPendingCast(cast, spell, 27);
@@ -7692,7 +7692,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         return;
     }
 
-    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_SITTING) && caster->GetClientStandState()) {
+    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_SITTING) && (caster->GetClientStandState() != UNIT_STANDING)) {
         if (!caster->CanAutoStand()) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_NOT_STANDING, -1, -1, false);
             return;
@@ -8426,7 +8426,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         }
 
         if (noComboPoints && !unit->IgnoresAuraState(&spell)) {
-            Spell_C_SpellFailed(cast, &spell, unit->m_unit->m_unitFieldBytes0[1] == CLASS_WARRIOR ? SPELL_FAILED_CASTER_AURASTATE : SPELL_FAILED_NO_COMBO_POINTS, -1, -1, false);
+            Spell_C_SpellFailed(cast, &spell, unit->m_unit->m_classID == CLASS_WARRIOR ? SPELL_FAILED_CASTER_AURASTATE : SPELL_FAILED_NO_COMBO_POINTS, -1, -1, false);
             return false;
         }
     }

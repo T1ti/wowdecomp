@@ -131,7 +131,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
     int32_t female;
 
     if (object->m_obj->m_type & TYPE_UNIT) {
-        female = static_cast<CGUnit_C*>(object)->m_unit->m_unitFieldBytes0[2] == UNITSEX_FEMALE;
+        female = static_cast<CGUnit_C*>(object)->m_unit->m_sex == UNITSEX_FEMALE;
     } else {
         female = text->m_text[0][0] == nullptr;
     }

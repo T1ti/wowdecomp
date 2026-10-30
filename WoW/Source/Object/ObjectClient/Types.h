@@ -177,7 +177,10 @@ enum UNITSTANDSTATE : uint32_t {
     UNIT_KNEEL = 8,
     UNIT_SUBMERGED = 9,
 
-    UNIT_NUMSTANDSTATES = 10,
+    // Native animation-cache initialization marker, not an additional visible pose.
+    UNIT_STANDSTATE_UNINITIALIZED = 10,
+    // Native ChangeStandState accepts values below this exclusive bound.
+    UNIT_NUMSTANDSTATES = 11,
     UNIT_NUMCHAIRSTATES = 3,
 };
 

@@ -195,7 +195,7 @@ static int32_t Script_HasPetSpells(lua_State* L) {
         return 2;
     }
 
-    ChrClassesRec* rec = g_chrClassesDB.GetRecord(player->m_unit->m_unitFieldBytes0[1]);
+    ChrClassesRec* rec = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
     lua_pushstring(L, rec->m_petNameToken);
     return 2;
 }

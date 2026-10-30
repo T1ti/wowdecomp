@@ -178,7 +178,7 @@ static int32_t Script_GetPetTimeRemaining(lua_State* L) {
 static int32_t Script_PetCanBeAbandoned(lua_State* L) {
     CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
 
-    if (pet && pet->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer() && (pet->m_unit->m_unitFieldBytes2[2] & 2)) {
+    if (pet && pet->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer() && (pet->m_unit->m_petFlags & UNIT_PET_FLAG_CAN_BE_ABANDONED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -207,7 +207,7 @@ static int32_t Script_PetCanBeDismissed(lua_State* L) {
 static int32_t Script_PetCanBeRenamed(lua_State* L) {
     CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
 
-    if (pet && pet->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer() && (pet->m_unit->m_unitFieldBytes2[2] & 1)) {
+    if (pet && pet->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer() && (pet->m_unit->m_petFlags & UNIT_PET_FLAG_CAN_BE_RENAMED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -577,7 +577,7 @@ static int32_t Script_PetRename(lua_State* L) {
         return 0;
     }
 
-    if (!(pet->m_unit->m_unitFieldBytes2[2] & 0x1)) {
+    if (!(pet->m_unit->m_petFlags & UNIT_PET_FLAG_CAN_BE_RENAMED)) {
         CGGameUI::DisplayError(ERR_PET_NOT_RENAMEABLE);
         return 0;
     }

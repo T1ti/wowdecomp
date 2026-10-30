@@ -606,7 +606,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
     }
 
     CGBag_C* inventory = player->GetBag();
-    ChrClassesRec* chrClass = g_chrClassesDB.GetRecord(player->m_unit->m_unitFieldBytes0[1]);
+    ChrClassesRec* chrClass = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
     if (!chrClass) {
         return 0;

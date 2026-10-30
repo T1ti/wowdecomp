@@ -1270,7 +1270,7 @@ void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
     this->m_dps = offAverage / (0.001f * stats->m_delay) + this->m_dps;
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (player && player->m_unit->m_unitFieldBytes0[1] == CLASS_DRUID) {
+    if (player && player->m_unit->m_classID == CLASS_DRUID) {
         this->m_stats[10] += this->m_stats[8] + GetFeralAttackPower(stats, mainAverage + offAverage);
     }
 }
@@ -1349,7 +1349,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
         float damage = total * stats->m_delay * 0.00050000002f;
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-        if (player && player->m_unit->m_unitFieldBytes0[1] == CLASS_DRUID) {
+        if (player && player->m_unit->m_classID == CLASS_DRUID) {
             this->m_stats[10] += this->m_stats[8] + GetFeralAttackPower(stats, damage);
         }
     } else {
@@ -1862,7 +1862,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     if (colorblind && colorblind->m_intValue && (player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__))) != nullptr) {
         if (unit) {
             line[0] = 0;
-            FRAMESCRIPT_GENDER gender = player->m_unit->m_unitFieldBytes0[2] == UNITSEX_FEMALE ? GENDER_FEMALE : GENDER_MALE;
+            FRAMESCRIPT_GENDER gender = player->m_unit->m_sex == UNITSEX_FEMALE ? GENDER_FEMALE : GENDER_MALE;
             SStrPrintf(line, sizeof(line), "FACTION_STANDING_LABEL%d", unit->UnitReaction(player) + 1);
             this->AddLine(FrameScript_GetText(line, 0, gender), nullptr, textColor, textColor, 0);
         }
@@ -2030,7 +2030,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
                 uint32_t raceMask = faction->m_reputationRaceMask[i];
                 uint32_t classMask = faction->m_reputationClassMask[i];
 
-                if ((!raceMask || ((1 << (activePlayer->m_unit->m_unitFieldBytes0[0] - 1)) & raceMask)) && (raceMask || classMask) && (!classMask || ((1 << (activePlayer->m_unit->m_unitFieldBytes0[1] - 1)) & classMask))) {
+                if ((!raceMask || ((1 << (activePlayer->m_unit->m_raceID - 1)) & raceMask)) && (raceMask || classMask) && (!classMask || ((1 << (activePlayer->m_unit->m_classID - 1)) & classMask))) {
                     if (!(faction->m_reputationFlags[i] & 0x4)) {
                         this->AddLine(faction->m_name, nullptr, textColor, textColor, 0);
                     }
@@ -2042,7 +2042,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     }
 
     if (unit) {
-        if (((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) || (unit->m_unit->m_unitFieldBytes2[1] & 0x1)) {
+        if (((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) || (unit->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP)) {
             this->AddLine(FrameScript_GetText("PVP_ENABLED", -1, GENDER_NOT_APPLICABLE), nullptr, textColor, textColor, 0);
         }
 
@@ -3226,7 +3226,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
         SStrPrintf(text, sizeof(text), "\n%s", FrameScript_GetText("TOOLTIP_TALENT_NEXT_RANK", -1, GENDER_NOT_APPLICABLE));
         this->AddLine(text, nullptr, textColor, textColor, 0);
     } else if (tradeSkill) {
-        SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], spellId);
+        SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_raceID, player->m_unit->m_classID, spellId);
 
         if (ability) {
             SkillLineRec* skillLine = g_skillLineDB.GetRecord(ability->m_skillLine);
@@ -4512,7 +4512,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
             int32_t alternate = -1;
 
             if (values && distribution && stats->m_class == 4 && (stats->m_subClass == 4 || stats->m_subClass == 3)) {
-                ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(player->m_unit->m_unitFieldBytes0[1]);
+                ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
                 if (playerClass) {
                     if (stats->m_subClass == 4 && (playerClass->m_flags & 0x20)) {
@@ -5327,7 +5327,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
                     SStrPack(list, race->m_name, sizeof(list));
                     first = 0;
 
-                    if (player->m_unit->m_unitFieldBytes0[0] == race->m_id) {
+                    if (player->m_unit->m_raceID == race->m_id) {
                         allowed = 1;
                     }
                 }
@@ -5357,7 +5357,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
                     SStrPack(list, playerClass->m_name, sizeof(list));
                     first = 0;
 
-                    if (player->m_unit->m_unitFieldBytes0[1] == playerClass->m_id) {
+                    if (player->m_unit->m_classID == playerClass->m_id) {
                         allowed = 1;
                     }
                 }
@@ -5380,7 +5380,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         if (!(race->m_flags & 1) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
             SStrPrintf(text, sizeof(text), "%s ", race->m_name);
 
-            if (player->m_unit->m_unitFieldBytes0[0] != race->m_id) {
+            if (player->m_unit->m_raceID != race->m_id) {
                 allowed = 0;
             }
 
@@ -5394,7 +5394,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         if (playerClass && playerClass->m_name && ((1 << (playerClass->m_id - 1)) & stats->m_allowableClass)) {
             SStrPack(text, playerClass->m_name, sizeof(text));
 
-            if (player->m_unit->m_unitFieldBytes0[1] != playerClass->m_id) {
+            if (player->m_unit->m_classID != playerClass->m_id) {
                 allowed = 0;
             }
 
@@ -5680,7 +5680,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
     char bonus[4096];
     char text[4096];
 
-    if (player->m_unit->m_unitFieldBytes0[1] == CLASS_DRUID) {
+    if (player->m_unit->m_classID == CLASS_DRUID) {
         int32_t attackPower = GetFeralAttackPower(stats, averageDamage);
 
         if (attackPower > 0) {
@@ -6248,7 +6248,7 @@ static void AddItemDisenchantLine(CGTooltip* tooltip, const ItemStats_C* stats, 
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
     const CImVector& disenchantColor = *reinterpret_cast<const CImVector*>(&s_tooltipDisenchantColor);
     char text[4096];
-    SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], Spell_C_GetTargetingSpell());
+    SkillLineAbilityRec* ability = SpellTableLookupAbility(player->m_unit->m_raceID, player->m_unit->m_classID, Spell_C_GetTargetingSpell());
     SkillLineRec* skill = g_skillLineDB.GetRecord(ability ? ability->m_skillLine : -1);
     SpellRec spell;
 

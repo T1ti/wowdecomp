@@ -1282,7 +1282,7 @@ static int32_t Script_GetDamageBonusStat(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     const ChrClassesRec* rec;
 
-    if (player && (rec = g_chrClassesDB.GetRecord(player->m_unit->m_unitFieldBytes0[1]))) {
+    if (player && (rec = g_chrClassesDB.GetRecord(player->m_unit->m_classID))) {
         lua_pushnumber(L, rec->m_damageBonusStat + 1);
         return 1;
     }
@@ -3060,7 +3060,7 @@ static int32_t Script_SitStandOrDescendStart(lua_State* L) {
         return 0;
     }
 
-    if (!player->m_unit->m_unitFieldBytes1[0]) {
+    if ((player->m_unit->m_standState == UNIT_STANDING)) {
         player->ChangeStandState(UNIT_SITTING);
     } else {
         player->ChangeStandState(UNIT_STANDING);

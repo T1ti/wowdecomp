@@ -372,7 +372,7 @@ int32_t CGInputControl::CameraCanTurnPlayer() const {
             return 0;
         }
 
-        if ((mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || mover->IsAlteredFormTransitionPreventingMovement() || mover->GetClientStandState()) {
+        if ((mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || mover->IsAlteredFormTransitionPreventingMovement() || (mover->GetClientStandState() != UNIT_STANDING)) {
             return 0;
         }
 
@@ -485,7 +485,7 @@ int32_t __stdcall CGInputControl::CanTurn(CGUnit_C* unit) {
 // VERIFY: feb80d65 manual
 // OFFSET: 0x005FA110
 int32_t CGInputControl::CanSyncFreeLookFacing(CGUnit_C* unit) const {
-    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning() && (this->m_flags & INPUT_PLAYER_LOOK_MASK) && !unit->GetClientStandState();
+    return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning() && (this->m_flags & INPUT_PLAYER_LOOK_MASK) && (unit->GetClientStandState() == UNIT_STANDING);
 }
 
 // VERIFY: 83a6aa8d manual
@@ -525,7 +525,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
         return 0;
     }
 
-    if (mover->IsAlteredFormTransitionPreventingMovement() || (mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || mover->GetClientStandState()) {
+    if (mover->IsAlteredFormTransitionPreventingMovement() || (mover->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) || (mover->GetClientStandState() != UNIT_STANDING)) {
         return 0;
     }
 
@@ -563,7 +563,7 @@ int32_t __stdcall CGInputControl::CanMove(CGUnit_C* unit) {
         return 0;
     }
 
-    return unit->m_unit->m_unitFieldHealth > 0 && !(unit->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && unit->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD && !unit->HasVehicleTransport();
+    return unit->m_unit->m_unitFieldHealth > 0 && !(unit->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && unit->m_unit->m_standState != UNIT_DEAD && !unit->HasVehicleTransport();
 }
 
 // VERIFY: d0f5f494 auto
@@ -1085,7 +1085,7 @@ void CGInputControl::MovePlayer(uint32_t time, CGUnit_C* unit) {
         }
     }
 
-    if (unit->GetClientStandState()) {
+    if ((unit->GetClientStandState() != UNIT_STANDING)) {
         unit->ChangeStandState(UNIT_STANDING);
         CGCamera* camera = CGWorldFrame::GetActiveCamera();
 
@@ -1138,7 +1138,7 @@ void CGInputControl::StrafePlayer(uint32_t time, CGUnit_C* unit) {
         return;
     }
 
-    if (unit->GetClientStandState()) {
+    if ((unit->GetClientStandState() != UNIT_STANDING)) {
         unit->ChangeStandState(UNIT_STANDING);
     }
 
@@ -1170,7 +1170,7 @@ void CGInputControl::TurnPlayer(uint32_t time, CGUnit_C* unit) {
     }
 
     if ((!(flags & INPUT_PLAYER_LOOK_MASK) || unit->IsStrafingDisabled()) && direction) {
-        if (unit->GetClientStandState()) {
+        if ((unit->GetClientStandState() != UNIT_STANDING)) {
             unit->ChangeStandState(UNIT_STANDING);
         }
 

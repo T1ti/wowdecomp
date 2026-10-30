@@ -491,7 +491,7 @@ int32_t EvaluateMounted(const WOWGUID* unit, const TSGrowableArray<MacroSubstrin
 // OFFSET: 0x005EFB70
 int32_t EvaluateStealth(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>* args) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    int32_t stealth = player && (player->m_unit->m_unitFieldBytes1[2] & 0x2);
+    int32_t stealth = player && (player->m_unit->m_visFlags & UNIT_VIS_FLAG_CREEP);
 
     if (args->m_count) {
         return stealth == args->m_data->ToNumber();

@@ -4,6 +4,58 @@
 #include <cstddef>
 #include <cstdint>
 
+// CGUnitData::m_visFlags. Unknown bits retain their complete byte value.
+enum UNIT_VIS_FLAGS : uint8_t {
+    UNIT_VIS_FLAG_NONE = 0x00,
+    UNIT_VIS_FLAG_UNKNOWN_0 = 0x01, // Changes regenerate the name/nameplate.
+    UNIT_VIS_FLAG_CREEP = 0x02, // Stealth posture, name display and tracking checks.
+    UNIT_VIS_FLAG_UNTRACKABLE = 0x04,
+    UNIT_VIS_FLAG_UNKNOWN_3 = 0x08,
+    UNIT_VIS_FLAG_UNKNOWN_4 = 0x10,
+    UNIT_VIS_FLAG_UNKNOWN_5 = 0x20,
+    UNIT_VIS_FLAG_UNKNOWN_6 = 0x40,
+    UNIT_VIS_FLAG_UNKNOWN_7 = 0x80,
+};
+
+// CGUnitData::m_pvpFlags. Bit 1 participates in native reaction tests;
+// its individual meaning remains unresolved.
+enum UNIT_PVP_FLAGS : uint8_t {
+    UNIT_PVP_FLAG_NONE = 0x00,
+    UNIT_PVP_FLAG_PVP = 0x01,
+    UNIT_PVP_FLAG_UNKNOWN_1 = 0x02,
+    UNIT_PVP_FLAG_FFA = 0x04,
+    UNIT_PVP_FLAG_SANCTUARY = 0x08,
+    UNIT_PVP_FLAG_UNKNOWN_4 = 0x10,
+    UNIT_PVP_FLAG_UNKNOWN_5 = 0x20,
+    UNIT_PVP_FLAG_UNKNOWN_6 = 0x40,
+    UNIT_PVP_FLAG_UNKNOWN_7 = 0x80,
+};
+
+// CGUnitData::m_petFlags; native pet rename/abandon UI capabilities.
+enum UNIT_PET_FLAGS : uint8_t {
+    UNIT_PET_FLAG_NONE = 0x00,
+    UNIT_PET_FLAG_CAN_BE_RENAMED = 0x01,
+    UNIT_PET_FLAG_CAN_BE_ABANDONED = 0x02,
+    UNIT_PET_FLAG_UNKNOWN_2 = 0x04,
+    UNIT_PET_FLAG_UNKNOWN_3 = 0x08,
+    UNIT_PET_FLAG_UNKNOWN_4 = 0x10,
+    UNIT_PET_FLAG_UNKNOWN_5 = 0x20,
+    UNIT_PET_FLAG_UNKNOWN_6 = 0x40,
+    UNIT_PET_FLAG_UNKNOWN_7 = 0x80,
+};
+
+// CGUnitData::m_animTier and AnimationDataRec::m_behaviorTier.
+// The target's fallback table maps SWIM/SUBMERGED to ground; only HOVER/FLY
+// participate in the explicit ground/air transition predicate.
+enum ANIMATION_TIER : uint8_t {
+    ANIM_TIER_GROUND = 0,
+    ANIM_TIER_SWIM = 1,
+    ANIM_TIER_HOVER = 2,
+    ANIM_TIER_FLY = 3,
+    ANIM_TIER_SUBMERGED = 4,
+    ANIM_TIER_COUNT = 5,
+};
+
 // CGPlayerData::m_playerFlags; names describe the 3.3.5 client behavior.
 // Behavioral names are reconstructed where the original names are unknown.
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Entities/Player/Player.h
@@ -176,7 +228,7 @@ enum UNIT_FLAGS : uint32_t {
     UNIT_FLAG_IMMUNE_TO_NPC                       = 0x00000200u,
     UNIT_FLAG_LOOTING                             = 0x00000400u,
     UNIT_FLAG_PET_IN_COMBAT                       = 0x00000800u,
-    UNIT_FLAG_PVP_ENABLING                        = 0x00001000u, // Legacy PvP flag; current PvP state is in m_unitFieldBytes2[1].
+    UNIT_FLAG_PVP_ENABLING                        = 0x00001000u, // Legacy PvP flag; current PvP state is in m_pvpFlags.
     UNIT_FLAG_SILENCED                            = 0x00002000u,
     UNIT_FLAG_CANNOT_SWIM                         = 0x00004000u,
     UNIT_FLAG_CAN_SWIM                            = 0x00008000u,

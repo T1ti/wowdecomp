@@ -384,14 +384,14 @@ static void BuildTabInfo(CGPlayer_C* player, TSFixedArray<TalentTabInfo*>* tabs,
 
         if (player) {
             if (tab->m_raceMask) {
-                if (!(tab->m_raceMask & (1 << (player->m_unit->m_unitFieldBytes0[0] - 1)))) {
+                if (!(tab->m_raceMask & (1 << (player->m_unit->m_raceID - 1)))) {
                     continue;
                 }
 
-                if (tab->m_classMask && !(tab->m_classMask & (1 << (player->m_unit->m_unitFieldBytes0[1] - 1)))) {
+                if (tab->m_classMask && !(tab->m_classMask & (1 << (player->m_unit->m_classID - 1)))) {
                     continue;
                 }
-            } else if (!tab->m_classMask || !(tab->m_classMask & (1 << (player->m_unit->m_unitFieldBytes0[1] - 1)))) {
+            } else if (!tab->m_classMask || !(tab->m_classMask & (1 << (player->m_unit->m_classID - 1)))) {
                 continue;
             }
         } else if (!tab->m_categoryEnumID || petTalentType < 0 || !(tab->m_categoryEnumID & (1 << petTalentType))) {
@@ -418,14 +418,14 @@ static void BuildTabInfo(CGPlayer_C* player, TSFixedArray<TalentTabInfo*>* tabs,
 
         if (player) {
             if (tab->m_raceMask) {
-                if (!(tab->m_raceMask & (1 << (player->m_unit->m_unitFieldBytes0[0] - 1)))) {
+                if (!(tab->m_raceMask & (1 << (player->m_unit->m_raceID - 1)))) {
                     continue;
                 }
 
-                if (tab->m_classMask && !(tab->m_classMask & (1 << (player->m_unit->m_unitFieldBytes0[1] - 1)))) {
+                if (tab->m_classMask && !(tab->m_classMask & (1 << (player->m_unit->m_classID - 1)))) {
                     continue;
                 }
-            } else if (!tab->m_classMask || !(tab->m_classMask & (1 << (player->m_unit->m_unitFieldBytes0[1] - 1)))) {
+            } else if (!tab->m_classMask || !(tab->m_classMask & (1 << (player->m_unit->m_classID - 1)))) {
                 continue;
             }
         } else if (!tab->m_categoryEnumID || petTalentType < 0 || !(tab->m_categoryEnumID & (1 << petTalentType))) {

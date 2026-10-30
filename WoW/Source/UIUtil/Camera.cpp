@@ -562,31 +562,31 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         uint32_t sequence;
 
         switch (unit->GetClientStandState()) {
-            case 1:
+            case UNIT_SITTING:
                 sequence = ANIM_SIT_GROUND;
                 break;
 
-            case 3:
+            case UNIT_SLEEPING:
                 sequence = ANIM_SLEEP;
                 break;
 
-            case 4:
+            case UNIT_SITTINGCHAIRLOW:
                 sequence = ANIM_SIT_CHAIR_LOW;
                 break;
 
-            case 5:
+            case UNIT_SITTINGCHAIRMEDIUM:
                 sequence = ANIM_SIT_CHAIR_MED;
                 break;
 
-            case 6:
+            case UNIT_SITTINGCHAIRHIGH:
                 sequence = ANIM_SIT_CHAIR_HIGH;
                 break;
 
-            case 7:
+            case UNIT_DEAD:
                 sequence = ANIM_DEAD;
                 break;
 
-            case 8:
+            case UNIT_KNEEL:
                 sequence = ANIM_KNEEL_LOOP;
                 break;
 

@@ -49,7 +49,7 @@ static int32_t Script_JumpOrAscendStart(lua_State* L) {
 
     uint32_t time = CSimpleTop::s_eventTime;
 
-    if (mover->GetClientStandState()) {
+    if ((mover->GetClientStandState() != UNIT_STANDING)) {
         mover->ChangeStandState(UNIT_STANDING);
     }
 

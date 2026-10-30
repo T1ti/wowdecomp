@@ -113,7 +113,7 @@ static int32_t Script_GetSkillLineInfo(lua_State* L) {
             }
         } else {
             SkillLineRec* skillLine = g_skillLineDB.GetRecord(line->m_skillLineID);
-            const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], line->m_skillLineID);
+            const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, line->m_skillLineID);
 
             if (skillLine) {
                 lua_pushstring(L, skillLine->m_displayName);
@@ -348,7 +348,7 @@ static int32_t Script_BuySkillTier(lua_State* L) {
     }
 
     SkillLineRec* skillLine = g_skillLineDB.GetRecord(line->m_skillLineID);
-    const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_unitFieldBytes0[0], player->m_unit->m_unitFieldBytes0[1], line->m_skillLineID);
+    const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, line->m_skillLineID);
 
     if (!skillLine || !info) {
         return 0;

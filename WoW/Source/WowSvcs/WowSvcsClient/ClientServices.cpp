@@ -747,11 +747,11 @@ int32_t SendBugOpcode(uint32_t suggestion, const char* text) {
 
             if (player) {
                 CGUnitData* unit = player->m_unit;
-                ChrRacesRec* race = g_chrRacesDB.GetRecord(unit->m_unitFieldBytes0[0]);
-                ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(unit->m_unitFieldBytes0[1]);
+                ChrRacesRec* race = g_chrRacesDB.GetRecord(unit->m_raceID);
+                ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(unit->m_classID);
                 const char* className = playerClass ? playerClass->m_name : "Unknown";
                 const char* raceName = race ? race->m_name : "Unknown";
-                SStrPrintf(line, sizeof(line), "Character:\t%s (level %i %s %s %s)\n", player->GetUnitName(nullptr, 1), player->m_unit->m_unitFieldLevel, raceName, s_sexNames[player->m_unit->m_unitFieldBytes0[2]], className);
+                SStrPrintf(line, sizeof(line), "Character:\t%s (level %i %s %s %s)\n", player->GetUnitName(nullptr, 1), player->m_unit->m_unitFieldLevel, raceName, s_sexNames[player->m_unit->m_sex], className);
                 SStrPack(info, line, sizeof(info));
                 int32_t mapId = CGPlayer_C::GetNewContinentID();
                 MapRec* map = g_mapDB.GetRecord(mapId);

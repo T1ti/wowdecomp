@@ -53,7 +53,7 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
         return 0;
     }
 
-    if ((emoteFlags & 0x1) && this->m_unit->m_unitFieldBytes1[0]) {
+    if ((emoteFlags & 0x1) && (this->m_unit->m_standState != UNIT_STANDING)) {
         return 0;
     }
 
@@ -74,9 +74,9 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
     }
 
     if (!(emoteFlags & 0x200)) {
-        uint8_t standState = this->m_unit->m_unitFieldBytes1[0];
+        uint8_t standState = this->m_unit->m_standState;
 
-        if (standState == 3 || standState == 7) {
+        if (standState == UNIT_SLEEPING || standState == UNIT_DEAD) {
             return 0;
         }
     }
@@ -168,7 +168,7 @@ int32_t CGUnit::IsJumping() const {
 // VERIFY: 4e64bda0 auto
 // OFFSET: 0x005FA9E0
 int32_t CGUnit::CanMove() const {
-    return this->m_unit->m_unitFieldHealth > 0 && !(this->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && this->m_unit->m_unitFieldBytes1[0] != UNIT_DEAD;
+    return this->m_unit->m_unitFieldHealth > 0 && !(this->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && this->m_unit->m_standState != UNIT_DEAD;
 }
 
 // VERIFY: 68641d42 auto
@@ -290,8 +290,8 @@ int32_t CGUnit::GetQuestGreenRange() const {
 // VERIFY: 467ea880 manual
 // OFFSET: 0x00716190
 bool CGUnit::IsSitting() const {
-    uint8_t standState = this->m_unit->m_unitFieldBytes1[0];
-    return standState == 1 || (standState >= 4 && standState <= 6);
+    uint8_t standState = this->m_unit->m_standState;
+    return standState == UNIT_SITTING || (standState >= UNIT_FIRSTCHAIRSIT && standState <= UNIT_FIRSTCHAIRSIT + UNIT_NUMCHAIRSTATES - 1);
 }
 
 // VERIFY: 01cf0dc8 auto

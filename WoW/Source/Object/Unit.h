@@ -60,7 +60,10 @@ class CGUnitData {
     /* 0030 */ WOWGUID m_unitFieldTarget;
     /* 0038 */ WOWGUID m_unitFieldChannelObject;
     /* 0040 */ uint32_t m_unitChannelSpell;
-    /* 0044 */ uint8_t m_unitFieldBytes0 [4];
+    /* 0044 */ uint8_t m_raceID;       // UNIT_FIELD_BYTES_0 byte 0: CHARACTER_RACE / ChrRacesRec ID.
+    /* 0045 */ uint8_t m_classID;      // UNIT_FIELD_BYTES_0 byte 1: CHARACTER_CLASS / ChrClassesRec ID.
+    /* 0046 */ uint8_t m_sex;          // UNIT_FIELD_BYTES_0 byte 2: UNIT_SEX.
+    /* 0047 */ uint8_t m_displayPower; // UNIT_FIELD_BYTES_0 byte 3: POWER_TYPE.
     /* 0048 */ int32_t m_unitFieldHealth;
     /* 004C */ uint32_t m_unitFieldPower [7];
     /* 0068 */ uint32_t m_unitFieldMaxhealth;
@@ -84,7 +87,10 @@ class CGUnitData {
     /* 0104 */ float m_unitFieldMaxdamage;
     /* 0108 */ float m_unitFieldMinoffhanddamage;
     /* 010C */ float m_unitFieldMaxoffhanddamage;
-    /* 0110 */ uint8_t m_unitFieldBytes1 [4];
+    /* 0110 */ uint8_t m_standState;        // UNIT_FIELD_BYTES_1 byte 0: UNITSTANDSTATE.
+    /* 0111 */ uint8_t m_unitBytes1Unknown; // UNIT_FIELD_BYTES_1 byte 1: Trinity PET_TALENTS label; no target consumer established.
+    /* 0112 */ uint8_t m_visFlags;          // UNIT_FIELD_BYTES_1 byte 2: UNIT_VIS_FLAGS.
+    /* 0113 */ uint8_t m_animTier;          // UNIT_FIELD_BYTES_1 byte 3: ANIMATION_TIER.
     /* 0114 */ uint32_t m_unitFieldPetnumber;
     /* 0118 */ uint32_t m_unitFieldPetNameTimestamp;
     /* 011C */ uint32_t m_unitFieldPetexperience;
@@ -102,7 +108,10 @@ class CGUnitData {
     /* 01AC */ int32_t m_unitFieldResistancebuffmodsnegative [7];
     /* 01C8 */ uint32_t m_unitFieldBaseMana;
     /* 01CC */ uint32_t m_unitFieldBaseHealth;
-    /* 01D0 */ uint8_t m_unitFieldBytes2 [4];
+    /* 01D0 */ uint8_t m_sheatheState;   // UNIT_FIELD_BYTES_2 byte 0: WEAPONMODE.
+    /* 01D1 */ uint8_t m_pvpFlags;       // UNIT_FIELD_BYTES_2 byte 1: UNIT_PVP_FLAGS.
+    /* 01D2 */ uint8_t m_petFlags;       // UNIT_FIELD_BYTES_2 byte 2: UNIT_PET_FLAGS.
+    /* 01D3 */ uint8_t m_shapeshiftForm; // UNIT_FIELD_BYTES_2 byte 3: SpellShapeshiftFormRec ID; zero means no form.
     /* 01D4 */ int32_t m_unitFieldAttackPower;
     /* 01D8 */ int16_t m_unitFieldAttackPowerMods [2];
     /* 01DC */ float m_unitFieldAttackPowerMultiplier;
