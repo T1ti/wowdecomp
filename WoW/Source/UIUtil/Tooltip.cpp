@@ -7990,7 +7990,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
         }
     }
 
-    if (this->m_statusBar && object->m_gameObject->m_typeID == 33) {
+    if (this->m_statusBar && object->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
         this->m_healthGuid = this->m_objectGuid;
         ClntObjMgrSetObjMirrorHandler(this->m_healthGuid, ID_GAMEOBJECT, offsetof(CGGameObjectData, m_animProgress), sizeof(uint8_t), ObjHealthUpdateHandler, this->m_statusBar, HANDLER_PRIORITY_NORMAL, 0);
         this->m_statusBar->SetMinMaxValues(0.0f, 1.0f);

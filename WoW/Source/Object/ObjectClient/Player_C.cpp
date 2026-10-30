@@ -5704,7 +5704,7 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
 bool CGPlayer_C::CanTrackObject(CGObject_C* object) {
     CGGameObject_C* gameObject = static_cast<CGGameObject_C*>(object);
 
-    if (this->IsDeadOrGhost() || (gameObject->m_gameObject->m_typeID != 25 && !gameObject->CanUse())) {
+    if (this->IsDeadOrGhost() || (gameObject->m_gameObject->m_typeID != TYPE_FISHINGHOLE && !gameObject->CanUse())) {
         return false;
     }
 

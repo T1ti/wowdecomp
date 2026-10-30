@@ -278,7 +278,7 @@ int32_t CGGameObject_C::OnStateChanged(WOWGUID guid, uint32_t fieldOffset, uint3
     int32_t state = object->m_gameObject->m_state;
     int32_t oldState = object->m_displayState;
 
-    if (state != oldState || object->m_gameObject->m_typeID == 15) {
+    if (state != oldState || object->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         object->m_displayState = state;
 
         if (object->m_typeData) {
@@ -644,7 +644,7 @@ int32_t CGGameObject_C::IsPointInside(const C3Vector& point) const {
 // VERIFY: de769fdd auto
 // OFFSET: 0x0070F7B0
 int32_t CGGameObject_C::IsQuestGiver() const {
-    return this->m_gameObject->m_typeID == 2;
+    return this->m_gameObject->m_typeID == TYPE_QUESTGIVER;
 }
 
 // VERIFY: 142300a5 auto
@@ -718,7 +718,7 @@ void CGGameObject_C::ResetDisplayState() {
     int32_t state = this->m_gameObject->m_state;
     int32_t oldState = this->m_displayState;
 
-    if (state != oldState || this->m_gameObject->m_typeID == 15) {
+    if (state != oldState || this->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         this->m_displayState = state;
 
         if (this->m_typeData) {
@@ -732,7 +732,7 @@ void CGGameObject_C::ResetDisplayState() {
 void CGGameObject_C::SetDisplayState(int32_t state) {
     int32_t oldState = this->m_displayState;
 
-    if (state != oldState || this->m_gameObject->m_typeID == 15) {
+    if (state != oldState || this->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         this->m_displayState = state;
 
         if (this->m_typeData) {
@@ -2880,7 +2880,7 @@ void CGGameObject_C::Reenable() {
         ClntObjMgrHideObject(this->m_obj->m_guid);
     }
 
-    if (this->m_gameObject->m_typeID == 33) {
+    if (this->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
         if (this->m_nameDesc) {
             PlayerNameDelete(this->m_nameDesc);
         }
@@ -2915,7 +2915,7 @@ bool CGGameObject_C::IsTracked() const {
 // VERIFY: a1c0c530 auto
 // OFFSET: 0x0070F880
 void CGGameObject_C::AddWorldDamageText(int32_t amount) {
-    if (amount && g_combatDamageCVar->m_intValue && this->m_gameObject->m_typeID == 33) {
+    if (amount && g_combatDamageCVar->m_intValue && this->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
         char text[32];
         SStrPrintf(text, sizeof(text), "%d", amount);
         PlayerNameCreateText(this->m_nameDesc, WT_BUILDING_DAMAGE, text, reinterpret_cast<const CImVector*>(&s_buildingDamageColor), nullptr);
@@ -2925,7 +2925,7 @@ void CGGameObject_C::AddWorldDamageText(int32_t amount) {
 // VERIFY: 879b3c82 auto
 // OFFSET: 0x0070F8E0
 void CGGameObject_C::AddWorldHealingText(int32_t amount, const SpellRec* spell) {
-    if (amount && g_combatHealingCVar->m_intValue && this->m_gameObject->m_typeID == 33) {
+    if (amount && g_combatHealingCVar->m_intValue && this->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
         char text[32];
         SStrPrintf(text, sizeof(text), "+%d", amount);
         PlayerNameCreateText(this->m_nameDesc, WT_BUILDING_HEAL, text, nullptr, nullptr);
@@ -3153,7 +3153,7 @@ bool CGGameObject_C_TypeBase::CanUse() const {
         return false;
     }
 
-    if (this->m_owner->m_gameObject->m_typeID == 6) {
+    if (this->m_owner->m_gameObject->m_typeID == TYPE_TRAP) {
         if (!this->m_owner->GetLockRec() || this->m_owner->ObjectReaction(player) > UNIT_REACTION_HOSTILE) {
             return false;
         }
@@ -3850,7 +3850,7 @@ void CGGameObject_C::UseObject() {
         return;
     }
 
-    if (error == ERR_USE_TOO_FAR && this->m_gameObject->m_typeID != 17) {
+    if (error == ERR_USE_TOO_FAR && this->m_gameObject->m_typeID != TYPE_FISHINGNODE) {
         WOWGUID guid = this->m_obj->m_guid;
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
@@ -3869,7 +3869,7 @@ void CGGameObject_C::UseObject() {
 // VERIFY: 3d05c647 auto
 // OFFSET: 0x0070F940
 C3Vector CGGameObject_C::GetNamePosition() const {
-    if (this->m_gameObject->m_typeID == 33) {
+    if (this->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
         return static_cast<CGGameObject_C_Type_DestructibleBuilding*>(this->m_typeData)->GetNamePosition();
     }
 
@@ -3926,7 +3926,7 @@ int32_t CGGameObject_C_TypeBase::CheckRange() const {
 
     CGGameObject_C* owner = this->m_owner;
 
-    if (owner->m_gameObject->m_typeID == 8) {
+    if (owner->m_gameObject->m_typeID == TYPE_SPELL_FOCUS) {
         C3Vector position = owner->GetPosition();
         return range * range >= player->GetDistanceToPos(position);
     }
@@ -4176,7 +4176,7 @@ bool CGGameObject_C_TypeBase::Use() {
         CGGameObject_C* owner = this->m_owner;
 
         if (!owner->IsValidOpenAction(lock->m_action[0])) {
-            if (owner->m_gameObject->m_typeID == 3 && !owner->m_displayState) {
+            if (owner->m_gameObject->m_typeID == TYPE_CHEST && !owner->m_displayState) {
                 CGGameUI::DisplayError(ERR_CHEST_IN_USE);
             }
 

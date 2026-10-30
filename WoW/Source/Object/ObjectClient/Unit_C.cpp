@@ -8227,7 +8227,7 @@ bool CGUnit_C::DoNotPlayWoundAnim() const {
 void CGUnit_C::CreateFishingLineEffect() {
     CGObject_C* bobber = ClntObjMgrObjectPtr(this->m_unit->m_unitFieldChannelObject, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
-    if (!bobber || !this->m_unit->m_unitChannelSpell || static_cast<CGGameObject_C*>(bobber)->m_gameObject->m_typeID != 17) {
+    if (!bobber || !this->m_unit->m_unitChannelSpell || static_cast<CGGameObject_C*>(bobber)->m_gameObject->m_typeID != TYPE_FISHINGNODE) {
         return;
     }
 
@@ -9066,7 +9066,7 @@ bool CGUnit_C::ShouldKneelForLoot() const {
         return false;
     }
 
-    if ((target->m_obj->m_type & TYPE_GAMEOBJECT) && static_cast<CGGameObject_C*>(target)->m_gameObject->m_typeID == 17) {
+    if ((target->m_obj->m_type & TYPE_GAMEOBJECT) && static_cast<CGGameObject_C*>(target)->m_gameObject->m_typeID == TYPE_FISHINGNODE) {
         return false;
     }
 
@@ -18414,7 +18414,7 @@ void CGUnit_C::OnChannelObjectChanged(WOWGUID oldObject, int32_t oldSpell) {
 
     CGGameObject_C* gameObject = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_unit->m_unitFieldChannelObject, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
-    if (gameObject && this->m_unit->m_unitChannelSpell && gameObject->m_gameObject->m_typeID == 17) {
+    if (gameObject && this->m_unit->m_unitChannelSpell && gameObject->m_gameObject->m_typeID == TYPE_FISHINGNODE) {
         if (this->m_sheatheState == WEAPONMODE_NORMALMODE) {
             this->CreateFishingLineEffect();
         } else {

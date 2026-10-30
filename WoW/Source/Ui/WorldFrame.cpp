@@ -1937,7 +1937,7 @@ void CGWorldFrame::OnLayerUpdate(float elapsedSec) {
         case HIT_WORLD_OBJECT: {
             CGGameObject_C* gameObject = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(hit.m_guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
-            if (!gameObject || gameObject->m_gameObject->m_typeID != 33 || Spell_C_CanTargetTerrain()) {
+            if (!gameObject || gameObject->m_gameObject->m_typeID != TYPE_DESTRUCTIBLE_BUILDING || Spell_C_CanTargetTerrain()) {
                 this->OnLayerTrackTerrain(hit);
                 break;
             }
