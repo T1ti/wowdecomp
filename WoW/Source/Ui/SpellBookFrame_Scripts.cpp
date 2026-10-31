@@ -545,13 +545,13 @@ static int32_t Script_GetSpellAutocast(lua_State* L) {
     PetAction* action = nullptr;
     int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
 
-    if (petSpell && (action = CGPetInfo::GetPetSpellAction(spellId)) && (action->m_data & 0x80000000)) {
+    if (petSpell && (action = CGPetInfo::GetPetSpellAction(spellId)) && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ALLOWED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (action && (action->m_data & 0x40000000)) {
+    if (action && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ENABLED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

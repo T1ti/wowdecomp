@@ -1091,7 +1091,7 @@ static int32_t Script_SetAction(lua_State* L) {
         char token[64];
         const char* text;
 
-        switch ((value >> 24) & 0x3F) {
+        switch ((value >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
             case 1:
             case 8:
             case 9:
@@ -1106,25 +1106,25 @@ static int32_t Script_SetAction(lua_State* L) {
                 uint32_t petStart = 0;
                 uint32_t petDuration = 0;
                 uint32_t petEnable = 0;
-                Spell_C_GetSpellCooldown(value & 0xFFFFFF, 1, &petDuration, &petStart, &petEnable);
+                Spell_C_GetSpellCooldown(value & PetAction::PackingMasks::ID_MASK, 1, &petDuration, &petStart, &petEnable);
 
                 if (petEnable && petStart && petDuration) {
-                    result = tooltip->SetSpell(petAction->m_data & 0xFFFFFF, 0, petStart + petDuration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
+                    result = tooltip->SetSpell(petAction->m_data & PetAction::PackingMasks::ID_MASK, 0, petStart + petDuration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
                 } else {
-                    result = tooltip->SetSpell(petAction->m_data & 0xFFFFFF, 0, 0, 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
+                    result = tooltip->SetSpell(petAction->m_data & PetAction::PackingMasks::ID_MASK, 0, 0, 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
                 }
 
                 goto done;
             }
 
             case 6: {
-                SStrPrintf(token, sizeof(token), "PET_MODE_%s", CGPetInfo::GetModeToken(value & 0xFFFFFF));
+                SStrPrintf(token, sizeof(token), "PET_MODE_%s", CGPetInfo::GetModeToken(value & PetAction::PackingMasks::ID_MASK));
                 text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
                 break;
             }
 
             case 7: {
-                SStrPrintf(token, sizeof(token), "PET_ACTION_%s", CGPetInfo::GetOrdersToken(value & 0xFFFFFF));
+                SStrPrintf(token, sizeof(token), "PET_ACTION_%s", CGPetInfo::GetOrdersToken(value & PetAction::PackingMasks::ID_MASK));
                 text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
                 break;
             }
@@ -1650,17 +1650,17 @@ static int32_t Script_SetPetAction(lua_State* L) {
         return 1;
     }
 
-    uint32_t type = (action->m_data >> 24) & 0x3F;
+    uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
     uint32_t start = 0;
     uint32_t duration = 0;
     uint32_t enable = 0;
     int32_t result;
 
-    if ((type == 1 || type - 8 <= 9) && (Spell_C_GetSpellCooldown(action->m_data & 0xFFFFFF, 1, &duration, &start, &enable), enable) && start && duration) {
-        int32_t spellId = action->m_data & 0xFFFFFF;
+    if ((type == 1 || type - 8 <= 9) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
+        int32_t spellId = action->m_data & PetAction::PackingMasks::ID_MASK;
         result = tooltip->SetSpell(spellId, 0, start + duration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
     } else {
-        result = tooltip->SetSpell(action->m_data & 0xFFFFFF, 0, 0, 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
+        result = tooltip->SetSpell(action->m_data & PetAction::PackingMasks::ID_MASK, 0, 0, 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
     }
 
     if (result) {

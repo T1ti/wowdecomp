@@ -557,7 +557,7 @@ static int32_t Script_GetActionAutocast(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (action && (action->m_data & 0x40000000)) {
+    if (action && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ENABLED)) {
         lua_pushnumber(L, 1.0);
         return 2;
     }

@@ -47,11 +47,11 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
         return 7;
     }
 
-    uint32_t id = action->m_data & 0xFFFFFF;
+    uint32_t id = action->m_data & PetAction::PackingMasks::ID_MASK;
     bool autoCastEnabled = false;
     char buffer[64];
 
-    switch ((action->m_data >> 24) & 0x3F) {
+    switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
         case 1:
         case 8:
         case 9:
@@ -85,8 +85,8 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
 
             lua_pushnil(L);
             lua_pushnil(L);
-            bool autoCastAllowed = found && (action->m_data & 0x80000000);
-            autoCastEnabled = found && (action->m_data & 0x40000000);
+            bool autoCastAllowed = found && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ALLOWED);
+            autoCastEnabled = found && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ENABLED);
 
             if (autoCastAllowed) {
                 lua_pushnumber(L, 1.0);
@@ -296,10 +296,10 @@ static int32_t Script_GetPetActionCooldown(lua_State* L) {
     uint32_t enable = 0;
 
     if (action && action->m_data) {
-        uint32_t type = (action->m_data >> 24) & 0x3F;
+        uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
         if (type == 1 || type - 8 <= 9) {
-            Spell_C_GetSpellCooldown(action->m_data & 0xFFFFFF, 1, &duration, &start, &enable);
+            Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable);
         }
     }
 
@@ -654,7 +654,7 @@ static int32_t Script_PickupPetAction(lua_State* L) {
     if (action) {
         CGGameUI::SetCursorPetAction(action);
 
-        if (((action->m_data >> 24) & 0x3F) == 1) {
+        if (((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) == 1) {
             CGPetInfo::PickupAction(slot, 1);
         }
     }

@@ -457,13 +457,13 @@ int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
         return 0;
     }
 
-    uint32_t type = (petAction >> 24) & 0x3F;
+    uint32_t type = (petAction >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
     if (type != 1 && type - 8 > 9) {
         return 0;
     }
 
-    return petAction & 0xFFFFFF;
+    return petAction & PetAction::PackingMasks::ID_MASK;
 }
 
 // VERIFY: 1b3f1725 auto
@@ -623,7 +623,7 @@ int32_t CGActionBar::HasAction(uint32_t slot) {
         return 0;
     }
 
-    if (((petAction->m_data >> 24) & 0x3F) - 6 <= 1) {
+    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - 6 <= 1) {
         return 1;
     }
 
@@ -855,7 +855,7 @@ const char* CGActionBar::GetTexture(int32_t slot) {
         return nullptr;
     }
 
-    switch ((action->m_data >> 24) & 0x3F) {
+    switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
         case 1:
         case 8:
         case 9:
@@ -869,7 +869,7 @@ const char* CGActionBar::GetTexture(int32_t slot) {
         case 17: {
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(action->m_data & 0xFFFFFF, &spell)) {
+            if (g_spellDB.GetRecord(action->m_data & PetAction::PackingMasks::ID_MASK, &spell)) {
                 CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
                 SpellIconRec* icon = g_spellIconDB.GetRecord(Spell_C_IsActiveSpell(&spell, unit) && spell.m_activeIconID ? spell.m_activeIconID : spell.m_spellIconID);
 
@@ -881,10 +881,10 @@ const char* CGActionBar::GetTexture(int32_t slot) {
             return nullptr;
         }
         case 6:
-            SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetModeToken(action->m_data & 0xFFFFFF));
+            SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetModeToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             return FrameScript_GetText(s_texture, -1, GENDER_NOT_APPLICABLE);
         case 7:
-            SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetOrdersToken(action->m_data & 0xFFFFFF));
+            SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetOrdersToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             return FrameScript_GetText(s_texture, -1, GENDER_NOT_APPLICABLE);
     }
 
@@ -918,9 +918,9 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
             return 0;
         }
 
-        uint32_t id = action->m_data & 0xFFFFFF;
+        uint32_t id = action->m_data & PetAction::PackingMasks::ID_MASK;
 
-        switch ((action->m_data >> 24) & 0x3F) {
+        switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
             case 6:
                 return CGPetInfo::GetPetMode() == id;
             case 7:
