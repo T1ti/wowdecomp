@@ -676,7 +676,7 @@ int32_t Packet_SMSG_ACHIEVEMENT_EARNED(void* param, NETMESSAGE msgId, uint32_t t
         return 1;
     }
 
-    if (!(achievement->m_flags & 0x4)) {
+    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_NO_COMPLETION_VISUAL)) {
         void* memory = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
         CEffect* effect = memory ? new (memory) CEffect() : nullptr;
         WOWGUID guid = player;
@@ -788,10 +788,10 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
     CVar* colorblindMode = CVar::Lookup("colorblindMode");
     uint64_t result;
 
-    if (flags & 0x8) {
+    if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM) {
         result = sum;
 
-        if (criteria && (flags & 0x40)) {
+        if (criteria && (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_AVERAGE_PER_DAY)) {
             uint32_t days = static_cast<uint32_t>(::time(nullptr) - criteria->m_timer2) / 86400;
 
             if (days) {
@@ -810,34 +810,34 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             SStrPrintf(buffer, size, "%0.2f", perDay);
         } else if (result) {
             SStrPrintf(buffer, size, "%I64d", result);
-        } else if (flags & 0x1) {
+        } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
             SStrPrintf(buffer, size, "--");
         } else {
             SStrPrintf(buffer, size, "0");
         }
-    } else if (flags & 0x10) {
+    } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM) {
         Achievement_CriteriaRec* best = g_achievement_CriteriaDB.GetRecord(highestId);
         result = highest;
 
         if (best) {
-            if (flags & 0x1) {
+            if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
                 SStrPrintf(buffer, size, "%I64d (%s)", highest, best->m_description);
             } else {
                 SStrPrintf(buffer, size, "%I64d", highest);
             }
         } else if (result) {
             SStrPrintf(buffer, size, "%I64d", result);
-        } else if (flags & 0x1) {
+        } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
             SStrPrintf(buffer, size, "--");
         } else {
             SStrPrintf(buffer, size, "0");
         }
-    } else if (flags & 0x20) {
+    } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT) {
         result = count;
 
         if (result) {
             SStrPrintf(buffer, size, "%I64d", result);
-        } else if (flags & 0x1) {
+        } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
             SStrPrintf(buffer, size, "--");
         } else {
             SStrPrintf(buffer, size, "0");
@@ -845,11 +845,11 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
     } else if (value) {
         result = value;
 
-        if (criteriaRec && !(flags & 0x1) && result >= static_cast<uint64_t>(static_cast<int64_t>(criteriaRec->m_quantity))) {
+        if (criteriaRec && !(flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && result >= static_cast<uint64_t>(static_cast<int64_t>(criteriaRec->m_quantity))) {
             result = static_cast<int64_t>(criteriaRec->m_quantity);
         }
 
-        if (flags & 0x40) {
+        if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_AVERAGE_PER_DAY) {
             uint32_t days = static_cast<uint32_t>(::time(nullptr) - criteria->m_timer2) / 86400;
 
             if (days) {
@@ -871,7 +871,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             } else {
                 GetCurrencyTextureString(static_cast<int32_t>(result), buffer, size, 0);
             }
-        } else if (!(flags & 0x1)) {
+        } else if (!(flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
             SStrPrintf(buffer, size, "%I64d", result);
         } else if (perDay != 0.0f) {
             SStrPrintf(buffer, size, "%0.2f", perDay);
@@ -884,7 +884,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
         result = static_cast<int64_t>(criteriaRec->m_quantity);
 
         if (!result) {
-            if (flags & 0x1) {
+            if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
                 SStrPrintf(buffer, size, "--");
             } else {
                 SStrPrintf(buffer, size, "0");
@@ -905,7 +905,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             } else {
                 GetCurrencyTextureString(0, buffer, size, 0);
             }
-        } else if (flags & 0x1) {
+        } else if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) {
             SStrPrintf(buffer, size, "--");
         } else {
             SStrPrintf(buffer, size, "%I64d", static_cast<int64_t>(0));

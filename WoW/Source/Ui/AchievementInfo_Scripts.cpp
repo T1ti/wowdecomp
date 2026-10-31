@@ -66,7 +66,7 @@ static int32_t Script_GetAchievementCategory(lua_State* L) {
 
     AchievementRec* rec = g_achievementDB.GetRecord(static_cast<int32_t>(lua_tonumber(L, 1)));
 
-    if (!rec || !rec->m_category || (rec->m_flags & 2)) {
+    if (!rec || !rec->m_category || (rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
         return 0;
     }
 
@@ -84,7 +84,7 @@ static int32_t Script_GetAchievementNumRewards(lua_State* L) {
 
     AchievementRec* rec = g_achievementDB.GetRecord(static_cast<int32_t>(lua_tonumber(L, 1)));
 
-    if (rec && !(rec->m_flags & 2)) {
+    if (rec && !(rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -105,7 +105,7 @@ static int32_t Script_GetAchievementReward(lua_State* L) {
     lua_tonumber(L, 2);
     AchievementRec* rec = g_achievementDB.GetRecord(id);
 
-    if (rec && !(rec->m_flags & 2)) {
+    if (rec && !(rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
         lua_pushnumber(L, rec->m_points);
     } else {
         lua_pushnil(L);
@@ -255,17 +255,17 @@ static int32_t Script_GetCategoryNumAchievements(lua_State* L) {
         bool anyCategory = false;
         bool includeAll = false;
 
-        if (categoryId == -1 && achievement && !(achievement->m_flags & 0x1)) {
+        if (categoryId == -1 && achievement && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
             anyCategory = true;
             includeAll = true;
-        } else if (categoryId == -2 && achievement && (achievement->m_flags & 0x1)) {
+        } else if (categoryId == -2 && achievement && (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
             anyCategory = true;
             includeAll = true;
         } else if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2)) {
             includeAll = true;
         }
 
-        if (!achievement || (achievement->m_category != categoryId && !anyCategory) || (achievement->m_flags & 0x2)) {
+        if (!achievement || (achievement->m_category != categoryId && !anyCategory) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -293,7 +293,7 @@ static int32_t Script_GetCategoryNumAchievements(lua_State* L) {
             continue;
         }
 
-        if ((achievement->m_category == 81 || (achievement->m_flags & 0x800)) && !done && !inspected) {
+        if ((achievement->m_category == 81 || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) && !done && !inspected) {
             continue;
         }
 
@@ -341,7 +341,7 @@ static int32_t Script_GetNumCompletedAchievements(lua_State* L) {
     for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
-        if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & 0x2)) {
+        if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -367,7 +367,7 @@ static int32_t Script_GetNumCompletedAchievements(lua_State* L) {
         if (done) {
             completed++;
             total++;
-        } else if (!(achievement->m_flags & 0x800)) {
+        } else if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) {
             total++;
         }
     }
@@ -611,13 +611,13 @@ static int32_t Script_GetComparisonCategoryNumAchievements(lua_State* L) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
         bool includeAll = false;
 
-        if (categoryId == -1 && achievement && !(achievement->m_flags & 0x1)) {
+        if (categoryId == -1 && achievement && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
             includeAll = true;
-        } else if (categoryId == -2 && achievement && (achievement->m_flags & 0x1)) {
+        } else if (categoryId == -2 && achievement && (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
             includeAll = true;
         }
 
-        if (!achievement || (achievement->m_category != categoryId && !includeAll) || (achievement->m_flags & 0x2)) {
+        if (!achievement || (achievement->m_category != categoryId && !includeAll) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -651,7 +651,7 @@ static int32_t Script_GetNumComparisonCompletedAchievements(lua_State* L) {
     for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
-        if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & 0x2)) {
+        if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -677,7 +677,7 @@ static int32_t Script_GetNumComparisonCompletedAchievements(lua_State* L) {
         if (inspected) {
             completed++;
             total++;
-        } else if (!(achievement->m_flags & 0x800)) {
+        } else if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) {
             total++;
         }
     }
@@ -752,16 +752,16 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
 
             AchievementRec* achievement = g_achievementDB.GetRecord(node->m_id);
 
-            if (categoryId == -1 && !(achievement->m_flags & 0x1)) {
-                if (!(achievement->m_flags & 0x2)) {
+            if (categoryId == -1 && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                     index--;
                 }
 
                 if (!index) {
                     id = achievement->m_id;
                 }
-            } else if (categoryId == -2 && achievement && (achievement->m_flags & 0x1)) {
-                if (!(achievement->m_flags & 0x2)) {
+            } else if (categoryId == -2 && achievement && (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                     index--;
                 }
 
@@ -790,16 +790,16 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
 
                 AchievementRec* achievement = g_achievementDB.GetRecord(node->m_id);
 
-                if (categoryId == -1 && !(achievement->m_flags & 0x1)) {
-                    if (!(achievement->m_flags & 0x2)) {
+                if (categoryId == -1 && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                         index--;
                     }
 
                     if (!index) {
                         id = achievement->m_id;
                     }
-                } else if (categoryId == -2 && achievement && (achievement->m_flags & 0x1)) {
-                    if (!(achievement->m_flags & 0x2)) {
+                } else if (categoryId == -2 && achievement && (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                         index--;
                     }
 
@@ -828,16 +828,16 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
 
                     AchievementRec* achievement = g_achievementDB.GetRecord(node->m_id);
 
-                    if (categoryId == -1 && !(achievement->m_flags & 0x1)) {
-                        if (!(achievement->m_flags & 0x2)) {
+                    if (categoryId == -1 && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                        if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                             index--;
                         }
 
                         if (!index) {
                             id = achievement->m_id;
                         }
-                    } else if (categoryId == -2 && achievement && (achievement->m_flags & 0x1)) {
-                        if (!(achievement->m_flags & 0x2)) {
+                    } else if (categoryId == -2 && achievement && (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC)) {
+                        if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                             index--;
                         }
 
@@ -865,13 +865,13 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
                 }
 
                 if (categoryId == -1) {
-                    if (!(achievement->m_flags & 0x1) && achievement->m_category != 81) {
+                    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != 81) {
                         if (GetCompletedAchievement(achievement->m_id) || GetInspectAchievement(achievement->m_id)) {
                             continue;
                         }
 
-                        if (!(achievement->m_flags & 0x800)) {
-                            if (!(achievement->m_flags & 0x2)) {
+                        if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) {
+                            if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                                 index--;
                             }
 
@@ -887,12 +887,12 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
                         continue;
                     }
 
-                    if ((achievement->m_flags & 0x1) && achievement->m_category != 81) {
-                        if (achievement->m_flags & 0x800) {
+                    if ((achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != 81) {
+                        if (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED) {
                             continue;
                         }
 
-                        if (!(achievement->m_flags & 0x2)) {
+                        if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
                             index--;
                         }
 
@@ -913,7 +913,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
 
                 if (previous && previous == achievement->m_supercedes) {
                     previous = achievement->m_id;
-                } else if (!done && !inspected && !(achievement->m_flags & 0x800)) {
+                } else if (!done && !inspected && !(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) {
                     previous = achievement->m_id;
 
                     if (index-- == 1) {
@@ -934,7 +934,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
 
     AchievementRec* achievement = g_achievementDB.GetRecord(id);
 
-    if (!achievement || (achievement->m_flags & 0x2)) {
+    if (!achievement || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
         return 0;
     }
 
@@ -947,7 +947,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
         }
     }
 
-    if ((achievement->m_flags & 0x800) && !done) {
+    if ((achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED) && !done) {
         return 0;
     }
 
@@ -1087,8 +1087,8 @@ static int32_t Script_GetAchievementNumCriteria(lua_State* L) {
         source = s_achievements.Ptr(achievement->m_rec->m_sharesCriteria, HASHKEY_NONE());
     }
 
-    if (source && !(achievement->m_rec->m_flags & 0x2)) {
-        if (achievement->m_rec->m_flags & 0xB0) {
+    if (source && !(achievement->m_rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
+        if (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR)) {
             count = 1;
         }
 
@@ -1145,11 +1145,11 @@ static int32_t Script_GetStatistic(lua_State* L) {
 
                 int32_t flags = achievement->m_rec->m_flags;
 
-                if (flags & 0x8) {
+                if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM) {
                     sum += node->m_counter;
                 }
 
-                if (flags & 0x10) {
+                if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM) {
                     if (node->m_counter > highest) {
                         highest = node->m_counter;
                         highestId = spec->m_criteria->m_id;
@@ -1159,7 +1159,7 @@ static int32_t Script_GetStatistic(lua_State* L) {
                     }
                 }
 
-                if ((flags & 0x20) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
+                if ((flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
                     count++;
                 }
 
@@ -1178,7 +1178,7 @@ static int32_t Script_GetStatistic(lua_State* L) {
             }
         }
 
-        if (tie && (source->m_rec->m_flags & 0x400)) {
+        if (tie && (source->m_rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_NAME_ON_TIE)) {
             highestId = 0;
         }
 
@@ -1231,8 +1231,8 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
                 return 0;
             }
 
-            if (!(spec->m_criteria->m_flags & 0x2) || (achievement->m_rec->m_flags & 0xB0)) {
-                if (achievement->m_rec->m_flags & 0xB0) {
+            if (!(spec->m_criteria->m_flags & 0x2) || (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR))) {
+                if (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR)) {
                     showAll = true;
                 }
 
@@ -1263,7 +1263,7 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
 
     AchievementRec* achievementRec = g_achievementDB.GetRecord(achievementId);
 
-    if (!achievementRec || (achievementRec->m_flags & 0x2)) {
+    if (!achievementRec || (achievementRec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
         return 0;
     }
 
@@ -1296,11 +1296,11 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
 
             int32_t flags = achievement->m_rec->m_flags;
 
-            if (flags & 0x8) {
+            if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM) {
                 sum += node->m_counter;
             }
 
-            if (flags & 0x10) {
+            if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM) {
                 if (node->m_counter > highest) {
                     highest = node->m_counter;
                     highestId = spec->m_criteria->m_id;
@@ -1310,12 +1310,12 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
                 }
             }
 
-            if ((flags & 0x20) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
+            if ((flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
                 count++;
             }
         }
 
-        if (tie && (achievement->m_rec->m_flags & 0x400)) {
+        if (tie && (achievement->m_rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_NAME_ON_TIE)) {
             highestId = 0;
         }
     }
@@ -1325,14 +1325,14 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
     int32_t flags = rec->m_flags;
     int32_t required = 0;
 
-    if (flags & 0x80) {
+    if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR) {
         criteriaFlags |= 0x1;
 
-        if (done && (flags & 0x8)) {
+        if (done && (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM)) {
             sum = static_cast<int64_t>(criteria->m_quantity);
         }
 
-        if (flags & 0x20) {
+        if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT) {
             required = rec->m_minimumCriteria;
         }
     }
@@ -1425,11 +1425,11 @@ static int32_t Script_GetComparisonStatistic(lua_State* L) {
 
                 int32_t flags = achievement->m_rec->m_flags;
 
-                if (flags & 0x8) {
+                if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM) {
                     sum += node->m_counter;
                 }
 
-                if (flags & 0x10) {
+                if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM) {
                     if (node->m_counter > highest) {
                         highest = node->m_counter;
                         highestId = spec->m_criteria->m_id;
@@ -1439,7 +1439,7 @@ static int32_t Script_GetComparisonStatistic(lua_State* L) {
                     }
                 }
 
-                if ((flags & 0x20) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
+                if ((flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT) && node->m_counter >= static_cast<uint64_t>(static_cast<int64_t>(spec->m_criteria->m_quantity))) {
                     count++;
                 }
 
@@ -1458,7 +1458,7 @@ static int32_t Script_GetComparisonStatistic(lua_State* L) {
             }
         }
 
-        if (tie && (source->m_rec->m_flags & 0x400)) {
+        if (tie && (source->m_rec->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_NAME_ON_TIE)) {
             highestId = 0;
         }
 
