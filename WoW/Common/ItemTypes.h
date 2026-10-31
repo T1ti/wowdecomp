@@ -66,11 +66,19 @@ enum ITEM_BINDING : uint32_t {
 
 // Item spell-trigger tags interpreted by the 3.3.5 client. Other raw tags
 // (including 3, 4 and 5) retain their existing default handling.
+// Commented entries preserve later ItemEffect::TriggerType reference names;
+// their availability and meaning in 3.3.5 are unverified. TrinityCore labels
+// are separate, non-authoritative guesses where noted.
 enum ITEM_SPELL_TRIGGER : uint32_t {
     ITEM_SPELL_TRIGGER_ON_USE            = 0,
     ITEM_SPELL_TRIGGER_ON_EQUIP          = 1,
     ITEM_SPELL_TRIGGER_ON_PROC           = 2,
-    ITEM_SPELL_TRIGGER_LEARN_SPELL       = 6,
+    // ITEM_SPELL_TRIGGER_SUMMONED_BY_SPELL = 3,
+    // ITEM_SPELL_TRIGGER_ON_DEATH         = 4, // TC 3.3.5: ITEM_SPELLTRIGGER_SOULSTONE.
+    // ITEM_SPELL_TRIGGER_ON_PICKUP        = 5, // TC 3.3.5: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE (uncertain).
+    ITEM_SPELL_TRIGGER_LEARN_SPELL       = 6, // Later name: OnLearn.
+    // ITEM_SPELL_TRIGGER_ON_LOOTED        = 7,
+    // ITEM_SPELL_TRIGGER_TEACH_MOUNT      = 8,
 };
 
 #endif
