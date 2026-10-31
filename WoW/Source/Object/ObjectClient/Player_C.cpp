@@ -12393,42 +12393,42 @@ int32_t __stdcall CGPlayer_C::OnSellResponse(CDataStore* msg) {
     msg->Get(item.m_guid);
     msg->Get(result);
 
-    if (!result) {
+    if (result == VENDOR_SELL_RESULT::VENDOR_SELL_SUCCESS) {
         return 1;
     }
 
     UIErrors error;
 
     switch (result) {
-        case 1:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_ITEM_NOT_FOUND:
             error = ERR_ITEM_NOT_FOUND;
             break;
 
-        case 2:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_NOT_INTERESTED:
             error = ERR_VENDOR_NOT_INTERESTED;
             break;
 
-        case 3:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_HOSTILE:
             error = ERR_VENDOR_HATES_YOU;
             break;
 
-        case 4:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_NOT_OWNER:
             error = ERR_NOT_OWNER;
             break;
 
-        case 6:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_NONEMPTY_BAG:
             error = ERR_DESTROY_NONEMPTY_BAG;
             break;
 
-        case 7:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_DOESNT_BUY:
             error = ERR_VENDOR_DOESNT_BUY;
             break;
 
-        case 8:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_MUST_REPAIR:
             error = ERR_MUST_REPAIR_DURABILITY;
             break;
 
-        case 9:
+        case VENDOR_SELL_RESULT::VENDOR_SELL_INTERNAL_BAG_ERROR:
             error = ERR_INTERNAL_BAG_ERROR;
             break;
 

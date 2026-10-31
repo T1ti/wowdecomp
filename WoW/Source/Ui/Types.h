@@ -20,6 +20,20 @@ enum UNIT_MIRROR_TIMER : int32_t {
     UNIT_MIRROR_TIMER_INACTIVE = 3,
 };
 
+// SMSG_SELL_ITEM result byte. Unknown results retain the original silent/default path.
+enum VENDOR_SELL_RESULT : uint8_t {
+    VENDOR_SELL_SUCCESS                    = 0,
+    VENDOR_SELL_ITEM_NOT_FOUND             = 1,
+    VENDOR_SELL_NOT_INTERESTED             = 2,
+    VENDOR_SELL_HOSTILE                    = 3,
+    VENDOR_SELL_NOT_OWNER                  = 4,
+    // Reference only: TC 3.3.5 SELL_ERR_UNK = 5; client uses the silent default.
+    VENDOR_SELL_NONEMPTY_BAG               = 6,
+    VENDOR_SELL_DOESNT_BUY                 = 7,
+    VENDOR_SELL_MUST_REPAIR                = 8,
+    VENDOR_SELL_INTERNAL_BAG_ERROR         = 9,
+};
+
 // SMSG_LOOT_RESPONSE failure byte, separate from acquisition modes and UI error IDs.
 // Unknown values retain the existing generic denial and cleanup behavior.
 enum LOOT_RESPONSE_ERROR : uint8_t {
