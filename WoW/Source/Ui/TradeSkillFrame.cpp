@@ -1101,13 +1101,13 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
             SpellParserParseText(&itemSpell, format, sizeof(format), 0, 0, 0, 0, 1, 0);
 
             switch (stats->m_spellTrigger[i]) {
-                case 0:
+                case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE:
                     SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONUSE", -1, GENDER_NOT_APPLICABLE), format);
                     break;
-                case 1:
+                case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_EQUIP:
                     SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONEQUIP", -1, GENDER_NOT_APPLICABLE), format);
                     break;
-                case 2:
+                case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_PROC:
                     SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONPROC", -1, GENDER_NOT_APPLICABLE), format);
                     break;
                 default:

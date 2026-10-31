@@ -15940,7 +15940,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
 
                 if (stats) {
                     for (uint32_t j = 0; j < 5; j++) {
-                        if (stats->m_spellTrigger[j] == 6) {
+                        if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                             learn = stats->m_spellId[j];
                             break;
                         }

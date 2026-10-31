@@ -1235,7 +1235,7 @@ static int32_t Script_SetLootItem(lua_State* L) {
 
     if (stats) {
         for (uint32_t i = 0; i < 5; i++) {
-            if (stats->m_spellId[i] && !stats->m_spellTrigger[i]) {
+            if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
                 tooltip->m_itemLinkInfo.m_spellCharges = stats->m_spellCharges[i];
                 break;
             }

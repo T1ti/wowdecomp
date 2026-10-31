@@ -281,7 +281,7 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
 
             if (!learnedId) {
                 for (uint32_t j = 0; j < 5; j++) {
-                    if (stats->m_spellTrigger[j] == 6) {
+                    if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                         learnedId = stats->m_spellId[j];
                         break;
                     }

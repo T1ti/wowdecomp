@@ -3528,7 +3528,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         CGTutorial::TriggerTutorial(7);
 
         for (uint32_t i = 0; i < 5; i++) {
-            if (stats->m_spellId[i] && !stats->m_spellTrigger[i] && (stats->m_class || (stats->m_subClass != 4 && stats->m_subClass != 5))) {
+            if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE && (stats->m_class || (stats->m_subClass != 4 && stats->m_subClass != 5))) {
                 CGTutorial::TriggerTutorial(8);
                 break;
             }

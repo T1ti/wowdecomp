@@ -1919,7 +1919,7 @@ void CGActionBar::UpdateItem(int32_t itemId) {
                 if (stats) {
                     uint32_t index = 0;
 
-                    while (stats->m_spellTrigger[index] != 6) {
+                    while (stats->m_spellTrigger[index] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                         if (++index >= 5) {
                             break;
                         }

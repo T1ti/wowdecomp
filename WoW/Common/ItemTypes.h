@@ -64,4 +64,13 @@ enum ITEM_BINDING : uint32_t {
     ITEM_BINDING_QUEST                   = 4,
 };
 
+// Item spell-trigger tags interpreted by the 3.3.5 client. Other raw tags
+// (including 3, 4 and 5) retain their existing default handling.
+enum ITEM_SPELL_TRIGGER : uint32_t {
+    ITEM_SPELL_TRIGGER_ON_USE            = 0,
+    ITEM_SPELL_TRIGGER_ON_EQUIP          = 1,
+    ITEM_SPELL_TRIGGER_ON_PROC           = 2,
+    ITEM_SPELL_TRIGGER_LEARN_SPELL       = 6,
+};
+
 #endif

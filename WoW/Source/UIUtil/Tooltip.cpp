@@ -5488,7 +5488,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
 
         if (!taughtSpell) {
             for (uint32_t i = 0; i < 5; i++) {
-                if (stats->m_spellTrigger[i] == 6) {
+                if (stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                     taughtSpell = stats->m_spellId[i];
                     break;
                 }
@@ -5818,7 +5818,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
 
         SpellParserParseText(&spell, format, sizeof(format), 0, 0, 0, 0, 1, 0);
 
-        if (!format[0] && stats->m_spellTrigger[i] != 6) {
+        if (!format[0] && stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
             if (stream) {
                 sprintf(buffer, "</spelldesc_%d>\n", i);
                 fputs(buffer, stream);
@@ -5828,7 +5828,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
         }
 
         switch (stats->m_spellTrigger[i]) {
-            case 0: {
+            case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE: {
                 int32_t spellCooldown = stats->m_spellCooldown[i];
 
                 if (spellCooldown < 0) {
@@ -5857,15 +5857,15 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
                 break;
             }
 
-            case 1:
+            case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_EQUIP:
                 SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONEQUIP", -1, GENDER_NOT_APPLICABLE), format);
                 break;
 
-            case 2:
+            case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_PROC:
                 SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONPROC", -1, GENDER_NOT_APPLICABLE), format);
                 break;
 
-            case 6:
+            case ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL:
                 SStrPrintf(text, sizeof(text), "%s %s", FrameScript_GetText("ITEM_SPELL_TRIGGER_ONUSE", -1, GENDER_NOT_APPLICABLE), stats->m_description);
                 isRecipe = 1;
                 break;
@@ -5879,7 +5879,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
         int32_t hasCreated = 0;
         int32_t createsItem = 0;
 
-        if (stats->m_spellTrigger[i] == 6) {
+        if (stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
             hasCreated = 1;
             created = spell;
         } else if (spell.m_effect[0] == SPELL_EFFECT_LEARN_SPELL) {

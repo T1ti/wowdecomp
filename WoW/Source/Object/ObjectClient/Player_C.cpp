@@ -10824,7 +10824,7 @@ static int32_t SoulStoneCompare(const CGItem_C* item, void* param) {
     for (uint32_t i = 0; i < 5; i++) {
         int32_t spellId = stats->m_spellId[i];
 
-        if (spellId < g_spellDB.m_minID || spellId > g_spellDB.m_maxID || !g_spellDB.m_recordsById[spellId - g_spellDB.m_minID] || stats->m_spellTrigger[i]) {
+        if (spellId < g_spellDB.m_minID || spellId > g_spellDB.m_maxID || !g_spellDB.m_recordsById[spellId - g_spellDB.m_minID] || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             continue;
         }
 

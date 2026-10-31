@@ -495,7 +495,7 @@ int32_t Spell_C_NeedsCooldownEvent(int32_t itemId) {
     }
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
-        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && !stats->m_spellTrigger[i]) {
+        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return s_spellHistory[0].IsOnHold(stats->m_spellId[i], itemId);
         }
     }
@@ -4663,7 +4663,7 @@ bool Spell_C_GetItemCooldown(int32_t itemId, uint32_t* duration, uint32_t* start
     }
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
-        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && !stats->m_spellTrigger[i]) {
+        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return s_spellHistory[0].GetSpellCooldown(stats->m_spellId[i], itemId, duration, start, enable);
         }
     }
@@ -6792,7 +6792,7 @@ int32_t Spell_C_WasItemRecentlyUsed(int32_t itemId) {
     }
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
-        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && !stats->m_spellTrigger[i]) {
+        if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return s_spellHistory[0].RecentlyCast(stats->m_spellId[i], itemId);
         }
     }

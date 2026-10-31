@@ -4248,7 +4248,7 @@ static int32_t Script_IsConsumableItem(lua_State* L) {
         uint32_t i;
 
         for (i = 0; i < 5; i++) {
-            if (!stats->m_spellId[i] || stats->m_spellTrigger[i]) {
+            if (!stats->m_spellId[i] || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
                 continue;
             }
 
@@ -4339,7 +4339,7 @@ static int32_t Script_IsDressableItem(lua_State* L) {
 
         if (!learnedId) {
             for (uint32_t j = 0; j < 5; j++) {
-                if (stats->m_spellTrigger[j] == 6) {
+                if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                     learnedId = stats->m_spellId[j];
                     break;
                 }

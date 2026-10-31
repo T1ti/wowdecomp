@@ -685,7 +685,7 @@ int32_t CGItem_C::NumBaseCharges(int32_t itemId) {
     }
 
     for (uint32_t i = 0; i < 5; i++) {
-        if (stats->m_spellId[i] && !stats->m_spellTrigger[i]) {
+        if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return stats->m_spellCharges[i];
         }
     }
@@ -708,7 +708,7 @@ void CGItem_C::GetCooldowns(int32_t itemId, uint32_t& cooldown, uint32_t& catego
     }
 
     for (uint32_t i = 0; i < 5; i++) {
-        if (stats->m_spellId[i] && !stats->m_spellTrigger[i]) {
+        if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             cooldown = stats->m_spellCooldown[i];
             categoryCooldown = stats->m_spellCategoryCooldown[i];
             category = stats->m_spellCategory[i];
@@ -769,7 +769,7 @@ int32_t CGItem_C::GetOnUseSlot() const {
     }
 
     for (int32_t i = 0; i < 5; i++) {
-        if (stats->m_spellId[i] && !stats->m_spellTrigger[i]) {
+        if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return i;
         }
     }
@@ -1030,7 +1030,7 @@ int32_t CGItem_C::GetUseSpell(int32_t itemId) {
     }
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
-        if (stats->m_spellId[i] && !stats->m_spellTrigger[i]) {
+        if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             return stats->m_spellId[i];
         }
     }
@@ -1197,7 +1197,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
     }
 
     for (uint32_t i = 0; i < 5; i++) {
-        if (!stats->m_spellId[i] || stats->m_spellTrigger[i]) {
+        if (!stats->m_spellId[i] || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             continue;
         }
 
