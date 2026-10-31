@@ -838,7 +838,7 @@ void CheckToCancelCurrentChannelSpell() {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(channelSpell, &spell) && (spell.m_channelInterruptFlags & 0x8)) {
+    if (g_spellDB.GetRecord(channelSpell, &spell) && (spell.m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_INTERRUPT_ON_MOVEMENT)) {
         Spell_C_CancelChannelSpell(channelSpell);
     }
 }

@@ -9,6 +9,32 @@ class SFileImpl;
 
 class SpellRec {
     public:
+    // Separate current client-interpreted masks; other DBC bits stay raw and unnamed.
+    enum InterruptFlags : int32_t {
+        INTERRUPT_ON_MOVEMENT = 0x1,
+        INTERRUPT_ON_COMBAT = 0x8,
+    };
+
+    enum AuraInterruptFlags : int32_t {
+        AURA_REQUIRE_MOUNTED = 0x40,
+        AURA_REQUIRE_NOT_SWIMMING = 0x80,
+        AURA_REQUIRE_SWIMMING = 0x100,
+        AURA_REQUIRE_UNSHEATHED = 0x200,
+        // The client reads aura bits 0x8/0x10 only together in its movement gate.
+        AURA_MOVEMENT_GATE_MASK = 0x18,
+    };
+
+    enum ChannelInterruptFlags : int32_t {
+        CHANNEL_INTERRUPT_ON_MOVEMENT = 0x8,
+        CHANNEL_INTERRUPT_ON_TURN = 0x10,
+        CHANNEL_REQUIRE_MOUNTED = 0x40,
+        CHANNEL_REQUIRE_NOT_SWIMMING = 0x80,
+        CHANNEL_REQUIRE_SWIMMING = 0x100,
+        CHANNEL_REQUIRE_UNSHEATHED = 0x200,
+        CHANNEL_INTERRUPT_ON_COMBAT = 0x1000,
+        CHANNEL_MOVEMENT_OR_TURN_MASK = 0x18,
+    };
+
     static const int32_t s_numColumns = 234;
     static const int32_t s_rowSize = 936;
     static const bool s_generatedID = false;

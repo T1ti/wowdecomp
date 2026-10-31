@@ -680,11 +680,11 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
 
     int32_t interruptFlags = spell->m_auraInterruptFlags;
 
-    if (((interruptFlags & 0x100) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x100))) && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
+    if (((interruptFlags & SpellRec::AuraInterruptFlags::AURA_REQUIRE_SWIMMING) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_SWIMMING))) && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         return false;
     }
 
-    if (((interruptFlags & 0x80) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x80))) && (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
+    if (((interruptFlags & SpellRec::AuraInterruptFlags::AURA_REQUIRE_NOT_SWIMMING) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_NOT_SWIMMING))) && (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         return false;
     }
 
@@ -2269,7 +2269,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             }
         }
 
-        if (((spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_INITIATE_COMBAT_POST_CAST_ENABLES_AUTO_ATTACK) || (((spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) || (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_INITIATES_COMBAT_ENABLES_AUTO_ATTACK) || (spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_INITIATE_COMBAT_POST_CAST_ENABLES_AUTO_ATTACK)) && (spell.m_interruptFlags & 0x8))) && !player->m_combat.m_attacking.m_guid) {
+        if (((spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_INITIATE_COMBAT_POST_CAST_ENABLES_AUTO_ATTACK) || (((spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) || (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_INITIATES_COMBAT_ENABLES_AUTO_ATTACK) || (spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_INITIATE_COMBAT_POST_CAST_ENABLES_AUTO_ATTACK)) && (spell.m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_COMBAT))) && !player->m_combat.m_attacking.m_guid) {
             player->OnAttackIconPressed(hits.m_count ? hits.m_data[0] : WOWGUID{ 0 }, 0);
         }
 
@@ -5335,7 +5335,7 @@ bool Spell_C_IsCastingInterruptedByCombat(const WOWGUID& guid) {
         if (cast->m_data.m_caster == guid) {
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_interruptFlags & 0x8)) {
+            if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_COMBAT)) {
                 return true;
             }
         }
@@ -5346,7 +5346,7 @@ bool Spell_C_IsCastingInterruptedByCombat(const WOWGUID& guid) {
     if (unit && unit->m_unit->m_unitChannelSpell) {
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(unit->m_unit->m_unitChannelSpell, &spell) && (spell.m_channelInterruptFlags & 0x1000)) {
+        if (g_spellDB.GetRecord(unit->m_unit->m_unitChannelSpell, &spell) && (spell.m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_INTERRUPT_ON_COMBAT)) {
             return true;
         }
     }
@@ -5610,7 +5610,7 @@ void Spell_C_CancelCastingSpellByMovement() {
         if (cast != s_targetingSpell) {
             SpellRec spell;
 
-            if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_interruptFlags & 0x1)) {
+            if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_MOVEMENT)) {
                 Spell_C_CancelSpell(cast, false, true, 40);
             }
         }
@@ -7735,12 +7735,12 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
 
     if (caster->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
         if ((static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && (caster->m_mountDisplayId <= 0 || (caster->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || caster->m_shapeshiftSuppressed) {
-            if ((spell.m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell.m_channelInterruptFlags & 0x18)) {
+            if ((spell.m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell.m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_MOVEMENT_OR_TURN_MASK)) {
                 Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_MOVING, -1, -1, false);
                 return;
             }
 
-            if ((spell.m_interruptFlags & 0x1) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(&spell, caster->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell.m_auraInterruptFlags & 0x18))) {
+            if ((spell.m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_MOVEMENT) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(&spell, caster->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell.m_auraInterruptFlags & SpellRec::AuraInterruptFlags::AURA_MOVEMENT_GATE_MASK))) {
                 Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_MOVING, -1, -1, false);
                 return;
             }

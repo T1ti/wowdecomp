@@ -10887,7 +10887,7 @@ void CGUnit_C::OnAscendDescendStartLocal(uint32_t eventTime, int32_t ascend) {
 void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell) && (spell.m_channelInterruptFlags & 0x10) && (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) && this->IsAutoTracking()) {
+    if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell) && (spell.m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_INTERRUPT_ON_TURN) && (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) && this->IsAutoTracking()) {
         Spell_C_CancelChannelSpell(this->m_unit->m_unitChannelSpell);
     }
 
@@ -16085,12 +16085,12 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
 
     int32_t auraInterrupt = spell->m_auraInterruptFlags;
 
-    if (((auraInterrupt & 0x200) && !this->m_sheatheState) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x200) && !this->m_sheatheState)) {
+    if (((auraInterrupt & SpellRec::AuraInterruptFlags::AURA_REQUIRE_UNSHEATHED) && !this->m_sheatheState) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_UNSHEATHED) && !this->m_sheatheState)) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_NOT_UNSHEATHED, -1, -1, false);
         return false;
     }
 
-    if (((auraInterrupt & 0x40) && (this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & 0x40) && !this->IsMounted())) {
+    if (((auraInterrupt & SpellRec::AuraInterruptFlags::AURA_REQUIRE_MOUNTED) && (this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING))) || ((spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_MOUNTED) && !this->IsMounted())) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_MOUNTED, -1, -1, false);
         return false;
     }
@@ -16118,17 +16118,17 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
     auraInterrupt = spell->m_auraInterruptFlags;
     int32_t channeled = spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED);
 
-    if (((auraInterrupt & 0x100) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & 0x100) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
+    if (((auraInterrupt & SpellRec::AuraInterruptFlags::AURA_REQUIRE_SWIMMING) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_SWIMMING) && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_UNDERWATER, -1, -1, false);
         return false;
     }
 
-    if (((auraInterrupt & 0x80) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & 0x80) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
+    if (((auraInterrupt & SpellRec::AuraInterruptFlags::AURA_REQUIRE_NOT_SWIMMING) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) || (channeled && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_REQUIRE_NOT_SWIMMING) && (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_ONLY_ABOVEWATER, -1, -1, false);
         return false;
     }
 
-    if ((channeled && (spell->m_channelInterruptFlags & 0x18) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) || ((spell->m_interruptFlags & 0x1) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & 0x18)))) {
+    if ((channeled && (spell->m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_MOVEMENT_OR_TURN_MASK) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) || ((spell->m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_MOVEMENT) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) && !(spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && !(spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) && (SpellRec::GetCastTime(spell, this->m_unit->m_unitFieldPetnumber != 0, 0, 0) || (spell->m_auraInterruptFlags & SpellRec::AuraInterruptFlags::AURA_MOVEMENT_GATE_MASK)))) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_MOVING, -1, -1, false);
         return false;
     }
