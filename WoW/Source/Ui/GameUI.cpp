@@ -6078,16 +6078,16 @@ static void PlaceFrame(CSimpleFrame* frame, int32_t level, FRAMEPOINT point, int
         frame->SetFrameLevel(level, 1);
     }
 
-    if (frame->m_frameFlags & 0x100) {
+    if (frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_MOVABLE) {
         frame->MarkFramePointsUnused();
         frame->SetPoint(point, frame->m_simpleTop, point, NDCToDDCWidth(x / (CoordinateGetAspectCompensation() * 1024.0f)), NDCToDDCWidth(y / (CoordinateGetAspectCompensation() * 1024.0f)), 1);
-        frame->SetFrameFlag(0x1000, 1);
+        frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_USER_PLACED, 1);
     }
 
-    if (frame->m_frameFlags & 0x200) {
+    if (frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_RESIZABLE) {
         frame->SetWidth(NDCToDDCWidth(width / (CoordinateGetAspectCompensation() * 1024.0f)));
         frame->SetHeight(NDCToDDCWidth(height / (CoordinateGetAspectCompensation() * 1024.0f)));
-        frame->SetFrameFlag(0x1000, 1);
+        frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_USER_PLACED, 1);
     }
 
     frame->Resize(1);
@@ -7648,7 +7648,7 @@ static void PlacedFrameCallback(HOSFILE file, CSimpleFrame* frame) {
 
     uint32_t flags = frame->m_frameFlags;
 
-    if (!(flags & 0x1000) || (flags & 0x80000) || !(flags & 0x300)) {
+    if (!(flags & CSimpleFrame::FrameFlags::FRAME_USER_PLACED) || (flags & CSimpleFrame::FrameFlags::FRAME_DONT_SAVE_POSITION) || !(flags & CSimpleFrame::FrameFlags::FRAME_MOVABLE_OR_RESIZABLE_MASK)) {
         return;
     }
 

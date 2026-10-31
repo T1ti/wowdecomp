@@ -295,7 +295,7 @@ CGChatBubbleFrame::CGChatBubbleFrame(CSimpleFrame* parent) : CSimpleFrame(parent
     this->m_worldPosition.x = 0.0f;
     this->m_worldPosition.y = 0.0f;
     this->m_worldPosition.z = 0.0f;
-    this->SetFrameFlag(0x40000, 1);
+    this->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
 
     void* data = SMemAlloc(sizeof(CBackdropGenerator), __FILE__, __LINE__, 0);
     CBackdropGenerator* backdrop = data ? new (data) CBackdropGenerator() : nullptr;

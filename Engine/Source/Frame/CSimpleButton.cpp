@@ -1087,7 +1087,7 @@ void CSimpleButton::Enable(int32_t enabled) {
     }
 
     int32_t disabled = enabled == 0;
-    this->SetFrameFlag(0x400, disabled);
+    this->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_DISABLED, disabled);
 
     FrameScript_Object::ScriptIx& script = disabled ? this->m_onDisable : this->m_onEnable;
 
@@ -1120,5 +1120,5 @@ CSimpleButton::CSimpleButton(CSimpleFrame* parent) : CSimpleFrame(parent) {
 
     this->Enable(1);
     this->EnableEvent(SIMPLE_EVENT_MOUSE, -1);
-    this->SetFrameFlag(0x10000, 1);
+    this->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_BUTTON_CONSTRUCTION_TAG, 1);
 }

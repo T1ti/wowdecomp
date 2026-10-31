@@ -197,7 +197,7 @@ int32_t CSimpleTop::StartMoveOrResizeFrame(CSimpleFrame* frame, MOVERESIZE_REASO
     }
 
     frame->Raise();
-    frame->SetFrameFlag(0x1000, true);
+    frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_USER_PLACED, true);
 
     this->m_moveResizeLast.x = x;
     this->m_moveResizeReason = reason;
@@ -612,7 +612,7 @@ CSimpleFrame* CFrameStrata::GetHitFrame(const C2Vector& pt) {
 
         for (CSimpleFrame* frame = node->m_frames.Head(); frame; frame = node->m_frames.Next(frame)) {
             if (frame->TestHitRect(pt)) {
-                while (!(frame->m_frameFlags & 1)) {
+                while (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_TOPLEVEL)) {
                     frame = frame->m_parent;
 
                     if (!frame) {
@@ -672,8 +672,8 @@ void CFrameStrata::CheckOcclusion() {
         CFrameStrataNode* node = this->m_levels[level];
 
         for (CSimpleFrame* frame = node->m_frames.Head(); frame; frame = node->m_frames.Next(frame)) {
-            if (frame->m_frameFlags & 1) {
-                frame->SetFrameFlag(0x10, this->FrameOccluded(frame));
+            if (frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_TOPLEVEL) {
+                frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_OCCLUDED, this->FrameOccluded(frame));
             }
         }
     }
@@ -806,7 +806,7 @@ void CSimpleTop::CompressStrata(int32_t strata) {
 // VERIFY: ca612c34 manual
 // OFFSET: 0x004951A0
 int32_t CSimpleTop::RaiseFrame(CSimpleFrame* frame, int32_t checkOcclusion) {
-    while (!(frame->m_frameFlags & 1)) {
+    while (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_TOPLEVEL)) {
         frame = frame->m_parent;
 
         if (!frame) {
@@ -819,10 +819,10 @@ int32_t CSimpleTop::RaiseFrame(CSimpleFrame* frame, int32_t checkOcclusion) {
             frame->Resize(1);
         }
 
-        frame->SetFrameFlag(0x10, this->m_strata[frame->m_strata]->FrameOccluded(frame));
+        frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_OCCLUDED, this->m_strata[frame->m_strata]->FrameOccluded(frame));
     }
 
-    if (frame->m_frameFlags & 0x10) {
+    if (frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_OCCLUDED) {
         this->CompressStrata(frame->m_strata);
         frame->SetFrameLevel(this->m_strata[frame->m_strata]->m_topLevel, 1);
         this->m_checkFocus = 1;
@@ -852,10 +852,10 @@ int32_t CSimpleTop::StartMoveOrResizeFrame(const CMouseEvent& evt, MOVERESIZE_RE
     }
 
     if (resize) {
-        if (!(frame->m_frameFlags & 0x200)) {
+        if (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_RESIZABLE)) {
             return 0;
         }
-    } else if (!(frame->m_frameFlags & 0x100)) {
+    } else if (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_MOVABLE)) {
         return 0;
     }
 
@@ -1116,7 +1116,7 @@ void CFrameStrata::AddFrame(CSimpleFrame* frame) {
         TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)>* list = node->m_pendingFrame ? &node->m_pendingFrames : &node->m_frames;
         list->LinkToTail(frame);
 
-        if (!(frame->m_frameFlags & 0x2000)) {
+        if (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_BEING_SCROLLED)) {
             node->m_batchDirty = -1;
         }
     }

@@ -528,7 +528,7 @@ void CGNamePlateFrame::Initialize(CGUnit_C* unit) {
 // OFFSET: 0x0098F790
 CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent), m_damageFeedbackTime(0) {
     this->SetProtected();
-    this->SetFrameFlag(0x40000, 1);
+    this->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
     this->m_guid.m_guid = 0;
     this->m_namePlateGlow = nullptr;
     this->m_targetingFrameSkull = nullptr;
@@ -574,7 +574,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     void* healthData = CGSimpleHealthBar::s_simpleHealthBarHeap.GetData(0, typeid(CGSimpleHealthBar).raw_name(), SLOG_OBJECT);
     this->m_healthBar = healthData ? new (healthData) CGSimpleHealthBar(this) : nullptr;
     this->m_healthBar->SetBarTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill", 2);
-    this->m_healthBar->SetFrameFlag(0x40000, 1);
+    this->m_healthBar->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
     this->m_healthBar->SetFrameLevel(this->m_level - 1, 1);
 
     void* castBorderData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
@@ -595,7 +595,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     void* castBarData = CSimpleStatusBar::s_allocator.GetData(0, typeid(CSimpleStatusBar).raw_name(), SLOG_OBJECT);
     this->m_castBar = castBarData ? new (castBarData) CSimpleStatusBar(this) : nullptr;
     this->m_castBar->SetBarTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill", 2);
-    this->m_castBar->SetFrameFlag(0x40000, 1);
+    this->m_castBar->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
     this->m_castBar->SetFrameLevel(this->m_level - 1, 1);
 
     void* iconData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);

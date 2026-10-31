@@ -41,6 +41,25 @@ class FrameScriptFunctionRef : public XMLNodeData {
 
 class CSimpleFrame : public CScriptRegion {
     public:
+    enum FrameFlags : uint32_t {
+        // Current client roles; original enum names are unavailable.
+        FRAME_TOPLEVEL = 0x1,
+        FRAME_OCCLUDED = 0x10,
+        FRAME_MOVABLE = 0x100,
+        FRAME_RESIZABLE = 0x200,
+        FRAME_DISABLED = 0x400,
+        FRAME_DEFER_PROTECTION_QUERY = 0x800,
+        FRAME_USER_PLACED = 0x1000,
+        FRAME_BEING_SCROLLED = 0x2000,
+        FRAME_SCROLL_CHILD = 0x4000,
+        FRAME_ALLOW_ATTRIBUTE_CHANGES = 0x8000,
+        // Set by button construction; no broader purpose is claimed.
+        FRAME_BUTTON_CONSTRUCTION_TAG = 0x10000,
+        FRAME_HIDE_SCRIPT_DEPTH = 0x40000,
+        FRAME_DONT_SAVE_POSITION = 0x80000,
+        FRAME_MOVABLE_OR_RESIZABLE_MASK = 0x300,
+    };
+
     enum INITIALIZED_STATE : uint32_t {
         // STATE_UNKNOWN = 0,
         STATE_INITIALIZED = 1,
