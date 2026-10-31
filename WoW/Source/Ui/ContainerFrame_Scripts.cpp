@@ -203,7 +203,7 @@ static int32_t Script_GetContainerItemInfo(lua_State* L) {
     lua_pushstring(L, texture);
     lua_pushnumber(L, item->m_item->m_itemFieldStackCount);
 
-    if (item->m_itemFlags & 0x1) {
+    if (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -294,7 +294,7 @@ static int32_t Script_UseContainerItem(lua_State* L) {
     CGGameUI::ClearCursor(1, 1);
     CGItem_C* item = bag->GetItemPointer(slot);
 
-    if (!item || (item->m_itemFlags & 1)) {
+    if (!item || (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return 0;
     }
 
@@ -451,7 +451,7 @@ static int32_t Script_PickupContainerItem(lua_State* L) {
         if (CGGameUI::m_stackSplit) {
             player->SplitItem(cursorItem, cursorContainer, cursorSlot, bag->m_guid, slot, CGGameUI::m_stackSplit);
             CGGameUI::ClearCursor(0, 1);
-        } else if ((!itemGuid || cursorContainer) && (!item || !(item->m_itemFlags & 1))) {
+        } else if ((!itemGuid || cursorContainer) && (!item || !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED))) {
             CGGameUI::LockItem(itemGuid);
             player->SwapItems(cursorItem, cursorContainer, cursorSlot, bag->m_guid, slot, 0);
         }
@@ -567,7 +567,7 @@ static int32_t Script_PickupContainerItem(lua_State* L) {
         return 0;
     }
 
-    if (!(item->m_itemFlags & 1)) {
+    if (!(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         CGGameUI::SetCursorItem(itemGuid, bag->m_guid, slot, 1, 0, 1);
         CGGameUI::LockItem(itemGuid);
     }
@@ -597,7 +597,7 @@ static int32_t Script_ShowContainerSellCursor(lua_State* L) {
 
     CGItem_C* item = bag->GetItemPointer(slot);
 
-    if (!item || (item->m_itemFlags & 1)) {
+    if (!item || (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return 0;
     }
 
@@ -794,7 +794,7 @@ static int32_t Script_SplitContainerItem(lua_State* L) {
     CGItem_C* item = bag->GetItemPointer(slot);
     WOWGUID itemGuid = item ? item->m_obj->m_guid : WOWGUID();
 
-    if (!item || (item->m_itemFlags & 1)) {
+    if (!item || (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return 0;
     }
 
@@ -839,7 +839,7 @@ static int32_t Script_SocketContainerItem(lua_State* L) {
 
     CGItem_C* item = bag->GetItemPointer(slot);
 
-    if (!item || (item->m_itemFlags & 1) || !item->GetNumSockets()) {
+    if (!item || (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) || !item->GetNumSockets()) {
         return 0;
     }
 

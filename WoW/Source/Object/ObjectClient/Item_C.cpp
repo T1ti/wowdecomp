@@ -293,7 +293,7 @@ static void LoadItemCacheCallback(int32_t id, const WOWGUID& guid, void* param, 
 // VERIFY: 9264aaff manual
 // OFFSET: 0x00709840
 CGItem_C::CGItem_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create) {
-    this->m_itemFlags = 0;
+    this->m_itemFlags = ITEM_CLIENT_FLAGS::ITEM_CLIENT_NONE;
     this->m_expirationTime = 0;
     this->m_groupSounds = nullptr;
 
@@ -324,7 +324,7 @@ CGItem_C::CGItem_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(t
 // VERIFY: 6bc496ea manual
 // OFFSET: [0x0070B120, 0x0070B1F0]
 CGItem_C::~CGItem_C() {
-    if (!(this->m_itemFlags & 0x2)) {
+    if (!(this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_STATS_INITIALIZED)) {
         g_itemDBCache.CancelCallback(this->m_obj->m_entryID, &LoadItemCacheCallback, this);
     }
 
@@ -373,7 +373,7 @@ void CGItem_C::SetItemPurchaseData(ItemPurchaseData* data) {
     this->m_itemPurchaseData = data;
 
     if (data) {
-        this->m_itemFlags &= ~0x4;
+        this->m_itemFlags &= ~ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING;
     }
 }
 
@@ -645,11 +645,11 @@ void CGItem_C::OnRightClick() {
 // VERIFY: 0f1e7b39 manual
 // OFFSET: 0x007089E0
 void CGItem_C::RequestItemPurchaseData() {
-    if (this->m_itemFlags & 0x4) {
+    if (this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING) {
         return;
     }
 
-    this->m_itemFlags |= 0x4;
+    this->m_itemFlags |= ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING;
 
     WDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_GET_ITEM_PURCHASE_DATA));
@@ -1483,8 +1483,8 @@ void CGItem_C::SignalEvent(CGItem_C* item, uint32_t event) {
 // VERIFY: 06278cc4 auto
 // OFFSET: 0x00706FE0
 void CGItem_C::Lock() {
-    if (!(this->m_itemFlags & 1)) {
-        this->m_itemFlags |= 1;
+    if (!(this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
+        this->m_itemFlags |= ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED;
         CGItem_C::SignalEvent(this, SCRIPT_EVENT_ITEM_LOCK_CHANGED);
         CGItem_C::SignalEvent(this, SCRIPT_EVENT_ITEM_LOCKED);
     }
@@ -1493,8 +1493,8 @@ void CGItem_C::Lock() {
 // VERIFY: 8c3234ae auto
 // OFFSET: 0x00707020
 void CGItem_C::Unlock() {
-    if (this->m_itemFlags & 1) {
-        this->m_itemFlags &= ~1u;
+    if (this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) {
+        this->m_itemFlags &= ~ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED;
         CGItem_C::SignalEvent(this, SCRIPT_EVENT_ITEM_LOCK_CHANGED);
         CGItem_C::SignalEvent(this, SCRIPT_EVENT_ITEM_UNLOCKED);
     }
@@ -1509,7 +1509,7 @@ WOWGUID CGItem_C::s_bindOnUseItem;
 // VERIFY: 92b5a602 manual
 // OFFSET: 0x00708C20
 int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
-    if ((this->m_obj->m_type & TYPE_CONTAINER) || (this->m_itemFlags & 1)) {
+    if ((this->m_obj->m_type & TYPE_CONTAINER) || (this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return 0;
     }
 
@@ -1728,7 +1728,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
 // VERIFY: 6c2aeb5c manual
 // OFFSET: 0x0070AA40
 void CGItem_C::PostInitWithStats() {
-    this->m_itemFlags |= 2;
+    this->m_itemFlags |= ITEM_CLIENT_FLAGS::ITEM_CLIENT_STATS_INITIALIZED;
     ItemRec* rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
     this->m_virtualItem.m_classID = rec ? rec->m_classID : 0;
     this->m_virtualItem.m_subclassID = rec ? rec->m_subclassID : 0;
@@ -1783,7 +1783,7 @@ void CGItem_C::PostInitWithStats() {
         CGQuestLog::UpdateQuestItem(this->m_obj->m_entryID);
         CGContainerInfo::UpdateItem(this->m_obj->m_guid);
 
-        if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD) && !this->m_itemPurchaseData && !(this->m_itemFlags & 4)) {
+        if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD) && !this->m_itemPurchaseData && !(this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING)) {
             this->RequestItemPurchaseData();
         }
 
@@ -1989,7 +1989,7 @@ void CGItem_C::Disable() {
         CGItemText::SetItem(WOWGUID(), 0);
     }
 
-    if (!(this->m_itemFlags & 0x2)) {
+    if (!(this->m_itemFlags & ITEM_CLIENT_FLAGS::ITEM_CLIENT_STATS_INITIALIZED)) {
         g_itemDBCache.CancelCallback(this->m_obj->m_entryID, &LoadItemCacheCallback, this);
         CGPlayer_C* owner = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(this->m_item->m_itemFieldOwner, TYPE_PLAYER, __FILE__, __LINE__));
 

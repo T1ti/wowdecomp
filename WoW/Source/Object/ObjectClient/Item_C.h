@@ -32,6 +32,14 @@ extern const uint32_t s_inventoryTypeSlots[INVTYPE_COUNT];
 
 class CGItem_C : public CGObject_C, public CGItem {
     public:
+    // Client runtime state, separate from replicated and template item flags.
+    enum ITEM_CLIENT_FLAGS : uint32_t {
+        ITEM_CLIENT_NONE                     = 0x00000000u,
+        ITEM_CLIENT_LOCKED                   = 0x00000001u,
+        ITEM_CLIENT_STATS_INITIALIZED        = 0x00000002u,
+        ITEM_CLIENT_PURCHASE_DATA_PENDING    = 0x00000004u,
+    };
+
     static void Initialize();
     static void Shutdown();
     struct ItemPurchaseData {

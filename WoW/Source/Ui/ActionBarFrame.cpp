@@ -1349,7 +1349,7 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
                 WOWGUID container;
                 uint32_t itemSlot = 0;
 
-                if ((((flags & 0x20) && (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 32)) != nullptr) || (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 128)) != nullptr) && !(item->m_itemFlags & 0x1)) {
+                if ((((flags & 0x20) && (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 32)) != nullptr) || (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 128)) != nullptr) && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
                     player->AutoEquipItem(container, itemSlot, 0);
                 }
 

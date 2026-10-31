@@ -382,7 +382,7 @@ int32_t CGEquipmentManager::SetContainsLockedItems(const EQUIPMENT_SET* set) {
         if (set->m_items[i].m_guid > 1) {
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(set->m_items[i], TYPE_ITEM, __FILE__, __LINE__));
 
-            if (item && (item->m_itemFlags & 0x1) && !CGMerchantInfo::IsBuybackItem(set->m_items[i])) {
+            if (item && (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) && !CGMerchantInfo::IsBuybackItem(set->m_items[i])) {
                 return 1;
             }
         }
@@ -411,7 +411,7 @@ int32_t CGEquipmentManager::SetUsesLockedSlots(const EQUIPMENT_SET* set) {
 
         CGItem_C* item = player->m_bag.GetItemPointer(slot);
 
-        if (item && (item->m_itemFlags & 0x1)) {
+        if (item && (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
             return 1;
         }
     }

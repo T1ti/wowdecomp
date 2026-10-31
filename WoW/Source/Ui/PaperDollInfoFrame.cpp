@@ -398,7 +398,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(itemGuid, TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && (item->m_itemFlags & 1)) {
+        if (item && (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
             return;
         }
 
@@ -436,7 +436,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
 
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(itemGuid, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (item && (item->m_itemFlags & 1)) {
+    if (item && (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return;
     }
 
@@ -521,7 +521,7 @@ void CGCharacterInfo::SocketInventoryItem(int32_t slot) {
 
     CGItem_C* item = player->m_bag.GetItemPointer(slot);
 
-    if (item && !(item->m_itemFlags & 0x1) && item->GetNumSockets()) {
+    if (item && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) && item->GetNumSockets()) {
         CGItemSocketInfo::SetItem(item->m_obj->m_guid);
     }
 }
@@ -553,7 +553,7 @@ void CGCharacterInfo::PickupBag(uint32_t slot) {
 
     CGItem_C* container = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bag, TYPE_CONTAINER, __FILE__, __LINE__));
 
-    if (container && !(container->m_itemFlags & 0x1)) {
+    if (container && !(container->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         CGGameUI::SetCursorItem(bag, player->m_obj->m_guid, slot, 1, 0, 1);
         CGGameUI::LockItem(bag);
     }
@@ -733,7 +733,7 @@ int32_t CGCharacterInfo::PutItemInBackpack(uint32_t slot) {
 
     CGItem_C* bagItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bag, TYPE_ITEM, __FILE__, __LINE__));
 
-    if ((bagItem && (bagItem->m_itemFlags & 1)) || cursorItem == bag) {
+    if ((bagItem && (bagItem->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) || cursorItem == bag) {
         CGGameUI::ClearCursor(1, 1);
         return 1;
     }

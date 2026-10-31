@@ -5308,7 +5308,7 @@ static int32_t Script_EquipItemByName(lua_State* L) {
             return 0;
         }
 
-        if (item && !(item->m_itemFlags & 0x1) && (player->m_bag.m_guid != container || slot > 18)) {
+        if (item && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) && (player->m_bag.m_guid != container || slot > 18)) {
             player->AutoEquipItem(container, slot, 0);
         }
 
@@ -5363,7 +5363,7 @@ static int32_t Script_EquipItemByName(lua_State* L) {
         return 0;
     }
 
-    if ((item->m_itemFlags & 0x1) || (player->m_bag.m_guid == container && slot == dstSlot)) {
+    if ((item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) || (player->m_bag.m_guid == container && slot == dstSlot)) {
         return 0;
     }
 

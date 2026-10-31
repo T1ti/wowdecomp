@@ -219,7 +219,7 @@ static int32_t Script_IsInventoryItemLocked(lua_State* L) {
     CGPlayer_C* player = slot != -1 ? static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) : nullptr;
     const CGItem_C* item = player ? static_cast<const CGBag_C*>(&player->m_bag)->GetItemPointer(slot) : nullptr;
 
-    if (item && (item->m_itemFlags & 1)) {
+    if (item && (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1014,7 +1014,7 @@ static int32_t Script_ShowInventorySellCursor(lua_State* L) {
 
     CGItem_C* item = player->GetBag()->GetItemPointer(slot);
 
-    if (item && !(item->m_itemFlags & 0x1)) {
+    if (item && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         CursorSetMode(BUY_CURSOR);
     }
 

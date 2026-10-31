@@ -6610,7 +6610,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(this->m_bag.m_slots[i], TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
+        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
             item->RequestItemPurchaseData();
         }
     }
@@ -6622,7 +6622,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(this->m_bag.m_slots[i], TYPE_ITEM, __FILE__, __LINE__));
 
-        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
+        if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
             item->RequestItemPurchaseData();
         }
     }
@@ -6644,7 +6644,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bag->m_slots[j], TYPE_ITEM, __FILE__, __LINE__));
 
-            if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & 0x4) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
+            if (item && !item->m_itemPurchaseData && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING) && item->GetStats() && (item->GetStats()->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD)) {
                 item->RequestItemPurchaseData();
             }
         }
@@ -9990,7 +9990,7 @@ static void SwapItemsStatsCallback(int32_t id, const WOWGUID& guid, void* param,
 void CGPlayer_C::GiftWrap(CGItem_C* item) {
     CGItem_C* wrap = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(s_giftWrapItem, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!wrap || !item || (item->m_itemFlags & 1)) {
+    if (!wrap || !item || (item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         return;
     }
 

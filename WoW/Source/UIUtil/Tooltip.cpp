@@ -6302,7 +6302,7 @@ static int32_t AddItemTradeLines(CGTooltip* tooltip, const ItemStats_C* stats, C
             tooltip->AddLine(text, nullptr, refundColor, refundColor, 1);
             refundable = 1;
         }
-    } else if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD) && !(item->m_itemFlags & 4)) {
+    } else if ((stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_ITEM_PURCHASE_RECORD) && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_PURCHASE_DATA_PENDING)) {
         item->RequestItemPurchaseData();
         refundable = 1;
     }
