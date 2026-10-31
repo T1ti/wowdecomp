@@ -4093,7 +4093,7 @@ int32_t Packet_SMSG_ACTION_BUTTONS(void* param, NETMESSAGE msgId, uint32_t time,
         for (uint32_t i = 0; i < sizeof(s_actionButtons) / sizeof(s_actionButtons[0]); i++) {
             int32_t action = s_actionButtons[i];
 
-            if (((action & 0xF0000000) || player->IsSpellKnown(action)) && ((action & 0xF0000000) != 0x20000000 || CGActionBar::IsEquipmentSetValid(action & 0xDFFFFFFF))) {
+            if (((action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) || player->IsSpellKnown(action)) && ((action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) != CGActionBar::ACTION_TAG::ACTION_TAG_EQUIPMENT_SET || CGActionBar::IsEquipmentSetValid(action & CGActionBar::ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID))) {
                 CGActionBar::SetAction(i, action, 0, 1);
             } else {
                 CGActionBar::RemoveAction(i);

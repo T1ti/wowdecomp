@@ -78,7 +78,7 @@ static int32_t Script_GetActionInfo(lua_State* L) {
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1));
     uint32_t action = CGActionBar::m_slotActions[slot - 1];
 
-    if (action && !(action & 0xF0000000)) {
+    if (action && !(action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG)) {
         int32_t petSpell = 0;
         int32_t spellId = CGActionBar::GetSpell(slot - 1, petSpell);
         SpellRec spell;
@@ -106,7 +106,7 @@ static int32_t Script_GetActionInfo(lua_State* L) {
         return 4;
     }
 
-    if (action && (action & 0xF0000000) == 0x10000000) {
+    if (action && (action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_PET_ACTION) {
         int32_t spellId = CGActionBar::GetPetActionSpell(slot - 1);
         lua_pushstring(L, "spell");
         lua_pushnumber(L, GetSpellSlot(spellId, 1) + 1);
@@ -242,14 +242,14 @@ static int32_t Script_GetActionText(lua_State* L) {
     uint32_t action = CGActionBar::m_slotActions[slot - 1];
 
     if (action) {
-        if ((action & 0xF0000000) == 0x40000000) {
-            MACRONODE* macro = CGUIMacros::GetMacroByID(action & 0xBFFFFFFF);
+        if ((action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_MACRO) {
+            MACRONODE* macro = CGUIMacros::GetMacroByID(action & CGActionBar::ACTION_MASK::ACTION_MASK_MACRO_ID);
 
             if (macro) {
                 lua_pushstring(L, macro->m_name);
                 return 1;
             }
-        } else if ((action & 0xF0000000) == 0x20000000) {
+        } else if ((action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_EQUIPMENT_SET) {
             const EQUIPMENT_SET* set = CGEquipmentManager::GetSetByID(CGActionBar::GetEquipmentSetID(slot - 1));
 
             if (set) {

@@ -61,7 +61,7 @@ void CGActionBar::HideGrid() {
 // OFFSET: 0x005648A0
 int32_t CGActionBar::IsMacro(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    return action && (action & 0xF0000000) == 0x40000000;
+    return action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO;
 }
 
 // VERIFY: 4dbd4b01 manual
@@ -69,8 +69,8 @@ int32_t CGActionBar::IsMacro(uint32_t slot) {
 uint32_t CGActionBar::GetMacroID(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x40000000) {
-        return action & 0xBFFFFFFF;
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
+        return action & ACTION_MASK::ACTION_MASK_MACRO_ID;
     }
 
     return 0;
@@ -80,21 +80,21 @@ uint32_t CGActionBar::GetMacroID(uint32_t slot) {
 // OFFSET: 0x005A7890
 int32_t CGActionBar::IsItem(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    return action && (action & 0xF0000000) == 0x80000000;
+    return action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_ITEM;
 }
 
 // VERIFY: 2927bc93 auto
 // OFFSET: 0x005A78C0
 int32_t CGActionBar::IsPetAction(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    return action && (action & 0xF0000000) == 0x10000000;
+    return action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_PET_ACTION;
 }
 
 // VERIFY: ac5a6409 auto
 // OFFSET: 0x005A78F0
 int32_t CGActionBar::IsEquipmentSet(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    return action && (action & 0xF0000000) == 0x20000000;
+    return action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET;
 }
 
 // VERIFY: b18cab5c auto
@@ -102,8 +102,8 @@ int32_t CGActionBar::IsEquipmentSet(uint32_t slot) {
 int32_t CGActionBar::GetEquipmentSetID(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x20000000) {
-        return action & 0xDFFFFFFF;
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET) {
+        return action & ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID;
     }
 
     return -1;
@@ -112,7 +112,7 @@ int32_t CGActionBar::GetEquipmentSetID(uint32_t slot) {
 // VERIFY: e56c7d55 auto
 // OFFSET: 0x005A7A40
 int32_t CGActionBar::HasMacro(uint32_t slot) {
-    return CGUIMacros::GetMacroIndexByID(CGActionBar::m_slotActions[slot] & 0xBFFFFFFF) != -1;
+    return CGUIMacros::GetMacroIndexByID(CGActionBar::m_slotActions[slot] & ACTION_MASK::ACTION_MASK_MACRO_ID) != -1;
 }
 
 // VERIFY: 6f49ff29 auto
@@ -124,14 +124,14 @@ int32_t CGActionBar::GetItem(uint32_t slot) {
 
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x40000000 && CGActionBar::HasMacro(slot)) {
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO && CGActionBar::HasMacro(slot)) {
         return CGActionBar::GetMacroItem(slot);
     }
 
     action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x80000000) {
-        return action & 0x7FFFFFFF;
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_ITEM) {
+        return action & ACTION_MASK::ACTION_MASK_ITEM_ID;
     }
 
     return 0;
@@ -170,13 +170,13 @@ int32_t CGActionBar::GetSpell(uint32_t slot, int32_t& petSpell) {
 
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x40000000 && CGActionBar::HasMacro(slot)) {
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO && CGActionBar::HasMacro(slot)) {
         return CGActionBar::GetMacroSpell(slot, petSpell);
     }
 
     action = CGActionBar::m_slotActions[slot];
 
-    if (action && !(action & 0xF0000000)) {
+    if (action && !(action & ACTION_MASK::ACTION_MASK_TAG)) {
         return action;
     }
 
@@ -330,7 +330,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
 
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x20000000) {
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET) {
         if (!CGEquipmentManager::CanUseEquipmentSets(false)) {
             return 0;
         }
@@ -445,7 +445,7 @@ void CGActionBar::UpdateUsable() {
 // OFFSET: 0x005A80E0
 int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    uint32_t index = action && (action & 0xF0000000) == 0x10000000 ? action & 0xEFFFFFFF : 0;
+    uint32_t index = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_PET_ACTION ? action & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX : 0;
 
     if (!CGPetInfo::GetPet(0) || index >= sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0])) {
         return 0;
@@ -489,7 +489,7 @@ int32_t CGActionBar::GetItemSpell(uint32_t slot) {
 // OFFSET: 0x005A89F0
 int32_t CGActionBar::GetMacroSpell(uint32_t slot, int32_t& petSpell) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    uint32_t id = action && (action & 0xF0000000) == 0x40000000 ? action & 0xBFFFFFFF : 0;
+    uint32_t id = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
     MACRONODE* macro = CGUIMacros::GetMacroByID(id);
 
     if (!macro) {
@@ -508,7 +508,7 @@ int32_t CGActionBar::GetMacroSpell(uint32_t slot, int32_t& petSpell) {
 // OFFSET: 0x005A7860
 int32_t CGActionBar::IsSpell(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    return action && !(action & 0xF0000000);
+    return action && !(action & ACTION_MASK::ACTION_MASK_TAG);
 }
 
 // VERIFY: 9a0d1665 auto
@@ -607,17 +607,17 @@ void CGActionBar::UpdateSelection() {
 int32_t CGActionBar::HasAction(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x40000000 && CGUIMacros::GetMacroIndexByID(action & 0xBFFFFFFF) == -1) {
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO && CGUIMacros::GetMacroIndexByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID) == -1) {
         return 0;
     }
 
     action = CGActionBar::m_slotActions[slot];
 
-    if (!action || (action & 0xF0000000) != 0x10000000) {
+    if (!action || (action & ACTION_MASK::ACTION_MASK_TAG) != ACTION_TAG::ACTION_TAG_PET_ACTION) {
         return action != 0;
     }
 
-    PetAction* petAction = GetPetAction((slot - 120) & 0xEFFFFFFF);
+    PetAction* petAction = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
     if (!petAction || !petAction->m_data) {
         return 0;
@@ -849,7 +849,7 @@ const char* CGActionBar::GetTexture(int32_t slot) {
         return nullptr;
     }
 
-    PetAction* action = GetPetAction((slot - 120) & 0xEFFFFFFF);
+    PetAction* action = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
     if (!action || !action->m_data) {
         return nullptr;
@@ -912,7 +912,7 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
     int32_t petSpell;
 
     if (CGActionBar::IsPetAction(slot)) {
-        PetAction* action = GetPetAction((slot - 120) & 0xEFFFFFFF);
+        PetAction* action = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
         if (!action || !action->m_data) {
             return 0;
@@ -988,7 +988,7 @@ void CGActionBar::RemoveMacroActions(uint32_t macroId) {
 
     for (uint32_t slot = 0; slot < 144; slot++) {
         uint32_t action = CGActionBar::m_slotActions[slot];
-        uint32_t id = action && (action & 0xF0000000) == 0x40000000 ? action & 0xBFFFFFFF : 0;
+        uint32_t id = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
         if (id == macroId) {
             CGActionBar::RemoveAction(slot);
@@ -1005,7 +1005,7 @@ void CGActionBar::RemoveEquipmentSet(uint32_t id) {
 
     for (uint32_t i = 0; i < 144; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
-        uint32_t set = action && (action & 0xF0000000) == 0x20000000 ? action & 0xDFFFFFFF : static_cast<uint32_t>(-1);
+        uint32_t set = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET ? action & ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID : static_cast<uint32_t>(-1);
 
         if (set == id) {
             CGActionBar::RemoveAction(i);
@@ -1026,9 +1026,9 @@ void CGActionBar::SetAction(int32_t slot, uint32_t action, int32_t sendToServer,
         return;
     }
 
-    if (silent && (action & 0xF0000000) == 0x80000000) {
+    if (silent && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_ITEM) {
         WOWGUID none = { 0 };
-        g_itemDBCache.GetRecord(action & 0x7FFFFFFF, none, ItemStatsCallback, nullptr, true);
+        g_itemDBCache.GetRecord(action & ACTION_MASK::ACTION_MASK_ITEM_ID, none, ItemStatsCallback, nullptr, true);
     }
 
     if (CGActionBar::IsMacro(slot)) {
@@ -1039,8 +1039,8 @@ void CGActionBar::SetAction(int32_t slot, uint32_t action, int32_t sendToServer,
         }
     }
 
-    if ((action & 0xF0000000) == 0x40000000) {
-        MACRONODE* macro = CGUIMacros::GetMacroByID(action & 0xBFFFFFFF);
+    if ((action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
+        MACRONODE* macro = CGUIMacros::GetMacroByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID);
 
         if (macro) {
             macro->IncrementActionBarCount();
@@ -1201,7 +1201,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
             CGGameUI::ClearCursor(1, 1);
         }
 
-        action = itemId | 0x80000000;
+        action = itemId | ACTION_TAG::ACTION_TAG_ITEM;
     } else if (cursorMacro) {
         if (CGActionBar::IsItem(slot)) {
             ItemRec* rec = g_itemDB.GetRecord(CGActionBar::GetItem(slot));
@@ -1230,7 +1230,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
             CGGameUI::ClearCursor(1, 1);
         }
 
-        action = cursorMacro | 0x40000000;
+        action = cursorMacro | ACTION_TAG::ACTION_TAG_MACRO;
     } else {
         if (cursorSet < 0) {
             return;
@@ -1263,7 +1263,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
             CGGameUI::ClearCursor(1, 1);
         }
 
-        action = cursorSet | 0x20000000;
+        action = cursorSet | ACTION_TAG::ACTION_TAG_EQUIPMENT_SET;
     }
 
     CGActionBar::SetAction(slot, action, 1, 0);
@@ -1374,7 +1374,7 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
     } else if (CGActionBar::IsEquipmentSet(slot)) {
         CGEquipmentManager::EquipSet(CGActionBar::GetEquipmentSetID(slot));
     } else if (CGActionBar::IsPetAction(slot)) {
-        PetAction* petAction = GetPetAction(action & 0xEFFFFFFF);
+        PetAction* petAction = GetPetAction(action & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
         if (petAction && petAction->m_data) {
             WOWGUID none = { 0 };
@@ -1591,8 +1591,8 @@ void CGActionBar::OnAuraChanged(int32_t spellId) {
 uint32_t CGActionBar::GetSlotSpellAction(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
 
-    if (action && (action & 0xF0000000) == 0x10000000) {
-        return action & 0xEFFFFFFF;
+    if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_PET_ACTION) {
+        return action & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX;
     }
 
     return 0;
@@ -1650,8 +1650,8 @@ void CGActionBar::RemoveMacro(int32_t spellId) {
 
         uint32_t action = CGActionBar::m_slotActions[i];
 
-        if (action && (action & 0xF0000000) == 0x40000000) {
-            CGUIMacros::GetMacroByID(action & 0xBFFFFFFF)->FindSpellID();
+        if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
+            CGUIMacros::GetMacroByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID)->FindSpellID();
         }
 
         CGActionBar::RemoveAction(i);
@@ -1667,7 +1667,7 @@ void CGActionBar::UpdateEquipmentSet(uint32_t id) {
 
     for (uint32_t i = 0; i < 144; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
-        uint32_t set = action && (action & 0xF0000000) == 0x20000000 ? action & 0xDFFFFFFF : static_cast<uint32_t>(-1);
+        uint32_t set = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET ? action & ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID : static_cast<uint32_t>(-1);
 
         if (set == id) {
             int32_t noMana;
@@ -1712,7 +1712,7 @@ void CGActionBar::UpdateMacro(uint32_t macroId) {
 
     for (uint32_t i = 0; i < 144; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
-        uint32_t id = action && (action & 0xF0000000) == 0x40000000 ? action & 0xBFFFFFFF : 0;
+        uint32_t id = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
         if (id != macroId) {
             continue;
@@ -1880,8 +1880,8 @@ void CGActionBar::UpdateItem(int32_t itemId) {
     for (uint32_t i = 0; i < 144; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
 
-        if (action && (action & 0xF0000000) == 0x40000000) {
-            MACRONODE* macro = CGUIMacros::GetMacroByID(action & 0xBFFFFFFF);
+        if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
+            MACRONODE* macro = CGUIMacros::GetMacroByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID);
 
             if (macro && macro->m_spellID < 0) {
                 macro->FindSpellID();
@@ -2047,7 +2047,7 @@ void CGActionBar::ShutdownGame() {
 // OFFSET: 0x005A7A90
 int32_t CGActionBar::GetMacroItem(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
-    uint32_t macroId = (action && (action & 0xF0000000) == 0x40000000) ? action & 0xBFFFFFFF : 0;
+    uint32_t macroId = (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
     MACRONODE* macro = CGUIMacros::GetMacroByID(macroId);
 
     if (macro) {
@@ -2091,10 +2091,10 @@ void CGActionBar::ReplaceSpell(int32_t oldSpell, int32_t newSpell) {
             continue;
         }
 
-        if (!(action & 0xF0000000)) {
+        if (!(action & ACTION_MASK::ACTION_MASK_TAG)) {
             CGActionBar::SetAction(slot, newSpell, 1, 0);
-        } else if ((action & 0xF0000000) == 0x40000000) {
-            CGUIMacros::GetMacroByID(action & 0xBFFFFFFF)->m_spellID = newSpell;
+        } else if ((action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
+            CGUIMacros::GetMacroByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID)->m_spellID = newSpell;
         }
     }
 }

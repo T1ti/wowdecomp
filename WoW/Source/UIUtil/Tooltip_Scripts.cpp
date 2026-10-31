@@ -999,7 +999,7 @@ static int32_t Script_SetAction(lua_State* L) {
     uint32_t action = CGActionBar::m_slotActions[slot];
     int32_t result;
 
-    if (action && (action & 0xF0000000) == 0x80000000) {
+    if (action && (action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_ITEM) {
         int32_t itemId = CGActionBar::GetItem(slot);
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
         WOWGUID none = { 0 };
@@ -1054,7 +1054,7 @@ static int32_t Script_SetAction(lua_State* L) {
             WOWGUID empty = { 0 };
             result = tooltip->SetItem(itemId, &empty, &empty, 0, 0, 0, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, 0, 0);
         }
-    } else if (action && !(action & 0xF0000000)) {
+    } else if (action && !(action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG)) {
         int32_t brief = 1;
         CVar* uber = CVar::Lookup("UberTooltips");
 

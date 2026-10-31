@@ -624,7 +624,7 @@ void CGUIMacros::CountActionBarSlots(MACRONODE* macro) {
 
     for (uint32_t slot = 0; slot < 144; slot++) {
         uint32_t action = CGActionBar::m_slotActions[slot];
-        uint32_t id = action && (action & 0xF0000000) == 0x40000000 ? action & 0xBFFFFFFF : 0;
+        uint32_t id = action && (action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_MACRO ? action & CGActionBar::ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
         if (id == macro->m_id) {
             if (macro->m_dynamic && !macro->m_actionBarCount) {
@@ -732,8 +732,8 @@ void CGUIMacros::CheckActionBar() {
     for (uint32_t i = 0; i < 144; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
 
-        if (action && (action & 0xF0000000) == 0x40000000) {
-            uint32_t id = action & 0xBFFFFFFF;
+        if (action && (action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_MACRO) {
+            uint32_t id = action & CGActionBar::ACTION_MASK::ACTION_MASK_MACRO_ID;
 
             if (id) {
                 MACRONODE* macro = s_macros.Ptr(id, HASHKEY_NONE());

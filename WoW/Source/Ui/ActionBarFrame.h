@@ -14,6 +14,24 @@ PetAction* GetPetAction(uint32_t index);
 
 class CGActionBar {
     public:
+    // Top-nibble client action tags; a zero complete word still means an empty slot.
+    enum ACTION_TAG : uint32_t {
+        ACTION_TAG_SPELL                    = 0x00000000,
+        ACTION_TAG_PET_ACTION               = 0x10000000,
+        ACTION_TAG_EQUIPMENT_SET            = 0x20000000,
+        ACTION_TAG_MACRO                    = 0x40000000,
+        ACTION_TAG_ITEM                     = 0x80000000,
+    };
+
+    // Each ID/index mask clears only its own tag bit; other raw bits are retained.
+    enum ACTION_MASK : uint32_t {
+        ACTION_MASK_TAG                      = 0xF0000000,
+        ACTION_MASK_PET_ACTION_INDEX         = 0xEFFFFFFF,
+        ACTION_MASK_EQUIPMENT_SET_ID         = 0xDFFFFFFF,
+        ACTION_MASK_MACRO_ID                 = 0xBFFFFFFF,
+        ACTION_MASK_ITEM_ID                  = 0x7FFFFFFF,
+    };
+
     static void LeaveWorld();
     static void SignalUpdateCooldown();
     static uint32_t m_tempPageActiveFlags;
