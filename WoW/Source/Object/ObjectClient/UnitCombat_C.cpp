@@ -290,7 +290,7 @@ void CGUnit_C::ShowBloodSpurt(const WOWGUID& attacker, int32_t large) {
 
     CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
     WOWGUID source = this->m_obj->m_guid;
-    effect->AddEffect(attachType, 0, nullptr, effectName, &attacker, &source, 0x20, CGObject_C::EffectOnceHandler, nullptr, 0, nullptr);
+    effect->AddEffect(attachType, 0, nullptr, effectName, &attacker, &source, CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME, CGObject_C::EffectOnceHandler, nullptr, 0, nullptr);
     effect->Release();
 }
 

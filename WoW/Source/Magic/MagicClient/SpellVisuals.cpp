@@ -388,7 +388,7 @@ void LightningObject::InitializeBolts(CGObject_C* caster, const WOWGUID* targets
         }
 
         for (CEffect* effect = object->m_effectList; effect; effect = effect->m_next) {
-            if (effect->m_spellId == this->m_spellId && (effect->m_flags & 0x40000)) {
+            if (effect->m_spellId == this->m_spellId && (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_CONNECTION)) {
                 effect->InitLightningEndpoint();
             }
         }

@@ -13739,7 +13739,7 @@ uint32_t CGPlayer_C::GetVirtualItemDisplayID(VIRTUAL_MONSTER_SLOT slot) const {
 // VERIFY: 5d485eba manual
 // OFFSET: 0x0073C1D0
 void CGPlayer_C::OnSpellEffectClear(CEffect* effect) {
-    bool updateAnimation = effect->m_kitRec && effect->m_kitRec->m_animID > 0 && (effect->m_flags & 0x1000);
+    bool updateAnimation = effect->m_kitRec && effect->m_kitRec->m_animID > 0 && (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION);
     CGObject_C::OnSpellEffectClear(effect);
 
     if (updateAnimation) {

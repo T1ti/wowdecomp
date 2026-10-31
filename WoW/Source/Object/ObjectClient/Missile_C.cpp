@@ -1900,8 +1900,8 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
 
         if (flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_RESIST) {
             CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
-            effect->AddSpecialByPosition(SPECIALEFFECT_RESISTSPELL, this->m_position, &target->m_obj->m_guid, 32, &CGObject_C::EffectOnceHandler);
-            effect->m_flags |= 0x8000;
+            effect->AddSpecialByPosition(SPECIALEFFECT_RESISTSPELL, this->m_position, &target->m_obj->m_guid, CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME, &CGObject_C::EffectOnceHandler);
+            effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_FIXED_FACING;
             C44Matrix matrix = this->m_model ? this->m_model->m_worldTransform : this->GetPositionMatrix();
             effect->m_facing = atan2(matrix.b1, matrix.b0) - 1.5707964f;
             effect->Release();

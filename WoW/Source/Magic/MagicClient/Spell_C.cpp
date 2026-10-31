@@ -9197,14 +9197,14 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
     SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_instantAreaKit);
 
     if (kit) {
-        uint32_t flags = spell.m_spellMissileID > 0 ? 0x402010 : 0x2010;
+        uint32_t flags = spell.m_spellMissileID > 0 ? (CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE | CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION | CEffect::EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) : (CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE | CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION);
         SpellVisualEffectNameRec* effectName;
 
         if (kit->m_baseEffect && (effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_baseEffect)) != nullptr) {
             CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
             effect->InitAtPosition(data->m_spellId, kit, effectName, flags, &CGObject_C::EffectOnceHandler, &data->m_destPosition, 0, data->m_destTarget);
             effect->Release();
-            flags = (flags & ~0x10u) | 0x400;
+            flags = (flags & ~CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE) | CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND;
         }
 
         if (kit->m_worldEffect && (effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_worldEffect)) != nullptr) {
@@ -9312,14 +9312,14 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         }
 
         uint32_t delay = OsGetAsyncTimeMs() + data->m_delay;
-        uint32_t flags = spell.m_spellMissileID > 0 ? 0x402010 : 0x2010;
+        uint32_t flags = spell.m_spellMissileID > 0 ? (CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE | CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION | CEffect::EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) : (CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE | CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION);
         SpellVisualEffectNameRec* effectName;
 
         if (impactKit->m_baseEffect && (effectName = g_spellVisualEffectNameDB.GetRecord(impactKit->m_baseEffect)) != nullptr) {
             CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
             effect->InitAtPosition(data->m_spellId, impactKit, effectName, flags, &CGObject_C::EffectOnceHandler, &data->m_destPosition, delay, data->m_destTarget);
             effect->Release();
-            flags = (flags & ~0x10u) | 0x400;
+            flags = (flags & ~CEffect::EFFECT_FLAGS::EFFECT_PLAY_CAMERA_SHAKE) | CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND;
         }
 
         if (impactKit->m_worldEffect && (effectName = g_spellVisualEffectNameDB.GetRecord(impactKit->m_worldEffect)) != nullptr) {

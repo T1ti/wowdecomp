@@ -681,7 +681,7 @@ int32_t Packet_SMSG_ACHIEVEMENT_EARNED(void* param, NETMESSAGE msgId, uint32_t t
         CEffect* effect = memory ? new (memory) CEffect() : nullptr;
         WOWGUID guid = player;
         effect->AddSpecialEffect(SPECIALEFFECT_ACHIEVEMENTBASE, guid, CGObject_C::EffectOnceHandler);
-        effect->m_flags |= 0x20;
+        effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
         effect->Release();
     }
 

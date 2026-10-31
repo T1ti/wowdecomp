@@ -4068,7 +4068,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
 
         CEffect* next = effect->m_next;
 
-        if (!(effect->m_flags & 0x800000) && effect->m_kitRec && effect->m_kitRec->m_animID > 0 && (effect->m_flags & 0x1000)) {
+        if (!(effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_MOUNT_AURA) && effect->m_kitRec && effect->m_kitRec->m_animID > 0 && (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION)) {
             break;
         }
 
@@ -4082,7 +4082,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
             mountOut->m_time = 0;
         }
 
-        if (effect->m_flags & 0x1000000) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_RAW_ANIMATION_ID) {
             mountOut->m_sequenceId = effect->m_kitRec->m_animID;
         } else {
             mountOut->m_sequenceId = this->ResolveAnimForModel(effect->m_kitRec->m_animID, this->m_mountModel);
@@ -4098,7 +4098,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
             baseOut->m_time = 0;
         }
 
-        if (effect->m_flags & 0x1000000) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_RAW_ANIMATION_ID) {
             baseOut->m_sequenceId = effect->m_kitRec->m_animID;
         } else {
             baseOut->m_sequenceId = this->ResolveAnimForModel(effect->m_kitRec->m_animID, this->m_worldModel);
@@ -4118,7 +4118,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
             torsoOut->m_time = 0;
         }
 
-        if (effect->m_flags & 0x1000000) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_RAW_ANIMATION_ID) {
             torsoOut->m_sequenceId = effect->m_kitRec->m_animID;
         } else {
             torsoOut->m_sequenceId = this->ResolveAnimForModel(effect->m_kitRec->m_animID, this->m_worldModel);
@@ -6656,7 +6656,7 @@ int32_t CGUnit_C::IsInCombat() const {
 // OFFSET: 0x0071AFE0
 void CGUnit_C::UnRootEffects() {
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        effect->m_flags &= ~0x4000;
+        effect->m_flags &= ~CEffect::EFFECT_FLAGS::EFFECT_FOLLOW_SOURCE_POSITION;
     }
 }
 
@@ -10400,7 +10400,7 @@ CGUnit_C::~CGUnit_C() {
     this->ClearWeaponTrailHandles();
 
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_flags & 0x8) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LOOT_ART) {
             effect->MoveToDestroyList();
             break;
         }
@@ -10623,7 +10623,7 @@ void CGUnit_C::Disable() {
     }
 
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_flags & 0x8) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LOOT_ART) {
             effect->MoveToDestroyList();
             break;
         }
@@ -13923,7 +13923,7 @@ void CGUnit_C::ApplyComponentItemsFromEffects() {
     for (CEffect* effect = this->m_effectList; effect;) {
         CEffect* next = effect->m_next;
 
-        if (effect->m_flags & 0x80000) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_ITEM_VISUAL) {
             effect->ApplyItemVisual();
         }
 
@@ -17041,15 +17041,15 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
             animFlags |= 0x20;
         }
 
-        if ((a10 & 0x40) && kit->m_startAnimID >= 0) {
+        if ((a10 & CEffect::EFFECT_FLAGS::EFFECT_PRECAST) && kit->m_startAnimID >= 0) {
             this->PlayBaseAnimation(kit->m_startAnimID, animFlags);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_PRECAST_START;
         } else if (kit->m_animID >= 0) {
             SpellVisualKitRec* castKit = visual ? g_spellVisualKitDB.GetRecord(visual->m_castKit) : nullptr;
             bool sameAnim = castKit && castKit->m_animID > 0 && castKit->m_animID == this->GetCurrentTorsoAnimId();
             bool noCastTime = this->GetSpellCastingTime(spell) <= 0;
-            int32_t holdCast = (a10 & 0x40) && !noCastTime && sameAnim;
-            int32_t holdChannel = (a10 & 0x1000) && sameAnim;
+            int32_t holdCast = (a10 & CEffect::EFFECT_FLAGS::EFFECT_PRECAST) && !noCastTime && sameAnim;
+            int32_t holdChannel = (a10 & CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION) && sameAnim;
 
             if (type == 2) {
                 if (!holdChannel && !a11) {
@@ -17068,14 +17068,14 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
 
                     this->UpdateBaseAnimation(animFlags, -1);
                 }
-            } else if (!(a10 & 0x40) || (!noCastTime && !holdCast)) {
+            } else if (!(a10 & CEffect::EFFECT_FLAGS::EFFECT_PRECAST) || (!noCastTime && !holdCast)) {
                 if (IsWoundAnim(kit->m_animID)) {
                     this->PlayWoundAnimKit(kit->m_animID == ANIM_COMBAT_CRITICAL);
                 } else {
                     this->PlayBaseAnimation(kit->m_animID, animFlags);
                 }
 
-                if (a10 & 0x80) {
+                if (a10 & CEffect::EFFECT_FLAGS::EFFECT_SET_SPECIAL_IDLE) {
                     this->m_specialIdleAnim = kit->m_animID;
                 }
             }
@@ -17102,7 +17102,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
         this->m_pendingWeaponTrail[1] = 0;
     }
 
-    if (!(a10 & 0x400) && kit->m_soundID) {
+    if (!(a10 & CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND) && kit->m_soundID) {
         CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
         effect->m_flags = a10;
         effect->m_kitRec = kit;
@@ -17131,7 +17131,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     }
 
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_flags & 0x4) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_FREEZE_ANIMATION) {
             return;
         }
     }
@@ -18016,7 +18016,7 @@ void CGUnit_C::OnLevelChange() {
     CEffect* effect = memory ? new (memory) CEffect() : nullptr;
     WOWGUID guid = this->m_obj->m_guid;
     effect->AddSpecialEffect(SPECIALEFFECT_LEVELUP, guid, CGObject_C::EffectOnceHandler);
-    effect->m_flags |= 0x20;
+    effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
     effect->Release();
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
@@ -18080,7 +18080,7 @@ int32_t Packet_SMSG_LOOT_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDat
 // OFFSET: 0x00717C20
 void CGUnit_C::RemoveLootEffect() {
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_flags & 0x8) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LOOT_ART) {
             effect->MoveToDestroyList();
             return;
         }
@@ -18181,7 +18181,7 @@ void CGUnit_C::ShowLootEffect() {
     }
 
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_flags & 0x8) {
+        if (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LOOT_ART) {
             return;
         }
     }
@@ -18793,7 +18793,7 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
             CEffect* effect = memory ? new (memory) CEffect() : nullptr;
             WOWGUID guid = this->m_obj->m_guid;
             effect->AddSpecialEffect(type, guid, CGObject_C::EffectOnceHandler);
-            effect->m_flags |= 0x20;
+            effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
             effect->Release();
             return;
         }
@@ -20528,7 +20528,7 @@ void CGUnit_C::RemoveChannelEffects(int32_t spellId) {
         CEffect* current = effect;
         effect = effect->m_next;
 
-        if (current->m_spellId == static_cast<uint32_t>(spellId) && (current->m_flags & 0x3040)) {
+        if (current->m_spellId == static_cast<uint32_t>(spellId) && (current->m_flags & (CEffect::EFFECT_FLAGS::EFFECT_PRECAST | CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION | CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION))) {
             current->MoveToDestroyList();
         }
     }
@@ -20984,7 +20984,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
-                effect->AddLightning(expireTime, spellId, kit, &self, flags & 0x300401);
+                effect->AddLightning(expireTime, spellId, kit, &self, flags & (CEffect::EFFECT_FLAGS::EFFECT_SOUND_LOOPING | CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND | CEffect::EFFECT_FLAGS::EFFECT_SOUND_ONLY | CEffect::EFFECT_FLAGS::EFFECT_DETACHED_SOUND));
                 effect->Release();
 
                 WOWGUID source = WOWGUID();
@@ -20992,7 +20992,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 const WOWGUID* targets;
                 uint32_t count;
 
-                if ((flags & 0x1000) && guid && guid != this->m_obj->m_guid) {
+                if ((flags & CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION) && guid && guid != this->m_obj->m_guid) {
                     target = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
                     if (!target) {
@@ -21070,7 +21070,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
-                effect->CreateProceduralEffectImpl(expireTime, param0, spellId, kit, &self, flags & 0x300401);
+                effect->CreateProceduralEffectImpl(expireTime, param0, spellId, kit, &self, flags & (CEffect::EFFECT_FLAGS::EFFECT_SOUND_LOOPING | CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND | CEffect::EFFECT_FLAGS::EFFECT_SOUND_ONLY | CEffect::EFFECT_FLAGS::EFFECT_DETACHED_SOUND));
                 effect->Release();
                 break;
             }
@@ -21101,7 +21101,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                     effect->m_kitRec = kit;
 
                     if (kit->m_flags & 0x200) {
-                        effect->m_flags |= 0x2000000;
+                        effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA;
                     }
 
                     this->m_forceWorldModelAlpha = (kit->m_flags >> 10) & 1;
@@ -21131,7 +21131,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
                 effect->AddMountTransition(spellId, kit, &self);
-                effect->m_flags |= flags & 0xC0;
+                effect->m_flags |= flags & (CEffect::EFFECT_FLAGS::EFFECT_PRECAST | CEffect::EFFECT_FLAGS::EFFECT_SET_SPECIAL_IDLE);
                 effect->Release();
                 break;
             }
@@ -21458,7 +21458,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
 
     CEffect* effect = this->m_mountTransitionEffect;
 
-    if (effect && !(effect->m_flags & 0x100)) {
+    if (effect && !(effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_DESTROY_PENDING)) {
         effect->MoveToDestroyList();
     }
 
@@ -21604,7 +21604,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
         WOWGUID owner = this->m_obj->m_guid;
         // The boolean selects water run (0) or water walk (1).
-        effect->AddSpecialByPosition(!this->IsRunning(), splash, &owner, 0x220, CGObject_C::EffectOnceHandler);
+        effect->AddSpecialByPosition(!this->IsRunning(), splash, &owner, (CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME | CEffect::EFFECT_FLAGS::EFFECT_SCALE_TO_TARGET), CGObject_C::EffectOnceHandler);
         effect->Release();
         return;
     }
@@ -21631,7 +21631,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
 
     CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
     WOWGUID owner = this->m_obj->m_guid;
-    effect->InitFromUnit(effectPosition, OsGetAsyncTimeMs(), 0, nullptr, effectName, &owner, 0x220, CGObject_C::EffectOnceHandler, 0, nullptr, WOWGUID{ this->GetTransportGUID() });
+    effect->InitFromUnit(effectPosition, OsGetAsyncTimeMs(), 0, nullptr, effectName, &owner, (CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME | CEffect::EFFECT_FLAGS::EFFECT_SCALE_TO_TARGET), CGObject_C::EffectOnceHandler, 0, nullptr, WOWGUID{ this->GetTransportGUID() });
     effect->Release();
 }
 
@@ -22247,7 +22247,7 @@ void CGUnit_C::OnMountDisplayChanged(int32_t displayId) {
             CEffect* effect = memory ? new (memory) CEffect() : nullptr;
             WOWGUID guid = this->m_obj->m_guid;
             effect->AddSpecialEffect(SPECIALEFFECT_MOUNTPOOF, guid, CGObject_C::EffectOnceHandler);
-            effect->m_flags |= 0x20;
+            effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
             effect->Release();
         }
     }
