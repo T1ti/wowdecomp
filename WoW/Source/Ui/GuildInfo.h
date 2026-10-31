@@ -9,6 +9,36 @@
 class CDataStore;
 struct lua_State;
 
+// SMSG_GUILD_COMMAND_RESULT result word, separate from guild command/event IDs.
+// Names describe verified client actions; unknown results keep the silent default.
+enum GUILD_COMMAND_RESULT : uint32_t {
+    GUILD_RESULT_SUCCESS                                    = 0,
+    GUILD_RESULT_INTERNAL                                   = 1,
+    GUILD_RESULT_ALREADY_IN_GUILD                           = 2,
+    GUILD_RESULT_PLAYER_ALREADY_IN_GUILD                    = 3,
+    GUILD_RESULT_ALREADY_INVITED                            = 4,
+    GUILD_RESULT_PLAYER_ALREADY_INVITED                     = 5,
+    GUILD_RESULT_NAME_INVALID                               = 6,
+    GUILD_RESULT_NAME_EXISTS                                = 7,
+    // Quit command 3 reports leader-cannot-leave; others report permissions.
+    GUILD_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION       = 8,
+    GUILD_RESULT_NOT_IN_GUILD                               = 9,
+    GUILD_RESULT_PLAYER_NOT_IN_GUILD                        = 10,
+    GUILD_RESULT_PLAYER_NOT_FOUND                           = 11,
+    GUILD_RESULT_NOT_ALLIED                                 = 12,
+    GUILD_RESULT_RANK_TOO_HIGH                              = 13,
+    GUILD_RESULT_RANK_TOO_LOW                               = 14,
+    GUILD_RESULT_RANKS_LOCKED                               = 17,
+    GUILD_RESULT_RANK_IN_USE                                = 18,
+    GUILD_RESULT_IGNORING_YOU                               = 19,
+    // No message; refreshes the roster only for command 5. Server cause unverified.
+    GUILD_RESULT_REFRESH_ROSTER                             = 20,
+    GUILD_RESULT_WITHDRAW_LIMIT                             = 25,
+    GUILD_RESULT_NOT_ENOUGH_MONEY                           = 26,
+    GUILD_RESULT_BANK_FULL                                  = 28,
+    GUILD_RESULT_ITEM_NOT_FOUND                             = 29,
+};
+
 struct GuildRankInfo {
     /* 0000 */ uint32_t m_rights;
     /* 0004 */ int32_t m_bankMoneyPerDay;

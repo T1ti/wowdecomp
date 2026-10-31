@@ -5188,7 +5188,7 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
     msg->GetString(name, sizeof(name));
     msg->Get(result);
 
-    if (!result) {
+    if (result == GUILD_COMMAND_RESULT::GUILD_RESULT_SUCCESS) {
         switch (command) {
             case 0: {
                 CGGameUI::DisplayError(ERR_GUILD_CREATE_S, name);
@@ -5224,42 +5224,42 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
     }
 
     switch (result) {
-        case 1: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_INTERNAL: {
             CGGameUI::DisplayError(ERR_GUILD_INTERNAL);
             break;
         }
 
-        case 2: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_ALREADY_IN_GUILD: {
             CGGameUI::DisplayError(ERR_ALREADY_IN_GUILD);
             break;
         }
 
-        case 3: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_PLAYER_ALREADY_IN_GUILD: {
             CGGameUI::DisplayError(ERR_ALREADY_IN_GUILD_S, name);
             break;
         }
 
-        case 4: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_ALREADY_INVITED: {
             CGGameUI::DisplayError(ERR_INVITED_TO_GUILD);
             break;
         }
 
-        case 5: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_PLAYER_ALREADY_INVITED: {
             CGGameUI::DisplayError(ERR_ALREADY_INVITED_TO_GUILD_S, name);
             break;
         }
 
-        case 6: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_NAME_INVALID: {
             CGGameUI::DisplayNameError(NAME_FAILURE);
             break;
         }
 
-        case 7: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_NAME_EXISTS: {
             CGGameUI::DisplayError(ERR_GUILD_NAME_EXISTS_S, name);
             break;
         }
 
-        case 8: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION: {
             if (command == 3) {
                 CGGameUI::DisplayError(ERR_GUILD_LEADER_LEAVE);
             } else {
@@ -5269,52 +5269,52 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             break;
         }
 
-        case 9: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_NOT_IN_GUILD: {
             CGGameUI::DisplayError(ERR_GUILD_PLAYER_NOT_IN_GUILD);
             break;
         }
 
-        case 10: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_PLAYER_NOT_IN_GUILD: {
             CGGameUI::DisplayError(ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
             break;
         }
 
-        case 11: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_PLAYER_NOT_FOUND: {
             CGGameUI::DisplayError(ERR_GUILD_PLAYER_NOT_FOUND_S, name);
             break;
         }
 
-        case 12: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_NOT_ALLIED: {
             CGGameUI::DisplayError(ERR_GUILD_NOT_ALLIED);
             break;
         }
 
-        case 13: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_RANK_TOO_HIGH: {
             CGGameUI::DisplayError(ERR_GUILD_RANK_TOO_HIGH_S, name);
             break;
         }
 
-        case 14: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_RANK_TOO_LOW: {
             CGGameUI::DisplayError(ERR_GUILD_RANK_TOO_LOW_S, name);
             break;
         }
 
-        case 17: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_RANKS_LOCKED: {
             CGGameUI::DisplayError(ERR_GUILD_RANKS_LOCKED);
             break;
         }
 
-        case 18: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_RANK_IN_USE: {
             CGGameUI::DisplayError(ERR_GUILD_RANK_IN_USE);
             break;
         }
 
-        case 19: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_IGNORING_YOU: {
             CGGameUI::DisplayError(ERR_IGNORING_YOU_S, name);
             break;
         }
 
-        case 20: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_REFRESH_ROSTER: {
             if (command == 5) {
                 UpdateGuildRoster(1);
             }
@@ -5322,22 +5322,22 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             break;
         }
 
-        case 25: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_WITHDRAW_LIMIT: {
             CGGameUI::DisplayError(ERR_GUILD_WITHDRAW_LIMIT);
             break;
         }
 
-        case 26: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_NOT_ENOUGH_MONEY: {
             CGGameUI::DisplayError(ERR_GUILD_NOT_ENOUGH_MONEY);
             break;
         }
 
-        case 28: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_BANK_FULL: {
             CGGameUI::DisplayError(ERR_GUILD_BANK_FULL);
             break;
         }
 
-        case 29: {
+        case GUILD_COMMAND_RESULT::GUILD_RESULT_ITEM_NOT_FOUND: {
             CGGameUI::DisplayError(ERR_ITEM_NOT_FOUND);
             break;
         }
