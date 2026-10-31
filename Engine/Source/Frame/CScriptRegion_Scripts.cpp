@@ -28,7 +28,7 @@ static int32_t Script_IsProtected(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (region->m_layoutFlags & 0x10000) {
+    if (region->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_EXPLICITLY_PROTECTED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

@@ -58,7 +58,7 @@ static int32_t Script_CreateTitleRegion(lua_State* L) {
         titleRegion = data ? new (data) CSimpleTitleRegion : nullptr;
         titleRegion->SetParent(frame);
         frame->m_titleRegion = titleRegion;
-        titleRegion->SetDeferredResize((frame->m_layoutFlags >> 8) & 2);
+        titleRegion->SetDeferredResize((frame->m_layoutFlags >> 8) & (CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE >> 8));
     }
 
     if (!titleRegion->m_luaRegistered) {
@@ -1447,7 +1447,7 @@ static int32_t Script_SetClampedToScreen(lua_State* L) {
 static int32_t Script_IsClampedToScreen(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if (frame->m_layoutFlags & 0x1000) {
+    if (frame->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_CLAMPED_TO_SCREEN) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

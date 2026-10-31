@@ -848,7 +848,7 @@ void CSimpleFrame::DisableEvent(CSimpleEventType eventType) {
 // VERIFY: bbfb8171 manual
 // OFFSET: 0x0048F730
 int32_t CSimpleFrame::TestHitRect(const C2Vector& pt) {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return 0;
     }
 
@@ -892,7 +892,7 @@ void CSimpleFrame::SetHitRectInsets(float left, float right, float top, float bo
 // VERIFY: 8c2d9ec9 manual
 // OFFSET: 0x0048F890
 int32_t CSimpleFrame::GetHitRect(CRect& rect) {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return 0;
     }
 
@@ -2339,7 +2339,7 @@ void CSimpleFrame::LoadXML(XMLNode* node, CStatus* status) {
             titleRegion->SetParent(this);
             titleRegion->LoadXML(child, status);
             this->m_titleRegion = titleRegion;
-            titleRegion->SetDeferredResize((this->m_layoutFlags >> 8) & 2);
+            titleRegion->SetDeferredResize((this->m_layoutFlags >> 8) & (CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE >> 8));
         } else if (!SStrCmpI(child->m_name.m_str, "ResizeBounds", STORM_MAX_STR)) {
             float minWidth = 0.0f;
             float minHeight = 0.0f;

@@ -70,7 +70,7 @@ int32_t CFramePoint::GetRelativeRect(CRect& rect) {
     this->m_flags &= ~4u;
 
     if (!this->m_relative->IsResizePending() || (this->m_relative->Resize(1), !(this->m_flags & 4))) {
-        if (!(this->m_relative->m_layoutFlags & 0x200) || (this->m_relative->SetDeferredResize(0), !(this->m_flags & 4))) {
+        if (!(this->m_relative->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE) || (this->m_relative->SetDeferredResize(0), !(this->m_flags & 4))) {
             if (this->m_relative->GetRect(&rect)) {
                 if (this->m_relative->IsAttachmentOrigin()) {
                     float offsetX = -rect.minX;

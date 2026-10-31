@@ -278,7 +278,7 @@ void CSimpleMessageFrame::ClearPending() {
 // VERIFY: ca437c53 manual
 // OFFSET: 0x00968790
 void CSimpleMessageFrame::UpdateRect() {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return;
     }
 

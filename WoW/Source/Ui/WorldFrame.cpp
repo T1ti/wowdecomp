@@ -1875,7 +1875,7 @@ void CGWorldFrame::OnLayerUpdate(float elapsedSec) {
         } else {
             kind = this->HitTestPoint(ddc.x, ddc.y, 1, &hit);
         }
-    } else if (focus && (focus->m_layoutFlags & 0x10000)) {
+    } else if (focus && (focus->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_EXPLICITLY_PROTECTED)) {
         lua_State* L = FrameScript_GetContext();
         const char* savedTaint = lua_tainted;
 

@@ -290,7 +290,7 @@ void CSimpleRegion::SetFrame(CSimpleFrame* frame, uint32_t drawLayer, int32_t sh
     }
 
     frame->RegisterRegion(this);
-    this->SetDeferredResize((this->m_parent->m_layoutFlags >> 8) & 2);
+    this->SetDeferredResize((this->m_parent->m_layoutFlags >> 8) & (CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE >> 8));
     this->OnColorChanged(false);
 
     if (show) {

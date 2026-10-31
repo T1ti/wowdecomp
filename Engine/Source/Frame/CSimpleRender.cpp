@@ -942,7 +942,7 @@ bool CSimpleFontString::SetLayoutScale(float scale, bool force) {
                     this->m_string = nullptr;
                 }
 
-                this->m_layoutFlags &= ~0x100u;
+                this->m_layoutFlags &= ~CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID;
                 this->Resize(0);
             }
         }
@@ -1205,7 +1205,7 @@ void CSimpleFontString::ClearString() {
         this->m_string = nullptr;
     }
 
-    this->m_layoutFlags &= ~0x100u;
+    this->m_layoutFlags &= ~CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID;
     this->Resize(0);
 }
 
@@ -1546,7 +1546,7 @@ void CSimpleFontString::OnColorChanged(bool changed) {
 // VERIFY: 1148256f manual
 // OFFSET: 0x00486B20
 void CSimpleFontString::UpdateString() {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return;
     }
 

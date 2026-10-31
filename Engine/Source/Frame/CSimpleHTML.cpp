@@ -372,7 +372,7 @@ void CSimpleHTML::ParseP(XMLNode* node, HTML_TEXT_TYPE type, CStatus* status) {
 // VERIFY: a10a3e21 manual
 // OFFSET: 0x0096D500
 void CSimpleHTML::RefreshHyperlinks() {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return;
     }
 

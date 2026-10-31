@@ -815,7 +815,7 @@ int32_t CSimpleTop::RaiseFrame(CSimpleFrame* frame, int32_t checkOcclusion) {
     }
 
     if (checkOcclusion) {
-        if (!(frame->m_layoutFlags & 0x100) || frame->IsResizePending()) {
+        if (!(frame->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID) || frame->IsResizePending()) {
             frame->Resize(1);
         }
 
@@ -1148,7 +1148,7 @@ CSimpleTop::CSimpleTop() {
     memset(this->m_keydownCapture, 0, sizeof(this->m_keydownCapture));
 
     NDCToDDC(1.0f, 1.0f, &this->m_rect.maxX, &this->m_rect.maxY);
-    this->m_layoutFlags |= 0x100;
+    this->m_layoutFlags |= CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID;
 
     this->m_moveResizeEnabled = 0;
     this->m_moveResizeFrame = nullptr;

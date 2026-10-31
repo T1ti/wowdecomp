@@ -685,7 +685,7 @@ void CSimpleMessageScrollFrame::OnScreenSizeChanged() {
 // VERIFY: 3f38cf68 manual
 // OFFSET: 0x0096A760
 void CSimpleMessageScrollFrame::UpdateRect() {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return;
     }
 

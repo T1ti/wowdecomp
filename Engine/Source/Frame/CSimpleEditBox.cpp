@@ -919,7 +919,7 @@ void CSimpleEditBox::UpdateClauseInfo() {
 // VERIFY: 002cdee4 auto
 // OFFSET: 0x00963740
 void CSimpleEditBox::UpdateSizes() {
-    if (!(this->m_layoutFlags & 0x100)) {
+    if (!(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID)) {
         return;
     }
 

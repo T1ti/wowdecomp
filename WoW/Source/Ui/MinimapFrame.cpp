@@ -1747,7 +1747,7 @@ done:
 // VERIFY: 49439d70 manual
 // OFFSET: 0x00581E80
 void CGMinimapFrame::Render() {
-    if (!s_maskTexture || !(this->m_layoutFlags & 0x100) || !s_inWorld) {
+    if (!s_maskTexture || !(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID) || !s_inWorld) {
         return;
     }
 
