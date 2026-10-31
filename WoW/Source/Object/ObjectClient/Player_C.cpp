@@ -3350,162 +3350,162 @@ int32_t Packet_SMSG_CALENDAR_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint3
     msg->GetString(name, sizeof(name));
     msg->Get(result);
 
-    if (!result) {
+    if (result == CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_SUCCESS) {
         return 1;
     }
 
     switch (result) {
-        case 1: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_GUILD_EVENTS_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED", 100);
             break;
         }
 
-        case 2: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_EVENTS_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_EVENTS_EXCEEDED", 30);
             break;
         }
 
-        case 3: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_SELF_INVITES_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_SELF_INVITES_EXCEEDED", 0);
             break;
         }
 
-        case 4: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_OTHER_INVITES_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_OTHER_INVITES_EXCEEDED", reinterpret_cast<uintptr_t>(name));
             break;
         }
 
-        case 5: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_PERMISSIONS: {
             CGCalendar::CalendarError("CALENDAR_ERROR_PERMISSIONS", 0);
             break;
         }
 
-        case 6: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_EVENT_INVALID: {
             CGCalendar::CalendarError("CALENDAR_ERROR_EVENT_INVALID", 0);
             break;
         }
 
-        case 7: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NOT_INVITED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NOT_INVITED", 0);
             break;
         }
 
-        case 8: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INTERNAL: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INTERNAL", 0);
             break;
         }
 
-        case 9: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_GUILD_PLAYER_NOT_IN_GUILD: {
             CGCalendar::CalendarError("ERR_GUILD_PLAYER_NOT_IN_GUILD", 0);
             break;
         }
 
-        case 10: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_ALREADY_INVITED_TO_EVENT: {
             CGCalendar::CalendarError("CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S", reinterpret_cast<uintptr_t>(name));
             break;
         }
 
-        case 11: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_PLAYER_NOT_FOUND: {
             CGCalendar::CalendarError("PLAYER_NOT_FOUND", 0);
             break;
         }
 
-        case 12: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NOT_ALLIED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NOT_ALLIED", 0);
             break;
         }
 
-        case 13: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_IGNORING_YOU: {
             CGCalendar::CalendarError("ERR_IGNORING_YOU_S", reinterpret_cast<uintptr_t>(name));
             break;
         }
 
-        case 14: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INVITES_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INVITES_EXCEEDED", 100);
             break;
         }
 
-        case 16: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INVALID_DATE: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INVALID_DATE", 0);
             break;
         }
 
-        case 17: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INVALID_TIME: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INVALID_TIME", 0);
             break;
         }
 
-        case 19: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NEEDS_TITLE: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NEEDS_TITLE", 0);
             break;
         }
 
-        case 20: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_EVENT_PASSED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_EVENT_PASSED", 0);
             break;
         }
 
-        case 21: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_EVENT_LOCKED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_EVENT_LOCKED", 0);
             break;
         }
 
-        case 22: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_DELETE_CREATOR_FAILED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_DELETE_CREATOR_FAILED", 0);
             break;
         }
 
-        case 24: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_SYSTEM_DISABLED: {
             CGCalendar::CalendarError("ERR_SYSTEM_DISABLED", 0);
             break;
         }
 
-        case 25: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_RESTRICTED_ACCOUNT: {
             CGCalendar::CalendarError("ERR_RESTRICTED_ACCOUNT", 0);
             break;
         }
 
-        case 26: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_ARENA_EVENTS_EXCEEDED: {
             CGCalendar::CalendarError("CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED", 0);
             break;
         }
 
-        case 27: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_RESTRICTED_LEVEL: {
             CGCalendar::CalendarError("CALENDAR_ERROR_RESTRICTED_LEVEL", 0);
             break;
         }
 
-        case 28: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_USER_SQUELCHED: {
             CGCalendar::CalendarError("ERR_USER_SQUELCHED", 0);
             break;
         }
 
-        case 29: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NO_INVITE: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NO_INVITE", 0);
             break;
         }
 
-        case 36: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_EVENT_WRONG_SERVER: {
             CGCalendar::CalendarError("CALENDAR_ERROR_EVENT_WRONG_SERVER", 0);
             break;
         }
 
-        case 37: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INVITE_WRONG_SERVER: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INVITE_WRONG_SERVER", 0);
             break;
         }
 
-        case 38: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NO_GUILD_INVITES: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NO_GUILD_INVITES", 0);
             break;
         }
 
-        case 39: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_INVALID_SIGNUP: {
             CGCalendar::CalendarError("CALENDAR_ERROR_INVALID_SIGNUP", 0);
             break;
         }
 
-        case 40: {
+        case CALENDAR_COMMAND_RESULT::CALENDAR_RESULT_NO_MODERATOR: {
             CGCalendar::CalendarError("CALENDAR_ERROR_NO_MODERATOR", 0);
             break;
         }

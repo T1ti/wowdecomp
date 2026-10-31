@@ -21,6 +21,43 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg);
 class HolidaysRec;
 struct CalendarDayEvent;
 
+// SMSG_CALENDAR_COMMAND_RESULT result word, separate from calendar command IDs.
+// Gaps 15/18/23/30..35 and unknown values retain the silent default.
+enum CALENDAR_COMMAND_RESULT : uint32_t {
+    CALENDAR_RESULT_SUCCESS                               = 0,
+    CALENDAR_RESULT_GUILD_EVENTS_EXCEEDED                 = 1,
+    CALENDAR_RESULT_EVENTS_EXCEEDED                       = 2,
+    CALENDAR_RESULT_SELF_INVITES_EXCEEDED                 = 3,
+    CALENDAR_RESULT_OTHER_INVITES_EXCEEDED                = 4,
+    CALENDAR_RESULT_PERMISSIONS                           = 5,
+    CALENDAR_RESULT_EVENT_INVALID                         = 6,
+    CALENDAR_RESULT_NOT_INVITED                           = 7,
+    CALENDAR_RESULT_INTERNAL                              = 8,
+    CALENDAR_RESULT_GUILD_PLAYER_NOT_IN_GUILD             = 9,
+    CALENDAR_RESULT_ALREADY_INVITED_TO_EVENT              = 10,
+    CALENDAR_RESULT_PLAYER_NOT_FOUND                      = 11,
+    CALENDAR_RESULT_NOT_ALLIED                            = 12,
+    CALENDAR_RESULT_IGNORING_YOU                          = 13,
+    CALENDAR_RESULT_INVITES_EXCEEDED                      = 14,
+    CALENDAR_RESULT_INVALID_DATE                          = 16,
+    CALENDAR_RESULT_INVALID_TIME                          = 17,
+    CALENDAR_RESULT_NEEDS_TITLE                           = 19,
+    CALENDAR_RESULT_EVENT_PASSED                          = 20,
+    CALENDAR_RESULT_EVENT_LOCKED                          = 21,
+    CALENDAR_RESULT_DELETE_CREATOR_FAILED                 = 22,
+    CALENDAR_RESULT_SYSTEM_DISABLED                       = 24,
+    CALENDAR_RESULT_RESTRICTED_ACCOUNT                    = 25,
+    CALENDAR_RESULT_ARENA_EVENTS_EXCEEDED                 = 26,
+    CALENDAR_RESULT_RESTRICTED_LEVEL                      = 27,
+    CALENDAR_RESULT_USER_SQUELCHED                        = 28,
+    CALENDAR_RESULT_NO_INVITE                             = 29,
+    CALENDAR_RESULT_EVENT_WRONG_SERVER                    = 36,
+    CALENDAR_RESULT_INVITE_WRONG_SERVER                   = 37,
+    CALENDAR_RESULT_NO_GUILD_INVITES                      = 38,
+    CALENDAR_RESULT_INVALID_SIGNUP                        = 39,
+    CALENDAR_RESULT_NO_MODERATOR                          = 40,
+};
+
 struct CALENDARHOLIDAYNODE : public TSLinkedNode<CALENDARHOLIDAYNODE> {
     /* 0008 */ HolidaysRec* m_holiday;
     /* 000C */ int32_t m_index;
