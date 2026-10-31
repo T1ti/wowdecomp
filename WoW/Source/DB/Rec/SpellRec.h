@@ -9,30 +9,83 @@ class SFileImpl;
 
 class SpellRec {
     public:
-    // Separate current client-interpreted masks; other DBC bits stay raw and unnamed.
+    // Separate 3.3.5 DBC words: all data-observed bits, plus native client-only bits.
+    // Added reference names follow the user-supplied later-version EnumeratedString labels;
+    // they do not establish identical 3.3.5 semantics. Channel DELAY is a guessed TC 3.3.5 name.
+    // Existing client-verified names/values and raw signed32 fields remain unchanged.
     enum InterruptFlags : int32_t {
-        INTERRUPT_ON_MOVEMENT = 0x1,
-        INTERRUPT_ON_COMBAT = 0x8,
+        INTERRUPT_ON_MOVEMENT = 0x00000001,
+        INTERRUPT_DMG_PUSHBACK_PLAYER = 0x00000002, // Unused by client; later-version label.
+        INTERRUPT_STUN = 0x00000004, // Unused by client; later-version label.
+        INTERRUPT_ON_COMBAT = 0x00000008,
+        INTERRUPT_DMG_CANCELS_PLAYER = 0x00000010, // Unused by client; later-version label.
+        INTERRUPT_MELEE_COMBAT = 0x00000020, // Unused by client; later-version label.
     };
 
     enum AuraInterruptFlags : int32_t {
-        AURA_REQUIRE_MOUNTED = 0x40,
-        AURA_REQUIRE_NOT_SWIMMING = 0x80,
-        AURA_REQUIRE_SWIMMING = 0x100,
-        AURA_REQUIRE_UNSHEATHED = 0x200,
-        // The client reads aura bits 0x8/0x10 only together in its movement gate.
-        AURA_MOVEMENT_GATE_MASK = 0x18,
+        AURA_HOSTILE_ACTION_RECEIVED_CANCELS = 0x00000001, // Unused by client; later-version label.
+        AURA_DAMAGE_CANCELS = 0x00000002, // Unused by client; later-version label.
+        AURA_ACTION_CANCELS = 0x00000004, // Unused by client; later-version label.
+        AURA_MOVING_CANCELS = 0x00000008, // Client uses this bit only through AURA_MOVEMENT_GATE_MASK; later-version label.
+        AURA_TURNING_CANCELS = 0x00000010, // Client uses this bit only through AURA_MOVEMENT_GATE_MASK; later-version label.
+        AURA_ANIM_CANCELS = 0x00000020, // Unused by client; later-version label.
+        AURA_REQUIRE_MOUNTED = 0x00000040,
+        AURA_REQUIRE_NOT_SWIMMING = 0x00000080,
+        AURA_REQUIRE_SWIMMING = 0x00000100,
+        AURA_REQUIRE_UNSHEATHED = 0x00000200,
+        AURA_INTERACTING_CANCELS = 0x00000400, // Unused by client; later-version label.
+        AURA_LOOTING_CANCELS = 0x00000800, // Unused by client; later-version label.
+        AURA_ATTACKING_CANCELS = 0x00001000, // Unused by client; later-version label.
+        AURA_ITEM_USE_CANCELS = 0x00002000, // Unused by client; later-version label.
+        AURA_DAMAGE_CHANNEL_DURATION = 0x00004000, // Unused by client; later-version label.
+        AURA_SHAPESHIFTING_CANCELS = 0x00008000, // Unused by client; later-version label.
+        AURA_ACTION_CANCELS_LATE = 0x00010000, // Unused by client; later-version label.
+        AURA_MOUNT_CANCELS = 0x00020000, // Unused by client; later-version label.
+        AURA_STANDING_CANCELS = 0x00040000, // Unused by client; later-version label.
+        AURA_LEAVE_WORLD_CANCELS = 0x00080000, // Unused by client; later-version label.
+        AURA_STEALTH_OR_INVIS_CANCELS = 0x00100000, // Unused by client; later-version label.
+        AURA_INVULNERABILITY_BUFF_CANCELS = 0x00200000, // Unused by client; later-version label.
+        AURA_ENTER_WORLD_CANCELS = 0x00400000, // Unused by client; later-version label.
+        AURA_PVP_ACTIVE_CANCELS = 0x00800000, // Unused by client; later-version label.
+        AURA_NON_PERIODIC_DAMAGE_CANCELS = 0x01000000, // Unused by client; later-version label.
+        AURA_LANDING_CANCELS = 0x02000000, // Unused by client; later-version label.
+        AURA_RELEASE_CANCELS = 0x04000000, // Unused by client; later-version label.
+        AURA_ENTERING_COMBAT_CANCELS = 0x10000000, // Unused by client; later-version label.
+        AURA_LOGIN_CANCELS = 0x20000000, // Unused by client; later-version label.
+        AURA_SUMMON_CANCELS = 0x40000000, // Unused by client; later-version label.
+        AURA_LEAVING_COMBAT_CANCELS = -2147483648, // 0x80000000; unused by client; later-version label.
+        AURA_MOVEMENT_GATE_MASK = 0x00000018,
     };
 
     enum ChannelInterruptFlags : int32_t {
-        CHANNEL_INTERRUPT_ON_MOVEMENT = 0x8,
-        CHANNEL_INTERRUPT_ON_TURN = 0x10,
-        CHANNEL_REQUIRE_MOUNTED = 0x40,
-        CHANNEL_REQUIRE_NOT_SWIMMING = 0x80,
-        CHANNEL_REQUIRE_SWIMMING = 0x100,
-        CHANNEL_REQUIRE_UNSHEATHED = 0x200,
-        CHANNEL_INTERRUPT_ON_COMBAT = 0x1000,
-        CHANNEL_MOVEMENT_OR_TURN_MASK = 0x18,
+        CHANNEL_HOSTILE_ACTION_RECEIVED_CANCELS = 0x00000001, // Unused by client; later-version label.
+        CHANNEL_DAMAGE_CANCELS = 0x00000002, // Unused by client; later-version label.
+        CHANNEL_ACTION_CANCELS = 0x00000004, // Unused by client; later-version label.
+        CHANNEL_INTERRUPT_ON_MOVEMENT = 0x00000008,
+        CHANNEL_INTERRUPT_ON_TURN = 0x00000010,
+        CHANNEL_ANIM_CANCELS = 0x00000020, // Unused by client; later-version label.
+        CHANNEL_REQUIRE_MOUNTED = 0x00000040,
+        CHANNEL_REQUIRE_NOT_SWIMMING = 0x00000080,
+        CHANNEL_REQUIRE_SWIMMING = 0x00000100,
+        CHANNEL_REQUIRE_UNSHEATHED = 0x00000200,
+        CHANNEL_INTERACTING_CANCELS = 0x00000400, // Unused by client; later-version label.
+        CHANNEL_LOOTING_CANCELS = 0x00000800, // Unused by client; later-version label.
+        CHANNEL_INTERRUPT_ON_COMBAT = 0x00001000,
+        CHANNEL_ITEM_USE_CANCELS = 0x00002000, // Unused by client; later-version label.
+        CHANNEL_DELAY = 0x00004000, // Unused by client; guessed TC 3.3.5 name.
+        CHANNEL_SHAPESHIFTING_CANCELS = 0x00008000, // Unused by client; later-version label.
+        CHANNEL_ACTION_CANCELS_LATE = 0x00010000, // Unused by client; later-version label.
+        CHANNEL_MOUNT_CANCELS = 0x00020000, // Unused by client; later-version label.
+        CHANNEL_STANDING_CANCELS = 0x00040000, // Unused by client; later-version label.
+        CHANNEL_LEAVE_WORLD_CANCELS = 0x00080000, // Unused by client; later-version label.
+        CHANNEL_STEALTH_OR_INVIS_CANCELS = 0x00100000, // Unused by client; later-version label.
+        CHANNEL_INVULNERABILITY_BUFF_CANCELS = 0x00200000, // Unused by client; later-version label.
+        CHANNEL_ENTER_WORLD_CANCELS = 0x00400000, // Unused by client; later-version label.
+        CHANNEL_NON_PERIODIC_DAMAGE_CANCELS = 0x01000000, // Unused by client; later-version label.
+        CHANNEL_ENTERING_COMBAT_CANCELS = 0x10000000, // Unused by client; later-version label.
+        CHANNEL_LOGIN_CANCELS = 0x20000000, // Unused by client; later-version label.
+        CHANNEL_LEAVING_COMBAT_CANCELS = -2147483648, // 0x80000000; unused by client; later-version label.
+        CHANNEL_MOVEMENT_OR_TURN_MASK = 0x00000018,
     };
 
     static const int32_t s_numColumns = 234;
