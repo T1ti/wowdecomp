@@ -234,7 +234,7 @@ static int32_t Script_GetQuestLogPushable(lua_State* L) {
     int32_t questId = index ? CGQuestLog::GetQuestAt(index - 1) : CGQuestLog::m_selectedQuest;
     QuestCache* quest = g_questDBCache.GetRecord(questId, WOWGUID(), nullptr, nullptr, false);
 
-    if (!quest || !(quest->m_flags & 8)) {
+    if (!quest || !(quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_SHARABLE)) {
         return 0;
     }
 
@@ -509,7 +509,7 @@ static int32_t Script_GetQuestLogCompletionText(lua_State* L) {
 
     char text[3000];
 
-    if ((quest->m_flags & 0x40000) || !quest->m_completionText[0]) {
+    if ((quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_USE_OBJECTIVE_TEXT) || !quest->m_completionText[0]) {
         WOWGUID player = ClntObjMgrGetActivePlayer();
         QuestParserParseText(quest->m_objText, text, sizeof(text), player, nullptr, 0);
     } else {
@@ -1311,7 +1311,7 @@ static int32_t Script_QuestLogPushQuest(lua_State* L) {
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(questId, none, nullptr, nullptr, false);
 
-    if (player && quest && (quest->m_flags & 0x8) && (CGPartyInfo::m_members[0] || CGRaidInfo::m_numMembers)) {
+    if (player && quest && (quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_SHARABLE) && (CGPartyInfo::m_members[0] || CGRaidInfo::m_numMembers)) {
         CGPlayer_C::PushQuestToParty(questId);
     }
 

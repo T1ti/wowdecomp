@@ -331,7 +331,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
         return 0;
     }
 
-    uint32_t special = quest->m_flags & 6;
+    uint32_t special = quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK;
 
     if (!special && !quest->m_friendlyFactionId && !quest->m_hostileFactionId && !quest->m_rewardMoney) {
         int32_t hasObjectives = 0;
@@ -420,7 +420,7 @@ bool CGQuestLog::HasNoObjectives(uint32_t index) {
         }
     }
 
-    return !quest->m_requiredPlayersKilled && !(quest->m_flags & 6) && !quest->m_friendlyFactionId && !quest->m_hostileFactionId && quest->m_rewardMoney >= 0;
+    return !quest->m_requiredPlayersKilled && !(quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK) && !quest->m_friendlyFactionId && !quest->m_hostileFactionId && quest->m_rewardMoney >= 0;
 }
 
 // VERIFY: e4a82c9a manual
@@ -653,7 +653,7 @@ uint32_t IsDailyQuest(int32_t index) {
         return 0;
     }
 
-    return quest->m_flags & 0x1000;
+    return quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DAILY;
 }
 
 // VERIFY: d701767c manual
@@ -986,7 +986,7 @@ CGItem_C* CGQuestLog::GetQuestSpecialItem(uint32_t index) {
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, QuestQueryCallback, nullptr, false);
 
-    if (!quest || (!quest->m_startingItemId && !(quest->m_flags & 0x20000))) {
+    if (!quest || (!quest->m_startingItemId && !(quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DISPLAY_ITEM_IN_TRACKER))) {
         return nullptr;
     }
 
@@ -1003,7 +1003,7 @@ CGItem_C* CGQuestLog::GetQuestSpecialItem(uint32_t index) {
         return item;
     }
 
-    if (!(quest->m_flags & 0x20000)) {
+    if (!(quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DISPLAY_ITEM_IN_TRACKER)) {
         return nullptr;
     }
 
@@ -2164,7 +2164,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
         }
     }
 
-    if ((quest->m_flags & 6) && !(entry->m_state & 1)) {
+    if ((quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK) && !(entry->m_state & 1)) {
         result |= 0x10000;
     }
 

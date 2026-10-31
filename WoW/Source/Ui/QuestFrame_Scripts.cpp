@@ -1,4 +1,5 @@
 #include "QuestFrame.h"
+#include "WoW/Source/Object/QuestCache.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -148,7 +149,7 @@ static int32_t Script_GetRewardArenaPoints(lua_State* L) {
 // VERIFY: 4ceaaf96 auto
 // OFFSET: 0x0058C430
 static int32_t Script_QuestGetAutoAccept(lua_State* L) {
-    if (CGQuestInfo::m_questFlags & 0x80000) {
+    if (CGQuestInfo::m_questFlags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_AUTO_ACCEPT) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -160,7 +161,7 @@ static int32_t Script_QuestGetAutoAccept(lua_State* L) {
 // VERIFY: 87727b0c auto
 // OFFSET: 0x0058C4D0
 static int32_t Script_QuestIsDaily(lua_State* L) {
-    if (CGQuestInfo::m_questFlags & 0x1000) {
+    if (CGQuestInfo::m_questFlags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DAILY) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -172,7 +173,7 @@ static int32_t Script_QuestIsDaily(lua_State* L) {
 // VERIFY: dfc603b7 auto
 // OFFSET: 0x0058C510
 static int32_t Script_QuestIsWeekly(lua_State* L) {
-    if (CGQuestInfo::m_questFlags & 0x8000) {
+    if (CGQuestInfo::m_questFlags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_WEEKLY) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -184,7 +185,7 @@ static int32_t Script_QuestIsWeekly(lua_State* L) {
 // VERIFY: 1f1988d2 auto
 // OFFSET: 0x0058C3E0
 static int32_t Script_QuestFlagsPVP(lua_State* L) {
-    if (s_isPvPRealm || !(CGQuestInfo::m_questFlags & 0x2000)) {
+    if (s_isPvPRealm || !(CGQuestInfo::m_questFlags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_PVP)) {
         lua_pushnil(L);
         return 1;
     }
@@ -683,7 +684,7 @@ static int32_t Script_GetAvailableQuestInfo(lua_State* L) {
 
     index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index < CGQuestInfo::m_numQuests && (CGQuestInfo::m_availableQuests[index].m_flags & 0x1000)) {
+    if (index < CGQuestInfo::m_numQuests && (CGQuestInfo::m_availableQuests[index].m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DAILY)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

@@ -7161,7 +7161,7 @@ int32_t OnUpdateQuest(WOWGUID guid, uint32_t offset, uint32_t count, const void*
     if (quest) {
         int32_t index = CGQuestLog::GetQuestIndex(quest->m_id) - 1;
 
-        if (index >= 0 && (quest->m_flags & 0x10000) && CGQuestLog::IsQuestCompleteEx(index, 1)) {
+        if (index >= 0 && (quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_AUTO_COMPLETE) && CGQuestLog::IsQuestCompleteEx(index, 1)) {
             WOWGUID self = player->m_obj->m_guid;
             CGPlayer_C::CompleteQuest(self, quest->m_id);
         }
@@ -12489,7 +12489,7 @@ static int32_t OnQuestItemLoot(QuestCache* quest, int32_t itemId, int32_t count,
     CGGameUI::DisplayError(ERR_QUEST_ADD_ITEM_SII, name, totalCount > required ? required : totalCount, required);
     FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_WATCH_UPDATE, "%d", CGQuestLog::GetQuestIndex(quest->m_id));
 
-    if ((quest->m_flags & 0x10000) && CGQuestLog::IsQuestCompleteEx(CGQuestLog::GetQuestIndex(quest->m_id) - 1, 1)) {
+    if ((quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_AUTO_COMPLETE) && CGQuestLog::IsQuestCompleteEx(CGQuestLog::GetQuestIndex(quest->m_id) - 1, 1)) {
         WOWGUID guid = player->m_obj->m_guid;
         CGPlayer_C::CompleteQuest(guid, quest->m_id);
     }

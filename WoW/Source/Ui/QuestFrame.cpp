@@ -1,4 +1,5 @@
 #include "QuestFrame.h"
+#include "WoW/Source/Object/QuestCache.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
@@ -190,13 +191,13 @@ void CGQuestInfo::ClearState() {
     for (int32_t i = 0; i < 32; i++) {
         CGQuestInfo::m_availableQuests[i].m_questID = 0;
         CGQuestInfo::m_availableQuests[i].m_level = 0;
-        CGQuestInfo::m_availableQuests[i].m_flags = 0;
+        CGQuestInfo::m_availableQuests[i].m_flags = QUEST_TEMPLATE_FLAGS::QUEST_FLAG_NONE;
         CGQuestInfo::m_availableQuests[i].m_title[0] = 0;
         CGQuestInfo::m_availableQuests[i].m_turnIn = 0;
         CGQuestInfo::m_availableQuests[i].m_repeatable = 0;
         CGQuestInfo::m_inProgressQuests[i].m_questID = 0;
         CGQuestInfo::m_inProgressQuests[i].m_level = 0;
-        CGQuestInfo::m_inProgressQuests[i].m_flags = 0;
+        CGQuestInfo::m_inProgressQuests[i].m_flags = QUEST_TEMPLATE_FLAGS::QUEST_FLAG_NONE;
         CGQuestInfo::m_inProgressQuests[i].m_title[0] = 0;
         CGQuestInfo::m_inProgressQuests[i].m_turnIn = 0;
         CGQuestInfo::m_inProgressQuests[i].m_repeatable = 0;
@@ -212,7 +213,7 @@ void CGQuestInfo::ClearState() {
     CGQuestInfo::m_rewardText[0] = 0;
     CGQuestInfo::m_suggestedGroupNum = 0;
     CGQuestInfo::m_autoLaunched = 0;
-    CGQuestInfo::m_questFlags = 0;
+    CGQuestInfo::m_questFlags = QUEST_TEMPLATE_FLAGS::QUEST_FLAG_NONE;
 }
 
 // VERIFY: d07a48c9 auto
@@ -896,7 +897,7 @@ void CGQuestInfo::EnterWorld() {
     CGQuestInfo::m_autoLaunched = 0;
     CGQuestInfo::m_requiredMoney = 0;
     CGQuestInfo::m_lastChosenItem = 0;
-    CGQuestInfo::m_questFlags = 0;
+    CGQuestInfo::m_questFlags = QUEST_TEMPLATE_FLAGS::QUEST_FLAG_NONE;
     CGQuestInfo::ClearState();
     CGQuestInfo::ClearQuestItems();
 }
