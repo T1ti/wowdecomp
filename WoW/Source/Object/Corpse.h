@@ -7,6 +7,17 @@
 
 class CGCorpseData;
 
+// Replicated corpse flags, separate from runtime and dynamic flag words.
+enum CORPSE_FIELD_FLAGS : uint32_t {
+    CORPSE_FIELD_FLAG_NONE               = 0x00000000u,
+    CORPSE_FIELD_FLAG_BONES              = 0x00000001u,
+    // Reference only: TC 3.3.5 CORPSE_FLAG_UNK1 = 0x00000002; no client reader found.
+    CORPSE_FIELD_FLAG_PVP                = 0x00000004u, // TC 3.3.5 calls this UNK2; UnitIsPVP establishes its role.
+    CORPSE_FIELD_FLAG_HIDE_HELM          = 0x00000008u,
+    CORPSE_FIELD_FLAG_HIDE_CLOAK         = 0x00000010u,
+    CORPSE_FIELD_FLAG_SKINNABLE          = 0x00000020u, // Player-corpse skin/insignia action; TC calls this LOOTABLE.
+};
+
 class CGCorpse {
     public:
     static const uint32_t s_mirrorFields[3];

@@ -183,7 +183,7 @@ void CGObject_C::AddWorldObject() {
     } else if (this->m_obj->m_type & TYPE_DYNAMICOBJECT) {
         flags = 10;
     } else if (this->m_obj->m_type & TYPE_CORPSE) {
-        if (static_cast<CGCorpse_C*>(this)->m_corpse->m_corpseFieldFlags & 0x1) {
+        if (static_cast<CGCorpse_C*>(this)->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) {
             flags = 2;
         }
     } else if (this->m_obj->m_type & TYPE_UNIT) {

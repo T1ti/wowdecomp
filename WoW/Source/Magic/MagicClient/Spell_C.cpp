@@ -2528,11 +2528,11 @@ bool Spell_C_CanTargetCorpse(const CGCorpse_C* corpse) {
     }
 
     if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) {
-        return !(corpse->m_corpse->m_corpseFieldFlags & 1) && caster->CanAssist(corpse);
+        return !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse);
     }
 
     if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) {
-        return !(corpse->m_corpse->m_corpseFieldFlags & 1) && !caster->CanAssist(corpse);
+        return !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse);
     }
 
     return false;
@@ -2800,11 +2800,11 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
         const CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
         bool friendly = false;
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
             friendly = true;
         }
 
-        if (!((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 1) && !caster->CanAssist(corpse)) && !friendly) {
+        if (!((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) && !friendly) {
             return false;
         }
     } else {
@@ -7188,11 +7188,11 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
     } else if (type & TYPE_CORPSE) {
         const CGCorpse_C* corpse = static_cast<const CGCorpse_C*>(object);
 
-        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
             flag = 1;
         }
 
-        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
+        if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) {
             check = true;
         } else if (flag) {
             check = true;
@@ -8743,14 +8743,14 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
     } else if (type & TYPE_CORPSE) {
         CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             result = true;
         }
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & 0x1) && !caster->CanAssist(corpse)) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;

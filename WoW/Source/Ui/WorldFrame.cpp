@@ -812,7 +812,7 @@ void __stdcall CGWorldFrame::CursorTrackCorpse(CGCorpse_C* corpse) {
 
     const CGUnit_C* asUnit = reinterpret_cast<const CGUnit_C*>(corpse);
 
-    if ((corpse->m_corpse->m_corpseFieldFlags & 0x20) && CGSpellBook::GetSkinningSpell(asUnit) && !player->CanAssist(corpse)) {
+    if ((corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_SKINNABLE) && CGSpellBook::GetSkinningSpell(asUnit) && !player->CanAssist(corpse)) {
         float minRange;
         float maxRange;
         Spell_C::GetSpellRange(player, CGSpellBook::GetSkinningSpell(asUnit), &minRange, &maxRange, nullptr);

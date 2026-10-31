@@ -3083,7 +3083,7 @@ static int32_t Script_UnitIsPVP(lua_State* L) {
     if (object && (object->m_obj->m_type & TYPE_UNIT)) {
         pvp = static_cast<CGUnit_C*>(object)->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP;
     } else if (object && (object->m_obj->m_type & TYPE_CORPSE)) {
-        pvp = static_cast<CGCorpse_C*>(object)->m_corpse->m_corpseFieldFlags & 4;
+        pvp = static_cast<CGCorpse_C*>(object)->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_PVP;
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
         pvp = state && (state->m_flags & 2);

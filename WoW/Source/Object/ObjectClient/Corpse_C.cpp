@@ -99,7 +99,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
         }
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & 0x1)) {
+    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) {
         if (useComponent) {
             this->m_component = CCharacterComponent::AllocComponent();
 
@@ -158,10 +158,10 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
             }
 
             if (slot == 0) {
-                if (this->m_corpse->m_corpseFieldFlags & 0x8) {
+                if (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_HELM) {
                     continue;
                 }
-            } else if (slot == 14 && (this->m_corpse->m_corpseFieldFlags & 0x10)) {
+            } else if (slot == 14 && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_CLOAK)) {
                 continue;
             }
 
@@ -182,7 +182,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
         }
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & 0x1) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(this->m_obj->m_guid);
     }
 }
@@ -263,7 +263,7 @@ float CGCorpse_C::GetTrueScale() const {
 // VERIFY: e46b7590 manual
 // OFFSET: 0x00706590
 int32_t CGCorpse_C::CanHighlight() const {
-    return !(this->m_corpse->m_corpseFieldFlags & 0x1) || (this->m_corpse->m_corpseFieldDynamicFlags & 0x1);
+    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->m_corpse->m_corpseFieldDynamicFlags & 0x1);
 }
 
 // VERIFY: 5ae4217a auto
@@ -406,7 +406,7 @@ void CGCorpse_C::PostReenable() {
 int32_t CGCorpse_C::GetModelFileName(const char** name) const {
     static char s_modelName[260];
 
-    if (this->m_corpse->m_corpseFieldFlags & 0x1) {
+    if (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) {
         ChrRacesRec* race = g_chrRacesDB.GetRecord(this->m_corpse->m_corpseFieldBytes1[1]);
 
         if (!race) {
@@ -446,7 +446,7 @@ void CGCorpse_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) 
         if (this->m_component) {
             this->m_component->Prep();
         }
-    } else if (((this->m_corpseFlags & 0x2) && (this->m_corpse->m_corpseFieldFlags & 0x1)) || (this->m_component && !this->m_component->RenderPrep(0))) {
+    } else if (((this->m_corpseFlags & 0x2) && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) || (this->m_component && !this->m_component->RenderPrep(0))) {
         hidden = 1;
     }
 }
@@ -457,7 +457,7 @@ void CGCorpse_C::Disable() {
     CGObject_C::Disable();
     this->m_passenger.m_link.Unlink();
 
-    if (!(this->m_corpse->m_corpseFieldFlags & 0x1) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(WOWGUID());
     }
 
@@ -485,7 +485,7 @@ void CGCorpse_C::Reenable() {
         this->AddWorldObject();
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & 0x1) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(this->m_obj->m_guid);
     }
 }
@@ -515,7 +515,7 @@ void CGCorpse_C::OnRightClick() {
 
         player->SetAutoLoot(CGGameUI::IsAutoLooting());
         player->LootCorpse(this, player->CanAutoInteract());
-    } else if ((this->m_corpse->m_corpseFieldFlags & 0x20) && CGSpellBook::GetSkinningSpell(this) && !player->CanAssist(this)) {
+    } else if ((this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_SKINNABLE) && CGSpellBook::GetSkinningSpell(this) && !player->CanAssist(this)) {
         player->HandleSkinning(this, player->CanAutoInteract(), true);
     }
 }

@@ -6342,7 +6342,7 @@ static int32_t AutoMouseOverProc(WOWGUID guid, void* param) {
                 return 1;
             }
         } else {
-            if (!(corpse->m_corpse->m_corpseFieldFlags & 0x20) || !CGSpellBook::GetSkinningSpell(reinterpret_cast<CGUnit_C*>(corpse)) || player->CanAssist(corpse)) {
+            if (!(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_SKINNABLE) || !CGSpellBook::GetSkinningSpell(reinterpret_cast<CGUnit_C*>(corpse)) || player->CanAssist(corpse)) {
                 return 1;
             }
 
