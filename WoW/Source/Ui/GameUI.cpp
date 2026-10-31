@@ -2655,7 +2655,7 @@ void CGGameUI::UpdateCombatMode() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) || (player->m_combatModeFlags & 0x2) || player->CGUnit_C::IsInMelee()) {
+    if ((player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) || (player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) || player->CGUnit_C::IsInMelee()) {
         bindings->EnableBindingMode(BINDING_MODE_1, 1);
     } else {
         bindings->EnableBindingMode(BINDING_MODE_1, 0);
@@ -3702,7 +3702,7 @@ void CGGameUI::EnterWorld() {
         }
     }
 
-    if (player->GetFarSightGuid() && (player->m_combatModeFlags & 0x1)) {
+    if (player->GetFarSightGuid() && (player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) {
         WOWGUID farSight = { player->GetFarSightGuid() };
         CGGameUI::ResetCamera(farSight);
     } else {

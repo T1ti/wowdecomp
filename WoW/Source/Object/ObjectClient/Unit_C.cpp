@@ -1422,7 +1422,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     if (CGGameUI::m_lockedTarget == this->m_obj->m_guid) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-        if (player && ((player->m_combatModeFlags & 0x2) || player->m_combat.m_attacking.m_guid) && player->CanAttack(this)) {
+        if (player && ((player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) || player->m_combat.m_attacking.m_guid) && player->CanAttack(this)) {
             uint32_t flashTime = s_attackFlashTime;
             this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT;
 
@@ -4970,7 +4970,7 @@ void CGUnit_C::OnRightClick() {
         return;
     }
 
-    if (!(player->m_combatModeFlags & 0x1) || player->GetTransportGUID() == player->GetFarSightGuid()) {
+    if (!(player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT) || player->GetTransportGUID() == player->GetFarSightGuid()) {
         bool vehicleAllows = player->VehicleAllowsInteraction();
 
         if (vehicleAllows) {
@@ -17396,7 +17396,7 @@ int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, int32_t a3) {
     int32_t petAttack = (CGPetInfo::GetPet(0) == this->m_obj->m_guid) || controlsPet;
 
     if (isPlayer) {
-        if (((player->m_combatModeFlags & 2) || player->m_combat.m_attacking) && CGGameUI::m_hasControl) {
+        if (((player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) || player->m_combat.m_attacking) && CGGameUI::m_hasControl) {
             player->SetCombatMode();
         } else {
             player->CombatModeEnter(target, targetChanged, 0);

@@ -89,6 +89,16 @@ class CEffect;
 
 class CGPlayer_C : public CGUnit_C, public CGPlayer {
     public:
+    // Runtime farsight/automatic combat state, not replicated PLAYER_FLAGS.
+    enum COMBAT_MODE_FLAGS : uint32_t {
+        COMBAT_MODE_NONE                        = 0x00000000u,
+        COMBAT_MODE_FAR_SIGHT                   = 0x00000001u,
+        COMBAT_MODE_AUTO_COMBAT                 = 0x00000002u,
+        COMBAT_MODE_AUTO_RANGED                 = 0x00000004u,
+        COMBAT_MODE_EXIT_WHEN_NOT_REPEATING     = 0x00000008u,
+        COMBAT_MODE_AUTO_MASK                   = 0x0000000Eu,
+    };
+
     void DanceMoveAnimComplete();
     static int32_t IsXRayVisionActive();
     void AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t a4);

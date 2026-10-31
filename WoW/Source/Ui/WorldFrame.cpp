@@ -656,7 +656,7 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
         return;
     }
 
-    if (((player->m_combatModeFlags & 1) && player->GetTransportGUID() != player->GetFarSightGuid()) || !player->VehicleAllowsInteraction()) {
+    if (((player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT) && player->GetTransportGUID() != player->GetFarSightGuid()) || !player->VehicleAllowsInteraction()) {
         CGUnit_C* possessed = player->GetPossessedUnit();
 
         if (unit->m_unit->m_unitFieldHealth > 0 && possessed && possessed->CanAttackNow(unit)) {
@@ -1991,7 +1991,7 @@ void CGWorldFrame::OnWorldUpdate() {
         CGPlayer_C* activePlayer = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (activePlayer) {
-            if (activePlayer->m_combatModeFlags & 0x1) {
+            if (activePlayer->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT) {
                 activePlayer->ToggleFarSight(nullptr);
             }
 

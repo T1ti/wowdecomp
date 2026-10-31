@@ -2429,7 +2429,7 @@ int32_t CGPlayer_C::GetEquipBypassSkill(uint32_t index) const {
 // VERIFY: 2b34eb63 auto
 // OFFSET: 0x005140E0
 int32_t CGPlayer_C::IsInMelee() const {
-    return (this->m_combatModeFlags & 0x2) || this->CGUnit_C::IsInMelee();
+    return (this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) || this->CGUnit_C::IsInMelee();
 }
 
 // VERIFY: 03afa9dc manual
@@ -2795,7 +2795,7 @@ void __stdcall CGPlayer_C::ClearAFK(int32_t force) {
 CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
     : CGUnit_C(time, create),
       unused_1854(-1),
-      m_combatModeFlags(0),
+      m_combatModeFlags(COMBAT_MODE_FLAGS::COMBAT_MODE_NONE),
       m_pendingItemCacheCount(0),
       m_companionSpells(),
       m_lootTarget(),
@@ -3162,7 +3162,7 @@ void CGPlayer_C::CancelGiftWrap() {
 // VERIFY: e37e66de manual
 // OFFSET: 0x006DD060
 CGUnit_C* CGPlayer_C::GetPossessedUnit() {
-    if (!(this->m_combatModeFlags & 0x1)) {
+    if (!(this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) {
         return nullptr;
     }
 
@@ -3207,7 +3207,7 @@ void CGPlayer_C::SetCombatMode() {
     Spell_C_ClearLastAutoRangedCombatError();
     Spell_C_SetAutoRangedCombatSpell(0);
     EventUnregister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags &= ~0xEu;
+    this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_MASK;
     CGGameUI::UpdateCombatMode();
 
     if (static_cast<int32_t>(this->m_unit->m_unitFieldLevel) < 2) {
@@ -4635,7 +4635,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int
         this->Dismount();
     }
 
-    if ((!(this->m_combatModeFlags & 0x2) && !this->CGUnit_C::IsInMelee()) || target != this->m_combatTarget) {
+    if ((!(this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) && !this->CGUnit_C::IsInMelee()) || target != this->m_combatTarget) {
         this->m_combatModeTime = FrameTime::s_curTimeMs;
     }
 
@@ -4664,15 +4664,15 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int
     }
 
     EventRegister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags |= 0x2;
+    this->m_combatModeFlags |= COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT;
     CGGameUI::UpdateCombatMode();
 
     if (!this->IsInMeleeRange(unit)) {
         if (queueRanged) {
-            this->m_combatModeFlags |= 0x8;
+            this->m_combatModeFlags |= COMBAT_MODE_FLAGS::COMBAT_MODE_EXIT_WHEN_NOT_REPEATING;
         }
 
-        this->m_combatModeFlags |= 0x4;
+        this->m_combatModeFlags |= COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_RANGED;
     }
 }
 
@@ -8144,7 +8144,7 @@ int32_t Packet_SMSG_INSPECT_TALENT(void* param, NETMESSAGE msgId, uint32_t time,
 void CGPlayer_C::ExitAutoCombatMode() {
     Spell_C_SetAutoRangedCombatSpell(0);
     EventUnregister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags &= ~0xEu;
+    this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_MASK;
     CGGameUI::UpdateCombatMode();
 }
 
@@ -8367,7 +8367,7 @@ int32_t CGPlayer_C::AutoCombatModeEventHandler(const void* data, void* param) {
             player->MeleeModeEnter(guid);
         }
 
-        player->m_combatModeFlags &= ~4u;
+        player->m_combatModeFlags &= ~CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_RANGED;
         return 1;
     }
 
@@ -8380,7 +8380,7 @@ int32_t CGPlayer_C::AutoCombatModeEventHandler(const void* data, void* param) {
         return 1;
     }
 
-    if (player->m_combatModeFlags & 8) {
+    if (player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_EXIT_WHEN_NOT_REPEATING) {
         player->ExitAutoCombatMode();
         return 1;
     }
@@ -8398,7 +8398,7 @@ int32_t CGPlayer_C::AutoCombatModeEventHandler(const void* data, void* param) {
 
         if (!Spell_C_GetAutoRangedCombatSpell()) {
             Spell_C_SetAutoRangedCombatSpell(CGSpellBook::m_autoRangedSpell);
-            player->m_combatModeFlags |= 4;
+            player->m_combatModeFlags |= CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_RANGED;
         }
 
         C3Vector direction = player->m_movementData.GetDirection();
@@ -13456,7 +13456,7 @@ void CGPlayer_C::DestructActivePlayer() {
 
     Spell_C_SetAutoRangedCombatSpell(0);
     EventUnregister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags &= ~0xEu;
+    this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_MASK;
     CGGameUI::UpdateCombatMode();
     s_visibleAuraEffectDisplay = 0;
     s_visibleAuraEffectFlags = 0;
@@ -14551,14 +14551,14 @@ bool CGPlayer_C::ToggleFarSight(CGObject_C* object) {
         return false;
     }
 
-    if (target && (object || !(this->m_combatModeFlags & 0x1))) {
-        if (!(this->m_combatModeFlags & 0x1)) {
+    if (target && (object || !(this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT))) {
+        if (!(this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) {
             WDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_FAR_SIGHT));
             msg.Put(static_cast<uint8_t>(1));
             msg.Finalize();
             ClientServices::Send2(&msg);
-            this->m_combatModeFlags |= 0x1;
+            this->m_combatModeFlags |= COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT;
         }
 
         this->SetCombatMode();
@@ -14576,8 +14576,8 @@ bool CGPlayer_C::ToggleFarSight(CGObject_C* object) {
         return true;
     }
 
-    if (this->m_combatModeFlags & 0x1) {
-        this->m_combatModeFlags &= ~0x1u;
+    if (this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT) {
+        this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT;
         WDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_FAR_SIGHT));
         msg.Put(static_cast<uint8_t>(0));
@@ -14598,7 +14598,7 @@ bool CGPlayer_C::ToggleFarSight(CGObject_C* object) {
 // VERIFY: 8ae4c78f auto
 // OFFSET: 0x006E2B00
 void CGPlayer_C::ClearFarSight() {
-    if (!(this->m_combatModeFlags & 0x1)) {
+    if (!(this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) {
         return;
     }
 

@@ -6830,7 +6830,7 @@ bool Spell_C_IsActivePlayerCasting() {
 bool OnCancelCombat() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || !(player->m_obj->m_type & TYPE_PLAYER) || !(player->m_combatModeFlags & 0x4)) {
+    if (!player || !(player->m_obj->m_type & TYPE_PLAYER) || !(player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_RANGED)) {
         return false;
     }
 

@@ -1354,7 +1354,7 @@ static int32_t Script_GetSpellPenetration(lua_State* L) {
 static int32_t Script_HasFullControl(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && !(player->m_combatModeFlags & 1) && player->m_unit->m_unitFieldHealth > 0 && CGGameUI::m_hasControl) {
+    if (player && !(player->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT) && player->m_unit->m_unitFieldHealth > 0 && CGGameUI::m_hasControl) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

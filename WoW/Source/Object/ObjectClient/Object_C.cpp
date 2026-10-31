@@ -1416,7 +1416,7 @@ CGObject_C* CGObject_C::GetFocusObject() {
         }
     }
 
-    if (!(object->m_obj->m_type & TYPE_PLAYER) || !(static_cast<CGPlayer_C*>(object)->m_combatModeFlags & 1)) {
+    if (!(object->m_obj->m_type & TYPE_PLAYER) || !(static_cast<CGPlayer_C*>(object)->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) {
         return object;
     }
 

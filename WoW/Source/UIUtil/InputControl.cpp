@@ -347,7 +347,7 @@ int32_t __stdcall CGInputControl::CanControl(CGUnit_C* unit) {
         return 0;
     }
 
-    return !unit->AnimSuppressesMovement() && (!unit->IsActivePlayer() || !(static_cast<CGPlayer_C*>(unit)->m_combatModeFlags & 0x1)) && !unit->IsAlteredFormTransitionPreventingMovement();
+    return !unit->AnimSuppressesMovement() && (!unit->IsActivePlayer() || !(static_cast<CGPlayer_C*>(unit)->m_combatModeFlags & CGPlayer_C::COMBAT_MODE_FLAGS::COMBAT_MODE_FAR_SIGHT)) && !unit->IsAlteredFormTransitionPreventingMovement();
 }
 
 // VERIFY: 44c9ffc3 manual
