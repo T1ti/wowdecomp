@@ -394,7 +394,7 @@ uint32_t CGItem_C::GetSpellItemEnchantmentId() const {
         }
 
         for (uint32_t j = 0; j < 3; j++) {
-            if (rec->m_effectArg[j] && rec->m_effect[j] == 7) {
+            if (rec->m_effectArg[j] && rec->m_effect[j] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                 return this->m_item->m_itemFieldEnchantment[i].m_id;
             }
         }
@@ -620,7 +620,7 @@ int32_t CGItem_C::GetPrismaticSocketCount() {
     }
 
     for (uint32_t i = 0; i < 3; i++) {
-        if (rec->m_effect[i] == 8) {
+        if (rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_PRISMATIC_SOCKET) {
             return rec->m_effectPointsMin[i];
         }
     }
@@ -787,7 +787,7 @@ int32_t CGItem_C::GetUsableSpellCharges() const {
 
         if (rec) {
             for (uint32_t i = 0; i < 3; i++) {
-                if (rec->m_effectArg[i] && rec->m_effect[i] == 7) {
+                if (rec->m_effectArg[i] && rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                     return rec->m_charges;
                 }
             }
@@ -928,7 +928,7 @@ int32_t CGItem_C::GetCurrentSpellCharges() {
 
         if (rec) {
             for (uint32_t i = 0; i < 3; i++) {
-                if (rec->m_effect[i] == 7 && rec->m_effectArg[i]) {
+                if (rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL && rec->m_effectArg[i]) {
                     if (!this->IsPetition()) {
                         return this->m_item->m_itemFieldEnchantment[i].m_charges;
                     }
@@ -1228,7 +1228,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
 
         if (enchant) {
             for (uint32_t i = 0; i < 3; i++) {
-                if (enchant->m_effect[i] == 7) {
+                if (enchant->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                     spellId = enchant->m_effectArg[i];
                     break;
                 }

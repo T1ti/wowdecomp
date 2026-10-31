@@ -6,6 +6,20 @@
 
 class SFileImpl;
 
+// Effect kinds in the 3.3.5 SpellItemEnchantment.dbc three-slot effect array.
+// Names describe behavior; raw file values and unknown-kind fallbacks stay intact.
+enum ITEM_ENCHANTMENT_EFFECT : int32_t {
+    ENCHANTMENT_EFFECT_NONE                  = 0,
+    ENCHANTMENT_EFFECT_COMBAT_SPELL          = 1,
+    ENCHANTMENT_EFFECT_WEAPON_DAMAGE         = 2,
+    ENCHANTMENT_EFFECT_EQUIP_SPELL           = 3,
+    ENCHANTMENT_EFFECT_RESISTANCE            = 4,
+    ENCHANTMENT_EFFECT_STAT                  = 5,
+    ENCHANTMENT_EFFECT_WEAPON_DPS            = 6,
+    ENCHANTMENT_EFFECT_USE_SPELL             = 7,
+    ENCHANTMENT_EFFECT_PRISMATIC_SOCKET      = 8,
+};
+
 class SpellItemEnchantmentRec {
     public:
     static const int32_t s_numColumns = 38;

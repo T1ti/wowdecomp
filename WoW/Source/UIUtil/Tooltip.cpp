@@ -1214,7 +1214,7 @@ int32_t CGTooltip::HideThis() {
 // OFFSET: 0x0061F2B0
 void CGItemStatsSummary::AddEnchantEffect(int32_t type, int32_t arg, int32_t amount) {
     switch (type) {
-        case 3: {
+        case ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_EQUIP_SPELL: {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(arg, &spell)) {
@@ -1224,11 +1224,11 @@ void CGItemStatsSummary::AddEnchantEffect(int32_t type, int32_t arg, int32_t amo
             break;
         }
 
-        case 4:
+        case ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_RESISTANCE:
             this->m_stats[arg] += amount;
             break;
 
-        case 5:
+        case ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_STAT:
             this->m_stats[arg + 11] += amount;
 
             if (arg == 38) {
@@ -4898,7 +4898,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             continue;
         }
 
-        if (enchant->m_effect[0] == 7) {
+        if (enchant->m_effect[0] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
             *useSpell = enchant->m_effectArg[0];
 
             if (item) {
@@ -4911,7 +4911,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             continue;
         }
 
-        if (enchant->m_effect[0] == 3 && owner == ClntObjMgrGetActivePlayer()) {
+        if (enchant->m_effect[0] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_EQUIP_SPELL && owner == ClntObjMgrGetActivePlayer()) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(enchant->m_effectArg[0], &spell) && ownerPlayer && !CGUnit_C::IsSpellAllowedInArena(&spell)) {
@@ -6540,7 +6540,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
 
                 if (prismatic) {
                     for (uint32_t i = 0; i < 3; i++) {
-                        if (prismatic->m_effect[i] == 8) {
+                        if (prismatic->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_PRISMATIC_SOCKET) {
                             numSockets += prismatic->m_effectPointsMin[i];
                             break;
                         }
