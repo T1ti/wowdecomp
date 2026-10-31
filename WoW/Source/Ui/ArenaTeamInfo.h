@@ -9,6 +9,31 @@
 struct lua_State;
 class CDataStore;
 
+// SMSG_ARENA_TEAM_COMMAND_RESULT result word, separate from command/event IDs.
+// Unknown results retain the original silent default.
+enum ARENA_TEAM_COMMAND_RESULT : uint32_t {
+    ARENA_RESULT_SUCCESS                                     = 0,
+    ARENA_RESULT_INTERNAL                                    = 1,
+    ARENA_RESULT_ALREADY_IN_TEAM                             = 2,
+    ARENA_RESULT_PLAYER_ALREADY_IN_TEAM                      = 3,
+    ARENA_RESULT_ALREADY_INVITED                             = 4,
+    ARENA_RESULT_PLAYER_ALREADY_INVITED                      = 5,
+    ARENA_RESULT_NAME_INVALID                                = 6,
+    ARENA_RESULT_NAME_EXISTS                                 = 7,
+    // Quit command 3 reports leader-cannot-leave; others report permissions.
+    ARENA_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION        = 8,
+    ARENA_RESULT_NOT_IN_TEAM                                 = 9,
+    ARENA_RESULT_PLAYER_NOT_IN_TEAM                          = 10,
+    ARENA_RESULT_PLAYER_NOT_FOUND                            = 11,
+    ARENA_RESULT_NOT_ALLIED                                  = 12,
+    ARENA_RESULT_IGNORING_YOU                                = 19,
+    ARENA_RESULT_TARGET_TOO_LOW                              = 21,
+    ARENA_RESULT_TARGET_TOO_HIGH                             = 22,
+    ARENA_RESULT_TOO_MANY_MEMBERS                            = 23,
+    ARENA_RESULT_TEAM_NOT_FOUND                              = 27,
+    ARENA_RESULT_TEAMS_LOCKED                                = 30,
+};
+
 struct ArenaTeamMember {
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ char m_name[48];

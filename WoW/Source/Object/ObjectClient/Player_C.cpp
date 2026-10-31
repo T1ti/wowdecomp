@@ -5573,7 +5573,7 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
     msg->GetString(player, sizeof(player));
     msg->Get(error);
 
-    if (error == 0) {
+    if (error == ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_SUCCESS) {
         switch (command) {
             case 0: {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_CREATE_S, team);
@@ -5600,42 +5600,42 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
     }
 
     switch (error) {
-        case 1: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_INTERNAL: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_INTERNAL);
             break;
         }
 
-        case 2: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_ALREADY_IN_TEAM: {
             CGGameUI::DisplayError(ERR_ALREADY_IN_ARENA_TEAM);
             break;
         }
 
-        case 3: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_PLAYER_ALREADY_IN_TEAM: {
             CGGameUI::DisplayError(ERR_ALREADY_IN_ARENA_TEAM_S, player);
             break;
         }
 
-        case 4: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_ALREADY_INVITED: {
             CGGameUI::DisplayError(ERR_INVITED_TO_ARENA_TEAM);
             break;
         }
 
-        case 5: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_PLAYER_ALREADY_INVITED: {
             CGGameUI::DisplayError(ERR_ALREADY_INVITED_TO_ARENA_TEAM_S, player);
             break;
         }
 
-        case 6: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_NAME_INVALID: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_NAME_INVALID);
             break;
         }
 
-        case 7: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_NAME_EXISTS: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_NAME_EXISTS_S, team);
             break;
         }
 
-        case 8: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION: {
             if (command == 3) {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_LEADER_LEAVE_S, team);
             } else {
@@ -5645,52 +5645,52 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
             break;
         }
 
-        case 9: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_NOT_IN_TEAM: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM);
             break;
         }
 
-        case 10: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_PLAYER_NOT_IN_TEAM: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM_SS, player, team);
             break;
         }
 
-        case 11: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_PLAYER_NOT_FOUND: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_PLAYER_NOT_FOUND_S, player);
             break;
         }
 
-        case 12: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_NOT_ALLIED: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_NOT_ALLIED);
             break;
         }
 
-        case 19: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_IGNORING_YOU: {
             CGGameUI::DisplayError(ERR_IGNORING_YOU_S, player);
             break;
         }
 
-        case 21: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_TARGET_TOO_LOW: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_TARGET_TOO_LOW_S, player);
             break;
         }
 
-        case 22: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_TARGET_TOO_HIGH: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_TARGET_TOO_HIGH_S, player);
             break;
         }
 
-        case 23: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_TOO_MANY_MEMBERS: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S, team);
             break;
         }
 
-        case 27: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_TEAM_NOT_FOUND: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_NOT_FOUND);
             break;
         }
 
-        case 30: {
+        case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_TEAMS_LOCKED: {
             CGGameUI::DisplayError(ERR_ARENA_TEAMS_LOCKED);
             break;
         }
