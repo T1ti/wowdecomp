@@ -19165,7 +19165,7 @@ flagsDone:
     missile->SetReadyToFire(&this->m_missiles);
     this->m_lastMissileTime = missile->m_castTime;
 
-    if (data->m_castFlags & 0x20000) {
+    if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
         missile->m_pitch = data->m_elevation;
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;
@@ -19354,7 +19354,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     missile->SetReadyToFire(&this->m_missiles);
     this->m_lastMissileTime = missile->m_castTime;
 
-    if (data->m_castFlags & 0x20000) {
+    if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
         missile->m_pitch = data->m_elevation;
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;
@@ -19532,7 +19532,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     missile->SetReadyToFire(&this->m_missiles);
     this->m_lastMissileTime = missile->m_castTime;
 
-    if (data->m_castFlags & 0x20000) {
+    if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
         missile->m_pitch = data->m_elevation;
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_SETUP_MASK;
         missile->m_trajectorySpeed = data->m_missileSpeed;

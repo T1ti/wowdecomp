@@ -11,6 +11,22 @@ class CDataStore;
 
 class PendingSpellCastData {
     public:
+    enum CastFlags : uint32_t {
+        // Stored spell-start/go word; distinct from the outgoing cast-request byte.
+        CAST_NONE = 0x0,
+        CAST_HIDDEN = 0x1,
+        CAST_HAS_AMMO = 0x20,
+        // Bit 0x40 is observed only in this combined recast guard.
+        CAST_SUPPRESS_RECAST_MASK = 0x41,
+        CAST_MISSES_FIRST = 0x400,
+        CAST_HAS_POWER = 0x800,
+        CAST_HAS_TRAJECTORY = 0x20000,
+        CAST_SKIP_START_RECOVERY = 0x40000,
+        CAST_HAS_VISUAL_OVERRIDES = 0x80000,
+        CAST_HAS_RUNES = 0x200000,
+        CAST_HAS_IMMUNITIES = 0x4000000,
+    };
+
     /* 0000 */ WOWGUID m_castItem;
     /* 0008 */ WOWGUID m_caster;
     /* 0010 */ uint32_t unused_0010;

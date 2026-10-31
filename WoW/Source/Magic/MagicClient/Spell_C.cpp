@@ -984,7 +984,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
     msg->Get(castTime);
     SpellGetCastTargets(&this->m_data, msg);
     uint32_t power = 0;
-    uint32_t hasPower = castFlags & 0x800;
+    uint32_t hasPower = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_POWER;
 
     if (hasPower) {
         msg->Get(power);
@@ -993,7 +993,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
     uint8_t runeCooldowns[6] = { 0, 0, 0, 0, 0, 0 };
     uint8_t runesBefore = 0;
     uint8_t runesAfter = 0;
-    uint32_t hasRunes = castFlags & 0x200000;
+    uint32_t hasRunes = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_RUNES;
 
     if (hasRunes) {
         msg->Get(runesBefore);
@@ -1009,14 +1009,14 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
     uint32_t ammoDisplayId = 0;
     uint32_t ammoInventoryType = 0;
 
-    if (castFlags & 0x20) {
+    if (castFlags & PendingSpellCastData::CastFlags::CAST_HAS_AMMO) {
         msg->Get(ammoDisplayId);
         msg->Get(ammoInventoryType);
     }
 
     uint32_t schoolImmunities = 0;
     uint32_t immunities = 0;
-    uint32_t hasImmunities = castFlags & 0x4000000;
+    uint32_t hasImmunities = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_IMMUNITIES;
 
     if (hasImmunities) {
         msg->Get(schoolImmunities);
@@ -1058,7 +1058,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         unit->SetCastImmunities(immunities);
     }
 
-    uint32_t hidden = castFlags & 0x1;
+    uint32_t hidden = castFlags & PendingSpellCastData::CastFlags::CAST_HIDDEN;
 
     if (!hidden) {
         StartSpellCastVisuals(unit, this, &spell, castTime, false);
@@ -1783,7 +1783,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
     SpellGetCastTargets(&this->m_data, msg);
     uint32_t power = 0;
-    uint32_t hasPower = castFlags & 0x800;
+    uint32_t hasPower = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_POWER;
 
     if (hasPower) {
         msg->Get(power);
@@ -1792,7 +1792,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     uint8_t runeCooldowns[6] = { 0, 0, 0, 0, 0, 0 };
     uint8_t runesBefore = 0;
     uint8_t runesAfter = 0;
-    uint32_t hasRunes = castFlags & 0x200000;
+    uint32_t hasRunes = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_RUNES;
 
     if (hasRunes) {
         msg->Get(runesBefore);
@@ -1807,7 +1807,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
     uint32_t delay = 0;
 
-    if (castFlags & 0x20000) {
+    if (castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
         msg->Get(this->m_data.m_elevation);
         msg->Get(delay);
     }
@@ -1815,7 +1815,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     uint32_t ammoDisplayId;
     uint32_t ammoInventoryType;
 
-    if (castFlags & 0x20) {
+    if (castFlags & PendingSpellCastData::CastFlags::CAST_HAS_AMMO) {
         msg->Get(ammoDisplayId);
         msg->Get(ammoInventoryType);
     } else {
@@ -1826,7 +1826,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     uint32_t visualA = 0;
     uint32_t visualB = 0;
 
-    if (castFlags & 0x80000) {
+    if (castFlags & PendingSpellCastData::CastFlags::CAST_HAS_VISUAL_OVERRIDES) {
         msg->Get(visualA);
         msg->Get(visualB);
     }
@@ -1886,7 +1886,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(caster, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!this->HasValidTransports()) {
-        if (!(this->m_data.m_castFlags & 0x1) && unit) {
+        if (!(this->m_data.m_castFlags & PendingSpellCastData::CastFlags::CAST_HIDDEN) && unit) {
             FinishPendingSpellCast(this, &spell, unit);
         } else {
             ReleasePendingSpellCast(this);
@@ -1915,7 +1915,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         }
     }
 
-    uint32_t hidden = castFlags & 0x1;
+    uint32_t hidden = castFlags & PendingSpellCastData::CastFlags::CAST_HIDDEN;
 
     if (!hidden) {
         s_lastFailedSpellId = 0;
@@ -2008,7 +2008,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     bool onHold = Spell_C_HasCooldownOnEvent(&spell, castItem);
     TSStackArray<WOWGUID> targets(static_cast<WOWGUID*>(alloca(sizeof(WOWGUID) * (missCount + hitCount))), missCount + hitCount, 1);
 
-    if (castFlags & 0x400) {
+    if (castFlags & PendingSpellCastData::CastFlags::CAST_MISSES_FIRST) {
         for (uint32_t i = 0; i < missCount; i++) {
             targets.m_data[i] = misses.m_data[i];
         }
@@ -2151,7 +2151,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             }
         } else if (unit) {
             if (this->m_isTrajectoryCast) {
-                if (this->m_data.m_castFlags & 0x20000) {
+                if (this->m_data.m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
                     CMissile::AdjustAllMissileTrajectoryDurations(this->m_data.m_castCount, delay);
                 }
             } else {
@@ -2181,7 +2181,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     if (caster == ClntObjMgrGetActivePlayer()) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
 
-        if (castItem == ClntObjMgrGetActivePlayer() && !(castFlags & 0x41)) {
+        if (castItem == ClntObjMgrGetActivePlayer() && !(castFlags & PendingSpellCastData::CastFlags::CAST_SUPPRESS_RECAST_MASK)) {
             CGTradeSkillInfo::DoRecast(spellId);
         }
 
@@ -2356,7 +2356,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             int32_t startRecoveryTime = 0;
             int32_t startRecoveryCategory = 0;
 
-            if (!(this->m_data.m_castFlags & 0x40000)) {
+            if (!(this->m_data.m_castFlags & PendingSpellCastData::CastFlags::CAST_SKIP_START_RECOVERY)) {
                 startRecoveryTime = spell.m_startRecoveryTime;
                 startRecoveryCategory = spell.m_startRecoveryCategory;
 
@@ -2395,7 +2395,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         }
     }
 
-    if (!(this->m_data.m_castFlags & 0x1) && unit) {
+    if (!(this->m_data.m_castFlags & PendingSpellCastData::CastFlags::CAST_HIDDEN) && unit) {
         FinishPendingSpellCast(this, &spell, unit);
     } else {
         ReleasePendingSpellCast(this);
@@ -7568,7 +7568,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
     } else {
         instant = 1;
         playNow = kit && kit->m_animID > 0 && !(visual->m_flags & 0x4);
-        cast->m_data.m_castFlags |= 0x20000;
+        cast->m_data.m_castFlags |= PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY;
         cast->m_isTrajectoryCast = 1;
     }
 
@@ -8999,7 +8999,7 @@ void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<W
 
     uint32_t index = 0;
 
-    if (!(data->m_castFlags & 0x400)) {
+    if (!(data->m_castFlags & PendingSpellCastData::CastFlags::CAST_MISSES_FIRST)) {
         for (; index < hits.m_count; index++) {
             targets.m_data[index] = hits.m_data[index];
             reasons.m_data[index] = 0;

@@ -34,7 +34,7 @@ PendingSpellCastData::PendingSpellCastData() {
     this->unused_0088 = 0;
     this->unused_008C = 0;
     this->unused_0110 = 0;
-    this->m_castFlags = 0;
+    this->m_castFlags = CastFlags::CAST_NONE;
     this->unused_0118 = 0;
     this->m_glyphSlot = 0;
 }
