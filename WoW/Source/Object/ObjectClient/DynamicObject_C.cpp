@@ -297,7 +297,7 @@ void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
     SpellVisualEffectNameRec* effect = this->GetVisualEffectNameRec(&spell);
 
     if (spell.m_id && (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE)) {
-        model->m_fFlags |= 0x4;
+        model->m_runtimeFlags |= 0x4;
     }
 
     DYNAMIC_OBJECT_TYPE type = static_cast<DYNAMIC_OBJECT_TYPE>(this->m_dynamicObject->m_bytes[0]);

@@ -602,7 +602,7 @@ C4Quaternion CGObject_C::GetRotation() const {
 void CGObject_C::SetFrameOfReference(const C44Matrix* matrix) {
     CM2Model* model = this->m_worldModel;
 
-    if (!model || !(model->m_fFlags & 0x1)) {
+    if (!model || !(model->m_runtimeFlags & 0x1)) {
         return;
     }
 
@@ -931,7 +931,7 @@ void CGObject_C::DoFade(float alpha, uint32_t time) {
 C44Matrix CGObject_C::GetModelMatrix() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_fFlags & 0x8000)) {
+    if (model && (model->m_runtimeFlags & 0x8000)) {
         model->Animate();
         return model->m_matrixF4 * model->m_scene->m_viewInv;
     }
@@ -944,7 +944,7 @@ C44Matrix CGObject_C::GetModelMatrix() {
 C3Vector CGObject_C::GetModelPosition() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_fFlags & 0x8000)) {
+    if (model && (model->m_runtimeFlags & 0x8000)) {
         model->Animate();
         return *reinterpret_cast<const C3Vector*>(&model->m_matrixF4.d0) * model->m_scene->m_viewInv;
     }
@@ -1112,15 +1112,15 @@ void CGObject_C::SetInteractIconVisible(int32_t visible) {
     CM2Model* parent = icon->m_attachParent;
 
     if (parent) {
-        icon->m_fFlags = (icon->m_fFlags & ~0x80) | (flag << 7);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~0x80) | (flag << 7);
     } else {
-        icon->m_fFlags = (icon->m_fFlags & ~0x8) | (flag << 3);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~0x8) | (flag << 3);
     }
 
     if (parent) {
-        icon->m_fFlags = (icon->m_fFlags & ~0x20000) | (flag << 17);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~0x20000) | (flag << 17);
     } else {
-        icon->m_fFlags = (icon->m_fFlags & ~0x10000) | (flag << 16);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~0x10000) | (flag << 16);
     }
 }
 

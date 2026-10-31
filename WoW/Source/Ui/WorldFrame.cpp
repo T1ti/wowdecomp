@@ -239,7 +239,7 @@ static int32_t GetObjectHitTestType(CGObject_C* object) {
 // VERIFY: d69961a6 auto
 // OFFSET: 0x004F6370
 static void AddModelToHitTest(CM2Model* model, uint32_t group, void* owner, uint32_t mode) {
-    if (model->m_fFlags & 0x1) {
+    if (model->m_runtimeFlags & 0x1) {
         if (!model->m_hitTestPrev) {
             CM2Model** head = &model->m_scene->m_hitTestList;
             model->m_hitTestPrev = head;
@@ -1652,15 +1652,15 @@ void CGWorldFrame::UpdateObject(CGObject_C* object, uint32_t flags) {
     uint32_t bit = visible & 1;
 
     if (model->m_attachParent) {
-        model->m_fFlags = (model->m_fFlags & ~0x80) | (bit << 7);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80) | (bit << 7);
     } else {
-        model->m_fFlags = (model->m_fFlags & ~0x8) | (bit << 3);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8) | (bit << 3);
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags = (model->m_fFlags & ~0x20000) | (bit << 17);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000) | (bit << 17);
     } else {
-        model->m_fFlags = (model->m_fFlags & ~0x10000) | (bit << 16);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000) | (bit << 16);
     }
 }
 
@@ -1828,15 +1828,15 @@ int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid,
         CM2Model* model = object->GetObjectModel();
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x80;
+            model->m_runtimeFlags &= ~0x80;
         } else {
-            model->m_fFlags &= ~0x8;
+            model->m_runtimeFlags &= ~0x8;
         }
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x20000;
+            model->m_runtimeFlags &= ~0x20000;
         } else {
-            model->m_fFlags &= ~0x10000;
+            model->m_runtimeFlags &= ~0x10000;
         }
     }
 
@@ -2042,7 +2042,7 @@ void CGWorldFrame::OnWorldUpdate() {
             C3Vector offset = C3Vector(facing.x * backDist, facing.y * backDist, backDist * facing.z);
             C3Vector listener;
 
-            if (focus->m_worldModel && (focus->m_worldModel->m_fFlags & 0x8000)) {
+            if (focus->m_worldModel && (focus->m_worldModel->m_runtimeFlags & 0x8000)) {
                 listener = focus->m_worldModel->GetWorldPosition() - offset;
                 listener.z = listener.z + upDist;
             } else {

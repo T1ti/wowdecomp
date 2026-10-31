@@ -106,7 +106,7 @@ void CMapDoodadDef::UpdateBounds() {
     this->m_fadeLevel = fadeLevel;
 
     if (!(CWorld::enables & Enable_NoAnimation) && fadeLevel < 3) {
-        this->m_model->m_fFlags &= ~0x40u;
+        this->m_model->m_runtimeFlags &= ~0x40u;
     }
 }
 
@@ -240,7 +240,7 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
         return;
     }
 
-    model->m_fFlags |= 0x8000;
+    model->m_runtimeFlags |= 0x8000;
     model->m_worldTransform = doodadDef->m_mat;
     doodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(doodadDef));
     doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -294,7 +294,7 @@ void CMapDoodadDef::UpdateMatrixOnly(const C44Matrix& matrix) {
     CWorldMath::TransformAABox(this->m_mat, box, this->m_bbox);
     CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_bboxDoodadDef);
     CM2Model* model = this->m_model;
-    model->m_fFlags |= 0x8000;
+    model->m_runtimeFlags |= 0x8000;
     model->m_worldTransform = this->m_mat;
     SI2::Set3DPosition(&this->m_soundKitObject, &this->m_position);
 }

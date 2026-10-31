@@ -127,7 +127,7 @@ void CGlueMgr::ProcessAttachment(CM2Model* model, int32_t effectID, uint32_t att
 
     C44Matrix matrix;
     matrix.Scale(effectRec->m_scale);
-    effect->m_fFlags |= 0x8000;
+    effect->m_runtimeFlags |= 0x8000;
     effect->m_worldTransform = matrix;
     effect->AttachToParent(model, attachID, nullptr, 0);
     effect->Release();
@@ -186,7 +186,7 @@ void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
 // OFFSET: 0x004E0110
 void CCharacterSelection::ModelLoadedCallback(CM2Model* model, void* arg) {
     if (model->HasEvent(M2_EVENT_ID::WeaponTop_WTT) && model->HasEvent(M2_EVENT_ID::WeaponBottom_WTB)) {
-        model->m_fFlags |= 0x20;
+        model->m_runtimeFlags |= 0x20;
         model->m_drawCallback = &CDrawBowString::GlueDrawBowStringCB;
         model->m_drawArg = arg;
     }
@@ -583,7 +583,7 @@ void CCharacterSelection::ShowCharacter() {
             CCharacterComponent::ReplaceMonsterSkin(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel, displayRec, modelRec);
             C44Matrix matrix(scale);
             CM2Model* scaledModel = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel;
-            scaledModel->m_fFlags |= 0x8000;
+            scaledModel->m_runtimeFlags |= 0x8000;
             scaledModel->m_worldTransform = matrix;
             CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petAlpha = displayRec->m_creatureModelAlpha * (1.0f / 255.0f);
             CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->m_fadeAlpha = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petAlpha;

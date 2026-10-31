@@ -970,7 +970,7 @@ void CGUnit_C::UpdateWorldObject(int32_t a2) {
             && this->m_vehiclePassenger->m_state
             && (this->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM)
             && model
-            && (model->m_fFlags & 0x8000)) {
+            && (model->m_runtimeFlags & 0x8000)) {
             matrix = model->GetAnimatedWorldTransform();
         } else {
             matrix = this->GetMatrix();
@@ -1111,7 +1111,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     model->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
     this->SetCharacterModel(model);
     model->Release();
-    model->m_fFlags ^= (model->m_fFlags ^ (this->m_modelData->m_flags >> 7)) & 0x4;
+    model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (this->m_modelData->m_flags >> 7)) & 0x4;
     this->UpdateModelScale(oldModelData);
     this->Animate(0.0f);
     model->ForceAnimate();
@@ -1240,7 +1240,7 @@ int32_t CGUnit_C::Animate(float elapsed) {
         }
 
         CM2Model* model = this->GetObjectModel();
-        model->m_fFlags |= 0x8000;
+        model->m_runtimeFlags |= 0x8000;
         model->m_worldTransform = matrix;
         this->UpdateMountTransitionModel();
         return 1;
@@ -1275,15 +1275,15 @@ void CGUnit_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) {
         CM2Model* model = this->m_worldModel;
         CM2Model* child = nullptr;
 
-        if (model && (model->m_fFlags & 0x4000)) {
+        if (model && (model->m_runtimeFlags & 0x4000)) {
             for (child = model->m_attachList; child; child = child->m_attachNext) {
-                if (((child->m_attachParent ? child->m_fFlags >> 7 : child->m_fFlags >> 3) & 0x1)) {
+                if (((child->m_attachParent ? child->m_runtimeFlags >> 7 : child->m_runtimeFlags >> 3) & 0x1)) {
                     break;
                 }
             }
         }
 
-        if (model && (model->m_fFlags & 0x4000) && !child) {
+        if (model && (model->m_runtimeFlags & 0x4000) && !child) {
             hidden = 1;
         } else if (this->m_vehiclePassenger
             && this->m_vehiclePassenger->m_state
@@ -1297,11 +1297,11 @@ void CGUnit_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) {
         CM2Model* model = this->m_worldModel;
 
         if (model->m_attachParent) {
-            model->m_fFlags = (model->m_fFlags & ~0x80) | (visible << 7);
-            model->m_fFlags = (model->m_fFlags & ~0x20000) | (visible << 17);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80) | (visible << 7);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000) | (visible << 17);
         } else {
-            model->m_fFlags = (model->m_fFlags & ~0x8) | (visible << 3);
-            model->m_fFlags = (model->m_fFlags & ~0x10000) | (visible << 16);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8) | (visible << 3);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000) | (visible << 16);
         }
 
         hidden = 0;
@@ -1317,7 +1317,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         C44Matrix matrix;
         MovementGetTransportMtxX(WOWGUID{ this->GetTransportGUID() }, &matrix, this->m_obj->m_guid, __FILE__, __LINE__);
 
-        if (model->m_fFlags & 0x1) {
+        if (model->m_runtimeFlags & 0x1) {
             model->m_frameOfReferenceMatrix = matrix;
             model->ChangeFrameOfReference(&model->m_frameOfReferenceMatrix);
         }
@@ -1624,9 +1624,9 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
     if (worldModel) {
         if (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_HIDE_BODY) {
-            worldModel->m_fFlags |= 0x4000u;
+            worldModel->m_runtimeFlags |= 0x4000u;
         } else {
-            worldModel->m_fFlags &= ~0x4000u;
+            worldModel->m_runtimeFlags &= ~0x4000u;
         }
     }
 
@@ -9854,7 +9854,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
         CCharacterComponent::ReplaceMonsterSkin(this->m_worldModel, this->m_displayInfo, this->m_modelData);
 
         if (this->m_modelData) {
-            this->m_worldModel->m_fFlags ^= (this->m_worldModel->m_fFlags ^ (this->m_modelData->m_flags >> 7)) & 0x4;
+            this->m_worldModel->m_runtimeFlags ^= (this->m_worldModel->m_runtimeFlags ^ (this->m_modelData->m_flags >> 7)) & 0x4;
         }
     }
 
@@ -10425,7 +10425,7 @@ CGUnit_C::~CGUnit_C() {
 
     if (this->m_rangedWeaponModel) {
         this->m_rangedWeaponModel->SetLoadedCallback(nullptr, nullptr);
-        this->m_rangedWeaponModel->m_fFlags |= 0x20;
+        this->m_rangedWeaponModel->m_runtimeFlags |= 0x20;
         this->m_rangedWeaponModel->m_drawCallback = nullptr;
         this->m_rangedWeaponModel->m_drawArg = nullptr;
         this->m_rangedWeaponModel->Release();
@@ -13992,13 +13992,13 @@ int32_t CGUnit_C::InitializeComponent() {
 // OFFSET: 0x0071AAB0
 void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
     if (model->HasEvent(M2_EVENT_ID::WeaponTop_WTT) && model->HasEvent(M2_EVENT_ID::WeaponBottom_WTB)) {
-        model->m_fFlags |= 0x20;
+        model->m_runtimeFlags |= 0x20;
         model->m_drawCallback = &CDrawBowString::UnitDrawBowStringCB;
         model->m_drawArg = arg;
         return;
     }
 
-    if (!(model->m_fFlags & 0x1)) {
+    if (!(model->m_runtimeFlags & 0x1)) {
         model->WaitForLoad(nullptr);
     }
 
@@ -14026,7 +14026,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     }
 
     if (this->m_rangedWeaponModel) {
-        this->m_rangedWeaponModel->m_fFlags |= 0x20;
+        this->m_rangedWeaponModel->m_runtimeFlags |= 0x20;
         this->m_rangedWeaponModel->m_drawCallback = nullptr;
         this->m_rangedWeaponModel->m_drawArg = nullptr;
         this->m_rangedWeaponModel->Release();
@@ -18362,7 +18362,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
             this->m_missiles->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_USE_ANIMATED_MODEL_TRANSFORM;
             CM2Model* missileModel = this->m_missiles->m_model;
-            missileModel->m_fFlags |= 0x8000;
+            missileModel->m_runtimeFlags |= 0x8000;
             missileModel->m_worldTransform = transform;
             C3Vector firePosition(transform.d0, transform.d1, transform.d2);
             this->m_missiles->FireMissiles(&firePosition);
@@ -20790,15 +20790,15 @@ void CGUnit_C::UpdateMountTransitionModel() {
     model->SetWorldTransform(transform * inverse);
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x80;
+        model->m_runtimeFlags |= 0x80;
     } else {
-        model->m_fFlags |= 0x8;
+        model->m_runtimeFlags |= 0x8;
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x20000;
+        model->m_runtimeFlags |= 0x20000;
     } else {
-        model->m_fFlags |= 0x10000;
+        model->m_runtimeFlags |= 0x10000;
     }
 
     float alpha = this->m_worldModel->m_fadeAlpha;
@@ -21348,7 +21348,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
     if (parent) {
         CM2Model* grandParent = parent->m_attachParent;
         uint32_t attachmentId = parent->m_attachmentId;
-        this->m_worldModel->m_fFlags ^= (this->m_worldModel->m_fFlags ^ parent->m_fFlags) & 0x80000;
+        this->m_worldModel->m_runtimeFlags ^= (this->m_worldModel->m_runtimeFlags ^ parent->m_runtimeFlags) & 0x80000;
         this->m_worldModel->DetachFromParent();
 
         if (grandParent) {
@@ -21411,7 +21411,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         mount->SetSequenceCallback(reinterpret_cast<void*>(&CGUnit_C::MountAnimEndCallback), this->m_obj->m_guid.m_guid);
         mount->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
         C44Matrix transform = this->m_worldModel->m_worldTransform;
-        mount->m_fFlags |= 0x8000;
+        mount->m_runtimeFlags |= 0x8000;
         mount->m_worldTransform = transform;
         CCharacterComponent::ApplyMonsterGeosets(mount, displayInfo);
         CCharacterComponent::ReplaceMonsterSkin(mount, displayInfo, modelData);
@@ -21421,8 +21421,8 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         this->m_mountFootprintLength = modelData->m_footprintTextureWidth * 0.027777778f;
         this->m_mountFootprintWidth = 0.027777778f * modelData->m_footprintTextureLength;
         this->m_soundDataOverride = this->GetMountSoundDataRec();
-        this->m_mountModel->m_fFlags ^= (this->m_mountModel->m_fFlags ^ this->m_worldModel->m_fFlags) & 0x80000;
-        this->m_worldModel->m_fFlags &= ~0x80000;
+        this->m_mountModel->m_runtimeFlags ^= (this->m_mountModel->m_runtimeFlags ^ this->m_worldModel->m_runtimeFlags) & 0x80000;
+        this->m_worldModel->m_runtimeFlags &= ~0x80000;
         CM2Model* parent = this->m_worldModel->m_attachParent;
         uint32_t attachmentId = this->m_worldModel->m_attachmentId;
 
@@ -21438,7 +21438,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
 
         this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, this->m_mountAnimBehaviorId, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
         C44Matrix scale(1.0f / this->m_mountScale);
-        this->m_worldModel->m_fFlags |= 0x8000;
+        this->m_worldModel->m_runtimeFlags |= 0x8000;
         this->m_worldModel->m_worldTransform = scale;
         mount->m_diffuseTintR = this->m_worldModel->m_diffuseTintR;
         mount->m_diffuseTintG = this->m_worldModel->m_diffuseTintG;
@@ -23506,7 +23506,7 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
 
     CM2Model* mountModel = this->m_mountTransitionEffect->m_model;
 
-    if (!(mountModel->m_fFlags & 0x1)) {
+    if (!(mountModel->m_runtimeFlags & 0x1)) {
         mountModel->WaitForLoad(nullptr);
     }
 
@@ -23525,7 +23525,7 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
     transform.d2 = transform.d2 + jump.z;
 
     CM2Model* objectModel = this->GetObjectModel();
-    objectModel->m_fFlags |= 0x8000;
+    objectModel->m_runtimeFlags |= 0x8000;
     objectModel->m_worldTransform = transform;
 
     if (this->m_mountTransitionEffect) {

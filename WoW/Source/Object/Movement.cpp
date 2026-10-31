@@ -857,7 +857,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         this->m_transportGuid = WOWGUID();
         this->ClearSplineEnabled();
 
-        if (this->m_unit->GetObjectModel() && (this->m_unit->GetObjectModel()->m_fFlags & 0x1)) {
+        if (this->m_unit->GetObjectModel() && (this->m_unit->GetObjectModel()->m_runtimeFlags & 0x1)) {
             this->m_unit->GetObjectModel()->ChangeFrameOfReference(nullptr);
         }
 
@@ -884,7 +884,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_fFlags & 0x1) {
+            if (model->m_runtimeFlags & 0x1) {
                 model->m_frameOfReferenceMatrix = matrix;
                 model->ChangeFrameOfReference(&model->m_frameOfReferenceMatrix);
             }
@@ -5462,7 +5462,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_fFlags & 0x1) {
+            if (model->m_runtimeFlags & 0x1) {
                 model->ChangeFrameOfReference(nullptr);
             }
         }
@@ -5490,7 +5490,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_fFlags & 0x1) {
+            if (model->m_runtimeFlags & 0x1) {
                 model->m_frameOfReferenceMatrix = transportMatrix;
                 model->ChangeFrameOfReference(&model->m_frameOfReferenceMatrix);
             }

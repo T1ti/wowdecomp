@@ -163,7 +163,7 @@ bool CGChatBubbleFrame::Update(CGUnit_C* player, CGUnit_C* unit) {
         return false;
     }
 
-    if (!model->IsLoaded(0, 0) || !(model->m_fFlags & 0x8000)) {
+    if (!model->IsLoaded(0, 0) || !(model->m_runtimeFlags & 0x8000)) {
         return true;
     }
 

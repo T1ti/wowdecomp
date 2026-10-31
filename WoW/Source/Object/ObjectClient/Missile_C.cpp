@@ -527,7 +527,7 @@ void CMissile::Link(CMissile** link) {
 // VERIFY: 4caf78ff manual
 // OFFSET: 0x006FEE00
 int32_t CMissile::AttachToVictim(CGUnit_C* victim, uint32_t duration) {
-    if (!this->m_model || !this->m_model->IsLoaded(0, 0) || !(this->m_model->m_fFlags & 0x8000)) {
+    if (!this->m_model || !this->m_model->IsLoaded(0, 0) || !(this->m_model->m_runtimeFlags & 0x8000)) {
         return 0;
     }
 
@@ -598,13 +598,13 @@ void CMissile::UpdateImpactPos() {
     C3Vector position(0.0f, 0.0f, 0.0f);
     CM2Model* model = target->m_worldModel;
 
-    if (this->m_attachmentID != MODEL_ATTACHMENT_ID::ATTACH_NONE && model && model->HasAttachment(this->m_attachmentID) && (model->m_fFlags & 0x8000)) {
+    if (this->m_attachmentID != MODEL_ATTACHMENT_ID::ATTACH_NONE && model && model->HasAttachment(this->m_attachmentID) && (model->m_runtimeFlags & 0x8000)) {
         position = this->m_attachOffset * model->GetAttachmentWorldTransform(this->m_attachmentID);
     } else {
         position = this->m_attachOffset;
         position.z = target->m_height * target->m_scale * 0.75f + position.z;
 
-        if ((target->m_obj->m_type & TYPE_UNIT) && static_cast<CGUnit_C*>(target)->m_vehiclePassenger && model && (model->m_fFlags & 0x8000)) {
+        if ((target->m_obj->m_type & TYPE_UNIT) && static_cast<CGUnit_C*>(target)->m_vehiclePassenger && model && (model->m_runtimeFlags & 0x8000)) {
             position *= model->GetAnimatedWorldTransform();
         } else {
             position *= target->GetMatrix();
@@ -874,7 +874,7 @@ void CMissile::BeginWaitingForModelFX(int32_t disableEffects) {
     CGObject_C* object = ClntObjMgrObjectPtr(this->m_targetGuid, TYPE_OBJECT, __FILE__, __LINE__);
     CGUnit_C* target = object && (object->m_obj->m_type & TYPE_UNIT) ? static_cast<CGUnit_C*>(object) : nullptr;
 
-    if (this->m_model && this->m_model->IsLoaded(0, 0) && (this->m_model->m_fFlags & 0x8000)) {
+    if (this->m_model && this->m_model->IsLoaded(0, 0) && (this->m_model->m_runtimeFlags & 0x8000)) {
         if (!this->m_fizzleTime) {
             this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_IMPACT, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         }
@@ -1101,7 +1101,7 @@ void CMissile::RemoveMissiles() {
 // VERIFY: a1f308a5 manual
 // OFFSET: 0x00703810
 int32_t CMissile::WaitForModelFX() {
-    if (this->m_model && this->m_model->IsLoaded(0, 0) && (this->m_model->m_fFlags & 0x8000)) {
+    if (this->m_model && this->m_model->IsLoaded(0, 0) && (this->m_model->m_runtimeFlags & 0x8000)) {
         CM2Model* model = this->m_model;
 
         if (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MODEL_FX_WAIT_STARTED) {
@@ -1533,7 +1533,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         WOWGUID transport = WOWGUID();
 
         if (this->m_model && (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_USE_MODEL_IMPACT_POSITION)) {
-            position = (this->m_model->m_fFlags & 0x8000) ? this->m_model->GetWorldPosition() : target->GetPosition();
+            position = (this->m_model->m_runtimeFlags & 0x8000) ? this->m_model->GetWorldPosition() : target->GetPosition();
             positionPtr = &position;
         } else if ((this->m_motionFlags & 1) && (this->m_motionFlags & 8)) {
             C3Vector resolved;
@@ -1581,11 +1581,11 @@ void CMissile::ReachedTarget(CGUnit_C* target, const C3Vector* direction) {
         dir.z = inv * dir.z;
     }
 
-    if (this->m_model && (this->m_model->m_fFlags & 0x8000)) {
+    if (this->m_model && (this->m_model->m_runtimeFlags & 0x8000)) {
         C44Matrix matrix;
         this->ComputeModelMatrix(&matrix, &this->m_position, &dir);
         CM2Model* model = this->m_model;
-        model->m_fFlags |= 0x8000;
+        model->m_runtimeFlags |= 0x8000;
         model->m_worldTransform = matrix;
         this->m_lastModelPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
     }
@@ -1796,7 +1796,7 @@ void CMissile::CalcPosition(int32_t advance) {
         C44Matrix matrix;
         this->ComputeModelMatrix(&matrix, &this->m_position, &dir);
         CM2Model* model = this->m_model;
-        model->m_fFlags |= 0x8000;
+        model->m_runtimeFlags |= 0x8000;
         model->m_worldTransform = matrix;
         this->m_lastModelPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
 
@@ -1810,7 +1810,7 @@ void CMissile::CalcPosition(int32_t advance) {
             }
         }
 
-        if (!this->m_mapEntity && (this->m_model->m_fFlags & 0x8000)) {
+        if (!this->m_mapEntity && (this->m_model->m_runtimeFlags & 0x8000)) {
             this->m_mapEntity = CMap::ObjectCreate(this->m_model, &CGWorldFrame::MissileEnumProc, nullptr, 0, reinterpret_cast<uintptr_t>(this), 6);
         }
 
@@ -1825,7 +1825,7 @@ void CMissile::CalcPosition(int32_t advance) {
                 for (uint32_t i = 0; ; i++) {
                     CM2Model* emitterModel = this->m_model;
 
-                    if (!(emitterModel->m_fFlags & 1)) {
+                    if (!(emitterModel->m_runtimeFlags & 1)) {
                         emitterModel->WaitForLoad(nullptr);
                     }
 
@@ -1835,7 +1835,7 @@ void CMissile::CalcPosition(int32_t advance) {
 
                     emitterModel = this->m_model;
 
-                    if (!(emitterModel->m_fFlags & 1)) {
+                    if (!(emitterModel->m_runtimeFlags & 1)) {
                         emitterModel->WaitForLoad(nullptr);
                     }
 
@@ -2041,7 +2041,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         }
 
         if (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE) {
-            this->m_model->m_fFlags |= 4;
+            this->m_model->m_runtimeFlags |= 4;
         }
 
         float distance;

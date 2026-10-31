@@ -392,7 +392,7 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t
             for (uint32_t i = 0;; i++) {
                 CM2Model* model = doodadDef->m_model;
 
-                if (!(model->m_fFlags & 0x1)) {
+                if (!(model->m_runtimeFlags & 0x1)) {
                     model->WaitForLoad(nullptr);
                 }
 
@@ -402,7 +402,7 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t
 
                 model = doodadDef->m_model;
 
-                if (!(model->m_fFlags & 0x1)) {
+                if (!(model->m_runtimeFlags & 0x1)) {
                     model->WaitForLoad(nullptr);
                 }
 

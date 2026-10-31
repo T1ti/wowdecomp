@@ -2181,15 +2181,15 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
     CM2Model* model = doodadDef->m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x80;
+        model->m_runtimeFlags |= 0x80;
     } else {
-        model->m_fFlags |= 0x8;
+        model->m_runtimeFlags |= 0x8;
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x20000;
+        model->m_runtimeFlags |= 0x20000;
     } else {
-        model->m_fFlags |= 0x10000;
+        model->m_runtimeFlags |= 0x10000;
     }
 
     doodadDef->m_model->m_fadeAlpha = alpha;
@@ -2361,7 +2361,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
             model->SetAnimating(1);
 
             uint32_t lit = !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN);
-            uint32_t flags = model->m_fFlags;
+            uint32_t flags = model->m_runtimeFlags;
 
             if (model->m_attachParent) {
                 flags = (flags & ~0x80) | (lit << 7);
@@ -2369,7 +2369,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
                 flags = (flags & ~0x8) | (lit << 3);
             }
 
-            model->m_fFlags = flags;
+            model->m_runtimeFlags = flags;
 
             if (model->m_attachParent) {
                 flags = (flags & ~0x20000) | (lit << 17);
@@ -2377,7 +2377,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
                 flags = (flags & ~0x10000) | (lit << 16);
             }
 
-            model->m_fFlags = flags;
+            model->m_runtimeFlags = flags;
             model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
             model->m_lightingArg = entity;
         }
@@ -2431,7 +2431,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 model->SetAnimating(1);
 
                 uint32_t lit = !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN);
-                uint32_t flags = model->m_fFlags;
+                uint32_t flags = model->m_runtimeFlags;
 
                 if (model->m_attachParent) {
                     flags = (flags & ~0x80) | (lit << 7);
@@ -2439,7 +2439,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                     flags = (flags & ~0x8) | (lit << 3);
                 }
 
-                model->m_fFlags = flags;
+                model->m_runtimeFlags = flags;
 
                 if (model->m_attachParent) {
                     flags = (flags & ~0x20000) | (lit << 17);
@@ -2447,7 +2447,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                     flags = (flags & ~0x10000) | (lit << 16);
                 }
 
-                model->m_fFlags = flags;
+                model->m_runtimeFlags = flags;
                 model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
                 model->m_lightingArg = entity;
             }
@@ -2493,15 +2493,15 @@ void CWorldScene::UpdateSortedModels() {
                 }
 
                 if (model->m_attachParent) {
-                    model->m_fFlags &= ~0x80;
+                    model->m_runtimeFlags &= ~0x80;
                 } else {
-                    model->m_fFlags &= ~0x8;
+                    model->m_runtimeFlags &= ~0x8;
                 }
 
                 if (model->m_attachParent) {
-                    model->m_fFlags &= ~0x20000;
+                    model->m_runtimeFlags &= ~0x20000;
                 } else {
-                    model->m_fFlags &= ~0x10000;
+                    model->m_runtimeFlags &= ~0x10000;
                 }
             }
 
@@ -4378,11 +4378,11 @@ void CMap::UpdateEntity(CMapEntity* entity) {
 // OFFSET: 0x00791240
 void CWorldScene::CullModelSplitBody(CM2Model* model, uint32_t boneId, int32_t skip) {
     if (skip) {
-        model->m_fFlags &= ~0x2000;
+        model->m_runtimeFlags &= ~0x2000;
     } else {
         CAaBox box = model->GetSplitBodyBoundingBox(boneId);
         uint32_t culled = CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside;
-        model->m_fFlags ^= (model->m_fFlags ^ (culled << 13)) & 0x2000;
+        model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (culled << 13)) & 0x2000;
     }
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
@@ -4902,7 +4902,7 @@ void CWorldScene::RenderBarriers(float elapsedSec) {
 // OFFSET: 0x007911D0
 void CWorldScene::CullModelRecursive(CM2Model* model) {
     CAaBox box = model->GetCurrentBoundingBox();
-    model->m_fFlags = (model->m_fFlags & ~0x2000u) | ((CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside) << 13);
+    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x2000u) | ((CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside) << 13);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
         CWorldScene::CullModelRecursive(attached);
@@ -5098,15 +5098,15 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
         CM2Model* model = entity->m_model;
 
         if (model->m_attachParent) {
-            model->m_fFlags |= 0x80;
+            model->m_runtimeFlags |= 0x80;
         } else {
-            model->m_fFlags |= 0x8;
+            model->m_runtimeFlags |= 0x8;
         }
 
         if (model->m_attachParent) {
-            model->m_fFlags |= 0x20000;
+            model->m_runtimeFlags |= 0x20000;
         } else {
-            model->m_fFlags |= 0x10000;
+            model->m_runtimeFlags |= 0x10000;
         }
 
         return 1;
@@ -5115,24 +5115,24 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
     CM2Model* model = entity->m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags &= ~0x80;
+        model->m_runtimeFlags &= ~0x80;
     } else {
-        model->m_fFlags &= ~0x8;
+        model->m_runtimeFlags &= ~0x8;
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags &= ~0x20000;
+        model->m_runtimeFlags &= ~0x20000;
     } else {
-        model->m_fFlags &= ~0x10000;
+        model->m_runtimeFlags &= ~0x10000;
     }
 
     entity->m_model->SetAnimating(0);
     model = entity->m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags &= ~0x20000;
+        model->m_runtimeFlags &= ~0x20000;
     } else {
-        model->m_fFlags &= ~0x10000;
+        model->m_runtimeFlags &= ~0x10000;
     }
 
     return 1;

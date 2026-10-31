@@ -145,10 +145,10 @@ class CM2Model {
     };
 
     /* 0000 */ uint32_t m_refCount;
-    /* 0004 */ uint32_t m_flags;
+    /* 0004 */ uint32_t m_creationFlags;
     /* 0008 */ CM2Model** m_scenePrev;
     /* 000C */ CM2Model* m_sceneNext;
-    /* 0010 */ uint32_t m_fFlags;
+    /* 0010 */ uint32_t m_runtimeFlags;
     /* 0014 */ uint16_t m_animListHead;
     /* 0016 */ uint16_t unused_0016;
     /* 0018 */ CM2Model** m_callbackPrev;

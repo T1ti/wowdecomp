@@ -246,7 +246,7 @@ void CM2Scene::AnimateThread(void* param) {
             continue;
         }
 
-        if (model->m_fFlags & 0x1000) {
+        if (model->m_runtimeFlags & 0x1000) {
             model->AnimateMTSimple(&scene->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
         } else {
             model->AnimateMT(&scene->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
@@ -292,7 +292,7 @@ uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, 
         *model->m_hitTestPrev = nullptr;
         model->m_hitTestPrev = nullptr;
 
-        if (!(model->m_fFlags & 1) || model->m_frameStamp == 0xFFFFFFFF) {
+        if (!(model->m_runtimeFlags & 1) || model->m_frameStamp == 0xFFFFFFFF) {
             continue;
         }
 
@@ -1704,7 +1704,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
         for (CM2Model* model = this->m_animateList; model; ) {
             if (!model->m_attachParent) {
-                if (model->m_fFlags & 0x1000) {
+                if (model->m_runtimeFlags & 0x1000) {
                     model->AnimateMTSimple(&this->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
                 } else {
                     model->AnimateMT(&this->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
@@ -1727,7 +1727,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 continue;
             }
 
-            if (model->m_fFlags & 0x1000) {
+            if (model->m_runtimeFlags & 0x1000) {
                 model->AnimateMTSimple(&this->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
             } else {
                 model->AnimateMT(&this->m_view, C3Vector(1.0f, 1.0f, 1.0f), C3Vector(0.0f, 0.0f, 0.0f), 1.0f, 1.0f);
@@ -1762,11 +1762,11 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
     while (this->m_drawList) {
         CM2Model* model = this->m_drawList;
         this->m_drawList = model->m_drawNext;
-        model->m_fFlags &= ~0x10008u;
+        model->m_runtimeFlags &= ~0x10008u;
         model->m_drawPrev = nullptr;
         model->m_drawNext = nullptr;
 
-        if (!model->IsDrawable(0, 0) || (model->m_fFlags & 0x4000)) {
+        if (!model->IsDrawable(0, 0) || (model->m_runtimeFlags & 0x4000)) {
             continue;
         }
 
@@ -1800,7 +1800,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         M2ModelOptGeo* optGeo = model->m_optGeo;
         M2SkinProfile* skinData = model->m_shared->m_skinData;
         int32_t optimized = optGeo != nullptr;
-        int32_t depthSort = (this->m_cache->m_flags & 1) && !(model->m_flags & CM2Model::INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE) && (model->m_fFlags & 0x40);
+        int32_t depthSort = (this->m_cache->m_flags & 1) && !(model->m_creationFlags & CM2Model::INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE) && (model->m_runtimeFlags & 0x40);
         uint32_t batchCount = optGeo ? optGeo->m_batchCount : skinData->m_batches.m_count;
 
         for (uint32_t i = 0; i < batchCount; i++) {
@@ -2048,7 +2048,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 element->m_pixelPermute = 0xFFFFFFFF;
                 element->m_shadowValue = 0;
 
-                if (model->m_fFlags & 0x20) {
+                if (model->m_runtimeFlags & 0x20) {
                     this->m_passElements[0].New(elementIndex);
                 } else if (above) {
                     this->m_passElements[1].New(elementIndex);
@@ -2089,7 +2089,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         for (uint32_t i = 0; i < data->m_particles.m_count; i++) {
             CParticleEmitter2* emitter = model->m_particleEmitters[i];
 
-            if ((model->m_fFlags & 0x2000) && (emitter->m_flags & 0x200)) {
+            if ((model->m_runtimeFlags & 0x2000) && (emitter->m_flags & 0x200)) {
                 continue;
             }
 

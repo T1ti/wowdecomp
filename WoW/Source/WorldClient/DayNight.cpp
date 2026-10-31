@@ -1766,15 +1766,15 @@ void DayNight::DrawSky(DNOverrideSky* sky, float weight) {
     CM2Model* parent = model->m_attachParent;
 
     if (parent) {
-        model->m_fFlags |= 0x80;
+        model->m_runtimeFlags |= 0x80;
     } else {
-        model->m_fFlags |= 0x8;
+        model->m_runtimeFlags |= 0x8;
     }
 
     if (parent) {
-        model->m_fFlags |= 0x20000;
+        model->m_runtimeFlags |= 0x20000;
     } else {
-        model->m_fFlags |= 0x10000;
+        model->m_runtimeFlags |= 0x10000;
     }
 
     sky->m_model->m_fadeAlpha = weight;
@@ -1787,15 +1787,15 @@ void DayNight::DrawSky(DNOverrideSky* sky, float weight) {
     parent = model->m_attachParent;
 
     if (parent) {
-        model->m_fFlags &= ~0x80u;
+        model->m_runtimeFlags &= ~0x80u;
     } else {
-        model->m_fFlags &= ~0x8u;
+        model->m_runtimeFlags &= ~0x8u;
     }
 
     if (parent) {
-        model->m_fFlags &= ~0x20000u;
+        model->m_runtimeFlags &= ~0x20000u;
     } else {
-        model->m_fFlags &= ~0x10000u;
+        model->m_runtimeFlags &= ~0x10000u;
     }
 }
 

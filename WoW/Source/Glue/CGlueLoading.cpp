@@ -69,15 +69,15 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
                 CM2Model* model = component->m_data.m_model;
 
                 if (model->m_attachParent) {
-                    model->m_fFlags = (model->m_fFlags & ~0x80u) | (done << 7);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80u) | (done << 7);
                 } else {
-                    model->m_fFlags = (model->m_fFlags & ~0x8u) | (done << 3);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8u) | (done << 3);
                 }
 
                 if (model->m_attachParent) {
-                    model->m_fFlags = (model->m_fFlags & ~0x20000u) | (done << 17);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000u) | (done << 17);
                 } else {
-                    model->m_fFlags = (model->m_fFlags & ~0x10000u) | (done << 16);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000u) | (done << 16);
                 }
             }
 
@@ -126,15 +126,15 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgres
                 CM2Model* model = component->m_data.m_model;
 
                 if (model->m_attachParent) {
-                    model->m_fFlags &= ~0x80u;
+                    model->m_runtimeFlags &= ~0x80u;
                 } else {
-                    model->m_fFlags &= ~0x8u;
+                    model->m_runtimeFlags &= ~0x8u;
                 }
 
                 if (model->m_attachParent) {
-                    model->m_fFlags &= ~0x20000u;
+                    model->m_runtimeFlags &= ~0x20000u;
                 } else {
-                    model->m_fFlags &= ~0x10000u;
+                    model->m_runtimeFlags &= ~0x10000u;
                 }
             }
 

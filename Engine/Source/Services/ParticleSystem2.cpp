@@ -880,15 +880,15 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
         CM2Model* model = particle.m_model;
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x80;
+            model->m_runtimeFlags &= ~0x80;
         } else {
-            model->m_fFlags &= ~0x8;
+            model->m_runtimeFlags &= ~0x8;
         }
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x20000;
+            model->m_runtimeFlags &= ~0x20000;
         } else {
-            model->m_fFlags &= ~0x10000;
+            model->m_runtimeFlags &= ~0x10000;
         }
 
         return 0;
@@ -928,7 +928,7 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     }
 
     CM2Model* model = particle.m_model;
-    model->m_fFlags |= 0x8000;
+    model->m_runtimeFlags |= 0x8000;
     model->m_worldTransform = transform;
 
     model = particle.m_model;
@@ -940,15 +940,15 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     model = particle.m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x80;
+        model->m_runtimeFlags |= 0x80;
     } else {
-        model->m_fFlags |= 0x8;
+        model->m_runtimeFlags |= 0x8;
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags |= 0x20000;
+        model->m_runtimeFlags |= 0x20000;
     } else {
-        model->m_fFlags |= 0x10000;
+        model->m_runtimeFlags |= 0x10000;
     }
 
     if (particle.m_model->IsLoaded(0, 0)) {
@@ -1077,14 +1077,14 @@ static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg) {
         return;
     }
 
-    if (!(model->m_fFlags & 1)) {
+    if (!(model->m_runtimeFlags & 1)) {
         model->WaitForLoad(nullptr);
     }
 
     uint32_t count = CParticleEmitter2::MAX_CHILD_EMITTERS;
 
     if (model->m_shared->m_data->m_particles.m_count < CParticleEmitter2::MAX_CHILD_EMITTERS) {
-        if (!(model->m_fFlags & 1)) {
+        if (!(model->m_runtimeFlags & 1)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -1092,7 +1092,7 @@ static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg) {
     }
 
     for (uint32_t i = 0; i < count; i++) {
-        if (!(model->m_fFlags & 1)) {
+        if (!(model->m_runtimeFlags & 1)) {
             model->WaitForLoad(nullptr);
         }
 

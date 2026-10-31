@@ -201,7 +201,7 @@ void CDetailDoodadInstBatch::FillIndices() {
     for (uint32_t i = 0; i < this->m_adds.Count(); i++) {
         CM2Model* model = CDetailDoodad::s_doodadList[this->m_adds[i].m_doodadId]->m_model;
 
-        if (!(model->m_fFlags & 1)) {
+        if (!(model->m_runtimeFlags & 1)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -321,7 +321,7 @@ void CDetailDoodadData::ModelLoadedCallback(CM2Model* model, void* arg) {
     CDetailDoodadData* data = static_cast<CDetailDoodadData*>(arg);
     CM2Model* doodadModel = data->m_model;
 
-    if (!(doodadModel->m_fFlags & 1)) {
+    if (!(doodadModel->m_runtimeFlags & 1)) {
         doodadModel->WaitForLoad(nullptr);
     }
 
@@ -351,14 +351,14 @@ void CDetailDoodadInstBatch::FillVertices() {
         CDetailDoodadData* data = CDetailDoodad::s_doodadList[add.m_doodadId];
         CM2Model* model = data->m_model;
 
-        if (!(model->m_fFlags & 1)) {
+        if (!(model->m_runtimeFlags & 1)) {
             model->WaitForLoad(nullptr);
         }
 
         M2Data* m2Data = model->m_shared->m_data;
         model = data->m_model;
 
-        if (!(model->m_fFlags & 1)) {
+        if (!(model->m_runtimeFlags & 1)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -662,7 +662,7 @@ void CDetailDoodadInst::AddDoodad(uint32_t id, const C3Vector& position, float r
     CDetailDoodadData* data = CDetailDoodad::s_doodadList[id];
     CM2Model* model = data->m_model;
 
-    if (!(model->m_fFlags & 1)) {
+    if (!(model->m_runtimeFlags & 1)) {
         model->WaitForLoad(nullptr);
     }
 

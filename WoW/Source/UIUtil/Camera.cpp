@@ -1090,7 +1090,7 @@ int32_t CGCamera::SetModelCamera(const char* fileName, const C3Vector* position,
     this->m_modelMatrix.d2 = position->z;
     this->m_modelMatrix.RotateAroundZ(facing);
     CM2Model* model = this->m_model;
-    model->m_fFlags |= 0x8000;
+    model->m_runtimeFlags |= 0x8000;
     model->m_worldTransform = C44Matrix(this->m_modelMatrix);
 
     if (!this->m_model->IsLoaded(1, 0)) {

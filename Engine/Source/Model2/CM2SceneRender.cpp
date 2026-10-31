@@ -574,7 +574,7 @@ void CM2SceneRender::DrawBatchProj() {
     this->SetupBillboardView(*reinterpret_cast<const C3Vector*>(&this->m_scene->m_viewInv.d0));
     CShaderEffect::SetTexMtx_TexGen(GxTexGen_World, texMatrix, 0);
     CShaderEffect::SetTexMtx_TexGen(GxTexGen_World, depthMatrix, 1);
-    this->m_scene->m_projectTextureCallback(box, imColor, this->m_curLocalLighting, this->m_scene->m_projectTextureParam, (this->m_curModel->m_fFlags >> 2) & 1);
+    this->m_scene->m_projectTextureCallback(box, imColor, this->m_curLocalLighting, this->m_scene->m_projectTextureParam, (this->m_curModel->m_runtimeFlags >> 2) & 1);
     g_theGxDevicePtr->XformSetView(s_identity);
 
     CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
@@ -970,7 +970,7 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
     for (uint32_t i = 0; i < count; i++) {
         M2Element* element = &elements[indices[i]];
 
-        if (element->m_type != 2 && (element->m_model->m_fFlags & 0x2000) && element->m_type != 4) {
+        if (element->m_type != 2 && (element->m_model->m_runtimeFlags & 0x2000) && element->m_type != 4) {
             continue;
         }
 

@@ -22,7 +22,7 @@ static CDataAllocator s_freeTrails(sizeof(WTOBJECT), 128);
 WTOBJECT::~WTOBJECT() {
     if (this->m_model) {
         CM2Model* model = this->m_model;
-        model->m_fFlags |= 0x20;
+        model->m_runtimeFlags |= 0x20;
         model->m_drawCallback = nullptr;
         model->m_drawArg = nullptr;
         this->m_model->Release();
@@ -186,7 +186,7 @@ static void WeaponTrailCallback(CM2Model* model, const CM2Lighting* lighting, vo
     if (!trail->m_swing->BuildVertexBuffer(time, top, bottom)) {
         s_freeSwings.PutData(trail->m_swing, nullptr, 0);
         trail->m_swing = nullptr;
-        model->m_fFlags |= 0x20;
+        model->m_runtimeFlags |= 0x20;
         model->m_drawCallback = nullptr;
         model->m_drawArg = nullptr;
     }
@@ -207,7 +207,7 @@ void WTOBJECT::SetDrawTrail(const uint32_t* color, uint32_t duration) {
 
         CM2Model* model = this->m_model;
         this->m_swing = swing;
-        model->m_fFlags |= 0x20;
+        model->m_runtimeFlags |= 0x20;
         model->m_drawCallback = WeaponTrailCallback;
         model->m_drawArg = this;
     }

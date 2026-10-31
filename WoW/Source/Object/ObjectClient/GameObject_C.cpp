@@ -1464,7 +1464,7 @@ void CGGameObject_C::ShowLootEffect() {
     matrix.Scale(scale);
 
     CM2Model* effect = this->m_lootEffect;
-    effect->m_fFlags |= 0x8000;
+    effect->m_runtimeFlags |= 0x8000;
     effect->m_worldTransform = matrix;
 }
 
@@ -2649,7 +2649,7 @@ void CGGameObject_C::UpdateWorldObject(int32_t a2) {
             center = C3Vector((bounds.t.x + bounds.b.x) * 0.5f, (bounds.t.y + bounds.b.y) * 0.5f, 0.5f * (bounds.t.z + bounds.b.z));
         }
 
-        model->m_fFlags |= 0x8000;
+        model->m_runtimeFlags |= 0x8000;
         model->m_worldTransform = this->m_matrix;
     }
 
@@ -2712,7 +2712,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
     if (pending) {
         if (!this->IsObjectModelLoaded()) {
             this->m_pendingOneShotAnim = pending;
-            model->m_fFlags |= 0x4;
+            model->m_runtimeFlags |= 0x4;
             return;
         }
 
@@ -2720,7 +2720,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
         this->m_pendingOneShotAnim = 0;
     }
 
-    model->m_fFlags |= 0x4;
+    model->m_runtimeFlags |= 0x4;
 }
 
 // VERIFY: e5a829d0 manual

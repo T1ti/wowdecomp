@@ -117,11 +117,11 @@ void CGDressUpModelFrame::UpdateModel() {
     CM2Model* model = this->m_component->m_data.m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags = (model->m_fFlags & ~0x80u) | (ready << 7);
-        model->m_fFlags = (model->m_fFlags & ~0x20000u) | (ready << 17);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80u) | (ready << 7);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000u) | (ready << 17);
     } else {
-        model->m_fFlags = (model->m_fFlags & ~0x8u) | (ready << 3);
-        model->m_fFlags = (model->m_fFlags & ~0x10000u) | (ready << 16);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8u) | (ready << 3);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000u) | (ready << 16);
     }
 }
 

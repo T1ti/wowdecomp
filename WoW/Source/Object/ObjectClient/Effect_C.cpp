@@ -141,7 +141,7 @@ void CEffect::SetEmissionRateIgnoresDistance(int32_t ignore) {
     for (uint32_t i = 0; ; i++) {
         CM2Model* model = this->m_model;
 
-        if (!(model->m_fFlags & 0x1)) {
+        if (!(model->m_runtimeFlags & 0x1)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -151,7 +151,7 @@ void CEffect::SetEmissionRateIgnoresDistance(int32_t ignore) {
 
         model = this->m_model;
 
-        if (!(model->m_fFlags & 0x1)) {
+        if (!(model->m_runtimeFlags & 0x1)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -253,7 +253,7 @@ void CEffect::AddFishingLine(CGObject_C* object, const WOWGUID& target) {
 
     this->m_lineModel = line;
     line->m_refCount++;
-    this->m_lineModel->m_fFlags |= 0x20;
+    this->m_lineModel->m_runtimeFlags |= 0x20;
     this->m_lineModel->m_drawCallback = &CEffect::DrawFishingString;
     this->m_lineModel->m_drawArg = this;
     this->m_sourceGuid = object->m_obj->m_guid;
@@ -735,21 +735,21 @@ void CEffect::MoveToDestroyList() {
         CM2Model* model = this->m_model;
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x80u;
+            model->m_runtimeFlags &= ~0x80u;
         } else {
-            model->m_fFlags &= ~0x8u;
+            model->m_runtimeFlags &= ~0x8u;
         }
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x20000u;
+            model->m_runtimeFlags &= ~0x20000u;
         } else {
-            model->m_fFlags &= ~0x10000u;
+            model->m_runtimeFlags &= ~0x10000u;
         }
 
         if (this->m_model->m_attachParent) {
-            this->m_model->m_fFlags |= 0x20000;
+            this->m_model->m_runtimeFlags |= 0x20000;
         } else {
-            this->m_model->m_fFlags |= 0x10000;
+            this->m_model->m_runtimeFlags |= 0x10000;
         }
 
         this->m_model->SetEmittersEnabled(0);
@@ -777,15 +777,15 @@ CEffect::~CEffect() {
         CM2Model* model = this->m_model;
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x80u;
+            model->m_runtimeFlags &= ~0x80u;
         } else {
-            model->m_fFlags &= ~0x8u;
+            model->m_runtimeFlags &= ~0x8u;
         }
 
         if (model->m_attachParent) {
-            model->m_fFlags &= ~0x20000u;
+            model->m_runtimeFlags &= ~0x20000u;
         } else {
-            model->m_fFlags &= ~0x10000u;
+            model->m_runtimeFlags &= ~0x10000u;
         }
 
         this->m_model->Release();
@@ -793,7 +793,7 @@ CEffect::~CEffect() {
     }
 
     if (this->m_lineModel) {
-        this->m_lineModel->m_fFlags |= 0x20;
+        this->m_lineModel->m_runtimeFlags |= 0x20;
         this->m_lineModel->m_drawCallback = nullptr;
         this->m_lineModel->m_drawArg = nullptr;
         this->m_lineModel->Release();
@@ -861,7 +861,7 @@ void CEffect::CleanUpStaticLists() {
     while (effect) {
         CEffect* next = effect->m_next;
 
-        if (!effect->m_model || !(effect->m_model->m_fFlags & 0x400)) {
+        if (!effect->m_model || !(effect->m_model->m_runtimeFlags & 0x400)) {
             effect->UnLinkSelf();
 
             if (effect->m_refCount-- == 1) {
@@ -1176,7 +1176,7 @@ int32_t CEffect::UpdateAttachment() {
     this->m_transportGuid = WOWGUID();
 
     if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA) {
-        this->m_model->m_fFlags |= 0x100000;
+        this->m_model->m_runtimeFlags |= 0x100000;
     }
 
     object->SetBoundsDirty();
@@ -1223,7 +1223,7 @@ void CEffect::EffectUpdate() {
             }
 
             light.z = 1.0f;
-            this->m_model->m_fFlags |= 0x8000;
+            this->m_model->m_runtimeFlags |= 0x8000;
             this->m_model->m_worldTransform = transform;
             C44Matrix world = this->m_model->m_worldTransform;
             CMap::ObjectUpdate(this->m_mapEntity, world, box, sphere, light, false, 0xFFFFFFFF);
@@ -1280,15 +1280,15 @@ void CEffect::UpdateWorldObject(float elapsed, uint32_t flags) {
             uint32_t visible = flags & 1;
 
             if (parent) {
-                model->m_fFlags = (model->m_fFlags & ~0x80u) | (visible << 7);
+                model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80u) | (visible << 7);
             } else {
-                model->m_fFlags = (model->m_fFlags & ~0x8u) | (visible << 3);
+                model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8u) | (visible << 3);
             }
 
             if (parent) {
-                model->m_fFlags = (model->m_fFlags & ~0x20000u) | (visible << 17);
+                model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000u) | (visible << 17);
             } else {
-                model->m_fFlags = (model->m_fFlags & ~0x10000u) | (visible << 16);
+                model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000u) | (visible << 16);
             }
 
             this->m_startTime = 0;
@@ -1314,7 +1314,7 @@ void CEffect::PostInitialize() {
         CGObject_C* source = ClntObjMgrObjectPtr(this->m_sourceGuid, TYPE_OBJECT, __FILE__, __LINE__);
         C44Matrix transform;
         C44Matrix* matrix = this->TransformPosition(&transform, source);
-        this->m_model->m_fFlags |= 0x8000;
+        this->m_model->m_runtimeFlags |= 0x8000;
         this->m_model->m_worldTransform = *matrix;
         C44Matrix world = this->m_model->m_worldTransform;
         this->m_mapEntity = CMap::ObjectCreateStatic(this->m_model, world, &CGWorldFrame::SpellEffectEnumProc, nullptr, reinterpret_cast<uintptr_t>(this));
@@ -1338,22 +1338,22 @@ void CEffect::PostInitialize() {
         uint32_t visible = animating & 1;
 
         if (parent) {
-            model->m_fFlags = (model->m_fFlags & ~0x80u) | (visible << 7);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80u) | (visible << 7);
         } else {
-            model->m_fFlags = (model->m_fFlags & ~0x8u) | (visible << 3);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8u) | (visible << 3);
         }
 
         if (parent) {
-            model->m_fFlags = (model->m_fFlags & ~0x20000u) | (visible << 17);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000u) | (visible << 17);
         } else {
-            model->m_fFlags = (model->m_fFlags & ~0x10000u) | (visible << 16);
+            model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000u) | (visible << 16);
         }
     }
 
     SpellRec spell;
 
     if (this->m_spellId && g_spellDB.GetRecord(this->m_spellId, &spell) && (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE)) {
-        this->m_model->m_fFlags |= 0x4;
+        this->m_model->m_runtimeFlags |= 0x4;
     }
 
     if (!this->UpdateAttachment()) {
@@ -1600,15 +1600,15 @@ int32_t CEffect::LoadMountTransitionModel() {
     CM2Model* model = this->m_model;
 
     if (model->m_attachParent) {
-        model->m_fFlags &= ~0x80;
+        model->m_runtimeFlags &= ~0x80;
     } else {
-        model->m_fFlags &= ~0x8;
+        model->m_runtimeFlags &= ~0x8;
     }
 
     if (model->m_attachParent) {
-        model->m_fFlags &= ~0x20000;
+        model->m_runtimeFlags &= ~0x20000;
     } else {
-        model->m_fFlags &= ~0x10000;
+        model->m_runtimeFlags &= ~0x10000;
     }
 
     this->m_model->SetAnimating(1);
