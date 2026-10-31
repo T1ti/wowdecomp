@@ -65,6 +65,15 @@ struct CALENDAREVENTHASH : public TSHashObject<CALENDAREVENTHASH, HASHKEY_NONE> 
     ~CALENDAREVENTHASH();
 };
 
+// Client-derived day-list status/permissions, separate from event option/type bits.
+enum CALENDAR_DAY_EVENT_FLAGS : uint32_t {
+    CALENDAR_DAY_FLAG_NONE                   = 0x00000000u,
+    CALENDAR_DAY_FLAG_PENDING_INVITE         = 0x00000001u,
+    CALENDAR_DAY_FLAG_MODERATOR              = 0x00000002u,
+    CALENDAR_DAY_FLAG_CREATOR                = 0x00000004u,
+    CALENDAR_DAY_FLAG_GUILD_INVITE           = 0x00000008u,
+};
+
 struct CalendarEventData {
     /* 0000 */ uint64_t m_eventID;
     /* 0008 */ char m_title[128];
