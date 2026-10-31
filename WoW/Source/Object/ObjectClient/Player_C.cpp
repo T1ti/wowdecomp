@@ -8554,7 +8554,7 @@ int32_t CGPlayer_C::OnLootResponse(uint32_t time, CDataStore* msg) {
                 uint8_t error;
                 msg->Get(error);
 
-                if (error == 15) {
+                if (error == LOOT_RESPONSE_ERROR::LOOT_ERROR_ALREADY_PICKPOCKETED) {
                     CGGameUI::DisplayError(ERR_ALREADY_PICKPOCKETED);
                 }
             }
@@ -8622,37 +8622,37 @@ int32_t CGPlayer_C::OnLootResponse(uint32_t time, CDataStore* msg) {
     msg->Get(error);
 
     switch (error) {
-    case 4:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_TOO_FAR:
         CGGameUI::DisplayError(ERR_LOOT_TOO_FAR);
         break;
-    case 5:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_BAD_FACING:
         CGGameUI::DisplayError(ERR_LOOT_BAD_FACING);
         break;
-    case 6:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_LOCKED:
         CGGameUI::DisplayError(ERR_LOOT_LOCKED);
         break;
-    case 8:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_NOT_STANDING:
         CGGameUI::DisplayError(ERR_LOOT_NOTSTANDING);
         break;
-    case 9:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_STUNNED:
         CGGameUI::DisplayError(ERR_LOOT_STUNNED);
         break;
-    case 10:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_PLAYER_NOT_FOUND:
         CGGameUI::DisplayError(ERR_LOOT_PLAYER_NOT_FOUND);
         return 1;
-    case 11:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_PLAY_TIME_EXCEEDED:
         CGGameUI::DisplayError(ERR_PLAY_TIME_EXCEEDED);
         break;
-    case 12:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_MASTER_INVENTORY_FULL:
         CGGameUI::DisplayError(ERR_LOOT_MASTER_INV_FULL);
         return 1;
-    case 13:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_MASTER_UNIQUE_ITEM:
         CGGameUI::DisplayError(ERR_LOOT_MASTER_UNIQUE_ITEM);
         return 1;
-    case 14:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_MASTER_OTHER:
         CGGameUI::DisplayError(ERR_LOOT_MASTER_OTHER);
         return 1;
-    case 16:
+    case LOOT_RESPONSE_ERROR::LOOT_ERROR_NOT_WHILE_SHAPESHIFTED:
         CGGameUI::DisplayError(ERR_NOT_WHILE_SHAPESHIFTED);
         return 1;
     default:

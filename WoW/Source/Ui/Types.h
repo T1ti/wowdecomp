@@ -20,6 +20,24 @@ enum UNIT_MIRROR_TIMER : int32_t {
     UNIT_MIRROR_TIMER_INACTIVE = 3,
 };
 
+// SMSG_LOOT_RESPONSE failure byte, separate from acquisition modes and UI error IDs.
+// Unknown values retain the existing generic denial and cleanup behavior.
+enum LOOT_RESPONSE_ERROR : uint8_t {
+    LOOT_ERROR_DIDNT_KILL                      = 0,
+    LOOT_ERROR_TOO_FAR                         = 4,
+    LOOT_ERROR_BAD_FACING                      = 5,
+    LOOT_ERROR_LOCKED                          = 6,
+    LOOT_ERROR_NOT_STANDING                    = 8,
+    LOOT_ERROR_STUNNED                         = 9,
+    LOOT_ERROR_PLAYER_NOT_FOUND                = 10,
+    LOOT_ERROR_PLAY_TIME_EXCEEDED              = 11,
+    LOOT_ERROR_MASTER_INVENTORY_FULL           = 12,
+    LOOT_ERROR_MASTER_UNIQUE_ITEM              = 13,
+    LOOT_ERROR_MASTER_OTHER                    = 14,
+    LOOT_ERROR_ALREADY_PICKPOCKETED            = 15,
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED          = 16,
+};
+
 enum LOOT_ACQUIRE : uint32_t {
     LOOT_ACQUIRE_FAILED = 0,
     LOOT_ACQUIRE_UNKNOWN_1 = 1,
