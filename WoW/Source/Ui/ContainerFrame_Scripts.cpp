@@ -662,7 +662,7 @@ static int32_t Script_GetContainerItemQuestInfo(lua_State* L) {
         return 3;
     }
 
-    if (stats->m_bonding == 4) {
+    if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
         lua_pushboolean(L, 1);
     } else {
         lua_pushnil(L);

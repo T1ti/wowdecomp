@@ -142,7 +142,7 @@ void CGGuildBankInfo::SwapItems(uint8_t tab, uint32_t slot, WOWGUID item, WOWGUI
     }
 
     if (object->IsBound()) {
-        if (stats->m_bonding == 4) {
+        if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
             CGGameUI::DisplayError(ERR_GUILD_BANK_QUEST_ITEM);
         } else {
             CGGameUI::DisplayError(ERR_GUILD_BANK_BOUND_ITEM);

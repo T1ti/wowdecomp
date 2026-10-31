@@ -54,4 +54,14 @@ enum ITEM_SUBCLASS_WEAPON : int32_t {
     NUM_ITEM_WEAPON_SUBCLASSES               = 21,
 };
 
+// Binding policies recognized by the 3.3.5 client. Packet/cache words remain
+// raw uint32_t; other values retain the existing fallback behavior.
+enum ITEM_BINDING : uint32_t {
+    ITEM_BINDING_NONE                    = 0,
+    ITEM_BINDING_ON_PICKUP               = 1,
+    ITEM_BINDING_ON_EQUIP                = 2,
+    ITEM_BINDING_ON_USE                  = 3,
+    ITEM_BINDING_QUEST                   = 4,
+};
+
 #endif

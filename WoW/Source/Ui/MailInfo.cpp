@@ -1089,7 +1089,7 @@ bool CGMailInfo::AddItemToOutgoingMail(uint32_t index, WOWGUID item, WOWGUID con
     }
 
     if (object->IsBound()) {
-        if (stats->m_bonding == 4) {
+        if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
             CGGameUI::DisplayError(ERR_MAIL_QUEST_ITEM);
             return false;
         }

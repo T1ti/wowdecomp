@@ -1203,7 +1203,7 @@ bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, int32_t showError) {
     } else if (stats->m_spellId[0] && item->m_item->m_itemFieldSpellCharges[0] != stats->m_spellCharges[0]) {
         error = ERR_AUCTION_USED_CHARGES;
     } else if (item->IsBound()) {
-        error = stats->m_bonding != 4 ? ERR_AUCTION_BOUND_ITEM : ERR_AUCTION_QUEST_ITEM;
+        error = stats->m_bonding != ITEM_BINDING::ITEM_BINDING_QUEST ? ERR_AUCTION_BOUND_ITEM : ERR_AUCTION_QUEST_ITEM;
     } else if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_CONJURED) {
         error = ERR_AUCTION_CONJURED_ITEM;
     } else if (((item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_REAL_DURATION) && static_cast<int32_t>(stats->m_duration) > 0) || stats->m_holidayId) {

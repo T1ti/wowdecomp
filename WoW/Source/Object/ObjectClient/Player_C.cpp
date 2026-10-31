@@ -10058,7 +10058,7 @@ void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot,
                 return;
             }
 
-            if (stats->m_bonding == 2 && this->CanUseItem(stats, ignoreBind)) {
+            if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_ON_EQUIP && this->CanUseItem(stats, ignoreBind)) {
                 uint32_t index = FindEmptySwapIndex();
                 s_itemSwaps.m_data[index].m_srcContainer = srcContainer;
                 s_itemSwaps.m_data[index].m_srcSlot = srcSlot;
@@ -10223,7 +10223,7 @@ void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
                 return;
             }
 
-            if (stats->m_bonding == 2 && this->CanUseItem(stats, ignoreBind)) {
+            if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_ON_EQUIP && this->CanUseItem(stats, ignoreBind)) {
                 uint32_t index = FindEmptySwapIndex();
                 s_itemSwaps.m_data[index].m_srcContainer = container;
                 s_itemSwaps.m_data[index].m_srcSlot = slot;
@@ -11203,7 +11203,7 @@ void CGPlayer_C::AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, int32_t igno
 
         int32_t error;
 
-        if (stats->m_bonding == 2 && this->CanUseItem(stats, error)) {
+        if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_ON_EQUIP && this->CanUseItem(stats, error)) {
             uint32_t index = FindEmptySwapIndex();
             s_itemSwaps.m_data[index].m_item = item;
             s_itemSwaps.m_data[index].m_srcSlot = slot;

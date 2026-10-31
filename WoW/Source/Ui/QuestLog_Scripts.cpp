@@ -546,7 +546,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
         if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, 8) > 0) {
             ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
-            if (stats && stats->m_bonding == 4) {
+            if (stats && stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
                 uint32_t j;
 
                 for (j = 0; j < count && items[j] != itemId; j++) {
@@ -564,7 +564,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
     if (startingItem > 0 && player->m_bag.GetItemTypeCount(startingItem, 8) > 0) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(startingItem, none, nullptr, nullptr, false);
 
-        if (stats && stats->m_bonding == 4) {
+        if (stats && stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
             uint32_t j;
 
             for (j = 0; j < count && items[j] != startingItem; j++) {

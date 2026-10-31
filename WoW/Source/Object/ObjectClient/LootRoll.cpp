@@ -98,7 +98,7 @@ void LootRoll(int32_t id, int32_t rollType, bool confirmed) {
                         FrameScript_SignalEvent(SCRIPT_EVENT_CONFIRM_DISENCHANT_ROLL, "%d%d", roll->m_id, 3);
                         return;
                     }
-                } else if (stats->m_bonding == 1) {
+                } else if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_ON_PICKUP) {
                     FrameScript_SignalEvent(SCRIPT_EVENT_CONFIRM_LOOT_ROLL, "%d%d", roll->m_id, rollType);
                     return;
                 }

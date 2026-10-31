@@ -246,7 +246,7 @@ static int32_t Script_ClickTradeButton(lua_State* L) {
             WOWGUID none = WOWGUID();
             ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
 
-            if (stats && stats->m_bonding == 4) {
+            if (stats && stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
                 CGGameUI::DisplayError(ERR_TRADE_QUEST_ITEM);
             } else {
                 CGGameUI::DisplayError(ERR_TRADE_BOUND_ITEM);

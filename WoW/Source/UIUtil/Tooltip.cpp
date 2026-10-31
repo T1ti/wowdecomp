@@ -4315,7 +4315,7 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
     text[0] = '\0';
 
     if (item && item->IsBound()) {
-        if (stats->m_bonding == 4) {
+        if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
             FormatString("ITEM_BIND_QUEST", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
         } else if (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY) {
             if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_BOUND_TO_ACCOUNT) {
@@ -4326,24 +4326,24 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
         }
     }
 
-    if (stats->m_bonding && !text[0] && (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY || *requester == CGLootInfo::m_lootObj)) {
+    if (stats->m_bonding != ITEM_BINDING::ITEM_BINDING_NONE && !text[0] && (stats->m_class != ITEM_CLASS::ITEM_CLASS_MONEY || *requester == CGLootInfo::m_lootObj)) {
         if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_BOUND_TO_ACCOUNT) {
             FormatString("ITEM_BIND_TO_ACCOUNT", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
         } else {
             switch (stats->m_bonding) {
-                case 1:
+                case ITEM_BINDING::ITEM_BINDING_ON_PICKUP:
                     FormatString("ITEM_BIND_ON_PICKUP", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
                     break;
 
-                case 2:
+                case ITEM_BINDING::ITEM_BINDING_ON_EQUIP:
                     FormatString("ITEM_BIND_ON_EQUIP", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
                     break;
 
-                case 3:
+                case ITEM_BINDING::ITEM_BINDING_ON_USE:
                     FormatString("ITEM_BIND_ON_USE", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
                     break;
 
-                case 4:
+                case ITEM_BINDING::ITEM_BINDING_QUEST:
                     FormatString("ITEM_BIND_QUEST", -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
                     break;
             }

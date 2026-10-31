@@ -134,7 +134,7 @@ static int32_t Script_GetLootRollItemInfo(lua_State* L) {
     lua_pushnumber(L, roll->m_count);
     lua_pushnumber(L, static_cast<int32_t>(stats->m_quality));
 
-    if (stats->m_bonding == 1) {
+    if (stats->m_bonding == ITEM_BINDING::ITEM_BINDING_ON_PICKUP) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
