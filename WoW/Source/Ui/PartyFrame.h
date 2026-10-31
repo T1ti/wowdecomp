@@ -11,6 +11,41 @@ class CDataStore;
 class CGPlayer_C;
 struct lua_State;
 
+// SMSG_PARTY_COMMAND_RESULT result word, separate from its operation and value.
+// Results 10/11 and unknown values retain the silent default.
+enum PARTY_COMMAND_RESULT : uint32_t {
+    PARTY_RESULT_SUCCESS                                 = 0,
+    PARTY_RESULT_BAD_PLAYER_NAME                         = 1,
+    PARTY_RESULT_TARGET_NOT_IN_GROUP                     = 2,
+    PARTY_RESULT_TARGET_NOT_IN_INSTANCE                  = 3,
+    PARTY_RESULT_GROUP_FULL                              = 4,
+    PARTY_RESULT_ALREADY_IN_GROUP                        = 5,
+    PARTY_RESULT_NOT_IN_GROUP                            = 6,
+    PARTY_RESULT_NOT_LEADER                              = 7,
+    PARTY_RESULT_PLAYER_WRONG_FACTION                    = 8,
+    PARTY_RESULT_IGNORING_YOU                            = 9,
+    PARTY_RESULT_LFG_PENDING                             = 12,
+    PARTY_RESULT_INVITE_RESTRICTED                       = 13,
+    // Operation 4 reports GROUP_SWAP_FAILED; others report INVITE_IN_COMBAT.
+    PARTY_RESULT_SWAP_FAILED_OR_INVITE_IN_COMBAT         = 14,
+    PARTY_RESULT_INVITE_UNKNOWN_REALM                    = 15,
+    PARTY_RESULT_INVITE_NO_PARTY_SERVER                  = 16,
+    PARTY_RESULT_INVITE_PARTY_BUSY                       = 17,
+    PARTY_RESULT_TARGET_AMBIGUOUS                        = 18,
+    PARTY_RESULT_LFG_INVITE_RAID_LOCKED                  = 19,
+    PARTY_RESULT_LFG_BOOT_LIMIT                          = 20,
+    PARTY_RESULT_LFG_BOOT_COOLDOWN                       = 21,
+    PARTY_RESULT_LFG_BOOT_IN_PROGRESS                    = 22,
+    PARTY_RESULT_LFG_BOOT_TOO_FEW_PLAYERS                = 23,
+    PARTY_RESULT_LFG_BOOT_NOT_ELIGIBLE                   = 24,
+    PARTY_RESULT_RAID_DISALLOWED_BY_LEVEL                = 25,
+    PARTY_RESULT_LFG_BOOT_IN_COMBAT                      = 26,
+    PARTY_RESULT_VOTE_KICK_REASON_NEEDED                 = 27,
+    PARTY_RESULT_LFG_BOOT_DUNGEON_COMPLETE               = 28,
+    PARTY_RESULT_LFG_BOOT_LOOT_ROLLS                     = 29,
+    PARTY_RESULT_LFG_TELEPORT_IN_COMBAT                  = 30,
+};
+
 class CGPartyPetState {
     public:
     /* 0000 */ WOWGUID m_guid;

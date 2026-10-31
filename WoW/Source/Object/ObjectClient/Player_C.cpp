@@ -4934,7 +4934,7 @@ int32_t Packet_SMSG_PARTY_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
     msg->Get(reinterpret_cast<uint32_t&>(value));
     char duration[256];
 
-    if (!result) {
+    if (result == PARTY_COMMAND_RESULT::PARTY_RESULT_SUCCESS) {
         if (!operation) {
             if (name[0]) {
                 CGGameUI::DisplayError(ERR_INVITE_PLAYER_S, name);
@@ -4950,62 +4950,62 @@ int32_t Packet_SMSG_PARTY_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
     }
 
     switch (result) {
-        case 1: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_BAD_PLAYER_NAME: {
             CGGameUI::DisplayError(ERR_BAD_PLAYER_NAME_S, name);
             break;
         }
 
-        case 2: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_TARGET_NOT_IN_GROUP: {
             CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);
             break;
         }
 
-        case 3: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_TARGET_NOT_IN_INSTANCE: {
             CGGameUI::DisplayError(ERR_TARGET_NOT_IN_INSTANCE_S, name);
             break;
         }
 
-        case 4: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_GROUP_FULL: {
             CGGameUI::DisplayError(ERR_GROUP_FULL);
             break;
         }
 
-        case 5: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_ALREADY_IN_GROUP: {
             CGGameUI::DisplayError(ERR_ALREADY_IN_GROUP_S, name);
             break;
         }
 
-        case 6: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_NOT_IN_GROUP: {
             CGGameUI::DisplayError(ERR_NOT_IN_GROUP);
             break;
         }
 
-        case 7: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_NOT_LEADER: {
             CGGameUI::DisplayError(ERR_NOT_LEADER);
             break;
         }
 
-        case 8: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_PLAYER_WRONG_FACTION: {
             CGGameUI::DisplayError(ERR_PLAYER_WRONG_FACTION);
             break;
         }
 
-        case 9: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_IGNORING_YOU: {
             CGGameUI::DisplayError(ERR_IGNORING_YOU_S, name);
             break;
         }
 
-        case 12: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_PENDING: {
             CGGameUI::DisplayError(ERR_LFG_PENDING);
             break;
         }
 
-        case 13: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_INVITE_RESTRICTED: {
             CGGameUI::DisplayError(ERR_INVITE_RESTRICTED);
             break;
         }
 
-        case 14: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_SWAP_FAILED_OR_INVITE_IN_COMBAT: {
             if (operation == 4) {
                 CGGameUI::DisplayError(ERR_GROUP_SWAP_FAILED);
                 FrameScript_SignalEvent(SCRIPT_EVENT_RAID_ROSTER_UPDATE, nullptr);
@@ -5016,37 +5016,37 @@ int32_t Packet_SMSG_PARTY_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             break;
         }
 
-        case 15: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_INVITE_UNKNOWN_REALM: {
             CGGameUI::DisplayError(ERR_INVITE_UNKNOWN_REALM);
             break;
         }
 
-        case 16: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_INVITE_NO_PARTY_SERVER: {
             CGGameUI::DisplayError(ERR_INVITE_NO_PARTY_SERVER);
             break;
         }
 
-        case 17: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_INVITE_PARTY_BUSY: {
             CGGameUI::DisplayError(ERR_INVITE_PARTY_BUSY);
             break;
         }
 
-        case 18: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_TARGET_AMBIGUOUS: {
             CGGameUI::DisplayError(ERR_PARTY_TARGET_AMBIGUOUS);
             break;
         }
 
-        case 19: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_INVITE_RAID_LOCKED: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_INVITE_RAID_LOCKED, name);
             break;
         }
 
-        case 20: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_LIMIT: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_LIMIT);
             break;
         }
 
-        case 21: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_COOLDOWN: {
             if (value < 0) {
                 value = 1;
             }
@@ -5056,17 +5056,17 @@ int32_t Packet_SMSG_PARTY_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             break;
         }
 
-        case 22: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_IN_PROGRESS: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_IN_PROGRESS);
             break;
         }
 
-        case 23: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_TOO_FEW_PLAYERS: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS);
             break;
         }
 
-        case 24: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_NOT_ELIGIBLE: {
             if (value < 0) {
                 value = 1;
             }
@@ -5076,32 +5076,32 @@ int32_t Packet_SMSG_PARTY_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             break;
         }
 
-        case 25: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_RAID_DISALLOWED_BY_LEVEL: {
             CGGameUI::DisplayError(ERR_RAID_DISALLOWED_BY_LEVEL);
             break;
         }
 
-        case 26: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_IN_COMBAT: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_IN_COMBAT);
             break;
         }
 
-        case 27: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_VOTE_KICK_REASON_NEEDED: {
             FrameScript_SignalEvent(SCRIPT_EVENT_VOTE_KICK_REASON_NEEDED, "%s", name);
             break;
         }
 
-        case 28: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_DUNGEON_COMPLETE: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE);
             break;
         }
 
-        case 29: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_BOOT_LOOT_ROLLS: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_BOOT_LOOT_ROLLS);
             break;
         }
 
-        case 30: {
+        case PARTY_COMMAND_RESULT::PARTY_RESULT_LFG_TELEPORT_IN_COMBAT: {
             CGGameUI::DisplayError(ERR_PARTY_LFG_TELEPORT_IN_COMBAT);
             break;
         }
