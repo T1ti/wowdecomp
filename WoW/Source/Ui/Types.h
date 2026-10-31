@@ -20,6 +20,22 @@ enum UNIT_MIRROR_TIMER : int32_t {
     UNIT_MIRROR_TIMER_INACTIVE = 3,
 };
 
+// SMSG_BUY_FAILED result byte, separate from sell results and inventory error IDs.
+// Reference only: guessed TC 3.3.5 BUY_ERR_CANT_FIND_ITEM=0 uses the generic default.
+enum VENDOR_BUY_RESULT : uint8_t {
+    // Only result 1 also clears matching stock for the last received vendor.
+    VENDOR_BUY_SOLD_OUT_REFRESH_STOCK      = 1,
+    VENDOR_BUY_NOT_ENOUGH_MONEY            = 2,
+    VENDOR_BUY_HOSTILE                     = 4,
+    VENDOR_BUY_TOO_FAR                     = 5,
+    // Observed client action only; the server-side cause is unverified.
+    VENDOR_BUY_NO_UI_ERROR                 = 6,
+    VENDOR_BUY_SOLD_OUT                    = 7,
+    VENDOR_BUY_MAX_COUNT                   = 8,
+    VENDOR_BUY_REQUIRES_RANK               = 11,
+    VENDOR_BUY_REQUIRES_REPUTATION         = 12,
+};
+
 // SMSG_SELL_ITEM result byte. Unknown results retain the original silent/default path.
 enum VENDOR_SELL_RESULT : uint8_t {
     VENDOR_SELL_SUCCESS                    = 0,

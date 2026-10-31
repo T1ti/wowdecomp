@@ -12306,7 +12306,7 @@ int32_t __stdcall CGPlayer_C::OnBuyFailed(CDataStore* msg) {
     msg->Get(itemId);
     msg->Get(result);
 
-    if (result == 1 && vendor == CGPlayer_C::s_lastVendorListReceived) {
+    if (result == VENDOR_BUY_RESULT::VENDOR_BUY_SOLD_OUT_REFRESH_STOCK && vendor == CGPlayer_C::s_lastVendorListReceived) {
         for (uint32_t i = 0; i < 150; i++) {
             if (s_vendorItems[i].m_slot == itemId) {
                 s_vendorItems[i].m_maxCount = 0;
@@ -12316,35 +12316,35 @@ int32_t __stdcall CGPlayer_C::OnBuyFailed(CDataStore* msg) {
     }
 
     switch (result) {
-        case 1:
-        case 7:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_SOLD_OUT_REFRESH_STOCK:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_SOLD_OUT:
             CGGameUI::DisplayError(ERR_VENDOR_SOLD_OUT);
             break;
 
-        case 2:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_NOT_ENOUGH_MONEY:
             CGGameUI::DisplayError(ERR_NOT_ENOUGH_MONEY);
             break;
 
-        case 4:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_HOSTILE:
             CGGameUI::DisplayError(ERR_VENDOR_HATES_YOU);
             break;
 
-        case 5:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_TOO_FAR:
             CGGameUI::DisplayError(ERR_VENDOR_TOO_FAR);
             break;
 
-        case 6:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_NO_UI_ERROR:
             break;
 
-        case 8:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_MAX_COUNT:
             CGGameUI::DisplayError(ERR_ITEM_MAX_COUNT);
             break;
 
-        case 11:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_REQUIRES_RANK:
             CGGameUI::DisplayError(ERR_CANT_EQUIP_RANK);
             break;
 
-        case 12:
+        case VENDOR_BUY_RESULT::VENDOR_BUY_REQUIRES_REPUTATION:
             CGGameUI::DisplayError(ERR_CANT_EQUIP_REPUTATION);
             break;
 
