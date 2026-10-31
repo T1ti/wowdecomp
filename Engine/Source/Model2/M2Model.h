@@ -136,6 +136,14 @@ class M2ModelOptGeo {
 
 class CM2Model {
     public:
+    enum INSTANCE_FLAGS : uint32_t {
+        // Instance interpretation of raw creation flags; names describe current behavior.
+        // Bit 1 also makes attached children use their own lighting and scale.
+        INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE = 0x1,
+        // Skip the shared-load callback; initialize when an instance consumer needs it.
+        INSTANCE_INITIALIZE_ON_DEMAND = 0x20,
+    };
+
     /* 0000 */ uint32_t m_refCount;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ CM2Model** m_scenePrev;

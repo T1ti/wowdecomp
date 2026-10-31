@@ -134,7 +134,7 @@ void CM2Model::WaitForLoad(const char* reason) {
         AsyncFileReadWait(this->m_shared->m_asyncObject);
     }
 
-    if (this->m_flags & 0x20) {
+    if (this->m_flags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         this->InitializeLoaded();
     }
 }
@@ -142,7 +142,7 @@ void CM2Model::WaitForLoad(const char* reason) {
 // VERIFY: 240e75c9 auto
 // OFFSET: 0x00823F10
 void CM2Model::SetAnimating(int32_t animating) {
-    if (this->m_flags & 0x20) {
+    if (this->m_flags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         if (!animating) {
             goto unlink;
         }
@@ -589,7 +589,7 @@ int32_t CM2Model::Release() {
 // VERIFY: f4fc2dd4 manual
 // OFFSET: 0x00824F00
 uint32_t CM2Model::IsLoaded(int32_t wait, int32_t recursive) {
-    if (this->m_flags & 0x20) {
+    if (this->m_flags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         if (this->m_fFlags & 1) {
             return 1;
         }
@@ -696,7 +696,7 @@ void CM2Model::UpdateLoaded() {
     CM2Model* model = this;
 
     do {
-        if (!model->IsLoaded(0, !(model->m_flags & 0x20))) {
+        if (!model->IsLoaded(0, !(model->m_flags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND))) {
             break;
         }
 
@@ -2491,7 +2491,7 @@ void CM2Model::AnimateST() {
     M2Data* data = this->m_shared->m_data;
     CM2Model* parent = this->m_attachParent;
 
-    if (!parent || (this->m_fFlags ^= (this->m_fFlags ^ parent->m_fFlags) & 0x8000, parent->m_flags & 1)) {
+    if (!parent || (this->m_fFlags ^= (this->m_fFlags ^ parent->m_fFlags) & 0x8000, parent->m_flags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
         this->m_currentLighting = &this->m_lighting;
     } else {
         this->m_currentLighting = parent->m_currentLighting;
@@ -4742,7 +4742,7 @@ void CM2Model::AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, c
 
     CM2Model* attachParent = this->m_attachParent;
 
-    if (!attachParent || (attachParent->m_flags & 1)) {
+    if (!attachParent || (attachParent->m_flags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
         this->m_scaleSq = this->m_matrixF4.d2 * this->m_matrixF4.d2 + this->m_matrixF4.d1 * this->m_matrixF4.d1 + this->m_matrixF4.d0 * this->m_matrixF4.d0;
     } else {
         this->m_scaleSq = attachParent->m_scaleSq;
@@ -5097,7 +5097,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
 
     CM2Model* attachParent = this->m_attachParent;
 
-    if (!attachParent || (attachParent->m_flags & 1)) {
+    if (!attachParent || (attachParent->m_flags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
         this->m_scaleSq = this->m_matrixF4.d2 * this->m_matrixF4.d2 + this->m_matrixF4.d1 * this->m_matrixF4.d1 + this->m_matrixF4.d0 * this->m_matrixF4.d0;
     } else {
         this->m_scaleSq = attachParent->m_scaleSq;
@@ -6221,7 +6221,7 @@ void CM2Model::AnimateSM() {
 void CM2Model::SetupLighting() {
     CM2Model* parent = this->m_attachParent;
 
-    if (!parent || (parent->m_flags & 1)) {
+    if (!parent || (parent->m_flags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
         this->Animate();
 
         C3Vector center = *reinterpret_cast<const C3Vector*>(&this->m_matrixF4.d0) * this->m_scene->m_viewInv;
@@ -7691,7 +7691,7 @@ void CM2Model::AttachToSceneRecursive(CM2Scene* scene) {
 // OFFSET: 0x00834660
 void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBatchList& textured) {
     if (!(this->m_fFlags & 1)) {
-        if (!(this->m_flags & 0x20)) {
+        if (!(this->m_flags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND)) {
             return;
         }
 

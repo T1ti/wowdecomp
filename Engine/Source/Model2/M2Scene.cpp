@@ -1800,7 +1800,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         M2ModelOptGeo* optGeo = model->m_optGeo;
         M2SkinProfile* skinData = model->m_shared->m_skinData;
         int32_t optimized = optGeo != nullptr;
-        int32_t depthSort = (this->m_cache->m_flags & 1) && !(model->m_flags & 1) && (model->m_fFlags & 0x40);
+        int32_t depthSort = (this->m_cache->m_flags & 1) && !(model->m_flags & CM2Model::INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE) && (model->m_fFlags & 0x40);
         uint32_t batchCount = optGeo ? optGeo->m_batchCount : skinData->m_batches.m_count;
 
         for (uint32_t i = 0; i < batchCount; i++) {

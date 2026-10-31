@@ -84,7 +84,7 @@ uint32_t CM2Shared::AddRef() {
 // VERIFY: 306d8f75 manual
 // OFFSET: 0x008359C0
 int32_t CM2Shared::CallbackWhenLoaded(CM2Model* model) {
-    if (!(model->m_flags & 0x20)) {
+    if (!(model->m_flags & CM2Model::INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND)) {
         if ((this->m_flags & 1) && (this->m_flags & 2)) {
             model->InitializeLoaded();
             return 1;
