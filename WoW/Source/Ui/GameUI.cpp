@@ -3238,7 +3238,7 @@ void CGGameUI::SetCursorPetAction(const PetAction* action) {
 
     const char* texture = nullptr;
 
-    switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
+    switch (action->GetKind()) {
         case 1:
         case 8:
         case 9:

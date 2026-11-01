@@ -1091,7 +1091,7 @@ static int32_t Script_SetAction(lua_State* L) {
         char token[64];
         const char* text;
 
-        switch ((value >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
+        switch (PetAction::GetKind(value)) {
             case 1:
             case 8:
             case 9:
@@ -1650,14 +1650,14 @@ static int32_t Script_SetPetAction(lua_State* L) {
         return 1;
     }
 
-    uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+    uint32_t type = action->GetKind();
     uint32_t start = 0;
     uint32_t duration = 0;
     uint32_t enable = 0;
     int32_t result;
 
     if ((type == 1 || type - 8 <= 9) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
-        int32_t spellId = action->m_data & PetAction::PackingMasks::ID_MASK;
+        int32_t spellId = action->GetID();
         result = tooltip->SetSpell(spellId, 0, start + duration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
     } else {
         result = tooltip->SetSpell(action->m_data & PetAction::PackingMasks::ID_MASK, 0, 0, 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
