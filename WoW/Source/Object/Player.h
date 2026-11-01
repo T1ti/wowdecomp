@@ -105,7 +105,10 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 1058 */ float m_playerFieldModHealingDonePct;
     /* 105C */ uint32_t m_playerFieldModTargetResistance;
     /* 1060 */ uint32_t m_playerFieldModTargetPhysicalResistance;
-    /* 1064 */ uint8_t m_playerFieldBytes [4];
+    /* 1064 */ uint8_t m_playerLocalFlags;
+    /* 1065 */ uint8_t m_grantableLevels;
+    /* 1066 */ uint8_t m_actionBarToggles;
+    /* 1067 */ uint8_t m_maxPvpRank;
     /* 1068 */ uint32_t m_playerAmmoId;
     /* 106C */ uint32_t m_playerSelfResSpell;
     /* 1070 */ uint32_t m_playerFieldPvpMedals;
@@ -115,7 +118,15 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 10D8 */ uint32_t m_playerFieldTodayContribution;
     /* 10DC */ uint32_t m_playerFieldYesterdayContribution;
     /* 10E0 */ uint32_t m_playerFieldLifetimeHonorbaleKills;
-    /* 10E4 */ uint32_t m_playerFieldBytes2;
+    union {
+        // Keep the packed view for whole-word tests and update-field representation.
+        /* 10E4 */ uint32_t m_packedOverrideRegenVision;
+        struct {
+            /* 10E4 */ uint16_t m_overrideSpellsID;
+            /* 10E6 */ uint8_t m_powerRegenDisabledMask;
+            /* 10E7 */ uint8_t m_auraVision;
+        };
+    };
     /* 10E8 */ uint32_t m_playerFieldWatchedFactionIndex;
     /* 10EC */ uint32_t m_playerFieldCombatRating1 [25];
     /* 1150 */ uint32_t m_playerFieldArenaTeamInfo11 [21];

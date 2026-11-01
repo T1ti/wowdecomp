@@ -274,7 +274,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
         return 0;
     }
 
-    int16_t overrideId = static_cast<int16_t>(player->m_player->m_playerFieldBytes2);
+    int16_t overrideId = static_cast<int16_t>(player->m_player->m_overrideSpellsID);
     OverrideSpellDataRec* overrideRec = nullptr;
 
     if (overrideId) {
@@ -1630,7 +1630,7 @@ void CGActionBar::UpdateOverrideSpellBar() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     OverrideSpellDataRec* rec;
 
-    if (player && (rec = g_overrideSpellDataDB.GetRecord(static_cast<int16_t>(player->m_player->m_playerFieldBytes2))) && HasOverrideSpellData(rec)) {
+    if (player && (rec = g_overrideSpellDataDB.GetRecord(static_cast<int16_t>(player->m_player->m_overrideSpellsID))) && HasOverrideSpellData(rec)) {
         CGActionBar::UpdateTemporaryActionBar(&GetOverrideSpell, rec);
         CGActionBar::m_tempPageActiveFlags |= 0x4;
     } else {

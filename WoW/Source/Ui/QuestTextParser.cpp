@@ -1377,7 +1377,7 @@ bool QuestParserParseToken(char* buffer, uint32_t size, const NameCache* record,
             if (unit) {
                 if (unit->m_obj->m_type & TYPE_PLAYER) {
                     const CGPlayer_C* player = static_cast<const CGPlayer_C*>(unit);
-                    uint8_t rank = player->m_player->m_playerFieldBytes[3];
+                    uint8_t rank = player->m_player->m_maxPvpRank;
                     SStrPrintf(label, sizeof(label), "PVP_RANK_%d_%d", rank, player->GetPVPFactionIndex());
                     const char* rankName = FrameScript_GetText(label, -1, GENDER_NOT_APPLICABLE);
 

@@ -2009,7 +2009,7 @@ static int32_t Script_GetPVPLifetimeStats(lua_State* L) {
 
     if (player) {
         lua_pushnumber(L, player->m_player->m_playerFieldLifetimeHonorbaleKills);
-        uint8_t rank = player->m_player->m_playerFieldBytes[3];
+        uint8_t rank = player->m_player->m_maxPvpRank;
         lua_pushnumber(L, rank < 5 ? 0.0 : rank);
         return 2;
     }

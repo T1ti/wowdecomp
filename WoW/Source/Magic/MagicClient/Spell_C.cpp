@@ -8220,7 +8220,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         melee = false;
 
         if (!item && (unit->m_obj->m_type & TYPE_PLAYER)) {
-            int16_t overrideId = static_cast<int16_t>(static_cast<CGPlayer_C*>(unit)->m_player->m_playerFieldBytes2);
+            int16_t overrideId = static_cast<int16_t>(static_cast<CGPlayer_C*>(unit)->m_player->m_overrideSpellsID);
 
             if (overrideId) {
                 OverrideSpellDataRec* rec = g_overrideSpellDataDB.GetRecord(overrideId);

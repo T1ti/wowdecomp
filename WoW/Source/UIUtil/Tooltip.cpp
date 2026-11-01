@@ -5517,7 +5517,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
     }
 
     if (stats->m_requiredHonorRank) {
-        bool ranked = player->m_player->m_playerFieldBytes[3] >= stats->m_requiredHonorRank;
+        bool ranked = player->m_player->m_maxPvpRank >= stats->m_requiredHonorRank;
         const char* rank = player->GetPVPRankString(stats->m_requiredHonorRank);
         SStrPrintf(text, sizeof(text), FrameScript_GetText("ITEM_REQ_SKILL", -1, GENDER_NOT_APPLICABLE), rank);
         const CImVector& color = ranked ? textColor : redColor;

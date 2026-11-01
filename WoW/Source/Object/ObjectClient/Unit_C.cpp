@@ -15852,7 +15852,7 @@ uint8_t CGUnit_C::GetActivePlayerFieldBytes0() {
         return 0;
     }
 
-    return static_cast<CGPlayer_C*>(this)->m_player->m_playerFieldBytes[0];
+    return static_cast<CGPlayer_C*>(this)->m_player->m_playerLocalFlags;
 }
 
 // VERIFY: b01b02ca auto
@@ -16017,7 +16017,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
     int32_t reason;
 
     if (this->m_unit->m_unitFieldHealth > 0) {
-        if ((this->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(this)->m_player->m_playerFieldBytes[0] & 0x4)) {
+        if ((this->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(this)->m_player->m_playerLocalFlags & 0x4)) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_SPELL_IN_PROGRESS, -1, -1, false);
             return false;
         }
@@ -16512,7 +16512,7 @@ void CGUnit_C::AuraVisionUpdated(uint8_t vision) {
 
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-        if (mask & reinterpret_cast<const uint8_t*>(&player->m_player->m_playerFieldBytes2)[3]) {
+        if (mask & player->m_player->m_auraVision) {
             this->AddAuraEffect(i, &spell);
         } else {
             this->RemoveAuraEffect(i, &spell);
@@ -16576,7 +16576,7 @@ void CGUnit_C::AddAuraEffect(uint32_t index, const SpellRec* spell) {
         if (mask) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-            if (!player || !(static_cast<uint8_t>(mask) & reinterpret_cast<const uint8_t*>(&player->m_player->m_playerFieldBytes2)[3])) {
+            if (!player || !(static_cast<uint8_t>(mask) & player->m_player->m_auraVision)) {
                 return;
             }
         }
@@ -17907,7 +17907,7 @@ int32_t Packet_SMSG_PET_ACTION_SOUND(void* param, NETMESSAGE msgId, uint32_t tim
 // VERIFY: 4b8cff5c manual
 // OFFSET: 0x00722D80
 void CGUnit_C::DoPowerRegen(POWER_TYPE powerType, uint32_t elapsed) {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (reinterpret_cast<const uint8_t*>(&static_cast<CGPlayer_C*>(this)->m_player->m_playerFieldBytes2)[2] & (1 << powerType))) {
+    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (static_cast<CGPlayer_C*>(this)->m_player->m_powerRegenDisabledMask & (1 << powerType))) {
         return;
     }
 

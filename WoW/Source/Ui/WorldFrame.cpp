@@ -1404,7 +1404,7 @@ void CGWorldFrame::UpdateScreenEffect() {
             return;
         }
 
-        if (player->m_player->m_playerFieldBytes2 & 0x40000000) {
+        if (player->m_player->m_packedOverrideRegenVision & 0x40000000) {
             CGWorldFrame::SetScreenEffect(81);
             return;
         }

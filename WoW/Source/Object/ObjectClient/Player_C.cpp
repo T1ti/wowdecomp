@@ -2619,7 +2619,7 @@ bool CGPlayer_C::CanTrackUnit(const CGUnit_C* unit) {
         return false;
     }
 
-    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & UNIT_VIS_FLAG_CREEP) && (this->m_player->m_playerFieldBytes[0] & 0x2))) {
+    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & UNIT_VIS_FLAG_CREEP) && (this->m_player->m_playerLocalFlags & 0x2))) {
         return true;
     }
 
@@ -2991,7 +2991,7 @@ int32_t CGPlayer_C::CanGrantLevel(WOWGUID guid) {
         return 6;
     }
 
-    return this->m_player->m_playerFieldBytes[1] == 0 ? 3 : 0;
+    return this->m_player->m_grantableLevels == 0 ? 3 : 0;
 }
 
 // VERIFY: 192067b6 auto
@@ -6920,7 +6920,7 @@ int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
         return 0;
     }
 
-    if (stats->m_requiredHonorRank && static_cast<int32_t>(this->m_player->m_playerFieldBytes[3]) < static_cast<int32_t>(stats->m_requiredHonorRank)) {
+    if (stats->m_requiredHonorRank && static_cast<int32_t>(this->m_player->m_maxPvpRank) < static_cast<int32_t>(stats->m_requiredHonorRank)) {
         error = ERR_CANT_USE_ITEM;
         return 0;
     }
@@ -7939,7 +7939,7 @@ int32_t OnUpdatePlayerAuraVision(WOWGUID guid, uint32_t offset, uint32_t count, 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        uint8_t changed = *static_cast<const uint8_t*>(value) ^ reinterpret_cast<const uint8_t*>(&player->m_player->m_playerFieldBytes2)[3];
+        uint8_t changed = *static_cast<const uint8_t*>(value) ^ player->m_player->m_auraVision;
 
         if (changed & 0x40) {
             CGWorldFrame::UpdateScreenEffect();
@@ -8293,7 +8293,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
         return;
     }
 
-    int16_t overrideId = static_cast<int16_t>(this->m_player->m_playerFieldBytes2);
+    int16_t overrideId = static_cast<int16_t>(this->m_player->m_overrideSpellsID);
     OverrideSpellDataRec* overrideRec;
 
     if (overrideId && (overrideRec = g_overrideSpellDataDB.GetRecord(overrideId)) && !(overrideRec->m_flags & 2)) {
@@ -12609,7 +12609,7 @@ void CGPlayer_C::UpdateRepopTimer() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    uint8_t bytes = this->m_player->m_playerFieldBytes[0];
+    uint8_t bytes = this->m_player->m_playerLocalFlags;
 
     if (bytes & 0x10) {
         CGGameUI::SetRepopTimeLeft(0);

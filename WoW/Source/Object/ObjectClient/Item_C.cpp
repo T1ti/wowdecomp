@@ -1529,7 +1529,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
     int32_t spellId = this->GetEnchantmentSpell(0);
     SpellRec spell;
     int32_t hasSpell = g_spellDB.GetRecord(spellId, &spell);
-    int16_t overrideId = static_cast<int16_t>(player->m_player->m_playerFieldBytes2);
+    int16_t overrideId = static_cast<int16_t>(player->m_player->m_overrideSpellsID);
 
     if (overrideId) {
         OverrideSpellDataRec* overrideRec = g_overrideSpellDataDB.GetRecord(overrideId);
