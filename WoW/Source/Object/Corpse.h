@@ -33,6 +33,29 @@ class CGCorpse {
 
 class CGCorpseData {
     public:
+    // DWORD indices relative to this data block, not absolute network-field indices.
+    enum FIELD_ID : uint32_t {
+        CORPSE_FIELD_OWNER = 0,
+        CORPSE_FIELD_PARTY = 2,
+        CORPSE_FIELD_DISPLAY_ID = 4,
+        CORPSE_FIELD_ITEM = 5,
+        CORPSE_FIELD_BYTES_1 = 24,
+        CORPSE_FIELD_BYTES_2 = 25,
+        CORPSE_FIELD_GUILD = 26,
+        CORPSE_FIELD_FLAGS = 27,
+        CORPSE_FIELD_DYNAMIC_FLAGS = 28,
+        CORPSE_FIELD_PAD = 29,
+        CORPSE_END = 30,
+    };
+
+    // Descriptor spans are measured in DWORDs.
+    enum FIELD_SIZE : uint32_t {
+        CORPSE_FIELD_OWNER_SIZE = 2,
+        CORPSE_FIELD_PARTY_SIZE = 2,
+        CORPSE_FIELD_ITEM_SIZE = 19,
+    };
+
+
     static const int32_t NUM_FIELDS = 30;
     /* 0000 */ WOWGUID m_corpseFieldOwner;
     /* 0008 */ WOWGUID m_corpseFieldParty;

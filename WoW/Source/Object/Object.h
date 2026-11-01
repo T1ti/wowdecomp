@@ -29,6 +29,12 @@ class CGObject {
 
 class CGObjectData {
     public:
+    // Descriptor spans are measured in DWORDs.
+    enum FIELD_SIZE : uint32_t {
+        OBJECT_FIELD_GUID_SIZE = 2,
+    };
+
+
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ OBJECT_TYPE m_type;
     /* 000C */ uint32_t m_entryID;

@@ -2,7 +2,12 @@
 #include "WoW/Source/Object/Object.h"
 
 // STATIC: 0x00AC5C1C
-uint32_t CGGameObject::s_mirrorFieldIndex[CGGameObject::NUM_MIRROR_FIELDS] = { 3, 8, 11, 12 };
+uint32_t CGGameObject::s_mirrorFieldIndex[CGGameObject::NUM_MIRROR_FIELDS] = {
+    CGGameObjectData::FIELD_ID::GAMEOBJECT_FLAGS,
+    CGGameObjectData::FIELD_ID::GAMEOBJECT_DYNAMIC,
+    CGGameObjectData::FIELD_ID::GAMEOBJECT_BYTES_1,
+    CGGameObjectData::FIELD_ID::GAMEOBJECT_END,
+};
 
 // VERIFY: 93fc90a3 auto
 // OFFSET: 0x004D4300

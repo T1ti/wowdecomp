@@ -3,7 +3,9 @@
 
 // STATIC: 0x00AC5C34
 const uint32_t CGCorpse::s_mirrorFields[CGCorpse::NUM_MIRROR_FIELDS] = {
-    0x1B, 0x1C, 0x1E
+    CGCorpseData::FIELD_ID::CORPSE_FIELD_FLAGS,
+    CGCorpseData::FIELD_ID::CORPSE_FIELD_DYNAMIC_FLAGS,
+    CGCorpseData::FIELD_ID::CORPSE_END,
 };
 
 // VERIFY: ebadb458 auto

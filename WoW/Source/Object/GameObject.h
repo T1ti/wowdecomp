@@ -22,6 +22,26 @@ class CGGameObject {
 
 class CGGameObjectData {
     public:
+    // DWORD indices relative to this data block, not absolute network-field indices.
+    enum FIELD_ID : uint32_t {
+        OBJECT_FIELD_CREATED_BY = 0,
+        GAMEOBJECT_DISPLAYID = 2,
+        GAMEOBJECT_FLAGS = 3,
+        GAMEOBJECT_PARENTROTATION = 4,
+        GAMEOBJECT_DYNAMIC = 8,
+        GAMEOBJECT_FACTION = 9,
+        GAMEOBJECT_LEVEL = 10,
+        GAMEOBJECT_BYTES_1 = 11,
+        GAMEOBJECT_END = 12,
+    };
+
+    // Descriptor spans are measured in DWORDs.
+    enum FIELD_SIZE : uint32_t {
+        OBJECT_FIELD_CREATED_BY_SIZE = 2,
+        GAMEOBJECT_PARENTROTATION_SIZE = 4,
+    };
+
+
     static const int32_t NUM_FIELDS = 12;
     /* 0000 */ WOWGUID m_createdBy;
     /* 0008 */ uint32_t m_displayID;

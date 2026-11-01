@@ -22,10 +22,33 @@ static const int32_t NUM_DYNAMICOBJECT_FIELD_DESCRIPTORS = 5;
 static const int32_t NUM_CORPSE_FIELD_DESCRIPTORS = 10;
 
 struct CGFieldDescriptor {
+    enum FIELD_TYPE : uint32_t {
+        TYPE_INT = 1,
+        TYPE_TWO_SHORT = 2,
+        TYPE_FLOAT = 3,
+        TYPE_GUID = 4,
+        TYPE_BYTES = 5,
+        TYPE_UNKNOWN_6 = 6,
+    };
+
+    enum FIELD_FLAGS : uint32_t {
+        FLAG_NONE = 0x000,
+        FLAG_PUBLIC = 0x001,
+        FLAG_PRIVATE = 0x002,
+        FLAG_OWNER = 0x004,
+        FLAG_ITEM_OWNER = 0x010,
+        FLAG_UNKNOWN_20 = 0x020,
+        FLAG_PARTY_MEMBER = 0x040,
+        FLAG_DYNAMIC = 0x100,
+    };
+
+    static const uint32_t SINGLE_WORD = 1;
+
+
     /* 0000 */ const char* m_name;
     /* 0004 */ uint32_t m_offset;
     /* 0008 */ uint32_t m_count;
-    /* 000C */ uint32_t m_type;
+    /* 000C */ FIELD_TYPE m_type;
     /* 0010 */ uint32_t m_flags;
 };
 

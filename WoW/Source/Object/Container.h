@@ -22,6 +22,20 @@ class CGContainer {
 
 class CGContainerData {
     public:
+    // DWORD indices relative to this data block, not absolute network-field indices.
+    enum FIELD_ID : uint32_t {
+        CONTAINER_FIELD_NUM_SLOTS = 0,
+        CONTAINER_ALIGN_PAD = 1,
+        CONTAINER_FIELD_SLOT_1 = 2,
+        CONTAINER_END = 74,
+    };
+
+    // Descriptor spans are measured in DWORDs.
+    enum FIELD_SIZE : uint32_t {
+        CONTAINER_FIELD_SLOT_1_SIZE = 72,
+    };
+
+
     static const int32_t NUM_FIELDS = 74;
     /* 0000 */ uint32_t m_containerFieldNumSlots;
     /* 0004 */ uint8_t m_containerAlignPad [4];
