@@ -12,9 +12,10 @@ class CGObjectData;
 
 class CGObject {
     public:
-    static const uint32_t s_savedFields[3];
+    static const int32_t NUM_SAVED_FIELDS = 3;
+    static const uint32_t s_savedFields[NUM_SAVED_FIELDS];
 
-    static int32_t GetSavedIndexFromDataIndex(uint32_t index);
+    static int32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, uint32_t unused_local);
     static int32_t TotalFieldsSaved();
 
     /* 0004 */ uint32_t unused_0004;

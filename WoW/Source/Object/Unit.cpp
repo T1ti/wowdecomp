@@ -5,7 +5,7 @@
 #include "WoW/Source/Object/Object.h"
 
 // STATIC: 0x00AC49D8
-const uint32_t CGUnit::s_mirrorFieldIndices[123] = {
+const uint32_t CGUnit::s_mirrorFieldIndices[CGUnit::NUM_MIRROR_FIELDS] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
     0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21,
     0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31,
@@ -18,14 +18,14 @@ const uint32_t CGUnit::s_mirrorFieldIndices[123] = {
 
 // VERIFY: af22e65c auto
 // OFFSET: 0x004F52D0
-uint32_t CGUnit::MirrorIndexFromFieldIndex(uint32_t fieldIndex) {
+uint32_t CGUnit::GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, uint32_t unused_local) {
     for (uint32_t i = 0; i < sizeof(s_mirrorFieldIndices) / sizeof(s_mirrorFieldIndices[0]); i++) {
         if (s_mirrorFieldIndices[i] == fieldIndex) {
             return i;
         }
     }
 
-    return 142;
+    return CGUnit::MIRROR_INDEX_NOT_FOUND;
 }
 
 // VERIFY: 2461627f manual
@@ -173,15 +173,15 @@ int32_t CGUnit::CanMove() const {
 
 // VERIFY: 68641d42 auto
 // OFFSET: 0x004D4240
-uint32_t CGUnit::DescriptorToMirrorOffset(uint32_t offset, uint32_t unused_a2, uint32_t unused_a3, uint32_t base) {
+uint32_t CGUnit::DescriptorToMirrorOffset(uint32_t offset, uint32_t size, uint32_t local, uint32_t base) {
     int32_t objectFields = CGObject::TotalFieldsSaved();
-    return (offset & 3) + 4 * (objectFields + MirrorIndexFromFieldIndex((offset - base) >> 2));
+    return (offset & 3) + 4 * (objectFields + GetSavedIndexFromDataIndex((offset - base) >> 2, (size + 3) >> 2, local));
 }
 
 // VERIFY: 93ca7f49 auto
 // OFFSET: 0x004F52C0
-int32_t CGUnit::TotalFields() {
-    return CGObject::TotalFieldsSaved() + 123;
+int32_t CGUnit::TotalFieldsSaved() {
+    return CGObject::TotalFieldsSaved() + CGUnit::NUM_MIRROR_FIELDS;
 }
 
 // VERIFY: 65e96d9b auto

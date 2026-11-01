@@ -2856,7 +2856,7 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
 void CGPlayer_C::SetStorage(uint32_t* storage, uint32_t* saved) {
     this->CGUnit_C::SetStorage(storage, saved);
     this->m_player = reinterpret_cast<CGPlayerLocalData*>(storage + OBJECT_END + sizeof(CGUnitData) / sizeof(uint32_t));
-    this->m_playerMirror = saved + CGUnit::TotalFields();
+    this->m_playerMirror = saved + CGUnit::TotalFieldsSaved();
 }
 
 // VERIFY: aa03190b auto

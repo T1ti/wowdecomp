@@ -31,13 +31,16 @@ class CGPlayer {
     uint32_t GetBuybackPrice(uint32_t slot);
     bool HasPvpMedal(uint32_t medal);
     bool HasAuraVision(uint8_t vision);
-    static const uint32_t s_mirrorFields[173];
-    static const uint32_t s_localMirrorFields[870];
+    static const int32_t NUM_REMOTE_MIRROR_FIELDS = 173;
+    static const int32_t NUM_LOCAL_MIRROR_FIELDS = 870;
+    static const uint32_t MIRROR_INDEX_NOT_FOUND = 1178;
+    static const uint32_t s_mirrorFields[NUM_REMOTE_MIRROR_FIELDS];
+    static const uint32_t s_localMirrorFields[NUM_LOCAL_MIRROR_FIELDS];
 
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local);
-    static int32_t TotalFields();
-    static int32_t TotalRemoteFields();
+    static int32_t TotalFieldsSaved();
+    static int32_t TotalRemoteFieldsSaved();
 
     /* 0000 */ CGPlayerLocalData* m_player;
     /* 0004 */ void* m_playerMirror;

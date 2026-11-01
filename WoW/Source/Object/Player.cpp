@@ -2,7 +2,7 @@
 #include "WoW/Source/Object/Unit.h"
 
 // STATIC: 0x00AC4BC8
-const uint32_t CGPlayer::s_mirrorFields[173] = {
+const uint32_t CGPlayer::s_mirrorFields[CGPlayer::NUM_REMOTE_MIRROR_FIELDS] = {
     0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x10, 0x11,
     0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21,
     0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31,
@@ -17,7 +17,7 @@ const uint32_t CGPlayer::s_mirrorFields[173] = {
 };
 
 // STATIC: 0x00AC4E80
-const uint32_t CGPlayer::s_localMirrorFields[870] = {
+const uint32_t CGPlayer::s_localMirrorFields[CGPlayer::NUM_LOCAL_MIRROR_FIELDS] = {
     0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
     0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
     0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
@@ -78,7 +78,7 @@ const uint32_t CGPlayer::s_localMirrorFields[870] = {
 // VERIFY: e6ab9c71 auto
 // OFFSET: 0x004D4200
 uint32_t CGPlayer::DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base) {
-    int32_t total = CGUnit::TotalFields();
+    int32_t total = CGUnit::TotalFieldsSaved();
 
     return (offset & 3) + 4 * (total + CGPlayer::GetSavedIndexFromDataIndex((offset - base) >> 2, (size + 3) >> 2, local));
 }
@@ -100,7 +100,7 @@ uint32_t CGPlayer::GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, in
         }
     }
 
-    return 1178;
+    return CGPlayer::MIRROR_INDEX_NOT_FOUND;
 }
 
 // VERIFY: 25fe9486 manual
@@ -129,14 +129,14 @@ int32_t CGPlayer::HasZoneExplored(int32_t zone) {
 
 // VERIFY: 89fd3c87 auto
 // OFFSET: 0x004F5530
-int32_t CGPlayer::TotalFields() {
-    return CGUnit::TotalFields() + 1043;
+int32_t CGPlayer::TotalFieldsSaved() {
+    return CGUnit::TotalFieldsSaved() + (CGPlayer::NUM_REMOTE_MIRROR_FIELDS + CGPlayer::NUM_LOCAL_MIRROR_FIELDS);
 }
 
 // VERIFY: f3b17437 auto
 // OFFSET: 0x004F5540
-int32_t CGPlayer::TotalRemoteFields() {
-    return CGUnit::TotalFields() + sizeof(CGPlayer::s_mirrorFields) / sizeof(CGPlayer::s_mirrorFields[0]);
+int32_t CGPlayer::TotalRemoteFieldsSaved() {
+    return CGUnit::TotalFieldsSaved() + sizeof(CGPlayer::s_mirrorFields) / sizeof(CGPlayer::s_mirrorFields[0]);
 }
 
 // VERIFY: cea78c41 auto

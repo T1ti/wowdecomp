@@ -13,11 +13,13 @@ class CMovement_C;
 class CGUnit {
     public:
     int32_t GetQuestGreenRange() const;
-    static const uint32_t s_mirrorFieldIndices[123];
+    static const int32_t NUM_MIRROR_FIELDS = 123;
+    static const uint32_t MIRROR_INDEX_NOT_FOUND = 142;
+    static const uint32_t s_mirrorFieldIndices[NUM_MIRROR_FIELDS];
 
-    static uint32_t MirrorIndexFromFieldIndex(uint32_t fieldIndex);
-    static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t unused_a2, uint32_t unused_a3, uint32_t base);
-    static int32_t TotalFields();
+    static uint32_t GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, uint32_t unused_local);
+    static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, uint32_t local, uint32_t base);
+    static int32_t TotalFieldsSaved();
     static float __stdcall GetPowerRegenBase(POWER_TYPE powerType, uint8_t inCombat);
 
     /* 0000 */ CGUnitData* m_unit;
@@ -65,11 +67,11 @@ class CGUnitData {
     /* 0046 */ uint8_t m_sex;          // UNIT_FIELD_BYTES_0 byte 2: UNIT_SEX.
     /* 0047 */ uint8_t m_displayPower; // UNIT_FIELD_BYTES_0 byte 3: POWER_TYPE.
     /* 0048 */ int32_t m_unitFieldHealth;
-    /* 004C */ uint32_t m_unitFieldPower [7];
+    /* 004C */ uint32_t m_unitFieldPower [POWER_TYPE::NUM_POWER_TYPES];
     /* 0068 */ uint32_t m_unitFieldMaxhealth;
-    /* 006C */ uint32_t m_unitFieldMaxpower [7];
-    /* 0088 */ float m_unitFieldPowerRegenFlatModifier [7];
-    /* 00A4 */ float m_unitFieldPowerRegenInterruptedFlatModifier [7];
+    /* 006C */ uint32_t m_unitFieldMaxpower [POWER_TYPE::NUM_POWER_TYPES];
+    /* 0088 */ float m_unitFieldPowerRegenFlatModifier [POWER_TYPE::NUM_POWER_TYPES];
+    /* 00A4 */ float m_unitFieldPowerRegenInterruptedFlatModifier [POWER_TYPE::NUM_POWER_TYPES];
     /* 00C0 */ uint32_t m_unitFieldLevel;
     /* 00C4 */ uint32_t m_unitFieldFactiontemplate;
     /* 00C8 */ uint32_t m_unitVirtualItemSlotId [NUM_VIRTUAL_MONSTER_SLOTS];
