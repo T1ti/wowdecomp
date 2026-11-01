@@ -990,7 +990,7 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
     }
 
     if (player && static_cast<int32_t>(player->m_unit->m_unitFieldLevel) >= 10) {
-        CGTutorial::TriggerTutorial(15);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_REPUTATION);
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_FACTION, nullptr);

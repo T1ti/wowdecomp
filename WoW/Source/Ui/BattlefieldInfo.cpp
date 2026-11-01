@@ -467,7 +467,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
     if (state == 2) {
         msg->Get(status->m_mapID);
         msg->Get(status->m_joinedQueueData);
-        CGTutorial::TriggerTutorial(48);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BATTLEGROUND_PORT);
         uint32_t expiration;
         msg->Get(expiration);
         status->m_portExpiration = expiration ? expiration + OsGetAsyncTimeMs() : 0;
@@ -527,7 +527,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
     }
 
     if (status->m_status == 1) {
-        CGTutorial::TriggerTutorial(47);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BATTLEGROUND_QUEUE);
         msg->Get(status->m_estimatedWaitTime);
         uint32_t waited;
         msg->Get(waited);

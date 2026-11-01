@@ -595,7 +595,7 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_TAXIMAP_OPENED, nullptr);
-    CGTutorial::TriggerTutorial(34);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TRAVEL);
 
     if (CGTaxiMap::m_numNodes <= 1) {
         return;

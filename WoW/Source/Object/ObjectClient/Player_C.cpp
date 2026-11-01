@@ -368,9 +368,9 @@ static uint32_t s_missileTrajectorySequence;
 
 // STATIC: 0x00A32450
 static const RestStateInfo s_restStateInfo[3] = {
-    { ERR_MAX_VALUE, 60 },
-    { ERR_EXHAUSTION_RESTED, 25 },
-    { ERR_EXHAUSTION_NORMAL, 60 },
+    { ERR_MAX_VALUE, TUTORIAL::NUM_TUTORIALS },
+    { ERR_EXHAUSTION_RESTED, TUTORIAL::TUTORIAL_RESTED },
+    { ERR_EXHAUSTION_NORMAL, TUTORIAL::NUM_TUTORIALS },
 };
 
 // STATIC: 0x00C9EC68
@@ -1646,7 +1646,7 @@ void CGPlayer_C::SellItem(WOWGUID vendor, WOWGUID item, uint32_t count) {
 // VERIFY: c8640d9d manual
 // OFFSET: 0x006D4300
 void CGPlayer_C::GroupInvite(const char* name, uint32_t flags) {
-    CGTutorial::FlagTutorial(17);
+    CGTutorial::FlagTutorial(TUTORIAL::TUTORIAL_GROUPING);
 
     if (!SStrCmpUTF8I(name, this->GetUnitName(nullptr, 1), STORM_MAX_STR)) {
         CGGameUI::DisplayError(ERR_INVITE_SELF);
@@ -3221,14 +3221,14 @@ void CGPlayer_C::SetCombatMode() {
     uint32_t count = ++s_combatModeExitCount;
 
     if (CGTutorial::m_tutorialFlags.m_count && (CGTutorial::m_tutorialFlags.m_bits.m_data[1] & 0x800000) && count > 4) {
-        if (IsTutorialFlagged(5) && count > 10) {
-            CGTutorial::TriggerTutorial(56);
+        if (IsTutorialFlagged(TUTORIAL::TUTORIAL_SPELLS_AND_ABILITIES) && count > 10) {
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ENEMY_STATUS);
         }
 
-        CGTutorial::TriggerTutorial(5);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SPELLS_AND_ABILITIES);
     }
 
-    CGTutorial::TriggerTutorial(55);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_PLAYER_STATUS);
 }
 
 // VERIFY: b85de264 auto
@@ -6522,7 +6522,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
     }
 
     if (unit->m_questStatus == 1) {
-        CGTutorial::TriggerTutorial(0x2A);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_UNAVAILABLE_QUEST_GIVERS);
     }
 
     WOWGUID guid = unit->m_obj->m_guid;
@@ -7106,12 +7106,12 @@ static void QuestAcceptCallback(int32_t id, const WOWGUID& guid, void* param, bo
     CGGameUI::DisplayError(ERR_QUEST_ACCEPTED_S, quest->m_name);
 
     if (quest->m_infoId == 1) {
-        CGTutorial::TriggerTutorial(0x28);
-        CGTutorial::TriggerTutorial(0x26);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ELITE_QUESTS);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_GROUPS);
     }
 
-    if (!IsTutorialFlagged(0x14) && ++s_questsAccepted >= 4) {
-        CGTutorial::TriggerTutorial(0x14);
+    if (!IsTutorialFlagged(TUTORIAL::TUTORIAL_QUEST_LOG) && ++s_questsAccepted >= 4) {
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_QUEST_LOG);
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_ACCEPTED, "%d", CGQuestLog::GetQuestIndex(quest->m_id));
@@ -7144,12 +7144,12 @@ int32_t OnUpdateQuest(WOWGUID guid, uint32_t offset, uint32_t count, const void*
             CGGameUI::DisplayError(ERR_QUEST_ACCEPTED_S, quest->m_name);
 
             if (quest->m_infoId == 1) {
-                CGTutorial::TriggerTutorial(0x28);
-                CGTutorial::TriggerTutorial(0x26);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ELITE_QUESTS);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_GROUPS);
             }
 
-            if (!IsTutorialFlagged(0x14) && ++s_questsAccepted >= 4) {
-                CGTutorial::TriggerTutorial(0x14);
+            if (!IsTutorialFlagged(TUTORIAL::TUTORIAL_QUEST_LOG) && ++s_questsAccepted >= 4) {
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_QUEST_LOG);
             }
 
             FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_ACCEPTED, "%d", CGQuestLog::GetQuestIndex(quest->m_id));
@@ -9352,36 +9352,36 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             int32_t talentPoints = level >= 10;
 
             if (level >= 2) {
-                CGTutorial::TriggerTutorial(0x36);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_LEVEL_UP);
             }
 
             if (level >= 4) {
-                CGTutorial::TriggerTutorial(0xD);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SKILLS);
             }
 
             if (level >= 6) {
-                CGTutorial::TriggerTutorial(0x16);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_CHATTING);
             }
 
             if (level >= 7) {
-                CGTutorial::TriggerTutorial(0x15);
-                CGTutorial::TriggerTutorial(0x25);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_FRIENDS);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_PROFESSIONS);
             }
 
             if (level >= 8) {
-                CGTutorial::TriggerTutorial(0x20);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_JUMPING);
             }
 
             if (level >= 10) {
-                CGTutorial::TriggerTutorial(0xC);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TALENTS);
             }
 
             if (level >= 12) {
-                CGTutorial::TriggerTutorial(0x26);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_GROUPS);
             }
 
             if (level >= 15) {
-                CGTutorial::TriggerTutorial(0x32);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_DUNGEON_FINDER);
             }
 
             FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_LEVEL_UP, "%d%d%d%d%d%d%d%d%d", level, health, power[0], talentPoints, stats[0], stats[1], stats[2], stats[3], stats[4]);
@@ -12280,7 +12280,7 @@ int32_t OnUpdateRestState(WOWGUID guid, uint32_t offset, uint32_t count, const v
                 CGGameUI::DisplayError(s_restStateInfo[state].m_error);
             }
 
-            if (s_restStateInfo[state].m_tutorial != 60) {
+            if (s_restStateInfo[state].m_tutorial != TUTORIAL::NUM_TUTORIALS) {
                 CGTutorial::TriggerTutorial(s_restStateInfo[state].m_tutorial);
             }
         }
@@ -13092,7 +13092,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
 // OFFSET: 0x006DF710
 void CGPlayer_C::UpdateGhostStatus() {
     if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
-        CGTutorial::TriggerTutorial(24);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_DEATH);
     } else {
         CGGameUI::SetAreaSpiritHealer(WOWGUID());
         C3Vector position(0.0f, 0.0f, 0.0f);
@@ -13157,8 +13157,8 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
 
     if (changed & PLAYER_FLAGS::PLAYER_FLAG_RESTING) {
         if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_RESTING) {
-            CGTutorial::TriggerTutorial(29);
-            CGTutorial::TriggerTutorial(30);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_RESTING);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_HEARTHSTONES);
         }
 
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_UPDATE_RESTING, nullptr);

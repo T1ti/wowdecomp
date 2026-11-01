@@ -495,9 +495,9 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         *CGSpellBook::m_companions[type].New() = spellId;
 
         if (type == 0) {
-            CGTutorial::TriggerTutorial(51);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_COMPANIONS);
         } else if (type == 1) {
-            CGTutorial::TriggerTutorial(52);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_MOUNTS);
         }
 
         WOWGUID requester = { 0 };
@@ -612,7 +612,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
                 }
 
                 if (!tutorialShown && updateMultiCast && player && player->m_bag.FindTotemCategory(category, 8)) {
-                    CGTutorial::TriggerTutorial(46);
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
                     tutorialShown = true;
                 }
             }
@@ -669,7 +669,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         }
 
         FrameScript_SignalEvent(SCRIPT_EVENT_LEARNED_SPELL_IN_TAB, "%d", tab + 1);
-        CGTutorial::TriggerTutorial(39);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SPELLBOOK);
 
         for (uint32_t i = 0; i < sizeof(s_multiCastSpells) / sizeof(s_multiCastSpells[0]); i++) {
             if (s_multiCastSpells[i] == spellId) {

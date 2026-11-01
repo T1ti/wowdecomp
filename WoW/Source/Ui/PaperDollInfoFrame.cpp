@@ -813,11 +813,11 @@ int32_t CGCharacterInfo::CalculateInventoryAlertStatus(CGPlayer_C* player, uint3
             return 0;
         }
 
-        CGTutorial::TriggerTutorial(35);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_DAMAGED_ITEMS);
         return 1;
     }
 
-    CGTutorial::TriggerTutorial(36);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BROKEN_ITEMS);
     return 2;
 }
 

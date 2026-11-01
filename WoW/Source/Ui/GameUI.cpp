@@ -2836,16 +2836,16 @@ void CGGameUI::Target(WOWGUID guid) {
                     CGGameUI::m_lastFriendTarget = guid;
                 }
 
-                if ((unit->m_obj->m_type & TYPE_PLAYER) && unit->m_obj->m_guid != ClntObjMgrGetActivePlayer() && CanTriggerTutorial(18)) {
-                    CGTutorial::TriggerTutorial(18);
+                if ((unit->m_obj->m_type & TYPE_PLAYER) && unit->m_obj->m_guid != ClntObjMgrGetActivePlayer() && CanTriggerTutorial(TUTORIAL::TUTORIAL_PLAYERS)) {
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_PLAYERS);
                 } else if ((unit->m_obj->m_type & TYPE_PLAYER) && player->CanCooperate(unit) && static_cast<int32_t>(player->m_unit->m_unitFieldLevel) >= 5) {
-                    CGTutorial::TriggerTutorial(17);
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_GROUPING);
                 } else if (player->CanAttack(unit)) {
-                    CGTutorial::TriggerTutorial(4);
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TARGETING_ENEMY);
                 } else if (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
-                    CGTutorial::TriggerTutorial(34);
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TRAVEL);
                 } else if (unit->m_questStatus == 1) {
-                    CGTutorial::TriggerTutorial(42);
+                    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_UNAVAILABLE_QUEST_GIVERS);
                 }
             }
         }
@@ -3024,7 +3024,7 @@ void CGGameUI::DisplayError(UIErrors error, ...) {
     }
 
     if (error == ERR_BAG_FULL) {
-        CGTutorial::TriggerTutorial(57);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_FULL_BAGS);
     }
 
     const UIErrorInfo& info = s_errorInfo[error];
@@ -3525,11 +3525,11 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
-        CGTutorial::TriggerTutorial(7);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ITEMS);
 
         for (uint32_t i = 0; i < 5; i++) {
             if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE && (stats->m_class || (stats->m_subClass != 4 && stats->m_subClass != 5))) {
-                CGTutorial::TriggerTutorial(8);
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_USABLE_ITEMS);
                 break;
             }
         }
@@ -3537,27 +3537,27 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         uint32_t slots = s_inventoryTypeSlots[stats->m_inventoryType];
 
         for (uint32_t i = 0; i < 23; i++) {
-            if (((1 << i) & slots) && IsTutorialFlagged(55)) {
-                CGTutorial::TriggerTutorial(23);
+            if (((1 << i) & slots) && IsTutorialFlagged(TUTORIAL::TUTORIAL_PLAYER_STATUS)) {
+                CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_EQUIPPABLE_ITEMS);
                 break;
             }
         }
 
         if (stats->m_class == ITEM_CLASS::ITEM_CLASS_CONTAINER) {
-            CGTutorial::TriggerTutorial(9);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BAGS);
         }
 
         if (bag == 255 && slot - 86 <= 31) {
-            CGTutorial::TriggerTutorial(49);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_KEYRING);
         }
 
         if (itemId == 6948) {
-            CGTutorial::TriggerTutorial(30);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_HEARTHSTONES);
         }
 
         if (player->m_unit->m_unitFieldLevel >= 2 && !stats->m_class && (stats->m_subClass == 4 || stats->m_subClass == 5)) {
-            CGTutorial::TriggerTutorial(10);
-            CGTutorial::TriggerTutorial(11);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_FOOD);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_DRINK);
         }
 
         SI2::PlayItemSound(ITEMSOUND_DROP, stats->m_displayId);
@@ -3576,7 +3576,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
     }
 
     if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == INVTYPE_RANGED || stats->m_inventoryType == INVTYPE_RANGEDRIGHT) && player->m_unit->m_classID != CLASS_HUNTER) || (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && stats->m_subClass == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND)) {
-        CGTutorial::TriggerTutorial(43);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_RANGED_WEAPONS);
     }
 }
 
@@ -3793,10 +3793,10 @@ void CGGameUI::EnterWorld() {
     CGGameUI::UpdateCorpseLocation();
     C3Vector releaseLoc = { 0.0f, 0.0f, 0.0f };
     CGGameUI::SetDeathReleaseLocation(-1, releaseLoc);
-    CGTutorial::TriggerTutorial(41);
-    CGTutorial::TriggerTutorial(1);
-    CGTutorial::TriggerTutorial(2);
-    CGTutorial::TriggerTutorial(0);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_WELCOME);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_MOVEMENT);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_CAMERA);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_QUESTGIVERS);
     CGGameUI::UpdateThreatWarningEnabled(g_threatWarningCVar->m_intValue);
     CGChat::Resume();
 
@@ -4401,9 +4401,9 @@ int32_t CGGameUI::OnMirrorTimerEvent(void* param, NETMESSAGE msgId, uint32_t tim
         FrameScript_SignalEvent(SCRIPT_EVENT_MIRROR_TIMER_START, "%s%d%d%d%d%s", MirrorTimerTypeToken(static_cast<UNIT_MIRROR_TIMER>(type)), value, maxValue, scale, paused, GetMirrorTimerLabel(static_cast<UNIT_MIRROR_TIMER>(type), spellId));
 
         if (type == UNIT_MIRROR_TIMER_EXHAUSTION) {
-            CGTutorial::TriggerTutorial(26);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_FATIGUE);
         } else if (type == UNIT_MIRROR_TIMER_BREATH) {
-            CGTutorial::TriggerTutorial(28);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BREATH);
         }
 
         if (type <= UNIT_MIRROR_TIMER_FEIGNDEATH) {
@@ -5435,7 +5435,7 @@ void CGGameUI::ThreatMapAdd(const WOWGUID& unit, const WOWGUID& target) {
         CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (player->m_unit->m_unitFieldLevel >= 14) {
-            CGTutorial::TriggerTutorial(53);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_THREAT_WARNINGS);
         }
     }
 }

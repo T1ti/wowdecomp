@@ -108,7 +108,7 @@ void CGMerchantInfo::SetMerchant(WOWGUID merchant, const MerchantItem* items, in
         }
     }
 
-    CGTutorial::TriggerTutorial(0x13);
+    CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_VENDORS);
     CGGameUI::SetInteractTarget(merchant);
     CGMerchantInfo::m_merchant = merchant;
     memset(CGMerchantInfo::m_items, 0, sizeof(CGMerchantInfo::m_items));

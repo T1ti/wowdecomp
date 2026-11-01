@@ -577,7 +577,7 @@ static void PrintWho(const char* name, int32_t race, int32_t classId, const char
 // VERIFY: b37debf7 manual
 // OFFSET: 0x006B5400
 void __stdcall FriendList::AddFriend(const char* name, const char* note) {
-    CGTutorial::FlagTutorial(21);
+    CGTutorial::FlagTutorial(TUTORIAL::TUTORIAL_FRIENDS);
     char noteBuffer[512];
     SStrCopy(noteBuffer, note, sizeof(noteBuffer));
     char nameBuffer[308];

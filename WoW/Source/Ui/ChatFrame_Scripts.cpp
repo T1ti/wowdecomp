@@ -187,7 +187,7 @@ static int32_t Script_SendChatMessage(lua_State* L) {
         return 0;
     }
 
-    CGTutorial::FlagTutorial(22);
+    CGTutorial::FlagTutorial(TUTORIAL::TUTORIAL_CHATTING);
 
     char parsed[256];
     ChatParserParseText(text, parsed, sizeof(parsed));

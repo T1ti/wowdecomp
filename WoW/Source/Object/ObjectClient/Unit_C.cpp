@@ -2203,7 +2203,7 @@ void CGUnit_C::OnPvPFlagChanged(uint8_t oldFlags) {
     this->UpdateReaction(false);
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP)) {
-        CGTutorial::TriggerTutorial(31);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_PVP);
     }
 }
 
@@ -18116,7 +18116,7 @@ void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
     if ((oldFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE) && !(dynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
         this->RemoveLootEffect();
     } else if (!(oldFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE) && (dynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_LOOTABLE)) {
-        CGTutorial::TriggerTutorial(6);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_LOOTING);
     }
 
     if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
@@ -20539,7 +20539,7 @@ void CGUnit_C::RemoveChannelEffects(int32_t spellId) {
 void CGUnit_C::StartSwimming(uint32_t time, int32_t spline) {
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_movementData.OnSwimStartLocal(time);
-        CGTutorial::TriggerTutorial(27);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SWIMMING);
     } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
         this->m_movementData.OnSplineStartSwim();
     } else {

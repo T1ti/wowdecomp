@@ -687,7 +687,7 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
     }
 
     if (count) {
-        CGTutorial::TriggerTutorial(45);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_RAID_GROUPS);
     }
 
     uint32_t oldCount = CGRaidInfo::m_numMembers;

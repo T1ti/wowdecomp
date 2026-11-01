@@ -6286,7 +6286,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
 
     if (player) {
         if (reason == SPELL_FAILED_NEED_AMMO) {
-            CGTutorial::TriggerTutorial(44);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_AMMUNITION);
         }
 
         bool autoRepeat = false;
@@ -8233,12 +8233,12 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         }
     }
 
-    if (!IsTutorialFlagged(5)) {
+    if (!IsTutorialFlagged(TUTORIAL::TUTORIAL_SPELLS_AND_ABILITIES)) {
         s_meleeTutorialActive = 1;
         s_meleeTutorialCount = 0;
     }
 
-    if ((unit->m_obj->m_type & TYPE_PLAYER) && s_meleeTutorialActive && IsTutorialFlagged(5)) {
+    if ((unit->m_obj->m_type & TYPE_PLAYER) && s_meleeTutorialActive && IsTutorialFlagged(TUTORIAL::TUTORIAL_SPELLS_AND_ABILITIES)) {
         if (melee) {
             s_meleeTutorialCount++;
         } else {
@@ -8246,7 +8246,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         }
 
         if (s_meleeTutorialCount > 10) {
-            CGTutorial::TriggerTutorial(59);
+            CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SPECIAL_ABILITIES);
         }
     }
 

@@ -671,7 +671,7 @@ static void SendChatEvent(ChatChannel* channel, uint32_t language, const char* t
     }
 
     if (type == CHAT_MSG_WHISPER) {
-        CGTutorial::TriggerTutorial(16);
+        CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TELLS);
     }
 
     char guidString[20] = {};

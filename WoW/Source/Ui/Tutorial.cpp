@@ -9,7 +9,7 @@
 #include "WoW/Source/Net/Types.h"
 
 // STATIC: 0x00BD19F0
-static int32_t s_tutorialsCompleted[60];
+static int32_t s_tutorialsCompleted[TUTORIAL::NUM_TUTORIALS];
 
 // STATIC: 0x00BD1AE0
 TSBitField<TSFixedArray<uint32_t> > CGTutorial::m_tutorialShown;
@@ -52,7 +52,7 @@ static int32_t AddCompletedTutorial(uint32_t tutorial) {
         }
 
         index++;
-    } while (index < 60);
+    } while (index < TUTORIAL::NUM_TUTORIALS);
 
     return index;
 }
@@ -89,12 +89,12 @@ void CGTutorial::ClearTutorials() {
         memset(CGTutorial::m_tutorialFlags.m_bits.m_data, 0xFF, sizeof(uint32_t) * CGTutorial::m_tutorialFlags.m_bits.m_count);
     }
 
-    for (int32_t i = 0; i < 60; i++) {
+    for (int32_t i = 0; i < TUTORIAL::NUM_TUTORIALS; i++) {
         if (CGTutorial::m_tutorialFlags.m_count && (CGTutorial::m_tutorialFlags.m_bits.m_data[i >> 5] & (1 << (i & 0x1F)))) {
             continue;
         }
 
-        for (int32_t j = 0; j < 60; j++) {
+        for (int32_t j = 0; j < TUTORIAL::NUM_TUTORIALS; j++) {
             if (s_tutorialsCompleted[j] == i + 1) {
                 break;
             }
@@ -187,7 +187,7 @@ void CGTutorial::ShutdownGame() {
 int32_t CGTutorial::GetNextCompletedTutorial(int32_t tutorial) {
     bool found = false;
 
-    for (int32_t i = 0; i < 60; i++) {
+    for (int32_t i = 0; i < TUTORIAL::NUM_TUTORIALS; i++) {
         if (found && s_tutorialsCompleted[i]) {
             return s_tutorialsCompleted[i];
         }
@@ -197,7 +197,7 @@ int32_t CGTutorial::GetNextCompletedTutorial(int32_t tutorial) {
         }
     }
 
-    return 60;
+    return TUTORIAL::NUM_TUTORIALS;
 }
 
 // VERIFY: 26a4dcd7 manual
@@ -205,7 +205,7 @@ int32_t CGTutorial::GetNextCompletedTutorial(int32_t tutorial) {
 int32_t CGTutorial::GetPrevCompletedTutorial(int32_t tutorial) {
     bool found = false;
 
-    for (int32_t i = 59; i >= 0; i--) {
+    for (int32_t i = (TUTORIAL::NUM_TUTORIALS - 1); i >= 0; i--) {
         if (found && s_tutorialsCompleted[i]) {
             return s_tutorialsCompleted[i];
         }
@@ -226,7 +226,7 @@ void CGTutorial::SaveFlaggedTutorials() {
     list.m_pos = 2;
     list.m_state = CVarIntListWrapper::STATE::INITIAL;
 
-    for (uint32_t i = 0; i < 60; i++) {
+    for (uint32_t i = 0; i < TUTORIAL::NUM_TUTORIALS; i++) {
         if (!s_tutorialsCompleted[i]) {
             break;
         }
