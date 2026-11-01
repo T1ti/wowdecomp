@@ -167,7 +167,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
         SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building - Game object id %d is missing its display record %d", owner->m_obj->m_entryID, owner->m_gameObject->m_displayID);
     }
 
-    this->m_modelData = g_destructibleModelDataDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 124)));
+    this->m_modelData = g_destructibleModelDataDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_DESTRUCTIBLE_DATA)));
 
     if (this->m_modelData) {
         this->m_states[1].m_displayId = this->m_modelData->m_state1WMO;
@@ -2148,7 +2148,7 @@ void CGGameObject_C_Type_TransportBase::PostReenable() {
 // VERIFY: 68c80836 manual
 // OFFSET: 0x007101C0
 void CGGameObject_C_Type_MapObjTransport::UpdateState(int32_t oldState, int32_t newState) {
-    uint32_t pausePointsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 128);
+    uint32_t pausePointsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
     GameObjectStats* pausePointsStats = this->m_owner->m_stats;
     uint32_t pausePoints = (pausePointsStats && pausePointsIndex < 24) ? pausePointsStats->m_propValue[pausePointsIndex] : 0;
 
@@ -2757,7 +2757,7 @@ LockRec* CGGameObject_C::GetLockRec() const {
         return nullptr;
     }
 
-    uint32_t lockId = this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 4));
+    uint32_t lockId = this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_LOCK));
     return lockId ? g_lockDB.GetRecord(lockId) : nullptr;
 }
 
@@ -2860,13 +2860,13 @@ void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int3
 // VERIFY: 2c95d1e2 auto
 // OFFSET: 0x007102C0
 int32_t CGGameObject_C::GetPageTextLanguage() const {
-    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 16));
+    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TEXTLANGUAGE));
 }
 
 // VERIFY: 1c117624 auto
 // OFFSET: 0x00710300
 int32_t CGGameObject_C::GetPageTextMaterial() const {
-    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 17));
+    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TEXTMATERIAL));
 }
 
 // VERIFY: b1bd3768 auto
@@ -2996,20 +2996,20 @@ void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
         MovementAddTransport(this->m_owner);
     }
 
-    uint32_t physicsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 99);
+    uint32_t physicsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TRANSPORTPHYSICS);
     GameObjectStats* physicsStats = this->m_owner->m_stats;
     int32_t physicsId = (physicsStats && physicsIndex < 24) ? physicsStats->m_propValue[physicsIndex] : 0;
     TransportPhysicsRec* physics = g_transportPhysicsDB.GetRecord(physicsId);
 
-    uint32_t accelRateIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 43);
+    uint32_t accelRateIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ACCELRATE);
     GameObjectStats* accelRateStats = this->m_owner->m_stats;
     int32_t accelRate = (accelRateStats && accelRateIndex < 24) ? accelRateStats->m_propValue[accelRateIndex] : 0;
 
-    uint32_t moveSpeedIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 36);
+    uint32_t moveSpeedIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MOVESPEED);
     GameObjectStats* moveSpeedStats = this->m_owner->m_stats;
     int32_t moveSpeed = (moveSpeedStats && moveSpeedIndex < 24) ? moveSpeedStats->m_propValue[moveSpeedIndex] : 0;
 
-    uint32_t taxiPathIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 35);
+    uint32_t taxiPathIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID);
     GameObjectStats* taxiPathStats = this->m_owner->m_stats;
     uint32_t taxiPathId = (taxiPathStats && taxiPathIndex < 24) ? taxiPathStats->m_propValue[taxiPathIndex] : 0;
 
@@ -3139,7 +3139,7 @@ effects:
 // VERIFY: 52c14f17 manual
 // OFFSET: 0x00710410
 bool CGGameObject_C::IsCreatorOnlyUse() const {
-    uint32_t creatorOnlyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 94);
+    uint32_t creatorOnlyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ONLYCREATORUSE);
     GameObjectStats* creatorOnlyStats = this->m_stats;
     return creatorOnlyStats && creatorOnlyIndex < 24 && creatorOnlyStats->m_propValue[creatorOnlyIndex];
 }
@@ -3289,7 +3289,7 @@ void CGGameObject_C_Type_TransportBase::Disable() {
 void CGGameObject_C_Type_MapObjTransport::InitializeMovement() {
     uint32_t time = OsGetAsyncTimeMs();
     CGGameObject_C* owner = this->m_owner;
-    uint32_t index = CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 128);
+    uint32_t index = CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
     GameObjectStats* stats = owner->m_stats;
 
     if (stats && index < 24 && stats->m_propValue[index]) {
@@ -3806,7 +3806,7 @@ int32_t CGGameObject_C::CanHighlight() const {
         return 0;
     }
 
-    int32_t questId = static_cast<int32_t>(this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 20)));
+    int32_t questId = static_cast<int32_t>(this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_QUESTID)));
 
     if (questId <= 0) {
         return 1;
@@ -3830,7 +3830,7 @@ int32_t CGGameObject_C::CanHighlight() const {
 // VERIFY: cf65be3a auto
 // OFFSET: 0x0070F630
 int32_t CGGameObject_C::FloatingTooltip() const {
-    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 19)) != 0;
+    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_FLOATINGTOOLTIP)) != 0;
 }
 
 // VERIFY: 3b7ec338 manual
@@ -3983,13 +3983,13 @@ void CGGameObject_C_TypeAnimated::OnUpdateAnimProgress() {
 // VERIFY: 3078ec2b auto
 // OFFSET: 0x00710280
 int32_t CGGameObject_C::GetPageTextID(void (*callback)(int32_t, const WOWGUID&, void*, bool)) const {
-    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 15));
+    return this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TEXTID));
 }
 
 // VERIFY: 78d5d80c auto
 // OFFSET: 0x00710340
 bool CGGameObject_C::IsUsableInCombat() const {
-    return !this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, 62));
+    return !this->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_NOTINCOMBAT));
 }
 
 // VERIFY: 1e16ed95 auto
@@ -4005,7 +4005,7 @@ bool CGGameObject_C::IsUsableMounted() const {
         return false;
     }
 
-    return this->GetProperty(91) != 0;
+    return this->GetProperty(CGameObjectDef::PROPERTY_ID::PROP_ALLOWMOUNTED) != 0;
 }
 
 // VERIFY: b8153735 auto
@@ -4017,14 +4017,14 @@ bool CGGameObject_C::IsUsableWhileImmune() const {
         return false;
     }
 
-    return !this->GetPropertyValue(CGameObjectDef::GetPropNum(type, 57));
+    return !this->GetPropertyValue(CGameObjectDef::GetPropNum(type, CGameObjectDef::PROPERTY_ID::PROP_NODAMAGEIMMUNE));
 }
 
 // VERIFY: 2c6373c2 auto
 // OFFSET: 0x007108D0
 void CGGameObject_C_Type_MeetingStone::AddToolTipInfo(CGTooltip* tooltip) {
     CGGameObject_C* owner = this->m_owner;
-    AreaTableRec* area = g_areaTableDB.GetRecord(owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 53)));
+    AreaTableRec* area = g_areaTableDB.GetRecord(owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_AREAID)));
 
     if (area) {
         tooltip->AddLine(area->m_areaName, nullptr, 0);
@@ -4268,7 +4268,7 @@ bool CGGameObject_C_Type_Ritual::CanUseNow(GAME_ERROR_TYPE* error, float* distan
 
     SpellRec spell;
     CGGameObject_C* owner = this->m_owner;
-    int32_t spellId = owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 10));
+    int32_t spellId = owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_SPELL));
 
     if (g_spellDB.GetRecord(spellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL) && player->IsInCombat() && !player->IgnoresAuraState(&spell)) {
         return false;
@@ -4292,12 +4292,12 @@ bool CGGameObject_C_Type_Ritual::CanUseNow(GAME_ERROR_TYPE* error, float* distan
 int32_t CGGameObject_C_Type_MeetingStone::CheckUseRange(uint32_t level) const {
     CGGameObject_C* owner = this->m_owner;
 
-    if (level < owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 51))) {
+    if (level < owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MINLEVEL))) {
         return false;
     }
 
     owner = this->m_owner;
-    return level <= owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, 52));
+    return level <= owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MAXLEVEL));
 }
 
 // VERIFY: 3fa35c2b manual

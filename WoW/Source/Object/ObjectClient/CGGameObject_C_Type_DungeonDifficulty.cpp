@@ -47,13 +47,13 @@ void CGGameObject_C_Type_DungeonDifficulty::HandleAnimEvent(uint32_t eventId, ui
 // VERIFY: 2227204f manual
 // OFFSET: 0x007109D0
 int32_t CGGameObject_C_Type_DungeonDifficulty::GetMapID() const {
-    return this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 87));
+    return this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MAPID));
 }
 
 // VERIFY: e3596c37 manual
 // OFFSET: 0x00710A10
 int32_t CGGameObject_C_Type_DungeonDifficulty::GetDifficulty() const {
-    return this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 88));
+    return this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_DIFFICULTY));
 }
 
 // VERIFY: 53a12509 manual
@@ -62,12 +62,12 @@ void CGGameObject_C_Type_DungeonDifficulty::UpdateDisplay(uint32_t time) {
     int32_t hidden = 1;
     MapRec* map = nullptr;
 
-    if (this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 87))) {
-        map = g_mapDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 87)));
+    if (this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MAPID))) {
+        map = g_mapDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MAPID)));
     }
 
     if (!map || map->m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON) {
-        int32_t difficulty = this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 88));
+        int32_t difficulty = this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_DIFFICULTY));
 
         if (CGGameUI::GetCurrentDungeonDifficulty() == difficulty) {
             hidden = 0;

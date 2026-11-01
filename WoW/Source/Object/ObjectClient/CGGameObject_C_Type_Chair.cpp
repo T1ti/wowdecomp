@@ -16,7 +16,7 @@ CGGameObject_C_Type_Chair::CGGameObject_C_Type_Chair(CGGameObject_C* owner) : CG
 // VERIFY: b2eee098 auto
 // OFFSET: 0x00710240
 uint32_t CGGameObject_C_Type_Chair::GetNumSlots() const {
-    uint32_t slotsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, 11);
+    uint32_t slotsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_CHAIRSLOTS);
     GameObjectStats* slotsStats = this->m_owner->m_stats;
     uint32_t slots = (slotsStats && slotsIndex < 24) ? slotsStats->m_propValue[slotsIndex] : 0;
 

@@ -1257,7 +1257,7 @@ void LoadingScreenEnableShip(uint32_t transportEntry, int32_t transportMap, int3
         CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(WOWGUID{ player->GetTransportGUID() }, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
         if (transport && transport->m_obj->m_entryID == transportEntry) {
-            uint32_t path = transport->GetPropertyValue(CGameObjectDef::GetPropNum(transport->m_gameObject->m_typeID, 35));
+            uint32_t path = transport->GetPropertyValue(CGameObjectDef::GetPropNum(transport->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID));
             uint32_t leg = s_shipInfo.FindLeg(&g_taxiPathNodeDB, path, transportMap);
 
             if (!InitializeSpline(path, leg) || !LoadDynamicBackground()) {
@@ -1282,7 +1282,7 @@ void LoadingScreenEnableShipLeg(int32_t entryId, uint32_t leg) {
         CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(WOWGUID{ player->GetTransportGUID() }, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
         if (transport && transport->m_obj->m_entryID == entryId) {
-            uint32_t path = transport->GetPropertyValue(CGameObjectDef::GetPropNum(transport->m_gameObject->m_typeID, 35));
+            uint32_t path = transport->GetPropertyValue(CGameObjectDef::GetPropNum(transport->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID));
 
             if (!InitializeSpline(path, leg) || !LoadDynamicBackground()) {
                 ClearDynamicData();
