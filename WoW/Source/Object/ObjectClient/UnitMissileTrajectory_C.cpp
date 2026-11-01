@@ -478,13 +478,13 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
                 continue;
             }
 
-            uint32_t type = action->GetKind();
+            uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
             if (type != 1 && (type <= 7 || type > 17)) {
                 continue;
             }
 
-            spellId = action->GetID();
+            spellId = action->m_data & PetAction::PackingMasks::ID_MASK;
 
             if (g_spellDB.GetRecord(spellId, &spell) && spell.m_spellMissileID) {
                 break;

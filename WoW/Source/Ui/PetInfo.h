@@ -27,22 +27,6 @@ class PetAction {
 
     /* 0000 */ uint32_t m_data;
 
-    static uint32_t GetID(uint32_t data) { return data & PackingMasks::ID_MASK; }
-    static uint32_t GetKind(uint32_t data) { return (data >> 24) & PackingMasks::KIND_VALUE_MASK; }
-    static uint32_t GetPackedKind(uint32_t data) { return data & PackingMasks::KIND_MASK; }
-    static uint32_t GetIdentity(uint32_t data) { return data & PackingMasks::IDENTITY_MASK; }
-    static uint32_t GetAttributes(uint32_t data) { return data & PackingMasks::ATTRIBUTES_MASK; }
-
-    uint32_t GetID() const { return GetID(this->m_data); }
-    uint32_t GetKind() const { return GetKind(this->m_data); }
-    uint32_t GetPackedKind() const { return GetPackedKind(this->m_data); }
-    uint32_t GetIdentity() const { return GetIdentity(this->m_data); }
-    uint32_t GetAttributes() const { return GetAttributes(this->m_data); }
-    uint32_t GetAutocastAllowedFlag() const { return this->m_data & AutocastFlags::AUTOCAST_ALLOWED; }
-    uint32_t GetAutocastEnabledFlag() const { return this->m_data & AutocastFlags::AUTOCAST_ENABLED; }
-    // Kind 6 is a mode; kind 7 is a command. Keep the original unsigned range test.
-    bool IsModeOrCommand() const { return GetKind() - 6 <= 1; }
-
     void SetAutocast(bool enable);
 };
 

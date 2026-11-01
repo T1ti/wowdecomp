@@ -457,13 +457,13 @@ int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
         return 0;
     }
 
-    uint32_t type = PetAction::GetKind(petAction);
+    uint32_t type = (petAction >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
     if (type != 1 && type - 8 > 9) {
         return 0;
     }
 
-    return PetAction::GetID(petAction);
+    return petAction & PetAction::PackingMasks::ID_MASK;
 }
 
 // VERIFY: 1b3f1725 auto
@@ -623,7 +623,7 @@ int32_t CGActionBar::HasAction(uint32_t slot) {
         return 0;
     }
 
-    if (petAction->IsModeOrCommand()) {
+    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - 6 <= 1) {
         return 1;
     }
 
@@ -855,7 +855,7 @@ const char* CGActionBar::GetTexture(int32_t slot) {
         return nullptr;
     }
 
-    switch (action->GetKind()) {
+    switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
         case 1:
         case 8:
         case 9:
@@ -918,9 +918,9 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
             return 0;
         }
 
-        uint32_t id = action->GetID();
+        uint32_t id = action->m_data & PetAction::PackingMasks::ID_MASK;
 
-        switch (action->GetKind()) {
+        switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
             case 6:
                 return CGPetInfo::GetPetMode() == id;
             case 7:
