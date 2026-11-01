@@ -113,7 +113,7 @@ void LootRoll(int32_t id, int32_t rollType, bool confirmed) {
             msg.Put(static_cast<uint8_t>(rollType));
             msg.Finalize();
             ClientServices::Send2(&msg);
-            roll->unused_0030 = 1;
+            roll->unknown_0030 = 1;
             FrameScript_SignalEvent(SCRIPT_EVENT_CANCEL_LOOT_ROLL, "%d", roll->m_id);
             s_numShownLootRolls--;
             roll->m_finished = 1;
@@ -210,7 +210,7 @@ int32_t LootRollMasterList(CDataStore* msg) {
 // VERIFY: 62fad677 manual
 // OFFSET: 0x006FA7A0
 static void LootRollCalculateReasons(PendingLootRoll* roll, const ItemStats_C* stats) {
-    roll->unused_0051 = 0;
+    roll->unknown_0051 = 0;
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     bool invalid = !player->m_bag.ItemCountValid(roll->m_itemId, stats, roll->m_count, false);
     uint8_t mask = roll->m_voteMask;
@@ -400,7 +400,7 @@ int32_t LootRollStart(CDataStore* msg) {
     PendingLootRoll* roll = s_pendingLootRolls.NewNode(2, 0, 0);
     roll->m_lootGuid = lootGuid;
     roll->m_id = s_nextLootRollId++;
-    roll->unused_0030 = 0;
+    roll->unknown_0030 = 0;
     roll->m_showPending = 0;
     roll->m_finished = 0;
     msg->Get(roll->m_slot);

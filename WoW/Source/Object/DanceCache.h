@@ -18,13 +18,13 @@ class DanceCache {
     static const uint32_t s_cacheVersion = 1;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ uint32_t unused_0004;
+    /* 0004 */ uint32_t unknown_0004;
     /* 0008 */ WOWGUID m_guid;
     /* 0010 */ char m_name[128];
     /* 0090 */ DANCEMOVE* m_data;
     /* 0094 */ uint32_t m_dataCount;
     /* 0098 */ uint32_t m_version;
-    /* 009C */ uint32_t unused_009C;
+    /* 009C */ uint32_t unknown_009C;
 
     DanceCache();
     ~DanceCache();

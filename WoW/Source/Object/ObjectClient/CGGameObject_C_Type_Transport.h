@@ -8,8 +8,8 @@
 class TransportRotationRec;
 
 struct TransportFrame {
-    /* 0000 */ uint32_t unused_0000;
-    /* 0004 */ uint32_t unused_0004;
+    /* 0000 */ uint32_t m_id;
+    /* 0004 */ uint32_t m_transportID;
     /* 0008 */ uint32_t m_time;
     /* 000C */ float m_pos[3];
     /* 0018 */ uint32_t m_sequenceId;

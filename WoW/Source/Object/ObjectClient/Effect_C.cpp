@@ -284,8 +284,8 @@ CEffect::CEffect() {
     this->m_lightning[9] = nullptr;
     this->m_lightning[10] = nullptr;
     this->m_lightning[11] = nullptr;
-    this->unused_0080 = 0;
-    this->unused_0084 = 0;
+    this->unknown_0080 = 0;
+    this->unknown_0084 = 0;
     this->m_facing = 0.0f;
     this->m_lightningAttachment = -1;
     this->m_mountTransition = nullptr;
@@ -299,9 +299,9 @@ CEffect::CEffect() {
     this->unk_00D0 = 0;
     this->m_attachToModel = 0;
     this->m_attachToMount = 0;
-    this->unused_00DC = 0;
-    this->unused_00E0 = 0.0f;
-    this->unused_00E4 = 0.0f;
+    this->unknown_00DC = 0;
+    this->unknown_00E0 = 0.0f;
+    this->unknown_00E4 = 0.0f;
     this->m_alpha = 0.0f;
     this->m_mapEntity = nullptr;
     this->m_refCount = 1;

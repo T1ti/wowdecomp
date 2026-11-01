@@ -101,15 +101,15 @@ class CVehiclePassenger_C {
     /* 0010 */ uint32_t m_flags; // VEHICLE_PASSENGER_FLAGS
     /* 0014 */ uint32_t m_state;
     /* 0018 */ uint32_t m_prevState;
-    /* 001C */ uint32_t unused_001C;
+    /* 001C */ uint32_t unknown_001C;
     /* 0020 */ WOWGUID m_vehicleGuid;
     /* 0028 */ WOWGUID m_transitionVehicleGuid;
     /* 0030 */ uint8_t m_seat;
     /* 0031 */ uint8_t m_transitionSeat;
-    /* 0032 */ uint8_t unused_0032 [2];
+    /* 0032 */ uint8_t unknown_0032 [2];
     /* 0034 */ uint32_t m_startTime;
     /* 0038 */ uint32_t m_endTime;
-    /* 003C */ uint32_t unused_003C;
+    /* 003C */ uint32_t unknown_003C;
     /* 0040 */ WOWGUID m_startRelativeGuid;
     /* 0048 */ float m_facingBlend;
     /* 004C */ uint32_t m_stopMovementTime;
@@ -134,7 +134,7 @@ class CVehiclePassenger_C {
     /* 00C8 */ float m_arcScale;
     /* 00CC */ C3Vector m_seatOffset;
     /* 00D8 */ float m_lockedWorldFacing;
-    /* 00DC */ uint32_t unused_00DC;
+    /* 00DC */ uint32_t unknown_00DC;
 
     CVehiclePassenger_C();
     void ClearFlag8();

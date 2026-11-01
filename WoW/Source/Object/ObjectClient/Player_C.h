@@ -31,7 +31,7 @@ struct InspectItem {
     /* 003C */ int16_t m_randomPropertiesId;
     /* 003E */ uint16_t m_flags;
     /* 0040 */ uint32_t m_propertySeed;
-    /* 0044 */ uint32_t unused_0044;
+    /* 0044 */ uint32_t unknown_0044;
 };
 
 struct InspectData {

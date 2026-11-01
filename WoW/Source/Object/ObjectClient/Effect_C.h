@@ -98,9 +98,9 @@ class CEffect {
     /* 0034 */ SE2SoundKitObject m_soundKitObject;
     /* 0048 */ uint32_t m_flags;
     /* 004C */ LightningObject* m_lightning [12];
-    /* 007C */ uint32_t unused_007C;
-    /* 0080 */ uint32_t unused_0080;
-    /* 0084 */ uint32_t unused_0084;
+    /* 007C */ uint32_t unknown_007C;
+    /* 0080 */ uint32_t unknown_0080;
+    /* 0084 */ uint32_t unknown_0084;
     /* 0088 */ float m_facing;
     /* 008C */ int32_t m_lightningAttachment;
     /* 0090 */ MountTransitionObject* m_mountTransition;
@@ -110,16 +110,16 @@ class CEffect {
     /* 00A0 */ uint32_t m_fadeTime;
     /* 00A4 */ C3Vector m_position;
     /* 00B0 */ C3Vector m_worldPosition;
-    /* 00BC */ uint32_t unused_00BC;
+    /* 00BC */ uint32_t unknown_00BC;
     /* 00C0 */ WOWGUID m_transportGuid;
     /* 00C8 */ uint32_t m_startTime;
     /* 00CC */ uint32_t m_expireTime;
     /* 00D0 */ uint32_t unk_00D0;
     /* 00D4 */ uint32_t m_attachToModel;
     /* 00D8 */ uint32_t m_attachToMount;
-    /* 00DC */ uint32_t unused_00DC;
-    /* 00E0 */ float unused_00E0;
-    /* 00E4 */ float unused_00E4;
+    /* 00DC */ uint32_t unknown_00DC;
+    /* 00E0 */ float unknown_00E0;
+    /* 00E4 */ float unknown_00E4;
     /* 00E8 */ float m_alpha;
     /* 00EC */ CImVector m_color;
     /* 00F0 */ CMapEntity* m_mapEntity;
@@ -129,7 +129,7 @@ class CEffect {
     /* 0100 */ const SpellVisualKitModelAttachRec* m_attachRec;
     /* 0104 */ CEffect** m_prevLink;
     /* 0108 */ CEffect* m_next;
-    /* 010C */ uint32_t unused_010C;
+    /* 010C */ uint32_t unknown_010C;
 
     CEffect();
     ~CEffect();

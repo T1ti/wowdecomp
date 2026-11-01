@@ -23,7 +23,7 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
     /* 0280 */ uint32_t m_corpseFlags;
     /* 0284 */ float m_selectionRadius;
     /* 0288 */ CM2Model* m_lootEffect;
-    /* 028C */ uint8_t unused_028C [4];
+    /* 028C */ uint8_t unknown_028C [4];
 
     ~CGCorpse_C() override;
     int32_t ShouldFadeout() override;

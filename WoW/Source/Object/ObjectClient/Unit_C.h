@@ -77,10 +77,10 @@ struct AnimSlot {
     /* 0004 */ uint32_t m_variation;
     /* 0008 */ uint32_t m_time;
     /* 000C */ float m_speed;
-    /* 0010 */ uint32_t unused_0010;
-    /* 0014 */ uint32_t unused_0014;
-    /* 0018 */ uint32_t unused_0018;
-    /* 001C */ uint32_t unused_001C;
+    /* 0010 */ uint32_t unknown_0010;
+    /* 0014 */ uint32_t unknown_0014;
+    /* 0018 */ uint32_t unknown_0018;
+    /* 001C */ uint32_t unknown_001C;
 };
 
 class CSmoothAngle {
@@ -120,7 +120,7 @@ struct UnitThreatHandle {
 struct UnitThreat : public UnitThreatHandle, public TSHashObject<UnitThreat, CHashKeyGUID> {
     /* 0028 */ uint8_t m_status;
     /* 0029 */ uint8_t m_percent;
-    /* 002A */ uint8_t unused_002A[2];
+    /* 002A */ uint8_t unknown_002A[2];
     /* 002C */ int32_t m_threat;
 };
 
@@ -1131,23 +1131,23 @@ namespace AnimationData {
 
 class CAnimKitManager {
     public:
-    /* 0000 */ uint32_t unused_0000;
-    /* 0004 */ uint8_t unused_0004[2944];
-    /* 0B84 */ uint32_t unused_0B84;
+    /* 0000 */ uint32_t unknown_0000;
+    /* 0004 */ uint8_t unknown_0004[2944];
+    /* 0B84 */ uint32_t unknown_0B84;
 };
 
 struct ClickToMoveActionInfo {
     /* 0000 */ uint8_t m_enabled;
-    /* 0001 */ uint8_t unused_0001[3];
+    /* 0001 */ uint8_t unknown_0001[3];
     /* 0004 */ float m_stopDistanceSq;
     /* 0008 */ uint8_t m_detectStuck;
     /* 0009 */ uint8_t m_ignoreInteractRange;
-    /* 000A */ uint8_t unused_000A[2];
+    /* 000A */ uint8_t unknown_000A[2];
 };
 
 class ClickToMove {
     public:
-    /* 0000 */ uint32_t unused_0000;
+    /* 0000 */ uint32_t unknown_0000;
 };
 
 void NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);

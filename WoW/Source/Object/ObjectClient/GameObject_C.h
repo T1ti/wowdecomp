@@ -223,7 +223,7 @@ struct DestructibleBuildingState {
     /* 0008 */ CMapEntity* m_object;
     /* 000C */ uint8_t m_loading;
     /* 000D */ uint8_t m_animate;
-    /* 000E */ uint8_t unused_000E[2];
+    /* 000E */ uint8_t unknown_000E[2];
 };
 
 class CGGameObject_C_Type_DestructibleBuilding : public CGGameObject_C_Type_WorldObj {

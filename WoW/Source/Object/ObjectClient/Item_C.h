@@ -67,7 +67,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     /* 03A4 */ uint32_t m_enchantmentExpiration [12];
     /* 03D4 */ ItemPurchaseData* m_itemPurchaseData;
     /* 03D8 */ const ItemGroupSoundsRec* m_groupSounds;
-    /* 03DC */ uint8_t unused_03DC [4];
+    /* 03DC */ uint8_t unknown_03DC [4];
 
     ~CGItem_C() override;
     void PostReenable() override;
