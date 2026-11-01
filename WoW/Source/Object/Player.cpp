@@ -106,7 +106,7 @@ uint32_t CGPlayer::GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, in
 // VERIFY: 25fe9486 manual
 // OFFSET: 0x004F7290
 float CGPlayer::GetDrunknessTurnValue() {
-    int32_t drunk = this->m_player->m_playerBytes3[1];
+    int32_t drunk = this->m_player->inebriation;
     int32_t fakeDrunk = this->m_player->m_playerFakeInebriation;
     int32_t value = drunk > fakeDrunk ? drunk : fakeDrunk;
 
@@ -142,7 +142,7 @@ int32_t CGPlayer::TotalRemoteFields() {
 // VERIFY: cea78c41 auto
 // OFFSET: 0x004FFD80
 bool CGPlayer::IsDrunk() {
-    return this->m_player->m_playerBytes3[1] || this->m_player->m_playerFakeInebriation;
+    return this->m_player->inebriation || this->m_player->m_playerFakeInebriation;
 }
 
 // VERIFY: 343c96d1 manual

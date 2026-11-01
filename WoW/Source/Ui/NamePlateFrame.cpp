@@ -193,7 +193,7 @@ static int32_t GetAdjustedLevel(CGPlayer_C* player, CGUnit_C* unit) {
         return level;
     }
 
-    if (!player->m_player->m_playerBytes3[1] && !player->m_player->m_playerFakeInebriation) {
+    if (!player->m_player->inebriation && !player->m_player->m_playerFakeInebriation) {
         return level;
     }
 

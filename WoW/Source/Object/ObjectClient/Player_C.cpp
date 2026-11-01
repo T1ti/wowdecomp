@@ -515,7 +515,7 @@ static int32_t OnUpdatePlayerHairColor(WOWGUID guid, uint32_t fieldOffset, uint3
 
     if (player) {
         if (player->m_characterComponent) {
-            player->m_characterComponent->SetHairColor(player->m_player->m_playerBytes[3], true, nullptr);
+            player->m_characterComponent->SetHairColor(player->m_player->hairColorID, true, nullptr);
         }
 
         if (ClntObjMgrGetActivePlayer() == guid) {
@@ -536,7 +536,7 @@ static int32_t OnUpdatePlayerSkinID(WOWGUID guid, uint32_t fieldOffset, uint32_t
 
     if (player) {
         if (player->m_characterComponent) {
-            player->m_characterComponent->SetSkinColor(player->m_player->m_playerBytes[0], true, false, nullptr);
+            player->m_characterComponent->SetSkinColor(player->m_player->skinID, true, false, nullptr);
         }
 
         if (ClntObjMgrGetActivePlayer() == guid) {
@@ -560,7 +560,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
         CCharacterComponent* component = player->m_characterComponent;
 
         if (component) {
-            component->SetHairStyle(player->m_player->m_playerBytes[2], nullptr);
+            component->SetHairStyle(player->m_player->hairStyleID, nullptr);
 
             if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
@@ -592,7 +592,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
         CCharacterComponent* component = player->m_characterComponent;
 
         if (component) {
-            component->SetBeardStyle(player->m_player->m_playerBytes2[0], true, nullptr);
+            component->SetBeardStyle(player->m_player->facialHairStyleID, true, nullptr);
 
             if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
@@ -808,13 +808,13 @@ void CGPlayer_C::Initialize() {
     ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerDuelTeam), sizeof(uint32_t), DuelTeamUpdateHandler, nullptr, HANDLER_PRIORITY_NORMAL, 0);
     ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerFlags), sizeof(uint32_t), OnUpdatePlayerFlags, nullptr, HANDLER_PRIORITY_NORMAL, 0);
     ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerGuildTimestamp), sizeof(uint32_t), OnUpdateGuildTimeStamp, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes3) + 2, sizeof(uint8_t), OnUpdatePVPTitle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes3) + 1, sizeof(uint8_t), OnUpdateInebriation, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, pvpMedal), sizeof(uint8_t), OnUpdatePVPTitle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, inebriation), sizeof(uint8_t), OnUpdateInebriation, nullptr, HANDLER_PRIORITY_NORMAL, 0);
     ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerChosenTitle), sizeof(uint32_t), OnUpdatePVPTitle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes) + 3, sizeof(uint8_t), OnUpdatePlayerHairColor, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes) + 2, sizeof(uint8_t), OnUpdatePlayerHairStyle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes2), sizeof(uint8_t), OnUpdatePlayerFacialStyle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
-    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes), sizeof(uint8_t), OnUpdatePlayerSkinID, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, hairColorID), sizeof(uint8_t), OnUpdatePlayerHairColor, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, hairStyleID), sizeof(uint8_t), OnUpdatePlayerHairStyle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, facialHairStyleID), sizeof(uint8_t), OnUpdatePlayerFacialStyle, nullptr, HANDLER_PRIORITY_NORMAL, 0);
+    ClntObjMgrSetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, skinID), sizeof(uint8_t), OnUpdatePlayerSkinID, nullptr, HANDLER_PRIORITY_NORMAL, 0);
 }
 
 // VERIFY: 22f04900 manual
@@ -842,12 +842,12 @@ void CGPlayer_C::Shutdown() {
     ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerDuelTeam), DuelTeamUpdateHandler, nullptr);
     ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerFlags), OnUpdatePlayerFlags, nullptr);
     ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerGuildTimestamp), OnUpdateGuildTimeStamp, nullptr);
-    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes3) + 2, OnUpdatePVPTitle, nullptr);
-    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes3) + 1, OnUpdateInebriation, nullptr);
+    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, pvpMedal), OnUpdatePVPTitle, nullptr);
+    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, inebriation), OnUpdateInebriation, nullptr);
     ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerChosenTitle), OnUpdatePVPTitle, nullptr);
-    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes) + 3, OnUpdatePlayerHairColor, nullptr);
-    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes) + 2, OnUpdatePlayerHairStyle, nullptr);
-    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, m_playerBytes2), OnUpdatePlayerFacialStyle, nullptr);
+    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, hairColorID), OnUpdatePlayerHairColor, nullptr);
+    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, hairStyleID), OnUpdatePlayerHairStyle, nullptr);
+    ClntObjMgrUnsetTypeMirrorHandler(ID_PLAYER, offsetof(CGPlayerData, facialHairStyleID), OnUpdatePlayerFacialStyle, nullptr);
 }
 
 // VERIFY: 78b02f45 auto
@@ -1212,7 +1212,7 @@ const char* CGPlayer_C::GetFacialHairCustomizationName() {
         ChrRacesRec* rec = g_chrRacesDB.GetRecord(player->m_unit->m_raceID);
 
         if (rec) {
-            return rec->m_facialHairCustomization[player->m_player->m_playerBytes3[0]];
+            return rec->m_facialHairCustomization[player->m_player->sex];
         }
     }
 
@@ -2872,7 +2872,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
     CGPartyInfo::EnableMember(this, 1);
     CGRaidInfo::EnableMember(this, 1);
 
-    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->arenaFaction != CGBattlefieldInfo::m_arenaFaction) {
         WOWGUID guid = this->m_obj->m_guid;
         CGBattlefieldInfo::AddArenaOpponent(guid);
 
@@ -2914,7 +2914,7 @@ void CGPlayer_C::PostReenable() {
     CGPartyInfo::EnableMember(this, 1);
     CGRaidInfo::EnableMember(this, 1);
 
-    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->m_playerBytes3[3] != CGBattlefieldInfo::m_arenaFaction) {
+    if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD && this->m_player->arenaFaction != CGBattlefieldInfo::m_arenaFaction) {
         WOWGUID guid = this->m_obj->m_guid;
         CGBattlefieldInfo::AddArenaOpponent(guid);
 
@@ -3057,7 +3057,7 @@ static int32_t AuraVisionUpdateHandler(WOWGUID guid, void* param) {
 void CGPlayer_C::PostInitActivePlayer() {
     this->m_movementData.m_flags |= MOVEMENTFLAG_ONTRANSPORT;
     this->SetActiveMirrorHandlers();
-    SI2::InitVocalErrorSounds(this->m_unit->m_raceID, this->m_player->m_playerBytes3[0]);
+    SI2::InitVocalErrorSounds(this->m_unit->m_raceID, this->m_player->sex);
     CGSpellBook::ClearSpells();
 
     for (uint32_t i = 0; i < s_initialSpells.Count(); i++) {
@@ -12273,7 +12273,7 @@ int32_t OnUpdateRestState(WOWGUID guid, uint32_t offset, uint32_t count, const v
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        uint32_t state = player->m_player->m_playerBytes2[3];
+        uint32_t state = player->m_player->restState;
 
         if (state < 3) {
             if (s_restStateInfo[state].m_error != ERR_MAX_VALUE) {

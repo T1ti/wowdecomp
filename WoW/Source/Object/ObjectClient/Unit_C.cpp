@@ -7234,7 +7234,7 @@ uint32_t CGUnit_C::GetVoiceSex() const {
     }
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
-        return static_cast<const CGPlayer_C*>(this)->m_player->m_playerBytes3[0];
+        return static_cast<const CGPlayer_C*>(this)->m_player->sex;
     }
 
     return this->m_unit->m_sex;
@@ -7344,7 +7344,7 @@ const char* CGUnit_C::GetFrameScriptText(const char* token, int32_t count) const
     UNIT_SEX sex;
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        sex = static_cast<UNIT_SEX>(static_cast<const CGPlayer_C*>(this)->m_player->m_playerBytes3[0]);
+        sex = static_cast<UNIT_SEX>(static_cast<const CGPlayer_C*>(this)->m_player->sex);
     } else {
         sex = static_cast<UNIT_SEX>(this->m_unit->m_sex);
     }
@@ -12113,7 +12113,7 @@ char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitl
         return buffer;
     }
 
-    uint32_t sex = this->IsActivePlayer() ? static_cast<CGPlayer_C*>(this)->m_player->m_playerBytes3[0] : this->m_unit->m_sex;
+    uint32_t sex = this->IsActivePlayer() ? static_cast<CGPlayer_C*>(this)->m_player->sex : this->m_unit->m_sex;
     char format[400];
 
     if (sex == 1) {
@@ -12124,7 +12124,7 @@ char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitl
 
     SStrPrintf(buffer, size, format, this->GetUnitName(nullptr, 1));
 
-    uint8_t medal = static_cast<CGPlayer_C*>(this)->m_player->m_playerBytes3[2];
+    uint8_t medal = static_cast<CGPlayer_C*>(this)->m_player->pvpMedal;
 
     if (medal) {
         char token[32];
@@ -13875,11 +13875,11 @@ int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, int32_t hasDispl
     data.m_preferences.m_classId = this->m_unit->m_classID;
 
     if (player) {
-        data.m_preferences.m_skinID = player->m_player->m_playerBytes[0];
-        data.m_preferences.m_faceId = player->m_player->m_playerBytes[1];
-        data.m_preferences.m_hairStyleId = player->m_player->m_playerBytes[2];
-        data.m_preferences.m_hairColorId = player->m_player->m_playerBytes[3];
-        data.m_preferences.m_facialHairId = player->m_player->m_playerBytes2[0];
+        data.m_preferences.m_skinID = player->m_player->skinID;
+        data.m_preferences.m_faceId = player->m_player->faceID;
+        data.m_preferences.m_hairStyleId = player->m_player->hairStyleID;
+        data.m_preferences.m_hairColorId = player->m_player->hairColorID;
+        data.m_preferences.m_facialHairId = player->m_player->facialHairStyleID;
     } else {
         data.m_preferences.m_skinID = this->m_displayInfoExtra->m_skinID;
         data.m_preferences.m_faceId = this->m_displayInfoExtra->m_faceID;

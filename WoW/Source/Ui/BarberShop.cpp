@@ -118,7 +118,7 @@ void CGBarberShop::Reset() {
 
     HASHKEY_NONE key;
 
-    while (player->m_player->m_playerBytes[2] != CGBarberShop::m_currentHairStyle->m_rec->m_data) {
+    while (player->m_player->hairStyleID != CGBarberShop::m_currentHairStyle->m_rec->m_data) {
         STYLEREC* style = CGBarberShop::m_currentHairStyle;
         USEABLESTYLE* useable = CGBarberShop::m_useableStyles.Ptr(style->m_rec->m_type, key);
         STYLEREC* next = style->Next();
@@ -130,7 +130,7 @@ void CGBarberShop::Reset() {
         CGBarberShop::m_currentHairStyle = next;
     }
 
-    while (player->m_player->m_playerBytes2[0] != CGBarberShop::m_currentFacialHair->m_rec->m_data) {
+    while (player->m_player->facialHairStyleID != CGBarberShop::m_currentFacialHair->m_rec->m_data) {
         STYLEREC* style = CGBarberShop::m_currentFacialHair;
         USEABLESTYLE* useable = CGBarberShop::m_useableStyles.Ptr(style->m_rec->m_type, key);
         STYLEREC* next = style->Next();
@@ -199,9 +199,9 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
     }
 
     component->AddItemBySlot(INVSLOT_TABARD, 54559, 0);
-    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], player->m_player->m_playerBytes[2]);
-    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], player->m_player->m_playerBytes2[0]);
-    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], component->m_data.m_preferences.m_skinID);
+    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
+    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
+    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->sex, component->m_data.m_preferences.m_skinID);
     CGBarberShop::m_barberShopEnabled = 1;
     FrameScript_SignalEvent(SCRIPT_EVENT_BARBER_SHOP_OPEN, nullptr);
     CGBarberShop::m_minCameraDistance = 1.0f;
@@ -336,7 +336,7 @@ void CGBarberShop::EnterWorld() {
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     int32_t race = player->m_unit->m_raceID;
-    int32_t sex = player->m_player->m_playerBytes3[0];
+    int32_t sex = player->m_player->sex;
 
     for (int32_t i = 0; i < g_barberShopStyleDB.m_numRecords; i++) {
         BarberShopStyleRec* rec = g_barberShopStyleDB.GetRecordByIndex(i);
@@ -356,9 +356,9 @@ void CGBarberShop::EnterWorld() {
         style->m_rec = rec;
     }
 
-    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], player->m_player->m_playerBytes[2]);
-    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], player->m_player->m_playerBytes2[0]);
-    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->m_playerBytes3[0], player->m_player->m_playerBytes[0]);
+    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
+    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
+    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->sex, player->m_player->skinID);
 }
 
 // VERIFY: 066af30d manual
@@ -376,10 +376,10 @@ void CGBarberShop::ResetAppearance() {
         return;
     }
 
-    component->SetHairStyle(player->m_player->m_playerBytes[2], nullptr);
-    component->SetHairColor(player->m_player->m_playerBytes[3], true, nullptr);
-    component->SetBeardStyle(player->m_player->m_playerBytes2[0], true, nullptr);
-    component->SetSkinColor(player->m_player->m_playerBytes[0], true, true, nullptr);
+    component->SetHairStyle(player->m_player->hairStyleID, nullptr);
+    component->SetHairColor(player->m_player->hairColorID, true, nullptr);
+    component->SetBeardStyle(player->m_player->facialHairStyleID, true, nullptr);
+    component->SetSkinColor(player->m_player->skinID, true, true, nullptr);
     component->m_data.m_model->IsDrawable(1, 1);
 }
 
@@ -395,13 +395,13 @@ bool CGBarberShop::IsCurrentStyle(int32_t type) {
 
     switch (type) {
         case 0:
-            return player->m_player->m_playerBytes[2] == CGBarberShop::m_currentHairStyle->m_rec->m_data;
+            return player->m_player->hairStyleID == CGBarberShop::m_currentHairStyle->m_rec->m_data;
         case 1:
-            return player->m_player->m_playerBytes[3] == component->m_data.m_preferences.m_hairColorId;
+            return player->m_player->hairColorID == component->m_data.m_preferences.m_hairColorId;
         case 2:
-            return player->m_player->m_playerBytes2[0] == CGBarberShop::m_currentFacialHair->m_rec->m_data;
+            return player->m_player->facialHairStyleID == CGBarberShop::m_currentFacialHair->m_rec->m_data;
         case 3:
-            return player->m_player->m_playerBytes[0] == component->m_data.m_preferences.m_skinID;
+            return player->m_player->skinID == component->m_data.m_preferences.m_skinID;
         default:
             return false;
     }
@@ -531,7 +531,7 @@ void CGBarberShop::ApplyAppearanceChange() {
         return;
     }
 
-    if (player->m_player->m_playerBytes[3] == component->m_data.m_preferences.m_hairColorId && player->m_player->m_playerBytes[2] == CGBarberShop::m_currentHairStyle->m_rec->m_data && player->m_player->m_playerBytes2[0] == CGBarberShop::m_currentFacialHair->m_rec->m_data && (!CGBarberShop::m_currentSkinColor || player->m_player->m_playerBytes[0] == CGBarberShop::m_currentSkinColor->m_rec->m_data)) {
+    if (player->m_player->hairColorID == component->m_data.m_preferences.m_hairColorId && player->m_player->hairStyleID == CGBarberShop::m_currentHairStyle->m_rec->m_data && player->m_player->facialHairStyleID == CGBarberShop::m_currentFacialHair->m_rec->m_data && (!CGBarberShop::m_currentSkinColor || player->m_player->skinID == CGBarberShop::m_currentSkinColor->m_rec->m_data)) {
         return;
     }
 

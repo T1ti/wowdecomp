@@ -53,9 +53,18 @@ class CGPlayerData {
     /* 0008 */ PLAYER_FLAGS m_playerFlags;
     /* 000C */ uint32_t m_playerGuildid;
     /* 0010 */ uint32_t m_playerGuildrank;
-    /* 0014 */ uint8_t m_playerBytes [4];
-    /* 0018 */ uint8_t m_playerBytes2 [4];
-    /* 001C */ uint8_t m_playerBytes3 [4];
+    /* 0014 */ uint8_t skinID;
+    /* 0015 */ uint8_t faceID;
+    /* 0016 */ uint8_t hairStyleID;
+    /* 0017 */ uint8_t hairColorID;
+    /* 0018 */ uint8_t facialHairStyleID;
+    /* 0019 */ uint8_t playerByte19Unknown; // Meaning unverified; raw byte retained.
+    /* 001A */ uint8_t numBankSlots;
+    /* 001B */ uint8_t restState;
+    /* 001C */ uint8_t sex;
+    /* 001D */ uint8_t inebriation;
+    /* 001E */ uint8_t pvpMedal;
+    /* 001F */ uint8_t arenaFaction;
     /* 0020 */ uint32_t m_playerDuelTeam;
     /* 0024 */ uint32_t m_playerGuildTimestamp;
     /* 0028 */ PlayerQuestLogEntry m_playerQuestLog [25];

@@ -598,7 +598,7 @@ static int32_t Script_GetRewardTitle(lua_State* L) {
         return 1;
     }
 
-    int32_t gender = player ? player->m_player->m_playerBytes3[0] : 0;
+    int32_t gender = player ? player->m_player->sex : 0;
     char format[256];
     format[0] = 0;
 

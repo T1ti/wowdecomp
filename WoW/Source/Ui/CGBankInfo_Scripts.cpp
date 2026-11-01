@@ -40,7 +40,7 @@ static int32_t Script_BankButtonIDToInvSlotID(lua_State* L) {
 // OFFSET: 0x0057BAB0
 static int32_t Script_GetNumBankSlots(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    int32_t slots = player ? player->m_player->m_playerBytes2[2] : 0;
+    int32_t slots = player ? player->m_player->numBankSlots : 0;
     lua_pushnumber(L, slots);
 
     if (slots < 7) {
@@ -59,7 +59,7 @@ static int32_t Script_GetBankSlotCost(lua_State* L) {
     const BankBagSlotPricesRec* rec;
     int32_t cost;
 
-    if (player && (rec = g_bankBagSlotPricesDB.GetRecord(player->m_player->m_playerBytes2[2] + 1))) {
+    if (player && (rec = g_bankBagSlotPricesDB.GetRecord(player->m_player->numBankSlots + 1))) {
         cost = rec->m_cost;
     } else {
         cost = 0;
@@ -94,11 +94,11 @@ static uint32_t GetBankSlotCost(int32_t slot) {
 static int32_t Script_PurchaseSlot(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || !CGGameUI::m_hasControl || !CGBankInfo::m_banker || player->m_player->m_playerBytes2[2] >= 7) {
+    if (!player || !CGGameUI::m_hasControl || !CGBankInfo::m_banker || player->m_player->numBankSlots >= 7) {
         return 0;
     }
 
-    uint32_t cost = GetBankSlotCost(player->m_player->m_playerBytes2[2] + 1);
+    uint32_t cost = GetBankSlotCost(player->m_player->numBankSlots + 1);
 
     if (player->GetCoinage() < cost) {
         CGGameUI::DisplayError(ERR_BANKSLOT_INSUFFICIENT_FUNDS);

@@ -1935,7 +1935,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     if (showLevel && unitLevel > 0) {
         int32_t displayLevel = unitLevel;
 
-        if (activePlayer && ((activePlayer->m_player->m_playerBytes3[1]) || activePlayer->m_player->m_playerFakeInebriation) && unit && activePlayer->CanAttack(unit)) {
+        if (activePlayer && ((activePlayer->m_player->inebriation) || activePlayer->m_player->m_playerFakeInebriation) && unit && activePlayer->CanAttack(unit)) {
             displayLevel = unitLevel - RoundToInt64(activePlayer->GetDrunknessTurnValue() * 5.0f);
 
             if (displayLevel < 1) {
