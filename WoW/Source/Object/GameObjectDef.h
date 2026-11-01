@@ -48,7 +48,7 @@ enum : int32_t {
 class CGameObjectDef {
     public:
     // Names after the historical domain are reconstructed from 3.3.5 metadata.
-    // UNNAMED entries have empty names in the native property table.
+    // UNUSED IDs occur in no current object definition; UNKNOWN IDs have an unrecovered meaning.
     enum PROPERTY_ID : int32_t {
         PROP_TYPE = 0,
         PROP_STARTOPEN = 1,
@@ -148,31 +148,31 @@ class CGameObjectDef {
         PROP_INTACT_NUM_HITS = 95,
         PROP_DAMAGED_NUM_HITS = 96,
         PROP_CREDIT_PROXY_CREATURE = 97,
-        PROP_UNNAMED_98 = 98,
+        PROP_UNUSED_98 = 98,
         PROP_TRANSPORTPHYSICS = 99,
-        PROP_UNNAMED_100 = 100,
-        PROP_UNNAMED_101 = 101,
-        PROP_UNNAMED_102 = 102,
-        PROP_UNNAMED_103 = 103,
-        PROP_UNNAMED_104 = 104,
-        PROP_UNNAMED_105 = 105,
-        PROP_UNNAMED_106 = 106,
-        PROP_UNNAMED_107 = 107,
-        PROP_UNNAMED_108 = 108,
+        PROP_UNUSED_100 = 100,
+        PROP_UNUSED_101 = 101,
+        PROP_UNUSED_102 = 102,
+        PROP_UNKNOWN_103 = 103,
+        PROP_UNUSED_104 = 104,
+        PROP_UNUSED_105 = 105,
+        PROP_UNUSED_106 = 106,
+        PROP_UNUSED_107 = 107,
+        PROP_UNUSED_108 = 108,
         PROP_INTACT_EVENT = 109,
         PROP_DAMAGED_EVENT = 110,
         PROP_DESTROYED_EVENT = 111,
         PROP_REBUILDING_TIME_SECS = 112,
-        PROP_UNNAMED_113 = 113,
+        PROP_UNUSED_113 = 113,
         PROP_REBUILDING_EVENT = 114,
-        PROP_UNNAMED_115 = 115,
-        PROP_UNNAMED_116 = 116,
+        PROP_UNUSED_115 = 115,
+        PROP_UNUSED_116 = 116,
         PROP_IGNORED_BY_PATHING = 117,
         PROP_STARTINGVALUE = 118,
         PROP_UNIDIRECTIONAL = 119,
         PROP_DAMAGE_EVENT = 120,
         PROP_HEIGHT_OFFSET_INCHES = 121,
-        PROP_UNNAMED_122 = 122,
+        PROP_UNUSED_122 = 122,
         PROP_IGNORE_TOTEMS = 123,
         PROP_DESTRUCTIBLE_DATA = 124,
         PROP_PAUSE1EVENTID = 125,
@@ -211,6 +211,43 @@ class CGameObjectDef {
         VALUE_TYPE_TRANSPORTPHYSICS = 25,
         VALUE_TYPE_DESTRUCTIBLEMODELDATA = 27,
     };
+
+    enum BOOL_INDEX : int32_t {
+        BOOL_FALSE = 0,
+        BOOL_TRUE = 1,
+        NUM_BOOL_VALUES = 2,
+    };
+
+    static const int32_t NUM_DOOR_PROPERTIES = 8;
+    static const int32_t NUM_BUTTON_PROPERTIES = 10;
+    static const int32_t NUM_QUESTGIVER_PROPERTIES = 11;
+    static const int32_t NUM_CHEST_PROPERTIES = 18;
+    static const int32_t NUM_GENERIC_PROPERTIES = 7;
+    static const int32_t NUM_TRAP_PROPERTIES = 16;
+    static const int32_t NUM_CHAIR_PROPERTIES = 5;
+    static const int32_t NUM_SPELLFOCUS_PROPERTIES = 9;
+    static const int32_t NUM_TEXT_PROPERTIES = 5;
+    static const int32_t NUM_GOOBER_PROPERTIES = 23;
+    static const int32_t NUM_TRANSPORT_PROPERTIES = 6;
+    static const int32_t NUM_AREADAMAGE_PROPERTIES = 8;
+    static const int32_t NUM_CAMERA_PROPERTIES = 5;
+    static const int32_t NUM_MOTRANSPORT_PROPERTIES = 9;
+    static const int32_t NUM_RITUAL_PROPERTIES = 9;
+    static const int32_t NUM_MAILBOX_PROPERTIES = 1;
+    static const int32_t NUM_GUARDPOST_PROPERTIES = 2;
+    static const int32_t NUM_SPELLCASTER_PROPERTIES = 6;
+    static const int32_t NUM_MEETINGSTONE_PROPERTIES = 3;
+    static const int32_t NUM_FLAGSTAND_PROPERTIES = 9;
+    static const int32_t NUM_FISHINGHOLE_PROPERTIES = 5;
+    static const int32_t NUM_FLAGDROP_PROPERTIES = 5;
+    static const int32_t NUM_MINIGAME_PROPERTIES = 1;
+    static const int32_t NUM_CAPTUREPOINT_PROPERTIES = 22;
+    static const int32_t NUM_AURAGENERATOR_PROPERTIES = 7;
+    static const int32_t NUM_DUNGEONDIFFICULTY_PROPERTIES = 2;
+    static const int32_t NUM_BARBERCHAIR_PROPERTIES = 2;
+    static const int32_t NUM_DESTRUCTIBLEBUILDING_PROPERTIES = 24;
+    static const int32_t NUM_GUILD_BANK_PROPERTIES = 1;
+    static const int32_t NUM_TRAPDOOR_PROPERTIES = 3;
 
     struct EnumValue {
         int32_t count;
