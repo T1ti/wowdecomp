@@ -104,7 +104,7 @@ int32_t Packet_SMSG_STABLE_RESULT(void* param, NETMESSAGE msgId, uint32_t time, 
             return 1;
 
         case 12:
-            Spell_C_PetTameFailure(12);
+            Spell_C_PetTameFailure(PET_TAME_FAILURE::PET_TAME_CANT_CONTROL_EXOTIC);
             return 1;
     }
 

@@ -16238,7 +16238,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
     }
 
     if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_NO_ACTIVE_PETS) && (this->m_obj->m_type & TYPE_PLAYER) && (this->GetActivePlayerFieldBytes0() & 0x1)) {
-        Spell_C_PetTameFailure(2);
+        Spell_C_PetTameFailure(PET_TAME_FAILURE::PET_TAME_TOO_MANY);
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_DONT_REPORT, -1, -1, false);
         return false;
     }

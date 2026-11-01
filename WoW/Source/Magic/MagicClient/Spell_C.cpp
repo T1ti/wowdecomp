@@ -4713,51 +4713,51 @@ void Spell_C_PetTameFailure(uint8_t reason) {
     const char* token;
 
     switch (reason) {
-        case 1:
+        case PET_TAME_FAILURE::PET_TAME_INVALID_CREATURE:
             token = "PETTAME_INVALIDCREATURE";
             break;
 
-        case 2:
+        case PET_TAME_FAILURE::PET_TAME_TOO_MANY:
             token = "PETTAME_TOOMANY";
             break;
 
-        case 3:
+        case PET_TAME_FAILURE::PET_TAME_CREATURE_ALREADY_OWNED:
             token = "PETTAME_CREATUREALREADYOWNED";
             break;
 
-        case 4:
+        case PET_TAME_FAILURE::PET_TAME_NOT_TAMEABLE:
             token = "PETTAME_NOTTAMEABLE";
             break;
 
-        case 5:
+        case PET_TAME_FAILURE::PET_TAME_ANOTHER_SUMMON_ACTIVE:
             token = "PETTAME_ANOTHERSUMMONACTIVE";
             break;
 
-        case 6:
+        case PET_TAME_FAILURE::PET_TAME_UNITS_CANT_TAME:
             token = "PETTAME_UNITSCANTTAME";
             break;
 
-        case 7:
+        case PET_TAME_FAILURE::PET_TAME_NO_PET_AVAILABLE:
             token = "PETTAME_NOPETAVAILABLE";
             break;
 
-        case 8:
+        case PET_TAME_FAILURE::PET_TAME_INTERNAL_ERROR:
             token = "PETTAME_INTERNALERROR";
             break;
 
-        case 9:
+        case PET_TAME_FAILURE::PET_TAME_TOO_HIGH_LEVEL:
             token = "PETTAME_TOOHIGHLEVEL";
             break;
 
-        case 10:
+        case PET_TAME_FAILURE::PET_TAME_DEAD:
             token = "PETTAME_DEAD";
             break;
 
-        case 11:
+        case PET_TAME_FAILURE::PET_TAME_NOT_DEAD:
             token = "PETTAME_NOTDEAD";
             break;
 
-        case 12:
+        case PET_TAME_FAILURE::PET_TAME_CANT_CONTROL_EXOTIC:
             token = "PETTAME_CANTCONTROLEXOTIC";
             break;
 

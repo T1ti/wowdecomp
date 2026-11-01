@@ -1029,4 +1029,21 @@ enum SPELL_IMPLICIT_TARGET : int32_t
     TOTAL_SPELL_IMPLICIT_TARGETS = 111
 };
 
+// SMSG_PET_TAME_FAILURE reason byte and local error requests.
+// Names describe the twelve current client messages; all other bytes use UNKNOWNERROR.
+enum PET_TAME_FAILURE : uint8_t {
+    PET_TAME_INVALID_CREATURE = 1,
+    PET_TAME_TOO_MANY = 2,
+    PET_TAME_CREATURE_ALREADY_OWNED = 3,
+    PET_TAME_NOT_TAMEABLE = 4,
+    PET_TAME_ANOTHER_SUMMON_ACTIVE = 5,
+    PET_TAME_UNITS_CANT_TAME = 6,
+    PET_TAME_NO_PET_AVAILABLE = 7,
+    PET_TAME_INTERNAL_ERROR = 8,
+    PET_TAME_TOO_HIGH_LEVEL = 9,
+    PET_TAME_DEAD = 10,
+    PET_TAME_NOT_DEAD = 11,
+    PET_TAME_CANT_CONTROL_EXOTIC = 12,
+};
+
 #endif
