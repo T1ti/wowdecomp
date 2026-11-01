@@ -1046,4 +1046,13 @@ enum PET_TAME_FAILURE : uint8_t {
     PET_TAME_CANT_CONTROL_EXOTIC = 12,
 };
 
+// SMSG_PET_ACTION_FEEDBACK byte; names describe current client outcomes.
+// Other bytes have no client action, including zero.
+enum PET_ACTION_FEEDBACK : uint8_t {
+    PET_FEEDBACK_DEAD = 1,
+    PET_FEEDBACK_NO_TARGET = 2,
+    PET_FEEDBACK_INVALID_TARGET = 3,
+    PET_FEEDBACK_NO_PATH = 4,
+};
+
 #endif

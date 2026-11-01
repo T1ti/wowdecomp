@@ -409,12 +409,12 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
     msg->Get(feedback);
 
     switch (feedback) {
-        case 1: {
+        case PET_ACTION_FEEDBACK::PET_FEEDBACK_DEAD: {
             CGGameUI::DisplayError(ERR_PET_SPELL_DEAD);
             break;
         }
 
-        case 2: {
+        case PET_ACTION_FEEDBACK::PET_FEEDBACK_NO_TARGET: {
             uint32_t spellId = 0;
             msg->Get(spellId);
             SpellRec spell;
@@ -429,7 +429,7 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
             break;
         }
 
-        case 3: {
+        case PET_ACTION_FEEDBACK::PET_FEEDBACK_INVALID_TARGET: {
             CGGameUI::DisplayError(ERR_INVALID_ATTACK_TARGET);
             uint32_t spellId = 0;
             msg->Get(spellId);
@@ -437,7 +437,7 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
             break;
         }
 
-        case 4: {
+        case PET_ACTION_FEEDBACK::PET_FEEDBACK_NO_PATH: {
             CGGameUI::DisplayError(ERR_PET_SPELL_NOPATH);
             break;
         }
