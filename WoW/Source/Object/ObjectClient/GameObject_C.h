@@ -314,7 +314,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     static void SequenceCallback(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 
     /* 00D8 */ CPassenger m_passenger;
-    /* 0108 */ TSList<void> m_gameObjectMirrorLists [12];
+    /* 0108 */ TSList<void> m_gameObjectMirrorLists [CGGameObjectData::NUM_FIELDS];
     /* 0198 */ TSLink<CGGameObject_C> m_transportLink;
     /* 01A0 */ CGGameObject_C_TypeBase* m_typeData;
     /* 01A4 */ GameObjectStats* m_stats;

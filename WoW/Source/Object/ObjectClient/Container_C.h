@@ -11,7 +11,7 @@
 class CGContainer_C : public CGItem_C, public CGContainer {
     public:
     static void Initialize();
-    /* 03E8 */ TSList<void> m_containerMirrorLists [74];
+    /* 03E8 */ TSList<void> m_containerMirrorLists [CGContainerData::NUM_FIELDS];
     /* 0760 */ CGBag_C m_bag;
 
     ~CGContainer_C() override;

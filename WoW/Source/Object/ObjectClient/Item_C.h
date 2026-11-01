@@ -60,7 +60,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     static const char* GetInventoryArt(int32_t displayId);
     const char* GetInventoryArt() const;
 
-    /* 00DC */ TSList<void> m_itemMirrorLists [58];
+    /* 00DC */ TSList<void> m_itemMirrorLists [CGItemData::NUM_FIELDS];
     /* 0394 */ uint32_t m_itemFlags;
     /* 0398 */ CGUnitVirtualItem m_virtualItem;
     /* 03A0 */ uint32_t m_expirationTime;

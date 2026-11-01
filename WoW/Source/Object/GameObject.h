@@ -9,10 +9,11 @@ class CGGameObjectData;
 
 class CGGameObject {
     public:
-    static uint32_t s_mirrorFieldIndex[4];
+    static const int32_t NUM_MIRROR_FIELDS = 4;
+    static uint32_t s_mirrorFieldIndex[NUM_MIRROR_FIELDS];
 
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
-    static uint32_t MirrorIndexFromFieldIndex(uint32_t fieldIndex, uint32_t count, int32_t local);
+    static uint32_t GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
 
     /* 0000 */ CGGameObjectData* m_gameObject;
@@ -21,6 +22,7 @@ class CGGameObject {
 
 class CGGameObjectData {
     public:
+    static const int32_t NUM_FIELDS = 12;
     /* 0000 */ WOWGUID m_createdBy;
     /* 0008 */ uint32_t m_displayID;
     /* 000C */ uint32_t m_flags;

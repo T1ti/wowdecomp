@@ -9,10 +9,11 @@ class CGItemData;
 
 class CGItem {
     public:
-    static const uint32_t s_mirrorFields[47];
+    static const int32_t NUM_MIRROR_FIELDS = 47;
+    static const uint32_t s_mirrorFields[NUM_MIRROR_FIELDS];
 
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
-    static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local);
+    static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
 
     /* 0004 */ CGItemData* m_item;
@@ -38,6 +39,7 @@ struct ItemEnchantment {
 
 class CGItemData {
     public:
+    static const int32_t NUM_FIELDS = 58;
     /* 0000 */ WOWGUID m_itemFieldOwner;
     /* 0008 */ WOWGUID m_itemFieldContained;
     /* 0010 */ WOWGUID m_itemFieldCreator;

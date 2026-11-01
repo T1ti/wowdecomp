@@ -66,7 +66,7 @@ uint32_t s_objTotalSize[NUM_CLIENT_OBJECT_TYPES] = {
     sizeof(CGUnit_C) + sizeof(CGObjectData) + sizeof(CGUnitData) + CGUnit::TotalFieldsSaved() * sizeof(uint32_t),
     sizeof(CGPlayer_C) + sizeof(CGObjectData) + sizeof(CGUnitData) + sizeof(CGPlayerData) + CGPlayer::TotalRemoteFieldsSaved() * sizeof(uint32_t),
     sizeof(CGGameObject_C) + sizeof(CGObjectData) + sizeof(CGGameObjectData) + CGGameObject::TotalFieldsSaved() * sizeof(uint32_t),
-    sizeof(CGDynamicObject_C) + sizeof(CGObjectData) + sizeof(CGDynamicObjectData) + CGDynamicObject::TotalFields() * sizeof(uint32_t),
+    sizeof(CGDynamicObject_C) + sizeof(CGObjectData) + sizeof(CGDynamicObjectData) + CGDynamicObject::TotalFieldsSaved() * sizeof(uint32_t),
     sizeof(CGCorpse_C) + sizeof(CGObjectData) + sizeof(CGCorpseData) + CGCorpse::TotalFieldsSaved() * sizeof(uint32_t),
 };
 

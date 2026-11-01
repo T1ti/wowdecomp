@@ -21,7 +21,7 @@ class CGDynamicObject_C : public CGObject_C, public CGDynamicObject {
     static void Initialize();
 
     /* 00D8 */ CPassenger m_passenger;
-    /* 0108 */ TSList<void> m_dynamicObjectMirrorLists [6];
+    /* 0108 */ TSList<void> m_dynamicObjectMirrorLists [CGDynamicObjectData::NUM_FIELDS];
     /* 0150 */ uint32_t m_stateFlags;
     /* 0154 */ float m_scale;
     /* 0158 */ BlizzardObject* m_blizzardVisual;

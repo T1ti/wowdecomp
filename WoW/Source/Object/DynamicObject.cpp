@@ -11,12 +11,12 @@ uint32_t CGDynamicObject::DescriptorToMirrorOffset(uint32_t offset, uint32_t siz
 
 // VERIFY: dfd94fc0 auto
 // OFFSET: 0x007F3B60
-uint32_t CGDynamicObject::GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local) {
-    return 6;
+uint32_t CGDynamicObject::GetSavedIndexFromDataIndex(uint32_t unused_index, uint32_t unused_count, int32_t unused_local) {
+    return CGDynamicObjectData::NUM_FIELDS;
 }
 
 // VERIFY: 5b8b167d auto
 // OFFSET: 0x004F5670
-int32_t CGDynamicObject::TotalFields() {
+int32_t CGDynamicObject::TotalFieldsSaved() {
     return CGObject::TotalFieldsSaved();
 }

@@ -2,7 +2,7 @@
 #include "WoW/Source/Object/Object.h"
 
 // STATIC: 0x00AC5C34
-const uint32_t CGCorpse::s_mirrorFields[3] = {
+const uint32_t CGCorpse::s_mirrorFields[CGCorpse::NUM_MIRROR_FIELDS] = {
     0x1B, 0x1C, 0x1E
 };
 
@@ -22,12 +22,12 @@ int32_t CGCorpse::TotalFieldsSaved() {
 
 // VERIFY: 04bd9804 auto
 // OFFSET: 0x004F5690
-uint32_t CGCorpse::GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local) {
+uint32_t CGCorpse::GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local) {
     for (uint32_t i = 0; i < sizeof(CGCorpse::s_mirrorFields) / sizeof(CGCorpse::s_mirrorFields[0]); i++) {
         if (CGCorpse::s_mirrorFields[i] == index) {
             return i;
         }
     }
 
-    return 30;
+    return CGCorpseData::NUM_FIELDS;
 }

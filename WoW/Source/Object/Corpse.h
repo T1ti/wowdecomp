@@ -20,10 +20,11 @@ enum CORPSE_FIELD_FLAGS : uint32_t {
 
 class CGCorpse {
     public:
-    static const uint32_t s_mirrorFields[3];
+    static const int32_t NUM_MIRROR_FIELDS = 3;
+    static const uint32_t s_mirrorFields[NUM_MIRROR_FIELDS];
 
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
-    static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local);
+    static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
 
     /* 0000 */ CGCorpseData* m_corpse;
@@ -32,6 +33,7 @@ class CGCorpse {
 
 class CGCorpseData {
     public:
+    static const int32_t NUM_FIELDS = 30;
     /* 0000 */ WOWGUID m_corpseFieldOwner;
     /* 0008 */ WOWGUID m_corpseFieldParty;
     /* 0010 */ uint32_t m_corpseFieldDisplayId;

@@ -17,7 +17,7 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
     public:
     static void Initialize();
     /* 00D8 */ CPassenger m_passenger;
-    /* 0108 */ TSList<void> m_corpseMirrorLists [30];
+    /* 0108 */ TSList<void> m_corpseMirrorLists [CGCorpseData::NUM_FIELDS];
     /* 0270 */ CCharacterComponent* m_component;
     /* 0274 */ C3Vector m_groundNormal;
     /* 0280 */ uint32_t m_corpseFlags;
