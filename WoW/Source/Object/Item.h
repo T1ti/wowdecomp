@@ -104,6 +104,7 @@ class CGItemData {
     };
 
 
+    static const int32_t NUM_ENCHANTMENTS = 12;
     static const int32_t NUM_FIELDS = 58;
     /* 0000 */ WOWGUID m_itemFieldOwner;
     /* 0008 */ WOWGUID m_itemFieldContained;
@@ -111,9 +112,9 @@ class CGItemData {
     /* 0018 */ WOWGUID m_itemFieldGiftcreator;
     /* 0020 */ int32_t m_itemFieldStackCount;
     /* 0024 */ uint32_t m_itemFieldDuration;
-    /* 0028 */ int32_t m_itemFieldSpellCharges [5];
+    /* 0028 */ int32_t m_itemFieldSpellCharges [FIELD_SIZE::ITEM_FIELD_SPELL_CHARGES_SIZE];
     /* 003C */ uint32_t m_itemFieldFlags;
-    /* 0040 */ ItemEnchantment m_itemFieldEnchantment [12];
+    /* 0040 */ ItemEnchantment m_itemFieldEnchantment [NUM_ENCHANTMENTS];
     /* 00D0 */ uint32_t m_itemFieldPropertySeed;
     /* 00D4 */ int32_t m_itemFieldRandomPropertiesId;
     /* 00D8 */ uint32_t m_itemFieldDurability;

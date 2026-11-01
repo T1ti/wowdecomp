@@ -380,7 +380,7 @@ void CGItem_C::SetItemPurchaseData(ItemPurchaseData* data) {
 // VERIFY: 25290e05 auto
 // OFFSET: 0x00706EC0
 uint32_t CGItem_C::GetSpellItemEnchantmentId() const {
-    for (uint32_t i = 0; i < 12; i++) {
+    for (uint32_t i = 0; i < CGItemData::NUM_ENCHANTMENTS; i++) {
         uint32_t id = this->m_item->m_itemFieldEnchantment[i].m_id;
 
         if (!id) {
@@ -530,7 +530,7 @@ bool CGItem_C::HasSoulboundEnchant() {
         return false;
     }
 
-    for (uint32_t i = 0; i < 12; i++) {
+    for (uint32_t i = 0; i < CGItemData::NUM_ENCHANTMENTS; i++) {
         uint32_t id = this->m_item->m_itemFieldEnchantment[i].m_id;
 
         if (!id) {
@@ -1223,7 +1223,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
         }
     }
 
-    for (uint32_t slot = 0; slot < 12; slot++) {
+    for (uint32_t slot = 0; slot < CGItemData::NUM_ENCHANTMENTS; slot++) {
         SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(this->m_item->m_itemFieldEnchantment[slot].m_id);
 
         if (enchant) {
@@ -1936,7 +1936,7 @@ int32_t CGItem_C::GetItemEnchantmentVisualID() const {
         return -1;
     }
 
-    for (uint32_t i = 0; i < 12; i++) {
+    for (uint32_t i = 0; i < CGItemData::NUM_ENCHANTMENTS; i++) {
         SpellItemEnchantmentRec* enchantment = g_spellItemEnchantmentDB.GetRecord(this->m_item->m_itemFieldEnchantment[i].m_id);
 
         if (enchantment && enchantment->m_itemVisual) {

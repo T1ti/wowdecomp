@@ -64,7 +64,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     /* 0394 */ uint32_t m_itemFlags;
     /* 0398 */ CGUnitVirtualItem m_virtualItem;
     /* 03A0 */ uint32_t m_expirationTime;
-    /* 03A4 */ uint32_t m_enchantmentExpiration [12];
+    /* 03A4 */ uint32_t m_enchantmentExpiration [CGItemData::NUM_ENCHANTMENTS];
     /* 03D4 */ ItemPurchaseData* m_itemPurchaseData;
     /* 03D8 */ const ItemGroupSoundsRec* m_groupSounds;
     /* 03DC */ uint8_t unknown_03DC [4];
