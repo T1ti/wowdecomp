@@ -457,9 +457,9 @@ int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
         return 0;
     }
 
-    uint32_t type = (petAction >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+    uint32_t kind = (petAction >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-    if (type != 1 && type - 8 > 9) {
+    if (kind != 1 && kind - 8 > (17 - 8)) {
         return 0;
     }
 
@@ -623,7 +623,7 @@ int32_t CGActionBar::HasAction(uint32_t slot) {
         return 0;
     }
 
-    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - 6 <= 1) {
+    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - 6 <= (7 - 6)) { // Kinds 6 and 7: pet mode or command.
         return 1;
     }
 

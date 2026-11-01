@@ -1650,13 +1650,13 @@ static int32_t Script_SetPetAction(lua_State* L) {
         return 1;
     }
 
-    uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+    uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
     uint32_t start = 0;
     uint32_t duration = 0;
     uint32_t enable = 0;
     int32_t result;
 
-    if ((type == 1 || type - 8 <= 9) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
+    if ((kind == 1 || kind - 8 <= (17 - 8)) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
         int32_t spellId = action->m_data & PetAction::PackingMasks::ID_MASK;
         result = tooltip->SetSpell(spellId, 0, start + duration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
     } else {

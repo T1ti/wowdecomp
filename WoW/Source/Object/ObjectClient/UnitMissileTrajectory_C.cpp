@@ -478,9 +478,9 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
                 continue;
             }
 
-            uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+            uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-            if (type != 1 && (type <= 7 || type > 17)) {
+            if (kind != 1 && (kind <= 7 || kind > 17)) {
                 continue;
             }
 

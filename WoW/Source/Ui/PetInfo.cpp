@@ -192,9 +192,9 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
         return 1;
     }
 
-    uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+    uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-    if (type != 1 && (type <= 7 || type > 0x11)) {
+    if (kind != 1 && (kind <= 7 || kind > 17)) {
         return CGPetInfo::PetActionsUsable(false) ? 1 : 0;
     }
 
@@ -295,9 +295,9 @@ int32_t CGPetInfo::IsPetBarUsed() {
 PetAction* CGPetInfo::FindSpellByID(int32_t spellId) {
     for (uint32_t i = 0; i < 10; i++) {
         uint32_t action = CGPetInfo::m_actions[i].m_data;
-        uint32_t type = (action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+        uint32_t kind = (action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if ((type == 1 || (type >= 8 && type <= 0x11)) && static_cast<int32_t>(action & PetAction::PackingMasks::ID_MASK) == spellId) {
+        if ((kind == 1 || (kind >= 8 && kind <= 17)) && static_cast<int32_t>(action & PetAction::PackingMasks::ID_MASK) == spellId) {
             return &CGPetInfo::m_actions[i];
         }
     }
@@ -478,9 +478,9 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
     }
 
     if (swap < 0) {
-        uint32_t type = (CGPetInfo::m_actions[index].m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+        uint32_t kind = (CGPetInfo::m_actions[index].m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if (type == 6 || type == 7) {
+        if (kind == 6 || kind == 7) {
             for (uint32_t i = 0; i < 10; i++) {
                 uint32_t slotType = (CGPetInfo::m_actions[i].m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 

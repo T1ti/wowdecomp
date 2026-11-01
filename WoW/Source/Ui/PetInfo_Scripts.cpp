@@ -296,9 +296,9 @@ static int32_t Script_GetPetActionCooldown(lua_State* L) {
     uint32_t enable = 0;
 
     if (action && action->m_data) {
-        uint32_t type = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
+        uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if (type == 1 || type - 8 <= 9) {
+        if (kind == 1 || kind - 8 <= (17 - 8)) {
             Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable);
         }
     }
