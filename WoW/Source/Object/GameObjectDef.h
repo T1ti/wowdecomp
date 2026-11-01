@@ -5,6 +5,7 @@
 #include <cstdint>
 
 enum : int32_t {
+    TYPE_NONE = -1,
     TYPE_DOOR = 0,
     TYPE_BUTTON = 1,
     TYPE_QUESTGIVER = 2,
