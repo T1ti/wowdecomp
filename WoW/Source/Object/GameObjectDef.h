@@ -46,11 +46,34 @@ enum : int32_t {
 
 class CGameObjectDef {
     public:
+    struct EnumValue {
+        int32_t count;
+        const char** list;
+        int32_t defaultIndex;
+    };
+
+    struct NumberValue {
+        float min;
+        float max;
+        float step;
+        float defaultValue;
+    };
+
+    struct StringValue {
+        const char* defaultValue;
+    };
+
+    union ValueInfo {
+        EnumValue e;
+        NumberValue n;
+        StringValue s;
+    };
+
     struct TypeInfo {
         /* 0000 */ const char* m_name;
         /* 0004 */ int32_t m_numProps;
         /* 0008 */ const int32_t* m_props;
-        /* 000C */ const void* m_propInfo;
+        /* 000C */ const ValueInfo** m_valueInfo;
     };
 
     static const TypeInfo s_typeInfo[NUM_GAMEOBJECT_TYPE];
