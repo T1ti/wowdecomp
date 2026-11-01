@@ -588,9 +588,9 @@ const char* CGGameObject_C::GetOpenText() const {
 
 // VERIFY: 15b3b472 auto
 // OFFSET: 0x0070B9B0
-uint32_t CGGameObject_C::GetPropertyValue(uint32_t index) const {
-    if (this->m_stats && index < 24) {
-        return this->m_stats->m_propValue[index];
+uint32_t CGGameObject_C::GetPropertyValue(uint32_t propertyIndex) const {
+    if (this->m_stats && propertyIndex < GameObjectStats::NUM_PROP_VALUES) {
+        return this->m_stats->m_propValue[propertyIndex];
     }
 
     return 0;
@@ -2148,11 +2148,11 @@ void CGGameObject_C_Type_TransportBase::PostReenable() {
 // VERIFY: 68c80836 manual
 // OFFSET: 0x007101C0
 void CGGameObject_C_Type_MapObjTransport::UpdateState(int32_t oldState, int32_t newState) {
-    uint32_t pausePointsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
-    GameObjectStats* pausePointsStats = this->m_owner->m_stats;
-    uint32_t pausePoints = (pausePointsStats && pausePointsIndex < 24) ? pausePointsStats->m_propValue[pausePointsIndex] : 0;
+    uint32_t allowStoppingPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
+    GameObjectStats* allowStoppingStats = this->m_owner->m_stats;
+    uint32_t allowStopping = (allowStoppingStats && allowStoppingPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? allowStoppingStats->m_propValue[allowStoppingPropertyIndex] : 0;
 
-    if (!pausePoints) {
+    if (!allowStopping) {
         return;
     }
 
@@ -2996,22 +2996,22 @@ void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
         MovementAddTransport(this->m_owner);
     }
 
-    uint32_t physicsIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TRANSPORTPHYSICS);
-    GameObjectStats* physicsStats = this->m_owner->m_stats;
-    int32_t physicsId = (physicsStats && physicsIndex < 24) ? physicsStats->m_propValue[physicsIndex] : 0;
-    TransportPhysicsRec* physics = g_transportPhysicsDB.GetRecord(physicsId);
+    uint32_t transportPhysicsPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TRANSPORTPHYSICS);
+    GameObjectStats* transportPhysicsStats = this->m_owner->m_stats;
+    int32_t transportPhysicsId = (transportPhysicsStats && transportPhysicsPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? transportPhysicsStats->m_propValue[transportPhysicsPropertyIndex] : 0;
+    TransportPhysicsRec* physics = g_transportPhysicsDB.GetRecord(transportPhysicsId);
 
-    uint32_t accelRateIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ACCELRATE);
+    uint32_t accelRatePropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ACCELRATE);
     GameObjectStats* accelRateStats = this->m_owner->m_stats;
-    int32_t accelRate = (accelRateStats && accelRateIndex < 24) ? accelRateStats->m_propValue[accelRateIndex] : 0;
+    int32_t accelRate = (accelRateStats && accelRatePropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? accelRateStats->m_propValue[accelRatePropertyIndex] : 0;
 
-    uint32_t moveSpeedIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MOVESPEED);
+    uint32_t moveSpeedPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MOVESPEED);
     GameObjectStats* moveSpeedStats = this->m_owner->m_stats;
-    int32_t moveSpeed = (moveSpeedStats && moveSpeedIndex < 24) ? moveSpeedStats->m_propValue[moveSpeedIndex] : 0;
+    int32_t moveSpeed = (moveSpeedStats && moveSpeedPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? moveSpeedStats->m_propValue[moveSpeedPropertyIndex] : 0;
 
-    uint32_t taxiPathIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID);
+    uint32_t taxiPathPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID);
     GameObjectStats* taxiPathStats = this->m_owner->m_stats;
-    uint32_t taxiPathId = (taxiPathStats && taxiPathIndex < 24) ? taxiPathStats->m_propValue[taxiPathIndex] : 0;
+    uint32_t taxiPathId = (taxiPathStats && taxiPathPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? taxiPathStats->m_propValue[taxiPathPropertyIndex] : 0;
 
     this->m_shipPath.Init(taxiPathId, static_cast<float>(moveSpeed), static_cast<float>(accelRate), physics);
     this->m_shipPath.SetTotalPathTime(this->m_owner->m_gameObject->m_level);
@@ -3139,9 +3139,9 @@ effects:
 // VERIFY: 52c14f17 manual
 // OFFSET: 0x00710410
 bool CGGameObject_C::IsCreatorOnlyUse() const {
-    uint32_t creatorOnlyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ONLYCREATORUSE);
+    uint32_t creatorOnlyPropertyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ONLYCREATORUSE);
     GameObjectStats* creatorOnlyStats = this->m_stats;
-    return creatorOnlyStats && creatorOnlyIndex < 24 && creatorOnlyStats->m_propValue[creatorOnlyIndex];
+    return creatorOnlyStats && creatorOnlyPropertyIndex < GameObjectStats::NUM_PROP_VALUES && creatorOnlyStats->m_propValue[creatorOnlyPropertyIndex];
 }
 
 // VERIFY: 78a5991c manual
@@ -3289,10 +3289,10 @@ void CGGameObject_C_Type_TransportBase::Disable() {
 void CGGameObject_C_Type_MapObjTransport::InitializeMovement() {
     uint32_t time = OsGetAsyncTimeMs();
     CGGameObject_C* owner = this->m_owner;
-    uint32_t index = CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
-    GameObjectStats* stats = owner->m_stats;
+    uint32_t allowStoppingPropertyIndex = CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
+    GameObjectStats* allowStoppingStats = owner->m_stats;
 
-    if (stats && index < 24 && stats->m_propValue[index]) {
+    if (allowStoppingStats && allowStoppingPropertyIndex < GameObjectStats::NUM_PROP_VALUES && allowStoppingStats->m_propValue[allowStoppingPropertyIndex]) {
         uint32_t offsetTime = time + this->m_owner->m_transportTimeOffset;
         this->m_shipPath.SetTimeOffset(offsetTime, this->m_owner->m_gameObject->m_pathProgress * 0.000015259022f);
         CGGameObjectData* gameObject = this->m_owner->m_gameObject;
@@ -3633,11 +3633,11 @@ C3Vector CGGameObject_C_Type_DestructibleBuilding::GetNamePosition() const {
 
 // VERIFY: da097b7f auto
 // OFFSET: 0x0070EEF0
-uint32_t CGGameObject_C::GetProperty(int32_t prop) const {
-    uint32_t index = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, prop);
+uint32_t CGGameObject_C::GetProperty(int32_t propertyId) const {
+    uint32_t propertyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, propertyId);
 
-    if (this->m_stats && index < 24) {
-        return this->m_stats->m_propValue[index];
+    if (this->m_stats && propertyIndex < GameObjectStats::NUM_PROP_VALUES) {
+        return this->m_stats->m_propValue[propertyIndex];
     }
 
     return 0;

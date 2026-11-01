@@ -381,7 +381,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     float GetInteractDistanceSquared() const;
     const char* GetModelFileNameInternal() const;
     const char* GetOpenText() const;
-    uint32_t GetPropertyValue(uint32_t index) const;
+    uint32_t GetPropertyValue(uint32_t propertyIndex) const;
     int32_t GetPageTextMaterial() const;
     int32_t GetPageTextLanguage() const;
     bool IsValidOpenAction(int32_t action) const;
@@ -401,7 +401,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     void UpdateObjectEffectAnimationStates(uint32_t anim);
     CAaBox GetWorldBounds() const;
     void UpdateDisplay(uint32_t time);
-    uint32_t GetProperty(int32_t prop) const;
+    uint32_t GetProperty(int32_t propertyId) const;
     bool IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, CGItem_C** key, uint32_t* entry) const;
     bool IsUsableInCombat() const;
     bool IsUsableMounted() const;

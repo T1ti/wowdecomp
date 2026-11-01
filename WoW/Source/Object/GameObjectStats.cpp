@@ -55,7 +55,7 @@ void GameObjectStats::Pack(CDataStore* msg) {
     msg->PutString(this->m_castBarCaption);
     msg->PutString(this->m_closeText);
 
-    for (int32_t i = 0; i < 24; i++) {
+    for (int32_t i = 0; i < GameObjectStats::NUM_PROP_VALUES; i++) {
         msg->Put(this->m_propValue[i]);
     }
 
@@ -91,7 +91,7 @@ void GameObjectStats_C::Unpack(CDataStore* msg) {
     msg->GetString(buffer, sizeof(buffer));
     this->m_closeText = SStrDupA(buffer, __FILE__, __LINE__);
 
-    for (int32_t i = 0; i < 24; i++) {
+    for (int32_t i = 0; i < GameObjectStats::NUM_PROP_VALUES; i++) {
         msg->Get(this->m_propValue[i]);
     }
 

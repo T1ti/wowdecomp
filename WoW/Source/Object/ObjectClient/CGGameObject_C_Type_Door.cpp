@@ -25,17 +25,17 @@ void CGGameObject_C_Type_Door::UpdateAnimState(uint32_t state) {
 // VERIFY: c1cac2f1 auto
 // OFFSET: 0x0070FD50
 bool CGGameObject_C_Type_Door::CheckPropState() const {
-    uint32_t lockedIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_AUTOCLOSE);
-    GameObjectStats* lockedStats = this->m_owner->m_stats;
-    uint32_t locked = (lockedStats && lockedIndex < 24) ? lockedStats->m_propValue[lockedIndex] : 0;
+    uint32_t autoClosePropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_AUTOCLOSE);
+    GameObjectStats* autoCloseStats = this->m_owner->m_stats;
+    uint32_t autoClose = (autoCloseStats && autoClosePropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? autoCloseStats->m_propValue[autoClosePropertyIndex] : 0;
 
-    if (!locked) {
+    if (!autoClose) {
         return true;
     }
 
-    uint32_t startOpenIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_STARTOPEN);
+    uint32_t startOpenPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_STARTOPEN);
     GameObjectStats* startOpenStats = this->m_owner->m_stats;
-    uint32_t startOpen = (startOpenStats && startOpenIndex < 24) ? startOpenStats->m_propValue[startOpenIndex] : 0;
+    uint32_t startOpen = (startOpenStats && startOpenPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? startOpenStats->m_propValue[startOpenPropertyIndex] : 0;
 
     if (startOpen) {
         return this->m_animState != 1;
