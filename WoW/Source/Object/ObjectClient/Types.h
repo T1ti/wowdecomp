@@ -266,7 +266,7 @@ enum UNITSOUNDTYPE : uint32_t {
     UNITSOUNDTYPE_INJURYCRITICAL = 3,
     UNITSOUNDTYPE_STUN = 4,
     UNITSOUNDTYPE_STAND = 5,
-    UNITSOUNDTYPE_UNKNOWN_6 = 6, // No mapped sound-data field in 3.3.5.
+    UNITSOUNDTYPE_UNUSED_6 = 6, // No sound-data field; both playback paths stop at the zero result.
     UNITSOUNDTYPE_WINGFLAP = 7,
     UNITSOUNDTYPE_ALERT = 8,
     UNITSOUNDTYPE_INJURYCRUSHINGBLOW = 9,
