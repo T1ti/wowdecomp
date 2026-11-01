@@ -238,7 +238,7 @@ bool CGItemSocketInfo::IsSocketItemRefundable() {
     }
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    return static_cast<int32_t>(purchase->m_refundTimeLeft + 7200 - player->GetPlayedTime()) > 0;
+    return static_cast<int32_t>(purchase->m_purchasePlayedTime + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS - player->GetPlayedTime()) > 0;
 }
 
 // VERIFY: 47e2ebf9 auto

@@ -1148,7 +1148,7 @@ bool CGMailInfo::AddItemToOutgoingMail(uint32_t index, WOWGUID item, WOWGUID con
     if (player) {
         CGItem_C::ItemPurchaseData* purchase = object->m_itemPurchaseData;
 
-        if (purchase && static_cast<int32_t>(purchase->m_refundTimeLeft - player->GetPlayedTime() + 7200) > 0 && !object->HasEnchantments()) {
+        if (purchase && static_cast<int32_t>(purchase->m_purchasePlayedTime - player->GetPlayedTime() + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS) > 0 && !object->HasEnchantments()) {
             CGMailInfo::m_lockSendItems = 1;
             FrameScript_SignalEvent(SCRIPT_EVENT_MAIL_LOCK_SEND_ITEMS, "%d%s", sendIndex + 1, CGTooltip::GetItemHyperlinkString(object));
         }

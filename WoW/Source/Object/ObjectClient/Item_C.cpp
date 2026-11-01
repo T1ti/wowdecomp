@@ -981,7 +981,7 @@ bool CGItem_C::IsPermanentlyBoundForTrade() {
         if (player && (this->m_item->m_itemFieldOwner) == player->m_obj->m_guid) {
             int32_t createPlayedTime = this->m_item->m_itemFieldCreatePlayedTime;
 
-            return createPlayedTime - player->GetPlayedTime() + 7200 <= 0;
+            return createPlayedTime - player->GetPlayedTime() + CGItem_C::BIND_TRADE_PERIOD_SECONDS <= 0;
         }
     }
 

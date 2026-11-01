@@ -40,16 +40,21 @@ class CGItem_C : public CGObject_C, public CGItem {
         ITEM_CLIENT_PURCHASE_DATA_PENDING    = 0x00000004u,
     };
 
+    static const int32_t BIND_TRADE_PERIOD_SECONDS = 7200;
+
     static void Initialize();
     static void Shutdown();
     struct ItemPurchaseData {
+        static const int32_t NUM_REFUND_ITEMS = 5;
+        static const int32_t REFUND_PERIOD_SECONDS = 7200;
+
         /* 0000 */ uint32_t m_money;
         /* 0004 */ uint32_t m_honorPoints;
         /* 0008 */ uint32_t m_arenaPoints;
-        /* 000C */ uint32_t m_itemId [5];
-        /* 0020 */ uint32_t m_itemCount [5];
-        /* 0034 */ uint32_t unk_0034;
-        /* 0038 */ uint32_t m_refundTimeLeft;
+        /* 000C */ uint32_t m_itemId [NUM_REFUND_ITEMS];
+        /* 0020 */ uint32_t m_itemCount [NUM_REFUND_ITEMS];
+        /* 0034 */ uint32_t unknown_0034;
+        /* 0038 */ uint32_t m_purchasePlayedTime; // Played-time baseline; readers add the refund period.
     };
 
     static char* BuildItemName(char* buffer, uint32_t size, int32_t itemId, int32_t randomPropertiesId);

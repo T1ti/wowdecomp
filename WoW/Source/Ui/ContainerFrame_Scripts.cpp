@@ -726,7 +726,7 @@ static int32_t Script_GetContainerItemPurchaseInfo(lua_State* L) {
         return 0;
     }
 
-    int32_t timeLeft = data->m_refundTimeLeft - player->GetPlayedTime() + 7200;
+    int32_t timeLeft = data->m_purchasePlayedTime - player->GetPlayedTime() + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS;
 
     if (timeLeft <= 0) {
         return 0;
@@ -734,7 +734,7 @@ static int32_t Script_GetContainerItemPurchaseInfo(lua_State* L) {
 
     int32_t itemCount = 0;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < CGItem_C::ItemPurchaseData::NUM_REFUND_ITEMS; i++) {
         if (static_cast<int32_t>(data->m_itemCount[i]) > 0) {
             itemCount++;
         }
@@ -1050,7 +1050,7 @@ static int32_t Script_GetContainerItemPurchaseItem(lua_State* L) {
 
     CGItem_C::ItemPurchaseData* data = item->m_itemPurchaseData;
 
-    if (!data || item->HasEnchantments() || static_cast<int32_t>(data->m_refundTimeLeft + 7200 - player->GetPlayedTime()) <= 0) {
+    if (!data || item->HasEnchantments() || static_cast<int32_t>(data->m_purchasePlayedTime + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS - player->GetPlayedTime()) <= 0) {
         return 0;
     }
 
@@ -1058,7 +1058,7 @@ static int32_t Script_GetContainerItemPurchaseItem(lua_State* L) {
     int32_t found = 0;
     uint32_t i;
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < CGItem_C::ItemPurchaseData::NUM_REFUND_ITEMS; i++) {
         if (static_cast<int32_t>(data->m_itemId[i]) <= 0) {
             continue;
         }
@@ -1070,7 +1070,7 @@ static int32_t Script_GetContainerItemPurchaseItem(lua_State* L) {
         found++;
     }
 
-    if (i >= 5) {
+    if (i >= CGItem_C::ItemPurchaseData::NUM_REFUND_ITEMS) {
         return 0;
     }
 

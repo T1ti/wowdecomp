@@ -6286,7 +6286,7 @@ static int32_t AddItemTradeLines(CGTooltip* tooltip, const ItemStats_C* stats, C
     CGItem_C::ItemPurchaseData* purchase = item->m_itemPurchaseData;
 
     if (purchase) {
-        int32_t timeLeft = purchase->m_refundTimeLeft - player->GetPlayedTime() + 7200;
+        int32_t timeLeft = purchase->m_purchasePlayedTime - player->GetPlayedTime() + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS;
 
         if (timeLeft > 0 && !item->HasEnchantments()) {
             if (static_cast<uint32_t>(timeLeft - 3660) > 3539) {
@@ -6308,7 +6308,7 @@ static int32_t AddItemTradeLines(CGTooltip* tooltip, const ItemStats_C* stats, C
     }
 
     if (item->IsBound() && !item->IsPermanentlyBoundForTrade()) {
-        int32_t timeLeft = item->m_item->m_itemFieldCreatePlayedTime - player->GetPlayedTime() + 7200;
+        int32_t timeLeft = item->m_item->m_itemFieldCreatePlayedTime - player->GetPlayedTime() + CGItem_C::BIND_TRADE_PERIOD_SECONDS;
 
         if (timeLeft > 0) {
             if (static_cast<uint32_t>(timeLeft - 3660) > 3539) {

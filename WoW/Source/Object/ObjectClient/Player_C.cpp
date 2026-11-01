@@ -2728,7 +2728,7 @@ int32_t __stdcall CGPlayer_C::OnRefundInfo(CDataStore* msg) {
     msg->Get(data->m_honorPoints);
     msg->Get(data->m_arenaPoints);
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < CGItem_C::ItemPurchaseData::NUM_REFUND_ITEMS; i++) {
         msg->Get(data->m_itemId[i]);
         msg->Get(data->m_itemCount[i]);
 
@@ -2736,8 +2736,8 @@ int32_t __stdcall CGPlayer_C::OnRefundInfo(CDataStore* msg) {
         g_itemDBCache.GetRecord(data->m_itemId[i], requester, nullptr, nullptr, true);
     }
 
-    msg->Get(data->unk_0034);
-    msg->Get(data->m_refundTimeLeft);
+    msg->Get(data->unknown_0034);
+    msg->Get(data->m_purchasePlayedTime);
 
     return 1;
 }
