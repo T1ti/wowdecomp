@@ -22,6 +22,15 @@ static const int32_t NUM_DYNAMICOBJECT_FIELD_DESCRIPTORS = 5;
 static const int32_t NUM_CORPSE_FIELD_DESCRIPTORS = 10;
 
 struct CGFieldDescriptor {
+    // Historical reference only: the relationship to this descriptor domain is unproved.
+    // 0.5.3 FIELDTYPE (not active declarations or claims of current nonuse):
+    // enum FIELDTYPE : int32_t {
+    //     FT_INVALID = 0x0, FT_BYTE = 0x1, FT_SHORT = 0x2, FT_INT = 0x3,
+    //     FT_BIGINT = 0x4, FT_FLOAT = 0x5, FT_STRING = 0x6, FT_WSTRING = 0x7,
+    //     FT_BINARY = 0x8, FT_VARBINARY = 0x9, FT_DATE = 0xA, NUM_FIELDTYPES = 0xB,
+    // };
+    // Adapt old names only after matching their producers/consumers; in particular,
+    // TYPE_UNKNOWN_6 is PLAYER_FIELD_BYTES2 metadata, not an established FT_STRING.
     enum FIELD_TYPE : uint32_t {
         TYPE_INT = 1,
         TYPE_TWO_SHORT = 2,
