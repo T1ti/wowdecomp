@@ -1413,8 +1413,8 @@ PlaySpellVisuaKitData::PlaySpellVisuaKitData(const SpellRec* spellRec, const Spe
     this->m_transportGUID = WOWGUID();
     this->m_playAnim = 1;
     this->m_harmful = 0;
-    this->unused_0020 = 0;
-    this->unused_0024 = -1;
+    this->unknown_0020 = 0;
+    this->unknown_0024 = -1;
     this->m_someGUID = WOWGUID();
     this->m_effectFadeTime = 0;
 }
@@ -2794,7 +2794,7 @@ void __stdcall CGPlayer_C::ClearAFK(int32_t force) {
 // OFFSET: 0x006E6B40
 CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
     : CGUnit_C(time, create),
-      unused_1854(-1),
+      unknown_1854(-1),
       m_combatModeFlags(COMBAT_MODE_FLAGS::COMBAT_MODE_NONE),
       m_pendingItemCacheCount(0),
       m_companionSpells(),
@@ -3655,16 +3655,16 @@ int32_t Packet_SMSG_SPELLHEALLOG(void* param, NETMESSAGE msgId, uint32_t time, C
 int32_t Packet_SMSG_SPELLENERGIZELOG(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     return CombatLog::HandleSpellLogEnergizeLog(msg, 0);
 }
-
+static const int32_t NUM_DAMAGE_CALC_LABELS = 41;
 struct DamageCalcLabel {
-    /* 0000 */ int32_t m_type;
-    /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_id;
-    /* 000C */ int32_t m_flags;
+    /* 0000 */ int32_t m_id;
+    /* 0004 */ int32_t m_unknown04;
+    /* 0008 */ int32_t m_unknown08;
+    /* 000C */ const char* m_name;
 };
 
-// STATIC: 0x00AD9CD0
-static const DamageCalcLabel s_damageCalcLabels[41] = { { 0, "Base", 1, 1 }, { 3, "DPS Scaler", 2, 1 }, { 2, "Chain Reduction", 3, 0 }, { 2, "Combo Point Damage", 4, 0 }, { 3, "School Damage Done", 5, 0 }, { 3, "Creature Damage Done", 6, 0 }, { 3, "Creature Weapon Damage Done", 7, 0 }, { 2, "Weapon Effect", 8, 1 }, { 2, "Weapon Effect", 9, 0 }, { 3, "Spell Modifier", 10, 1 }, { 3, "Spell Modifier", 11, 1 }, { 3, "Offhand Penalty", 12, 0 }, { 3, "Attack Power Damage", 13, 1 }, { 3, "Creature Multiplier", 14, 1 }, { 3, "School Damage Done", 15, 1 }, { 3, "Weapon Multiplier", 16, 1 }, { 3, "School Damage Taken", 17, 1 }, { 3, "Source Damage Taken", 18, 1 }, { 3, "School Damage Taken", 19, 1 }, { 3, "Source Damage Taken", 20, 1 }, { 3, "Crit Damage Multiplier", 21, 0 }, { 4, "Crit Damage", 22, 1 }, { 2, "Resistance Coefficient", 23, 1 }, { 2, "Bonus Coefficient", 24, 2 }, { 3, "Critical Chance", 25, 2 }, { 3, "Critical Roll", 26, 2 }, { 3, "Seed For Rounding", 27, 0 }, { 4, "Fraction Adjust", 28, 1 }, { 3, "Resilience Modifier", 29, 1 }, { 3, "Armor Factor", 30, 0 }, { 4, "Armor Reduction", 31, 0 }, { 2, "Shield Block", 32, 1 }, { 2, "Melee Crit/Glance/Crush", 33, 1 }, { 3, "Pet Happiness Mult", 34, 1 }, { 3, "Creature Damage Done", 35, 0 }, { 2, "Number of Targets for Area Damage Cap", 36, 0 }, { 2, "Number of Targets", 37, 1 }, { 2, "Crowd Damage", 38, 1 }, { 3, "Mechanic Modifier", 39, 0 }, { 3, "Bonus From Attack Power Coefficient", 40, 1 }, { 3, "Aura State Modifier", 0x3F000000, static_cast<int32_t>(0xFFFFDE00) } };
+// STATIC: 0x00AD9CC8
+static const DamageCalcLabel s_damageCalcLabels[NUM_DAMAGE_CALC_LABELS] = { { 0, 0, 0, "Base" }, { 1, 1, 3, "DPS Scaler" }, { 2, 1, 2, "Chain Reduction" }, { 3, 0, 2, "Combo Point Damage" }, { 4, 0, 3, "School Damage Done" }, { 5, 0, 3, "Creature Damage Done" }, { 6, 0, 3, "Creature Weapon Damage Done" }, { 7, 0, 2, "Weapon Effect" }, { 8, 1, 2, "Weapon Effect" }, { 9, 0, 3, "Spell Modifier" }, { 10, 1, 3, "Spell Modifier" }, { 11, 1, 3, "Offhand Penalty" }, { 12, 0, 3, "Attack Power Damage" }, { 13, 1, 3, "Creature Multiplier" }, { 14, 1, 3, "School Damage Done" }, { 15, 1, 3, "Weapon Multiplier" }, { 16, 1, 3, "School Damage Taken" }, { 17, 1, 3, "Source Damage Taken" }, { 18, 1, 3, "School Damage Taken" }, { 19, 1, 3, "Source Damage Taken" }, { 20, 1, 3, "Crit Damage Multiplier" }, { 21, 0, 4, "Crit Damage" }, { 22, 1, 2, "Resistance Coefficient" }, { 23, 1, 2, "Bonus Coefficient" }, { 24, 2, 3, "Critical Chance" }, { 25, 2, 3, "Critical Roll" }, { 26, 2, 3, "Seed For Rounding" }, { 27, 0, 4, "Fraction Adjust" }, { 28, 1, 3, "Resilience Modifier" }, { 29, 1, 3, "Armor Factor" }, { 30, 0, 4, "Armor Reduction" }, { 31, 0, 2, "Shield Block" }, { 32, 1, 2, "Melee Crit/Glance/Crush" }, { 33, 1, 3, "Pet Happiness Mult" }, { 34, 1, 3, "Creature Damage Done" }, { 35, 0, 2, "Number of Targets for Area Damage Cap" }, { 36, 0, 2, "Number of Targets" }, { 37, 1, 2, "Crowd Damage" }, { 38, 1, 3, "Mechanic Modifier" }, { 39, 0, 3, "Bonus From Attack Power Coefficient" }, { 40, 1, 3, "Aura State Modifier" } };
 
 // VERIFY: 42d7b454 manual
 // OFFSET: 0x006D3F10
@@ -3706,7 +3706,7 @@ int32_t Packet_SMSG_DAMAGE_CALC_LOG(void* param, NETMESSAGE msgId, uint32_t time
 
         if (!SStrCmpI(label, "val", STORM_MAX_STR)) {
             ConsolePrintf("DMG: NOT VALIDATED: Old=%f, New=%f", oldValue, newValue);
-        } else if (index >= 0 && index < 41) {
+        } else if (index >= 0 && index < NUM_DAMAGE_CALC_LABELS) {
             ConsolePrintf("DMG: (%s) '%s'=%8.2f, total=%f", label, s_damageCalcLabels[index].m_name, oldValue, newValue);
         } else {
             ConsolePrintf("DMG: (%s) '%d'=%8.2f, total=%f", label, index, oldValue, newValue);

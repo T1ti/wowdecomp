@@ -280,7 +280,7 @@ uint8_t CGUnit_C::s_deferredClientControlUpdateState;
 uint32_t CGUnit_C::s_flightStatusTime;
 
 // STATIC: 0x00CA11D0
-float CGUnit_C::s_unused_CA11D0;
+float CGUnit_C::s_unknown_CA11D0;
 
 // STATIC: 0x00CA11D4
 uint32_t CGUnit_C::s_trackingStuckCount;
@@ -2145,8 +2145,8 @@ void CGUnit_C::UpdateDelayedSpellVisualKits() {
 
                     data.m_playAnim = (delayed->m_flags >> 1) & 0x1;
                     data.m_harmful = (delayed->m_flags >> 2) & 0x1;
-                    data.unused_0020 = 1;
-                    data.unused_0024 = delayed->m_delay;
+                    data.unknown_0020 = 1;
+                    data.unknown_0024 = delayed->m_delay;
                     this->PlaySpellVisualKit(data);
                 }
             }
@@ -9533,8 +9533,8 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_smoothSwimPitch(0.0f),
       m_smoothSwimRoll(0.0f),
       m_smoothFacingTarget(0.0f),
-      unused_08E0(-1),
-      unused_08E4(),
+      unknown_08E0(-1),
+      unknown_08E4(),
       m_splashSoundKitId(0),
       m_reactionSoundPriority(0),
       m_floodsafeTurnPitch(),
@@ -9594,7 +9594,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_mountFootprintWidth(0.0f),
       m_animEventPosition(0.0f, 0.0f, 0.0f),
       m_procEffects(nullptr),
-      unused_0B00(),
+      unknown_0B00(),
       m_selectionRadius(0.0f),
       m_flashStartTime(0),
       m_proceduralFadeAlpha(0xFF),
@@ -10334,7 +10334,7 @@ void CGUnit_C::ClearTrackingTarget(bool a2, bool a3) {
     }
 
     CGUnit_C::s_trackingGUID = WOWGUID();
-    CGUnit_C::s_unused_CA11D0 = 0.0f;
+    CGUnit_C::s_unknown_CA11D0 = 0.0f;
     CGUnit_C::s_trackingFlags = 0;
     CGUnit_C::s_trackingStuckCount = 0;
     CGUnit_C::s_trackingType = TRACKTYPE_NONE;
@@ -21030,7 +21030,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                         PlaySpellVisuaKitData data(spell, areaKit, 3);
                         data.m_position = &position;
                         data.m_playAnim = 0;
-                        data.unused_0024 = this->m_lightningSequence;
+                        data.unknown_0024 = this->m_lightningSequence;
                         this->PlaySpellVisualKit(data);
                     }
                 }
@@ -22548,7 +22548,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
         }
 
         OsGetAsyncTimeMs();
-        CGUnit_C::s_unused_CA11D0 = 0.0f;
+        CGUnit_C::s_unknown_CA11D0 = 0.0f;
         CGUnit_C::s_trackingGUID = WOWGUID();
         CGUnit_C::s_trackingFlags = 0;
         CGUnit_C::s_trackingStuckCount = 0;
@@ -22568,7 +22568,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
     s_trackingTurnRate = (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : 3.1415927f;
     CGUnit_C::s_trackingStuckCount = 0;
     s_trackingInteractDistance = sqrt(s_trackingInteractDistanceSq);
-    CGUnit_C::s_unused_CA11D0 = 0.0f;
+    CGUnit_C::s_unknown_CA11D0 = 0.0f;
 
     if (0.0f == s_forcedRunSpeed) {
         s_forcedRunSpeed = this->m_movementData.m_runSpeed;
@@ -23453,8 +23453,8 @@ void CGUnit_C::ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment)
 
                 data.m_harmful = (delayed->m_flags >> 2) & 0x1;
                 data.m_playAnim = (delayed->m_flags >> 1) & 0x1;
-                data.unused_0020 = 1;
-                data.unused_0024 = delayed->m_delay;
+                data.unknown_0020 = 1;
+                data.unknown_0024 = delayed->m_delay;
                 this->PlaySpellVisualKit(data);
             }
         }

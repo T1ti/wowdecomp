@@ -18,7 +18,7 @@ class CGObject {
     static int32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, uint32_t unused_local);
     static int32_t TotalFieldsSaved();
 
-    /* 0004 */ uint32_t unused_0004;
+    /* 0004 */ uint32_t unknown_0004;
     /* 0008 */ CGObjectData* m_obj;
     /* 000C */ void* m_objMirror;
     /* 0010 */ uint32_t m_heapIndex;

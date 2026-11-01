@@ -223,7 +223,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
 
     /* 1010 */ TSList<void> m_playerMirrorLists [176];
     /* 1850 */ TSList<void>* m_playerLocalMirrorLists;
-    /* 1854 */ int32_t unused_1854;
+    /* 1854 */ int32_t unknown_1854;
     /* 1858 */ uint32_t m_combatModeFlags;
     /* 185C */ TSHashTable<TRADESKILLLINE, HASHKEY_NONE> m_tradeSkillLines;
     /* 1884 */ TSHashTable<PROFICIENCYSPELL, HASHKEY_NONE> m_proficiencySpells;
@@ -231,11 +231,11 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     /* 18B8 */ uint32_t m_pendingItemCacheCount;
     /* 18BC */ TSGrowableArray<int32_t> m_equipBypassSkills;
     /* 18CC */ TSGrowableArray<int32_t> m_companionSpells;
-    /* 18DC */ uint32_t unused_18DC;
+    /* 18DC */ uint32_t unknown_18DC;
     /* 18E0 */ WOWGUID m_lootTarget;
     /* 18E8 */ uint8_t m_autoLoot;
-    /* 18E9 */ uint8_t unused_18E9 [3];
-    /* 18EC */ uint32_t unused_18EC;
+    /* 18E9 */ uint8_t unknown_18E9 [3];
+    /* 18EC */ uint32_t unknown_18EC;
     /* 18F0 */ CGBag_C m_bag;
     /* 1908 */ CGUnitVirtualItem m_virtualItems [NUM_VIRTUAL_MONSTER_SLOTS];
     /* 1920 */ UNITSTANDSTATE m_clientStandState;
@@ -463,8 +463,8 @@ class PlaySpellVisuaKitData {
     /* 0010 */ WOWGUID m_transportGUID;
     /* 0018 */ uint32_t m_playAnim;
     /* 001C */ uint32_t m_harmful;
-    /* 0020 */ uint32_t unused_0020;
-    /* 0024 */ uint32_t unused_0024;
+    /* 0020 */ uint32_t unknown_0020;
+    /* 0024 */ uint32_t unknown_0024;
     /* 0028 */ WOWGUID m_someGUID;
     /* 0030 */ uint32_t m_effectFadeTime;
 
