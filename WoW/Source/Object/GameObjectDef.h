@@ -181,6 +181,36 @@ class CGameObjectDef {
         NUM_PROP = 129,
     };
 
+    // Additional value-kind names describe the current property schema.
+    // No current descriptor uses kinds 23, 24 or 26; their meanings and the total count are unknown.
+    enum VALUE_TYPE : int32_t {
+        VALUE_TYPE_TYPE = 0,
+        VALUE_TYPE_BOOL = 1,
+        VALUE_TYPE_INT = 2,
+        VALUE_TYPE_FLOAT = 3,
+        VALUE_TYPE_NAME = 4,
+        VALUE_TYPE_LOCK = 5,
+        VALUE_TYPE_QUESTGIVER = 6,
+        VALUE_TYPE_LOOTTABLE = 7,
+        VALUE_TYPE_SPELL = 8,
+        VALUE_TYPE_PAGETEXT = 9,
+        VALUE_TYPE_PAGEMATERIAL = 10,
+        VALUE_TYPE_TRAP = 11,
+        VALUE_TYPE_CAMERA = 12,
+        VALUE_TYPE_GOSSIP = 13,
+        VALUE_TYPE_AUCTIONHOUSE = 14,
+        VALUE_TYPE_CREATURE = 15,
+        VALUE_TYPE_QUEST = 16,
+        VALUE_TYPE_EVENT = 17,
+        VALUE_TYPE_AREA = 18,
+        VALUE_TYPE_WORLDSTATE = 19,
+        VALUE_TYPE_CONDITION = 20,
+        VALUE_TYPE_MAP = 21,
+        VALUE_TYPE_TEXT = 22,
+        VALUE_TYPE_TRANSPORTPHYSICS = 25,
+        VALUE_TYPE_DESTRUCTIBLEMODELDATA = 27,
+    };
+
     struct EnumValue {
         int32_t count;
         const char** list;
@@ -204,16 +234,16 @@ class CGameObjectDef {
         StringValue s;
     };
 
-    struct TypeInfo {
-        /* 0000 */ const char* m_name;
-        /* 0004 */ int32_t m_numProps;
-        /* 0008 */ const PROPERTY_ID* m_props;
-        /* 000C */ const ValueInfo** m_valueInfo;
+    struct ObjectInfo {
+        /* 0000 */ const char* name;
+        /* 0004 */ int32_t numProperties;
+        /* 0008 */ const PROPERTY_ID* propertyInfo;
+        /* 000C */ const ValueInfo** valueInfo;
     };
 
-    static const TypeInfo s_typeInfo[NUM_GAMEOBJECT_TYPE];
+    static const ObjectInfo s_objectInfo[NUM_GAMEOBJECT_TYPE];
 
-    static int32_t GetPropNum(int32_t typeId, int32_t prop);
+    static int32_t GetPropNum(int32_t typeId, int32_t propId);
 };
 
 #endif
