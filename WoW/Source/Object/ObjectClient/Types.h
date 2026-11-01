@@ -254,8 +254,9 @@ enum NPCSOUNDS : uint32_t {
     NPCSOUND_HELLO = 0,
     NPCSOUND_GOODBYE = 1,
     NPCSOUND_PISSED = 2,
-    // NPCSOUND_ACK = 3,
-    // NUM_NPCSOUNDS = 4,
+    // Slot 3 is retained but unused by the current client sound consumers.
+    // NPCSOUND_ACK = 3, // Historical name; no current meaning asserted.
+    NUM_NPCSOUNDS = 4, // Stored sound slots, including the unused fourth slot.
 };
 
 enum UNITSOUNDTYPE : uint32_t {
