@@ -78,6 +78,25 @@ class SI2SoundUserData : public SESoundUserData {
 
 class SI2 {
     public:
+    enum CHAOS_MODE : int32_t {
+        MODE_IDLE = 0,
+        MODE_RANDOM_3D = 1,
+        MODE_STREAMED_AND_NORMAL_3D = 2,
+        MODE_PLAY_STOP_2D_3D = 3,
+        MODE_EXTRA_NULL_POSITION_PLAY_STOP = 4,
+        MODE_BURST_80_2D = 5,
+        MODE_BURST_80_3D = 6,
+        MODE_FILL_80_LOOPS_3D = 7,
+        MODE_ALERT_FILE = 8,
+        MODE_RESTART = 9,
+        MODE_RANDOM_PAIR_3D_AND_RESTART = 10,
+        MODE_RANDOM_2D = 11,
+        MODE_STREAMED_AND_NORMAL_2D = 12,
+        MODE_STREAMED_AND_NORMAL_2D_3D = 13,
+        MODE_REPEATED_KIT_3D_AND_RESTART = 14,
+        MODE_SHARED_OBJECT_SELECTED_KITS = 15,
+    };
+
     static const char s_channelGroupNames[18][32];
     static const int32_t s_channelGroupMaxSounds[18];
     static int32_t s_channelGroupNumSounds[18];

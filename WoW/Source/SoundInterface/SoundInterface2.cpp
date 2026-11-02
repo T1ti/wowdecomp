@@ -1029,7 +1029,7 @@ int32_t SI2::PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKi
 int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
     static CVar* s_chaosMode = CVar::Lookup("Sound_ChaosMode");
 
-    int32_t mode = 0;
+    int32_t mode = CHAOS_MODE::MODE_IDLE;
 
     if (s_chaosMode) {
         mode = s_chaosMode->m_intValue;
@@ -1068,7 +1068,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
     loopProperties.m_blockMusicFiles = 1;
 
     switch (mode) {
-        case 2:
+        case CHAOS_MODE::MODE_STREAMED_AND_NORMAL_3D:
             if (s_chaosElapsedMs < 100) {
                 break;
             }
@@ -1077,7 +1077,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             position = RandomListenerOffset();
             SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
-        case 1:
+        case CHAOS_MODE::MODE_RANDOM_3D:
             if (s_chaosElapsedMs >= 100) {
                 properties.m_streaming = false;
                 position = RandomListenerOffset();
@@ -1087,7 +1087,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             break;
 
-        case 13:
+        case CHAOS_MODE::MODE_STREAMED_AND_NORMAL_2D_3D:
             if (s_chaosElapsedMs < 100) {
                 break;
             }
@@ -1099,7 +1099,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             position = RandomListenerOffset();
             SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
-        case 12:
+        case CHAOS_MODE::MODE_STREAMED_AND_NORMAL_2D:
             if (s_chaosElapsedMs < 100) {
                 break;
             }
@@ -1107,7 +1107,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             properties.m_streaming = true;
             SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
 
-        case 11:
+        case CHAOS_MODE::MODE_RANDOM_2D:
             if (s_chaosElapsedMs >= 100) {
                 properties.m_streaming = false;
                 SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
@@ -1116,13 +1116,13 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             break;
 
-        case 4:
+        case CHAOS_MODE::MODE_EXTRA_NULL_POSITION_PLAY_STOP:
             SI2::PlaySoundKit(soundKitId, nullptr, &s_object2D, &properties, 0, nullptr, 1, 0);
             SI2::StopSound(&s_object2D, 1, -1.0f, 1);
             SI2::PlaySoundKit(soundKitId, nullptr, &s_object3D, &properties, 0, nullptr, 1, 0);
             SI2::StopSound(&s_object3D, 1, -1.0f, 1);
 
-        case 3:
+        case CHAOS_MODE::MODE_PLAY_STOP_2D_3D:
             SI2::PlaySoundKit(soundKitId, nullptr, &s_object2D, &properties, 0, nullptr, 1, 0);
             SI2::StopSound(&s_object2D, 1, -1.0f, 1);
             position = RandomListenerOffset();
@@ -1130,7 +1130,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             SI2::StopSound(&s_object3D, 1, -1.0f, 1);
             break;
 
-        case 5:
+        case CHAOS_MODE::MODE_BURST_80_2D:
             s_chaosTimer += elapsed;
 
             if (s_chaosTimer <= 1.0f) {
@@ -1144,7 +1144,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             s_chaosTimer = 0.0f;
             break;
 
-        case 6:
+        case CHAOS_MODE::MODE_BURST_80_3D:
             s_chaosTimer += elapsed;
 
             if (s_chaosTimer <= 1.0f) {
@@ -1159,7 +1159,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             s_chaosTimer = 0.0f;
             break;
 
-        case 7:
+        case CHAOS_MODE::MODE_FILL_80_LOOPS_3D:
             s_chaosTimer += elapsed;
 
             if (s_chaosTimer <= 1.0f) {
@@ -1176,7 +1176,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             s_chaosTimer = 0.0f;
             break;
 
-        case 8:
+        case CHAOS_MODE::MODE_ALERT_FILE:
             s_chaosTimer += elapsed;
 
             if (s_chaosTimer <= 0.05f) {
@@ -1188,7 +1188,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             s_chaosTimer = 0.0f;
             break;
 
-        case 9:
+        case CHAOS_MODE::MODE_RESTART:
             s_chaosRestartTimer += elapsed;
 
             if (s_chaosRestartTimer <= 10.0f) {
@@ -1207,7 +1207,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             break;
 
-        case 10:
+        case CHAOS_MODE::MODE_RANDOM_PAIR_3D_AND_RESTART:
             s_chaosRestartTimer += elapsed;
 
             if (s_chaosElapsedMs < 100) {
@@ -1236,7 +1236,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             break;
 
-        case 14: {
+        case CHAOS_MODE::MODE_REPEATED_KIT_3D_AND_RESTART: {
             s_chaosRestartTimer += elapsed;
 
             if (s_chaosElapsedMs < 100) {
@@ -1268,7 +1268,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             break;
         }
 
-        case 15: {
+        case CHAOS_MODE::MODE_SHARED_OBJECT_SELECTED_KITS: {
             int32_t ids[3] = { 13061, 15969, 12173 };
 
             position = RandomListenerOffset();
