@@ -3087,7 +3087,7 @@ void CGPlayer_C::PostInitActivePlayer() {
         FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_SHAPESHIFT_FORM, nullptr);
     }
 
-    uint8_t auraVision = 0xFF;
+    uint8_t auraVision = AURA_VISION_FLAG_ALL;
     CGWorldFrame::UpdateScreenEffect();
     ClntObjMgrEnumVisibleObjects(AuraVisionUpdateHandler, &auraVision);
     CGWorldFrame::GetActiveCamera()->SetTelescope(0);
@@ -7942,7 +7942,7 @@ int32_t OnUpdatePlayerAuraVision(WOWGUID guid, uint32_t offset, uint32_t count, 
     if (player) {
         uint8_t changed = *static_cast<const uint8_t*>(value) ^ player->m_player->m_auraVision;
 
-        if (changed & 0x40) {
+        if (changed & AURA_VISION_FLAG_INVISIBILITY_DETECT) {
             CGWorldFrame::UpdateScreenEffect();
         }
 

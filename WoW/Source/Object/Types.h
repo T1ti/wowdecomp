@@ -4,6 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 
+// Byte-sized aura-visual eligibility flags, separate from AuraData packet flags.
+enum AURA_VISION_FLAGS : uint8_t {
+    AURA_VISION_FLAG_STEALTH_DETECT = 0x20,
+    AURA_VISION_FLAG_INVISIBILITY_DETECT = 0x40,
+    AURA_VISION_FLAG_ALL = 0xFF,
+};
+
 // Native melee reach values; retain the original single-precision literals.
 constexpr float MELEE_RANGE_MIN = 5.0f;
 constexpr float MELEE_COMBAT_REACH_OFFSET = 1.3333334f;

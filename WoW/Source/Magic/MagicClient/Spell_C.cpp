@@ -4337,11 +4337,11 @@ uint32_t GetRequiredAuraVisionBitmask(const SpellRec* spell) {
 
     for (uint32_t i = 0; i < sizeof(spell->m_effectAura) / sizeof(spell->m_effectAura[0]); i++) {
         if (spell->m_effectAura[i] == SPELL_AURA_MOD_STEALTH_DETECT) {
-            mask |= 0x20;
+            mask |= AURA_VISION_FLAG_STEALTH_DETECT;
         }
 
-        if (spell->m_effectAura[i] == SPELL_AURA_MOD_INVISIBILITY_DETECT && (!spell->m_effectMiscValue[i] || spell->m_effectMiscValue[i] == 10)) {
-            mask |= 0x40;
+        if (spell->m_effectAura[i] == SPELL_AURA_MOD_INVISIBILITY_DETECT && (!spell->m_effectMiscValue[i] || spell->m_effectMiscValue[i] == SPELL_INVISIBILITY_DETECT_SUBTYPE_UNKNOWN_10)) {
+            mask |= AURA_VISION_FLAG_INVISIBILITY_DETECT;
         }
     }
 

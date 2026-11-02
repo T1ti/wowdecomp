@@ -36,6 +36,12 @@ enum SPELL_REAGENT_SENTINEL : int32_t {
     SPELL_REAGENT_UNKNOWN_MINUS_2 = -2,
 };
 
+// Invisibility-detection subtype accepted alongside zero by the native vision gate.
+// Its data label is unresolved; retain the numeric identity rather than guessing a type.
+enum SPELL_INVISIBILITY_DETECT_SUBTYPE : int32_t {
+    SPELL_INVISIBILITY_DETECT_SUBTYPE_UNKNOWN_10 = 10,
+};
+
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
 constexpr int32_t NUM_SPELL_REAGENTS = 8;

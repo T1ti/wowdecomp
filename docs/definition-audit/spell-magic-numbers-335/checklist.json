@@ -532,14 +532,16 @@
     },
     {
       "id": 42,
-      "state": "pending",
+      "state": "done",
       "values": "0x20, 0x40, 10",
       "description": "Required aura-vision bits and invisibility-detection subtype.",
       "original_lines": [
         4310,
         4313,
         4314
-      ]
+      ],
+      "evidence": "Native GetRequiredAuraVisionBitmask at 0x007FE3E0 ORs 0x20 for stealth detection and 0x40 for invisibility detection with subtype zero or 10.",
+      "notes": "Named byte-sized vision flags, full refresh mask, and matching screen-effect update check. Detection subtype 10 remains explicitly UNKNOWN. Aura vision stays distinct from AuraData packet flags. Win32/x64 syntax and value equivalence passed."
     },
     {
       "id": 43,
