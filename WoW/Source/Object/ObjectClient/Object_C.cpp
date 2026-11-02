@@ -1583,7 +1583,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
         return;
     }
 
-    if (visual && (visual->m_flags & SPELL_VISUAL_FLAG_DETACHED_SOUND)) {
+    if (visual && (visual->m_flags & SPELL_VISUAL_FLAG_SOUNDS_DO_NOT_ATTACH_TO_TARGET)) {
         flags |= CEffect::EFFECT_FLAGS::EFFECT_DETACHED_SOUND;
     }
 

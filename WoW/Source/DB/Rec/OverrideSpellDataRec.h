@@ -9,6 +9,7 @@ class SFileImpl;
 // Permissions that remain available while an OverrideSpellData record is active.
 enum OVERRIDE_SPELL_DATA_FLAGS : int32_t {
     OVERRIDE_SPELL_DATA_FLAG_ALLOW_ITEMS = 0x1,
+    // Native action-bar validation gates both attack and ranged-attack actions.
     OVERRIDE_SPELL_DATA_FLAG_ALLOW_ATTACKS = 0x2,
     OVERRIDE_SPELL_DATA_FLAG_ALLOW_NON_OVERRIDE_SPELLS = 0x4,
 };

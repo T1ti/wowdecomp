@@ -941,7 +941,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
             }
         }
 
-        if (visual->m_flags & SPELL_VISUAL_FLAG_PRECAST_MISSILE_MODEL) {
+        if (visual->m_flags & SPELL_VISUAL_FLAG_DISPLAY_MISSILE_DURING_PRECAST) {
             unit->AttachPrecastMissileModel(visual, data->m_castCount);
         }
     }
@@ -2063,7 +2063,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
         if (visual && Spell_C_SpellVisualHasChainEffect(visual)) {
             unit->SaveChainSpellTargets(targets);
-            bool chainLocation = (visual->m_flags & SPELL_VISUAL_FLAG_PREFER_UNIT_TARGETS) && targets.m_count;
+            bool chainLocation = (visual->m_flags & SPELL_VISUAL_FLAG_ONE_MISSILE_OR_BEAM_PER_TARGET) && targets.m_count;
 
             if ((this->m_data.m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION) && !chainLocation) {
                 unit->SaveChainSpellLocation(&destLocation);
@@ -5283,7 +5283,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
             SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(spell->m_effectMiscValue[i]);
 
-            if (!form || (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CANNOT_CANCEL)) {
+            if (!form || (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_NOT_TOGGLEABLE)) {
                 return;
             }
 
@@ -7606,7 +7606,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
         instant = 0;
     } else {
         instant = 1;
-        playNow = kit && kit->m_animID > 0 && !(visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY);
+        playNow = kit && kit->m_animID > 0 && !(visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY);
         cast->m_data.m_castFlags |= PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY;
         cast->m_isTrajectoryCast = 1;
     }
@@ -7623,7 +7623,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
         cast->m_data.m_elevation = 0.0f;
         cast->m_data.m_missileSpeed = 1.0f;
 
-        if (visual->m_flags & SPELL_VISUAL_FLAG_PRECAST_MISSILE_MODEL) {
+        if (visual->m_flags & SPELL_VISUAL_FLAG_DISPLAY_MISSILE_DURING_PRECAST) {
             caster->AttachPrecastMissileModel(visual, cast->m_data.m_castCount);
         }
 
@@ -8993,7 +8993,7 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
 
     uint32_t targetFlags = data->m_targetFlags;
     int32_t hit = missReasons == nullptr;
-    bool unitTargets = !(targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) || (visual->m_flags & SPELL_VISUAL_FLAG_PREFER_UNIT_TARGETS);
+    bool unitTargets = !(targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) || (visual->m_flags & SPELL_VISUAL_FLAG_ONE_MISSILE_OR_BEAM_PER_TARGET);
 
     if (targets.m_count && (targetFlags & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT)) && unitTargets) {
         for (uint32_t i = 0; i < targets.m_count; i++) {
@@ -9003,7 +9003,7 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
                 unit->CreateMissile(&targets.m_data[i], data, ammoDisplayId, ammoInventoryType, hit, missReason, reflectResult, visual, spell->m_id, &targets, nullptr, nullptr, delay);
             }
         }
-    } else if ((targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && (targets.m_count || !(visual->m_flags & SPELL_VISUAL_FLAG_REQUIRE_TARGETS_FOR_DESTINATION_MISSILE))) {
+    } else if ((targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && (targets.m_count || !(visual->m_flags & SPELL_VISUAL_FLAG_NO_MISSILE_IF_NO_TARGETS))) {
         WOWGUID none = { 0 };
         unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, missReasons == nullptr, 1, 0, visual, spell->m_id, &targets, missReasons, reflectResults, delay);
     }

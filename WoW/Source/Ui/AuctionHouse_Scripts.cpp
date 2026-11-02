@@ -122,7 +122,7 @@ static int32_t Script_GetAuctionItemSubClasses(lua_State* L) {
     for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
         ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_numRecords ? nullptr : &g_itemSubClassDB.m_records[i];
 
-        if (rec->m_classID == s_auctionClasses[index].m_classID && !(rec->m_displayFlags & 0x2)) {
+        if (rec->m_classID == s_auctionClasses[index].m_classID && !(rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
             lua_checkstack(L, 1);
             lua_pushstring(L, *rec->m_verboseName ? rec->m_verboseName : rec->m_displayName);
             count++;
@@ -152,7 +152,7 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
     for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
         ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_numRecords ? nullptr : &g_itemSubClassDB.m_records[i];
 
-        if (rec->m_classID != s_auctionClasses[classIndex].m_classID || (rec->m_displayFlags & 0x2)) {
+        if (rec->m_classID != s_auctionClasses[classIndex].m_classID || (rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
             continue;
         }
 
@@ -493,7 +493,7 @@ static int32_t Script_QueryAuctionItems(lua_State* L) {
         for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
             ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_numRecords ? nullptr : &g_itemSubClassDB.m_records[i];
 
-            if (rec->m_classID == classID && !(rec->m_displayFlags & 0x2)) {
+            if (rec->m_classID == classID && !(rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
                 if (!remaining) {
                     subClassID = rec->m_subClassID;
                     break;

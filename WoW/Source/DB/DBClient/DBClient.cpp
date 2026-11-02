@@ -1115,7 +1115,7 @@ void InitWeaponSubclasses() {
         if (rec->m_classID == weaponClass) {
             s_weaponSubclasses[rec->m_subClassID] = rec;
 
-            if (rec->m_flags & 4) {
+            if (rec->m_flags & ITEM_SUBCLASS_FLAG_UNARMED) {
                 s_unarmedWeapon = rec;
             }
         }

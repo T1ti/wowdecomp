@@ -336,7 +336,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
             continue;
         }
 
-        if (!(rec->m_displayFlags & 0x4)) {
+        if (!(rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_SHOW_CONTENTS_COUNT)) {
             break;
         }
 

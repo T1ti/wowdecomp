@@ -12163,7 +12163,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
             SpellVisualRec visualRec;
             const SpellVisualRec* visual = this->GetAppropriateSpellVisual(&spell, visualRec, 0, 0);
 
-            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT)) {
+            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_EFFECTS_ACT_LIKE_ITEMS)) {
                 SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
                 if (kit) {
@@ -12189,7 +12189,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
             SpellVisualRec visualRec;
             const SpellVisualRec* visual = this->GetAppropriateSpellVisual(&spell, visualRec, 0, 0);
 
-            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT) && g_spellVisualKitDB.GetRecord(visual->m_stateKit)) {
+            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_EFFECTS_ACT_LIKE_ITEMS) && g_spellVisualKitDB.GetRecord(visual->m_stateKit)) {
                 this->ClearSpellEffect(this->m_handItemSpellIds[i], 1);
                 this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS;
             }
@@ -16676,7 +16676,7 @@ store:
     }
 
     for (uint32_t i = 0; i < NUM_SPELL_VISUAL_CHAR_PROCS; i++) {
-        if (kit->m_charProc[i] == SPELL_VISUAL_CHAR_PROC_UNKNOWN_11 && !this->m_worldModel->IsLoaded(0, 0)) {
+        if (kit->m_charProc[i] == SPELL_VISUAL_CHAR_PROC_FREEZE_ANIMATION && !this->m_worldModel->IsLoaded(0, 0)) {
             this->m_pendingModelAuraSpellId = spell->m_id;
             goto handItems;
         }
@@ -16689,7 +16689,7 @@ store:
     }
 
 handItems:
-    if (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_HAND_EFFECTS_ACT_LIKE_ITEMS) {
         this->ShowHandItemSpellEffects(1, 1);
     }
 }
@@ -19188,7 +19188,7 @@ flagsDone:
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19377,7 +19377,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19555,7 +19555,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -21066,7 +21066,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case SPELL_VISUAL_CHAR_PROC_UNKNOWN_11: {
+            case SPELL_VISUAL_CHAR_PROC_FREEZE_ANIMATION: {
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
@@ -21136,7 +21136,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case SPELL_VISUAL_CHAR_PROC_UNKNOWN_17: {
+            case SPELL_VISUAL_CHAR_PROC_ITEM_VISUAL: {
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
