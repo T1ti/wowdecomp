@@ -41,6 +41,7 @@ class CMath {
 
 class CSoftFloat {
     public:
+    static constexpr int32_t EXPONENT_MASK = 0x7F800000;
     static CSoftFloat Ceil(const CSoftFloat& value);
     static uint32_t CountLeadingZeros(uint32_t value);
     static CSoftFloat Floor(const CSoftFloat& value);

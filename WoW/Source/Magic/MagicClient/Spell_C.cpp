@@ -113,6 +113,14 @@ enum SPELL_HISTORY_CONTEXT : int32_t {
 
 constexpr int32_t NUM_SPELL_ENCHANT_HANDS = 2;
 
+// Native effect-value bit rounding: bias, Round, unbias, then signed guard.
+// Keep these integer operations and casts in their original order.
+constexpr int32_t SPELL_EFFECT_ROUND_EXPONENT_BIAS = 0x03800000;
+constexpr int32_t SPELL_EFFECT_ROUND_SIGN_GUARD_OFFSET = 0x04000000;
+constexpr int32_t SPELL_EFFECT_ROUND_SIGN_SHIFT = 31;
+// Native recovery conversion subtracts this float bias before fint_.
+constexpr float SPELL_RECOVERY_ROUNDING_BIAS = 0.5f;
+
 // Spell timing and range constants from the native 3.3.5 paths.
 constexpr int32_t SPELL_MELEE_TUTORIAL_COUNT_LIMIT = 10;
 constexpr int32_t SPELL_REAGENT_USES_UNSET = 0x7FFFFFFF;
@@ -2406,7 +2414,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                         && spell.m_defenseType != SPELL_DAMAGE_CLASS_RANGED
                         && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
                         float scaled = unit->m_unit->m_unitModCastSpeed * SPELL_GLOBAL_COOLDOWN_DEFAULT_MS;
-                        startRecoveryTime = CMath::fint_(scaled - 0.5f);
+                        startRecoveryTime = CMath::fint_(scaled - SPELL_RECOVERY_ROUNDING_BIAS);
                     }
 
                     if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
@@ -3750,12 +3758,12 @@ void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float*
         }
     }
 
-    minValue.m_bits += (minValue.m_bits & 0x7F800000) ? 0x3800000 : 0;
+    minValue.m_bits += (minValue.m_bits & CSoftFloat::EXPONENT_MASK) ? SPELL_EFFECT_ROUND_EXPONENT_BIAS : 0;
     minValue = CSoftFloat::Round(minValue);
-    minValue.m_bits = (minValue.m_bits - 0x3800000) & ~static_cast<uint32_t>(static_cast<int32_t>((minValue.m_bits - 0x4000000) ^ minValue.m_bits) >> 31);
-    maxValue.m_bits += (maxValue.m_bits & 0x7F800000) ? 0x3800000 : 0;
+    minValue.m_bits = (minValue.m_bits - SPELL_EFFECT_ROUND_EXPONENT_BIAS) & ~static_cast<uint32_t>(static_cast<int32_t>((minValue.m_bits - SPELL_EFFECT_ROUND_SIGN_GUARD_OFFSET) ^ minValue.m_bits) >> SPELL_EFFECT_ROUND_SIGN_SHIFT);
+    maxValue.m_bits += (maxValue.m_bits & CSoftFloat::EXPONENT_MASK) ? SPELL_EFFECT_ROUND_EXPONENT_BIAS : 0;
     maxValue = CSoftFloat::Round(maxValue);
-    maxValue.m_bits = (maxValue.m_bits - 0x3800000) & ~static_cast<uint32_t>(static_cast<int32_t>((maxValue.m_bits - 0x4000000) ^ maxValue.m_bits) >> 31);
+    maxValue.m_bits = (maxValue.m_bits - SPELL_EFFECT_ROUND_EXPONENT_BIAS) & ~static_cast<uint32_t>(static_cast<int32_t>((maxValue.m_bits - SPELL_EFFECT_ROUND_SIGN_GUARD_OFFSET) ^ maxValue.m_bits) >> SPELL_EFFECT_ROUND_SIGN_SHIFT);
 
     if (rounded) {
         CSoftFloat low = CSoftFloat::Floor(minValue);
@@ -6113,7 +6121,7 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
         && spell->m_defenseType != SPELL_DAMAGE_CLASS_RANGED
         && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
         float scaled = recovery * unit->m_unit->m_unitModCastSpeed;
-        recovery = CMath::fint_(scaled - 0.5f);
+        recovery = CMath::fint_(scaled - SPELL_RECOVERY_ROUNDING_BIAS);
 
         if (static_cast<uint32_t>(recovery - SPELL_GLOBAL_COOLDOWN_MIN_MS) > (SPELL_GLOBAL_COOLDOWN_DEFAULT_MS - SPELL_GLOBAL_COOLDOWN_MIN_MS)) {
             recovery = recovery - SPELL_GLOBAL_COOLDOWN_MIN_MS < 0
