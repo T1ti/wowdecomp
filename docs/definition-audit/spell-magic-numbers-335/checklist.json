@@ -245,13 +245,14 @@
     },
     {
       "id": 19,
-      "state": "pending",
+      "state": "done",
       "values": "0, 1, 3",
       "description": "GameObject type IDs accepted for open-lock handling.",
       "original_lines": [
         2205,
         2209
-      ]
+      ],
+      "notes": "Reused TYPE_DOOR, TYPE_BUTTON and TYPE_CHEST in the original signed range/comparison expressions. No branch rewrite."
     },
     {
       "id": 20,
@@ -267,14 +268,16 @@
     },
     {
       "id": 21,
-      "state": "pending",
+      "state": "done",
       "values": "0, 1, 2",
       "description": "Lock action and game-object display-state values; verify the appropriate state enums.",
       "original_lines": [
         2251,
         2252,
         2253
-      ]
+      ],
+      "evidence": "IDA 0x0070EF90 tests action IDs 0..4 against display states 0..2. The existing animated state switch at 0x0070D690 supplies open/closed/destroyed meanings.",
+      "notes": "Shared LOCK_ACTION and GAMEOBJECT_DISPLAY_STATE names used by validation, spell feedback, loot and interaction text. Action 4 remains UNKNOWN_4. Its separate reconstruction correction is in 8c52dae."
     },
     {
       "id": 22,
@@ -506,12 +509,13 @@
     },
     {
       "id": 41,
-      "state": "pending",
+      "state": "done",
       "values": "0x88",
       "description": "Object type-mask combination; use named TYPE_* bits after checking the combination.",
       "original_lines": [
         3613
-      ]
+      ],
+      "notes": "Replaced 0x88 with TYPE_UNIT | TYPE_CORPSE, preserving the mask and expression order. Source value equivalence and Win32/x64 checks passed."
     },
     {
       "id": 42,

@@ -2221,11 +2221,11 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
             int8_t type = gameObject->m_gameObject->m_typeID;
 
-            if (type < 0 || (type > 1 && type != 3)) {
+            if (type < TYPE_DOOR || (type > TYPE_BUTTON && type != TYPE_CHEST)) {
                 break;
             }
 
-            if (type == 3) {
+            if (type == TYPE_CHEST) {
                 player->OnLootGameObject(hits.m_data[0]);
             }
 
@@ -2266,10 +2266,10 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             }
 
             if (action >= 0) {
-                if (action <= 1) {
-                    gameObject->SetDisplayState(0);
-                } else if (action == 2) {
-                    gameObject->SetDisplayState(1);
+                if (action <= LOCK_ACTION_UNLOCK) {
+                    gameObject->SetDisplayState(GAMEOBJECT_DISPLAY_STATE_OPEN);
+                } else if (action == LOCK_ACTION_CLOSE) {
+                    gameObject->SetDisplayState(GAMEOBJECT_DISPLAY_STATE_CLOSED);
                 }
             }
 
@@ -3629,7 +3629,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
 
             *maxRange = rec->m_rangeMax[friendly];
 
-            if (target && (target->m_obj->m_type & 0x88)) {
+            if (target && (target->m_obj->m_type & (TYPE_UNIT | TYPE_CORPSE))) {
                 bonus = caster->m_unit->m_unitFieldCombatreach + (targetUnit ? targetUnit : caster)->m_unit->m_unitFieldCombatreach;
 
                 if (*minRange != 0.0f && !(rec->m_flags & SPELL_RANGE_FLAG_RANGED)) {

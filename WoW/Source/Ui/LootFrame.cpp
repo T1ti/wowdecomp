@@ -653,7 +653,7 @@ void CGLootInfo::SetObject(CGObject_C* object, int32_t coins, LOOT_ACQUIRE lootA
                     static_cast<CGUnit_C*>(current)->RemoveLootEffect();
                 }
             } else if (current->m_obj->m_type & TYPE_GAMEOBJECT) {
-                static_cast<CGGameObject_C*>(current)->SetDisplayState(1);
+                static_cast<CGGameObject_C*>(current)->SetDisplayState(GAMEOBJECT_DISPLAY_STATE_CLOSED);
             } else if (current->m_obj->m_type & TYPE_ITEM) {
                 CGGameUI::UnlockItem(CGLootInfo::m_lootObj);
             }

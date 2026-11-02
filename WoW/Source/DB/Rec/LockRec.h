@@ -15,6 +15,16 @@ enum LOCK_KEY_TYPE : int32_t {
     LOCK_KEY_SPELL = 3,
 };
 
+// Lock.dbc action IDs as tested by CGGameObject_C::IsValidOpenAction.
+// Action 4 requires the destroyed display state; its meaning is unresolved.
+enum LOCK_ACTION : int32_t {
+    LOCK_ACTION_OPEN = 0,
+    LOCK_ACTION_UNLOCK = 1,
+    LOCK_ACTION_CLOSE = 2,
+    LOCK_ACTION_OPEN_IGNORE_LOCK = 3,
+    LOCK_ACTION_UNKNOWN_4 = 4,
+};
+
 constexpr int32_t NUM_LOCK_KEYS = 8;
 
 class LockRec {

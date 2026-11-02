@@ -92,6 +92,14 @@ class CGGameObject_C_TypeBase {
     CGGameObject_C_TypeBase(CGGameObject_C* owner);
 };
 
+// Display state passed to CGGameObject_C::SetDisplayState/UpdateState;
+// distinct from the model animation IDs (ANIMSTATE_*).
+enum GAMEOBJECT_DISPLAY_STATE : int32_t {
+    GAMEOBJECT_DISPLAY_STATE_OPEN = 0,
+    GAMEOBJECT_DISPLAY_STATE_CLOSED = 1,
+    GAMEOBJECT_DISPLAY_STATE_DESTROYED = 2,
+};
+
 enum : int32_t {
     ANIMSTATE_SPAWN = 0,
     ANIMSTATE_CLOSED = 1,

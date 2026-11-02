@@ -2456,9 +2456,9 @@ static int32_t Script_UnitCastingInfo(lua_State* L) {
                         int32_t action = lock->m_action[j];
 
                         if (action >= 0) {
-                            if (action <= 1) {
+                            if (action <= LOCK_ACTION_UNLOCK) {
                                 text = gameObject->GetOpenText();
-                            } else if (action == 2) {
+                            } else if (action == LOCK_ACTION_CLOSE) {
                                 text = gameObject->GetCloseText();
                             }
                         }

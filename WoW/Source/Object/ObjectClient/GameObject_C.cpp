@@ -90,12 +90,6 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 
-enum ANIMATED_OBJECT_STATE : int32_t {
-    STATE_OPENING = 0,
-    STATE_CLOSING = 1,
-    STATE_DESTROYED = 2,
-};
-
 // STATIC: 0x00A335E8
 static const uint32_t s_oneShotAnims[7] = { 0xFFFFFFFF, ANIMSTATE_SPAWN, ANIMSTATE_CUSTOM0, ANIMSTATE_CUSTOM1, ANIMSTATE_CUSTOM2, ANIMSTATE_CUSTOM3, ANIMSTATE_DESPAWN };
 
@@ -670,29 +664,29 @@ bool CGGameObject_C::IsTransport() const {
 // VERIFY: da4967fc manual
 // OFFSET: 0x0070EF90
 bool CGGameObject_C::IsValidOpenAction(int32_t action) const {
-    if (action == 4) {
-        return this->m_displayState == 2;
+    if (action == LOCK_ACTION_UNKNOWN_4) {
+        return this->m_displayState == GAMEOBJECT_DISPLAY_STATE_DESTROYED;
     }
 
     int32_t state = this->m_displayState;
 
-    if (state == 2) {
+    if (state == GAMEOBJECT_DISPLAY_STATE_DESTROYED) {
         return false;
     }
 
-    if ((action == 0 || action == 1 || action == 3) && state != 1) {
+    if ((action == LOCK_ACTION_OPEN || action == LOCK_ACTION_UNLOCK || action == LOCK_ACTION_OPEN_IGNORE_LOCK) && state != GAMEOBJECT_DISPLAY_STATE_CLOSED) {
         return false;
     }
 
-    if (action == 0) {
+    if (action == LOCK_ACTION_OPEN) {
         return !(this->m_gameObject->m_flags & 2);
     }
 
-    if (action == 1) {
+    if (action == LOCK_ACTION_UNLOCK) {
         if (!(this->m_gameObject->m_flags & 2)) {
             return false;
         }
-    } else if (action == 2 && state) {
+    } else if (action == LOCK_ACTION_CLOSE && state) {
         return false;
     }
 
@@ -1012,8 +1006,8 @@ void CGGameObject_C_TypeAnimated::UpdateState(int32_t oldState, int32_t newState
     SI2::StopSound(&this->m_sound, 0, -1.0f, 1);
 
     switch (newState) {
-        case STATE_OPENING: {
-            if (oldState == STATE_CLOSING || this->m_owner->m_gameObject->m_pathProgress != 0xFFFF) {
+        case GAMEOBJECT_DISPLAY_STATE_OPEN: {
+            if (oldState == GAMEOBJECT_DISPLAY_STATE_CLOSED || this->m_owner->m_gameObject->m_pathProgress != 0xFFFF) {
                 this->UpdateAnimState(ANIMSTATE_OPENING);
             } else {
                 this->UpdateAnimState(ANIMSTATE_OPEN);
@@ -1022,16 +1016,16 @@ void CGGameObject_C_TypeAnimated::UpdateState(int32_t oldState, int32_t newState
             break;
         }
 
-        case STATE_CLOSING: {
-            int32_t state = this->m_owner->m_gameObject->m_pathProgress == 0xFFFF ? oldState : STATE_OPENING;
+        case GAMEOBJECT_DISPLAY_STATE_CLOSED: {
+            int32_t state = this->m_owner->m_gameObject->m_pathProgress == 0xFFFF ? oldState : GAMEOBJECT_DISPLAY_STATE_OPEN;
 
             switch (state) {
-                case STATE_OPENING: {
+                case GAMEOBJECT_DISPLAY_STATE_OPEN: {
                     this->UpdateAnimState(ANIMSTATE_CLOSING);
                     break;
                 }
 
-                case STATE_DESTROYED: {
+                case GAMEOBJECT_DISPLAY_STATE_DESTROYED: {
                     this->UpdateAnimState(ANIMSTATE_REBUILDING);
                     break;
                 }
@@ -1045,8 +1039,8 @@ void CGGameObject_C_TypeAnimated::UpdateState(int32_t oldState, int32_t newState
             break;
         }
 
-        case STATE_DESTROYED: {
-            if (oldState == STATE_CLOSING || this->m_owner->m_gameObject->m_pathProgress != 0xFFFF) {
+        case GAMEOBJECT_DISPLAY_STATE_DESTROYED: {
+            if (oldState == GAMEOBJECT_DISPLAY_STATE_CLOSED || this->m_owner->m_gameObject->m_pathProgress != 0xFFFF) {
                 this->UpdateAnimState(ANIMSTATE_DESTROYING);
             } else {
                 this->UpdateAnimState(ANIMSTATE_DESTROYED);
@@ -1342,7 +1336,7 @@ int32_t CGGameObject_C_Type_DestructibleBuilding::IsHighlightSuppressed() const 
 
     CGGameObject_C* owner = this->m_owner;
 
-    if (!owner || owner->m_displayState == 1) {
+    if (!owner || owner->m_displayState == GAMEOBJECT_DISPLAY_STATE_CLOSED) {
         return 0;
     }
 
@@ -3916,7 +3910,7 @@ int32_t CGGameObject_C_TypeBase::CheckRange() const {
     int32_t spellId = 0;
 
     if (this->m_owner->IsLocked(&spellId, nullptr, nullptr, nullptr, nullptr) || !spellId) {
-        if (this->m_owner->m_displayState == 2) {
+        if (this->m_owner->m_displayState == GAMEOBJECT_DISPLAY_STATE_DESTROYED) {
             return 0;
         }
     } else {
