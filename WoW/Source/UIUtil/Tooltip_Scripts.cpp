@@ -2030,7 +2030,7 @@ static int32_t Script_SetTradePlayerItem(lua_State* L) {
     }
 
     uint32_t slot = static_cast<int32_t>(lua_tonumber(L, 2) - 1.0);
-    WOWGUID guid = slot > 6 ? WOWGUID() : CGTradeInfo::m_playerItems[slot];
+    WOWGUID guid = slot > TRADE_SLOT_NONTRADED ? WOWGUID() : CGTradeInfo::m_playerItems[slot];
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item) {
@@ -2060,7 +2060,7 @@ static int32_t Script_SetTradePlayerItem(lua_State* L) {
         link.m_spellCharges = mirror->m_itemFieldSpellCharges[onUseSlot];
     }
 
-    link.m_proposedEnchant = slot == 6 ? Trade_C_GetEnchantSpell(1) : 0;
+    link.m_proposedEnchant = slot == TRADE_SLOT_NONTRADED ? Trade_C_GetEnchantSpell(1) : 0;
     WOWGUID itemGuid = item->m_obj->m_guid;
     WOWGUID requester = item->m_obj->m_guid;
     tooltip->SetItem(item->m_obj->m_entryID, &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, onUseSlot < 0, nullptr, 0, 0, 0);
@@ -2079,7 +2079,7 @@ static int32_t Script_SetTradeTargetItem(lua_State* L) {
 
     uint32_t slot = static_cast<int32_t>(lua_tonumber(L, 2) - 1.0);
 
-    if (slot > 6) {
+    if (slot > TRADE_SLOT_NONTRADED) {
         return 0;
     }
 
@@ -2113,7 +2113,7 @@ static int32_t Script_SetTradeTargetItem(lua_State* L) {
     link.m_propertySeed = CGTradeInfo::m_targetSuffixFactor[slot];
     link.m_randomPropertiesId = CGTradeInfo::m_targetRandomPropertyID[slot];
     link.m_spellCharges = CGTradeInfo::m_targetSpellCharges[slot];
-    link.m_proposedEnchant = slot == 6 ? Trade_C_GetEnchantSpell(0) : 0;
+    link.m_proposedEnchant = slot == TRADE_SLOT_NONTRADED ? Trade_C_GetEnchantSpell(0) : 0;
     link.m_maxDurability = CGTradeInfo::m_targetMaxDurability[slot];
     link.m_durability = CGTradeInfo::m_targetDurability[slot];
     link.m_stackCount = CGTradeInfo::m_targetCount[slot];

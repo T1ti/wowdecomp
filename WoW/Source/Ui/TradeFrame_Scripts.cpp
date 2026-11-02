@@ -57,7 +57,7 @@ static int32_t Script_GetTradeTargetItemLink(lua_State* L) {
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index > 6) {
+    if (index > TRADE_SLOT_NONTRADED) {
         return 0;
     }
 
@@ -138,7 +138,7 @@ static int32_t Script_ClickTargetTradeButton(lua_State* L) {
         if (CGTradeInfo::AddMoney(CGGameUI::m_cursorMoney)) {
             CGGameUI::ClearCursor(1, 0);
         }
-    } else if (static_cast<int32_t>(lua_tonumber(L, 1)) - 1 == 6) {
+    } else if (static_cast<int32_t>(lua_tonumber(L, 1)) - 1 == TRADE_SLOT_NONTRADED) {
         CGGameUI::TargetTradeItem();
     }
 
@@ -154,7 +154,7 @@ static int32_t Script_GetTradePlayerItemLink(lua_State* L) {
     }
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    WOWGUID guid = index > 6 ? WOWGUID() : CGTradeInfo::m_playerItems[index];
+    WOWGUID guid = index > TRADE_SLOT_NONTRADED ? WOWGUID() : CGTradeInfo::m_playerItems[index];
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item) {
@@ -241,7 +241,7 @@ static int32_t Script_ClickTradeButton(lua_State* L) {
     CGGameUI::GetCursorItem(cursorItem, cursorContainer, cursorSlot);
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(cursorItem, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (slot < 6 && item) {
+    if (slot < NUM_TRADED_ITEM_SLOTS && item) {
         if (item->IsPermanentlyBoundForTrade()) {
             WOWGUID none = WOWGUID();
             ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
@@ -306,7 +306,7 @@ static int32_t Script_GetTradeTargetItemInfo(lua_State* L) {
     int32_t itemId;
     ItemStats_C* stats;
 
-    if (index > 6 || !(itemId = CGTradeInfo::m_targetItemID[index]) || !(stats = g_itemDBCache.GetRecord(itemId, CGTradeInfo::m_tradingPlayer, &TradeItemStatsCallback, nullptr, false))) {
+    if (index > TRADE_SLOT_NONTRADED || !(itemId = CGTradeInfo::m_targetItemID[index]) || !(stats = g_itemDBCache.GetRecord(itemId, CGTradeInfo::m_tradingPlayer, &TradeItemStatsCallback, nullptr, false))) {
         lua_pushnil(L);
         lua_pushnil(L);
         lua_pushnumber(L, 0.0);
@@ -334,7 +334,7 @@ static int32_t Script_GetTradeTargetItemInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (index == 6) {
+    if (index == TRADE_SLOT_NONTRADED) {
         int32_t spellId = Trade_C_GetEnchantSpell(0);
 
         if (spellId) {
@@ -360,7 +360,7 @@ static int32_t Script_GetTradePlayerItemInfo(lua_State* L) {
     }
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    WOWGUID guid = index > 6 ? WOWGUID() : CGTradeInfo::m_playerItems[index];
+    WOWGUID guid = index > TRADE_SLOT_NONTRADED ? WOWGUID() : CGTradeInfo::m_playerItems[index];
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item) {
@@ -384,7 +384,7 @@ static int32_t Script_GetTradePlayerItemInfo(lua_State* L) {
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, requester, &TradeItemStatsCallback, nullptr, false);
     lua_pushnumber(L, stats && stats->m_inventoryType ? static_cast<int32_t>(stats->m_quality) : -1);
 
-    if (index == 6) {
+    if (index == TRADE_SLOT_NONTRADED) {
         int32_t spellId = Trade_C_GetEnchantSpell(1);
 
         if (spellId) {

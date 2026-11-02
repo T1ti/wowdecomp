@@ -4247,7 +4247,7 @@ const char* MirrorTimerTypeToken(UNIT_MIRROR_TIMER type) {
 // VERIFY: 2f4927a7 auto
 // OFFSET: 0x005198A0
 void CGGameUI::TargetTradeItem() {
-    if (!CGTradeInfo::m_targetItemID[6]) {
+    if (!CGTradeInfo::m_targetItemID[TRADE_SLOT_NONTRADED]) {
         return;
     }
 
@@ -4262,7 +4262,7 @@ void CGGameUI::TargetTradeItem() {
             continue;
         }
 
-        int32_t current = CGTradeInfo::GetTargetEnchant(6);
+        int32_t current = CGTradeInfo::GetTargetEnchant(TRADE_SLOT_NONTRADED);
 
         if (!current) {
             continue;

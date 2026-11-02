@@ -1,0 +1,1031 @@
+{
+  "baseline_commit": "53d7a05",
+  "source": "WoW/Source/Magic/MagicClient/Spell_C.cpp",
+  "policy": "Names are reconstructed descriptions, not recovered original symbols. Preserve expressions, operand types, layouts and native behavior. UNKNOWN means unresolved meaning, not unused.",
+  "groups": [
+    {
+      "id": 1,
+      "state": "done",
+      "values": "324, 325, 326, 327, 328, 329, 330, 331",
+      "description": "Use the existing SCRIPT_EVENT_UNIT_SPELLCAST_* constants; all mappings are in Ui/Types.h.",
+      "original_lines": [
+        969,
+        1279,
+        1284,
+        1288,
+        1291,
+        1297,
+        5016,
+        5058,
+        5061
+      ],
+      "commit": "478939e"
+    },
+    {
+      "id": 2,
+      "state": "done",
+      "values": "19",
+      "description": "Base event ID in powerType + 19; use SCRIPT_EVENT_UNIT_MANA or a power-type-to-event mapping.",
+      "original_lines": [
+        1163
+      ],
+      "commit": "478939e"
+    },
+    {
+      "id": 3,
+      "state": "done",
+      "values": "27, 40, 187",
+      "description": "SPELL_FAILED_DONT_REPORT, SPELL_FAILED_INTERRUPTED, SPELL_FAILED_UNKNOWN, respectively.",
+      "original_lines": [
+        255,
+        743,
+        5534,
+        5566,
+        5583,
+        5600,
+        5619,
+        6441,
+        6448,
+        6455,
+        6508,
+        6543,
+        6571,
+        6593,
+        6645,
+        7234,
+        7244,
+        7270,
+        8330,
+        8357,
+        8876
+      ],
+      "commit": "ce93bf7"
+    },
+    {
+      "id": 4,
+      "state": "done",
+      "values": "11",
+      "description": "Use MISS_REFLECTED from Object/ObjectClient/Types.h.",
+      "original_lines": [
+        1777,
+        1986,
+        2147
+      ],
+      "commit": "ce93bf7"
+    },
+    {
+      "id": 5,
+      "state": "done",
+      "values": "15, 16, 17, 18",
+      "description": "Inventory slots: main hand, off hand, ranged, and last equipment slot. Existing INVSLOT_* definitions are in Common/ComponentCore/Types.h; preserve the boolean-plus-mainhand expression meaning.",
+      "original_lines": [
+        347,
+        1386,
+        3510,
+        3629,
+        7798,
+        8077,
+        8078,
+        8143,
+        8417,
+        8486
+      ],
+      "commit": "ce93bf7"
+    },
+    {
+      "id": 6,
+      "state": "done",
+      "values": "0x8000, 0x10000, 0x20000, 0xFFFFFFFF",
+      "description": "Equipment slot masks (1 << inventory slot), plus the all-slots mask; derive from named slots.",
+      "original_lines": [
+        6960,
+        6962,
+        6964,
+        6985
+      ],
+      "commit": "f50e40e"
+    },
+    {
+      "id": 7,
+      "state": "done",
+      "values": "87",
+      "description": "SErrSetLastError argument; check the Storm error contract before selecting the Windows error name.",
+      "original_lines": [
+        874
+      ],
+      "commit": "f66c534"
+    },
+    {
+      "id": 8,
+      "state": "done",
+      "values": "6",
+      "description": "GetGameTableValue table selector; identify the table from the provider rather than assuming a spell modifier ID.",
+      "original_lines": [
+        377,
+        378
+      ],
+      "commit": "f66c534"
+    },
+    {
+      "id": 9,
+      "state": "done",
+      "values": "5",
+      "description": "Spell-rank-to-level divisor.",
+      "original_lines": [
+        334,
+        3440,
+        3451
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 10,
+      "state": "done",
+      "values": "12, 132, 0xF0000000",
+      "description": "Action-bar count, action-bar base offset, and encoded action/spell-ID high-bit mask.",
+      "original_lines": [
+        394,
+        400,
+        402
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 11,
+      "state": "pending",
+      "values": "3, 1",
+      "description": "Difficulty fallback: index 3 falls back to difficultySpellID[1]; name the difficulty indices.",
+      "original_lines": [
+        473
+      ]
+    },
+    {
+      "id": 12,
+      "state": "pending",
+      "values": "4, 9, 10, 11",
+      "description": "Spell category IDs producing potion/food cooldown messages. Distinct from modifier IDs and miss reasons.",
+      "original_lines": [
+        6179,
+        6180,
+        6183,
+        6184,
+        6196,
+        6197,
+        6201,
+        6202
+      ]
+    },
+    {
+      "id": 13,
+      "state": "done",
+      "values": "12",
+      "description": "Creature-type check used for non-combat-pet targeting.",
+      "original_lines": [
+        2786,
+        8719
+      ],
+      "commit": "f50e40e"
+    },
+    {
+      "id": 14,
+      "state": "done",
+      "values": "5",
+      "description": "SummonProperties slot for the critter/companion checks.",
+      "original_lines": [
+        3101,
+        5146,
+        5213,
+        9363
+      ],
+      "commit": "6a285c8"
+    },
+    {
+      "id": 15,
+      "state": "done",
+      "values": "6",
+      "description": "Item class argument for FindAnyItemSubclassRec.",
+      "original_lines": [
+        6493
+      ],
+      "commit": "ce93bf7"
+    },
+    {
+      "id": 16,
+      "state": "done",
+      "values": "0x80000",
+      "description": "Equipped weapon-subclass mask in the auto-repeat cancellation check; name through the weapon-subclass domain.",
+      "original_lines": [
+        8558
+      ],
+      "commit": "ce93bf7"
+    },
+    {
+      "id": 17,
+      "state": "pending",
+      "values": "2584",
+      "description": "Specific spell ID in Spell_C_CancelAura; identify using 3.3.5 spell data before naming.",
+      "original_lines": [
+        5272
+      ]
+    },
+    {
+      "id": 18,
+      "state": "done",
+      "values": "6",
+      "description": "Trade slot used for the non-traded enchantment target.",
+      "original_lines": [
+        8865,
+        8872
+      ],
+      "evidence": "0x0080C61B stores slot 6 in the trade-item target GUID; SetPlayerItem at 0x005869A0 and AddCursorItem at 0x00586B50 distinguish non-traded slot 6 from six transfer slots.",
+      "notes": "Shared slot/count constants cover static arrays, trade packet state, spell targeting, trade UI and tooltips. Win32/x64 syntax and source value-equivalence checks passed."
+    },
+    {
+      "id": 19,
+      "state": "pending",
+      "values": "0, 1, 3",
+      "description": "GameObject type IDs accepted for open-lock handling.",
+      "original_lines": [
+        2205,
+        2209
+      ]
+    },
+    {
+      "id": 20,
+      "state": "done",
+      "values": "1, 2, 3",
+      "description": "LockRec key type IDs (item, lock/skill discriminator, spell, as shown by the branch conditions).",
+      "original_lines": [
+        2227,
+        2233,
+        2239
+      ],
+      "commit": "f50e40e"
+    },
+    {
+      "id": 21,
+      "state": "pending",
+      "values": "0, 1, 2",
+      "description": "Lock action and game-object display-state values; verify the appropriate state enums.",
+      "original_lines": [
+        2251,
+        2252,
+        2253
+      ]
+    },
+    {
+      "id": 22,
+      "state": "pending",
+      "values": "0, 1, 2",
+      "description": "SpellRec::IsHelpfulOrHarmful result domain; 1 is helpful, 2 harmful, 0 undecided.",
+      "original_lines": [
+        2670,
+        2995,
+        2999,
+        3013,
+        3026,
+        3034,
+        3058,
+        3064,
+        3088,
+        3092,
+        3558,
+        9178
+      ]
+    },
+    {
+      "id": 23,
+      "state": "pending",
+      "values": "0, 1, 2",
+      "description": "Spell_C_HandleTerrainRay result domain; preserve the three outcomes and verify caller interpretation.",
+      "original_lines": [
+        5366,
+        5373,
+        5377,
+        5396,
+        5399
+      ]
+    },
+    {
+      "id": 24,
+      "state": "done",
+      "values": "2, 6",
+      "description": "GameUI/secure-macro action categories.",
+      "original_lines": [
+        8313,
+        8323,
+        8598
+      ],
+      "commit": "4329c1f"
+    },
+    {
+      "id": 25,
+      "state": "pending",
+      "values": "2",
+      "description": "SE2SoundKitProperties::m_suppressorMode = 2 (audio), not CGSpellBook::SpellProperties.",
+      "original_lines": [
+        8383
+      ]
+    },
+    {
+      "id": 26,
+      "state": "retained",
+      "values": "4",
+      "description": "Native vehicle-restriction loop compares effect IDs 0..3; not an effect-slot count.",
+      "original_lines": [
+        8292
+      ],
+      "evidence": "IDA 0x0080CCE0 preserves the four-iteration loop; do not replace with NUM_SPELL_EFFECTS."
+    },
+    {
+      "id": 27,
+      "state": "done",
+      "values": "0x1",
+      "description": "SpellRec::m_facingCasterFlags.",
+      "original_lines": [
+        910
+      ],
+      "commit": "f50e40e"
+    },
+    {
+      "id": 28,
+      "state": "done",
+      "values": "0x1, 0x4, 0x20, 0x100",
+      "description": "SpellVisualRec::m_flags; establish each bit meaning from its uses.",
+      "original_lines": [
+        915,
+        2037,
+        7580,
+        7597,
+        8967,
+        8977
+      ],
+      "commit": "a3cdfa0"
+    },
+    {
+      "id": 29,
+      "state": "done",
+      "values": "0x1",
+      "description": "SpellMissileRec::m_flags trajectory bit.",
+      "original_lines": [
+        1070,
+        1314,
+        7824,
+        8024
+      ],
+      "commit": "05ac7e1"
+    },
+    {
+      "id": 30,
+      "state": "done",
+      "values": "1",
+      "description": "SpellVisualRec::m_missileFollowGroundFlags bit.",
+      "original_lines": [
+        9278
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 31,
+      "state": "done",
+      "values": "0x1, 0x2, 0x4",
+      "description": "SpellCategoryRec::m_flags; these are flags, not category IDs.",
+      "original_lines": [
+        1364,
+        1385,
+        3201
+      ],
+      "commit": "6a285c8"
+    },
+    {
+      "id": 32,
+      "state": "done",
+      "values": "0x1, 0x2",
+      "description": "SMSG_SPELL_COOLDOWN packet flags.",
+      "original_lines": [
+        1555,
+        1559
+      ],
+      "commit": "53d7a05"
+    },
+    {
+      "id": 33,
+      "state": "done",
+      "values": "1, 2",
+      "description": "SpellRangeRec::m_flags (melee/ranged branches).",
+      "original_lines": [
+        3539,
+        3546,
+        3560,
+        3584,
+        3598,
+        3616,
+        3622
+      ],
+      "commit": "f50e40e"
+    },
+    {
+      "id": 34,
+      "state": "done",
+      "values": "0x1, 0x2",
+      "description": "SpellShapeshiftFormRec::m_flags.",
+      "original_lines": [
+        4884,
+        5257
+      ],
+      "commit": "9a62027"
+    },
+    {
+      "id": 35,
+      "state": "pending",
+      "values": "0x10",
+      "description": "AuraData::m_flags bit in aura cancellation.",
+      "original_lines": [
+        5163
+      ]
+    },
+    {
+      "id": 36,
+      "state": "pending",
+      "values": "0x10",
+      "description": "ItemSubClassRec::m_flags bit in ammunition validation.",
+      "original_lines": [
+        7003
+      ]
+    },
+    {
+      "id": 37,
+      "state": "pending",
+      "values": "0x4",
+      "description": "OverrideSpellDataRec::m_flags mask 0x4, not SpellShapeshiftFormRec.",
+      "original_lines": [
+        8238
+      ]
+    },
+    {
+      "id": 38,
+      "state": "done",
+      "values": "0x10, 0x10u",
+      "description": "InputControl mouse-mode flag for spell targeting.",
+      "original_lines": [
+        1307,
+        7668,
+        7873,
+        8501
+      ],
+      "commit": "4329c1f"
+    },
+    {
+      "id": 39,
+      "state": "done",
+      "values": "0x4u",
+      "description": "CGUIMacros::m_state bit cleared on failure/cast.",
+      "original_lines": [
+        6432,
+        7891
+      ],
+      "commit": "4329c1f"
+    },
+    {
+      "id": 40,
+      "state": "done",
+      "values": "2, 0x2",
+      "description": "Outgoing castFlags trajectory-payload bit.",
+      "original_lines": [
+        7831,
+        7837
+      ],
+      "commit": "4329c1f"
+    },
+    {
+      "id": 41,
+      "state": "pending",
+      "values": "0x88",
+      "description": "Object type-mask combination; use named TYPE_* bits after checking the combination.",
+      "original_lines": [
+        3613
+      ]
+    },
+    {
+      "id": 42,
+      "state": "pending",
+      "values": "0x20, 0x40, 10",
+      "description": "Required aura-vision bits and invisibility-detection subtype.",
+      "original_lines": [
+        4310,
+        4313,
+        4314
+      ]
+    },
+    {
+      "id": 43,
+      "state": "pending",
+      "values": "0x8000",
+      "description": "Spell world model runtime flag; unrelated to the inventory mask with the same value.",
+      "original_lines": [
+        7902
+      ]
+    },
+    {
+      "id": 44,
+      "state": "pending",
+      "values": "0x40",
+      "description": "M2 CreateModel flags; unrelated to aura vision.",
+      "original_lines": [
+        9237
+      ]
+    },
+    {
+      "id": 45,
+      "state": "pending",
+      "values": "0, 1, 3, 4",
+      "description": "Effect/visual-kit phase arguments in PlaySpellVisuaKitData, ClearEffectKit and DelaySpellVisualKit.",
+      "original_lines": [
+        848,
+        905,
+        2053,
+        2061,
+        2073,
+        2075,
+        2103,
+        2118,
+        2120,
+        4845,
+        4866,
+        9046,
+        9177
+      ]
+    },
+    {
+      "id": 46,
+      "state": "pending",
+      "values": "0, 12",
+      "description": "SpellVisualKitRec::m_charProc chain-effect discriminator.",
+      "original_lines": [
+        4707
+      ]
+    },
+    {
+      "id": 47,
+      "state": "pending",
+      "values": "-1, -2, -5",
+      "description": "SpellVisualRec::m_missileModel special negative IDs/range; identify the model-source domain.",
+      "original_lines": [
+        894,
+        9233
+      ]
+    },
+    {
+      "id": 48,
+      "state": "pending",
+      "values": "10",
+      "description": "CMap::ObjectCreate final argument; inspect its parameter contract before naming.",
+      "original_lines": [
+        7915
+      ]
+    },
+    {
+      "id": 49,
+      "state": "done",
+      "values": "2000",
+      "description": "Default weapon speed used when item delay is unavailable, in the spell power-cost calculation.",
+      "original_lines": [
+        357
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 50,
+      "state": "done",
+      "values": "900000",
+      "description": "Arena cooldown restriction threshold: 15 minutes.",
+      "original_lines": [
+        538
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 51,
+      "state": "done",
+      "values": "120000",
+      "description": "Spell history cleanup interval: 2 minutes.",
+      "original_lines": [
+        2396
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 52,
+      "state": "done",
+      "values": "10000",
+      "description": "Synthetic rune cooldown display duration: 10 seconds.",
+      "original_lines": [
+        3273,
+        3274
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 53,
+      "state": "done",
+      "values": "10000",
+      "description": "Destination-location spell-cast cache lifetime: 10 seconds; separate context from rune cooldown.",
+      "original_lines": [
+        7325
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 54,
+      "state": "done",
+      "values": "500",
+      "description": "Additional cast time for ranged-slot spells, in milliseconds; separate context from the removed GCD range width.",
+      "original_lines": [
+        3501
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 55,
+      "state": "done",
+      "values": "30000",
+      "description": "Initial item cooldown history duration in the item-cooldown packet handler: 30 seconds.",
+      "original_lines": [
+        5683
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 56,
+      "state": "done",
+      "values": "1500",
+      "description": "RecentlyCast history window: 1.5 seconds; separate context from the GCD default.",
+      "original_lines": [
+        5777
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 57,
+      "state": "done",
+      "values": "3000",
+      "description": "Repeated spell-failure suppression window: 3 seconds.",
+      "original_lines": [
+        6375
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 58,
+      "state": "done",
+      "values": "0.001f",
+      "description": "Minimum cast-speed multiplier accepted for periodic-haste duration scaling; not a milliseconds conversion.",
+      "original_lines": [
+        3771
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 59,
+      "state": "partial",
+      "values": "0.001f, 0.5f, 0.2f, 1.3f",
+      "description": "Latency conversion, half-RTT factor, arrival padding, and flight-time limit multiplier.",
+      "original_lines": [
+        7619,
+        7620
+      ],
+      "notes": "Trajectory tuning named in c6d8940; unit conversions remain with group 82."
+    },
+    {
+      "id": 60,
+      "state": "done",
+      "values": "0.001f, 0.25f, 0.01f",
+      "description": "Follow-ground DBC scale factors and minimum height/drop-speed bounds.",
+      "original_lines": [
+        9261,
+        9263,
+        9264,
+        9268,
+        9270,
+        9271,
+        9275
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 61,
+      "state": "done",
+      "values": "5.0f, 1.3333334f, 2.6666667f",
+      "description": "Melee range floor, combat-reach offset, and moving-target allowance.",
+      "original_lines": [
+        3563,
+        3592,
+        3594,
+        3595,
+        3600,
+        3602,
+        3603,
+        3623
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 62,
+      "state": "done",
+      "values": "100.0f",
+      "description": "Null-spell/default range and range threshold in cast preparation; check whether they should share a constant.",
+      "original_lines": [
+        3576,
+        8156
+      ],
+      "commit": "c6d8940",
+      "notes": "Next-swing max range and unloaded-target threshold remain separate constants; original null-spell interpretation was incorrect."
+    },
+    {
+      "id": 63,
+      "state": "done",
+      "values": "16.0f",
+      "description": "Squared range multiplier for the terrain-ray outer bound (4x linear range).",
+      "original_lines": [
+        5399
+      ],
+      "commit": "c6d8940"
+    },
+    {
+      "id": 64,
+      "state": "pending",
+      "values": "1.5707964f, 6.2831855f",
+      "description": "Quarter turn and full turn in radians; use the project math constants with matching precision.",
+      "original_lines": [
+        2845,
+        2847,
+        2848
+      ]
+    },
+    {
+      "id": 65,
+      "state": "pending",
+      "values": "24, 0xFFFFFFF",
+      "description": "Extract the entry ID from a critter GUID through a named helper/mask.",
+      "original_lines": [
+        5147,
+        5213
+      ]
+    },
+    {
+      "id": 66,
+      "state": "pending",
+      "values": "0x1FE0000000000000ull",
+      "description": "Synthetic GUID tag used for spell hyperlinks.",
+      "original_lines": [
+        6504,
+        6589,
+        8515
+      ]
+    },
+    {
+      "id": 67,
+      "state": "pending",
+      "values": "0xFFFFFFFF, 0xFFFFFFFFFFFFFFFEull, 32",
+      "description": "Special targeting GUID tests; prefer named sentinel/check helpers after verifying their exact bit semantics.",
+      "original_lines": [
+        8063,
+        8481,
+        8491
+      ]
+    },
+    {
+      "id": 68,
+      "state": "pending",
+      "values": "-2",
+      "description": "Special reagent entry; identify the currency/reagent sentinel before naming.",
+      "original_lines": [
+        3123,
+        6582
+      ]
+    },
+    {
+      "id": 69,
+      "state": "pending",
+      "values": "0x7FFFFFFF",
+      "description": "Initial minimum-use count sentinel; use numeric_limits<int32_t>::max() or a named sentinel.",
+      "original_lines": [
+        3118,
+        3132
+      ]
+    },
+    {
+      "id": 70,
+      "state": "pending",
+      "values": "0xFF",
+      "description": "Equipment/container bag sentinel; use the matching bag-slot constant.",
+      "original_lines": [
+        7798
+      ]
+    },
+    {
+      "id": 71,
+      "state": "pending",
+      "values": "96",
+      "description": "Spell class-mask bit count for modifier arrays; derive from mask words or a shared constant.",
+      "original_lines": [
+        149,
+        152
+      ]
+    },
+    {
+      "id": 72,
+      "state": "done",
+      "values": "6",
+      "description": "Rune-slot array length and loop bound.",
+      "original_lines": [
+        993,
+        1002,
+        1792,
+        1801
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 73,
+      "state": "done",
+      "values": "5",
+      "description": "Item spell count and loop bounds; derive from the item spell array/shared schema constant.",
+      "original_lines": [
+        3167,
+        5983,
+        5989,
+        6119,
+        6729,
+        6735,
+        6927
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 74,
+      "state": "done",
+      "values": "8",
+      "description": "Lock entries and spell reagent entries; distinct schema domains despite equal sizes.",
+      "original_lines": [
+        2225,
+        3120
+      ],
+      "commit": "85e55b3"
+    },
+    {
+      "id": 75,
+      "state": "partial",
+      "values": "3, 2",
+      "description": "Spell effect counts, mask-word counts, totem counts and similar fixed schema loops; prefer array sizes/shared schema constants. Ordinary element indices can remain literal.",
+      "original_lines": [],
+      "notes": "Effect arrays/loops use NUM_SPELL_EFFECTS (478939e). Class-mask words must remain independent; see group 71."
+    },
+    {
+      "id": 76,
+      "state": "pending",
+      "values": "64",
+      "description": "Maximum shapeshift form-name entries considered for failure text; distinct from token-buffer capacity.",
+      "original_lines": [
+        5875,
+        5876,
+        6538,
+        6539
+      ]
+    },
+    {
+      "id": 77,
+      "state": "pending",
+      "values": "10",
+      "description": "Melee tutorial counter threshold.",
+      "original_lines": [
+        8258
+      ]
+    },
+    {
+      "id": 78,
+      "state": "pending",
+      "values": "128, 1024, 64, 512, 127",
+      "description": "Text-buffer capacities; use sizeof(buffer) for call-site capacities, and name shared limits only when useful.",
+      "original_lines": [
+        191,
+        4336,
+        4345,
+        4361,
+        4364,
+        4380,
+        4774,
+        5802,
+        5803,
+        5859,
+        5860,
+        6397,
+        6402,
+        6435,
+        6521,
+        6522,
+        6547
+      ]
+    },
+    {
+      "id": 79,
+      "state": "pending",
+      "values": "2, 0, 8",
+      "description": "Storm list allocation/link mode and allocation flags/alignment arguments; inspect the template API before naming. Similar LinkNode mode 2 at line 1719.",
+      "original_lines": [
+        761,
+        1420,
+        5677,
+        6039,
+        6760,
+        7287
+      ]
+    },
+    {
+      "id": 80,
+      "state": "pending",
+      "values": "10, 1000",
+      "description": "Per-power display scale table entries; rage/runic-power and happiness scaling. The POWER_TYPE index already supplies some context.",
+      "original_lines": [
+        176
+      ]
+    },
+    {
+      "id": 81,
+      "state": "pending",
+      "values": "100, 0.01f, 0x3C23D70A",
+      "description": "Percent arithmetic and the soft-float representation of 0.01; s_softPercent already names the representation. Consider shared percent constants/helpers, preserving float semantics.",
+      "original_lines": [
+        131,
+        337,
+        361,
+        373,
+        1184,
+        1190,
+        1208,
+        1227,
+        1597,
+        1622,
+        2291,
+        2349,
+        2353,
+        2374,
+        3364,
+        3456,
+        3635,
+        3644,
+        4995,
+        6007,
+        6068
+      ]
+    },
+    {
+      "id": 82,
+      "state": "pending",
+      "values": "1000, -1000.0f, 1000.0f, 0.001f",
+      "description": "Milliseconds/seconds conversions; name units or use conversion helpers, keeping signed/float arithmetic.",
+      "original_lines": [
+        1392,
+        1934,
+        1945,
+        1957,
+        9066,
+        9068
+      ]
+    },
+    {
+      "id": 83,
+      "state": "pending",
+      "values": "8, 31, 32, 5, 0x1F",
+      "description": "Bitset byte/word size, masks and shifts; prefer a mask accessor/helper if it improves readability.",
+      "original_lines": [
+        1197,
+        1198,
+        3420,
+        4328
+      ]
+    },
+    {
+      "id": 84,
+      "state": "pending",
+      "values": "0x7F800000, 0x3800000, 0x4000000, 31",
+      "description": "Soft-float rounding/exponent manipulation; do not assign gameplay names. A documented CSoftFloat helper would be clearer.",
+      "original_lines": [
+        3714,
+        3716,
+        3717,
+        3719
+      ]
+    },
+    {
+      "id": 85,
+      "state": "pending",
+      "values": "0.5f",
+      "description": "Rounding bias paired with CMath::fint_; a short explanation/helper is more useful than a generic gameplay constant.",
+      "original_lines": [
+        2370,
+        6077
+      ]
+    }
+  ]
+}

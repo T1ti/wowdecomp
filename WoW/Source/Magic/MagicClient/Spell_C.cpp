@@ -8881,14 +8881,14 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
 // VERIFY: d31bf1c5 auto
 // OFFSET: 0x0080C5F0
 int32_t Spell_C_TargetTradeItem() {
-    if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) || !CGTradeInfo::m_targetItemID[6]) {
+    if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) || !CGTradeInfo::m_targetItemID[TRADE_SLOT_NONTRADED]) {
         return 0;
     }
 
     PendingSpellCast* cast = s_targetingSpell;
     cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_TRADE_ITEM;
     s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK;
-    cast->m_data.m_itemTarget.m_guid = 6;
+    cast->m_data.m_itemTarget.m_guid = TRADE_SLOT_NONTRADED;
 
     if (!s_needTargets) {
         Spell_C::SendPendingCast(cast, true);
