@@ -228,7 +228,7 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     this->m_targetHeightNear = 0.0f;
     this->m_heightChangedTimeMs = 0;
     this->m_targetHeightFar = 0.0f;
-    this->m_motionFlags = 0;
+    this->m_motionFlags = MOTION_FLAGS::FLAG_MOTION_NONE;
     this->m_targetHeightSwim = 0.0f;
     this->m_mountHeight = 0.0f;
     this->m_targetPosition.x = 0.0f;
@@ -2261,12 +2261,12 @@ void CGCamera::ZoomIn(float distance, uint32_t time, float duration) {
         motionTime = static_cast<uint32_t>(distance / s_cvCameraDistanceMoveSpeed->m_floatValue * 1000.0f);
     }
 
-    if (this->m_motionFlags & 0x4) {
+    if (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_OUT_ACTIVE) {
         this->m_motionStopTime[CAMERA_MOVE_OUT] = time;
-        this->m_motionFlags |= 0x8;
+        this->m_motionFlags |= MOTION_FLAGS::FLAG_MOVE_OUT_STOP_REQUESTED;
     }
 
-    if (this->m_motionEndTime[CAMERA_MOVE_IN] && (this->m_motionFlags & 0x1)) {
+    if (this->m_motionEndTime[CAMERA_MOVE_IN] && (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_IN_ACTIVE)) {
         this->m_motionEndTime[CAMERA_MOVE_IN] += motionTime;
     } else {
         this->StartMotion(CAMERA_MOVE_IN, time, motionTime, speed);
@@ -2290,12 +2290,12 @@ void CGCamera::ZoomOut(float distance, uint32_t time, float duration) {
         motionTime = static_cast<uint32_t>(distance / s_cvCameraDistanceMoveSpeed->m_floatValue * 1000.0f);
     }
 
-    if (this->m_motionFlags & 0x1) {
+    if (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_IN_ACTIVE) {
         this->m_motionStopTime[CAMERA_MOVE_IN] = time;
-        this->m_motionFlags |= 0x2;
+        this->m_motionFlags |= MOTION_FLAGS::FLAG_MOVE_IN_STOP_REQUESTED;
     }
 
-    if (this->m_motionEndTime[CAMERA_MOVE_OUT] && (this->m_motionFlags & 0x4)) {
+    if (this->m_motionEndTime[CAMERA_MOVE_OUT] && (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_OUT_ACTIVE)) {
         this->m_motionEndTime[CAMERA_MOVE_OUT] += motionTime;
     } else {
         this->StartMotion(CAMERA_MOVE_OUT, time, motionTime, speed);
@@ -2313,14 +2313,14 @@ void CGCamera::ZoomToDistance(float distance, uint32_t time, float duration, int
         return;
     }
 
-    if (this->m_motionFlags & 0x1) {
+    if (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_IN_ACTIVE) {
         this->m_motionStopTime[CAMERA_MOVE_IN] = time;
-        this->m_motionFlags &= ~0x3;
+        this->m_motionFlags &= ~MOTION_FLAGS::FLAG_MOVE_IN_MASK;
     }
 
-    if (this->m_motionFlags & 0x4) {
+    if (this->m_motionFlags & MOTION_FLAGS::FLAG_MOVE_OUT_ACTIVE) {
         this->m_motionStopTime[CAMERA_MOVE_OUT] = time;
-        this->m_motionFlags &= ~0xC;
+        this->m_motionFlags &= ~MOTION_FLAGS::FLAG_MOVE_OUT_MASK;
     }
 
     if (distance <= this->m_distance) {

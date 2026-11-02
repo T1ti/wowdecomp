@@ -74,6 +74,24 @@ class CGInputControl;
 
 class CGCamera : public CSimpleCamera {
     public:
+    enum MOTION_FLAGS : int32_t {
+        FLAG_MOTION_NONE = 0,
+        FLAG_MOVE_IN_ACTIVE = 0x1,
+        FLAG_MOVE_IN_STOP_REQUESTED = 0x2,
+        FLAG_MOVE_OUT_ACTIVE = 0x4,
+        FLAG_MOVE_OUT_STOP_REQUESTED = 0x8,
+        FLAG_MOVE_RIGHT_ACTIVE = 0x10,
+        FLAG_MOVE_RIGHT_STOP_REQUESTED = 0x20,
+        FLAG_MOVE_LEFT_ACTIVE = 0x40,
+        FLAG_MOVE_LEFT_STOP_REQUESTED = 0x80,
+        FLAG_MOVE_UP_ACTIVE = 0x100,
+        FLAG_MOVE_UP_STOP_REQUESTED = 0x200,
+        FLAG_MOVE_DOWN_ACTIVE = 0x400,
+        FLAG_MOVE_DOWN_STOP_REQUESTED = 0x800,
+        FLAG_MOVE_IN_MASK = 0x3,
+        FLAG_MOVE_OUT_MASK = 0xC,
+    };
+
     // Reconstructed names from 3.3.5 runtime writers/readers; not packet or model-file flags.
     enum STATE_FLAGS : uint32_t {
         STATE_NONE                           = 0x00000000u, // No runtime state bits.
