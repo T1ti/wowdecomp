@@ -100,7 +100,7 @@ void GetRectFramePoints(const CRect& rect, C2Vector* points) {
 // OFFSET: 0x00482AC0
 int32_t CLayoutFrame::HasAnyFramepoints() {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
-        if (this->m_framePoints[i] && !(this->m_framePoints[i]->m_flags & 8)) {
+        if (this->m_framePoints[i] && !(this->m_framePoints[i]->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             return 1;
         }
     }
@@ -140,7 +140,7 @@ void CLayoutFrame::GetClampRectInsets(float& left, float& right, float& top, flo
 CFramePoint* CLayoutFrame::GetFramePoint(FRAMEPOINT point) {
     CFramePoint* framePoint = this->m_framePoints[point];
 
-    if (!framePoint || (framePoint->m_flags & 8)) {
+    if (!framePoint || (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
         return nullptr;
     }
 
@@ -153,11 +153,11 @@ int32_t CLayoutFrame::GetFramePointX(const FRAMEPOINT* points, int32_t count, fl
     for (int32_t i = 0; i < count; i++) {
         CFramePoint* framePoint = this->m_framePoints[points[i]];
 
-        if (framePoint && !(framePoint->m_flags & 8)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             float value = framePoint->X(this->m_layoutScale);
             x = value;
 
-            if (framePoint->m_flags & 4) {
+            if (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_CHANGED_DURING_READ) {
                 x = CFramePoint::UNDEFINED;
                 return 0;
             }
@@ -178,11 +178,11 @@ int32_t CLayoutFrame::GetFramePointY(const FRAMEPOINT* points, int32_t count, fl
     for (int32_t i = 0; i < count; i++) {
         CFramePoint* framePoint = this->m_framePoints[points[i]];
 
-        if (framePoint && !(framePoint->m_flags & 8)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             float value = framePoint->Y(this->m_layoutScale);
             y = value;
 
-            if (framePoint->m_flags & 4) {
+            if (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_CHANGED_DURING_READ) {
                 y = CFramePoint::UNDEFINED;
                 return 0;
             }
@@ -311,7 +311,7 @@ void CLayoutFrame::ProtectFramepoints(uint32_t flag) {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = this->m_framePoints[i];
 
-        if (framePoint && !(framePoint->m_flags & 8) && framePoint->m_relative) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED) && framePoint->m_relative) {
             framePoint->m_relative->SetProtectFlag(flag);
         }
     }
@@ -325,7 +325,7 @@ int32_t CLayoutFrame::IsResizeDependency(CLayoutFrame* frame) {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = this->m_framePoints[i];
 
-        if (!framePoint || (framePoint->m_flags & 8)) {
+        if (!framePoint || (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             continue;
         }
 
@@ -530,7 +530,7 @@ void CLayoutFrame::AddToResizeList() {
         for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
             CFramePoint* framePoint = frame->m_framePoints[i];
 
-            if (framePoint && !(framePoint->m_flags & 8) && framePoint->m_relative == this) {
+            if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED) && framePoint->m_relative == this) {
                 dependent = frame;
             }
         }
@@ -832,7 +832,7 @@ int32_t CLayoutFrame::CanBeAnchorFor(CLayoutFrame* frame) {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = this->m_framePoints[i];
 
-        if (framePoint && !(framePoint->m_flags & 8) && framePoint->m_relative && !framePoint->m_relative->CanBeAnchorFor(frame)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED) && framePoint->m_relative && !framePoint->m_relative->CanBeAnchorFor(frame)) {
             return 0;
         }
     }
@@ -854,7 +854,7 @@ void CLayoutFrame::MarkFramePointsUnused() {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = this->m_framePoints[i];
 
-        if (framePoint && !(framePoint->m_flags & 8)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             if (framePoint->m_relative) {
                 framePoint->m_relative->UnregisterResize(this, 1 << i);
             }
@@ -1296,7 +1296,7 @@ void CLayoutFrame::DestroyLayout() {
         CFramePoint* framePoint = this->m_framePoints[i];
 
         if (framePoint) {
-            if (!(framePoint->m_flags & 8) && framePoint->m_relative) {
+            if (!(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED) && framePoint->m_relative) {
                 framePoint->m_relative->UnregisterResize(this, 1 << i);
             }
 

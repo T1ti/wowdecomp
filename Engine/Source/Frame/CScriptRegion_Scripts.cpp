@@ -392,7 +392,7 @@ static int32_t Script_GetNumPoints(lua_State* L) {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = region->m_framePoints[i];
 
-        if (framePoint && !(framePoint->m_flags & 8)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             count++;
         }
     }
@@ -418,7 +418,7 @@ static int32_t Script_GetPoint(lua_State* L) {
     for (point = 0; point < FRAMEPOINT_NUMPOINTS; point++) {
         framePoint = region->m_framePoints[point];
 
-        if (framePoint && !(framePoint->m_flags & 8)) {
+        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             if (found >= index) {
                 break;
             }
@@ -431,7 +431,7 @@ static int32_t Script_GetPoint(lua_State* L) {
         return 0;
     }
 
-    if (framePoint->m_flags & 1) {
+    if (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_ABSOLUTE_COORDINATES) {
         lua_pushstring(L, FramePointToString(static_cast<FRAMEPOINT>(point)));
         lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_x));
         lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_y));
