@@ -671,7 +671,7 @@ bool CGGameObject_C::IsTransport() const {
 // OFFSET: 0x0070EF90
 bool CGGameObject_C::IsValidOpenAction(int32_t action) const {
     if (action == 4) {
-        return this->m_displayState != 2;
+        return this->m_displayState == 2;
     }
 
     int32_t state = this->m_displayState;

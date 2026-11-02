@@ -11,3 +11,5 @@ Validation uses focused IDA reads, source value-equivalence comparisons, and MSV
 ## Verified reconstruction correction
 
 `a3cdfa0`: `CMissile::FireMissiles` previously checked the sign of the full `SpellVisualRec::m_flags`. Native instruction `0x0070260F` tests `byte [visual+0x34]` with `0x80`. The code now uses the named `0x80` mask. Other changes in the visual flag batch are value-preserving.
+
+`CGGameObject_C::IsValidOpenAction`, action 4: native `0x0070EFD3` compares display state with 2 and `0x0070EFDA` jumps to the true return on equality. The reconstructed `!= 2` was corrected to `== 2`. The meaning of action 4 remains unresolved; equality with the destroyed state does not by itself establish an original action name.
