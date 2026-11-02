@@ -17037,7 +17037,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
             animFlags |= 0x20;
         }
 
-        if (visual && static_cast<uint32_t>(visual->m_missileModel) >= 0xFFFFFFFE) {
+        if (visual && static_cast<uint32_t>(visual->m_missileModel) >= SPELL_MISSILE_MODEL_HAND_WEAPON_UNSIGNED_MIN) {
             animFlags |= 0x20;
         }
 
@@ -18957,21 +18957,21 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         }
     } else if (visual->m_missileModel) {
         switch (visual->m_missileModel) {
-            case -5:
-            case -4:
+            case SPELL_MISSILE_MODEL_AMMUNITION_5:
+            case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
                 break;
 
-            case -3:
-                model = this->CreateItemModel(2, &scale);
+            case SPELL_MISSILE_MODEL_RANGED:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_RANGED, &scale);
                 break;
 
-            case -2:
-                model = this->CreateItemModel(1, &scale);
+            case SPELL_MISSILE_MODEL_OFFHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_OFFHAND, &scale);
                 break;
 
-            case -1:
-                model = this->CreateItemModel(0, &scale);
+            case SPELL_MISSILE_MODEL_MAINHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_MAINHAND, &scale);
                 break;
 
             default: {
@@ -19217,21 +19217,21 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         }
     } else if (visual->m_missileModel) {
         switch (visual->m_missileModel) {
-            case -5:
-            case -4:
+            case SPELL_MISSILE_MODEL_AMMUNITION_5:
+            case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
                 break;
 
-            case -3:
-                model = this->CreateItemModel(2, &scale);
+            case SPELL_MISSILE_MODEL_RANGED:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_RANGED, &scale);
                 break;
 
-            case -2:
-                model = this->CreateItemModel(1, &scale);
+            case SPELL_MISSILE_MODEL_OFFHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_OFFHAND, &scale);
                 break;
 
-            case -1:
-                model = this->CreateItemModel(0, &scale);
+            case SPELL_MISSILE_MODEL_MAINHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_MAINHAND, &scale);
                 break;
 
             default: {
@@ -19406,21 +19406,21 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         }
     } else if (visual->m_missileModel) {
         switch (visual->m_missileModel) {
-            case -5:
-            case -4:
+            case SPELL_MISSILE_MODEL_AMMUNITION_5:
+            case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
                 break;
 
-            case -3:
-                model = this->CreateItemModel(2, &scale);
+            case SPELL_MISSILE_MODEL_RANGED:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_RANGED, &scale);
                 break;
 
-            case -2:
-                model = this->CreateItemModel(1, &scale);
+            case SPELL_MISSILE_MODEL_OFFHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_OFFHAND, &scale);
                 break;
 
-            case -1:
-                model = this->CreateItemModel(0, &scale);
+            case SPELL_MISSILE_MODEL_MAINHAND:
+                model = this->CreateItemModel(VIRTUAL_MONSTER_SLOT_MAINHAND, &scale);
                 break;
 
             default: {

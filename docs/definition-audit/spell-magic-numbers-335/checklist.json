@@ -597,13 +597,15 @@
     },
     {
       "id": 47,
-      "state": "pending",
+      "state": "done",
       "values": "-1, -2, -5",
       "description": "SpellVisualRec::m_missileModel special negative IDs/range; identify the model-source domain.",
       "original_lines": [
         894,
         9233
-      ]
+      ],
+      "evidence": "Native missile creation at 0x00732FF0 dispatches -1/-2/-3 to item slots 0/1/2 and -4/-5 to the ammunition-model overload.",
+      "notes": "Named all three dispatchers and related precast/animation/destination comparisons. Kept the unsigned >= 0xFFFFFFFE test and the separate < -5 fallback exactly as written. The distinction between the two ammunition IDs remains unresolved. Win32/x64 syntax and source value equivalence passed."
     },
     {
       "id": 48,

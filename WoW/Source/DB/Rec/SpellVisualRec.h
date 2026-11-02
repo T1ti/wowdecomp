@@ -21,6 +21,19 @@ enum SPELL_VISUAL_FLAGS : int32_t {
     SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS = 0x200,
 };
 
+// Negative SpellVisual missile-model IDs select item models instead of effect records.
+enum SPELL_MISSILE_MODEL_SOURCE : int32_t {
+    SPELL_MISSILE_MODEL_MAINHAND = -1,
+    SPELL_MISSILE_MODEL_OFFHAND = -2,
+    SPELL_MISSILE_MODEL_RANGED = -3,
+    SPELL_MISSILE_MODEL_AMMUNITION = -4,
+    // Shares the native ammunition-model call; the distinction between -4/-5 is unresolved.
+    SPELL_MISSILE_MODEL_AMMUNITION_5 = -5,
+};
+
+// Native unsigned comparison selects exactly -2 and -1, not all signed IDs >= -2.
+constexpr uint32_t SPELL_MISSILE_MODEL_HAND_WEAPON_UNSIGNED_MIN = static_cast<uint32_t>(SPELL_MISSILE_MODEL_OFFHAND);
+
 // Fixed-point scale of the three missile follow-ground DBC parameters.
 constexpr float SPELL_VISUAL_GROUND_PARAMETER_SCALE = 0.001f;
 
