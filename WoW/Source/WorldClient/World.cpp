@@ -3988,7 +3988,7 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
 
                         if (layerCount) {
                             uint32_t flags = renderChunk->m_renderFlags;
-                            variant = (flags & 1) ? ((flags & 4) | 2) >> 1 : (flags >> 1) & 2;
+                            variant = (flags & CMapRenderChunk::RENDER_FLAGS::FLAG_UNLIT_LAYERS) ? ((flags & CMapRenderChunk::RENDER_FLAGS::FLAG_SPECULAR) | 2) >> 1 : (flags >> 1) & 2;
                         }
 
                         CWorldScene::sortTable.m_renderChunkList[4 * layerCount + variant].LinkToTail(chunk->m_renderChunk);

@@ -62,6 +62,16 @@ class CMapRenderChunkLayer {
 
 class CMapRenderChunk {
     public:
+    enum RENDER_FLAGS : int32_t {
+        FLAG_NONE = 0,
+        FLAG_UNLIT_LAYERS = 0x1,
+        FLAG_SPECULAR = 0x4,
+        FLAG_BLEND_MIP1 = 0x8,
+        FLAG_REQUEST_BLEND_MIP1 = 0x10,
+        FLAG_LAYER_TEXTURES_DIRTY = 0x20,
+        FLAG_TEXTURE_UPDATE_REQUESTS = 0x30,
+    };
+
     struct SLayerAlpha;
     struct SVertexShaderConstants;
     typedef void (*RenderLayersFunc)(CMapRenderChunk* renderChunk);
