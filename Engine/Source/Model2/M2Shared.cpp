@@ -85,7 +85,7 @@ uint32_t CM2Shared::AddRef() {
 // OFFSET: 0x008359C0
 int32_t CM2Shared::CallbackWhenLoaded(CM2Model* model) {
     if (!(model->m_creationFlags & CM2Model::INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND)) {
-        if ((this->m_flags & 1) && (this->m_flags & 2)) {
+        if ((this->m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED) && (this->m_flags & SHARED_FLAGS::FLAG_SKIN_LOADED)) {
             model->InitializeLoaded();
             return 1;
         }
@@ -1218,7 +1218,7 @@ int32_t CM2Shared::InitializeSkinProfile() {
             memcpy(this->m_data->m_vertices.Data(), vertices, sizeof(M2Vertex) * this->m_skinData->m_vertices.m_count);
             delete[] vertices;
         } else {
-            this->m_flags |= 8;
+            this->m_flags |= SHARED_FLAGS::FLAG_OWNS_REORDERED_VERTICES;
 #if defined(WOWDECOMP_ARCH_64)
             uint32_t bytes = sizeof(M2Vertex) * this->m_skinData->m_vertices.m_count;
             M2Vertex* buffer = static_cast<M2Vertex*>(OsAllocNear(this->m_data, bytes));
@@ -1302,7 +1302,7 @@ int32_t M2Init<M2TextureWeight>(uint8_t* base, uint32_t size, const M2Data& data
 // VERIFY: 2f176c2e auto
 // OFFSET: 0x00838490
 int32_t CM2Shared::FinishLoadingSkinProfile(uint32_t size) {
-    if (this->m_flags & 2) {
+    if (this->m_flags & SHARED_FLAGS::FLAG_SKIN_LOADED) {
         return 1;
     }
 
@@ -1320,7 +1320,7 @@ int32_t CM2Shared::FinishLoadingSkinProfile(uint32_t size) {
         return 0;
     }
 
-    this->m_flags |= 2;
+    this->m_flags |= SHARED_FLAGS::FLAG_SKIN_LOADED;
 
     while (this->m_callbackList) {
         CM2Model* model = this->m_callbackList;
@@ -1496,7 +1496,7 @@ int32_t M2Init<M2Particle>(uint8_t* base, uint32_t size, const M2Data& data, M2A
 // VERIFY: 95d98bd6 manual
 // OFFSET: 0x0083C5F0
 CM2Shared::CM2Shared(CM2Cache* cache) {
-    this->m_flags &= ~0x7Fu;
+    this->m_flags &= ~SHARED_FLAGS::FLAG_INITIALIZATION_MASK;
     this->m_cache = cache;
     this->m_callbackList = nullptr;
     this->m_refCount = 1;
@@ -1604,7 +1604,7 @@ int32_t CM2Shared::LoadSkinProfile(uint32_t profile) {
 
     SFileImpl* file;
 
-    if (!SFile::OpenEx(nullptr, fileName, (this->m_flags & 4) >> 2, &file)) {
+    if (!SFile::OpenEx(nullptr, fileName, (this->m_flags & SHARED_FLAGS::FLAG_DIRECT_ACCESS) >> 2, &file)) {
         DebugLog("Model2: File not found: %s\n", fileName);
         return 0;
     }
@@ -1703,9 +1703,9 @@ int32_t CM2Shared::Initialize() {
             texFlags.m_wrapU = 1;
             texFlags.m_wrapV = 1;
 
-            uint32_t flags = (this->m_flags & 4) ? 2 : 0;
+            uint32_t flags = (this->m_flags & SHARED_FLAGS::FLAG_DIRECT_ACCESS) ? 2 : 0;
 
-            if (this->m_flags & 0x40) {
+            if (this->m_flags & SHARED_FLAGS::FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL) {
                 flags |= 0x30;
             }
 
@@ -1727,7 +1727,7 @@ int32_t CM2Shared::Initialize() {
 
 // INLINED
 int32_t CM2Shared::FinishLoading() {
-    if (this->m_flags & 1) {
+    if (this->m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED) {
         return 1;
     }
 
@@ -1753,7 +1753,7 @@ int32_t CM2Shared::FinishLoading() {
 
     this->m_lowPrioritySequenceBuffers = static_cast<uint8_t**>(SMemAlloc(sizeof(uint8_t*) * count, __FILE__, __LINE__, 8));
     this->m_lowPrioritySequenceCapacity = count;
-    this->m_flags |= 1;
+    this->m_flags |= SHARED_FLAGS::FLAG_MODEL_LOADED;
     this->m_lowPrioritySequenceCount = 0;
 
     return 1;
@@ -1789,7 +1789,7 @@ CM2SequenceLoad::~CM2SequenceLoad() {
 // VERIFY: bacb8d39 manual
 // OFFSET: 0x0083D410
 int32_t CM2Shared::Load(SFileImpl* file, int32_t flags, CAaBox* boundingBox) {
-    this->m_flags = (this->m_flags & ~4u) | (flags ? 4 : 0);
+    this->m_flags = (this->m_flags & ~SHARED_FLAGS::FLAG_DIRECT_ACCESS) | (flags ? SHARED_FLAGS::FLAG_DIRECT_ACCESS : SHARED_FLAGS::FLAG_NONE);
     this->m_fileSize = SFileGetFileSize(file, nullptr);
     this->m_data = static_cast<M2Data*>(SIMD::AllocA16(this->m_fileSize, __FILE__, __LINE__));
 
@@ -1837,8 +1837,8 @@ void CM2Shared::CancelAllDeferredSequences() {
         }
     }
 
-    if (this->m_flags & 0x10) {
-        this->m_flags |= 0x20;
+    if (this->m_flags & SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK) {
+        this->m_flags |= SHARED_FLAGS::FLAG_SEQUENCE_CLEAR_PENDING;
     } else {
         this->m_sequenceLoads.Clear();
     }
@@ -1907,7 +1907,7 @@ CM2Shared::~CM2Shared() {
         this->m_lowPrioritySequenceCapacity = 0;
     }
 
-    if (this->m_flags & 8) {
+    if (this->m_flags & SHARED_FLAGS::FLAG_OWNS_REORDERED_VERTICES) {
 #if defined(WOWDECOMP_ARCH_64)
         OsFreeNear(this->m_data->m_vertices.Data());
 #else
@@ -1916,7 +1916,7 @@ CM2Shared::~CM2Shared() {
     }
 
 #if !defined(WOWDECOMP_ARCH_64)
-    if (this->m_flags & 1) {
+    if (this->m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED) {
         if (this->m_data->m_flags & 0x20) {
             SMemFree(this->m_data->m_textureCombos.Data(), __FILE__, __LINE__, 0);
         }
@@ -1938,7 +1938,7 @@ void CM2Shared::LowPrioritySequenceLoadedCallback(void* param) {
     CM2SequenceLoad* load = static_cast<CM2SequenceLoad*>(param);
     CM2Shared* shared = load->m_shared;
 
-    shared->m_flags |= 0x10;
+    shared->m_flags |= SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK;
     shared->FinishLoadingLowPrioritySequence(load->m_sequenceIndex, load->m_asyncObject);
 
     CM2SequencePlayBack* playback = load->m_playbacks.Head();
@@ -1975,13 +1975,13 @@ void CM2Shared::LowPrioritySequenceLoadedCallback(void* param) {
         playback = next;
     }
 
-    if (shared->m_flags & 0x20) {
+    if (shared->m_flags & SHARED_FLAGS::FLAG_SEQUENCE_CLEAR_PENDING) {
         shared->m_sequenceLoads.Clear();
-        shared->m_flags &= ~0x30u;
+        shared->m_flags &= ~SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK_MASK;
     } else {
         load->~CM2SequenceLoad();
         SMemFree(load, typeid(CM2SequenceLoad).raw_name(), SLOG_OBJECT, 0);
-        shared->m_flags &= ~0x10u;
+        shared->m_flags &= ~SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK;
     }
 }
 
@@ -2017,7 +2017,7 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
 
     SFileImpl* file;
 
-    if (!SFile::OpenEx(nullptr, fileName, (this->m_flags & 4) >> 2, &file)) {
+    if (!SFile::OpenEx(nullptr, fileName, (this->m_flags & SHARED_FLAGS::FLAG_DIRECT_ACCESS) >> 2, &file)) {
         DebugLog("Model2: File not found: %s\n", fileName);
         this->m_sequenceLoads.DeleteNode(load);
         return nullptr;

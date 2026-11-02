@@ -6314,7 +6314,7 @@ found:
 void CM2Model::CancelAllDeferredSequences() {
     TSList<CM2SequenceLoad>& loads = this->m_shared->m_sequenceLoads;
 
-    if (!(this->m_shared->m_flags & 0x10)) {
+    if (!(this->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK)) {
         for (CM2SequenceLoad* load = loads.Head(); !loads.IsEnd(load); load = loads.RawNext(load)) {
             CM2SequencePlayBack* playback = load->m_playbacks.Head();
 
@@ -6342,7 +6342,7 @@ void CM2Model::CancelAllDeferredSequences() {
 void CM2Model::CancelDeferredSequences(uint16_t boneIndex, bool primary) {
     TSList<CM2SequenceLoad>& loads = this->m_shared->m_sequenceLoads;
 
-    if (!(this->m_shared->m_flags & 0x10)) {
+    if (!(this->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK)) {
         for (CM2SequenceLoad* load = loads.Head(); !loads.IsEnd(load); load = loads.RawNext(load)) {
             CM2SequencePlayBack* playback = load->m_playbacks.Head();
 
@@ -7000,7 +7000,7 @@ void CModelBatchList::Optimize() {
 int32_t CM2Model::InitializeLoaded() {
     CM2Shared* shared = this->m_shared;
 
-    if (!(shared->m_flags & 1) || !(shared->m_flags & 2)) {
+    if (!(shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED) || !(shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SKIN_LOADED)) {
         return 1;
     }
 
@@ -7697,7 +7697,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
 
         uint32_t sharedFlags = this->m_shared->m_flags;
 
-        if (!(sharedFlags & 1) || !(sharedFlags & 2)) {
+        if (!(sharedFlags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED) || !(sharedFlags & CM2Shared::SHARED_FLAGS::FLAG_SKIN_LOADED)) {
             return;
         }
 
@@ -7812,7 +7812,7 @@ void CM2Lighting::Reset() {
 // VERIFY: 56d2a807 auto
 // OFFSET: 0x004F5E20
 CAaBox CM2Model::GetBoundingBox() {
-    if (!(this->m_shared->m_flags & 1)) {
+    if (!(this->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
         this->WaitForLoad(nullptr);
     }
 
@@ -7822,7 +7822,7 @@ CAaBox CM2Model::GetBoundingBox() {
 // VERIFY: 542067ba manual
 // OFFSET: 0x004F5E80
 CAaSphere CM2Model::GetBoundingSphere() {
-    if (!(this->m_shared->m_flags & 1)) {
+    if (!(this->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
         this->WaitForLoad(nullptr);
     }
 
