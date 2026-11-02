@@ -4,6 +4,11 @@
 #include <cstddef>
 #include <cstdint>
 
+// Native melee reach values; retain the original single-precision literals.
+constexpr float MELEE_RANGE_MIN = 5.0f;
+constexpr float MELEE_COMBAT_REACH_OFFSET = 1.3333334f;
+constexpr float MELEE_MOVING_TARGET_BONUS = 2.6666667f;
+
 // CreatureType.dbc IDs; creature-type masks use (1 << (type - 1)).
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/SharedDefines.h
 enum CREATURE_TYPE : int32_t {

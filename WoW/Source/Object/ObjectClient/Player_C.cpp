@@ -2753,10 +2753,10 @@ void CGPlayer_C::UpdateAttackPosition(const CGUnit_C* target) {
         return;
     }
 
-    float range = this->m_unit->m_unitFieldCombatreach + target->m_unit->m_unitFieldCombatreach + 1.3333334f;
+    float range = this->m_unit->m_unitFieldCombatreach + target->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
-    if (range < 5.0f) {
-        range = 5.0f;
+    if (range < MELEE_RANGE_MIN) {
+        range = MELEE_RANGE_MIN;
     }
 
     range *= 4.0f;
@@ -13576,7 +13576,7 @@ int32_t CGPlayer_C::GetSpellCastingTime(const SpellRec* spell) const {
     }
 
     if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
-        time += 500;
+        time += SPELL_RANGED_CAST_TIME_EXTRA_MS;
     }
 
     return time <= 0 ? 0 : time;

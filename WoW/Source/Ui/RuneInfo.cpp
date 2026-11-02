@@ -376,7 +376,7 @@ void CGRuneInfo::SetPredictedRunes(uint8_t available, uint8_t used, const uint8_
                     }
                 }
 
-                CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - static_cast<int32_t>(10000.0f * progress);
+                CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - static_cast<int32_t>(RUNE_BASE_COOLDOWN_MS_FLOAT * progress);
                 CGRuneInfo::ComputeRuneRechargeTime(i, progress);
                 FrameScript_SignalEvent(SCRIPT_EVENT_RUNE_POWER_UPDATE, "%d%b", i + 1, 0);
             }
@@ -408,7 +408,7 @@ void CGRuneInfo::ResyncRunes(CDataStore* msg) {
             progress = 1.0f;
         }
 
-        CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - static_cast<int32_t>(10000.0f * progress);
+        CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - static_cast<int32_t>(RUNE_BASE_COOLDOWN_MS_FLOAT * progress);
         CGRuneInfo::ComputeRuneRechargeTime(i, progress);
         FrameScript_SignalEvent(SCRIPT_EVENT_RUNE_POWER_UPDATE, "%d%b", i + 1, 0);
     }
@@ -422,7 +422,7 @@ void CGRuneInfo::AddRunePower(CDataStore* msg) {
 
     for (int32_t i = 0; i < static_cast<int32_t>(CGRuneInfo::m_numRunes); i++) {
         if (((1 << i) & runes) && !((1 << i) & CGRuneInfo::m_predictedRunes)) {
-            CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - 10000;
+            CGRuneInfo::m_runeLastUsed[i] = OsGetAsyncTimeMs() - RUNE_BASE_COOLDOWN_MS;
             CGRuneInfo::ComputeRuneRechargeTime(i, 1.0f);
             FrameScript_SignalEvent(SCRIPT_EVENT_RUNE_POWER_UPDATE, "%d%b", i + 1, 0);
         }

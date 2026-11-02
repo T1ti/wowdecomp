@@ -6,6 +6,13 @@
 
 class SFileImpl;
 
+// Fixed-point scale of the three missile follow-ground DBC parameters.
+constexpr float SPELL_VISUAL_GROUND_PARAMETER_SCALE = 0.001f;
+
+enum SPELL_VISUAL_FOLLOW_GROUND_FLAGS : int32_t {
+    SPELL_VISUAL_FOLLOW_GROUND_ENABLED = 0x1,
+};
+
 class SpellVisualRec {
     public:
     static const int32_t s_numColumns = 32;

@@ -10,6 +10,10 @@
 #include "WoW/Source/Magic/MagicClient/Spell_C.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 
+// Minimum follow-ground parameters used when constructing native missiles.
+constexpr float MISSILE_MIN_HEIGHT = 0.25f;
+constexpr float MISSILE_MIN_GROUND_DROP_SPEED = 0.01f;
+
 class C44Matrix;
 class CGObject_C;
 class CGUnit_C;

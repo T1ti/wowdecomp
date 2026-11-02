@@ -158,7 +158,6 @@ static const int32_t DEFAULT_MODEL_FADE_TIME = 1000;
 
 static const float MAX_NAMEPLATE_DIST_SQUARED = 1681.0f;
 
-static const float MISSILE_MIN_HEIGHT = 0.25f;
 
 // STATIC: 0x00ADAC04
 static INVENTORY_SLOTS s_virtualItemInvSlots[2] = { INVSLOT_MAINHAND, INVSLOT_OFFHAND };
@@ -6748,10 +6747,10 @@ uint32_t CGUnit_C::GetCanFly() const {
 // OFFSET: 0x0071B820
 int32_t CGUnit_C::IsInMeleeRange(CGUnit_C* target) const {
     CGUnit* targetUnit = target ? static_cast<CGUnit*>(target) : nullptr;
-    float range = this->m_unit->m_unitFieldCombatreach + targetUnit->m_unit->m_unitFieldCombatreach + 1.3333334f;
+    float range = this->m_unit->m_unitFieldCombatreach + targetUnit->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
-    if (range < 5.0f) {
-        range = 5.0f;
+    if (range < MELEE_RANGE_MIN) {
+        range = MELEE_RANGE_MIN;
     }
 
     C3Vector targetPosition = target->GetPosition();
@@ -19036,21 +19035,21 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
-        float height = spellVisual->m_missileFollowGroundHeight * 0.001f;
+        float height = spellVisual->m_missileFollowGroundHeight * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
         if (height <= MISSILE_MIN_HEIGHT) {
             height = MISSILE_MIN_HEIGHT;
         }
 
         missile->m_groundOffset = height;
-        float rate = spellVisual->m_missileFollowGroundDropSpeed * 0.001f;
+        float rate = spellVisual->m_missileFollowGroundDropSpeed * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
-        if (rate <= 0.01f) {
-            rate = 0.01f;
+        if (rate <= MISSILE_MIN_GROUND_DROP_SPEED) {
+            rate = MISSILE_MIN_GROUND_DROP_SPEED;
         }
 
         missile->m_followGroundRate = rate;
-        float approach = 0.001f * spellVisual->m_missileFollowGroundApproach;
+        float approach = SPELL_VISUAL_GROUND_PARAMETER_SCALE * spellVisual->m_missileFollowGroundApproach;
 
         if (approach < 0.0f) {
             approach = 0.0f;
@@ -19061,7 +19060,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         missile->m_followGroundStart = approach;
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
-        if (spellVisual->m_missileFollowGroundFlags & 1) {
+        if (spellVisual->m_missileFollowGroundFlags & SPELL_VISUAL_FOLLOW_GROUND_ENABLED) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
@@ -19289,21 +19288,21 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
-        float height = spellVisual->m_missileFollowGroundHeight * 0.001f;
+        float height = spellVisual->m_missileFollowGroundHeight * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
         if (height <= MISSILE_MIN_HEIGHT) {
             height = MISSILE_MIN_HEIGHT;
         }
 
         missile->m_groundOffset = height;
-        float rate = spellVisual->m_missileFollowGroundDropSpeed * 0.001f;
+        float rate = spellVisual->m_missileFollowGroundDropSpeed * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
-        if (rate <= 0.01f) {
-            rate = 0.01f;
+        if (rate <= MISSILE_MIN_GROUND_DROP_SPEED) {
+            rate = MISSILE_MIN_GROUND_DROP_SPEED;
         }
 
         missile->m_followGroundRate = rate;
-        float approach = 0.001f * spellVisual->m_missileFollowGroundApproach;
+        float approach = SPELL_VISUAL_GROUND_PARAMETER_SCALE * spellVisual->m_missileFollowGroundApproach;
 
         if (approach < 0.0f) {
             approach = 0.0f;
@@ -19314,7 +19313,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         missile->m_followGroundStart = approach;
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
-        if (spellVisual->m_missileFollowGroundFlags & 1) {
+        if (spellVisual->m_missileFollowGroundFlags & SPELL_VISUAL_FOLLOW_GROUND_ENABLED) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
@@ -19478,21 +19477,21 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
-        float height = spellVisual->m_missileFollowGroundHeight * 0.001f;
+        float height = spellVisual->m_missileFollowGroundHeight * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
         if (height <= MISSILE_MIN_HEIGHT) {
             height = MISSILE_MIN_HEIGHT;
         }
 
         missile->m_groundOffset = height;
-        float rate = spellVisual->m_missileFollowGroundDropSpeed * 0.001f;
+        float rate = spellVisual->m_missileFollowGroundDropSpeed * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
-        if (rate <= 0.01f) {
-            rate = 0.01f;
+        if (rate <= MISSILE_MIN_GROUND_DROP_SPEED) {
+            rate = MISSILE_MIN_GROUND_DROP_SPEED;
         }
 
         missile->m_followGroundRate = rate;
-        float approach = 0.001f * spellVisual->m_missileFollowGroundApproach;
+        float approach = SPELL_VISUAL_GROUND_PARAMETER_SCALE * spellVisual->m_missileFollowGroundApproach;
 
         if (approach < 0.0f) {
             approach = 0.0f;
@@ -19503,7 +19502,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         missile->m_followGroundStart = approach;
         missile->m_motionFlags = spellVisual->m_missileFollowGroundFlags;
 
-        if (spellVisual->m_missileFollowGroundFlags & 1) {
+        if (spellVisual->m_missileFollowGroundFlags & SPELL_VISUAL_FOLLOW_GROUND_ENABLED) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
     }
@@ -22494,7 +22493,7 @@ bool CGUnit_C::GetInteractDistanceOfAction(int32_t action, const WOWGUID& guid, 
         case TRACKTYPE_LOOT:
         case TRACKTYPE_ATTACK: {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
-            float range = unit ? this->CGUnit::GetMeleeRange(unit) - 1.3333334f : 5.0f;
+            float range = unit ? this->CGUnit::GetMeleeRange(unit) - MELEE_COMBAT_REACH_OFFSET : MELEE_RANGE_MIN;
             *distance = range * range;
             return true;
         }
@@ -22788,10 +22787,10 @@ void CGUnit_C::TrackingSetPitch(uint32_t time, float pitch) {
 // OFFSET: 0x0072EE20
 bool CGPlayer_C::CTMAttackUnit(CGUnit_C* unit) {
     int32_t modalSpell = 0;
-    float range = static_cast<CGUnit*>(unit)->m_unit->m_unitFieldCombatreach + this->m_unit->m_unitFieldCombatreach + 1.3333334f;
+    float range = static_cast<CGUnit*>(unit)->m_unit->m_unitFieldCombatreach + this->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
-    if (range < 5.0f) {
-        range = 5.0f;
+    if (range < MELEE_RANGE_MIN) {
+        range = MELEE_RANGE_MIN;
     }
 
     C3Vector target = unit->GetPosition();

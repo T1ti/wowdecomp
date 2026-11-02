@@ -103,6 +103,22 @@
 #include <alloca.h>
 #endif
 
+// Spell timing and range constants from the native 3.3.5 paths.
+constexpr int32_t SPELL_DEFAULT_WEAPON_DELAY_MS = 2000;
+constexpr int32_t SPELL_ARENA_COOLDOWN_LIMIT_MS = 900000;
+constexpr int32_t SPELL_HISTORY_CLEANUP_INTERVAL_MS = 120000;
+constexpr int32_t SPELL_ITEM_COOLDOWN_INITIAL_MS = 30000;
+constexpr int32_t SPELL_RECENT_CAST_WINDOW_MS = 1500;
+constexpr int32_t SPELL_FAILURE_REPEAT_WINDOW_MS = 3000;
+constexpr int32_t SPELL_DEST_LOCATION_CAST_LIFETIME_MS = 10000;
+constexpr float SPELL_MIN_PERIODIC_HASTE_MULTIPLIER = 0.001f;
+constexpr float SPELL_TRAJECTORY_HALF_RTT_FACTOR = 0.5f;
+constexpr float SPELL_TRAJECTORY_ARRIVAL_PADDING_SECONDS = 0.2f;
+constexpr float SPELL_TRAJECTORY_MAX_TIME_FACTOR = 1.3f;
+constexpr float SPELL_TERRAIN_RAY_RANGE_FACTOR_SQUARED = 16.0f;
+constexpr float SPELL_NEXT_SWING_MAX_RANGE = 100.0f;
+constexpr float SPELL_UNLOADED_TARGET_RANGE_THRESHOLD = 100.0f;
+
 // STATIC: 0x00D3F5AC
 static SpellHistory s_spellHistory[2];
 
@@ -357,7 +373,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
                     speed = stats->m_delay;
                 }
             } else {
-                speed = 2000;
+                speed = SPELL_DEFAULT_WEAPON_DELAY_MS;
             }
         }
 
@@ -538,7 +554,7 @@ bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID
 
     if (map) {
         if (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
-            if (!(spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && (spell->m_recoveryTime > 900000 || spell->m_categoryRecoveryTime > 900000 || (spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_NOT_USABLE_IN_ARENA))) {
+            if (!(spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && (spell->m_recoveryTime > SPELL_ARENA_COOLDOWN_LIMIT_MS || spell->m_categoryRecoveryTime > SPELL_ARENA_COOLDOWN_LIMIT_MS || (spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_NOT_USABLE_IN_ARENA))) {
                 return false;
             }
         } else if (spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ONLY_IN_ARENA) {
@@ -2396,7 +2412,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     }
 
     if (static_cast<int32_t>(now - s_nextHistoryCleanup) >= 0) {
-        s_nextHistoryCleanup = now + 120000;
+        s_nextHistoryCleanup = now + SPELL_HISTORY_CLEANUP_INTERVAL_MS;
 
         for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[0]); i++) {
             s_spellHistory[i].GarbageCollect(now);
@@ -3273,8 +3289,8 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
         }
 
         if (!CGRuneInfo::HasRunesForSpell(spellId, nullptr)) {
-            *start = latest - 10000;
-            *duration = 10000;
+            *start = latest - RUNE_BASE_COOLDOWN_MS;
+            *duration = RUNE_BASE_COOLDOWN_MS;
         } else {
             *duration = history->m_startRecoveryTime;
         }
@@ -3501,7 +3517,7 @@ int32_t SpellRec::GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUn
     }
 
     if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
-        castTime += 500;
+        castTime += SPELL_RANGED_CAST_TIME_EXTRA_MS;
 
         if (!isPet) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
@@ -3563,7 +3579,7 @@ void SpellRec::GetMinRange(const SpellRec* spell, float* range) {
     if (rec->m_flags & SPELL_RANGE_FLAG_MELEE) {
         *range = 0.0f;
     } else if (rec->m_flags << 1) {
-        *range = 5.0f;
+        *range = MELEE_RANGE_MIN;
         *range += rec->m_rangeMin[friendly];
     } else {
         *range = rec->m_rangeMin[friendly];
@@ -3576,7 +3592,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
     CGUnit_C* targetUnit = target && (target->m_obj->m_type & TYPE_UNIT) ? static_cast<CGUnit_C*>(target) : nullptr;
 
     if (spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) {
-        *maxRange = 100.0f;
+        *maxRange = SPELL_NEXT_SWING_MAX_RANGE;
         return;
     }
 
@@ -3592,18 +3608,18 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
             }
 
             float reach = targetUnit ? targetUnit->m_unit->m_unitFieldCombatreach : caster->m_unit->m_unitFieldCombatreach;
-            bonus = reach + caster->m_unit->m_unitFieldCombatreach + 1.3333334f;
+            bonus = reach + caster->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
-            if (bonus <= 5.0f) {
-                bonus = 5.0f;
+            if (bonus <= MELEE_RANGE_MIN) {
+                bonus = MELEE_RANGE_MIN;
             }
         } else {
             if (rec->m_flags & SPELL_RANGE_FLAG_RANGED) {
                 float reach = targetUnit ? targetUnit->m_unit->m_unitFieldCombatreach : caster->m_unit->m_unitFieldCombatreach;
-                *minRange = reach + caster->m_unit->m_unitFieldCombatreach + 1.3333334f;
+                *minRange = reach + caster->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
-                if (*minRange <= 5.0f) {
-                    *minRange = 5.0f;
+                if (*minRange <= MELEE_RANGE_MIN) {
+                    *minRange = MELEE_RANGE_MIN;
                 }
 
                 *minRange += rec->m_rangeMin[friendly];
@@ -3623,7 +3639,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
         }
 
         if (targetUnit && (caster->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && (targetUnit->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && !caster->IsRunning() && !targetUnit->IsRunning() && ((rec->m_flags & SPELL_RANGE_FLAG_MELEE) || (targetUnit->m_obj->m_type & TYPE_PLAYER))) {
-            bonus += 2.6666667f;
+            bonus += MELEE_MOVING_TARGET_BONUS;
         }
     }
 
@@ -3771,7 +3787,7 @@ int32_t Spell_C_GetDuration(const SpellRec* spell, int32_t isPet, int32_t isUnit
 
     for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAuraPeriod[i]) {
-            if (((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) || player->AffectedByAura(SPELL_AURA_PERIODIC_HASTE, spell)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) && player->m_unit->m_unitModCastSpeed >= 0.001f) {
+            if (((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) || player->AffectedByAura(SPELL_AURA_PERIODIC_HASTE, spell)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) && player->m_unit->m_unitModCastSpeed >= SPELL_MIN_PERIODIC_HASTE_MULTIPLIER) {
                 duration = CMath::fint_(duration * player->m_unit->m_unitModCastSpeed);
             }
 
@@ -5399,7 +5415,7 @@ int32_t Spell_C_HandleTerrainRay(const CTerrainClickEvent& evt, bool checkRange)
         return 0;
     }
 
-    return maxRange * maxRange * 16.0f >= distance ? 1 : 2;
+    return maxRange * maxRange * SPELL_TERRAIN_RAY_RANGE_FACTOR_SQUARED >= distance ? 1 : 2;
 }
 
 // VERIFY: 047edb41 manual
@@ -5683,7 +5699,7 @@ int32_t Packet_SMSG_ITEM_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time, 
             entry->m_spellId = spellId;
             entry->m_itemId = itemId;
             entry->m_time = time;
-            entry->m_recoveryTime = 30000;
+            entry->m_recoveryTime = SPELL_ITEM_COOLDOWN_INITIAL_MS;
             entry->m_category = 0;
             entry->m_categoryTime = 0;
             entry->m_categoryRecoveryTime = 0;
@@ -5777,7 +5793,7 @@ int32_t SpellHistory::RecentlyCast(int32_t spellId, int32_t itemId) {
     uint32_t now = OsGetAsyncTimeMs();
 
     for (SPELLHISTORY* history = this->m_history.Head(); history; history = this->m_history.Next(history)) {
-        if (history->m_spellId == spellId && history->m_itemId == itemId && static_cast<int32_t>(now - history->m_time - 1500) < 0) {
+        if (history->m_spellId == spellId && history->m_itemId == itemId && static_cast<int32_t>(now - history->m_time - SPELL_RECENT_CAST_WINDOW_MS) < 0) {
             return 1;
         }
     }
@@ -6375,7 +6391,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         uint32_t now = OsGetAsyncTimeMs();
 
         if (static_cast<uint32_t>(spellId) == s_lastFailedSpellId && reason == s_lastFailedReason) {
-            if (static_cast<int32_t>(now - s_lastFailedTime - 3000) < 0) {
+            if (static_cast<int32_t>(now - s_lastFailedTime - SPELL_FAILURE_REPEAT_WINDOW_MS) < 0) {
                 suppress = true;
             }
         } else {
@@ -7325,7 +7341,7 @@ void Spell_C_AddProcessedDestLocSpellCast(WOWGUID caster, uint8_t count, uint32_
     }
 
     node->m_castCount = count;
-    node->m_time = time + 10000;
+    node->m_time = time + SPELL_DEST_LOCATION_CAST_LIFETIME_MS;
 }
 
 // VERIFY: 1250aa97 auto
@@ -7619,8 +7635,8 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
     float bytes;
     uint32_t latency;
     ClientServices::Connection()->GetNetStats(bytes, bytes, latency);
-    float arrival = time + latency * 0.001f * 0.5f + 0.2f;
-    float limit = time * 1.3f;
+    float arrival = time + latency * 0.001f * SPELL_TRAJECTORY_HALF_RTT_FACTOR + SPELL_TRAJECTORY_ARRIVAL_PADDING_SECONDS;
+    float limit = time * SPELL_TRAJECTORY_MAX_TIME_FACTOR;
 
     if (limit < arrival) {
         arrival = limit;
@@ -8156,7 +8172,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
         float maxRange;
         Spell_C::GetSpellRange(caster, spell->m_id, &minRange, &maxRange, nullptr);
 
-        if (100.0f < maxRange) {
+        if (SPELL_UNLOADED_TARGET_RANGE_THRESHOLD < maxRange) {
             cast->m_data.m_objectTarget = target;
             Spell_C::SendPendingCast(cast, false);
             return true;
@@ -9261,24 +9277,24 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_soundKitID = visual->m_missileSound;
         missile->m_impactPos = data->m_destPosition;
         missile->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
-        float height = visual->m_missileFollowGroundHeight * 0.001f;
+        float height = visual->m_missileFollowGroundHeight * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
-        if (height <= 0.25f) {
-            height = 0.25f;
+        if (height <= MISSILE_MIN_HEIGHT) {
+            height = MISSILE_MIN_HEIGHT;
         }
 
         missile->m_groundOffset = height;
-        float rate = visual->m_missileFollowGroundDropSpeed * 0.001f;
+        float rate = visual->m_missileFollowGroundDropSpeed * SPELL_VISUAL_GROUND_PARAMETER_SCALE;
 
-        if (rate <= 0.01f) {
-            rate = 0.01f;
+        if (rate <= MISSILE_MIN_GROUND_DROP_SPEED) {
+            rate = MISSILE_MIN_GROUND_DROP_SPEED;
         }
 
         missile->m_followGroundRate = rate;
-        missile->m_followGroundStart = fclamp(0.001f * visual->m_missileFollowGroundApproach, 0.0f, 1.0f);
+        missile->m_followGroundStart = fclamp(SPELL_VISUAL_GROUND_PARAMETER_SCALE * visual->m_missileFollowGroundApproach, 0.0f, 1.0f);
         missile->m_motionFlags = visual->m_missileFollowGroundFlags;
 
-        if (visual->m_missileFollowGroundFlags & 1) {
+        if (visual->m_missileFollowGroundFlags & SPELL_VISUAL_FOLLOW_GROUND_ENABLED) {
             missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_GROUND_FOLLOW_SETUP_MASK;
         }
 
