@@ -814,8 +814,8 @@ void CSimpleRender::DrawBatch(CRenderBatch* batch) {
 // VERIFY: e5b220d7 auto
 // OFFSET: 0x00482200
 void CSimpleFontString::RemoveShadow() {
-    if (this->m_styleFlags & 0x100) {
-        this->m_styleFlags &= ~0x100u;
+    if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) {
+        this->m_styleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW;
 
         if (this->m_string) {
             TextBlockRemoveShadow(this->m_string);
@@ -828,7 +828,7 @@ void CSimpleFontString::RemoveShadow() {
 float CSimpleFontString::GetFontHeight(bool recalculate) {
     float fontHeight = this->m_fontHeight;
 
-    if (recalculate && this->m_fontHandle && (this->m_styleFlags & 0x200)) {
+    if (recalculate && this->m_fontHandle && (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_FIXED_SIZE)) {
         float ndcHeight = GxuFontGetOneToOneHeight(TextBlockGetFontPtr(this->m_fontHandle)) / this->m_layoutScale;
         NDCToDDC(0.0f, ndcHeight, nullptr, &fontHeight);
     }
@@ -1048,8 +1048,8 @@ CSimpleFontString::CSimpleFontString(CSimpleFrame* frame, uint32_t drawLayer, bo
     this->m_string = nullptr;
     this->m_shadowColor.a = 0xFF;
     this->m_alphaGradientStart = -1;
-    this->m_styleFlags = 0x212;
-    this->m_settableStyleFlags = 0x2107F;
+    this->m_styleFlags = TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_DEFAULT_STYLE;
+    this->m_settableStyleFlags = TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_DEFAULT_SETTABLE_STYLE;
     this->m_maxLines = (this->m_maxLines & 0xFE000000) | 0x1000000;
     s_fontStringCount++;
 }
@@ -1216,9 +1216,9 @@ void CSimpleFontString::PostLoadXML(XMLNode* node, CStatus* status) {
         return;
     }
 
-    if (this->m_styleFlags & 0x1) {
+    if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT) {
         this->SetPoint(FRAMEPOINT_LEFT, this->m_parent, FRAMEPOINT_LEFT, 0.0f, 0.0f, 1);
-    } else if (this->m_styleFlags & 0x4) {
+    } else if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT) {
         this->SetPoint(FRAMEPOINT_RIGHT, this->m_parent, FRAMEPOINT_RIGHT, 0.0f, 0.0f, 1);
     } else {
         this->SetPoint(FRAMEPOINT_CENTER, this->m_parent, FRAMEPOINT_CENTER, 0.0f, 0.0f, 1);
@@ -1271,7 +1271,7 @@ int32_t CSimpleFontString::SetFont(const char* fontName, float fontHeight, uint3
 void CSimpleFontString::SetTextHeight(float height) {
     if (fabsf(height - this->m_fontHeight) >= 0.00000023841858f) {
         this->m_fontHeight = height;
-        this->m_styleFlags &= ~0x200u;
+        this->m_styleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_FIXED_SIZE;
         this->ClearString();
     }
 }
@@ -1344,11 +1344,11 @@ void CSimpleFontString::SetJustificationOffset(float x, float y) {
 // VERIFY: 273d1f7a manual
 // OFFSET: 0x00483CD0
 void CSimpleFontString::AddShadow(const CImVector& color, const C2Vector& offset) {
-    if ((this->m_styleFlags & 0x100) && *reinterpret_cast<const uint32_t*>(&color) == *reinterpret_cast<uint32_t*>(&this->m_shadowColor) && this->m_shadowOffset.x == offset.x && this->m_shadowOffset.y == offset.y) {
+    if ((this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) && *reinterpret_cast<const uint32_t*>(&color) == *reinterpret_cast<uint32_t*>(&this->m_shadowColor) && this->m_shadowOffset.x == offset.x && this->m_shadowOffset.y == offset.y) {
         return;
     }
 
-    this->m_styleFlags |= 0x100;
+    this->m_styleFlags |= TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW;
     this->m_shadowColor = color;
     this->m_shadowOffset = offset;
 
@@ -1518,7 +1518,7 @@ void CSimpleFontString::OnColorChanged(bool changed) {
 
         TextBlockUpdateColor(this->m_string, color);
 
-        if (this->m_styleFlags & 0x100) {
+        if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) {
             CImVector shadowColor = this->m_shadowColor;
             C2Vector shadowOffset;
             shadowOffset.x = this->m_shadowOffset.x * this->m_layoutScale;
@@ -1590,7 +1590,7 @@ void CSimpleFontString::UpdateString() {
         color.r = 0xFF;
         color.a = 0xFF;
 
-        if (!(styleFlags & 0x400)) {
+        if (!(styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_UNIFORM_COLOR)) {
             bool hasColorCode = false;
 
             for (int32_t i = 0; text[i]; i++) {
@@ -1605,7 +1605,7 @@ void CSimpleFontString::UpdateString() {
             }
 
             if (!hasColorCode) {
-                styleFlags |= 0x400;
+                styleFlags |= TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_UNIFORM_COLOR;
             }
         }
 
@@ -1615,7 +1615,7 @@ void CSimpleFontString::UpdateString() {
 
         this->m_string = TextBlockCreate(this->m_fontHandle, text, color, position, this->GetFontHeight(true) * this->m_layoutScale, width, height, styleFlags, 0.0f, this->m_spacing * this->m_layoutScale, this->m_layoutScale);
 
-        if (this->m_styleFlags & 0x100) {
+        if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) {
             CImVector shadowColor = this->m_shadowColor;
             uint8_t alpha = this->m_parent->GetEffectiveAlpha();
             C2Vector shadowOffset;
@@ -1723,8 +1723,8 @@ void CSimpleFontString::SetShadowColor(const CImVector& color) {
 // VERIFY: 283d01b1 auto
 // OFFSET: 0x00487190
 void CSimpleFontString::SetJustifyH(uint8_t justify) {
-    this->m_settableStyleFlags &= ~0x7u;
-    uint32_t styleFlags = (this->m_styleFlags & ~0x7u) | (justify & 0x7);
+    this->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK;
+    uint32_t styleFlags = (this->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) | (justify & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK);
 
     if (styleFlags != this->m_styleFlags) {
         this->m_styleFlags = styleFlags;
@@ -1738,8 +1738,8 @@ void CSimpleFontString::SetJustifyH(uint8_t justify) {
 // VERIFY: d976f70d auto
 // OFFSET: 0x004871D0
 void CSimpleFontString::SetJustifyV(uint8_t justify) {
-    this->m_settableStyleFlags &= ~0x38u;
-    uint32_t styleFlags = (this->m_styleFlags & ~0x38u) | (justify & 0x38);
+    this->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_V_MASK;
+    uint32_t styleFlags = (this->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_V_MASK) | (justify & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_V_MASK);
 
     if (styleFlags != this->m_styleFlags) {
         this->m_styleFlags = styleFlags;
@@ -1753,8 +1753,8 @@ void CSimpleFontString::SetJustifyV(uint8_t justify) {
 // VERIFY: e9a340b1 auto
 // OFFSET: 0x00487210
 void CSimpleFontString::SetNonWordWrap(int32_t noWrap) {
-    this->m_settableStyleFlags &= ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NO_WORD_WRAP;
-    uint32_t styleFlags = noWrap ? this->m_styleFlags | TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NO_WORD_WRAP : this->m_styleFlags & ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NO_WORD_WRAP;
+    this->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NO_WORD_WRAP;
+    uint32_t styleFlags = noWrap ? this->m_styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NO_WORD_WRAP : this->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NO_WORD_WRAP;
 
     if (styleFlags != this->m_styleFlags) {
         this->m_styleFlags = styleFlags;
@@ -1768,8 +1768,8 @@ void CSimpleFontString::SetNonWordWrap(int32_t noWrap) {
 // VERIFY: eb8e3134 auto
 // OFFSET: 0x00487250
 void CSimpleFontString::SetNonSpaceWrap(int32_t wrap) {
-    this->m_settableStyleFlags &= ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NON_SPACE_WRAP;
-    uint32_t styleFlags = wrap ? this->m_styleFlags | TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NON_SPACE_WRAP : this->m_styleFlags & ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NON_SPACE_WRAP;
+    this->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NON_SPACE_WRAP;
+    uint32_t styleFlags = wrap ? this->m_styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NON_SPACE_WRAP : this->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NON_SPACE_WRAP;
 
     if (styleFlags != this->m_styleFlags) {
         this->m_styleFlags = styleFlags;
@@ -1783,8 +1783,8 @@ void CSimpleFontString::SetNonSpaceWrap(int32_t wrap) {
 // VERIFY: 8f4f99c8 auto
 // OFFSET: 0x004872A0
 void CSimpleFontString::SetIndented(int32_t indented) {
-    this->m_settableStyleFlags &= ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_INDENTED;
-    uint32_t styleFlags = indented ? this->m_styleFlags | TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_INDENTED : this->m_styleFlags & ~TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_INDENTED;
+    this->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_INDENTED;
+    uint32_t styleFlags = indented ? this->m_styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_INDENTED : this->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_INDENTED;
 
     if (styleFlags != this->m_styleFlags) {
         this->m_styleFlags = styleFlags;
@@ -2439,33 +2439,33 @@ void CSimpleEmbeddedTexture::InitEmbeddedTexture(CSimpleFontString* string, cons
             float y = 0.0f;
             uint32_t point = FRAMEPOINT_TOPLEFT;
 
-            switch (styleFlags & 0x7) {
-                case 0x1:
+            switch (styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT:
                     x = left + offsetX;
                     break;
 
-                case 0x2:
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER:
                     point = FRAMEPOINT_TOP;
                     x = (right + left) * 0.5f + offsetX;
                     break;
 
-                case 0x4:
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT:
                     point = FRAMEPOINT_TOPRIGHT;
                     x = right + offsetX;
                     break;
             }
 
-            switch (styleFlags & 0x38) {
-                case 0x8:
+            switch (styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_V_MASK) {
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_TOP:
                     y = top + offsetY;
                     break;
 
-                case 0x10:
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_MIDDLE:
                     point += 3;
                     y = (string->GetStringHeight() * string->m_layoutScale + height) * 0.5f + baseLine + offsetY;
                     break;
 
-                case 0x20:
+                case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_BOTTOM:
                     point += 6;
                     y = string->GetStringHeight() + baseLine + offsetY;
                     break;

@@ -630,9 +630,9 @@ void CSimpleButton::SetFontString(CSimpleFontString* fontString) {
         if (!fontString->HasAnyFramepoints()) {
             uint32_t styleFlags = this->m_normalFont ? this->m_normalFont->m_attributes.m_styleFlags : 0;
 
-            if (styleFlags & 0x1) {
+            if (styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT) {
                 fontString->SetPoint(FRAMEPOINT_LEFT, this, FRAMEPOINT_LEFT, 0.0f, 0.0f, 1);
-            } else if (styleFlags & 0x4) {
+            } else if (styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT) {
                 fontString->SetPoint(FRAMEPOINT_RIGHT, this, FRAMEPOINT_RIGHT, 0.0f, 0.0f, 1);
             } else {
                 fontString->SetPoint(FRAMEPOINT_CENTER, this, FRAMEPOINT_CENTER, 0.0f, 0.0f, 1);

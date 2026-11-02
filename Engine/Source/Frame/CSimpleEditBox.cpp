@@ -1552,7 +1552,7 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
     float left;
     float right;
 
-    if ((this->m_fontString->m_styleFlags & 0x7) == 2) {
+    if ((this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) == 2) {
         float textWidth = this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]);
         float width = rect.maxX - rect.minX;
         left = rect.minX + (width - textWidth) * 0.5f;
@@ -1575,7 +1575,7 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
         offset = right;
     }
 
-    uint32_t justify = this->m_fontString->m_styleFlags & 0x7;
+    uint32_t justify = this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK;
 
     if (!justify) {
         return 1;
@@ -1657,7 +1657,7 @@ void CSimpleEditBox::UpdateVisibleCursor() {
 
     this->m_cursorTexture->MarkFramePointsUnused();
 
-    switch (this->m_fontString->m_styleFlags & 0x7) {
+    switch (this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
         case 1:
             x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
 
@@ -1748,7 +1748,7 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
 
     region->MarkFramePointsUnused();
 
-    switch (this->m_fontString->m_styleFlags & 0x7) {
+    switch (this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
         case 1:
             x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
 
@@ -2280,8 +2280,8 @@ void CSimpleEditBox::SetMultiLine(int32_t enable) {
     if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
         fontString->SetJustifyV(0x8);
 
-        fontString->m_settableStyleFlags &= ~0x4000u;
-        uint32_t styleFlags = fontString->m_styleFlags & ~0x4000u;
+        fontString->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
+        uint32_t styleFlags = fontString->m_styleFlags & ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
 
         if (styleFlags != fontString->m_styleFlags) {
             fontString->m_styleFlags = styleFlags;
@@ -2295,8 +2295,8 @@ void CSimpleEditBox::SetMultiLine(int32_t enable) {
     } else {
         fontString->SetJustifyV(0x10);
 
-        fontString->m_settableStyleFlags &= ~0x4000u;
-        uint32_t styleFlags = fontString->m_styleFlags | 0x4000;
+        fontString->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
+        uint32_t styleFlags = fontString->m_styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
 
         if (styleFlags != fontString->m_styleFlags) {
             fontString->m_styleFlags = styleFlags;

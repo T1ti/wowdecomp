@@ -259,10 +259,10 @@ CSimpleMessageScrollFrameDisplayNode::CSimpleMessageScrollFrameDisplayNode() {
 
     CSimpleFontStringRecord* string = this->m_string;
     uint32_t styleFlags = string->m_styleFlags;
-    string->m_settableStyleFlags &= ~0x4000u;
+    string->m_settableStyleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
 
-    if ((styleFlags | 0x4000) != styleFlags) {
-        string->m_styleFlags = styleFlags | 0x4000;
+    if ((styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES) != styleFlags) {
+        string->m_styleFlags = styleFlags | TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES;
 
         if (string->m_string) {
             string->UpdateString();

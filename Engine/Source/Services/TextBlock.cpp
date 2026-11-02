@@ -24,49 +24,49 @@ FONTHASHOBJ::FONTHASHOBJ() {
 // VERIFY: 411a7a2f auto
 // OFFSET: 0x004BD870
 static uint32_t ConvertStringFlags(uint32_t flags) {
-    uint32_t result = (flags & 0x100) != 0;
+    uint32_t result = (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) != 0;
 
-    if (flags & 0x200) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_FIXED_SIZE) {
         result |= 0x4;
     }
 
-    if (flags & 0x400) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_UNIFORM_COLOR) {
         result |= 0x8;
     }
 
-    if (flags & 0x800) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_FIXED_WIDTH) {
         result |= 0x10;
     }
 
-    if (flags & TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NO_WORD_WRAP) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NO_WORD_WRAP) {
         result |= 0x2;
     }
 
-    if (flags & TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_NON_SPACE_WRAP) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_NON_SPACE_WRAP) {
         result |= 0x40;
     }
 
-    if (flags & 0x2000) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_COLOR_CODES) {
         result |= 0x100;
     }
 
-    if (flags & 0x4000) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_NEWLINE_CODES) {
         result |= 0x200;
     }
 
-    if (flags & 0x8000) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_HYPERLINK_CODES) {
         result |= 0x400;
     }
 
-    if (flags & 0x80) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_PIPE_CODES) {
         result |= 0x800;
     }
 
-    if (flags & 0x10000) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_IGNORE_TEXTURE_CODES) {
         result |= 0x1000;
     }
 
-    if (flags & TEXTBLOCK_WRAP_FLAGS::TEXTBLOCK_INDENTED) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_INDENTED) {
         result |= 0x2000;
     }
 
@@ -180,17 +180,17 @@ HTEXTBLOCK TextBlockCreate(HTEXTFONT font, const char* text, const CImVector& co
 
     EGxFontHJusts horzJust = GxHJ_Center;
 
-    if (flags & 0x4) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT) {
         horzJust = GxHJ_Right;
-    } else if (!(flags & 0x2) && (flags & 0x1)) {
+    } else if (!(flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER) && (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT)) {
         horzJust = GxHJ_Left;
     }
 
     EGxFontVJusts vertJust = GxVJ_Middle;
 
-    if (flags & 0x8) {
+    if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_TOP) {
         vertJust = GxVJ_Top;
-    } else if (flags & 0x20) {
+    } else if (flags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_BOTTOM) {
         vertJust = GxVJ_Bottom;
     }
 
