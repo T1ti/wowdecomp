@@ -2638,7 +2638,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
     mapDoodadDef->m_model = model;
 
     if (model) {
-        model->m_runtimeFlags |= 0x8000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         model->m_worldTransform = mapDoodadDef->m_mat;
         mapDoodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(mapDoodadDef));
         mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -2721,7 +2721,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
     mapDoodadDef->m_model = model;
 
     if (model) {
-        model->m_runtimeFlags |= 0x8000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         model->m_worldTransform = mapDoodadDef->m_mat;
         mapDoodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(mapDoodadDef));
         mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
@@ -6423,7 +6423,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
         }
 
         CM2Model* current = doodadDef->m_model;
-        current->m_runtimeFlags |= 0x8000;
+        current->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         current->m_worldTransform = doodadDef->m_mat;
     }
 

@@ -1135,7 +1135,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MOVEMENT_STOPPED;
     CM2Model* model = this->m_unit->GetObjectModel();
 
-    if ((this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && model && (model->m_runtimeFlags & 0x8000)) {
+    if ((this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
     } else {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM;
@@ -1941,7 +1941,7 @@ void CVehiclePassenger_C::UpdateModel() {
     }
 
     if (useMatrix) {
-        model->m_runtimeFlags |= 0x8000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         model->m_worldTransform = matrix;
     } else {
         model->SetWorldTransform(position, facing, scale, up, 0xFFFFFFFF);

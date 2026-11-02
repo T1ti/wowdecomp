@@ -7929,7 +7929,7 @@ static int32_t Spell_C_UpdateSpellWorldObject(void* param, uint32_t flags, uint6
         C44Matrix matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, s_cursorWorldObjectPosition.x, s_cursorWorldObjectPosition.y, s_cursorWorldObjectPosition.z, 1.0f);
         matrix.RotateAroundZ(s_cursorWorldObjectFacing);
         matrix.Scale(s_cursorWorldObjectScale);
-        s_spellWorldModel->m_runtimeFlags |= 0x8000;
+        s_spellWorldModel->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         s_spellWorldModel->m_worldTransform = matrix;
     }
 
@@ -9264,7 +9264,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
             SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
             if (effectName && *effectName->m_fileName) {
-                model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0x40);
+                model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
                 scale = effectName->m_scale;
             }
         }

@@ -75,7 +75,7 @@ C3Vector LightningObject::GetCasterPosition(CGUnit_C* unit, uint32_t attachment,
     position.y = base.y;
     position.z = unit->m_scale * unit->m_height * 0.75f + base.z;
 
-    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000)) {
+    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         if (attachment != MODEL_ATTACHMENT_ID::ATTACH_NONE && unit->HasAttachmentForEffect(attachment, raw)) {
             return unit->GetAttachmentPositionForEffect(attachment, offset, raw);
         }
@@ -104,7 +104,7 @@ C3Vector LightningObject::GetImpactPosition(CGUnit_C* unit, uint32_t spellId) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
-        if (model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000) && model->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL)) {
+        if (model->IsLoaded(0, 0) && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) && model->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL)) {
             return model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_TORSOSPELL);
         }
 
@@ -115,7 +115,7 @@ C3Vector LightningObject::GetImpactPosition(CGUnit_C* unit, uint32_t spellId) {
     const SpellVisualRec* visual = (unit->m_obj->m_type & TYPE_UNIT) ? unit->GetAppropriateSpellVisual(&spell, buffer, 0, 0) : GetSpellVisual(&spell);
     int32_t raw = visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS;
 
-    if (model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000) && unit->HasAttachmentForEffect(visual->m_missileDestinationAttachment, raw)) {
+    if (model->IsLoaded(0, 0) && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) && unit->HasAttachmentForEffect(visual->m_missileDestinationAttachment, raw)) {
         position.x = visual->m_missileImpactOffset[0];
         position.y = -visual->m_missileImpactOffset[1];
         position.z = visual->m_missileImpactOffset[2];
@@ -853,7 +853,7 @@ void BlizzardObject::Render(int32_t visible) {
         }
 
         model = shard->m_model;
-        model->m_runtimeFlags |= 0x8000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         C44Matrix& transform = model->m_worldTransform;
         transform.a0 = 1.0f;
         transform.a1 = 0.0f;

@@ -970,7 +970,7 @@ void CGUnit_C::UpdateWorldObject(int32_t a2) {
             && this->m_vehiclePassenger->m_state
             && (this->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_USE_MODEL_TRANSFORM)
             && model
-            && (model->m_runtimeFlags & 0x8000)) {
+            && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
             matrix = model->GetAnimatedWorldTransform();
         } else {
             matrix = this->GetMatrix();
@@ -1240,7 +1240,7 @@ int32_t CGUnit_C::Animate(float elapsed) {
         }
 
         CM2Model* model = this->GetObjectModel();
-        model->m_runtimeFlags |= 0x8000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         model->m_worldTransform = matrix;
         this->UpdateMountTransitionModel();
         return 1;
@@ -18362,7 +18362,7 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
             this->m_missiles->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_USE_ANIMATED_MODEL_TRANSFORM;
             CM2Model* missileModel = this->m_missiles->m_model;
-            missileModel->m_runtimeFlags |= 0x8000;
+            missileModel->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
             missileModel->m_worldTransform = transform;
             C3Vector firePosition(transform.d0, transform.d1, transform.d2);
             this->m_missiles->FireMissiles(&firePosition);
@@ -18978,7 +18978,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
                 SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
-                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0x40);
+                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
                     scale = effectName->m_scale;
                 }
 
@@ -19238,7 +19238,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
                 SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
-                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0x40);
+                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
                     scale = effectName->m_scale;
                 }
 
@@ -19427,7 +19427,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
                 SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
-                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0x40);
+                    model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
                     scale = effectName->m_scale;
                 }
 
@@ -21411,7 +21411,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         mount->SetSequenceCallback(reinterpret_cast<void*>(&CGUnit_C::MountAnimEndCallback), this->m_obj->m_guid.m_guid);
         mount->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
         C44Matrix transform = this->m_worldModel->m_worldTransform;
-        mount->m_runtimeFlags |= 0x8000;
+        mount->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         mount->m_worldTransform = transform;
         CCharacterComponent::ApplyMonsterGeosets(mount, displayInfo);
         CCharacterComponent::ReplaceMonsterSkin(mount, displayInfo, modelData);
@@ -21438,7 +21438,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
 
         this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, this->m_mountAnimBehaviorId, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
         C44Matrix scale(1.0f / this->m_mountScale);
-        this->m_worldModel->m_runtimeFlags |= 0x8000;
+        this->m_worldModel->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         this->m_worldModel->m_worldTransform = scale;
         mount->m_diffuseTintR = this->m_worldModel->m_diffuseTintR;
         mount->m_diffuseTintG = this->m_worldModel->m_diffuseTintG;
@@ -23525,7 +23525,7 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
     transform.d2 = transform.d2 + jump.z;
 
     CM2Model* objectModel = this->GetObjectModel();
-    objectModel->m_runtimeFlags |= 0x8000;
+    objectModel->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     objectModel->m_worldTransform = transform;
 
     if (this->m_mountTransitionEffect) {
@@ -23567,7 +23567,7 @@ void CGUnit_C::AttachPrecastMissileModel(const SpellVisualRec* visual, uint8_t c
     }
 
     uint32_t attachId = raw ? visual->m_missileAttachment : s_effectAttachmentIds[visual->m_missileAttachment];
-    this->m_precastMissileModel = World::s_m2Scene->CreateModel(effectName->m_fileName, 64);
+    this->m_precastMissileModel = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
     C44Matrix world = this->GetObjectModel()->m_worldTransform;
     C3Vector position;
     position.x = 0.0f;

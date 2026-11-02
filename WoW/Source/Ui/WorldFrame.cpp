@@ -2042,7 +2042,7 @@ void CGWorldFrame::OnWorldUpdate() {
             C3Vector offset = C3Vector(facing.x * backDist, facing.y * backDist, backDist * facing.z);
             C3Vector listener;
 
-            if (focus->m_worldModel && (focus->m_worldModel->m_runtimeFlags & 0x8000)) {
+            if (focus->m_worldModel && (focus->m_worldModel->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
                 listener = focus->m_worldModel->GetWorldPosition() - offset;
                 listener.z = listener.z + upDist;
             } else {

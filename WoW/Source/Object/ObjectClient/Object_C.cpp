@@ -931,7 +931,7 @@ void CGObject_C::DoFade(float alpha, uint32_t time) {
 C44Matrix CGObject_C::GetModelMatrix() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_runtimeFlags & 0x8000)) {
+    if (model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         model->Animate();
         return model->m_matrixF4 * model->m_scene->m_viewInv;
     }
@@ -944,7 +944,7 @@ C44Matrix CGObject_C::GetModelMatrix() {
 C3Vector CGObject_C::GetModelPosition() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_runtimeFlags & 0x8000)) {
+    if (model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         model->Animate();
         return *reinterpret_cast<const C3Vector*>(&model->m_matrixF4.d0) * model->m_scene->m_viewInv;
     }

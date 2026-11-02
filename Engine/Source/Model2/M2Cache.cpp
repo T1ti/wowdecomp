@@ -363,7 +363,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
         *link = shared;
     }
 
-    if (flags & 0x40) {
+    if (flags & M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL) {
         shared->m_flags |= CM2Shared::SHARED_FLAGS::FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL;
     }
 

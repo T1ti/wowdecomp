@@ -423,7 +423,7 @@ C3Vector CObjectEffect::GetWorldPosition() {
     CM2Model* model = object->GetObjectModel();
     C44Matrix transform;
 
-    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000)) {
+    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         if (model->HasAttachment(this->m_def->m_attachment)) {
             transform = model->GetAttachmentWorldTransform(this->m_def->m_attachment);
         } else {

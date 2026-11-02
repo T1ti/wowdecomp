@@ -1083,7 +1083,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
 
     CM2Model* model = this->GetObjectModel();
 
-    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000) && model->HasEvent(M2_EVENT_ID::MissileFirePosition_AIM)) {
+    if (model && model->IsLoaded(0, 0) && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) && model->HasEvent(M2_EVENT_ID::MissileFirePosition_AIM)) {
         *launch = model->GetEventPosition(M2_EVENT_ID::MissileFirePosition_AIM);
     } else {
         *launch = this->GetMissileFirePosition();
@@ -1132,7 +1132,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
         root = this;
     }
 
-    if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && model && (model->m_runtimeFlags & 0x8000)) {
+    if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         C44Matrix transform = model->GetAnimatedWorldTransform();
 
         if (transform.c2 < 1.0f) {

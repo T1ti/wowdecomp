@@ -4,6 +4,17 @@
 #include <cstddef>
 #include <cstdint>
 
+// Separate native words: model instance state vs input flags passed through CreateModel.
+enum M2_MODEL_RUNTIME_FLAGS : uint32_t {
+    // SetWorldTransform establishes the matrix; attachment paths inherit this validity bit.
+    M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID = 0x8000,
+};
+
+enum M2_MODEL_CREATE_FLAGS : uint32_t {
+    // CM2Cache::CreateShared forwards this bit to the shared-model flags.
+    M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL = 0x40,
+};
+
 // M2 event IDs store the first character in the low byte: "$CPP" is 0x50504324.
 constexpr uint32_t M2EventFourCC(const char (&id)[5]) {
     return static_cast<uint32_t>(static_cast<uint8_t>(id[0]))

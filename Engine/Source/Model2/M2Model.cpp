@@ -741,7 +741,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
     matrix.Scale(scale);
     matrix.d0 = position.x;
     matrix.d1 = position.y;
-    this->m_runtimeFlags |= 0x8000;
+    this->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     matrix.d2 = position.z;
 }
 
@@ -894,7 +894,7 @@ CAaSphere CM2Model::GetMaxBoundingSpherePlusAttachments() {
 // VERIFY: 4e809ba8 manual
 // OFFSET: 0x00825750
 CAaBox CM2Model::GetCurrentBoundingBox() {
-    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & 0x8000)) {
+    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         CAaBox result;
         result.b.x = FLT_MAX;
         result.b.y = FLT_MAX;
@@ -953,7 +953,7 @@ CAaBox CM2Model::GetCurrentBoundingBox() {
 // VERIFY: 21639f35 manual
 // OFFSET: 0x00825A60
 CAaBox CM2Model::GetSplitBodyBoundingBox(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & 0x8000)) {
+    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         CAaBox result;
         result.b.x = FLT_MAX;
         result.b.y = FLT_MAX;
@@ -2491,7 +2491,7 @@ void CM2Model::AnimateST() {
     M2Data* data = this->m_shared->m_data;
     CM2Model* parent = this->m_attachParent;
 
-    if (!parent || (this->m_runtimeFlags ^= (this->m_runtimeFlags ^ parent->m_runtimeFlags) & 0x8000, parent->m_creationFlags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
+    if (!parent || (this->m_runtimeFlags ^= (this->m_runtimeFlags ^ parent->m_runtimeFlags) & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID, parent->m_creationFlags & INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE)) {
         this->m_currentLighting = &this->m_lighting;
     } else {
         this->m_currentLighting = parent->m_currentLighting;
@@ -2583,7 +2583,7 @@ void CM2Model::AnimateST() {
 
         emitter->SetDataEnabled(ribbon->m_visibilityTrack.m_currentValue != 0);
 
-        if (this->m_runtimeFlags & 0x8000) {
+        if (this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) {
             emitter->SetPos(transform, C3Vector(0.0f, 0.0f, 0.0f), static_cast<const C44Matrix*>(this->m_frameOfReference));
             emitter->Update(deltaTime, ribbon->m_visibilityTrack.m_currentValue == 0);
         }
@@ -3939,7 +3939,7 @@ void CM2Model::FreeInternalResources() {
 CAaSphere CM2Model::GetCurrentBoundingSphere() {
     CAaSphere result;
 
-    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & 0x8000)) {
+    if (!(this->m_runtimeFlags & 1) || !(this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
         result.c = C3Vector(0.0f, 0.0f, 0.0f);
         result.r = 0.0f;
         return result;
@@ -4308,7 +4308,7 @@ void CM2Model::GetSequenceInfo(uint32_t id, uint32_t variation, M2SequenceInfo& 
     float moveSpeed = sequence->m_moveSpeed;
     info.m_moveSpeed = moveSpeed;
 
-    if (this->m_runtimeFlags & 0x8000) {
+    if (this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) {
         if (this->m_attachParent) {
             const C44Matrix& m = this->m_matrixF4;
             const C44Matrix& v = this->m_scene->m_viewInv;
@@ -4654,7 +4654,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
     }
 
     transform.Scale(scale);
-    this->m_runtimeFlags |= 0x8000;
+    this->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
 }
 
 // VERIFY: 577fb428 manual
@@ -6122,14 +6122,14 @@ void CM2Model::AttachToParent(CM2Model* parent, uint32_t id, const C3Vector* pos
         float scale = sqrtf(transform.a1 * transform.a1 + transform.a2 * transform.a2 + transform.a0 * transform.a0);
         transform = transform.AffineInverse(scale);
 
-        if (!(this->m_runtimeFlags & 0x8000)) {
+        if (!(this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
             this->m_worldTransform.Identity();
         }
 
         C3Vector local = *position * transform;
         this->m_worldTransform.d0 = local.x;
         this->m_worldTransform.d1 = local.y;
-        this->m_runtimeFlags |= 0x8000;
+        this->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         this->m_worldTransform.d2 = local.z;
     }
 
@@ -7791,7 +7791,7 @@ int32_t CM2Model::Initialize(CM2Scene* scene, CM2Shared* shared, CM2Model* sourc
 // VERIFY: 767a1eb1 auto
 // OFFSET: 0x004D8630
 void CM2Model::SetWorldTransform(const C44Matrix& matrix) {
-    this->m_runtimeFlags |= 0x8000;
+    this->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     this->m_worldTransform = matrix;
 }
 

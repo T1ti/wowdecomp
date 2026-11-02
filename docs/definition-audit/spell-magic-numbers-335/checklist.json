@@ -541,21 +541,25 @@
     },
     {
       "id": 43,
-      "state": "pending",
+      "state": "done",
       "values": "0x8000",
       "description": "Spell world model runtime flag; unrelated to the inventory mask with the same value.",
       "original_lines": [
         7902
-      ]
+      ],
+      "evidence": "Native SetWorldTransform at 0x00825243 sets runtime bit 0x8000; bounding-box readers require it and attached-model paths inherit it.",
+      "notes": "Named world-transform validity in the separate M2 runtime word at every matching consumer; no structure or expression changes."
     },
     {
       "id": 44,
-      "state": "pending",
+      "state": "done",
       "values": "0x40",
       "description": "M2 CreateModel flags; unrelated to aura vision.",
       "original_lines": [
         9237
-      ]
+      ],
+      "evidence": "CM2Cache::CreateShared at 0x0081C6C1 tests creation bit 0x40 and 0x0081C6C6 forwards it to the shared-model texture-priority/deferred-cancel flag.",
+      "notes": "Named creation-input flag at the cache provider and all five literal CreateModel callers. Kept distinct from runtime state. Source equivalence and Win32/x64 syntax checks passed across all affected units."
     },
     {
       "id": 45,

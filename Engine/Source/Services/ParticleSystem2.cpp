@@ -928,7 +928,7 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     }
 
     CM2Model* model = particle.m_model;
-    model->m_runtimeFlags |= 0x8000;
+    model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     model->m_worldTransform = transform;
 
     model = particle.m_model;
