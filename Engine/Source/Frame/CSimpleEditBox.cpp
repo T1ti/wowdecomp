@@ -160,7 +160,7 @@ CSimpleEditBox::CSimpleEditBox(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_cursorTexture = nullptr;
     this->m_cursorPos = 0;
     this->m_editBoxFlags = EDITBOX_FLAGS::EDITBOX_AUTO_FOCUS;
-    this->m_dirtyBits = 0x1;
+    this->m_dirtyBits = DIRTY_BITS::DIRTY_TEXT;
     this->m_historyLines = 0;
     this->m_historyIndex = 0;
     this->m_imeComposition = 0;
@@ -281,7 +281,7 @@ void CSimpleEditBox::OnFocusChange(bool focus, bool runScript) {
         }
     }
 
-    this->m_dirtyBits |= 0x4;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
 }
 
 // VERIFY: 94275693 auto
@@ -709,15 +709,15 @@ void CSimpleEditBox::DeleteSubstring(int32_t left, int32_t right, int32_t script
     this->m_textInfo[this->m_textLength] = 0;
 
     if (this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
 
-    this->m_dirtyBits |= 0x5;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_TEXT_AND_CURSOR;
 
     if (!script) {
-        this->m_dirtyBits |= 0x8;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_USER_INPUT;
     }
 
     if (!this->m_textLength) {
@@ -745,7 +745,7 @@ void CSimpleEditBox::HighlightText(int32_t left, int32_t right) {
         end = length;
     }
 
-    this->m_dirtyBits |= 0x2;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
     this->m_highlightLeft = start;
     this->m_highlightRight = end;
 }
@@ -761,11 +761,11 @@ void CSimpleEditBox::ExtendHighlight(int32_t count) {
 
     if (count >= 0 ? position > this->m_highlightRight : position >= this->m_highlightLeft) {
         int32_t right = position >= this->m_textLength ? this->m_textLength : position;
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = right > 0 ? right : 0;
     } else {
         int32_t left = position <= 0 ? 0 : position;
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightLeft = left >= this->m_textLength ? this->m_textLength : left;
     }
 }
@@ -817,13 +817,13 @@ void CSimpleEditBox::CopyToClipboard() {
 // OFFSET: 0x00963350
 void CSimpleEditBox::SetCursorPosition(int32_t position) {
     if (position < 0) {
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
         this->m_cursorPos = 0;
         return;
     }
 
     this->m_cursorPos = position > this->m_textLength ? this->m_textLength : position;
-    this->m_dirtyBits |= 0x4;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
 }
 
 // VERIFY: 04d3c307 auto
@@ -912,7 +912,7 @@ void CSimpleEditBox::UpdateClauseInfo() {
     this->m_clauseStart = left + this->GetNumToLen(left, clauseStart, false);
     this->m_clauseEnd = left + this->GetNumToLen(left, clauseEnd, false);
     int32_t position = left + this->GetNumToLen(left, cursor, false);
-    this->m_dirtyBits |= 0x6;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT_AND_CURSOR;
     this->m_cursorPos = position;
 }
 
@@ -951,7 +951,7 @@ void CSimpleEditBox::UpdateSizes() {
     this->m_cursorTexture->SetWidth(cursorWidth);
     this->m_cursorTexture->SetHeight(fontHeight);
 
-    this->m_dirtyBits |= 0x7;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_RENDER;
 }
 
 // VERIFY: 491a1b6d auto
@@ -1113,13 +1113,13 @@ void CSimpleEditBox::Move(int32_t count, int32_t highlight) {
 
         this->ExtendHighlight(length);
     } else if (this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
 
     this->m_cursorPos += length;
-    this->m_dirtyBits |= 0x4;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
 }
 
 // VERIFY: eb995a11 manual
@@ -1138,17 +1138,17 @@ void CSimpleEditBox::MoveForward(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1175,13 +1175,13 @@ void CSimpleEditBox::MoveForwardWord(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     while (this->m_cursorPos < this->m_textLength) {
@@ -1200,17 +1200,17 @@ void CSimpleEditBox::MoveForwardWord(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1224,7 +1224,7 @@ void CSimpleEditBox::MoveBackward(int32_t highlight) {
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1251,13 +1251,13 @@ void CSimpleEditBox::MoveBackwardWord(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     while (this->m_cursorPos > 0) {
@@ -1276,17 +1276,17 @@ void CSimpleEditBox::MoveBackwardWord(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1312,17 +1312,17 @@ void CSimpleEditBox::MoveToLineStart(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1348,17 +1348,17 @@ void CSimpleEditBox::MoveToLineEnd(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1379,17 +1379,17 @@ void CSimpleEditBox::MoveToStart(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1410,17 +1410,17 @@ void CSimpleEditBox::MoveToEnd(int32_t highlight) {
 
             this->ExtendHighlight(length);
         } else if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
 
         this->m_cursorPos += length;
-        this->m_dirtyBits |= 0x4;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
     }
 
     if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -1452,7 +1452,7 @@ void CSimpleEditBox::MoveLine(int32_t count, int32_t highlight) {
 
     if (target == line) {
         if (!highlight && this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }
@@ -1480,13 +1480,13 @@ void CSimpleEditBox::MoveLine(int32_t count, int32_t highlight) {
 
         this->ExtendHighlight(length);
     } else if (this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
 
     this->m_cursorPos += length;
-    this->m_dirtyBits |= 0x4;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_CURSOR;
 }
 
 // VERIFY: e5117211 manual
@@ -1872,7 +1872,7 @@ void CSimpleEditBox::RunOnTabPressedScript() {
 void CSimpleEditBox::RunOnTextChangedScript() {
     if (this->m_onTextChanged.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
-        lua_pushboolean(L, (this->m_dirtyBits >> 3) & 0x1);
+        lua_pushboolean(L, (this->m_dirtyBits & DIRTY_BITS::DIRTY_USER_INPUT) != 0);
         this->RunScript(this->m_onTextChanged, 1, nullptr);
     }
 
@@ -2097,12 +2097,12 @@ void CSimpleEditBox::Insert(const char* text, const char* taint, int32_t runScri
 
     this->UpdateTextInfo();
 
-    this->m_dirtyBits |= 0x5;
+    this->m_dirtyBits |= DIRTY_BITS::DIRTY_TEXT_AND_CURSOR;
 
     if (script) {
-        this->m_dirtyBits &= ~0x8u;
+        this->m_dirtyBits &= ~DIRTY_BITS::DIRTY_USER_INPUT;
     } else {
-        this->m_dirtyBits |= 0x8;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_USER_INPUT;
     }
 
     if (this->m_textMaxLength >= 0 && this->m_textLength > this->m_textMaxLength) {
@@ -2137,7 +2137,7 @@ void CSimpleEditBox::Insert(const char* text, const char* taint, int32_t runScri
 
     if (highlight) {
         this->m_highlightLeft = start;
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = end < this->m_textLength ? end : this->m_textLength;
     }
 
@@ -2467,7 +2467,7 @@ int32_t CSimpleEditBox::OnLayerIme(const CImeEvent& evt) {
 // OFFSET: 0x00966580
 void CSimpleEditBox::SetText(const char* text, const char* taint) {
     if (this->m_highlightLeft != this->m_highlightRight) {
-        this->m_dirtyBits |= 0x2;
+        this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->m_highlightRight = 0;
         this->m_highlightLeft = 0;
     }
@@ -2683,35 +2683,35 @@ void CSimpleEditBox::SetHistoryLines(int32_t lines) {
 // VERIFY: 12e6f1a3 auto
 // OFFSET: 0x00967020
 void CSimpleEditBox::UpdateDirtyBits() {
-    uint32_t textChanged = this->m_dirtyBits & 0x1;
+    uint32_t textChanged = this->m_dirtyBits & DIRTY_BITS::DIRTY_TEXT;
 
-    if (this->m_dirtyBits & 0x4) {
+    if (this->m_dirtyBits & DIRTY_BITS::DIRTY_CURSOR) {
         int32_t cursor = this->m_cursorPos;
         int32_t visibleEnd = this->m_visibleLength + this->m_visiblePosition;
 
         if (cursor < this->m_visiblePosition || cursor > visibleEnd || (this->m_imeComposition && this->m_clauseHighlight && this->m_clauseEnd > visibleEnd)) {
-            this->m_dirtyBits |= 0x1;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_TEXT;
         }
     }
 
-    if (this->m_dirtyBits & 0x1) {
-        this->m_dirtyBits &= ~0x1u;
+    if (this->m_dirtyBits & DIRTY_BITS::DIRTY_TEXT) {
+        this->m_dirtyBits &= ~DIRTY_BITS::DIRTY_TEXT;
         this->UpdateVisibleText();
     }
 
-    if (this->m_dirtyBits & 0x2) {
-        this->m_dirtyBits &= ~0x2u;
+    if (this->m_dirtyBits & DIRTY_BITS::DIRTY_HIGHLIGHT) {
+        this->m_dirtyBits &= ~DIRTY_BITS::DIRTY_HIGHLIGHT;
         this->UpdateVisibleHighlight();
     }
 
-    if (this->m_dirtyBits & 0x4) {
-        this->m_dirtyBits &= ~0x4u;
+    if (this->m_dirtyBits & DIRTY_BITS::DIRTY_CURSOR) {
+        this->m_dirtyBits &= ~DIRTY_BITS::DIRTY_CURSOR;
         this->UpdateVisibleCursor();
     }
 
     if (textChanged) {
         this->RunOnTextChangedScript();
-        this->m_dirtyBits &= ~0x8u;
+        this->m_dirtyBits &= ~DIRTY_BITS::DIRTY_USER_INPUT;
     }
 }
 
@@ -3105,7 +3105,7 @@ int32_t CSimpleEditBox::OnLayerMouseDown(const CMouseEvent& evt, const char* btn
 
     if (!this->m_imeComposition && this->ConvertCoordinateToIndex(evt.m_data.m_mousePosition.x, evt.m_data.m_mousePosition.y, index)) {
         if (this->m_highlightLeft != this->m_highlightRight) {
-            this->m_dirtyBits |= 0x2;
+            this->m_dirtyBits |= DIRTY_BITS::DIRTY_HIGHLIGHT;
             this->m_highlightRight = 0;
             this->m_highlightLeft = 0;
         }

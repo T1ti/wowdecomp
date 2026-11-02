@@ -25,6 +25,18 @@ class CSimpleTexture;
 
 class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     public:
+    // DIRTY_USER_INPUT is reconstructed from the native OnTextChanged userInput argument.
+    enum DIRTY_BITS : uint32_t {
+        DIRTY_NONE = 0,
+        DIRTY_TEXT = 0x1,
+        DIRTY_HIGHLIGHT = 0x2,
+        DIRTY_CURSOR = 0x4,
+        DIRTY_USER_INPUT = 0x8,
+        DIRTY_TEXT_AND_CURSOR = 0x5,
+        DIRTY_HIGHLIGHT_AND_CURSOR = 0x6,
+        DIRTY_RENDER = 0x7,
+    };
+
     struct EditHistory {
         /* 0000 */ char* m_text;
         /* 0004 */ const char* m_taint;
