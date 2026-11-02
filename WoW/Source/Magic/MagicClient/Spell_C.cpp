@@ -6206,12 +6206,12 @@ static UIErrors GetSpellFailedError(int32_t reason, const SpellRec* spell, int32
 
         case SPELL_FAILED_ITEM_NOT_READY:
             switch (spell->m_category) {
-                case 4:
-                case 9:
+                case SPELL_CATEGORY_ITEM_COMBAT_CONSUMABLE:
+                case SPELL_CATEGORY_UNKNOWN_9:
                     return ERR_POTION_COOLDOWN;
 
-                case 10:
-                case 11:
+                case SPELL_CATEGORY_UNKNOWN_10:
+                case SPELL_CATEGORY_ITEM_FOOD:
                     return ERR_FOOD_COOLDOWN;
 
                 default:
@@ -6223,13 +6223,13 @@ static UIErrors GetSpellFailedError(int32_t reason, const SpellRec* spell, int32
 
         case SPELL_FAILED_NOT_READY:
             switch (spell->m_category) {
-                case 4:
-                case 9:
+                case SPELL_CATEGORY_ITEM_COMBAT_CONSUMABLE:
+                case SPELL_CATEGORY_UNKNOWN_9:
                     error = ERR_POTION_COOLDOWN;
                     break;
 
-                case 10:
-                case 11:
+                case SPELL_CATEGORY_UNKNOWN_10:
+                case SPELL_CATEGORY_ITEM_FOOD:
                     error = ERR_FOOD_COOLDOWN;
                     break;
 

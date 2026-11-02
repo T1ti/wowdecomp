@@ -164,7 +164,7 @@
     },
     {
       "id": 12,
-      "state": "pending",
+      "state": "done",
       "values": "4, 9, 10, 11",
       "description": "Spell category IDs producing potion/food cooldown messages. Distinct from modifier IDs and miss reasons.",
       "original_lines": [
@@ -176,7 +176,9 @@
         6197,
         6201,
         6202
-      ]
+      ],
+      "evidence": "Native 0x00807F10 groups category IDs 4/9 for potion errors and 10/11 for food errors. User supplied the 3.3.5 labels: 4 Item - Combat Consumable (Potion), 11 Item - Food.",
+      "notes": "Named supplied labels and retained UNKNOWN_9/UNKNOWN_10 for unresolved category labels, with their verified error groups documented. Neither is called unused. Win32/x64 and value equivalence passed."
     },
     {
       "id": 13,
