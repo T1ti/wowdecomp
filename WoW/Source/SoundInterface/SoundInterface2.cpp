@@ -157,7 +157,7 @@ void SE2SoundKitProperties::ResetToDefaults() {
     this->m_maxDistance = -1.0f;
     this->m_loopMode = 0;
     this->m_muteFadeSpeed = 0.5f;
-    this->m_suppressorMode = 0;
+    this->m_suppressorMode = SE2_SUPPRESSOR_MODE_DEFAULT;
     this->m_decodeBufferSize = 0;
     this->m_maxAudibleBehavior = 1;
     this->m_coneInsideAngle = 360.0f;
@@ -747,11 +747,11 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         return 9;
     }
 
-    if (properties->m_suppressorMode == 2) {
+    if (properties->m_suppressorMode == SE2_SUPPRESSOR_MODE_HONOR) {
         def->m_flags |= 0x20;
     }
 
-    if (properties->m_suppressorMode == 1) {
+    if (properties->m_suppressorMode == SE2_SUPPRESSOR_MODE_IGNORE) {
         def->m_flags &= ~0x20u;
     }
 

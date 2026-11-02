@@ -654,7 +654,7 @@ void CGUnit_C::PlayEmoteSound(int32_t soundKitId, bool checkCVars, int32_t fileI
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
     properties.m_fileIndex = fileIndex;
-    properties.m_suppressorMode = 2;
+    properties.m_suppressorMode = SE2_SUPPRESSOR_MODE_HONOR;
 
     if (local) {
         properties.m_priority = 110;

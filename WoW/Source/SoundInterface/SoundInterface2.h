@@ -17,6 +17,13 @@ class SE2SoundKitObject;
 class SE2SoundKitProperties;
 class VSOUNDKITDEF;
 
+// Native property overrides for the sound kit's suppressor-check flag.
+enum SE2_SUPPRESSOR_MODE : int32_t {
+    SE2_SUPPRESSOR_MODE_DEFAULT = 0,
+    SE2_SUPPRESSOR_MODE_IGNORE = 1,
+    SE2_SUPPRESSOR_MODE_HONOR = 2,
+};
+
 class SE2SoundKitProperties {
     public:
     /* 0000 */ int32_t m_group;

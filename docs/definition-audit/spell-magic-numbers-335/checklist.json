@@ -333,12 +333,14 @@
     },
     {
       "id": 25,
-      "state": "pending",
+      "state": "done",
       "values": "2",
       "description": "SE2SoundKitProperties::m_suppressorMode = 2 (audio), not CGSpellBook::SpellProperties.",
       "original_lines": [
         8383
-      ]
+      ],
+      "evidence": "Native SI2 playback at 0x004C6C2C/0x004C6C39 compares suppressorMode with 2/1 and sets/clears the sound-kit suppressor-check flag.",
+      "notes": "Named default, ignore and honor modes at the property reset, native checks and all assignments in spell, unit sound and zone sound code. The int32_t field and original independent conditions remain unchanged."
     },
     {
       "id": 26,
@@ -935,12 +937,14 @@
     },
     {
       "id": 77,
-      "state": "pending",
+      "state": "done",
       "values": "10",
       "description": "Melee tutorial counter threshold.",
       "original_lines": [
         8258
-      ]
+      ],
+      "evidence": "Native 0x0080CECE compares the melee tutorial count with 10.",
+      "notes": "Named the limit and retained the original strict greater-than comparison. Source equivalence and Win32/x64 syntax checks passed."
     },
     {
       "id": 78,

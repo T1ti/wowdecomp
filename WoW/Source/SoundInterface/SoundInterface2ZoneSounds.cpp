@@ -408,7 +408,7 @@ int32_t SI2::PlayUISound(int32_t soundKitId) {
     }
 
     properties.m_priority = 128;
-    properties.m_suppressorMode = 2;
+    properties.m_suppressorMode = SE2_SUPPRESSOR_MODE_HONOR;
     properties.m_reverb = 0;
 
     return SI2::PlaySoundKit(soundKitId, nullptr, nullptr, &properties, 0, nullptr, 1, 0);

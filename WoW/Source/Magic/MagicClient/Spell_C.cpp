@@ -113,6 +113,7 @@ enum SPELL_HISTORY_CONTEXT : int32_t {
 constexpr int32_t NUM_SPELL_ENCHANT_HANDS = 2;
 
 // Spell timing and range constants from the native 3.3.5 paths.
+constexpr int32_t SPELL_MELEE_TUTORIAL_COUNT_LIMIT = 10;
 constexpr int32_t SPELL_REAGENT_USES_UNSET = 0x7FFFFFFF;
 constexpr int32_t SPELL_DEFAULT_WEAPON_DELAY_MS = 2000;
 constexpr int32_t SPELL_ARENA_COOLDOWN_LIMIT_MS = 900000;
@@ -8284,7 +8285,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             s_meleeTutorialActive = 0;
         }
 
-        if (s_meleeTutorialCount > 10) {
+        if (s_meleeTutorialCount > SPELL_MELEE_TUTORIAL_COUNT_LIMIT) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SPECIAL_ABILITIES);
         }
     }
@@ -8409,7 +8410,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             if (s_enableErrorSpeechCVar && s_enableErrorSpeechCVar->m_intValue) {
                 SE2SoundKitProperties properties;
                 properties.ResetToDefaults();
-                properties.m_suppressorMode = 2;
+                properties.m_suppressorMode = SE2_SUPPRESSOR_MODE_HONOR;
                 SI2::PlaySoundKit("igPlayerInviteDecline", nullptr, nullptr, &properties);
             }
 
