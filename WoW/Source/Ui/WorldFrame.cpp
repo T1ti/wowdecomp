@@ -329,7 +329,7 @@ void CGWorldFrame::OnLayerTrackTerrain(const HITTESTRESULT& result) {
     Spell_C_SetCursorWorldObjectPosition(s_spellShadowPos);
 
     switch (Spell_C_HandleTerrainRay(evt, true)) {
-        case 0: {
+        case SPELL_TERRAIN_RAY_VALID: {
             s_spellShadowStyle = SPELL_GOOD;
             float radius = Spell_C_GetSpellRadius();
             s_spellShadowSize = radius > 20.0f ? 20.0f : Spell_C_GetSpellRadius();
@@ -337,13 +337,13 @@ void CGWorldFrame::OnLayerTrackTerrain(const HITTESTRESULT& result) {
             break;
         }
 
-        case 1:
+        case SPELL_TERRAIN_RAY_INVALID:
             s_spellShadowStyle = SPELL_BAD;
             s_spellShadowSize = 0.0f;
             CursorSetMode(CAST_ERROR_CURSOR);
             break;
 
-        case 2:
+        case SPELL_TERRAIN_RAY_OUTSIDE_PREVIEW_RANGE:
             s_spellShadowStyle = SPELL_NONE;
             s_spellShadowSize = 0.0f;
             CursorSetMode(CAST_ERROR_CURSOR);

@@ -4192,7 +4192,7 @@ static int32_t Script_IsHelpfulItem(lua_State* L) {
     int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == 1) {
+    if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -4216,7 +4216,7 @@ static int32_t Script_IsHarmfulItem(lua_State* L) {
     int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == 2) {
+    if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HARMFUL) {
         lua_pushnumber(L, 1.0);
         return 1;
     }

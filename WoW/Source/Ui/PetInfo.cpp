@@ -420,7 +420,7 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
             SpellRec spell;
             UIErrors error = ERR_NO_ATTACK_TARGET;
 
-            if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == 1) {
+            if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
                 error = ERR_GENERIC_NO_VALID_TARGETS;
             }
 

@@ -2686,7 +2686,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
     if (target && (target->m_obj->m_type & TYPE_UNIT)) {
         friendly = caster->CanAssist(static_cast<CGUnit_C*>(target), false);
     } else {
-        friendly = SpellRec::IsHelpfulOrHarmful(spell) == 1;
+        friendly = SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HELPFUL;
     }
 
     Spell_C_GetMinMaxRange(caster, spell, minRange, maxRange, friendly, target);
@@ -3011,11 +3011,11 @@ bool SpellRec::HasAura(const SpellRec* spell, int32_t aura) {
 // OFFSET: 0x007FE1B0
 int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
     if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) {
-        return 1;
+        return SPELL_DISPOSITION_HELPFUL;
     }
 
     if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
-        return 2;
+        return SPELL_DISPOSITION_HARMFUL;
     }
 
     for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
@@ -3029,7 +3029,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_54:
             case SPELL_IMPLICIT_TARGET::TARGET_CORPSE_SRC_AREA_ENEMY:
-                return 2;
+                return SPELL_DISPOSITION_HARMFUL;
         }
 
         switch (spell->m_implicitTargetB[i]) {
@@ -3042,7 +3042,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
             case SPELL_IMPLICIT_TARGET::TARGET_DEST_TARGET_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ENEMY_54:
             case SPELL_IMPLICIT_TARGET::TARGET_CORPSE_SRC_AREA_ENEMY:
-                return 2;
+                return SPELL_DISPOSITION_HARMFUL;
         }
     }
 
@@ -3050,7 +3050,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
         switch (spell->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
-                    return 1;
+                    return SPELL_DISPOSITION_HELPFUL;
                 }
 
                 break;
@@ -3074,13 +3074,13 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ALLY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
             case SPELL_IMPLICIT_TARGET::TARGET_UNKNOWN_62:
-                return 1;
+                return SPELL_DISPOSITION_HELPFUL;
         }
 
         switch (spell->m_implicitTargetB[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
-                    return 1;
+                    return SPELL_DISPOSITION_HELPFUL;
                 }
 
                 break;
@@ -3104,11 +3104,11 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CONE_ALLY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_AREA_RAID_CLASS:
             case SPELL_IMPLICIT_TARGET::TARGET_UNKNOWN_62:
-                return 1;
+                return SPELL_DISPOSITION_HELPFUL;
         }
     }
 
-    return 0;
+    return SPELL_DISPOSITION_UNDETERMINED;
 }
 
 // VERIFY: 69f73b82 auto
@@ -3574,7 +3574,7 @@ void SpellRec::GetMinRange(const SpellRec* spell, float* range) {
         return;
     }
 
-    int32_t friendly = SpellRec::IsHelpfulOrHarmful(spell) == 1;
+    int32_t friendly = SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HELPFUL;
 
     if (rec->m_flags & SPELL_RANGE_FLAG_MELEE) {
         *range = 0.0f;
@@ -5382,18 +5382,18 @@ bool Spell_C_IsCastingInterruptedByCombat(const WOWGUID& guid) {
 // OFFSET: 0x00803EE0
 int32_t Spell_C_HandleTerrainRay(const CTerrainClickEvent& evt, bool checkRange) {
     if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK)) {
-        return 1;
+        return SPELL_TERRAIN_RAY_INVALID;
     }
 
     PendingSpellCastData* data = s_targetingSpell ? &s_targetingSpell->m_data : nullptr;
     CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(data->m_caster, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!caster) {
-        return 1;
+        return SPELL_TERRAIN_RAY_INVALID;
     }
 
     if (!checkRange) {
-        return 0;
+        return SPELL_TERRAIN_RAY_VALID;
     }
 
     C3Vector position = evt.m_point;
@@ -5412,10 +5412,10 @@ int32_t Spell_C_HandleTerrainRay(const CTerrainClickEvent& evt, bool checkRange)
     Spell_C::GetSpellRange(caster, data->m_spellId, &minRange, &maxRange, nullptr);
 
     if (distance >= minRange * minRange && maxRange * maxRange >= distance) {
-        return 0;
+        return SPELL_TERRAIN_RAY_VALID;
     }
 
-    return maxRange * maxRange * SPELL_TERRAIN_RAY_RANGE_FACTOR_SQUARED >= distance ? 1 : 2;
+    return maxRange * maxRange * SPELL_TERRAIN_RAY_RANGE_FACTOR_SQUARED >= distance ? SPELL_TERRAIN_RAY_INVALID : SPELL_TERRAIN_RAY_OUTSIDE_PREVIEW_RANGE;
 }
 
 // VERIFY: 047edb41 manual
@@ -9194,7 +9194,7 @@ void PlayImpactVisual(const SpellRec* spell, const TSStackArray<WOWGUID>& target
 
         if (kit) {
             PlaySpellVisuaKitData data(spell, kit, 1);
-            data.m_harmful = SpellRec::IsHelpfulOrHarmful(spell) == 2;
+            data.m_harmful = SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL;
             object->PlaySpellVisualKit(data);
         }
     }

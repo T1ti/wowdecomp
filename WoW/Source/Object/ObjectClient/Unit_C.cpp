@@ -21040,7 +21040,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case 1: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
+                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
 
@@ -21076,7 +21076,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case 13: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == 2) {
+                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
 

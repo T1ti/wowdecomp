@@ -454,7 +454,7 @@ static int32_t Script_IsHelpfulSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == 1) {
+    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -475,7 +475,7 @@ static int32_t Script_IsHarmfulSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == 2) {
+    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HARMFUL) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

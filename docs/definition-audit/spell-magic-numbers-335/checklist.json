@@ -278,7 +278,7 @@
     },
     {
       "id": 22,
-      "state": "pending",
+      "state": "done",
       "values": "0, 1, 2",
       "description": "SpellRec::IsHelpfulOrHarmful result domain; 1 is helpful, 2 harmful, 0 undecided.",
       "original_lines": [
@@ -294,11 +294,13 @@
         3092,
         3558,
         9178
-      ]
+      ],
+      "evidence": "IDA 0x007FE1B0 returns 1 for helpful, 2 for harmful and 0 when neither classification is established.",
+      "notes": "Named all result returns and matching comparisons in spell/UI/pet/visual code; kept the original int32_t signature."
     },
     {
       "id": 23,
-      "state": "pending",
+      "state": "done",
       "values": "0, 1, 2",
       "description": "Spell_C_HandleTerrainRay result domain; preserve the three outcomes and verify caller interpretation.",
       "original_lines": [
@@ -307,7 +309,9 @@
         5377,
         5396,
         5399
-      ]
+      ],
+      "evidence": "IDA 0x00803EE0 returns 0 for a valid ray, 1 for invalid placement and 2 beyond the preview range; CGWorldFrame consumes the same three values.",
+      "notes": "No range arithmetic, signature, condition or return order changed. Source value equivalence and Win32/x64 syntax passed."
     },
     {
       "id": 24,

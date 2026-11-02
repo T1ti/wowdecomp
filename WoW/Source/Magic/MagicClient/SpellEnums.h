@@ -3,6 +3,20 @@
 
 #include <cstdint>
 
+// Results of SpellRec::IsHelpfulOrHarmful; zero is an undetermined classification.
+enum SPELL_DISPOSITION : int32_t {
+    SPELL_DISPOSITION_UNDETERMINED = 0,
+    SPELL_DISPOSITION_HELPFUL = 1,
+    SPELL_DISPOSITION_HARMFUL = 2,
+};
+
+// Spell_C_HandleTerrainRay results consumed by the targeting-cursor preview.
+enum SPELL_TERRAIN_RAY_RESULT : int32_t {
+    SPELL_TERRAIN_RAY_VALID = 0,
+    SPELL_TERRAIN_RAY_INVALID = 1,
+    SPELL_TERRAIN_RAY_OUTSIDE_PREVIEW_RANGE = 2,
+};
+
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
 constexpr int32_t NUM_SPELL_REAGENTS = 8;
