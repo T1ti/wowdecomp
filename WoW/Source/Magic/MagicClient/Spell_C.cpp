@@ -103,6 +103,15 @@
 #include <alloca.h>
 #endif
 
+// Separate player/pet histories, independent of spell effect or mask counts.
+enum SPELL_HISTORY_CONTEXT : int32_t {
+    SPELL_HISTORY_PLAYER = 0,
+    SPELL_HISTORY_PET = 1,
+    NUM_SPELL_HISTORY_CONTEXTS = 2,
+};
+
+constexpr int32_t NUM_SPELL_ENCHANT_HANDS = 2;
+
 // Spell timing and range constants from the native 3.3.5 paths.
 constexpr int32_t SPELL_REAGENT_USES_UNSET = 0x7FFFFFFF;
 constexpr int32_t SPELL_DEFAULT_WEAPON_DELAY_MS = 2000;
@@ -121,7 +130,7 @@ constexpr float SPELL_NEXT_SWING_MAX_RANGE = 100.0f;
 constexpr float SPELL_UNLOADED_TARGET_RANGE_THRESHOLD = 100.0f;
 
 // STATIC: 0x00D3F5AC
-static SpellHistory s_spellHistory[2];
+static SpellHistory s_spellHistory[NUM_SPELL_HISTORY_CONTEXTS];
 
 // STATIC: 0x00D397C8
 static int32_t s_lastAutoRangedCombatError;
@@ -516,7 +525,7 @@ int32_t Spell_C_NeedsCooldownEvent(int32_t itemId) {
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
         if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
-            return s_spellHistory[0].IsOnHold(stats->m_spellId[i], itemId);
+            return s_spellHistory[SPELL_HISTORY_PLAYER].IsOnHold(stats->m_spellId[i], itemId);
         }
     }
 
@@ -1554,7 +1563,7 @@ int32_t Packet_SMSG_PET_CAST_FAILED(void* param, NETMESSAGE msgId, uint32_t time
         WOWGUID castItem = pet;
         local.m_isTrajectoryCast = 0;
         PendingSpellCast* cast = FindPendingSpellCast(castItem, &local, castCount, spellId, caster);
-        s_spellHistory[1].RemoveStartCooldown(spellId);
+        s_spellHistory[SPELL_HISTORY_PET].RemoveStartCooldown(spellId);
         CGPetInfo::UpdateCooldowns();
         ShowPetSpellFailed(cast, &spell, reason, misc1, misc2);
     }
@@ -1689,7 +1698,7 @@ int32_t Packet_SMSG_CAST_FAILED(void* param, NETMESSAGE msgId, uint32_t time, CD
     Spell_C_SpellFailed(cast, &spell, reason, customError, customArg, true);
 
     if (reason != SPELL_FAILED_NOT_READY && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_COOLDOWN_ON_EVENT)) {
-        s_spellHistory[0].ClearOnHold(spellId, 0, true);
+        s_spellHistory[SPELL_HISTORY_PLAYER].ClearOnHold(spellId, 0, true);
         CGSpellBook::UpdateCooldowns();
         CGSpellBook::UpdateUsable();
         CGContainerInfo::UpdateCooldowns();
@@ -2311,7 +2320,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 recovery = pct * (flat + recovery) / 100;
             }
 
-            s_spellHistory[0].AddHistory(spellId, 0, now, recovery, spell.m_category, now, categoryRecovery, onHold, 0, 0);
+            s_spellHistory[SPELL_HISTORY_PLAYER].AddHistory(spellId, 0, now, recovery, spell.m_category, now, categoryRecovery, onHold, 0, 0);
             CGSpellBook::UpdateCooldowns();
 
             if (onHold) {
@@ -2343,7 +2352,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     categoryCooldown = spell.m_categoryRecoveryTime;
                 }
 
-                s_spellHistory[0].AddHistory(spellId, itemId, now, cooldown, category, now, categoryCooldown, onHold, 0, 0);
+                s_spellHistory[SPELL_HISTORY_PLAYER].AddHistory(spellId, itemId, now, cooldown, category, now, categoryCooldown, onHold, 0, 0);
             }
 
             CGSpellBook::UpdateCooldowns();
@@ -2401,7 +2410,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 }
             }
 
-            s_spellHistory[1].AddHistory(spellId, 0, now, recovery, spell.m_category, now, categoryRecovery, onHold, startRecoveryCategory, startRecoveryTime);
+            s_spellHistory[SPELL_HISTORY_PET].AddHistory(spellId, 0, now, recovery, spell.m_category, now, categoryRecovery, onHold, startRecoveryCategory, startRecoveryTime);
             CGSpellBook::UpdateCooldowns();
 
             if (onHold) {
@@ -2415,7 +2424,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     if (static_cast<int32_t>(now - s_nextHistoryCleanup) >= 0) {
         s_nextHistoryCleanup = now + SPELL_HISTORY_CLEANUP_INTERVAL_MS;
 
-        for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[0]); i++) {
+        for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[SPELL_HISTORY_PLAYER]); i++) {
             s_spellHistory[i].GarbageCollect(now);
         }
     }
@@ -3843,7 +3852,7 @@ bool Spell_C_GetItemCooldown(CGItem_C* item, uint32_t* duration, uint32_t* start
         return false;
     }
 
-    return s_spellHistory[0].GetSpellCooldown(item->GetEnchantmentSpell(0), item->m_obj->m_entryID, duration, start, enable);
+    return s_spellHistory[SPELL_HISTORY_PLAYER].GetSpellCooldown(item->GetEnchantmentSpell(0), item->m_obj->m_entryID, duration, start, enable);
 }
 
 // VERIFY: dac09432 auto
@@ -4486,14 +4495,14 @@ int32_t Packet_SMSG_COOLDOWN_CHEAT(void* param, NETMESSAGE msgId, uint32_t time,
     msg->Get(guid.m_guid);
 
     if (guid == ClntObjMgrGetActivePlayer()) {
-        s_spellHistory[0].ClearAll();
+        s_spellHistory[SPELL_HISTORY_PLAYER].ClearAll();
         CGSpellBook::UpdateCooldowns();
         CGContainerInfo::UpdateCooldowns();
         return 1;
     }
 
     if (guid == CGPetInfo::GetPet(0)) {
-        s_spellHistory[1].ClearAll();
+        s_spellHistory[SPELL_HISTORY_PET].ClearAll();
         CGSpellBook::UpdateCooldowns();
         CGPetInfo::UpdateCooldowns();
     }
@@ -4620,7 +4629,7 @@ void SpellHistory::RemoveStartCooldown(int32_t startRecoveryCategory) {
 // VERIFY: 3c3b6e25 auto
 // OFFSET: 0x00804780
 void Spell_C_PetSpellFailedUpdateCooldowns(int32_t spellId) {
-    s_spellHistory[1].RemoveStartCooldown(spellId);
+    s_spellHistory[SPELL_HISTORY_PET].RemoveStartCooldown(spellId);
     CGPetInfo::UpdateCooldowns();
 }
 
@@ -4642,7 +4651,7 @@ void Spell_C_ClearInTransitList() {
 void Spell_C_ClearCooldowns() {
     s_itemCooldowns.InternalClear(0);
 
-    for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[SPELL_HISTORY_PLAYER]); i++) {
         s_spellHistory[i].ClearAll();
     }
 }
@@ -4689,7 +4698,7 @@ bool Spell_C_GetItemCooldown(int32_t itemId, uint32_t* duration, uint32_t* start
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
         if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
-            return s_spellHistory[0].GetSpellCooldown(stats->m_spellId[i], itemId, duration, start, enable);
+            return s_spellHistory[SPELL_HISTORY_PLAYER].GetSpellCooldown(stats->m_spellId[i], itemId, duration, start, enable);
         }
     }
 
@@ -5687,7 +5696,7 @@ int32_t Packet_SMSG_ITEM_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time, 
 
         if (item) {
             int32_t itemId = item->m_obj->m_entryID;
-            SpellHistory& history = s_spellHistory[0];
+            SpellHistory& history = s_spellHistory[SPELL_HISTORY_PLAYER];
             SPELLHISTORY* entry = history.m_free.Head();
 
             if (entry) {
@@ -5725,7 +5734,7 @@ int32_t Packet_SMSG_MEETINGSTONE_IN_PROGRESS(void* param, NETMESSAGE msgId, uint
         SpellRec spell;
 
         if (g_spellDB.GetRecord(GetSpellIdBySlot(i, 0), &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && !(spell.m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS) && !(spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_IGNORE_COMBAT_TIMER)) {
-            s_spellHistory[0].AddHistory(spell.m_id, 0, OsGetAsyncTimeMs(), cooldown, 0, 0, 0, false, 0, 0);
+            s_spellHistory[SPELL_HISTORY_PLAYER].AddHistory(spell.m_id, 0, OsGetAsyncTimeMs(), cooldown, 0, 0, 0, false, 0, 0);
             CGSpellBook::UpdateCooldowns();
         }
     }
@@ -5767,7 +5776,7 @@ void Spell_C_Destroy() {
     ClientServices::ClearMessageHandler(SMSG_RESUME_CAST_BAR);
     s_itemCooldowns.InternalClear(0);
 
-    for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(s_spellHistory) / sizeof(s_spellHistory[SPELL_HISTORY_PLAYER]); i++) {
         s_spellHistory[i].ClearAll();
     }
 
@@ -6228,11 +6237,11 @@ static UIErrors GetSpellFailedError(int32_t reason, const SpellRec* spell, int32
                     break;
             }
 
-            if (misc || !s_spellHistory[0].IsOnHold(spell->m_id, 0)) {
+            if (misc || !s_spellHistory[SPELL_HISTORY_PLAYER].IsOnHold(spell->m_id, 0)) {
                 return error;
             }
 
-            s_spellHistory[0].ClearOnHold(spell->m_id, 0, true);
+            s_spellHistory[SPELL_HISTORY_PLAYER].ClearOnHold(spell->m_id, 0, true);
             CGSpellBook::UpdateCooldowns();
             CGSpellBook::UpdateUsable();
             CGContainerInfo::UpdateCooldowns();
@@ -6445,7 +6454,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
     }
 
     if (resetCooldown) {
-        s_spellHistory[0].RemoveStartCooldown(spellId);
+        s_spellHistory[SPELL_HISTORY_PLAYER].RemoveStartCooldown(spellId);
     }
 
     if (spell->m_startRecoveryCategory && spell->m_startRecoveryTime) {
@@ -6770,7 +6779,7 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
                 uint32_t time = node->m_time;
 
                 if (recovery || categoryRecovery || onHold) {
-                    SpellHistory& history = s_spellHistory[0];
+                    SpellHistory& history = s_spellHistory[SPELL_HISTORY_PLAYER];
                     SPELLHISTORY* entry = history.m_free.Head();
 
                     if (entry) {
@@ -6823,7 +6832,7 @@ int32_t Spell_C_WasItemRecentlyUsed(int32_t itemId) {
 
     for (uint32_t i = 0; i < sizeof(stats->m_spellId) / sizeof(stats->m_spellId[0]); i++) {
         if (static_cast<int32_t>(stats->m_spellId[i]) > 0 && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
-            return s_spellHistory[0].RecentlyCast(stats->m_spellId[i], itemId);
+            return s_spellHistory[SPELL_HISTORY_PLAYER].RecentlyCast(stats->m_spellId[i], itemId);
         }
     }
 
@@ -7815,7 +7824,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
 
         uint8_t bag = owner->FindSlotIndex(item->m_item->m_itemFieldContained);
 
-        if (item->GetInventoryType() && (bag != 0xFF || slot > INVSLOT_TABARD)) {
+        if (item->GetInventoryType() && (bag != INVENTORY_BAG_PLAYER || slot > INVSLOT_TABARD)) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_EQUIPPED_ITEM, -1, -1, false);
             return;
         }
@@ -8093,12 +8102,12 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
                 continue;
             }
 
-            CGItem_C* items[2];
+            CGItem_C* items[NUM_SPELL_ENCHANT_HANDS];
             items[0] = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
             items[1] = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
 
             if (spell->m_equippedItemSubclass) {
-                for (uint32_t j = 0; j < 2; j++) {
+                for (uint32_t j = 0; j < NUM_SPELL_ENCHANT_HANDS; j++) {
                     CGItem_C* item = items[j];
 
                     if (item && (spell->m_equippedItemClass != item->GetClassID() || !((1 << item->GetSubtypeID()) & spell->m_equippedItemSubclass))) {
@@ -8915,7 +8924,7 @@ void Spell_C_ClickSpell(int32_t spellId, const CGItem_C* item, WOWGUID target) {
     }
 
     if (Spell_C_IsActiveSpell(&spell, player)) {
-        if (!g_secureAbilityToggleCVar->m_intValue || !s_spellHistory[0].RecentlyCast(spellId, 0)) {
+        if (!g_secureAbilityToggleCVar->m_intValue || !s_spellHistory[SPELL_HISTORY_PLAYER].RecentlyCast(spellId, 0)) {
             Spell_C_CancelAura(&spell, player, -1);
         }
 
@@ -9092,7 +9101,7 @@ void Spell_C_PlayMissileTrajectoryCastVisuals(CGUnit_C* unit, PendingSpellCast* 
 // VERIFY: 7426a6ef auto
 // OFFSET: 0x00804420
 void Spell_C_ClearPetCooldowns() {
-    s_spellHistory[1].ClearAll();
+    s_spellHistory[SPELL_HISTORY_PET].ClearAll();
 }
 
 // VERIFY: b323a3a8 manual

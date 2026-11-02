@@ -52,6 +52,12 @@ enum COMP_HAND_SLOT {
     COMP_HAND_LEFT = 1,
 };
 
+// The same encoded byte has distinct roles: failed slot lookup vs player bag.
+enum INVENTORY_SLOT_ENCODING : int32_t {
+    INVENTORY_SLOT_INVALID = 0xFF,
+    INVENTORY_BAG_PLAYER = 0xFF,
+};
+
 enum INVENTORY_SLOTS {
     INVSLOT_HEAD = 0,
     INVSLOT_NECK = 1,

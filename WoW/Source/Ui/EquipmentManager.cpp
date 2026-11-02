@@ -567,8 +567,8 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
                     bagSlot = 0;
                 } else if (static_cast<uint8_t>(bagSlot - 39) <= 27 && !CGBankInfo::m_banker) {
                     bagSlot = 0;
-                } else if (bagSlot != 0xFF) {
-                    bag = 0xFF;
+                } else if (bagSlot != INVENTORY_SLOT_INVALID) {
+                    bag = INVENTORY_BAG_PLAYER;
                     itemGuid.m_guid = guid.m_guid;
                 } else {
                     for (uint32_t i = 19; i <= 22; i++) {
@@ -577,7 +577,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
                         if (container) {
                             bagSlot = CGPlayer_C::FindItemSlot(container, item);
 
-                            if (bagSlot != 0xFF) {
+                            if (bagSlot != INVENTORY_SLOT_INVALID) {
                                 bag = static_cast<uint8_t>(i);
                                 itemGuid.m_guid = guid.m_guid;
                                 break;
@@ -592,7 +592,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
                             if (container) {
                                 bagSlot = CGPlayer_C::FindItemSlot(container, item);
 
-                                if (bagSlot != 0xFF) {
+                                if (bagSlot != INVENTORY_SLOT_INVALID) {
                                     bag = static_cast<uint8_t>(i);
                                     itemGuid.m_guid = guid.m_guid;
                                     break;

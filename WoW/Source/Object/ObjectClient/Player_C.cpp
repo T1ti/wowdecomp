@@ -1608,7 +1608,7 @@ uint8_t CGPlayer_C::FindSlotIndex(WOWGUID guid) const {
     uint32_t numSlots = this->m_bag.m_numSlots;
 
     if (!numSlots) {
-        return 0xFF;
+        return INVENTORY_SLOT_INVALID;
     }
 
     for (uint8_t slot = 0; slot < numSlots; slot++) {
@@ -1619,7 +1619,7 @@ uint8_t CGPlayer_C::FindSlotIndex(WOWGUID guid) const {
         }
     }
 
-    return 0xFF;
+    return INVENTORY_SLOT_INVALID;
 }
 
 // VERIFY: da1b57c4 manual
@@ -8913,14 +8913,14 @@ bool CGPlayer_C::GetPackAndSlot(const CGItem_C* item, uint8_t* bag, uint8_t* slo
     WOWGUID container = item->m_item->m_itemFieldContained;
 
     if (container == this->m_obj->m_guid) {
-        *bag = 0xFF;
+        *bag = INVENTORY_BAG_PLAYER;
         *slot = this->FindSlotIndex(item->m_obj->m_guid);
-        return *slot != 0xFF;
+        return *slot != INVENTORY_SLOT_INVALID;
     }
 
     *bag = this->FindSlotIndex(container);
 
-    if (*bag == 0xFF) {
+    if (*bag == INVENTORY_SLOT_INVALID) {
         return false;
     }
 
@@ -9860,7 +9860,7 @@ uint8_t CGPlayer_C::FindItemSlot(WOWGUID container, const CGItem_C* item) {
     }
 
     if (!object->GetBag()->m_numSlots) {
-        return 0xFF;
+        return INVENTORY_SLOT_INVALID;
     }
 
     for (uint8_t slot = 0; slot < static_cast<uint32_t>(object->GetBag()->m_numSlots); slot++) {
@@ -9869,7 +9869,7 @@ uint8_t CGPlayer_C::FindItemSlot(WOWGUID container, const CGItem_C* item) {
         }
     }
 
-    return 0xFF;
+    return INVENTORY_SLOT_INVALID;
 }
 
 // VERIFY: 5354e118 manual
@@ -10080,7 +10080,7 @@ void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot,
         uint8_t srcBag = this->FindSlotIndex(srcContainer);
         uint8_t dstBag = this->FindSlotIndex(dstContainer);
 
-        if (dstBag == 0xFF && dstContainer != this->m_obj->m_guid) {
+        if (dstBag == INVENTORY_SLOT_INVALID && dstContainer != this->m_obj->m_guid) {
             return;
         }
 
@@ -10131,7 +10131,7 @@ void CGPlayer_C::AutoStoreItemInBag(WOWGUID item, WOWGUID srcContainer, uint32_t
         uint8_t srcBag = this->FindSlotIndex(srcContainer);
         uint8_t dstBagIndex = this->FindSlotIndex(dstBag);
 
-        if (dstBagIndex == 0xFF && dstBag != this->m_obj->m_guid) {
+        if (dstBagIndex == INVENTORY_SLOT_INVALID && dstBag != this->m_obj->m_guid) {
             return;
         }
 
@@ -14002,7 +14002,7 @@ void __stdcall CGPlayer_C::ReadItemResult(NETMESSAGE msgId, CDataStore* msg) {
 // VERIFY: 196810c7 manual
 // OFFSET: 0x006D6720
 bool CGPlayer_C::ReportBagItemSubtypeMismatch(uint8_t bag) {
-    if (bag == 0xFF) {
+    if (bag == INVENTORY_BAG_PLAYER) {
         return false;
     }
 

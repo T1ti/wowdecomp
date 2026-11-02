@@ -849,12 +849,14 @@
     },
     {
       "id": 70,
-      "state": "pending",
+      "state": "done",
       "values": "0xFF",
       "description": "Equipment/container bag sentinel; use the matching bag-slot constant.",
       "original_lines": [
         7798
-      ]
+      ],
+      "evidence": "0x006D2A2C returns 0xFF for invalid slot lookup; 0x006DCCE4 emits 0xFF for the player bag. The identical byte has two context-specific meanings.",
+      "notes": "Named the invalid-slot and player-bag encodings separately across lookup, packet, equipment-manager and spell-item paths. Win32/x64 syntax and value equivalence passed."
     },
     {
       "id": 71,
@@ -910,11 +912,11 @@
     },
     {
       "id": 75,
-      "state": "partial",
+      "state": "done",
       "values": "3, 2",
       "description": "Spell effect counts, mask-word counts, totem counts and similar fixed schema loops; prefer array sizes/shared schema constants. Ordinary element indices can remain literal.",
       "original_lines": [],
-      "notes": "Effect arrays/loops use NUM_SPELL_EFFECTS (478939e); class-mask words use NUM_SPELL_CLASS_MASK_WORDS. Remaining unrelated fixed-size loops still need final review."
+      "notes": "Effect slots, class-mask words and shapeshift words have independent constants. The two spell histories are named player/pet contexts; the two enchantable hands have a separate count. Remaining sizeof-based loops are self-describing; the native four-iteration vehicle loop is retained under group 26. No numeric effect/mask loop bounds remain conflated."
     },
     {
       "id": 76,
