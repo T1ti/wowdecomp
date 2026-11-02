@@ -71,7 +71,7 @@ static float RandomFloat(float min, float max) {
 // VERIFY: 0e91c5c7 manual
 // OFFSET: 0x009A8EC0
 void CLightning::Reset() {
-    this->m_flags &= ~0x5;
+    this->m_flags &= ~RUNTIME_FLAGS::FLAG_RESET_MASK;
     this->m_waveAngle = (this->m_chainEffects->m_maxWaveAngle - this->m_chainEffects->m_minWaveAngle) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveAngle;
     this->m_waveSpin = (this->m_chainEffects->m_maxWaveSpin - this->m_chainEffects->m_minWaveSpin) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveSpin;
 
@@ -87,7 +87,7 @@ void CLightning::Reset() {
     this->m_pulsePos = 0.0f;
 
     if (this->m_chainEffects->m_pulseSpeed < 0.0f) {
-        this->m_flags |= 0x8;
+        this->m_flags |= RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP;
     }
 
     this->m_texRandom = CRandom::ufloat_(s_rndSeed);
@@ -106,7 +106,7 @@ void CLightning::RandomizeJoint(LightningJoint& joint, float radius) {
     joint.m_velocity.y = 0.0f;
     joint.m_velocity.z = this->m_chainEffects->m_jointMoveSpeed * speed;
 
-    if (this->m_flags & 0x1) {
+    if (this->m_flags & RUNTIME_FLAGS::FLAG_JOINTS_INITIALIZED) {
         joint.m_jumpTimer = CRandom::ufloat_(s_rndSeed) * this->m_chainEffects->m_maxDurationBetweenJointJumps;
     } else {
         joint.m_jumpTimer = (this->m_chainEffects->m_maxDurationBetweenJointJumps - this->m_chainEffects->m_minDurationBetweenJointJumps) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minDurationBetweenJointJumps;
@@ -282,9 +282,9 @@ void CLightningManager::SetBoltVisible(uint32_t index, bool visible) {
     }
 
     if (visible) {
-        bolt->m_flags |= 0x2;
+        bolt->m_flags |= CLightning::RUNTIME_FLAGS::FLAG_VISIBLE;
     } else {
-        bolt->m_flags &= ~0x2;
+        bolt->m_flags &= ~CLightning::RUNTIME_FLAGS::FLAG_VISIBLE;
     }
 }
 
@@ -293,7 +293,7 @@ void CLightningManager::SetBoltVisible(uint32_t index, bool visible) {
 CLightning::CLightning() {
     this->m_texture = nullptr;
     this->m_texOffset = 0.0f;
-    this->m_flags = 0;
+    this->m_flags = RUNTIME_FLAGS::FLAG_NONE;
     this->m_waveAngle = 0.0f;
     this->m_waveSpin = 0.0f;
     this->m_wavePhase = 0.0f;
@@ -327,7 +327,7 @@ void CLightning::Init(const SpellChainEffectsRec* chainEffects) {
         }
     }
 
-    this->m_flags &= ~0x30;
+    this->m_flags &= ~RUNTIME_FLAGS::FLAG_ENDPOINT_MASK;
     this->Reset();
 }
 
@@ -509,9 +509,9 @@ void CLightning::BuildPointsUsingHierarchy() {
 // VERIFY: c9b19284 manual
 // OFFSET: 0x009AA210
 void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
-    this->m_flags &= ~0x30;
+    this->m_flags &= ~RUNTIME_FLAGS::FLAG_ENDPOINT_MASK;
 
-    if (!(this->m_flags & 0x2) || (this->m_flags & 0x4)) {
+    if (!(this->m_flags & RUNTIME_FLAGS::FLAG_VISIBLE) || (this->m_flags & RUNTIME_FLAGS::FLAG_FLICKER_OFF)) {
         return;
     }
 
@@ -828,11 +828,11 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     this->ApplyPulsingToVertexData(start, count);
 
     if (start == 0) {
-        this->m_flags |= 0x10;
+        this->m_flags |= RUNTIME_FLAGS::FLAG_SOURCE_ENDPOINT;
     }
 
     if (start + count >= static_cast<int32_t>(this->m_positions.Count())) {
-        this->m_flags |= 0x20;
+        this->m_flags |= RUNTIME_FLAGS::FLAG_DESTINATION_ENDPOINT;
     }
 
     if (count <= 2 || World::FrustumCull(this->m_bounds)) {
@@ -1007,7 +1007,7 @@ void CLightning::UpdateJointCount(float length, float radius) {
 
     int32_t oldCount;
 
-    if (this->m_flags & 0x1) {
+    if (this->m_flags & RUNTIME_FLAGS::FLAG_JOINTS_INITIALIZED) {
         oldCount = this->m_joints.Count();
     } else {
         oldCount = 0;
@@ -1021,19 +1021,19 @@ void CLightning::UpdateJointCount(float length, float radius) {
         *reinterpret_cast<int32_t*>(&this->m_joints.m_data[i].m_smoothPos.x) = -1;
     }
 
-    this->m_flags |= 0x1;
+    this->m_flags |= RUNTIME_FLAGS::FLAG_JOINTS_INITIALIZED;
 }
 
 // VERIFY: 5730309e manual
 // OFFSET: 0x009AB3B0
 void CLightning::Update(float elapsed) {
-    if (!(this->m_flags & 0x2)) {
+    if (!(this->m_flags & RUNTIME_FLAGS::FLAG_VISIBLE)) {
         return;
     }
 
     this->m_flickerTimer -= elapsed;
 
-    if (this->m_flags & 0x4) {
+    if (this->m_flags & RUNTIME_FLAGS::FLAG_FLICKER_OFF) {
         if (this->m_flickerTimer > 0.0f) {
             return;
         }
@@ -1041,7 +1041,7 @@ void CLightning::Update(float elapsed) {
         this->Reset();
     } else if ((this->m_chainEffects->m_flags & 0x10) && this->m_flickerTimer <= 0.0f) {
         this->m_flickerTimer = RandomFloat(this->m_chainEffects->m_minFlickerOffDuration, this->m_chainEffects->m_maxFlickerOffDuration);
-        this->m_flags |= 0x4;
+        this->m_flags |= RUNTIME_FLAGS::FLAG_FLICKER_OFF;
     }
 
     const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
@@ -1121,7 +1121,7 @@ void CLightning::Update(float elapsed) {
 
     this->m_pulsePos = chainEffects->m_pulseSpeed * elapsed + this->m_pulsePos;
 
-    if (!(this->m_flags & 0x8) && !(chainEffects->m_flags & 0x40)) {
+    if (!(this->m_flags & RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP) && !(chainEffects->m_flags & 0x40)) {
         return;
     }
 
@@ -1129,10 +1129,10 @@ void CLightning::Update(float elapsed) {
 
     if (this->m_pulsePos - pulseLength >= length) {
         this->Reset();
-        this->m_flags &= ~0x8;
+        this->m_flags &= ~RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP;
     } else if (this->m_pulsePos < 0.0f) {
         this->Reset();
-        this->m_flags &= ~0x8;
+        this->m_flags &= ~RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP;
         this->m_pulsePos = pulseLength + length;
     }
 }
