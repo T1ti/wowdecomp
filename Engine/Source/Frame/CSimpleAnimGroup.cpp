@@ -43,7 +43,7 @@ int32_t CSimpleAnimGroup::GetObjectType() {
 // VERIFY: 3587a1ad auto
 // OFFSET: 0x00497770
 void CSimpleAnimGroup::PreLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= 1;
+    this->m_flags |= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
 
     const char* name = node->GetAttributeByName("name");
 
@@ -203,7 +203,7 @@ void CSimpleAnimGroup::LoadXML_Scripts(XMLNode* node, CStatus* status) {
 // OFFSET: 0x00498580
 void CSimpleAnimGroup::Finish() {
     if (!this->IsDone() && this->m_loopState) {
-        this->m_flags |= 2;
+        this->m_flags |= GROUP_FLAGS::FLAG_FINISH_REQUESTED;
     }
 }
 
@@ -332,7 +332,7 @@ TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* CSimpleAnimGroup::RegisterAn
 // OFFSET: 0x00499EB0
 CSimpleAnimGroup::CSimpleAnimGroup(CScriptRegion* owner) {
     this->m_region = nullptr;
-    this->m_flags = 0;
+    this->m_flags = GROUP_FLAGS::FLAG_NONE;
     this->m_loopType = ANIM_LOOPTYPE_NONE;
     this->m_loopState = ANIM_LOOPSTATE_NONE;
     this->m_currentOrder = -1;
@@ -382,7 +382,7 @@ int32_t CSimpleAnimGroup::GetScriptMetaTable() {
 // VERIFY: aa705a15 manual
 // OFFSET: 0x0049A060
 void CSimpleAnimGroup::LoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= 1;
+    this->m_flags |= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
 
     const char* inherits = node->GetAttributeByName("inherits");
 
@@ -543,20 +543,20 @@ bool CSimpleAnimGroup::Play() {
 
     bool notify = true;
 
-    if (this->m_flags & 0x10) {
+    if (this->m_flags & GROUP_FLAGS::FLAG_FINISHED_CALLBACKS) {
         this->m_elapsed = 0.0f;
-        this->m_flags = 0;
+        this->m_flags = GROUP_FLAGS::FLAG_NONE;
         this->m_progress = 0.0f;
         this->m_loopState = ANIM_LOOPSTATE_NONE;
         this->m_currentOrder = -1;
         notify = false;
     }
 
-    if (this->m_loopState && !(this->m_flags & 0x4)) {
+    if (this->m_loopState && !(this->m_flags & GROUP_FLAGS::FLAG_PAUSED)) {
         return true;
     }
 
-    this->m_flags &= ~0x4;
+    this->m_flags &= ~GROUP_FLAGS::FLAG_PAUSED;
 
     int32_t count = this->m_animLists.Count();
 
@@ -606,11 +606,11 @@ bool CSimpleAnimGroup::Play() {
 // VERIFY: c6353ca3 manual
 // OFFSET: 0x0049AAB0
 void CSimpleAnimGroup::Pause() {
-    if (!this->m_loopState || (this->m_flags & 0x4)) {
+    if (!this->m_loopState || (this->m_flags & GROUP_FLAGS::FLAG_PAUSED)) {
         return;
     }
 
-    this->m_flags = (this->m_flags & ~0xC) | 0x4;
+    this->m_flags = (this->m_flags & ~GROUP_FLAGS::FLAG_PAUSE_TRANSITION_MASK) | GROUP_FLAGS::FLAG_PAUSED;
 
     TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list = this->m_animLists[this->m_currentOrder];
 
@@ -626,7 +626,7 @@ void CSimpleAnimGroup::Pause() {
 // VERIFY: 2adddbf0 manual
 // OFFSET: 0x0049AB60
 bool CSimpleAnimGroup::NotifyAnimStopped(CSimpleAnim* anim) {
-    if (!this->m_loopState || (this->m_flags & 0x20)) {
+    if (!this->m_loopState || (this->m_flags & GROUP_FLAGS::FLAG_STOPPING)) {
         return false;
     }
 
@@ -636,7 +636,7 @@ bool CSimpleAnimGroup::NotifyAnimStopped(CSimpleAnim* anim) {
         }
     }
 
-    this->m_flags = (this->m_flags & ~0x28) | 0x20;
+    this->m_flags = (this->m_flags & ~GROUP_FLAGS::FLAG_STOP_TRANSITION_MASK) | GROUP_FLAGS::FLAG_STOPPING;
 
     TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list = this->m_animLists[this->m_currentOrder];
 
@@ -656,7 +656,7 @@ bool CSimpleAnimGroup::NotifyAnimStopped(CSimpleAnim* anim) {
 
     this->m_elapsed = 0.0f;
     this->m_progress = 0.0f;
-    this->m_flags = 0;
+    this->m_flags = GROUP_FLAGS::FLAG_NONE;
     this->m_loopState = ANIM_LOOPSTATE_NONE;
     this->m_currentOrder = -1;
 
@@ -714,11 +714,11 @@ void CSimpleAnimGroup::NotifyOrderChanged(CSimpleAnim* anim, int32_t oldOrder) {
 // VERIFY: 249d80ec manual
 // OFFSET: 0x0049B0F0
 void CSimpleAnimGroup::Stop(bool requested) {
-    if (!this->m_loopState || (this->m_flags & 0x20)) {
+    if (!this->m_loopState || (this->m_flags & GROUP_FLAGS::FLAG_STOPPING)) {
         return;
     }
 
-    this->m_flags = (this->m_flags & ~0x28) | 0x20;
+    this->m_flags = (this->m_flags & ~GROUP_FLAGS::FLAG_STOP_TRANSITION_MASK) | GROUP_FLAGS::FLAG_STOPPING;
 
     TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list = this->m_animLists[this->m_currentOrder];
 
@@ -736,7 +736,7 @@ void CSimpleAnimGroup::Stop(bool requested) {
 
     this->m_elapsed = 0.0f;
     this->m_progress = 0.0f;
-    this->m_flags = 0;
+    this->m_flags = GROUP_FLAGS::FLAG_NONE;
     this->m_loopState = ANIM_LOOPSTATE_NONE;
     this->m_currentOrder = -1;
 }
@@ -838,10 +838,10 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
         return;
     }
 
-    bool finishing = (this->m_flags & 0x2) != 0;
+    bool finishing = (this->m_flags & GROUP_FLAGS::FLAG_FINISH_REQUESTED) != 0;
 
     if (!this->m_loopType || finishing) {
-        this->m_flags |= 0x10;
+        this->m_flags |= GROUP_FLAGS::FLAG_FINISHED_CALLBACKS;
 
         if (this->m_onUpdate.m_luaRef) {
             lua_State* L = FrameScript_GetContext();
@@ -855,10 +855,10 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
             this->RunScript(this->m_onFinished, 1, nullptr);
         }
 
-        if (this->m_flags & 0x10) {
+        if (this->m_flags & GROUP_FLAGS::FLAG_FINISHED_CALLBACKS) {
             this->m_region->NotifyAnimEnd(this);
             this->m_elapsed = 0.0f;
-            this->m_flags = 0;
+            this->m_flags = GROUP_FLAGS::FLAG_NONE;
             this->m_progress = 0.0f;
             this->m_loopState = ANIM_LOOPSTATE_NONE;
             this->m_currentOrder = -1;
@@ -868,7 +868,7 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
     }
 
     if (!reverse && remaining > 0.0001f) {
-        this->m_flags |= 0x8;
+        this->m_flags |= GROUP_FLAGS::FLAG_LOOP_INVERSE_PENDING;
     }
 
     if (this->m_loopType == ANIM_LOOPTYPE_BOUNCE) {
@@ -905,14 +905,14 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
         this->RunScript(this->m_onLoop, 1, nullptr);
     }
 
-    if (this->m_flags & 0x8) {
+    if (this->m_flags & GROUP_FLAGS::FLAG_LOOP_INVERSE_PENDING) {
         TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list = this->m_animLists[this->m_currentOrder];
 
         for (SIMPLEANIMNODE* node = list->Head(); node; node = list->Next(node)) {
             node->m_anim->ApplyInverse(1.0f);
         }
 
-        this->m_flags &= ~0x8;
+        this->m_flags &= ~GROUP_FLAGS::FLAG_LOOP_INVERSE_PENDING;
     }
 }
 
@@ -941,7 +941,7 @@ bool CSimpleAnimGroup::RemoveAnimListNode(TSList<SIMPLEANIMNODE, TSGetLink<SIMPL
 // VERIFY: b559c4d7 manual
 // OFFSET: 0x0049C2A0
 void CSimpleAnimGroup::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags ^= 1;
+    this->m_flags ^= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
 
     for (CSimpleAnim* anim = this->m_animations.Head(); anim; anim = this->m_animations.Next(anim)) {
         anim->PostLoadXML(node, status);
@@ -986,7 +986,7 @@ void CSimpleAnimGroup::DoGroupUpdateWork(float elapsedSec) {
         }
     }
 
-    if (this->m_flags & 0x4) {
+    if (this->m_flags & GROUP_FLAGS::FLAG_PAUSED) {
         TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list = this->m_animLists[this->m_currentOrder];
 
         for (SIMPLEANIMNODE* node = list->Head(); node; node = list->Next(node)) {
@@ -1047,7 +1047,7 @@ void CSimpleAnimGroup::DoGroupUpdateWork(float elapsedSec) {
                 this->AdvanceLoopState(elapsedSec, remaining);
             }
 
-            if (remaining <= 0.0001f || this->IsDone() || !this->m_loopState || (this->m_flags & 0x4)) {
+            if (remaining <= 0.0001f || this->IsDone() || !this->m_loopState || (this->m_flags & GROUP_FLAGS::FLAG_PAUSED)) {
                 break;
             }
         }

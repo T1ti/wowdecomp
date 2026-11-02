@@ -71,7 +71,7 @@ static int32_t Script_IsDone(lua_State* L) {
 // OFFSET: 0x004A7040
 static int32_t Script_IsPaused(lua_State* L) {
     CSimpleAnimGroup* group = static_cast<CSimpleAnimGroup*>(FrameScript_GetObjectThis(L, CSimpleAnimGroup::GetObjectType()));
-    lua_pushboolean(L, (group->m_flags & 0x4) != 0);
+    lua_pushboolean(L, (group->m_flags & CSimpleAnimGroup::GROUP_FLAGS::FLAG_PAUSED) != 0);
     return 1;
 }
 
@@ -79,7 +79,7 @@ static int32_t Script_IsPaused(lua_State* L) {
 // OFFSET: 0x004A7090
 static int32_t Script_IsPendingFinish(lua_State* L) {
     CSimpleAnimGroup* group = static_cast<CSimpleAnimGroup*>(FrameScript_GetObjectThis(L, CSimpleAnimGroup::GetObjectType()));
-    lua_pushboolean(L, (group->m_flags & 0x2) != 0);
+    lua_pushboolean(L, (group->m_flags & CSimpleAnimGroup::GROUP_FLAGS::FLAG_FINISH_REQUESTED) != 0);
     return 1;
 }
 
@@ -337,7 +337,7 @@ static int32_t Script_HookScript(lua_State* L) {
 // OFFSET: 0x004A7AA0
 static int32_t Script_IsPlaying(lua_State* L) {
     CSimpleAnimGroup* group = static_cast<CSimpleAnimGroup*>(FrameScript_GetObjectThis(L, CSimpleAnimGroup::GetObjectType()));
-    lua_pushboolean(L, group->m_loopState && !(group->m_flags & 0x4));
+    lua_pushboolean(L, group->m_loopState && !(group->m_flags & CSimpleAnimGroup::GROUP_FLAGS::FLAG_PAUSED));
     return 1;
 }
 
