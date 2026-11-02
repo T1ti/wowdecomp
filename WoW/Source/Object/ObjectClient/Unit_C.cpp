@@ -12163,7 +12163,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
             SpellVisualRec visualRec;
             const SpellVisualRec* visual = this->GetAppropriateSpellVisual(&spell, visualRec, 0, 0);
 
-            if (visual && visual->m_stateKit && (visual->m_flags & 0x8)) {
+            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT)) {
                 SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
                 if (kit) {
@@ -12189,7 +12189,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
             SpellVisualRec visualRec;
             const SpellVisualRec* visual = this->GetAppropriateSpellVisual(&spell, visualRec, 0, 0);
 
-            if (visual && visual->m_stateKit && (visual->m_flags & 0x8) && g_spellVisualKitDB.GetRecord(visual->m_stateKit)) {
+            if (visual && visual->m_stateKit && (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT) && g_spellVisualKitDB.GetRecord(visual->m_stateKit)) {
                 this->ClearSpellEffect(this->m_handItemSpellIds[i], 1);
                 this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_HAND_ITEM_SPELL_EFFECTS;
             }
@@ -16689,7 +16689,7 @@ store:
     }
 
 handItems:
-    if (visual->m_flags & 0x8) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT) {
         this->ShowHandItemSpellEffects(1, 1);
     }
 }
@@ -19065,7 +19065,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         }
     }
 
-    int32_t attachment = (visual->m_flags & 0x200) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
+    int32_t attachment = (visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
     C3Vector offset(visual->m_missileImpactOffset[0], -visual->m_missileImpactOffset[1], visual->m_missileImpactOffset[2]);
     bool hasOffset = 0.0f != offset.x || 0.0f != offset.y || offset.z != 0.0f;
 
@@ -19188,7 +19188,7 @@ flagsDone:
         }
     }
 
-    if (visual->m_flags & 4) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19377,7 +19377,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         }
     }
 
-    if (visual->m_flags & 4) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19507,7 +19507,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         }
     }
 
-    int32_t attachment = (visual->m_flags & 0x200) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
+    int32_t attachment = (visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
     missile->m_impactPos = points->m_data[0].m_position;
     missile->m_transportGuid = points->m_data[0].m_transport;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
@@ -19555,7 +19555,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         }
     }
 
-    if (visual->m_flags & 4) {
+    if (visual->m_flags & SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -21731,7 +21731,7 @@ int32_t CGUnit_C::OverrideMissileFirePos(C3Vector* position, const SpellRec* spe
         return 1;
     }
 
-    int32_t raw = visual->m_flags & 0x200;
+    int32_t raw = visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS;
 
     if (!this->HasAttachmentForEffect(visual->m_missileAttachment, raw)) {
         return 0;
@@ -23554,7 +23554,7 @@ void CGUnit_C::AttachPrecastMissileModel(const SpellVisualRec* visual, uint8_t c
         return;
     }
 
-    int32_t raw = visual->m_flags & 0x200;
+    int32_t raw = visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS;
 
     if (!this->GetObjectModel() || !this->GetObjectModel()->IsLoaded(0, 0) || !this->HasAttachmentForEffect(visual->m_missileAttachment, raw)) {
         return;

@@ -6,6 +6,21 @@
 
 class SFileImpl;
 
+// Descriptive names from the 3.3.5 client tests of SpellVisualRec::m_flags.
+// UNKNOWN records an unresolved meaning; it does not imply an unused data bit.
+enum SPELL_VISUAL_FLAGS : int32_t {
+    SPELL_VISUAL_FLAG_PREFER_UNIT_TARGETS = 0x1,
+    SPELL_VISUAL_FLAG_UNKNOWN_1 = 0x2,
+    SPELL_VISUAL_FLAG_RELEASE_MISSILES_IMMEDIATELY = 0x4,
+    SPELL_VISUAL_FLAG_HAND_ITEM_STATE_KIT = 0x8,
+    SPELL_VISUAL_FLAG_DETACHED_SOUND = 0x10,
+    SPELL_VISUAL_FLAG_PRECAST_MISSILE_MODEL = 0x20,
+    SPELL_VISUAL_FLAG_NO_WOUND_ANIMATION = 0x40,
+    SPELL_VISUAL_FLAG_MISSILE_DISTANCE_FROM_LAUNCH = 0x80,
+    SPELL_VISUAL_FLAG_REQUIRE_TARGETS_FOR_DESTINATION_MISSILE = 0x100,
+    SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS = 0x200,
+};
+
 // Fixed-point scale of the three missile follow-ground DBC parameters.
 constexpr float SPELL_VISUAL_GROUND_PARAMETER_SCALE = 0.001f;
 
@@ -32,7 +47,7 @@ class SpellVisualRec {
     /* 0028 */ int32_t m_missileDestinationAttachment;
     /* 002C */ int32_t m_missileSound;
     /* 0030 */ int32_t m_animEventSoundID;
-    /* 0034 */ int32_t m_flags;
+    /* 0034 */ int32_t m_flags; // SPELL_VISUAL_FLAGS
     /* 0038 */ int32_t m_casterImpactKit;
     /* 003C */ int32_t m_targetImpactKit;
     /* 0040 */ int32_t m_missileAttachment;

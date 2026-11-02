@@ -1518,7 +1518,7 @@ int32_t CMissile::PossiblyHandleBounce() {
 // OFFSET: 0x00702DB0
 void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVisualRec* visual) {
     if (target->m_unit->m_unitFieldHealth > 0) {
-        if (!visual || !(visual->m_flags & 0x40)) {
+        if (!visual || !(visual->m_flags & SPELL_VISUAL_FLAG_NO_WOUND_ANIMATION)) {
             target->PlayWoundAnimKit(0);
         }
     } else {
@@ -2052,7 +2052,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
             float maxSpeed = this->m_speed + this->m_speed;
             CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (visual && visual->m_flags < 0) {
+            if (visual && (visual->m_flags & SPELL_VISUAL_FLAG_MISSILE_DISTANCE_FROM_LAUNCH)) {
                 if (caster) {
                     C3Vector offset = this->TransformPositionByTransport() - this->m_launchPos;
                     distance = sqrt(offset.z * offset.z + offset.y * offset.y + offset.x * offset.x);

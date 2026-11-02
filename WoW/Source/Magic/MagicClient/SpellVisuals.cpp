@@ -113,7 +113,7 @@ C3Vector LightningObject::GetImpactPosition(CGUnit_C* unit, uint32_t spellId) {
 
     SpellVisualRec buffer;
     const SpellVisualRec* visual = (unit->m_obj->m_type & TYPE_UNIT) ? unit->GetAppropriateSpellVisual(&spell, buffer, 0, 0) : GetSpellVisual(&spell);
-    int32_t raw = visual->m_flags & 0x200;
+    int32_t raw = visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS;
 
     if (model->IsLoaded(0, 0) && (model->m_runtimeFlags & 0x8000) && unit->HasAttachmentForEffect(visual->m_missileDestinationAttachment, raw)) {
         position.x = visual->m_missileImpactOffset[0];
@@ -509,7 +509,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
             targetOffset.x = visual->m_missileImpactOffset[0];
             targetOffset.y = -visual->m_missileImpactOffset[1];
             targetOffset.z = visual->m_missileImpactOffset[2];
-            raw = visual->m_flags & 0x200;
+            raw = visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS;
         }
     }
 
