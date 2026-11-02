@@ -1317,7 +1317,7 @@ int32_t CGPlayer_C::CanLoot(const CGObject_C* object) {
     if (this->IsShapeShifted()) {
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
 
-        if (form && (form->m_flags & 0x100)) {
+        if (form && (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_NO_AUTO_UNSHIFT)) {
             return 0;
         }
     }
@@ -6479,7 +6479,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
     if (this->IsShapeShifted()) {
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
 
-        if (!form || !(form->m_flags & 0x8)) {
+        if (!form || !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CAN_INTERACT)) {
             if (!this->CanAutoUnshift()) {
                 CGGameUI::DisplayError(ERR_CANT_INTERACT_SHAPESHIFTED);
                 return;
@@ -10708,7 +10708,7 @@ int32_t CGPlayer_C::GetAttackPowerContributionFromStat(int32_t stat, int32_t val
 
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
 
-        if (form && (form->m_flags & 0x20)) {
+        if (form && (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_AGILITY_TO_ATTACK_POWER)) {
             attackPower += value;
         }
     }
@@ -12087,7 +12087,7 @@ int32_t OnUpdateShapeshiftForm(WOWGUID guid, uint32_t offset, uint32_t count, co
         if (unit->IsShapeShifted()) {
             SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(unit->GetShapeshiftForm());
 
-            if (form && !(form->m_flags & 0x8)) {
+            if (form && !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CAN_INTERACT)) {
                 CGGameUI::ClearInteractTarget(CGGameUI::m_interactTarget, 0);
             }
 

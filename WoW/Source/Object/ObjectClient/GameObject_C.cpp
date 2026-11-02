@@ -4115,7 +4115,7 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
         if (player->IsShapeShifted()) {
             SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(player->GetShapeshiftForm());
 
-            if ((!form || !(form->m_flags & 0x8)) && !player->CanAutoUnshift()) {
+            if ((!form || !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CAN_INTERACT)) && !player->CanAutoUnshift()) {
                 if (error) {
                     *error = static_cast<GAME_ERROR_TYPE>(ERR_NOT_WHILE_SHAPESHIFTED);
                 }
@@ -4238,7 +4238,7 @@ bool CGGameObject_C_TypeBase::Use() {
         if (player->IsShapeShifted()) {
             SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(player->GetShapeshiftForm());
 
-            if (!form || !(form->m_flags & 0x8)) {
+            if (!form || !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CAN_INTERACT)) {
                 player->CancelShapeshift();
             }
         }

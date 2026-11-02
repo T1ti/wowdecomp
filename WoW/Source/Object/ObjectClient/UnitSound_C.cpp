@@ -500,7 +500,7 @@ void CGUnit_C::PlayTextEmoteSound(uint32_t emote, uint32_t emoteNum) {
     if (this->IsShapeShifted()) {
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
 
-        if (form && (form->m_flags & 0x1000)) {
+        if (form && (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_SUPPRESS_TEXT_EMOTE_SOUND)) {
             return;
         }
     }

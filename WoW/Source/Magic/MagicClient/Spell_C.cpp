@@ -4900,7 +4900,7 @@ bool SpellAppliesNonStanceShapeshift(const SpellRec* spell) {
 
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(spell->m_effectMiscValue[i]);
 
-        if (!form || !(form->m_flags & 0x1)) {
+        if (!form || !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE)) {
             return true;
         }
     }
@@ -5273,7 +5273,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
             SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(spell->m_effectMiscValue[i]);
 
-            if (!form || (form->m_flags & 0x2)) {
+            if (!form || (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CANNOT_CANCEL)) {
                 return;
             }
 

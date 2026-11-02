@@ -4872,7 +4872,7 @@ bool CGUnit_C::CanAutoUnshift() const {
     }
 
     SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
-    return !form || !(form->m_flags & 0x100);
+    return !form || !(form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_NO_AUTO_UNSHIFT);
 }
 
 // VERIFY: 530432a2 manual
@@ -4933,7 +4933,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
     if (this->IsShapeShifted()) {
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(this->GetShapeshiftForm());
 
-        if (!(form && (form->m_flags & 0x8)) && !this->CanAutoUnshift()) {
+        if (!(form && (form->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_CAN_INTERACT)) && !this->CanAutoUnshift()) {
             return false;
         }
     }
@@ -7253,7 +7253,7 @@ bool CGUnit_C::IsShapeShifted() const {
         return false;
     }
 
-    return !(g_spellShapeshiftFormDB.GetRecord(form)->m_flags & 0x1);
+    return !(g_spellShapeshiftFormDB.GetRecord(form)->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE);
 }
 
 // VERIFY: ea61250a manual
@@ -7296,7 +7296,7 @@ bool CGUnit_C::IsCancelShapeshiftAtFlightMaster() const {
     }
 
     int32_t flags = g_spellShapeshiftFormDB.GetRecord(form)->m_flags;
-    return !(flags & 0x1) || (flags & 0x800);
+    return !(flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE) || (flags & SPELL_SHAPESHIFT_FORM_FLAG_CANCEL_STANCE_AT_FLIGHT_MASTER);
 }
 
 // VERIFY: 1c8b9c45 auto
@@ -17464,7 +17464,7 @@ bool CGUnit_C::CheckShapeshiftRules(const SpellRec* spell, int32_t* reason) {
         form = this->m_shapeshiftSuppressed ? 0 : this->m_unit->m_shapeshiftForm;
         SpellShapeshiftFormRec* shapeshift = g_spellShapeshiftFormDB.GetRecord(form);
 
-        if (shapeshift && (shapeshift->m_flags & 0x400)) {
+        if (shapeshift && (shapeshift->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_RESTRICT_SPELLS_TO_FORM)) {
             if (!this->AffectedByAura(SPELL_AURA_MOD_IGNORE_SHAPESHIFT, spell)) {
                 *reason = 68;
                 return false;
