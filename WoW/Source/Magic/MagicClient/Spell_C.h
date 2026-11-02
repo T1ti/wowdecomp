@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -227,7 +228,7 @@ bool Spell_C_HaveSpellPower(CGUnit_C* unit, const SpellRec* spell);
 int32_t Spell_C_IsActionOnHold(const int32_t* spellId, int32_t index);
 int32_t Spell_C_NeedsCooldownEvent(int32_t itemId);
 bool Spell_C_IsUsableAction(CGUnit_C* unit, const SpellRec* spell, const WOWGUID& target, const ItemStats_C* item, bool ignoreControl);
-bool Spell_C_GetSpellModifiers(const SpellRec* spell, int32_t modifier, int32_t& flat, int32_t& pct);
+bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int32_t& flat, int32_t& pct);
 bool Spell_C_CancelsAuraEffect(const CGUnit_C* unit, const SpellRec* spell, int32_t auraType, int32_t* reason);
 bool Spell_C_CancelsStun(const CGUnit_C* unit, const SpellRec* spell, int32_t* reason);
 bool Spell_C_CancelsSilence(const CGUnit_C* unit, const SpellRec* spell, int32_t* reason);
@@ -279,8 +280,8 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
 void CreateMissilesForTargetPoints(const TSStackArray<SpellCastTargetPoint>& points, CGUnit_C* unit, const SpellRec* spell, const SpellVisualRec* visual, uint32_t ammoDisplayId, uint32_t ammoInventoryType, PendingSpellCastData* data, uint32_t delay);
 bool Spell_C_HasCooldownOnEvent(const SpellRec* spell, WOWGUID guid);
 void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, int32_t pet);
-bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, int32_t modifier);
-bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, int32_t modifier);
+bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, SPELL_MOD_OP modifier);
+bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, SPELL_MOD_OP modifier);
 uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, int32_t isPet, int32_t isUnit);
 int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* unit);
 void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers);

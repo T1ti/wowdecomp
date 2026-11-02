@@ -708,7 +708,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
             if (rec) {
                 radius = static_cast<int32_t>(rec->m_radius);
-                Spell_C_ModifySpellValue(spell, radius, 6);
+                Spell_C_ModifySpellValue(spell, radius, SPELLMOD_RADIUS);
             }
 
             SStrPrintf(number, sizeof(number), "%d", radius);
@@ -763,7 +763,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         case 'E':
         case 'e': {
             float amplitude = spell->m_effectAmplitude[index];
-            Spell_C_ModifySpellValue(spell, amplitude, 27);
+            Spell_C_ModifySpellValue(spell, amplitude, SPELLMOD_VALUE_MULTIPLIER);
             SStrPrintf(number, sizeof(number), "%.1f", amplitude * multiplier);
             output = number;
             break;
@@ -804,7 +804,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         case 'H':
         case 'h': {
             int32_t chance = spell->m_procChance;
-            Spell_C_ModifySpellValue(spell, chance, 18);
+            Spell_C_ModifySpellValue(spell, chance, SPELLMOD_CHANCE_OF_SUCCESS);
             s_lastNumber = chance;
             SStrPrintf(number, sizeof(number), "%d", chance);
             output = number;
@@ -927,7 +927,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         case 'N':
         case 'n': {
             int32_t charges = spell->m_procCharges;
-            Spell_C_ModifySpellValue(spell, charges, 4);
+            Spell_C_ModifySpellValue(spell, charges, SPELLMOD_CHARGES);
             s_lastNumber = charges;
             SStrPrintf(number, sizeof(number), "%d", charges);
             output = number;
@@ -965,7 +965,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
             if (rec) {
                 range = rec->m_rangeMax[0];
-                Spell_C_ModifySpellValue(spell, range, 5);
+                Spell_C_ModifySpellValue(spell, range, SPELLMOD_RANGE);
             }
 
             s_lastNumber = static_cast<int32_t>(ceilf(range));
@@ -982,7 +982,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
                 period = 5000;
             } else {
                 period = spell->m_effectAuraPeriod[index];
-                Spell_C_ModifySpellValue(spell, period, 19);
+                Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);
 
                 for (uint32_t i = 0; i < 3; i++) {
                     if (spell->m_effectAuraPeriod[i]) {
@@ -1026,7 +1026,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         case 'X':
         case 'x': {
             int32_t targets = spell->m_effectChainTargets[index];
-            Spell_C_ModifySpellValue(spell, targets, 17);
+            Spell_C_ModifySpellValue(spell, targets, SPELLMOD_JUMP_TARGETS);
             s_lastNumber = targets;
             SStrPrintf(number, sizeof(number), "%d", targets);
             output = number;

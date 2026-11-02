@@ -2698,7 +2698,7 @@ static void AddSpellRangeLines(CGTooltip* tooltip, const SpellRec* spell, CGUnit
     float friendlyMax = 0.0f;
 
     if (!brief && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_DO_NOT_DISPLAY_RANGE)) {
-        if (SpellRec::IsMeleeRange(spell) && !SpellRec::HasModifier(spell, 5)) {
+        if (SpellRec::IsMeleeRange(spell) && !SpellRec::HasModifier(spell, SPELLMOD_RANGE)) {
             char format[128];
             FormatString("MELEE_RANGE", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
             SStrPrintf(range, 128, format);
@@ -3266,7 +3266,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
 
     int32_t recovery = spell.m_recoveryTime;
     int32_t categoryRecovery = spell.m_categoryRecoveryTime;
-    Spell_C_ModifySpellValue(&spell, recovery, 11);
+    Spell_C_ModifySpellValue(&spell, recovery, SPELLMOD_COOLDOWN);
     Spell_C_ModifyCategoryRecovery(categoryRecovery, &spell, 0);
     int32_t recast = recovery > categoryRecovery ? recovery : categoryRecovery;
     int32_t isTradeSkill = 0;
@@ -5837,10 +5837,10 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
                     } else {
                         int32_t recoveryTime = spell.m_recoveryTime;
                         int32_t categoryRecoveryTime = spell.m_categoryRecoveryTime;
-                        Spell_C_ModifySpellValue(&spell, recoveryTime, 11);
+                        Spell_C_ModifySpellValue(&spell, recoveryTime, SPELLMOD_COOLDOWN);
 
                         if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS)) {
-                            Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, 11);
+                            Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, SPELLMOD_COOLDOWN);
                         }
 
                         spellCooldown = recoveryTime <= categoryRecoveryTime ? categoryRecoveryTime : recoveryTime;
@@ -6130,10 +6130,10 @@ static void AddItemUseEnchantLine(CGTooltip* tooltip, CGPlayer_C* player, int32_
 
     int32_t recoveryTime = spell.m_recoveryTime;
     int32_t categoryRecoveryTime = spell.m_categoryRecoveryTime;
-    Spell_C_ModifySpellValue(&spell, recoveryTime, 11);
+    Spell_C_ModifySpellValue(&spell, recoveryTime, SPELLMOD_COOLDOWN);
 
     if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS)) {
-        Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, 11);
+        Spell_C_ModifySpellValue(&spell, categoryRecoveryTime, SPELLMOD_COOLDOWN);
     }
 
     int32_t spellCooldown = recoveryTime <= categoryRecoveryTime ? categoryRecoveryTime : recoveryTime;

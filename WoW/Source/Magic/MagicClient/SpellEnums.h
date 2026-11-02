@@ -3,6 +3,64 @@
 
 #include <cstdint>
 
+// SpellRec::m_startRecoveryCategory (SpellCategory.dbc ID; other categories exist).
+enum SPELL_RECOVERY_CATEGORY : int32_t
+{
+    SPELL_RECOVERY_CATEGORY_GLOBAL = 133,
+};
+
+// Standard spell GCD: 1500 ms before haste, clamped to 1000..1500 ms.
+// These bounds do not describe every spell's DBC recovery time.
+constexpr int32_t SPELL_GLOBAL_COOLDOWN_DEFAULT_MS = 1500;
+constexpr int32_t SPELL_GLOBAL_COOLDOWN_MIN_MS = 1000;
+
+// SpellRec::m_defenseType
+enum SPELL_DAMAGE_CLASS : int32_t
+{
+    SPELL_DAMAGE_CLASS_NONE   = 0,
+    SPELL_DAMAGE_CLASS_MAGIC  = 1,
+    SPELL_DAMAGE_CLASS_MELEE  = 2,
+    SPELL_DAMAGE_CLASS_RANGED = 3,
+};
+
+// Spell modifier operation IDs, including the unused slot 25.
+// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Spells/SpellDefines.h
+enum SPELL_MOD_OP : int32_t
+{
+    SPELLMOD_DAMAGE                    = 0,
+    SPELLMOD_DURATION                  = 1,
+    SPELLMOD_THREAT                    = 2,
+    SPELLMOD_EFFECT1                   = 3,
+    SPELLMOD_CHARGES                   = 4,
+    SPELLMOD_RANGE                     = 5,
+    SPELLMOD_RADIUS                    = 6,
+    SPELLMOD_CRITICAL_CHANCE           = 7,
+    SPELLMOD_ALL_EFFECTS               = 8,
+    SPELLMOD_NOT_LOSE_CASTING_TIME     = 9,
+    SPELLMOD_CASTING_TIME              = 10,
+    SPELLMOD_COOLDOWN                  = 11,
+    SPELLMOD_EFFECT2                   = 12,
+    SPELLMOD_IGNORE_ARMOR              = 13,
+    SPELLMOD_COST                      = 14,
+    SPELLMOD_CRIT_DAMAGE_BONUS         = 15,
+    SPELLMOD_RESIST_MISS_CHANCE        = 16,
+    SPELLMOD_JUMP_TARGETS              = 17,
+    SPELLMOD_CHANCE_OF_SUCCESS         = 18,
+    SPELLMOD_ACTIVATION_TIME           = 19, // Period between periodic effects, in ms.
+    SPELLMOD_DAMAGE_MULTIPLIER         = 20,
+    SPELLMOD_GLOBAL_COOLDOWN           = 21,
+    SPELLMOD_DOT                       = 22,
+    SPELLMOD_EFFECT3                   = 23,
+    SPELLMOD_BONUS_MULTIPLIER          = 24,
+    SPELLMOD_UNUSED_25                 = 25,
+    SPELLMOD_PROC_PER_MINUTE           = 26,
+    SPELLMOD_VALUE_MULTIPLIER          = 27,
+    SPELLMOD_RESIST_DISPEL_CHANCE      = 28,
+    SPELLMOD_CRIT_DAMAGE_BONUS_2       = 29, // Unused.
+    SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 30,
+    NUM_SPELL_MOD_OPS                  = 31,
+};
+
 // SpellRec attribute masks, in DBC field order (attributes, Ex, ExB through ExG).
 // Names prefer matching 3.3.5 meanings from:
 // https://wowdev.wiki/EnumeratedString#SpellMisc::Attributes

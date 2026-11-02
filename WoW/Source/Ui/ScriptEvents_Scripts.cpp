@@ -3849,7 +3849,7 @@ static int32_t Script_GetResSicknessDuration(lua_State* L) {
             value = duration->m_maxDuration;
         }
 
-        Spell_C_ModifySpellValue(&spell, value, 1);
+        Spell_C_ModifySpellValue(&spell, value, SPELLMOD_DURATION);
 
         if (value >= 1000) {
             char buffer[256];

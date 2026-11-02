@@ -13563,7 +13563,7 @@ int32_t CGPlayer_C::GetSpellCastingTime(const SpellRec* spell) const {
     }
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        Spell_C_ModifySpellValue(spell, time, 10);
+        Spell_C_ModifySpellValue(spell, time, SPELLMOD_CASTING_TIME);
     }
 
     if (!(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY | SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) && time > 0) {

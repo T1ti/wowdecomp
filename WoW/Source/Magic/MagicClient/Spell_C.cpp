@@ -146,10 +146,10 @@ static uint32_t s_lastFailedTime;
 static const UIErrors s_powerErrors[] = { ERR_OUT_OF_MANA, ERR_OUT_OF_RAGE, ERR_OUT_OF_FOCUS, ERR_OUT_OF_ENERGY, ERR_NOT_HAPPY_ENOUGH, ERR_OUT_OF_RUNES, ERR_OUT_OF_RUNIC_POWER };
 
 // STATIC: 0x00D397D8
-static int32_t s_spellPctModifiers[96][31];
+static int32_t s_spellPctModifiers[96][NUM_SPELL_MOD_OPS];
 
 // STATIC: 0x00D3C658
-static int32_t s_spellFlatModifiers[96][31];
+static int32_t s_spellFlatModifiers[96][NUM_SPELL_MOD_OPS];
 
 // STATIC: 0x00AF524C
 static TSList<PendingSpellCast, TSGetLink<PendingSpellCast> > s_pendingSpellCasts;
@@ -369,7 +369,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     int32_t flat;
     int32_t pct;
 
-    if (Spell_C_GetSpellModifiers(spell, 14, flat, pct)) {
+    if (Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
         cost = (flat + base) * pct / 100;
     }
 
@@ -1178,7 +1178,7 @@ void CGUnit_C::ReleaseMissiles() {
 
 // VERIFY: 936f6df8 manual
 // OFFSET: 0x007FD970
-bool Spell_C_GetSpellModifiers(const SpellRec* spell, int32_t modifier, int32_t& flat, int32_t& pct) {
+bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int32_t& flat, int32_t& pct) {
     if (!spell->m_spellClassSet || spell->m_spellClassSet != s_spellClassSet) {
         flat = 0;
         pct = 100;
@@ -1216,7 +1216,7 @@ bool Spell_C_GetSpellModifiers(const SpellRec* spell, int32_t modifier, int32_t&
 
 // VERIFY: 8fe30e90 manual
 // OFFSET: 0x007FDB50
-bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, int32_t modifier) {
+bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, SPELL_MOD_OP modifier) {
     int32_t flat;
     int32_t pct;
 
@@ -1400,7 +1400,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
     }
 
     if (!(spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS)) {
-        Spell_C_ModifySpellValue(spell, recovery, 11);
+        Spell_C_ModifySpellValue(spell, recovery, SPELLMOD_COOLDOWN);
     }
 }
 
@@ -1593,7 +1593,7 @@ int32_t Packet_SMSG_SPELL_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time,
         } else {
             recoveryTime = spell.m_recoveryTime;
 
-            if (Spell_C_GetSpellModifiers(&spell, 11, flat, pct)) {
+            if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
                 recoveryTime = pct * (recoveryTime + flat) / 100;
             }
         }
@@ -1618,7 +1618,7 @@ int32_t Packet_SMSG_SPELL_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time,
             startRecoveryCategory = spell.m_startRecoveryCategory;
             startRecoveryTime = spell.m_startRecoveryTime;
 
-            if (Spell_C_GetSpellModifiers(&spell, 21, flat, pct)) {
+            if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
                 startRecoveryTime = pct * (startRecoveryTime + flat) / 100;
             }
         }
@@ -2287,7 +2287,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             int32_t flat;
             int32_t pct;
 
-            if (Spell_C_GetSpellModifiers(&spell, 11, flat, pct)) {
+            if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
                 recovery = pct * (flat + recovery) / 100;
             }
 
@@ -2345,11 +2345,11 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             int32_t flat;
             int32_t pct;
 
-            if (Spell_C_GetSpellModifiers(&spell, 11, flat, pct)) {
+            if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
                 recovery = pct * (flat + recovery) / 100;
             }
 
-            if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS) && Spell_C_GetSpellModifiers(&spell, 11, flat, pct)) {
+            if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS) && Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
                 categoryRecovery = pct * (flat + spell.m_categoryRecoveryTime) / 100;
             }
 
@@ -2361,17 +2361,22 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 startRecoveryCategory = spell.m_startRecoveryCategory;
 
                 if (startRecoveryTime || startRecoveryCategory) {
-                    if (startRecoveryCategory == 133 && startRecoveryTime == 1500 && spell.m_defenseType != 2 && spell.m_defenseType != 3 && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
-                        float scaled = unit->m_unit->m_unitModCastSpeed * 1500.0f;
+                    if (startRecoveryCategory == SPELL_RECOVERY_CATEGORY_GLOBAL
+                        && startRecoveryTime == SPELL_GLOBAL_COOLDOWN_DEFAULT_MS
+                        && spell.m_defenseType != SPELL_DAMAGE_CLASS_MELEE
+                        && spell.m_defenseType != SPELL_DAMAGE_CLASS_RANGED
+                        && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
+                        float scaled = unit->m_unit->m_unitModCastSpeed * SPELL_GLOBAL_COOLDOWN_DEFAULT_MS;
                         startRecoveryTime = CMath::fint_(scaled - 0.5f);
                     }
 
-                    if (Spell_C_GetSpellModifiers(&spell, 21, flat, pct)) {
+                    if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
                         startRecoveryTime = pct * (startRecoveryTime + flat) / 100;
                     }
 
-                    if (static_cast<uint32_t>(startRecoveryTime - 1000) > 500) {
-                        startRecoveryTime = startRecoveryTime - 1000 < 0 ? 1000 : 1500;
+                    if (static_cast<uint32_t>(startRecoveryTime - SPELL_GLOBAL_COOLDOWN_MIN_MS) > (SPELL_GLOBAL_COOLDOWN_DEFAULT_MS - SPELL_GLOBAL_COOLDOWN_MIN_MS)) {
+                        startRecoveryTime = startRecoveryTime - SPELL_GLOBAL_COOLDOWN_MIN_MS < 0
+                            ? SPELL_GLOBAL_COOLDOWN_MIN_MS : SPELL_GLOBAL_COOLDOWN_DEFAULT_MS;
                     }
                 }
             }
@@ -3348,7 +3353,7 @@ static bool GetEffectModifierType(int32_t effect, bool* periodic, int32_t aura, 
 
 // VERIFY: 207d6b5b manual
 // OFFSET: 0x007FDBA0
-bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, int32_t modifier) {
+bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, SPELL_MOD_OP modifier) {
     int32_t flat;
     int32_t pct;
 
@@ -3362,7 +3367,7 @@ bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, int32_t modif
 
 // VERIFY: f7b1dbf5 manual
 // OFFSET: 0x007FDBE0
-static bool Spell_C_ModifySpellValue(const SpellRec* spell, CSoftFloat& value, int32_t modifier) {
+static bool Spell_C_ModifySpellValue(const SpellRec* spell, CSoftFloat& value, SPELL_MOD_OP modifier) {
     int32_t flat;
     int32_t pct;
 
@@ -3447,7 +3452,7 @@ int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* uni
     int32_t flat;
     int32_t pct;
 
-    if (cost > 0 && Spell_C_GetSpellModifiers(spell, 14, flat, pct)) {
+    if (cost > 0 && Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
         return cost * pct / 100;
     }
 
@@ -3473,7 +3478,7 @@ int32_t SpellRec::GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUn
         castTime = rec->m_minimum;
     }
 
-    Spell_C_ModifySpellValue(spell, castTime, 10);
+    Spell_C_ModifySpellValue(spell, castTime, SPELLMOD_CASTING_TIME);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_UNIT, __FILE__, __LINE__));
 
     if (!(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY | SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)) {
@@ -3635,7 +3640,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
     int32_t flat;
     int32_t pct;
 
-    if (Spell_C_GetSpellModifiers(spell, 5, flat, pct)) {
+    if (Spell_C_GetSpellModifiers(spell, SPELLMOD_RANGE, flat, pct)) {
         *maxRange = (flat + *maxRange) * pct * 0.01f;
     }
 
@@ -3674,35 +3679,35 @@ void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float*
     CSoftFloat maxValue = CSoftFloat::FromInt(spell->m_effectBasePoints[effectIndex] + spell->m_effectDieSides[effectIndex]) + perLevel * CSoftFloat::FromInt(level);
 
     if (!noModifiers) {
-        Spell_C_ModifySpellValue(spell, minValue, 8);
-        Spell_C_ModifySpellValue(spell, maxValue, 8);
+        Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_ALL_EFFECTS);
+        Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_ALL_EFFECTS);
 
         if (effectIndex == 0) {
-            Spell_C_ModifySpellValue(spell, minValue, 3);
-            Spell_C_ModifySpellValue(spell, maxValue, 3);
+            Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_EFFECT1);
+            Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_EFFECT1);
         } else if (effectIndex == 1) {
-            Spell_C_ModifySpellValue(spell, minValue, 12);
-            Spell_C_ModifySpellValue(spell, maxValue, 12);
+            Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_EFFECT2);
+            Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_EFFECT2);
         } else if (effectIndex == 2) {
-            Spell_C_ModifySpellValue(spell, minValue, 23);
-            Spell_C_ModifySpellValue(spell, maxValue, 23);
+            Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_EFFECT3);
+            Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_EFFECT3);
         }
 
         if (damage) {
             if (periodic) {
-                Spell_C_ModifySpellValue(spell, minValue, 22);
-                Spell_C_ModifySpellValue(spell, maxValue, 22);
+                Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_DOT);
+                Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_DOT);
             } else {
-                Spell_C_ModifySpellValue(spell, minValue, 0);
-                Spell_C_ModifySpellValue(spell, maxValue, 0);
+                Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_DAMAGE);
+                Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_DAMAGE);
             }
         }
 
         int32_t aura = spell->m_effectAura[effectIndex];
 
         if (aura == SPELL_AURA_MOD_THREAT || aura == SPELL_AURA_MOD_TOTAL_THREAT || aura == SPELL_AURA_MOD_CRITICAL_THREAT) {
-            Spell_C_ModifySpellValue(spell, minValue, 2);
-            Spell_C_ModifySpellValue(spell, maxValue, 2);
+            Spell_C_ModifySpellValue(spell, minValue, SPELLMOD_THREAT);
+            Spell_C_ModifySpellValue(spell, maxValue, SPELLMOD_THREAT);
         }
     }
 
@@ -3726,7 +3731,7 @@ void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float*
 
 // VERIFY: 63ede24e manual
 // OFFSET: 0x00800770
-bool SpellRec::HasModifier(const SpellRec* spell, int32_t modifier) {
+bool SpellRec::HasModifier(const SpellRec* spell, SPELL_MOD_OP modifier) {
     int32_t flat;
     int32_t pct;
     return Spell_C_GetSpellModifiers(spell, modifier, flat, pct);
@@ -3752,7 +3757,7 @@ int32_t Spell_C_GetDuration(const SpellRec* spell, int32_t isPet, int32_t isUnit
     }
 
     if (!noModifiers) {
-        Spell_C_ModifySpellValue(spell, duration, 1);
+        Spell_C_ModifySpellValue(spell, duration, SPELLMOD_DURATION);
     }
 
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
@@ -4986,7 +4991,7 @@ float Spell_C_GetSpellRadius() {
     int32_t flat;
     int32_t pct;
 
-    if (Spell_C_GetSpellModifiers(&spell, 6, flat, pct)) {
+    if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_RADIUS, flat, pct)) {
         radius = (radius + flat) * pct * 0.01f;
     }
 
@@ -5998,7 +6003,7 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
             value = cooldownLeft;
         }
 
-        if (Spell_C_GetSpellModifiers(&spell, 11, time, recovery)) {
+        if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, time, recovery)) {
             value = (time + value) * recovery / 100;
         }
 
@@ -6059,16 +6064,21 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
     int32_t flat;
     int32_t pct;
 
-    if (Spell_C_GetSpellModifiers(spell, 21, flat, pct)) {
+    if (Spell_C_GetSpellModifiers(spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
         recovery = (recovery + flat) * pct / 100;
     }
 
-    if (spell->m_startRecoveryCategory == 133 && time == 1500 && spell->m_defenseType != 2 && spell->m_defenseType != 3 && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
+    if (spell->m_startRecoveryCategory == SPELL_RECOVERY_CATEGORY_GLOBAL
+        && time == SPELL_GLOBAL_COOLDOWN_DEFAULT_MS
+        && spell->m_defenseType != SPELL_DAMAGE_CLASS_MELEE
+        && spell->m_defenseType != SPELL_DAMAGE_CLASS_RANGED
+        && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
         float scaled = recovery * unit->m_unit->m_unitModCastSpeed;
         recovery = CMath::fint_(scaled - 0.5f);
 
-        if (static_cast<uint32_t>(recovery - 1000) > 500) {
-            recovery = recovery - 1000 < 0 ? 1000 : 1500;
+        if (static_cast<uint32_t>(recovery - SPELL_GLOBAL_COOLDOWN_MIN_MS) > (SPELL_GLOBAL_COOLDOWN_DEFAULT_MS - SPELL_GLOBAL_COOLDOWN_MIN_MS)) {
+            recovery = recovery - SPELL_GLOBAL_COOLDOWN_MIN_MS < 0
+                ? SPELL_GLOBAL_COOLDOWN_MIN_MS : SPELL_GLOBAL_COOLDOWN_DEFAULT_MS;
         }
     }
 

@@ -528,7 +528,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
                     if (rec) {
                         radius = rec->m_radius;
-                        Spell_C_ModifySpellValue(spell, radius, 6);
+                        Spell_C_ModifySpellValue(spell, radius, SPELLMOD_RADIUS);
                     }
                 }
 
@@ -584,7 +584,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
                 if (index < 3) {
                     targets = spell->m_effectChainTargets[index];
-                    Spell_C_ModifySpellValue(spell, targets, 17);
+                    Spell_C_ModifySpellValue(spell, targets, SPELLMOD_JUMP_TARGETS);
                 }
 
                 value = static_cast<float>(targets);
@@ -606,7 +606,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
                     if (index < 3) {
                         period = spell->m_effectAuraPeriod[index];
-                        Spell_C_ModifySpellValue(spell, period, 19);
+                        Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);
                     }
                 }
 
@@ -617,7 +617,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
             case MATHOP_PROC_CHANCE:
             case MATHOP_PROC_CHANCE_UPPER: {
                 int32_t chance = spell->m_procChance;
-                Spell_C_ModifySpellValue(spell, chance, 18);
+                Spell_C_ModifySpellValue(spell, chance, SPELLMOD_CHANCE_OF_SUCCESS);
                 value = static_cast<float>(chance);
                 break;
             }
@@ -625,7 +625,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
             case MATHOP_PROC_CHARGES:
             case MATHOP_PROC_CHARGES_UPPER: {
                 int32_t charges = spell->m_procCharges;
-                Spell_C_ModifySpellValue(spell, charges, 4);
+                Spell_C_ModifySpellValue(spell, charges, SPELLMOD_CHARGES);
                 value = static_cast<float>(charges);
                 break;
             }
@@ -665,7 +665,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
                 if (index < 3) {
                     float amplitude = spell->m_effectAmplitude[index];
-                    Spell_C_ModifySpellValue(spell, amplitude, 27);
+                    Spell_C_ModifySpellValue(spell, amplitude, SPELLMOD_VALUE_MULTIPLIER);
                     value = amplitude;
                 }
 
@@ -894,7 +894,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
                 if (index < 3) {
                     float coefficient = spell->m_effectBonusCoefficient[index];
-                    Spell_C_ModifySpellValue(spell, coefficient, 24);
+                    Spell_C_ModifySpellValue(spell, coefficient, SPELLMOD_BONUS_MULTIPLIER);
                     value = coefficient;
                 }
 

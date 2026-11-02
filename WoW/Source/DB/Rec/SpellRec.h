@@ -175,13 +175,13 @@ class SpellRec {
     /* 0228 */ const char* m_description;
     /* 022C */ const char* m_auraDescription;
     /* 0230 */ int32_t m_manaCostPct;
-    /* 0234 */ int32_t m_startRecoveryCategory;
+    /* 0234 */ int32_t m_startRecoveryCategory; // SPELL_RECOVERY_CATEGORY / SpellCategory.dbc ID.
     /* 0238 */ int32_t m_startRecoveryTime;
     /* 023C */ int32_t m_maxTargetLevel;
     /* 0240 */ int32_t m_spellClassSet;
     /* 0244 */ int32_t m_spellClassMask [3];
     /* 0250 */ int32_t m_maxTargets;
-    /* 0254 */ int32_t m_defenseType;
+    /* 0254 */ SPELL_DAMAGE_CLASS m_defenseType;
     /* 0258 */ int32_t m_preventionType;
     /* 025C */ int32_t m_stanceBarOrder;
     /* 0260 */ float m_effectChainAmplitude [3];
@@ -212,7 +212,7 @@ class SpellRec {
     static bool IsMeleeRange(const SpellRec* spell);
     static bool IsMinimumRange(const SpellRec* spell);
     static void GetMinRange(const SpellRec* spell, float* range);
-    static bool HasModifier(const SpellRec* spell, int32_t modifier);
+    static bool HasModifier(const SpellRec* spell, SPELL_MOD_OP modifier);
     bool Read(SFileImpl* file, const char* stringBuffer);
 };
 

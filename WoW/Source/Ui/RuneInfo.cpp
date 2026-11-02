@@ -126,7 +126,7 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
     int32_t school = spell.m_schoolMask;
     int32_t pct = player->GetSpellCostModifier(school) + 100;
     pct = static_cast<int32_t>(player->GetSpellCostMultiplier(school) * pct);
-    Spell_C_ModifySpellValue(&spell, pct, 14);
+    Spell_C_ModifySpellValue(&spell, pct, SPELLMOD_COST);
 
     if (!pct) {
         return true;

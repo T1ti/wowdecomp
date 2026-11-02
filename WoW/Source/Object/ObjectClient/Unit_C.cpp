@@ -16649,7 +16649,7 @@ store:
         for (uint32_t i = 0; i < 3; i++) {
             if (spell->m_effectAura[i] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 int32_t period = spell->m_effectAuraPeriod[i];
-                Spell_C_ModifySpellValue(spell, period, 19);
+                Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);
                 Spell_C_AddPeriodicClientTrigger(this->m_obj->m_guid, spell->m_id, spell->m_effectTriggerSpell[i], period);
             }
         }
@@ -23624,7 +23624,7 @@ void CGUnit_C::CheckApplyPeriodicClientTriggers() {
         for (uint32_t effect = 0; effect < 3; effect++) {
             if (spell.m_effectAura[effect] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 int32_t period = spell.m_effectAuraPeriod[effect];
-                Spell_C_ModifySpellValue(&spell, period, 19);
+                Spell_C_ModifySpellValue(&spell, period, SPELLMOD_ACTIVATION_TIME);
                 Spell_C_AddPeriodicClientTrigger(this->m_obj->m_guid, spell.m_id, spell.m_effectTriggerSpell[effect], period);
             }
         }
