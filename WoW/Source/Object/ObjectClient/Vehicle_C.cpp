@@ -413,7 +413,7 @@ void CVehicle_C::UpdateLargestPassengerBoundsRadius() {
         CGUnit_C* unit = vehicle->m_unit;
         CVehiclePassenger_C* vehiclePassenger = unit->m_vehiclePassenger;
 
-        if (!vehiclePassenger || vehiclePassenger->m_state != 3) {
+        if (!vehiclePassenger || vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
             break;
         }
 

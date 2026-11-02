@@ -1362,7 +1362,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         this->InitWheels();
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3) {
+    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
 
         if (vehicle) {
@@ -1497,7 +1497,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
     uint32_t moveFlags;
 
-    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 5)) || ((moveFlags = this->m_movement->m_flags) & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || fixedFacing || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES)) {
+    if (this->m_unit->m_unitFieldHealth <= 0 || (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTERING || this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_EXITING)) || ((moveFlags = this->m_movement->m_flags) & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || fixedFacing || !(this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES)) {
         this->m_renderFacing = this->m_smoothTarget.m_value;
         this->m_facingVelocity = 0.0f;
         this->m_facingBlend = 0.0f;
@@ -2278,7 +2278,7 @@ void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
         return;
     }
 
-    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 4 || this->m_vehiclePassenger->m_state == 5)) {
+    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_EXIT_DELAY || this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_EXITING)) {
         return;
     }
 
@@ -2454,7 +2454,7 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
         return (mask & ~0x1) == 0;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3 && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
+    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
         return (mask & ~0x1) == 0;
     }
 
@@ -4029,7 +4029,7 @@ uint32_t CGUnit_C::ResolveAnimForModel(uint32_t animId, CM2Model* model) {
 // VERIFY: fa7abd5c auto
 // OFFSET: 0x004F6250
 bool CGUnit_C::IsVehiclePassengerSeated() const {
-    return this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3;
+    return this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING;
 }
 
 // VERIFY: ce80d12a auto
@@ -4228,7 +4228,7 @@ int32_t CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAni
         return 0;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3 && this->m_vehiclePassenger->GetLowerAnim(this->m_vehiclePassenger->m_seatRec) != ANIM_COUNT) {
+    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && this->m_vehiclePassenger->GetLowerAnim(this->m_vehiclePassenger->m_seatRec) != ANIM_COUNT) {
         return 1;
     }
 
@@ -7804,7 +7804,7 @@ void CGUnit_C::GetAttackSkillRank(int32_t hand, int32_t& rank, int32_t& bonus) c
 void CGUnit_C::SetMaxAlpha(float alpha) {
     CGUnit_C* transport;
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3 && (transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__)))) {
+    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && (transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__)))) {
         CM2Model* model = this->GetObjectModel();
 
         if (model && model->m_attachParent == transport->GetObjectModel()) {
@@ -8388,7 +8388,7 @@ float CGUnit_C::GetSmoothFacing() const {
 void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
     CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
 
-    if (passenger && passenger->m_state == 3 && passenger->GetLowerAnim(passenger->m_seatRec) != ANIM_COUNT) {
+    if (passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && passenger->GetLowerAnim(passenger->m_seatRec) != ANIM_COUNT) {
         return;
     }
 
@@ -10260,7 +10260,7 @@ void CGUnit_C::OnDeath() {
         this->m_worldModel->m_lastAnimTime = 0;
     }
 
-    if (!this->m_vehiclePassenger || this->m_vehiclePassenger->m_state != 3 || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
+    if (!this->m_vehiclePassenger || this->m_vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING || (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
         this->OnDeathAnimate();
     }
 
@@ -14598,7 +14598,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
 void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequenceId) {
     CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
 
-    if (passenger && passenger->m_state == 3 && this->m_unit->m_unitFieldHealth > 0) {
+    if (passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && this->m_unit->m_unitFieldHealth > 0) {
         const VehicleSeatRec* seat = passenger->m_seatRec;
 
         if (seat) {
@@ -14915,7 +14915,7 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
         torso.m_sequenceId = anim;
         CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
         const VehicleSeatRec* seat = passenger ? passenger->m_seatRec : nullptr;
-        int32_t ridingLower = passenger && passenger->m_state == 3 && passenger->GetLowerAnim(seat) != ANIM_COUNT;
+        int32_t ridingLower = passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && passenger->GetLowerAnim(seat) != ANIM_COUNT;
 
         if (static_cast<int32_t>(boneId) == this->m_torsoKeyBone) {
             if (!usedDefault && chosen == ANIM_COUNT && ridingLower) {
@@ -15187,7 +15187,7 @@ void CGUnit_C::UpdateModelScale(const CreatureModelDataRec* modelRec) {
 // VERIFY: 08a7bbd9 auto
 // OFFSET: 0x004F6250
 int32_t CGUnit_C::IsSeatedInVehicle() const {
-    return this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == 3;
+    return this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING;
 }
 
 // VERIFY: ca00d21d manual

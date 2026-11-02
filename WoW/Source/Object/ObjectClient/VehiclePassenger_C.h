@@ -68,6 +68,15 @@ struct VehiclePassengerRescueTransition {
 
 class CVehiclePassenger_C {
     public:
+    enum TRANSITION_STATE : int32_t {
+        STATE_NONE = 0,
+        STATE_ENTER_DELAY = 1,
+        STATE_ENTERING = 2,
+        STATE_RIDING = 3,
+        STATE_EXIT_DELAY = 4,
+        STATE_EXITING = 5,
+    };
+
     static uint32_t* s_passengerPool;
     static TSGrowableArray<CVehiclePassenger_C*>* s_pendingPassengers;
     static uint32_t s_pendingCount;

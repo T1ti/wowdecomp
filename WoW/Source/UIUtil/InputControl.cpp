@@ -315,7 +315,7 @@ CGUnit_C* GetVehicleUnitPtr() {
         return nullptr;
     }
 
-    if (!mover->m_vehiclePassenger || mover->m_vehiclePassenger->m_state != 3) {
+    if (!mover->m_vehiclePassenger || mover->m_vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         return mover;
     }
 
@@ -431,7 +431,7 @@ int32_t CGInputControl::IsVehicleSeatFlagSet(uint32_t flags) const {
 
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || !player->m_vehiclePassenger || player->m_vehiclePassenger->m_state != 3) {
+    if (!player || !player->m_vehiclePassenger || player->m_vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         return 0;
     }
 

@@ -285,10 +285,10 @@ float CVehicleCamera_C::GetTransitionProgress(uint32_t time) const {
     int32_t mask;
 
     if (state == 1 || state == 2) {
-        waiting = passenger && passenger->m_state == 2;
+        waiting = passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTERING;
         mask = VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING;
     } else {
-        waiting = passenger && passenger->m_state == 5;
+        waiting = passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_EXITING;
         mask = VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING;
     }
 
@@ -934,12 +934,12 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
     int32_t exiting;
 
     switch (passengerState) {
-        case 0:
-        case 5:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_NONE:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_EXITING:
             exiting = 1;
             break;
 
-        case 1:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTER_DELAY:
             exiting = 0;
 
             if (this->m_seatRec) {
@@ -948,12 +948,12 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
 
             break;
 
-        case 2:
-        case 3:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTERING:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING:
             exiting = 0;
             break;
 
-        case 4:
+        case CVehiclePassenger_C::TRANSITION_STATE::STATE_EXIT_DELAY:
             exiting = 1;
 
             if (this->m_seatRec) {
@@ -1002,7 +1002,7 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
     } else if (delay > 0.0f) {
         this->m_state = 1;
         this->m_transitionDuration = CMath::fint_(delay * 1000.0f);
-    } else if (passengerState != 3 || (this->m_motionDuration && (this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET))) {
+    } else if (passengerState != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING || (this->m_motionDuration && (this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET))) {
         this->m_state = 2;
         this->m_transitionDuration = this->m_motionDuration;
     } else {
@@ -1014,7 +1014,7 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
     this->MaybeChangeTarget(passenger->GetVehicleUnit(), this->m_seatRec, exiting, relativeTo);
 
     if (delay < 0.0000099999997f) {
-        if (exiting ? (!passengerState && !(this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET)) : (passengerState == 3 && !(this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET))) {
+        if (exiting ? (!passengerState && !(this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET)) : (passengerState == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && !(this->m_flags & CAMERA_FLAGS::FLAG_MOTION_TIMING_SET))) {
             this->UpdateWorldCameraState(time, 0);
         } else {
             this->UpdateWorldCameraState(time, this->m_motionDuration);

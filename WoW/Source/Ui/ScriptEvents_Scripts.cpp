@@ -1717,7 +1717,7 @@ static int32_t Script_UnitCreatureFamily(lua_State* L) {
 static int32_t Script_IsFlying(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == 3) {
+    if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ unit->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
     }
 
@@ -1807,7 +1807,7 @@ static int32_t Script_UnitControllingVehicle(lua_State* L) {
     if (Script_GetGUIDFromToken(token, guid, false)) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-        if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == 3 && unit->GetTransportGUID() == unit->m_unit->m_unitFieldCharm.m_guid) {
+        if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && unit->GetTransportGUID() == unit->m_unit->m_unitFieldCharm.m_guid) {
             controlling = 1;
         }
     }
@@ -2092,7 +2092,7 @@ static int32_t Script_UnitInVehicle(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (!unit->m_vehiclePassenger || unit->m_vehiclePassenger->m_state != 3) {
+        if (!unit->m_vehiclePassenger || unit->m_vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
             lua_pushnil(L);
             return 1;
         }

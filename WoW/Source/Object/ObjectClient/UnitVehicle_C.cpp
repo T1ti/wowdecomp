@@ -130,7 +130,7 @@ bool CGUnit_C::IsAlteredFormTransitionPreventingMovement() const {
 
     CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
 
-    if (passenger && passenger->m_state && passenger->m_state != 3) {
+    if (passenger && passenger->m_state && passenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         return true;
     }
 
@@ -589,7 +589,7 @@ void CGUnit_C::VehiclePassengerUpdateWorldCameraState(VehicleRec* vehicleRec, Ve
 
     uint32_t active = 0;
 
-    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == 1 || this->m_vehiclePassenger->m_state == 2 || this->m_vehiclePassenger->m_state == 3)) {
+    if (this->m_vehiclePassenger && (this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTER_DELAY || this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_ENTERING || this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING)) {
         active = 1;
     }
 

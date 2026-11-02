@@ -390,13 +390,13 @@ void CVehiclePassenger_C::ComputeSeatOffset(const VehicleSeatRec* seat, CM2Model
 int32_t CVehiclePassenger_C::ChooseSeatExitAnim(uint32_t flags, uint32_t* anim) const {
     uint32_t state = this->m_state;
 
-    if (state != 3 && this->m_unit->m_unit->m_unitFieldHealth > 0) {
+    if (state != TRANSITION_STATE::STATE_RIDING && this->m_unit->m_unit->m_unitFieldHealth > 0) {
         return 0;
     }
 
     const VehicleSeatRec* seat = this->m_seatRec;
 
-    if (!seat || state != 3 || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
+    if (!seat || state != TRANSITION_STATE::STATE_RIDING || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         return 0;
     }
 
@@ -430,8 +430,8 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
     int32_t anim;
 
     switch (this->m_state) {
-        case 1:
-        case 2: {
+        case TRANSITION_STATE::STATE_ENTER_DELAY:
+        case TRANSITION_STATE::STATE_ENTERING: {
             if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER)) {
                 return ANIM_COUNT;
             }
@@ -447,7 +447,7 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
             break;
         }
 
-        case 3: {
+        case TRANSITION_STATE::STATE_RIDING: {
             if (!(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) {
                 return ANIM_COUNT;
             }
@@ -463,8 +463,8 @@ int32_t CVehiclePassenger_C::GetLowerAnim(const VehicleSeatRec* seat) const {
             break;
         }
 
-        case 4:
-        case 5: {
+        case TRANSITION_STATE::STATE_EXIT_DELAY:
+        case TRANSITION_STATE::STATE_EXITING: {
             if (!this->m_unit->ShouldUseVehicleSeatExitAnimation(seat)) {
                 return ANIM_COUNT;
             }
@@ -591,8 +591,8 @@ CVehiclePassenger_C* CVehiclePassenger_C::Alloc(CGUnit_C* unit) {
     passenger->m_facingBlend = 0.0f;
     passenger->m_unit = unit;
     passenger->m_flags = VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_NONE;
-    passenger->m_state = 0;
-    passenger->m_prevState = 0;
+    passenger->m_state = TRANSITION_STATE::STATE_NONE;
+    passenger->m_prevState = TRANSITION_STATE::STATE_NONE;
     passenger->m_vehicleGuid = WOWGUID();
     passenger->m_transitionVehicleGuid = WOWGUID();
     passenger->m_startTime = 0;
@@ -684,7 +684,7 @@ C3Vector CVehiclePassenger_C::ComputeStartWorldPosition(const C3Vector& offset, 
 void CVehiclePassenger_C::OnAnimEnd(uint32_t anim) {
     const VehicleSeatRec* seat = this->m_seatRec;
 
-    if (this->GetLowerAnim(seat) != ANIM_COUNT && seat && this->m_state == 3 && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
+    if (this->GetLowerAnim(seat) != ANIM_COUNT && seat && this->m_state == TRANSITION_STATE::STATE_RIDING && (seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         int32_t upper;
 
         if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UPPER_ANIM_START_DONE) || (upper = seat->m_rideUpperAnimStart) == -1) {
@@ -713,7 +713,7 @@ void CVehiclePassenger_C::OnAnimEnd(uint32_t anim) {
 // VERIFY: 9156af0b auto
 // OFFSET: 0x00748560
 int32_t CVehiclePassenger_C::PickHighPriorityAnimation(int32_t unused_a2, uint32_t* anim) const {
-    if ((this->m_state == 0 || this->m_state == 3) && this->m_unit->m_unit->m_unitFieldHealth > 0) {
+    if ((this->m_state == TRANSITION_STATE::STATE_NONE || this->m_state == TRANSITION_STATE::STATE_RIDING) && this->m_unit->m_unit->m_unitFieldHealth > 0) {
         return 0;
     }
 
@@ -735,15 +735,15 @@ int32_t CVehiclePassenger_C::PickHighPriorityAnimation(int32_t unused_a2, uint32
 // OFFSET: 0x007482A0
 C3Vector CVehiclePassenger_C::ComputeInterpolatedUnitPosition() const {
     switch (this->m_state) {
-        case 1:
-        case 4:
+        case TRANSITION_STATE::STATE_ENTER_DELAY:
+        case TRANSITION_STATE::STATE_EXIT_DELAY:
             if (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED) {
                 return this->ComputeStartWorldPosition(this->m_startOffset, this->m_startPosition);
             }
 
             return this->m_startPosition;
-        case 2:
-        case 5:
+        case TRANSITION_STATE::STATE_ENTERING:
+        case TRANSITION_STATE::STATE_EXITING:
             if (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED) {
                 float blend = this->m_facingBlend;
                 C3Vector smooth = this->m_unit->BuildSmoothPosition();
@@ -754,7 +754,7 @@ C3Vector CVehiclePassenger_C::ComputeInterpolatedUnitPosition() const {
             }
 
             return this->m_startPosition;
-        case 3:
+        case TRANSITION_STATE::STATE_RIDING:
             return this->m_unit->BuildSmoothPosition();
         default:
             return this->m_unit->GetPosition();
@@ -776,7 +776,7 @@ void CVehiclePassenger_C::StartAddingPendingRescueTransitions() {
 // VERIFY: f56a1f77 auto
 // OFFSET: 0x00747BD0
 int32_t CVehiclePassenger_C::GetUpperAnim(const VehicleSeatRec* seat) const {
-    if (!seat || this->m_state != 3 || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
+    if (!seat || this->m_state != TRANSITION_STATE::STATE_RIDING || !(seat->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE)) {
         return ANIM_COUNT;
     }
 
@@ -860,7 +860,7 @@ void CVehiclePassenger_C::ExecuteAllDeferredVehicleTransitionAnimSplines() {
 // VERIFY: df7afd61 auto
 // OFFSET: 0x00747FA0
 void CVehiclePassenger_C::StopMovement() {
-    if (this->m_state != 3 || this->m_unit->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
+    if (this->m_state != TRANSITION_STATE::STATE_RIDING || this->m_unit->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
         return;
     }
 
@@ -884,7 +884,7 @@ void CVehiclePassenger_C::Init(CGUnit_C* unit) {
         CVehiclePassenger_C* passenger = unit->m_vehiclePassenger;
 
         if (passenger) {
-            passenger->SetState(3, vehicle, seat, passenger->m_seatRec, FrameTime::s_curTimeMs, transport);
+            passenger->SetState(TRANSITION_STATE::STATE_RIDING, vehicle, seat, passenger->m_seatRec, FrameTime::s_curTimeMs, transport);
         }
 
         return;
@@ -963,13 +963,13 @@ static const uint32_t s_seatAttachments[22] = { MODEL_ATTACHMENT_ID::ATTACH_UNIT
 // VERIFY: aa11b3c6 auto
 // OFFSET: 0x00716450
 int32_t CVehiclePassenger_C::IsInTransitionMotion() const {
-    return this->m_state == 2 || this->m_state == 5;
+    return this->m_state == TRANSITION_STATE::STATE_ENTERING || this->m_state == TRANSITION_STATE::STATE_EXITING;
 }
 
 // VERIFY: 42d85f81 auto
 // OFFSET: 0x00747D50
 int32_t CVehiclePassenger_C::IsEntering() const {
-    return this->m_state == 1 || this->m_state == 2;
+    return this->m_state == TRANSITION_STATE::STATE_ENTER_DELAY || this->m_state == TRANSITION_STATE::STATE_ENTERING;
 }
 
 // VERIFY: 7a79302e manual
@@ -994,10 +994,10 @@ void CVehiclePassenger_C::UpdateBlend(uint32_t time, VehicleSeatRec* seatRec) {
     uint32_t easeIn;
     uint32_t easeOut;
 
-    if (this->m_state == 2) {
+    if (this->m_state == TRANSITION_STATE::STATE_ENTERING) {
         easeIn = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ENTER_EASE_IN;
         easeOut = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ENTER_EASE_OUT;
-    } else if (this->m_state == 5) {
+    } else if (this->m_state == TRANSITION_STATE::STATE_EXITING) {
         easeIn = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_EXIT_EASE_IN;
         easeOut = VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_EXIT_EASE_OUT;
     } else {
@@ -1064,7 +1064,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         this->m_unit->UpdateBaseAnimation(0, -1);
     }
 
-    if (this->m_state == 3 && this->m_boneAnimGuid) {
+    if (this->m_state == TRANSITION_STATE::STATE_RIDING && this->m_boneAnimGuid) {
         CGUnit_C* boneUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_boneAnimGuid, TYPE_UNIT, __FILE__, __LINE__));
         CVehicle_C* boneVehicle = boneUnit ? boneUnit->m_vehicle : nullptr;
 
@@ -1081,23 +1081,23 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         }
     }
 
-    if (state == 1 || state == 4) {
+    if (state == TRANSITION_STATE::STATE_ENTER_DELAY || state == TRANSITION_STATE::STATE_EXIT_DELAY) {
         relativeGuid.m_guid = this->m_unit->GetTransportGUID();
     }
 
     this->m_startRelativeGuid = relativeGuid;
 
     switch (state) {
-        case 1:
-        case 2:
-        case 4:
-        case 5: {
+        case TRANSITION_STATE::STATE_ENTER_DELAY:
+        case TRANSITION_STATE::STATE_ENTERING:
+        case TRANSITION_STATE::STATE_EXIT_DELAY:
+        case TRANSITION_STATE::STATE_EXITING: {
             this->m_startModelPosition = this->m_unit->GetModelPosition();
             this->m_startPosition = this->m_unit->BuildSmoothPosition();
 
             switch (this->m_state) {
-                case 0:
-                case 3: {
+                case TRANSITION_STATE::STATE_NONE:
+                case TRANSITION_STATE::STATE_RIDING: {
                     float facing = this->m_unit->GetSmoothFacing();
                     this->m_smoothFacing = facing;
                     this->m_startFacing = facing;
@@ -1105,10 +1105,10 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
                     break;
                 }
 
-                case 1:
-                case 2:
-                case 4:
-                case 5: {
+                case TRANSITION_STATE::STATE_ENTER_DELAY:
+                case TRANSITION_STATE::STATE_ENTERING:
+                case TRANSITION_STATE::STATE_EXIT_DELAY:
+                case TRANSITION_STATE::STATE_EXITING: {
                     this->m_startTargetFacing = this->m_smoothFacing;
                     this->m_startFacing = this->m_smoothFacing;
                     break;
@@ -1118,7 +1118,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
             break;
         }
 
-        case 3: {
+        case TRANSITION_STATE::STATE_RIDING: {
             WOWGUID guid = vehicle ? vehicle->m_obj->m_guid : WOWGUID();
             this->m_transitionVehicleGuid = guid;
             this->m_vehicleGuid = guid;
@@ -1128,7 +1128,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         }
     }
 
-    if (state == 3 && seatRec && (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_MIRROR_VEHICLE_ANIMS)) {
+    if (state == TRANSITION_STATE::STATE_RIDING && seatRec && (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_MIRROR_VEHICLE_ANIMS)) {
         this->StartMirroringVehicleAnims();
     }
 
@@ -1163,11 +1163,11 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
 
     if (this->m_unit->m_unit->m_unitFieldHealth > 0) {
         this->m_unit->ResetKeyBoneSequences();
-    } else if (this->m_state != 5 && (state == 5 || !state)) {
+    } else if (this->m_state != TRANSITION_STATE::STATE_EXITING && (state == TRANSITION_STATE::STATE_EXITING || !state)) {
         this->m_unit->OnDeathAnimate();
     }
 
-    if (this->m_state == 5 && !state && this->m_unit->m_unit->m_unitFieldHealth > 0) {
+    if (this->m_state == TRANSITION_STATE::STATE_EXITING && !state && this->m_unit->m_unit->m_unitFieldHealth > 0) {
         uint32_t anim;
 
         if (seatRec) {
@@ -1184,8 +1184,8 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     }
 
     uint32_t prevState = this->m_state;
-    int32_t keepAnimFlags = (prevState == 1 && state == 2) || prevState == 4;
-    int32_t entered = !prevState && state == 3;
+    int32_t keepAnimFlags = (prevState == TRANSITION_STATE::STATE_ENTER_DELAY && state == TRANSITION_STATE::STATE_ENTERING) || prevState == TRANSITION_STATE::STATE_EXIT_DELAY;
+    int32_t entered = !prevState && state == TRANSITION_STATE::STATE_RIDING;
     this->m_state = state;
     CGUnit_C* root = nullptr;
 
@@ -1194,7 +1194,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     }
 
     if (seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HIDE_PASSENGER)) {
-        if ((this->m_state == 1 || this->m_state == 2) && (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT)) {
+        if ((this->m_state == TRANSITION_STATE::STATE_ENTER_DELAY || this->m_state == TRANSITION_STATE::STATE_ENTERING) && (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT)) {
             CGUnit_C* oldVehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_vehicleGuid, TYPE_UNIT, __FILE__, __LINE__));
             CGUnit_C* oldRoot = oldVehicle ? oldVehicle->GetRootVehicleUnit() : nullptr;
 
@@ -1203,7 +1203,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
             } else {
                 this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT;
             }
-        } else if (this->m_state == 3) {
+        } else if (this->m_state == TRANSITION_STATE::STATE_RIDING) {
             this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT;
         } else {
             this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HIDDEN_BY_SEAT;
@@ -1236,7 +1236,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     if (camera && ClntObjMgrGetActivePlayer() == guid && (camera->m_targetGUID == guid || camera->m_targetGUID == this->m_vehicleGuid)) {
         uint32_t current = this->m_state;
 
-        if ((current == 1 || current == 2 || current == 3) && vehicle && seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)) {
+        if ((current == TRANSITION_STATE::STATE_ENTER_DELAY || current == TRANSITION_STATE::STATE_ENTERING || current == TRANSITION_STATE::STATE_RIDING) && vehicle && seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)) {
             camera->SetTarget(vehicle, 0);
         } else {
             camera->SetTarget(this->m_unit, 0);
@@ -1246,7 +1246,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED;
     CVehicle_C* vehicleObject = vehicle ? vehicle->m_vehicle : nullptr;
 
-    if (this->m_state == 3
+    if (this->m_state == TRANSITION_STATE::STATE_RIDING
         && vehicleObject
         && seatRec
         && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_RIDE_ANIM)
@@ -1259,11 +1259,11 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         }
     }
 
-    if (this->m_unit->IsLocalClientControlled() && (!this->m_state || this->m_state == 3)) {
+    if (this->m_unit->IsLocalClientControlled() && (!this->m_state || this->m_state == TRANSITION_STATE::STATE_RIDING)) {
         CGInputControl::GetActive()->UpdatePlayer(time, 1);
     }
 
-    if (vehicleObject && (prevState == 3 || this->m_state == 3)) {
+    if (vehicleObject && (prevState == TRANSITION_STATE::STATE_RIDING || this->m_state == TRANSITION_STATE::STATE_RIDING)) {
         vehicleObject->UpdateLargestPassengerBoundsRadius();
     }
 
@@ -1336,7 +1336,7 @@ void CVehiclePassenger_C::ComputeModelTransform(C44Matrix& matrix, CM2Model*& mo
     C3Vector position;
     vehiclePassenger = vehicle->m_vehiclePassenger;
 
-    if (vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != 3) {
+    if (vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != TRANSITION_STATE::STATE_RIDING) {
         CM2Model* vehicleModel = model;
         vehicleModel->Animate();
         position = *reinterpret_cast<const C3Vector*>(&vehicleModel->m_matrixF4.d0) * vehicleModel->m_scene->m_viewInv;
@@ -1348,7 +1348,7 @@ void CVehiclePassenger_C::ComputeModelTransform(C44Matrix& matrix, CM2Model*& mo
     world.d1 = position.y;
     world.d2 = position.z;
     vehiclePassenger = vehicle->m_vehiclePassenger;
-    world.RotateAroundZ(vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != 3 ? vehiclePassenger->m_smoothFacing : vehicleFacing);
+    world.RotateAroundZ(vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != TRANSITION_STATE::STATE_RIDING ? vehiclePassenger->m_smoothFacing : vehicleFacing);
     matrix *= world;
     model = nullptr;
 }
@@ -1367,7 +1367,7 @@ void CVehiclePassenger_C::ComputeSeatPos(CGUnit_C* vehicle, CM2Model* model, Veh
     if ((this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_SEAT_OFFSET_COMPUTED)
         && (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_HAS_PASSENGER_ATTACHMENT)) {
         C44Matrix matrix;
-        float facing = (this->m_state == 4 || this->m_state == 5) ? this->m_startTargetFacing : this->m_unit->m_smoothTarget.m_value;
+        float facing = (this->m_state == TRANSITION_STATE::STATE_EXIT_DELAY || this->m_state == TRANSITION_STATE::STATE_EXITING) ? this->m_startTargetFacing : this->m_unit->m_smoothTarget.m_value;
         this->ComputeModelTransform(matrix, model, vehicle, seat, attachment, facing);
         position.x = matrix.d0;
         position.y = matrix.d1;
@@ -1386,7 +1386,7 @@ void CVehiclePassenger_C::ComputeSeatPos(CGUnit_C* vehicle, CM2Model* model, Veh
         position *= model->GetAttachmentWorldTransform(attachment);
         CVehiclePassenger_C* vehiclePassenger = vehicle->m_vehiclePassenger;
 
-        if (!vehiclePassenger || !vehiclePassenger->m_state || vehiclePassenger->m_state == 3) {
+        if (!vehiclePassenger || !vehiclePassenger->m_state || vehiclePassenger->m_state == TRANSITION_STATE::STATE_RIDING) {
             C44Matrix animated = model->GetAnimatedWorldTransform();
             float scale = vehicle->GetTrueScale();
 
@@ -1413,7 +1413,7 @@ void CVehiclePassenger_C::ComputeSeatPos(CGUnit_C* vehicle, CM2Model* model, Veh
     } else {
         CVehiclePassenger_C* vehiclePassenger = vehicle->m_vehiclePassenger;
 
-        if (vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != 3) {
+        if (vehiclePassenger && vehiclePassenger->m_state && vehiclePassenger->m_state != TRANSITION_STATE::STATE_RIDING) {
             position *= model->GetAnimatedWorldTransform();
         } else {
             position *= vehicle->GetMatrix();
@@ -1459,15 +1459,15 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
     this->StopWaitingForVehicleTransitionAnim();
 
     switch (this->m_state) {
-        case 0:
-        case 5: {
+        case TRANSITION_STATE::STATE_NONE:
+        case TRANSITION_STATE::STATE_EXITING: {
             this->m_vehicleGuid = WOWGUID();
             this->m_seat = 0xFF;
             break;
         }
 
-        case 2:
-        case 3: {
+        case TRANSITION_STATE::STATE_ENTERING:
+        case TRANSITION_STATE::STATE_RIDING: {
             this->m_vehicleGuid = this->m_transitionVehicleGuid;
             this->m_seat = this->m_transitionSeat;
             break;
@@ -1489,21 +1489,21 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED;
     VehicleSeatRec* seatRec = this->m_seatRec;
     this->m_transitionVehicleGuid = target;
-    uint32_t state = entering ? 3 : 0;
+    uint32_t state = entering ? TRANSITION_STATE::STATE_RIDING : TRANSITION_STATE::STATE_NONE;
     this->m_transitionSeat = seat;
     WOWGUID lookup;
 
     if (instant && seatRec) {
         if (!entering) {
             if (this->m_unit->ShouldUseVehicleSeatExitAnimation(seatRec) && seatRec->m_exitSpeed > 0.0001f) {
-                state = seatRec->m_field33512213017 <= 0.0001f ? 5 : 4;
+                state = seatRec->m_field33512213017 <= 0.0001f ? TRANSITION_STATE::STATE_EXITING : TRANSITION_STATE::STATE_EXIT_DELAY;
             }
 
             lookup = this->m_vehicleGuid;
         } else if (!(seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER) || seatRec->m_enterSpeed <= 0.0001f) {
             lookup = vehicleGuid;
         } else {
-            state = seatRec->m_field33512213004 <= 0.0001f ? 2 : 1;
+            state = seatRec->m_field33512213004 <= 0.0001f ? TRANSITION_STATE::STATE_ENTERING : TRANSITION_STATE::STATE_ENTER_DELAY;
             lookup = vehicleGuid;
         }
     } else {
@@ -1535,7 +1535,7 @@ C3Vector CVehiclePassenger_C::GetEndPosition() {
 void CVehiclePassenger_C::ComputeEndPos(CGUnit_C* vehicle, VehicleSeatRec* seat, C3Vector& position) {
     CM2Model* model = vehicle ? vehicle->GetObjectModel() : nullptr;
 
-    if (this->m_state == 2 && model && model->IsLoaded(0, 0) && seat) {
+    if (this->m_state == TRANSITION_STATE::STATE_ENTERING && model && model->IsLoaded(0, 0) && seat) {
         this->ComputeSeatPos(vehicle, model, seat, position);
     } else {
         position = this->m_unit->GetPosition();
@@ -1580,13 +1580,13 @@ void CVehiclePassenger_C::OnReloadUI() {
 
     int32_t state = static_cast<int32_t>(player->m_vehiclePassenger->m_state);
 
-    if (state <= 0) {
+    if (state <= TRANSITION_STATE::STATE_NONE) {
         return;
     }
 
-    if (state <= 2) {
+    if (state <= TRANSITION_STATE::STATE_ENTERING) {
         CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, 1);
-    } else if (state == 3) {
+    } else if (state == TRANSITION_STATE::STATE_RIDING) {
         CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, 3);
     }
 }
@@ -1595,8 +1595,8 @@ void CVehiclePassenger_C::OnReloadUI() {
 // OFFSET: 0x00749FB0
 void CVehiclePassenger_C::SendTransitionUIEvents(WOWGUID guid, const VehicleRec* vehicleRec, const VehicleSeatRec* seatRec, int32_t fromState, int32_t toState) {
     switch (toState) {
-        case 0: {
-            if (fromState == 3) {
+        case TRANSITION_STATE::STATE_NONE: {
+            if (fromState == TRANSITION_STATE::STATE_RIDING) {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 12);
             } else {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 8);
@@ -1605,21 +1605,21 @@ void CVehiclePassenger_C::SendTransitionUIEvents(WOWGUID guid, const VehicleRec*
             return;
         }
 
-        case 1: {
+        case TRANSITION_STATE::STATE_ENTER_DELAY: {
             CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 1);
             return;
         }
 
-        case 2: {
-            if (fromState != 1) {
+        case TRANSITION_STATE::STATE_ENTERING: {
+            if (fromState != TRANSITION_STATE::STATE_ENTER_DELAY) {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 1);
             }
 
             return;
         }
 
-        case 3: {
-            if (!fromState || fromState == 3) {
+        case TRANSITION_STATE::STATE_RIDING: {
+            if (!fromState || fromState == TRANSITION_STATE::STATE_RIDING) {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 3);
             } else {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 2);
@@ -1628,13 +1628,13 @@ void CVehiclePassenger_C::SendTransitionUIEvents(WOWGUID guid, const VehicleRec*
             return;
         }
 
-        case 4: {
+        case TRANSITION_STATE::STATE_EXIT_DELAY: {
             CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 4);
             return;
         }
 
-        case 5: {
-            if (fromState != 4) {
+        case TRANSITION_STATE::STATE_EXITING: {
+            if (fromState != TRANSITION_STATE::STATE_EXIT_DELAY) {
                 CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 4);
             }
 
@@ -1669,7 +1669,7 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
         this->m_startOffset = C3Vector(0.0f, 0.0f, 0.0f);
     }
 
-    if (this->m_state == 3) {
+    if (this->m_state == TRANSITION_STATE::STATE_RIDING) {
         return;
     }
 
@@ -1691,19 +1691,19 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
     float maxArcHeight;
 
     switch (state) {
-        case 1: {
+        case TRANSITION_STATE::STATE_ENTER_DELAY: {
             float duration = seatRec->m_field33512213004 < 10.0f ? seatRec->m_field33512213004 : 10.0f;
             this->m_endTime = this->m_startTime - static_cast<int32_t>(duration * -1000.0f);
             return;
         }
 
-        case 4: {
+        case TRANSITION_STATE::STATE_EXIT_DELAY: {
             float duration = seatRec->m_field33512213017 < 10.0f ? seatRec->m_field33512213017 : 10.0f;
             this->m_endTime = this->m_startTime - static_cast<int32_t>(duration * -1000.0f);
             return;
         }
 
-        case 2: {
+        case TRANSITION_STATE::STATE_ENTERING: {
             this->m_arcGravity = seatRec->m_enterGravity;
             minDuration = seatRec->m_enterMinDuration;
             maxDuration = seatRec->m_enterMaxDuration;
@@ -1730,7 +1730,7 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
 
     float duration;
 
-    if (state == 2 && vehicle) {
+    if (state == TRANSITION_STATE::STATE_ENTERING && vehicle) {
         C3Vector velocity = vehicle->GetVelocity();
         C3Vector direction = endPosition - this->m_startModelPosition;
         float distance = std::sqrt(direction.y * direction.y + direction.z * direction.z + direction.x * direction.x);
@@ -1801,7 +1801,7 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
 // VERIFY: 5375d8a2 manual
 // OFFSET: 0x0074A7F0
 void CVehiclePassenger_C::UpdateModel() {
-    if ((this->m_state == 2 || this->m_state == 5) && !(this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED)) {
+    if ((this->m_state == TRANSITION_STATE::STATE_ENTERING || this->m_state == TRANSITION_STATE::STATE_EXITING) && !(this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED)) {
         return;
     }
 
@@ -1835,7 +1835,7 @@ void CVehiclePassenger_C::UpdateModel() {
 
     C3Vector start;
 
-    if (this->m_state == 3 || !this->m_startRelativeGuid) {
+    if (this->m_state == TRANSITION_STATE::STATE_RIDING || !this->m_startRelativeGuid) {
         start = this->m_startModelPosition;
     } else {
         start = this->ComputeStartWorldPosition(this->m_startModelOffset, this->m_startModelPosition);
@@ -1882,7 +1882,7 @@ void CVehiclePassenger_C::UpdateModel() {
         up = C3Vector(0.0f, 0.0f, 1.0f);
         parent = nullptr;
         attachment = MODEL_ATTACHMENT_ID::ATTACH_SHIELD;
-    } else if (this->m_state == 3) {
+    } else if (this->m_state == TRANSITION_STATE::STATE_RIDING) {
         if (!vehicle) {
             return;
         }
@@ -1965,7 +1965,7 @@ int32_t CVehiclePassenger_C::PostSetState(CGUnit_C* vehicle, VehicleSeatRec* sea
 
     uint32_t state = this->m_state;
 
-    if (state && state != 3) {
+    if (state && state != TRANSITION_STATE::STATE_RIDING) {
         float dz = endPosition.z - this->m_startModelPosition.z;
         float dy = endPosition.y - this->m_startModelPosition.y;
         float dx = endPosition.x - this->m_startModelPosition.x;
@@ -1974,10 +1974,10 @@ int32_t CVehiclePassenger_C::PostSetState(CGUnit_C* vehicle, VehicleSeatRec* sea
             WOWGUID transport;
             transport.m_guid = this->m_unit->GetTransportGUID();
 
-            if (state == 1 || state == 2) {
-                this->SetState(3, vehicle, this->m_transitionSeat, seatRec, time, transport);
+            if (state == TRANSITION_STATE::STATE_ENTER_DELAY || state == TRANSITION_STATE::STATE_ENTERING) {
+                this->SetState(TRANSITION_STATE::STATE_RIDING, vehicle, this->m_transitionSeat, seatRec, time, transport);
             } else {
-                this->SetState(0, vehicle, this->m_transitionSeat, seatRec, time, transport);
+                this->SetState(TRANSITION_STATE::STATE_NONE, vehicle, this->m_transitionSeat, seatRec, time, transport);
             }
 
             this->m_flags |= VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED;
@@ -1994,7 +1994,7 @@ int32_t CVehiclePassenger_C::PostSetState(CGUnit_C* vehicle, VehicleSeatRec* sea
     if (vehicle) {
         CGUnit_C* root = vehicle->GetRootVehicleUnit();
 
-        if (root && (!this->m_state || !this->m_prevState || this->m_state == 3 || this->m_prevState == 3)) {
+        if (root && (!this->m_state || !this->m_prevState || this->m_state == TRANSITION_STATE::STATE_RIDING || this->m_prevState == TRANSITION_STATE::STATE_RIDING)) {
             CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
             if (player && player->GetRootVehicleUnit() == root) {
@@ -2019,43 +2019,43 @@ int32_t CVehiclePassenger_C::UpdateState(CGUnit_C* vehicle, VehicleSeatRec* seat
         return 0;
     }
 
-    if (this->m_state == 1 && static_cast<int32_t>(time - this->m_endTime) >= 0) {
+    if (this->m_state == TRANSITION_STATE::STATE_ENTER_DELAY && static_cast<int32_t>(time - this->m_endTime) >= 0) {
         WOWGUID transport;
         transport.m_guid = this->m_unit->GetTransportGUID();
-        this->SetState(2, vehicle, this->m_transitionSeat, seatRec, time, transport);
+        this->SetState(TRANSITION_STATE::STATE_ENTERING, vehicle, this->m_transitionSeat, seatRec, time, transport);
 
         if (!this->PostSetState(vehicle, seatRec, time)) {
             return 0;
         }
     }
 
-    if (this->m_state == 2) {
+    if (this->m_state == TRANSITION_STATE::STATE_ENTERING) {
         if (static_cast<int32_t>(time - this->m_endTime) < 0) {
             this->UpdateSmoothFacing();
         } else {
             WOWGUID transport;
             transport.m_guid = this->m_unit->GetTransportGUID();
-            this->SetState(3, vehicle, this->m_transitionSeat, seatRec, time, transport);
+            this->SetState(TRANSITION_STATE::STATE_RIDING, vehicle, this->m_transitionSeat, seatRec, time, transport);
         }
     }
 
-    if (this->m_state == 4 && static_cast<int32_t>(time - this->m_endTime) >= 0) {
+    if (this->m_state == TRANSITION_STATE::STATE_EXIT_DELAY && static_cast<int32_t>(time - this->m_endTime) >= 0) {
         WOWGUID transport;
         transport.m_guid = this->m_unit->GetTransportGUID();
-        this->SetState(5, vehicle, 0xFF, seatRec, time, transport);
+        this->SetState(TRANSITION_STATE::STATE_EXITING, vehicle, 0xFF, seatRec, time, transport);
 
         if (!this->PostSetState(vehicle, seatRec, time)) {
             return 0;
         }
     }
 
-    if (this->m_state == 5) {
+    if (this->m_state == TRANSITION_STATE::STATE_EXITING) {
         if (static_cast<int32_t>(time - this->m_endTime) < 0) {
             this->UpdateSmoothFacing();
         } else {
             WOWGUID transport;
             transport.m_guid = this->m_unit->GetTransportGUID();
-            this->SetState(0, vehicle, 0xFF, seatRec, time, transport);
+            this->SetState(TRANSITION_STATE::STATE_NONE, vehicle, 0xFF, seatRec, time, transport);
         }
     }
 

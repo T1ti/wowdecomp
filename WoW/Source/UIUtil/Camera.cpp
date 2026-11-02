@@ -2562,7 +2562,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
     CGPlayer_C* activePlayer = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     int32_t sharedVehicle = 0;
 
-    if (activePlayer && unit && activePlayer->m_vehiclePassenger && activePlayer->m_vehiclePassenger->m_state && activePlayer->m_vehiclePassenger->m_state != 3) {
+    if (activePlayer && unit && activePlayer->m_vehiclePassenger && activePlayer->m_vehiclePassenger->m_state && activePlayer->m_vehiclePassenger->m_state != CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
         if (activePlayer == unit || activePlayer->GetTransportGUID() == unit->m_obj->m_guid.m_guid) {
             sharedVehicle = 1;
         }
@@ -2574,7 +2574,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         float fadeStart = 1.8315002f;
         float fadeEnd = 0.0027777778f;
 
-        if (fadeUnit && ((fadeUnit->m_vehicle && fadeUnit->m_vehicle->m_vehicleRec) || (fadeUnit->m_vehiclePassenger && fadeUnit->m_vehiclePassenger->m_state == 3)) && !sharedVehicle) {
+        if (fadeUnit && ((fadeUnit->m_vehicle && fadeUnit->m_vehicle->m_vehicleRec) || (fadeUnit->m_vehiclePassenger && fadeUnit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING)) && !sharedVehicle) {
             if (!fadeUnit->m_vehicle || !fadeUnit->m_vehicle->m_vehicleRec) {
                 fadeUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ fadeUnit->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
             }
