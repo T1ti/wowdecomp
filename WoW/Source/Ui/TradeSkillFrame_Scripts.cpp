@@ -589,7 +589,7 @@ static int32_t Script_GetTradeSkillNumReagents(lua_State* L) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(info->m_spellId, &spell)) {
-                for (uint32_t i = 0; i < 8; i++) {
+                for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
                     if (spell.m_reagent[i]) {
                         count++;
                     }
@@ -620,7 +620,7 @@ static int32_t Script_GetTradeSkillReagentItemLink(lua_State* L) {
         if (g_spellDB.GetRecord(info->m_spellId, &spell)) {
             int32_t count = 0;
 
-            for (uint32_t i = 0; i < 8; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
                 int32_t itemId = spell.m_reagent[i];
 
                 if (!itemId || ++count != reagentIndex) {
@@ -998,7 +998,7 @@ static int32_t Script_GetTradeSkillReagentInfo(lua_State* L) {
         if (g_spellDB.GetRecord(info->m_spellId, &spell)) {
             int32_t count = 0;
 
-            for (uint32_t i = 0; i < 8; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
                 if (!spell.m_reagent[i] || ++count != reagentIndex) {
                     continue;
                 }

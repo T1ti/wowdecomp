@@ -334,7 +334,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     }
 
     uint32_t rank = unit->GetSpellRank(spell);
-    int32_t cost = spell->m_manaCost + spell->m_manaCostPerLevel * (static_cast<int32_t>(rank / 5) - spell->m_baseLevel);
+    int32_t cost = spell->m_manaCost + spell->m_manaCostPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - spell->m_baseLevel);
 
     if (spell->m_manaCostPct) {
         cost += spell->m_manaCostPct * static_cast<int32_t>(unit->GetBasePowerForType(static_cast<POWER_TYPE>(spell->m_powerType))) / 100;
@@ -394,15 +394,15 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
             uint32_t first = spell->m_effectMiscValue[i];
             int32_t count = spell->m_effectMiscValueB[i];
 
-            if (first >= 12 || first + count > 12) {
+            if (first >= CGActionBar::NUM_MULTICAST_ACTION_SLOTS || first + count > CGActionBar::NUM_MULTICAST_ACTION_SLOTS) {
                 continue;
             }
 
             for (int32_t j = 0; j < count; j++) {
                 int32_t petSpell;
-                int32_t spellId = CGActionBar::GetSpell(first + j + 132, petSpell);
+                int32_t spellId = CGActionBar::GetSpell(first + j + CGActionBar::MULTICAST_ACTION_FIRST, petSpell);
 
-                if (!spellId || (spellId & 0xF0000000)) {
+                if (!spellId || (spellId & CGActionBar::ACTION_MASK_TAG)) {
                     continue;
                 }
 
@@ -993,7 +993,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         msg->Get(power);
     }
 
-    uint8_t runeCooldowns[6] = { 0, 0, 0, 0, 0, 0 };
+    uint8_t runeCooldowns[NUM_INITIAL_RUNES] = { 0, 0, 0, 0, 0, 0 };
     uint8_t runesBefore = 0;
     uint8_t runesAfter = 0;
     uint32_t hasRunes = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_RUNES;
@@ -1002,7 +1002,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         msg->Get(runesBefore);
         msg->Get(runesAfter);
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < NUM_INITIAL_RUNES; i++) {
             if (((1 << i) & runesBefore) && !((1 << i) & runesAfter)) {
                 msg->Get(runeCooldowns[i]);
             }
@@ -1792,7 +1792,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         msg->Get(power);
     }
 
-    uint8_t runeCooldowns[6] = { 0, 0, 0, 0, 0, 0 };
+    uint8_t runeCooldowns[NUM_INITIAL_RUNES] = { 0, 0, 0, 0, 0, 0 };
     uint8_t runesBefore = 0;
     uint8_t runesAfter = 0;
     uint32_t hasRunes = castFlags & PendingSpellCastData::CastFlags::CAST_HAS_RUNES;
@@ -1801,7 +1801,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         msg->Get(runesBefore);
         msg->Get(runesAfter);
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < NUM_INITIAL_RUNES; i++) {
             if (((1 << i) & runesBefore) && !((1 << i) & runesAfter)) {
                 msg->Get(runeCooldowns[i]);
             }
@@ -3120,7 +3120,7 @@ int32_t Spell_C_GetSpellReagentUses(const SpellRec* spell) {
 
     int32_t uses = 0x7FFFFFFF;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         int32_t reagent = spell->m_reagent[i];
 
         if (reagent != -2 && reagent && spell->m_reagentCount[i] > 0) {
@@ -3167,7 +3167,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
         ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, WOWGUID(), nullptr, nullptr, false);
 
         if (stats) {
-            for (uint32_t i = 0; i < 5; i++) {
+            for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
                 if (stats->m_spellId[i] == static_cast<uint32_t>(spellId) && static_cast<int32_t>(stats->m_spellCategory[i]) > 0) {
                     category = stats->m_spellCategory[i];
                 }
@@ -3440,7 +3440,7 @@ uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, int32_t isPet, int32_t isU
         return 0;
     }
 
-    return static_cast<uint32_t>(unit->GetSpellRank(spell)) / 5;
+    return static_cast<uint32_t>(unit->GetSpellRank(spell)) / SPELL_RANK_POINTS_PER_LEVEL;
 }
 
 // VERIFY: afcd1587 auto
@@ -3451,7 +3451,7 @@ int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* uni
     }
 
     uint32_t rank = unit->GetSpellRank(spell);
-    int32_t cost = spell->m_manaPerSecond + spell->m_manaPerSecondPerLevel * (static_cast<int32_t>(rank / 5) - spell->m_baseLevel);
+    int32_t cost = spell->m_manaPerSecond + spell->m_manaPerSecondPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - spell->m_baseLevel);
     int32_t flat;
     int32_t pct;
 
@@ -5983,13 +5983,13 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
         stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
         if (stats) {
-            for (index = 0; index < 5; index++) {
+            for (index = 0; index < NUM_ITEM_SPELLS; index++) {
                 if (stats->m_spellId[index] == static_cast<uint32_t>(spellId)) {
                     break;
                 }
             }
 
-            if (index >= 5) {
+            if (index >= NUM_ITEM_SPELLS) {
                 stats = nullptr;
             }
         }
@@ -6119,7 +6119,7 @@ int32_t SpellHistory::IsOnHold(int32_t spellId, int32_t itemId) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
         if (stats) {
-            for (uint32_t i = 0; i < 5; i++) {
+            for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
                 if (stats->m_spellId[i] == static_cast<uint32_t>(spellId) && static_cast<int32_t>(stats->m_spellCategory[i]) > 0) {
                     category = stats->m_spellCategory[i];
                 }
@@ -6729,13 +6729,13 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
     if (stats) {
         uint32_t index;
 
-        for (index = 0; index < 5; index++) {
+        for (index = 0; index < NUM_ITEM_SPELLS; index++) {
             if (stats->m_spellId[index] == static_cast<uint32_t>(node->m_spellId)) {
                 break;
             }
         }
 
-        if (index < 5) {
+        if (index < NUM_ITEM_SPELLS) {
             SpellRec spell;
             g_spellDB.GetRecord(node->m_spellId, &spell);
             int32_t recovery = static_cast<int32_t>(stats->m_spellCooldown[index]) >= 0 ? static_cast<int32_t>(stats->m_spellCooldown[index]) : spell.m_recoveryTime;
@@ -6927,7 +6927,7 @@ bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report,
         ItemStats_C* stats = g_itemDBCache.GetRecord(spell->m_reagent[i], none, nullptr, nullptr, false);
 
         if (stats) {
-            for (uint32_t j = 0; j < 5; j++) {
+            for (uint32_t j = 0; j < NUM_ITEM_SPELLS; j++) {
                 if (stats->m_spellId[j] == static_cast<uint32_t>(spell->m_id) && stats->m_spellCharges[j]) {
                     needed++;
                 }

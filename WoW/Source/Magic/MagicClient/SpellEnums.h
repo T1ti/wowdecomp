@@ -5,6 +5,10 @@
 
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
+constexpr int32_t NUM_SPELL_REAGENTS = 8;
+
+// CGUnit_C::GetSpellRank (0x0071AA70) represents each level as five rank points.
+constexpr int32_t SPELL_RANK_POINTS_PER_LEVEL = 5;
 
 enum SPELL_FACING_FLAGS : int32_t {
     SPELL_FACING_FLAG_IN_FRONT = 0x1,

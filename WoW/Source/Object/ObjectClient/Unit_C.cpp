@@ -6555,10 +6555,10 @@ UNIT_SEX CGUnit_C::GetDisplaySex() const {
 // VERIFY: d86707be auto
 // OFFSET: 0x0071AA70
 int32_t CGUnit_C::GetSpellRank(const SpellRec* spell) const {
-    int32_t rank = 5 * this->m_unit->m_unitFieldLevel;
+    int32_t rank = SPELL_RANK_POINTS_PER_LEVEL * this->m_unit->m_unitFieldLevel;
 
-    if (spell->m_maxLevel > 0 && rank >= 5 * spell->m_maxLevel) {
-        rank = 5 * spell->m_maxLevel;
+    if (spell->m_maxLevel > 0 && rank >= SPELL_RANK_POINTS_PER_LEVEL * spell->m_maxLevel) {
+        rank = SPELL_RANK_POINTS_PER_LEVEL * spell->m_maxLevel;
     }
 
     if (rank < 0) {
@@ -6606,7 +6606,7 @@ int32_t CGUnit_C::GetSpellCastingTime(const SpellRec* spell) const {
         return 0;
     }
 
-    int32_t time = castTime->m_base + castTime->m_perLevel * static_cast<int32_t>(static_cast<uint32_t>(this->GetSpellRank(spell)) / 5 - spell->m_baseLevel);
+    int32_t time = castTime->m_base + castTime->m_perLevel * static_cast<int32_t>(static_cast<uint32_t>(this->GetSpellRank(spell)) / SPELL_RANK_POINTS_PER_LEVEL - spell->m_baseLevel);
 
     if (time < castTime->m_minimum) {
         time = castTime->m_minimum;
@@ -15940,7 +15940,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
                 ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
 
                 if (stats) {
-                    for (uint32_t j = 0; j < 5; j++) {
+                    for (uint32_t j = 0; j < NUM_ITEM_SPELLS; j++) {
                         if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                             learn = stats->m_spellId[j];
                             break;

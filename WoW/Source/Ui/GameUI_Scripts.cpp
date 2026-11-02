@@ -4247,7 +4247,7 @@ static int32_t Script_IsConsumableItem(lua_State* L) {
     if (stats->m_inventoryType != INVTYPE_AMMO && stats->m_inventoryType != INVTYPE_THROWN) {
         uint32_t i;
 
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < NUM_ITEM_SPELLS; i++) {
             if (!stats->m_spellId[i] || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
                 continue;
             }
@@ -4260,7 +4260,7 @@ static int32_t Script_IsConsumableItem(lua_State* L) {
 
             int32_t reagents = 0;
 
-            for (uint32_t j = 0; j < 8; j++) {
+            for (uint32_t j = 0; j < NUM_SPELL_REAGENTS; j++) {
                 if (spell.m_reagent[j] && spell.m_reagentCount[j] > 0) {
                     reagents = 1;
                     break;
@@ -4272,7 +4272,7 @@ static int32_t Script_IsConsumableItem(lua_State* L) {
             }
         }
 
-        if (i >= 5) {
+        if (i >= NUM_ITEM_SPELLS) {
             lua_pushnil(L);
             return 1;
         }
@@ -4318,7 +4318,7 @@ static int32_t Script_IsDressableItem(lua_State* L) {
         return 1;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         if (!stats->m_spellId[i]) {
             continue;
         }
@@ -4338,7 +4338,7 @@ static int32_t Script_IsDressableItem(lua_State* L) {
         int32_t learnedId = spell.m_effectTriggerSpell[0];
 
         if (!learnedId) {
-            for (uint32_t j = 0; j < 5; j++) {
+            for (uint32_t j = 0; j < NUM_ITEM_SPELLS; j++) {
                 if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                     learnedId = stats->m_spellId[j];
                     break;

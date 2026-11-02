@@ -1249,7 +1249,7 @@ void CGItemStatsSummary::AddEnchantEffect(int32_t type, int32_t arg, int32_t amo
 void CGItemStatsSummary::ScanEnchantSpells(const ItemStats_C* stats) {
     this->m_flags |= 0x1;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         if (static_cast<int32_t>(stats->m_spellId[i]) <= 0) {
             continue;
         }
@@ -3023,7 +3023,7 @@ static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPla
     int32_t first = 1;
     int32_t allFound = 1;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         int32_t itemId = spell->m_reagent[i];
 
         if (itemId <= 0) {
@@ -3874,7 +3874,7 @@ void CGTooltip::AddSpellReagents(const SpellRec* spell, const char* token, void 
     char reagent[1024];
     int32_t first = 1;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         int32_t itemId = spell->m_reagent[i];
 
         if (itemId <= 0) {
@@ -4444,7 +4444,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
     }
 
     if (stats->m_class == ITEM_CLASS::ITEM_CLASS_GLYPH) {
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(stats->m_spellId[i], &spell)) {
@@ -5489,7 +5489,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
         int32_t taughtSpell = spell.m_effectTriggerSpell[0];
 
         if (!taughtSpell) {
-            for (uint32_t i = 0; i < 5; i++) {
+            for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
                 if (stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                     taughtSpell = stats->m_spellId[i];
                     break;
@@ -5792,7 +5792,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
     char buffer[4096];
     int32_t isRecipe = 0;
 
-    for (int32_t i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         if (stream) {
             sprintf(buffer, "\t\t\t<spelldesc_%d>", i);
             fputs(buffer, stream);
@@ -5935,7 +5935,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
             int32_t missing = 0;
             text[0] = '\0';
 
-            for (uint32_t j = 0; j < 8; j++) {
+            for (uint32_t j = 0; j < NUM_SPELL_REAGENTS; j++) {
                 int32_t reagent = created.m_reagent[j];
 
                 if (reagent <= 0) {

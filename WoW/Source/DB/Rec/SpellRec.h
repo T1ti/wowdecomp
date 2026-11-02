@@ -141,8 +141,8 @@ class SpellRec {
     /* 00C0 */ int32_t m_modalNextSpell;
     /* 00C4 */ int32_t m_cumulativeAura;
     /* 00C8 */ int32_t m_totem [2];
-    /* 00D0 */ int32_t m_reagent [8];
-    /* 00F0 */ int32_t m_reagentCount [8];
+    /* 00D0 */ int32_t m_reagent [NUM_SPELL_REAGENTS];
+    /* 00F0 */ int32_t m_reagentCount [NUM_SPELL_REAGENTS];
     /* 0110 */ int32_t m_equippedItemClass;
     /* 0114 */ int32_t m_equippedItemSubclass;
     /* 0118 */ int32_t m_equippedItemInvTypes;

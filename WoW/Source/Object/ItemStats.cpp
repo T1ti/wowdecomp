@@ -102,7 +102,7 @@ void ItemStats_C::Unpack(CDataStore* msg) {
     msg->Get(this->m_ammoType);
     msg->Get(reinterpret_cast<uint32_t&>(this->m_rangedModRange));
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         msg->Get(this->m_spellId[i]);
         msg->Get(this->m_spellTrigger[i]);
         msg->Get(reinterpret_cast<uint32_t&>(this->m_spellCharges[i]));
@@ -212,7 +212,7 @@ void ItemStats_C::Pack(CDataStore* msg) {
     msg->Put(this->m_ammoType);
     msg->Put(reinterpret_cast<uint32_t&>(this->m_rangedModRange));
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         msg->Put(this->m_spellId[i]);
         msg->Put(this->m_spellTrigger[i]);
         msg->Put(static_cast<uint32_t>(this->m_spellCharges[i]));

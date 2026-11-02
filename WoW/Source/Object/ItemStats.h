@@ -46,12 +46,12 @@ class ItemStats_C {
     /* 00F4 */ int32_t m_delay;
     /* 00F8 */ uint32_t m_ammoType;
     /* 00FC */ float m_rangedModRange;
-    /* 0100 */ uint32_t m_spellId [5];
-    /* 0114 */ uint32_t m_spellTrigger [5];
-    /* 0128 */ int32_t m_spellCharges [5];
-    /* 013C */ uint32_t m_spellCooldown [5];
-    /* 0150 */ uint32_t m_spellCategory [5];
-    /* 0164 */ uint32_t m_spellCategoryCooldown [5];
+    /* 0100 */ uint32_t m_spellId [NUM_ITEM_SPELLS];
+    /* 0114 */ uint32_t m_spellTrigger [NUM_ITEM_SPELLS];
+    /* 0128 */ int32_t m_spellCharges [NUM_ITEM_SPELLS];
+    /* 013C */ uint32_t m_spellCooldown [NUM_ITEM_SPELLS];
+    /* 0150 */ uint32_t m_spellCategory [NUM_ITEM_SPELLS];
+    /* 0164 */ uint32_t m_spellCategoryCooldown [NUM_ITEM_SPELLS];
     /* 0178 */ uint32_t m_bonding;
     /* 017C */ char* m_description;
     /* 0180 */ uint32_t m_pageText;

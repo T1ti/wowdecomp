@@ -14,6 +14,10 @@ PetAction* GetPetAction(uint32_t index);
 
 class CGActionBar {
     public:
+    static constexpr int32_t MULTICAST_ACTION_FIRST = 132;
+    static constexpr int32_t NUM_MULTICAST_ACTION_SLOTS = 12;
+    static constexpr int32_t NUM_ACTION_SLOTS = 144;
+
     // Top-nibble client action tags; a zero complete word still means an empty slot.
     enum ACTION_TAG : uint32_t {
         ACTION_TAG_SPELL                    = 0x00000000,
@@ -41,10 +45,10 @@ class CGActionBar {
     static uint32_t GetSlotSpellAction(uint32_t slot);
     static void UpdateTemporaryActionBar(int32_t (*getSpell)(uint32_t index, const void* data), const void* data);
     static void EnterWorld();
-    static int32_t m_slotNoMana[144];
-    static int32_t m_slotUsable[144];
-    static int32_t m_slotItemCount[144];
-    static uint32_t m_slotActions[144];
+    static int32_t m_slotNoMana[NUM_ACTION_SLOTS];
+    static int32_t m_slotUsable[NUM_ACTION_SLOTS];
+    static int32_t m_slotItemCount[NUM_ACTION_SLOTS];
+    static uint32_t m_slotActions[NUM_ACTION_SLOTS];
 
     static int32_t IsMacro(uint32_t slot);
     static void OnAuraChanged(int32_t spellId);

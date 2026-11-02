@@ -1234,7 +1234,7 @@ static int32_t Script_SetLootItem(lua_State* L) {
     ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
     if (stats) {
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
             if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
                 tooltip->m_itemLinkInfo.m_spellCharges = stats->m_spellCharges[i];
                 break;
@@ -1914,7 +1914,7 @@ static int32_t Script_SetTradeSkillItem(lua_State* L) {
         int32_t count = 0;
         uint32_t i;
 
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < NUM_SPELL_REAGENTS; i++) {
             if (spell.m_reagent[i] && ++count == reagent) {
                 break;
             }

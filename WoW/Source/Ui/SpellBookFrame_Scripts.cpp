@@ -351,7 +351,7 @@ static int32_t Script_IsConsumableSpell(lua_State* L) {
     SpellRec spell;
 
     if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell)) {
-        for (uint32_t i = 0; i < 8; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
             if (spell.m_reagent[i] && spell.m_reagentCount[i] > 0) {
                 lua_pushnumber(L, 1.0);
                 return 1;

@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+// Active rune count on initialization; the backing arrays have eight entries.
+constexpr int32_t NUM_INITIAL_RUNES = 6;
+
 class CDataStore;
 class SpellRec;
 

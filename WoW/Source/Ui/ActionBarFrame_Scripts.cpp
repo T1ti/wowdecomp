@@ -292,7 +292,7 @@ static int32_t Script_PlaceAction(lua_State* L) {
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot >= 120 && static_cast<uint32_t>(slot) < 132) {
+    if (slot >= 120 && static_cast<uint32_t>(slot) < CGActionBar::MULTICAST_ACTION_FIRST) {
         return 0;
     }
 
@@ -328,7 +328,7 @@ static int32_t Script_GetActionCount(lua_State* L) {
     }
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    int32_t count = slot > 143 ? 0 : CGActionBar::m_slotItemCount[slot];
+    int32_t count = slot > (CGActionBar::NUM_ACTION_SLOTS - 1) ? 0 : CGActionBar::m_slotItemCount[slot];
     lua_pushnumber(L, count);
     return 1;
 }
@@ -592,7 +592,7 @@ static int32_t Script_SetMultiCastSpell(lua_State* L) {
 
     int32_t slot = lua_tointeger(L, 1) - 1;
 
-    if (slot < 132 || static_cast<uint32_t>(slot) >= 144) {
+    if (slot < CGActionBar::MULTICAST_ACTION_FIRST || static_cast<uint32_t>(slot) >= CGActionBar::NUM_ACTION_SLOTS) {
         return 0;
     }
 

@@ -49,7 +49,7 @@ void CGRuneInfo::InitializeGame() {
     CGRuneInfo::m_runes[3] = 1;
     CGRuneInfo::m_baseRunes[3] = 1;
     CGRuneInfo::m_predictedRunes = 0xFFFFFFFF;
-    CGRuneInfo::m_numRunes = 6;
+    CGRuneInfo::m_numRunes = NUM_INITIAL_RUNES;
     CGRuneInfo::m_runes[4] = 2;
     CGRuneInfo::m_baseRunes[4] = 2;
     CGRuneInfo::m_runes[5] = 2;

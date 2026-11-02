@@ -1093,7 +1093,7 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
 
         SpellRec itemSpell;
 
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
             if (!g_spellDB.GetRecord(stats->m_spellId[i], &itemSpell)) {
                 continue;
             }
@@ -1176,7 +1176,7 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
         return true;
     }
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         if (!spell.m_reagent[i] || !spell.m_reagentCount[i]) {
             continue;
         }

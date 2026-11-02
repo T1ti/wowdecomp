@@ -31,16 +31,16 @@
 #include "WoW/Source/DB/Rec/SummonPropertiesRec.h"
 
 // STATIC: 0x00C1DC98
-int32_t CGActionBar::m_slotNoMana[144];
+int32_t CGActionBar::m_slotNoMana[CGActionBar::NUM_ACTION_SLOTS];
 
 // STATIC: 0x00C1DED8
-int32_t CGActionBar::m_slotUsable[144];
+int32_t CGActionBar::m_slotUsable[CGActionBar::NUM_ACTION_SLOTS];
 
 // STATIC: 0x00C1E118
-int32_t CGActionBar::m_slotItemCount[144];
+int32_t CGActionBar::m_slotItemCount[CGActionBar::NUM_ACTION_SLOTS];
 
 // STATIC: 0x00C1E358
-uint32_t CGActionBar::m_slotActions[144];
+uint32_t CGActionBar::m_slotActions[CGActionBar::NUM_ACTION_SLOTS];
 
 // STATIC: 0x00C1E59C
 int32_t CGActionBar::m_bonusBarOffset;
@@ -201,7 +201,7 @@ int32_t CGActionBar::GetSpell(uint32_t slot, int32_t& petSpell) {
 // VERIFY: 356cf1ff manual
 // OFFSET: 0x005A95E0
 int32_t CGActionBar::ActionHasRange(uint32_t slot) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -540,11 +540,11 @@ void CGActionBar::ShowGrid() {
 // VERIFY: efb36ab0 auto
 // OFFSET: 0x005A7AE0
 static int32_t GetMultiCastTotemCategory(int32_t slot) {
-    if (slot < 132 || slot >= sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])) {
+    if (slot < CGActionBar::MULTICAST_ACTION_FIRST || slot >= sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])) {
         return 0;
     }
 
-    switch ((slot - 132) % 4) {
+    switch ((slot - CGActionBar::MULTICAST_ACTION_FIRST) % 4) {
         case 0:
             return 4;
         case 1:
@@ -986,7 +986,7 @@ void CGActionBar::RemoveMacroActions(uint32_t macroId) {
         return;
     }
 
-    for (uint32_t slot = 0; slot < 144; slot++) {
+    for (uint32_t slot = 0; slot < CGActionBar::NUM_ACTION_SLOTS; slot++) {
         uint32_t action = CGActionBar::m_slotActions[slot];
         uint32_t id = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
@@ -1003,7 +1003,7 @@ void CGActionBar::RemoveEquipmentSet(uint32_t id) {
         return;
     }
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
         uint32_t set = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET ? action & ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID : static_cast<uint32_t>(-1);
 
@@ -1094,7 +1094,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
     SpellRec spell;
     int32_t haveSpell = 0;
 
-    if (slot >= 132) {
+    if (slot >= CGActionBar::MULTICAST_ACTION_FIRST) {
         if (cursorSpell) {
             haveSpell = g_spellDB.GetRecord(cursorSpell, &spell);
 
@@ -1287,7 +1287,7 @@ void CGActionBar::UpdateMultiCastBar() {
             } else if (totems && totems->m_count) {
                 int32_t spellId = totems->m_data[0];
 
-                for (int32_t slot = i + 132; slot < static_cast<int32_t>(sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])); slot += 4) {
+                for (int32_t slot = i + CGActionBar::MULTICAST_ACTION_FIRST; slot < static_cast<int32_t>(sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])); slot += 4) {
                     if (!CGActionBar::HasAction(slot)) {
                         CGActionBar::SetAction(slot, spellId, 1, 1);
                     }
@@ -1312,7 +1312,7 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
         return;
     }
 
-    if (!CGUIBindings::s_bindings->m_keyStateOverride && (slot < 120 || slot >= 132) && (CGGameUI::GetCursorSpell() || CGGameUI::GetCursorItem() || CGGameUI::m_cursorMacro || CGGameUI::GetCursorVirtualItemOfType(UICURSOR_ACTIONBAR) || CGGameUI::m_cursorEquipmentSet >= 0)) {
+    if (!CGUIBindings::s_bindings->m_keyStateOverride && (slot < 120 || slot >= CGActionBar::MULTICAST_ACTION_FIRST) && (CGGameUI::GetCursorSpell() || CGGameUI::GetCursorItem() || CGGameUI::m_cursorMacro || CGGameUI::GetCursorVirtualItemOfType(UICURSOR_ACTIONBAR) || CGGameUI::m_cursorEquipmentSet >= 0)) {
         CGActionBar::PutActionInSlot(slot);
         return;
     }
@@ -1462,7 +1462,7 @@ void CGActionBar::InitializeGame() {
 // VERIFY: 8aaa3eee manual
 // OFFSET: 0x005AA4E0
 void CGActionBar::UpdateAttackAction() {
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         if (CGActionBar::IsAttackAction(i)) {
             int32_t noMana;
             CGActionBar::m_slotUsable[i] = CGActionBar::UpdateUsableAction(i, noMana);
@@ -1475,7 +1475,7 @@ void CGActionBar::UpdateAttackAction() {
 // VERIFY: 360c7e77 manual
 // OFFSET: 0x005AA550
 void CGActionBar::UpdateRangedAttackAction() {
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         if (CGActionBar::IsRangedAttackAction(i)) {
             int32_t noMana;
             CGActionBar::m_slotUsable[i] = CGActionBar::UpdateUsableAction(i, noMana);
@@ -1488,7 +1488,7 @@ void CGActionBar::UpdateRangedAttackAction() {
 // VERIFY: 7f087db2 manual
 // OFFSET: 0x005A8470
 int32_t IsStackableAucItem(uint32_t slot) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -1500,7 +1500,7 @@ int32_t IsStackableAucItem(uint32_t slot) {
 // VERIFY: e7c2b372 manual
 // OFFSET: 0x005A88B0
 int32_t CGActionBar::IsEquippedAction(uint32_t slot) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -1527,7 +1527,7 @@ int32_t CGActionBar::IsEquippedAction(uint32_t slot) {
 // VERIFY: 20f78ef5 manual
 // OFFSET: 0x005A9360
 int32_t CGActionBar::IsConsumableAction(uint32_t slot) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -1555,7 +1555,7 @@ int32_t CGActionBar::IsConsumableAction(uint32_t slot) {
         return 0;
     }
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         if (spell.m_reagent[i] && spell.m_reagentCount[i] > 0) {
             return 1;
         }
@@ -1577,7 +1577,7 @@ void CGActionBar::OnAuraChanged(int32_t spellId) {
         return;
     }
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         int32_t petSpell;
 
         if (CGActionBar::GetSpell(i, petSpell) == spellId && !petSpell) {
@@ -1641,7 +1641,7 @@ void CGActionBar::UpdateOverrideSpellBar() {
 // VERIFY: a5c3e3b2 auto
 // OFFSET: 0x005AAB90
 void CGActionBar::RemoveMacro(int32_t spellId) {
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         int32_t petSpell;
 
         if (CGActionBar::GetSpell(i, petSpell) != spellId) {
@@ -1665,7 +1665,7 @@ void CGActionBar::UpdateEquipmentSet(uint32_t id) {
         return;
     }
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
         uint32_t set = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_EQUIPMENT_SET ? action & ACTION_MASK::ACTION_MASK_EQUIPMENT_SET_ID : static_cast<uint32_t>(-1);
 
@@ -1681,7 +1681,7 @@ void CGActionBar::UpdateEquipmentSet(uint32_t id) {
 // VERIFY: d191a5f1 manual
 // OFFSET: 0x005AAA90
 void CGActionBar::RemoveAction(uint32_t slot) {
-    if (static_cast<int32_t>(slot) < 0 || slot >= 144) {
+    if (static_cast<int32_t>(slot) < 0 || slot >= CGActionBar::NUM_ACTION_SLOTS) {
         return;
     }
 
@@ -1710,7 +1710,7 @@ void CGActionBar::UpdateMacro(uint32_t macroId) {
         return;
     }
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
         uint32_t id = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO ? action & ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
@@ -1768,7 +1768,7 @@ void CGActionBar::UpdateUsablePower() {
     SpellRec spell;
     int32_t changed = 0;
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         if (!CGActionBar::m_slotUsable[i]) {
             continue;
         }
@@ -1825,7 +1825,7 @@ void CGActionBar::UpdateShapeShiftBar() {
 // VERIFY: 3645420e manual
 // OFFSET: 0x005A9470
 int32_t CGActionBar::IsAutoRepeatAction(uint32_t slot) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -1838,7 +1838,7 @@ int32_t CGActionBar::IsAutoRepeatAction(uint32_t slot) {
 // VERIFY: 7fa85525 manual
 // OFFSET: 0x005A94C0
 int32_t CGActionBar::HasValidTarget(uint32_t slot, WOWGUID target, int32_t* inRange) {
-    if (slot > 143) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1)) {
         return 0;
     }
 
@@ -1877,7 +1877,7 @@ void CGActionBar::UpdateItem(int32_t itemId) {
 
     int32_t count = CGActionBar::CalculateItemCount(itemId);
 
-    for (uint32_t i = 0; i < 144; i++) {
+    for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         uint32_t action = CGActionBar::m_slotActions[i];
 
         if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
@@ -1920,12 +1920,12 @@ void CGActionBar::UpdateItem(int32_t itemId) {
                     uint32_t index = 0;
 
                     while (stats->m_spellTrigger[index] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
-                        if (++index >= 5) {
+                        if (++index >= NUM_ITEM_SPELLS) {
                             break;
                         }
                     }
 
-                    if (index < 5) {
+                    if (index < NUM_ITEM_SPELLS) {
                         uint32_t spellId = stats->m_spellId[index];
 
                         if (spellId && spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && (s_knownSpellBits.m_bits.m_data[spellId >> 5] & (1 << (spellId & 0x1F)))) {
@@ -2003,7 +2003,7 @@ bool CGActionBar::IsEquipmentSetValid(int32_t setId) {
 // VERIFY: 82e513fa manual
 // OFFSET: 0x005ABE70
 void CGActionBar::PickupAction(uint32_t slot) {
-    if (slot > 143 || !CGGameUI::CanPerformAction(14) || (slot >= 120 && slot < 132)) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1) || !CGGameUI::CanPerformAction(14) || (slot >= 120 && slot < CGActionBar::MULTICAST_ACTION_FIRST)) {
         return;
     }
 
@@ -2064,7 +2064,7 @@ void CGActionBar::ReplaceSpell(int32_t oldSpell, int32_t newSpell) {
     int32_t found = g_spellDB.GetRecord(newSpell, &newRec);
     int32_t newRank = found ? CGSpellBook::GetSpellProgressionRank(&newRec) : 0;
 
-    for (uint32_t slot = 0; slot < 144; slot++) {
+    for (uint32_t slot = 0; slot < CGActionBar::NUM_ACTION_SLOTS; slot++) {
         int32_t petSpell;
         int32_t spellId = CGActionBar::GetSpell(slot, petSpell);
 
@@ -2108,7 +2108,7 @@ void CGActionBar::UpdateCritter(int32_t critter) {
 
     SpellRec spell;
 
-    for (uint32_t slot = 0; slot < 144; slot++) {
+    for (uint32_t slot = 0; slot < CGActionBar::NUM_ACTION_SLOTS; slot++) {
         int32_t petSpell;
 
         if (!g_spellDB.GetRecord(CGActionBar::GetSpell(slot, petSpell), &spell)) {

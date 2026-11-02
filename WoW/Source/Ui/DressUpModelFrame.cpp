@@ -260,7 +260,7 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
     }
 
     if ((stats->m_inventoryType == INVTYPE_NON_EQUIP)) {
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
             if (!stats->m_spellId[i]) {
                 continue;
             }
@@ -280,7 +280,7 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
             int32_t learnedId = spell.m_effectTriggerSpell[0];
 
             if (!learnedId) {
-                for (uint32_t j = 0; j < 5; j++) {
+                for (uint32_t j = 0; j < NUM_ITEM_SPELLS; j++) {
                     if (stats->m_spellTrigger[j] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_LEARN_SPELL) {
                         learnedId = stats->m_spellId[j];
                         break;
