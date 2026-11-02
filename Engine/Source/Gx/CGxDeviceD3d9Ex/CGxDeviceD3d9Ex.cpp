@@ -1387,7 +1387,7 @@ void CGxDeviceD3d9Ex::IStateSyncLights() {
             this->m_ambientOnlyMode = 0;
         }
 
-        this->DsSet(Ds_Lighting, this->m_appMasterEnables & 0x1);
+        this->DsSet(Ds_Lighting, this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Lighting));
         this->DsSet(Ds_Ambient, 0);
 
         for (uint32_t i = 0; i < 4; i++) {
@@ -1710,7 +1710,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_Lighting: {
             uint32_t enable = 0;
 
-            if (this->m_appMasterEnables & 0x1) {
+            if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Lighting)) {
                 enable = value.m_data.i[0] != 0;
             }
 
@@ -1721,7 +1721,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_Fog: {
             uint32_t enable = 0;
 
-            if (this->m_appMasterEnables & 0x2) {
+            if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Fog)) {
                 enable = value.m_data.i[0] != 0;
             }
 
@@ -1733,7 +1733,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_DepthFunc: {
             uint32_t func;
 
-            if ((this->m_appMasterEnables & 0x4) && this->m_appRenderStates[GxRs_DepthTest].m_value.m_data.i[0]) {
+            if ((this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_DepthTest)) && this->m_appRenderStates[GxRs_DepthTest].m_value.m_data.i[0]) {
                 func = s_cmpFunc[this->m_appRenderStates[GxRs_DepthFunc].m_value.m_data.i[0]];
             } else {
                 func = D3DCMP_ALWAYS;
@@ -1748,7 +1748,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_DepthWrite: {
             uint32_t enable = 0;
 
-            if (this->m_appMasterEnables & 0x8) {
+            if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_DepthWrite)) {
                 enable = value.m_data.i[0] != 0;
             }
 
@@ -1759,7 +1759,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_ColorWrite: {
             uint32_t mask = 0;
 
-            if (this->m_appMasterEnables & 0x10) {
+            if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_ColorWrite)) {
                 mask = value.m_data.u[0];
             }
 
@@ -1770,7 +1770,7 @@ void CGxDeviceD3d9Ex::IRsSendToHw(EGxRenderState which) {
         case GxRs_Culling: {
             uint32_t cull = 0;
 
-            if (this->m_appMasterEnables & 0x20) {
+            if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Culling)) {
                 cull = value.m_data.i[0];
 
                 if (value.m_data.i[0] > 2) {

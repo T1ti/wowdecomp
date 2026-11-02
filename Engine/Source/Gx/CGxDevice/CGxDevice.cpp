@@ -1559,8 +1559,8 @@ CGxDevice::CGxDevice() : m_defWindowRect(), m_curWindowRect(), m_viewport(), m_s
     this->m_viewport.m_z.m_h = 1.0f;
     this->m_viewportDirty = 1;
     this->InitLights();
-    this->m_appMasterEnables = 0x1FF;
-    this->m_hwMasterEnables = 0x1FF;
+    this->m_appMasterEnables = ((1 << EGxMasterEnables::GxMasterEnables_Last) - 1);
+    this->m_hwMasterEnables = ((1 << EGxMasterEnables::GxMasterEnables_Last) - 1);
     this->m_scrShotClick = 0;
     this->m_scrShotWidth = 0;
     this->m_scrShotHeight = 0;

@@ -3192,7 +3192,7 @@ void CGxDeviceOpenGl::IStateSyncLights() {
             this->m_ambientOnlyMode = 0;
         }
 
-        if (this->m_appMasterEnables & 0x1) {
+        if (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Lighting)) {
             glEnable(GL_LIGHTING);
         } else {
             glDisable(GL_LIGHTING);
@@ -3638,7 +3638,7 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
         }
 
         case GxRs_Lighting:
-            if ((this->m_appMasterEnables & 0x1) && value.m_data.i[0]) {
+            if ((this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Lighting)) && value.m_data.i[0]) {
                 glEnable(GL_LIGHTING);
             } else {
                 glDisable(GL_LIGHTING);
@@ -3647,7 +3647,7 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
             break;
 
         case GxRs_Fog:
-            if ((this->m_appMasterEnables & 0x2) && value.m_data.i[0]) {
+            if ((this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Fog)) && value.m_data.i[0]) {
                 glEnable(GL_FOG);
             } else {
                 glDisable(GL_FOG);
@@ -3656,7 +3656,7 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
             break;
 
         case GxRs_DepthTest:
-            if ((this->m_appMasterEnables & 0x4) && value.m_data.i[0]) {
+            if ((this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_DepthTest)) && value.m_data.i[0]) {
                 glEnable(GL_DEPTH_TEST);
             } else {
                 glDisable(GL_DEPTH_TEST);
@@ -3669,15 +3669,15 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
             break;
 
         case GxRs_DepthWrite:
-            this->DsSet(Ds_DepthMask, (this->m_appMasterEnables & 0x8) ? value.m_data.u[0] : 0, 0);
+            this->DsSet(Ds_DepthMask, (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_DepthWrite)) ? value.m_data.u[0] : 0, 0);
             break;
 
         case GxRs_ColorWrite:
-            this->DsSet(Ds_ColorMask, (this->m_appMasterEnables & 0x10) ? value.m_data.u[0] : 0, 0);
+            this->DsSet(Ds_ColorMask, (this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_ColorWrite)) ? value.m_data.u[0] : 0, 0);
             break;
 
         case GxRs_Culling: {
-            if (!(this->m_appMasterEnables & 0x20)) {
+            if (!(this->m_appMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_Culling))) {
                 glDisable(GL_CULL_FACE);
                 break;
             }
@@ -3905,7 +3905,7 @@ void CGxDeviceOpenGl::ScenePresent() {
 
     this->ICursorDraw();
 
-    if (this->m_hwMasterEnables & 0x40) {
+    if (this->m_hwMasterEnables & (1 << EGxMasterEnables::GxMasterEnable_DoubleBuffering)) {
         wglSwapLayerBuffers(this->m_hdc, WGL_SWAP_MAIN_PLANE);
     } else {
         glFinish();
