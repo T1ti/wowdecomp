@@ -1487,6 +1487,14 @@ enum UIErrors {
     EVENT(CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM, 720) \
     EVENT(CHAT_MSG_BN_INLINE_TOAST_CONVERSATION, 721)
 
+// Action indices used by the native spell/tradeskill permission paths.
+enum UI_ACTION : uint32_t {
+    UI_ACTION_CAST_SPELL = 2,
+    UI_ACTION_TRADE_SKILL = 6,
+};
+
+constexpr uint32_t UI_ACTION_MASK_CAST_SPELL = 1u << UI_ACTION_CAST_SPELL;
+
 enum SCRIPT_EVENT {
 #define SCRIPT_EVENT_ENUM(name, index) SCRIPT_EVENT_##name = index,
 #define SCRIPT_EVENT_ALIAS_ENUM(name, string, index) SCRIPT_EVENT_##name = index,

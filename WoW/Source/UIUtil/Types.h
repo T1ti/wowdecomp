@@ -4,6 +4,11 @@
 #include <cstddef>
 #include <cstdint>
 
+// CGInputControl::m_mouseModeFlags; separate from its input-control flags.
+enum INPUT_MOUSE_MODE_FLAGS : uint32_t {
+    INPUT_MOUSE_MODE_SPELL_TARGETING = 0x10,
+};
+
 enum CURSORMODE : uint32_t {
     NO_CURSOR = 0,
     POINT_CURSOR = 1,

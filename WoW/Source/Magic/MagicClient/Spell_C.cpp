@@ -1086,7 +1086,7 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
     if (caster == CGUnit_C::s_activeMover && castTime) {
         SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell.m_spellMissileID);
 
-        if (missile && (missile->m_flags & 0x1)) {
+        if (missile && (missile->m_flags & SPELL_MISSILE_FLAG_TRAJECTORY)) {
             unit->StartUpdatingMissileTrajectory(this->m_data.m_spellId, OsGetAsyncTimeMs(), castTime);
         }
     }
@@ -1323,14 +1323,14 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
         CursorSetMode(POINT_CURSOR);
         Spell_C_DestroySpellWorldObject();
         CGInputControl* input = CGInputControl::GetActive();
-        input->m_mouseModeFlags &= ~0x10;
+        input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
         input->UpdateMouseMode(0);
     }
 
     if (reason != SpellCastResult::SPELL_FAILED_UNKNOWN && cast->m_data.m_castCount && spell->m_spellMissileID > 0) {
         SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell->m_spellMissileID);
 
-        if (missile && (missile->m_flags & 0x1)) {
+        if (missile && (missile->m_flags & SPELL_MISSILE_FLAG_TRAJECTORY)) {
             unit->ClearPrecastMissileModel(cast->m_data.m_castCount);
             CMissile::StartFizzling(cast->m_data.m_caster, cast->m_data.m_castCount, cast->m_data.m_spellId);
         }
@@ -6448,7 +6448,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
     }
 
     if (spell->m_startRecoveryCategory && spell->m_startRecoveryTime) {
-        CGUIMacros::m_state &= ~0x4u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_CAST_SPELL;
     }
 
     char text[1024];
@@ -7684,7 +7684,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         if (cast == s_targetingSpell) {
             s_targetingSpell = nullptr;
             CGInputControl* input = CGInputControl::GetActive();
-            input->m_mouseModeFlags &= ~0x10u;
+            input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
             input->UpdateMouseMode(0);
         }
 
@@ -7840,7 +7840,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell.m_spellMissileID);
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (missile && (missile->m_flags & 0x1)) {
+    if (missile && (missile->m_flags & SPELL_MISSILE_FLAG_TRAJECTORY)) {
         if (mover != caster) {
             ConsoleWrite("Missile trajectory does not have active mover caster", DEFAULT_COLOR);
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_DONT_REPORT, -1, -1, false);
@@ -7889,7 +7889,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     ClientServices::Send2(&msg);
     s_targetingSpell = nullptr;
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags &= ~0x10u;
+    input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
     input->UpdateMouseMode(0);
 
     if (caster->IsActivePlayer()) {
@@ -7907,7 +7907,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
 // OFFSET: 0x007FD410
 static void Spell_C_ClearMacroCooldownState(const SpellRec* spell) {
     if (spell->m_startRecoveryCategory && spell->m_startRecoveryTime) {
-        CGUIMacros::m_state &= ~0x4u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_CAST_SPELL;
     }
 }
 
@@ -8040,7 +8040,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
         case SPELL_IMPLICIT_TARGET::TARGET_DEST_TRAJECTORY: {
             SpellMissileRec* missile = g_spellMissileDB.GetRecord(spell->m_spellMissileID);
 
-            if (missile && (missile->m_flags & 0x1)) {
+            if (missile && (missile->m_flags & SPELL_MISSILE_FLAG_TRAJECTORY)) {
                 s_needTargets = needTargets & ~SPELL_TARGET_TYPE::TARGET_FLAG_DEST_LOCATION;
             }
 
@@ -8329,7 +8329,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     int32_t effect = spell.m_effect[0];
 
     if (effect != SPELL_EFFECT_DUEL && effect != SPELL_EFFECT_SUMMON_RAF_FRIEND && effect != SPELL_EFFECT_TALENT_SPEC_SELECT && !CGSpellBook::IsTrackingSpell(spellId) && !SpellRec::WillSummonCritter(&spell)) {
-        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? 6 : 2;
+        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION_TRADE_SKILL : UI_ACTION_CAST_SPELL;
 
         if (!CGGameUI::CanPerformAction(action)) {
             ReleasePendingSpellCast(cast);
@@ -8339,7 +8339,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
 
     effect = spell.m_effect[0];
 
-    if (spell.m_startRecoveryTime && !CGUIMacros::IsActionAllowed(2)) {
+    if (spell.m_startRecoveryTime && !CGUIMacros::IsActionAllowed(UI_ACTION_CAST_SPELL)) {
         ReleasePendingSpellCast(cast);
         return false;
     }
@@ -8517,7 +8517,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         CursorSetMode(CAST_ERROR_CURSOR);
         CGSpellBook::UpdateSelection();
         CGInputControl* input = CGInputControl::GetActive();
-        input->m_mouseModeFlags |= 0x10;
+        input->m_mouseModeFlags |= INPUT_MOUSE_MODE_SPELL_TARGETING;
         input->UpdateMouseMode(0);
         s_cursorWorldObjectFacing = 0.0f;
         s_cursorWorldObjectHousing = 0;
@@ -8614,7 +8614,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
     uint32_t needTargets = s_needTargets;
 
     if (spell.m_effect[0] != SPELL_EFFECT_DUEL) {
-        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? 6 : 2;
+        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION_TRADE_SKILL : UI_ACTION_CAST_SPELL;
 
         if (!CGGameUI::CanPerformAction(action)) {
             return false;

@@ -68,7 +68,7 @@ static int32_t Script_CannotBeResurrected(lua_State* L) {
 // VERIFY: 7914559b manual
 // OFFSET: 0x008007E0
 static int32_t Script_SpellTargetItem(lua_State* L) {
-    if (!CGGameUI::CanPerformAction(2) || !s_targetingSpell || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL) || !s_targetingSpell || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
         return 0;
     }
 
@@ -103,7 +103,7 @@ static int32_t Script_SpellTargetUnit(lua_State* L) {
         return luaL_error(L, "Usage: SpellTargetUnit(\"unit\")");
     }
 
-    if (!CGGameUI::CanPerformAction(2) || !s_targetingSpell) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL) || !s_targetingSpell) {
         return 0;
     }
 
@@ -143,7 +143,7 @@ static int32_t Script_SpellCanTargetUnit(lua_State* L) {
 // VERIFY: a88df190 auto
 // OFFSET: 0x00809E30
 static int32_t Script_SpellStopTargeting(lua_State* L) {
-    if (CGGameUI::CanPerformAction(2)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL)) {
         bool targeting = s_targetingSpell != nullptr;
 
         if (s_targetingSpell) {
@@ -163,7 +163,7 @@ static int32_t Script_SpellStopTargeting(lua_State* L) {
 // VERIFY: 0e0daa18 manual
 // OFFSET: 0x00809EA0
 static int32_t Script_SpellStopCasting(lua_State* L) {
-    if (!CGGameUI::CanPerformAction(2)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL)) {
         lua_pushnil(L);
         return 1;
     }

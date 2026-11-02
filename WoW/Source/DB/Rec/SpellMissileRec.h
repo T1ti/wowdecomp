@@ -6,6 +6,11 @@
 
 class SFileImpl;
 
+// SpellMissile.dbc flags; separate from CMissile's runtime flags.
+enum SPELL_MISSILE_FLAGS : int32_t {
+    SPELL_MISSILE_FLAG_TRAJECTORY = 0x1,
+};
+
 class SpellMissileRec {
     public:
     static const int32_t s_numColumns = 15;
