@@ -1915,7 +1915,7 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
             }
 
             if (this->SetFont(fontName, fontHeight, fontFlags, false)) {
-                this->m_fontableFlags &= ~0x1u;
+                this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_FONT_UPDATE;
             } else {
                 status->Add(STATUS_WARNING, "FontString %s: Unable to load font file %s", this->GetDisplayName(), fontName);
             }
@@ -1927,7 +1927,7 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
     if (spacing && *spacing) {
         float value = SStrToFloat(spacing);
         this->SetSpacing(NDCToDDCWidth(value / (CoordinateGetAspectCompensation() * 1024.0f)));
-        this->m_fontableFlags &= ~0x10u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SPACING_UPDATE;
     }
 
     uint32_t justify;
@@ -1935,14 +1935,14 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
 
     if (justifyV && *justifyV && StringToJustify(justifyV, justify)) {
         this->SetJustifyV(justify);
-        this->m_fontableFlags &= ~0x2u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     }
 
     const char* justifyH = node->GetAttributeByName("justifyH");
 
     if (justifyH && *justifyH && StringToJustify(justifyH, justify)) {
         this->SetJustifyH(justify);
-        this->m_fontableFlags &= ~0x2u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     }
 
     const char* indented = node->GetAttributeByName("indented");
@@ -1970,7 +1970,7 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
             CImVector color;
             LoadXML_Color(child, color, status);
             this->SetVertexColor(color);
-            this->m_fontableFlags &= ~0x4u;
+            this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
         } else if (!SStrCmpI(child->m_name.m_str, "Shadow", STORM_MAX_STR)) {
             float offsetX = 0.001f;
             float offsetY = -0.001f;
@@ -1993,7 +1993,7 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
             offset.x = offsetX;
             offset.y = offsetY;
             this->AddShadow(color, offset);
-            this->m_fontableFlags &= ~0x8u;
+            this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
         }
     }
 }

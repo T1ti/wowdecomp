@@ -95,7 +95,7 @@ static int32_t Script_SetVertexColor(lua_State* L) {
     }
 
     string->SetVertexColor(color);
-    string->m_fontableFlags &= ~0x4u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
 
     return 0;
 }
@@ -310,7 +310,7 @@ static int32_t Script_SetFont(lua_State* L) {
     }
 
     if (string->SetFont(fontName, fontHeight, fontFlags, false)) {
-        string->m_fontableFlags &= ~0x1u;
+        string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_FONT_UPDATE;
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -391,7 +391,7 @@ static int32_t Script_SetTextColor(lua_State* L) {
     CImVector color;
     FrameScript_GetColor(L, 2, color);
     string->SetVertexColor(color);
-    string->m_fontableFlags &= ~0x4u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
 
     return 0;
 }
@@ -418,7 +418,7 @@ static int32_t Script_SetShadowColor(lua_State* L) {
     CImVector color;
     FrameScript_GetColor(L, 2, color);
     string->SetShadowColor(color);
-    string->m_fontableFlags &= ~0x8u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
 
     return 0;
 }
@@ -453,7 +453,7 @@ static int32_t Script_SetShadowOffset(lua_State* L) {
     offset.x = NDCToDDCWidth(x / (CoordinateGetAspectCompensation() * 1024.0f));
     offset.y = NDCToDDCWidth(y / (CoordinateGetAspectCompensation() * 1024.0f));
     string->SetShadowOffset(offset);
-    string->m_fontableFlags &= ~0x8u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
 
     return 0;
 }
@@ -476,7 +476,7 @@ static int32_t Script_SetSpacing(lua_State* L) {
     if (lua_isnumber(L, 2)) {
         float spacing = static_cast<float>(lua_tonumber(L, 2));
         string->SetSpacing(NDCToDDCWidth(spacing / (CoordinateGetAspectCompensation() * 1024.0f)));
-        string->m_fontableFlags &= ~0x10u;
+        string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SPACING_UPDATE;
         return 0;
     }
 
@@ -560,7 +560,7 @@ static int32_t Script_SetJustifyH(lua_State* L) {
         }
     }
 
-    string->m_fontableFlags &= ~0x2u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
 
     return 0;
 }
@@ -597,7 +597,7 @@ static int32_t Script_SetJustifyV(lua_State* L) {
         }
     }
 
-    string->m_fontableFlags &= ~0x2u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
 
     return 0;
 }

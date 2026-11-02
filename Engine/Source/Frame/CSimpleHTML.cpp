@@ -208,7 +208,7 @@ void CSimpleHTML::AddText(const char* text, HTML_TEXT_TYPE type, uint32_t justif
     string->SetFontObject(font);
     string->SetJustifyH(justify);
     string->SetNonSpaceWrap(1);
-    string->m_fontableFlags &= ~0x2u;
+    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     string->SetText(text, 1);
 
     this->m_layoutAnchor = string;

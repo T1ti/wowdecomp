@@ -673,7 +673,7 @@ void CSimpleButton::SetNormalFontColor(const CImVector& color) {
         font->m_attributes.m_flags |= FONT_ATTRIBUTE_PRESENT_FLAGS::FLAG_COLOR_PRESENT | FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
     }
 
-    this->m_normalFont->m_fontableFlags &= ~0x4u;
+    this->m_normalFont->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
     this->m_normalFont->UpdateObjects();
 }
 

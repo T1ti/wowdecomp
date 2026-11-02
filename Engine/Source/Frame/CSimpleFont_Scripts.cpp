@@ -64,7 +64,7 @@ static int32_t CSimpleFont_SetAlpha(const char* name, CSimpleFont* font, lua_Sta
         font->m_attributes.m_color.a = alpha;
     }
 
-    font->m_fontableFlags &= ~0x4u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -157,7 +157,7 @@ int32_t CSimpleFont_SetFont(const char* name, CSimpleFont* font, lua_State* L) {
     }
 
     if (font && font->m_attributes.SetFont(fontName, fontHeight, fontFlags)) {
-        font->m_fontableFlags &= ~0x1u;
+        font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_FONT_UPDATE;
         font->UpdateObjects();
         lua_pushnumber(L, 1.0);
     } else {
@@ -189,7 +189,7 @@ int32_t CSimpleFont_SetTextColor(const char* name, CSimpleFont* font, lua_State*
         font->m_attributes.m_flags |= FONT_ATTRIBUTE_PRESENT_FLAGS::FLAG_COLOR_PRESENT | FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
     }
 
-    font->m_fontableFlags &= ~0x4u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -218,7 +218,7 @@ int32_t CSimpleFont_SetShadowColor(const char* name, CSimpleFont* font, lua_Stat
         font->m_attributes.m_flags |= FONT_ATTRIBUTE_PRESENT_FLAGS::FLAG_SHADOW_PRESENT | FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
     }
 
-    font->m_fontableFlags &= ~0x8u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -252,7 +252,7 @@ int32_t CSimpleFont_SetShadowOffset(const char* name, CSimpleFont* font, lua_Sta
     offset.y = NDCToDDCWidth(y / (CoordinateGetAspectCompensation() * 1024.0f));
     font->m_attributes.SetShadowOffset(offset);
 
-    font->m_fontableFlags &= ~0x8u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -281,7 +281,7 @@ int32_t CSimpleFont_SetSpacing(const char* name, CSimpleFont* font, lua_State* L
             font->m_attributes.m_spacing = spacing;
         }
 
-        font->m_fontableFlags &= ~0x10u;
+        font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SPACING_UPDATE;
         font->UpdateObjects();
         return 0;
     }
@@ -344,7 +344,7 @@ int32_t CSimpleFont_SetJustifyH(const char* name, CSimpleFont* font, lua_State* 
         font->m_attributes.m_styleFlags = styleFlags;
     }
 
-    font->m_fontableFlags &= ~0x2u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -367,7 +367,7 @@ int32_t CSimpleFont_SetJustifyV(const char* name, CSimpleFont* font, lua_State* 
         font->m_attributes.m_styleFlags = styleFlags;
     }
 
-    font->m_fontableFlags &= ~0x2u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     font->UpdateObjects();
 
     return 0;
@@ -384,7 +384,7 @@ int32_t CSimpleFont_SetIndentedWordWrap(const char* name, CSimpleFont* font, lua
         font->m_attributes.m_styleFlags = styleFlags;
     }
 
-    font->m_fontableFlags &= ~0x2u;
+    font->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     font->UpdateObjects();
 
     return 0;

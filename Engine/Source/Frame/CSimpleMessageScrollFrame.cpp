@@ -499,7 +499,7 @@ void CSimpleMessageScrollFrame::ScrollMessages(int32_t scroll) {
 
                 if (created) {
                     string->SetFrame(this, 2, 1);
-                    string->m_fontableFlags &= ~0x4u;
+                    string->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
                     string->SetFontObject(this->m_font);
                     string->SetWidth((this->m_messageFrameArea.maxX - this->m_messageFrameArea.minX) / this->m_layoutScale);
 

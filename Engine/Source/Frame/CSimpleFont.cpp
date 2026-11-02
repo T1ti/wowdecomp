@@ -250,7 +250,7 @@ void CSimpleFont::LoadXML(XMLNode* node, CStatus* status) {
             }
 
             if (this->m_attributes.SetFont(fontName, fontHeight, fontFlags)) {
-                this->m_fontableFlags &= ~0x1u;
+                this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_FONT_UPDATE;
             } else {
                 status->Add(STATUS_WARNING, "Font %s: Unable to load font file %s", this->GetDisplayName(), fontName);
             }
@@ -268,7 +268,7 @@ void CSimpleFont::LoadXML(XMLNode* node, CStatus* status) {
             this->m_attributes.m_spacing = ddcSpacing;
         }
 
-        this->m_fontableFlags &= ~0x10u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SPACING_UPDATE;
     }
 
     uint32_t justify;
@@ -276,14 +276,14 @@ void CSimpleFont::LoadXML(XMLNode* node, CStatus* status) {
 
     if (justifyV && *justifyV && StringToJustify(justifyV, justify)) {
         this->m_attributes.SetJustifyV(justify);
-        this->m_fontableFlags &= ~0x2u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     }
 
     const char* justifyH = node->GetAttributeByName("justifyH");
 
     if (justifyH && *justifyH && StringToJustify(justifyH, justify)) {
         this->m_attributes.SetJustifyH(justify);
-        this->m_fontableFlags &= ~0x2u;
+        this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_STYLE_UPDATE;
     }
 
     const char* nonSpaceWrap = node->GetAttributeByName("nonspacewrap");
@@ -318,7 +318,7 @@ void CSimpleFont::LoadXML(XMLNode* node, CStatus* status) {
                 this->m_attributes.m_flags |= FONT_ATTRIBUTE_PRESENT_FLAGS::FLAG_COLOR_PRESENT | FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
             }
 
-            this->m_fontableFlags &= ~0x4u;
+            this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_COLOR_UPDATE;
         } else if (!SStrCmpI(child->m_name.m_str, "Shadow", STORM_MAX_STR)) {
             CImVector color;
             color.a = 0xFF;
@@ -344,7 +344,7 @@ void CSimpleFont::LoadXML(XMLNode* node, CStatus* status) {
                 this->m_attributes.m_shadowOffset = offset;
             }
 
-            this->m_fontableFlags &= ~0x8u;
+            this->m_fontableFlags &= ~FONT_ATTRIBUTE_UPDATE_FLAGS::FLAG_SHADOW_UPDATE;
         }
     }
 
