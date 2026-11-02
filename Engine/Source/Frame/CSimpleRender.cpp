@@ -2333,8 +2333,8 @@ void CSimpleTexture::OnFrameSizeChanged(const CRect& rect) {
         this->SetPosition(this->m_rect, this->m_positions);
     }
 
-    if ((this->m_textureFlags & 0x4) || (this->m_textureFlags & 0x8)) {
-        this->m_textureFlags |= 0x2;
+    if ((this->m_textureFlags & TEXTURE_FLAGS::FLAG_HORIZ_TILE) || (this->m_textureFlags & TEXTURE_FLAGS::FLAG_VERT_TILE)) {
+        this->m_textureFlags |= TEXTURE_FLAGS::FLAG_TEXCOORDS_DIRTY;
         this->OnRegionChanged();
     }
 
@@ -2365,7 +2365,7 @@ CSimpleTexture::CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, int32_t 
     this->m_texture = nullptr;
     this->m_alphaMode = GxBlend_Alpha;
     this->m_shader = CSimpleTexture::s_imageModePixelShaders[ImageMode_Normal];
-    this->m_textureFlags &= ~0xFu;
+    this->m_textureFlags &= ~TEXTURE_FLAGS::FLAG_INITIALIZATION_MASK;
     this->m_shader = CSimpleTexture::GetImageModePixelShader(ImageMode_Normal);
     CSimpleTexture::s_count++;
     this->m_texCoords[0].x = 0.0f;
@@ -2537,14 +2537,14 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
     const char* horizTile = node->GetAttributeByName("horizTile");
 
     if (horizTile && *horizTile) {
-        this->m_textureFlags ^= (((StringToBOOL(horizTile) != 0) << 2) ^ this->m_textureFlags) & 0x4;
+        this->m_textureFlags ^= (((StringToBOOL(horizTile) != 0) << 2) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_HORIZ_TILE;
         wrapU = 1;
     }
 
     const char* vertTile = node->GetAttributeByName("vertTile");
 
     if (vertTile && *vertTile) {
-        this->m_textureFlags ^= (((StringToBOOL(vertTile) != 0) << 3) ^ this->m_textureFlags) & 0x8;
+        this->m_textureFlags ^= (((StringToBOOL(vertTile) != 0) << 3) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_VERT_TILE;
         wrapV = 1;
     }
 
@@ -2663,7 +2663,7 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
             const char* left = child->GetAttributeByName("left");
 
             if (left && *left) {
-                if (this->m_textureFlags & 0x4) {
+                if (this->m_textureFlags & TEXTURE_FLAGS::FLAG_HORIZ_TILE) {
                     const char* name = this->GetName();
                     status->Add(STATUS_ERROR, "Texture %s: Invalid TexCoords value (horizTile is on)", name ? name : "<unnamed>");
                 } else {
@@ -2681,7 +2681,7 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
             const char* right = child->GetAttributeByName("right");
 
             if (right && *right) {
-                if (this->m_textureFlags & 0x4) {
+                if (this->m_textureFlags & TEXTURE_FLAGS::FLAG_HORIZ_TILE) {
                     const char* name = this->GetName();
                     status->Add(STATUS_ERROR, "Texture %s: Invalid TexCoords value (horizTile is on)", name ? name : "<unnamed>");
                 } else {
@@ -2699,7 +2699,7 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
             const char* top = child->GetAttributeByName("top");
 
             if (top && *top) {
-                if (this->m_textureFlags & 0x8) {
+                if (this->m_textureFlags & TEXTURE_FLAGS::FLAG_VERT_TILE) {
                     const char* name = this->GetName();
                     status->Add(STATUS_ERROR, "Texture %s: Invalid TexCoords value (vertTile is on)", name ? name : "<unnamed>");
                 } else {
@@ -2717,7 +2717,7 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
             const char* bottom = child->GetAttributeByName("bottom");
 
             if (bottom && *bottom) {
-                if (this->m_textureFlags & 0x8) {
+                if (this->m_textureFlags & TEXTURE_FLAGS::FLAG_VERT_TILE) {
                     const char* name = this->GetName();
                     status->Add(STATUS_ERROR, "Texture %s: Invalid TexCoords value (vertTile is on)", name ? name : "<unnamed>");
                 } else {
@@ -2804,6 +2804,6 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
     const char* nonBlocking = node->GetAttributeByName("nonBlocking");
 
     if (nonBlocking && *nonBlocking) {
-        this->m_textureFlags ^= ((StringToBOOL(nonBlocking) != 0) ^ this->m_textureFlags) & 0x1;
+        this->m_textureFlags ^= ((StringToBOOL(nonBlocking) != 0) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_NONBLOCKING;
     }
 }

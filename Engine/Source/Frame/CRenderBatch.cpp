@@ -144,7 +144,7 @@ void CRenderBatch::QueueFontString(CSimpleFontString* string) {
 // VERIFY: 597baa7e manual
 // OFFSET: 0x004847A0
 void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
-    CGxTex* gxTex = TextureGetGxTex(texture->m_texture, (texture->m_textureFlags & 1) ? 0 : 2, nullptr);
+    CGxTex* gxTex = TextureGetGxTex(texture->m_texture, (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_NONBLOCKING) ? 0 : 2, nullptr);
 
     if (!gxTex) {
         texture->NotifyDelayedLoad();
@@ -157,7 +157,7 @@ void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
 
     uint32_t flags = texture->m_textureFlags;
 
-    if (flags & 2) {
+    if (flags & CSimpleTexture::TEXTURE_FLAGS::FLAG_TEXCOORDS_DIRTY) {
         C2Vector texCoords[4];
         texture->GetTexCoord(texCoords);
 
@@ -166,7 +166,7 @@ void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
         float bottom = texture->m_positions[1].y;
         float top = texture->m_positions[0].y;
 
-        if (flags & 4) {
+        if (flags & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE) {
             uint32_t width = gxTex->m_width;
             float ndcWidth = DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * (right - left));
 
@@ -189,7 +189,7 @@ void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
             }
         }
 
-        if (texture->m_textureFlags & 8) {
+        if (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE) {
             uint32_t height = gxTex->m_height;
             float ndcHeight = DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * (top - bottom));
 
@@ -212,7 +212,7 @@ void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
             }
         }
 
-        texture->m_textureFlags &= ~2u;
+        texture->m_textureFlags &= ~CSimpleTexture::TEXTURE_FLAGS::FLAG_TEXCOORDS_DIRTY;
         texture->m_texCoords[0] = texCoords[0];
         texture->m_texCoords[1] = texCoords[1];
         texture->m_texCoords[2] = texCoords[2];

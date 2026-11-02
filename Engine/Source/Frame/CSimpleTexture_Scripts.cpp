@@ -388,7 +388,7 @@ static int32_t Script_SetNonBlocking(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
     uint32_t nonBlocking = StringToBOOL(L, 2, 1) != 0;
 
-    texture->m_textureFlags ^= (texture->m_textureFlags ^ nonBlocking) & 0x1;
+    texture->m_textureFlags ^= (texture->m_textureFlags ^ nonBlocking) & CSimpleTexture::TEXTURE_FLAGS::FLAG_NONBLOCKING;
     return 0;
 }
 
@@ -397,7 +397,7 @@ static int32_t Script_SetNonBlocking(lua_State* L) {
 static int32_t Script_GetNonBlocking(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    if (texture->m_textureFlags & 0x1) {
+    if (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_NONBLOCKING) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -411,7 +411,7 @@ static int32_t Script_GetNonBlocking(lua_State* L) {
 static int32_t Script_SetHorizTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 2)) & 0x4;
+    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 2)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE;
     return 0;
 }
 
@@ -420,7 +420,7 @@ static int32_t Script_SetHorizTile(lua_State* L) {
 static int32_t Script_GetHorizTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    if (texture->m_textureFlags & 0x4) {
+    if (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -434,7 +434,7 @@ static int32_t Script_GetHorizTile(lua_State* L) {
 static int32_t Script_SetVertTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 3)) & 0x8;
+    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 3)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE;
     return 0;
 }
 
@@ -443,7 +443,7 @@ static int32_t Script_SetVertTile(lua_State* L) {
 static int32_t Script_GetVertTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    if (texture->m_textureFlags & 0x8) {
+    if (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
