@@ -104,6 +104,7 @@
 #endif
 
 // Spell timing and range constants from the native 3.3.5 paths.
+constexpr int32_t SPELL_REAGENT_USES_UNSET = 0x7FFFFFFF;
 constexpr int32_t SPELL_DEFAULT_WEAPON_DELAY_MS = 2000;
 constexpr int32_t SPELL_ARENA_COOLDOWN_LIMIT_MS = 900000;
 constexpr int32_t SPELL_HISTORY_CLEANUP_INTERVAL_MS = 120000;
@@ -3134,12 +3135,12 @@ int32_t Spell_C_GetSpellReagentUses(const SpellRec* spell) {
         return 0;
     }
 
-    int32_t uses = 0x7FFFFFFF;
+    int32_t uses = SPELL_REAGENT_USES_UNSET;
 
     for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         int32_t reagent = spell->m_reagent[i];
 
-        if (reagent != -2 && reagent && spell->m_reagentCount[i] > 0) {
+        if (reagent != SPELL_REAGENT_UNKNOWN_MINUS_2 && reagent && spell->m_reagentCount[i] > 0) {
             int32_t count = player->GetBag()->GetItemTypeCount(reagent, 0) / spell->m_reagentCount[i];
 
             if (count < uses) {
@@ -3148,7 +3149,7 @@ int32_t Spell_C_GetSpellReagentUses(const SpellRec* spell) {
         }
     }
 
-    return uses == 0x7FFFFFFF ? 0 : uses;
+    return uses == SPELL_REAGENT_USES_UNSET ? 0 : uses;
 }
 
 // VERIFY: 1bbeb20f auto
@@ -5288,7 +5289,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         return;
     }
 
-    if (spell->m_id == 2584) {
+    if (spell->m_id == SPELL_ID_WAITING_TO_RESURRECT) {
         FrameScript_SignalEvent(SCRIPT_EVENT_AREA_SPIRIT_HEALER_OUT_OF_RANGE, nullptr);
     }
 
@@ -6598,7 +6599,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
 
         case SPELL_FAILED_REAGENTS:
         case SPELL_FAILED_TOTEMS: {
-            if (reason == SPELL_FAILED_REAGENTS && misc1 == -2) {
+            if (reason == SPELL_FAILED_REAGENTS && misc1 == SPELL_REAGENT_UNKNOWN_MINUS_2) {
                 error = static_cast<UIErrors>(0);
                 text[0] = 0;
                 message = text;

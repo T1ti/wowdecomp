@@ -4681,7 +4681,7 @@ void CGGameUI::CastSpiritHealSpell() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(2584, &spell) && player) {
+    if (g_spellDB.GetRecord(SPELL_ID_WAITING_TO_RESURRECT, &spell) && player) {
         Spell_C_CancelAura(&spell, player, -1);
     }
 }

@@ -224,12 +224,15 @@
     },
     {
       "id": 17,
-      "state": "pending",
+      "state": "done",
       "values": "2584",
       "description": "Specific spell ID in Spell_C_CancelAura; identify using 3.3.5 spell data before naming.",
       "original_lines": [
         5272
-      ]
+      ],
+      "evidence": "Native 0x00803281 compares spell ID with 2584 and signals AREA_SPIRIT_HEALER_OUT_OF_RANGE; 0x0051F749 requests the same record.",
+      "reference": "https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Battlegrounds/Battleground.h",
+      "notes": "Named Waiting to Resurrect ID in both client consumers; source value equivalence and Win32/x64 syntax passed."
     },
     {
       "id": 18,
@@ -817,23 +820,26 @@
     },
     {
       "id": 68,
-      "state": "pending",
+      "state": "done",
       "values": "-2",
       "description": "Special reagent entry; identify the currency/reagent sentinel before naming.",
       "original_lines": [
         3123,
         6582
-      ]
+      ],
+      "notes": "Named SPELL_REAGENT_UNKNOWN_MINUS_2 at the use-count skip and reagent-failure suppression. The underlying DBC meaning remains explicitly unknown; no currency/reagent interpretation was invented."
     },
     {
       "id": 69,
-      "state": "pending",
+      "state": "done",
       "values": "0x7FFFFFFF",
       "description": "Initial minimum-use count sentinel; use numeric_limits<int32_t>::max() or a named sentinel.",
       "original_lines": [
         3118,
         3132
-      ]
+      ],
+      "evidence": "Native 0x007FFA60 initializes the minimum count to 0x7FFFFFFF; 0x007FFAAA tests that same sentinel.",
+      "notes": "Named the unset-use-count sentinel while preserving int32_t and the existing minimum/fallback expressions."
     },
     {
       "id": 70,

@@ -26,6 +26,16 @@ constexpr int32_t NUM_SPELL_CLASS_MASK_BITS = NUM_SPELL_CLASS_MASK_WORDS * SPELL
 constexpr int32_t NUM_SPELL_SHAPESHIFT_MASK_WORDS = 2;
 constexpr int32_t NUM_SPELL_SHAPESHIFT_FORMS = NUM_SPELL_SHAPESHIFT_MASK_WORDS * SPELL_MASK_BITS_PER_WORD;
 
+// Special IDs referenced directly by native client behavior.
+// TrinityCore 3.3.5 Battleground.h identifies 2584 as Waiting to Resurrect.
+constexpr int32_t SPELL_ID_WAITING_TO_RESURRECT = 2584;
+
+// Native reagent sentinel: skipped by use counting and reagent failure text.
+// Its underlying data meaning has not been established; it is not called unused.
+enum SPELL_REAGENT_SENTINEL : int32_t {
+    SPELL_REAGENT_UNKNOWN_MINUS_2 = -2,
+};
+
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
 constexpr int32_t NUM_SPELL_REAGENTS = 8;
