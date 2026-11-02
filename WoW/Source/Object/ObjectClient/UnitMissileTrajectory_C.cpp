@@ -793,30 +793,30 @@ static float ComputeTrajectoryImpact(const C3Vector* start, const C3Vector* delt
 // OFFSET: 0x006FC4A0
 float CMissileCollision::ComputeUnitRank(CGUnit_C* unit) {
     if (unit->m_obj->m_type & TYPE_PLAYER) {
-        int32_t mode = this->m_missile->m_flags & 0xC;
+        int32_t mode = this->m_missile->m_flags & SPELL_MISSILE_FLAG_PLAYER_COLLISION_MASK;
 
         if (!mode) {
             return -1.0f;
         }
 
-        if (mode != 0xC) {
+        if (mode != SPELL_MISSILE_FLAG_PLAYER_COLLISION_MASK) {
             CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (!mover || !(mode & 0x4) != !mover->CanAttack(unit)) {
+            if (!mover || !(mode & SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_PLAYERS) != !mover->CanAttack(unit)) {
                 return -1.0f;
             }
         }
     } else {
-        int32_t mode = this->m_missile->m_flags & 0x30;
+        int32_t mode = this->m_missile->m_flags & SPELL_MISSILE_FLAG_CREATURE_COLLISION_MASK;
 
         if (!mode || !unit->m_creatureCacheEntry || !(unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES)) {
             return -1.0f;
         }
 
-        if (mode != 0x30) {
+        if (mode != SPELL_MISSILE_FLAG_CREATURE_COLLISION_MASK) {
             CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (!mover || !(mode & 0x10) != !mover->CanAttack(unit)) {
+            if (!mover || !(mode & SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_CREATURES) != !mover->CanAttack(unit)) {
                 return -1.0f;
             }
         }
@@ -1206,7 +1206,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
         spheres[i].r = 0.0f;
     }
 
-    if (preview && (missile->m_flags & 0x3C)) {
+    if (preview && (missile->m_flags & SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK)) {
         CMissileCollision collision;
         C3Vector travel;
         travel.x = velocity.x * steps;

@@ -7,8 +7,23 @@
 class SFileImpl;
 
 // SpellMissile.dbc flags; separate from CMissile's runtime flags.
+// UNKNOWN means the 3.3.5 meaning is unresolved, not that the bit is unused.
+// Collision names describe CMissileCollision::ComputeUnitRank (0x006FC4A0):
+// attackability is tested against the active mover, not necessarily the caster.
 enum SPELL_MISSILE_FLAGS : int32_t {
     SPELL_MISSILE_FLAG_TRAJECTORY = 0x1,
+    SPELL_MISSILE_FLAG_UNKNOWN_1 = 0x2,
+    SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_PLAYERS = 0x4,
+    SPELL_MISSILE_FLAG_COLLIDE_WITH_NON_ATTACKABLE_PLAYERS = 0x8,
+    SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_CREATURES = 0x10,
+    SPELL_MISSILE_FLAG_COLLIDE_WITH_NON_ATTACKABLE_CREATURES = 0x20,
+
+    SPELL_MISSILE_FLAG_PLAYER_COLLISION_MASK = SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_PLAYERS
+        | SPELL_MISSILE_FLAG_COLLIDE_WITH_NON_ATTACKABLE_PLAYERS,
+    SPELL_MISSILE_FLAG_CREATURE_COLLISION_MASK = SPELL_MISSILE_FLAG_COLLIDE_WITH_ATTACKABLE_CREATURES
+        | SPELL_MISSILE_FLAG_COLLIDE_WITH_NON_ATTACKABLE_CREATURES,
+    SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK = SPELL_MISSILE_FLAG_PLAYER_COLLISION_MASK
+        | SPELL_MISSILE_FLAG_CREATURE_COLLISION_MASK,
 };
 
 class SpellMissileRec {
@@ -18,7 +33,7 @@ class SpellMissileRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags;
+    /* 0004 */ int32_t m_flags; // SPELL_MISSILE_FLAGS
     /* 0008 */ float m_defaultPitchMin;
     /* 000C */ float m_defaultPitchMax;
     /* 0010 */ float m_defaultSpeedMin;

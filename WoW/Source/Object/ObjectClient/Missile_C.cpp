@@ -1270,7 +1270,7 @@ void CMissile::InitializeTrajectory() {
         this->m_baseSpeed = newSpeed;
     }
 
-    if ((this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION) && (missile->m_flags & 0x3C)) {
+    if ((this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION) && (missile->m_flags & SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK)) {
         CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
         this->m_missileCollision = CMissileCollision::Alloc();
         CGUnit_C* root = caster && caster->m_vehiclePassenger && caster->m_vehiclePassenger->m_transitionVehicleGuid ? caster->m_vehiclePassenger->GetStoredRootVehicleUnit() : caster;
