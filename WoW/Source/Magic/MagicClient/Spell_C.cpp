@@ -7942,7 +7942,7 @@ static void Spell_C_CreateSpellWorldObject(const GameObjectDisplayInfoRec* displ
     s_spellWorldModel = World::s_m2Scene->CreateModel(display->m_modelName, 0);
 
     if (s_spellWorldModel) {
-        s_spellWorldObject = CMap::ObjectCreate(s_spellWorldModel, Spell_C_UpdateSpellWorldObject, nullptr, 0, 0, 10);
+        s_spellWorldObject = CMap::ObjectCreate(s_spellWorldModel, Spell_C_UpdateSpellWorldObject, nullptr, 0, 0, (MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS));
     }
 }
 

@@ -898,7 +898,7 @@ void BlizzardObject::Init(const C3Vector* position, const char* modelName, float
     transform.d0 = position->x;
     transform.d1 = position->y;
     transform.d2 = position->z;
-    this->m_entity = CMap::ObjectCreate(nullptr, BlizzardObject::WorldObjectRender, this, 0, 0, 0xE);
+    this->m_entity = CMap::ObjectCreate(nullptr, BlizzardObject::WorldObjectRender, this, 0, 0, (MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_ALWAYS_ANIMATE | MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS));
     CAaSphere sphere;
     sphere.r = radius;
     sphere.c = C3Vector(0.0f, 0.0f, 0.0f);

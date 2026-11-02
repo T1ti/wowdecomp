@@ -179,28 +179,28 @@ void CGObject_C::AddWorldObject() {
     uint32_t flags = 0;
 
     if (this->m_obj->m_type & TYPE_GAMEOBJECT) {
-        flags = 11;
+        flags = (MAP_OBJECT_CREATE_FLAG_COLLIDABLE | MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS);
     } else if (this->m_obj->m_type & TYPE_DYNAMICOBJECT) {
-        flags = 10;
+        flags = (MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS);
     } else if (this->m_obj->m_type & TYPE_CORPSE) {
         if (static_cast<CGCorpse_C*>(this)->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) {
-            flags = 2;
+            flags = MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW;
         }
     } else if (this->m_obj->m_type & TYPE_UNIT) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(this);
 
         if (unit->IsLinkAll()) {
-            flags = 8;
+            flags = MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS;
         }
 
         if (unit->HasNoShadowBlob()) {
-            flags |= 0x2;
+            flags |= MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW;
         }
 
-        flags |= 0x10;
+        flags |= MAP_OBJECT_CREATE_FLAG_USE_CHARACTER_AMBIENT;
 
         if (this->m_obj->m_type & TYPE_PLAYER) {
-            flags |= 0x20;
+            flags |= MAP_OBJECT_CREATE_FLAG_UNKNOWN_5;
         }
     }
 

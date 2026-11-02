@@ -607,12 +607,14 @@
     },
     {
       "id": 48,
-      "state": "pending",
+      "state": "done",
       "values": "10",
       "description": "CMap::ObjectCreate final argument; inspect its parameter contract before naming.",
       "original_lines": [
         7915
-      ]
+      ],
+      "evidence": "Native CMap::ObjectCreate at 0x00781A10 extracts allocation bit 3, translates input bits 0/1/2/3/4 into the static flag word, and separately tests bit 5.",
+      "notes": "Named the creation-input flags and decomposed cursor mask 10 into NO_BLOB_SHADOW | LINK_MULTIPLE_WMO_GROUPS. Also updated related object, missile and blizzard producers and the existing translator. Input bit 5 remains UNKNOWN_5; its separate runtime effect is not assigned a speculative meaning. Win32/x64 syntax and source equivalence passed."
     },
     {
       "id": 49,

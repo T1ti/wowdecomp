@@ -1811,7 +1811,7 @@ void CMissile::CalcPosition(int32_t advance) {
         }
 
         if (!this->m_mapEntity && (this->m_model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
-            this->m_mapEntity = CMap::ObjectCreate(this->m_model, &CGWorldFrame::MissileEnumProc, nullptr, 0, reinterpret_cast<uintptr_t>(this), 6);
+            this->m_mapEntity = CMap::ObjectCreate(this->m_model, &CGWorldFrame::MissileEnumProc, nullptr, 0, reinterpret_cast<uintptr_t>(this), (MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_ALWAYS_ANIMATE));
         }
 
         CAaBox box;

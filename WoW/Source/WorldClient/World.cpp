@@ -1070,7 +1070,7 @@ uint64_t World::QueryObjectParentParam64(CMapBaseObj* object) {
 // VERIFY: 75ab3dc4 manual
 // OFFSET: 0x00781A10
 CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* funcParam, uint64_t param64, uintptr_t param32, uint32_t flags) {
-    CMapEntity* entity = CMap::AllocEntity((flags >> 3) & 0x1);
+    CMapEntity* entity = CMap::AllocEntity((flags >> MAP_OBJECT_CREATE_MULTIPLE_GROUPS_SHIFT) & 0x1);
     entity->m_model = model;
     entity->m_funcParam64 = param64;
     entity->m_funcParam32 = param32;
@@ -1084,7 +1084,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->m_func = nullptr;
     entity->unused_00B4 = 0;
 
-    if (flags & 0x20) {
+    if (flags & MAP_OBJECT_CREATE_FLAG_UNKNOWN_5) {
         entity->m_flags = static_cast<MapObjFlag>(0x20000);
     }
 
