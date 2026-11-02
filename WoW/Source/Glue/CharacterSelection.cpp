@@ -152,9 +152,9 @@ void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
     CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[1], MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL2);
     CGlueMgr::ProcessAttachment(model, kitRec->m_specialEffect[2], MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_SPECIAL3);
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUAL_CHAR_PROCS; i++) {
         switch (kitRec->m_charProc[i]) {
-            case 1: {
+            case SPELL_VISUAL_CHAR_PROC_COLOR_TINT: {
                 CImVector color;
                 *reinterpret_cast<uint32_t*>(&color) = static_cast<uint32_t>(kitRec->m_charParamZero[i]) | 0xFF000000;
                 model->m_diffuseTintR = color.r * (1.0f / 255.0f);
@@ -163,7 +163,7 @@ void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
                 break;
             }
 
-            case 14: {
+            case SPELL_VISUAL_CHAR_PROC_ALPHA: {
                 float alpha = kitRec->m_charParamZero[i];
 
                 if (alpha < 0.0f) {

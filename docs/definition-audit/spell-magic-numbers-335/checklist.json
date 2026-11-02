@@ -577,12 +577,14 @@
     },
     {
       "id": 46,
-      "state": "pending",
+      "state": "done",
       "values": "0, 12",
       "description": "SpellVisualKitRec::m_charProc chain-effect discriminator.",
       "original_lines": [
         4707
-      ]
+      ],
+      "evidence": "Native 0x007FE470 recognizes char-proc IDs 0 and 12; both reach chain-lightning creation at 0x007265C0. Zero is a valid chain effect, not a NONE sentinel.",
+      "notes": "Named procedural-effect IDs and the independent four-slot count in the record, spell detection, character selection, unit dispatch and dynamic-object blizzard creation. Unresolved IDs remain UNKNOWN. Win32/x64 syntax and value-equivalence passed."
     },
     {
       "id": 47,

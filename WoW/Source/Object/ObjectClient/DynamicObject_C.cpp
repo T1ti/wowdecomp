@@ -352,8 +352,8 @@ void CGDynamicObject_C::ObjectVisKitProc() {
         return;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
-        if (kit->m_charProc[i] == 9) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUAL_CHAR_PROCS; i++) {
+        if (kit->m_charProc[i] == SPELL_VISUAL_CHAR_PROC_BLIZZARD) {
             uint8_t density = static_cast<uint8_t>(static_cast<int32_t>(kit->m_charParamZero[i]));
             C3Vector position = this->GetRawPosition();
             this->m_blizzardVisual = SpellVisualsBlizzardCreate(&position, this->m_dynamicObject->m_radius, this->m_dynamicObject->m_spellID, density, kit->m_charParamOne[i]);

@@ -4723,7 +4723,7 @@ void Spell_C_AddPendingItemCooldown(int32_t itemId, int32_t spellId, uint32_t ti
 // OFFSET: 0x007FE470
 static bool SpellVisualKitHasChainEffect(const SpellVisualKitRec* kit) {
     for (uint32_t i = 0; i < sizeof(kit->m_charProc) / sizeof(kit->m_charProc[0]); i++) {
-        if (!kit->m_charProc[i] || kit->m_charProc[i] == 12) {
+        if (!kit->m_charProc[i] || kit->m_charProc[i] == SPELL_VISUAL_CHAR_PROC_CHAIN_LIGHTNING_12) {
             return true;
         }
     }

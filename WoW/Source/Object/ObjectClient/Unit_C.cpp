@@ -16675,8 +16675,8 @@ store:
         return;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
-        if (kit->m_charProc[i] == 11 && !this->m_worldModel->IsLoaded(0, 0)) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUAL_CHAR_PROCS; i++) {
+        if (kit->m_charProc[i] == SPELL_VISUAL_CHAR_PROC_UNKNOWN_11 && !this->m_worldModel->IsLoaded(0, 0)) {
             this->m_pendingModelAuraSpellId = spell->m_id;
             goto handItems;
         }
@@ -20972,15 +20972,15 @@ void CGUnit_C::UpdatePartyMemberPetState() {
 void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRec* visual, const SpellVisualKitRec* kit, int32_t expireTime, uint32_t flags, WOWGUID guid) {
     uint32_t spellId = spell ? spell->m_id : 0;
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUAL_CHAR_PROCS; i++) {
         float param0 = kit->m_charParamZero[i];
         float param1 = kit->m_charParamOne[i];
         float param2 = kit->m_charParamTwo[i];
         float param3 = kit->m_charParamThree[i];
 
         switch (kit->m_charProc[i]) {
-            case 0:
-            case 12: {
+            case SPELL_VISUAL_CHAR_PROC_CHAIN_LIGHTNING:
+            case SPELL_VISUAL_CHAR_PROC_CHAIN_LIGHTNING_12: {
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
@@ -21039,7 +21039,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 1: {
+            case SPELL_VISUAL_CHAR_PROC_COLOR_TINT: {
                 if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
@@ -21053,20 +21053,20 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 6: {
+            case SPELL_VISUAL_CHAR_PROC_ECLIPSE: {
                 CImVector color;
                 *reinterpret_cast<uint32_t*>(&color) = static_cast<uint32_t>(static_cast<int64_t>(param0)) | 0xFF000000;
                 SpellVisualsHandleEclipse(&color, param1, spell);
                 break;
             }
 
-            case 8: {
+            case SPELL_VISUAL_CHAR_PROC_WEAPON_TRAIL: {
                 this->m_pendingWeaponTrail[0] = (static_cast<int32_t>(param3) << 24) | static_cast<int32_t>(param0);
                 this->m_pendingWeaponTrail[1] = static_cast<int32_t>(param2);
                 break;
             }
 
-            case 11: {
+            case SPELL_VISUAL_CHAR_PROC_UNKNOWN_11: {
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
@@ -21075,7 +21075,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 13: {
+            case SPELL_VISUAL_CHAR_PROC_FLASH_COLOR: {
                 if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
@@ -21090,7 +21090,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 14: {
+            case SPELL_VISUAL_CHAR_PROC_ALPHA: {
                 this->ReleaseAurasBySpell(spellId);
 
                 if (param0 >= 0.0f && param0 <= 1.0f) {
@@ -21113,7 +21113,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 15: {
+            case SPELL_VISUAL_CHAR_PROC_PROCEDURAL_FADE: {
                 uint8_t alpha = static_cast<uint8_t>(FloatToInt64(this->GetBaseAlpha() * param0));
                 int32_t endAlpha = FloatToInt64(param2);
                 int32_t hold = FloatToInt64(param3);
@@ -21122,7 +21122,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 16: {
+            case SPELL_VISUAL_CHAR_PROC_MOUNT_TRANSITION: {
                 if (this->IsMounted() || this->m_mountModel) {
                     break;
                 }
@@ -21136,7 +21136,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                 break;
             }
 
-            case 17: {
+            case SPELL_VISUAL_CHAR_PROC_UNKNOWN_17: {
                 void* mem = SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0);
                 CEffect* effect = mem ? new (mem) CEffect() : nullptr;
                 WOWGUID self = this->m_obj->m_guid;
