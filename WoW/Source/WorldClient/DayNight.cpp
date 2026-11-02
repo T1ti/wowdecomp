@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include "WoW/Source/WorldClient/DayNight__DNInfo.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
 #include <cmath>
@@ -2443,7 +2444,7 @@ void DayNight::DNClouds::GenSphere(float radius) {
             texCoords->y = cosPhi * texRadius + 0.5f;
             texCoords++;
 
-            if (top || CMath::fequal(theta, 6.2831855f) || ++i >= 16) {
+            if (top || CMath::fequal(theta, TWO_PI) || ++i >= 16) {
                 break;
             }
 
@@ -2452,7 +2453,7 @@ void DayNight::DNClouds::GenSphere(float radius) {
 
         if (row) {
             bool prevPole = CMath::fequal(prevTheta, 0.0f);
-            bool pole = CMath::fequal(theta, 6.2831855f);
+            bool pole = CMath::fequal(theta, TWO_PI);
 
             for (uint32_t i = 0; i < 17; i++) {
                 *indices++ = (prevPole ? 0 : i & 0xF) + prevRowStart;
@@ -2491,7 +2492,7 @@ void DayNight::DNSky::GenSphere(float sphRadius) {
         bool top = CMath::fequal(theta, 0.0f);
 
         for (int32_t i = 0; ; ) {
-            float angle = i * 0.041666668f * 6.2831855f;
+            float angle = i * 0.041666668f * TWO_PI;
             verts->x = sinf(angle) * sinTheta * sphRadius;
             verts->y = sinTheta * cosf(angle) * sphRadius;
             verts->z = z;
@@ -2836,7 +2837,7 @@ void DayNight::UpdateLighting() {
     info.m_faceAngle = angle;
 
     if (angle < 0.0f) {
-        info.m_faceAngle = angle + 6.2831855f;
+        info.m_faceAngle = angle + TWO_PI;
     }
 
     float storm = info.m_weatherIntensity * 4.0f;

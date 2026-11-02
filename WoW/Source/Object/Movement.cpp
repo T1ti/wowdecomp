@@ -195,7 +195,7 @@ ClipPolygon::ClipPolygon(const ClipPolygon& source) {
 // OFFSET: 0x006E9290
 void CMovement_C::WrapFacingToRange(float& facing, float min, float max) {
     while (min > facing) {
-        facing = facing + 6.2831855f;
+        facing = facing + TWO_PI;
     }
 
     if (max > facing) {
@@ -207,7 +207,7 @@ void CMovement_C::WrapFacingToRange(float& facing, float min, float max) {
 
     do {
         previous = wrapped;
-        wrapped = previous - 6.2831855f;
+        wrapped = previous - TWO_PI;
     } while (wrapped > max);
 
     facing = wrapped;

@@ -84,11 +84,11 @@ void CVehiclePassenger_C::UpdateSmoothFacing() {
     this->m_targetFacing = this->m_unit->GetFacing();
 
     while (this->m_targetFacing + 3.1415927f < this->m_smoothFacing) {
-        this->m_targetFacing = this->m_targetFacing + 6.2831855f;
+        this->m_targetFacing = this->m_targetFacing + TWO_PI;
     }
 
     while (this->m_targetFacing - 3.1415927f > this->m_smoothFacing) {
-        this->m_targetFacing = this->m_targetFacing - 6.2831855f;
+        this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 
     this->m_smoothFacing = (1.0f - this->m_facingBlend) * this->m_startFacing + this->m_targetFacing * this->m_facingBlend;
@@ -1676,11 +1676,11 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
     this->m_targetFacing = this->m_unit->GetFacing();
 
     while (this->m_targetFacing + 3.1415927f < this->m_smoothFacing) {
-        this->m_targetFacing = this->m_targetFacing + 6.2831855f;
+        this->m_targetFacing = this->m_targetFacing + TWO_PI;
     }
 
     while (this->m_targetFacing - 3.1415927f > this->m_smoothFacing) {
-        this->m_targetFacing = this->m_targetFacing - 6.2831855f;
+        this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 
     this->ComputeEndPos(vehicle, seatRec, endPosition);

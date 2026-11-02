@@ -777,14 +777,16 @@
     },
     {
       "id": 64,
-      "state": "pending",
+      "state": "done",
       "values": "1.5707964f, 6.2831855f",
       "description": "Quarter turn and full turn in radians; use the project math constants with matching precision.",
       "original_lines": [
         2845,
         2847,
         2848
-      ]
+      ],
+      "evidence": "Native cursor rotation 0x007FD800 reads HALF_PI at 0x009E8D88 (bits 0x3FC90FDB) and TWO_PI at 0x009F193C (bits 0x40C90FDB).",
+      "notes": "Added HALF_PI beside existing PI/TWO_PI using the exact original float literal. Reused these at all matching float-literal consumers; no double constants, fractions, arithmetic order or casts changed. Source equivalence and all affected Win32/x64 translation units passed."
     },
     {
       "id": 65,

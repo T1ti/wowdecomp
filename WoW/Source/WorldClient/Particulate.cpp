@@ -176,7 +176,7 @@ C3Vector Particulate::ComputeMovement(float elapsed) {
         phase = 0.0f;
     }
 
-    float amount = CMath::sin_(phase * 6.2831855f) * this->m_rotationSpeed;
+    float amount = CMath::sin_(phase * TWO_PI) * this->m_rotationSpeed;
     return C3Vector(this->m_direction.x * amount, this->m_direction.y * amount, amount * this->m_direction.z);
 }
 

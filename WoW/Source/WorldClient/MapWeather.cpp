@@ -600,7 +600,7 @@ void Weather::Update() {
                 this->m_facing = angle;
 
                 if (angle < 0.0f) {
-                    this->m_facing = angle + 6.2831855f;
+                    this->m_facing = angle + TWO_PI;
                 }
             }
 

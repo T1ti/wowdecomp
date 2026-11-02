@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include "DetailDoodad.h"
 #include <cmath>
 #include "Engine/Source/Base/Handle.h"
@@ -617,7 +618,7 @@ int32_t CDetailDoodad::InitializeRenderState() {
     C44Matrix matrix;
     float dist = CWorld::detailDoodadDist;
     matrix.Scale(1.0f / (dist * 0.15f));
-    matrix.RotateAroundY(1.5707964f);
+    matrix.RotateAroundY(HALF_PI);
     matrix.Translate(C3Vector(0.0f, 0.0f, dist * -0.85f));
 
     CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_Tex1];

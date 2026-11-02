@@ -192,7 +192,7 @@ void Rain::InitDrop(RainDropParticle* drop, float time) {
     drop->m_position.z = offset.z - t * drop->m_velocity.z;
     Weather* weather = World::s_weather;
     C3Vector axis(0.0f, 0.0f, 0.0f);
-    CMath::sincos_(weather->m_facing - 1.5707964f, &axis.y, &axis.x);
+    CMath::sincos_(weather->m_facing - HALF_PI, &axis.y, &axis.x);
     float tilt = weather->m_speed * 0.055555556f;
 
     if (tilt < 0.0f) {

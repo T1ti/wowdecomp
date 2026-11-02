@@ -54,11 +54,11 @@ static void WaveTexCallback(EGxTexCommand command, uint32_t width, uint32_t heig
 
                 for (uint32_t y = 0; y < 128; y++) {
                     for (uint32_t x = 0; x < 128; x++) {
-                        float u = CMath::sin_(x / 128.0f * 6.2831855f) * 128.0f;
+                        float u = CMath::sin_(x / 128.0f * TWO_PI) * 128.0f;
                         u = u < -128.0f ? -128.0f : (u < 127.0f ? u : 127.0f);
                         int8_t du = static_cast<int8_t>(u);
 
-                        float v = CMath::sin_(y / 128.0f * 6.2831855f) * 128.0f;
+                        float v = CMath::sin_(y / 128.0f * TWO_PI) * 128.0f;
                         v = v < -128.0f ? -128.0f : (v < 127.0f ? v : 127.0f);
                         int8_t dv = static_cast<int8_t>(v);
 
@@ -73,10 +73,10 @@ static void WaveTexCallback(EGxTexCommand command, uint32_t width, uint32_t heig
 
                 for (uint32_t y = 0; y < 128; y++) {
                     for (uint32_t x = 0; x < 128; x++) {
-                        float u = (CMath::sin_(x / 128.0f * 6.2831855f) * 0.5f + 0.5f) * 255.0f;
+                        float u = (CMath::sin_(x / 128.0f * TWO_PI) * 0.5f + 0.5f) * 255.0f;
                         u = u < 0.0f ? 0.0f : (u < 255.0f ? u : 255.0f);
 
-                        float v = (CMath::sin_(y / 128.0f * 6.2831855f) * 0.5f + 0.5f) * 255.0f;
+                        float v = (CMath::sin_(y / 128.0f * TWO_PI) * 0.5f + 0.5f) * 255.0f;
                         v = v < 0.0f ? 0.0f : (v < 255.0f ? v : 255.0f);
 
                         color.r = static_cast<uint8_t>(u);

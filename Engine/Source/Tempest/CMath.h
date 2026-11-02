@@ -6,6 +6,7 @@
 #include <cstdint>
 
 static const float PI = 3.1415927f;
+static const float HALF_PI = 1.5707964f;
 static const float TWO_PI = 6.2831855f;
 
 enum : uint32_t {

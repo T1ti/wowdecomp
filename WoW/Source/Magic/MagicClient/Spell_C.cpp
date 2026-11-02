@@ -2871,10 +2871,10 @@ int32_t Packet_SMSG_FEIGN_DEATH_RESISTED(void* param, NETMESSAGE msgId, uint32_t
 // VERIFY: ff87ae53 auto
 // OFFSET: 0x007FD800
 void Spell_C_CursorWorldObjectRotate() {
-    s_cursorWorldObjectFacing = s_cursorWorldObjectFacing + 1.5707964f;
+    s_cursorWorldObjectFacing = s_cursorWorldObjectFacing + HALF_PI;
 
-    if (s_cursorWorldObjectFacing >= 6.2831855f) {
-        s_cursorWorldObjectFacing = s_cursorWorldObjectFacing - 6.2831855f;
+    if (s_cursorWorldObjectFacing >= TWO_PI) {
+        s_cursorWorldObjectFacing = s_cursorWorldObjectFacing - TWO_PI;
     }
 }
 

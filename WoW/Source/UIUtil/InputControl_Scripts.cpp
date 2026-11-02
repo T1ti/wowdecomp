@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include "InputControl.h"
 #include "WoW/Source/Object/Types.h"
 #include <cstdint>
@@ -625,8 +626,8 @@ static int32_t Script_VehicleAimGetNormAngle(lua_State* L) {
         pitchMin = rec->m_pitchMin;
         pitchMax = rec->m_pitchMax;
     } else {
-        pitchMin = -1.5707964f;
-        pitchMax = 1.5707964f;
+        pitchMin = -HALF_PI;
+        pitchMax = HALF_PI;
     }
 
     float range = pitchMax - pitchMin;
@@ -679,8 +680,8 @@ static int32_t Script_VehicleAimRequestNormAngle(lua_State* L) {
             pitchMin = rec->m_pitchMin;
             pitchMax = rec->m_pitchMax;
         } else {
-            pitchMin = -1.5707964f;
-            pitchMax = 1.5707964f;
+            pitchMin = -HALF_PI;
+            pitchMax = HALF_PI;
         }
 
         inputControl->SetPlayerPitch(unit, time, static_cast<float>(value * (pitchMax - pitchMin) + pitchMin));

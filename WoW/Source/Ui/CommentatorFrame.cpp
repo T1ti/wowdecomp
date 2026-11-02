@@ -116,8 +116,8 @@ void CGCommentator::Init() {
     this->m_mapID = 0;
     this->m_pitch = 0.0f;
     this->m_distance = 12.0f;
-    this->m_fov = 1.5707964f;
-    this->m_targetFov = 1.5707964f;
+    this->m_fov = HALF_PI;
+    this->m_targetFov = HALF_PI;
     this->m_moveSpeed = 10.0f;
     this->m_targetHeightOffset = 0.0f;
     this->m_key.unk_0004 = 13;

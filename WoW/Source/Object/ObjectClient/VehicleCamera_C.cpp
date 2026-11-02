@@ -697,12 +697,12 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
 
     if (oldTarget > this->m_targetFacing + 3.1415927f) {
         do {
-            this->m_targetFacing = this->m_targetFacing + 6.2831855f;
+            this->m_targetFacing = this->m_targetFacing + TWO_PI;
         } while (this->m_targetFacing + 3.1415927f < oldTarget);
     }
 
     while (this->m_targetFacing - 3.1415927f > oldTarget) {
-        this->m_targetFacing = this->m_targetFacing - 6.2831855f;
+        this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 
     float elapsed = static_cast<float>(time - this->m_lastUpdateTime) * 0.001f;
@@ -738,11 +738,11 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
                 float chase = this->m_targetFacing;
 
                 while (chase + 3.1415927f < this->m_rawFacingChaser.m_value) {
-                    chase = chase + 6.2831855f;
+                    chase = chase + TWO_PI;
                 }
 
                 while (chase - 3.1415927f > this->m_rawFacingChaser.m_value) {
-                    chase = chase - 6.2831855f;
+                    chase = chase - TWO_PI;
                 }
 
                 float rate = 1.0f / (0.001f + this->m_transitionDuration * 0.001f) * 4.0f + 1.0f / ((1.0f - progress) * (1.0f - progress));

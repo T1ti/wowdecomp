@@ -453,7 +453,7 @@ void PassNetherBlur::Execute() {
     float angle = static_cast<float>(acos(x));
 
     if (y < 0.0f) {
-        angle = 6.2831855f - angle;
+        angle = TWO_PI - angle;
     }
 
     angle = static_cast<float>(cos(s_netherBlurPhase) * 0.5f + angle);

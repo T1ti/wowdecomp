@@ -2934,12 +2934,12 @@ void CGPlayer_C::PostReenable() {
 // VERIFY: 46563e0e auto
 // OFFSET: 0x006CF3A0
 static float ClampPitch(float pitch) {
-    if (pitch > 1.5707964f) {
-        return 1.5707964f;
+    if (pitch > HALF_PI) {
+        return HALF_PI;
     }
 
-    if (pitch < -1.5707964f) {
-        return -1.5707964f;
+    if (pitch < -HALF_PI) {
+        return -HALF_PI;
     }
 
     return pitch;

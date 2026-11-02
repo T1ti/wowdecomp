@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include "Engine/Source/Tempest/C33Matrix.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -167,14 +168,14 @@ C33Matrix C33Matrix::Rotation(float angle) {
 bool C33Matrix::ToEulerAnglesZYX(float& yaw, float& pitch, float& roll) const {
     if (this->a2 >= 1.0f) {
         yaw = atan2(-this->b0, -this->c0);
-        pitch = -1.5707964f;
+        pitch = -HALF_PI;
         roll = 0.0f;
         return false;
     }
 
     if (this->a2 <= -1.0f) {
         yaw = -atan2(this->b0, this->c0);
-        pitch = 1.5707964f;
+        pitch = HALF_PI;
         roll = 0.0f;
         return false;
     }

@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include "CGCooldown.h"
 #include <cmath>
 #include <new>
@@ -490,7 +491,7 @@ void CGCooldown::AnimateVerts() {
         }
 
         if (this->m_drawEdge) {
-            float angle = elapsed / duration * -6.2831855f;
+            float angle = elapsed / duration * -TWO_PI;
             float c = cos(angle);
             float s = sin(angle);
             float scale = this->m_layoutScale;

@@ -50,7 +50,7 @@ void Snow::InitFlake(SnowFlakeParticle* flake, float time, const C3Vector* origi
     float randomX = CRandom::ufloat_(g_rndSeed);
     C3Vector offset((randomX - 0.5f) * size.x, (randomY - 0.5f) * size.y, size.z * 0.0f);
     float randomAngle = CRandom::ufloat_(g_rndSeed);
-    float angle = (6.2831855f - this->m_intensity * 5.9341197f) * (randomAngle - 0.5f) - 1.5700001f;
+    float angle = (TWO_PI - this->m_intensity * 5.9341197f) * (randomAngle - 0.5f) - 1.5700001f;
     float c = cos(angle);
     float s = sin(angle);
     float baseSpeed = this->m_intensity * 5.9850001f + 0.015f;
@@ -66,7 +66,7 @@ void Snow::InitFlake(SnowFlakeParticle* flake, float time, const C3Vector* origi
     flake->m_position.z = offset.z - t * flake->m_velocity.z;
     Weather* weather = World::s_weather;
     C3Vector axis(0.0f, 0.0f, 0.0f);
-    CMath::sincos_(weather->m_facing - 1.5707964f, &axis.y, &axis.x);
+    CMath::sincos_(weather->m_facing - HALF_PI, &axis.y, &axis.x);
     float tilt = weather->m_speed * 0.055555556f;
 
     if (tilt < 0.0f) {

@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include <cstdint>
 #include "Engine/Source/ComSat/SPIRIT/ipmr.h"
@@ -790,12 +791,12 @@ void SPIRIT_IP_MR_V3_NAME_201(SPIRIT_IPMR_TABLES* tables) {
     }
 
     for (int32_t i = 0; i < 200; i++) {
-        float c = static_cast<float>(cos(i * static_cast<double>(6.2831855f) / 399.0));
+        float c = static_cast<float>(cos(i * static_cast<double>(TWO_PI) / 399.0));
         tables->unk_AA00[i] = 0.54f - c * 0.46f;
     }
 
     for (int32_t i = 0; i < 40; i++) {
-        tables->unk_AA00[200 + i] = static_cast<float>(cos(i * static_cast<double>(6.2831855f) / 159.0));
+        tables->unk_AA00[200 + i] = static_cast<float>(cos(i * static_cast<double>(TWO_PI) / 159.0));
     }
 
     tables->unk_B880[0] = 1.0001f;

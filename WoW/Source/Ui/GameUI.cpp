@@ -1581,7 +1581,7 @@ void CGGameUI::TargetDirection(float facing, float angle, int32_t type) {
     }
 
     CGWorldFrame::GetCameraFacing(&cameraFacing);
-    cameraFacing *= C33Matrix::Rotation(6.2831855f - facing);
+    cameraFacing *= C33Matrix::Rotation(TWO_PI - facing);
 
     TargetDirectionData data;
     data.m_worldFrame = worldFrame;
@@ -5134,12 +5134,12 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
     C3Vector targetPos = unit->GetPosition();
     C3Vector fromPos = searcher->GetPosition();
     float facingTo = CalculateFacingTo(&fromPos, &targetPos);
-    float delta = fmod(facingTo - searcher->GetFacing() + 12.566371f, 6.2831855f);
+    float delta = fmod(facingTo - searcher->GetFacing() + 12.566371f, TWO_PI);
     static float s_coneAngle = 0.52359879f;
     int32_t inFront = 0;
     float maxDistanceSq;
 
-    if (s_coneAngle > delta || 6.2831855f - s_coneAngle < delta) {
+    if (s_coneAngle > delta || TWO_PI - s_coneAngle < delta) {
         maxDistanceSq = TARGET_NEAREST_FRONT_MAX_DISTANCE_SQUARED;
         inFront = 1;
     } else {

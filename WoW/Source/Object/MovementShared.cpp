@@ -21,7 +21,7 @@ float CMovementShared::s_terminalVelocity = 60.148003f;
 float CMovementShared::s_safeFallTerminalVelocity = 7.0f;
 
 // STATIC: 0x00B2D9F0
-float CMovementShared::s_twoPi = 6.2831855f;
+float CMovementShared::s_twoPi = TWO_PI;
 
 // VERIFY: d453c161 auto
 // OFFSET: 0x00986F00
@@ -2220,7 +2220,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
         ClampInPlace(cosAngle, -1.0f, 1.0f);
 
         double angle = target.y * direction.x - direction.y * target.x < 0.0f ? acos(static_cast<double>(cosAngle)) : -acos(static_cast<double>(cosAngle));
-        C33Matrix rotation = C33Matrix::Rotation(fclamp(static_cast<float>(angle + angle), -1.5707964f, 1.5707964f), this->m_moveDir, false);
+        C33Matrix rotation = C33Matrix::Rotation(fclamp(static_cast<float>(angle + angle), -HALF_PI, HALF_PI), this->m_moveDir, false);
         this->m_groundNormal = *reinterpret_cast<C3Vector*>(&frame.c0) * rotation;
     }
 

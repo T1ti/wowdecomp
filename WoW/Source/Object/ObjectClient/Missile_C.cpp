@@ -633,7 +633,7 @@ void CMissile::UpdateImpactPos() {
         float extended = length + this->m_speed * 0.5f;
         C3Vector offset(extended * dir.x, dir.y * extended, extended * dir.z);
         C3Vector axis(-(delta.x * delta.z), delta.z * -delta.y, delta.x * delta.x - delta.y * -delta.y);
-        float angle = sin(CRandom::sfloat_(g_rndSeed) * 1.5707964f) * 0.052359879f;
+        float angle = sin(CRandom::sfloat_(g_rndSeed) * HALF_PI) * 0.052359879f;
         C3Vector rotated = offset * C33Matrix::Rotation(angle, axis, false);
         this->m_impactPos.x = this->m_position.x + rotated.x;
         this->m_impactPos.y = rotated.y + this->m_position.y;
@@ -1192,10 +1192,10 @@ void CMissile::InitializeTrajectory() {
     float pitch = this->m_pitch;
     C3Vector velocity(0.0f, 0.0f, 0.0f);
 
-    if (pitch > 1.5707964f) {
-        pitch = pitch - (pitch - 1.5707964f) * 2.0f;
-    } else if (pitch < -1.5707964f) {
-        pitch = 2.0f * (-1.5707964f - pitch) + pitch;
+    if (pitch > HALF_PI) {
+        pitch = pitch - (pitch - HALF_PI) * 2.0f;
+    } else if (pitch < -HALF_PI) {
+        pitch = 2.0f * (-HALF_PI - pitch) + pitch;
     }
 
     SpellRec spell;
@@ -1208,10 +1208,10 @@ void CMissile::InitializeTrajectory() {
     if (!result) {
         pitch = (this->m_gravity < 0.0f ? -0.0099999998f : 0.0099999998f) + this->m_pitch;
 
-        if (pitch > 1.5707964f) {
-            pitch = pitch - (pitch - 1.5707964f) * 2.0f;
-        } else if (pitch < -1.5707964f) {
-            pitch = 2.0f * (-1.5707964f - pitch) + pitch;
+        if (pitch > HALF_PI) {
+            pitch = pitch - (pitch - HALF_PI) * 2.0f;
+        } else if (pitch < -HALF_PI) {
+            pitch = 2.0f * (-HALF_PI - pitch) + pitch;
         }
 
         result = SpellUtils_ComputeMissileTrajectory(pitch, &delta, this->m_gravity, &speed, &this->m_travelTime, &velocity);
@@ -1903,7 +1903,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
             effect->AddSpecialByPosition(SPECIALEFFECT_RESISTSPELL, this->m_position, &target->m_obj->m_guid, CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME, &CGObject_C::EffectOnceHandler);
             effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_FIXED_FACING;
             C44Matrix matrix = this->m_model ? this->m_model->m_worldTransform : this->GetPositionMatrix();
-            effect->m_facing = atan2(matrix.b1, matrix.b0) - 1.5707964f;
+            effect->m_facing = atan2(matrix.b1, matrix.b0) - HALF_PI;
             effect->Release();
 
             if (!this->PossiblyHandleBounce()) {
@@ -1923,10 +1923,10 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
 
             if (fnotequal(length, 0.0f) && fnotequal(length, fabs(dir.z))) {
                 dir /= length;
-                C33Matrix first = C33Matrix::Rotation(CRandom::sfloat_(g_rndSeed) * 1.5707964f, dir, true);
+                C33Matrix first = C33Matrix::Rotation(CRandom::sfloat_(g_rndSeed) * HALF_PI, dir, true);
                 C3Vector side(dir.y, -dir.x, 0.0f);
                 side *= first;
-                C33Matrix second = C33Matrix::Rotation(CRandom::sfloat_(g_rndSeed) * 1.5707964f, side, false);
+                C33Matrix second = C33Matrix::Rotation(CRandom::sfloat_(g_rndSeed) * HALF_PI, side, false);
                 dir *= second;
                 float speed = this->m_speed * 0.5f;
                 this->m_speed = speed;

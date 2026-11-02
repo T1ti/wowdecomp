@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include "ProjectTex.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -37,7 +38,7 @@ void ProjectTex2dMakeMatrices(C44Matrix& texMatrix, C44Matrix& fadeMatrix, const
     }
 
     C44Matrix scale(1.0f / sizeX, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / sizeY, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    C44Matrix spin = C44Matrix::Rotation(-1.5707964f, C3Vector(0.0f, 0.0f, 1.0f), true);
+    C44Matrix spin = C44Matrix::Rotation(-HALF_PI, C3Vector(0.0f, 0.0f, 1.0f), true);
     texMatrix = translation * scale * spin;
 
     if (rotation) {

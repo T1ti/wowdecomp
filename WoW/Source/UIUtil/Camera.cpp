@@ -184,7 +184,7 @@ C3Vector CGCamera::Up() const {
 
 // VERIFY: 6dc11132 auto
 // OFFSET: 0x00606B30
-CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, 1.5707964f) {
+CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_PI) {
     this->m_model = nullptr;
     this->m_someTime = OsGetAsyncTimeMs();
     this->m_modelCameraHandle = nullptr;
@@ -2602,7 +2602,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         }
 
         if (distance < this->m_height && this->m_pitch < fadeAngle) {
-            float scale = (-1.5707964f - this->m_pitch) * -2.604353f;
+            float scale = (-HALF_PI - this->m_pitch) * -2.604353f;
 
             if (fabsf(scale) >= 0.00000023841858f) {
                 fadeStart = fadeStart / (scale * scale);
@@ -3602,7 +3602,7 @@ void CGCamera::RunBobs(C3Vector& offset) {
     frequency = speed * frequency;
     float time = static_cast<float>(OsGetAsyncTimeMs() - this->m_bobTime) * 0.001f;
     float sway = std::sin(time * frequency * TWO_PI) * horizontal;
-    float angle = facing + 1.5707964f;
+    float angle = facing + HALF_PI;
     float c = std::cos(angle);
     float s = std::sin(angle);
     offset.x = c * sway;
@@ -4042,7 +4042,7 @@ void CGCamera::AddShakeOffset(C3Vector& offset, float facing, float amplitude, f
         offset.x = c * value + offset.x;
         offset.y = value * s + offset.y;
     } else if (dir == CAMERA_RIGHT) {
-        float angle = facing + 1.5707964f;
+        float angle = facing + HALF_PI;
         float c = cosf(angle);
         float s = sinf(angle);
         offset.x = c * value + offset.x;

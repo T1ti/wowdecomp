@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include "WoW/Source/Object/Types.h"
 #include <cstdint>
@@ -410,8 +411,8 @@ void CGInputControl::SendUIVehicleAngleUpdate(float angle) {
         pitchMin = rec->m_pitchMin;
         pitchMax = rec->m_pitchMax;
     } else {
-        pitchMin = -1.5707964f;
-        pitchMax = 1.5707964f;
+        pitchMin = -HALF_PI;
+        pitchMax = HALF_PI;
     }
 
     float range = pitchMax - pitchMin;
@@ -754,8 +755,8 @@ void CGInputControl::SetPlayerPitch(CGUnit_C* unit, uint32_t time, float pitch) 
             min = rec->m_pitchMin;
             max = rec->m_pitchMax;
         } else {
-            min = -1.5707964f;
-            max = 1.5707964f;
+            min = -HALF_PI;
+            max = HALF_PI;
         }
 
         if (pitch < min) {

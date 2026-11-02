@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -16,11 +17,11 @@
 static const float DEFAULT_DIST = 100.0f;
 static const float DEFAULT_FARZ = 5000.0f;
 static const float DEFAULT_NEARZ = 8.0f;
-static const float DEFAULT_FOV = 1.5707964f;
+static const float DEFAULT_FOV = HALF_PI;
 static const float DEFAULT_SCREEN_FRUSTUM_LENGTH = 500.0f;
 
 // STATIC: 0x00B4A304
-static float s_inv2Pi = 1.0f / 6.2831855f;
+static float s_inv2Pi = 1.0f / TWO_PI;
 
 // INLINED
 CBaseManaged::CBaseManaged() {
@@ -307,10 +308,10 @@ CCamera* CameraDuplicate(CCamera* source) {
 // VERIFY: 1384d21a auto
 // OFFSET: 0x004C1140
 float CAngle::ClampTo2Pi(float angle) {
-    float turns = static_cast<float>(static_cast<int32_t>(angle * s_inv2Pi)) * 6.2831855f;
+    float turns = static_cast<float>(static_cast<int32_t>(angle * s_inv2Pi)) * TWO_PI;
 
     if (angle < 0.0f) {
-        turns -= 6.2831855f;
+        turns -= TWO_PI;
     }
 
     return angle - turns;

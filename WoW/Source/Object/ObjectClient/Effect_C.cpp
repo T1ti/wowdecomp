@@ -1000,7 +1000,7 @@ void CEffect::ApplyModelAttachRecToMatrix(const SpellVisualKitModelAttachRec* at
     } else {
         float s;
         float c;
-        CMath::sincos_(facing - 1.5707964f, &s, &c);
+        CMath::sincos_(facing - HALF_PI, &s, &c);
         matrix.d0 = c * attach->m_offset[1] + x - attach->m_offset[0] * s;
         matrix.d1 = c * attach->m_offset[0] + s * attach->m_offset[1] + y;
     }

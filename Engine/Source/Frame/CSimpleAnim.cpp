@@ -1,3 +1,4 @@
+#include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -55,11 +56,11 @@ float CSimpleAnimSCurveSmoother::GetSmoothProgress(float progress) {
     }
 
     if (fabsf(this->m_in) >= 0.001f) {
-        return 1.0f - cosf(progress * 1.5707964f);
+        return 1.0f - cosf(progress * HALF_PI);
     }
 
     if (fabsf(this->m_out) >= 0.001f) {
-        return cosf((progress + 1.0f) * 1.5707964f) * -1.0f;
+        return cosf((progress + 1.0f) * HALF_PI) * -1.0f;
     }
 
     return progress;
