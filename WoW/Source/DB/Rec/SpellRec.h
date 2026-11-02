@@ -104,8 +104,8 @@ class SpellRec {
     /* 0024 */ SPELL_ATTR5 m_attributesExE;
     /* 0028 */ SPELL_ATTR6 m_attributesExF;
     /* 002C */ SPELL_ATTR7 m_attributesExG;
-    /* 0030 */ int32_t m_shapeshiftMask [2];
-    /* 0038 */ int32_t m_shapeshiftExclude [2];
+    /* 0030 */ int32_t m_shapeshiftMask [NUM_SPELL_SHAPESHIFT_MASK_WORDS];
+    /* 0038 */ int32_t m_shapeshiftExclude [NUM_SPELL_SHAPESHIFT_MASK_WORDS];
     /* 0040 */ int32_t m_targets; // SPELL_TARGET_TYPE
     /* 0044 */ int32_t m_targetCreatureType;
     /* 0048 */ int32_t m_requiresSpellFocus;
@@ -179,7 +179,7 @@ class SpellRec {
     /* 0238 */ int32_t m_startRecoveryTime;
     /* 023C */ int32_t m_maxTargetLevel;
     /* 0240 */ int32_t m_spellClassSet;
-    /* 0244 */ int32_t m_spellClassMask [3];
+    /* 0244 */ int32_t m_spellClassMask [NUM_SPELL_CLASS_MASK_WORDS];
     /* 0250 */ int32_t m_maxTargets;
     /* 0254 */ SPELL_DAMAGE_CLASS m_defenseType;
     /* 0258 */ int32_t m_preventionType;

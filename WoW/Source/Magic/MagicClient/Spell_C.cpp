@@ -165,10 +165,10 @@ static uint32_t s_lastFailedTime;
 static const UIErrors s_powerErrors[] = { ERR_OUT_OF_MANA, ERR_OUT_OF_RAGE, ERR_OUT_OF_FOCUS, ERR_OUT_OF_ENERGY, ERR_NOT_HAPPY_ENOUGH, ERR_OUT_OF_RUNES, ERR_OUT_OF_RUNIC_POWER };
 
 // STATIC: 0x00D397D8
-static int32_t s_spellPctModifiers[96][NUM_SPELL_MOD_OPS];
+static int32_t s_spellPctModifiers[NUM_SPELL_CLASS_MASK_BITS][NUM_SPELL_MOD_OPS];
 
 // STATIC: 0x00D3C658
-static int32_t s_spellFlatModifiers[96][NUM_SPELL_MOD_OPS];
+static int32_t s_spellFlatModifiers[NUM_SPELL_CLASS_MASK_BITS][NUM_SPELL_MOD_OPS];
 
 // STATIC: 0x00AF524C
 static TSList<PendingSpellCast, TSGetLink<PendingSpellCast> > s_pendingSpellCasts;
@@ -1214,7 +1214,7 @@ bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int
     flat = 0;
 
     for (uint32_t i = 0; i < sizeof(spell->m_spellClassMask) * 8; i++) {
-        if ((1 << (i & 31)) & spell->m_spellClassMask[i >> 5]) {
+        if ((1 << (i & SPELL_MASK_WORD_BIT_MASK)) & spell->m_spellClassMask[i >> SPELL_MASK_WORD_SHIFT]) {
             flat += s_spellFlatModifiers[i][modifier];
             pct += s_spellPctModifiers[i][modifier];
         }
@@ -3424,7 +3424,7 @@ bool SpellRec::IsAffectedBy(const SpellRec* spell, const SpellRec* modifier, int
 
     const int32_t* mask = SpellRec::GetClassMask(modifier, effect);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_CLASS_MASK_WORDS; i++) {
         if (mask[i] & spell->m_spellClassMask[i]) {
             return true;
         }
@@ -3436,7 +3436,7 @@ bool SpellRec::IsAffectedBy(const SpellRec* spell, const SpellRec* modifier, int
 // VERIFY: b26cb571 manual
 // OFFSET: 0x007FE850
 bool SpellRec::UsableInShapeshift(const SpellRec* spell, int32_t form) {
-    return form >= 0 && (spell->m_shapeshiftMask[form / 32] & (1 << (form & 0x1F)));
+    return form >= 0 && (spell->m_shapeshiftMask[form / SPELL_MASK_BITS_PER_WORD] & (1 << (form & SPELL_MASK_WORD_BIT_MASK)));
 }
 
 // VERIFY: 18bb777f manual
@@ -3809,7 +3809,7 @@ bool Spell_C_HasNoReagentCost(CGPlayer_C* player, const SpellRec* spell) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_CLASS_MASK_WORDS; i++) {
         if (spell->m_spellClassMask[i] & player->m_player->m_playerNoReagentCost1[i]) {
             return true;
         }
@@ -4344,7 +4344,7 @@ bool SpellRec::NotUsableInShapeshiftForm(const SpellRec* spell, int32_t form) {
         return false;
     }
 
-    return (spell->m_shapeshiftExclude[form / 32] & (1 << (form % 32))) != 0;
+    return (spell->m_shapeshiftExclude[form / SPELL_MASK_BITS_PER_WORD] & (1 << (form % SPELL_MASK_BITS_PER_WORD))) != 0;
 }
 
 // VERIFY: 2ba175f5 manual
@@ -5891,8 +5891,8 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
             uint32_t count = g_spellShapeshiftFormDB.m_numRecords;
 
-            if (count > 64) {
-                count = 64;
+            if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
+                count = NUM_SPELL_SHAPESHIFT_FORMS;
             }
 
             for (uint32_t i = 0; i < count; i++) {
@@ -6554,8 +6554,8 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         case SPELL_FAILED_ONLY_SHAPESHIFT: {
             uint32_t count = g_spellShapeshiftFormDB.m_numRecords;
 
-            if (count > 64) {
-                count = 64;
+            if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
+                count = NUM_SPELL_SHAPESHIFT_FORMS;
             }
 
             if (!count) {

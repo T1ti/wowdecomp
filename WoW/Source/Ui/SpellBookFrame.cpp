@@ -844,7 +844,7 @@ int32_t GetActionBarPageOffset(const CGPlayer_C* player, const SpellRec* spell) 
         }
 
         if (high) {
-            index += 32;
+            index += SPELL_MASK_BITS_PER_WORD;
         }
 
         form = g_spellShapeshiftFormDB.GetRecord(index);

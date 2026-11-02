@@ -2955,8 +2955,8 @@ static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C
     if (!needsForm) {
         uint32_t count = g_spellShapeshiftFormDB.m_numRecords;
 
-        if (count > 64) {
-            count = 64;
+        if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
+            count = NUM_SPELL_SHAPESHIFT_FORMS;
         }
 
         for (uint32_t i = 0; i < count; i++) {

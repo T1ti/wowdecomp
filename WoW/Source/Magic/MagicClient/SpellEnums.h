@@ -17,6 +17,15 @@ enum SPELL_TERRAIN_RAY_RESULT : int32_t {
     SPELL_TERRAIN_RAY_OUTSIDE_PREVIEW_RANGE = 2,
 };
 
+// Mask storage is independent of the three effect slots.
+constexpr int32_t SPELL_MASK_BITS_PER_WORD = 32;
+constexpr int32_t SPELL_MASK_WORD_BIT_MASK = 0x1F;
+constexpr int32_t SPELL_MASK_WORD_SHIFT = 5;
+constexpr int32_t NUM_SPELL_CLASS_MASK_WORDS = 3;
+constexpr int32_t NUM_SPELL_CLASS_MASK_BITS = NUM_SPELL_CLASS_MASK_WORDS * SPELL_MASK_BITS_PER_WORD;
+constexpr int32_t NUM_SPELL_SHAPESHIFT_MASK_WORDS = 2;
+constexpr int32_t NUM_SPELL_SHAPESHIFT_FORMS = NUM_SPELL_SHAPESHIFT_MASK_WORDS * SPELL_MASK_BITS_PER_WORD;
+
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
 constexpr int32_t NUM_SPELL_REAGENTS = 8;

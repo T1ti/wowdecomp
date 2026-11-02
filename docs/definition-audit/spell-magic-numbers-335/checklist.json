@@ -842,13 +842,15 @@
     },
     {
       "id": 71,
-      "state": "pending",
+      "state": "done",
       "values": "96",
       "description": "Spell class-mask bit count for modifier arrays; derive from mask words or a shared constant.",
       "original_lines": [
         149,
         152
-      ]
+      ],
+      "evidence": "IDA 0x007FDAFD compares class-mask bit index with 0x60; 0x00800DBF compares class-mask word index with 3.",
+      "notes": "Class-mask words (3), class-mask bits (96), shapeshift words (2) and forms (64) have independent schema constants. m_spellClassMask deliberately does not use NUM_SPELL_EFFECTS. Matching no-reagent-cost mask uses the word count; layout probes and Win32/x64 syntax passed."
     },
     {
       "id": 72,
@@ -896,11 +898,11 @@
       "values": "3, 2",
       "description": "Spell effect counts, mask-word counts, totem counts and similar fixed schema loops; prefer array sizes/shared schema constants. Ordinary element indices can remain literal.",
       "original_lines": [],
-      "notes": "Effect arrays/loops use NUM_SPELL_EFFECTS (478939e). Class-mask words must remain independent; see group 71."
+      "notes": "Effect arrays/loops use NUM_SPELL_EFFECTS (478939e); class-mask words use NUM_SPELL_CLASS_MASK_WORDS. Remaining unrelated fixed-size loops still need final review."
     },
     {
       "id": 76,
-      "state": "pending",
+      "state": "done",
       "values": "64",
       "description": "Maximum shapeshift form-name entries considered for failure text; distinct from token-buffer capacity.",
       "original_lines": [
@@ -908,7 +910,8 @@
         5876,
         6538,
         6539
-      ]
+      ],
+      "notes": "Named the 64-bit shapeshift-mask capacity at both failure-text limits and the tooltip limit; kept byte/word mask arithmetic unchanged. Also named the action-bar second-word offset."
     },
     {
       "id": 77,

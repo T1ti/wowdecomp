@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -425,7 +426,7 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 11AC */ uint32_t m_playerFieldMaxLevel;
     /* 11B0 */ uint32_t m_playerFieldDailyQuests1 [25];
     /* 1214 */ float m_playerRuneRegen1 [4];
-    /* 1224 */ uint32_t m_playerNoReagentCost1 [3];
+    /* 1224 */ uint32_t m_playerNoReagentCost1 [NUM_SPELL_CLASS_MASK_WORDS];
     /* 1230 */ uint32_t m_playerFieldGlyphSlots1 [6];
     /* 1248 */ uint32_t m_playerFieldGlyphs1 [6];
     /* 1260 */ uint32_t m_playerGlyphsEnabled;
