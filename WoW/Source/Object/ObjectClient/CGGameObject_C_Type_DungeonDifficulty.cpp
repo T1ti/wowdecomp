@@ -83,10 +83,10 @@ void CGGameObject_C_Type_DungeonDifficulty::UpdateDisplay(uint32_t time) {
 
         if (CGGameUI::GetCurrentRaidDifficulty() == difficulty) {
             hidden = 0;
-        } else if (CGGameUI::GetCurrentRaidDifficulty() >= 2) {
+        } else if (CGGameUI::GetCurrentRaidDifficulty() >= RAID_DIFFICULTY_10MAN_HEROIC) {
             difficulty = this->GetDifficulty();
 
-            if (CGGameUI::GetCurrentRaidDifficulty() - 2 == difficulty && !GetMapDifficultyEntryByMapIdAndDifficulty(this->GetMapID(), CGGameUI::GetCurrentRaidDifficulty(), nullptr)) {
+            if (CGGameUI::GetCurrentRaidDifficulty() - RAID_DIFFICULTY_HEROIC_OFFSET == difficulty && !GetMapDifficultyEntryByMapIdAndDifficulty(this->GetMapID(), CGGameUI::GetCurrentRaidDifficulty(), nullptr)) {
                 hidden = 0;
             }
         }

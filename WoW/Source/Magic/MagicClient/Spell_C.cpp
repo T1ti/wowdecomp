@@ -489,11 +489,11 @@ int32_t QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(int32_t spellId) {
 
     int32_t result = difficulty->m_difficultySpellID[index];
 
-    if (result || (index == 3 && (result = difficulty->m_difficultySpellID[1]) != 0)) {
+    if (result || (index == RAID_DIFFICULTY_25MAN_HEROIC && (result = difficulty->m_difficultySpellID[RAID_DIFFICULTY_25MAN_NORMAL]) != 0)) {
         return result;
     }
 
-    result = difficulty->m_difficultySpellID[0];
+    result = difficulty->m_difficultySpellID[MAP_DIFFICULTY_DEFAULT];
     return result ? result : spellId;
 }
 

@@ -556,8 +556,8 @@ void CGPartyInfo::InitializeGame() {
     CGPartyInfo::m_memberRoles[3] = 0;
     CGPartyInfo::m_leader.m_guid = 0;
     CGPartyInfo::m_leaderIndex = -1;
-    CGPartyInfo::m_dungeonDifficulty = 0;
-    CGPartyInfo::m_raidDifficulty = 0;
+    CGPartyInfo::m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
+    CGPartyInfo::m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     CGPartyInfo::m_playerAssignments = 0;
     CGPartyInfo::m_playerLFGFlags = 0;
     CGPartyInfo::m_playerRole = 0;

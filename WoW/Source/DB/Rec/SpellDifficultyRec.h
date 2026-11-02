@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/DB/Rec/MapDifficultyRec.h"
 
 class SFileImpl;
 
@@ -13,7 +14,7 @@ class SpellDifficultyRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_difficultySpellID [4];
+    /* 0004 */ int32_t m_difficultySpellID [NUM_MAP_DIFFICULTIES];
 
     SpellDifficultyRec();
     ~SpellDifficultyRec();

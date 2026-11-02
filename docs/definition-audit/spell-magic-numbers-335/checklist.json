@@ -152,12 +152,15 @@
     },
     {
       "id": 11,
-      "state": "pending",
+      "state": "done",
       "values": "3, 1",
       "description": "Difficulty fallback: index 3 falls back to difficultySpellID[1]; name the difficulty indices.",
       "original_lines": [
         473
-      ]
+      ],
+      "evidence": "IDA 0x00802850: index 3 falls back to slot 1, then slot 0. Dungeon UI at 0x00526050 compares maximum 1; raid UI at 0x005261A0 compares maximum 3.",
+      "notes": "Shared MapDifficulty aliases/count also used in spell schema, default UI state, validation bounds and dynamic raid size/heroic arithmetic. Value equivalence and Win32/x64 syntax checks passed.",
+      "reference": "https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/DataStores/DBCEnums.h"
     },
     {
       "id": 12,

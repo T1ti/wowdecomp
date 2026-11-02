@@ -1395,7 +1395,7 @@ int32_t CGGameUI::CanResetInstance() {
     if (map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON)) {
         uint32_t difficulty = CGGameUI::GetCurrentDungeonDifficulty();
 
-        if (difficulty > 3 || !GetMapResetTime(map->m_id, difficulty)) {
+        if (difficulty > MAX_MAP_DIFFICULTY_ID || !GetMapResetTime(map->m_id, difficulty)) {
             return 0;
         }
     }
@@ -1406,7 +1406,7 @@ int32_t CGGameUI::CanResetInstance() {
 
     uint32_t difficulty = CGGameUI::GetCurrentDungeonDifficulty();
 
-    if ((difficulty > 3 || !GetMapResetTime(map->m_id, difficulty)) && time(nullptr) - CGGameUI::m_uiLastInstanceTime <= 90000) {
+    if ((difficulty > MAX_MAP_DIFFICULTY_ID || !GetMapResetTime(map->m_id, difficulty)) && time(nullptr) - CGGameUI::m_uiLastInstanceTime <= 90000) {
         return 1;
     }
 
@@ -1425,7 +1425,7 @@ void CGGameUI::SetLastInstanceTime(uint32_t time, int32_t mapId, int32_t current
     if (map && (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON || map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON)) {
         uint32_t difficulty = CGGameUI::GetCurrentDungeonDifficulty();
 
-        if (difficulty > 3 || !GetMapResetTime(map->m_id, difficulty)) {
+        if (difficulty > MAX_MAP_DIFFICULTY_ID || !GetMapResetTime(map->m_id, difficulty)) {
             CGGameUI::m_uiLastInstanceTime = time;
             CGGameUI::m_iMapID = mapId;
         }
@@ -1946,8 +1946,8 @@ void CGGameUI::InitializeGame() {
     }
 
     CGGameUI::m_phaseMask = 1;
-    CGGameUI::m_instanceDifficulty = 0;
-    CGGameUI::m_dungeonDifficulty = 0;
+    CGGameUI::m_instanceDifficulty = MAP_DIFFICULTY_DEFAULT;
+    CGGameUI::m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     CGGameUI::m_lastRegenTime = 0;
     CGGameUI::m_comboTarget = WOWGUID();
     CGGameUI::m_comboPoints = 0;
@@ -5468,7 +5468,7 @@ uint32_t CGGameUI::GetEffectiveRaidDifficulty() {
 
     if (map && (map->m_flags & 0x100)) {
         uint32_t difficulty = CGRaidInfo::m_numMembers ? CGPartyInfo::m_raidDifficulty : CGGameUI::m_raidDifficulty;
-        return (difficulty & 1) + 2 * CGPartyInfo::m_dynamicDifficulty;
+        return (difficulty & RAID_DIFFICULTY_SIZE_MASK) + RAID_DIFFICULTY_HEROIC_OFFSET * CGPartyInfo::m_dynamicDifficulty;
     }
 
     return CGRaidInfo::m_numMembers ? CGPartyInfo::m_raidDifficulty : CGGameUI::m_raidDifficulty;
@@ -7111,7 +7111,7 @@ void CGGameUI::SetRaidDifficulty(uint32_t difficulty, uint32_t unk, uint32_t inG
         MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
         if (map && (map->m_flags & 0x100)) {
-            CGPartyInfo::ChangeRaidDifficulty(difficulty > 1);
+            CGPartyInfo::ChangeRaidDifficulty(difficulty > RAID_DIFFICULTY_25MAN_NORMAL);
         } else {
             CGPartyInfo::m_raidDifficulty = difficulty;
         }

@@ -6019,7 +6019,7 @@ static int32_t Script_SetDungeonDifficulty(lua_State* L) {
 
     uint32_t difficulty = static_cast<uint32_t>(lua_tonumber(L, 1) - 1.0);
 
-    if (difficulty > 1) {
+    if (difficulty > DUNGEON_DIFFICULTY_HEROIC) {
         return 0;
     }
 
@@ -6054,7 +6054,7 @@ static int32_t Script_SetRaidDifficulty(lua_State* L) {
 
     uint32_t difficulty = static_cast<uint32_t>(lua_tonumber(L, 1) - 1.0);
 
-    if (difficulty > 3) {
+    if (difficulty > RAID_DIFFICULTY_25MAN_HEROIC) {
         return 0;
     }
 
