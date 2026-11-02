@@ -284,7 +284,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
     int32_t itemId = CGActionBar::GetItem(slot);
 
     if (itemId) {
-        if (!CGActionBar::m_slotItemCount[slot] || Spell_C_NeedsCooldownEvent(itemId) || (overrideRec && !(overrideRec->m_flags & 0x1))) {
+        if (!CGActionBar::m_slotItemCount[slot] || Spell_C_NeedsCooldownEvent(itemId) || (overrideRec && !(overrideRec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_ITEMS))) {
             return 0;
         }
 
@@ -321,7 +321,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
     if (CGActionBar::IsAttackAction(slot) || CGActionBar::IsRangedAttackAction(slot)) {
         attack = 1;
 
-        if (overrideRec && !(overrideRec->m_flags & 0x2)) {
+        if (overrideRec && !(overrideRec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_ATTACKS)) {
             return 0;
         }
     } else {
@@ -350,7 +350,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
     int32_t spellId = CGActionBar::GetSpell(slot, petSpell);
 
     if (spellId) {
-        if (!itemId && !attack && overrideRec && !(overrideRec->m_flags & 0x4) && !Spell_C_IsOverride(spellId, overrideRec)) {
+        if (!itemId && !attack && overrideRec && !(overrideRec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_NON_OVERRIDE_SPELLS) && !Spell_C_IsOverride(spellId, overrideRec)) {
             return 0;
         }
 

@@ -157,7 +157,7 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
         }
 
         if (!remaining) {
-            if (!(rec->m_flags & 0x200)) {
+            if (!(rec->m_flags & ITEM_SUBCLASS_FLAG_AUCTION_INVENTORY_FILTER)) {
                 return 0;
             }
 

@@ -447,30 +447,36 @@
     },
     {
       "id": 35,
-      "state": "pending",
+      "state": "done",
       "values": "0x10",
       "description": "AuraData::m_flags bit in aura cancellation.",
       "original_lines": [
         5163
-      ]
+      ],
+      "evidence": "0x00802E45 tests aura mask 0x10 in active/cancelable spell handling. Client CANCELABLE/NOT_CANCELABLE filtering tests the same bit. AuraData::Unpack at 0x00716510 tests 0x8 for implicit self caster and 0x20 for duration.",
+      "notes": "Named packet flags, effect mask, harmful shift and matching spell/aura/UI/macro consumers. Bit 6 is UNKNOWN, not presumed unused. Raw uint8_t field and packet reader unchanged."
     },
     {
       "id": 36,
-      "state": "pending",
+      "state": "done",
       "values": "0x10",
       "description": "ItemSubClassRec::m_flags bit in ammunition validation.",
       "original_lines": [
         7003
-      ]
+      ],
+      "evidence": "0x00809540 tests ItemSubClass +0x10 with 0x10 and returns success before the ammunition checks.",
+      "notes": "Named SKIP_AMMO_CHECK separately from the auction inventory-filter flag in the same record."
     },
     {
       "id": 37,
-      "state": "pending",
+      "state": "done",
       "values": "0x4",
       "description": "OverrideSpellDataRec::m_flags mask 0x4, not SpellShapeshiftFormRec.",
       "original_lines": [
         8238
-      ]
+      ],
+      "evidence": "OverrideSpellData +0x2C: native action-bar tests at 0x005A9ED7/0x005A9FC0/0x005AA10F use masks 1/2/4 for items, attacks and non-override spells.",
+      "notes": "Corrected original inventory misidentification: this is not a shapeshift flag. Updated spell validation, action bar, item use and player attack consumers; value equivalence and Win32/x64 syntax passed."
     },
     {
       "id": 38,

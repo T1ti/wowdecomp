@@ -1534,7 +1534,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
     if (overrideId) {
         OverrideSpellDataRec* overrideRec = g_overrideSpellDataDB.GetRecord(overrideId);
 
-        if (overrideRec && !(overrideRec->m_flags & 1)) {
+        if (overrideRec && !(overrideRec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_ITEMS)) {
             CGGameUI::DisplayError(ERR_CLIENT_LOCKED_OUT);
             return 0;
         }

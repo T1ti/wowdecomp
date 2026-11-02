@@ -8297,7 +8297,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
     int16_t overrideId = static_cast<int16_t>(this->m_player->m_overrideSpellsID);
     OverrideSpellDataRec* overrideRec;
 
-    if (overrideId && (overrideRec = g_overrideSpellDataDB.GetRecord(overrideId)) && !(overrideRec->m_flags & 2)) {
+    if (overrideId && (overrideRec = g_overrideSpellDataDB.GetRecord(overrideId)) && !(overrideRec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_ATTACKS)) {
         return;
     }
 
@@ -14457,7 +14457,7 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         AuraData* aura = this->GetAura(i);
 
-        if (!aura->m_spellId || !(aura->m_flags & 0x7)) {
+        if (!aura->m_spellId || !(aura->m_flags & AURA_FLAG_EFFECT_MASK)) {
             continue;
         }
 

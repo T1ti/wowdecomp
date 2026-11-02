@@ -13539,7 +13539,7 @@ void AuraData::Unpack(CGUnit_C* unit, uint32_t time, CDataStore* msg) {
     msg->Get(this->m_stackCount);
     SmartGUID creator;
 
-    if (this->m_flags & 0x8) {
+    if (this->m_flags & AURA_FLAG_SELF_CAST) {
         creator.m_guid = unit->m_obj->m_guid.m_guid;
     } else {
         *msg >> creator;
@@ -13547,7 +13547,7 @@ void AuraData::Unpack(CGUnit_C* unit, uint32_t time, CDataStore* msg) {
 
     this->m_creator = creator;
 
-    if (!(this->m_flags & 0x20)) {
+    if (!(this->m_flags & AURA_FLAG_HAS_DURATION)) {
         this->m_duration = 0;
         this->m_endTime = 0;
         return;
@@ -13628,10 +13628,10 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
         }
 
         int32_t oldSpellId = oldAuras[i].m_spellId;
-        uint32_t oldActive = oldAuras[i].m_flags & 0x7;
+        uint32_t oldActive = oldAuras[i].m_flags & AURA_FLAG_EFFECT_MASK;
         int32_t spellId = this->m_auras[i].m_spellId;
         bool wasActive = oldSpellId && oldActive;
-        bool stillActive = oldSpellId == spellId && (this->m_auras[i].m_flags & 0x7);
+        bool stillActive = oldSpellId == spellId && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_MASK);
 
         if ((wasActive && !stillActive) || !spellId) {
             if (updateAll) {
@@ -13641,7 +13641,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
                     this->RemoveAuraEffect(i, &spell);
                 }
             } else {
-                this->OnAuraRemoved(i, oldAuras[i].m_flags >> 7, &oldAuras[i], oldSpellId);
+                this->OnAuraRemoved(i, oldAuras[i].m_flags >> AURA_HARMFUL_FLAG_SHIFT, &oldAuras[i], oldSpellId);
                 changed = true;
             }
         }
@@ -13654,12 +13654,12 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
 
         bool hadOld = i < oldCount;
         int32_t oldSpellId = hadOld ? oldAuras[i].m_spellId : 0;
-        uint32_t oldActive = hadOld ? oldAuras[i].m_flags & 0x7 : 0;
+        uint32_t oldActive = hadOld ? oldAuras[i].m_flags & AURA_FLAG_EFFECT_MASK : 0;
         AuraData& aura = this->m_auras[i];
         int32_t spellId = aura.m_spellId;
         bool same = oldSpellId == spellId && oldActive;
 
-        if (!spellId || !(aura.m_flags & 0x7)) {
+        if (!spellId || !(aura.m_flags & AURA_FLAG_EFFECT_MASK)) {
             continue;
         }
 
@@ -13678,13 +13678,13 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
                 }
             }
         } else if (!same) {
-            this->OnAuraAdded(i, aura.m_flags >> 7, &aura, spellId);
+            this->OnAuraAdded(i, aura.m_flags >> AURA_HARMFUL_FLAG_SHIFT, &aura, spellId);
             changed = true;
         } else if (hadOld) {
             if (oldAuras[i].m_stackCount != aura.m_stackCount) {
-                UnitCombatLogAuraDose(this, &aura, spellId, oldAuras[i].m_stackCount, aura.m_stackCount, aura.m_flags >> 7);
+                UnitCombatLogAuraDose(this, &aura, spellId, oldAuras[i].m_stackCount, aura.m_stackCount, aura.m_flags >> AURA_HARMFUL_FLAG_SHIFT);
             } else if (oldAuras[i].m_endTime != aura.m_endTime) {
-                UnitCombatLogAuraRefreshed(this, &aura, aura.m_spellId, aura.m_flags >> 7);
+                UnitCombatLogAuraRefreshed(this, &aura, aura.m_spellId, aura.m_flags >> AURA_HARMFUL_FLAG_SHIFT);
             }
         }
     }
@@ -15768,7 +15768,7 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
         uint32_t count = this->m_auras.m_count == 0xFFFFFFFF ? this->m_auras.m_dynamic.m_count : this->m_auras.m_count;
         AuraData* aura = i < count ? &this->m_auras[i] : nullptr;
 
-        if (harmful == 1 && (aura->m_flags & 0x80)) {
+        if (harmful == 1 && (aura->m_flags & AURA_FLAG_HARMFUL)) {
             continue;
         }
 
@@ -15794,15 +15794,15 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
         if (charmed) {
             bool charm = false;
 
-            if ((spell.m_effect[0] == SPELL_AURA_MOD_CHARM || spell.m_effect[0] == SPELL_AURA_AOE_CHARM || spell.m_effect[0] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & 0x1)) {
+            if ((spell.m_effect[0] == SPELL_AURA_MOD_CHARM || spell.m_effect[0] == SPELL_AURA_AOE_CHARM || spell.m_effect[0] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_0)) {
                 charm = true;
             }
 
-            if ((spell.m_effect[1] == SPELL_AURA_MOD_CHARM || spell.m_effect[1] == SPELL_AURA_AOE_CHARM || spell.m_effect[1] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & 0x2)) {
+            if ((spell.m_effect[1] == SPELL_AURA_MOD_CHARM || spell.m_effect[1] == SPELL_AURA_AOE_CHARM || spell.m_effect[1] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_1)) {
                 charm = true;
             }
 
-            if ((spell.m_effect[2] == SPELL_AURA_MOD_CHARM || spell.m_effect[2] == SPELL_AURA_AOE_CHARM || spell.m_effect[2] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & 0x4)) {
+            if ((spell.m_effect[2] == SPELL_AURA_MOD_CHARM || spell.m_effect[2] == SPELL_AURA_AOE_CHARM || spell.m_effect[2] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_2)) {
                 charm = true;
             }
 
@@ -16300,7 +16300,7 @@ void CGUnit_C::SortAuras() {
         while (i < this->GetAuraCount() && sorted[i].m_spellId) {
             AuraData& aura = this->m_auras[sorted[i].m_auraIndex];
 
-            if (aura.m_spellId == sorted[i].m_spellId && (aura.m_flags & 0x7)) {
+            if (aura.m_spellId == sorted[i].m_spellId && (aura.m_flags & AURA_FLAG_EFFECT_MASK)) {
                 i++;
                 continue;
             }
@@ -16323,11 +16323,11 @@ void CGUnit_C::SortAuras() {
 
         AuraData* aura = index < this->GetAuraCount() ? &this->m_auras[index] : nullptr;
 
-        if (!aura->m_spellId || !(aura->m_flags & 0x7) || !g_spellDB.GetRecord(aura->m_spellId, &spell)) {
+        if (!aura->m_spellId || !(aura->m_flags & AURA_FLAG_EFFECT_MASK) || !g_spellDB.GetRecord(aura->m_spellId, &spell)) {
             continue;
         }
 
-        if (!CGSpellBook::CanShowAura(&spell, &aura->m_creator, (this->m_auras[index].m_flags & 0x8) != 0)) {
+        if (!CGSpellBook::CanShowAura(&spell, &aura->m_creator, (this->m_auras[index].m_flags & AURA_FLAG_SELF_CAST) != 0)) {
             continue;
         }
 
@@ -16342,7 +16342,7 @@ void CGUnit_C::SortAuras() {
             }
         }
 
-        if ((!(aura->m_flags & 0x80) && CGSpellBook::FindRaidBuff(aura->m_spellId)) || ((aura->m_flags & 0x80) && CGSpellBook::FindRaidDispel(spell.m_dispelType))) {
+        if ((!(aura->m_flags & AURA_FLAG_HARMFUL) && CGSpellBook::FindRaidBuff(aura->m_spellId)) || ((aura->m_flags & AURA_FLAG_HARMFUL) && CGSpellBook::FindRaidDispel(spell.m_dispelType))) {
             for (uint32_t j = 0; j < this->GetAuraCount(); j++) {
                 if (this->m_sortedAuras[1][j].m_spellId <= 0) {
                     this->InsertSortedAura(1, index, j);
@@ -16385,7 +16385,7 @@ uint32_t CGUnit_C::GetSortedAuraSlot(int32_t index, const char* name, const char
         uint32_t auraIndex = sorted[i].m_auraIndex;
         AuraData* aura = auraIndex < this->GetAuraCount() ? &this->m_auras[auraIndex] : nullptr;
 
-        if (!aura || !aura->m_spellId || helpful != !(aura->m_flags & 0x80)) {
+        if (!aura || !aura->m_spellId || helpful != !(aura->m_flags & AURA_FLAG_HARMFUL)) {
             continue;
         }
 
@@ -16393,7 +16393,7 @@ uint32_t CGUnit_C::GetSortedAuraSlot(int32_t index, const char* name, const char
             continue;
         }
 
-        if ((aura->m_flags & 0x10) ? (filter & BUFF_FILTER_NOT_CANCELABLE) : (filter & BUFF_FILTER_CANCELABLE)) {
+        if ((aura->m_flags & AURA_FLAG_CANCELABLE) ? (filter & BUFF_FILTER_NOT_CANCELABLE) : (filter & BUFF_FILTER_CANCELABLE)) {
             continue;
         }
 
@@ -20213,7 +20213,7 @@ void CGUnit_C::CancelOpenStable() {
     SpellRec spell;
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        if (!(this->GetAura(i)->m_flags & 0x10)) {
+        if (!(this->GetAura(i)->m_flags & AURA_FLAG_CANCELABLE)) {
             continue;
         }
 
@@ -20245,7 +20245,7 @@ void CGUnit_C::CancelShapeshiftForMount() {
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         AuraData& aura = this->m_auras[i];
 
-        if (!(aura.m_flags & 0x10) || !g_spellDB.GetRecord(aura.m_spellId, &spell)) {
+        if (!(aura.m_flags & AURA_FLAG_CANCELABLE) || !g_spellDB.GetRecord(aura.m_spellId, &spell)) {
             continue;
         }
 
@@ -21930,7 +21930,7 @@ void CGUnit_C::CancelShapeshift() {
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         AuraData* aura = this->GetAura(i);
 
-        if (!(aura->m_flags & 0x10) || !g_spellDB.GetRecord(this->GetAura(i)->m_spellId, &spell)) {
+        if (!(aura->m_flags & AURA_FLAG_CANCELABLE) || !g_spellDB.GetRecord(this->GetAura(i)->m_spellId, &spell)) {
             continue;
         }
 
@@ -23682,7 +23682,7 @@ void CGUnit_C::FillPartyMemberPetState(CGPartyPetState* state) {
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         AuraData* aura = this->GetAura(i);
 
-        if (aura->m_spellId && (aura->m_flags & 0x7)) {
+        if (aura->m_spellId && (aura->m_flags & AURA_FLAG_EFFECT_MASK)) {
             state->m_auras[count] = aura->m_spellId;
             state->m_auraFlags[count] = aura->m_flags;
             count++;

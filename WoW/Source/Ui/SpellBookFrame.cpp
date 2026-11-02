@@ -2094,7 +2094,7 @@ int32_t CGSpellBook::CanStealAura(const CGUnit_C* unit, const AuraData* aura, co
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || !player->CanAttack(unit) || (aura->m_flags & 0x80)) {
+    if (!player || !player->CanAttack(unit) || (aura->m_flags & AURA_FLAG_HARMFUL)) {
         return 0;
     }
 

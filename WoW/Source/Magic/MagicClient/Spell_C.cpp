@@ -5179,7 +5179,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
             break;
         }
 
-        if (self->m_auras[i].m_flags & 0x10) {
+        if (self->m_auras[i].m_flags & AURA_FLAG_CANCELABLE) {
             return true;
         }
     }
@@ -7019,7 +7019,7 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
         ItemSubClassRec* subClass = g_itemSubClassDB.GetRecordByIndex(i);
 
         if (subClass->m_classID == item->GetClassID() && subClass->m_subClassID == item->GetSubtypeID()) {
-            if (subClass->m_flags & 0x10) {
+            if (subClass->m_flags & ITEM_SUBCLASS_FLAG_SKIP_AMMO_CHECK) {
                 return true;
             }
 
@@ -8254,7 +8254,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             if (overrideId) {
                 OverrideSpellDataRec* rec = g_overrideSpellDataDB.GetRecord(overrideId);
 
-                if (rec && !(rec->m_flags & 0x4) && !Spell_C_IsOverride(spellId, rec)) {
+                if (rec && !(rec->m_flags & OVERRIDE_SPELL_DATA_FLAG_ALLOW_NON_OVERRIDE_SPELLS) && !Spell_C_IsOverride(spellId, rec)) {
                     Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW, -1, -1, false);
                     return false;
                 }

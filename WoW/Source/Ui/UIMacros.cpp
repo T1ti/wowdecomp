@@ -205,7 +205,7 @@ void CGUIMacros::GetFullIconPath(uint32_t id, char* buffer, uint32_t size) {
                         uint32_t count = unit->GetAuraCount();
 
                         for (uint32_t i = 0; i < count; i++) {
-                            if (unit->GetAuraSpellId(i) == spell.m_id && (unit->GetAuraFlags(i) & 0x10)) {
+                            if (unit->GetAuraSpellId(i) == spell.m_id && (unit->GetAuraFlags(i) & AURA_FLAG_CANCELABLE)) {
                                 iconId = spell.m_activeIconID;
                                 break;
                             }
