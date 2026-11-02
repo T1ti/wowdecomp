@@ -329,7 +329,7 @@ void OVERRIDEKEYBINDING::SetOverrideBinding(void* owner, int32_t priority, const
         if (entry) {
             this->m_lists[priority].LinkToHead(entry);
         } else {
-            entry = this->m_lists[priority].NewNode(1, 0, 0);
+            entry = this->m_lists[priority].NewNode(TSLIST_LINK_AFTER, 0, 0);
         }
 
         entry->m_owner = owner;

@@ -4103,7 +4103,7 @@ void CCapturePointUIManager::AddCapturePoint(CGGameObject_C* object, uint32_t wo
     }
 
     WOWGUID guid = object->m_obj->m_guid;
-    CapturePointUIManagerNode* node = this->m_nodes.NewNode(2, 0, 0);
+    CapturePointUIManagerNode* node = this->m_nodes.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_guid = guid;
     node->m_radiusSquared = radius * radius;
     node->m_worldState = worldState;

@@ -6267,7 +6267,7 @@ void CM2Model::SetBoneSequenceDeferred(uint16_t sequenceIndex, M2Data* data, uin
                     }
                 }
 
-                playback = load->m_playbacks.NewNode(2, 0, 0);
+                playback = load->m_playbacks.NewNode(TSLIST_LINK_BEFORE, 0, 0);
                 playback->m_model = this;
                 goto found;
             }
@@ -6285,7 +6285,7 @@ void CM2Model::SetBoneSequenceDeferred(uint16_t sequenceIndex, M2Data* data, uin
             return;
         }
 
-        playback = load->m_playbacks.NewNode(2, 0, 0);
+        playback = load->m_playbacks.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         playback->m_model = this;
     }
 

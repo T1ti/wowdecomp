@@ -538,7 +538,7 @@ static CONSOLELINE* GetInputLine() {
         return head;
     }
 
-    CONSOLELINE* line = s_linelist.NewNode(1, 0, 0);
+    CONSOLELINE* line = s_linelist.NewNode(TSLIST_LINK_AFTER, 0, 0);
 
     line->m_charsalloc = 16;
     line->m_buffer = static_cast<uint8_t*>(SMemAlloc(line->m_charsalloc, __FILE__, __LINE__, 0));
@@ -877,11 +877,11 @@ void ConsoleWrite(const char* str, COLOR_T color) {
 
     s_critsect.Enter();
 
-    CONSOLELINE* node = s_linelist.NewNode(0, 0, 0);
+    CONSOLELINE* node = s_linelist.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     CONSOLELINE* head = s_linelist.Head();
 
     if (head && head->m_inputpos) {
-        s_linelist.LinkNode(node, 1, head);
+        s_linelist.LinkNode(node, TSLIST_LINK_AFTER, head);
     } else {
         s_linelist.LinkToHead(node);
     }

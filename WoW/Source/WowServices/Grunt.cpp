@@ -293,7 +293,7 @@ void Grunt::Timer::Insert(Grunt::Timer::Event& event) {
 
     for (Grunt::Timer::Event* existing = this->m_list.Head(); !this->m_list.IsEnd(existing); existing = this->m_list.RawNext(existing)) {
         if (static_cast<int32_t>(event.m_nextTime - existing->m_nextTime) < 0) {
-            this->m_list.LinkNode(&event, 2, existing);
+            this->m_list.LinkNode(&event, TSLIST_LINK_BEFORE, existing);
             this->m_lock.Leave();
             return;
         }

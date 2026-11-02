@@ -1529,7 +1529,7 @@ void CSimpleFrame::LockHighlight(int32_t lock) {
 // VERIFY: 95d4bac7 manual
 // OFFSET: 0x00490C70
 void CSimpleFrame::ParentFrame(CSimpleFrame* child) {
-    SIMPLEFRAMENODE* node = this->m_children.NewNode(2, 0, 0);
+    SIMPLEFRAMENODE* node = this->m_children.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_frame = child;
 }
 

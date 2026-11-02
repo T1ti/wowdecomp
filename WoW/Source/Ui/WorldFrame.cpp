@@ -1636,7 +1636,7 @@ void CGWorldFrame::UpdateObject(CGObject_C* object, uint32_t flags) {
         CModelRecord* record;
 
         if (this->m_freeModelList.IsEmpty()) {
-            record = this->m_modelList.NewNode(2, 0, 0);
+            record = this->m_modelList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         } else {
             record = this->m_freeModelList.Head();
             this->m_freeModelList.UnlinkNode(record);

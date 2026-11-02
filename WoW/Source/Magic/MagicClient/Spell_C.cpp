@@ -788,7 +788,7 @@ PendingSpellCast* CreatePendingSpellCast(bool assignCastCount) {
     PendingSpellCast* cast = s_freePendingSpellCasts.Head();
 
     if (!cast) {
-        cast = s_freePendingSpellCasts.NewNode(2, 0, 8);
+        cast = s_freePendingSpellCasts.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
     }
 
     s_pendingSpellCasts.LinkToHead(cast);
@@ -1447,7 +1447,7 @@ void SpellHistory::AddHistory(int32_t spellId, int32_t itemId, uint32_t time, ui
         this->m_free.UnlinkNode(history);
         this->m_history.LinkToTail(history);
     } else {
-        history = this->m_history.NewNode(2, 0, 8);
+        history = this->m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
     }
 
     history->m_spellId = spellId;
@@ -1746,7 +1746,7 @@ void Spell_C_AddToInTransitList(WOWGUID caster, const SpellRec* spell, uint32_t 
         }
     }
 
-    s_spellsInTransit.LinkNode(node, 2, before);
+    s_spellsInTransit.LinkNode(node, TSLIST_LINK_BEFORE, before);
 }
 
 // VERIFY: 7d01b8cd manual
@@ -5704,7 +5704,7 @@ int32_t Packet_SMSG_ITEM_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time, 
                 history.m_free.UnlinkNode(entry);
                 history.m_history.LinkToTail(entry);
             } else {
-                entry = history.m_history.NewNode(2, 0, 8);
+                entry = history.m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
             }
 
             entry->m_spellId = spellId;
@@ -6066,7 +6066,7 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
             history.m_free.UnlinkNode(entry);
             history.m_history.LinkToTail(entry);
         } else {
-            entry = history.m_history.NewNode(2, 0, 8);
+            entry = history.m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
         }
 
         entry->m_spellId = spellId;
@@ -6787,7 +6787,7 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
                         history.m_free.UnlinkNode(entry);
                         history.m_history.LinkToTail(entry);
                     } else {
-                        entry = history.m_history.NewNode(2, 0, 8);
+                        entry = history.m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
                     }
 
                     entry->m_spellId = spellId;
@@ -7314,7 +7314,7 @@ void Spell_C_AddPeriodicClientTrigger(WOWGUID caster, int32_t auraSpellId, int32
         EventRegister(EVENT_ID_IDLE, Spell_C_Idle);
     }
 
-    PeriodicClientTrigger* trigger = s_periodicClientTriggers.NewNode(2, 0, 8);
+    PeriodicClientTrigger* trigger = s_periodicClientTriggers.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
     trigger->m_auraSpellId = auraSpellId;
     trigger->m_spellId = spellId;
     trigger->m_period = period;

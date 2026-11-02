@@ -1401,10 +1401,10 @@ void FrameScript_RegisterScriptEvent(FrameScript_Object* object, FrameScript_Eve
             }
         }
 
-        EVENTLISTENERNODE* node = event->m_registerListeners.NewNode(2, 0, 0);
+        EVENTLISTENERNODE* node = event->m_registerListeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_listener = object;
     } else {
-        EVENTLISTENERNODE* node = event->m_listeners.NewNode(2, 0, 0);
+        EVENTLISTENERNODE* node = event->m_listeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_listener = object;
     }
 }
@@ -1419,7 +1419,7 @@ void FrameScript_UnregisterScriptEvent(FrameScript_Object* object, FrameScript_E
             }
         }
 
-        EVENTLISTENERNODE* node = event->m_unregisterListeners.NewNode(2, 0, 0);
+        EVENTLISTENERNODE* node = event->m_unregisterListeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_listener = object;
     } else {
         for (EVENTLISTENERNODE* node = event->m_listeners.Head(); !event->m_listeners.IsEnd(node); node = event->m_listeners.RawNext(node)) {

@@ -194,7 +194,7 @@ void CGInstanceEncounter_C::ClearExpiredTimers() {
 // OFFSET: 0x005EDBC0
 void CGInstanceEncounter_C::AddTimer(uint32_t duration) {
     CGInstanceEncounter_C::ClearExpiredTimers();
-    ENCOUNTER_TIMER* timer = CGInstanceEncounter_C::m_timers.NewNode(2, 0, 0);
+    ENCOUNTER_TIMER* timer = CGInstanceEncounter_C::m_timers.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     timer->m_expireTime = duration + OsGetAsyncTimeMs();
 }
 
@@ -207,7 +207,7 @@ void CGInstanceEncounter_C::EnableObjective(int32_t id) {
         }
     }
 
-    ENCOUNTER_OBJECTIVE* objective = CGInstanceEncounter_C::m_objectives.NewNode(2, 0, 0);
+    ENCOUNTER_OBJECTIVE* objective = CGInstanceEncounter_C::m_objectives.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     objective->m_id = static_cast<uint8_t>(id);
     objective->m_progress = 0;
 }

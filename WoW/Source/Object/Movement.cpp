@@ -68,7 +68,7 @@ CPlayerMoveEvent* CPlayerMoveQueue::AllocEvent(uint32_t eventTime, MoveEventId e
     if (event) {
         event->m_link.Unlink();
     } else {
-        event = s_freeList.NewNode(0, 0, 0);
+        event = s_freeList.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     }
 
     event->m_eventTime = eventTime;
@@ -82,7 +82,7 @@ CPlayerMoveEvent* CPlayerMoveQueue::AllocEvent(uint32_t eventTime, MoveEventId e
 void CPlayerMoveQueue::Enqueue(CPlayerMoveEvent* event) {
     for (CPlayerMoveEvent* node = this->Head(); node; node = node->m_link.Next()) {
         if ((int32_t)(event->m_eventTime - node->m_eventTime) < 0) {
-            this->LinkNode(event, 2, node);
+            this->LinkNode(event, TSLIST_LINK_BEFORE, node);
             return;
         }
     }

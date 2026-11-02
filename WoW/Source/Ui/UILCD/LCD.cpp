@@ -1347,7 +1347,7 @@ int32_t CGLCD::Update(const void* data, void* param) {
 // VERIFY: bc2eb3a6 manual
 // OFFSET: 0x0084B410
 bool CGLCD::LoadLCDMap(int32_t screen, XMLNode* node, CStatus* status, int32_t subscreen) {
-    MAPDATA* map = CGLCD::m_mapData.NewNode(2, 0, 0);
+    MAPDATA* map = CGLCD::m_mapData.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     map->m_screen = screen;
 
     for (XMLNode* child = node->m_child; child; child = child->m_next) {
@@ -1723,7 +1723,7 @@ bool CGLCD::GeneratePOIs(XMLNode* node) {
             handle->m_x = static_cast<int32_t>(originX);
             handle->m_y = static_cast<int32_t>(originY);
 
-            POIIcon* icon = CGLCD::m_POIIcons.NewNode(2, 0, 0);
+            POIIcon* icon = CGLCD::m_POIIcons.NewNode(TSLIST_LINK_BEFORE, 0, 0);
             icon->m_handle = lcdBitmap;
             icon->m_id = rec->m_id;
             SStrCopy(icon->m_name, name, STORM_MAX_STR);

@@ -195,7 +195,7 @@ RealmConnection::RealmConnection(RealmResponse* realmResponse) : m_realmResponse
     this->SetMessageHandler(SMSG_CACHE_VERSION, RealmConnection::MessageHandler, this);
 
     RealmConnection::s_allRealmConnectionsCrit.Enter();
-    RealmConnection::REALMCONNECTIONNODE* node = RealmConnection::s_allRealmConnections.NewNode(2, 0, 0);
+    RealmConnection::REALMCONNECTIONNODE* node = RealmConnection::s_allRealmConnections.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_connection = this;
     RealmConnection::s_allRealmConnectionsCrit.Leave();
 }

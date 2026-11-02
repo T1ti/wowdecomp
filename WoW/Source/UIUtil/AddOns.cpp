@@ -1480,7 +1480,7 @@ void LoadAddOnEnableState(const char* character) {
     }
 
     if (TSList<ADDONSTATELIST, TSGetLink<ADDONSTATELIST> >::IsEnd(list)) {
-        list = s_addOnStates.NewNode(2, 0, 8);
+        list = s_addOnStates.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
         list->m_name = SStrDupA(character, __FILE__, __LINE__);
     }
 

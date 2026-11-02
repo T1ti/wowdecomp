@@ -567,7 +567,7 @@ NetClient::NetClient() {
     this->m_connectedTimestamp = 0;
     this->m_objMgr = nullptr;
 
-    NETCLIENTNODE* node = s_clientList.NewNode(2, 0, 0);
+    NETCLIENTNODE* node = s_clientList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_client = this;
 }
 
@@ -585,7 +585,7 @@ void NetClient::Send(CDataStore* msg) {
     }
 
     if (this->m_suspended) {
-        NetClient::HELDMESSAGE* held = this->m_heldMessages.NewNode(2, 0, 0);
+        NetClient::HELDMESSAGE* held = this->m_heldMessages.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         uint32_t bytes = msg->m_size - msg->m_read;
         void* data;
         msg->GetDataInSitu(data, bytes);
@@ -740,7 +740,7 @@ void NETEVENTQUEUE::Clear() {
 void NETEVENTQUEUE::AddEvent(EVENTID eventId, void* connection, NetClient* client, const void* data, uint32_t size) {
     this->m_critSect.Enter();
 
-    NETEVENTQUEUENODE* node = this->m_eventQueue.NewNode(2, 0, 8);
+    NETEVENTQUEUENODE* node = this->m_eventQueue.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
     node->m_eventId = eventId;
 
     if (size) {

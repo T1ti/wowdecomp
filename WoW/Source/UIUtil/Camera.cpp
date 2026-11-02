@@ -1484,7 +1484,7 @@ float CGCamera::GetDefaultZoomMaxDistance() {
 // VERIFY: cfc63e8a manual
 // OFFSET: 0x00606330
 void CGCamera::AddShake(const C3Vector& position, int32_t type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping) {
-    CameraShake* shake = this->m_cameraShakeList.NewNode(2, 0, 0);
+    CameraShake* shake = this->m_cameraShakeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (shake) {
         shake->m_amplitude = amplitude;

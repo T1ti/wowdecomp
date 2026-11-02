@@ -1459,7 +1459,7 @@ void TextureFreeGxTex(CGxTex* gxTex, const char* name) {
         CGxTexCache* entry = s_gxTexCacheFree.Head();
 
         if (!entry) {
-            entry = s_gxTexCacheFree.NewNode(1, 0, 0);
+            entry = s_gxTexCacheFree.NewNode(TSLIST_LINK_AFTER, 0, 0);
         }
 
         entry->m_link.Unlink();
@@ -1561,7 +1561,7 @@ void TextureFreeMippedImg(MipBits* bits, PIXEL_FORMAT format, uint32_t width, ui
     CMipBitsCache* entry = s_mipBitsCacheFree.Head();
 
     if (!entry) {
-        entry = s_mipBitsCacheFree.NewNode(2, 0, 0);
+        entry = s_mipBitsCacheFree.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         entry->m_link.Unlink();
     }
 
@@ -2257,7 +2257,7 @@ CTexture* CreateBlpAsync(char* extension, const char* fileName, uint32_t flags, 
     CAsyncObject* object = texture->m_asyncObject;
 
     if (0x400000 - s_asyncLoadBufferUsed < object->m_size) {
-        s_asyncTextureList.LinkNode(object, 2, nullptr);
+        s_asyncTextureList.LinkNode(object, TSLIST_LINK_BEFORE, nullptr);
     } else {
         AsyncTextureProcess(object, 0);
     }

@@ -1207,7 +1207,7 @@ void CGCalendar::InitHolidays() {
                 continue;
             }
 
-            CALENDARHOLIDAYNODE* node = s_holidays.NewNode(2, 0, 0);
+            CALENDARHOLIDAYNODE* node = s_holidays.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
             if (!node) {
                 continue;
@@ -2513,7 +2513,7 @@ void CGCalendar::InvalidatePlayer(WOWGUID guid) {
 // VERIFY: eded04a1 manual
 // OFFSET: 0x005BE590
 void CGCalendar::AddPendingInvite(CalendarDayEvent* event) {
-    CalendarPendingInvite* invite = s_pendingInvites.NewNode(2, 0, 0);
+    CalendarPendingInvite* invite = s_pendingInvites.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!invite) {
         return;
@@ -2619,7 +2619,7 @@ void CGCalendar::ProcessGetEvent(CDataStore* msg) {
     uint64_t eventID = CGCalendar::m_curEvent->m_eventID;
 
     if (!status && CGCalendar::m_curEvent->m_date > g_clientGameTime && !CGCalendar::HasPendingInvite(eventID)) {
-        CalendarPendingInvite* invite = s_pendingInvites.NewNode(2, 0, 0);
+        CalendarPendingInvite* invite = s_pendingInvites.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
         if (invite) {
             invite->m_eventID = eventID;
@@ -2851,7 +2851,7 @@ void CGCalendar::ProcessInviteStatusAlert(CDataStore* msg) {
                 event->m_flags &= ~CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_PENDING_INVITE;
                 FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_PENDING_INVITES, nullptr);
             }
-        } else if (s_pendingInvites.NewNode(2, 0, 0)) {
+        } else if (s_pendingInvites.NewNode(TSLIST_LINK_BEFORE, 0, 0)) {
             CGCalendar::AddPendingInvite(event);
         }
     }
@@ -3201,7 +3201,7 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
         SmartGUID inviter;
         *msg >> inviter;
 
-        CalendarPendingInvite* invite = s_pendingInvites.NewNode(2, 0, 0);
+        CalendarPendingInvite* invite = s_pendingInvites.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
         if (invite) {
             invite->m_eventID = eventID;
@@ -3372,7 +3372,7 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
         uint32_t offset;
         msg->Get(offset);
 
-        CALENDARRAIDRESETNODE* node = s_raidResets.NewNode(2, 0, 0);
+        CALENDARRAIDRESETNODE* node = s_raidResets.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
         if (node) {
             WowTime reset = serverTime;
@@ -3594,7 +3594,7 @@ void CGCalendar::ProcessInviteAlert(CDataStore* msg) {
     CGCalendar::InsertEvent(event, (event->m_type & 0x440) != 0);
 
     if (pending) {
-        CalendarPendingInvite* invite = s_pendingInvites.NewNode(2, 0, 0);
+        CalendarPendingInvite* invite = s_pendingInvites.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
         if (invite) {
             invite->m_eventID = event->m_eventID;

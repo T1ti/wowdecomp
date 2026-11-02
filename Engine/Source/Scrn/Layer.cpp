@@ -281,7 +281,7 @@ void ScrnLayerCreate(const RECTF* rect, float zorder, uint32_t flags, void* para
     for (existing = s_zorderlist.Tail(); existing && zorder < existing->m_zorder; existing = s_zorderlist.Prev(existing)) {
     }
 
-    s_zorderlist.LinkNode(ilayer, 1, existing);
+    s_zorderlist.LinkNode(ilayer, TSLIST_LINK_AFTER, existing);
 
     *layer = reinterpret_cast<HLAYER>(HandleCreate(ilayer, "HLAYER"));
 }

@@ -73,7 +73,7 @@ uint32_t s_objTotalSize[NUM_CLIENT_OBJECT_TYPES] = {
 // VERIFY: 9aded9c4 manual
 // OFFSET: 0x004D5850
 static CMirrorHandler* AssignMirrorHandler(TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list, uint32_t fieldByteOffset, uint32_t mirrorByteOffset, uint32_t fieldByteSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire) {
-    CMirrorHandler* handler = list->NewNode(2, 0, 0);
+    CMirrorHandler* handler = list->NewNode(TSLIST_LINK_BEFORE, 0, 0);
     handler->m_fieldByteOffset = fieldByteOffset;
     handler->m_mirrorByteOffset = mirrorByteOffset;
     handler->m_fieldByteSize = fieldByteSize;

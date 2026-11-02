@@ -396,7 +396,7 @@ int32_t STORMAPI SCmdRegisterArgument(uint32_t flags, uint32_t id, const char* n
         return 0;
     }
 
-    CMDDEF* ptr = ((flags & SCMD_ARG_MASK) ? &s_arglist : &s_flaglist)->NewNode(2, 0, 0);
+    CMDDEF* ptr = ((flags & SCMD_ARG_MASK) ? &s_arglist : &s_flaglist)->NewNode(TSLIST_LINK_BEFORE, 0, 0);
     SStrCopy(ptr->name, name, sizeof(ptr->name));
     ptr->id = id;
     ptr->namelength = namelength;

@@ -809,7 +809,7 @@ THROTTLEDCHAT::~THROTTLEDCHAT() {
 // VERIFY: f592c07c manual
 // OFFSET: 0x00502D00
 void CGChat::QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t a9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation) {
-    PENDINGCHAT* chat = CGChat::s_pendingChat.NewNode(2, 0, 0);
+    PENDINGCHAT* chat = CGChat::s_pendingChat.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     chat->m_senderGuid = senderGuid;
     chat->m_type = type;
@@ -858,7 +858,7 @@ int32_t CGChat::IsChannelThrottled(const char* channel, uint32_t time) {
 // VERIFY: 90b2a5a1 manual
 // OFFSET: 0x00502FA0
 void CGChat::AddThrottledChat(int32_t type, uint32_t language, const char* target, const char* text) {
-    THROTTLEDCHAT* chat = CGChat::s_throttledChat.NewNode(2, 0, 0);
+    THROTTLEDCHAT* chat = CGChat::s_throttledChat.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     chat->m_type = type;
     chat->m_language = language;
     chat->m_target = SStrDupA(target, __FILE__, __LINE__);
@@ -3389,7 +3389,7 @@ int32_t CGChat::OnChannelList(void* param, NETMESSAGE msgId, uint32_t time, CDat
     s_pendingUserListActive = false;
 
     for (int32_t i = 0; i < static_cast<int32_t>(count); i++) {
-        PENDINGUSERLIST* user = channel->m_pendingUsers.NewNode(2, 0, 0);
+        PENDINGUSERLIST* user = channel->m_pendingUsers.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         msg->Get(user->m_guid.m_guid);
         msg->Get(user->m_flags);
 
@@ -3481,7 +3481,7 @@ PENDINGTEXTEMOTE::~PENDINGTEXTEMOTE() {
 // VERIFY: ab068cfe manual
 // OFFSET: 0x00502EA0
 void CGChat::QueueTextEmote(const WOWGUID& guid, uint32_t emote, const char* target, int32_t queued, uint32_t emoteNum) {
-    PENDINGTEXTEMOTE* pending = CGChat::s_pendingTextEmotes.NewNode(2, 0, 0);
+    PENDINGTEXTEMOTE* pending = CGChat::s_pendingTextEmotes.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     pending->m_guid = guid;
     pending->m_emote = emote;
     pending->m_target = SStrDupA(target, __FILE__, __LINE__);

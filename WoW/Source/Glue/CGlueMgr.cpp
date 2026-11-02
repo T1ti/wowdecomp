@@ -1785,7 +1785,7 @@ void CGlueMgr::LogConnectionStatus(const char* format, ...) {
 
     s_connectionStatusLock.Enter();
 
-    ConsoleString* string = s_connectionStatus.NewNode(2, 0, 0);
+    ConsoleString* string = s_connectionStatus.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     va_list args;
     va_start(args, format);

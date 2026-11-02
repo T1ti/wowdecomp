@@ -447,7 +447,7 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
 
     if (this->m_widestFreeSlot >= width) {
         CHARCODEDESC* desc = new (__FILE__, __LINE__) CHARCODEDESC;
-        this->m_glyphlist.LinkNode(desc, 2, head);
+        this->m_glyphlist.LinkNode(desc, TSLIST_LINK_BEFORE, head);
         desc->m_glyphEndPixel = head->m_glyphStartPixel - 1;
         desc->m_glyphStartPixel = desc->m_glyphEndPixel - width + 1;
         desc->m_rowNumber = rowNumber;
@@ -482,7 +482,7 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
             }
         } else if (gap >= width) {
             desc = new (__FILE__, __LINE__) CHARCODEDESC;
-            this->m_glyphlist.LinkNode(desc, 1, glyph);
+            this->m_glyphlist.LinkNode(desc, TSLIST_LINK_AFTER, glyph);
             desc->m_glyphStartPixel = glyph->m_glyphEndPixel + 1;
             desc->m_glyphEndPixel = glyph->m_glyphEndPixel + width;
             desc->m_rowNumber = rowNumber;

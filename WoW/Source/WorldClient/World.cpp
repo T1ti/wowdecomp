@@ -5153,7 +5153,7 @@ void CGObject_C::PrepareToFadeInt(CMapEntity* entity, float alpha, uint64_t tran
     SWModelFadeout* fadeout = s_fadeoutDataPool.Head();
 
     if (!fadeout) {
-        fadeout = s_fadeoutDataPool.NewNode(0, 0, 0);
+        fadeout = s_fadeoutDataPool.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     }
 
     fadeout->m_entity = entity;

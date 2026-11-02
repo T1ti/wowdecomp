@@ -496,7 +496,7 @@ void CDestructibleProxy::FindOrCreate(CDestructibleProxy* proxy) {
         }
     }
 
-    CDestructibleProxy* created = CMap::s_destructibleProxyList.NewNode(2, 0, 0);
+    CDestructibleProxy* created = CMap::s_destructibleProxyList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     created->unused_0000 = proxy->unused_0000;
     created->m_sphere = proxy->m_sphere;
     created->m_uniqueId = proxy->m_uniqueId;
@@ -3216,7 +3216,7 @@ CMapRenderChunk* CMap::AllocRenderChunk() {
     CMapRenderChunk* renderChunk = CMap::s_mapRenderChunkFreeList.Head();
 
     if (!renderChunk) {
-        renderChunk = CMap::s_mapRenderChunkFreeList.NewNode(2, 0, 0);
+        renderChunk = CMap::s_mapRenderChunkFreeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         renderChunk->m_renderChunkLink.Unlink();
         return renderChunk;
     }

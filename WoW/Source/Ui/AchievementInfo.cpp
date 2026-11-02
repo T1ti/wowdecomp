@@ -68,7 +68,7 @@ int32_t Packet_SMSG_QUERY_QUESTS_COMPLETED_RESPONSE(void* param, NETMESSAGE msgI
     s_completedQuests.Clear();
 
     for (int32_t i = 0; i < static_cast<int32_t>(count); i++) {
-        COMPLETED_QUESTS* quest = s_completedQuests.NewNode(2, 0, 0);
+        COMPLETED_QUESTS* quest = s_completedQuests.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         msg->Get(reinterpret_cast<uint32_t&>(quest->m_questId));
     }
 
@@ -120,12 +120,12 @@ void CGAchievementInfo::InitializeGame() {
             list = s_criteriaByType[rec->m_type].New(rec->m_assetID, HASHKEY_NONE(), 0, 0);
         }
 
-        list->m_criteria.NewNode(2, 0, 0)->m_criteria = rec;
+        list->m_criteria.NewNode(TSLIST_LINK_BEFORE, 0, 0)->m_criteria = rec;
 
         ACHIEVEMENT* achievement = s_achievements.Ptr(rec->m_achievementID, HASHKEY_NONE());
 
         if (achievement) {
-            achievement->m_criteria.NewNode(2, 0, 0)->m_criteria = rec;
+            achievement->m_criteria.NewNode(TSLIST_LINK_BEFORE, 0, 0)->m_criteria = rec;
         }
     }
 }
@@ -185,14 +185,14 @@ void CGAchievementInfo::UpdateCriteria(int32_t id, uint64_t counter, uint32_t fl
     }
 
     if (!criteria) {
-        criteria = s_criteria.NewNode(0, 0, 0);
+        criteria = s_criteria.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
         CLIENT_ACHIEVEMENT_CRITERIA* position = s_criteria.Head();
 
         while (position && position->m_date > date) {
             position = s_criteria.Next(position);
         }
 
-        s_criteria.LinkNode(criteria, 2, position);
+        s_criteria.LinkNode(criteria, TSLIST_LINK_BEFORE, position);
     }
 
     criteria->m_counter = counter;
@@ -213,7 +213,7 @@ void CGAchievementInfo::UpdateCriteria(int32_t id, uint64_t counter, uint32_t fl
         return;
     }
 
-    CLIENT_ACHIEVEMENT_CRITERIA* recent = s_recentCriteria.NewNode(0, 0, 0);
+    CLIENT_ACHIEVEMENT_CRITERIA* recent = s_recentCriteria.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     recent->m_id = criteria->m_id;
     recent->m_counter = criteria->m_counter;
     recent->m_flags = criteria->m_flags;
@@ -223,7 +223,7 @@ void CGAchievementInfo::UpdateCriteria(int32_t id, uint64_t counter, uint32_t fl
 
     Achievement_CriteriaRec* rec = g_achievement_CriteriaDB.GetRecord(recent->m_id);
     CLIENT_ACHIEVEMENT_CRITERIA* node = s_recentCriteria.Head();
-    s_recentCriteria.LinkNode(recent, 2, node);
+    s_recentCriteria.LinkNode(recent, TSLIST_LINK_BEFORE, node);
 
     for (int32_t count = 0; node; ) {
         Achievement_CriteriaRec* nodeRec = g_achievement_CriteriaDB.GetRecord(node->m_id);
@@ -268,7 +268,7 @@ void CGAchievementInfo::UpdateAchievement(int32_t id, WowTime date) {
     }
 
     if (!achievement) {
-        achievement = s_completedAchievements.NewNode(0, 0, 0);
+        achievement = s_completedAchievements.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
         CLIENT_ACHIEVEMENTS* position = s_completedAchievements.Head();
         bool found = false;
 
@@ -288,7 +288,7 @@ void CGAchievementInfo::UpdateAchievement(int32_t id, WowTime date) {
             }
         }
 
-        s_completedAchievements.LinkNode(achievement, 2, position);
+        s_completedAchievements.LinkNode(achievement, TSLIST_LINK_BEFORE, position);
     }
 
     achievement->m_id = id;
@@ -357,7 +357,7 @@ int32_t AddTrackedAchievement(int32_t id) {
         }
     }
 
-    CLIENT_ACHIEVEMENTS* node = s_trackedAchievements.NewNode(2, 0, 0);
+    CLIENT_ACHIEVEMENTS* node = s_trackedAchievements.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_id = id;
     FrameScript_SignalEvent(SCRIPT_EVENT_TRACKED_ACHIEVEMENT_UPDATE, "%d", id);
     return 1;
@@ -556,7 +556,7 @@ void CGAchievementInfo::UpdateInspectAchievement(WOWGUID guid, int32_t id, WowTi
     AchievementRec* rec = g_achievementDB.GetRecord(id);
 
     if (!achievement) {
-        achievement = s_inspectAchievements.NewNode(0, 0, 0);
+        achievement = s_inspectAchievements.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
         CLIENT_ACHIEVEMENTS* position = s_inspectAchievements.Head();
         bool found = false;
 
@@ -576,7 +576,7 @@ void CGAchievementInfo::UpdateInspectAchievement(WOWGUID guid, int32_t id, WowTi
             }
         }
 
-        s_inspectAchievements.LinkNode(achievement, 2, position);
+        s_inspectAchievements.LinkNode(achievement, TSLIST_LINK_BEFORE, position);
     }
 
     achievement->m_id = id;
@@ -600,14 +600,14 @@ void CGAchievementInfo::UpdateInspectCriteria(WOWGUID guid, int32_t id, uint64_t
     }
 
     if (!criteria) {
-        criteria = s_inspectCriteria.NewNode(0, 0, 0);
+        criteria = s_inspectCriteria.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
         CLIENT_ACHIEVEMENT_CRITERIA* position = s_inspectCriteria.Head();
 
         while (position && position->m_date > date) {
             position = s_inspectCriteria.Next(position);
         }
 
-        s_inspectCriteria.LinkNode(criteria, 2, position);
+        s_inspectCriteria.LinkNode(criteria, TSLIST_LINK_BEFORE, position);
     }
 
     criteria->m_counter = counter;
@@ -622,7 +622,7 @@ void CGAchievementInfo::UpdateInspectCriteria(WOWGUID guid, int32_t id, uint64_t
         return;
     }
 
-    CLIENT_ACHIEVEMENT_CRITERIA* recent = s_inspectRecentCriteria.NewNode(0, 0, 0);
+    CLIENT_ACHIEVEMENT_CRITERIA* recent = s_inspectRecentCriteria.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     recent->m_id = criteria->m_id;
     recent->m_counter = criteria->m_counter;
     recent->m_flags = criteria->m_flags;
@@ -632,7 +632,7 @@ void CGAchievementInfo::UpdateInspectCriteria(WOWGUID guid, int32_t id, uint64_t
     recent->m_timer2 = criteria->m_timer2;
 
     CLIENT_ACHIEVEMENT_CRITERIA* node = s_inspectRecentCriteria.Head();
-    s_inspectRecentCriteria.LinkNode(recent, 2, node);
+    s_inspectRecentCriteria.LinkNode(recent, TSLIST_LINK_BEFORE, node);
 
     for (int32_t count = 0; node; ) {
         if (node->m_id == recent->m_id) {

@@ -1044,7 +1044,7 @@ void BattlenetLogin::Logon(const char* loginServer, const char* portal) {
 void BattlenetLogin::QueueEvent(BN_EVENT_ID id, void* data, int32_t size) {
     this->m_eventLock.Enter();
 
-    BN_EVENT* event = this->m_events[this->m_eventIndex].NewNode(2, 0, 0);
+    BN_EVENT* event = this->m_events[this->m_eventIndex].NewNode(TSLIST_LINK_BEFORE, 0, 0);
     event->m_data = data;
     event->m_id = id;
     event->m_size = size;
@@ -1122,7 +1122,7 @@ void BattlenetLogin::UpdateRealmListData(uint32_t region, uint32_t battlegroup, 
     }
 
     if (!realm) {
-        BN_REALM* node = this->m_realms.NewNode(2, 0, 0);
+        BN_REALM* node = this->m_realms.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
         if (!node) {
             this->m_realmLock.Leave();

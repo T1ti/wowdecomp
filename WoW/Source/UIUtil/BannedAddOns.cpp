@@ -303,7 +303,7 @@ static int32_t LoadCache() {
     uint32_t bytes;
 
     do {
-        _BANNEDADDONLOADNODE* node = records.NewNode(2, 0, 8);
+        _BANNEDADDONLOADNODE* node = records.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
 
         if (!ReadCacheRecord(file, &node->m_cache, &bytes)) {
             records.Clear();

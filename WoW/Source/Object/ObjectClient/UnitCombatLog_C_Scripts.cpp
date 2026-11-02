@@ -129,7 +129,7 @@ static int32_t Script_CombatLogAddFilter(lua_State* L) {
             break;
     }
 
-    CombatLogFilter* filter = s_filters.NewNode(2, 0, 0);
+    CombatLogFilter* filter = s_filters.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     filter->SetFilterData(events, sourceGuid, sourceFlags, destGuid, destFlags, spellId, spellName);
     return 0;
 }

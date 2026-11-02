@@ -1277,7 +1277,7 @@ void CGSpellBook::AddSpellToNameCache(int32_t spellId, int32_t isPet) {
     node->m_rank = rank;
 
     if (next) {
-        entry->m_spells.LinkNode(node, 2, next);
+        entry->m_spells.LinkNode(node, TSLIST_LINK_BEFORE, next);
     } else {
         entry->m_spells.LinkToTail(node);
     }

@@ -340,7 +340,7 @@ void CGChatBubbleFrame::ShutdownGame() {
 static void InsertSorted(CGChatBubbleFrame* bubble) {
     for (CGChatBubbleFrame* node = s_chatBubbles.Head(); node; node = s_chatBubbles.Next(node)) {
         if (static_cast<int32_t>(node->m_showTime - bubble->m_showTime) >= 0) {
-            s_chatBubbles.LinkNode(bubble, 2, node);
+            s_chatBubbles.LinkNode(bubble, TSLIST_LINK_BEFORE, node);
             return;
         }
     }

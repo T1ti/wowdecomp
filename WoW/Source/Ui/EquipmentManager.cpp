@@ -109,7 +109,7 @@ void CGEquipmentManager::CreateEquipmentSet(const char* name, const char* icon) 
 
     EQUIPMENT_SET* set = AllocSet(CGEquipmentManager::s_equipmentSetHeap);
     set->m_id = id;
-    EQUIPMENT_SET_NODE* node = CGEquipmentManager::s_equipmentSets.NewNode(2, 0, 8);
+    EQUIPMENT_SET_NODE* node = CGEquipmentManager::s_equipmentSets.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
     node->m_set = set;
     CGEquipmentManager::SaveSet(set, name, icon);
     set->m_isNew = 1;
@@ -355,7 +355,7 @@ int32_t Packet_SMSG_EQUIPMENT_SET_LIST(void* param, NETMESSAGE msgId, uint32_t t
             set->m_items[slot] = item;
         }
 
-        EQUIPMENT_SET_NODE* node = CGEquipmentManager::s_equipmentSets.NewNode(2, 0, 0);
+        EQUIPMENT_SET_NODE* node = CGEquipmentManager::s_equipmentSets.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_set = set;
     }
 

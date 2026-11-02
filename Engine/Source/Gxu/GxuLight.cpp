@@ -152,7 +152,7 @@ CGxuLightLink* CGxuLight::NewLink() {
     CGxuLightLink* link = s_freeLinks.Head();
 
     if (!link) {
-        link = s_freeLinks.NewNode(2, 0, 0);
+        link = s_freeLinks.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     }
 
     link->m_lightLink.Unlink();
@@ -190,7 +190,7 @@ static CGxuLight* GxuLightCreateImpl() {
     CGxuLight* light = s_freeLights.Head();
 
     if (!light) {
-        return s_lights.NewNode(2, 0, 0);
+        return s_lights.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     }
 
     s_freeLights.UnlinkNode(light);
@@ -322,7 +322,7 @@ static void GxuLightUnlockImpl(CGxuLight* light) {
             }
 
             if (node) {
-                list->m_links.LinkNode(link, 2, node);
+                list->m_links.LinkNode(link, TSLIST_LINK_BEFORE, node);
             } else {
                 list->m_links.LinkToTail(link);
             }

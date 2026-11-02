@@ -655,7 +655,7 @@ CWorldOccluder* CWorldOccluder::Alloc() {
     CWorldOccluder* occluder = s_occluderFreeList.Head();
 
     if (!occluder) {
-        occluder = s_occluderFreeList.NewNode(2, 0, 0);
+        occluder = s_occluderFreeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     }
 
     occluder->m_link.Unlink();

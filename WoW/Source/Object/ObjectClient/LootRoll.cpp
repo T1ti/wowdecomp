@@ -397,7 +397,7 @@ int32_t LootRollStart(CDataStore* msg) {
         return 1;
     }
 
-    PendingLootRoll* roll = s_pendingLootRolls.NewNode(2, 0, 0);
+    PendingLootRoll* roll = s_pendingLootRolls.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     roll->m_lootGuid = lootGuid;
     roll->m_id = s_nextLootRollId++;
     roll->unknown_0030 = 0;

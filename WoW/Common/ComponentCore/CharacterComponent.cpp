@@ -4965,13 +4965,13 @@ void CCharacterComponent::CreateComponentFreeLists() {
     }
 
     for (int32_t i = 0; i < count; i++) {
-        CComponentMipBits* mipBits = s_mipBitsFreeList.NewNode(2, 0, 0);
+        CComponentMipBits* mipBits = s_mipBitsFreeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         mipBits->m_format = PIXEL_ARGB8888;
         mipBits->m_mipBits = TextureAllocMippedImg(PIXEL_ARGB8888, s_textureSize, s_textureSize);
     }
 
     for (int32_t i = 0; i < compressedCount; i++) {
-        CComponentMipBits* mipBits = s_mipBitsCompressedFreeList.NewNode(2, 0, 0);
+        CComponentMipBits* mipBits = s_mipBitsCompressedFreeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         mipBits->m_format = PIXEL_DXT1;
         mipBits->m_mipBits = TextureAllocMippedImg(PIXEL_DXT1, s_textureSize, s_textureSize);
     }
@@ -4983,7 +4983,7 @@ CComponentRequest* CCharacterComponent::AllocComponentRequest() {
     CComponentRequest* request = s_requestFreeList.Head();
 
     if (!request) {
-        request = s_requestFreeList.NewNode(1, 0, 0);
+        request = s_requestFreeList.NewNode(TSLIST_LINK_AFTER, 0, 0);
     }
 
     request->m_link.Unlink();

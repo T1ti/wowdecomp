@@ -40,7 +40,7 @@ static void SortNameNode(AUTOCOMPLETE_NAMENODE* node) {
             continue;
         }
 
-        CGAutoCompleteName::m_list.LinkNode(node, 2, current);
+        CGAutoCompleteName::m_list.LinkNode(node, TSLIST_LINK_BEFORE, current);
         return;
     }
 

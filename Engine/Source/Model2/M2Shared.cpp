@@ -1997,7 +1997,7 @@ void CM2Shared::LowPrioritySequenceFailedCallback(void* param) {
 // OFFSET: 0x0083DA10
 CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
     M2Sequence* sequence = &this->m_data->m_sequences[sequenceIndex];
-    CM2SequenceLoad* load = this->m_sequenceLoads.NewNode(2, 0, 0);
+    CM2SequenceLoad* load = this->m_sequenceLoads.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!load) {
         return nullptr;

@@ -20132,7 +20132,7 @@ static void NamePlateSort(CGNamePlateFrame* frame) {
 
     for (CGNamePlateFrame* node = s_namePlates.Head(); node; node = s_namePlates.Next(node)) {
         if (NamePlateScreenCenterDistanceSquared(node->m_position) <= distance) {
-            s_namePlates.LinkNode(frame, 2, node);
+            s_namePlates.LinkNode(frame, TSLIST_LINK_BEFORE, node);
             return;
         }
     }

@@ -597,7 +597,7 @@ int32_t STORMAPI SErrGetErrorStr(uint32_t errorcode, char* buffer, uint32_t buff
 // OFFSET: 0x00771B80
 void STORMAPI SErrRegisterHandler(int32_t (STORMAPI* handler)(uint32_t, const char*, const char*, int32_t, const char*)) {
     InternalEnterCriticalSection(&s_critsect);
-    s_handlerlist.NewNode(1, 0, 0x8000000)->handler = handler;
+    s_handlerlist.NewNode(TSLIST_LINK_AFTER, 0, 0x8000000)->handler = handler;
     InternalLeaveCriticalSection(&s_critsect);
 }
 

@@ -414,7 +414,7 @@ void CameraSetFloat(CCamera* camera, uint32_t index, float value) {
 void CDataMgr::InsertByPriority(CBaseManaged* data) {
     for (CBaseManaged* node = this->m_updateList.Head(); node; node = this->m_updateList.Next(node)) {
         if (node->m_updatePriority <= data->m_updatePriority) {
-            this->m_updateList.LinkNode(data, 2, node);
+            this->m_updateList.LinkNode(data, TSLIST_LINK_BEFORE, node);
             return;
         }
     }

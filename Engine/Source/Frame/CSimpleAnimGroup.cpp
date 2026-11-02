@@ -512,7 +512,7 @@ bool CSimpleAnimGroup::AddAnimListNode(TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEAN
         return false;
     }
 
-    SIMPLEANIMNODE* node = list->NewNode(2, 0, 0);
+    SIMPLEANIMNODE* node = list->NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!node) {
         return false;

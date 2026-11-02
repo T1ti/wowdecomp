@@ -536,7 +536,7 @@ void CLayoutFrame::AddToResizeList() {
         }
 
         if (dependent) {
-            s_resizePendingList.LinkNode(this, 2, dependent);
+            s_resizePendingList.LinkNode(this, TSLIST_LINK_BEFORE, dependent);
             this->m_layoutFlags = (this->m_layoutFlags & ~0xFFu) | 6;
             return;
         }
@@ -661,7 +661,7 @@ void CLayoutFrame::RegisterResize(CLayoutFrame* frame, uint32_t dependency) {
         }
     }
 
-    CLayoutFrame::FRAMENODE* node = this->m_resizeList.NewNode(2, 0, 0);
+    CLayoutFrame::FRAMENODE* node = this->m_resizeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_frame = frame;
     node->m_dependency = dependency;
 

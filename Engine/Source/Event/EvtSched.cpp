@@ -338,7 +338,7 @@ uint32_t InitializeSchedulerThread() {
     EvtThread* thread = Event::s_threadSlots[slot];
 
     if (!thread) {
-        thread = Event::s_threadList.NewNode(2, 0, 0);
+        thread = Event::s_threadList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         thread->m_threadCount = 0;
         thread->m_weightTotal = 0;
         thread->m_weightAvg = 0;

@@ -282,7 +282,7 @@ int32_t CTextureBlob::Load(const char* fileName) {
         return 0;
     }
 
-    CTextureBlob* blob = s_textureBlobList.NewNode(2, 0, 0);
+    CTextureBlob* blob = s_textureBlobList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     SStrCopy(blob->m_filename, fileName, STORM_MAX_STR);
 
     uint32_t size = SFileGetFileSize(file, nullptr);

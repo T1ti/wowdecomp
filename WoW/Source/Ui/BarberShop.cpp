@@ -353,7 +353,7 @@ void CGBarberShop::EnterWorld() {
             useable = CGBarberShop::m_useableStyles.New(rec->m_type, key, 0, 0);
         }
 
-        STYLEREC* style = useable->m_styles.NewNode(2, 0, 0);
+        STYLEREC* style = useable->m_styles.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         style->m_rec = rec;
     }
 

@@ -459,7 +459,7 @@ uint32_t SpellVisualsGetModelAttachRecCount(uint32_t kitId) {
 // VERIFY: d05aaf9b auto
 // OFFSET: 0x007FBE00
 MountTransitionObject* SpellVisualsStartMountTransition(CGUnit_C* unit) {
-    MountTransitionObject* transition = s_mountTransitions.NewNode(2, 0, 0);
+    MountTransitionObject* transition = s_mountTransitions.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!transition) {
         return nullptr;
@@ -531,7 +531,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
     uint32_t offset = 0;
 
     do {
-        LightningObject* object = s_lightningObjects.NewNode(2, 0, 0);
+        LightningObject* object = s_lightningObjects.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         object->m_targets.SetCount(count + 1);
         object->m_bolts.SetCount(count);
         object->m_targets[0] = caster->m_obj->m_guid.m_guid;

@@ -303,7 +303,7 @@ static BFSNODE* SmartScreenRectAllocNode() {
         return node;
     }
 
-    node = s_searchQueue.NewNode(2, 0, 0);
+    node = s_searchQueue.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_direction = TEST_INVALID;
 
     return node;

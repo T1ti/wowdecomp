@@ -132,7 +132,7 @@ void CStatus::Prepend(STATUS_TYPE severity, const char* format, ...) {
         return;
     }
 
-    STATUSENTRY* entry = this->m_statusList.NewNode(1, 0, 0);
+    STATUSENTRY* entry = this->m_statusList.NewNode(TSLIST_LINK_AFTER, 0, 0);
     entry->m_text = SStrDupA(buffer, __FILE__, __LINE__);
     entry->m_severity = severity;
 
@@ -161,7 +161,7 @@ void CStatus::Add(STATUS_TYPE severity, const char* format, ...) {
         return;
     }
 
-    STATUSENTRY* entry = this->m_statusList.NewNode(2, 0, 0);
+    STATUSENTRY* entry = this->m_statusList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     entry->m_text = SStrDupA(buffer, __FILE__, __LINE__);
     entry->m_severity = severity;
 

@@ -1390,7 +1390,7 @@ void VBBList::FreeVBB(VBBList_Block* block) {
 // OFFSET: 0x007CBB30
 void VBBList::AssignBlock(VBBList_Block* block, VBBList_Block** slot, uint32_t itemSize, uint32_t itemCount) {
     VBBList_Block* rest = this->AllocBlock();
-    this->unk_001C.LinkNode(rest, 1, block);
+    this->unk_001C.LinkNode(rest, TSLIST_LINK_AFTER, block);
     rest->Set(1, block->m_capacity - itemSize * (itemCount + 1), itemSize * (itemCount + 1) + block->m_offset);
     block->Set(itemSize, itemCount + 1, block->m_offset);
     block->m_listHead = slot;

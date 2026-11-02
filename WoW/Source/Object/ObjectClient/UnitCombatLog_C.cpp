@@ -389,7 +389,7 @@ PendingCombatLogData* GetPendingCombatLogData(CombatLogEntry* entry, const WOWGU
     PendingCombatLogData* data = s_freePendingData.Head();
 
     if (!data) {
-        data = s_freePendingData.NewNode(2, 0, 0);
+        data = s_freePendingData.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     }
 
     data->m_entry = entry;
@@ -403,7 +403,7 @@ PendingCombatLogData* GetPendingCombatLogData(CombatLogEntry* entry, const WOWGU
 // VERIFY: 106263c5 manual
 // OFFSET: 0x0074F400
 void UnitCombatLogInvalidateName(const char* name) {
-    InvalidatedName* node = s_invalidatedNames.NewNode(2, 0, 0);
+    InvalidatedName* node = s_invalidatedNames.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     node->m_name = SStrDupA(name, __FILE__, __LINE__);
 
     for (CombatLogEntry* entry = s_entries.Head(); entry; entry = s_entries.Next(entry)) {
@@ -816,7 +816,7 @@ CombatLogEntry* GetCombatLogEntry(const WOWGUID& source, const WOWGUID& dest, in
             RecycleCombatLogEntry(oldest);
             entry = oldest;
         } else {
-            entry = s_freeEntries.NewNode(2, 0, 0);
+            entry = s_freeEntries.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         }
     }
 

@@ -842,7 +842,7 @@ void Weather::UpdatePosDeltas() {
 
     if (now != s_lastTime) {
         C3Vector delta = transportPos - s_lastTransportPos;
-        PosDelta* node = this->m_transportDeltas.NewNode(2, 0, 0);
+        PosDelta* node = this->m_transportDeltas.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_delta = delta;
         node->m_time = now - s_lastTime;
     }
@@ -851,7 +851,7 @@ void Weather::UpdatePosDeltas() {
 
     if (now - s_lastTime) {
         C3Vector delta = playerPos - C3Vector(this->m_positionX, this->m_positionY, this->m_positionZ);
-        PosDelta* node = this->m_playerDeltas.NewNode(2, 0, 0);
+        PosDelta* node = this->m_playerDeltas.NewNode(TSLIST_LINK_BEFORE, 0, 0);
         node->m_delta = delta;
         node->m_time = now - s_lastTime;
     }

@@ -878,7 +878,7 @@ int32_t GxuFontCreateFont(const char* name, float fontHeight, CGxFont*& face, ui
         return 0;
     }
 
-    CGxFont* newFace = g_fonts.NewNode(2, 0, 0);
+    CGxFont* newFace = g_fonts.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (flags & 8) {
         flags |= 1;
