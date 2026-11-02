@@ -883,7 +883,7 @@ static int32_t Script_GetQuestLogRewardSpell(lua_State* L) {
         SpellRec effect;
 
         if (g_spellDB.GetRecord(quest->m_effectOnPlayer, &effect)) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                 if (effect.m_effect[i] == SPELL_EFFECT_LEARN_SPELL || effect.m_effect[i] == SPELL_EFFECT_LEARN_PET_SPELL) {
                     learns = 1;
                     break;

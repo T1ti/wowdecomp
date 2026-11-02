@@ -99,7 +99,7 @@ static int32_t Script_GlyphMatchesSocket(lua_State* L) {
         return 0;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell.m_effect[i] != SPELL_EFFECT_APPLY_GLYPH) {
             continue;
         }

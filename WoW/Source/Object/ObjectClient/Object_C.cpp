@@ -1671,7 +1671,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
         effect->m_expireTime = 0;
 
         if (data.m_spellRec && !data.m_position) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                 if (data.m_spellRec->m_effectAura[i] == SPELL_AURA_MOD_ROOT) {
                     flags |= CEffect::EFFECT_FLAGS::EFFECT_FOLLOW_SOURCE_POSITION;
                     break;
@@ -1804,7 +1804,7 @@ attachments:
             effect->m_expireTime = 0;
 
             if (data.m_spellRec && !data.m_position) {
-                for (uint32_t j = 0; j < 3; j++) {
+                for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                     if (data.m_spellRec->m_effectAura[j] == SPELL_AURA_MOD_ROOT) {
                         flags |= CEffect::EFFECT_FLAGS::EFFECT_FOLLOW_SOURCE_POSITION;
                         break;

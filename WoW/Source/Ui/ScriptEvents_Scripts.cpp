@@ -2445,7 +2445,7 @@ static int32_t Script_UnitCastingInfo(lua_State* L) {
         LockRec* lock = gameObject->GetLockRec();
 
         if (lock) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                 if (spell.m_effect[i] != SPELL_EFFECT_OPEN_LOCK) {
                     continue;
                 }

@@ -305,7 +305,7 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
         return;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effect[i] != SPELL_EFFECT_APPLY_AURA) {
             continue;
         }
@@ -3207,7 +3207,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
     int32_t createsItem = 0;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             int32_t effect = spell.m_effect[i];
 
             if (effect == SPELL_EFFECT_ENCHANT_ITEM) {
@@ -4446,7 +4446,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
             SpellRec spell;
 
             if (g_spellDB.GetRecord(stats->m_spellId[i], &spell)) {
-                for (uint32_t j = 0; j < 3; j++) {
+                for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                     if (spell.m_effect[j] != SPELL_EFFECT_APPLY_GLYPH) {
                         continue;
                     }
@@ -7449,7 +7449,7 @@ void CGTooltip::AddSkinnableText(CGUnit_C* unit, char* buffer, uint32_t size) {
         SpellRec spell;
         g_spellDB.GetRecord(skinningSpell, &spell);
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell.m_effect[i] != SPELL_EFFECT_SKINNING) {
                 continue;
             }

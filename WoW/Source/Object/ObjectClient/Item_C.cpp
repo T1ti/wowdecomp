@@ -1204,7 +1204,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
         bool match = !effect;
 
         if (!match && g_spellDB.GetRecord(stats->m_spellId[i], &spell)) {
-            for (uint32_t j = 0; j < 3; j++) {
+            for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                 if (spell.m_effect[j] == effect) {
                     match = true;
                     break;
@@ -1323,7 +1323,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
             for (uint32_t j = 0; j < s_openLockSpells.m_count; j++) {
                 g_spellDB.GetRecord(s_openLockSpells.m_data[j], &spell);
 
-                for (uint32_t effect = 0; effect < 3; effect++) {
+                for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                     if (spell.m_effect[effect] != SPELL_EFFECT_OPEN_LOCK || spell.m_effectMiscValue[effect] != lock->m_index[i]) {
                         continue;
                     }
@@ -1363,7 +1363,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
 
             g_spellDB.GetRecord(lock->m_index[i], &spell);
 
-            for (uint32_t effect = 0; effect < 3; effect++) {
+            for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                 if (spell.m_effect[effect] == SPELL_EFFECT_OPEN_LOCK) {
                     if (spellId) {
                         *spellId = spell.m_id;

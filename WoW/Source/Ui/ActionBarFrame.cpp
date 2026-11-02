@@ -2115,7 +2115,7 @@ void CGActionBar::UpdateCritter(int32_t critter) {
             continue;
         }
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell.m_effect[i] == SPELL_EFFECT_SUMMON && g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[0]) && spell.m_effectMiscValue[i] == critter) {
                 int32_t noMana;
                 CGActionBar::m_slotUsable[slot] = CGActionBar::UpdateUsableAction(slot, noMana);

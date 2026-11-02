@@ -831,7 +831,7 @@ void CGPetInfo::FindPossessedSpell() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             int32_t auraType = spell.m_effectAura[j];
 
             if (auraType == SPELL_AURA_MOD_POSSESS || auraType == SPELL_AURA_MOD_POSSESS_PET || auraType == SPELL_AURA_MOD_CHARM || (auraType == SPELL_AURA_CONTROL_VEHICLE && onCharmVehicle)) {
@@ -840,7 +840,7 @@ void CGPetInfo::FindPossessedSpell() {
             }
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effect[j] != SPELL_EFFECT_SUMMON) {
                 continue;
             }

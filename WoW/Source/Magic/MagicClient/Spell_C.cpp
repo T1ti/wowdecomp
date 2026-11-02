@@ -966,7 +966,7 @@ void StartSpellCastVisuals(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
             }
 
             unit->SetUICastingSpell(cast->m_data.m_spellId, cast->m_data.m_objectTarget, castTime);
-            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 324);
+            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_START);
         }
     }
 
@@ -1160,7 +1160,7 @@ void CGUnit_C::SetPredictedPower(POWER_TYPE powerType, int32_t value) {
     this->m_predictedPower[powerType] = value;
 
     if (static_cast<uint32_t>(value) == maximum) {
-        Script_SendUnitSignal(this->m_obj->m_guid, powerType + 19);
+        Script_SendUnitSignal(this->m_obj->m_guid, powerType + SCRIPT_EVENT_UNIT_MANA);
     }
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == CGPetInfo::GetPet(0)) {
@@ -1276,25 +1276,25 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
 
     switch (reason) {
         case SpellCastResult::SPELL_FAILED_UNKNOWN:
-            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 330);
+            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_SUCCEEDED);
             break;
         case SpellCastResult::SPELL_FAILED_CHARMED:
         case SpellCastResult::SPELL_FAILED_DONT_REPORT:
         case SpellCastResult::SPELL_FAILED_SPELL_IN_PROGRESS:
-            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 327);
+            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_FAILED_QUIET);
             break;
         case SpellCastResult::SPELL_FAILED_INTERRUPTED:
         case SpellCastResult::SPELL_FAILED_INTERRUPTED_COMBAT:
-            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 328);
+            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_INTERRUPTED);
             break;
         default:
-            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 326);
+            Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_FAILED);
             break;
     }
 
     if (cast->m_data.m_castCount == castCount && cast->m_data.m_spellId == static_cast<int32_t>(unit->m_castingSpellId)) {
         unit->ResetUICastingSpell();
-        Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, 325);
+        Script_SendUnitSpellSignal(unit->m_obj->m_guid, cast->m_data.m_castCount, spell, SCRIPT_EVENT_UNIT_SPELLCAST_STOP);
     }
 
     if (cast == s_targetingSpell) {
@@ -2185,7 +2185,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             CGTradeSkillInfo::DoRecast(spellId);
         }
 
-        for (uint32_t effect = 0; effect < 3; effect++) {
+        for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (spell.m_effect[effect] != SPELL_EFFECT_OPEN_LOCK) {
                 continue;
             }
@@ -2217,7 +2217,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 break;
             }
 
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                 if (spell.m_effect[i] != SPELL_EFFECT_OPEN_LOCK) {
                     continue;
                 }
@@ -2257,7 +2257,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             break;
         }
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             int32_t effect = spell.m_effect[i];
 
             if (effect == SPELL_EFFECT_PICKPOCKET || effect == SPELL_EFFECT_SKINNING || effect == SPELL_EFFECT_SKIN_PLAYER_CORPSE || ((effect == SPELL_EFFECT_DISENCHANT || effect == SPELL_EFFECT_PROSPECTING || effect == SPELL_EFFECT_MILLING) && CGGameUI::IsAutoLooting())) {
@@ -2852,7 +2852,7 @@ void Spell_C_CursorWorldObjectRotate() {
 // VERIFY: 5da1ec93 auto
 // OFFSET: 0x007FDF60
 bool SpellIsTrackingAura(const SpellRec* spell) {
-    for (int32_t i = 0; i < 3; i++) {
+    for (int32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         int32_t aura = spell->m_effectAura[i];
 
         if (aura == SPELL_AURA_TRACK_CREATURES || aura == SPELL_AURA_TRACK_RESOURCES || aura == SPELL_AURA_TRACK_STEALTHED) {
@@ -2979,7 +2979,7 @@ void Spell_C_CancelAutoRepeat(bool a1) {
 // VERIFY: 2524719c auto
 // OFFSET: 0x007FDE50
 bool SpellRec::HasAura(const SpellRec* spell, int32_t aura) {
-    for (int32_t i = 0; i < 3; i++) {
+    for (int32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAura[i] == aura) {
             return true;
         }
@@ -2999,7 +2999,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
         return 2;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         switch (spell->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
@@ -3027,7 +3027,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
         }
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         switch (spell->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
                 if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
@@ -3766,7 +3766,7 @@ int32_t Spell_C_GetDuration(const SpellRec* spell, int32_t isPet, int32_t isUnit
         return duration;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAuraPeriod[i]) {
             if (((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) || player->AffectedByAura(SPELL_AURA_PERIODIC_HASTE, spell)) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) && player->m_unit->m_unitModCastSpeed >= 0.001f) {
                 duration = CMath::fint_(duration * player->m_unit->m_unitModCastSpeed);
@@ -5013,7 +5013,7 @@ int32_t Packet_SMSG_SPELL_DELAYED(void* param, NETMESSAGE msgId, uint32_t time, 
         if (g_spellDB.GetRecord(unit->m_castingSpellId, &spell)) {
             if ((spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_FORCE_DISPLAY_CASTBAR) || (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() || (!(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && !(spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_NO_CAST_LOG))))) {
                 unit->DelayCast(delay);
-                Script_SendUnitSpellSignal(guid, unit->m_castCount, &spell, 329);
+                Script_SendUnitSpellSignal(guid, unit->m_castCount, &spell, SCRIPT_EVENT_UNIT_SPELLCAST_DELAYED);
             }
         }
     }
@@ -5051,14 +5051,14 @@ int32_t Packet_SMSG_UNIT_SPELLCAST_START(void* param, NETMESSAGE msgId, uint32_t
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(caster, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            int32_t signal;
+            SCRIPT_EVENT signal;
 
             if (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED) {
                 unit->SetUIChannelDirect(spellId, start, end);
-                signal = 331;
+                signal = SCRIPT_EVENT_UNIT_SPELLCAST_CHANNEL_START;
             } else {
                 unit->SetUICastingDirect(spellId, target, start, end);
-                signal = 324;
+                signal = SCRIPT_EVENT_UNIT_SPELLCAST_START;
             }
 
             Script_SendUnitSpellSignal(caster, 0, &spell, signal);

@@ -4699,7 +4699,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
                 continue;
             }
 
-            for (uint32_t j = 0; j < 3; j++) {
+            for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                 if (spell.m_effectAura[j] == SPELL_AURA_COMPREHEND_LANGUAGE && spell.m_effectMiscValue[j] == static_cast<int32_t>(language)) {
                     skill = 300;
                     return 1;
@@ -4795,7 +4795,7 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t 
     } else {
         bool proficiency = false;
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell.m_effect[i] == SPELL_EFFECT_PROFICIENCY) {
                 proficiency = true;
                 break;
@@ -7079,7 +7079,7 @@ float CGPlayer_C::GetQuestXPMultiplier() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effectAura[j] == SPELL_AURA_MOD_XP_QUEST_PCT) {
                 multiplier = (spell.m_effectBasePoints[j] + 1) * 0.0099999998f + multiplier;
             }
@@ -10831,7 +10831,7 @@ static int32_t SoulStoneCompare(const CGItem_C* item, void* param) {
         SpellRec spell;
         g_spellDB.GetRecord(spellId, &spell);
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effect[j] == SPELL_EFFECT_SELF_RESURRECT) {
                 return 1;
             }

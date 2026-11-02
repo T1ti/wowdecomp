@@ -1391,7 +1391,7 @@ void CGWorldFrame::UpdateScreenEffect() {
                 continue;
             }
 
-            for (uint32_t j = 0; j < 3; j++) {
+            for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                 if (spell.m_effectAura[j] == SPELL_AURA_SCREEN_EFFECT) {
                     CGWorldFrame::SetScreenEffect(spell.m_effectMiscValue[j]);
                     return;

@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+// Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
+constexpr int32_t NUM_SPELL_EFFECTS = 3;
+
 // SpellRec::m_startRecoveryCategory (SpellCategory.dbc ID; other categories exist).
 enum SPELL_RECOVERY_CATEGORY : int32_t
 {

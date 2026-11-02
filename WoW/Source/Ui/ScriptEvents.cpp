@@ -957,7 +957,7 @@ void Script_SendUnitSignal(const WOWGUID& guid, int32_t signal) {
 
 // VERIFY: b717b06c manual
 // OFFSET: 0x0060BF60
-void Script_SendUnitSpellSignal(const WOWGUID& guid, uint8_t castCount, const SpellRec* spell, int32_t signal) {
+void Script_SendUnitSpellSignal(const WOWGUID& guid, uint8_t castCount, const SpellRec* spell, SCRIPT_EVENT signal) {
     if (!spell) {
         Script_SendUnitSignal(guid, signal);
         return;

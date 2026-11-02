@@ -2107,7 +2107,7 @@ void UnitCombatLogPowerDrain(const WOWGUID& casterGuid, const WOWGUID& targetGui
 // VERIFY: 048b1785 auto
 // OFFSET: 0x0074D3D0
 bool SpellHasOpenLockEffect(const SpellRec* spell) {
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effect[i] == SPELL_EFFECT_OPEN_LOCK) {
             return true;
         }
@@ -2123,7 +2123,7 @@ bool SpellIsHiddenInCombatLog(const SpellRec* spell) {
         return true;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effect[i] == SPELL_EFFECT_LEARN_SPELL) {
             return true;
         }
@@ -2194,13 +2194,13 @@ void UnitCombatLogSpellMechanic(const WOWGUID& guid, const AuraData* aura, const
         return;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effect[i] == SPELL_EFFECT_OPEN_LOCK) {
             return;
         }
     }
 
-    for (int32_t i = 0; i < 3; i++) {
+    for (int32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         int32_t mechanicId = spell->m_effectMechanic[i];
 
         if (!mechanicId) {

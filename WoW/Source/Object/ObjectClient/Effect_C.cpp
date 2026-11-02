@@ -1729,7 +1729,7 @@ void CEffect::AddMountTransition(uint32_t spellId, const SpellVisualKitRec* kit,
     this->m_pendingCacheId = 0;
     this->m_displayId = 0;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell.m_effect[i] == SPELL_EFFECT_APPLY_AURA && spell.m_effectAura[i] == SPELL_AURA_MOUNTED) {
             int32_t creatureId = spell.m_effectMiscValue[i];
             this->m_pendingCacheId = creatureId;

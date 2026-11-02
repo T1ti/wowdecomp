@@ -267,7 +267,7 @@ static int32_t Script_CancelUnitBuff(lua_State* L) {
     SpellRec spell;
 
     if (g_spellDB.GetRecord(mover->GetAuraSpellId(slot), &spell)) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell.m_effectAura[i] == SPELL_AURA_CONTROL_VEHICLE) {
                 mover->VehicleExit();
                 break;

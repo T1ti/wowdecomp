@@ -1865,7 +1865,7 @@ static int32_t Script_SetTrainerService(lua_State* L) {
         luaL_error(L, "Invalid trainer service in SetTrainerService(index)");
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell.m_effect[i] != SPELL_EFFECT_LEARN_SPELL && spell.m_effect[i] != SPELL_EFFECT_LEARN_PET_SPELL) {
             continue;
         }

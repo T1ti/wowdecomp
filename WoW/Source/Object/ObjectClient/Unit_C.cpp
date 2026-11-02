@@ -5009,7 +5009,7 @@ void CGUnit_C::OnRightClick() {
                 int32_t maxPoints;
                 g_spellDB.GetRecord(CGSpellBook::GetSkinningSpell(this), &spell);
 
-                for (uint32_t i = 0; i < 3; i++) {
+                for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                     if (spell.m_effect[i] == SPELL_EFFECT_SKINNING) {
                         Spell_C_GetMinMaxPoints(&spell, i, &minPoints, &maxPoints, 0, 0, 0, 0);
                         break;
@@ -8298,7 +8298,7 @@ bool CGUnit_C::HasAuraActive(int32_t spellId) {
         AuraData* aura = this->GetAura(i);
 
         if (aura->m_spellId == spellId) {
-            for (uint32_t effect = 0; effect < 3; effect++) {
+            for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                 if ((1 << effect) & aura->m_flags) {
                     return true;
                 }
@@ -8562,7 +8562,7 @@ SummonPropertiesRec* CGUnit_C::GetSummonProperties() const {
     SpellRec spell;
 
     if (g_spellDB.GetRecord(this->m_unit->m_unitCreatedBySpell, &spell)) {
-        for (int32_t i = 0; i < 3; i++) {
+        for (int32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell.m_effect[i] == SPELL_EFFECT_SUMMON) {
                 return g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[i]);
             }
@@ -8678,7 +8678,7 @@ void CGUnit_C::UpdateAuraEffectMask() {
             continue;
         }
 
-        for (int32_t effect = 0; effect < 3; effect++) {
+        for (int32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (aura->m_flags & (1 << effect)) {
                 this->m_auraEffectMask[spell.m_effectAura[effect] / 8] |= 1 << (spell.m_effectAura[effect] % 8);
             }
@@ -10546,7 +10546,7 @@ void CGUnit_C::Disable() {
 
         if (g_spellDB.GetRecord(this->m_castSpellId, &spell)) {
             guid = this->m_obj->m_guid;
-            Script_SendUnitSpellSignal(guid, this->m_castCount, &spell, 325);
+            Script_SendUnitSpellSignal(guid, this->m_castCount, &spell, SCRIPT_EVENT_UNIT_SPELLCAST_STOP);
         }
     }
 
@@ -10568,7 +10568,7 @@ void CGUnit_C::Disable() {
 
         if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell)) {
             guid = this->m_obj->m_guid;
-            Script_SendUnitSpellSignal(guid, 0, &spell, 333);
+            Script_SendUnitSpellSignal(guid, 0, &spell, SCRIPT_EVENT_UNIT_SPELLCAST_CHANNEL_STOP);
         }
     }
 
@@ -11763,7 +11763,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
                         continue;
                     }
 
-                    for (uint32_t j = 0; j < 3; j++) {
+                    for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                         switch (auraSpell.m_effectAura[j]) {
                             case SPELL_AURA_EFFECT_IMMUNITY:
                                 if (auraSpell.m_effectMiscValue[j] == 68) {
@@ -13705,7 +13705,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
 
                     if (notInterruptible != this->ProcessCastNotInterruptible(&spell)) {
                         this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
-                        Script_SendUnitSignal(this->m_obj->m_guid, this->IsCastNotInterruptible() + 334);
+                        Script_SendUnitSignal(this->m_obj->m_guid, this->IsCastNotInterruptible() ? SCRIPT_EVENT_UNIT_SPELLCAST_NOT_INTERRUPTIBLE : SCRIPT_EVENT_UNIT_SPELLCAST_INTERRUPTIBLE);
                     }
                 }
             }
@@ -15531,7 +15531,7 @@ bool CGUnit_C::AffectedByAura(int32_t auraType, const SpellRec* spell) const {
             continue;
         }
 
-        for (int32_t effect = 0; effect < 3; effect++) {
+        for (int32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (auraSpell.m_effectAura[effect] == auraType && ((1 << effect) & aura->m_flags) && SpellRec::IsAffectedBy(spell, &auraSpell, effect)) {
                 return true;
             }
@@ -15780,7 +15780,7 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
 
         bool area = false;
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if ((aura->m_flags & (1 << j)) && Spell_IsAreaAuraEffect(spell.m_effect[j])) {
                 area = true;
                 break;
@@ -16596,7 +16596,7 @@ store:
     }
 
     if (this->IsActivePlayer()) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             switch (spell->m_effectAura[i]) {
                 case SPELL_AURA_FAR_SIGHT:
                     CGWorldFrame::GetActiveCamera()->SetTelescope(spell->m_effectMiscValue[i]);
@@ -16625,7 +16625,7 @@ store:
         }
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAura[i] == SPELL_AURA_MOUNTED) {
             CGSpellBook::SendCompanionUpdate(1);
 
@@ -16646,7 +16646,7 @@ store:
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (this->GetControllingPlayer() == player || this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell->m_effectAura[i] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 int32_t period = spell->m_effectAuraPeriod[i];
                 Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);
@@ -16704,7 +16704,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
     }
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             switch (spell->m_effectAura[i]) {
                 case SPELL_AURA_FAR_SIGHT:
                     CGWorldFrame::GetActiveCamera()->SetTelescope(0);
@@ -16755,7 +16755,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
         }
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAura[i] == SPELL_AURA_INITIALIZE_IMAGES) {
             WOWGUID guid = this->m_obj->m_guid;
             CGGameUI::UnitNameUpdate(guid);
@@ -16765,7 +16765,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (this->GetControllingPlayer() == player || this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell->m_effectAura[i] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 Spell_C_RemovePeriodicClientTrigger(this->m_obj->m_guid, spell->m_id);
             }
@@ -19922,7 +19922,7 @@ int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, c
                 continue;
             }
 
-            for (int32_t effect = 0; effect < 3; effect++) {
+            for (int32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                 if (spellRec.m_effectAura[effect] != SPELL_AURA_INITIALIZE_IMAGES || !(aura->m_flags & (1 << effect))) {
                     continue;
                 }
@@ -20221,7 +20221,7 @@ void CGUnit_C::CancelOpenStable() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effectAura[j] == SPELL_AURA_OPEN_STABLE) {
                 Spell_C_CancelAura(&spell, this, -1);
             }
@@ -20249,7 +20249,7 @@ void CGUnit_C::CancelShapeshiftForMount() {
             continue;
         }
 
-        for (uint32_t effect = 0; effect < 3; effect++) {
+        for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (spell.m_effectAura[effect] != SPELL_AURA_MOD_SHAPESHIFT) {
                 continue;
             }
@@ -21934,7 +21934,7 @@ void CGUnit_C::CancelShapeshift() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effectAura[j] == SPELL_AURA_MOD_SHAPESHIFT && spell.m_effectMiscValue[j] == static_cast<int32_t>(this->GetShapeshiftForm())) {
                 Spell_C_CancelAura(&spell, this, -1);
             }
@@ -23599,7 +23599,7 @@ bool CGUnit_C::CheckSelfResurrect() {
             continue;
         }
 
-        for (uint32_t effect = 0; effect < 3; effect++) {
+        for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (spell.m_effectAura[effect] == SPELL_AURA_PREVENT_RESURRECTION) {
                 char buffer[1024];
                 GetCustomSpellFailedString(buffer, sizeof(buffer), spell.m_effectMiscValue[effect]);
@@ -23621,7 +23621,7 @@ void CGUnit_C::CheckApplyPeriodicClientTriggers() {
             continue;
         }
 
-        for (uint32_t effect = 0; effect < 3; effect++) {
+        for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
             if (spell.m_effectAura[effect] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 int32_t period = spell.m_effectAuraPeriod[effect];
                 Spell_C_ModifySpellValue(&spell, period, SPELLMOD_ACTIVATION_TIME);

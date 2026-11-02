@@ -414,7 +414,7 @@ void CGClassTrainer::RefreshList() {
         int32_t total = 0;
         int32_t known = 0;
 
-        for (uint32_t e = 0; e < 3; e++) {
+        for (uint32_t e = 0; e < NUM_SPELL_EFFECTS; e++) {
             int32_t effect = spell.m_effect[e];
 
             if (!effect) {
@@ -504,7 +504,7 @@ void CGClassTrainer::RefreshList() {
             SpellRec stepSpell;
 
             if (g_spellDB.GetRecord(CGClassTrainer::m_services.m_data[s]->m_stepSpellID, &stepSpell)) {
-                for (uint32_t e = 0; e < 3; e++) {
+                for (uint32_t e = 0; e < NUM_SPELL_EFFECTS; e++) {
                     if (stepSpell.m_effect[e] == SPELL_EFFECT_SKILL_STEP && stepSpell.m_effectMiscValue[e] == CGClassTrainer::m_services.m_data[s]->m_skillReq) {
                         int32_t minPoints;
                         int32_t maxPoints;
@@ -723,7 +723,7 @@ static int32_t GetSkillLineFromService(int32_t spellId) {
 
     int32_t effect = -1;
 
-    for (int32_t i = 0; i < 3; i++) {
+    for (int32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell.m_effect[i] == SPELL_EFFECT_LEARN_SPELL && spell.m_implicitTargetA[i] != SPELL_IMPLICIT_TARGET::TARGET_UNIT_PET) {
             effect = i;
             break;
@@ -779,7 +779,7 @@ void CGClassTrainer::AddServices(uint32_t count, const int32_t* spellIds, const 
                 if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE) {
                     skillLine = 3;
                 } else {
-                    for (int32_t j = 0; j < 3; j++) {
+                    for (int32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                         if (spell.m_effect[j] == SPELL_EFFECT_SKILL_STEP) {
                             skillLine = 1;
                             break;

@@ -684,7 +684,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         index = text[1] - '1';
         hasIndex = 1;
 
-        if (index >= 3) {
+        if (index >= NUM_SPELL_EFFECTS) {
             index = 0;
         }
     }
@@ -984,7 +984,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
                 period = spell->m_effectAuraPeriod[index];
                 Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);
 
-                for (uint32_t i = 0; i < 3; i++) {
+                for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
                     if (spell->m_effectAuraPeriod[i]) {
                         if ((spell->m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !(spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)) {
                             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
