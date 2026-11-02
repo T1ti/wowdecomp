@@ -501,7 +501,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         }
 
         WOWGUID requester = { 0 };
-        requester.m_guid = static_cast<uint32_t>(spellId) | 0x1FE0000000000000ULL;
+        requester.m_guid = static_cast<uint32_t>(spellId) | WOWGUID_SPELL_QUERY_TAG;
         CreatureStats_C* creature = g_creatureDBCache.GetRecord(spell.m_effectMiscValue[0], requester, CGSpellBook::CompanionCallback, reinterpret_cast<void*>(static_cast<intptr_t>(notify)), false);
 
         if (!creature) {

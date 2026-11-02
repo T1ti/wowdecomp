@@ -12161,8 +12161,8 @@ int32_t CritterUpdate(WOWGUID guid, uint32_t offset, uint32_t count, const void*
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        CGActionBar::UpdateCritter((static_cast<const WOWGUID*>(value)->m_guid >> 24) & 0xFFFFFFF);
-        CGActionBar::UpdateCritter((player->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF);
+        CGActionBar::UpdateCritter((static_cast<const WOWGUID*>(value)->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK);
+        CGActionBar::UpdateCritter((player->m_unit->m_unitFieldCritter.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK);
         CGSpellBook::SendCompanionUpdate(0);
     }
 

@@ -170,12 +170,12 @@ bool Script_GetGUIDFromToken(const char* token, WOWGUID& guid, bool defaultToTar
         guid = *GetCurrentQuestGiverGUID();
     } else if (!SStrCmpI(token, "none", STORM_MAX_STR)) {
         token += 4;
-        guid.m_guid = 0xFFFFFFFFFFFFFFFFULL;
+        guid.m_guid = WOWGUID_NONE_TOKEN;
     }
 
     if ((guid != WOWGUID() || !*token) && ParseTrailingTokens(token, guid, player)) {
         if (guid == WOWGUID()) {
-            guid.m_guid = 0xFFFFFFFFFFFFFFFEULL;
+            guid.m_guid = WOWGUID_EMPTY_UNIT_TOKEN;
         }
 
         return true;
@@ -186,7 +186,7 @@ bool Script_GetGUIDFromToken(const char* token, WOWGUID& guid, bool defaultToTar
     }
 
     if (guid == WOWGUID()) {
-        guid.m_guid = 0xFFFFFFFFFFFFFFFEULL;
+        guid.m_guid = WOWGUID_EMPTY_UNIT_TOKEN;
     }
 
     return true;

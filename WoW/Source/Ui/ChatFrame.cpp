@@ -1071,7 +1071,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
                 }
             }
         } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> 24) & 0xFFFFFFF), senderGuid, CGChat::NameQueryCallback, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
                 senderName = record->m_name;
@@ -1091,7 +1091,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
                 targetName = record->m_name;
             }
         } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> 24) & 0xFFFFFFF), targetGuid, CGChat::NameQueryCallback, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
                 targetName = record->m_name;
@@ -3517,7 +3517,7 @@ void CGChat::NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, boo
                 senderName = record->m_name;
             }
         } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> 24) & 0xFFFFFFF), chat->m_senderGuid, nullptr, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_senderGuid, nullptr, nullptr, false);
 
             if (record) {
                 senderName = record->m_name;
@@ -3534,7 +3534,7 @@ void CGChat::NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, boo
                 targetName = record->m_name;
             }
         } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> 24) & 0xFFFFFFF), chat->m_targetGuid, nullptr, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_targetGuid, nullptr, nullptr, false);
 
             if (record) {
                 targetName = record->m_name;
@@ -4008,7 +4008,7 @@ void CGChat::ProcessPendingChatQueue() {
 
             senderName = record->m_name;
         } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> 24) & 0xFFFFFFF), chat->m_senderGuid, CGChat::NameQueryCallback, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {
                 continue;
@@ -4029,7 +4029,7 @@ void CGChat::ProcessPendingChatQueue() {
 
             targetName = record->m_name;
         } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> 24) & 0xFFFFFFF), chat->m_targetGuid, CGChat::NameQueryCallback, nullptr, false);
+            PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {
                 continue;

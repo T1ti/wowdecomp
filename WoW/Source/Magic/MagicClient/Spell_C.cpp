@@ -5164,7 +5164,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
         if (properties && properties->m_slot == SUMMON_SLOT_CRITTER) {
-            return static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i];
+            return static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK) == spell->m_effectMiscValue[i];
         }
     }
 
@@ -5230,7 +5230,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i]) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK) == spell->m_effectMiscValue[i]) {
             CDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_DISMISS_CRITTER));
             msg.Put(unit->m_unit->m_unitFieldCritter.m_guid);
@@ -6521,7 +6521,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         }
 
         case SPELL_FAILED_NEED_MORE_ITEMS: {
-            WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spellId)) | 0x1FE0000000000000ull };
+            WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spellId)) | WOWGUID_SPELL_QUERY_TAG };
             ItemStats_C* stats = g_itemDBCache.GetRecord(misc1, guid, SpellMissingItemsCallback, reinterpret_cast<void*>(static_cast<intptr_t>(misc2)), false);
 
             if (!stats) {
@@ -6606,7 +6606,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
                 break;
             }
 
-            WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spellId)) | 0x1FE0000000000000ull };
+            WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spellId)) | WOWGUID_SPELL_QUERY_TAG };
             ItemStats_C* stats = g_itemDBCache.GetRecord(misc1, guid, SpellMissingItemCallback, reinterpret_cast<void*>(static_cast<intptr_t>(reason)), false);
 
             if (!stats) {
@@ -8080,7 +8080,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
         }
     }
 
-    if (noTarget || (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> 32)) == 0xFFFFFFFF || target.m_guid == 0xFFFFFFFFFFFFFFFEull) {
+    if (noTarget || (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> WOWGUID_HIGH_WORD_SHIFT)) == WOWGUID_WORD_ALL_ONES || target.m_guid == WOWGUID_EMPTY_UNIT_TOKEN) {
         return false;
     }
 
@@ -8498,7 +8498,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     }
 
     if (!Spell_C_BeginCast(unit, &spell, target, cast, confirmed)) {
-        if (target.m_guid == 0xFFFFFFFFFFFFFFFEull) {
+        if (target.m_guid == WOWGUID_EMPTY_UNIT_TOKEN) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_BAD_IMPLICIT_TARGETS, -1, -1, false);
             return false;
         }
@@ -8532,7 +8532,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
                     s_cursorWorldObjectHousing = 1;
                 }
 
-                WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spell.m_id)) | 0x1FE0000000000000ull };
+                WOWGUID guid = { static_cast<uint64_t>(static_cast<int64_t>(spell.m_id)) | WOWGUID_SPELL_QUERY_TAG };
                 GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(spell.m_effectMiscValue[i], guid, GameObjectStatsCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_targetingSpell->m_data.m_castCount)), false);
 
                 if (stats) {

@@ -788,35 +788,41 @@
     },
     {
       "id": 65,
-      "state": "pending",
+      "state": "done",
       "values": "24, 0xFFFFFFF",
       "description": "Extract the entry ID from a critter GUID through a named helper/mask.",
       "original_lines": [
         5147,
         5213
-      ]
+      ],
+      "evidence": "0x00802DDC shifts by 24 and 0x00802DDF ANDs with 0x0FFFFFFF; the native mask is 28 bits.",
+      "notes": "Shared literal-type-compatible entry shift/mask names in critter, cache, chat, tooltip and combat-log paths; no helper or cast reordering introduced."
     },
     {
       "id": 66,
-      "state": "pending",
+      "state": "done",
       "values": "0x1FE0000000000000ull",
       "description": "Synthetic GUID tag used for spell hyperlinks.",
       "original_lines": [
         6504,
         6589,
         8515
-      ]
+      ],
+      "evidence": "0x008086C5 and 0x00808757 OR the high GUID DWORD with 0x1FE00000 for spell-backed requester queries.",
+      "notes": "Named the 64-bit spell query tag at all matching producers, preserving signed spell-ID casts before OR operations."
     },
     {
       "id": 67,
-      "state": "pending",
+      "state": "done",
       "values": "0xFFFFFFFF, 0xFFFFFFFFFFFFFFFEull, 32",
       "description": "Special targeting GUID tests; prefer named sentinel/check helpers after verifying their exact bit semantics.",
       "original_lines": [
         8063,
         8481,
         8491
-      ]
+      ],
+      "evidence": "Script_GetGUIDFromToken at 0x0060ABF0 distinguishes explicit none (-1) from an accepted token resolving to no GUID (-2).",
+      "notes": "Named both token sentinels and matching consumers; kept the original high/low DWORD AND test in Spell_C, using named shift/all-ones constants. Win32/x64 syntax and value-equivalence passed."
     },
     {
       "id": 68,

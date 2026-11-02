@@ -225,7 +225,7 @@ void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid) {
     uint32_t type = static_cast<uint32_t>(guid->m_guid >> 32) & 0xF0F00000;
 
     if (type == 0xF0300000 || type == 0xF0500000) {
-        CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid->m_guid >> 24) & 0xFFFFFFF, *guid, nullptr, nullptr, false);
+        CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, *guid, nullptr, nullptr, false);
 
         if (stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             guid->m_guid &= 0xFFFFFFFFFF000000ull;
@@ -614,7 +614,7 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
 
             if (!unit) {
                 data->m_type = 3;
-                data->m_id = static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF;
+                data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             } else if (unit->m_unit->m_unitFieldPetnumber) {
                 data->m_type = 2;
                 data->m_id = unit->m_unit->m_unitFieldPetnumber;
@@ -623,10 +623,10 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
                 data->m_type = 3;
             }
         } else if (type == 0xF0400000) {
-            data->m_id = static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF;
+            data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             data->m_type = 2;
         } else if (type == 0xF0100000) {
-            data->m_id = static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF;
+            data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             data->m_type = 4;
         } else {
             return FrameScript_GetText("UNKNOWNOBJECT", -1, GENDER_NOT_APPLICABLE);

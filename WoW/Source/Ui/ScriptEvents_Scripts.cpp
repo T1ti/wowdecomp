@@ -821,7 +821,7 @@ static int32_t Script_UnitName(lua_State* L) {
     Script_GetGUIDFromToken(token, guid, false);
     WOWGUID unitGuid = guid;
 
-    if (!guid || guid.m_guid == 0xFFFFFFFFFFFFFFFEULL) {
+    if (!guid || guid.m_guid == WOWGUID_EMPTY_UNIT_TOKEN) {
         lua_pushnil(L);
         lua_pushnil(L);
         return 2;
@@ -859,7 +859,7 @@ static int32_t Script_UnitName(lua_State* L) {
     } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid)) {
         name = petState->m_name;
     } else if ((unitGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
-        PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((unitGuid.m_guid >> 24) & 0xFFFFFFF), unitGuid, UnitNameQueryCallback, nullptr, true);
+        PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((unitGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), unitGuid, UnitNameQueryCallback, nullptr, true);
 
         if (record) {
             name = record->m_name;
@@ -2795,7 +2795,7 @@ static int32_t Script_UnitIsUnit(lua_State* L) {
         WOWGUID guid = GetGuidByKeyword(token);
         WOWGUID otherGuid = GetGuidByKeyword(otherToken);
 
-        if (!guid || guid.m_guid == 0xFFFFFFFFFFFFFFFEull || guid != otherGuid) {
+        if (!guid || guid.m_guid == WOWGUID_EMPTY_UNIT_TOKEN || guid != otherGuid) {
             lua_pushnil(L);
             return 1;
         }
@@ -3675,7 +3675,7 @@ static int32_t Script_UnitGUID(lua_State* L) {
     Script_GetGUIDFromToken(lua_tolstring(L, 1, nullptr), guid, false);
     WOWGUID display = guid;
 
-    if (!guid || guid.m_guid == 0xFFFFFFFFFFFFFFFEULL) {
+    if (!guid || guid.m_guid == WOWGUID_EMPTY_UNIT_TOKEN) {
         lua_pushnil(L);
         return 1;
     }
@@ -3683,7 +3683,7 @@ static int32_t Script_UnitGUID(lua_State* L) {
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
     if ((high & 0xF0F00000) == 0xF0300000 || (high & 0xF0F00000) == 0xF0500000) {
-        CreatureStats_C* creature = g_creatureDBCache.GetRecord((guid.m_guid >> 24) & 0xFFFFFFF, display, nullptr, nullptr, false);
+        CreatureStats_C* creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, display, nullptr, nullptr, false);
 
         if (creature && (creature->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             display.m_guid &= 0xFFFFFFFFFF000000ULL;

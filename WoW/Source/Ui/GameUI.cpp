@@ -4985,7 +4985,7 @@ WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, int32_
 
     WOWGUID guid = WOWGUID();
 
-    if (Script_GetGUIDFromToken(name, guid, true) && guid.m_guid != 0xFFFFFFFFFFFFFFFEULL) {
+    if (Script_GetGUIDFromToken(name, guid, true) && guid.m_guid != WOWGUID_EMPTY_UNIT_TOKEN) {
         if (!guid) {
             return WOWGUID();
         }

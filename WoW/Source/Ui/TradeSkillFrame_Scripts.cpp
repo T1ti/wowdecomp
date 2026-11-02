@@ -1005,7 +1005,7 @@ static int32_t Script_GetTradeSkillReagentInfo(lua_State* L) {
 
                 int32_t itemId = spell.m_reagent[i];
                 WOWGUID requester;
-                requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(info->m_spellId)) | 0x1FE0000000000000ULL;
+                requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(info->m_spellId)) | WOWGUID_SPELL_QUERY_TAG;
                 ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, requester, TradeSkillItemCallback, nullptr, false);
 
                 if (stats) {
@@ -1087,7 +1087,7 @@ static int32_t Script_GetTradeSkillTools(lua_State* L) {
             }
 
             WOWGUID requester;
-            requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(info->m_spellId)) | 0x1FE0000000000000ULL;
+            requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(info->m_spellId)) | WOWGUID_SPELL_QUERY_TAG;
             ItemStats_C* stats = g_itemDBCache.GetRecord(spell.m_totem[i], requester, TradeSkillItemCallback, nullptr, false);
 
             if (stats) {

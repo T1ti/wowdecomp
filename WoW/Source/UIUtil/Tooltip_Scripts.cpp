@@ -1727,7 +1727,7 @@ static int32_t Script_SetUnit(lua_State* L) {
     int32_t hideStatus = StringToBOOL(L, 3, 0);
     WOWGUID none;
 
-    if (guid && guid.m_guid != 0xFFFFFFFFFFFFFFFEULL && (none = WOWGUID(), tooltip->SetUnit(guid, 1, none, hideStatus))) {
+    if (guid && guid.m_guid != WOWGUID_EMPTY_UNIT_TOKEN && (none = WOWGUID(), tooltip->SetUnit(guid, 1, none, hideStatus))) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -1878,7 +1878,7 @@ static int32_t Script_SetTrainerService(lua_State* L) {
 
         if ((learned.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) && (learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || learned.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || learned.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && learned.m_effectItemType[0]) {
             WOWGUID requester;
-            requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(learned.m_id)) | 0x1FE0000000000000ULL;
+            requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(learned.m_id)) | WOWGUID_SPELL_QUERY_TAG;
             WOWGUID itemGuid = WOWGUID();
             tooltip->SetItem(learned.m_effectItemType[0], &requester, &itemGuid, 0, 0, 0, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, 0, 1);
         } else {
@@ -1927,7 +1927,7 @@ static int32_t Script_SetTradeSkillItem(lua_State* L) {
         tooltip->m_itemLinkInfo.Clear();
         tooltip->m_itemLinkInfo.m_stackCount = spell.m_reagentCount[i];
         WOWGUID requester;
-        requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(skill->m_spellId)) | 0x1FE0000000000000ULL;
+        requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(skill->m_spellId)) | WOWGUID_SPELL_QUERY_TAG;
         WOWGUID itemGuid = WOWGUID();
         tooltip->SetItem(spell.m_reagent[i], &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, 0, 0);
         return 0;
@@ -1946,7 +1946,7 @@ static int32_t Script_SetTradeSkillItem(lua_State* L) {
         }
 
         WOWGUID requester;
-        requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(skill->m_spellId)) | 0x1FE0000000000000ULL;
+        requester.m_guid = static_cast<uint64_t>(static_cast<int64_t>(skill->m_spellId)) | WOWGUID_SPELL_QUERY_TAG;
         WOWGUID itemGuid = WOWGUID();
         tooltip->SetItem(spell.m_effectItemType[0], &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, 0, 0);
         return 0;

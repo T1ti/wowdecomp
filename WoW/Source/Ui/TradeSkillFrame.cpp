@@ -493,7 +493,7 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
 
             if ((spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM || spell.m_effect[0] == SPELL_EFFECT_CREATE_ITEM_2 || spell.m_effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM) && spell.m_effectItemType[0]) {
                 WOWGUID requester;
-                requester.m_guid = static_cast<uint32_t>(spellId) | 0x1FE0000000000000ULL;
+                requester.m_guid = static_cast<uint32_t>(spellId) | WOWGUID_SPELL_QUERY_TAG;
                 ItemStats_C* stats = g_itemDBCache.GetRecord(spell.m_effectItemType[0], requester, TradeSkillListItemCallback, nullptr, false);
 
                 if (!stats) {

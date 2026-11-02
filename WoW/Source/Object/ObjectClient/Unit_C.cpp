@@ -20028,20 +20028,20 @@ const char* GetObjectNameFromGuid(const WOWGUID& guid) {
             if (unit) {
                 name = unit->GetUnitName(nullptr, 1);
             } else {
-                CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF, guid, ObjectNameCacheCallback, nullptr, true);
+                CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, guid, ObjectNameCacheCallback, nullptr, true);
 
                 if (stats) {
                     name = stats->m_name[0];
                 }
             }
         } else if (type == 0xF0400000) {
-            PetNameCache* pet = g_petNameCache.GetRecord(static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF, guid, ObjectNameCacheCallback, nullptr, true);
+            PetNameCache* pet = g_petNameCache.GetRecord(static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, guid, ObjectNameCacheCallback, nullptr, true);
 
             if (pet) {
                 name = pet->m_name;
             }
         } else if (type == 0xF0100000) {
-            GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(static_cast<int32_t>(guid.m_guid >> 24) & 0xFFFFFFF, guid, ObjectNameCacheCallback, nullptr, true);
+            GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, guid, ObjectNameCacheCallback, nullptr, true);
 
             if (stats) {
                 name = stats->GetName(0);

@@ -1696,7 +1696,7 @@ void CEffect::DrawFishingString(CM2Model* model, const CM2Lighting* lighting, vo
 // OFFSET: 0x006F9610
 void CEffect::MountTransitionCacheCB(int32_t id, const WOWGUID& guid, void* param, bool success) {
     CEffect* effect = static_cast<CEffect*>(param);
-    WOWGUID key = { static_cast<uint64_t>(effect->m_spellId) | 0x1FE0000000000000ull };
+    WOWGUID key = { static_cast<uint64_t>(effect->m_spellId) | WOWGUID_SPELL_QUERY_TAG };
     CreatureStats_C* stats = g_creatureDBCache.GetRecord(id, key, nullptr, nullptr, false);
 
     if (stats) {
@@ -1733,7 +1733,7 @@ void CEffect::AddMountTransition(uint32_t spellId, const SpellVisualKitRec* kit,
         if (spell.m_effect[i] == SPELL_EFFECT_APPLY_AURA && spell.m_effectAura[i] == SPELL_AURA_MOUNTED) {
             int32_t creatureId = spell.m_effectMiscValue[i];
             this->m_pendingCacheId = creatureId;
-            WOWGUID key = { static_cast<uint64_t>(spellId) | 0x1FE0000000000000ull };
+            WOWGUID key = { static_cast<uint64_t>(spellId) | WOWGUID_SPELL_QUERY_TAG };
             CreatureStats_C* stats = g_creatureDBCache.GetRecord(creatureId, key, &CEffect::MountTransitionCacheCB, this, false);
 
             if (stats) {
