@@ -1380,7 +1380,7 @@ bool Spell_C_HasCooldownOnEvent(const SpellRec* spell, WOWGUID guid) {
         if (stats && owner && slot >= 0) {
             SpellCategoryRec* category = g_spellCategoryDB.GetRecord(stats->m_spellCategory[slot]);
 
-            if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT)) {
+            if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_EVENT_ON_LEAVE_COMBAT)) {
                 return true;
             }
         }
@@ -1401,7 +1401,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
     if (!pet) {
         SpellCategoryRec* category = g_spellCategoryDB.GetRecord(spell->m_category);
 
-        if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED)) {
+        if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_MODIFIES_ITEM)) {
             CGItem_C* item = player->GetBag()->GetItemPointer(INVSLOT_MAINHAND);
 
             if (item) {
@@ -3117,7 +3117,7 @@ bool SpellRec::WillSummonCritter(const SpellRec* spell) {
     if (spell->m_effect[0] == SPELL_EFFECT_SUMMON) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER) {
             return true;
         }
     }
@@ -3217,7 +3217,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
 
         SpellCategoryRec* categoryRec = g_spellCategoryDB.GetRecord(history->m_category);
 
-        if (((history->m_category && history->m_category == category) || (categoryRec && (categoryRec->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_USES_ANY_CATEGORY))) && history->m_categoryRecoveryTime) {
+        if (((history->m_category && history->m_category == category) || (categoryRec && (categoryRec->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_IS_GLOBAL))) && history->m_categoryRecoveryTime) {
             uint32_t end = history->m_categoryRecoveryTime + (history->m_onHold ? now : history->m_categoryTime);
 
             if (static_cast<int32_t>(end - latest) >= 0) {
@@ -5162,7 +5162,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER) {
             return static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i];
         }
     }
@@ -5229,7 +5229,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i]) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i]) {
             CDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_DISMISS_CRITTER));
             msg.Put(unit->m_unit->m_unitFieldCritter.m_guid);
@@ -9379,7 +9379,7 @@ bool SpellIsCallCompanion(const SpellRec* spell) {
     if (spell->m_effect[0] == SPELL_EFFECT_SUMMON) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER) {
             return true;
         }
     }

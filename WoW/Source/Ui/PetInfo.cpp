@@ -847,7 +847,7 @@ void CGPetInfo::FindPossessedSpell() {
 
             SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[j]);
 
-            if (properties && properties->m_control == 3) {
+            if (properties && properties->m_control == SUMMON_CONTROL_POSSESSED) {
                 CGPetInfo::SetPossessedSpell(aura->m_spellId);
                 return;
             }
@@ -990,7 +990,7 @@ void CGPetInfo::PetDismiss() {
     CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
     SummonPropertiesRec* properties;
 
-    if (pet && (properties = pet->GetSummonProperties()) && (properties->m_flags & 0x20)) {
+    if (pet && (properties = pet->GetSummonProperties()) && (properties->m_flags & SUMMON_PROPERTIES_FLAG_CANNOT_DISMISS_PET)) {
         return;
     }
 

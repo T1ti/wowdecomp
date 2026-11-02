@@ -2774,7 +2774,7 @@ void UnitCombatLogUnitDead(CGUnit_C* unit) {
         if (!g_spellDB.GetRecord(unit->m_unit->m_unitCreatedBySpell, &spell) && spell.m_effect[0] == SPELL_EFFECT_SUMMON) {
             SummonPropertiesRec* summon = g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[0]);
 
-            if (summon && static_cast<uint32_t>(summon->m_slot - 1) <= 3) {
+            if (summon && static_cast<uint32_t>(summon->m_slot - SUMMON_SLOT_TOTEM_1) <= (SUMMON_SLOT_TOTEM_4 - SUMMON_SLOT_TOTEM_1)) {
                 event = 45;
             }
         }

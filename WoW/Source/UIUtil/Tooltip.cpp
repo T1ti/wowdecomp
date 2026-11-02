@@ -1498,7 +1498,7 @@ void CGTooltip::GetSummonedByString(CGUnit_C* unit, char* buffer, uint32_t size)
 
             SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[i]);
 
-            if (properties && properties->m_title != -1) {
+            if (properties && properties->m_title != SUMMON_TYPE_DEFAULT_TITLE) {
                 if (properties->m_title) {
                     SStrPrintf(token, sizeof(token), "UNITNAME_SUMMON_TITLE%d", properties->m_title);
                     SStrPrintf(buffer, size, FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE), GetObjectNameFromGuid(owner));

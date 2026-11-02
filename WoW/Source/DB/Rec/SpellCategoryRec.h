@@ -6,12 +6,11 @@
 
 class SFileImpl;
 
-// 3.3.5 category flags. The any-category bit is used by the native cooldown scan.
-// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/DataStores/DBCEnums.h
+// DBC bit positions 0, 1 and 2, expressed as masks for the native client tests.
 enum SPELL_CATEGORY_FLAGS : int32_t {
-    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED = 0x1,
-    SPELL_CATEGORY_FLAG_COOLDOWN_USES_ANY_CATEGORY = 0x2,
-    SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT = 0x4,
+    SPELL_CATEGORY_FLAG_COOLDOWN_MODIFIES_ITEM = 0x1,
+    SPELL_CATEGORY_FLAG_COOLDOWN_IS_GLOBAL = 0x2,
+    SPELL_CATEGORY_FLAG_COOLDOWN_EVENT_ON_LEAVE_COMBAT = 0x4,
 };
 
 class SpellCategoryRec {
