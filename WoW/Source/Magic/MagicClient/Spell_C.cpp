@@ -1,3 +1,4 @@
+#include <climits>
 #include "Spell_C.h"
 #include "WoW/Source/Game/GameClient/tables.h"
 #include "Engine/Source/Storm/H/storm.h"
@@ -203,7 +204,15 @@ static TSList<SpellInTransit, TSGetLink<SpellInTransit>> s_spellsInTransit;
 static uint32_t s_nextHistoryCleanup;
 
 // STATIC: 0x00AF5220
-static uint32_t s_powerDisplayMod[NUM_POWER_TYPES] = { 1, 10, 1, 1, 1000, 1, 10 };
+static uint32_t s_powerDisplayMod[NUM_POWER_TYPES] = {
+    POWER_DISPLAY_DIVISOR_UNSCALED, // Mana
+    POWER_DISPLAY_DIVISOR_RAGE,
+    POWER_DISPLAY_DIVISOR_UNSCALED, // Focus
+    POWER_DISPLAY_DIVISOR_UNSCALED, // Energy
+    POWER_DISPLAY_DIVISOR_HAPPINESS,
+    POWER_DISPLAY_DIVISOR_UNSCALED, // Runes
+    POWER_DISPLAY_DIVISOR_RUNIC_POWER
+};
 
 // STATIC: 0x00D397D4
 static uint8_t s_cursorWorldObjectHousing;
@@ -1224,7 +1233,7 @@ bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int
     pct = 0;
     flat = 0;
 
-    for (uint32_t i = 0; i < sizeof(spell->m_spellClassMask) * 8; i++) {
+    for (uint32_t i = 0; i < sizeof(spell->m_spellClassMask) * CHAR_BIT; i++) {
         if ((1 << (i & SPELL_MASK_WORD_BIT_MASK)) & spell->m_spellClassMask[i >> SPELL_MASK_WORD_SHIFT]) {
             flat += s_spellFlatModifiers[i][modifier];
             pct += s_spellPctModifiers[i][modifier];
@@ -2441,7 +2450,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 // OFFSET: 0x007FDE00
 uint32_t Spell_C_GetPowerDisplayMod(POWER_TYPE powerType) {
     if (static_cast<int32_t>(powerType) < 0) {
-        return 1;
+        return POWER_DISPLAY_DIVISOR_UNSCALED;
     }
 
     return s_powerDisplayMod[powerType];

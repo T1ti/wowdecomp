@@ -390,6 +390,14 @@ enum VIRTUAL_MONSTER_SLOT : uint32_t {
     NUM_VIRTUAL_MONSTER_SLOTS = 3,
 };
 
+// Divisors from raw client power units to the displayed values.
+enum POWER_DISPLAY_DIVISOR : uint32_t {
+    POWER_DISPLAY_DIVISOR_UNSCALED = 1,
+    POWER_DISPLAY_DIVISOR_RAGE = 10,
+    POWER_DISPLAY_DIVISOR_HAPPINESS = 1000,
+    POWER_DISPLAY_DIVISOR_RUNIC_POWER = 10,
+};
+
 enum POWER_TYPE : int32_t {
     POWER_TYPE_HEALTH = -2,
     POWER_TYPE_MANA = 0,
