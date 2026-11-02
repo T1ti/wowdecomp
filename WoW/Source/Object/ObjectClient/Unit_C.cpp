@@ -1385,7 +1385,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
                     SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
                     if (kit) {
-                        PlaySpellVisuaKitData data(&spellRec, kit, 2);
+                        PlaySpellVisuaKitData data(&spellRec, kit, SPELL_VISUAL_KIT_STATE);
                         this->PlaySpellVisualKit(data);
                     }
                 }
@@ -12168,7 +12168,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
 
                 if (kit) {
                     if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN)) {
-                        PlaySpellVisuaKitData data(&spell, kit, 2);
+                        PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_STATE);
                         data.m_playAnim = 0;
                         this->PlaySpellVisualKit(data);
                         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_SHOWN;
@@ -16683,7 +16683,7 @@ store:
     }
 
     {
-        PlaySpellVisuaKitData data(spell, kit, 2);
+        PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_STATE);
         data.m_someGUID = this->m_auras[index].m_creator;
         this->PlaySpellVisualKit(data);
     }
@@ -16811,7 +16811,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
         SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_stateDoneKit);
 
         if (kit) {
-            PlaySpellVisuaKitData data(nullptr, kit, 8);
+            PlaySpellVisuaKitData data(nullptr, kit, SPELL_VISUAL_KIT_STATE_DONE);
             this->PlaySpellVisualKit(data);
         }
     }
@@ -17010,7 +17010,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
 
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
 
-    if (spell && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (type == 4 || type == 0)) {
+    if (spell && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (type == SPELL_VISUAL_KIT_PRECAST || type == SPELL_VISUAL_KIT_CAST)) {
         this->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
     }
 
@@ -17051,7 +17051,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
             int32_t holdCast = (a10 & CEffect::EFFECT_FLAGS::EFFECT_PRECAST) && !noCastTime && sameAnim;
             int32_t holdChannel = (a10 & CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION) && sameAnim;
 
-            if (type == 2) {
+            if (type == SPELL_VISUAL_KIT_STATE) {
                 if (!holdChannel && !a11) {
                     CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
                     WOWGUID owner = this->m_obj->m_guid;
@@ -18401,10 +18401,10 @@ void CGUnit_C::OnChannelObjectChanged(WOWGUID oldObject, int32_t oldSpell) {
     CGObject_C* object = ClntObjMgrObjectPtr(oldObject, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (object && oldSpell) {
-        object->ClearEffectKit(oldSpell, 2, 0, 0, 0);
-        object->ClearEffectKit(oldSpell, 1, 0, 0, 0);
-        object->ClearEffectKit(oldSpell, 5, 0, 0, 0);
-        object->ClearEffectKit(oldSpell, 6, 0, 0, 0);
+        object->ClearEffectKit(oldSpell, SPELL_VISUAL_KIT_STATE, 0, 0, 0);
+        object->ClearEffectKit(oldSpell, SPELL_VISUAL_KIT_IMPACT, 0, 0, 0);
+        object->ClearEffectKit(oldSpell, SPELL_VISUAL_KIT_CASTER_IMPACT, 0, 0, 0);
+        object->ClearEffectKit(oldSpell, SPELL_VISUAL_KIT_TARGET_IMPACT, 0, 0, 0);
     }
 
     if (this->m_fishingLineEffect) {
@@ -18474,7 +18474,7 @@ void CGUnit_C::UpdateChannelEffects() {
         playAnim = 0;
     }
 
-    PlaySpellVisuaKitData data(&spell, kit, 2);
+    PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_STATE);
     data.m_playAnim = playAnim;
     this->PlaySpellVisualKit(data);
     this->CreateFishingLineEffect();
@@ -21027,7 +21027,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                     C3Vector position = this->m_chainSpellLocation;
 
                     if (areaKit) {
-                        PlaySpellVisuaKitData data(spell, areaKit, 3);
+                        PlaySpellVisuaKitData data(spell, areaKit, SPELL_VISUAL_KIT_AT_POSITION);
                         data.m_position = &position;
                         data.m_playAnim = 0;
                         data.unknown_0024 = this->m_lightningSequence;

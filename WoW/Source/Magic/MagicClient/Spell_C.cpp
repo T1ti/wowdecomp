@@ -864,7 +864,7 @@ bool PendingSpellCast::IsCharmedUnitCast() const {
 // OFFSET: 0x007FEC00
 void ClearSpellCastState(CGUnit_C* unit, PendingSpellCast* cast, const SpellRec* spell) {
     unit->ClearCastingSpell(unit->m_castSpellId, unit->m_unit->m_unitChannelSpell == 0, true);
-    unit->ClearEffectKit(cast->m_data.m_spellId, 4, 0, 0, 0);
+    unit->ClearEffectKit(cast->m_data.m_spellId, SPELL_VISUAL_KIT_PRECAST, 0, 0, 0);
     const SpellVisualRec* visual = GetSpellVisual(spell);
 
     if (visual) {
@@ -921,7 +921,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
                 unit->SetCastingAnim(true);
             }
 
-            PlaySpellVisuaKitData kitData(const_cast<SpellRec*>(spell), kit, 4);
+            PlaySpellVisuaKitData kitData(const_cast<SpellRec*>(spell), kit, SPELL_VISUAL_KIT_PRECAST);
             unit->PlaySpellVisualKit(kitData);
         }
 
@@ -2069,7 +2069,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         SpellVisualKitRec* castKit = g_spellVisualKitDB.GetRecord(visual->m_castKit);
 
         if (castKit && unit && !this->m_isTrajectoryCast) {
-            PlaySpellVisuaKitData kitData(&spell, castKit, 0);
+            PlaySpellVisuaKitData kitData(&spell, castKit, SPELL_VISUAL_KIT_CAST);
             unit->PlaySpellVisualKit(kitData);
         }
 
@@ -2077,7 +2077,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             SpellVisualKitRec* instantKit = g_spellVisualKitDB.GetRecord(visual->m_instantAreaKit);
 
             if (instantKit && unit) {
-                PlaySpellVisuaKitData kitData(&spell, instantKit, 3);
+                PlaySpellVisuaKitData kitData(&spell, instantKit, SPELL_VISUAL_KIT_AT_POSITION);
                 kitData.m_position = &this->m_data.m_destPos;
                 kitData.m_transportGUID = this->m_data.m_destTarget;
                 unit->PlaySpellVisualKit(kitData);
@@ -2089,9 +2089,9 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             if (impactKit && (!visual->m_hasMissile || spell.m_speed <= 0.0f) && !Spell_C_SpellVisualHasChainEffect(visual)) {
                 if (unit) {
                     if (spell.m_speed > 0.0f) {
-                        unit->DelaySpellVisualKit(spellId, impactKitId, 3, &this->m_data.m_destPos, this->m_data.m_destTarget, 0, 0, -1, 1, arrival);
+                        unit->DelaySpellVisualKit(spellId, impactKitId, SPELL_VISUAL_KIT_AT_POSITION, &this->m_data.m_destPos, this->m_data.m_destTarget, 0, 0, -1, 1, arrival);
                     } else {
-                        PlaySpellVisuaKitData kitData(&spell, impactKit, 3);
+                        PlaySpellVisuaKitData kitData(&spell, impactKit, SPELL_VISUAL_KIT_AT_POSITION);
                         kitData.m_position = &this->m_data.m_destPos;
                         kitData.m_transportGUID = this->m_data.m_destTarget;
                         unit->PlaySpellVisualKit(kitData);
@@ -2119,7 +2119,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 SpellVisualKitRec* instantKit = g_spellVisualKitDB.GetRecord(visual->m_instantAreaKit);
 
                 if (instantKit && unit) {
-                    PlaySpellVisuaKitData kitData(&spell, instantKit, 3);
+                    PlaySpellVisuaKitData kitData(&spell, instantKit, SPELL_VISUAL_KIT_AT_POSITION);
                     kitData.m_position = &point.m_position;
                     kitData.m_transportGUID = point.m_transport;
                     unit->PlaySpellVisualKit(kitData);
@@ -2134,9 +2134,9 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
                 if (unit) {
                     if (spell.m_speed > 0.0f) {
-                        unit->DelaySpellVisualKit(spellId, impactKitId, 3, &point.m_position, point.m_transport, 0, 0, -1, 1, arrival);
+                        unit->DelaySpellVisualKit(spellId, impactKitId, SPELL_VISUAL_KIT_AT_POSITION, &point.m_position, point.m_transport, 0, 0, -1, 1, arrival);
                     } else {
-                        PlaySpellVisuaKitData kitData(&spell, impactKit, 3);
+                        PlaySpellVisuaKitData kitData(&spell, impactKit, SPELL_VISUAL_KIT_AT_POSITION);
                         kitData.m_position = &point.m_position;
                         kitData.m_transportGUID = point.m_transport;
                         unit->PlaySpellVisualKit(kitData);
@@ -4861,7 +4861,7 @@ int32_t Packet_SMSG_PLAY_SPELL_VISUAL(void* param, NETMESSAGE msgId, uint32_t ti
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            PlaySpellVisuaKitData kitData(nullptr, kit, 0);
+            PlaySpellVisuaKitData kitData(nullptr, kit, SPELL_VISUAL_KIT_CAST);
             unit->PlaySpellVisualKit(kitData);
         }
     }
@@ -4882,7 +4882,7 @@ int32_t Packet_SMSG_PLAY_SPELL_IMPACT(void* param, NETMESSAGE msgId, uint32_t ti
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            PlaySpellVisuaKitData kitData(nullptr, kit, 1);
+            PlaySpellVisuaKitData kitData(nullptr, kit, SPELL_VISUAL_KIT_IMPACT);
             unit->PlaySpellVisualKit(kitData);
         }
     }
@@ -9062,7 +9062,7 @@ void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<W
 // OFFSET: 0x00800DD0
 void Spell_C_PlayMissileTrajectoryCastVisuals(CGUnit_C* unit, PendingSpellCast* cast, const SpellRec* spell, const SpellVisualRec* visual, const SpellVisualKitRec* kit, const TSStackArray<CGUnit_C*>* targets, float time) {
     if (kit) {
-        PlaySpellVisuaKitData data(spell, kit, 0);
+        PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_CAST);
         unit->PlaySpellVisualKit(data);
     }
 
@@ -9193,7 +9193,7 @@ void PlayImpactVisual(const SpellRec* spell, const TSStackArray<WOWGUID>& target
         SpellVisualKitRec* kit = object == unit ? casterKit : targetKit;
 
         if (kit) {
-            PlaySpellVisuaKitData data(spell, kit, 1);
+            PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_IMPACT);
             data.m_harmful = SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL;
             object->PlaySpellVisualKit(data);
         }

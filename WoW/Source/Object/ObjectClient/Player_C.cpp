@@ -7898,7 +7898,7 @@ int32_t ClientPlaySpellVisualHandler(WOWGUID guid, void* param) {
             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_targetImpactKit);
 
             if (kit) {
-                PlaySpellVisuaKitData data(spell, kit, 6);
+                PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_TARGET_IMPACT);
                 unit->PlaySpellVisualKit(data);
             }
         }
@@ -13376,7 +13376,7 @@ void CGPlayer_C::PlayDanceMove(const DanceMovesRec* move) {
             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(move->m_param);
 
             if (kit) {
-                PlaySpellVisuaKitData data(nullptr, kit, 0);
+                PlaySpellVisuaKitData data(nullptr, kit, SPELL_VISUAL_KIT_CAST);
                 this->PlaySpellVisualKit(data);
             }
 
@@ -14112,7 +14112,7 @@ int32_t CGPlayer_C::XRayVisionEffectProc(WOWGUID guid, void* param) {
         SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_targetImpactKit);
 
         if (kit) {
-            PlaySpellVisuaKitData data(spell, kit, 6);
+            PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_TARGET_IMPACT);
             unit->PlaySpellVisualKit(data);
         }
     }

@@ -75,7 +75,7 @@ void CGUnit_C::HandleEnvironmentDamage(uint32_t type, int32_t damage, int32_t ab
     SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(g_environmentalDamageVisualKits[type]);
 
     if (kit) {
-        PlaySpellVisuaKitData data(nullptr, kit, 0);
+        PlaySpellVisuaKitData data(nullptr, kit, SPELL_VISUAL_KIT_CAST);
         this->PlaySpellVisualKit(data);
     }
 }

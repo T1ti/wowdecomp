@@ -34,7 +34,19 @@ class SpellVisualEffectNameRec;
 class SpellVisualKitModelAttachRec;
 class SpellVisualRec;
 enum OUT_OF_RANGE_TYPE : int32_t;
-enum SPELL_VISUAL_KIT_TYPE : int32_t;
+// Native ClearEffectKit (0x00744BD0) maps these types to SpellVisualRec fields.
+// Type 3 plays at a supplied position and is not selected by ClearEffectKit.
+enum SPELL_VISUAL_KIT_TYPE : int32_t {
+    SPELL_VISUAL_KIT_CAST = 0,
+    SPELL_VISUAL_KIT_IMPACT = 1,
+    SPELL_VISUAL_KIT_STATE = 2,
+    SPELL_VISUAL_KIT_AT_POSITION = 3,
+    SPELL_VISUAL_KIT_PRECAST = 4,
+    SPELL_VISUAL_KIT_CASTER_IMPACT = 5,
+    SPELL_VISUAL_KIT_TARGET_IMPACT = 6,
+    SPELL_VISUAL_KIT_MISSILE_TARGETING = 7,
+    SPELL_VISUAL_KIT_STATE_DONE = 8,
+};
 
 // Client runtime state: the low 16 bits are a lock count, not independent flags.
 // High-bit names describe verified behavior; unknown bits keep their numeric positions.

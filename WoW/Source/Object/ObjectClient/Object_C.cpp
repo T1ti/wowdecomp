@@ -1596,21 +1596,21 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
     int32_t animParam = data.m_playAnim;
 
     switch (data.m_kitType) {
-        case 0:
+        case SPELL_VISUAL_KIT_CAST:
             flags |= CEffect::EFFECT_FLAGS::EFFECT_SET_SPECIAL_IDLE;
             callback = &CGObject_C::EffectOnceHandler;
             flags = (flags & ~(CEffect::EFFECT_FLAGS::EFFECT_SOUND_LOOPING | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME)) | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
             break;
 
-        case 1:
-        case 5:
-        case 6:
-        case 8:
+        case SPELL_VISUAL_KIT_IMPACT:
+        case SPELL_VISUAL_KIT_CASTER_IMPACT:
+        case SPELL_VISUAL_KIT_TARGET_IMPACT:
+        case SPELL_VISUAL_KIT_STATE_DONE:
             callback = &CGObject_C::EffectOnceHandler;
             flags = (flags & ~(CEffect::EFFECT_FLAGS::EFFECT_SOUND_LOOPING | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME)) | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
             break;
 
-        case 2:
+        case SPELL_VISUAL_KIT_STATE:
             flags |= (CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION | CEffect::EFFECT_FLAGS::EFFECT_PERSIST_ON_PARTIAL_CLEAR);
             callback = &CGObject_C::AuraEffectHandler;
 
@@ -1630,7 +1630,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
 
             break;
 
-        case 3:
+        case SPELL_VISUAL_KIT_AT_POSITION:
             if (spell) {
                 callback = &CGObject_C::EffectOnceHandler;
                 flags = (flags & ~(CEffect::EFFECT_FLAGS::EFFECT_SOUND_LOOPING | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME)) | CEffect::EFFECT_FLAGS::EFFECT_CALLBACK_LIFETIME;
@@ -1640,12 +1640,12 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
             flags |= (CEffect::EFFECT_FLAGS::EFFECT_USE_SUPPLIED_POSITION | CEffect::EFFECT_FLAGS::EFFECT_PERSIST_ON_PARTIAL_CLEAR);
             break;
 
-        case 4:
+        case SPELL_VISUAL_KIT_PRECAST:
             callback = &CGObject_C::LoopEffectHandler;
             flags |= CEffect::EFFECT_FLAGS::EFFECT_PRECAST;
             break;
 
-        case 7:
+        case SPELL_VISUAL_KIT_MISSILE_TARGETING:
             if (spell) {
                 callback = &CGObject_C::LoopEffectHandler;
             }
@@ -1887,28 +1887,28 @@ void CGObject_C::ClearEffectKit(int32_t spellId, int32_t kitType, int32_t a4, in
     SpellVisualKitRec* kit;
 
     switch (kitType) {
-    case 0:
+    case SPELL_VISUAL_KIT_CAST:
         kit = g_spellVisualKitDB.GetRecord(visual->m_castKit);
         break;
-    case 1:
+    case SPELL_VISUAL_KIT_IMPACT:
         kit = g_spellVisualKitDB.GetRecord(visual->m_impactKit);
         break;
-    case 2:
+    case SPELL_VISUAL_KIT_STATE:
         kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
         break;
-    case 4:
+    case SPELL_VISUAL_KIT_PRECAST:
         kit = g_spellVisualKitDB.GetRecord(visual->m_precastKit);
         break;
-    case 5:
+    case SPELL_VISUAL_KIT_CASTER_IMPACT:
         kit = g_spellVisualKitDB.GetRecord(visual->m_casterImpactKit);
         break;
-    case 6:
+    case SPELL_VISUAL_KIT_TARGET_IMPACT:
         kit = g_spellVisualKitDB.GetRecord(visual->m_targetImpactKit);
         break;
-    case 7:
+    case SPELL_VISUAL_KIT_MISSILE_TARGETING:
         kit = g_spellVisualKitDB.GetRecord(visual->m_missileTargetingKit);
         break;
-    case 8:
+    case SPELL_VISUAL_KIT_STATE_DONE:
         kit = g_spellVisualKitDB.GetRecord(visual->m_stateDoneKit);
         break;
     default:

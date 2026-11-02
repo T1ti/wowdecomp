@@ -554,7 +554,7 @@
     },
     {
       "id": 45,
-      "state": "pending",
+      "state": "done",
       "values": "0, 1, 3, 4",
       "description": "Effect/visual-kit phase arguments in PlaySpellVisuaKitData, ClearEffectKit and DelaySpellVisualKit.",
       "original_lines": [
@@ -571,7 +571,9 @@
         4866,
         9046,
         9177
-      ]
+      ],
+      "evidence": "IDA 0x00744BD0 selects SpellVisualRec kit fields for IDs 0/1/2/4/5/6/7/8; CGObject_C::PlaySpellVisualKit type 3 uses supplied position.",
+      "notes": "Defined the existing forward-declared SPELL_VISUAL_KIT_TYPE and reused its names at constructor, clear and delayed-kit calls, producer/consumer switches and animation checks. No field or signature changes; source equivalence passed. Win32/x64 syntax checks passed."
     },
     {
       "id": 46,

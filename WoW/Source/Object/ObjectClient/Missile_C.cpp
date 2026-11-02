@@ -574,7 +574,7 @@ void CMissile::ClearTargetingEffects() {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_targetingUnit, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        unit->ClearEffectKit(this->m_spellID, 7, this->m_targetingEffectTime, 1, 1);
+        unit->ClearEffectKit(this->m_spellID, SPELL_VISUAL_KIT_MISSILE_TARGETING, this->m_targetingEffectTime, 1, 1);
     }
 
     this->m_targetingUnit = WOWGUID();
@@ -1291,7 +1291,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
         this->ResolveTargetPosition(&position, &transport);
 
         if (caster) {
-            PlaySpellVisuaKitData data(spell, areaKit, 3);
+            PlaySpellVisuaKitData data(spell, areaKit, SPELL_VISUAL_KIT_AT_POSITION);
             data.m_position = &position;
             data.m_transportGUID = transport;
             data.m_someGUID = this->m_casterGuid;
@@ -1300,7 +1300,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
             if (player) {
-                PlaySpellVisuaKitData data(spell, areaKit, 3);
+                PlaySpellVisuaKitData data(spell, areaKit, SPELL_VISUAL_KIT_AT_POSITION);
                 data.m_transportGUID = transport;
                 data.m_position = &position;
                 data.m_someGUID = this->m_casterGuid;
@@ -1339,13 +1339,13 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
             const SpellVisualKitRec* kit = unit != caster ? targetKit : casterKit;
 
             if (kit) {
-                PlaySpellVisuaKitData data(spell, kit, 1);
+                PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_IMPACT);
                 data.m_someGUID = this->m_casterGuid;
                 unit->PlaySpellVisualKit(data);
             }
 
             if (stateKit && unit->m_unit->m_unitFieldHealth > 0 && unit->HasAuraBySpellId(spell->m_id) && (static_cast<int8_t>(stateKit->m_flags) >= 0 || unit->HasAuraActive(spell->m_id))) {
-                PlaySpellVisuaKitData data(spell, stateKit, 2);
+                PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
                 data.m_someGUID = this->m_casterGuid;
                 unit->PlaySpellVisualKit(data);
             }
@@ -1357,7 +1357,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
             continue;
         }
 
-        PlaySpellVisuaKitData data(spell, targetKit, 1);
+        PlaySpellVisuaKitData data(spell, targetKit, SPELL_VISUAL_KIT_IMPACT);
         SpellCastTargetPoint* point = &this->m_targetPoints.m_data[i];
 
         if (point->m_transport && MovementObjIsTransport(point->m_transport)) {
@@ -1542,7 +1542,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         }
 
         if (kit) {
-            PlaySpellVisuaKitData data(spell, kit, 1);
+            PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_IMPACT);
             data.m_transportGUID = transport;
             data.m_someGUID = this->m_casterGuid;
             data.m_position = positionPtr;
@@ -1552,7 +1552,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         SpellVisualKitRec* stateKit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
         if (stateKit && target->m_unit->m_unitFieldHealth > 0 && target->HasAuraBySpellId(spell->m_id) && (static_cast<int8_t>(stateKit->m_flags) >= 0 || target->HasAuraActive(spell->m_id))) {
-            PlaySpellVisuaKitData data(spell, stateKit, 2);
+            PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
             data.m_someGUID = this->m_casterGuid;
             target->PlaySpellVisualKit(data);
         }
@@ -2134,7 +2134,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
                     C3Vector targetPos;
                     WOWGUID transport;
                     this->ResolveTargetPosition(&targetPos, &transport);
-                    PlaySpellVisuaKitData data(&spell, kit, 7);
+                    PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_MISSILE_TARGETING);
                     data.m_position = &targetPos;
                     data.m_transportGUID = transport;
                     data.m_someGUID = this->m_casterGuid;
@@ -2142,7 +2142,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
                     data.m_effectFadeTime = this->m_targetingEffectTime;
                     unit->PlaySpellVisualKit(data);
                 } else {
-                    PlaySpellVisuaKitData data(&spell, kit, 2);
+                    PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_STATE);
                     data.m_someGUID = this->m_casterGuid;
                     data.m_effectFadeTime = this->m_targetingEffectTime;
                     unit->PlaySpellVisualKit(data);
