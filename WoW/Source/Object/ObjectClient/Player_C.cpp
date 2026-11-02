@@ -1,4 +1,5 @@
 #include "Player_C.h"
+#include "WoW/Source/Game/GameClient/tables.h"
 #include "WoW/Common/Types.h"
 #include <malloc.h>
 #include "Engine/Source/Base/CDataStore.h"
@@ -10718,8 +10719,8 @@ int32_t CGPlayer_C::GetAttackPowerContributionFromStat(int32_t stat, int32_t val
 // VERIFY: 93bc731c manual
 // OFFSET: 0x006DE410
 float CGPlayer_C::GetCombatRatingPct(int32_t rating) {
-    float base = GetGameTableValue(1, this->m_unit->m_unitFieldLevel - 1, rating);
-    float scalar = GetGameTableValue(11, rating + 1, this->m_unit->m_classID - 1);
+    float base = GetGameTableValue(GAME_TABLE_COMBAT_RATINGS, this->m_unit->m_unitFieldLevel - 1, rating);
+    float scalar = GetGameTableValue(GAME_TABLE_OCT_CLASS_COMBAT_RATING_SCALAR, rating + 1, this->m_unit->m_classID - 1);
 
     if (base == 0.0f || scalar == 0.0f) {
         return 0.0f;

@@ -1,4 +1,5 @@
 #include "BarberShop.h"
+#include "WoW/Source/Game/GameClient/tables.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/Ui/ScriptEvents.h"
 #include "WoW/Source/Ui/Types.h"
@@ -488,7 +489,7 @@ int32_t CGBarberShop::GetTotalCost() {
         return 0;
     }
 
-    float base = GetGameTableValue(0, player->m_unit->m_unitFieldLevel - 1, 0);
+    float base = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, player->m_unit->m_unitFieldLevel - 1, 0);
     int32_t baseCost = static_cast<int32_t>(base);
 
     if (!CGBarberShop::IsCurrentStyle(0)) {

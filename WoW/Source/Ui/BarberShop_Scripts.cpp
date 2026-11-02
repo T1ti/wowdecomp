@@ -1,4 +1,5 @@
 #include "BarberShop.h"
+#include "WoW/Source/Game/GameClient/tables.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -45,13 +46,13 @@ static int32_t Script_GetBarberShopStyleInfo(lua_State* L) {
     if (index == 1) {
         lua_pushnil(L);
         lua_pushnil(L);
-        float value = GetGameTableValue(0, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * 0.5f;
+        float value = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * 0.5f;
         cost = static_cast<int32_t>(value);
     } else {
         const BarberShopStyleRec* style = CGBarberShop::GetCurrentStyle(index);
         lua_pushstring(L, style->m_displayName);
         lua_pushstring(L, style->m_description);
-        float value = GetGameTableValue(0, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * style->m_costModifier;
+        float value = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * style->m_costModifier;
         cost = static_cast<int32_t>(value);
     }
 

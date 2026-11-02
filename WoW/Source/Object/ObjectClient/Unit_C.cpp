@@ -16437,8 +16437,8 @@ void CGUnit_C::ReleaseAurasBySpell(int32_t spellId) {
 // VERIFY: 0c11fba1 auto
 // OFFSET: 0x0071BB70
 float CGUnit_C::GetSpellChanceToCrit() const {
-    float base = GetGameTableValue(5, 0, this->m_unit->m_classID - 1);
-    float ratio = GetGameTableValue(4, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1);
+    float base = GetGameTableValue(GAME_TABLE_CHANCE_TO_SPELL_CRIT_BASE, 0, this->m_unit->m_classID - 1);
+    float ratio = GetGameTableValue(GAME_TABLE_CHANCE_TO_SPELL_CRIT, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1);
 
     if (ratio == 0.0f) {
         return 0.0f;
@@ -19801,8 +19801,8 @@ CGUnit_C* CGUnit_C::GetVehicleUnit() const {
 // VERIFY: a1d87fb0 auto
 // OFFSET: 0x0071BAE0
 float CGUnit_C::GetMeleeChanceToCrit() const {
-    float base = GetGameTableValue(3, 0, this->m_unit->m_classID - 1);
-    float ratio = GetGameTableValue(2, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1);
+    float base = GetGameTableValue(GAME_TABLE_CHANCE_TO_MELEE_CRIT_BASE, 0, this->m_unit->m_classID - 1);
+    float ratio = GetGameTableValue(GAME_TABLE_CHANCE_TO_MELEE_CRIT, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1);
 
     if (ratio == 0.0f) {
         return 0.0f;
@@ -19859,7 +19859,7 @@ double CGUnit_C::GetPowerModifier() {
 float CGUnit_C::GetManaRegenRateFromSpirit() const {
     int32_t spirit = this->m_unit->m_unitFieldStat[4] < 0 ? 0 : this->m_unit->m_unitFieldStat[4];
     int32_t intellect = this->m_unit->m_unitFieldStat[3] < 0 ? 0 : this->m_unit->m_unitFieldStat[3];
-    return GetGameTableValue(10, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1) * sqrt(static_cast<double>(intellect)) * spirit;
+    return GetGameTableValue(GAME_TABLE_REGEN_MP_PER_SPIRIT, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1) * sqrt(static_cast<double>(intellect)) * spirit;
 }
 
 // VERIFY: b1a33141 manual
@@ -19869,8 +19869,8 @@ float CGUnit_C::GetHealthRegenRateFromSpirit() const {
     int32_t baseSpirit = spirit <= s_baseSpiritRegenCap ? spirit : s_baseSpiritRegenCap;
     int32_t classIndex = this->m_unit->m_classID - 1;
     int32_t levelIndex = this->m_unit->m_unitFieldLevel - 1;
-    float baseRatio = GetGameTableValue(7, levelIndex, classIndex);
-    float ratio = GetGameTableValue(9, levelIndex, classIndex);
+    float baseRatio = GetGameTableValue(GAME_TABLE_OCT_REGEN_HP, levelIndex, classIndex);
+    float ratio = GetGameTableValue(GAME_TABLE_REGEN_HP_PER_SPIRIT, levelIndex, classIndex);
     return ratio * (spirit - baseSpirit) + baseSpirit * baseRatio;
 }
 

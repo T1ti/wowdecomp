@@ -40,7 +40,7 @@ static ClientGameTable<gtRegenMPPerSptRec> s_gtRegenMPPerSpt("RegenMPPerSpt", &g
 static ClientGameTable<gtOCTClassCombatRatingScalarRec> s_gtOCTClassCombatRatingScalar("OCTClassCombatRatingScalar", &g_gtOCTClassCombatRatingScalarDB);
 
 // STATIC: 0x00AF4F90
-static ClientGameTableBase* s_gameTables[] = { &s_gtBarberShopCostBase, &s_gtCombatRatings, &s_gtChanceToMeleeCrit, &s_gtChanceToMeleeCritBase, &s_gtChanceToSpellCrit, &s_gtChanceToSpellCritBase, &s_gtNPCManaCostScaler, &s_gtOCTRegenHP, &s_gtOCTRegenMP, &s_gtRegenHPPerSpt, &s_gtRegenMPPerSpt, &s_gtOCTClassCombatRatingScalar };
+static ClientGameTableBase* s_gameTables[NUM_GAME_TABLES] = { &s_gtBarberShopCostBase, &s_gtCombatRatings, &s_gtChanceToMeleeCrit, &s_gtChanceToMeleeCritBase, &s_gtChanceToSpellCrit, &s_gtChanceToSpellCritBase, &s_gtNPCManaCostScaler, &s_gtOCTRegenHP, &s_gtOCTRegenMP, &s_gtRegenHPPerSpt, &s_gtRegenMPPerSpt, &s_gtOCTClassCombatRatingScalar };
 
 // INLINED
 ClientGameTableBase::ClientGameTableBase(const char* name) {
@@ -72,6 +72,6 @@ void GameTablesInitialize() {
 
 // VERIFY: 166b2593 auto
 // OFFSET: 0x007F6990
-float GetGameTableValue(int32_t table, int32_t index, int32_t row) {
+float GetGameTableValue(GAME_TABLE table, int32_t index, int32_t row) {
     return s_gameTables[table]->EvaluateTable(index, row);
 }

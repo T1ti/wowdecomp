@@ -580,7 +580,7 @@ void DBCache<NameCache, uint64_t, CHashKeyGUID>::RemoveReverseEntry(const char* 
     REVERSEENTRY* entry = this->FindReverseEntry(name);
 
     if (!entry) {
-        SErrSetLastError(87);
+        SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 

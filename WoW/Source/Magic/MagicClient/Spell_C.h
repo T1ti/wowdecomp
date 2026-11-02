@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
+#include "WoW/Source/Game/GameClient/tables.h"
 #include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -238,7 +239,6 @@ bool Spell_C_CancelsConfuse(const CGUnit_C* unit, const SpellRec* spell, int32_t
 bool Spell_C_CancelsCharm(const CGUnit_C* unit, const SpellRec* spell, int32_t* reason);
 bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report, PendingSpellCast* cast);
 bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool checkAmmo, bool report, PendingSpellCast* cast);
-float GetGameTableValue(int32_t table, int32_t index, int32_t row);
 void ItemCheckCooldownCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
 
 class QuestTextParser {

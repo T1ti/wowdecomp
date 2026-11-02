@@ -1,4 +1,6 @@
 #include "Spell_C.h"
+#include "WoW/Source/Game/GameClient/tables.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
@@ -375,8 +377,8 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     }
 
     if (!(unit->m_obj->m_type & TYPE_PLAYER) && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL) && spell->m_spellLevel) {
-        float spellLevelValue = GetGameTableValue(6, spell->m_spellLevel - 1, 0);
-        float unitLevelValue = GetGameTableValue(6, unit->m_unit->m_unitFieldLevel - 1, 0);
+        float spellLevelValue = GetGameTableValue(GAME_TABLE_NPC_MANA_COST_SCALER, spell->m_spellLevel - 1, 0);
+        float unitLevelValue = GetGameTableValue(GAME_TABLE_NPC_MANA_COST_SCALER, unit->m_unit->m_unitFieldLevel - 1, 0);
 
         if (spellLevelValue > 0.0f && unitLevelValue > 0.0f) {
             cost = CMath::fint_(unitLevelValue / spellLevelValue * cost);
@@ -872,7 +874,7 @@ void ClearSpellCastState(CGUnit_C* unit, PendingSpellCast* cast, const SpellRec*
 // OFFSET: 0x007FA2E0
 void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, const SpellRec* spell) {
     if (!unit) {
-        SErrSetLastError(87);
+        SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 

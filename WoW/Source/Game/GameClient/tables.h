@@ -4,6 +4,25 @@
 #include <cstdint>
 #include "WoW/Source/DB/WowClientDB.h"
 
+// Indices in tables.cpp's client game-table registry.
+enum GAME_TABLE : int32_t {
+    GAME_TABLE_BARBER_SHOP_COST_BASE = 0,
+    GAME_TABLE_COMBAT_RATINGS = 1,
+    GAME_TABLE_CHANCE_TO_MELEE_CRIT = 2,
+    GAME_TABLE_CHANCE_TO_MELEE_CRIT_BASE = 3,
+    GAME_TABLE_CHANCE_TO_SPELL_CRIT = 4,
+    GAME_TABLE_CHANCE_TO_SPELL_CRIT_BASE = 5,
+    GAME_TABLE_NPC_MANA_COST_SCALER = 6,
+    GAME_TABLE_OCT_REGEN_HP = 7,
+    GAME_TABLE_OCT_REGEN_MP = 8,
+    GAME_TABLE_REGEN_HP_PER_SPIRIT = 9,
+    GAME_TABLE_REGEN_MP_PER_SPIRIT = 10,
+    GAME_TABLE_OCT_CLASS_COMBAT_RATING_SCALAR = 11,
+    NUM_GAME_TABLES = 12,
+};
+
+float GetGameTableValue(GAME_TABLE table, int32_t index, int32_t row);
+
 class GameTablesRec;
 
 class ClientGameTableBase {

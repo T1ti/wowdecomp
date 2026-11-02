@@ -2338,7 +2338,7 @@ void CGCamera::ZoomToDistance(float distance, uint32_t time, float duration, int
 // OFFSET: 0x00606F90
 void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
     if (!target) {
-        SErrSetLastError(87);
+        SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
@@ -4314,7 +4314,7 @@ void CGCamera::UpdateVehiclePitchOffset(uint32_t time) {
 // OFFSET: 0x00605700
 void CGCamera::FaceTarget(CGObject_C* target, uint32_t time) {
     if (!target) {
-        SErrSetLastError(87);
+        SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
