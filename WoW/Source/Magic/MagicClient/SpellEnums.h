@@ -6,6 +6,16 @@
 // Number of effect slots in a 3.3.5 SpellRec, independent of class-mask words.
 constexpr int32_t NUM_SPELL_EFFECTS = 3;
 
+enum SPELL_FACING_FLAGS : int32_t {
+    SPELL_FACING_FLAG_IN_FRONT = 0x1,
+};
+
+// SMSG_SPELL_COOLDOWN payload flags, interpreted by Packet_SMSG_SPELL_COOLDOWN.
+enum SPELL_COOLDOWN_FLAGS : uint8_t {
+    SPELL_COOLDOWN_FLAG_INCLUDE_START_RECOVERY = 0x1,
+    SPELL_COOLDOWN_FLAG_IGNORE_COOLDOWN_ON_EVENT = 0x2,
+};
+
 // SpellRec::m_startRecoveryCategory (SpellCategory.dbc ID; other categories exist).
 enum SPELL_RECOVERY_CATEGORY : int32_t
 {

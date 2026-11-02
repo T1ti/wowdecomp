@@ -2783,23 +2783,23 @@ bool CGGameObject_C::IsValidTargetForSpell(const WOWGUID& item, int32_t spellId)
             continue;
         }
 
-        for (int32_t j = 0; j < 8; j++) {
+        for (int32_t j = 0; j < NUM_LOCK_KEYS; j++) {
             switch (lock->m_type[j]) {
-                case 1:
+                case LOCK_KEY_ITEM:
                     if (!key || static_cast<int32_t>(key->m_obj->m_entryID) != lock->m_index[j]) {
                         continue;
                     }
 
                     break;
 
-                case 2:
+                case LOCK_KEY_SKILL:
                     if (spell.m_effectMiscValue[i] != lock->m_index[j]) {
                         continue;
                     }
 
                     break;
 
-                case 3:
+                case LOCK_KEY_SPELL:
                     if (spell.m_id != lock->m_index[j]) {
                         continue;
                     }
@@ -3660,14 +3660,14 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
 
     bool locked = false;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
         int32_t type = lock->m_type[i];
 
         if (!type) {
             continue;
         }
 
-        if (type == 2) {
+        if (type == LOCK_KEY_SKILL) {
             locked = true;
 
             if (!this->IsValidOpenAction(lock->m_action[i])) {
@@ -3746,7 +3746,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                     }
                 }
             }
-        } else if (type == 3) {
+        } else if (type == LOCK_KEY_SPELL) {
             locked = true;
 
             if (!this->IsValidOpenAction(lock->m_action[i])) {
@@ -3769,7 +3769,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                     return false;
                 }
             }
-        } else if (type == 1) {
+        } else if (type == LOCK_KEY_ITEM) {
             locked = true;
 
             if (!this->IsValidOpenAction(lock->m_action[i])) {
@@ -4183,8 +4183,8 @@ bool CGGameObject_C_TypeBase::Use() {
             return false;
         }
 
-        if (lock->m_type[0] != 1) {
-            if (lock->m_type[0] == 2) {
+        if (lock->m_type[0] != LOCK_KEY_ITEM) {
+            if (lock->m_type[0] == LOCK_KEY_SKILL) {
                 LockTypeRec* lockType = g_lockTypeDB.GetRecord(lock->m_index[0]);
                 int32_t required = lock->m_skill[0] ? lock->m_skill[0] : 5 * owner->m_gameObject->m_level;
 
@@ -4193,7 +4193,7 @@ bool CGGameObject_C_TypeBase::Use() {
                 } else {
                     CGGameUI::DisplayError(ERR_USE_LOCKED_WITH_SPELL_S, lockType ? lockType->m_name : "UNKNOWN");
                 }
-            } else if (lock->m_type[0] == 3) {
+            } else if (lock->m_type[0] == LOCK_KEY_SPELL) {
                 SpellRec spell;
 
                 if (g_spellDB.GetRecord(lock->m_index[0], &spell)) {

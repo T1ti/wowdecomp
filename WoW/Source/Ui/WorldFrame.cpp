@@ -504,7 +504,7 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
         }
     }
 
-    if ((flags & 0x400000) && unit->GetCreatureType() == 12) {
+    if ((flags & 0x400000) && unit->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
         return 1;
     }
 

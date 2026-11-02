@@ -5716,8 +5716,8 @@ bool CGPlayer_C::CanTrackObject(CGObject_C* object) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 8; i++) {
-        if (lock->m_type[i] == 2 && ((1 << (static_cast<uint8_t>(lock->m_index[i]) - 1)) & trackResources)) {
+    for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
+        if (lock->m_type[i] == LOCK_KEY_SKILL && ((1 << (static_cast<uint8_t>(lock->m_index[i]) - 1)) & trackResources)) {
             return true;
         }
     }

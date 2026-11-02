@@ -6,6 +6,18 @@
 
 class SFileImpl;
 
+// SummonProperties.dbc slot IDs, independent of summon type/category.
+// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/SharedDefines.h
+enum SUMMON_SLOT : int32_t {
+    SUMMON_SLOT_PET = 0,
+    SUMMON_SLOT_TOTEM_FIRE = 1,
+    SUMMON_SLOT_TOTEM_EARTH = 2,
+    SUMMON_SLOT_TOTEM_WATER = 3,
+    SUMMON_SLOT_TOTEM_AIR = 4,
+    SUMMON_SLOT_MINIPET = 5,
+    SUMMON_SLOT_QUEST = 6,
+};
+
 class SummonPropertiesRec {
     public:
     static const int32_t s_numColumns = 6;

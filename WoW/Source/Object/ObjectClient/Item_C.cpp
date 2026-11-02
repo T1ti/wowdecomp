@@ -1310,14 +1310,14 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
     int32_t locked = 0;
     SpellRec spell;
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < NUM_LOCK_KEYS; i++) {
         int32_t type = lock->m_type[i];
 
         if (!type) {
             continue;
         }
 
-        if (type == 2) {
+        if (type == LOCK_KEY_SKILL) {
             locked = 1;
 
             for (uint32_t j = 0; j < s_openLockSpells.m_count; j++) {
@@ -1358,7 +1358,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
                     }
                 }
             }
-        } else if (type == 3) {
+        } else if (type == LOCK_KEY_SPELL) {
             locked = 1;
 
             g_spellDB.GetRecord(lock->m_index[i], &spell);
@@ -1376,7 +1376,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
                     return 0;
                 }
             }
-        } else if (type == 1) {
+        } else if (type == LOCK_KEY_ITEM) {
             CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
             if (player) {

@@ -4940,7 +4940,7 @@ static int32_t ClosestObjectMatchProc(WOWGUID guid, void* param) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(object);
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-        if (data->m_ignoreHostileTotems && unit->GetCreatureType() == 11 && !player->IsFriendly(unit)) {
+        if (data->m_ignoreHostileTotems && unit->GetCreatureType() == CREATURE_TYPE_TOTEM && !player->IsFriendly(unit)) {
             return 1;
         }
 

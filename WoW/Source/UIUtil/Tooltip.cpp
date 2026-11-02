@@ -1,4 +1,5 @@
 #include "Tooltip.h"
+#include "WoW/Source/Object/Types.h"
 #include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Common/Types.h"
 #include <cmath>
@@ -1510,7 +1511,7 @@ void CGTooltip::GetSummonedByString(CGUnit_C* unit, char* buffer, uint32_t size)
         }
     }
 
-    if (unit->GetCreatureType() == 1) {
+    if (unit->GetCreatureType() == CREATURE_TYPE_BEAST) {
         SStrPrintf(token, sizeof(token), "UNITNAME_SUMMON_TITLE1");
     } else {
         SStrPrintf(token, sizeof(token), "UNITNAME_SUMMON_TITLE3");
@@ -1903,7 +1904,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
         dead = unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD);
         unitLevel = unit->m_unit->m_unitFieldLevel;
 
-        if (unit->GetCreatureType() != 10) {
+        if (unit->GetCreatureType() != CREATURE_TYPE_NOT_SPECIFIED) {
             if (activePlayer) {
                 if (activePlayer->UnitReaction(unit) < UNIT_REACTION_FRIENDLY && !activePlayer->IsTreatAsRaidUnit()) {
                     creatureType = g_creatureTypeDB.GetRecord(unit->GetCreatureType());
@@ -1911,7 +1912,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
             }
         }
 
-        if (unit->GetCreatureType() == 10 || activePlayer) {
+        if (unit->GetCreatureType() == CREATURE_TYPE_NOT_SPECIFIED || activePlayer) {
             if (activePlayer && unit->UnitReaction(activePlayer) <= UNIT_REACTION_HOSTILE && static_cast<int32_t>(activePlayer->m_unit->m_unitFieldLevel) <= unitLevel - 10) {
                 showLevel = 0;
             }
@@ -4223,7 +4224,7 @@ static void AddItemLockLines(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
     if (lockIndex) {
         encrypted = lockIndex == 20;
     } else {
-        for (uint32_t i = 0; i < 8; i++) {
+        for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
             if (lock->m_index[i] == 20) {
                 encrypted = true;
                 break;
@@ -4239,10 +4240,10 @@ static void AddItemLockLines(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
 
     tooltip->AddLine(text, nullptr, lockColor, lockColor, 0);
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
         int32_t type = lock->m_type[i];
 
-        if (type == 2) {
+        if (type == LOCK_KEY_SKILL) {
             int32_t skillSpell = 0;
             int32_t skillCurrent = 0;
             int32_t skillRequired = 0;
@@ -4262,7 +4263,7 @@ static void AddItemLockLines(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
             return;
         }
 
-        if (type == 3) {
+        if (type == LOCK_KEY_SPELL) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(lock->m_index[i], &spell)) {
@@ -4272,7 +4273,7 @@ static void AddItemLockLines(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
             return;
         }
 
-        if (type == 1) {
+        if (type == LOCK_KEY_ITEM) {
             WOWGUID key = item ? item->m_obj->m_guid : WOWGUID{ 0 };
             ItemStats_C* keyStats = g_itemDBCache.GetRecord(lock->m_index[i], key, TooltipItemCallback, tooltip, true);
 
@@ -7865,7 +7866,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
 
     if (lock && object->IsValidOpenAction(lock->m_action[0])) {
         switch (lock->m_type[0]) {
-            case 1: {
+            case LOCK_KEY_ITEM: {
                 WOWGUID requester = object->m_obj->m_guid;
                 ItemStats_C* stats = g_itemDBCache.GetRecord(lock->m_index[0], requester, TooltipObjectCallback, this, true);
 
@@ -7876,7 +7877,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
 
                 break;
             }
-            case 2: {
+            case LOCK_KEY_SKILL: {
                 int32_t spellId = 0;
                 int32_t skillValue = 0;
                 int32_t requiredSkill = 0;
@@ -7902,7 +7903,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
                 this->AddLine(text, nullptr, color, color, 0);
                 break;
             }
-            case 3: {
+            case LOCK_KEY_SPELL: {
                 SpellRec spell;
 
                 if (g_spellDB.GetRecord(lock->m_index[0], &spell)) {

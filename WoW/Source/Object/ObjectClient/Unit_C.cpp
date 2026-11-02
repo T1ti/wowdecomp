@@ -4760,11 +4760,11 @@ int32_t CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
             return 0;
         }
 
-        if ((this->HasCreator() && !this->HasSummoner() && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_NPC)) || this->GetCreatureType() == 8 || this->GetCreatureType() == 12) {
+        if ((this->HasCreator() && !this->HasSummoner() && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_NPC)) || this->GetCreatureType() == CREATURE_TYPE_CRITTER || this->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
             return (flags >> 10) & 0x1;
         }
 
-        if (this->GetCreatureType() == 11) {
+        if (this->GetCreatureType() == CREATURE_TYPE_TOTEM) {
             return friendly ? (flags >> 9) & 0x1 : (flags >> 6) & 0x1;
         }
 
@@ -4789,7 +4789,7 @@ int32_t CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
         return 0;
     }
 
-    if (this->GetCreatureType() == 8 || this->GetCreatureType() == 12) {
+    if (this->GetCreatureType() == CREATURE_TYPE_CRITTER || this->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
         return (flags >> 10) & 0x1;
     }
 
@@ -14086,7 +14086,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     if (this->m_castSpellId && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING)) {
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(this->m_castSpellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (!(spell.m_facingCasterFlags & 0x1) || this->IsInFrontOfTargetWithGuid(CGGameUI::m_lockedTarget))) {
+        if (g_spellDB.GetRecord(this->m_castSpellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (!(spell.m_facingCasterFlags & SPELL_FACING_FLAG_IN_FRONT) || this->IsInFrontOfTargetWithGuid(CGGameUI::m_lockedTarget))) {
             track = true;
         }
     } else if (this->m_unit->m_unitChannelSpell) {
@@ -20401,11 +20401,11 @@ int32_t CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* positi
         return 0;
     }
 
-    if (this->GetCreatureType() == 8) {
+    if (this->GetCreatureType() == CREATURE_TYPE_CRITTER) {
         return 0;
     }
 
-    if (this->GetCreatureType() == 12) {
+    if (this->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
         return 0;
     }
 
@@ -20424,7 +20424,7 @@ int32_t CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* positi
             return 0;
         }
 
-        if (this->GetCreatureType() == 11) {
+        if (this->GetCreatureType() == CREATURE_TYPE_TOTEM) {
             if (friendly ? !g_nameplateShowFriendlyTotemsCVar->m_intValue : !g_nameplateShowEnemyTotemsCVar->m_intValue) {
                 return 0;
             }
@@ -21161,7 +21161,7 @@ static void CritterDisplayCacheCallback(int32_t id, const WOWGUID& guid, void* p
 // VERIFY: 5b91be20 manual
 // OFFSET: 0x0072CC30
 int32_t CGUnit_C::IsHostileCritter() {
-    if (this->GetCreatureType() != 7) {
+    if (this->GetCreatureType() != CREATURE_TYPE_HUMANOID) {
         return 0;
     }
 

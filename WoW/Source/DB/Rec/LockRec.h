@@ -6,6 +6,17 @@
 
 class SFileImpl;
 
+// Lock.dbc key discriminators; m_index has a different domain for each type.
+// https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/shared/SharedDefines.h
+enum LOCK_KEY_TYPE : int32_t {
+    LOCK_KEY_NONE = 0,
+    LOCK_KEY_ITEM = 1,
+    LOCK_KEY_SKILL = 2,
+    LOCK_KEY_SPELL = 3,
+};
+
+constexpr int32_t NUM_LOCK_KEYS = 8;
+
 class LockRec {
     public:
     static const int32_t s_numColumns = 33;
@@ -13,10 +24,10 @@ class LockRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_type [8];
-    /* 0024 */ int32_t m_index [8];
-    /* 0044 */ int32_t m_skill [8];
-    /* 0064 */ int32_t m_action [8];
+    /* 0004 */ int32_t m_type [NUM_LOCK_KEYS]; // LOCK_KEY_TYPE
+    /* 0024 */ int32_t m_index [NUM_LOCK_KEYS];
+    /* 0044 */ int32_t m_skill [NUM_LOCK_KEYS];
+    /* 0064 */ int32_t m_action [NUM_LOCK_KEYS];
 
     LockRec();
     ~LockRec();

@@ -910,7 +910,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
         }
 
         if (unit->IsActivePlayer() && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_TRACK_TARGET_IN_CAST_PLAYER_ONLY) && (data->m_targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT) && data->m_objectTarget.m_guid) {
-            if (!(spell->m_facingCasterFlags & 0x1) || unit->IsInFrontOfTargetWithGuid(data->m_objectTarget)) {
+            if (!(spell->m_facingCasterFlags & SPELL_FACING_FLAG_IN_FRONT) || unit->IsInFrontOfTargetWithGuid(data->m_objectTarget)) {
                 unit->SetTrackingTarget(data->m_objectTarget, TRACKTYPE_SPELLPRECAST);
             }
         }
@@ -1364,7 +1364,7 @@ bool Spell_C_HasCooldownOnEvent(const SpellRec* spell, WOWGUID guid) {
         if (stats && owner && slot >= 0) {
             SpellCategoryRec* category = g_spellCategoryDB.GetRecord(stats->m_spellCategory[slot]);
 
-            if (category && (category->m_flags & 0x4)) {
+            if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT)) {
                 return true;
             }
         }
@@ -1385,7 +1385,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
     if (!pet) {
         SpellCategoryRec* category = g_spellCategoryDB.GetRecord(spell->m_category);
 
-        if (category && (category->m_flags & 0x1)) {
+        if (category && (category->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED)) {
             CGItem_C* item = player->GetBag()->GetItemPointer(INVSLOT_MAINHAND);
 
             if (item) {
@@ -1555,11 +1555,11 @@ int32_t Packet_SMSG_SPELL_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time,
     uint8_t flags;
     msg->Get(flags);
 
-    if (flags & 0x1) {
+    if (flags & SPELL_COOLDOWN_FLAG_INCLUDE_START_RECOVERY) {
         startRecovery = true;
     }
 
-    if (flags & 0x2) {
+    if (flags & SPELL_COOLDOWN_FLAG_IGNORE_COOLDOWN_ON_EVENT) {
         ignoreEvent = true;
     }
 
@@ -2225,21 +2225,21 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     continue;
                 }
 
-                for (uint32_t j = 0; j < 8 && action < 0; j++) {
+                for (uint32_t j = 0; j < NUM_LOCK_KEYS && action < 0; j++) {
                     switch (lock->m_type[j]) {
-                        case 1:
+                        case LOCK_KEY_ITEM:
                             if ((castObject->m_obj->m_type & TYPE_ITEM) && castObject->m_obj->m_entryID == lock->m_index[j]) {
                                 action = lock->m_action[j];
                             }
 
                             break;
-                        case 2:
+                        case LOCK_KEY_SKILL:
                             if (spell.m_effectMiscValue[i] == lock->m_index[j]) {
                                 action = lock->m_action[j];
                             }
 
                             break;
-                        case 3:
+                        case LOCK_KEY_SPELL:
                             if (spell.m_id == lock->m_index[j]) {
                                 action = lock->m_action[j];
                             }
@@ -2786,7 +2786,7 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
                 }
 
                 valid = true;
-            } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET) && unit->GetCreatureType() == 12) {
+            } else if ((needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET) && unit->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
                 valid = true;
             } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_ALLOW_ON_CHARMED_TARGETS) && unit->IsCharmed() && caster->CanAttack(unit)) {
                 valid = true;
@@ -3101,7 +3101,7 @@ bool SpellRec::WillSummonCritter(const SpellRec* spell) {
     if (spell->m_effect[0] == SPELL_EFFECT_SUMMON) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == 5) {
+        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
             return true;
         }
     }
@@ -3201,7 +3201,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
 
         SpellCategoryRec* categoryRec = g_spellCategoryDB.GetRecord(history->m_category);
 
-        if (((history->m_category && history->m_category == category) || (categoryRec && (categoryRec->m_flags & 0x2))) && history->m_categoryRecoveryTime) {
+        if (((history->m_category && history->m_category == category) || (categoryRec && (categoryRec->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_USES_ANY_CATEGORY))) && history->m_categoryRecoveryTime) {
             uint32_t end = history->m_categoryRecoveryTime + (history->m_onHold ? now : history->m_categoryTime);
 
             if (static_cast<int32_t>(end - latest) >= 0) {
@@ -3539,14 +3539,14 @@ int32_t SpellRec::GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUn
 // OFFSET: 0x007FF380
 bool SpellRec::IsMeleeRange(const SpellRec* spell) {
     SpellRangeRec* rec = g_spellRangeDB.GetRecord(spell->m_rangeIndex);
-    return rec && (rec->m_flags & 1);
+    return rec && (rec->m_flags & SPELL_RANGE_FLAG_MELEE);
 }
 
 // VERIFY: 62ade261 auto
 // OFFSET: 0x007FF3C0
 bool SpellRec::IsMinimumRange(const SpellRec* spell) {
     SpellRangeRec* rec = g_spellRangeDB.GetRecord(spell->m_rangeIndex);
-    return rec && (rec->m_flags & 2);
+    return rec && (rec->m_flags & SPELL_RANGE_FLAG_RANGED);
 }
 
 // VERIFY: accadc29 manual
@@ -3560,7 +3560,7 @@ void SpellRec::GetMinRange(const SpellRec* spell, float* range) {
 
     int32_t friendly = SpellRec::IsHelpfulOrHarmful(spell) == 1;
 
-    if (rec->m_flags & 1) {
+    if (rec->m_flags & SPELL_RANGE_FLAG_MELEE) {
         *range = 0.0f;
     } else if (rec->m_flags << 1) {
         *range = 5.0f;
@@ -3584,7 +3584,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
     SpellRangeRec* rec = g_spellRangeDB.GetRecord(spell->m_rangeIndex);
 
     if (rec) {
-        if (rec->m_flags & 1) {
+        if (rec->m_flags & SPELL_RANGE_FLAG_MELEE) {
             *minRange = 0.0f;
 
             if (!targetUnit) {
@@ -3598,7 +3598,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
                 bonus = 5.0f;
             }
         } else {
-            if (rec->m_flags & 2) {
+            if (rec->m_flags & SPELL_RANGE_FLAG_RANGED) {
                 float reach = targetUnit ? targetUnit->m_unit->m_unitFieldCombatreach : caster->m_unit->m_unitFieldCombatreach;
                 *minRange = reach + caster->m_unit->m_unitFieldCombatreach + 1.3333334f;
 
@@ -3616,13 +3616,13 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
             if (target && (target->m_obj->m_type & 0x88)) {
                 bonus = caster->m_unit->m_unitFieldCombatreach + (targetUnit ? targetUnit : caster)->m_unit->m_unitFieldCombatreach;
 
-                if (*minRange != 0.0f && !(rec->m_flags & 2)) {
+                if (*minRange != 0.0f && !(rec->m_flags & SPELL_RANGE_FLAG_RANGED)) {
                     *minRange = bonus + *minRange;
                 }
             }
         }
 
-        if (targetUnit && (caster->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && (targetUnit->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && !caster->IsRunning() && !targetUnit->IsRunning() && ((rec->m_flags & 1) || (targetUnit->m_obj->m_type & TYPE_PLAYER))) {
+        if (targetUnit && (caster->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && (targetUnit->m_movement->m_flags & (MOVEMENTFLAG_STRAFE_MASK | MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_FALLING)) && !caster->IsRunning() && !targetUnit->IsRunning() && ((rec->m_flags & SPELL_RANGE_FLAG_MELEE) || (targetUnit->m_obj->m_type & TYPE_PLAYER))) {
             bonus += 2.6666667f;
         }
     }
@@ -5146,7 +5146,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == 5) {
+        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
             return static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i];
         }
     }
@@ -5213,7 +5213,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == 5 && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i]) {
+        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> 24) & 0xFFFFFFF) == spell->m_effectMiscValue[i]) {
             CDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_DISMISS_CRITTER));
             msg.Put(unit->m_unit->m_unitFieldCritter.m_guid);
@@ -8719,7 +8719,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
             result = true;
         } else if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_NON_COMBAT_PET) {
-            if (unit->GetCreatureType() != 12) {
+            if (unit->GetCreatureType() != CREATURE_TYPE_NON_COMBAT_PET) {
                 return result;
             }
 
@@ -9363,7 +9363,7 @@ bool SpellIsCallCompanion(const SpellRec* spell) {
     if (spell->m_effect[0] == SPELL_EFFECT_SUMMON) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == 5) {
+        if (properties && properties->m_slot == SUMMON_SLOT_MINIPET) {
             return true;
         }
     }
