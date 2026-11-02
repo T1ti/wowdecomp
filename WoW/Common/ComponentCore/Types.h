@@ -101,6 +101,14 @@ enum INVENTORY_SLOTS {
     TOTAL_BAG_SLOTS = 11,
 };
 
+// Slot-selection masks used by equipped-item requirement checks.
+enum INVENTORY_SLOT_MASK : uint32_t {
+    INVSLOT_MASK_MAINHAND = 1u << INVSLOT_MAINHAND,
+    INVSLOT_MASK_OFFHAND = 1u << INVSLOT_OFFHAND,
+    INVSLOT_MASK_RANGED = 1u << INVSLOT_RANGED,
+    INVSLOT_MASK_ALL = 0xFFFFFFFFu,
+};
+
 enum INVENTORY_TYPES {
     INVTYPE_NON_EQUIP = 0,
     INVTYPE_HEAD = 1,

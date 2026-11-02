@@ -1,4 +1,5 @@
 #include "Tooltip.h"
+#include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Common/Types.h"
 #include <cmath>
 #include <cstddef>
@@ -2903,7 +2904,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
 
     constexpr uint32_t handRequirements = SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON | SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON;
 
-    if ((spell->m_attributesExC & handRequirements) == handRequirements && !player->EquippedItemMeetSpellRequirements(spell, 0x10000)) {
+    if ((spell->m_attributesExC & handRequirements) == handRequirements && !player->EquippedItemMeetSpellRequirements(spell, INVSLOT_MASK_OFFHAND)) {
         equipped = 0;
     }
 
@@ -7184,8 +7185,8 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
         CGItem_C* mainHand = nullptr;
 
         if (((slots & 0x8000) && (slots & 0x10000)) || stats->m_inventoryType == INVTYPE_2HWEAPON) {
-            mainHand = player->m_bag.GetItemPointer(15);
-            CGItem_C* offHand = player->m_bag.GetItemPointer(16);
+            mainHand = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
+            CGItem_C* offHand = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
 
             if (mainHand != offHand && mainHand && offHand) {
                 item = offset ? mainHand : offHand;
@@ -7200,14 +7201,14 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
             }
 
             if (slots & 0x8000) {
-                item = player->m_bag.GetItemPointer(15);
+                item = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
             } else if (!(slots & 0x10000)) {
                 return 0;
             } else {
-                item = player->m_bag.GetItemPointer(16);
+                item = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
 
                 if (!item) {
-                    mainHand = player->m_bag.GetItemPointer(15);
+                    mainHand = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
                     item = mainHand && mainHand->GetInventoryType() == 17 ? mainHand : nullptr;
                 }
             }

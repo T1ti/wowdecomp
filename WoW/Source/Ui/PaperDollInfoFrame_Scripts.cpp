@@ -1,4 +1,5 @@
 #include "PaperDollInfoFrame.h"
+#include "WoW/Common/ComponentCore/Types.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
@@ -123,7 +124,7 @@ static int32_t Script_KeyRingButtonIDToInvSlotID(lua_State* L) {
 // OFFSET: 0x005EAC10
 static int32_t Script_OffhandHasWeapon(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    CGItem_C* item = player ? player->m_bag.GetItemPointer(16) : nullptr;
+    CGItem_C* item = player ? player->m_bag.GetItemPointer(INVSLOT_OFFHAND) : nullptr;
 
     if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         lua_pushnumber(L, 1.0);
@@ -153,8 +154,8 @@ static int32_t Script_GetInventoryAlertStatus(lua_State* L) {
 static int32_t Script_HasWandEquipped(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && static_cast<uint32_t>(player->m_bag.m_numSlots) > 17 && player->m_bag.m_slots[17]) {
-        CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(player->m_bag.m_slots[17], TYPE_ITEM, __FILE__, __LINE__));
+    if (player && static_cast<uint32_t>(player->m_bag.m_numSlots) > INVSLOT_RANGED && player->m_bag.m_slots[INVSLOT_RANGED]) {
+        CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(player->m_bag.m_slots[INVSLOT_RANGED], TYPE_ITEM, __FILE__, __LINE__));
 
         if (item && item->GetSubtypeID() == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND) {
             lua_pushnumber(L, 1.0);

@@ -1,4 +1,5 @@
 #include "Spell_C.h"
+#include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
@@ -252,7 +253,7 @@ int32_t Spell_C_GetAutoRangedCombatSpell() {
 // VERIFY: 94e1f1cb auto
 // OFFSET: 0x007FE190
 void Spell_C_ClearLastAutoRangedCombatError() {
-    s_lastAutoRangedCombatError = 187;
+    s_lastAutoRangedCombatError = SpellCastResult::SPELL_FAILED_UNKNOWN;
 }
 
 // VERIFY: 7a4c1c3e manual
@@ -344,7 +345,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
         if (form && form->m_combatRoundTime) {
             speed = form->m_combatRoundTime;
         } else {
-            const CGItem_C* item = const_cast<CGUnit_C*>(unit)->GetBag()->GetItemPointer(((spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0) + 15);
+            const CGItem_C* item = const_cast<CGUnit_C*>(unit)->GetBag()->GetItemPointer(((spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0) + INVSLOT_MAINHAND);
 
             if (item && item->IsUsable() && !unit->IsDisarmed((spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0)) {
                 WOWGUID none = { 0 };
@@ -740,7 +741,7 @@ void Spell_C_Initialize() {
     memset(s_spellPctModifiers, 0, sizeof(s_spellPctModifiers));
     s_autoRepeatingSpell = 0;
     s_autoRangedCombatSpell = 0;
-    s_lastAutoRangedCombatError = 187;
+    s_lastAutoRangedCombatError = SpellCastResult::SPELL_FAILED_UNKNOWN;
     s_lastFailedSpellId = 0;
     s_feedPetSpell = 0;
     s_spellClassSet = 0;
@@ -1383,7 +1384,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
         SpellCategoryRec* category = g_spellCategoryDB.GetRecord(spell->m_category);
 
         if (category && (category->m_flags & 0x1)) {
-            CGItem_C* item = player->GetBag()->GetItemPointer(15);
+            CGItem_C* item = player->GetBag()->GetItemPointer(INVSLOT_MAINHAND);
 
             if (item) {
                 ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, WOWGUID{ 0 }, nullptr, nullptr, false);
@@ -1774,7 +1775,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
         msg->Get(value);
         missReasons.m_data[i] = value;
 
-        if (missReasons.m_data[i] == 11) {
+        if (missReasons.m_data[i] == MISS_REFLECTED) {
             value = 0;
             msg->Get(value);
             reflectResults.m_data[i] = value;
@@ -1983,7 +1984,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 CGGameUI::ShowSpellMissFeedback(misses.m_data[i], missReasons.m_data[i]);
             }
 
-            if (missReasons.m_data[i] == 11 && reflectResults.m_data[i]) {
+            if (missReasons.m_data[i] == MISS_REFLECTED && reflectResults.m_data[i]) {
                 UnitCombatLogSpellMissed(source, caster, spellId, reflectResults.m_data[i], false, false, 0);
 
                 if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
@@ -2144,7 +2145,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
             if (unit) {
                 for (uint32_t i = 0; i < missCount; i++) {
-                    if (missReasons.m_data[i] == 11 && !reflectResults.m_data[i] && !(spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_REFLECTION_ONLY_DEFENDS)) {
+                    if (missReasons.m_data[i] == MISS_REFLECTED && !reflectResults.m_data[i] && !(spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_REFLECTION_ONLY_DEFENDS)) {
                         PlayImpactVisualOnTarget(&spell, visual, unit, unit);
                     }
                 }
@@ -3507,7 +3508,7 @@ int32_t SpellRec::GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUn
                 CGBag_C* bag = &player->m_bag;
 
                 if (bag) {
-                    CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ bag->GetItemGuid(17) }, TYPE_ITEM, __FILE__, __LINE__));
+                    CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ bag->GetItemGuid(INVSLOT_RANGED) }, TYPE_ITEM, __FILE__, __LINE__));
 
                     if (item) {
                         ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, player->m_obj->m_guid, nullptr, nullptr, false);
@@ -3626,7 +3627,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
 
     if ((spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (caster->m_obj->m_type & TYPE_PLAYER)) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(caster);
-        CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ player->m_bag.GetItemGuid(17) }, TYPE_ITEM, __FILE__, __LINE__));
+        CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ player->m_bag.GetItemGuid(INVSLOT_RANGED) }, TYPE_ITEM, __FILE__, __LINE__));
 
         if (item) {
             ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, caster->m_obj->m_guid, nullptr, nullptr, false);
@@ -5531,7 +5532,7 @@ void Spell_C_CancelSpellByCaster(const WOWGUID& caster) {
         PendingSpellCast* next = s_pendingSpellCasts.Next(cast);
 
         if (cast->m_data.m_castItem == caster) {
-            Spell_C_CancelSpell(cast, true, true, 27);
+            Spell_C_CancelSpell(cast, true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
         }
 
         cast = next;
@@ -5563,7 +5564,7 @@ void Spell_C_CancelSpellsWithId(int32_t spellId) {
         PendingSpellCast* next = s_pendingSpellCasts.Next(cast);
 
         if (cast->m_data.m_spellId == static_cast<uint32_t>(spellId)) {
-            Spell_C_CancelSpell(cast, true, true, 27);
+            Spell_C_CancelSpell(cast, true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
         }
 
         cast = next;
@@ -5580,7 +5581,7 @@ void Spell_C_CancelMeleeSpells() {
         SpellRec spell;
 
         if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0::SPELL_ATTR0_ON_NEXT_SWING))) {
-            Spell_C_CancelSpell(cast, false, true, 27);
+            Spell_C_CancelSpell(cast, false, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
         }
 
         cast = next;
@@ -5597,7 +5598,7 @@ void Spell_C_CancelRangedSpells() {
         SpellRec spell;
 
         if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT)) {
-            Spell_C_CancelSpell(cast, false, true, 27);
+            Spell_C_CancelSpell(cast, false, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
         }
 
         cast = next;
@@ -5616,7 +5617,7 @@ void Spell_C_CancelCastingSpellByMovement() {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(cast->m_data.m_spellId, &spell) && (spell.m_interruptFlags & SpellRec::InterruptFlags::INTERRUPT_ON_MOVEMENT)) {
-                Spell_C_CancelSpell(cast, false, true, 40);
+                Spell_C_CancelSpell(cast, false, true, SpellCastResult::SPELL_FAILED_INTERRUPTED);
             }
         }
 
@@ -6438,21 +6439,21 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
     switch (reason) {
         case SPELL_FAILED_ALREADY_AT_FULL_POWER: {
             if (!player) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
             uint32_t powerType = player->m_unit->m_displayPower;
 
             if (powerType > POWER_TYPE_RUNIC_POWER) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
             const char* power = FrameScript_GetText(GetPowerString(static_cast<POWER_TYPE>(powerType)), -1, GENDER_NOT_APPLICABLE);
 
             if (!power || !*power) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6490,7 +6491,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         }
 
         case SPELL_FAILED_NEED_EXOTIC_AMMO: {
-            ItemSubClassRec* rec = FindAnyItemSubclassRec(6, 1 << misc1);
+            ItemSubClassRec* rec = FindAnyItemSubclassRec(ITEM_CLASS::ITEM_CLASS_PROJECTILE, 1 << misc1);
 
             if (rec) {
                 SStrPrintf(text, sizeof(text), format, rec->m_displayName);
@@ -6505,7 +6506,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
             ItemStats_C* stats = g_itemDBCache.GetRecord(misc1, guid, SpellMissingItemsCallback, reinterpret_cast<void*>(static_cast<intptr_t>(misc2)), false);
 
             if (!stats) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6540,7 +6541,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
             }
 
             if (!count) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6568,7 +6569,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
             }
 
             if (first) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6590,7 +6591,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
             ItemStats_C* stats = g_itemDBCache.GetRecord(misc1, guid, SpellMissingItemCallback, reinterpret_cast<void*>(static_cast<intptr_t>(reason)), false);
 
             if (!stats) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6642,7 +6643,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
             TotemCategoryRec* totem = g_totemCategoryDB.GetRecord(misc1);
 
             if (!totem) {
-                Spell_C_FailPendingCast(cast, spell, 27);
+                Spell_C_FailPendingCast(cast, spell, SpellCastResult::SPELL_FAILED_DONT_REPORT);
                 return;
             }
 
@@ -6957,11 +6958,11 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
     uint32_t slots;
 
     if (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON) {
-        slots = 0x8000;
+        slots = INVSLOT_MASK_MAINHAND;
     } else if (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) {
-        slots = 0x10000;
+        slots = INVSLOT_MASK_OFFHAND;
     } else {
-        slots = (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) ? 0x20000 : 0xFFFFFFFF;
+        slots = (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) ? INVSLOT_MASK_RANGED : INVSLOT_MASK_ALL;
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
@@ -6982,7 +6983,7 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
 
     constexpr uint32_t handRequirements = SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON | SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON;
 
-    if ((spell->m_attributesExC & handRequirements) == handRequirements && !player->EquippedItemMeetSpellRequirements(spell, 0x10000)) {
+    if ((spell->m_attributesExC & handRequirements) == handRequirements && !player->EquippedItemMeetSpellRequirements(spell, INVSLOT_MASK_OFFHAND)) {
         if (report) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND, spell->m_equippedItemClass, spell->m_equippedItemSubclass, false);
         }
@@ -7231,7 +7232,7 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
 // OFFSET: 0x00809A60
 void Spell_C_StopTargeting() {
     if (s_targetingSpell) {
-        Spell_C_CancelSpell(s_targetingSpell, true, true, 27);
+        Spell_C_CancelSpell(s_targetingSpell, true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
     }
 }
 
@@ -7241,7 +7242,7 @@ void Spell_C_StopCasting() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player && player->m_castSpellId) {
-        Spell_C_CancelSpell(Spell_C_GetActivePlayerPendingCast(), true, true, 27);
+        Spell_C_CancelSpell(Spell_C_GetActivePlayerPendingCast(), true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
     }
 }
 
@@ -7267,7 +7268,7 @@ static int32_t Spell_C_Idle(const void* data, void* param) {
             Spell_C_CastSpell(caster, trigger->m_spellId, nullptr, none, nullptr, false);
 
             if (s_targetingSpell) {
-                Spell_C_CancelSpell(s_targetingSpell, true, true, 27);
+                Spell_C_CancelSpell(s_targetingSpell, true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
             }
         }
 
@@ -7795,7 +7796,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
 
         uint8_t bag = owner->FindSlotIndex(item->m_item->m_itemFieldContained);
 
-        if (item->GetInventoryType() && (bag != 0xFF || slot > 18)) {
+        if (item->GetInventoryType() && (bag != 0xFF || slot > INVSLOT_TABARD)) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_EQUIPPED_ITEM, -1, -1, false);
             return;
         }
@@ -8074,8 +8075,8 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
             }
 
             CGItem_C* items[2];
-            items[0] = player->m_bag.GetItemPointer(15);
-            items[1] = player->m_bag.GetItemPointer(16);
+            items[0] = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
+            items[1] = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
 
             if (spell->m_equippedItemSubclass) {
                 for (uint32_t j = 0; j < 2; j++) {
@@ -8140,7 +8141,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
         }
 
         if (!found) {
-            target.m_guid = player->m_bag.m_numSlots > 15 ? player->m_bag.m_slots[15].m_guid : 0;
+            target.m_guid = player->m_bag.m_numSlots > INVSLOT_MAINHAND ? player->m_bag.m_slots[INVSLOT_MAINHAND].m_guid : 0;
         }
     } else if (!target) {
         target = CGGameUI::m_lockedTarget;
@@ -8327,7 +8328,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
 
     if (effect == SPELL_EFFECT_TRADE_SKILL) {
         CGTradeSkillInfo::SetTradeSkill(spell.m_id, unit->m_obj->m_guid, 0, 0, 0);
-        Spell_C_FailPendingCast(cast, &spell, 187);
+        Spell_C_FailPendingCast(cast, &spell, SpellCastResult::SPELL_FAILED_UNKNOWN);
         return false;
     }
 
@@ -8354,7 +8355,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
 
     if (effect == SPELL_EFFECT_ATTACK) {
         if (unit->OnAttackIconPressed(target, 0)) {
-            Spell_C_FailPendingCast(cast, &spell, 187);
+            Spell_C_FailPendingCast(cast, &spell, SpellCastResult::SPELL_FAILED_UNKNOWN);
             return false;
         }
 
@@ -8414,7 +8415,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         bool usable;
 
         if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-            CGItem_C* weapon = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(17) }, TYPE_ITEM, __FILE__, __LINE__));
+            CGItem_C* weapon = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(INVSLOT_RANGED) }, TYPE_ITEM, __FILE__, __LINE__));
             usable = weapon && weapon->IsUsable();
         } else {
             usable = unit->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false) != nullptr;
@@ -8483,7 +8484,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             return false;
         }
 
-        if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_HELD_ITEM_ONLY) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(15))) {
+        if ((spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_HELD_ITEM_ONLY) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(INVSLOT_MAINHAND))) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_MAINHAND_EMPTY, -1, -1, false);
             return false;
         }
@@ -8555,7 +8556,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     } else if (s_autoRepeatingSpell) {
         SpellRec autoRepeat;
 
-        if (g_spellDB.GetRecord(s_autoRepeatingSpell, &autoRepeat) && autoRepeat.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_WEAPON && (autoRepeat.m_equippedItemSubclass & 0x80000)) {
+        if (g_spellDB.GetRecord(s_autoRepeatingSpell, &autoRepeat) && autoRepeat.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_WEAPON && (autoRepeat.m_equippedItemSubclass & (1u << ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND))) {
             Spell_C_CancelAutoRepeat(true);
         }
     }
@@ -8873,7 +8874,7 @@ int32_t Spell_C_TargetTradeItem() {
 
     if (!s_needTargets) {
         Spell_C::SendPendingCast(cast, true);
-        Spell_C_CancelSpell(cast, false, false, 27);
+        Spell_C_CancelSpell(cast, false, false, SpellCastResult::SPELL_FAILED_DONT_REPORT);
     }
 
     return 1;

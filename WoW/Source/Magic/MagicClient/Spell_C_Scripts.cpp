@@ -147,7 +147,7 @@ static int32_t Script_SpellStopTargeting(lua_State* L) {
         bool targeting = s_targetingSpell != nullptr;
 
         if (s_targetingSpell) {
-            Spell_C_CancelSpell(s_targetingSpell, true, true, 27);
+            Spell_C_CancelSpell(s_targetingSpell, true, true, SpellCastResult::SPELL_FAILED_DONT_REPORT);
         }
 
         if (targeting) {

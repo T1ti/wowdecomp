@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
@@ -3300,7 +3301,7 @@ static int32_t Script_UnitAttackSpeed(lua_State* L) {
 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         WOWGUID offHand;
-        offHand.m_guid = static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(16);
+        offHand.m_guid = static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(INVSLOT_OFFHAND);
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(offHand, TYPE_ITEM, __FILE__, __LINE__));
 
         if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_WEAPON && (ClntObjMgrGetActivePlayerObj() != unit || CGPlayer_C::CanDualWield())) {

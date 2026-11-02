@@ -1,4 +1,5 @@
 #include "LCD.h"
+#include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Common/Types.h"
 #include <cmath>
 #include <cstring>
@@ -928,7 +929,7 @@ void CGLCD::DisplayMeleeStats() {
 
     CGLCD::SetStat("DAMAGE", minDamage, ceil(maxDamage) <= 1 ? 1 : static_cast<int32_t>(ceil(maxDamage)));
     float speed = CGLCD::m_player->m_unit->m_unitFieldBaseattacktime[0] * 0.001f;
-    CGItem_C* offhand = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ CGLCD::m_player->m_bag.GetItemGuid(16) }, TYPE_ITEM, __FILE__, __LINE__));
+    CGItem_C* offhand = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ CGLCD::m_player->m_bag.GetItemGuid(INVSLOT_OFFHAND) }, TYPE_ITEM, __FILE__, __LINE__));
 
     if (offhand) {
         offhand->GetClassID();

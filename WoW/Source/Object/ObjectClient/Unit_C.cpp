@@ -1,4 +1,5 @@
 #include "WoW/Source/Magic/Types.h"
+#include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "Unit_C.h"
@@ -19026,7 +19027,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         }
     }
 
-    if (missReason == 11 && (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_REFLECTION_ONLY_DEFENDS)) {
+    if (missReason == MISS_REFLECTED && (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_REFLECTION_ONLY_DEFENDS)) {
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_REFLECT_AS_DEFLECT;
     }
 
