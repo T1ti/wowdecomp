@@ -1049,51 +1049,51 @@ static int32_t Script_SortBattlefieldScoreData(lua_State* L) {
         return 0;
     }
 
-    int32_t column = 0;
+    int32_t column = CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_KILLING_BLOWS;
     const char* type = lua_tolstring(L, 1, nullptr);
 
     if (!SStrCmpI(type, "kills", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(0);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_KILLING_BLOWS);
         return 0;
     }
 
     if (!SStrCmpI(type, "deaths", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(1);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_DEATHS);
         return 0;
     }
 
     if (!SStrCmpI(type, "cp", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(2);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_BONUS_HONOR);
         return 0;
     }
 
     if (!SStrCmpI(type, "name", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(3);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_NAME);
         return 0;
     }
 
     if (!SStrCmpI(type, "class", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(4);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_CLASS);
         return 0;
     }
 
     if (!SStrCmpI(type, "hk", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(5);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_HONORABLE_KILLS);
         return 0;
     }
 
     if (!SStrCmpI(type, "damage", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(6);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_DAMAGE_DONE);
         return 0;
     }
 
     if (!SStrCmpI(type, "healing", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(7);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_HEALING_DONE);
         return 0;
     }
 
     if (!SStrCmpI(type, "team", STORM_MAX_STR)) {
-        CGBattlefieldInfo::SetScoreSortColumn(8);
+        CGBattlefieldInfo::SetScoreSortColumn(CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_TEAM);
         return 0;
     }
 
@@ -1101,7 +1101,7 @@ static int32_t Script_SortBattlefieldScoreData(lua_State* L) {
         type += 4;
         uint32_t stat = SStrToUnsigned(type) + 8;
 
-        if (stat >= 17) {
+        if (stat >= CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS) {
             return 0;
         }
 

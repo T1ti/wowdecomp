@@ -35,7 +35,7 @@
 WorldPvPQueueStatus CGBattlefieldInfo::m_worldPvPQueues[1];
 
 // STATIC: 0x00BEA2C0
-BattlefieldScoreSortCriteria CGBattlefieldInfo::m_scoreSortCriteria[17];
+BattlefieldScoreSortCriteria CGBattlefieldInfo::m_scoreSortCriteria[CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS];
 
 // STATIC: 0x00BEA720
 TSGrowableArray<int32_t> CGBattlefieldInfo::m_battlegroundTypes;
@@ -807,7 +807,7 @@ void CGBattlefieldInfo::InitializeGame() {
         CGBattlefieldInfo::m_scores[i] = static_cast<BattlefieldScore*>(SMemAlloc(sizeof(BattlefieldScore), __FILE__, __LINE__, 0));
     }
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS; i++) {
         CGBattlefieldInfo::m_scoreSortCriteria[i].m_column = i;
         CGBattlefieldInfo::m_scoreSortCriteria[i].m_descending = 0;
     }
@@ -899,13 +899,13 @@ void CGBattlefieldInfo::SetScoreSortColumn(int32_t column) {
 
     uint32_t index;
 
-    for (index = 0; index < 17; index++) {
+    for (index = 0; index < CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS; index++) {
         if (CGBattlefieldInfo::m_scoreSortCriteria[index].m_column == column) {
             break;
         }
     }
 
-    if (index < 17) {
+    if (index < CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS) {
         int32_t descending = CGBattlefieldInfo::m_scoreSortCriteria[index].m_descending;
 
         if (!index) {
@@ -1387,29 +1387,29 @@ int32_t QSortScoreData(const void* a, const void* b) {
         }
     }
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < CGBattlefieldInfo::SCORE_SORT_COLUMN::NUM_COLUMNS; i++) {
         BattlefieldScoreSortCriteria* criteria = &CGBattlefieldInfo::m_scoreSortCriteria[i];
         int32_t result;
         uint32_t leftValue;
         uint32_t rightValue;
 
         switch (criteria->m_column) {
-            case 0:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_KILLING_BLOWS:
                 leftValue = left->m_killingBlows;
                 rightValue = right->m_killingBlows;
                 break;
 
-            case 1:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_DEATHS:
                 leftValue = left->m_deaths;
                 rightValue = right->m_deaths;
                 break;
 
-            case 2:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_BONUS_HONOR:
                 leftValue = left->m_bonusHonor;
                 rightValue = right->m_bonusHonor;
                 break;
 
-            case 3:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_NAME:
                 result = SStrCmp(leftName->m_name, rightName->m_name, STORM_MAX_STR);
 
                 if (!result) {
@@ -1418,26 +1418,26 @@ int32_t QSortScoreData(const void* a, const void* b) {
 
                 return criteria->m_descending ? -result : result;
 
-            case 4:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_CLASS:
                 result = rightName->m_class < leftName->m_class ? -1 : 1;
                 return criteria->m_descending ? -result : result;
 
-            case 5:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_HONORABLE_KILLS:
                 leftValue = left->m_honorableKills;
                 rightValue = right->m_honorableKills;
                 break;
 
-            case 6:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_DAMAGE_DONE:
                 leftValue = left->m_damageDone;
                 rightValue = right->m_damageDone;
                 break;
 
-            case 7:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_HEALING_DONE:
                 leftValue = left->m_healingDone;
                 rightValue = right->m_healingDone;
                 break;
 
-            case 8:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_TEAM:
                 if (left->m_faction == right->m_faction) {
                     continue;
                 }
@@ -1445,15 +1445,15 @@ int32_t QSortScoreData(const void* a, const void* b) {
                 result = 2 * (left->m_faction >= right->m_faction) - 1;
                 return criteria->m_descending ? -result : result;
 
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16: {
-                uint32_t stat = criteria->m_column - 9;
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT1:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT2:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT3:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT4:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT5:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT6:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT7:
+            case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT8: {
+                uint32_t stat = criteria->m_column - CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT1;
 
                 if (stat >= CGBattlefieldInfo::m_numWorldStateStats) {
                     continue;
