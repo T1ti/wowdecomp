@@ -35,14 +35,14 @@ static TSList<CGxStringBatch, TSGetLink<CGxStringBatch> > s_freeBatches;
 // STATIC: 0x00AD99C8
 static QUOTEDCODEINFO s_quotedCodeInfo[NUM_QUOTEDCODES] = {
     { 0x0, '-', 1 },
-    { 0x100, 'C', 1 },
-    { 0x100, 'R', 1 },
-    { 0x200, '\n', 0 },
-    { 0x800, '|', 0 },
-    { 0x400, 'H', 1 },
-    { 0x400, 'h', 1 },
-    { 0x1000, 'T', 1 },
-    { 0x1000, 't', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreColorCodes, 'C', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreColorCodes, 'R', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreNewlineCodes, '\n', 0 },
+    { EGxStringFlags::EGxStringFlags_IgnorePipeCodes, '|', 0 },
+    { EGxStringFlags::EGxStringFlags_IgnoreHyperlinkCodes, 'H', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreHyperlinkCodes, 'h', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreTextureCodes, 'T', 1 },
+    { EGxStringFlags::EGxStringFlags_IgnoreTextureCodes, 't', 1 },
 };
 
 // STATIC: 0x00AD9AAC
@@ -254,7 +254,7 @@ void GxuFontSetStringPosition(CGxString* string, const C3Vector& position) {
 // VERIFY: 96cf026e auto
 // OFFSET: 0x006BD0C0
 void GxuFontAddShadow(CGxString* string, const CImVector& color, const C2Vector& offset) {
-    if (string && !(string->m_flags & 0x80)) {
+    if (string && !(string->m_flags & EGxStringFlags::EGxStringFlags_Unscaled)) {
         string->AddShadow(offset, color);
     }
 }
@@ -389,7 +389,7 @@ uint32_t GxuFontGetMaxCharsWithinWidthAndHeight(CGxFont* face, const char* text,
         return 0;
     }
 
-    if (flags & 4) {
+    if (flags & EGxStringFlags::EGxStringFlags_FixedSize) {
         fontHeight = GxuFontGetOneToOneHeight(face);
     }
 
@@ -401,7 +401,7 @@ uint32_t GxuFontGetMaxCharsWithinWidthAndHeight(CGxFont* face, const char* text,
     const char* currentText = text;
 
     while (*currentText) {
-        if ((flags & 0x2000) && numLines == 1) {
+        if ((flags & EGxStringFlags::EGxStringFlags_Indented) && numLines == 1) {
             blockWidth -= g_indentNormWidth;
         }
 
@@ -443,11 +443,11 @@ C3Vector GxuFontGetStringPosition(CGxString* string) {
 // VERIFY: 4c66c41f manual
 // OFFSET: 0x006BD5A0
 QUOTEDCODE GxuDetermineQuotedCode(const char* text, int32_t& advance, CImVector* color, uint32_t flags, uint32_t& wide) {
-    uint32_t ignoreColor = flags & 0x100;
-    uint32_t ignoreNewLine = flags & 0x200;
-    uint32_t ignoreHyperlink = flags & 0x400;
-    uint32_t ignorePipe = flags & 0x800;
-    uint32_t ignoreTexture = flags & 0x1000;
+    uint32_t ignoreColor = flags & EGxStringFlags::EGxStringFlags_IgnoreColorCodes;
+    uint32_t ignoreNewLine = flags & EGxStringFlags::EGxStringFlags_IgnoreNewlineCodes;
+    uint32_t ignoreHyperlink = flags & EGxStringFlags::EGxStringFlags_IgnoreHyperlinkCodes;
+    uint32_t ignorePipe = flags & EGxStringFlags::EGxStringFlags_IgnorePipeCodes;
+    uint32_t ignoreTexture = flags & EGxStringFlags::EGxStringFlags_IgnoreTextureCodes;
 
     uint32_t code = sgetu8(reinterpret_cast<const uint8_t*>(text), &advance);
     wide = code;
@@ -663,7 +663,7 @@ float GxuFontGetWrappedTextHeight(CGxFont* face, const char* text, float fontHei
         return 0.0f;
     }
 
-    if (flags & 4) {
+    if (flags & EGxStringFlags::EGxStringFlags_FixedSize) {
         fontHeight = GxuFontGetOneToOneHeight(face);
     }
 
@@ -681,7 +681,7 @@ float GxuFontGetWrappedTextHeight(CGxFont* face, const char* text, float fontHei
             break;
         }
 
-        if ((flags & 0x2000) && numLines == 1) {
+        if ((flags & EGxStringFlags::EGxStringFlags_Indented) && numLines == 1) {
             blockWidth -= g_indentNormWidth;
         }
 
@@ -705,12 +705,12 @@ float GxuFontGetWrappedTextHeight(CGxFont* face, const char* text, float fontHei
             extraHeight = lineHeight - fontPixelHeight + extraHeight;
         }
 
-        if (flags & 2) {
+        if (flags & EGxStringFlags::EGxStringFlags_NoWordWrap) {
             break;
         }
     } while (nextText);
 
-    if (!(flags & 2) && currentText > text && GxuDetermineQuotedCode(currentText - 1, advance, nullptr, flags, wide) == CODE_NEWLINE) {
+    if (!(flags & EGxStringFlags::EGxStringFlags_NoWordWrap) && currentText > text && GxuDetermineQuotedCode(currentText - 1, advance, nullptr, flags, wide) == CODE_NEWLINE) {
         numLines++;
     }
 
@@ -731,7 +731,7 @@ uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, f
         return 0;
     }
 
-    if (flags & 4) {
+    if (flags & EGxStringFlags::EGxStringFlags_FixedSize) {
         fontHeight = GxuFontGetOneToOneHeight(face);
     }
 
@@ -745,7 +745,7 @@ uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, f
             break;
         }
 
-        if ((flags & 0x2000) && numLines == 1) {
+        if ((flags & EGxStringFlags::EGxStringFlags_Indented) && numLines == 1) {
             blockWidth -= g_indentNormWidth;
         }
 
@@ -975,7 +975,7 @@ int32_t GxuFontCreateString(CGxFont* face, const char* text, float fontHeight, c
         return 0;
     }
 
-    if (fontHeight == 0.0f && !(flags & 4)) {
+    if (fontHeight == 0.0f && !(flags & EGxStringFlags::EGxStringFlags_FixedSize)) {
         DebugValidate("fontHeight || ( flags & EGxStringFlags_FixedSize )");
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return 0;
@@ -994,7 +994,7 @@ int32_t GxuFontCreateString(CGxFont* face, const char* text, float fontHeight, c
     }
 
     CGxString* newString = CGxString::GetNewString(1);
-    int32_t result = newString->Initialize(fontHeight, position, blockWidth, blockHeight, face, text, vertJust, horzJust, spacing, flags & ~1, color, scale);
+    int32_t result = newString->Initialize(fontHeight, position, blockWidth, blockHeight, face, text, vertJust, horzJust, spacing, flags & ~EGxStringFlags::EGxStringFlags_Shadow, color, scale);
 
     if (!result) {
         GxuFontDestroyString(newString);
