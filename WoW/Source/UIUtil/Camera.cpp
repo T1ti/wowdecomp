@@ -736,7 +736,7 @@ C3Vector CGCamera::GetSafeWorldPos(CGObject_C* target) const {
     CVehicleCamera_C* vehicleCamera = this->m_vehicleCamera;
 
     if (vehicleCamera) {
-        if (!(vehicleCamera->m_flags & 0x40)) {
+        if (!(vehicleCamera->m_flags & CVehicleCamera_C::CAMERA_FLAGS::FLAG_SAFE_POSITION_VALID)) {
             vehicleCamera->ComputeSafeCurWorldPos();
         }
 
@@ -1035,7 +1035,7 @@ void CGCamera::SetModeNormal() {
 
     this->m_state &= ~STATE_FLAGS::STATE_FREE_LOOK;
 
-    if (this->m_vehicleCamera && (this->m_vehicleCamera->m_flags & 0x10)) {
+    if (this->m_vehicleCamera && (this->m_vehicleCamera->m_flags & CVehicleCamera_C::CAMERA_FLAGS::FLAG_FACING_INTERPOLATION)) {
         this->m_state &= ~STATE_FLAGS::STATE_FREE_LOOK_FACING;
     }
 
