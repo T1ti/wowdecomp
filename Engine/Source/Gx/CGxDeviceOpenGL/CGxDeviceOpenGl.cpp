@@ -144,7 +144,7 @@ CGxDeviceOpenGl::CGxDeviceOpenGl() {
     this->m_ambientOnlyMode = 0;
     this->DsInit();
     this->unused_3AD0 = 0;
-    this->m_materialDirty = 7;
+    this->m_materialDirty = CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_ALL;
     this->m_sphereMapMode = GL_SPHERE_MAP;
 
     for (uint32_t target = 0; target < GxPoolTargets_Last; target++) {
@@ -3328,7 +3328,7 @@ void CGxDeviceOpenGl::IStateSyncMaterial() {
     int32_t colorMaterial = this->m_appRenderStates[GxRs_ColorMaterial].m_value.m_data.i[0];
 
     if (this->m_primVertexDirty & (1 << GxVA_Color0)) {
-        this->m_materialDirty |= 1 << colorMaterial;
+        this->m_materialDirty |= CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_DIFFUSE << colorMaterial;
     }
 
     if (!this->m_materialDirty) {
@@ -3337,7 +3337,7 @@ void CGxDeviceOpenGl::IStateSyncMaterial() {
 
     GLfloat color[4];
 
-    if (this->m_materialDirty & 0x1) {
+    if (this->m_materialDirty & CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_DIFFUSE) {
         ColorToFloats(color, reinterpret_cast<const CImVector&>(this->m_appRenderStates[GxRs_MatDiffuse].m_value.m_data.u[0]));
 
         if (colorMaterial) {
@@ -3348,7 +3348,7 @@ void CGxDeviceOpenGl::IStateSyncMaterial() {
         }
     }
 
-    if (this->m_materialDirty & 0x2) {
+    if (this->m_materialDirty & CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_SPECULAR) {
         ColorToFloats(color, reinterpret_cast<const CImVector&>(this->m_appRenderStates[GxRs_MatSpecular].m_value.m_data.u[0]));
 
         if (colorMaterial == 1) {
@@ -3360,13 +3360,13 @@ void CGxDeviceOpenGl::IStateSyncMaterial() {
         }
     }
 
-    if (this->m_materialDirty & 0x4) {
+    if (this->m_materialDirty & CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_EMISSIVE) {
         ColorToFloats(color, reinterpret_cast<const CImVector&>(this->m_appRenderStates[GxRs_MatEmissive].m_value.m_data.u[0]));
 
         if (colorMaterial == 2) {
             if (!(this->m_primVertexMask & (1 << GxVA_Color0))) {
                 glColor4fv(color);
-                this->m_materialDirty = 0;
+                this->m_materialDirty = CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_NONE;
                 return;
             }
         } else {
@@ -3374,7 +3374,7 @@ void CGxDeviceOpenGl::IStateSyncMaterial() {
         }
     }
 
-    this->m_materialDirty = 0;
+    this->m_materialDirty = CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_NONE;
 }
 
 // VERIFY: 3bd05b04 manual
@@ -3575,15 +3575,15 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
             break;
 
         case GxRs_MatDiffuse:
-            this->m_materialDirty |= 0x1;
+            this->m_materialDirty |= CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_DIFFUSE;
             break;
 
         case GxRs_MatEmissive:
-            this->m_materialDirty |= 0x4;
+            this->m_materialDirty |= CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_EMISSIVE;
             break;
 
         case GxRs_MatSpecular:
-            this->m_materialDirty |= 0x2;
+            this->m_materialDirty |= CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_SPECULAR;
             break;
 
         case GxRs_MatSpecularExp:
@@ -3841,7 +3841,7 @@ void CGxDeviceOpenGl::IRsSendToHw(EGxRenderState which) {
 
         case GxRs_ColorMaterial:
             glColorMaterial(GL_FRONT_AND_BACK, s_glColorMaterial[value.m_data.i[0]]);
-            this->m_materialDirty = 7;
+            this->m_materialDirty = CGxDeviceOpenGl::MATERIAL_DIRTY_FLAGS::MATERIAL_DIRTY_ALL;
             break;
 
         default:

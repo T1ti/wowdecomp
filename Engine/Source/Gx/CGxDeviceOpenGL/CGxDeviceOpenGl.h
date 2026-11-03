@@ -12,6 +12,14 @@
 
 class CGxDeviceOpenGl : public CGxDevice {
     public:
+    enum MATERIAL_DIRTY_FLAGS : int32_t {
+        MATERIAL_DIRTY_NONE = 0,
+        MATERIAL_DIRTY_DIFFUSE = 0x1,
+        MATERIAL_DIRTY_SPECULAR = 0x2,
+        MATERIAL_DIRTY_EMISSIVE = 0x4,
+        MATERIAL_DIRTY_ALL = 7,
+    };
+
     enum EDeviceState {
         Ds_DepthMask = 0,
         Ds_ColorMask = 1,
