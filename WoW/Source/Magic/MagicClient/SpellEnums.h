@@ -17,6 +17,10 @@ enum SPELL_TERRAIN_RAY_RESULT : int32_t {
     SPELL_TERRAIN_RAY_OUTSIDE_PREVIEW_RANGE = 2,
 };
 
+// Spell percentages use 100 as the unmodified value; float scaling stays single precision.
+constexpr int32_t SPELL_PERCENT_BASE = 100;
+constexpr float SPELL_PERCENT_TO_FRACTION = 0.01f;
+
 // Mask storage is independent of the three effect slots.
 constexpr int32_t SPELL_MASK_BITS_PER_WORD = 32;
 constexpr int32_t SPELL_MASK_WORD_BIT_MASK = 0x1F;

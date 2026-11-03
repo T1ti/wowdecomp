@@ -124,7 +124,7 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
     }
 
     int32_t school = spell.m_schoolMask;
-    int32_t pct = player->GetSpellCostModifier(school) + 100;
+    int32_t pct = player->GetSpellCostModifier(school) + SPELL_PERCENT_BASE;
     pct = static_cast<int32_t>(player->GetSpellCostMultiplier(school) * pct);
     Spell_C_ModifySpellValue(&spell, pct, SPELLMOD_COST);
 
@@ -150,8 +150,8 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
         int32_t have = CGRuneInfo::CountPredictedRunesOfType(0);
         int32_t need = cost->m_blood;
 
-        if (pct > 100) {
-            need = pct * need / 100;
+        if (pct > SPELL_PERCENT_BASE) {
+            need = pct * need / SPELL_PERCENT_BASE;
         }
 
         if (have < need) {
@@ -168,8 +168,8 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
         int32_t have = CGRuneInfo::CountPredictedRunesOfType(1);
         int32_t need = cost->m_unholy;
 
-        if (pct > 100) {
-            need = pct * need / 100;
+        if (pct > SPELL_PERCENT_BASE) {
+            need = pct * need / SPELL_PERCENT_BASE;
         }
 
         if (have < need) {
@@ -186,8 +186,8 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
         int32_t have = CGRuneInfo::CountPredictedRunesOfType(2);
         int32_t need = cost->m_frost;
 
-        if (pct > 100) {
-            need = pct * need / 100;
+        if (pct > SPELL_PERCENT_BASE) {
+            need = pct * need / SPELL_PERCENT_BASE;
         }
 
         if (have < need) {

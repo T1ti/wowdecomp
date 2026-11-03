@@ -113,6 +113,9 @@ enum SPELL_HISTORY_CONTEXT : int32_t {
 
 constexpr int32_t NUM_SPELL_ENCHANT_HANDS = 2;
 
+// Weapon-speed cost scaling adds one cost point per 100 milliseconds.
+constexpr int32_t SPELL_WEAPON_SPEED_COST_MS_PER_POINT = 100;
+
 // Native effect-value bit rounding: bias, Round, unbias, then signed guard.
 // Keep these integer operations and casts in their original order.
 constexpr int32_t SPELL_EFFECT_ROUND_EXPONENT_BIAS = 0x03800000;
@@ -167,6 +170,7 @@ static CVar* s_enableErrorSpeechCVar;
 static int32_t s_spellClassSet;
 
 // STATIC: 0x00DCE234
+// Exact IEEE-754 bits of 0.01f; keep the native soft-float representation.
 static const CSoftFloat s_softPercent = { 0x3C23D70A };
 
 // STATIC: 0x00D397B8
@@ -381,7 +385,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     int32_t cost = spell->m_manaCost + spell->m_manaCostPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - spell->m_baseLevel);
 
     if (spell->m_manaCostPct) {
-        cost += spell->m_manaCostPct * static_cast<int32_t>(unit->GetBasePowerForType(static_cast<POWER_TYPE>(spell->m_powerType))) / 100;
+        cost += spell->m_manaCostPct * static_cast<int32_t>(unit->GetBasePowerForType(static_cast<POWER_TYPE>(spell->m_powerType))) / SPELL_PERCENT_BASE;
     }
 
     if ((spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_WEAPON_SPEED_COST_SCALING) && const_cast<CGUnit_C*>(unit)->IsActivePlayer()) {
@@ -405,7 +409,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
             }
         }
 
-        cost += speed / 100;
+        cost += speed / SPELL_WEAPON_SPEED_COST_MS_PER_POINT;
     }
 
     int32_t school = spell->m_schoolMask;
@@ -417,7 +421,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     int32_t pct;
 
     if (Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
-        cost = (flat + base) * pct / 100;
+        cost = (flat + base) * pct / SPELL_PERCENT_BASE;
     }
 
     if (!(unit->m_obj->m_type & TYPE_PLAYER) && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL) && spell->m_spellLevel) {
@@ -1228,13 +1232,13 @@ void CGUnit_C::ReleaseMissiles() {
 bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int32_t& flat, int32_t& pct) {
     if (!spell->m_spellClassSet || spell->m_spellClassSet != s_spellClassSet) {
         flat = 0;
-        pct = 100;
+        pct = SPELL_PERCENT_BASE;
         return false;
     }
 
     if (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) {
         flat = 0;
-        pct = 100;
+        pct = SPELL_PERCENT_BASE;
         return false;
     }
 
@@ -1252,7 +1256,7 @@ bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int
         return false;
     }
 
-    pct += 100;
+    pct += SPELL_PERCENT_BASE;
 
     if (pct < 0) {
         pct = 0;
@@ -1271,7 +1275,7 @@ bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, SPELL_MOD_O
         return false;
     }
 
-    value = pct * (flat + value) / 100;
+    value = pct * (flat + value) / SPELL_PERCENT_BASE;
     return true;
 }
 
@@ -1641,7 +1645,7 @@ int32_t Packet_SMSG_SPELL_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time,
             recoveryTime = spell.m_recoveryTime;
 
             if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
-                recoveryTime = pct * (recoveryTime + flat) / 100;
+                recoveryTime = pct * (recoveryTime + flat) / SPELL_PERCENT_BASE;
             }
         }
 
@@ -1666,7 +1670,7 @@ int32_t Packet_SMSG_SPELL_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time,
             startRecoveryTime = spell.m_startRecoveryTime;
 
             if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
-                startRecoveryTime = pct * (startRecoveryTime + flat) / 100;
+                startRecoveryTime = pct * (startRecoveryTime + flat) / SPELL_PERCENT_BASE;
             }
         }
 
@@ -2335,7 +2339,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             int32_t pct;
 
             if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
-                recovery = pct * (flat + recovery) / 100;
+                recovery = pct * (flat + recovery) / SPELL_PERCENT_BASE;
             }
 
             s_spellHistory[SPELL_HISTORY_PLAYER].AddHistory(spellId, 0, now, recovery, spell.m_category, now, categoryRecovery, onHold, 0, 0);
@@ -2393,11 +2397,11 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             int32_t pct;
 
             if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
-                recovery = pct * (flat + recovery) / 100;
+                recovery = pct * (flat + recovery) / SPELL_PERCENT_BASE;
             }
 
             if (!(spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS) && Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, flat, pct)) {
-                categoryRecovery = pct * (flat + spell.m_categoryRecoveryTime) / 100;
+                categoryRecovery = pct * (flat + spell.m_categoryRecoveryTime) / SPELL_PERCENT_BASE;
             }
 
             int32_t startRecoveryTime = 0;
@@ -2418,7 +2422,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     }
 
                     if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
-                        startRecoveryTime = pct * (startRecoveryTime + flat) / 100;
+                        startRecoveryTime = pct * (startRecoveryTime + flat) / SPELL_PERCENT_BASE;
                     }
 
                     if (static_cast<uint32_t>(startRecoveryTime - SPELL_GLOBAL_COOLDOWN_MIN_MS) > (SPELL_GLOBAL_COOLDOWN_DEFAULT_MS - SPELL_GLOBAL_COOLDOWN_MIN_MS)) {
@@ -3408,7 +3412,7 @@ bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, SPELL_MOD_OP 
         return false;
     }
 
-    value = (flat + value) * pct * 0.01f;
+    value = (flat + value) * pct * SPELL_PERCENT_TO_FRACTION;
     return true;
 }
 
@@ -3500,7 +3504,7 @@ int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* uni
     int32_t pct;
 
     if (cost > 0 && Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
-        return cost * pct / 100;
+        return cost * pct / SPELL_PERCENT_BASE;
     }
 
     return cost;
@@ -3679,7 +3683,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
             ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, caster->m_obj->m_guid, nullptr, nullptr, false);
 
             if (stats) {
-                *maxRange = stats->m_rangedModRange * 0.01f * *maxRange;
+                *maxRange = stats->m_rangedModRange * SPELL_PERCENT_TO_FRACTION * *maxRange;
             }
         }
     }
@@ -3688,7 +3692,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
     int32_t pct;
 
     if (Spell_C_GetSpellModifiers(spell, SPELLMOD_RANGE, flat, pct)) {
-        *maxRange = (flat + *maxRange) * pct * 0.01f;
+        *maxRange = (flat + *maxRange) * pct * SPELL_PERCENT_TO_FRACTION;
     }
 
     *maxRange = *maxRange + bonus;
@@ -5039,7 +5043,7 @@ float Spell_C_GetSpellRadius() {
     int32_t pct;
 
     if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_RADIUS, flat, pct)) {
-        radius = (radius + flat) * pct * 0.01f;
+        radius = (radius + flat) * pct * SPELL_PERCENT_TO_FRACTION;
     }
 
     return radius;
@@ -5904,7 +5908,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
 
             if (display) {
                 char power[128];
-                FormatString(display->m_globalStringBaseTag, -1, GENDER_NOT_APPLICABLE, power, 127);
+                FormatString(display->m_globalStringBaseTag, -1, GENDER_NOT_APPLICABLE, power, sizeof(power) - 1); // Native limit is one byte less than the buffer capacity.
                 CGGameUI::DisplayError(ERR_OUT_OF_POWER_DISPLAY, power);
             } else if (spell->m_powerType == POWER_TYPE_HEALTH) {
                 CGGameUI::DisplayError(ERR_OUT_OF_HEALTH);
@@ -6051,7 +6055,7 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
         }
 
         if (Spell_C_GetSpellModifiers(&spell, SPELLMOD_COOLDOWN, time, recovery)) {
-            value = (time + value) * recovery / 100;
+            value = (time + value) * recovery / SPELL_PERCENT_BASE;
         }
 
         recovery = value;
@@ -6112,7 +6116,7 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
     int32_t pct;
 
     if (Spell_C_GetSpellModifiers(spell, SPELLMOD_GLOBAL_COOLDOWN, flat, pct)) {
-        recovery = (recovery + flat) * pct / 100;
+        recovery = (recovery + flat) * pct / SPELL_PERCENT_BASE;
     }
 
     if (spell->m_startRecoveryCategory == SPELL_RECOVERY_CATEGORY_GLOBAL
@@ -6566,7 +6570,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
 
             if (display) {
                 char power[128];
-                FormatString(display->m_globalStringBaseTag, -1, GENDER_NOT_APPLICABLE, power, 127);
+                FormatString(display->m_globalStringBaseTag, -1, GENDER_NOT_APPLICABLE, power, sizeof(power) - 1); // Native limit is one byte less than the buffer capacity.
                 CGGameUI::DisplayError(ERR_OUT_OF_POWER_DISPLAY, power);
             } else if (spell->m_powerType == POWER_TYPE_HEALTH) {
                 error = ERR_OUT_OF_HEALTH;
