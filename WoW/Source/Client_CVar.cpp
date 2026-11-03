@@ -407,40 +407,40 @@ static bool ScreenshotQualityCallback(CVar* var, const char* oldValue, const cha
 // VERIFY: 85990911 auto
 // OFFSET: 0x00402100
 static uint32_t GetM2FasterModifierMask(int32_t faster, int32_t debug) {
-    uint32_t mask = 0;
+    uint32_t mask = CM2Cache::CACHE_FLAGS::CACHE_NONE;
 
     switch (faster) {
         case 0:
             if (!debug) {
-                return 0;
+                return CM2Cache::CACHE_FLAGS::CACHE_NONE;
             }
 
             switch (debug % 10) {
                 case 1:
-                    mask = 0x2000;
+                    mask = CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER1;
                     break;
 
                 case 2:
-                    mask = 0x6000;
+                    mask = CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER2;
                     break;
 
                 case 3:
-                    mask = 0xE000;
+                    mask = CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER3_MASK;
                     break;
             }
 
             if (debug / 100 % 10 && EventIsKeyDown(KEY_LCONTROL)) {
-                return 0;
+                return CM2Cache::CACHE_FLAGS::CACHE_NONE;
             }
 
             return mask;
 
         case 1:
-            return 0xE000;
+            return CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER3_MASK;
 
         case 2:
         case 3:
-            return 0x2000;
+            return CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER1;
 
         default:
             return mask;
@@ -543,10 +543,10 @@ static bool BatchDoodadsCallback(CVar* var, const char* oldValue, const char* va
     uint32_t flags = M2GetCacheFlags();
 
     if (enable) {
-        M2SetCacheFlags(flags | 0x20);
+        M2SetCacheFlags(flags | CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS);
         ConsoleWrite("Doodad batching enabled.", DEFAULT_COLOR);
     } else {
-        M2SetCacheFlags(flags & ~0x20);
+        M2SetCacheFlags(flags & ~CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS);
         ConsoleWrite("Doodad batching disabled.", DEFAULT_COLOR);
     }
 
@@ -560,10 +560,10 @@ static bool BatchParticlesCallback(CVar* var, const char* oldValue, const char* 
     uint32_t flags = M2GetCacheFlags();
 
     if (enable) {
-        M2SetCacheFlags(flags | 0x80);
+        M2SetCacheFlags(flags | CM2Cache::CACHE_FLAGS::CACHE_BATCH_PARTICLES);
         ConsoleWrite("Particle batching enabled.", DEFAULT_COLOR);
     } else {
-        M2SetCacheFlags(flags & ~0x80);
+        M2SetCacheFlags(flags & ~CM2Cache::CACHE_FLAGS::CACHE_BATCH_PARTICLES);
         ConsoleWrite("Particle batching disabled.", DEFAULT_COLOR);
     }
 
@@ -577,10 +577,10 @@ static bool ForceAdditiveParticleSortCallback(CVar* var, const char* oldValue, c
     uint32_t flags = M2GetCacheFlags();
 
     if (enable) {
-        M2SetCacheFlags(flags | 0x100);
+        M2SetCacheFlags(flags | CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT);
         ConsoleWrite("Sorting all particles as though they were additive.", DEFAULT_COLOR);
     } else {
-        M2SetCacheFlags(flags & ~0x100);
+        M2SetCacheFlags(flags & ~CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT);
         ConsoleWrite("Sorting particles normally.", DEFAULT_COLOR);
     }
 
@@ -706,24 +706,24 @@ uint32_t GetM2CvarFlags() {
     uint32_t flags = s_M2UseZFillVar->m_intValue != 0;
 
     if (s_M2UseClipPlanesVar->m_intValue) {
-        flags |= 0x2;
+        flags |= CM2Cache::CACHE_FLAGS::CACHE_CLIP_PLANES;
     }
 
     if (s_M2UseThreadsVar->m_intValue) {
-        flags |= 0x4;
+        flags |= CM2Cache::CACHE_FLAGS::CACHE_ANIMATION_THREADS;
     }
 
     if (s_M2BatchDoodadsVar->m_intValue) {
-        flags |= 0x20;
+        flags |= CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS;
     }
 
     if (s_M2BatchParticlesVar->m_intValue) {
-        flags |= 0x80;
+        flags |= CM2Cache::CACHE_FLAGS::CACHE_BATCH_PARTICLES;
     }
 
     if (s_M2ForceAdditiveParticleSortVar->m_intValue) {
-        flags |= 0x100;
+        flags |= CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT;
     }
 
-    return flags | 0x8;
+    return flags | CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS;
 }

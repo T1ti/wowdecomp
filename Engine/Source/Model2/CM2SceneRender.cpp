@@ -457,7 +457,7 @@ void CM2SceneRender::DrawBatch() {
         this->m_curShared->SetIndices();
     }
 
-    int32_t sharedVertices = this->m_curModel->m_shared->m_data->m_bones.m_count == 1 && (this->m_cache->m_flags & 0x40);
+    int32_t sharedVertices = this->m_curModel->m_shared->m_data->m_bones.m_count == 1 && (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES);
     this->SetBatchVertices(sharedVertices);
     CShaderEffect::SetShaders(this->m_curElement->m_vertexPermute, this->m_curElement->m_pixelPermute);
 
@@ -867,7 +867,7 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
     this->m_curMaterial = &material;
     this->m_prevMaterial = nullptr;
 
-    if (this->m_cache->m_flags & 0x80) {
+    if (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_PARTICLES) {
         return this->DrawBatchedParticle(index, elements, indices, count);
     }
 

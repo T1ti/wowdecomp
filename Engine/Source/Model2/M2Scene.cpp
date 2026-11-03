@@ -1300,7 +1300,7 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
         return 1;
     }
 
-    uint32_t shaderSort = CM2Scene::s_optFlags & 0x4000;
+    uint32_t shaderSort = CM2Scene::s_optFlags & CM2Cache::CACHE_FLAGS::CACHE_OPT_SHADER_SORT;
 
     if (shaderSort && (elementA->m_type != elementB->m_type || elementA->m_model != elementB->m_model) && elementA->m_effect && elementB->m_effect) {
         CGxShader* vertexA = elementA->m_effect->m_vertexShaders[elementA->m_vertexPermute];
@@ -1324,7 +1324,7 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
             return 1;
         }
 
-        shaderSort = CM2Scene::s_optFlags & 0x4000;
+        shaderSort = CM2Scene::s_optFlags & CM2Cache::CACHE_FLAGS::CACHE_OPT_SHADER_SORT;
     }
 
     if (elementA->m_model < elementB->m_model) {
@@ -1576,7 +1576,7 @@ void CM2Scene::SortAdditiveParticleElements(uint32_t pass) {
                 blend = data->m_materials[data->m_ribbons[element->m_index].m_materialIndices[0]].m_blendMode;
                 break;
             case 4:
-                blend = (this->m_cache->m_flags & 0x100) ? M2BLEND_ADD : ParticleBlendToM2Blend(element->m_emitter->m_params.m_materialBlend);
+                blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(element->m_emitter->m_params.m_materialBlend);
                 break;
             default:
                 break;
@@ -1687,7 +1687,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
 int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
     this->m_frameStamp++;
 
-    uint32_t optFlags = this->m_cache->m_flags & 0xE000;
+    uint32_t optFlags = this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER3_MASK;
 
     if (CM2Scene::s_optFlags != optFlags) {
         CM2Scene::s_optFlags = optFlags;
@@ -1699,7 +1699,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
     this->m_view.Translate(move);
     this->m_viewInv = this->m_view.Inverse(this->m_view.Determinant());
 
-    if (this->m_cache->m_flags & 4) {
+    if (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_ANIMATION_THREADS) {
         this->m_cache->BeginThread(&CM2Scene::AnimateThread, this);
 
         for (CM2Model* model = this->m_animateList; model; ) {
@@ -1791,7 +1791,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             below = radius >= dist;
 
-            if (!(this->m_cache->m_flags & 2) && above && radius >= dist) {
+            if (!(this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_CLIP_PLANES) && above && radius >= dist) {
                 below = this->m_liquidTypeId != 0;
                 above = this->m_liquidTypeId == 0;
             }
@@ -1800,7 +1800,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         M2ModelOptGeo* optGeo = model->m_optGeo;
         M2SkinProfile* skinData = model->m_shared->m_skinData;
         int32_t optimized = optGeo != nullptr;
-        int32_t depthSort = (this->m_cache->m_flags & 1) && !(model->m_creationFlags & CM2Model::INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE) && (model->m_runtimeFlags & 0x40);
+        int32_t depthSort = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_Z_FILL) && !(model->m_creationFlags & CM2Model::INSTANCE_FLAGS::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE) && (model->m_runtimeFlags & 0x40);
         uint32_t batchCount = optGeo ? optGeo->m_batchCount : skinData->m_batches.m_count;
 
         for (uint32_t i = 0; i < batchCount; i++) {
@@ -2194,7 +2194,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
     M2HeapSort(&CM2Scene::SortTransparent, this->m_passElements[1].m_data, this->m_passElements[1].m_count, this);
     M2HeapSort(&CM2Scene::SortTransparent, this->m_passElements[2].m_data, this->m_passElements[2].m_count, this);
 
-    if ((this->m_cache->m_flags & 0x80) && additiveCount > 1) {
+    if ((this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_PARTICLES) && additiveCount > 1) {
         this->SortAdditiveParticleElements(1);
         this->SortAdditiveParticleElements(2);
     }
@@ -2219,7 +2219,7 @@ void CM2Scene::Draw(M2PASS pass) {
 
     DebugLog("Model2 Pass %d", pass);
 
-    uint32_t optFlags = this->m_cache->m_flags & 0xE000;
+    uint32_t optFlags = this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER3_MASK;
 
     if (CM2Scene::s_optFlags != optFlags) {
         CM2Scene::s_optFlags = optFlags;

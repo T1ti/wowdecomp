@@ -426,7 +426,7 @@ void CM2Model::UnlinkFromCallbackList() {
 int32_t CM2Model::IsBatchDoodadCompatible(M2Batch* batch) {
     uint32_t cacheFlags = M2GetCacheFlags();
 
-    if ((cacheFlags & 0x20) && (this->m_runtimeFlags & 0x10) && (this->m_shared->m_data->m_bones.m_count > 1 || !(cacheFlags & 0x40)) && (batch->m_flags & 0x10)) {
+    if ((cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS) && (this->m_runtimeFlags & 0x10) && (this->m_shared->m_data->m_bones.m_count > 1 || !(cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES)) && (batch->m_flags & 0x10)) {
         CM2Lighting* lighting = this->m_currentLighting;
 
         if (!lighting || !lighting->m_lightCount) {
@@ -2648,10 +2648,10 @@ int32_t CM2Model::SetIndices() {
 
         CM2Shared* shared = this->m_shared;
         M2SkinProfile* skin = shared->m_skinData;
-        uint32_t copyIndices = shared->m_cache->m_flags & 8;
+        uint32_t copyIndices = shared->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS;
         int32_t singleBone;
 
-        if (shared->m_data->m_bones.m_count != 1 || (singleBone = 1, !(this->m_shared->m_cache->m_flags & 0x40))) {
+        if (shared->m_data->m_bones.m_count != 1 || (singleBone = 1, !(this->m_shared->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES))) {
             singleBone = 0;
         }
 
@@ -4128,7 +4128,7 @@ void CM2Model::OptimizeVisibleGeometry() {
     uint32_t batchCount = 0;
     uint32_t sectionCount = 0;
     uint32_t visibleCount = 0;
-    int32_t keepVertices = (cacheFlags & 8) || (shared->m_data->m_bones.m_count == 1 && (cacheFlags & 0x40));
+    int32_t keepVertices = (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) || (shared->m_data->m_bones.m_count == 1 && (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES));
 
     for (uint32_t i = 0; i < skin->m_batches.m_count; i++) {
         M2Batch* batch = &skin->m_batches[i];

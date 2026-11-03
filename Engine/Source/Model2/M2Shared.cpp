@@ -352,7 +352,7 @@ int32_t CM2Shared::SetIndices() {
             return 0;
         }
 
-        int32_t sharedVertices = (this->m_cache->m_flags & 8) || (this->m_data->m_bones.m_count == 1 && (this->m_cache->m_flags & 0x40));
+        int32_t sharedVertices = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) || (this->m_data->m_bones.m_count == 1 && (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES));
         uint32_t indexStart = 0;
 
         for (uint32_t i = 0; i < this->m_skinData->m_skinSections.m_count; i++) {
@@ -1184,7 +1184,7 @@ int32_t CM2Shared::InitializeSkinProfile() {
         }
     }
 
-    if (!(this->m_cache->m_flags & 8)) {
+    if (!(this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS)) {
         uint32_t count = this->m_skinData->m_vertices.m_count;
         M2Vertex* vertices = new (__FILE__, __LINE__) M2Vertex[count];
 
@@ -1233,7 +1233,7 @@ int32_t CM2Shared::InitializeSkinProfile() {
         this->m_data->m_vertices.m_count = this->m_skinData->m_vertices.m_count;
     }
 
-    if (!(this->m_cache->m_flags & 8)) {
+    if (!(this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS)) {
         for (uint32_t i = 0; i < this->m_skinData->m_batches.m_count; i++) {
             M2Batch* batches = this->m_skinData->m_batches.Data();
 
@@ -1656,7 +1656,7 @@ uint32_t CM2Shared::GetSkinProfileIndex(uint32_t maxBones) {
 int32_t CM2Shared::Initialize() {
     uint32_t maxBones = 256;
 
-    if (this->m_cache->m_flags & 8) {
+    if (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) {
         uint32_t constants = g_theGxDevicePtr->Caps().m_shaderConstants[0];
         uint32_t bones = (constants > 0xC0 ? constants - 64 : constants - 32) / 3;
 

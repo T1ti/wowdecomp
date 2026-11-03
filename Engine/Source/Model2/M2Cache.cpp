@@ -66,16 +66,16 @@ uint32_t STORMAPI CM2Cache::ThreadProc(void* param) {
     CM2Cache* cache = static_cast<CM2Cache*>(param);
 
     PropSelectContext(cache->m_propContext);
-    cache->m_flags |= 0x400;
+    cache->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_THREAD_RUNNING;
     cache->m_threadStart.Wait(0xFFFFFFFF);
 
-    while (!(cache->m_flags & 0x800)) {
+    while (!(cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_THREAD_EXIT_REQUESTED)) {
         cache->m_threadFunc(cache->m_threadParam);
         cache->m_threadDone.Set();
         cache->m_threadStart.Wait(0xFFFFFFFF);
     }
 
-    cache->m_flags &= ~0x400u;
+    cache->m_flags &= ~CM2Cache::CACHE_FLAGS::CACHE_THREAD_RUNNING;
 
     return 0;
 }
@@ -83,7 +83,7 @@ uint32_t STORMAPI CM2Cache::ThreadProc(void* param) {
 // VERIFY: c0d77014 auto
 // OFFSET: 0x0081C060
 void M2SetGlobalOptFlags(uint32_t flags) {
-    s_cache.m_flags |= flags & 0xE000;
+    s_cache.m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_OPT_TIER3_MASK;
 }
 
 // VERIFY: 01e775e8 manual
@@ -115,45 +115,45 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
     CM2Cache::s_processorFeatures = OsGetProcessorFeatures();
 
     if (OsGetNumberOfProcessors() > 1) {
-        this->m_flags |= flags & 4;
+        this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_ANIMATION_THREADS;
     }
 
-    if (this->m_flags & 4) {
-        this->m_flags &= ~0xC00u;
+    if (this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_ANIMATION_THREADS) {
+        this->m_flags &= ~CM2Cache::CACHE_FLAGS::CACHE_THREAD_STATE_MASK;
         this->m_threadStart.Reset();
         this->m_threadDone.Reset();
         this->m_propContext = PropGetSelectedContext();
         SThread::Create(CM2Cache::ThreadProc, this, this->m_thread, const_cast<char*>("Model2"), 0);
     }
 
-    if (flags & 8) {
+    if (flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) {
         int32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[0];
         int32_t pixelTarget = g_theGxDevicePtr->Caps().m_shaderTargets[4];
 
         if (vertexTarget > 0 && pixelTarget > 0) {
-            this->m_flags |= 8;
+            this->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS;
         }
     }
 
-    if (!(this->m_flags & 8) && !(CM2Cache::s_processorFeatures & 4)) {
-        this->m_flags |= 0x40;
+    if (!(this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) && !(CM2Cache::s_processorFeatures & 4)) {
+        this->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES;
     }
 
     if (g_theGxDevicePtr->Caps().m_colorWrite) {
-        this->m_flags |= flags & 1;
+        this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_Z_FILL;
     }
 
     if (g_theGxDevicePtr->Caps().m_maxClipPlanes) {
         uint32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[0];
 
         if (vertexTarget - 6 > 1) {
-            this->m_flags |= flags & 2;
-        } else if (!(this->m_flags & 8)) {
-            this->m_flags |= flags & 2;
+            this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_CLIP_PLANES;
+        } else if (!(this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS)) {
+            this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_CLIP_PLANES;
         }
     }
 
-    this->m_flags |= flags & 0x1A0;
+    this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_RUNTIME_OPTIONS;
 
     uint32_t high = rand() << 16;
     CRndSeed seed(high | static_cast<uint16_t>(rand()));
@@ -198,8 +198,8 @@ void CM2Cache::GarbageCollect(int32_t force) {
 // VERIFY: 370cb080 auto
 // OFFSET: 0x0081C300
 void CM2Cache::Destroy() {
-    if (this->m_flags & 4) {
-        this->m_flags |= 0x800;
+    if (this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_ANIMATION_THREADS) {
+        this->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_THREAD_EXIT_REQUESTED;
         this->m_threadStart.Set();
         this->m_thread.Wait(0xFFFFFFFF);
     }
@@ -437,7 +437,7 @@ CM2Cache::CM2Cache() : m_threadStart(0, 0), m_threadDone(0, 0) {
     this->m_freeList = nullptr;
     this->m_freeListTail = &this->m_freeList;
     this->m_initialized = 0;
-    this->m_flags = 0;
+    this->m_flags = CM2Cache::CACHE_FLAGS::CACHE_NONE;
     memset(this->m_shared, 0, sizeof(this->m_shared));
     this->m_threadFunc = nullptr;
     this->m_threadParam = nullptr;
