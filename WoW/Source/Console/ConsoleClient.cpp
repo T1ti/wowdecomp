@@ -58,7 +58,17 @@ static const COMMANDHANDLER s_consoleCommandHandlers[] = { ConsoleCommand_FontCo
 TSList<CONSOLELINE, TSGetLink<CONSOLELINE> > s_linelist;
 
 // STATIC: 0x00ADBBBC
-uint32_t s_colorArray[NUM_COLORTYPES] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFF808080, 0xFFFF0000, 0xFFFFFF00, 0xFFFFFFFF, 0xFFFFFFFF, 0x80FFFFFF, 0xC0000000 };
+CImVector s_colorArray[NUM_COLORTYPES] = {
+    { 0xFF, 0xFF, 0xFF, 0xFF },
+    { 0xFF, 0xFF, 0xFF, 0xFF },
+    { 0x80, 0x80, 0x80, 0xFF },
+    { 0x00, 0x00, 0xFF, 0xFF },
+    { 0x00, 0xFF, 0xFF, 0xFF },
+    { 0xFF, 0xFF, 0xFF, 0xFF },
+    { 0xFF, 0xFF, 0xFF, 0xFF },
+    { 0xFF, 0xFF, 0xFF, 0x80 },
+    { 0x00, 0x00, 0x00, 0xC0 },
+};
 
 // STATIC: 0x00CA1690
 static float s_caretpixheight;
@@ -171,7 +181,7 @@ void GenerateNodeString(CONSOLELINE* node) {
     }
 
     C3Vector position(0.0f, 0.0f, 1.0f);
-    GxuFontCreateString(font, reinterpret_cast<const char*>(node->m_buffer), s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, node->m_fontPointer, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, *reinterpret_cast<const CImVector*>(&s_colorArray[node->m_colorType]), s_charSpacing, 1.0f);
+    GxuFontCreateString(font, reinterpret_cast<const char*>(node->m_buffer), s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, node->m_fontPointer, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, s_colorArray[node->m_colorType], s_charSpacing, 1.0f);
 }
 
 // VERIFY: bc0f8159 auto
@@ -185,7 +195,7 @@ static void SetInputString(const char* text) {
 
     if (text && *text) {
         C3Vector position(0.0f, 0.0f, 1.0f);
-        GxuFontCreateString(TextBlockGetFontPtr(s_textFont), text, s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, s_inputString, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, *reinterpret_cast<const CImVector*>(&s_colorArray[INPUT_COLOR]), s_charSpacing, 1.0f);
+        GxuFontCreateString(TextBlockGetFontPtr(s_textFont), text, s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, s_inputString, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, s_colorArray[INPUT_COLOR], s_charSpacing, 1.0f);
     }
 }
 
@@ -437,7 +447,7 @@ static void DrawBackground() {
     GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, reinterpret_cast<const CImVector*>(&s_colorArray[BACKGROUND_COLOR]), 0, nullptr, 0, nullptr, 0, nullptr, 0);
+    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, &s_colorArray[BACKGROUND_COLOR], 0, nullptr, 0, nullptr, 0, nullptr, 0);
     GxDrawLockedElements(GxPrim_TriangleStrip, 4, indices);
     GxPrimUnlockVertexPtrs();
 
@@ -462,7 +472,7 @@ static void DrawHighLight() {
     GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, reinterpret_cast<const CImVector*>(&s_colorArray[HIGHLIGHT_COLOR]), 0, nullptr, 0, nullptr, 0, nullptr, 0);
+    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, &s_colorArray[HIGHLIGHT_COLOR], 0, nullptr, 0, nullptr, 0, nullptr, 0);
     GxDrawLockedElements(GxPrim_TriangleStrip, 4, indices);
     GxPrimUnlockVertexPtrs();
 
@@ -492,7 +502,7 @@ static void DrawCaret(const C3Vector& caretpos) {
     GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, reinterpret_cast<const CImVector*>(&s_colorArray[INPUT_COLOR]), 0, nullptr, 0, nullptr, 0, nullptr, 0);
+    GxPrimLockVertexPtrs(4, position, sizeof(C3Vector), nullptr, 0, &s_colorArray[INPUT_COLOR], 0, nullptr, 0, nullptr, 0, nullptr, 0);
     GxDrawLockedElements(GxPrim_TriangleStrip, 4, indices);
     GxPrimUnlockVertexPtrs();
 

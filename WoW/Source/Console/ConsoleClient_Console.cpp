@@ -89,15 +89,15 @@ int32_t ConsoleCommand_CharSpacing(const char* command, const char* arguments) {
 int32_t ConsoleCommand_DefaultSettings(const char* command, const char* arguments) {
     s_fontHeight = 0.02f;
 
-    s_colorArray[INPUT_COLOR] = 0xFFFFFFFF;
-    s_colorArray[DEFAULT_COLOR] = 0xFFFFFFFF;
-    s_colorArray[ECHO_COLOR] = 0xFF808080;
-    s_colorArray[ERROR_COLOR] = 0xFFFF0000;
-    s_colorArray[WARNING_COLOR] = 0xFFFFFF00;
-    s_colorArray[GLOBAL_COLOR] = 0xFFFFFFFF;
-    s_colorArray[ADMIN_COLOR] = 0xFFFFFFFF;
-    s_colorArray[BACKGROUND_COLOR] = 0xC0000000;
-    s_colorArray[HIGHLIGHT_COLOR] = 0x80FFFFFF;
+    s_colorArray[INPUT_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
+    s_colorArray[DEFAULT_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
+    s_colorArray[ECHO_COLOR] = { 0x80, 0x80, 0x80, 0xFF };
+    s_colorArray[ERROR_COLOR] = { 0x00, 0x00, 0xFF, 0xFF };
+    s_colorArray[WARNING_COLOR] = { 0x00, 0xFF, 0xFF, 0xFF };
+    s_colorArray[GLOBAL_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
+    s_colorArray[ADMIN_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
+    s_colorArray[BACKGROUND_COLOR] = { 0x00, 0x00, 0x00, 0xC0 };
+    s_colorArray[HIGHLIGHT_COLOR] = { 0xFF, 0xFF, 0xFF, 0x80 };
 
     SStrCopy(s_fontName, "Fonts\\ARIALN.ttf", sizeof(s_fontName));
 
@@ -239,7 +239,7 @@ int32_t ConsoleCommand_FontColor(const char* command, const char* arguments) {
     color.a = 0xFF;
 
     if (colorType < NUM_COLORTYPES) {
-        *reinterpret_cast<CImVector*>(&s_colorArray[colorType]) = color;
+        s_colorArray[colorType] = color;
     }
 
     for (CONSOLELINE* line = s_linelist.Head(); line; line = s_linelist.Next(line)) {
@@ -306,7 +306,7 @@ int32_t ConsoleCommand_BackGroundColor(const char* command, const char* argument
     color.a = alpha;
     color.g = green;
     color.r = red;
-    *reinterpret_cast<CImVector*>(&s_colorArray[BACKGROUND_COLOR]) = color;
+    s_colorArray[BACKGROUND_COLOR] = color;
 
     return 1;
 }
@@ -338,7 +338,7 @@ int32_t ConsoleCommand_HighLightColor(const char* command, const char* arguments
     color.a = alpha;
     color.g = green;
     color.r = red;
-    *reinterpret_cast<CImVector*>(&s_colorArray[HIGHLIGHT_COLOR]) = color;
+    s_colorArray[HIGHLIGHT_COLOR] = color;
 
     return 1;
 }

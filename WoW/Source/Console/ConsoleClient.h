@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/ConsoleBase/Types.h"
 #include "Engine/Source/Event/Types.h"
 #include "Engine/Source/Services/Types.h"
@@ -27,7 +28,7 @@ class CONSOLELINE : public TSLinkedNode<CONSOLELINE> {
 extern int32_t s_active;
 extern uint32_t s_baseTextFlags;
 extern float s_charSpacing;
-extern uint32_t s_colorArray[NUM_COLORTYPES];
+extern CImVector s_colorArray[NUM_COLORTYPES];
 extern float s_consoleHeight;
 extern float s_consoleLines;
 extern float s_fontHeight;
