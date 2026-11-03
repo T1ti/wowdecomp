@@ -32,6 +32,17 @@ extern BattlenetAllocator s_battlenetAllocator;
 
 class BattlenetLogin : public Login {
     public:
+    enum SERVICE_STATE : int32_t {
+        SERVICE_STATE_ERROR = 0,
+        SERVICE_STATE_WARNING = 1,
+        SERVICE_STATE_LOST = 2,
+        SERVICE_STATE_FLOODING_ERROR = 3,
+        SERVICE_STATE_DISCONNECTED = 4,
+        SERVICE_STATE_INTERRUPTED = 5,
+        SERVICE_STATE_RECOVERED = 6,
+        SERVICE_STATE_ESTABLISHED = 7,
+    };
+
     struct BN_EVENT : public TSLinkedNode<BattlenetLogin::BN_EVENT> {
         /* 0008 */ BN_EVENT_ID m_id;
         /* 000C */ void* m_data;

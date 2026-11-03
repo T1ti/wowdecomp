@@ -1017,7 +1017,7 @@ void BattlenetLogin::Logon(const char* loginServer, const char* portal) {
     }
 
     this->m_reconnect = false;
-    this->m_serviceState = 4;
+    this->m_serviceState = SERVICE_STATE::SERVICE_STATE_DISCONNECTED;
     this->m_logonStatus = -1;
     this->m_logonResult = 0;
     this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_CONNECTING, LOGIN_OK, nullptr, 0);
@@ -1208,7 +1208,7 @@ BattlenetLogin::BattlenetLogin() {
     g_tumorManager = nullptr;
     this->m_moduleId = 0;
     this->m_logonResult = 0;
-    this->m_serviceState = 4;
+    this->m_serviceState = SERVICE_STATE::SERVICE_STATE_DISCONNECTED;
 
     this->m_realmLock.Enter();
     this->m_realms.Clear();
@@ -1276,7 +1276,7 @@ void BattlenetLogin::Init(LoginResponse* loginResponse) {
 
     this->m_loginResponse = loginResponse;
     this->m_logonResult = 0;
-    this->m_serviceState = 4;
+    this->m_serviceState = SERVICE_STATE::SERVICE_STATE_DISCONNECTED;
 
     this->m_realmLock.Enter();
     this->m_realms.Clear();
@@ -1434,7 +1434,7 @@ void BattlenetLogin::HandleInvoke(const Battlenet::Event::Larva::Invoke* invoke)
                 this->QueueEvent(BN_EVENT_SHOW_SURVEY, nullptr, 0);
             }
         } else if (invoke->m_authentication.m_tag == 1) {
-            if (this->m_serviceState == 6) {
+            if (this->m_serviceState == SERVICE_STATE::SERVICE_STATE_RECOVERED) {
                 this->m_application->LogLevel("Ignoring Authentication Success invoke while in Service::RECOVERED state.", 4);
             } else {
                 const Battlenet::Authentication::Complete& complete = invoke->Get<0, Battlenet::Authentication::Response>().Get<1, Battlenet::Authentication::Complete>();
@@ -1443,7 +1443,7 @@ void BattlenetLogin::HandleInvoke(const Battlenet::Event::Larva::Invoke* invoke)
                 this->m_accountFlags2 = complete.m_accountFlags2;
                 this->LogonResultBN(0);
             }
-        } else if (invoke->m_authentication.m_tag == 2 && this->m_serviceState != 5) {
+        } else if (invoke->m_authentication.m_tag == 2 && this->m_serviceState != SERVICE_STATE::SERVICE_STATE_INTERRUPTED) {
             char text[64];
             const Battlenet::Authentication::Failure& failure = invoke->Get<0, Battlenet::Authentication::Response>().Get<2, Battlenet::Authentication::Failure>();
 
@@ -1453,7 +1453,7 @@ void BattlenetLogin::HandleInvoke(const Battlenet::Event::Larva::Invoke* invoke)
             if (failure.m_error != 138) {
                 this->LogonResultBN(failure.m_error);
 
-                if (this->m_serviceState != 7) {
+                if (this->m_serviceState != SERVICE_STATE::SERVICE_STATE_ESTABLISHED) {
                     this->QueueEvent(BN_EVENT_LOGOFF, nullptr, 0);
                 }
             }
@@ -1462,30 +1462,30 @@ void BattlenetLogin::HandleInvoke(const Battlenet::Event::Larva::Invoke* invoke)
         this->m_serviceState = invoke->m_service.m_tag;
 
         switch (invoke->m_service.m_tag) {
-            case 2:
+            case SERVICE_STATE::SERVICE_STATE_LOST:
                 this->QueueEvent(BN_EVENT_SERVICE_FAILED, nullptr, 0);
                 break;
 
-            case 3:
-                if (!invoke->Get<1, Battlenet::Service::State>().Get<3, uint32_t>()) {
-                    this->m_serviceState = 6;
+            case SERVICE_STATE::SERVICE_STATE_FLOODING_ERROR:
+                if (!invoke->Get<1, Battlenet::Service::State>().Get<SERVICE_STATE::SERVICE_STATE_FLOODING_ERROR, uint32_t>()) {
+                    this->m_serviceState = SERVICE_STATE::SERVICE_STATE_RECOVERED;
                 }
 
                 break;
 
-            case 4:
+            case SERVICE_STATE::SERVICE_STATE_DISCONNECTED:
                 this->QueueEvent(BN_EVENT_SERVICE_DISCONNECTED, nullptr, 0);
                 break;
 
-            case 5:
+            case SERVICE_STATE::SERVICE_STATE_INTERRUPTED:
                 this->QueueEvent(BN_EVENT_SERVICE_LOST, nullptr, 0);
                 break;
 
-            case 6:
+            case SERVICE_STATE::SERVICE_STATE_RECOVERED:
                 this->QueueEvent(BN_EVENT_SERVICE_RECOVERED, nullptr, 0);
                 break;
 
-            case 7:
+            case SERVICE_STATE::SERVICE_STATE_ESTABLISHED:
                 this->QueueEvent(BN_EVENT_RECONNECTED, nullptr, 0);
                 break;
         }
@@ -1696,7 +1696,7 @@ void BattlenetLogin::Update() {
         client.Process(OsGetAsyncTimeMs());
     }
 
-    if (this->m_surveyPending && this->m_serviceState != 2 && this->m_serviceState != 5 && OsGetAsyncTimeMs() - this->m_surveyTime > 1000) {
+    if (this->m_surveyPending && this->m_serviceState != SERVICE_STATE::SERVICE_STATE_LOST && this->m_serviceState != SERVICE_STATE::SERVICE_STATE_INTERRUPTED && OsGetAsyncTimeMs() - this->m_surveyTime > 1000) {
         this->m_surveyPending = false;
         FrameScript_SignalEvent(GLUE_EVENT_CLOSE_STATUS_DIALOG, nullptr);
 
@@ -1714,7 +1714,7 @@ void BattlenetLogin::Update() {
 // VERIFY: 77b47832 auto
 // OFFSET: 0x00530CE0
 bool BattlenetLogin::IsConnected() {
-    return this->m_serviceState == 7 || this->m_serviceState == 6 || this->m_serviceState == 3;
+    return this->m_serviceState == SERVICE_STATE::SERVICE_STATE_ESTABLISHED || this->m_serviceState == SERVICE_STATE::SERVICE_STATE_RECOVERED || this->m_serviceState == SERVICE_STATE::SERVICE_STATE_FLOODING_ERROR;
 }
 
 // VERIFY: 191ce575 auto
