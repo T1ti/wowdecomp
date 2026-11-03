@@ -914,8 +914,8 @@ CMapChunk::CMapChunk() {
     this->m_renderChunk = nullptr;
     this->m_chunkInfoBeginPtr = nullptr;
     this->m_header = nullptr;
-    this->m_lowQualityTexMap = nullptr;
-    this->m_predTexture = nullptr;
+    this->m_predTex = nullptr;
+    this->m_noEffectDoodad = nullptr;
     this->m_height = nullptr;
     this->m_vertexShading = nullptr;
     this->m_normals = nullptr;
@@ -1025,8 +1025,8 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool a3) {
     this->m_topLeftCoords.y = 17066.666f - this->m_cOffset.x * 33.333332f;
     this->m_topLeftCoords.z = 0.0f;
     this->m_topLeftCoords.z = this->m_header->m_position.z;
-    this->m_lowQualityTexMap = this->m_header->m_lowQualityTextureMap;
-    this->m_predTexture = reinterpret_cast<uint8_t*>(&this->m_header->m_predTex);
+    this->m_predTex = this->m_header->m_predTex;
+    this->m_noEffectDoodad = this->m_header->m_noEffectDoodad;
 
     this->CreateBounds();
     this->CreateLiquids(a3);
@@ -1092,7 +1092,7 @@ int32_t CMapChunk::LoadDetailDoodadModels() {
     int32_t loaded = 1;
 
     for (uint32_t i = 0; i < this->m_header->m_nLayers; i++) {
-        int32_t effectId = this->m_layers[i].m_offectId;
+        int32_t effectId = this->m_layers[i].m_effectId;
 
         if (!effectId) {
             continue;
@@ -1206,7 +1206,7 @@ void CMapChunk::CreateDetailDoodads() {
         int32_t x = s_cells[i].x;
         int32_t y = s_cells[i].y;
 
-        if ((this->m_predTexture[y] & s_bitMask[x]) >> s_bitShift[x]) {
+        if ((this->m_noEffectDoodad[y] & s_bitMask[x]) >> s_bitShift[x]) {
             continue;
         }
 
@@ -1214,8 +1214,8 @@ void CMapChunk::CreateDetailDoodads() {
             continue;
         }
 
-        uint32_t layer = (reinterpret_cast<uint16_t*>(this->m_lowQualityTexMap)[y] & CMap::s_2bitSplatMask[x]) >> CMap::s_2bitSplatShft[x];
-        GroundEffectTextureRec* record = g_groundEffectTextureDB.GetRecord(this->m_layers[layer].m_offectId);
+        uint32_t layer = (this->m_predTex[y] & CMap::s_2bitSplatMask[x]) >> CMap::s_2bitSplatShft[x];
+        GroundEffectTextureRec* record = g_groundEffectTextureDB.GetRecord(this->m_layers[layer].m_effectId);
 
         if (!record) {
             continue;

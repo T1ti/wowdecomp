@@ -121,7 +121,7 @@ struct SMLayer {
     /* 0000 */ uint32_t m_textureId;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ uint32_t m_offsetInMCAL;
-    /* 000C */ uint32_t m_offectId;
+    /* 000C */ uint32_t m_effectId; // GroundEffectTexture ID; remains 32-bit in 3.3.5.
 };
 
 struct SMOPoly {

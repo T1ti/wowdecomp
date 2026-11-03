@@ -96,8 +96,8 @@ class CMapChunk : public CMapBaseObj {
     /* 0100 */ TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_chunkLink)> m_liquidChunkLinkList;
     /* 010C */ uint8_t* m_chunkInfoBeginPtr;
     /* 0110 */ SMChunk* m_header;
-    /* 0114 */ uint8_t* m_lowQualityTexMap;
-    /* 0118 */ uint8_t* m_predTexture;
+    /* 0114 */ uint16_t* m_predTex;
+    /* 0118 */ uint8_t* m_noEffectDoodad;
     /* 011C */ float* m_height;
     /* 0120 */ uint32_t* m_vertexShading;
     /* 0124 */ int8_t* m_normals;
@@ -203,9 +203,9 @@ struct SMChunk {
     /* 0038 */ uint32_t m_nMapObjRefs;
     /* 003C */ uint16_t m_holes;
     /* 003E */ uint16_t unused_003E;
-    /* 0040 */ uint8_t m_lowQualityTextureMap [16];
-    /* 0050 */ uint32_t m_predTex;
-    /* 0054 */ uint32_t m_nEffectDoodad;
+    // 0.5.3 names; 3.3.5 reads eight WORD selector rows and eight BYTE suppression rows.
+    /* 0040 */ uint16_t m_predTex [8];
+    /* 0050 */ uint8_t m_noEffectDoodad [8];
     /* 0058 */ uint32_t m_ofsSndEmitters;
     /* 005C */ uint32_t m_nSndEmitters;
     /* 0060 */ uint32_t m_ofsLiquid;
