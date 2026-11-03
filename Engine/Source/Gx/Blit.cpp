@@ -296,18 +296,18 @@ void DxtMakeTable<CImVector>(const DxtColorBlock* block, CImVector* colors) {
     const DxtColorBlock::Tables& t = DxtColorBlock::s_tables;
     uint32_t* out = reinterpret_cast<uint32_t*>(colors);
 
-    out[0] = 0xFF000000 | (static_cast<uint8_t>(block->m_color0 >> 11) << 19) | (((block->m_color0 >> 5) & 0x3F) << 10) | ((block->m_color0 & 0x1F) << 3);
-    out[1] = 0xFF000000 | (static_cast<uint8_t>(block->m_color1 >> 11) << 19) | (((block->m_color1 >> 5) & 0x3F) << 10) | ((block->m_color1 & 0x1F) << 3);
+    out[0] = 0xFF000000 | (static_cast<uint8_t>(block->m_color0.m_value >> 11) << 19) | (((block->m_color0.m_value >> 5) & 0x3F) << 10) | ((block->m_color0.m_value & 0x1F) << 3);
+    out[1] = 0xFF000000 | (static_cast<uint8_t>(block->m_color1.m_value >> 11) << 19) | (((block->m_color1.m_value >> 5) & 0x3F) << 10) | ((block->m_color1.m_value & 0x1F) << 3);
 
-    uint32_t c0 = block->m_color0;
-    uint32_t c1 = block->m_color1;
+    uint32_t c0 = block->m_color0.m_value;
+    uint32_t c1 = block->m_color1.m_value;
     uint8_t r = (t.m_oneThird5[c1 >> 11] + t.m_twoThirds5[c0 >> 11]) >> 8;
     uint8_t g = (t.m_oneThird6[(c1 >> 5) & 0x3F] + t.m_twoThirds6[(c0 >> 5) & 0x3F]) >> 8;
     uint8_t b = (t.m_oneThird5[c1 & 0x1F] + t.m_twoThirds5[c0 & 0x1F]) >> 8;
     out[2] = 0xFF000000 | (r << 19) | (g << 10) | (b << 3);
 
-    c0 = block->m_color0;
-    c1 = block->m_color1;
+    c0 = block->m_color0.m_value;
+    c1 = block->m_color1.m_value;
     r = (t.m_oneThird5[c0 >> 11] + t.m_twoThirds5[c1 >> 11]) >> 8;
     g = (t.m_oneThird6[(c0 >> 5) & 0x3F] + t.m_twoThirds6[(c1 >> 5) & 0x3F]) >> 8;
     b = (t.m_oneThird5[c0 & 0x1F] + t.m_twoThirds5[c1 & 0x1F]) >> 8;
@@ -320,18 +320,18 @@ template <>
 void DxtMakeTable<CArgb4444>(const DxtColorBlock* block, CArgb4444* colors) {
     const DxtColorBlock::Tables& t = DxtColorBlock::s_tables;
 
-    colors[0].m_value = 0xF000 | (((block->m_color0 >> 11) & 0x1E) << 7) | (((block->m_color0 >> 5) & 0x3C) << 2) | ((block->m_color0 >> 1) & 0xF);
-    colors[1].m_value = 0xF000 | (((block->m_color1 >> 11) & 0x1E) << 7) | (((block->m_color1 >> 5) & 0x3C) << 2) | ((block->m_color1 >> 1) & 0xF);
+    colors[0].m_value = 0xF000 | (((block->m_color0.m_value >> 11) & 0x1E) << 7) | (((block->m_color0.m_value >> 5) & 0x3C) << 2) | ((block->m_color0.m_value >> 1) & 0xF);
+    colors[1].m_value = 0xF000 | (((block->m_color1.m_value >> 11) & 0x1E) << 7) | (((block->m_color1.m_value >> 5) & 0x3C) << 2) | ((block->m_color1.m_value >> 1) & 0xF);
 
-    uint32_t c0 = block->m_color0;
-    uint32_t c1 = block->m_color1;
+    uint32_t c0 = block->m_color0.m_value;
+    uint32_t c1 = block->m_color1.m_value;
     uint32_t r = (t.m_oneThird5[c1 >> 11] + t.m_twoThirds5[c0 >> 11]) >> 8;
     uint32_t g = (t.m_oneThird6[(c1 >> 5) & 0x3F] + t.m_twoThirds6[(c0 >> 5) & 0x3F]) >> 8;
     uint32_t b = (t.m_oneThird5[c1 & 0x1F] + t.m_twoThirds5[c0 & 0x1F]) >> 8;
     colors[2].m_value = 0xF000 | ((r & 0xFE) << 7) | ((g & 0xFC) << 2) | (b >> 1);
 
-    c0 = block->m_color0;
-    c1 = block->m_color1;
+    c0 = block->m_color0.m_value;
+    c1 = block->m_color1.m_value;
     r = (t.m_oneThird5[c0 >> 11] + t.m_twoThirds5[c1 >> 11]) >> 8;
     g = (t.m_oneThird6[(c0 >> 5) & 0x3F] + t.m_twoThirds6[(c1 >> 5) & 0x3F]) >> 8;
     b = (t.m_oneThird5[c0 & 0x1F] + t.m_twoThirds5[c1 & 0x1F]) >> 8;
@@ -344,28 +344,28 @@ template <>
 void DxtMakeTableAlpha<CRgb565>(const DxtColorBlock* block, CRgb565* colors) {
     const DxtColorBlock::Tables& t = DxtColorBlock::s_tables;
 
-    if (block->m_color0 <= block->m_color1) {
-        colors[0].m_value = block->m_color0;
-        colors[1].m_value = block->m_color1;
+    if (block->m_color0.m_value <= block->m_color1.m_value) {
+        colors[0].m_value = block->m_color0.m_value;
+        colors[1].m_value = block->m_color1.m_value;
 
-        int32_t r = ((block->m_color0 >> 11) + (block->m_color1 >> 11)) / 2;
-        int32_t g = (((block->m_color0 >> 5) & 0x3F) + ((block->m_color1 >> 5) & 0x3F)) / 2;
-        int32_t b = ((block->m_color0 & 0x1F) + (block->m_color1 & 0x1F)) / 2;
+        int32_t r = ((block->m_color0.m_value >> 11) + (block->m_color1.m_value >> 11)) / 2;
+        int32_t g = (((block->m_color0.m_value >> 5) & 0x3F) + ((block->m_color1.m_value >> 5) & 0x3F)) / 2;
+        int32_t b = ((block->m_color0.m_value & 0x1F) + (block->m_color1.m_value & 0x1F)) / 2;
         colors[2].m_value = (r << 11) | (g << 5) | b;
         colors[3].m_value = 0;
     } else {
-        colors[0].m_value = block->m_color0;
-        colors[1].m_value = block->m_color1;
+        colors[0].m_value = block->m_color0.m_value;
+        colors[1].m_value = block->m_color1.m_value;
 
-        uint32_t c0 = block->m_color0;
-        uint32_t c1 = block->m_color1;
+        uint32_t c0 = block->m_color0.m_value;
+        uint32_t c1 = block->m_color1.m_value;
         uint32_t r = (t.m_oneThird5[c1 >> 11] + t.m_twoThirds5[c0 >> 11]) >> 8;
         uint32_t g = (t.m_oneThird6[(c1 >> 5) & 0x3F] + t.m_twoThirds6[(c0 >> 5) & 0x3F]) >> 8;
         uint32_t b = (t.m_oneThird5[c1 & 0x1F] + t.m_twoThirds5[c0 & 0x1F]) >> 8;
         colors[2].m_value = (r << 11) | (g << 5) | b;
 
-        c0 = block->m_color0;
-        c1 = block->m_color1;
+        c0 = block->m_color0.m_value;
+        c1 = block->m_color1.m_value;
         r = (t.m_oneThird5[c0 >> 11] + t.m_twoThirds5[c1 >> 11]) >> 8;
         g = (t.m_oneThird6[(c0 >> 5) & 0x3F] + t.m_twoThirds6[(c1 >> 5) & 0x3F]) >> 8;
         b = (t.m_oneThird5[c0 & 0x1F] + t.m_twoThirds5[c1 & 0x1F]) >> 8;
@@ -379,28 +379,28 @@ template <>
 void DxtMakeTableAlpha<CArgb1555>(const DxtColorBlock* block, CArgb1555* colors) {
     const DxtColorBlock::Tables& t = DxtColorBlock::s_tables;
 
-    if (block->m_color0 <= block->m_color1) {
-        colors[0].m_value = CArgb1555::eAlphaMask | (((block->m_color0 >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color0 >> 5) & 0x3E) << 4) | (block->m_color0 & 0x1F);
-        colors[1].m_value = CArgb1555::eAlphaMask | (((block->m_color1 >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color1 >> 5) & 0x3E) << 4) | (block->m_color1 & 0x1F);
+    if (block->m_color0.m_value <= block->m_color1.m_value) {
+        colors[0].m_value = CArgb1555::eAlphaMask | (((block->m_color0.m_value >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color0.m_value >> 5) & 0x3E) << 4) | (block->m_color0.m_value & 0x1F);
+        colors[1].m_value = CArgb1555::eAlphaMask | (((block->m_color1.m_value >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color1.m_value >> 5) & 0x3E) << 4) | (block->m_color1.m_value & 0x1F);
 
-        int32_t r = ((block->m_color0 >> 11) + (block->m_color1 >> 11)) / 2;
-        int32_t g = (((block->m_color0 >> 5) & 0x3F) + ((block->m_color1 >> 5) & 0x3F)) / 2;
-        int32_t b = ((block->m_color0 & 0x1F) + (block->m_color1 & 0x1F)) / 2;
+        int32_t r = ((block->m_color0.m_value >> 11) + (block->m_color1.m_value >> 11)) / 2;
+        int32_t g = (((block->m_color0.m_value >> 5) & 0x3F) + ((block->m_color1.m_value >> 5) & 0x3F)) / 2;
+        int32_t b = ((block->m_color0.m_value & 0x1F) + (block->m_color1.m_value & 0x1F)) / 2;
         colors[2].m_value = CArgb1555::eAlphaMask | (r << CArgb1555::eRedS) | ((g & 0xFE) << 4) | b;
         colors[3].m_value = 0;
     } else {
-        colors[0].m_value = CArgb1555::eAlphaMask | (((block->m_color0 >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color0 >> 5) & 0x3E) << 4) | (block->m_color0 & 0x1F);
-        colors[1].m_value = CArgb1555::eAlphaMask | (((block->m_color1 >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color1 >> 5) & 0x3E) << 4) | (block->m_color1 & 0x1F);
+        colors[0].m_value = CArgb1555::eAlphaMask | (((block->m_color0.m_value >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color0.m_value >> 5) & 0x3E) << 4) | (block->m_color0.m_value & 0x1F);
+        colors[1].m_value = CArgb1555::eAlphaMask | (((block->m_color1.m_value >> 11) & 0x1F) << CArgb1555::eRedS) | (((block->m_color1.m_value >> 5) & 0x3E) << 4) | (block->m_color1.m_value & 0x1F);
 
-        uint32_t c0 = block->m_color0;
-        uint32_t c1 = block->m_color1;
+        uint32_t c0 = block->m_color0.m_value;
+        uint32_t c1 = block->m_color1.m_value;
         uint32_t r = (t.m_oneThird5[c1 >> 11] + t.m_twoThirds5[c0 >> 11]) >> 8;
         uint32_t g = (t.m_oneThird6[(c1 >> 5) & 0x3F] + t.m_twoThirds6[(c0 >> 5) & 0x3F]) >> 8;
         uint32_t b = (t.m_oneThird5[c1 & 0x1F] + t.m_twoThirds5[c0 & 0x1F]) >> 8;
         colors[2].m_value = CArgb1555::eAlphaMask | (r << CArgb1555::eRedS) | ((g & 0xFE) << 4) | b;
 
-        c0 = block->m_color0;
-        c1 = block->m_color1;
+        c0 = block->m_color0.m_value;
+        c1 = block->m_color1.m_value;
         r = (t.m_oneThird5[c0 >> 11] + t.m_twoThirds5[c1 >> 11]) >> 8;
         g = (t.m_oneThird6[(c0 >> 5) & 0x3F] + t.m_twoThirds6[(c1 >> 5) & 0x3F]) >> 8;
         b = (t.m_oneThird5[c0 & 0x1F] + t.m_twoThirds5[c1 & 0x1F]) >> 8;
@@ -415,28 +415,28 @@ void DxtMakeTableAlpha<CImVector>(const DxtColorBlock* block, CImVector* colors)
     const DxtColorBlock::Tables& t = DxtColorBlock::s_tables;
     uint32_t* out = reinterpret_cast<uint32_t*>(colors);
 
-    if (block->m_color0 <= block->m_color1) {
-        out[0] = 0xFF000000 | ((block->m_color0 >> 11) << 19) | (((block->m_color0 >> 5) & 0x3F) << 10) | ((block->m_color0 & 0x1F) << 3);
-        out[1] = 0xFF000000 | ((block->m_color1 >> 11) << 19) | (((block->m_color1 >> 5) & 0x3F) << 10) | ((block->m_color1 & 0x1F) << 3);
+    if (block->m_color0.m_value <= block->m_color1.m_value) {
+        out[0] = 0xFF000000 | ((block->m_color0.m_value >> 11) << 19) | (((block->m_color0.m_value >> 5) & 0x3F) << 10) | ((block->m_color0.m_value & 0x1F) << 3);
+        out[1] = 0xFF000000 | ((block->m_color1.m_value >> 11) << 19) | (((block->m_color1.m_value >> 5) & 0x3F) << 10) | ((block->m_color1.m_value & 0x1F) << 3);
 
-        int32_t r = ((block->m_color0 >> 11) + (block->m_color1 >> 11)) / 2;
-        int32_t g = (((block->m_color0 >> 5) & 0x3F) + ((block->m_color1 >> 5) & 0x3F)) / 2;
-        int32_t b = ((block->m_color0 & 0x1F) + (block->m_color1 & 0x1F)) / 2;
+        int32_t r = ((block->m_color0.m_value >> 11) + (block->m_color1.m_value >> 11)) / 2;
+        int32_t g = (((block->m_color0.m_value >> 5) & 0x3F) + ((block->m_color1.m_value >> 5) & 0x3F)) / 2;
+        int32_t b = ((block->m_color0.m_value & 0x1F) + (block->m_color1.m_value & 0x1F)) / 2;
         out[2] = 0xFF000000 | (r << 19) | (g << 10) | (b << 3);
         out[3] = 0;
     } else {
-        out[0] = 0xFF000000 | ((block->m_color0 >> 11) << 19) | (((block->m_color0 >> 5) & 0x3F) << 10) | ((block->m_color0 & 0x1F) << 3);
-        out[1] = 0xFF000000 | ((block->m_color1 >> 11) << 19) | (((block->m_color1 >> 5) & 0x3F) << 10) | ((block->m_color1 & 0x1F) << 3);
+        out[0] = 0xFF000000 | ((block->m_color0.m_value >> 11) << 19) | (((block->m_color0.m_value >> 5) & 0x3F) << 10) | ((block->m_color0.m_value & 0x1F) << 3);
+        out[1] = 0xFF000000 | ((block->m_color1.m_value >> 11) << 19) | (((block->m_color1.m_value >> 5) & 0x3F) << 10) | ((block->m_color1.m_value & 0x1F) << 3);
 
-        uint32_t c0 = block->m_color0;
-        uint32_t c1 = block->m_color1;
+        uint32_t c0 = block->m_color0.m_value;
+        uint32_t c1 = block->m_color1.m_value;
         uint8_t r = (t.m_oneThird5[c1 >> 11] + t.m_twoThirds5[c0 >> 11]) >> 8;
         uint8_t g = (t.m_oneThird6[(c1 >> 5) & 0x3F] + t.m_twoThirds6[(c0 >> 5) & 0x3F]) >> 8;
         uint8_t b = (t.m_oneThird5[c1 & 0x1F] + t.m_twoThirds5[c0 & 0x1F]) >> 8;
         out[2] = 0xFF000000 | (r << 19) | (g << 10) | (b << 3);
 
-        c0 = block->m_color0;
-        c1 = block->m_color1;
+        c0 = block->m_color0.m_value;
+        c1 = block->m_color1.m_value;
         r = (t.m_oneThird5[c0 >> 11] + t.m_twoThirds5[c1 >> 11]) >> 8;
         g = (t.m_oneThird6[(c0 >> 5) & 0x3F] + t.m_twoThirds6[(c1 >> 5) & 0x3F]) >> 8;
         b = (t.m_oneThird5[c0 & 0x1F] + t.m_twoThirds5[c1 & 0x1F]) >> 8;
@@ -486,8 +486,8 @@ void DxtDecodeBlock(const Dxt3Block* block, CImVector** rows, const DxtRect& rec
     DxtMakeTable(&block->m_color, colors);
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
-        uint32_t colorBits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
-        uint32_t alphaBits = block->m_alpha[y] >> (4 * rect.left);
+        uint32_t colorBits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t alphaBits = block->m_alpha.m_row[y] >> (4 * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             uint8_t a = alpha(alphaBits & 0xF);
@@ -514,8 +514,8 @@ void DxtDecodeBlock(const Dxt3Block* block, CArgb4444** rows, const DxtRect& rec
     DxtMakeTable(&block->m_color, colors);
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
-        uint32_t colorBits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
-        uint32_t alphaBits = block->m_alpha[y] >> (4 * rect.left);
+        uint32_t colorBits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t alphaBits = block->m_alpha.m_row[y] >> (4 * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             rows[y][x].m_value = (alpha(alphaBits & 0xF) << 12) | (colors[colorBits & DxtColorBlock::PIXEL_LSB_MASK].m_value & 0xFFF);
@@ -544,7 +544,7 @@ void DxtDecodeBlock(const Dxt5Block* block, CImVector** rows, const DxtRect& rec
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
         uint32_t bit = rowBit;
-        uint32_t colorBits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t colorBits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             const CImVector& color = colors[colorBits & DxtColorBlock::PIXEL_LSB_MASK];
@@ -582,7 +582,7 @@ void DxtDecodeBlock(const Dxt5Block* block, CArgb4444** rows, const DxtRect& rec
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
         uint32_t bit = rowBit;
-        uint32_t colorBits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t colorBits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             uint32_t index = ((block->m_alphaIndices[bit >> 3] >> (bit & 7)) | (block->m_alphaIndices[(bit >> 3) + 1] << (8 - (bit & 7)))) & 7;
@@ -605,7 +605,7 @@ void DxtDecodeBlock(const Dxt1Block* block, CRgb565** rows, const DxtRect& rect)
     DxtMakeTableAlpha(&block->m_color, colors);
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
-        uint32_t bits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t bits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             rows[y][x] = colors[bits & DxtColorBlock::PIXEL_LSB_MASK];
@@ -625,7 +625,7 @@ void DxtDecodeBlock(const Dxt1Block* block, CArgb1555** rows, const DxtRect& rec
     DxtMakeTableAlpha(&block->m_color, colors);
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
-        uint32_t bits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t bits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             rows[y][x] = colors[bits & DxtColorBlock::PIXEL_LSB_MASK];
@@ -645,7 +645,7 @@ void DxtDecodeBlock(const Dxt1Block* block, CImVector** rows, const DxtRect& rec
     DxtMakeTableAlpha(&block->m_color, colors);
 
     for (uint32_t y = rect.top; y <= rect.bottom; y++) {
-        uint32_t bits = block->m_color.m_indices[y] >> (DxtColorBlock::BPP * rect.left);
+        uint32_t bits = block->m_color.m_row[y] >> (DxtColorBlock::BPP * rect.left);
 
         for (uint32_t x = rect.left; x <= rect.right; x++) {
             rows[y][x] = colors[bits & DxtColorBlock::PIXEL_LSB_MASK];

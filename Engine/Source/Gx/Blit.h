@@ -74,9 +74,9 @@ class DxtColorBlock {
 
     static Tables s_tables;
 
-    /* 0000 */ uint16_t m_color0;
-    /* 0002 */ uint16_t m_color1;
-    /* 0004 */ uint8_t m_indices[4];
+    /* 0000 */ CRgb565 m_color0;
+    /* 0002 */ CRgb565 m_color1;
+    /* 0004 */ uint8_t m_row[4];
 };
 
 class Dxt1Block {
@@ -84,9 +84,14 @@ class Dxt1Block {
     /* 0000 */ DxtColorBlock m_color;
 };
 
+class Dxt3AlphaBlock {
+    public:
+    /* 0000 */ uint16_t m_row[4];
+};
+
 class Dxt3Block {
     public:
-    /* 0000 */ uint16_t m_alpha[4];
+    /* 0000 */ Dxt3AlphaBlock m_alpha;
     /* 0008 */ DxtColorBlock m_color;
 };
 
