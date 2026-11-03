@@ -1630,9 +1630,9 @@ static int32_t Script_GetBackdrop(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    const char* bgFile = backdrop->m_bgFile.m_str ? backdrop->m_bgFile.m_str : "";
-    const char* edgeFile = backdrop->m_edgeFile.m_str ? backdrop->m_edgeFile.m_str : "";
-    uint32_t tile = backdrop->m_tile;
+    const char* bgFile = backdrop->m_background.m_str ? backdrop->m_background.m_str : "";
+    const char* edgeFile = backdrop->m_border.m_str ? backdrop->m_border.m_str : "";
+    uint32_t tile = backdrop->m_tileBackground;
 
     lua_pushstring(L, "bgFile");
     lua_pushstring(L, bgFile);
@@ -1653,11 +1653,11 @@ static int32_t Script_GetBackdrop(lua_State* L) {
     lua_settable(L, -3);
 
     lua_pushstring(L, "tileSize");
-    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * backdrop->m_tileSize));
+    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * backdrop->m_backgroundSize));
     lua_settable(L, -3);
 
     lua_pushstring(L, "edgeSize");
-    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * backdrop->m_edgeSize));
+    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * backdrop->m_cornerSize));
     lua_settable(L, -3);
 
     lua_pushstring(L, "insets");
@@ -1672,10 +1672,10 @@ static int32_t Script_GetBackdrop(lua_State* L) {
         lua_gettable(L, -2);
     }
 
-    float left = backdrop->m_insetLeft;
-    float right = backdrop->m_insetRight;
-    float top = backdrop->m_insetTop;
-    float bottom = backdrop->m_insetBottom;
+    float left = backdrop->m_leftInset;
+    float right = backdrop->m_rightInset;
+    float top = backdrop->m_topInset;
+    float bottom = backdrop->m_bottomInset;
 
     lua_pushstring(L, "left");
     lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * left));
@@ -1732,10 +1732,10 @@ static int32_t Script_SetBackdrop(lua_State* L) {
     lua_settop(L, -2);
 
     CBackdropGenerator::BACKDROPPIECES pieces = edgeFile && *edgeFile ? CBackdropGenerator::BACKDROPPIECES::THEWORKS : CBackdropGenerator::BACKDROPPIECES::BACKDROPONLY;
-    backdrop->m_bgFile.Copy(bgFile);
+    backdrop->m_background.Copy(bgFile);
     backdrop->m_pieces = pieces;
-    backdrop->m_tile = tile;
-    backdrop->m_edgeFile.Copy(edgeFile);
+    backdrop->m_tileBackground = tile;
+    backdrop->m_border.Copy(edgeFile);
     backdrop->m_alphaMode = GxBlend_Alpha;
 
     lua_pushstring(L, "tileSize");
@@ -1743,7 +1743,7 @@ static int32_t Script_SetBackdrop(lua_State* L) {
 
     if (lua_isnumber(L, -1)) {
         float tileSize = lua_tonumber(L, -1);
-        backdrop->m_tileSize = NDCToDDCWidth(tileSize / (CoordinateGetAspectCompensation() * 1024.0f));
+        backdrop->m_backgroundSize = NDCToDDCWidth(tileSize / (CoordinateGetAspectCompensation() * 1024.0f));
     }
 
     lua_settop(L, -2);
@@ -1753,7 +1753,7 @@ static int32_t Script_SetBackdrop(lua_State* L) {
 
     if (lua_isnumber(L, -1)) {
         float edgeSize = lua_tonumber(L, -1);
-        backdrop->m_edgeSize = NDCToDDCWidth(edgeSize / (CoordinateGetAspectCompensation() * 1024.0f));
+        backdrop->m_cornerSize = NDCToDDCWidth(edgeSize / (CoordinateGetAspectCompensation() * 1024.0f));
     }
 
     lua_settop(L, -2);
@@ -1807,10 +1807,10 @@ static int32_t Script_SetBackdrop(lua_State* L) {
 
         lua_settop(L, -2);
 
-        backdrop->m_insetLeft = left;
-        backdrop->m_insetRight = right;
-        backdrop->m_insetTop = top;
-        backdrop->m_insetBottom = bottom;
+        backdrop->m_leftInset = left;
+        backdrop->m_rightInset = right;
+        backdrop->m_topInset = top;
+        backdrop->m_bottomInset = bottom;
     }
 
     lua_settop(L, -2);
@@ -1836,7 +1836,7 @@ static int32_t Script_GetBackdropColor(lua_State* L) {
         return 0;
     }
 
-    CImVector color = backdrop->m_backgroundColor;
+    CImVector color = backdrop->m_color;
     lua_pushnumber(L, color.r * 0.00392156f);
     lua_pushnumber(L, color.g * 0.00392156f);
     lua_pushnumber(L, color.b * 0.00392156f);
