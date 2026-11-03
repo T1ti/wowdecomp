@@ -3,6 +3,11 @@
 
 #include <cstdint>
 
+// Keep integer and single-precision conversion factors distinct at native call sites.
+constexpr int32_t TIME_MILLISECONDS_PER_SECOND = 1000;
+constexpr float TIME_MILLISECONDS_PER_SECOND_FLOAT = 1000.0f;
+constexpr float TIME_SECONDS_PER_MILLISECOND_FLOAT = 0.001f;
+
 class OsTimeManager {
     public:
     enum TimingMethod {

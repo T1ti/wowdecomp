@@ -1038,7 +1038,7 @@ int32_t MountTransitionObject::UpdateCharacterData() {
 // OFFSET: 0x007FB7F0
 bool MountTransitionObject::Tick() {
     uint32_t now = OsGetAsyncTimeMs();
-    float elapsed = static_cast<float>(now - this->m_lastTime) * 0.001f;
+    float elapsed = static_cast<float>(now - this->m_lastTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
     this->m_lastTime = now;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_unitGuid, TYPE_UNIT, __FILE__, __LINE__));
 

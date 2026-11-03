@@ -1440,7 +1440,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
                 ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, WOWGUID{ 0 }, nullptr, nullptr, false);
 
                 if (stats) {
-                    recovery = recovery * static_cast<int32_t>(stats->m_delay) / 1000;
+                    recovery = recovery * static_cast<int32_t>(stats->m_delay) / TIME_MILLISECONDS_PER_SECOND;
                 }
             }
         }
@@ -1982,7 +1982,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
             float dx = position.x - destLocation.x;
             float dy = position.y - destLocation.y;
             float dz = position.z - destLocation.z;
-            arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -1000.0f);
+            arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -TIME_MILLISECONDS_PER_SECOND_FLOAT);
             Spell_C_AddToInTransitList(caster, &spell, serverTime, arrival);
         } else if (hitCount) {
             CGObject_C* target = ClntObjMgrObjectPtr(hits.m_data[0], TYPE_OBJECT, __FILE__, __LINE__);
@@ -1993,7 +1993,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 float dx = position.x - targetPosition.x;
                 float dy = position.y - targetPosition.y;
                 float dz = position.z - targetPosition.z;
-                arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -1000.0f);
+                arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -TIME_MILLISECONDS_PER_SECOND_FLOAT);
                 Spell_C_AddToInTransitList(caster, &spell, serverTime, arrival);
             }
         }
@@ -2005,7 +2005,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 float dx = position.x - point.m_worldPosition.x;
                 float dy = position.y - point.m_worldPosition.y;
                 float dz = position.z - point.m_worldPosition.z;
-                arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -1000.0f);
+                arrival = now - static_cast<int32_t>(sqrtf(dx * dx + dy * dy + dz * dz) / spell.m_speed * -TIME_MILLISECONDS_PER_SECOND_FLOAT);
                 Spell_C_AddToInTransitList(caster, &spell, serverTime, arrival);
             }
         }
@@ -7667,7 +7667,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
     float bytes;
     uint32_t latency;
     ClientServices::Connection()->GetNetStats(bytes, bytes, latency);
-    float arrival = time + latency * 0.001f * SPELL_TRAJECTORY_HALF_RTT_FACTOR + SPELL_TRAJECTORY_ARRIVAL_PADDING_SECONDS;
+    float arrival = time + latency * TIME_SECONDS_PER_MILLISECOND_FLOAT * SPELL_TRAJECTORY_HALF_RTT_FACTOR + SPELL_TRAJECTORY_ARRIVAL_PADDING_SECONDS;
     float limit = time * SPELL_TRAJECTORY_MAX_TIME_FACTOR;
 
     if (limit < arrival) {
@@ -9114,9 +9114,9 @@ void Spell_C_PlayMissileTrajectoryCastVisuals(CGUnit_C* unit, PendingSpellCast* 
     }
 
     if (spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_BOUNCY_CHAIN_MISSILES) {
-        LaunchMissileVisual(guids, misses, unit, spell, visual, 0, 0, cast ? &cast->m_data : nullptr, missReasons, reflectResults, static_cast<uint32_t>(time * 1000.0f));
+        LaunchMissileVisual(guids, misses, unit, spell, visual, 0, 0, cast ? &cast->m_data : nullptr, missReasons, reflectResults, static_cast<uint32_t>(time * TIME_MILLISECONDS_PER_SECOND_FLOAT));
     } else {
-        CreateMissilesForTargets(guids, unit, spell, visual, 0, 0, cast ? &cast->m_data : nullptr, nullptr, nullptr, static_cast<uint32_t>(time * 1000.0f));
+        CreateMissilesForTargets(guids, unit, spell, visual, 0, 0, cast ? &cast->m_data : nullptr, nullptr, nullptr, static_cast<uint32_t>(time * TIME_MILLISECONDS_PER_SECOND_FLOAT));
     }
 }
 

@@ -394,7 +394,7 @@ int32_t CMissile::ApplyMotionScriptFunctionTranslation(const SimpleScriptIO& io,
 int32_t CMissile::CallMotionScriptFunction(SimpleScriptIO& io) {
     io.m_numbers.m_count = 12;
     io.m_numbers.m_data[0] = this->m_progress;
-    io.m_numbers.m_data[1] = (double)(int32_t)(OsGetAsyncTimeMs() - this->m_fireTime) * 0.001f;
+    io.m_numbers.m_data[1] = (double)(int32_t)(OsGetAsyncTimeMs() - this->m_fireTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
     io.m_numbers.m_data[2] = this->m_missileIndex;
     io.m_numbers.m_data[3] = this->m_missileCount;
 
@@ -1249,7 +1249,7 @@ void CMissile::InitializeTrajectory() {
         }
     }
 
-    float remaining = static_cast<int32_t>(this->m_arrivalTime - OsGetAsyncTimeMs()) * 0.001f;
+    float remaining = static_cast<int32_t>(this->m_arrivalTime - OsGetAsyncTimeMs()) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
 
     if (remaining < 0.000099999997f) {
         remaining = 0.000099999997f;
@@ -1636,7 +1636,7 @@ void CMissile::HandleMissileTrajectoryCollision(const C3Vector* direction) {
 // OFFSET: 0x007015D0
 void CMissile::CalcPosition(int32_t advance) {
     uint32_t now = OsGetAsyncTimeMs();
-    float elapsed = advance ? (now - this->m_lastUpdateTime) * 0.001f : 0.0f;
+    float elapsed = advance ? (now - this->m_lastUpdateTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT : 0.0f;
     this->m_lastUpdateTime = now;
 
     if (0.0f == this->m_speed) {
@@ -1691,7 +1691,7 @@ void CMissile::CalcPosition(int32_t advance) {
         if (flags & MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_DURATION_ADJUSTED) {
             float t = this->m_adjustedDuration ? (now - this->m_adjustTime) / static_cast<float>(this->m_adjustedDuration) : 1.0f;
             arrival += (this->m_adjustedDuration - (arrival - this->m_adjustTime)) * t;
-            float targetScale = arrival == this->m_fireTime ? 1.0f : this->m_travelTime / ((arrival - this->m_fireTime) * 0.001f);
+            float targetScale = arrival == this->m_fireTime ? 1.0f : this->m_travelTime / ((arrival - this->m_fireTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT);
             timeScale = t * (targetScale - this->m_timeScale) + this->m_timeScale;
         }
 
@@ -1727,8 +1727,8 @@ void CMissile::CalcPosition(int32_t advance) {
     C3Vector previous = this->m_position;
 
     if (trajectory) {
-        float total = (arrival - this->m_fireTime) * 0.001f;
-        float left = 0.001f * (arrival - now);
+        float total = (arrival - this->m_fireTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
+        float left = TIME_SECONDS_PER_MILLISECOND_FLOAT * (arrival - now);
         float t = timeScale * (total - left);
         this->m_position.x = this->m_velocity.x * t + this->m_launchPos.x;
         this->m_position.y = this->m_velocity.y * t + this->m_launchPos.y;
@@ -2067,7 +2067,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
                 distance = this->m_initialDistance;
             }
 
-            float remainingTime = distance / this->m_speed - static_cast<int32_t>(this->m_fireTime - this->m_castTime) * 0.001f;
+            float remainingTime = distance / this->m_speed - static_cast<int32_t>(this->m_fireTime - this->m_castTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
             float speed;
 
             if (remainingTime > 0.0f) {
@@ -2082,14 +2082,14 @@ void CMissile::FireMissiles(const C3Vector* position) {
             }
 
             this->m_speed = speed;
-            this->m_duration = static_cast<uint32_t>(static_cast<int64_t>(distance / this->m_speed * 1000.0f));
+            this->m_duration = static_cast<uint32_t>(static_cast<int64_t>(distance / this->m_speed * TIME_MILLISECONDS_PER_SECOND_FLOAT));
 
             if (target && (this->m_flags & (MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK | MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT))) {
                 uint32_t animId = (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK) ? ANIM_SHIELD_BLOCK : ANIM_DODGE;
                 M2SequenceInfo info;
                 info.Clear();
                 target->m_worldModel->GetSequenceInfo(animId, 0, info);
-                int32_t delay = FloatToInt64(remainingTime * 1000.0f) - (info.m_duration >> 1);
+                int32_t delay = FloatToInt64(remainingTime * TIME_MILLISECONDS_PER_SECOND_FLOAT) - (info.m_duration >> 1);
 
                 if (delay <= 0) {
                     if (info.m_animId) {
@@ -2109,7 +2109,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
                 M2SequenceInfo info;
 
                 if (this->m_model->IsLoaded(0, 0) && this->m_model->HasSequence(ANIM_ITEM_INFLIGHT) && (info.Clear(), this->m_model->GetSequenceInfo(ANIM_ITEM_INFLIGHT, 0, info), info.m_flags & 1)) {
-                    speedScale = info.m_duration * this->m_speed * 0.001f / distance;
+                    speedScale = info.m_duration * this->m_speed * TIME_SECONDS_PER_MILLISECOND_FLOAT / distance;
                 } else {
                     speedScale = 1.0f;
                 }

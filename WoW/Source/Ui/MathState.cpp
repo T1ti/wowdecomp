@@ -1,3 +1,4 @@
+#include "Engine/Source/Os/TimeManager.h"
 #include "MathState.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
@@ -538,7 +539,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
             case MATHOP_DURATION:
             case MATHOP_DURATION_UPPER:
-                value = Spell_C_GetDuration(spell, parsePet, parseUnit, noModifiers, 1) * 0.001f;
+                value = Spell_C_GetDuration(spell, parsePet, parseUnit, noModifiers, 1) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
                 break;
 
             case MATHOP_POWER_COST:
@@ -794,17 +795,17 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
             case MATHOP_MAIN_HAND_SPEED:
             case MATHOP_MAIN_HAND_SPEED_UPPER:
-                value = static_cast<float>(player->m_unit->m_unitFieldBaseattacktime[0]) * 0.001f;
+                value = static_cast<float>(player->m_unit->m_unitFieldBaseattacktime[0]) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
                 break;
 
             case MATHOP_OFF_HAND_SPEED:
             case MATHOP_OFF_HAND_SPEED_UPPER:
-                value = static_cast<float>(player->m_unit->m_unitFieldBaseattacktime[1]) * 0.001f;
+                value = static_cast<float>(player->m_unit->m_unitFieldBaseattacktime[1]) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
                 break;
 
             case MATHOP_RANGED_SPEED:
             case MATHOP_RANGED_SPEED_UPPER:
-                value = static_cast<float>(player->m_unit->m_unitFieldRangedattacktime) * 0.001f;
+                value = static_cast<float>(player->m_unit->m_unitFieldRangedattacktime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
                 break;
 
             case MATHOP_LEVEL:

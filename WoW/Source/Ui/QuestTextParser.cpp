@@ -1,3 +1,4 @@
+#include "Engine/Source/Os/TimeManager.h"
 #include "QuestTextParser.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/Storm/H/storm.h"
@@ -1000,9 +1001,9 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
             }
 
             if (TimeFractionBelow(static_cast<float>(period), 0.01f)) {
-                SStrPrintf(number, sizeof(number), "%d", period / 1000);
+                SStrPrintf(number, sizeof(number), "%d", period / TIME_MILLISECONDS_PER_SECOND);
             } else {
-                SStrPrintf(number, sizeof(number), "%.2f", period * 0.001f);
+                SStrPrintf(number, sizeof(number), "%.2f", period * TIME_SECONDS_PER_MILLISECOND_FLOAT);
             }
 
             output = number;

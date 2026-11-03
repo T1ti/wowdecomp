@@ -1267,9 +1267,9 @@ void CGItemStatsSummary::ScanEnchantSpells(const ItemStats_C* stats) {
 void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_DPS;
     float mainAverage = (stats->m_damageMax[0] + stats->m_damageMin[0]) * 0.5f;
-    this->m_dps = mainAverage / (stats->m_delay * 0.001f) + this->m_dps;
+    this->m_dps = mainAverage / (stats->m_delay * TIME_SECONDS_PER_MILLISECOND_FLOAT) + this->m_dps;
     float offAverage = 0.5f * (stats->m_damageMax[1] + stats->m_damageMin[1]);
-    this->m_dps = offAverage / (0.001f * stats->m_delay) + this->m_dps;
+    this->m_dps = offAverage / (TIME_SECONDS_PER_MILLISECOND_FLOAT * stats->m_delay) + this->m_dps;
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player && player->m_unit->m_classID == CLASS_DRUID) {
@@ -2375,7 +2375,7 @@ int32_t TimeFractionBelow(float time, float fraction) {
     } else if (time >= 60000.0f) {
         value = time * 1.6666667e-5f;
     } else {
-        value = time * 0.001f;
+        value = time * TIME_SECONDS_PER_MILLISECOND_FLOAT;
     }
 
     float scaled = static_cast<float>(value);
@@ -2419,7 +2419,7 @@ void CGTooltip::GetDurationString(char* buffer, uint32_t size, uint64_t time, co
         }
     } else {
         if (!seconds) {
-            count = static_cast<uint32_t>(time / 1000);
+            count = static_cast<uint32_t>(time / TIME_MILLISECONDS_PER_SECOND);
         }
 
         SStrPrintf(format, sizeof(format), "%s_SEC", token);
@@ -2456,7 +2456,7 @@ void CGTooltip::GetFloatDurationString(char* buffer, uint32_t size, float time, 
         value = time * 1.6666667e-5f;
         SStrPrintf(format, sizeof(format), "%s_MIN", token);
     } else {
-        value = time * 0.001f;
+        value = time * TIME_SECONDS_PER_MILLISECOND_FLOAT;
         SStrPrintf(format, sizeof(format), "%s_SEC", token);
     }
 
@@ -2773,7 +2773,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
 
     if (time > 0) {
         FormatString(minutes ? "SPELL_CAST_TIME_MIN" : "SPELL_CAST_TIME_SEC", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
-        SStrPrintf(castTime, sizeof(castTime), format, time / (minutes ? 60000.0f : 1000.0f));
+        SStrPrintf(castTime, sizeof(castTime), format, time / (minutes ? 60000.0f : TIME_MILLISECONDS_PER_SECOND_FLOAT));
     } else if (spell->m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_IS_CHANNELLED | SPELL_ATTR1::SPELL_ATTR1_IS_SELF_CHANNELLED)) {
         FormatString("SPELL_CAST_CHANNELED", -1, GENDER_NOT_APPLICABLE, castTime, sizeof(castTime));
     } else if (time < 0) {
@@ -2793,7 +2793,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
     } else {
         int32_t recastMinutes = cooldown >= 60000;
         FormatString(recastMinutes ? "SPELL_RECAST_TIME_MIN" : "SPELL_RECAST_TIME_SEC", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
-        SStrPrintf(recastTime, sizeof(recastTime), format, cooldown / (recastMinutes ? 60000.0f : 1000.0f));
+        SStrPrintf(recastTime, sizeof(recastTime), format, cooldown / (recastMinutes ? 60000.0f : TIME_MILLISECONDS_PER_SECOND_FLOAT));
     }
 
     tooltip->AddLine(castTime, recastTime, textColor, textColor, 0);
@@ -3550,7 +3550,7 @@ int32_t GetFeralAttackPower(const ItemStats_C* stats, float damage) {
 #endif
 
     if (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && (s_inventoryTypeSlots[stats->m_inventoryType] & 0x8000)) {
-        double dps = damage / (stats->m_delay * 0.001f);
+        double dps = damage / (stats->m_delay * TIME_SECONDS_PER_MILLISECOND_FLOAT);
 
         if (dps > 54.81f) {
             return static_cast<int32_t>(floor((dps - 54.81f) * 14.0f + 0.5f));
@@ -3607,7 +3607,7 @@ void CGTooltip::GetItemDurationString(char* buffer, uint32_t size, uint64_t time
                 SStrPack(text, FrameScript_GetText("TIME_UNIT_DELIMITER", -1, GENDER_NOT_APPLICABLE), sizeof(text));
             }
 
-            SStrPrintf(part, sizeof(part), FrameScript_GetText("SECONDS_ABBR", -1, GENDER_NOT_APPLICABLE), static_cast<uint32_t>(time / 1000));
+            SStrPrintf(part, sizeof(part), FrameScript_GetText("SECONDS_ABBR", -1, GENDER_NOT_APPLICABLE), static_cast<uint32_t>(time / TIME_MILLISECONDS_PER_SECOND));
             SStrPack(text, part, sizeof(text));
         }
     }
@@ -4588,15 +4588,15 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
 
         if (stats->m_delay) {
             float delay = static_cast<float>(static_cast<int32_t>(stats->m_delay));
-            minDamage = minDamage * delay * 0.001f;
-            maxDamage = 0.001f * (delay * maxDamage);
+            minDamage = minDamage * delay * TIME_SECONDS_PER_MILLISECOND_FLOAT;
+            maxDamage = TIME_SECONDS_PER_MILLISECOND_FLOAT * (delay * maxDamage);
         }
 
         average = (minDamage + maxDamage) * 0.5f;
         SStrCopy(format, FrameScript_GetText("DAMAGE_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
         SStrPrintf(text, sizeof(text), format, static_cast<int32_t>(minDamage), static_cast<int32_t>(maxDamage));
         SStrCopy(format, FrameScript_GetText("SPEED", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-        SStrPrintf(speed, sizeof(speed), "%s %.2f", format, static_cast<double>(static_cast<float>(static_cast<int32_t>(stats->m_delay)) * 0.001f));
+        SStrPrintf(speed, sizeof(speed), "%s %.2f", format, static_cast<double>(static_cast<float>(static_cast<int32_t>(stats->m_delay)) * TIME_SECONDS_PER_MILLISECOND_FLOAT));
         tooltip->AddLine(text, speed, textColor, textColor, 0);
         first = 0;
     } else {
@@ -4643,7 +4643,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
                 speed[0] = '\0';
             } else {
                 SStrCopy(format, FrameScript_GetText("SPEED", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-                SStrPrintf(speed, sizeof(speed), "%s %.2f", format, static_cast<double>(static_cast<float>(static_cast<int32_t>(stats->m_delay)) * 0.001f));
+                SStrPrintf(speed, sizeof(speed), "%s %.2f", format, static_cast<double>(static_cast<float>(static_cast<int32_t>(stats->m_delay)) * TIME_SECONDS_PER_MILLISECOND_FLOAT));
             }
 
             tooltip->AddLine(text, speed, textColor, textColor, 0);
@@ -4654,7 +4654,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
 
     if (!first && stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON) {
         SStrCopy(format, FrameScript_GetText("DPS_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-        SStrPrintf(text, sizeof(text), format, static_cast<double>(average / (static_cast<float>(static_cast<int32_t>(stats->m_delay)) * 0.001f)));
+        SStrPrintf(text, sizeof(text), format, static_cast<double>(average / (static_cast<float>(static_cast<int32_t>(stats->m_delay)) * TIME_SECONDS_PER_MILLISECOND_FLOAT)));
         tooltip->AddLine(text, nullptr, textColor, textColor, 0);
     }
 
