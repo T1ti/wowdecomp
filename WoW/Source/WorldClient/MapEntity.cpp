@@ -69,11 +69,11 @@ void FogQueue::Erase(uint32_t index, uint32_t count) {
 
 // VERIFY: 67998dc9 manual
 // OFFSET: 0x007A0CD0
-static void LerpInteriorFog(SMOFog::Fog* dst, const SMOFog::Fog* src, float t) {
-    for (int32_t i = 0; i < 2; i++) {
-        dst[i].m_end = (src[i].m_end - dst[i].m_end) * t + dst[i].m_end;
-        dst[i].m_startScalar = t * (src[i].m_startScalar - dst[i].m_startScalar) + dst[i].m_startScalar;
-        dst[i].m_color = DayNight::InterpColor(dst[i].m_color, src[i].m_color, t);
+void SMOFog::Fogs::Blend(const Fogs& fogs, float t) {
+    for (int32_t i = 0; i < NUM_FOGS; i++) {
+        this->m_fog[i].m_end = (fogs.m_fog[i].m_end - this->m_fog[i].m_end) * t + this->m_fog[i].m_end;
+        this->m_fog[i].m_startScalar = t * (fogs.m_fog[i].m_startScalar - this->m_fog[i].m_startScalar) + this->m_fog[i].m_startScalar;
+        this->m_fog[i].m_color = DayNight::InterpColor(this->m_fog[i].m_color, fogs.m_fog[i].m_color, t);
     }
 }
 
@@ -228,7 +228,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
             float dz = groupFog.m_position.z - localPos.z;
             float fogDistance = sqrt(dx * dx + dy * dy + dz * dz);
 
-            if (fogDistance < groupFog.m_largerRadius && !(groupFog.m_flags & 1)) {
+            if (fogDistance < groupFog.m_largerRadius && !(groupFog.m_flags & SMOFog::F_IEBLEND)) {
                 s_fogQueue.Push(fogDistance, fogIndex);
             }
         }
@@ -253,7 +253,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
             weight = 1.0f;
         }
 
-        LerpInteriorFog(&fog->m_fog, &groupFog.m_fog, weight);
+        fog->m_fogs.Blend(groupFog.m_fogs, weight);
 
         if (s_fogQueue.m_count == 1) {
             fog->m_flags = groupFog.m_flags;

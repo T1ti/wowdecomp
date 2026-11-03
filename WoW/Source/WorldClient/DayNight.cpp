@@ -2191,7 +2191,7 @@ void DayNight::UpdateFog() {
         }
 
         if (apply) {
-            DayNight::ApplyFogSettings(underwater ? &fog.m_underwaterFog : &fog.m_fog);
+            DayNight::ApplyFogSettings(underwater ? &fog.m_fogs.m_fog[SMOFog::UWFOG] : &fog.m_fogs.m_fog[SMOFog::FOG]);
 
             if (underwater && liquid && (liquid->m_flags & 0x40)) {
                 info.m_fog.m_end = info.m_fogGroup.m_end;
