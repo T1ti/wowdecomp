@@ -227,7 +227,7 @@ void CMapObjDefGroup::Update(const C44Matrix& matrix) {
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
 
     for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
-        static_cast<CMapDoodadDef*>(link->m_owner)->UpdateMatrixOnly(matrix);
+        static_cast<CMapDoodadDef*>(link->m_owner)->Update(matrix);
     }
 
     for (CMapBaseObjLink* link = this->m_entityLinkList.Head(); link; link = this->m_entityLinkList.Next(link)) {

@@ -77,7 +77,7 @@ void CMapDoodadDef::UpdateBounds() {
         this->m_bbox.t = this->m_position;
     }
 
-    CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_bboxDoodadDef);
+    CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_collideExt);
 
     C3Vector center;
     center.x = (collisionBox.t.x + collisionBox.b.x) * 0.5f;
@@ -254,17 +254,17 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
 
 // VERIFY: 5cc39abd manual
 // OFFSET: 0x007C1380
-void CMapDoodadDef::UpdateMatrixOnly(const C44Matrix& matrix) {
+void CMapDoodadDef::Update(const C44Matrix& matrix) {
     if (!this->m_model) {
         return;
     }
 
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
-    this->m_position.x = this->m_identity.d0;
-    this->m_position.y = this->m_identity.d1;
-    this->m_position.z = this->m_identity.d2;
+    this->m_position.x = this->m_lMat.d0;
+    this->m_position.y = this->m_lMat.d1;
+    this->m_position.z = this->m_lMat.d2;
     this->m_position *= matrix;
-    this->m_mat = this->m_identity * matrix;
+    this->m_mat = this->m_lMat * matrix;
     CAaBox box;
     box.b = C3Vector(0.0f, 0.0f, 0.0f);
     box.t = C3Vector(0.0f, 0.0f, 0.0f);
@@ -292,7 +292,7 @@ void CMapDoodadDef::UpdateMatrixOnly(const C44Matrix& matrix) {
     this->m_sphere.c = sphere.c * this->m_mat;
     this->m_sphere.r = this->m_scale * sphere.r;
     CWorldMath::TransformAABox(this->m_mat, box, this->m_bbox);
-    CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_bboxDoodadDef);
+    CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_collideExt);
     CM2Model* model = this->m_model;
     model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     model->m_worldTransform = this->m_mat;

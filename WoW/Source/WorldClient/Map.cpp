@@ -2632,7 +2632,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
     mapDoodadDef->m_mat.RotateAroundY(rotY);
     mapDoodadDef->m_mat.RotateAroundX(rotX);
     mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
-    mapDoodadDef->m_identity = C44Matrix();
+    mapDoodadDef->m_lMat = C44Matrix();
 
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0x20);
     mapDoodadDef->m_model = model;
@@ -2669,7 +2669,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* posit
     doodadDef->m_mat.d1 = position->y;
     doodadDef->m_mat.d2 = position->z;
     doodadDef->m_mat.RotateAroundZ(facing);
-    doodadDef->m_identity = C44Matrix();
+    doodadDef->m_lMat = C44Matrix();
     doodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
     doodadDef->m_model = nullptr;
     CMapDoodadDef::CreateModel(fileName, doodadDef, waitForLoad, 0);
@@ -2710,7 +2710,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
     mapDoodadDef->m_mat.Translate(doodadDef->m_position);
     mapDoodadDef->m_mat.Rotate(doodadDef->m_orientation);
     mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
-    mapDoodadDef->m_identity = mapDoodadDef->m_mat;
+    mapDoodadDef->m_lMat = mapDoodadDef->m_mat;
     mapDoodadDef->m_mat *= *mat;
 
     CImVector limit;
@@ -4198,26 +4198,26 @@ CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
 CMapLight::CMapLight() {
     this->m_sphere.r = 0.0f;
     this->m_type |= CMapBaseObj::Type_Light;
-    this->unk_00CC = 0.0f;
-    this->m_radius = 0.0f;
-    this->unused_00D0 = 0;
-    this->unused_00C4 = 0.0f;
+    this->m_attenDenom = 0.0f;
+    this->m_attenEnd = 0.0f;
+    this->m_dynamic = 0;
+    this->m_attenStart = 0.0f;
 }
 
 // VERIFY: 0aba9189 manual
 // OFFSET: 0x007D9BD0
-CMapLight* CMap::CreateLight(uint8_t a1, uint8_t a2) {
+CMapLight* CMap::CreateLight(uint8_t dynamic, uint8_t a2) {
     CMapLight* light = CMap::AllocLight();
     light->m_flags = static_cast<MapObjFlag>(0);
     light->m_position = C3Vector(0.0f, 0.0f, 0.0f);
     light->m_sphere.r = 0.0f;
     light->m_sphere.c = C3Vector(0.0f, 0.0f, 0.0f);
     light->m_bbox.b = C3Vector(0.0f, 0.0f, 0.0f);
-    light->unk_00CC = 0.0f;
-    light->m_radius = 0.0f;
+    light->m_attenDenom = 0.0f;
+    light->m_attenEnd = 0.0f;
     light->m_bbox.t = C3Vector(0.0f, 0.0f, 0.0f);
-    light->unused_00C4 = 0.0f;
-    light->unused_00D0 = a1;
+    light->m_attenStart = 0.0f;
+    light->m_dynamic = dynamic;
     light->unk_00D1 = a2;
 
     return light;
@@ -4226,13 +4226,13 @@ CMapLight* CMap::CreateLight(uint8_t a1, uint8_t a2) {
 // VERIFY: e4a742da manual
 // OFFSET: 0x007D9C80
 void CMap::UpdateLightBounds(CMapLight* light) {
-    float radius = light->m_radius;
+    float radius = light->m_attenEnd;
 
-    if (light->unk_00CC == 0.0f) {
+    if (light->m_attenDenom == 0.0f) {
         radius = 5.0f;
     }
 
-    light->m_radius = radius;
+    light->m_attenEnd = radius;
 
     C3Vector& pos = light->m_light.m_pos;
     light->m_position = pos;
@@ -4375,7 +4375,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
             continue;
         }
 
-        CAaBox bbox = def->m_bboxDoodadDef;
+        CAaBox bbox = def->m_collideExt;
 
         if (!(def->m_flags & 0x80)) {
             def->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
@@ -5320,7 +5320,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
 
             CM2Model* model = def->m_model;
 
-            if (model && box.Intersects(def->m_bboxDoodadDef)) {
+            if (model && box.Intersects(def->m_collideExt)) {
                 model->GetCollisionFacets(box, def->m_mat, facets->facets);
                 def->m_unkCounter = CMap::s_queryTag;
             }
