@@ -109,41 +109,41 @@ void ConsoleGxOverride(const char* list) {
 
         if (override == GxOverride_PixelShader) {
             switch (overrideValue) {
-                case 0:
-                case 1:
-                case 2:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_PS_1_1:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_PS_1_2:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_PS_1_3:
                     overrideValue = 1;
                     break;
 
-                case 3:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_PS_1_4:
                     overrideValue = 2;
                     break;
 
-                case 4:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_PS_2_0:
                     overrideValue = 3;
                     break;
 
-                case 5:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_NVRC:
                     overrideValue = 7;
                     break;
 
-                case 6:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_NVTS:
                     overrideValue = 8;
                     break;
 
-                case 7:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_NVTS2:
                     overrideValue = 9;
                     break;
 
-                case 8:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_NVTS3:
                     overrideValue = 10;
                     break;
 
-                case 10:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_ARBFP1:
                     overrideValue = 12;
                     break;
 
-                case 11:
+                case CONSOLE_PIXEL_SHADER_PROFILE::CONSOLE_PROFILE_GLSL:
                     overrideValue = 13;
                     break;
 
