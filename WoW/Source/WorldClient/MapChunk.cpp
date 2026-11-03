@@ -802,7 +802,7 @@ void CMapChunk::CreateLiquids(bool a3) {
                 chunkLiquid->m_owner = this;
                 chunkLiquid->m_vertexFormat = materialRec->m_lvf;
                 chunkLiquid->m_topLeftCoords = this->m_topLeftCoords;
-                chunkLiquid->m_height = *reinterpret_cast<C2Vector*>(&mclq->m_minHeight);
+                chunkLiquid->m_height = *reinterpret_cast<C2Vector*>(&mclq->m_height);
 
                 uint8_t* verts = reinterpret_cast<uint8_t*>(mclq->m_verts);
                 chunkLiquid->m_tileBegin.x = 0;

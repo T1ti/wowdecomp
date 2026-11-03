@@ -96,12 +96,12 @@ class LiquidSoundQuery : public SpanRasterizer {
     /* 0010 */ C3Vector m_position;
     /* 001C */ int32_t m_liquidType;
     /* 0020 */ const SMOLTile* m_tiles;
-    /* 0024 */ const SMOLiquidVert* m_verts;
+    /* 0024 */ const SMOLVert* m_verts;
     /* 0028 */ TSGrowableArray<World::LiquidQueryResult>* m_results;
     /* 002C */ float m_radiusSq;
     /* 0030 */ uint8_t m_found;
 
-    LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLiquidVert* verts, TSGrowableArray<World::LiquidQueryResult>* results);
+    LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLVert* verts, TSGrowableArray<World::LiquidQueryResult>* results);
     void VisitSpan(int32_t x0, int32_t x1, int32_t y) override;
 };
 
@@ -239,7 +239,7 @@ void SpanRasterizer::AddRing(int32_t x, int32_t y, int32_t radius) {
 
 // VERIFY: fc3235a2 auto
 // OFFSET: 0x0079B700
-LiquidSoundQuery::LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLiquidVert* verts, TSGrowableArray<World::LiquidQueryResult>* results) : SpanRasterizer(size, spans) {
+LiquidSoundQuery::LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLVert* verts, TSGrowableArray<World::LiquidQueryResult>* results) : SpanRasterizer(size, spans) {
     this->m_position = position;
     this->m_liquidType = liquidType;
     this->m_results = results;
@@ -279,7 +279,7 @@ void CMapObjGroup::QueryLiquidSounds(const C3Vector& pos, TSGrowableArray<World:
 // OFFSET: 0x0079C1A0
 void LiquidSoundQuery::VisitSpan(int32_t x0, int32_t x1, int32_t y) {
     const SMOLTile* tile = &this->m_tiles[x0 + y * this->m_width];
-    const SMOLiquidVert* vert = &this->m_verts[x0 + y * (this->m_width + 1)];
+    const SMOLVert* vert = &this->m_verts[x0 + y * (this->m_width + 1)];
 
     for (int32_t x = x0; x <= x1; x++, tile++, vert++) {
         if ((tile->m_flags & 0xF) == 0xF) {
@@ -1249,7 +1249,7 @@ bool CMapObjGroup::QueryLiquid(const C3Vector& pos, int32_t* liquidType, float* 
     int32_t v1 = this->m_liquidVerts.x + v0;
     float offset = (g_liquidTypeDB.GetRecord(type)->m_flags & 0x4) ? 0.0099999998f : 0.0f;
 
-    const SMOLiquidVert* verts = this->m_liquidVertexList;
+    const SMOLVert* verts = this->m_liquidVertexList;
     float h0 = verts[v0].m_waterVert.m_height;
     float top = h0 + (verts[v0 + 1].m_waterVert.m_height - h0) * dx;
     float h2 = verts[v1].m_waterVert.m_height;
@@ -1295,7 +1295,7 @@ void CMapObjGroup::GenLiquidVerts() {
     float x = this->m_liquidCorner.x;
     float y = this->m_liquidCorner.y;
     C3Vector* out = this->m_liquidVertArray->m_verts.m_data;
-    const SMOLiquidVert* vert = this->m_liquidVertexList;
+    const SMOLVert* vert = this->m_liquidVertexList;
 
     this->m_liquidHeight = vert->m_waterVert.m_height;
     this->m_liquidMaxHeight = vert->m_waterVert.m_height;

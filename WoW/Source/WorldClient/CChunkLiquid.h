@@ -25,6 +25,8 @@ namespace World { class TriData; }
 class CiRect;
 class CFrustum;
 
+// Runtime terrain-liquid instance in 3.3.5. The 0.5.3 CChunkLiquid embedded
+// the legacy payload now described by SMLiquidChunk; its runtime layout differs.
 class CChunkLiquid {
     public:
     static Liquid::CWaveManager* s_waveManager;

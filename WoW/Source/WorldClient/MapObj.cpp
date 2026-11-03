@@ -168,7 +168,7 @@ CMapObj::LIGHTING_MODE CMapObj::s_lightingMode;
 static uint32_t s_smolVertCacheSize;
 
 // STATIC: 0x00D1BF00
-static SMOLiquidVert s_smolVertCache[64];
+static SMOLVert s_smolVertCache[64];
 
 // VERIFY: 7a37847b auto
 // OFFSET: 0x007A6140
@@ -393,7 +393,7 @@ bool CMapObj::CullBatch(SMOBatch* batch) {
 
 // VERIFY: bd88db75 auto
 // OFFSET: 0x007A7B00
-static void __stdcall WriteLiquidVertex(CMapObjGroup* group, const C44Matrix& matrix, const C3Vector& vertex, const SMOLiquidVert* liquidVert, const CImVector* color, int32_t magma, float texCoord1U, int32_t* unused, uint32_t stride, C3Vector** position, C3Vector** normal, CImVector** vertexColor, C2Vector** texCoord0, C2Vector** texCoord1) {
+static void __stdcall WriteLiquidVertex(CMapObjGroup* group, const C44Matrix& matrix, const C3Vector& vertex, const SMOLVert* liquidVert, const CImVector* color, int32_t magma, float texCoord1U, int32_t* unused, uint32_t stride, C3Vector** position, C3Vector** normal, CImVector** vertexColor, C2Vector** texCoord0, C2Vector** texCoord1) {
     DepthCoordTable* depthTable = CMap::GetDepthCoordTable(group->m_liquidType);
 
     if (*position) {
@@ -503,7 +503,7 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
             C3Vector points[4];
 
             for (uint32_t i = 0; i < 4; i++) {
-                SMOLiquidVert* liquidVert = &group->m_liquidVertexList[corners[i]];
+                SMOLVert* liquidVert = &group->m_liquidVertexList[corners[i]];
                 points[i].x = (x + offsets[i][0]) * SMOLTILE_SIZE + group->m_liquidCorner.x;
                 points[i].y = SMOLTILE_SIZE * (y + offsets[i][1]) + group->m_liquidCorner.y;
                 points[i].z = liquidVert->m_waterVert.m_height;
@@ -536,7 +536,7 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
                 }
 
                 int32_t unused;
-                WriteLiquidVertex(group, matrix, vertex, static_cast<const SMOLiquidVert*>(data), color, magma, texCoord1U, &unused, stride, position, normal, vertexColor, texCoord0, texCoord1);
+                WriteLiquidVertex(group, matrix, vertex, static_cast<const SMOLVert*>(data), color, magma, texCoord1U, &unused, stride, position, normal, vertexColor, texCoord0, texCoord1);
                 vertexCount++;
                 *(*indices)++ = nextIndex;
                 nextIndex++;
@@ -2509,7 +2509,7 @@ uint16_t CMapObj::BuildLiquidVerts(CMapObjGroup* group, const C44Matrix& matrix,
             uint32_t sharedCol = 0;
 
             for (int32_t col = 0; col < group->m_liquidVerts.x; col++) {
-                const SMOLiquidVert* liquidVert = &group->m_liquidVertexList[group->m_liquidVerts.x * row + col];
+                const SMOLVert* liquidVert = &group->m_liquidVertexList[group->m_liquidVerts.x * row + col];
 
                 C3Vector vertex;
                 vertex.x = x;

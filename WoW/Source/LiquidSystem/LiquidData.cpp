@@ -1,4 +1,5 @@
 #include "Liquid.h"
+#include "WoW/Source/WorldClient/MapChunk.h"
 
 // STATIC: 0x00A59484
 uint8_t Liquid::CAreaData::s_emptyTable[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -131,7 +132,7 @@ float Liquid::CChunkVertexData::GetHeight(uint32_t index) {
         return 0.0f;
     }
 
-    return *reinterpret_cast<const float*>(this->m_data + 8 * index + 4);
+    return reinterpret_cast<const SLVert*>(this->m_data + 8 * index)->m_waterVert.m_height;
 }
 
 // VERIFY: 0121d633 manual
@@ -140,7 +141,7 @@ uint8_t Liquid::CChunkVertexData::GetDepth(uint32_t index) {
     uint32_t format = this->m_format;
 
     if (format == 0 || format == 2) {
-        return this->m_data[8 * index];
+        return reinterpret_cast<const SLVert*>(this->m_data + 8 * index)->m_waterVert.m_depth;
     }
 
     return 0;
@@ -150,7 +151,7 @@ uint8_t Liquid::CChunkVertexData::GetDepth(uint32_t index) {
 // OFFSET: 0x008A3250
 const uint16_t* Liquid::CChunkVertexData::GetTexCoord(uint32_t index) {
     if (this->m_format == 1) {
-        return reinterpret_cast<const uint16_t*>(this->m_data + 8 * index);
+        return &reinterpret_cast<const SLVert*>(this->m_data + 8 * index)->m_magmaVert.m_s;
     }
 
     return Liquid::CAreaData::s_defaultTexCoord;

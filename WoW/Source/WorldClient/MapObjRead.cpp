@@ -335,7 +335,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
 
         uint16_t materialId = *reinterpret_cast<uint16_t*>(&header[7]);
         uint8_t* data = reinterpret_cast<uint8_t*>(&header[7]) + 2;
-        this->m_liquidVertexList = reinterpret_cast<SMOLiquidVert*>(data);
+        this->m_liquidVertexList = reinterpret_cast<SMOLVert*>(data);
         data += 8 * this->m_liquidVerts.x * this->m_liquidVerts.y;
         this->m_liquidTileList = reinterpret_cast<SMOLTile*>(data);
         data += this->m_liquidTiles.x * this->m_liquidTiles.y;

@@ -33,7 +33,7 @@ class CMapObjDef;
 class CMapObjGroup;
 struct SMOBatch;
 struct SMOLTile;
-union SMOLiquidVert;
+struct SMOLVert;
 struct SMOMaterial;
 struct SMOPoly;
 class VBBList;
@@ -192,7 +192,7 @@ class CMapObjGroup {
     /* 0124 */ C3Vector m_liquidCorner;
     /* 0130 */ uint16_t m_liquidMaterialId;
     /* 0132 */ uint8_t unused_0132[2];
-    /* 0134 */ SMOLiquidVert* m_liquidVertexList;
+    /* 0134 */ SMOLVert* m_liquidVertexList;
     /* 0138 */ SMOLTile* m_liquidTileList;
     /* 013C */ float m_liquidHeight;
     /* 0140 */ float m_liquidMaxHeight;
@@ -307,9 +307,12 @@ struct SMOWVert {
     /* 0004 */ float m_height;
 };
 
-union SMOLiquidVert {
-    /* 0000 */ SMOWVert m_waterVert;
-    /* 0000 */ SMOMVert m_magmaVert;
+// 0.5.3 symbol name; the two eight-byte views also match the 3.3.5 WMO reader.
+struct SMOLVert {
+    union {
+        /* 0000 */ SMOWVert m_waterVert;
+        /* 0000 */ SMOMVert m_magmaVert;
+    };
 };
 
 class VBBList_Block {
