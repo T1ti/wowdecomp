@@ -284,7 +284,7 @@ void CMapChunk::Destroy() {
 // OFFSET: 0x007C3B40
 void CMapChunk::AllocRenderChunkAndBatch() {
     this->m_renderChunk = CMap::AllocRenderChunk();
-    this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, 0);
+    this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, CMapRenderChunk::BATCH_FLAGS::BATCH_NONE);
 }
 
 // VERIFY: b0c09ba2 manual
@@ -706,7 +706,7 @@ void CMapChunk::Batch() {
         area->BatchChunks(pos);
     } else {
         this->m_renderChunk = CMap::AllocRenderChunk();
-        this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, 0);
+        this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, CMapRenderChunk::BATCH_FLAGS::BATCH_NONE);
         this->m_bLoaded = 1;
     }
 }

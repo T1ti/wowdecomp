@@ -72,6 +72,14 @@ class CMapRenderChunk {
         FLAG_TEXTURE_UPDATE_REQUESTS = 0x30,
     };
 
+    enum BATCH_FLAGS : int32_t {
+        BATCH_NONE = 0,
+        BATCH_PAIR_VERTICAL = 0x1,
+        BATCH_PAIR_HORIZONTAL = 0x2,
+        BATCH_PAIR_MASK = 0x3,
+        BATCH_LAYER_TEXTURES_LOADED = 0x8,
+    };
+
     struct SLayerAlpha;
     struct SVertexShaderConstants;
     typedef void (*RenderLayersFunc)(CMapRenderChunk* renderChunk);

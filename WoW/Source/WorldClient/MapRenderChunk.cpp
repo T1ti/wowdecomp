@@ -283,7 +283,7 @@ void CMapRenderChunk::UpdateLoaded() {
         }
     }
 
-    this->m_unkFlags |= 0x8;
+    this->m_unkFlags |= BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED;
 }
 
 // VERIFY: ef5458ef auto
@@ -378,7 +378,7 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
 // VERIFY: 6c5dc3eb manual
 // OFFSET: 0x007B9340
 CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderChunk) {
-    if (flags & 0x3) {
+    if (flags & BATCH_FLAGS::BATCH_PAIR_MASK) {
         CMapChunkBufBlock* block = CMapRenderChunk::s_chunkBufBlockFreeList.Head();
 
         if (!block) {
@@ -494,7 +494,7 @@ CMapRenderChunk::CMapRenderChunk() {
     this->m_batch.m_minIndex = 0;
     this->m_batch.m_maxIndex = 0;
     this->m_lastUpdateTime = 0.0f;
-    this->m_unkFlags = 0;
+    this->m_unkFlags = BATCH_FLAGS::BATCH_NONE;
     this->m_mapChunks[0] = nullptr;
     this->m_mapChunks[1] = nullptr;
     this->m_layersCount = 0;
@@ -547,7 +547,7 @@ void CMapRenderChunk::FreeBuf() {
         return;
     }
 
-    if (chunkBuf->m_unkFlags & 0x3) {
+    if (chunkBuf->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
         CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(chunkBuf->m_block);
     } else {
         CMapRenderChunk::s_renderChunkBufFreeList.LinkToHead(this->m_chunkBuf);
@@ -632,7 +632,7 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
         if (this->m_mapChunks[1]) {
             offset.z = this->m_mapChunks[1]->m_topLeftCoords.z - this->m_mapChunks[0]->m_topLeftCoords.z;
 
-            if (this->m_unkFlags & 0x2) {
+            if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
                 offset.y = -33.333332f;
             } else {
                 offset.x = -33.333332f;
@@ -674,7 +674,7 @@ void CMapRenderChunk::UseStreamingBufs() {
     uint32_t vertexCount = s_streamVertexCount;
     uint32_t indexCount = s_streamIndexCount;
 
-    if (this->m_unkFlags & 0x3) {
+    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
         vertexCount *= 2;
         indexCount *= 2;
     }
@@ -772,7 +772,7 @@ void CMapRenderChunk::RenderSolidVertexPixelShader() {
 // OFFSET: 0x007D3F70
 void CMapRenderChunk::RenderPrep() {
     if (!this->m_chunkBuf) {
-        this->m_chunkBuf = CMapRenderChunk::AllocBuf(this->m_unkFlags & 0x3, this);
+        this->m_chunkBuf = CMapRenderChunk::AllocBuf(this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK, this);
     }
 
     if (this->m_chunkBuf) {
@@ -784,7 +784,7 @@ void CMapRenderChunk::RenderPrep() {
         this->CreateLayers();
     }
 
-    if (!(this->m_unkFlags & 0x8)) {
+    if (!(this->m_unkFlags & BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED)) {
         this->UpdateLoaded();
     }
 }
@@ -1692,7 +1692,7 @@ void CMapRenderChunk::CreateShaderTexture() {
     int32_t size = 64 >> area->m_header->m_mampValue;
     int32_t pitch = size;
 
-    if (this->m_unkFlags & 0x2) {
+    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         pitch = size * 2;
     }
 
@@ -1747,13 +1747,13 @@ void CMapRenderChunk::CreateShaderTexture() {
 
     int32_t offset = 0;
 
-    if (this->m_unkFlags & 0x1) {
+    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         offset = size * size;
 
         if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
             offset >>= 2;
         }
-    } else if (this->m_unkFlags & 0x2) {
+    } else if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         offset = size;
 
         if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
@@ -1901,9 +1901,9 @@ void CMapRenderChunk::AllocShaderTexture() {
         height = width;
     }
 
-    if (this->m_unkFlags & 0x1) {
+    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         height *= 2;
-    } else if (this->m_unkFlags & 0x2) {
+    } else if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         width *= 2;
     }
 
@@ -2094,9 +2094,9 @@ void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t laye
     alphaScale.z = 0.0f;
     alphaScale.w = 0.0f;
 
-    if (renderChunk->m_unkFlags & 0x1) {
+    if (renderChunk->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         alphaScale.x = CMapChunk::s_geoToTex * -0.0625f;
-    } else if (renderChunk->m_unkFlags & 0x2) {
+    } else if (renderChunk->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         alphaScale.y = CMapChunk::s_geoToTex * -0.0625f;
     }
 

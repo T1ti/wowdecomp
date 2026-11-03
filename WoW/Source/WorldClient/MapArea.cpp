@@ -120,14 +120,14 @@ void CMapArea::BatchChunks(const C2iVector& pos) {
         int32_t secondStart = 1;
         int32_t firstMerge = mergeTop;
         int32_t secondMerge = mergeBottom;
-        uint8_t orientation = 2;
+        uint8_t orientation = CMapRenderChunk::BATCH_FLAGS::BATCH_PAIR_HORIZONTAL;
 
         if (vertical > horizontal) {
             firstMerge = mergeLeft;
             firstPartner = 1;
             secondStart = 2;
             secondMerge = mergeRight;
-            orientation = 1;
+            orientation = CMapRenderChunk::BATCH_FLAGS::BATCH_PAIR_VERTICAL;
         }
 
         if (firstMerge) {
