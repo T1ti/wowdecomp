@@ -3926,14 +3926,14 @@ void CGxDeviceOpenGl::IXformSetProjection(const C44Matrix& matrix) {
     }
 
     if (this->m_textureTarget[GxBuffers_Color].m_apiSpecific || this->m_textureTarget[GxBuffers_Depth].m_apiSpecific) {
-        if (!g_theGxDevicePtr->Caps().unk_00B0) {
+        if (!g_theGxDevicePtr->Caps().m_rttOriginUpperLeft) {
             projection.a1 = projection.a1 * -1.0f;
             projection.b1 = projection.b1 * -1.0f;
             projection.c1 = projection.c1 * -1.0f;
             projection.d1 = -1.0f * projection.d1;
             this->DsSet(Ds_CullFace, GL_FRONT, 0);
         }
-    } else if (!g_theGxDevicePtr->Caps().unk_00B0) {
+    } else if (!g_theGxDevicePtr->Caps().m_rttOriginUpperLeft) {
         this->DsSet(Ds_CullFace, GL_BACK, 0);
     }
 

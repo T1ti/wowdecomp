@@ -234,7 +234,7 @@ class CGxCaps {
     /* 0068 */ uint32_t m_texNonPow2;
     /* 006C */ uint32_t m_texMaxSize [4];
     /* 007C */ int32_t m_rttFormat [13];
-    /* 00B0 */ uint32_t unk_00B0;
+    /* 00B0 */ uint32_t m_rttOriginUpperLeft;
     /* 00B4 */ int32_t m_shaderTargets [6];
     /* 00CC */ uint32_t m_shaderConstants [6];
     /* 00E4 */ int32_t m_texFilterTrilinear;
