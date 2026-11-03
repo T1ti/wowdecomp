@@ -144,11 +144,11 @@ void CGInstanceEncounter_C::DisengageUnit(const WOWGUID& guid) {
 // VERIFY: aa66d396 manual
 // OFFSET: 0x005ED930
 static void OnUnitMessage(int32_t type, WOWGUID guid, uint8_t priority) {
-    if (type == 0) {
+    if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ENGAGE_UNIT) {
         CGInstanceEncounter_C::EngageUnit(guid, priority);
-    } else if (type == 1) {
+    } else if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_DISENGAGE_UNIT) {
         CGInstanceEncounter_C::DisengageUnit(guid);
-    } else if (type == 2) {
+    } else if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_UNIT_PRIORITY) {
         ENCOUNTER_UNIT* unit = FindUnit(guid);
 
         if (unit) {
@@ -237,11 +237,11 @@ void CGInstanceEncounter_C::DisableObjective(int32_t id) {
 // VERIFY: a2968217 manual
 // OFFSET: 0x005EDD90
 static void OnObjectiveMessage(int32_t type, uint8_t value) {
-    if (type == 3) {
+    if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ADD_TIMER) {
         CGInstanceEncounter_C::AddTimer(value);
-    } else if (type == 4) {
+    } else if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ENABLE_OBJECTIVE) {
         CGInstanceEncounter_C::EnableObjective(value);
-    } else if (type == 6) {
+    } else if (type == CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_DISABLE_OBJECTIVE) {
         CGInstanceEncounter_C::DisableObjective(value);
     }
 }
@@ -256,28 +256,28 @@ int32_t Packet_SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT(void* param, NETMESSAGE msgId
     msg->Get(type);
 
     switch (type) {
-        case 0:
-        case 1:
-        case 2:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ENGAGE_UNIT:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_DISENGAGE_UNIT:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_UNIT_PRIORITY:
             *msg >> guid;
             msg->Get(value);
             OnUnitMessage(type, guid, value);
             break;
 
-        case 3:
-        case 4:
-        case 6:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ADD_TIMER:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_ENABLE_OBJECTIVE:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_DISABLE_OBJECTIVE:
             msg->Get(value);
             OnObjectiveMessage(type, value);
             break;
 
-        case 5:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_OBJECTIVE_PROGRESS:
             msg->Get(value);
             msg->Get(delta);
             UpdateObjective(value, delta);
             break;
 
-        case 7:
+        case CGInstanceEncounter_C::UPDATE_TYPE::UPDATE_REFRESH_UNITS:
             SortUnits();
             FrameScript_SignalEvent(SCRIPT_EVENT_INSTANCE_ENCOUNTER_ENGAGE_UNIT, nullptr);
             break;
