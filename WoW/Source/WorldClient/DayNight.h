@@ -288,7 +288,7 @@ struct SMOFog {
     // 0.5.3 symbol names; the two-entry layout and blend flag match 3.3.5.
     enum EFogs : int32_t {
         FOG = 0,
-        UWFOG = 1,
+        UWFOG = 1, // underwater fog
         NUM_FOGS = 2,
     };
 
