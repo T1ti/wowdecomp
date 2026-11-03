@@ -8,6 +8,7 @@
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2Vector.h"
+#include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
@@ -37,7 +38,7 @@ class CChunkLiquid {
     /* 0008 */ int32_t m_vertexFormat;
     /* 000C */ C3Vector m_topLeftCoords;
     /* 0018 */ CAaSphere m_sphere;
-    /* 0028 */ C2Vector m_height;
+    /* 0028 */ CRange m_height{}; // Preserve the native constructor's zeroed endpoints.
     /* 0030 */ float m_resPurgeTimer;
     /* 0034 */ C2iVector m_tileBegin;
     /* 003C */ C2iVector m_tileEnd;

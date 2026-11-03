@@ -736,12 +736,12 @@ void CMapChunk::GetLiquidBounds(CAaBox& box) const {
     CChunkLiquid* liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Head();
 
     if (liquid) {
-        box.t.z = liquid->m_height.y;
-        box.b.z = liquid->m_height.x;
+        box.t.z = liquid->m_height.m_h;
+        box.b.z = liquid->m_height.m_l;
 
         do {
-            box.t.z = liquid->m_height.y >= box.t.z ? liquid->m_height.y : box.t.z;
-            box.b.z = liquid->m_height.x <= box.b.z ? liquid->m_height.x : box.b.z;
+            box.t.z = liquid->m_height.m_h >= box.t.z ? liquid->m_height.m_h : box.t.z;
+            box.b.z = liquid->m_height.m_l <= box.b.z ? liquid->m_height.m_l : box.b.z;
             liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Next(liquid);
         } while (liquid);
     }
@@ -802,7 +802,7 @@ void CMapChunk::CreateLiquids(bool a3) {
                 chunkLiquid->m_owner = this;
                 chunkLiquid->m_vertexFormat = materialRec->m_lvf;
                 chunkLiquid->m_topLeftCoords = this->m_topLeftCoords;
-                chunkLiquid->m_height = *reinterpret_cast<C2Vector*>(&mclq->m_height);
+                chunkLiquid->m_height = mclq->m_height;
 
                 uint8_t* verts = reinterpret_cast<uint8_t*>(mclq->m_verts);
                 chunkLiquid->m_tileBegin.x = 0;
@@ -839,7 +839,7 @@ void CMapChunk::CreateLiquids(bool a3) {
             chunkLiquid->m_type = instance->m_liquidType;
             chunkLiquid->m_vertexFormat = instance->m_vertexFormat;
             chunkLiquid->m_topLeftCoords = this->m_topLeftCoords;
-            chunkLiquid->m_height = *reinterpret_cast<const C2Vector*>(&instance->m_minHeight);
+            chunkLiquid->m_height = instance->m_heightRange;
 
             uint8_t yOffset = instance->m_yOffset;
             uint8_t xOffset = instance->m_xOffset;
@@ -881,7 +881,7 @@ void CMapChunk::CullAndBucketChunk() {
         liquid->GetAaBox(box);
 
         if (!CWorldScene::FrustumCull(&box)) {
-            corner.z = (camZ <= liquid->m_height.y ? camZ : liquid->m_height.y) < liquid->m_height.x ? liquid->m_height.x : (camZ > liquid->m_height.y ? liquid->m_height.y : camZ);
+            corner.z = (camZ <= liquid->m_height.m_h ? camZ : liquid->m_height.m_h) < liquid->m_height.m_l ? liquid->m_height.m_l : (camZ > liquid->m_height.m_h ? liquid->m_height.m_h : camZ);
             CWorldScene::AddToDistanceBucket(liquid, corner);
         }
     }

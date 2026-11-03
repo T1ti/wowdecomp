@@ -60,8 +60,8 @@ void CChunkLiquid::UpdateResourcePurging() {
 // OFFSET: 0x007CDE80
 void CChunkLiquid::GetAaBox(CAaBox& box) const {
     box = this->m_owner->m_bbox;
-    box.b.z = this->m_height.x;
-    box.t.z = this->m_height.y;
+    box.b.z = this->m_height.m_l;
+    box.t.z = this->m_height.m_h;
 }
 
 // VERIFY: ab9c5bab auto
@@ -272,9 +272,9 @@ void CChunkLiquid::BuildVertices(const C44Matrix* transform, uint32_t stride, C3
 CAaSphere* CChunkLiquid::GetSphere() {
     if (this->m_sphere.r < 0.0f) {
         CAaBox& bbox = this->m_owner->m_bbox;
-        float top = this->m_height.y;
+        float top = this->m_height.m_h;
 
-        this->m_sphere.c = C3Vector((bbox.b.x + bbox.t.x) * 0.5f, (bbox.b.y + bbox.t.y) * 0.5f, 0.5f * (this->m_height.x + top));
+        this->m_sphere.c = C3Vector((bbox.b.x + bbox.t.x) * 0.5f, (bbox.b.y + bbox.t.y) * 0.5f, 0.5f * (this->m_height.m_l + top));
 
         float dy = bbox.t.y - this->m_sphere.c.y;
         float dx = bbox.t.x - this->m_sphere.c.x;
@@ -466,7 +466,7 @@ void CChunkLiquid::Batch() {
         maxXY.x = maxXY.x + liquid->m_tileEnd.y * SMOLTILE_SIZE;
         maxXY.y = maxXY.y + SMOLTILE_SIZE * liquid->m_tileEnd.x;
 
-        CAaBox box(C3Vector(minXY.x, minXY.y, liquid->m_height.x), C3Vector(maxXY.x, maxXY.y, liquid->m_height.y));
+        CAaBox box(C3Vector(minXY.x, minXY.y, liquid->m_height.m_l), C3Vector(maxXY.x, maxXY.y, liquid->m_height.m_h));
 
         if (i) {
             bounds.t.z = bounds.t.z > box.t.z ? bounds.t.z : box.t.z;

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Tempest/CRange.h"
 
 struct SMLiquidChunkDesc {
     /* 0000 */ uint32_t m_offsetInstances;
@@ -13,8 +14,7 @@ struct SMLiquidChunkDesc {
 struct SMLiquidInstance {
     /* 0000 */ uint16_t m_liquidType;
     /* 0002 */ uint16_t m_vertexFormat;
-    /* 0004 */ float m_minHeight;
-    /* 0008 */ float m_maxHeight;
+    /* 0004 */ CRange m_heightRange;
     /* 000C */ uint8_t m_xOffset;
     /* 000D */ uint8_t m_yOffset;
     /* 000E */ uint8_t m_width;
