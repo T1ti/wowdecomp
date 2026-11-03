@@ -297,7 +297,7 @@ static TSGrowableArray<FrameStackInfo> s_frameStack;
 void CGItemStatsSummary::Create() {
     memset(this->m_stats, 0, sizeof(this->m_stats));
     this->m_dps = 0.0f;
-    this->m_flags = 0;
+    this->m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
 }
 
 // VERIFY: 7ea645b6 manual
@@ -379,7 +379,7 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
 // VERIFY: 8aff4a3b auto
 // OFFSET: 0x0061B8E0
 void CGItemStatsSummary::AddResistances(const ItemStats_C* stats) {
-    this->m_flags |= 0x8;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_RESISTANCES;
 
     for (uint32_t i = 0; i < 7; i++) {
         this->m_stats[i] += stats->m_resistances[i];
@@ -389,7 +389,7 @@ void CGItemStatsSummary::AddResistances(const ItemStats_C* stats) {
 // VERIFY: 1662301b manual
 // OFFSET: 0x0061B930
 void CGItemStatsSummary::GetSocketFlags(const ItemStats_C* stats) {
-    this->m_flags |= 0x10;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_SOCKETS;
 
     for (uint32_t i = 0; i < 3; i++) {
         uint32_t color = stats->m_socketColor[i];
@@ -415,7 +415,7 @@ void CGItemStatsSummary::GetSocketFlags(const ItemStats_C* stats) {
 // VERIFY: 59d9b28c manual
 // OFFSET: 0x0061B990
 void CGItemStatsSummary::AddStatMods(const ItemStats_C* stats) {
-    this->m_flags |= 0x20;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_STAT_MODS;
 
     for (int32_t i = 0; i < stats->m_statsCount; i++) {
         uint32_t type = stats->m_statType[i];
@@ -1247,7 +1247,7 @@ void CGItemStatsSummary::AddEnchantEffect(int32_t type, int32_t arg, int32_t amo
 // VERIFY: a73b50c1 auto
 // OFFSET: 0x0061F350
 void CGItemStatsSummary::ScanEnchantSpells(const ItemStats_C* stats) {
-    this->m_flags |= 0x1;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_ITEM_SPELLS;
 
     for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         if (static_cast<int32_t>(stats->m_spellId[i]) <= 0) {
@@ -1265,7 +1265,7 @@ void CGItemStatsSummary::ScanEnchantSpells(const ItemStats_C* stats) {
 // VERIFY: 6294a102 manual
 // OFFSET: 0x0061F410
 void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
-    this->m_flags |= 0x4;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_DPS;
     float mainAverage = (stats->m_damageMax[0] + stats->m_damageMin[0]) * 0.5f;
     this->m_dps = mainAverage / (stats->m_delay * 0.001f) + this->m_dps;
     float offAverage = 0.5f * (stats->m_damageMax[1] + stats->m_damageMin[1]);
@@ -1282,14 +1282,14 @@ void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
 void CGItemStatsSummary::AccumulateStats(const ItemStats_C* stats) {
     this->AddStatMods(stats);
     this->ScanEnchantSpells(stats);
-    this->m_flags |= 0x8;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_RESISTANCES;
 
     for (uint32_t i = 0; i < 7; i++) {
         this->m_stats[i] += stats->m_resistances[i];
     }
 
     this->GetSocketFlags(stats);
-    this->m_flags |= 0x40;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_BLOCK;
     this->m_stats[60] += stats->m_block;
     this->AccumulateDpsStat(stats);
 }
@@ -1297,7 +1297,7 @@ void CGItemStatsSummary::AccumulateStats(const ItemStats_C* stats) {
 // VERIFY: b9de4bb7 manual
 // OFFSET: 0x0061F550
 void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t level) {
-    this->m_flags |= 0x80;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_SCALING_ITEM;
 
     if (!level) {
         level = CGTooltip::GetDisplayedScalingItemLevel(stats, nullptr, WOWGUID(), 0);
@@ -1382,7 +1382,7 @@ void CGItemStatsSummary::AddEnchantment(const SpellItemEnchantmentRec* enchant, 
 // VERIFY: b5f42f92 manual
 // OFFSET: 0x0061FA20
 void CGItemStatsSummary::FillOutRandomProperties(int32_t randomPropertiesId, uint32_t seed) {
-    this->m_flags |= 0x2;
+    this->m_flags |= SUMMARY_FLAGS::SUMMARY_RANDOM_PROPERTIES;
 
     if (randomPropertiesId > 0) {
         ItemRandomPropertiesRec* properties = g_itemRandomPropertiesDB.GetRecord(randomPropertiesId);
@@ -1622,7 +1622,7 @@ int32_t CGItemStatsSummary::Create(CGItem_C* item, int32_t level) {
 int32_t CGItemStatsSummary::Fill(const char* link) {
     memset(this->m_stats, 0, sizeof(this->m_stats));
     this->m_dps = 0.0f;
-    this->m_flags = 0;
+    this->m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
     int32_t randomPropertiesId = 0;
     uint32_t seed = 0;
     int32_t level = 0;
@@ -7066,7 +7066,7 @@ CGItemStatsSummary CGItemStatsSummary::operator-(const CGItemStatsSummary& other
     CGItemStatsSummary result;
     memset(result.m_stats, 0, sizeof(result.m_stats));
     result.m_dps = 0.0f;
-    result.m_flags = 0;
+    result.m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
 
     for (uint32_t i = 0; i < 73; i++) {
         result.m_stats[i] = this->m_stats[i] - other.m_stats[i];

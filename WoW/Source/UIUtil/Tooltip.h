@@ -245,6 +245,18 @@ class CGTooltip : public CSimpleFrame {
 
 class CGItemStatsSummary {
     public:
+    enum SUMMARY_FLAGS : uint32_t {
+        SUMMARY_NONE = 0,
+        SUMMARY_ITEM_SPELLS = 0x1,
+        SUMMARY_RANDOM_PROPERTIES = 0x2,
+        SUMMARY_DPS = 0x4,
+        SUMMARY_RESISTANCES = 0x8,
+        SUMMARY_SOCKETS = 0x10,
+        SUMMARY_STAT_MODS = 0x20,
+        SUMMARY_BLOCK = 0x40,
+        SUMMARY_SCALING_ITEM = 0x80,
+    };
+
     static int32_t GetItemComparison(CGTooltip* first, CGTooltip* second, CGItemStatsSummary* result);
 
     /* 0000 */ float m_dps;
