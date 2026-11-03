@@ -313,7 +313,7 @@ struct SMOHeader {
     /* 0010 */ uint32_t m_nDoodadNames;
     /* 0014 */ uint32_t m_nDoodadDefs;
     /* 0018 */ uint32_t m_nDoodadSets;
-    /* 001C */ uint32_t m_ambColor;
+    /* 001C */ CImVector m_ambColor;
     /* 0020 */ uint32_t m_wmoID;
     /* 0024 */ CAaBox m_boundingBox;
     /* 003C */ uint16_t m_flags;

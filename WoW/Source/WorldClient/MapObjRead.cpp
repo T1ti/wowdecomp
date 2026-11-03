@@ -418,7 +418,7 @@ void CMapObj::PostloadCallback(void* arg) {
     mapObj->m_asyncLoadLink.Unlink();
     mapObj->Load();
     mapObj->CreateMaterials();
-    mapObj->m_argbColor = *reinterpret_cast<CImVector*>(&mapObj->m_header->m_ambColor);
+    mapObj->m_argbColor = mapObj->m_header->m_ambColor;
     mapObj->m_bbox = mapObj->m_header->m_boundingBox;
     mapObj->m_mapObjGroupCount = mapObj->m_groupInfoCount;
 
