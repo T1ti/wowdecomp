@@ -1044,9 +1044,9 @@ bool CMapObjGroup::GetTris(const C3Segment& seg, float* dist, uint32_t flags, ui
 
     BspQuery_Segment query(this->m_polyList, this->m_vertexList, this->m_indices, seg, dist, faceIgnoreFlags, materials);
     CAaBsp_Query_Segment<BspQuery_Segment> bspQuery;
-    bspQuery.m_aaBsp = &this->m_cAaBspNodePtr1;
+    bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
-    bspQuery.GetFaceIndices(0, seg, this->m_cAaBspNodePtr1.m_aaBox);
+    bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
     this->GetTrisFromQuery(triData, &query, mapObjDef, 0);
 
     if ((flags & 0x30000) && (this->m_flags & 0x1000)) {
@@ -1528,7 +1528,7 @@ void CMapObjGroup::Clear() {
         this->m_asyncObjPtr = nullptr;
     }
 
-    this->m_cAaBspNodePtr1.Clear();
+    this->m_aaBsp.Clear();
     this->FreeVB();
 
     if (this->m_liquidVertArray) {
@@ -2333,9 +2333,9 @@ bool CMapObjGroup::GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnor
     query.m_volume = &box;
     query.m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
     CAaBsp_Query_AaBox<BspQuery_Volume<CAaBox>> bspQuery;
-    bspQuery.m_aaBsp = &this->m_cAaBspNodePtr1;
+    bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
-    bspQuery.GetFaceIndices(0, box, this->m_cAaBspNodePtr1.m_aaBox);
+    bspQuery.GetFaceIndices(0, box, this->m_aaBsp.m_aaBox);
     this->GetTrisFromQuery(triData, &query, mapObjDef, overflow);
 
     if (flags & 0x30000) {
@@ -2351,9 +2351,9 @@ bool CMapObjGroup::Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16
     bool hit = false;
     BspQuery_Segment query(this->m_polyList, this->m_vertexList, this->m_indices, seg, dist, faceIgnoreFlags, this->m_parent->m_materialList);
     CAaBsp_Query_Segment<BspQuery_Segment> bspQuery;
-    bspQuery.m_aaBsp = &this->m_cAaBspNodePtr1;
+    bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
-    bspQuery.GetFaceIndices(0, seg, this->m_cAaBspNodePtr1.m_aaBox);
+    bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
 
     if (BspQuery::hitFaceSub) {
         *hitIndex = BspQuery::hitFaces[0];
@@ -2373,9 +2373,9 @@ bool CMapObjGroup::Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16
 bool CMapObjGroup::GetFacesForLinking(C3Segment& seg, float* t0, int32_t* face0, float* t1, int32_t* face1) {
     BspQuery_SegmentLink query(this->m_polyList, this->m_vertexList, this->m_indices, seg, *t0, *t1);
     CAaBsp_Query_Segment<BspQuery_SegmentLink> bspQuery;
-    bspQuery.m_aaBsp = &this->m_cAaBspNodePtr1;
+    bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
-    bspQuery.GetFaceIndices(0, seg, this->m_cAaBspNodePtr1.m_aaBox);
+    bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
     return query.GetHits(t0, face0, t1, face1);
 }
 
@@ -2527,9 +2527,9 @@ bool CMapObjGroup::GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t fa
         query.m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
         CAaBox box = CAaBox::Bounding(frustum.corners, 8);
         CAaBsp_Query_AaBox<BspQuery_Volume<CWFrustum>> bspQuery;
-        bspQuery.m_aaBsp = &this->m_cAaBspNodePtr1;
+        bspQuery.m_aaBsp = &this->m_aaBsp;
         bspQuery.m_f = &query;
-        bspQuery.GetFaceIndices(0, box, this->m_cAaBspNodePtr1.m_aaBox);
+        bspQuery.GetFaceIndices(0, box, this->m_aaBsp.m_aaBox);
         this->GetTrisFromQuery(triData, &query, mapObjDef, overflow);
     }
 

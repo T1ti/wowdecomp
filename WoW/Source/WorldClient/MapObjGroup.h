@@ -168,7 +168,7 @@ class CMapObjGroup {
     /* 005E */ uint16_t m_intBatchCount;
     /* 0060 */ uint16_t m_extBatchCount;
     /* 0062 */ uint8_t unused_0062[2];
-    /* 0064 */ CAaBsp m_cAaBspNodePtr1;
+    /* 0064 */ CAaBsp m_aaBsp;
     /* 00CC */ int32_t m_unkFlags;
     /* 00D0 */ int32_t unused_00D0;
     /* 00D4 */ int32_t m_minimapTag;

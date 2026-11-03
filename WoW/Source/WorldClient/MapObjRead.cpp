@@ -305,7 +305,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         uint32_t faceSize = chunk->m_size;
         uint16_t* faces = reinterpret_cast<uint16_t*>(&chunk->m_data);
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + faceSize);
-        this->m_cAaBspNodePtr1.Set(nodes, nodeSize >> 4, faces, faceSize >> 1, this->m_bbox);
+        this->m_aaBsp.Set(nodes, nodeSize >> 4, faces, faceSize >> 1, this->m_bbox);
     }
 
     if (this->m_flags & 0x400) {
