@@ -964,44 +964,44 @@ int32_t Packet_SMSG_PLAYER_DIFFICULTY_CHANGE(void* param, NETMESSAGE msgId, uint
     msg->Get(result);
 
     switch (result) {
-        case 0:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_SET_DIFFICULTY:
             msg->Get(difficulty);
             CGPartyInfo::m_dynamicDifficulty = difficulty;
             break;
 
-        case 1:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_COOLDOWN:
             msg->Get(value);
             CGTooltip::GetDurationString(duration, sizeof(duration), 1000 * value, "INT_SPELL_DURATION", nullptr, 1, 0);
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_COOLDOWN_S, duration);
             break;
 
-        case 2:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_WORLDSTATE:
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_WORLDSTATE);
             break;
 
-        case 3:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_ENCOUNTER:
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_ENCOUNTER);
             break;
 
-        case 4:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_COMBAT:
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_COMBAT);
             break;
 
-        case 5:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_PLAYER_BUSY:
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_PLAYER_BUSY);
             break;
 
-        case 6:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_START_LOADING:
             msg->Get(value);
             CGPartyInfo::m_nextDifficultyChange = value + static_cast<uint32_t>(::time(nullptr));
             LoadingScreenEnable(CGGameUI::m_iCurrentMapID, false);
             break;
 
-        case 7:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_ALREADY_STARTED:
             CGGameUI::DisplayError(ERR_DIFFICULTY_CHANGE_ALREADY_STARTED);
             break;
 
-        case 8: {
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_MAP_MESSAGE: {
             msg->Get(value);
             MapDifficultyRec* rec = g_mapDifficultyDB.GetRecord(value);
 
@@ -1012,7 +1012,7 @@ int32_t Packet_SMSG_PLAYER_DIFFICULTY_CHANGE(void* param, NETMESSAGE msgId, uint
             break;
         }
 
-        case 9:
+        case CGPartyInfo::DIFFICULTY_CHANGE_RESULT::DIFFICULTY_RESULT_COMPLETE:
             LoadingScreenDisable();
             ConsoleWrite("Changed difficulty successfully", DEFAULT_COLOR);
             FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_DIFFICULTY_CHANGED, nullptr);
