@@ -73,6 +73,13 @@ enum COMBAT_LOG_INFO_FLAGS : uint32_t
 };
 
 struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
+    enum DAMAGE_FLAGS : int32_t {
+        DAMAGE_CRITICAL = 0x1,
+        DAMAGE_GLANCING = 0x2,
+        DAMAGE_CRUSHING = 0x4,
+        DAMAGE_RESULT_MASK = 0x7,
+    };
+
     /* 0008 */ uint32_t m_timestamp;
     /* 000C */ int32_t m_event;
     /* 0010 */ uint32_t m_pendingMask;

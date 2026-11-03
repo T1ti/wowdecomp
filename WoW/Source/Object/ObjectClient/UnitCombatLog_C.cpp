@@ -976,7 +976,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         entry->m_info.m_values[6] = blocked;
         entry->m_info.m_values[1] = damage;
         entry->m_info.m_values[5] = resisted;
-        entry->m_infoBits = (entry->m_infoBits & ~0x7) | critical | ((glancing | (crushing << 1)) << 1);
+        entry->m_infoBits = (entry->m_infoBits & ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK) | critical | ((glancing | (crushing << 1)) << 1);
         QueueCombatLogEntry(entry, 0);
 
         if (s_combatTextActiveUnit == target) {
@@ -1192,7 +1192,7 @@ void UnitCombatLogDamageShield(const WOWGUID& victimGuid, const WOWGUID& casterG
 
         CombatLogEntry* entry = GetCombatLogEntry(victimGuid, casterGuid, 40, &spell);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
-        entry->m_infoBits &= ~0x7;
+        entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
         entry->m_info.m_values[1] = damage;
         entry->m_info.m_values[2] = overkill;
         entry->m_info.m_values[3] = schoolMask;
@@ -1339,19 +1339,19 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
             lua_pushnil(L);
         }
 
-        if (this->m_infoBits & 0x1) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_CRITICAL) {
             lua_pushnumber(L, 1.0);
         } else {
             lua_pushnil(L);
         }
 
-        if (this->m_infoBits & 0x2) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_GLANCING) {
             lua_pushnumber(L, 1.0);
         } else {
             lua_pushnil(L);
         }
 
-        if (this->m_infoBits & 0x4) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_CRUSHING) {
             lua_pushnumber(L, 1.0);
         } else {
             lua_pushnil(L);
@@ -2387,7 +2387,7 @@ void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, 
     entry->m_info.m_values[5] = resisted;
     entry->m_info.m_values[2] = overkill;
     entry->m_info.m_values[6] = blocked;
-    entry->m_infoBits = (entry->m_infoBits & ~0x7) | (crit & 1) | (((a11 & 1) | ((a12 & 1) << 1)) << 1);
+    entry->m_infoBits = (entry->m_infoBits & ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK) | (crit & 1) | (((a11 & 1) | ((a12 & 1) << 1)) << 1);
     QueueCombatLogEntry(entry, timeOffset);
 
     if (s_combatTextActiveUnit != dest) {
@@ -3060,19 +3060,19 @@ void CombatLogEntry::PackEvent(char* buffer, uint32_t size) {
         PackInt(cursor, remaining, this->m_info.m_values[6]);
         PackInt(cursor, remaining, this->m_info.m_values[4]);
 
-        if (this->m_infoBits & 0x1) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_CRITICAL) {
             PackInt(cursor, remaining, 1);
         } else {
             PackString(cursor, remaining, "nil");
         }
 
-        if (this->m_infoBits & 0x2) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_GLANCING) {
             PackInt(cursor, remaining, 1);
         } else {
             PackString(cursor, remaining, "nil");
         }
 
-        if (this->m_infoBits & 0x4) {
+        if (this->m_infoBits & CombatLogEntry::DAMAGE_FLAGS::DAMAGE_CRUSHING) {
             PackInt(cursor, remaining, 1);
         } else {
             PackString(cursor, remaining, "nil");
@@ -3161,7 +3161,7 @@ void UnitCombatLog(const WOWGUID& guid, uint32_t type, int32_t damage, int32_t a
     CombatLogEntry* entry = GetCombatLogEntry(WOWGUID(), guid, 0, nullptr);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE;
     entry->m_info.m_values[0] = type;
-    entry->m_infoBits &= ~0x7;
+    entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
     entry->m_info.m_values[3] = 1 << s_environmentalDamageSchools[type];
     entry->m_info.m_values[5] = resisted;
@@ -3195,7 +3195,7 @@ void UnitCombatLogBuildingDamage(const WOWGUID& caster, const WOWGUID& owner, co
 
     CombatLogEntry* entry = GetCombatLogEntry(caster, building, 47, &spell);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
-    entry->m_infoBits &= ~0x7;
+    entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
     entry->m_info.m_values[1] = damage;
     entry->m_info.m_values[2] = 0;
     entry->m_info.m_values[3] = spell.m_schoolMask;
