@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include "Engine/Source/Base/RCString.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
@@ -231,6 +232,6 @@ extern TSList<CombatLogEntry, TSGetLink<CombatLogEntry> > s_entries;
 extern WOWGUID s_combatTextActiveUnit;
 extern CombatLogEntry* s_currentEntry;
 extern CombatLogEntry* s_pendingEntries;
-extern const char* g_spellMissStrings[12];
+extern const char* g_spellMissStrings[MISS_REASON::MISS_NUMMISSTYPES];
 
 #endif

@@ -3572,7 +3572,7 @@ int32_t Packet_SMSG_SPELLORDAMAGE_IMMUNE(void* param, NETMESSAGE msgId, uint32_t
     uint8_t debug = 0;
     msg->Get(debug);
     bool isDebug = debug != 0;
-    UnitCombatLogSpellMissed(casterGuid, targetGuid, spellId, 7, !isDebug, isDebug, 0);
+    UnitCombatLogSpellMissed(casterGuid, targetGuid, spellId, MISS_REASON::MISS_IMMUNE, !isDebug, isDebug, 0);
     return 1;
 }
 

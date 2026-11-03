@@ -183,7 +183,7 @@ CombatLogEntry* s_currentEntry;
 CombatLogEntry* s_pendingEntries;
 
 // STATIC: 0x00ADBFAC
-const char* g_spellMissStrings[12] = { "NONE", "MISS", "RESIST", "DODGE", "PARRY", "BLOCK", "EVADE", "IMMUNE", "IMMUNE", "DEFLECT", "ABSORB", "REFLECT" };
+const char* g_spellMissStrings[MISS_REASON::MISS_NUMMISSTYPES] = { "NONE", "MISS", "RESIST", "DODGE", "PARRY", "BLOCK", "EVADE", "IMMUNE", "IMMUNE", "DEFLECT", "ABSORB", "REFLECT" };
 
 // STATIC: 0x00AD671C
 static const char* s_environmentalDamageTypes[6] = { "FATIGUE", "DROWNING", "FALLING", "LAVA", "SLIME", "FIRE" };
@@ -313,15 +313,15 @@ void CombatLogEntry::SetMissInfo(int32_t missType, int32_t amount) {
     this->m_info.m_values[0] = missType;
 
     switch (missType) {
-        case 2:
+        case MISS_REASON::MISS_RESIST:
             this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED;
             this->m_info.m_values[5] = amount;
             break;
-        case 5:
+        case MISS_REASON::MISS_BLOCKED:
             this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED;
             this->m_info.m_values[6] = amount;
             break;
-        case 10:
+        case MISS_REASON::MISS_ABSORBED:
             this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED;
             this->m_info.m_values[4] = amount;
             break;
@@ -1001,7 +1001,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
 
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_MISS) {
         entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
-        entry->SetMissInfo(1, 0);
+        entry->SetMissInfo(MISS_REASON::MISS_PHYSICAL, 0);
 
         if (s_combatTextActiveUnit == target) {
             SendToCombatText(3);
@@ -1014,7 +1014,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         }
 
         entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
-        entry->SetMissInfo(10, absorbed);
+        entry->SetMissInfo(MISS_REASON::MISS_ABSORBED, absorbed);
 
         if (s_combatTextActiveUnit == target) {
             SendToCombatText(12);
@@ -1027,7 +1027,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         }
 
         entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
-        entry->SetMissInfo(2, resisted);
+        entry->SetMissInfo(MISS_REASON::MISS_RESIST, resisted);
 
         if (s_combatTextActiveUnit == target) {
             SendToCombatText(10);
@@ -1038,27 +1038,27 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
 
         switch (victimState) {
             case VS_DODGE:
-                missType = 3;
+                missType = MISS_REASON::MISS_DODGED;
                 textType = 4;
                 break;
             case VS_PARRY:
-                missType = 4;
+                missType = MISS_REASON::MISS_PARRIED;
                 textType = 5;
                 break;
             case VS_BLOCK:
-                missType = 5;
+                missType = MISS_REASON::MISS_BLOCKED;
                 textType = 11;
                 break;
             case VS_EVADE:
-                missType = 6;
+                missType = MISS_REASON::MISS_EVADED;
                 textType = 6;
                 break;
             case VS_IMMUNE:
-                missType = 7;
+                missType = MISS_REASON::MISS_IMMUNE;
                 textType = 7;
                 break;
             case VS_DEFLECT:
-                missType = 9;
+                missType = MISS_REASON::MISS_DEFLECTED;
                 textType = 8;
                 break;
             default:
@@ -1108,7 +1108,7 @@ int32_t Packet_SMSG_PROCRESIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
         CombatLogEntry* entry = GetCombatLogEntry(caster, target, 8, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED);
-        entry->m_info.m_values[0] = 2;
+        entry->m_info.m_values[0] = MISS_REASON::MISS_RESIST;
         entry->m_info.m_values[5] = 0;
 
         if (s_combatTextActiveUnit == target) {
@@ -1477,44 +1477,44 @@ void CombatLog::QueueMissedSpellText(const WOWGUID& source, const WOWGUID& dest,
 
     if (s_combatTextActiveUnit == dest) {
         switch (missType) {
-            case 1:
+            case MISS_REASON::MISS_PHYSICAL:
                 SendToCombatText(event == 8 ? 15 : 3);
                 break;
 
-            case 2:
+            case MISS_REASON::MISS_RESIST:
                 SendToCombatText(event == 8 ? 22 : 10);
                 break;
 
-            case 3:
+            case MISS_REASON::MISS_DODGED:
                 SendToCombatText(event == 8 ? 16 : 4);
                 break;
 
-            case 4:
+            case MISS_REASON::MISS_PARRIED:
                 SendToCombatText(event == 8 ? 17 : 5);
                 break;
 
-            case 5:
+            case MISS_REASON::MISS_BLOCKED:
                 SendToCombatText(event == 8 ? 23 : 11);
                 break;
 
-            case 6:
+            case MISS_REASON::MISS_EVADED:
                 SendToCombatText(event == 8 ? 18 : 6);
                 break;
 
-            case 7:
-            case 8:
+            case MISS_REASON::MISS_IMMUNE:
+            case MISS_REASON::MISS_TEMPIMMUNE:
                 SendToCombatText(event == 8 ? 19 : 7);
                 break;
 
-            case 9:
+            case MISS_REASON::MISS_DEFLECTED:
                 SendToCombatText(event == 8 ? 20 : 8);
                 break;
 
-            case 10:
+            case MISS_REASON::MISS_ABSORBED:
                 SendToCombatText(event == 8 ? 24 : 12);
                 break;
 
-            case 11:
+            case MISS_REASON::MISS_REFLECTED:
                 SendToCombatText(event == 8 ? 21 : 9);
                 break;
 
@@ -2435,7 +2435,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
     if (absorbed) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ABSORBED);
-        entry->m_info.m_values[0] = 10;
+        entry->m_info.m_values[0] = MISS_REASON::MISS_ABSORBED;
         entry->m_info.m_values[4] = absorbed;
 
         if (s_combatTextActiveUnit == dest) {
@@ -2446,7 +2446,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
     } else if (blocked) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_BLOCKED);
-        entry->m_info.m_values[0] = 5;
+        entry->m_info.m_values[0] = MISS_REASON::MISS_BLOCKED;
         entry->m_info.m_values[6] = blocked;
 
         if (s_combatTextActiveUnit == dest) {
@@ -2457,7 +2457,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
     } else if (resisted) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED);
-        entry->m_info.m_values[0] = 2;
+        entry->m_info.m_values[0] = MISS_REASON::MISS_RESIST;
         entry->m_info.m_values[5] = resisted;
 
         if (s_combatTextActiveUnit == dest) {
