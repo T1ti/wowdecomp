@@ -139,7 +139,7 @@ const char* GxuFontGetFontName(CGxFont* face) {
 // OFFSET: 0x006BCDF0
 uint32_t GxuFontGetFontFlags(CGxFont* face) {
     if (!face) {
-        return 0;
+        return CGxFont::FONT_FLAGS::FONT_NONE;
     }
 
     return face->m_fontFlags;
@@ -880,8 +880,8 @@ int32_t GxuFontCreateFont(const char* name, float fontHeight, CGxFont*& face, ui
 
     CGxFont* newFace = g_fonts.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
-    if (flags & 8) {
-        flags |= 1;
+    if (flags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
+        flags |= CGxFont::FONT_FLAGS::FONT_OUTLINE;
     }
 
     int32_t result = newFace->Initialize(name, flags, fontHeight);

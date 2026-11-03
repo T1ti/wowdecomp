@@ -259,9 +259,9 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
     float scale = pixelHeight / this->m_currentFace->GetPixelSize();
     float cellHeight = ScreenToPixelHeight((this->m_flags >> 7) & 1, this->m_currentFontHeight);
 
-    if (this->m_currentFace->m_fontFlags & 8) {
+    if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         cellHeight = cellHeight + 4.0;
-    } else if (this->m_currentFace->m_fontFlags & 1) {
+    } else if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         cellHeight = cellHeight + 2.0;
     }
 
@@ -391,9 +391,9 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                             x = 0.0;
                         }
 
-                        if (this->m_currentFace->m_fontFlags & 8) {
+                        if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
                             x = 4.0 * scale + x;
-                        } else if (this->m_currentFace->m_fontFlags & 1) {
+                        } else if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
                             x = scale + scale + x;
                         }
                     }
@@ -500,9 +500,9 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                         width = floor(width);
                     }
 
-                    if (this->m_currentFace->m_fontFlags & 8) {
+                    if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
                         vert.m_vc.y = vert.m_vc.y - 2.0;
-                    } else if (this->m_currentFace->m_fontFlags & 1) {
+                    } else if (this->m_currentFace->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
                         vert.m_vc.y = vert.m_vc.y - 1.0;
                     }
 

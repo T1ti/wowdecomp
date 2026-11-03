@@ -4,10 +4,10 @@
 #include "Engine/Source/Services/TextBlock.h"
 #include "Engine/Source/Base/Coordinate.h"
 #include "Engine/Source/Gxu/GxuFont.h"
+#include "Engine/Source/Gxu/GxuFontFont.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
-
 // STATIC: 0x00B4A2A8
 static TSHashTable<FONTHASHOBJ, HASHKEY_STR> s_fontHash;
 
@@ -105,13 +105,13 @@ uint32_t TextBlockGetFontFlags(HTEXTFONT font) {
     }
 
     uint32_t fontFlags = GxuFontGetFontFlags(reinterpret_cast<FONTHASHOBJ*>(font)->m_font);
-    uint32_t flags = (fontFlags & 0x1) != 0;
+    uint32_t flags = (fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) != 0;
 
-    if (fontFlags & 0x8) {
+    if (fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         flags |= 0x4;
     }
 
-    if (fontFlags & 0x2) {
+    if (fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
         flags |= 0x2;
     }
 
@@ -363,11 +363,11 @@ HTEXTFONT TextBlockGenerateFont(const char* fontName, uint32_t fontFlags, float 
     uint32_t gxFlags = (fontFlags & 0x1) != 0;
 
     if (fontFlags & 0x4) {
-        gxFlags |= 0x8;
+        gxFlags |= CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE;
     }
 
     if (fontFlags & 0x2) {
-        gxFlags |= 0x2;
+        gxFlags |= CGxFont::FONT_FLAGS::FONT_MONOCHROME;
     }
 
     if (GxuFontCreateFont(fontName, height, hashObj->m_font, gxFlags)) {

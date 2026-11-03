@@ -87,9 +87,9 @@ int32_t CGxFont::UpdateDimensions() {
     float baseline = static_cast<float>(pixelSize * face->ascender) / units;
     this->m_baseline = static_cast<uint32_t>(baseline + 0.5);
 
-    if (this->m_fontFlags & 8) {
+    if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         this->m_cellHeight = pixelSize + 4;
-    } else if (this->m_fontFlags & 1) {
+    } else if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         this->m_cellHeight = pixelSize + 2;
     }
 
@@ -108,13 +108,13 @@ bool CGxFont::GetGlyphData(GLYPHBITMAPDATA* data, uint32_t code) {
 
     uint32_t padding = 0;
 
-    if (this->m_fontFlags & 8) {
+    if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         padding = 4;
-    } else if (this->m_fontFlags & 1) {
+    } else if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         padding = 2;
     }
 
-    return IGxuFontGlyphRenderGlyph(face, this->m_pixelSize, code, this->m_baseline, data, this->m_fontFlags & 2, padding);
+    return IGxuFontGlyphRenderGlyph(face, this->m_pixelSize, code, this->m_baseline, data, this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME, padding);
 }
 
 // VERIFY: 3597e899 auto
@@ -166,7 +166,7 @@ float CGxFont::GetGlyphAdvance(uint32_t code) {
 
     float advance = desc->m_bitmapData.m_glyphAdvance;
 
-    if (this->m_fontFlags & 8) {
+    if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         advance += 1.0;
     }
 
@@ -355,7 +355,7 @@ CHARCODEDESC* CGxFont::NewCodeDesc(uint32_t code) {
 
         if (!current->m_texture || !TextureGetGxTex(current->m_texture, 1, nullptr)) {
             cache = current;
-            cache->CreateTexture(this->m_fontFlags & 4);
+            cache->CreateTexture(this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_LINEAR_FILTER);
             cache->Initialize(this, this->m_cellHeight);
             desc = cache->AllocateNewGlyph(&data);
             break;

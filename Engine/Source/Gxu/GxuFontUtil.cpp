@@ -520,9 +520,9 @@ void InternalGetTextExtent(CGxFont* face, const char* text, uint32_t numBytes, f
         width = ceil(static_cast<double>(CMath::fint_n(shadowPixels)));
     }
 
-    if (face->m_fontFlags & 8) {
+    if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         width = width + 4.0;
-    } else if (face->m_fontFlags & 1) {
+    } else if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         width = width + 2.0;
     }
 
@@ -630,9 +630,9 @@ uint32_t InternalGetMaxCharsWithinWidth(CGxFont* face, const char* text, float f
         width = ceil(static_cast<double>(CMath::fint_n(shadowPixels)));
     }
 
-    if (face->m_fontFlags & 8) {
+    if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         width = width + 4.0;
-    } else if (face->m_fontFlags & 1) {
+    } else if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         width = width + 2.0;
     }
 
@@ -858,9 +858,9 @@ static void CalcWrapPointNonBillboarded(const char* text, CGxFont* face, float f
         lineWidth = ceil(static_cast<double>(CMath::fint_n(shadowPixels)));
     }
 
-    if (face->m_fontFlags & 8) {
+    if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         lineWidth = lineWidth + 4.0;
-    } else if (face->m_fontFlags & 1) {
+    } else if (face->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
         lineWidth = lineWidth + 2.0;
     }
 

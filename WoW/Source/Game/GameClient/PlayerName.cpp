@@ -7,6 +7,7 @@
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Gxu/GxuFont.h"
+#include "Engine/Source/Gxu/GxuFontFont.h"
 #include "Engine/Source/Services/Texture.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Model2/M2Model.h"
@@ -31,7 +32,6 @@
 #include "Engine/Source/Tempest/CWFrustum.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "Engine/Source/Os/TimeManager.h"
-
 // STATIC: 0x00D380A0
 uint32_t s_nameMask;
 
@@ -96,7 +96,7 @@ void PlayerNameInitialize() {
     const char* fontName;
 
     if (FrameScript_GetVariable("UNIT_NAME_FONT", fontName)) {
-        GxuFontCreateFont(fontName, 0.99f, s_playerNameFont, 4);
+        GxuFontCreateFont(fontName, 0.99f, s_playerNameFont, CGxFont::FONT_FLAGS::FONT_LINEAR_FILTER);
     }
 
     s_playerNameBatch = GxuFontCreateBatch(true, true);

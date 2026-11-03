@@ -23,6 +23,14 @@ struct KERNNODE : public TSHashObject<KERNNODE, KERNINGHASHKEY> {
 };
 
 struct CGxFont : public TSLinkedNode<CGxFont> {
+    enum FONT_FLAGS : uint32_t {
+        FONT_NONE = 0,
+        FONT_OUTLINE = 1,
+        FONT_MONOCHROME = 2,
+        FONT_LINEAR_FILTER = 4,
+        FONT_THICK_OUTLINE = 8,
+    };
+
     /* 0008 */ TSExplicitList<CGxString, offsetof(CGxString, m_fontStringLink)> m_strings;
     /* 0014 */ TSHashTable<CHARCODEDESC, HASHKEY_NONE> m_activeCharacters;
     /* 003C */ TSHashTable<KERNNODE, KERNINGHASHKEY> m_kernInfo;
