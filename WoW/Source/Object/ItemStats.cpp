@@ -72,6 +72,16 @@ void ItemStats_C::Unpack(CDataStore* msg) {
     msg->Get(this->m_containerSlots);
     msg->Get(reinterpret_cast<uint32_t&>(this->m_statsCount));
 
+#if defined(WOWDECOMP_ARCH_64)
+    const int32_t serializedStatsCount = this->m_statsCount;
+    const int32_t statCapacity = sizeof(this->m_statType) / sizeof(this->m_statType[0]);
+    if (this->m_statsCount < 0) {
+        this->m_statsCount = 0;
+    } else if (this->m_statsCount > statCapacity) {
+        this->m_statsCount = statCapacity;
+    }
+#endif
+
     memset(this->m_statValue, 0, sizeof(this->m_statValue));
 
     int32_t stat = 0;
@@ -80,6 +90,15 @@ void ItemStats_C::Unpack(CDataStore* msg) {
         msg->Get(this->m_statType[stat]);
         msg->Get(this->m_statValue[stat]);
     }
+
+#if defined(WOWDECOMP_ARCH_64)
+    // Consume excess wire entries so the following fields stay aligned.
+    for (int32_t extra = stat; extra < serializedStatsCount && msg->m_read <= msg->m_size; extra++) {
+        uint32_t ignored;
+        msg->Get(ignored);
+        msg->Get(ignored);
+    }
+#endif
 
     for (; stat < 10; stat++) {
         this->m_statType[stat] = -1;
@@ -188,9 +207,17 @@ void ItemStats_C::Pack(CDataStore* msg) {
     msg->Put(this->m_maxCount);
     msg->Put(static_cast<uint32_t>(this->m_stackable));
     msg->Put(this->m_containerSlots);
+#if defined(WOWDECOMP_ARCH_64)
+    const int32_t statCapacity = sizeof(this->m_statType) / sizeof(this->m_statType[0]);
+    const int32_t statsCount = this->m_statsCount < 0 ? 0 : this->m_statsCount > statCapacity ? statCapacity : this->m_statsCount;
+    msg->Put(static_cast<uint32_t>(statsCount));
+
+    for (int32_t stat = 0; stat < statsCount; stat++) {
+#else
     msg->Put(static_cast<uint32_t>(this->m_statsCount));
 
     for (int32_t stat = 0; stat < this->m_statsCount; stat++) {
+#endif
         msg->Put(this->m_statType[stat]);
         msg->Put(this->m_statValue[stat]);
     }

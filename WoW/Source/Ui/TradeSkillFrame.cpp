@@ -508,7 +508,11 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                 info->m_itemClass = stats->m_class;
                 info->m_itemSubClass = stats->m_subClass;
                 info->m_itemLevel = stats->m_itemLevel;
+#if defined(WOWDECOMP_ARCH_64)
+                info->m_invTypeMask = stats->m_inventoryType < INVTYPE_COUNT ? s_inventoryTypeSlots[stats->m_inventoryType] : 0;
+#else
                 info->m_invTypeMask = s_inventoryTypeSlots[stats->m_inventoryType];
+#endif
 
                 if (stats->m_inventoryType == INVTYPE_BAG) {
                     info->m_invTypeMask = 0x80000;
@@ -1042,6 +1046,12 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
             if (value <= 0 || static_cast<int32_t>(stats->m_statType[i]) < 0) {
                 continue;
             }
+
+#if defined(WOWDECOMP_ARCH_64)
+            if (stats->m_statType[i] >= sizeof(s_itemModTokens) / sizeof(s_itemModTokens[0])) {
+                continue;
+            }
+#endif
 
             SStrCopy(format, FrameScript_GetText(s_itemModTokens[stats->m_statType[i]], -1, GENDER_NOT_APPLICABLE), sizeof(format));
             SStrPrintf(text, sizeof(text), format, value > 0 ? '+' : '-', abs(value));

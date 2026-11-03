@@ -2672,7 +2672,11 @@ static int32_t Script_GetItemInfo(lua_State* L) {
     }
 
     lua_pushnumber(L, stats->m_stackable);
+#if defined(WOWDECOMP_ARCH_64)
+    lua_pushstring(L, s_inventoryTypeTokens[stats->m_inventoryType < INVTYPE_COUNT ? stats->m_inventoryType : INVTYPE_NON_EQUIP]);
+#else
     lua_pushstring(L, s_inventoryTypeTokens[stats->m_inventoryType]);
+#endif
     const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     const char* separator = *path ? "\\" : "";
     char texture[260];

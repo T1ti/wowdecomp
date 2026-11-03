@@ -3534,7 +3534,11 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             }
         }
 
+#if defined(WOWDECOMP_ARCH_64)
+        uint32_t slots = stats->m_inventoryType < INVTYPE_COUNT ? s_inventoryTypeSlots[stats->m_inventoryType] : 0;
+#else
         uint32_t slots = s_inventoryTypeSlots[stats->m_inventoryType];
+#endif
 
         for (uint32_t i = 0; i < 23; i++) {
             if (((1 << i) & slots) && IsTutorialFlagged(TUTORIAL::TUTORIAL_PLAYER_STATUS)) {

@@ -1745,7 +1745,14 @@ bool CGLCD::LoadScreen(XMLNode* node, CStatus* status) {
     }
 
     int32_t screen = CGLCD::GetScreenFromName(name);
+#if defined(WOWDECOMP_ARCH_64)
+    if (screen < 0 || CGLCD::m_lcd->AddNewPage(screen) < 0) {
+        status->Add(STATUS_WARNING, "Invalid LCD screen: %s", name);
+        return false;
+    }
+#else
     CGLCD::m_lcd->AddNewPage(screen);
+#endif
     CGLCD::m_lcd->ModifyControlsOnPage(screen);
     CGLCD::m_lcd->ShowPage(screen);
 

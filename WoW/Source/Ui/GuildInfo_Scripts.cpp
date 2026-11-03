@@ -376,6 +376,13 @@ static int32_t Script_SetGuildBankTabPermissions(lua_State* L) {
 
     uint8_t tab = static_cast<uint8_t>(lua_tonumber(L, 1)) - 1;
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 2)) - 1;
+#if defined(WOWDECOMP_ARCH_64)
+    if (tab >= sizeof(CGGuildInfo::m_rankInfo[0].m_bankTabRights) / sizeof(CGGuildInfo::m_rankInfo[0].m_bankTabRights[0]) ||
+        static_cast<uint32_t>(index) >= sizeof(s_guildBankTabPermissionFlags) / sizeof(s_guildBankTabPermissionFlags[0]) ||
+        static_cast<uint32_t>(s_guildControlRank) >= sizeof(CGGuildInfo::m_rankInfo) / sizeof(CGGuildInfo::m_rankInfo[0])) {
+        return 0;
+    }
+#endif
     int32_t enabled = StringToBOOL(L, 3, 0);
     uint32_t rights = tab < 6 ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[tab] : 0;
     uint32_t flag = s_guildBankTabPermissionFlags[index];

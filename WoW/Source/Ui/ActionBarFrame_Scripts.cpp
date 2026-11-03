@@ -76,6 +76,11 @@ static int32_t Script_GetActionInfo(lua_State* L) {
     }
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1));
+#if defined(WOWDECOMP_ARCH_64)
+    if (slot < 1 || static_cast<uint32_t>(slot) > CGActionBar::NUM_ACTION_SLOTS) {
+        return 0;
+    }
+#endif
     uint32_t action = CGActionBar::m_slotActions[slot - 1];
 
     if (action && !(action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG)) {
@@ -239,6 +244,12 @@ static int32_t Script_GetActionText(lua_State* L) {
     }
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1));
+#if defined(WOWDECOMP_ARCH_64)
+    if (slot < 1 || static_cast<uint32_t>(slot) > CGActionBar::NUM_ACTION_SLOTS) {
+        lua_pushnil(L);
+        return 1;
+    }
+#endif
     uint32_t action = CGActionBar::m_slotActions[slot - 1];
 
     if (action) {

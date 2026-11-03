@@ -1815,6 +1815,12 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
         return rec->m_classID == ITEM_CLASS::ITEM_CLASS_PROJECTILE;
     }
 
+#if defined(WOWDECOMP_ARCH_64)
+    if (static_cast<uint32_t>(rec->m_inventoryType) >= INVTYPE_COUNT) {
+        return 0;
+    }
+#endif
+
     if (slot == 17) {
         if (bypass != (rec->m_inventoryType == INVTYPE_RELIC)) {
             return 0;

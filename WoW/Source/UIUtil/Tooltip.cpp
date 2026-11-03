@@ -3543,6 +3543,12 @@ void GetScalingStatDamage(const ScalingStatValuesRec* values, uint32_t flags, fl
 // VERIFY: 64b947f2 manual
 // OFFSET: 0x0061A8F0
 int32_t GetFeralAttackPower(const ItemStats_C* stats, float damage) {
+#if defined(WOWDECOMP_ARCH_64)
+    if (stats->m_inventoryType >= INVTYPE_COUNT) {
+        return 0;
+    }
+#endif
+
     if (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && (s_inventoryTypeSlots[stats->m_inventoryType] & 0x8000)) {
         double dps = damage / (stats->m_delay * 0.001f);
 
@@ -4143,7 +4149,11 @@ static void AddItemNameLines(CGTooltip* tooltip, const ItemStats_C* stats, int32
         return;
     }
 
+#if defined(WOWDECOMP_ARCH_64)
+    const CImVector* nameColor = destroyGem ? &grayColor : CGTooltip::GetItemQualityColor(stats->m_quality);
+#else
     const CImVector* nameColor = destroyGem ? &grayColor : reinterpret_cast<const CImVector*>(&s_itemQualityColors[stats->m_quality]);
+#endif
     tooltip->AddLine(name, nullptr, *nameColor, *nameColor, 0);
     CVar* colorblindMode = CVar::Lookup("colorblindMode");
 
@@ -4471,7 +4481,11 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
     }
 
     if (stats->m_class != ITEM_CLASS::ITEM_CLASS_PROJECTILE) {
+#if defined(WOWDECOMP_ARCH_64)
+        const char* text = FrameScript_GetText(s_inventoryTypeTokens[stats->m_inventoryType < INVTYPE_COUNT ? stats->m_inventoryType : INVTYPE_NON_EQUIP], -1, GENDER_NOT_APPLICABLE);
+#else
         const char* text = FrameScript_GetText(s_inventoryTypeTokens[stats->m_inventoryType], -1, GENDER_NOT_APPLICABLE);
+#endif
         SStrCopy(slot, text, sizeof(slot));
 
         if (!*text) {
@@ -7167,7 +7181,11 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
         return 0;
     }
 
+#if defined(WOWDECOMP_ARCH_64)
+    uint32_t slots = stats->m_inventoryType < INVTYPE_COUNT ? s_inventoryTypeSlots[stats->m_inventoryType] : 0;
+#else
     uint32_t slots = s_inventoryTypeSlots[stats->m_inventoryType];
+#endif
 
     if (offset == 2) {
         if (stats->m_scalingStatValue && CGMerchantInfo::m_merchant && !shift) {

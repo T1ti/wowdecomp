@@ -370,6 +370,15 @@ void CEzLcd::ShowSubscreen(int32_t subscreen) {
 // VERIFY: 6e0acd1e manual
 // OFFSET: 0x009594A0
 int32_t CEzLcd::AddNewPage(int32_t page) {
+#if defined(WOWDECOMP_ARCH_64)
+    {
+        auto* pages = this->m_output == this->m_connection.MonoOutput() ? &this->m_monoPages : &this->m_colorPages;
+        if (static_cast<uint32_t>(page) >= pages->Count()) {
+            return -1;
+        }
+    }
+#endif
+
     CEzLcdPage* newPage = new CEzLcdPage(this);
     newPage->Initialize();
     newPage->SetExpiration(INFINITE);
@@ -396,11 +405,21 @@ int32_t CEzLcd::ShowPage(int32_t page) {
         pages = &this->m_colorPages;
     }
 
+#if defined(WOWDECOMP_ARCH_64)
+    if (static_cast<uint32_t>(page) >= pages->Count()) {
+#else
     if (page > static_cast<int32_t>(pages->Count()) || page < -1) {
+#endif
         return E_FAIL;
     }
 
     CEzLcdPage* newPage = (*pages)[page];
+
+#if defined(WOWDECOMP_ARCH_64)
+    if (!newPage) {
+        return E_FAIL;
+    }
+#endif
 
     if (this->m_connection.MonoOutput() == this->m_output) {
         this->m_currentMonoPage = newPage;
@@ -569,7 +588,11 @@ HRESULT CEzLcd::ModifyControlsOnPage(int32_t page) {
         pages = &this->m_colorPages;
     }
 
+#if defined(WOWDECOMP_ARCH_64)
+    if (static_cast<uint32_t>(page) >= pages->Count()) {
+#else
     if (page > static_cast<int32_t>(pages->Count()) || page < -1) {
+#endif
         return E_FAIL;
     }
 
