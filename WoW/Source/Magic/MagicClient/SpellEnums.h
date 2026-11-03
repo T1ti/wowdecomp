@@ -58,6 +58,12 @@ enum SPELL_FACING_FLAGS : int32_t {
     SPELL_FACING_FLAG_IN_FRONT = 0x1,
 };
 
+// Client-to-server CMSG_CAST_SPELL / CMSG_USE_ITEM / CMSG_PET_CAST_SPELL flag byte.
+// This domain is separate from incoming spell-start/go packet flags.
+enum SPELL_CLIENT_CAST_FLAGS : int32_t {
+    SPELL_CLIENT_CAST_FLAG_TRAJECTORY = 0x2,
+};
+
 // SMSG_SPELL_COOLDOWN payload flags, interpreted by Packet_SMSG_SPELL_COOLDOWN.
 enum SPELL_COOLDOWN_FLAGS : uint8_t {
     SPELL_COOLDOWN_FLAG_INCLUDE_START_RECOVERY = 0x1,

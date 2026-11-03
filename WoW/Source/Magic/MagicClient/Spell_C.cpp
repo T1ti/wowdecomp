@@ -7879,13 +7879,13 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
             return;
         }
 
-        castFlags = 2;
+        castFlags = SPELL_CLIENT_CAST_FLAG_TRAJECTORY;
         CGUnit_C::SetMissileTrajectoryTargetingSpell(spell.m_id);
     }
 
     msg.Put(castFlags);
 
-    if (castFlags & 0x2) {
+    if (castFlags & SPELL_CLIENT_CAST_FLAG_TRAJECTORY) {
         float pitch;
         float speed;
 
@@ -8539,7 +8539,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
             return false;
         }
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> 32)) != 0xFFFFFFFF && (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IMPLIED_TARGETING) || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_FRIENDLY_UNIT_MASK))) {
+        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) && (static_cast<uint32_t>(target.m_guid) & static_cast<uint32_t>(target.m_guid >> WOWGUID_HIGH_WORD_SHIFT)) != WOWGUID_WORD_ALL_ONES && (!(spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_IMPLIED_TARGETING) || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_FRIENDLY_UNIT_MASK))) {
             Spell_C_SpellFailed(cast, &spell, CGGameUI::m_lockedTarget ? SPELL_FAILED_BAD_TARGETS : SPELL_FAILED_BAD_IMPLICIT_TARGETS, -1, -1, false);
             return false;
         }
