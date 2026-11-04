@@ -2,6 +2,7 @@
 #define WOW_SOURCE_WORLDCLIENT_ZONES_H
 
 #include <cstdint>
+#include "Engine/Source/Tempest/CAaRect.h"
 
 class C2Vector;
 
@@ -11,10 +12,7 @@ struct ZonePath {
     /* 0008 */ float m_offsetX;
     /* 000C */ float m_offsetY;
     /* 0010 */ const char* m_path;
-    /* 0014 */ float m_minX;
-    /* 0018 */ float m_minY;
-    /* 001C */ float m_maxX;
-    /* 0020 */ float m_maxY;
+    /* 0014 */ CAaRect m_bounds; // Transformed polygon XY bounds, expanded by 50 after loading.
 
     ZonePath(const char* path);
     ~ZonePath();

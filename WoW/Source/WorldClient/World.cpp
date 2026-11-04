@@ -550,27 +550,27 @@ static void ZonesInitialize() {
             point->x *= 33.333332f;
             point->y = y * 34133.332f;
 
-            if (point->x < zonePath.m_minX) {
-                zonePath.m_minX = point->x;
+            if (point->x < zonePath.m_bounds.minX) {
+                zonePath.m_bounds.minX = point->x;
             }
 
-            if (zonePath.m_minY > point->y) {
-                zonePath.m_minY = point->y;
+            if (zonePath.m_bounds.minY > point->y) {
+                zonePath.m_bounds.minY = point->y;
             }
 
-            if (zonePath.m_maxX < point->x) {
-                zonePath.m_maxX = point->x;
+            if (zonePath.m_bounds.maxX < point->x) {
+                zonePath.m_bounds.maxX = point->x;
             }
 
-            if (zonePath.m_maxY < point->y) {
-                zonePath.m_maxY = point->y;
+            if (zonePath.m_bounds.maxY < point->y) {
+                zonePath.m_bounds.maxY = point->y;
             }
         }
 
-        zonePath.m_minX -= 50.0f;
-        zonePath.m_minY -= 50.0f;
-        zonePath.m_maxX += 50.0f;
-        zonePath.m_maxY += 50.0f;
+        zonePath.m_bounds.minX -= 50.0f;
+        zonePath.m_bounds.minY -= 50.0f;
+        zonePath.m_bounds.maxX += 50.0f;
+        zonePath.m_bounds.maxY += 50.0f;
     }
 }
 
@@ -589,7 +589,7 @@ void DayNight::FindAndAddZoneLight(const C3Vector* position) {
         const Zone& zone = s_zones[i];
         const ZonePath& path = zone.m_zonePath;
 
-        if (zone.m_mapID != s_mapId || path.m_minX > point.x || point.y < path.m_minY || path.m_maxX < point.x || point.y > path.m_maxY) {
+        if (zone.m_mapID != s_mapId || path.m_bounds.minX > point.x || point.y < path.m_bounds.minY || path.m_bounds.maxX < point.x || point.y > path.m_bounds.maxY) {
             continue;
         }
 

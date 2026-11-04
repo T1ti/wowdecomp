@@ -7,10 +7,10 @@ ZonePath::ZonePath(const char* path) {
     this->m_offsetX = -1.66233754f;
     this->m_offsetY = -145.731598f;
     this->m_path = path;
-    this->m_minX = FLT_MAX;
-    this->m_minY = FLT_MAX;
-    this->m_maxX = -FLT_MAX;
-    this->m_maxY = -FLT_MAX;
+    this->m_bounds.minX = FLT_MAX;
+    this->m_bounds.minY = FLT_MAX;
+    this->m_bounds.maxX = -FLT_MAX;
+    this->m_bounds.maxY = -FLT_MAX;
 }
 
 // INLINED
