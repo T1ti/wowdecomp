@@ -7568,48 +7568,48 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestInvalid(CDataStore* msg) {
     msg->Get(reason);
 
     switch (reason) {
-        case 1:
+        case CGPlayer_C::QUEST_INVALID_REASON::LOW_LEVEL:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_LOW_LEVEL);
             break;
 
-        case 6:
+        case CGPlayer_C::QUEST_INVALID_REASON::WRONG_RACE:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_WRONG_RACE);
             break;
 
-        case 7:
+        case CGPlayer_C::QUEST_INVALID_REASON::ALREADY_DONE:
             CGGameUI::DisplayError(ERR_QUEST_ALREADY_DONE);
             break;
 
-        case 12:
+        case CGPlayer_C::QUEST_INVALID_REASON::ONLY_ONE_TIMED:
             CGGameUI::DisplayError(ERR_QUEST_ONLY_ONE_TIMED);
             break;
 
-        case 13:
-        case 18:
+        case CGPlayer_C::QUEST_INVALID_REASON::UNKNOWN_13:
+        case CGPlayer_C::QUEST_INVALID_REASON::UNKNOWN_18:
             CGGameUI::DisplayError(ERR_QUEST_ALREADY_ON);
             break;
 
-        case 16:
+        case CGPlayer_C::QUEST_INVALID_REASON::EXPANSION:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_EXPANSION);
             break;
 
-        case 21:
+        case CGPlayer_C::QUEST_INVALID_REASON::MISSING_ITEMS:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_MISSING_ITEMS);
             break;
 
-        case 23:
+        case CGPlayer_C::QUEST_INVALID_REASON::NOT_ENOUGH_MONEY:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_NOT_ENOUGH_MONEY);
             break;
 
-        case 26:
+        case CGPlayer_C::QUEST_INVALID_REASON::TOO_MANY_DAILY_QUESTS:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I, 25);
             break;
 
-        case 27:
+        case CGPlayer_C::QUEST_INVALID_REASON::CAIS:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_CAIS);
             break;
 
-        case 29:
+        case CGPlayer_C::QUEST_INVALID_REASON::ALREADY_DONE_DAILY:
             CGGameUI::DisplayError(ERR_QUEST_ALREADY_DONE_DAILY);
             break;
 

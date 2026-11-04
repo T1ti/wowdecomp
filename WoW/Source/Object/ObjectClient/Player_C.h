@@ -89,6 +89,22 @@ class CEffect;
 
 class CGPlayer_C : public CGUnit_C, public CGPlayer {
     public:
+    // Build 12340 UI outcomes; 13 and 18 share ALREADY_ON without proved distinct meanings.
+    enum QUEST_INVALID_REASON : int32_t {
+        LOW_LEVEL = 1,
+        WRONG_RACE = 6,
+        ALREADY_DONE = 7,
+        ONLY_ONE_TIMED = 12,
+        UNKNOWN_13 = 13,
+        EXPANSION = 16,
+        UNKNOWN_18 = 18,
+        MISSING_ITEMS = 21,
+        NOT_ENOUGH_MONEY = 23,
+        TOO_MANY_DAILY_QUESTS = 26,
+        CAIS = 27,
+        ALREADY_DONE_DAILY = 29,
+    };
+
     // Runtime farsight/automatic combat state, not replicated PLAYER_FLAGS.
     enum COMBAT_MODE_FLAGS : uint32_t {
         COMBAT_MODE_NONE                        = 0x00000000u,
