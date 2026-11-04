@@ -24,6 +24,17 @@ class SpellItemEnchantmentConditionRec {
     ~SpellItemEnchantmentConditionRec();
     static const char* GetFilename();
     bool Read(SFileImpl* file, const char* stringBuffer);
+
+    // The packed file stores five signed bytes; these constants name their
+    // comparison meaning without widening the raw m_operator array.
+    enum COMPARISON_OPERATOR : int32_t {
+        OPERATOR_EQUAL = 0,
+        OPERATOR_NOT_EQUAL = 1,
+        OPERATOR_LESS_THAN = 2,
+        OPERATOR_GREATER_THAN = 3,
+        OPERATOR_LESS_OR_EQUAL = 4,
+        OPERATOR_GREATER_OR_EQUAL = 5,
+    };
 };
 
 #endif

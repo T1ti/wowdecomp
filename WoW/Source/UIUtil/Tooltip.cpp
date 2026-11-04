@@ -3704,32 +3704,32 @@ int32_t GetEnchantmentConditionText(CGPlayer_C* player, const SpellItemEnchantme
             }
 
             switch (condition->m_operator[i]) {
-                case 0:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_EQUAL_COMPARE", -1, GENDER_NOT_APPLICABLE), leftName, rightName);
                     met = left == right;
                     break;
 
-                case 1:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_NOT_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_NOT_EQUAL_COMPARE", -1, GENDER_NOT_APPLICABLE), leftName, rightName);
                     met = left != right;
                     break;
 
-                case 2:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_LESS_THAN:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_COMPARE", -1, GENDER_NOT_APPLICABLE), rightName, leftName);
                     met = right > left;
                     break;
 
-                case 3:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_GREATER_THAN:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_COMPARE", -1, GENDER_NOT_APPLICABLE), leftName, rightName);
                     met = left > right;
                     break;
 
-                case 4:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_LESS_OR_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_EQUAL_COMPARE", -1, GENDER_NOT_APPLICABLE), rightName, leftName);
                     met = right >= left;
                     break;
 
-                case 5:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_GREATER_OR_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_EQUAL_COMPARE", -1, GENDER_NOT_APPLICABLE), leftName, rightName);
                     met = left >= right;
                     break;
@@ -3738,34 +3738,34 @@ int32_t GetEnchantmentConditionText(CGPlayer_C* player, const SpellItemEnchantme
             int32_t value = condition->m_rtOperand[i];
 
             switch (condition->m_operator[i]) {
-                case 0:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_EQUAL_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left == value;
                     break;
 
-                case 1:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_NOT_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_NOT_EQUAL_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left != value;
                     break;
 
-                case 2:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_LESS_THAN:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_LESS_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left < value;
                     break;
 
-                case 3:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_GREATER_THAN:
                     value++;
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left >= value;
                     break;
 
-                case 4:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_LESS_OR_EQUAL:
                     value++;
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_LESS_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left < value;
                     break;
 
-                case 5:
+                case SpellItemEnchantmentConditionRec::COMPARISON_OPERATOR::OPERATOR_GREATER_OR_EQUAL:
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ENCHANT_CONDITION_MORE_VALUE", -1, GENDER_NOT_APPLICABLE), value, leftName);
                     met = left >= value;
                     break;
