@@ -98,7 +98,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
         DEFAULT_RENDER = 5,
     };
 
-    static void RenderMapObjGroupsShadowMap(void* groups, uint32_t count, void* groupData, const C44Matrix& translation, CFrustum& frustum);
+    static void RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count, C44Matrix** groupMatrices, const C44Matrix& translation, CFrustum& frustum);
     bool QueryLighting(uint32_t groupNum, const C3Vector& point, uint16_t face, CImVector* color, uint8_t* flag);
     bool QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* color, uint8_t* flag);
     static TSList<CMapObj, TSGetExplicitLink<CMapObj> > s_asyncLoadQueue;

@@ -6,6 +6,8 @@
 #include "Engine/Source/Model2/M2Model.h"
 
 struct CVar;
+class CMapObjGroup;
+class C44Matrix;
 
 extern CVar* g_shadowCull;
 extern CVar* g_shadowScissor;
@@ -13,8 +15,8 @@ extern CVar* g_shadowInstancing;
 
 struct ShadowQueryBuffers {
     /* 0000 */ uint32_t m_groupCount;
-    /* 0004 */ void* m_groups;
-    /* 0008 */ void* m_groupData;
+    /* 0004 */ CMapObjGroup** m_groups;
+    /* 0008 */ C44Matrix** m_groupMatrices; // Parallel owner world-matrix pointers, one per group.
     /* 000C */ CModelBatchList m_untextured;
     /* 0018 */ CModelBatchList m_textured;
 };

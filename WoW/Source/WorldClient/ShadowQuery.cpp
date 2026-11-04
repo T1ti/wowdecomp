@@ -73,8 +73,8 @@ void CShadowQuery::FreeBuffers() {
             SMemFree(buffers->m_groups, nullptr, 0, 0);
         }
 
-        if (buffers->m_groupData) {
-            SMemFree(buffers->m_groupData, nullptr, 0, 0);
+        if (buffers->m_groupMatrices) {
+            SMemFree(buffers->m_groupMatrices, nullptr, 0, 0);
         }
 
         delete[] buffers->m_untextured.m_batches;
@@ -252,11 +252,11 @@ void CShadowQuery::AllocBuffers() {
         buffers.m_textured.m_maxCount = 0x2000;
 
         if (!buffers.m_groups) {
-            buffers.m_groups = SMemAlloc(0x800 * sizeof(CMapObjGroup*), __FILE__, __LINE__, 0);
+            buffers.m_groups = static_cast<CMapObjGroup**>(SMemAlloc(0x800 * sizeof(CMapObjGroup*), __FILE__, __LINE__, 0));
         }
 
-        if (!buffers.m_groupData) {
-            buffers.m_groupData = SMemAlloc(0x800 * sizeof(C44Matrix*), __FILE__, __LINE__, 0);
+        if (!buffers.m_groupMatrices) {
+            buffers.m_groupMatrices = static_cast<C44Matrix**>(SMemAlloc(0x800 * sizeof(C44Matrix*), __FILE__, __LINE__, 0));
         }
 
         if (!buffers.m_untextured.m_batches) {
@@ -410,7 +410,7 @@ int32_t CShadowQuery::RenderCallback(CShadowCacheQueryData& data, int32_t band, 
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 14, &texMatrix.a0, 3);
 
     if (buffers.m_groupCount) {
-        CMapObj::RenderMapObjGroupsShadowMap(buffers.m_groups, buffers.m_groupCount, buffers.m_groupData, translation, data.m_frustums[band]);
+        CMapObj::RenderMapObjGroupsShadowMap(buffers.m_groups, buffers.m_groupCount, buffers.m_groupMatrices, translation, data.m_frustums[band]);
     }
 
     if (buffers.m_untextured.m_count || buffers.m_textured.m_count) {
@@ -696,8 +696,8 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                     break;
                 }
 
-                static_cast<C44Matrix**>(buffers.m_groupData)[buffers.m_groupCount] = &def->m_mat;
-                static_cast<CMapObjGroup**>(buffers.m_groups)[buffers.m_groupCount++] = group;
+                buffers.m_groupMatrices[buffers.m_groupCount] = &def->m_mat;
+                buffers.m_groups[buffers.m_groupCount++] = group;
             }
 
             for (CMapBaseObjLink* link = defGroup->m_doodadDefLinkList.Head(); link; link = defGroup->m_doodadDefLinkList.Next(link)) {
@@ -766,8 +766,8 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
                         break;
                     }
 
-                    static_cast<C44Matrix**>(buffers.m_groupData)[buffers.m_groupCount] = &def->m_mat;
-                    static_cast<CMapObjGroup**>(buffers.m_groups)[buffers.m_groupCount++] = group;
+                    buffers.m_groupMatrices[buffers.m_groupCount] = &def->m_mat;
+                    buffers.m_groups[buffers.m_groupCount++] = group;
                 }
             }
 

@@ -3136,7 +3136,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
 
 // VERIFY: e67c38fa manual
 // OFFSET: 0x007AB760
-void CMapObj::RenderMapObjGroupsShadowMap(void* groups, uint32_t count, void* groupData, const C44Matrix& translation, CFrustum& frustum) {
+void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count, C44Matrix** groupMatrices, const C44Matrix& translation, CFrustum& frustum) {
     CAaBox box;
     box.b.x = 0.0f;
     box.b.y = 0.0f;
@@ -3146,8 +3146,8 @@ void CMapObj::RenderMapObjGroupsShadowMap(void* groups, uint32_t count, void* gr
     box.t.z = 0.0f;
     g_theGxDevicePtr->RsPush();
     float constants[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
-    CMapObjGroup** groupList = static_cast<CMapObjGroup**>(groups);
-    C44Matrix** matrices = static_cast<C44Matrix**>(groupData);
+    CMapObjGroup** groupList = groups;
+    C44Matrix** matrices = groupMatrices;
 
     for (uint32_t i = 0; i < count; i++) {
         C44Matrix* matrix = matrices[i];
