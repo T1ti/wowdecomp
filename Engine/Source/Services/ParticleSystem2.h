@@ -336,12 +336,12 @@ class CSphereParticleEmitter : public CParticleEmitter2 {
 
 class CSplineParticleEmitter : public CParticleEmitter2 {
     public:
-    /* 0234 */ float m_ratePerUnit;
-    /* 0238 */ float m_start;
-    /* 023C */ float m_end;
-    /* 0240 */ float m_latitude;
-    /* 0244 */ float m_longitude;
-    /* 0248 */ int32_t m_emitAtEnd;
+    /* 0234 */ float m_requestedEmissionRate; // Requested rate before multiplication by m_end.
+    /* 0238 */ float m_start; // Normalized arc-length start parameter, set by SetWidth.
+    /* 023C */ float m_end; // Normalized arc-length end parameter, set by SetHeight; also scales the requested rate.
+    /* 0240 */ float m_latitude; // Random rotation about the spline tangent is scaled by this angle in radians.
+    /* 0244 */ float m_radius; // Local-space position offset scale along the rotated direction, set by SetLongitude.
+    /* 0248 */ int32_t m_emitAtEnd; // The next particle uses m_end after SetHeight changes it.
     /* 024C */ C3Spline_Bezier3 m_spline;
 
     CSplineParticleEmitter();
@@ -352,7 +352,7 @@ class CSplineParticleEmitter : public CParticleEmitter2 {
     void SetWidth(float width) override;
     void SetHeight(float height) override;
     void SetLatitude(float latitude) override;
-    void SetLongitude(float longitude) override;
+    void SetLongitude(float radius) override;
     void SetEmissionRate(float rate) override;
     void SetSpline(const C3Vector* points, uint32_t count);
 };

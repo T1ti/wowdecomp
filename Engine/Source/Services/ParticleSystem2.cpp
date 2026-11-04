@@ -2857,7 +2857,7 @@ void CSphereParticleEmitter::SetLongitude(float longitude) {
 // VERIFY: 32c67748 auto
 // OFFSET: 0x009814E0
 void CSplineParticleEmitter::SetEmissionRate(float rate) {
-    this->m_ratePerUnit = rate;
+    this->m_requestedEmissionRate = rate;
     this->m_params.m_emissionRate = rate * this->m_end;
 }
 
@@ -3043,7 +3043,7 @@ void CSplineParticleEmitter::SetHeight(float height) {
     if (fabs(end - this->m_end) >= 0.00000023841858f) {
         this->m_end = end;
         this->m_emitAtEnd = 1;
-        this->m_params.m_emissionRate = end * this->m_ratePerUnit;
+        this->m_params.m_emissionRate = end * this->m_requestedEmissionRate;
     }
 }
 
@@ -3055,8 +3055,8 @@ void CSplineParticleEmitter::SetLatitude(float latitude) {
 
 // VERIFY: 027aa93b auto
 // OFFSET: 0x009814D0
-void CSplineParticleEmitter::SetLongitude(float longitude) {
-    this->m_longitude = longitude;
+void CSplineParticleEmitter::SetLongitude(float radius) {
+    this->m_radius = radius;
 }
 
 // VERIFY: 4df0155e manual
@@ -3096,8 +3096,8 @@ void CSplineParticleEmitter::CreateParticle(CParticle2& particle, float time, co
             C33Matrix rotation = C33Matrix::Rotation(CRandom::sfloat_(this->m_random) * this->m_latitude, tangent, true);
             C3Vector direction = up * rotation;
 
-            if (0.0f != this->m_longitude) {
-                C3Vector offset(direction.x * this->m_longitude, direction.y * this->m_longitude, this->m_longitude * direction.z);
+            if (0.0f != this->m_radius) {
+                C3Vector offset(direction.x * this->m_radius, direction.y * this->m_radius, this->m_radius * direction.z);
                 float distance = CRandom::ufloat_(this->m_random);
                 particle.m_position.x = offset.x * distance + particle.m_position.x;
                 particle.m_position.y = offset.y * distance + particle.m_position.y;
@@ -3140,9 +3140,9 @@ CSplineParticleEmitter::CSplineParticleEmitter() {
     this->m_end = 0.0f;
     this->m_latitude = 0.0f;
     this->m_emitterType = PET_SPLINE_EMITTER;
-    this->m_longitude = 0.0f;
+    this->m_radius = 0.0f;
     this->m_emitAtEnd = 0;
-    this->m_ratePerUnit = 0.0f;
+    this->m_requestedEmissionRate = 0.0f;
 }
 
 // VERIFY: e9bf0ccf manual
@@ -3156,8 +3156,8 @@ CSplineParticleEmitter::CSplineParticleEmitter(const CSplineParticleEmitter& sou
     this->m_start = source.m_start;
     this->m_end = source.m_end;
     this->m_latitude = source.m_latitude;
-    this->m_longitude = source.m_longitude;
-    this->m_ratePerUnit = source.m_ratePerUnit;
+    this->m_radius = source.m_radius;
+    this->m_requestedEmissionRate = source.m_requestedEmissionRate;
     this->m_emitAtEnd = source.m_emitAtEnd;
     this->m_spline = source.m_spline;
 }
