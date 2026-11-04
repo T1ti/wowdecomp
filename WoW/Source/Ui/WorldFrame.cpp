@@ -1197,8 +1197,8 @@ int32_t CGWorldFrame::HitTestPoint(float x, float y, int32_t a3, HITTESTRESULT* 
         C3Vector end = { 0.0f, 0.0f, 0.0f };
 
         if (this->GetLineSegment(x, y, &start, &end)) {
-            result->m_segStart = start;
-            result->m_segEnd = end;
+            result->m_segment.start = start;
+            result->m_segment.end = end;
             kind = this->HitTest(start, end, flags, result);
 
             if (kind >= HIT_OBJECT) {
@@ -1232,8 +1232,8 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_defaultActionHit.m_guid = WOWGUID();
     this->m_defaultActionHit.m_point = { 0.0f, 0.0f, 0.0f };
     this->m_defaultActionHit.m_distance = 0.0f;
-    this->m_defaultActionHit.m_segStart = { 0.0f, 0.0f, 0.0f };
-    this->m_defaultActionHit.m_segEnd = { 0.0f, 0.0f, 0.0f };
+    this->m_defaultActionHit.m_segment.start = { 0.0f, 0.0f, 0.0f };
+    this->m_defaultActionHit.m_segment.end = { 0.0f, 0.0f, 0.0f };
     this->m_defaultActionPointDDC = { 0.0f, 0.0f };
     this->m_worldFlags = (this->m_worldFlags & ~0x3) | 0x1;
     this->m_viewportDDC = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1854,8 +1854,8 @@ void CGWorldFrame::OnLayerUpdate(float elapsedSec) {
     hit.m_point = C3Vector(0.0f, 0.0f, 0.0f);
     hit.m_guid = WOWGUID();
     hit.m_distance = 0.0f;
-    hit.m_segStart = C3Vector(0.0f, 0.0f, 0.0f);
-    hit.m_segEnd = C3Vector(0.0f, 0.0f, 0.0f);
+    hit.m_segment.start = C3Vector(0.0f, 0.0f, 0.0f);
+    hit.m_segment.end = C3Vector(0.0f, 0.0f, 0.0f);
     int32_t kind = -1;
     CSimpleFrame* focus = top->m_mouseFocus;
 
@@ -2149,9 +2149,9 @@ void CGWorldFrame::PerformDefaultAction(MOUSEBUTTON button) {
 
     if (!player || player->m_unit->m_unitFieldCharmedby) {
         CWorldClickEvent evt;
-        evt.m_segStart = C3Vector(0.0f, 0.0f, 0.0f);
+        evt.m_segment.start = C3Vector(0.0f, 0.0f, 0.0f);
         evt.m_button = button;
-        evt.m_segEnd = C3Vector(0.0f, 0.0f, 0.0f);
+        evt.m_segment.end = C3Vector(0.0f, 0.0f, 0.0f);
         CGGameUI::HandleWorldClick(evt);
         return;
     }
@@ -2171,8 +2171,8 @@ void CGWorldFrame::PerformDefaultAction(MOUSEBUTTON button) {
     switch (this->m_defaultActionHitKind) {
         case HIT_NONE: {
             CWorldClickEvent evt;
-            evt.m_segStart = this->m_defaultActionHit.m_segStart;
-            evt.m_segEnd = this->m_defaultActionHit.m_segEnd;
+            evt.m_segment.start = this->m_defaultActionHit.m_segment.start;
+            evt.m_segment.end = this->m_defaultActionHit.m_segment.end;
             evt.m_button = button;
             CGGameUI::HandleWorldClick(evt);
             break;

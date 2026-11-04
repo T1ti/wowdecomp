@@ -2362,7 +2362,7 @@ int32_t CGGameUI::HandleSpriteClick(const CSpriteClickEvent& evt) {
 int32_t CGGameUI::HandleWorldClick(const CWorldClickEvent& evt) {
     int32_t noCursorItem = CGGameUI::m_cursorItemType == UICURSOR_EMPTY;
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_PLAYER, __FILE__, __LINE__));
-    C3Vector direction(evt.m_segEnd.x - evt.m_segStart.x, evt.m_segEnd.y - evt.m_segStart.y, evt.m_segEnd.z - evt.m_segStart.z);
+    C3Vector direction(evt.m_segment.end.x - evt.m_segment.start.x, evt.m_segment.end.y - evt.m_segment.start.y, evt.m_segment.end.z - evt.m_segment.start.z);
 
     if (noCursorItem && direction.x * direction.x + direction.z * direction.z + direction.y * direction.y != 0.0f && mover && mover->CanAutoInteract() && evt.m_button == MOUSE_BUTTON_RIGHT) {
         mover->SetTrackingDirection(direction);
