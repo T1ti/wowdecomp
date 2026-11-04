@@ -65,19 +65,19 @@ bool OpenDataArchive(const char* name, System_SFile::ARCHIVEREC** archive) {
 int32_t StreamingManager::GetNextState() {
     switch (this->m_gameState) {
         case 1:
-            return 1;
+            return StreamingManager::STATE::START_CHARACTER;
 
         case 2:
-            return 3;
+            return StreamingManager::STATE::START_CURRENT_RACE;
 
         case 3:
-            return 4;
+            return StreamingManager::STATE::BACKGROUND_CURRENT_ZONE;
 
         case 4:
-            return 12;
+            return StreamingManager::STATE::SHUTDOWN;
 
         default:
-            return 0;
+            return StreamingManager::STATE::START_CLIENT;
     }
 }
 
@@ -85,66 +85,66 @@ int32_t StreamingManager::GetNextState() {
 // OFFSET: 0x0041E2C0
 void StreamingManager::AdvanceState(uint32_t& index) {
     switch (this->m_state) {
-        case 0:
-            this->m_state = 1;
+        case StreamingManager::STATE::START_CLIENT:
+            this->m_state = StreamingManager::STATE::START_CHARACTER;
             break;
 
-        case 1:
-        case 3:
-        case 5:
-            this->m_state = 2;
+        case StreamingManager::STATE::START_CHARACTER:
+        case StreamingManager::STATE::START_CURRENT_RACE:
+        case StreamingManager::STATE::BACKGROUND_CURRENT_RACE:
+            this->m_state = StreamingManager::STATE::START_RACE_COMMON;
             break;
 
-        case 2:
-            this->m_state = 6;
+        case StreamingManager::STATE::START_RACE_COMMON:
+            this->m_state = StreamingManager::STATE::BACKGROUND_ALL_RACES;
             break;
 
-        case 4:
-            this->m_state = 5;
+        case StreamingManager::STATE::BACKGROUND_CURRENT_ZONE:
+            this->m_state = StreamingManager::STATE::BACKGROUND_CURRENT_RACE;
             break;
 
-        case 6:
+        case StreamingManager::STATE::BACKGROUND_ALL_RACES:
             if (index == 8) {
-                this->m_state = 7;
+                this->m_state = StreamingManager::STATE::BACKGROUND_ALL_ZONES;
                 index = 0;
             }
 
             break;
 
-        case 7:
+        case StreamingManager::STATE::BACKGROUND_ALL_ZONES:
             if (index == 7) {
-                this->m_state = this->m_enabled ? 9 : 11;
+                this->m_state = this->m_enabled ? StreamingManager::STATE::LOCALE_ARCHIVES : StreamingManager::STATE::IDLE;
                 index = 0;
             }
 
             break;
 
-        case 8:
+        case StreamingManager::STATE::UNKNOWN_8:
             if (index == 2) {
-                this->m_state = 9;
+                this->m_state = StreamingManager::STATE::LOCALE_ARCHIVES;
                 index = 0;
             }
 
             break;
 
-        case 9:
+        case StreamingManager::STATE::LOCALE_ARCHIVES:
             if (index == 8) {
-                this->m_state = 11;
+                this->m_state = StreamingManager::STATE::IDLE;
                 index = 0;
             }
 
             break;
 
-        case 10:
+        case StreamingManager::STATE::REGION_ARCHIVES:
             if (index == 5) {
-                this->m_state = 11;
+                this->m_state = StreamingManager::STATE::IDLE;
                 index = 0;
             }
 
             break;
 
         default:
-            this->m_state = 12;
+            this->m_state = StreamingManager::STATE::SHUTDOWN;
             break;
     }
 }
@@ -152,8 +152,8 @@ void StreamingManager::AdvanceState(uint32_t& index) {
 // VERIFY: 47a1ea71 manual
 // OFFSET: 0x0041E3B0
 void StreamingManager::Shutdown() {
-    if (this->m_state != 12) {
-        this->m_state = 12;
+    if (this->m_state != StreamingManager::STATE::SHUTDOWN) {
+        this->m_state = StreamingManager::STATE::SHUTDOWN;
         this->m_gameState = 4;
         this->m_dirty = true;
         Blizzard::Lock::EventSet(this->m_event);
@@ -302,19 +302,19 @@ std::string BuildManifestKey(int32_t type, int32_t race, int32_t zone, uint32_t 
     char name[260];
 
     switch (type) {
-        case 0:
+        case StreamingManager::STATE::START_CLIENT:
             key = s_startClientList;
             break;
 
-        case 1:
+        case StreamingManager::STATE::START_CHARACTER:
             key = s_startCharacterList;
             break;
 
-        case 2:
+        case StreamingManager::STATE::START_RACE_COMMON:
             key = s_startRaceCommonList;
             break;
 
-        case 3: {
+        case StreamingManager::STATE::START_CURRENT_RACE: {
             std::string raceName = RaceIdToName(race);
 
             if (raceName.size()) {
@@ -327,9 +327,9 @@ std::string BuildManifestKey(int32_t type, int32_t race, int32_t zone, uint32_t 
             break;
         }
 
-        case 4:
-        case 7: {
-            int32_t number = type == 4 ? zone : GetManifestZone(index);
+        case StreamingManager::STATE::BACKGROUND_CURRENT_ZONE:
+        case StreamingManager::STATE::BACKGROUND_ALL_ZONES: {
+            int32_t number = type == StreamingManager::STATE::BACKGROUND_CURRENT_ZONE ? zone : GetManifestZone(index);
 
             if (number <= 0) {
                 break;
@@ -340,9 +340,9 @@ std::string BuildManifestKey(int32_t type, int32_t race, int32_t zone, uint32_t 
             break;
         }
 
-        case 5:
-        case 6: {
-            std::string raceName = RaceIdToName(type == 5 ? race : GetManifestRace(index));
+        case StreamingManager::STATE::BACKGROUND_CURRENT_RACE:
+        case StreamingManager::STATE::BACKGROUND_ALL_RACES: {
+            std::string raceName = RaceIdToName(type == StreamingManager::STATE::BACKGROUND_CURRENT_RACE ? race : GetManifestRace(index));
 
             if (raceName.size()) {
                 Blizzard::String::Format(name, sizeof(name), s_startBackgroundList, raceName.c_str());
@@ -352,11 +352,11 @@ std::string BuildManifestKey(int32_t type, int32_t race, int32_t zone, uint32_t 
             break;
         }
 
-        case 9:
+        case StreamingManager::STATE::LOCALE_ARCHIVES:
             key = GetLocaleArchiveName(index);
             break;
 
-        case 10:
+        case StreamingManager::STATE::REGION_ARCHIVES:
             key = GetRegionArchiveName(index);
             break;
     }
@@ -367,7 +367,7 @@ std::string BuildManifestKey(int32_t type, int32_t race, int32_t zone, uint32_t 
 // VERIFY: 3cb231be manual
 // OFFSET: 0x0041F460
 float StreamingManager::GetBaseFraction() {
-    std::string key = BuildManifestKey(2, 0, 0, 0);
+    std::string key = BuildManifestKey(StreamingManager::STATE::START_RACE_COMMON, 0, 0, 0);
     std::map<std::string, StreamingFileEntry*>::iterator it = this->m_entries.find(key);
 
     if (it == this->m_entries.end()) {
@@ -382,7 +382,7 @@ float StreamingManager::GetBaseFraction() {
 float StreamingManager::GetLoadFraction(int32_t race) {
     float base = this->GetBaseFraction() * 0.5f;
 
-    std::string key = BuildManifestKey(3, race, 0, 0);
+    std::string key = BuildManifestKey(StreamingManager::STATE::START_CURRENT_RACE, race, 0, 0);
     std::map<std::string, StreamingFileEntry*>::iterator it = this->m_entries.find(key);
 
     if (it == this->m_entries.end()) {
@@ -490,7 +490,7 @@ StreamingManager::StreamingManager() {
     this->m_subzone = -1;
     this->m_area = -1;
     this->m_areaChunk = -1;
-    this->m_state = 0;
+    this->m_state = StreamingManager::STATE::START_CLIENT;
     Blizzard::Lock::EventCreate(this->m_event);
     this->m_thread = nullptr;
 
@@ -665,20 +665,20 @@ StreamingFileEntry* StreamingManager::CreateEntry(int32_t type, const std::strin
     StreamingFileEntry* entry = nullptr;
 
     switch (type) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        case StreamingManager::STATE::START_CLIENT:
+        case StreamingManager::STATE::START_CHARACTER:
+        case StreamingManager::STATE::START_RACE_COMMON:
+        case StreamingManager::STATE::START_CURRENT_RACE:
+        case StreamingManager::STATE::BACKGROUND_CURRENT_ZONE:
+        case StreamingManager::STATE::BACKGROUND_CURRENT_RACE:
+        case StreamingManager::STATE::BACKGROUND_ALL_RACES:
+        case StreamingManager::STATE::BACKGROUND_ALL_ZONES:
             entry = new StreamingFileEntry();
             entry->LoadListfile(nullptr, key.c_str(), nullptr);
             break;
 
-        case 9:
-        case 10:
+        case StreamingManager::STATE::LOCALE_ARCHIVES:
+        case StreamingManager::STATE::REGION_ARCHIVES:
             entry = new StreamingFileEntry();
             entry->LoadListfile(key.c_str(), key.c_str(), nullptr);
             break;
@@ -720,7 +720,7 @@ void StreamingManager::SelectEntry(StreamingFileEntry* previous) {
                 }
             }
 
-            if (this->m_state >= 6) {
+            if (this->m_state >= StreamingManager::STATE::BACKGROUND_ALL_RACES) {
                 index++;
             }
         } while (!entry);
@@ -738,11 +738,11 @@ select:
     if (entry) {
         int32_t priority;
 
-        if (this->m_state < 0) {
+        if (this->m_state < StreamingManager::STATE::START_CLIENT) {
             priority = 6;
-        } else if (this->m_state <= 3) {
+        } else if (this->m_state <= StreamingManager::STATE::START_CURRENT_RACE) {
             priority = 3;
-        } else if (this->m_state == 4) {
+        } else if (this->m_state == StreamingManager::STATE::BACKGROUND_CURRENT_ZONE) {
             priority = 4;
         } else {
             priority = 6;
@@ -773,12 +773,12 @@ uint32_t StreamingManager::Run() {
             this->m_dirty = false;
             this->m_state = this->GetNextState();
 
-            if (this->m_current && (cancelled || this->m_state == 12)) {
+            if (this->m_current && (cancelled || this->m_state == StreamingManager::STATE::SHUTDOWN)) {
                 Blizzard::Streaming::RemoveCompletion(&completion, this->m_current->m_priority);
                 Blizzard::Lock::EventWait(0, this->m_event);
             }
 
-            if (this->m_state == 12) {
+            if (this->m_state == StreamingManager::STATE::SHUTDOWN) {
                 break;
             }
 
@@ -835,7 +835,7 @@ uint32_t StreamingManager::Run() {
                 }
             }
         }
-    } while (this->m_state != 12);
+    } while (this->m_state != StreamingManager::STATE::SHUTDOWN);
 
     this->m_current = nullptr;
     return 0;
@@ -844,11 +844,11 @@ uint32_t StreamingManager::Run() {
 // VERIFY: 3e2a32db manual
 // OFFSET: 0x004213A0
 bool StreamingManager::IsBaseDataReady() {
-    std::string key = BuildManifestKey(2, 0, 0, 0);
+    std::string key = BuildManifestKey(StreamingManager::STATE::START_RACE_COMMON, 0, 0, 0);
     std::map<std::string, StreamingFileEntry*>::iterator it = this->m_entries.find(key);
 
     if (it == this->m_entries.end()) {
-        this->CreateEntry(2, key);
+        this->CreateEntry(StreamingManager::STATE::START_RACE_COMMON, key);
         it = this->m_entries.find(key);
         it->second->ProcessQueue();
     }
@@ -863,11 +863,11 @@ bool StreamingManager::IsRaceDataReady(int32_t race) {
         return false;
     }
 
-    std::string key = BuildManifestKey(3, race, 0, 0);
+    std::string key = BuildManifestKey(StreamingManager::STATE::START_CURRENT_RACE, race, 0, 0);
     std::map<std::string, StreamingFileEntry*>::iterator it = this->m_entries.find(key);
 
     if (it == this->m_entries.end()) {
-        this->CreateEntry(3, key);
+        this->CreateEntry(StreamingManager::STATE::START_CURRENT_RACE, key);
         it = this->m_entries.find(key);
         it->second->ProcessQueue();
     }
