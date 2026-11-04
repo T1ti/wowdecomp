@@ -1093,17 +1093,17 @@ static int32_t Script_SetAction(lua_State* L) {
         const char* text;
 
         switch ((value >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-            case 1:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17: {
+            case PetAction::Kind::SPELL:
+            case PetAction::Kind::UNKNOWN_8:
+            case PetAction::Kind::UNKNOWN_9:
+            case PetAction::Kind::UNKNOWN_10:
+            case PetAction::Kind::UNKNOWN_11:
+            case PetAction::Kind::UNKNOWN_12:
+            case PetAction::Kind::UNKNOWN_13:
+            case PetAction::Kind::UNKNOWN_14:
+            case PetAction::Kind::UNKNOWN_15:
+            case PetAction::Kind::UNKNOWN_16:
+            case PetAction::Kind::UNKNOWN_17: {
                 uint32_t petStart = 0;
                 uint32_t petDuration = 0;
                 uint32_t petEnable = 0;
@@ -1118,13 +1118,13 @@ static int32_t Script_SetAction(lua_State* L) {
                 goto done;
             }
 
-            case 6: {
+            case PetAction::Kind::MODE: {
                 SStrPrintf(token, sizeof(token), "PET_MODE_%s", CGPetInfo::GetModeToken(value & PetAction::PackingMasks::ID_MASK));
                 text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
                 break;
             }
 
-            case 7: {
+            case PetAction::Kind::ORDER: {
                 SStrPrintf(token, sizeof(token), "PET_ACTION_%s", CGPetInfo::GetOrdersToken(value & PetAction::PackingMasks::ID_MASK));
                 text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
                 break;
@@ -1657,7 +1657,7 @@ static int32_t Script_SetPetAction(lua_State* L) {
     uint32_t enable = 0;
     int32_t result;
 
-    if ((kind == 1 || kind - 8 <= (17 - 8)) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
+    if ((kind == PetAction::Kind::SPELL || kind - PetAction::Kind::UNKNOWN_8 <= (PetAction::Kind::UNKNOWN_17 - PetAction::Kind::UNKNOWN_8)) && (Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable), enable) && start && duration) {
         int32_t spellId = action->m_data & PetAction::PackingMasks::ID_MASK;
         result = tooltip->SetSpell(spellId, 0, start + duration - OsGetAsyncTimeMs(), 1, 1, 0, 0, nullptr, nullptr, 0, 0, -1, -1, 0, 0);
     } else {

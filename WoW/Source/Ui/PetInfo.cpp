@@ -194,7 +194,7 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
 
     uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-    if (kind != 1 && (kind <= 7 || kind > 17)) {
+    if (kind != PetAction::Kind::SPELL && (kind <= PetAction::Kind::ORDER || kind > PetAction::Kind::UNKNOWN_17)) {
         return CGPetInfo::PetActionsUsable(false) ? 1 : 0;
     }
 
@@ -252,7 +252,7 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
 int32_t CGPetInfo::IsAttackAction(uint32_t index) {
     PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
 
-    if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == 0x07000000 && (action->m_data & PetAction::PackingMasks::ID_MASK) == 2) {
+    if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_ORDER && (action->m_data & PetAction::PackingMasks::ID_MASK) == 2) {
         return 1;
     }
 
@@ -297,7 +297,7 @@ PetAction* CGPetInfo::FindSpellByID(int32_t spellId) {
         uint32_t action = CGPetInfo::m_actions[i].m_data;
         uint32_t kind = (action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if ((kind == 1 || (kind >= 8 && kind <= 17)) && static_cast<int32_t>(action & PetAction::PackingMasks::ID_MASK) == spellId) {
+        if ((kind == PetAction::Kind::SPELL || (kind >= PetAction::Kind::UNKNOWN_8 && kind <= PetAction::Kind::UNKNOWN_17)) && static_cast<int32_t>(action & PetAction::PackingMasks::ID_MASK) == spellId) {
             return &CGPetInfo::m_actions[i];
         }
     }
@@ -339,7 +339,7 @@ PetAction* CGPetInfo::GetPetSpellAction(int32_t spellId) {
 void CGPetInfo::UpdatePetSpellAction(const PetAction* action) {
     uint32_t value = action->m_data;
 
-    if ((value & PetAction::PackingMasks::KIND_MASK) != 0x1000000) {
+    if ((value & PetAction::PackingMasks::KIND_MASK) != PetAction::PackedKind::PACKED_SPELL) {
         return;
     }
 
@@ -457,7 +457,7 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
         return 0;
     }
 
-    if ((action.m_data & PetAction::PackingMasks::KIND_MASK) == 0x1000000) {
+    if ((action.m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_SPELL) {
         SpellRec spell;
 
         if (g_spellDB.GetRecord(action.m_data & PetAction::PackingMasks::ID_MASK, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
@@ -467,7 +467,7 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
 
     int32_t swap = -1;
 
-    if ((action.m_data & PetAction::PackingMasks::KIND_MASK) != 0x1000000 || (action.m_data & PetAction::PackingMasks::ID_MASK)) {
+    if ((action.m_data & PetAction::PackingMasks::KIND_MASK) != PetAction::PackedKind::PACKED_SPELL || (action.m_data & PetAction::PackingMasks::ID_MASK)) {
         for (uint32_t i = 0; i < 10; i++) {
             if ((CGPetInfo::m_actions[i].m_data & PetAction::PackingMasks::IDENTITY_MASK) == (action.m_data & PetAction::PackingMasks::IDENTITY_MASK) && i != index) {
                 CGPetInfo::m_actions[i].m_data = 0;
@@ -480,11 +480,11 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
     if (swap < 0) {
         uint32_t kind = (CGPetInfo::m_actions[index].m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if (kind == 6 || kind == 7) {
+        if (kind == PetAction::Kind::MODE || kind == PetAction::Kind::ORDER) {
             for (uint32_t i = 0; i < 10; i++) {
                 uint32_t slotType = (CGPetInfo::m_actions[i].m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-                if (slotType != 6 && slotType != 7 && !(CGPetInfo::m_actions[i].m_data & PetAction::PackingMasks::ID_MASK)) {
+                if (slotType != PetAction::Kind::MODE && slotType != PetAction::Kind::ORDER && !(CGPetInfo::m_actions[i].m_data & PetAction::PackingMasks::ID_MASK)) {
                     swap = i;
                     break;
                 }
@@ -646,17 +646,17 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
     WOWGUID actionTarget = (a3 || target.m_guid) ? target : CGGameUI::m_lockedTarget;
 
     switch ((action.m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-        case 1:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17: {
+        case PetAction::Kind::SPELL:
+        case PetAction::Kind::UNKNOWN_8:
+        case PetAction::Kind::UNKNOWN_9:
+        case PetAction::Kind::UNKNOWN_10:
+        case PetAction::Kind::UNKNOWN_11:
+        case PetAction::Kind::UNKNOWN_12:
+        case PetAction::Kind::UNKNOWN_13:
+        case PetAction::Kind::UNKNOWN_14:
+        case PetAction::Kind::UNKNOWN_15:
+        case PetAction::Kind::UNKNOWN_16:
+        case PetAction::Kind::UNKNOWN_17: {
             if (!CGPetInfo::PetActionsUsable(true)) {
                 return;
             }
@@ -718,7 +718,7 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
             return;
         }
 
-        case 6:
+        case PetAction::Kind::MODE:
             if (!CGPetInfo::PetActionsUsable(false)) {
                 return;
             }
@@ -726,7 +726,7 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
             CGPetInfo::SetPetMode(action.m_data & PetAction::PackingMasks::ID_MASK);
             break;
 
-        case 7: {
+        case PetAction::Kind::ORDER: {
             if (!CGPetInfo::PetActionsUsable(false)) {
                 return;
             }
@@ -884,7 +884,7 @@ int32_t Packet_SMSG_PET_SPELLS(void* param, NETMESSAGE msgId, uint32_t time, CDa
             value.m_data = action;
             CGPetInfo::SetAction(i, value, 0);
 
-            if (((action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) >= 8 && ((action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) <= 17) {
+            if (((action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) >= PetAction::Kind::UNKNOWN_8 && ((action >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) <= PetAction::Kind::UNKNOWN_17) {
                 CGSpellBook::AddSpellToNameCache(action & PetAction::PackingMasks::ID_MASK, 1);
             }
         }

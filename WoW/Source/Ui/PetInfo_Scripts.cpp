@@ -52,17 +52,17 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
     char buffer[64];
 
     switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-        case 1:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17: {
+        case PetAction::Kind::SPELL:
+        case PetAction::Kind::UNKNOWN_8:
+        case PetAction::Kind::UNKNOWN_9:
+        case PetAction::Kind::UNKNOWN_10:
+        case PetAction::Kind::UNKNOWN_11:
+        case PetAction::Kind::UNKNOWN_12:
+        case PetAction::Kind::UNKNOWN_13:
+        case PetAction::Kind::UNKNOWN_14:
+        case PetAction::Kind::UNKNOWN_15:
+        case PetAction::Kind::UNKNOWN_16:
+        case PetAction::Kind::UNKNOWN_17: {
             SpellRec spell;
             int32_t found = g_spellDB.GetRecord(id, &spell);
 
@@ -96,7 +96,7 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
 
             break;
         }
-        case 6: {
+        case PetAction::Kind::MODE: {
             SStrPrintf(buffer, sizeof(buffer), "PET_MODE_%s", CGPetInfo::GetModeToken(id));
             lua_pushstring(L, buffer);
             lua_pushnil(L);
@@ -113,7 +113,7 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
             lua_pushnil(L);
             break;
         }
-        case 7: {
+        case PetAction::Kind::ORDER: {
             SStrPrintf(buffer, sizeof(buffer), "PET_ACTION_%s", CGPetInfo::GetOrdersToken(id));
             lua_pushstring(L, buffer);
             lua_pushnil(L);
@@ -298,7 +298,7 @@ static int32_t Script_GetPetActionCooldown(lua_State* L) {
     if (action && action->m_data) {
         uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-        if (kind == 1 || kind - 8 <= (17 - 8)) {
+        if (kind == PetAction::Kind::SPELL || kind - PetAction::Kind::UNKNOWN_8 <= (PetAction::Kind::UNKNOWN_17 - PetAction::Kind::UNKNOWN_8)) {
             Spell_C_GetSpellCooldown(action->m_data & PetAction::PackingMasks::ID_MASK, 1, &duration, &start, &enable);
         }
     }
@@ -481,7 +481,7 @@ static int32_t Script_GetPetActionSlotUsable(lua_State* L) {
 static int32_t Script_PetPassiveMode(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = 0x06000000;
+    action.m_data = PetAction::PackedKind::PACKED_MODE;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -511,7 +511,7 @@ static int32_t Script_PetAggressiveMode(lua_State* L) {
 static int32_t Script_PetWait(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = 0x07000000;
+    action.m_data = PetAction::PackedKind::PACKED_ORDER;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -654,7 +654,7 @@ static int32_t Script_PickupPetAction(lua_State* L) {
     if (action) {
         CGGameUI::SetCursorPetAction(action);
 
-        if (((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) == 1) {
+        if (((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) == PetAction::Kind::SPELL) {
             CGPetInfo::PickupAction(slot, 1);
         }
     }

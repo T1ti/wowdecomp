@@ -3240,17 +3240,17 @@ void CGGameUI::SetCursorPetAction(const PetAction* action) {
     const char* texture = nullptr;
 
     switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-        case 1:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17: {
+        case PetAction::Kind::SPELL:
+        case PetAction::Kind::UNKNOWN_8:
+        case PetAction::Kind::UNKNOWN_9:
+        case PetAction::Kind::UNKNOWN_10:
+        case PetAction::Kind::UNKNOWN_11:
+        case PetAction::Kind::UNKNOWN_12:
+        case PetAction::Kind::UNKNOWN_13:
+        case PetAction::Kind::UNKNOWN_14:
+        case PetAction::Kind::UNKNOWN_15:
+        case PetAction::Kind::UNKNOWN_16:
+        case PetAction::Kind::UNKNOWN_17: {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(action->m_data & PetAction::PackingMasks::ID_MASK, &spell)) {
@@ -3264,14 +3264,14 @@ void CGGameUI::SetCursorPetAction(const PetAction* action) {
             break;
         }
 
-        case 6: {
+        case PetAction::Kind::MODE: {
             char token[64];
             SStrPrintf(token, sizeof(token), "PET_%s_TEXTURE", CGPetInfo::GetModeToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             texture = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
             break;
         }
 
-        case 7: {
+        case PetAction::Kind::ORDER: {
             char token[64];
             SStrPrintf(token, sizeof(token), "PET_%s_TEXTURE", CGPetInfo::GetOrdersToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             texture = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);

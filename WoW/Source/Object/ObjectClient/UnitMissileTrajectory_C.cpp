@@ -480,7 +480,7 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
 
             uint32_t kind = (action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-            if (kind != 1 && (kind <= 7 || kind > 17)) {
+            if (kind != PetAction::Kind::SPELL && (kind <= PetAction::Kind::ORDER || kind > PetAction::Kind::UNKNOWN_17)) {
                 continue;
             }
 

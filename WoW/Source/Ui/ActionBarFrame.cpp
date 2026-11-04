@@ -459,7 +459,7 @@ int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
 
     uint32_t kind = (petAction >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK;
 
-    if (kind != 1 && kind - 8 > (17 - 8)) {
+    if (kind != PetAction::Kind::SPELL && kind - PetAction::Kind::UNKNOWN_8 > (PetAction::Kind::UNKNOWN_17 - PetAction::Kind::UNKNOWN_8)) {
         return 0;
     }
 
@@ -623,7 +623,7 @@ int32_t CGActionBar::HasAction(uint32_t slot) {
         return 0;
     }
 
-    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - 6 <= (7 - 6)) { // Kinds 6 and 7: pet mode or command.
+    if (((petAction->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) - PetAction::Kind::MODE <= (PetAction::Kind::ORDER - PetAction::Kind::MODE)) { // Kinds 6 and 7: pet mode or command.
         return 1;
     }
 
@@ -856,17 +856,17 @@ const char* CGActionBar::GetTexture(int32_t slot) {
     }
 
     switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-        case 1:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17: {
+        case PetAction::Kind::SPELL:
+        case PetAction::Kind::UNKNOWN_8:
+        case PetAction::Kind::UNKNOWN_9:
+        case PetAction::Kind::UNKNOWN_10:
+        case PetAction::Kind::UNKNOWN_11:
+        case PetAction::Kind::UNKNOWN_12:
+        case PetAction::Kind::UNKNOWN_13:
+        case PetAction::Kind::UNKNOWN_14:
+        case PetAction::Kind::UNKNOWN_15:
+        case PetAction::Kind::UNKNOWN_16:
+        case PetAction::Kind::UNKNOWN_17: {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(action->m_data & PetAction::PackingMasks::ID_MASK, &spell)) {
@@ -880,10 +880,10 @@ const char* CGActionBar::GetTexture(int32_t slot) {
 
             return nullptr;
         }
-        case 6:
+        case PetAction::Kind::MODE:
             SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetModeToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             return FrameScript_GetText(s_texture, -1, GENDER_NOT_APPLICABLE);
-        case 7:
+        case PetAction::Kind::ORDER:
             SStrPrintf(s_texture, sizeof(s_texture), "PET_%s_TEXTURE", CGPetInfo::GetOrdersToken(action->m_data & PetAction::PackingMasks::ID_MASK));
             return FrameScript_GetText(s_texture, -1, GENDER_NOT_APPLICABLE);
     }
@@ -921,22 +921,22 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
         uint32_t id = action->m_data & PetAction::PackingMasks::ID_MASK;
 
         switch ((action->m_data >> 24) & PetAction::PackingMasks::KIND_VALUE_MASK) {
-            case 6:
+            case PetAction::Kind::MODE:
                 return CGPetInfo::GetPetMode() == id;
-            case 7:
+            case PetAction::Kind::ORDER:
                 if ((CGPetInfo::m_petMode >> 8) == id || (id == 2 && CGPetInfo::m_attackingTarget)) {
                     return 1;
                 }
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17:
+            case PetAction::Kind::UNKNOWN_8:
+            case PetAction::Kind::UNKNOWN_9:
+            case PetAction::Kind::UNKNOWN_10:
+            case PetAction::Kind::UNKNOWN_11:
+            case PetAction::Kind::UNKNOWN_12:
+            case PetAction::Kind::UNKNOWN_13:
+            case PetAction::Kind::UNKNOWN_14:
+            case PetAction::Kind::UNKNOWN_15:
+            case PetAction::Kind::UNKNOWN_16:
+            case PetAction::Kind::UNKNOWN_17:
                 return Spell_C_IsCurrentSpell(CGActionBar::GetSpell(slot, petSpell));
         }
 
