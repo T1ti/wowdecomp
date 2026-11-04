@@ -4512,12 +4512,12 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
     // STATIC: 0x00CDD400
     static C3Vector s_clipNewVerts[32];
 
-    World::CLIPINFO infos[32];
-    World::CLIPINFO newInfos[32];
-    World::CLIPINFO* outInfos[32];
-    World::CLIPINFO* inInfos[32];
+    ClipInfo infos[32];
+    ClipInfo newInfos[32];
+    ClipInfo* outInfos[32];
+    ClipInfo* inInfos[32];
     C3Vector* newVert = s_clipNewVerts;
-    World::CLIPINFO* newInfo = newInfos;
+    ClipInfo* newInfo = newInfos;
     uint32_t andCode = 0xFFFFFFFF;
     uint32_t orCode = 0;
 
@@ -4528,8 +4528,8 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
     for (uint32_t i = 0; i < count; i++) {
         infos[i].Set(verts[i]);
         inInfos[i] = &infos[i];
-        andCode &= infos[i].outcode;
-        orCode |= infos[i].outcode;
+        andCode &= infos[i].mask;
+        orCode |= infos[i].mask;
         s_clipInVerts[i] = &verts[i];
     }
 
@@ -4543,51 +4543,51 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
         return true;
     }
 
-    World::CLIPPOLY polyA;
-    polyA.verts = s_clipInVerts;
-    polyA.infos = inInfos;
+    ClipFrame polyA;
+    polyA.points = s_clipInVerts;
+    polyA.info = inInfos;
     polyA.count = count;
-    World::CLIPPOLY polyB;
-    polyB.verts = s_clipOutVerts;
-    polyB.infos = outInfos;
+    ClipFrame polyB;
+    polyB.points = s_clipOutVerts;
+    polyB.info = outInfos;
     polyB.count = 0;
-    World::CLIPPOLY* src = &polyA;
-    World::CLIPPOLY* dst = &polyB;
+    ClipFrame* src = &polyA;
+    ClipFrame* dst = &polyB;
     uint32_t mask = 0x80000000;
 
     for (uint32_t plane = 0; plane < 6; plane++) {
         if (mask & orCode) {
             uint32_t prev = src->count - 1;
-            uint32_t prevCode = mask & src->infos[prev]->outcode;
+            uint32_t prevCode = mask & src->info[prev]->mask;
             dst->count = 0;
 
             for (uint32_t i = 0; i < src->count; i++) {
-                uint32_t code = mask & src->infos[i]->outcode;
+                uint32_t code = mask & src->info[i]->mask;
 
                 if (prevCode != code) {
-                    float denom = src->infos[prev]->d[plane] - src->infos[i]->d[plane];
+                    float denom = src->info[prev]->bc[plane] - src->info[i]->bc[plane];
 
                     if (0.0f == denom) {
                         denom = 0.000099999997f;
                     }
 
-                    float t = src->infos[prev]->d[plane] / denom;
-                    const C3Vector* a = src->verts[prev];
-                    const C3Vector* b = src->verts[i];
+                    float t = src->info[prev]->bc[plane] / denom;
+                    const C3Vector* a = src->points[prev];
+                    const C3Vector* b = src->points[i];
                     newVert->x = (b->x - a->x) * t + a->x;
                     newVert->y = (b->y - a->y) * t + a->y;
                     newVert->z = t * (b->z - a->z) + a->z;
                     newInfo->Set(*newVert);
-                    dst->verts[dst->count] = newVert;
-                    dst->infos[dst->count] = newInfo;
+                    dst->points[dst->count] = newVert;
+                    dst->info[dst->count] = newInfo;
                     newVert++;
                     dst->count++;
                     newInfo++;
                 }
 
                 if (!code) {
-                    dst->verts[dst->count] = src->verts[i];
-                    dst->infos[dst->count] = src->infos[i];
+                    dst->points[dst->count] = src->points[i];
+                    dst->info[dst->count] = src->info[i];
                     dst->count++;
                 }
 
@@ -4599,7 +4599,7 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
                 return false;
             }
 
-            World::CLIPPOLY* swap = src;
+            ClipFrame* swap = src;
             src = dst;
             dst = swap;
         }
@@ -4607,7 +4607,7 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
         mask >>= 1;
     }
 
-    *outVerts = src->verts;
+    *outVerts = src->points;
     *outCount = src->count;
     return true;
 }

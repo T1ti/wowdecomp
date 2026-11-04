@@ -8,32 +8,17 @@ class C3Vector;
 
 class ClipInfo {
     public:
-    /* 0000 */ uint32_t unused_0000;
-    /* 0004 */ uint32_t unused_0004;
-    /* 0008 */ uint32_t unused_0008;
-    /* 000C */ uint32_t unused_000C;
-    /* 0010 */ uint32_t unused_0010;
-    /* 0014 */ uint32_t unused_0014;
-    /* 0018 */ uint32_t unused_0018;
+    /* 0000 */ float bc[6]; // Boundary coordinates: x, 1-x, y, 1-y, z, 1-z for the normalized [0,1] clip volume.
+    /* 0018 */ uint32_t mask; // Boundary-coordinate sign bits in bits 31 through 26, in the same plane order.
+    /* 001C */ uint32_t filler; // Trailing word of the 32-byte record; Set does not write it.
+
+    void Set(const C3Vector& ndc);
 };
 
-namespace World {
-
-    struct CLIPINFO {
-        float d[6];
-        uint32_t outcode;
-        uint32_t pad;
-
-        void Set(const C3Vector& ndc);
-    };
-
-    struct CLIPPOLY {
-        /* 0000 */ C3Vector** verts;
-        /* 0004 */ CLIPINFO** infos;
-        /* 0008 */ uint32_t count;
-    };
-
-}
-
+struct ClipFrame {
+    /* 0000 */ C3Vector** points; // Parallel arrays of vertex pointers and their boundary coordinates/masks.
+    /* 0004 */ ClipInfo** info;
+    /* 0008 */ uint32_t count;
+};
 
 #endif
