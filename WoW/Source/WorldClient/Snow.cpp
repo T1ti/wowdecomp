@@ -5,6 +5,7 @@
 #include "Engine/Source/Base/Handle.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/Gx/CGxBuf.h"
+#include "Engine/Source/Gx/CGxVertexPCT.h"
 #include "Engine/Source/Gx/CGxDevice/CGxShader.h"
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Gx/Gx.h"
@@ -449,8 +450,8 @@ void Snow::RenderPacketsSW() {
         }
 
         float age = (now - packet->m_packetStartTick) * 0.0009765625f;
-        CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 24, 3 * packet->m_currParticle);
-        uint8_t* vertices = reinterpret_cast<uint8_t*>(g_theGxDevicePtr->BufLock(buf));
+        CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), 3 * packet->m_currParticle);
+        CGxVertexPCT* vertices = reinterpret_cast<CGxVertexPCT*>(g_theGxDevicePtr->BufLock(buf));
         uint32_t vertexCount = 0;
 
         for (uint32_t i = 0; i < packet->m_currParticle; i++) {
@@ -482,13 +483,13 @@ void Snow::RenderPacketsSW() {
             C3Vector relative(position.x - camera.x, position.y - camera.y, position.z - camera.z);
 
             for (uint32_t j = 0; j < 3; j++) {
-                C3Vector* p = reinterpret_cast<C3Vector*>(vertices);
+                C3Vector* p = &vertices->p;
                 p->x = relative.x + corners[j].x;
                 p->y = relative.y + corners[j].y;
                 p->z = relative.z + corners[j].z;
-                *reinterpret_cast<CImVector*>(vertices + 12) = color;
-                *reinterpret_cast<C2Vector*>(vertices + 16) = s_texCoords[j];
-                vertices += 24;
+                vertices->c = color;
+                vertices->tc = s_texCoords[j];
+                vertices++;
             }
 
             vertexCount += 3;
