@@ -515,10 +515,10 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
         return;
     }
 
-    if (this->m_coordUpdate) {
+    if (this->m_coordUpdateData.callback) {
         C3Vector srcPos = this->m_srcPos;
         C3Vector dstPos = this->m_dstPos;
-        this->m_coordUpdate(this->m_coordUpdateParam, index, &srcPos, &dstPos);
+        this->m_coordUpdateData.callback(this->m_coordUpdateData.context, index, &srcPos, &dstPos);
         this->m_srcPos = srcPos;
         this->m_dstPos = dstPos;
     }
@@ -920,8 +920,8 @@ uint32_t CLightningManager::Add(void (*coordUpdate)(void*, uint32_t, C3Vector*, 
     }
 
     CLightning* bolt = this->m_bolts.m_data[index];
-    bolt->m_coordUpdate = coordUpdate;
-    bolt->m_coordUpdateParam = param;
+    bolt->m_coordUpdateData.callback = coordUpdate;
+    bolt->m_coordUpdateData.context = param;
 
     return index;
 }

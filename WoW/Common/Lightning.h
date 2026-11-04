@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Services/LightningCoordUpdateData.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -48,8 +49,7 @@ class CLightning {
     /* 0068 */ CAaBox m_bounds;
     /* 0080 */ float m_texOffset;
     /* 0084 */ CTexture* m_texture;
-    /* 0088 */ void (*m_coordUpdate)(void*, uint32_t, C3Vector*, C3Vector*);
-    /* 008C */ void* m_coordUpdateParam;
+    /* 0088 */ LightningCoordUpdateData m_coordUpdateData;
     /* 0090 */ uint32_t m_flags;
     /* 0094 */ float m_waveAngle;
     /* 0098 */ float m_waveSpin;
