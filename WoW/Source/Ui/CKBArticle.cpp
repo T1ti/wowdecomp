@@ -20,7 +20,7 @@ void CKBArticle::_ComputeCachedData() {
 // VERIFY: ffc220ae auto
 // OFFSET: 0x00551430
 int32_t CKBArticle::BeginLoading(int32_t articleId, int32_t searchType) {
-    if (this->m_state == 1 || this->m_inQueue) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
         return 0;
     }
 
@@ -38,12 +38,12 @@ int32_t CKBArticle::BeginLoading(int32_t articleId, int32_t searchType) {
     url += s_localeCode;
 
     if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = 3;
+        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         this->_SendFailureEvent();
         return 0;
     }
 
-    this->m_state = 1;
+    this->m_state = CKBPage::PAGE_STATE::LOADING;
     this->m_loadingNext = CKBPage::s_pLoadingQueue_Head;
     CKBPage::s_pLoadingQueue_Head = this;
     this->m_inQueue = 1;

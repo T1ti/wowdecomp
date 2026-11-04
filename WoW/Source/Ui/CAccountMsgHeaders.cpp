@@ -26,7 +26,7 @@ void CAccountMsgHeaders::_SendFailureEvent() {
 // VERIFY: da97ce32 manual
 // OFFSET: 0x0054FB50
 const char* CAccountMsgHeaders::GetHeaderSubject(int32_t index) {
-    if (this->m_state == 1 || index < 0 || index >= this->m_count) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || index < 0 || index >= this->m_count) {
         return nullptr;
     }
 
@@ -39,7 +39,7 @@ const char* CAccountMsgHeaders::GetHeaderSubject(int32_t index) {
 // VERIFY: 40ef5b47 manual
 // OFFSET: 0x0054FBB0
 int32_t CAccountMsgHeaders::GetHeaderPriority(int32_t index) {
-    if (this->m_state == 1 || index < 0 || index >= this->m_count) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || index < 0 || index >= this->m_count) {
         return 0;
     }
 
@@ -50,7 +50,7 @@ int32_t CAccountMsgHeaders::GetHeaderPriority(int32_t index) {
 // VERIFY: 0b60f3e8 auto
 // OFFSET: 0x0054FBF0
 int32_t CAccountMsgHeaders::GetMessageId(int32_t index) {
-    if (this->m_state == 1 || index < 0 || index >= this->m_count) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || index < 0 || index >= this->m_count) {
         return 0;
     }
 
@@ -80,7 +80,7 @@ int32_t CAccountMsgHeaders::GetNumUnreadUrgentMsgs() {
 // VERIFY: 4579967f manual
 // OFFSET: 0x00550140
 int32_t CAccountMsgHeaders::GetIndexHighestPriorityUnreadMsg() {
-    if (this->m_state == 1) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING) {
         return 0;
     }
 
@@ -100,7 +100,7 @@ int32_t CAccountMsgHeaders::GetIndexHighestPriorityUnreadMsg() {
 // VERIFY: 0b06d57d manual
 // OFFSET: 0x005501C0
 int32_t CAccountMsgHeaders::GetIndexNextUnreadMsg(int32_t index) {
-    if (this->m_state == 1) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING) {
         return -1;
     }
 
@@ -165,7 +165,7 @@ CAccountMsgHeaders::~CAccountMsgHeaders() {
 // VERIFY: 0dbdc78a auto
 // OFFSET: 0x005506A0
 int32_t CAccountMsgHeaders::LoadHeaders() {
-    if (this->m_state == 1 || this->m_inQueue) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
         return 0;
     }
 
@@ -193,7 +193,7 @@ int32_t CAccountMsgHeaders::LoadHeaders() {
     }
 
     if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = 3;
+        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         return 0;
     }
 

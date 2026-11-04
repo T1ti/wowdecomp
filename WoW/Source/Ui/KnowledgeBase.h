@@ -34,7 +34,19 @@ class CKBPage {
 
     static bool LoadingCallback(void* param, const char* data, uint32_t size, bool done, HTTPError::ErrorCode error);
 
-    /* 0004 */ uint32_t m_state;
+    enum PAGE_STATE : uint32_t {
+        IDLE = 0,
+        LOADING = 1,
+        READY = 2,
+        DOWNLOAD_START_FAILED = 3,
+        CALLBACK_FAILED = 4,
+        TIMEOUT = 5,
+        NOT_FOUND = 6,
+        BUFFER_ALLOCATION_FAILED = 7,
+        XML_LOAD_FAILED = 8,
+    };
+
+    /* 0004 */ PAGE_STATE m_state;
     /* 0008 */ SCritSect m_lock;
     /* 0030 */ CDynamicString* m_data;
     /* 0034 */ XMLTree* m_tree;

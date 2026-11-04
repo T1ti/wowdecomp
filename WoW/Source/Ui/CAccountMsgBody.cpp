@@ -17,7 +17,7 @@ CAccountMsgBody::~CAccountMsgBody() {
 // VERIFY: 8fed53e6 auto
 // OFFSET: 0x0054FC50
 int32_t CAccountMsgBody::LoadBody(int32_t messageId) {
-    if (this->m_state == 1 || this->m_inQueue) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
         return 0;
     }
 
@@ -48,7 +48,7 @@ int32_t CAccountMsgBody::LoadBody(int32_t messageId) {
     url += messageId;
 
     if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = 3;
+        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         return 0;
     }
 

@@ -23,7 +23,7 @@ CKBQuery::CKBQuery() {
 // VERIFY: 6e2f7385 manual
 // OFFSET: 0x00551250
 XMLNode* CKBQuery::GetArticleHeader(int32_t index) {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -81,7 +81,7 @@ void CKBQuery::_AppendMangledSearchQuery(CDynamicString& url, const char* query)
 // VERIFY: e70fa306 auto
 // OFFSET: 0x00552140
 int32_t CKBQuery::BeginLoading(const char* query, int32_t categoryId, int32_t numArticles, int32_t pageNumber) {
-    if (this->m_state == 1 || this->m_inQueue) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
         return 0;
     }
 
@@ -122,13 +122,13 @@ int32_t CKBQuery::BeginLoading(const char* query, int32_t categoryId, int32_t nu
     url += s_localeCode;
 
     if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = 3;
+        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         this->_SendFailureEvent();
         return 0;
     }
 
     this->m_articleHeaders.m_node = nullptr;
-    this->m_state = 1;
+    this->m_state = CKBPage::PAGE_STATE::LOADING;
     this->m_loadingNext = CKBPage::s_pLoadingQueue_Head;
     CKBPage::s_pLoadingQueue_Head = this;
     this->m_inQueue = 1;

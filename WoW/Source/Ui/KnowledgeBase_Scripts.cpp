@@ -44,28 +44,28 @@ static int32_t Script_KBSetup_BeginLoading(lua_State* L) {
 // VERIFY: e0016275 auto
 // OFFSET: 0x00551760
 static int32_t Script_KBSetup_IsLoaded(lua_State* L) {
-    lua_pushboolean(L, g_KnowledgeBaseSetup.m_state == 2);
+    lua_pushboolean(L, g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY);
     return 1;
 }
 
 // VERIFY: bc5e561c auto
 // OFFSET: 0x00551B90
 static int32_t Script_KBQuery_IsLoaded(lua_State* L) {
-    lua_pushboolean(L, g_KnowledgeBaseQuery.m_state == 2);
+    lua_pushboolean(L, g_KnowledgeBaseQuery.m_state == CKBPage::PAGE_STATE::READY);
     return 1;
 }
 
 // VERIFY: 1d0a0bbd auto
 // OFFSET: 0x00551DA0
 static int32_t Script_KBArticle_IsLoaded(lua_State* L) {
-    lua_pushboolean(L, g_KnowledgeBaseArticle.m_state == 2);
+    lua_pushboolean(L, g_KnowledgeBaseArticle.m_state == CKBPage::PAGE_STATE::READY);
     return 1;
 }
 
 // VERIFY: 3bb58cb3 auto
 // OFFSET: 0x00551790
 static int32_t Script_KBSetup_GetLanguageCount(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         return luaL_error(L, "KBSetup_GetLanguageCount() failed because setup is not loaded");
     }
 
@@ -76,7 +76,7 @@ static int32_t Script_KBSetup_GetLanguageCount(lua_State* L) {
 // VERIFY: 453300cc auto
 // OFFSET: 0x005518C0
 static int32_t Script_KBSetup_GetCategoryCount(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         return luaL_error(L, "KBSetup_GetCategoryCount() failed because setup is not loaded");
     }
 
@@ -87,7 +87,7 @@ static int32_t Script_KBSetup_GetCategoryCount(lua_State* L) {
 // VERIFY: 039b02dc auto
 // OFFSET: 0x005519F0
 static int32_t Script_KBSetup_GetArticleHeaderCount(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         return luaL_error(L, "KBSetup_GetArticleHeaderCount() failed because setup is not loaded");
     }
 
@@ -98,7 +98,7 @@ static int32_t Script_KBSetup_GetArticleHeaderCount(lua_State* L) {
 // VERIFY: 516cbb9d auto
 // OFFSET: 0x00551BC0
 static int32_t Script_KBQuery_GetArticleHeaderCount(lua_State* L) {
-    if (g_KnowledgeBaseQuery.m_state != 2) {
+    if (g_KnowledgeBaseQuery.m_state != CKBPage::PAGE_STATE::READY) {
         return luaL_error(L, "KBQuery_GetArticleHeaderCount() failed because query is not loaded");
     }
 
@@ -109,7 +109,7 @@ static int32_t Script_KBQuery_GetArticleHeaderCount(lua_State* L) {
 // VERIFY: 511f6008 manual
 // OFFSET: 0x005517D0
 static int32_t Script_KBSetup_GetLanguageData(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetLanguageData() failed because setup is not loaded");
         return 0;
     }
@@ -122,14 +122,14 @@ static int32_t Script_KBSetup_GetLanguageData(lua_State* L) {
     }
 
     lua_pushnumber(L, g_KnowledgeBaseSetup._GetInt(node, "id"));
-    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == 2 && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
+    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
     return 2;
 }
 
 // VERIFY: f63ffcdf manual
 // OFFSET: 0x00551900
 static int32_t Script_KBSetup_GetCategoryData(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetCategoryData() failed because setup is not loaded");
         return 0;
     }
@@ -142,14 +142,14 @@ static int32_t Script_KBSetup_GetCategoryData(lua_State* L) {
     }
 
     lua_pushnumber(L, g_KnowledgeBaseSetup._GetInt(node, "id"));
-    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == 2 && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
+    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
     return 2;
 }
 
 // VERIFY: 2a3a128f manual
 // OFFSET: 0x00551A30
 static int32_t Script_KBSetup_GetArticleHeaderData(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetArticleHeaderData() failed because setup is not loaded");
         return 0;
     }
@@ -162,7 +162,7 @@ static int32_t Script_KBSetup_GetArticleHeaderData(lua_State* L) {
     }
 
     lua_pushnumber(L, g_KnowledgeBaseSetup._GetInt(node, "id"));
-    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == 2 && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("subject") : nullptr);
+    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("subject") : nullptr);
     lua_pushboolean(L, g_KnowledgeBaseSetup._GetBool(node, "hotIssue"));
     lua_pushboolean(L, g_KnowledgeBaseSetup._GetBool(node, "updated"));
     return 4;
@@ -171,7 +171,7 @@ static int32_t Script_KBSetup_GetArticleHeaderData(lua_State* L) {
 // VERIFY: 58c4251a auto
 // OFFSET: 0x00551B40
 static int32_t Script_KBSetup_GetTotalArticleCount(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetTotalArticleCount() failed because setup is not loaded");
         return 0;
     }
@@ -183,7 +183,7 @@ static int32_t Script_KBSetup_GetTotalArticleCount(lua_State* L) {
 // VERIFY: 6159c4ce manual
 // OFFSET: 0x00551C00
 static int32_t Script_KBQuery_GetArticleHeaderData(lua_State* L) {
-    if (g_KnowledgeBaseQuery.m_state != 2) {
+    if (g_KnowledgeBaseQuery.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBQuery_GetArticleHeaderData() failed because query is not loaded");
         return 0;
     }
@@ -196,7 +196,7 @@ static int32_t Script_KBQuery_GetArticleHeaderData(lua_State* L) {
     }
 
     lua_pushnumber(L, g_KnowledgeBaseQuery._GetInt(node, "id"));
-    lua_pushstring(L, g_KnowledgeBaseQuery.m_state == 2 && g_KnowledgeBaseQuery.m_tree ? node->GetAttributeByName("subject") : nullptr);
+    lua_pushstring(L, g_KnowledgeBaseQuery.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseQuery.m_tree ? node->GetAttributeByName("subject") : nullptr);
     lua_pushboolean(L, g_KnowledgeBaseQuery._GetBool(node, "hotIssue"));
     lua_pushboolean(L, g_KnowledgeBaseQuery._GetBool(node, "updated"));
     return 4;
@@ -205,7 +205,7 @@ static int32_t Script_KBQuery_GetArticleHeaderData(lua_State* L) {
 // VERIFY: 73c4bd52 auto
 // OFFSET: 0x00551D10
 static int32_t Script_KBQuery_GetTotalArticleCount(lua_State* L) {
-    if (g_KnowledgeBaseQuery.m_state != 2) {
+    if (g_KnowledgeBaseQuery.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBQuery_GetTotalArticleCount() failed because query is not loaded");
         return 0;
     }
@@ -226,7 +226,7 @@ static int32_t Script_KBArticle_BeginLoading(lua_State* L) {
 // VERIFY: 0075add2 manual
 // OFFSET: 0x00551DD0
 static int32_t Script_KBArticle_GetData(lua_State* L) {
-    if (g_KnowledgeBaseArticle.m_state != 2) {
+    if (g_KnowledgeBaseArticle.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBArticle_GetData() failed because article is not loaded");
         return 0;
     }
@@ -244,7 +244,7 @@ static int32_t Script_KBArticle_GetData(lua_State* L) {
 // VERIFY: 52b22198 manual
 // OFFSET: 0x005523A0
 static int32_t Script_KBSetup_GetSubCategoryCount(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetSubCategoryCount() failed because setup is not loaded");
         return 0;
     }
@@ -254,7 +254,7 @@ static int32_t Script_KBSetup_GetSubCategoryCount(lua_State* L) {
 
     if (g_KnowledgeBaseSetup.m_currentCategory == category - 1.0) {
         count = g_KnowledgeBaseSetup.m_numSubCategories;
-    } else if (g_KnowledgeBaseSetup.m_state == 2 && g_KnowledgeBaseSetup.m_tree) {
+    } else if (g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseSetup.m_tree) {
         g_KnowledgeBaseSetup.GetCategory(static_cast<int32_t>(category - 1.0));
         count = g_KnowledgeBaseSetup.m_numSubCategories;
     } else {
@@ -268,7 +268,7 @@ static int32_t Script_KBSetup_GetSubCategoryCount(lua_State* L) {
 // VERIFY: cc04f165 manual
 // OFFSET: 0x00552440
 static int32_t Script_KBSetup_GetSubCategoryData(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBSetup_GetSubCategoryData() failed because setup is not loaded");
         return 0;
     }
@@ -283,14 +283,14 @@ static int32_t Script_KBSetup_GetSubCategoryData(lua_State* L) {
     }
 
     lua_pushnumber(L, g_KnowledgeBaseSetup._GetInt(node, "id"));
-    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == 2 && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
+    lua_pushstring(L, g_KnowledgeBaseSetup.m_state == CKBPage::PAGE_STATE::READY && g_KnowledgeBaseSetup.m_tree ? node->GetAttributeByName("caption") : nullptr);
     return 2;
 }
 
 // VERIFY: f0e5209c manual
 // OFFSET: 0x00552580
 static int32_t Script_KBQuery_BeginLoading(lua_State* L) {
-    if (g_KnowledgeBaseSetup.m_state != 2) {
+    if (g_KnowledgeBaseSetup.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "KBQuery_BeginLoading() failed because setup is not loaded");
         return 0;
     }

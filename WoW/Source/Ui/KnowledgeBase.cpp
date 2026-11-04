@@ -21,7 +21,7 @@ CKBPage* CKBPage::s_pLoadingQueue_Head;
 // VERIFY: 17635375 auto
 // OFFSET: 0x00550AE0
 CKBPage::CKBPage() {
-    this->m_state = 0;
+    this->m_state = CKBPage::PAGE_STATE::IDLE;
     this->m_data = nullptr;
     this->m_tree = nullptr;
     this->m_loadingNext = nullptr;
@@ -38,7 +38,7 @@ bool CKBPage::LoadingCallback(void* param, const char* data, uint32_t size, bool
     }
 
     page->m_lock.Enter();
-    bool loading = page->m_state == 1;
+    bool loading = page->m_state == CKBPage::PAGE_STATE::LOADING;
 
     if (!done) {
         if (!data) {
@@ -53,11 +53,11 @@ bool CKBPage::LoadingCallback(void* param, const char* data, uint32_t size, bool
 
     if (error || !loading) {
         if (error == 2) {
-            page->m_state = 5;
+            page->m_state = CKBPage::PAGE_STATE::TIMEOUT;
         } else if (error == 3) {
-            page->m_state = 6;
+            page->m_state = CKBPage::PAGE_STATE::NOT_FOUND;
         } else {
-            page->m_state = 4;
+            page->m_state = CKBPage::PAGE_STATE::CALLBACK_FAILED;
         }
 
         page->m_lock.Leave();
@@ -70,7 +70,7 @@ bool CKBPage::LoadingCallback(void* param, const char* data, uint32_t size, bool
     }
 
     if (!page->m_data) {
-        page->m_state = 7;
+        page->m_state = CKBPage::PAGE_STATE::BUFFER_ALLOCATION_FAILED;
         page->m_lock.Leave();
         return false;
     }
@@ -97,13 +97,13 @@ bool CKBPage::LoadingCallback(void* param, const char* data, uint32_t size, bool
     page->m_data = nullptr;
 
     if (!page->m_tree) {
-        page->m_state = 8;
+        page->m_state = CKBPage::PAGE_STATE::XML_LOAD_FAILED;
         page->m_lock.Leave();
         return false;
     }
 
     page->_ComputeCachedData();
-    page->m_state = 2;
+    page->m_state = CKBPage::PAGE_STATE::READY;
     page->m_lock.Leave();
     return true;
 }
@@ -111,7 +111,7 @@ bool CKBPage::LoadingCallback(void* param, const char* data, uint32_t size, bool
 // VERIFY: ec9f19a2 auto
 // OFFSET: 0x00550E10
 int32_t CKBSetup::BeginLoading(int32_t numArticles, int32_t pageNumber) {
-    if (this->m_state == 1 || this->m_inQueue) {
+    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
         return 0;
     }
 
@@ -129,7 +129,7 @@ int32_t CKBSetup::BeginLoading(int32_t numArticles, int32_t pageNumber) {
     url += s_localeCode;
 
     if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = 3;
+        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         this->_SendFailureEvent();
         return 0;
     }
@@ -139,7 +139,7 @@ int32_t CKBSetup::BeginLoading(int32_t numArticles, int32_t pageNumber) {
     this->m_categories.m_node = nullptr;
     this->m_subCategories.m_node = nullptr;
     this->m_articleHeaders.m_node = nullptr;
-    this->m_state = 1;
+    this->m_state = CKBPage::PAGE_STATE::LOADING;
     this->m_loadingNext = CKBPage::s_pLoadingQueue_Head;
     CKBPage::s_pLoadingQueue_Head = this;
     this->m_inQueue = 1;
@@ -169,7 +169,7 @@ void CKBPage::_ComputeCachedData() {
 // VERIFY: 8bb4a93d auto
 // OFFSET: 0x00550B60
 int32_t CKBPage::_BeginLoading() {
-    this->m_state = 1;
+    this->m_state = CKBPage::PAGE_STATE::LOADING;
     this->m_loadingNext = CKBPage::s_pLoadingQueue_Head;
     CKBPage::s_pLoadingQueue_Head = this;
     this->m_inQueue = 1;
@@ -192,7 +192,7 @@ XMLNode* CKBPage::_GetRoot(CKBIterator& iterator) {
 // VERIFY: bb9406ad auto
 // OFFSET: [0x00550D40, 0x00551010]
 int32_t CKBPage::_GetInt(XMLNode* node, const char* attribute) const {
-    if (this->m_state != 2 || !this->m_tree || !node) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree || !node) {
         return 0;
     }
 
@@ -203,7 +203,7 @@ int32_t CKBPage::_GetInt(XMLNode* node, const char* attribute) const {
 // VERIFY: 24e29a0d auto
 // OFFSET: 0x00550D80
 const char* CKBPage::_GetBodyString(XMLNode* node) const {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -220,7 +220,7 @@ bool CKBPage::_GetBodyBool(const char* element, const char* child) const {
 // VERIFY: 9b5ccfb5 manual
 // OFFSET: [0x005510B0, 0x005512B0]
 bool CKBPage::_GetBool(XMLNode* node, const char* attribute) const {
-    if (this->m_state != 2 || !this->m_tree || !node) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree || !node) {
         return false;
     }
 
@@ -231,7 +231,7 @@ bool CKBPage::_GetBool(XMLNode* node, const char* attribute) const {
 // VERIFY: d61059d6 manual
 // OFFSET: 0x00551300
 int32_t CKBPage::_GetInt(const char* element, const char* attribute) const {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return 0;
     }
 
@@ -253,7 +253,7 @@ int32_t CKBPage::_GetInt(const char* element, const char* attribute) const {
 
 // INLINED
 const char* CKBPage::_GetBodyString(const char* element, const char* child) const {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -283,7 +283,7 @@ int32_t CKBPage::_GetBodyInt(const char* element, const char* child) const {
 // VERIFY: 8c81adf5 manual
 // OFFSET: 0x00550F50
 XMLNode* CKBSetup::GetLanguage(int32_t index) {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -307,7 +307,7 @@ XMLNode* CKBSetup::GetLanguage(int32_t index) {
 // VERIFY: 6baf22c5 manual
 // OFFSET: 0x00550FB0
 XMLNode* CKBSetup::GetCategoryNode(int32_t index) {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -331,7 +331,7 @@ XMLNode* CKBSetup::GetCategoryNode(int32_t index) {
 // VERIFY: 80098012 manual
 // OFFSET: 0x00551050
 XMLNode* CKBSetup::GetArticleHeader(int32_t index) {
-    if (this->m_state != 2 || !this->m_tree) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
         return nullptr;
     }
 
@@ -444,7 +444,7 @@ void CKBSetup::GetCategory(int32_t category) {
 // VERIFY: a20cef53 manual
 // OFFSET: 0x005520B0
 XMLNode* CKBSetup::GetSubCategory(int32_t category, int32_t subCategory) {
-    if (this->m_state != 2 || !this->m_tree || category < 0) {
+    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree || category < 0) {
         return nullptr;
     }
 
@@ -530,7 +530,7 @@ void CKBPage::UpdateLoadingQueue() {
     CKBPage* page = CKBPage::s_pLoadingQueue_Head;
 
     while (page) {
-        if (page->m_state == 1) {
+        if (page->m_state == CKBPage::PAGE_STATE::LOADING) {
             prev = page;
             page = page->m_loadingNext;
             continue;
@@ -542,7 +542,7 @@ void CKBPage::UpdateLoadingQueue() {
             CKBPage::s_pLoadingQueue_Head = page->m_loadingNext;
         }
 
-        if (page->m_state == 2) {
+        if (page->m_state == CKBPage::PAGE_STATE::READY) {
             page->_SendSuccessEvent();
         } else {
             page->_SendFailureEvent();
@@ -576,7 +576,7 @@ void CKBPage::Shutdown() {
         g_KnowledgeBaseSetup.m_data = nullptr;
     }
 
-    g_KnowledgeBaseSetup.m_state = 0;
+    g_KnowledgeBaseSetup.m_state = CKBPage::PAGE_STATE::IDLE;
 
     if (g_KnowledgeBaseQuery.m_tree) {
         XMLTree_Free(g_KnowledgeBaseQuery.m_tree);
@@ -591,7 +591,7 @@ void CKBPage::Shutdown() {
         g_KnowledgeBaseQuery.m_data = nullptr;
     }
 
-    g_KnowledgeBaseQuery.m_state = 0;
+    g_KnowledgeBaseQuery.m_state = CKBPage::PAGE_STATE::IDLE;
 
     if (g_KnowledgeBaseArticle.m_tree) {
         XMLTree_Free(g_KnowledgeBaseArticle.m_tree);
@@ -606,7 +606,7 @@ void CKBPage::Shutdown() {
         g_KnowledgeBaseArticle.m_data = nullptr;
     }
 
-    g_KnowledgeBaseArticle.m_state = 0;
+    g_KnowledgeBaseArticle.m_state = CKBPage::PAGE_STATE::IDLE;
 }
 
 // VERIFY: 22ec21ae auto
