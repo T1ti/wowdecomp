@@ -1,4 +1,5 @@
 #include "ShadowQuery.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/ConsoleBase/Types.h"
@@ -390,7 +391,7 @@ int32_t CShadowQuery::RenderCallback(CShadowCacheQueryData& data, int32_t band, 
     CShaderEffect::UpdateProjMatrix();
     GxRsSet(GxRs_ScissorTest, 0);
     g_theGxDevicePtr->DeviceSetRenderTarget(GxBuffers_Color, target, 0);
-    GxSceneClear(GxBufferBit_Color | GxBufferBit_Depth, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    GxSceneClear(GxBufferBit_Color | GxBufferBit_Depth, CImVector(COLOR_WHITE_BGRA));
 
     if (g_shadowScissor->m_intValue) {
         GxRsSet(GxRs_ScissorTest, 1);
@@ -548,7 +549,7 @@ void CShadowQuery::Clear(CGxTex* target, CGxTex* depthTarget, float* rect) {
     GxRenderTargetSet(GxBuffers_Depth, depthTarget, 0);
     GxRenderTargetSet(GxBuffers_Color, target, 0);
     GxXformSetViewport(rect[0], rect[1], rect[2], rect[3], 0.0f, 1.0f);
-    GxSceneClear(GxBufferBit_Color | GxBufferBit_Depth, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    GxSceneClear(GxBufferBit_Color | GxBufferBit_Depth, CImVector(COLOR_WHITE_BGRA));
     GxXformSetViewport(viewportMinX, viewportMaxX, viewportMinY, viewportMaxY, viewportMinZ, viewportMaxZ);
     GxRenderTargetSet(GxBuffers_Color, oldTarget, 0);
 }

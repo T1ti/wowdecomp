@@ -1,4 +1,5 @@
 #include "PetitionVendor.h"
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -151,7 +152,7 @@ static int32_t Script_TurnInArenaPetition(lua_State* L) {
     }
 
     uint32_t background = 0xFFFFFFFF;
-    uint32_t emblemColor = 0xFFFFFFFF;
+    uint32_t emblemColor = COLOR_WHITE_ARGB;
     uint32_t borderStyle = 0xFFFFFFFF;
     uint32_t emblemStyle;
     uint32_t borderColor;

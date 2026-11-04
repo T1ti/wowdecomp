@@ -1,4 +1,5 @@
 #include "MapRenderChunk.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include <cmath>
 #include <cstring>
@@ -817,11 +818,11 @@ void CMapRenderChunk::RenderSinglePass() {
 
         for (uint32_t j = 0; j < 145; j++) {
             vertices[0].p = source[j].m_position;
-            vertices[0].c = CImVector(0x00, 0xFF, 0xFF, 0xFF);
+            vertices[0].c = CImVector(COLOR_YELLOW_BGRA);
             vertices[1].p.x = source[j].m_normal.x * 0.75f + source[j].m_position.x;
             vertices[1].p.y = source[j].m_normal.y * 0.75f + source[j].m_position.y;
             vertices[1].p.z = source[j].m_normal.z * 0.75f + source[j].m_position.z;
-            vertices[1].c = CImVector(0x00, 0xFF, 0xFF, 0xFF);
+            vertices[1].c = CImVector(COLOR_YELLOW_BGRA);
             vertices += 2;
             indices[0] = index;
             indices[1] = index + 1;

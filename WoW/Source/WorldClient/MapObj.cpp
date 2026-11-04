@@ -1,4 +1,5 @@
 #include "MapObj.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include <cstdlib>
 #include <malloc.h>
@@ -3949,7 +3950,7 @@ void __stdcall CMapObj::RenderNormals(CMapObjGroup* group) {
         uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
 
         CImVector color;
-        *reinterpret_cast<uint32_t*>(&color) = 0xFFFFFF00;
+        *reinterpret_cast<uint32_t*>(&color) = COLOR_YELLOW_ARGB;
 
         for (uint32_t i = 0; i < chunk; i++) {
             const C3Vector& vertex = group->m_vertexList[start + i];

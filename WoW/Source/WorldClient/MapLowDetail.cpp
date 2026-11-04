@@ -1,4 +1,5 @@
 #include "MapLowDetail.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include <cmath>
 #include <cstring>
@@ -345,7 +346,7 @@ void CMap::BuildLowDetailGridVertices(CMapAreaLow* area, CGxBuf* buf) {
             vertex->p.x = x;
             vertex->p.y = y;
             vertex->p.z = area->m_heights[index++];
-            vertex->c = CImVector(0xFF, 0xFF, 0xFF, 0xFF);
+            vertex->c = CImVector(COLOR_WHITE_BGRA);
             vertex++;
             y -= 33.333332f;
         }
@@ -362,7 +363,7 @@ void CMap::BuildLowDetailGridVertices(CMapAreaLow* area, CGxBuf* buf) {
             vertex->p.x = x;
             vertex->p.y = y;
             vertex->p.z = area->m_heights[index++];
-            vertex->c = CImVector(0xFF, 0xFF, 0xFF, 0xFF);
+            vertex->c = CImVector(COLOR_WHITE_BGRA);
             vertex++;
             y -= 33.333332f;
         }

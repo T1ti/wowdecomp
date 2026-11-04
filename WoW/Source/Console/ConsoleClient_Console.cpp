@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdio>
 #include <malloc.h>
 #include "Engine/Source/Base/Coordinate.h"
@@ -89,15 +90,15 @@ int32_t ConsoleCommand_CharSpacing(const char* command, const char* arguments) {
 int32_t ConsoleCommand_DefaultSettings(const char* command, const char* arguments) {
     s_fontHeight = 0.02f;
 
-    s_colorArray[INPUT_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
-    s_colorArray[DEFAULT_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
-    s_colorArray[ECHO_COLOR] = { 0x80, 0x80, 0x80, 0xFF };
-    s_colorArray[ERROR_COLOR] = { 0x00, 0x00, 0xFF, 0xFF };
-    s_colorArray[WARNING_COLOR] = { 0x00, 0xFF, 0xFF, 0xFF };
-    s_colorArray[GLOBAL_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
-    s_colorArray[ADMIN_COLOR] = { 0xFF, 0xFF, 0xFF, 0xFF };
-    s_colorArray[BACKGROUND_COLOR] = { 0x00, 0x00, 0x00, 0xC0 };
-    s_colorArray[HIGHLIGHT_COLOR] = { 0xFF, 0xFF, 0xFF, 0x80 };
+    s_colorArray[INPUT_COLOR] = { COLOR_WHITE_BGRA };
+    s_colorArray[DEFAULT_COLOR] = { COLOR_WHITE_BGRA };
+    s_colorArray[ECHO_COLOR] = { COLOR_GRAY_128_BGRA };
+    s_colorArray[ERROR_COLOR] = { COLOR_RED_BGRA };
+    s_colorArray[WARNING_COLOR] = { COLOR_YELLOW_BGRA };
+    s_colorArray[GLOBAL_COLOR] = { COLOR_WHITE_BGRA };
+    s_colorArray[ADMIN_COLOR] = { COLOR_WHITE_BGRA };
+    s_colorArray[BACKGROUND_COLOR] = { COLOR_BLACK_ALPHA_192_BGRA };
+    s_colorArray[HIGHLIGHT_COLOR] = { COLOR_WHITE_ALPHA_128_BGRA };
 
     SStrCopy(s_fontName, "Fonts\\ARIALN.ttf", sizeof(s_fontName));
 

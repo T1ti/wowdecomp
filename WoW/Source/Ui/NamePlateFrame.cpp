@@ -1,4 +1,5 @@
 #include "NamePlateFrame.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Common/Types.h"
 #include <new>
 #include <typeinfo>
@@ -26,33 +27,33 @@
 static int32_t s_greenLevelRanges[20] = { 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 };
 
 // STATIC: 0x00B2DA0C
-static CImVector s_friendlyPlayerColor = CImVector(0xFF, 0x00, 0x00, 0xFF);
+static CImVector s_friendlyPlayerColor = CImVector(COLOR_BLUE_BGRA);
 
 // STATIC: 0x00B2DA10
-static CImVector s_friendlyColor = CImVector(0x00, 0xFF, 0x00, 0xFF);
+static CImVector s_friendlyColor = CImVector(COLOR_GREEN_BGRA);
 
 // STATIC: 0x00B2DA14
-static CImVector s_neutralColor = CImVector(0x00, 0xFF, 0xFF, 0xFF);
+static CImVector s_neutralColor = CImVector(COLOR_YELLOW_BGRA);
 
 // STATIC: 0x00B2DA18
-static CImVector s_hostileColor = CImVector(0x00, 0x00, 0xFF, 0xFF);
+static CImVector s_hostileColor = CImVector(COLOR_RED_BGRA);
 
 // STATIC: 0x00B2DA1C
-static CImVector s_levelTextColor = CImVector(0xFF, 0xFF, 0xFF, 0xFF);
+static CImVector s_levelTextColor = CImVector(COLOR_WHITE_BGRA);
 
 // STATIC: 0x00B2DA20
 static CImVector s_classColors[NUM_CLASSES + 1] = {
-    CImVector(0x00, 0x00, 0x00, 0xFF),
+    CImVector(COLOR_BLACK_BGRA),
     CImVector(0x6D, 0x9B, 0xC6, 0xFF),
     CImVector(0xBA, 0x8C, 0xF4, 0xFF),
     CImVector(0x72, 0xD3, 0xAA, 0xFF),
     CImVector(0x68, 0xF4, 0xFF, 0xFF),
-    CImVector(0xFF, 0xFF, 0xFF, 0xFF),
+    CImVector(COLOR_WHITE_BGRA),
     CImVector(0x3A, 0x1E, 0xC4, 0xFF),
     CImVector(0xDD, 0x70, 0x00, 0xFF),
     CImVector(0xEF, 0xCC, 0x68, 0xFF),
     CImVector(0xC9, 0x82, 0x93, 0xFF),
-    CImVector(0x00, 0x00, 0x00, 0xFF),
+    CImVector(COLOR_BLACK_BGRA),
     CImVector(0x0A, 0x7C, 0xFF, 0xFF),
 };
 
@@ -102,9 +103,9 @@ static const CImVector* GetDifficultyColor(int32_t level, int32_t playerLevel) {
     static CImVector s_difficultyColors[5] = {
         CImVector(0x19, 0x19, 0xFF, 0xFF),
         CImVector(0x3F, 0x7F, 0xFF, 0xFF),
-        CImVector(0x00, 0xFF, 0xFF, 0xFF),
+        CImVector(COLOR_YELLOW_BGRA),
         CImVector(0x3F, 0xB2, 0x3F, 0xFF),
-        CImVector(0x7F, 0x7F, 0x7F, 0xFF),
+        CImVector(COLOR_GRAY_127_BGRA),
     };
 
     int32_t diff = level - playerLevel;
@@ -481,7 +482,7 @@ void CGNamePlateFrame::SetCastBarValues(float minValue, float maxValue, float va
 // OFFSET: 0x0098F390
 void CGNamePlateFrame::Initialize(CGUnit_C* unit) {
     this->m_guid = unit->m_obj->m_guid;
-    this->m_unitNameText->SetVertexColor(CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    this->m_unitNameText->SetVertexColor(CImVector(COLOR_WHITE_BGRA));
     this->SetWidth(s_namePlateWidth);
     this->SetHeight(s_namePlateHeight);
 
@@ -614,7 +615,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     void* nameData = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
     this->m_unitNameText = nameData ? new (nameData) CSimpleFontString(this, 2, 1) : nullptr;
     this->m_unitNameText->SetFont(FrameScript_GetText("NAMEPLATE_FONT", -1, GENDER_NOT_APPLICABLE), 0.01f, 0, false);
-    this->m_unitNameText->AddShadow(CImVector(0x00, 0x00, 0x00, 0xFF), C2Vector(0.001f, -0.001f));
+    this->m_unitNameText->AddShadow(CImVector(COLOR_BLACK_BGRA), C2Vector(0.001f, -0.001f));
     this->m_unitNameText->SetFrame(this, 3, 1);
     this->m_unitNameText->SetPoint(FRAMEPOINT_BOTTOM, this, FRAMEPOINT_CENTER, 0.0f, 0.0f, 1);
 
@@ -622,7 +623,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_levelText = levelData ? new (levelData) CSimpleFontString(this, 2, 1) : nullptr;
     this->m_levelText->SetFont(FrameScript_GetText("NAMEPLATE_FONT", -1, GENDER_NOT_APPLICABLE), 0.009f, 0, false);
     this->m_levelText->SetVertexColor(s_levelTextColor);
-    this->m_levelText->AddShadow(CImVector(0x00, 0x00, 0x00, 0xFF), C2Vector(0.001f, -0.001f));
+    this->m_levelText->AddShadow(CImVector(COLOR_BLACK_BGRA), C2Vector(0.001f, -0.001f));
     this->m_levelText->SetFrame(this, 3, 1);
 
     void* skullData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);

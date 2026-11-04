@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Tempest/Color.h"
 #include <cstring>
 #include <malloc.h>
 #include "Engine/Source/Base/Handle.h"
@@ -84,7 +85,7 @@ static const char* s_fontNames[9] = {
 };
 
 // STATIC: 0x00AB63FC
-static CImVector s_pathColor = CImVector(0xFF, 0xFF, 0xFF, 0xFF);
+static CImVector s_pathColor = CImVector(COLOR_WHITE_BGRA);
 
 // STATIC: 0x00AB6400
 static C2Vector s_texCoord[4] = {
@@ -381,7 +382,7 @@ static bool PaintSimpleBackground() {
     };
 
     CImVector color;
-    *reinterpret_cast<uint32_t*>(&color) = 0xFFFFFFFF;
+    *reinterpret_cast<uint32_t*>(&color) = COLOR_WHITE_ARGB;
 
     GxPrimLockVertexPtrs(4, vertices, sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, s_texCoord, sizeof(C2Vector), nullptr, 0);
     g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(s_simpleBackgroundTexture, 1, nullptr));
@@ -400,7 +401,7 @@ static bool PaintBackgroundImage() {
     }
 
     CImVector color;
-    *reinterpret_cast<uint32_t*>(&color) = 0xFFFFFFFF;
+    *reinterpret_cast<uint32_t*>(&color) = COLOR_WHITE_ARGB;
 
     for (uint32_t i = 0; i < 12; i++) {
         GxPrimLockVertexPtrs(4, s_tileVertices[i], sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, s_tileTexCoords[i], sizeof(C2Vector), nullptr, 0);

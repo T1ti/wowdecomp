@@ -1,4 +1,5 @@
 #include "GameUI.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/DB/Rec/FileDataRec.h"
 #include "WoW/Source/DB/Rec/MovieFileDataRec.h"
@@ -187,7 +188,7 @@ static const float TARGET_NEAREST_FRONT_MAX_DISTANCE_SQUARED = 1681.0f;
 static const float TARGET_NEAREST_BACK_MAX_DISTANCE_SQUARED = 100.0f;
 
 // STATIC: 0x00ACC3F8
-CImVector s_deadSelectionColor = CImVector(0x7F, 0x7F, 0x7F, 0xFF);
+CImVector s_deadSelectionColor = CImVector(COLOR_GRAY_127_BGRA);
 
 // STATIC: 0x00AC804C
 const char* g_macroTaint = "";
@@ -5932,10 +5933,10 @@ void CGGameUI::UpdateThreatWarningFromCVar() {
 // OFFSET: 0x00521BF0
 void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t a3) {
     // STATIC: 0x00BD0C94
-    static CImVector s_reactionColors[NUM_UNIT_REACTIONS] = { CImVector(0x00, 0x00, 0xFF, 0xFF), CImVector(0x00, 0x00, 0xFF, 0xFF), CImVector(0x00, 0x80, 0xFF, 0xFF), CImVector(0x00, 0xFF, 0xFF, 0xFF), CImVector(0x00, 0xFF, 0x00, 0xFF), CImVector(0x00, 0xFF, 0x00, 0xFF), CImVector(0x00, 0xFF, 0x00, 0xFF), CImVector(0x00, 0xFF, 0x00, 0xFF) };
+    static CImVector s_reactionColors[NUM_UNIT_REACTIONS] = { CImVector(COLOR_RED_BGRA), CImVector(COLOR_RED_BGRA), CImVector(0x00, 0x80, 0xFF, 0xFF), CImVector(COLOR_YELLOW_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA) };
 
     // STATIC: 0x00BD0C8C
-    static CImVector s_playerColors[2] = { CImVector(0xFF, 0x00, 0x00, 0xFF), CImVector(0xFF, 0x60, 0x60, 0xFF) };
+    static CImVector s_playerColors[2] = { CImVector(COLOR_BLUE_BGRA), CImVector(0xFF, 0x60, 0x60, 0xFF) };
 
     // STATIC: 0x00BD0C88
     static CImVector s_partyColor = CImVector(0xFF, 0xAA, 0xAA, 0xFF);

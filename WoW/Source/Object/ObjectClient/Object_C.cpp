@@ -1,4 +1,5 @@
 #include "Object_C.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/UIUtil/Types.h"
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
@@ -677,7 +678,7 @@ void CGObject_C::Render() {
 // VERIFY: edc3c913 auto
 // OFFSET: 0x004D5F70
 int32_t CGObject_C::GetSelectionHighlightColor(CImVector* color) const {
-    *reinterpret_cast<uint32_t*>(color) = 0xFFFFFFFF;
+    *reinterpret_cast<uint32_t*>(color) = COLOR_WHITE_ARGB;
     return 1;
 }
 

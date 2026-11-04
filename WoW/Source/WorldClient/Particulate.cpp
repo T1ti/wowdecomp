@@ -1,4 +1,5 @@
 #include "Particulate.h"
+#include "Engine/Source/Tempest/Color.h"
 #include <cmath>
 #include "Engine/Source/Base/Handle.h"
 #include "Engine/Source/Base/Status.h"
@@ -270,7 +271,7 @@ void Particulate::Render() {
                     vertices->p.x = s_corners[j].x * particle.m_size + viewX;
                     vertices->p.y = s_corners[j].y * particle.m_size + viewY;
                     vertices->p.z = depth;
-                    vertices->c = CImVector(0xFF, 0xFF, 0xFF, 0xFF);
+                    vertices->c = CImVector(COLOR_WHITE_BGRA);
                     vertices->tc = s_texCoords[texSlot][j];
                     vertices++;
                 }

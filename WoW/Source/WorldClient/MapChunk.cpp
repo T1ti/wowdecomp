@@ -1,4 +1,5 @@
 #include "MapChunk.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/DetailDoodad.h"
 #include "WoW/Source/WorldClient/CDetailDoodadData.h"
@@ -579,7 +580,7 @@ void CMapChunk::CreateVerticesLocal(CGxVertexPNC* v) {
                     v->m_color = color;
                 }
             } else {
-                *reinterpret_cast<uint32_t*>(&v->m_color) = 0xFF7F7F7F;
+                *reinterpret_cast<uint32_t*>(&v->m_color) = COLOR_GRAY_127_ARGB;
             }
 
             height++;
@@ -613,7 +614,7 @@ void CMapChunk::CreateVerticesLocal(CGxVertexPNC* v) {
                         v->m_color = color;
                     }
                 } else {
-                    *reinterpret_cast<uint32_t*>(&v->m_color) = 0xFF7F7F7F;
+                    *reinterpret_cast<uint32_t*>(&v->m_color) = COLOR_GRAY_127_ARGB;
                 }
 
                 height++;

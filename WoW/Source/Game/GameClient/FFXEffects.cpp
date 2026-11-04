@@ -1,4 +1,5 @@
 #include "FFXEffects.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/FFX/PassBox4.h"
 #include "Engine/Source/FFX/PassGauss4.h"
@@ -517,7 +518,7 @@ void PassNetherBlur::Execute() {
     GxRsSet(GxRs_ScissorTest, 0);
     g_theGxDevicePtr->DeviceSetRenderTarget(GxBuffers_Color, target, 0);
     GxXformSetViewport(0.0f, static_cast<float>(FFX::s_quart[1].m_size.x) / FFX::s_quart[1].m_texSize.x, 0.0f, static_cast<float>(FFX::s_quart[1].m_size.y) / FFX::s_quart[1].m_texSize.y, 0.0f, 1.0f);
-    GxSceneClear(GxBufferBit_Color, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    GxSceneClear(GxBufferBit_Color, CImVector(COLOR_WHITE_BGRA));
 
     g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
     g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
@@ -535,7 +536,7 @@ void PassNetherBlur::Execute() {
     GxRsSet(GxRs_ScissorTest, 0);
     g_theGxDevicePtr->DeviceSetRenderTarget(GxBuffers_Color, target, 0);
     GxXformSetViewport(0.0f, static_cast<float>(this->m_output->m_size.x) / this->m_output->m_texSize.x, 0.0f, static_cast<float>(this->m_output->m_size.y) / this->m_output->m_texSize.y, 0.0f, 1.0f);
-    GxSceneClear(GxBufferBit_Color, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    GxSceneClear(GxBufferBit_Color, CImVector(COLOR_WHITE_BGRA));
 
     g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
     g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
@@ -641,7 +642,7 @@ static C2Vector PolarCoord(float u, float v) {
 // OFFSET: 0x007E8410
 void PassFogCombine::BuildVertices(const C2iVector& size, FFX::Tex* tex0, FFX::Tex* tex1) {
     CImVector color;
-    *reinterpret_cast<uint32_t*>(&color) = 0xFFFFFFFF;
+    *reinterpret_cast<uint32_t*>(&color) = COLOR_WHITE_ARGB;
 
     float halfU0 = 0.5f / tex0->m_size.x;
     float halfV0 = 0.5f / tex0->m_size.y;
@@ -774,7 +775,7 @@ void PassNetherCombine::Execute() {
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, this->m_pixelShaders[this->m_useRect]);
 
     CImVector color;
-    *reinterpret_cast<uint32_t*>(&color) = 0xFFFFFFFF;
+    *reinterpret_cast<uint32_t*>(&color) = COLOR_WHITE_ARGB;
 
     if (this->m_fade < 0.75f) {
         float fade = this->m_fade + FrameTime::s_tickTimeSec;

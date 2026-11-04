@@ -1,4 +1,5 @@
 #include <cstdarg>
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdint>
 #include <cstdio>
 #include <malloc.h>
@@ -59,15 +60,15 @@ TSList<CONSOLELINE, TSGetLink<CONSOLELINE> > s_linelist;
 
 // STATIC: 0x00ADBBBC
 CImVector s_colorArray[NUM_COLORTYPES] = {
-    { 0xFF, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0xFF },
-    { 0x80, 0x80, 0x80, 0xFF },
-    { 0x00, 0x00, 0xFF, 0xFF },
-    { 0x00, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0x80 },
-    { 0x00, 0x00, 0x00, 0xC0 },
+    { COLOR_WHITE_BGRA }, // DEFAULT_COLOR
+    { COLOR_WHITE_BGRA }, // INPUT_COLOR
+    { COLOR_GRAY_128_BGRA }, // ECHO_COLOR
+    { COLOR_RED_BGRA }, // ERROR_COLOR
+    { COLOR_YELLOW_BGRA }, // WARNING_COLOR
+    { COLOR_WHITE_BGRA }, // GLOBAL_COLOR
+    { COLOR_WHITE_BGRA }, // ADMIN_COLOR
+    { COLOR_WHITE_ALPHA_128_BGRA }, // HIGHLIGHT_COLOR
+    { COLOR_BLACK_ALPHA_192_BGRA }, // BACKGROUND_COLOR
 };
 
 // STATIC: 0x00CA1690

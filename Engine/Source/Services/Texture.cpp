@@ -1,4 +1,5 @@
 #include <cstddef>
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdint>
 #include <cstring>
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
@@ -53,7 +54,7 @@ static int32_t s_createBlpAsync = 1;
 static TSExplicitList<CTexture, offsetof(CTexture, m_link)> s_textureList;
 
 // STATIC: 0x00AC3354
-static CImVector s_defaultColor = { 0x00, 0xFF, 0x00, 0xFF };
+static CImVector s_defaultColor = { COLOR_GREEN_BGRA };
 
 // STATIC: 0x00AC3358
 static TSExplicitList<CGxTexCache, offsetof(CGxTexCache, m_link)> s_gxTexCacheFree;

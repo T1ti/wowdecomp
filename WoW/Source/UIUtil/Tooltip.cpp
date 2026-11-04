@@ -1,4 +1,5 @@
 #include "Tooltip.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Common/Types.h"
@@ -146,25 +147,25 @@ static const char* s_itemQualityColorStrings[8] = { "|cff9d9d9d", "|cffffffff", 
 uint32_t s_tooltipTitleColor = 0xFFFFD200;
 
 // STATIC: 0x00AD2D30
-uint32_t s_tooltipTextColor = 0xFFFFFFFF;
+uint32_t s_tooltipTextColor = COLOR_WHITE_ARGB;
 
 // STATIC: 0x00AD2D34
 static uint32_t s_tooltipRedColor = 0xFFFF2020;
 
 // STATIC: 0x00AD2D38
-static uint32_t s_tooltipGrayColor = 0xFF808080;
+static uint32_t s_tooltipGrayColor = COLOR_GRAY_128_ARGB;
 
 // STATIC: 0x00AD2D40
-static uint32_t s_tooltipGreenColor = 0xFF00FF00;
+static uint32_t s_tooltipGreenColor = COLOR_GREEN_ARGB;
 
 // STATIC: 0x00AD2D70
-static uint32_t s_threatStatusColors[5] = { 0xFFFFFFFF, 0xFFB0B0B0, 0xFFFFFF77, 0xFFFF9900, 0xFFFF0000 };
+static uint32_t s_threatStatusColors[5] = { COLOR_WHITE_ARGB, 0xFFB0B0B0, 0xFFFFFF77, 0xFFFF9900, COLOR_RED_ARGB };
 
 // STATIC: 0x00AD2E6C
 static const char* s_classificationTokens[6] = { nullptr, "ELITE", "ELITE", nullptr, nullptr, nullptr };
 
 // STATIC: 0x00AD2D84
-static uint32_t s_itemQualityColors[8] = { 0xFF9D9D9D, 0xFFFFFFFF, 0xFF1EFF00, 0xFF0070DD, 0xFFA335EE, 0xFFFF8000, 0xFFE6CC80, 0xFFE6CC80 };
+static uint32_t s_itemQualityColors[8] = { 0xFF9D9D9D, COLOR_WHITE_ARGB, 0xFF1EFF00, 0xFF0070DD, 0xFFA335EE, 0xFFFF8000, 0xFFE6CC80, 0xFFE6CC80 };
 
 // STATIC: 0x00AD2ADC
 const char* CGTooltip::s_objectTypeName = "GameTooltip";
@@ -182,13 +183,13 @@ static const char* s_questDifficultyColorStrings[5] = {
 };
 
 // STATIC: 0x00AD2D48
-static uint32_t s_tooltipBrightRedColor = 0xFFFF0000;
+static uint32_t s_tooltipBrightRedColor = COLOR_RED_ARGB;
 
 // STATIC: 0x00AD2D50
 static uint32_t s_tooltipItemSetColor = 0xFFFFFF97;
 
 // STATIC: 0x00AD2D54
-static uint32_t s_skillColors[5] = { 0xFF808080, 0xFF40C040, 0xFFFFFF00, 0xFFFF8040, 0xFFFF2020 };
+static uint32_t s_skillColors[5] = { COLOR_GRAY_128_ARGB, 0xFF40C040, COLOR_YELLOW_ARGB, 0xFFFF8040, 0xFFFF2020 };
 
 // STATIC: 0x00AD2DA4
 static uint32_t s_tooltipGlyphColor = 0xFF66BBFF;
@@ -4848,7 +4849,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
                     tooltip->AddLine(text, nullptr, grayColor, grayColor, 0);
                     SStrPrintf(text, sizeof(text), "Interface\\ItemSocketingFrame\\UI-EmptySocket-%s.blp", s_socketColorNames[i]);
                     CAaRect coords = { 0.0f, 0.0f, 1.0f, 1.0f };
-                    uint32_t textureColor = 0xFFFFFFFF;
+                    uint32_t textureColor = COLOR_WHITE_ARGB;
                     tooltip->AddTexture(text, coords, *reinterpret_cast<const CImVector*>(&textureColor));
                     break;
                 }
@@ -4873,7 +4874,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
                 const CImVector& color = skillOk && levelOk ? grayColor : redColor;
                 tooltip->AddLine(FrameScript_GetText("EMPTY_SOCKET_NO_COLOR", -1, GENDER_NOT_APPLICABLE), nullptr, color, color, 0);
                 CAaRect coords = { 0.0f, 0.0f, 1.0f, 1.0f };
-                uint32_t textureColor = 0xFFFFFFFF;
+                uint32_t textureColor = COLOR_WHITE_ARGB;
                 tooltip->AddTexture("Interface\\ItemSocketingFrame\\UI-EmptySocket.blp", coords, *reinterpret_cast<const CImVector*>(&textureColor));
 
                 if (!skillOk) {
@@ -4899,7 +4900,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
 
             tooltip->AddLine(FrameScript_GetText("EMPTY_SOCKET_NO_COLOR", -1, GENDER_NOT_APPLICABLE), nullptr, grayColor, grayColor, 0);
             CAaRect coords = { 0.0f, 0.0f, 1.0f, 1.0f };
-            uint32_t textureColor = 0xFFFFFFFF;
+            uint32_t textureColor = COLOR_WHITE_ARGB;
             tooltip->AddTexture("Interface\\ItemSocketingFrame\\UI-EmptySocket.blp", coords, *reinterpret_cast<const CImVector*>(&textureColor));
             continue;
         }
@@ -5069,7 +5070,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
                 const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
                 SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(gem->m_displayId));
                 CAaRect coords = { 0.0f, 0.0f, 1.0f, 1.0f };
-                uint32_t textureColor = 0xFFFFFFFF;
+                uint32_t textureColor = COLOR_WHITE_ARGB;
                 tooltip->AddTexture(texture, coords, *reinterpret_cast<const CImVector*>(&textureColor));
             }
         }
@@ -5164,7 +5165,7 @@ static void AddItemStaticSocketLines(CGTooltip* tooltip, const ItemStats_C* stat
             tooltip->AddLine(text, nullptr, grayColor, grayColor, 0);
             SStrPrintf(text, sizeof(text), "Interface\\ItemSocketingFrame\\UI-EmptySocket-%s.blp", s_socketColorNames[i]);
             CAaRect coords = { 0.0f, 0.0f, 1.0f, 1.0f };
-            uint32_t textureColor = 0xFFFFFFFF;
+            uint32_t textureColor = COLOR_WHITE_ARGB;
             tooltip->AddTexture(text, coords, *reinterpret_cast<const CImVector*>(&textureColor));
             break;
         }

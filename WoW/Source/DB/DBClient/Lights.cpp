@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Tempest/Color.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Tempest/CMath.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
@@ -49,7 +50,7 @@ static CImVector InterpolateIntBand(const LightIntBandRec& rec, int32_t time) {
     CImVector color;
 
     if (!rec.m_num) {
-        *reinterpret_cast<uint32_t*>(&color) = 0xFF000000;
+        *reinterpret_cast<uint32_t*>(&color) = COLOR_BLACK_ARGB;
         return color;
     }
 

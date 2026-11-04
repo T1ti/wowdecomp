@@ -1,4 +1,5 @@
 #include "WoW/Source/Ui/GameUI.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "Engine/Source/Event/Event.h"
 #include "Engine/Source/Scrn/Scrn.h"
 #include "Engine/Source/Services/Texture.h"
@@ -112,7 +113,7 @@ static void FadingScreenPaint(void* param, const RECTF* rect, const RECTF* visib
     static C2Vector s_texCoords[4] = { C2Vector(0.0f, 1.0f), C2Vector(1.0f, 1.0f), C2Vector(0.0f, 0.0f), C2Vector(1.0f, 0.0f) };
     static C3Vector s_normal = C3Vector(0.0f, 0.0f, 1.0f);
     uint8_t finished = 0;
-    CImVector color = { 0xFF, 0xFF, 0xFF, 0xFF };
+    CImVector color = { COLOR_WHITE_BGRA };
 
     if (s_fadeDirection) {
         float elapsed;

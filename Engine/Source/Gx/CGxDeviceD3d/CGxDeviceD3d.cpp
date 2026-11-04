@@ -1,4 +1,5 @@
 #include <cmath>
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdint>
 #include <cstring>
 #include <malloc.h>
@@ -2642,7 +2643,7 @@ int32_t CGxDeviceD3d::ICreateD3dDevice(const CGxFormat& format) {
     this->ICursorCreate(format);
 
     // STATIC: 0x00C60444
-    static uint32_t s_defaultColor = 0xFF00FF00;
+    static uint32_t s_defaultColor = COLOR_GREEN_ARGB;
 
     GxTexCreate(8, 8, GxTex_Argb8888, CGxTexFlags(GxTex_Linear), reinterpret_cast<void*>(static_cast<uintptr_t>(s_defaultColor)), DefaultTexUserFunc, this->m_texture3B58);
 

@@ -1,4 +1,5 @@
 #include "PetitionVendor.h"
+#include "Engine/Source/Tempest/Color.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Source/Ui/Types.h"
@@ -36,19 +37,19 @@ GuildPetitionInfo CGPetitionVendorInfo::m_petitionItems[10];
 uint32_t CGPetitionVendorInfo::m_arenaTeamSize;
 
 // STATIC: 0x00ACF7D8
-uint32_t CGPetitionVendorInfo::m_arenaBackgroundColor = 0xFFFFFFFF;
+uint32_t CGPetitionVendorInfo::m_arenaBackgroundColor = COLOR_WHITE_ARGB;
 
 // STATIC: 0x00ACF7DC
 uint32_t CGPetitionVendorInfo::m_arenaEmblemStyle = 0xFFFFFFFF;
 
 // STATIC: 0x00ACF7E0
-uint32_t CGPetitionVendorInfo::m_arenaEmblemColor = 0xFFFFFFFF;
+uint32_t CGPetitionVendorInfo::m_arenaEmblemColor = COLOR_WHITE_ARGB;
 
 // STATIC: 0x00ACF7E4
 uint32_t CGPetitionVendorInfo::m_arenaBorderStyle = 0xFFFFFFFF;
 
 // STATIC: 0x00ACF7E8
-uint32_t CGPetitionVendorInfo::m_arenaBorderColor = 0xFFFFFFFF;
+uint32_t CGPetitionVendorInfo::m_arenaBorderColor = COLOR_WHITE_ARGB;
 
 
 // VERIFY: 645b030e manual

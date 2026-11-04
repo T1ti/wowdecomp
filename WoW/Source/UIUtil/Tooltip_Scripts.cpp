@@ -1,4 +1,5 @@
 #include "Tooltip.h"
+#include "Engine/Source/Tempest/Color.h"
 #include <cstdint>
 #include "Engine/Source/Base/Coordinate.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
@@ -1361,7 +1362,7 @@ static int32_t Script_AddTexture(lua_State* L) {
         coords.maxX = 0.0f;
         coords.maxY = 0.0f;
         ReadTexCoordArgs(L, 3, coords);
-        tooltip->AddTexture(texture, coords, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+        tooltip->AddTexture(texture, coords, CImVector(COLOR_WHITE_BGRA));
         return 0;
     }
 
@@ -1370,7 +1371,7 @@ static int32_t Script_AddTexture(lua_State* L) {
     coords.minY = 0.0f;
     coords.maxX = 1.0f;
     coords.maxY = 1.0f;
-    tooltip->AddTexture(texture, coords, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    tooltip->AddTexture(texture, coords, CImVector(COLOR_WHITE_BGRA));
     return 0;
 }
 

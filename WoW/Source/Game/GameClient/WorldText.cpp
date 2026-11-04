@@ -1,4 +1,5 @@
 #include "WorldText.h"
+#include "Engine/Source/Tempest/Color.h"
 #include <cmath>
 #include <new>
 #include <typeinfo>
@@ -41,16 +42,16 @@ static float s_critHeightCurve[3][4] = {
 
 // STATIC: 0x00AF4748
 static WORLDTEXTTYPE s_worldTextTypes[NUM_WORLDTEXTTYPES] = {
-    { 2.0f, 150, 760, 1500, 0.018333333f, 0.018333333f, CImVector(0xFF, 0xFF, 0xFF, 0xFF) },
-    { 2.0f, 150, 90, 1500, 0.018333333f, 0.018333333f, CImVector(0xFF, 0xFF, 0xFF, 0xFF) },
-    { 0.0f, 150, 1000, 1500, 0.0f, 0.027499998f, CImVector(0xFF, 0xFF, 0xFF, 0xFF) },
-    { 2.0f, 150, 1000, 1500, 0.018333333f, 0.018333333f, CImVector(0xFF, 0xFF, 0xFF, 0xFF) },
+    { 2.0f, 150, 760, 1500, 0.018333333f, 0.018333333f, CImVector(COLOR_WHITE_BGRA) },
+    { 2.0f, 150, 90, 1500, 0.018333333f, 0.018333333f, CImVector(COLOR_WHITE_BGRA) },
+    { 0.0f, 150, 1000, 1500, 0.0f, 0.027499998f, CImVector(COLOR_WHITE_BGRA) },
+    { 2.0f, 150, 1000, 1500, 0.018333333f, 0.018333333f, CImVector(COLOR_WHITE_BGRA) },
     { 0.0f, 500, 2000, 4500, 0.018333333f, 0.018333333f, CImVector(0x8B, 0x00, 0x94, 0x80) },
     { 0.0f, 500, 2000, 4500, 0.018333333f, 0.018333333f, CImVector(0x0A, 0xCA, 0xE0, 0xFF) },
-    { 2.0f, 150, 760, 1500, 0.018333333f, 0.018333333f, CImVector(0x00, 0xFF, 0x00, 0xFF) },
-    { 0.0f, 150, 1000, 1500, 0.0f, 0.027499998f, CImVector(0x00, 0xFF, 0x00, 0xFF) },
-    { 6.0f, 150, 760, 1500, 0.027499998f, 0.027499998f, CImVector(0xFF, 0xFF, 0xFF, 0xFF) },
-    { 6.0f, 150, 760, 1500, 0.027499998f, 0.027499998f, CImVector(0x00, 0xFF, 0x00, 0xFF) },
+    { 2.0f, 150, 760, 1500, 0.018333333f, 0.018333333f, CImVector(COLOR_GREEN_BGRA) },
+    { 0.0f, 150, 1000, 1500, 0.0f, 0.027499998f, CImVector(COLOR_GREEN_BGRA) },
+    { 6.0f, 150, 760, 1500, 0.027499998f, 0.027499998f, CImVector(COLOR_WHITE_BGRA) },
+    { 6.0f, 150, 760, 1500, 0.027499998f, 0.027499998f, CImVector(COLOR_GREEN_BGRA) },
     { 2.0f, 150, 760, 1500, 0.018333333f, 0.018333333f, CImVector(0x00, 0x99, 0xFF, 0xFF) },
 };
 
