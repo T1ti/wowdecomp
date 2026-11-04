@@ -332,7 +332,7 @@ static void NameCacheCallback(int32_t id, const WOWGUID& guid, void* param, bool
 // VERIFY: 38875a8f auto
 // OFFSET: 0x005B8040
 static const char* GetSequenceLabel(uint32_t type, uint32_t index, uint32_t length) {
-    if (!(type & 0x8) || length <= 1) {
+    if (!(type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_HOLIDAY) || length <= 1) {
         return "";
     }
 
@@ -364,7 +364,7 @@ static const char* GetInviteRoleLabel(uint32_t flags) {
 // VERIFY: 38d50b7e auto
 // OFFSET: 0x005B80B0
 static bool IsSignUpInvite(const CalendarDayEvent* event) {
-    return (event->m_type & 0x400) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE);
+    return (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE);
 }
 
 // VERIFY: cba45807 auto
@@ -578,7 +578,7 @@ static int32_t Script_CalendarEventCanEdit(lua_State* L) {
     bool canEdit = false;
 
     if (CGCalendar::m_curEvent) {
-        canEdit = (CGCalendar::m_curEvent->m_flags & 0x40) ? CGGuildInfo::CanEditGuildEvent() : CGCalendar::m_curEvent->IsModerator();
+        canEdit = (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) ? CGGuildInfo::CanEditGuildEvent() : CGCalendar::m_curEvent->IsModerator();
     }
 
     lua_pushboolean(L, canEdit);
@@ -966,7 +966,7 @@ static int32_t Script_CalendarContextInviteType(lua_State* L) {
         }
     }
 
-    if ((event->m_type & 0x400) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
+    if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
         lua_pushinteger(L, 2);
     } else {
         lua_pushinteger(L, 1);
@@ -998,7 +998,7 @@ static int32_t Script_CalendarContextInviteAvailable(lua_State* L) {
         }
     }
 
-    if (!CGCalendar::m_actionPending && (!(event->m_type & 0x400) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
+    if (!CGCalendar::m_actionPending && (!(event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CALENDAR_EVENT_RSVP));
         msg.Put(event->m_eventID);
@@ -1036,7 +1036,7 @@ static int32_t Script_CalendarContextInviteDecline(lua_State* L) {
         }
     }
 
-    if (!CGCalendar::m_actionPending && (!(event->m_type & 0x400) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
+    if (!CGCalendar::m_actionPending && (!(event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CALENDAR_EVENT_RSVP));
         msg.Put(event->m_eventID);
@@ -1074,7 +1074,7 @@ static int32_t Script_CalendarContextEventCanEdit(lua_State* L) {
         }
     }
 
-    bool canEdit = (event->m_type & 0x440) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
+    bool canEdit = (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
     lua_pushboolean(L, canEdit);
     return 1;
 }
@@ -1164,7 +1164,7 @@ static int32_t Script_CalendarEventSetTitle(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1189,7 +1189,7 @@ static int32_t Script_CalendarEventSetDescription(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1214,7 +1214,7 @@ static int32_t Script_CalendarEventSetType(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1239,7 +1239,7 @@ static int32_t Script_CalendarEventSetRepeatOption(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1264,7 +1264,7 @@ static int32_t Script_CalendarEventSetSize(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1369,7 +1369,7 @@ static int32_t Script_CalendarEventSetLocked(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1377,7 +1377,7 @@ static int32_t Script_CalendarEventSetLocked(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::m_curEvent->SetFlag(0x10);
+    CGCalendar::m_curEvent->SetFlag(CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_INVITES_LOCKED);
     return 0;
 }
 
@@ -1388,7 +1388,7 @@ static int32_t Script_CalendarEventClearLocked(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1396,7 +1396,7 @@ static int32_t Script_CalendarEventClearLocked(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::m_curEvent->ClearFlag(0x10);
+    CGCalendar::m_curEvent->ClearFlag(CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_INVITES_LOCKED);
     return 0;
 }
 
@@ -1407,7 +1407,7 @@ static int32_t Script_CalendarEventSetAutoApprove(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1415,7 +1415,7 @@ static int32_t Script_CalendarEventSetAutoApprove(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::m_curEvent->SetFlag(0x20);
+    CGCalendar::m_curEvent->SetFlag(CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_AUTO_APPROVE);
     return 0;
 }
 
@@ -1426,7 +1426,7 @@ static int32_t Script_CalendarEventClearAutoApprove(lua_State* L) {
         return 0;
     }
 
-    if (CGCalendar::m_curEvent->m_flags & 0x40) {
+    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         if (!CGGuildInfo::CanEditGuildEvent()) {
             return 0;
         }
@@ -1434,7 +1434,7 @@ static int32_t Script_CalendarEventClearAutoApprove(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::m_curEvent->ClearFlag(0x20);
+    CGCalendar::m_curEvent->ClearFlag(CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_AUTO_APPROVE);
     return 0;
 }
 
@@ -1606,7 +1606,7 @@ static int32_t Script_CalendarContextInviteTentative(lua_State* L) {
         }
     }
 
-    if ((event->m_type & 0x400) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
+    if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
         CGCalendar::ContextMenuEventSignUp(event, 1);
     } else {
         CGCalendar::ContextMenuInviteRSVP(event, 8);
@@ -1638,7 +1638,7 @@ static int32_t Script_CalendarContextInviteRemove(lua_State* L) {
         }
     }
 
-    if (event->m_type & 0x401) {
+    if (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_PLAYER_OR_GUILD_EVENT_MASK) {
         CGCalendar::ContextMenuInviteRemove(event);
     }
 
@@ -1668,7 +1668,7 @@ static int32_t Script_CalendarContextEventSignUp(lua_State* L) {
         }
     }
 
-    if (event->m_type & 0x400) {
+    if (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) {
         CGCalendar::ContextMenuEventSignUp(event, 0);
     }
 
@@ -1698,7 +1698,7 @@ static int32_t Script_CalendarContextEventRemove(lua_State* L) {
         }
     }
 
-    bool allowed = (event->m_type & 0x440) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
+    bool allowed = (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
 
     if (!allowed) {
         CGCalendar::CalendarError("CALENDAR_ERROR_PERMISSIONS", 0);
@@ -1732,7 +1732,7 @@ static int32_t Script_CalendarContextEventCopy(lua_State* L) {
         }
     }
 
-    bool allowed = (event->m_type & 0x440) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
+    bool allowed = (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) ? CGGuildInfo::CanEditGuildEvent() : (event->m_flags & (CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR | CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR)) != 0;
 
     if (!allowed) {
         CGCalendar::CalendarError("CALENDAR_ERROR_PERMISSIONS", 0);
@@ -1813,7 +1813,7 @@ static int32_t Script_CalendarContextEventComplain(lua_State* L) {
 static int32_t Script_CalendarEventAvailable(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (player && !CGCalendar::m_actionPending && CGCalendar::m_curEvent && (!(CGCalendar::m_curEvent->m_flags & 0x400) || CGCalendar::m_curEvent->m_guildID != player->m_player->m_playerGuildid)) {
+    if (player && !CGCalendar::m_actionPending && CGCalendar::m_curEvent && (!(CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || CGCalendar::m_curEvent->m_guildID != player->m_player->m_playerGuildid)) {
         if (CGCalendar::m_curEvent->InviteRSVP(1)) {
             CGCalendar::SetActionPending(1);
         }
@@ -1834,7 +1834,7 @@ static int32_t Script_CalendarEventTentative(lua_State* L) {
 static int32_t Script_CalendarEventDecline(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (player && !CGCalendar::m_actionPending && CGCalendar::m_curEvent && (!(CGCalendar::m_curEvent->m_flags & 0x400) || CGCalendar::m_curEvent->m_guildID != player->m_player->m_playerGuildid)) {
+    if (player && !CGCalendar::m_actionPending && CGCalendar::m_curEvent && (!(CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || CGCalendar::m_curEvent->m_guildID != player->m_player->m_playerGuildid)) {
         if (CGCalendar::m_curEvent->InviteRSVP(2)) {
             CGCalendar::SetActionPending(1);
         }
@@ -1911,13 +1911,13 @@ static int32_t Script_CalendarGetEventInfo(lua_State* L) {
     lua_pushnumber(L, event->m_lockoutDate.m_hour);
     lua_pushnumber(L, event->m_lockoutDate.m_minute);
 
-    if (event->m_flags & 0x10) {
+    if (event->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_INVITES_LOCKED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (event->m_flags & 0x20) {
+    if (event->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_AUTO_APPROVE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1934,7 +1934,7 @@ static int32_t Script_CalendarGetEventInfo(lua_State* L) {
     if (invite) {
         lua_pushnumber(L, invite->m_status + 1);
         lua_pushnumber(L, invite->m_inviteType + 1);
-    } else if (event->m_flags & 0x400) {
+    } else if (event->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) {
         lua_pushnumber(L, 8.0);
         lua_pushnumber(L, 2.0);
     } else {
@@ -1964,7 +1964,7 @@ static void PushDayEventTexture(lua_State* L, CalendarDayEvent* event) {
     const char* texture = "";
 
     if (event) {
-        if (event->m_type & 0x8) {
+        if (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_HOLIDAY) {
             DYNAMICHOLIDAYHASH* dynamic = s_dynamicHolidays.Ptr(static_cast<uint32_t>(event->m_eventID), HASHKEY_NONE());
 
             if (dynamic) {
@@ -1978,7 +1978,7 @@ static void PushDayEventTexture(lua_State* L, CalendarDayEvent* event) {
                 lua_pushstring(L, holiday->m_textureFileName);
                 return;
             }
-        } else if ((event->m_type & 0x543) && event->m_textureID >= 0) {
+        } else if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_SORT_PRIORITY_MASK) && event->m_textureID >= 0) {
             LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(event->m_textureID);
 
             if (dungeon) {
@@ -2025,9 +2025,9 @@ static int32_t Script_CalendarGetDayEvent(lua_State* L) {
     WowTime start;
     WowTime::WowDecodeTime(event->m_startTime, &start);
 
-    if (event->m_type & 0x8) {
+    if (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_HOLIDAY) {
         lua_pushstring(L, GetHolidayName(static_cast<int32_t>(event->m_eventID)));
-    } else if (event->m_type & 0x280) {
+    } else if (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_MASK) {
         MapRec* map = g_mapDB.GetRecord(event->m_holidayID);
 
         if (map) {
@@ -2053,13 +2053,13 @@ static int32_t Script_CalendarGetDayEvent(lua_State* L) {
     WOWGUID key = WOWGUID();
     NameCache* creator = g_nameDBCache.GetRecord(event->m_creatorGUID.m_guid, key, NameCacheCallback, nullptr, false);
     lua_pushstring(L, creator ? creator->m_name : "");
-    lua_pushnumber(L, (event->m_type & 0x280) ? static_cast<int32_t>(event->m_endTime + 1) : 0.0);
+    lua_pushnumber(L, (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_MASK) ? static_cast<int32_t>(event->m_endTime + 1) : 0.0);
     lua_pushnumber(L, IsSignUpInvite(event) + 1);
     lua_pushnumber(L, event->m_sequenceIndex + 1);
     lua_pushnumber(L, event->m_sequenceLength);
     MapDifficultyRec* difficulty;
 
-    if (!(event->m_type & 0x280) || !(difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(event->m_holidayID, event->m_endTime, nullptr))) {
+    if (!(event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_MASK) || !(difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(event->m_holidayID, event->m_endTime, nullptr))) {
         lua_pushstring(L, "");
         return 15;
     }

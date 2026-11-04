@@ -72,7 +72,7 @@ void CGCalendarEvent::Clear() {
     this->m_type = 0;
     this->m_repeatOption = 0;
     this->m_maxSize = 100;
-    this->m_flags = 0;
+    this->m_flags = CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_NONE;
     this->m_new = 0;
     this->m_changed = 0;
     this->m_creatorGUID = WOWGUID();
@@ -134,7 +134,7 @@ void CGCalendarEvent::SetRepeatOption(uint32_t repeatOption) {
 // VERIFY: 88a5717b auto
 // OFFSET: 0x005F1230
 void CGCalendarEvent::SetSize(uint32_t size) {
-    if (!(this->m_flags & 0x440) && size > 1 && size != this->m_maxSize) {
+    if (!(this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) && size > 1 && size != this->m_maxSize) {
         this->m_maxSize = size;
         this->m_changed = 1;
     }
@@ -163,7 +163,7 @@ bool CGCalendarEvent::SetTime(uint32_t hour, uint32_t minute) {
 // VERIFY: 908baeb8 auto
 // OFFSET: 0x005F12E0
 bool CGCalendarEvent::SetLockoutDate(uint32_t month, uint32_t monthDay, uint32_t year) {
-    if (this->m_flags & 0x440) {
+    if (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) {
         return false;
     }
 
@@ -177,7 +177,7 @@ bool CGCalendarEvent::SetLockoutDate(uint32_t month, uint32_t monthDay, uint32_t
 // VERIFY: f9a4b158 auto
 // OFFSET: 0x005F1340
 bool CGCalendarEvent::SetLockoutTime(uint32_t hour, uint32_t minute) {
-    if (this->m_flags & 0x440) {
+    if (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) {
         return false;
     }
 
@@ -315,7 +315,7 @@ bool CGCalendarEvent::CanModerate(uint32_t index) {
         return false;
     }
 
-    if ((this->m_flags & 0x400) && !this->m_invites.m_data[index]->m_inviteType) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && !this->m_invites.m_data[index]->m_inviteType) {
         CGCalendar::CalendarError("CALENDAR_ERROR_NO_MODERATOR", 0);
         return false;
     }
@@ -506,7 +506,7 @@ bool CGCalendarEvent::AddEvent() {
         return false;
     }
 
-    if (this->m_flags & 0x440) {
+    if (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) {
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
         if (player && !player->m_player->m_playerGuildid) {
@@ -556,7 +556,7 @@ bool CGCalendarEvent::AddEvent() {
     msg.Put(lockoutDate);
     msg.Put(this->m_flags);
 
-    if (!(this->m_flags & 0x40)) {
+    if (!(this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT)) {
         msg.Put(this->m_numInvites);
 
         for (uint32_t i = 0; i < this->m_numInvites; i++) {
@@ -585,7 +585,7 @@ bool CGCalendarEvent::RemoveEvent() {
     msg.Put(static_cast<uint32_t>(CMSG_CALENDAR_REMOVE_EVENT));
     msg.Put(this->m_eventID);
     msg.Put(this->m_moderatorInviteID);
-    msg.Put(static_cast<uint8_t>((this->m_flags & 0x440) != 0));
+    msg.Put(static_cast<uint8_t>((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) != 0));
     msg.Finalize();
     ClientServices::Send2(&msg);
     return true;
@@ -629,7 +629,7 @@ bool CGCalendarEvent::Update() {
 // VERIFY: d6e6845f manual
 // OFFSET: 0x005F2070
 bool CGCalendarEvent::Invite(const char* name) {
-    if (this->m_flags & 0x40) {
+    if (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
         CGCalendar::CalendarError("CALENDAR_ERROR_INVITES_DISABLED", 0);
         return false;
     }
@@ -663,7 +663,7 @@ bool CGCalendarEvent::Invite(const char* name) {
     msg.Put(this->m_moderatorInviteID);
     msg.PutString(fixedName);
     msg.Put(this->m_new);
-    msg.Put(static_cast<uint8_t>((this->m_flags & 0x400) != 0));
+    msg.Put(static_cast<uint8_t>((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) != 0));
     msg.Finalize();
     ClientServices::Send2(&msg);
     return true;
@@ -756,7 +756,7 @@ bool CGCalendarEvent::InviteRSVP(uint32_t status) {
         }
     }
 
-    if ((this->m_flags & 0x400) && this->m_invites.m_data[index]->m_inviteType == 1) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && this->m_invites.m_data[index]->m_inviteType == 1) {
         return false;
     }
 
@@ -829,7 +829,7 @@ bool CGCalendarEvent::CanSetInviteStatus(uint32_t index, uint32_t status) {
         return false;
     }
 
-    if ((this->m_flags & 0x400) && (status == 1 || status == 2)) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (status == 1 || status == 2)) {
         return false;
     }
 
@@ -917,11 +917,11 @@ CGCalendarEvent::CGCalendarEvent(WOWGUID guid, uint8_t level, int32_t calendarTy
     uint8_t inviteType = 0;
 
     if (calendarType == 0) {
-        this->m_flags |= 0x1;
+        this->m_flags |= CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_PLAYER;
     } else if (calendarType == 1) {
-        this->m_flags |= 0x40;
+        this->m_flags |= CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT;
     } else if (calendarType == 2) {
-        this->m_flags |= 0x400;
+        this->m_flags |= CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT;
         inviteType = 1;
     }
 
@@ -1047,7 +1047,7 @@ bool CGCalendarEvent::ProcessGetEvent(CDataStore* msg, int32_t* status) {
         msg->GetString(this->m_invites.m_data[i]->m_notes, STORM_MAX_STR);
     }
 
-    if (!found && (this->m_flags & 0x400)) {
+    if (!found && (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT)) {
         *status = 7;
     }
 

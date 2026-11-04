@@ -102,6 +102,30 @@ struct CALENDAREVENTHASH : public TSHashObject<CALENDAREVENTHASH, HASHKEY_NONE> 
     ~CALENDAREVENTHASH();
 };
 
+// Editable event options and generated day-list classification share this raw word.
+// This is CGCalendarEvent::m_flags / CalendarEventData::m_type, not the editable
+// event-kind selector or CalendarEventData::m_flags permissions. UNKNOWN bits
+// retain the lower-priority PLAYER alternatives without guessing distinct roles.
+enum CALENDAR_EVENT_FLAGS : uint32_t {
+    CALENDAR_EVENT_FLAG_NONE = 0,
+    CALENDAR_EVENT_FLAG_PLAYER = 0x1,
+    CALENDAR_EVENT_FLAG_UNKNOWN_0002 = 0x2,
+    CALENDAR_EVENT_FLAG_SYSTEM = 0x4,
+    CALENDAR_EVENT_FLAG_HOLIDAY = 0x8,
+    CALENDAR_EVENT_FLAG_INVITES_LOCKED = 0x10,
+    CALENDAR_EVENT_FLAG_AUTO_APPROVE = 0x20,
+    CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT = 0x40,
+    CALENDAR_EVENT_FLAG_RAID_LOCKOUT = 0x80,
+    CALENDAR_EVENT_FLAG_UNKNOWN_0100 = 0x100,
+    CALENDAR_EVENT_FLAG_RAID_RESET = 0x200,
+    CALENDAR_EVENT_FLAG_GUILD_EVENT = 0x400,
+    CALENDAR_EVENT_FLAG_GUILD_MASK = 0x440,
+    CALENDAR_EVENT_FLAG_RAID_MASK = 0x280,
+    CALENDAR_EVENT_FLAG_PLAYER_OR_GUILD_EVENT_MASK = 0x401,
+    CALENDAR_EVENT_FLAG_SORT_PRIORITY_MASK = 0x543,
+    CALENDAR_EVENT_FLAG_COMPLAINT_RESTRICTED_MASK = 0x6CC,
+};
+
 // Client-derived day-list status/permissions, separate from event option/type bits.
 enum CALENDAR_DAY_EVENT_FLAGS : uint32_t {
     CALENDAR_DAY_FLAG_NONE                   = 0x00000000u,
