@@ -1473,10 +1473,10 @@ void SpellHistory::AddHistory(int32_t spellId, int32_t itemId, uint32_t time, ui
 
     history->m_spellId = spellId;
     history->m_itemId = itemId;
-    history->m_time = time;
+    history->m_recoveryStart = time;
     history->m_recoveryTime = recoveryTime;
     history->m_category = category;
-    history->m_categoryTime = categoryTime;
+    history->m_categoryRecoveryStart = categoryTime;
     history->m_categoryRecoveryTime = categoryRecoveryTime;
     history->m_onHold = onHold;
     history->m_startRecoveryCategory = startRecoveryCategory;
@@ -1497,8 +1497,8 @@ void SpellHistory::ClearOnHold(int32_t spellId, uint32_t time, bool remove) {
 
         if (history->m_onHold && !remove) {
             history->m_startRecoveryTime = 0;
-            history->m_time = time;
-            history->m_categoryTime = time;
+            history->m_recoveryStart = time;
+            history->m_categoryRecoveryStart = time;
             history->m_onHold = 0;
         } else if (remove) {
             history->m_link.Unlink();
@@ -1782,11 +1782,11 @@ void SpellHistory::GarbageCollect(uint32_t time) {
             continue;
         }
 
-        if (history->m_recoveryTime && static_cast<int32_t>(time - history->m_time - history->m_recoveryTime) < 0) {
+        if (history->m_recoveryTime && static_cast<int32_t>(time - history->m_recoveryStart - history->m_recoveryTime) < 0) {
             continue;
         }
 
-        if (history->m_categoryRecoveryTime && static_cast<int32_t>(time - history->m_categoryTime - history->m_categoryRecoveryTime) < 0) {
+        if (history->m_categoryRecoveryTime && static_cast<int32_t>(time - history->m_categoryRecoveryStart - history->m_categoryRecoveryTime) < 0) {
             continue;
         }
 
@@ -3228,7 +3228,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
 
     for (SPELLHISTORY* history = this->m_history.Head(); history; history = this->m_history.Next(history)) {
         if (history->m_spellId == spellId && history->m_itemId == itemId && (history->m_recoveryTime || history->m_onHold)) {
-            uint32_t end = history->m_recoveryTime + (history->m_onHold ? now + 1 : history->m_time);
+            uint32_t end = history->m_recoveryTime + (history->m_onHold ? now + 1 : history->m_recoveryStart);
 
             if (static_cast<int32_t>(end - latest) >= 0) {
                 if (duration) {
@@ -3236,7 +3236,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
                 }
 
                 if (start) {
-                    *start = history->m_onHold ? now : history->m_time;
+                    *start = history->m_onHold ? now : history->m_recoveryStart;
                 }
 
                 if (enable && *enable) {
@@ -3250,7 +3250,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
         SpellCategoryRec* categoryRec = g_spellCategoryDB.GetRecord(history->m_category);
 
         if (((history->m_category && history->m_category == category) || (categoryRec && (categoryRec->m_flags & SPELL_CATEGORY_FLAG_COOLDOWN_IS_GLOBAL))) && history->m_categoryRecoveryTime) {
-            uint32_t end = history->m_categoryRecoveryTime + (history->m_onHold ? now : history->m_categoryTime);
+            uint32_t end = history->m_categoryRecoveryTime + (history->m_onHold ? now : history->m_categoryRecoveryStart);
 
             if (static_cast<int32_t>(end - latest) >= 0) {
                 if (duration) {
@@ -3258,7 +3258,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
                 }
 
                 if (start) {
-                    *start = history->m_onHold ? now : history->m_categoryTime;
+                    *start = history->m_onHold ? now : history->m_categoryRecoveryStart;
                 }
 
                 if (enable && *enable) {
@@ -3270,7 +3270,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
         }
 
         if (history->m_startRecoveryCategory == startRecoveryCategory && history->m_startRecoveryTime) {
-            uint32_t end = history->m_startRecoveryTime + history->m_time;
+            uint32_t end = history->m_startRecoveryTime + history->m_recoveryStart;
 
             if (static_cast<int32_t>(end - latest) >= 0) {
                 if (duration) {
@@ -3278,7 +3278,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
                 }
 
                 if (start) {
-                    *start = history->m_time;
+                    *start = history->m_recoveryStart;
                 }
 
                 latest = end;
@@ -3313,7 +3313,7 @@ bool SpellHistory::GetSpellCooldown(int32_t spellId, int32_t itemId, uint32_t* d
         latest = runeTime;
 
         if (start) {
-            *start = history->m_time;
+            *start = history->m_recoveryStart;
         }
 
         if (!duration || !start) {
@@ -5124,8 +5124,8 @@ int32_t Packet_SMSG_UNIT_SPELLCAST_START(void* param, NETMESSAGE msgId, uint32_t
 void SpellHistory::DelayCooldown(int32_t spellId, int32_t delay) {
     for (SPELLHISTORY* history = this->m_history.Head(); history; history = this->m_history.Next(history)) {
         if (history->m_spellId == spellId) {
-            history->m_time += delay;
-            history->m_categoryTime += delay;
+            history->m_recoveryStart += delay;
+            history->m_categoryRecoveryStart += delay;
         }
     }
 }
@@ -5730,10 +5730,10 @@ int32_t Packet_SMSG_ITEM_COOLDOWN(void* param, NETMESSAGE msgId, uint32_t time, 
 
             entry->m_spellId = spellId;
             entry->m_itemId = itemId;
-            entry->m_time = time;
+            entry->m_recoveryStart = time;
             entry->m_recoveryTime = SPELL_ITEM_COOLDOWN_INITIAL_MS;
             entry->m_category = 0;
-            entry->m_categoryTime = 0;
+            entry->m_categoryRecoveryStart = 0;
             entry->m_categoryRecoveryTime = 0;
             entry->m_onHold = false;
             entry->m_startRecoveryCategory = 0;
@@ -5825,7 +5825,7 @@ int32_t SpellHistory::RecentlyCast(int32_t spellId, int32_t itemId) {
     uint32_t now = OsGetAsyncTimeMs();
 
     for (SPELLHISTORY* history = this->m_history.Head(); history; history = this->m_history.Next(history)) {
-        if (history->m_spellId == spellId && history->m_itemId == itemId && static_cast<int32_t>(now - history->m_time - SPELL_RECENT_CAST_WINDOW_MS) < 0) {
+        if (history->m_spellId == spellId && history->m_itemId == itemId && static_cast<int32_t>(now - history->m_recoveryStart - SPELL_RECENT_CAST_WINDOW_MS) < 0) {
             return 1;
         }
     }
@@ -6092,10 +6092,10 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
 
         entry->m_spellId = spellId;
         entry->m_itemId = itemId;
-        entry->m_time = time;
+        entry->m_recoveryStart = time;
         entry->m_recoveryTime = recovery;
         entry->m_category = category;
-        entry->m_categoryTime = categoryTime;
+        entry->m_categoryRecoveryStart = categoryTime;
         entry->m_categoryRecoveryTime = categoryRecovery;
         entry->m_onHold = onHold;
         entry->m_startRecoveryCategory = 0;
@@ -6813,10 +6813,10 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
 
                     entry->m_spellId = spellId;
                     entry->m_itemId = id;
-                    entry->m_time = time;
+                    entry->m_recoveryStart = time;
                     entry->m_recoveryTime = recovery;
                     entry->m_category = category;
-                    entry->m_categoryTime = time;
+                    entry->m_categoryRecoveryStart = time;
                     entry->m_categoryRecoveryTime = categoryRecovery;
                     entry->m_onHold = onHold;
                     entry->m_startRecoveryCategory = 0;

@@ -50,10 +50,10 @@ class PendingSpellCast : public TSLinkedNode<PendingSpellCast> {
 struct SPELLHISTORY : public TSLinkedNode<SPELLHISTORY> {
     /* 0008 */ int32_t m_spellId;
     /* 000C */ int32_t m_itemId;
-    /* 0010 */ uint32_t m_time;
+    /* 0010 */ uint32_t m_recoveryStart;
     /* 0014 */ uint32_t m_recoveryTime;
     /* 0018 */ int32_t m_category;
-    /* 001C */ uint32_t m_categoryTime;
+    /* 001C */ uint32_t m_categoryRecoveryStart;
     /* 0020 */ uint32_t m_categoryRecoveryTime;
     /* 0024 */ uint8_t m_onHold;
     /* 0025 */ uint8_t unused_0025[3];
