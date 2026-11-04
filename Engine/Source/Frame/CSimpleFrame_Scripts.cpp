@@ -30,7 +30,7 @@
 // OFFSET: 0x0049E5B0
 static int32_t Script_GetTitleRegion(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
-    CScriptRegion* titleRegion = frame->m_titleRegion;
+    CSimpleTitleRegion* titleRegion = frame->m_titleRegion;
 
     if (!titleRegion) {
         lua_pushnil(L);
@@ -49,7 +49,7 @@ static int32_t Script_GetTitleRegion(lua_State* L) {
 // OFFSET: 0x0049E630
 static int32_t Script_CreateTitleRegion(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
-    CScriptRegion* titleRegion = frame->m_titleRegion;
+    CSimpleTitleRegion* titleRegion = frame->m_titleRegion;
 
     if (titleRegion) {
         titleRegion->MarkFramePointsUnused();

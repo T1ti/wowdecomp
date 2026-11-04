@@ -22,6 +22,7 @@ class CMouseEvent;
 class CSimpleFrame;
 class CStatus;
 class CSimpleTop;
+class CSimpleTitleRegion;
 struct SIMPLEFRAMENODE;
 struct lua_State;
 
@@ -80,7 +81,7 @@ class CSimpleFrame : public CScriptRegion {
 
     /* 00A0 */ CSimpleTop* m_simpleTop;
     /* 00A4 */ CSimpleFrame* m_hoverFrame;
-    /* 00A8 */ CScriptRegion* m_titleRegion;
+    /* 00A8 */ CSimpleTitleRegion* m_titleRegion;
     /* 00AC */ INITIALIZED_STATE m_initialized_state;
     /* 00B0 */ int32_t m_id;
     /* 00B4 */ uint32_t m_frameFlags;
