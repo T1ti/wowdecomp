@@ -23,7 +23,7 @@ enum SCREENRECT_CLAMP_FLAGS : uint32_t {
 
 struct BFSNODE : public TSLinkedNode<BFSNODE> {
     /* 0008 */ CRect m_rect;
-    /* 0018 */ int32_t m_direction;
+    /* 0018 */ TEST_DIRECTION m_dontTestDirection; // Skip this direction; TEST_INVALID excludes none.
 
     BFSNODE();
 };
@@ -299,12 +299,12 @@ static BFSNODE* SmartScreenRectAllocNode() {
 
     if (node) {
         s_searchQueue.LinkToHead(node);
-        node->m_direction = TEST_INVALID;
+        node->m_dontTestDirection = TEST_INVALID;
         return node;
     }
 
     node = s_searchQueue.NewNode(TSLIST_LINK_BEFORE, 0, 0);
-    node->m_direction = TEST_INVALID;
+    node->m_dontTestDirection = TEST_INVALID;
 
     return node;
 }
@@ -344,7 +344,7 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
         }
 
         for (uint32_t i = 0; i < NUM_TESTDIRECTIONS; i++) {
-            if (node->m_direction != TEST_INVALID && node->m_direction == s_searchDirections[start][i]) {
+            if (node->m_dontTestDirection != TEST_INVALID && node->m_dontTestDirection == s_searchDirections[start][i]) {
                 continue;
             }
 
@@ -352,7 +352,7 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
                 continue;
             }
 
-            int32_t direction = s_searchDirections[start][i];
+            TEST_DIRECTION direction = s_searchDirections[start][i];
 
             if (direction == TEST_INVALID) {
                 continue;
