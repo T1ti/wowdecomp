@@ -6759,7 +6759,7 @@ int32_t CGGameUI::MessageHandler(void* param, NETMESSAGE msgId, uint32_t time, C
             char name[48];
             name[0] = '\0';
 
-            if (error == 9) {
+            if (error == CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_NOT_IN_GROUP) {
                 msg->GetString(name, sizeof(name));
             }
 
@@ -8014,43 +8014,43 @@ static void PlayMovie() {
 // OFFSET: 0x005219E0
 void BroadcastUIError(int32_t error, const char* name) {
     switch (error) {
-        case 1:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NOT_REFERRED_BY:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_NOT_REFERRED_BY);
             break;
-        case 2:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_TOO_HIGH:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_TARGET_TOO_HIGH);
             break;
-        case 3:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_INSUFFICIENT_GRANTABLE_LEVELS:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS);
             break;
-        case 4:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TOO_FAR:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_TOO_FAR);
             break;
-        case 5:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_DIFFERENT_FACTION:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_DIFFERENT_FACTION);
             break;
-        case 6:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NOT_NOW:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_NOT_NOW);
             break;
-        case 7:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_GRANT_LEVEL_MAX:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I, 60);
             break;
-        case 8:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NO_TARGET:
             CGGameUI::DisplayError(ERR_GENERIC_NO_TARGET);
             break;
-        case 9:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_NOT_IN_GROUP:
             CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);
             break;
-        case 10:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_LEVEL_MAX:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_SUMMON_LEVEL_MAX_I, 60);
             break;
-        case 11:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_COOLDOWN:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_SUMMON_COOLDOWN);
             break;
-        case 12:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_INSUFFICIENT_EXPANSION_LEVEL:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL);
             break;
-        case 13:
+        case CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_OFFLINE:
             CGGameUI::DisplayError(ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S, name);
             break;
     }

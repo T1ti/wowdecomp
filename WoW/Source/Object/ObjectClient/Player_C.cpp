@@ -2960,39 +2960,39 @@ static float GetDrunkTurnOffset(uint32_t time, float drunkness) {
 // OFFSET: 0x006DE9E0
 int32_t CGPlayer_C::CanGrantLevel(WOWGUID guid) {
     if (!guid) {
-        return 8;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NO_TARGET;
     }
 
     CGPlayer_C* target = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!target) {
-        return 4;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TOO_FAR;
     }
 
     if (!CGPlayer_C::IsRAFPlayer(guid)) {
-        return 1;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NOT_REFERRED_BY;
     }
 
     FactionTemplateRec* faction = g_factionTemplateDB.GetRecord(this->m_unit->m_unitFieldFactiontemplate);
     FactionTemplateRec* targetFaction = g_factionTemplateDB.GetRecord(target->m_unit->m_unitFieldFactiontemplate);
 
     if (faction && targetFaction && faction->m_factionGroup != targetFaction->m_factionGroup) {
-        return 5;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_DIFFERENT_FACTION;
     }
 
     if (target->m_unit->m_unitFieldLevel >= 60) {
-        return 7;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_GRANT_LEVEL_MAX;
     }
 
     if (this->m_unit->m_unitFieldLevel <= target->m_unit->m_unitFieldLevel) {
-        return 2;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_TOO_HIGH;
     }
 
     if (!this->CanAssist(target, false)) {
-        return 6;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NOT_NOW;
     }
 
-    return this->m_player->m_grantableLevels == 0 ? 3 : 0;
+    return this->m_player->m_grantableLevels == 0 ? CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_INSUFFICIENT_GRANTABLE_LEVELS : CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_SUCCESS;
 }
 
 // VERIFY: 192067b6 auto
@@ -11003,22 +11003,22 @@ int32_t AreaTriggerCheck(const void* data, void* param) {
 // OFFSET: 0x006D7630
 int32_t __stdcall CGPlayer_C::CanSummonFriend(WOWGUID guid) {
     if (!guid) {
-        return 8;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NO_TARGET;
     }
 
     if (!CGPlayer_C::IsRAFPlayer(guid)) {
-        return 1;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_NOT_REFERRED_BY;
     }
 
     if (!CGPartyInfo::IsMember(guid) && !IsGuidInMyRaid(guid)) {
-        return 9;
+        return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_NOT_IN_GROUP;
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
         if (static_cast<int32_t>(player->m_unit->m_unitFieldLevel) > 60) {
-            return 10;
+            return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_LEVEL_MAX;
         }
     } else {
         CGPartyMemberState* stats = CGPartyInfo::GetRemoteStats(guid);
@@ -11027,20 +11027,20 @@ int32_t __stdcall CGPlayer_C::CanSummonFriend(WOWGUID guid) {
             stats = CGRaidInfo::GetRemoteStats(guid);
 
             if (!stats) {
-                return 9;
+                return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_NOT_IN_GROUP;
             }
         }
 
         if (!(stats->m_flags & 0x1)) {
-            return 13;
+            return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_OFFLINE;
         }
 
         if (stats->m_level > 60) {
-            return 10;
+            return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_LEVEL_MAX;
         }
     }
 
-    return Spell_C_GetSpellCooldown(CGSpellBook::m_summonFriendSpell, 0, nullptr, nullptr, nullptr) ? 11 : 0;
+    return Spell_C_GetSpellCooldown(CGSpellBook::m_summonFriendSpell, 0, nullptr, nullptr, nullptr) ? CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_COOLDOWN : CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_SUCCESS;
 }
 
 // VERIFY: 0c3db187 auto

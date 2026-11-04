@@ -5806,7 +5806,7 @@ static int32_t Script_SummonFriend(lua_State* L) {
     int32_t error = CGPlayer_C::CanSummonFriend(guid);
 
     if (!player || error) {
-        if (error != 9 && error != 13) {
+        if (error != CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_TARGET_NOT_IN_GROUP && error != CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_OFFLINE) {
             BroadcastUIError(error, nullptr);
             return 0;
         }

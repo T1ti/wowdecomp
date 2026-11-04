@@ -197,6 +197,25 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static void __stdcall QueryQuestGiverStatus(const WOWGUID& questGiver);
     static void QueryQuestGiverStatusMultiple();
     static bool __stdcall IsRAFPlayer(WOWGUID guid);
+    // Shared client/server result word; UI_* names describe display outcomes,
+    // without claiming original server enumerator spellings.
+    enum REFER_A_FRIEND_RESULT : int32_t {
+        RAF_RESULT_SUCCESS = 0,
+        RAF_RESULT_UI_NOT_REFERRED_BY = 1,
+        RAF_RESULT_UI_TARGET_TOO_HIGH = 2,
+        RAF_RESULT_UI_INSUFFICIENT_GRANTABLE_LEVELS = 3,
+        RAF_RESULT_UI_TOO_FAR = 4,
+        RAF_RESULT_UI_DIFFERENT_FACTION = 5,
+        RAF_RESULT_UI_NOT_NOW = 6,
+        RAF_RESULT_UI_GRANT_LEVEL_MAX = 7,
+        RAF_RESULT_UI_NO_TARGET = 8,
+        RAF_RESULT_UI_TARGET_NOT_IN_GROUP = 9,
+        RAF_RESULT_UI_SUMMON_LEVEL_MAX = 10,
+        RAF_RESULT_UI_SUMMON_COOLDOWN = 11,
+        RAF_RESULT_UI_INSUFFICIENT_EXPANSION_LEVEL = 12,
+        RAF_RESULT_UI_SUMMON_OFFLINE = 13,
+    };
+
     static int32_t __stdcall CanSummonFriend(WOWGUID guid);
     int32_t CanGrantLevel(WOWGUID guid);
     void TurnOnGuildTabardPurchase();
