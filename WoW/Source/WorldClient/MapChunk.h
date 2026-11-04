@@ -38,13 +38,13 @@ struct SMChunk;
 struct SMLayer;
 struct SMLiquidChunk;
 
-class CGxVertexPN {
+class CGxVertexPN { // GxVBF_PN: interleaved position and normal, 24 bytes per vertex.
     public:
     /* 0000 */ C3Vector m_position;
     /* 000C */ C3Vector m_normal;
 };
 
-class CGxVertexPNC {
+class CGxVertexPNC { // GxVBF_PNC: position/normal followed by packed BGRA color, 28 bytes per vertex.
     public:
     /* 0000 */ C3Vector m_position;
     /* 000C */ C3Vector m_normal;

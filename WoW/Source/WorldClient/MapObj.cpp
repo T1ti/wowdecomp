@@ -3387,17 +3387,17 @@ static uint16_t s_portalIndices[65536];
 // VERIFY: 6960856a manual
 // OFFSET: 0x007A76C0
 void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 24, mapObjGroup->m_vertexListCount);
-    float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPN), mapObjGroup->m_vertexListCount);
+    CGxVertexPN* vertices = reinterpret_cast<CGxVertexPN*>(g_theGxDevicePtr->BufLock(vertexBuf));
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(mapObjGroup->m_vertexListCount); i++) {
-        vertices[0] = mapObjGroup->m_vertexList[i].x;
-        vertices[1] = mapObjGroup->m_vertexList[i].y;
-        vertices[2] = mapObjGroup->m_vertexList[i].z;
-        vertices[3] = mapObjGroup->m_normalList[i].x;
-        vertices[4] = mapObjGroup->m_normalList[i].y;
-        vertices[5] = mapObjGroup->m_normalList[i].z;
-        vertices += 6;
+        vertices->m_position.x = mapObjGroup->m_vertexList[i].x;
+        vertices->m_position.y = mapObjGroup->m_vertexList[i].y;
+        vertices->m_position.z = mapObjGroup->m_vertexList[i].z;
+        vertices->m_normal.x = mapObjGroup->m_normalList[i].x;
+        vertices->m_normal.y = mapObjGroup->m_normalList[i].y;
+        vertices->m_normal.z = mapObjGroup->m_normalList[i].z;
+        vertices++;
     }
 
     GxBufUnlock(vertexBuf, 0);
@@ -3598,17 +3598,17 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
     CMapObj::SetRenderModeLight();
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 24, group->m_vertexListCount);
-    float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPN), group->m_vertexListCount);
+    CGxVertexPN* vertices = reinterpret_cast<CGxVertexPN*>(g_theGxDevicePtr->BufLock(vertexBuf));
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_vertexListCount); i++) {
-        vertices[0] = group->m_vertexList[i].x;
-        vertices[1] = group->m_vertexList[i].y;
-        vertices[2] = group->m_vertexList[i].z;
-        vertices[3] = group->m_normalList[i].x;
-        vertices[4] = group->m_normalList[i].y;
-        vertices[5] = group->m_normalList[i].z;
-        vertices += 6;
+        vertices->m_position.x = group->m_vertexList[i].x;
+        vertices->m_position.y = group->m_vertexList[i].y;
+        vertices->m_position.z = group->m_vertexList[i].z;
+        vertices->m_normal.x = group->m_normalList[i].x;
+        vertices->m_normal.y = group->m_normalList[i].y;
+        vertices->m_normal.z = group->m_normalList[i].z;
+        vertices++;
     }
 
     GxBufUnlock(vertexBuf, 0);
@@ -3675,17 +3675,17 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
     CMapObj::SetRenderModeLight();
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 24, group->m_vertexListCount);
-    float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPN), group->m_vertexListCount);
+    CGxVertexPN* vertices = reinterpret_cast<CGxVertexPN*>(g_theGxDevicePtr->BufLock(vertexBuf));
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_vertexListCount); i++) {
-        vertices[0] = group->m_vertexList[i].x;
-        vertices[1] = group->m_vertexList[i].y;
-        vertices[2] = group->m_vertexList[i].z;
-        vertices[3] = group->m_normalList[i].x;
-        vertices[4] = group->m_normalList[i].y;
-        vertices[5] = group->m_normalList[i].z;
-        vertices += 6;
+        vertices->m_position.x = group->m_vertexList[i].x;
+        vertices->m_position.y = group->m_vertexList[i].y;
+        vertices->m_position.z = group->m_vertexList[i].z;
+        vertices->m_normal.x = group->m_normalList[i].x;
+        vertices->m_normal.y = group->m_normalList[i].y;
+        vertices->m_normal.z = group->m_normalList[i].z;
+        vertices++;
     }
 
     GxBufUnlock(vertexBuf, 0);
@@ -3752,17 +3752,17 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
     CMapObj::SetRenderModeLight();
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 24, group->m_vertexListCount);
-    float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPN), group->m_vertexListCount);
+    CGxVertexPN* vertices = reinterpret_cast<CGxVertexPN*>(g_theGxDevicePtr->BufLock(vertexBuf));
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_vertexListCount); i++) {
-        vertices[0] = group->m_vertexList[i].x;
-        vertices[1] = group->m_vertexList[i].y;
-        vertices[2] = group->m_vertexList[i].z;
-        vertices[3] = group->m_normalList[i].x;
-        vertices[4] = group->m_normalList[i].y;
-        vertices[5] = group->m_normalList[i].z;
-        vertices += 6;
+        vertices->m_position.x = group->m_vertexList[i].x;
+        vertices->m_position.y = group->m_vertexList[i].y;
+        vertices->m_position.z = group->m_vertexList[i].z;
+        vertices->m_normal.x = group->m_normalList[i].x;
+        vertices->m_normal.y = group->m_normalList[i].y;
+        vertices->m_normal.z = group->m_normalList[i].z;
+        vertices++;
     }
 
     GxBufUnlock(vertexBuf, 0);
@@ -3829,23 +3829,23 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
     CMapObj::SetRenderModeLight();
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 28, group->m_vertexListCount);
-    float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNC), group->m_vertexListCount);
+    CGxVertexPNC* vertices = reinterpret_cast<CGxVertexPNC*>(g_theGxDevicePtr->BufLock(vertexBuf));
     CImVector color;
     color.a = 0xFF;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_vertexListCount); i++) {
-        vertices[0] = group->m_vertexList[i].x;
-        vertices[1] = group->m_vertexList[i].y;
-        vertices[2] = group->m_vertexList[i].z;
-        vertices[3] = group->m_normalList[i].x;
-        vertices[4] = group->m_normalList[i].y;
-        vertices[5] = group->m_normalList[i].z;
-        color.b = group->m_colorVertexList[i].a;
+        vertices->m_position.x = group->m_vertexList[i].x;
+        vertices->m_position.y = group->m_vertexList[i].y;
+        vertices->m_position.z = group->m_vertexList[i].z;
+        vertices->m_normal.x = group->m_normalList[i].x;
+        vertices->m_normal.y = group->m_normalList[i].y;
+        vertices->m_normal.z = group->m_normalList[i].z;
+        color.b = group->m_colorVertexList[i].a; // Visualize source vertex alpha as opaque grayscale.
         color.g = color.b;
         color.r = color.b;
-        *reinterpret_cast<CImVector*>(&vertices[6]) = color;
-        vertices += 7;
+        vertices->m_color = color;
+        vertices++;
     }
 
     GxBufUnlock(vertexBuf, 0);
