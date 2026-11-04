@@ -1337,13 +1337,13 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
         this->AddStatMods(stats);
     }
 
-    if (stats->m_scalingStatValue & 0xF801E0) {
+    if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MASK) {
         this->m_stats[0] += GetScalingStatArmor(values, stats->m_scalingStatValue);
     } else {
         this->AddResistances(stats);
     }
 
-    if (stats->m_scalingStatValue & 0x7E00) {
+    if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_MASK) {
         float minDamage;
         float maxDamage;
         GetScalingStatDamage(values, stats->m_scalingStatValue, &minDamage, &maxDamage);
@@ -1359,7 +1359,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
         this->AccumulateDpsStat(stats);
     }
 
-    if (stats->m_scalingStatValue & 0x8000) {
+    if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::SPELL_POWER) {
         this->m_stats[56] += values->m_spellPower;
     }
 }
@@ -3428,23 +3428,23 @@ int32_t GetScalingStatBudget(const ScalingStatValuesRec* values, uint32_t flags)
         return 0;
     }
 
-    switch (flags & 0x4001F) {
-        case 0x1:
+    switch (flags & ItemStats_C::SCALING_STAT_FLAGS::BUDGET_MASK) {
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_SHOULDER:
             return values->m_shoulderBudget;
 
-        case 0x2:
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_TRINKET:
             return values->m_trinketBudget;
 
-        case 0x4:
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_WEAPON_ONE_HAND:
             return values->m_weaponBudget1h;
 
-        case 0x8:
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_PRIMARY:
             return values->m_primaryBudget;
 
-        case 0x10:
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_RANGED:
             return values->m_rangedBudget;
 
-        case 0x40000:
+        case ItemStats_C::SCALING_STAT_FLAGS::BUDGET_TERTIARY:
             return values->m_tertiaryBudget;
     }
 
@@ -3458,32 +3458,32 @@ int32_t GetScalingStatArmor(const ScalingStatValuesRec* values, uint32_t flags) 
         return 0;
     }
 
-    switch (flags & 0xF801E0) {
-        case 0x20:
+    switch (flags & ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MASK) {
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_CLOTH_SHOULDER:
             return values->m_clothShoulderArmor;
 
-        case 0x40:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_LEATHER_SHOULDER:
             return values->m_leatherShoulderArmor;
 
-        case 0x80:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MAIL_SHOULDER:
             return values->m_mailShoulderArmor;
 
-        case 0x100:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_PLATE_SHOULDER:
             return values->m_plateShoulderArmor;
 
-        case 0x80000:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_CLOTH_CLOAK:
             return values->m_clothCloakArmor;
 
-        case 0x100000:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_CLOTH_CHEST:
             return values->m_clothChestArmor;
 
-        case 0x200000:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_LEATHER_CHEST:
             return values->m_leatherChestArmor;
 
-        case 0x400000:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MAIL_CHEST:
             return values->m_mailChestArmor;
 
-        case 0x800000:
+        case ItemStats_C::SCALING_STAT_FLAGS::ARMOR_PLATE_CHEST:
             return values->m_plateChestArmor;
     }
 
@@ -3509,30 +3509,30 @@ void GetScalingStatDamage(const ScalingStatValuesRec* values, uint32_t flags, fl
 
     float variance = 0.3f;
 
-    switch (flags & 0x7E00) {
-        case 0x200:
+    switch (flags & ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_MASK) {
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_ONE_HAND:
             dps = static_cast<float>(values->m_weaponDps1h);
             break;
 
-        case 0x400:
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_TWO_HAND:
             dps = static_cast<float>(values->m_weaponDps2h);
             variance = 0.2f;
             break;
 
-        case 0x800:
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_CASTER_ONE_HAND:
             dps = static_cast<float>(values->m_spellcasterDps1h);
             break;
 
-        case 0x1000:
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_CASTER_TWO_HAND:
             dps = static_cast<float>(values->m_spellcasterDps2h);
             variance = 0.2f;
             break;
 
-        case 0x2000:
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_RANGED:
             dps = static_cast<float>(values->m_rangedDps);
             break;
 
-        case 0x4000:
+        case ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_WAND:
             dps = static_cast<float>(values->m_wandDps);
             break;
     }
@@ -4582,7 +4582,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
     float average = 0.0f;
     int32_t first = 1;
 
-    if ((stats->m_scalingStatValue & 0x7E00) && values) {
+    if ((stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_MASK) && values) {
         float minDamage;
         float maxDamage;
         GetScalingStatDamage(values, stats->m_scalingStatValue, &minDamage, &maxDamage);
@@ -4670,7 +4670,7 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
     char text[4096];
     char school[32];
 
-    if (stats->m_scalingStatValue & 0xF801E0) {
+    if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MASK) {
         int32_t armor = GetScalingStatArmor(values, stats->m_scalingStatValue);
         SStrCopy(format, FrameScript_GetText("ARMOR_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
         SStrPrintf(text, sizeof(text), format, armor);
@@ -5785,7 +5785,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         }
     }
 
-    if ((stats->m_scalingStatValue & 0x8000) && values && values->m_spellPower) {
+    if ((stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::SPELL_POWER) && values && values->m_spellPower) {
         SStrCopy(format, FrameScript_GetText(s_itemModTokens[45], -1, GENDER_NOT_APPLICABLE), sizeof(format));
 
         if (format[0]) {

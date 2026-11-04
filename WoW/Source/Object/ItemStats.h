@@ -87,6 +87,36 @@ class ItemStats_C {
     void Pack(CDataStore* msg);
     void Unpack(CDataStore* msg);
     const char* GetName(int32_t index) const;
+
+    // Raw item scaling word: independent budget, armor and damage selectors,
+    // plus spell power. Multiple bits within a selector retain the default path.
+    enum SCALING_STAT_FLAGS : uint32_t {
+        BUDGET_SHOULDER = 0x1,
+        BUDGET_TRINKET = 0x2,
+        BUDGET_WEAPON_ONE_HAND = 0x4,
+        BUDGET_PRIMARY = 0x8,
+        BUDGET_RANGED = 0x10,
+        ARMOR_CLOTH_SHOULDER = 0x20,
+        ARMOR_LEATHER_SHOULDER = 0x40,
+        ARMOR_MAIL_SHOULDER = 0x80,
+        ARMOR_PLATE_SHOULDER = 0x100,
+        DAMAGE_ONE_HAND = 0x200,
+        DAMAGE_TWO_HAND = 0x400,
+        DAMAGE_CASTER_ONE_HAND = 0x800,
+        DAMAGE_CASTER_TWO_HAND = 0x1000,
+        DAMAGE_RANGED = 0x2000,
+        DAMAGE_WAND = 0x4000,
+        SPELL_POWER = 0x8000,
+        BUDGET_TERTIARY = 0x40000,
+        ARMOR_CLOTH_CLOAK = 0x80000,
+        ARMOR_CLOTH_CHEST = 0x100000,
+        ARMOR_LEATHER_CHEST = 0x200000,
+        ARMOR_MAIL_CHEST = 0x400000,
+        ARMOR_PLATE_CHEST = 0x800000,
+        BUDGET_MASK = 0x4001F,
+        ARMOR_MASK = 0xF801E0,
+        DAMAGE_MASK = 0x7E00,
+    };
 };
 
 #endif
