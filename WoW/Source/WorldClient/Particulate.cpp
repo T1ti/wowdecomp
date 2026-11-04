@@ -122,22 +122,22 @@ void Particulate::InitMovement() {
     float phi = CRandom::sfloat_(g_rndSeed) * 3.1415927f;
     float sinTheta = sin(theta);
 
-    this->m_direction.y = sin(phi) * sinTheta;
-    this->m_direction.x = sinTheta * cos(phi);
-    this->m_direction.z = cos(theta) * 0.25f;
+    this->m_movement.m_dir.y = sin(phi) * sinTheta;
+    this->m_movement.m_dir.x = sinTheta * cos(phi);
+    this->m_movement.m_dir.z = cos(theta) * 0.25f;
 
-    if (this->m_direction.z < 0.0f) {
-        this->m_direction.z = -this->m_direction.z;
+    if (this->m_movement.m_dir.z < 0.0f) {
+        this->m_movement.m_dir.z = -this->m_movement.m_dir.z;
     }
 
-    float invLength = 1.0f / sqrt(this->m_direction.x * this->m_direction.x + this->m_direction.y * this->m_direction.y + this->m_direction.z * this->m_direction.z);
-    this->m_direction.x = this->m_direction.x * invLength;
-    this->m_direction.y = this->m_direction.y * invLength;
-    this->m_direction.z = this->m_direction.z * invLength;
+    float invLength = 1.0f / sqrt(this->m_movement.m_dir.x * this->m_movement.m_dir.x + this->m_movement.m_dir.y * this->m_movement.m_dir.y + this->m_movement.m_dir.z * this->m_movement.m_dir.z);
+    this->m_movement.m_dir.x = this->m_movement.m_dir.x * invLength;
+    this->m_movement.m_dir.y = this->m_movement.m_dir.y * invLength;
+    this->m_movement.m_dir.z = this->m_movement.m_dir.z * invLength;
 
-    this->m_timer = 0.0f;
-    this->m_speed = (CRandom::ufloat_(g_rndSeed) + 1.0f) * 0.0125f;
-    this->m_rotationSpeed = (CRandom::ufloat_(g_rndSeed) + 1.0f) * 0.005f;
+    this->m_movement.m_time = 0.0f;
+    this->m_movement.m_freq = (CRandom::ufloat_(g_rndSeed) + 1.0f) * 0.0125f;
+    this->m_movement.m_amplitude = (CRandom::ufloat_(g_rndSeed) + 1.0f) * 0.005f;
 }
 
 // VERIFY: d40a0168 manual
@@ -169,16 +169,16 @@ C3Vector Particulate::ComputeMovement(float elapsed) {
         return C3Vector(0.0f, 0.0f, 0.0f);
     }
 
-    this->m_timer = elapsed + this->m_timer;
-    float phase = this->m_timer * this->m_speed;
+    this->m_movement.m_time = elapsed + this->m_movement.m_time;
+    float phase = this->m_movement.m_time * this->m_movement.m_freq;
 
     if (phase > 0.5f) {
         this->InitMovement();
         phase = 0.0f;
     }
 
-    float amount = CMath::sin_(phase * TWO_PI) * this->m_rotationSpeed;
-    return C3Vector(this->m_direction.x * amount, this->m_direction.y * amount, amount * this->m_direction.z);
+    float amount = CMath::sin_(phase * TWO_PI) * this->m_movement.m_amplitude;
+    return C3Vector(this->m_movement.m_dir.x * amount, this->m_movement.m_dir.y * amount, amount * this->m_movement.m_dir.z);
 }
 
 // VERIFY: 680e77ec manual

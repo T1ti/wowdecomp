@@ -14,6 +14,13 @@ struct LiquidParticle {
 
 class Particulate {
     public:
+    struct Movement {
+        /* 0000 */ C3Vector m_dir; // Normalized direction of the sinusoidal displacement.
+        /* 000C */ float m_freq; // Frequency: phase in cycles is elapsed time multiplied by this value.
+        /* 0010 */ float m_time; // Elapsed time since InitMovement last reset the motion.
+        /* 0014 */ float m_amplitude; // Amplitude of the per-update displacement.
+    };
+
     /* 0000 */ LiquidParticle m_particles [4000];
     /* FA00 */ uint32_t m_maxParticles;
     /* FA04 */ C3Vector m_prevCameraPos;
@@ -24,10 +31,7 @@ class Particulate {
     /* FA1C */ float m_spawnAreaSize;
     /* FA20 */ float m_unkFloat1;
     /* FA24 */ uint32_t m_liquidType;
-    /* FA28 */ C3Vector m_direction;
-    /* FA34 */ float m_speed;
-    /* FA38 */ float m_timer;
-    /* FA3C */ float m_rotationSpeed;
+    /* FA28 */ Movement m_movement;
 
     Particulate(float particleSize, float spawnAreaSize, const char* textureName);
     ~Particulate();
