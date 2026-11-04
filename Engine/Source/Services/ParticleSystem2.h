@@ -140,8 +140,7 @@ class CParticleEmitter2 {
         /* 002C */ float m_initialSpinVariation;
         /* 0030 */ float m_spin;
         /* 0034 */ float m_spinVariation;
-        /* 0038 */ uint32_t m_materialBlend;
-        /* 003C */ uint32_t m_materialFlags;
+        /* 0038 */ CParticleMat m_material; // Same blend/flag pair accepted by SetMaterial.
         /* 0040 */ const M2PartTrack<C3Vector>* m_colorTrack;
         /* 0044 */ const M2PartTrack<fixed16>* m_alphaTrack;
         /* 0048 */ const M2PartTrack<C2Vector>* m_scaleTrack;
