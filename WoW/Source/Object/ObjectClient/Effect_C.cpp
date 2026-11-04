@@ -159,9 +159,9 @@ void CEffect::SetEmissionRateIgnoresDistance(int32_t ignore) {
         CParticleEmitter2* emitter = model->m_particleEmitters[i];
 
         if (ignore) {
-            emitter->m_flags |= 0x400000;
+            emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
         } else {
-            emitter->m_flags &= ~0x400000;
+            emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
         }
     }
 }

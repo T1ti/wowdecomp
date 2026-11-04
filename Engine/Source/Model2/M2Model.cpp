@@ -938,7 +938,7 @@ CAaBox CM2Model::GetCurrentBoundingBox() {
     for (uint32_t i = 0; i < this->m_shared->m_data->m_particles.m_count; i++) {
         CParticleEmitter2* emitter = this->m_particleEmitters[i];
 
-        if (emitter->m_flags & 0x200) {
+        if (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE) {
             box |= emitter->WorldBounds();
         }
     }
@@ -1007,7 +1007,7 @@ CAaBox CM2Model::GetSplitBodyBoundingBox(uint32_t boneId) {
     for (uint32_t i = 0; i < this->m_shared->m_data->m_particles.m_count; i++) {
         CParticleEmitter2* emitter = this->m_particleEmitters[i];
 
-        if (emitter->m_flags & 0x200) {
+        if (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE) {
             box |= emitter->WorldBounds();
         }
     }
@@ -2139,9 +2139,9 @@ void CM2Model::SetEmittersEnabled(int32_t enabled) {
             CParticleEmitter2* emitter = this->m_particleEmitters[i];
 
             if (enabled) {
-                emitter->m_flags |= 2;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::USER_ENABLED;
             } else {
-                emitter->m_flags &= ~2u;
+                emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::USER_ENABLED;
             }
         }
     } else {
@@ -3985,7 +3985,7 @@ CAaSphere CM2Model::GetCurrentBoundingSphere() {
     for (uint32_t i = 0; i < particleCount; i = i + 1) {
         CParticleEmitter2* emitter = this->m_particleEmitters[i];
 
-        if (emitter->m_flags & 0x200) {
+        if (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE) {
             box |= emitter->WorldBounds();
         }
 
@@ -4380,7 +4380,7 @@ void CM2Model::AnimateParticlesMT() {
             M2AnimateTrack<uint8_t, uint8_t>(this, &this->m_bones[particleData->m_boneIndex], particleData->m_visibilityTrack, particle->m_visibilityTrack, visible);
         }
 
-        particle->m_emitting = particle->m_visibilityTrack.m_currentValue && (emitter->m_flags & 2);
+        particle->m_emitting = particle->m_visibilityTrack.m_currentValue && (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::USER_ENABLED);
         particle->m_active = particle->m_emitting || emitter->HasLiveParticles();
         this->m_runtimeFlags |= static_cast<uint32_t>(particle->m_active) << 10;
 
@@ -5704,13 +5704,13 @@ void CM2Model::AnimateParticleST(float deltaTime, uint32_t index) {
 
     if (!(particleData->m_flags & 0x8000)) {
         if (particle->m_emitting) {
-            emitter->m_flags |= 1;
+            emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
         } else {
-            emitter->m_flags &= ~1u;
+            emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
         }
     } else if (particle->m_visibilityTrack.m_currentValue && particle->m_emissionRateTrack.m_currentValue > 0.0f) {
         if (!particle->m_burstFired) {
-            emitter->m_flags |= 0x40;
+            emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::BURST_PENDING;
         }
 
         particle->m_burstFired = 1;
@@ -7285,7 +7285,7 @@ int32_t CM2Model::InitializeLoaded() {
             }
 
             CParticleEmitter2* emitter = this->m_particleEmitters[i];
-            emitter->m_flags &= ~1u;
+            emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
 
             if (particleData->m_emissionRateTrack.m_sequenceKeys[0].m_count) {
                 emitter->SetEmissionRate(particleData->m_emissionRateTrack.m_sequenceKeys[0][0]);
@@ -7334,55 +7334,55 @@ int32_t CM2Model::InitializeLoaded() {
             uint32_t flags = particleData->m_flags;
 
             if (flags & 0x10) {
-                emitter->m_flags |= 0x200;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE;
             } else {
-                emitter->m_flags &= ~0x200u;
+                emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE;
             }
 
             if (flags & 0x40) {
-                emitter->m_flags |= 0x800;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::INHERIT_VELOCITY;
             }
 
             if (flags & 0x20) {
-                emitter->m_flags |= 0x400;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::TRANSFORM_SCALE;
             }
 
             if (flags & 0x800) {
-                emitter->m_flags |= 0x2000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::EMIT_ALONG_MOTION;
             }
 
             if (flags & 0x1000) {
-                emitter->m_flags |= 0x4000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::USE_BILLBOARD_AXIS;
             }
 
             if (particleData->m_emitterType == 2) {
                 if (flags & 0x80) {
-                    emitter->m_flags |= 0x1000;
+                    emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::KILL_OUTWARD_PARTICLES;
                 }
 
                 if (flags & 0x100) {
-                    emitter->m_flags |= 0x8000;
+                    emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SPHERE_Z_VELOCITY;
                 }
             }
 
             if (flags & 0x200) {
-                emitter->m_flags |= 0x10000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::RANDOM_SPIN_DIRECTION;
             }
 
             if (flags & 0x2000) {
-                emitter->m_flags |= 0x40000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::PROJECT;
             }
 
             if (flags & 0x4000) {
-                emitter->m_flags |= 0x80000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::FOLLOW;
             }
 
             if (flags & 0x8000) {
-                emitter->m_flags &= ~1u;
+                emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
             }
 
             if (flags & 0x80000) {
-                emitter->m_flags |= 0x800000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SCALE_VARIATION;
             }
 
             emitter->SetParticleStyle(flags & 0x20000, flags & 0x40000, particleData->m_tailLength, flags & 0x400);
@@ -7432,11 +7432,11 @@ int32_t CM2Model::InitializeLoaded() {
             material.m_flags = (material.m_flags & ~2u) | ((flags & 8) ? 0 : 2);
 
             if (flags & 2) {
-                emitter->m_flags |= 0x20;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SORT_PARTICLES;
             }
 
             if (flags & 4) {
-                emitter->m_flags |= 0x200000;
+                emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::VELOCITY_ALIGNED_HEAD;
             }
 
             emitter->SetTextureDimensions(particleData->m_rows, particleData->m_cols);
@@ -7456,7 +7456,7 @@ int32_t CM2Model::InitializeLoaded() {
 
             CM2Model* source = this->m_model30;
 
-            if (source && (source->m_particleEmitters[i]->m_flags & 0x10)) {
+            if (source && (source->m_particleEmitters[i]->m_flags & CParticleEmitter2::RUNTIME_FLAGS::REPLACEMENT_COLORS)) {
                 CImVector color0;
                 CImVector color1;
                 CImVector color2;

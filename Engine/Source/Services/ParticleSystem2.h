@@ -295,6 +295,40 @@ class CParticleEmitter2 {
     int32_t UpdateLiveParticle(float deltaTime, CParticle2* particle, uint32_t index);
     void UpdateXform(const C44Matrix& transform, const C3Vector& viewPos, const C44Matrix* frameOfReference);
     CAaBox& WorldBounds();
+
+    // Runtime m_flags only; distinct from material, batch and M2 file flags.
+    // UNKNOWN bits preserve verified update markers/render exclusion without
+    // assigning unsupported original identities.
+    enum RUNTIME_FLAGS : uint32_t {
+        DATA_EMITTING = 0x1,
+        USER_ENABLED = 0x2,
+        HEAD = 0x4,
+        TAIL = 0x8,
+        REPLACEMENT_COLORS = 0x10,
+        SORT_PARTICLES = 0x20,
+        BURST_PENDING = 0x40,
+        UNKNOWN_00000080 = 0x80,
+        UNKNOWN_00000100 = 0x100,
+        LOCAL_SPACE = 0x200,
+        TRANSFORM_SCALE = 0x400,
+        INHERIT_VELOCITY = 0x800,
+        KILL_OUTWARD_PARTICLES = 0x1000,
+        EMIT_ALONG_MOTION = 0x2000,
+        USE_BILLBOARD_AXIS = 0x4000,
+        SPHERE_Z_VELOCITY = 0x8000,
+        RANDOM_SPIN_DIRECTION = 0x10000,
+        CLAMP_TAIL = 0x20000,
+        PROJECT = 0x40000,
+        FOLLOW = 0x80000,
+        RANDOM_TEXTURE = 0x100000,
+        VELOCITY_ALIGNED_HEAD = 0x200000,
+        IGNORE_DISTANCE = 0x400000,
+        SCALE_VARIATION = 0x800000,
+        SIMPLE_TRACKS = 0x1000000,
+        UNKNOWN_02000000 = 0x2000000,
+        EMISSION_ENABLED_MASK = 0x3,
+        INITIAL_FLAGS = 0x6,
+    };
 };
 
 class CPlaneParticleEmitter : public CParticleEmitter2 {

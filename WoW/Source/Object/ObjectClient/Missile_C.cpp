@@ -1839,7 +1839,7 @@ void CMissile::CalcPosition(int32_t advance) {
                         emitterModel->WaitForLoad(nullptr);
                     }
 
-                    emitterModel->m_particleEmitters[i]->m_flags |= 0x400000;
+                    emitterModel->m_particleEmitters[i]->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
                 }
 
                 this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_PARTICLES_INITIALIZED;

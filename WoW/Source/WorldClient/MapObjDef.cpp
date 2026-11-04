@@ -409,9 +409,9 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t
                 CParticleEmitter2* emitter = model->m_particleEmitters[i];
 
                 if (ignore) {
-                    emitter->m_flags |= 0x400000;
+                    emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
                 } else {
-                    emitter->m_flags &= ~0x400000u;
+                    emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
                 }
             }
         }

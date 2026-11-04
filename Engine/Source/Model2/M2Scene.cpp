@@ -1671,7 +1671,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
     }
 
     if (blend > 1 || alpha < 0.99998999f) {
-        TSGrowableArray<uint32_t>* list = (!split || (emitter->m_flags & 0x40000)) ? &this->m_passElements[2] : &this->m_passElements[1];
+        TSGrowableArray<uint32_t>* list = (!split || (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROJECT)) ? &this->m_passElements[2] : &this->m_passElements[1];
         list->New(index);
     } else {
         this->m_passElements[0].New(index);
@@ -2089,11 +2089,11 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         for (uint32_t i = 0; i < data->m_particles.m_count; i++) {
             CParticleEmitter2* emitter = model->m_particleEmitters[i];
 
-            if ((model->m_runtimeFlags & 0x2000) && (emitter->m_flags & 0x200)) {
+            if ((model->m_runtimeFlags & 0x2000) && (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE)) {
                 continue;
             }
 
-            if (emitter->m_flags & 0x2000000) {
+            if (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::UNKNOWN_02000000) {
                 continue;
             }
 
