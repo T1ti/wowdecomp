@@ -1921,32 +1921,32 @@ int32_t Packet_SMSG_TRANSFER_ABORTED(void* param, NETMESSAGE msgId, uint32_t tim
         char token[64];
 
         switch (reason) {
-            case 1:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_ERROR:
                 text = FrameScript_GetText("TRANSFER_ABORT_ERROR", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 2:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_MAX_PLAYERS:
                 text = FrameScript_GetText("TRANSFER_ABORT_MAX_PLAYERS", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 3:
-            case 12:
-            case 13:
-            case 14:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_NOT_FOUND:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_UNKNOWN_12:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_UNKNOWN_13:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_UNKNOWN_14:
                 text = FrameScript_GetText("TRANSFER_ABORT_NOT_FOUND", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 4:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_TOO_MANY_INSTANCES:
                 text = FrameScript_GetText("TRANSFER_ABORT_TOO_MANY_INSTANCES", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 6:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_ZONE_IN_COMBAT:
                 text = FrameScript_GetText("TRANSFER_ABORT_ZONE_IN_COMBAT", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 7: {
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_INSUFFICIENT_EXPANSION: {
                 uint8_t expansion;
                 msg->Get(expansion);
                 SStrPrintf(token, sizeof(token), "TRANSFER_ABORT_INSUF_EXPAN_LVL%d", expansion);
                 text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE);
                 break;
             }
-            case 8: {
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_DIFFICULTY: {
                 uint8_t difficulty;
                 msg->Get(difficulty);
                 MapDifficultyRec* entry = GetMapDifficultyEntryByMapIdAndDifficulty(map->m_id, difficulty, nullptr);
@@ -1959,7 +1959,7 @@ int32_t Packet_SMSG_TRANSFER_ABORTED(void* param, NETMESSAGE msgId, uint32_t tim
 
                 break;
             }
-            case 9: {
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_UNIQUE_MESSAGE: {
                 uint8_t message;
                 msg->Get(message);
                 char messageToken[64];
@@ -1967,16 +1967,16 @@ int32_t Packet_SMSG_TRANSFER_ABORTED(void* param, NETMESSAGE msgId, uint32_t tim
                 text = FrameScript_GetText(messageToken, -1, GENDER_NOT_APPLICABLE);
                 break;
             }
-            case 10:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES:
                 text = FrameScript_GetText("TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 11:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_NEED_GROUP:
                 text = FrameScript_GetText("TRANSFER_ABORT_NEED_GROUP", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 15:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_REALM_ONLY:
                 text = FrameScript_GetText("TRANSFER_ABORT_REALM_ONLY", -1, GENDER_NOT_APPLICABLE);
                 break;
-            case 16:
+            case TRANSFER_ABORT_REASON::TRANSFER_ABORT_MAP_NOT_ALLOWED:
                 text = FrameScript_GetText("TRANSFER_ABORT_MAP_NOT_ALLOWED", -1, GENDER_NOT_APPLICABLE);
                 break;
         }
