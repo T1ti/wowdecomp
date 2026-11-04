@@ -934,8 +934,8 @@ bool CSimpleFontString::SetLayoutScale(float scale, bool force) {
             this->m_fontHandle = font;
 
             if (font) {
-                this->m_textWidth = 0.0f;
-                this->m_textHeight = 0.0f;
+                this->m_cachedWidth = 0.0f;
+                this->m_cachedHeight = 0.0f;
 
                 if (this->m_string) {
                     HandleClose(reinterpret_cast<HOBJECT>(this->m_string));
@@ -1039,8 +1039,8 @@ void CSimpleFontString::operator delete(void* ptr) {
 // OFFSET: 0x00485240
 CSimpleFontString::CSimpleFontString(CSimpleFrame* frame, uint32_t drawLayer, bool show) : CSimpleRegion(frame, drawLayer, show) {
     this->m_spacing = 0.0f;
-    this->m_textWidth = 0.0f;
-    this->m_textHeight = 0.0f;
+    this->m_cachedWidth = 0.0f;
+    this->m_cachedHeight = 0.0f;
     this->m_fontHandle = nullptr;
     this->m_textMaxSize = 0;
     this->m_textCurSize = 0;
@@ -1104,16 +1104,16 @@ bool CSimpleFontString::SetAlphaGradient(int32_t start, int32_t length) {
 // OFFSET: 0x00482320
 void CSimpleFontString::SetWidth(float width) {
     this->CLayoutFrame::SetWidth(width);
-    this->m_textWidth = 0.0f;
-    this->m_textHeight = 0.0f;
+    this->m_cachedWidth = 0.0f;
+    this->m_cachedHeight = 0.0f;
 }
 
 // VERIFY: 0b7750c4 auto
 // OFFSET: 0x00482350
 void CSimpleFontString::SetHeight(float height) {
     this->CLayoutFrame::SetHeight(height);
-    this->m_textWidth = 0.0f;
-    this->m_textHeight = 0.0f;
+    this->m_cachedWidth = 0.0f;
+    this->m_cachedHeight = 0.0f;
 }
 
 // VERIFY: fd665b85 auto
@@ -1179,8 +1179,8 @@ uint32_t CSimpleFontString::GetNumCharsWithinWidthFromEnd(const char* text, uint
 // VERIFY: 5d78882a auto
 // OFFSET: 0x004826B0
 void CSimpleFontString::OnScreenSizeChanged() {
-    this->m_textWidth = 0.0f;
-    this->m_textHeight = 0.0f;
+    this->m_cachedWidth = 0.0f;
+    this->m_cachedHeight = 0.0f;
     this->Resize(0);
 }
 
@@ -1197,8 +1197,8 @@ void CSimpleFontString::AddAnimTranslation(const C2Vector& translation) {
 // VERIFY: ebf55995 auto
 // OFFSET: 0x00482E10
 void CSimpleFontString::ClearString() {
-    this->m_textWidth = 0.0f;
-    this->m_textHeight = 0.0f;
+    this->m_cachedWidth = 0.0f;
+    this->m_cachedHeight = 0.0f;
 
     if (this->m_string) {
         HandleClose(reinterpret_cast<HOBJECT>(this->m_string));
@@ -1384,15 +1384,15 @@ void CSimpleFontString::SetShadowOffset(const C2Vector& offset) {
 // VERIFY: 230de876 auto
 // OFFSET: 0x00483E80
 float CSimpleFontString::GetStringWidth() {
-    if (this->m_textWidth == 0.0f && this->m_fontHandle) {
+    if (this->m_cachedWidth == 0.0f && this->m_fontHandle) {
         const char* text = this->GetDisplayText(this->CLayoutFrame::GetWidth() * this->m_layoutScale, this->CLayoutFrame::GetHeight() * this->m_layoutScale);
 
         if (text && *text) {
-            TextBlockGetTextExtent(this->m_fontHandle, text, SStrLen(text), this->GetFontHeight(true) * this->m_layoutScale, &this->m_textWidth, this->m_shadowOffset.x * this->m_layoutScale, this->m_layoutScale, 0.0f, this->m_styleFlags);
+            TextBlockGetTextExtent(this->m_fontHandle, text, SStrLen(text), this->GetFontHeight(true) * this->m_layoutScale, &this->m_cachedWidth, this->m_shadowOffset.x * this->m_layoutScale, this->m_layoutScale, 0.0f, this->m_styleFlags);
         }
     }
 
-    return this->m_textWidth / this->m_layoutScale;
+    return this->m_cachedWidth / this->m_layoutScale;
 }
 
 // VERIFY: 9a3e23aa auto
@@ -1410,18 +1410,18 @@ float CSimpleFontString::GetWidth() {
 // VERIFY: 5c920bfb auto
 // OFFSET: 0x00483FA0
 float CSimpleFontString::GetStringHeight() {
-    if (this->m_textHeight == 0.0f && this->m_fontHandle) {
+    if (this->m_cachedHeight == 0.0f && this->m_fontHandle) {
         const char* text = this->GetDisplayText(this->CLayoutFrame::GetWidth() * this->m_layoutScale, this->CLayoutFrame::GetHeight() * this->m_layoutScale);
 
         if (text && *text) {
             C2Vector shadowOffset;
             shadowOffset.x = this->m_shadowOffset.x * this->m_layoutScale;
             shadowOffset.y = this->m_layoutScale * this->m_shadowOffset.y;
-            this->m_textHeight = TextBlockGetWrappedTextHeight(this->m_fontHandle, text, this->GetFontHeight(true) * this->m_layoutScale, this->GetWidth() * this->m_layoutScale, shadowOffset, this->m_layoutScale, this->m_spacing * this->m_layoutScale, this->m_styleFlags);
+            this->m_cachedHeight = TextBlockGetWrappedTextHeight(this->m_fontHandle, text, this->GetFontHeight(true) * this->m_layoutScale, this->GetWidth() * this->m_layoutScale, shadowOffset, this->m_layoutScale, this->m_spacing * this->m_layoutScale, this->m_styleFlags);
         }
     }
 
-    return this->m_textHeight / this->m_layoutScale;
+    return this->m_cachedHeight / this->m_layoutScale;
 }
 
 // VERIFY: 34e78a2e auto
@@ -1568,14 +1568,14 @@ void CSimpleFontString::UpdateString() {
         position.z = this->m_layoutDepth;
 
         float width = this->CLayoutFrame::GetWidth();
-        width = width != 0.0f ? width * this->m_layoutScale : this->m_textWidth;
+        width = width != 0.0f ? width * this->m_layoutScale : this->m_cachedWidth;
 
         if (fnotequalz(width, this->m_rect.maxX - this->m_rect.minX, 0.00001f)) {
             width = this->m_rect.maxX - this->m_rect.minX;
         }
 
         float height = this->CLayoutFrame::GetHeight();
-        height = height != 0.0f ? height * this->m_layoutScale : this->m_textHeight;
+        height = height != 0.0f ? height * this->m_layoutScale : this->m_cachedHeight;
 
         if (fnotequalz(height, this->m_rect.maxY - this->m_rect.minY, 0.00001f)) {
             height = this->m_rect.maxY - this->m_rect.minY;
@@ -1700,7 +1700,7 @@ void CSimpleFontString::SetSpacing(float spacing) {
 
     if (fabsf(spacing - this->m_spacing) >= 0.00000023841858f) {
         this->m_spacing = spacing;
-        this->m_textHeight = 0.0f;
+        this->m_cachedHeight = 0.0f;
 
         if (this->m_string) {
             this->UpdateString();

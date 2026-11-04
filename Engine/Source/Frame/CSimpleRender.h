@@ -58,8 +58,8 @@ class CSimpleFontString : public CSimpleRegion, public CSimpleFontable {
     /* 00F4 */ char* m_text;
     /* 00F8 */ float m_spacing;
     /* 00FC */ HTEXTBLOCK m_string;
-    /* 0100 */ float m_textWidth;
-    /* 0104 */ float m_textHeight;
+    /* 0100 */ float m_cachedWidth;
+    /* 0104 */ float m_cachedHeight;
     /* 0108 */ CImVector m_shadowColor;
     /* 010C */ C2Vector m_shadowOffset;
     /* 0114 */ C2Vector m_justificationOffset;

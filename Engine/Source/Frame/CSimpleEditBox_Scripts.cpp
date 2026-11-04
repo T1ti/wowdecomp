@@ -481,7 +481,7 @@ static int32_t Script_SetMaxBytes(lua_State* L) {
     }
 
     int32_t maxBytes = static_cast<int32_t>(lua_tonumber(L, 2));
-    editBox->m_textMaxLength = maxBytes <= 0 ? -1 : maxBytes - 1;
+    editBox->m_textLengthMax = maxBytes <= 0 ? -1 : maxBytes - 1;
     return 0;
 }
 
@@ -489,7 +489,7 @@ static int32_t Script_SetMaxBytes(lua_State* L) {
 // OFFSET: 0x00976580
 static int32_t Script_GetMaxBytes(lua_State* L) {
     CSimpleEditBox* editBox = static_cast<CSimpleEditBox*>(FrameScript_GetObjectThis(L, CSimpleEditBox::GetObjectType()));
-    lua_pushnumber(L, editBox->m_textMaxLength + 1);
+    lua_pushnumber(L, editBox->m_textLengthMax + 1);
     return 1;
 }
 
@@ -503,7 +503,7 @@ static int32_t Script_SetMaxLetters(lua_State* L) {
         return 0;
     }
 
-    editBox->m_textMaxLetters = static_cast<int32_t>(lua_tonumber(L, 2));
+    editBox->m_textLettersMax = static_cast<int32_t>(lua_tonumber(L, 2));
     return 0;
 }
 
@@ -511,7 +511,7 @@ static int32_t Script_SetMaxLetters(lua_State* L) {
 // OFFSET: 0x00976650
 static int32_t Script_GetMaxLetters(lua_State* L) {
     CSimpleEditBox* editBox = static_cast<CSimpleEditBox*>(FrameScript_GetObjectThis(L, CSimpleEditBox::GetObjectType()));
-    lua_pushnumber(L, editBox->m_textMaxLetters);
+    lua_pushnumber(L, editBox->m_textLettersMax);
     return 1;
 }
 

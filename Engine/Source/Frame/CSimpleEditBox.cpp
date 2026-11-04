@@ -150,14 +150,14 @@ CSimpleEditBox::CSimpleEditBox(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_textTaint = nullptr;
     this->m_textHidden = nullptr;
     this->m_textLength = 0;
-    this->m_textMaxLength = -1;
-    this->m_textMaxLetters = 0;
-    this->m_visiblePosition = 0;
-    this->m_visibleLength = 0;
+    this->m_textLengthMax = -1;
+    this->m_textLettersMax = 0;
+    this->m_visiblePos = 0;
+    this->m_visibleLen = 0;
     this->m_highlightLeft = 0;
     this->m_highlightRight = 0;
     this->m_highlightDrag = 0;
-    this->m_cursorTexture = nullptr;
+    this->m_cursor = nullptr;
     this->m_cursorPos = 0;
     this->m_editBoxFlags = EDITBOX_FLAGS::EDITBOX_AUTO_FOCUS;
     this->m_dirtyBits = DIRTY_BITS::DIRTY_TEXT;
@@ -183,14 +183,14 @@ CSimpleEditBox::CSimpleEditBox(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_font->m_attributes.SetJustifyH(0x1);
 
     void* data = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
-    this->m_fontString = data ? new (data) CSimpleFontString(this, 2, true) : nullptr;
-    this->m_fontString->SetFontObject(this->m_font);
+    this->m_string = data ? new (data) CSimpleFontString(this, 2, true) : nullptr;
+    this->m_string->SetFontObject(this->m_font);
 
     this->SetMultiLine(0);
 
     for (uint32_t i = 0; i < 3; i++) {
         data = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
-        this->m_highlightTextures[i] = data ? new (data) CSimpleTexture(this, 2, 0) : nullptr;
+        this->m_highlight[i] = data ? new (data) CSimpleTexture(this, 2, 0) : nullptr;
     }
 
     CImVector highlightColor;
@@ -200,19 +200,19 @@ CSimpleEditBox::CSimpleEditBox(CSimpleFrame* parent) : CSimpleFrame(parent) {
     highlightColor.a = 0xFF;
 
     for (uint32_t i = 0; i < 3; i++) {
-        this->m_highlightTextures[i]->SetTexture(highlightColor);
+        this->m_highlight[i]->SetTexture(highlightColor);
     }
 
     data = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
-    this->m_cursorTexture = data ? new (data) CSimpleTexture(this, 3, 1) : nullptr;
-    this->m_cursorTexture->Hide();
+    this->m_cursor = data ? new (data) CSimpleTexture(this, 3, 1) : nullptr;
+    this->m_cursor->Hide();
 
     CImVector cursorColor;
     cursorColor.b = 0xFF;
     cursorColor.g = 0xFF;
     cursorColor.r = 0xFF;
     cursorColor.a = 0xFF;
-    this->m_cursorTexture->SetTexture(cursorColor);
+    this->m_cursor->SetTexture(cursorColor);
 
     this->m_enterPressedCallback.m_handler = nullptr;
     this->m_escapePressedCallback.m_handler = nullptr;
@@ -244,8 +244,8 @@ CSimpleEditBox::~CSimpleEditBox() {
         SMemFree(this->m_textHidden, __FILE__, __LINE__, 0);
     }
 
-    if (this->m_cursorTexture) {
-        delete this->m_cursorTexture;
+    if (this->m_cursor) {
+        delete this->m_cursor;
     }
 
     if (this->m_candidatesFrame) {
@@ -854,7 +854,7 @@ void CSimpleEditBox::CreateClauseHighlight() {
     color.a = 0xFF;
     this->m_clauseHighlight->SetTexture(color);
     this->m_clauseHighlight->SetBlendMode(GxBlend_Add);
-    this->m_clauseHighlight->SetHeight(this->m_fontString->GetFontHeight(true));
+    this->m_clauseHighlight->SetHeight(this->m_string->GetFontHeight(true));
 }
 
 // VERIFY: 90ed488c auto
@@ -923,22 +923,22 @@ void CSimpleEditBox::UpdateSizes() {
         return;
     }
 
-    this->m_fontString->MarkFramePointsUnused();
-    this->m_fontString->SetWidth((this->m_rect.maxX - this->m_rect.minX) / this->m_layoutScale - (this->m_textInsets.maxX + this->m_textInsets.minX));
-    this->m_fontString->SetHeight(this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE ? 0.0f : (this->m_rect.maxY - this->m_rect.minY) / this->m_layoutScale - (this->m_textInsets.maxY + this->m_textInsets.minY));
-    this->m_fontString->SetPoint(FRAMEPOINT_TOPLEFT, this, FRAMEPOINT_TOPLEFT, this->m_textInsets.minX, -this->m_textInsets.maxY, 1);
+    this->m_string->MarkFramePointsUnused();
+    this->m_string->SetWidth((this->m_rect.maxX - this->m_rect.minX) / this->m_layoutScale - (this->m_textInsets.maxX + this->m_textInsets.minX));
+    this->m_string->SetHeight(this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE ? 0.0f : (this->m_rect.maxY - this->m_rect.minY) / this->m_layoutScale - (this->m_textInsets.maxY + this->m_textInsets.minY));
+    this->m_string->SetPoint(FRAMEPOINT_TOPLEFT, this, FRAMEPOINT_TOPLEFT, this->m_textInsets.minX, -this->m_textInsets.maxY, 1);
 
-    float fontHeight = this->m_fontString->GetFontHeight(true);
+    float fontHeight = this->m_string->GetFontHeight(true);
 
     for (uint32_t i = 0; i < 3; i++) {
-        this->m_highlightTextures[i]->MarkFramePointsUnused();
+        this->m_highlight[i]->MarkFramePointsUnused();
 
         if (i == 1) {
-            this->m_highlightTextures[1]->SetPoint(FRAMEPOINT_TOPRIGHT, this->m_highlightTextures[0], FRAMEPOINT_BOTTOMRIGHT, 0.0f, 0.0f, 1);
-            this->m_highlightTextures[1]->SetPoint(FRAMEPOINT_BOTTOMLEFT, this->m_highlightTextures[2], FRAMEPOINT_TOPLEFT, 0.0f, 0.0f, 1);
-            this->m_highlightTextures[1]->Resize(0);
+            this->m_highlight[1]->SetPoint(FRAMEPOINT_TOPRIGHT, this->m_highlight[0], FRAMEPOINT_BOTTOMRIGHT, 0.0f, 0.0f, 1);
+            this->m_highlight[1]->SetPoint(FRAMEPOINT_BOTTOMLEFT, this->m_highlight[2], FRAMEPOINT_TOPLEFT, 0.0f, 0.0f, 1);
+            this->m_highlight[1]->Resize(0);
         } else {
-            this->m_highlightTextures[i]->SetHeight(fontHeight);
+            this->m_highlight[i]->SetHeight(fontHeight);
         }
     }
 
@@ -947,9 +947,9 @@ void CSimpleEditBox::UpdateSizes() {
     }
 
     float cursorWidth = NDCToDDCWidth(4.0f / (CoordinateGetAspectCompensation() * 1024.0f));
-    this->m_cursorTexture->MarkFramePointsUnused();
-    this->m_cursorTexture->SetWidth(cursorWidth);
-    this->m_cursorTexture->SetHeight(fontHeight);
+    this->m_cursor->MarkFramePointsUnused();
+    this->m_cursor->SetWidth(cursorWidth);
+    this->m_cursor->SetHeight(fontHeight);
 
     this->m_dirtyBits |= DIRTY_BITS::DIRTY_RENDER;
 }
@@ -1527,15 +1527,15 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
     rect.maxY = 0.0f;
     rect.maxX = 0.0f;
 
-    int32_t result = this->m_fontString->GetRect(&rect);
+    int32_t result = this->m_string->GetRect(&rect);
 
     if (!result) {
         return result;
     }
 
     const char* text = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD ? this->m_textHidden : this->m_text;
-    float spacing = this->m_fontString->m_spacing;
-    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_fontString->GetFontHeight(true) * this->m_layoutScale);
+    float spacing = this->m_string->m_spacing;
+    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_string->GetFontHeight(true) * this->m_layoutScale);
     float lineHeight = CSimpleTop::RoundToPixelHeight(this->m_layoutScale * spacing) + fontHeight;
     uint32_t line = 0;
 
@@ -1552,8 +1552,8 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
     float left;
     float right;
 
-    if ((this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) == 2) {
-        float textWidth = this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]);
+    if ((this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) == 2) {
+        float textWidth = this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]);
         float width = rect.maxX - rect.minX;
         left = rect.minX + (width - textWidth) * 0.5f;
         rect.minX = left;
@@ -1575,14 +1575,14 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
         offset = right;
     }
 
-    uint32_t justify = this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK;
+    uint32_t justify = this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK;
 
     if (!justify) {
         return 1;
     }
 
     if (justify <= 2) {
-        int32_t count = this->m_fontString->GetNumCharsWithinWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line], offset / this->m_fontString->m_layoutScale);
+        int32_t count = this->m_string->GetNumCharsWithinWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line], offset / this->m_string->m_layoutScale);
 
         if (text == this->m_text) {
             count = this->GetNumToLen(this->m_visibleLines.m_data[line], count, false);
@@ -1596,7 +1596,7 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
         return 1;
     }
 
-    int32_t count = this->m_fontString->GetNumCharsWithinWidthFromEnd(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line], (right - left - offset) / this->m_fontString->m_layoutScale);
+    int32_t count = this->m_string->GetNumCharsWithinWidthFromEnd(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line], (right - left - offset) / this->m_string->m_layoutScale);
 
     if (text == this->m_text) {
         count = this->GetNumToLen(this->m_visibleLines.m_data[line], count, false);
@@ -1613,18 +1613,18 @@ void CSimpleEditBox::MakeTextVisible(int32_t position, float offset, float width
         return;
     }
 
-    uint32_t count = this->m_fontString->GetNumCharsWithinWidthFromEnd(this->m_text, position, offset);
-    this->m_visiblePosition = position - this->GetNumToLen(position, -static_cast<int32_t>(count), false);
+    uint32_t count = this->m_string->GetNumCharsWithinWidthFromEnd(this->m_text, position, offset);
+    this->m_visiblePos = position - this->GetNumToLen(position, -static_cast<int32_t>(count), false);
 
-    if (this->m_visiblePosition < 0) {
-        this->m_visiblePosition = 0;
+    if (this->m_visiblePos < 0) {
+        this->m_visiblePos = 0;
     }
 
-    this->m_visibleLength = this->m_fontString->GetNumCharsWithinWidth(&this->m_text[this->m_visiblePosition], 0, width);
-    int32_t visiblePosition = this->m_visiblePosition;
-    this->m_visibleLength = this->GetNumToLen(visiblePosition, this->m_visibleLength, false);
+    this->m_visibleLen = this->m_string->GetNumCharsWithinWidth(&this->m_text[this->m_visiblePos], 0, width);
+    int32_t visiblePosition = this->m_visiblePos;
+    this->m_visibleLen = this->GetNumToLen(visiblePosition, this->m_visibleLen, false);
     this->m_visibleLines.m_data[0] = visiblePosition;
-    this->m_visibleLines.m_data[1] = this->m_visiblePosition + this->m_visibleLength;
+    this->m_visibleLines.m_data[1] = this->m_visiblePos + this->m_visibleLen;
 }
 
 // VERIFY: 6383fa0d manual
@@ -1632,16 +1632,16 @@ void CSimpleEditBox::MakeTextVisible(int32_t position, float offset, float width
 void CSimpleEditBox::UpdateVisibleCursor() {
     int32_t cursor = this->m_cursorPos;
 
-    if (cursor < this->m_visiblePosition || cursor > this->m_visiblePosition + this->m_visibleLength) {
-        this->m_cursorTexture->Hide();
+    if (cursor < this->m_visiblePos || cursor > this->m_visiblePos + this->m_visibleLen) {
+        this->m_cursor->Hide();
         return;
     }
 
     const char* text = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD ? this->m_textHidden : this->m_text;
     float x = 0.0f;
     float y = 0.0f;
-    float spacing = this->m_fontString->m_spacing;
-    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_fontString->GetFontHeight(true) * this->m_layoutScale);
+    float spacing = this->m_string->m_spacing;
+    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_string->GetFontHeight(true) * this->m_layoutScale);
     float lineHeight = (CSimpleTop::RoundToPixelHeight(this->m_layoutScale * spacing) + fontHeight) / this->m_layoutScale;
     uint32_t* lines = this->m_visibleLines.m_data;
     uint32_t line = 0;
@@ -1655,39 +1655,39 @@ void CSimpleEditBox::UpdateVisibleCursor() {
         y -= lineHeight;
     }
 
-    this->m_cursorTexture->MarkFramePointsUnused();
+    this->m_cursor->MarkFramePointsUnused();
 
-    switch (this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
+    switch (this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
         case 1:
-            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
+            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOPLEFT, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOPLEFT, x, y, 1);
             } else {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_LEFT, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_LEFT, x, y, 1);
             }
 
             break;
 
         case 2:
-            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
-            x -= this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
+            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
+            x -= this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOP, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOP, x, y, 1);
             } else {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_CENTER, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_CENTER, x, y, 1);
             }
 
             break;
 
         case 4:
-            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_fontString->GetTextWidth(&text[cursor], this->m_visibleLines.m_data[line + 1] - cursor);
+            x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_string->GetTextWidth(&text[cursor], this->m_visibleLines.m_data[line + 1] - cursor);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOPRIGHT, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOPRIGHT, x, y, 1);
             } else {
-                this->m_cursorTexture->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_RIGHT, x, y, 1);
+                this->m_cursor->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_RIGHT, x, y, 1);
             }
 
             break;
@@ -1695,17 +1695,17 @@ void CSimpleEditBox::UpdateVisibleCursor() {
 
     this->m_blinkElapsedTime = 0.0f;
 
-    float height = this->m_cursorTexture->GetHeight();
-    float width = this->m_cursorTexture->GetWidth();
+    float height = this->m_cursor->GetHeight();
+    float width = this->m_cursor->GetWidth();
     this->RunOnCursorChangedScript(x, y, width, height);
 
     if (this == CSimpleEditBox::s_currentFocus) {
-        this->m_cursorTexture->m_shown = 1;
-        this->m_cursorTexture->ShowThis();
+        this->m_cursor->m_shown = 1;
+        this->m_cursor->ShowThis();
         return;
     }
 
-    this->m_cursorTexture->Hide();
+    this->m_cursor->Hide();
 }
 
 // VERIFY: f8f4d424 manual
@@ -1713,8 +1713,8 @@ void CSimpleEditBox::UpdateVisibleCursor() {
 void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, int32_t right) {
     const char* text = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD ? this->m_textHidden : this->m_text;
     float y = 0.0f;
-    float spacing = this->m_fontString->m_spacing;
-    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_fontString->GetFontHeight(true) * this->m_layoutScale);
+    float spacing = this->m_string->m_spacing;
+    float fontHeight = CSimpleTop::RoundToPixelHeight(this->m_string->GetFontHeight(true) * this->m_layoutScale);
     float lineHeight = (CSimpleTop::RoundToPixelHeight(this->m_layoutScale * spacing) + fontHeight) / this->m_layoutScale;
     uint32_t* lines = this->m_visibleLines.m_data;
     uint32_t line = 0;
@@ -1743,42 +1743,42 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
         right = end;
     }
 
-    float width = line < lastLine && static_cast<uint32_t>(right) == end ? this->m_fontString->GetStringWidth() : this->m_fontString->GetTextWidth(&text[start], right - start);
+    float width = line < lastLine && static_cast<uint32_t>(right) == end ? this->m_string->GetStringWidth() : this->m_string->GetTextWidth(&text[start], right - start);
     float x;
 
     region->MarkFramePointsUnused();
 
-    switch (this->m_fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
+    switch (this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
         case 1:
-            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
+            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOPLEFT, x, y, 0);
+                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOPLEFT, x, y, 0);
             } else {
-                region->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_LEFT, x, y, 0);
+                region->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_LEFT, x, y, 0);
             }
 
             break;
 
         case 2:
-            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
-            x -= this->m_fontString->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
+            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
+            x -= this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOP, x, y, 0);
+                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOP, x, y, 0);
             } else {
-                region->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_CENTER, x, y, 0);
+                region->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_CENTER, x, y, 0);
             }
 
             break;
 
         case 4:
-            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_fontString->GetTextWidth(&text[left], this->m_visibleLines.m_data[line + 1] - left);
+            x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_string->GetTextWidth(&text[left], this->m_visibleLines.m_data[line + 1] - left);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_fontString, FRAMEPOINT_TOPRIGHT, x, y, 0);
+                region->SetPoint(FRAMEPOINT_TOPLEFT, this->m_string, FRAMEPOINT_TOPRIGHT, x, y, 0);
             } else {
-                region->SetPoint(FRAMEPOINT_LEFT, this->m_fontString, FRAMEPOINT_RIGHT, x, y, 0);
+                region->SetPoint(FRAMEPOINT_LEFT, this->m_string, FRAMEPOINT_RIGHT, x, y, 0);
             }
 
             break;
@@ -1803,7 +1803,7 @@ void CSimpleEditBox::FontUpdated(CSimpleFontedFrameFont* font, int32_t flags) {
     }
 
     if (flags & 0x4) {
-        this->m_cursorTexture->SetTexture(this->m_font->m_attributes.m_color);
+        this->m_cursor->SetTexture(this->m_font->m_attributes.m_color);
     }
 }
 
@@ -1973,7 +1973,7 @@ void CSimpleEditBox::CreateCandidatesFrame() {
         return;
     }
 
-    float fontHeight = this->m_fontString->GetFontHeight(true);
+    float fontHeight = this->m_string->GetFontHeight(true);
 
     void* data = CSimpleMessageFrame::s_allocator.GetData(0, typeid(CSimpleMessageFrame).raw_name(), SLOG_OBJECT);
     this->m_candidatesFrame = data ? new (data) CSimpleMessageFrame(nullptr) : nullptr;
@@ -1982,7 +1982,7 @@ void CSimpleEditBox::CreateCandidatesFrame() {
     this->m_candidatesFrame->m_font->m_attributes.SetJustifyH(0x1);
     this->m_candidatesFrame->SetWidth(fontHeight * 10.0f);
 
-    CLayoutFrame* relative = this->m_clauseHighlight ? static_cast<CLayoutFrame*>(this->m_clauseHighlight) : static_cast<CLayoutFrame*>(this->m_highlightTextures[0]);
+    CLayoutFrame* relative = this->m_clauseHighlight ? static_cast<CLayoutFrame*>(this->m_clauseHighlight) : static_cast<CLayoutFrame*>(this->m_highlight[0]);
     this->m_candidatesFrame->SetPoint(FRAMEPOINT_BOTTOMLEFT, relative, FRAMEPOINT_TOPLEFT, 0.0f, 0.0f, 1);
     this->m_candidatesFrame->m_fading = 0;
     this->m_candidatesFrame->SetInsertMode(INSERT_AT_TOP);
@@ -2105,11 +2105,11 @@ void CSimpleEditBox::Insert(const char* text, const char* taint, int32_t runScri
         this->m_dirtyBits |= DIRTY_BITS::DIRTY_USER_INPUT;
     }
 
-    if (this->m_textMaxLength >= 0 && this->m_textLength > this->m_textMaxLength) {
+    if (this->m_textLengthMax >= 0 && this->m_textLength > this->m_textLengthMax) {
         int32_t cursor = this->m_cursorPos;
         this->SetCursorPosition(this->m_textLength);
 
-        while (this->m_textLength > this->m_textMaxLength) {
+        while (this->m_textLength > this->m_textLengthMax) {
             int32_t current = this->m_cursorPos;
             this->DeleteSubstring(current - this->GetNumToLen(current, -1, true), current, script);
         }
@@ -2117,17 +2117,17 @@ void CSimpleEditBox::Insert(const char* text, const char* taint, int32_t runScri
         this->SetCursorPosition(cursor);
     }
 
-    if (this->m_textMaxLetters) {
+    if (this->m_textLettersMax) {
         int32_t letters = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_COUNT_INVISIBLE_LETTERS ? SStrLenUTF8(this->m_text) : this->GetLenToNum(0, this->m_textLength);
 
-        if (letters > this->m_textMaxLetters) {
+        if (letters > this->m_textLettersMax) {
             int32_t cursor = this->m_cursorPos;
             this->SetCursorPosition(this->m_textLength);
 
             letters = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_COUNT_INVISIBLE_LETTERS ? SStrLenUTF8(this->m_text) : this->GetLenToNum(0, this->m_textLength);
 
-            while (letters > this->m_textMaxLetters) {
-                this->Delete(this->m_textMaxLetters - letters, script);
+            while (letters > this->m_textLettersMax) {
+                this->Delete(this->m_textLettersMax - letters, script);
                 letters = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_COUNT_INVISIBLE_LETTERS ? SStrLenUTF8(this->m_text) : this->GetLenToNum(0, this->m_textLength);
             }
 
@@ -2228,22 +2228,22 @@ void CSimpleEditBox::UpdateVisibleHighlight() {
     }
 
     if (endLine == startLine) {
-        this->UpdateHighlightArea(this->m_highlightTextures[0], this->m_highlightLeft, this->m_highlightRight);
-        this->m_highlightTextures[1]->Hide();
-        this->m_highlightTextures[2]->Hide();
+        this->UpdateHighlightArea(this->m_highlight[0], this->m_highlightLeft, this->m_highlightRight);
+        this->m_highlight[1]->Hide();
+        this->m_highlight[2]->Hide();
         return;
     }
 
-    this->UpdateHighlightArea(this->m_highlightTextures[0], this->m_highlightLeft, this->m_visibleLines.m_data[startLine + 1]);
+    this->UpdateHighlightArea(this->m_highlight[0], this->m_highlightLeft, this->m_visibleLines.m_data[startLine + 1]);
 
     if (endLine - startLine + 1 == 2) {
-        this->m_highlightTextures[1]->Hide();
+        this->m_highlight[1]->Hide();
     } else {
-        this->m_highlightTextures[1]->m_shown = 1;
-        this->m_highlightTextures[1]->ShowThis();
+        this->m_highlight[1]->m_shown = 1;
+        this->m_highlight[1]->ShowThis();
     }
 
-    this->UpdateHighlightArea(this->m_highlightTextures[2], this->m_visibleLines.m_data[endLine], this->m_highlightRight);
+    this->UpdateHighlightArea(this->m_highlight[2], this->m_visibleLines.m_data[endLine], this->m_highlightRight);
 }
 
 // VERIFY: 9b220353 auto
@@ -2275,7 +2275,7 @@ void CSimpleEditBox::SetMultiLine(int32_t enable) {
 
     this->m_visibleLines.SetCount(2);
 
-    CSimpleFontString* fontString = this->m_fontString;
+    CSimpleFontString* fontString = this->m_string;
 
     if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
         fontString->SetJustifyV(0x8);
@@ -2291,7 +2291,7 @@ void CSimpleEditBox::SetMultiLine(int32_t enable) {
             }
         }
 
-        this->m_fontString->SetNonWordWrap(0);
+        this->m_string->SetNonWordWrap(0);
     } else {
         fontString->SetJustifyV(0x10);
 
@@ -2306,10 +2306,10 @@ void CSimpleEditBox::SetMultiLine(int32_t enable) {
             }
         }
 
-        this->m_fontString->SetNonWordWrap(1);
+        this->m_string->SetNonWordWrap(1);
     }
 
-    this->m_fontString->SetNonSpaceWrap(1);
+    this->m_string->SetNonSpaceWrap(1);
     this->UpdateSizes();
 }
 
@@ -2346,7 +2346,7 @@ int32_t CSimpleEditBox::PopulateCandidates(uint32_t listMask) {
 
     this->CreateCandidatesFrame();
 
-    float fontHeight = this->m_fontString->GetFontHeight(true);
+    float fontHeight = this->m_string->GetFontHeight(true);
     this->m_candidatesFrame->Clear();
     this->m_candidatesFrame->SetHeight((pageSize + 1) * fontHeight + fontHeight * 0.1f);
 
@@ -2477,7 +2477,7 @@ void CSimpleEditBox::SetText(const char* text, const char* taint) {
     }
 
     this->DeleteSubstring(0, this->m_textLength, 1);
-    this->m_visiblePosition = 0;
+    this->m_visiblePos = 0;
     this->Insert(text, taint, 0, 0, 1);
     this->RunOnTextSetScript(taint);
 }
@@ -2519,7 +2519,7 @@ void CSimpleEditBox::ForwardHistory() {
 // VERIFY: 675a5d35 manual
 // OFFSET: 0x00966710
 void CSimpleEditBox::UpdateVisibleText() {
-    float width = this->m_fontString->GetWidth();
+    float width = this->m_string->GetWidth();
 
     if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD) {
         uint32_t length = SStrLen(this->m_text);
@@ -2531,7 +2531,7 @@ void CSimpleEditBox::UpdateVisibleText() {
     char* text = this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD ? this->m_textHidden : this->m_text;
 
     if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-        uint32_t lines = this->m_fontString->WrapText(&text[this->m_visiblePosition], width, this->m_visibleLines.m_data, this->m_visibleLines.m_count);
+        uint32_t lines = this->m_string->WrapText(&text[this->m_visiblePos], width, this->m_visibleLines.m_data, this->m_visibleLines.m_count);
 
         if (!lines) {
             this->m_visibleLines.SetCount(2);
@@ -2541,17 +2541,17 @@ void CSimpleEditBox::UpdateVisibleText() {
             this->m_visibleLines.SetCount(lines + 1);
         } else {
             this->m_visibleLines.SetCount(lines + 1);
-            this->m_fontString->WrapText(&text[this->m_visiblePosition], width, this->m_visibleLines.m_data, this->m_visibleLines.m_count);
+            this->m_string->WrapText(&text[this->m_visiblePos], width, this->m_visibleLines.m_data, this->m_visibleLines.m_count);
         }
 
-        if (this->m_visiblePosition > 0) {
+        if (this->m_visiblePos > 0) {
             for (uint32_t i = 0; i < lines; i++) {
-                this->m_visibleLines.m_data[i] += this->m_visiblePosition;
+                this->m_visibleLines.m_data[i] += this->m_visiblePos;
             }
         }
 
         this->m_visibleLines.m_data[lines] = SStrLen(text);
-        this->m_visibleLength = this->m_visibleLines.m_data[lines];
+        this->m_visibleLen = this->m_visibleLines.m_data[lines];
     } else {
         float textWidth = width - NDCToDDCWidth(4.0f / (CoordinateGetAspectCompensation() * 1024.0f));
 
@@ -2559,31 +2559,31 @@ void CSimpleEditBox::UpdateVisibleText() {
             textWidth = width;
         }
 
-        this->m_visibleLength = this->m_fontString->GetNumCharsWithinWidth(&text[this->m_visiblePosition], 0, textWidth);
+        this->m_visibleLen = this->m_string->GetNumCharsWithinWidth(&text[this->m_visiblePos], 0, textWidth);
 
         if (text == this->m_text) {
-            this->m_visibleLength = this->GetNumToLen(this->m_visiblePosition, this->m_visibleLength, false);
+            this->m_visibleLen = this->GetNumToLen(this->m_visiblePos, this->m_visibleLen, false);
         }
 
-        this->m_visibleLines.m_data[0] = this->m_visiblePosition;
-        this->m_visibleLines.m_data[1] = this->m_visibleLength + this->m_visiblePosition;
+        this->m_visibleLines.m_data[0] = this->m_visiblePos;
+        this->m_visibleLines.m_data[1] = this->m_visibleLen + this->m_visiblePos;
     }
 
     if (!(this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_PASSWORD)) {
-        if (this->m_imeComposition && this->m_clauseHighlight && this->m_clauseEnd > this->m_visiblePosition + this->m_visibleLength) {
+        if (this->m_imeComposition && this->m_clauseHighlight && this->m_clauseEnd > this->m_visiblePos + this->m_visibleLen) {
             this->MakeTextVisible(this->m_clauseEnd, width, width);
         }
 
         int32_t cursor = this->m_cursorPos;
 
-        if (cursor < this->m_visiblePosition || cursor > this->m_visiblePosition + this->m_visibleLength) {
-            this->MakeTextVisible(cursor, (cursor < this->m_visiblePosition ? 0.25f : 0.75f) * width, width);
+        if (cursor < this->m_visiblePos || cursor > this->m_visiblePos + this->m_visibleLen) {
+            this->MakeTextVisible(cursor, (cursor < this->m_visiblePos ? 0.25f : 0.75f) * width, width);
         }
     }
 
     const char* colorCode = nullptr;
 
-    for (const char* scan = &text[this->m_visiblePosition]; *scan; scan++) {
+    for (const char* scan = &text[this->m_visiblePos]; *scan; scan++) {
         if (*scan != '|') {
             continue;
         }
@@ -2621,24 +2621,24 @@ void CSimpleEditBox::UpdateVisibleText() {
     }
 
     if (colorCode) {
-        char* buffer = static_cast<char*>(alloca(this->m_visibleLength + 11));
+        char* buffer = static_cast<char*>(alloca(this->m_visibleLen + 11));
         memcpy(buffer, colorCode, 10);
-        memcpy(&buffer[10], &text[this->m_visiblePosition], this->m_visibleLength);
-        buffer[this->m_visibleLength + 10] = 0;
-        this->m_fontString->SetText(buffer, 0);
+        memcpy(&buffer[10], &text[this->m_visiblePos], this->m_visibleLen);
+        buffer[this->m_visibleLen + 10] = 0;
+        this->m_string->SetText(buffer, 0);
     } else {
-        int32_t end = this->m_visiblePosition + this->m_visibleLength;
+        int32_t end = this->m_visiblePos + this->m_visibleLen;
         char saved = text[end];
         text[end] = 0;
-        this->m_fontString->SetText(&text[this->m_visiblePosition], 0);
+        this->m_string->SetText(&text[this->m_visiblePos], 0);
         text[end] = saved;
     }
 
     if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
-        float height = this->m_fontString->GetStringHeight();
+        float height = this->m_string->GetStringHeight();
 
         if (height == 0.0f) {
-            height = this->m_fontString->GetFontHeight(true);
+            height = this->m_string->GetFontHeight(true);
         }
 
         this->SetHeight(height + (this->m_textInsets.maxY + this->m_textInsets.minY));
@@ -2687,9 +2687,9 @@ void CSimpleEditBox::UpdateDirtyBits() {
 
     if (this->m_dirtyBits & DIRTY_BITS::DIRTY_CURSOR) {
         int32_t cursor = this->m_cursorPos;
-        int32_t visibleEnd = this->m_visibleLength + this->m_visiblePosition;
+        int32_t visibleEnd = this->m_visibleLen + this->m_visiblePos;
 
-        if (cursor < this->m_visiblePosition || cursor > visibleEnd || (this->m_imeComposition && this->m_clauseHighlight && this->m_clauseEnd > visibleEnd)) {
+        if (cursor < this->m_visiblePos || cursor > visibleEnd || (this->m_imeComposition && this->m_clauseHighlight && this->m_clauseEnd > visibleEnd)) {
             this->m_dirtyBits |= DIRTY_BITS::DIRTY_TEXT;
         }
     }
@@ -2736,7 +2736,7 @@ void CSimpleEditBox::LoadXML(XMLNode* node, CStatus* status) {
     const char* letters = node->GetAttributeByName("letters");
 
     if (letters && *letters) {
-        this->m_textMaxLetters = SStrToInt(letters);
+        this->m_textLettersMax = SStrToInt(letters);
     }
 
     const char* countInvisibleLetters = node->GetAttributeByName("countInvisibleLetters");
@@ -2801,14 +2801,14 @@ void CSimpleEditBox::LoadXML(XMLNode* node, CStatus* status) {
 
             if (bytes && *bytes) {
                 int32_t maxBytes = SStrToInt(bytes);
-                this->m_textMaxLength = maxBytes <= 0 ? -1 : maxBytes - 1;
+                this->m_textLengthMax = maxBytes <= 0 ? -1 : maxBytes - 1;
             }
         } else if (!SStrCmpI(child->m_name.m_str, "HighlightColor", STORM_MAX_STR)) {
             CImVector color;
 
             if (LoadXML_Color(child, color, status)) {
                 for (uint32_t i = 0; i < 3; i++) {
-                    this->m_highlightTextures[i]->SetTexture(color);
+                    this->m_highlight[i]->SetTexture(color);
                 }
             }
         } else if (!SStrCmpI(child->m_name.m_str, "TextInsets", STORM_MAX_STR)) {
@@ -2832,8 +2832,8 @@ void CSimpleEditBox::OnLayerUpdate(float elapsedSec) {
     this->UpdateDirtyBits();
 
     if (!g_theGxDevicePtr->CapsWindowHasFocus(-1)) {
-        if (this->m_cursorTexture->m_shown) {
-            this->m_cursorTexture->Hide();
+        if (this->m_cursor->m_shown) {
+            this->m_cursor->Hide();
         }
 
         return;
@@ -2845,18 +2845,18 @@ void CSimpleEditBox::OnLayerUpdate(float elapsedSec) {
 
     int32_t cursor = this->m_cursorPos;
 
-    if (cursor < this->m_visiblePosition || cursor > this->m_visiblePosition + this->m_visibleLength) {
+    if (cursor < this->m_visiblePos || cursor > this->m_visiblePos + this->m_visibleLen) {
         return;
     }
 
     this->m_blinkElapsedTime += elapsedSec;
 
     if (this == CSimpleEditBox::s_currentFocus && this->m_blinkElapsedTime > this->m_cursorBlinkSpeed) {
-        if (this->m_cursorTexture->m_shown) {
-            this->m_cursorTexture->Hide();
+        if (this->m_cursor->m_shown) {
+            this->m_cursor->Hide();
         } else {
-            this->m_cursorTexture->m_shown = 1;
-            this->m_cursorTexture->ShowThis();
+            this->m_cursor->m_shown = 1;
+            this->m_cursor->ShowThis();
         }
 
         this->m_blinkElapsedTime = 0.0f;
