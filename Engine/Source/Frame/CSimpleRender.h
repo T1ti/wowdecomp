@@ -58,8 +58,8 @@ class CSimpleFontString : public CSimpleRegion, public CSimpleFontable {
     /* 00F4 */ char* m_text;
     /* 00F8 */ float m_spacing;
     /* 00FC */ HTEXTBLOCK m_string;
-    /* 0100 */ float m_cachedWidth;
-    /* 0104 */ float m_cachedHeight;
+    /* 0100 */ float m_cachedWidth; // Scaled text width; GetStringWidth divides by layout scale. Zero invalidates the cache.
+    /* 0104 */ float m_cachedHeight; // Scaled text height; GetStringHeight divides by layout scale. Zero invalidates the cache.
     /* 0108 */ CImVector m_shadowColor;
     /* 010C */ C2Vector m_shadowOffset;
     /* 0114 */ C2Vector m_justificationOffset;

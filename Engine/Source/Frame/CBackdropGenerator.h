@@ -40,18 +40,18 @@ class CBackdropGenerator {
     /* 0018 */ CSimpleTexture* m_topRightTexture;
     /* 001C */ CSimpleTexture* m_bottomLeftTexture;
     /* 0020 */ CSimpleTexture* m_bottomRightTexture;
-    /* 0024 */ RCString m_background;
-    /* 0030 */ RCString m_border;
+    /* 0024 */ RCString m_background; // Background texture file path.
+    /* 0030 */ RCString m_border; // Border texture file path.
     /* 003C */ uint32_t m_pieces;
     /* 0040 */ uint32_t m_tileBackground;
     /* 0044 */ uint32_t unused_0044;
-    /* 0048 */ float m_cornerSize;
-    /* 004C */ float m_backgroundSize;
+    /* 0048 */ float m_cornerSize; // Border thickness and square corner size.
+    /* 004C */ float m_backgroundSize; // Background tile size; zero falls back to m_cornerSize.
     /* 0050 */ float m_topInset;
     /* 0054 */ float m_bottomInset;
     /* 0058 */ float m_leftInset;
     /* 005C */ float m_rightInset;
-    /* 0060 */ CImVector m_color;
+    /* 0060 */ CImVector m_color; // Background vertex tint.
     /* 0064 */ CImVector m_borderColor;
     /* 0068 */ EGxBlend m_alphaMode;
 

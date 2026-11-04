@@ -79,17 +79,17 @@ class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     /* 02A4 */ uint32_t m_dirtyBits;
     /* 02A8 */ const char* m_textTaint;
     /* 02AC */ CSimpleFontedFrameFont* m_font;
-    /* 02B0 */ CSimpleFontString* m_string;
+    /* 02B0 */ CSimpleFontString* m_string; // Rendered text region; the byte buffer is m_text.
     /* 02B4 */ char* m_text;
     /* 02B8 */ uint32_t* m_textInfo;
     /* 02BC */ char* m_textHidden;
     /* 02C0 */ int32_t m_textLength;
-    /* 02C4 */ int32_t m_textLengthMax;
-    /* 02C8 */ int32_t m_textLettersMax;
+    /* 02C4 */ int32_t m_textLengthMax; // Maximum text bytes excluding the terminator; -1 disables the byte limit.
+    /* 02C8 */ int32_t m_textLettersMax; // Character-count limit; zero disables it. Counting follows edit-box flags.
     /* 02CC */ uint32_t m_textSize;
-    /* 02D0 */ int32_t m_visiblePos;
-    /* 02D4 */ int32_t m_visibleLen;
-    /* 02D8 */ CSimpleTexture* m_highlight[3];
+    /* 02D0 */ int32_t m_visiblePos; // Byte offset of the visible substring.
+    /* 02D4 */ int32_t m_visibleLen; // Byte length of the visible substring.
+    /* 02D8 */ CSimpleTexture* m_highlight[3]; // First-line, middle-line and last-line selection textures.
     /* 02E4 */ int32_t m_highlightLeft;
     /* 02E8 */ int32_t m_highlightRight;
     /* 02EC */ int32_t m_highlightDrag;

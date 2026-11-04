@@ -50,15 +50,15 @@ class PendingSpellCast : public TSLinkedNode<PendingSpellCast> {
 struct SPELLHISTORY : public TSLinkedNode<SPELLHISTORY> {
     /* 0008 */ int32_t m_spellId;
     /* 000C */ int32_t m_itemId;
-    /* 0010 */ uint32_t m_recoveryStart;
-    /* 0014 */ uint32_t m_recoveryTime;
+    /* 0010 */ uint32_t m_recoveryStart; // Spell cooldown start timestamp, in milliseconds.
+    /* 0014 */ uint32_t m_recoveryTime; // Spell cooldown duration, in milliseconds.
     /* 0018 */ int32_t m_category;
-    /* 001C */ uint32_t m_categoryRecoveryStart;
-    /* 0020 */ uint32_t m_categoryRecoveryTime;
+    /* 001C */ uint32_t m_categoryRecoveryStart; // Category cooldown start timestamp, in milliseconds.
+    /* 0020 */ uint32_t m_categoryRecoveryTime; // Category cooldown duration, in milliseconds.
     /* 0024 */ uint8_t m_onHold;
     /* 0025 */ uint8_t unused_0025[3];
     /* 0028 */ int32_t m_startRecoveryCategory;
-    /* 002C */ uint32_t m_startRecoveryTime;
+    /* 002C */ uint32_t m_startRecoveryTime; // Start-recovery category duration in milliseconds; added to m_recoveryStart.
 };
 
 struct SpellCastTargetPoint {

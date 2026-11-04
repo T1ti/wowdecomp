@@ -76,7 +76,7 @@ class DxtColorBlock {
 
     /* 0000 */ CRgb565 m_color0;
     /* 0002 */ CRgb565 m_color1;
-    /* 0004 */ uint8_t m_row[4];
+    /* 0004 */ uint8_t m_row[4]; // Four rows of four packed 2-bit color-table indices.
 };
 
 class Dxt1Block {
@@ -86,7 +86,7 @@ class Dxt1Block {
 
 class Dxt3AlphaBlock {
     public:
-    /* 0000 */ uint16_t m_row[4];
+    /* 0000 */ uint16_t m_row[4]; // Four rows of four packed 4-bit alpha values.
 };
 
 class Dxt3Block {

@@ -60,12 +60,12 @@ struct BspQuery {
 };
 
 struct BspQuery_Segment : public BspQuery {
-    /* 0010 */ float* m_hitT;
-    /* 0014 */ float m_origHitT;
+    /* 0010 */ float* m_hitT; // Caller-owned hit parameter as a segment fraction.
+    /* 0014 */ float m_origHitT; // Initial caller limit before conversion to ray distance.
     /* 0018 */ C3Segment m_seg;
     /* 0030 */ C3Ray m_ray;
-    /* 0048 */ float m_oosegMag;
-    /* 004C */ float m_maxT;
+    /* 0048 */ float m_oosegMag; // Reciprocal segment length; converts normalized-ray hit distance to a segment fraction.
+    /* 004C */ float m_maxT; // Current hit limit in distance units along the normalized ray.
     /* 0050 */ SMOMaterial* m_materials;
     /* 0054 */ int32_t unused_0054;
     /* 0058 */ uint16_t m_faceIgnoreFlags;

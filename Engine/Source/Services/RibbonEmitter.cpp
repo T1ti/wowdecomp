@@ -144,7 +144,7 @@ void CRibbonEmitter::SetPos(const C44Matrix& transform, const C3Vector& position
         this->m_prevVertical = this->m_currVertical;
     } else {
         this->m_prevDir = C3Vector(matrix.c0, matrix.c1, matrix.c2);
-        this->m_startTime = 0.0f;
+        this->m_edgeFraction = 0.0f;
         this->m_prevVertical = C3Vector(matrix.b0, matrix.b1, matrix.b2);
         this->m_prevPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
         this->m_flags |= 0x1;
@@ -269,7 +269,7 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
     }
 
     if (!suppressNewEdges && (this->m_flags & 0x4) && (this->m_flags & 0x8) && (this->m_flags & 0x1)) {
-        float target = dt * this->m_edgesPerSec + this->m_startTime;
+        float target = dt * this->m_edgesPerSec + this->m_edgeFraction;
         CImVector color = this->m_diffuseClr;
 
         if (g_theGxDevicePtr->Caps().m_colorFormat == GxCF_rgba) {
@@ -282,11 +282,11 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
         this->InitInterpDeltas();
 
         if (target >= 1.0f) {
-            float scale = 1.0f / (target - this->m_startTime);
+            float scale = 1.0f / (target - this->m_edgeFraction);
             int64_t steps = static_cast<int64_t>(floor(target - 1.0f));
 
             for (int32_t count = static_cast<int32_t>(steps) + 1; count; count--) {
-                float t = (start - this->m_startTime) * scale;
+                float t = (start - this->m_edgeFraction) * scale;
                 this->m_gxVertices.m_data[2 * this->m_writePos].c = color;
                 this->m_gxVertices.m_data[2 * this->m_writePos + 1].c = color;
                 this->InterpEdge(-(t * dt), t, 1);
@@ -294,7 +294,7 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
             }
         }
 
-        this->m_startTime = target - floor(target);
+        this->m_edgeFraction = target - floor(target);
         this->InterpEdge(0.0f, 1.0f, 0);
 
         CGxVertexPCT* vertex = &this->m_gxVertices.m_data[2 * this->m_writePos];
@@ -415,7 +415,7 @@ void CRibbonEmitter::Initialize(float edgesPerSecond, float edgeLifetime, const 
     this->m_edges.SetCount(edgeCount);
 
     this->m_flags &= ~0x1;
-    this->m_startTime = 0.0f;
+    this->m_edgeFraction = 0.0f;
     this->m_readPos = 0;
     this->m_writePos = 0;
 
