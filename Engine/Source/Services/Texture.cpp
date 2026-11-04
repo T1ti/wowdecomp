@@ -53,7 +53,7 @@ static int32_t s_createBlpAsync = 1;
 static TSExplicitList<CTexture, offsetof(CTexture, m_link)> s_textureList;
 
 // STATIC: 0x00AC3354
-static uint32_t s_defaultColor = 0xFF00FF00;
+static CImVector s_defaultColor = { 0x00, 0xFF, 0x00, 0xFF };
 
 // STATIC: 0x00AC3358
 static TSExplicitList<CGxTexCache, offsetof(CGxTexCache, m_link)> s_gxTexCacheFree;
@@ -1874,7 +1874,7 @@ void AsyncTextureSuccessCallback(CTexture* texture) {
             SysMsgAdd(&texture->m_status);
         }
 
-        FillInSolidTexture(*reinterpret_cast<const CImVector*>(&s_defaultColor), texture);
+        FillInSolidTexture(s_defaultColor, texture);
     }
 
     SFileCloseFile(texture->m_asyncObject->m_file);
@@ -2181,7 +2181,7 @@ CTexture* CreateBlpSync(const char* fileName, char* extension, uint32_t flags, C
     }
 
     if (!PumpBlpTextureAsync(texture, data)) {
-        FillInSolidTexture(*reinterpret_cast<const CImVector*>(&s_defaultColor), texture);
+        FillInSolidTexture(s_defaultColor, texture);
     }
 
     SFileCloseFile(file);
@@ -2446,7 +2446,7 @@ CTexture* CreateTgaTexture(const char* fileName, char* extension, int32_t flags,
 
     if (width < 8 || height < 8) {
         status->Add(STATUS_FATAL, "Error loading file \"%s\": Texture size must be at least %dx%d\n", fileName, 8, 8);
-        return TextureCreateSolid(*reinterpret_cast<const CImVector*>(&s_defaultColor));
+        return TextureCreateSolid(s_defaultColor);
     }
 
     CTexture* texture = new ("HTEXTURE", SLOG_OBJECT) CTexture;
@@ -2552,5 +2552,5 @@ CTexture* TextureCreate(const char* fileName, CGxTexFlags texFlags, CStatus* sta
 
     TextureReportLoadError("texture", fileName, status);
 
-    return TextureCreateSolid(*reinterpret_cast<const CImVector*>(&s_defaultColor));
+    return TextureCreateSolid(s_defaultColor);
 }
