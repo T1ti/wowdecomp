@@ -3,7 +3,7 @@
 // VERIFY: 92f6ed53 auto
 // OFFSET: 0x0078F4D0
 C3Vector C3Segment::Lerp(float t) const {
-    float y = (this->t.y - this->b.y) * t;
-    float z = (this->t.z - this->b.z) * t;
-    return C3Vector((this->t.x - this->b.x) * t + this->b.x, y + this->b.y, z + this->b.z);
+    float y = (this->end.y - this->start.y) * t;
+    float z = (this->end.z - this->start.z) * t;
+    return C3Vector((this->end.x - this->start.x) * t + this->start.x, y + this->start.y, z + this->start.z);
 }

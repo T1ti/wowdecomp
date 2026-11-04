@@ -316,8 +316,8 @@ bool CMapDoodadDef::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNu
         C3Vector bottom(this->m_position.x, this->m_position.y, this->m_position.z - 1760.0f);
         C3Vector end = bottom * mapObjDef->m_invMat;
         C3Segment seg;
-        seg.b = start;
-        seg.t = end;
+        seg.start = start;
+        seg.end = end;
         result = mapObjDef->m_owner->QueryLighting(groupNum, seg, &color, &flag);
     }
 

@@ -2101,10 +2101,10 @@ int32_t CMapObj::GetDoodadSet(uint32_t index) {
 // OFFSET: 0x007AF280
 bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, int32_t useSphere) {
     C3Ray ray;
-    ray.origin = seg.b;
-    float dx = seg.t.x - seg.b.x;
-    float dy = seg.t.y - seg.b.y;
-    float dz = seg.t.z - seg.b.z;
+    ray.origin = seg.start;
+    float dx = seg.end.x - seg.start.x;
+    float dy = seg.end.y - seg.start.y;
+    float dz = seg.end.z - seg.start.z;
     float length = sqrtf(dz * dz + dy * dy + dx * dx);
     float inv = 1.0f / length;
     ray.dir = C3Vector(dx * inv, dy * inv, inv * dz);
@@ -2116,13 +2116,13 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
         bool hit;
 
         if (useSphere) {
-            hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.b), g, 0.0099999998f);
+            hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.0099999998f);
         } else {
             if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[g]->m_unkLoadedFlag & 1)) {
                 continue;
             }
 
-            hit = CWorldMath::VectorIntersectAABox2(this->m_groupInfo[g].m_boundingBox, const_cast<C3Vector&>(seg.b), const_cast<C3Vector&>(seg.t));
+            hit = CWorldMath::VectorIntersectAABox2(this->m_groupInfo[g].m_boundingBox, const_cast<C3Vector&>(seg.start), const_cast<C3Vector&>(seg.end));
         }
 
         if (!hit || !this->m_isGroupLoaded) {
@@ -2155,7 +2155,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
             maxT = portalT;
             found = true;
 
-            float side = portal.m_plane.n.y * seg.b.y + portal.m_plane.n.z * seg.b.z + portal.m_plane.n.x * seg.b.x + portal.m_plane.d;
+            float side = portal.m_plane.n.y * seg.start.y + portal.m_plane.n.z * seg.start.z + portal.m_plane.n.x * seg.start.x + portal.m_plane.d;
 
             if ((side >= 0.0f && ref->m_side <= 0) || (side < 0.0f && ref->m_side > 0)) {
                 groups[0] = ref->m_groupIndex;
@@ -2786,8 +2786,8 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
     }
 
     C3Segment seg;
-    seg.b = start;
-    seg.t = end;
+    seg.start = start;
+    seg.end = end;
     return group->Intersect(seg, distance, flags, static_cast<uint16_t>(ignoreFlags), hitIndex);
 }
 
@@ -2839,7 +2839,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
         return false;
     }
 
-    C3Vector point = C3Vector((seg.t.x - seg.b.x) * dist + seg.b.x, (seg.t.y - seg.b.y) * dist + seg.b.y, (seg.t.z - seg.b.z) * dist + seg.b.z);
+    C3Vector point = C3Vector((seg.end.x - seg.start.x) * dist + seg.start.x, (seg.end.y - seg.start.y) * dist + seg.start.y, (seg.end.z - seg.start.z) * dist + seg.start.z);
     return group->QueryLighting(point, World::TriData::batches[0].m_faceIndices[0], color, flag);
 }
 
@@ -3081,10 +3081,10 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
     }
 
     C3Ray ray;
-    ray.origin = seg.b;
-    float dx = seg.t.x - seg.b.x;
-    float dy = seg.t.y - seg.b.y;
-    float dz = seg.t.z - seg.b.z;
+    ray.origin = seg.start;
+    float dx = seg.end.x - seg.start.x;
+    float dy = seg.end.y - seg.start.y;
+    float dz = seg.end.z - seg.start.z;
     float length = sqrtf(dz * dz + dx * dx + dy * dy);
     float inv = 1.0f / length;
     ray.dir = C3Vector(dx * inv, dy * inv, inv * dz);
@@ -3116,7 +3116,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
         found = true;
         maxT = portalT;
 
-        float side = portal.m_plane.n.z * seg.b.z + portal.m_plane.n.y * seg.b.y + seg.b.x * portal.m_plane.n.x + portal.m_plane.d;
+        float side = portal.m_plane.n.z * seg.start.z + portal.m_plane.n.y * seg.start.y + seg.start.x * portal.m_plane.n.x + portal.m_plane.d;
 
         if ((side >= 0.0f && ref->m_side > 0) || (side < 0.0f && ref->m_side <= 0)) {
             outGroups[0] = groupNum;
@@ -3310,8 +3310,8 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
 
     C3Vector normal(0.0f, 0.0f, 0.0f);
     C3Segment seg;
-    seg.b = start;
-    seg.t = end;
+    seg.start = start;
+    seg.end = end;
     uint16_t face = 0;
     bool hit = false;
     uint16_t ignoreFlags = static_cast<uint16_t>(CMapObj::CreateWmoIgnoreFlags(flags));
@@ -3352,7 +3352,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
                 C3Vector& v1 = vertices[indices[1]];
                 C3Vector& v2 = vertices[indices[2]];
                 normal = C3Vector::Cross(v1 - v0, v2 - v0);
-                *normalDot = (seg.t.z - seg.b.z) * normal.z + (seg.t.y - seg.b.y) * normal.y + (seg.t.x - seg.b.x) * normal.x;
+                *normalDot = (seg.end.z - seg.start.z) * normal.z + (seg.end.y - seg.start.y) * normal.y + (seg.end.x - seg.start.x) * normal.x;
             }
         }
 

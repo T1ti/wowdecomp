@@ -593,8 +593,8 @@ bool CMapEntity::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNum, 
     } else {
         C3Vector local = this->m_position * mapObjDef->m_invMat;
         C3Segment seg;
-        seg.b = C3Vector(local.x, local.y, local.z + 1.0f);
-        seg.t = C3Vector(local.x, local.y, local.z - 12.0f);
+        seg.start = C3Vector(local.x, local.y, local.z + 1.0f);
+        seg.end = C3Vector(local.x, local.y, local.z - 12.0f);
         result = mapObjDef->m_owner->QueryLighting(groupNum, seg, &color, &flag);
     }
 

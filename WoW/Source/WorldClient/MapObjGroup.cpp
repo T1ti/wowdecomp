@@ -372,28 +372,28 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
         return false;
     }
 
-    float maxX = this->m_seg.t.x;
-    float maxY = this->m_seg.t.y;
-    float minX = this->m_seg.b.x;
-    float maxZ = this->m_seg.t.z;
+    float maxX = this->m_seg.end.x;
+    float maxY = this->m_seg.end.y;
+    float minX = this->m_seg.start.x;
+    float maxZ = this->m_seg.end.z;
 
     if (minX > maxX) {
-        minX = this->m_seg.t.x;
-        maxX = this->m_seg.b.x;
+        minX = this->m_seg.end.x;
+        maxX = this->m_seg.start.x;
     }
 
-    float minY = this->m_seg.b.y;
+    float minY = this->m_seg.start.y;
 
     if (minY > maxY) {
-        minY = this->m_seg.t.y;
-        maxY = this->m_seg.b.y;
+        minY = this->m_seg.end.y;
+        maxY = this->m_seg.start.y;
     }
 
-    float minZ = this->m_seg.b.z;
+    float minZ = this->m_seg.start.z;
 
     if (minZ > maxZ) {
-        minZ = this->m_seg.t.z;
-        maxZ = this->m_seg.b.z;
+        minZ = this->m_seg.end.z;
+        maxZ = this->m_seg.start.z;
     }
 
     minX -= 0.0099999998f;
@@ -557,15 +557,15 @@ BspQuery_Segment::BspQuery_Segment(SMOPoly* faces, C3Vector* vertexList, uint16_
     this->m_indices = indices;
     this->m_overflowFlags = nullptr;
     this->m_hitT = hitT;
-    this->m_seg.b = C3Vector(0.0f, 0.0f, 0.0f);
-    this->m_seg.t = C3Vector(0.0f, 0.0f, 0.0f);
+    this->m_seg.start = C3Vector(0.0f, 0.0f, 0.0f);
+    this->m_seg.end = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_ray.origin = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_ray.dir = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_materials = materials;
     this->m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
     this->unused_0054 = CMap::s_useSSE;
-    this->m_ray.origin = seg.b;
-    this->m_ray.dir = C3Vector(seg.t.x - seg.b.x, seg.t.y - seg.b.y, seg.t.z - seg.b.z);
+    this->m_ray.origin = seg.start;
+    this->m_ray.dir = C3Vector(seg.end.x - seg.start.x, seg.end.y - seg.start.y, seg.end.z - seg.start.z);
 
     float length = sqrtf(this->m_ray.dir.z * this->m_ray.dir.z + this->m_ray.dir.y * this->m_ray.dir.y + this->m_ray.dir.x * this->m_ray.dir.x);
     this->m_maxT = *hitT * length;
@@ -1726,13 +1726,13 @@ bool CMapObjGroup::VectorIntersectLiquidTiles(const C3Segment& seg, float* t, ui
         return false;
     }
 
-    float dx = seg.t.x - seg.b.x;
-    float dy = seg.t.y - seg.b.y;
-    float dz = seg.t.z - seg.b.z;
+    float dx = seg.end.x - seg.start.x;
+    float dy = seg.end.y - seg.start.y;
+    float dz = seg.end.z - seg.start.z;
     float invLength = 1.0f / sqrt(dx * dx + dz * dz + dy * dy);
 
     C3Ray ray;
-    ray.origin = seg.b;
+    ray.origin = seg.start;
     ray.dir.x = dx * invLength;
     ray.dir.y = dy * invLength;
     ray.dir.z = invLength * dz;
@@ -1835,8 +1835,8 @@ bool CMapObjGroup::VectorIntersectLiquid(const C3Segment& seg, float* t, uint32_
     box.t.y = sizeY + this->m_liquidCorner.y;
     box.t.z = this->m_liquidMaxHeight;
 
-    C3Vector start = seg.b;
-    C3Vector end = seg.t;
+    C3Vector start = seg.start;
+    C3Vector end = seg.end;
     C3Vector dir;
     dir.x = end.x - start.x;
     dir.y = end.y - start.y;
@@ -1853,7 +1853,7 @@ bool CMapObjGroup::VectorIntersectLiquid(const C3Segment& seg, float* t, uint32_
 
     if (!box.ContainsPoint(start)) {
         C3Ray ray;
-        ray.origin = seg.b;
+        ray.origin = seg.start;
         ray.dir = dir;
         float rayT = 1.0f;
 

@@ -448,12 +448,12 @@ bool NTempest::Intersect(const C3Ray& ray, const C3Vector* verts, const uint32_t
 // VERIFY: 5f98cf71 manual
 // OFFSET: 0x00984CE0
 float NTempest::DistanceSquared(const C3Segment& segment, const C3Vector& point, float* t) {
-    float dx = point.x - segment.b.x;
-    float dy = point.y - segment.b.y;
-    float dz = point.z - segment.b.z;
-    float ex = segment.t.x - segment.b.x;
-    float ey = segment.t.y - segment.b.y;
-    float ez = segment.t.z - segment.b.z;
+    float dx = point.x - segment.start.x;
+    float dy = point.y - segment.start.y;
+    float dz = point.z - segment.start.z;
+    float ex = segment.end.x - segment.start.x;
+    float ey = segment.end.y - segment.start.y;
+    float ez = segment.end.z - segment.start.z;
 
     float dot = ex * dx + ez * dz + ey * dy;
     float param;
@@ -492,8 +492,8 @@ float NTempest::DistanceFromPolygonEdge(const C3Vector& point, const C3Vector* v
 
     for (uint32_t i = 0; i < count; i++) {
         C3Segment segment;
-        segment.b = verts[prev];
-        segment.t = verts[i];
+        segment.start = verts[prev];
+        segment.end = verts[i];
 
         float distance = sqrt(DistanceSquared(segment, point, nullptr));
 

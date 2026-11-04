@@ -3470,8 +3470,8 @@ void CMap::LinkIntersectMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* m
     int32_t groundFace = -1;
 
     C3Segment seg;
-    seg.b = start;
-    seg.t = end;
+    seg.start = start;
+    seg.end = end;
 
     int16_t interior = !(group->m_flags & 0x8);
 
@@ -4084,8 +4084,8 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
             }
 
             C3Segment seg;
-            seg.b = localStart;
-            seg.t = localEnd;
+            seg.start = localStart;
+            seg.end = localEnd;
             World::TriData::statusFlags = 0;
             World::TriData::nBatches = 0;
             World::TriData::faceIndexCursor = 0;
@@ -4104,8 +4104,8 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
 
         float portalT = 1.05f;
         C3Segment seg;
-        seg.b = localStart;
-        seg.t = localEnd;
+        seg.start = localStart;
+        seg.end = localEnd;
         uint32_t portalGroups[2];
 
         if (mapObj->VectorIntersectPortal(seg, &portalT, portalGroups, 0) && portalT - dists[slot] < 0.000099999997f) {

@@ -159,35 +159,35 @@ void CBarrier::AddAxisAlignedWall(const C2Vector& start, const C2Vector& end, fl
 
     float t = 3.4028235e38f;
     C3Segment segment;
-    segment.b = C3Vector(start.x, start.y, this->m_viewerPos.z);
-    segment.t = C3Vector(end.x, end.y, this->m_viewerPos.z);
+    segment.start = C3Vector(start.x, start.y, this->m_viewerPos.z);
+    segment.end = C3Vector(end.x, end.y, this->m_viewerPos.z);
     float dist = sqrt(NTempest::DistanceSquared(segment, this->m_viewerPos, &t));
 
     if (0.99900001f * radius < dist) {
         return;
     }
 
-    float dx = segment.t.x - segment.b.x;
+    float dx = segment.end.x - segment.start.x;
     float height = radius - dist;
-    float dy = segment.t.y - segment.b.y;
-    float dz = segment.t.z - segment.b.z;
+    float dy = segment.end.y - segment.start.y;
+    float dz = segment.end.z - segment.start.z;
     float halfWidth = height / sqrt(dx * dx + dy * dy + dz * dz);
 
     float t0 = t - halfWidth;
     t0 = t0 < 0.0f ? 0.0f : (t0 >= 1.0f ? 1.0f : t0);
-    float x0 = dx * t0 + segment.b.x;
-    float y0 = dy * t0 + segment.b.y;
-    float z0 = t0 * dz + segment.b.z;
+    float x0 = dx * t0 + segment.start.x;
+    float y0 = dy * t0 + segment.start.y;
+    float z0 = t0 * dz + segment.start.z;
 
     float t1 = halfWidth + t;
     t1 = t1 < 0.0f ? 0.0f : (t1 >= 1.0f ? 1.0f : t1);
-    float z1 = dz * t1 + segment.b.z;
+    float z1 = dz * t1 + segment.start.z;
 
     C3Vector quad[4];
     quad[0] = C3Vector(x0, y0, height + z0);
     quad[1] = C3Vector(x0, y0, z0 - height);
-    quad[2] = C3Vector(dx * t1 + segment.b.x, dy * t1 + segment.b.y, z1 - height);
-    quad[3] = C3Vector(dx * t1 + segment.b.x, dy * t1 + segment.b.y, height + z1);
+    quad[2] = C3Vector(dx * t1 + segment.start.x, dy * t1 + segment.start.y, z1 - height);
+    quad[3] = C3Vector(dx * t1 + segment.start.x, dy * t1 + segment.start.y, height + z1);
     this->AddBarrierConvexPoly(quad, 4, radius, nullptr, 0, 0);
 }
 
