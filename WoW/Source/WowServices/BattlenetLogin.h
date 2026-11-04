@@ -32,6 +32,45 @@ extern BattlenetAllocator s_battlenetAllocator;
 
 class BattlenetLogin : public Login {
     public:
+    // Descriptive client results, separate from SERVICE_STATE and LOGIN_* responses.
+    // UI_* names describe unique display outcomes; coalesced server meanings remain UNKNOWN.
+    // 138 is suppressed by HandleInvoke, without a proved original error identity.
+    enum LOGON_RESULT : int32_t {
+        LOGON_RESULT_SUCCESS = 0,
+        LOGON_RESULT_LOCAL_CONNECTION_FAILURE = 2,
+        LOGON_RESULT_UI_BAD_SERVER_PROOF = 103,
+        LOGON_RESULT_UNKNOWN_104 = 104,
+        LOGON_RESULT_UNKNOWN_105 = 105,
+        LOGON_RESULT_UNKNOWN_106 = 106,
+        LOGON_RESULT_UI_NO_GAME_ACCOUNT = 107,
+        LOGON_RESULT_UNKNOWN_108 = 108,
+        LOGON_RESULT_UNKNOWN_109 = 109,
+        LOGON_RESULT_UNKNOWN_110 = 110,
+        LOGON_RESULT_UNKNOWN_111 = 111,
+        LOGON_RESULT_UNKNOWN_112 = 112,
+        LOGON_RESULT_UNKNOWN_113 = 113,
+        LOGON_RESULT_UNKNOWN_115 = 115,
+        LOGON_RESULT_UNKNOWN_116 = 116,
+        LOGON_RESULT_UI_TOO_FAST = 123,
+        LOGON_RESULT_UI_USE_GRUNT = 124,
+        LOGON_RESULT_UNKNOWN_138 = 138,
+        LOGON_RESULT_UI_NO_GAME_ACCOUNTS_IN_REGION = 140,
+        LOGON_RESULT_UI_ACCOUNT_LOCKED = 141,
+        LOGON_RESULT_UNKNOWN_200 = 200,
+        LOGON_RESULT_UNKNOWN_201 = 201,
+        LOGON_RESULT_UI_BANNED = 202,
+        LOGON_RESULT_UI_SUSPENDED = 203,
+        LOGON_RESULT_UNKNOWN_204 = 204,
+        LOGON_RESULT_UNKNOWN_205 = 205,
+        LOGON_RESULT_UI_NO_TIME = 206,
+        LOGON_RESULT_UNKNOWN_207 = 207,
+        LOGON_RESULT_UNKNOWN_208 = 208,
+        LOGON_RESULT_UI_PARENTAL_CONTROL = 209,
+        LOGON_RESULT_UI_TRIAL_EXPIRED = 210,
+        LOGON_RESULT_UI_ANTI_INDULGENCE = 211,
+        LOGON_RESULT_UNKNOWN_212 = 212,
+    };
+
     enum SERVICE_STATE : int32_t {
         SERVICE_STATE_ERROR = 0,
         SERVICE_STATE_WARNING = 1,
