@@ -21,7 +21,7 @@
 #include "Engine/Source/Tempest/CImVector.h"
 
 // STATIC: 0x00A45390
-const uint32_t s_fogModes[M2BLEND_COUNT] = { 1, 1, 1, 2, 2, 3, 4 };
+const CM2SceneRender::FOG_MODE s_fogModes[M2BLEND_COUNT] = { CM2SceneRender::FOG_LIGHTING_COLOR, CM2SceneRender::FOG_LIGHTING_COLOR, CM2SceneRender::FOG_LIGHTING_COLOR, CM2SceneRender::FOG_BLACK, CM2SceneRender::FOG_BLACK, CM2SceneRender::FOG_WHITE, CM2SceneRender::FOG_GRAY };
 
 // STATIC: 0x00AF58A8
 static C44Matrix s_identity;
@@ -44,8 +44,8 @@ CM2SceneRender::CM2SceneRender(CM2Scene* scene) {
     this->m_curLighting = nullptr;
     this->m_prevLocalLighting = 0;
     this->m_curLocalLighting = 0;
-    this->m_prevFogMode = 0xFFFFFFFF;
-    this->m_curFogMode = 0xFFFFFFFF;
+    this->m_prevFogMode = FOG_UNSET;
+    this->m_curFogMode = FOG_UNSET;
     this->m_prevBatch = nullptr;
     this->m_curBatch = nullptr;
     this->m_prevSkinSection = nullptr;
@@ -207,10 +207,10 @@ void CM2SceneRender::SetupLighting() {
     CShaderEffect::SetLocalLighting(this->m_curLighting, localLighting, nullptr);
     CShaderEffect::s_shadowValue = shadow;
 
-    uint32_t fogMode;
+    FOG_MODE fogMode;
 
     if ((this->m_curMaterial->m_flags & 2) || this->m_curLighting->m_fogScale <= 0.0f) {
-        fogMode = 0;
+        fogMode = FOG_DISABLED;
     } else {
         fogMode = s_fogModes[this->m_curMaterial->m_blendMode];
     }
@@ -221,7 +221,7 @@ void CM2SceneRender::SetupLighting() {
         uint32_t color = 0;
 
         switch (fogMode) {
-            case 1: {
+            case FOG_LIGHTING_COLOR: {
                 const C3Vector& fogColor = this->m_curLighting->m_fogColor;
                 uint8_t b = fogColor.z > 0.0f ? static_cast<uint8_t>(fogColor.z < 1.0f ? fogColor.z * 255.0f + 0.5f : 255.0f) : 0;
                 uint8_t g = fogColor.y > 0.0f ? static_cast<uint8_t>(1.0f > fogColor.y ? fogColor.y * 255.0f + 0.5f : 255.0f) : 0;
@@ -229,13 +229,13 @@ void CM2SceneRender::SetupLighting() {
                 color = 0xFF000000 | (r << 16) | (g << 8) | b;
                 break;
             }
-            case 2:
+            case FOG_BLACK:
                 color = 0;
                 break;
-            case 3:
+            case FOG_WHITE:
                 color = 0xFFFFFF;
                 break;
-            case 4:
+            case FOG_GRAY:
                 color = 0x808080;
                 break;
             default:
@@ -979,7 +979,7 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
         this->m_curModel = element->m_model;
         this->m_curShared = this->m_curModel->m_shared;
         this->m_curLocalLighting = 1;
-        this->m_curFogMode = 1;
+        this->m_curFogMode = FOG_LIGHTING_COLOR;
         this->m_curBatch = nullptr;
         this->m_curSkinSection = nullptr;
         this->m_curLighting = this->m_curModel->m_currentLighting;
