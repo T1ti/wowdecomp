@@ -7,6 +7,7 @@
 #include "Engine/Source/Model2/Types.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
+#include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
 class C3Vector;
@@ -22,8 +23,7 @@ class CShaderEffect;
 class M2HitRec {
     public:
     /* 0000 */ CM2Model* m_model;
-    /* 0004 */ float m_tNear;
-    /* 0008 */ float m_tFar;
+    /* 0004 */ CRange m_interval; // Near/far distances along the query ray, clamped to its length.
     /* 000C */ uint32_t m_priority;
 };
 

@@ -163,19 +163,19 @@ int32_t CM2Scene::SortHitNear(uint32_t a, uint32_t b, const void* param) {
     const M2HitRec* recA = &recs[a];
     const M2HitRec* recB = &recs[b];
 
-    if (recB->m_tNear > recA->m_tNear) {
+    if (recB->m_interval.m_l > recA->m_interval.m_l) {
         return -1;
     }
 
-    if (recB->m_tNear < recA->m_tNear) {
+    if (recB->m_interval.m_l < recA->m_interval.m_l) {
         return 1;
     }
 
-    if (recB->m_tFar > recA->m_tFar) {
+    if (recB->m_interval.m_h > recA->m_interval.m_h) {
         return -1;
     }
 
-    if (recB->m_tFar < recA->m_tFar) {
+    if (recB->m_interval.m_h < recA->m_interval.m_h) {
         return 1;
     }
 
@@ -358,9 +358,9 @@ uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, 
         }
 
         M2HitRec* rec = &this->m_hitRecs[count];
-        rec->m_tNear = tNear;
+        rec->m_interval.m_l = tNear;
         rec->m_model = model;
-        rec->m_tFar = tFar;
+        rec->m_interval.m_h = tFar;
         rec->m_priority = model->m_hitTestGroup;
         this->m_hitOrder[count] = count;
         count++;
@@ -721,10 +721,10 @@ void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t,
             M2HitRec* rec = &this->m_hitRecs[this->m_hitOrder[i]];
 
             if (pass) {
-                if (best && (best->m_priority > rec->m_priority || (best->m_priority == rec->m_priority && tMax <= rec->m_tNear))) {
+                if (best && (best->m_priority > rec->m_priority || (best->m_priority == rec->m_priority && tMax <= rec->m_interval.m_l))) {
                     continue;
                 }
-            } else if (tMax <= rec->m_tNear) {
+            } else if (tMax <= rec->m_interval.m_l) {
                 break;
             }
 
@@ -796,7 +796,7 @@ void* CM2Scene::EndHitTestCollisionWorld(const C3Vector& start, const C3Vector& 
     for (uint32_t i = 0; i < count; i++) {
         M2HitRec* rec = &this->m_hitRecs[this->m_hitOrder[i]];
 
-        if (tMax <= rec->m_tNear) {
+        if (tMax <= rec->m_interval.m_l) {
             break;
         }
 
