@@ -33,8 +33,8 @@ CM2SceneRender::CM2SceneRender(CM2Scene* scene) {
     this->m_cache = scene->m_cache;
     this->m_prevElement = nullptr;
     this->m_curElement = nullptr;
-    this->m_prevType = -1;
-    this->m_curType = -1;
+    this->m_prevType = M2_ELEMENT_UNSET;
+    this->m_curType = M2_ELEMENT_UNSET;
     this->m_prevModel = nullptr;
     this->m_curModel = nullptr;
     this->m_prevShared = nullptr;
@@ -65,7 +65,7 @@ CM2SceneRender::CM2SceneRender(CM2Scene* scene) {
 // VERIFY: 43a75437 manual
 // OFFSET: 0x0081F450
 void CM2SceneRender::SetupTextures() {
-    if (this->m_curType > 2) {
+    if (this->m_curType > M2_ELEMENT_DOODAD_BATCH) {
         for (uint32_t i = 0; i < 2; i++) {
             g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), nullptr);
             CShaderEffect::SetTexMtx_Identity(i);
@@ -313,10 +313,10 @@ void CM2SceneRender::SetupMaterial() {
 
     float scale = 1.0f;
 
-    if (!CShaderEffect::s_enableShaders && this->m_curType != 2) {
+    if (!CShaderEffect::s_enableShaders && this->m_curType != M2_ELEMENT_DOODAD_BATCH) {
         int32_t normalize;
 
-        if (this->m_curType > 2) {
+        if (this->m_curType > M2_ELEMENT_DOODAD_BATCH) {
             const C44Matrix& matrix = this->m_curModel->m_matrixF4;
             normalize = fabsf(matrix.a2 * matrix.a2 + matrix.a1 * matrix.a1 + matrix.a0 * matrix.a0 - 1.0f) > 0.001f;
             GxRsSet(GxRs_NormalizeNormals, normalize);
@@ -333,7 +333,7 @@ void CM2SceneRender::SetupMaterial() {
 
     M2Element* element = this->m_curElement;
 
-    if (element->m_type > 2) {
+    if (element->m_type > M2_ELEMENT_DOODAD_BATCH) {
         if (this->m_curType != this->m_prevType || this->m_prevElement->m_alpha != element->m_alpha) {
             C4Vector diffuse;
             diffuse.x = scale;
@@ -760,7 +760,7 @@ uint32_t CM2SceneRender::DrawBatchedParticle(uint32_t index, M2Element* elements
     for (uint32_t i = index + 1; i < count; i++) {
         M2Element* other = &elements[indices[i]];
 
-        if (other->m_type != 4) {
+        if (other->m_type != M2_ELEMENT_PARTICLE) {
             break;
         }
 
@@ -970,7 +970,7 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
     for (uint32_t i = 0; i < count; i++) {
         M2Element* element = &elements[indices[i]];
 
-        if (element->m_type != 2 && (element->m_model->m_runtimeFlags & 0x2000) && element->m_type != 4) {
+        if (element->m_type != M2_ELEMENT_DOODAD_BATCH && (element->m_model->m_runtimeFlags & 0x2000) && element->m_type != M2_ELEMENT_PARTICLE) {
             continue;
         }
 
@@ -988,23 +988,23 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
         this->m_cache->LinkToSharedUpdateList(this->m_curShared);
 
         switch (this->m_curElement->m_type) {
-            case 0:
+            case M2_ELEMENT_BATCH:
                 this->DrawBatch();
                 break;
-            case 1:
+            case M2_ELEMENT_PROJECTED_BATCH:
                 this->DrawBatchProj();
                 break;
-            case 2:
+            case M2_ELEMENT_DOODAD_BATCH:
                 this->DrawBatchDoodad(elements, &indices[i]);
                 i += this->m_curElement->m_count - 1;
                 break;
-            case 3:
+            case M2_ELEMENT_RIBBON:
                 this->DrawRibbon();
                 break;
-            case 4:
+            case M2_ELEMENT_PARTICLE:
                 i += this->DrawParticle(i, elements, indices, count);
                 break;
-            case 5:
+            case M2_ELEMENT_CALLBACK:
                 this->DrawCallback();
                 break;
             default:

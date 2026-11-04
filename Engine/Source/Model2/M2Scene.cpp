@@ -1041,7 +1041,7 @@ int32_t CM2Scene::SortOpaqueGeoBatches(M2Element* a, M2Element* b) {
     M2Data* dataB = b->m_model->m_shared->m_data;
     M2Batch* batchB = b->m_batch;
 
-    if (a->m_type == 0) {
+    if (a->m_type == M2_ELEMENT_BATCH) {
         if (batchA->m_materialLayer < batchB->m_materialLayer) {
             return -1;
         }
@@ -1246,12 +1246,12 @@ int32_t CM2Scene::SortOpaque(uint32_t a, uint32_t b, const void* param) {
     }
 
     switch (elementA->m_type) {
-        case 0:
-        case 1:
+        case M2_ELEMENT_BATCH:
+        case M2_ELEMENT_PROJECTED_BATCH:
             return CM2Scene::SortOpaqueGeoBatches(elementA, elementB);
-        case 3:
+        case M2_ELEMENT_RIBBON:
             return CM2Scene::SortOpaqueRibbons(elementA, elementB);
-        case 4:
+        case M2_ELEMENT_PARTICLE:
             return CM2Scene::SortOpaqueParticles(elementA, elementB);
         default:
             return 0;
@@ -1343,7 +1343,7 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
         return 1;
     }
 
-    if (elementA->m_type <= 2) {
+    if (elementA->m_type <= M2_ELEMENT_DOODAD_BATCH) {
         if (elementA->m_batch->m_materialLayer < elementB->m_batch->m_materialLayer) {
             return -1;
         }
@@ -1396,7 +1396,7 @@ int32_t CM2Scene::SortAdditiveParticles(uint32_t a, uint32_t b, const void* para
         return -1;
     }
 
-    if (elementA->m_type == 4 || elementB->m_type == 4) {
+    if (elementA->m_type == M2_ELEMENT_PARTICLE || elementB->m_type == M2_ELEMENT_PARTICLE) {
         if (elementA->m_type > elementB->m_type) {
             return -1;
         }
@@ -1406,7 +1406,7 @@ int32_t CM2Scene::SortAdditiveParticles(uint32_t a, uint32_t b, const void* para
         }
     }
 
-    if (elementA->m_type != 4) {
+    if (elementA->m_type != M2_ELEMENT_PARTICLE) {
         return CM2Scene::SortTransparent(a, b, param);
     }
 
@@ -1483,7 +1483,7 @@ void __stdcall CM2Scene::ComputeElementShaders(M2Element* element) {
                     shadow = 1;
                 }
 
-                if (element->m_type == 1) {
+                if (element->m_type == M2_ELEMENT_PROJECTED_BATCH) {
                     shadow = 0;
                 }
             }
@@ -1567,15 +1567,15 @@ void CM2Scene::SortAdditiveParticleElements(uint32_t pass) {
         uint32_t blend = M2BLEND_OPAQUE;
 
         switch (element->m_type) {
-            case 0:
-            case 1:
-            case 2:
+            case M2_ELEMENT_BATCH:
+            case M2_ELEMENT_PROJECTED_BATCH:
+            case M2_ELEMENT_DOODAD_BATCH:
                 blend = data->m_materials[element->m_batch->m_materialIndex].m_blendMode;
                 break;
-            case 3:
+            case M2_ELEMENT_RIBBON:
                 blend = data->m_materials[data->m_ribbons[element->m_index].m_materialIndices[0]].m_blendMode;
                 break;
-            case 4:
+            case M2_ELEMENT_PARTICLE:
                 blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(element->m_emitter->m_params.m_material.m_blendMode);
                 break;
             default:
@@ -1653,7 +1653,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
 
     element->m_alpha = alpha;
     element->m_model = model;
-    element->m_type = 4;
+    element->m_type = M2_ELEMENT_PARTICLE;
     element->m_flags = 0;
     element->m_emitter = emitter;
     element->m_priorityPlane = emitter->m_priorityPlane;
@@ -1854,11 +1854,11 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             }
 
             if (projected) {
-                element->m_type = 1;
+                element->m_type = M2_ELEMENT_PROJECTED_BATCH;
             } else if (!model->IsBatchDoodadCompatible(batch) || transparent) {
-                element->m_type = 0;
+                element->m_type = M2_ELEMENT_BATCH;
             } else {
-                element->m_type = 2;
+                element->m_type = M2_ELEMENT_DOODAD_BATCH;
             }
 
             element->m_model = model;
@@ -1938,7 +1938,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             element->m_sortDepth = sortDepth;
 
-            if (element->m_type == 2) {
+            if (element->m_type == M2_ELEMENT_DOODAD_BATCH) {
                 this->m_doodadElements.New(elementIndex);
             } else if (transparent == 1) {
                 if (projected) {
@@ -2007,7 +2007,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             element->m_alpha = alpha;
             element->m_index = i;
-            element->m_type = 3;
+            element->m_type = M2_ELEMENT_RIBBON;
             element->m_model = model;
             element->m_flags = 0;
             element->m_priorityPlane = ribbon->m_priorityPlane;
@@ -2035,7 +2035,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             M2Element* element = this->m_elements.New();
 
             if (element) {
-                element->m_type = 5;
+                element->m_type = M2_ELEMENT_CALLBACK;
                 element->m_alpha = 1.0f;
                 element->m_model = model;
                 element->m_flags = 0;
@@ -2177,7 +2177,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         }
 
         if (j - i <= 1) {
-            this->m_elements.m_data[index].m_type = 0;
+            this->m_elements.m_data[index].m_type = M2_ELEMENT_BATCH;
             CM2Scene::ComputeElementShaders(&this->m_elements.m_data[index]);
             this->m_passElements[0].New(index);
             out--;

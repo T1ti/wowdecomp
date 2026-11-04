@@ -29,7 +29,7 @@ class M2HitRec {
 
 class M2Element {
     public:
-    /* 0000 */ int32_t m_type;
+    /* 0000 */ M2_ELEMENT_TYPE m_type;
     /* 0004 */ CM2Model* m_model;
     /* 0008 */ uint32_t m_flags;
     /* 000C */ float m_alpha;

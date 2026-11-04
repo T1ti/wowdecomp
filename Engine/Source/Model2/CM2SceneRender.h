@@ -38,8 +38,8 @@ class CM2SceneRender {
     /* 004C */ M2PASS m_pass;
     /* 0050 */ M2Element* m_curElement;
     /* 0054 */ M2Element* m_prevElement;
-    /* 0058 */ int32_t m_curType;
-    /* 005C */ int32_t m_prevType;
+    /* 0058 */ M2_ELEMENT_TYPE m_curType;
+    /* 005C */ M2_ELEMENT_TYPE m_prevType;
     /* 0060 */ CM2Model* m_curModel;
     /* 0064 */ CM2Model* m_prevModel;
     /* 0068 */ CM2Shared* m_curShared;

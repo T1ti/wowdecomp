@@ -226,6 +226,17 @@ enum M2COMBINER : uint32_t {
     M2COMBINER_ENVMAP = 8,
 };
 
+// Values 0..2 are the contiguous geometry-batch group used by sorting/rendering tests.
+enum M2_ELEMENT_TYPE : int32_t {
+    M2_ELEMENT_UNSET = -1, // Initial renderer type slots; not an element initializer.
+    M2_ELEMENT_BATCH = 0,
+    M2_ELEMENT_PROJECTED_BATCH = 1,
+    M2_ELEMENT_DOODAD_BATCH = 2,
+    M2_ELEMENT_RIBBON = 3,
+    M2_ELEMENT_PARTICLE = 4,
+    M2_ELEMENT_CALLBACK = 5,
+};
+
 enum M2PASS {
     M2PASS_0 = 0,
     M2PASS_1 = 1,
