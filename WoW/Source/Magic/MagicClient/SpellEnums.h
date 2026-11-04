@@ -90,8 +90,13 @@ enum SPELL_DAMAGE_CLASS : int32_t
     SPELL_DAMAGE_CLASS_RANGED = 3,
 };
 
-// Spell modifier operation IDs. UNUSED marks known unused operations;
-// UNKNOWN is reserved for values whose meaning has not been established.
+// Spell modifier operation IDs. Server-side names follow TrinityCore 3.3.5;
+// they are reference names, not recovered original client enum symbols.
+// Operations 13 and 25 have no producers in the reviewed build 12340 Spell.dbc;
+// this does not prove they are unused. Operation 26's precise rate/chance meaning
+// remains uncertain. Operation 29 has a test-spell producer despite its UNUSED name.
+// Keep these existing names and values as references; their spelling alone is
+// not proof of the corresponding 3.3.5 server behavior.
 // https://github.com/TrinityCore/TrinityCore/blob/3.3.5/src/server/game/Spells/SpellDefines.h
 enum SPELL_MOD_OP : int32_t
 {
