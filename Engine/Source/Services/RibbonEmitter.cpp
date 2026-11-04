@@ -31,12 +31,12 @@ CRibbonMat::CRibbonMat() {
 void CRibbonEmitter::ConvertTexSlotToTexCoords() {
     uint32_t cols = this->m_cols;
     uint32_t row = this->m_texSlot / cols;
-    float u = (this->m_texSlot % cols) * this->m_texCellU + this->m_texCoords.minY;
-    this->m_texSlotCoords.minY = u;
-    float v = row * this->m_texCellV + this->m_texCoords.minX;
-    this->m_texSlotCoords.minX = v;
-    this->m_texSlotCoords.maxY = u + this->m_texCellU;
-    this->m_texSlotCoords.maxX = v + this->m_texCellV;
+    float u = (this->m_texSlot % cols) * this->m_tmpDU + this->m_texBox.minY;
+    this->m_texSlotBox.minY = u;
+    float v = row * this->m_tmpDV + this->m_texBox.minX;
+    this->m_texSlotBox.minX = v;
+    this->m_texSlotBox.maxY = u + this->m_tmpDU;
+    this->m_texSlotBox.maxX = v + this->m_tmpDV;
 }
 
 // VERIFY: 507021d0 manual
@@ -100,12 +100,12 @@ void CRibbonEmitter::InitInterpDeltas() {
     float dx = this->m_prevPos.x - this->m_currPos.x;
     float distance = sqrt(dx * dx + (dy * dy + dz * dz));
 
-    this->m_startBelow = C3Vector(this->m_prevPos.x - this->m_prevUp.x * this->m_below, this->m_prevPos.y - this->m_prevUp.y * this->m_below, this->m_prevPos.z - this->m_below * this->m_prevUp.z);
-    this->m_endBelow = C3Vector(this->m_currPos.x - this->m_currUp.x * this->m_below, this->m_currPos.y - this->m_currUp.y * this->m_below, this->m_currPos.z - this->m_below * this->m_currUp.z);
-    this->m_startAbove = C3Vector(this->m_above * this->m_prevUp.x + this->m_prevPos.x, this->m_prevUp.y * this->m_above + this->m_prevPos.y, this->m_above * this->m_prevUp.z + this->m_prevPos.z);
-    this->m_endAbove = C3Vector(this->m_currUp.x * this->m_above + this->m_currPos.x, this->m_currUp.y * this->m_above + this->m_currPos.y, this->m_above * this->m_currUp.z + this->m_currPos.z);
-    this->m_startTangent = C3Vector(this->m_prevDir.x * distance, this->m_prevDir.y * distance, this->m_prevDir.z * distance);
-    this->m_endTangent = C3Vector(this->m_currDir.x * distance, this->m_currDir.y * distance, distance * this->m_currDir.z);
+    this->m_below0 = C3Vector(this->m_prevPos.x - this->m_prevVertical.x * this->m_below, this->m_prevPos.y - this->m_prevVertical.y * this->m_below, this->m_prevPos.z - this->m_below * this->m_prevVertical.z);
+    this->m_below1 = C3Vector(this->m_currPos.x - this->m_currVertical.x * this->m_below, this->m_currPos.y - this->m_currVertical.y * this->m_below, this->m_currPos.z - this->m_below * this->m_currVertical.z);
+    this->m_above0 = C3Vector(this->m_above * this->m_prevVertical.x + this->m_prevPos.x, this->m_prevVertical.y * this->m_above + this->m_prevPos.y, this->m_above * this->m_prevVertical.z + this->m_prevPos.z);
+    this->m_above1 = C3Vector(this->m_currVertical.x * this->m_above + this->m_currPos.x, this->m_currVertical.y * this->m_above + this->m_currPos.y, this->m_above * this->m_currVertical.z + this->m_currPos.z);
+    this->m_prevDirScaled = C3Vector(this->m_prevDir.x * distance, this->m_prevDir.y * distance, this->m_prevDir.z * distance);
+    this->m_currDirScaled = C3Vector(this->m_currDir.x * distance, this->m_currDir.y * distance, distance * this->m_currDir.z);
 }
 
 // VERIFY: 946634b1 manual
@@ -141,18 +141,18 @@ void CRibbonEmitter::SetPos(const C44Matrix& transform, const C3Vector& position
     if (this->m_flags & 0x1) {
         this->m_prevPos = this->m_currPos;
         this->m_prevDir = this->m_currDir;
-        this->m_prevUp = this->m_currUp;
+        this->m_prevVertical = this->m_currVertical;
     } else {
         this->m_prevDir = C3Vector(matrix.c0, matrix.c1, matrix.c2);
-        this->m_edgeFraction = 0.0f;
-        this->m_prevUp = C3Vector(matrix.b0, matrix.b1, matrix.b2);
+        this->m_startTime = 0.0f;
+        this->m_prevVertical = C3Vector(matrix.b0, matrix.b1, matrix.b2);
         this->m_prevPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
         this->m_flags |= 0x1;
     }
 
     this->m_currPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
     this->m_currDir = C3Vector(matrix.c0, matrix.c1, matrix.c2);
-    this->m_currUp = C3Vector(matrix.b0, matrix.b1, matrix.b2);
+    this->m_currVertical = C3Vector(matrix.b0, matrix.b1, matrix.b2);
 }
 
 // VERIFY: 139ccf62 manual
@@ -160,8 +160,8 @@ void CRibbonEmitter::SetPos(const C44Matrix& transform, const C3Vector& position
 int32_t CRibbonEmitter::ReplaceTexture(uint32_t type, CTexture* texture) {
     int32_t replaced = 0;
 
-    for (uint32_t i = 0; i < this->m_textureTypes.Count(); i++) {
-        if (this->m_textureTypes[i] == type) {
+    for (uint32_t i = 0; i < this->m_replaces.Count(); i++) {
+        if (this->m_replaces[i] == type) {
             if (this->m_textures[i]) {
                 HandleClose(reinterpret_cast<HOBJECT>(this->m_textures[i]));
             }
@@ -177,13 +177,13 @@ int32_t CRibbonEmitter::ReplaceTexture(uint32_t type, CTexture* texture) {
 // VERIFY: b358630b auto
 // OFFSET: 0x0097FB60
 void CRibbonEmitter::SetColor(float r, float g, float b) {
-    this->m_color.Set(this->m_color.a * 255.0f, r, g, b);
+    this->m_diffuseClr.Set(this->m_diffuseClr.a * 255.0f, r, g, b);
 }
 
 // VERIFY: f4dee58f manual
 // OFFSET: 0x0097FBA0
 void CRibbonEmitter::SetAlpha(float alpha) {
-    this->m_color.a = static_cast<uint8_t>(static_cast<int32_t>(alpha * 255.0f + 0.5f));
+    this->m_diffuseClr.a = static_cast<uint8_t>(static_cast<int32_t>(alpha * 255.0f + 0.5f));
 }
 
 // VERIFY: a976a0e7 manual
@@ -193,14 +193,14 @@ void CRibbonEmitter::ChangeFrameOfReference(const C44Matrix* matrix) {
 
     this->m_prevPos *= m;
     this->m_prevDir = C3Vector(this->m_prevDir.y * m.b0 + this->m_prevDir.z * m.c0 + this->m_prevDir.x * m.a0, m.c1 * this->m_prevDir.z + this->m_prevDir.x * m.a1 + m.b1 * this->m_prevDir.y, this->m_prevDir.y * m.b2 + m.a2 * this->m_prevDir.x + this->m_prevDir.z * m.c2);
-    this->m_prevUp = C3Vector(this->m_prevUp.y * m.b0 + this->m_prevUp.x * m.a0 + this->m_prevUp.z * m.c0, m.c1 * this->m_prevUp.z + m.b1 * this->m_prevUp.y + this->m_prevUp.x * m.a1, this->m_prevUp.x * m.a2 + this->m_prevUp.z * m.c2 + this->m_prevUp.y * m.b2);
+    this->m_prevVertical = C3Vector(this->m_prevVertical.y * m.b0 + this->m_prevVertical.x * m.a0 + this->m_prevVertical.z * m.c0, m.c1 * this->m_prevVertical.z + m.b1 * this->m_prevVertical.y + this->m_prevVertical.x * m.a1, this->m_prevVertical.x * m.a2 + this->m_prevVertical.z * m.c2 + this->m_prevVertical.y * m.b2);
 
     this->m_currPos *= m;
     this->m_currDir = C3Vector(this->m_currDir.z * m.c0 + this->m_currDir.y * m.b0 + this->m_currDir.x * m.a0, this->m_currDir.x * m.a1 + m.c1 * this->m_currDir.z + m.b1 * this->m_currDir.y, this->m_currDir.z * m.c2 + this->m_currDir.y * m.b2 + this->m_currDir.x * m.a2);
-    this->m_currUp = C3Vector(this->m_currUp.x * m.a0 + this->m_currUp.y * m.b0 + this->m_currUp.z * m.c0, this->m_currUp.x * m.a1 + this->m_currUp.z * m.c1 + this->m_currUp.y * m.b1, this->m_currUp.z * m.c2 + this->m_currUp.y * m.b2 + m.a2 * this->m_currUp.x);
+    this->m_currVertical = C3Vector(this->m_currVertical.x * m.a0 + this->m_currVertical.y * m.b0 + this->m_currVertical.z * m.c0, this->m_currVertical.x * m.a1 + this->m_currVertical.z * m.c1 + this->m_currVertical.y * m.b1, this->m_currVertical.z * m.c2 + this->m_currVertical.y * m.b2 + m.a2 * this->m_currVertical.x);
 
-    for (uint32_t i = 0; i < this->m_vertices.Count(); i++) {
-        this->m_vertices.m_data[i].p *= m;
+    for (uint32_t i = 0; i < this->m_gxVertices.Count(); i++) {
+        this->m_gxVertices.m_data[i].p *= m;
     }
 }
 
@@ -214,7 +214,7 @@ uint32_t CRibbonEmitter::GetNumBatches() {
 // OFFSET: 0x0097FE50
 uint32_t CRibbonEmitter::GetNumPrimitives() {
     if (this->m_readPos >= this->m_writePos) {
-        return 2 * (this->m_writePos + this->m_edgeAges.Count() - this->m_readPos);
+        return 2 * (this->m_writePos + this->m_edges.Count() - this->m_readPos);
     }
 
     return 2 * (this->m_writePos - this->m_readPos);
@@ -223,22 +223,22 @@ uint32_t CRibbonEmitter::GetNumPrimitives() {
 // VERIFY: bcdbf864 manual
 // OFFSET: 0x0097FEF0
 void CRibbonEmitter::InterpEdge(float age, float t, uint32_t advance) {
-    CGxVertexPCT* vertex = &this->m_vertices.m_data[2 * this->m_writePos];
+    CGxVertexPCT* vertex = &this->m_gxVertices.m_data[2 * this->m_writePos];
     float s = 1.0f - t;
 
-    vertex[0].p.x = (this->m_endBelow.x - s * this->m_endTangent.x) * t + (this->m_startTangent.x * t + this->m_startBelow.x) * s;
-    vertex[0].p.y = (this->m_endBelow.y - this->m_endTangent.y * s) * t + (this->m_startBelow.y + this->m_startTangent.y * t) * s;
-    vertex[0].p.z = (this->m_endBelow.z - s * this->m_endTangent.z) * t + (this->m_startBelow.z + this->m_startTangent.z * t) * s;
+    vertex[0].p.x = (this->m_below1.x - s * this->m_currDirScaled.x) * t + (this->m_prevDirScaled.x * t + this->m_below0.x) * s;
+    vertex[0].p.y = (this->m_below1.y - this->m_currDirScaled.y * s) * t + (this->m_below0.y + this->m_prevDirScaled.y * t) * s;
+    vertex[0].p.z = (this->m_below1.z - s * this->m_currDirScaled.z) * t + (this->m_below0.z + this->m_prevDirScaled.z * t) * s;
 
-    vertex[1].p.x = (this->m_endAbove.x - this->m_endTangent.x * s) * t + (t * this->m_startTangent.x + this->m_startAbove.x) * s;
-    vertex[1].p.y = (this->m_endAbove.y - this->m_endTangent.y * s) * t + (this->m_startTangent.y * t + this->m_startAbove.y) * s;
-    vertex[1].p.z = s * (t * this->m_startTangent.z + this->m_startAbove.z) + (this->m_endAbove.z - s * this->m_endTangent.z) * t;
+    vertex[1].p.x = (this->m_above1.x - this->m_currDirScaled.x * s) * t + (t * this->m_prevDirScaled.x + this->m_above0.x) * s;
+    vertex[1].p.y = (this->m_above1.y - this->m_currDirScaled.y * s) * t + (this->m_prevDirScaled.y * t + this->m_above0.y) * s;
+    vertex[1].p.z = s * (t * this->m_prevDirScaled.z + this->m_above0.z) + (this->m_above1.z - s * this->m_currDirScaled.z) * t;
 
-    this->m_edgeAges.m_data[this->m_writePos] = age;
+    this->m_edges.m_data[this->m_writePos] = age;
     this->m_writePos += advance;
 
-    if (this->m_writePos >= this->m_edgeAges.Count()) {
-        this->m_writePos -= this->m_edgeAges.Count();
+    if (this->m_writePos >= this->m_edges.Count()) {
+        this->m_writePos -= this->m_edges.Count();
     }
 }
 
@@ -254,54 +254,54 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
 
     if (dt < 0.0f) {
         dt = 0.0f;
-    } else if (this->m_edgeLifetime <= dt) {
-        dt = this->m_edgeLifetime;
+    } else if (this->m_edgeLifeSpan <= dt) {
+        dt = this->m_edgeLifeSpan;
     }
 
     while (this->m_readPos != this->m_writePos) {
-        if (this->m_edgeAges.m_data[this->m_readPos] + dt <= this->m_edgeLifetime) {
+        if (this->m_edges.m_data[this->m_readPos] + dt <= this->m_edgeLifeSpan) {
             break;
         }
 
-        if (++this->m_readPos >= this->m_edgeAges.Count()) {
-            this->m_readPos -= this->m_edgeAges.Count();
+        if (++this->m_readPos >= this->m_edges.Count()) {
+            this->m_readPos -= this->m_edges.Count();
         }
     }
 
     if (!suppressNewEdges && (this->m_flags & 0x4) && (this->m_flags & 0x8) && (this->m_flags & 0x1)) {
-        float target = dt * this->m_edgesPerSec + this->m_edgeFraction;
-        CImVector color = this->m_color;
+        float target = dt * this->m_edgesPerSec + this->m_startTime;
+        CImVector color = this->m_diffuseClr;
 
         if (g_theGxDevicePtr->Caps().m_colorFormat == GxCF_rgba) {
-            color.b = this->m_color.r;
-            color.g = this->m_color.g;
-            color.r = this->m_color.b;
-            color.a = this->m_color.a;
+            color.b = this->m_diffuseClr.r;
+            color.g = this->m_diffuseClr.g;
+            color.r = this->m_diffuseClr.b;
+            color.a = this->m_diffuseClr.a;
         }
 
         this->InitInterpDeltas();
 
         if (target >= 1.0f) {
-            float scale = 1.0f / (target - this->m_edgeFraction);
+            float scale = 1.0f / (target - this->m_startTime);
             int64_t steps = static_cast<int64_t>(floor(target - 1.0f));
 
             for (int32_t count = static_cast<int32_t>(steps) + 1; count; count--) {
-                float t = (start - this->m_edgeFraction) * scale;
-                this->m_vertices.m_data[2 * this->m_writePos].c = color;
-                this->m_vertices.m_data[2 * this->m_writePos + 1].c = color;
+                float t = (start - this->m_startTime) * scale;
+                this->m_gxVertices.m_data[2 * this->m_writePos].c = color;
+                this->m_gxVertices.m_data[2 * this->m_writePos + 1].c = color;
                 this->InterpEdge(-(t * dt), t, 1);
                 start = start + 1.0f;
             }
         }
 
-        this->m_edgeFraction = target - floor(target);
+        this->m_startTime = target - floor(target);
         this->InterpEdge(0.0f, 1.0f, 0);
 
-        CGxVertexPCT* vertex = &this->m_vertices.m_data[2 * this->m_writePos];
-        vertex[0].tc.x = this->m_texSlotCoords.minY;
-        vertex[0].tc.y = this->m_texSlotCoords.minX;
-        vertex[1].tc.x = this->m_texSlotCoords.minY;
-        vertex[1].tc.y = this->m_texSlotCoords.maxX;
+        CGxVertexPCT* vertex = &this->m_gxVertices.m_data[2 * this->m_writePos];
+        vertex[0].tc.x = this->m_texSlotBox.minY;
+        vertex[0].tc.y = this->m_texSlotBox.minX;
+        vertex[1].tc.x = this->m_texSlotBox.minY;
+        vertex[1].tc.y = this->m_texSlotBox.maxX;
         vertex[0].c = color;
         vertex[1].c = color;
     }
@@ -314,8 +314,8 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
     this->m_worldBounds.t.z = -3.4028235e38f;
 
     for (uint32_t i = this->m_readPos; i != this->m_writePos;) {
-        CGxVertexPCT* vertex = &this->m_vertices.m_data[2 * i];
-        float drop = (this->m_edgeAges.m_data[i] * 2.0f + dt) * this->m_gravity * dt;
+        CGxVertexPCT* vertex = &this->m_gxVertices.m_data[2 * i];
+        float drop = (this->m_edges.m_data[i] * 2.0f + dt) * this->m_gravity * dt;
         vertex[0].p.z = vertex[0].p.z + drop;
         vertex[1].p.z = drop + vertex[1].p.z;
 
@@ -347,16 +347,16 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
             }
         }
 
-        this->m_edgeAges.m_data[i] = dt + this->m_edgeAges.m_data[i];
+        this->m_edges.m_data[i] = dt + this->m_edges.m_data[i];
 
-        float u = this->m_edgeAges.m_data[i] * this->m_texCellU * this->m_invEdgeLifetime + this->m_texSlotCoords.minY;
+        float u = this->m_edges.m_data[i] * this->m_tmpDU * this->m_ooLifeSpan + this->m_texSlotBox.minY;
         vertex[0].tc.x = u;
-        vertex[0].tc.y = this->m_texSlotCoords.minX;
+        vertex[0].tc.y = this->m_texSlotBox.minX;
         vertex[1].tc.x = u;
-        vertex[1].tc.y = this->m_texSlotCoords.maxX;
+        vertex[1].tc.y = this->m_texSlotBox.maxX;
 
-        if (++i >= this->m_edgeAges.Count()) {
-            i -= this->m_edgeAges.Count();
+        if (++i >= this->m_edges.Count()) {
+            i -= this->m_edges.Count();
         }
     }
 
@@ -385,20 +385,20 @@ CRibbonEmitter::~CRibbonEmitter() {
 // OFFSET: 0x00980630
 CRibbonEmitter::CRibbonEmitter() {
     this->m_refCount = 1;
-    this->m_texSlotCoords.minX = 0.0f;
-    this->m_texSlotCoords.minY = 0.0f;
-    this->m_texSlotCoords.maxX = 0.0f;
-    this->m_texSlotCoords.maxY = 0.0f;
+    this->m_texSlotBox.minX = 0.0f;
+    this->m_texSlotBox.minY = 0.0f;
+    this->m_texSlotBox.maxX = 0.0f;
+    this->m_texSlotBox.maxY = 0.0f;
     this->m_worldBounds.b.x = 3.4028235e38f;
     this->m_worldBounds.b.y = 3.4028235e38f;
     this->m_worldBounds.b.z = 3.4028235e38f;
     this->m_worldBounds.t.x = -3.4028235e38f;
     this->m_worldBounds.t.y = -3.4028235e38f;
     this->m_worldBounds.t.z = -3.4028235e38f;
-    this->m_texCoords.minX = 0.0f;
-    this->m_texCoords.minY = 0.0f;
-    this->m_texCoords.maxX = 0.0f;
-    this->m_texCoords.maxY = 0.0f;
+    this->m_texBox.minX = 0.0f;
+    this->m_texBox.minY = 0.0f;
+    this->m_texBox.maxX = 0.0f;
+    this->m_texBox.maxY = 0.0f;
     this->m_flags &= ~0x12;
 }
 
@@ -412,32 +412,32 @@ void CRibbonEmitter::Initialize(float edgesPerSecond, float edgeLifetime, const 
     }
 
     uint32_t edgeCount = static_cast<uint32_t>(ceil(edgesPerSec * edgeLifetime) + 2.0f);
-    this->m_edgeAges.SetCount(edgeCount);
+    this->m_edges.SetCount(edgeCount);
 
     this->m_flags &= ~0x1;
-    this->m_edgeFraction = 0.0f;
+    this->m_startTime = 0.0f;
     this->m_readPos = 0;
     this->m_writePos = 0;
 
-    this->m_vertices.SetCount(2 * edgeCount);
-    this->m_indices.SetCount(4 * edgeCount);
+    this->m_gxVertices.SetCount(2 * edgeCount);
+    this->m_gxIndices.SetCount(4 * edgeCount);
 
-    for (uint32_t i = 0; i < this->m_indices.Count(); i++) {
-        this->m_indices.m_data[i] = i % (2 * edgeCount);
+    for (uint32_t i = 0; i < this->m_gxIndices.Count(); i++) {
+        this->m_gxIndices.m_data[i] = i % (2 * edgeCount);
     }
 
-    this->m_invEdgeLifetime = 1.0f / edgeLifetime;
-    this->m_texCellU = (texCoords.maxY - texCoords.minY) / cols;
-    this->m_texCellV = (texCoords.maxX - texCoords.minX) / rows;
-    this->m_invTexCellU = 1.0f / this->m_texCellU;
-    this->m_invTexCellV = 1.0f / this->m_texCellV;
+    this->m_ooLifeSpan = 1.0f / edgeLifetime;
+    this->m_tmpDU = (texCoords.maxY - texCoords.minY) / cols;
+    this->m_tmpDV = (texCoords.maxX - texCoords.minX) / rows;
+    this->m_ooTmpDU = 1.0f / this->m_tmpDU;
+    this->m_ooTmpDV = 1.0f / this->m_tmpDV;
     this->m_edgesPerSec = edgesPerSec;
-    this->m_edgeLifetime = edgeLifetime;
-    this->m_color = color;
+    this->m_edgeLifeSpan = edgeLifetime;
+    this->m_diffuseClr = color;
     this->m_materials = materials;
     DuplicateTextures(textures, this->m_textures);
-    this->m_textureTypes = textureTypes;
-    this->m_texCoords = texCoords;
+    this->m_replaces = textureTypes;
+    this->m_texBox = texCoords;
     this->m_rows = rows;
     this->m_cols = cols;
     this->m_texSlot = 0;
@@ -474,20 +474,20 @@ int32_t CRibbonEmitter::Render(const C44Matrix* frameOfReference) {
     world.d2 = world.d2 - this->m_localPos.z;
     g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
 
-    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), this->m_vertices.Count());
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), this->m_indices.Count());
-    GxBufData(vertexBuf, this->m_vertices.m_data, sizeof(CGxVertexPCT) * this->m_vertices.Count(), 0);
+    CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), this->m_gxVertices.Count());
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), this->m_gxIndices.Count());
+    GxBufData(vertexBuf, this->m_gxVertices.m_data, sizeof(CGxVertexPCT) * this->m_gxVertices.Count(), 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PCT);
 
     uint32_t indexCount;
 
     if (this->m_readPos >= this->m_writePos) {
-        indexCount = 2 * (this->m_writePos + this->m_edgeAges.Count() - this->m_readPos) + 2;
+        indexCount = 2 * (this->m_writePos + this->m_edges.Count() - this->m_readPos) + 2;
     } else {
         indexCount = 2 * (this->m_writePos - this->m_readPos) + 2;
     }
 
-    GxBufData(indexBuf, &this->m_indices.m_data[2 * this->m_readPos], sizeof(uint16_t) * indexCount, 0);
+    GxBufData(indexBuf, &this->m_gxIndices.m_data[2 * this->m_readPos], sizeof(uint16_t) * indexCount, 0);
     g_theGxDevicePtr->PrimIndexPtr(indexBuf);
 
     CGxBatch batch;
@@ -495,7 +495,7 @@ int32_t CRibbonEmitter::Render(const C44Matrix* frameOfReference) {
     batch.m_start = 0;
     batch.m_count = indexCount;
     batch.m_minIndex = 0;
-    batch.m_maxIndex = this->m_vertices.Count() - 1;
+    batch.m_maxIndex = this->m_gxVertices.Count() - 1;
 
     for (uint32_t i = 0; i < this->m_materials.Count(); i++) {
         g_theGxDevicePtr->RsPush();
