@@ -192,6 +192,16 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static int32_t __stdcall OnLootMoneyNotify(CDataStore* msg);
     static void OnLootClearMoney();
     static void __stdcall ReadItemResult(NETMESSAGE msgId, CDataStore* msg);
+    // Raw quest-failure namespace, separate from BAG_RESULT and quest-invalid.
+    // Values4/16/50 share a bag-full display without proved distinct causes.
+    enum QUEST_FAILED_REASON : int32_t {
+        QF_REASON_UNKNOWN_4 = 4,
+        QF_REASON_UNKNOWN_16 = 16,
+        QF_REASON_UI_MAX_COUNT = 17,
+        QF_REASON_UNKNOWN_50 = 50,
+        QF_REASON_UI_TOO_MANY_DAILY_QUESTS = 74,
+    };
+
     // Shared quest-push result byte; labels describe verified client UI outcomes.
     enum QUEST_PUSH_RESULT : int32_t {
         QP_RESULT_UI_SUCCESS = 0,

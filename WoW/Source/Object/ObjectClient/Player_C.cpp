@@ -7661,18 +7661,18 @@ static void QuestFailedCallback(int32_t id, const WOWGUID& guid, void* param, bo
     }
 
     switch (s_questFailedReason) {
-        case 4:
-        case 16:
-        case 50:
+        case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_4:
+        case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_16:
+        case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_50:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_BAG_FULL_S, quest->m_name);
             CGGameUI::DisplayError(ERR_INV_FULL);
             break;
 
-        case 17:
+        case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UI_MAX_COUNT:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_MAX_COUNT_S, quest->m_name);
             break;
 
-        case 74:
+        case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UI_TOO_MANY_DAILY_QUESTS:
             CGGameUI::DisplayError(ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I, 25);
             break;
 
@@ -7696,18 +7696,18 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestFailed(CDataStore* msg) {
 
     if (quest) {
         switch (s_questFailedReason) {
-            case 4:
-            case 16:
-            case 50:
+            case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_4:
+            case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_16:
+            case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UNKNOWN_50:
                 CGGameUI::DisplayError(ERR_QUEST_FAILED_BAG_FULL_S, quest->m_name);
                 CGGameUI::DisplayError(ERR_INV_FULL);
                 break;
 
-            case 17:
+            case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UI_MAX_COUNT:
                 CGGameUI::DisplayError(ERR_QUEST_FAILED_MAX_COUNT_S, quest->m_name);
                 break;
 
-            case 74:
+            case CGPlayer_C::QUEST_FAILED_REASON::QF_REASON_UI_TOO_MANY_DAILY_QUESTS:
                 CGGameUI::DisplayError(ERR_QUEST_FAILED_TOO_MANY_DAILY_QUESTS_I, 25);
                 break;
 
