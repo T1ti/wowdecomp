@@ -192,6 +192,22 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static int32_t __stdcall OnLootMoneyNotify(CDataStore* msg);
     static void OnLootClearMoney();
     static void __stdcall ReadItemResult(NETMESSAGE msgId, CDataStore* msg);
+    // Shared quest-push result byte; labels describe verified client UI outcomes.
+    enum QUEST_PUSH_RESULT : int32_t {
+        QP_RESULT_UI_SUCCESS = 0,
+        QP_RESULT_UI_INVALID = 1,
+        QP_RESULT_UI_ACCEPTED = 2,
+        QP_RESULT_UI_DECLINED = 3,
+        QP_RESULT_UI_BUSY = 4,
+        QP_RESULT_UI_LOG_FULL = 5,
+        QP_RESULT_UI_ON_QUEST = 6,
+        QP_RESULT_UI_ALREADY_DONE = 7,
+        QP_RESULT_UI_NOT_DAILY = 8,
+        QP_RESULT_UI_TIMER_EXPIRED = 9,
+        QP_RESULT_UI_NOT_IN_PARTY = 10,
+        QP_RESULT_UI_DIFFERENT_SERVER_DAILY = 11,
+    };
+
     static void __stdcall PushQuestToParty(int32_t questId);
     static void __stdcall QueryQuest(const WOWGUID& questGiver, int32_t questId);
     static void __stdcall QueryQuestGiverStatus(const WOWGUID& questGiver);

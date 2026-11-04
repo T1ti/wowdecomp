@@ -6852,7 +6852,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestDetails(CDataStore* msg) {
             response.Put(static_cast<uint32_t>(MSG_QUEST_PUSH_RESULT));
             response.Put(inform ? inform.m_guid : npc.m_guid);
             response.Put(questId);
-            response.Put(static_cast<uint8_t>(4));
+            response.Put(static_cast<uint8_t>(CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_BUSY));
             response.Finalize();
             ClientServices::Send2(&response);
             return 1;
@@ -9506,51 +9506,51 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             }
 
             switch (result) {
-                case 0:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_SUCCESS:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_SUCCESS_S, name->m_name);
                     break;
 
-                case 1:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_INVALID:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_INVALID_S, name->m_name);
                     break;
 
-                case 2:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_ACCEPTED:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_ACCEPTED_S, name->m_name);
                     break;
 
-                case 3:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_DECLINED:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_DECLINED_S, name->m_name);
                     break;
 
-                case 4:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_BUSY:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_BUSY_S, name->m_name);
                     break;
 
-                case 5:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_LOG_FULL:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_LOG_FULL_S, name->m_name);
                     break;
 
-                case 6:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_ON_QUEST:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_ONQUEST_S, name->m_name);
                     break;
 
-                case 7:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_ALREADY_DONE:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_ALREADY_DONE_S, name->m_name);
                     break;
 
-                case 8:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_NOT_DAILY:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_NOT_DAILY_S, name->m_name);
                     break;
 
-                case 9:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_TIMER_EXPIRED:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_TIMER_EXPIRED_S, name->m_name);
                     break;
 
-                case 10:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_NOT_IN_PARTY:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_NOT_IN_PARTY_S, name->m_name);
                     break;
 
-                case 11:
+                case CGPlayer_C::QUEST_PUSH_RESULT::QP_RESULT_UI_DIFFERENT_SERVER_DAILY:
                     CGGameUI::DisplayError(ERR_QUEST_PUSH_DIFFERENT_SERVER_DAILY_S, name->m_name);
                     break;
             }
