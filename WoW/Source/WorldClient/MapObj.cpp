@@ -2959,10 +2959,10 @@ static void GetMinimapQuads(const CAaBox* bounds, const CAaBox* box, int32_t gro
             if (maxX >= box->b.x && maxY >= box->b.y && minX <= box->t.x && minY <= box->t.y && quads->m_count < maxQuads) {
                 MINIMAPQUADINFO* quad = new (&quads->m_data[quads->m_count++]) MINIMAPQUADINFO();
                 quad->m_groupId = groupId;
-                quad->m_y = y;
+                quad->m_quad.y = y;
                 quad->m_bounds.b = C3Vector(minX, minY, centerZ);
                 quad->m_bounds.t = C3Vector(maxX, maxY, centerZ);
-                quad->m_x = x;
+                quad->m_quad.x = x;
             }
         }
     }

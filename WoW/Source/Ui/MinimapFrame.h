@@ -8,6 +8,7 @@
 #include "Engine/Source/Gx/CGxTex.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C2Vector.h"
+#include "Engine/Source/Tempest/C2iVector.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/CRect.h"
@@ -67,8 +68,7 @@ struct MINIMAPINDOOR {
 
 struct MINIMAPQUADINFO {
     /* 0000 */ int32_t m_groupId;
-    /* 0004 */ int32_t m_x;
-    /* 0008 */ int32_t m_y;
+    /* 0004 */ C2iVector m_quad; // Integer x/y indices of the WMO group's minimap texture quad.
     /* 000C */ CAaBox m_bounds;
 };
 

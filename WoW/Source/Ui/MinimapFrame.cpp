@@ -1444,7 +1444,7 @@ static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* q
     for (uint32_t i = 0; i < 256; i++) {
         MINIMAPTILE* tile = &tiles[i];
 
-        if (tile->m_groupId == quad->m_groupId && tile->m_x == quad->m_x && tile->m_y == quad->m_y) {
+        if (tile->m_groupId == quad->m_groupId && tile->m_x == quad->m_quad.x && tile->m_y == quad->m_quad.y) {
             if (tile->m_groupId == currentGroup) {
                 tile->m_flags |= 2;
                 tile->m_depth = 3.4028235e38f;
@@ -1476,7 +1476,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
 
     tiles->m_flags |= 2;
     char path[260];
-    SStrPrintf(path, sizeof(path), s_minimapQuadFormat, mapObjName, quad->m_groupId, quad->m_x, quad->m_y);
+    SStrPrintf(path, sizeof(path), s_minimapQuadFormat, mapObjName, quad->m_groupId, quad->m_quad.x, quad->m_quad.y);
     MINIMAPMD5NAME* name = s_md5Names.Ptr(path);
 
     if (name) {
@@ -1500,8 +1500,8 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
         tiles->m_texture = nullptr;
     }
 
-    tiles->m_x = quad->m_x;
-    tiles->m_y = quad->m_y;
+    tiles->m_x = quad->m_quad.x;
+    tiles->m_y = quad->m_quad.y;
     tiles->m_bounds = quad->m_bounds;
     tiles->m_groupId = quad->m_groupId;
 
