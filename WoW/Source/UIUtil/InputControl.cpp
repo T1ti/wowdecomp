@@ -64,7 +64,7 @@ CGInputControl* CGInputControl::GetActive() {
 // VERIFY: b2b6f3af auto
 // OFFSET: 0x005F9670
 void CGInputControl::UpdateJoystickMouseMode() {
-    int32_t enable = s_joystickMouseEnabled && !s_cvCinematicJoystick->m_intValue && (this->m_joystickMouseFlags & 0x2) && (this->m_mouseModeFlags & 0x1);
+    int32_t enable = s_joystickMouseEnabled && !s_cvCinematicJoystick->m_intValue && (this->m_joystickMouseFlags & 0x2) && (this->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON);
 
     if (enable == (this->m_joystickMouseFlags & 0x1)) {
         return;
@@ -94,7 +94,7 @@ void CGInputControl::SetMouseCVarHandler(bool enable) {
 
 // VERIFY: 36bc2098 auto
 // OFFSET: 0x005FD1D0
-CGInputControl::CGInputControl() : m_flags(INPUT_NONE), m_lookStartTime(0), m_pendingDefaultAction(INPUT_RELEASE_NONE), m_facingOverrideActive(0), m_facingOverride(0.0f), m_vehicleAimValid(0), m_vehicleAim(0.0f), m_mouseModeFlags(3), m_forceCursorOn(0), m_joystickMouseFlags(3), m_joystickLookX(0.0f), m_joystickLookY(0.0f), m_wowMouse(nullptr) {
+CGInputControl::CGInputControl() : m_flags(INPUT_NONE), m_lookStartTime(0), m_pendingDefaultAction(INPUT_RELEASE_NONE), m_facingOverrideActive(0), m_facingOverride(0.0f), m_vehicleAimValid(0), m_vehicleAim(0.0f), m_mouseModeFlags(INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS), m_forceCursorOn(0), m_joystickMouseFlags(3), m_joystickLookX(0.0f), m_joystickLookY(0.0f), m_wowMouse(nullptr) {
     this->m_time = OsGetAsyncTimeMs();
 }
 
@@ -113,25 +113,25 @@ void CGInputControl::UpdateMouseMode(int32_t force) {
     uint32_t flags = this->m_mouseModeFlags;
     uint32_t cursorOn;
 
-    if (flags & 0x20) {
+    if (flags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_ON) {
         cursorOn = 1;
-    } else if (flags & 0x40) {
+    } else if (flags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF) {
         cursorOn = 0;
-    } else if (s_cvCinematicJoystick->m_intValue || (flags & 0x10) || this->m_forceCursorOn) {
+    } else if (s_cvCinematicJoystick->m_intValue || (flags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_SPELL_TARGETING) || this->m_forceCursorOn) {
         cursorOn = 1;
     } else {
-        cursorOn = flags & 0x6;
+        cursorOn = flags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_REQUEST_MASK;
     }
 
-    if (force || cursorOn != (flags & 0x1)) {
+    if (force || cursorOn != (flags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON)) {
         if (cursorOn) {
-            this->m_mouseModeFlags = flags | 0x1;
+            this->m_mouseModeFlags = flags | INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON;
 
             if (!(this->m_flags & INPUT_MOUSE_LOOK_MASK)) {
                 g_theGxDevicePtr->CursorSetVisible(1);
             }
         } else {
-            this->m_mouseModeFlags = flags & ~0x1;
+            this->m_mouseModeFlags = flags & ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON;
             g_theGxDevicePtr->CursorSetVisible(0);
         }
     }
@@ -1370,9 +1370,9 @@ void CGInputControl::OnFocusChange(const CFocusEvent& event) {
     }
 
     if (event.m_data.m_focus) {
-        this->m_mouseModeFlags &= ~0x20u;
+        this->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_ON;
     } else {
-        this->m_mouseModeFlags |= 0x20u;
+        this->m_mouseModeFlags |= INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_ON;
     }
 
     this->UpdateMouseMode(0);

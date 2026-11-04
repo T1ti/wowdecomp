@@ -1125,7 +1125,7 @@ void CGUIBindings::FinishLoadBindings() {
 
     if (this->GetCommandKey(BINDING_MODE_0, "TOGGLEMOUSE", 0)) {
         CGInputControl* inputControl = CGInputControl::GetActive();
-        inputControl->m_mouseModeFlags &= ~0x2u;
+        inputControl->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_DEFAULT_CURSOR_ON;
         inputControl->UpdateMouseMode(0);
     }
 }

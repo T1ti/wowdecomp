@@ -1721,7 +1721,7 @@ void CGGameUI::InitializeFrameXML() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    input->m_mouseModeFlags = 3;
+    input->m_mouseModeFlags = INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS;
     input->m_forceCursorOn = 0;
     input->UpdateMouseMode(1);
 
@@ -2299,7 +2299,7 @@ void CGGameUI::OnMouseModeNormal() {
 
     CSimpleTop::s_instance->m_checkFocus = 1;
 
-    if (CGInputControl::GetActive()->m_mouseModeFlags & 0x1) {
+    if (CGInputControl::GetActive()->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON) {
         g_theGxDevicePtr->CursorSetVisible(1);
     }
 
@@ -6174,7 +6174,7 @@ void CGGameUI::StopMovie() {
     ClientServices::Send2(&msg);
 
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags &= ~0x40u;
+    input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF;
     input->UpdateMouseMode(0);
     CGInputControl::GetActive()->EnterWorld();
 }
@@ -6373,7 +6373,7 @@ static int32_t AutoMouseOverProc(WOWGUID guid, void* param) {
 // VERIFY: e37a0d1f manual
 // OFFSET: 0x005220B0
 void CGGameUI::AutoMouseOver() {
-    if (CGInputControl::GetActive()->m_mouseModeFlags & 0x1) {
+    if (CGInputControl::GetActive()->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON) {
         return;
     }
 
@@ -6875,7 +6875,7 @@ void CGGameUI::StopCinematicInternal(void* param) {
     }
 
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags &= ~0x40;
+    input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF;
     input->UpdateMouseMode(0);
     CGInputControl::GetActive()->EnterWorld();
 }
@@ -7309,7 +7309,7 @@ void CGGameUI::StartCinematic(int32_t cinematic) {
 
     CGGameUI::m_inCinematic = 1;
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags |= 0x40;
+    input->m_mouseModeFlags |= INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF;
     input->UpdateMouseMode(0);
 
     if (ClntObjMgrGetActivePlayerObj()) {
@@ -8087,7 +8087,7 @@ void CGGameUI::StartMovie(uint32_t movieId) {
     CGGameUI::m_movieFileDataID = fileDataId;
     CGGameUI::m_movieVolume = movie->m_volume;
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags |= 0x40;
+    input->m_mouseModeFlags |= INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF;
     input->UpdateMouseMode(0);
 
     if (ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) {
@@ -8138,7 +8138,7 @@ void CGGameUI::LeaveWorld() {
         SI2::StopSound(&CGGameUI::m_cinematic.m_music, 1, -1.0f, 1);
         CGGameUI::m_inCinematic = 0;
         CGInputControl* input = CGInputControl::GetActive();
-        input->m_mouseModeFlags &= ~0x40;
+        input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_FORCE_CURSOR_OFF;
         input->UpdateMouseMode(0);
     }
 

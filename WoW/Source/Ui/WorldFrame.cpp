@@ -1177,7 +1177,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
 // VERIFY: 53a93536 auto
 // OFFSET: 0x004F9DA0
 int32_t CGWorldFrame::HitTestPoint(float x, float y, int32_t a3, HITTESTRESULT* result) {
-    if (!(CGInputControl::GetActive()->m_mouseModeFlags & 0x1)) {
+    if (!(CGInputControl::GetActive()->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON)) {
         return HIT_NONE;
     }
 

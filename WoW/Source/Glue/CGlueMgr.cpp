@@ -699,7 +699,7 @@ void CGlueMgr::Resume() {
     CGlueMgr::m_simpleTop->SetCursor(CGlueMgr::m_cursorMipBits);
 
     CGInputControl* control = CGInputControl::GetActive();
-    control->m_mouseModeFlags = 3;
+    control->m_mouseModeFlags = INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS;
     control->m_forceCursorOn = 0;
     control->UpdateMouseMode(1);
 

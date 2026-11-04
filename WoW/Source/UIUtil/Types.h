@@ -5,8 +5,17 @@
 #include <cstdint>
 
 // CGInputControl::m_mouseModeFlags; separate from its input-control flags.
+// Bit 0x4 participates in the raw request mask; its distinct meaning is unproved.
+// Request-mask values 2/4/6 are compared with the current 0/1 bit without normalization.
 enum INPUT_MOUSE_MODE_FLAGS : uint32_t {
+    INPUT_MOUSE_MODE_CURSOR_ON = 0x1,
+    INPUT_MOUSE_MODE_DEFAULT_CURSOR_ON = 0x2,
+    INPUT_MOUSE_MODE_UNKNOWN_0004 = 0x4,
     INPUT_MOUSE_MODE_SPELL_TARGETING = 0x10,
+    INPUT_MOUSE_MODE_FORCE_CURSOR_ON = 0x20,
+    INPUT_MOUSE_MODE_FORCE_CURSOR_OFF = 0x40,
+    INPUT_MOUSE_MODE_INITIAL_FLAGS = 3,
+    INPUT_MOUSE_MODE_CURSOR_REQUEST_MASK = 0x6,
 };
 
 enum CURSORMODE : uint32_t {

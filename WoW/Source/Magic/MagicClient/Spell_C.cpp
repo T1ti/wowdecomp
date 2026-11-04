@@ -1355,7 +1355,7 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
         CursorSetMode(POINT_CURSOR);
         Spell_C_DestroySpellWorldObject();
         CGInputControl* input = CGInputControl::GetActive();
-        input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
+        input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_SPELL_TARGETING;
         input->UpdateMouseMode(0);
     }
 
@@ -7716,7 +7716,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         if (cast == s_targetingSpell) {
             s_targetingSpell = nullptr;
             CGInputControl* input = CGInputControl::GetActive();
-            input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
+            input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_SPELL_TARGETING;
             input->UpdateMouseMode(0);
         }
 
@@ -7921,7 +7921,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     ClientServices::Send2(&msg);
     s_targetingSpell = nullptr;
     CGInputControl* input = CGInputControl::GetActive();
-    input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_SPELL_TARGETING;
+    input->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_SPELL_TARGETING;
     input->UpdateMouseMode(0);
 
     if (caster->IsActivePlayer()) {
@@ -8549,7 +8549,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
         CursorSetMode(CAST_ERROR_CURSOR);
         CGSpellBook::UpdateSelection();
         CGInputControl* input = CGInputControl::GetActive();
-        input->m_mouseModeFlags |= INPUT_MOUSE_MODE_SPELL_TARGETING;
+        input->m_mouseModeFlags |= INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_SPELL_TARGETING;
         input->UpdateMouseMode(0);
         s_cursorWorldObjectFacing = 0.0f;
         s_cursorWorldObjectHousing = 0;
