@@ -64,8 +64,7 @@ class Snow {
 
 struct WeatherGridCell {
     /* 0000 */ float m_heights[1024];
-    /* 1000 */ int32_t m_cellX;
-    /* 1004 */ int32_t m_cellY;
+    /* 1000 */ C2iVector m_cellIndex; // Absolute indices of this 32x32-sample weather cell.
 
     WeatherGridCell();
     float GetHeight(const C3Vector* position);
@@ -86,12 +85,9 @@ class WeatherGrid : public WeatherGridBase {
     /* 0004 */ float unused_0004;
     /* 0008 */ float unused_0008;
     /* 000C */ float unused_000C;
-    /* 0010 */ int32_t m_originX;
-    /* 0014 */ int32_t m_originY;
-    /* 0018 */ int32_t m_minCellX;
-    /* 001C */ int32_t m_minCellY;
-    /* 0020 */ int32_t m_minX;
-    /* 0024 */ int32_t m_minY;
+    /* 0010 */ C2iVector m_originCell; // Center coarse cell of the 5x5 cache.
+    /* 0018 */ C2iVector m_minCell; // Lowest coarse-cell indices: origin minus two on each axis.
+    /* 0020 */ C2iVector m_minSample; // Lowest global height-sample indices: 32 times m_minCell.
     /* 0028 */ WeatherGridCell* m_cells[5][5];
 
     CiRect* GetCellBounds(CiRect* bounds) override;
