@@ -9566,19 +9566,19 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
 
             if (!bootTime) {
                 switch (reason) {
-                    case 1:
+                    case CGPlayer_C::RAID_GROUP_ONLY_REASON::RG_REASON_UI_LOW_LEVEL:
                         CGGameUI::DisplayError(ERR_RAID_GROUP_LOWLEVEL);
                         break;
 
-                    case 2:
+                    case CGPlayer_C::RAID_GROUP_ONLY_REASON::RG_REASON_UI_RAID_GROUP_ONLY:
                         CGGameUI::DisplayError(ERR_RAID_GROUP_ONLY);
                         break;
 
-                    case 3:
+                    case CGPlayer_C::RAID_GROUP_ONLY_REASON::RG_REASON_UI_GROUP_FULL:
                         CGGameUI::DisplayError(ERR_RAID_GROUP_FULL);
                         break;
 
-                    case 4:
+                    case CGPlayer_C::RAID_GROUP_ONLY_REASON::RG_REASON_UI_REQUIREMENTS_UNMATCH:
                         CGGameUI::DisplayError(ERR_RAID_GROUP_REQUIREMENTS_UNMATCH);
                         break;
                 }

@@ -192,6 +192,14 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static int32_t __stdcall OnLootMoneyNotify(CDataStore* msg);
     static void OnLootClearMoney();
     static void __stdcall ReadItemResult(NETMESSAGE msgId, CDataStore* msg);
+    // SMSG_RAID_GROUP_ONLY displays a reason only when its boot time is zero.
+    enum RAID_GROUP_ONLY_REASON : int32_t {
+        RG_REASON_UI_LOW_LEVEL = 1,
+        RG_REASON_UI_RAID_GROUP_ONLY = 2,
+        RG_REASON_UI_GROUP_FULL = 3,
+        RG_REASON_UI_REQUIREMENTS_UNMATCH = 4,
+    };
+
     // Raw quest-failure namespace, separate from BAG_RESULT and quest-invalid.
     // Values4/16/50 share a bag-full display without proved distinct causes.
     enum QUEST_FAILED_REASON : int32_t {
