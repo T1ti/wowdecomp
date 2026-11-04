@@ -1135,10 +1135,10 @@ void DayNight::SetLightColors() {
     *reinterpret_cast<uint32_t*>(&info.m_light1.m_mid1) = bright;
     info.m_light1.m_mid0 = toAmbient;
     info.m_light0.m_mid0 = info.m_light1.m_mid0;
-    info.m_light0.m_desatR = info.m_light1.m_desatR;
-    info.m_light0.m_desatG = info.m_light1.m_desatG;
-    info.m_light0.m_desatB = info.m_light1.m_desatB;
-    info.m_light0.m_desatA = info.m_light1.m_desatA;
+    info.m_light0.m_desaturatedAmbient.x = info.m_light1.m_desaturatedAmbient.x;
+    info.m_light0.m_desaturatedAmbient.y = info.m_light1.m_desaturatedAmbient.y;
+    info.m_light0.m_desaturatedAmbient.z = info.m_light1.m_desaturatedAmbient.z;
+    info.m_light0.m_desaturatedAmbient.w = info.m_light1.m_desaturatedAmbient.w;
     info.m_light0.m_diffuse = bands.m_diffuse;
     info.m_light0.m_ambient = bands.m_ambient;
 
@@ -1157,10 +1157,10 @@ void DayNight::SetLightColors() {
     hsv.y = hsv.y * SATURATION_SCALE;
     hsv.z = hsv.z * VALUE_SCALE;
     HSVtoRGB(hsv, rgb);
-    info.m_light1.m_desatR = rgb.x;
-    info.m_light1.m_desatG = rgb.y;
-    info.m_light1.m_desatB = rgb.z;
-    info.m_light1.m_desatA = 1.0f;
+    info.m_light1.m_desaturatedAmbient.x = rgb.x;
+    info.m_light1.m_desaturatedAmbient.y = rgb.y;
+    info.m_light1.m_desaturatedAmbient.z = rgb.z;
+    info.m_light1.m_desaturatedAmbient.w = 1.0f;
 }
 
 // VERIFY: 8ddbd15b manual
