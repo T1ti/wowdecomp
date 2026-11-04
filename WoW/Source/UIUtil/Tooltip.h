@@ -129,7 +129,7 @@ class CGTooltip : public CSimpleFrame {
     static void RegisterScriptMethods(lua_State* L);
 
     /* 029C */ CSimpleFrame* m_owner;
-    /* 02A0 */ int32_t m_anchorType;
+    /* 02A0 */ TOOLTIP_ANCHORPOINT m_anchorType;
     /* 02A4 */ uint32_t m_numLines;
     /* 02A8 */ uint32_t m_maxLines;
     /* 02AC */ TSFixedArray<CSimpleFontString*> m_leftStrings;

@@ -1466,35 +1466,35 @@ static int32_t Script_SetAnchorType(lua_State* L) {
         luaL_error(L, "Usage: %s:SetAnchorType( anchorType [,Xoffset] [,Yoffset] )", name ? name : "<unnamed>");
     }
 
-    int32_t anchorType = 0;
+    TOOLTIP_ANCHORPOINT anchorType = ANCHOR_LEFT;
 
     if (lua_isstring(L, 2)) {
         const char* token = lua_tolstring(L, 2, nullptr);
 
         if (!SStrCmpI(token, "ANCHOR_LEFT", STORM_MAX_STR)) {
-            anchorType = 0;
+            anchorType = ANCHOR_LEFT;
         } else if (!SStrCmpI(token, "ANCHOR_RIGHT", STORM_MAX_STR)) {
-            anchorType = 1;
+            anchorType = ANCHOR_RIGHT;
         } else if (!SStrCmpI(token, "ANCHOR_BOTTOMLEFT", STORM_MAX_STR)) {
-            anchorType = 2;
+            anchorType = ANCHOR_BOTTOMLEFT;
         } else if (!SStrCmpI(token, "ANCHOR_BOTTOM", STORM_MAX_STR)) {
-            anchorType = 3;
+            anchorType = ANCHOR_BOTTOM;
         } else if (!SStrCmpI(token, "ANCHOR_BOTTOMRIGHT", STORM_MAX_STR)) {
-            anchorType = 4;
+            anchorType = ANCHOR_BOTTOMRIGHT;
         } else if (!SStrCmpI(token, "ANCHOR_TOPLEFT", STORM_MAX_STR)) {
-            anchorType = 5;
+            anchorType = ANCHOR_TOPLEFT;
         } else if (!SStrCmpI(token, "ANCHOR_TOP", STORM_MAX_STR)) {
-            anchorType = 6;
+            anchorType = ANCHOR_TOP;
         } else if (!SStrCmpI(token, "ANCHOR_TOPRIGHT", STORM_MAX_STR)) {
-            anchorType = 7;
+            anchorType = ANCHOR_TOPRIGHT;
         } else if (!SStrCmpI(token, "ANCHOR_CURSOR", STORM_MAX_STR)) {
-            anchorType = 8;
+            anchorType = ANCHOR_CURSOR;
         } else if (!SStrCmpI(token, "ANCHOR_NONE", STORM_MAX_STR)) {
-            anchorType = 9;
+            anchorType = ANCHOR_NONE;
         } else if (!SStrCmpI(token, "ANCHOR_PRESERVE", STORM_MAX_STR)) {
-            anchorType = 10;
+            anchorType = ANCHOR_PRESERVE;
         } else if (!SStrCmpI(token, "ANCHOR_CURSOR_RIGHT", STORM_MAX_STR)) {
-            anchorType = 11;
+            anchorType = ANCHOR_CURSOR_RIGHT;
         }
     }
 
