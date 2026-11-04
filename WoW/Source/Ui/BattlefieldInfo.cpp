@@ -548,23 +548,23 @@ int32_t Packet_SMSG_GROUP_JOINED_BATTLEGROUND(void* param, NETMESSAGE msgId, uin
     msg->Get(reinterpret_cast<uint32_t&>(result));
 
     switch (result) {
-        case -15: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::IN_NON_RANDOM_BG: {
             CGGameUI::DisplayError(ERR_IN_NON_RANDOM_BG);
             break;
         }
 
-        case -14: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::IN_RANDOM_BG: {
             CGGameUI::DisplayError(ERR_IN_RANDOM_BG);
             break;
         }
 
-        case -13: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::LFG: {
             CGGameUI::DisplayError(ERR_LFG_CANT_USE_BATTLEGROUND);
             break;
         }
 
-        case -12:
-        case -11: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::UNKNOWN_MINUS_12:
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::UNKNOWN_MINUS_11: {
             WOWGUID guid;
             msg->Get(guid.m_guid);
             WOWGUID none = WOWGUID();
@@ -579,52 +579,52 @@ int32_t Packet_SMSG_GROUP_JOINED_BATTLEGROUND(void* param, NETMESSAGE msgId, uin
             break;
         }
 
-        case -10: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::RANGE_INDEX: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_JOIN_RANGE_INDEX);
             break;
         }
 
-        case -9: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::XP_GAIN: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_JOIN_XP_GAIN);
             break;
         }
 
-        case -8: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::NOT_IN_BATTLEGROUND: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND);
             break;
         }
 
-        case -7: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::TEAM_LEFT_QUEUE: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_TEAM_LEFT_QUEUE);
             break;
         }
 
-        case -6: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::QUEUED_FOR_RATED: {
             CGGameUI::DisplayError(ERR_BATTLEDGROUND_QUEUED_FOR_RATED);
             break;
         }
 
-        case -5: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::CANNOT_QUEUE_FOR_RATED: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED);
             break;
         }
 
-        case -4: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::TOO_MANY_QUEUES: {
             CGGameUI::DisplayError(ERR_BATTLEGROUND_TOO_MANY_QUEUES);
             break;
         }
 
-        case -3: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::ARENA_TEAM_PARTY_SIZE: {
             CGGameUI::DisplayError(ERR_ARENA_TEAM_PARTY_SIZE);
             break;
         }
 
-        case -2: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::DESERTERS: {
             CGGameUI::DisplayError(ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
             break;
         }
 
-        case -1: {
+        case CGBattlefieldInfo::GROUP_JOIN_RESULT::UNKNOWN_MINUS_1: {
             break;
         }
 

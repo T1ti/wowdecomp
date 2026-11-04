@@ -82,6 +82,26 @@ bool IsCurrentMapArena();
 
 class CGBattlefieldInfo {
     public:
+    // Descriptive build 12340 errors. -12/-11 share a name-cache path; -1 is silent.
+    // Other signed results remain raw BattlemasterList IDs on the default path.
+    enum GROUP_JOIN_RESULT : int32_t {
+        IN_NON_RANDOM_BG = -15,
+        IN_RANDOM_BG = -14,
+        LFG = -13,
+        UNKNOWN_MINUS_12 = -12,
+        UNKNOWN_MINUS_11 = -11,
+        RANGE_INDEX = -10,
+        XP_GAIN = -9,
+        NOT_IN_BATTLEGROUND = -8,
+        TEAM_LEFT_QUEUE = -7,
+        QUEUED_FOR_RATED = -6,
+        CANNOT_QUEUE_FOR_RATED = -5,
+        TOO_MANY_QUEUES = -4,
+        ARENA_TEAM_PARTY_SIZE = -3,
+        DESERTERS = -2,
+        UNKNOWN_MINUS_1 = -1,
+    };
+
     // Build 12340 handles these reasons. Only 8 and 10 have named UI consumers.
     // UNKNOWN members retain verified values without guessing server meanings.
     enum EJECTION_REASON : int32_t {
