@@ -82,6 +82,20 @@ bool IsCurrentMapArena();
 
 class CGBattlefieldInfo {
     public:
+    // Build 12340 handles these reasons. Only 8 and 10 have named UI consumers.
+    // UNKNOWN members retain verified values without guessing server meanings.
+    enum EJECTION_REASON : int32_t {
+        UNKNOWN_1 = 1,
+        UNKNOWN_2 = 2,
+        UNKNOWN_4 = 4,
+        UNKNOWN_5 = 5,
+        UNKNOWN_7 = 7,
+        PLAYER_EXIT = 8,
+        UNKNOWN_9 = 9,
+        LOW_LEVEL = 10,
+        UNKNOWN_11 = 11,
+    };
+
     enum SCORE_SORT_COLUMN : int32_t {
         COLUMN_KILLING_BLOWS = 0,
         COLUMN_DEATHS = 1,

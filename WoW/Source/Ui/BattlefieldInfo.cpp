@@ -1254,15 +1254,15 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_EJECTED(void* param, NETMESSAGE msgId, uint3
     msg->Get(relocated);
 
     switch (reason) {
-        case 1:
-        case 2:
-        case 4:
-        case 5:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11: {
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_1:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_2:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_4:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_5:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_7:
+        case CGBattlefieldInfo::EJECTION_REASON::PLAYER_EXIT:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_9:
+        case CGBattlefieldInfo::EJECTION_REASON::LOW_LEVEL:
+        case CGBattlefieldInfo::EJECTION_REASON::UNKNOWN_11: {
             WorldPvPQueueStatus* queue = FindWorldPvPQueue(queueID);
 
             if (queue) {
@@ -1274,7 +1274,7 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_EJECTED(void* param, NETMESSAGE msgId, uint3
         }
     }
 
-    FrameScript_SignalEvent(SCRIPT_EVENT_BATTLEFIELD_MGR_EJECTED, "%d%b%b%b%b", queueID, reason == 8, relocated != 0, battleStatus == 2, reason == 10);
+    FrameScript_SignalEvent(SCRIPT_EVENT_BATTLEFIELD_MGR_EJECTED, "%d%b%b%b%b", queueID, reason == CGBattlefieldInfo::EJECTION_REASON::PLAYER_EXIT, relocated != 0, battleStatus == 2, reason == CGBattlefieldInfo::EJECTION_REASON::LOW_LEVEL);
     return 1;
 }
 
