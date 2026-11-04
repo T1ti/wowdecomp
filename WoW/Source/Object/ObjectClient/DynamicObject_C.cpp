@@ -367,7 +367,7 @@ void CGDynamicObject_C::ObjectVisKitProc() {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
         properties.m_fadeInTime = 2.0f;
-        properties.m_loopMode = 1;
+        properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
         SI2::PlaySoundKit(kit->m_soundID, &position, &this->m_soundKit, &properties, 0, nullptr, 1, 0);
     }
 }

@@ -3373,7 +3373,7 @@ static void GameObject_C_PlayAnimatedSound(uint32_t displayId, int32_t index, co
     }
 
     properties.ResetToDefaults();
-    properties.m_loopMode = 1;
+    properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
     properties.m_streaming = true;
     properties.m_software = 1;
     properties.m_maxAudibleBehavior = 0;
@@ -3435,7 +3435,7 @@ void GameObject_C_ProcessAnimEvent(uint32_t eventId, uint32_t displayId, uint32_
                 properties.ResetToDefaults();
                 properties.m_fadeInTime = 1.0f;
                 properties.m_fadeOutTime = 1.0f;
-                properties.m_loopMode = 1;
+                properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
                 properties.m_maxAudibleBehavior = 0;
                 properties.m_streaming = true;
                 properties.m_software = 1;

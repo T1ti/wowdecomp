@@ -2157,7 +2157,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
         properties.m_fadeInTime = 0.5f;
-        properties.m_loopMode = 1;
+        properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
         properties.m_noRandomStart = 1;
         properties.m_maxAudibleBehavior = 0;
         properties.m_streaming = true;

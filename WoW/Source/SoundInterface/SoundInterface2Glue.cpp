@@ -59,7 +59,7 @@ void SI2::StartGlueAmbience(const char* name, float fadeInTime) {
     properties.ResetToDefaults();
     properties.m_fadeInTime = fadeInTime;
     properties.m_group = 2;
-    properties.m_loopMode = 1;
+    properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
     properties.m_decodeBufferSize = 0;
 
     SI2::PlaySoundKit(s_glueAmbienceName, nullptr, &s_glueAmbience, &properties);

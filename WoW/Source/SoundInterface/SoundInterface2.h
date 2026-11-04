@@ -24,6 +24,13 @@ enum SE2_SUPPRESSOR_MODE : int32_t {
     SE2_SUPPRESSOR_MODE_HONOR = 2,
 };
 
+// Per-kit loop choice; the separate m_forceLoop override still takes precedence.
+enum SE2_LOOP_MODE : int32_t {
+    SE2_LOOP_MODE_DEFAULT = 0,
+    SE2_LOOP_MODE_LOOPING = 1,
+    SE2_LOOP_MODE_NONLOOPING = 2,
+};
+
 class SE2SoundKitProperties {
     public:
     /* 0000 */ int32_t m_group;
@@ -33,9 +40,9 @@ class SE2SoundKitProperties {
     /* 0010 */ float m_fadeInTime;
     /* 0014 */ float m_fadeOutTime;
     /* 0018 */ int32_t m_selectMode;
-    /* 001C */ int32_t m_loopMode;
+    /* 001C */ SE2_LOOP_MODE m_loopMode;
     /* 0020 */ int32_t m_priority;
-    /* 0024 */ int32_t m_suppressorMode;
+    /* 0024 */ SE2_SUPPRESSOR_MODE m_suppressorMode;
     /* 0028 */ uint32_t m_decodeBufferSize;
     /* 002C */ float m_maxDistance;
     /* 0030 */ int32_t m_maxAudibleBehavior;

@@ -155,7 +155,7 @@ void SE2SoundKitProperties::ResetToDefaults() {
     this->m_group = 0;
     this->m_selectMode = 2;
     this->m_maxDistance = -1.0f;
-    this->m_loopMode = 0;
+    this->m_loopMode = SE2_LOOP_MODE_DEFAULT;
     this->m_muteFadeSpeed = 0.5f;
     this->m_suppressorMode = SE2_SUPPRESSOR_MODE_DEFAULT;
     this->m_decodeBufferSize = 0;
@@ -774,7 +774,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         }
     } else {
         sound = &localSound;
-        properties->m_loopMode = 2;
+        properties->m_loopMode = SE2_LOOP_MODE_NONLOOPING;
     }
 
     const char* file = def->SelectFile(properties->m_selectMode, nullptr, properties->m_fileIndex, GetDownloadPriority(properties->m_group));
@@ -810,9 +810,9 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
     int32_t looping = 0;
 
-    if (properties->m_loopMode == 0) {
+    if (properties->m_loopMode == SE2_LOOP_MODE_DEFAULT) {
         looping = def->m_flags & 0x200;
-    } else if (properties->m_loopMode == 1) {
+    } else if (properties->m_loopMode == SE2_LOOP_MODE_LOOPING) {
         looping = 1;
     }
 
@@ -831,7 +831,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     SE2::SetSoundGroupMaxAudibleBehavior(def->m_soundGroup, properties->m_maxAudibleBehavior, properties->m_muteFadeSpeed);
 
     if (def->m_advanced && !advancedId) {
-        SI2::AddAdvancedSound(def->m_advanced, soundKitId, position, properties->m_coneOrientation, object, 0, 0, checkDistance, properties->m_loopMode == 1);
+        SI2::AddAdvancedSound(def->m_advanced, soundKitId, position, properties->m_coneOrientation, object, 0, 0, checkDistance, properties->m_loopMode == SE2_LOOP_MODE_LOOPING);
         return 0;
     }
 
@@ -1056,14 +1056,14 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
     properties.m_volumeScale = 0.3f;
-    properties.m_loopMode = 2;
+    properties.m_loopMode = SE2_LOOP_MODE_NONLOOPING;
     properties.m_streaming = false;
     properties.m_blockMusicFiles = 1;
 
     SE2SoundKitProperties loopProperties;
     loopProperties.ResetToDefaults();
     loopProperties.m_volumeScale = 0.3f;
-    loopProperties.m_loopMode = 1;
+    loopProperties.m_loopMode = SE2_LOOP_MODE_LOOPING;
     loopProperties.m_streaming = false;
     loopProperties.m_blockMusicFiles = 1;
 

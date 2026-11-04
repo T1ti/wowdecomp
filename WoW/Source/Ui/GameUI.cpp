@@ -7298,7 +7298,7 @@ void CGGameUI::StartCinematic(int32_t cinematic) {
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
             properties.m_group = 3;
-            properties.m_loopMode = 1;
+            properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
             SI2::PlaySoundKit(CGGameUI::m_cinematic.m_sequence->m_soundID, nullptr, &CGGameUI::m_cinematic.m_music, &properties, 0, nullptr, 1, 0);
         }
 

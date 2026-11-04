@@ -56,7 +56,7 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
             properties.m_fadeInTime = 3.0f;
-            properties.m_loopMode = 1;
+            properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
             properties.m_streaming = true;
             properties.m_software = 1;
             properties.m_maxAudibleBehavior = 0;

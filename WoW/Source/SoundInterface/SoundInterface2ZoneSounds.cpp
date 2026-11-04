@@ -587,7 +587,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     if (!s_zoneAmbience.IsPlaying() || ambienceKitId != s_zoneAmbience.GetPlayingSoundKitId()) {
         properties.ResetToDefaults();
         properties.m_group = 2;
-        properties.m_loopMode = 1;
+        properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
         properties.m_priority = 100;
         properties.m_reverb = 0;
 
