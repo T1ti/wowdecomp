@@ -27,13 +27,13 @@ static int32_t s_menuHotkeysEnabled = 1;
 
 // INLINED
 int32_t COsDialog::OnEvent(int32_t itemId, int32_t notifyCode, int32_t code) {
-    if (this->m_callback) {
+    if (this->m_callbackInfo.function) {
         OsGuiCallbackParams params;
         params.type = itemId;
         params.subType = notifyCode;
         params.code = code;
-        params.user = this->m_callbackParam;
-        this->m_callback(params);
+        params.user = this->m_callbackInfo.userParam;
+        this->m_callbackInfo.function(params);
     }
 
     return 1;

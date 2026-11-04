@@ -60,6 +60,11 @@ struct OsGuiCallbackParams {
 
 typedef void (*OsGuiCallback)(const OsGuiCallbackParams& params);
 
+struct OsGuiCallbackInfo {
+    /* 0000 */ OsGuiCallback function; // Preserve the current callback calling convention.
+    /* 0004 */ void* userParam;
+};
+
 struct OsGuiTVDDInfo {
     /* 0000 */ COsTreeView* treeView;
     /* 0004 */ int32_t action;
@@ -155,8 +160,7 @@ class COsDialog {
     public:
     /* 0004 */ OsGuiHandle m_handle;
     /* 0008 */ void* m_tooltips;
-    /* 000C */ OsGuiCallback m_callback;
-    /* 0010 */ void* m_callbackParam;
+    /* 000C */ OsGuiCallbackInfo m_callbackInfo;
     /* 0014 */ TSGrowableArray<COsControl*> m_controls;
     /* 0024 */ COsControl* m_cancelButton;
     /* 0028 */ int32_t m_trackMouse;
