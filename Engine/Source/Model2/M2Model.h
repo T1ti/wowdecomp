@@ -78,13 +78,18 @@ class SModelBatchLessThan {
 
 class M2ModelCallback {
     public:
-    /* 0000 */ uint32_t m_type;
+    enum TYPE : uint32_t {
+        SEQUENCE = 0,
+        EVENT = 1,
+    };
+
+    /* 0000 */ TYPE m_type; // Selects M2SequenceCallback or M2EventCallback.
     /* 0004 */ CM2Model* m_model;
     /* 0008 */ uint32_t m_boneId;
     /* 000C */ void* m_callback;
     /* 0010 */ uint32_t m_id;
     /* 0014 */ uint32_t m_value;
-    /* 0018 */ uint32_t m_args [3];
+    /* 0018 */ uint32_t m_args [3]; // Sequence: index/start time in the first two words; event: world-position float bits.
     /* 0024 */ uint32_t m_time;
     /* 0028 */ uint64_t m_param;
 };

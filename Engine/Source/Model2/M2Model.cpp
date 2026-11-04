@@ -4889,7 +4889,7 @@ int32_t __stdcall CM2Model::SequenceCallback(void* callback, CM2Model* model, ui
     entry->m_time = time;
     entry->m_args[0] = sequenceIndex;
     entry->m_args[1] = startTime;
-    entry->m_type = 0;
+    entry->m_type = M2ModelCallback::SEQUENCE;
     entry->m_param = param;
     return 1;
 }
@@ -5964,7 +5964,7 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
                             entry->m_callback = this->m_eventCallback;
                             entry->m_value = event->m_data;
                             entry->m_id = event->m_eventId;
-                            entry->m_type = 1;
+                            entry->m_type = M2ModelCallback::EVENT;
                             entry->m_model = this;
                             *reinterpret_cast<C3Vector*>(entry->m_args) = position;
                             entry->m_time = callbackTime - time;
@@ -6441,9 +6441,9 @@ void CM2Model::CallCallbacks() {
     for (uint32_t i = 0; i < count; i++) {
         M2ModelCallback* entry = &CM2Model::s_sequenceCallbacks.m_data[i];
 
-        if (entry->m_type == 0) {
+        if (entry->m_type == M2ModelCallback::SEQUENCE) {
             this->CallSequenceCallback(entry);
-        } else if (entry->m_type == 1) {
+        } else if (entry->m_type == M2ModelCallback::EVENT) {
             M2EventCallback callback = reinterpret_cast<M2EventCallback>(entry->m_callback);
             callback(entry->m_model, entry->m_boneId, entry->m_id, entry->m_value, reinterpret_cast<const C3Vector*>(entry->m_args), entry->m_time, entry->m_param);
         }
