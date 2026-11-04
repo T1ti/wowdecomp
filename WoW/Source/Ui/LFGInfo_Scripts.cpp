@@ -1381,7 +1381,7 @@ static int32_t Script_UnitHasLFGDeserter(lua_State* L) {
 // VERIFY: a86675b0 auto
 // OFFSET: 0x005594E0
 static int32_t Script_SearchLFGLeave(lua_State* L) {
-    if (CGGameUI::CanPerformAction(9)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_LFG)) {
         CGLookingForGroup::LeaveLFGSearch();
     }
 
@@ -1598,7 +1598,7 @@ static int32_t Script_GetLFGProposalEncounter(lua_State* L) {
 // VERIFY: e41907d8 auto
 // OFFSET: 0x005545E0
 static int32_t Script_AcceptProposal(lua_State* L) {
-    if (CGGameUI::CanPerformAction(9)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_LFG)) {
         CGLookingForGroup::ProposalResponse(true);
     }
 
@@ -1897,7 +1897,7 @@ static int32_t Script_SearchLFGJoin(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(9)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_LFG)) {
         return 0;
     }
 

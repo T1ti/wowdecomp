@@ -449,7 +449,7 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
 // VERIFY: b1d9078d manual
 // OFFSET: 0x005D5AD0
 int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3) {
-    if (!CGGameUI::CanPerformAction(14) || (a3 && !CGPetInfo::PetActionsUsable(false))) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || (a3 && !CGPetInfo::PetActionsUsable(false))) {
         return 0;
     }
 
@@ -525,7 +525,7 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t a3
 // VERIFY: f67f93cb manual
 // OFFSET: 0x005D5D20
 void CGPetInfo::SetAutocast(uint32_t index, int32_t enable) {
-    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
         return;
     }
 
@@ -549,7 +549,7 @@ void CGPetInfo::SetAutocast(uint32_t index, int32_t enable) {
 // VERIFY: ad93780d manual
 // OFFSET: 0x005D5E10
 void CGPetInfo::SetSpellAutocast(int32_t spellId, int32_t enable) {
-    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
         return;
     }
 
@@ -639,7 +639,7 @@ bool CGPetInfo::PetActionsUsable(bool ignoreControl) {
 // VERIFY: 06236977 manual
 // OFFSET: 0x005D4210
 void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, int32_t a3) {
-    if (!CGGameUI::CanPerformAction(UI_ACTION_CAST_SPELL)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL)) {
         return;
     }
 

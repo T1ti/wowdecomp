@@ -1350,7 +1350,7 @@ uint32_t GetJoystick() {
 void DescendStart() {
     CGInputControl* inputControl = CGInputControl::s_inputControl;
 
-    if (CGGameUI::CanPerformAction(0)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
         uint32_t time = CSimpleTop::s_eventTime;
 
         if (inputControl->SetControlBit(INPUT_DESCEND_PLAYER_KEY, time)) {

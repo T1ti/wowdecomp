@@ -222,7 +222,7 @@ static int32_t Script_CancelAuction(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(8)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_AUCTION)) {
         return 0;
     }
 
@@ -908,7 +908,7 @@ static int32_t Script_PlaceAuctionBid(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(8)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_AUCTION)) {
         return 0;
     }
 

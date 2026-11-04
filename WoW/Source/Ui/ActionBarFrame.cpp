@@ -1072,7 +1072,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
         return;
     }
 
-    if (!CGGameUI::CanPerformAction(14)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION)) {
         CGGameUI::ClearCursor(1, 1);
         return;
     }
@@ -2003,7 +2003,7 @@ bool CGActionBar::IsEquipmentSetValid(int32_t setId) {
 // VERIFY: 82e513fa manual
 // OFFSET: 0x005ABE70
 void CGActionBar::PickupAction(uint32_t slot) {
-    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1) || !CGGameUI::CanPerformAction(14) || (slot >= 120 && slot < CGActionBar::MULTICAST_ACTION_FIRST)) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1) || !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || (slot >= 120 && slot < CGActionBar::MULTICAST_ACTION_FIRST)) {
         return;
     }
 

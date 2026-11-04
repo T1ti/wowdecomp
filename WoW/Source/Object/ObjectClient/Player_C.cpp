@@ -4601,7 +4601,7 @@ void CGPlayer_C::PlayerInitializeMessageHandlers() {
 // VERIFY: ea8acbe5 manual
 // OFFSET: 0x006E4950
 void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int32_t silent) {
-    if (!CGGameUI::CanPerformAction(1)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ATTACK)) {
         return;
     }
 
@@ -8268,7 +8268,7 @@ void CGPlayer_C::ToggleSheathe() {
 // VERIFY: b949cd28 manual
 // OFFSET: 0x006E2610
 void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
-    if (!CGGameUI::CanPerformAction(1)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ATTACK)) {
         return;
     }
 
@@ -10025,7 +10025,7 @@ void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot,
 
     WOWGUID self = this->m_obj->m_guid;
 
-    if ((srcContainer == self || dstContainer == self) && !CGGameUI::CanPerformAction(22)) {
+    if ((srcContainer == self || dstContainer == self) && !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EQUIP_ITEM)) {
         return;
     }
 
@@ -10172,7 +10172,7 @@ static void AutoEquipStatsCallback(int32_t id, const WOWGUID& guid, void* param,
 // VERIFY: 2b35572b manual
 // OFFSET: 0x006DFC40
 void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
-    if (!CGGameUI::CanPerformAction(22)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EQUIP_ITEM)) {
         return;
     }
 
@@ -11184,7 +11184,7 @@ void CGPlayer_C::AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, int32_t igno
         return;
     }
 
-    if (!CGGameUI::CanPerformAction(22)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EQUIP_ITEM)) {
         return;
     }
 

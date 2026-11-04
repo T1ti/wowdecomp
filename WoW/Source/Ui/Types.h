@@ -1488,9 +1488,33 @@ enum UIErrors {
     EVENT(CHAT_MSG_BN_INLINE_TOAST_CONVERSATION, 721)
 
 // Action indices used by the native spell/tradeskill permission paths.
+// Descriptive protected-action selectors. UNKNOWN values retain native handled IDs.
+// CHAT has a verified producer and follows the default permission branch.
 enum UI_ACTION : uint32_t {
+    UI_ACTION_MOVEMENT = 0,
+    UI_ACTION_ATTACK = 1,
     UI_ACTION_CAST_SPELL = 2,
+    UI_ACTION_RUN_MACRO = 3,
+    UI_ACTION_PARTY_ASSIGNMENT = 4,
+    UI_ACTION_UNKNOWN_5 = 5,
     UI_ACTION_TRADE_SKILL = 6,
+    UI_ACTION_TRADE_ACCEPT = 7,
+    UI_ACTION_AUCTION = 8,
+    UI_ACTION_LFG = 9,
+    UI_ACTION_CHAT = 10,
+    UI_ACTION_RAID_SUBGROUP = 11,
+    UI_ACTION_EDIT_MACRO = 12,
+    UI_ACTION_BINDING = 13,
+    UI_ACTION_ACTION_MANIPULATION = 14,
+    UI_ACTION_UNKNOWN_15 = 15,
+    UI_ACTION_UNKNOWN_16 = 16,
+    UI_ACTION_GM_TICKET = 17,
+    UI_ACTION_UNKNOWN_18 = 18,
+    UI_ACTION_CALENDAR_EVENT = 19,
+    UI_ACTION_BATTLEFIELD_PORT = 20,
+    UI_ACTION_UNKNOWN_21 = 21,
+    UI_ACTION_EQUIP_ITEM = 22,
+    UI_ACTION_UNKNOWN_23 = 23,
 };
 
 constexpr uint32_t UI_ACTION_MASK_CAST_SPELL = 1u << UI_ACTION_CAST_SPELL;

@@ -1636,7 +1636,7 @@ int32_t CGSpellBook::GetSpellRankOrLevel(const SpellRec* spell) {
 // VERIFY: 97097f8a manual
 // OFFSET: 0x0053BAF0
 void CGSpellBook::PickupSpell(int32_t slot, int32_t petSpell) {
-    if (!CGGameUI::CanPerformAction(14)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION)) {
         return;
     }
 
@@ -1671,7 +1671,7 @@ void CGSpellBook::PickupSpell(int32_t slot, int32_t petSpell) {
 // VERIFY: e86b1382 auto
 // OFFSET: 0x0053BBC0
 void CGSpellBook::PickupCompanion(int32_t type, uint32_t index) {
-    if (!CGGameUI::CanPerformAction(14) || index >= CGSpellBook::m_companions[type].m_count) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || index >= CGSpellBook::m_companions[type].m_count) {
         return;
     }
 

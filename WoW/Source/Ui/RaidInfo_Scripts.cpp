@@ -393,7 +393,7 @@ static int32_t Script_SetRaidSubgroup(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(11)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_RAID_SUBGROUP)) {
         return 0;
     }
 
@@ -435,7 +435,7 @@ static int32_t Script_SwapRaidSubgroup(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(11)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_RAID_SUBGROUP)) {
         return 0;
     }
 

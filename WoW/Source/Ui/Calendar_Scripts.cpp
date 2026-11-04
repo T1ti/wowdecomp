@@ -1506,7 +1506,7 @@ static int32_t Script_CalendarEventGetSelectedInvite(lua_State* L) {
 // VERIFY: a3403abe auto
 // OFFSET: 0x005BCC70
 static int32_t Script_CalendarAddEvent(lua_State* L) {
-    if ((unk_BD09AC && unk_BD09AC->m_intValue) || CGGameUI::CanPerformAction(19)) {
+    if ((unk_BD09AC && unk_BD09AC->m_intValue) || CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CALENDAR_EVENT)) {
         CGCalendar::AddEvent();
     }
 
@@ -1564,7 +1564,7 @@ static int32_t Script_CalendarMassInviteArenaTeam(lua_State* L) {
 // VERIFY: a049e522 auto
 // OFFSET: 0x005BCED0
 static int32_t Script_CalendarUpdateEvent(lua_State* L) {
-    if ((unk_BD09AC && unk_BD09AC->m_intValue) || CGGameUI::CanPerformAction(19)) {
+    if ((unk_BD09AC && unk_BD09AC->m_intValue) || CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CALENDAR_EVENT)) {
         CGCalendar::UpdateEvent();
     }
 

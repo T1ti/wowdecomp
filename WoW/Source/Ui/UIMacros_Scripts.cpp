@@ -23,7 +23,7 @@
 // VERIFY: 3dacc7a5 auto
 // OFFSET: 0x00564B90
 static int32_t Script_StopMacro(lua_State* L) {
-    if (CGGameUI::CanPerformAction(3)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_RUN_MACRO)) {
         CGUIMacros::m_macroButton = nullptr;
         CGUIMacros::m_macroRunning = nullptr;
     }
@@ -313,7 +313,7 @@ static int32_t Script_GetMacroBody(lua_State* L) {
 // VERIFY: 83e2ca27 auto
 // OFFSET: 0x00566F70
 static int32_t Script_DeleteMacro(lua_State* L) {
-    if (CGGameUI::CanPerformAction(12)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EDIT_MACRO)) {
         MACRONODE* macro = GetMacroFromLua(L);
 
         if (macro) {
@@ -327,7 +327,7 @@ static int32_t Script_DeleteMacro(lua_State* L) {
 // VERIFY: 5b5c7cba manual
 // OFFSET: 0x00566FA0
 static int32_t Script_EditMacro(lua_State* L) {
-    if (!CGGameUI::CanPerformAction(12)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EDIT_MACRO)) {
         return 0;
     }
 
@@ -457,7 +457,7 @@ static int32_t Script_GetMacroItem(lua_State* L) {
 // VERIFY: 0a84a578 auto
 // OFFSET: 0x005674F0
 static int32_t Script_PickupMacro(lua_State* L) {
-    if (CGGameUI::CanPerformAction(14)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION)) {
         MACRONODE* macro = GetMacroFromLua(L);
 
         if (macro) {
@@ -476,7 +476,7 @@ static int32_t Script_CreateMacro(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(12)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EDIT_MACRO)) {
         return 0;
     }
 

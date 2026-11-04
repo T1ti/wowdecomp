@@ -930,7 +930,7 @@ static int32_t Script_AcceptBattlefieldPort(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(20)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BATTLEFIELD_PORT)) {
         return 0;
     }
 

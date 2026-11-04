@@ -751,7 +751,7 @@ void CGUIBindings::AdjustCommandKeyIndices(BINDING_SET set, BINDING_MODE mode, c
 // VERIFY: db6813cd manual
 // OFFSET: 0x00562ED0
 int32_t CGUIBindings::Bind(BINDING_SET set, BINDING_MODE mode, const char* key, const char* command) {
-    if (!CGGameUI::CanPerformAction(13)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BINDING)) {
         return 0;
     }
 
@@ -830,7 +830,7 @@ int32_t CGUIBindings::Bind(BINDING_SET set, BINDING_MODE mode, const char* key, 
 // VERIFY: ede45eb3 auto
 // OFFSET: 0x005604F0
 void CGUIBindings::ClearOverrideBindings(void* owner, bool checkPermission) {
-    if (checkPermission && !CGGameUI::CanPerformAction(13)) {
+    if (checkPermission && !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BINDING)) {
         return;
     }
 
@@ -900,7 +900,7 @@ CSimpleFrame* GetClickFrame(lua_State* L, const char* name, uint32_t length) {
 // VERIFY: d1b98282 manual
 // OFFSET: 0x00562B80
 void CGUIBindings::CopyBindings(BINDING_SET source, BINDING_SET dest) {
-    if (!CGGameUI::CanPerformAction(13)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BINDING)) {
         return;
     }
 
@@ -944,7 +944,7 @@ void CGUIBindings::EnableBindingMode(BINDING_MODE mode, int32_t enable) {
         return;
     }
 
-    if (!CGGameUI::CanPerformAction(13)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BINDING)) {
         return;
     }
 
@@ -1628,7 +1628,7 @@ void CGUIBindings::SaveBindings(BINDING_SET set, HOSFILE file) {
 // VERIFY: 39c35a34 manual
 // OFFSET: 0x00563480
 void CGUIBindings::SetOverrideBinding(void* owner, int32_t priority, const char* key, const char* command, bool checkPermission) {
-    if (checkPermission && !CGGameUI::CanPerformAction(13)) {
+    if (checkPermission && !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_BINDING)) {
         return;
     }
 

@@ -41,7 +41,7 @@ static const char* s_channelCategories[DisplayChannel::HEADER_INDEX::NUM_HEADERS
 // VERIFY: 3ea62573 manual
 // OFFSET: 0x0050D170
 static int32_t Script_SendChatMessage(lua_State* L) {
-    if (!CGGameUI::CanPerformAction(10)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CHAT)) {
         return 0;
     }
 

@@ -23,7 +23,7 @@
 // VERIFY: 35618cea auto
 // OFFSET: 0x00586730
 static int32_t Script_CancelTradeAccept(lua_State* L) {
-    if (CGGameUI::CanPerformAction(7) && CGTradeInfo::m_playerAccepted) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_TRADE_ACCEPT) && CGTradeInfo::m_playerAccepted) {
         CGTradeInfo::m_playerAccepted = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_TRADE_ACCEPT_UPDATE, "%d%d", 0, CGTradeInfo::m_targetAccepted);
         Trade_C_UnacceptTrade();
@@ -87,7 +87,7 @@ static int32_t Script_GetTradeTargetItemLink(lua_State* L) {
 // VERIFY: 54f3c718 auto
 // OFFSET: 0x005866E0
 static int32_t Script_AcceptTrade(lua_State* L) {
-    if (CGGameUI::CanPerformAction(7) && CGTradeInfo::m_playerAccepted != 1) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_TRADE_ACCEPT) && CGTradeInfo::m_playerAccepted != 1) {
         CGTradeInfo::m_playerAccepted = 1;
         FrameScript_SignalEvent(SCRIPT_EVENT_TRADE_ACCEPT_UPDATE, "%d%d", 1, CGTradeInfo::m_targetAccepted);
         Trade_C_AcceptTrade();

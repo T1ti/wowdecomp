@@ -1619,27 +1619,27 @@ void CGGameUI::TargetDirection(float facing, float angle, int32_t type) {
 int32_t CGGameUI::CanPerformAction(uint32_t action) {
     if (lua_tainted) {
         switch (action) {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 16:
-            case 17:
+            case UI_ACTION::UI_ACTION_MOVEMENT:
+            case UI_ACTION::UI_ACTION_ATTACK:
+            case UI_ACTION::UI_ACTION_CAST_SPELL:
+            case UI_ACTION::UI_ACTION_RUN_MACRO:
+            case UI_ACTION::UI_ACTION_PARTY_ASSIGNMENT:
+            case UI_ACTION::UI_ACTION_UNKNOWN_5:
+            case UI_ACTION::UI_ACTION_UNKNOWN_16:
+            case UI_ACTION::UI_ACTION_GM_TICKET:
                 CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
                 return 0;
 
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 15:
-            case 18:
-            case 19:
-            case 20:
-            case 21:
-            case 23:
+            case UI_ACTION::UI_ACTION_TRADE_SKILL:
+            case UI_ACTION::UI_ACTION_TRADE_ACCEPT:
+            case UI_ACTION::UI_ACTION_AUCTION:
+            case UI_ACTION::UI_ACTION_LFG:
+            case UI_ACTION::UI_ACTION_UNKNOWN_15:
+            case UI_ACTION::UI_ACTION_UNKNOWN_18:
+            case UI_ACTION::UI_ACTION_CALENDAR_EVENT:
+            case UI_ACTION::UI_ACTION_BATTLEFIELD_PORT:
+            case UI_ACTION::UI_ACTION_UNKNOWN_21:
+            case UI_ACTION::UI_ACTION_UNKNOWN_23:
                 if (!CGGameUI::m_simpleTop) {
                     return 1;
                 }
@@ -1651,11 +1651,11 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
 
                 break;
 
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 22:
+            case UI_ACTION::UI_ACTION_RAID_SUBGROUP:
+            case UI_ACTION::UI_ACTION_EDIT_MACRO:
+            case UI_ACTION::UI_ACTION_BINDING:
+            case UI_ACTION::UI_ACTION_ACTION_MANIPULATION:
+            case UI_ACTION::UI_ACTION_EQUIP_ITEM:
                 if (!CGGameUI::m_simpleTop) {
                     return 1;
                 }

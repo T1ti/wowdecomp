@@ -8361,7 +8361,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     int32_t effect = spell.m_effect[0];
 
     if (effect != SPELL_EFFECT_DUEL && effect != SPELL_EFFECT_SUMMON_RAF_FRIEND && effect != SPELL_EFFECT_TALENT_SPEC_SELECT && !CGSpellBook::IsTrackingSpell(spellId) && !SpellRec::WillSummonCritter(&spell)) {
-        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION_TRADE_SKILL : UI_ACTION_CAST_SPELL;
+        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION::UI_ACTION_TRADE_SKILL : UI_ACTION::UI_ACTION_CAST_SPELL;
 
         if (!CGGameUI::CanPerformAction(action)) {
             ReleasePendingSpellCast(cast);
@@ -8371,7 +8371,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
 
     effect = spell.m_effect[0];
 
-    if (spell.m_startRecoveryTime && !CGUIMacros::IsActionAllowed(UI_ACTION_CAST_SPELL)) {
+    if (spell.m_startRecoveryTime && !CGUIMacros::IsActionAllowed(UI_ACTION::UI_ACTION_CAST_SPELL)) {
         ReleasePendingSpellCast(cast);
         return false;
     }
@@ -8646,7 +8646,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
     uint32_t needTargets = s_needTargets;
 
     if (spell.m_effect[0] != SPELL_EFFECT_DUEL) {
-        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION_TRADE_SKILL : UI_ACTION_CAST_SPELL;
+        uint32_t action = spell.m_effect[0] == SPELL_EFFECT_TRADE_SKILL || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_IS_TRADESKILL) ? UI_ACTION::UI_ACTION_TRADE_SKILL : UI_ACTION::UI_ACTION_CAST_SPELL;
 
         if (!CGGameUI::CanPerformAction(action)) {
             return false;

@@ -895,7 +895,7 @@ void CGUIMacros::RunMacro(MACRONODE* macro, const char* button) {
     MACRONODE* savedMacro = CGUIMacros::m_macroButton;
     const char* savedButton = CGUIMacros::m_macroRunning;
 
-    if (!CGGameUI::CanPerformAction(3) || !macro) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_RUN_MACRO) || !macro) {
         return;
     }
 
@@ -922,7 +922,7 @@ void CGUIMacros::RunMacro(MACRONODE* macro, const char* button) {
         } while (text);
     }
 
-    if (CGGameUI::CanPerformAction(3)) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_RUN_MACRO)) {
         CGUIMacros::m_macroButton = savedMacro;
         CGUIMacros::m_macroRunning = savedButton;
     }

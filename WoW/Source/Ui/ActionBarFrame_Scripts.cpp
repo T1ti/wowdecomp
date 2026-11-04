@@ -321,7 +321,7 @@ static int32_t Script_ChangeActionBarPage(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(14) || static_cast<uint32_t>(page) == CGActionBar::m_currentPage) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || static_cast<uint32_t>(page) == CGActionBar::m_currentPage) {
         return 0;
     }
 
@@ -597,7 +597,7 @@ static int32_t Script_SetMultiCastSpell(lua_State* L) {
         return 0;
     }
 
-    if (!CGGameUI::CanPerformAction(14)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION)) {
         return 0;
     }
 

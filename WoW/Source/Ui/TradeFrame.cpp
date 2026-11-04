@@ -317,7 +317,7 @@ int32_t CGTradeInfo::GetGameError(int32_t error, int32_t target) {
 // VERIFY: fa685c0b auto
 // OFFSET: 0x00586930
 void CGTradeInfo::PlayerAccept() {
-    if (CGGameUI::CanPerformAction(7) && CGTradeInfo::m_playerAccepted) {
+    if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_TRADE_ACCEPT) && CGTradeInfo::m_playerAccepted) {
         CGTradeInfo::m_playerAccepted = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_TRADE_ACCEPT_UPDATE, "%d%d", 0, CGTradeInfo::m_targetAccepted);
         Trade_C_UnacceptTrade();

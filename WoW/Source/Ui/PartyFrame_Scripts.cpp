@@ -407,7 +407,7 @@ static int32_t Script_SetLootMethod(lua_State* L) {
 // VERIFY: dcbd648d manual
 // OFFSET: 0x0052DF40
 static int32_t SetOrClearAssignment(lua_State* L, bool set) {
-    if (set && !CGGameUI::CanPerformAction(4)) {
+    if (set && !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_PARTY_ASSIGNMENT)) {
         return 0;
     }
 
