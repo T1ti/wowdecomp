@@ -477,7 +477,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
             }
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-                float height = (liquid->m_height.y + liquid->m_height.x) * 0.5f;
+                float height = (liquid->m_height.m_h + liquid->m_height.m_l) * 0.5f;
                 LiquidChunkAndDistance* entry = chunks.New();
                 entry->m_chunk = chunk;
                 entry->m_liquid = liquid;
@@ -502,7 +502,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
             CMapChunk* chunk = entry->m_chunk;
             float dx = chunk->m_topLeftCoords.x - pos->x;
             float dy = chunk->m_topLeftCoords.y - pos->y;
-            float dz = (liquid->m_height.y + liquid->m_height.x) * 0.5f - pos->z;
+            float dz = (liquid->m_height.m_h + liquid->m_height.m_l) * 0.5f - pos->z;
 
             for (uint32_t row = 0; row < 8; row++) {
                 for (uint32_t col = 0; col < 8; col++) {
@@ -558,7 +558,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
 
             float dx = chunk->m_topLeftCoords.x - static_cast<float>(tileRowStart) * SMOLTILE_SIZE - HALF_SMOLTILE_SIZE - pos->x;
             float dy = chunk->m_topLeftCoords.y - static_cast<float>(tileColStart) * SMOLTILE_SIZE - HALF_SMOLTILE_SIZE - pos->y;
-            float dz = (liquid->m_height.y + liquid->m_height.x) * 0.5f - pos->z;
+            float dz = (liquid->m_height.m_h + liquid->m_height.m_l) * 0.5f - pos->z;
 
             int32_t colBegin = tileColStart - liquid->m_tileBegin.y;
             int32_t colEnd = tileColEnd - liquid->m_tileBegin.y;

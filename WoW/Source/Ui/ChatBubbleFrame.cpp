@@ -299,18 +299,18 @@ CGChatBubbleFrame::CGChatBubbleFrame(CSimpleFrame* parent) : CSimpleFrame(parent
 
     void* data = SMemAlloc(sizeof(CBackdropGenerator), __FILE__, __LINE__, 0);
     CBackdropGenerator* backdrop = data ? new (data) CBackdropGenerator() : nullptr;
-    backdrop->m_bgFile.Copy("Interface\\Tooltips\\ChatBubble-Background");
+    backdrop->m_background.Copy("Interface\\Tooltips\\ChatBubble-Background");
     backdrop->m_pieces = CBackdropGenerator::BACKDROPPIECES::THEWORKS;
-    backdrop->m_tile = 1;
-    backdrop->m_edgeFile.Copy("Interface\\Tooltips\\ChatBubble-Backdrop");
+    backdrop->m_tileBackground = 1;
+    backdrop->m_border.Copy("Interface\\Tooltips\\ChatBubble-Backdrop");
     backdrop->m_alphaMode = GxBlend_Alpha;
     float inset = NDCToDDCWidth(16.0f / (CoordinateGetAspectCompensation() * 1024.0f));
-    backdrop->m_insetLeft = inset;
-    backdrop->m_insetRight = inset;
-    backdrop->m_insetTop = inset;
-    backdrop->m_insetBottom = inset;
-    backdrop->m_edgeSize = NDCToDDCWidth(16.0f / (CoordinateGetAspectCompensation() * 1024.0f));
-    backdrop->m_tileSize = NDCToDDCWidth(16.0f / (CoordinateGetAspectCompensation() * 1024.0f));
+    backdrop->m_leftInset = inset;
+    backdrop->m_rightInset = inset;
+    backdrop->m_topInset = inset;
+    backdrop->m_bottomInset = inset;
+    backdrop->m_cornerSize = NDCToDDCWidth(16.0f / (CoordinateGetAspectCompensation() * 1024.0f));
+    backdrop->m_backgroundSize = NDCToDDCWidth(16.0f / (CoordinateGetAspectCompensation() * 1024.0f));
     this->SetBackdrop(backdrop);
 
     void* textureData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
