@@ -83,18 +83,18 @@ void CGBarberShop::AppearanceApplied() {
 // VERIFY: 1f780087 auto
 // OFFSET: 0x0052E5B0
 int32_t Packet_SMSG_BARBER_SHOP_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint32_t result = 0xFFFFFFFF;
+    uint32_t result = CGBarberShop::APPLY_RESULT::BARBER_RESULT_NOT_READ;
     msg->Get(result);
 
     switch (result) {
-        case 0:
+        case CGBarberShop::APPLY_RESULT::BARBER_SUCCESS:
             FrameScript_SignalEvent(SCRIPT_EVENT_BARBER_SHOP_SUCCESS, nullptr);
             break;
-        case 1:
-        case 3:
+        case CGBarberShop::APPLY_RESULT::BARBER_UI_NOT_ENOUGH_MONEY_1:
+        case CGBarberShop::APPLY_RESULT::BARBER_UI_NOT_ENOUGH_MONEY_3:
             CGGameUI::DisplayError(ERR_NOT_ENOUGH_MONEY);
             break;
-        case 2:
+        case CGBarberShop::APPLY_RESULT::BARBER_UI_NOT_SITTING:
             CGGameUI::DisplayError(ERR_NOT_BARBER_SITTING);
             break;
         default:
