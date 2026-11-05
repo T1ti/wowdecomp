@@ -660,7 +660,7 @@ void CM2SceneRender::DrawBatchDoodad(M2Element* elements, uint32_t* indices) {
                 instances = total - done;
             }
 
-            CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 32, instances * this->m_curSkinSection->m_vertexCount);
+            CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), instances * this->m_curSkinSection->m_vertexCount);
             uint8_t* vertices = reinterpret_cast<uint8_t*>(g_theGxDevicePtr->BufLock(buf));
 
             if (!vertices) {
@@ -674,7 +674,7 @@ void CM2SceneRender::DrawBatchDoodad(M2Element* elements, uint32_t* indices) {
                 CM2Model* model = elements[indices[done + n]].m_model;
                 CM2Model::s_transformVertices[section->m_boneInfluences](model, section, vertices, 0);
                 section = this->m_curSkinSection;
-                vertices += 32 * section->m_vertexCount;
+                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * section->m_vertexCount;
 
                 if (!normalize) {
                     const C44Matrix& bone = model->m_boneMatrices[this->m_data->m_boneCombos[section->m_boneComboIndex]];

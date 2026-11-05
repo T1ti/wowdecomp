@@ -2693,7 +2693,7 @@ int32_t CM2Model::SetIndices() {
 // VERIFY: d0a96bb9 manual
 // OFFSET: 0x00829160
 int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* section, int32_t texCoord) {
-    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 32, section->m_vertexCount);
+    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), section->m_vertexCount);
     uint8_t* vertices = reinterpret_cast<uint8_t*>(g_theGxDevicePtr->BufLock(buf));
 
     if (!vertices) {
@@ -2710,7 +2710,7 @@ int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* section, int32_t
             if (this->m_skinSections[sectionIndex]) {
                 M2SkinSection* batchSection = &skin->m_skinSections[sectionIndex];
                 CM2Model::s_transformVertices[batchSection->m_boneInfluences](this, batchSection, vertices, texCoord);
-                vertices += 32 * batchSection->m_vertexCount;
+                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * batchSection->m_vertexCount;
             }
         }
     } else {
@@ -3095,9 +3095,9 @@ void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, ui
     const C44Matrix* bones = model->m_boneMatrices;
     M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
     M2Vertex* end = vertex + section->m_vertexCount;
-    float* out = reinterpret_cast<float*>(vertices);
+    CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
-    for (; vertex < end; vertex++, out += 8) {
+    for (; vertex < end; vertex++, out++) {
         if (*reinterpret_cast<uint32_t*>(&vertex->m_weights) != weights || *reinterpret_cast<uint32_t*>(&vertex->m_indices) != indices) {
             weights = *reinterpret_cast<uint32_t*>(&vertex->m_weights);
             indices = *reinterpret_cast<uint32_t*>(&vertex->m_indices);
@@ -3136,14 +3136,14 @@ void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, ui
         }
 
         C3Vector position = vertex->m_position * matrix;
-        out[0] = position.x;
-        out[1] = position.y;
-        out[2] = position.z;
-        out[3] = vertex->m_normal.y * matrix.b0 + matrix.c0 * vertex->m_normal.z + matrix.a0 * vertex->m_normal.x;
-        out[4] = vertex->m_normal.y * matrix.b1 + matrix.c1 * vertex->m_normal.z + matrix.a1 * vertex->m_normal.x;
-        out[5] = vertex->m_normal.y * matrix.b2 + matrix.c2 * vertex->m_normal.z + matrix.a2 * vertex->m_normal.x;
-        out[6] = vertex->m_texcoord[texCoord].x;
-        out[7] = vertex->m_texcoord[texCoord].y;
+        out->p.x = position.x;
+        out->p.y = position.y;
+        out->p.z = position.z;
+        out->n.x = vertex->m_normal.y * matrix.b0 + matrix.c0 * vertex->m_normal.z + matrix.a0 * vertex->m_normal.x;
+        out->n.y = vertex->m_normal.y * matrix.b1 + matrix.c1 * vertex->m_normal.z + matrix.a1 * vertex->m_normal.x;
+        out->n.z = vertex->m_normal.y * matrix.b2 + matrix.c2 * vertex->m_normal.z + matrix.a2 * vertex->m_normal.x;
+        out->tc[0].x = vertex->m_texcoord[texCoord].x;
+        out->tc[0].y = vertex->m_texcoord[texCoord].y;
     }
 }
 
@@ -3153,18 +3153,18 @@ void CM2Model::TransformVerticesOneBone_cpp(CM2Model* model, M2SkinSection* sect
     const C44Matrix* bones = model->m_boneMatrices;
     M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
     M2Vertex* end = vertex + section->m_vertexCount;
-    float* out = reinterpret_cast<float*>(vertices);
+    CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
-    for (; vertex < end; vertex++, out += 8) {
+    for (; vertex < end; vertex++, out++) {
         const C44Matrix& bone = bones[vertex->m_indices.b[0]];
-        out[0] = bone.c0 * vertex->m_position.z + vertex->m_position.y * bone.b0 + vertex->m_position.x * bone.a0 + bone.d0;
-        out[1] = vertex->m_position.x * bone.a1 + vertex->m_position.y * bone.b1 + bone.c1 * vertex->m_position.z + bone.d1;
-        out[2] = vertex->m_position.x * bone.a2 + vertex->m_position.y * bone.b2 + bone.c2 * vertex->m_position.z + bone.d2;
-        out[3] = vertex->m_normal.x * bone.a0 + bone.c0 * vertex->m_normal.z + bone.b0 * vertex->m_normal.y;
-        out[4] = bone.c1 * vertex->m_normal.z + bone.b1 * vertex->m_normal.y + bone.a1 * vertex->m_normal.x;
-        out[5] = bone.c2 * vertex->m_normal.z + bone.b2 * vertex->m_normal.y + bone.a2 * vertex->m_normal.x;
-        out[6] = vertex->m_texcoord[texCoord].x;
-        out[7] = vertex->m_texcoord[texCoord].y;
+        out->p.x = bone.c0 * vertex->m_position.z + vertex->m_position.y * bone.b0 + vertex->m_position.x * bone.a0 + bone.d0;
+        out->p.y = vertex->m_position.x * bone.a1 + vertex->m_position.y * bone.b1 + bone.c1 * vertex->m_position.z + bone.d1;
+        out->p.z = vertex->m_position.x * bone.a2 + vertex->m_position.y * bone.b2 + bone.c2 * vertex->m_position.z + bone.d2;
+        out->n.x = vertex->m_normal.x * bone.a0 + bone.c0 * vertex->m_normal.z + bone.b0 * vertex->m_normal.y;
+        out->n.y = bone.c1 * vertex->m_normal.z + bone.b1 * vertex->m_normal.y + bone.a1 * vertex->m_normal.x;
+        out->n.z = bone.c2 * vertex->m_normal.z + bone.b2 * vertex->m_normal.y + bone.a2 * vertex->m_normal.x;
+        out->tc[0].x = vertex->m_texcoord[texCoord].x;
+        out->tc[0].y = vertex->m_texcoord[texCoord].y;
     }
 }
 
@@ -3181,7 +3181,7 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
     const C44Matrix* bones = model->m_boneMatrices;
     M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
     M2Vertex* end = vertex + section->m_vertexCount;
-    float* out = reinterpret_cast<float*>(vertices);
+    CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
     __m128 row0;
     __m128 row1;
     __m128 row2;
@@ -3211,12 +3211,12 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
 
         __m128 normal = _mm_add_ps(_mm_add_ps(_mm_mul_ps(_mm_set1_ps(vertex->m_normal.x), row0), _mm_mul_ps(_mm_set1_ps(vertex->m_normal.y), row1)), _mm_mul_ps(_mm_set1_ps(vertex->m_normal.z), row2));
         __m128 position = _mm_add_ps(_mm_add_ps(_mm_add_ps(_mm_mul_ps(_mm_set1_ps(vertex->m_position.x), row0), _mm_mul_ps(_mm_set1_ps(vertex->m_position.y), row1)), _mm_mul_ps(_mm_set1_ps(vertex->m_position.z), row2)), row3);
-        _mm_store_ps(&out[0], position);
-        _mm_storeu_ps(&out[3], normal);
-        out[6] = vertex->m_texcoord[texCoord].x;
-        out[7] = vertex->m_texcoord[texCoord].y;
+        _mm_store_ps(&out->p.x, position);
+        _mm_storeu_ps(&out->n.x, normal);
+        out->tc[0].x = vertex->m_texcoord[texCoord].x;
+        out->tc[0].y = vertex->m_texcoord[texCoord].y;
         vertex++;
-        out += 8;
+        out++;
     }
 }
 
@@ -3231,19 +3231,19 @@ void CM2Model::TransformVerticesOneBone_sse(CM2Model* model, M2SkinSection* sect
     const C44Matrix* bones = model->m_boneMatrices;
     M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
     M2Vertex* end = vertex + section->m_vertexCount;
-    float* out = reinterpret_cast<float*>(vertices);
+    CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
-    for (; vertex < end; vertex++, out += 8) {
+    for (; vertex < end; vertex++, out++) {
         const float* bone = reinterpret_cast<const float*>(&bones[vertex->m_indices.b[0]]);
         __m128 row0 = _mm_load_ps(&bone[0]);
         __m128 row1 = _mm_load_ps(&bone[4]);
         __m128 row2 = _mm_load_ps(&bone[8]);
         __m128 position = _mm_add_ps(_mm_add_ps(_mm_mul_ps(row2, _mm_set1_ps(vertex->m_position.z)), _mm_add_ps(_mm_mul_ps(row1, _mm_set1_ps(vertex->m_position.y)), _mm_mul_ps(row0, _mm_set1_ps(vertex->m_position.x)))), _mm_load_ps(&bone[12]));
         __m128 normal = _mm_add_ps(_mm_add_ps(_mm_mul_ps(row0, _mm_set1_ps(vertex->m_normal.x)), _mm_mul_ps(row1, _mm_set1_ps(vertex->m_normal.y))), _mm_mul_ps(_mm_set1_ps(vertex->m_normal.z), row2));
-        _mm_store_ps(&out[0], position);
-        _mm_storeu_ps(&out[3], normal);
-        out[6] = vertex->m_texcoord[texCoord].x;
-        out[7] = vertex->m_texcoord[texCoord].y;
+        _mm_store_ps(&out->p.x, position);
+        _mm_storeu_ps(&out->n.x, normal);
+        out->tc[0].x = vertex->m_texcoord[texCoord].x;
+        out->tc[0].y = vertex->m_texcoord[texCoord].y;
     }
 }
 
