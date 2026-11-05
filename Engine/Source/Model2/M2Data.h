@@ -134,7 +134,7 @@ class M2Color {
 
 class M2Texture {
     public:
-    /* 0000 */ uint32_t m_type;
+    /* 0000 */ M2TEXTURETYPE m_type;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ M2Array<char> m_filename;
 };
