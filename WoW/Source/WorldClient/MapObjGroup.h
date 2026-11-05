@@ -133,6 +133,16 @@ class CMapObjOccluder {
 
 class CMapObjGroup {
     public:
+    // Runtime word at +0x198; separate from the WMO group file flags.
+    // Init clears only the low state nibble; Clear removes only LOADED.
+    enum RUNTIME_FLAGS : uint32_t {
+        LOADED = 1,
+        TRANS_VERTEX_ATTENUATION_HANDLED = 0x2,
+        ALL_BATCHES_OPAQUE = 0x4,
+        EXTENDED_VERTEX_FORMAT = 0x8,
+        RUNTIME_STATE_MASK = 0xF,
+    };
+
     bool QueryLighting(const C3Vector& point, uint16_t face, CImVector* color, uint8_t* flag);
     struct VertArray {
         /* 0000 */ TSLink<VertArray> m_link;

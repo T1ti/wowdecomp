@@ -956,7 +956,7 @@ int32_t CMapObjGroup::FindLiquidType() {
 // VERIFY: f0e93fe5 auto
 // OFFSET: 0x007C9BC0
 void CMapObjGroup::Init() {
-    this->m_unkLoadedFlag &= ~0xF;
+    this->m_unkLoadedFlag &= ~CMapObjGroup::RUNTIME_FLAGS::RUNTIME_STATE_MASK;
     this->unused_0190 = 0.0f;
     this->m_flags = 0;
     this->m_bbox.b = C3Vector(0.0f, 0.0f, 0.0f);
@@ -998,7 +998,7 @@ void CMapObjGroup::SetVertexVB() {
     EGxVertexBufferFormat format = GxVBF_PNCT;
     uint32_t vertexSize = sizeof(CGxVertexPNCT);
 
-    if (this->m_unkLoadedFlag & 0x8) {
+    if (this->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::EXTENDED_VERTEX_FORMAT) {
         format = GxVBF_PNC2T2;
         vertexSize = sizeof(CGxVertexPNC2T2);
     }
@@ -1444,7 +1444,7 @@ void VBBList::AllocVBB(VBBList_Block** slot, uint32_t itemSize, uint32_t itemCou
 // OFFSET: 0x007CBCB0
 void CMapObjGroup::AllocVB() {
     if (!this->m_vertsBlock) {
-        uint32_t vertexSize = (this->m_unkLoadedFlag & 0x8) ? sizeof(CGxVertexPNC2T2) : sizeof(CGxVertexPNCT);
+        uint32_t vertexSize = (this->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::EXTENDED_VERTEX_FORMAT) ? sizeof(CGxVertexPNC2T2) : sizeof(CGxVertexPNCT);
         CMapObjGroup::vertexVBList.AllocVBB(&this->m_vertsBlock, vertexSize, this->m_vertexListCount);
     }
 
@@ -1554,7 +1554,7 @@ void CMapObjGroup::Clear() {
         occluder = next;
     }
 
-    this->m_unkLoadedFlag &= ~1u;
+    this->m_unkLoadedFlag &= ~CMapObjGroup::RUNTIME_FLAGS::LOADED;
 }
 
 // VERIFY: ed59eece manual

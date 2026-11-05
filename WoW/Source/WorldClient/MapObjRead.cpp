@@ -203,7 +203,7 @@ void CMapObj::CreateMaterial(uint8_t texture) {
 // VERIFY: 03cc8920 manual
 // OFFSET: 0x007D78C0
 CMapObjGroup* CMapObj::AttenTransVerts(CMapObjGroup* group) {
-    group->m_unkLoadedFlag |= 0x2;
+    group->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED;
 
     if (!group->m_transparencyBatchesCount) {
         return group;
@@ -534,17 +534,17 @@ void CMapObjGroup::Create() {
         mapObj->CreateMaterial(this->m_batchList[i].m_texture);
     }
 
-    this->m_unkLoadedFlag = (this->m_unkLoadedFlag & ~0x2) | 0x1;
+    this->m_unkLoadedFlag = (this->m_unkLoadedFlag & ~CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED) | CMapObjGroup::RUNTIME_FLAGS::LOADED;
 
     if (mapObj->m_header->m_flags & 0x1) {
-        this->m_unkLoadedFlag |= 0x2;
+        this->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED;
     }
 
     if (!SStrCmp(this->m_groupName, "antiportal", STORM_MAX_STR)) {
         this->HandleAntiportal();
     }
 
-    this->m_unkLoadedFlag |= 0x4;
+    this->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE;
 
     uint32_t batchCount = this->m_batchListCount;
 
@@ -561,7 +561,7 @@ void CMapObjGroup::Create() {
         SMOBatch& batch = this->m_batchList[i];
 
         if (mapObj->m_materialList[batch.m_texture].m_blendMode) {
-            this->m_unkLoadedFlag &= ~0x4;
+            this->m_unkLoadedFlag &= ~CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE;
             break;
         }
 
@@ -586,7 +586,7 @@ void CMapObjGroup::Create() {
 
     for (uint32_t i = 0; i < batchCount; i++) {
         if (mapObj->m_materialList[this->m_batchList[i].m_texture].m_shader == 6) {
-            this->m_unkLoadedFlag |= 0x8;
+            this->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::EXTENDED_VERTEX_FORMAT;
             return;
         }
     }
