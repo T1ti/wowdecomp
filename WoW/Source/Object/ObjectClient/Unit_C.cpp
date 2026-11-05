@@ -1108,7 +1108,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
 
     uint32_t torsoAnim = this->GetCurrentTorsoAnimId();
     model->SetSequenceCallback(&CGUnit_C::AnimEndCallback, this->m_obj->m_guid.m_guid);
-    model->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
+    model->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
     this->SetCharacterModel(model);
     model->Release();
     model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (this->m_modelData->m_flags >> 7)) & 0x4;
@@ -9847,7 +9847,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     CM2Model* model = this->m_worldModel;
     model->SetSequenceCallback(&CGUnit_C::AnimEndCallback, this->m_obj->m_guid.m_guid);
-    model->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
+    model->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
 
     if (this->m_displayInfo) {
         CCharacterComponent::ApplyMonsterGeosets(this->m_worldModel, this->m_displayInfo);
@@ -21409,7 +21409,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         this->m_mountScale = displayInfo->m_creatureModelScale;
         CM2Model* mount = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
         mount->SetSequenceCallback(&CGUnit_C::MountAnimEndCallback, this->m_obj->m_guid.m_guid);
-        mount->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
+        mount->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
         C44Matrix transform = this->m_worldModel->m_worldTransform;
         mount->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         mount->m_worldTransform = transform;

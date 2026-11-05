@@ -211,7 +211,7 @@ void CM2Model::SetSequenceCallback(M2SequenceCallback callback, uint64_t param) 
 
 // VERIFY: 673d0acf auto
 // OFFSET: 0x00824060
-void CM2Model::SetEventCallback(void* callback, uint64_t param) {
+void CM2Model::SetEventCallback(M2EventCallback callback, uint64_t param) {
     if (this->m_eventCallback == callback && this->m_eventCallbackParam == param) {
         return;
     }
@@ -5961,7 +5961,7 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
 
                         if (entry) {
                             entry->m_boneId = data->m_bones[event->m_bone].m_boneId;
-                            entry->m_callback = this->m_eventCallback;
+                            entry->m_callback = reinterpret_cast<void*>(this->m_eventCallback);
                             entry->m_value = event->m_data;
                             entry->m_id = event->m_eventId;
                             entry->m_type = M2ModelCallback::EVENT;

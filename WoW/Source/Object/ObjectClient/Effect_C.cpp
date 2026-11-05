@@ -353,7 +353,7 @@ void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, co
         this->m_refCount++;
         this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
         this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-        this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
 
         if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) {
             this->SetEmissionRateIgnoresDistance(1);
@@ -449,7 +449,7 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
         this->m_refCount++;
         this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
         this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-        this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
 
         if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) {
             this->SetEmissionRateIgnoresDistance(1);
@@ -587,7 +587,7 @@ void CEffect::AddSpecialEffect(int32_t type, const WOWGUID& target, void (*callb
         this->m_refCount++;
         this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
         this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-        this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
     }
 
     this->LinkTo(&unit->m_effectList);
@@ -615,7 +615,7 @@ void CEffect::AddSpecialByPosition(int32_t type, C3Vector position, const WOWGUI
         this->m_refCount++;
         this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
         this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-        this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
 
         if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) {
             this->SetEmissionRateIgnoresDistance(1);
@@ -895,7 +895,7 @@ void CEffect::AddLootEffect(CGUnit_C* unit, void (*callback)(CM2Model* model, ui
 
     this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
     this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-    this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+    this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
     this->LinkTo(&unit->m_effectList);
     this->m_refCount++;
 }
@@ -1473,7 +1473,7 @@ void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, cons
         this->m_refCount++;
         this->m_model->SetLoadedCallback(&CEffect::CreateModelFromEffect, this);
         this->m_model->SetSequenceCallback(callback, reinterpret_cast<uintptr_t>(this));
-        this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
 
         if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) {
             this->SetEmissionRateIgnoresDistance(1);
@@ -1595,7 +1595,7 @@ int32_t CEffect::LoadMountTransitionModel() {
 
     this->m_model = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
     this->m_model->SetSequenceCallback(&MountTransitionSequenceCB, reinterpret_cast<uintptr_t>(this));
-    this->m_model->SetEventCallback(reinterpret_cast<void*>(&CEffect::EffectEvent), reinterpret_cast<uintptr_t>(this));
+    this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
     CCharacterComponent::ReplaceMonsterSkin(this->m_model, display, modelData);
     this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     CM2Model* model = this->m_model;

@@ -915,7 +915,7 @@ void World::ObjectSetEventCallback(CMapBaseObj* object, void (*callback)(CM2Mode
         CM2Model* model = static_cast<CMapDoodadDef*>(object)->m_model;
 
         if (model) {
-            model->SetEventCallback(reinterpret_cast<void*>(callback), param);
+            model->SetEventCallback(callback, param);
         }
     }
 }

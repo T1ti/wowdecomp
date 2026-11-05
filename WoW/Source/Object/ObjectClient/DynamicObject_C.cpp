@@ -77,7 +77,7 @@ void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, 
     this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & 0x2;
 
     if (this->GetObjectModel()) {
-        this->GetObjectModel()->SetEventCallback(reinterpret_cast<void*>(&AnimEventCallback), this->m_obj->m_guid.m_guid);
+        this->GetObjectModel()->SetEventCallback(&AnimEventCallback, this->m_obj->m_guid.m_guid);
         this->GetObjectModel()->SetSequenceCallback(&AnimFinishedCallback, this->m_obj->m_guid.m_guid);
 
         if (this->m_stateFlags & 0x2) {

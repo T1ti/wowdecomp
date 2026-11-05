@@ -242,7 +242,7 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
 
     model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
     model->m_worldTransform = doodadDef->m_mat;
-    doodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(CMapStaticEntity::ModelEventCallback), reinterpret_cast<uintptr_t>(doodadDef));
+    doodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
     doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
     doodadDef->m_model->m_lightingArg = doodadDef;
     doodadDef->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);

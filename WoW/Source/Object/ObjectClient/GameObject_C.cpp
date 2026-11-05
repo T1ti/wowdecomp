@@ -2019,7 +2019,7 @@ void CGGameObject_C::PostInit(uint32_t time, const CClientObjCreate& create, boo
 
     if (model) {
         ClntObjMgrShowObject(this->m_obj->m_guid);
-        model->SetEventCallback(reinterpret_cast<void*>(&CGGameObject_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
+        model->SetEventCallback(&CGGameObject_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
         model->SetSequenceCallback(&CGGameObject_C::SequenceCallback, this->m_obj->m_guid.m_guid);
 
         if (model->IsLoaded(0, 0)) {

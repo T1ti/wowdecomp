@@ -28,7 +28,7 @@ static void AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_t eventId
 // OFFSET: 0x004E5ED0
 void CSimpleModelFFX::SetModel(CM2Model* model) {
     this->CSimpleModel::SetModel(model);
-    this->m_model->SetEventCallback(reinterpret_cast<void*>(AnimEventCallback), reinterpret_cast<uintptr_t>(this));
+    this->m_model->SetEventCallback(AnimEventCallback, reinterpret_cast<uintptr_t>(this));
 }
 
 // VERIFY: 2698486b auto

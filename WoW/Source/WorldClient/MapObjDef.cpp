@@ -166,7 +166,7 @@ void CMapObjDefGroup::SetEventCallback(M2EventCallback callback, uint64_t param,
         }
 
         if (doodadDef->m_model && doodadDef->m_doodadSet == doodadSet) {
-            doodadDef->m_model->SetEventCallback(reinterpret_cast<void*>(callback), param);
+            doodadDef->m_model->SetEventCallback(callback, param);
         }
     }
 }

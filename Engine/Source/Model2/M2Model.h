@@ -215,7 +215,7 @@ class CM2Model {
     /* 01B8 */ float unk_01B8;
     /* 01BC */ void (*m_drawCallback)(CM2Model*, const CM2Lighting*, void*);
     /* 01C0 */ void* m_drawArg;
-    /* 01C4 */ void* m_eventCallback;
+    /* 01C4 */ M2EventCallback m_eventCallback;
     /* 01C8 */ uint64_t m_eventCallbackParam;
     /* 01D0 */ M2ModelLight* m_lights;
     /* 01D4 */ CM2Lighting m_lighting;
@@ -352,7 +352,7 @@ class CM2Model {
     void ReplaceParticleColor(uint32_t id, CImVector color0, CImVector color1, CImVector color2);
     void ReplaceTexture(uint32_t type, CTexture* texture);
     void SetAnimating(int32_t animating);
-    void SetEventCallback(void* callback, uint64_t param);
+    void SetEventCallback(M2EventCallback callback, uint64_t param);
     void SetLightEnabled(uint32_t index, uint32_t enabled);
     void SetLoadedCallback(void (*callback)(CM2Model*, void*), void* arg);
     void SetRibbonsEnabled(uint32_t enabled);
