@@ -257,16 +257,16 @@ static int32_t Script_GetBattlefieldStatus(lua_State* L) {
     }
 
     switch (status->m_status) {
-        case 0:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE:
             lua_pushstring(L, "none");
             break;
-        case 1:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_QUEUED:
             lua_pushstring(L, "queued");
             break;
-        case 2:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM:
             lua_pushstring(L, "confirm");
             break;
-        case 3:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_ACTIVE:
             lua_pushstring(L, "active");
             break;
         default:
@@ -276,7 +276,7 @@ static int32_t Script_GetBattlefieldStatus(lua_State* L) {
 
     MapRec* map = nullptr;
 
-    if (status->m_status == 2) {
+    if (status->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM) {
         if (status->m_bgTypeID == 32) {
             if (status->m_joinedQueueData) {
                 BattlemasterListRec* battlemaster = g_battlemasterListDB.GetRecord(static_cast<uint32_t>(status->m_joinedQueueData >> 16));
@@ -288,7 +288,7 @@ static int32_t Script_GetBattlefieldStatus(lua_State* L) {
         } else {
             map = g_mapDB.GetRecord(status->m_mapID);
         }
-    } else if (status->m_status == 3) {
+    } else if (status->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_ACTIVE) {
         map = g_mapDB.GetRecord(CGBattlefieldInfo::m_activeMapID);
     }
 
@@ -546,19 +546,19 @@ static int32_t Script_GetWorldPVPQueueStatus(lua_State* L) {
     }
 
     switch (queue->m_status) {
-        case 0:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE:
             lua_pushstring(L, "none");
             break;
 
-        case 1:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_QUEUED:
             lua_pushstring(L, "queued");
             break;
 
-        case 2:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM:
             lua_pushstring(L, "confirm");
             break;
 
-        case 3:
+        case CGBattlefieldInfo::QUEUE_STATUS::QUEUE_ACTIVE:
             lua_pushstring(L, "active");
             break;
 
@@ -577,7 +577,7 @@ static int32_t Script_GetWorldPVPQueueStatus(lua_State* L) {
 
     lua_pushnumber(L, queue->m_queueID);
 
-    if (queue->m_status == 2) {
+    if (queue->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM) {
         lua_pushnumber(L, queue->m_expireTime - CGWorldStateInfo::GetUITime());
     } else {
         lua_pushnumber(L, 0.0);

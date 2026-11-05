@@ -322,8 +322,8 @@ void CGBattlefieldInfo::EnterWorld() {
         CGBattlefieldInfo::m_teamNames[i][0] = 0;
     }
 
-    CGBattlefieldInfo::m_status[0].m_status = 0;
-    CGBattlefieldInfo::m_status[1].m_status = 0;
+    CGBattlefieldInfo::m_status[0].m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
+    CGBattlefieldInfo::m_status[1].m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
 
     if (!CGGameUI::m_currentlyReloadingUI) {
         memset(CGBattlefieldInfo::m_arenaOpponentPets, 0, sizeof(CGBattlefieldInfo::m_arenaOpponentPets));
@@ -425,7 +425,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
     if (!status->m_queueData) {
         status->m_minLevel = 0;
         status->m_maxLevel = 0;
-        status->m_status = 0;
+        status->m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
         status->m_instanceID = 0;
         status->m_portExpiration = 0;
         status->m_estimatedWaitTime = 0;
@@ -464,7 +464,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
     msg->Get(state);
     status->m_status = state;
 
-    if (state == 2) {
+    if (state == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM) {
         msg->Get(status->m_mapID);
         msg->Get(status->m_joinedQueueData);
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BATTLEGROUND_PORT);
@@ -476,7 +476,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
         status->m_portExpiration = 0;
     }
 
-    if (status->m_status == 3) {
+    if (status->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_ACTIVE) {
         msg->Get(CGBattlefieldInfo::m_activeMapID);
         msg->Get(status->m_joinedQueueData);
         MapRec* map = g_mapDB.GetRecord(CGBattlefieldInfo::m_activeMapID);
@@ -526,7 +526,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
         }
     }
 
-    if (status->m_status == 1) {
+    if (status->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_QUEUED) {
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BATTLEGROUND_QUEUE);
         msg->Get(status->m_estimatedWaitTime);
         uint32_t waited;
@@ -791,14 +791,14 @@ void CGBattlefieldInfo::InitializeGame() {
     CGBattlefieldInfo::m_allowJoin = 1;
 
     for (uint32_t i = 0; i < 2; i++) {
-        CGBattlefieldInfo::m_status[i].m_status = 0;
+        CGBattlefieldInfo::m_status[i].m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
         CGBattlefieldInfo::m_status[i].m_queueData = 0;
         CGBattlefieldInfo::m_status[i].m_bgTypeID = 0;
         CGBattlefieldInfo::m_status[i].m_mapID = 0;
     }
 
     for (uint32_t i = 0; i < 1; i++) {
-        CGBattlefieldInfo::m_worldPvPQueues[i].m_status = 0;
+        CGBattlefieldInfo::m_worldPvPQueues[i].m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
         CGBattlefieldInfo::m_worldPvPQueues[i].m_areaID = 0;
         CGBattlefieldInfo::m_worldPvPQueues[i].m_queueID = 0;
     }
@@ -1088,7 +1088,7 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_ENTRY_INVITE(void* param, NETMESSAGE msgId, 
     msg->Get(areaID);
     uint32_t expireTime = 0;
     msg->Get(expireTime);
-    SetWorldPvPQueue(queueID, 2, areaID, expireTime);
+    SetWorldPvPQueue(queueID, CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM, areaID, expireTime);
     FrameScript_SignalEvent(SCRIPT_EVENT_BATTLEFIELD_MGR_ENTRY_INVITE, "%d", queueID);
     return 1;
 }
@@ -1234,7 +1234,7 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_ENTERED(void* param, NETMESSAGE msgId, uint3
 
     if (queue) {
         queue->m_queueID = queueID;
-        queue->m_status = 0;
+        queue->m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_BATTLEFIELD_MGR_ENTERED, "%d%b%b", queueID, invited != 0, onOffense != 0);
@@ -1267,7 +1267,7 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_EJECTED(void* param, NETMESSAGE msgId, uint3
 
             if (queue) {
                 queue->m_queueID = queueID;
-                queue->m_status = 0;
+                queue->m_status = CGBattlefieldInfo::QUEUE_STATUS::QUEUE_NONE;
             }
 
             break;

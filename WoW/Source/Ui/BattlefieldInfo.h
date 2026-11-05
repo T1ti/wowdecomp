@@ -82,6 +82,16 @@ bool IsCurrentMapArena();
 
 class CGBattlefieldInfo {
     public:
+    // Shared client display states for battlefield and world-PvP queues.
+    // This is a reconstruction, not a claim about the original enum identity.
+    // Raw carriers retain packet words, boolean acceptance and unknown values.
+    enum QUEUE_STATUS : int32_t {
+        QUEUE_NONE = 0,
+        QUEUE_QUEUED = 1,
+        QUEUE_CONFIRM = 2,
+        QUEUE_ACTIVE = 3,
+    };
+
     // Descriptive build 12340 errors. -12/-11 share a name-cache path; -1 is silent.
     // Other signed results remain raw BattlemasterList IDs on the default path.
     enum GROUP_JOIN_RESULT : int32_t {
