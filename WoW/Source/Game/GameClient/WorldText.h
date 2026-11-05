@@ -44,7 +44,7 @@ struct SWorldTextIcon {
 };
 
 struct WORLDTEXTSTRING : public CHandleObject {
-    /* 0008 */ uint32_t m_type;
+    /* 0008 */ WORLDTEXT_STYLE m_type; // NUM_WORLDTEXTTYPES is the initial unset marker; live styles index the table.
     /* 000C */ float m_halfWidth;
     /* 0010 */ float m_halfHeight;
     /* 0014 */ C3Vector m_position;

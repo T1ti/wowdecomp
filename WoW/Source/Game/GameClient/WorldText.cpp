@@ -315,7 +315,7 @@ WORLDTEXTSTRING* WorldTextCreate(uint32_t type, const C3Vector& position, const 
     }
 
     string->m_position = position;
-    string->m_type = type;
+    string->m_type = static_cast<WORLDTEXT_STYLE>(type);
     string->m_startTime = OsGetAsyncTimeMs();
     SStrCopy(string->m_text, text, sizeof(string->m_text));
 
