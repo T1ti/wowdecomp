@@ -118,7 +118,7 @@ void CMap::RenderWaterRipples() {
         ripple = next;
     }
 
-    if (!vertexCounts[0] && !vertexCounts[1]) {
+    if (!vertexCounts[CWaterRipple::SPLASH] && !vertexCounts[CWaterRipple::WAKE]) {
         return;
     }
 
@@ -302,7 +302,7 @@ void WaterRipple::Destroy() {
 // VERIFY: 3fca29ac manual
 // OFFSET: 0x0079CF40
 void CWaterRipple::InitRipple(const C3Vector& pos, float rotation, float size, float alpha, float duration, float growth, int32_t type) {
-    int32_t directional = type != 0;
+    TYPE directional = static_cast<TYPE>(type != 0);
     this->m_type = directional;
     this->m_position = pos;
     this->m_rotation = rotation;

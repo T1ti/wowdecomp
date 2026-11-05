@@ -10,6 +10,12 @@ class CGxShader;
 
 class CWaterRipple {
     public:
+    // Normalized texture/bucket index; InitRipple still accepts any integer input.
+    enum TYPE : int32_t {
+        SPLASH = 0,
+        WAKE = 1,
+    };
+
     /* 0000 */ C3Vector m_position;
     /* 000C */ float m_rotation;
     /* 0010 */ float m_size;
@@ -19,7 +25,7 @@ class CWaterRipple {
     /* 0020 */ float m_fadeIn;
     /* 0024 */ float m_fadeOut;
     /* 0028 */ float m_endTime;
-    /* 002C */ int32_t m_type;
+    /* 002C */ TYPE m_type;
     /* 0030 */ TSLink<CWaterRipple> m_link;
     /* 0038 */ TSLink<CWaterRipple> m_bucketLink;
     /* 0040 */ TSGrowableArray<C3Vector> m_verts;
