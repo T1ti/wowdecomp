@@ -54,32 +54,32 @@ static const char* s_mathDelimiters = "()[]^*/%+-#,> ";
 
 // VERIFY: 419474d0 auto
 // OFFSET: 0x00576B10
-static uint8_t LookupMathFunction(const char* name, int32_t* argCount) {
+static MATHOP LookupMathFunction(const char* name, int32_t* argCount) {
     for (uint32_t i = 0; i < 12; i++) {
         if (!SStrCmpI(name, s_mathFunctions[i].m_name, STORM_MAX_STR)) {
             *argCount = s_mathFunctions[i].m_argCount;
-            return i + MATHOP_ABS;
+            return static_cast<MATHOP>(i + MATHOP_ABS);
         }
     }
 
     *argCount = 0;
-    return 0;
+    return static_cast<MATHOP>(0);
 }
 
 // VERIFY: 924c0932 auto
 // OFFSET: 0x00576B50
-static uint8_t LookupMathVariable(const char* name) {
+static MATHOP LookupMathVariable(const char* name) {
     if (!name || !*name) {
-        return 0;
+        return static_cast<MATHOP>(0);
     }
 
     for (uint32_t i = 0; i < 140; i++) {
         if (!SStrCmp(name, s_mathVariables[i], STORM_MAX_STR)) {
-            return i + MATHOP_STAT_STRENGTH;
+            return static_cast<MATHOP>(i + MATHOP_STAT_STRENGTH);
         }
     }
 
-    return 0;
+    return static_cast<MATHOP>(0);
 }
 
 // VERIFY: 217b88e2 auto
@@ -201,7 +201,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
         }
 
         int32_t argCount;
-        uint8_t function = LookupMathFunction(name, &argCount);
+        MATHOP function = LookupMathFunction(name, &argCount);
 
         if (function) {
             this->Expect("(", &pos);
@@ -238,7 +238,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
             }
         }
 
-        uint8_t variable = LookupMathVariable(name);
+        MATHOP variable = LookupMathVariable(name);
 
         if (variable) {
             this->m_ops[this->m_numOps] = variable;
@@ -320,7 +320,7 @@ int32_t MathState::CompileSum(int32_t pos) {
         }
 
         pos = this->CompileProduct(pos + 1);
-        this->m_ops[this->m_numOps] = (op != '+') + MATHOP_ADD;
+        this->m_ops[this->m_numOps] = static_cast<MATHOP>((op != '+') + MATHOP_ADD);
         this->m_numOps++;
     }
 
@@ -925,7 +925,7 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
     const int32_t* intArg = this->m_intArgs;
 
     for (uint32_t i = 0; i < this->m_numOps; i++) {
-        uint8_t op = this->m_ops[i];
+        MATHOP op = this->m_ops[i];
 
         if (op == MATHOP_SPELL) {
             if (!g_spellDB.GetRecord(QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(*intArg++), &loaded)) {

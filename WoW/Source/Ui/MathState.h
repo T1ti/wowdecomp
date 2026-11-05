@@ -6,7 +6,7 @@
 
 class SpellRec;
 
-enum MATHOP {
+enum MATHOP : uint8_t {
     MATHOP_CONSTANT = 0,
     MATHOP_SPELL = 1,
     MATHOP_SPELL_VARIABLE = 2,
@@ -180,7 +180,7 @@ class MathState {
     public:
     /* 0000 */ uint32_t m_status;
     /* 0004 */ uint32_t m_numOps;
-    /* 0008 */ uint8_t m_ops[128];
+    /* 0008 */ MATHOP m_ops[128]; // Packed opcodes; integer operands are stored separately.
     /* 0088 */ uint32_t m_numConstants;
     /* 008C */ float m_constants[64];
     /* 018C */ uint32_t m_numIntArgs;
