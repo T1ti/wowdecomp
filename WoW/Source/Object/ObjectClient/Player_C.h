@@ -200,7 +200,8 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
         RG_REASON_UI_REQUIREMENTS_UNMATCH = 4,
     };
 
-    // Raw quest-failure namespace, separate from BAG_RESULT and quest-invalid.
+    // Quest-failure display selector; original enum ownership is unproved.
+    // Sharing BAG_RESULT remains possible despite context-specific messages.
     // Values4/16/50 share a bag-full display without proved distinct causes.
     enum QUEST_FAILED_REASON : int32_t {
         QF_REASON_UNKNOWN_4 = 4,
