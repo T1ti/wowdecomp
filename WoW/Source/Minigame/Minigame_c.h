@@ -7,13 +7,13 @@
 class CDataStore;
 struct lua_State;
 
-enum MINIGAME_TYPE {
+enum MINIGAME_TYPE : uint32_t {
     MINIGAME_NONE = 0,
     MINIGAME_TICTACTOE = 1,
 };
 
 struct MiniGameData {
-    /* 0000 */ uint32_t m_type;
+    /* 0000 */ MINIGAME_TYPE m_type; // Runtime DWORD tag; the setup packet supplies a separate byte.
     /* 0004 */ uint8_t m_state;
     /* 0008 */ uint64_t m_guid;
     /* 0010 */ uint64_t unk_0010;
