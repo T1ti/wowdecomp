@@ -205,11 +205,11 @@ void CShadowQuery::FrustumCallback(CFrustum& frustum, C44Matrix& matrix, const C
     frustum.InvertPlanes();
     frustum.SwapCorners();
 
-    float* rect = data.m_cullRects[band];
-    rect[0] = -1.0f;
-    rect[1] = -1.0f;
-    rect[2] = 1.0f;
-    rect[3] = 1.0f;
+    CRect& rect = data.m_cullRects[band];
+    rect.minY = -1.0f;
+    rect.minX = -1.0f;
+    rect.maxY = 1.0f;
+    rect.maxX = 1.0f;
 
     CFrustum& cull = data.m_bandFrustums[band];
     cull = frustum;
@@ -233,10 +233,10 @@ void CShadowQuery::FrustumCallback(CFrustum& frustum, C44Matrix& matrix, const C
         cull.CalcPlanesFromCorners(corners);
         cull.InvertPlanes();
         cull.SwapCorners();
-        rect[1] = box.b.x;
-        rect[3] = box.t.x;
-        rect[0] = -box.t.y;
-        rect[2] = -box.b.y;
+        rect.minX = box.b.x;
+        rect.maxX = box.t.x;
+        rect.minY = -box.t.y;
+        rect.maxY = -box.b.y;
     }
 }
 
@@ -395,12 +395,12 @@ int32_t CShadowQuery::RenderCallback(CShadowCacheQueryData& data, int32_t band, 
 
     if (g_shadowScissor->m_intValue) {
         GxRsSet(GxRs_ScissorTest, 1);
-        float* rect = data.m_cullRects[band];
+        CRect& rect = data.m_cullRects[band];
         CRect scissor;
-        scissor.minY = (rect[0] + 1.0f) * 0.5f;
-        scissor.minX = (rect[1] + 1.0f) * 0.5f;
-        scissor.maxY = (rect[2] + 1.0f) * 0.5f;
-        scissor.maxX = 0.5f * (rect[3] + 1.0f);
+        scissor.minY = (rect.minY + 1.0f) * 0.5f;
+        scissor.minX = (rect.minX + 1.0f) * 0.5f;
+        scissor.maxY = (rect.maxY + 1.0f) * 0.5f;
+        scissor.maxX = 0.5f * (rect.maxX + 1.0f);
         g_theGxDevicePtr->SetScissor(scissor);
     }
 

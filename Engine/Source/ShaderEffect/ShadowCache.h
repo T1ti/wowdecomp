@@ -9,6 +9,7 @@
 #include "Engine/Source/Tempest/C4Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CFrustum.h"
+#include "Engine/Source/Tempest/CRect.h"
 
 class CGxTex;
 class CTexture;
@@ -40,7 +41,7 @@ struct CShadowCacheQueryData {
     /* 006C */ CFrustum m_frustums[3];
     /* 0348 */ CFrustum m_cullFrustums[3];
     /* 0624 */ CFrustum m_bandFrustums[3];
-    /* 0900 */ float m_cullRects[3][4];
+    /* 0900 */ CRect m_cullRects[3]; // Normalized scissor bounds, native minY/minX/maxY/maxX order.
     /* 0930 */ C3Vector m_pos[3];
     /* 0954 */ uint8_t m_textureIndex[3];
     /* 0958 */ float m_radius[3];
@@ -62,7 +63,7 @@ class CShadowCache {
     static float s_debugAspect;
     static int32_t s_debugLevel;
     static CShadowBand s_extDynShadow;
-    static float s_extDynShadowCullRect[4];
+    static CRect s_extDynShadowCullRect;
     static CShadowBand s_extShadowBands[3];
     static uint8_t s_frameCounter;
     static ShadowFrustumCallback s_frustumCallback;

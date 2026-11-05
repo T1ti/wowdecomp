@@ -68,7 +68,7 @@ int32_t CShadowCache::s_debugLevel;
 uint8_t CShadowCache::s_frameCounter;
 
 // STATIC: 0x00D43170
-float CShadowCache::s_extDynShadowCullRect[4];
+CRect CShadowCache::s_extDynShadowCullRect;
 
 // STATIC: 0x00D43180
 C3Vector CShadowCache::s_sunDir;
@@ -704,10 +704,10 @@ void CShadowCache::PostUpdate() {
 // OFFSET: 0x008753F0
 CShadowCacheQueryData::CShadowCacheQueryData() {
     for (uint32_t i = 0; i < 3; i++) {
-        this->m_cullRects[i][0] = 0.0f;
-        this->m_cullRects[i][1] = 0.0f;
-        this->m_cullRects[i][2] = 0.0f;
-        this->m_cullRects[i][3] = 0.0f;
+        this->m_cullRects[i].minY = 0.0f;
+        this->m_cullRects[i].minX = 0.0f;
+        this->m_cullRects[i].maxY = 0.0f;
+        this->m_cullRects[i].maxX = 0.0f;
     }
 
     for (uint32_t i = 0; i < 3; i++) {
@@ -997,10 +997,10 @@ int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
 
     CShadowCache::s_extDynShadow.m_dir = C3Vector(1.0f, 0.0f, 0.0f);
 
-    CShadowCache::s_extDynShadowCullRect[0] = data.m_cullRects[0][0];
-    CShadowCache::s_extDynShadowCullRect[1] = data.m_cullRects[0][1];
-    CShadowCache::s_extDynShadowCullRect[2] = data.m_cullRects[0][2];
-    CShadowCache::s_extDynShadowCullRect[3] = data.m_cullRects[0][3];
+    CShadowCache::s_extDynShadowCullRect.minY = data.m_cullRects[0].minY;
+    CShadowCache::s_extDynShadowCullRect.minX = data.m_cullRects[0].minX;
+    CShadowCache::s_extDynShadowCullRect.maxY = data.m_cullRects[0].maxY;
+    CShadowCache::s_extDynShadowCullRect.maxX = data.m_cullRects[0].maxX;
 
     data.m_lastBand = 0;
 
