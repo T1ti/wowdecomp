@@ -44,7 +44,7 @@ struct SEChannelGroup {
 };
 
 struct SEChannelInfo {
-    /* 0000 */ int32_t m_state;
+    /* 0000 */ SECHANNELSTATE m_state;
     /* 0004 */ C3Vector m_position;
     /* 0010 */ float m_minDistance;
     /* 0014 */ float m_maxDistance;
@@ -111,7 +111,7 @@ class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     /* 0031 */ uint8_t m_fadingOut;
     /* 0034 */ uint32_t m_playTime;
     /* 0038 */ int32_t m_cached;
-    /* 003C */ int32_t m_type;
+    /* 003C */ SESOUNDTYPE m_type;
     /* 0040 */ TSLink<SESoundInternal> m_deleteLink;
     /* 0048 */ TSLink<SESoundInternal> m_objectLink;
     /* 0050 */ C3Vector m_position;
