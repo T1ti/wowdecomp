@@ -20,6 +20,17 @@ enum UNIT_MIRROR_TIMER : int32_t {
     UNIT_MIRROR_TIMER_INACTIVE = 3,
 };
 
+// SMSG_LIST_INVENTORY: names follow the client console messages.
+// The local NOT_READ sentinel is not an inferred additional wire error.
+enum VENDOR_LIST_RESULT : int32_t {
+    VENDOR_LIST_EMPTY = 0,
+    VENDOR_LIST_VENDOR_DISLIKES_PLAYER = 1,
+    VENDOR_LIST_TOO_FAR = 2,
+    VENDOR_LIST_VENDOR_DEAD = 3,
+    VENDOR_LIST_PLAYER_DEAD = 4,
+    VENDOR_LIST_RESULT_NOT_READ = 0xFF,
+};
+
 // SMSG_BUY_FAILED result byte, separate from sell results and inventory error IDs.
 // Reference only: guessed TC 3.3.5 BUY_ERR_CANT_FIND_ITEM=0 uses the generic default.
 enum VENDOR_BUY_RESULT : uint8_t {

@@ -6670,7 +6670,7 @@ int32_t CGPlayer_C::OnListInventory(CDataStore* msg) {
     }
 
     CGPlayer_C::s_lastVendorListReceived = vendor;
-    uint8_t error = 0xFF;
+    uint8_t error = VENDOR_LIST_RESULT::VENDOR_LIST_RESULT_NOT_READ;
 
     if (count) {
         for (uint8_t i = 0; i < count; i++) {
@@ -6688,23 +6688,23 @@ int32_t CGPlayer_C::OnListInventory(CDataStore* msg) {
         msg->Get(error);
 
         switch (error) {
-            case 0:
+            case VENDOR_LIST_RESULT::VENDOR_LIST_EMPTY:
                 ConsoleWrite("Vendor has no inventory", DEFAULT_COLOR);
                 break;
 
-            case 1:
+            case VENDOR_LIST_RESULT::VENDOR_LIST_VENDOR_DISLIKES_PLAYER:
                 ConsoleWrite("I don't think he likes you very much", DEFAULT_COLOR);
                 break;
 
-            case 2:
+            case VENDOR_LIST_RESULT::VENDOR_LIST_TOO_FAR:
                 ConsoleWrite("You are too far away", DEFAULT_COLOR);
                 break;
 
-            case 3:
+            case VENDOR_LIST_RESULT::VENDOR_LIST_VENDOR_DEAD:
                 ConsoleWrite("Vendor is dead", DEFAULT_COLOR);
                 break;
 
-            case 4:
+            case VENDOR_LIST_RESULT::VENDOR_LIST_PLAYER_DEAD:
                 ConsoleWrite("You can't shop while dead.", DEFAULT_COLOR);
                 break;
 
