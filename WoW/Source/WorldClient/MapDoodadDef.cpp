@@ -134,9 +134,9 @@ void CMapDoodadDef::SelectLights(CM2Lighting* lighting) {
     }
 
     if (this->m_flags & 0x2) {
-        lighting->m_flags |= 0x8;
+        lighting->m_flags |= CM2Lighting::INTERIOR;
     } else {
-        lighting->m_flags &= ~0x8;
+        lighting->m_flags &= ~CM2Lighting::INTERIOR;
     }
 }
 

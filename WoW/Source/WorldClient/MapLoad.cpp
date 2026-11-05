@@ -15,21 +15,21 @@
 void CMapStaticEntity::ModelLightingCallback(CM2Model* model, CM2Lighting* lighting, void* userArg) {
     CMapStaticEntity* entity = reinterpret_cast<CMapStaticEntity*>(userArg);
 
-    lighting->m_flags |= 0x10;
+    lighting->m_flags |= CM2Lighting::SHADOW_MAP_ALLOWED;
     auto dayNight = DayNight::GetInfo();
     if (entity) {
         lighting->SetFog(C3Vector(dayNight->m_fog.m_color), dayNight->m_fog.m_start, dayNight->m_fog.m_end, dayNight->m_fog.m_density);
         entity->SelectLights(lighting);
         entity->SelectUnderwater(lighting);
         if ((entity->m_flags & MAPOBJ_FLAG_INTERIOR) != 0) {
-            lighting->m_flags |= 8;
+            lighting->m_flags |= CM2Lighting::INTERIOR;
             return;
         }
     } else {
         lighting->AddAmbient(C3Vector(dayNight->m_light1.m_ambient));
         lighting->AddDiffuse(C3Vector(dayNight->m_light1.m_diffuse), dayNight->m_light1.m_dir);
     }
-    lighting->m_flags &= ~8u;
+    lighting->m_flags &= ~CM2Lighting::INTERIOR;
 }
 
 // VERIFY: 1601e867 manual
@@ -134,12 +134,12 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
 // OFFSET: 0x007C10C0
 void CMapStaticEntity::SelectUnderwater(CM2Lighting* lighting) {
     if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
-        lighting->m_flags = (lighting->m_flags & ~0x60) | 0x20;
+        lighting->m_flags = (lighting->m_flags & ~CM2Lighting::LIQUID_SIDES_MASK) | CM2Lighting::ABOVE_LIQUID;
     } else if (!(this->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP)) {
-        lighting->m_flags = (lighting->m_flags & ~0x60) | 0x40;
+        lighting->m_flags = (lighting->m_flags & ~CM2Lighting::LIQUID_SIDES_MASK) | CM2Lighting::BELOW_LIQUID;
     } else {
         float d = -this->m_liquidHeight;
-        lighting->m_flags |= 0x60;
+        lighting->m_flags |= CM2Lighting::LIQUID_SIDES_MASK;
         lighting->m_liquidPlane.n.x = 0.0f;
         lighting->m_liquidPlane.n.y = 0.0f;
         lighting->m_liquidPlane.n.z = 1.0f;

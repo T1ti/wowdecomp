@@ -1472,14 +1472,14 @@ void __stdcall CM2Scene::ComputeElementShaders(M2Element* element) {
         alphaTest = 1;
     }
 
-    if (!(material->m_flags & 1) && (lighting->m_flags & 0x10)) {
+    if (!(material->m_flags & 1) && (lighting->m_flags & CM2Lighting::SHADOW_MAP_ALLOWED)) {
         if (material->m_flags & 0x100) {
             shadow = 0;
         } else {
             shadow = CShadowCache::GetShadowValue();
 
             if (shadow) {
-                if (lighting->m_flags & 8) {
+                if (lighting->m_flags & CM2Lighting::INTERIOR) {
                     shadow = 1;
                 }
 
@@ -1772,8 +1772,8 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
         CM2Lighting* lighting = model->m_currentLighting;
         M2Data* data = model->m_shared->m_data;
-        int32_t above = lighting->m_flags & 0x20;
-        int32_t below = lighting->m_flags & 0x40;
+        int32_t above = lighting->m_flags & CM2Lighting::ABOVE_LIQUID;
+        int32_t below = lighting->m_flags & CM2Lighting::BELOW_LIQUID;
 
         if (above && below) {
             C3Vector center((data->m_bounds.m_extent.b.x + data->m_bounds.m_extent.t.x) * 0.5f, (data->m_bounds.m_extent.t.y + data->m_bounds.m_extent.b.y) * 0.5f, 0.5f * (data->m_bounds.m_extent.t.z + data->m_bounds.m_extent.b.z));
@@ -2075,9 +2075,9 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
         CM2Lighting* lighting = model->m_currentLighting;
         M2Data* data = model->m_shared->m_data;
-        int32_t split = lighting->m_flags & 0x20;
+        int32_t split = lighting->m_flags & CM2Lighting::ABOVE_LIQUID;
 
-        if ((lighting->m_flags & 0x20) && (lighting->m_flags & 0x40)) {
+        if ((lighting->m_flags & CM2Lighting::ABOVE_LIQUID) && (lighting->m_flags & CM2Lighting::BELOW_LIQUID)) {
             C3Vector center((data->m_bounds.m_extent.t.x + data->m_bounds.m_extent.b.x) * 0.5f, (data->m_bounds.m_extent.t.y + data->m_bounds.m_extent.b.y) * 0.5f, 0.5f * (data->m_bounds.m_extent.t.z + data->m_bounds.m_extent.b.z));
             const C44Matrix& matrix = model->m_matrixF4;
             float radius = sqrtf(matrix.a2 * matrix.a2 + matrix.a1 * matrix.a1 + matrix.a0 * matrix.a0) * data->m_bounds.m_radius;

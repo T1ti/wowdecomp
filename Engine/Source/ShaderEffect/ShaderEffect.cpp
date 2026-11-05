@@ -594,7 +594,7 @@ void CShaderEffect::SetLocalLighting(CM2Lighting* lighting, int32_t enabled, con
         GxShaderConstantsSet(GxSh_Vertex, 17, reinterpret_cast<const float*>(&CShaderEffect::s_localLights), sizeof(LocalLights) / sizeof(C4Vector));
     }
 
-    CShadowCache::SetShadowMapGenericInterior(lighting->m_flags & 8);
+    CShadowCache::SetShadowMapGenericInterior(lighting->m_flags & CM2Lighting::INTERIOR);
 }
 
 // VERIFY: fd00dfa0 manual

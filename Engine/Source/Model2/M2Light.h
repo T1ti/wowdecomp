@@ -43,14 +43,25 @@ class CM2Light {
 
 class CM2Lighting {
     public:
+    // Partial native flag domain; m_flags also preserves unrepresented bits.
+    enum FLAGS : uint32_t {
+        CAMERA_SPACE_READY = 0x1,
+        SUNLIGHT_READY = 0x2,
+        INTERIOR = 0x8,
+        SHADOW_MAP_ALLOWED = 0x10,
+        ABOVE_LIQUID = 0x20,
+        BELOW_LIQUID = 0x40,
+        LIQUID_SIDES_MASK = 0x60,
+    };
+
     /* 0000 */ CM2Scene* m_scene;
     /* 0004 */ CAaSphere m_sphere4;
     /* 0014 */ uint32_t m_flags;
-    /* 0018 */ C3Vector m_vector18;
-    /* 0024 */ C3Vector m_vector24;
-    /* 0030 */ C3Vector m_vector30;
-    /* 003C */ C3Vector m_vector3C;
-    /* 0048 */ C3Vector m_vector48;
+    /* 0018 */ C3Vector m_redDirectionSum; // Direction sums weighted by R/G/B; view space when a scene is present.
+    /* 0024 */ C3Vector m_greenDirectionSum;
+    /* 0030 */ C3Vector m_blueDirectionSum;
+    /* 003C */ C3Vector m_luminanceDirectionSum; // Direction weighted by 0.212671 R + 0.71516 G + 0.072169 B.
+    /* 0048 */ C3Vector m_diffuseColorSum; // Sum of the input diffuse colors before directional reduction.
     /* 0054 */ C3Vector m_sunAmbient;
     /* 0060 */ C3Vector m_sunDiffuse;
     /* 006C */ C3Vector m_sunSpecular;
@@ -63,7 +74,7 @@ class CM2Lighting {
     /* 00B0 */ float m_fogScale;
     /* 00B4 */ float m_fogDensity;
     /* 00B8 */ C3Vector m_fogColor;
-    /* 00C4 */ C4Plane m_liquidPlane;
+    /* 00C4 */ C4Plane m_liquidPlane; // CameraSpace transforms this split plane when both liquid-side bits are set.
 
     CM2Lighting();
     CM2Lighting(const CAaSphere& sphere);
