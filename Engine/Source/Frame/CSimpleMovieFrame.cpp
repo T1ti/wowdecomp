@@ -377,8 +377,8 @@ int32_t CSimpleMovieFrame::ParseAVIFile(const char* fileName) {
                     offset += 8;
 
                     if (isFormat && videoStream >= 0 && audioStream < 0) {
-                        this->m_width = *reinterpret_cast<int32_t*>(&header[offset + 4]);
-                        this->m_height = *reinterpret_cast<int32_t*>(&header[offset + 8]);
+                        this->m_size.x = *reinterpret_cast<int32_t*>(&header[offset + 4]);
+                        this->m_size.y = *reinterpret_cast<int32_t*>(&header[offset + 8]);
                     }
                 }
 
@@ -503,7 +503,7 @@ bool CSimpleMovieFrame::DecodeFrame(bool render) {
     if (render) {
         for (uint32_t i = 0; i < s_textureCount[this->m_layout]; i++) {
             const MOVIEUPDATERECT& rect = s_updateRects[this->m_layout][i];
-            GxTexUpdate(this->m_textures[i], rect.m_minX, rect.m_minY, rect.m_maxX, rect.m_maxY, 1);
+            GxTexUpdate(this->m_textures[i], rect.m_min.x, rect.m_min.y, rect.m_max.x, rect.m_max.y, 1);
         }
     }
 
@@ -519,21 +519,21 @@ int32_t CSimpleMovieFrame::OpenVideo(const char* fileName) {
     this->m_elapsedMs = 0;
     this->m_decoder = ++CSimpleMovieFrame::s_decoderCount;
 
-    if (!InitializeDivxDecoder(this->m_decoder, this->m_width, this->m_height) && !SetOutputFormat(this->m_decoder, 1, this->m_width, this->m_height)) {
+    if (!InitializeDivxDecoder(this->m_decoder, this->m_size.x, this->m_size.y) && !SetOutputFormat(this->m_decoder, 1, this->m_size.x, this->m_size.y)) {
         int32_t layoutFound = 1;
 
-        if (this->m_width == 1024) {
-            if (this->m_height == 576) {
+        if (this->m_size.x == 1024) {
+            if (this->m_size.y == 576) {
                 this->m_layout = 3;
-            } else if (this->m_height == 436) {
+            } else if (this->m_size.y == 436) {
                 this->m_layout = 5;
             } else {
                 this->m_layout = 1;
             }
-        } else if (this->m_width == 800) {
-            if (this->m_height == 448) {
+        } else if (this->m_size.x == 800) {
+            if (this->m_size.y == 448) {
                 this->m_layout = 2;
-            } else if (this->m_height == 342 || this->m_height == 340) {
+            } else if (this->m_size.y == 342 || this->m_size.y == 340) {
                 this->m_layout = 4;
             } else {
                 this->m_layout = 0;
@@ -620,8 +620,8 @@ void CSimpleMovieFrame::AudioDeviceChanged_Restart() {
 // OFFSET: 0x0095E6E0
 CSimpleMovieFrame::CSimpleMovieFrame(CSimpleFrame* parent) : CSimpleFrame(parent), m_isPlaying(0), m_finished(0), m_subtitlesEnabled(0), m_audioRestart(0), m_volume(100), m_decoder(0), m_frameBuffer(nullptr), m_videoData(nullptr), m_audioData(nullptr) {
     this->m_fps = 0.0f;
-    this->m_width = 0;
-    this->m_height = 0;
+    this->m_size.x = 0;
+    this->m_size.y = 0;
     this->m_frameCount = 0;
 
     for (uint32_t i = 0; i < 6; i++) {

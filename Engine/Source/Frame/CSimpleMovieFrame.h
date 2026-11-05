@@ -8,6 +8,7 @@
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
 #include "Engine/Source/SoundEngine/SoundEngine.h"
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Tempest/C2iVector.h"
 
 class CGxTex;
 class CRenderBatch;
@@ -39,10 +40,8 @@ struct MOVIETEXTURERECT {
 };
 
 struct MOVIEUPDATERECT {
-    /* 0000 */ int32_t m_minX;
-    /* 0004 */ int32_t m_minY;
-    /* 0008 */ int32_t m_maxX;
-    /* 000C */ int32_t m_maxY;
+    /* 0000 */ C2iVector m_min; // Lower texel corner, inclusive.
+    /* 0008 */ C2iVector m_max; // Upper texel corner, exclusive.
 };
 
 class CSimpleMovieFrame : public CSimpleFrame {
@@ -75,8 +74,7 @@ class CSimpleMovieFrame : public CSimpleFrame {
     /* 03C4 */ FrameScript_Object::ScriptIx m_onMovieHideSubtitle;
     /* 03CC */ int32_t m_decoder;
     /* 03D0 */ float m_fps;
-    /* 03D4 */ int32_t m_width;
-    /* 03D8 */ int32_t m_height;
+    /* 03D4 */ C2iVector m_size; // Decoded frame width/height in pixels, from the AVI video format.
     /* 03DC */ int32_t m_frameCount;
     /* 03E0 */ uint32_t m_layout;
     /* 03E4 */ CGxTex* m_textures[6];
