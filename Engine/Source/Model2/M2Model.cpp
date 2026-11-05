@@ -370,8 +370,8 @@ void CM2Model::ChangeFrameOfReference(const C44Matrix* matrix) {
     }
 
     if (matrix) {
-        void* previous = this->m_frameOfReference;
-        this->m_frameOfReference = const_cast<C44Matrix*>(matrix);
+        const C44Matrix* previous = this->m_frameOfReference;
+        this->m_frameOfReference = matrix;
 
         if (!previous) {
             C44Matrix inverse = matrix->AffineInverse();
@@ -379,7 +379,7 @@ void CM2Model::ChangeFrameOfReference(const C44Matrix* matrix) {
         }
     } else {
         if (this->m_frameOfReference) {
-            this->ChangeEmittersFrameOfReference(static_cast<C44Matrix*>(this->m_frameOfReference));
+            this->ChangeEmittersFrameOfReference(this->m_frameOfReference);
         }
 
         this->m_frameOfReference = nullptr;
@@ -2584,7 +2584,7 @@ void CM2Model::AnimateST() {
         emitter->SetDataEnabled(ribbon->m_visibilityTrack.m_currentValue != 0);
 
         if (this->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) {
-            emitter->SetPos(transform, C3Vector(0.0f, 0.0f, 0.0f), static_cast<const C44Matrix*>(this->m_frameOfReference));
+            emitter->SetPos(transform, C3Vector(0.0f, 0.0f, 0.0f), this->m_frameOfReference);
             emitter->Update(deltaTime, ribbon->m_visibilityTrack.m_currentValue == 0);
         }
     }
@@ -5801,7 +5801,7 @@ void CM2Model::AnimateParticleST(float deltaTime, uint32_t index) {
     static C44Matrix s_emitterRotation(0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 
     transform = s_emitterRotation * transform;
-    emitter->Update(deltaTime, transform, *reinterpret_cast<const C3Vector*>(&this->m_scene->m_viewInv.d0), static_cast<const C44Matrix*>(this->m_frameOfReference));
+    emitter->Update(deltaTime, transform, *reinterpret_cast<const C3Vector*>(&this->m_scene->m_viewInv.d0), this->m_frameOfReference);
 
     uint32_t modelCount = emitter->GetNumParticleModels();
 

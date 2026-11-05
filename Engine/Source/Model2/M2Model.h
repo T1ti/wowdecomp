@@ -198,7 +198,7 @@ class CM2Model {
     /* 00B4 */ C44Matrix m_worldTransform;
     /* 00F4 */ C44Matrix m_matrixF4;
     /* 0134 */ C44Matrix m_frameOfReferenceMatrix;
-    /* 0174 */ void* m_frameOfReference;
+    /* 0174 */ const C44Matrix* m_frameOfReference; // Borrowed frame matrix, shared with attached models and read by emitters.
     /* 0178 */ float m_fadeAlpha;
     /* 017C */ float m_baseAlpha;
     /* 0180 */ float m_diffuseTintR;

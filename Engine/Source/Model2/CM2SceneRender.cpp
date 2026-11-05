@@ -706,7 +706,7 @@ void CM2SceneRender::DrawRibbon() {
     this->SetupMaterial();
     this->SetupBillboardView(C3Vector(0.0f, 0.0f, 0.0f));
     CShaderEffect::SetTexMtx_Identity(0);
-    this->m_curModel->m_ribbonEmitters[this->m_curElement->m_index]->Render(static_cast<const C44Matrix*>(this->m_curModel->m_frameOfReference));
+    this->m_curModel->m_ribbonEmitters[this->m_curElement->m_index]->Render(this->m_curModel->m_frameOfReference);
     g_theGxDevicePtr->XformSetView(s_identity);
 
     CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
@@ -824,7 +824,7 @@ uint32_t CM2SceneRender::DrawBatchedParticle(uint32_t index, M2Element* elements
 
     for (uint32_t i = 0; i < batched; i++) {
         emitter = elements[first[i]].m_emitter;
-        emitter->Render(static_cast<const C44Matrix*>(this->m_curModel->m_frameOfReference), data, i == 0);
+        emitter->Render(this->m_curModel->m_frameOfReference, data, i == 0);
         renderedVertices += emitter->m_renderedParticles * emitter->m_vertsPerParticle;
         data += vertexSize * emitter->m_renderedParticles * emitter->m_vertsPerParticle;
         renderedIndices += emitter->m_renderedParticles * emitter->m_indicesPerParticle;
@@ -886,7 +886,7 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
     this->SetupLighting();
     this->SetupMaterial();
     this->SetupBillboardView(*reinterpret_cast<const C3Vector*>(&this->m_scene->m_viewInv.d0));
-    emitter->Render(static_cast<const C44Matrix*>(this->m_curModel->m_frameOfReference), nullptr, 1);
+    emitter->Render(this->m_curModel->m_frameOfReference, nullptr, 1);
     g_theGxDevicePtr->XformSetView(s_identity);
 
     CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
