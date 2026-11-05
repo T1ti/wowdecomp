@@ -627,13 +627,13 @@ static int32_t Script_GetChatWindowSavedPosition(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= 10 || !s_chatWindows[index].m_unkF4) {
+    if (index >= 10 || !s_chatWindows[index].m_hasSavedLayout) {
         return 0;
     }
 
-    lua_pushstring(L, FramePointToString(static_cast<FRAMEPOINT>(s_chatWindows[index].m_unkE8)));
-    lua_pushnumber(L, s_chatWindows[index].m_unkEC);
-    lua_pushnumber(L, s_chatWindows[index].m_unkF0);
+    lua_pushstring(L, FramePointToString(s_chatWindows[index].m_anchorPoint));
+    lua_pushnumber(L, s_chatWindows[index].m_xOffsetRatio);
+    lua_pushnumber(L, s_chatWindows[index].m_yOffsetRatio);
     return 3;
 }
 
@@ -715,12 +715,12 @@ static int32_t Script_SetChatWindowSavedPosition(lua_State* L) {
     }
 
     ChatWindowInfo* window = &s_chatWindows[index];
-    window->m_unkE8 = point;
+    window->m_anchorPoint = point;
     float x = static_cast<float>(lua_tonumber(L, 3));
     float y = static_cast<float>(lua_tonumber(L, 4));
-    window->m_unkEC = x;
-    window->m_unkF0 = y;
-    window->m_unkF4 = 1;
+    window->m_xOffsetRatio = x;
+    window->m_yOffsetRatio = y;
+    window->m_hasSavedLayout = 1;
     return 0;
 }
 

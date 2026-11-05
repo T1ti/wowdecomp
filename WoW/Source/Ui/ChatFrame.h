@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Frame/Types.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -281,10 +282,10 @@ class ChatWindowInfo {
     /* 00DC */ int32_t m_docked;
     /* 00E0 */ uint32_t m_shown;
     /* 00E4 */ int32_t m_unkE4;
-    /* 00E8 */ uint32_t m_unkE8;
-    /* 00EC */ float m_unkEC;
-    /* 00F0 */ float m_unkF0;
-    /* 00F4 */ uint8_t m_unkF4;
+    /* 00E8 */ FRAMEPOINT m_anchorPoint;
+    /* 00EC */ float m_xOffsetRatio; // Saved position ratios, not pixel offsets.
+    /* 00F0 */ float m_yOffsetRatio;
+    /* 00F4 */ uint8_t m_hasSavedLayout; // Gates saved position/dimensions; loading either record also sets it.
     /* 00F8 */ float m_width;
     /* 00FC */ float m_height;
 

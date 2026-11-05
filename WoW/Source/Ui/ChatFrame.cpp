@@ -1984,10 +1984,10 @@ void ChatWindowInfo::Init() {
         this->m_channelIDs.m_data[i] = 0;
     }
 
-    this->m_unkE8 = 6;
-    this->m_unkEC = 0.0f;
-    this->m_unkF0 = 0.0f;
-    this->m_unkF4 = 0;
+    this->m_anchorPoint = FRAMEPOINT_BOTTOMLEFT;
+    this->m_xOffsetRatio = 0.0f;
+    this->m_yOffsetRatio = 0.0f;
+    this->m_hasSavedLayout = 0;
     this->m_width = 430.0f;
     this->m_height = 120.0f;
 }
@@ -4754,14 +4754,14 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                     if (!SStrCmpI(word, "POSITION", STORM_MAX_STR)) {
                         SStrTokenize(&rest, word, sizeof(word), " \r\n", nullptr);
-                        StringToFramePoint(word, reinterpret_cast<FRAMEPOINT&>(info->m_unkE8));
+                        StringToFramePoint(word, info->m_anchorPoint);
                         SStrTokenize(&rest, word, sizeof(word), " \r\n", nullptr);
                         float x = SStrToFloat(word);
                         SStrTokenize(&rest, word, sizeof(word), " \r\n", nullptr);
                         float y = SStrToFloat(word);
-                        info->m_unkEC = x;
-                        info->m_unkF0 = y;
-                        info->m_unkF4 = 1;
+                        info->m_xOffsetRatio = x;
+                        info->m_yOffsetRatio = y;
+                        info->m_hasSavedLayout = 1;
                     }
 
                     if (!SStrCmpI(word, "DIMENSIONS", STORM_MAX_STR)) {
@@ -4771,7 +4771,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                         float height = SStrToFloat(word);
                         info->m_width = width;
                         info->m_height = height;
-                        info->m_unkF4 = 1;
+                        info->m_hasSavedLayout = 1;
                     }
 
                     if (!SStrCmpI(word, "ZONECHANNELS", STORM_MAX_STR)) {
@@ -5348,8 +5348,8 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         SStrPrintf(line, sizeof(line), "SHOWN %d\n", info->m_shown != 0);
         OsWriteFile(file, line, SStrLen(line), &written);
 
-        if (info->m_unkF4) {
-            SStrPrintf(line, sizeof(line), "POSITION %s %f %f\n", FramePointToString(static_cast<FRAMEPOINT>(info->m_unkE8)), info->m_unkEC, info->m_unkF0);
+        if (info->m_hasSavedLayout) {
+            SStrPrintf(line, sizeof(line), "POSITION %s %f %f\n", FramePointToString(info->m_anchorPoint), info->m_xOffsetRatio, info->m_yOffsetRatio);
             OsWriteFile(file, line, SStrLen(line), &written);
             SStrPrintf(line, sizeof(line), "DIMENSIONS %f %f\n\n", info->m_width, info->m_height);
             OsWriteFile(file, line, SStrLen(line), &written);
