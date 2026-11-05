@@ -1867,8 +1867,8 @@ void CGQuestLog::HandlePOIQueryResponse(CDataStore* msg) {
                 msg->Get(reinterpret_cast<uint32_t&>(y));
 
                 if (blob) {
-                    blob->m_points.m_data[k].m_x = x;
-                    blob->m_points.m_data[k].m_y = y;
+                    blob->m_points.m_data[k].m_position.x = x;
+                    blob->m_points.m_data[k].m_position.y = y;
                     blob->m_centerX += x;
                     blob->m_centerY += y;
                 }

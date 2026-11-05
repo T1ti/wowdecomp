@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Tempest/C2iVector.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
 
@@ -22,8 +23,7 @@ struct QuestLogEntry {
 };
 
 struct QuestPOIPoint {
-    /* 0000 */ int32_t m_x;
-    /* 0004 */ int32_t m_y;
+    /* 0000 */ C2iVector m_position; // Signed POI XY used for map projection.
 };
 
 struct QuestPOIBlob {

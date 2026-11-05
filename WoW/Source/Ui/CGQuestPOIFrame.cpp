@@ -377,14 +377,14 @@ void CGQuestPOIFrame::BuildBlobOutline(QuestPOIBlob* blob, TSGrowableArray<Quest
     C3Spline_CatmullRom spline;
     C3Vector controls[15];
     uint32_t count = blob->m_points.Count();
-    controls[0] = C3Vector(static_cast<float>(blob->m_points.m_data[count - 1].m_x), static_cast<float>(blob->m_points.m_data[count - 1].m_y), 0.0f);
+    controls[0] = C3Vector(static_cast<float>(blob->m_points.m_data[count - 1].m_position.x), static_cast<float>(blob->m_points.m_data[count - 1].m_position.y), 0.0f);
 
     for (uint32_t i = 0; i < count; i++) {
-        controls[i + 1] = C3Vector(static_cast<float>(blob->m_points.m_data[i].m_x), static_cast<float>(blob->m_points.m_data[i].m_y), 0.0f);
+        controls[i + 1] = C3Vector(static_cast<float>(blob->m_points.m_data[i].m_position.x), static_cast<float>(blob->m_points.m_data[i].m_position.y), 0.0f);
     }
 
-    controls[count + 1] = C3Vector(static_cast<float>(blob->m_points.m_data[0].m_x), static_cast<float>(blob->m_points.m_data[0].m_y), 0.0f);
-    controls[count + 2] = C3Vector(static_cast<float>(blob->m_points.m_data[1].m_x), static_cast<float>(blob->m_points.m_data[1].m_y), 0.0f);
+    controls[count + 1] = C3Vector(static_cast<float>(blob->m_points.m_data[0].m_position.x), static_cast<float>(blob->m_points.m_data[0].m_position.y), 0.0f);
+    controls[count + 2] = C3Vector(static_cast<float>(blob->m_points.m_data[1].m_position.x), static_cast<float>(blob->m_points.m_data[1].m_position.y), 0.0f);
     spline.SetPoints(controls, count + 3);
 
     float t = 0.01f;
@@ -397,8 +397,8 @@ void CGQuestPOIFrame::BuildBlobOutline(QuestPOIBlob* blob, TSGrowableArray<Quest
         QuestPOIPoint* point = points->New();
 
         if (point) {
-            point->m_x = x;
-            point->m_y = y;
+            point->m_position.x = x;
+            point->m_position.y = y;
         }
 
         t = 1.0f / this->m_numSplinePoints + t;
@@ -442,7 +442,7 @@ void CGQuestPOIFrame::BuildBlobRenderData(QuestPOIRenderData* data, QuestPOIBlob
     bool failed = false;
 
     for (uint32_t i = 0; i < count; i++) {
-        C3Vector position(static_cast<float>(points.m_data[i].m_x), static_cast<float>(points.m_data[i].m_y), 0.0f);
+        C3Vector position(static_cast<float>(points.m_data[i].m_position.x), static_cast<float>(points.m_data[i].m_position.y), 0.0f);
         float x;
         float y;
         bool outland = false;
