@@ -10,7 +10,7 @@ class Callback;
 
 class Arg {
     public:
-    enum Type {
+    enum Type : uint32_t { // Keep the native tag word unsigned for switch range checks.
         TYPE_NONE = 0,
         TYPE_BOOL = 1,
         TYPE_INT = 2,
@@ -22,7 +22,7 @@ class Arg {
         TYPE_CALLBACK = 8,
     };
 
-    /* 0000 */ uint32_t m_type;
+    /* 0000 */ Type m_type;
     /* 0008 */ union {
         bool m_bool;
         int64_t m_int;
