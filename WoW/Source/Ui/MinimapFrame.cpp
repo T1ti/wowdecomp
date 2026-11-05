@@ -1283,15 +1283,15 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
             int32_t y = tile[1] + s_tileOffsets[i][1];
 
             for (uint32_t j = 0; j < 4; j++) {
-                if (tiles[j].m_x == x && tiles[j].m_y == y) {
+                if (tiles[j].m_tileCoords.x == x && tiles[j].m_tileCoords.y == y) {
                     if (j != i) {
                         if (tiles[i].m_texture) {
                             HandleClose(reinterpret_cast<HOBJECT>(tiles[i].m_texture));
                         }
 
                         tiles[i].m_texture = tiles[j].m_texture;
-                        tiles[i].m_x = x;
-                        tiles[i].m_y = y;
+                        tiles[i].m_tileCoords.x = x;
+                        tiles[i].m_tileCoords.y = y;
                         tiles[j].m_texture = nullptr;
                     }
 
@@ -1322,8 +1322,8 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
             CTexture* texture = TextureCreate(path, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
             tiles[i].m_flags |= 2;
             tiles[i].m_texture = texture;
-            tiles[i].m_x = source[0];
-            tiles[i].m_y = source[1];
+            tiles[i].m_tileCoords.x = source[0];
+            tiles[i].m_tileCoords.y = source[1];
         } else {
             SysMsgPrintf(SYSMSG_ERROR, 4, "MINIMAPCHUNKNOTFOUND|%d|%d", source[0], source[1]);
         }
@@ -1444,7 +1444,7 @@ static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* q
     for (uint32_t i = 0; i < 256; i++) {
         MINIMAPTILE* tile = &tiles[i];
 
-        if (tile->m_groupId == quad->m_groupId && tile->m_x == quad->m_quad.x && tile->m_y == quad->m_quad.y) {
+        if (tile->m_groupId == quad->m_groupId && tile->m_tileCoords.x == quad->m_quad.x && tile->m_tileCoords.y == quad->m_quad.y) {
             if (tile->m_groupId == currentGroup) {
                 tile->m_flags |= 2;
                 tile->m_depth = 3.4028235e38f;
@@ -1500,8 +1500,8 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
         tiles->m_texture = nullptr;
     }
 
-    tiles->m_x = quad->m_quad.x;
-    tiles->m_y = quad->m_quad.y;
+    tiles->m_tileCoords.x = quad->m_quad.x;
+    tiles->m_tileCoords.y = quad->m_quad.y;
     tiles->m_bounds = quad->m_bounds;
     tiles->m_groupId = quad->m_groupId;
 
@@ -2678,8 +2678,8 @@ void CGMinimapFrame::LeaveWorld() {
         }
 
         s_tiles[i].m_flags = 0;
-        s_tiles[i].m_x = -1;
-        s_tiles[i].m_y = -1;
+        s_tiles[i].m_tileCoords.x = -1;
+        s_tiles[i].m_tileCoords.y = -1;
     }
 
     if (s_indoor.m_texture) {

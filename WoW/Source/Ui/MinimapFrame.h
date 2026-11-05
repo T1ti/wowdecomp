@@ -44,8 +44,7 @@ struct MINIMAPTILE {
     /* 008C */ float m_depth;
     /* 0090 */ CTexture* m_texture;
     /* 0094 */ uint32_t m_flags;
-    /* 0098 */ int32_t m_x;
-    /* 009C */ int32_t m_y;
+    /* 0098 */ C2iVector m_tileCoords; // Signed texture tile/quad indices; LeaveWorld resets both to -1.
     /* 00A0 */ int32_t m_groupId;
 
     void BuildQuad(const CRect& rect, uint32_t index, const C2Vector* center, float scale, const CRect& bounds, float layoutScale, float width);
