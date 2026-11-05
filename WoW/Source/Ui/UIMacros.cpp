@@ -461,7 +461,7 @@ void CGUIMacros::LoadIcons() {
 struct MacroSlashCommand {
     const char* m_token;
     size_t m_length;
-    int32_t m_type;
+    MacroCommand::TYPE m_type;
 };
 
 // VERIFY: 899df668 manual
@@ -509,7 +509,7 @@ int32_t MACRONODE::Parse() {
     MacroSubstring args = { nullptr, nullptr };
 
     while (cursor < end) {
-        int32_t type = 0;
+        MacroCommand::TYPE type = MacroCommand::NONE;
         line.SetText(cursor, end, '\n', &cursor);
         cursor++;
         command.SetText(line.m_start, line.m_end, ' ', &args.m_start);
@@ -517,13 +517,13 @@ int32_t MACRONODE::Parse() {
         if (*command.m_start == '/') {
             // STATIC: 0x00ACE300
             static MacroSlashCommand s_slashCommands[] = {
-                { "SLASH_CAST", SStrLen("SLASH_CAST"), 2 },
-                { "SLASH_CASTRANDOM", SStrLen("SLASH_CASTRANDOM"), 3 },
-                { "SLASH_CASTSEQUENCE", SStrLen("SLASH_CASTSEQUENCE"), 4 },
-                { "SLASH_USE", SStrLen("SLASH_USE"), 2 },
-                { "SLASH_USERANDOM", SStrLen("SLASH_USERANDOM"), 3 },
-                { "SLASH_EQUIP", SStrLen("SLASH_EQUIP"), 5 },
-                { "SLASH_EQUIP_TO_SLOT", SStrLen("SLASH_EQUIP_TO_SLOT"), 6 },
+                { "SLASH_CAST", SStrLen("SLASH_CAST"), MacroCommand::CAST_OR_USE },
+                { "SLASH_CASTRANDOM", SStrLen("SLASH_CASTRANDOM"), MacroCommand::CAST_OR_USE_RANDOM },
+                { "SLASH_CASTSEQUENCE", SStrLen("SLASH_CASTSEQUENCE"), MacroCommand::CAST_SEQUENCE },
+                { "SLASH_USE", SStrLen("SLASH_USE"), MacroCommand::CAST_OR_USE },
+                { "SLASH_USERANDOM", SStrLen("SLASH_USERANDOM"), MacroCommand::CAST_OR_USE_RANDOM },
+                { "SLASH_EQUIP", SStrLen("SLASH_EQUIP"), MacroCommand::EQUIP },
+                { "SLASH_EQUIP_TO_SLOT", SStrLen("SLASH_EQUIP_TO_SLOT"), MacroCommand::EQUIP_TO_SLOT },
             };
 
             for (uint32_t i = 0; !type && i < sizeof(s_slashCommands) / sizeof(s_slashCommands[0]); i++) {
@@ -563,7 +563,7 @@ int32_t MACRONODE::Parse() {
                 this->m_showTooltip = 1;
             }
 
-            type = 1;
+            type = MacroCommand::SHOW;
         }
 
         args.SetText(args.m_start, line.m_end, '\0', nullptr);
@@ -578,10 +578,10 @@ int32_t MACRONODE::Parse() {
 
         const char* c = args.m_start;
 
-        if (type == 4 || *c == '[') {
+        if (type == MacroCommand::CAST_SEQUENCE || *c == '[') {
             this->m_dynamic = 1;
         } else {
-            if (type == 6 && c < args.m_end) {
+            if (type == MacroCommand::EQUIP_TO_SLOT && c < args.m_end) {
                 while (*c >= '0' && *c <= '9') {
                     if (++c >= args.m_end) {
                         break;
@@ -602,7 +602,7 @@ int32_t MACRONODE::Parse() {
         entry->m_type = type;
         entry->m_text = args;
 
-        if (type == 1 || !this->m_dynamic) {
+        if (type == MacroCommand::SHOW || !this->m_dynamic) {
             break;
         }
     }
@@ -955,13 +955,13 @@ int32_t MACRONODE::FindSpellID() {
         }
 
         if (index < count) {
-            int32_t type = this->m_commands.m_data[index].m_type;
+            MacroCommand::TYPE type = this->m_commands.m_data[index].m_type;
 
-            if (type == 3) {
+            if (type == MacroCommand::CAST_OR_USE_RANDOM) {
                 text.SetText(text.m_start, text.m_end, ',', nullptr);
-            } else if (type == 4) {
+            } else if (type == MacroCommand::CAST_SEQUENCE) {
                 MacroQueryCastSequence(&text);
-            } else if (type == 6 && text.m_start < text.m_end) {
+            } else if (type == MacroCommand::EQUIP_TO_SLOT && text.m_start < text.m_end) {
                 while (*text.m_start >= '0' && *text.m_start <= '9') {
                     if (++text.m_start >= text.m_end) {
                         break;
@@ -981,9 +981,9 @@ int32_t MACRONODE::FindSpellID() {
                 if (itemId) {
                     spellId = 0;
                 } else {
-                    int32_t commandType = this->m_commands.m_data[index].m_type;
+                    MacroCommand::TYPE commandType = this->m_commands.m_data[index].m_type;
 
-                    if (commandType != 5 && commandType != 6) {
+                    if (commandType != MacroCommand::EQUIP && commandType != MacroCommand::EQUIP_TO_SLOT) {
                         spellId = GetSpellIdByName(name, &this->m_spellFlags);
                     }
                 }

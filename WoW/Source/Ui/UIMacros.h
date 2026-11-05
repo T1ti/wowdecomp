@@ -11,7 +11,18 @@
 struct lua_State;
 
 struct MacroCommand {
-    /* 0000 */ int32_t m_type;
+    // Parsed commands used for macro spell/item selection, separate from global slash IDs.
+    enum TYPE : int32_t {
+        NONE = 0,
+        SHOW = 1,
+        CAST_OR_USE = 2,
+        CAST_OR_USE_RANDOM = 3,
+        CAST_SEQUENCE = 4,
+        EQUIP = 5,
+        EQUIP_TO_SLOT = 6,
+    };
+
+    /* 0000 */ TYPE m_type;
     /* 0004 */ MacroSubstring m_text;
 };
 
