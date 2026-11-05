@@ -316,7 +316,7 @@ C3Vector CGGameObject_C_Type_Transport::GetMovement(uint32_t time) {
         }
     }
 
-    C33Matrix rotation(reinterpret_cast<const C4Quaternion&>(this->m_owner->m_gameObject->m_parentRotation));
+    C33Matrix rotation(this->m_owner->m_gameObject->m_parentRotation);
     float inverse = 1.0f - t;
     float x = t * following->m_pos[0] + current->m_pos[0] * inverse;
     float y = following->m_pos[1] * t + current->m_pos[1] * inverse;
@@ -360,7 +360,7 @@ C4Quaternion CGGameObject_C_Type_Transport::GetRotation(uint32_t time) {
 
     float t = static_cast<float>(time - current->m_timeIndex) / static_cast<float>(following->m_timeIndex - current->m_timeIndex);
     C4Quaternion rotation = C4Quaternion::Slerp(t, reinterpret_cast<const C4Quaternion&>(current->m_rot), reinterpret_cast<const C4Quaternion&>(following->m_rot));
-    return rotation * reinterpret_cast<const C4Quaternion&>(this->m_owner->m_gameObject->m_parentRotation);
+    return rotation * this->m_owner->m_gameObject->m_parentRotation;
 }
 
 // VERIFY: 007eb5fe auto

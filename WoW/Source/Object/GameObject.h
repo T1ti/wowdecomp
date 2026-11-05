@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "WoW/Source/Object/WGUID.h"
+#include "Engine/Source/Tempest/C4Quaternion.h"
 
 class CGGameObjectData;
 
@@ -46,7 +47,7 @@ class CGGameObjectData {
     /* 0000 */ WOWGUID m_createdBy;
     /* 0008 */ uint32_t m_displayID;
     /* 000C */ uint32_t m_flags;
-    /* 0010 */ float m_parentRotation[4];
+    /* 0010 */ C4Quaternion m_parentRotation; // Native XYZW quaternion; four network float words remain unchanged.
     /* 0020 */ uint16_t m_dynamicFlags;
     /* 0022 */ uint16_t m_pathProgress;
     /* 0024 */ uint32_t m_faction;

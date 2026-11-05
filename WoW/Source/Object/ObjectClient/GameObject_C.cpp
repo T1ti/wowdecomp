@@ -2193,7 +2193,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInit(bool a1) {
 
         z = sqrt(z);
         this->m_proxy.m_sphere.r = sqrt(z * z + y * y + x * x);
-        this->m_proxy.m_uniqueId = reinterpret_cast<const uint32_t&>(this->m_owner->m_gameObject->m_parentRotation[0]) == 0x5476ED ? 0x5476ED : 0;
+        this->m_proxy.m_uniqueId = reinterpret_cast<const uint32_t&>(this->m_owner->m_gameObject->m_parentRotation.x) == 0x5476ED ? 0x5476ED : 0;
 
         if (this->m_proxy.m_sphere.r < 0.001f) {
             this->m_proxy.m_sphere.r = 50.0f;
