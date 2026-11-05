@@ -416,7 +416,7 @@ static float s_mapObjRotation = 90.0f;
 static C2Vector s_tileSize(1066.6666f, 1066.6666f);
 
 // STATIC: 0x00A41EF0
-static const int32_t s_tileOffsets[4][2] = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } };
+static const C2iVector s_tileOffsets[4] = { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } };
 
 // INLINED
 void CGMinimapFrame::operator delete(void* ptr) {
@@ -1279,8 +1279,8 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
 
     if (!reset) {
         for (uint32_t i = 0; i < 4; i++) {
-            int32_t x = tile[0] + s_tileOffsets[i][0];
-            int32_t y = tile[1] + s_tileOffsets[i][1];
+            int32_t x = tile[0] + s_tileOffsets[i].x;
+            int32_t y = tile[1] + s_tileOffsets[i].y;
 
             for (uint32_t j = 0; j < 4; j++) {
                 if (tiles[j].m_tileCoords.x == x && tiles[j].m_tileCoords.y == y) {
@@ -1307,8 +1307,8 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
         }
 
         int32_t source[2];
-        source[0] = tile[0] + s_tileOffsets[i][0];
-        source[1] = tile[1] + s_tileOffsets[i][1];
+        source[0] = tile[0] + s_tileOffsets[i].x;
+        source[1] = tile[1] + s_tileOffsets[i].y;
         char path[260];
         MinimapBuildSource(source, path, sizeof(path));
 
