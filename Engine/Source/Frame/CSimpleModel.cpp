@@ -341,7 +341,7 @@ void CSimpleModel::SetCameraByIndex(uint32_t index) {
     }
 
     if (index < model->m_shared->m_data->m_cameras.m_count) {
-        this->SetCamera(static_cast<CCamera*>(this->m_model->GetCameraByIndex(index)));
+        this->SetCamera(this->m_model->GetCameraByIndex(index));
         return;
     }
 

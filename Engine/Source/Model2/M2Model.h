@@ -340,7 +340,7 @@ class CM2Model {
     uint32_t GetNumPrimitives();
     int32_t HasCamera(uint32_t id);
     void SetEmittersEnabled(int32_t enabled);
-    void* GetCameraByIndex(uint32_t index);
+    CCamera* GetCameraByIndex(uint32_t index); // Borrowed camera-service handle; the model retains ownership.
     uint32_t GetCurrentLightCount();
     uint32_t GetInstanceCountMax();
     int32_t HasLiveParticles();

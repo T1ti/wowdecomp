@@ -4195,7 +4195,7 @@ int32_t CGCamera::FinishLoadingModel() {
     this->m_model->SetAnimating(1);
     C3Vector cameraPos;
     this->GetScene()->Animate(cameraPos);
-    void* camera = this->m_model->GetCameraByIndex(0);
+    CCamera* camera = this->m_model->GetCameraByIndex(0);
 
     if (!camera) {
         this->m_model->Release();
@@ -4203,7 +4203,7 @@ int32_t CGCamera::FinishLoadingModel() {
         return 0;
     }
 
-    this->m_modelCameraHandle = HandleDuplicate(static_cast<HOBJECT>(camera));
+    this->m_modelCameraHandle = HandleDuplicate(reinterpret_cast<HOBJECT>(camera));
     C3Vector position;
     C3Vector target;
     DataMgrGetCoord(reinterpret_cast<CDataMgr*>(this->m_modelCameraHandle), 7, &position);

@@ -257,7 +257,7 @@ void CM2Model::SetLightEnabled(uint32_t index, uint32_t enabled) {
 
 // VERIFY: 15a8f3dc auto
 // OFFSET: 0x00824170
-void* CM2Model::GetCameraByIndex(uint32_t index) {
+CCamera* CM2Model::GetCameraByIndex(uint32_t index) {
     if (!(this->m_runtimeFlags & 1)) {
         this->WaitForLoad(nullptr);
     }
