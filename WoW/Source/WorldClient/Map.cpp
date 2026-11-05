@@ -5844,8 +5844,8 @@ void CMap::RenderFootprints() {
             CGxTex* gxTex = TextureGetGxTex(texture.m_texture, 0, nullptr);
 
             if (gxTex) {
-                CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, 44, texture.m_vertexCount);
-                float* vertices = reinterpret_cast<float*>(g_theGxDevicePtr->BufLock(vertexBuf));
+                CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNCT2), texture.m_vertexCount);
+                CGxVertexPNCT2* vertices = reinterpret_cast<CGxVertexPNCT2*>(g_theGxDevicePtr->BufLock(vertexBuf));
                 CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, texture.m_vertexCount);
                 uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
                 uint16_t next = 0;
@@ -5860,19 +5860,19 @@ void CMap::RenderFootprints() {
 
                     for (uint32_t v = 0; v < footprint->m_vertices.Count(); v++) {
                         CGxVertexPT0T1& src = footprint->m_vertices.m_data[v];
-                        vertices[0] = src.m_position.x;
-                        vertices[1] = src.m_position.y;
-                        vertices[2] = src.m_position.z;
-                        vertices[3] = 0.0f;
-                        vertices[4] = 0.0f;
-                        vertices[5] = 1.0f;
-                        *reinterpret_cast<CImVector*>(&vertices[6]) = color;
-                        vertices[7] = src.m_texture0.x;
-                        vertices[8] = src.m_texture0.y;
-                        vertices[9] = src.m_texture1.x;
-                        vertices[10] = src.m_texture1.y;
+                        vertices->p.x = src.m_position.x;
+                        vertices->p.y = src.m_position.y;
+                        vertices->p.z = src.m_position.z;
+                        vertices->n.x = 0.0f;
+                        vertices->n.y = 0.0f;
+                        vertices->n.z = 1.0f;
+                        vertices->c = color;
+                        vertices->tc[0].x = src.m_texture0.x;
+                        vertices->tc[0].y = src.m_texture0.y;
+                        vertices->tc[1].x = src.m_texture1.x;
+                        vertices->tc[1].y = src.m_texture1.y;
                         *indices = next++;
-                        vertices += 11;
+                        vertices++;
                         indices++;
                     }
                 }

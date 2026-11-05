@@ -9,6 +9,7 @@
 #include "Engine/Source/Tempest/CAaSphere.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Gx/CGxVertexPC.h"
+#include "Engine/Source/Gx/CGxVertexPNCT2.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "WoW/Source/WorldClient/CMapBaseObjLink.h"
