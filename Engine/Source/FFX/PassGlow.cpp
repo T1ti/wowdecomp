@@ -12,11 +12,11 @@
 
 // STATIC: 0x00AD88F0
 static CGxVertexAttrib s_vertexAttribsPCT3[] = {
-    { GxVA_Position, 4, 0, 40 },
-    { GxVA_Color0, 0, 12, 40 },
-    { GxVA_TexCoord0, 3, 16, 40 },
-    { GxVA_TexCoord1, 3, 24, 40 },
-    { GxVA_TexCoord2, 3, 32, 40 }
+    { GxVA_Position, GxVAT_Float3, 0, 40 },
+    { GxVA_Color0, GxVAT_Color, 12, 40 },
+    { GxVA_TexCoord0, GxVAT_Float2, 16, 40 },
+    { GxVA_TexCoord1, GxVAT_Float2, 24, 40 },
+    { GxVA_TexCoord2, GxVAT_Float2, 32, 40 }
 };
 
 // STATIC: 0x00B24B20

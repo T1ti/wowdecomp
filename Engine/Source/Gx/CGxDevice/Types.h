@@ -30,10 +30,22 @@ enum EGxVertexAttrib {
     GxVAs_Last = 14,
 };
 
+// Storage slots recovered from the D3D declaration and OpenGL pointer tables.
+enum EGxVertexAttribType : uint32_t {
+    GxVAT_Color = 0,
+    GxVAT_UByte4 = 1,
+    GxVAT_UByte4N = 2,
+    GxVAT_Float2 = 3,
+    GxVAT_Float3 = 4,
+    GxVAT_Short2 = 5,
+    GxVAT_Float1 = 6,
+    GxVertexAttribTypes_Last = 7,
+};
+
 class CGxVertexAttrib {
     public:
     /* 0000 */ EGxVertexAttrib m_attrib;
-    /* 0004 */ uint32_t m_type;
+    /* 0004 */ EGxVertexAttribType m_type;
     /* 0008 */ uint32_t m_offset;
     /* 000C */ uint32_t m_bufSize;
 };

@@ -77,13 +77,13 @@ static GlTexEnvOp s_texEnvOps[GxTexOps_Last] = {
 static GLfloat s_texEnvColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // STATIC: 0x00A2E01C
-static const GLint s_glAttribSize[7] = { 4, 4, 4, 2, 3, 2, 1 };
+static const GLint s_glAttribSize[GxVertexAttribTypes_Last] = { 4, 4, 4, 2, 3, 2, 1 };
 
 // STATIC: 0x00A2E038
-static const GLenum s_glAttribType[7] = { GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT, GL_FLOAT, GL_SHORT, GL_FLOAT };
+static const GLenum s_glAttribType[GxVertexAttribTypes_Last] = { GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_UNSIGNED_BYTE, GL_FLOAT, GL_FLOAT, GL_SHORT, GL_FLOAT };
 
 // STATIC: 0x00A2E054
-static const GLboolean s_glAttribNormalized[7] = { GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE };
+static const GLboolean s_glAttribNormalized[GxVertexAttribTypes_Last] = { GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE };
 
 // STATIC: 0x00AD8D90
 static GLenum s_glBlendSrc[12] = { GL_ONE, GL_ONE, GL_SRC_ALPHA, GL_SRC_ALPHA, GL_DST_COLOR, GL_DST_COLOR, GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE, GL_CONSTANT_ALPHA_EXT };
