@@ -322,10 +322,15 @@ namespace DayNight {
 
 namespace DayNight {
 struct AreaLightOverride {
+    enum STATE : int32_t {
+        FADE_IN = 1,
+        FADE_OUT = 2,
+    };
+
     /* 0000 */ uint32_t m_id;
     /* 0004 */ LightRec* m_light;
     /* 0008 */ float m_fade;
-    /* 000C */ int32_t m_state;
+    /* 000C */ STATE m_state;
     /* 0010 */ uint32_t m_lastTime;
     /* 0014 */ uint32_t m_duration;
 };

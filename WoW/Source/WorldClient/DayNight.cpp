@@ -2100,10 +2100,10 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
         uint32_t elapsed = now - override->m_lastTime;
         override->m_lastTime = now;
 
-        if (override->m_state == 1) {
+        if (override->m_state == AreaLightOverride::FADE_IN) {
             float fade = static_cast<float>(elapsed) / static_cast<float>(override->m_duration) + override->m_fade;
             override->m_fade = fade > 1.0f ? 1.0f : fade;
-        } else if (override->m_state == 2) {
+        } else if (override->m_state == AreaLightOverride::FADE_OUT) {
             float fade = override->m_fade - static_cast<float>(elapsed) / static_cast<float>(override->m_duration);
             override->m_fade = fade < 0.0f ? 0.0f : fade;
         }
@@ -2120,7 +2120,7 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
             }
         }
 
-        if (override->m_state == 2 && override->m_fade == 0.0f) {
+        if (override->m_state == AreaLightOverride::FADE_OUT && override->m_fade == 0.0f) {
             LightRec* rec = override->m_light;
             count--;
             rec->~LightRec();
@@ -3269,7 +3269,7 @@ void DayNight::AddLightOverride(int32_t lightId, int32_t overrideId, uint32_t du
     entry->m_light = rec;
     entry->m_fade = 0.0f;
     entry->m_id = lightId;
-    entry->m_state = 1;
+    entry->m_state = AreaLightOverride::FADE_IN;
     entry->m_lastTime = OsGetAsyncTimeMs();
     entry->m_duration = duration;
     DayNight::ResetFogAccumulators(true);
@@ -3284,7 +3284,7 @@ void DayNight::RemoveLightOverride(int32_t lightId, uint32_t duration) {
         }
 
         AreaLightOverride* entry = &s_areaLightOverrides.m_data[i];
-        entry->m_state = 2;
+        entry->m_state = AreaLightOverride::FADE_OUT;
         entry->m_lastTime = OsGetAsyncTimeMs();
         entry->m_duration = duration;
         DayNight::ResetFogAccumulators(true);
