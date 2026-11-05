@@ -964,7 +964,7 @@ bool BlizzardObject::Update() {
 
         shard->m_model = World::s_m2Scene->CreateModel(this->m_modelName, 0);
         shard->m_model->SetEventCallback(reinterpret_cast<void*>(&ShardAnimEventCallback), 0);
-        shard->m_model->SetSequenceCallback(reinterpret_cast<void*>(&ShardSequenceCallback), reinterpret_cast<uintptr_t>(shard));
+        shard->m_model->SetSequenceCallback(&ShardSequenceCallback, reinterpret_cast<uintptr_t>(shard));
         uint32_t now = FrameTime::s_curTimeMs;
         int32_t delay = static_cast<int32_t>(CRandom::ufloat_(g_rndSeed) * 255.0f);
         shard->m_startTime = now + 2 * delay;

@@ -1072,7 +1072,7 @@ int32_t CGCamera::SetModelCamera(const char* fileName, const C3Vector* position,
         return 0;
     }
 
-    this->m_model->SetSequenceCallback(reinterpret_cast<void*>(callback), param);
+    this->m_model->SetSequenceCallback(callback, param);
     this->m_modelMatrix.c2 = 1.0f;
     this->m_modelMatrix.b1 = 1.0f;
     this->m_modelMatrix.a0 = 1.0f;

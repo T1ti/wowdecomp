@@ -1445,7 +1445,7 @@ void CGObject_C::OnSpellEffectClear(CEffect* effect) {
     if (effect->m_model && effect->m_model->IsLoaded(0, 0) && effect->m_model->HasSequence(ANIM_EFFECT_DECAY)) {
         effect->m_flags &= ~CEffect::EFFECT_FLAGS::EFFECT_AURA_ANIMATION;
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
-        effect->m_model->SetSequenceCallback(reinterpret_cast<void*>(&CGObject_C::AuraDecayHandler), reinterpret_cast<uintptr_t>(effect));
+        effect->m_model->SetSequenceCallback(&CGObject_C::AuraDecayHandler, reinterpret_cast<uintptr_t>(effect));
         return;
     }
 
@@ -1479,7 +1479,7 @@ void CGObject_C::AuraEffectHoldHandler(CM2Model* model, uint32_t boneId, uint32_
 
     if (endTime && static_cast<int32_t>(OsGetAsyncTimeMs() - endTime) > 0) {
         if (effect->m_model->HasSequence(ANIM_EFFECT_DECAY)) {
-            effect->m_model->SetSequenceCallback(reinterpret_cast<void*>(&CGObject_C::EffectDecayHandler), reinterpret_cast<uintptr_t>(effect));
+            effect->m_model->SetSequenceCallback(&CGObject_C::EffectDecayHandler, reinterpret_cast<uintptr_t>(effect));
             effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         } else {
             effect->MoveToDestroyList();
@@ -1499,10 +1499,10 @@ void CGObject_C::AuraEffectHandler(CM2Model* model, uint32_t boneId, uint32_t se
     }
 
     if (effect->m_kitRec && (effect->m_kitRec->m_flags & 0x20)) {
-        effect->m_model->SetSequenceCallback(reinterpret_cast<void*>(&CGObject_C::AuraEffectHoldHandler), reinterpret_cast<uintptr_t>(effect));
+        effect->m_model->SetSequenceCallback(&CGObject_C::AuraEffectHoldHandler, reinterpret_cast<uintptr_t>(effect));
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else if (effect->m_model->HasSequence(ANIM_EFFECT_HOLD)) {
-        effect->m_model->SetSequenceCallback(reinterpret_cast<void*>(&CGObject_C::AuraEffectHoldHandler), reinterpret_cast<uintptr_t>(effect));
+        effect->m_model->SetSequenceCallback(&CGObject_C::AuraEffectHoldHandler, reinterpret_cast<uintptr_t>(effect));
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_HOLD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }
@@ -1851,7 +1851,7 @@ void CGObject_C::EffectOnceHandler(CM2Model* model, uint32_t boneId, uint32_t se
     }
 
     if (effect->m_model && effect->m_model->HasSequence(ANIM_EFFECT_DECAY)) {
-        effect->m_model->SetSequenceCallback(reinterpret_cast<void*>(&CGObject_C::EffectDecayHandler), reinterpret_cast<uintptr_t>(effect));
+        effect->m_model->SetSequenceCallback(&CGObject_C::EffectDecayHandler, reinterpret_cast<uintptr_t>(effect));
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
         return;
     }

@@ -1107,7 +1107,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_nameDesc = nullptr;
 
     uint32_t torsoAnim = this->GetCurrentTorsoAnimId();
-    model->SetSequenceCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEndCallback), this->m_obj->m_guid.m_guid);
+    model->SetSequenceCallback(&CGUnit_C::AnimEndCallback, this->m_obj->m_guid.m_guid);
     model->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
     this->SetCharacterModel(model);
     model->Release();
@@ -9846,7 +9846,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     MovementUpdateCameraYaw(this->m_obj->m_guid, this->m_movementData.m_transportGuid);
 
     CM2Model* model = this->m_worldModel;
-    model->SetSequenceCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEndCallback), this->m_obj->m_guid.m_guid);
+    model->SetSequenceCallback(&CGUnit_C::AnimEndCallback, this->m_obj->m_guid.m_guid);
     model->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
 
     if (this->m_displayInfo) {
@@ -21408,7 +21408,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
 
         this->m_mountScale = displayInfo->m_creatureModelScale;
         CM2Model* mount = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
-        mount->SetSequenceCallback(reinterpret_cast<void*>(&CGUnit_C::MountAnimEndCallback), this->m_obj->m_guid.m_guid);
+        mount->SetSequenceCallback(&CGUnit_C::MountAnimEndCallback, this->m_obj->m_guid.m_guid);
         mount->SetEventCallback(reinterpret_cast<void*>(&CGUnit_C::AnimEventCallback), this->m_obj->m_guid.m_guid);
         C44Matrix transform = this->m_worldModel->m_worldTransform;
         mount->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;

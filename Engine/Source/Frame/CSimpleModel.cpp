@@ -520,7 +520,7 @@ void CSimpleModel::SetModel(CM2Model* model) {
 
     if (model) {
         model->m_fadeAlpha = static_cast<uint8_t>(this->m_alpha * this->m_parentAlpha / 255) * 0.0039215689f;
-        this->m_model->SetSequenceCallback(reinterpret_cast<void*>(&AnimFinishedCallback), reinterpret_cast<uintptr_t>(this));
+        this->m_model->SetSequenceCallback(&AnimFinishedCallback, reinterpret_cast<uintptr_t>(this));
         this->m_model->m_lightingCallback = &CSimpleModel::LightingCallback;
         this->m_model->m_lightingArg = this;
         this->m_model->SetLoadedCallback(&CSimpleModel::ModelLoaded, this);

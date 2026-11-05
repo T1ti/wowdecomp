@@ -188,7 +188,7 @@ static int32_t BatchesMatch(const M2Batch* a, const M2Batch* b, const M2SkinSect
 
 // VERIFY: bf4ba22e auto
 // OFFSET: 0x00823FE0
-void CM2Model::SetSequenceCallback(void* callback, uint64_t param) {
+void CM2Model::SetSequenceCallback(M2SequenceCallback callback, uint64_t param) {
     if (this->m_sequenceCallback == callback && this->m_sequenceCallbackParam == param) {
         return;
     }
@@ -1524,7 +1524,7 @@ float CM2Model::GetBoneSequenceSpeed(uint32_t boneId) {
 // VERIFY: 6b99d12c manual
 // OFFSET: 0x008269C0
 int32_t CM2Model::OnSequenceInterrupted(uint32_t boneId, uint16_t boneIndex) {
-    M2SequenceCallback callback = reinterpret_cast<M2SequenceCallback>(this->m_sequenceCallback);
+    M2SequenceCallback callback = this->m_sequenceCallback;
     M2ModelBone* bone = &this->m_bones[boneIndex];
 
     if (!callback || bone->m_sequence.m_sequenceIndex == 0xFFFF || bone->m_sequence.m_finished) {
@@ -4870,7 +4870,7 @@ void CM2Model::AnimateAttachmentsMT() {
 
 // VERIFY: a16ddee7 auto
 // OFFSET: 0x0082E720
-int32_t __stdcall CM2Model::SequenceCallback(void* callback, CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint32_t sequenceIndex, uint32_t startTime, uint64_t param) {
+int32_t __stdcall CM2Model::SequenceCallback(M2SequenceCallback callback, CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint32_t sequenceIndex, uint32_t startTime, uint64_t param) {
     if (CM2Model::s_sequenceCallbacks.Count() >= 0x10000) {
         return 0;
     }
@@ -4881,7 +4881,7 @@ int32_t __stdcall CM2Model::SequenceCallback(void* callback, CM2Model* model, ui
         return 0;
     }
 
-    entry->m_callback = callback;
+    entry->m_callback = reinterpret_cast<void*>(callback);
     entry->m_model = model;
     entry->m_boneId = boneId;
     entry->m_id = sequenceId;

@@ -182,7 +182,7 @@ class CM2Model {
     /* 006C */ CM2Model* m_drawNext;
     /* 0070 */ int32_t* m_loops;
     /* 0074 */ uint32_t m_loopOrigin;
-    /* 0078 */ void* m_sequenceCallback;
+    /* 0078 */ M2SequenceCallback m_sequenceCallback;
     /* 007C */ uint32_t unused_007C;
     /* 0080 */ uint64_t m_sequenceCallbackParam;
     /* 0088 */ float m_scaleSq;
@@ -243,7 +243,7 @@ class CM2Model {
     static TSGrowableArray<C3Vector> s_collisionPositions;
     static TSGrowableArray<uint32_t> s_collisionCodes;
 
-    static int32_t __stdcall SequenceCallback(void* callback, CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint32_t sequenceIndex, uint32_t startTime, uint64_t param);
+    static int32_t __stdcall SequenceCallback(M2SequenceCallback callback, CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint32_t sequenceIndex, uint32_t startTime, uint64_t param);
     static void RenderModelBatchesShadowMap(const CModelBatchList& untextured, const CModelBatchList& textured);
     static void RenderModelBatchListShadowMap(int32_t untextured, const CModelBatchList& list);
     static void TransformVertices_cpp(CM2Model* model, M2SkinSection* section, uint8_t* vertices, int32_t texCoord);
@@ -356,7 +356,7 @@ class CM2Model {
     void SetLightEnabled(uint32_t index, uint32_t enabled);
     void SetLoadedCallback(void (*callback)(CM2Model*, void*), void* arg);
     void SetRibbonsEnabled(uint32_t enabled);
-    void SetSequenceCallback(void* callback, uint64_t param);
+    void SetSequenceCallback(M2SequenceCallback callback, uint64_t param);
     void SetWorldTransform(const C44Matrix& matrix);
     void SetWorldTransform(const C3Vector& position, float rotation, float scale);
     void SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t flags);

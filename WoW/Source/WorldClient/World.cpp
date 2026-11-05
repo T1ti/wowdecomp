@@ -5266,7 +5266,7 @@ void World::ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callbac
     if (object->m_type & CMapBaseObj::Type_MapObjDef) {
         static_cast<CMapObjDef*>(object)->SetSequenceFinishedCallback(callback, param, doodad);
     } else if ((object->m_type & CMapBaseObj::Type_DoodadDef) && entity->m_model) {
-        entity->m_model->SetSequenceCallback(reinterpret_cast<void*>(callback), param);
+        entity->m_model->SetSequenceCallback(callback, param);
     }
 }
 

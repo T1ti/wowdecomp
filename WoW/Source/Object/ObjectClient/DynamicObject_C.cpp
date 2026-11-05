@@ -78,7 +78,7 @@ void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, 
 
     if (this->GetObjectModel()) {
         this->GetObjectModel()->SetEventCallback(reinterpret_cast<void*>(&AnimEventCallback), this->m_obj->m_guid.m_guid);
-        this->GetObjectModel()->SetSequenceCallback(reinterpret_cast<void*>(&AnimFinishedCallback), this->m_obj->m_guid.m_guid);
+        this->GetObjectModel()->SetSequenceCallback(&AnimFinishedCallback, this->m_obj->m_guid.m_guid);
 
         if (this->m_stateFlags & 0x2) {
             this->GetObjectModel()->SetEmittersEnabled(0);
@@ -230,7 +230,7 @@ void CGDynamicObject_C::HandleOutOfRange(OUT_OF_RANGE_TYPE type) {
 
     if (model && model->IsLoaded(0, 0) && model->HasSequence(ANIM_EFFECT_DECAY)) {
         ClntObjMgrLockObject(this->m_obj->m_guid);
-        model->SetSequenceCallback(reinterpret_cast<void*>(&DynamicObjectDecayHandler), reinterpret_cast<uintptr_t>(this));
+        model->SetSequenceCallback(&DynamicObjectDecayHandler, reinterpret_cast<uintptr_t>(this));
         model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }

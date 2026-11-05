@@ -131,7 +131,7 @@ void CMapObjDefGroup::SetSequenceFinishedCallback(M2SequenceCallback callback, u
         }
 
         if (doodadDef->m_model && doodadDef->m_doodadSet == doodadSet) {
-            doodadDef->m_model->SetSequenceCallback(reinterpret_cast<void*>(callback), param);
+            doodadDef->m_model->SetSequenceCallback(callback, param);
         }
     }
 }
