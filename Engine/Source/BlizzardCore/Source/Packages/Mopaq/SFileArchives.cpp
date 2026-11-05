@@ -173,7 +173,7 @@ bool System_SFile::BlockEntryTable::UnpackEntry(uint32_t index, BLOCKENTRY* entr
         entry->m_flags = this->m_flagTable[entry->m_flags];
     }
 
-    if (this->m_tableFlags & 0x200) {
+    if (this->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_PACKED_MD5_CHECK) {
         uint8_t md5Check = 0;
         this->m_entries->ReadBits(base + this->m_md5Bit, this->m_md5Bits, &md5Check, 1);
         entry->m_md5Check = md5Check != 0;
@@ -707,7 +707,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
                     break;
                 }
 
-                if (!(flags & 0x20) || !haveCandidate) {
+                if (!(flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_RETRY_HEADER_CANDIDATE) || !haveCandidate) {
                     error = "OpenArchive - SFILE_ERROR_NOT_ARCHIVE - %s";
                     goto fail;
                 }
@@ -770,14 +770,14 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
                 haveCandidate = true;
                 candidate = archive->m_archiveOffset;
 
-                if (retried || !(flags & 0x20)) {
+                if (retried || !(flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_RETRY_HEADER_CANDIDATE)) {
                     break;
                 }
             }
         }
 
     next:
-        if (flags & 8) {
+        if (flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_NO_HEADER_SCAN) {
             error = "OpenArchive - SFILE_ERROR_NOT_ARCHIVE - %s";
             goto fail;
         }
@@ -800,7 +800,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
         System_MPQGlobals::GetArchiveList()->insert(archive);
     }
 
-    if (flags & 0x800) {
+    if (flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN) {
         archive->InitializeTables();
     }
 
@@ -858,7 +858,7 @@ bool Blizzard::Mopaq::SFileOpenArchive(const char* path, int32_t priority, uint3
     }
 
     if (exists == 1) {
-        int32_t mode = ((flags & 0x10) | 0x8028) >> 3;
+        int32_t mode = ((flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_UNKNOWN_10) | 0x8028) >> 3;
         IOUnit* file;
 
         if (mode & 0x40) {
@@ -955,7 +955,7 @@ void System_SFile::BlockEntryTable::SetLayout(BLOCKENTRY& maxima) {
         this->UpdateLayout();
     }
 
-    if (this->m_tableFlags & 0x200) {
+    if (this->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_PACKED_MD5_CHECK) {
         this->m_md5Bits = 1;
         this->UpdateLayout();
     }
@@ -996,7 +996,7 @@ bool System_SFile::BlockEntryTable::PackEntry(uint32_t index, const BLOCKENTRY* 
         return false;
     }
 
-    if (this->m_tableFlags & 0x200) {
+    if (this->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_PACKED_MD5_CHECK) {
         uint8_t md5Check = entry->m_md5Check != 0;
         return this->m_entries->WriteBits(base + this->m_md5Bit, this->m_md5Bits, &md5Check, 1);
     }
@@ -1036,15 +1036,15 @@ System_SFile::BlockEntryTable::BlockEntryTable(uint32_t count, uint32_t flags) {
     this->m_count = count;
     this->m_tableFlags = flags;
 
-    if (flags & 0x80) {
+    if (flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_CRC) {
         this->m_crcs.resize(this->m_count, 0);
     }
 
-    if (this->m_tableFlags & 0x40) {
+    if (this->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_MD5) {
         this->m_md5s.resize(this->m_count);
     }
 
-    if (this->m_tableFlags & 0x100) {
+    if (this->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_FILETIME) {
         this->m_fileTimes.resize(this->m_count, 0);
     }
 }
@@ -1301,7 +1301,7 @@ void System_SFile::ARCHIVEREC::InitializeTables() {
         }
     }
 
-    if (!(this->m_flags & 0x10) && (this->m_flags & 0x400)) {
+    if (!(this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_UNKNOWN_10) && (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_CONVERT_LEGACY_TABLES)) {
         this->BuildBlockTable();
         this->ConvertToNewHashTableFormat();
     }
@@ -1338,15 +1338,15 @@ System_SFile::BLOCKENTRY System_SFile::ARCHIVEREC::GetBlockEntry(uint32_t index)
     BLOCKENTRY entry;
     blocks->UnpackEntry(index, &entry);
 
-    if (this->m_flags & 0x80) {
+    if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_CRC) {
         entry.m_crc = this->m_blockEntryTable->m_crcs[index];
     }
 
-    if (this->m_flags & 0x40) {
+    if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_MD5) {
         entry.m_md5 = this->m_blockEntryTable->m_md5s[index];
     }
 
-    if (this->m_flags & 0x100) {
+    if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_FILETIME) {
         entry.m_fileTime = this->m_blockEntryTable->m_fileTimes[index];
     }
 
@@ -1486,7 +1486,7 @@ bool System_SFile::CreateArchiveView(IOUnit* file, const char* name, int32_t pri
     ARCHIVEREC* archive = NewZerofill<ARCHIVEREC>();
     archive->m_priority = priority;
     archive->m_id = s_nextArchiveId.Increment() - 1;
-    archive->m_flags = 16;
+    archive->m_flags = System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_UNKNOWN_10;
     archive->m_externalRefs.Increment();
     archive->m_internalRefs.Increment();
 
@@ -1850,7 +1850,7 @@ void System_SFile::ARCHIVEREC::SetMD5Check(uint32_t index, bool enabled) {
     BlockEntryTable* blocks = this->m_blockEntryTable;
 
     if (blocks) {
-        if ((this->m_flags & 0x200) && (blocks->m_tableFlags & 0x200)) {
+        if ((this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_PACKED_MD5_CHECK) && (blocks->m_tableFlags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_PACKED_MD5_CHECK)) {
             uint8_t bit = enabled;
             blocks->m_entries->WriteBits(blocks->m_md5Bit + index * blocks->m_entryBits, blocks->m_md5Bits, &bit, 1);
         }
@@ -1871,7 +1871,7 @@ void System_SFile::ARCHIVEREC::SetBlockFileTime(uint32_t index, uint64_t fileTim
     BlockEntryTable* blocks = this->m_blockEntryTable;
 
     if (blocks) {
-        if (this->m_flags & 0x100) {
+        if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_FILETIME) {
             blocks->m_fileTimes[index] = fileTime;
         }
     } else {
@@ -1885,7 +1885,7 @@ void System_SFile::ARCHIVEREC::SetBlockMd5(uint32_t index, const Blizzard::Util:
     BlockEntryTable* blocks = this->m_blockEntryTable;
 
     if (blocks) {
-        if (this->m_flags & 0x40) {
+        if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_MD5) {
             blocks->m_md5s[index] = md5;
         }
     } else {
@@ -1899,7 +1899,7 @@ void System_SFile::ARCHIVEREC::SetBlockCrc(uint32_t index, uint32_t crc) {
     BlockEntryTable* blocks = this->m_blockEntryTable;
 
     if (blocks) {
-        if (this->m_flags & 0x80) {
+        if (this->m_flags & System_SFile::ARCHIVE_FLAGS::ARCHIVE_FLAG_BLOCK_CRC) {
             blocks->m_crcs[index] = crc;
         }
     } else {
