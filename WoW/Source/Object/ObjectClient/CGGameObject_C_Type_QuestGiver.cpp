@@ -25,7 +25,7 @@ int32_t CGGameObject_C_Type_QuestGiver::CanChangeCursor() const {
 // OFFSET: 0x0070FF20
 void CGGameObject_C_Type_QuestGiver::CloseInteraction() {
     uint32_t customAnimPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_CUSTOMANIM);
-    GameObjectStats* customAnimStats = this->m_owner->m_stats;
+    const GameObjectStats* customAnimStats = this->m_owner->m_stats;
     uint32_t customAnim = (customAnimStats && customAnimPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? customAnimStats->m_propValue[customAnimPropertyIndex] : 0;
 
     if (customAnim) {
@@ -41,11 +41,11 @@ void CGGameObject_C_Type_QuestGiver::CloseInteraction() {
 // OFFSET: 0x0070FE10
 void CGGameObject_C_Type_QuestGiver::StartInteraction() {
     uint32_t customAnimPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_CUSTOMANIM);
-    GameObjectStats* customAnimStats = this->m_owner->m_stats;
+    const GameObjectStats* customAnimStats = this->m_owner->m_stats;
 
     if (customAnimStats && customAnimPropertyIndex < GameObjectStats::NUM_PROP_VALUES && customAnimStats->m_propValue[customAnimPropertyIndex]) {
         uint32_t playAnimPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_CUSTOMANIM);
-        GameObjectStats* playAnimStats = this->m_owner->m_stats;
+        const GameObjectStats* playAnimStats = this->m_owner->m_stats;
         this->m_owner->PlayCustomAnim(playAnimStats && playAnimPropertyIndex < GameObjectStats::NUM_PROP_VALUES ? playAnimStats->m_propValue[playAnimPropertyIndex] - 1 : 0xFFFFFFFF);
         return;
     }

@@ -7962,7 +7962,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
                 header = true;
             }
 
-            GameObjectStats* stats = object->m_stats;
+            const GameObjectStats* stats = object->m_stats;
 
             if (!stats) {
                 continue;

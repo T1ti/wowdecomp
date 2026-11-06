@@ -26,7 +26,7 @@ void CGGameObject_C_Type_Door::UpdateAnimState(uint32_t state) {
 // OFFSET: 0x0070FD50
 bool CGGameObject_C_Type_Door::CheckPropState() const {
     uint32_t autoClosePropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_AUTOCLOSE);
-    GameObjectStats* autoCloseStats = this->m_owner->m_stats;
+    const GameObjectStats* autoCloseStats = this->m_owner->m_stats;
     uint32_t autoClose = (autoCloseStats && autoClosePropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? autoCloseStats->m_propValue[autoClosePropertyIndex] : 0;
 
     if (!autoClose) {
@@ -34,7 +34,7 @@ bool CGGameObject_C_Type_Door::CheckPropState() const {
     }
 
     uint32_t startOpenPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_STARTOPEN);
-    GameObjectStats* startOpenStats = this->m_owner->m_stats;
+    const GameObjectStats* startOpenStats = this->m_owner->m_stats;
     uint32_t startOpen = (startOpenStats && startOpenPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? startOpenStats->m_propValue[startOpenPropertyIndex] : 0;
 
     if (startOpen) {

@@ -2143,7 +2143,7 @@ void CGGameObject_C_Type_TransportBase::PostReenable() {
 // OFFSET: 0x007101C0
 void CGGameObject_C_Type_MapObjTransport::UpdateState(int32_t oldState, int32_t newState) {
     uint32_t allowStoppingPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
-    GameObjectStats* allowStoppingStats = this->m_owner->m_stats;
+    const GameObjectStats* allowStoppingStats = this->m_owner->m_stats;
     uint32_t allowStopping = (allowStoppingStats && allowStoppingPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? allowStoppingStats->m_propValue[allowStoppingPropertyIndex] : 0;
 
     if (!allowStopping) {
@@ -2991,20 +2991,20 @@ void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
     }
 
     uint32_t transportPhysicsPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TRANSPORTPHYSICS);
-    GameObjectStats* transportPhysicsStats = this->m_owner->m_stats;
+    const GameObjectStats* transportPhysicsStats = this->m_owner->m_stats;
     int32_t transportPhysicsId = (transportPhysicsStats && transportPhysicsPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? transportPhysicsStats->m_propValue[transportPhysicsPropertyIndex] : 0;
     TransportPhysicsRec* physics = g_transportPhysicsDB.GetRecord(transportPhysicsId);
 
     uint32_t accelRatePropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ACCELRATE);
-    GameObjectStats* accelRateStats = this->m_owner->m_stats;
+    const GameObjectStats* accelRateStats = this->m_owner->m_stats;
     int32_t accelRate = (accelRateStats && accelRatePropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? accelRateStats->m_propValue[accelRatePropertyIndex] : 0;
 
     uint32_t moveSpeedPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_MOVESPEED);
-    GameObjectStats* moveSpeedStats = this->m_owner->m_stats;
+    const GameObjectStats* moveSpeedStats = this->m_owner->m_stats;
     int32_t moveSpeed = (moveSpeedStats && moveSpeedPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? moveSpeedStats->m_propValue[moveSpeedPropertyIndex] : 0;
 
     uint32_t taxiPathPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TAXIPATHID);
-    GameObjectStats* taxiPathStats = this->m_owner->m_stats;
+    const GameObjectStats* taxiPathStats = this->m_owner->m_stats;
     uint32_t taxiPathId = (taxiPathStats && taxiPathPropertyIndex < GameObjectStats::NUM_PROP_VALUES) ? taxiPathStats->m_propValue[taxiPathPropertyIndex] : 0;
 
     this->m_shipPath.Init(taxiPathId, static_cast<float>(moveSpeed), static_cast<float>(accelRate), physics);
@@ -3134,7 +3134,7 @@ effects:
 // OFFSET: 0x00710410
 bool CGGameObject_C::IsCreatorOnlyUse() const {
     uint32_t creatorOnlyPropertyIndex = CGameObjectDef::GetPropNum(this->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ONLYCREATORUSE);
-    GameObjectStats* creatorOnlyStats = this->m_stats;
+    const GameObjectStats* creatorOnlyStats = this->m_stats;
     return creatorOnlyStats && creatorOnlyPropertyIndex < GameObjectStats::NUM_PROP_VALUES && creatorOnlyStats->m_propValue[creatorOnlyPropertyIndex];
 }
 
@@ -3284,7 +3284,7 @@ void CGGameObject_C_Type_MapObjTransport::InitializeMovement() {
     uint32_t time = OsGetAsyncTimeMs();
     CGGameObject_C* owner = this->m_owner;
     uint32_t allowStoppingPropertyIndex = CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_ALLOW_STOPPING);
-    GameObjectStats* allowStoppingStats = owner->m_stats;
+    const GameObjectStats* allowStoppingStats = owner->m_stats;
 
     if (allowStoppingStats && allowStoppingPropertyIndex < GameObjectStats::NUM_PROP_VALUES && allowStoppingStats->m_propValue[allowStoppingPropertyIndex]) {
         uint32_t offsetTime = time + this->m_owner->m_transportTimeOffset;
