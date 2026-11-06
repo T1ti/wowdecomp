@@ -38,7 +38,7 @@ static void AnimFinishedCallback(CM2Model* model, uint32_t boneId, uint32_t sequ
         return;
     }
 
-    if (object->m_stateFlags & 0x1) {
+    if (object->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::HAVE_HOLD_SEQUENCE) {
         object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_HOLD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
         object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
@@ -48,7 +48,7 @@ static void AnimFinishedCallback(CM2Model* model, uint32_t boneId, uint32_t sequ
 // VERIFY: 5dd58488 manual
 // OFFSET: 0x007053A0
 CGDynamicObject_C::CGDynamicObject_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_scale(1.0f), m_blizzardVisual(nullptr) {
-    this->m_stateFlags &= ~0x3;
+    this->m_stateFlags &= ~CGDynamicObject_C::STATE_FLAGS::STATE_BITS;
     this->m_passenger.m_facing = create.m_move.m_status.m_transportFacing;
 }
 
@@ -74,13 +74,13 @@ void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, 
     this->CGObject_C::PostInit(time, create, a3);
 
     int32_t inTransit = Spell_C_IsSpellInTransit(this->m_dynamicObject->m_caster, this->m_dynamicObject->m_spellID, this->m_dynamicObject->m_castTime);
-    this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & 0x2;
+    this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT;
 
     if (this->GetObjectModel()) {
         this->GetObjectModel()->SetEventCallback(&AnimEventCallback, this->m_obj->m_guid.m_guid);
         this->GetObjectModel()->SetSequenceCallback(&AnimFinishedCallback, this->m_obj->m_guid.m_guid);
 
-        if (this->m_stateFlags & 0x2) {
+        if (this->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT) {
             this->GetObjectModel()->SetEmittersEnabled(0);
             this->GetObjectModel()->SetRibbonsEnabled(0);
         }
@@ -136,7 +136,7 @@ C3Vector CGDynamicObject_C::GetRawPosition() const {
 void CGDynamicObject_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) {
     CGObject_C::ShouldRender(flags, render, hidden);
 
-    if (this->m_stateFlags & 2) {
+    if (this->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT) {
         hidden = 1;
     }
 }
@@ -206,7 +206,7 @@ void CGDynamicObject_C::Disable() {
 void CGDynamicObject_C::Reenable() {
     CGObject_C::Reenable();
     int32_t inTransit = Spell_C_IsSpellInTransit(this->m_dynamicObject->m_caster, this->m_dynamicObject->m_spellID, this->m_dynamicObject->m_castTime);
-    this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & 0x2;
+    this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT;
 }
 
 // VERIFY: 34c768d1 auto
@@ -291,7 +291,7 @@ void CGDynamicObject_C::HandleAnimEvent(uint32_t eventId, uint32_t data, const C
 // OFFSET: 0x00704D90
 void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
     CGObject_C::ModelLoaded(model);
-    this->m_stateFlags ^= (this->GetObjectModel()->HasSequence(ANIM_EFFECT_HOLD) ^ this->m_stateFlags) & 0x1;
+    this->m_stateFlags ^= (this->GetObjectModel()->HasSequence(ANIM_EFFECT_HOLD) ^ this->m_stateFlags) & CGDynamicObject_C::STATE_FLAGS::HAVE_HOLD_SEQUENCE;
     SpellRec spell;
     g_spellDB.GetRecord(this->m_dynamicObject->m_spellID, &spell);
     SpellVisualEffectNameRec* effect = this->GetVisualEffectNameRec(&spell);
@@ -330,7 +330,7 @@ void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
 // VERIFY: 09497bd0 auto
 // OFFSET: 0x00704F60
 void CGDynamicObject_C::ObjectVisKitProc() {
-    if (this->m_stateFlags & 0x2) {
+    if (this->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT) {
         return;
     }
 
@@ -404,11 +404,11 @@ int32_t CGDynamicObject_C::GetModelFileName(const char** name) const {
 // VERIFY: 82c1b18c auto
 // OFFSET: 0x007051B0
 void CGDynamicObject_C::UpdateDisplay(uint32_t time) {
-    if (!(this->m_stateFlags & 0x2) || Spell_C_IsSpellInTransit(this->m_dynamicObject->m_caster, this->m_dynamicObject->m_spellID, this->m_dynamicObject->m_castTime)) {
+    if (!(this->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT) || Spell_C_IsSpellInTransit(this->m_dynamicObject->m_caster, this->m_dynamicObject->m_spellID, this->m_dynamicObject->m_castTime)) {
         return;
     }
 
-    this->m_stateFlags &= ~0x2;
+    this->m_stateFlags &= ~CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT;
     CM2Model* model = this->GetObjectModel();
 
     if (model) {
