@@ -1738,35 +1738,35 @@ void ClientConnection::HandleCharacterLoginFailed(uint8_t result) {
     }
 
     switch (result) {
-        case 1:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_NO_WORLD:
             this->Cancel(CHAR_LOGIN_NO_WORLD);
             break;
 
-        case 2:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_DUPLICATE_CHARACTER:
             this->Cancel(CHAR_LOGIN_DUPLICATE_CHARACTER);
             break;
 
-        case 3:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_NO_INSTANCES:
             this->Cancel(CHAR_LOGIN_NO_INSTANCES);
             break;
 
-        case 4:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_DISABLED:
             this->Cancel(CHAR_LOGIN_DISABLED);
             break;
 
-        case 5:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_NO_CHARACTER:
             this->Cancel(CHAR_LOGIN_NO_CHARACTER);
             break;
 
-        case 6:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_LOCKED_FOR_TRANSFER:
             this->Cancel(CHAR_LOGIN_LOCKED_FOR_TRANSFER);
             break;
 
-        case 7:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_LOCKED_BY_BILLING:
             this->Cancel(CHAR_LOGIN_LOCKED_BY_BILLING);
             break;
 
-        case 8:
+        case ClientConnection::CHARACTER_LOGIN_FAILURE::LOGIN_FAILURE_UI_LOCKED_BY_MOBILE_AH:
             this->Cancel(CHAR_LOGIN_LOCKED_BY_MOBILE_AH);
             break;
 
