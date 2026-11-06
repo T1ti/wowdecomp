@@ -158,7 +158,7 @@ void CM2Light::Link() {
         if (this->m_lightNext) {
             this->m_lightNext->m_lightPrev = &this->m_lightNext;
         }
-    } else if (!(this->m_scene->m_flags & 1)) {
+    } else if (!(this->m_scene->m_flags & CM2Scene::SCENE_FLAGS::WORLD_ANIMATION_ACTIVE)) {
         CM2Light** head = &this->m_scene->m_lightList;
 
         this->m_lightPrev = head;

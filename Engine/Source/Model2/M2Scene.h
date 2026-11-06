@@ -53,6 +53,14 @@ class M2Element {
 
 class CM2Scene {
     public:
+    // Local world-animation,hit-test and callback scopes;M2Element flags are separate.
+    enum SCENE_FLAGS : uint32_t {
+        NONE = 0,
+        WORLD_ANIMATION_ACTIVE = 1,
+        HIT_TEST_ACTIVE = 2,
+        PROCESSING_CALLBACKS = 4,
+    };
+
     /* 0000 */ int32_t m_refCount;
     /* 0004 */ CM2Cache* m_cache;
     /* 0008 */ CM2Model* m_modelList;

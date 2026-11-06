@@ -51,7 +51,7 @@ void CM2Scene::AdvanceTime(uint32_t delta) {
     this->m_time += delta;
     this->m_cache->UpdateShared();
     this->m_cache->GarbageCollect(0);
-    this->m_flags |= 4;
+    this->m_flags |= CM2Scene::SCENE_FLAGS::PROCESSING_CALLBACKS;
     this->m_timeDelta = delta;
 
     if (delta) {
@@ -64,7 +64,7 @@ void CM2Scene::AdvanceTime(uint32_t delta) {
         }
     }
 
-    this->m_flags &= ~4u;
+    this->m_flags &= ~CM2Scene::SCENE_FLAGS::PROCESSING_CALLBACKS;
 }
 
 // VERIFY: 19239262 auto
@@ -125,7 +125,7 @@ void CM2Scene::PurgeModelCache() {
 // VERIFY: e5d07ffa auto
 // OFFSET: 0x0081CAC0
 void CM2Scene::BeginHitTest() {
-    this->m_flags |= 2;
+    this->m_flags |= CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 }
 
 // VERIFY: fec263be manual
@@ -278,7 +278,7 @@ int32_t CM2Scene::ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end
         model->m_hitTestPrev = nullptr;
     }
 
-    this->m_flags &= ~2u;
+    this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     return 0;
 }
@@ -742,7 +742,7 @@ void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t,
         tMax = length;
     }
 
-    this->m_flags &= ~2u;
+    this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     if (!best) {
         return nullptr;
@@ -838,7 +838,7 @@ void* CM2Scene::EndHitTestCollisionWorld(const C3Vector& start, const C3Vector& 
         }
     }
 
-    this->m_flags &= ~2u;
+    this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     if (!best) {
         return nullptr;
@@ -1605,7 +1605,7 @@ CM2Scene::CM2Scene(CM2Cache* cache) {
     this->m_modelList = nullptr;
     this->m_time = 0;
     this->m_frameStamp = 0;
-    this->m_flags = 0;
+    this->m_flags = CM2Scene::SCENE_FLAGS::NONE;
     this->m_lightList = nullptr;
     this->m_lightGrid = nullptr;
     this->m_animateList = nullptr;

@@ -184,10 +184,10 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CM2Scene* scene = World::s_m2Scene;
 
     if (scene) {
-        scene->m_flags |= 0x1;
+        scene->m_flags |= CM2Scene::SCENE_FLAGS::WORLD_ANIMATION_ACTIVE;
         scene->AdvanceTime(static_cast<uint32_t>(CMath::fint_(time * 1000.0f)));
         scene->Animate(cameraPos);
-        scene->m_flags &= ~0x1;
+        scene->m_flags &= ~CM2Scene::SCENE_FLAGS::WORLD_ANIMATION_ACTIVE;
     }
 
     CGUnit_C::UpdateMissileTrajectoryTargeting();
