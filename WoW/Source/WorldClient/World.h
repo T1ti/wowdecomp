@@ -110,6 +110,11 @@ struct OcclusionVolume {
 };
 
 struct SPortalExt {
+    enum FLAGS : uint16_t {
+        F_SCREEN_CULLED = 0x1,
+        F_INTERSECT_NEAR = 0x2,
+    };
+
     /* 0000 */ uint16_t m_flags;
     /* 0002 */ uint16_t unused_0002;
     /* 0004 */ CRect m_rect;

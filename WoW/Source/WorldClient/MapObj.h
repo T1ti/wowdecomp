@@ -278,6 +278,10 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
 };
 
 struct SMOBatch {
+    enum FLAGS : uint8_t {
+        F_RENDERED = 0xF0,
+    };
+
     /* 0000 */ int16_t m_bx;
     /* 0002 */ int16_t m_by;
     /* 0004 */ int16_t m_bz;
@@ -321,7 +325,14 @@ struct SMOHeader {
 };
 
 struct SMOLight {
-    /* 0000 */ uint8_t m_type;
+    enum LightType : uint8_t {
+        OMNI_LGT = 0x0,
+        SPOT_LGT = 0x1,
+        DIRECT_LGT = 0x2,
+        AMBIENT_LGT = 0x3,
+    };
+
+    /* 0000 */ LightType m_type;
     /* 0001 */ uint8_t m_atten;
     /* 0002 */ uint8_t m_pad [2];
     /* 0004 */ CImVector m_color;
@@ -333,6 +344,24 @@ struct SMOLight {
 };
 
 struct SMOMaterial {
+    enum FLAGS : uint32_t {
+        F_UNLIT = 0x1,
+        F_UNFOGGED = 0x2,
+        F_UNCULLED = 0x4,
+        UNKNOWN_0x08 = 0x8, // Called EXTLIGHT in 0.5.3; no 3.3.5 reader found.
+        F_SIDN = 0x10,
+        F_WINDOW = 0x20,
+        F_CLAMP_S = 0x40,
+        F_CLAMP_T = 0x80,
+        UNKNOWN_0x100 = 0x100, // Guessed bitfield entry; no 3.3.5 reader found.
+    };
+
+    enum MAPID : uint32_t {
+        MAPID_DIFFUSE = 0x0,
+        MAPID_ENV = 0x1,
+        MAPID_COUNT = 0x2,
+    };
+
     /* 0000 */ uint32_t m_flags;
     /* 0004 */ uint32_t m_shader;
     /* 0008 */ uint32_t m_blendMode;
@@ -351,7 +380,7 @@ struct SMOMaterial {
 };
 
 inline CTexture** SMOMaterial::Textures() {
-    return reinterpret_cast<CTexture**>(&this->m_runTimeData[4 - 2 * sizeof(CTexture*) / sizeof(uint32_t)]);
+    return reinterpret_cast<CTexture**>(&this->m_runTimeData[4 - SMOMaterial::MAPID_COUNT * sizeof(CTexture*) / sizeof(uint32_t)]);
 }
 
 struct SMOPortal {

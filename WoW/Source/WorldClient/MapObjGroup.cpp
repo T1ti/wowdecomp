@@ -337,7 +337,7 @@ void BspQuery_Segment::operator()(uint16_t face) {
     }
 
     BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-    this->m_faces[face].m_flags |= 0x80;
+    this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
 
     float t = 0.0f;
 
@@ -465,7 +465,7 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
         }
 
         BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-        poly.m_flags |= 0x80;
+        poly.m_flags |= SMOPoly::F_COLLIDE_HIT;
 
         const uint16_t* verts = &digest->m_faceVertexIndices[3 * i];
 
@@ -509,7 +509,7 @@ void CMapObjGroup::AsyncFailedCallback(CAsyncObject* object) {
 BspQuery::~BspQuery() {
     while (BspQuery::testFaceSub) {
         BspQuery::testFaceSub--;
-        this->m_faces[BspQuery::testFaces[BspQuery::testFaceSub]].m_flags &= ~0x80;
+        this->m_faces[BspQuery::testFaces[BspQuery::testFaceSub]].m_flags &= ~SMOPoly::F_COLLIDE_HIT;
     }
 
     BspQuery::hitFaceSub = 0;
@@ -562,7 +562,7 @@ BspQuery_Segment::BspQuery_Segment(SMOPoly* faces, C3Vector* vertexList, uint16_
     this->m_ray.origin = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_ray.dir = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_materials = materials;
-    this->m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
+    this->m_faceIgnoreFlags = faceIgnoreFlags | SMOPoly::F_COLLIDE_HIT;
     this->unused_0054 = CMap::s_useSSE;
     this->m_ray.origin = seg.start;
     this->m_ray.dir = C3Vector(seg.end.x - seg.start.x, seg.end.y - seg.start.y, seg.end.z - seg.start.z);
@@ -1277,7 +1277,7 @@ uint32_t CMapObjGroup::GetNumSharedTiles() {
 
     for (int32_t y = 0; y < this->m_liquidTiles.y; y++) {
         for (int32_t x = 0; x < this->m_liquidTiles.x; x++) {
-            if ((tile->m_flags & 0xF) != 0xF && (tile->m_flags & 0x80)) {
+            if ((tile->m_flags & 0xF) != 0xF && (tile->m_flags & SMOLTile::SHARED_MASK)) {
                 count++;
             }
 
@@ -2232,7 +2232,7 @@ void BspQuery_Volume<CAaBox>::operator()(uint16_t face) {
     }
 
     BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-    this->m_faces[face].m_flags |= 0x80;
+    this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
     const uint16_t* indices = &this->m_indices[3 * face];
 
     if (!TriangleOutsideAaBox(this->m_volume, &this->m_vertexList[indices[0]], &this->m_vertexList[indices[1]], &this->m_vertexList[indices[2]])) {
@@ -2309,7 +2309,7 @@ bool BspQuery_Volume<CAaBox>::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, cons
         }
 
         BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-        this->m_faces[face].m_flags |= 0x80;
+        this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
         const uint16_t* verts = &digest->m_faceVertexIndices[3 * i];
 
         if (!(outcodes[verts[0]] & outcodes[verts[1]] & outcodes[verts[2]] & 0x3F)) {
@@ -2331,7 +2331,7 @@ bool CMapObjGroup::GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnor
     query.m_vertexList = this->m_vertexList;
     query.m_indices = this->m_indices;
     query.m_volume = &box;
-    query.m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
+    query.m_faceIgnoreFlags = faceIgnoreFlags | SMOPoly::F_COLLIDE_HIT;
     CAaBsp_Query_AaBox<BspQuery_Volume<CAaBox>> bspQuery;
     bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
@@ -2465,7 +2465,7 @@ bool CMapObjGroup::QueryLighting(const C3Vector& point, uint16_t face, CImVector
     color->r = r >= 0xFF ? 0xFF : static_cast<uint8_t>(r);
     color->g = g >= 0xFF ? 0xFF : static_cast<uint8_t>(g);
     color->b = b >= 0xFF ? 0xFF : static_cast<uint8_t>(b);
-    *flag = this->m_polyList[face].m_flags & 0x1;
+    *flag = this->m_polyList[face].m_flags & SMOPoly::F_TRANSITION;
     return true;
 }
 
@@ -2503,7 +2503,7 @@ void BspQuery_Volume<CWFrustum>::operator()(uint16_t face) {
     }
 
     BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-    this->m_faces[face].m_flags |= 0x80;
+    this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
     const uint16_t* indices = &this->m_indices[3 * face];
 
     if (!QueryCull(this->m_volume, &this->m_vertexList[indices[0]], &this->m_vertexList[indices[1]], &this->m_vertexList[indices[2]])) {
@@ -2524,7 +2524,7 @@ bool CMapObjGroup::GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t fa
         query.m_vertexList = this->m_vertexList;
         query.m_indices = this->m_indices;
         query.m_volume = &frustum;
-        query.m_faceIgnoreFlags = faceIgnoreFlags | 0x80;
+        query.m_faceIgnoreFlags = faceIgnoreFlags | SMOPoly::F_COLLIDE_HIT;
         CAaBox box = CAaBox::Bounding(frustum.corners, 8);
         CAaBsp_Query_AaBox<BspQuery_Volume<CWFrustum>> bspQuery;
         bspQuery.m_aaBsp = &this->m_aaBsp;

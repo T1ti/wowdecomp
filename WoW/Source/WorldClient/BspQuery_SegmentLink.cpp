@@ -28,7 +28,7 @@ BspQuery_SegmentLink::BspQuery_SegmentLink(SMOPoly* faces, C3Vector* vertexList,
     this->m_groundMaxT = groundMaxT;
     this->m_interiorFace = -1;
     this->m_groundFace = -1;
-    this->m_faceIgnoreFlags = 0x82;
+    this->m_faceIgnoreFlags = SMOPoly::F_NOCAMCOLLIDE | SMOPoly::F_COLLIDE_HIT;
     this->m_interiorT = interiorMaxT * length;
     this->m_groundT = length * groundMaxT;
 }
@@ -46,7 +46,7 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
     }
 
     BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-    this->m_faces[face].m_flags |= 0x80;
+    this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
 
     float t = 0.0f;
 
@@ -208,7 +208,7 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
         }
 
         BspQuery::testFaces[BspQuery::testFaceSub++] = face;
-        this->m_faces[face].m_flags |= 0x80;
+        this->m_faces[face].m_flags |= SMOPoly::F_COLLIDE_HIT;
 
         const uint16_t* verts = &digest->m_faceVertexIndices[3 * i];
 

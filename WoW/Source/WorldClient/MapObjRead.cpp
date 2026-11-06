@@ -23,8 +23,8 @@ TSList<CMapObjGroup, TSGetExplicitLink<CMapObjGroup> > CMapObj::s_loadedGroups =
 // OFFSET: 0x007D72D0
 void CMapObj::CreateMaterials() {
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
-        this->m_materialList[i].Textures()[0] = nullptr;
-        this->m_materialList[i].Textures()[1] = nullptr;
+        this->m_materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE] = nullptr;
+        this->m_materialList[i].Textures()[SMOMaterial::MAPID_ENV] = nullptr;
     }
 }
 
@@ -153,7 +153,7 @@ void CMapObj::Load() {
 void CMapObj::CreateMaterial(uint8_t texture) {
     SMOMaterial& material = this->m_materialList[texture];
 
-    if (material.Textures()[0]) {
+    if (material.Textures()[SMOMaterial::MAPID_DIFFUSE]) {
         return;
     }
 
@@ -191,12 +191,12 @@ void CMapObj::CreateMaterial(uint8_t texture) {
             break;
     }
 
-    material.Textures()[0] = CMap::LoadTexture(texture1);
+    material.Textures()[SMOMaterial::MAPID_DIFFUSE] = CMap::LoadTexture(texture1);
 
     if (texture2) {
-        material.Textures()[1] = CMap::LoadTexture(texture2);
+        material.Textures()[SMOMaterial::MAPID_ENV] = CMap::LoadTexture(texture2);
     } else {
-        material.Textures()[1] = nullptr;
+        material.Textures()[SMOMaterial::MAPID_ENV] = nullptr;
     }
 }
 

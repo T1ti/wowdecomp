@@ -125,6 +125,17 @@ struct SMLayer {
 };
 
 struct SMOPoly {
+    enum FLAGS : uint8_t {
+        F_TRANSITION = 0x01,
+        F_NOCAMCOLLIDE = 0x02,
+        F_DETAIL = 0x04,
+        F_COLLISION = 0x08,
+        F_HINT = 0x10, // 0.5.3 name; no 3.3.5 reader found.
+        F_RENDER = 0x20,
+        UNKNOWN_0x40 = 0x40,
+        F_COLLIDE_HIT = 0x80, // Temporary BSP-query mark, cleared after the query.
+    };
+
     /* 0000 */ uint8_t m_flags;
     /* 0001 */ uint8_t m_materialId;
 };

@@ -295,7 +295,7 @@ void CMapObj::ClassifyPortalPlane(SMOPortal* portal, SPortalExt* portalExt) {
     float dist = portal->m_plane.n.y * s_camPosLocal.y + portal->m_plane.n.z * s_camPosLocal.z + portal->m_plane.n.x * s_camPosLocal.x + portal->m_plane.d;
 
     if (dist > -0.01f && dist < 0.01f && NTempest::Intersect(s_camPosLocal, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, portal->m_plane.n.MajorAxis())) {
-        portalExt->m_flags |= 0x2;
+        portalExt->m_flags |= SPortalExt::F_INTERSECT_NEAR;
     }
 }
 
@@ -491,7 +491,7 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
 
     for (int32_t y = 0; y < group->m_liquidTiles.y; y++) {
         for (int32_t x = 0; x < group->m_liquidTiles.x; x++, tile++) {
-            if ((tile->m_flags & 0xF) == 0xF || !(tile->m_flags & 0x80)) {
+            if ((tile->m_flags & 0xF) == 0xF || !(tile->m_flags & SMOLTile::SHARED_MASK)) {
                 continue;
             }
 
@@ -604,7 +604,7 @@ void CMapObj::UpdateMaterials() {
     DayNight::DNInfo* info = DayNight::GetInfo();
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
-        if (this->m_materialList[i].m_flags & 0x10) {
+        if (this->m_materialList[i].m_flags & SMOMaterial::F_SIDN) {
             this->m_materialList[i].m_frameSidnColor = this->m_materialList[i].m_sidnColor;
 
             int32_t scale = CMath::fint_(info->m_curve0 * 255.0f - 0.5f);
@@ -842,12 +842,12 @@ void CMapObj::TransformPortal(SMOPortal* portal, SPortalExt* portalExt) {
         portalExt->m_flags |= this->TransformAndClipVerts((flags >> 4) & 1, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
     }
 
-    if (portalExt->m_flags & 0x2) {
+    if (portalExt->m_flags & SPortalExt::F_INTERSECT_NEAR) {
         portalExt->m_rect.minX = -1.0f;
         portalExt->m_rect.maxX = 1.0f;
         portalExt->m_rect.maxY = 1.0f;
         portalExt->m_rect.minY = -1.0f;
-    } else if (portalExt->m_flags & 0x1) {
+    } else if (portalExt->m_flags & SPortalExt::F_SCREEN_CULLED) {
         portalExt->m_rect.minX = 3.4028235e38f;
         portalExt->m_rect.maxX = -3.4028235e38f;
         portalExt->m_rect.maxY = -3.4028235e38f;
@@ -941,16 +941,16 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         SMOBatch& batch = group->m_batchList[i];
 
         if (!index) {
-            batch.m_flags &= 0xF;
+            batch.m_flags &= ~SMOBatch::F_RENDERED;
         }
 
-        if ((batch.m_flags & 0xF0) || CMapObj::CullBatch(&batch)) {
+        if ((batch.m_flags & SMOBatch::F_RENDERED) || CMapObj::CullBatch(&batch)) {
             continue;
         }
 
-        batch.m_flags |= 0xF0;
+        batch.m_flags |= SMOBatch::F_RENDERED;
         SMOMaterial& material = this->m_materialList[batch.m_texture];
-        CTexture* texture = material.Textures()[0];
+        CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
         if (!gxTex0) {
@@ -963,8 +963,8 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         CGxTex* gxTex1 = nullptr;
 
-        if (material.Textures()[1]) {
-            gxTex1 = TextureGetGxTex(material.Textures()[1], 0, nullptr);
+        if (material.Textures()[SMOMaterial::MAPID_ENV]) {
+            gxTex1 = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_ENV], 0, nullptr);
 
             if (!gxTex1) {
                 if (!defaultTex) {
@@ -981,9 +981,9 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             shader = CMapObj::SHADER_TYPE::OPAQUE_EFFECT;
         }
 
-        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & 0x4) == 0));
+        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & SMOMaterial::F_UNCULLED) == 0));
 
-        uint32_t sidn = (material.m_flags & 0x10) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
+        uint32_t sidn = (material.m_flags & SMOMaterial::F_SIDN) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
         uint32_t sum = s_emissiveAmbient + sidn;
         uint32_t carry = (sum ^ s_emissiveAmbient ^ sidn) & 0x1010100;
         uint32_t saturated = (carry - (carry >> 8)) | (sum - carry);
@@ -993,7 +993,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         emissive.r >>= 1;
         CMapObj::SetEmissiveColor(emissive);
 
-        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & 0x40) == 0), static_cast<EGxTexWrapMode>((material.m_flags & 0x80) == 0));
+        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_S) == 0), static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_T) == 0));
         CShaderEffect* effect = CMapObj::s_unifiedShaders[shader];
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex0);
         g_theGxDevicePtr->RsSet(GxRs_Texture1, gxTex1);
@@ -1001,7 +1001,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         if (i >= group->m_transparencyBatchesCount) {
             if (group->m_flags & 0x48) {
-                CMapObjGroup::SetLighting(group, (material.m_flags & 0x1) == 0);
+                CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) == 0);
                 if (s_shadowInterior) {
                     s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
                     CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
@@ -1010,7 +1010,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
                 SetShaderFogFromDayNight(CMapObj::SHADER_FOG_MODE::EXTERIOR_COLOR);
             } else {
-                if (material.m_flags & 0x20) {
+                if (material.m_flags & SMOMaterial::F_WINDOW) {
                     CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::DAY_NIGHT_MID);
                 } else {
                     CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
@@ -1038,7 +1038,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             continue;
         }
 
-        SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
+        SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
         if (s_shadowInterior) {
             s_shadowInterior = CMapObj::SHADOW_CONTEXT::EXTERIOR;
             CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::EXTERIOR);
@@ -1046,8 +1046,8 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         }
 
         if (CShaderEffect::s_enableShaders) {
-            CMapObjGroup::SetLighting(group, (material.m_flags & 0x1) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & 0x20) != 0) + 1);
-            SetShaderFogFromDayNight(~material.m_flags & 0x2);
+            CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
+            SetShaderFogFromDayNight(~material.m_flags & SMOMaterial::F_UNFOGGED);
             GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
             CShaderEffect::SetAlphaRefDefault();
             CMapObj::SelectWorldShaders();
@@ -1060,7 +1060,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             g_theGxDevicePtr->Draw(&draw, 1);
 
             CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
-            SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
+            SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
             if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
                 s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
                 CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
@@ -1082,8 +1082,8 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         GxRsSet(GxRs_ColorMaterial, static_cast<int32_t>(0));
         group->SetTransparencyVB();
-        CMapObjGroup::SetLighting(group, (material.m_flags & 0x1) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & 0x20) != 0) + 1);
-        SetShaderFogFromDayNight((material.m_flags & 0x2) ? CMapObj::SHADER_FOG_MODE::DISABLED : CMapObj::SHADER_FOG_MODE::EXTERIOR_BLACK);
+        CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
+        SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) ? CMapObj::SHADER_FOG_MODE::DISABLED : CMapObj::SHADER_FOG_MODE::EXTERIOR_BLACK);
         GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw;
@@ -1095,7 +1095,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         g_theGxDevicePtr->Draw(&draw, 1);
 
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
-        SetShaderFogFromDayNight((material.m_flags & 0x2) ? CMapObj::SHADER_FOG_MODE::DISABLED : (fogMode | CMapObj::SHADER_FOG_MODE::BLACK_COLOR));
+        SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) ? CMapObj::SHADER_FOG_MODE::DISABLED : (fogMode | CMapObj::SHADER_FOG_MODE::BLACK_COLOR));
         GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(7));
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw2;
@@ -1108,7 +1108,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         group->SetVertexVB();
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::UNLIT);
-        SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
+        SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
         GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(10));
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw3;
@@ -1249,7 +1249,7 @@ void CMapObj::RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& nd
             continue;
         }
 
-        if ((!(ext->m_flags & 0x2) && (ext->m_flags & 0x1)) || ndcRect.maxX < ext->m_rect.minX || ndcRect.minX > ext->m_rect.maxX || ndcRect.maxY < ext->m_rect.minY || ndcRect.minY > ext->m_rect.maxY) {
+        if ((!(ext->m_flags & SPortalExt::F_INTERSECT_NEAR) && (ext->m_flags & SPortalExt::F_SCREEN_CULLED)) || ndcRect.maxX < ext->m_rect.minX || ndcRect.minX > ext->m_rect.maxX || ndcRect.maxY < ext->m_rect.minY || ndcRect.minY > ext->m_rect.maxY) {
             continue;
         }
 
@@ -1365,16 +1365,16 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
         SMOBatch& batch = group->m_batchList[i];
 
         if (!index) {
-            batch.m_flags &= 0xF;
+            batch.m_flags &= ~SMOBatch::F_RENDERED;
         }
 
-        if ((batch.m_flags & 0xF0) || CMapObj::CullBatch(&batch)) {
+        if ((batch.m_flags & SMOBatch::F_RENDERED) || CMapObj::CullBatch(&batch)) {
             continue;
         }
 
-        batch.m_flags |= 0xF0;
+        batch.m_flags |= SMOBatch::F_RENDERED;
         SMOMaterial& material = this->m_materialList[batch.m_texture];
-        CTexture* texture = material.Textures()[0];
+        CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
         if (!gxTex0) {
@@ -1387,8 +1387,8 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
 
         CGxTex* gxTex1 = defaultTex;
 
-        if (material.Textures()[1]) {
-            gxTex1 = TextureGetGxTex(material.Textures()[1], 0, nullptr);
+        if (material.Textures()[SMOMaterial::MAPID_ENV]) {
+            gxTex1 = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_ENV], 0, nullptr);
 
             if (!gxTex1) {
                 if (!defaultTex) {
@@ -1405,8 +1405,8 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
             shader = CMapObj::SHADER_TYPE::OPAQUE_EFFECT;
         }
 
-        SetShaderFogFromDayNight(~material.m_flags & 0x2);
-        CMapObjGroup::SetLighting(group, (material.m_flags & 0x1) == 0);
+        SetShaderFogFromDayNight(~material.m_flags & SMOMaterial::F_UNFOGGED);
+        CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) == 0);
 
         if (group->m_flags & 0x48) {
             if (s_shadowInterior) {
@@ -1422,9 +1422,9 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
             }
         }
 
-        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & 0x4) == 0));
+        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & SMOMaterial::F_UNCULLED) == 0));
 
-        uint32_t sidn = (material.m_flags & 0x10) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
+        uint32_t sidn = (material.m_flags & SMOMaterial::F_SIDN) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
         uint32_t sum = s_emissiveAmbient + sidn;
         uint32_t carry = (sum ^ s_emissiveAmbient ^ sidn) & 0x1010100;
         uint32_t saturated = (carry - (carry >> 8)) | (sum - carry);
@@ -1436,7 +1436,7 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
 
         GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(material.m_blendMode));
         CShaderEffect::SetAlphaRefDefault();
-        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & 0x40) == 0), static_cast<EGxTexWrapMode>((material.m_flags & 0x80) == 0));
+        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_S) == 0), static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_T) == 0));
         CShaderEffect* effect = CMapObj::s_classicShaders[shader];
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex0);
         g_theGxDevicePtr->RsSet(GxRs_Texture1, gxTex1);
@@ -1484,16 +1484,16 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         SMOBatch& batch = group->m_batchList[i];
 
         if (!index) {
-            batch.m_flags &= 0xF;
+            batch.m_flags &= ~SMOBatch::F_RENDERED;
         }
 
-        if ((batch.m_flags & 0xF0) || CMapObj::CullBatch(&batch)) {
+        if ((batch.m_flags & SMOBatch::F_RENDERED) || CMapObj::CullBatch(&batch)) {
             continue;
         }
 
-        batch.m_flags |= 0xF0;
+        batch.m_flags |= SMOBatch::F_RENDERED;
         SMOMaterial& material = this->m_materialList[batch.m_texture];
-        CTexture* texture = material.Textures()[0];
+        CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
         if (!gxTex0) {
@@ -1506,8 +1506,8 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
 
         CGxTex* gxTex1 = nullptr;
 
-        if (material.Textures()[1]) {
-            gxTex1 = TextureGetGxTex(material.Textures()[1], 0, nullptr);
+        if (material.Textures()[SMOMaterial::MAPID_ENV]) {
+            gxTex1 = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_ENV], 0, nullptr);
 
             if (!gxTex1) {
                 if (!defaultTex) {
@@ -1524,9 +1524,9 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
             shader = CMapObj::SHADER_TYPE::OPAQUE_EFFECT;
         }
 
-        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & 0x4) == 0));
+        GxRsSet(GxRs_Culling, static_cast<int32_t>((material.m_flags & SMOMaterial::F_UNCULLED) == 0));
 
-        uint32_t sidn = (material.m_flags & 0x10) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
+        uint32_t sidn = (material.m_flags & SMOMaterial::F_SIDN) ? *reinterpret_cast<uint32_t*>(&material.m_frameSidnColor) : 0;
         uint32_t sum = s_emissiveAmbient + sidn;
         uint32_t carry = (sum ^ s_emissiveAmbient ^ sidn) & 0x1010100;
         uint32_t saturated = (carry - (carry >> 8)) | (sum - carry);
@@ -1536,7 +1536,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         emissive.r >>= 1;
         CMapObj::SetEmissiveColor(emissive);
 
-        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & 0x40) == 0), static_cast<EGxTexWrapMode>((material.m_flags & 0x80) == 0));
+        GxTexSetWrap(gxTex0, static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_S) == 0), static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_T) == 0));
         CShaderEffect* effect = CMapObj::s_classicShaders[shader];
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex0);
         g_theGxDevicePtr->RsSet(GxRs_Texture1, gxTex1);
@@ -1544,12 +1544,12 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
 
         if (i >= group->m_transparencyBatchesCount) {
             bool interiorBatch = i < static_cast<uint32_t>(group->m_transparencyBatchesCount + group->m_intBatchCount);
-            SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
+            SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
 
             if (interiorBatch) {
                 CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::UNLIT);
             } else {
-                CMapObjGroup::SetLighting(group, ((material.m_flags & 0x20) != 0) + 1);
+                CMapObjGroup::SetLighting(group, ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
             }
 
             if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
@@ -1577,8 +1577,8 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
             CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
         }
 
-        CMapObjGroup::SetLighting(group, ((material.m_flags & 0x20) != 0) + 1);
-        SetShaderFogFromDayNight(~material.m_flags & 0x2);
+        CMapObjGroup::SetLighting(group, ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
+        SetShaderFogFromDayNight(~material.m_flags & SMOMaterial::F_UNFOGGED);
         GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
         CShaderEffect::SetAlphaRefDefault();
         CMapObj::SelectWorldShaders();
@@ -1591,7 +1591,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         g_theGxDevicePtr->Draw(&draw, 1);
 
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::UNLIT);
-        SetShaderFogFromDayNight((material.m_flags & 0x2) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
+        SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
         if (s_shadowInterior != CMapObj::SHADOW_CONTEXT::INTERIOR) {
             s_shadowInterior = CMapObj::SHADOW_CONTEXT::INTERIOR;
             CShadowCache::SetShadowMapGenericInterior(CMapObj::SHADOW_CONTEXT::INTERIOR);
@@ -1865,7 +1865,7 @@ void CMapObj::Clear() {
     }
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
-        for (uint32_t j = 0; j < 2; j++) {
+        for (uint32_t j = 0; j < SMOMaterial::MAPID_COUNT; j++) {
             if (this->m_materialList[i].Textures()[j]) {
                 HandleClose(reinterpret_cast<HOBJECT>(this->m_materialList[i].Textures()[j]));
                 this->m_materialList[i].Textures()[j] = nullptr;
@@ -2446,7 +2446,7 @@ void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint
 
             for (int32_t x = 0; x < group->m_liquidTiles.x; x++) {
                 uint8_t flags = group->m_liquidTileList[group->m_liquidTiles.x * y + x].m_flags;
-                int32_t visible = (flags & 0xF) != 0xF && !(flags & 0x80) ? 1 : 0;
+                int32_t visible = (flags & 0xF) != 0xF && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
                 int32_t duplicateCol = 0;
 
                 if (sharedCol < sharedVerts[0].m_count && sharedVerts[0].m_data[sharedCol] == x) {
@@ -3192,7 +3192,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
         for (int32_t j = 0; j < group->m_batchListCount; j++) {
             SMOBatch& smoBatch = group->m_batchList[j];
             SMOMaterial& material = mapObj->m_materialList[smoBatch.m_texture];
-            CGxTex* gxTex = TextureGetGxTex(material.Textures()[0], 0, nullptr);
+            CGxTex* gxTex = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_DIFFUSE], 0, nullptr);
 
             if (!gxTex) {
                 continue;
@@ -3281,7 +3281,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
 
         for (int32_t j = 0; j < group->m_batchListCount; j++) {
             SMOBatch& smoBatch = group->m_batchList[j];
-            CGxTex* gxTex = TextureGetGxTex(mapObj->m_materialList[smoBatch.m_texture].Textures()[0], 0, nullptr);
+            CGxTex* gxTex = TextureGetGxTex(mapObj->m_materialList[smoBatch.m_texture].Textures()[SMOMaterial::MAPID_DIFFUSE], 0, nullptr);
 
             if (!gxTex) {
                 continue;
@@ -3410,7 +3410,7 @@ void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
     for (uint32_t i = 0; i < static_cast<uint32_t>(mapObjGroup->m_polyListSize); i++, poly++) {
         uint8_t flags = poly->m_flags;
 
-        if (!(flags & 0x8) && (!(flags & 0x20) || (flags & 0x4))) {
+        if (!(flags & SMOPoly::F_COLLISION) && (!(flags & SMOPoly::F_RENDER) || (flags & SMOPoly::F_DETAIL))) {
             continue;
         }
 
@@ -3467,14 +3467,14 @@ void CMapObj::RenderGroupLightmapTex(CMapObjGroup* group, uint32_t index) {
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_batchListCount); i++, batch++) {
         if (!index) {
-            batch->m_flags &= 0xF;
+            batch->m_flags &= ~SMOBatch::F_RENDERED;
         }
 
-        if ((batch->m_flags & 0xF0) || CMapObj::CullBatch(batch)) {
+        if ((batch->m_flags & SMOBatch::F_RENDERED) || CMapObj::CullBatch(batch)) {
             continue;
         }
 
-        batch->m_flags |= 0xF0;
+        batch->m_flags |= SMOBatch::F_RENDERED;
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch->m_indexStart;
@@ -3504,17 +3504,17 @@ void CMapObj::RenderGroupColorTex(CMapObjGroup* group, uint32_t index) {
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_batchListCount); i++, batch++) {
         if (!index) {
-            batch->m_flags &= 0xF;
+            batch->m_flags &= ~SMOBatch::F_RENDERED;
         }
 
-        if ((batch->m_flags & 0xF0) || CMapObj::CullBatch(batch)) {
+        if ((batch->m_flags & SMOBatch::F_RENDERED) || CMapObj::CullBatch(batch)) {
             continue;
         }
 
-        batch->m_flags |= 0xF0;
+        batch->m_flags |= SMOBatch::F_RENDERED;
         SMOMaterial& material = this->m_materialList[batch->m_texture];
-        CGxTex* gxTex = TextureGetGxTex(material.Textures()[0], 1, nullptr);
-        GxTexSetWrap(gxTex, static_cast<EGxTexWrapMode>((material.m_flags & 0x40) == 0), static_cast<EGxTexWrapMode>((material.m_flags & 0x80) == 0));
+        CGxTex* gxTex = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_DIFFUSE], 1, nullptr);
+        GxTexSetWrap(gxTex, static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_S) == 0), static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_T) == 0));
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
@@ -3619,7 +3619,7 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
     uint32_t count = 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_polyListSize); i++, poly++) {
-        if (!(poly->m_flags & 0x8)) {
+        if (!(poly->m_flags & SMOPoly::F_COLLISION)) {
             continue;
         }
 
@@ -3696,7 +3696,7 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
     uint32_t count = 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_polyListSize); i++, poly++) {
-        if (!(poly->m_flags & 0x4)) {
+        if (!(poly->m_flags & SMOPoly::F_DETAIL)) {
             continue;
         }
 
@@ -3773,7 +3773,7 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
     uint32_t count = 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_polyListSize); i++, poly++) {
-        if (!(poly->m_flags & 0x20) || (poly->m_flags & 0x4)) {
+        if (!(poly->m_flags & SMOPoly::F_RENDER) || (poly->m_flags & SMOPoly::F_DETAIL)) {
             continue;
         }
 
@@ -3856,7 +3856,7 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
     uint32_t count = 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(group->m_polyListSize); i++, poly++) {
-        if (!(poly->m_flags & 0x1) || !(poly->m_flags & 0x24)) {
+        if (!(poly->m_flags & SMOPoly::F_TRANSITION) || !(poly->m_flags & (SMOPoly::F_DETAIL | SMOPoly::F_RENDER))) {
             continue;
         }
 
@@ -4039,13 +4039,13 @@ int32_t CMapObj::IsAllDrawable() {
     }
 
     for (int32_t i = 0; i < this->m_materialsCount; i++) {
-        CTexture* texture0 = this->m_materialList[i].Textures()[0];
+        CTexture* texture0 = this->m_materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE];
 
         if (texture0 && !TextureGetGxTex(texture0, 0, nullptr)) {
             return 0;
         }
 
-        CTexture* texture1 = this->m_materialList[i].Textures()[1];
+        CTexture* texture1 = this->m_materialList[i].Textures()[SMOMaterial::MAPID_ENV];
 
         if (texture1 && !TextureGetGxTex(texture1, 0, nullptr)) {
             return 0;

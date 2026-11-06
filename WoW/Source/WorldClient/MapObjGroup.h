@@ -300,6 +300,11 @@ struct SMOGroupHeader {
 };
 
 struct SMOLTile {
+    enum FLAGS : uint8_t {
+        FISHABLE_MASK = 0x40,
+        SHARED_MASK = 0x80,
+    };
+
     /* 0000 */ uint8_t m_flags;
 };
 

@@ -91,7 +91,7 @@ void CAaBspDigestCache::GenerateDigest(CAaBspNodeDigest* digest, const CAaBsp& b
             digest->m_faceVertexIndices[digest->m_nFaces * 3 + j] = slots[found];
         }
 
-        digest->m_faceFlags[digest->m_nFaces] = faces[face].m_flags & ~0x80;
+        digest->m_faceFlags[digest->m_nFaces] = faces[face].m_flags & ~SMOPoly::F_COLLIDE_HIT;
         digest->m_nFaces++;
     }
 }
