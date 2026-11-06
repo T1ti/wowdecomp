@@ -74,10 +74,22 @@ struct ArenaTeamSort {
 
 class CGArenaTeamInfo {
     public:
+    // Arena roster keys and exclusive sort-order bound;raw reorder API retained.
+    enum SORT_COLUMN : int32_t {
+        COLUMN_NAME = 0,
+        COLUMN_CLASS = 1,
+        COLUMN_WEEK_GAMES = 2,
+        COLUMN_WEEK_WINS = 3,
+        COLUMN_SEASON_GAMES = 4,
+        COLUMN_SEASON_WINS = 5,
+        COLUMN_PERSONAL_RATING = 6,
+        NUM_COLUMNS = 7,
+    };
+
     static ArenaTeam m_arenaTeams[3];
     static int32_t m_showOffline;
     static uint32_t m_nextAllowedQuery[3];
-    static ArenaTeamSort m_sortOrder[7];
+    static ArenaTeamSort m_sortOrder[CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS];
     static WOWGUID m_selectedMember;
     static void EnterWorld();
     static void InitializeGame();

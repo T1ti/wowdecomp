@@ -28,7 +28,7 @@ ArenaTeam CGArenaTeamInfo::m_arenaTeams[3];
 uint32_t CGArenaTeamInfo::m_nextAllowedQuery[3];
 
 // STATIC: 0x00C0F7FC
-ArenaTeamSort CGArenaTeamInfo::m_sortOrder[7];
+ArenaTeamSort CGArenaTeamInfo::m_sortOrder[CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS];
 
 // STATIC: 0x00C0F838
 WOWGUID CGArenaTeamInfo::m_selectedMember;
@@ -81,16 +81,16 @@ static int32_t QSortRoster(const void* a, const void* b) {
         return 2 * (member1->m_online == 0) - 1;
     }
 
-    for (uint32_t i = 0; i < 7; i++) {
+    for (uint32_t i = 0; i < CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS; i++) {
         int32_t result;
         uint32_t value1;
         uint32_t value2;
 
         switch (CGArenaTeamInfo::m_sortOrder[i].m_column) {
-            case 0:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_NAME:
                 result = SStrCmp(member1->m_name, member2->m_name, STORM_MAX_STR);
                 break;
-            case 1: {
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_CLASS: {
                 ChrClassesRec* class1 = g_chrClassesDB.GetRecord(member1->m_class);
                 ChrClassesRec* class2 = g_chrClassesDB.GetRecord(member2->m_class);
 
@@ -101,7 +101,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
                 result = SStrSortUTF8I(class1->m_name, class2->m_name, STORM_MAX_STR);
                 break;
             }
-            case 2:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_WEEK_GAMES:
                 value1 = member1->m_weekGames;
                 value2 = member2->m_weekGames;
 
@@ -111,7 +111,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
 
                 result = value2 < value1 ? -1 : 1;
                 break;
-            case 3:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_WEEK_WINS:
                 value1 = member1->m_weekWins;
                 value2 = member2->m_weekWins;
 
@@ -121,7 +121,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
 
                 result = value2 < value1 ? -1 : 1;
                 break;
-            case 4:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_SEASON_GAMES:
                 value1 = member1->m_seasonGames;
                 value2 = member2->m_seasonGames;
 
@@ -131,7 +131,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
 
                 result = value2 < value1 ? -1 : 1;
                 break;
-            case 5:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_SEASON_WINS:
                 value1 = member1->m_seasonWins;
                 value2 = member2->m_seasonWins;
 
@@ -141,7 +141,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
 
                 result = value2 < value1 ? -1 : 1;
                 break;
-            case 6:
+            case CGArenaTeamInfo::SORT_COLUMN::COLUMN_PERSONAL_RATING:
                 value1 = member1->m_personalRating;
                 value2 = member2->m_personalRating;
 
@@ -297,7 +297,7 @@ void CGArenaTeamInfo::InitializeGame() {
 
     CGArenaTeamInfo::m_selectedMember = WOWGUID();
 
-    for (uint32_t i = 0; i < 7; i++) {
+    for (uint32_t i = 0; i < CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS; i++) {
         CGArenaTeamInfo::m_sortOrder[i].m_reverse = 0;
     }
 
@@ -307,7 +307,7 @@ void CGArenaTeamInfo::InitializeGame() {
         CGArenaTeamInfo::m_nextAllowedQuery[i] = 0;
     }
 
-    for (int32_t i = 0; i < 7; i++) {
+    for (int32_t i = 0; i < CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS; i++) {
         CGArenaTeamInfo::m_sortOrder[i].m_column = i;
     }
 }
@@ -369,7 +369,7 @@ void CGArenaTeamInfo::SetRosterShowOffline(int32_t showOffline) {
 // VERIFY: 639eb906 manual
 // OFFSET: 0x005A2E80
 void CGArenaTeamInfo::SortRoster(int32_t column) {
-    for (uint32_t i = 0; i < 7; i++) {
+    for (uint32_t i = 0; i < CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS; i++) {
         if (CGArenaTeamInfo::m_sortOrder[i].m_column != column) {
             continue;
         }
