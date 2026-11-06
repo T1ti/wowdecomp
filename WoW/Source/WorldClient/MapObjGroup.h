@@ -358,7 +358,7 @@ namespace World {
     class TriData {
         public:
         struct Batch {
-            /* 0000 */ C44Matrix* m_matrix;
+            /* 0000 */ const C44Matrix* m_matrix;
             /* 0004 */ C3Vector* m_vertexList;
             /* 0008 */ C3Vector* m_normalList;
             /* 000C */ float* m_heightList;
