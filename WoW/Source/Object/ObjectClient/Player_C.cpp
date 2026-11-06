@@ -6522,7 +6522,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
         return;
     }
 
-    if (unit->m_questStatus == 1) {
+    if (unit->m_questStatus == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_1) {
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_UNAVAILABLE_QUEST_GIVERS);
     }
 
@@ -8836,7 +8836,7 @@ static int32_t InteractUpdateProc(WOWGUID guid, void* param) {
         }
     }
 
-    object->m_questStatus = 0;
+    object->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
     object->m_interactIconType = 0;
     object->RemoveInteractIcon();
     return 1;

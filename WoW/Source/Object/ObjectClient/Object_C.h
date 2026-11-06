@@ -105,6 +105,24 @@ inline bool CHashKeyGUID::operator==(const CHashKeyGUID& key) {
     return this->m_guid == key.m_guid;
 }
 
+// Current quest-status indices;the older five-slot meanings are not copied.
+// UNKNOWN_1 triggers the unavailable-quest tutorial;2..4 obey trivial tracking.
+// Other variant causes remain unknown;NUMITEMS is the exclusive table bound.
+enum QUEST_GIVER_STATUS : uint32_t {
+    QUEST_GIVER_NONE = 0,
+    QUEST_GIVER_UNKNOWN_1 = 1,
+    QUEST_GIVER_UNKNOWN_2 = 2,
+    QUEST_GIVER_UNKNOWN_3 = 3,
+    QUEST_GIVER_UNKNOWN_4 = 4,
+    QUEST_GIVER_UNKNOWN_5 = 5,
+    QUEST_GIVER_UNKNOWN_6 = 6,
+    QUEST_GIVER_UNKNOWN_7 = 7,
+    QUEST_GIVER_UNKNOWN_8 = 8,
+    QUEST_GIVER_UNKNOWN_9 = 9,
+    QUEST_GIVER_UNKNOWN_10 = 10,
+    QUEST_GIVER_NUMITEMS = 11,
+};
+
 class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID> {
     public:
     struct InteractIcon {
@@ -114,7 +132,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     };
 
     static InteractIcon s_interactIcons[12];
-    static const uint32_t s_questStatusIcons[11];
+    static const uint32_t s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS];
     static CTexture* s_selectionTexture;
     static CVar* s_cvObjectSelectionCircle;
 

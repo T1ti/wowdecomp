@@ -69,7 +69,7 @@ CGObject_C::InteractIcon CGObject_C::s_interactIcons[12] = {
 };
 
 // STATIC: 0x00A34F5C
-const uint32_t CGObject_C::s_questStatusIcons[11] = { 0, 6, 1, 2, 3, 5, 10, 11, 4, 9, 9 };
+const uint32_t CGObject_C::s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS] = { 0, 6, 1, 2, 3, 5, 10, 11, 4, 9, 9 };
 
 // STATIC: 0x00CA12C4
 CTexture* CGObject_C::s_selectionTexture;
@@ -227,7 +227,7 @@ void CGObject_C::UpdateInteractIcon() {
     uint32_t icon;
     uint32_t status = this->m_questStatus;
 
-    if (status && (status - 2 > 2 || CGMinimapFrame::IsTrackingTrivialQuests())) {
+    if (status && (status - QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2 > 2 || CGMinimapFrame::IsTrackingTrivialQuests())) {
         icon = CGObject_C::s_questStatusIcons[this->m_questStatus];
     } else {
         icon = this->m_interactIconType;
@@ -957,19 +957,19 @@ C3Vector CGObject_C::GetModelPosition() {
 // OFFSET: 0x00744640
 int32_t CGObject_C::GetQuestGiverCursor(int32_t highlighted) {
     switch (this->m_questStatus) {
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 7:
-        case 8:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_3:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_4:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_5:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_7:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_8:
             return highlighted ? QUEST_ERROR_CURSOR : QUEST_CURSOR;
 
-        case 6:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_6:
             return highlighted ? QUEST_REPEATABLE_ERROR_CURSOR : QUEST_REPEATABLE_CURSOR;
 
-        case 9:
-        case 10:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_9:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_10:
             return highlighted ? QUEST_TURNIN_ERROR_CURSOR : QUEST_TURNIN_CURSOR;
 
         default:
@@ -1340,7 +1340,7 @@ CGObject_C::CGObject_C(uint32_t time, const CClientObjCreate& create) {
     this->m_scaleChangeStart = 1.0f;
     this->m_interactIcon = nullptr;
     this->m_height = 1.0f;
-    this->m_questStatus = 0;
+    this->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
     this->m_interactIconType = 0;
     this->m_scaleChangeTime = 0;
     this->m_effectList = nullptr;
