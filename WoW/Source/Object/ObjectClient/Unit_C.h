@@ -264,7 +264,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0958 */ uint32_t m_animEffectStates [3];
     /* 0964 */ CreatureStats_C* m_creatureCacheEntry;
     /* 0968 */ CreatureDisplayInfoRec* m_displayInfo;
-    /* 096C */ CreatureDisplayInfoExtraRec* m_displayInfoExtra;
+    /* 096C */ const CreatureDisplayInfoExtraRec* m_displayInfoExtra;
     /* 0970 */ CreatureModelDataRec* m_modelData;
     /* 0974 */ CreatureSoundDataRec* m_soundData;
     /* 0978 */ CreatureSoundDataRec* m_soundDataOverride;

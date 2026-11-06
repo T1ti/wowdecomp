@@ -23829,7 +23829,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
             return;
         }
 
-        CreatureDisplayInfoExtraRec* extra = this->m_displayInfoExtra;
+        const CreatureDisplayInfoExtraRec* extra = this->m_displayInfoExtra;
         data.m_preferences.m_raceID = extra->m_displayRaceID;
         data.m_preferences.m_sexID = extra->m_displaySexID;
         data.m_preferences.m_classId = 0;
