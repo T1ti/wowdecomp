@@ -25,6 +25,16 @@ class CVehicleCameraHeap {
 
 class CVehicleCamera_C {
     public:
+    // Reconstructed camera timing phases;passenger state and CAMERA_FLAGS are separate.
+    enum CAMERA_STATE : uint32_t {
+        STATE_NONE = 0,
+        STATE_ENTER_DELAY = 1,
+        STATE_ENTERING = 2,
+        STATE_ATTACHED = 3,
+        STATE_EXIT_DELAY = 4,
+        STATE_EXITING = 5,
+    };
+
     enum CAMERA_FLAGS : uint32_t {
         FLAG_NONE = 0,
         FLAG_MOTION_TIMING_SET = 0x1,
@@ -70,7 +80,7 @@ class CVehicleCamera_C {
     /* 0094 */ CSmoothAngle m_endFacingChaser;
     /* 009C */ uint32_t m_motionDuration;
     /* 00A0 */ uint32_t m_lastUpdateTime;
-    /* 00A4 */ uint32_t m_state;
+    /* 00A4 */ CAMERA_STATE m_state;
     /* 00A8 */ uint32_t m_transitionStartTime;
     /* 00AC */ uint32_t m_transitionDuration;
     /* 00B0 */ WOWGUID m_targetGuid;
