@@ -109,7 +109,7 @@ void PlayerNameInitialize() {
 // OFFSET: 0x007E50F0
 void PlayerNameTriggerColorUpdate(PLAYERNAMEDESC* desc) {
     if (desc) {
-        desc->m_flags |= 0x2;
+        desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::COLOR_UPDATE;
     }
 }
 
@@ -136,8 +136,8 @@ void PlayerNameUpdateDrawCallback(PLAYERNAMEDESC* desc) {
     uint32_t raidTarget = GetRaidTargetIndexFromGuid(desc->m_guid);
 
     if (object->ShouldRenderObjectName(s_nameMask) || PLAYERNAMEDESC::ShouldRender(object, raidTarget)) {
-        if (!(desc->m_flags & 0x8)) {
-            desc->m_flags |= 0x8;
+        if (!(desc->m_flags & PLAYERNAMEDESC::NAME_FLAGS::SHOWING)) {
+            desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::SHOWING;
             object->ObjectNameVisibilityChanged();
         }
 
@@ -149,8 +149,8 @@ void PlayerNameUpdateDrawCallback(PLAYERNAMEDESC* desc) {
         model->m_drawCallback = nullptr;
         model->m_drawArg = nullptr;
 
-        if (desc->m_flags & 0x8) {
-            desc->m_flags &= ~0x8;
+        if (desc->m_flags & PLAYERNAMEDESC::NAME_FLAGS::SHOWING) {
+            desc->m_flags &= ~PLAYERNAMEDESC::NAME_FLAGS::SHOWING;
             object->ObjectNameVisibilityChanged();
         }
     }
@@ -166,21 +166,21 @@ void PlayerNameUpdateEarly() {
 // OFFSET: 0x007E5130
 void PlayerNameTriggerNameRegenerate(PLAYERNAMEDESC* desc) {
     if (desc) {
-        desc->m_flags |= 0x1;
+        desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::NAME_REGENERATE;
     }
 }
 
 // VERIFY: 04249170 auto
 // OFFSET: 0x007E5150
 bool PlayerNameShowing(PLAYERNAMEDESC* desc) {
-    return desc && (desc->m_flags & 0x8);
+    return desc && (desc->m_flags & PLAYERNAMEDESC::NAME_FLAGS::SHOWING);
 }
 
 // VERIFY: d71173c9 manual
 // OFFSET: 0x007E5580
 void PlayerNameUpdateLate() {
     for (PLAYERNAMEDESC* desc = s_playerNames.Head(); desc; desc = s_playerNames.Next(desc)) {
-        if (desc->m_renderFrame == s_lastRenderFrame || (desc->m_flags & 4)) {
+        if (desc->m_renderFrame == s_lastRenderFrame || (desc->m_flags & PLAYERNAMEDESC::NAME_FLAGS::OBJECT_NAME)) {
             continue;
         }
 
@@ -198,7 +198,7 @@ inline PLAYERNAMEDESC::PLAYERNAMEDESC() {
     this->m_string = nullptr;
     this->m_zOffset = 0.0f;
     this->m_guid.m_guid = 0;
-    this->m_flags = 3;
+    this->m_flags = PLAYERNAMEDESC::NAME_FLAGS::INITIAL_DIRTY;
     this->m_renderFrame = s_lastRenderFrame;
     this->m_worldText[0] = nullptr;
     this->m_worldText[1] = nullptr;
@@ -341,16 +341,16 @@ void PLAYERNAMEDESC::Render() {
     C3Vector position = object->GetNamePosition();
 
     if (showName) {
-        if (this->m_flags & 0x2) {
-            this->m_flags &= ~0x2;
+        if (this->m_flags & PLAYERNAMEDESC::NAME_FLAGS::COLOR_UPDATE) {
+            this->m_flags &= ~PLAYERNAMEDESC::NAME_FLAGS::COLOR_UPDATE;
             object->GetSelectionHighlightColor(&this->m_color);
 
-            if (this->m_string && !(this->m_flags & 0x1)) {
+            if (this->m_string && !(this->m_flags & PLAYERNAMEDESC::NAME_FLAGS::NAME_REGENERATE)) {
                 GxuFontSetStringColor(this->m_string, this->m_color);
             }
         }
 
-        if (this->m_string && (this->m_flags & 0x1)) {
+        if (this->m_string && (this->m_flags & PLAYERNAMEDESC::NAME_FLAGS::NAME_REGENERATE)) {
             GxuFontDestroyString(this->m_string);
             this->m_zOffset = 0.0f;
             this->m_string = nullptr;
@@ -366,7 +366,7 @@ void PLAYERNAMEDESC::Render() {
                 GxuFontCreateString(s_playerNameFont, LanguageProcess(text), lineHeight, origin, 100000.0f, 100000.0f, 0.0f, this->m_string, GxVJ_Bottom, GxHJ_Center, 200, this->m_color, 0.0f, 1.0f);
             }
 
-            this->m_flags &= ~0x1;
+            this->m_flags &= ~PLAYERNAMEDESC::NAME_FLAGS::NAME_REGENERATE;
         }
 
         if (this->m_string) {
@@ -520,7 +520,7 @@ void PLAYERNAMEDESC::UpdateWorldText(uint32_t time) {
         return;
     }
 
-    if (!(this->m_flags & 0x4) && !object->m_worldModel->IsDrawable(0, 0)) {
+    if (!(this->m_flags & PLAYERNAMEDESC::NAME_FLAGS::OBJECT_NAME) && !object->m_worldModel->IsDrawable(0, 0)) {
         return;
     }
 
@@ -547,7 +547,7 @@ void PLAYERNAMEDESC::UpdateWorldTextIcons() {
         return;
     }
 
-    if (!(this->m_flags & 0x4) && !object->m_worldModel->IsDrawable(0, 0)) {
+    if (!(this->m_flags & PLAYERNAMEDESC::NAME_FLAGS::OBJECT_NAME) && !object->m_worldModel->IsDrawable(0, 0)) {
         return;
     }
 
@@ -562,7 +562,7 @@ void PLAYERNAMEDESC::UpdateWorldTextIcons() {
 // OFFSET: 0x007E5550
 void PlayerNameTriggerColorUpdateAll() {
     for (PLAYERNAMEDESC* desc = s_playerNames.Head(); desc; desc = s_playerNames.Next(desc)) {
-        desc->m_flags |= 0x2;
+        desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::COLOR_UPDATE;
     }
 }
 
@@ -647,7 +647,7 @@ PLAYERNAMEDESC* ObjectNameCreate(const WOWGUID& guid) {
 
     PLAYERNAMEDESC* desc = s_freePlayerNames.New<PLAYERNAMEDESC>(0);
     desc->m_guid = guid;
-    desc->m_flags |= 0x4;
+    desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::OBJECT_NAME;
     s_playerNames.LinkToTail(desc);
 
     return desc;
