@@ -25,6 +25,7 @@ namespace Liquid {
 namespace World { class TriData; }
 class CiRect;
 class CFrustum;
+struct SLTiles;
 
 // Runtime terrain-liquid instance in 3.3.5. The 0.5.3 CChunkLiquid embedded
 // the legacy payload now described by SMLiquidChunk; its runtime layout differs.
@@ -44,7 +45,7 @@ class CChunkLiquid {
     /* 003C */ C2iVector m_tileEnd;
     /* 0044 */ Liquid::IVertexData* m_vertexData;
     /* 0048 */ CBitArray m_tileBits;
-    /* 0054 */ uint8_t* m_tiles;
+    /* 0054 */ SLTiles* m_tiles;
     /* 0058 */ Liquid::CInstance* m_instance;
     /* 005C */ CMapChunk* m_owner;
     /* 0060 */ TSLink<CChunkLiquid> m_link;

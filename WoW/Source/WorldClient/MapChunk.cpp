@@ -813,7 +813,7 @@ void CMapChunk::CreateLiquids(bool a3) {
 
                 void* mem = SMemAlloc(sizeof(Liquid::CChunkVertexData), __FILE__, __LINE__, 0);
                 Liquid::CChunkVertexData* vertexData = mem ? new (mem) Liquid::CChunkVertexData(verts, chunkLiquid->m_vertexFormat) : nullptr;
-                chunkLiquid->m_tiles = reinterpret_cast<uint8_t*>(&mclq->m_tiles);
+                chunkLiquid->m_tiles = &mclq->m_tiles;
                 chunkLiquid->m_vertexData = vertexData;
                 mclq++;
 

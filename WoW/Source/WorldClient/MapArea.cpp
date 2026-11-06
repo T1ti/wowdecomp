@@ -506,7 +506,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
 
             for (uint32_t row = 0; row < 8; row++) {
                 for (uint32_t col = 0; col < 8; col++) {
-                    if ((liquid->m_tiles[row * 8 + col] & 0xF) != 0xF) {
+                    if ((reinterpret_cast<const uint8_t*>(liquid->m_tiles)[row * 8 + col] & 0xF) != 0xF) {
                         if (dx * dx + dy * dy + dz * dz > radiusSq) {
                             continue;
                         }

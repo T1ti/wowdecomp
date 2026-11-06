@@ -128,7 +128,7 @@ bool CChunkLiquid::GetTileInfo(const C2iVector& tile, int32_t* type, int32_t* fl
         return false;
     }
 
-    const uint8_t* entry = &this->m_tiles[tile.x + 8 * tile.y];
+    const uint8_t* entry = &reinterpret_cast<const uint8_t*>(this->m_tiles)[tile.x + 8 * tile.y];
     *type = *entry & 0xF;
     *flag6 = (*entry >> 6) & 1;
     *flag7 = *entry >> 7;
