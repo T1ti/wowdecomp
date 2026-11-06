@@ -487,7 +487,7 @@ bool UIFasterCallback(CVar* var, const char* oldValue, const char* value, void* 
                 ConsoleWrite("Texture atlas disabled.", DEFAULT_COLOR);
             }
 
-            VideoHardwareRec* video = hardware->m_videoHw;
+            const VideoHardwareRec* video = hardware->m_videoHw;
 
             if (video && video->m_atlasdisable) {
                 faster &= ~1u;

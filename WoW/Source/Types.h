@@ -28,7 +28,7 @@ struct DefaultSettings {
     /* 0024 */ float m_unitDrawDist;
     /* 0028 */ float m_smallCull;
     /* 002C */ float m_distCull;
-    /* 0030 */ CGxFormat* m_format;
+    /* 0030 */ const CGxFormat* m_format;
     /* 0034 */ uint32_t m_baseMipLevel;
     /* 0038 */ uint32_t m_numChannels;
     /* 003C */ bool m_fivePointOne;
@@ -49,9 +49,9 @@ struct Hardware {
     /* 001C */ uint32_t m_videoID;
     /* 0020 */ uint32_t m_soundIdx;
     /* 0024 */ uint32_t m_memIdx;
-    /* 0028 */ VideoHardwareRec* m_videoHw;
-    /* 002C */ CpuHardware* m_cpuHw;
-    /* 0030 */ SoundHardware* m_soundHw;
+    /* 0028 */ const VideoHardwareRec* m_videoHw;
+    /* 002C */ const CpuHardware* m_cpuHw;
+    /* 0030 */ const SoundHardware* m_soundHw;
 };
 
 #endif
