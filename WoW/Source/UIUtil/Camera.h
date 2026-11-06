@@ -74,6 +74,13 @@ class CGInputControl;
 
 class CGCamera : public CSimpleCamera {
     public:
+    // Vehicle override selector;other raw values keep the user-style fallback.
+    enum VEHICLE_TRACKING_STYLE : uint32_t {
+        TRACKING_USER_STYLE = 0,
+        TRACKING_IGNORE_FACING = 1,
+        TRACKING_FOLLOW_FACING = 2,
+    };
+
     enum MOTION_FLAGS : int32_t {
         FLAG_MOTION_NONE = 0,
         FLAG_MOVE_IN_ACTIVE = 0x1,

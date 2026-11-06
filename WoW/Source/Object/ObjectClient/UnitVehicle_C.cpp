@@ -609,7 +609,7 @@ void CGUnit_C::VehiclePassengerUpdateWorldCameraState(VehicleRec* vehicleRec, Ve
         camera->SetVehicleZoomEnabled(0, duration, restoreZoom == 0);
         camera->SetDesiredVehicleYawOffset(0.0f, startTime, endTime);
         camera->SetDesiredVehiclePitchOffset(0.0f, startTime, endTime);
-        camera->SetVehicleTrackingStyle(0);
+        camera->SetVehicleTrackingStyle(CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_USER_STYLE);
     } else {
         if (seatRec && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_ENABLE_VEHICLE_ZOOM)) {
             camera->SetVehicleZoomEnabled(1, duration, 1);
@@ -683,9 +683,9 @@ void CGUnit_C::VehiclePassengerUpdateWorldCameraState(VehicleRec* vehicleRec, Ve
         if (seatRec
             && (seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_CONTROL)
             && (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_FACING_INTERPOLATION_MASK)) {
-            camera->SetVehicleTrackingStyle(1);
+            camera->SetVehicleTrackingStyle(CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_IGNORE_FACING);
         } else {
-            camera->SetVehicleTrackingStyle(2);
+            camera->SetVehicleTrackingStyle(CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_FOLLOW_FACING);
         }
     }
 

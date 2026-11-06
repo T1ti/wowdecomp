@@ -319,7 +319,7 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     this->m_vehiclePitchFrom = 0.0f;
     this->m_vehiclePitchTo = 0.0f;
     this->m_vehiclePitchOffset = 0.0f;
-    this->m_vehicleTrackingStyle = 0;
+    this->m_vehicleTrackingStyle = CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_USER_STYLE;
     this->m_vehicleCamera = nullptr;
 
     memset(this->m_views, 0, sizeof(this->m_views));
@@ -3225,9 +3225,9 @@ void CGCamera::UpdateTrackingState(int32_t tracking) {
 
     if (!(this->m_state & STATE_FLAGS::STATE_TRACKING)) {
         ignore = 0;
-    } else if (this->m_vehicleTrackingStyle == 1) {
+    } else if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_IGNORE_FACING) {
         ignore = 1;
-    } else if (this->m_vehicleTrackingStyle == 2) {
+    } else if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_FOLLOW_FACING) {
         ignore = 0;
     } else {
         int32_t style = s_cvCameraSmoothTrackingStyle->m_intValue;
@@ -3263,11 +3263,11 @@ int32_t CGCamera::CanSmoothTarget() {
     }
 
     if (this->m_state & STATE_FLAGS::STATE_TRACKING) {
-        if (this->m_vehicleTrackingStyle == 1) {
+        if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_IGNORE_FACING) {
             return 0;
         }
 
-        if (this->m_vehicleTrackingStyle != 2 && (!s_cvCameraSmoothTrackingStyle->m_intValue || !CGUnit_C::GetTrackingType())) {
+        if (this->m_vehicleTrackingStyle != CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_FOLLOW_FACING && (!s_cvCameraSmoothTrackingStyle->m_intValue || !CGUnit_C::GetTrackingType())) {
             return 0;
         }
     }
@@ -3362,9 +3362,9 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     uint32_t style;
 
     if (reasons & 0x44) {
-        if (this->m_vehicleTrackingStyle == 1) {
+        if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_IGNORE_FACING) {
             style = 0;
-        } else if (this->m_vehicleTrackingStyle == 2) {
+        } else if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_FOLLOW_FACING) {
             style = 3;
         } else {
             style = s_cvCameraSmoothTrackingStyle->m_intValue;
