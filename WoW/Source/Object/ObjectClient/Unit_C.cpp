@@ -9765,7 +9765,7 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_displayInfo = g_creatureDisplayInfoDB.m_numRecords > 0 ? g_creatureDisplayInfoDB.m_records : nullptr;
     }
 
-    CreatureDisplayInfoRec* displayInfo = this->m_displayInfo;
+    const CreatureDisplayInfoRec* displayInfo = this->m_displayInfo;
     this->m_displayInfoExtra = g_creatureDisplayInfoExtraDB.GetRecord(displayInfo->m_extendedDisplayInfoID);
 
     CreatureModelDataRec* modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
