@@ -193,7 +193,7 @@ void CGWorldFrame::OnMouseModeNormal() {
 // VERIFY: f3392eff auto
 // OFFSET: 0x004F5D80
 void CGWorldFrame::SetNamePlateUpdate() {
-    this->m_namePlateFlags |= 0x1;
+    this->m_namePlateFlags |= CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_REPOSITION_PENDING;
 }
 
 // VERIFY: c20f460f auto
@@ -1238,7 +1238,7 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_worldFlags = (this->m_worldFlags & ~0x3) | 0x1;
     this->m_viewportDDC = { 0.0f, 0.0f, 0.0f, 0.0f };
     this->m_viewportNDC = { 0.0f, 0.0f, 0.0f, 0.0f };
-    this->m_namePlateFlags = 0;
+    this->m_namePlateFlags = CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_NONE;
 
     CGWorldFrame::s_currentWorldFrame = this;
 
@@ -1726,9 +1726,9 @@ void CGWorldFrame::OnWorldRender() {
     TextureCacheResetLoadCount();
     PlayerNameUpdateEarly();
 
-    if (this->m_namePlateFlags & 0x2) {
+    if (this->m_namePlateFlags & CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_RESORT_PENDING) {
         CGUnit_C::NamePlateSetResortAll(true);
-        this->m_namePlateFlags &= ~0x2;
+        this->m_namePlateFlags &= ~CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_RESORT_PENDING;
     }
 
     CShaderEffect::UpdateProjMatrix();
@@ -1739,10 +1739,10 @@ void CGWorldFrame::OnWorldRender() {
     CGUnit_C::NamePlateUpdateLevels(false);
     CGUnit_C::NamePlateUpdateColor(false);
 
-    if (this->m_namePlateFlags & 0x1) {
+    if (this->m_namePlateFlags & CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_REPOSITION_PENDING) {
         SmartScreenRectClearGrid(SRECTGRID_NAMEPLATES);
         CGUnit_C::UnitNameplatesReposition(this);
-        this->m_namePlateFlags &= ~0x1;
+        this->m_namePlateFlags &= ~CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_REPOSITION_PENDING;
     }
 
     CM2Scene* scene = World::s_m2Scene;
@@ -2080,7 +2080,7 @@ void CGWorldFrame::OnWorldUpdate() {
     GxXformViewProj(viewProjection);
 
     if (viewProjection != this->m_viewProjection) {
-        this->m_namePlateFlags |= 0x2;
+        this->m_namePlateFlags |= CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_RESORT_PENDING;
         this->m_viewProjection = viewProjection;
     }
 

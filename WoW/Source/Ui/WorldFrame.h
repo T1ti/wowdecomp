@@ -105,6 +105,13 @@ struct KEYDOWNSTATE {
 
 class CGWorldFrame : public CSimpleFrame {
     public:
+    // Pending nameplate work;separate from world interaction and name-display flags.
+    enum NAME_PLATE_FLAGS : uint32_t {
+        NAME_PLATE_NONE = 0,
+        NAME_PLATE_REPOSITION_PENDING = 0x1,
+        NAME_PLATE_RESORT_PENDING = 0x2,
+    };
+
     enum HIT_TYPE : int32_t {
         HIT_NONE = 0,
         HIT_GROUND = 1,
