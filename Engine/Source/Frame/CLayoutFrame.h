@@ -52,7 +52,7 @@ class CLayoutFrame {
     /* 0004 */ TSLink<CLayoutFrame> m_resizeLink;
     /* 000C */ CFramePoint* m_framePoints[FRAMEPOINT_NUMPOINTS];
     /* 0030 */ TSList<CLayoutFrame::FRAMENODE, TSGetLink<CLayoutFrame::FRAMENODE> > m_resizeList;
-    /* 003C */ uint32_t m_guard;
+    /* 003C */ GuardFlags m_guard; // Guards recursive frame-point queries.
     /* 0040 */ uint32_t m_layoutFlags;
     /* 0044 */ CRect m_rect;
     /* 0054 */ float m_width;

@@ -224,7 +224,7 @@ float CLayoutFrame::CenterX() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_CENTER_X;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_CENTER_X);
 
     float x = CFramePoint::UNDEFINED;
     this->GetHorizontalFramePoint(s_centerXPoints, 3, x);
@@ -234,7 +234,7 @@ float CLayoutFrame::CenterX() {
         x = ComputeCenterPosition(this->Left(), this->Right(), size);
     }
 
-    this->m_guard &= ~GUARD_CENTER_X;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_CENTER_X);
 
     return x;
 }
@@ -246,7 +246,7 @@ float CLayoutFrame::CenterY() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_CENTER_Y;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_CENTER_Y);
 
     float y = CFramePoint::UNDEFINED;
     this->GetVerticalFramePoint(s_centerYPoints, 3, y);
@@ -256,7 +256,7 @@ float CLayoutFrame::CenterY() {
         y = ComputeCenterPosition(this->Bottom(), this->Top(), size);
     }
 
-    this->m_guard &= ~GUARD_CENTER_Y;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_CENTER_Y);
 
     return y;
 }
@@ -268,7 +268,7 @@ float CLayoutFrame::Right() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_RIGHT;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_RIGHT);
 
     float x = CFramePoint::UNDEFINED;
     this->GetHorizontalFramePoint(s_rightPoints, 3, x);
@@ -278,7 +278,7 @@ float CLayoutFrame::Right() {
         x = ComputeRightBoundary(this->CenterX(), this->Left(), size);
     }
 
-    this->m_guard &= ~GUARD_RIGHT;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_RIGHT);
 
     return x;
 }
@@ -290,7 +290,7 @@ float CLayoutFrame::Bottom() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_BOTTOM;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_BOTTOM);
 
     float y = CFramePoint::UNDEFINED;
     this->GetVerticalFramePoint(s_bottomPoints, 3, y);
@@ -300,7 +300,7 @@ float CLayoutFrame::Bottom() {
         y = ComputeRightBoundary(this->CenterY(), this->Top(), size);
     }
 
-    this->m_guard &= ~GUARD_BOTTOM;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_BOTTOM);
 
     return y;
 }
@@ -370,7 +370,7 @@ float CLayoutFrame::Left() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_LEFT;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_LEFT);
 
     float x = CFramePoint::UNDEFINED;
     this->GetHorizontalFramePoint(s_leftPoints, 3, x);
@@ -380,7 +380,7 @@ float CLayoutFrame::Left() {
         x = ComputeRightBoundary(this->CenterX(), this->Right(), size);
     }
 
-    this->m_guard &= ~GUARD_LEFT;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_LEFT);
 
     return x;
 }
@@ -392,7 +392,7 @@ float CLayoutFrame::Top() {
         return CFramePoint::UNDEFINED;
     }
 
-    this->m_guard |= GUARD_TOP;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard | GUARD_TOP);
 
     float y = CFramePoint::UNDEFINED;
     this->GetVerticalFramePoint(s_topPoints, 3, y);
@@ -402,7 +402,7 @@ float CLayoutFrame::Top() {
         y = ComputeRightBoundary(this->CenterY(), this->Bottom(), size);
     }
 
-    this->m_guard &= ~GUARD_TOP;
+    this->m_guard = static_cast<GuardFlags>(this->m_guard & ~GUARD_TOP);
 
     return y;
 }
