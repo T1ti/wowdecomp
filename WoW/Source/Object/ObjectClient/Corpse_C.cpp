@@ -50,7 +50,7 @@ void CGCorpse_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 
 // VERIFY: 9d2370ce manual
 // OFFSET: 0x00706430
-CGCorpse_C::CGCorpse_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_component(nullptr), m_groundNormal(0.0f, 0.0f, 1.0f), m_corpseFlags(0), m_selectionRadius(0.0f), m_lootEffect(nullptr) {
+CGCorpse_C::CGCorpse_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_component(nullptr), m_groundNormal(0.0f, 0.0f, 1.0f), m_corpseFlags(CGCorpse_C::RUNTIME_FLAGS::NONE), m_selectionRadius(0.0f), m_lootEffect(nullptr) {
     this->m_passenger.m_facing = create.m_move.m_status.m_transportFacing;
 }
 
@@ -130,10 +130,10 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
     int32_t liquidFlags;
 
     if (World::QueryObjectLiquid(entity, &liquidType, &height, &liquidFlags) && height - position.z > 0.6666667f) {
-        this->m_corpseFlags |= 0x2;
+        this->m_corpseFlags |= CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE;
         model->SetBoneSequence(0xFFFFFFFF, ANIM_DROWNED, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
-        this->m_corpseFlags &= ~0x2;
+        this->m_corpseFlags &= ~CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE;
         model->SetBoneSequence(0xFFFFFFFF, ANIM_DEAD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 
@@ -307,7 +307,7 @@ void CGCorpse_C::OnFlagChanged(uint32_t oldFlags) {
         this->m_component = nullptr;
     }
 
-    this->m_corpseFlags &= ~0x1;
+    this->m_corpseFlags &= ~CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED;
     const char* fileName;
 
     if (!this->GetModelFileName(&fileName)) {
@@ -385,7 +385,7 @@ float CGCorpse_C::GetFacing() const {
 void CGCorpse_C::ModelLoaded(CM2Model* model) {
     this->CGObject_C::ModelLoaded(model);
 
-    if (this->m_corpseFlags & 0x2) {
+    if (this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE) {
         model->SetBoneSequence(0xFFFFFFFF, ANIM_DROWNED, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else {
         model->SetBoneSequence(0xFFFFFFFF, ANIM_DEAD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
@@ -446,7 +446,7 @@ void CGCorpse_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) 
         if (this->m_component) {
             this->m_component->Prep();
         }
-    } else if (((this->m_corpseFlags & 0x2) && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) || (this->m_component && !this->m_component->RenderPrep(0))) {
+    } else if (((this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE) && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) || (this->m_component && !this->m_component->RenderPrep(0))) {
         hidden = 1;
     }
 }
@@ -475,7 +475,7 @@ void CGCorpse_C::Disable() {
 // OFFSET: 0x00705FA0
 void CGCorpse_C::Reenable() {
     CGObject_C::Reenable();
-    this->m_corpseFlags &= ~0x1;
+    this->m_corpseFlags &= ~CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED;
 
     if (this->m_corpse->m_corpseFieldDynamicFlags & 0x1) {
         this->ShowLootEffect();
@@ -552,7 +552,7 @@ void CGCorpse_C::RenderTargetSelection() const {
 // VERIFY: f37ff84d manual
 // OFFSET: 0x007066B0
 C3Vector CGCorpse_C::GetGroundNormal() {
-    if (!(this->m_corpseFlags & 0x1) && this->GetObjectModel() && this->GetObjectModel()->IsLoaded(0, 0)) {
+    if (!(this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED) && this->GetObjectModel() && this->GetObjectModel()->IsLoaded(0, 0)) {
         static World::FacetData s_facets;
         CAaBox box = this->GetObjectModel()->GetBoundingBox();
         float scale = this->GetScale();
@@ -584,7 +584,7 @@ C3Vector CGCorpse_C::GetGroundNormal() {
             }
         }
 
-        this->m_corpseFlags |= 0x1;
+        this->m_corpseFlags |= CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED;
     }
 
     return this->m_groundNormal;
