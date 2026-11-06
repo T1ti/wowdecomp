@@ -123,11 +123,11 @@ void AreaListUpdateSounds(const AreaTableRec* zone, const AreaTableRec* area, co
     }
 
     SI2::UpdateZoneSoundsForWorldState(zone ? zone->m_id : 0, area ? area->m_id : 0, rootRec ? rootRec->m_id : 0, groupRec ? groupRec->m_id : 0, inside);
-    SI2::SetZoneReverb(0, reverb);
+    SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, reverb);
     SI2::SetZoneUnderwaterReverb(underwater);
-    SI2::SetZoneAmbienceID(0, ambience);
-    SI2::SetZoneIntroMusicID(5, introSound);
-    SI2::SetZoneMusicID(0, zoneMusic);
+    SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, ambience);
+    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO, introSound);
+    SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, zoneMusic);
     SI2::SetPlayerInside(inside != 0);
 }
 
@@ -186,11 +186,11 @@ static bool AreaListUpdateReverbForLocation(int32_t mapId, int32_t areaId, int32
     int32_t reverb = area && area->m_soundProviderPref ? area->m_soundProviderPref : (zone ? zone->m_soundProviderPref : 0);
     int32_t underwater = area && area->m_soundProviderPrefUnderwater ? area->m_soundProviderPrefUnderwater : (zone ? zone->m_soundProviderPrefUnderwater : 0);
     SI2::UpdateZoneSoundsForWorldState(zone ? zone->m_id : 0, area ? area->m_id : 0, 0, 0, 0);
-    SI2::SetZoneReverb(0, reverb);
+    SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, reverb);
     SI2::SetZoneUnderwaterReverb(underwater);
-    SI2::SetZoneAmbienceID(0, ambience);
-    SI2::SetZoneIntroMusicID(5, introSound);
-    SI2::SetZoneMusicID(0, zoneMusic);
+    SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, ambience);
+    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO, introSound);
+    SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_AREA, zoneMusic);
     SI2::SetPlayerInside(false);
     AreaListSendZoneUpdate(zoneId);
     return true;

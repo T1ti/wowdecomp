@@ -92,6 +92,26 @@ class SI2SoundUserData : public SESoundUserData {
 
 class SI2 {
     public:
+    // Shared music/ambience source selectors;NUM_SOURCE_SLOTS is an exclusive bound.
+    // Slot4 is unresolved;12/13/14 are delay/default/disabled,not table indices.
+    enum ZONE_SOUND_TYPE : int32_t {
+        SOURCE_AREA = 0,
+        SOURCE_WORLD_STATE = 1,
+        SOURCE_CHUNK_OVERRIDE = 2,
+        SOURCE_AI = 3,
+        SOURCE_UNKNOWN_4 = 4,
+        SOURCE_AREA_INTRO = 5,
+        SOURCE_WORLD_STATE_INTRO = 6,
+        SOURCE_CHUNK_INTRO = 7,
+        SOURCE_WEATHER = 8,
+        SOURCE_UNDERWATER = 9,
+        SOURCE_OVERRIDE = 10,
+        NUM_SOURCE_SLOTS = 11,
+        SOURCE_MUSIC_DELAY = 12,
+        SOURCE_NONE = 13,
+        SOURCE_DISABLED = 14,
+    };
+
     enum CHAOS_MODE : int32_t {
         MODE_IDLE = 0,
         MODE_RANDOM_3D = 1,

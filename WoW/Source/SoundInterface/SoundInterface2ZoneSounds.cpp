@@ -17,7 +17,7 @@
 static AMBIENCE s_zoneSoundTimeOfDay = AMB_NIGHT;
 
 // STATIC: 0x00B4AAB0
-static SI2ZoneSoundInfo s_zoneSounds[11];
+static SI2ZoneSoundInfo s_zoneSounds[SI2::ZONE_SOUND_TYPE::NUM_SOURCE_SLOTS];
 
 // STATIC: 0x00B4AC3C
 static SE2SoundKitObject s_scriptMusic;
@@ -66,16 +66,16 @@ SI2ZoneSoundInfo::~SI2ZoneSoundInfo() {
 // VERIFY: e6578ba5 manual
 // OFFSET: 0x004C8590
 int32_t SI2::GetZoneReverb() {
-    for (int32_t i = 10; i >= 0; i--) {
+    for (int32_t i = SI2::ZONE_SOUND_TYPE::SOURCE_OVERRIDE; i >= 0; i--) {
         if (s_zoneSounds[i].m_reverb < 0) {
             continue;
         }
 
-        if (i == 9) {
+        if (i == SI2::ZONE_SOUND_TYPE::SOURCE_UNDERWATER) {
             if (!SI2::sm_bCameraIsUnderwater) {
                 continue;
             }
-        } else if (i == 8 && SI2::sm_bPlayerInside) {
+        } else if (i == SI2::ZONE_SOUND_TYPE::SOURCE_WEATHER && SI2::sm_bPlayerInside) {
             continue;
         }
 
@@ -100,8 +100,8 @@ void SI2::SetPlayerInside(bool inside) {
 // VERIFY: b619fbdd auto
 // OFFSET: 0x004C8610
 void SI2::SetWeatherKitID(int32_t soundKitId) {
-    s_zoneSounds[8].m_ambience[AMB_DAY] = soundKitId;
-    s_zoneSounds[8].m_ambience[AMB_NIGHT] = soundKitId;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_WEATHER].m_ambience[AMB_DAY] = soundKitId;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_WEATHER].m_ambience[AMB_NIGHT] = soundKitId;
 }
 
 // VERIFY: 92518c26 auto
@@ -109,8 +109,8 @@ void SI2::SetWeatherKitID(int32_t soundKitId) {
 void SI2::SetUnderwaterStatus(int32_t underwater) {
     int32_t unchanged = underwater == SI2::sm_bCameraIsUnderwater;
     SI2::sm_bCameraIsUnderwater = underwater;
-    s_zoneSounds[9].m_ambience[AMB_DAY] = underwater ? 4209 : -1;
-    s_zoneSounds[9].m_ambience[AMB_NIGHT] = s_zoneSounds[9].m_ambience[AMB_DAY];
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_UNDERWATER].m_ambience[AMB_DAY] = underwater ? 4209 : -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_UNDERWATER].m_ambience[AMB_NIGHT] = s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_UNDERWATER].m_ambience[AMB_DAY];
     SI2::sm_bUnderwaterChanged = !unchanged;
     SI2::UpdateReverb();
 }
@@ -138,7 +138,7 @@ void SI2::SetZoneReverb(int32_t type, int32_t reverb) {
 // VERIFY: 53308ceb auto
 // OFFSET: 0x004C86D0
 void SI2::SetZoneUnderwaterReverb(int32_t reverb) {
-    s_zoneSounds[9].m_reverb = reverb;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_UNDERWATER].m_reverb = reverb;
     SI2::ApplyReverbSettings();
 }
 
@@ -150,14 +150,14 @@ int32_t SI2::GetDesiredAmbienceKitID(int32_t* type) {
 
     if ((s_enableAllSound && !s_enableAllSound->m_intValue) || (s_enableAmbience && !s_enableAmbience->m_intValue) || CGGameUI::m_inMovie) {
         if (type) {
-            *type = 14;
+            *type = SI2::ZONE_SOUND_TYPE::SOURCE_DISABLED;
         }
 
         return 0;
     }
 
-    for (int32_t i = 10; i >= 0; i--) {
-        if (s_zoneSounds[i].m_ambience[s_zoneSoundTimeOfDay] < 0 || (i == 8 && SI2::sm_bPlayerInside)) {
+    for (int32_t i = SI2::ZONE_SOUND_TYPE::SOURCE_OVERRIDE; i >= 0; i--) {
+        if (s_zoneSounds[i].m_ambience[s_zoneSoundTimeOfDay] < 0 || (i == SI2::ZONE_SOUND_TYPE::SOURCE_WEATHER && SI2::sm_bPlayerInside)) {
             continue;
         }
 
@@ -174,7 +174,7 @@ int32_t SI2::GetDesiredAmbienceKitID(int32_t* type) {
 // VERIFY: 40642125 auto
 // OFFSET: 0x004C87D0
 int32_t SI2::ZoneMusicDelayElapsed(int32_t type) {
-    if (type && type != 2 && type != 1) {
+    if (type && type != SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE && type != SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE) {
         return 1;
     }
 
@@ -186,19 +186,19 @@ int32_t SI2::ZoneMusicDelayElapsed(int32_t type) {
 // VERIFY: 97d2bfe2 auto
 // OFFSET: 0x004C8830
 int32_t SI2::IntroMusicOkToPlay(int32_t soundKitId, int32_t type) {
-    if (soundKitId == s_zoneMusic.GetPlayingSoundKitId() || (type != 5 && type != 7 && type != 6)) {
+    if (soundKitId == s_zoneMusic.GetPlayingSoundKitId() || (type != SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO && type != SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO && type != SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO)) {
         return 1;
     }
 
-    if (s_zoneMusic.GetCurrentType() == 5) {
+    if (s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO) {
         return 0;
     }
 
-    if (s_zoneMusic.GetCurrentType() == 7) {
+    if (s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO) {
         return 0;
     }
 
-    if (s_zoneMusic.GetCurrentType() == 6) {
+    if (s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO) {
         return 0;
     }
 
@@ -219,7 +219,7 @@ int32_t SI2::GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* s
 
     if ((s_enableAllSound && !s_enableAllSound->m_intValue) || (s_enableMusic && !s_enableMusic->m_intValue) || CGGameUI::m_inMovie) {
         if (type) {
-            *type = 14;
+            *type = SI2::ZONE_SOUND_TYPE::SOURCE_DISABLED;
         }
 
         if (silenceMin) {
@@ -233,9 +233,9 @@ int32_t SI2::GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* s
         return 0;
     }
 
-    for (int32_t i = 10; i >= 0; i--) {
-        if ((i == 5 || i == 7 || i == 6) && s_zoneMusic.IsPlaying() && (s_zoneMusic.GetCurrentType() == 5 || s_zoneMusic.GetCurrentType() == 7 || s_zoneMusic.GetCurrentType() == 6)) {
-            if (i == 8 && SI2::sm_bPlayerInside) {
+    for (int32_t i = SI2::ZONE_SOUND_TYPE::SOURCE_OVERRIDE; i >= 0; i--) {
+        if ((i == SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO || i == SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO || i == SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO) && s_zoneMusic.IsPlaying() && (s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO || s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO || s_zoneMusic.GetCurrentType() == SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO)) {
+            if (i == SI2::ZONE_SOUND_TYPE::SOURCE_WEATHER && SI2::sm_bPlayerInside) {
                 continue;
             }
 
@@ -260,7 +260,7 @@ int32_t SI2::GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* s
 
         if (!SI2::ZoneMusicDelayElapsed(i)) {
             if (type) {
-                *type = 12;
+                *type = SI2::ZONE_SOUND_TYPE::SOURCE_MUSIC_DELAY;
             }
 
             if (silenceMin) {
@@ -382,7 +382,7 @@ void SI2::SetZoneMusicID(int32_t type, int32_t zoneMusicId) {
 
     int32_t desired = SI2::GetDesiredMusicKitID(nullptr, nullptr, nullptr);
 
-    if (desired != s_zoneMusic.GetPlayingSoundKitId() && (type > 2 || desired != -1111)) {
+    if (desired != s_zoneMusic.GetPlayingSoundKitId() && (type > SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE || desired != -1111)) {
         SI2::sm_nextZoneMusicTime = 0;
     }
 }
@@ -390,8 +390,8 @@ void SI2::SetZoneMusicID(int32_t type, int32_t zoneMusicId) {
 // VERIFY: c27c3281 manual
 // OFFSET: 0x004C8FA0
 void SI2::SetOverrideZoneSounds(int32_t soundAmbienceId, int32_t zoneMusicId) {
-    SI2::SetZoneAmbienceID(10, soundAmbienceId);
-    SI2::SetZoneMusicID(10, zoneMusicId);
+    SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_OVERRIDE, soundAmbienceId);
+    SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_OVERRIDE, zoneMusicId);
 }
 
 // VERIFY: 039f2ed0 auto
@@ -432,15 +432,15 @@ void SI2::IntroMusicFinished(SESound* sound, void* param) {
 // VERIFY: a0e10314 manual
 // OFFSET: 0x004C90C0
 void SI2::AIMusicFinished(SESound* sound, void* param) {
-    s_zoneSounds[3].m_music[AMB_DAY] = -1;
-    s_zoneSounds[3].m_music[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_silenceMin[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMin[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_ambience[AMB_DAY] = -1;
-    s_zoneSounds[3].m_ambience[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_reverb = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_reverb = -1;
 
     if (param) {
         delete static_cast<SI2ZoneMusicTimer*>(param);
@@ -493,29 +493,29 @@ int32_t SI2::PlaySoundFile(const char* filename, int32_t group) {
 // VERIFY: 14578d5d auto
 // OFFSET: 0x004C92B0
 void SI2::PlayAIMusic(int32_t soundKitId) {
-    s_zoneSounds[3].m_silenceMin[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMin[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_ambience[AMB_DAY] = -1;
-    s_zoneSounds[3].m_ambience[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_reverb = -1;
-    s_zoneSounds[3].m_music[AMB_DAY] = soundKitId;
-    s_zoneSounds[3].m_music[AMB_NIGHT] = soundKitId;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_reverb = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_DAY] = soundKitId;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_NIGHT] = soundKitId;
 }
 
 // VERIFY: 759593c5 auto
 // OFFSET: 0x004C92F0
 void SI2::StopAIMusic() {
-    s_zoneSounds[3].m_music[AMB_DAY] = -1;
-    s_zoneSounds[3].m_music[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_silenceMin[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMin[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_ambience[AMB_DAY] = -1;
-    s_zoneSounds[3].m_ambience[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_reverb = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_reverb = -1;
 }
 
 // VERIFY: 373e56ae manual
@@ -535,16 +535,16 @@ void SI2::StopAllMusic() {
     s_zoneMusic.Stop(1);
     SI2::StopSound(&s_scriptMusic, 0, 0.5f, 1);
     SI2::sm_bLuaMusicPlaying = 0;
-    s_zoneSounds[3].m_silenceMin[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMin[AMB_NIGHT] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_DAY] = 0;
-    s_zoneSounds[3].m_silenceMax[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMin[AMB_NIGHT] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_DAY] = 0;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_silenceMax[AMB_NIGHT] = 0;
     SI2::sm_nextZoneMusicTime = 0;
-    s_zoneSounds[3].m_music[AMB_DAY] = -1;
-    s_zoneSounds[3].m_music[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_ambience[AMB_DAY] = -1;
-    s_zoneSounds[3].m_ambience[AMB_NIGHT] = -1;
-    s_zoneSounds[3].m_reverb = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_music[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_DAY] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_ambience[AMB_NIGHT] = -1;
+    s_zoneSounds[SI2::ZONE_SOUND_TYPE::SOURCE_AI].m_reverb = -1;
 }
 
 // VERIFY: 7a4f127b auto
@@ -568,7 +568,7 @@ SI2ZoneSoundPair::~SI2ZoneSoundPair() {
 // INLINED
 SI2ZoneSound::SI2ZoneSound() {
     this->m_soundKitId = 0;
-    this->m_type = 13;
+    this->m_type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
 }
 
 // VERIFY: d03f2e4b manual
@@ -581,7 +581,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     }
 
     SE2SoundKitProperties properties;
-    int32_t type = 13;
+    int32_t type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
     int32_t ambienceKitId = SI2::GetDesiredAmbienceKitID(&type);
 
     if (!s_zoneAmbience.IsPlaying() || ambienceKitId != s_zoneAmbience.GetPlayingSoundKitId()) {
@@ -607,7 +607,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
         s_zoneAmbience.Transition(ambienceKitId, type, &properties, immediate, 5.0f);
     }
 
-    type = 13;
+    type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
     int32_t silenceMin = 0;
     int32_t silenceMax = 0;
     int32_t musicKitId = SI2::GetDesiredMusicKitID(&type, &silenceMin, &silenceMax);
@@ -644,23 +644,23 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     timer->m_soundKitId = musicKitId;
 
     switch (type) {
-        case 0:
-        case 1:
-        case 2:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_AREA:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE:
             timer->m_silenceMax = silenceMax;
             timer->m_silenceMin = silenceMin;
             s_zoneMusic.SetFinishedCallback(SI2::ZoneMusicFinished, timer);
             break;
 
-        case 3:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_AI:
             timer->m_silenceMax = silenceMax;
             timer->m_silenceMin = silenceMin;
             s_zoneMusic.SetFinishedCallback(SI2::AIMusicFinished, timer);
             break;
 
-        case 5:
-        case 6:
-        case 7:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO:
+        case SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO:
             timer->m_silenceMin = silenceMin;
             timer->m_silenceMax = 0;
             s_zoneMusic.SetFinishedCallback(SI2::IntroMusicFinished, timer);
@@ -713,25 +713,25 @@ void SI2::OverrideZoneSounds() {
 
         if (SI2::GetZoneSoundOverride(mapId, chunkX, chunkY, subchunkX, subchunkY, &subchunkX, &zoneMusicId, &chunkY, &subchunkY)) {
             if (subchunkY >= 0) {
-                SI2::SetZoneReverb(2, subchunkY);
+                SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, subchunkY);
             }
 
             if (chunkY >= 0) {
-                SI2::SetZoneAmbienceID(2, chunkY);
+                SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, chunkY);
             }
 
             if (subchunkX >= 0) {
-                SI2::SetZoneIntroMusicID(7, subchunkX);
+                SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO, subchunkX);
             }
 
             if (zoneMusicId >= 0) {
-                SI2::SetZoneMusicID(2, zoneMusicId);
+                SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, zoneMusicId);
             }
         } else {
-            SI2::SetZoneReverb(2, -1);
-            SI2::SetZoneAmbienceID(2, -1);
-            SI2::SetZoneIntroMusicID(7, -1);
-            SI2::SetZoneMusicID(2, -1);
+            SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, -1);
+            SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, -1);
+            SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO, -1);
+            SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE, -1);
         }
     }
 
