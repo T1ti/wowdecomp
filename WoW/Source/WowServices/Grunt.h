@@ -16,6 +16,12 @@
 bool CanReadNumBytes(CDataStore& msg, uint32_t bytes);
 
 namespace Grunt {
+// Shared server/hello-info protocol discriminator;unknown words remain raw.
+enum SERVER_LINK_TYPE : uint32_t {
+    SERVER_LINK_GRUNT = 0,
+    SERVER_LINK_BATTLENET = 1,
+};
+
 struct CdKey {
     struct Info {
         /* 0000 */ uint16_t m_keyLength;
