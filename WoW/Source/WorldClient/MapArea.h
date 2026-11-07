@@ -8,6 +8,7 @@
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/LiquidSystem/Liquid.h"
 #include "WoW/Source/WorldClient/MapBaseObj.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "WoW/Source/WorldClient/World.h"
 
@@ -68,7 +69,7 @@ class CMapArea : public CMapBaseObj {
     /* 00B0 */ int16_t* m_flyingBbox;
     /* 00B4 */ int32_t* m_textureFlags;
     /* 00B8 */ Liquid::CAreaData* m_liquid;
-    /* 00BC */ CMapChunk* m_mapChunks [256];
+    /* 00BC */ CMapChunk* m_mapChunks [MAP_CHUNKS_PER_AREA];
 
     CMapArea();
     ~CMapArea() override;

@@ -882,7 +882,7 @@ bool CMap::QueryShadow(C3Vector* pos) {
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[16 * (cellY & 0xF) + (cellX & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (cellY & MAP_CHUNK_INDEX_MASK) + (cellX & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk || !chunk->m_shadowMap) {
         return false;
@@ -910,7 +910,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[((cellX >> 3) & 0xF) + 16 * ((cellY >> 3) & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[((cellX >> 3) & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * ((cellY >> 3) & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return false;
@@ -1347,7 +1347,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
                 break;
             }
 
-            chunk = area->m_mapChunks[16 * ((cellY >> 3) & 0xF) + ((cellX >> 3) & 0xF)];
+            chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * ((cellY >> 3) & MAP_CHUNK_INDEX_MASK) + ((cellX >> 3) & MAP_CHUNK_INDEX_MASK)];
 
             if (!chunk) {
                 break;
@@ -1604,7 +1604,7 @@ bool CMap::GetHeightTerrain(CMapChunk* chunk, C3Vector& pos, int32_t cellX, int3
         fan += 2;
     }
 
-    float* height = &chunk->m_height[row + col + 16 * row];
+    float* height = &chunk->m_height[TERRAIN_CHUNK_VERTEX_ROW_STRIDE * row + col];
 
     C3Vector a(originX + CMap::s_subchunkCoords[CMap::s_subchunkIndices[2 * fan]].x, originY + CMap::s_subchunkCoords[CMap::s_subchunkIndices[2 * fan]].y, height[CMap::s_fanIndices[2 * fan]]);
     C3Vector b(originX + CMap::s_subchunkCoords[CMap::s_subchunkIndices[2 * fan + 1]].x, originY + CMap::s_subchunkCoords[CMap::s_subchunkIndices[2 * fan + 1]].y, height[CMap::s_fanIndices[2 * fan + 1]]);
@@ -1687,7 +1687,7 @@ CMapChunk* CMap::GetChunkAtPosition(const C2Vector* pos) {
         return nullptr;
     }
 
-    return area->m_mapChunks[(chunkX & 0xF) + 16 * (chunkY & 0xF)];
+    return area->m_mapChunks[(chunkX & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK)];
 }
 
 // VERIFY: f1ab17a0 manual
@@ -2064,10 +2064,10 @@ void CMap::PreUpdateAreas(bool addToScene) {
             continue;
         }
 
-        rect.minX = 16 * area->m_index.x;
-        rect.minY = 16 * area->m_index.y;
-        rect.maxX = 16 * area->m_index.x + 15;
-        rect.maxY = 16 * area->m_index.y + 15;
+        rect.minX = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.x;
+        rect.minY = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.y;
+        rect.maxX = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.x + MAP_CHUNKS_PER_AREA_AXIS - 1;
+        rect.maxY = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.y + MAP_CHUNKS_PER_AREA_AXIS - 1;
 
         if (rect.minX <= CWorld::chunkRect.maxX && rect.minY <= CWorld::chunkRect.maxY && rect.maxX >= CWorld::chunkRect.minX && rect.maxY >= CWorld::chunkRect.minY && waitForLoad && area->m_asyncObject) {
             AsyncFileReadWait(area->m_asyncObject);
@@ -3445,7 +3445,7 @@ bool CMap::LinkStaticEntityGetChunk(C3Vector& pos, float* outHeight, CMapChunk**
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[((cellX >> 3) & 0xF) + 16 * ((cellY >> 3) & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[((cellX >> 3) & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * ((cellY >> 3) & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return false;
@@ -3568,7 +3568,7 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
                 continue;
             }
 
-            CMapChunk* chunk = area->m_mapChunks[(col & 0xF) + 16 * (row & 0xF)];
+            CMapChunk* chunk = area->m_mapChunks[(col & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (row & MAP_CHUNK_INDEX_MASK)];
 
             if (!chunk || chunk->m_bbox.b.z > object->m_bbox.t.z) {
                 continue;
@@ -4175,11 +4175,11 @@ CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(area);
     CMap::s_unk_ADFBEC.LinkToTail(link);
 
-    area->m_tileChunkIndex.x = 16 * areaIndexX;
+    area->m_tileChunkIndex.x = MAP_CHUNKS_PER_AREA_AXIS * areaIndexX;
     area->m_index.y = areaIndexY;
     area->m_flags = static_cast<MapObjFlag>(0);
     area->m_index.x = areaIndexX;
-    area->m_tileChunkIndex.y = 16 * areaIndexY;
+    area->m_tileChunkIndex.y = MAP_CHUNKS_PER_AREA_AXIS * areaIndexY;
 
     area->m_topLeft2.x = HALF_WORLD_SIZE - area->m_tileChunkIndex.y * 33.333332f;
     area->m_bounds.t.x = area->m_topLeft2.x;
@@ -4289,7 +4289,7 @@ void CMap::LinkLightToChunks(CMapLight* light) {
                 continue;
             }
 
-            CMapChunk* chunk = area->m_mapChunks[(y & 0xF) + 16 * (x & 0xF)];
+            CMapChunk* chunk = area->m_mapChunks[(y & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (x & MAP_CHUNK_INDEX_MASK)];
 
             if (!chunk) {
                 continue;
@@ -4464,7 +4464,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
     CMapArea* area = CMap::m_areaTable[areaIndex];
 
     if (area && !area->m_asyncObject) {
-        CMapChunk* chunk = area->m_mapChunks[16 * (chunkY & 0xF) + (chunkX & 0xF)];
+        CMapChunk* chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK) + (chunkX & MAP_CHUNK_INDEX_MASK)];
 
         if (!chunk) {
             return false;
@@ -5117,7 +5117,7 @@ int32_t CMap::QueryAreaIdTerrain(const C3Vector* pos) {
         return 0;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[16 * (cellX & 0xF) + (cellY & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (cellX & MAP_CHUNK_INDEX_MASK) + (cellY & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return 0;
@@ -5263,7 +5263,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[16 * (chunkY & 0xF) + (chunkX & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK) + (chunkX & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return false;
@@ -5421,7 +5421,7 @@ bool CMap::QueryGroundTypeTerrain(C3Vector* pos, uint32_t* groundType) {
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[16 * ((cellY >> 3) & 0xF) + ((cellX >> 3) & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * ((cellY >> 3) & MAP_CHUNK_INDEX_MASK) + ((cellX >> 3) & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return false;
@@ -5745,7 +5745,7 @@ bool CMap::QueryHeight(const C3Vector& position, float range, float* height) {
             return false;
         }
 
-        chunk = area->m_mapChunks[((cellY >> 3) & 0xF) + 16 * ((cellX >> 3) & 0xF)];
+        chunk = area->m_mapChunks[((cellY >> 3) & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * ((cellX >> 3) & MAP_CHUNK_INDEX_MASK)];
 
         if (chunk) {
             float liquidHeight = 0.0f;
@@ -6116,10 +6116,10 @@ void CMap::NewFootprint(int32_t textureId, const float* size, const C3Vector* po
 // VERIFY: 599297b5 manual
 // OFFSET: 0x007A6260
 bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* box) {
-    int32_t base = 16 * rect->minY + rect->minX + rect->minY;
+    int32_t base = TERRAIN_CHUNK_VERTEX_ROW_STRIDE * rect->minY + rect->minX;
     C3Vector* vertices = &CMapChunk::vertexList[base];
     float* height = &chunk->m_height[base];
-    int32_t rowSkip = 17 - (rect->maxX - rect->minX + 1);
+    int32_t rowSkip = TERRAIN_CHUNK_VERTEX_ROW_STRIDE - (rect->maxX - rect->minX + 1);
     World::TriData::Batch* batch = nullptr;
     uint16_t* indices = nullptr;
     bool found = false;
@@ -6223,7 +6223,7 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
         return false;
     }
 
-    CMapChunk* chunk = area->m_mapChunks[(chunkX & 0xF) + 16 * (chunkY & 0xF)];
+    CMapChunk* chunk = area->m_mapChunks[(chunkX & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK)];
 
     if (!chunk) {
         return false;

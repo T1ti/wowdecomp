@@ -12,6 +12,7 @@
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/WorldClient/MapBaseObj.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "Engine/Source/Tempest/CRange.h"
 #include "WoW/Source/WorldClient/MapObjGroup.h"
@@ -63,7 +64,7 @@ class CMapChunkMapObjDefLink {
 class CMapChunk : public CMapBaseObj {
     public:
     static float s_geoToTex;
-    static C3Vector vertexList[145];
+    static C3Vector vertexList[TERRAIN_CHUNK_VERTEX_COUNT];
     static int32_t farCornerIndex;
     static int32_t nearCornerIndex;
     static const int32_t cornerVertexIndex[4];
@@ -152,7 +153,7 @@ class CWSoundEmitter {
 };
 
 struct SLTiles {
-    /* 0000 */ uint8_t m_tiles [8][8];
+    /* 0000 */ uint8_t m_tiles [LIQUID_TILES_PER_CHUNK_AXIS][LIQUID_TILES_PER_CHUNK_AXIS];
 };
 
 struct SWVert {
@@ -227,7 +228,7 @@ struct SWFlowv {
 // Legacy MCLQ payload: the data prefix of 0.5.3 CChunkLiquid, without its runtime links.
 struct SMLiquidChunk {
     /* 0000 */ CRange m_height;
-    /* 0008 */ SLVert m_verts [81];
+    /* 0008 */ SLVert m_verts [LIQUID_VERTEX_COUNT_PER_CHUNK];
     /* 0290 */ SLTiles m_tiles;
     /* 02D0 */ uint32_t m_nFlowvs;
     /* 02D4 */ SWFlowv m_flowvs [2];

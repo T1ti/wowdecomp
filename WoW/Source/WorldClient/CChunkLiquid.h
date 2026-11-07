@@ -13,6 +13,7 @@
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CAaSphere.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 
 class CMapChunk;
 
@@ -51,7 +52,7 @@ class CChunkLiquid {
     /* 0060 */ TSLink<CChunkLiquid> m_link;
     /* 0068 */ TSLink<CChunkLiquid> m_updateLink;
     /* 0070 */ TSLink<CChunkLiquid> m_chunkLink;
-    /* 0078 */ C3Vector m_verts[81];
+    /* 0078 */ C3Vector m_verts[LIQUID_VERTEX_COUNT_PER_CHUNK];
 
     CChunkLiquid();
     ~CChunkLiquid();

@@ -32,10 +32,10 @@
 #endif
 
 // STATIC: 0x00AEEBF8
-static uint32_t s_maxVertexCount = 145;
+static uint32_t s_maxVertexCount = TERRAIN_CHUNK_VERTEX_COUNT;
 
 // STATIC: 0x00AEEC18
-static uint16_t s_chunkBatchIndexCount = 768;
+static uint16_t s_chunkBatchIndexCount = TERRAIN_INDEX_COUNT_PER_CHUNK;
 
 // STATIC: 0x00A3FFF4
 static const uint32_t s_nibbleMask[2] = { 0x0F, 0xF0 };
@@ -59,10 +59,10 @@ static const uint8_t s_shadowAlpha[2] = { 0xFF, 0x00 };
 static uint16_t s_shadowTexel[2] = { 0x0000, 0xFFFF };
 
 // STATIC: 0x00AF14A0
-static uint16_t s_streamVertexCount = 145;
+static uint16_t s_streamVertexCount = TERRAIN_CHUNK_VERTEX_COUNT;
 
 // STATIC: 0x00AF14C0
-static uint16_t s_streamIndexCount = 768;
+static uint16_t s_streamIndexCount = TERRAIN_INDEX_COUNT_PER_CHUNK;
 
 // STATIC: 0x00AF14F8
 static float s_texAnimRate[8] = { 64.0f, 48.0f, 32.0f, 16.0f, 8.0f, 4.0f, 2.0f, 1.0f };
@@ -399,8 +399,8 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
         }
 
         uint32_t stride = CMapRenderChunk::s_gxBufVertexFormat == GxVBF_PNC ? sizeof(CGxVertexPNC) : sizeof(CGxVertexPN);
-        buf->m_vertexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxVertexPool, stride, 290, 145 * stride * block->m_vertexCount);
-        buf->m_indexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxIndexPool, 2, 1536, 1536 * block->m_vertexCount);
+        buf->m_vertexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxVertexPool, stride, TERRAIN_RENDER_BATCH_VERTEX_COUNT, TERRAIN_CHUNK_VERTEX_COUNT * stride * block->m_vertexCount);
+        buf->m_indexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxIndexPool, 2, TERRAIN_RENDER_BATCH_INDEX_COUNT, TERRAIN_RENDER_BATCH_INDEX_COUNT * block->m_vertexCount);
         return buf;
     }
 
@@ -435,8 +435,8 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
 
     for (int32_t i = 0; i < 2; i++) {
         buf = &block->m_bufs[i];
-        buf->m_vertexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxVertexPool, stride, 145, 145 * stride * (block->m_vertexCount + i));
-        buf->m_indexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxIndexPool, 2, 768, 1536 * (block->m_vertexCount + i));
+        buf->m_vertexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxVertexPool, stride, TERRAIN_CHUNK_VERTEX_COUNT, TERRAIN_CHUNK_VERTEX_COUNT * stride * (block->m_vertexCount + i));
+        buf->m_indexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxIndexPool, 2, TERRAIN_INDEX_COUNT_PER_CHUNK, TERRAIN_RENDER_BATCH_INDEX_COUNT * (block->m_vertexCount + i));
         buf->m_unkFlags = 0;
         buf->m_renderChunk = nullptr;
 
@@ -595,8 +595,8 @@ void CMapRenderChunk::UpdatePools() {
     int32_t radius = 1 - static_cast<int32_t>(World::s_farClip * -OO_COORD_TO_CHUNK);
     uint32_t count = (2 * radius * radius + 1) & ~1u;
 
-    CMapRenderChunk::s_pnEstimateVertex = 145 * count;
-    CMapRenderChunk::s_pnEstimateIndex = 768 * count;
+    CMapRenderChunk::s_pnEstimateVertex = TERRAIN_CHUNK_VERTEX_COUNT * count;
+    CMapRenderChunk::s_pnEstimateIndex = TERRAIN_INDEX_COUNT_PER_CHUNK * count;
 
     uint32_t stride = CMapRenderChunk::s_gxBufVertexFormat == GxVBF_PNC ? sizeof(CGxVertexPNC) : sizeof(CGxVertexPN);
     CMapRenderChunk::s_gxVertexPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Vertex, GxPoolUsage_Dynamic, CMapRenderChunk::s_pnEstimateVertex * stride, GxPoolHintBit_Unk3, "CMapRenderChunk_vtx");
@@ -639,7 +639,7 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
                 offset.x = -33.333332f;
             }
 
-            this->m_mapChunks[1]->CreateVertices(vertices, 145, offset);
+            this->m_mapChunks[1]->CreateVertices(vertices, TERRAIN_CHUNK_VERTEX_COUNT, offset);
         }
 
         g_theGxDevicePtr->BufUnlock(vertexBuf, 0);
@@ -799,15 +799,15 @@ void CMapRenderChunk::RenderSinglePass() {
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
 
-    uint32_t vertexCount = this->m_mapChunks[1] ? 290 : 145;
+    uint32_t vertexCount = this->m_mapChunks[1] ? TERRAIN_RENDER_BATCH_VERTEX_COUNT : TERRAIN_CHUNK_VERTEX_COUNT;
     CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPC), 2 * vertexCount);
     CGxVertexPC* vertices = reinterpret_cast<CGxVertexPC*>(g_theGxDevicePtr->BufLock(vertexBuf));
     CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), 2 * vertexCount);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
-    CGxVertexPN* source = static_cast<CGxVertexPN*>(alloca(sizeof(CGxVertexPN) * 145));
+    CGxVertexPN* source = static_cast<CGxVertexPN*>(alloca(sizeof(CGxVertexPN) * TERRAIN_CHUNK_VERTEX_COUNT));
     uint16_t index = 0;
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
         CMapChunk* chunk = this->m_mapChunks[i];
 
         if (!chunk) {
@@ -816,7 +816,7 @@ void CMapRenderChunk::RenderSinglePass() {
 
         chunk->CreateVerticesWorld(source, C3Vector(0.0f, 0.0f, 0.0f));
 
-        for (uint32_t j = 0; j < 145; j++) {
+        for (uint32_t j = 0; j < TERRAIN_CHUNK_VERTEX_COUNT; j++) {
             vertices[0].p = source[j].m_position;
             vertices[0].c = CImVector(COLOR_YELLOW_BGRA);
             vertices[1].p.x = source[j].m_normal.x * 0.75f + source[j].m_position.x;

@@ -11,6 +11,7 @@
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/C4Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 
 class CMapArea;
 class CM2Lighting;
@@ -150,7 +151,7 @@ class CMapRenderChunk {
     /* 0009 */ uint8_t m_layersCount;
     /* 000A */ int16_t m_renderFlags;
     /* 000C */ float m_lastUpdateTime;
-    /* 0010 */ CMapChunk* m_mapChunks [2];
+    /* 0010 */ CMapChunk* m_mapChunks [MAP_CHUNKS_PER_RENDER_BATCH];
     /* 0018 */ C3Vector m_vec1;
     /* 0024 */ CAaSphere m_sphere;
     /* 0034 */ CMapRenderChunkLayer m_layers [4];

@@ -56,8 +56,8 @@ void CMapArea::Purge() {
     for (CMapBaseObjLink* link = this->m_chunkLinkList.Head(); link;) {
         CMapChunk* chunk = static_cast<CMapChunk*>(link->m_owner);
         CMapBaseObjLink* next = this->m_chunkLinkList.Next(link);
-        this->m_mapChunks[16 * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
-        this->m_chunkInfo[16 * chunk->m_aIndex.y + chunk->m_aIndex.x].m_flags = 0;
+        this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
+        this->m_chunkInfo[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x].m_flags = 0;
         CMap::FreeBaseObjLink(link);
         chunk->Purge();
         CMap::FreeChunk(chunk);
@@ -88,15 +88,15 @@ bool CWorldScene::InsideFrustumRect(CiRect* rect) {
 // VERIFY: 8d38ed01 manual
 // OFFSET: 0x007D6810
 void CMapArea::BatchChunks(const C2iVector& pos) {
-    int32_t index = 16 * pos.y + pos.x;
+    int32_t index = MAP_CHUNKS_PER_AREA_AXIS * pos.y + pos.x;
 
-    CMapChunk* chunks[4];
+    CMapChunk* chunks[MAP_CHUNKS_PER_BATCH];
     chunks[0] = this->m_mapChunks[index];
-    chunks[1] = this->m_mapChunks[index + 16];
-    chunks[2] = this->m_mapChunks[16 * pos.y + 1 + pos.x];
-    chunks[3] = this->m_mapChunks[16 * pos.y + 17 + pos.x];
+    chunks[1] = this->m_mapChunks[index + MAP_CHUNKS_PER_AREA_AXIS];
+    chunks[2] = this->m_mapChunks[index + 1];
+    chunks[3] = this->m_mapChunks[index + MAP_CHUNKS_PER_AREA_AXIS + 1];
 
-    for (int32_t i = 0; i < 4; i++) {
+    for (int32_t i = 0; i < MAP_CHUNKS_PER_BATCH; i++) {
         if (!chunks[i]) {
             return;
         }
@@ -197,10 +197,10 @@ void CMapArea::PurgeChunks(CiRect* chunkRect) {
 
     for (int32_t y = minY; y <= maxY; y++) {
         for (int32_t x = minX; x <= maxX; x++) {
-            CMapChunk* chunk = this->m_mapChunks[16 * y + x];
+            CMapChunk* chunk = this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * y + x];
 
             if (chunk) {
-                this->m_mapChunks[16 * y + x] = nullptr;
+                this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * y + x] = nullptr;
                 CMap::FreeBaseObjLink(chunk->m_parentLinkList.Head());
                 CMapArea::PurgeChunk(chunk);
             }
@@ -211,7 +211,7 @@ void CMapArea::PurgeChunks(CiRect* chunkRect) {
 // VERIFY: 4696cf2f manual
 // OFFSET: 0x007D6B30
 CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
-    int32_t index = chunkX + 16 * chunkY;
+    int32_t index = chunkX + MAP_CHUNKS_PER_AREA_AXIS * chunkY;
 
     bool firstUse = true;
 
@@ -242,13 +242,13 @@ CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
 // OFFSET: 0x007D6BF0
 void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
     for (int32_t chunkY = chunkRect->minY; chunkY <= chunkRect->maxY; chunkY++) {
-        int32_t localY = chunkY & 0xF;
+        int32_t localY = chunkY & MAP_CHUNK_INDEX_MASK;
 
         for (int32_t chunkX = chunkRect->minX; chunkX <= chunkRect->maxX; chunkX++) {
-            int32_t localX = chunkX & 0xF;
+            int32_t localX = chunkX & MAP_CHUNK_INDEX_MASK;
 
             if (chunkX >= CWorld::gbChunkRect.minX && chunkX <= CWorld::gbChunkRect.maxX && chunkY >= CWorld::gbChunkRect.minY && chunkY <= CWorld::gbChunkRect.maxY) {
-                CMapChunk** slot = &this->m_mapChunks[localX + 16 * localY];
+                CMapChunk** slot = &this->m_mapChunks[localX + MAP_CHUNKS_PER_AREA_AXIS * localY];
                 CMapChunk* chunk = *slot;
 
                 if (!chunk) {
@@ -261,10 +261,10 @@ void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
                     chunk->CullAndBucketChunk();
                 }
             } else {
-                CMapChunk* chunk = this->m_mapChunks[16 * localY + localX];
+                CMapChunk* chunk = this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * localY + localX];
 
                 if (chunk) {
-                    this->m_mapChunks[16 * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
+                    this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
                     CMap::FreeBaseObjLink(chunk->m_parentLinkList.Head());
                     CMapArea::PurgeChunk(chunk);
                 }
@@ -462,15 +462,15 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
     int32_t chunkRadius = CMath::fint_(static_cast<float>(ceil(radius * OO_COORD_TO_CHUNK_RADIUS)) - 0.5f);
     int32_t rowStart = chunkX - chunkRadius <= 0 ? 0 : chunkX - chunkRadius;
     int32_t colStart = chunkY - chunkRadius <= 0 ? 0 : chunkY - chunkRadius;
-    int32_t rowEnd = chunkX + chunkRadius >= 15 ? 15 : chunkX + chunkRadius;
-    int32_t colEnd = chunkY + chunkRadius >= 15 ? 15 : chunkY + chunkRadius;
+    int32_t rowEnd = chunkX + chunkRadius >= MAP_CHUNKS_PER_AREA_AXIS - 1 ? MAP_CHUNKS_PER_AREA_AXIS - 1 : chunkX + chunkRadius;
+    int32_t colEnd = chunkY + chunkRadius >= MAP_CHUNKS_PER_AREA_AXIS - 1 ? MAP_CHUNKS_PER_AREA_AXIS - 1 : chunkY + chunkRadius;
     float radiusSq = radius * radius;
 
     TSGrowableArray<LiquidChunkAndDistance> chunks;
 
     for (int32_t row = rowStart; row <= rowEnd; row++) {
         for (int32_t col = colStart; col <= colEnd; col++) {
-            CMapChunk* chunk = this->m_mapChunks[row * 16 + col];
+            CMapChunk* chunk = this->m_mapChunks[row * MAP_CHUNKS_PER_AREA_AXIS + col];
 
             if (!chunk) {
                 continue;
@@ -504,9 +504,9 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
             float dy = chunk->m_topLeftCoords.y - pos->y;
             float dz = (liquid->m_height.m_h + liquid->m_height.m_l) * 0.5f - pos->z;
 
-            for (uint32_t row = 0; row < 8; row++) {
-                for (uint32_t col = 0; col < 8; col++) {
-                    if ((reinterpret_cast<const uint8_t*>(liquid->m_tiles)[row * 8 + col] & 0xF) != 0xF) {
+            for (uint32_t row = 0; row < LIQUID_TILES_PER_CHUNK_AXIS; row++) {
+                for (uint32_t col = 0; col < LIQUID_TILES_PER_CHUNK_AXIS; col++) {
+                    if ((reinterpret_cast<const uint8_t*>(liquid->m_tiles)[row * LIQUID_TILES_PER_CHUNK_AXIS + col] & 0xF) != 0xF) {
                         if (dx * dx + dy * dy + dz * dz > radiusSq) {
                             continue;
                         }

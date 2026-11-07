@@ -816,7 +816,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 continue;
             }
 
-            CMapChunk* chunk = area->m_mapChunks[(col & 0xF) + 16 * (row & 0xF)];
+            CMapChunk* chunk = area->m_mapChunks[(col & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (row & MAP_CHUNK_INDEX_MASK)];
 
             if (!chunk) {
                 continue;
@@ -872,7 +872,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
                 continue;
             }
 
-            CMapChunk* chunk = area->m_mapChunks[(col & 0xF) + 16 * (row & 0xF)];
+            CMapChunk* chunk = area->m_mapChunks[(col & MAP_CHUNK_INDEX_MASK) + MAP_CHUNKS_PER_AREA_AXIS * (row & MAP_CHUNK_INDEX_MASK)];
 
             if (!chunk) {
                 continue;
