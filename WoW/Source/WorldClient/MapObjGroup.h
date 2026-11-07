@@ -303,8 +303,11 @@ struct SMOLTile {
     enum FLAGS : uint8_t {
         LIQUID_TYPE_MASK = 0x0F,
         LIQUID_TYPE_NONE = 0x0F,
+        // SHARED_SHIFT = 0x7, // 0.5.3
         FISHABLE_MASK = 0x40,
         SHARED_MASK = 0x80,
+        // FISHABLE_SHIFT = 0x6, // 0.5.3
+        // FATIGUE = 0x80, // server
     };
 
     /* 0000 */ uint8_t m_flags;
