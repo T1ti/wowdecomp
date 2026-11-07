@@ -190,7 +190,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
     for (uint32_t i = 0; i < CWorldScene::s_viewerMapObjGroups.m_count; i++) {
         CMapObjGroup* group = owner->GetGroup(CWorldScene::s_viewerMapObjGroups.m_data[i], 0);
 
-        if (group && !(group->m_flags & 0x48)) {
+        if (group && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
             *found = 1;
             float portalDistance = owner->DistFromClosestExtPortal(group, localPos, 1);
 
@@ -709,7 +709,7 @@ bool CMapEntity::QueryMapObjAreaTable(WMOAreaTableRec** groupRec, WMOAreaTableRe
         CMapObj* mapObj = mapObjDef->m_owner;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-        if (group && (!(group->m_flags & 0x8) || !(mapObjDef->m_flags & 0x400))) {
+        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & 0x400))) {
             *wmoGroupId = group->m_wmoGroupId;
             *groupRec = GetWMOAreaRec(mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, group->m_wmoGroupId);
             WMOAreaTableRec* rec = GetWMOAreaRec(mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, -1);
@@ -736,7 +736,7 @@ bool CMapEntity::QueryMapObjIDs(int32_t* wmoId, int32_t* wmoHash, int32_t* group
         CMapObj* mapObj = mapObjDef->m_owner;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->m_groupNum));
 
-        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & 0x8)) {
+        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             *wmoId = mapObj->m_header->m_wmoID;
             *wmoHash = mapObjDef->m_owner->m_hashval;
             *groupNum = mapObjDefGroup->m_groupNum;
@@ -762,7 +762,7 @@ int32_t CMapEntity::QueryInterior() {
         CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
         if (group) {
-            if (!(group->m_flags & 0x8)) {
+            if (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
                 return 1;
             }
 
@@ -791,7 +791,7 @@ int32_t CMapEntity::QueryMapObjFileName(const char** fileName) {
         CMapObj* mapObj = mapObjDef->m_owner;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-        if (group && (!(group->m_flags & 0x8) || !(mapObjDef->m_flags & 0x400))) {
+        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & 0x400))) {
             *fileName = mapObj->m_wmoName;
             return 1;
         }
@@ -815,8 +815,8 @@ bool CMapEntity::QueryMapObjMinimap(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* 
         CMapObj* mapObj = mapObjDef->m_owner;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->m_groupNum));
 
-        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & 0x8)) {
-            if (!(groupFlags & 0x48)) {
+        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
+            if (!(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
                 indoorArea = 0;
             }
 
@@ -858,7 +858,7 @@ bool CMapEntity::QueryMapObjMatrix(C44Matrix* matrix, C44Matrix* invMatrix) {
 
         CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-        if (group && !(group->m_flags & 0x8)) {
+        if (group && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             if (matrix) {
                 *matrix = mapObjDef->m_mat;
             }

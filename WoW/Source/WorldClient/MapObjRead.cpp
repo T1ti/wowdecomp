@@ -86,7 +86,7 @@ void CMapObj::Load() {
 
     if (!this->m_skybox) {
         for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_groupInfoCount); i++) {
-            this->m_groupInfo[i].m_flags &= ~0x40000;
+            this->m_groupInfo[i].m_flags &= ~CMapObjGroup::MOGP_FLAGS::F_USE_SKYBOX;
         }
     }
 
@@ -246,7 +246,7 @@ CMapObjGroup* CMapObj::AttenTransVerts(CMapObjGroup* group) {
                     dist = NTempest::DistanceFromPolygonEdge(vert, portalVerts, portal.m_count);
                 }
 
-                if (this->m_groupInfo[ref.m_groupIndex].m_flags & 0x48) {
+                if (this->m_groupInfo[ref.m_groupIndex].m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) {
                     if (dist < 0.0f) {
                         dist = 0.0f;
                     }
@@ -286,19 +286,19 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
     SIffChunk* chunk = dataChunk;
     uint32_t flags = this->m_flags;
 
-    if (flags & 0x200) {
+    if (flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIGHT_REFS) {
         this->m_lightRefList = reinterpret_cast<uint16_t*>(&chunk->m_data);
         this->m_lightRefListCount = chunk->m_size >> 1;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
     }
 
-    if (flags & 0x800) {
+    if (flags & CMapObjGroup::MOGP_FLAGS::F_HAS_DOODAD_REFS) {
         this->m_doodadRefList = reinterpret_cast<uint16_t*>(&chunk->m_data);
         this->m_doodadRefListCount = chunk->m_size >> 1;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
     }
 
-    if (flags & 0x1) {
+    if (flags & CMapObjGroup::MOGP_FLAGS::F_HAS_BSP_TREE) {
         uint32_t nodeSize = chunk->m_size;
         CAaBspNode* nodes = reinterpret_cast<CAaBspNode*>(&chunk->m_data);
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + nodeSize);
@@ -308,13 +308,13 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         this->m_aaBsp.Set(nodes, nodeSize >> 4, faces, faceSize >> 1, this->m_bbox);
     }
 
-    if (this->m_flags & 0x400) {
+    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400) {
         for (uint32_t i = 0; i < 4; i++) {
             chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
         }
     }
 
-    if (this->m_flags & 0x4) {
+    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_VERTEX_COLORS) {
         CMapObj* parent = this->m_parent;
         this->m_colorVertexList = reinterpret_cast<CImVector*>(&chunk->m_data);
         this->m_colorVertexListSize = chunk->m_size >> 2;
@@ -325,7 +325,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         }
     }
 
-    if (this->m_flags & 0x1000) {
+    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) {
         uint32_t* header = reinterpret_cast<uint32_t*>(&chunk->m_data);
         this->m_liquidVerts.x = header[0];
         this->m_liquidVerts.y = header[1];
@@ -350,7 +350,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         this->GenLiquidVerts();
     }
 
-    if (this->m_flags & 0x20000) {
+    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_TRIANGLE_STRIPS) {
         this->m_stripIndices = reinterpret_cast<uint16_t*>(&chunk->m_data);
         this->m_stripIndexCount = chunk->m_size >> 1;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size + 8);
@@ -366,13 +366,13 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
 
     flags = this->m_flags;
 
-    if (flags & 0x2000000) {
+    if (flags & CMapObjGroup::MOGP_FLAGS::F_HAS_SECOND_TEXTURE_COORDS) {
         this->m_textureVertexList2 = reinterpret_cast<C2Vector*>(&chunk->m_data);
         this->m_textureVertexList2Count = chunk->m_size >> 3;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
     }
 
-    if (flags & 0x1000000) {
+    if (flags & CMapObjGroup::MOGP_FLAGS::F_HAS_EXTRA_COLOR_VERTICES) {
         this->m_colorVertexListExtra = reinterpret_cast<CImVector*>(&chunk->m_data);
         this->m_colorVertexListExtraSize = chunk->m_size >> 2;
     }
@@ -508,7 +508,7 @@ void CMapObjGroup::Create() {
     this->m_flags = header->m_flags;
 
     if (!parent->m_skybox) {
-        this->m_flags &= ~0x40000;
+        this->m_flags &= ~CMapObjGroup::MOGP_FLAGS::F_USE_SKYBOX;
     }
 
     this->m_bbox = header->m_boundingBox;

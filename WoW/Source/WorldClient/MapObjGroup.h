@@ -133,6 +133,30 @@ class CMapObjOccluder {
 
 class CMapObjGroup {
     public:
+    // Flags copied from the corresponding SMOGroupInfo / MOGP header.
+    // Names are limited to meanings supported by the 3.3.5 group-loading and use sites.
+    enum MOGP_FLAGS : uint32_t {
+        F_HAS_BSP_TREE = 0x1,
+        F_HAS_VERTEX_COLORS = 0x4,
+        F_EXTERIOR = 0x8,
+        F_UNKNOWN_0x40 = 0x40,
+        F_UNKNOWN_0x80 = 0x80, // Groups with this bit are skipped by the group triangle and liquid facet queries.
+        F_UNKNOWN_0x100 = 0x100,
+        F_HAS_LIGHT_REFS = 0x200,
+        F_UNKNOWN_0x400 = 0x400, // Causes four chunk records to be skipped while parsing optional data.
+        F_HAS_DOODAD_REFS = 0x800,
+        F_HAS_LIQUID = 0x1000,
+        F_CALLBACK_ONLY = 0x10000, // Skips portal traversal; the exterior culling path invokes the group callback.
+        F_HAS_TRIANGLE_STRIPS = 0x20000,
+        F_USE_SKYBOX = 0x40000,
+        F_USE_ALTERNATE_LIQUID_TYPE = 0x80000, // Selects liquid type 14 instead of 13 in the legacy slot mapping.
+        F_UNKNOWN_0x400000 = 0x400000,
+        F_HAS_EXTRA_COLOR_VERTICES = 0x1000000,
+        F_HAS_SECOND_TEXTURE_COORDS = 0x2000000,
+
+        F_EXTERIOR_CLASSIFICATION_MASK = F_EXTERIOR | F_UNKNOWN_0x40,
+    };
+
     // Runtime word at +0x198; separate from the WMO group file flags.
     // Init clears only the low state nibble; Clear removes only LOADED.
     enum RUNTIME_FLAGS : uint32_t {
@@ -168,7 +192,7 @@ class CMapObjGroup {
     /* 0018 */ float m_timer;
     /* 001C */ CMapObjGroup::VertArray* m_liquidVertArray;
     /* 0020 */ CGxBatch m_liquidBatch;
-    /* 0030 */ int32_t m_flags;
+    /* 0030 */ uint32_t m_flags;
     /* 0034 */ CAaBox m_bbox;
     /* 004C */ float m_distToCamera;
     /* 0050 */ int32_t m_portalStart;

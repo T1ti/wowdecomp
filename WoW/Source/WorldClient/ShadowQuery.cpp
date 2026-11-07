@@ -677,7 +677,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
             CMapObjDefGroup* defGroup = def->m_defGroups[i];
             CMapObjGroup* group = def->m_owner->GetGroup(i, 0);
 
-            if (!group || !(group->m_flags & 0x48)) {
+            if (!group || !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
                 continue;
             }
 
@@ -750,7 +750,7 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
             CMapObjDefGroup* defGroup = def->m_defGroups[i];
             CMapObjGroup* group = def->m_owner->GetGroup(i, 0);
 
-            if (!group || !(group->m_flags & 0x48)) {
+            if (!group || !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
                 continue;
             }
 

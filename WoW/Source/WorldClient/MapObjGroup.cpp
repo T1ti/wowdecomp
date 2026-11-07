@@ -1049,7 +1049,7 @@ bool CMapObjGroup::GetTris(const C3Segment& seg, float* dist, uint32_t flags, ui
     bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
     this->GetTrisFromQuery(triData, &query, mapObjDef, 0);
 
-    if ((flags & 0x30000) && (this->m_flags & 0x1000)) {
+        if ((flags & 0x30000) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID)) {
         this->VectorIntersectLiquid(seg, dist, flags, triData, mapObjDef);
     }
 
@@ -1569,7 +1569,7 @@ int32_t CMapObjGroup::GetLiquidType(uint32_t groupLiquid) {
     if (groupLiquid < 21 && groupLiquid) {
         switch ((groupLiquid - 1) & 3) {
             case 0:
-                return (this->m_flags & 0x80000) ? 14 : 13;
+                return (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_USE_ALTERNATE_LIQUID_TYPE) ? 14 : 13;
 
             case 1:
                 return 14;
@@ -2360,7 +2360,7 @@ bool CMapObjGroup::Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16
         hit = true;
     }
 
-    if ((flags & 0x30000) && (this->m_flags & 0x1000) && this->VectorIntersectLiquid(seg, dist, flags, nullptr, nullptr)) {
+    if ((flags & 0x30000) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) && this->VectorIntersectLiquid(seg, dist, flags, nullptr, nullptr)) {
         *hitIndex = 0;
         hit = true;
     }
