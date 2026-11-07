@@ -2198,7 +2198,7 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
 // VERIFY: 300a631e auto
 // OFFSET: 0x00792AD0
 void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup) {
-    if (!(mapObjDef->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
+    if (!(mapObjDef->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
         return;
     }
 
@@ -2966,7 +2966,7 @@ void CWorldScene::LocateViewer3() {
             groupFlags |= CWorldScene::s_viewerMapObjDef->m_owner->GetGroupFlags(groups[1]);
         }
 
-        if (groupFlags & (CMapObjGroup::MOGP_FLAGS::F_USE_SKYBOX | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x100 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x40)) {
+        if (groupFlags & (CMapObjGroup::MOGP_FLAGS::F_USE_SKYBOX | CMapObjGroup::MOGP_FLAGS::F_SHOW_EXTERIOR_SKY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT)) {
             CRect rect;
             rect.minY = 0.0f;
             rect.minX = 0.0f;
@@ -3793,7 +3793,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
         CWorldScene::GetNearestCornerToCamera(&mapObjDefGroup->m_bbox, &nearest);
         mapObjDefGroup->m_distanceToCamera = CWorldScene::camPlane.n.z * nearest.z + CWorldScene::camPlane.n.y * nearest.y + CWorldScene::camPlane.n.x * nearest.x + CWorldScene::camPlane.d;
 
-        if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x40) {
+        if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT) {
             CWorldScene::s_hasPendingExteriorGroups = 1;
         }
 
@@ -4084,7 +4084,7 @@ void CWorldScene::CullMapObjDefGroup() {
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
         uint32_t groupFlags = mapObjDef->m_owner->GetGroupFlags(group->m_groupNum);
 
-        if (mapObjDef != CWorldScene::s_viewerMapObjDef && (groupFlags & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
+        if (mapObjDef != CWorldScene::s_viewerMapObjDef && (groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
             continue;
         }
 

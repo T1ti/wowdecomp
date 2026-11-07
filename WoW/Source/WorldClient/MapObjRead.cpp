@@ -350,7 +350,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         this->GenLiquidVerts();
     }
 
-    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_TRIANGLE_STRIPS) {
+    if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_MORI_MORB) {
         this->m_stripIndices = reinterpret_cast<uint16_t*>(&chunk->m_data);
         this->m_stripIndexCount = chunk->m_size >> 1;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size + 8);

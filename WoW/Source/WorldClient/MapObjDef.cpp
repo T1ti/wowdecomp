@@ -319,7 +319,7 @@ void CMapObjDef::LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, 
     for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-        if (mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) {
+        if (mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             continue;
         }
 

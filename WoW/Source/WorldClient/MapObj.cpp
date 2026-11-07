@@ -263,7 +263,7 @@ void CMapObj::SetupMapObjDefCull(C44Matrix& mat, C44Matrix& invMat, C3Vector& wo
 
     if (this->m_interiorGroupCount == 0xFFFF) {
         for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_groupInfoCount); i++) {
-            if (!(this->m_groupInfo[i].m_flags & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
+            if (!(this->m_groupInfo[i].m_flags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
                 this->m_interiorGroupCount++;
             }
         }
@@ -1171,7 +1171,7 @@ void CMapObj::RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& nd
 
     CMapObjGroup* group = this->GetGroup(groupNum, 0);
 
-    if (!group || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY)) {
+    if (!group || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW)) {
         return;
     }
 
@@ -1739,7 +1739,7 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_groupInfoCount); i++) {
         SMOGroupInfo& info = this->m_groupInfo[i];
 
-        if (!(info.m_flags & CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY)) {
+        if (!(info.m_flags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW)) {
             continue;
         }
 
@@ -2606,7 +2606,7 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
     uint32_t groupFlags = this->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum);
 
     if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, 1))) {
-        if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY) {
+        if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW) {
             this->m_owner->InvokeRenderCallback(mapObjDefGroup->m_groupNum);
             CWorldScene::FrustumPop();
             return;
@@ -2732,7 +2732,7 @@ bool CMapObj::GetTris(const CAaBox& box, uint32_t flags, World::TriData* triData
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) {
+        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(box, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -2758,7 +2758,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80))) {
+        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
             result |= group->GetLiquidFacets(box, flags, facets, mapObjDef);
         }
     }
@@ -2863,7 +2863,7 @@ bool CMapObj::GetTris(const CWFrustum& frustum, uint32_t flags, World::TriData* 
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) {
+        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(frustum, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -3009,7 +3009,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
         SMOPortalRef* portalRef = &this->m_portalRefList[group->m_portalStart + i];
         uint32_t target = portalRef->m_groupIndex;
 
-        if (target == 0xFFFF || target == static_cast<uint32_t>(fromGroup) || (this->GetGroupFlags(target) & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) {
+        if (target == 0xFFFF || target == static_cast<uint32_t>(fromGroup) || (this->GetGroupFlags(target) & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             continue;
         }
 
@@ -3062,7 +3062,7 @@ bool CMapObj::QueryMapObjMinimap(int32_t groupNum, CAaBox* box, TSStackArray<MIN
         return true;
     }
 
-    uint32_t flagsMask = inside ? (this->m_groupInfo[groupNum].m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x40) : CMapObjGroup::MOGP_FLAGS::F_EXTERIOR;
+    uint32_t flagsMask = inside ? (this->m_groupInfo[groupNum].m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT) : CMapObjGroup::MOGP_FLAGS::F_EXTERIOR;
     this->QueryMapObjMinimapGroup(groupNum, groupNum, &query, quads, maxQuads, inside, flagsMask, 0);
     return true;
 }

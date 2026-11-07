@@ -139,22 +139,22 @@ class CMapObjGroup {
         F_HAS_BSP_TREE = 0x1,
         F_HAS_VERTEX_COLORS = 0x4,
         F_EXTERIOR = 0x8,
-        F_UNKNOWN_0x40 = 0x40,
-        F_UNKNOWN_0x80 = 0x80, // Groups with this bit are skipped by the group triangle and liquid facet queries.
-        F_UNKNOWN_0x100 = 0x100,
+        F_EXTERIOR_LIT = 0x40,
+        F_UNREACHABLE = 0x80, // Groups with this bit are skipped by the group triangle and liquid facet queries.
+        F_SHOW_EXTERIOR_SKY = 0x100, // Seen in 3.3.5 only within the combined 0x40140 viewer mask.
         F_HAS_LIGHT_REFS = 0x200,
         F_UNKNOWN_0x400 = 0x400, // Causes four chunk records to be skipped while parsing optional data.
         F_HAS_DOODAD_REFS = 0x800,
         F_HAS_LIQUID = 0x1000,
-        F_CALLBACK_ONLY = 0x10000, // Skips portal traversal; the exterior culling path invokes the group callback.
-        F_HAS_TRIANGLE_STRIPS = 0x20000,
+        F_ALWAYS_DRAW = 0x10000, // Uses the direct exterior callback path; this build's Create() does not clear F_EXTERIOR.
+        F_HAS_MORI_MORB = 0x20000,
         F_USE_SKYBOX = 0x40000,
         F_USE_ALTERNATE_LIQUID_TYPE = 0x80000, // Selects liquid type 14 instead of 13 in the legacy slot mapping.
         F_UNKNOWN_0x400000 = 0x400000,
         F_HAS_EXTRA_COLOR_VERTICES = 0x1000000,
         F_HAS_SECOND_TEXTURE_COORDS = 0x2000000,
 
-        F_EXTERIOR_CLASSIFICATION_MASK = F_EXTERIOR | F_UNKNOWN_0x40,
+        F_EXTERIOR_CLASSIFICATION_MASK = F_EXTERIOR | F_EXTERIOR_LIT,
     };
 
     // Runtime word at +0x198; separate from the WMO group file flags.

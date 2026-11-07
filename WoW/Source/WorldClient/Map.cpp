@@ -3420,7 +3420,7 @@ void CMap::ClassifyStaticEntityLink(CMapStaticEntity* entity, CMapObjDef* mapObj
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_EXTERIOR);
     } else if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_EXTERIOR);
-    } else if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x40) {
+    } else if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT) {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_EXTERIOR);
     } else {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_INTERIOR);
@@ -3614,7 +3614,7 @@ bool CMap::LinkIntersectMapObjDef(CMapObjDef* mapObjDef, C3Vector& start, C3Vect
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
         uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
 
-        if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) && mapObj->TestGroupBounds(localStart, localEnd, group->m_groupNum) && ((!noDepthSort && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) || mapObj->TestGroupBounds(localMid, group->m_groupNum))) {
+        if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && mapObj->TestGroupBounds(localStart, localEnd, group->m_groupNum) && ((!noDepthSort && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) || mapObj->TestGroupBounds(localMid, group->m_groupNum))) {
             CMap::LinkIntersectMapObjDefGroup(mapObjDef, group, localStart, localEnd, &interiorHit[noDepthSort == 0], &groundHit[noDepthSort == 0]);
         }
     }
@@ -3837,7 +3837,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefExterior(CMapStaticEntity* entity
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
             uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
 
-            if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
+            if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
                 CMap::LinkObjectToMapObjDefGroup(entity, group);
             }
         }
@@ -3865,7 +3865,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefInterior(CMapStaticEntity* entity
     for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-        if (group != mapObjDefGroup && !(mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80 | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
+        if (group != mapObjDefGroup && !(mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
             CMap::LinkObjectToMapObjDefGroup(entity, group);
         }
     }
@@ -4079,7 +4079,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
             CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
 
-            if (!group || (group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_CALLBACK_ONLY | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x80)) || !mapObj->TestGroupBounds(localStart, localEnd, defGroup->m_groupNum)) {
+            if (!group || (group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) || !mapObj->TestGroupBounds(localStart, localEnd, defGroup->m_groupNum)) {
                 continue;
             }
 
