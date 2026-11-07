@@ -208,14 +208,14 @@ bool CMapObjDef::IsAllLoaded() {
         return false;
     }
 
-    if (!(this->m_flags & 0x4000)) {
+    if (!(this->m_flags & MAPOBJ_FLAG_ALL_LOADED)) {
         for (CMapBaseObjLink* link = this->m_mapObjDefGroupLinkList.Head(); link; link = this->m_mapObjDefGroupLinkList.Next(link)) {
             if (!static_cast<CMapObjDefGroup*>(link->m_owner)->IsAllLoaded()) {
                 return false;
             }
         }
 
-        this->m_flags = static_cast<MapObjFlag>(this->m_flags | 0x4000);
+        this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_ALL_LOADED);
     }
 
     return true;
