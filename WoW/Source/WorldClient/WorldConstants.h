@@ -6,12 +6,12 @@ static const float MD_AREA_POLY_SIZE = 533.33331f; // adt size
 static const float TERRAIN_SPEC_EXP = 20.0f;
 static const float HALF_WORLD_SIZE = 17066.666f; // adt size * 32
 
-static const float CHUNK_SIZE = 33.333332f; // Map chunk side length.
-static const float HALF_CHUNK_SIZE = 16.666666f; // Chunk center offset.
-static const float HALF_CHUNK_SIZE_SQ = 277.77777f; // Squared center offset used by liquid sort distance.
+static const float LIQUID_TILE_GRID_SIZE = 33.333332f; // 8 x 8 liquid tiles at SMOLTILE_SIZE.
+static const float HALF_LIQUID_TILE_GRID_SIZE = 16.666666f;
+static const float HALF_LIQUID_TILE_GRID_SIZE_SQ = 277.77777f;
 
 // Keep the stored float values: calculating reciprocals can round differently.
-static const float SMOLTILE_SIZE = 4.1666665f; // CHUNK_SIZE / 8; 0.5.3 symbol: MD_LIQUID_POLY_SIZE.
+static const float SMOLTILE_SIZE = 4.1666665f; // 0.5.3 symbol: MD_LIQUID_POLY_SIZE.
 static const float OOSMOLTILE_SIZE = 0.240000010f; // 1.0 / 4.1666665f.
 static const float OO_COORD_TO_CHUNK = 0.029999999f;
 static const float OO_COORD_TO_CHUNK_RADIUS = 0.030000001f; // Distinct upward-rounded scale used before ceil.

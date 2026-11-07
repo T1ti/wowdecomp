@@ -481,10 +481,10 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
                 LiquidChunkAndDistance* entry = chunks.New();
                 entry->m_chunk = chunk;
                 entry->m_liquid = liquid;
-                float dx = chunk->m_topLeftCoords.x - HALF_CHUNK_SIZE - pos->x;
-                float dy = chunk->m_topLeftCoords.y - HALF_CHUNK_SIZE - pos->y;
+                float dx = chunk->m_topLeftCoords.x - HALF_LIQUID_TILE_GRID_SIZE - pos->x;
+                float dy = chunk->m_topLeftCoords.y - HALF_LIQUID_TILE_GRID_SIZE - pos->y;
                 float dz = height - pos->z;
-                entry->m_distance = dx * dx + dz * dz + dy * dy - HALF_CHUNK_SIZE_SQ;
+                entry->m_distance = dx * dx + dz * dz + dy * dy - HALF_LIQUID_TILE_GRID_SIZE_SQ;
             }
         }
     }
@@ -521,7 +521,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
                     dy -= SMOLTILE_SIZE;
                 }
 
-                dy += CHUNK_SIZE;
+                dy += LIQUID_TILE_GRID_SIZE;
                 dx -= SMOLTILE_SIZE;
             }
         } else {
