@@ -459,7 +459,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
     float relY = -(pos->y - this->m_topLeft2.y);
     int32_t chunkX = CMath::fint_(-(pos->x - this->m_topLeft2.x) * OO_COORD_TO_CHUNK - 0.5f);
     int32_t chunkY = CMath::fint_(relY * OO_COORD_TO_CHUNK - 0.5f);
-    int32_t chunkRadius = CMath::fint_(static_cast<float>(ceil(radius * 0.030000001f)) - 0.5f);
+    int32_t chunkRadius = CMath::fint_(static_cast<float>(ceil(radius * OO_COORD_TO_CHUNK_RADIUS)) - 0.5f);
     int32_t rowStart = chunkX - chunkRadius <= 0 ? 0 : chunkX - chunkRadius;
     int32_t colStart = chunkY - chunkRadius <= 0 ? 0 : chunkY - chunkRadius;
     int32_t rowEnd = chunkX + chunkRadius >= 15 ? 15 : chunkX + chunkRadius;
@@ -481,10 +481,10 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
                 LiquidChunkAndDistance* entry = chunks.New();
                 entry->m_chunk = chunk;
                 entry->m_liquid = liquid;
-                float dx = chunk->m_topLeftCoords.x - 16.666666f - pos->x;
-                float dy = chunk->m_topLeftCoords.y - 16.666666f - pos->y;
+                float dx = chunk->m_topLeftCoords.x - HALF_CHUNK_SIZE - pos->x;
+                float dy = chunk->m_topLeftCoords.y - HALF_CHUNK_SIZE - pos->y;
                 float dz = height - pos->z;
-                entry->m_distance = dx * dx + dz * dz + dy * dy - 277.77777f;
+                entry->m_distance = dx * dx + dz * dz + dy * dy - HALF_CHUNK_SIZE_SQ;
             }
         }
     }
@@ -521,14 +521,14 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
                     dy -= SMOLTILE_SIZE;
                 }
 
-                dy += 33.333332f;
+                dy += CHUNK_SIZE;
                 dx -= SMOLTILE_SIZE;
             }
         } else {
             CMapChunk* chunk = entry->m_chunk;
             float relTileY = -(pos->y - chunk->m_topLeftCoords.y);
             float relTileX = -(pos->x - chunk->m_topLeftCoords.x);
-            int32_t tileRadius = CMath::fint_(static_cast<float>(ceil(radius * 0.24000001f)) - 0.5f);
+            int32_t tileRadius = CMath::fint_(static_cast<float>(ceil(radius * OOSMOLTILE_SIZE)) - 0.5f);
             int32_t tileY = CMath::fint_(relTileY * OO_COORD_TO_SUBCHUNK - 0.5f);
             int32_t tileX = CMath::fint_(relTileX * OO_COORD_TO_SUBCHUNK - 0.5f);
             int32_t tileRowStart = tileX - tileRadius;
