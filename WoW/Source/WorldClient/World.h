@@ -113,6 +113,9 @@ struct SPortalExt {
     enum FLAGS : uint16_t {
         F_SCREEN_CULLED = 0x1,
         F_INTERSECT_NEAR = 0x2,
+        F_EXTERIOR_VIEW_HANDLED = 0x4, // Guards repeated exterior portal-view processing.
+        F_INTERIOR_VIEW_HANDLED = 0x8, // Set after interior portal-view processing.
+        F_NO_OCCLUSION = 0x10, // Forwarded to TransformAndClipVerts.
     };
 
     /* 0000 */ uint16_t m_flags;

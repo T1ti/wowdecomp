@@ -282,7 +282,7 @@ void LiquidSoundQuery::VisitSpan(int32_t x0, int32_t x1, int32_t y) {
     const SMOLVert* vert = &this->m_verts[x0 + y * (this->m_width + 1)];
 
     for (int32_t x = x0; x <= x1; x++, tile++, vert++) {
-        if ((tile->m_flags & 0xF) == 0xF) {
+        if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) == SMOLTile::LIQUID_TYPE_NONE) {
             continue;
         }
 
@@ -943,9 +943,9 @@ int32_t CMapObjGroup::FindLiquidType() {
     int32_t count = this->m_liquidTiles.x * this->m_liquidTiles.y;
 
     for (int32_t i = 0; i < count; i++) {
-        uint8_t type = this->m_liquidTileList[i].m_flags & 0xF;
+        uint8_t type = this->m_liquidTileList[i].m_flags & SMOLTile::LIQUID_TYPE_MASK;
 
-        if (type != 0xF) {
+        if (type != SMOLTile::LIQUID_TYPE_NONE) {
             return type + 1;
         }
     }
@@ -1239,7 +1239,7 @@ bool CMapObjGroup::QueryLiquid(const C3Vector& pos, int32_t* liquidType, float* 
         return false;
     }
 
-    if ((this->m_liquidTileList[tile.y * this->m_liquidTiles.x + tile.x].m_flags & 0xF) == 0xF) {
+    if ((this->m_liquidTileList[tile.y * this->m_liquidTiles.x + tile.x].m_flags & SMOLTile::LIQUID_TYPE_MASK) == SMOLTile::LIQUID_TYPE_NONE) {
         return false;
     }
 
@@ -1277,7 +1277,7 @@ uint32_t CMapObjGroup::GetNumSharedTiles() {
 
     for (int32_t y = 0; y < this->m_liquidTiles.y; y++) {
         for (int32_t x = 0; x < this->m_liquidTiles.x; x++) {
-            if ((tile->m_flags & 0xF) != 0xF && (tile->m_flags & SMOLTile::SHARED_MASK)) {
+            if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE && (tile->m_flags & SMOLTile::SHARED_MASK)) {
                 count++;
             }
 
@@ -1754,7 +1754,7 @@ bool CMapObjGroup::VectorIntersectLiquidTiles(const C3Segment& seg, float* t, ui
         uint32_t tileX = tiles[0];
         uint32_t tileY = tiles[1];
 
-        if ((this->m_liquidTileList[tileY * this->m_liquidTiles.x + tileX].m_flags & 0xF) != 0xF) {
+        if ((this->m_liquidTileList[tileY * this->m_liquidTiles.x + tileX].m_flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE) {
             uint32_t base = tileX + tileY * this->m_liquidVerts.x;
 
             for (uint32_t j = 0; j < 2; j++) {
@@ -1992,7 +1992,7 @@ bool CMapObjGroup::GetLiquidTris(const CAaBox& box, uint32_t flags, World::TriDa
 
     for (int32_t y = rect.minY; y <= rect.maxY; y++) {
         for (int32_t x = rect.minX; x <= rect.maxX; x++) {
-            if ((tile->m_flags & 0xF) != 0xF) {
+            if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE) {
                 for (uint32_t j = 0; j < 2; j++) {
                     if (cullTile[cullTris[j][0]] & cullTile[cullTris[j][2]] & cullTile[cullTris[j][1]]) {
                         continue;
@@ -2132,7 +2132,7 @@ bool CMapObjGroup::GetLiquidTris(const CFrustum& frustum, uint32_t flags, World:
 
     for (int32_t y = rect.minY; y <= rect.maxY; y++) {
         for (int32_t x = rect.minX; x <= rect.maxX; x++) {
-            if ((tile->m_flags & 0xF) != 0xF) {
+            if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE) {
                 for (uint32_t j = 0; j < 2; j++) {
                     if (cullTile[cullTris[j][0]] & cullTile[cullTris[j][2]] & cullTile[cullTris[j][1]]) {
                         continue;

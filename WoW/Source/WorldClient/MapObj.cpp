@@ -491,7 +491,7 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
 
     for (int32_t y = 0; y < group->m_liquidTiles.y; y++) {
         for (int32_t x = 0; x < group->m_liquidTiles.x; x++, tile++) {
-            if ((tile->m_flags & 0xF) == 0xF || !(tile->m_flags & SMOLTile::SHARED_MASK)) {
+            if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) == SMOLTile::LIQUID_TYPE_NONE || !(tile->m_flags & SMOLTile::SHARED_MASK)) {
                 continue;
             }
 
@@ -794,11 +794,11 @@ void CMapObjGroup::SetLighting(CMapObjGroup* group, uint32_t mode) {
 void CMapObj::AddExteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPortalExt* ext, uint32_t destIsExterior) {
     uint16_t flags = ext->m_flags;
 
-    if (flags & 0x4) {
+    if (flags & SPortalExt::F_EXTERIOR_VIEW_HANDLED) {
         return;
     }
 
-    flags |= 0x4;
+    flags |= SPortalExt::F_EXTERIOR_VIEW_HANDLED;
     ext->m_flags = flags;
 
     C3Vector offset(portal->m_plane.n.x * 0.01f, portal->m_plane.n.y * 0.01f, 0.01f * portal->m_plane.n.z);
@@ -880,7 +880,7 @@ void CWorldScene::SetupLighting(CM2Lighting* lighting, C3Vector* view) {
 void CMapObj::AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPortalExt* ext, TSGrowableArray<CPortalView>* views) {
     uint16_t flags = ext->m_flags;
 
-    if (flags & 0xC) {
+    if (flags & (SPortalExt::F_EXTERIOR_VIEW_HANDLED | SPortalExt::F_INTERIOR_VIEW_HANDLED)) {
         return;
     }
 
@@ -909,7 +909,7 @@ void CMapObj::AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPorta
         views->Add(1, &view);
     }
 
-    ext->m_flags |= 0x8;
+    ext->m_flags |= SPortalExt::F_INTERIOR_VIEW_HANDLED;
 }
 
 // VERIFY: 8052ccf3 manual
@@ -1224,7 +1224,7 @@ void CMapObj::RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& nd
             ext->m_flags = 0;
 
             if (!(destFlags & 0x8) && !(group->m_flags & 0x8)) {
-                ext->m_flags = 0x10;
+                ext->m_flags = SPortalExt::F_NO_OCCLUSION;
             }
 
             this->TransformPortal(portal, ext);
@@ -2446,7 +2446,7 @@ void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint
 
             for (int32_t x = 0; x < group->m_liquidTiles.x; x++) {
                 uint8_t flags = group->m_liquidTileList[group->m_liquidTiles.x * y + x].m_flags;
-                int32_t visible = (flags & 0xF) != 0xF && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
+                int32_t visible = (flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
                 int32_t duplicateCol = 0;
 
                 if (sharedCol < sharedVerts[0].m_count && sharedVerts[0].m_data[sharedCol] == x) {
