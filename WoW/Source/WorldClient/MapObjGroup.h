@@ -135,6 +135,8 @@ class CMapObjGroup {
     public:
     // Flags copied from the corresponding SMOGroupInfo / MOGP header.
     // Names are limited to meanings supported by the 3.3.5 group-loading and use sites.
+    // Create() only clears F_USE_SKYBOX when the parent has no skybox; antiportal handling is group-name based.
+    // This build does not test MOGP bit 0x4000000 to create antiportal occluders.
     enum MOGP_FLAGS : uint32_t {
         F_HAS_BSP_TREE = 0x1,
         F_HAS_VERTEX_COLORS = 0x4,
