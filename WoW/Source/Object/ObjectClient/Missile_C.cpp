@@ -611,7 +611,7 @@ void CMissile::UpdateImpactPos() {
         }
     }
 
-    if ((this->m_motionFlags & 1) && (this->m_motionFlags & 8)) {
+    if ((this->m_motionFlags & SPELL_VISUAL_FOLLOW_GROUND_FLAGS::SPELL_VISUAL_FOLLOW_GROUND_ENABLED) && (this->m_motionFlags & SPELL_VISUAL_FOLLOW_GROUND_FLAGS::SPELL_VISUAL_FOLLOW_GROUND_TARGET_BASE_HEIGHT)) {
         position.z = target->GetPosition().z + this->m_groundOffset;
     }
 
@@ -823,7 +823,7 @@ void CMissile::FollowGround(const C3Vector& direction, float distance) {
         float blend = 1.0f / (1.0f - this->m_followGroundStart) * (this->m_horizontalProgress - this->m_followGroundStart);
         blend = blend * blend;
 
-        if (this->m_motionFlags & 4) {
+        if (this->m_motionFlags & SPELL_VISUAL_FOLLOW_GROUND_FLAGS::SPELL_VISUAL_FOLLOW_GROUND_APPROACH_FORWARD_POINT) {
             float keep = 1.0f - blend;
             this->m_position.x = target.x * blend + this->m_position.x * keep;
             this->m_position.y = this->m_position.y * keep + target.y * blend;
@@ -1535,7 +1535,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         if (this->m_model && (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_USE_MODEL_IMPACT_POSITION)) {
             position = (this->m_model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID) ? this->m_model->GetWorldPosition() : target->GetPosition();
             positionPtr = &position;
-        } else if ((this->m_motionFlags & 1) && (this->m_motionFlags & 8)) {
+        } else if ((this->m_motionFlags & SPELL_VISUAL_FOLLOW_GROUND_FLAGS::SPELL_VISUAL_FOLLOW_GROUND_ENABLED) && (this->m_motionFlags & SPELL_VISUAL_FOLLOW_GROUND_FLAGS::SPELL_VISUAL_FOLLOW_GROUND_TARGET_BASE_HEIGHT)) {
             C3Vector resolved;
             position = *this->ResolveTargetPosition(&resolved, &transport);
             positionPtr = &position;

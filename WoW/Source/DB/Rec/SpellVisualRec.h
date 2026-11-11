@@ -37,8 +37,14 @@ constexpr uint32_t SPELL_MISSILE_MODEL_HAND_WEAPON_UNSIGNED_MIN = static_cast<ui
 // Fixed-point scale of the three missile follow-ground DBC parameters.
 constexpr float SPELL_VISUAL_GROUND_PARAMETER_SCALE = 0.001f;
 
+// Copied unchanged into CMissile::m_motionFlags by all four launch paths.
+// Bits 1, 4 and 8 are the observed tests; other raw bits remain preserved.
 enum SPELL_VISUAL_FOLLOW_GROUND_FLAGS : int32_t {
     SPELL_VISUAL_FOLLOW_GROUND_ENABLED = 0x1,
+    // Blend toward the extrapolated forward point rather than the stored impact point.
+    SPELL_VISUAL_FOLLOW_GROUND_APPROACH_FORWARD_POINT = 4,
+    // With ENABLED, use the target base height and resolve an explicit impact-kit position.
+    SPELL_VISUAL_FOLLOW_GROUND_TARGET_BASE_HEIGHT = 8,
 };
 
 class SpellVisualRec {
