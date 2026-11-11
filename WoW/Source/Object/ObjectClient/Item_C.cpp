@@ -170,7 +170,7 @@ static int32_t OnUpdateItemID(WOWGUID guid, uint32_t fieldOffset, uint32_t field
 static int32_t OnUpdateDynamicFlags(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (item && ((*static_cast<const uint8_t*>(oldValue) ^ item->m_item->m_itemFieldFlags) & 0x10)) {
+    if (item && ((*static_cast<const uint8_t*>(oldValue) ^ item->m_item->m_itemFieldFlags) & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_UNUSABLE)) {
         CGPlayer_C* owner = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(item->m_item->m_itemFieldOwner, TYPE_PLAYER, __FILE__, __LINE__));
 
         if (owner && owner->m_obj->m_guid == ClntObjMgrGetActivePlayer() && static_cast<uint32_t>(owner->GetBag()->FindItemSlot(item->m_obj->m_guid)) <= 18) {
@@ -1611,7 +1611,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
         }
     }
 
-    if (stats->m_pageText || (this->m_item->m_itemFieldFlags & 0x200)) {
+    if (stats->m_pageText || (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_HAS_ITEM_TEXT)) {
         CGItemText::SetItem(this->m_obj->m_guid, 0);
         return 0;
     }

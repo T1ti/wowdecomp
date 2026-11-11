@@ -217,7 +217,7 @@ static int32_t Script_GetContainerItemInfo(lua_State* L) {
         lua_pushnumber(L, -1.0);
     }
 
-    if (item->GetPageTextID(nullptr) || (item->m_item->m_itemFieldFlags & 0x200)) {
+    if (item->GetPageTextID(nullptr) || (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_HAS_ITEM_TEXT)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

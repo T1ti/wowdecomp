@@ -6232,7 +6232,7 @@ static void AddItemCreatorLines(CGTooltip* tooltip, const ItemStats_C* stats, CG
             NameCache* name = g_nameDBCache.GetRecord(guid.m_guid, guid, TooltipItemCallback, tooltip, true);
 
             if (name) {
-                if (item && (item->m_item->m_itemFieldFlags & 0x200)) {
+                if (item && (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_HAS_ITEM_TEXT)) {
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ITEM_WRITTEN_BY", -1, GENDER_NOT_APPLICABLE), name->m_name);
                 } else {
                     SStrPrintf(text, sizeof(text), FrameScript_GetText("ITEM_CREATED_BY", -1, GENDER_NOT_APPLICABLE), name->m_name);
@@ -6251,7 +6251,7 @@ static void AddItemCreatorLines(CGTooltip* tooltip, const ItemStats_C* stats, CG
 
     if (!tooltip->m_itemUseLinkInfo && (((flags & ITEM_STATIC_FLAGS::ITEM_FLAG_HAS_LOOT) && (!stats->m_lockId || (item->m_item->m_itemFieldFlags & ITEM_DFLAG_UNLOCKED))) || ((flags & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_WRAPPER) && (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED)))) {
         tooltip->AddLine(FrameScript_GetText("ITEM_OPENABLE", -1, GENDER_NOT_APPLICABLE), nullptr, greenColor, greenColor, 0);
-    } else if (item->GetPageTextID(nullptr) || (item->m_item->m_itemFieldFlags & 0x200)) {
+    } else if (item->GetPageTextID(nullptr) || (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_HAS_ITEM_TEXT)) {
         tooltip->AddLine(FrameScript_GetText("ITEM_READABLE", -1, GENDER_NOT_APPLICABLE), nullptr, greenColor, greenColor, 0);
     }
 
