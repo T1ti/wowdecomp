@@ -69,6 +69,14 @@ class EclipseState {
 
 class LightningObject : public TSLinkedNode<LightningObject> {
     public:
+    // Reconstructed runtime masks; distinct from CLightning and DBC flag words.
+    enum LIGHTNING_FLAGS : int32_t {
+        FLAG_NONE = 0,
+        FLAG_PERSISTENT = 0x1,
+        FLAG_FIXED_DESTINATION = 0x2,
+        FLAG_RAW_SOURCE_ATTACHMENT_IDS = 0x4,
+    };
+
     struct Bolt {
         /* 0000 */ uint16_t m_source;
         /* 0002 */ uint16_t m_target;

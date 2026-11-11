@@ -155,11 +155,11 @@ bool LightningObject::Tick(uint32_t time) {
         CGUnit_C* sourceUnit = source && (source->m_obj->m_type & TYPE_UNIT) ? static_cast<CGUnit_C*>(source) : nullptr;
         CGUnit_C* targetUnit = target && (target->m_obj->m_type & TYPE_UNIT) ? static_cast<CGUnit_C*>(target) : nullptr;
 
-        if ((this->m_flags & 0x1) || (time >= bolt.m_startTime && time < bolt.m_endTime)) {
+        if ((this->m_flags & LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT) || (time >= bolt.m_startTime && time < bolt.m_endTime)) {
             C3Vector sourcePos(0.0f, 0.0f, 0.0f);
 
             if (sourceUnit) {
-                sourcePos = bolt.m_source ? LightningObject::GetImpactPosition(sourceUnit, this->m_spellId) : LightningObject::GetCasterPosition(sourceUnit, this->m_sourceAttachment, this->m_sourceOffset, this->m_flags & 0x4);
+                sourcePos = bolt.m_source ? LightningObject::GetImpactPosition(sourceUnit, this->m_spellId) : LightningObject::GetCasterPosition(sourceUnit, this->m_sourceAttachment, this->m_sourceOffset, this->m_flags & LightningObject::LIGHTNING_FLAGS::FLAG_RAW_SOURCE_ATTACHMENT_IDS);
             } else if (source) {
                 sourcePos = this->m_sourceOffset * source->GetMatrix();
             }
@@ -171,7 +171,7 @@ bool LightningObject::Tick(uint32_t time) {
                 targetPos = LightningObject::GetImpactPosition(targetUnit, this->m_spellId);
             } else if (target) {
                 targetPos = this->m_targetOffset * target->GetMatrix();
-            } else if (this->m_flags & 0x2) {
+            } else if (this->m_flags & LightningObject::LIGHTNING_FLAGS::FLAG_FIXED_DESTINATION) {
                 targetPos = this->m_targetOffset;
             } else {
                 hidden = 1;
@@ -205,13 +205,13 @@ bool LightningObject::Tick(uint32_t time) {
             }
         }
 
-        if (!(this->m_flags & 0x1) && time >= bolt.m_endTime && bolt.m_lightning != 0xFFFFFFFF) {
+        if (!(this->m_flags & LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT) && time >= bolt.m_endTime && bolt.m_lightning != 0xFFFFFFFF) {
             s_lightningManager->Remove(bolt.m_lightning);
             bolt.m_lightning = 0xFFFFFFFF;
         }
     }
 
-    return (this->m_flags & 0x1) || time < this->m_endTime;
+    return (this->m_flags & LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT) || time < this->m_endTime;
 }
 
 // VERIFY: a8f49189 manual
@@ -535,7 +535,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
         object->m_targets.SetCount(count + 1);
         object->m_bolts.SetCount(count);
         object->m_targets[0] = caster->m_obj->m_guid.m_guid;
-        object->m_flags = 0;
+        object->m_flags = LightningObject::LIGHTNING_FLAGS::FLAG_NONE;
         object->m_texture = TextureCreate(chain->m_texture, CGxTexFlags(GxTex_Linear, 1, 0, 0, 0, 0, 1), &status, 0);
         object->m_sourceOffset.x = sourceOffset.x;
         object->m_spellId = spellId;
@@ -559,7 +559,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
             matrix.d1 = 0.0f;
             matrix.d2 = 0.0f;
             C3Vector transformed = targetOffset * matrix;
-            object->m_flags |= 0x2;
+            object->m_flags |= LightningObject::LIGHTNING_FLAGS::FLAG_FIXED_DESTINATION;
             object->m_targetOffset.x = transformed.x + location->x;
             object->m_targetOffset.y = transformed.y + location->y;
             object->m_targetOffset.z = transformed.z + location->z;
@@ -568,11 +568,11 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
         }
 
         if (persist) {
-            object->m_flags |= 0x1;
+            object->m_flags |= LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT;
         }
 
         if (raw) {
-            object->m_flags |= 0x4;
+            object->m_flags |= LightningObject::LIGHTNING_FLAGS::FLAG_RAW_SOURCE_ATTACHMENT_IDS;
         }
 
         object->InitializeBolts(caster, targets, count, reverse, attachment);
@@ -617,7 +617,7 @@ void SpellVisualsCreateChainLightning(CGUnit_C* caster, CEffect* effect, uint32_
 // OFFSET: 0x007FC990
 void LightningObjectReleaseRef(LightningObject* object) {
     uint32_t time = OsGetAsyncTimeMs();
-    object->m_flags &= ~0x1;
+    object->m_flags &= ~LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT;
     object->m_endTime = time;
 
     if (--object->m_refCount == 0) {
