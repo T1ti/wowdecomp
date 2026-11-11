@@ -521,7 +521,7 @@ void CGxStringBatch::RenderBatch() {
 
     CGxShader* vertexShader;
 
-    if (this->m_flags & 1) {
+    if (this->m_flags & CGxStringBatch::STRING_BATCH_FLAGS::BATCH_BILLBOARDED) {
         BATCHEDRENDERFONTDESC::s_billboarded = 1;
         GxRsSet(GxRs_DepthTest, 1);
         GxRsSet(GxRs_DepthWrite, 1);
@@ -567,7 +567,7 @@ void CGxStringBatch::RenderBatch() {
 
         desc->RenderBatch();
 
-        if (this->m_flags & 2) {
+        if (this->m_flags & CGxStringBatch::STRING_BATCH_FLAGS::BATCH_CLEAR_STRINGS_AFTER_RENDER) {
             desc->m_strings.UnlinkAll();
         }
 
@@ -608,7 +608,7 @@ void TEXTLINETEXTURE::Shutdown() {
 }
 
 // INLINED
-CGxStringBatch::CGxStringBatch() : m_flags(0) {
+CGxStringBatch::CGxStringBatch() : m_flags(CGxStringBatch::STRING_BATCH_FLAGS::BATCH_NONE) {
 }
 
 // VERIFY: a85538e9 manual

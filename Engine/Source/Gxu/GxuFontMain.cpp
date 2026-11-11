@@ -1147,15 +1147,15 @@ CGxStringBatch* GxuFontCreateBatch(bool billboarded, bool worldSpace) {
     }
 
     if (billboarded) {
-        batch->m_flags |= 1;
+        batch->m_flags |= CGxStringBatch::STRING_BATCH_FLAGS::BATCH_BILLBOARDED;
     } else {
-        batch->m_flags &= ~1;
+        batch->m_flags &= ~CGxStringBatch::STRING_BATCH_FLAGS::BATCH_BILLBOARDED;
     }
 
     if (worldSpace) {
-        batch->m_flags |= 2;
+        batch->m_flags |= CGxStringBatch::STRING_BATCH_FLAGS::BATCH_CLEAR_STRINGS_AFTER_RENDER;
     } else {
-        batch->m_flags &= ~2;
+        batch->m_flags &= ~CGxStringBatch::STRING_BATCH_FLAGS::BATCH_CLEAR_STRINGS_AFTER_RENDER;
     }
 
     return batch;
