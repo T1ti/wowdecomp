@@ -119,6 +119,17 @@ class Timer {
 
 class ClientLink : public WowConnectionResponse, public Grunt::Pending, public Grunt::Timer::Event {
     public:
+    // Reconstructed authentication lifecycle; SetState retains its raw signed32 API.
+    enum CLIENT_STATE : int32_t {
+        STATE_DISCONNECTED = 0,
+        STATE_CONNECTING = 1,
+        STATE_CONNECTED = 2,
+        STATE_AUTH_CHALLENGE_PENDING = 3,
+        STATE_LOGON_VERSION_PROOF_PENDING = 4,
+        STATE_RECONNECT_VERSION_PROOF_PENDING = 5,
+        STATE_ONLINE = 6,
+    };
+
     struct Logon {
         /* 0000 */ const char* m_accountName;
         /* 0004 */ const char* m_password;
