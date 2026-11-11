@@ -64,17 +64,17 @@ CGInputControl* CGInputControl::GetActive() {
 // VERIFY: b2b6f3af auto
 // OFFSET: 0x005F9670
 void CGInputControl::UpdateJoystickMouseMode() {
-    int32_t enable = s_joystickMouseEnabled && !s_cvCinematicJoystick->m_intValue && (this->m_joystickMouseFlags & 0x2) && (this->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON);
+    int32_t enable = s_joystickMouseEnabled && !s_cvCinematicJoystick->m_intValue && (this->m_joystickMouseFlags & CGInputControl::JOYSTICK_MOUSE_FLAGS::JOYSTICK_MOUSE_ALLOWED) && (this->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON);
 
-    if (enable == (this->m_joystickMouseFlags & 0x1)) {
+    if (enable == (this->m_joystickMouseFlags & CGInputControl::JOYSTICK_MOUSE_FLAGS::JOYSTICK_MOUSE_ACTIVE)) {
         return;
     }
 
     if (enable) {
-        this->m_joystickMouseFlags |= 0x1;
+        this->m_joystickMouseFlags |= CGInputControl::JOYSTICK_MOUSE_FLAGS::JOYSTICK_MOUSE_ACTIVE;
         OsJoystickSetMouseMode(s_joystick, enable);
     } else {
-        this->m_joystickMouseFlags &= ~0x1;
+        this->m_joystickMouseFlags &= ~CGInputControl::JOYSTICK_MOUSE_FLAGS::JOYSTICK_MOUSE_ACTIVE;
         OsJoystickSetMouseMode(s_joystick, 0);
     }
 }
@@ -94,7 +94,7 @@ void CGInputControl::SetMouseCVarHandler(bool enable) {
 
 // VERIFY: 36bc2098 auto
 // OFFSET: 0x005FD1D0
-CGInputControl::CGInputControl() : m_flags(INPUT_NONE), m_lookStartTime(0), m_pendingDefaultAction(INPUT_RELEASE_NONE), m_facingOverrideActive(0), m_facingOverride(0.0f), m_vehicleAimValid(0), m_vehicleAim(0.0f), m_mouseModeFlags(INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS), m_forceCursorOn(0), m_joystickMouseFlags(3), m_joystickLookX(0.0f), m_joystickLookY(0.0f), m_wowMouse(nullptr) {
+CGInputControl::CGInputControl() : m_flags(INPUT_NONE), m_lookStartTime(0), m_pendingDefaultAction(INPUT_RELEASE_NONE), m_facingOverrideActive(0), m_facingOverride(0.0f), m_vehicleAimValid(0), m_vehicleAim(0.0f), m_mouseModeFlags(INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS), m_forceCursorOn(0), m_joystickMouseFlags(CGInputControl::JOYSTICK_MOUSE_FLAGS::JOYSTICK_MOUSE_INITIAL_FLAGS), m_joystickLookX(0.0f), m_joystickLookY(0.0f), m_wowMouse(nullptr) {
     this->m_time = OsGetAsyncTimeMs();
 }
 
