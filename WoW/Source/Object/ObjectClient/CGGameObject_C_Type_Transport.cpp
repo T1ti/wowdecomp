@@ -288,8 +288,8 @@ C3Vector CGGameObject_C_Type_Transport::GetMovement(uint32_t time) {
     }
 
     uint32_t next = this->m_frameCount != this->m_currentFrame + 1 ? this->m_currentFrame + 1 : 0;
-    TransportFrame* current;
-    TransportFrame* following;
+    const TransportFrame* current;
+    const TransportFrame* following;
 
     while (true) {
         following = &this->m_frames[next];
@@ -338,8 +338,8 @@ C4Quaternion CGGameObject_C_Type_Transport::GetRotation(uint32_t time) {
     }
 
     uint32_t next = this->m_currentRotation + 1 != count ? this->m_currentRotation + 1 : 0;
-    TransportRotationRec* current = &this->m_rotations[this->m_currentRotation];
-    TransportRotationRec* following = &this->m_rotations[next];
+    const TransportRotationRec* current = &this->m_rotations[this->m_currentRotation];
+    const TransportRotationRec* following = &this->m_rotations[next];
     uint32_t endTime = following->m_timeIndex;
 
     if (!endTime && this->m_frames) {
