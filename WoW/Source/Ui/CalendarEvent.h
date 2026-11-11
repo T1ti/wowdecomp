@@ -41,6 +41,15 @@ struct InviteSortCriterion {
 
 class CGCalendarEvent {
     public:
+    // Deferred name-cache notification selector; reconstructed names.
+    enum INVITE_SIGNAL_TYPE : uint32_t {
+        INVITE_SIGNAL_LIST_UPDATE = 0,
+        INVITE_SIGNAL_LIST_UPDATE_INITIAL = 1,
+        INVITE_SIGNAL_NEW_EVENT = 2,
+        INVITE_SIGNAL_NEW_EVENT_COPY = 3,
+        INVITE_SIGNAL_OPEN_EVENT = 4,
+    };
+
     /* 0000 */ uint64_t m_eventID;
     /* 0008 */ TSGrowableArray<EventInviteInfo*> m_invites;
     /* 0018 */ uint32_t m_numInvites;

@@ -2636,7 +2636,7 @@ void CGCalendar::ProcessGetEvent(CDataStore* msg) {
 
     if (sendType == 1 || sendType == 2) {
         if (CGCalendar::m_curEvent->m_pendingNames) {
-            CGCalendar::m_curEvent->SetSignalType(sendType == 1 ? 2 : 3);
+            CGCalendar::m_curEvent->SetSignalType(sendType == 1 ? CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_NEW_EVENT : CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_NEW_EVENT_COPY);
         } else {
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_NEW_EVENT, "%b", sendType == 2);
         }
@@ -2652,7 +2652,7 @@ void CGCalendar::ProcessGetEvent(CDataStore* msg) {
     WowTime::WowEncodeTime(CGCalendar::m_selectedEvent.m_startTime, &CGCalendar::m_curEvent->m_date);
 
     if (CGCalendar::m_curEvent->m_pendingNames) {
-        CGCalendar::m_curEvent->SetSignalType(4);
+        CGCalendar::m_curEvent->SetSignalType(CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_OPEN_EVENT);
     } else {
         FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_OPEN_EVENT, "%s", CGCalendar::GetCalendarTypeString(CGCalendar::m_curEvent->m_flags));
     }

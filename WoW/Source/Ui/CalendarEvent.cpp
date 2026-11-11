@@ -86,7 +86,7 @@ void CGCalendarEvent::Clear() {
     this->m_lockoutDate.m_tzHours = 0;
     this->m_textureID = -1;
     this->m_pendingNames = 0;
-    this->m_signalType = 1;
+    this->m_signalType = CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE_INITIAL;
     this->m_sortType = 3;
 
     for (uint32_t i = 0; i < 6; i++) {
@@ -464,23 +464,23 @@ static void InviteNameCacheCallback(int32_t id, const WOWGUID& guid, void* param
     event->SortInvites(event->m_sortType, false);
 
     switch (event->m_signalType) {
-        case 0:
+        case CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE:
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_INVITE_LIST, nullptr);
             break;
 
-        case 1:
+        case CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE_INITIAL:
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_INVITE_LIST, "%b", 1);
             break;
 
-        case 2:
+        case CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_NEW_EVENT:
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_NEW_EVENT, "%b", 0);
             break;
 
-        case 3:
+        case CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_NEW_EVENT_COPY:
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_NEW_EVENT, "%b", 1);
             break;
 
-        case 4:
+        case CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_OPEN_EVENT:
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_OPEN_EVENT, "%s", CGCalendar::GetCalendarTypeString(event->m_flags));
             break;
     }
@@ -1137,7 +1137,7 @@ bool CGCalendarEvent::ProcessInitialInviteList(CDataStore* msg) {
     this->m_selectedInviteID = 0;
 
     if (this->m_pendingNames) {
-        this->m_signalType = 1;
+        this->m_signalType = CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE_INITIAL;
         return true;
     }
 
@@ -1180,7 +1180,7 @@ void CGCalendarEvent::AddInvite(uint64_t inviteID, WOWGUID guid, uint8_t level, 
     invite->m_responseTime = responseTime;
 
     if (this->m_pendingNames) {
-        this->m_signalType = 0;
+        this->m_signalType = CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE;
         return;
     }
 
