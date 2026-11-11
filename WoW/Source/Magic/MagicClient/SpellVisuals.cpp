@@ -350,7 +350,7 @@ float SpellVisualsGetMountTransitionHeight(const MountTransitionObject* transiti
 // VERIFY: 37dce2c2 auto
 // OFFSET: 0x007F9F60
 void SpellVisualsFlagMountTransitionFinished(MountTransitionObject* transition) {
-    transition->m_flags |= 0x2;
+    transition->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_RISE_FINISHED;
 }
 
 // VERIFY: 96ae8133 manual
@@ -465,7 +465,7 @@ MountTransitionObject* SpellVisualsStartMountTransition(CGUnit_C* unit) {
         return nullptr;
     }
 
-    transition->m_flags = 0;
+    transition->m_flags = MountTransitionObject::TRANSITION_FLAGS::TRANSITION_NONE;
     transition->m_unitGuid = unit->m_obj->m_guid;
     transition->m_groundNormal = unit->m_movement->GetGroundNormal();
     transition->m_startTime = OsGetAsyncTimeMs();
@@ -1030,7 +1030,7 @@ int32_t MountTransitionObject::UpdateCharacterData() {
     this->m_jumpRate = 1.0f / (this->m_jumpEnd - this->m_jumpStart);
     this->m_facing = unit->GetRenderFacing();
     this->m_verticalSpeed = 0.0f;
-    this->m_flags |= 0x1;
+    this->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_CHARACTER_DATA_READY;
     return 1;
 }
 
@@ -1046,7 +1046,7 @@ bool MountTransitionObject::Tick() {
         return false;
     }
 
-    if (!(this->m_flags & 0x1) && !this->UpdateCharacterData()) {
+    if (!(this->m_flags & MountTransitionObject::TRANSITION_FLAGS::TRANSITION_CHARACTER_DATA_READY) && !this->UpdateCharacterData()) {
         return true;
     }
 
@@ -1057,7 +1057,7 @@ bool MountTransitionObject::Tick() {
         this->m_height = (t - this->m_riseStart) * this->m_riseRate;
 
         if (this->m_height >= 1.0f) {
-            this->m_flags |= 0x2;
+            this->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_RISE_FINISHED;
             this->m_height = 1.0f;
         }
     }
@@ -1090,7 +1090,7 @@ bool MountTransitionObject::Tick() {
             unit->m_movement->GetGroundNormal();
 
             if (World::Intersect(top, bottom, &hit, &distance, 0x110, nullptr)) {
-                this->m_flags |= 0x4;
+                this->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_GROUND_HIT;
                 this->m_verticalSpeed = range - (distance * range + distance * range);
             }
 
@@ -1114,7 +1114,7 @@ bool MountTransitionObject::Tick() {
     this->m_groundNormal.y = this->m_groundNormal.y * scale;
     this->m_groundNormal.z = scale * this->m_groundNormal.z;
 
-    if (!(this->m_flags & 0x4)) {
+    if (!(this->m_flags & MountTransitionObject::TRANSITION_FLAGS::TRANSITION_GROUND_HIT)) {
         return true;
     }
 

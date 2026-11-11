@@ -113,6 +113,14 @@ void LightningObjectReleaseRef(LightningObject* object);
 
 class MountTransitionObject : public TSLinkedNode<MountTransitionObject> {
     public:
+    // Reconstructed lifecycle bits; the raw word retains unknown bits.
+    enum TRANSITION_FLAGS : int32_t {
+        TRANSITION_NONE = 0,
+        TRANSITION_CHARACTER_DATA_READY = 0x1,
+        TRANSITION_RISE_FINISHED = 0x2,
+        TRANSITION_GROUND_HIT = 0x4,
+    };
+
     /* 0008 */ WOWGUID m_unitGuid;
     /* 0010 */ float m_height;
     /* 0014 */ float m_riseRate;
