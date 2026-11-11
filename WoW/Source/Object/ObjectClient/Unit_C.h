@@ -266,8 +266,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0968 */ const CreatureDisplayInfoRec* m_displayInfo;
     /* 096C */ const CreatureDisplayInfoExtraRec* m_displayInfoExtra;
     /* 0970 */ const CreatureModelDataRec* m_modelData;
-    /* 0974 */ CreatureSoundDataRec* m_soundData;
-    /* 0978 */ CreatureSoundDataRec* m_soundDataOverride;
+    /* 0974 */ const CreatureSoundDataRec* m_soundData;
+    /* 0978 */ const CreatureSoundDataRec* m_soundDataOverride;
     /* 097C */ UnitBloodLevelsRec* m_bloodlevels;
     /* 0980 */ CEffect* m_fishingLineEffect;
     /* 0984 */ CEffect* m_auraEffects;
@@ -548,7 +548,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     bool DoNotLogDeath() const;
     CGUnit_C* GetControllingPlayer();
     int32_t IsDisarmed(int32_t hand) const;
-    CreatureSoundDataRec* GetMountSoundDataRec() const;
+    const CreatureSoundDataRec* GetMountSoundDataRec() const;
     const char* GetUnitTitle() const;
     int32_t IsSplashing(const C3Vector& position) const;
     int32_t HasBakedNpcTexture() const;
@@ -662,7 +662,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void UpdateSelectionRadius();
     void OnRemoteMissileTrajectoryCollision(MissileCollisionData* data);
     UNIT_REACTION UnitReaction(const CGCorpse_C* corpse) const;
-    CreatureSoundDataRec* GetSoundData() const;
+    const CreatureSoundDataRec* GetSoundData() const;
     void PlayNPCSound(bool greeting);
     bool CanCurrentFormMount() const;
     SummonPropertiesRec* GetSummonProperties() const;

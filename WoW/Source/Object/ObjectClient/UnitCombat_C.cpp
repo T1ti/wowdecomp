@@ -611,7 +611,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
                 if (this->m_obj->m_type & TYPE_PLAYER) {
                     static_cast<CGPlayer_C*>(this)->HandleSpellEventSound();
                 } else {
-                    CreatureSoundDataRec* soundData = this->GetSoundData();
+                    const CreatureSoundDataRec* soundData = this->GetSoundData();
 
                     if (soundData) {
                         SI2::PlaySoundKit(soundData->m_soundExertionID, position, nullptr, nullptr, 0, nullptr, 0, 0);

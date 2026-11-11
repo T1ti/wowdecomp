@@ -156,7 +156,7 @@ int32_t CheckUnitSoundTimer(UNITSOUNDTYPE soundType) {
 // VERIFY: fcb45083 auto
 // OFFSET: 0x007462E0
 void CGUnit_C::PlayFidgetSound(uint32_t index) {
-    CreatureSoundDataRec* soundData = this->GetSoundData();
+    const CreatureSoundDataRec* soundData = this->GetSoundData();
 
     if (!soundData || index >= 5) {
         return;
@@ -258,7 +258,7 @@ void CGUnit_C::HandleFootfallAnimEvent(const C3Vector& position) {
 
     this->PlayFoleySound();
 
-    CreatureSoundDataRec* soundData = this->GetSoundData();
+    const CreatureSoundDataRec* soundData = this->GetSoundData();
 
     if (soundData && soundData->m_soundFootstepID && s_cvFootstepSounds && s_cvFootstepSounds->m_intValue) {
         SI2::PlayFootstepSound(soundData->m_soundFootstepID, &position, this->m_terrainTypeId, this->IsSplashing(position), this->GetUnitSize() >= 3, this);
@@ -562,7 +562,7 @@ void CGUnit_C::PlayFoleySound() {
 // VERIFY: 034a2c24 auto
 // OFFSET: 0x007467F0
 void CGUnit_C::CheckLoopSound() {
-    CreatureSoundDataRec* soundData = this->GetSoundData();
+    const CreatureSoundDataRec* soundData = this->GetSoundData();
 
     if (this->m_unit->m_unitFieldHealth > 0 && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_FEIGN_DEATH) && soundData && soundData->m_loopSoundID && !SI2::IsPlaying(&this->m_loopSound)) {
         C3Vector position = this->GetPosition();

@@ -6448,7 +6448,7 @@ void CGUnit_C::UpdateInteractIconScale() {
 
 // VERIFY: 6ba1cbf2 auto
 // OFFSET: 0x007195D0
-CreatureSoundDataRec* CGUnit_C::GetMountSoundDataRec() const {
+const CreatureSoundDataRec* CGUnit_C::GetMountSoundDataRec() const {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
 
     if (!displayInfo) {
@@ -8483,12 +8483,12 @@ bool CGUnit_C::IsDeadOrGhost() const {
 
 // VERIFY: 32c13bf7 auto
 // OFFSET: 0x0071A3F0
-CreatureSoundDataRec* CGUnit_C::GetSoundData() const {
+const CreatureSoundDataRec* CGUnit_C::GetSoundData() const {
     if (this->m_soundDataOverride) {
         return this->m_soundDataOverride;
     }
 
-    CreatureSoundDataRec* soundData = this->m_soundData;
+    const CreatureSoundDataRec* soundData = this->m_soundData;
 
     if (soundData && this->m_unit->m_unitFieldPetnumber && soundData->m_creatureSoundDataIdpet > 0) {
         return g_creatureSoundDataDB.GetRecord(soundData->m_creatureSoundDataIdpet);
@@ -20649,7 +20649,7 @@ void CGUnit_C::UpdateFlightStatus(uint32_t time) {
                     this->PlayWoundAnimKit(0);
                 }
 
-                CreatureSoundDataRec* sound = this->IsMounted() ? this->m_soundDataOverride : this->GetSoundData();
+                const CreatureSoundDataRec* sound = this->IsMounted() ? this->m_soundDataOverride : this->GetSoundData();
 
                 if (sound) {
                     C3Vector position = this->GetPosition();
