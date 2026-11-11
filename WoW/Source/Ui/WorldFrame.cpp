@@ -187,7 +187,7 @@ int32_t CGWorldFrame::OnLayerTrackUpdate(const CMouseEvent& evt) {
 // VERIFY: dce627fd auto
 // OFFSET: 0x004F5D20
 void CGWorldFrame::OnMouseModeNormal() {
-    this->m_worldFlags &= ~0x2;
+    this->m_worldFlags &= ~CGWorldFrame::WORLD_FLAGS::WORLD_RELATIVE_MOUSE;
 }
 
 // VERIFY: f3392eff auto
@@ -832,7 +832,7 @@ void __stdcall CGWorldFrame::CursorTrackCorpse(CGCorpse_C* corpse) {
 // VERIFY: 92cbc82b manual
 // OFFSET: 0x004F8190
 void CGWorldFrame::OnLayerTrackObject(const HITTESTRESULT& result) {
-    if (this->m_worldFlags & 0x2) {
+    if (this->m_worldFlags & CGWorldFrame::WORLD_FLAGS::WORLD_RELATIVE_MOUSE) {
         this->HandleSpriteTrack(WOWGUID());
         return;
     }
@@ -1235,7 +1235,7 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_defaultActionHit.m_segment.start = { 0.0f, 0.0f, 0.0f };
     this->m_defaultActionHit.m_segment.end = { 0.0f, 0.0f, 0.0f };
     this->m_defaultActionPointDDC = { 0.0f, 0.0f };
-    this->m_worldFlags = (this->m_worldFlags & ~0x3) | 0x1;
+    this->m_worldFlags = (this->m_worldFlags & ~CGWorldFrame::WORLD_FLAGS::WORLD_INITIAL_MODE_MASK) | CGWorldFrame::WORLD_FLAGS::WORLD_UNKNOWN_0001;
     this->m_viewportDDC = { 0.0f, 0.0f, 0.0f, 0.0f };
     this->m_viewportNDC = { 0.0f, 0.0f, 0.0f, 0.0f };
     this->m_namePlateFlags = CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_NONE;
@@ -2131,7 +2131,7 @@ void CGWorldFrame::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
 // OFFSET: 0x004F5D30
 void CGWorldFrame::OnMouseModeRelative() {
     WOWGUID tracked = this->m_trackedGuid;
-    this->m_worldFlags |= 0x2;
+    this->m_worldFlags |= CGWorldFrame::WORLD_FLAGS::WORLD_RELATIVE_MOUSE;
 
     if (tracked) {
         CObjectTrackEvent evt;

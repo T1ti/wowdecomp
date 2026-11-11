@@ -105,6 +105,13 @@ struct KEYDOWNSTATE {
 
 class CGWorldFrame : public CSimpleFrame {
     public:
+    // Bit 1 is initialized but its independent meaning is unresolved.
+    enum WORLD_FLAGS : int32_t {
+        WORLD_UNKNOWN_0001 = 0x1,
+        WORLD_RELATIVE_MOUSE = 0x2,
+        WORLD_INITIAL_MODE_MASK = 0x3,
+    };
+
     // Pending nameplate work;separate from world interaction and name-display flags.
     enum NAME_PLATE_FLAGS : uint32_t {
         NAME_PLATE_NONE = 0,
