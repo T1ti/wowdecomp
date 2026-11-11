@@ -268,7 +268,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0970 */ const CreatureModelDataRec* m_modelData;
     /* 0974 */ const CreatureSoundDataRec* m_soundData;
     /* 0978 */ const CreatureSoundDataRec* m_soundDataOverride;
-    /* 097C */ UnitBloodLevelsRec* m_bloodlevels;
+    /* 097C */ const UnitBloodLevelsRec* m_bloodlevels;
     /* 0980 */ CEffect* m_fishingLineEffect;
     /* 0984 */ CEffect* m_auraEffects;
     /* 0988 */ CMissile* unk_0988;
