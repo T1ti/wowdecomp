@@ -1451,7 +1451,7 @@ CM2Model* CParticleEmitter2::GetParticleModelInternal(uint32_t& index) {
 // VERIFY: cc9ab909 auto
 // OFFSET: 0x0097BAE0
 uint32_t CParticleEmitter2::GetNumBatches() {
-    uint32_t count = this->m_batchFlags & 0x1;
+    uint32_t count = this->m_batchFlags & CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;
 
     if (count >= this->m_liveList.Count()) {
         count = this->m_liveList.Count();
@@ -2342,7 +2342,7 @@ void CParticleEmitter2::RenderParticles(const C44Matrix* frameOfReference, void*
     CGxBuf* buf = nullptr;
 
     if (!s_particleRenderEnable) {
-        this->m_batchFlags &= ~0x1;
+        this->m_batchFlags &= ~CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;
         this->m_renderedParticles = 0;
         return;
     }
@@ -2354,7 +2354,7 @@ void CParticleEmitter2::RenderParticles(const C44Matrix* frameOfReference, void*
     this->RenderParticlesPrep(frameOfReference, view);
 
     if (!TextureGetGxTex(this->m_texture, 0, nullptr)) {
-        this->m_batchFlags &= ~0x1;
+        this->m_batchFlags &= ~CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;
         this->m_renderedParticles = 0;
         return;
     }
@@ -2446,12 +2446,12 @@ void CParticleEmitter2::Render(const C44Matrix* frameOfReference, void* buffer, 
     this->m_worldBounds.t.z = -3.4028235e38f;
 
     if (!this->m_liveList.Count()) {
-        this->m_batchFlags &= ~0x1;
+        this->m_batchFlags &= ~CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;
         this->m_renderedParticles = 0;
         return;
     }
 
-    this->m_batchFlags ^= (first ^ this->m_batchFlags) & 0x1;
+    this->m_batchFlags ^= (first ^ this->m_batchFlags) & CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;
 
     if (!this->m_params.m_particleType) {
         this->RenderParticles(frameOfReference, buffer);

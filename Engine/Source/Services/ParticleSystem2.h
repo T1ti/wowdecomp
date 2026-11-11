@@ -73,6 +73,11 @@ class CParticleEmitter2 {
     static const float MIN_ZSOURCE;
 
     public:
+    // First render contribution to GetNumBatches; not an M2Batch file flag.
+    enum BATCH_FLAGS : int32_t {
+        BATCH_FIRST_RENDER = 0x1,
+    };
+
     enum PARTICLE_EMITTER_TYPE : int32_t {
         PET_BASE_EMITTER = 0,
         PET_PLANE_EMITTER = 1,
