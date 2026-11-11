@@ -229,8 +229,8 @@ void CSimpleAnim::PostLoadXML(XMLNode* node, CStatus* status) {
 void CSimpleAnim::Pause() {
     this->m_group->Pause();
 
-    if (this->m_playState == 1) {
-        this->m_playState = 2;
+    if (this->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_PLAYING) {
+        this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_PAUSED;
 
         if (this->m_onPause.m_luaRef) {
             this->RunScript(this->m_onPause, 0, nullptr);
@@ -389,7 +389,7 @@ bool CSimpleAnim::OnUpdate(float elapsedSec, float& consumed) {
         return true;
     }
 
-    if (this->m_playState == 2) {
+    if (this->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_PAUSED) {
         this->Apply(this->m_smoothProgress);
         return false;
     }
@@ -416,7 +416,7 @@ CSimpleAnim::CSimpleAnim(CSimpleAnimGroup* group) {
     this->unused_002C = 0;
     this->m_order = -1;
     this->m_flags = 0;
-    this->m_playState = 0;
+    this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED;
     this->m_loopState = 0;
     this->m_startDelay = 0.0f;
     this->m_endDelay = 0.0f;
@@ -442,8 +442,8 @@ bool CSimpleAnim::Play() {
         return false;
     }
 
-    if (this->m_playState != 1) {
-        this->m_playState = 1;
+    if (this->m_playState != CSimpleAnim::ANIM_PLAY_STATE::STATE_PLAYING) {
+        this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_PLAYING;
 
         if (!this->m_loopState) {
             this->m_loopState = ANIM_LOOPSTATE_FORWARD;
@@ -468,7 +468,7 @@ void CSimpleAnim::Stop(bool requested) {
     this->m_progressWithDelay = 0.0f;
     this->m_progress = 0.0f;
     this->m_loopState = ANIM_LOOPSTATE_NONE;
-    this->m_playState = 0;
+    this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED;
 
     if (this->m_onStop.m_luaRef) {
         lua_State* L = FrameScript_GetContext();

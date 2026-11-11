@@ -26,6 +26,13 @@ class CSimpleAnimSCurveSmoother {
 
 class CSimpleAnim : public CScriptObject {
     public:
+    // Reconstructed play selector; storage remains the original raw byte.
+    enum ANIM_PLAY_STATE : int32_t {
+        STATE_STOPPED = 0,
+        STATE_PLAYING = 1,
+        STATE_PAUSED = 2,
+    };
+
     static int32_t s_metatable;
     static int32_t s_objectType;
     static const char* s_objectTypeName;

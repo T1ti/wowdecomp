@@ -573,7 +573,7 @@ bool CSimpleAnimGroup::Play() {
             for (CSimpleAnim* anim = this->m_animations.Head(); anim; anim = this->m_animations.Next(anim)) {
                 anim->m_loopState = this->m_loopState > 0 && this->m_loopState <= 2 ? this->m_loopState : 0;
                 anim->m_elapsed = 0.0f;
-                anim->m_playState = 0;
+                anim->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED;
                 anim->m_progressWithDelay = 0.0f;
                 anim->m_progress = 0.0f;
             }
@@ -890,7 +890,7 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
             anim->m_loopState = this->m_loopState > 0 && this->m_loopState <= 2 ? this->m_loopState : 0;
             anim->m_elapsed = 0.0f;
             anim->m_progressWithDelay = 0.0f;
-            anim->m_playState = 0;
+            anim->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED;
             anim->m_progress = 0.0f;
 
             if (current) {

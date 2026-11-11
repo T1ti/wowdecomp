@@ -61,7 +61,7 @@ static int32_t Script_IsDone(lua_State* L) {
 // OFFSET: 0x004A5060
 static int32_t Script_IsPlaying(lua_State* L) {
     CSimpleAnim* anim = static_cast<CSimpleAnim*>(FrameScript_GetObjectThis(L, CSimpleAnim::GetObjectType()));
-    lua_pushboolean(L, anim->m_playState == 1);
+    lua_pushboolean(L, anim->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_PLAYING);
     return 1;
 }
 
@@ -69,7 +69,7 @@ static int32_t Script_IsPlaying(lua_State* L) {
 // OFFSET: 0x004A50B0
 static int32_t Script_IsPaused(lua_State* L) {
     CSimpleAnim* anim = static_cast<CSimpleAnim*>(FrameScript_GetObjectThis(L, CSimpleAnim::GetObjectType()));
-    lua_pushboolean(L, anim->m_playState == 2);
+    lua_pushboolean(L, anim->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_PAUSED);
     return 1;
 }
 
@@ -77,7 +77,7 @@ static int32_t Script_IsPaused(lua_State* L) {
 // OFFSET: 0x004A5100
 static int32_t Script_IsStopped(lua_State* L) {
     CSimpleAnim* anim = static_cast<CSimpleAnim*>(FrameScript_GetObjectThis(L, CSimpleAnim::GetObjectType()));
-    lua_pushboolean(L, anim->m_playState == 0);
+    lua_pushboolean(L, anim->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED);
     return 1;
 }
 
