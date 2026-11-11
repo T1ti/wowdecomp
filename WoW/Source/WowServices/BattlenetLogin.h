@@ -32,6 +32,13 @@ extern BattlenetAllocator s_battlenetAllocator;
 
 class BattlenetLogin : public Login {
     public:
+    // Authentication Complete account flags; raw protocol words stay unchanged.
+    enum ACCOUNT_FLAGS : int32_t {
+        ACCOUNT_GAME_MASTER = 0x1,
+        ACCOUNT_TRIAL = 0x8,
+        ACCOUNT_PRO_PASS = 0x800000,
+    };
+
     // Descriptive client results, separate from SERVICE_STATE and LOGIN_* responses.
     // UI_* names describe unique display outcomes; coalesced server meanings remain UNKNOWN.
     // 138 is suppressed by HandleInvoke, without a proved original error identity.

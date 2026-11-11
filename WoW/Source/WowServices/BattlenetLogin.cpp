@@ -1732,19 +1732,19 @@ const uint8_t* BattlenetLogin::GetKeyMap() {
 // VERIFY: f1a20f90 manual
 // OFFSET: 0x008C5B40
 bool BattlenetLogin::IsTrialAccount() {
-    return (this->m_accountFlags & 0x8) != 0;
+    return (this->m_accountFlags & BattlenetLogin::ACCOUNT_FLAGS::ACCOUNT_TRIAL) != 0;
 }
 
 // VERIFY: 8e8b170c manual
 // OFFSET: 0x008C5B60
 bool BattlenetLogin::IsProPassAccount() {
-    return (this->m_accountFlags & 0x800000) != 0;
+    return (this->m_accountFlags & BattlenetLogin::ACCOUNT_FLAGS::ACCOUNT_PRO_PASS) != 0;
 }
 
 // VERIFY: 3d74de1d manual
 // OFFSET: 0x008C5B80
 bool BattlenetLogin::IsGMAccount() {
-    return (this->m_accountFlags & 0x1) != 0;
+    return (this->m_accountFlags & BattlenetLogin::ACCOUNT_FLAGS::ACCOUNT_GAME_MASTER) != 0;
 }
 
 // VERIFY: 781acb9e auto
