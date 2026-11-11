@@ -11,6 +11,13 @@ class CRect;
 
 class CBaseManaged {
     public:
+    // Internal managed-value tag; zero is the base constructor's initial value.
+    enum DATA_TYPE : uint8_t {
+        UNKNOWN_0 = 0,
+        VECTOR3 = 3,
+        FLOAT = 6,
+    };
+
     enum : uint8_t {
         ALWAYSUPDATE = 0x1,
         READONLY = 0x2,
@@ -19,7 +26,7 @@ class CBaseManaged {
     };
 
     /* 0004 */ TSLink<CBaseManaged> m_link;
-    /* 000C */ uint8_t m_dataTypeId;
+    /* 000C */ DATA_TYPE m_dataTypeId;
     /* 000D */ uint8_t m_flags;
     /* 0010 */ void (*m_updateFcn)(float, void*, void*);
     /* 0014 */ void* m_updateData;
