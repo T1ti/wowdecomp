@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/Object/ObjectClient/GameObject_C.h"
 
 class TransportRotationRec;
@@ -11,7 +12,7 @@ struct TransportFrame {
     /* 0000 */ uint32_t m_id;
     /* 0004 */ uint32_t m_transportID;
     /* 0008 */ uint32_t m_time;
-    /* 000C */ float m_pos[3];
+    /* 000C */ C3Vector m_pos;
     /* 0018 */ uint32_t m_sequenceId;
 };
 

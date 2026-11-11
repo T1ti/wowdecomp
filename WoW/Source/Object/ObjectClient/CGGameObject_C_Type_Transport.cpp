@@ -318,9 +318,9 @@ C3Vector CGGameObject_C_Type_Transport::GetMovement(uint32_t time) {
 
     C33Matrix rotation(this->m_owner->m_gameObject->m_parentRotation);
     float inverse = 1.0f - t;
-    float x = t * following->m_pos[0] + current->m_pos[0] * inverse;
-    float y = following->m_pos[1] * t + current->m_pos[1] * inverse;
-    float z = inverse * current->m_pos[2] + following->m_pos[2] * t;
+    float x = t * following->m_pos.x + current->m_pos.x * inverse;
+    float y = following->m_pos.y * t + current->m_pos.y * inverse;
+    float z = inverse * current->m_pos.z + following->m_pos.z * t;
     C3Vector result;
     result.x = rotation.c0 * z + rotation.b0 * y + x * rotation.a0;
     result.y = rotation.c1 * z + rotation.b1 * y + rotation.a1 * x;
