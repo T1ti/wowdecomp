@@ -12,6 +12,13 @@ class CRect;
 class CBaseManaged {
     public:
     // Internal managed-value tag; zero is the base constructor's initial value.
+    // 0.5.3 named this ManagedTypeIds (__int32): UNKNOWN=0, ALPHACOLOR=1,
+    // COLOR=2, COORD=3, C33MATRIX=4, INT=5, FLOAT=6, DATATYPEIDS=7.
+    // VECTOR3 below corresponds to the older COORD name. No 3.3.5 camera
+    // producers/consumers were located for ALPHACOLOR, COLOR, C33MATRIX or INT;
+    // this does not establish that they are unused outside the recovered paths.
+    // DATATYPEIDS is the older enum's count marker, not a verified payload tag.
+    // Keep the current tag byte: the older enum's width is not its storage width.
     enum DATA_TYPE : uint8_t {
         UNKNOWN_0 = 0,
         VECTOR3 = 3,
