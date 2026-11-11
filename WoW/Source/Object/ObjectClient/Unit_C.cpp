@@ -1084,7 +1084,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
 
     this->KillCreatureLoopSound();
 
-    CreatureModelDataRec* oldModelData = this->m_modelData;
+    const CreatureModelDataRec* oldModelData = this->m_modelData;
     this->RefreshDataPointers();
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES;
     this->m_torsoKeyBone = -1;
@@ -1119,7 +1119,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     CCharacterComponent::ApplyMonsterGeosets(this->m_worldModel, this->m_displayInfo);
     CCharacterComponent::ReplaceMonsterSkin(this->m_worldModel, this->m_displayInfo, this->m_modelData);
 
-    CreatureModelDataRec* modelData = this->m_modelData;
+    const CreatureModelDataRec* modelData = this->m_modelData;
     this->m_footprintTextureId = modelData->m_footprintTextureID;
     this->m_footprintLength = modelData->m_footprintTextureWidth * 0.027777778f;
     this->m_footprintWidth = 0.027777778f * modelData->m_footprintTextureLength;
@@ -7923,7 +7923,7 @@ int32_t CGUnit_C::ChooseMovementAnim(uint32_t flags, uint32_t* anim) const {
 // VERIFY: 2b271f9b manual
 // OFFSET: 0x00717AD0
 float CGUnit_C::GetStandHeight() const {
-    CreatureModelDataRec* modelData = this->m_modelData;
+    const CreatureModelDataRec* modelData = this->m_modelData;
 
     if (!modelData) {
         modelData = this->GetModelData();
@@ -8098,7 +8098,7 @@ CAaBox CGUnit_C::GetStandBox() const {
     box.t.y = 0.0f;
     box.t.z = 0.0f;
 
-    CreatureModelDataRec* modelData = this->m_modelData;
+    const CreatureModelDataRec* modelData = this->m_modelData;
 
     if (modelData || (modelData = this->GetModelData())) {
         box = *reinterpret_cast<const CAaBox*>(&modelData->m_geoBoxMinX);
@@ -9860,7 +9860,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->m_mountDisplayId = this->m_unit->m_unitFieldMountdisplayid;
 
-    CreatureModelDataRec* modelData = this->m_modelData;
+    const CreatureModelDataRec* modelData = this->m_modelData;
     this->m_footprintTextureId = modelData->m_footprintTextureID;
     this->m_footprintLength = modelData->m_footprintTextureWidth * 0.027777778f;
     this->m_footprintWidth = modelData->m_footprintTextureLength * 0.027777778f;

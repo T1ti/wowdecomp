@@ -265,7 +265,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0964 */ CreatureStats_C* m_creatureCacheEntry;
     /* 0968 */ const CreatureDisplayInfoRec* m_displayInfo;
     /* 096C */ const CreatureDisplayInfoExtraRec* m_displayInfoExtra;
-    /* 0970 */ CreatureModelDataRec* m_modelData;
+    /* 0970 */ const CreatureModelDataRec* m_modelData;
     /* 0974 */ CreatureSoundDataRec* m_soundData;
     /* 0978 */ CreatureSoundDataRec* m_soundDataOverride;
     /* 097C */ UnitBloodLevelsRec* m_bloodlevels;
