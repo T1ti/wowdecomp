@@ -253,7 +253,7 @@ class CGGameObject_C_Type_DestructibleBuilding : public CGGameObject_C_Type_Worl
     /* 0070 */ float m_previousSinkDepth;
     /* 0074 */ SE2SoundKitObject m_sound;
     /* 0088 */ CDestructibleProxy m_proxy;
-    /* 00A8 */ DestructibleModelDataRec* m_modelData;
+    /* 00A8 */ const DestructibleModelDataRec* m_modelData;
     /* 00AC */ uint8_t m_loadPending;
     /* 00AD */ uint8_t m_animating;
 
