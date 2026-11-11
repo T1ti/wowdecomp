@@ -16,7 +16,7 @@
 #include "Engine/Source/Services/ParticleSystem2.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/CRandom.h"
-
+#include "Engine/Source/Tempest/CMath.h"
 // STATIC: 0x00D3FCE8
 CM2ModelHeap* g_modelPool;
 
@@ -159,7 +159,7 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
     CRndSeed seed(high | static_cast<uint16_t>(rand()));
 
     for (uint32_t i = 0; i < sizeof(s_randomTable) / sizeof(s_randomTable[0]); i++) {
-        uint32_t bits = (CRandom::uint32_(seed) & 0x7FFFFF) | 0x3F800000;
+        uint32_t bits = (CRandom::uint32_(seed) & rmant) | rexp;
         s_randomTable[i] = *reinterpret_cast<float*>(&bits) - 1.0f;
     }
 

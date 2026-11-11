@@ -17,7 +17,7 @@
 #include "WoW/Source/Ui/ChatFrame.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Ui/MinimapFrame.h"
-
+#include "Engine/Source/Tempest/CMath.h"
 // STATIC: 0x00A12FD0
 static const int32_t s_questGreenRange[20] = { 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 };
 
@@ -144,7 +144,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
         }
     }
 
-    uint32_t bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+    uint32_t bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
     float threshold = (2.0f - *reinterpret_cast<float*>(&bits)) * total;
     float sum = 0.0f;
     uint32_t index;

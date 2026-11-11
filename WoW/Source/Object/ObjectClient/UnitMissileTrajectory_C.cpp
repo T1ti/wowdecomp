@@ -1100,23 +1100,23 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
         yaw = facing + 0.5f * (missile->m_randomizeFacingMax + missile->m_randomizeFacingMin);
     } else {
         *pitch = *pitch + missile->m_randomizePitchMin;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         *pitch = (missile->m_randomizePitchMax - missile->m_randomizePitchMin) * (*reinterpret_cast<float*>(&bits) - 1.0f) + *pitch;
         *speed = missile->m_randomizeSpeedMin + *speed;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         *speed = (missile->m_randomizeSpeedMax - missile->m_randomizeSpeedMin) * (*reinterpret_cast<float*>(&bits) - 1.0f) + *speed;
         float base = missile->m_randomizeFacingMin + facing;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         yaw = (missile->m_randomizeFacingMax - missile->m_randomizeFacingMin) * (*reinterpret_cast<float*>(&bits) - 1.0f) + base;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         *pitch = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *pitch - 0.0099999998f;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         *speed = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *speed - 0.0099999998f;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         launch->x = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.2f + launch->x - 0.1f;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         launch->y = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.2f + launch->y - 0.1f;
-        bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+        bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         launch->z = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + launch->z - 0.0099999998f;
     }
 

@@ -467,7 +467,7 @@ void PassNetherBlur::Execute() {
         this->m_noiseTables[NOISE_TABLE_ROLE::REGENERATE] = oldest;
 
         for (uint32_t i = 0; i < 36; i++) {
-            uint32_t bits = (CRandom::uint32_(this->m_seed) & 0x7FFFFF) | 0x3F800000;
+            uint32_t bits = (CRandom::uint32_(this->m_seed) & rmant) | rexp;
             float random = *reinterpret_cast<float*>(&bits) - 1.0f;
             this->m_noiseTables[NOISE_TABLE_ROLE::REGENERATE][i] = static_cast<float>(fmod(random + random - 1.0f, 1.0));
         }

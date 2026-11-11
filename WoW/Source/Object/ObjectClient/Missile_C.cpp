@@ -2015,11 +2015,11 @@ void CMissile::FireMissiles(const C3Vector* position) {
     this->m_fireTime = OsGetAsyncTimeMs();
     this->m_initialDistance = sqrt(delta.x * delta.x + delta.z * delta.z + delta.y * delta.y);
 
-    uint32_t bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+    uint32_t bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
     this->m_random[0] = *reinterpret_cast<float*>(&bits) - 1.0f;
-    bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+    bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
     this->m_random[1] = *reinterpret_cast<float*>(&bits) - 1.0f;
-    bits = (CRandom::uint32_(g_rndSeed) & 0x7FFFFF) | 0x3F800000;
+    bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
     this->m_random[2] = *reinterpret_cast<float*>(&bits) - 1.0f;
 
     this->m_lastModelPos = C3Vector(this->m_position.x - delta.x, this->m_position.y - delta.y, this->m_position.z - delta.z);
