@@ -20,9 +20,13 @@ enum TRAINER_SERVICE : int32_t {
     TRAINER_SERVICE_AVAILABLE = 0,
     TRAINER_SERVICE_UNAVAILABLE = 1,
     TRAINER_SERVICE_USED = 2,
+    // These packet/filter slots are supported; their distinct meanings are unresolved.
+    TRAINER_SERVICE_UNKNOWN_3 = 3,
+    TRAINER_SERVICE_UNKNOWN_4 = 4,
+    TRAINER_SERVICE_UNKNOWN_5 = 5,
     NUM_TRAINER_SERVICE_TYPES = 6,
 
-    // Unused 0.5.3 names; current meanings of slots 3..5 are unverified.
+    // Historical names are not applied to the unresolved current slots.
     // TRAINER_SERVICE_NOT_SHOWN = 3,
     // TRAINER_SERVICE_NEVER = 4,
     // TRAINER_SERVICE_NO_PET = 5,
