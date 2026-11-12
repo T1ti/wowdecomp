@@ -2308,7 +2308,7 @@ void __stdcall CGPlayer_C::OnTaxiNodeStatus(CDataStore* msg) {
 int32_t CGItem::IsUsable() const {
     uint32_t flags = this->m_item->m_itemFieldFlags;
 
-    return (((flags >> 3) & 1) || !this->m_item->m_itemFieldMaxdurability || this->m_item->m_itemFieldDurability) && !((flags >> 4) & 1);
+    return (((flags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0) || !this->m_item->m_itemFieldMaxdurability || this->m_item->m_itemFieldDurability) && !((flags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_UNUSABLE) != 0);
 }
 
 // VERIFY: f7a9f1f8 manual

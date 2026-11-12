@@ -2329,7 +2329,7 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
     }
 
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, WOWGUID(), nullptr, nullptr, false);
-    uint32_t wrapped = (item->m_item->m_itemFieldFlags >> 3) & 1;
+    uint32_t wrapped = (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0;
     int32_t gems[3];
 
     for (uint32_t i = 0; i < 3; i++) {

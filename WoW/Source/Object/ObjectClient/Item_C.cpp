@@ -862,7 +862,7 @@ bool CGItem_C::IsInstanceBound() const {
 // VERIFY: b81de831 manual
 // OFFSET: 0x00707C20
 char* CGItem_C::GetFullItemName(char* buffer, uint32_t size) const {
-    int32_t randomPropertiesId = ((this->m_item->m_itemFieldFlags >> 3) & 1) ? 0 : this->m_item->m_itemFieldRandomPropertiesId;
+    int32_t randomPropertiesId = ((this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0) ? 0 : this->m_item->m_itemFieldRandomPropertiesId;
 
     return CGItem_C::BuildItemName(buffer, size, this->m_obj->m_entryID, randomPropertiesId);
 }
@@ -975,7 +975,7 @@ bool CGItem_C::IsPermanentlyBoundForTrade() {
         return false;
     }
 
-    if ((this->m_item->m_itemFieldFlags >> 8) & 1) {
+    if ((this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_TIMED_BOUND_TRADE) != 0) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (player && (this->m_item->m_itemFieldOwner) == player->m_obj->m_guid) {

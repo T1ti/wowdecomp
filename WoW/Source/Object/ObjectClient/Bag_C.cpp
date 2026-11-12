@@ -155,8 +155,8 @@ uint32_t CGBag_C::GetAvgEquippedDurability() const {
             continue;
         }
 
-        durability += (item->m_item->m_itemFieldFlags >> 3) & 1 ? 0 : item->m_item->m_itemFieldDurability;
-        maxDurability += (item->m_item->m_itemFieldFlags >> 3) & 1 ? 0 : item->m_item->m_itemFieldMaxdurability;
+        durability += (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0 ? 0 : item->m_item->m_itemFieldDurability;
+        maxDurability += (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0 ? 0 : item->m_item->m_itemFieldMaxdurability;
     }
 
     if (!maxDurability) {

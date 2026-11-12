@@ -900,7 +900,7 @@ static int32_t Script_SetBagItem(lua_State* L) {
         link.m_cooldown = duration + start - OsGetAsyncTimeMs();
         link.m_proposedEnchant = 0;
         link.m_creator = item->m_item->m_itemFieldCreator;
-        link.m_wrapped = (item->m_item->m_itemFieldFlags >> 3) & 1;
+        link.m_wrapped = (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0;
         link.m_giftCreator = item->m_item->m_itemFieldGiftcreator;
         link.m_spellCharges = item->GetCurrentSpellCharges();
         WOWGUID requester = item->m_obj->m_guid;
@@ -2053,7 +2053,7 @@ static int32_t Script_SetTradePlayerItem(lua_State* L) {
     link.m_cooldown = 0;
     const CGItemData* mirror = item->m_item;
     link.m_creator = mirror->m_itemFieldCreator;
-    link.m_wrapped = (mirror->m_itemFieldFlags >> 3) & 1;
+    link.m_wrapped = (mirror->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0;
     link.m_giftCreator = mirror->m_itemFieldGiftcreator;
     int32_t onUseSlot = item->GetOnUseSlot();
 
