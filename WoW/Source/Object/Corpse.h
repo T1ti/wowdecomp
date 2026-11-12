@@ -18,6 +18,11 @@ enum CORPSE_FIELD_FLAGS : uint32_t {
     CORPSE_FIELD_FLAG_SKINNABLE          = 0x00000020u, // Player-corpse skin/insignia action; TC calls this LOOTABLE.
 };
 
+// Replicated corpse dynamic flags, separate from static and runtime flags.
+enum CORPSE_DYNAMIC_FLAGS : uint32_t {
+    CORPSE_DFLAG_LOOTABLE = 0x1,
+};
+
 class CGCorpse {
     public:
     static const int32_t NUM_MIRROR_FIELDS = 3;

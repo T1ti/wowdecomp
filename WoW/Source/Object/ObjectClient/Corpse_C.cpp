@@ -173,7 +173,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
         }
     }
 
-    if ((this->m_corpse->m_corpseFieldDynamicFlags & 0x1) && !this->m_lootEffect) {
+    if ((this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) && !this->m_lootEffect) {
         const SpellVisualEffectNameRec* effect = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
         this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(effect->m_fileName, 0);
 
@@ -227,7 +227,7 @@ int32_t CGCorpse_C::ShouldFadeout() {
 // VERIFY: 761d4ea2 auto
 // OFFSET: 0x007058F0
 int32_t CGCorpse_C::CanBeLooted() const {
-    return this->m_corpse->m_corpseFieldDynamicFlags & 0x1;
+    return this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE;
 }
 
 // VERIFY: 78f995ee auto
@@ -263,7 +263,7 @@ float CGCorpse_C::GetTrueScale() const {
 // VERIFY: e46b7590 manual
 // OFFSET: 0x00706590
 int32_t CGCorpse_C::CanHighlight() const {
-    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->m_corpse->m_corpseFieldDynamicFlags & 0x1);
+    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE);
 }
 
 // VERIFY: 5ae4217a auto
@@ -317,7 +317,7 @@ void CGCorpse_C::OnFlagChanged(uint32_t oldFlags) {
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0);
     this->SetModel(model);
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & 0x1) {
+    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
         this->ShowLootEffect();
     }
 
@@ -331,11 +331,11 @@ void CGCorpse_C::OnFlagChanged(uint32_t oldFlags) {
 // VERIFY: b8476d46 auto
 // OFFSET: 0x007061E0
 void CGCorpse_C::OnDynamicFlagChanged(uint32_t oldFlags) {
-    if (!((static_cast<uint8_t>(oldFlags) ^ this->m_corpse->m_corpseFieldDynamicFlags) & 0x1)) {
+    if (!((static_cast<uint8_t>(oldFlags) ^ this->m_corpse->m_corpseFieldDynamicFlags) & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE)) {
         return;
     }
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & 0x1) {
+    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
         this->ShowLootEffect();
         return;
     }
@@ -477,7 +477,7 @@ void CGCorpse_C::Reenable() {
     CGObject_C::Reenable();
     this->m_corpseFlags &= ~CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED;
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & 0x1) {
+    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
         this->ShowLootEffect();
     }
 
@@ -499,7 +499,7 @@ void CGCorpse_C::OnRightClick() {
         return;
     }
 
-    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) && (this->m_corpse->m_corpseFieldDynamicFlags & 0x1)) {
+    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) && (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE)) {
         if (player->m_obj->m_guid != CGUnit_C::s_activeMover) {
             return;
         }
