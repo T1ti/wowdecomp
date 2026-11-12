@@ -80,6 +80,16 @@ class CGPlayerData {
 
 class CGPlayerLocalData : public CGPlayerData {
     public:
+    // Observed bits of the local-player flag byte; unrelated bytes remain separate.
+    enum LocalFlags : uint8_t {
+        LOCAL_FLAG_NONE = 0,
+        LOCAL_FLAG_ACTIVE_PET = 0x1,
+        LOCAL_FLAG_TRACK_STEALTHED = 0x2,
+        LOCAL_FLAG_UNKNOWN_2 = 0x4,
+        LOCAL_FLAG_REPOP_DELAY = 0x8,
+        LOCAL_FLAG_REPOP_IMMEDIATE = 0x10,
+    };
+
     // DWORD indices relative to this data block, not absolute network-field indices.
     enum FIELD_ID : uint32_t {
         PLAYER_DUEL_ARBITER = 0,

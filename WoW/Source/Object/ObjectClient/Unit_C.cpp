@@ -15849,7 +15849,7 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
 // OFFSET: 0x0071C8F0
 uint8_t CGUnit_C::GetActivePlayerFieldBytes0() {
     if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
-        return 0;
+        return CGPlayerLocalData::LOCAL_FLAG_NONE;
     }
 
     return static_cast<CGPlayer_C*>(this)->m_player->m_playerLocalFlags;
@@ -16017,7 +16017,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
     int32_t reason;
 
     if (this->m_unit->m_unitFieldHealth > 0) {
-        if ((this->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(this)->m_player->m_playerLocalFlags & 0x4)) {
+        if ((this->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(this)->m_player->m_playerLocalFlags & CGPlayerLocalData::LOCAL_FLAG_UNKNOWN_2)) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_SPELL_IN_PROGRESS, -1, -1, false);
             return false;
         }
@@ -16237,7 +16237,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
         return false;
     }
 
-    if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_NO_ACTIVE_PETS) && (this->m_obj->m_type & TYPE_PLAYER) && (this->GetActivePlayerFieldBytes0() & 0x1)) {
+    if ((spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_NO_ACTIVE_PETS) && (this->m_obj->m_type & TYPE_PLAYER) && (this->GetActivePlayerFieldBytes0() & CGPlayerLocalData::LOCAL_FLAG_ACTIVE_PET)) {
         Spell_C_PetTameFailure(PET_TAME_FAILURE::PET_TAME_TOO_MANY);
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_DONT_REPORT, -1, -1, false);
         return false;

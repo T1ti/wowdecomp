@@ -2620,7 +2620,7 @@ bool CGPlayer_C::CanTrackUnit(const CGUnit_C* unit) {
         return false;
     }
 
-    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & UNIT_VIS_FLAG_CREEP) && (this->m_player->m_playerLocalFlags & 0x2))) {
+    if ((unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TRACK_UNIT) || ((flags & UNIT_VIS_FLAG_CREEP) && (this->m_player->m_playerLocalFlags & CGPlayerLocalData::LOCAL_FLAG_TRACK_STEALTHED))) {
         return true;
     }
 
@@ -12612,9 +12612,9 @@ void CGPlayer_C::UpdateRepopTimer() {
 
     uint8_t bytes = this->m_player->m_playerLocalFlags;
 
-    if (bytes & 0x10) {
+    if (bytes & CGPlayerLocalData::LOCAL_FLAG_REPOP_IMMEDIATE) {
         CGGameUI::SetRepopTimeLeft(0);
-    } else if ((bytes & 0x8) && !(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS)) {
+    } else if ((bytes & CGPlayerLocalData::LOCAL_FLAG_REPOP_DELAY) && !(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS)) {
         CGGameUI::SetRepopTimeLeft(360000);
     } else {
         CGGameUI::ClearRepopTime();
