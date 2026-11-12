@@ -607,7 +607,7 @@ int32_t CGItem_C::GetPrismaticSocketCount() {
         return 0;
     }
 
-    uint32_t id = this->m_item->m_itemFieldEnchantment[6].m_id;
+    uint32_t id = this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
 
     if (!id) {
         return 0;
@@ -661,17 +661,17 @@ void CGItem_C::RequestItemPurchaseData() {
 // VERIFY: afbf928a manual
 // OFFSET: 0x00708AC0
 bool CGItem_C::HasEnchantments() {
-    if (!this->IsPetition() && this->m_item->m_itemFieldEnchantment[0].m_id) {
+    if (!this->IsPetition() && this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PERMANENT].m_id) {
         return true;
     }
 
-    for (uint32_t i = 2; i < 4; i++) {
+    for (uint32_t i = CGItemData::ENCHANTMENT_SLOT::SOCKET_1; i < CGItemData::ENCHANTMENT_SLOT::SOCKET_3; i++) {
         if (!this->IsPetition() && this->m_item->m_itemFieldEnchantment[i].m_id) {
             return true;
         }
     }
 
-    return !this->IsPetition() && this->m_item->m_itemFieldEnchantment[6].m_id;
+    return !this->IsPetition() && this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
 }
 
 // VERIFY: 104e4ba4 auto
@@ -1162,7 +1162,7 @@ uint32_t CGItem::GetMaxDurability() const {
 // OFFSET: 0x0061DC90
 int32_t CGItem::GetPetitionSignatures() {
     if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
-        return this->m_item->m_itemFieldEnchantment[0].m_duration;
+        return this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_duration;
     }
 
     return 0;
@@ -1175,7 +1175,7 @@ int32_t CGItem_C::GetRandomPropertyValue(int32_t slot, int32_t randomPropertiesI
 
     if (randomPropertiesId < 0) {
         ItemRandomSuffixRec* suffix = g_itemRandomSuffixDB.GetRecord(-randomPropertiesId);
-        uint32_t index = slot - 7;
+        uint32_t index = slot - CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1;
 
         if (suffix && static_cast<int32_t>(index) >= 0 && index < 5) {
             value = suffix->m_allocationPct[index] * 0.0001f * points;
@@ -1957,19 +1957,19 @@ int32_t CGItem_C::GetItemEnchantmentVisualID() const {
 // OFFSET: 0x007081B0
 void CGItem_C::UpdateSockets(uint32_t gem1, uint32_t gem2, uint32_t gem3, uint32_t socketBonus) {
     if (gem1) {
-        this->m_item->m_itemFieldEnchantment[2].m_id = gem1;
+        this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_1].m_id = gem1;
     }
 
     if (gem2) {
-        this->m_item->m_itemFieldEnchantment[3].m_id = gem2;
+        this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_2].m_id = gem2;
     }
 
     if (gem3) {
-        this->m_item->m_itemFieldEnchantment[4].m_id = gem3;
+        this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_3].m_id = gem3;
     }
 
     if (socketBonus) {
-        this->m_item->m_itemFieldEnchantment[5].m_id = socketBonus;
+        this->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_BONUS].m_id = socketBonus;
     }
 
     this->UpdateEnchantments();

@@ -104,6 +104,23 @@ class CGItemData {
     };
 
 
+    // Zero-based indices in the contiguous enchantment update-field array.
+    enum ENCHANTMENT_SLOT : int32_t {
+        PERMANENT = 0,
+        PETITION = 0,
+        TEMPORARY = 1,
+        SOCKET_1 = 2,
+        SOCKET_2 = 3,
+        SOCKET_3 = 4,
+        SOCKET_BONUS = 5,
+        PRISMATIC = 6,
+        RANDOM_PROPERTY_1 = 7,
+        RANDOM_PROPERTY_2 = 8,
+        RANDOM_PROPERTY_3 = 9,
+        RANDOM_PROPERTY_4 = 10,
+        RANDOM_PROPERTY_5 = 11,
+    };
+
     static const int32_t NUM_ENCHANTMENTS = 12;
     static const int32_t NUM_FIELDS = 58;
     /* 0000 */ WOWGUID m_itemFieldOwner;

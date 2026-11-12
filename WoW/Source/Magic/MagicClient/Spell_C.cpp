@@ -8140,8 +8140,8 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
 
             CGItem_C* mainHand = items[0];
             CGItem_C* offHand = items[1];
-            uint32_t mainEnchant = mainHand ? mainHand->GetEnchantmentId(1) : 0;
-            uint32_t offEnchant = offHand ? offHand->GetEnchantmentId(1) : 0;
+            uint32_t mainEnchant = mainHand ? mainHand->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::TEMPORARY) : 0;
+            uint32_t offEnchant = offHand ? offHand->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::TEMPORARY) : 0;
             CGItem_C* chosen = offHand;
 
             if (mainHand) {
@@ -8153,7 +8153,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
 
                         if (mainEnchant == misc) {
                             if (offEnchant == misc) {
-                                if (mainHand->GetEnchantmentDuration(1) <= offHand->GetEnchantmentDuration(1)) {
+                                if (mainHand->GetEnchantmentDuration(CGItemData::ENCHANTMENT_SLOT::TEMPORARY) <= offHand->GetEnchantmentDuration(CGItemData::ENCHANTMENT_SLOT::TEMPORARY)) {
                                     chosen = mainHand;
                                 }
                             } else {

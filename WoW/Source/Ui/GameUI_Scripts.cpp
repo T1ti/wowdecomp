@@ -2648,7 +2648,7 @@ static int32_t Script_GetItemInfo(lua_State* L) {
     char name[1024];
     CGItem_C::BuildItemName(name, sizeof(name), itemId, linkInfo.m_randomPropertiesId);
     lua_pushstring(L, name);
-    lua_pushstring(L, CGTooltip::CreateItemLink(itemId, stats->m_quality, linkInfo.m_enchants[0], reinterpret_cast<const int32_t*>(&linkInfo.m_enchants[2]), linkInfo.m_randomPropertiesId, linkInfo.m_propertySeed));
+    lua_pushstring(L, CGTooltip::CreateItemLink(itemId, stats->m_quality, linkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT], reinterpret_cast<const int32_t*>(&linkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1]), linkInfo.m_randomPropertiesId, linkInfo.m_propertySeed));
     lua_pushnumber(L, static_cast<int32_t>(stats->m_quality));
     lua_pushnumber(L, static_cast<int32_t>(stats->m_itemLevel));
     lua_pushnumber(L, static_cast<int32_t>(stats->m_requiredLevel));
@@ -4897,7 +4897,7 @@ static int32_t Script_GetItemGem(lua_State* L) {
         ItemLinkInfo link;
         link.Clear();
         link.GetItemIdFromLink(text);
-        enchantId = link.m_enchants[index + 2];
+        enchantId = link.m_enchants[index + CGItemData::ENCHANTMENT_SLOT::SOCKET_1];
     } else {
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 

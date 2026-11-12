@@ -1336,7 +1336,7 @@ static int32_t Script_GetItem(lua_State* L) {
         return 2;
     }
 
-    lua_pushstring(L, CGTooltip::CreateItemLink(tooltip->m_itemId, quality, link->m_enchants[0], reinterpret_cast<const int32_t*>(&link->m_enchants[2]), link->m_randomPropertiesId, link->m_propertySeed));
+    lua_pushstring(L, CGTooltip::CreateItemLink(tooltip->m_itemId, quality, link->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT], reinterpret_cast<const int32_t*>(&link->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1]), link->m_randomPropertiesId, link->m_propertySeed));
     return 2;
 }
 
@@ -2095,16 +2095,16 @@ static int32_t Script_SetTradeTargetItem(lua_State* L) {
     memset(link.m_enchants, 0, sizeof(link.m_enchants));
     memset(link.m_enchantDurations, 0, sizeof(link.m_enchantDurations));
     memset(link.m_enchantCharges, 0, sizeof(link.m_enchantCharges));
-    link.m_enchants[0] = CGTradeInfo::m_targetEnchant[slot];
-    link.m_enchants[2] = CGTradeInfo::m_targetSocketEnchants[slot][0];
-    link.m_enchantDurations[2] = 0;
-    link.m_enchantCharges[2] = 0;
-    link.m_enchants[3] = CGTradeInfo::m_targetSocketEnchants[slot][1];
-    link.m_enchantDurations[3] = 0;
-    link.m_enchantCharges[3] = 0;
-    link.m_enchants[4] = CGTradeInfo::m_targetSocketEnchants[slot][2];
-    link.m_enchantDurations[4] = 0;
-    link.m_enchantCharges[4] = 0;
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT] = CGTradeInfo::m_targetEnchant[slot];
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1] = CGTradeInfo::m_targetSocketEnchants[slot][0];
+    link.m_enchantDurations[CGItemData::ENCHANTMENT_SLOT::SOCKET_1] = 0;
+    link.m_enchantCharges[CGItemData::ENCHANTMENT_SLOT::SOCKET_1] = 0;
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_2] = CGTradeInfo::m_targetSocketEnchants[slot][1];
+    link.m_enchantDurations[CGItemData::ENCHANTMENT_SLOT::SOCKET_2] = 0;
+    link.m_enchantCharges[CGItemData::ENCHANTMENT_SLOT::SOCKET_2] = 0;
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_3] = CGTradeInfo::m_targetSocketEnchants[slot][2];
+    link.m_enchantDurations[CGItemData::ENCHANTMENT_SLOT::SOCKET_3] = 0;
+    link.m_enchantCharges[CGItemData::ENCHANTMENT_SLOT::SOCKET_3] = 0;
     link.m_cooldown = 0;
     link.m_proposedEnchant = 0;
     link.m_creator = CGTradeInfo::m_targetCreator[slot];
@@ -2400,10 +2400,10 @@ static int32_t Script_SetGuildBankItem(lua_State* L) {
 
     ItemLinkInfo& link = tooltip->m_itemLinkInfo;
     link.Clear();
-    link.m_enchants[0] = info->m_enchantId;
-    link.m_enchants[2] = info->m_enchants[0];
-    link.m_enchants[3] = info->m_enchants[1];
-    link.m_enchants[4] = info->m_enchants[2];
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT] = info->m_enchantId;
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1] = info->m_enchants[0];
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_2] = info->m_enchants[1];
+    link.m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_3] = info->m_enchants[2];
     link.m_propertySeed = info->m_suffixFactor;
     link.m_randomPropertiesId = info->m_randomPropertyID;
     link.m_spellCharges = static_cast<uint8_t>(info->m_spellCharges);

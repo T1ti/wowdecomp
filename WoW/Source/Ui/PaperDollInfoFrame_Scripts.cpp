@@ -415,16 +415,16 @@ static int32_t Script_GetWeaponEnchantInfo(lua_State* L) {
     for (int32_t slot = 15; slot <= 16; slot++) {
         CGItem_C* item = player->m_bag.GetItemPointer(slot);
 
-        if (item && item->GetEnchantmentId(1)) {
+        if (item && item->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::TEMPORARY)) {
             lua_pushnumber(L, 1.0);
 
-            if (item->GetEnchantmentDuration(1)) {
+            if (item->GetEnchantmentDuration(CGItemData::ENCHANTMENT_SLOT::TEMPORARY)) {
                 lua_pushnumber(L, item->GetEnchantmentTimeLeft(1));
             } else {
                 lua_pushnil(L);
             }
 
-            lua_pushnumber(L, item->GetEnchantmentCharges(1));
+            lua_pushnumber(L, item->GetEnchantmentCharges(CGItemData::ENCHANTMENT_SLOT::TEMPORARY));
         } else {
             lua_pushnil(L);
             lua_pushnil(L);
@@ -853,7 +853,7 @@ static int32_t Script_GetInventoryItemLink(lua_State* L) {
             ItemStats_C* stats = g_itemDBCache.GetRecord(inspected->m_itemId, none, nullptr, nullptr, false);
 
             if (stats) {
-                lua_pushstring(L, CGTooltip::CreateItemLink(inspected->m_itemId, stats->m_quality, inspected->m_enchants[0], &inspected->m_enchants[2], static_cast<uint16_t>(inspected->m_randomPropertiesId), inspected->m_propertySeed));
+                lua_pushstring(L, CGTooltip::CreateItemLink(inspected->m_itemId, stats->m_quality, inspected->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT], &inspected->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1], static_cast<uint16_t>(inspected->m_randomPropertiesId), inspected->m_propertySeed));
                 return 1;
             }
         }

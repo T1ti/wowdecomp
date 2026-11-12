@@ -635,10 +635,10 @@ int32_t ItemLinkInfo::GetItemIdFromLink(const char* link) {
     }
 
     if (*cursor) {
-        this->m_enchants[0] = SStrToInt(++cursor);
+        this->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT] = SStrToInt(++cursor);
     }
 
-    for (uint32_t i = 2; i < 5; i++) {
+    for (uint32_t i = CGItemData::ENCHANTMENT_SLOT::SOCKET_1; i < CGItemData::ENCHANTMENT_SLOT::SOCKET_BONUS; i++) {
         while (*cursor && *cursor != ':') {
             cursor++;
         }
@@ -656,7 +656,7 @@ int32_t ItemLinkInfo::GetItemIdFromLink(const char* link) {
         return this->m_itemId;
     }
 
-    this->m_enchants[5] = SStrToInt(++cursor);
+    this->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_BONUS] = SStrToInt(++cursor);
 
     while (*cursor && *cursor != ':') {
         cursor++;
@@ -1410,7 +1410,7 @@ void CGItemStatsSummary::FillOutRandomProperties(int32_t randomPropertiesId, uin
     }
 
     for (uint32_t i = 0; i < 5; i++) {
-        int32_t amount = CGItem_C::GetRandomPropertyValue(i + 7, randomPropertiesId, static_cast<uint16_t>(seed));
+        int32_t amount = CGItem_C::GetRandomPropertyValue(i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1, randomPropertiesId, static_cast<uint16_t>(seed));
         SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(suffix->m_enchantment[i]);
 
         if (enchant) {
@@ -2334,7 +2334,7 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
 
     for (uint32_t i = 0; i < 3; i++) {
         if (!wrapped && !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
-            gems[i] = item->m_item->m_itemFieldEnchantment[2 + i].m_id;
+            gems[i] = item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i].m_id;
         } else {
             gems[i] = 0;
         }
@@ -2350,7 +2350,7 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
     } else {
         randomPropertiesId = item->m_item->m_itemFieldRandomPropertiesId;
         seed = item->m_item->m_itemFieldPropertySeed;
-        enchant = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[0].m_id;
+        enchant = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PERMANENT].m_id;
     }
 
     return CGTooltip::CreateItemLink(item->m_obj->m_entryID, stats ? stats->m_quality : 1, enchant, gems, randomPropertiesId, seed);
@@ -4179,7 +4179,7 @@ static bool AddItemPetitionLines(CGTooltip* tooltip, CGItem_C* item, const WOWGU
         return true;
     }
 
-    int32_t petitionId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[0].m_id : 0;
+    int32_t petitionId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
     CGPetition* petition = g_petitionCache.GetRecord(petitionId, *itemGuid, TooltipItemCallback, tooltip, true);
 
     if (!petition) {
@@ -4799,7 +4799,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             enchantId = tooltip->m_itemLinkInfo.m_enchants[slot];
         }
 
-        uint32_t socket = slot - 2;
+        uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
         int32_t isSocket = socket <= 2 && static_cast<int32_t>(socket) < numSockets;
 
         if (socket <= 2 && socketPreview) {
@@ -4860,9 +4860,9 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             int32_t prismaticId = 0;
 
             if (item) {
-                prismaticId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[6].m_id;
+                prismaticId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
             } else if (tooltip->m_itemUseLinkInfo) {
-                prismaticId = tooltip->m_itemLinkInfo.m_enchants[6];
+                prismaticId = tooltip->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC];
             }
 
             SpellItemEnchantmentRec* prismatic = g_spellItemEnchantmentDB.GetRecord(prismaticId);
@@ -4938,7 +4938,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
 
         CImVector color = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
 
-        if (socket > 2 && slot < 7) {
+        if (socket > 2 && slot < CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1) {
             color = *reinterpret_cast<const CImVector*>(enchantId > 0 ? &s_tooltipGreenColor : &s_tooltipBrightRedColor);
         }
 
@@ -4996,19 +4996,19 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         bool prismaticEmpty;
 
         if (item) {
-            prismaticEmpty = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) || !item->m_item->m_itemFieldEnchantment[6].m_id;
+            prismaticEmpty = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) || !item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
         } else {
-            prismaticEmpty = !tooltip->m_itemLinkInfo.m_enchants[6];
+            prismaticEmpty = !tooltip->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC];
         }
 
         bool conditionLine = true;
 
-        if (slot < 2 || slot > 4) {
-            if (slot < 7) {
+        if (slot < CGItemData::ENCHANTMENT_SLOT::SOCKET_1 || slot > CGItemData::ENCHANTMENT_SLOT::SOCKET_3) {
+            if (slot < CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1) {
                 const CImVector& lineColor = skillOk && levelOk ? color : redColor;
                 tooltip->AddLine(text, nullptr, lineColor, lineColor, 0);
                 conditionLine = false;
-            } else if (slot > 11) {
+            } else if (slot > CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_5) {
                 conditionLine = false;
             }
         } else if (!stats->m_socketColor[socket] || !prismaticEmpty) {
@@ -5145,7 +5145,7 @@ static void AddItemStaticSocketLines(CGTooltip* tooltip, const ItemStats_C* stat
     char text[4096];
 
     for (uint32_t slot = 0; slot < 12; slot++) {
-        uint32_t socket = slot - 2;
+        uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
 
         if (socket > 2 || !stats->m_socketColor[socket]) {
             continue;
@@ -6476,7 +6476,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
 
                 if (properties) {
                     for (uint32_t i = 0; i < 5; i++) {
-                        this->m_itemLinkInfo.m_enchants[i + 7] = properties->m_enchantment[i];
+                        this->m_itemLinkInfo.m_enchants[i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1] = properties->m_enchantment[i];
                     }
                 }
             } else {
@@ -6484,7 +6484,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
 
                 if (suffix) {
                     for (uint32_t i = 0; i < 5; i++) {
-                        this->m_itemLinkInfo.m_enchants[i + 7] = i < 5 ? suffix->m_enchantment[i] : 0;
+                        this->m_itemLinkInfo.m_enchants[i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1] = i < 5 ? suffix->m_enchantment[i] : 0;
                     }
                 }
             }
@@ -6552,8 +6552,8 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
                 }
             }
 
-            if (this->m_itemUseLinkInfo && this->m_itemLinkInfo.m_enchants[6]) {
-                SpellItemEnchantmentRec* prismatic = g_spellItemEnchantmentDB.GetRecord(this->m_itemLinkInfo.m_enchants[6]);
+            if (this->m_itemUseLinkInfo && this->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC]) {
+                SpellItemEnchantmentRec* prismatic = g_spellItemEnchantmentDB.GetRecord(this->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC]);
 
                 if (prismatic) {
                     for (uint32_t i = 0; i < 3; i++) {

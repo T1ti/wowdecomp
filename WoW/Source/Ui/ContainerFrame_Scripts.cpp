@@ -1158,7 +1158,7 @@ static int32_t Script_GetContainerItemGems(lua_State* L) {
 
         if (item) {
             for (int32_t i = 0; i < 3; i++) {
-                int32_t enchantId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[2 + i].m_id;
+                int32_t enchantId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i].m_id;
                 SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(enchantId);
 
                 if (enchant && enchant->m_srcItemID) {

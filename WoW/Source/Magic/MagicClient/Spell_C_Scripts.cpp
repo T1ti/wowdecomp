@@ -215,7 +215,7 @@ static int32_t Script_CancelItemTempEnchantment(lua_State* L) {
     int32_t invSlot = slot + 15;
     CGItem_C* item = player->m_bag.GetItemPointer(invSlot);
 
-    if (!item || !item->GetEnchantmentId(1)) {
+    if (!item || !item->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::TEMPORARY)) {
         return 0;
     }
 

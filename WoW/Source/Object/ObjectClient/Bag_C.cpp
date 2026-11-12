@@ -670,12 +670,12 @@ static int32_t FindItemLinkCallback(const CGItem_C* item, void* param) {
     }
 
     if (object->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
-        if (link->m_enchants[0]) {
+        if (link->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT]) {
             return 0;
         }
 
         for (uint32_t i = 0; i < 3; i++) {
-            if (link->m_enchants[2 + i]) {
+            if (link->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i]) {
                 return 0;
             }
         }
@@ -687,12 +687,12 @@ static int32_t FindItemLinkCallback(const CGItem_C* item, void* param) {
         return !link->m_propertySeed;
     }
 
-    if (link->m_enchants[0] && link->m_enchants[0] != object->GetEnchantmentId(0)) {
+    if (link->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT] && link->m_enchants[CGItemData::ENCHANTMENT_SLOT::PERMANENT] != object->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::PERMANENT)) {
         return 0;
     }
 
     for (uint32_t i = 0; i < 3; i++) {
-        if (link->m_enchants[2 + i] && link->m_enchants[2 + i] != object->GetEnchantmentId(2 + i)) {
+        if (link->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i] && link->m_enchants[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i] != object->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i)) {
             return 0;
         }
     }
