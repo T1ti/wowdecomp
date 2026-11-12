@@ -22,6 +22,12 @@ class XMLNode;
 
 class CSimpleTexture : public CSimpleRegion {
     public:
+    // Boolean tile values are inserted at these positions in m_textureFlags.
+    enum FlagBitIndices : int32_t {
+        FLAG_HORIZ_TILE_BIT_INDEX = 2,
+        FLAG_VERT_TILE_BIT_INDEX = 3,
+    };
+
     enum TEXTURE_FLAGS : uint32_t {
         FLAG_NONBLOCKING = 0x1,
         FLAG_TEXCOORDS_DIRTY = 0x2,

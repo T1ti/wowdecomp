@@ -246,7 +246,7 @@ int32_t CSimpleStatusBar::SetBarTexture(const char* fileName, uint32_t drawLayer
     CSimpleTexture* texture = this->m_barTexture;
 
     if (texture) {
-        texture->SetTexture(fileName, (texture->m_textureFlags >> 2) & 1, (texture->m_textureFlags >> 3) & 1, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
+        texture->SetTexture(fileName, (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE) != 0, (texture->m_textureFlags & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE) != 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
         this->SetBarTexture(texture, drawLayer);
         return 1;
     }

@@ -411,7 +411,7 @@ static int32_t Script_GetNonBlocking(lua_State* L) {
 static int32_t Script_SetHorizTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 2)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE;
+    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << CSimpleTexture::FLAG_HORIZ_TILE_BIT_INDEX)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_HORIZ_TILE;
     return 0;
 }
 
@@ -434,7 +434,7 @@ static int32_t Script_GetHorizTile(lua_State* L) {
 static int32_t Script_SetVertTile(lua_State* L) {
     CSimpleTexture* texture = static_cast<CSimpleTexture*>(FrameScript_GetObjectThis(L, CSimpleTexture::GetObjectType()));
 
-    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << 3)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE;
+    texture->m_textureFlags ^= (texture->m_textureFlags ^ ((StringToBOOL(L, 2, 1) != 0) << CSimpleTexture::FLAG_VERT_TILE_BIT_INDEX)) & CSimpleTexture::TEXTURE_FLAGS::FLAG_VERT_TILE;
     return 0;
 }
 

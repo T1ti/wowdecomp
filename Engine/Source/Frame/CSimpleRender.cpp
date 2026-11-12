@@ -2537,14 +2537,14 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
     const char* horizTile = node->GetAttributeByName("horizTile");
 
     if (horizTile && *horizTile) {
-        this->m_textureFlags ^= (((StringToBOOL(horizTile) != 0) << 2) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_HORIZ_TILE;
+        this->m_textureFlags ^= (((StringToBOOL(horizTile) != 0) << CSimpleTexture::FLAG_HORIZ_TILE_BIT_INDEX) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_HORIZ_TILE;
         wrapU = 1;
     }
 
     const char* vertTile = node->GetAttributeByName("vertTile");
 
     if (vertTile && *vertTile) {
-        this->m_textureFlags ^= (((StringToBOOL(vertTile) != 0) << 3) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_VERT_TILE;
+        this->m_textureFlags ^= (((StringToBOOL(vertTile) != 0) << CSimpleTexture::FLAG_VERT_TILE_BIT_INDEX) ^ this->m_textureFlags) & TEXTURE_FLAGS::FLAG_VERT_TILE;
         wrapV = 1;
     }
 
