@@ -1600,7 +1600,7 @@ void CM2Model::SetupBoneSequence(uint16_t sequenceIndex, M2SequenceFallback fall
     float absInvSpeed = fabsf(invSpeed);
     uint32_t startTime = scene->m_time - static_cast<uint32_t>(time * absInvSpeed);
 
-    if (!((scene->m_flags >> 2) & 1)) {
+    if (!((scene->m_flags & CM2Scene::SCENE_FLAGS::PROCESSING_CALLBACKS) != 0)) {
         startTime++;
     }
 
