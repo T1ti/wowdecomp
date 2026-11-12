@@ -21,7 +21,7 @@ class AnimationDataRec {
 
     enum FallbackFlags : int32_t {
         ANIM_FLAG_REVERSE_FALLBACK = 0x10,
-        ANIM_FLAG_UNKNOWN_5 = 0x20,
+        ANIM_FLAG_FREEZE_FALLBACK = 0x20,
     };
 
     static const int32_t s_numColumns = 8;

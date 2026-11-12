@@ -388,8 +388,19 @@ class CM2Model {
 
 class M2SequenceFallback {
     public:
+    enum Mode : uint16_t {
+        MODE_NORMAL = 0,
+        MODE_REVERSE = 1,
+        MODE_FREEZE = 2,
+        MODE_REVERSE_FREEZE = 3,
+    };
+
+    enum KeyPacking : int32_t {
+        MODE_KEY_SHIFT = 16,
+    };
+
     /* 0000 */ uint16_t m_id;
-    /* 0002 */ uint16_t m_mode;
+    /* 0002 */ Mode m_mode;
 };
 
 class CM2SequencePlayBack : public TSLinkedNode<CM2SequencePlayBack> {

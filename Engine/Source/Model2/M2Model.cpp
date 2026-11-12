@@ -1280,7 +1280,7 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
 
             if (id >= ANIM_COUNT || visited[id] || !rec || id == (fallback = rec->m_fallback)) {
                 result->m_id = defaultId;
-                result->m_mode = 0;
+                result->m_mode = M2SequenceFallback::MODE_NORMAL;
                 return result;
             }
 
@@ -1293,7 +1293,7 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
                 direction = -direction;
             }
 
-            if (flags & AnimationDataRec::ANIM_FLAG_UNKNOWN_5) {
+            if (flags & AnimationDataRec::ANIM_FLAG_FREEZE_FALLBACK) {
                 reversals += direction;
                 direction = 0;
             }
@@ -1303,9 +1303,9 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
             result->m_id = id;
 
             if (direction >= 0) {
-                result->m_mode = (reversals > 0) + 2;
+                result->m_mode = reversals > 0 ? M2SequenceFallback::MODE_REVERSE_FREEZE : M2SequenceFallback::MODE_FREEZE;
             } else {
-                result->m_mode = 1;
+                result->m_mode = M2SequenceFallback::MODE_REVERSE;
             }
 
             return result;
@@ -1313,7 +1313,7 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
     }
 
     result->m_id = id;
-    result->m_mode = 0;
+    result->m_mode = M2SequenceFallback::MODE_NORMAL;
     return result;
 }
 
@@ -1578,7 +1578,7 @@ void CM2Model::SetupBoneSequence(uint16_t sequenceIndex, M2SequenceFallback fall
     repeats += repeats == 0;
     uint32_t duration = repeats * sequence->m_duration;
 
-    if (fallback.m_mode == 1 || fallback.m_mode == 3) {
+    if (fallback.m_mode == M2SequenceFallback::MODE_REVERSE || fallback.m_mode == M2SequenceFallback::MODE_REVERSE_FREEZE) {
         speed = -speed;
     }
 
@@ -1588,7 +1588,7 @@ void CM2Model::SetupBoneSequence(uint16_t sequenceIndex, M2SequenceFallback fall
         startOffset = duration;
     }
 
-    if (fallback.m_mode == 2 || fallback.m_mode == 3) {
+    if (fallback.m_mode == M2SequenceFallback::MODE_FREEZE || fallback.m_mode == M2SequenceFallback::MODE_REVERSE_FREEZE) {
         speed = 0.0f;
     }
 
@@ -1818,7 +1818,7 @@ void CM2Model::LoadSequence(uint32_t id) {
     M2SequenceFallback fallback;
     this->SequenceFallbackById(&fallback, id);
 
-    uint32_t key = fallback.m_id | (fallback.m_mode << 16);
+    uint32_t key = fallback.m_id | (fallback.m_mode << M2SequenceFallback::MODE_KEY_SHIFT);
     M2Data* data = this->m_shared->m_data;
     uint32_t hashCount = data->m_sequenceIdxHashById.m_count;
     uint32_t index = 0xFFFFFFFF;
