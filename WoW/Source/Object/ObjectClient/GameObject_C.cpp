@@ -212,7 +212,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
         entry.m_loading = 1;
     }
 
-    this->m_worldObject = this->m_states[((this->m_owner->m_gameObject->m_flags >> 8) & 0xE) >> 1].m_object;
+    this->m_worldObject = this->m_states[((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT].m_object;
 
     if (this->m_worldObject) {
         World::ObjectSetRenderEnabled(this->m_worldObject, 1);
@@ -658,7 +658,7 @@ int32_t CGGameObject_C::IsSolidSelectable() const {
 // VERIFY: 1492bbb3 auto
 // OFFSET: 0x00712F20
 bool CGGameObject_C::IsTransport() const {
-    return (this->m_gameObject->m_flags >> 3) & 1;
+    return (this->m_gameObject->m_flags & CGGameObjectData::FLAG_TRANSPORT) != 0;
 }
 
 // VERIFY: da4967fc manual
@@ -679,11 +679,11 @@ bool CGGameObject_C::IsValidOpenAction(int32_t action) const {
     }
 
     if (action == LOCK_ACTION_OPEN) {
-        return !(this->m_gameObject->m_flags & 2);
+        return !(this->m_gameObject->m_flags & CGGameObjectData::FLAG_LOCKED);
     }
 
     if (action == LOCK_ACTION_UNLOCK) {
-        if (!(this->m_gameObject->m_flags & 2)) {
+        if (!(this->m_gameObject->m_flags & CGGameObjectData::FLAG_LOCKED)) {
             return false;
         }
     } else if (action == LOCK_ACTION_CLOSE && state) {
@@ -914,7 +914,7 @@ void CGGameObject_C_TypeAnimated::OnUpdateFlags(uint32_t changed) {
         return;
     }
 
-    if ((this->m_owner->m_gameObject->m_flags >> 7) & 1) {
+    if ((this->m_owner->m_gameObject->m_flags & CGGameObjectData::FLAG_KEEP_ANIMATION_TIME) != 0) {
         uint32_t time = model->m_scene->m_time;
 
         if (!time) {
@@ -2233,7 +2233,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         current++;
     } while (current < 4);
 
-    int32_t state = ((this->m_owner->m_gameObject->m_flags >> 8) & 0xE) >> 1;
+    int32_t state = ((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT;
 
     if (state == current) {
         return;
@@ -2354,7 +2354,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
     } else if (this->m_modelData) {
         uint16_t set;
 
-        switch (((this->m_owner->m_gameObject->m_flags >> 8) & 0xE) >> 1) {
+        switch (((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT) {
             case 1:
                 set = this->m_modelData->m_state1DestructionDoodadSet;
                 break;
@@ -2386,7 +2386,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 
     uint16_t ambient;
 
-    switch (((this->m_owner->m_gameObject->m_flags >> 8) & 0xE) >> 1) {
+    switch (((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT) {
         case 0:
             ambient = this->m_modelData->m_state0AmbientDoodadSet;
             break;
@@ -2418,12 +2418,12 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 // VERIFY: 934c0c45 auto
 // OFFSET: 0x0070E6A0
 void CGGameObject_C_Type_DestructibleBuilding::OnUpdateFlags(uint32_t changed) {
-    if (!this->m_modelData || !(changed & 0xF00)) {
+    if (!this->m_modelData || !(changed & CGGameObjectData::FLAG_DESTRUCTIBLE_DATA_MASK)) {
         return;
     }
 
-    if (changed & 0x100) {
-        uint16_t set = this->GetImpactEffectDoodadSet((this->m_owner->m_gameObject->m_flags >> 8) & 0xF);
+    if (changed & CGGameObjectData::FLAG_DESTRUCTIBLE_IMPACT_TOGGLE) {
+        uint16_t set = this->GetImpactEffectDoodadSet((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_DATA_VALUE_MASK);
 
         if (set) {
             World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, set);
@@ -2472,7 +2472,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
                 continue;
             }
 
-            uint16_t ambient = this->GetAmbientDoodadSet((this->m_owner->m_gameObject->m_flags >> 8) & 0xF);
+            uint16_t ambient = this->GetAmbientDoodadSet((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_DATA_VALUE_MASK);
 
             if (ambient) {
                 World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, ambient);
@@ -3097,7 +3097,7 @@ effects:
     uint32_t keepTime = 0;
 
     if (state == ANIMSTATE_OPENING || state == ANIMSTATE_CLOSING || state == ANIMSTATE_DESTROYING || state == ANIMSTATE_REBUILDING) {
-        keepTime = (this->m_owner->m_gameObject->m_flags >> 7) & 1;
+        keepTime = (this->m_owner->m_gameObject->m_flags & CGGameObjectData::FLAG_KEEP_ANIMATION_TIME) != 0;
         uint16_t progress = this->m_owner->m_gameObject->m_pathProgress;
 
         if (progress != 0xFFFF) {
@@ -3180,7 +3180,7 @@ bool CGGameObject_C_TypeBase::CanUse() const {
 
     uint32_t flags = owner->m_gameObject->m_flags;
 
-    if ((flags & 0x11) || (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) || ((flags & 0x4) && !(dynamicFlags & CGGameObjectData::DYNFLAG_UNKNOWN_0))) {
+    if ((flags & CGGameObjectData::FLAG_INTERACTION_BLOCK_MASK) || (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) || ((flags & CGGameObjectData::FLAG_UNKNOWN_2) && !(dynamicFlags & CGGameObjectData::DYNFLAG_UNKNOWN_0))) {
         return false;
     }
 
@@ -3615,7 +3615,7 @@ void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
 // VERIFY: 142d2a6b manual
 // OFFSET: 0x0070EC10
 C3Vector CGGameObject_C_Type_DestructibleBuilding::GetNamePosition() const {
-    uint32_t state = (this->m_owner->m_gameObject->m_flags >> 9) & 0x7;
+    uint32_t state = (this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_STATE_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_VALUE_MASK;
     CAaBox extents;
     extents.b = C3Vector(0.0f, 0.0f, 0.0f);
     extents.t = C3Vector(0.0f, 0.0f, 0.0f);
@@ -4137,7 +4137,7 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
 
     CGGameObject_C* owner = this->m_owner;
 
-    if ((owner->m_gameObject->m_flags & 0x2) && owner->IsLocked(nullptr, nullptr, nullptr, nullptr, nullptr)) {
+    if ((owner->m_gameObject->m_flags & CGGameObjectData::FLAG_LOCKED) && owner->IsLocked(nullptr, nullptr, nullptr, nullptr, nullptr)) {
         if (error) {
             *error = static_cast<GAME_ERROR_TYPE>(this->m_useErrorType);
         }

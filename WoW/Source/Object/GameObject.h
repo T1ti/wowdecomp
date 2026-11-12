@@ -23,6 +23,30 @@ class CGGameObject {
 
 class CGGameObjectData {
     public:
+    // Static flags and packed destructible data share a raw uint32 mirror.
+    // Bits0/4 block interaction; bit2 requires dynamic bit0. Broader roles unresolved.
+    enum : uint32_t {
+        FLAG_UNKNOWN_0 = 0x1,
+        FLAG_LOCKED = 2,
+        FLAG_UNKNOWN_2 = 0x4,
+        FLAG_TRANSPORT = 0x8,
+        FLAG_UNKNOWN_4 = 0x10,
+        FLAG_INTERACTION_BLOCK_MASK = 0x11,
+        FLAG_KEEP_ANIMATION_TIME = 0x80,
+        FLAG_DESTRUCTIBLE_IMPACT_TOGGLE = 0x100,
+        FLAG_DESTRUCTIBLE_DATA_MASK = 0xF00,
+    };
+
+    // Values and shifts inside the destructible payload, not independent flags.
+    enum : uint32_t {
+        DESTRUCTIBLE_DATA_SHIFT = 8,
+        DESTRUCTIBLE_STATE_SHIFT = 9,
+        DESTRUCTIBLE_STATE_IN_DATA_SHIFT = 1,
+        DESTRUCTIBLE_DATA_VALUE_MASK = 0xF,
+        DESTRUCTIBLE_STATE_IN_DATA_MASK = 0xE,
+        DESTRUCTIBLE_STATE_VALUE_MASK = 0x7,
+    };
+
     // Low16 of GAMEOBJECT_DYNAMIC; upper16 is path progress, not more flags.
     enum : uint16_t {
         // Bypasses static flag0x4 in CanUse; broader meaning unresolved.

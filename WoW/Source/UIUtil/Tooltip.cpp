@@ -7859,7 +7859,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
 
     char text[4096];
 
-    if (object->m_gameObject->m_flags & 0x2) {
+    if (object->m_gameObject->m_flags & CGGameObjectData::FLAG_LOCKED) {
         CImVector color = *reinterpret_cast<const CImVector*>(&s_skillColors[4]);
         int32_t spellId = 0;
         int32_t skillValue = 0;
@@ -7908,7 +7908,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
                 if (spellId) {
                     color = *GetSkillColor(requiredSkill, skillValue, &suffix);
                     FormatString("LOCKED_WITH_SPELL_KNOWN", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
-                } else if (!(object->m_gameObject->m_flags & 0x2)) {
+                } else if (!(object->m_gameObject->m_flags & CGGameObjectData::FLAG_LOCKED)) {
                     color.Set(1.0f, 1.0f, 0.0f, 0.0f);
                     FormatString("LOCKED_WITH_SPELL", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
                 } else {
