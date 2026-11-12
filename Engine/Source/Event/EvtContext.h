@@ -70,6 +70,20 @@ class TSingletonInstanceId : public TInstanceId<T> {
 
 class EvtContext : public TSingletonInstanceId<EvtContext, 8> {
     public:
+    // Runtime scheduler state, separate from context-creation debug flags.
+    enum : uint32_t {
+        SCHED_NONE = 0,
+        SCHED_INITIALIZED = 1,
+        SCHED_INTERACTIVE = 2,
+        SCHED_PAINT_PENDING = 4,
+    };
+
+    // Flags consumed only by IEvtSchedulerCreateContext; raw API remains uint32.
+    enum : uint32_t {
+        DEBUG_CALL_CONTEXT = 1,
+        DEBUG_START_WATCHDOG = 2,
+    };
+
     /* 0010 */ SCritSect m_critsect;
     /* 0038 */ uint32_t m_currTime;
     /* 003C */ SCHEDSTATE m_schedState;
