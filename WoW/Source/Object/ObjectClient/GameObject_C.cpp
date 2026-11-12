@@ -4336,7 +4336,7 @@ bool CGGameObject_C_Type_MeetingStone::Use() {
             stats = CGRaidInfo::GetRemoteStats(guid);
         }
 
-        if (!stats || !stats->m_level || !(stats->m_flags & 0x1)) {
+        if (!stats || !stats->m_level || !(stats->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED)) {
             CGGameUI::DisplayError(ERR_MEETING_STONE_NOT_FOUND);
             return false;
         }

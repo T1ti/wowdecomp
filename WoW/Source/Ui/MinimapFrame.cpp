@@ -2446,7 +2446,7 @@ static void SetMemberData(WOWGUID guid, MEMBERINFO* member, CGPlayer_C* player, 
             continentId = area->m_continentID;
         }
 
-        if (continentId != CGPlayer_C::GetNewContinentID() || !(state->m_flags & 1) || (state->m_flags & 0x20)) {
+        if (continentId != CGPlayer_C::GetNewContinentID() || !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) || (state->m_flags & CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5)) {
             member->m_offMap = 0;
             member->m_onMap = 0;
             return;

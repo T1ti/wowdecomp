@@ -337,7 +337,7 @@ CGPartyPetState* CGRaidInfo::GetRemotePetStats(const WOWGUID& guid) {
     for (uint32_t i = 0; i < sizeof(CGRaidInfo::m_members) / sizeof(CGRaidInfo::m_members[0]); i++) {
         CGRaidMember* member = CGRaidInfo::m_members[i];
 
-        if (member->m_guid && (member->m_stats.m_flags & 1) && member->m_stats.m_pet.m_guid == guid) {
+        if (member->m_guid && (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && member->m_stats.m_pet.m_guid == guid) {
             return &CGRaidInfo::m_members[i]->m_stats.m_pet;
         }
     }
@@ -366,7 +366,7 @@ int32_t CGRaidInfo::IsPetInRaid(const WOWGUID& guid, int32_t* index) {
             const WOWGUID& pet = player->m_unit->m_unitFieldCharm ? player->m_unit->m_unitFieldCharm : player->m_unit->m_unitFieldSummon;
             match = pet == guid;
         } else {
-            match = (member->m_stats.m_flags & 1) && member->m_stats.m_pet.m_guid == guid;
+            match = (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && member->m_stats.m_pet.m_guid == guid;
         }
 
         if (match) {
@@ -468,7 +468,7 @@ int32_t Packet_MSG_RAID_READY_CHECK_CONFIRM(void* param, NETMESSAGE msgId, uint3
 
             member = CGRaidInfo::m_members[i];
 
-            if (pending || ((member->m_stats.m_flags & 0x1) && member->m_readyCheckPending)) {
+            if (pending || ((member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && member->m_readyCheckPending)) {
                 pending = true;
 
                 if (found) {
@@ -508,7 +508,7 @@ int32_t Packet_MSG_RAID_READY_CHECK_CONFIRM(void* param, NETMESSAGE msgId, uint3
 
             CGPartyMemberState* state = CGPartyInfo::m_members[i] ? &s_partyMemberStates[i] : nullptr;
 
-            if (pending || (state && (state->m_flags & 0x1) && i < 4 && CGRaidInfo::m_partyReadyCheckPending[i])) {
+            if (pending || (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && i < 4 && CGRaidInfo::m_partyReadyCheckPending[i])) {
                 pending = true;
 
                 if (found) {
@@ -650,7 +650,7 @@ void CGRaidInfo::RosterUpdateRefreshReadyCheck(uint32_t removed, WOWGUID leader)
 
         uint32_t i = 0;
 
-        while (i < count && !(CGRaidInfo::m_members[i]->m_readyCheckPending && (CGRaidInfo::m_members[i]->m_stats.m_flags & 0x1))) {
+        while (i < count && !(CGRaidInfo::m_members[i]->m_readyCheckPending && (CGRaidInfo::m_members[i]->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED))) {
             i++;
         }
 
@@ -665,7 +665,7 @@ void CGRaidInfo::RosterUpdateRefreshReadyCheck(uint32_t removed, WOWGUID leader)
         for (; i < CGPartyInfo::GetNumPartyMembers(); i++) {
             CGPartyMemberState* state = CGPartyInfo::GetMemberState(i);
 
-            if (state && (state->m_flags & 0x1) && CGRaidInfo::IsPartyMemberReadyCheckPending(i)) {
+            if (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && CGRaidInfo::IsPartyMemberReadyCheckPending(i)) {
                 break;
             }
         }
@@ -810,9 +810,9 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
         memcpy(&member->m_stats, &stats[i], sizeof(CGPartyMemberState));
 
         if (online[i]) {
-            member->m_stats.m_flags |= 0x1;
+            member->m_stats.m_flags |= CGPartyMemberState::MEMBER_FLAG_CONNECTED;
         } else {
-            member->m_stats.m_flags &= ~0x1;
+            member->m_stats.m_flags &= ~CGPartyMemberState::MEMBER_FLAG_CONNECTED;
         }
 
         uint32_t j = 0;
@@ -982,7 +982,7 @@ int32_t CGRaidInfo::IsPlayerOrPetInRaid(const WOWGUID& guid) {
             if (pet == guid) {
                 return 1;
             }
-        } else if ((member->m_stats.m_flags & 1) && member->m_stats.m_pet.m_guid == guid) {
+        } else if ((member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && member->m_stats.m_pet.m_guid == guid) {
             return 1;
         }
     }
@@ -1093,7 +1093,7 @@ void CGRaidInfo::ClearRecruitAFriend(WOWGUID guid) {
     CGPartyMemberState* stats = CGRaidInfo::GetRemoteStats(guid);
 
     if (stats) {
-        stats->m_flags &= ~0x100;
+        stats->m_flags &= ~CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND;
     }
 }
 

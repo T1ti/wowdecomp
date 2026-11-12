@@ -63,6 +63,23 @@ class CGPartyPetState {
 
 class CGPartyMemberState {
     public:
+    // Member status word, separate from update masks, raid roles and pet aura flags.
+    enum MemberFlags : uint16_t {
+        MEMBER_FLAG_CONNECTED = 0x1,
+        MEMBER_FLAG_PVP = 0x2,
+        MEMBER_FLAG_DEAD = 0x4,
+        MEMBER_FLAG_GHOST = 0x8,
+        MEMBER_FLAG_PVP_FFA = 0x10,
+        MEMBER_FLAG_UNKNOWN_5 = 0x20,
+        MEMBER_FLAG_AFK = 0x40,
+        MEMBER_FLAG_DND = 0x80,
+        MEMBER_FLAG_REFER_A_FRIEND = 0x100,
+        MEMBER_FLAG_IN_VEHICLE = 0x200,
+        MEMBER_FLAG_CONNECTED_GHOST = 9,
+        MEMBER_FLAG_DEAD_OR_GHOST = 0xC,
+        MEMBER_FLAG_PVP_MASK = 0x12,
+    };
+
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ uint16_t m_flags;
     /* 000A */ uint8_t m_powerType;

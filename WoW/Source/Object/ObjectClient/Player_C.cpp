@@ -5782,7 +5782,7 @@ bool __stdcall CGPlayer_C::IsRAFPlayer(WOWGUID guid) {
         stats = CGRaidInfo::GetRemoteStats(guid);
     }
 
-    if (stats && (stats->m_flags & 0x100)) {
+    if (stats && (stats->m_flags & CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND)) {
         return true;
     }
 
@@ -11031,7 +11031,7 @@ int32_t __stdcall CGPlayer_C::CanSummonFriend(WOWGUID guid) {
             }
         }
 
-        if (!(stats->m_flags & 0x1)) {
+        if (!(stats->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED)) {
             return CGPlayer_C::REFER_A_FRIEND_RESULT::RAF_RESULT_UI_SUMMON_OFFLINE;
         }
 
@@ -12840,7 +12840,7 @@ void CGPlayer_C::DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t c
         Script_SendUnitSignal(guid, newState->m_powerType + SCRIPT_EVENT_UNIT_MAXMANA);
     }
 
-    if ((newState->m_flags ^ oldState->m_flags) & 0x12) {
+    if ((newState->m_flags ^ oldState->m_flags) & CGPartyMemberState::MEMBER_FLAG_PVP_MASK) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_FACTION);
     }
 
@@ -12949,7 +12949,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         msg->Get(newState.m_flags);
         WOWGUID member = guid;
 
-        if (newState.m_flags & 0x1) {
+        if (newState.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) {
             CGAutoCompleteName::AddFlags(member, 0x20, 0, nullptr);
         } else {
             CGAutoCompleteName::RemoveFlags(member, 0x20);
@@ -12957,9 +12957,9 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
     }
 
     if (static_cast<int32_t>(mask) >= 0) {
-        newState.m_flags &= ~0x20;
+        newState.m_flags &= ~CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5;
     } else {
-        newState.m_flags |= 0x20;
+        newState.m_flags |= CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5;
     }
 
     if (mask & 0x2) {
@@ -13072,8 +13072,8 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
     }
 
     if (state) {
-        if (state->m_flags & 0x100) {
-            newState.m_flags |= 0x100;
+        if (state->m_flags & CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND) {
+            newState.m_flags |= CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND;
         }
 
         memcpy(state, &newState, sizeof(CGPartyMemberState));
@@ -14401,38 +14401,38 @@ void CGPlayer_C::EquipItem(CGItem_C* item) {
 // VERIFY: a64adceb manual
 // OFFSET: 0x006E12E0
 void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
-    state->m_flags = 1;
+    state->m_flags = CGPartyMemberState::MEMBER_FLAG_CONNECTED;
 
     if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) {
-        state->m_flags = 9;
+        state->m_flags = CGPartyMemberState::MEMBER_FLAG_CONNECTED_GHOST;
     }
 
     if (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP) {
-        state->m_flags |= 0x2;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_PVP;
     }
 
     if (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_FFA) {
-        state->m_flags |= 0x10;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_PVP_FFA;
     }
 
     if (this->m_unit->m_unitFieldHealth <= 0) {
-        state->m_flags |= 0x4;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_DEAD;
     }
 
     if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK) {
-        state->m_flags |= 0x40;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_AFK;
     }
 
     if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) {
-        state->m_flags |= 0x80;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_DND;
     }
 
     if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_REFER_A_FRIEND) {
-        state->m_flags |= 0x100;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND;
     }
 
     if (this->HasVehicleTransport()) {
-        state->m_flags |= 0x200;
+        state->m_flags |= CGPartyMemberState::MEMBER_FLAG_IN_VEHICLE;
     }
 
     state->m_health = this->m_unit->m_unitFieldHealth;
@@ -14477,7 +14477,7 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
     CGUnitData* unit = this->m_unit;
     state->m_pet.m_guid = unit->m_unitFieldCharm ? unit->m_unitFieldCharm : unit->m_unitFieldSummon;
 
-    if (!(state->m_flags & 0x200)) {
+    if (!(state->m_flags & CGPartyMemberState::MEMBER_FLAG_IN_VEHICLE)) {
         state->m_vehicleSeatId = 0;
         return;
     }

@@ -412,7 +412,7 @@ int32_t EvaluateDead(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>*
         }
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(*unit);
-        dead = state ? (state->m_flags & 0xC) : 0;
+        dead = state ? (state->m_flags & CGPartyMemberState::MEMBER_FLAG_DEAD_OR_GHOST) : 0;
     }
 
     if (args->m_count) {

@@ -1101,7 +1101,7 @@ bool CGWorldMap::GetPlayerPosition(WOWGUID guid, float* x, float* y) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(guid);
 
-        if (!state || (state->m_flags & 0x20)) {
+        if (!state || (state->m_flags & CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5)) {
             return false;
         }
 

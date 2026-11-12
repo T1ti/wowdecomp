@@ -1104,7 +1104,7 @@ int32_t PushUnitAura(lua_State* L, ScriptAuraInfo* info) {
     uint8_t* auraFlags;
 
     if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(info->m_guid)) {
-        if (!(state->m_flags & 0x1)) {
+        if (!(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED)) {
             return 0;
         }
 

@@ -158,7 +158,7 @@ WOWGUID GetPartyPetGUID(uint32_t index) {
         return pet;
     }
 
-    if (s_partyMemberStates[index].m_flags & 0x1) {
+    if (s_partyMemberStates[index].m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) {
         return s_partyMemberStates[index].m_pet.m_guid;
     }
 
@@ -364,7 +364,7 @@ CGPartyPetState* CGPartyInfo::GetRemotePetStats(const WOWGUID& guid) {
     }
 
     for (uint32_t i = 0; i < sizeof(CGPartyInfo::m_members) / sizeof(CGPartyInfo::m_members[0]); i++) {
-        if (CGPartyInfo::m_members[i] && (s_partyMemberStates[i].m_flags & 1) && s_partyMemberStates[i].m_pet.m_guid == guid) {
+        if (CGPartyInfo::m_members[i] && (s_partyMemberStates[i].m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && s_partyMemberStates[i].m_pet.m_guid == guid) {
             return &s_partyMemberStates[i].m_pet;
         }
     }
@@ -524,7 +524,7 @@ int32_t CGPartyInfo::IsMemberPet(const WOWGUID& guid, int32_t* index) {
             const WOWGUID& pet = member->m_unit->m_unitFieldCharm ? member->m_unit->m_unitFieldCharm : member->m_unit->m_unitFieldSummon;
             match = pet == guid;
         } else {
-            match = (s_partyMemberStates[i].m_flags & 1) && s_partyMemberStates[i].m_pet.m_guid == guid;
+            match = (s_partyMemberStates[i].m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && s_partyMemberStates[i].m_pet.m_guid == guid;
         }
 
         if (match) {
@@ -618,7 +618,7 @@ int32_t CGPartyInfo::IsPlayerOrPetInParty(const WOWGUID& guid) {
             if (pet == guid) {
                 return 1;
             }
-        } else if ((s_partyMemberStates[i].m_flags & 1) && s_partyMemberStates[i].m_pet.m_guid == guid) {
+        } else if ((s_partyMemberStates[i].m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && s_partyMemberStates[i].m_pet.m_guid == guid) {
             return 1;
         }
     }
@@ -664,7 +664,7 @@ int32_t CGPartyInfo::IsMemberOrPet(const WOWGUID& guid) {
             if (pet == guid) {
                 return 1;
             }
-        } else if ((s_partyMemberStates[i].m_flags & 1) && s_partyMemberStates[i].m_pet.m_guid == guid) {
+        } else if ((s_partyMemberStates[i].m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && s_partyMemberStates[i].m_pet.m_guid == guid) {
             return 1;
         }
     }
@@ -716,10 +716,10 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
     }
 
     if (online) {
-        s_partyMemberStates[index].m_flags |= 0x1;
+        s_partyMemberStates[index].m_flags |= CGPartyMemberState::MEMBER_FLAG_CONNECTED;
         CGAutoCompleteName::AddFlags(guid, 33, 0, nullptr);
     } else {
-        s_partyMemberStates[index].m_flags &= ~0x1;
+        s_partyMemberStates[index].m_flags &= ~CGPartyMemberState::MEMBER_FLAG_CONNECTED;
         CGAutoCompleteName::AddFlags(guid, 1, 0, nullptr);
         CGAutoCompleteName::RemoveFlags(guid, 32);
     }
@@ -907,7 +907,7 @@ void CGPartyInfo::ClearRecruitAFriend(WOWGUID guid) {
     CGPartyMemberState* stats = CGPartyInfo::GetRemoteStats(guid);
 
     if (stats) {
-        stats->m_flags &= ~0x100;
+        stats->m_flags &= ~CGPartyMemberState::MEMBER_FLAG_REFER_A_FRIEND;
     }
 }
 

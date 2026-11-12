@@ -456,7 +456,7 @@ static int32_t Script_UnitIsDead(lua_State* L) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid);
 
-        if (state && (state->m_flags & 0x4)) {
+        if (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_DEAD)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -487,7 +487,7 @@ static int32_t Script_UnitIsGhost(lua_State* L) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid);
 
-        if (state && (state->m_flags & 0x8)) {
+        if (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_GHOST)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -527,7 +527,7 @@ static int32_t Script_UnitIsDeadOrGhost(lua_State* L) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid);
 
-        if (state && (state->m_flags & 0xC)) {
+        if (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_DEAD_OR_GHOST)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -551,7 +551,7 @@ static int32_t Script_UnitIsConnected(lua_State* L) {
 
     if (!ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__)) {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid);
-        bool connected = state ? (state->m_flags & 0x1) != 0 : CGPartyMemberStateRepository::FindPetState(unitGuid) != nullptr;
+        bool connected = state ? (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) != 0 : CGPartyMemberStateRepository::FindPetState(unitGuid) != nullptr;
 
         if (!connected) {
             lua_pushnil(L);
@@ -2066,7 +2066,7 @@ static int32_t Script_UnitIsDND(lua_State* L) {
             return 1;
         }
 
-        dnd = static_cast<uint8_t>(state->m_flags) >> 7;
+        dnd = (static_cast<uint8_t>(state->m_flags) & CGPartyMemberState::MEMBER_FLAG_DND) != 0;
     }
 
     if (dnd) {
@@ -2100,7 +2100,7 @@ static int32_t Script_UnitInVehicle(lua_State* L) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
 
-        if (!state || !(state->m_flags & 0x200)) {
+        if (!state || !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_IN_VEHICLE)) {
             lua_pushnil(L);
             return 1;
         }
@@ -2132,7 +2132,7 @@ static int32_t Script_UnitUsingVehicle(lua_State* L) {
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
 
-        if (!state || !(state->m_flags & 0x200)) {
+        if (!state || !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_IN_VEHICLE)) {
             lua_pushnil(L);
             return 1;
         }
@@ -2202,7 +2202,7 @@ static int32_t Script_UnitIsPVPFreeForAll(lua_State* L) {
     uint32_t ffa;
 
     if (object && (object->m_obj->m_type & TYPE_UNIT)) {
-        ffa = static_cast<CGUnit_C*>(object)->m_unit->m_pvpFlags >> 2;
+        ffa = (static_cast<CGUnit_C*>(object)->m_unit->m_pvpFlags & UNIT_PVP_FLAGS::UNIT_PVP_FLAG_FFA) != 0;
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
 
@@ -2211,10 +2211,10 @@ static int32_t Script_UnitIsPVPFreeForAll(lua_State* L) {
             return 1;
         }
 
-        ffa = static_cast<uint8_t>(state->m_flags) >> 4;
+        ffa = (static_cast<uint8_t>(state->m_flags) & CGPartyMemberState::MEMBER_FLAG_PVP_FFA) != 0;
     }
 
-    if (ffa & 1) {
+    if (ffa) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -3087,7 +3087,7 @@ static int32_t Script_UnitIsPVP(lua_State* L) {
         pvp = static_cast<CGCorpse_C*>(object)->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_PVP;
     } else {
         CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(stateGuid);
-        pvp = state && (state->m_flags & 2);
+        pvp = state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_PVP);
     }
 
     if (pvp) {
@@ -4004,7 +4004,7 @@ static int32_t Script_PlayerIsPVPInactive(lua_State* L) {
         int32_t* auras = nullptr;
 
         if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(target)) {
-            if (state->m_flags & 0x1) {
+            if (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) {
                 auras = state->m_auras;
             }
         } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(target)) {
@@ -4456,7 +4456,7 @@ static int32_t Script_UnitIsAFK(lua_State* L) {
             return 1;
         }
 
-        afk = (state->m_flags & 0x40) != 0;
+        afk = (state->m_flags & CGPartyMemberState::MEMBER_FLAG_AFK) != 0;
     }
 
     if (afk) {

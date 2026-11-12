@@ -1923,7 +1923,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
             showLevel = 0;
         }
     } else if (state) {
-        dead = (state->m_flags & 0x1) && state->m_health <= 0;
+        dead = (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && state->m_health <= 0;
         unitLevel = reinterpret_cast<int32_t*>(state)[12];
     } else {
         showLevel = 0;
@@ -2013,7 +2013,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
 
     this->AddLine(line, nullptr, textColor, textColor, 0);
 
-    if (!unit && state && !(state->m_flags & 0x1) && !a4) {
+    if (!unit && state && !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && !a4) {
         this->AddLine(FrameScript_GetText("PLAYER_OFFLINE", -1, GENDER_NOT_APPLICABLE), nullptr, textColor, textColor, 0);
 
         if (this->m_onTooltipSetUnit.m_luaRef) {
@@ -3990,7 +3990,7 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
     uint8_t* auraFlags;
 
     if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(info->m_guid)) {
-        if (!(state->m_flags & 0x1)) {
+        if (!(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED)) {
             return 0;
         }
 
