@@ -45,6 +45,27 @@ class CHARACTER_INFO {
 
 class RealmConnection : public NetClient {
     public:
+    // Raw billing byte: plan selector bits plus two Lua Boolean outputs.
+    // Current consumers establish values, not the broader plan/flag names.
+    enum : uint8_t {
+        BILLING_FLAGS_NONE = 0,
+        BILLING_FLAG_UNKNOWN_1 = 0x2,
+        BILLING_FLAG_UNKNOWN_2 = 0x4,
+        BILLING_FLAG_UNKNOWN_3 = 0x8,
+        BILLING_FLAG_UNKNOWN_4 = 0x10,
+        BILLING_FLAG_UNKNOWN_5 = 0x20,
+        BILLING_PLAN_MASK = 0x16,
+    };
+
+    // GetBillingPlan Lua result IDs; zero is the unmatched-plan fallback.
+    enum : int32_t {
+        BILLING_TYPE_UNKNOWN_0 = 0,
+        BILLING_TYPE_UNKNOWN_1 = 1,
+        BILLING_TYPE_UNKNOWN_2 = 2,
+        BILLING_TYPE_UNKNOWN_3 = 3,
+        BILLING_TYPE_UNKNOWN_4 = 4,
+    };
+
     struct REALMCONNECTIONNODE : public TSLinkedNode<RealmConnection::REALMCONNECTIONNODE> {
         /* 0008 */ RealmConnection* m_connection;
 

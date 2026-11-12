@@ -179,7 +179,7 @@ int32_t RealmConnection::MessageHandler(void* param, NETMESSAGE msgId, uint32_t 
 
 // VERIFY: 0d14ec4d manual
 // OFFSET: 0x004650E0
-RealmConnection::RealmConnection(RealmResponse* realmResponse) : m_realmResponse(realmResponse), m_authenticated(0), m_queuePosition(0), m_freeCharacterMigration(0), m_billingTimeRemaining(0), m_billingTimeRested(0), m_billingFlags(0), m_accountExpansion(0), m_regionId(0), m_battlegroupId(0), m_realmId(0) {
+RealmConnection::RealmConnection(RealmResponse* realmResponse) : m_realmResponse(realmResponse), m_authenticated(0), m_queuePosition(0), m_freeCharacterMigration(0), m_billingTimeRemaining(0), m_billingTimeRested(0), m_billingFlags(RealmConnection::BILLING_FLAGS_NONE), m_accountExpansion(0), m_regionId(0), m_battlegroupId(0), m_realmId(0) {
     this->Initialize();
 
     this->SetMessageHandler(SMSG_AUTH_CHALLENGE, RealmConnection::MessageHandler, this);

@@ -975,7 +975,7 @@ static int32_t Script_PlayCreditsMusic(lua_State* L) {
 static int32_t Script_GetBillingTimeRemaining(lua_State* L) {
     uint32_t remaining = ClientServices::Connection()->m_billingTimeRemaining;
 
-    if (ClientServices::Connection()->m_billingFlags & 0x2) {
+    if (ClientServices::Connection()->m_billingFlags & RealmConnection::BILLING_FLAG_UNKNOWN_1) {
         remaining = 0;
     }
 
@@ -987,22 +987,22 @@ static int32_t Script_GetBillingTimeRemaining(lua_State* L) {
 // OFFSET: 0x004DDC60
 static int32_t Script_GetBillingPlan(lua_State* L) {
     uint32_t flags = ClientServices::Connection()->m_billingFlags;
-    uint32_t plan = flags & 0x16;
-    int32_t type = 0;
+    uint32_t plan = flags & RealmConnection::BILLING_PLAN_MASK;
+    int32_t type = RealmConnection::BILLING_TYPE_UNKNOWN_0;
 
-    if (plan == 0x2) {
-        type = 1;
-    } else if (plan == 0x4) {
-        type = 2;
+    if (plan == RealmConnection::BILLING_FLAG_UNKNOWN_1) {
+        type = RealmConnection::BILLING_TYPE_UNKNOWN_1;
+    } else if (plan == RealmConnection::BILLING_FLAG_UNKNOWN_2) {
+        type = RealmConnection::BILLING_TYPE_UNKNOWN_2;
     } else if (!plan) {
-        type = 3;
-    } else if (plan == 0x10) {
-        type = 4;
+        type = RealmConnection::BILLING_TYPE_UNKNOWN_3;
+    } else if (plan == RealmConnection::BILLING_FLAG_UNKNOWN_4) {
+        type = RealmConnection::BILLING_TYPE_UNKNOWN_4;
     }
 
     lua_pushnumber(L, type);
-    lua_pushnumber(L, (flags & 0x20) != 0);
-    lua_pushnumber(L, (flags & 0x8) != 0);
+    lua_pushnumber(L, (flags & RealmConnection::BILLING_FLAG_UNKNOWN_5) != 0);
+    lua_pushnumber(L, (flags & RealmConnection::BILLING_FLAG_UNKNOWN_3) != 0);
     return 3;
 }
 

@@ -1940,7 +1940,7 @@ void CGGameUI::InitializeGame() {
 
     uint32_t billingMinutes = ClientServices::Connection()->m_billingTimeRemaining;
 
-    if (billingMinutes <= 4320 && !(ClientServices::Connection()->m_billingFlags & 0x2) && billingMinutes) {
+    if (billingMinutes <= 4320 && !(ClientServices::Connection()->m_billingFlags & RealmConnection::BILLING_FLAG_UNKNOWN_1) && billingMinutes) {
         CGGameUI::m_billingExpireTime = 60000 * billingMinutes + OsGetAsyncTimeMs();
         CGGameUI::m_billingNagCheckTime = 0;
         CGGameUI::m_billingNagShown = 0;
@@ -2034,7 +2034,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
         uint32_t now = OsGetAsyncTimeMs();
         uint32_t remaining = CGGameUI::m_billingExpireTime - now;
         uint32_t minutes = static_cast<uint32_t>(ceil(remaining * (1.0f / 60000.0f)));
-        int32_t igr = (ClientServices::Connection()->m_billingFlags >> 3) & 1;
+        int32_t igr = (ClientServices::Connection()->m_billingFlags & RealmConnection::BILLING_FLAG_UNKNOWN_3) != 0;
 
         if (!CGGameUI::m_billingNagCheckTime) {
             if (igr) {
