@@ -466,10 +466,10 @@ bool CWorldParam::ExtShadowQualityCallback(CVar* var, const char* oldValue, cons
 bool CWorldParam::ProjectedTexturesCallback(CVar* var, const char* oldValue, const char* value, void* arg) {
     if (SStrToInt(value)) {
         ConsoleWrite("Projected textures enabled.", DEFAULT_COLOR);
-        CWorld::enables2 |= 4;
+        CWorld::enables2 |= Enable_ProjectedTextures;
     } else {
         ConsoleWrite("Projected textures disabled.", DEFAULT_COLOR);
-        CWorld::enables2 &= ~4;
+        CWorld::enables2 &= ~Enable_ProjectedTextures;
     }
 
     return true;

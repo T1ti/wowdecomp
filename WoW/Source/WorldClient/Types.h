@@ -89,6 +89,7 @@ enum Enables : uint32_t {
 enum Enables2 {
     Enable_VertexShader = 1,
     Enable_HwPcf = 2,
+    Enable_ProjectedTextures = 4,
 };
 
 enum MapObjFlag {

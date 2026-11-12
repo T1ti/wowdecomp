@@ -853,7 +853,7 @@ uint32_t World::GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModel
 // VERIFY: fbdca5c7 auto
 // OFFSET: 0x0077F500
 void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, int32_t flags) {
-    if (flags || (CWorld::enables2 & 0x4)) {
+    if (flags || (CWorld::enables2 & Enable_ProjectedTextures)) {
         ProjectTex2dDrawShaderEffect(box, color, 0x200122, index ? 2 : 0, 0.40000001f);
     }
 }
