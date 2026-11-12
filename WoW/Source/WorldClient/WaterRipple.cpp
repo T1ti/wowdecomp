@@ -322,7 +322,7 @@ void CWaterRipple::InitRipple(const C3Vector& pos, float rotation, float size, f
     box.t.y = endSize + pos.y;
     box.t.z = pos.z + 1.0f;
     this->m_verts.SetCount(0);
-    World::TriData::statusFlags = 0;
+    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     World::TriData::nBatches = 0;
     World::TriData::faceIndexCursor = 0;
     World::TriData::indexCursor = 0;

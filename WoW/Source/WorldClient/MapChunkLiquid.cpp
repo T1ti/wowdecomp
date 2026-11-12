@@ -643,8 +643,8 @@ bool CChunkLiquid::GetTris(World::TriData* triData, uint8_t* codes, const C2iVec
                         batch->m_def = reinterpret_cast<CMapObjDef*>(this->m_owner);
                         C44Matrix* matrix;
 
-                        if (World::TriData::matrixPoolCount + 1 >= 32) {
-                            World::TriData::statusFlags |= 1;
+                        if (World::TriData::matrixPoolCount + 1 >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_MATRIX_CAPACITY) {
+                            World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
                             matrix = nullptr;
                         } else {
                             matrix = &World::TriData::matrixPool[World::TriData::matrixPoolCount++];

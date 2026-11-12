@@ -45,9 +45,27 @@ namespace World {
     class TriData;
 }
 
+// Shared BSP/output-pool status: the BSP out-word is merged directly into TriData.
+enum WORLD_TRI_QUERY_STATUS : int32_t {
+    TRI_QUERY_STATUS_NONE = 0,
+    TRI_QUERY_STATUS_OVERFLOW = 1,
+};
+
+// Distinct physical pools; equal counts do not make their capacities interchangeable.
+enum WORLD_TRI_POOL_LIMITS : int32_t {
+    TRI_QUERY_BATCH_CAPACITY = 32,
+    TRI_QUERY_MATRIX_CAPACITY = 32,
+    TRI_QUERY_INDEX_CAPACITY = 0xC000,
+    TRI_QUERY_FACE_INDEX_CAPACITY = 0x4000,
+};
+
 struct BspQuery {
-    static uint16_t testFaces[8192];
-    static uint16_t hitFaces[8192];
+    enum QueryLimits : int32_t {
+        FACE_CAPACITY = 8192,
+    };
+
+    static uint16_t testFaces[BspQuery::FACE_CAPACITY];
+    static uint16_t hitFaces[BspQuery::FACE_CAPACITY];
     static uint32_t testFaceSub;
     static uint32_t hitFaceSub;
 
@@ -133,6 +151,11 @@ class CMapObjOccluder {
 
 class CMapObjGroup {
     public:
+    // Liquid vertex-cull scratch limit, separate from the BSP face-buffer count.
+    enum LiquidQueryLimits : int32_t {
+        LIQUID_CULL_VERTEX_LIMIT = 0x2000,
+    };
+
     // Flags copied from the corresponding SMOGroupInfo / MOGP header.
     // Names are limited to meanings supported by the 3.3.5 group-loading and use sites.
     // Create() only clears F_USE_SKYBOX when the parent has no skybox; antiportal handling is group-name based.
@@ -412,10 +435,10 @@ namespace World {
         static uint32_t faceIndexCursor;
         static uint32_t indexCursor;
         static uint32_t matrixPoolCount;
-        static uint16_t faceIndexPool[0x4000];
-        static uint16_t indexPool[0xC000];
-        static Batch batches[32];
-        static C44Matrix matrixPool[32];
+        static uint16_t faceIndexPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_FACE_INDEX_CAPACITY];
+        static uint16_t indexPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY];
+        static Batch batches[WORLD_TRI_POOL_LIMITS::TRI_QUERY_BATCH_CAPACITY];
+        static C44Matrix matrixPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_MATRIX_CAPACITY];
 
         static Batch* AllocBatch();
         static Batch* __stdcall AllocBatch(uint32_t indexCount, uint32_t faceCount);

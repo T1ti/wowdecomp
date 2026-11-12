@@ -174,8 +174,8 @@ static SMOLVert s_smolVertCache[64];
 // VERIFY: 7a37847b auto
 // OFFSET: 0x007A6140
 World::TriData::Batch* World::TriData::AllocBatch() {
-    if (World::TriData::nBatches + 1 >= 32) {
-        World::TriData::statusFlags |= 1;
+    if (World::TriData::nBatches + 1 >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_BATCH_CAPACITY) {
+        World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         return nullptr;
     }
 
@@ -201,8 +201,8 @@ World::TriData::Batch* World::TriData::AllocBatch() {
 uint16_t* __stdcall World::TriData::AllocIndices(uint32_t count) {
     uint32_t cursor = World::TriData::indexCursor;
 
-    if (cursor + count >= 0xC000) {
-        World::TriData::statusFlags |= 1;
+    if (cursor + count >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY) {
+        World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         return nullptr;
     }
 
@@ -2829,7 +2829,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
     }
 
     World::TriData triData;
-    World::TriData::statusFlags = 0;
+    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     World::TriData::nBatches = 0;
     World::TriData::faceIndexCursor = 0;
     World::TriData::indexCursor = 0;
@@ -3331,7 +3331,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
             continue;
         }
 
-        World::TriData::statusFlags = 0;
+        World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
         World::TriData::nBatches = 0;
         World::TriData::faceIndexCursor = 0;
         World::TriData::indexCursor = 0;

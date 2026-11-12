@@ -33,10 +33,10 @@ VBBList CMapObjGroup::indexVBList;
 TSExplicitList<CMapObjGroup::VertArray, offsetof(CMapObjGroup::VertArray, m_link)> CMapObjGroup::s_freeVertArrays;
 
 // STATIC: 0x00D25BF8
-uint16_t BspQuery::testFaces[8192];
+uint16_t BspQuery::testFaces[BspQuery::FACE_CAPACITY];
 
 // STATIC: 0x00D29BF8
-uint16_t BspQuery::hitFaces[8192];
+uint16_t BspQuery::hitFaces[BspQuery::FACE_CAPACITY];
 
 // STATIC: 0x00D2DBF8
 uint32_t BspQuery::testFaceSub;
@@ -60,16 +60,16 @@ uint32_t World::TriData::indexCursor;
 uint32_t World::TriData::matrixPoolCount;
 
 // STATIC: 0x00CB7540
-uint16_t World::TriData::faceIndexPool[0x4000];
+uint16_t World::TriData::faceIndexPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_FACE_INDEX_CAPACITY];
 
 // STATIC: 0x00CBF540
-uint16_t World::TriData::indexPool[0xC000];
+uint16_t World::TriData::indexPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY];
 
 // STATIC: 0x00CD8080
-World::TriData::Batch World::TriData::batches[32];
+World::TriData::Batch World::TriData::batches[WORLD_TRI_POOL_LIMITS::TRI_QUERY_BATCH_CAPACITY];
 
 // STATIC: 0x00CD7880
-C44Matrix World::TriData::matrixPool[32];
+C44Matrix World::TriData::matrixPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_MATRIX_CAPACITY];
 
 struct SpanRange {
     /* 0000 */ int32_t m_min;
@@ -328,9 +328,9 @@ void BspQuery_Segment::operator()(uint16_t face) {
         return;
     }
 
-    if (BspQuery::testFaceSub >= 0x2000) {
+    if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
         if (this->m_overflowFlags) {
-            *this->m_overflowFlags |= 1;
+            *this->m_overflowFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         }
 
         return;
@@ -456,9 +456,9 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
             continue;
         }
 
-        if (BspQuery::testFaceSub >= 0x2000) {
+        if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
             if (this->m_overflowFlags) {
-                *this->m_overflowFlags |= 1;
+                *this->m_overflowFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
             }
 
             break;
@@ -519,8 +519,8 @@ BspQuery::~BspQuery() {
 // VERIFY: 8fcd1fbd auto
 // OFFSET: 0x007C7710
 World::TriData::Batch* __stdcall World::TriData::AllocBatch(uint32_t indexCount, uint32_t faceCount) {
-    if (World::TriData::nBatches + 1 >= 32 || indexCount + World::TriData::indexCursor >= 0xC000 || faceCount + World::TriData::faceIndexCursor >= 0x4000) {
-        World::TriData::statusFlags |= 1;
+    if (World::TriData::nBatches + 1 >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_BATCH_CAPACITY || indexCount + World::TriData::indexCursor >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY || faceCount + World::TriData::faceIndexCursor >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_FACE_INDEX_CAPACITY) {
+        World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         return nullptr;
     }
 
@@ -610,7 +610,7 @@ void CMapObjGroup::GetTrisFromQuery(World::TriData* triData, BspQuery* query, CM
 
     uint32_t hitCount = BspQuery::hitFaceSub;
 
-    if (!hitCount || hitCount > 8192) {
+    if (!hitCount || hitCount > BspQuery::FACE_CAPACITY) {
         return;
     }
 
@@ -624,8 +624,8 @@ void CMapObjGroup::GetTrisFromQuery(World::TriData* triData, BspQuery* query, CM
 
     uint16_t* indices;
 
-    if (World::TriData::indexCursor + 3 * BspQuery::hitFaceSub >= 0xC000) {
-        World::TriData::statusFlags |= 1;
+    if (World::TriData::indexCursor + 3 * BspQuery::hitFaceSub >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY) {
+        World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         indices = nullptr;
     } else {
         indices = &World::TriData::indexPool[World::TriData::indexCursor];
@@ -634,8 +634,8 @@ void CMapObjGroup::GetTrisFromQuery(World::TriData* triData, BspQuery* query, CM
 
     uint16_t* faceIndices;
 
-    if (World::TriData::faceIndexCursor + BspQuery::hitFaceSub >= 0x4000) {
-        World::TriData::statusFlags |= 1;
+    if (World::TriData::faceIndexCursor + BspQuery::hitFaceSub >= WORLD_TRI_POOL_LIMITS::TRI_QUERY_FACE_INDEX_CAPACITY) {
+        World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         faceIndices = nullptr;
     } else {
         faceIndices = &World::TriData::faceIndexPool[World::TriData::faceIndexCursor];
@@ -1047,7 +1047,7 @@ bool CMapObjGroup::GetTris(const C3Segment& seg, float* dist, uint32_t flags, ui
     bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;
     bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
-    this->GetTrisFromQuery(triData, &query, mapObjDef, 0);
+    this->GetTrisFromQuery(triData, &query, mapObjDef, WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE);
 
         if ((flags & 0x30000) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID)) {
         this->VectorIntersectLiquid(seg, dist, flags, triData, mapObjDef);
@@ -1948,7 +1948,7 @@ bool CMapObjGroup::GetLiquidTris(const CAaBox& box, uint32_t flags, World::TriDa
     uint32_t cullSize = (width + 2) * (height + 2);
     int32_t first = rect.minX + rect.minY * this->m_liquidVerts.x;
 
-    if (cullSize > 0x2000) {
+    if (cullSize > CMapObjGroup::LIQUID_CULL_VERTEX_LIMIT) {
         return false;
     }
 
@@ -2087,7 +2087,7 @@ bool CMapObjGroup::GetLiquidTris(const CFrustum& frustum, uint32_t flags, World:
     uint32_t cullSize = (width + 2) * (height + 2);
     int32_t first = rect.minX + rect.minY * this->m_liquidVerts.x;
 
-    if (cullSize > 0x2000) {
+    if (cullSize > CMapObjGroup::LIQUID_CULL_VERTEX_LIMIT) {
         return false;
     }
 
@@ -2183,7 +2183,7 @@ bool CMapObjGroup::GetLiquidTris(const CFrustum& frustum, uint32_t flags, World:
 // VERIFY: be2ed44d manual
 // OFFSET: 0x007CA110
 bool CMapObjGroup::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetData* facets, CMapObjDef* mapObjDef) {
-    World::TriData::statusFlags = 0;
+    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     World::TriData::nBatches = 0;
     World::TriData::faceIndexCursor = 0;
     World::TriData::indexCursor = 0;
@@ -2223,9 +2223,9 @@ void BspQuery_Volume<CAaBox>::operator()(uint16_t face) {
         return;
     }
 
-    if (BspQuery::testFaceSub >= 0x2000) {
+    if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
         if (this->m_overflowFlags) {
-            *this->m_overflowFlags |= 1;
+            *this->m_overflowFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         }
 
         return;
@@ -2300,9 +2300,9 @@ bool BspQuery_Volume<CAaBox>::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, cons
             continue;
         }
 
-        if (BspQuery::testFaceSub >= 0x2000) {
+        if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
             if (this->m_overflowFlags) {
-                *this->m_overflowFlags |= 1;
+                *this->m_overflowFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
             }
 
             break;
@@ -2324,7 +2324,7 @@ bool BspQuery_Volume<CAaBox>::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, cons
 // OFFSET: 0x007CB7B0
 bool CMapObjGroup::GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef) {
     uint32_t batchCount = World::TriData::nBatches;
-    int32_t overflow = 0;
+    int32_t overflow = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     BspQuery_Volume<CAaBox> query;
     query.m_overflowFlags = &overflow;
     query.m_faces = this->m_polyList;
@@ -2494,9 +2494,9 @@ void BspQuery_Volume<CWFrustum>::operator()(uint16_t face) {
         return;
     }
 
-    if (BspQuery::testFaceSub >= 0x2000) {
+    if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
         if (this->m_overflowFlags) {
-            *this->m_overflowFlags |= 1;
+            *this->m_overflowFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
         }
 
         return;
@@ -2517,7 +2517,7 @@ bool CMapObjGroup::GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t fa
     uint32_t batchCount = World::TriData::nBatches;
 
     if (flags & 0xF0) {
-        int32_t overflow = 0;
+        int32_t overflow = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
         BspQuery_Volume<CWFrustum> query;
         query.m_overflowFlags = &overflow;
         query.m_faces = this->m_polyList;

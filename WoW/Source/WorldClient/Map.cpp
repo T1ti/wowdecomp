@@ -4086,7 +4086,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
             C3Segment seg;
             seg.start = localStart;
             seg.end = localEnd;
-            World::TriData::statusFlags = 0;
+            World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
             World::TriData::nBatches = 0;
             World::TriData::faceIndexCursor = 0;
             World::TriData::indexCursor = 0;
@@ -4442,7 +4442,7 @@ void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMa
 // VERIFY: aa0cecc5 manual
 // OFFSET: 0x007A3CF0
 bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets) {
-    World::TriData::statusFlags = 0;
+    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     World::TriData::nBatches = 0;
     World::TriData::faceIndexCursor = 0;
     World::TriData::indexCursor = 0;
@@ -4612,7 +4612,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
 
         if (owner->TestBounds(localBox)) {
             if (flags & 0xF0) {
-                World::TriData::statusFlags = 0;
+                World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
                 World::TriData::nBatches = 0;
                 World::TriData::faceIndexCursor = 0;
                 World::TriData::indexCursor = 0;
@@ -5239,7 +5239,7 @@ WMOAreaTableRec* GetWMOAreaRec(int32_t wmoId, int32_t nameSet, int32_t groupId) 
 // VERIFY: ff49ec1c manual
 // OFFSET: 0x007A3D50
 bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets) {
-    World::TriData::statusFlags = 0;
+    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
     World::TriData::nBatches = 0;
     World::TriData::faceIndexCursor = 0;
     World::TriData::indexCursor = 0;
@@ -5350,7 +5350,7 @@ bool CMap::GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t
         CMapObj* owner = def->m_owner;
 
         if (owner) {
-            World::TriData::statusFlags = 0;
+            World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
             World::TriData::nBatches = 0;
             World::TriData::faceIndexCursor = 0;
             World::TriData::indexCursor = 0;
@@ -6157,7 +6157,7 @@ bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* bo
                         if (World::TriData::matrixPoolCount + 1 < 32) {
                             matrix = &World::TriData::matrixPool[World::TriData::matrixPoolCount++];
                         } else {
-                            World::TriData::statusFlags |= 1;
+                            World::TriData::statusFlags |= WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_OVERFLOW;
                             matrix = nullptr;
                         }
 
