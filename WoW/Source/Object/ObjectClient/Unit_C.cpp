@@ -3408,7 +3408,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
     if (emoteState) {
         EmotesRec* emote = g_emotesDB.GetRecord(emoteState);
 
-        if (emote && !(emote->m_emoteFlags & 0x2000)) {
+        if (emote && !(emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_UNKNOWN_13)) {
             emoteFacing = true;
         }
     }
@@ -5076,15 +5076,15 @@ static void CacheEmoteRecords() {
     while (index--) {
         EmotesRec* rec = index >= 0 && index < g_emotesDB.m_numRecords ? &g_emotesDB.m_records[index] : nullptr;
 
-        if (rec->m_emoteFlags & 0x8) {
+        if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_TALK) {
             s_talkEmotes[TALKANIM_TALK] = rec;
-        } else if (rec->m_emoteFlags & 0x10) {
+        } else if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_QUESTION) {
             s_talkEmotes[TALKANIM_QUESTION] = rec;
-        } else if (rec->m_emoteFlags & 0x20) {
+        } else if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_EXCLAMATION) {
             s_talkEmotes[TALKANIM_EXCLAMATION] = rec;
-        } else if (rec->m_emoteFlags & 0x40) {
+        } else if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_SHOUT) {
             s_talkEmotes[TALKANIM_SHOUT] = rec;
-        } else if (rec->m_emoteFlags & 0x100) {
+        } else if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_LAUGH) {
             s_talkEmotes[TALKANIM_LAUGH] = rec;
         }
     }
@@ -6837,7 +6837,7 @@ int32_t CGUnit_C::ChooseEmoteAnim(uint32_t flags, uint32_t* anim) const {
 
     EmotesRec* emote = g_emotesDB.GetRecord(emoteState);
 
-    if (!emote || (CGGameUI::m_interactTarget == this->m_obj->m_guid && (emote->m_emoteFlags & 0x2000))) {
+    if (!emote || (CGGameUI::m_interactTarget == this->m_obj->m_guid && (emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_UNKNOWN_13))) {
         return (flags & 0x200) == 0;
     }
 

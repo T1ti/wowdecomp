@@ -1,4 +1,5 @@
 #include "Unit.h"
+#include "WoW/Source/DB/Rec/EmotesRec.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/CMoveSpline.h"
 #include "WoW/Source/Object/Movement.h"
@@ -164,19 +165,19 @@ bool CGUnit::CanSwim() const {
 int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* standUp) const {
     *standUp = 0;
 
-    if (targeted && (emoteFlags & 0x400)) {
+    if (targeted && (emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_TARGETED)) {
         return 0;
     }
 
-    if ((emoteFlags & 0x1) && (this->m_unit->m_standState != UNIT_STANDING)) {
+    if ((emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_REQUIRES_STANDING) && (this->m_unit->m_standState != UNIT_STANDING)) {
         return 0;
     }
 
-    if ((emoteFlags & 0x80) && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
+    if ((emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_SWIMMING) && (this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
         return 0;
     }
 
-    if (emoteFlags & 0x8000) {
+    if (emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_FLYING) {
         CMoveSpline* spline = this->m_movement->m_spline;
 
         if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
@@ -188,7 +189,7 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
         }
     }
 
-    if (!(emoteFlags & 0x200)) {
+    if (!(emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_ALLOW_SLEEPING_OR_DEAD)) {
         uint8_t standState = this->m_unit->m_standState;
 
         if (standState == UNIT_SLEEPING || standState == UNIT_DEAD) {
@@ -196,7 +197,7 @@ int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* sta
         }
     }
 
-    if ((emoteFlags & 0x4000) && (this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
+    if ((emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_STAND_UP_ON_ACTIVE_MOVEMENT) && (this->m_movement->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
         *standUp = 1;
     }
 
