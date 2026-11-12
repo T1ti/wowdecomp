@@ -1217,7 +1217,7 @@ bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, int32_t showError) {
 
         if ((item->m_obj->m_type & TYPE_CONTAINER) && (bag = static_cast<const CGItem_C*>(item)->GetBag()) && bag->GetNumItems()) {
             error = ERR_AUCTION_BAG;
-        } else if (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+        } else if (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
             error = ERR_AUCTION_WRAPPED_ITEM;
         } else if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_HAS_LOOT) {
             error = ERR_AUCTION_LOOT_ITEM;

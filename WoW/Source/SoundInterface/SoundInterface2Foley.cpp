@@ -94,7 +94,7 @@ int32_t SI2::IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* po
 // VERIFY: 4d8f58a6 manual
 // OFFSET: 0x004D0020
 int32_t SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
-    if (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+    if (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
         if (type == ITEMSOUND_DROP) {
             return SI2::PlaySoundKit("(DONOTRENAME)WrappedItemDrop", nullptr, nullptr, nullptr);
         }

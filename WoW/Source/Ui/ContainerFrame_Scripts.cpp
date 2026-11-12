@@ -995,8 +995,8 @@ static int32_t Script_GetContainerItemDurability(lua_State* L) {
         return 0;
     }
 
-    uint32_t maxDurability = (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) ? 0 : item->m_item->m_itemFieldMaxdurability;
-    uint32_t durability = (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) ? 0 : item->m_item->m_itemFieldDurability;
+    uint32_t maxDurability = (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) ? 0 : item->m_item->m_itemFieldMaxdurability;
+    uint32_t durability = (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) ? 0 : item->m_item->m_itemFieldDurability;
 
     if (!maxDurability) {
         return 0;

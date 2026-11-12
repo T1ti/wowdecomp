@@ -272,7 +272,7 @@ static int32_t Script_GetInventoryItemBroken(lua_State* L) {
     CGPlayer_C* unit = static_cast<CGPlayer_C*>(GetUnitFromName(unitName));
     CGItem_C* item;
 
-    if (!CGCharacterInfo::CanInspect(unit) || slot == -1 || !(item = unit->m_bag.GetItemPointer(slot)) || (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldMaxdurability || item->GetDurability()) {
+    if (!CGCharacterInfo::CanInspect(unit) || slot == -1 || !(item = unit->m_bag.GetItemPointer(slot)) || (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldMaxdurability || item->GetDurability()) {
         lua_pushnil(L);
         return 1;
     }

@@ -1306,7 +1306,7 @@ static int32_t Script_GetItem(lua_State* L) {
 
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(tooltip->m_itemGuid, TYPE_ITEM, __FILE__, __LINE__));
     ItemLinkInfo* link = tooltip->m_itemUseLinkInfo ? &tooltip->m_itemLinkInfo : nullptr;
-    bool wrapped = (item && (item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED)) || (link && link->m_wrapped);
+    bool wrapped = (item && (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED)) || (link && link->m_wrapped);
     int32_t randomPropertiesId = 0;
 
     if (!wrapped) {

@@ -192,7 +192,7 @@ static int32_t OnUpdateDurability(WOWGUID guid, uint32_t fieldOffset, uint32_t f
         if (owner) {
             int32_t oldDurability = *static_cast<const int32_t*>(oldValue);
 
-            if ((item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldDurability) {
+            if ((item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldDurability) {
                 int32_t invSlot = -1;
                 int32_t slot = owner->GetBag()->FindItemSlot(item->m_obj->m_guid);
 
@@ -210,7 +210,7 @@ static int32_t OnUpdateDurability(WOWGUID guid, uint32_t fieldOffset, uint32_t f
                     WOWGUID ownerGuid = owner->m_obj->m_guid;
                     CGGameUI::UnitModelUpdate(ownerGuid, 3);
                 }
-            } else if (!(item->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) && item->m_item->m_itemFieldDurability && !oldDurability) {
+            } else if (!(item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) && item->m_item->m_itemFieldDurability && !oldDurability) {
                 owner->EquipItem(item);
 
                 WOWGUID ownerGuid = owner->m_obj->m_guid;
@@ -418,7 +418,7 @@ int32_t CGItem_C::IsMetal(int32_t materialId) {
 // VERIFY: 01abc0a5 auto
 // OFFSET: 0x00707060
 void CGItem_C::SetTranslated() {
-    this->m_item->m_itemFieldFlags |= ITEM_DFLAG_TRANSLATED;
+    this->m_item->m_itemFieldFlags |= ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_TRANSLATED;
 }
 
 // VERIFY: e174df88 auto
@@ -961,7 +961,7 @@ int32_t CGItem_C::HasUseEffect() {
 // VERIFY: 36aaddde manual
 // OFFSET: 0x00708520
 bool CGItem_C::IsBound() {
-    if (this->m_item->m_itemFieldFlags & ITEM_DFLAG_BOUND) {
+    if (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_BOUND) {
         return true;
     }
 
@@ -971,7 +971,7 @@ bool CGItem_C::IsBound() {
 // VERIFY: 60e081ae manual
 // OFFSET: 0x00708B40
 bool CGItem_C::IsPermanentlyBoundForTrade() {
-    if (!(this->m_item->m_itemFieldFlags & ITEM_DFLAG_BOUND) && !this->HasSoulboundEnchant()) {
+    if (!(this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_BOUND) && !this->HasSoulboundEnchant()) {
         return false;
     }
 
@@ -1141,7 +1141,7 @@ const char* CGItem_C::GetInventoryArt() const {
 // VERIFY: 61c58006 manual
 // OFFSET: 0x00584AC0
 uint32_t CGItem::GetDurability() const {
-    if (this->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+    if (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
         return 0;
     }
 
@@ -1151,7 +1151,7 @@ uint32_t CGItem::GetDurability() const {
 // VERIFY: e00bdbda manual
 // OFFSET: 0x00584AE0
 uint32_t CGItem::GetMaxDurability() const {
-    if (this->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+    if (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
         return 0;
     }
 
@@ -1254,13 +1254,13 @@ int32_t CGItem_C::GetRepairCost() {
 
     CGItemData* item = this->m_item;
 
-    if ((item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) || !item->m_itemFieldMaxdurability) {
+    if ((item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_itemFieldMaxdurability) {
         return 0;
     }
 
-    uint32_t durability = (item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) ? 0 : item->m_itemFieldDurability;
+    uint32_t durability = (item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) ? 0 : item->m_itemFieldDurability;
 
-    if ((item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) || durability >= item->m_itemFieldMaxdurability) {
+    if ((item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || durability >= item->m_itemFieldMaxdurability) {
         return 0;
     }
 
@@ -1561,7 +1561,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
     }
 
     if (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_IS_WRAPPER) {
-        if (this->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+        if (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
             player->OpenWrappedItem(this);
         } else {
             CGPlayer_C::StartGiftWrap(this);
@@ -1745,7 +1745,7 @@ void CGItem_C::PostInitWithStats() {
     }
 
     char name[1024];
-    CGItem_C::BuildItemName(name, sizeof(name), this->m_obj->m_entryID, (this->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) ? 0 : this->m_item->m_itemFieldRandomPropertiesId);
+    CGItem_C::BuildItemName(name, sizeof(name), this->m_obj->m_entryID, (this->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) ? 0 : this->m_item->m_itemFieldRandomPropertiesId);
 
     if (!s_itemByName.Ptr(name)) {
         ITEMBYNAME* entry = s_itemByName.New(name, 0, 0);

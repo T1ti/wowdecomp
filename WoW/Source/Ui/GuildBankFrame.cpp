@@ -156,7 +156,7 @@ void CGGuildBankInfo::SwapItems(uint8_t tab, uint32_t slot, WOWGUID item, WOWGUI
         return;
     }
 
-    if (object->m_item->m_itemFieldFlags & ITEM_DFLAG_WRAPPED) {
+    if (object->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
         CGGameUI::DisplayError(ERR_GUILD_BANK_WRAPPED_ITEM);
         return;
     }
