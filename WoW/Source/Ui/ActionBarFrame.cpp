@@ -1456,7 +1456,7 @@ void CGActionBar::InitializeGame() {
     memset(CGActionBar::m_slotNoMana, 0, sizeof(CGActionBar::m_slotNoMana));
     CGActionBar::m_currentPage = 0;
     CGActionBar::m_bonusBarOffset = 0;
-    CGActionBar::m_tempPageActiveFlags = 0;
+    CGActionBar::m_tempPageActiveFlags = CGActionBar::TEMP_PAGE_NONE;
 }
 
 // VERIFY: 8aaa3eee manual
@@ -1632,9 +1632,9 @@ void CGActionBar::UpdateOverrideSpellBar() {
 
     if (player && (rec = g_overrideSpellDataDB.GetRecord(static_cast<int16_t>(player->m_player->m_overrideSpellsID))) && HasOverrideSpellData(rec)) {
         CGActionBar::UpdateTemporaryActionBar(&GetOverrideSpell, rec);
-        CGActionBar::m_tempPageActiveFlags |= 0x4;
+        CGActionBar::m_tempPageActiveFlags |= CGActionBar::TEMP_PAGE_OVERRIDE_SPELLS;
     } else {
-        CGActionBar::m_tempPageActiveFlags &= ~0x4;
+        CGActionBar::m_tempPageActiveFlags &= ~CGActionBar::TEMP_PAGE_OVERRIDE_SPELLS;
     }
 }
 
@@ -1816,9 +1816,9 @@ void CGActionBar::UpdateShapeShiftBar() {
 
     if (player && (form = g_spellShapeshiftFormDB.GetRecord(player->GetShapeshiftForm())) && FormHasActionBar(form)) {
         CGActionBar::UpdateTemporaryActionBar(GetFormPresetSpell, form);
-        CGActionBar::m_tempPageActiveFlags |= 2;
+        CGActionBar::m_tempPageActiveFlags |= CGActionBar::TEMP_PAGE_SHAPESHIFT;
     } else {
-        CGActionBar::m_tempPageActiveFlags &= ~2u;
+        CGActionBar::m_tempPageActiveFlags &= ~CGActionBar::TEMP_PAGE_SHAPESHIFT;
     }
 }
 

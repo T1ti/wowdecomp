@@ -1061,7 +1061,7 @@ void CGPetInfo::UpdatePetTempBar() {
         }
     }
 
-    CGActionBar::SetTemporaryActionBarFlags(1, active);
+    CGActionBar::SetTemporaryActionBarFlags(CGActionBar::TEMP_PAGE_PET, active);
     CGActionBar::UpdateBonusBar();
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE, nullptr);
 }

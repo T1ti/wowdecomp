@@ -312,7 +312,7 @@ static int32_t Script_GetPetActionCooldown(lua_State* L) {
 // VERIFY: 716497e3 auto
 // OFFSET: 0x005D3720
 static int32_t Script_PetHasActionBar(lua_State* L) {
-    if (s_pets.Count() && s_pets.m_data[0] && !(CGActionBar::m_tempPageActiveFlags & 1) && CGPetInfo::IsPetBarUsed()) {
+    if (s_pets.Count() && s_pets.m_data[0] && !(CGActionBar::m_tempPageActiveFlags & CGActionBar::TEMP_PAGE_PET) && CGPetInfo::IsPetBarUsed()) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

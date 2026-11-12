@@ -14,6 +14,14 @@ PetAction* GetPetAction(uint32_t index);
 
 class CGActionBar {
     public:
+    // Concurrent reasons for activating the temporary action page.
+    enum : uint32_t {
+        TEMP_PAGE_NONE = 0,
+        TEMP_PAGE_PET = 1,
+        TEMP_PAGE_SHAPESHIFT = 2,
+        TEMP_PAGE_OVERRIDE_SPELLS = 0x4,
+    };
+
     static constexpr int32_t MULTICAST_ACTION_FIRST = 132;
     static constexpr int32_t NUM_MULTICAST_ACTION_SLOTS = 12;
     static constexpr int32_t NUM_ACTION_SLOTS = 144;
