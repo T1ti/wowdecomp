@@ -1892,7 +1892,7 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
     this->m_lootEffect = nullptr;
     this->m_displayState = this->m_gameObject->m_state;
     *reinterpret_cast<uint64_t*>(&this->m_passenger.m_facing) = create.m_packedRotation;
-    this->m_passenger.m_passengerFlags |= 0x2;
+    this->m_passenger.m_passengerFlags |= CPassenger::PASSENGER_QUATERNION_FACING;
 
     ClntObjMgrHideObject(this->m_obj->m_guid);
 
@@ -2842,7 +2842,7 @@ void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int3
     passenger->m_link.Unlink();
     this->m_passengers.LinkToTail(passenger);
 
-    if (a2 && (passenger->m_passengerFlags & 1) && (!this->m_worldObject || !World::ObjectIsLoaded(this->m_worldObject))) {
+    if (a2 && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (!this->m_worldObject || !World::ObjectIsLoaded(this->m_worldObject))) {
         static_cast<CMovementShared*>(passenger)->SetSplineEnabled();
     }
 
@@ -3253,7 +3253,7 @@ void CGGameObject_C_Type_TransportBase::Disable() {
             camera->MakeRelativeTo(WOWGUID());
         }
 
-        if (passenger->m_passengerFlags & 0x1) {
+        if (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) {
             CMovement_C* movement = static_cast<CMovement_C*>(passenger);
             movement->ClearSplineEnabled();
 
@@ -3517,7 +3517,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateMovement(uint32_t time, uint32_t
     rotation.w = 0.0f;
     rotation.FromRotationMatrix(owner->m_matrix);
     reinterpret_cast<C4QuaternionCompressed&>(owner->m_passenger.m_facing) = rotation;
-    owner->m_passenger.m_passengerFlags |= 0x2;
+    owner->m_passenger.m_passengerFlags |= CPassenger::PASSENGER_QUATERNION_FACING;
 
     if (this->m_worldObject) {
         World::ObjectUpdate(this->m_worldObject, matrix);
@@ -3583,7 +3583,7 @@ void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
     for (CPassenger* passenger = this->m_passengers.Head(); passenger; passenger = this->m_passengers.Next(passenger)) {
         CMovementShared* movement = static_cast<CMovementShared*>(passenger);
 
-        if (this->m_worldObjectReady && (passenger->m_passengerFlags & 0x1) && (movement->m_flags & MOVEMENTFLAG_SPLINE_ENABLED)) {
+        if (this->m_worldObjectReady && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (movement->m_flags & MOVEMENTFLAG_SPLINE_ENABLED)) {
             movement->ClearSplineEnabled();
         }
 
