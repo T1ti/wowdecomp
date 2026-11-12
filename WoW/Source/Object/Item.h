@@ -114,6 +114,11 @@ class CGItemData {
     /* 0024 */ uint32_t m_itemFieldDuration;
     /* 0028 */ int32_t m_itemFieldSpellCharges [FIELD_SIZE::ITEM_FIELD_SPELL_CHARGES_SIZE];
     /* 003C */ uint32_t m_itemFieldFlags;
+    // Keep one contiguous 12-record update-field array: native generic readers
+    // use a 12-byte stride and the mirror handler covers the whole 0x90-byte span.
+    // Zero-based slots 2..4 hold gem enchantments; 5 holds the socket bonus;
+    // 6 holds the prismatic-socket enchantment. These roles do not change the
+    // shared record representation or the full-array enchantment scans.
     /* 0040 */ ItemEnchantment m_itemFieldEnchantment [NUM_ENCHANTMENTS];
     /* 00D0 */ uint32_t m_itemFieldPropertySeed;
     /* 00D4 */ int32_t m_itemFieldRandomPropertiesId;
