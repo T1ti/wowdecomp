@@ -4291,7 +4291,7 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(sequence);
 
-    if (rec && (rec->m_weaponflags & 0x4) && !force) {
+    if (rec && (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_UNKNOWN_2) && !force) {
         this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
 
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
@@ -4308,9 +4308,9 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
         }
 
         if (sequence != ANIM_LOAD_BOW && sequence != ANIM_LOAD_RIFLE && sequence != ANIM_LOAD_THROWN && !IsRangedWeaponAnim(sequence) && rec) {
-            if (rec->m_weaponflags & 0x10) {
+            if (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_SHEATHE) {
                 this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
-            } else if (rec->m_weaponflags & 0x20) {
+            } else if (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_UNSHEATHE) {
                 this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
             }
         }
@@ -4347,12 +4347,12 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     if (rec) {
         int32_t weaponFlags = rec->m_weaponflags;
 
-        if ((weaponFlags & 0x10) && !force) {
+        if ((weaponFlags & AnimationDataRec::ANIM_WEAPON_FLAG_SHEATHE) && !force) {
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
             return;
         }
 
-        if (weaponFlags & 0x20) {
+        if (weaponFlags & AnimationDataRec::ANIM_WEAPON_FLAG_UNSHEATHE) {
             this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
             return;
         }
@@ -8030,7 +8030,7 @@ bool CGUnit_C::AnimSuppressesMovement() const {
         return false;
     }
 
-    return (g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId())->m_bodyflags >> 7) & 1;
+    return (g_animationDataDB.GetRecord(this->GetCurrentTorsoAnimId())->m_bodyflags & AnimationDataRec::ANIM_BODY_FLAG_SUPPRESS_MOVEMENT) != 0;
 }
 
 // VERIFY: 75c2d34b manual

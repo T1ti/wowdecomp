@@ -1288,12 +1288,12 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
             visited[id] = 1;
             id = fallback;
 
-            if (flags & 0x10) {
+            if (flags & AnimationDataRec::ANIM_FLAG_REVERSE_FALLBACK) {
                 reversals += direction;
                 direction = -direction;
             }
 
-            if (flags & 0x20) {
+            if (flags & AnimationDataRec::ANIM_FLAG_UNKNOWN_5) {
                 reversals += direction;
                 direction = 0;
             }
