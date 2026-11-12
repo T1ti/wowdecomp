@@ -14,6 +14,22 @@ class XMLNode;
 
 class CLayoutFrame {
     public:
+    // Packed counter, flag-value encoding and callback input values, separate from LayoutFlags.
+    enum PackedLayoutValues : uint32_t {
+        LAYOUT_VALUE_SHIFT = 8,
+        LAYOUT_COUNTER_MASK = 0xFFu,
+        LAYOUT_CTOR_PRESERVE_MASK = 0xFF0000FF,
+        PROTECTION_SOURCE_MASK = 0xF7FFu,
+        PROTECTION_RECURSION_VALUE = 0x800,
+        PROTECTION_DEPENDENCY_VALUE = 0x200,
+        PROTECTION_DIRTY_VALUE = 0x400,
+    };
+
+    enum ResizeLimits : uint32_t {
+        RESIZE_RETRY_BUDGET = 6,
+        RESIZE_PASS_LIMIT = 32,
+    };
+
     enum LayoutFlags : uint32_t {
         // The low byte is a resize retry counter; it is not part of this flag domain.
         LAYOUT_RECT_VALID = 0x100,

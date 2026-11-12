@@ -111,7 +111,7 @@ int32_t CLayoutFrame::HasAnyFramepoints() {
 // VERIFY: 831ecd27 auto
 // OFFSET: 0x00488CF0
 uint32_t CLayoutFrame::IsResizePending() {
-    return (this->m_layoutFlags >> 8) & (LayoutFlags::LAYOUT_RESIZE_PENDING >> 8);
+    return (this->m_layoutFlags >> CLayoutFrame::LAYOUT_VALUE_SHIFT) & (LayoutFlags::LAYOUT_RESIZE_PENDING >> CLayoutFrame::LAYOUT_VALUE_SHIFT);
 }
 
 // VERIFY: b2f05c63 auto
@@ -493,15 +493,15 @@ int32_t CLayoutFrame::OnFrameResize() {
     this->m_layoutFlags |= LayoutFlags::LAYOUT_RECT_VALID;
     this->OnFrameSizeChanged(oldRect);
 
-    return (this->m_layoutFlags >> 8) & (LayoutFlags::LAYOUT_RECT_VALID >> 8);
+    return (this->m_layoutFlags >> CLayoutFrame::LAYOUT_VALUE_SHIFT) & (LayoutFlags::LAYOUT_RECT_VALID >> CLayoutFrame::LAYOUT_VALUE_SHIFT);
 }
 
 // VERIFY: ebe958b5 auto
 // OFFSET: 0x00489690
 void CLayoutFrame::SetProtected() {
     this->m_layoutFlags = (this->m_layoutFlags & ~LayoutFlags::LAYOUT_PROTECTION_STATE_MASK) | LayoutFlags::LAYOUT_EXPLICITLY_PROTECTED;
-    this->PropagateProtectFlagToParent(0x200);
-    this->ProtectFramepoints(0x200);
+    this->PropagateProtectFlagToParent(CLayoutFrame::PROTECTION_DEPENDENCY_VALUE);
+    this->ProtectFramepoints(CLayoutFrame::PROTECTION_DEPENDENCY_VALUE);
 }
 
 // VERIFY: 194662d5 manual
@@ -511,7 +511,7 @@ void CLayoutFrame::SetProtectFlag(uint32_t flag) {
         return;
     }
 
-    this->m_layoutFlags = (this->m_layoutFlags & ~LayoutFlags::LAYOUT_DEPENDENCY_PROTECTED) | (((flag & 0xF7FFu) | 0x800) << 8);
+    this->m_layoutFlags = (this->m_layoutFlags & ~LayoutFlags::LAYOUT_DEPENDENCY_PROTECTED) | (((flag & CLayoutFrame::PROTECTION_SOURCE_MASK) | CLayoutFrame::PROTECTION_RECURSION_VALUE) << CLayoutFrame::LAYOUT_VALUE_SHIFT);
     this->PropagateProtectFlagToParent(flag);
     this->ProtectFramepoints(flag);
     this->m_layoutFlags &= ~LayoutFlags::LAYOUT_PROTECTION_RECURSION;
@@ -537,19 +537,19 @@ void CLayoutFrame::AddToResizeList() {
 
         if (dependent) {
             s_resizePendingList.LinkNode(this, TSLIST_LINK_BEFORE, dependent);
-            this->m_layoutFlags = (this->m_layoutFlags & ~0xFFu) | 6;
+            this->m_layoutFlags = (this->m_layoutFlags & ~CLayoutFrame::LAYOUT_COUNTER_MASK) | CLayoutFrame::RESIZE_RETRY_BUDGET;
             return;
         }
     }
 
     s_resizePendingList.LinkToTail(this);
-    this->m_layoutFlags = (this->m_layoutFlags & ~0xFFu) | 6;
+    this->m_layoutFlags = (this->m_layoutFlags & ~CLayoutFrame::LAYOUT_COUNTER_MASK) | CLayoutFrame::RESIZE_RETRY_BUDGET;
 }
 
 // VERIFY: dfeb387c manual
 // OFFSET: 0x004898B0
 void CLayoutFrame::ResizePending() {
-    for (uint32_t loops = 0; s_resizePendingList.Head() && loops < 32; loops++) {
+    for (uint32_t loops = 0; s_resizePendingList.Head() && loops < CLayoutFrame::RESIZE_PASS_LIMIT; loops++) {
         CLayoutFrame* frame = s_resizePendingList.Head();
 
         while (frame) {
@@ -574,7 +574,7 @@ void CLayoutFrame::ResizePending() {
 // VERIFY: d89d6f35 auto
 // OFFSET: 0x00489980
 CLayoutFrame::CLayoutFrame() {
-    this->m_layoutFlags &= 0xFF0000FF;
+    this->m_layoutFlags &= CLayoutFrame::LAYOUT_CTOR_PRESERVE_MASK;
     this->m_rect = { 0.0f, 0.0f, 0.0f, 0.0f };
     this->m_width = 0.0f;
     this->m_height = 0.0f;
@@ -599,11 +599,11 @@ int32_t CLayoutFrame::AreChildrenProtected(int32_t& deferred) {
 // OFFSET: 0x00489A00
 void CLayoutFrame::OnProtectedAttach(CLayoutFrame* frame) {
     if (this->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_DIRTY) {
-        frame->SetProtectFlag(0x400);
+        frame->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
     }
 
     if (this->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTED_MASK) {
-        frame->SetProtectFlag(0x200);
+        frame->SetProtectFlag(CLayoutFrame::PROTECTION_DEPENDENCY_VALUE);
     }
 }
 
@@ -611,7 +611,7 @@ void CLayoutFrame::OnProtectedAttach(CLayoutFrame* frame) {
 // OFFSET: 0x00489A40
 void CLayoutFrame::OnProtectedDetach(CLayoutFrame* frame) {
     if (this->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_STATE_MASK) {
-        frame->SetProtectFlag(0x400);
+        frame->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
     }
 }
 
@@ -648,7 +648,7 @@ uint32_t CLayoutFrame::IsProtected() {
         }
     }
 
-    return (this->m_layoutFlags >> 8) & (LayoutFlags::LAYOUT_PROTECTED_MASK >> 8);
+    return (this->m_layoutFlags >> CLayoutFrame::LAYOUT_VALUE_SHIFT) & (LayoutFlags::LAYOUT_PROTECTED_MASK >> CLayoutFrame::LAYOUT_VALUE_SHIFT);
 }
 
 // VERIFY: c9d23c46 manual
@@ -666,11 +666,11 @@ void CLayoutFrame::RegisterResize(CLayoutFrame* frame, uint32_t dependency) {
     node->m_dependency = dependency;
 
     if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_DIRTY) {
-        this->SetProtectFlag(0x400);
+        this->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
     }
 
     if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTED_MASK) {
-        this->SetProtectFlag(0x200);
+        this->SetProtectFlag(CLayoutFrame::PROTECTION_DEPENDENCY_VALUE);
     }
 }
 
@@ -692,7 +692,7 @@ void CLayoutFrame::UnregisterResize(CLayoutFrame* frame, uint32_t dependency) {
         }
 
         if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_STATE_MASK) {
-            this->SetProtectFlag(0x400);
+            this->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
         }
 
         this->m_resizeList.DeleteNode(node);
@@ -712,7 +712,7 @@ void CLayoutFrame::Resize(int32_t force) {
     }
 
     if ((this->m_layoutFlags & LayoutFlags::LAYOUT_RESIZE_PENDING) && ((this->m_layoutFlags & LayoutFlags::LAYOUT_DEFERRED_RESIZE) || this->m_resizeLink.IsLinked())) {
-        this->m_layoutFlags = (this->m_layoutFlags & ~0xFFu) | 6;
+        this->m_layoutFlags = (this->m_layoutFlags & ~CLayoutFrame::LAYOUT_COUNTER_MASK) | CLayoutFrame::RESIZE_RETRY_BUDGET;
         return;
     }
 
