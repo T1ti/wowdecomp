@@ -303,7 +303,7 @@ int32_t Packet_SMSG_GAMEOBJECT_PAGETEXT(void* param, NETMESSAGE msgId, uint32_t 
 void CGGameObject_C::CheckForPassiveHighlight() {
     CGPlayer_C* player;
 
-    if ((this->m_gameObject->m_dynamicFlags & 0x8) || ((player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__))) != nullptr && player->CanTrackObject(this))) {
+    if ((this->m_gameObject->m_dynamicFlags & CGGameObjectData::DYNFLAG_PASSIVE_HIGHLIGHT) || ((player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__))) != nullptr && player->CanTrackObject(this))) {
         this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT;
         this->ShowLootEffect();
     } else {
@@ -325,7 +325,7 @@ void CGGameObject_C::CheckForPassiveHighlight() {
 static int32_t OnUpdateDynamicFlags(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGGameObject_C* object = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
-    if ((static_cast<uint8_t>(object->m_gameObject->m_dynamicFlags) ^ *static_cast<const uint8_t*>(oldValue)) & 0x8) {
+    if ((static_cast<uint8_t>(object->m_gameObject->m_dynamicFlags) ^ *static_cast<const uint8_t*>(oldValue)) & CGGameObjectData::DYNFLAG_PASSIVE_HIGHLIGHT) {
         object->CheckForPassiveHighlight();
     }
 
@@ -3174,13 +3174,13 @@ bool CGGameObject_C_TypeBase::CanUse() const {
     CGGameObject_C* owner = this->m_owner;
     uint16_t dynamicFlags = owner->m_gameObject->m_dynamicFlags;
 
-    if (dynamicFlags & 0x4) {
+    if (dynamicFlags & CGGameObjectData::DYNFLAG_INTERACTION_DISABLED) {
         return false;
     }
 
     uint32_t flags = owner->m_gameObject->m_flags;
 
-    if ((flags & 0x11) || (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) || ((flags & 0x4) && !(dynamicFlags & 0x1))) {
+    if ((flags & 0x11) || (owner->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLE_PENDING) || ((flags & 0x4) && !(dynamicFlags & CGGameObjectData::DYNFLAG_UNKNOWN_0))) {
         return false;
     }
 
@@ -3291,7 +3291,7 @@ void CGGameObject_C_Type_MapObjTransport::InitializeMovement() {
         this->m_shipPath.SetTimeOffset(offsetTime, this->m_owner->m_gameObject->m_pathProgress * 0.000015259022f);
         CGGameObjectData* gameObject = this->m_owner->m_gameObject;
 
-        if (gameObject->m_dynamicFlags & 0x10) {
+        if (gameObject->m_dynamicFlags & CGGameObjectData::DYNFLAG_STOP_AT_CURRENT_LOCATION) {
             this->m_shipPath.WaitAtCurrentLocation(offsetTime);
         } else {
             this->m_shipPath.WaitAtNextPausePoint(offsetTime, gameObject->m_state == 1);

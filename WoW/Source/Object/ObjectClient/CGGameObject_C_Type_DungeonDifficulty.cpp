@@ -13,7 +13,7 @@ CGGameObject_C_Type_DungeonDifficulty::CGGameObject_C_Type_DungeonDifficulty(CGG
 // VERIFY: dc085aed auto
 // OFFSET: 0x0070DD50
 float CGGameObject_C_Type_DungeonDifficulty::GetBaseAlpha() const {
-    if (this->m_owner->m_gameObject->m_dynamicFlags & 2) {
+    if (this->m_owner->m_gameObject->m_dynamicFlags & CGGameObjectData::DYNFLAG_UNKNOWN_1) {
         return 1.0f;
     }
 

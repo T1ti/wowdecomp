@@ -23,6 +23,17 @@ class CGGameObject {
 
 class CGGameObjectData {
     public:
+    // Low16 of GAMEOBJECT_DYNAMIC; upper16 is path progress, not more flags.
+    enum : uint16_t {
+        // Bypasses static flag0x4 in CanUse; broader meaning unresolved.
+        DYNFLAG_UNKNOWN_0 = 0x1,
+        // Dungeon difficulty indicators use full alpha; broader meaning unresolved.
+        DYNFLAG_UNKNOWN_1 = 2,
+        DYNFLAG_INTERACTION_DISABLED = 0x4,
+        DYNFLAG_PASSIVE_HIGHLIGHT = 0x8,
+        DYNFLAG_STOP_AT_CURRENT_LOCATION = 0x10,
+    };
+
     // DWORD indices relative to this data block, not absolute network-field indices.
     enum FIELD_ID : uint32_t {
         OBJECT_FIELD_CREATED_BY = 0,
