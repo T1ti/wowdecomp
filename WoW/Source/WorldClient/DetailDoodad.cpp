@@ -600,7 +600,7 @@ int32_t CDetailDoodad::InitializeRenderState() {
 
     if (CDetailDoodad::s_bUseShaders) {
         uint32_t shadow = CShadowCache::GetShadowValue();
-        g_theGxDevicePtr->RsSet(GxRs_PixelShader, CDetailDoodad::s_pixelShader[4 * ((CWorld::enables2 >> 1) & 1) + shadow]);
+        g_theGxDevicePtr->RsSet(GxRs_PixelShader, CDetailDoodad::s_pixelShader[4 * ((CWorld::enables2 & Enables2::Enable_HwPcf) != 0) + shadow]);
         CDetailDoodad::InitializeShaderConstants();
         CShadowCache::SetShadowMapDetailDoodad();
         return 1;
