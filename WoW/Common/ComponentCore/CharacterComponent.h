@@ -54,6 +54,12 @@ class CComponentMipBits {
 
 class CComponentRequest {
     public:
+    enum REQUEST_FLAGS : int32_t {
+        IN_USE = 0x1,
+        FINISHED = 0x2,
+        STATE_MASK = 0x3,
+    };
+
     /* 0000 */ uint32_t m_flags;
     /* 0004 */ EGxTexFormat m_format;
     /* 0008 */ CComponentMipBits* m_mipBits;

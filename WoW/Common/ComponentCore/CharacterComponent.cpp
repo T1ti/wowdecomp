@@ -1235,7 +1235,7 @@ void CCharacterComponent::SetDirtySections(uint32_t mask) {
     this->m_dirtySections |= mask;
 
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -1248,7 +1248,7 @@ void CCharacterComponent::SetTexturesDirty() {
     this->m_flags |= CCharacterComponent::FLAGS::TEXTURES_DIRTY;
 
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -1959,7 +1959,7 @@ void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool rende
     this->m_dirtySections = 0xFFFFFFFF;
 
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -3601,7 +3601,7 @@ void CCharacterComponent::RenderPrepAll() {
     this->m_dirtySections = 0xFFFFFFFF;
 
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -4211,7 +4211,7 @@ CCharacterComponent::CCharacterComponent() {
 // OFFSET: 0x004EFCA0
 CCharacterComponent::~CCharacterComponent() {
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -4921,7 +4921,7 @@ void CCharacterComponent::ProcessFinishedRequest() {
     }
 
     this->UpdateSections();
-    this->m_request->m_flags &= ~0x1;
+    this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
     this->m_flags &= ~CCharacterComponent::FLAGS::TEXTURES_DIRTY;
     this->m_request = nullptr;
     this->m_dirtySections = 0;
@@ -4987,7 +4987,7 @@ CComponentRequest* CCharacterComponent::AllocComponentRequest() {
     }
 
     request->m_link.Unlink();
-    request->m_flags = (request->m_flags & ~0x3) | 0x1;
+    request->m_flags = (request->m_flags & ~CComponentRequest::REQUEST_FLAGS::STATE_MASK) | CComponentRequest::REQUEST_FLAGS::IN_USE;
     request->m_mipBits = nullptr;
     request->m_layerCount = 0;
 
@@ -5002,7 +5002,7 @@ void CCharacterComponent::ProcessComponentFinishedList(int32_t all) {
     for (CComponentRequest* request = s_finishedList.Head(); request;) {
         CComponentRequest* next = s_finishedList.Next(request);
 
-        if (all || !(request->m_flags & 0x1)) {
+        if (all || !(request->m_flags & CComponentRequest::REQUEST_FLAGS::IN_USE)) {
             request->m_link.Unlink();
             request->DestroyCachedTextures();
 
@@ -5049,11 +5049,11 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
                 break;
             }
 
-            if (!(request->m_flags & 0x1)) {
+            if (!(request->m_flags & CComponentRequest::REQUEST_FLAGS::IN_USE)) {
                 s_finishedListCritSect.Enter();
                 s_finishedList.LinkToTail(request);
                 s_finishedListCritSect.Leave();
-                request->m_flags |= 0x2;
+                request->m_flags |= CComponentRequest::REQUEST_FLAGS::FINISHED;
                 continue;
             }
 
@@ -5072,7 +5072,7 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
             s_finishedListCritSect.Enter();
             s_finishedList.LinkToTail(request);
             s_finishedListCritSect.Leave();
-            request->m_flags |= 0x2;
+            request->m_flags |= CComponentRequest::REQUEST_FLAGS::FINISHED;
             OsSleep(1);
         }
 
@@ -5140,7 +5140,7 @@ bool CCharacterComponent::RenderPrep(int32_t wait) {
     }
 
     if (this->m_request) {
-        this->m_request->m_flags &= ~0x1;
+        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
@@ -5224,7 +5224,7 @@ int32_t CCharacterComponent::Update(const void* data, void* param) {
         CCharacterComponent* next = CCharacterComponent::s_queue.Next(component);
 
         if (component->m_request) {
-            if (hasContext && (component->m_request->m_flags & 0x2)) {
+            if (hasContext && (component->m_request->m_flags & CComponentRequest::REQUEST_FLAGS::FINISHED)) {
                 component->ProcessFinishedRequest();
                 component->m_link.Unlink();
             }
@@ -5350,7 +5350,7 @@ void CCharacterComponent::ThreadDestroy() {
 
     for (CComponentRequest* request = s_requestList.Head(); request;) {
         CComponentRequest* next = s_requestList.Next(request);
-        request->m_flags &= ~0x1;
+        request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         s_finishedList.LinkToTail(request);
         request = next;
     }
