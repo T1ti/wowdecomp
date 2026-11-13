@@ -222,6 +222,17 @@ struct CMapRenderChunk::SVertexShaderConstants {
 };
 
 struct SMMapHeader {
+    enum MAP_FLAGS : int32_t {
+        HAS_GLOBAL_WMO = 1,
+        VERTEX_COLORS = 2,
+        BIG_ALPHA = 0x4,
+        UNKNOWN_8 = 0x8,
+    };
+
+    enum MAP_BITS : int32_t {
+        BIG_ALPHA_BIT_INDEX = 2,
+    };
+
     /* 0000 */ uint32_t m_flags;
     /* 0004 */ uint32_t m_something;
     /* 0008 */ uint32_t m_unused [6];

@@ -3865,7 +3865,7 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
         if (doodadDef->m_fadeLevel < fadeLevel) {
-            if (CMap::header.m_flags & 0x8) {
+            if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::UNKNOWN_8) {
                 return;
             }
         } else if (doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {

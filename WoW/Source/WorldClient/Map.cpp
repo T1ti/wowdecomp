@@ -2503,7 +2503,7 @@ void CMap::ValidateShaders() {
     CMap::enableSpecular = (CWorld::enables & Enable_Specular) && (CWorld::enables & Enable_PixelShaders);
 
     bool valid = false;
-    bool flag = (CMap::header.m_flags >> 2) & 1;
+    bool flag = (CMap::header.m_flags >> SMMapHeader::MAP_BITS::BIG_ALPHA_BIT_INDEX) & 1;
     CMap::gTerrainPixelShadersValid = false;
     CMap::enableSpecularTerrain = false;
 
@@ -2916,7 +2916,7 @@ void CMap::LoadWdt() {
     SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
     SFileReadFile(file, CMap::m_areaInfo, sizeof(CMap::m_areaInfo), nullptr, nullptr, 0);
 
-    if (CMap::header.m_flags & 1) {
+    if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::HAS_GLOBAL_WMO) {
         char fileName[256];
         SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
         SFileReadFile(file, fileName, iffChunk.m_size, nullptr, nullptr, 0);
@@ -2998,7 +2998,7 @@ void CMap::LoadWdt() {
         CMap::bDungeon = 1;
     }
 
-    if (CMap::header.m_flags & 2) {
+    if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::VERTEX_COLORS) {
         CMapRenderChunk::SetVertexFormat(GxVBF_PNC);
     } else {
         CMapRenderChunk::SetVertexFormat(GxVBF_PN);

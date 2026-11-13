@@ -1385,7 +1385,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
     chunkB->m_bLoaded = 1;
     chunkA->m_bLoaded = 1;
 
-    if (CMap::header.m_flags & 4) {
+    if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) {
         uint32_t count = chunkB->m_header->m_nLayers;
         SMLayer* layerA = chunkA->m_layers;
 
