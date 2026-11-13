@@ -786,7 +786,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
     }
 
     archive->m_sectorSize = 512 << archive->m_header.m_sectorSizeShift;
-    archive->m_attributeFlags = 1;
+    archive->m_attributeFlags = System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32;
 
     {
         Blizzard::Mopaq::CompressionAlgorithm algorithm;
@@ -1510,7 +1510,7 @@ bool System_SFile::CreateArchiveView(IOUnit* file, const char* name, int32_t pri
         archive->m_compressedTables = false;
     }
 
-    archive->m_attributeFlags = 1;
+    archive->m_attributeFlags = System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32;
 
     {
         Blizzard::Mopaq::CompressionAlgorithm algorithm;
@@ -1962,38 +1962,38 @@ bool System_SFile::ARCHIVEREC::ReadAdditionalAttributes() {
     uint32_t needed = 0;
     uint32_t unknown = flags;
 
-    if (flags & 1) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32) {
         needed = 4 * count;
-        unknown &= ~1u;
+        unknown &= ~System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32;
     }
 
-    if (flags & 2) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_FILETIME) {
         needed += 8 * count;
-        unknown &= ~2u;
+        unknown &= ~System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_FILETIME;
     }
 
-    if (flags & 4) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) {
         needed += 16 * count;
-        unknown &= ~4u;
+        unknown &= ~System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5;
     }
 
     if (remaining < needed || (!unknown && remaining != needed)) {
         return false;
     }
 
-    if (flags & 1) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32) {
         for (uint32_t i = 0; i < count; i++, p += 4) {
             this->SetBlockCrc(i, *reinterpret_cast<const uint32_t*>(p));
         }
     }
 
-    if (flags & 2) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_FILETIME) {
         for (uint32_t i = 0; i < count; i++, p += 8) {
             this->SetBlockFileTime(i, *reinterpret_cast<const uint64_t*>(p));
         }
     }
 
-    if (flags & 4) {
+    if (flags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) {
         for (uint32_t i = 0; i < count; i++, p += 16) {
             this->SetBlockMd5(i, *reinterpret_cast<const Blizzard::Util::Digest<16>*>(p));
         }
@@ -2523,7 +2523,7 @@ bool System_SFile::ARCHIVEREC::WriteArchiveChanges(ARCHIVEREC* archive) {
 
     archive->m_locale = 0;
     archive->m_platform = 0;
-    archive->m_attributeFlags = 1;
+    archive->m_attributeFlags = System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32;
 
     {
         std::map<uint32_t, uint32_t> remap;
@@ -2607,7 +2607,7 @@ bool System_SFile::ARCHIVEREC::WriteArchiveChanges(ARCHIVEREC* archive) {
 
         uint32_t header[2];
         header[0] = 100;
-        header[1] = 7;
+        header[1] = System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_ALL;
 
         IOMpqUnit* file;
 
@@ -3070,14 +3070,14 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
         if (flags & 0x1000000) {
             unit = System_SFile::CreateRangeUnit(&container, dataEnd, dataEnd + size, record->m_file);
             unit = IOMpqWriteUnit::CreateSingle(&container, record->m_compression, size, System_SFile::FinishFileWrite, &writer, unit);
-            unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & 4) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
-            unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & 1) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
+            unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
+            unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
             unit = IOAlignUnit::Create(&container, 0, size, 1, false, false, 1, false, unit);
         } else {
             unit = System_SFile::CreateRangeUnit(&container, dataEnd, dataEnd + 0xFFFFFFFF, record->m_file);
             unit = IOMpqWriteUnit::Create(&container, record->m_compression, size, record->m_sectorSize, System_SFile::FinishFileWrite, &writer, unit);
-            unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & 4) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
-            unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & 1) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
+            unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
+            unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
             unit = IOAlignUnit::Create(&container, 0, record->m_sectorSize, 1, true, true, 1, false, unit);
         }
 
@@ -3085,8 +3085,8 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
     } else {
         IOUnitContainer container(sizeof(IOMpqArchiveWriteUnit), sizeof(IOCrcUnit), sizeof(IOMd5Unit), sizeof(IORangeUnit), 0);
         IOUnit* unit = IORangeUnit::Create(&container, dataEnd, dataEnd + size, record->m_file);
-        unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & 4) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
-        unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & 1) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
+        unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);
+        unit = IOCrcUnit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_CRC32) ? System_SFile::SetFileCrc : nullptr, false, &crcUnit, unit);
 
         IOMpqArchiveWriteUnit* file = IOMpqArchiveWriteUnit::Create(&container, record, buffer, blockIndex, unit);
         System_SFile::FinishFileWrite(file, size);

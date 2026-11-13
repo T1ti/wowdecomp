@@ -34,6 +34,14 @@ enum ARCHIVE_FLAGS : uint32_t {
     ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN = 0x800,
 };
 
+// Attribute groups in the (attributes) file; also selects file checksum callbacks.
+enum ATTRIBUTE_FLAGS : uint32_t {
+    ATTRIBUTE_FLAG_CRC32 = 1,
+    ATTRIBUTE_FLAG_FILETIME = 2,
+    ATTRIBUTE_FLAG_MD5 = 4,
+    ATTRIBUTE_FLAG_ALL = 7,
+};
+
 #pragma pack(push, 1)
 struct BLOCKENTRY {
     /* 0000 */ int64_t m_offset;
