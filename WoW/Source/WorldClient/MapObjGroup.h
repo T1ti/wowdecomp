@@ -71,7 +71,7 @@ struct BspQuery {
 
     /* 0000 */ int32_t* m_overflowFlags;
     /* 0004 */ SMOPoly* m_faces;
-    /* 0008 */ C3Vector* m_vertexList;
+    /* 0008 */ const C3Vector* m_vertexList;
     /* 000C */ uint16_t* m_indices;
 
     ~BspQuery();
