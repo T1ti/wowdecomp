@@ -811,7 +811,7 @@ int32_t Packet_Group_29(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
 
             if (attacker) {
                 if (attacker->m_sheatheState != WEAPONMODE_NORMALMODE) {
-                    attacker->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+                    attacker->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
                 }
 
                 attacker->m_combat.m_attackSent = 0;

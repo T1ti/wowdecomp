@@ -927,7 +927,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
     }
 
     if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
-        unit->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
+        unit->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     if (spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_AUTO_REPEAT) {
@@ -943,7 +943,7 @@ void SpellVisualsHandleCastStart(CGUnit_C* unit, PendingSpellCastData* data, con
 
     if (visual) {
         if (visual->m_hasMissile && visual->m_missileModel && (visual->m_missileModel == SPELL_MISSILE_MODEL_MAINHAND || visual->m_missileModel == SPELL_MISSILE_MODEL_OFFHAND)) {
-            unit->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+            unit->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_precastKit);

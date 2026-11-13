@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Base/Types.h"
 #include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/Movement.h"
@@ -857,7 +858,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId);
     void OnVisFlagChanged(uint8_t oldFlags);
     void SetPredictedPower(POWER_TYPE powerType, int32_t value);
-    void SetSheatheState(uint32_t showWeapons, int32_t a2, int32_t a3);
+    void SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t noSend);
     void UpdateClientStandState(UNITSTANDSTATE standState);
     void UpdateModelScale(const CreatureModelDataRec* modelRec);
     void UpdateScriptRegistration();
@@ -896,7 +897,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation);
     int32_t ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim);
     void UpdateHandItemAnimEffects(bool force);
-    void ShowHandItemSpellEffects(int32_t a1, int32_t a2);
+    void ShowHandItemSpellEffects(int32_t show, int32_t force);
     void SetHandItemSpellEffectsVisible(int32_t visible);
     void PropagateSmoothFacing(float facing);
     static int32_t UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, uint32_t a5);

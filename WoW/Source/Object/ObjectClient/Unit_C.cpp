@@ -643,7 +643,7 @@ int32_t SheatheStateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSi
     uint32_t oldState = *static_cast<const uint32_t*>(oldValue);
 
     if (unit->m_obj->m_guid != ClntObjMgrGetActivePlayer() || unit->m_sheatheState == oldState) {
-        unit->SetSheatheState(unit->m_unit->m_sheatheState, 1, 1);
+        unit->SetSheatheState(unit->m_unit->m_sheatheState, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE);
     }
 
     return 1;
@@ -2857,7 +2857,7 @@ void CGUnit_C::UpdateClientStandState(UNITSTANDSTATE standState) {
     }
 
     if (this->m_sheatheState && (this->GetClientStandState() != UNIT_STANDING) && this->GetClientStandState() != UNIT_SITTINGCHAIR) {
-        this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+        this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     if (this->GetClientStandState() != this->m_animStandState) {
@@ -4292,11 +4292,11 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(sequence);
 
     if (rec && (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_UNKNOWN_2) && !force) {
-        this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+        this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
 
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
-            this->ShowHandItemSpellEffects(0, 0);
+            this->ShowHandItemSpellEffects(BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
         }
 
         return;
@@ -4304,14 +4304,14 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
 
     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
         if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
-            this->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         if (sequence != ANIM_LOAD_BOW && sequence != ANIM_LOAD_RIFLE && sequence != ANIM_LOAD_THROWN && !IsRangedWeaponAnim(sequence) && rec) {
             if (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_SHEATHE) {
-                this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+                this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
             } else if (rec->m_weaponflags & AnimationDataRec::ANIM_WEAPON_FLAG_UNSHEATHE) {
-                this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+                this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
             }
         }
 
@@ -4322,23 +4322,23 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
         SpellRec spellRec;
 
         if (g_spellDB.GetRecord(this->m_castSpellId, &spellRec) && !(spellRec.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
-            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
-            this->ShowHandItemSpellEffects(0, 0);
+            this->ShowHandItemSpellEffects(BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
         }
 
         return;
     }
 
     if (this->m_combat.m_attacking.m_guid && IsMeleeAttackAnim(sequence)) {
-        this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+        this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
 
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) {
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
-            this->ShowHandItemSpellEffects(0, 0);
+            this->ShowHandItemSpellEffects(BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
         }
 
         return;
@@ -4348,25 +4348,25 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
         int32_t weaponFlags = rec->m_weaponflags;
 
         if ((weaponFlags & AnimationDataRec::ANIM_WEAPON_FLAG_SHEATHE) && !force) {
-            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
             return;
         }
 
         if (weaponFlags & AnimationDataRec::ANIM_WEAPON_FLAG_UNSHEATHE) {
-            this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
             return;
         }
     }
 
     if (this->m_combat.m_attacking.m_guid) {
-        this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+        this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         return;
     }
 
     if (this->IsActivePlayer() || this->m_sheatheState == this->m_unit->m_sheatheState) {
-        this->SetHandItemSpellEffectsVisible(1);
+        this->SetHandItemSpellEffectsVisible(BOOL32::BOOL_TRUE);
     } else {
-        this->SetSheatheState(this->m_unit->m_sheatheState, 1, 0);
+        this->SetSheatheState(this->m_unit->m_sheatheState, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 }
 
@@ -4678,7 +4678,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
     if (this->m_mountModel && torsoSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId) && baseSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId)) {
         updateTorso = 0;
         previousAnim = INVALID_ANIMATION;
-        this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, 1, 0, 0);
+        this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
     }
 
     if (updateMount && this->m_mountModel && mountSlot.m_sequenceId != INVALID_ANIMATION && (mount.m_sequenceId != mountSlot.m_sequenceId || fabsf(mount.m_speed - mountSlot.m_speed) > 0.01f)) {
@@ -4689,11 +4689,11 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t flags) {
         updateTorso = 0;
 
         if (this->m_torsoKeyBone != -1) {
-            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, 1, 0, 0);
-            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, 1, 1, 0);
+            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
-        this->UnsetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, 1, 0, 0);
+        this->UnsetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
     }
 
     if ((!updateBase || torsoSlot.m_sequenceId != INVALID_ANIMATION || baseSlot.m_sequenceId != torso.m_sequenceId) && updateTorso) {
@@ -9333,20 +9333,20 @@ void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t seq
 // OFFSET: 0x00735A60
 int32_t CGUnit_C::UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, int32_t blend, int32_t primary, int32_t force) {
     if (!model) {
-        return 0;
+        return BOOL32::BOOL_FALSE;
     }
 
     if (!force && this->m_vehiclePassenger && this->m_vehiclePassenger->OverridesModelAnimation()) {
-        return 0;
+        return BOOL32::BOOL_FALSE;
     }
 
     int32_t result;
 
     if (model->IsLoaded(0, 0) && model->BoneHasParent(boneId)) {
-        result = 1;
+        result = BOOL32::BOOL_TRUE;
         model->UnsetBoneSequence(boneId, blend, primary);
     } else {
-        result = 0;
+        result = BOOL32::BOOL_FALSE;
     }
 
     CVehicle_C* vehicle = this->m_vehicle;
@@ -9356,7 +9356,7 @@ int32_t CGUnit_C::UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, int32_t
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->OverridesModelAnimation()) {
-                unit->UnsetKeyBoneSequence(unit->GetObjectModel(), boneId, blend, primary, 1);
+                unit->UnsetKeyBoneSequence(unit->GetObjectModel(), boneId, blend, primary, BOOL32::BOOL_TRUE);
             }
         }
     }
@@ -9446,7 +9446,7 @@ void CGUnit_C::ResetKeyBoneSequences() {
                         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
 
                         if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->OverridesModelAnimation()) {
-                            unit->UnsetKeyBoneSequence(unit->GetObjectModel(), torsoBone, 1, 1, 1);
+                            unit->UnsetKeyBoneSequence(unit->GetObjectModel(), torsoBone, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE);
                         }
                     }
                 }
@@ -12208,10 +12208,10 @@ void CGUnit_C::SetHandItemSpellEffectsVisible(int32_t visible) {
 
     if (visible) {
         this->m_clientFlags = flags | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
-        this->ShowHandItemSpellEffects(visible, 0);
+        this->ShowHandItemSpellEffects(visible, BOOL32::BOOL_FALSE);
     } else {
         this->m_clientFlags = flags & ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE;
-        this->ShowHandItemSpellEffects(visible, 0);
+        this->ShowHandItemSpellEffects(visible, BOOL32::BOOL_FALSE);
     }
 }
 
@@ -13743,8 +13743,8 @@ void CGUnit_C::SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t no
     }
 
     if (instant) {
-        this->UnsetKeyBoneSequence(this->m_worldModel, 3, 1, 1, 0);
-        this->UnsetKeyBoneSequence(this->m_worldModel, 2, 1, 1, 0);
+        this->UnsetKeyBoneSequence(this->m_worldModel, 3, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
+        this->UnsetKeyBoneSequence(this->m_worldModel, 2, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     WEAPONMODE oldState = this->m_sheatheState;
@@ -13760,7 +13760,7 @@ void CGUnit_C::SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t no
     }
 
     if (showWeapons) {
-        this->ShowHandItemSpellEffects(0, 0);
+        this->ShowHandItemSpellEffects(BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
     }
 
     if (instant) {
@@ -14101,7 +14101,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     }
 
     if (sheathed) {
-        this->ShowHandItemSpellEffects(1, 0);
+        this->ShowHandItemSpellEffects(BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     return 1;
@@ -14203,7 +14203,7 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
     }
 
     if (sheathe && mainHand) {
-        this->ShowHandItemSpellEffects(1, 0);
+        this->ShowHandItemSpellEffects(BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     return 1;
@@ -14574,7 +14574,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END) {
-        this->SetSheatheState(this->m_previousSheatheState, 1, 0);
+        this->SetSheatheState(this->m_previousSheatheState, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
     }
 
@@ -14951,7 +14951,7 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
                 CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*rider->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
 
                 if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->OverridesModelAnimation()) {
-                    unit->UnsetKeyBoneSequence(unit->GetObjectModel(), boneId, 1, 1, 1);
+                    unit->UnsetKeyBoneSequence(unit->GetObjectModel(), boneId, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE);
                 }
             }
         }
@@ -16690,7 +16690,7 @@ store:
 
 handItems:
     if (visual->m_flags & SPELL_VISUAL_FLAG_HAND_EFFECTS_ACT_LIKE_ITEMS) {
-        this->ShowHandItemSpellEffects(1, 1);
+        this->ShowHandItemSpellEffects(BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE);
     }
 }
 
@@ -16973,7 +16973,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
     if (effectName && !(this->GetModelData()->m_flags & 0x10)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
-            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDL, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
@@ -16984,7 +16984,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
     if (effectName && !(this->GetModelData()->m_flags & 0x10)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
-            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDR, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
@@ -17011,7 +17011,7 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
 
     if (spell && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (type == SPELL_VISUAL_KIT_PRECAST || type == SPELL_VISUAL_KIT_CAST)) {
-        this->SetSheatheState(WEAPONMODE_RANGEDMODE, 1, 0);
+        this->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
     }
 
     if (a5) {
@@ -18418,7 +18418,7 @@ void CGUnit_C::OnChannelObjectChanged(WOWGUID oldObject, int32_t oldSpell) {
         if (this->m_sheatheState == WEAPONMODE_NORMALMODE) {
             this->CreateFishingLineEffect();
         } else {
-            this->SetSheatheState(WEAPONMODE_NORMALMODE, 1, 0);
+            this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
         }
 
         return;
