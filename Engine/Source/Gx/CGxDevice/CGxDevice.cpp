@@ -681,8 +681,8 @@ void CGxDevice::XformPushAndSet(EGxXform xf, const C44Matrix& matrix) {
 // OFFSET: 0x00682C50
 void CGxDevice::InitLights() {
     for (uint32_t i = 0; i < 4; i++) {
-        this->m_lights[i].m_flags = 0xFF;
-        this->m_lights[i].unk_0046 = 0xFF;
+        this->m_lights[i].m_flags = CGxApiLight::FIELD_MASK::FIELD_ALL;
+        this->m_lights[i].m_updateMask = CGxApiLight::FIELD_MASK::FIELD_ALL;
         this->m_lights[i].m_enable = 0;
     }
 }
@@ -766,7 +766,7 @@ void CGxDevice::LightEnable(uint32_t index, int32_t enable) {
     CGxApiLight& light = this->m_lights[index];
 
     if (light.m_enable != enable) {
-        light.m_flags |= 0x1;
+        light.m_flags |= CGxApiLight::FIELD_MASK::FIELD_ENABLE;
         light.m_enable = enable;
     }
 }
@@ -1017,7 +1017,7 @@ void CGxDevice::LightSet(uint32_t index, const CGxLight& light, const C3Vector& 
     apiLight = light;
 
     if ((light.m_flags & 0x2) && (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f)) {
-        apiLight.m_flags |= 0x2;
+        apiLight.m_flags |= CGxApiLight::FIELD_MASK::FIELD_DIRECTION_OR_POSITION;
         apiLight.m_dir.x = apiLight.m_dir.x - pos.x;
         apiLight.m_dir.y = apiLight.m_dir.y - pos.y;
         apiLight.m_dir.z = apiLight.m_dir.z - pos.z;

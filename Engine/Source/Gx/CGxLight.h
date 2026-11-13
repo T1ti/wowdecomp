@@ -22,6 +22,20 @@ class CGxLight {
 
 class CGxApiLight {
     public:
+    // The same bits mark changed fields and select which fields can be submitted.
+    enum FIELD_MASK : uint16_t {
+        FIELD_ENABLE = 0x01,
+        FIELD_DIRECTION_OR_POSITION = 0x02,
+        FIELD_AMBIENT = 0x04,
+        FIELD_DIFFUSE = 0x08,
+        FIELD_SPECULAR = 0x10,
+        FIELD_CONSTANT_ATTENUATION = 0x20,
+        FIELD_LINEAR_ATTENUATION = 0x40,
+        FIELD_QUADRATIC_ATTENUATION = 0x80,
+        FIELD_ATTENUATION = 0xE0,
+        FIELD_ALL = 0xFF,
+    };
+
     /* 0000 */ C4Vector m_dir;
     /* 0010 */ C3Vector m_ambColor;
     /* 001C */ C3Vector m_dirColor;
@@ -31,7 +45,7 @@ class CGxApiLight {
     /* 003C */ float m_quadraticAttenuation;
     /* 0040 */ int32_t m_enable;
     /* 0044 */ uint16_t m_flags;
-    /* 0046 */ uint16_t unk_0046;
+    /* 0046 */ uint16_t m_updateMask; // Applicable fields; attenuation is positional-light only.
 
     CGxApiLight();
     CGxApiLight& operator=(const CGxLight& light);

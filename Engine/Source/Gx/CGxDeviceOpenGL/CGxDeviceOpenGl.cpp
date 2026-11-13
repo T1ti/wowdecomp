@@ -3208,15 +3208,15 @@ void CGxDeviceOpenGl::IStateSyncLights() {
 
         for (uint32_t i = 0; i < 4; i++, glLight++) {
             CGxApiLight& light = this->m_lights[i];
-            uint16_t flags = force | (mask & light.m_flags & light.unk_0046);
+            uint16_t flags = force | (mask & light.m_flags & light.m_updateMask);
 
             if (!flags) {
                 continue;
             }
 
-            if (flags & 0x1) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_ENABLE) {
                 if (!light.m_enable) {
-                    light.m_flags &= ~0x1;
+                    light.m_flags &= ~CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                     glDisable(glLight);
                     continue;
                 }
@@ -3226,7 +3226,7 @@ void CGxDeviceOpenGl::IStateSyncLights() {
                 continue;
             }
 
-            if (flags & 0x2) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_DIRECTION_OR_POSITION) {
                 if (!modelViewSet) {
                     CGxMatrixStack& view = this->m_xforms[GxXform_View];
                     this->IXformSetModelView(view.m_mtx[view.m_level]);
@@ -3245,19 +3245,19 @@ void CGxDeviceOpenGl::IStateSyncLights() {
                 }
             }
 
-            if (flags & 0x20) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_CONSTANT_ATTENUATION) {
                 glLightf(glLight, GL_CONSTANT_ATTENUATION, light.m_constantAttenuation);
             }
 
-            if (flags & 0x40) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_LINEAR_ATTENUATION) {
                 glLightf(glLight, GL_LINEAR_ATTENUATION, light.m_linearAttenuation);
             }
 
-            if (flags & 0x80) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_QUADRATIC_ATTENUATION) {
                 glLightf(glLight, GL_QUADRATIC_ATTENUATION, light.m_quadraticAttenuation);
             }
 
-            if (flags & 0x4) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_AMBIENT) {
                 GLfloat color[4];
                 color[0] = light.m_ambColor.x;
                 color[1] = light.m_ambColor.y;
@@ -3266,7 +3266,7 @@ void CGxDeviceOpenGl::IStateSyncLights() {
                 glLightfv(glLight, GL_AMBIENT, color);
             }
 
-            if (flags & 0x8) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_DIFFUSE) {
                 GLfloat color[4];
                 color[0] = light.m_dirColor.x;
                 color[1] = light.m_dirColor.y;
@@ -3275,7 +3275,7 @@ void CGxDeviceOpenGl::IStateSyncLights() {
                 glLightfv(glLight, GL_DIFFUSE, color);
             }
 
-            if (flags & 0x10) {
+            if (flags & CGxApiLight::FIELD_MASK::FIELD_SPECULAR) {
                 GLfloat color[4];
                 color[0] = light.m_specColor.x;
                 color[1] = light.m_specColor.y;
