@@ -44,6 +44,16 @@ struct MailAttachmentInfo {
 };
 
 struct MailboxMessageInfo {
+    enum FLAGS : uint32_t {
+        READ = 0x1,
+        RETURNED = 0x2,
+        COPIED = 0x4,
+        COD_PAYMENT = 0x8,
+        CALENDAR_INVITE_REMOVED = 0x100,
+        UNKNOWN_200 = 0x200,
+        RETURN_BLOCKED_MASK = 0x20A,
+    };
+
     static const int32_t SUBJECT_BUFFER_SIZE = 256;
     static const int32_t BODY_BUFFER_SIZE = 8000;
 

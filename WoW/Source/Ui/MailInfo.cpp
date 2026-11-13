@@ -456,7 +456,7 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
         message->m_invoiceRandomPropertiesID = 0;
         message->m_invoiceType = CGMailInfo::INVOICE_TYPE::UNSET;
 
-        if (!type && FriendList::s_friendList->IsIgnored(message->m_sender, true) && !(message->m_flags & 0x20A)) {
+        if (!type && FriendList::s_friendList->IsIgnored(message->m_sender, true) && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
             CDataStore reply;
 
             if (GetNumAttachments(message) || message->m_money) {
@@ -563,7 +563,7 @@ void CGMailInfo::UpdateRecentSenders() {
         for (j = 0; j < CGMailInfo::m_numInboxItems; j++) {
             MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[j];
 
-            if (message->m_flags & 0x1) {
+            if (message->m_flags & MailboxMessageInfo::FLAGS::READ) {
                 continue;
             }
 
@@ -637,7 +637,7 @@ void CGMailInfo::SetMailCopied(uint32_t messageID) {
         MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[i];
 
         if (message->m_messageID == static_cast<int32_t>(messageID)) {
-            message->m_flags |= 0x4;
+            message->m_flags |= MailboxMessageInfo::FLAGS::COPIED;
             FrameScript_SignalEvent(SCRIPT_EVENT_MAIL_INBOX_UPDATE, nullptr);
             return;
         }
@@ -824,7 +824,7 @@ void CGMailInfo::ParseInboxSubject(MailboxMessageInfo* message) {
     if (message->m_messageType == 5) {
         const char* format;
 
-        if (message->m_flags & 0x100) {
+        if (message->m_flags & MailboxMessageInfo::FLAGS::CALENDAR_INVITE_REMOVED) {
             format = FrameScript_GetText("CALENDAR_INVITE_REMOVED_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE);
         } else {
             format = FrameScript_GetText("CALENDAR_EVENT_REMOVED_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE);
@@ -856,7 +856,7 @@ void CGMailInfo::RemoveMoney(uint32_t messageID) {
     CGMailInfo::m_inbox.m_data[i]->m_money = 0;
     MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[i];
 
-    if ((message->m_messageType == 2 || (message->m_flags & 0x8) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
+    if ((message->m_messageType == 2 || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_MAIL_DELETE));
         msg.Put(CGMailInfo::m_object.m_guid);
@@ -909,7 +909,7 @@ void CGMailInfo::RemoveItem(uint32_t messageID, uint32_t itemGuid) {
     memset(attachment, 0, sizeof(*attachment));
     message->m_cod = 0;
 
-    if ((message->m_messageType == 2 || (message->m_flags & 0x8) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
+    if ((message->m_messageType == 2 || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_MAIL_DELETE));
         msg.Put(CGMailInfo::m_object.m_guid);
@@ -934,7 +934,7 @@ bool CGMailInfo::CanComplain(uint32_t index) {
     }
 
     MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[index];
-    return message && !message->m_messageType && !(message->m_flags & 0x2) && message->m_stationery != CGMailInfo::GM_STATIONERY_ID && message->m_sender != player->m_obj->m_guid && !FriendList::s_friendList->IsFriend(message->m_sender);
+    return message && !message->m_messageType && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURNED) && message->m_stationery != CGMailInfo::GM_STATIONERY_ID && message->m_sender != player->m_obj->m_guid && !FriendList::s_friendList->IsFriend(message->m_sender);
 }
 
 // VERIFY: 56c85263 auto
@@ -1023,7 +1023,7 @@ int32_t CGMailInfo::SetSendMoney(uint32_t money) {
 // VERIFY: e2b77feb manual
 // OFFSET: 0x0056FE30
 void CGMailInfo::MarkAsRead(uint32_t index) {
-    if (index >= CGMailInfo::m_numInboxItems || (CGMailInfo::m_inbox.m_data[index]->m_flags & 0x1)) {
+    if (index >= CGMailInfo::m_numInboxItems || (CGMailInfo::m_inbox.m_data[index]->m_flags & MailboxMessageInfo::FLAGS::READ)) {
         return;
     }
 
@@ -1033,14 +1033,14 @@ void CGMailInfo::MarkAsRead(uint32_t index) {
     msg.Put(static_cast<uint32_t>(CGMailInfo::m_inbox.m_data[index]->m_messageID));
     msg.Finalize();
     ClientServices::Send2(&msg);
-    CGMailInfo::m_inbox.m_data[index]->m_flags |= 0x1;
+    CGMailInfo::m_inbox.m_data[index]->m_flags |= MailboxMessageInfo::FLAGS::READ;
     CGMailInfo::UpdateRecentSenders();
 
     if (fabs(CGMailInfo::m_nextMailTime) < 0.00000023841858f) {
         uint32_t i;
 
         for (i = 0; i < CGMailInfo::m_numInboxItems; i++) {
-            if (!(CGMailInfo::m_inbox.m_data[i]->m_flags & 0x1)) {
+            if (!(CGMailInfo::m_inbox.m_data[i]->m_flags & MailboxMessageInfo::FLAGS::READ)) {
                 break;
             }
         }
