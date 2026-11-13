@@ -4838,7 +4838,7 @@ int32_t CGUnit_C::GetCursorOverride(int32_t unable) {
         return mode;
     }
 
-    CreatureStats_C* stats = this->m_creatureCacheEntry;
+    const CreatureStats_C* stats = this->m_creatureCacheEntry;
 
     if (!stats || !stats->m_iconName || !*stats->m_iconName) {
         return NO_CURSOR;
@@ -4948,7 +4948,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
         return false;
     }
 
-    CreatureStats_C* stats = unit->m_creatureCacheEntry;
+    const CreatureStats_C* stats = unit->m_creatureCacheEntry;
 
     if (unit->IsInCombat() && !(stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT)) && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_ALLOW_ENEMY_INTERACTION)) {
         return false;
@@ -19971,7 +19971,7 @@ int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, c
             SStrPrintf(foreignText, sizeof(foreignText), FrameScript_GetText("FOREIGN_SERVER_LABEL", -1, GENDER_NOT_APPLICABLE));
         }
     } else {
-        CreatureStats_C* stats = unit->m_creatureCacheEntry;
+        const CreatureStats_C* stats = unit->m_creatureCacheEntry;
 
         if (stats && *stats->m_subName) {
             const char* subName = stats->m_subName;

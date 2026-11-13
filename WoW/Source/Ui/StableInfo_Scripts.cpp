@@ -169,7 +169,7 @@ static int32_t Script_SetPetStablePaperdoll(lua_State* L) {
     }
 
     int32_t selected = CGStableInfo::GetSelectedPetIndex();
-    CreatureStats_C* stats;
+    const CreatureStats_C* stats;
 
     if (selected == -1) {
         CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));

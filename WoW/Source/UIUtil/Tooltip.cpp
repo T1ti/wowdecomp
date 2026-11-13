@@ -1767,7 +1767,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(guid);
     WOWGUID none = { 0 };
     NameCache* name = g_nameDBCache.GetRecord(guid.m_guid, none, nullptr, nullptr, false);
-    CreatureStats_C* creature = nullptr;
+    const CreatureStats_C* creature = nullptr;
 
     if (unit) {
         creature = unit->m_creatureCacheEntry;
@@ -7412,7 +7412,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
         }
     }
 
-    CreatureStats_C* stats = unit->m_creatureCacheEntry;
+    const CreatureStats_C* stats = unit->m_creatureCacheEntry;
 
     if (!stats || !(stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TAMEABLE) || !stats->m_family) {
         this->AddLine(FrameScript_GetText("NOT_TAMEABLE", -1, GENDER_NOT_APPLICABLE), nullptr, textColor, textColor, 0);

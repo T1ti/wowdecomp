@@ -30,7 +30,7 @@ class CGCharacterModelBase : public CSimpleModel {
     /* 0368 */ WOWGUID m_unitGuid;
     /* 0370 */ uint32_t m_sequenceSet;
     /* 0374 */ uint32_t m_sequenceResetTime;
-    /* 0378 */ CreatureStats_C* m_creatureStats;
+    /* 0378 */ const CreatureStats_C* m_creatureStats;
     /* 037C */ uint32_t unused_037C;
 
     ~CGCharacterModelBase() override;
@@ -49,8 +49,8 @@ class CGCharacterModelBase : public CSimpleModel {
     void ConfigureCamera();
     void RefreshUnit(WOWGUID guid);
     void SetUpModel(CGUnit_C* unit);
-    void SetUpModel(CreatureStats_C* stats);
-    void SetCreature(CreatureStats_C* stats);
+    void SetUpModel(const CreatureStats_C* stats);
+    void SetCreature(const CreatureStats_C* stats);
     void RotateModel(float facing);
 };
 

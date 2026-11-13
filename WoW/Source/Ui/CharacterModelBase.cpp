@@ -163,7 +163,7 @@ void CGCharacterModelBase::OnModelLoaded(CM2Model* model) {
 
 // VERIFY: ab38d930 manual
 // OFFSET: 0x00597840
-void CGCharacterModelBase::SetCreature(CreatureStats_C* stats) {
+void CGCharacterModelBase::SetCreature(const CreatureStats_C* stats) {
     this->m_unitGuid = WOWGUID();
     this->m_creatureStats = stats;
 
@@ -285,7 +285,7 @@ void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
 
 // VERIFY: 5476abab auto
 // OFFSET: 0x00597700
-void CGCharacterModelBase::SetUpModel(CreatureStats_C* stats) {
+void CGCharacterModelBase::SetUpModel(const CreatureStats_C* stats) {
     if (!stats) {
         return;
     }
