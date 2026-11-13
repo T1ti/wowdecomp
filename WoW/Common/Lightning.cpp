@@ -75,7 +75,7 @@ void CLightning::Reset() {
     this->m_waveAngle = (this->m_chainEffects->m_maxWaveAngle - this->m_chainEffects->m_minWaveAngle) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveAngle;
     this->m_waveSpin = (this->m_chainEffects->m_maxWaveSpin - this->m_chainEffects->m_minWaveSpin) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveSpin;
 
-    if (this->m_chainEffects->m_flags & 0x400) {
+    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_DEFINED_WAVE_PHASE) {
         this->m_wavePhase = this->m_chainEffects->m_wavePhase;
     } else {
         this->m_wavePhase = CRandom::ufloat_(s_rndSeed) * TWO_PI;
@@ -175,7 +175,7 @@ void CLightning::BuildPoint(C3Vector& point, const C3Vector& base, float t, Ligh
 void CLightning::ApplyPulsingToVertexData(int32_t& start, int32_t& count) {
     const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
 
-    if (!(chainEffects->m_flags & 0x20)) {
+    if (!(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
         start = 0;
         count = this->m_positions.Count();
         return;
@@ -321,7 +321,7 @@ void CLightning::Init(const SpellChainEffectsRec* chainEffects) {
     this->m_color.g = chainEffects->m_green;
     this->m_color.b = chainEffects->m_blue;
 
-    if (!(this->m_chainEffects->m_flags & 0x20)) {
+    if (!(this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
         for (uint32_t i = 0; i < this->m_colors.Count(); i++) {
             this->m_colors.m_data[i] = this->m_color;
         }
@@ -341,7 +341,7 @@ void CLightning::PrecomputeBeamValues() {
 
     const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
 
-    if (fabs(chainEffects->m_waveHeight) >= 0.00000023841858f && !(chainEffects->m_flags & 0x8)) {
+    if (fabs(chainEffects->m_waveHeight) >= 0.00000023841858f && !(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::HELICAL_WAVE)) {
         float c = CMath::cos_(this->m_waveAngle) * chainEffects->m_waveHeight;
         float cx = s_beamAxisZ.x * c;
         float cy = s_beamAxisZ.y * c;
@@ -373,7 +373,7 @@ void CLightning::ApplyWaveToPosition(C3Vector& position, float t, float length) 
     float envelope = 1.0f - (t - 0.5f) * (t - 0.5f) * 4.0f;
     float angle = t * chainEffects->m_waveFreq * length + this->m_wavePhase;
 
-    if (chainEffects->m_flags & 0x8) {
+    if (chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::HELICAL_WAVE) {
         float height = envelope * chainEffects->m_waveHeight;
         float s = CMath::sin_(angle) * height;
         float sx = s_beamAxisZ.x * s;
@@ -523,7 +523,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
         this->m_dstPos = dstPos;
     }
 
-    if (this->m_chainEffects->m_flags & 0x2) {
+    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_HIERARCHICAL_POINTS) {
         this->BuildPointsUsingHierarchy();
     } else {
         this->BuildPoints();
@@ -549,7 +549,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     float width = chainEffects->m_width;
     float step = 1.0f / static_cast<float>(pointCount - 1);
 
-    if (!(chainEffects->m_flags & 0x80)) {
+    if (!(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::UNKNOWN_80)) {
         float t = step;
         uint32_t end = 2 * pointCount - 2;
 
@@ -842,7 +842,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     chainEffects = this->m_chainEffects;
     float texScale;
 
-    if (chainEffects->m_flags & 0x100) {
+    if (chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::SCALE_TEXTURE_BY_LENGTH) {
         texScale = length / chainEffects->m_textureLength;
     } else {
         texScale = 1.0f;
@@ -850,7 +850,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
 
     float texOffset = this->m_texRandom + this->m_texOffset;
 
-    if ((chainEffects->m_flags & 0x100) && (chainEffects->m_flags & 0x200)) {
+    if ((chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::SCALE_TEXTURE_BY_LENGTH) && (chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::OFFSET_TEXTURE_BY_LENGTH)) {
         texOffset = texOffset + length / chainEffects->m_textureLength;
     }
 
@@ -991,7 +991,7 @@ void CLightningManager::Remove(uint32_t index) {
 void CLightning::UpdateJointCount(float length, float radius) {
     int32_t count;
 
-    if (this->m_chainEffects->m_flags & 0x1) {
+    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_FIXED_JOINT_COUNT) {
         count = this->m_chainEffects->m_jointCount;
     } else {
         count = static_cast<int32_t>(length / this->m_chainEffects->m_avgSegLen) + 2;
@@ -1039,7 +1039,7 @@ void CLightning::Update(float elapsed) {
         }
 
         this->Reset();
-    } else if ((this->m_chainEffects->m_flags & 0x10) && this->m_flickerTimer <= 0.0f) {
+    } else if ((this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::FLICKER) && this->m_flickerTimer <= 0.0f) {
         this->m_flickerTimer = RandomFloat(this->m_chainEffects->m_minFlickerOffDuration, this->m_chainEffects->m_maxFlickerOffDuration);
         this->m_flags |= RUNTIME_FLAGS::FLAG_FLICKER_OFF;
     }
@@ -1101,7 +1101,7 @@ void CLightning::Update(float elapsed) {
         LightningJoint& joint = this->m_joints.m_data[i];
         joint.m_jumpTimer -= elapsed;
 
-        if ((this->m_chainEffects->m_flags & 0x4) && joint.m_jumpTimer < 0.0f) {
+        if ((this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::JOINT_JUMP) && joint.m_jumpTimer < 0.0f) {
             this->RandomizeJoint(joint, radius);
         } else {
             joint.m_pos.x = joint.m_velocity.x * elapsed + joint.m_pos.x;
@@ -1115,13 +1115,13 @@ void CLightning::Update(float elapsed) {
     this->m_wavePhase = this->m_wavePhase - chainEffects->m_waveSpeed * elapsed;
     this->m_arcAngle = this->m_arcSpin * elapsed + this->m_arcAngle;
 
-    if (!(chainEffects->m_flags & 0x20)) {
+    if (!(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
         return;
     }
 
     this->m_pulsePos = chainEffects->m_pulseSpeed * elapsed + this->m_pulsePos;
 
-    if (!(this->m_flags & RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP) && !(chainEffects->m_flags & 0x40)) {
+    if (!(this->m_flags & RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP) && !(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::LOOP_PULSE)) {
         return;
     }
 
