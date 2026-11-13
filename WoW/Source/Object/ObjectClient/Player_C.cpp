@@ -902,7 +902,7 @@ void CGPlayer_C::UpdateTaxiStatus(CGUnit_C* unit) {
 // OFFSET: 0x006D2900
 void CGPlayer_C::TurnOnGuildTabardPurchase() {
     if (this->m_characterComponent) {
-        this->m_characterComponent->m_flags |= 0x44;
+        this->m_characterComponent->m_flags |= CCharacterComponent::FLAGS::TABARD_PREVIEW_AND_GEOSETS;
         this->m_characterComponent->RenderPrep(1);
     }
 
@@ -11499,7 +11499,7 @@ void CGPlayer_C::SaveTabard(int32_t emblemStyle, int32_t emblemColor, int32_t bo
 bool CGPlayer_C::LoadGuildTextures(int32_t displayId) {
     ItemDisplayInfoRec rec;
 
-    if (!this->m_characterComponent || !g_itemDisplayInfoDB.GetRecord(displayId, &rec) || (this->m_characterComponent->m_flags & 0x40)) {
+    if (!this->m_characterComponent || !g_itemDisplayInfoDB.GetRecord(displayId, &rec) || (this->m_characterComponent->m_flags & CCharacterComponent::FLAGS::TABARD_PREVIEW)) {
         return false;
     }
 

@@ -148,7 +148,7 @@ static int32_t IsPortraitDrawable(CGUnit_C* unit) {
         return 0;
     }
 
-    if (unit->m_characterComponent && (!unit->m_characterComponent->RenderPrep(0) || (unit->m_characterComponent->m_flags & 4))) {
+    if (unit->m_characterComponent && (!unit->m_characterComponent->RenderPrep(0) || (unit->m_characterComponent->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY))) {
         return 0;
     }
 

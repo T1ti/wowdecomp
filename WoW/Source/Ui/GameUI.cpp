@@ -3702,7 +3702,7 @@ void CGGameUI::EnterWorld() {
     if (component) {
         component->RenderPrep(1);
 
-        if (component->m_flags & 0x40) {
+        if (component->m_flags & CCharacterComponent::FLAGS::TABARD_PREVIEW) {
             player->TurnOffGuildTabardPurchase();
         }
     }

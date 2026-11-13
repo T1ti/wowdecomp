@@ -70,6 +70,24 @@ class CComponentRequest {
 class CStatus;
 class CCharacterComponent {
     public:
+    enum FLAGS : int32_t {
+        TEXTURES_DIRTY = 0x1,
+        UNKNOWN_2 = 0x2,
+        GEOSETS_DIRTY = 0x4,
+        UNKNOWN_8 = 0x8,
+        BARE_FEET = 0x10,
+        UNKNOWN_20 = 0x20,
+        TABARD_PREVIEW = 0x40,
+        TEXTURES_AND_GEOSETS_DIRTY = 0x5,
+        INITIAL_FLAGS = 0x7,
+        TABARD_PREVIEW_AND_GEOSETS = 0x44,
+        DISPLAY_RESET_MASK = 0x45,
+    };
+
+    enum FLAG_BITS : int32_t {
+        BARE_FEET_BIT_INDEX = 4,
+    };
+
     static CVar* g_componentCompressVar;
     static CVar* g_componentTextureLevelVar;
     static CVar* g_componentThreadVar;
