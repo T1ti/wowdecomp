@@ -141,11 +141,11 @@ void PlayerNameUpdateDrawCallback(PLAYERNAMEDESC* desc) {
             object->ObjectNameVisibilityChanged();
         }
 
-        model->m_runtimeFlags &= ~0x20;
+        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_UNKNOWN_20;
         model->m_drawCallback = &PLAYERNAMEDESC::RenderIfVisible;
         model->m_drawArg = desc;
     } else {
-        model->m_runtimeFlags |= 0x20;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_UNKNOWN_20;
         model->m_drawCallback = nullptr;
         model->m_drawArg = nullptr;
 
@@ -253,7 +253,7 @@ void PlayerNameDelete(PLAYERNAMEDESC* desc) {
         CM2Model* model = object->m_worldModel;
 
         if (model) {
-            model->m_runtimeFlags |= 0x20;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_UNKNOWN_20;
             model->m_drawCallback = nullptr;
             model->m_drawArg = nullptr;
         }

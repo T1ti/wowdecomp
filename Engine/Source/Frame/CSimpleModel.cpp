@@ -336,7 +336,7 @@ void CSimpleModel::SetCameraByIndex(uint32_t index) {
 
     CM2Model* model = this->m_model;
 
-    if (!(model->m_runtimeFlags & 0x1)) {
+    if (!(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
         model->WaitForLoad(nullptr);
     }
 
@@ -566,15 +566,15 @@ void CSimpleModel::OnLayerUpdate(float elapsedSec) {
         CM2Model* model = this->m_model;
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= 0x80;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
         } else {
-            model->m_runtimeFlags |= 0x8;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
         }
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= 0x20000;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
         } else {
-            model->m_runtimeFlags |= 0x10000;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
         }
     }
 

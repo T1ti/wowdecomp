@@ -68,15 +68,15 @@ void DayNight::DNStars::Render() {
     CM2Model* parent = model->m_attachParent;
 
     if (parent) {
-        model->m_runtimeFlags |= 0x80;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
     } else {
-        model->m_runtimeFlags |= 0x8;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
     }
 
     if (parent) {
-        model->m_runtimeFlags |= 0x20000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags |= 0x10000;
+        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
     }
 
     this->m_model->m_fadeAlpha = this->m_color.a * 0.0039215689f;

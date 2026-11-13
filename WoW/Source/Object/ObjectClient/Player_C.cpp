@@ -10641,7 +10641,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                     this->m_rangedWeaponModel->DetachFromParent();
                 }
 
-                this->m_rangedWeaponModel->m_runtimeFlags |= 0x20;
+                this->m_rangedWeaponModel->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_UNKNOWN_20;
                 this->m_rangedWeaponModel->m_drawCallback = nullptr;
                 this->m_rangedWeaponModel->m_drawArg = nullptr;
                 this->m_rangedWeaponModel->Release();

@@ -69,15 +69,15 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
                 CM2Model* model = component->m_data.m_model;
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x80u) | (done << 7);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED) | (done << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_DRAW_ENABLED);
                 } else {
-                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x8u) | (done << 3);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED) | (done << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_DRAW_ENABLED);
                 }
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x20000u) | (done << 17);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED) | (done << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_PARTICLES_ENABLED);
                 } else {
-                    model->m_runtimeFlags = (model->m_runtimeFlags & ~0x10000u) | (done << 16);
+                    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED) | (done << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_PARTICLES_ENABLED);
                 }
             }
 
@@ -126,15 +126,15 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgres
                 CM2Model* model = component->m_data.m_model;
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags &= ~0x80u;
+                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
                 } else {
-                    model->m_runtimeFlags &= ~0x8u;
+                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
                 }
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags &= ~0x20000u;
+                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
                 } else {
-                    model->m_runtimeFlags &= ~0x10000u;
+                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
                 }
             }
 

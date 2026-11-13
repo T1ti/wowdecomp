@@ -337,25 +337,25 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
         CM2Model* model = CBarrier::s_sparkles[i];
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= 0x80;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
         } else {
-            model->m_runtimeFlags |= 0x8;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
         }
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= 0x20000;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
         } else {
-            model->m_runtimeFlags |= 0x10000;
+            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
         }
 
-        CBarrier::s_sparkles[i]->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
+        CBarrier::s_sparkles[i]->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
         CBarrier::s_sparkles[i]->m_worldTransform = transform;
         CBarrier::s_sparkles[i]->m_fadeAlpha = this->m_contacts.m_data[i].m_strength;
 
         for (uint32_t j = 0; ; j++) {
             CM2Model* loaded = CBarrier::s_sparkles[i];
 
-            if (!(loaded->m_runtimeFlags & 0x1)) {
+            if (!(loaded->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
                 loaded->WaitForLoad(nullptr);
             }
 
@@ -365,7 +365,7 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
 
             CM2Model* emitterModel = CBarrier::s_sparkles[i];
 
-            if (!(emitterModel->m_runtimeFlags & 0x1)) {
+            if (!(emitterModel->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
                 emitterModel->WaitForLoad(nullptr);
             }
 

@@ -257,7 +257,7 @@ void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
         return;
     }
 
-    if (!(model->m_runtimeFlags & 0x1)) {
+    if (!(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
         model->WaitForLoad(nullptr);
     }
 
