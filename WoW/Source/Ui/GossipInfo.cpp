@@ -113,16 +113,16 @@ static void GossipTextCallback(int32_t id, const WOWGUID& guid, void* param, boo
 // VERIFY: b728608d manual
 // OFFSET: 0x0058AC30
 void CGGossipInfo::SetGossipText(int32_t textId) {
-    NPCText* text = g_npcTextDBCache.GetRecord(textId, CGGossipInfo::m_gossip, GossipTextCallback, nullptr, false);
+    NPCText* text = g_npcTextDBCache.GetRecord(textId, m_gossip, GossipTextCallback, nullptr, false);
 
     if (!text) {
-        CGGossipInfo::m_textPending = 1;
+        m_textPending = 1;
         return;
     }
 
-    CGGossipInfo::m_textPending = 0;
+    m_textPending = 0;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    CGObject_C* object = ClntObjMgrObjectPtr(CGGossipInfo::m_gossip, TYPE_OBJECT, __FILE__, __LINE__);
+    CGObject_C* object = ClntObjMgrObjectPtr(m_gossip, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!player || !object) {
         return;
@@ -147,28 +147,31 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
     uint32_t bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
     float threshold = (2.0f - *reinterpret_cast<float*>(&bits)) * total;
     float sum = 0.0f;
-    uint32_t index;
+    int32_t index = -1;
 
-    for (index = 0; index < 8; index++) {
-        if (text->m_text[index][female]) {
-            sum += text->m_probability[index];
+    for (uint32_t i = 0; i < 8; i++) {
+        if (text->m_text[i][female]) {
+            sum += text->m_probability[i];
 
-            if (sum >= threshold) {
+            // The original comparison also selects on an unordered result.
+            if (!(sum < threshold)) {
+                index = static_cast<int32_t>(i);
                 break;
             }
         }
     }
 
-    if (index >= 8) {
+    if (index < 0) {
         ConsoleWriteA("Missing gossip text!", ERROR_COLOR);
         WOWGUID none = { 0 };
-        CGGossipInfo::SetGossip(none);
+        SetGossip(none);
         return;
     }
 
+    const uint32_t* emoteIds = text->m_emote[index];
     uint32_t emoteCount = 0;
 
-    while (emoteCount < 3 && text->m_emote[index][emoteCount]) {
+    while (emoteCount < 3 && emoteIds[emoteCount]) {
         emoteCount++;
     }
 
@@ -178,11 +181,11 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
         emotes.m_count = emoteCount;
 
         for (uint32_t i = 0; i < emoteCount; i++) {
-            emotes.m_nodes[i].m_emote = text->m_emote[index][i];
+            emotes.m_nodes[i].m_emote = emoteIds[i];
             emotes.m_nodes[i].m_delay = text->m_emoteDelay[index][i];
         }
 
-        CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGossipInfo::m_gossip, TYPE_UNIT, __FILE__, __LINE__));
+        CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(m_gossip, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
             unit->PlayEmotes(emotes);
@@ -195,7 +198,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
     uint32_t language = text->m_language[index];
     uint32_t skill = 0;
     player->GetLanguageSkill(language, skill);
-    CGChat::TranslateMessage(language, skill, buffer, CGGossipInfo::m_gossipText, sizeof(CGGossipInfo::m_gossipText), 0, 1);
+    CGChat::TranslateMessage(language, skill, buffer, m_gossipText, sizeof(m_gossipText), 0, 1);
     FrameScript_SignalEvent(SCRIPT_EVENT_GOSSIP_SHOW, nullptr);
 }
 
