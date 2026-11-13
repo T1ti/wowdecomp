@@ -1,4 +1,5 @@
 #include "CGlueMgr.h"
+#include "WoW/Source/Glue/Types.h"
 #include <cmath>
 #include <cstdarg>
 #include <cstring>
@@ -1987,22 +1988,22 @@ void CGlueMgr::EnterWorld() {
 
     uint32_t flags = CGlueMgr::m_characterInfo->m_flags;
 
-    if (flags & 0x4) {
+    if (flags & CharEnumFlags::CHARACTER_LOCKED_FOR_TRANSFER) {
         FrameScript_SignalEvent(GLUE_EVENT_OPEN_STATUS_DIALOG, "%s%s", "OKAY", FrameScript_GetText(ClientServices::GetErrorToken(CHAR_LOGIN_LOCKED_FOR_TRANSFER), -1, GENDER_NOT_APPLICABLE));
         return;
     }
 
-    if (flags & 0x1000000) {
+    if (flags & CharEnumFlags::CHARACTER_FLAG_LOCKED_BY_BILLING) {
         FrameScript_SignalEvent(GLUE_EVENT_OPEN_STATUS_DIALOG, "%s%s", "OKAY", FrameScript_GetText(ClientServices::GetErrorToken(CHAR_LOGIN_LOCKED_BY_BILLING), -1, GENDER_NOT_APPLICABLE));
         return;
     }
 
-    if (flags & 0x4000) {
+    if (flags & CharEnumFlags::CHARACTER_FLAG_RENAME) {
         FrameScript_SignalEvent(GLUE_EVENT_FORCE_RENAME_CHARACTER, "%s", "CHAR_RENAME_DESCRIPTION");
         return;
     }
 
-    if (!(flags & 0x2000000) && NameNeedsDeclensions(s_locale, CGlueMgr::m_characterInfo->m_name)) {
+    if (!(flags & CharEnumFlags::CHARACTER_FLAG_DECLINED) && NameNeedsDeclensions(s_locale, CGlueMgr::m_characterInfo->m_name)) {
         FrameScript_SignalEvent(GLUE_EVENT_FORCE_DECLINE_CHARACTER, nullptr);
         return;
     }

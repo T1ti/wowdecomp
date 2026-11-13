@@ -123,10 +123,10 @@ static int32_t Script_GetCharacterInfo(lua_State* L) {
     }
 
     lua_pushnumber(L, g_scriptSexIndex[display->m_characterInfo.m_sexID]);
-    lua_pushboolean(L, display->m_characterInfo.m_flags & 0x2000);
-    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & 0x1);
-    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & 0x100000);
-    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & 0x10000);
+    lua_pushboolean(L, display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST);
+    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & CHARACTER_INFO::CUSTOMIZE_FLAG_APPEARANCE);
+    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & CHARACTER_INFO::CUSTOMIZE_FLAG_RACE_CHANGE);
+    lua_pushboolean(L, display->m_characterInfo.m_customizeFlags & CHARACTER_INFO::CUSTOMIZE_FLAG_FACTION_CHANGE);
     return 10;
 }
 
@@ -173,7 +173,7 @@ static int32_t Script_RenameCharacter(lua_State* L) {
 
     CharacterSelectionDisplay* display = GetCharacterInfo(index);
 
-    if (!display || !(display->m_characterInfo.m_flags & 0x4000)) {
+    if (!display || !(display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_RENAME)) {
         return 0;
     }
 
@@ -217,7 +217,7 @@ static int32_t Script_DeclineCharacter(lua_State* L) {
 
     CharacterSelectionDisplay* display = &CCharacterSelection::s_characterList[index];
 
-    if (!display || (display->m_characterInfo.m_flags & 0x2000000)) {
+    if (!display || (display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_DECLINED)) {
         return 0;
     }
 

@@ -342,9 +342,9 @@ void CCharacterCreation::CreateCharacter(const char* name) {
     if (guid && display) {
         uint32_t flags = display->m_characterInfo.m_customizeFlags;
 
-        if (flags & 0x100000) {
+        if (flags & CHARACTER_INFO::CUSTOMIZE_FLAG_RACE_CHANGE) {
             CGlueMgr::RaceChange(guid, &info);
-        } else if (flags & 0x10000) {
+        } else if (flags & CHARACTER_INFO::CUSTOMIZE_FLAG_FACTION_CHANGE) {
             CGlueMgr::FactionChange(guid, &info);
         } else {
             CGlueMgr::CustomizeCharacter(guid, &info);
@@ -437,7 +437,7 @@ void CCharacterCreation::Dress() {
                     continue;
                 }
 
-                if (slot == INVSLOT_HEAD || ((display->m_characterInfo.m_flags & 0x800) && slot == INVSLOT_BACK)) {
+                if (slot == INVSLOT_HEAD || ((display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_HIDE_CLOAK) && slot == INVSLOT_BACK)) {
                     continue;
                 }
 
@@ -625,7 +625,7 @@ void CCharacterCreation::SetSelectedSex(uint32_t sexID) {
     if (CCharacterCreation::m_existingCharacterIndex >= 0) {
         CharacterSelectionDisplay* display = CCharacterSelection::GetCharacterDisplay(CCharacterCreation::m_existingCharacterIndex);
 
-        if (display && display->m_characterInfo.m_sexID == sexID && (display->m_characterInfo.m_customizeFlags & 0x1)) {
+        if (display && display->m_characterInfo.m_sexID == sexID && (display->m_characterInfo.m_customizeFlags & CHARACTER_INFO::CUSTOMIZE_FLAG_APPEARANCE)) {
             data.m_preferences.m_raceID = display->m_characterInfo.m_raceID;
             data.m_preferences.m_sexID = display->m_characterInfo.m_sexID;
             data.m_preferences.m_classId = display->m_characterInfo.m_classID;
@@ -788,7 +788,7 @@ void CCharacterCreation::SetSelectedRace(uint32_t raceIndex) {
         display = CCharacterSelection::GetCharacterDisplay(CCharacterCreation::m_existingCharacterIndex);
     }
 
-    if (display && display->m_characterInfo.m_raceID == CCharacterCreation::m_races.m_data[CCharacterCreation::m_raceIndex] && (display->m_characterInfo.m_customizeFlags & 0x110000)) {
+    if (display && display->m_characterInfo.m_raceID == CCharacterCreation::m_races.m_data[CCharacterCreation::m_raceIndex] && (display->m_characterInfo.m_customizeFlags & CHARACTER_INFO::CUSTOMIZE_RACE_OR_FACTION_MASK)) {
         data.m_preferences.m_raceID = display->m_characterInfo.m_raceID;
         data.m_preferences.m_sexID = display->m_characterInfo.m_sexID;
         data.m_preferences.m_classId = display->m_characterInfo.m_classID;

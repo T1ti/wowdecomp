@@ -1,4 +1,5 @@
 #include "CharacterSelection.h"
+#include "WoW/Source/Glue/Types.h"
 #include "WoW/Common/Types.h"
 #include <cstring>
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
@@ -242,8 +243,8 @@ void CCharacterSelection::UpdateCharacterName(WOWGUID guid, const char* name) {
     ClearAddOnEnableState(CCharacterSelection::s_characterList[index].m_characterInfo.m_name);
     LoadAddOnEnableState(name);
     SStrCopy(CCharacterSelection::s_characterList[index].m_characterInfo.m_name, name, sizeof(CCharacterSelection::s_characterList[index].m_characterInfo.m_name));
-    CCharacterSelection::s_characterList[index].m_characterInfo.m_flags &= ~0x4000;
-    CCharacterSelection::s_characterList[index].m_characterInfo.m_flags &= ~0x2000000;
+    CCharacterSelection::s_characterList[index].m_characterInfo.m_flags &= ~CharEnumFlags::CHARACTER_FLAG_RENAME;
+    CCharacterSelection::s_characterList[index].m_characterInfo.m_flags &= ~CharEnumFlags::CHARACTER_FLAG_DECLINED;
     FrameScript_SignalEvent(GLUE_EVENT_CHARACTER_LIST_UPDATE, nullptr);
 }
 
@@ -288,7 +289,7 @@ void CCharacterSelection::UpdateCharacterInfo(WOWGUID guid, const char* name, ui
         info.m_raceID = raceID;
     }
 
-    info.m_customizeFlags &= 0xFFEEFFFE;
+    info.m_customizeFlags &= CHARACTER_INFO::CUSTOMIZE_RETAIN_MASK;
     FrameScript_SignalEvent(GLUE_EVENT_CHARACTER_LIST_UPDATE, nullptr);
 }
 
@@ -297,7 +298,7 @@ void CCharacterSelection::UpdateCharacterInfo(WOWGUID guid, const char* name, ui
 void CCharacterSelection::UpdateCharacterNameDeclension(WOWGUID guid) {
     for (uint32_t index = 0; index < CCharacterSelection::s_characterList.Count(); index++) {
         if (CCharacterSelection::s_characterList[index].m_characterInfo.m_guid == guid) {
-            CCharacterSelection::s_characterList[index].m_characterInfo.m_flags |= 0x2000000;
+            CCharacterSelection::s_characterList[index].m_characterInfo.m_flags |= CharEnumFlags::CHARACTER_FLAG_DECLINED;
             return;
         }
     }
@@ -338,7 +339,7 @@ void CCharacterSelection::GenericLightingCallback(CM2Model* model, CM2Lighting* 
     CM2LightArray* lights = static_cast<CM2LightArray*>(arg);
     CharacterSelectionDisplay* display = CCharacterSelection::s_selectionIndex < 0 || CCharacterSelection::s_selectionIndex >= static_cast<int32_t>(CCharacterSelection::s_characterList.Count()) ? nullptr : &CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex];
 
-    if (!lights->unk_01BC && display && (display->m_characterInfo.m_flags & 0x2000)) {
+    if (!lights->unk_01BC && display && (display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST)) {
         lights = &lights[1];
 
         if (!lights->m_hasCustomLight) {
@@ -484,11 +485,11 @@ void CCharacterSelection::ShowCharacter() {
 
             uint32_t flags = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags;
 
-            if ((flags & 0x400) && slot == INVSLOT_HEAD) {
+            if ((flags & CharEnumFlags::CHARACTER_FLAG_HIDE_HELM) && slot == INVSLOT_HEAD) {
                 continue;
             }
 
-            if ((flags & 0x800) && slot == INVSLOT_BACK) {
+            if ((flags & CharEnumFlags::CHARACTER_FLAG_HIDE_CLOAK) && slot == INVSLOT_BACK) {
                 continue;
             }
 
@@ -535,7 +536,7 @@ void CCharacterSelection::ShowCharacter() {
             }
         }
 
-        if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags & 0x2000) {
+        if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST) {
             CGlueMgr::AttachCharacterSelectVisuals(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model);
         }
 
@@ -594,7 +595,7 @@ void CCharacterSelection::ShowCharacter() {
 
     DayNight::DNInfo* info = DayNight::GetInfo();
 
-    if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags & 0x2000) {
+    if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST) {
         FFX::SetEffect(CGlueMgr::m_deathEffect);
         info->m_bands.m_glow = s_ghostGlow;
     } else {

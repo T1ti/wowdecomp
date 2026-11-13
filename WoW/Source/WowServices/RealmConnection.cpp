@@ -32,7 +32,7 @@ int32_t RealmConnection::HandleCharEnum(uint32_t msgId, uint32_t time, CDataStor
 
     int32_t invalid = 0;
 
-    if (count > 10) {
+    if (count > RealmConnection::CHARACTER_ENUM_COUNT_LIMIT) {
         count = 0;
         invalid = 1;
     }
@@ -67,7 +67,7 @@ int32_t RealmConnection::HandleCharEnum(uint32_t msgId, uint32_t time, CDataStor
         msg->Get(info->m_petExperienceLevel);
         msg->Get(info->m_petCreatureFamilyID);
 
-        for (int32_t j = 0; j < 23; j++) {
+        for (int32_t j = 0; j < CHARACTER_INFO::INVENTORY_DISPLAY_SLOT_COUNT; j++) {
             msg->Get(info->m_inventoryItemDisplayID[j]);
 
             uint8_t inventoryType;
