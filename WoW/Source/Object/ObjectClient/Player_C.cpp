@@ -8239,9 +8239,9 @@ void CGPlayer_C::ToggleSheathe() {
     switch (this->m_sheatheState) {
         case WEAPONMODE_SHEATHEDMODE:
             if (mainHand || offHand) {
-                this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+                this->SetSheatheState(WEAPONMODE_NORMALMODE, FALSE, FALSE);
             } else if (ranged) {
-                this->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+                this->SetSheatheState(WEAPONMODE_RANGEDMODE, FALSE, FALSE);
             }
 
             if (this->CGUnit_C::IsInMelee()) {
@@ -8252,15 +8252,15 @@ void CGPlayer_C::ToggleSheathe() {
 
         case WEAPONMODE_NORMALMODE:
             if (ranged) {
-                this->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+                this->SetSheatheState(WEAPONMODE_RANGEDMODE, FALSE, FALSE);
             } else {
-                this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+                this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, FALSE, FALSE);
             }
 
             break;
 
         case WEAPONMODE_RANGEDMODE:
-            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+            this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, FALSE, FALSE);
             break;
     }
 }
@@ -8334,7 +8334,7 @@ void CGPlayer_C::MeleeModeEnter(const WOWGUID& target) {
         this->m_combat.SetAttackSent(unit->m_obj->m_guid);
     }
 
-    this->SetSheatheState(WEAPONMODE_NORMALMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
+    this->SetSheatheState(WEAPONMODE_NORMALMODE, TRUE, FALSE);
     Spell_C_SetAutoRangedCombatSpell(0);
     this->SpellInterrupted(this->m_castCount, this->m_castSpellId);
     Spell_C_CancelAutoRepeat(true);
@@ -10665,7 +10665,7 @@ applyEffects:
     this->ApplyComponentItemsFromEffects();
 
     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE && slot == 17) {
-        this->SetSheatheState(WEAPONMODE_RANGEDMODE, BOOL32::BOOL_FALSE, BOOL32::BOOL_FALSE);
+        this->SetSheatheState(WEAPONMODE_RANGEDMODE, FALSE, FALSE);
         this->UpdateBaseAnimation(0, -1);
     }
 
@@ -13247,7 +13247,7 @@ void CGPlayer_C::SendTextEmote(const EmotesTextRec* emote, WOWGUID target) {
         target = WOWGUID();
     }
 
-    this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE);
+    this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
 
     if (rec->m_emoteSpecProc == EMOTESPECPROC_STANDSTATEHANDLER && ((1 << rec->m_emoteSpecProcParam) & s_textEmoteStandStates)) {
         this->ChangeStandState(static_cast<UNITSTANDSTATE>(rec->m_emoteSpecProcParam));

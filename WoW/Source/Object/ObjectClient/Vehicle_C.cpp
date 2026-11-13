@@ -691,7 +691,7 @@ void CVehicle_C::EnterWorld() {
 void CVehicle_C::PlayBoneAnimOrFallback(CM2Model* model, uint32_t boneId) {
     uint32_t bone = boneId == 26 ? 0xFFFFFFFF : boneId;
 
-    if (!this->m_unit->UnsetKeyBoneSequence(model, bone, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE)) {
+    if (!this->m_unit->UnsetKeyBoneSequence(model, bone, TRUE, TRUE, FALSE)) {
         this->BoneAnimEndHandler(model, bone, INVALID_ANIMATION, 1, 0);
         this->m_unit->UpdateBaseAnimation(0, -1);
     }
@@ -727,7 +727,7 @@ void CVehicle_C::RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid) {
         boneId = 0xFFFFFFFF;
     }
 
-    if (!this->m_unit->UnsetKeyBoneSequence(model, boneId, BOOL32::BOOL_TRUE, BOOL32::BOOL_TRUE, BOOL32::BOOL_FALSE)) {
+    if (!this->m_unit->UnsetKeyBoneSequence(model, boneId, TRUE, TRUE, FALSE)) {
         this->BoneAnimEndHandler(model, boneId, INVALID_ANIMATION, 1, 0);
         this->m_unit->UpdateBaseAnimation(0, -1);
     }
