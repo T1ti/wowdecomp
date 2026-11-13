@@ -132,7 +132,7 @@ void PassDeathNVRC::Execute() {
 // VERIFY: 22ef7cce manual
 // OFFSET: 0x007EA260
 EffectDeath::EffectDeath() {
-    this->m_cvar = CVar::Register("ffxDeath", "full screen death effect", 1, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
+    this->m_cvar = CVar::Register("ffxDeath", "full screen death effect", CVAR_FLAGS::CVAR_ARCHIVE, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
 
     if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 7) {
         FFX::Tex* inputs[] = { &FFX::s_full[0] };
@@ -171,7 +171,7 @@ EffectDeath::~EffectDeath() {
 // VERIFY: c9c9b096 manual
 // OFFSET: 0x007EA470
 EffectNetherWorld::EffectNetherWorld() {
-    this->m_cvar = CVar::Register("ffxNetherWorld", "full screen nether world effect (for invisibility)", 1, "1", FFX::CVarCallback, 1, false, nullptr, false);
+    this->m_cvar = CVar::Register("ffxNetherWorld", "full screen nether world effect (for invisibility)", CVAR_FLAGS::CVAR_ARCHIVE, "1", FFX::CVarCallback, 1, false, nullptr, false);
 
     if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 7 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= 0) {
         return;
@@ -360,7 +360,7 @@ EffectSwirlingFog::EffectSwirlingFog() {
     rect.maxX = 0;
     GxTexUpdate(TextureGetGxTex(this->m_seedTex.m_texture, 1, nullptr), rect, 1);
 
-    this->m_cvar = CVar::Register("ffxSpecial", "full screen test effect", 1, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
+    this->m_cvar = CVar::Register("ffxSpecial", "full screen test effect", CVAR_FLAGS::CVAR_ARCHIVE, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
 
     static C2Vector s_propagateParams[4] = {
         C2Vector(-1.0f, 1.0f),

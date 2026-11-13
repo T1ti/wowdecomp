@@ -481,8 +481,8 @@ void FFX::Effect::Execute() {
 // VERIFY: 60f3461e manual
 // OFFSET: 0x008C12F0
 void FFX::Init() {
-    FFX::s_cvarFFX = CVar::Register("ffx", "full screen effects", 1, "1", FFX::CVarCallback, 1, false, nullptr, false);
-    FFX::s_cvarFFXRectangle = CVar::Register("ffxRectangle", "use rectangle texture for full screen effects", 1, "1", FFX::CVarCallback, 1, false, nullptr, false);
+    FFX::s_cvarFFX = CVar::Register("ffx", "full screen effects", CVAR_FLAGS::CVAR_ARCHIVE, "1", FFX::CVarCallback, 1, false, nullptr, false);
+    FFX::s_cvarFFXRectangle = CVar::Register("ffxRectangle", "use rectangle texture for full screen effects", CVAR_FLAGS::CVAR_ARCHIVE, "1", FFX::CVarCallback, 1, false, nullptr, false);
     FFX::s_cvarMultisample = CVar::Lookup("gxMultisample");
 
     ResetTex(FFX::s_full[0]);

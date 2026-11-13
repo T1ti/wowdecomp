@@ -311,7 +311,7 @@ void RemoveConsoleDeviceDefaultCallback(void (*callback)(OPTION_PAGE page)) {
 void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) {
     GxLogOpen();
 
-    s_cvHwDetect = CVar::Register("hwDetect", "do hardware detection", 1, "1", nullptr, CATEGORY_GRAPHICS, false, nullptr, false);
+    s_cvHwDetect = CVar::Register("hwDetect", "do hardware detection", CVAR_FLAGS::CVAR_ARCHIVE, "1", nullptr, CATEGORY_GRAPHICS, false, nullptr, false);
     ConsoleDetectDetectHardware(s_hardware, s_hwChanged);
     s_hardwareDetected = true;
 

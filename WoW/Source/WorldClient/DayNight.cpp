@@ -2585,7 +2585,7 @@ void DayNight::LoadMap(int32_t mapId) {
     info.m_showSky = 1;
     info.m_flashBlend = 0;
     DayNight::s_lightFlags = 0;
-    s_cvSkyCloudLOD = CVar::Register("SkyCloudLOD", nullptr, 0, "0", CWorldParam::CloudLODCallback, 1, false, nullptr, false);
+    s_cvSkyCloudLOD = CVar::Register("SkyCloudLOD", nullptr, CVAR_FLAGS::CVAR_NONE, "0", CWorldParam::CloudLODCallback, 1, false, nullptr, false);
     ConsoleCommandRegister("SkySunGlare", SkySunGlare, CATEGORY_GRAPHICS, "0, 1");
     DayNight::g_forceFullUpdate = 1;
 }

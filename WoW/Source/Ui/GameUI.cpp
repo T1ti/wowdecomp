@@ -1684,8 +1684,8 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
 void CGGameUI::InitializeFrameXML() {
     CGChat::Pause();
 
-    g_taintLogCVar = CVar::Register("taintLog", "Whether taint logging is enabled", 0, "0", SetTaintLogCallback, 5, false, nullptr, false);
-    g_scriptProfileCVar = CVar::Register("scriptProfile", "Whether or not script profiling is enabled", 0, "0", nullptr, 5, false, nullptr, false);
+    g_taintLogCVar = CVar::Register("taintLog", "Whether taint logging is enabled", CVAR_FLAGS::CVAR_NONE, "0", SetTaintLogCallback, 5, false, nullptr, false);
+    g_scriptProfileCVar = CVar::Register("scriptProfile", "Whether or not script profiling is enabled", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 5, false, nullptr, false);
 
     CRect windowRect = { 0.0f, 0.0f, 0.0f, 0.0f };
 
@@ -7753,7 +7753,7 @@ void SaveGameCVarsCallback(HOSFILE localFile, HOSFILE file, void* param) {
         CGWorldFrame::GetActiveCamera()->SaveCameraSettings();
     }
 
-    CVar::SaveAll(file, category, 0);
+    CVar::SaveAll(file, category, CVAR_FLAGS::CVAR_NONE);
 }
 
 // VERIFY: 97aff38f auto

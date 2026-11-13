@@ -124,7 +124,7 @@ void MovementInitialize(const char* logFile) {
     globals->m_idleTime = now;
     globals->m_lastUpdateTime = now;
 
-    s_cvSplineOpt = CVar::Register("SplineOpt", "toggles use of spline coll optimization", 0x1, "1", nullptr, 0, false, nullptr, false);
+    s_cvSplineOpt = CVar::Register("SplineOpt", "toggles use of spline coll optimization", CVAR_FLAGS::CVAR_ARCHIVE, "1", nullptr, 0, false, nullptr, false);
 }
 
 // VERIFY: 3179da62 manual

@@ -229,7 +229,7 @@ void ShadowInit() {
     s_shadowBlobTexture = TextureCreate("Textures\\ShadowBlob.blp", CGxTexFlags(), &status, 1);
     s_shadowAddTexture = TextureCreate(FADETEX_WIDTH, FADETEX_HEIGHT, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(), nullptr, ShadowAddCallback, "ShadowAdd", 0);
     s_shadowModTexture = TextureCreate(FADETEX_WIDTH, FADETEX_HEIGHT, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(), nullptr, ShadowModCallback, "ShadowMod", 0);
-    s_cvShadowLOD = CVar::Register("shadowLOD", "Unit shadow LOD", 1, "1", ShadowLODCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    s_cvShadowLOD = CVar::Register("shadowLOD", "Unit shadow LOD", CVAR_FLAGS::CVAR_ARCHIVE, "1", ShadowLODCallback, CATEGORY_GRAPHICS, false, nullptr, false);
     s_cvExtShadowQuality = CVar::Lookup("extShadowQuality");
 }
 

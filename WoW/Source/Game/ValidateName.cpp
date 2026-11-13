@@ -671,7 +671,7 @@ void ValidateNameInitialize(int32_t localeMask, int32_t charsetMask) {
     }
 
     s_charsetCached = true;
-    CVar::Register("forceEnglishNames", nullptr, 0, "0", nullptr, 5, false, nullptr, false);
+    CVar::Register("forceEnglishNames", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, 5, false, nullptr, false);
     s_cachedLocaleMask = localeMask;
     s_cachedCharsetMask = charsetMask;
 

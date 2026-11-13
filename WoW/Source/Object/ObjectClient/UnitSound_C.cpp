@@ -80,7 +80,7 @@ void CGUnit_C::SetImpactKitEffect(bool offhand, const ATTACKROUNDINFO* info, con
 void UnitSoundInitialize() {
     UnitSoundLoadDeathThuds();
 
-    s_cvFootstepSounds = CVar::Register("FootstepSounds", nullptr, 0, "1", nullptr, 5, false, nullptr, false);
+    s_cvFootstepSounds = CVar::Register("FootstepSounds", nullptr, CVAR_FLAGS::CVAR_NONE, "1", nullptr, 5, false, nullptr, false);
     s_lastStandSoundTime = FrameTime::s_curTimeMs;
 
     for (int32_t i = 0; i < g_soundEntriesDB.m_numRecords; i++) {

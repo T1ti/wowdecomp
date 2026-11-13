@@ -57,7 +57,7 @@ void EffectGlow::SetParameters(int32_t count, const int32_t* params) {
 // VERIFY: 46600cfa manual
 // OFFSET: 0x008BFE80
 EffectGlow::EffectGlow() {
-    this->m_cvar = CVar::Register("ffxGlow", "full screen glow effect", 1, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
+    this->m_cvar = CVar::Register("ffxGlow", "full screen glow effect", CVAR_FLAGS::CVAR_ARCHIVE, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
 
     FFX::Tex* fullInputs[] = { &FFX::s_full[0] };
     FFX::Tex* quartInputs[] = { &FFX::s_quart[0] };

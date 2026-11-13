@@ -114,7 +114,7 @@ static int32_t CvarCommandHandler(const char* command, const char* arguments) {
         return 1;
     }
 
-    if (var->m_flags & 0x100) {
+    if (var->m_flags & CVAR_FLAGS::CVAR_CONSOLE_READ_ONLY) {
         ConsolePrintf("%s is read only.", var->m_key.m_str);
         return 1;
     }
@@ -191,7 +191,7 @@ static int32_t SetCommandHandler(const char* command, const char* arguments) {
     if (var) {
         var->Set(value, true, false, false, true);
     } else {
-        CVar::Register(name, "", 0, value, nullptr, CATEGORY_DEFAULT, true, nullptr, false);
+        CVar::Register(name, "", CVAR_FLAGS::CVAR_NONE, value, nullptr, CATEGORY_DEFAULT, true, nullptr, false);
     }
 
     return 1;
@@ -647,7 +647,7 @@ uint32_t CVarIntListWrapper::GetNextValue() {
 // OFFSET: 0x00767030
 int32_t CVar::IterateForArchive(uint32_t category, uint32_t excludeFlags, int32_t (*callback)(const char* name, const char* value, void* arg), void* arg) {
     for (CVar* var = s_registeredCVars.m_fulllist.Head(); var; var = s_registeredCVars.m_fulllist.Next(var)) {
-        if (!(var->m_flags & CVAR_FLAGS::CVAR_ARCHIVE) || (var->m_flags & 0x80) || (var->m_flags & CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_MASK) != category || (var->m_flags & excludeFlags)) {
+        if (!(var->m_flags & CVAR_FLAGS::CVAR_ARCHIVE) || (var->m_flags & CVAR_FLAGS::CVAR_UNKNOWN_80) || (var->m_flags & CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_MASK) != category || (var->m_flags & excludeFlags)) {
             continue;
         }
 
@@ -696,7 +696,7 @@ int32_t CVar::SaveAll() {
     HOSFILE file = OsCreateFile(path, OS_GENERIC_WRITE, 0, OS_CREATE_ALWAYS, OS_FILE_ATTRIBUTE_NORMAL, OS_FILE_TYPE_ANY);
 
     if (file != OS_INVALID_FILE) {
-        result = CVar::IterateForArchive(CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CONFIG, 0, CVar::SaveCvar, file);
+        result = CVar::IterateForArchive(CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CONFIG, CVAR_FLAGS::CVAR_NONE, CVar::SaveCvar, file);
         OsCloseFile(file);
     }
 
@@ -772,7 +772,7 @@ CVar* CVar::LookupRegistered(const char* name) {
         return nullptr;
     }
 
-    if (!(var->m_flags & 0x80000000) && !(var->m_flags & 0x80)) {
+    if (!(var->m_flags & CVAR_FLAGS::CVAR_CODE_REGISTERED) && !(var->m_flags & CVAR_FLAGS::CVAR_UNKNOWN_80)) {
         return nullptr;
     }
 
@@ -804,11 +804,11 @@ CVar* CVar::Register(const char* name, const char* help, uint32_t flags, const c
         var->Set(value, setValue, setReset, setDefault, false);
 
         if (!setCommand) {
-            var->m_flags |= 0x80000000;
+            var->m_flags |= CVAR_FLAGS::CVAR_CODE_REGISTERED;
         }
 
-        if (unk && !(var->m_flags & 0x80000000)) {
-            var->m_flags |= 0x80;
+        if (unk && !(var->m_flags & CVAR_FLAGS::CVAR_CODE_REGISTERED)) {
+            var->m_flags |= CVAR_FLAGS::CVAR_UNKNOWN_80;
         }
 
         return var;
@@ -824,7 +824,7 @@ CVar* CVar::Register(const char* name, const char* help, uint32_t flags, const c
     var->m_resetValue.Copy(nullptr);
     var->m_latchedValue.Copy(nullptr);
     var->m_callback = callback;
-    var->m_flags = 0;
+    var->m_flags = CVAR_FLAGS::CVAR_NONE;
     var->m_arg = arg;
     var->m_help.Copy(help);
 
@@ -837,11 +837,11 @@ CVar* CVar::Register(const char* name, const char* help, uint32_t flags, const c
     var->m_flags = flags | CVAR_FLAGS::CVAR_ARCHIVE;
 
     if (!setCommand) {
-        var->m_flags = flags | (0x80000000 | CVAR_FLAGS::CVAR_ARCHIVE);
+        var->m_flags = flags | (CVAR_FLAGS::CVAR_CODE_REGISTERED | CVAR_FLAGS::CVAR_ARCHIVE);
     }
 
-    if (unk && !(var->m_flags & 0x80000000)) {
-        var->m_flags |= 0x80;
+    if (unk && !(var->m_flags & CVAR_FLAGS::CVAR_CODE_REGISTERED)) {
+        var->m_flags |= CVAR_FLAGS::CVAR_UNKNOWN_80;
     }
 
     ConsoleCommandRegister(var->m_key.m_str, CvarCommandHandler, static_cast<CATEGORY>(category), help);

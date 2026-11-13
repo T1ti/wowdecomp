@@ -142,32 +142,32 @@ static bool ChaosModeHandler(CVar* var, const char* oldValue, const char* value,
 // VERIFY: 9f0ddfd9 auto
 // OFFSET: 0x004D1050
 void SI2::RegisterSoundEngineCVars() {
-    CVar::Register("StartTalkingDelay", "", 0, "0.0", nullptr, 5, false, nullptr, false);
-    CVar::Register("StartTalkingTime", "", 0, "1.0", nullptr, 5, false, nullptr, false);
-    CVar::Register("StopTalkingDelay", "", 0, "0.0", nullptr, 5, false, nullptr, false);
-    CVar::Register("StopTalkingTime", "", 0, "2.0", nullptr, 5, false, nullptr, false);
-    CVar::Register("OutboundChatVolume", "The software amplification factor (0.0 - 2.0)", 0, "1.0", OutboundChatVolumeHandler, 5, false, nullptr, false);
-    CVar::Register("InboundChatVolume", "The volume of all other chat you hear (0.0 - 1.0)", 0, "1.0", InboundChatVolumeHandler, 5, false, nullptr, false);
-    CVar::Register("VoiceChatMode", "Push to talk(0) or voice activation(1)", 0, "0", VoiceChatModeHandler, 5, false, nullptr, false);
-    CVar::Register("VoiceActivationSensitivity", "Sensitivity of the microphone (0.0 - 1.0)", 0, "0.4", VoiceActivationSensitivityHandler, 5, false, nullptr, false);
-    CVar::Register("EnableMicrophone", "Enables the microphone so you can speak.", 0, "1", EnableMicrophoneHandler, 5, false, nullptr, false);
-    CVar::Register("EnableVoiceChat", "Enables the voice chat feature.", 0, "0", EnableVoiceChatHandler, 5, false, nullptr, false);
-    CVar::Register("VoiceChatSelfMute", "Turn off your ability to talk.", 0, "0", SelfMuteHandler, 5, false, nullptr, false);
-    CVar::Register("PushToTalkButton", "String representation of the Push-To-Talk button.", 0, "`", PushToTalkButtonHandler, 5, false, nullptr, false);
-    CVar::Register("Sound_OutputQuality", "sound quality, default 1 (medium)", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_NumChannels", "number of sound channels", 0, "32", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableReverb", "", 0, "0", EnableReverbHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableSoftwareHRTF", "", 0, "0", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_VoiceChatInputDriverIndex", "", 0, "0", VoiceChatInputDriverIndexHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_VoiceChatInputDriverName", "", 0, "Primary Sound Capture Driver", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_VoiceChatOutputDriverIndex", "", 0, "0", VoiceChatOutputDriverIndexHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_VoiceChatOutputDriverName", "", 0, "Primary Sound Driver", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_OutputDriverIndex", "", 0, "0", OutputDriverIndexHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_OutputDriverName", "", 0, "Primary Sound Driver", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_DSPBufferSize", "sound buffer size, default 0", 0, "0", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableHardware", "Enables Hardware", 0, "0", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableMode2", "test", 0, "0", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableMixMode2", "test", 0, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("StartTalkingDelay", "", CVAR_FLAGS::CVAR_NONE, "0.0", nullptr, 5, false, nullptr, false);
+    CVar::Register("StartTalkingTime", "", CVAR_FLAGS::CVAR_NONE, "1.0", nullptr, 5, false, nullptr, false);
+    CVar::Register("StopTalkingDelay", "", CVAR_FLAGS::CVAR_NONE, "0.0", nullptr, 5, false, nullptr, false);
+    CVar::Register("StopTalkingTime", "", CVAR_FLAGS::CVAR_NONE, "2.0", nullptr, 5, false, nullptr, false);
+    CVar::Register("OutboundChatVolume", "The software amplification factor (0.0 - 2.0)", CVAR_FLAGS::CVAR_NONE, "1.0", OutboundChatVolumeHandler, 5, false, nullptr, false);
+    CVar::Register("InboundChatVolume", "The volume of all other chat you hear (0.0 - 1.0)", CVAR_FLAGS::CVAR_NONE, "1.0", InboundChatVolumeHandler, 5, false, nullptr, false);
+    CVar::Register("VoiceChatMode", "Push to talk(0) or voice activation(1)", CVAR_FLAGS::CVAR_NONE, "0", VoiceChatModeHandler, 5, false, nullptr, false);
+    CVar::Register("VoiceActivationSensitivity", "Sensitivity of the microphone (0.0 - 1.0)", CVAR_FLAGS::CVAR_NONE, "0.4", VoiceActivationSensitivityHandler, 5, false, nullptr, false);
+    CVar::Register("EnableMicrophone", "Enables the microphone so you can speak.", CVAR_FLAGS::CVAR_NONE, "1", EnableMicrophoneHandler, 5, false, nullptr, false);
+    CVar::Register("EnableVoiceChat", "Enables the voice chat feature.", CVAR_FLAGS::CVAR_NONE, "0", EnableVoiceChatHandler, 5, false, nullptr, false);
+    CVar::Register("VoiceChatSelfMute", "Turn off your ability to talk.", CVAR_FLAGS::CVAR_NONE, "0", SelfMuteHandler, 5, false, nullptr, false);
+    CVar::Register("PushToTalkButton", "String representation of the Push-To-Talk button.", CVAR_FLAGS::CVAR_NONE, "`", PushToTalkButtonHandler, 5, false, nullptr, false);
+    CVar::Register("Sound_OutputQuality", "sound quality, default 1 (medium)", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_NumChannels", "number of sound channels", CVAR_FLAGS::CVAR_NONE, "32", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableReverb", "", CVAR_FLAGS::CVAR_NONE, "0", EnableReverbHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableSoftwareHRTF", "", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_VoiceChatInputDriverIndex", "", CVAR_FLAGS::CVAR_NONE, "0", VoiceChatInputDriverIndexHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_VoiceChatInputDriverName", "", CVAR_FLAGS::CVAR_NONE, "Primary Sound Capture Driver", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_VoiceChatOutputDriverIndex", "", CVAR_FLAGS::CVAR_NONE, "0", VoiceChatOutputDriverIndexHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_VoiceChatOutputDriverName", "", CVAR_FLAGS::CVAR_NONE, "Primary Sound Driver", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_OutputDriverIndex", "", CVAR_FLAGS::CVAR_NONE, "0", OutputDriverIndexHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_OutputDriverName", "", CVAR_FLAGS::CVAR_NONE, "Primary Sound Driver", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_DSPBufferSize", "sound buffer size, default 0", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableHardware", "Enables Hardware", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableMode2", "test", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableMixMode2", "test", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
 }
 
 // VERIFY: 3f7da3da auto
@@ -241,34 +241,34 @@ static bool EnableMusicHandler(CVar* var, const char* oldValue, const char* valu
 // VERIFY: 7b1b9794 auto
 // OFFSET: 0x004D1600
 void SI2::RegisterCVars() {
-    CVar::Register("ChatMusicVolume", "music volume (0.0 to 1.0)", 0, "0.3", nullptr, 7, false, nullptr, false);
-    CVar::Register("ChatSoundVolume", "sound volume (0.0 to 1.0)", 0, "0.4", nullptr, 7, false, nullptr, false);
-    CVar::Register("ChatAmbienceVolume", "Ambience Volume (0.0 to 1.0)", 0, "0.3", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableSFX", "", 0, "1", EnableSFXHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableAmbience", "Enable Ambience", 0, "1", EnableAmbienceHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableErrorSpeech", "error speech", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableMusic", "Enables music", 0, "1", EnableMusicHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableAllSound", "", 0, "1", EnableAllSoundHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_MasterVolume", "master volume (0.0 to 1.0)", 0, "1.0", MasterVolumeHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_SFXVolume", "sound volume (0.0 to 1.0)", 0, "1.0", SFXVolumeHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_MusicVolume", "music volume (0.0 to 1.0)", 0, "0.4", MusicVolumeHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_AmbienceVolume", "Ambience Volume (0.0 to 1.0)", 0, "0.6", AmbienceVolumeHandler, 7, false, nullptr, false);
-    CVar::Register("Sound_ListenerAtCharacter", "lock listener at character", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableEmoteSounds", "", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_ZoneMusicNoDelay", "", 0, "0", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableArmorFoleySoundForSelf", "", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableArmorFoleySoundForOthers", "", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableDSPEffects", "", 0, OsGetNumberOfProcessors() <= 1 ? "0" : "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnablePetSounds", "Enables pet sounds", 0, "1", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_EnableSoundWhenGameIsInBG", "Enable Sound When Game Is In Background", 0, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("ChatMusicVolume", "music volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "0.3", nullptr, 7, false, nullptr, false);
+    CVar::Register("ChatSoundVolume", "sound volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "0.4", nullptr, 7, false, nullptr, false);
+    CVar::Register("ChatAmbienceVolume", "Ambience Volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "0.3", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableSFX", "", CVAR_FLAGS::CVAR_NONE, "1", EnableSFXHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableAmbience", "Enable Ambience", CVAR_FLAGS::CVAR_NONE, "1", EnableAmbienceHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableErrorSpeech", "error speech", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableMusic", "Enables music", CVAR_FLAGS::CVAR_NONE, "1", EnableMusicHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableAllSound", "", CVAR_FLAGS::CVAR_NONE, "1", EnableAllSoundHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_MasterVolume", "master volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "1.0", MasterVolumeHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_SFXVolume", "sound volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "1.0", SFXVolumeHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_MusicVolume", "music volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "0.4", MusicVolumeHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_AmbienceVolume", "Ambience Volume (0.0 to 1.0)", CVAR_FLAGS::CVAR_NONE, "0.6", AmbienceVolumeHandler, 7, false, nullptr, false);
+    CVar::Register("Sound_ListenerAtCharacter", "lock listener at character", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableEmoteSounds", "", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_ZoneMusicNoDelay", "", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableArmorFoleySoundForSelf", "", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableArmorFoleySoundForOthers", "", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableDSPEffects", "", CVAR_FLAGS::CVAR_NONE, OsGetNumberOfProcessors() <= 1 ? "0" : "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnablePetSounds", "Enables pet sounds", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_EnableSoundWhenGameIsInBG", "Enable Sound When Game Is In Background", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
 
     if (CmdLineGetBool(static_cast<CMDOPT>(27))) {
-        CVar::Register("Sound_ChaosMode", "Testing to break sound engine", 0, "0", ChaosModeHandler, 7, false, nullptr, false);
+        CVar::Register("Sound_ChaosMode", "Testing to break sound engine", CVAR_FLAGS::CVAR_NONE, "0", ChaosModeHandler, 7, false, nullptr, false);
         CVar::Lookup("Sound_ChaosMode")->Set("0", true, false, false, true);
     }
 
-    CVar::Register("Sound_MaxCacheSizeInBytes", "Max cache size in bytes", 0, "16777216", nullptr, 7, false, nullptr, false);
-    CVar::Register("Sound_MaxCacheableSizeInBytes", "Max sound size that will be cached, larger files will be streamed instead", 0, "1048576", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_MaxCacheSizeInBytes", "Max cache size in bytes", CVAR_FLAGS::CVAR_NONE, "16777216", nullptr, 7, false, nullptr, false);
+    CVar::Register("Sound_MaxCacheableSizeInBytes", "Max sound size that will be cached, larger files will be streamed instead", CVAR_FLAGS::CVAR_NONE, "1048576", nullptr, 7, false, nullptr, false);
 
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
     static CVar* s_enableSFX = CVar::Lookup("Sound_EnableSFX");

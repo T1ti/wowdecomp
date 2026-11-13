@@ -164,7 +164,7 @@ void CGQuestLog::InitializeGame() {
     flags.m_forceMipTracking = 1;
     flags.m_renderTarget = 1;
     ClientServices::SetMessageHandler(SMSG_QUERY_TIME_RESPONSE, Packet_SMSG_QUERY_TIME_RESPONSE, nullptr);
-    s_cvPOIShiftComplete = CVar::Register("POIShiftComplete", nullptr, 0, "0.6", nullptr, 0, false, nullptr, false);
+    s_cvPOIShiftComplete = CVar::Register("POIShiftComplete", nullptr, CVAR_FLAGS::CVAR_NONE, "0.6", nullptr, 0, false, nullptr, false);
     ConsoleCommandRegister("UpdatePOI", UpdateQuestPOIHandler, CATEGORY_GAME, "Updates Quest POI from User Server");
 }
 

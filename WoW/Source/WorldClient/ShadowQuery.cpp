@@ -59,9 +59,9 @@ void CShadowQuery::Initialize() {
     CShadowCache::SetQueryCallback(CShadowQuery::QueryCallback);
     CShadowCache::SetRenderCallback(CShadowQuery::RenderCallback);
 
-    g_shadowCull = CVar::Register("shadowCull", "enable shadow frustum culling", 0, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    g_shadowScissor = CVar::Register("shadowScissor", "enable scissoring when rendering shadowmaps", 0, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    g_shadowInstancing = CVar::Register("shadowInstancing", "enable instancing when rendering shadowmaps", 0, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    g_shadowCull = CVar::Register("shadowCull", "enable shadow frustum culling", CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    g_shadowScissor = CVar::Register("shadowScissor", "enable scissoring when rendering shadowmaps", CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    g_shadowInstancing = CVar::Register("shadowInstancing", "enable instancing when rendering shadowmaps", CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
 
     CShadowCache::Initialize();
 }

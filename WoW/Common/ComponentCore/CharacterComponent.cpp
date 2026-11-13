@@ -200,9 +200,9 @@ static SCritSect s_mipBitsCritSect;
 // VERIFY: e87c3da6 auto
 // OFFSET: 0x00401FF0
 bool CCharacterComponent::Initialize() {
-    CCharacterComponent::g_componentTextureLevelVar = CVar::Register("componentTextureLevel", "Number of mip levels used for character component textures", 0x1, "8", &ComponentVarHandler, 0, false, nullptr, false);
-    CCharacterComponent::g_componentThreadVar = CVar::Register("componentThread", "Multi thread character component processing", 0x1, "1", &ComponentVarHandler, 0, false, nullptr, false);
-    CCharacterComponent::g_componentCompressVar = CVar::Register("componentCompress", "Character component texture compression", 0x1, "1", &ComponentVarHandler, 0, false, nullptr, false);
+    CCharacterComponent::g_componentTextureLevelVar = CVar::Register("componentTextureLevel", "Number of mip levels used for character component textures", CVAR_FLAGS::CVAR_ARCHIVE, "8", &ComponentVarHandler, 0, false, nullptr, false);
+    CCharacterComponent::g_componentThreadVar = CVar::Register("componentThread", "Multi thread character component processing", CVAR_FLAGS::CVAR_ARCHIVE, "1", &ComponentVarHandler, 0, false, nullptr, false);
+    CCharacterComponent::g_componentCompressVar = CVar::Register("componentCompress", "Character component texture compression", CVAR_FLAGS::CVAR_ARCHIVE, "1", &ComponentVarHandler, 0, false, nullptr, false);
 
     uint32_t mipLevels = CCharacterComponent::g_componentTextureLevelVar->m_intValue;
     int32_t useThread = CCharacterComponent::g_componentThreadVar->m_intValue;

@@ -449,29 +449,29 @@ static bool (*s_cameraViewDataValidators[3])(CVar*, const char*, const char*, vo
 // VERIFY: f67b59e2 manual
 // OFFSET: 0x005FD910
 void CameraRegisterCVars() {
-    s_cvCameraSavedDistance = CVar::Register("cameraSavedDistance", nullptr, 0x20, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[0], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSavedVehicleDistance = CVar::Register("cameraSavedVehicleDistance", nullptr, 0x20, "-1.0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSavedPitch = CVar::Register("cameraSavedPitch", nullptr, 0x20, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[1], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvMouseInvertYaw = CVar::Register("mouseInvertYaw", nullptr, 0x10, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvMouseInvertPitch = CVar::Register("mouseInvertPitch", nullptr, 0x10, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraBobbing = CVar::Register("cameraBobbing", nullptr, 0x0, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSavedDistance = CVar::Register("cameraSavedDistance", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[0], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSavedVehicleDistance = CVar::Register("cameraSavedVehicleDistance", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, "-1.0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSavedPitch = CVar::Register("cameraSavedPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[1], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvMouseInvertYaw = CVar::Register("mouseInvertYaw", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvMouseInvertPitch = CVar::Register("mouseInvertPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraBobbing = CVar::Register("cameraBobbing", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     s_cameraBobHorizontalAmplitude = 2.0f;
     s_cameraBobVerticalAmplitude = 2.0f;
     s_cameraBobFrequency = 0.8f;
-    s_cvCameraDistanceMoveSpeed = CVar::Register("cameraDistanceMoveSpeed", nullptr, 0x10, "8.33", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPitchMoveSpeed = CVar::Register("cameraPitchMoveSpeed", nullptr, 0x10, "90", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraYawMoveSpeed = CVar::Register("cameraYawMoveSpeed", nullptr, 0x10, "180", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraBobbingSmoothSpeed = CVar::Register("cameraBobbingSmoothSpeed", nullptr, 0x10, "0.8", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraFoVSmoothSpeed = CVar::Register("cameraFoVSmoothSpeed", nullptr, 0x10, "0.5", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraDistanceSmoothSpeed = CVar::Register("cameraDistanceSmoothSpeed", nullptr, 0x10, "8.33", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraGroundSmoothSpeed = CVar::Register("cameraGroundSmoothSpeed", nullptr, 0x10, "7.5", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraHeightSmoothSpeed = CVar::Register("cameraHeightSmoothSpeed", nullptr, 0x10, "1.2", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPitchSmoothSpeed = CVar::Register("cameraPitchSmoothSpeed", nullptr, 0x10, "45", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraTargetSmoothSpeed = CVar::Register("cameraTargetSmoothSpeed", nullptr, 0x10, "90", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraYawSmoothSpeed = CVar::Register("cameraYawSmoothSpeed", nullptr, 0x10, "180", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraFlyingMountHeightSmoothSpeed = CVar::Register("cameraFlyingMountHeightSmoothSpeed", nullptr, 0x10, "2.0", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraViewBlendStyle = CVar::Register("cameraViewBlendStyle", nullptr, 0x10, s_defaultCameraViewBlendStyle, nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraView = CVar::Register("cameraView", nullptr, 0x10, s_defaultCameraView, ValidateCameraView, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraDistanceMoveSpeed = CVar::Register("cameraDistanceMoveSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "8.33", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPitchMoveSpeed = CVar::Register("cameraPitchMoveSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "90", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraYawMoveSpeed = CVar::Register("cameraYawMoveSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "180", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraBobbingSmoothSpeed = CVar::Register("cameraBobbingSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.8", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraFoVSmoothSpeed = CVar::Register("cameraFoVSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.5", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraDistanceSmoothSpeed = CVar::Register("cameraDistanceSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "8.33", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraGroundSmoothSpeed = CVar::Register("cameraGroundSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "7.5", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraHeightSmoothSpeed = CVar::Register("cameraHeightSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1.2", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPitchSmoothSpeed = CVar::Register("cameraPitchSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "45", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraTargetSmoothSpeed = CVar::Register("cameraTargetSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "90", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraYawSmoothSpeed = CVar::Register("cameraYawSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "180", ValidateCameraAngularSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraFlyingMountHeightSmoothSpeed = CVar::Register("cameraFlyingMountHeightSmoothSpeed", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "2.0", ValidateCameraLinearSpeed, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraViewBlendStyle = CVar::Register("cameraViewBlendStyle", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_defaultCameraViewBlendStyle, nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraView = CVar::Register("cameraView", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_defaultCameraView, ValidateCameraView, CATEGORY_DEFAULT, false, nullptr, false);
 
     char name[64];
 
@@ -481,16 +481,16 @@ void CameraRegisterCVars() {
             SStrPack(name, "camera", sizeof(name));
             SStrPack(name, s_cameraViewDataNames[i], sizeof(name));
             SStrPack(name, s_cameraViewNames[view], sizeof(name));
-            s_cvCameraViewData[view][i] = CVar::Register(name, nullptr, 0x50, s_cameraViewDefaults[view].m_values[i], s_cameraViewDataValidators[i], CATEGORY_DEFAULT, false, nullptr, false);
+            s_cvCameraViewData[view][i] = CVar::Register(name, nullptr, CVAR_FLAGS::CVAR_ACCOUNT_HIDDEN, s_cameraViewDefaults[view].m_values[i], s_cameraViewDataValidators[i], CATEGORY_DEFAULT, false, nullptr, false);
         }
     }
 
-    s_cameraSmooth = CVar::Register("camerasmooth", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothPitch = CVar::Register("cameraSmoothPitch", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothYaw = CVar::Register("cameraSmoothYaw", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothStyle = CVar::Register("cameraSmoothStyle", nullptr, 0x10, s_defaultCameraSmoothStyle, ValidateCameraSmoothStyle, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothTrackingStyle = CVar::Register("cameraSmoothTrackingStyle", nullptr, 0x10, s_defaultCameraSmoothStyle, ValidateCameraSmoothStyle, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraCustomViewSmoothing = CVar::Register("cameraCustomViewSmoothing", nullptr, 0x10, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cameraSmooth = CVar::Register("camerasmooth", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothPitch = CVar::Register("cameraSmoothPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothYaw = CVar::Register("cameraSmoothYaw", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothStyle = CVar::Register("cameraSmoothStyle", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_defaultCameraSmoothStyle, ValidateCameraSmoothStyle, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothTrackingStyle = CVar::Register("cameraSmoothTrackingStyle", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_defaultCameraSmoothStyle, ValidateCameraSmoothStyle, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraCustomViewSmoothing = CVar::Register("cameraCustomViewSmoothing", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
 
     for (uint32_t style = 0; style < 5; style++) {
         for (uint32_t state = 0; state < 7; state++) {
@@ -500,7 +500,7 @@ void CameraRegisterCVars() {
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));
                 SStrPack(name, s_cameraSmoothStateNames[state], sizeof(name));
                 SStrPack(name, s_cameraSmoothParamNames[i], sizeof(name));
-                s_cvCameraSmoothState[style][state][i] = CVar::Register(name, nullptr, 0x10, s_cameraSmoothStateDefaults[style][state][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+                s_cvCameraSmoothState[style][state][i] = CVar::Register(name, nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_cameraSmoothStateDefaults[style][state][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
             }
         }
 
@@ -511,7 +511,7 @@ void CameraRegisterCVars() {
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));
                 SStrPack(name, s_cameraViewDataNames[data], sizeof(name));
                 SStrPack(name, s_cameraSmoothParamNames[i], sizeof(name));
-                s_cvCameraSmoothViewData[style][data][i] = CVar::Register(name, nullptr, 0x10, s_cameraSmoothViewDataDefaults[style][data][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+                s_cvCameraSmoothViewData[style][data][i] = CVar::Register(name, nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_cameraSmoothViewDataDefaults[style][data][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
             }
         }
 
@@ -522,30 +522,30 @@ void CameraRegisterCVars() {
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));
                 SStrPack(name, s_cameraTerrainTiltStateNames[state], sizeof(name));
                 SStrPack(name, s_cameraTerrainTiltParamNames[i], sizeof(name));
-                s_cvCameraTerrainTiltState[style][state][i] = CVar::Register(name, nullptr, 0x10, s_cameraTerrainTiltStateDefaults[style][state][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+                s_cvCameraTerrainTiltState[style][state][i] = CVar::Register(name, nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_cameraTerrainTiltStateDefaults[style][state][i], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
             }
         }
     }
 
-    s_cvCameraTerrainTilt = CVar::Register("cameraTerrainTilt", nullptr, 0x10, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraTerrainTiltTimeMin = CVar::Register("cameraTerrainTiltTimeMin", nullptr, 0x10, "3.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraTerrainTiltTimeMax = CVar::Register("cameraTerrainTiltTimeMax", nullptr, 0x10, "10.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cameraWaterCollision = CVar::Register("cameraWaterCollision", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraHeightIgnoreStandState = CVar::Register("cameraHeightIgnoreStandState", nullptr, 0x10, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPivot = CVar::Register("cameraPivot", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPivotDXMax = CVar::Register("cameraPivotDXMax", nullptr, 0x10, "0.05", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPivotDYMin = CVar::Register("cameraPivotDYMin", nullptr, 0x10, "0.00", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraDive = CVar::Register("cameraDive", nullptr, 0x10, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSurfacePitch = CVar::Register("cameraSurfacePitch", nullptr, 0x10, "0.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSubmergePitch = CVar::Register("cameraSubmergePitch", nullptr, 0x10, "18.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSurfaceFinalPitch = CVar::Register("cameraSurfaceFinalPitch", nullptr, 0x10, "5.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSubmergeFinalPitch = CVar::Register("cameraSubmergeFinalPitch", nullptr, 0x10, "5.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraDistanceMax = CVar::Register("cameraDistanceMax", nullptr, 0x10, "15.0", ValidateCameraDistance, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraDistanceMaxFactor = CVar::Register("cameraDistanceMaxFactor", nullptr, 0x10, "1.0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPitchSmoothMin = CVar::Register("cameraPitchSmoothMin", nullptr, 0x10, "0.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraPitchSmoothMax = CVar::Register("cameraPitchSmoothMax", nullptr, 0x10, "30.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraYawSmoothMin = CVar::Register("cameraYawSmoothMin", nullptr, 0x10, "0.0", ValidateCameraYaw, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraYawSmoothMax = CVar::Register("cameraYawSmoothMax", nullptr, 0x10, "0.0", ValidateCameraYaw, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothTimeMin = CVar::Register("cameraSmoothTimeMin", nullptr, 0x10, "0.1", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSmoothTimeMax = CVar::Register("cameraSmoothTimeMax", nullptr, 0x10, "2.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraTerrainTilt = CVar::Register("cameraTerrainTilt", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraTerrainTiltTimeMin = CVar::Register("cameraTerrainTiltTimeMin", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "3.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraTerrainTiltTimeMax = CVar::Register("cameraTerrainTiltTimeMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "10.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cameraWaterCollision = CVar::Register("cameraWaterCollision", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraHeightIgnoreStandState = CVar::Register("cameraHeightIgnoreStandState", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPivot = CVar::Register("cameraPivot", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPivotDXMax = CVar::Register("cameraPivotDXMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.05", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPivotDYMin = CVar::Register("cameraPivotDYMin", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.00", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraDive = CVar::Register("cameraDive", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSurfacePitch = CVar::Register("cameraSurfacePitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSubmergePitch = CVar::Register("cameraSubmergePitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "18.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSurfaceFinalPitch = CVar::Register("cameraSurfaceFinalPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "5.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSubmergeFinalPitch = CVar::Register("cameraSubmergeFinalPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "5.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraDistanceMax = CVar::Register("cameraDistanceMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "15.0", ValidateCameraDistance, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraDistanceMaxFactor = CVar::Register("cameraDistanceMaxFactor", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1.0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPitchSmoothMin = CVar::Register("cameraPitchSmoothMin", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraPitchSmoothMax = CVar::Register("cameraPitchSmoothMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "30.0", ValidateCameraPitch, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraYawSmoothMin = CVar::Register("cameraYawSmoothMin", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.0", ValidateCameraYaw, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraYawSmoothMax = CVar::Register("cameraYawSmoothMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.0", ValidateCameraYaw, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothTimeMin = CVar::Register("cameraSmoothTimeMin", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0.1", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSmoothTimeMax = CVar::Register("cameraSmoothTimeMax", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "2.0", ValidateCameraTime, CATEGORY_DEFAULT, false, nullptr, false);
 }

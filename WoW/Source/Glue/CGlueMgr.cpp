@@ -2024,11 +2024,11 @@ void CGlueMgr::EnterWorld() {
     ClientServices::SetCharacterInfo(CGlueMgr::m_characterInfo);
 
     if (!s_curGameTip) {
-        s_curGameTip = CVar::Register("gameTip", nullptr, 0, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+        s_curGameTip = CVar::Register("gameTip", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     }
 
     if (!s_showGameTips) {
-        s_showGameTips = CVar::Register("showGameTips", nullptr, 0, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+        s_showGameTips = CVar::Register("showGameTips", nullptr, CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     }
 
     if (!CGlueMgr::m_characterInfo->m_firstLogin && s_showGameTips->m_intValue) {

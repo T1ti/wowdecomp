@@ -1083,9 +1083,9 @@ int32_t InitializeEngineCallback(const void* data, void* param) {
     ScrnInitialize(0);
     ConsoleScreenInitialize(nullptr);
 
-    s_cvTextureFilteringMode = CVar::Register("textureFilteringMode", "Texture filtering mode", 1, "1", CWorldParam::TextureFilteringCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    s_cvarUIFaster = CVar::Register("UIFaster", "UI acceleration option", 0, "3", UIFasterCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    s_cvTextureCacheSize = CVar::Register("textureCacheSize", "Texture cache size in bytes", 1, "32", TextureCacheSizeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    s_cvTextureFilteringMode = CVar::Register("textureFilteringMode", "Texture filtering mode", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::TextureFilteringCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    s_cvarUIFaster = CVar::Register("UIFaster", "UI acceleration option", CVAR_FLAGS::CVAR_NONE, "3", UIFasterCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    s_cvTextureCacheSize = CVar::Register("textureCacheSize", "Texture cache size in bytes", CVAR_FLAGS::CVAR_ARCHIVE, "32", TextureCacheSizeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
     TextureSetCacheSize(s_cvTextureCacheSize->m_intValue << 20);
 
     uint32_t m2Flags = GetM2CvarFlags();
@@ -1247,7 +1247,7 @@ int32_t STORMAPI WowLogHeader(char* buffer, uint32_t bufferchars) {
     }
 
     SStrPack(buffer, "Settings: \r\n", bufferchars);
-    CVar::LogAll(buffer, bufferchars, 0, 64);
+    CVar::LogAll(buffer, bufferchars, 0, CVAR_FLAGS::CVAR_HIDDEN);
     GxLogCrashInfo(buffer, bufferchars);
 
     return 1;
@@ -1696,14 +1696,14 @@ bool InitializeGlobal() {
         runOnce.Execute(static_cast<int32_t (*)(const char*)>(CVar::Load));
     }
 
-    CVar::Register("dbCompress", "Database compression", 0, "-1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    CVar* locale = CVar::Register("locale", "Set the game locale", 0, "****", LocaleCallback, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar::Register("dbCompress", "Database compression", CVAR_FLAGS::CVAR_NONE, "-1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar* locale = CVar::Register("locale", "Set the game locale", CVAR_FLAGS::CVAR_NONE, "****", LocaleCallback, CATEGORY_DEFAULT, false, nullptr, false);
 
     if (!SStrCmp(locale->m_stringValue.m_str, "****", STORM_MAX_STR)) {
         locale->Set("enUS", true, false, false, true);
     }
 
-    CVar::Register("useEnglishAudio", "override the locale and use English audio", 0, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar::Register("useEnglishAudio", "override the locale and use English audio", CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
 
     if (SFile::IsTrial()) {
         StartupReport(firstRun);
@@ -1720,7 +1720,7 @@ bool InitializeGlobal() {
     SFile::RebuildHash();
     OpenArchives();
 
-    CVar* affinity = CVar::Register("processAffinityMask", "Sets which core(s) WoW may execute on - changes require restart to take effect", 2, "0", ProcessAffinityMaskCallback, CATEGORY_DEBUG, false, nullptr, false);
+    CVar* affinity = CVar::Register("processAffinityMask", "Sets which core(s) WoW may execute on - changes require restart to take effect", CVAR_FLAGS::CVAR_LATCH, "0", ProcessAffinityMaskCallback, CATEGORY_DEBUG, false, nullptr, false);
     CVar* videoOptionsVersion = CVar::Lookup("videoOptionsVersion");
 
     if (!videoOptionsVersion || videoOptionsVersion->m_intValue < 3) {
@@ -1739,8 +1739,8 @@ bool InitializeGlobal() {
     BaseInitializeGlobal();
     EventInitialize(1, 0);
 
-    CVar* timingTestError = CVar::Register("timingTestError", "Error reported by the timing validation system", 6, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    CVar* timingMethod = CVar::Register("timingMethod", "Desired method for game timing", 2, "0", TimingMethodCallback, CATEGORY_DEFAULT, false, timingTestError, false);
+    CVar* timingTestError = CVar::Register("timingTestError", "Error reported by the timing validation system", CVAR_FLAGS::CVAR_LATCH_READ_ONLY, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar* timingMethod = CVar::Register("timingMethod", "Desired method for game timing", CVAR_FLAGS::CVAR_LATCH, "0", TimingMethodCallback, CATEGORY_DEFAULT, false, timingTestError, false);
     OsTimeStartup(static_cast<OsTimeManager::TimingMethod>(timingMethod->m_intValue));
     ConsoleCommandRegister("timingInfo", CCommand_TimingInfo, CATEGORY_DEBUG, nullptr);
 

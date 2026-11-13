@@ -1363,7 +1363,7 @@ CGObject_C::CGObject_C(uint32_t time, const CClientObjCreate& create) {
 // VERIFY: d6fbb1d4 manual
 // OFFSET: 0x007460C0
 void CGObject_C::Initialize() {
-    CGObject_C::s_cvObjectSelectionCircle = CVar::Register("ObjectSelectionCircle", nullptr, 0, "1", nullptr, 0, false, nullptr, false);
+    CGObject_C::s_cvObjectSelectionCircle = CVar::Register("ObjectSelectionCircle", nullptr, CVAR_FLAGS::CVAR_NONE, "1", nullptr, 0, false, nullptr, false);
 
     if (CGObject_C::s_selectionTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(CGObject_C::s_selectionTexture));

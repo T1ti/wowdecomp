@@ -466,8 +466,8 @@ Weather::Weather() {
 
     this->m_grid = new (SMemAlloc(sizeof(WeatherGrid), __FILE__, __LINE__, 0)) WeatherGrid();
 
-    CVar::Register("weatherDensity", nullptr, 0, "2", CVarHandler_weatherDensity, CATEGORY_DEFAULT, false, nullptr, false);
-    s_useShaders = CVar::Register("useWeatherShaders", nullptr, 0, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar::Register("weatherDensity", nullptr, CVAR_FLAGS::CVAR_NONE, "2", CVarHandler_weatherDensity, CATEGORY_DEFAULT, false, nullptr, false);
+    s_useShaders = CVar::Register("useWeatherShaders", nullptr, CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
 
     uint32_t forcedType = 0;
 

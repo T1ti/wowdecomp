@@ -124,7 +124,7 @@ void SoundCache::Initialize() {
     this->m_lastUpdate = now;
     this->m_startTime = now;
 
-    CVar* cvar = CVar::Register("SoundMemoryCache", "sound cache memory size (MB)", 2, "4", nullptr, 7, false, nullptr, false);
+    CVar* cvar = CVar::Register("SoundMemoryCache", "sound cache memory size (MB)", CVAR_FLAGS::CVAR_LATCH, "4", nullptr, 7, false, nullptr, false);
 
     if (cvar) {
         this->m_maxBytes = cvar->m_intValue << 20;

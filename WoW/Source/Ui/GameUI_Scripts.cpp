@@ -1486,7 +1486,7 @@ static int32_t Script_GetCVarInfo(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         lua_pushnil(L);
         lua_pushnil(L);
         lua_pushnil(L);
@@ -1497,13 +1497,13 @@ static int32_t Script_GetCVarInfo(lua_State* L) {
     lua_pushstring(L, var->m_stringValue.m_str);
     lua_pushstring(L, var->m_defaultValue.m_str);
 
-    if (var->m_flags & 0x10) {
+    if (var->m_flags & CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (var->m_flags & 0x20) {
+    if (var->m_flags & CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1624,7 +1624,7 @@ static int32_t Script_GetCVar(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         lua_pushnil(L);
         return 1;
     }
@@ -1643,7 +1643,7 @@ static int32_t Script_GetCVarBool(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (var && !(var->m_flags & 0x40) && StringToBOOL(var->m_stringValue.m_str)) {
+    if (var && !(var->m_flags & CVAR_FLAGS::CVAR_HIDDEN) && StringToBOOL(var->m_stringValue.m_str)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1662,7 +1662,7 @@ static int32_t Script_GetCVarDefault(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", lua_tolstring(L, 1, nullptr));
         return 0;
     }
@@ -1748,17 +1748,17 @@ static int32_t Script_SetCVar(lua_State* L) {
     const char* name = lua_tolstring(L, 1, nullptr);
     CVar* var = CVar::LookupRegistered(name);
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", name);
         return 0;
     }
 
-    if ((var->m_flags & 0x4) || (var->m_flags & 0x100)) {
+    if ((var->m_flags & CVAR_FLAGS::CVAR_READ_ONLY) || (var->m_flags & CVAR_FLAGS::CVAR_CONSOLE_READ_ONLY)) {
         luaL_error(L, "\"%s\" is read-only", name);
         return 0;
     }
 
-    if ((var->m_flags & 0x8) && !CSimpleTop::GetInstance()->m_allowProtectedActions) {
+    if ((var->m_flags & CVAR_FLAGS::CVAR_PROTECTED) && !CSimpleTop::GetInstance()->m_allowProtectedActions) {
         CGGameUI::ShowBlockedActionFeedback(nullptr, 2);
         return 0;
     }
@@ -1788,7 +1788,7 @@ static int32_t Script_GetCVarMin(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", lua_tolstring(L, 1, nullptr));
         return 0;
     }
@@ -1816,7 +1816,7 @@ static int32_t Script_GetCVarMax(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", lua_tolstring(L, 1, nullptr));
         return 0;
     }
@@ -3342,7 +3342,7 @@ static int32_t RegisterCVar(lua_State* L, uint32_t flags) {
 // VERIFY: e614a034 auto
 // OFFSET: 0x0050FF30
 static int32_t Script_RegisterCVar(lua_State* L) {
-    return RegisterCVar(L, 0);
+    return RegisterCVar(L, CVAR_FLAGS::CVAR_NONE);
 }
 
 // VERIFY: b5349b75 auto
@@ -3895,7 +3895,7 @@ static int32_t Script_GetCVarAbsoluteMin(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", lua_tolstring(L, 1, nullptr));
         return 0;
     }
@@ -3919,7 +3919,7 @@ static int32_t Script_GetCVarAbsoluteMax(lua_State* L) {
 
     CVar* var = CVar::LookupRegistered(lua_tolstring(L, 1, nullptr));
 
-    if (!var || (var->m_flags & 0x40)) {
+    if (!var || (var->m_flags & CVAR_FLAGS::CVAR_HIDDEN)) {
         luaL_error(L, "Couldn't find CVar named '%s'", lua_tolstring(L, 1, nullptr));
         return 0;
     }

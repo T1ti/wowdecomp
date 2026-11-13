@@ -523,7 +523,7 @@ void ClientServices::ClearMessageHandler(NETMESSAGE msgId) {
 // OFFSET: 0x006B0DC0
 const char* ClientServices::GetSelectedRealmName() {
     if (!ClientServices::s_realmNameVar) {
-        ClientServices::s_realmNameVar = CVar::Register("realmName", "Last realm connected to", 0, "", nullptr, CATEGORY_NET, false, nullptr, false);
+        ClientServices::s_realmNameVar = CVar::Register("realmName", "Last realm connected to", CVAR_FLAGS::CVAR_NONE, "", nullptr, CATEGORY_NET, false, nullptr, false);
     }
 
     return ClientServices::s_realmNameVar->m_stringValue.m_str;

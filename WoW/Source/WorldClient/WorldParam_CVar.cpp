@@ -622,37 +622,37 @@ bool CWorldParam::GxTextureCacheSizeCallback(CVar* var, const char* oldValue, co
 // VERIFY: 9acf82a1 auto
 // OFFSET: 0x0078E400
 void CWorldParam::Initialize() {
-    CWorldParam::cvar_farClipOverride = CVar::Register("farClipOverride", "Override old world graphic settings", 1, "0", CWorldParam::FarClipOverrideCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_lod = CVar::Register("lod", "Video option: Toggle Lod", 1, "0", CWorldParam::LodCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_mapShadows = CVar::Register("mapShadows", "Video option: Toggle map shadows", 1, "1", CWorldParam::MapShadowsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_maxLights = CVar::Register("MaxLights", "Max number of hardware lights", 1, "4", CWorldParam::MaxLightsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_shadowLevel = CVar::Register("shadowLevel", "Terrain shadow map mip level", 1, "1", CWorldParam::ShadowLevelCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_texLodBias = CVar::Register("texLodBias", "Texture LOD Bias", 1, "0.0", CWorldParam::TexLodBiasCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_farClip = CVar::Register("farclip", "Far clip plane distance", 1, "350", CWorldParam::FarClipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_nearClip = CVar::Register("nearclip", "Near clip plane distance", 1, "0.2", CWorldParam::NearClipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_specular = CVar::Register("specular", "Specularity", 1, "0", CWorldParam::SpecularCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_mapObjLightLOD = CVar::Register("mapObjLightLOD", "Map object light LOD", 1, "0", CWorldParam::MapObjLightLODCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_particleDensity = CVar::Register("particleDensity", "Video option: Particle density", 1, "1.0", CWorldParam::ParticleDensityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_waterLOD = CVar::Register("waterLOD", "Water geometry LOD", 1, "0", CWorldParam::WaterLodCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_baseMip = CVar::Register("baseMip", "base mipmap level", 1, "0", CWorldParam::BaseMipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_horizonFarClip = CVar::Register("horizonFarclipScale", "Far clip plane scale for horizon", 1, "4.0", CWorldParam::HorizonFarClipScaleCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_horizonNearClip = CVar::Register("horizonNearclipScale", "Near clip plane scale for horizon", 1, "0.7", CWorldParam::HorizonNearClipScaleCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_showFootprints = CVar::Register("showfootprints", "toggles rendering of footprints", 1, "1", CWorldParam::ShowFootprintsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_bspCache = CVar::Register("bspcache", "BSP node caching", 1, "1", CWorldParam::BspCacheCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_footstepBias = CVar::Register("footstepBias", "Unit footstep depth bias", 1, "0.125", CWorldParam::FootstepBiasCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_occlusion = CVar::Register("occlusion", "Use hardware occlusion test", 1, "1", CWorldParam::HardwareOcclusionCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_worldPoolUsage = CVar::Register("worldPoolUsage", "CGxPool usage static/dynamic", 1, "Dynamic", CWorldParam::WorldPoolUsageCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_terrainAlphaBitDepth = CVar::Register("terrainAlphaBitDepth", "Terrain alpha map bit depth", 1, "8", CWorldParam::TerrainAlphaBitDepthCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_groundEffectDensity = CVar::Register("groundEffectDensity", "Ground effect density", 1, "16", CWorldParam::GroundEffectDensityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_groundEffectDist = CVar::Register("groundEffectDist", "Ground effect dist", 1, "70.0", CWorldParam::GroundEffectDistCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_objectFade = CVar::Register("objectFade", "Fade objects into view", 1, "1", CWorldParam::ObjectFadeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_objectFadeZFill = CVar::Register("objectFadeZFill", "Fade objects using ZFill pass ", 1, "0", CWorldParam::ObjectFadeZFillCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_environmentDetail = CVar::Register("environmentDetail", "Environment detail", 1, "1.0", CWorldParam::EnvironmentDetailCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_hwPCF = CVar::Register("hwPCF", "Hardware PCF Filtering", 1, "1", CWorldParam::HWPCFCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_extShadowQuality = CVar::Register("extShadowQuality", "Quality of exterior shadows (0-5)", 1, "0", CWorldParam::ExtShadowQualityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_projectedTextures = CVar::Register("projectedTextures", "Projected Textures", 1, "0", CWorldParam::ProjectedTexturesCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CWorldParam::cvar_gxTextureCacheSize = CVar::Register("gxTextureCacheSize", "GX Texture Cache Size", 1, "0", CWorldParam::GxTextureCacheSizeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
-    CVar::Register("spellEffectLevel", "Video Option: Spell Effects", 1, "9", nullptr, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_farClipOverride = CVar::Register("farClipOverride", "Override old world graphic settings", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::FarClipOverrideCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_lod = CVar::Register("lod", "Video option: Toggle Lod", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::LodCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_mapShadows = CVar::Register("mapShadows", "Video option: Toggle map shadows", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::MapShadowsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_maxLights = CVar::Register("MaxLights", "Max number of hardware lights", CVAR_FLAGS::CVAR_ARCHIVE, "4", CWorldParam::MaxLightsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_shadowLevel = CVar::Register("shadowLevel", "Terrain shadow map mip level", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::ShadowLevelCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_texLodBias = CVar::Register("texLodBias", "Texture LOD Bias", CVAR_FLAGS::CVAR_ARCHIVE, "0.0", CWorldParam::TexLodBiasCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_farClip = CVar::Register("farclip", "Far clip plane distance", CVAR_FLAGS::CVAR_ARCHIVE, "350", CWorldParam::FarClipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_nearClip = CVar::Register("nearclip", "Near clip plane distance", CVAR_FLAGS::CVAR_ARCHIVE, "0.2", CWorldParam::NearClipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_specular = CVar::Register("specular", "Specularity", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::SpecularCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_mapObjLightLOD = CVar::Register("mapObjLightLOD", "Map object light LOD", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::MapObjLightLODCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_particleDensity = CVar::Register("particleDensity", "Video option: Particle density", CVAR_FLAGS::CVAR_ARCHIVE, "1.0", CWorldParam::ParticleDensityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_waterLOD = CVar::Register("waterLOD", "Water geometry LOD", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::WaterLodCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_baseMip = CVar::Register("baseMip", "base mipmap level", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::BaseMipCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_horizonFarClip = CVar::Register("horizonFarclipScale", "Far clip plane scale for horizon", CVAR_FLAGS::CVAR_ARCHIVE, "4.0", CWorldParam::HorizonFarClipScaleCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_horizonNearClip = CVar::Register("horizonNearclipScale", "Near clip plane scale for horizon", CVAR_FLAGS::CVAR_ARCHIVE, "0.7", CWorldParam::HorizonNearClipScaleCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_showFootprints = CVar::Register("showfootprints", "toggles rendering of footprints", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::ShowFootprintsCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_bspCache = CVar::Register("bspcache", "BSP node caching", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::BspCacheCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_footstepBias = CVar::Register("footstepBias", "Unit footstep depth bias", CVAR_FLAGS::CVAR_ARCHIVE, "0.125", CWorldParam::FootstepBiasCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_occlusion = CVar::Register("occlusion", "Use hardware occlusion test", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::HardwareOcclusionCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_worldPoolUsage = CVar::Register("worldPoolUsage", "CGxPool usage static/dynamic", CVAR_FLAGS::CVAR_ARCHIVE, "Dynamic", CWorldParam::WorldPoolUsageCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_terrainAlphaBitDepth = CVar::Register("terrainAlphaBitDepth", "Terrain alpha map bit depth", CVAR_FLAGS::CVAR_ARCHIVE, "8", CWorldParam::TerrainAlphaBitDepthCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_groundEffectDensity = CVar::Register("groundEffectDensity", "Ground effect density", CVAR_FLAGS::CVAR_ARCHIVE, "16", CWorldParam::GroundEffectDensityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_groundEffectDist = CVar::Register("groundEffectDist", "Ground effect dist", CVAR_FLAGS::CVAR_ARCHIVE, "70.0", CWorldParam::GroundEffectDistCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_objectFade = CVar::Register("objectFade", "Fade objects into view", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::ObjectFadeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_objectFadeZFill = CVar::Register("objectFadeZFill", "Fade objects using ZFill pass ", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::ObjectFadeZFillCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_environmentDetail = CVar::Register("environmentDetail", "Environment detail", CVAR_FLAGS::CVAR_ARCHIVE, "1.0", CWorldParam::EnvironmentDetailCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_hwPCF = CVar::Register("hwPCF", "Hardware PCF Filtering", CVAR_FLAGS::CVAR_ARCHIVE, "1", CWorldParam::HWPCFCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_extShadowQuality = CVar::Register("extShadowQuality", "Quality of exterior shadows (0-5)", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::ExtShadowQualityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_projectedTextures = CVar::Register("projectedTextures", "Projected Textures", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::ProjectedTexturesCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CWorldParam::cvar_gxTextureCacheSize = CVar::Register("gxTextureCacheSize", "GX Texture Cache Size", CVAR_FLAGS::CVAR_ARCHIVE, "0", CWorldParam::GxTextureCacheSizeCallback, CATEGORY_GRAPHICS, false, nullptr, false);
+    CVar::Register("spellEffectLevel", "Video Option: Spell Effects", CVAR_FLAGS::CVAR_ARCHIVE, "9", nullptr, CATEGORY_GRAPHICS, false, nullptr, false);
 
     AddConsoleDeviceDefaultCallback(CWorldParam::SetDefaults);
 
