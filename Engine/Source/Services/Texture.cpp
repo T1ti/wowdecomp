@@ -348,7 +348,7 @@ int32_t TextureIsOpaque(CTexture* texture) {
         return 0;
     }
 
-    return texture->m_flags & 1;
+    return texture->m_flags & CTexture::FLAGS::IS_OPAQUE;
 }
 
 // VERIFY: 693ca984 manual
@@ -765,7 +765,7 @@ void UpdateBlpTextureAsync(EGxTexCommand command, uint32_t width, uint32_t heigh
 
     switch (command) {
         case GxTex_Lock:
-            if (!s_pumping && !LoadBlpWithAlias(texture->m_filename, texture->m_flags & 2, &s_mipBits)) {
+            if (!s_pumping && !LoadBlpWithAlias(texture->m_filename, texture->m_flags & CTexture::FLAGS::UNKNOWN_2, &s_mipBits)) {
                 GetDefaultTexture(width, height);
                 GetGlobalStatusObj().Add(STATUS_ERROR, "Texture %s not loaded -- replaced with default.\n", texture->m_filename);
             }
@@ -1026,7 +1026,7 @@ void CTextureAtlas::Reload() {
 
         s_pumping = 1;
 
-        if (!LoadBlpWithAlias(texture->m_filename, texture->m_flags & 2, &s_mipBits)) {
+        if (!LoadBlpWithAlias(texture->m_filename, texture->m_flags & CTexture::FLAGS::UNKNOWN_2, &s_mipBits)) {
             GetGlobalStatusObj().Add(STATUS_ERROR, "Texture %s not loaded.\n", texture->m_filename);
         }
 
@@ -1205,9 +1205,9 @@ void FillInSolidTexture(const CImVector& color, CTexture* texture) {
     texture->m_gxTex = TextureAllocGxTex(GxTex_2d, 8, 8, 0, GxTex_Argb8888, CGxTexFlags(), reinterpret_cast<void*>(static_cast<uintptr_t>(*reinterpret_cast<const uint32_t*>(&color))), GxuUpdateSingleColorTexture, GxTex_Argb8888, texture->m_filename);
 
     if (color.a < 0xFE) {
-        texture->m_flags &= ~1;
+        texture->m_flags &= ~CTexture::FLAGS::IS_OPAQUE;
     } else {
-        texture->m_flags |= 1;
+        texture->m_flags |= CTexture::FLAGS::IS_OPAQUE;
     }
 
     texture->m_dataFormat = GxTex_Argb8888;
@@ -1316,7 +1316,7 @@ CGxTex* TextureGetGxTex(CTexture* texture, int32_t wait, CStatus* status) {
         return nullptr;
     }
 
-    if (texture->m_flags & 4) {
+    if (texture->m_flags & CTexture::FLAGS::USE_ATLAS) {
         if (texture->m_asyncObject) {
             if (wait != 1 && (wait != 2 || texture->m_asyncObject->m_char24)) {
                 TextureIncreasePriority(texture);
@@ -1721,7 +1721,7 @@ void UpdateTgaTexture(EGxTexCommand command, uint32_t width, uint32_t height, ui
         case GxTex_Lock:
             if (!s_pumping) {
                 char* extension = texture->m_filename + SStrLen(texture->m_filename);
-                int32_t result = LoadTgaMips(texture->m_filename, extension, texture->m_flags & 2, &s_mipBits, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+                int32_t result = LoadTgaMips(texture->m_filename, extension, texture->m_flags & CTexture::FLAGS::UNKNOWN_2, &s_mipBits, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
                 *extension = '\0';
 
                 if (!result) {
@@ -1789,14 +1789,14 @@ int32_t PumpBlpTextureAsync(CTexture* texture, void* data) {
         return 0;
     }
 
-    if ((texture->m_flags & 4) && !(image.m_header.m_hasMips & 0x10)) {
-        texture->m_flags &= ~4;
+    if ((texture->m_flags & CTexture::FLAGS::USE_ATLAS) && !(image.m_header.m_hasMips & 0x10)) {
+        texture->m_flags &= ~CTexture::FLAGS::USE_ATLAS;
     }
 
     texture->m_alphaBits = image.m_header.m_alphaSize;
 
     if (!image.m_header.m_alphaSize) {
-        texture->m_flags |= 1;
+        texture->m_flags |= CTexture::FLAGS::IS_OPAQUE;
     }
 
     uint32_t width = image.m_header.m_width;
@@ -1835,13 +1835,13 @@ int32_t PumpBlpTextureAsync(CTexture* texture, void* data) {
         texture->m_gxTexFlags.m_filter = GxTex_Nearest;
     }
 
-    if (texture->m_flags & 4) {
+    if (texture->m_flags & CTexture::FLAGS::USE_ATLAS) {
         texture->m_atlas = CTextureAtlas::Get(texture);
 
         if (texture->m_atlas) {
             texture->m_atlas->Update(texture);
         } else {
-            texture->m_flags &= ~4;
+            texture->m_flags &= ~CTexture::FLAGS::USE_ATLAS;
         }
     }
 
@@ -2091,7 +2091,7 @@ void CTextureAtlas::Free(CTextureAtlas* atlas, CTexture* texture) {
 // VERIFY: 0882c3ed manual
 // OFFSET: 0x004B8770
 CTexture::CTexture() {
-    this->m_flags = 0;
+    this->m_flags = CTexture::FLAGS::NONE;
     this->m_bestMip = 0;
     this->m_alphaBits = 0;
     this->m_asyncObject = nullptr;
@@ -2125,7 +2125,7 @@ CTexture::~CTexture() {
     }
 
     if (this->m_asyncObject) {
-        if (this->m_flags & 0x20) {
+        if (this->m_flags & CTexture::FLAGS::STREAMING_ASYNC) {
             this->m_asyncObject->m_userArg = this->m_asyncObject;
             this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureDestroyedCallback);
             this->m_asyncObject->m_userPostloadCallback = this->m_asyncObject->m_userPostUnloadCallback;
@@ -2162,11 +2162,11 @@ CTexture* CreateBlpSync(const char* fileName, char* extension, uint32_t flags, C
     texture->m_gxTexFlags = texFlags;
 
     if (flags & 2) {
-        texture->m_flags |= 2;
+        texture->m_flags |= CTexture::FLAGS::UNKNOWN_2;
     }
 
     if ((flags & 4) && s_atlasEnable) {
-        texture->m_flags |= 4;
+        texture->m_flags |= CTexture::FLAGS::USE_ATLAS;
     }
 
     if (extension) {
@@ -2223,15 +2223,15 @@ CTexture* CreateBlpAsync(char* extension, const char* fileName, uint32_t flags, 
     texture->m_gxTexFlags = texFlags;
 
     if (flags & 2) {
-        texture->m_flags |= 2;
+        texture->m_flags |= CTexture::FLAGS::UNKNOWN_2;
     }
 
     if ((flags & 4) && s_atlasEnable) {
-        texture->m_flags |= 4;
+        texture->m_flags |= CTexture::FLAGS::USE_ATLAS;
     }
 
     if ((flags & 0x20) && SFile::IsStreamingMode()) {
-        texture->m_flags |= 0x20;
+        texture->m_flags |= CTexture::FLAGS::STREAMING_ASYNC;
     }
 
     SStrCopy(texture->m_filename, fileName, STORM_MAX_STR);
@@ -2459,11 +2459,11 @@ CTexture* CreateTgaTexture(const char* fileName, char* extension, int32_t flags,
     texture->m_alphaBits = image.AlphaBits();
 
     if (!texture->m_alphaBits) {
-        texture->m_flags |= 1;
+        texture->m_flags |= CTexture::FLAGS::IS_OPAQUE;
     }
 
     if (flags) {
-        texture->m_flags |= 2;
+        texture->m_flags |= CTexture::FLAGS::UNKNOWN_2;
     }
 
     if (extension) {

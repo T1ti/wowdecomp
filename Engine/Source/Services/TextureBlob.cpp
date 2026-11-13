@@ -196,7 +196,7 @@ int32_t CTextureBlob::CreateTexture(CTexture* texture, CTextureBlobTexture* blob
     texture->m_alphaBits = blobTexture->m_texture->m_format >> 4;
 
     if (!texture->m_alphaBits) {
-        texture->m_flags |= 1;
+        texture->m_flags |= CTexture::FLAGS::IS_OPAQUE;
     }
 
     uint32_t width = blobTexture->m_texture->m_width;
