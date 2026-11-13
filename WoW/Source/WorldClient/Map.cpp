@@ -2503,20 +2503,20 @@ void CMap::ValidateShaders() {
     CMap::enableSpecular = (CWorld::enables & Enable_Specular) && (CWorld::enables & Enable_PixelShaders);
 
     bool valid = false;
-    bool flag = (CMap::header.m_flags >> SMMapHeader::MAP_BITS::BIG_ALPHA_BIT_INDEX) & 1;
+    bool bigAlpha = (CMap::header.m_flags >> SMMapHeader::MAP_BITS::BIG_ALPHA_BIT_INDEX) & 1;
     CMap::gTerrainPixelShadersValid = false;
     CMap::enableSpecularTerrain = false;
 
     if (CWorld::enables & Enable_PixelShaders) {
-        CGxShader* specularShader = CMap::GetPixelShader(flag, true, false);
-        CGxShader* shader = CMap::GetPixelShader(flag, false, false);
+        CGxShader* specularShader = CMap::GetPixelShader(bigAlpha, true, false);
+        CGxShader* shader = CMap::GetPixelShader(bigAlpha, false, false);
         valid = specularShader && specularShader->Valid() && shader && shader->Valid();
         CMap::gTerrainPixelShadersValid = valid;
     }
 
     if (CMap::enableSpecular && valid) {
-        CGxShader* specularShader = CMap::GetPixelShader(flag, true, false);
-        CGxShader* shader = CMap::GetPixelShader(flag, false, false);
+        CGxShader* specularShader = CMap::GetPixelShader(bigAlpha, true, false);
+        CGxShader* shader = CMap::GetPixelShader(bigAlpha, false, false);
         CMap::enableSpecularTerrain = specularShader && specularShader->Valid() && shader && shader->Valid();
     }
 
