@@ -4,6 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 
+// Boolean intent with the original signed 32-bit integer representation.
+using bool32_t = int32_t;
+
 // Canonical values for Boolean arguments carried through 32-bit integer APIs.
 enum BOOL32 : int32_t {
     BOOL_FALSE = 0,

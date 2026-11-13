@@ -749,7 +749,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void SetKeyBoneSequenceSpeed(CM2Model* model, uint32_t boneId, float speed, int32_t force);
     void ReleaseEffectsBySpell(int32_t spellId);
     void SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary, int32_t force);
-    int32_t UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, int32_t blend, int32_t primary, int32_t force);
+    int32_t UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, bool32_t blend, bool32_t primary, bool32_t force);
     void SetBoneSequenceTimeRecursive(CM2Model* model, uint32_t boneId, uint32_t time, int32_t force);
     void UpdateBoneSequenceFlags(CM2Model* model, int32_t freeze, int32_t force);
     void ResetKeyBoneSequences();
@@ -858,7 +858,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId);
     void OnVisFlagChanged(uint8_t oldFlags);
     void SetPredictedPower(POWER_TYPE powerType, int32_t value);
-    void SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t noSend);
+    void SetSheatheState(uint32_t showWeapons, bool32_t instant, bool32_t noSend);
     void UpdateClientStandState(UNITSTANDSTATE standState);
     void UpdateModelScale(const CreatureModelDataRec* modelRec);
     void UpdateScriptRegistration();
@@ -897,8 +897,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation);
     int32_t ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim);
     void UpdateHandItemAnimEffects(bool force);
-    void ShowHandItemSpellEffects(int32_t show, int32_t force);
-    void SetHandItemSpellEffectsVisible(int32_t visible);
+    void ShowHandItemSpellEffects(bool32_t show, bool32_t force);
+    void SetHandItemSpellEffectsVisible(bool32_t visible);
     void PropagateSmoothFacing(float facing);
     static int32_t UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, uint32_t a5);
     void RenderAutoTrackCursor();

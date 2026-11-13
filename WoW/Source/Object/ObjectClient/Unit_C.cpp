@@ -9331,7 +9331,7 @@ void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t seq
 
 // VERIFY: a814c576 manual
 // OFFSET: 0x00735A60
-int32_t CGUnit_C::UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, int32_t blend, int32_t primary, int32_t force) {
+int32_t CGUnit_C::UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, bool32_t blend, bool32_t primary, bool32_t force) {
     if (!model) {
         return BOOL32::BOOL_FALSE;
     }
@@ -12142,7 +12142,7 @@ char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitl
 
 // VERIFY: 3a743645 manual
 // OFFSET: 0x00720400
-void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
+void CGUnit_C::ShowHandItemSpellEffects(bool32_t show, bool32_t force) {
     SpellRec spell;
     uint32_t flags = this->m_clientFlags;
     int32_t visible = ((flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) != 0) & (this->m_sheatheState == WEAPONMODE_SHEATHEDMODE) & (this->m_castSpellId == 0) & show;
@@ -12199,7 +12199,7 @@ void CGUnit_C::ShowHandItemSpellEffects(int32_t show, int32_t force) {
 
 // VERIFY: f056fdd8 auto
 // OFFSET: 0x00726090
-void CGUnit_C::SetHandItemSpellEffectsVisible(int32_t visible) {
+void CGUnit_C::SetHandItemSpellEffectsVisible(bool32_t visible) {
     uint32_t flags = this->m_clientFlags;
 
     if (visible == static_cast<int32_t>((flags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAND_ITEM_SPELL_EFFECTS_VISIBLE) != 0)) {
@@ -13717,7 +13717,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
 
 // VERIFY: 80b6ec9d manual
 // OFFSET: 0x00736D30
-void CGUnit_C::SetSheatheState(uint32_t showWeapons, int32_t instant, int32_t noSend) {
+void CGUnit_C::SetSheatheState(uint32_t showWeapons, bool32_t instant, bool32_t noSend) {
     if (this->IsPlayingWeaponAnim()) {
         showWeapons = CGUnit_C::ResolveSheathState(showWeapons, this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false), this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false));
     }
