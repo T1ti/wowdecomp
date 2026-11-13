@@ -254,7 +254,7 @@ void CMapRenderChunk::FreeLayers() {
         CMapRenderChunkLayer& layer = this->m_layers[i];
         layer.m_texture = nullptr;
         layer.m_textureId = -1;
-        layer.m_flags = 0;
+        layer.m_flags = SMLayer::LAYER_FLAGS::NONE;
 
         if (layer.m_layerTexture) {
             HandleClose(reinterpret_cast<HOBJECT>(layer.m_layerTexture));
@@ -365,11 +365,11 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
     renderLayer->m_layerTexture = nullptr;
     renderLayer->m_owner = this;
 
-    if (renderLayer->m_flags & 0x80) {
+    if (renderLayer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
         this->m_renderFlags |= RENDER_FLAGS::FLAG_UNLIT_LAYERS;
     }
 
-    if (g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[0] && g_theGxDevicePtr->Caps().m_shaderTargets[4] && (renderLayer->m_flags & 0x400)) {
+    if (g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[0] && g_theGxDevicePtr->Caps().m_shaderTargets[4] && (renderLayer->m_flags & SMLayer::LAYER_FLAGS::SPECULAR)) {
         this->m_renderFlags |= RENDER_FLAGS::FLAG_SPECULAR;
     }
 
@@ -850,7 +850,7 @@ void CMapRenderChunk::RenderSinglePass() {
 
 // INLINED
 CMapRenderChunkLayer::CMapRenderChunkLayer() {
-    this->m_flags = 0;
+    this->m_flags = SMLayer::LAYER_FLAGS::NONE;
     this->m_layerIndex = 0;
     this->m_texture = nullptr;
     this->m_textureId = -1;
@@ -902,7 +902,7 @@ void CMapRenderChunk::SetupAlphaRows(uint8_t** shadowCursor, uint8_t** shadowRow
     for (int32_t i = 0; i < 4; i++) {
         if (!layers[i].m_alphaData) {
             alphaRows[i] = s_defaultAlphaRow;
-        } else if (layers[i].m_flags & 0x200) {
+        } else if (layers[i].m_flags & SMLayer::LAYER_FLAGS::ALPHA_RLE) {
             alphaRows[i] = s_alphaRowBuf[i];
             layers[i].m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layers[i].m_alphaData, s_alphaRowBuf[i], size);
         } else {
@@ -1031,7 +1031,7 @@ void CMapRenderChunk::CollectLayerAlphaPtrs(CMapChunk* chunk, SLayerAlpha* layer
         if (this->m_layersCount > i) {
             SMLayer* layer = &chunk->m_layers[i];
 
-            if (layer->m_flags & 0x100) {
+            if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP) {
                 layers[i].m_alphaData = &chunk->m_additionalShadowmap[layer->m_offsetInMCAL];
             }
 
@@ -1365,7 +1365,7 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip0(CImVector* dst, u
 
         uint8_t* alphaRow;
 
-        if (layer->m_flags & 0x200) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_RLE) {
             alphaRow = s_alphaRowBuf[0];
             layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
         } else {
@@ -1406,7 +1406,7 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
 
         uint8_t* alphaRow;
 
-        if (layer->m_flags & 0x200) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_RLE) {
             alphaRow = s_alphaRowBuf[0];
             layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
         } else {
@@ -1453,7 +1453,7 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
                 shadowMap += size >> 3;
             }
 
-            if (layer->m_flags & 0x200) {
+            if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_RLE) {
                 layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
             } else {
                 layer->m_alphaData += size;
@@ -1465,7 +1465,7 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
                 shadowMap += size >> 3;
             }
 
-            if (layer->m_flags & 0x200) {
+            if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_RLE) {
                 layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
             } else {
                 layer->m_alphaData += size;
@@ -1616,7 +1616,7 @@ void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
     uint32_t layerFlags = chunkLayer->m_flags;
     uint8_t* alphaData = nullptr;
 
-    if (layerFlags & 0x100) {
+    if (layerFlags & SMLayer::LAYER_FLAGS::ALPHA_MAP) {
         alphaData = &chunk->m_additionalShadowmap[chunkLayer->m_offsetInMCAL];
     }
 
@@ -1676,7 +1676,7 @@ void CMapRenderChunk::CreateShaderTexture() {
     for (uint32_t i = 0; i < layerCount; i++) {
         uint32_t layerFlags = chunk->m_layers[i].m_flags;
 
-        if (layerFlags & 0x100) {
+        if (layerFlags & SMLayer::LAYER_FLAGS::ALPHA_MAP) {
             layers[i].m_alphaData = &chunk->m_additionalShadowmap[chunk->m_layers[i].m_offsetInMCAL];
         }
 
@@ -1725,7 +1725,7 @@ void CMapRenderChunk::CreateShaderTexture() {
 
             uint32_t layerFlags = chunkLayer->m_flags;
 
-            if (layerFlags & 0x100) {
+            if (layerFlags & SMLayer::LAYER_FLAGS::ALPHA_MAP) {
                 layers[i].m_alphaData = &this->m_mapChunks[1]->m_additionalShadowmap[chunkLayer->m_offsetInMCAL];
             }
 
@@ -1828,7 +1828,7 @@ void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
     uint32_t bigAlpha = (CMap::header.m_flags >> 2) & 1;
     int32_t baseLayer = bigAlpha && layer->m_layerIndex == 0;
 
-    if (!(layer->m_flags & 0x100) && !baseLayer) {
+    if (!(layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP) && !baseLayer) {
         return;
     }
 
@@ -2170,13 +2170,13 @@ void CMapRenderChunk::RenderMultiPassAdditive(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 0);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 0);
         }
 
-        if (layer->m_flags & 0x40) {
-            C3Vector move(World::texVect[layer->m_flags & 7]);
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C3Vector move(World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK]);
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             move.x *= moveScale;
             move.y *= moveScale;
             move.z *= moveScale;
@@ -2208,11 +2208,11 @@ void CMapRenderChunk::RenderMultiPassAdditive(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 1);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             GxXformSet(GxXform_Tex0, layerMatrix);
         }
     }
@@ -2248,13 +2248,13 @@ void CMapRenderChunk::RenderMultiPassAlpha(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 0);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 0);
         }
 
-        if (layer->m_flags & 0x40) {
-            C3Vector move(World::texVect[layer->m_flags & 7]);
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C3Vector move(World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK]);
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             move.x *= moveScale;
             move.y *= moveScale;
             move.z *= moveScale;
@@ -2279,11 +2279,11 @@ void CMapRenderChunk::RenderMultiPassAlpha(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 1);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             GxXformSet(GxXform_Tex0, layerMatrix);
         }
     }
@@ -2329,13 +2329,13 @@ void CMapRenderChunk::RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* render
             GxRsSet(GxRs_TextureShader0, 0);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 0);
         }
 
-        if (layer->m_flags & 0x40) {
-            C3Vector move(World::texVect[layer->m_flags & 7]);
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C3Vector move(World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK]);
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             move.x *= moveScale;
             move.y *= moveScale;
             move.z *= moveScale;
@@ -2373,11 +2373,11 @@ void CMapRenderChunk::RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* render
             GxRsSet(GxRs_TextureShader0, 1);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             GxXformSet(GxXform_Tex0, layerMatrix);
         }
     }
@@ -2424,13 +2424,13 @@ void CMapRenderChunk::RenderMultiPassPixelShader(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 0);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 0);
         }
 
-        if (layer->m_flags & 0x40) {
-            C3Vector move(World::texVect[layer->m_flags & 7]);
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C3Vector move(World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK]);
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             move.x *= moveScale;
             move.y *= moveScale;
             move.z *= moveScale;
@@ -2451,11 +2451,11 @@ void CMapRenderChunk::RenderMultiPassPixelShader(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_TextureShader0, 1);
         }
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxRsSet(GxRs_Lighting, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             GxXformSet(GxXform_Tex0, layerMatrix);
         }
     }
@@ -2492,13 +2492,13 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShaderBigAlpha(CMapRenderChunk* 
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxShaderConstantsSet(GxSh_Vertex, 25, &white.x, 1);
         }
 
-        if (layer->m_flags & 0x40) {
-            C4Vector dir = World::texVect[layer->m_flags & 7];
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C4Vector dir = World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK];
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             consts.m_texOffset[0].x = -(dir.x * moveScale * 0.125f);
             consts.m_texOffset[0].y = -(dir.y * moveScale * 0.125f);
             GxShaderConstantsSet(GxSh_Vertex, 13, &consts.m_texOffset[0].x, 1);
@@ -2534,11 +2534,11 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShaderBigAlpha(CMapRenderChunk* 
         GxShaderConstantsSet(GxSh_Pixel, 0, s_layerChannel[i], 1);
         g_theGxDevicePtr->Draw(&renderChunk->m_batch, 1);
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxShaderConstantsSet(GxSh_Vertex, 25, &consts.m_sunAmbient.x, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             consts.m_texOffset[0].x = 0.0f;
             consts.m_texOffset[0].y = 0.0f;
             GxShaderConstantsSet(GxSh_Vertex, 13, &consts.m_texOffset[0].x, 1);
@@ -2584,13 +2584,13 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShader(CMapRenderChunk* renderCh
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxShaderConstantsSet(GxSh_Vertex, 25, &white.x, 1);
         }
 
-        if (layer->m_flags & 0x40) {
-            C4Vector dir = World::texVect[layer->m_flags & 7];
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C4Vector dir = World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK];
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             consts.m_texOffset[0].x = -(dir.x * moveScale * 0.125f);
             consts.m_texOffset[0].y = -(dir.y * moveScale * 0.125f);
             GxShaderConstantsSet(GxSh_Vertex, 13, &consts.m_texOffset[0].x, 1);
@@ -2609,11 +2609,11 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShader(CMapRenderChunk* renderCh
         GxShaderConstantsSet(GxSh_Pixel, 0, s_layerChannel[i], 1);
         g_theGxDevicePtr->Draw(&renderChunk->m_batch, 1);
 
-        if (layer->m_flags & 0x80) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
             GxShaderConstantsSet(GxSh_Vertex, 25, &consts.m_sunAmbient.x, 1);
         }
 
-        if (layer->m_flags & 0x40) {
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             consts.m_texOffset[0].x = 0.0f;
             consts.m_texOffset[0].y = 0.0f;
             GxShaderConstantsSet(GxSh_Vertex, 13, &consts.m_texOffset[0].x, 1);
@@ -2641,7 +2641,7 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
         float lighting[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         for (uint32_t i = 0; i < this->m_layersCount; i++) {
-            if (this->m_layers[i].m_flags & 0x80) {
+            if (this->m_layers[i].m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
                 lighting[i] = 0.0f;
             }
         }
@@ -2664,9 +2664,9 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
         } else {
             GxXformSet(static_cast<EGxXform>(GxXform_Tex0 + i), layerMatrix);
 
-            if (layer->m_flags & 0x40) {
-                C4Vector move = World::texVect[layer->m_flags & 7];
-                float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+            if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+                C4Vector move = World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK];
+                float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
                 move.x *= moveScale;
                 move.y *= moveScale;
                 move.z *= moveScale;
@@ -2697,7 +2697,7 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
         float lighting[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         for (uint32_t i = 0; i < this->m_layersCount; i++) {
-            if (this->m_layers[i].m_flags & 0x80) {
+            if (this->m_layers[i].m_flags & SMLayer::LAYER_FLAGS::UNLIT) {
                 lighting[i] = 0.0f;
             }
         }
@@ -2714,9 +2714,9 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
         g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
-        if (layer->m_flags & 0x40) {
-            C4Vector dir = World::texVect[layer->m_flags & 7];
-            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> 3) & 7];
+        if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
+            C4Vector dir = World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK];
+            float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
             consts.m_texOffset[i].x = -(dir.x * moveScale * 0.125f);
             consts.m_texOffset[i].y = -(dir.y * moveScale * 0.125f);
         }
@@ -2729,7 +2729,7 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
     g_theGxDevicePtr->Draw(&this->m_batch, 1);
 
     for (uint32_t j = 0; j < this->m_layersCount; j++) {
-        if (this->m_layers[j].m_flags & 0x40) {
+        if (this->m_layers[j].m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             consts.m_texOffset[j].x = 0.0f;
             consts.m_texOffset[j].y = 0.0f;
             GxShaderConstantsSet(GxSh_Vertex, 13 + j, &consts.m_texOffset[j].x, 1);

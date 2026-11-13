@@ -120,6 +120,23 @@ struct SIffChunk {
 };
 
 struct SMLayer {
+    enum LAYER_FLAGS : int32_t {
+        NONE = 0,
+        ANIMATION_DIRECTION_MASK = 7,
+        ANIMATION_SPEED_INDEX_MASK = 7,
+        ANIMATED = 0x40,
+        UNLIT = 0x80,
+        ALPHA_MAP = 0x100,
+        ALPHA_RLE = 0x200,
+        SPECULAR = 0x400,
+        ANIMATED_OR_UNLIT = 0xC0,
+        BIG_ALPHA_MERGE_BLOCK_MASK = 0x4C0,
+    };
+
+    enum LAYER_BITS : int32_t {
+        ANIMATION_SPEED_SHIFT = 3,
+    };
+
     /* 0000 */ uint32_t m_textureId;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ uint32_t m_offsetInMCAL;

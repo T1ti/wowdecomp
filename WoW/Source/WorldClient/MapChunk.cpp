@@ -1390,7 +1390,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
         SMLayer* layerA = chunkA->m_layers;
 
         for (uint32_t i = 0; i < chunkA->m_header->m_nLayers; i++, layerA++) {
-            if (layerA->m_flags & 0x4C0) {
+            if (layerA->m_flags & SMLayer::LAYER_FLAGS::BIG_ALPHA_MERGE_BLOCK_MASK) {
                 return false;
             }
 
@@ -1398,7 +1398,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
             bool found = false;
 
             for (uint32_t j = 0; j < chunkB->m_header->m_nLayers; j++, layerB++) {
-                if (layerB->m_flags & 0x4C0) {
+                if (layerB->m_flags & SMLayer::LAYER_FLAGS::BIG_ALPHA_MERGE_BLOCK_MASK) {
                     return false;
                 }
 
@@ -1426,7 +1426,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
         SMLayer& layerA = chunkA->m_layers[i];
         SMLayer& layerB = chunkB->m_layers[i];
 
-        if ((layerA.m_flags & 0xC0) || (layerB.m_flags & 0xC0) || layerB.m_textureId != layerA.m_textureId) {
+        if ((layerA.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_UNLIT) || (layerB.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_UNLIT) || layerB.m_textureId != layerA.m_textureId) {
             return false;
         }
     }
