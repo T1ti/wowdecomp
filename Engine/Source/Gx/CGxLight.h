@@ -8,6 +8,13 @@
 
 class CGxLight {
     public:
+    // The vector is a position for omni lights and a direction otherwise.
+    enum FLAGS : uint32_t {
+        F_ENABLED = 0x1,
+        F_OMNI = 0x2,
+        F_STATE_MASK = 0x3,
+    };
+
     /* 0000 */ uint32_t m_flags;
     /* 0004 */ C3Vector m_dir;
     /* 0010 */ C3Vector m_ambientColor;

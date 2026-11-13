@@ -4,7 +4,7 @@
 // VERIFY: 836f4142 manual
 // OFFSET: 0x00683FB0
 CGxLight::CGxLight() {
-    this->m_flags &= ~0x3u;
+    this->m_flags &= ~CGxLight::FLAGS::F_STATE_MASK;
     this->m_dir = C3Vector(0.0f, 0.0f, 1.0f);
     this->m_ambientColor = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_dirColor = C3Vector(1.0f, 1.0f, 1.0f);
@@ -39,7 +39,7 @@ CGxApiLight& CGxApiLight::operator=(const CGxLight& light) {
         this->m_dir.z = light.m_dir.z;
         this->m_dir.w = 1.0f;
 
-        if (light.m_flags & 0x2) {
+        if (light.m_flags & CGxLight::FLAGS::F_OMNI) {
             this->m_updateMask |= CGxApiLight::FIELD_MASK::FIELD_ATTENUATION;
         } else {
             this->m_updateMask &= ~CGxApiLight::FIELD_MASK::FIELD_ATTENUATION;

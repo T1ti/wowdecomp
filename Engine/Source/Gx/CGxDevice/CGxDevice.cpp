@@ -1016,7 +1016,7 @@ void CGxDevice::LightSet(uint32_t index, const CGxLight& light, const C3Vector& 
     CGxApiLight& apiLight = this->m_lights[index];
     apiLight = light;
 
-    if ((light.m_flags & 0x2) && (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f)) {
+    if ((light.m_flags & CGxLight::FLAGS::F_OMNI) && (pos.x != 0.0f || pos.y != 0.0f || pos.z != 0.0f)) {
         apiLight.m_flags |= CGxApiLight::FIELD_MASK::FIELD_DIRECTION_OR_POSITION;
         apiLight.m_dir.x = apiLight.m_dir.x - pos.x;
         apiLight.m_dir.y = apiLight.m_dir.y - pos.y;
@@ -1964,10 +1964,10 @@ void CGxDevice::RsSet(EGxRenderState which, const C3Vector& value) {
 // OFFSET: 0x00682FD0
 void CGxDevice::Light(uint32_t index, CGxLight& light) {
     CGxApiLight& apiLight = this->m_lights[index];
-    light.m_flags ^= (light.m_flags ^ apiLight.m_enable) & 0x1;
+    light.m_flags ^= (light.m_flags ^ apiLight.m_enable) & CGxLight::FLAGS::F_ENABLED;
 
-    if (light.m_flags & 0x1) {
-        light.m_flags ^= (light.m_flags ^ (2 * (apiLight.m_dir.w != 0.0f))) & 0x2;
+    if (light.m_flags & CGxLight::FLAGS::F_ENABLED) {
+        light.m_flags ^= (light.m_flags ^ (CGxLight::FLAGS::F_OMNI * (apiLight.m_dir.w != 0.0f))) & CGxLight::FLAGS::F_OMNI;
         light.m_dir.x = apiLight.m_dir.x;
         light.m_dir.y = apiLight.m_dir.y;
         light.m_dir.z = apiLight.m_dir.z;

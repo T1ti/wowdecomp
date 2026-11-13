@@ -2276,7 +2276,7 @@ void CMapObj::ClearCache(int32_t unused_a1) {
 // OFFSET: 0x007A8800
 void CMapObj::SetRenderModeLight() {
     CGxLight light;
-    light.m_flags |= 0x1;
+    light.m_flags |= CGxLight::FLAGS::F_ENABLED;
 
     float d = 1.0f / sqrtf(3.0f);
     light.m_dir = { d, d, d };

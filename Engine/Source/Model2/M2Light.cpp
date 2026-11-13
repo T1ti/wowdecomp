@@ -111,15 +111,15 @@ void CM2Light::SetDirection(const C3Vector& dir) {
 // OFFSET: 0x00834B50
 void CM2Light::GxLightSet(uint32_t index) {
     CGxLight light;
-    light.m_flags = (light.m_flags & ~1u) | (this->m_visible & 1);
+    light.m_flags = (light.m_flags & ~CGxLight::FLAGS::F_ENABLED) | (this->m_visible & CGxLight::FLAGS::F_ENABLED);
 
     if (this->m_type == M2LIGHT_DIRECT) {
-        light.m_flags &= ~2u;
+        light.m_flags &= ~CGxLight::FLAGS::F_OMNI;
         light.m_dir = this->m_dir;
         light.m_ambientColor = this->m_ambColor;
         light.m_specularColor = this->m_specColor;
     } else {
-        light.m_flags |= 2;
+        light.m_flags |= CGxLight::FLAGS::F_OMNI;
         light.m_dir = this->m_pos;
         light.m_ambientColor = C3Vector();
         light.m_specularColor = C3Vector();
@@ -315,11 +315,11 @@ void CM2Lighting::SetupSunlight() {
 // OFFSET: 0x008353D0
 void CM2Lighting::SetupGxLights(const C3Vector* origin) {
     CGxLight light;
-    light.m_flags |= 1;
+    light.m_flags |= CGxLight::FLAGS::F_ENABLED;
 
     this->SetupSunlight();
 
-    light.m_flags &= ~2u;
+    light.m_flags &= ~CGxLight::FLAGS::F_OMNI;
     light.m_dir = this->m_sunDir;
     light.m_ambientColor = this->m_sunAmbient;
     light.m_dirColor = this->m_sunDiffuse;
@@ -328,7 +328,7 @@ void CM2Lighting::SetupGxLights(const C3Vector* origin) {
     g_theGxDevicePtr->LightSet(0, light, C3Vector());
     g_theGxDevicePtr->LightEnable(0, 1);
 
-    light.m_flags |= 2;
+    light.m_flags |= CGxLight::FLAGS::F_OMNI;
     light.m_ambientColor = C3Vector();
     light.m_specularColor = C3Vector();
 

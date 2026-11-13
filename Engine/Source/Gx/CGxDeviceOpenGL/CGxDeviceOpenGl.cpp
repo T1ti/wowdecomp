@@ -3203,7 +3203,7 @@ void CGxDeviceOpenGl::IStateSyncLights() {
 
         int32_t modelViewSet = 0;
         uint16_t mask = this->m_appRenderStates[GxRs_MatSpecularExp].m_value.m_data.f[0] == 0.0f ? 0xFFEF : 0xFFFF;
-        uint16_t force = this->m_viewDirty ? 2 : 0;
+        uint16_t force = this->m_viewDirty ? CGxApiLight::FIELD_MASK::FIELD_DIRECTION_OR_POSITION : 0;
         GLenum glLight = GL_LIGHT0;
 
         for (uint32_t i = 0; i < 4; i++, glLight++) {
@@ -3308,9 +3308,9 @@ void CGxDeviceOpenGl::IStateSyncLights() {
                 glDisable(GL_LIGHT0 + i);
 
                 if (this->m_lights[i].m_enable) {
-                    this->m_lights[i].m_flags |= 0x1;
+                    this->m_lights[i].m_flags |= CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                 } else {
-                    this->m_lights[i].m_flags &= ~0x1;
+                    this->m_lights[i].m_flags &= ~CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                 }
             }
         }

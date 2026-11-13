@@ -1397,9 +1397,9 @@ void CGxDeviceD3d9Ex::IStateSyncLights() {
                 continue;
             }
 
-            if (light.m_flags & 0x1) {
+            if (light.m_flags & CGxApiLight::FIELD_MASK::FIELD_ENABLE) {
                 if (!light.m_enable) {
-                    light.m_flags &= ~0x1;
+                    light.m_flags &= ~CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                     this->m_d3dDevice->LightEnable(i, FALSE);
                     continue;
                 }
@@ -1461,9 +1461,9 @@ void CGxDeviceD3d9Ex::IStateSyncLights() {
                 this->m_d3dDevice->LightEnable(i, FALSE);
 
                 if (this->m_lights[i].m_enable) {
-                    this->m_lights[i].m_flags |= 0x1;
+                    this->m_lights[i].m_flags |= CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                 } else {
-                    this->m_lights[i].m_flags &= ~0x1;
+                    this->m_lights[i].m_flags &= ~CGxApiLight::FIELD_MASK::FIELD_ENABLE;
                 }
             }
         }

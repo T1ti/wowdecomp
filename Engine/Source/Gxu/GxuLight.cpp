@@ -62,14 +62,14 @@ static CGxLight* GxuLightLockImpl(CGxuLight* light) {
 // OFFSET: 0x006BB520
 static void GxuLightSetEnabledImpl(CGxuLight* light, bool enabled) {
     CGxLight* gxLight = GxuLightLock(light);
-    gxLight->m_flags ^= (enabled ^ gxLight->m_flags) & 1;
+    gxLight->m_flags ^= (enabled ^ gxLight->m_flags) & CGxLight::FLAGS::F_ENABLED;
     GxuLightUnlock(light);
 }
 
 // VERIFY: fac290f6 auto
 // OFFSET: 0x006BB550
 static int32_t GxuLightGetEnabledImpl(CGxuLight* light) {
-    int32_t enabled = GxuLightLock(light)->m_flags & 1;
+    int32_t enabled = GxuLightLock(light)->m_flags & CGxLight::FLAGS::F_ENABLED;
     GxuLightUnlock(light);
 
     return enabled;
@@ -133,7 +133,7 @@ void CGxuLight::ClearLinks() {
         link->m_lightLink.Unlink();
         link->m_listLink.Unlink();
 
-        if (this->m_light.m_flags & 2) {
+        if (this->m_light.m_flags & CGxLight::FLAGS::F_OMNI) {
             CLightList* list = link->m_list;
 
             if (list->m_links.Head()) {
@@ -265,11 +265,11 @@ static void GxuLightUnlockImpl(CGxuLight* light) {
 
     uint32_t flags = light->m_light.m_flags;
 
-    if (!(flags & 1)) {
+    if (!(flags & CGxLight::FLAGS::F_ENABLED)) {
         return;
     }
 
-    if (!(flags & 2)) {
+    if (!(flags & CGxLight::FLAGS::F_OMNI)) {
         CGxuLightLink* link = light->NewLink();
         s_globalLights.m_links.LinkToTail(link);
         link->m_light = light;
