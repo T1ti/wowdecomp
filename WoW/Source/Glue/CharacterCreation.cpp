@@ -87,7 +87,7 @@ void CCharacterCreation::Initialize() {
         for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
             ChrRacesRec* race = i >= 0 && i < g_chrRacesDB.m_numRecords ? &g_chrRacesDB.m_records[i] : nullptr;
 
-            if (race && (race->m_flags & 0x1)) {
+            if (race && (race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE)) {
                 continue;
             }
 

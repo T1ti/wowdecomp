@@ -5314,7 +5314,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
-            if (race && !(race->m_flags & 1) && !((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
+            if (race && !(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && !((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
                 allRaces = 0;
                 break;
             }
@@ -5337,7 +5337,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
                 ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
-                if (!(race->m_flags & 1) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
+                if (!(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
                     if (!first) {
                         SStrPack(list, ", ", sizeof(list));
                     }
@@ -5395,7 +5395,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
     for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
         ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
-        if (!(race->m_flags & 1) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
+        if (!(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
             SStrPrintf(text, sizeof(text), "%s ", race->m_name);
 
             if (player->m_unit->m_raceID != race->m_id) {

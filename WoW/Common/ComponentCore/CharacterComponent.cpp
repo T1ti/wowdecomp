@@ -1802,7 +1802,7 @@ void CCharacterComponent::SetHairColor(int32_t hairColorID, bool loadHair, const
     this->m_data.m_preferences.m_hairColorId = hairColorID;
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_data.m_preferences.m_raceID);
 
-    if (!this->m_data.m_preferences.m_sexID && !this->m_data.m_preferences.m_hairStyleId && (raceRec->m_flags & 0x8)) {
+    if (!this->m_data.m_preferences.m_sexID && !this->m_data.m_preferences.m_hairStyleId && (raceRec->m_flags & ChrRacesRec::RACE_FLAGS::UNKNOWN_8)) {
         this->ReplaceHairTexture(1, debug);
     }
 
@@ -5539,7 +5539,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
     }
 
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_data.m_preferences.m_raceID);
-    this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::BARE_FEET) | (((raceRec->m_flags & 0x2) != 0) << CCharacterComponent::FLAG_BITS::BARE_FEET_BIT_INDEX);
+    this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::BARE_FEET) | (((raceRec->m_flags & ChrRacesRec::RACE_FLAGS::BARE_FEET) != 0) << CCharacterComponent::FLAG_BITS::BARE_FEET_BIT_INDEX);
 
     if (dataFlags & 0x1) {
         this->SkinNpc(debug);
