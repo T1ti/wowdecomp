@@ -66,7 +66,7 @@ int32_t CACHEENTRY::LoadTexture() {
 
     this->m_asyncObject = AsyncFileReadAllocObject();
     this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(&LoadSuccessCallback);
+    this->m_asyncObject->m_userPostloadCallback = &LoadSuccessCallback;
     this->m_asyncObject->m_file = file;
     this->m_asyncObject->m_size = SFileGetFileSize(file, nullptr);
     this->m_asyncObject->m_priority = 130;

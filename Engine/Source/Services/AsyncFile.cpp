@@ -115,7 +115,7 @@ void AsyncFileReadUnloadPostList() {
         object->m_link.Unlink();
 
         if (object->m_userPostUnloadCallback) {
-            reinterpret_cast<void (*)(void*)>(object->m_userPostUnloadCallback)(object->m_userArg);
+            object->m_userPostUnloadCallback(object->m_userArg);
         }
     }
 }
@@ -143,7 +143,7 @@ int32_t AsyncFileReadPollHandler(const void* data, void* param) {
 
         object->m_isProcessed = 1;
         g_queueLock.Leave();
-        reinterpret_cast<void (*)(void*)>(object->m_userPostloadCallback)(object->m_userArg);
+        object->m_userPostloadCallback(object->m_userArg);
         s_progressCount--;
 
         if (OsGetAsyncTimeMs() - start > s_handlerTimeout) {
@@ -221,7 +221,7 @@ int32_t AsyncFile::Cancel(CAsyncObject* object, void (*callback)(CAsyncObject*))
 
     if (object->m_isCurrent) {
         object->m_userArg = object;
-        object->m_userPostUnloadCallback = reinterpret_cast<void*>(callback ? callback : DefaultAsyncObjectCleanupCallback);
+        object->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(callback ? callback : DefaultAsyncObjectCleanupCallback);
         object->m_userPostloadCallback = object->m_userPostUnloadCallback;
         g_queueLock.Leave();
 

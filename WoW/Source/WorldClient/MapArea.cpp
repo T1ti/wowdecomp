@@ -389,7 +389,7 @@ void CMapArea::Load(const char* fileName) {
     this->m_asyncObject->m_buffer = this->m_fileBuffer;
     this->m_asyncObject->m_size = this->m_fileSize;
     this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(&CMapArea::AsyncCallback);
+    this->m_asyncObject->m_userPostloadCallback = &CMapArea::AsyncCallback;
     AsyncFileReadObject(this->m_asyncObject, 0);
 }
 

@@ -2127,7 +2127,7 @@ CTexture::~CTexture() {
     if (this->m_asyncObject) {
         if (this->m_flags & 0x20) {
             this->m_asyncObject->m_userArg = this->m_asyncObject;
-            this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<void*>(AsyncTextureDestroyedCallback);
+            this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureDestroyedCallback);
             this->m_asyncObject->m_userPostloadCallback = this->m_asyncObject->m_userPostUnloadCallback;
         } else {
             void* buffer = this->m_asyncObject->m_buffer;
@@ -2242,8 +2242,8 @@ CTexture* CreateBlpAsync(char* extension, const char* fileName, uint32_t flags, 
 
     texture->m_asyncObject = AsyncFileReadAllocObject();
     texture->m_asyncObject->m_userArg = texture;
-    texture->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(AsyncTextureSuccessCallback);
-    texture->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<void*>(AsyncTextureFailureCallback);
+    texture->m_asyncObject->m_userPostloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureSuccessCallback);
+    texture->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureFailureCallback);
     texture->m_asyncObject->m_file = file;
     texture->m_asyncObject->m_size = SFileGetFileSize(file, nullptr);
 

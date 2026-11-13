@@ -1630,8 +1630,8 @@ int32_t CM2Shared::LoadSkinProfile(uint32_t profile) {
     this->m_asyncObject->m_buffer = this->m_skinData;
     this->m_asyncObject->m_size = size;
     this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(&CM2Shared::SkinProfileLoadedCallback);
-    this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<void*>(&CM2Shared::LoadFailedCallback);
+    this->m_asyncObject->m_userPostloadCallback = &CM2Shared::SkinProfileLoadedCallback;
+    this->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
     this->m_asyncObject->m_isRead = 0;
     this->m_asyncObject->m_isProcessed = 0;
     this->m_asyncObject->m_priority = 125;
@@ -1811,8 +1811,8 @@ int32_t CM2Shared::Load(SFileImpl* file, int32_t flags, CAaBox* boundingBox) {
     this->m_asyncObject->m_buffer = this->m_data;
     this->m_asyncObject->m_size = this->m_fileSize;
     this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(&CM2Shared::LoadSucceededCallback);
-    this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<void*>(&CM2Shared::LoadFailedCallback);
+    this->m_asyncObject->m_userPostloadCallback = &CM2Shared::LoadSucceededCallback;
+    this->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
     this->m_asyncObject->m_isRead = 0;
     this->m_asyncObject->m_isProcessed = 0;
     AsyncFileReadObject(this->m_asyncObject, 0);
@@ -2062,8 +2062,8 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
     load->m_asyncObject->m_buffer = buffer;
     load->m_asyncObject->m_size = size;
     load->m_asyncObject->m_userArg = load;
-    load->m_asyncObject->m_userPostloadCallback = reinterpret_cast<void*>(&CM2Shared::LowPrioritySequenceLoadedCallback);
-    load->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<void*>(&CM2Shared::LowPrioritySequenceFailedCallback);
+    load->m_asyncObject->m_userPostloadCallback = &CM2Shared::LowPrioritySequenceLoadedCallback;
+    load->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LowPrioritySequenceFailedCallback;
     load->m_asyncObject->m_isRead = 0;
     load->m_asyncObject->m_isProcessed = 0;
     load->m_asyncObject->m_priority = 125;

@@ -11,12 +11,15 @@ class SFileImpl;
 
 class CAsyncObject {
     public:
+    // 3.3.5 post callbacks take one opaque argument using the cdecl ABI.
+    using POST_CALLBACK = void (__cdecl *)(void*);
+
     /* 0000 */ SFileImpl* m_file;
     /* 0004 */ void* m_buffer;
     /* 0008 */ uint32_t m_size;
     /* 000C */ void* m_userArg;
-    /* 0010 */ void* m_userPostloadCallback;
-    /* 0014 */ void* m_userPostUnloadCallback;
+    /* 0010 */ POST_CALLBACK m_userPostloadCallback;
+    /* 0014 */ POST_CALLBACK m_userPostUnloadCallback;
     /* 0018 */ CAsyncQueue* m_queue;
     /* 001C */ uint32_t m_queuedFrame;
     /* 0020 */ uint8_t m_priority;
