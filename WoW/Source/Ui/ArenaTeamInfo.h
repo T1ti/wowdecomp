@@ -34,6 +34,13 @@ enum ARENA_TEAM_COMMAND_RESULT : uint32_t {
     ARENA_RESULT_TEAMS_LOCKED                                = 30,
 };
 
+// Team sizes, separate from the zero-based bracket index used by rating checks.
+enum ARENA_TEAM_SIZE : int32_t {
+    TWO_VS_TWO = 2,
+    THREE_VS_THREE = 3,
+    FIVE_VS_FIVE = 5,
+};
+
 struct ArenaTeamMember {
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ char m_name[48];

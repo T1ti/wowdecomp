@@ -16,7 +16,7 @@
 #include "WoW/Source/Ui/ScriptEvents.h"
 
 // STATIC: 0x00A15ABC
-static const int32_t s_arenaBracketTypes[3] = { 2, 3, 5 };
+static const ARENA_TEAM_SIZE s_arenaBracketTypes[3] = { ARENA_TEAM_SIZE::TWO_VS_TWO, ARENA_TEAM_SIZE::THREE_VS_THREE, ARENA_TEAM_SIZE::FIVE_VS_FIVE };
 
 // STATIC: 0x00ACF834
 int32_t CGArenaTeamInfo::m_showOffline = 1;
