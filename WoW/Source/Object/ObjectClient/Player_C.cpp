@@ -13928,7 +13928,7 @@ int32_t __stdcall CGPlayer_C::OnTrainerList(CDataStore* msg) {
     const int32_t* pointCosts[2] = { talentCosts, professionCosts };
     const int32_t* abilityReqs[3] = { abilityReqs0, abilityReqs1, abilityReqs2 };
 
-    if (trainer == s_lastTrainerRequest || trainer == CGGossipInfo::m_gossip) {
+    if (trainer == s_lastTrainerRequest || trainer == CGGossipInfo::s_gossip) {
         CGClassTrainer::SetTrainer(trainer, static_cast<TRAINER_TYPE>(type));
         CGClassTrainer::AddServices(count, spellIds, moneyCosts, pointCosts, levelReqs, skillReqs, skillRankReqs, stepSpells, abilityReqs, states, greeting);
     }

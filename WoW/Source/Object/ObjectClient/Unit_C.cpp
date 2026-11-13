@@ -22178,7 +22178,7 @@ void CGUnit_C::NPCFlagChanged(uint32_t oldFlags) {
     uint32_t npcFlags = this->m_unit->m_unitNpcFlags;
     uint32_t changedNpcFlags = oldFlags ^ npcFlags;
 
-    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && CGGossipInfo::m_gossip == this->m_obj->m_guid) {
+    if ((changedNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && !(npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && CGGossipInfo::s_gossip == this->m_obj->m_guid) {
         CGGossipInfo::SetGossip(WOWGUID());
     }
 

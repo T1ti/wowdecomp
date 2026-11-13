@@ -178,7 +178,7 @@ void CGQuestInfo::QuestGiverFinished(int32_t keepOpen, uint32_t questId, int32_t
     CGQuestInfo::m_npc = WOWGUID();
     CGQuestInfo::m_npcInform = WOWGUID();
 
-    if (!CGGossipInfo::m_gossip) {
+    if (!CGGossipInfo::s_gossip) {
         CGGameUI::ClearInteractTarget(npc, 0);
     }
 
@@ -744,7 +744,7 @@ void CGQuestInfo::AcceptQuest() {
     CGQuestInfo::m_npc = WOWGUID();
     CGQuestInfo::m_npcInform = WOWGUID();
 
-    if (!CGGossipInfo::m_gossip) {
+    if (!CGGossipInfo::s_gossip) {
         CGGameUI::ClearInteractTarget(npc, 0);
     }
 

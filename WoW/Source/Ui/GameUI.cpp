@@ -4329,7 +4329,7 @@ void CGGameUI::CloseInteraction() {
         CGTradeInfo::SetTradePartner(none, 0);
     } else if (CGItemText::m_itemGUID == target) {
         CGItemText::SetItem(none, 0);
-    } else if (CGGossipInfo::m_gossip == target) {
+    } else if (CGGossipInfo::s_gossip == target) {
         CGGossipInfo::SetGossip(none);
     } else if (CGQuestInfo::m_npc == target) {
         CGQuestInfo::QuestGiverFinished(0, 0, 1);

@@ -34,19 +34,19 @@ class CGGossipInfo {
     static void SelectGossipOption(int32_t index, const char* code, int32_t confirmed);
     static void SelectGossipAvailableQuest(int32_t index);
     static void SelectGossipActiveQuest(int32_t index);
-    static GossipQuestInfo m_quests[32];
-    static int32_t m_textPending;
+    static GossipQuestInfo s_quests[32];
+    static int32_t s_textPending;
     static void ClearOptions();
     static void SetGossipText(int32_t textId);
-    static uint32_t m_gossipID;
+    static uint32_t s_gossipID;
     static void SetGossip(const WOWGUID& guid);
-    static GossipOption m_options[32];
-    static char m_gossipText[2048];
+    static GossipOption s_options[32];
+    static char s_gossipText[2048];
     static void InitializeGame();
     static void ShutdownGame();
     static void LeaveWorld();
-    static WOWGUID m_gossip;
-    static uint32_t m_gossipOptionsCount;
+    static WOWGUID s_gossip;
+    static uint32_t s_gossipOptionsCount;
 };
 
 void GossipInfoRegisterScriptFunctions();

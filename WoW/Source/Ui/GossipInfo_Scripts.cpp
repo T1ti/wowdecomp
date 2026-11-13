@@ -40,7 +40,7 @@ static const char* s_gossipTypes[22] = {
 // VERIFY: e97b7e00 manual
 // OFFSET: 0x0058A920
 static int32_t Script_GetNumGossipOptions(lua_State* L) {
-    lua_pushnumber(L, CGGossipInfo::m_gossipOptionsCount);
+    lua_pushnumber(L, CGGossipInfo::s_gossipOptionsCount);
     return 1;
 }
 
@@ -48,7 +48,7 @@ static int32_t Script_GetNumGossipOptions(lua_State* L) {
 // OFFSET: 0x0058AB50
 static int32_t Script_ForceGossip(lua_State* L) {
     bool force = false;
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGossipInfo::m_gossip, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGossipInfo::s_gossip, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
         force = unit->IsForceGossip();
@@ -61,7 +61,7 @@ static int32_t Script_ForceGossip(lua_State* L) {
 // VERIFY: bd0c95ec auto
 // OFFSET: 0x0058A900
 static int32_t Script_GetGossipText(lua_State* L) {
-    lua_pushstring(L, CGGossipInfo::m_gossipText);
+    lua_pushstring(L, CGGossipInfo::s_gossipText);
     return 1;
 }
 
@@ -70,7 +70,7 @@ static int32_t Script_GetGossipText(lua_State* L) {
 static int32_t Script_GetGossipOptions(lua_State* L) {
     int32_t count = 0;
 
-    for (GossipOption* option = CGGossipInfo::m_options; option < reinterpret_cast<GossipOption*>(CGGossipInfo::m_gossipText); option++) {
+    for (GossipOption* option = CGGossipInfo::s_options; option < reinterpret_cast<GossipOption*>(CGGossipInfo::s_gossipText); option++) {
         if (option && option->m_index >= 0) {
             lua_checkstack(L, 2);
             lua_pushstring(L, option->m_text);
