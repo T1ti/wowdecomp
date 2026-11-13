@@ -522,7 +522,7 @@ void CCharacterSelection::ShowCharacter() {
                 CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->AddItemBySlot(static_cast<INVENTORY_SLOTS>(slot), displayID, visual);
             }
 
-            if (slot == INVSLOT_TABARD && found && (itemRec.m_flags & 0x1)) {
+            if (slot == INVSLOT_TABARD && found && (itemRec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
                 int32_t emblemStyle;
                 int32_t emblemColor;
                 int32_t borderStyle;

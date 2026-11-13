@@ -11505,7 +11505,7 @@ bool CGPlayer_C::LoadGuildTextures(int32_t displayId) {
 
     this->m_characterComponent->AddItemBySlot(INVSLOT_TABARD, displayId, 0);
 
-    if (rec.m_flags & 0x1) {
+    if (rec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD) {
         int32_t emblemStyle;
         int32_t emblemColor;
         int32_t borderStyle;

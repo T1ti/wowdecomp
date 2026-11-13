@@ -8,6 +8,15 @@ class SFileImpl;
 
 class ItemDisplayInfoRec {
     public:
+    enum DISPLAY_FLAGS : int32_t {
+        GUILD_TABARD = 0x1,
+        UNKNOWN_4 = 0x4,
+    };
+
+    enum DISPLAY_BITS : int32_t {
+        UNKNOWN_4_BIT_INDEX = 2,
+    };
+
     static const int32_t s_numColumns = 25;
     static const int32_t s_rowSize = 100;
     static const bool s_generatedID = false;

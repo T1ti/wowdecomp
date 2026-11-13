@@ -167,7 +167,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
 
             this->m_component->AddItemBySlot(static_cast<INVENTORY_SLOTS>(slot), rec.m_id, 0);
 
-            if (slot == 18 && (rec.m_flags & 0x1)) {
+            if (slot == 18 && (rec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
                 this->ApplyGuildColor(1);
             }
         }

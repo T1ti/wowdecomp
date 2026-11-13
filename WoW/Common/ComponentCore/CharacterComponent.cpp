@@ -5599,7 +5599,7 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
 
         default:
             if (itemSlot == ITEMSLOT_CHEST) {
-                this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::UNKNOWN_20) | (CCharacterComponent::FLAGS::UNKNOWN_20 * ((displayRec->m_flags >> 2) & 0x1));
+                this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::UNKNOWN_20) | (CCharacterComponent::FLAGS::UNKNOWN_20 * ((displayRec->m_flags >> ItemDisplayInfoRec::DISPLAY_BITS::UNKNOWN_4_BIT_INDEX) & 0x1));
             }
 
             if (this->m_data.m_flags & 0x1) {

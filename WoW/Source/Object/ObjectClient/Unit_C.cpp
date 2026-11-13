@@ -23817,7 +23817,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
             int32_t borderColor;
             int32_t background;
 
-            if (g_itemDisplayInfoDB.GetRecord(itemDisplayId, &itemRec) && (itemRec.m_flags & 0x1) && GuildGetGuildTabard(this->m_obj->m_guid, guildId, CGUnit_C::ApplyGuildTabard, this, emblemStyle, emblemColor, borderStyle, borderColor, background)) {
+            if (g_itemDisplayInfoDB.GetRecord(itemDisplayId, &itemRec) && (itemRec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD) && GuildGetGuildTabard(this->m_obj->m_guid, guildId, CGUnit_C::ApplyGuildTabard, this, emblemStyle, emblemColor, borderStyle, borderColor, background)) {
                 this->m_characterComponent->ApplyGuildColor(emblemStyle, emblemColor, borderStyle, borderColor, background);
             }
         }

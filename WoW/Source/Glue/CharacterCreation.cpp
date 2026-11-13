@@ -451,7 +451,7 @@ void CCharacterCreation::Dress() {
                     CCharacterComponent::AddHandItem(CCharacterCreation::m_character->m_data.m_model, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, display->m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
                 }
 
-                if (slot == INVSLOT_TABARD && found && (itemRec.m_flags & 0x1)) {
+                if (slot == INVSLOT_TABARD && found && (itemRec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
                     int32_t emblemStyle;
                     int32_t emblemColor;
                     int32_t borderStyle;

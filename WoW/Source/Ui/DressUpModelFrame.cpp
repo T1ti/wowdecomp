@@ -354,7 +354,7 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
             this->m_component->AddItem(static_cast<ITEM_SLOT>(9), stats->m_displayId, visual);
             ItemDisplayInfoRec display;
 
-            if (g_itemDisplayInfoDB.GetRecord(stats->m_displayId, &display) && (display.m_flags & 0x1)) {
+            if (g_itemDisplayInfoDB.GetRecord(stats->m_displayId, &display) && (display.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
                 CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(this->m_unitGuid, TYPE_PLAYER, __FILE__, __LINE__));
 
                 if (player) {
