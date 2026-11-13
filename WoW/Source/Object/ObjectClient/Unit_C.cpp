@@ -13725,7 +13725,7 @@ void CGUnit_C::SetSheatheState(uint32_t showWeapons, bool32_t instant, bool32_t 
     if (showWeapons == WEAPONMODE_RANGEDMODE && (this->m_obj->m_type & TYPE_PLAYER)) {
         ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
-        if (!classRec || (classRec->m_flags & 0x8)) {
+        if (!classRec || (classRec->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT)) {
             return;
         }
     }

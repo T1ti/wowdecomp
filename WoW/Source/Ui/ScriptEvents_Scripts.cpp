@@ -2153,7 +2153,7 @@ static int32_t Script_UnitHasRelicSlot(lua_State* L) {
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
     ChrClassesRec* rec;
 
-    if (unit && (unit->m_obj->m_type & TYPE_PLAYER) && (rec = g_chrClassesDB.GetRecord(unit->m_unit->m_classID)) && (rec->m_flags & 8)) {
+    if (unit && (unit->m_obj->m_type & TYPE_PLAYER) && (rec = g_chrClassesDB.GetRecord(unit->m_unit->m_classID)) && (rec->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

@@ -8232,7 +8232,7 @@ void CGPlayer_C::ToggleSheathe() {
     const CGUnitVirtualItem* ranged = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
     ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
-    if (!playerClass || (playerClass->m_flags & 0x8)) {
+    if (!playerClass || (playerClass->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT)) {
         ranged = nullptr;
     }
 
@@ -10111,7 +10111,7 @@ int32_t CGPlayer_C::ValidateSlot(uint32_t slot, WOWGUID item) {
 
     ChrClassesRec* classRec = g_chrClassesDB.GetRecord(this->m_unit->m_classID);
 
-    if (classRec && (classRec->m_flags & 0x8)) {
+    if (classRec && (classRec->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT)) {
         return itemObject->CanGoInSlot(slot, 1);
     }
 

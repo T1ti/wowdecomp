@@ -8,6 +8,10 @@ class SFileImpl;
 
 class ChrClassesRec {
     public:
+    enum CLASS_FLAGS : int32_t {
+        HAS_RELIC_SLOT = 0x8,
+    };
+
     static const int32_t s_numColumns = 60;
     static const int32_t s_rowSize = 240;
     static const bool s_generatedID = false;
