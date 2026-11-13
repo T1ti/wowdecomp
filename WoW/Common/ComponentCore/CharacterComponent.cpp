@@ -1808,7 +1808,7 @@ void CCharacterComponent::SetHairColor(int32_t hairColorID, bool loadHair, const
 
     this->ReplaceHairTexture(this->m_data.m_preferences.m_hairStyleId, debug);
 
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         return;
     }
 
@@ -1831,7 +1831,7 @@ void CCharacterComponent::SetHairStyle(int32_t hairStyleID, const char* debug) {
     this->m_data.m_preferences.m_hairStyleId = hairStyleID;
     this->m_data.m_geosets[CHARGEOSET_HAIR] = GetConditionalGeoset(&this->m_data.m_preferences);
 
-    if (!(this->m_data.m_flags & 0x1)) {
+    if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN)) {
         this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 1, hairStyleID, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
         this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 2, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
     }
@@ -1844,7 +1844,7 @@ void CCharacterComponent::SetHairStyle(int32_t hairStyleID, const char* debug) {
 // VERIFY: 901d909d auto
 // OFFSET: 0x004EA490
 void CCharacterComponent::SetFace(int32_t faceID, bool loadHair, const char* debug) {
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         return;
     }
 
@@ -1894,7 +1894,7 @@ void CCharacterComponent::SetBeardStyle(int32_t facialHairID, bool loadVariation
         }
     }
 
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         return;
     }
 
@@ -1911,7 +1911,7 @@ void CCharacterComponent::SetBeardStyle(int32_t facialHairID, bool loadVariation
 void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool renderAll, const char* debug) {
     this->m_data.m_preferences.m_skinID = skinID;
 
-    if ((this->m_data.m_flags & 0x1) || !ComponentValidateBase(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID)) {
+    if ((this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) || !ComponentValidateBase(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID)) {
         return;
     }
 
@@ -3626,7 +3626,7 @@ void CCharacterComponent::RenderPrepAll() {
 // VERIFY: 9391fea1 manual
 // OFFSET: 0x004EE380
 int32_t CCharacterComponent::UpdateTextureSlot(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t layer) {
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         return 0;
     }
 
@@ -4269,7 +4269,7 @@ void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t widt
             break;
 
         case GxTex_Recreate:
-            if (!(component->m_data.m_flags & 0x2)) {
+            if (!(component->m_data.m_flags & ComponentData::DATA_FLAGS::HIGH_RESOLUTION)) {
                 component->SetTexturesDirty();
                 component->SetDirtySections(0xFFFFFFFF);
             }
@@ -4284,7 +4284,7 @@ void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t widt
 // VERIFY: 128e28ab auto
 // OFFSET: 0x004EFED0
 void CCharacterComponent::Prep() {
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
         }
@@ -5107,7 +5107,7 @@ void CCharacterComponent::RenderPrepSections() {
 // VERIFY: e78118c6 manual
 // OFFSET: 0x004F1520
 bool CCharacterComponent::RenderPrep(int32_t wait) {
-    if (this->m_data.m_flags & 0x1) {
+    if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
         }
@@ -5366,7 +5366,7 @@ void CCharacterComponent::ThreadDestroy() {
 // VERIFY: e9017855 manual
 // OFFSET: 0x004F1FC0
 bool CCharacterComponent::SkinNpc(const char* debug) {
-    this->m_data.m_flags &= ~0x1;
+    this->m_data.m_flags &= ~ComponentData::DATA_FLAGS::NPC_SKIN;
 
     if (!this->m_data.m_npcSkinTexture[0]) {
         return false;
@@ -5384,7 +5384,7 @@ bool CCharacterComponent::SkinNpc(const char* debug) {
     this->m_data.m_model->ReplaceTexture(M2TEX_SKIN, texture);
     HandleClose(reinterpret_cast<HOBJECT>(texture));
     this->ReplaceExtraSkinTexture(debug);
-    this->m_data.m_flags |= 0x1;
+    this->m_data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
     this->m_flags |= CCharacterComponent::FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
     this->SetDirtySections(0);
 
@@ -5527,21 +5527,21 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
     this->m_dirtySections = 0xFFFFFFFF;
     this->m_request = nullptr;
 
-    if (!(this->m_data.m_flags & 0x1) && this->m_baseSkinTexture) {
+    if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) && this->m_baseSkinTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(this->m_baseSkinTexture));
         this->m_baseSkinTexture = nullptr;
     }
 
     uint32_t dataFlags = this->m_data.m_flags;
 
-    if (dataFlags & 0x2) {
+    if (dataFlags & ComponentData::DATA_FLAGS::HIGH_RESOLUTION) {
         this->m_gxTexFormat = CCharacterComponent::s_gxFormatHigh;
     }
 
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_data.m_preferences.m_raceID);
     this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::BARE_FEET) | (((raceRec->m_flags & ChrRacesRec::RACE_FLAGS::BARE_FEET) != 0) << CCharacterComponent::FLAG_BITS::BARE_FEET_BIT_INDEX);
 
-    if (dataFlags & 0x1) {
+    if (dataFlags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         this->SkinNpc(debug);
     }
 
@@ -5602,7 +5602,7 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
                 this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::UNKNOWN_20) | (CCharacterComponent::FLAGS::UNKNOWN_20 * ((displayRec->m_flags >> ItemDisplayInfoRec::DISPLAY_BITS::UNKNOWN_4_BIT_INDEX) & 0x1));
             }
 
-            if (this->m_data.m_flags & 0x1) {
+            if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
                 break;
             }
 

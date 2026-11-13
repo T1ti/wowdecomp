@@ -455,7 +455,7 @@ void CCharacterSelection::ShowCharacter() {
         data.m_preferences.m_hairColorId = info.m_hairColorID;
         data.m_preferences.m_facialHairId = info.m_facialHairStyleID;
         data.m_model = CCharacterSelection::m_modelFrame->GetScene()->CreateModel(playerRec->m_modelName, 0);
-        data.m_flags |= 0x2;
+        data.m_flags |= ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
 
         CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->Init(&data, nullptr);
 

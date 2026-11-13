@@ -13898,13 +13898,13 @@ int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, int32_t hasDispl
                 return 0;
             }
 
-            data.m_flags |= 0x1;
+            data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
             SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
         }
     }
 
     data.m_model = this->m_worldModel;
-    data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << 1)) & 0x2;
+    data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
     data.m_model->m_refCount++;
 
     if (player) {
@@ -23739,7 +23739,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
 
         this->m_characterComponent = CCharacterComponent::AllocComponent();
         data.m_model = this->m_worldModel;
-        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << 1)) & 0x2;
+        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
         data.m_model->m_refCount++;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_1);
         this->m_characterComponent->Init(&data, nullptr);
@@ -23837,7 +23837,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         data.m_preferences.m_faceId = extra->m_faceID;
         data.m_preferences.m_hairStyleId = extra->m_hairStyleID;
         data.m_preferences.m_hairColorId = extra->m_hairColorID;
-        data.m_flags |= 0x1;
+        data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
         data.m_preferences.m_facialHairId = extra->m_facialHairID;
         SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
         data.m_model = this->m_worldModel;

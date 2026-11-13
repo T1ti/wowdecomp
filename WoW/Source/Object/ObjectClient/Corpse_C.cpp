@@ -115,7 +115,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
 
             uint32_t activePlayer = this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer();
             model->m_refCount++;
-            data.m_flags ^= (data.m_flags ^ (activePlayer << 1)) & 0x2;
+            data.m_flags ^= (data.m_flags ^ (activePlayer << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
 
             this->m_component->Init(&data, nullptr);
         } else {
