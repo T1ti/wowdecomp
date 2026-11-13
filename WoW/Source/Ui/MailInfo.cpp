@@ -527,7 +527,7 @@ void CGMailInfo::InitializeGame() {
         CGMailInfo::m_stationeries.m_data[i] = static_cast<StationeryInfo*>(SMemAlloc(sizeof(StationeryInfo), __FILE__, __LINE__, 0));
         CGMailInfo::m_stationeries.m_data[i]->m_id = rec->m_id;
         CGMailInfo::m_stationeries.m_data[i]->m_itemID = rec->m_itemID;
-        CGMailInfo::m_stationeries.m_data[i]->m_isDefault = rec->m_flags & 1;
+        CGMailInfo::m_stationeries.m_data[i]->m_isDefault = rec->m_flags & StationeryRec::STATIONERY_FLAGS::DEFAULT;
         CGMailInfo::m_stationeries.m_data[i]->m_itemGUID = WOWGUID{ 0 };
     }
 
