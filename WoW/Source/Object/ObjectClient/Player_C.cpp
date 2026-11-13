@@ -219,7 +219,7 @@ static int32_t s_areaTriggerMapID;
 static int32_t s_defenseSpellId;
 
 // STATIC: 0x00C9D4F0
-static uint32_t s_proficiency[ITEM_CLASS::NUM_ITEM_CLASSES];
+static uint32_t s_playerProficiencies[ITEM_CLASS::NUM_ITEM_CLASSES];
 
 // STATIC: 0x00C9D534
 static uint32_t s_bindAreaId;
@@ -857,7 +857,7 @@ void PlayerClientInitialize() {
     CGPlayer_C::PlayerInitializeMessageHandlers();
 
     for (uint32_t i = 0; i < ITEM_CLASS::NUM_ITEM_CLASSES; i++) {
-        s_proficiency[i] = 0;
+        s_playerProficiencies[i] = ITEM_PROFICIENCY_NO_MASK;
     }
 
     CGPlayer_C::s_resurrectOfferer = WOWGUID{ 0 };
@@ -1265,11 +1265,11 @@ int32_t OnUpdatePlayerScriptEvent(WOWGUID guid, uint32_t offset, uint32_t count,
 // VERIFY: 9f64b8a4 auto
 // OFFSET: 0x006CDE90
 uint32_t CGPlayer_C::GetProficiency(uint8_t itemClass) {
-    if (itemClass >= sizeof(s_proficiency) / sizeof(s_proficiency[0])) {
-        return 0;
+    if (itemClass >= sizeof(s_playerProficiencies) / sizeof(s_playerProficiencies[0])) {
+        return ITEM_PROFICIENCY_NO_MASK;
     }
 
-    return s_proficiency[itemClass];
+    return s_playerProficiencies[itemClass];
 }
 
 // VERIFY: 340d9418 auto
@@ -1279,7 +1279,7 @@ int32_t Packet_SMSG_SET_PROFICIENCY(void* param, NETMESSAGE msgId, uint32_t time
     uint32_t mask;
     msg->Get(itemClass);
     msg->Get(mask);
-    s_proficiency[itemClass] = mask;
+    s_playerProficiencies[itemClass] = mask;
     ConsolePrintf("Proficiency in item class %d set to %08x", itemClass, mask);
 
     return 1;
@@ -6902,7 +6902,7 @@ int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
 
     uint8_t itemClass = static_cast<uint8_t>(stats->m_class);
 
-    if (itemClass < ITEM_CLASS::NUM_ITEM_CLASSES && s_proficiency[itemClass] && !(s_proficiency[itemClass] & (1 << stats->m_subClass))) {
+    if (itemClass < ITEM_CLASS::NUM_ITEM_CLASSES && s_playerProficiencies[itemClass] && !(s_playerProficiencies[itemClass] & (1 << stats->m_subClass))) {
         error = ERR_PROFICIENCY_NEEDED;
         return 0;
     }

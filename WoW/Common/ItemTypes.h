@@ -30,6 +30,10 @@ enum ITEM_CLASS : int32_t {
     NUM_ITEM_CLASSES                         = 17,
 };
 
+// Proficiency masks use the selected item class's subclass IDs as bit positions.
+// Zero means that class has no active proficiency filter.
+static const uint32_t ITEM_PROFICIENCY_NO_MASK = 0;
+
 // ItemSubClass.dbc IDs only for ITEM_CLASS_WEAPON. Other item classes use
 // independent subclass domains; subclass masks and sound overrides stay raw.
 enum ITEM_SUBCLASS_WEAPON : int32_t {
