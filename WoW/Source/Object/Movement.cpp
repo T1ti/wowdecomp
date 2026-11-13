@@ -857,7 +857,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         this->m_transportGuid = WOWGUID();
         this->ClearSplineEnabled();
 
-        if (this->m_unit->GetObjectModel() && (this->m_unit->GetObjectModel()->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
+        if (this->m_unit->GetObjectModel() && (this->m_unit->GetObjectModel()->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
             this->m_unit->GetObjectModel()->ChangeFrameOfReference(nullptr);
         }
 
@@ -884,7 +884,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED) {
+            if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
                 model->m_frameOfReferenceMatrix = matrix;
                 model->ChangeFrameOfReference(&model->m_frameOfReferenceMatrix);
             }
@@ -5462,7 +5462,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED) {
+            if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
                 model->ChangeFrameOfReference(nullptr);
             }
         }
@@ -5490,7 +5490,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         if (this->m_unit->GetObjectModel()) {
             CM2Model* model = this->m_unit->GetObjectModel();
 
-            if (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED) {
+            if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
                 model->m_frameOfReferenceMatrix = transportMatrix;
                 model->ChangeFrameOfReference(&model->m_frameOfReferenceMatrix);
             }

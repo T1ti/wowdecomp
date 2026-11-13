@@ -239,7 +239,7 @@ static int32_t GetObjectHitTestType(CGObject_C* object) {
 // VERIFY: d69961a6 auto
 // OFFSET: 0x004F6370
 static void AddModelToHitTest(CM2Model* model, uint32_t group, void* owner, uint32_t mode) {
-    if (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED) {
+    if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         if (!model->m_hitTestPrev) {
             CM2Model** head = &model->m_scene->m_hitTestList;
             model->m_hitTestPrev = head;
@@ -1652,15 +1652,15 @@ void CGWorldFrame::UpdateObject(CGObject_C* object, uint32_t flags) {
     uint32_t bit = visible & 1;
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED) | (bit << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_DRAW_ENABLED);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (bit << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
     } else {
-        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED) | (bit << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_DRAW_ENABLED);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_DRAW_ENABLED) | (bit << M2_BITS::M2_BIT_DRAW_ENABLED);
     }
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED) | (bit << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_PARTICLES_ENABLED);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED) | (bit << M2_BITS::M2_BIT_ATTACHED_PARTICLES_ENABLED);
     } else {
-        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED) | (bit << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_PARTICLES_ENABLED);
+        model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_PARTICLES_ENABLED) | (bit << M2_BITS::M2_BIT_PARTICLES_ENABLED);
     }
 }
 
@@ -1828,15 +1828,15 @@ int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid,
         CM2Model* model = object->GetObjectModel();
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
         } else {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_DRAW_ENABLED;
         }
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
         } else {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
         }
     }
 
@@ -2042,7 +2042,7 @@ void CGWorldFrame::OnWorldUpdate() {
             C3Vector offset = C3Vector(facing.x * backDist, facing.y * backDist, backDist * facing.z);
             C3Vector listener;
 
-            if (focus->m_worldModel && (focus->m_worldModel->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
+            if (focus->m_worldModel && (focus->m_worldModel->m_runtimeFlags & M2_FLAGS::M2_WORLD_TRANSFORM_VALID)) {
                 listener = focus->m_worldModel->GetWorldPosition() - offset;
                 listener.z = listener.z + upDist;
             } else {

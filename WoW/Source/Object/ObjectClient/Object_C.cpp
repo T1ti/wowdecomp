@@ -603,7 +603,7 @@ C4Quaternion CGObject_C::GetRotation() const {
 void CGObject_C::SetFrameOfReference(const C44Matrix* matrix) {
     CM2Model* model = this->m_worldModel;
 
-    if (!model || !(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
+    if (!model || !(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         return;
     }
 
@@ -932,7 +932,7 @@ void CGObject_C::DoFade(float alpha, uint32_t time) {
 C44Matrix CGObject_C::GetModelMatrix() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
+    if (model && (model->m_runtimeFlags & M2_FLAGS::M2_WORLD_TRANSFORM_VALID)) {
         model->Animate();
         return model->m_matrixF4 * model->m_scene->m_viewInv;
     }
@@ -945,7 +945,7 @@ C44Matrix CGObject_C::GetModelMatrix() {
 C3Vector CGObject_C::GetModelPosition() {
     CM2Model* model = this->GetObjectModel();
 
-    if (model && (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID)) {
+    if (model && (model->m_runtimeFlags & M2_FLAGS::M2_WORLD_TRANSFORM_VALID)) {
         model->Animate();
         return *reinterpret_cast<const C3Vector*>(&model->m_matrixF4.d0) * model->m_scene->m_viewInv;
     }
@@ -1113,15 +1113,15 @@ void CGObject_C::SetInteractIconVisible(int32_t visible) {
     CM2Model* parent = icon->m_attachParent;
 
     if (parent) {
-        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED) | (flag << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_DRAW_ENABLED);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (flag << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
     } else {
-        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED) | (flag << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_DRAW_ENABLED);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_FLAGS::M2_DRAW_ENABLED) | (flag << M2_BITS::M2_BIT_DRAW_ENABLED);
     }
 
     if (parent) {
-        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED) | (flag << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_PARTICLES_ENABLED);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED) | (flag << M2_BITS::M2_BIT_ATTACHED_PARTICLES_ENABLED);
     } else {
-        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED) | (flag << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_PARTICLES_ENABLED);
+        icon->m_runtimeFlags = (icon->m_runtimeFlags & ~M2_FLAGS::M2_PARTICLES_ENABLED) | (flag << M2_BITS::M2_BIT_PARTICLES_ENABLED);
     }
 }
 

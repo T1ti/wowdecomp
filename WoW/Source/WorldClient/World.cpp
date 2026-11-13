@@ -2181,15 +2181,15 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
     CM2Model* model = doodadDef->m_model;
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_DRAW_ENABLED;
     }
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
     doodadDef->m_model->m_fadeAlpha = alpha;
@@ -2364,17 +2364,17 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
             uint32_t runtimeFlags = model->m_runtimeFlags;
 
             if (model->m_attachParent) {
-                runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_DRAW_ENABLED);
+                runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (modelVisible << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
             } else {
-                runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_DRAW_ENABLED);
+                runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_DRAW_ENABLED) | (modelVisible << M2_BITS::M2_BIT_DRAW_ENABLED);
             }
 
             model->m_runtimeFlags = runtimeFlags;
 
             if (model->m_attachParent) {
-                runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_PARTICLES_ENABLED);
+                runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED) | (modelVisible << M2_BITS::M2_BIT_ATTACHED_PARTICLES_ENABLED);
             } else {
-                runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_PARTICLES_ENABLED);
+                runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_PARTICLES_ENABLED) | (modelVisible << M2_BITS::M2_BIT_PARTICLES_ENABLED);
             }
 
             model->m_runtimeFlags = runtimeFlags;
@@ -2434,17 +2434,17 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 uint32_t runtimeFlags = model->m_runtimeFlags;
 
                 if (model->m_attachParent) {
-                    runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_DRAW_ENABLED);
+                    runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (modelVisible << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
                 } else {
-                    runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_DRAW_ENABLED);
+                    runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_DRAW_ENABLED) | (modelVisible << M2_BITS::M2_BIT_DRAW_ENABLED);
                 }
 
                 model->m_runtimeFlags = runtimeFlags;
 
                 if (model->m_attachParent) {
-                    runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_ATTACHED_PARTICLES_ENABLED);
+                    runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED) | (modelVisible << M2_BITS::M2_BIT_ATTACHED_PARTICLES_ENABLED);
                 } else {
-                    runtimeFlags = (runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED) | (modelVisible << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_PARTICLES_ENABLED);
+                    runtimeFlags = (runtimeFlags & ~M2_FLAGS::M2_PARTICLES_ENABLED) | (modelVisible << M2_BITS::M2_BIT_PARTICLES_ENABLED);
                 }
 
                 model->m_runtimeFlags = runtimeFlags;
@@ -2493,15 +2493,15 @@ void CWorldScene::UpdateSortedModels() {
                 }
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+                    model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
                 } else {
-                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+                    model->m_runtimeFlags &= ~M2_FLAGS::M2_DRAW_ENABLED;
                 }
 
                 if (model->m_attachParent) {
-                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+                    model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
                 } else {
-                    model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+                    model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
                 }
             }
 
@@ -4378,11 +4378,11 @@ void CMap::UpdateEntity(CMapEntity* entity) {
 // OFFSET: 0x00791240
 void CWorldScene::CullModelSplitBody(CM2Model* model, uint32_t boneId, int32_t skip) {
     if (skip) {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_CULLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_CULLED;
     } else {
         CAaBox box = model->GetSplitBodyBoundingBox(boneId);
         uint32_t culled = CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside;
-        model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (culled << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_CULLED)) & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_CULLED;
+        model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (culled << M2_BITS::M2_BIT_CULLED)) & M2_FLAGS::M2_CULLED;
     }
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
@@ -4902,7 +4902,7 @@ void CWorldScene::RenderBarriers(float elapsedSec) {
 // OFFSET: 0x007911D0
 void CWorldScene::CullModelRecursive(CM2Model* model) {
     CAaBox box = model->GetCurrentBoundingBox();
-    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_CULLED) | ((CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside) << M2_MODEL_RUNTIME_BITS::M2_MODEL_RUNTIME_BIT_CULLED);
+    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_CULLED) | ((CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) == WorldCull_outside) << M2_BITS::M2_BIT_CULLED);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
         CWorldScene::CullModelRecursive(attached);
@@ -5098,15 +5098,15 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
         CM2Model* model = entity->m_model;
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+            model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
         } else {
-            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+            model->m_runtimeFlags |= M2_FLAGS::M2_DRAW_ENABLED;
         }
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+            model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
         } else {
-            model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+            model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
         }
 
         return 1;
@@ -5115,24 +5115,24 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
     CM2Model* model = entity->m_model;
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
     } else {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_DRAW_ENABLED;
     }
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
     entity->m_model->SetAnimating(0);
     model = entity->m_model;
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+        model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
     return 1;

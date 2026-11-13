@@ -741,15 +741,15 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
     model->SetAnimating(1);
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_DRAW_ENABLED;
     }
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
     model->m_lightingCallback = PortraitLightingCallback;

@@ -474,7 +474,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             isUnit = 0;
         }
 
-        uint32_t doodad = (model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED) ? model->m_shared->m_billboardBoneCount : 0;
+        uint32_t doodad = (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) ? model->m_shared->m_billboardBoneCount : 0;
 
         for (int32_t band = firstBand; band <= lastBand; band++) {
             int32_t queryFlags = data.m_queryFlags[band];

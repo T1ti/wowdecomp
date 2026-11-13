@@ -880,15 +880,15 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
         CM2Model* model = particle.m_model;
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
         } else {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_DRAW_ENABLED;
         }
 
         if (model->m_attachParent) {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
         } else {
-            model->m_runtimeFlags &= ~M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+            model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
         }
 
         return 0;
@@ -928,7 +928,7 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     }
 
     CM2Model* model = particle.m_model;
-    model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_WORLD_TRANSFORM_VALID;
+    model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
     model->m_worldTransform = transform;
 
     model = particle.m_model;
@@ -940,15 +940,15 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     model = particle.m_model;
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_DRAW_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_DRAW_ENABLED;
     }
 
     if (model->m_attachParent) {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_ATTACHED_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
     } else {
-        model->m_runtimeFlags |= M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_PARTICLES_ENABLED;
+        model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
     if (particle.m_model->IsLoaded(0, 0)) {
@@ -1077,14 +1077,14 @@ static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg) {
         return;
     }
 
-    if (!(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
+    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         model->WaitForLoad(nullptr);
     }
 
     uint32_t count = CParticleEmitter2::MAX_CHILD_EMITTERS;
 
     if (model->m_shared->m_data->m_particles.m_count < CParticleEmitter2::MAX_CHILD_EMITTERS) {
-        if (!(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
+        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -1092,7 +1092,7 @@ static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg) {
     }
 
     for (uint32_t i = 0; i < count; i++) {
-        if (!(model->m_runtimeFlags & M2_MODEL_RUNTIME_FLAGS::M2_MODEL_RUNTIME_FLAG_INITIALIZED)) {
+        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
             model->WaitForLoad(nullptr);
         }
 
