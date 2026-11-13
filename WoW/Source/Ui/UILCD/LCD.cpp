@@ -62,7 +62,7 @@ CGPlayer_C* CGLCD::m_player;
 uint8_t CGLCD::m_inWorld;
 
 // STATIC: 0x00D4131D
-static uint8_t s_classFlag8;
+static uint8_t s_classHasRelicSlot;
 
 // STATIC: 0x00D4131E
 static uint8_t s_inBattlefield;
@@ -310,7 +310,7 @@ void CGLCD::Login() {
     ChrClassesRec* classRec = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
     if (classRec) {
-        s_classFlag8 = (classRec->m_flags >> ChrClassesRec::HAS_RELIC_SLOT_BIT_INDEX) & 1;
+        s_classHasRelicSlot = (classRec->m_flags >> ChrClassesRec::HAS_RELIC_SLOT_BIT_INDEX) & 1;
     }
 
     int32_t soulShard;
@@ -960,13 +960,13 @@ void CGLCD::DisplayRangedStats() {
 
     int32_t maxValue = ceil(maxDamage) <= 1 ? 1 : static_cast<int32_t>(ceil(maxDamage));
 
-    if (!ranged || s_classFlag8) {
+    if (!ranged || s_classHasRelicSlot) {
         CGLCD::SetStat("DAMAGE", FrameScript_GetText("NOT_APPLICABLE", -1, GENDER_NOT_APPLICABLE));
     } else {
         CGLCD::SetStat("DAMAGE", minDamage, maxValue);
     }
 
-    if (!ranged || s_classFlag8) {
+    if (!ranged || s_classHasRelicSlot) {
         CGLCD::SetStat("SPEED", FrameScript_GetText("NOT_APPLICABLE", -1, GENDER_NOT_APPLICABLE));
     } else {
         CGLCD::SetStat("SPEED", CGLCD::m_player->m_unit->m_unitFieldRangedattacktime * 0.001f, false);
