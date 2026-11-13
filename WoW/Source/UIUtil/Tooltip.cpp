@@ -4528,13 +4528,14 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
         } else {
             int32_t alternate = -1;
 
-            if (values && distribution && stats->m_class == ITEM_CLASS::ITEM_CLASS_ARMOR && (stats->m_subClass == 4 || stats->m_subClass == 3)) {
+            if (values && distribution && stats->m_class == ITEM_CLASS::ITEM_CLASS_ARMOR
+              && (stats->m_subClass == ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Plate || stats->m_subClass == ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Mail)) {
                 ChrClassesRec* playerClass = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
                 if (playerClass) {
-                    if (stats->m_subClass == 4 && (playerClass->m_flags & 0x20)) {
-                        alternate = ((proficiency & 8) | 0x10) >> 3;
-                    } else if (stats->m_subClass == 3 && (playerClass->m_flags & 0x10) && (proficiency & 4)) {
+                    if (stats->m_subClass == ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Plate && (playerClass->m_flags & ChrClassesRec::CLASS_FLAGS::CAN_WEAR_PLATE)) {
+                        alternate = ((proficiency & (1 << ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Mail)) | (1 << ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Plate)) >> ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Mail;
+                    } else if (stats->m_subClass == ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Mail && (playerClass->m_flags & ChrClassesRec::CLASS_FLAGS::CAN_WEAR_MAIL) && (proficiency & (1 << ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_Leather))) {
                         alternate = stats->m_subClass - 1;
                     }
                 }

@@ -556,7 +556,7 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                         if (!info->m_invTypeMask) {
                             info->m_invTypeMask = 0x4000000;
                         }
-                    } else if (spell.m_equippedItemSubclass & 0x40) {
+                    } else if (spell.m_equippedItemSubclass & (1 << ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_SHIELD)) {
                         info->m_invTypeMask = 0x2000000;
                     }
                 }

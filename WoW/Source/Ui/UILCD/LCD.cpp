@@ -310,7 +310,7 @@ void CGLCD::Login() {
     ChrClassesRec* classRec = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
 
     if (classRec) {
-        s_classFlag8 = (classRec->m_flags >> 3) & 1;
+        s_classFlag8 = (classRec->m_flags >> ChrClassesRec::HAS_RELIC_SLOT_BIT_INDEX) & 1;
     }
 
     int32_t soulShard;

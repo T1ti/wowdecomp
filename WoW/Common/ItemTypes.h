@@ -57,6 +57,21 @@ enum ITEM_SUBCLASS_WEAPON : int32_t {
     NUM_ITEM_WEAPON_SUBCLASSES               = 21,
 };
 
+enum ITEM_SUBCLASS_ARMOR : int32_t {
+  ITEM_SUBCLASS_ARMOR_Miscellaneous = 0,
+  ITEM_SUBCLASS_ARMOR_Cloth = 1,
+  ITEM_SUBCLASS_ARMOR_Leather = 2,
+  ITEM_SUBCLASS_ARMOR_Mail = 3,
+  ITEM_SUBCLASS_ARMOR_Plate = 4,
+  ITEM_SUBCLASS_ARMOR_Buckler_obsolete = 5,
+  ITEM_SUBCLASS_ARMOR_SHIELD = 6,
+  ITEM_SUBCLASS_ARMOR_LIBRAM = 7,
+  ITEM_SUBCLASS_ARMOR_IDOL = 8,
+  ITEM_SUBCLASS_ARMOR_TOTEM = 9,
+  ITEM_SUBCLASS_ARMOR_SIGIL = 10,
+  NUM_ITEM_ARMOR_SUBCLASSES = 11,
+};
+
 // Binding policies recognized by the 3.3.5 client. Packet/cache words remain
 // raw uint32_t; other values retain the existing fallback behavior.
 enum ITEM_BINDING : uint32_t {

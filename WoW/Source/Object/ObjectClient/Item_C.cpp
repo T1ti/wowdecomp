@@ -1280,13 +1280,13 @@ int32_t CGItem_C::GetRepairCost() {
     int32_t cost;
 
     if (itemClass == ITEM_CLASS::ITEM_CLASS_WEAPON) {
-        if (subClass > 21) {
+        if (subClass > DurabilityCostsRec::NUM_WEAPON_SUBCLASS_COSTS) {
             return 0;
         }
 
         cost = costs->m_weaponSubClassCost[subClass];
     } else {
-        if (itemClass != ITEM_CLASS::ITEM_CLASS_ARMOR || subClass > 8) {
+        if (itemClass != ITEM_CLASS::ITEM_CLASS_ARMOR || subClass > DurabilityCostsRec::NUM_ARMOR_SUBCLASS_COSTS) {
             return 0;
         }
 

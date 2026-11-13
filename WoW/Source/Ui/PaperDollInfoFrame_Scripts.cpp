@@ -613,7 +613,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
         return 0;
     }
 
-    int32_t bypass = (chrClass->m_flags & 0x8) != 0;
+    int32_t bypass = (chrClass->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT) != 0;
 
     for (int32_t i = 0; i <= 18; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
