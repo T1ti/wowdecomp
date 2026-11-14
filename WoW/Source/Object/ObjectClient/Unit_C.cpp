@@ -19637,7 +19637,7 @@ uint32_t CGUnit_C::GetPortraitDisplayId() {
 // VERIFY: 74cc072f auto
 // OFFSET: 0x0071ACF0
 bool CGUnit_C::IsTracked() const {
-    return CGMinimapFrame::s_trackingInfo && CGMinimapFrame::s_trackingInfo->m_type == 1 && (this->m_unit->m_unitNpcFlags & CGMinimapFrame::s_trackingInfo->m_npcFlags);
+    return CGMinimapFrame::s_trackingInfo && CGMinimapFrame::s_trackingInfo->m_type == TRACKING_TYPE::TRACKING_TYPE_NPC_FLAGS && (this->m_unit->m_unitNpcFlags & CGMinimapFrame::s_trackingInfo->m_npcFlags);
 }
 
 // VERIFY: feea4653 manual

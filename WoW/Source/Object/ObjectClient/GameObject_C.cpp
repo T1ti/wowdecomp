@@ -2903,7 +2903,7 @@ UNIT_REACTION CGGameObject_C::ObjectReaction(const CGUnit_C* unit) const {
 // VERIFY: 7fd3c3af auto
 // OFFSET: 0x0070F850
 bool CGGameObject_C::IsTracked() const {
-    return CGMinimapFrame::s_trackingInfo && CGMinimapFrame::s_trackingInfo->m_type == 2 && CGMinimapFrame::s_trackingInfo->m_npcFlags == static_cast<uint32_t>(this->m_gameObject->m_typeID);
+    return CGMinimapFrame::s_trackingInfo && CGMinimapFrame::s_trackingInfo->m_type == TRACKING_TYPE::TRACKING_TYPE_GAMEOBJECT && CGMinimapFrame::s_trackingInfo->m_npcFlags == static_cast<uint32_t>(this->m_gameObject->m_typeID);
 }
 
 // VERIFY: a1c0c530 auto

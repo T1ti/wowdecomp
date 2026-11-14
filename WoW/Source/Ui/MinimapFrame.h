@@ -122,9 +122,17 @@ struct MINIMAPMD5NAME : public TSHashObject<MINIMAPMD5NAME, HASHKEY_STRI> {
     /* 0018 */ char m_md5Name[40];
 };
 
+enum TRACKING_TYPE : int32_t {
+    // m_npcFlags is a UNIT_NPC_FLAGS mask.
+    TRACKING_TYPE_NPC_FLAGS = 1,
+    // m_npcFlags is a gameobject type ID.
+    TRACKING_TYPE_GAMEOBJECT = 2,
+    TRACKING_TYPE_TRIVIAL_QUESTS = 3,
+};
+
 struct TrackingTypeInfo {
-    /* 0000 */ int32_t m_type;
-    /* 0004 */ uint32_t m_npcFlags; // m_type 1: UNIT_NPC_FLAGS mask; m_type 2: gameobject type ID.
+    /* 0000 */ TRACKING_TYPE m_type;
+    /* 0004 */ uint32_t m_npcFlags;
     /* 0008 */ const char* m_name;
     /* 000C */ const char* m_texture;
     /* 0010 */ uint32_t m_classMask;
