@@ -6,6 +6,15 @@
 
 class SFileImpl;
 
+// 3.3.5 LFGDungeons.dbc flags. Only these bits are tested by the client.
+enum LFG_DUNGEON_FLAGS : int32_t {
+    LFG_DUNGEON_FLAG_NONE       = 0x00000000,
+    // Offered as a specific dungeon choice in the dungeon finder list.
+    LFG_DUNGEON_FLAG_LFD_LISTED = 0x00000002,
+    // Seasonal holiday dungeon; queued like a random dungeon and reported to Lua as isHoliday.
+    LFG_DUNGEON_FLAG_HOLIDAY    = 0x00000004,
+};
+
 class LfgDungeonsRec {
     public:
     static const int32_t s_numColumns = 49;
@@ -21,7 +30,7 @@ class LfgDungeonsRec {
     /* 0018 */ int32_t m_targetLevelMax;
     /* 001C */ int32_t m_mapID;
     /* 0020 */ int32_t m_difficulty;
-    /* 0024 */ int32_t m_flags;
+    /* 0024 */ int32_t m_flags; // LFG_DUNGEON_FLAGS
     /* 0028 */ int32_t m_typeID;
     /* 002C */ int32_t m_faction;
     /* 0030 */ const char* m_textureFilename;

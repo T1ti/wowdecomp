@@ -264,7 +264,7 @@ static void PushLFDChoiceInfo(lua_State* L, int32_t id) {
     lua_pushstring(L, rec->m_description);
     lua_settable(L, -3);
     lua_pushnumber(L, 14.0);
-    lua_pushboolean(L, rec->m_flags & 0x4);
+    lua_pushboolean(L, rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY);
     lua_settable(L, -3);
 }
 
@@ -612,7 +612,7 @@ static int32_t Script_GetLFGDungeonRewardInfo(lua_State* L) {
     int32_t dungeonID = lua_tointeger(L, 1);
     LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(dungeonID);
 
-    if (!rec || (rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & 0x4))) {
+    if (!rec || (rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY))) {
         return 0;
     }
 
@@ -834,7 +834,7 @@ static int32_t PushLFGProposalInfo(lua_State* L) {
     if (dungeon->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON) {
         total = 0;
         completed = CGLookingForGroup::m_proposal.m_completedMask != 0;
-    } else if (dungeon->m_flags & 0x4) {
+    } else if (dungeon->m_flags & LFG_DUNGEON_FLAG_HOLIDAY) {
         total = 1;
         completed = CGLookingForGroup::m_proposal.m_completedMask != 0;
     } else {
@@ -845,7 +845,7 @@ static int32_t PushLFGProposalInfo(lua_State* L) {
     lua_pushnumber(L, completed);
     lua_pushnumber(L, 5.0);
     lua_pushboolean(L, roles & ROLE_FLAGS::LEADER);
-    lua_pushboolean(L, (dungeon->m_flags >> 2) & 0x1);
+    lua_pushboolean(L, (dungeon->m_flags & LFG_DUNGEON_FLAG_HOLIDAY) != 0);
     return 12;
 }
 
@@ -885,7 +885,7 @@ static int32_t PushDungeonInfo(lua_State* L, int32_t dungeonId) {
     }
 
     lua_pushstring(L, rec->m_description);
-    lua_pushboolean(L, rec->m_flags & 0x4);
+    lua_pushboolean(L, rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY);
     return 14;
 }
 

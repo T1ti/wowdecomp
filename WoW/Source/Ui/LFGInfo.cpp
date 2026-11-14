@@ -222,7 +222,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
     for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
-        if (rec && (rec->m_flags & 0x2) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & 0x4)) {
+        if (rec && (rec->m_flags & LFG_DUNGEON_FLAG_LFD_LISTED) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
             count++;
         }
     }
@@ -242,7 +242,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
     for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
-        if (rec && (rec->m_flags & 0x2) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & 0x4)) {
+        if (rec && (rec->m_flags & LFG_DUNGEON_FLAG_LFD_LISTED) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
             CGLookingForGroup::m_lfdEntries.m_data[index].m_id = rec->m_id;
             CGLookingForGroup::m_lfdEntries.m_data[index].m_order = rec->m_groupID;
             index++;
@@ -1401,7 +1401,7 @@ void CGLookingForGroup::ParseBlackList(CDataStore* msg, LFGLockInfo* lockInfo) {
 // VERIFY: 72ac9659 manual
 // OFFSET: 0x00559D40
 bool CGLookingForGroup::IsRandomDungeonUnlocked(const LfgDungeonsRec* rec) {
-    if (!(rec->m_flags & 0x4)) {
+    if (!(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
         return false;
     }
 
@@ -1439,7 +1439,7 @@ void CGLookingForGroup::UpdateRandomDungeons() {
 
         if (rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON) {
             CGLookingForGroup::m_randomDungeons.m_data[index++] = slot;
-        } else if (rec->m_flags & 0x4) {
+        } else if (rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY) {
             for (LFGDungeonEntry* entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Head(); entry; entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Next(entry)) {
                 if (entry->m_slot == slot) {
                     if (!entry->m_locked) {
