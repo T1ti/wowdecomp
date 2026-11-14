@@ -4887,7 +4887,7 @@ static int32_t FilterClosestMatchCandidate(int32_t targetType, const WOWGUID& gu
         case 4: {
             uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-            if ((high & 0xF0000000) || !((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid))) {
+            if ((high & WOWGUID_HIGH_NON_PLAYER_MASK) || !((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid))) {
                 return 0;
             }
         }

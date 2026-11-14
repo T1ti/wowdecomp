@@ -858,7 +858,7 @@ static int32_t Script_UnitName(lua_State* L) {
         }
     } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid)) {
         name = petState->m_name;
-    } else if ((unitGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+    } else if ((unitGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
         PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((unitGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), unitGuid, UnitNameQueryCallback, nullptr, true);
 
         if (record) {
@@ -3177,7 +3177,7 @@ static int32_t Script_SetPortraitTexture(lua_State* L) {
                 return 1;
             }
         }
-    } else if ((unitGuid.m_guid & 0xF000000000000000ull) || !(unitGuid.m_guid & 0xF07FFFFFFFFFFFFFull)) {
+    } else if ((unitGuid.m_guid & WOWGUID_NON_PLAYER_MASK) || !(unitGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
         CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid);
 
         if (petState) {
@@ -3682,7 +3682,7 @@ static int32_t Script_UnitGUID(lua_State* L) {
 
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-    if ((high & 0xF0F00000) == 0xF0300000 || (high & 0xF0F00000) == 0xF0500000) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_CREATURE || (high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE) {
         CreatureStats_C* creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, display, nullptr, nullptr, false);
 
         if (creature && (creature->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
@@ -4173,11 +4173,11 @@ static int32_t Script_GetPlayerInfoByGUID(lua_State* L) {
         return 0;
     }
 
-    if (guid.m_guid & 0xF000000000000000ULL) {
+    if (guid.m_guid & WOWGUID_NON_PLAYER_MASK) {
         return 0;
     }
 
-    if (!(guid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+    if (!(guid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
         return 0;
     }
 

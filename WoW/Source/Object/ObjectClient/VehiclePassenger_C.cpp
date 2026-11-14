@@ -877,7 +877,7 @@ void CVehiclePassenger_C::Init(CGUnit_C* unit) {
     transport.m_guid = unit->GetTransportGUID();
     uint32_t high = static_cast<uint32_t>(transport.m_guid >> 32);
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(transport.m_guid)))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
         CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(transport, TYPE_UNIT, __FILE__, __LINE__));
         uint8_t seat = unit->m_movementData.m_transportSeat;
         unit->VehiclePassengerOnUpdateTransport(transport, seat, 1);
@@ -1478,7 +1478,7 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
     int32_t entering;
     WOWGUID target;
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(vehicleGuid.m_guid)))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(vehicleGuid.m_guid)))) {
         target = vehicleGuid;
         entering = 1;
     } else {
@@ -2090,7 +2090,7 @@ void CVehiclePassenger_C::OnUpdateTransport(WOWGUID transport, uint8_t seat, CGU
     }
 
     uint32_t high = static_cast<uint32_t>(transport.m_guid >> 32);
-    BOOL exiting = (high & 0xF0F00000) != 0xF0500000 && ((high & 0xF0000000) || !((high & 0xF07FFFFF) | static_cast<uint32_t>(transport.m_guid)));
+    BOOL exiting = (high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE && ((high & WOWGUID_HIGH_NON_PLAYER_MASK) || !((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)));
     BOOL allowed = this->m_unit->VehiclePassengerIsTransitionAllowed(this->m_seatRec, exiting);
 
     if (this->m_vehicleGuid && !vehicle && CVehiclePassenger_C::s_pendingCount) {

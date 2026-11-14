@@ -676,7 +676,7 @@ static void SendChatEvent(ChatChannel* channel, uint32_t language, const char* t
 
     char guidString[20] = {};
 
-    if (!(guid.m_guid & 0xF000000000000000ULL) && (guid.m_guid & 0xF07FFFFFFFFFFFFFULL) && (!flags || SStrCmp(flags, "GM", STORM_MAX_STR) || SStrCmp(flags, "DEV", STORM_MAX_STR))) {
+    if (!(guid.m_guid & WOWGUID_NON_PLAYER_MASK) && (guid.m_guid & WOWGUID_PLAYER_VALUE_MASK) && (!flags || SStrCmp(flags, "GM", STORM_MAX_STR) || SStrCmp(flags, "DEV", STORM_MAX_STR))) {
         GUIDToHexString(guid, guidString);
     }
 
@@ -1060,7 +1060,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
     FRAMESCRIPT_GENDER gender = GENDER_NOT_APPLICABLE;
 
     if (!senderName) {
-        if (!(senderGuid.m_guid & 0xF000000000000000ULL) && (senderGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(senderGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (senderGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             NameCache* record = g_nameDBCache.GetRecord(senderGuid.m_guid, senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
@@ -1070,7 +1070,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
                     gender = GENDER_FEMALE;
                 }
             }
-        } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((senderGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
@@ -1084,13 +1084,13 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
     }
 
     if (!targetName) {
-        if (!(targetGuid.m_guid & 0xF000000000000000ULL) && (targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             NameCache* record = g_nameDBCache.GetRecord(targetGuid.m_guid, targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
                 targetName = record->m_name;
             }
-        } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((targetGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (record) {
@@ -1100,8 +1100,8 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
     }
 
     if (s_queueChat
-        || (senderGuid && ((!(senderGuid.m_guid & 0xF000000000000000ULL) && (senderGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) || (senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) && !senderName)
-        || (targetGuid && ((!(targetGuid.m_guid & 0xF000000000000000ULL) && (targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) || (targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) && !targetName)) {
+        || (senderGuid && ((!(senderGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (senderGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) || (senderGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) && !senderName)
+        || (targetGuid && ((!(targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) || (targetGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) && !targetName)) {
         CGChat::QueueChatText(text, type, senderName, targetName, language, channelName, flags, s_queueChat, 0, senderGuid, senderUnk, targetGuid, achievementID, isGM, conversation);
         return;
     }
@@ -1534,7 +1534,7 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
             senderName = static_cast<const char*>(data);
             msg->Get(targetGuid.m_guid);
 
-            if (targetGuid && ((targetGuid.m_guid & 0xF000000000000000ULL) || !(targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) && (targetGuid.m_guid & 0xF0F0000000000000ULL) != 0xF040000000000000ULL) {
+            if (targetGuid && ((targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) || !(targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) && (targetGuid.m_guid & WOWGUID_TYPE_MASK) != WOWGUID_TYPE_PET) {
                 msg->Get(length);
                 msg->GetDataInSitu(data, length);
                 targetName = static_cast<const char*>(data);
@@ -1575,7 +1575,7 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
         case CHAT_MSG_BG_SYSTEM_HORDE: {
             msg->Get(targetGuid.m_guid);
 
-            if (targetGuid && ((targetGuid.m_guid & 0xF000000000000000ULL) || !(targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL))) {
+            if (targetGuid && ((targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) || !(targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK))) {
                 msg->Get(length);
                 msg->GetDataInSitu(data, length);
                 targetName = static_cast<const char*>(data);
@@ -2714,7 +2714,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
         case CGChat::CHANNEL_NOTIFY::INVITE: {
             msg->Get(guid.m_guid);
 
-            if ((FriendList::s_friendList && FriendList::s_friendList->IsIgnored(guid, true)) || (guid.m_guid & 0xF000000000000000ULL) || !(guid.m_guid & 0xF07FFFFFFFFFFFFFULL) || s_inviteChannelName[0]) {
+            if ((FriendList::s_friendList && FriendList::s_friendList->IsIgnored(guid, true)) || (guid.m_guid & WOWGUID_NON_PLAYER_MASK) || !(guid.m_guid & WOWGUID_PLAYER_VALUE_MASK) || s_inviteChannelName[0]) {
                 return 1;
             }
 
@@ -3314,7 +3314,7 @@ void CGChat::AddTextEmoteMessage(const WOWGUID& guid, uint32_t emote, const char
 
         char guidString[20] = {};
 
-        if (!(guid.m_guid & 0xF000000000000000ULL) && (guid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(guid.m_guid & WOWGUID_NON_PLAYER_MASK) && (guid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             GUIDToHexString(guid, guidString);
         }
 
@@ -3509,14 +3509,14 @@ void CGChat::NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, boo
         const char* targetName = nullptr;
         WOWGUID senderGuid = chat->m_senderGuid;
 
-        if (!(senderGuid.m_guid & 0xF000000000000000ULL) && (senderGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(senderGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (senderGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             WOWGUID requester = WOWGUID();
             NameCache* record = g_nameDBCache.GetRecord(senderGuid.m_guid, requester, nullptr, nullptr, false);
 
             if (record) {
                 senderName = record->m_name;
             }
-        } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((senderGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_senderGuid, nullptr, nullptr, false);
 
             if (record) {
@@ -3526,14 +3526,14 @@ void CGChat::NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, boo
 
         WOWGUID targetGuid = chat->m_targetGuid;
 
-        if (!(targetGuid.m_guid & 0xF000000000000000ULL) && (targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             WOWGUID requester = WOWGUID();
             NameCache* record = g_nameDBCache.GetRecord(targetGuid.m_guid, requester, nullptr, nullptr, false);
 
             if (record) {
                 targetName = record->m_name;
             }
-        } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((targetGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_targetGuid, nullptr, nullptr, false);
 
             if (record) {
@@ -3999,7 +3999,7 @@ void CGChat::ProcessPendingChatQueue() {
         const char* senderName = nullptr;
         WOWGUID senderGuid = chat->m_senderGuid;
 
-        if (!(senderGuid.m_guid & 0xF000000000000000ULL) && (senderGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(senderGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (senderGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             NameCache* record = g_nameDBCache.GetRecord(senderGuid.m_guid, chat->m_senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {
@@ -4007,7 +4007,7 @@ void CGChat::ProcessPendingChatQueue() {
             }
 
             senderName = record->m_name;
-        } else if ((senderGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((senderGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((senderGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_senderGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {
@@ -4020,7 +4020,7 @@ void CGChat::ProcessPendingChatQueue() {
         const char* targetName;
         WOWGUID targetGuid = chat->m_targetGuid;
 
-        if (!(targetGuid.m_guid & 0xF000000000000000ULL) && (targetGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(targetGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (targetGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             NameCache* record = g_nameDBCache.GetRecord(targetGuid.m_guid, chat->m_targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {
@@ -4028,7 +4028,7 @@ void CGChat::ProcessPendingChatQueue() {
             }
 
             targetName = record->m_name;
-        } else if ((targetGuid.m_guid & 0xF0F0000000000000ULL) == 0xF040000000000000ULL) {
+        } else if ((targetGuid.m_guid & WOWGUID_TYPE_MASK) == WOWGUID_TYPE_PET) {
             PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((targetGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), chat->m_targetGuid, CGChat::NameQueryCallback, nullptr, false);
 
             if (!record) {

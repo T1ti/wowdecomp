@@ -222,9 +222,9 @@ void CombatLogEntry::SetFailReason(const char* reason) {
 // VERIFY: 77d0900b auto
 // OFFSET: 0x0074D210
 void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid) {
-    uint32_t type = static_cast<uint32_t>(guid->m_guid >> 32) & 0xF0F00000;
+    uint32_t type = static_cast<uint32_t>(guid->m_guid >> 32) & WOWGUID_HIGH_TYPE_MASK;
 
-    if (type == 0xF0300000 || type == 0xF0500000) {
+    if (type == WOWGUID_HIGH_TYPE_CREATURE || type == WOWGUID_HIGH_TYPE_VEHICLE) {
         CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, *guid, nullptr, nullptr, false);
 
         if (stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
@@ -604,12 +604,12 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
     PendingCombatLogData* data = GetPendingCombatLogData(this, guid, mask);
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-    if (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid))) {
+    if (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid))) {
         data->m_type = 1;
     } else {
-        uint32_t type = high & 0xF0F00000;
+        uint32_t type = high & WOWGUID_HIGH_TYPE_MASK;
 
-        if (type == 0xF0300000 || type == 0xF0500000) {
+        if (type == WOWGUID_HIGH_TYPE_CREATURE || type == WOWGUID_HIGH_TYPE_VEHICLE) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (!unit) {
@@ -622,10 +622,10 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
                 data->m_id = unit->m_obj->m_entryID;
                 data->m_type = 3;
             }
-        } else if (type == 0xF0400000) {
+        } else if (type == WOWGUID_HIGH_TYPE_PET) {
             data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             data->m_type = 2;
-        } else if (type == 0xF0100000) {
+        } else if (type == WOWGUID_HIGH_TYPE_GAMEOBJECT) {
             data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             data->m_type = 4;
         } else {
@@ -701,7 +701,7 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
 
         uint32_t ownerHigh = static_cast<uint32_t>(owner.m_guid >> 32);
 
-        if (owner != guid && ((ownerHigh & 0xF0000000) || !((ownerHigh & 0xF07FFFFF) | static_cast<uint32_t>(owner.m_guid)))) {
+        if (owner != guid && ((ownerHigh & WOWGUID_HIGH_NON_PLAYER_MASK) || !((ownerHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(owner.m_guid)))) {
             CGUnit_C* ownerUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(owner, TYPE_UNIT, __FILE__, __LINE__));
 
             if (ownerUnit && ownerUnit->GetCharmerOrCreatorGuid()->m_guid) {
@@ -711,16 +711,16 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
     }
 
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
-    bool isPlayer = !(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid));
-    uint32_t type = high & 0xF0F00000;
+    bool isPlayer = !(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid));
+    uint32_t type = high & WOWGUID_HIGH_TYPE_MASK;
     uint32_t flags;
 
-    if (isPlayer || type == 0xF0300000 || type == 0xF0500000 || type == 0xF0400000) {
+    if (isPlayer || type == WOWGUID_HIGH_TYPE_CREATURE || type == WOWGUID_HIGH_TYPE_VEHICLE || type == WOWGUID_HIGH_TYPE_PET) {
         if (owner == guid) {
             if (isPlayer) {
                 flags = COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PLAYER;
             } else {
-                flags = type == 0xF0400000 ? COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PET : COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_NPC;
+                flags = type == WOWGUID_HIGH_TYPE_PET ? COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PET : COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_NPC;
             }
         } else {
             const WOWGUID& controller = unit->m_unit->m_unitFieldCharmedby.m_guid ? unit->m_unit->m_unitFieldCharmedby : unit->m_unit->m_unitFieldSummonedby;
@@ -732,7 +732,7 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
 
     uint32_t ownerHigh = static_cast<uint32_t>(owner.m_guid >> 32);
 
-    if ((ownerHigh & 0xF0000000) || !((ownerHigh & 0xF07FFFFF) | static_cast<uint32_t>(owner.m_guid))) {
+    if ((ownerHigh & WOWGUID_HIGH_NON_PLAYER_MASK) || !((ownerHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(owner.m_guid))) {
         flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_NPC;
     } else {
         flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_PLAYER;
@@ -1598,7 +1598,7 @@ void CombatLog::AddSpellCastEntry(const WOWGUID& source, const WOWGUID& dest, in
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        int32_t event = (static_cast<uint32_t>(dest.m_guid >> 32) & 0xF0F00000) == 0xF0100000 ? 16 : 15;
+        int32_t event = (static_cast<uint32_t>(dest.m_guid >> 32) & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_GAMEOBJECT ? 16 : 15;
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
         QueueCombatLogEntry(entry, 0);
     }

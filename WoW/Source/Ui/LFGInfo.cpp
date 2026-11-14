@@ -1699,7 +1699,7 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
             uint64_t guid;
             msg->Get(guid);
 
-            if ((guid & 0xF000000000000000ull) || !(guid & 0xF07FFFFFFFFFFFFFull)) {
+            if ((guid & WOWGUID_NON_PLAYER_MASK) || !(guid & WOWGUID_PLAYER_VALUE_MASK)) {
                 LFGListParty* party = list->m_parties.Ptr(static_cast<uint32_t>(guid), CHashKeyGUID(guid));
 
                 if (party) {

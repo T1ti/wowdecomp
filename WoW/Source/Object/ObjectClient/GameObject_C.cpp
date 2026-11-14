@@ -3154,7 +3154,7 @@ bool CGGameObject_C_TypeBase::CanUse() const {
 
         WOWGUID creatorGuid = this->m_owner->m_gameObject->m_createdBy;
 
-        if (!(creatorGuid.m_guid & 0xF000000000000000ULL) && (creatorGuid.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+        if (!(creatorGuid.m_guid & WOWGUID_NON_PLAYER_MASK) && (creatorGuid.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
             CGUnit_C* creator = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(creatorGuid, TYPE_PLAYER, __FILE__, __LINE__));
 
             if (!creator) {
@@ -3595,7 +3595,7 @@ void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
         uint64_t guid = passenger->m_ownerGuid->m_guid;
         uint32_t high = static_cast<uint32_t>(guid >> 32);
 
-        if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && (guid & 0xF07FFFFFFFFFFFFFull))) {
+        if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && (guid & WOWGUID_PLAYER_VALUE_MASK))) {
             CVehicle_C* vehicle = static_cast<CGUnit_C*>(object)->m_vehicle;
 
             if (vehicle && vehicle->m_vehicleRec) {
@@ -4270,7 +4270,7 @@ bool CGGameObject_C_Type_Ritual::CanUseNow(GAME_ERROR_TYPE* error, float* distan
 
     const WOWGUID& creator = this->m_owner->m_gameObject->m_createdBy;
 
-    if (!(creator.m_guid & 0xF000000000000000ULL) && (creator.m_guid & 0xF07FFFFFFFFFFFFFULL)) {
+    if (!(creator.m_guid & WOWGUID_NON_PLAYER_MASK) && (creator.m_guid & WOWGUID_PLAYER_VALUE_MASK)) {
         CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(creator, TYPE_PLAYER, __FILE__, __LINE__));
 
         if (!caster || (!player->IsInMyPartyOrRaid(caster) && !player->IsInMyParty(caster))) {

@@ -142,7 +142,7 @@ void MovementMoveTransports(uint32_t time, uint32_t elapsed) {
 void MovementNotifyTransportUnitRemoved(WOWGUID passenger, WOWGUID transport, uint8_t seat) {
     uint32_t high = (uint32_t)(transport.m_guid >> 32);
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | (uint32_t)transport.m_guid))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | (uint32_t)transport.m_guid))) {
         CGUnit_C* unit = (CGUnit_C*)ClntObjMgrObjectPtr(transport, TYPE_UNIT, __FILE__, __LINE__);
 
         if (unit && unit->m_vehicle) {
@@ -228,7 +228,7 @@ void MovementDelSpline(CMoveSpline* spline) {
 void MovementUpdateCameraYaw(WOWGUID guid, WOWGUID transport) {
     uint32_t high = static_cast<uint32_t>(transport.m_guid >> 32);
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(transport.m_guid)))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
         return;
     }
 

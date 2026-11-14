@@ -1775,7 +1775,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
         uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
         WOWGUID requester = { 0 };
 
-        if (((high & 0xF0F00000) != 0xF0300000 && (high & 0xF0F00000) != 0xF0500000) || !(creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, requester, nullptr, nullptr, false))) {
+        if (((high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_CREATURE && (high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE) || !(creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, requester, nullptr, nullptr, false))) {
             if (!name) {
                 this->Hide();
                 return 0;
@@ -2075,7 +2075,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     if (creature && questTracking && questTracking->m_intValue) {
         uint32_t summonedHigh = unit ? static_cast<uint32_t>(unit->m_unit->m_unitFieldSummonedby.m_guid >> 32) : 0;
 
-        if (!unit || (summonedHigh & 0xF0000000) || !((summonedHigh & 0xF07FFFFF) | static_cast<uint32_t>(unit->m_unit->m_unitFieldSummonedby.m_guid))) {
+        if (!unit || (summonedHigh & WOWGUID_HIGH_NON_PLAYER_MASK) || !((summonedHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(unit->m_unit->m_unitFieldSummonedby.m_guid))) {
             uint32_t entry = unit ? unit->m_obj->m_entryID : static_cast<uint32_t>((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK);
             QuestLogLeaderBoardParams params;
             params.m_questCallback = TooltipUnitNameCallback;

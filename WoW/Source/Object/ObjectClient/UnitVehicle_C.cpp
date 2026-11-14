@@ -32,7 +32,7 @@ CGUnit_C* CGUnit_C::FindRootVehicle(CGUnit_C* stop) {
     WOWGUID guid = { this->GetTransportGUID() };
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid)))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid)))) {
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (!unit) {
@@ -43,7 +43,7 @@ CGUnit_C* CGUnit_C::FindRootVehicle(CGUnit_C* stop) {
             guid.m_guid = unit->GetTransportGUID();
             high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-            if ((high & 0xF0F00000) != 0xF0500000 && ((high & 0xF0000000) || !((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid)))) {
+            if ((high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE && ((high & WOWGUID_HIGH_NON_PLAYER_MASK) || !((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid)))) {
                 break;
             }
 
@@ -107,7 +107,7 @@ bool CGUnit_C::IsVehiclePreventingTurning() const {
     uint32_t high = static_cast<uint32_t>(this->m_movementData.m_transportGuid.m_guid >> 32);
     uint32_t low = static_cast<uint32_t>(this->m_movementData.m_transportGuid.m_guid);
 
-    if ((high & 0xF0F00000) != 0xF0500000 && ((high & 0xF0000000) || !((high & 0xF07FFFFF) | low))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE && ((high & WOWGUID_HIGH_NON_PLAYER_MASK) || !((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | low))) {
         return false;
     }
 
@@ -200,7 +200,7 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
     }
 
     uint32_t high = static_cast<uint32_t>(transport >> 32);
-    bool entering = (high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(transport)));
+    bool entering = (high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport)));
     WOWGUID guid;
 
     if (entering) {
@@ -261,7 +261,7 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
 // OFFSET: 0x0074BE10
 int32_t CGUnit_C::VehiclePassengerStartWaitingForVehicleTransitionAnim(uint64_t transport, uint8_t seat) {
     uint32_t high = static_cast<uint32_t>(transport >> 32);
-    int32_t entering = (high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(transport)));
+    int32_t entering = (high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport)));
     WOWGUID guid;
 
     if (entering) {
@@ -444,7 +444,7 @@ void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
     CGUnit_C* vehicle;
 
-    if ((high & 0xF0F00000) == 0xF0500000 || (!(high & 0xF0000000) && ((high & 0xF07FFFFF) | static_cast<uint32_t>(guid.m_guid)))) {
+    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid)))) {
         vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (!vehicle) {
