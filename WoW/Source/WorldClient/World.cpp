@@ -1583,7 +1583,7 @@ void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position) {
         AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
 
         if (area) {
-            if (!(area->m_flags & 0x2000) && area->m_parentAreaID) {
+            if (!(area->m_flags & AREA_FLAG_OWN_AMBIENT) && area->m_parentAreaID) {
                 area = g_areaTableDB.GetRecord(area->m_parentAreaID);
             }
 
@@ -5198,28 +5198,28 @@ int32_t World::QueryOutdoors(CMapEntity* entity) {
     CMapObjGroup* mapObjGroup = nullptr;
 
     if (entity->GetMapObjAndGroup(&mapObjDef, &mapObj, &mapObjDefGroup, &mapObjGroup, 0)) {
-        int32_t outdoors = (mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) >> 3;
+        int32_t outdoors = (mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) != 0;
         WMOAreaTableRec* rec = GetWMOAreaRec(mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, mapObjGroup->m_wmoGroupId);
 
         if (!rec) {
             return outdoors;
         }
 
-        if (rec->m_flags & 0x4) {
+        if (rec->m_flags & WMO_AREA_FLAG_FORCE_OUTDOORS) {
             return 1;
         }
 
-        return (rec->m_flags & 0x2) ? 0 : outdoors;
+        return (rec->m_flags & WMO_AREA_FLAG_FORCE_INDOORS) ? 0 : outdoors;
     }
 
     int32_t areaId = CMap::QueryAreaIdTerrain(&entity->m_position);
     AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
 
-    if (!area || (area->m_flags & 0x4000000)) {
+    if (!area || (area->m_flags & AREA_FLAG_FORCE_OUTDOORS)) {
         return 1;
     }
 
-    return (area->m_flags & 0x2000000) ? 0 : 1;
+    return (area->m_flags & AREA_FLAG_FORCE_INDOORS) ? 0 : 1;
 }
 
 // VERIFY: 4fb148c8 auto

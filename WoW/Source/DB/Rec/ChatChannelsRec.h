@@ -11,6 +11,8 @@ enum CHAT_CHANNEL_FLAGS : int32_t {
     CHAT_CHANNEL_FLAG_NONE               = 0x00000000,
     // Limited to the zone it was joined in.
     CHAT_CHANNEL_FLAG_ZONE_BASED         = 0x00000002,
+    // Listed only in AREA_FLAG_CITY_CHANNELS areas.
+    CHAT_CHANNEL_FLAG_CITY_ONLY          = 0x00000010,
     // Named after the capital city while the player is in one.
     CHAT_CHANNEL_FLAG_CITY_NAME          = 0x00000020,
     // Receives ZONE_UNDER_ATTACK alerts.

@@ -761,7 +761,7 @@ static int32_t Script_GetSummonConfirmAreaName(lua_State* L) {
 static int32_t Script_IsSubZonePVPPOI(lua_State* L) {
     const AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_subzoneID);
 
-    if (area && (area->m_flags & 0x8000)) {
+    if (area && (area->m_flags & AREA_FLAG_PVP_POI)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -843,7 +843,7 @@ static int32_t Script_GetPVPTimer(lua_State* L) {
 int32_t Script_CanHearthAndResurrectFromArea(lua_State* L) {
     const AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_areaID);
 
-    if (area && (area->m_flags & 0x8000000)) {
+    if (area && (area->m_flags & AREA_FLAG_HEARTH_AND_RESURRECT)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -2024,7 +2024,7 @@ static int32_t Script_GetZonePVPInfo(lua_State* L) {
     int32_t contested = (flags & 0x40000) != 0;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!area || !player || (!s_isPvPRealm && !(area->m_flags & 0x10))) {
+    if (!area || !player || (!s_isPvPRealm && !(area->m_flags & AREA_FLAG_PVP_INFO))) {
         return 0;
     }
 

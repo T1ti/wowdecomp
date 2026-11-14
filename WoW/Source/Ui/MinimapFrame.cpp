@@ -1549,11 +1549,11 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
         uint8_t indoorArea = 0;
 
         if (rootRec) {
-            if (rootRec->m_flags & 1) {
+            if (rootRec->m_flags & WMO_AREA_FLAG_MINIMAP_OUTDOOR) {
                 outdoorArea = 1;
             }
 
-            if (rootRec->m_flags & 0x18) {
+            if (rootRec->m_flags & WMO_AREA_FLAG_MINIMAP_INDOOR_MASK) {
                 indoorArea = 1;
             }
         }
@@ -1562,7 +1562,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
         int32_t wmoId;
         int32_t wmoHash;
 
-        if (groupRec && (groupRec->m_flags & 0x20)) {
+        if (groupRec && (groupRec->m_flags & WMO_AREA_FLAG_NO_INDOOR_MINIMAP)) {
             inside = 0;
             s_mapObjIndoorArea = 0;
         } else if ((outdoorArea || indoorArea || inside) && World::QueryMapObjIDs(entity, &wmoId, &wmoHash, &groupId)) {

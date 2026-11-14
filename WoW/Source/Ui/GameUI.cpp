@@ -7576,7 +7576,7 @@ int32_t IsInFlyableArea() {
         area = g_areaTableDB.GetRecord(CGGameUI::m_areaID);
     }
 
-    if (area && (area->m_flags & 0x400) && !(area->m_flags & 0x20000000)) {
+    if (area && (area->m_flags & AREA_FLAG_FLYABLE) && !(area->m_flags & AREA_FLAG_NO_FLYING)) {
         return 1;
     }
 
