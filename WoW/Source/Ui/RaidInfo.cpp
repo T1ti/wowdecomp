@@ -36,7 +36,7 @@ uint32_t CGRaidInfo::m_numMembers;
 static int32_t s_pendingNameQueries;
 
 // STATIC: 0x00BEB528
-WOWGUID CGRaidInfo::m_raidTargets[8];
+WOWGUID CGRaidInfo::m_raidTargets[CGRaidInfo::NUM_RAID_ICONS];
 
 // STATIC: 0x00BEB60C
 uint32_t CGRaidInfo::m_realNumMembers;
@@ -304,7 +304,7 @@ uint32_t GetRaidTargetIndexFromGuid(WOWGUID guid) {
 
     while (CGRaidInfo::m_raidTargets[index] != guid) {
         if (++index >= sizeof(CGRaidInfo::m_raidTargets) / sizeof(CGRaidInfo::m_raidTargets[0])) {
-            return 8;
+            return CGRaidInfo::NUM_RAID_ICONS;
         }
     }
 
@@ -389,11 +389,11 @@ int32_t Packet_MSG_RAID_TARGET_UPDATE(void* param, NETMESSAGE msgId, uint32_t ti
     msg->Get(full);
 
     if (full) {
-        WOWGUID previous[8];
+        WOWGUID previous[CGRaidInfo::NUM_RAID_ICONS];
         memcpy(previous, CGRaidInfo::m_raidTargets, sizeof(previous));
         memset(CGRaidInfo::m_raidTargets, 0, sizeof(CGRaidInfo::m_raidTargets));
 
-        for (uint32_t i = 0; i < 8; i++) {
+        for (uint32_t i = 0; i < CGRaidInfo::NUM_RAID_ICONS; i++) {
             if (previous[i]) {
                 CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(previous[i], TYPE_UNIT, __FILE__, __LINE__));
 
@@ -413,7 +413,7 @@ int32_t Packet_MSG_RAID_TARGET_UPDATE(void* param, NETMESSAGE msgId, uint32_t ti
         msg->Get(index);
         msg->Get(target.m_guid);
 
-        if (index < 8) {
+        if (index < CGRaidInfo::NUM_RAID_ICONS) {
             CGRaidInfo::SetRaidTarget(index, target);
         }
     }
@@ -1110,11 +1110,11 @@ void CGRaidInfo::ClearRoster() {
         }
     }
 
-    WOWGUID targets[8];
+    WOWGUID targets[CGRaidInfo::NUM_RAID_ICONS];
     memcpy(targets, CGRaidInfo::m_raidTargets, sizeof(targets));
     memset(CGRaidInfo::m_raidTargets, 0, sizeof(CGRaidInfo::m_raidTargets));
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < CGRaidInfo::NUM_RAID_ICONS; i++) {
         if (!targets[i]) {
             continue;
         }

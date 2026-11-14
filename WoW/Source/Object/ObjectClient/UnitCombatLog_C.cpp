@@ -796,7 +796,7 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
     if (inGroup) {
         uint32_t index = GetRaidTargetIndexFromGuid(guid);
 
-        if (index < 8) {
+        if (index < CGRaidInfo::NUM_RAID_ICONS) {
             return (0x100000 << index) | flags;
         }
     }

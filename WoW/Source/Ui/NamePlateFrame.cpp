@@ -148,7 +148,7 @@ void CGNamePlateFrame::UpdateEliteIcon(CGUnit_C* unit) {
 // VERIFY: 52ce0620 manual
 // OFFSET: 0x0098E740
 void CGNamePlateFrame::UpdateRaidTargetDisplay(uint32_t raidTarget) {
-    if (raidTarget < 8) {
+    if (raidTarget < CGRaidInfo::NUM_RAID_ICONS) {
         float left = static_cast<int32_t>(raidTarget & 3) * 0.25f;
         float top = static_cast<int32_t>(raidTarget >> 2) * 0.25f;
 

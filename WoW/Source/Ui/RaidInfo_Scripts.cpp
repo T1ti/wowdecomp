@@ -248,7 +248,7 @@ static int32_t Script_GetRaidTargetIndex(lua_State* L) {
 
     uint32_t index = GetRaidTargetIndexFromGuid(GetGuidByKeyword(lua_tolstring(L, 1, nullptr)));
 
-    if (index == 8) {
+    if (index == CGRaidInfo::NUM_RAID_ICONS) {
         lua_pushnil(L);
     } else {
         lua_pushnumber(L, index + 1);
@@ -400,7 +400,7 @@ static int32_t Script_SetRaidSubgroup(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t subgroup = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (subgroup >= 8) {
+    if (subgroup >= CGRaidInfo::NUM_RAID_GROUPS) {
         luaL_error(L, "Usage: SetRaidSubgroup(index, subgroup)");
         return 0;
     }
@@ -556,7 +556,7 @@ static int32_t Script_SetRaidTarget(lua_State* L) {
 
     uint32_t index = static_cast<uint8_t>(lua_tonumber(L, 2)) - 1;
 
-    if (index < 8) {
+    if (index < CGRaidInfo::NUM_RAID_ICONS) {
         if (guid && !CGRaidInfo::IsPlayerOrPetInRaid(guid) && !CGPartyInfo::IsPlayerOrPetInParty(guid)) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
@@ -577,7 +577,7 @@ static int32_t Script_SetRaidTarget(lua_State* L) {
         guid = WOWGUID();
     }
 
-    if (index >= 8) {
+    if (index >= CGRaidInfo::NUM_RAID_ICONS) {
         return 0;
     }
 
@@ -593,7 +593,7 @@ static int32_t Script_SetRaidTarget(lua_State* L) {
 
     uint32_t current = GetRaidTargetIndexFromGuid(guid);
 
-    if (current == index || current < 8) {
+    if (current == index || current < CGRaidInfo::NUM_RAID_ICONS) {
         WOWGUID none = WOWGUID();
         CGRaidInfo::SetRaidTarget(current, none);
     }

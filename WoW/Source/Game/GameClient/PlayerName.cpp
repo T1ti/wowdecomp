@@ -273,7 +273,7 @@ int32_t PLAYERNAMEDESC::ShouldRender(CGObject_C* object, uint32_t raidTarget) {
         show = !unit->IsDeadOrGhost() && !unit->m_namePlateFrame;
     }
 
-    return CGGameUI::m_visible && raidTarget < 8 && show;
+    return CGGameUI::m_visible && raidTarget < CGRaidInfo::NUM_RAID_ICONS && show;
 }
 
 // VERIFY: 64e128ac manual

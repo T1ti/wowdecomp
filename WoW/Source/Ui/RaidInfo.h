@@ -36,10 +36,14 @@ class CGRaidInfo {
     public:
     // Raid member slots (FrameXML MAX_RAID_MEMBERS).
     static const int32_t MAX_RAID_MEMBERS = 40;
+    // Raid subgroups (FrameXML NUM_RAID_GROUPS).
+    static const int32_t NUM_RAID_GROUPS = 8;
+    // Raid target icons (FrameXML NUM_RAID_ICONS); this value also means no icon.
+    static const int32_t NUM_RAID_ICONS = 8;
     static void LeaveWorld();
     static CGRaidMember* m_members[MAX_RAID_MEMBERS];
     static uint32_t m_numMembers;
-    static WOWGUID m_raidTargets[8];
+    static WOWGUID m_raidTargets[NUM_RAID_ICONS];
     static uint32_t m_realNumMembers;
     static WOWGUID m_selectedMember;
 
