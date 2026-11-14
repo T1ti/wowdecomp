@@ -160,8 +160,8 @@ int32_t CGLookingForGroup::GetLFGRoleUpdateSlot(lua_State* L) {
         return 0;
     }
 
-    lua_pushnumber(L, CGLookingForGroup::m_roleCheckSlots.m_data[index] >> 24);
-    lua_pushnumber(L, CGLookingForGroup::m_roleCheckSlots.m_data[index] & 0xFFFFFF);
+    lua_pushnumber(L, CGLookingForGroup::m_roleCheckSlots.m_data[index] >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
+    lua_pushnumber(L, CGLookingForGroup::m_roleCheckSlots.m_data[index] & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
     return 2;
 }
 
@@ -298,7 +298,7 @@ int32_t CGLookingForGroup::GetLFGProposalEncounter(lua_State* L) {
     double index = lua_tonumber(L, 1);
     LfgDungeonsRec* rec;
 
-    if (CGLookingForGroup::m_proposal.m_dungeonId && (rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_proposal.m_dungeonId & 0xFFFFFF))) {
+    if (CGLookingForGroup::m_proposal.m_dungeonId && (rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_proposal.m_dungeonId & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK))) {
         return PushDungeonEncounterInfo(L, rec->m_mapID, rec->m_difficulty, static_cast<int32_t>(index - 1.0), CGLookingForGroup::m_proposal.m_completedMask);
     }
 

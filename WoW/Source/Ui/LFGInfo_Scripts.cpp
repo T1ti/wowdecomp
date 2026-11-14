@@ -181,11 +181,11 @@ static void RandomDungeonRewardItemStatsCallback(int32_t id, const WOWGUID& guid
 // VERIFY: cdaad151 manual
 // OFFSET: 0x005529A0
 static int32_t Script_SearchLFGGetJoinedID(lua_State* L) {
-    if (!(CGLookingForGroup::m_searchJoinedID & 0xFFFFFF)) {
+    if (!(CGLookingForGroup::m_searchJoinedID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK)) {
         return 0;
     }
 
-    lua_pushnumber(L, CGLookingForGroup::m_searchJoinedID & 0xFFFFFF);
+    lua_pushnumber(L, CGLookingForGroup::m_searchJoinedID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
     return 1;
 }
 
@@ -193,7 +193,7 @@ static int32_t Script_SearchLFGGetJoinedID(lua_State* L) {
 // OFFSET: 0x00553120
 static int32_t Script_GetRandomDungeonBestChoice(lua_State* L) {
     if (CGLookingForGroup::m_randomDungeonBestChoice) {
-        lua_pushnumber(L, CGLookingForGroup::m_randomDungeonBestChoice & 0xFFFFFF);
+        lua_pushnumber(L, CGLookingForGroup::m_randomDungeonBestChoice & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
         return 1;
     }
 
@@ -354,7 +354,7 @@ static int32_t Script_GetPartyLFGBackfillInfo(lua_State* L) {
         return 0;
     }
 
-    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & 0xFFFFFF);
+    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
     lua_pushstring(L, rec->m_name);
     lua_pushnumber(L, rec->m_id);
     lua_pushnumber(L, rec->m_typeID);
@@ -567,7 +567,7 @@ static int32_t Script_GetLFGQueuedList(lua_State* L) {
     LFGInfo* info = CGPartyInfo::m_members[0] || CGRaidInfo::m_numMembers ? &CGLookingForGroup::m_partyInfo : &CGLookingForGroup::m_playerInfo;
 
     for (LFGDungeonEntry* entry = info->m_dungeons.Head(); entry; entry = info->m_dungeons.Next(entry)) {
-        lua_pushnumber(L, entry->m_slot & 0xFFFFFF);
+        lua_pushnumber(L, entry->m_slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
         lua_pushboolean(L, 1);
         lua_settable(L, -3);
     }
@@ -616,7 +616,7 @@ static int32_t Script_GetLFGDungeonRewardInfo(lua_State* L) {
         return 0;
     }
 
-    uint32_t slot = (rec->m_typeID << 24) | (dungeonID & 0xFFFFFF);
+    uint32_t slot = (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) | (dungeonID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
     LFGRewardItem* item = CGLookingForGroup::GetDungeonRewardItem(slot, lua_tointeger(L, 2) - 1);
 
     if (!item) {
@@ -646,7 +646,7 @@ static int32_t Script_GetLFGCompletionReward(lua_State* L) {
         return 0;
     }
 
-    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_reward.m_actualSlot & 0xFFFFFF);
+    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_reward.m_actualSlot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (!rec) {
         return 0;
@@ -744,8 +744,8 @@ static int32_t Script_GetLFDChoiceLockedState(lua_State* L) {
     if (CGLookingForGroup::m_partyLockInfo.m_valid) {
         for (LFGLockInfo* member = CGLookingForGroup::m_partyLockInfo.m_members.Head(); member; member = CGLookingForGroup::m_partyLockInfo.m_members.Next(member)) {
             for (LFGDungeonEntry* entry = member->m_dungeons.Head(); entry; entry = member->m_dungeons.Next(entry)) {
-                if ((entry->m_slot >> 24) != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID && entry->m_locked) {
-                    lua_pushnumber(L, entry->m_slot & 0xFFFFFF);
+                if ((entry->m_slot >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID && entry->m_locked) {
+                    lua_pushnumber(L, entry->m_slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
                     lua_pushnumber(L, entry->m_lockReason);
                     lua_settable(L, -3);
                 }
@@ -756,7 +756,7 @@ static int32_t Script_GetLFDChoiceLockedState(lua_State* L) {
     if (CGLookingForGroup::m_playerLockInfo.m_valid) {
         for (LFGDungeonEntry* entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Head(); entry; entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Next(entry)) {
             if (entry->m_locked) {
-                lua_pushnumber(L, entry->m_slot & 0xFFFFFF);
+                lua_pushnumber(L, entry->m_slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
                 lua_pushnumber(L, entry->m_lockReason);
                 lua_settable(L, -3);
             }
@@ -793,15 +793,15 @@ static int32_t PushLFGProposalInfo(lua_State* L) {
         return 0;
     }
 
-    LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_proposal.m_dungeonId & 0xFFFFFF);
+    LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_proposal.m_dungeonId & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (!dungeon) {
         return 0;
     }
 
     lua_pushboolean(L, 1);
-    lua_pushnumber(L, CGLookingForGroup::m_proposal.m_dungeonId >> 24);
-    lua_pushnumber(L, CGLookingForGroup::m_proposal.m_dungeonId & 0xFFFFFF);
+    lua_pushnumber(L, CGLookingForGroup::m_proposal.m_dungeonId >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
+    lua_pushnumber(L, CGLookingForGroup::m_proposal.m_dungeonId & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
     lua_pushstring(L, dungeon->m_name);
     lua_pushstring(L, dungeon->m_textureFilename);
 
@@ -963,7 +963,7 @@ static int32_t Script_GetLFDLockInfo(lua_State* L) {
     lua_pushstring(L, name);
 
     for (LFGDungeonEntry* entry = info->m_dungeons.Head(); entry; entry = info->m_dungeons.Next(entry)) {
-        if ((entry->m_slot & 0xFFFFFF) == static_cast<uint32_t>(dungeonID)) {
+        if ((entry->m_slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) == static_cast<uint32_t>(dungeonID)) {
             lua_pushnumber(L, entry->m_locked ? entry->m_lockReason : 0);
             return 2;
         }
@@ -988,7 +988,7 @@ static int32_t Script_GetLFGDungeonRewards(lua_State* L) {
         return 0;
     }
 
-    LFGDungeonEntry* entry = FindPlayerDungeon(dungeonId & 0xFFFFFF | (rec->m_typeID << 24));
+    LFGDungeonEntry* entry = FindPlayerDungeon(dungeonId & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT));
 
     if (entry) {
         int32_t items = 0;
@@ -1029,7 +1029,7 @@ static int32_t Script_GetLFGRandomDungeonInfo(lua_State* L) {
         return 0;
     }
 
-    int32_t dungeonId = CGLookingForGroup::m_randomDungeons.m_data[index] & 0xFFFFFF;
+    int32_t dungeonId = CGLookingForGroup::m_randomDungeons.m_data[index] & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK;
     lua_pushnumber(L, dungeonId);
     return PushDungeonInfo(L, dungeonId) + 1;
 }
@@ -1053,7 +1053,7 @@ static int32_t Script_SetLFGDungeon(lua_State* L) {
     LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(id);
 
     if (rec) {
-        CGLookingForGroup::SetLFGDungeon((id & 0xFFFFFF) | (rec->m_typeID << 24));
+        CGLookingForGroup::SetLFGDungeon((id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT));
     }
 
     return 0;
@@ -1073,7 +1073,7 @@ static int32_t Script_IsLFGDungeonJoinable(lua_State* L) {
         return 0;
     }
 
-    lua_pushboolean(L, CGLookingForGroup::IsSlotValidForAll(rec->m_id & 0xFFFFFF | (rec->m_typeID << 24)));
+    lua_pushboolean(L, CGLookingForGroup::IsSlotValidForAll(rec->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT)));
     return 1;
 }
 
@@ -1518,7 +1518,7 @@ static int32_t Script_SearchLFGGetEncounterResults(lua_State* L) {
         return 0;
     }
 
-    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_searchResults.m_lfgID & 0xFFFFFF);
+    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_searchResults.m_lfgID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (!rec) {
         return 0;
@@ -1637,7 +1637,7 @@ static int32_t Script_IsInLFGDungeon(lua_State* L) {
         return 0;
     }
 
-    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & 0xFFFFFF);
+    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (!rec) {
         return 0;
@@ -1656,7 +1656,7 @@ static int32_t Script_SearchLFGGetResults(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tointeger(L, 1)) - 1;
-    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_searchResults.m_lfgID & 0xFFFFFF);
+    LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_searchResults.m_lfgID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (!rec) {
         return 0;
@@ -1871,7 +1871,7 @@ static int32_t Script_GetLFGDungeonRewardLink(lua_State* L) {
         return 0;
     }
 
-    uint32_t slot = (lua_tointeger(L, 1) & 0xFFFFFF) | 0x6000000;
+    uint32_t slot = (lua_tointeger(L, 1) & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
     int32_t index = lua_tointeger(L, 2) - 1;
     LFGRewardItem* item = CGLookingForGroup::GetDungeonRewardItem(slot, index);
 
@@ -1905,7 +1905,7 @@ static int32_t Script_SearchLFGJoin(lua_State* L) {
     int32_t id = static_cast<int32_t>(lua_tonumber(L, 2));
 
     if (type < 7 && g_lfgDungeonsDB.GetRecord(id)) {
-        CGLookingForGroup::JoinLFGSearch((type << 24) | (id & 0xFFFFFF));
+        CGLookingForGroup::JoinLFGSearch((type << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) | (id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK));
     }
 
     return 0;
@@ -1923,7 +1923,7 @@ static int32_t Script_ClearLFGDungeon(lua_State* L) {
     int32_t id = static_cast<int32_t>(lua_tonumber(L, 2));
 
     if (type < 7 && g_lfgDungeonsDB.GetRecord(id)) {
-        CGLookingForGroup::ClearLFGDungeon((type << 24) | (id & 0xFFFFFF));
+        CGLookingForGroup::ClearLFGDungeon((type << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) | (id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK));
     }
 
     return 0;

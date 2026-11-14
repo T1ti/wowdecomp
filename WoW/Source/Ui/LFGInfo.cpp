@@ -126,7 +126,7 @@ bool CGLookingForGroup::HasRaidDungeon(LFGInfo* info) {
     }
 
     for (LFGDungeonEntry* entry = info->m_dungeons.Head(); entry; entry = info->m_dungeons.Next(entry)) {
-        LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(entry->m_slot & 0xFFFFFF);
+        LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(entry->m_slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
         if (rec && rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
             return true;
@@ -809,7 +809,7 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
             uint32_t slot;
             msg->Get(slot);
             DebugLog("LFGMessage: LFG_OFFER_CONTINUE - Slot: %u", slot);
-            LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(slot & 0xFFFFFF);
+            LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(slot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
             if (dungeon) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_LFG_OFFER_CONTINUE, "%s%d%d", dungeon->m_name, dungeon->m_id, dungeon->m_typeID);
@@ -1405,7 +1405,7 @@ bool CGLookingForGroup::IsRandomDungeonUnlocked(const LfgDungeonsRec* rec) {
         return false;
     }
 
-    uint32_t slot = (rec->m_id & 0xFFFFFF) | (rec->m_typeID << 24);
+    uint32_t slot = (rec->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
     for (LFGDungeonEntry* entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Head(); entry; entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Next(entry)) {
         if (entry->m_slot == slot) {
@@ -1435,7 +1435,7 @@ void CGLookingForGroup::UpdateRandomDungeons() {
 
     for (int32_t i = 0; i < numRecords; i++) {
         LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_numRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
-        uint32_t slot = (rec->m_id & 0xFFFFFF) | (rec->m_typeID << 24);
+        uint32_t slot = (rec->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
         if (rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON) {
             CGLookingForGroup::m_randomDungeons.m_data[index++] = slot;
@@ -1458,12 +1458,12 @@ void CGLookingForGroup::UpdateRandomDungeons() {
 // VERIFY: 15a7a01d manual
 // OFFSET: 0x00559B70
 void CGLookingForGroup::SetLFGDungeon(uint32_t slot) {
-    uint32_t type = slot >> 24;
+    uint32_t type = slot >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT;
     bool clear = false;
 
     if (type == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_DUNGEON || type == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_HEROIC_DUNGEON) {
         for (LFGDungeonEntry* dungeon = CGLookingForGroup::m_localInfo.m_dungeons.Head(); dungeon; dungeon = CGLookingForGroup::m_localInfo.m_dungeons.Next(dungeon)) {
-            uint8_t dungeonType = static_cast<uint8_t>(dungeon->m_slot >> 24);
+            uint8_t dungeonType = static_cast<uint8_t>(dungeon->m_slot >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
             if (dungeonType != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_DUNGEON && dungeonType != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_HEROIC_DUNGEON) {
                 clear = true;
@@ -1474,7 +1474,7 @@ void CGLookingForGroup::SetLFGDungeon(uint32_t slot) {
         clear = true;
     } else {
         for (LFGDungeonEntry* dungeon = CGLookingForGroup::m_localInfo.m_dungeons.Head(); dungeon; dungeon = CGLookingForGroup::m_localInfo.m_dungeons.Next(dungeon)) {
-            if (static_cast<uint8_t>(dungeon->m_slot >> 24) != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
+            if (static_cast<uint8_t>(dungeon->m_slot >> CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
                 clear = true;
                 break;
             }
@@ -1530,7 +1530,7 @@ bool CGLookingForGroup::IsSlotValidForAll(uint32_t slot) {
 // VERIFY: 0a9ddc1b manual
 // OFFSET: 0x00559DA0
 static bool IsBetterRandomDungeon(const LfgDungeonsRec* candidate, const LfgDungeonsRec* best) {
-    if (!candidate || candidate->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON || !CGLookingForGroup::IsSlotValidForAll(candidate->m_id & 0xFFFFFF | 0x6000000)) {
+    if (!candidate || candidate->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON || !CGLookingForGroup::IsSlotValidForAll(candidate->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK | (CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT))) {
         return false;
     }
 
@@ -1562,7 +1562,7 @@ bool CGLookingForGroup::UpdateRandomDungeonBestChoice() {
     LfgDungeonsRec* best = nullptr;
 
     for (uint32_t i = 0; i < CGLookingForGroup::m_randomDungeons.m_count; i++) {
-        LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_randomDungeons.m_data[i] & 0xFFFFFF);
+        LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(CGLookingForGroup::m_randomDungeons.m_data[i] & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
         if (IsBetterRandomDungeon(rec, best)) {
             best = rec;
@@ -1572,7 +1572,7 @@ bool CGLookingForGroup::UpdateRandomDungeonBestChoice() {
     uint32_t previous = CGLookingForGroup::m_randomDungeonBestChoice;
 
     if (best) {
-        CGLookingForGroup::m_randomDungeonBestChoice = best->m_id & 0xFFFFFF | (best->m_typeID << 24);
+        CGLookingForGroup::m_randomDungeonBestChoice = best->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK | (best->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
         return previous != CGLookingForGroup::m_randomDungeonBestChoice;
     }
 
@@ -1675,7 +1675,7 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
     bool changed = false;
     msg->Get(s_searchType);
     msg->Get(s_searchID);
-    int32_t lfgID = (s_searchID & 0xFFFFFF) | (s_searchType << 24);
+    int32_t lfgID = (s_searchID & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (s_searchType << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
     if (lfgID != CGLookingForGroup::m_searchJoinedID) {
         msg->m_read = msg->m_size;

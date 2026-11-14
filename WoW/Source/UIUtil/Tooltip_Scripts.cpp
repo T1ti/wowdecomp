@@ -2599,7 +2599,7 @@ static int32_t Script_SetLFGDungeonReward(lua_State* L) {
         return 0;
     }
 
-    LFGRewardItem* reward = CGLookingForGroup::GetDungeonRewardItem((dungeon->m_id & 0xFFFFFF) | (dungeon->m_typeID << 24), index);
+    LFGRewardItem* reward = CGLookingForGroup::GetDungeonRewardItem((dungeon->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (dungeon->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT), index);
 
     if (reward) {
         tooltip->m_itemLinkInfo.Clear();

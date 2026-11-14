@@ -169,6 +169,12 @@ class CGLookingForGroup {
         NUM_LFG_TYPES = 7,
     };
 
+    // Packed LFG slot: LFGDungeons record ID in the low 24 bits, DUNGEON_TYPE in the high byte.
+    enum SLOT_PACKING : int32_t {
+        SLOT_DUNGEON_ID_MASK = 0x00FFFFFF,
+        SLOT_TYPE_SHIFT = 24,
+    };
+
     enum SORT_COLUMN : int32_t {
         ZONE = 0,
         LEVEL = 1,

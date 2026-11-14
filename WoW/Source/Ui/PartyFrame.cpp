@@ -5,6 +5,7 @@
 #include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/LfgDungeonsRec.h"
+#include "WoW/Source/Ui/LFGInfo.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
@@ -483,7 +484,7 @@ void CGPartyInfo::CheckClearLFGSlot() {
         return;
     }
 
-    const LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & 0xFFFFFF);
+    const LfgDungeonsRec* dungeon = g_lfgDungeonsDB.GetRecord(CGPartyInfo::m_lfgSlot & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK);
 
     if (dungeon && dungeon->m_mapID != CGGameUI::m_iCurrentMapID) {
         CGPartyInfo::m_lfgSlot = 0;
