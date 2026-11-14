@@ -53,6 +53,7 @@
 #include <ctime>
 #include <malloc.h>
 #include "WoW/Source/Ui/PartyFrame.h"
+#include "WoW/Source/Object/GameObjectDef.h"
 #include "WoW/Source/Ui/RaidInfo.h"
 #include "WoW/Source/Game/GameClient/NameCache.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
@@ -220,7 +221,7 @@ const TrackingTypeInfo CGMinimapFrame::s_trackingTypes[15] = {
     { TRACKING_TYPE::TRACKING_TYPE_NPC_FLAGS, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_PROFESSION, "MINIMAP_TRACKING_TRAINER_PROFESSION", "Profession", 0x0 },
     { TRACKING_TYPE::TRACKING_TYPE_NPC_FLAGS, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_AUCTIONEER, "MINIMAP_TRACKING_AUCTIONEER", "Auctioneer", 0x0 },
     { TRACKING_TYPE::TRACKING_TYPE_NPC_FLAGS, UNIT_NPC_FLAGS::UNIT_NPC_FLAG_BANKER, "MINIMAP_TRACKING_BANKER", "Banker", 0x0 },
-    { TRACKING_TYPE::TRACKING_TYPE_GAMEOBJECT, 0x13, "MINIMAP_TRACKING_MAILBOX", "Mailbox", 0x0 },
+    { TRACKING_TYPE::TRACKING_TYPE_GAMEOBJECT, TYPE_MAILBOX, "MINIMAP_TRACKING_MAILBOX", "Mailbox", 0x0 },
     { TRACKING_TYPE::TRACKING_TYPE_TRIVIAL_QUESTS, 0x0, "MINIMAP_TRACKING_TRIVIAL_QUESTS", "TrivialQuests", 0x0 },
 };
 
