@@ -9,7 +9,7 @@ class SFileImpl;
 class CreatureDisplayInfoExtraRec {
     public:
     enum EXTRA_FLAGS : int32_t {
-        HAS_BAKED_TEXTURE = 0x1,
+        HAS_BAKED_TEXTURE = 0x1, // for players
     };
 
     static const int32_t s_numColumns = 21;
