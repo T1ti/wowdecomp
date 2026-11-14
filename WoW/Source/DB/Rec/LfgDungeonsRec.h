@@ -9,6 +9,7 @@ class SFileImpl;
 // 3.3.5 LFGDungeons.dbc flags. Only these bits are tested by the client.
 enum LFG_DUNGEON_FLAGS : int32_t {
     LFG_DUNGEON_FLAG_NONE       = 0x00000000,
+    // LFG_DUNGEON_FLAG_CROSS_REALM = 0x00000001,
     // Offered as a specific dungeon choice in the dungeon finder list.
     LFG_DUNGEON_FLAG_LFD_LISTED = 0x00000002,
     // Seasonal holiday dungeon; queued like a random dungeon and reported to Lua as isHoliday.
