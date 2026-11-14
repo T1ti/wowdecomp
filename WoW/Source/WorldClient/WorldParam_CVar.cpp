@@ -282,10 +282,10 @@ bool CWorldParam::WaterLodCallback(CVar* var, const char* oldValue, const char* 
 bool CWorldParam::ShowFootprintsCallback(CVar* var, const char* oldValue, const char* value, void* arg) {
     if (SStrToInt(value)) {
         ConsoleWrite("Showing foot prints.", DEFAULT_COLOR);
-        CWorld::enables |= 0x400;
+        CWorld::enables |= CWorld::ENABLE_FLAGS::FOOTPRINTS;
     } else {
         ConsoleWrite("Hiding foot prints.", DEFAULT_COLOR);
-        CWorld::enables &= ~0x400;
+        CWorld::enables &= ~CWorld::ENABLE_FLAGS::FOOTPRINTS;
     }
 
     return true;

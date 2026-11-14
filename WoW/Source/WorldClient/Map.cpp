@@ -5792,7 +5792,7 @@ bool CMap::QueryHeight(const C3Vector& position, float range, float* height) {
 // VERIFY: 5c4ccdae manual
 // OFFSET: 0x0079FCC0
 void CMap::RenderFootprints() {
-    if (!(CWorld::enables & 0x400)) {
+    if (!(CWorld::enables & CWorld::ENABLE_FLAGS::FOOTPRINTS)) {
         return;
     }
 

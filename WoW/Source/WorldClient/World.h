@@ -527,6 +527,10 @@ float ValidateFarClip(float farClip, int32_t mapID);
 
 class CWorld {
     public:
+    enum ENABLE_FLAGS : uint32_t {
+        FOOTPRINTS = 0x400,
+    };
+
     static float s_unk_ADEEE4;
     static float s_unk_CD7758;
 

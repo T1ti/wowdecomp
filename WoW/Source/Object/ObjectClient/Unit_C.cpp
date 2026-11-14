@@ -21562,7 +21562,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         return;
     }
 
-    if ((CWorld::enables & 0x400) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TEXTURES)) {
+    if ((CWorld::enables & CWorld::ENABLE_FLAGS::FOOTPRINTS) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TEXTURES)) {
         float size[2];
         size[0] = 0.0f;
         size[1] = 0.0f;
