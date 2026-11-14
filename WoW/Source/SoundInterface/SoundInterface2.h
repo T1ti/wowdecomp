@@ -174,8 +174,8 @@ class SI2 {
     static void FreeZoneIntros();
     static void FreeZoneSoundOverrides();
     static float GetChannelGroupVolume(int32_t group);
-    static int32_t GetDesiredAmbienceKitID(int32_t* type);
-    static int32_t GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* silenceMax);
+    static int32_t GetDesiredAmbienceKitID(ZONE_SOUND_TYPE* type);
+    static int32_t GetDesiredMusicKitID(ZONE_SOUND_TYPE* type, int32_t* silenceMin, int32_t* silenceMax);
     static bool GetInputDriverName(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
     static bool GetInputDriverName_Cached(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
     static int32_t GetListenerPosition(C3Vector* position);

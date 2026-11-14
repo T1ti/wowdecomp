@@ -351,7 +351,7 @@ void SI2::StopAllSounds(float fadeOutTime) {
 
 // VERIFY: 218e92b2 auto
 // OFFSET: 0x004C5CE0
-int32_t SI2ZoneSoundPair::GetCurrentType() {
+SI2::ZONE_SOUND_TYPE SI2ZoneSoundPair::GetCurrentType() {
     return this->m_sounds[this->m_current].m_type;
 }
 
@@ -924,10 +924,10 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
 // VERIFY: 4ec0a358 manual
 // OFFSET: 0x004C7140
-int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, int32_t type, SE2SoundKitProperties* properties, int32_t immediate, float fadeOutTime) {
+int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, int32_t immediate, float fadeOutTime) {
     if (type >= SI2::ZONE_SOUND_TYPE::NUM_SOURCE_SLOTS) {
         SI2::StopSound(&this->m_sounds[this->m_current].m_object, 0, -1.0f, 1);
-        this->m_sounds[this->m_current].m_type = static_cast<SI2::ZONE_SOUND_TYPE>(type);
+        this->m_sounds[this->m_current].m_type = type;
         this->m_sounds[this->m_current].m_soundKitId = 0;
         return 18;
     }
@@ -940,7 +940,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, int32_t type, SE2SoundK
 
         if (!result) {
             this->m_sounds[this->m_current].m_soundKitId = soundKitId;
-            this->m_sounds[this->m_current].m_type = static_cast<SI2::ZONE_SOUND_TYPE>(type);
+            this->m_sounds[this->m_current].m_type = type;
             return 0;
         }
 
@@ -982,7 +982,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, int32_t type, SE2SoundK
 
     if (!result) {
         this->m_sounds[this->m_next].m_soundKitId = soundKitId;
-        this->m_sounds[this->m_next].m_type = static_cast<SI2::ZONE_SOUND_TYPE>(type);
+        this->m_sounds[this->m_next].m_type = type;
 
         uint32_t current = this->m_current;
         this->m_next = current;

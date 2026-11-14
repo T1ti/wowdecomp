@@ -144,7 +144,7 @@ void SI2::SetZoneUnderwaterReverb(int32_t reverb) {
 
 // VERIFY: a9775166 auto
 // OFFSET: 0x004C86F0
-int32_t SI2::GetDesiredAmbienceKitID(int32_t* type) {
+int32_t SI2::GetDesiredAmbienceKitID(SI2::ZONE_SOUND_TYPE* type) {
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
     static CVar* s_enableAmbience = CVar::Lookup("Sound_EnableAmbience");
 
@@ -162,7 +162,7 @@ int32_t SI2::GetDesiredAmbienceKitID(int32_t* type) {
         }
 
         if (type) {
-            *type = i;
+            *type = static_cast<SI2::ZONE_SOUND_TYPE>(i);
         }
 
         return s_zoneSounds[i].m_ambience[s_zoneSoundTimeOfDay];
@@ -213,7 +213,7 @@ int32_t SI2::IntroMusicOkToPlay(int32_t soundKitId, int32_t type) {
 
 // VERIFY: 17672894 auto
 // OFFSET: 0x004C88B0
-int32_t SI2::GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* silenceMax) {
+int32_t SI2::GetDesiredMusicKitID(SI2::ZONE_SOUND_TYPE* type, int32_t* silenceMin, int32_t* silenceMax) {
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
     static CVar* s_enableMusic = CVar::Lookup("Sound_EnableMusic");
 
@@ -279,7 +279,7 @@ int32_t SI2::GetDesiredMusicKitID(int32_t* type, int32_t* silenceMin, int32_t* s
         }
 
         if (type) {
-            *type = i;
+            *type = static_cast<SI2::ZONE_SOUND_TYPE>(i);
         }
 
         if (silenceMin) {
@@ -581,7 +581,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     }
 
     SE2SoundKitProperties properties;
-    int32_t type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
+    SI2::ZONE_SOUND_TYPE type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
     int32_t ambienceKitId = SI2::GetDesiredAmbienceKitID(&type);
 
     if (!s_zoneAmbience.IsPlaying() || ambienceKitId != s_zoneAmbience.GetPlayingSoundKitId()) {
