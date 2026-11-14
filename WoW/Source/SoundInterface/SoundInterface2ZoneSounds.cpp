@@ -173,7 +173,7 @@ int32_t SI2::GetDesiredAmbienceKitID(SI2::ZONE_SOUND_TYPE* type) {
 
 // VERIFY: 40642125 auto
 // OFFSET: 0x004C87D0
-int32_t SI2::ZoneMusicDelayElapsed(int32_t type) {
+int32_t SI2::ZoneMusicDelayElapsed(SI2::ZONE_SOUND_TYPE type) {
     if (type && type != SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_OVERRIDE && type != SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE) {
         return 1;
     }
@@ -185,7 +185,7 @@ int32_t SI2::ZoneMusicDelayElapsed(int32_t type) {
 
 // VERIFY: 97d2bfe2 auto
 // OFFSET: 0x004C8830
-int32_t SI2::IntroMusicOkToPlay(int32_t soundKitId, int32_t type) {
+int32_t SI2::IntroMusicOkToPlay(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type) {
     if (soundKitId == s_zoneMusic.GetPlayingSoundKitId() || (type != SI2::ZONE_SOUND_TYPE::SOURCE_AREA_INTRO && type != SI2::ZONE_SOUND_TYPE::SOURCE_CHUNK_INTRO && type != SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO)) {
         return 1;
     }
@@ -258,7 +258,7 @@ int32_t SI2::GetDesiredMusicKitID(SI2::ZONE_SOUND_TYPE* type, int32_t* silenceMi
             continue;
         }
 
-        if (!SI2::ZoneMusicDelayElapsed(i)) {
+        if (!SI2::ZoneMusicDelayElapsed(static_cast<SI2::ZONE_SOUND_TYPE>(i))) {
             if (type) {
                 *type = SI2::ZONE_SOUND_TYPE::SOURCE_MUSIC_DELAY;
             }
@@ -274,7 +274,7 @@ int32_t SI2::GetDesiredMusicKitID(SI2::ZONE_SOUND_TYPE* type, int32_t* silenceMi
             return -1111;
         }
 
-        if (!SI2::IntroMusicOkToPlay(s_zoneSounds[i].m_music[s_zoneSoundTimeOfDay], i)) {
+        if (!SI2::IntroMusicOkToPlay(s_zoneSounds[i].m_music[s_zoneSoundTimeOfDay], static_cast<SI2::ZONE_SOUND_TYPE>(i))) {
             continue;
         }
 

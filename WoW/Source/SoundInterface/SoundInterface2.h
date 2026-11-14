@@ -210,7 +210,7 @@ class SI2 {
     static void InitZoneSoundOverrides();
     static void InitZoneSoundsHandler();
     static void IntroMusicFinished(SESound* sound, void* param);
-    static int32_t IntroMusicOkToPlay(int32_t soundKitId, int32_t type);
+    static int32_t IntroMusicOkToPlay(int32_t soundKitId, ZONE_SOUND_TYPE type);
     static int32_t IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position);
     static bool IsLooping(SE2SoundKitObject* object);
     static bool IsPlaying(SE2SoundKitObject* object);
@@ -307,7 +307,7 @@ class SI2 {
     static void VoiceChat_StopPlayingLoopbackSound();
     static void VoiceChat_StopRecordingLoopbackSound();
     static void WaterShutdown();
-    static int32_t ZoneMusicDelayElapsed(int32_t type);
+    static int32_t ZoneMusicDelayElapsed(ZONE_SOUND_TYPE type);
     static void ZoneMusicFinished(SESound* sound, void* param);
     static int32_t ZoneSoundsUpdate(const void* data, void* param);
 };
