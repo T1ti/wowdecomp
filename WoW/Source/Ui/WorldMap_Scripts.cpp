@@ -458,7 +458,7 @@ static int32_t Script_GetMapLandmarkInfo(lua_State* L) {
                 lua_pushstring(L, poi->m_description);
                 int32_t icon = 0;
 
-                if (landmark->m_isGossip || (poi->m_flags & 0x80) || (CGWorldMap::m_currentZone == -1 && CGWorldMap::m_currentContinent != -2)) {
+                if (landmark->m_isGossip || (poi->m_flags & AREA_POI_FLAG_SHOW_ICON) || (CGWorldMap::m_currentZone == -1 && CGWorldMap::m_currentContinent != -2)) {
                     uint32_t state = 0;
 
                     if (poi->m_worldStateID) {
@@ -482,7 +482,7 @@ static int32_t Script_GetMapLandmarkInfo(lua_State* L) {
                     lua_pushnil(L);
                 }
 
-                lua_pushboolean(L, poi->m_flags & 0x200);
+                lua_pushboolean(L, poi->m_flags & AREA_POI_FLAG_SHOW_IN_BATTLEMAP);
                 return 7;
             }
         }

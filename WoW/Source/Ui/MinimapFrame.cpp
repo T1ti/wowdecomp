@@ -811,7 +811,7 @@ void UpdatePointsOfInterest() {
             continue;
         }
 
-        if (!(poi->m_flags & 2)) {
+        if (!(poi->m_flags & AREA_POI_FLAG_MINIMAP_ICON)) {
             if (!s_poiVisible.m_data[i] && !s_poiOnEdge.m_data[i]) {
                 continue;
             }
@@ -1046,7 +1046,7 @@ void MinimapInitialize(int32_t mapId) {
         for (int32_t i = g_areaPOIDB.m_numRecords - 1; i >= 0; i--) {
             AreaPOIRec* rec = g_areaPOIDB.GetRecordByIndex(i);
 
-            if (rec->m_continentID == mapId && (rec->m_flags & 1)) {
+            if (rec->m_continentID == mapId && (rec->m_flags & AREA_POI_FLAG_MINIMAP_LIST)) {
                 if (pass > 0) {
                     s_pois.m_data[count] = rec;
                 }
@@ -2570,7 +2570,7 @@ static int32_t MinimapBuildPOIDirectionData(TSGrowableArray<POIDIRECTIONDATA>* d
         SStrCopy(direction->m_name, poi->m_name, sizeof(direction->m_name));
         direction->m_facing = s_closestPOIFacing[i];
         poi = s_pois.m_data[s_closestPOIs[i]];
-        direction->m_alwaysShow = poi == &s_dynamicPOIs[1] || poi == &s_dynamicPOIs[2] || poi == &s_dynamicPOIs[0] || (poi->m_flags & 0x100);
+        direction->m_alwaysShow = poi == &s_dynamicPOIs[1] || poi == &s_dynamicPOIs[2] || poi == &s_dynamicPOIs[0] || (poi->m_flags & AREA_POI_FLAG_ALWAYS_SHOW_DIRECTION);
         direction->m_dynamicIndex = -2;
 
         for (uint32_t j = 0; j < 4; j++) {

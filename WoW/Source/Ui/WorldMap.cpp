@@ -558,19 +558,19 @@ void CGWorldMap::GetPOIPosition(const AreaPOIRec* poi, float* x, float* y) {
         return;
     }
 
-    if (((CGWorldMap::m_currentContinent >= 0 && CGWorldMap::m_currentZone >= 0) || CGWorldMap::m_currentContinent == -2) && !(poi->m_flags & 0x4)) {
+    if (((CGWorldMap::m_currentContinent >= 0 && CGWorldMap::m_currentZone >= 0) || CGWorldMap::m_currentContinent == -2) && !(poi->m_flags & AREA_POI_FLAG_ZONE_MAP)) {
         return;
     }
 
-    if (CGWorldMap::m_currentContinent == -1 && !(poi->m_flags & 0x10)) {
+    if (CGWorldMap::m_currentContinent == -1 && !(poi->m_flags & AREA_POI_FLAG_WORLD_MAP)) {
         return;
     }
 
-    if (CGWorldMap::m_currentZone < 0 && CGWorldMap::m_currentOrphanZone < 0 && !(poi->m_flags & 0x8)) {
+    if (CGWorldMap::m_currentZone < 0 && CGWorldMap::m_currentOrphanZone < 0 && !(poi->m_flags & AREA_POI_FLAG_CONTINENT_MAP)) {
         return;
     }
 
-    if (poi->m_flags & 0x400) {
+    if (poi->m_flags & AREA_POI_FLAG_CURRENT_AREA_ONLY) {
         WorldMapAreaRec* area = g_worldMapAreaDB.GetRecord(CGWorldMap::GetZoneID(CGWorldMap::m_currentContinent, CGWorldMap::m_currentZone));
 
         if (!area || area->m_areaID != poi->m_areaID || area->m_mapID != poi->m_continentID) {
