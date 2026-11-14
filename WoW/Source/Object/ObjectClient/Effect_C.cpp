@@ -1112,7 +1112,7 @@ int32_t CEffect::UpdateAttachment() {
     if ((this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL || this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) && modelData) {
         CreatureModelDataRec* data = static_cast<CGUnit_C*>(object)->GetModelData();
 
-        if (data && (data->m_flags & 0x10)) {
+        if (data && (data->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS)) {
             this->DetachFromParent();
             return 0;
         }

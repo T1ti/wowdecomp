@@ -1111,7 +1111,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     model->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
     this->SetCharacterModel(model);
     model->Release();
-    model->m_runtimeFlags ^= (model->m_runtimeFlags ^ (this->m_modelData->m_flags >> 7)) & M2_FLAGS::M2_UNKNOWN_4;
+    model->m_runtimeFlags ^= (model->m_runtimeFlags ^ ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_200) ? M2_FLAGS::M2_UNKNOWN_4 : 0)) & M2_FLAGS::M2_UNKNOWN_4;
     this->UpdateModelScale(oldModelData);
     this->Animate(0.0f);
     model->ForceAnimate();
@@ -1150,7 +1150,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_smoothFacingTarget = facing;
     this->m_smoothSwimRoll = 0.0f;
 
-    if (this->m_modelData->m_flags & 0x8) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_TORSO_SPLIT) {
         this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     } else {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
@@ -1159,7 +1159,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_DISPLAY_CHANGE;
     this->m_specialIdleAnim = INVALID_ANIMATION;
 
-    if (this->m_modelData->m_flags & 0x40) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::SUPPRESS_HIGHLIGHT) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
@@ -6524,7 +6524,7 @@ UNITSTANDSTATE CGUnit_C::GetClientStandState() const {
 // VERIFY: 232c855f manual
 // OFFSET: 0x0071A430
 int32_t CGUnit_C::HasBakedNpcTexture() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
         return 1;
     }
 
@@ -7101,11 +7101,11 @@ int32_t CGUnit_C::UsesNpcBakedTexture() const {
         return 0;
     }
 
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
         return 1;
     }
 
-    if (!this->m_displayInfoExtra && (this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & 0x4)) {
+    if (!this->m_displayInfoExtra && (this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4)) {
         return 1;
     }
 
@@ -7209,7 +7209,7 @@ int32_t CGUnit_C::IsControlledByViewer() const {
 // VERIFY: e21be286 manual
 // OFFSET: 0x007202C0
 int32_t CGUnit_C::CanEquipItemsInThisForm() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
         return 1;
     }
 
@@ -8547,7 +8547,7 @@ bool CGUnit_C::CanCurrentFormMount() const {
     if (displayInfo) {
         CreatureModelDataRec* modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
 
-        if (modelData && (modelData->m_flags & 0x80)) {
+        if (modelData && (modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_MOUNT)) {
             return true;
         }
     }
@@ -9797,13 +9797,13 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_USING_NATIVE_DISPLAY;
     }
 
-    if (this->m_modelData->m_flags & 0x8) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_TORSO_SPLIT) {
         this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     } else {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     }
 
-    if (this->m_modelData->m_flags & 0x40) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::SUPPRESS_HIGHLIGHT) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
@@ -9819,7 +9819,7 @@ void CGUnit_C::InitializeActivePlayerComponent() {
         return;
     }
 
-    if (this->m_modelData && (this->m_modelData->m_flags & 0x4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid) {
+    if (this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid) {
         this->SetCharacterModel(CCharacterComponent::m_activePlayerComponent->m_data.m_model);
         this->m_characterComponent = component;
         CCharacterComponent::m_activePlayerComponent = nullptr;
@@ -9854,7 +9854,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
         CCharacterComponent::ReplaceMonsterSkin(this->m_worldModel, this->m_displayInfo, this->m_modelData);
 
         if (this->m_modelData) {
-            this->m_worldModel->m_runtimeFlags ^= (this->m_worldModel->m_runtimeFlags ^ (this->m_modelData->m_flags >> 7)) & M2_FLAGS::M2_UNKNOWN_4;
+            this->m_worldModel->m_runtimeFlags ^= (this->m_worldModel->m_runtimeFlags ^ ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_200) ? M2_FLAGS::M2_UNKNOWN_4 : 0)) & M2_FLAGS::M2_UNKNOWN_4;
         }
     }
 
@@ -9868,7 +9868,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->CheckLoopSound();
 
-    if ((create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) && this->m_modelData && (this->m_modelData->m_flags & 0x4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
+    if ((create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
         this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING);
         static_cast<CGPlayer_C*>(this)->RefreshVisibleItems();
     } else {
@@ -10956,7 +10956,7 @@ void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
 
-    if ((modelRec && (modelRec->m_flags & 0x400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
+    if ((modelRec && (modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
         this->m_movementData.OnJumpLocal(eventTime);
         return;
     }
@@ -13962,7 +13962,7 @@ int32_t CGUnit_C::InitializeComponent() {
         if (!result) {
             return result;
         }
-    } else if ((this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & 0x4)) {
+    } else if ((this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4)) {
         this->InitializeExtendedDisplay(static_cast<CGPlayer_C*>(this), 0);
     }
 
@@ -14008,7 +14008,7 @@ void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
 // VERIFY: 2d7e1e97 manual
 // OFFSET: 0x0072B7F0
 int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
-    if (this->m_modelData->m_flags & 0x10) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS) {
         return 0;
     }
 
@@ -18773,7 +18773,7 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
             return;
 
         case M2_EVENT_ID::Breath_BTH: {
-            if (ClntObjMgrGetPlayerType() == PLAYER_BOT || !this->m_modelData || (this->m_modelData->m_flags & 2)) {
+            if (ClntObjMgrGetPlayerType() == PLAYER_BOT || !this->m_modelData || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_BREATH_PARTICLES)) {
                 return;
             }
 
@@ -19677,7 +19677,7 @@ int32_t CGUnit_C::IsPlayingUnarmedAnim() {
 // VERIFY: 570e3c87 manual
 // OFFSET: 0x0072DBC0
 void CGUnit_C::AddHandItem(int32_t hand) {
-    if ((this->m_modelData->m_flags & 0x10) || !this->m_worldModel) {
+    if ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS) || !this->m_worldModel) {
         return;
     }
 
@@ -21559,7 +21559,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         return;
     }
 
-    if ((CWorld::enables & 0x400) && !(this->m_modelData->m_flags & 0x20)) {
+    if ((CWorld::enables & 0x400) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TEXTURES)) {
         float size[2];
         size[0] = 0.0f;
         size[1] = 0.0f;
@@ -21574,7 +21574,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         CGWorldFrame::GetActiveCamera()->AddShakeById(this->m_modelData->m_footstepShakeSize, position);
     }
 
-    if (distanceSquared > 625.0f || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & 0x1) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
+    if (distanceSquared > 625.0f || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_PARTICLES) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
         return;
     }
 

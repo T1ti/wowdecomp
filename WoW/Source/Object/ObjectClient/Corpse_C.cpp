@@ -94,7 +94,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
     if (displayRec) {
         modelRec = g_creatureModelDataDB.GetRecord(displayRec->m_modelID);
 
-        if (modelRec && !(modelRec->m_flags & 0x4)) {
+        if (modelRec && !(modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4)) {
             useComponent = 0;
         }
     }
