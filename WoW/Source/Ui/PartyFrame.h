@@ -117,6 +117,9 @@ struct PartyReadyCheckInfo {
 
 class CGPartyInfo {
     public:
+    // Party member slots, excluding the active player (FrameXML MAX_PARTY_MEMBERS).
+    static const int32_t MAX_PARTY_MEMBERS = 4;
+
     enum DIFFICULTY_CHANGE_RESULT : int32_t {
         DIFFICULTY_RESULT_SET_DIFFICULTY = 0,
         DIFFICULTY_RESULT_COOLDOWN = 1,
@@ -150,8 +153,8 @@ class CGPartyInfo {
 
     static void ChangeRaidDifficulty(int32_t heroic);
     static void LeaveWorld();
-    static uint32_t m_memberRoles[4];
-    static uint8_t m_memberAssignments[4];
+    static uint32_t m_memberRoles[MAX_PARTY_MEMBERS];
+    static uint8_t m_memberAssignments[MAX_PARTY_MEMBERS];
     static uint32_t m_nextDifficultyChange;
     static uint8_t m_playerAssignments;
     static uint8_t m_playerLFGFlags;
@@ -162,7 +165,7 @@ class CGPartyInfo {
     static int32_t IsMemberOrPet(const WOWGUID& guid);
     static void RegisterScriptFunctions();
     static void UnregisterScriptFunctions();
-    static WOWGUID m_members[4];
+    static WOWGUID m_members[MAX_PARTY_MEMBERS];
     static uint32_t m_dungeonDifficulty;
     static uint32_t m_raidDifficulty;
     static int32_t m_dynamicDifficulty;
@@ -212,7 +215,7 @@ class CGPartyMemberStateRepository {
     static CGPartyMemberState* GetState(const WOWGUID& guid);
 };
 
-extern CGPartyMemberState s_partyMemberStates[4];
+extern CGPartyMemberState s_partyMemberStates[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 WOWGUID GetPartyMemberGUID(uint32_t index);
 WOWGUID GetPartyPetGUID(uint32_t index);

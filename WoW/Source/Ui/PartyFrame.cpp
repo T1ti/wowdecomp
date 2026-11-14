@@ -34,13 +34,13 @@
 #include "Engine/Source/Storm/H/storm.h"
 
 // STATIC: 0x00BD1948
-WOWGUID CGPartyInfo::m_members[4];
+WOWGUID CGPartyInfo::m_members[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00BD1978
 uint32_t CGPartyInfo::m_dungeonDifficulty;
 
 // STATIC: 0x00BD0D08
-CGPartyMemberState s_partyMemberStates[4];
+CGPartyMemberState s_partyMemberStates[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00BD1968
 WOWGUID CGPartyInfo::m_leader;
@@ -70,10 +70,10 @@ int32_t CGPartyInfo::m_optOutOfLoot;
 int32_t CGPartyInfo::m_lfgSlot;
 
 // STATIC: 0x00BD0CD0
-uint32_t CGPartyInfo::m_memberRoles[4];
+uint32_t CGPartyInfo::m_memberRoles[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00BD0D00
-uint8_t CGPartyInfo::m_memberAssignments[4];
+uint8_t CGPartyInfo::m_memberAssignments[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00BD199C
 uint32_t CGPartyInfo::m_lastAssignmentTime;
@@ -102,7 +102,7 @@ WOWGUID CGPartyInfo::m_lootMaster;
 // VERIFY: e02ce9a8 auto
 // OFFSET: 0x0052BC50
 WOWGUID GetPartyMemberGUID(uint32_t index) {
-    if (index >= 4) {
+    if (index >= CGPartyInfo::MAX_PARTY_MEMBERS) {
         return WOWGUID();
     }
 
@@ -120,7 +120,7 @@ void CGPartyInfo::SetLeader(WOWGUID leader) {
     CGPartyInfo::m_leaderIndex = -1;
 
     if (leader) {
-        for (int32_t i = 0; i < 4; i++) {
+        for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
             if (CGPartyInfo::m_members[i] == leader) {
                 CGPartyInfo::m_leaderIndex = i;
                 break;
@@ -148,7 +148,7 @@ uint32_t CGPartyInfo::GetNumPartyMembers() {
 // VERIFY: 17f136a5 auto
 // OFFSET: 0x0052C6E0
 WOWGUID GetPartyPetGUID(uint32_t index) {
-    if (index >= 4 || !CGPartyInfo::m_members[index]) {
+    if (index >= CGPartyInfo::MAX_PARTY_MEMBERS || !CGPartyInfo::m_members[index]) {
         return WOWGUID();
     }
 
@@ -234,7 +234,7 @@ int32_t CGPartyInfo::IsMember(const WOWGUID& guid) {
 // VERIFY: 4450fafb auto
 // OFFSET: 0x0052BD60
 void CGPartyInfo::UpdateRealStats(uint32_t count, WOWGUID leader) {
-    if (count <= 4) {
+    if (count <= CGPartyInfo::MAX_PARTY_MEMBERS) {
         CGPartyInfo::m_realNumMembers = count;
     }
 
@@ -380,8 +380,8 @@ uint8_t CGPartyInfo::GetPartyAssignments(const WOWGUID& guid) {
         return CGPartyInfo::m_playerAssignments;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
-        WOWGUID member = i < 4 ? CGPartyInfo::m_members[i] : WOWGUID();
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
+        WOWGUID member = i < CGPartyInfo::MAX_PARTY_MEMBERS ? CGPartyInfo::m_members[i] : WOWGUID();
 
         if (member == guid) {
             return CGPartyInfo::m_memberAssignments[i];
@@ -426,7 +426,7 @@ int32_t CGPartyInfo::GetPartyAssignments(lua_State* L, int32_t assignment) {
 
     int32_t count = 0;
 
-    for (uint32_t i = 1; i <= 4; i++) {
+    for (uint32_t i = 1; i <= CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (flag & CGPartyInfo::m_memberAssignments[i - 1]) {
             lua_checkstack(L, ++count);
             lua_pushnumber(L, i);
@@ -513,7 +513,7 @@ int32_t CGPartyInfo::IsMemberPet(const WOWGUID& guid, int32_t* index) {
         }
     }
 
-    for (int32_t i = 0; i < 4; i++) {
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (!CGPartyInfo::m_members[i]) {
             continue;
         }
@@ -587,7 +587,7 @@ uint32_t CGPartyInfo::GetGroupRole(const WOWGUID& guid) {
         return CGPartyInfo::m_playerRole;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (CGPartyInfo::m_members[i] == guid) {
             return CGPartyInfo::m_memberRoles[i];
         }
@@ -604,13 +604,13 @@ int32_t CGPartyInfo::IsPlayerOrPetInParty(const WOWGUID& guid) {
     }
 
     for (uint32_t i = 0; i < CGPartyInfo::GetNumPartyMembers(); i++) {
-        WOWGUID member = i < 4 ? CGPartyInfo::m_members[i] : WOWGUID();
+        WOWGUID member = i < CGPartyInfo::MAX_PARTY_MEMBERS ? CGPartyInfo::m_members[i] : WOWGUID();
 
         if (guid == member) {
             return 1;
         }
 
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(i < 4 ? CGPartyInfo::m_members[i] : WOWGUID(), TYPE_PLAYER, __FILE__, __LINE__));
+        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(i < CGPartyInfo::MAX_PARTY_MEMBERS ? CGPartyInfo::m_members[i] : WOWGUID(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (player) {
             CGUnitData* unit = player->m_unit;
@@ -648,7 +648,7 @@ int32_t CGPartyInfo::IsMemberOrPet(const WOWGUID& guid) {
         }
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (!CGPartyInfo::m_members[i]) {
             continue;
         }
@@ -694,11 +694,11 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
 
     uint32_t index = 0;
 
-    while (index < 4 && CGPartyInfo::m_members[index]) {
+    while (index < CGPartyInfo::MAX_PARTY_MEMBERS && CGPartyInfo::m_members[index]) {
         index++;
     }
 
-    if (index == 4) {
+    if (index == CGPartyInfo::MAX_PARTY_MEMBERS) {
         return;
     }
 
@@ -786,7 +786,7 @@ void CGPartyInfo::RemoveAll(int32_t a1) {
     uint32_t dungeonDifficulty = CGGameUI::GetCurrentDungeonDifficulty();
     uint32_t raidDifficulty = CGGameUI::GetCurrentRaidDifficulty();
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (!CGPartyInfo::m_members[i]) {
             continue;
         }
@@ -886,7 +886,7 @@ void CGPartyInfo::GetReadyCheckInfo(PartyReadyCheckInfo* info, uint32_t index) {
     info->m_pending = 0;
     info->m_ready = 0;
 
-    if (index < 4) {
+    if (index < CGPartyInfo::MAX_PARTY_MEMBERS) {
         info->m_guid = CGPartyInfo::m_members[index];
         info->m_pending = CGRaidInfo::m_partyReadyCheckPending[index];
         info->m_ready = CGRaidInfo::m_partyReadyCheckReady[index];
@@ -896,7 +896,7 @@ void CGPartyInfo::GetReadyCheckInfo(PartyReadyCheckInfo* info, uint32_t index) {
 // VERIFY: fe995f4a auto
 // OFFSET: 0x0052C040
 void CGPartyInfo::SetReadyCheckInfo(const PartyReadyCheckInfo* info, uint32_t index) {
-    if (index < 4 && CGPartyInfo::m_members[index] == info->m_guid) {
+    if (index < CGPartyInfo::MAX_PARTY_MEMBERS && CGPartyInfo::m_members[index] == info->m_guid) {
         CGRaidInfo::m_partyReadyCheckPending[index] = info->m_pending;
         CGRaidInfo::m_partyReadyCheckReady[index] = info->m_ready;
     }
@@ -918,13 +918,13 @@ void CGPartyInfo::EnableMember(CGPlayer_C* player, int32_t enable) {
     WOWGUID guid = player->m_obj->m_guid;
     uint32_t index;
 
-    for (index = 0; index < 4; index++) {
+    for (index = 0; index < CGPartyInfo::MAX_PARTY_MEMBERS; index++) {
         if (CGPartyInfo::m_members[index] == guid) {
             break;
         }
     }
 
-    if (index == 4) {
+    if (index == CGPartyInfo::MAX_PARTY_MEMBERS) {
         return;
     }
 

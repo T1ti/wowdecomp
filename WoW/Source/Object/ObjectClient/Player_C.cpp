@@ -11572,8 +11572,8 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
 
     uint32_t memberCount;
     msg->Get(memberCount);
-    WOWGUID oldMembers[4] = {};
-    WOWGUID partyGuids[4] = {};
+    WOWGUID oldMembers[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
+    WOWGUID partyGuids[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
     int32_t wasInGroup = 0;
     WOWGUID raidGuids[40] = {};
     uint32_t dungeonDifficulty = CGGameUI::GetCurrentDungeonDifficulty();
@@ -11581,10 +11581,10 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     uint8_t oldRoles = CGPartyInfo::m_playerRole;
     uint32_t oldCount = 0;
     WOWGUID oldLeader = CGPartyInfo::m_leader;
-    CGPartyMemberState oldStates[4];
-    PartyReadyCheckInfo oldReadyChecks[4];
+    CGPartyMemberState oldStates[CGPartyInfo::MAX_PARTY_MEMBERS];
+    PartyReadyCheckInfo oldReadyChecks[CGPartyInfo::MAX_PARTY_MEMBERS];
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         oldMembers[i] = CGGameUI::GetPartyMember(i);
 
         if (!oldMembers[i]) {
@@ -11633,21 +11633,21 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
         raidFlags[j] = memberFlags;
         raidRoles[j] = memberRoles;
 
-        if (memberSubgroup != subgroup || partyCount >= 4) {
+        if (memberSubgroup != subgroup || partyCount >= CGPartyInfo::MAX_PARTY_MEMBERS) {
             continue;
         }
 
         partyGuids[partyCount] = guid;
-        uint32_t i = 4;
+        uint32_t i = CGPartyInfo::MAX_PARTY_MEMBERS;
 
         if (wasInGroup) {
-            for (i = 0; i < 4; i++) {
+            for (i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
                 if (oldMembers[i] == guid) {
                     break;
                 }
             }
 
-            if (!isRaid && i == 4) {
+            if (!isRaid && i == CGPartyInfo::MAX_PARTY_MEMBERS) {
                 CGGameUI::DisplayError(ERR_JOINED_GROUP_S, name);
                 joined = 1;
             }
@@ -11662,7 +11662,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
         const CGPartyMemberState* state = nullptr;
         const PartyReadyCheckInfo* readyCheck = nullptr;
 
-        if (i < 4) {
+        if (i < CGPartyInfo::MAX_PARTY_MEMBERS) {
             state = &oldStates[i];
             readyCheck = &oldReadyChecks[i];
         }
@@ -11704,7 +11704,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     }
 
     if (!isRaid) {
-        for (uint32_t j = 0; j < 4; j++) {
+        for (uint32_t j = 0; j < CGPartyInfo::MAX_PARTY_MEMBERS; j++) {
             WOWGUID old = oldMembers[j];
 
             if (!old) {

@@ -2431,7 +2431,7 @@ static void SetMemberData(WOWGUID guid, MEMBERINFO* member, CGPlayer_C* player, 
             return;
         }
 
-        CGPartyMemberState* state = raid ? CGRaidInfo::GetRemoteStats(guid) : (index < 4 ? CGPartyInfo::GetMemberState(index) : nullptr);
+        CGPartyMemberState* state = raid ? CGRaidInfo::GetRemoteStats(guid) : (index < CGPartyInfo::MAX_PARTY_MEMBERS ? CGPartyInfo::GetMemberState(index) : nullptr);
         int32_t continentId = -1;
 
         if (!state) {

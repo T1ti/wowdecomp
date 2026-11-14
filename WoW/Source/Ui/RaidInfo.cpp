@@ -54,10 +54,10 @@ WOWGUID CGRaidInfo::m_readyCheckInitiator;
 uint32_t CGRaidInfo::m_readyCheckTimer;
 
 // STATIC: 0x00BD0CE0
-int32_t CGRaidInfo::m_partyReadyCheckReady[4];
+int32_t CGRaidInfo::m_partyReadyCheckReady[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00BD0CF0
-int32_t CGRaidInfo::m_partyReadyCheckPending[4];
+int32_t CGRaidInfo::m_partyReadyCheckPending[CGPartyInfo::MAX_PARTY_MEMBERS];
 
 // STATIC: 0x00ACE788
 uint8_t CGRaidInfo::m_rosterCounter = 0xFF;
@@ -508,7 +508,7 @@ int32_t Packet_MSG_RAID_READY_CHECK_CONFIRM(void* param, NETMESSAGE msgId, uint3
 
             CGPartyMemberState* state = CGPartyInfo::m_members[i] ? &s_partyMemberStates[i] : nullptr;
 
-            if (pending || (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && i < 4 && CGRaidInfo::m_partyReadyCheckPending[i])) {
+            if (pending || (state && (state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && i < CGPartyInfo::MAX_PARTY_MEMBERS && CGRaidInfo::m_partyReadyCheckPending[i])) {
                 pending = true;
 
                 if (found) {
@@ -1005,13 +1005,13 @@ int32_t CGRaidInfo::GetPartyMemberIndex(WOWGUID guid) {
 // VERIFY: 7ec85a21 manual
 // OFFSET: 0x00572450
 int32_t CGRaidInfo::IsPartyMemberReadyCheckPending(uint32_t index) {
-    return index < 4 ? CGRaidInfo::m_partyReadyCheckPending[index] : 0;
+    return index < CGPartyInfo::MAX_PARTY_MEMBERS ? CGRaidInfo::m_partyReadyCheckPending[index] : 0;
 }
 
 // VERIFY: 1c65956c manual
 // OFFSET: 0x00572470
 int32_t CGRaidInfo::IsPartyMemberReadyCheckReady(uint32_t index) {
-    return index < 4 ? CGRaidInfo::m_partyReadyCheckReady[index] : 0;
+    return index < CGPartyInfo::MAX_PARTY_MEMBERS ? CGRaidInfo::m_partyReadyCheckReady[index] : 0;
 }
 
 // VERIFY: 052e75dd manual
@@ -1233,11 +1233,11 @@ void CGRaidInfo::CheckReadyCheckTime() {
         }
     } else {
         for (uint32_t i = 0; i < CGPartyInfo::GetNumPartyMembers(); i++) {
-            if (i >= 4 || !CGRaidInfo::m_partyReadyCheckReady[i]) {
+            if (i >= CGPartyInfo::MAX_PARTY_MEMBERS || !CGRaidInfo::m_partyReadyCheckReady[i]) {
                 allReady = 0;
             }
 
-            if (i >= 4 || !CGRaidInfo::m_partyReadyCheckPending[i]) {
+            if (i >= CGPartyInfo::MAX_PARTY_MEMBERS || !CGRaidInfo::m_partyReadyCheckPending[i]) {
                 continue;
             }
 

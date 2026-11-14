@@ -46,8 +46,8 @@ class CGRaidInfo {
     static WOWGUID m_readyCheckInitiator;
     static uint32_t m_readyCheckTimer;
     static uint8_t m_rosterCounter;
-    static int32_t m_partyReadyCheckReady[4];
-    static int32_t m_partyReadyCheckPending[4];
+    static int32_t m_partyReadyCheckReady[CGPartyInfo::MAX_PARTY_MEMBERS];
+    static int32_t m_partyReadyCheckPending[CGPartyInfo::MAX_PARTY_MEMBERS];
 
     static void EnterWorld();
     static void InitializeGame();

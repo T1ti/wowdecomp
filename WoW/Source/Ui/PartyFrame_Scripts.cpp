@@ -113,7 +113,7 @@ static int32_t Script_IsRealPartyLeader(lua_State* L) {
 static int32_t Script_GetPartyMember(lua_State* L) {
     uint32_t index;
 
-    if (!lua_isnumber(L, 1) || (index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1) >= 4) {
+    if (!lua_isnumber(L, 1) || (index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1) >= CGPartyInfo::MAX_PARTY_MEMBERS) {
         luaL_error(L, "Usage: GetPartyMember(1-4)");
         return 0;
     }
@@ -194,7 +194,7 @@ static int32_t Script_GetLootMethod(lua_State* L) {
         if (master == ClntObjMgrGetActivePlayer()) {
             partyIndex = 0;
         } else {
-            for (int32_t i = 0; i < 4; i++) {
+            for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
                 if (master == CGPartyInfo::m_members[i]) {
                     partyIndex = i + 1;
                     break;
