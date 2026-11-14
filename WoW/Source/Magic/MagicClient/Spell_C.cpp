@@ -5195,7 +5195,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
         if (properties && properties->m_slot == SUMMON_SLOT_CRITTER) {
-            return static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK) == spell->m_effectMiscValue[i];
+            return unit->m_unit->m_unitFieldCritter.GetEntry() == spell->m_effectMiscValue[i];
         }
     }
 
@@ -5261,7 +5261,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
         SummonPropertiesRec* properties = g_summonPropertiesDB.GetRecord(spell->m_effectMiscValueB[0]);
 
-        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER && static_cast<int32_t>((unit->m_unit->m_unitFieldCritter.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK) == spell->m_effectMiscValue[i]) {
+        if (properties && properties->m_slot == SUMMON_SLOT_CRITTER && unit->m_unit->m_unitFieldCritter.GetEntry() == spell->m_effectMiscValue[i]) {
             CDataStore msg;
             msg.Put(static_cast<uint32_t>(CMSG_DISMISS_CRITTER));
             msg.Put(unit->m_unit->m_unitFieldCritter.m_guid);

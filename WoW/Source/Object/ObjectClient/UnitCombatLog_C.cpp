@@ -225,7 +225,7 @@ void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid) {
     uint64_t type = guid->GetType();
 
     if (type == WOWGUID_TYPE_CREATURE || type == WOWGUID_TYPE_VEHICLE) {
-        CreatureStats_C* stats = g_creatureDBCache.GetRecord(static_cast<int32_t>(guid->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, *guid, nullptr, nullptr, false);
+        CreatureStats_C* stats = g_creatureDBCache.GetRecord(guid->GetEntry(), *guid, nullptr, nullptr, false);
 
         if (stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             guid->m_guid &= 0xFFFFFFFFFF000000ull;
@@ -613,7 +613,7 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
 
             if (!unit) {
                 data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE;
-                data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
+                data->m_id = guid.GetEntry();
             } else if (unit->m_unit->m_unitFieldPetnumber) {
                 data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET;
                 data->m_id = unit->m_unit->m_unitFieldPetnumber;
@@ -622,10 +622,10 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
                 data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE;
             }
         } else if (type == WOWGUID_TYPE_PET) {
-            data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
+            data->m_id = guid.GetEntry();
             data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET;
         } else if (type == WOWGUID_TYPE_GAMEOBJECT) {
-            data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
+            data->m_id = guid.GetEntry();
             data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_GAMEOBJECT;
         } else {
             return FrameScript_GetText("UNKNOWNOBJECT", -1, GENDER_NOT_APPLICABLE);

@@ -41,8 +41,8 @@ struct WOWGUID {
         return this->m_guid & WOWGUID_TYPE_MASK;
     }
 
-    uint32_t GetEntry() const {
-        return static_cast<uint32_t>(this->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
+    int32_t GetEntry() const {
+        return static_cast<int32_t>(this->m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
     }
 
     bool IsPlayer() const {

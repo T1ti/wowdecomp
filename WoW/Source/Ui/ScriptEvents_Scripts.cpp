@@ -859,7 +859,7 @@ static int32_t Script_UnitName(lua_State* L) {
     } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid)) {
         name = petState->m_name;
     } else if (unitGuid.IsPet()) {
-        PetNameCache* record = g_petNameCache.GetRecord(static_cast<int32_t>((unitGuid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK), unitGuid, UnitNameQueryCallback, nullptr, true);
+        PetNameCache* record = g_petNameCache.GetRecord(unitGuid.GetEntry(), unitGuid, UnitNameQueryCallback, nullptr, true);
 
         if (record) {
             name = record->m_name;
@@ -3682,7 +3682,7 @@ static int32_t Script_UnitGUID(lua_State* L) {
 
 
     if (guid.IsCreature() || guid.IsVehicle()) {
-        CreatureStats_C* creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, display, nullptr, nullptr, false);
+        CreatureStats_C* creature = g_creatureDBCache.GetRecord(guid.GetEntry(), display, nullptr, nullptr, false);
 
         if (creature && (creature->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MASK_UID)) {
             display.m_guid &= 0xFFFFFFFFFF000000ULL;

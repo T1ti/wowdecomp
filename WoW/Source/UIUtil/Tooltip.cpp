@@ -1774,7 +1774,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
     } else if (!state && !petState) {
         WOWGUID requester = { 0 };
 
-        if ((!guid.IsCreature() && !guid.IsVehicle()) || !(creature = g_creatureDBCache.GetRecord((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, requester, nullptr, nullptr, false))) {
+        if ((!guid.IsCreature() && !guid.IsVehicle()) || !(creature = g_creatureDBCache.GetRecord(guid.GetEntry(), requester, nullptr, nullptr, false))) {
             if (!name) {
                 this->Hide();
                 return 0;
@@ -2073,7 +2073,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
 
     if (creature && questTracking && questTracking->m_intValue) {
         if (!unit || !unit->m_unit->m_unitFieldSummonedby.IsPlayer()) {
-            uint32_t entry = unit ? unit->m_obj->m_entryID : static_cast<uint32_t>((guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK);
+            uint32_t entry = unit ? unit->m_obj->m_entryID : static_cast<uint32_t>(guid.GetEntry());
             QuestLogLeaderBoardParams params;
             params.m_questCallback = TooltipUnitNameCallback;
             params.m_objectCallback = TooltipUnitNameCallback;
