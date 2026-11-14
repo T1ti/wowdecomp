@@ -8553,7 +8553,7 @@ bool CGUnit_C::CanCurrentFormMount() const {
     }
 
     ChrRacesRec* race = g_chrRacesDB.GetRecord(extra->m_displayRaceID);
-    return race && (race->m_flags & ChrRacesRec::RACE_FLAGS::CAN_MOUNT_WHILE_TRANSFORMED);
+    return race && (race->m_flags & ChrRacesRec::RACE_FLAGS::CAN_MOUNT);
 }
 
 // VERIFY: f5fb6fd8 manual

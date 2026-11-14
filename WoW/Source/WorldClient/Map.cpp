@@ -2503,7 +2503,7 @@ void CMap::ValidateShaders() {
     CMap::enableSpecular = (CWorld::enables & Enable_Specular) && (CWorld::enables & Enable_PixelShaders);
 
     bool valid = false;
-    bool bigAlpha = (CMap::header.m_flags >> SMMapHeader::MAP_BITS::BIG_ALPHA_BIT_INDEX) & 1;
+    bool bigAlpha = (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) != 0;
     CMap::gTerrainPixelShadersValid = false;
     CMap::enableSpecularTerrain = false;
 

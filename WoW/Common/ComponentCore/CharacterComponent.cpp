@@ -444,11 +444,11 @@ void CCharacterComponent::ApplyMonsterGeosets(CM2Model* model, const CreatureDis
         return;
     }
 
-    for (uint32_t group = 100, shift = 0; group < 900; group += 100, shift += 4) {
+    for (uint32_t group = CHARACTER_GEOSET_ID::BEARD_BASE, shift = 0; group < CHARACTER_GEOSET_ID::PANTS_BASE; group += CHARACTER_GEOSET_ID::GROUP_SIZE, shift += 4) {
         uint32_t geoset = (displayRec->m_creatureGeosetData >> shift) & 0xF;
 
         if (geoset) {
-            model->SetGeometryVisible(group, group + 99, 0);
+            model->SetGeometryVisible(group, group + CHARACTER_GEOSET_ID::LAST_VARIANT, 0);
             model->SetGeometryVisible(group + geoset, group + geoset, 1);
         }
     }
@@ -1239,26 +1239,26 @@ void CCharacterComponent::SetDirtySections(uint32_t mask) {
         this->m_request = nullptr;
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_8;
+    this->m_flags &= ~FLAGS::UNKNOWN_8;
 }
 
 // VERIFY: c73fe2d4 auto
 // OFFSET: 0x004E8E50
 void CCharacterComponent::SetTexturesDirty() {
-    this->m_flags |= CCharacterComponent::FLAGS::TEXTURES_DIRTY;
+    this->m_flags |= FLAGS::TEXTURES_DIRTY;
 
     if (this->m_request) {
         this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
         this->m_request = nullptr;
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_8;
+    this->m_flags &= ~FLAGS::UNKNOWN_8;
 }
 
 // VERIFY: ca5f5399 auto
 // OFFSET: 0x004E8E70
 void CCharacterComponent::CreateRequestAU() {
-    this->m_request->m_baseTextures[SECTION_ARM_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_ARM_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < 2; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_UPPER].m_layerMask) {
@@ -1270,7 +1270,7 @@ void CCharacterComponent::CreateRequestAU() {
 // VERIFY: 48a06e0d auto
 // OFFSET: 0x004E8F00
 void CCharacterComponent::CreateRequestAL() {
-    this->m_request->m_baseTextures[SECTION_ARM_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_ARM_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < 7; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
@@ -1282,7 +1282,7 @@ void CCharacterComponent::CreateRequestAL() {
 // VERIFY: 27aef1fc auto
 // OFFSET: 0x004E8F90
 void CCharacterComponent::CreateRequestHA() {
-    this->m_request->m_baseTextures[SECTION_HAND] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_HAND] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (this->m_section[SECTION_HAND].m_layerMask & 0x1) {
         this->m_request->AddLayer(SECTION_HAND, this->m_section[SECTION_HAND].m_layerTex[0]);
@@ -1294,20 +1294,20 @@ void CCharacterComponent::CreateRequestHA() {
 void CCharacterComponent::CreateRequestHU() {
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
-    if (skinRec && (skinRec->m_flags & 0x8)) {
-        this->m_request->m_baseTextures[SECTION_HEAD_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
+        this->m_request->m_baseTextures[SECTION_HEAD_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[1]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[1]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]) {
+        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[1]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[1]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]) {
+        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[2]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[2]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]) {
+        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]);
     }
 }
 
@@ -1316,30 +1316,30 @@ void CCharacterComponent::CreateRequestHU() {
 void CCharacterComponent::CreateRequestHL() {
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
-    if (skinRec && (skinRec->m_flags & 0x8)) {
-        this->m_request->m_baseTextures[SECTION_HEAD_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
+        this->m_request->m_baseTextures[SECTION_HEAD_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[0]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[0]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]) {
+        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[0]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[0]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]) {
+        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[1]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[1]);
+    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]) {
+        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]);
     }
 }
 
 // VERIFY: 5d1d019e manual
 // OFFSET: 0x004E91D0
 void CCharacterComponent::CreateRequestTU() {
-    this->m_request->m_baseTextures[SECTION_TORSO_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_TORSO_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    if (!(this->m_section[SECTION_TORSO_UPPER].m_layerMask & 0x7) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]) {
-        this->m_request->AddLayer(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]);
+    if (!(this->m_section[SECTION_TORSO_UPPER].m_layerMask & 0x7) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]) {
+        this->m_request->AddLayer(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]);
     }
 
     for (int32_t layer = 0; layer < 5; layer++) {
@@ -1352,7 +1352,7 @@ void CCharacterComponent::CreateRequestTU() {
 // VERIFY: 0a0fcd15 auto
 // OFFSET: 0x004E9280
 void CCharacterComponent::CreateRequestTL() {
-    this->m_request->m_baseTextures[SECTION_TORSO_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_TORSO_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < 7; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_LOWER].m_layerMask) {
@@ -1364,13 +1364,13 @@ void CCharacterComponent::CreateRequestTL() {
 // VERIFY: c8aaa938 manual
 // OFFSET: 0x004E9310
 void CCharacterComponent::CreateRequestLU() {
-    this->m_request->m_baseTextures[SECTION_LEG_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_LEG_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    if (((this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) || !(this->m_section[SECTION_LEG_UPPER].m_layerMask & 0x3)) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]) {
-        this->m_request->AddLayer(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]);
+    if (((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) || !(this->m_section[SECTION_LEG_UPPER].m_layerMask & 0x3)) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]) {
+        this->m_request->AddLayer(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]);
     }
 
-    int32_t first = (this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) != 0;
+    int32_t first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
     int32_t last = 3 - first;
 
     for (int32_t layer = first; layer < last; layer++) {
@@ -1383,10 +1383,10 @@ void CCharacterComponent::CreateRequestLU() {
 // VERIFY: 6ef99de9 manual
 // OFFSET: 0x004E9400
 void CCharacterComponent::CreateRequestLL() {
-    this->m_request->m_baseTextures[SECTION_LEG_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_LEG_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    int32_t first = (this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) != 0;
-    int32_t last = 2 * ((this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) == 0) + 4;
+    int32_t first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
+    int32_t last = 2 * ((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) == 0) + 4;
 
     for (int32_t layer = first; layer < last; layer++) {
         if ((1 << layer) & this->m_section[SECTION_LEG_LOWER].m_layerMask) {
@@ -1398,7 +1398,7 @@ void CCharacterComponent::CreateRequestLL() {
 // VERIFY: ce9392ca auto
 // OFFSET: 0x004E94B0
 void CCharacterComponent::CreateRequestFO() {
-    this->m_request->m_baseTextures[SECTION_FOOT] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0]);
+    this->m_request->m_baseTextures[SECTION_FOOT] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (this->m_section[SECTION_FOOT].m_layerMask & 0x1) {
         this->m_request->AddLayer(SECTION_FOOT, this->m_section[SECTION_FOOT].m_layerTex[0]);
@@ -1408,7 +1408,7 @@ void CCharacterComponent::CreateRequestFO() {
 // VERIFY: b56204ff auto
 // OFFSET: 0x004E9510
 void CCharacterComponent::UpdateSections() {
-    if (this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY) {
+    if (this->m_flags & FLAGS::TEXTURES_DIRTY) {
         GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
         return;
     }
@@ -1727,7 +1727,7 @@ void CCharacterComponent::ReplaceExtraSkinTexture(const char* debug) {
         return;
     }
 
-    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_SKIN].m_variation[0].m_color[this->m_data.m_preferences.m_skinID]->m_textureName[1];
+    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_SKIN].m_variation[0].m_color[this->m_data.m_preferences.m_skinID]->m_textureName[CharSectionsRec::TEXTURE_INDEX::SKIN_EXTRA];
 
     if (!*textureName) {
         return;
@@ -1749,7 +1749,7 @@ void CCharacterComponent::ReplaceHairTexture(int32_t hairStyleID, const char* de
         return;
     }
 
-    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_HAIR].m_variation[hairStyleID].m_color[this->m_data.m_preferences.m_hairColorId]->m_textureName[0];
+    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_HAIR].m_variation[hairStyleID].m_color[this->m_data.m_preferences.m_hairColorId]->m_textureName[CharSectionsRec::TEXTURE_INDEX::HAIR_SCALP];
 
     if (!*textureName) {
         return;
@@ -1802,7 +1802,7 @@ void CCharacterComponent::SetHairColor(int32_t hairColorID, bool loadHair, const
     this->m_data.m_preferences.m_hairColorId = hairColorID;
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_data.m_preferences.m_raceID);
 
-    if (!this->m_data.m_preferences.m_sexID && !this->m_data.m_preferences.m_hairStyleId && (raceRec->m_flags & ChrRacesRec::RACE_FLAGS::UNKNOWN_8)) {
+    if (!this->m_data.m_preferences.m_sexID && !this->m_data.m_preferences.m_hairStyleId && (raceRec->m_flags & ChrRacesRec::RACE_FLAGS::HAS_BALD)) {
         this->ReplaceHairTexture(1, debug);
     }
 
@@ -1813,12 +1813,12 @@ void CCharacterComponent::SetHairColor(int32_t hairColorID, bool loadHair, const
     }
 
     if (loadHair) {
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 1, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 2, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
     }
 
-    this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, 0, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
-    this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, 1, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
+    this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
+    this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
 }
 
 // VERIFY: 2d880572 manual
@@ -1832,12 +1832,12 @@ void CCharacterComponent::SetHairStyle(int32_t hairStyleID, const char* debug) {
     this->m_data.m_geosets[CHARGEOSET_HAIR] = GetConditionalGeoset(&this->m_data.m_preferences);
 
     if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN)) {
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 1, hairStyleID, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 2, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER, hairStyleID, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
     }
 
     this->SetHairColor(this->m_data.m_preferences.m_hairColorId, false, debug);
-    this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags |= FLAGS::GEOSETS_DIRTY;
     this->SetDirtySections(0x300);
 }
 
@@ -1850,7 +1850,7 @@ void CCharacterComponent::SetFace(int32_t faceID, bool loadHair, const char* deb
 
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
-    if (skinRec && (skinRec->m_flags & 0x8)) {
+    if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         return;
     }
 
@@ -1859,15 +1859,15 @@ void CCharacterComponent::SetFace(int32_t faceID, bool loadHair, const char* deb
     }
 
     this->m_data.m_preferences.m_faceId = faceID;
-    this->LoadBaseVariation(CHARTEXTUREVAR_FACE, 0, faceID, this->m_data.m_preferences.m_skinID, SECTION_HEAD_LOWER, debug);
-    this->LoadBaseVariation(CHARTEXTUREVAR_FACE, 1, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, SECTION_HEAD_UPPER, debug);
+    this->LoadBaseVariation(CHARTEXTUREVAR_FACE, CharSectionsRec::TEXTURE_INDEX::FACE_LOWER, faceID, this->m_data.m_preferences.m_skinID, SECTION_HEAD_LOWER, debug);
+    this->LoadBaseVariation(CHARTEXTUREVAR_FACE, CharSectionsRec::TEXTURE_INDEX::FACE_UPPER, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, SECTION_HEAD_UPPER, debug);
 
     if (loadHair) {
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 1, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
-        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, 2, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_HAIR, CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER, this->m_data.m_preferences.m_hairStyleId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
     }
 
-    this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags |= FLAGS::GEOSETS_DIRTY;
     this->SetDirtySections(0x300);
 }
 
@@ -1882,14 +1882,14 @@ void CCharacterComponent::SetBeardStyle(int32_t facialHairID, bool loadVariation
     CharacterFacialHairStylesRec* styleRec = GetConditionalFacialHairStyle(&this->m_data.m_preferences);
 
     if (styleRec) {
-        this->m_data.m_geosets[CHARGEOSET_BEARD] = styleRec->m_geoset[0] + 100;
-        this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = styleRec->m_geoset[1] + 300;
-        this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = styleRec->m_geoset[2] + 200;
-        this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = styleRec->m_geoset[3] + 1600;
-        this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
-        this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = styleRec->m_geoset[4] + 1700;
+        this->m_data.m_geosets[CHARGEOSET_BEARD] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::BEARD] + CHARACTER_GEOSET_ID::BEARD_BASE;
+        this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::MOUSTACHE] + CHARACTER_GEOSET_ID::MOUSTACHE_BASE;
+        this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::SIDEBURN] + CHARACTER_GEOSET_ID::SIDEBURN_BASE;
+        this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::FACIAL_JEWELRY] + CHARACTER_GEOSET_ID::FACIALJEWELRY_BASE;
+        this->m_flags |= FLAGS::GEOSETS_DIRTY;
+        this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::EYE_EFFECTS] + CHARACTER_GEOSET_ID::EYEEFFECTS_BASE;
 
-        if ((styleRec->m_geoset[0] || styleRec->m_geoset[1] || styleRec->m_geoset[2]) && (!this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[1] || !this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[2])) {
+        if ((styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::BEARD] || styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::MOUSTACHE] || styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::SIDEBURN]) && (!this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER] || !this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER])) {
             this->ReplaceHairTexture(1, debug);
         }
     }
@@ -1899,8 +1899,8 @@ void CCharacterComponent::SetBeardStyle(int32_t facialHairID, bool loadVariation
     }
 
     if (loadVariation) {
-        this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, 0, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
-        this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, 1, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_LOWER, debug);
+        this->LoadBaseVariation(CHARTEXTUREVAR_FACIALHAIR, CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, SECTION_HEAD_UPPER, debug);
     }
 
     this->SetDirtySections(0x300);
@@ -1918,38 +1918,38 @@ void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool rende
     int32_t numColors = ComponentGetNumColors(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0);
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
 
-    if (skinID < numColors && skinRec && !(skinRec->m_flags & 0x8)) {
+    if (skinID < numColors && skinRec && !(skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
 
-        if (this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]) {
-            TextureCacheDestroyTexture(this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]);
-            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0] = nullptr;
+        if (this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]) {
+            TextureCacheDestroyTexture(this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]);
+            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER] = nullptr;
         }
 
-        if (this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]) {
-            TextureCacheDestroyTexture(this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]);
-            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1] = nullptr;
+        if (this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]) {
+            TextureCacheDestroyTexture(this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]);
+            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER] = nullptr;
         }
 
-        if (*underwearRec->m_textureName[0] && CopyStringToBuffer(underwearRec->m_textureName[0], s_pathEnd)) {
-            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0] = TextureCacheCreateTexture(s_path);
+        if (*underwearRec->m_textureName[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER] && CopyStringToBuffer(underwearRec->m_textureName[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER], s_pathEnd)) {
+            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER] = TextureCacheCreateTexture(s_path);
 
-            if (!this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]) {
+            if (!this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]) {
                 DebugLog("**** Unable to Load Texture %s\n", s_path);
             }
         }
 
-        if (*underwearRec->m_textureName[1] && CopyStringToBuffer(underwearRec->m_textureName[1], s_pathEnd)) {
-            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1] = TextureCacheCreateTexture(s_path);
+        if (*underwearRec->m_textureName[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER] && CopyStringToBuffer(underwearRec->m_textureName[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER], s_pathEnd)) {
+            this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER] = TextureCacheCreateTexture(s_path);
 
-            if (!this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]) {
+            if (!this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]) {
                 DebugLog("**** Unable to Load Texture %s\n", s_path);
             }
         }
     }
 
     this->ReplaceExtraSkinTexture(debug);
-    this->LoadBaseVariation(CHARTEXTUREVAR_SKIN, 0, 0, this->m_data.m_preferences.m_skinID, SECTION_TORSO_UPPER, debug);
+    this->LoadBaseVariation(CHARTEXTUREVAR_SKIN, CharSectionsRec::TEXTURE_INDEX::SKIN_BODY, 0, this->m_data.m_preferences.m_skinID, SECTION_TORSO_UPPER, debug);
     this->SetFace(this->m_data.m_preferences.m_faceId, loadHair, debug);
 
     if (renderAll) {
@@ -1963,7 +1963,7 @@ void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool rende
         this->m_request = nullptr;
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_8;
+    this->m_flags &= ~FLAGS::UNKNOWN_8;
 }
 
 // VERIFY: 0266cc45 manual
@@ -2877,11 +2877,11 @@ void CCharacterComponent::ApplyGuildColor(int32_t emblem, int32_t emblemColor, i
 // VERIFY: 5954ffe3 auto
 // OFFSET: 0x004EC510
 void CCharacterComponent::TurnOffGuildTabardPurchase() {
-    if (!(this->m_flags & CCharacterComponent::FLAGS::TABARD_PREVIEW)) {
+    if (!(this->m_flags & FLAGS::TABARD_PREVIEW)) {
         return;
     }
 
-    this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::TABARD_PREVIEW_AND_GEOSETS) | CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags = (this->m_flags & ~FLAGS::TABARD_PREVIEW_AND_GEOSETS) | FLAGS::GEOSETS_DIRTY;
     this->ClearGuildTexture(4);
     this->SetDirtySections((1 << SECTION_TORSO_UPPER) | (1 << SECTION_TORSO_LOWER));
 }
@@ -3346,14 +3346,14 @@ bool CCharacterComponent::VariationsLoaded(int32_t wait) {
     info.m_opaque = 1;
 
     for (int32_t variation = 0; variation < CHARTEXTUREVARIATIONS_NUM; variation++) {
-        for (int32_t i = 0; i < 3; i++) {
+        for (int32_t i = 0; i < CharSectionsRec::TEXTURE_INDEX::COUNT; i++) {
             if (this->m_baseVariation[variation].m_texture[i] && !TextureCacheGetInfo(this->m_baseVariation[variation].m_texture[i], info, wait)) {
                 return false;
             }
         }
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_2;
+    this->m_flags &= ~FLAGS::UNKNOWN_2;
 
     return true;
 }
@@ -3431,18 +3431,18 @@ void CCharacterComponent::GeosRenderPrep() {
     } else {
         CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, nullptr);
 
-        if (faceRec && (faceRec->m_flags & 0x4)) {
+        if (faceRec && (faceRec->m_flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT)) {
             eyeGlow = true;
         }
     }
 
     CM2Model* model = this->m_data.m_model;
-    model->SetGeometryVisible(0, 2000, 0);
-    model->SetGeometryVisible(0, 0, 1);
+    model->SetGeometryVisible(CHARACTER_GEOSET_ID::BASE_MODEL, CHARACTER_GEOSET_ID::VISIBILITY_RANGE_END, 0);
+    model->SetGeometryVisible(CHARACTER_GEOSET_ID::BASE_MODEL, CHARACTER_GEOSET_ID::BASE_MODEL, 1);
 
     for (int32_t i = 0; i < NUM_CHARGEOSETS; i++) {
         if (i == CHARGEOSET_EYEEFFECTS && eyeGlow) {
-            this->m_data.m_model->SetGeometryVisible(1703, 1703, 1);
+            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, 1);
         } else {
             this->m_data.m_model->SetGeometryVisible(this->m_data.m_geosets[i], this->m_data.m_geosets[i], 1);
         }
@@ -3450,11 +3450,11 @@ void CCharacterComponent::GeosRenderPrep() {
 
     ItemDisplayInfoRec rec;
 
-    if (this->m_itemDisplayID[ITEMSLOT_GLOVES] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_GLOVES], &rec) && rec.m_geosetGroup[0]) {
-        this->m_data.m_model->SetGeometryVisible(401, 499, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 401, rec.m_geosetGroup[0] + 401, 1);
-    } else if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[0]) {
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 801, rec.m_geosetGroup[0] + 801, 1);
+    if (this->m_itemDisplayID[ITEMSLOT_GLOVES] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_GLOVES], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::GLOVE_DEFAULT, CHARACTER_GEOSET_ID::GLOVE_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, 1);
+    } else if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
     }
 
     int32_t layer;
@@ -3465,80 +3465,80 @@ void CCharacterComponent::GeosRenderPrep() {
         }
     }
 
-    if (layer >= 7 && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[0]) {
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 801, rec.m_geosetGroup[0] + 801, 1);
+    if (layer >= 7 && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
     }
 
     bool robe = false;
     bool dress = false;
     bool tabard = false;
 
-    if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[2]) {
-        this->m_data.m_model->SetGeometryVisible(501, 599, 0);
-        this->m_data.m_model->SetGeometryVisible(902, 999, 0);
-        this->m_data.m_model->SetGeometryVisible(1100, 1199, 0);
-        this->m_data.m_model->SetGeometryVisible(1300, 1399, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[2] + 1301, rec.m_geosetGroup[2] + 1301, 1);
+    if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE]) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
         robe = true;
-    } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[2] && !(this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20)) {
-        this->m_data.m_model->SetGeometryVisible(501, 599, 0);
-        this->m_data.m_model->SetGeometryVisible(902, 999, 0);
-        this->m_data.m_model->SetGeometryVisible(1100, 1199, 0);
-        this->m_data.m_model->SetGeometryVisible(1300, 1399, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[2] + 1301, rec.m_geosetGroup[2] + 1301, 1);
+    } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] && !(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT)) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
         dress = true;
     } else {
-        if (this->m_itemDisplayID[ITEMSLOT_BOOTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BOOTS], &rec) && rec.m_geosetGroup[0]) {
-            this->m_data.m_model->SetGeometryVisible(501, 599, 0);
-            this->m_data.m_model->SetGeometryVisible(901, 901, 1);
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 501, rec.m_geosetGroup[0] + 501, 1);
-        } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[1] && !(this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20)) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[1] + 901, rec.m_geosetGroup[1] + 901, 1);
+        if (this->m_itemDisplayID[ITEMSLOT_BOOTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BOOTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
+            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, 1);
+        } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] && !(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT)) {
+            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
         } else {
-            this->m_data.m_model->SetGeometryVisible(901, 901, 1);
+            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
         }
 
-        if (this->m_itemDisplayID[ITEMSLOT_TABARD] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_TABARD], &rec) && rec.m_geosetGroup[0]) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 1201, rec.m_geosetGroup[0] + 1201, 1);
+        if (this->m_itemDisplayID[ITEMSLOT_TABARD] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_TABARD], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
             tabard = true;
         }
     }
 
-    if (this->m_flags & CCharacterComponent::FLAGS::TABARD_PREVIEW) {
-        this->m_data.m_model->SetGeometryVisible(1201, 1201, 1);
+    if (this->m_flags & FLAGS::TABARD_PREVIEW) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_DEFAULT, CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
 
         if (!robe && !dress) {
-            this->m_data.m_model->SetGeometryVisible(1202, 1202, 1);
+            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_VARIANT_2, CHARACTER_GEOSET_ID::TABARD_VARIANT_2, 1);
         }
     }
 
     if (!robe) {
-        if (!tabard && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[1]) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[1] + 1001, rec.m_geosetGroup[1] + 1001, 1);
+        if (!tabard && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY]) {
+            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, 1);
         }
 
-        if (!(this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) && this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[0]) {
-            if (rec.m_geosetGroup[0] > 2) {
-                this->m_data.m_model->SetGeometryVisible(1300, 1399, 0);
-                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 1101, rec.m_geosetGroup[0] + 1101, 1);
+        if (!(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) && this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+            if (rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] > 2) {
+                this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
             } else if (!tabard) {
-                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 1101, rec.m_geosetGroup[0] + 1101, 1);
+                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
             }
         }
     }
 
-    if (this->m_itemDisplayID[ITEMSLOT_CAPE] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CAPE], &rec) && rec.m_geosetGroup[0]) {
-        this->m_data.m_model->SetGeometryVisible(1500, 1599, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 1501, rec.m_geosetGroup[0] + 1501, 1);
+    if (this->m_itemDisplayID[ITEMSLOT_CAPE] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CAPE], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::CAPE_BASE, CHARACTER_GEOSET_ID::CAPE_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, 1);
     }
 
-    if (this->m_itemDisplayID[ITEMSLOT_BELT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BELT], &rec) && rec.m_geosetGroup[0]) {
-        this->m_data.m_model->SetGeometryVisible(1800, 1899, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[0] + 1801, rec.m_geosetGroup[0] + 1801, 1);
+    if (this->m_itemDisplayID[ITEMSLOT_BELT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BELT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BELT_BASE, CHARACTER_GEOSET_ID::BELT_LAST, 0);
+        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, 1);
     }
 
     this->m_data.m_model->OptimizeVisibleGeometry();
-    this->m_flags &= ~CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags &= ~FLAGS::GEOSETS_DIRTY;
 }
 
 // VERIFY: f3bbc113 manual
@@ -3551,13 +3551,13 @@ void CCharacterComponent::PrepSections() {
 
         (this->*CCharacterComponent::m_prepFunc[section])();
 
-        if (!(this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY) && this->m_gxTexFormat != GxTex_Dxt1) {
+        if (!(this->m_flags & FLAGS::TEXTURES_DIRTY) && this->m_gxTexFormat != GxTex_Dxt1) {
             const CompSectionInfo& info = s_sectionInfo[section];
             GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
         }
     }
 
-    if (!(this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY) && this->m_gxTexFormat != GxTex_Dxt1) {
+    if (!(this->m_flags & FLAGS::TEXTURES_DIRTY) && this->m_gxTexFormat != GxTex_Dxt1) {
         return;
     }
 
@@ -3565,7 +3565,7 @@ void CCharacterComponent::PrepSections() {
         ComputeMipLevels(CCharacterComponent::s_textureBuffer, s_compressedTextureBuffer);
     }
 
-    if (this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY) {
+    if (this->m_flags & FLAGS::TEXTURES_DIRTY) {
         GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
         return;
     }
@@ -3605,7 +3605,7 @@ void CCharacterComponent::RenderPrepAll() {
         this->m_request = nullptr;
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_8;
+    this->m_flags &= ~FLAGS::UNKNOWN_8;
     this->VariationsLoaded(1);
     this->ItemsLoaded(1);
 
@@ -3617,7 +3617,7 @@ void CCharacterComponent::RenderPrepAll() {
         ComputeMipLevels(CCharacterComponent::s_textureBuffer, s_compressedTextureBuffer);
     }
 
-    this->m_flags &= ~CCharacterComponent::FLAGS::TEXTURES_DIRTY;
+    this->m_flags &= ~FLAGS::TEXTURES_DIRTY;
     this->m_dirtySections = 0;
     this->DestroyRenderTextures();
     this->m_link.Unlink();
@@ -3700,7 +3700,7 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
         return;
     }
 
-    this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags |= FLAGS::GEOSETS_DIRTY;
 
     switch (itemSlot) {
         case ITEMSLOT_HEAD: {
@@ -3709,12 +3709,12 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
             CharacterFacialHairStylesRec* styleRec = GetConditionalFacialHairStyle(&this->m_data.m_preferences);
 
             if (styleRec) {
-                this->m_data.m_geosets[CHARGEOSET_BEARD] = styleRec->m_geoset[0] + 100;
-                this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = styleRec->m_geoset[1] + 300;
-                this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = styleRec->m_geoset[2] + 200;
-                this->m_data.m_geosets[CHARGEOSET_EAR] = 702;
-                this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = styleRec->m_geoset[3] + 1600;
-                this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = styleRec->m_geoset[4] + 1700;
+                this->m_data.m_geosets[CHARGEOSET_BEARD] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::BEARD] + CHARACTER_GEOSET_ID::BEARD_BASE;
+                this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::MOUSTACHE] + CHARACTER_GEOSET_ID::MOUSTACHE_BASE;
+                this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::SIDEBURN] + CHARACTER_GEOSET_ID::SIDEBURN_BASE;
+                this->m_data.m_geosets[CHARGEOSET_EAR] = CHARACTER_GEOSET_ID::EAR_VARIANT_2;
+                this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::FACIAL_JEWELRY] + CHARACTER_GEOSET_ID::FACIALJEWELRY_BASE;
+                this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = styleRec->m_geoset[CharacterFacialHairStylesRec::GEOSET_INDEX::EYE_EFFECTS] + CHARACTER_GEOSET_ID::EYEEFFECTS_BASE;
             }
 
             this->m_itemDisplayID[itemSlot] = 0;
@@ -3728,21 +3728,21 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
             return;
 
         case ITEMSLOT_CHEST:
-            this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_20;
+            this->m_flags &= ~FLAGS::HIDE_PANTS_AND_BELT;
             break;
 
         case ITEMSLOT_TABARD:
-            if (this->m_flags & CCharacterComponent::FLAGS::TABARD_PREVIEW) {
+            if (this->m_flags & FLAGS::TABARD_PREVIEW) {
                 this->m_itemDisplayID[itemSlot] = 0;
                 return;
             }
 
-            this->m_data.m_geosets[CHARGEOSET_CAPE] = 1501;
+            this->m_data.m_geosets[CHARGEOSET_CAPE] = CHARACTER_GEOSET_ID::CAPE_DEFAULT;
             this->ClearGuildTexture(4);
             break;
 
         case ITEMSLOT_CAPE:
-            this->m_data.m_geosets[CHARGEOSET_CAPE] = 1501;
+            this->m_data.m_geosets[CHARGEOSET_CAPE] = CHARACTER_GEOSET_ID::CAPE_DEFAULT;
             this->m_itemDisplayID[itemSlot] = 0;
             return;
 
@@ -3865,31 +3865,31 @@ void CCharacterComponent::AddHelm(int32_t itemVisual) {
     uint32_t raceMask = 1 << this->m_data.m_preferences.m_raceID;
 
     if (raceMask & visRec->m_hideGeoset[0]) {
-        this->m_data.m_geosets[CHARGEOSET_HAIR] = 1;
+        this->m_data.m_geosets[CHARGEOSET_HAIR] = CHARACTER_GEOSET_ID::HAIR_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[1]) {
-        this->m_data.m_geosets[CHARGEOSET_BEARD] = 101;
+        this->m_data.m_geosets[CHARGEOSET_BEARD] = CHARACTER_GEOSET_ID::BEARD_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[2]) {
-        this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = 201;
+        this->m_data.m_geosets[CHARGEOSET_SIDEBURN] = CHARACTER_GEOSET_ID::SIDEBURN_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[3]) {
-        this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = 301;
+        this->m_data.m_geosets[CHARGEOSET_MOUSTACHE] = CHARACTER_GEOSET_ID::MOUSTACHE_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[4]) {
-        this->m_data.m_geosets[CHARGEOSET_EAR] = 701;
+        this->m_data.m_geosets[CHARGEOSET_EAR] = CHARACTER_GEOSET_ID::EAR_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[5]) {
-        this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = 1601;
+        this->m_data.m_geosets[CHARGEOSET_FACIALJEWELRY] = CHARACTER_GEOSET_ID::FACIALJEWELRY_DEFAULT;
     }
 
     if (raceMask & visRec->m_hideGeoset[6]) {
-        this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = 1701;
+        this->m_data.m_geosets[CHARGEOSET_EYEEFFECTS] = CHARACTER_GEOSET_ID::EYEEFFECTS_DEFAULT;
     }
 }
 
@@ -4127,7 +4127,7 @@ void CCharacterComponent::PasteScale(HTEXTURECACHE texture, MipBits* dstMips, co
 // OFFSET: 0x004EFAB0
 void CCharacterComponent::ComputeLoadProgress(int64_t& local, int64_t& total) {
     for (int32_t variation = 0; variation < CHARTEXTUREVARIATIONS_NUM; variation++) {
-        for (int32_t i = 0; i < 3; i++) {
+        for (int32_t i = 0; i < CharSectionsRec::TEXTURE_INDEX::COUNT; i++) {
             if (this->m_baseVariation[variation].m_texture[i]) {
                 TextureCacheComputeLoadProgress(this->m_baseVariation[variation].m_texture[i], local, total);
             }
@@ -4144,7 +4144,7 @@ void CCharacterComponent::ComputeLoadProgress(int64_t& local, int64_t& total) {
 
     total += 0x2000;
 
-    if (!this->m_link.m_next && this->m_baseSkinTexture && !(this->m_dirtySections | -static_cast<int32_t>(this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY))) {
+    if (!this->m_link.m_next && this->m_baseSkinTexture && !(this->m_dirtySections | -static_cast<int32_t>(this->m_flags & FLAGS::TEXTURES_DIRTY))) {
         local += 0x2000;
     }
 }
@@ -4183,7 +4183,7 @@ inline CharacterSection::~CharacterSection() {
 inline CharacterBaseVariation::~CharacterBaseVariation() {
     HTEXTURECACHE* texture = this->m_texture;
 
-    for (int32_t i = 0; i < 7; i++) {
+    for (int32_t i = 0; i < CharacterBaseVariation::TEXTURE_LIMITS::DESTRUCTION_COUNT; i++) {
         if (texture[i]) {
             TextureCacheDestroyTexture(texture[i]);
         }
@@ -4196,14 +4196,14 @@ inline CharacterBaseVariation::~CharacterBaseVariation() {
 // OFFSET: 0x004EFBE0
 CCharacterComponent::CCharacterComponent() {
     memset(this->m_baseVariation, 0, sizeof(this->m_baseVariation));
-    this->m_flags |= CCharacterComponent::FLAGS::INITIAL_FLAGS;
+    this->m_flags |= FLAGS::INITIAL_FLAGS;
     this->m_dirtySections = 0xFFFFFFFF;
     this->m_request = nullptr;
     this->m_baseSkinTexture = nullptr;
     this->m_gxTexFormat = CCharacterComponent::s_gxFormat;
     memset(this->m_itemDisplayID, 0, sizeof(this->m_itemDisplayID));
     memset(this->m_itemSlotForAttachSlot, 0xFF, sizeof(this->m_itemSlotForAttachSlot));
-    this->m_flags &= ~CCharacterComponent::FLAGS::UNKNOWN_20;
+    this->m_flags &= ~FLAGS::HIDE_PANTS_AND_BELT;
     this->m_data.m_model = nullptr;
 }
 
@@ -4285,18 +4285,18 @@ void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t widt
 // OFFSET: 0x004EFED0
 void CCharacterComponent::Prep() {
     if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
-        if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+        if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
         }
 
         return;
     }
 
-    if (this->m_dirtySections || (this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY)) {
+    if (this->m_dirtySections || (this->m_flags & FLAGS::TEXTURES_DIRTY)) {
         if (!this->m_link.m_next) {
             CCharacterComponent::s_queue.LinkToTail(this);
         }
-    } else if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+    } else if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
         this->GeosRenderPrep();
     }
 }
@@ -4326,7 +4326,7 @@ void CCharacterComponent::UpdateItem(ITEM_SLOT itemSlot, COMPONENT_SECTIONS sect
     int32_t layer = s_itemPriority[itemSlot][section];
 
     if (section == SECTION_ARM_LOWER) {
-        if (displayRec && displayRec->m_geosetGroup[0]) {
+        if (displayRec && displayRec->m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
             if (itemSlot == ITEMSLOT_CHEST) {
                 layer = 5;
             } else if (itemSlot == ITEMSLOT_GLOVES) {
@@ -4335,32 +4335,32 @@ void CCharacterComponent::UpdateItem(ITEM_SLOT itemSlot, COMPONENT_SECTIONS sect
         }
     } else if (section == SECTION_LEG_LOWER) {
         if (itemSlot == ITEMSLOT_CHEST) {
-            if (displayRec && displayRec->m_geosetGroup[2]) {
+            if (displayRec && displayRec->m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE]) {
                 layer = 4;
-                this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+                this->m_flags |= FLAGS::GEOSETS_DIRTY;
             }
         } else if (itemSlot == ITEMSLOT_PANTS) {
-            if (displayRec && displayRec->m_geosetGroup[2]) {
+            if (displayRec && displayRec->m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE]) {
                 uint32_t chestID = this->m_itemDisplayID[ITEMSLOT_CHEST];
 
-                if (chestID && ItemDisplayHasGeosetGroup(chestID, 2)) {
+                if (chestID && ItemDisplayHasGeosetGroup(chestID, ItemDisplayInfoRec::GEOSET_GROUP::ROBE)) {
                     layer = 3;
                 } else {
                     layer = 4;
                 }
 
-                this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+                this->m_flags |= FLAGS::GEOSETS_DIRTY;
             }
-        } else if (itemSlot == ITEMSLOT_BOOTS && displayRec && displayRec->m_geosetGroup[0]) {
-            this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+        } else if (itemSlot == ITEMSLOT_BOOTS && displayRec && displayRec->m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
+            this->m_flags |= FLAGS::GEOSETS_DIRTY;
             layer = 3;
         }
-    } else if (section == SECTION_FOOT && (this->m_flags & CCharacterComponent::FLAGS::BARE_FEET)) {
+    } else if (section == SECTION_FOOT && (this->m_flags & FLAGS::BARE_FEET)) {
         apply = false;
         this->FreeSectionTexture(section, s_itemPriority[itemSlot][section]);
     }
 
-    if (section != SECTION_FOOT || !(this->m_flags & CCharacterComponent::FLAGS::BARE_FEET)) {
+    if (section != SECTION_FOOT || !(this->m_flags & FLAGS::BARE_FEET)) {
         if (apply) {
             if (!this->UpdateTextureSlot(section, displayRec, layer)) {
                 return;
@@ -4374,15 +4374,15 @@ void CCharacterComponent::UpdateItem(ITEM_SLOT itemSlot, COMPONENT_SECTIONS sect
         ItemDisplayInfoRec rec;
 
         if (itemSlot == ITEMSLOT_CHEST) {
-            if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], 2, rec)) {
+            if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], ItemDisplayInfoRec::GEOSET_GROUP::ROBE, rec)) {
                 this->FreeSectionTexture(SECTION_LEG_LOWER, 3);
                 this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 4);
             }
 
-            if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_BOOTS], 0, rec)) {
+            if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_BOOTS], ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY, rec)) {
                 this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 3);
             }
-        } else if (itemSlot == ITEMSLOT_PANTS && ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], 2, rec)) {
+        } else if (itemSlot == ITEMSLOT_PANTS && ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], ItemDisplayInfoRec::GEOSET_GROUP::ROBE, rec)) {
             this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 4);
         }
     }
@@ -4415,7 +4415,7 @@ void CCharacterComponent::UpdateItemAU(ITEM_SLOT itemSlot, const ItemDisplayInfo
 void CCharacterComponent::UpdateItemAL(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply) {
     int32_t layer = s_itemPriority[itemSlot][SECTION_ARM_LOWER];
 
-    if (displayRec && displayRec->m_geosetGroup[0]) {
+    if (displayRec && displayRec->m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
         if (itemSlot == ITEMSLOT_CHEST) {
             layer = 5;
         } else if (itemSlot == ITEMSLOT_GLOVES) {
@@ -4529,7 +4529,7 @@ void CCharacterComponent::UpdateItemLL(ITEM_SLOT itemSlot, const ItemDisplayInfo
 void CCharacterComponent::UpdateItemFO(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply) {
     int32_t layer = s_itemPriority[itemSlot][SECTION_FOOT];
 
-    if (!(this->m_flags & CCharacterComponent::FLAGS::BARE_FEET) && apply) {
+    if (!(this->m_flags & FLAGS::BARE_FEET) && apply) {
         if (!this->UpdateTextureSlot(SECTION_FOOT, displayRec, layer)) {
             return;
         }
@@ -4762,7 +4762,7 @@ CCharacterComponent* CCharacterComponent::AllocComponent() {
 // VERIFY: 88917dfa manual
 // OFFSET: 0x004F09D0
 void CCharacterComponent::RenderPrepAU() {
-    CCharacterComponent::PasteFromSkin(SECTION_ARM_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_ARM_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
     for (int32_t layer = 0; layer < 2; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_UPPER].m_layerMask) {
@@ -4774,7 +4774,7 @@ void CCharacterComponent::RenderPrepAU() {
 // VERIFY: 274a74cd manual
 // OFFSET: 0x004F0A30
 void CCharacterComponent::RenderPrepAL() {
-    CCharacterComponent::PasteFromSkin(SECTION_ARM_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_ARM_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
     for (int32_t layer = 0; layer < 7; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
@@ -4786,7 +4786,7 @@ void CCharacterComponent::RenderPrepAL() {
 // VERIFY: 7c6cc546 auto
 // OFFSET: 0x004F0A90
 void CCharacterComponent::RenderPrepHA() {
-    CCharacterComponent::PasteFromSkin(SECTION_HAND, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_HAND, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
     if (this->m_section[SECTION_HAND].m_layerMask & 0x1) {
         CCharacterComponent::PasteToSection(SECTION_HAND, this->m_section[SECTION_HAND].m_layerTex[0], CCharacterComponent::s_textureBuffer);
@@ -4798,20 +4798,20 @@ void CCharacterComponent::RenderPrepHA() {
 void CCharacterComponent::RenderPrepHU() {
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
-    if (skinRec && (skinRec->m_flags & 0x8)) {
-        CCharacterComponent::PasteFromSkin(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
+        CCharacterComponent::PasteFromSkin(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[1]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[1], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[1]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[1], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[2]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[2], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER], CCharacterComponent::s_textureBuffer);
     }
 }
 
@@ -4820,30 +4820,30 @@ void CCharacterComponent::RenderPrepHU() {
 void CCharacterComponent::RenderPrepHL() {
     CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
-    if (skinRec && (skinRec->m_flags & 0x8)) {
-        CCharacterComponent::PasteFromSkin(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
+        CCharacterComponent::PasteFromSkin(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[0]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[0], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[0]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[0], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER], CCharacterComponent::s_textureBuffer);
     }
 
-    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[1]) {
-        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[1], CCharacterComponent::s_textureBuffer);
+    if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]) {
+        CCharacterComponent::PasteToSection(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER], CCharacterComponent::s_textureBuffer);
     }
 }
 
 // VERIFY: 9b31b577 manual
 // OFFSET: 0x004F0C10
 void CCharacterComponent::RenderPrepTU() {
-    CCharacterComponent::PasteFromSkin(SECTION_TORSO_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_TORSO_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
-    if (!(this->m_section[SECTION_TORSO_UPPER].m_layerMask & 0x7) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1]) {
-        CCharacterComponent::PasteToSection(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[1], CCharacterComponent::s_textureBuffer);
+    if (!(this->m_section[SECTION_TORSO_UPPER].m_layerMask & 0x7) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]) {
+        CCharacterComponent::PasteToSection(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER], CCharacterComponent::s_textureBuffer);
     }
 
     for (int32_t layer = 0; layer < 5; layer++) {
@@ -4856,7 +4856,7 @@ void CCharacterComponent::RenderPrepTU() {
 // VERIFY: 7c74bc85 manual
 // OFFSET: 0x004F0CA0
 void CCharacterComponent::RenderPrepTL() {
-    CCharacterComponent::PasteFromSkin(SECTION_TORSO_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_TORSO_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
     for (int32_t layer = 0; layer < 7; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_LOWER].m_layerMask) {
@@ -4868,15 +4868,15 @@ void CCharacterComponent::RenderPrepTL() {
 // VERIFY: a637f73d manual
 // OFFSET: 0x004F0D00
 void CCharacterComponent::RenderPrepLU() {
-    CCharacterComponent::PasteFromSkin(SECTION_LEG_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_LEG_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
-    if (((this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) || !(this->m_section[SECTION_LEG_UPPER].m_layerMask & 0x3)) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0]) {
-        CCharacterComponent::PasteToSection(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[0], CCharacterComponent::s_textureBuffer);
+    if (((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) || !(this->m_section[SECTION_LEG_UPPER].m_layerMask & 0x3)) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]) {
+        CCharacterComponent::PasteToSection(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER], CCharacterComponent::s_textureBuffer);
     }
 
-    int32_t last = 3 - ((this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) != 0);
+    int32_t last = 3 - ((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0);
 
-    for (int32_t layer = (this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) != 0; layer < last; layer++) {
+    for (int32_t layer = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0; layer < last; layer++) {
         if ((1 << layer) & this->m_section[SECTION_LEG_UPPER].m_layerMask) {
             CCharacterComponent::PasteToSection(SECTION_LEG_UPPER, this->m_section[SECTION_LEG_UPPER].m_layerTex[layer], CCharacterComponent::s_textureBuffer);
         }
@@ -4886,11 +4886,11 @@ void CCharacterComponent::RenderPrepLU() {
 // VERIFY: 65c5e194 manual
 // OFFSET: 0x004F0DB0
 void CCharacterComponent::RenderPrepLL() {
-    CCharacterComponent::PasteFromSkin(SECTION_LEG_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_LEG_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
-    int32_t last = 2 * ((this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) == 0) + 4;
+    int32_t last = 2 * ((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) == 0) + 4;
 
-    for (int32_t layer = (this->m_flags & CCharacterComponent::FLAGS::UNKNOWN_20) != 0; layer < last; layer++) {
+    for (int32_t layer = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0; layer < last; layer++) {
         if ((1 << layer) & this->m_section[SECTION_LEG_LOWER].m_layerMask) {
             CCharacterComponent::PasteToSection(SECTION_LEG_LOWER, this->m_section[SECTION_LEG_LOWER].m_layerTex[layer], CCharacterComponent::s_textureBuffer);
         }
@@ -4900,7 +4900,7 @@ void CCharacterComponent::RenderPrepLL() {
 // VERIFY: 90820596 auto
 // OFFSET: 0x004F0E40
 void CCharacterComponent::RenderPrepFO() {
-    CCharacterComponent::PasteFromSkin(SECTION_FOOT, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[0], CCharacterComponent::s_textureBuffer);
+    CCharacterComponent::PasteFromSkin(SECTION_FOOT, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
     if (this->m_section[SECTION_FOOT].m_layerMask & 0x1) {
         CCharacterComponent::PasteToSection(SECTION_FOOT, this->m_section[SECTION_FOOT].m_layerTex[0], CCharacterComponent::s_textureBuffer);
@@ -4912,7 +4912,7 @@ void CCharacterComponent::RenderPrepFO() {
 void CCharacterComponent::ProcessFinishedRequest() {
     CCharacterComponent::s_bInRenderPrep = 1;
 
-    if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+    if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
         this->GeosRenderPrep();
     }
 
@@ -4922,7 +4922,7 @@ void CCharacterComponent::ProcessFinishedRequest() {
 
     this->UpdateSections();
     this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-    this->m_flags &= ~CCharacterComponent::FLAGS::TEXTURES_DIRTY;
+    this->m_flags &= ~FLAGS::TEXTURES_DIRTY;
     this->m_request = nullptr;
     this->m_dirtySections = 0;
     this->DestroyRenderTextures();
@@ -5088,7 +5088,7 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
 void CCharacterComponent::RenderPrepSections() {
     CCharacterComponent::s_bInRenderPrep = 1;
 
-    if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+    if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
         this->GeosRenderPrep();
     }
 
@@ -5097,7 +5097,7 @@ void CCharacterComponent::RenderPrepSections() {
     }
 
     this->PrepSections();
-    this->m_flags &= ~CCharacterComponent::FLAGS::TEXTURES_DIRTY;
+    this->m_flags &= ~FLAGS::TEXTURES_DIRTY;
     this->m_dirtySections = 0;
     this->DestroyRenderTextures();
     this->m_link.Unlink();
@@ -5108,22 +5108,22 @@ void CCharacterComponent::RenderPrepSections() {
 // OFFSET: 0x004F1520
 bool CCharacterComponent::RenderPrep(int32_t wait) {
     if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
-        if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+        if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
         }
 
         return true;
     }
 
-    if (!this->m_dirtySections && !(this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY)) {
-        if (this->m_flags & CCharacterComponent::FLAGS::GEOSETS_DIRTY) {
+    if (!this->m_dirtySections && !(this->m_flags & FLAGS::TEXTURES_DIRTY)) {
+        if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
         }
 
         return true;
     }
 
-    if (!(this->m_flags & CCharacterComponent::FLAGS::TEXTURES_DIRTY)) {
+    if (!(this->m_flags & FLAGS::TEXTURES_DIRTY)) {
         if (!this->m_link.m_next) {
             CCharacterComponent::s_queue.LinkToTail(this);
         }
@@ -5146,7 +5146,7 @@ bool CCharacterComponent::RenderPrep(int32_t wait) {
 
     this->VariationsLoaded(1);
     this->ItemsLoaded(1);
-    this->m_flags |= CCharacterComponent::FLAGS::UNKNOWN_8;
+    this->m_flags |= FLAGS::UNKNOWN_8;
     this->RenderPrepSections();
     this->m_link.Unlink();
 
@@ -5229,7 +5229,7 @@ int32_t CCharacterComponent::Update(const void* data, void* param) {
                 component->m_link.Unlink();
             }
         } else if (component->VariationsLoaded(0) & component->ItemsLoaded(0)) {
-            component->m_flags |= CCharacterComponent::FLAGS::UNKNOWN_8;
+            component->m_flags |= FLAGS::UNKNOWN_8;
 
             if (CCharacterComponent::s_bComponentThread) {
                 component->CreateComponentRequest();
@@ -5385,7 +5385,7 @@ bool CCharacterComponent::SkinNpc(const char* debug) {
     HandleClose(reinterpret_cast<HOBJECT>(texture));
     this->ReplaceExtraSkinTexture(debug);
     this->m_data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
-    this->m_flags |= CCharacterComponent::FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
+    this->m_flags |= FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
     this->SetDirtySections(0);
 
     return true;
@@ -5523,7 +5523,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
         return false;
     }
 
-    this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::DISPLAY_RESET_MASK) | CCharacterComponent::FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
+    this->m_flags = (this->m_flags & ~FLAGS::DISPLAY_RESET_MASK) | FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
     this->m_dirtySections = 0xFFFFFFFF;
     this->m_request = nullptr;
 
@@ -5539,7 +5539,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
     }
 
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(this->m_data.m_preferences.m_raceID);
-    this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::BARE_FEET) | (((raceRec->m_flags & ChrRacesRec::RACE_FLAGS::BARE_FEET) != 0) << CCharacterComponent::FLAG_BITS::BARE_FEET_BIT_INDEX);
+    this->m_flags = (this->m_flags & ~FLAGS::BARE_FEET) | (((raceRec->m_flags & ChrRacesRec::RACE_FLAGS::BARE_FEET) != 0) << CCharacterComponent::FLAG_BITS::BARE_FEET_BIT_INDEX);
 
     if (dataFlags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         this->SkinNpc(debug);
@@ -5555,7 +5555,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
 // VERIFY: 474cb696 manual
 // OFFSET: 0x004F2640
 void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, int32_t itemVisual) {
-    this->m_flags |= CCharacterComponent::FLAGS::GEOSETS_DIRTY;
+    this->m_flags |= FLAGS::GEOSETS_DIRTY;
     this->m_itemDisplayID[itemSlot] = displayRec->m_id;
 
     switch (itemSlot) {
@@ -5599,7 +5599,8 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
 
         default:
             if (itemSlot == ITEMSLOT_CHEST) {
-                this->m_flags = (this->m_flags & ~CCharacterComponent::FLAGS::UNKNOWN_20) | (CCharacterComponent::FLAGS::UNKNOWN_20 * ((displayRec->m_flags >> ItemDisplayInfoRec::DISPLAY_BITS::UNKNOWN_4_BIT_INDEX) & 0x1));
+                this->m_flags = (this->m_flags & ~FLAGS::HIDE_PANTS_AND_BELT) |
+                    ((displayRec->m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::HIDE_PANTS_AND_BELT) ? FLAGS::HIDE_PANTS_AND_BELT : 0);
             }
 
             if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {

@@ -1426,7 +1426,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
         SMLayer& layerA = chunkA->m_layers[i];
         SMLayer& layerB = chunkB->m_layers[i];
 
-        if ((layerA.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_UNLIT) || (layerB.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_UNLIT) || layerB.m_textureId != layerA.m_textureId) {
+        if ((layerA.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_OVERBRIGHT) || (layerB.m_flags & SMLayer::LAYER_FLAGS::ANIMATED_OR_OVERBRIGHT) || layerB.m_textureId != layerA.m_textureId) {
             return false;
         }
     }

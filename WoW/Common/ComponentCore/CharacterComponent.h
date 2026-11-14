@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/DB/Rec/CharSectionsRec.h"
 #include "Engine/Source/BLPFile/Types.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Services/Types.h"
@@ -26,7 +27,12 @@ class ItemDisplayInfoRec;
 struct st_race;
 
 struct CharacterBaseVariation {
-    /* 0000 */ HTEXTURECACHE m_texture [3];
+    enum TEXTURE_LIMITS : int32_t {
+        // Native destruction scans seven entries; ordinary texture columns remain three.
+        DESTRUCTION_COUNT = 7,
+    };
+
+    /* 0000 */ HTEXTURECACHE m_texture [CharSectionsRec::TEXTURE_INDEX::COUNT];
 
     ~CharacterBaseVariation();
 };
@@ -82,7 +88,7 @@ class CCharacterComponent {
         GEOSETS_DIRTY = 0x4,
         UNKNOWN_8 = 0x8,
         BARE_FEET = 0x10,
-        UNKNOWN_20 = 0x20,
+        HIDE_PANTS_AND_BELT = 0x20,
         TABARD_PREVIEW = 0x40,
         TEXTURES_AND_GEOSETS_DIRTY = 0x5,
         INITIAL_FLAGS = 0x7,

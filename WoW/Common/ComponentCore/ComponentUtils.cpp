@@ -12,25 +12,25 @@
 bool ComponentFlagsMatch(uint32_t flags, COMPONENT_SELECTION selection) {
     switch (selection) {
         case COMPONENT_SELECTION_0:
-            return (flags & 0x1) && !(flags & 0xC);
+            return (flags & CharSectionsRec::SECTION_FLAGS::PLAYER) && !(flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_OR_NPC_SKIN);
 
         case COMPONENT_SELECTION_1:
-            return (flags & 0x1) && (flags & 0x14) && !(flags & 0x8);
+            return (flags & CharSectionsRec::SECTION_FLAGS::PLAYER) && (flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_VARIANTS) && !(flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN);
 
         case COMPONENT_SELECTION_2:
-            return (flags & 0x3) && !(flags & 0xC);
+            return (flags & CharSectionsRec::SECTION_FLAGS::PLAYER_OR_BARBERSHOP) && !(flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_OR_NPC_SKIN);
 
         case COMPONENT_SELECTION_3:
-            return (flags & 0x3) && (flags & 0x14) && !(flags & 0x8);
+            return (flags & CharSectionsRec::SECTION_FLAGS::PLAYER_OR_BARBERSHOP) && (flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_VARIANTS) && !(flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN);
 
         case COMPONENT_SELECTION_4:
             return true;
 
         case COMPONENT_SELECTION_5:
-            return !(flags & 0xC);
+            return !(flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_OR_NPC_SKIN);
 
         case COMPONENT_SELECTION_6:
-            return (flags & 0x14) && !(flags & 0x8);
+            return (flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_VARIANTS) && !(flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN);
 
         default:
             return false;

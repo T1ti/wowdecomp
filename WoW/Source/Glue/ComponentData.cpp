@@ -14,25 +14,25 @@ ComponentData::ComponentData() {
     this->m_preferences.m_hairStyleId = 0;
     this->m_npcSkinTexture[0] = 0;
     this->m_model = nullptr;
-    this->m_geosets[CHARGEOSET_HAIR] = 1;
-    this->m_geosets[CHARGEOSET_BEARD] = 101;
-    this->m_geosets[CHARGEOSET_SIDEBURN] = 201;
-    this->m_geosets[CHARGEOSET_MOUSTACHE] = 301;
-    this->m_geosets[CHARGEOSET_GLOVE] = 401;
-    this->m_geosets[CHARGEOSET_BOOT] = 501;
-    this->m_geosets[CHARGEOSET_SHIRT] = 601;
-    this->m_geosets[CHARGEOSET_EAR] = 702;
-    this->m_geosets[CHARGEOSET_SLEEVES] = 801;
-    this->m_geosets[CHARGEOSET_PANTS] = 901;
-    this->m_geosets[CHARGEOSET_DOUBLET] = 1001;
-    this->m_geosets[CHARGEOSET_PANTDOUBLET] = 1101;
-    this->m_geosets[CHARGEOSET_TABARD] = 1201;
-    this->m_geosets[CHARGEOSET_ROBE] = 1301;
-    this->m_geosets[CHARGEOSET_LOINCLOTH] = 1401;
-    this->m_geosets[CHARGEOSET_CAPE] = 1501;
-    this->m_geosets[CHARGEOSET_FACIALJEWELRY] = 1601;
-    this->m_geosets[CHARGEOSET_EYEEFFECTS] = 1701;
-    this->m_geosets[CHARGEOSET_BELT] = 1801;
+    this->m_geosets[CHARGEOSET_HAIR] = CHARACTER_GEOSET_ID::HAIR_DEFAULT;
+    this->m_geosets[CHARGEOSET_BEARD] = CHARACTER_GEOSET_ID::BEARD_DEFAULT;
+    this->m_geosets[CHARGEOSET_SIDEBURN] = CHARACTER_GEOSET_ID::SIDEBURN_DEFAULT;
+    this->m_geosets[CHARGEOSET_MOUSTACHE] = CHARACTER_GEOSET_ID::MOUSTACHE_DEFAULT;
+    this->m_geosets[CHARGEOSET_GLOVE] = CHARACTER_GEOSET_ID::GLOVE_DEFAULT;
+    this->m_geosets[CHARGEOSET_BOOT] = CHARACTER_GEOSET_ID::BOOT_DEFAULT;
+    this->m_geosets[CHARGEOSET_SHIRT] = CHARACTER_GEOSET_ID::SHIRT_DEFAULT;
+    this->m_geosets[CHARGEOSET_EAR] = CHARACTER_GEOSET_ID::EAR_VARIANT_2;
+    this->m_geosets[CHARGEOSET_SLEEVES] = CHARACTER_GEOSET_ID::SLEEVES_DEFAULT;
+    this->m_geosets[CHARGEOSET_PANTS] = CHARACTER_GEOSET_ID::PANTS_DEFAULT;
+    this->m_geosets[CHARGEOSET_DOUBLET] = CHARACTER_GEOSET_ID::DOUBLET_DEFAULT;
+    this->m_geosets[CHARGEOSET_PANTDOUBLET] = CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT;
+    this->m_geosets[CHARGEOSET_TABARD] = CHARACTER_GEOSET_ID::TABARD_DEFAULT;
+    this->m_geosets[CHARGEOSET_ROBE] = CHARACTER_GEOSET_ID::ROBE_DEFAULT;
+    this->m_geosets[CHARGEOSET_LOINCLOTH] = CHARACTER_GEOSET_ID::LOINCLOTH_DEFAULT;
+    this->m_geosets[CHARGEOSET_CAPE] = CHARACTER_GEOSET_ID::CAPE_DEFAULT;
+    this->m_geosets[CHARGEOSET_FACIALJEWELRY] = CHARACTER_GEOSET_ID::FACIALJEWELRY_DEFAULT;
+    this->m_geosets[CHARGEOSET_EYEEFFECTS] = CHARACTER_GEOSET_ID::EYEEFFECTS_DEFAULT;
+    this->m_geosets[CHARGEOSET_BELT] = CHARACTER_GEOSET_ID::BELT_DEFAULT;
 }
 
 // VERIFY: 5d26ed7d auto

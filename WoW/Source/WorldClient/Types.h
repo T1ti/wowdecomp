@@ -125,11 +125,11 @@ struct SMLayer {
         ANIMATION_DIRECTION_MASK = 7,
         ANIMATION_SPEED_INDEX_MASK = 7,
         ANIMATED = 0x40,
-        UNLIT = 0x80,
-        ALPHA_MAP = 0x100,
-        ALPHA_RLE = 0x200,
-        SPECULAR = 0x400,
-        ANIMATED_OR_UNLIT = 0xC0,
+        OVERBRIGHT = 0x80,
+        USE_ALPHA_MAP = 0x100,
+        ALPHA_MAP_COMPRESSED = 0x200,
+        USE_CUBE_MAP_REFLECTION = 0x400,
+        ANIMATED_OR_OVERBRIGHT = 0xC0,
         BIG_ALPHA_MERGE_BLOCK_MASK = 0x4C0,
     };
 

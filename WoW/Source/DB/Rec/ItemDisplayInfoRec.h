@@ -8,13 +8,21 @@ class SFileImpl;
 
 class ItemDisplayInfoRec {
     public:
+    enum GEOSET_GROUP : int32_t {
+        PRIMARY = 0,
+        SECONDARY = 1,
+        ROBE = 2,
+        COUNT = 3,
+    };
+
     enum DISPLAY_FLAGS : int32_t {
-        GUILD_TABARD = 0x1,
-        UNKNOWN_4 = 0x4,
+        GUILD_TABARD = 0x1, // Emblazoned Tabard (Common)
+        // 0x2: meaning unverified; external labels include hide-underwear and no-sheathed-kit.
+        HIDE_PANTS_AND_BELT = 0x4, // HidePantsAndBelt
     };
 
     enum DISPLAY_BITS : int32_t {
-        UNKNOWN_4_BIT_INDEX = 2,
+        HIDE_PANTS_AND_BELT_BIT_INDEX = 2,
     };
 
     static const int32_t s_numColumns = 25;
@@ -25,7 +33,7 @@ class ItemDisplayInfoRec {
     /* 0004 */ const char* m_modelName [2];
     /* 000C */ const char* m_modelTexture [2];
     /* 0014 */ const char* m_inventoryIcon [2];
-    /* 001C */ int32_t m_geosetGroup [3];
+    /* 001C */ int32_t m_geosetGroup [GEOSET_GROUP::COUNT];
     /* 0028 */ int32_t m_flags;
     /* 002C */ int32_t m_spellVisualID;
     /* 0030 */ int32_t m_groupSoundIndex;

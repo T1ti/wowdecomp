@@ -9,10 +9,10 @@ class SFileImpl;
 class ChrRacesRec {
     public:
     enum RACE_FLAGS : int32_t {
-        NON_PLAYABLE = 0x1,
-        BARE_FEET = 0x2,
-        CAN_MOUNT_WHILE_TRANSFORMED = 0x4,
-        UNKNOWN_8 = 0x8,
+        NON_PLAYABLE = 0x1, // NPCOnly
+        BARE_FEET = 0x2, // DoNotComponentFeet
+        CAN_MOUNT = 0x4, // CanMount
+        HAS_BALD = 0x8, // HasBald
     };
 
     static const int32_t s_numColumns = 69;
