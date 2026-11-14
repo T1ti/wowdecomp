@@ -97,18 +97,18 @@ uint32_t ParticleBlendToM2Blend(uint32_t blend) {
 // VERIFY: 26bf08dc manual
 // OFFSET: 0x0081CA80
 uint32_t ParticleFlagsToM2Flags(uint32_t flags) {
-    uint32_t result = 4;
+    uint32_t result = M2Material::FLAGS::TWO_SIDED;
 
     if (!(flags & 1)) {
-        result = 5;
+        result = M2Material::FLAGS::UNLIT_TWO_SIDED;
     }
 
     if (!(flags & 2)) {
-        result |= 2;
+        result |= M2Material::FLAGS::UNFOGGED;
     }
 
     if (!(flags & 4)) {
-        result |= 0x10;
+        result |= M2Material::FLAGS::NO_DEPTH_WRITE;
     }
 
     return result;
@@ -607,7 +607,7 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
             continue;
         }
 
-        if (model->m_hitTestMode == 1 && material->m_blendMode && !(material->m_flags & 0x20)) {
+        if (model->m_hitTestMode == 1 && material->m_blendMode && !(material->m_flags & M2Material::FLAGS::HIT_TEST_NON_OPAQUE)) {
             continue;
         }
 
@@ -1120,8 +1120,8 @@ int32_t CM2Scene::SortOpaqueGeoBatches(M2Element* a, M2Element* b) {
         return 1;
     }
 
-    uint32_t flagsA = materialA->m_flags & 0x1F;
-    uint32_t flagsB = materialB->m_flags & 0x1F;
+    uint32_t flagsA = materialA->m_flags & M2Material::FLAGS::RENDER_STATE_MASK;
+    uint32_t flagsB = materialB->m_flags & M2Material::FLAGS::RENDER_STATE_MASK;
 
     if (flagsA < flagsB) {
         return -1;
@@ -1446,11 +1446,11 @@ void __stdcall CM2Scene::ComputeElementShaders(M2Element* element) {
     uint32_t lightCount;
     uint32_t shadow;
 
-    if ((material->m_flags & 1) || s_localLighting[material->m_blendMode] == (material->m_flags & 1u)) {
+    if ((material->m_flags & M2Material::FLAGS::UNLIT) || s_localLighting[material->m_blendMode] == (material->m_flags & M2Material::FLAGS::UNLIT)) {
         shadow = 0;
         specular = 0;
 
-        if (material->m_flags & 1) {
+        if (material->m_flags & M2Material::FLAGS::UNLIT) {
             lightCount = 0;
         } else {
             lightCount = lighting->m_lightCount;
@@ -1472,8 +1472,8 @@ void __stdcall CM2Scene::ComputeElementShaders(M2Element* element) {
         alphaTest = 1;
     }
 
-    if (!(material->m_flags & 1) && (lighting->m_flags & CM2Lighting::SHADOW_MAP_ALLOWED)) {
-        if (material->m_flags & 0x100) {
+    if (!(material->m_flags & M2Material::FLAGS::UNLIT) && (lighting->m_flags & CM2Lighting::SHADOW_MAP_ALLOWED)) {
+        if (material->m_flags & M2Material::FLAGS::NO_SHADOW_RECEIVE) {
             shadow = 0;
         } else {
             shadow = CShadowCache::GetShadowValue();
@@ -1929,7 +1929,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
                 element->m_depth = depth;
 
-                if (!depthSort || projected || (material->m_flags & 0x10)) {
+                if (!depthSort || projected || (material->m_flags & M2Material::FLAGS::NO_DEPTH_WRITE)) {
                     sortDepth = element->m_depth;
                 } else {
                     sortDepth = model->m_scaleSq;
@@ -1962,7 +1962,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             elementIndex++;
 
-            if (depthSort && !projected && transparent >= 1 && !(material->m_flags & 0x10)) {
+            if (depthSort && !projected && transparent >= 1 && !(material->m_flags & M2Material::FLAGS::NO_DEPTH_WRITE)) {
                 element->m_depth = FLT_MAX;
 
                 M2Element* copy = this->m_elements.New();

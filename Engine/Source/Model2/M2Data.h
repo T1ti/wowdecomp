@@ -168,6 +168,22 @@ class M2TextureTransform {
 
 class M2Material {
     public:
+    // Material flags; names reconstructed from rendering, hit-test and shadow consumers.
+    enum FLAGS : uint16_t {
+        NONE = 0,
+        UNLIT = 1,
+        UNFOGGED = 2,
+        TWO_SIDED = 4,
+        NO_DEPTH_TEST = 8,
+        NO_DEPTH_WRITE = 0x10,
+        HIT_TEST_NON_OPAQUE = 0x20,
+        NO_SHADOW_CAST = 0x40,
+        ALLOW_BLENDED_SHADOW_CAST = 0x80,
+        NO_SHADOW_RECEIVE = 0x100,
+        UNLIT_TWO_SIDED = 5,
+        RENDER_STATE_MASK = 0x1f,
+    };
+
     /* 0000 */ uint16_t m_flags;
     /* 0002 */ M2BLEND m_blendMode;
 };

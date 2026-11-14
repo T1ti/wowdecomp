@@ -52,7 +52,7 @@ CM2SceneRender::CM2SceneRender(CM2Scene* scene) {
     this->m_curSkinSection = nullptr;
     this->m_prevMaterial = nullptr;
     this->m_curMaterial = nullptr;
-    this->m_defaultMaterial.m_flags = 0;
+    this->m_defaultMaterial.m_flags = M2Material::FLAGS::NONE;
     this->m_defaultMaterial.m_blendMode = M2BLEND_OPAQUE;
     this->m_particleEffect = CShaderEffectManager::GetEffect("Particle");
     this->m_particleUnlitEffect = CShaderEffectManager::GetEffect("Particle_Unlit");
@@ -200,7 +200,7 @@ int32_t CM2SceneRender::LightingColorsMatch(const CM2Lighting* a, const CM2Light
 // OFFSET: 0x0081FB10
 void CM2SceneRender::SetupLighting() {
     M2Material* material = this->m_curMaterial;
-    int32_t localLighting = !(material->m_flags & 1) && s_localLighting[material->m_blendMode];
+    BOOL localLighting = !(material->m_flags & M2Material::FLAGS::UNLIT) && s_localLighting[material->m_blendMode];
     uint32_t shadow = this->m_curElement->m_shadowValue;
 
     this->m_curLocalLighting = localLighting;
@@ -209,7 +209,7 @@ void CM2SceneRender::SetupLighting() {
 
     FOG_MODE fogMode;
 
-    if ((this->m_curMaterial->m_flags & 2) || this->m_curLighting->m_fogScale <= 0.0f) {
+    if ((this->m_curMaterial->m_flags & M2Material::FLAGS::UNFOGGED) || this->m_curLighting->m_fogScale <= 0.0f) {
         fogMode = FOG_DISABLED;
     } else {
         fogMode = s_fogModes[this->m_curMaterial->m_blendMode];
@@ -306,9 +306,9 @@ void CM2SceneRender::SetupMaterial() {
     }
 
     if (this->m_curType != this->m_prevType || this->m_curMaterial != this->m_prevMaterial) {
-        GxRsSet(GxRs_Culling, !(this->m_curMaterial->m_flags & 4));
-        GxRsSet(GxRs_DepthTest, !(this->m_curMaterial->m_flags & 8));
-        GxRsSet(GxRs_DepthWrite, !(this->m_curMaterial->m_flags & 0x10));
+        GxRsSet(GxRs_Culling, !(this->m_curMaterial->m_flags & M2Material::FLAGS::TWO_SIDED));
+        GxRsSet(GxRs_DepthTest, !(this->m_curMaterial->m_flags & M2Material::FLAGS::NO_DEPTH_TEST));
+        GxRsSet(GxRs_DepthWrite, !(this->m_curMaterial->m_flags & M2Material::FLAGS::NO_DEPTH_WRITE));
     }
 
     float scale = 1.0f;
@@ -848,18 +848,18 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
     CParticleEmitter2* emitter = this->m_curElement->m_emitter;
     uint32_t flags = emitter->m_params.m_material.m_flags;
     M2Material material;
-    material.m_flags = 4;
+    material.m_flags = M2Material::FLAGS::TWO_SIDED;
 
     if (!(flags & 1)) {
-        material.m_flags = 5;
+        material.m_flags = M2Material::FLAGS::UNLIT_TWO_SIDED;
     }
 
     if (!(flags & 2)) {
-        material.m_flags |= 2;
+        material.m_flags |= M2Material::FLAGS::UNFOGGED;
     }
 
     if (!(flags & 4)) {
-        material.m_flags |= 0x10;
+        material.m_flags |= M2Material::FLAGS::NO_DEPTH_WRITE;
     }
 
     material.m_blendMode = static_cast<M2BLEND>(ParticleBlendToM2Blend(emitter->m_params.m_material.m_blendMode));

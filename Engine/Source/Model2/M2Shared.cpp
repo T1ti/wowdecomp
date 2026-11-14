@@ -1046,7 +1046,7 @@ void CM2Shared::SubstituteSpecializedShaders() {
 
         switch (state0) {
             case 1:
-                if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & 1) && batch->m_textureComboIndex == (base->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
+                if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & M2Material::FLAGS::UNLIT) && batch->m_textureComboIndex == (base->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
                     batch->m_shader = 0x8000;
                     base->m_shader = 0x8001;
                     state0 = 3;
@@ -1086,7 +1086,7 @@ void CM2Shared::SubstituteSpecializedShaders() {
                 state1 = 0;
                 break;
             case 2:
-                if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & 1) && (base->m_textureComboIndex & 0xFF) == (batch->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
+                if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & M2Material::FLAGS::UNLIT) && (base->m_textureComboIndex & 0xFF) == (batch->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
                     batch->m_shader = 0x8000;
                     state1 = 3;
                     base->m_shader = base->m_shader == 0x8002 ? 0x8003 : 0x8001;
@@ -1690,7 +1690,7 @@ int32_t CM2Shared::Initialize() {
         M2Material* material = &this->m_data->m_materials[i];
 
         if (material->m_blendMode >= M2BLEND_MOD) {
-            material->m_flags |= 1;
+            material->m_flags |= M2Material::FLAGS::UNLIT;
         }
     }
 

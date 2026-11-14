@@ -7228,11 +7228,11 @@ int32_t CM2Model::InitializeLoaded() {
 
                 M2Material* material = &this->m_shared->m_data->m_materials[ribbonData->m_materialIndices[j]];
                 CRibbonMat* ribbonMaterial = &s_ribbonMaterials.m_data[j];
-                ribbonMaterial->m_lit = !(material->m_flags & 1);
-                ribbonMaterial->m_fogged = !(material->m_flags & 2);
-                ribbonMaterial->m_depthTest = !(material->m_flags & 8);
-                ribbonMaterial->m_depthWrite = !(material->m_flags & 0x10);
-                ribbonMaterial->m_cull = !(material->m_flags & 4);
+                ribbonMaterial->m_lit = !(material->m_flags & M2Material::FLAGS::UNLIT);
+                ribbonMaterial->m_fogged = !(material->m_flags & M2Material::FLAGS::UNFOGGED);
+                ribbonMaterial->m_depthTest = !(material->m_flags & M2Material::FLAGS::NO_DEPTH_TEST);
+                ribbonMaterial->m_depthWrite = !(material->m_flags & M2Material::FLAGS::NO_DEPTH_WRITE);
+                ribbonMaterial->m_cull = !(material->m_flags & M2Material::FLAGS::TWO_SIDED);
                 ribbonMaterial->m_blendMode = s_ribbonBlendModes[material->m_blendMode];
             }
 
@@ -7730,7 +7730,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
         M2Data* data = this->m_shared->m_data;
         M2Material* material = &data->m_materials[batch->m_materialIndex];
 
-        if ((material->m_flags & 0x40) || (!(material->m_flags & 0x80) && material->m_blendMode > M2BLEND_ALPHA_KEY)) {
+        if ((material->m_flags & M2Material::FLAGS::NO_SHADOW_CAST) || (!(material->m_flags & M2Material::FLAGS::ALLOW_BLENDED_SHADOW_CAST) && material->m_blendMode > M2BLEND_ALPHA_KEY)) {
             continue;
         }
 
