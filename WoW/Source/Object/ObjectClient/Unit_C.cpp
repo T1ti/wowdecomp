@@ -1635,7 +1635,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
 // VERIFY: 8308766d manual
 // OFFSET: 0x0071D940
-int32_t IsEmoteAnim(uint32_t animId) {
+BOOL IsEmoteAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -1671,15 +1671,15 @@ int32_t IsEmoteAnim(uint32_t animId) {
         case ANIM_EMOTE_YES:
         case ANIM_EMOTE_NO:
         case ANIM_EMOTE_TRAIN:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
 // VERIFY: 8dffe07d manual
 // OFFSET: 0x0071D380
-int32_t IsSpellCastAnim(uint32_t animId) {
+BOOL IsSpellCastAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -1689,58 +1689,58 @@ int32_t IsSpellCastAnim(uint32_t animId) {
         case ANIM_SPELL_CAST_AREA:
         case ANIM_SPELL_CAST_DIRECTED:
         case ANIM_SPELL_CAST_OMNI:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
 // VERIFY: ae898f98 manual
 // OFFSET: 0x0071DA20
-int32_t IsThrownWeaponAnim(uint32_t animId) {
+BOOL IsThrownWeaponAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior == ANIM_ATTACK_THROWN || (behavior > ANIM_HOLD_RIFLE && behavior <= ANIM_LOAD_THROWN)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: c7728f19 auto
 // OFFSET: 0x0071DA60
-int32_t IsBowAnim(uint32_t animId) {
+BOOL IsBowAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior == ANIM_ATTACK_BOW || behavior == ANIM_LOAD_BOW || behavior == ANIM_HOLD_BOW) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 2e108049 auto
 // OFFSET: 0x0071DAA0
-int32_t IsRifleAnim(uint32_t animId) {
+BOOL IsRifleAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior == ANIM_ATTACK_RIFLE || behavior == ANIM_LOAD_RIFLE || behavior == ANIM_HOLD_RIFLE) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: a4dab725 auto
@@ -2372,7 +2372,7 @@ void CGUnit_C::SendSplineDone(uint32_t time, uint32_t splineId) {
 
 // VERIFY: 0a448404 manual
 // OFFSET: 0x0071D590
-int32_t IsMeleeAttackAnim(uint32_t animId) {
+BOOL IsMeleeAttackAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -2410,9 +2410,9 @@ int32_t IsMeleeAttackAnim(uint32_t animId) {
         case ANIM_DRUID_BEAR_MAUL:
         case ANIM_DRUID_BEAR_BASH:
         case ANIM_MUTILATE:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
@@ -3580,11 +3580,11 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
 
 // VERIFY: 08c47d9c auto
 // OFFSET: 0x0071D6B0
-int32_t IsFullBodyAnim(uint32_t animId) {
+BOOL IsFullBodyAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     switch (rec->m_behaviorID) {
@@ -3622,15 +3622,15 @@ int32_t IsFullBodyAnim(uint32_t animId) {
         case ANIM_SPRINT:
         case ANIM_JUMP_LAND_RUN:
         case ANIM_HOVER:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
 // VERIFY: 3891afce auto
 // OFFSET: 0x00714E80
-int32_t IsLocomotionAnimId(uint32_t animId) {
+BOOL IsLocomotionAnimId(uint32_t animId) {
     switch (animId) {
         case ANIM_WALK:
         case ANIM_RUN:
@@ -3649,75 +3649,75 @@ int32_t IsLocomotionAnimId(uint32_t animId) {
         case ANIM_SPRINT:
         case ANIM_JUMP_LAND_RUN:
         case ANIM_STEALTH_RUN:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
 // VERIFY: e7f0b392 manual
 // OFFSET: 0x0071DD30
-int32_t IsMeleeOrReadyAnim(uint32_t animId) {
+BOOL IsMeleeOrReadyAnim(uint32_t animId) {
     if (IsMeleeAttackAnim(animId)) {
-        return 1;
+        return TRUE;
     }
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     int32_t behavior = rec->m_behaviorID;
 
     if (behavior < ANIM_READY_UNARMED || behavior > ANIM_READY_BOW) {
-        return 0;
+        return FALSE;
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: 22da5b43 manual
 // OFFSET: 0x0071DC70
-int32_t IsSpellCastOrPrecastAnim(uint32_t animId) {
+BOOL IsSpellCastOrPrecastAnim(uint32_t animId) {
     if (IsSpellCastAnim(animId)) {
-        return 1;
+        return TRUE;
     }
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     int32_t behavior = rec->m_behaviorID;
 
     if (behavior < ANIM_READY_SPELL_DIRECTED || behavior > ANIM_READY_SPELL_OMNI) {
-        return 0;
+        return FALSE;
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: 82f0f706 manual
 // OFFSET: 0x0071D410
-int32_t IsSpellPrecastAnim(uint32_t animId) {
+BOOL IsSpellPrecastAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_READY_SPELL_DIRECTED && behavior <= ANIM_READY_SPELL_OMNI) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: f7572fcd manual
 // OFFSET: 0x0071D800
-int32_t IsUpperBodyAnim(uint32_t animId) {
+BOOL IsUpperBodyAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -3832,95 +3832,95 @@ int32_t IsUpperBodyAnim(uint32_t animId) {
         case ANIM_CUSTOM_SPELL_09:
         case ANIM_CUSTOM_SPELL_10:
         case ANIM_COWER:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
 // VERIFY: 1afe3037 manual
 // OFFSET: 0x0071DAE0
-int32_t IsWeaponReadyAnim(uint32_t animId) {
+BOOL IsWeaponReadyAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_READY_UNARMED && behavior <= ANIM_READY_BOW) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: d48a51ea auto
 // OFFSET: 0x0071D550
-int32_t IsWeaponSpecialAnim(uint32_t animId) {
+BOOL IsWeaponSpecialAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_SPECIAL_1H && (behavior <= ANIM_SPECIAL_2H || behavior == ANIM_SPECIAL_UNARMED)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 1d404a76 auto
 // OFFSET: 0x0071D7C0
-int32_t IsJumpAnim(uint32_t animId) {
+BOOL IsJumpAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_JUMP_START && (behavior <= ANIM_JUMP_END || behavior == ANIM_JUMP_LAND_RUN)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 4a7ccec0 auto
 // OFFSET: 0x0071D2A0
-int32_t IsJumpLandAnim(uint32_t animId) {
+BOOL IsJumpLandAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior == ANIM_JUMP_END || behavior == ANIM_JUMP_LAND_RUN) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 0d963261 manual
 // OFFSET: 0x0071DE50
-int32_t IsFishingAnim(uint32_t animId) {
+BOOL IsFishingAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_FISHING_CAST && behavior <= ANIM_FISHING_LOOP) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 5b0ed408 manual
 // OFFSET: 0x0071D2E0
-int32_t IsRangedWeaponAnim(uint32_t animId) {
+BOOL IsRangedWeaponAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -3935,9 +3935,9 @@ int32_t IsRangedWeaponAnim(uint32_t animId) {
         case ANIM_HOLD_RIFLE:
         case ANIM_HOLD_THROWN:
         case ANIM_LOAD_THROWN:
-            return 1;
+            return TRUE;
         default:
-            return 0;
+            return FALSE;
     }
 }
 
@@ -4247,30 +4247,30 @@ BOOL CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim) 
     uint32_t moveFlags = this->m_movementData.m_flags;
     BOOL turning = ((moveFlags & MOVEMENTFLAG_TURN_MASK) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING));
     BOOL casting = (!this->m_unit->m_unitChannelSpell && (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING));
-    int32_t split = 0;
+    BOOL split = FALSE;
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
         split = static_cast<CGPlayer_C*>(this)->m_dance != 0;
     }
 
     if (IsUpperBodyAnim(animId) && ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING) || (moveFlags & (MOVEMENTFLAG_MOTION_MASK | MOVEMENTFLAG_ASCEND_DESCEND_MASK | MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) || this->m_movementData.IsFalling() || (this->GetClientStandState() != UNIT_STANDING) || (IsWeaponReadyAnim(animId) && static_cast<int32_t>(this->m_unit->m_unitFieldMountdisplayid) > 0) || split)) {
-        split = 1;
+        split = TRUE;
     } else if ((IsJumpAnim(animId) && IsMeleeOrReadyAnim(currentAnim)) || (IsMeleeAttackAnim(animId) && (this->m_movement->m_flags & MOVEMENTFLAG_FALLING)) || (casting && (this->m_movementData.m_flags & (MOVEMENTFLAG_TRANSLATION_MASK | MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)))) {
-        split = 1;
+        split = TRUE;
     } else {
-        split = 0;
+        split = FALSE;
     }
 
     if (IsJumpLandAnim(animId)) {
-        split = 0;
+        split = FALSE;
     }
 
     if (IsFishingAnim(animId) && !this->IsStandStateSplitBody()) {
-        split = 0;
+        split = FALSE;
     }
 
     if ((casting || this->m_unit->m_unitChannelSpell || this->m_combat.m_attacking.m_guid) && turning && !(this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK)) {
-        split = 0;
+        split = FALSE;
     }
 
     return split;
@@ -7661,43 +7661,43 @@ int32_t HoverHeightChangeHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fi
 
 // VERIFY: 79327c77 manual
 // OFFSET: 0x0071DB20
-int32_t IsBirthAnim(uint32_t animId) {
+BOOL IsBirthAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior == ANIM_BIRTH || (behavior > ANIM_LAND && behavior <= ANIM_SUBMERGED)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 923e44ce auto
 // OFFSET: 0x0071DB70
-int32_t IsSubmergedDeathAnim(uint32_t animId) {
+BOOL IsSubmergedDeathAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_DEATH_START && (behavior <= ANIM_DEATH_END || behavior == ANIM_DEATH_END_HOLD)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 7173da99 manual
 // OFFSET: 0x0071DBC0
-int32_t IsCorpseAnim(uint32_t animId) {
+BOOL IsCorpseAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     int32_t behavior = rec->m_behaviorID;
@@ -7707,7 +7707,7 @@ int32_t IsCorpseAnim(uint32_t animId) {
     }
 
     if (behavior >= ANIM_DEATH_LOOP) {
-        return 1;
+        return TRUE;
     }
 
     return behavior == ANIM_DEAD || behavior == ANIM_DROWNED;
@@ -7715,62 +7715,62 @@ int32_t IsCorpseAnim(uint32_t animId) {
 
 // VERIFY: 1b5d614f auto
 // OFFSET: 0x0071DC20
-int32_t IsAirborneAnim(uint32_t animId) {
+BOOL IsAirborneAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec) {
         int32_t behavior = rec->m_behaviorID;
 
         if (behavior >= ANIM_JUMP_START && (behavior <= ANIM_FALL || behavior == ANIM_DEATH_LOOP)) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 2a3c94c3 manual
 // OFFSET: 0x0071DD80
-int32_t IsDyingAnim(uint32_t animId) {
+BOOL IsDyingAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     int32_t behavior = rec->m_behaviorID;
 
     if (behavior > ANIM_DROWN) {
         if (behavior < ANIM_DEATH_START || behavior > ANIM_DEATH_LOOP) {
-            return 0;
+            return FALSE;
         }
     } else if (behavior != ANIM_DROWN && behavior != ANIM_DEATH) {
-        return 0;
+        return FALSE;
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: 03ed6220 manual
 // OFFSET: 0x0071DDE0
-int32_t IsDeadOrDyingAnim(uint32_t animId) {
+BOOL IsDeadOrDyingAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (!rec) {
-        return 0;
+        return FALSE;
     }
 
     int32_t behavior = rec->m_behaviorID;
 
     if (behavior > ANIM_DROWNED) {
         if (behavior < ANIM_DEATH_START || (behavior > ANIM_DEATH_END && behavior != ANIM_DEATH_END_HOLD)) {
-            return 0;
+            return FALSE;
         }
     } else if (behavior < ANIM_DROWN && behavior != ANIM_DEATH && behavior != ANIM_DEAD) {
-        return 0;
+        return FALSE;
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: e05af72f auto
@@ -12220,7 +12220,7 @@ void CGUnit_C::SetHandItemSpellEffectsVisible(BOOL visible) {
 
 // VERIFY: 45efb9de manual
 // OFFSET: 0x00741B60
-int32_t CGUnit_C::HandleMovementPacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+BOOL CGUnit_C::HandleMovementPacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12230,12 +12230,12 @@ int32_t CGUnit_C::HandleMovementPacket(void* param, NETMESSAGE msgId, uint32_t t
     }
 
     msg->m_read = msg->m_size;
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 775607d3 manual
 // OFFSET: 0x00741B00
-int32_t CGUnit_C::HandleSpeedChangePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+BOOL CGUnit_C::HandleSpeedChangePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12245,7 +12245,7 @@ int32_t CGUnit_C::HandleSpeedChangePacket(void* param, NETMESSAGE msgId, uint32_
     }
 
     msg->m_read = msg->m_size;
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 07ceea0a manual
@@ -12939,14 +12939,14 @@ void CGUnit_C::FaceTarget(const WOWGUID& target, int32_t flush) {
 
 // VERIFY: 12cc204b manual
 // OFFSET: 0x0073F590
-int32_t CGUnit_C::HandleMonsterMovePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+BOOL CGUnit_C::HandleMonsterMovePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!unit) {
         msg->m_read = msg->m_size;
-        return 0;
+        return FALSE;
     }
 
     SmartGUID transport;
@@ -12968,7 +12968,7 @@ int32_t CGUnit_C::HandleMonsterMovePacket(void* param, NETMESSAGE msgId, uint32_
         unit->OnMonsterMove(msg, msgId, transport.m_guid, seat, 1);
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: 6e6a311e manual
@@ -14010,15 +14010,15 @@ void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
 
 // VERIFY: 2d7e1e97 manual
 // OFFSET: 0x0072B7F0
-int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
+BOOL CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS) {
-        return 0;
+        return FALSE;
     }
 
     const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
 
     if (!item) {
-        return 0;
+        return FALSE;
     }
 
     this->CancelRangedMode();
@@ -14107,7 +14107,7 @@ int32_t CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
         this->ShowHandItemSpellEffects(TRUE, FALSE);
     }
 
-    return 1;
+    return TRUE;
 }
 
 // VERIFY: d991186c manual
@@ -16997,7 +16997,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
 // VERIFY: b9a18a7a manual
 // OFFSET: 0x0071D510
-static int32_t IsWoundAnim(int32_t animId) {
+static BOOL IsWoundAnim(int32_t animId) {
     AnimationDataRec* anim = g_animationDataDB.GetRecord(animId);
     return anim && anim->m_behaviorID >= ANIM_STAND_WOUND && anim->m_behaviorID <= ANIM_COMBAT_CRITICAL;
 }
@@ -19637,7 +19637,7 @@ bool CGUnit_C::IsTracked() const {
 
 // VERIFY: feea4653 manual
 // OFFSET: 0x0071D450
-int32_t IsUnarmedAnim(uint32_t animId) {
+BOOL IsUnarmedAnim(uint32_t animId) {
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
     int32_t behavior = rec ? rec->m_behaviorID : ANIM_COUNT;
 
@@ -19647,10 +19647,10 @@ int32_t IsUnarmedAnim(uint32_t animId) {
         case ANIM_READY_UNARMED:
         case ANIM_ATTACK_UNARMED_OFF:
         case ANIM_SPECIAL_UNARMED:
-            return 1;
+            return TRUE;
 
         default:
-            return 0;
+            return FALSE;
     }
 }
 
@@ -20810,14 +20810,14 @@ void CGUnit_C::UpdateMountTransitionModel() {
 
 // VERIFY: 05cf001e manual
 // OFFSET: 0x00714A80
-static int32_t IsArenaOpponent(const WOWGUID& guid) {
+static BOOL IsArenaOpponent(const WOWGUID& guid) {
     for (int32_t i = 0; i < 5; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] == guid) {
-            return 1;
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 // VERIFY: 52d446aa manual
@@ -21232,7 +21232,7 @@ void CGUnit_C::UpdateCritterDisplay() {
 
 // VERIFY: b7b739bd manual
 // OFFSET: 0x0071D450
-static int32_t IsWeaponAnimBehavior(uint32_t animId) {
+static BOOL IsWeaponAnimBehavior(uint32_t animId) {
     AnimationDataRec* animation = g_animationDataDB.GetRecord(animId);
     int32_t behavior = animation ? animation->m_behaviorID : ANIM_COUNT;
 
@@ -21242,10 +21242,10 @@ static int32_t IsWeaponAnimBehavior(uint32_t animId) {
         case ANIM_READY_UNARMED:
         case ANIM_ATTACK_UNARMED_OFF:
         case ANIM_SPECIAL_UNARMED:
-            return 1;
+            return TRUE;
 
         default:
-            return 0;
+            return FALSE;
     }
 }
 
@@ -21640,21 +21640,21 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
 
 // VERIFY: 9e04967c manual
 // OFFSET: 0x0071DCC0
-int32_t IsSpecialIdleAnim(uint32_t animId) {
+BOOL IsSpecialIdleAnim(uint32_t animId) {
     if (IsSpellCastAnim(animId)) {
-        return 1;
+        return TRUE;
     }
 
     AnimationDataRec* rec = g_animationDataDB.GetRecord(animId);
 
     if (rec && rec->m_behaviorID == ANIM_ATTACK_THROWN) {
-        return 1;
+        return TRUE;
     }
 
     rec = g_animationDataDB.GetRecord(animId);
 
     if (rec && rec->m_behaviorID == ANIM_ATTACK_BOW) {
-        return 1;
+        return TRUE;
     }
 
     return GetAnimBehaviorId(animId) == ANIM_ATTACK_RIFLE;
