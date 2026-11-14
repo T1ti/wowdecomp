@@ -113,7 +113,7 @@ void ItemStats_C::Unpack(CDataStore* msg) {
         msg->Get(this->m_damageType[i]);
     }
 
-    for (uint32_t i = 0; i < 7; i++) {
+    for (uint32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
         msg->Get(this->m_resistances[i]);
     }
 
@@ -231,7 +231,7 @@ void ItemStats_C::Pack(CDataStore* msg) {
         msg->Put(this->m_damageType[i]);
     }
 
-    for (uint32_t i = 0; i < 7; i++) {
+    for (uint32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
         msg->Put(this->m_resistances[i]);
     }
 

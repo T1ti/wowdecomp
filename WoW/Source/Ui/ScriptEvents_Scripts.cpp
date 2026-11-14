@@ -3269,9 +3269,9 @@ static int32_t Script_UnitDamage(lua_State* L) {
 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
-        lua_pushnumber(L, player->GetModDamageDonePos(0));
-        lua_pushnumber(L, player->GetModDamageDoneNeg(0));
-        lua_pushnumber(L, player->GetModDamageDonePct(0));
+        lua_pushnumber(L, player->GetModDamageDonePos(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL));
+        lua_pushnumber(L, player->GetModDamageDoneNeg(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL));
+        lua_pushnumber(L, player->GetModDamageDonePct(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL));
     } else {
         lua_pushnumber(L, 0.0);
         lua_pushnumber(L, 0.0);

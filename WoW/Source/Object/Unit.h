@@ -221,9 +221,9 @@ class CGUnitData {
     /* 0138 */ int32_t m_unitFieldStat [5];
     /* 014C */ int32_t m_unitFieldPosstat [5];
     /* 0160 */ int32_t m_unitFieldNegstat [5];
-    /* 0174 */ int32_t m_unitFieldResistances [7];
-    /* 0190 */ int32_t m_unitFieldResistancebuffmodspositive [7];
-    /* 01AC */ int32_t m_unitFieldResistancebuffmodsnegative [7];
+    /* 0174 */ int32_t m_unitFieldResistances [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
+    /* 0190 */ int32_t m_unitFieldResistancebuffmodspositive [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
+    /* 01AC */ int32_t m_unitFieldResistancebuffmodsnegative [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 01C8 */ uint32_t m_unitFieldBaseMana;
     /* 01CC */ uint32_t m_unitFieldBaseHealth;
     /* 01D0 */ uint8_t m_sheatheState;   // UNIT_FIELD_BYTES_2 byte 0: WEAPONMODE.
@@ -238,8 +238,8 @@ class CGUnitData {
     /* 01E8 */ float m_unitFieldRangedAttackPowerMultiplier;
     /* 01EC */ float m_unitFieldMinrangeddamage;
     /* 01F0 */ float m_unitFieldMaxrangeddamage;
-    /* 01F4 */ int32_t m_unitFieldPowerCostModifier [7];
-    /* 0210 */ float m_unitFieldPowerCostMultiplier [7];
+    /* 01F4 */ int32_t m_unitFieldPowerCostModifier [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
+    /* 0210 */ float m_unitFieldPowerCostMultiplier [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 022C */ float m_unitFieldMaxhealthmodifier;
     /* 0230 */ float m_unitFieldHoverheight;
     /* 0234 */ uint32_t m_unitFieldPadding;

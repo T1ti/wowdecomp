@@ -820,9 +820,9 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
             case MATHOP_SPELL_POWER:
             case MATHOP_SPELL_POWER_UPPER: {
-                int32_t bonus = player->GetModDamageDonePos(1) + player->GetModDamageDoneNeg(1);
+                int32_t bonus = player->GetModDamageDonePos(SPELL_SCHOOL::SPELL_SCHOOL_HOLY) + player->GetModDamageDoneNeg(SPELL_SCHOOL::SPELL_SCHOOL_HOLY);
 
-                for (uint32_t school = 2; school <= 6; school++) {
+                for (uint32_t school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school <= SPELL_SCHOOL::SPELL_SCHOOL_ARCANE; school++) {
                     if (bonus >= player->GetModDamageDonePos(school) + player->GetModDamageDoneNeg(school)) {
                         bonus = player->GetModDamageDonePos(school) + player->GetModDamageDoneNeg(school);
                     }

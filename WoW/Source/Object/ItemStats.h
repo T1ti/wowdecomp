@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "WoW/Common/ItemTypes.h"
+#include "WoW/Source/Object/Types.h"
 
 class CDataStore;
 
@@ -42,7 +43,7 @@ class ItemStats_C {
     /* 00C0 */ float m_damageMin [2];
     /* 00C8 */ float m_damageMax [2];
     /* 00D0 */ uint32_t m_damageType [2];
-    /* 00D8 */ uint32_t m_resistances [7];
+    /* 00D8 */ uint32_t m_resistances [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 00F4 */ int32_t m_delay;
     /* 00F8 */ uint32_t m_ammoType;
     /* 00FC */ float m_rangedModRange;

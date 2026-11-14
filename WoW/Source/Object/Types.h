@@ -4,6 +4,18 @@
 #include <cstddef>
 #include <cstdint>
 
+// Spell school index; names follow the client SPELL_SCHOOL<n>_CAP strings.
+enum SPELL_SCHOOL : int32_t {
+    SPELL_SCHOOL_PHYSICAL = 0,
+    SPELL_SCHOOL_HOLY = 1,
+    SPELL_SCHOOL_FIRE = 2,
+    SPELL_SCHOOL_NATURE = 3,
+    SPELL_SCHOOL_FROST = 4,
+    SPELL_SCHOOL_SHADOW = 5,
+    SPELL_SCHOOL_ARCANE = 6,
+    NUM_SPELL_SCHOOLS = 7,
+};
+
 // Byte-sized aura-visual eligibility flags, separate from AuraData packet flags.
 enum AURA_VISION_FLAGS : uint8_t {
     AURA_VISION_FLAG_STEALTH_DETECT = 0x20,

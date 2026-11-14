@@ -1012,9 +1012,9 @@ void CGLCD::DisplayDefenseStats() {
 // OFFSET: 0x00849D10
 void CGLCD::DisplaySpellStats() {
     CGPlayer_C* player = CGLCD::m_player;
-    int32_t spellDamage = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[1] : 0;
+    int32_t spellDamage = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[SPELL_SCHOOL::SPELL_SCHOOL_HOLY] : 0;
 
-    for (int32_t school = 2; school < 7; school++) {
+    for (int32_t school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; school++) {
         int32_t damage = CGLCD::m_player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;
 
         if (spellDamage >= damage) {
@@ -1027,9 +1027,9 @@ void CGLCD::DisplaySpellStats() {
     CGLCD::SetStat("SPELL_HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[7]));
 
     float* crit = CGLCD::m_player->m_player->m_playerSpellCritPercentage1;
-    float spellCrit = crit[1];
+    float spellCrit = crit[SPELL_SCHOOL::SPELL_SCHOOL_HOLY];
 
-    for (int32_t school = 2; school < 7; school++) {
+    for (int32_t school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; school++) {
         if (spellCrit >= crit[school]) {
             spellCrit = crit[school];
         }
@@ -1243,9 +1243,9 @@ int32_t CGLCD::Update(const void* data, void* param) {
             } else if (IsAsianLocale() && !CGLCD::m_lcd->IsDeviceAvailable(1)) {
                 float minDamage = CGLCD::m_player->m_unit->m_unitFieldMindamage;
                 float maxDamage = CGLCD::m_player->m_unit->m_unitFieldMaxdamage;
-                float percent = CGLCD::m_player->GetModDamageDonePct(0);
-                int32_t positive = CGLCD::m_player->GetModDamageDonePos(0);
-                int32_t negative = CGLCD::m_player->GetModDamageDoneNeg(0);
+                float percent = CGLCD::m_player->GetModDamageDonePct(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL);
+                int32_t positive = CGLCD::m_player->GetModDamageDonePos(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL);
+                int32_t negative = CGLCD::m_player->GetModDamageDoneNeg(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL);
                 float damage = (negative + (1.0f / percent * maxDamage - positive - negative + 1.0f / percent * minDamage - positive - negative) * 0.5f + positive) * percent;
                 float average = 1.0f;
 

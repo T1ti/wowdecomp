@@ -4673,9 +4673,9 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
         SStrCopy(format, FrameScript_GetText("ARMOR_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
         SStrPrintf(text, sizeof(text), format, armor);
         tooltip->AddLine(text, nullptr, textColor, textColor, 0);
-    } else if (static_cast<int32_t>(stats->m_resistances[0]) > 0) {
+    } else if (static_cast<int32_t>(stats->m_resistances[SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL]) > 0) {
         SStrCopy(format, FrameScript_GetText("ARMOR_TEMPLATE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-        SStrPrintf(text, sizeof(text), format, stats->m_resistances[0]);
+        SStrPrintf(text, sizeof(text), format, stats->m_resistances[SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL]);
 
         if (stats->m_armorDamageModifier <= 0.0f) {
             tooltip->AddLine(text, nullptr, textColor, textColor, 0);
@@ -4709,7 +4709,7 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
 
             if (format[0]) {
                 int32_t value = stats->m_statValue[j];
-                SStrPrintf(text, sizeof(text), format, 2 * (value <= 0) + '+', abs(value));
+                SStrPrintf(text, sizeof(text), format, value > 0 ? '+' : '-', abs(value));
                 tooltip->AddLine(text, nullptr, textColor, textColor, 1);
             }
         }
@@ -4734,16 +4734,16 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
             SStrCopy(format, FrameScript_GetText(s_itemModTokens[s_primaryStatOrder[i]], -1, GENDER_NOT_APPLICABLE), sizeof(format));
 
             if (format[0]) {
-                SStrPrintf(text, sizeof(text), format, 2 * (value <= 0) + '+', abs(value));
+                SStrPrintf(text, sizeof(text), format, value > 0 ? '+' : '-', abs(value));
                 tooltip->AddLine(text, nullptr, textColor, textColor, 1);
             }
         }
     }
 
-    int32_t resistance = stats->m_resistances[1];
+    int32_t resistance = stats->m_resistances[SPELL_SCHOOL::SPELL_SCHOOL_HOLY];
     bool allEqual = true;
 
-    for (uint32_t i = 2; i < 7; i++) {
+    for (uint32_t i = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
         if (static_cast<int32_t>(stats->m_resistances[i]) != resistance) {
             allEqual = false;
             break;
@@ -4753,21 +4753,21 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
     if (allEqual) {
         if (resistance) {
             SStrCopy(format, FrameScript_GetText("ITEM_RESIST_ALL", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-            SStrPrintf(text, sizeof(text), format, 2 * (static_cast<int32_t>(stats->m_resistances[1]) <= 0) + '+', abs(static_cast<int32_t>(stats->m_resistances[1])));
+            SStrPrintf(text, sizeof(text), format, resistance > 0 ? '+' : '-', abs(resistance));
             tooltip->AddLine(text, nullptr, textColor, textColor, 0);
         }
 
         return;
     }
 
-    for (int32_t i = 2; i <= 6; i++) {
+    for (int32_t i = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; i <= SPELL_SCHOOL::SPELL_SCHOOL_ARCANE; i++) {
         int32_t value = stats->m_resistances[i];
 
         if (value) {
             SStrPrintf(format, sizeof(format), "SPELL_SCHOOL%d_CAP", i);
             SStrCopy(school, FrameScript_GetText(format, -1, GENDER_NOT_APPLICABLE), sizeof(school));
             SStrCopy(format, FrameScript_GetText("ITEM_RESIST_SINGLE", -1, GENDER_NOT_APPLICABLE), sizeof(format));
-            SStrPrintf(text, sizeof(text), format, 2 * (value <= 0) + '+', abs(value), school);
+            SStrPrintf(text, sizeof(text), format, value > 0 ? '+' : '-', abs(value), school);
             tooltip->AddLine(text, nullptr, textColor, textColor, 0);
         }
     }
@@ -5730,7 +5730,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
 
             if (format[0]) {
                 if (SStrStr(format, "%c")) {
-                    SStrPrintf(bonus, sizeof(bonus), format, 2 * (value <= 0) + '+', abs(value));
+                    SStrPrintf(bonus, sizeof(bonus), format, value > 0 ? '+' : '-', abs(value));
                 } else {
                     SStrPrintf(bonus, sizeof(bonus), format, value);
                 }
@@ -5771,7 +5771,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
 
                 if (format[0]) {
                     if (SStrStr(format, "%c")) {
-                        SStrPrintf(bonus, sizeof(bonus), format, 2 * (value <= 0) + '+', abs(value));
+                        SStrPrintf(bonus, sizeof(bonus), format, value > 0 ? '+' : '-', abs(value));
                     } else {
                         SStrPrintf(bonus, sizeof(bonus), format, value);
                     }

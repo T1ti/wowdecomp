@@ -1062,17 +1062,17 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
             }
         }
 
-        int32_t all = stats->m_resistances[1];
+        int32_t all = stats->m_resistances[SPELL_SCHOOL::SPELL_SCHOOL_HOLY];
         uint32_t school;
 
-        for (school = 2; school <= 6; school++) {
+        for (school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school <= SPELL_SCHOOL::SPELL_SCHOOL_ARCANE; school++) {
             if (static_cast<int32_t>(stats->m_resistances[school]) != all) {
                 break;
             }
         }
 
-        if (school <= 6) {
-            for (school = 2; school <= 6; school++) {
+        if (school <= SPELL_SCHOOL::SPELL_SCHOOL_ARCANE) {
+            for (school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school <= SPELL_SCHOOL::SPELL_SCHOOL_ARCANE; school++) {
                 int32_t value = stats->m_resistances[school];
 
                 if (!value) {
