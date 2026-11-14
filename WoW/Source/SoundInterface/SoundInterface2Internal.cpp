@@ -65,8 +65,8 @@ VSOUNDKITDEF::VSOUNDKITDEF() {
 
 // VERIFY: 229de6de manual
 // OFFSET: 0x004CBAC0
-const char* VSOUNDKITDEF::SelectFile(uint32_t mode, int32_t* index, int32_t fileIndex, int32_t priority) {
-    if (mode > SE2_FILE_SELECT_WEIGHTED_CYCLE) {
+const char* VSOUNDKITDEF::SelectFile(SE2_FILE_SELECT_MODE mode, int32_t* index, int32_t fileIndex, int32_t priority) {
+    if (static_cast<uint32_t>(mode) > SE2_FILE_SELECT_WEIGHTED_CYCLE) {
         return nullptr;
     }
 

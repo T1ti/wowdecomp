@@ -6,6 +6,8 @@
 #include "Engine/Source/SoundEngine/fmodex/src/fmod.hpp"
 #include "Engine/Source/Storm/H/stpl.h"
 
+enum SE2_FILE_SELECT_MODE : int32_t;
+
 class SoundEntriesAdvancedRec;
 
 class VSOUNDKITDEF {
@@ -31,7 +33,7 @@ class VSOUNDKITDEF {
     VSOUNDKITDEF();
     ~VSOUNDKITDEF();
     void ResetWeights();
-    const char* SelectFile(uint32_t mode, int32_t* index, int32_t fileIndex, int32_t priority);
+    const char* SelectFile(SE2_FILE_SELECT_MODE mode, int32_t* index, int32_t fileIndex, int32_t priority);
 };
 
 struct SOUNDKITLOOKUP : public TSHashObject<SOUNDKITLOOKUP, HASHKEY_STRI> {
