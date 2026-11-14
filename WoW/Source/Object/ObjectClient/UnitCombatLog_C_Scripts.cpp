@@ -59,7 +59,7 @@ static int32_t Script_CombatLog_Object_IsA(lua_State* L) {
     uint32_t flags = static_cast<uint32_t>(lua_tonumber(L, 1));
     flags &= static_cast<uint32_t>(lua_tonumber(L, 2));
 
-    if ((flags & 0xFFFF0000) || ((flags & 0xF) && (flags & 0xF0) && (flags & 0x300) && (flags & 0xFC00))) {
+    if ((flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_SPECIAL_MASK) || ((flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK) && (flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK) && (flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_MASK) && (flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_MASK))) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

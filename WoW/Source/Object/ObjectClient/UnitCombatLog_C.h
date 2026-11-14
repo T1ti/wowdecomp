@@ -72,6 +72,40 @@ enum COMBAT_LOG_INFO_FLAGS : uint32_t
     COMBAT_LOG_INFO_FLAG_UNUSED_31                  = 0x80000000u,
 };
 
+// Combat log unit flags (CombatLogEntry source/dest flags and filter masks); names follow FrameXML.
+enum COMBATLOG_OBJECT : uint32_t
+{
+    COMBATLOG_OBJECT_AFFILIATION_MINE               = 0x00000001u,
+    COMBATLOG_OBJECT_AFFILIATION_PARTY              = 0x00000002u,
+    COMBATLOG_OBJECT_AFFILIATION_RAID               = 0x00000004u,
+    COMBATLOG_OBJECT_AFFILIATION_OUTSIDER           = 0x00000008u,
+    COMBATLOG_OBJECT_AFFILIATION_MASK               = 0x0000000Fu,
+    COMBATLOG_OBJECT_REACTION_FRIENDLY              = 0x00000010u,
+    COMBATLOG_OBJECT_REACTION_NEUTRAL               = 0x00000020u,
+    COMBATLOG_OBJECT_REACTION_HOSTILE               = 0x00000040u,
+    COMBATLOG_OBJECT_REACTION_MASK                  = 0x000000F0u,
+    COMBATLOG_OBJECT_CONTROL_PLAYER                 = 0x00000100u,
+    COMBATLOG_OBJECT_CONTROL_NPC                    = 0x00000200u,
+    COMBATLOG_OBJECT_CONTROL_MASK                   = 0x00000300u,
+    COMBATLOG_OBJECT_TYPE_PLAYER                    = 0x00000400u,
+    COMBATLOG_OBJECT_TYPE_NPC                       = 0x00000800u,
+    COMBATLOG_OBJECT_TYPE_PET                       = 0x00001000u,
+    COMBATLOG_OBJECT_TYPE_GUARDIAN                  = 0x00002000u,
+    COMBATLOG_OBJECT_TYPE_OBJECT                    = 0x00004000u,
+    COMBATLOG_OBJECT_TYPE_MASK                      = 0x0000FC00u,
+    COMBATLOG_OBJECT_TARGET                         = 0x00010000u,
+    COMBATLOG_OBJECT_FOCUS                          = 0x00020000u,
+    COMBATLOG_OBJECT_MAINTANK                       = 0x00040000u,
+    COMBATLOG_OBJECT_MAINASSIST                     = 0x00080000u,
+    // RAIDTARGET1..8 occupy 0x00100000 << raid target icon index.
+    COMBATLOG_OBJECT_RAIDTARGET1                    = 0x00100000u,
+    COMBATLOG_OBJECT_RAIDTARGET_MASK                = 0x0FF00000u,
+    // Entry has no unit (empty GUID).
+    COMBATLOG_OBJECT_NONE                           = 0x80000000u,
+    // Any of these bits matches a filter without the affiliation/reaction/control/type checks.
+    COMBATLOG_OBJECT_SPECIAL_MASK                   = 0xFFFF0000u,
+};
+
 struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
     enum DAMAGE_FLAGS : int32_t {
         DAMAGE_CRITICAL = 0x1,

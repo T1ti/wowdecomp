@@ -291,11 +291,11 @@ void CombatLogEntry::Clear() {
     this->m_sourceGuid = WOWGUID();
     this->m_sourceName = nullptr;
     this->m_sourceRealm = nullptr;
-    this->m_sourceFlags = 0x80000000;
+    this->m_sourceFlags = COMBATLOG_OBJECT::COMBATLOG_OBJECT_NONE;
     this->m_destGuid = WOWGUID();
     this->m_destName = nullptr;
     this->m_destRealm = nullptr;
-    this->m_destFlags = 0x80000000;
+    this->m_destFlags = COMBATLOG_OBJECT::COMBATLOG_OBJECT_NONE;
     this->m_spellId = 0;
     this->m_spellName.Copy(static_cast<const char*>(nullptr));
 
@@ -679,7 +679,7 @@ void CombatLogEntry::PendingCombatLogResolved(int32_t id, const WOWGUID& guid, v
 // OFFSET: 0x0074DCB0
 uint32_t GetCombatLogFlags(const WOWGUID& guid) {
     if (!guid.m_guid) {
-        return 0x80000000;
+        return COMBATLOG_OBJECT::COMBATLOG_OBJECT_NONE;
     }
 
     bool inRaid = CGRaidInfo::m_numMembers != 0;
@@ -718,28 +718,28 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
     if (isPlayer || type == 0xF0300000 || type == 0xF0500000 || type == 0xF0400000) {
         if (owner == guid) {
             if (isPlayer) {
-                flags = 0x400;
+                flags = COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PLAYER;
             } else {
-                flags = type == 0xF0400000 ? 0x1000 : 0x800;
+                flags = type == 0xF0400000 ? COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PET : COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_NPC;
             }
         } else {
             const WOWGUID& controller = unit->m_unit->m_unitFieldCharmedby.m_guid ? unit->m_unit->m_unitFieldCharmedby : unit->m_unit->m_unitFieldSummonedby;
-            flags = controller.m_guid ? 0x1000 : 0x2000;
+            flags = controller.m_guid ? COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PET : COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_GUARDIAN;
         }
     } else {
-        flags = 0x4000;
+        flags = COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_OBJECT;
     }
 
     uint32_t ownerHigh = static_cast<uint32_t>(owner.m_guid >> 32);
 
     if ((ownerHigh & 0xF0000000) || !((ownerHigh & 0xF07FFFFF) | static_cast<uint32_t>(owner.m_guid))) {
-        flags |= 0x200;
+        flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_NPC;
     } else {
-        flags |= 0x100;
+        flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_PLAYER;
     }
 
     if (owner == ClntObjMgrGetActivePlayer()) {
-        flags |= 0x11;
+        flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_FRIENDLY | COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MINE;
     } else {
         bool hostile = false;
 
@@ -750,9 +750,9 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
                 UNIT_REACTION reaction = unit->UnitReaction(player);
 
                 if (reaction >= UNIT_REACTION_FRIENDLY) {
-                    flags |= 0x10;
+                    flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_FRIENDLY;
                 } else if (reaction <= UNIT_REACTION_HOSTILE) {
-                    flags |= 0x40;
+                    flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_HOSTILE;
                     hostile = true;
                 }
             }
@@ -760,36 +760,36 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
 
         if (!hostile && inGroup) {
             if (CGPartyInfo::IsMember(owner)) {
-                flags |= 0x12;
+                flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_FRIENDLY | COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_PARTY;
             } else if (inRaid && IsGuidInMyRaid(owner)) {
-                flags |= 0x14;
+                flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_FRIENDLY | COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_RAID;
             }
         }
 
-        if (!(flags & 0xF)) {
-            flags |= 0x8;
+        if (!(flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK)) {
+            flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_OUTSIDER;
         }
 
-        if (!(flags & 0xF0)) {
-            flags |= 0x20;
+        if (!(flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK)) {
+            flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_NEUTRAL;
         }
     }
 
     if (guid == CGGameUI::m_lockedTarget) {
-        flags |= 0x10000;
+        flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_TARGET;
     }
 
     if (guid == CGGameUI::m_focusTarget) {
-        flags |= 0x20000;
+        flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_FOCUS;
     }
 
-    if ((flags & 0x400) && ((flags & 0x6) || (owner == ClntObjMgrGetActivePlayer() && inGroup))) {
+    if ((flags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_PLAYER) && ((flags & (COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_PARTY | COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_RAID)) || (owner == ClntObjMgrGetActivePlayer() && inGroup))) {
         uint8_t assignments = inRaid ? CGRaidInfo::GetPartyAssignments(guid) : CGPartyInfo::GetPartyAssignments(guid);
 
         if (assignments & CGPartyInfo::ASSIGNMENT_FLAGS::MAIN_TANK) {
-            flags |= 0x40000;
+            flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_MAINTANK;
         } else if (assignments & CGPartyInfo::ASSIGNMENT_FLAGS::MAIN_ASSIST) {
-            flags |= 0x80000;
+            flags |= COMBATLOG_OBJECT::COMBATLOG_OBJECT_MAINASSIST;
         }
     }
 
@@ -797,7 +797,7 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
         uint32_t index = GetRaidTargetIndexFromGuid(guid);
 
         if (index < CGRaidInfo::NUM_RAID_ICONS) {
-            return (0x100000 << index) | flags;
+            return (COMBATLOG_OBJECT::COMBATLOG_OBJECT_RAIDTARGET1 << index) | flags;
         }
     }
 
@@ -2791,15 +2791,15 @@ void UnitCombatLogUnitDead(CGUnit_C* unit) {
 static bool CombatLogFlagsMatch(uint32_t filterFlags, uint32_t flags) {
     uint32_t matched = filterFlags & flags;
 
-    if (matched & 0xFFFF0000) {
+    if (matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_SPECIAL_MASK) {
         return true;
     }
 
-    if (!(matched & 0xF) || !(matched & 0xF0) || !(matched & 0x300)) {
+    if (!(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK) || !(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK) || !(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_MASK)) {
         return false;
     }
 
-    return (matched & 0xFC00) != 0;
+    return (matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_MASK) != 0;
 }
 
 // VERIFY: e3b2fb68 manual
@@ -2818,7 +2818,7 @@ bool CombatLogFilter::MatchesFilter(int32_t event, const WOWGUID& sourceGuid, ui
     } else {
         uint32_t matched = this->m_sourceFlags & sourceFlags;
 
-        if (!(matched & 0xFFFF0000) && (!(matched & 0xF) || !(matched & 0xF0) || !(matched & 0x300) || !(matched & 0xFC00))) {
+        if (!(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_SPECIAL_MASK) && (!(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK) || !(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK) || !(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_MASK) || !(matched & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_MASK))) {
             return false;
         }
     }
