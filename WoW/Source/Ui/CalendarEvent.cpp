@@ -27,10 +27,10 @@ static const char* s_eventRepeatStrings[CALENDAR_REPEAT::NUM_CALENDAR_REPEATS] =
 static const char* s_eventTypeStrings[CALENDAR_TYPE::NUM_CALENDAR_TYPES] = { "CALENDAR_TYPE_RAID", "CALENDAR_TYPE_DUNGEON", "CALENDAR_TYPE_PVP", "CALENDAR_TYPE_MEETING", "CALENDAR_TYPE_OTHER" };
 
 // STATIC: 0x00AD16A8
-static const char* s_eventStatusStrings[9] = { "CALENDAR_STATUS_INVITED", "CALENDAR_STATUS_ACCEPTED", "CALENDAR_STATUS_DECLINED", "CALENDAR_STATUS_CONFIRMED", "CALENDAR_STATUS_OUT", "CALENDAR_STATUS_STANDBY", "CALENDAR_STATUS_SIGNEDUP", "CALENDAR_STATUS_NOT_SIGNEDUP", "CALENDAR_STATUS_TENTATIVE" };
+static const char* s_eventStatusStrings[CALENDAR_STATUS::NUM_CALENDAR_STATUS_STRINGS] = { "CALENDAR_STATUS_INVITED", "CALENDAR_STATUS_ACCEPTED", "CALENDAR_STATUS_DECLINED", "CALENDAR_STATUS_CONFIRMED", "CALENDAR_STATUS_OUT", "CALENDAR_STATUS_STANDBY", "CALENDAR_STATUS_SIGNEDUP", "CALENDAR_STATUS_NOT_SIGNEDUP", "CALENDAR_STATUS_TENTATIVE" };
 
 // STATIC: 0x00AD16CC
-static const int32_t s_inviteStatusOrder[9] = { 9, 3, 6, 1, 7, 4, 2, 8, 5 };
+static const int32_t s_inviteStatusOrder[CALENDAR_STATUS::NUM_CALENDAR_STATUS_STRINGS] = { 9, 3, 6, 1, 7, 4, 2, 8, 5 };
 
 // STATIC: 0x00AD16F0
 static uint32_t s_inviteSortType;
@@ -41,7 +41,7 @@ static InviteSortCriterion s_inviteSortCriteria[6];
 // VERIFY: 92e9c97a auto
 // OFFSET: 0x005F1000
 const char* GetEventStatusString(uint32_t status) {
-    if (status == 7 || status >= 9) {
+    if (status == CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP || status >= CALENDAR_STATUS::NUM_CALENDAR_STATUS_STRINGS) {
         return nullptr;
     }
 
@@ -732,7 +732,7 @@ bool CGCalendarEvent::RemoveInviteByGUID(WOWGUID guid) {
 // VERIFY: 0c93d50a manual
 // OFFSET: 0x005F23F0
 bool CGCalendarEvent::InviteRSVP(uint32_t status) {
-    if (this->m_new || (status != 1 && status != 2 && status != 8)) {
+    if (this->m_new || (status != CALENDAR_STATUS::CALENDAR_STATUS_ACCEPTED && status != CALENDAR_STATUS::CALENDAR_STATUS_DECLINED && status != CALENDAR_STATUS::CALENDAR_STATUS_TENTATIVE)) {
         return false;
     }
 
@@ -825,11 +825,11 @@ void CGCalendarEvent::UpdateInviteModeratorStatus(WOWGUID guid, uint8_t status) 
 // VERIFY: 1bbde5a8 manual
 // OFFSET: 0x005F26F0
 bool CGCalendarEvent::CanSetInviteStatus(uint32_t index, uint32_t status) {
-    if (!this->IsModerator() || index >= this->m_numInvites || status >= 9 || !status || status == 6 || status == 7) {
+    if (!this->IsModerator() || index >= this->m_numInvites || status >= CALENDAR_STATUS::NUM_CALENDAR_STATUS_STRINGS || !status || status == CALENDAR_STATUS::CALENDAR_STATUS_SIGNEDUP || status == CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP) {
         return false;
     }
 
-    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (status == 1 || status == 2)) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (status == CALENDAR_STATUS::CALENDAR_STATUS_ACCEPTED || status == CALENDAR_STATUS::CALENDAR_STATUS_DECLINED)) {
         return false;
     }
 
@@ -938,7 +938,7 @@ CGCalendarEvent::CGCalendarEvent(WOWGUID guid, uint8_t level, int32_t calendarTy
         invite->m_inviteID = 0;
         invite->m_guid = guid;
         invite->m_level = level;
-        invite->m_status = 3;
+        invite->m_status = CALENDAR_STATUS::CALENDAR_STATUS_CONFIRMED;
         invite->m_moderatorStatus = 2;
         invite->m_inviteType = inviteType;
         invite->m_responseTime = 0;
@@ -1048,7 +1048,7 @@ bool CGCalendarEvent::ProcessGetEvent(CDataStore* msg, int32_t* status) {
     }
 
     if (!found && (this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT)) {
-        *status = 7;
+        *status = CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP;
     }
 
     this->m_new = 0;
@@ -1126,7 +1126,7 @@ bool CGCalendarEvent::ProcessInitialInviteList(CDataStore* msg) {
         invite->m_inviteID = 0;
         invite->m_guid = playerGuid;
         invite->m_level = player->m_unit->m_unitFieldLevel;
-        invite->m_status = 3;
+        invite->m_status = CALENDAR_STATUS::CALENDAR_STATUS_CONFIRMED;
         invite->m_moderatorStatus = 2;
         invite->m_inviteType = 0;
         invite->m_responseTime = 0;

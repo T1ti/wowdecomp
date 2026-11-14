@@ -9,6 +9,22 @@
 
 class CDataStore;
 
+// Invite status; names follow s_eventStatusStrings.
+enum CALENDAR_STATUS : uint32_t {
+    CALENDAR_STATUS_INVITED = 0,
+    CALENDAR_STATUS_ACCEPTED = 1,
+    CALENDAR_STATUS_DECLINED = 2,
+    CALENDAR_STATUS_CONFIRMED = 3,
+    CALENDAR_STATUS_OUT = 4,
+    CALENDAR_STATUS_STANDBY = 5,
+    CALENDAR_STATUS_SIGNEDUP = 6,
+    CALENDAR_STATUS_NOT_SIGNEDUP = 7,
+    CALENDAR_STATUS_TENTATIVE = 8,
+    NUM_CALENDAR_STATUS_STRINGS = 9,
+    // Server-only removal status in invite-removed alerts; has no display string.
+    CALENDAR_STATUS_REMOVED = 9,
+};
+
 struct EventInviteInfo {
     /* 0000 */ uint64_t m_inviteID;
     /* 0008 */ WOWGUID m_guid;
@@ -28,7 +44,7 @@ inline EventInviteInfo::EventInviteInfo() {
     this->m_guid = WOWGUID();
     this->m_responseTime = 0;
     this->m_level = 0;
-    this->m_status = 0;
+    this->m_status = CALENDAR_STATUS::CALENDAR_STATUS_INVITED;
     this->m_moderatorStatus = 0;
     this->m_inviteType = 0;
     this->m_notes[0] = '\0';

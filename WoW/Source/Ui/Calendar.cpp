@@ -707,7 +707,7 @@ CalendarDayEvent::CalendarDayEvent() {
     this->m_flags = CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_NONE;
     this->m_eventType = -1;
     this->m_textureID = 0;
-    this->m_inviteStatus = 0;
+    this->m_inviteStatus = CALENDAR_STATUS::CALENDAR_STATUS_INVITED;
     this->m_inviteID = 0;
     this->m_creatorGUID = WOWGUID();
     this->m_alarmCallback = nullptr;
@@ -1556,7 +1556,7 @@ static void __stdcall FireEventAlarm(CGameTime* time, void* param) {
     WowTime::WowDecodeTime(event->m_alarmTime, &alarm);
     alarm.m_tzHours = 0;
 
-    if (*time == alarm && (event->m_inviteStatus == 3 || event->m_inviteStatus == 1)) {
+    if (*time == alarm && (event->m_inviteStatus == CALENDAR_STATUS::CALENDAR_STATUS_CONFIRMED || event->m_inviteStatus == CALENDAR_STATUS::CALENDAR_STATUS_ACCEPTED)) {
         WowTime start;
         WowTime::WowDecodeTime(event->m_startTime, &start);
         FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_EVENT_ALARM, "%s%d%d", event->m_title, start.m_hour, start.m_minute);
@@ -1978,7 +1978,7 @@ void CGCalendar::ContextMenuInviteRSVP(CalendarDayEvent* event, uint32_t status)
         return;
     }
 
-    if (status != 1 && status != 2 && status != 8) {
+    if (status != CALENDAR_STATUS::CALENDAR_STATUS_ACCEPTED && status != CALENDAR_STATUS::CALENDAR_STATUS_DECLINED && status != CALENDAR_STATUS::CALENDAR_STATUS_TENTATIVE) {
         return;
     }
 
@@ -2260,7 +2260,7 @@ void CGCalendar::InviteRSVP(uint32_t status) {
     bool sent;
 
     if ((CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && CGCalendar::m_curEvent->m_guildID == player->m_player->m_playerGuildid) {
-        if (status != 8) {
+        if (status != CALENDAR_STATUS::CALENDAR_STATUS_TENTATIVE) {
             return;
         }
 
@@ -2318,7 +2318,7 @@ void CGCalendar::ContextMenuInviteRemove(CalendarDayEvent* event) {
 // VERIFY: 3bea9afb manual
 // OFFSET: 0x005BC5E0
 void CGCalendar::ContextMenuEventSignUp(CalendarDayEvent* event, uint8_t tentative) {
-    if (!event || CGCalendar::m_actionPending || ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && event->m_inviteStatus != 7)) {
+    if (!event || CGCalendar::m_actionPending || ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && event->m_inviteStatus != CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP)) {
         return;
     }
 
@@ -2736,7 +2736,7 @@ void CGCalendar::ProcessInviteRemoved(CDataStore* msg, uint8_t* clearPending) {
 
             if (event) {
                 event->m_inviteID = 0;
-                event->m_inviteStatus = 7;
+                event->m_inviteStatus = CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP;
                 FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_EVENT_LIST, nullptr);
             }
         } else {
@@ -2744,7 +2744,7 @@ void CGCalendar::ProcessInviteRemoved(CDataStore* msg, uint8_t* clearPending) {
                 for (uint32_t i = 0; i < entry->m_events.Count(); i++) {
                     if (entry->m_events.m_data[i]->m_eventID == eventID) {
                         entry->m_events.m_data[i]->m_inviteID = 0;
-                        entry->m_events.m_data[i]->m_inviteStatus = 7;
+                        entry->m_events.m_data[i]->m_inviteStatus = CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP;
                         FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_EVENT_LIST, nullptr);
                         return;
                     }
@@ -3006,7 +3006,7 @@ void CGCalendar::ProcessInviteRemovedAlert(CDataStore* msg) {
     CalendarDayEvent* event = s_eventTables.GetEvent((flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) != 0, key, eventID);
 
     if (event && (event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
-        event->m_inviteStatus = 7;
+        event->m_inviteStatus = CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP;
 
         if (CGCalendar::m_curEvent && CGCalendar::m_curEvent->m_eventID == eventID) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
@@ -3044,7 +3044,7 @@ void CGCalendar::ProcessInviteRemovedAlert(CDataStore* msg) {
         }
     }
 
-    if (status && status != 9) {
+    if (status && status != CALENDAR_STATUS::CALENDAR_STATUS_REMOVED) {
         CGMailInfo::ReceivedMail(0.0f);
     }
 
@@ -3296,7 +3296,7 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
 
             event.m_flags |= CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE;
             event.m_creatorGUID = creator;
-            event.m_inviteStatus = 7;
+            event.m_inviteStatus = CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP;
         }
 
         void* mem = SMemAlloc(sizeof(CalendarDayEvent), __FILE__, __LINE__, 0);
@@ -3571,7 +3571,7 @@ void CGCalendar::ProcessInviteAlert(CDataStore* msg) {
 
     bool pending = false;
 
-    if (event->m_inviteStatus == 7 || event->m_inviteStatus == 6) {
+    if (event->m_inviteStatus == CALENDAR_STATUS::CALENDAR_STATUS_NOT_SIGNEDUP || event->m_inviteStatus == CALENDAR_STATUS::CALENDAR_STATUS_SIGNEDUP) {
         event->m_creatorGUID = creator;
         event->m_flags = CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE;
     } else {

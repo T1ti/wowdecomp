@@ -1140,7 +1140,7 @@ static int32_t Script_CalendarEventGetStatusOptions(lua_State* L) {
 
     int32_t count = 0;
 
-    for (uint32_t i = 0; i < 9; i++) {
+    for (uint32_t i = 0; i < CALENDAR_STATUS::NUM_CALENDAR_STATUS_STRINGS; i++) {
         if (event->CanSetInviteStatus(static_cast<uint32_t>(index - 1), i)) {
             lua_pushinteger(L, i + 1);
             lua_pushstring(L, FrameScript_GetText(GetEventStatusString(i), -1, GENDER_NOT_APPLICABLE));
