@@ -8,6 +8,10 @@ class SFileImpl;
 
 class CreatureDisplayInfoExtraRec {
     public:
+    enum EXTRA_FLAGS : int32_t {
+        HAS_BAKED_TEXTURE = 0x1,
+    };
+
     static const int32_t s_numColumns = 21;
     static const int32_t s_rowSize = 84;
     static const bool s_generatedID = false;

@@ -6524,7 +6524,7 @@ UNITSTANDSTATE CGUnit_C::GetClientStandState() const {
 // VERIFY: 232c855f manual
 // OFFSET: 0x0071A430
 int32_t CGUnit_C::HasBakedNpcTexture() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return 1;
     }
 
@@ -7101,7 +7101,7 @@ int32_t CGUnit_C::UsesNpcBakedTexture() const {
         return 0;
     }
 
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return 1;
     }
 
@@ -7209,7 +7209,7 @@ int32_t CGUnit_C::IsControlledByViewer() const {
 // VERIFY: e21be286 manual
 // OFFSET: 0x007202C0
 int32_t CGUnit_C::CanEquipItemsInThisForm() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & 0x1)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return 1;
     }
 
