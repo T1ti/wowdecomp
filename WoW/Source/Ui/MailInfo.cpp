@@ -414,8 +414,8 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
                 index = 0;
             }
 
-            if (used.m_bits.m_data[index >> 5] & (1 << (index & 0x1F))) {
-                for (index = 0; used.m_bits.m_data[index >> 5] & (1 << (index & 0x1F)); ) {
+            if (used.IsSet(index)) {
+                for (index = 0; used.IsSet(index); ) {
                     if (++index >= MailboxMessageInfo::MAX_ATTACHMENTS) {
                         break;
                     }
@@ -429,7 +429,7 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
                 attachment = &unused;
             } else {
                 attachment = &message->m_attachments[index];
-                used.m_bits.m_data[index >> 5] |= 1 << (index & 0x1F);
+                used.Set(index);
             }
 
             msg->Get(attachment->m_itemGuid);

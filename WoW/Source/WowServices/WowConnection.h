@@ -34,9 +34,7 @@ class WowConnection {
         SENDNODE(const WowConnection::SENDNODE& source, uint8_t* buffer);
     };
 
-    struct IDBITS {
-        /* 0000 */ uint32_t m_count;
-        /* 0004 */ TSFixedArray<uint32_t> m_bits;
+    struct IDBITS : public TSBitField<TSFixedArray<uint32_t>> {
 
         void Or(const WowConnection::IDBITS& source);
         void SetCount(uint32_t count);

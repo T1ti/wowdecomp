@@ -130,6 +130,19 @@ class TSBitField {
     /* 0004 */ T m_bits;
 
     void Load(const void* data, uint32_t bytes, int32_t bits);
+
+    // INLINED bit accessors; no out-of-line copies in the client.
+    bool IsSet(uint32_t index) const {
+        return (this->m_bits.m_data[index >> 5] & (1 << (index & 0x1F))) != 0;
+    }
+
+    void Set(uint32_t index) {
+        this->m_bits.m_data[index >> 5] |= 1 << (index & 0x1F);
+    }
+
+    void Clear(uint32_t index) {
+        this->m_bits.m_data[index >> 5] &= ~(1 << (index & 0x1F));
+    }
 };
 
 template <class T>

@@ -3221,7 +3221,7 @@ void CGPlayer_C::SetCombatMode() {
 
     uint32_t count = ++s_combatModeExitCount;
 
-    if (CGTutorial::m_tutorialFlags.m_count && (CGTutorial::m_tutorialFlags.m_bits.m_data[1] & 0x800000) && count > 4) {
+    if (IsTutorialFlagged(TUTORIAL::TUTORIAL_PLAYER_STATUS) && count > 4) {
         if (IsTutorialFlagged(TUTORIAL::TUTORIAL_SPELLS_AND_ABILITIES) && count > 10) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ENEMY_STATUS);
         }

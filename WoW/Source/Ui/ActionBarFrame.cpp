@@ -1928,7 +1928,7 @@ void CGActionBar::UpdateItem(int32_t itemId) {
                     if (index < NUM_ITEM_SPELLS) {
                         uint32_t spellId = stats->m_spellId[index];
 
-                        if (spellId && spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && (s_knownSpellBits.m_bits.m_data[spellId >> 5] & (1 << (spellId & 0x1F)))) {
+                        if (spellId && spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && s_knownSpellBits.IsSet(spellId)) {
                             CGActionBar::SetAction(i, spellId, 1, 0);
                             continue;
                         }

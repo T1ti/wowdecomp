@@ -347,7 +347,7 @@ bool CombatLogFilter::SetFilterData(const char* events, const WOWGUID& sourceGui
 
             for (uint32_t i = 0; i < COMBAT_LOG_EVENT::NUM_COMBAT_LOG_EVENTS; i++) {
                 if (!SStrCmpI(token, s_combatLogEventNames[i], STORM_MAX_STR)) {
-                    this->m_events.m_bits.m_data[i >> 5] |= 1 << (i & 0x1F);
+                    this->m_events.Set(i);
                     break;
                 }
             }
@@ -2802,7 +2802,7 @@ static bool CombatLogFlagsMatch(uint32_t filterFlags, uint32_t flags) {
 bool CombatLogFilter::MatchesFilter(int32_t event, const WOWGUID& sourceGuid, uint32_t sourceFlags, const WOWGUID& destGuid, uint32_t destFlags, int32_t spellId, const char* spellName) {
     uint32_t index = static_cast<uint32_t>(event);
 
-    if (!(this->m_events.m_bits.m_data[index >> 5] & (1 << (index & 0x1F)))) {
+    if (!this->m_events.IsSet(index)) {
         return false;
     }
 

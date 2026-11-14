@@ -29,7 +29,7 @@ void WowConnection::CloseSocket(int32_t sock) {
 
     if (sock >= 0) {
         WowConnection::s_idLock.Enter();
-        WowConnection::s_idBits.m_bits.m_data[sock >> 5] &= ~(1 << (sock & 0x1F));
+        WowConnection::s_idBits.Clear(sock);
         WowConnection::s_idLock.Leave();
     }
 }

@@ -60,15 +60,12 @@ static int32_t AddCompletedTutorial(uint32_t tutorial) {
 // VERIFY: 6889e9a0 manual
 // OFFSET: 0x00530450
 void CGTutorial::FlagTutorial(uint32_t tutorial) {
-    uint32_t bit = 1 << (tutorial & 0x1F);
-    uint32_t index = tutorial >> 5;
-
-    if (CGTutorial::m_tutorialFlags.m_bits.m_data[index] & bit) {
+    if (CGTutorial::m_tutorialFlags.IsSet(tutorial)) {
         return;
     }
 
-    CGTutorial::m_tutorialShown.m_bits.m_data[index] |= bit;
-    CGTutorial::m_tutorialFlags.m_bits.m_data[index] |= bit;
+    CGTutorial::m_tutorialShown.Set(tutorial);
+    CGTutorial::m_tutorialFlags.Set(tutorial);
     AddCompletedTutorial(tutorial);
 
     CDataStore msg;
@@ -90,7 +87,7 @@ void CGTutorial::ClearTutorials() {
     }
 
     for (int32_t i = 0; i < TUTORIAL::NUM_TUTORIALS; i++) {
-        if (CGTutorial::m_tutorialFlags.m_count && (CGTutorial::m_tutorialFlags.m_bits.m_data[i >> 5] & (1 << (i & 0x1F)))) {
+        if (CGTutorial::m_tutorialFlags.m_count && CGTutorial::m_tutorialFlags.IsSet(i)) {
             continue;
         }
 
@@ -137,19 +134,16 @@ void CGTutorial::TriggerTutorial(uint32_t tutorial) {
         return;
     }
 
-    uint32_t bit = 1 << (tutorial & 0x1F);
-    uint32_t index = tutorial >> 5;
-
-    if (CGTutorial::m_tutorialShown.m_bits.m_data[index] & bit) {
+    if (CGTutorial::m_tutorialShown.IsSet(tutorial)) {
         return;
     }
 
     if (CVar::Lookup("showTutorials")->m_intValue) {
         SI2::PlaySoundKit("TutorialPopup", nullptr, nullptr, nullptr);
         FrameScript_SignalEvent(SCRIPT_EVENT_TUTORIAL_TRIGGER, "%d", tutorial + 1);
-        CGTutorial::m_tutorialShown.m_bits.m_data[index] |= bit;
+        CGTutorial::m_tutorialShown.Set(tutorial);
     } else {
-        CGTutorial::m_tutorialShown.m_bits.m_data[index] |= bit;
+        CGTutorial::m_tutorialShown.Set(tutorial);
         CGTutorial::FlagTutorial(tutorial);
     }
 }

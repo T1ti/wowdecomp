@@ -288,7 +288,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         return;
     }
 
-    s_knownSpellBits.m_bits.m_data[static_cast<uint32_t>(spellId) >> 5] |= 1 << (spellId & 0x1F);
+    s_knownSpellBits.Set(spellId);
 
     switch (spell.m_effect[0]) {
         case SPELL_EFFECT_SUMMON:
@@ -536,7 +536,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     int32_t updateMultiCast = 0;
-    bool tutorialShown = CGTutorial::m_tutorialShown.m_count ? !((CGTutorial::m_tutorialShown.m_bits.m_data[1] >> 14) & 1) : false;
+    bool canTriggerTotemTutorial = CanTriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
 
     if (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_CAN_BE_MULTI_CAST) {
         for (uint32_t i = 0; i < 2; i++) {
@@ -611,9 +611,10 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
                     updateMultiCast = notify;
                 }
 
-                if (!tutorialShown && updateMultiCast && player && player->m_bag.FindTotemCategory(category, 8)) {
+                // The native test is inverted: it only triggers once the tutorial can no longer trigger.
+                if (!canTriggerTotemTutorial && updateMultiCast && player && player->m_bag.FindTotemCategory(category, 8)) {
                     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
-                    tutorialShown = true;
+                    canTriggerTotemTutorial = true;
                 }
             }
         }
@@ -1766,7 +1767,7 @@ bool CGSpellBook::IsUnlearnedSpell(int32_t spellId) {
 // VERIFY: 64002cc0 manual
 // OFFSET: 0x0053C5B0
 bool HasSpell(uint32_t spellId) {
-    return spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && (s_knownSpellBits.m_bits.m_data[spellId >> 5] & (1 << (spellId & 0x1F)));
+    return spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && s_knownSpellBits.IsSet(spellId);
 }
 
 // VERIFY: 230462f8 manual
@@ -2132,7 +2133,7 @@ int32_t CGSpellBook::IsShapeshiftSpell(int32_t spellId) {
 // VERIFY: f3047ba9 manual
 // OFFSET: 0x0053FAD0
 void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
-    s_knownSpellBits.m_bits.m_data[spellId >> 5] &= ~(1 << (spellId & 0x1F));
+    s_knownSpellBits.Clear(spellId);
 
     if (spellId == CGSpellBook::m_duelSpell) {
         CGSpellBook::m_duelSpell = 0;

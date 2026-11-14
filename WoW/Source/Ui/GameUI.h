@@ -491,6 +491,7 @@ extern CVar* g_predictedPowerCVar;
 
 WOWGUID GetRaidMemberGUID(uint32_t index);
 bool CanTriggerTutorial(uint32_t tutorial);
+bool CanTriggerTutorial(uint32_t tutorial);
 bool IsTutorialFlagged(uint32_t tutorial);
 
 bool AutoInteractStateChangedCallback(CVar* var, const char* oldValue, const char* value, void* arg);

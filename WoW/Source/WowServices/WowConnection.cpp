@@ -471,7 +471,7 @@ void WowConnection::MarkSocketId(int32_t sock) {
         WowConnection::s_idBits.Or(bits);
     }
 
-    WowConnection::s_idBits.m_bits.m_data[sock >> 5] |= 1 << (sock & 0x1F);
+    WowConnection::s_idBits.Set(sock);
 
     WowConnection::s_idLock.Leave();
 }
