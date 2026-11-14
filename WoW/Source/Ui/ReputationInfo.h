@@ -11,9 +11,26 @@ class CDataStore;
 struct lua_State;
 class FactionRec;
 
+// Reputation standing flags (SMSG_INITIALIZE_FACTIONS and updates); names describe client behavior.
+enum FACTION_FLAGS : uint8_t {
+    FACTION_FLAG_NONE         = 0x00,
+    FACTION_FLAG_VISIBLE      = 0x01,
+    FACTION_FLAG_AT_WAR       = 0x02,
+    // Never made visible by standing updates.
+    FACTION_FLAG_HIDDEN       = 0x04,
+    // Listed as a header that also has its own standing.
+    FACTION_FLAG_HEADER       = 0x08,
+    FACTION_FLAG_PEACE_FORCED = 0x10,
+    FACTION_FLAG_INACTIVE     = 0x20,
+    // Standing changes are always logged (as hidden when FACTION_FLAG_HIDDEN).
+    FACTION_FLAG_UNKNOWN_40   = 0x40,
+    // Reaction changes are logged even for FACTION_FLAG_HEADER entries.
+    FACTION_FLAG_UNKNOWN_80   = 0x80,
+};
+
 struct FactionStanding {
     /* 0000 */ int32_t m_factionId;
-    /* 0004 */ uint8_t m_flags;
+    /* 0004 */ uint8_t m_flags; // FACTION_FLAGS
     /* 0005 */ uint8_t unused_0005[3];
     /* 0008 */ int32_t m_base;
     /* 000C */ int32_t m_standing;

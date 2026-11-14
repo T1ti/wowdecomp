@@ -161,7 +161,7 @@ static bool IsFactionPeaceForced(int32_t faction) {
     FactionRec* rec = g_factionDB.GetRecord(faction);
 
     if (rec && static_cast<uint32_t>(rec->m_reputationIndex) <= 127) {
-        return (CGReputationInfo::m_factionStandings[rec->m_reputationIndex].m_flags >> 4) & 1;
+        return (CGReputationInfo::m_factionStandings[rec->m_reputationIndex].m_flags & FACTION_FLAG_PEACE_FORCED) != 0;
     }
 
     return false;
@@ -174,7 +174,7 @@ bool CGReputationInfo::IsFactionInactive(uint32_t index) {
     FactionRec* faction = g_factionDB.GetRecord(factionId);
 
     if (faction && static_cast<uint32_t>(faction->m_reputationIndex) <= 127) {
-        return (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags >> 5) & 1;
+        return (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & FACTION_FLAG_INACTIVE) != 0;
     }
 
     return false;
@@ -237,7 +237,7 @@ bool CGReputationInfo::IsAtWar(int32_t faction) {
     FactionRec* rec = g_factionDB.GetRecord(faction);
 
     if (rec && static_cast<uint32_t>(rec->m_reputationIndex) <= 127) {
-        return (CGReputationInfo::m_factionStandings[rec->m_reputationIndex].m_flags >> 1) & 1;
+        return (CGReputationInfo::m_factionStandings[rec->m_reputationIndex].m_flags & FACTION_FLAG_AT_WAR) != 0;
     }
 
     return false;
@@ -255,7 +255,7 @@ int32_t CGReputationInfo::AddVisibleFaction(uint32_t repListId, int32_t announce
     FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions];
     entry->m_repListId = repListId;
     entry->m_factionId = repListId > 127 ? 0 : CGReputationInfo::m_factionStandings[repListId].m_factionId;
-    entry->m_isHeader = (CGReputationInfo::m_factionStandings[repListId].m_flags >> 3) & 1;
+    entry->m_isHeader = (CGReputationInfo::m_factionStandings[repListId].m_flags & FACTION_FLAG_HEADER) != 0;
 
     FactionRec* faction = g_factionDB.GetRecord(entry->m_factionId);
     int32_t parent = faction ? faction->m_parentFactionID : 0;
@@ -314,7 +314,7 @@ void CGReputationInfo::SetAtWar(int32_t faction, bool atWar) {
     }
 
     uint8_t flags = CGReputationInfo::m_factionStandings[index].m_flags;
-    CGReputationInfo::m_factionStandings[index].m_flags = (!atWar || (flags & 0x10)) ? flags & ~2 : flags | 2;
+    CGReputationInfo::m_factionStandings[index].m_flags = (!atWar || (flags & FACTION_FLAG_PEACE_FORCED)) ? flags & ~FACTION_FLAG_AT_WAR : flags | FACTION_FLAG_AT_WAR;
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_SET_FACTION_AT_WAR));
     msg.Put(index);
@@ -398,7 +398,7 @@ static int QSortFactions(const void* a, const void* b) {
 
     if (leftHeader == rightHeader) {
         if (left->m_isHeader || right->m_isHeader) {
-            return 2 * (left->m_isHeader == 0) - 1;
+            return left->m_isHeader ? -1 : 1;
         }
 
         FactionRec* leftRec = g_factionDB.GetRecord(left->m_factionId);
@@ -514,7 +514,7 @@ void CGReputationInfo::SortFactions() {
         for (uint32_t i = 0; i < CGReputationInfo::m_numFactions; i++) {
             FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[i];
             FactionRec* faction = g_factionDB.GetRecord(entry->m_factionId);
-            int32_t parent = faction && static_cast<uint32_t>(faction->m_reputationIndex) <= 127 && (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & 0x20) ? -1 : entry->m_parent;
+            int32_t parent = faction && static_cast<uint32_t>(faction->m_reputationIndex) <= 127 && (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & FACTION_FLAG_INACTIVE) ? -1 : entry->m_parent;
 
             if (parent == header->m_factionId && !entry->m_isHeader) {
                 header->m_count++;
@@ -634,9 +634,9 @@ void CGReputationInfo::SetFactionInactive(int32_t faction, bool inactive) {
     }
 
     if (inactive) {
-        CGReputationInfo::m_factionStandings[index].m_flags |= 0x20;
+        CGReputationInfo::m_factionStandings[index].m_flags |= FACTION_FLAG_INACTIVE;
     } else {
-        CGReputationInfo::m_factionStandings[index].m_flags &= ~0x20;
+        CGReputationInfo::m_factionStandings[index].m_flags &= ~FACTION_FLAG_INACTIVE;
     }
 
     CDataStore msg;
@@ -747,7 +747,7 @@ void CGReputationInfo::EnterWorld() {
 
             CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_base = faction->m_reputationBase[k];
 
-            if (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & 0x1) {
+            if (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & FACTION_FLAG_VISIBLE) {
                 CGReputationInfo::AddVisibleFaction(faction->m_reputationIndex, 0);
             }
         }
@@ -809,7 +809,7 @@ int32_t Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t ti
     msg->Get(flags);
 
     uint8_t current = CGReputationInfo::m_factionStandings[repListId].m_flags;
-    CGReputationInfo::m_factionStandings[repListId].m_flags = (flags & 0x2) ? (current | 0x2) : (current & ~0x2);
+    CGReputationInfo::m_factionStandings[repListId].m_flags = (flags & FACTION_FLAG_AT_WAR) ? (current | FACTION_FLAG_AT_WAR) : (current & ~FACTION_FLAG_AT_WAR);
     FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_FACTION, nullptr);
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
@@ -854,9 +854,9 @@ int32_t Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t 
     msg->Get(repListId);
     uint8_t flags = CGReputationInfo::m_factionStandings[repListId].m_flags;
 
-    if (!(flags & 0x1)) {
+    if (!(flags & FACTION_FLAG_VISIBLE)) {
         CGReputationInfo::AddVisibleFaction(repListId, 1);
-        CGReputationInfo::m_factionStandings[repListId].m_flags = flags | 0x1;
+        CGReputationInfo::m_factionStandings[repListId].m_flags = flags | FACTION_FLAG_VISIBLE;
         CGReputationInfo::SortFactions();
     }
 
@@ -905,9 +905,9 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
         uint8_t flags = CGReputationInfo::m_factionStandings[repListId].m_flags;
         int32_t logMode = 0;
 
-        if (flags & 0x40) {
-            logMode = (flags & 0x4) ? 2 : 1;
-        } else if (i == 0 && !(flags & 0x4)) {
+        if (flags & FACTION_FLAG_UNKNOWN_40) {
+            logMode = (flags & FACTION_FLAG_HIDDEN) ? 2 : 1;
+        } else if (i == 0 && !(flags & FACTION_FLAG_HIDDEN)) {
             logMode = 1;
         }
 
@@ -925,8 +925,8 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
 
         UNIT_REACTION newReaction = CGReputationInfo::GetFactionStandingReaction(factionId);
 
-        if (!(flags & 0x5)) {
-            flags |= 0x1;
+        if (!(flags & (FACTION_FLAG_VISIBLE | FACTION_FLAG_HIDDEN))) {
+            flags |= FACTION_FLAG_VISIBLE;
 
             if (CGReputationInfo::AddVisibleFaction(repListId, 1)) {
                 newlyVisible = true;
@@ -934,15 +934,15 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
         }
 
         if (newReaction < UNIT_REACTION_UNFRIENDLY) {
-            flags |= 0x2;
+            flags |= FACTION_FLAG_AT_WAR;
         } else if (newReaction > oldReaction) {
-            flags &= ~0x2;
+            flags &= ~FACTION_FLAG_AT_WAR;
         }
 
         uint8_t& storedFlags = CGReputationInfo::m_factionStandings[repListId].m_flags;
 
         if (flags != storedFlags) {
-            if ((flags ^ storedFlags) & 0x2) {
+            if ((flags ^ storedFlags) & FACTION_FLAG_AT_WAR) {
                 updateReaction = true;
             }
 
@@ -951,7 +951,7 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
         }
 
         if (newReaction != oldReaction) {
-            if (!(flags & 0x4) && (!(flags & 0x8) || (flags & 0x80))) {
+            if (!(flags & FACTION_FLAG_HIDDEN) && (!(flags & FACTION_FLAG_HEADER) || (flags & FACTION_FLAG_UNKNOWN_80))) {
                 if (!newlyVisible) {
                     CGChat::LogReactionChanged(factionId, newReaction);
                 }
