@@ -821,10 +821,8 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         return 1;
     }
 
-    uint32_t oldHigh = static_cast<uint32_t>(this->m_transportGuid.m_guid >> 32);
-    uint32_t newHigh = static_cast<uint32_t>(transport.m_guid >> 32);
 
-    if ((oldHigh & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(oldHigh & WOWGUID_HIGH_NON_PLAYER_MASK) && ((oldHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(this->m_transportGuid.m_guid))) || (newHigh & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(newHigh & WOWGUID_HIGH_NON_PLAYER_MASK) && ((newHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
+    if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
         this->m_unit->VehiclePassengerOnUpdateTransport(transport, seat, 0);
     }
 
@@ -844,9 +842,8 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
         float facing = MovementGetTransportFacing(this->m_transportGuid);
         this->m_link.Unlink();
 
-        uint32_t high = static_cast<uint32_t>(this->m_transportGuid.m_guid >> 32);
 
-        if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(this->m_transportGuid.m_guid)))) {
+        if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer()) {
             CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicle && vehicle->m_vehicle) {
@@ -5441,10 +5438,8 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         return 0;
     }
 
-    uint32_t oldHigh = static_cast<uint32_t>(this->m_transportGuid.m_guid >> 32);
-    uint32_t newHigh = static_cast<uint32_t>(transport.m_guid >> 32);
 
-    if ((oldHigh & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(oldHigh & WOWGUID_HIGH_NON_PLAYER_MASK) && ((oldHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(this->m_transportGuid.m_guid))) || (newHigh & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(newHigh & WOWGUID_HIGH_NON_PLAYER_MASK) && ((newHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
+    if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
         this->m_unit->VehiclePassengerOnUpdateTransport(transport, seat, 0);
     }
 
@@ -5470,9 +5465,8 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         this->m_unit->RotateFacing(facing);
         this->m_unit->TrackingMakeRelativeTo(&transportMatrix, facing);
 
-        uint32_t high = static_cast<uint32_t>(this->m_transportGuid.m_guid >> 32);
 
-        if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(this->m_transportGuid.m_guid)))) {
+        if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer()) {
             CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicle && vehicle->m_vehicle) {
@@ -5499,7 +5493,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32
         this->m_unit->RotateFacing(facing);
         this->m_unit->TrackingMakeRelativeTo(&inverse, facing);
 
-        if ((newHigh & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE && ((newHigh & WOWGUID_HIGH_NON_PLAYER_MASK) || !((newHigh & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
+        if (!transport.IsVehicle() && !transport.IsPlayer()) {
             this->FixupQueuedSetFacingEvents(facing);
         }
 

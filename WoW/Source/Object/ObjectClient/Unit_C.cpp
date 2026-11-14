@@ -3096,9 +3096,8 @@ const char* CGUnit_C::GetVisibleUnitName(const char** realm, int32_t a2) {
         return this->GetUnitName(realm, a2);
     }
 
-    uint32_t high = static_cast<uint32_t>(this->m_obj->m_guid.m_guid >> 32);
 
-    if ((this->m_obj->m_type & TYPE_PLAYER) || ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE && this->GetControllingPlayer())) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) || (this->m_obj->m_guid.IsVehicle() && this->GetControllingPlayer())) {
         return this->GetUnitName(realm, a2);
     }
 
@@ -7403,8 +7402,7 @@ void CGUnit_C::VehiclePassengerOnUninit() {
 // VERIFY: 014f995c auto
 // OFFSET: 0x0074B8B0
 BOOL CGUnit_C::HasVehicleTransport() const {
-    uint32_t high = static_cast<uint32_t>(this->m_movementData.m_transportGuid.m_guid >> 32);
-    return (high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(this->m_movementData.m_transportGuid.m_guid)));
+    return this->m_movementData.m_transportGuid.IsVehicle() || this->m_movementData.m_transportGuid.IsPlayer();
 }
 
 // VERIFY: 5a947930 auto
@@ -15761,7 +15759,7 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
 
     bool charmed = false;
 
-    if (this->m_unit->m_unitFieldCharmedby && (this->m_obj->m_guid.m_guid & WOWGUID_TYPE_MASK) != WOWGUID_TYPE_VEHICLE) {
+    if (this->m_unit->m_unitFieldCharmedby && !this->m_obj->m_guid.IsVehicle()) {
         if (!harmful) {
             return false;
         }
@@ -20014,9 +20012,8 @@ static void ObjectNameCacheCallback(int32_t id, const WOWGUID& guid, void* param
 // OFFSET: 0x0074D750
 const char* GetObjectNameFromGuid(const WOWGUID& guid) {
     const char* name = nullptr;
-    uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-    if (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid))) {
+    if (guid.IsPlayer()) {
         NameCache* record = g_nameDBCache.GetRecord(guid.m_guid, guid, ObjectNameCacheCallback, nullptr, true);
 
         if (record) {
@@ -20028,9 +20025,9 @@ const char* GetObjectNameFromGuid(const WOWGUID& guid) {
             }
         }
     } else {
-        uint32_t type = high & WOWGUID_HIGH_TYPE_MASK;
+        uint64_t type = guid.GetType();
 
-        if (type == WOWGUID_HIGH_TYPE_CREATURE || type == WOWGUID_HIGH_TYPE_VEHICLE) {
+        if (type == WOWGUID_TYPE_CREATURE || type == WOWGUID_TYPE_VEHICLE) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (unit) {
@@ -20042,13 +20039,13 @@ const char* GetObjectNameFromGuid(const WOWGUID& guid) {
                     name = stats->m_name[0];
                 }
             }
-        } else if (type == WOWGUID_HIGH_TYPE_PET) {
+        } else if (type == WOWGUID_TYPE_PET) {
             PetNameCache* pet = g_petNameCache.GetRecord(static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, guid, ObjectNameCacheCallback, nullptr, true);
 
             if (pet) {
                 name = pet->m_name;
             }
-        } else if (type == WOWGUID_HIGH_TYPE_GAMEOBJECT) {
+        } else if (type == WOWGUID_TYPE_GAMEOBJECT) {
             GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK, guid, ObjectNameCacheCallback, nullptr, true);
 
             if (stats) {

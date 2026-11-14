@@ -367,9 +367,8 @@ void CVehicle_C::BuildWorldMatrix(const C44Matrix* parent) {
 
     for (CPassenger* passenger = this->m_passengers.Head(); passenger; passenger = this->m_passengers.Next(passenger)) {
         WOWGUID guid = *passenger->m_ownerGuid;
-        uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
-        if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid)))) {
+        if (guid.IsVehicle() || guid.IsPlayer()) {
             CVehicle_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__))->m_vehicle;
 
             if (vehicle && vehicle->m_vehicleRec) {

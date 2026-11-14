@@ -875,9 +875,8 @@ void CVehiclePassenger_C::StopMovement() {
 void CVehiclePassenger_C::Init(CGUnit_C* unit) {
     WOWGUID transport;
     transport.m_guid = unit->GetTransportGUID();
-    uint32_t high = static_cast<uint32_t>(transport.m_guid >> 32);
 
-    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)))) {
+    if (transport.IsVehicle() || transport.IsPlayer()) {
         CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(transport, TYPE_UNIT, __FILE__, __LINE__));
         uint8_t seat = unit->m_movementData.m_transportSeat;
         unit->VehiclePassengerOnUpdateTransport(transport, seat, 1);
@@ -1474,11 +1473,10 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
         }
     }
 
-    uint32_t high = static_cast<uint32_t>(vehicleGuid.m_guid >> 32);
     int32_t entering;
     WOWGUID target;
 
-    if ((high & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_VEHICLE || (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(vehicleGuid.m_guid)))) {
+    if (vehicleGuid.IsVehicle() || vehicleGuid.IsPlayer()) {
         target = vehicleGuid;
         entering = 1;
     } else {
@@ -2089,8 +2087,7 @@ void CVehiclePassenger_C::OnUpdateTransport(WOWGUID transport, uint8_t seat, CGU
         this->StoreRootVehicle(WOWGUID());
     }
 
-    uint32_t high = static_cast<uint32_t>(transport.m_guid >> 32);
-    BOOL exiting = (high & WOWGUID_HIGH_TYPE_MASK) != WOWGUID_HIGH_TYPE_VEHICLE && ((high & WOWGUID_HIGH_NON_PLAYER_MASK) || !((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(transport.m_guid)));
+    BOOL exiting = !transport.IsVehicle() && !transport.IsPlayer();
     BOOL allowed = this->m_unit->VehiclePassengerIsTransitionAllowed(this->m_seatRec, exiting);
 
     if (this->m_vehicleGuid && !vehicle && CVehiclePassenger_C::s_pendingCount) {

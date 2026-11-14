@@ -1696,17 +1696,17 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
         msg->Get(count);
 
         for (uint32_t i = 0; i < count; i++) {
-            uint64_t guid;
-            msg->Get(guid);
+            WOWGUID guid;
+            msg->Get(guid.m_guid);
 
-            if ((guid & WOWGUID_NON_PLAYER_MASK) || !(guid & WOWGUID_PLAYER_VALUE_MASK)) {
-                LFGListParty* party = list->m_parties.Ptr(static_cast<uint32_t>(guid), CHashKeyGUID(guid));
+            if (!guid.IsPlayer()) {
+                LFGListParty* party = list->m_parties.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
 
                 if (party) {
                     list->DeleteParty(party);
                 }
             } else {
-                LFGListPlayer* player = list->m_players.Ptr(static_cast<uint32_t>(guid), CHashKeyGUID(guid));
+                LFGListPlayer* player = list->m_players.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
 
                 if (player) {
                     list->RemovePlayer(player);
