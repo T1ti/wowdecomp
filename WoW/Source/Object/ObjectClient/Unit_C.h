@@ -1113,7 +1113,7 @@ BOOL Packet_SplineMoveEffect(void* param, NETMESSAGE msgId, uint32_t time, CData
 BOOL Packet_SplineSpeedChange(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 BOOL Packet_ThreatUpdate(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
-extern int32_t g_environmentalDamageVisualKits[6];
+extern int32_t g_environmentalDamageVisualKits[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES];
 int32_t GetAnimBehaviorId(uint32_t animId);
 BOOL IsBirthAnim(uint32_t animId);
 BOOL IsSubmergedDeathAnim(uint32_t animId);

@@ -190,7 +190,7 @@ static WOWGUID s_pendingLootTarget;
 static WOWGUID s_pendingAttackTarget;
 
 // STATIC: 0x00CA120C
-int32_t g_environmentalDamageVisualKits[6];
+int32_t g_environmentalDamageVisualKits[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES];
 
 // STATIC: 0x00CA1224
 static EmotesRec* s_talkEmotes[TALKANIM_NUMTALKANIMS];
@@ -214,7 +214,7 @@ static int32_t s_attackFlashToggle;
 static uint32_t s_attackFlashTime;
 
 // STATIC: 0x00A2D394
-extern const uint32_t s_environmentalDamageSchools[6] = { 0, 0, 0, 2, 3, 2 };
+extern const uint32_t s_environmentalDamageSchools[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES] = { 0, 0, 0, 2, 3, 2 };
 
 // STATIC: 0x00A349B4
 static const int32_t s_animTierFallback[ANIM_TIER_COUNT] = { ANIM_TIER_GROUND, ANIM_TIER_GROUND, ANIM_TIER_FLY, ANIM_TIER_GROUND, ANIM_TIER_GROUND };

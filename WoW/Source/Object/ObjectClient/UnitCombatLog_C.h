@@ -343,7 +343,7 @@ void SendCombatLogEvents();
 void QueueCombatLogEntry(CombatLogEntry* entry, uint32_t timeOffset);
 void UnitCombatLogBuildingDamage(const WOWGUID& caster, const WOWGUID& owner, const WOWGUID& building, int32_t damage, int32_t spellId);
 void UnitCombatLogBuildingHeal(const WOWGUID& caster, const WOWGUID& owner, const WOWGUID& building, int32_t amount, int32_t spellId);
-extern const uint32_t s_environmentalDamageSchools[6];
+extern const uint32_t s_environmentalDamageSchools[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES];
 bool ShouldShowFeedback(const ATTACKROUNDINFO& info);
 void UnitCombatLogInvalidateName(const char* name);
 char* GUIDToHexString(WOWGUID guid, char* buffer);

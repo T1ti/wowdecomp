@@ -186,7 +186,7 @@ CombatLogEntry* s_pendingEntries;
 const char* g_spellMissStrings[MISS_REASON::MISS_NUMMISSTYPES] = { "NONE", "MISS", "RESIST", "DODGE", "PARRY", "BLOCK", "EVADE", "IMMUNE", "IMMUNE", "DEFLECT", "ABSORB", "REFLECT" };
 
 // STATIC: 0x00AD671C
-static const char* s_environmentalDamageTypes[6] = { "FATIGUE", "DROWNING", "FALLING", "LAVA", "SLIME", "FIRE" };
+static const char* s_environmentalDamageTypes[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES] = { "FATIGUE", "DROWNING", "FALLING", "LAVA", "SLIME", "FIRE" };
 
 // INLINED
 inline CombatLogEntry::CombatLogEntry() {
