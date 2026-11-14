@@ -395,7 +395,7 @@ PendingCombatLogData* GetPendingCombatLogData(CombatLogEntry* entry, const WOWGU
     data->m_entry = entry;
     data->m_guid = guid;
     data->m_id = 0;
-    data->m_type = 0;
+    data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_NONE;
     data->m_mask = mask;
     return data;
 }
@@ -480,19 +480,19 @@ void CombatLogEntry::CancelPendingCallbacks() {
         }
 
         switch (data->m_type) {
-            case 1:
+            case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PLAYER:
                 g_nameDBCache.CancelCallback(data->m_guid.m_guid, &CombatLogEntry::PendingCombatLogResolved, data);
                 break;
-            case 2:
+            case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET:
                 g_petNameCache.CancelCallback(data->m_id, &CombatLogEntry::PendingCombatLogResolved, data);
                 break;
-            case 3:
+            case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE:
                 g_creatureDBCache.CancelCallback(data->m_id, &CombatLogEntry::PendingCombatLogResolved, data);
                 break;
-            case 4:
+            case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_GAMEOBJECT:
                 g_gameObjectDBCache.CancelCallback(data->m_id, &CombatLogEntry::PendingCombatLogResolved, data);
                 break;
-            case 5:
+            case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_ITEM:
                 g_itemDBCache.CancelCallback(data->m_id, &CombatLogEntry::PendingCombatLogResolved, data);
                 break;
         }
@@ -523,7 +523,7 @@ const char* CombatLogEntry::ResolveName(PendingCombatLogData* data, const char**
     const char* name = nullptr;
 
     switch (data->m_type) {
-        case 1: {
+        case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PLAYER: {
             NameCache* record = g_nameDBCache.GetRecord(data->m_guid.m_guid, data->m_guid, callback, data, false);
 
             if (record) {
@@ -536,7 +536,7 @@ const char* CombatLogEntry::ResolveName(PendingCombatLogData* data, const char**
 
             break;
         }
-        case 2: {
+        case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET: {
             PetNameCache* record = g_petNameCache.GetRecord(data->m_id, data->m_guid, callback, data, false);
 
             if (!record) {
@@ -555,7 +555,7 @@ const char* CombatLogEntry::ResolveName(PendingCombatLogData* data, const char**
             g_petNameCache.GetRecord(data->m_id, data->m_guid, callback, data, false);
             break;
         }
-        case 3: {
+        case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE: {
             CreatureStats_C* stats = g_creatureDBCache.GetRecord(data->m_id, data->m_guid, callback, data, false);
 
             if (stats) {
@@ -564,7 +564,7 @@ const char* CombatLogEntry::ResolveName(PendingCombatLogData* data, const char**
 
             break;
         }
-        case 4: {
+        case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_GAMEOBJECT: {
             GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(data->m_id, data->m_guid, callback, data, false);
 
             if (stats) {
@@ -573,7 +573,7 @@ const char* CombatLogEntry::ResolveName(PendingCombatLogData* data, const char**
 
             break;
         }
-        case 5: {
+        case PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_ITEM: {
             ItemStats_C* stats = g_itemDBCache.GetRecord(data->m_id, data->m_guid, callback, data, false);
 
             if (stats) {
@@ -605,7 +605,7 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
     uint32_t high = static_cast<uint32_t>(guid.m_guid >> 32);
 
     if (!(high & WOWGUID_HIGH_NON_PLAYER_MASK) && ((high & WOWGUID_HIGH_PLAYER_VALUE_MASK) | static_cast<uint32_t>(guid.m_guid))) {
-        data->m_type = 1;
+        data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PLAYER;
     } else {
         uint32_t type = high & WOWGUID_HIGH_TYPE_MASK;
 
@@ -613,21 +613,21 @@ const char* CombatLogEntry::GetObjectName(const WOWGUID& guid, uint32_t mask, co
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (!unit) {
-                data->m_type = 3;
+                data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE;
                 data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
             } else if (unit->m_unit->m_unitFieldPetnumber) {
-                data->m_type = 2;
+                data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET;
                 data->m_id = unit->m_unit->m_unitFieldPetnumber;
             } else {
                 data->m_id = unit->m_obj->m_entryID;
-                data->m_type = 3;
+                data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_CREATURE;
             }
         } else if (type == WOWGUID_HIGH_TYPE_PET) {
             data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
-            data->m_type = 2;
+            data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_PET;
         } else if (type == WOWGUID_HIGH_TYPE_GAMEOBJECT) {
             data->m_id = static_cast<int32_t>(guid.m_guid >> WOWGUID_ENTRY_SHIFT) & WOWGUID_ENTRY_MASK;
-            data->m_type = 4;
+            data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_GAMEOBJECT;
         } else {
             return FrameScript_GetText("UNKNOWNOBJECT", -1, GENDER_NOT_APPLICABLE);
         }
@@ -647,15 +647,15 @@ void CombatLogEntry::PendingCombatLogResolved(int32_t id, const WOWGUID& guid, v
         const char* name = entry->ResolveName(data, &realm, false);
 
         switch (data->m_mask) {
-            case 1:
+            case CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_SOURCE:
                 entry->m_sourceName = name;
                 entry->m_sourceRealm = realm;
                 break;
-            case 2:
+            case CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_DEST:
                 entry->m_destName = name;
                 entry->m_destRealm = realm;
                 break;
-            case 4:
+            case CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_ITEM:
                 entry->m_info.m_names[1] = name;
                 break;
         }
@@ -825,13 +825,13 @@ CombatLogEntry* GetCombatLogEntry(const WOWGUID& source, const WOWGUID& dest, in
 
     if (source.m_guid && (!spell || !(spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_DO_NOT_LOG_CASTER))) {
         entry->m_sourceGuid = source;
-        entry->m_sourceName = entry->GetObjectName(source, 1, &entry->m_sourceRealm);
+        entry->m_sourceName = entry->GetObjectName(source, CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_SOURCE, &entry->m_sourceRealm);
         entry->m_sourceFlags = GetCombatLogFlags(source);
     }
 
     if (dest.m_guid) {
         entry->m_destGuid = dest;
-        entry->m_destName = entry->GetObjectName(dest, 2, &entry->m_destRealm);
+        entry->m_destName = entry->GetObjectName(dest, CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_DEST, &entry->m_destRealm);
         entry->m_destFlags = GetCombatLogFlags(dest);
     }
 
@@ -1463,9 +1463,9 @@ int32_t CombatLogEntry::PushEvent(lua_State* L) {
 void CombatLogEntry::SetExecuteItem(int32_t itemId) {
     this->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ITEM;
     this->m_info.m_values[0] = itemId;
-    PendingCombatLogData* data = GetPendingCombatLogData(this, WOWGUID{ 0 }, 4);
+    PendingCombatLogData* data = GetPendingCombatLogData(this, WOWGUID{ 0 }, CombatLogEntry::PENDING_NAME_FLAGS::PENDING_NAME_ITEM);
     data->m_id = itemId;
-    data->m_type = 5;
+    data->m_type = PendingCombatLogData::NAME_SOURCE::NAME_SOURCE_ITEM;
     this->m_info.m_names[1] = this->ResolveName(data, nullptr, true);
 }
 

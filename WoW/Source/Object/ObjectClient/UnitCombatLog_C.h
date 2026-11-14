@@ -114,6 +114,13 @@ struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
         DAMAGE_RESULT_MASK = 0x7,
     };
 
+    // Names still awaiting a cache callback (m_pendingMask, PendingCombatLogData::m_mask).
+    enum PENDING_NAME_FLAGS : uint32_t {
+        PENDING_NAME_SOURCE = 0x1,
+        PENDING_NAME_DEST = 0x2,
+        PENDING_NAME_ITEM = 0x4,
+    };
+
     /* 0008 */ uint32_t m_timestamp;
     /* 000C */ int32_t m_event;
     /* 0010 */ uint32_t m_pendingMask;
@@ -161,11 +168,21 @@ struct InvalidatedName : public TSLinkedNode<InvalidatedName> {
 };
 
 struct PendingCombatLogData : public TSLinkedNode<PendingCombatLogData> {
+    // Cache that resolves the name: m_guid for players, m_id for the others.
+    enum NAME_SOURCE : int32_t {
+        NAME_SOURCE_NONE = 0,
+        NAME_SOURCE_PLAYER = 1,
+        NAME_SOURCE_PET = 2,
+        NAME_SOURCE_CREATURE = 3,
+        NAME_SOURCE_GAMEOBJECT = 4,
+        NAME_SOURCE_ITEM = 5,
+    };
+
     /* 0008 */ CombatLogEntry* m_entry;
     /* 000C */ uint32_t unknown_000C;
     /* 0010 */ WOWGUID m_guid;
     /* 0018 */ int32_t m_id;
-    /* 001C */ int32_t m_type;
+    /* 001C */ NAME_SOURCE m_type;
     /* 0020 */ uint32_t m_mask;
     /* 0024 */ uint32_t unknown_0024;
 };
