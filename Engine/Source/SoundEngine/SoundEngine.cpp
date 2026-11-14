@@ -1157,7 +1157,7 @@ FMOD::SoundGroup* SE2::CreateSoundGroup(const char* name, int32_t maxAudible) {
 
 // VERIFY: d9c047a9 manual
 // OFFSET: 0x00878B60
-void SE2::SetSoundGroupMaxAudibleBehavior(FMOD::SoundGroup* soundGroup, int32_t behavior, float muteFadeSpeed) {
+void SE2::SetSoundGroupMaxAudibleBehavior(FMOD::SoundGroup* soundGroup, SE2_MAX_AUDIBLE_BEHAVIOR behavior, float muteFadeSpeed) {
     if (!soundGroup) {
         return;
     }

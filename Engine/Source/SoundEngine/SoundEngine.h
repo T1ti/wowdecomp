@@ -308,7 +308,7 @@ class SE2 {
     static void SetMasterVolume(float volume);
     static void SetPrimaryCaptureCallback(SECaptureCallbacks* callbacks);
     static void SetReverb(const FMOD_REVERB_PROPERTIES* properties);
-    static void SetSoundGroupMaxAudibleBehavior(FMOD::SoundGroup* soundGroup, int32_t behavior, float muteFadeSpeed);
+    static void SetSoundGroupMaxAudibleBehavior(FMOD::SoundGroup* soundGroup, SE2_MAX_AUDIBLE_BEHAVIOR behavior, float muteFadeSpeed);
     static void SetUserMonitorDSPCallback(void (*callback)(float*, uint32_t));
     static void ShutDown(int32_t restart);
     static void ShutDownCapture();
