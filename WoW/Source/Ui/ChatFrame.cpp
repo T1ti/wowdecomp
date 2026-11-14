@@ -4106,7 +4106,7 @@ void CGChat::LogFactionChanged(int32_t faction, int32_t delta, int32_t generic, 
 
     SStrPrintf(text, sizeof(text), FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE), rec->m_name, abs(delta), bonus);
     CGChat::AddChatMessage(text, CHAT_MSG_COMBAT_FACTION_CHANGE, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
-    SendToCombatText(36, rec->m_name, delta);
+    SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_FACTION, rec->m_name, delta);
 }
 
 // VERIFY: 5920534b auto
@@ -6100,7 +6100,7 @@ void CGChat::LogHonorGain(CGUnit_C* unit, const WOWGUID& victim, int32_t rank, i
         if (format && *format) {
             SStrPrintf(text, sizeof(text), format, honor);
             CGChat::AddChatMessage(text, CHAT_MSG_COMBAT_HONOR_GAIN, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
-            SendToCombatText(43, honor);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_HONOR_GAINED, honor);
         }
 
         return;
@@ -6140,7 +6140,7 @@ void CGChat::LogHonorGain(CGUnit_C* unit, const WOWGUID& victim, int32_t rank, i
     }
 
     CGChat::AddChatMessage(text, CHAT_MSG_COMBAT_HONOR_GAIN, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
-    SendToCombatText(43, honor);
+    SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_HONOR_GAINED, honor);
 
     if (rank >= 0) {
         unit->AddWorldHonorGainText(honor, rank, rankName);

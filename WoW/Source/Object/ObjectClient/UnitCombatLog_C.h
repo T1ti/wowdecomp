@@ -72,6 +72,60 @@ enum COMBAT_LOG_INFO_FLAGS : uint32_t
     COMBAT_LOG_INFO_FLAG_UNUSED_31                  = 0x80000000u,
 };
 
+// COMBAT_TEXT_UPDATE message types; index into s_combatTextTypes.
+enum COMBAT_TEXT_TYPE : int32_t
+{
+    COMBAT_TEXT_INTERRUPT                 = 0,
+    COMBAT_TEXT_DAMAGE_CRIT               = 1,
+    COMBAT_TEXT_DAMAGE                    = 2,
+    COMBAT_TEXT_MISS                      = 3,
+    COMBAT_TEXT_DODGE                     = 4,
+    COMBAT_TEXT_PARRY                     = 5,
+    COMBAT_TEXT_EVADE                     = 6,
+    COMBAT_TEXT_IMMUNE                    = 7,
+    COMBAT_TEXT_DEFLECT                   = 8,
+    COMBAT_TEXT_REFLECT                   = 9,
+    COMBAT_TEXT_RESIST                    = 10,
+    COMBAT_TEXT_BLOCK                     = 11,
+    COMBAT_TEXT_ABSORB                    = 12,
+    COMBAT_TEXT_SPELL_DAMAGE_CRIT         = 13,
+    COMBAT_TEXT_SPELL_DAMAGE              = 14,
+    COMBAT_TEXT_SPELL_MISS                = 15,
+    COMBAT_TEXT_SPELL_DODGE               = 16,
+    COMBAT_TEXT_SPELL_PARRY               = 17,
+    COMBAT_TEXT_SPELL_EVADE               = 18,
+    COMBAT_TEXT_SPELL_IMMUNE              = 19,
+    COMBAT_TEXT_SPELL_DEFLECT             = 20,
+    COMBAT_TEXT_SPELL_REFLECT             = 21,
+    COMBAT_TEXT_SPELL_RESIST              = 22,
+    COMBAT_TEXT_SPELL_BLOCK               = 23,
+    COMBAT_TEXT_SPELL_ABSORB              = 24,
+    COMBAT_TEXT_ENCHANTMENT_REMOVED       = 25,
+    COMBAT_TEXT_ENCHANTMENT_ADDED         = 26,
+    COMBAT_TEXT_PERIODIC_HEAL             = 27,
+    COMBAT_TEXT_ENERGIZE                  = 28,
+    COMBAT_TEXT_PERIODIC_ENERGIZE         = 29,
+    COMBAT_TEXT_SPELL_CAST                = 30,
+    COMBAT_TEXT_SPELL_AURA_END            = 31,
+    COMBAT_TEXT_SPELL_AURA_END_HARMFUL    = 32,
+    COMBAT_TEXT_SPELL_AURA_START          = 33,
+    COMBAT_TEXT_SPELL_AURA_START_HARMFUL  = 34,
+    COMBAT_TEXT_SPELL_ACTIVE              = 35,
+    COMBAT_TEXT_FACTION                   = 36,
+    COMBAT_TEXT_HEAL_CRIT                 = 37,
+    COMBAT_TEXT_HEAL                      = 38,
+    COMBAT_TEXT_DAMAGE_SHIELD             = 39,
+    COMBAT_TEXT_SPELL_DISPELLED           = 40,
+    COMBAT_TEXT_EXTRA_ATTACKS             = 41,
+    COMBAT_TEXT_SPLIT_DAMAGE              = 42,
+    COMBAT_TEXT_HONOR_GAINED              = 43,
+    COMBAT_TEXT_PERIODIC_HEAL_ABSORB      = 44,
+    COMBAT_TEXT_HEAL_CRIT_ABSORB          = 45,
+    COMBAT_TEXT_HEAL_ABSORB               = 46,
+    COMBAT_TEXT_ARENA_POINTS_GAINED       = 47,
+    NUM_COMBAT_TEXT_TYPES                 = 48,
+};
+
 // Combat log unit flags (CombatLogEntry source/dest flags and filter masks); names follow FrameXML.
 enum COMBATLOG_OBJECT : uint32_t
 {
@@ -253,12 +307,12 @@ int32_t Packet_SMSG_DISPEL_FAILED(void* param, NETMESSAGE msgId, uint32_t time, 
 int32_t Packet_SMSG_DESTRUCTIBLE_BUILDING_DAMAGE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid);
 int32_t IsCombatTextActiveUnit(WOWGUID guid);
-void SendToCombatText(int32_t type, const char* text, int32_t amount);
-void SendToCombatText(int32_t type, const char* text, int32_t amount, int32_t overflow);
-void SendToCombatText(int32_t type, int32_t amount, int32_t overflow);
-void SendToCombatText(int32_t type, int32_t amount);
-void SendToCombatText(int32_t type, const char* text);
-void SendToCombatText(int32_t type);
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount);
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount, int32_t overflow);
+void SendToCombatText(COMBAT_TEXT_TYPE type, int32_t amount, int32_t overflow);
+void SendToCombatText(COMBAT_TEXT_TYPE type, int32_t amount);
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text);
+void SendToCombatText(COMBAT_TEXT_TYPE type);
 void UnitCombatLogAuraAddedOrRemoved(CGUnit_C* unit, AuraData* aura, const SpellRec* spell, uint8_t harmful, int32_t added);
 void UnitCombatLogProcGo(const WOWGUID& casterGuid, const SpellRec* spell);
 void UnitCombatLogPowerDrain(const WOWGUID& casterGuid, const WOWGUID& targetGuid, int32_t spellId, uint32_t powerType, uint32_t amount, float multiplier, bool a7, uint32_t timeOffset);

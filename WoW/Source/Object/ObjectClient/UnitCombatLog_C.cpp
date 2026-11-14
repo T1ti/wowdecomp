@@ -95,7 +95,7 @@ static const char* s_combatLogEventNames[50] = {
 };
 
 // STATIC: 0x00ADB820
-static const char* s_combatTextTypes[48] = {
+static const char* s_combatTextTypes[COMBAT_TEXT_TYPE::NUM_COMBAT_TEXT_TYPES] = {
     "INTERRUPT",
     "DAMAGE_CRIT",
     "DAMAGE",
@@ -241,37 +241,37 @@ int32_t IsCombatTextActiveUnit(WOWGUID guid) {
 
 // VERIFY: 4b539030 auto
 // OFFSET: 0x0074D460
-void SendToCombatText(int32_t type, const char* text, int32_t amount) {
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d", s_combatTextTypes[type], text, amount);
 }
 
 // VERIFY: ec53185e auto
 // OFFSET: 0x0074D490
-void SendToCombatText(int32_t type, const char* text, int32_t amount, int32_t overflow) {
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount, int32_t overflow) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d%d", s_combatTextTypes[type], text, amount, overflow);
 }
 
 // VERIFY: 41c0dd5e auto
 // OFFSET: 0x0074D4C0
-void SendToCombatText(int32_t type, int32_t amount, int32_t overflow) {
+void SendToCombatText(COMBAT_TEXT_TYPE type, int32_t amount, int32_t overflow) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[type], amount, overflow);
 }
 
 // VERIFY: 832fb9f0 auto
 // OFFSET: 0x0074D4F0
-void SendToCombatText(int32_t type, int32_t amount) {
+void SendToCombatText(COMBAT_TEXT_TYPE type, int32_t amount) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d", s_combatTextTypes[type], amount);
 }
 
 // VERIFY: 4c54569b auto
 // OFFSET: 0x0074D520
-void SendToCombatText(int32_t type, const char* text) {
+void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s", s_combatTextTypes[type], text);
 }
 
 // VERIFY: 8f0453d6 auto
 // OFFSET: 0x0074D550
-void SendToCombatText(int32_t type) {
+void SendToCombatText(COMBAT_TEXT_TYPE type) {
     FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s", s_combatTextTypes[type]);
 }
 
@@ -983,13 +983,13 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             if (resisted > 0) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[10], damage, resisted);
             } else if (blocked) {
-                SendToCombatText(11, damage, blocked);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK, damage, blocked);
             } else if (absorbed) {
-                SendToCombatText(12, damage, absorbed);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB, damage, absorbed);
             } else if (critical) {
-                SendToCombatText(1, damage);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_CRIT, damage);
             } else {
-                SendToCombatText(2, damage);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE, damage);
             }
         }
 
@@ -1004,7 +1004,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         entry->SetMissInfo(MISS_REASON::MISS_PHYSICAL, 0);
 
         if (s_combatTextActiveUnit == target) {
-            SendToCombatText(3);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_MISS);
         }
     } else if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_ABSORB) {
         int32_t absorbed = 0;
@@ -1017,7 +1017,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         entry->SetMissInfo(MISS_REASON::MISS_ABSORBED, absorbed);
 
         if (s_combatTextActiveUnit == target) {
-            SendToCombatText(12);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
         }
     } else if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_FULL_RESIST) {
         int32_t resisted = 0;
@@ -1030,36 +1030,36 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         entry->SetMissInfo(MISS_REASON::MISS_RESIST, resisted);
 
         if (s_combatTextActiveUnit == target) {
-            SendToCombatText(10);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
         }
     } else {
         int32_t missType;
-        int32_t textType;
+        COMBAT_TEXT_TYPE textType;
 
         switch (victimState) {
             case VS_DODGE:
                 missType = MISS_REASON::MISS_DODGED;
-                textType = 4;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_DODGE;
                 break;
             case VS_PARRY:
                 missType = MISS_REASON::MISS_PARRIED;
-                textType = 5;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_PARRY;
                 break;
             case VS_BLOCK:
                 missType = MISS_REASON::MISS_BLOCKED;
-                textType = 11;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK;
                 break;
             case VS_EVADE:
                 missType = MISS_REASON::MISS_EVADED;
-                textType = 6;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_EVADE;
                 break;
             case VS_IMMUNE:
                 missType = MISS_REASON::MISS_IMMUNE;
-                textType = 7;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_IMMUNE;
                 break;
             case VS_DEFLECT:
                 missType = MISS_REASON::MISS_DEFLECTED;
-                textType = 8;
+                textType = COMBAT_TEXT_TYPE::COMBAT_TEXT_DEFLECT;
                 break;
             default:
                 return;
@@ -1112,7 +1112,7 @@ int32_t Packet_SMSG_PROCRESIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
         entry->m_info.m_values[5] = 0;
 
         if (s_combatTextActiveUnit == target) {
-            SendToCombatText(22);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -1202,7 +1202,7 @@ void UnitCombatLogDamageShield(const WOWGUID& victimGuid, const WOWGUID& casterG
         QueueCombatLogEntry(entry, 0);
 
         if (s_combatTextActiveUnit == casterGuid) {
-            SendToCombatText(39, damage);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_SHIELD, damage);
         }
     }
 }
@@ -1478,44 +1478,44 @@ void CombatLog::QueueMissedSpellText(const WOWGUID& source, const WOWGUID& dest,
     if (s_combatTextActiveUnit == dest) {
         switch (missType) {
             case MISS_REASON::MISS_PHYSICAL:
-                SendToCombatText(event == 8 ? 15 : 3);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_MISS : COMBAT_TEXT_TYPE::COMBAT_TEXT_MISS);
                 break;
 
             case MISS_REASON::MISS_RESIST:
-                SendToCombatText(event == 8 ? 22 : 10);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
                 break;
 
             case MISS_REASON::MISS_DODGED:
-                SendToCombatText(event == 8 ? 16 : 4);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DODGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DODGE);
                 break;
 
             case MISS_REASON::MISS_PARRIED:
-                SendToCombatText(event == 8 ? 17 : 5);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_PARRY : COMBAT_TEXT_TYPE::COMBAT_TEXT_PARRY);
                 break;
 
             case MISS_REASON::MISS_BLOCKED:
-                SendToCombatText(event == 8 ? 23 : 11);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
                 break;
 
             case MISS_REASON::MISS_EVADED:
-                SendToCombatText(event == 8 ? 18 : 6);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_EVADE : COMBAT_TEXT_TYPE::COMBAT_TEXT_EVADE);
                 break;
 
             case MISS_REASON::MISS_IMMUNE:
             case MISS_REASON::MISS_TEMPIMMUNE:
-                SendToCombatText(event == 8 ? 19 : 7);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_IMMUNE : COMBAT_TEXT_TYPE::COMBAT_TEXT_IMMUNE);
                 break;
 
             case MISS_REASON::MISS_DEFLECTED:
-                SendToCombatText(event == 8 ? 20 : 8);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DEFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DEFLECT);
                 break;
 
             case MISS_REASON::MISS_ABSORBED:
-                SendToCombatText(event == 8 ? 24 : 12);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
                 break;
 
             case MISS_REASON::MISS_REFLECTED:
-                SendToCombatText(event == 8 ? 21 : 9);
+                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_REFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_REFLECT);
                 break;
 
             default:
@@ -1628,7 +1628,7 @@ void UnitCombatLogInterrupt(const WOWGUID& casterGuid, const WOWGUID& targetGuid
         QueueCombatLogEntry(entry, 0);
 
         if (IsCombatTextActiveUnit(targetGuid)) {
-            SendToCombatText(0, interrupted.m_name);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_INTERRUPT, interrupted.m_name);
         }
 
         SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(26);
@@ -1651,7 +1651,7 @@ void CombatLog::AddSpellDamageEntry(const WOWGUID& source, const WOWGUID& dest, 
         QueueCombatLogEntry(entry, timeOffset);
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(41, damage);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_EXTRA_ATTACKS, damage);
         }
     }
 }
@@ -1874,12 +1874,12 @@ void UnitCombatLogAuraAddedOrRemoved(CGUnit_C* unit, AuraData* aura, const Spell
 
     if (added) {
         if (harmful) {
-            SendToCombatText(34, spell->m_name);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_AURA_START_HARMFUL, spell->m_name);
         } else if (!(spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_FLOATING_COMBAT_TEXT_ON_CAST)) {
-            SendToCombatText(33, spell->m_name);
+            SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_AURA_START, spell->m_name);
         }
     } else {
-        SendToCombatText(harmful ? 32 : 31, spell->m_name);
+        SendToCombatText(harmful ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_AURA_END_HARMFUL : COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_AURA_END, spell->m_name);
     }
 }
 
@@ -2024,12 +2024,12 @@ void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, co
             if (event == 35) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d%d", s_combatTextTypes[44], GetObjectNameFromGuid(source), amount, absorbed);
             } else {
-                SendToCombatText(crit ? 45 : 46, GetObjectNameFromGuid(source), amount, absorbed);
+                SendToCombatText(crit ? COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_CRIT_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_ABSORB, GetObjectNameFromGuid(source), amount, absorbed);
             }
         } else if (event == 35) {
             FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d", s_combatTextTypes[27], GetObjectNameFromGuid(source), amount);
         } else {
-            SendToCombatText(crit ? 37 : 38, GetObjectNameFromGuid(source), amount);
+            SendToCombatText(crit ? COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_CRIT : COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL, GetObjectNameFromGuid(source), amount);
         }
     } else {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(dest, TYPE_UNIT, __FILE__, __LINE__));
@@ -2288,7 +2288,7 @@ void UnitCombatLogCastGo(const WOWGUID& caster, const WOWGUID& target, int32_t s
     }
 
     if (IsCombatTextActiveUnit(caster) && (spell.m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_FLOATING_COMBAT_TEXT_ON_CAST)) {
-        SendToCombatText(30, spell.m_name);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_CAST, spell.m_name);
     }
 }
 
@@ -2313,7 +2313,7 @@ void CombatLog::AddAuraReplacedEntry(const WOWGUID& source, const WOWGUID& dest,
     QueueCombatLogEntry(entry, timeOffset);
 
     if (IsCombatTextActiveUnit(dest)) {
-        SendToCombatText(40, replaced.m_name);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DISPELLED, replaced.m_name);
     }
 }
 
@@ -2345,7 +2345,7 @@ void CombatLog::AddSpellRemoveEntry(const WOWGUID& source, const WOWGUID& dest, 
     QueueCombatLogEntry(entry, 0);
 
     if (s_combatTextActiveUnit == dest) {
-        SendToCombatText(40, spell.m_name);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DISPELLED, spell.m_name);
     }
 }
 
@@ -2397,15 +2397,15 @@ void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, 
     if (resisted > 0) {
         FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[event == 9 ? 22 : 10], damage, resisted);
     } else if (blocked) {
-        SendToCombatText(event == 9 ? 23 : 11, damage, blocked);
+        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK, damage, blocked);
     } else if (absorbed) {
-        SendToCombatText(event == 9 ? 24 : 12, damage, absorbed);
+        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB, damage, absorbed);
     } else if (crit) {
-        SendToCombatText(event == 9 ? 13 : 1, damage);
+        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE_CRIT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_CRIT, damage);
     } else if (event == 40) {
-        SendToCombatText(39, damage);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_SHIELD, damage);
     } else {
-        SendToCombatText(event == 9 ? 14 : 2, damage);
+        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE, damage);
     }
 }
 
@@ -2439,7 +2439,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[4] = absorbed;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? 24 : 12);
+            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -2450,7 +2450,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[6] = blocked;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? 23 : 11);
+            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -2461,7 +2461,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[5] = resisted;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? 22 : 10);
+            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -3176,11 +3176,11 @@ void UnitCombatLog(const WOWGUID& guid, uint32_t type, int32_t damage, int32_t a
     }
 
     if (resisted) {
-        SendToCombatText(10, damage, resisted);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST, damage, resisted);
     } else if (absorbed) {
-        SendToCombatText(12, damage, absorbed);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB, damage, absorbed);
     } else {
-        SendToCombatText(2, damage);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE, damage);
     }
 }
 

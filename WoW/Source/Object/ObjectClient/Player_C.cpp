@@ -7765,7 +7765,7 @@ static void QuestCompleteCallback(int32_t id, const WOWGUID& guid, void* param, 
             CGChat::AddChatMessage(text, CHAT_MSG_COMBAT_HONOR_GAIN, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
-        SendToCombatText(43, rewards->m_honor);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_HONOR_GAINED, rewards->m_honor);
     }
 
     if (rewards->m_talents > 0) {
@@ -7785,7 +7785,7 @@ static void QuestCompleteCallback(int32_t id, const WOWGUID& guid, void* param, 
             CGChat::AddChatMessage(text, CHAT_MSG_ARENA_POINTS, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
-        SendToCombatText(47, rewards->m_arenaPoints);
+        SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_ARENA_POINTS_GAINED, rewards->m_arenaPoints);
     }
 
     WOWGUID player = ClntObjMgrGetActivePlayer();

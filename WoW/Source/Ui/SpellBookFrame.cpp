@@ -162,7 +162,7 @@ void CGSpellBook::UpdateUsable() {
             bool noMana = !power;
 
             if ((usable && power) != (entry.m_usable && !entry.m_noMana) && usable && !noMana) {
-                SendToCombatText(35, spell.m_name);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ACTIVE, spell.m_name);
             }
 
             entry.m_usable = usable;
@@ -1841,7 +1841,7 @@ void CGSpellBook::UpdateUsablePower() {
 
         if (!havePower != info->m_noMana) {
             if (havePower) {
-                SendToCombatText(35, spell.m_name);
+                SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ACTIVE, spell.m_name);
             }
 
             info->m_noMana = !havePower;
