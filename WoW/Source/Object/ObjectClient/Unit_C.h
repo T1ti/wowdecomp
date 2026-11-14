@@ -103,6 +103,14 @@ struct QUESTGIVEREMOTEQUEUE {
 };
 
 struct DelayedSpellVisualKit {
+    enum DELAY_FLAGS : uint32_t {
+        HAS_POSITION = 0x1,
+        PLAY_ANIM = 0x2,
+        HARMFUL = 0x4,
+        IN_USE = 0x8,
+        PLAY_ANIM_OR_HARMFUL = 0x6,
+    };
+
     /* 0000 */ int32_t m_spellId;
     /* 0004 */ int32_t m_kitId;
     /* 0008 */ int32_t m_kitType;
@@ -739,7 +747,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnDismissControlledVehicleLocal(uint32_t eventTime);
     void SetEmoteQueue(const QUESTGIVEREMOTENODE* nodes, uint32_t count);
     void PlayEmotes(const QUESTGIVEREMOTEQUEUE& emotes);
-    DelayedSpellVisualKit* DelaySpellVisualKit(int32_t spellId, int32_t kitId, int32_t kitType, const C3Vector* position, WOWGUID targetGuid, int32_t a7, int32_t a8, int32_t delay, int32_t a10, int32_t a11);
+    DelayedSpellVisualKit* DelaySpellVisualKit(int32_t spellId, int32_t kitId, int32_t kitType, const C3Vector* position, WOWGUID targetGuid, BOOL playAnim, BOOL harmful, int32_t delay, int32_t a10, int32_t a11);
     C3Vector GetGroundNormal() const;
     bool IsMovingToward(CGObject_C* target) const;
     int32_t ChooseLootAnim(uint32_t flags, uint32_t* animId);

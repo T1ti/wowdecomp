@@ -2120,7 +2120,7 @@ void CGUnit_C::UpdateDelayedSpellVisualKits() {
     for (uint32_t i = 0; i < count; i++) {
         DelayedSpellVisualKit* delayed = &this->m_delayedSpellVisualKits.m_data[i];
 
-        if (!(delayed->m_flags & 0x8)) {
+        if (!(delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::IN_USE)) {
             continue;
         }
 
@@ -2138,13 +2138,13 @@ void CGUnit_C::UpdateDelayedSpellVisualKits() {
                 if (kit) {
                     PlaySpellVisuaKitData data(&spellRec, kit, delayed->m_kitType);
 
-                    if (delayed->m_flags & 0x1) {
+                    if (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::HAS_POSITION) {
                         data.m_position = &delayed->m_position;
                         data.m_transportGUID = delayed->m_targetGuid;
                     }
 
-                    data.m_playAnim = (delayed->m_flags >> 1) & 0x1;
-                    data.m_harmful = (delayed->m_flags >> 2) & 0x1;
+                    data.m_playAnim = (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::PLAY_ANIM) != 0;
+                    data.m_harmful = (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::HARMFUL) != 0;
                     data.unknown_0020 = 1;
                     data.unknown_0024 = delayed->m_delay;
                     this->PlaySpellVisualKit(data);
@@ -2152,7 +2152,7 @@ void CGUnit_C::UpdateDelayedSpellVisualKits() {
             }
         }
 
-        delayed->m_flags &= ~0x8;
+        delayed->m_flags &= ~DelayedSpellVisualKit::DELAY_FLAGS::IN_USE;
     }
 
     if (!pending && count) {
@@ -9116,11 +9116,11 @@ void CGUnit_C::SetEmoteQueue(const QUESTGIVEREMOTENODE* nodes, uint32_t count) {
 
 // VERIFY: 088aa6dd auto
 // OFFSET: 0x00728050
-DelayedSpellVisualKit* CGUnit_C::DelaySpellVisualKit(int32_t spellId, int32_t kitId, int32_t kitType, const C3Vector* position, WOWGUID targetGuid, int32_t a7, int32_t a8, int32_t delay, int32_t a10, int32_t a11) {
+DelayedSpellVisualKit* CGUnit_C::DelaySpellVisualKit(int32_t spellId, int32_t kitId, int32_t kitType, const C3Vector* position, WOWGUID targetGuid, BOOL playAnim, BOOL harmful, int32_t delay, int32_t a10, int32_t a11) {
     uint32_t index;
 
     for (index = 0; index < this->m_delayedSpellVisualKits.m_count; index++) {
-        if (!(this->m_delayedSpellVisualKits.m_data[index].m_flags & 0x8)) {
+        if (!(this->m_delayedSpellVisualKits.m_data[index].m_flags & DelayedSpellVisualKit::DELAY_FLAGS::IN_USE)) {
             break;
         }
     }
@@ -9136,18 +9136,21 @@ DelayedSpellVisualKit* CGUnit_C::DelaySpellVisualKit(int32_t spellId, int32_t ki
 
     if (position) {
         kit->m_position = *position;
-        kit->m_flags |= 0x1;
+        kit->m_flags |= DelayedSpellVisualKit::DELAY_FLAGS::HAS_POSITION;
         kit->m_targetGuid = targetGuid;
     } else {
         kit->m_position.x = 0.0f;
         kit->m_position.y = 0.0f;
         kit->m_position.z = 0.0f;
-        kit->m_flags &= ~0x1u;
+        kit->m_flags &= ~DelayedSpellVisualKit::DELAY_FLAGS::HAS_POSITION;
         kit->m_targetGuid = WOWGUID();
     }
 
     kit->m_delay = delay;
-    kit->m_flags = (kit->m_flags & ~0x6u) | (((a7 != 0) | (((a8 != 0) | 2) << 1)) << 1);
+    kit->m_flags = (kit->m_flags & ~DelayedSpellVisualKit::DELAY_FLAGS::PLAY_ANIM_OR_HARMFUL) |
+        DelayedSpellVisualKit::DELAY_FLAGS::IN_USE |
+        (playAnim ? DelayedSpellVisualKit::DELAY_FLAGS::PLAY_ANIM : 0) |
+        (harmful ? DelayedSpellVisualKit::DELAY_FLAGS::HARMFUL : 0);
     kit->unk_0028 = a10;
     kit->m_startTime = a11;
     return kit;
@@ -23436,7 +23439,7 @@ void CGUnit_C::ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment)
     for (uint32_t i = 0; i < this->m_delayedSpellVisualKits.m_count; i++) {
         DelayedSpellVisualKit* delayed = &this->m_delayedSpellVisualKits.m_data[i];
 
-        if (!(delayed->m_flags & 0x8) || delayed->unk_0028 || delayed->m_spellId != static_cast<int32_t>(spellId) || delayed->m_delay != attachment) {
+        if (!(delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::IN_USE) || delayed->unk_0028 || delayed->m_spellId != static_cast<int32_t>(spellId) || delayed->m_delay != attachment) {
             continue;
         }
 
@@ -23446,20 +23449,20 @@ void CGUnit_C::ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment)
             if (kit) {
                 PlaySpellVisuaKitData data(&spellRec, kit, delayed->m_kitType);
 
-                if (delayed->m_flags & 0x1) {
+                if (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::HAS_POSITION) {
                     data.m_position = &delayed->m_position;
                     data.m_transportGUID = delayed->m_targetGuid;
                 }
 
-                data.m_harmful = (delayed->m_flags >> 2) & 0x1;
-                data.m_playAnim = (delayed->m_flags >> 1) & 0x1;
+                data.m_harmful = (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::HARMFUL) != 0;
+                data.m_playAnim = (delayed->m_flags & DelayedSpellVisualKit::DELAY_FLAGS::PLAY_ANIM) != 0;
                 data.unknown_0020 = 1;
                 data.unknown_0024 = delayed->m_delay;
                 this->PlaySpellVisualKit(data);
             }
         }
 
-        this->m_delayedSpellVisualKits.m_data[i].m_flags &= ~0x8;
+        this->m_delayedSpellVisualKits.m_data[i].m_flags &= ~DelayedSpellVisualKit::DELAY_FLAGS::IN_USE;
     }
 }
 
