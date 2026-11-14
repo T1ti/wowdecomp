@@ -35,6 +35,20 @@ enum SPELL_VISUAL_CHAR_PROC : int32_t {
 
 class SpellVisualKitRec {
     public:
+    enum KIT_FLAGS : int32_t {
+        DELAY_CHAIN_EFFECTS = 0x1,
+        UNKNOWN_4 = 0x4,
+        UNKNOWN_8 = 0x8,
+        UNKNOWN_10 = 0x10,
+        USE_STAND_ANIMATION = 0x20,
+        UNKNOWN_40 = 0x40,
+        REQUIRE_ACTIVE_AURA = 0x80,
+        UNKNOWN_100 = 0x100,
+        IGNORE_PARENT_EFFECTIVE_ALPHA = 0x200,
+        FORCE_WORLD_MODEL_ALPHA = 0x400,
+        RAW_ANIMATION_ID_MASK = 0xC,
+    };
+
     static const int32_t s_numColumns = 38;
     static const int32_t s_rowSize = 152;
     static const bool s_generatedID = false;

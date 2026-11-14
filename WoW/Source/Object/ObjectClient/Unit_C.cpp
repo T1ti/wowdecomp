@@ -1180,19 +1180,19 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
                 const SpellVisualKitRec* kit = effect->m_kitRec;
 
                 if (kit && IsDeadOrDyingAnim(kit->m_animID)) {
-                    if (kit->m_flags & 0x4) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
                         flags |= 0x2;
                     }
 
-                    if (kit->m_flags & 0x8) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
                         flags |= 0x4;
                     }
 
-                    if (kit->m_flags & 0x10) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
                         flags |= 0x8;
                     }
 
-                    if (kit->m_flags & 0x100) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
                         flags |= 0x20;
                     }
 
@@ -2423,19 +2423,19 @@ void ApplyKitAnimFlags(uint32_t kitFlags, uint32_t* animFlags) {
         return;
     }
 
-    if (kitFlags & 0x4) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
         *animFlags |= 0x2;
     }
 
-    if (kitFlags & 0x8) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
         *animFlags |= 0x4;
     }
 
-    if (kitFlags & 0x10) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
         *animFlags |= 0x8;
     }
 
-    if (kitFlags & 0x100) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
         *animFlags |= 0x20;
     }
 }
@@ -2464,19 +2464,19 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
         const SpellVisualKitRec* kit = effect->m_kitRec;
 
         if (kit && IsDeadOrDyingAnim(kit->m_animID)) {
-            if (kit->m_flags & 0x4) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
                 flags |= 0x2;
             }
 
-            if (kit->m_flags & 0x8) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
                 flags |= 0x4;
             }
 
-            if (kit->m_flags & 0x10) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
                 flags |= 0x8;
             }
 
-            if (kit->m_flags & 0x100) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
                 flags |= 0x20;
             }
 
@@ -2594,7 +2594,7 @@ int32_t CGUnit_C::ChooseSpellVisualKitAnim(uint32_t mask, uint32_t* anim, uint32
         return 1;
     }
 
-    if ((*animFlags & 0x10) && (kitFlags & 0x40)) {
+    if ((*animFlags & 0x10) && (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_40)) {
         *anim = kitAnim;
     }
 
@@ -16425,7 +16425,7 @@ void CGUnit_C::ReleaseAurasBySpell(int32_t spellId) {
         CEffect* next = effect->m_next;
 
         if (effect->m_spellId == static_cast<uint32_t>(spellId)) {
-            this->m_forceWorldModelAlpha = effect->m_kitRec && (effect->m_kitRec->m_flags & 0x400);
+            this->m_forceWorldModelAlpha = effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_WORLD_MODEL_ALPHA);
             effect->Release();
         }
 
@@ -16952,7 +16952,7 @@ void CGUnit_C::HandleSpellEventSound() {
 // VERIFY: 28e7526d auto
 // OFFSET: 0x0072AF60
 int32_t CGUnit_C::PlaySpellVisualKit_DelayLightningEffects(const SpellRec* spell, const SpellVisualKitRec* kit, SPELL_VISUAL_KIT_TYPE type, const C3Vector* position, WOWGUID guid, int32_t a6, int32_t a7, int32_t a8, int32_t a9, uint32_t a10, const SpellVisualRec* visual) {
-    if (!spell || !visual || !Spell_C_SpellVisualHasChainEffect(visual) || a8 || !(kit->m_flags & 0x1)) {
+    if (!spell || !visual || !Spell_C_SpellVisualHasChainEffect(visual) || a8 || !(kit->m_flags & SpellVisualKitRec::KIT_FLAGS::DELAY_CHAIN_EFFECTS)) {
         return 0;
     }
 
@@ -17017,19 +17017,19 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
     if (a5) {
         uint8_t animFlags = 0;
 
-        if (kit->m_flags & 0x4) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
             animFlags = 2;
         }
 
-        if (kit->m_flags & 0x8) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
             animFlags |= 0x4;
         }
 
-        if (kit->m_flags & 0x10) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
             animFlags |= 0x8;
         }
 
-        if (kit->m_flags & 0x100) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
             animFlags |= 0x20;
         }
 
@@ -21100,11 +21100,11 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                     effect->m_alpha = param0;
                     effect->m_kitRec = kit;
 
-                    if (kit->m_flags & 0x200) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::IGNORE_PARENT_EFFECTIVE_ALPHA) {
                         effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA;
                     }
 
-                    this->m_forceWorldModelAlpha = (kit->m_flags >> 10) & 1;
+                    this->m_forceWorldModelAlpha = (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_WORLD_MODEL_ALPHA) != 0;
                     effect->m_fadeTime = FloatToInt64(param2 * 1000.0f);
                     effect->LinkTo(&this->m_auraEffects);
                 }

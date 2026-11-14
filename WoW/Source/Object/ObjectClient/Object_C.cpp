@@ -1498,7 +1498,7 @@ void CGObject_C::AuraEffectHandler(CM2Model* model, uint32_t boneId, uint32_t se
         return;
     }
 
-    if (effect->m_kitRec && (effect->m_kitRec->m_flags & 0x20)) {
+    if (effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::USE_STAND_ANIMATION)) {
         effect->m_model->SetSequenceCallback(&CGObject_C::AuraEffectHoldHandler, reinterpret_cast<uintptr_t>(effect));
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else if (effect->m_model->HasSequence(ANIM_EFFECT_HOLD)) {
@@ -1525,7 +1525,7 @@ void CGObject_C::PlayEffectName(int32_t attachType, uint32_t a3, int32_t spellId
         effect->SetEnabled(0);
     }
 
-    if (kit->m_flags & 0x200) {
+    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::IGNORE_PARENT_EFFECTIVE_ALPHA) {
         effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA;
     }
 
@@ -1590,7 +1590,7 @@ void CGObject_C::PlaySpellVisualKit(const PlaySpellVisuaKitData& data) {
 
     const SpellVisualKitRec* kit = data.m_impactVisualKit;
 
-    if (kit->m_flags & 0xC) {
+    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::RAW_ANIMATION_ID_MASK) {
         flags |= CEffect::EFFECT_FLAGS::EFFECT_RAW_ANIMATION_ID;
     }
 
