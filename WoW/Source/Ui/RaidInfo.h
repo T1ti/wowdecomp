@@ -34,8 +34,10 @@ class CGRaidMember {
 
 class CGRaidInfo {
     public:
+    // Raid member slots (FrameXML MAX_RAID_MEMBERS).
+    static const int32_t MAX_RAID_MEMBERS = 40;
     static void LeaveWorld();
-    static CGRaidMember* m_members[40];
+    static CGRaidMember* m_members[MAX_RAID_MEMBERS];
     static uint32_t m_numMembers;
     static WOWGUID m_raidTargets[8];
     static uint32_t m_realNumMembers;

@@ -11575,7 +11575,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     WOWGUID oldMembers[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
     WOWGUID partyGuids[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
     int32_t wasInGroup = 0;
-    WOWGUID raidGuids[40] = {};
+    WOWGUID raidGuids[CGRaidInfo::MAX_RAID_MEMBERS] = {};
     uint32_t dungeonDifficulty = CGGameUI::GetCurrentDungeonDifficulty();
     uint32_t raidDifficulty = CGGameUI::GetCurrentRaidDifficulty();
     uint8_t oldRoles = CGPartyInfo::m_playerRole;
@@ -11606,9 +11606,9 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
 
     uint32_t partyCount = 0;
     int32_t joined = 0;
-    uint32_t subgroups[40];
-    uint8_t raidFlags[40];
-    uint32_t raidRoles[40];
+    uint32_t subgroups[CGRaidInfo::MAX_RAID_MEMBERS];
+    uint8_t raidFlags[CGRaidInfo::MAX_RAID_MEMBERS];
+    uint32_t raidRoles[CGRaidInfo::MAX_RAID_MEMBERS];
     uint8_t online[41];
     char name[48];
 
@@ -11769,7 +11769,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     bool wasRaid = CGRaidInfo::m_numMembers != 0;
 
     if (isRaid) {
-        if (memberCount >= 40) {
+        if (memberCount >= CGRaidInfo::MAX_RAID_MEMBERS) {
             SErrDisplayAppFatalMessage("", "", 0);
         }
 

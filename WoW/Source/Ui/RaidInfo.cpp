@@ -27,7 +27,7 @@
 #include "Engine/Source/FrameXML/LoadXML.h"
 
 // STATIC: 0x00BEB568
-CGRaidMember* CGRaidInfo::m_members[40];
+CGRaidMember* CGRaidInfo::m_members[CGRaidInfo::MAX_RAID_MEMBERS];
 
 // STATIC: 0x00BEB608
 uint32_t CGRaidInfo::m_numMembers;
@@ -80,7 +80,7 @@ static void RaidMemberRemovedNameCallback(int32_t id, const WOWGUID& guid, void*
 // VERIFY: 4899d647 auto
 // OFFSET: 0x00572530
 void CGRaidInfo::UpdateRealStats(uint32_t count, WOWGUID leader) {
-    if (count <= 40) {
+    if (count <= CGRaidInfo::MAX_RAID_MEMBERS) {
         CGRaidInfo::m_realNumMembers = count;
     }
 
@@ -682,7 +682,7 @@ void CGRaidInfo::RosterUpdateRefreshReadyCheck(uint32_t removed, WOWGUID leader)
 // VERIFY: 7baa5663 manual
 // OFFSET: 0x00574F10
 void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, const uint8_t* flags, const uint32_t* roles, const uint8_t* online, uint32_t count, uint8_t battleground) {
-    if (count > 40) {
+    if (count > CGRaidInfo::MAX_RAID_MEMBERS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1105,7 +1105,7 @@ void CGRaidInfo::ClearRoster() {
         CGRaidInfo::m_numMembers = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_RAID_ROSTER_UPDATE, nullptr);
 
-        for (uint32_t i = 0; i < 40; i++) {
+        for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
             CGRaidInfo::m_members[i]->m_guid = WOWGUID();
         }
     }
@@ -1285,7 +1285,7 @@ void CGRaidInfo::ShutdownGame() {
     ClientServices::ClearMessageHandler(MSG_NOTIFY_PARTY_SQUELCH);
     ClientServices::ClearMessageHandler(SMSG_ECHO_PARTY_SQUELCH);
 
-    for (uint32_t i = 0; i < 40; i++) {
+    for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
         delete CGRaidInfo::m_members[i];
         CGRaidInfo::m_members[i] = nullptr;
     }

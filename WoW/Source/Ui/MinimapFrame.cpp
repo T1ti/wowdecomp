@@ -323,7 +323,7 @@ static C2Vector s_poiArrowPositions[3];
 static C2Vector s_partyArrowPositions[5];
 
 // STATIC: 0x00BF6008
-static C2Vector s_raidArrowPositions[40];
+static C2Vector s_raidArrowPositions[CGRaidInfo::MAX_RAID_MEMBERS];
 
 // STATIC: 0x00BF8088
 static TSGrowableArray<POIDIRECTIONDATA> s_poiDirections;
@@ -338,7 +338,7 @@ static float s_arrowRotation = 2.3561945f;
 static MEMBERINFO s_partyMembers[5];
 
 // STATIC: 0x00BF8398
-static MEMBERINFO s_raidMembers[40];
+static MEMBERINFO s_raidMembers[CGRaidInfo::MAX_RAID_MEMBERS];
 
 // STATIC: 0x00ACECE4
 static uint16_t s_quadIndices[4] = { 0, 1, 2, 3 };
@@ -2143,7 +2143,7 @@ void CGMinimapFrame::Render() {
             info2->m_icon = s_partyMembers[i].m_class;
         }
 
-        for (uint32_t i = 0; i < 40; i++) {
+        for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
             if (!s_raidMembers[i].m_onMap) {
                 continue;
             }
@@ -2514,7 +2514,7 @@ static void MinimapGetPartyMembers(MEMBERINFO* members) {
         return;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         WOWGUID guid = GetPartyMemberGUID(i);
 
         if (guid) {
@@ -2537,7 +2537,7 @@ static void MinimapGetRaidMembers(MEMBERINFO* members) {
 
     CGRaidMember* self = CGRaidInfo::FindMemberByGuid(player->m_obj->m_guid);
 
-    for (uint32_t i = 0; i < 40; i++) {
+    for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
         CGRaidMember* raidMember;
 
         if (i < CGRaidInfo::m_numMembers && (raidMember = CGRaidInfo::m_members[i]) != nullptr && self && raidMember->m_guid && raidMember->m_subgroup != self->m_subgroup) {
@@ -3018,7 +3018,7 @@ void CGMinimapFrame::RenderRaidArrows(const C44Matrix& rotation) {
 
     MinimapGetRaidMembers(s_raidMembers);
 
-    for (uint32_t i = 0; i < 40; i++) {
+    for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
         if (!s_raidMembers[i].m_offMap) {
             continue;
         }
@@ -3408,7 +3408,7 @@ int32_t CGMinimapFrame::OnLayerTrackUpdate(const CMouseEvent& evt) {
 
     uint64_t raid = 0;
 
-    for (uint32_t i = 0; i < 40; i++) {
+    for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
         if (s_raidMembers[i].m_offMap && std::fabs(mouseX - (s_raidArrowPositions[i].x + rect.minX)) < tolerance && std::fabs(mouseY - (s_raidArrowPositions[i].y + rect.minY)) < tolerance) {
             raid |= 1ull << i;
         }
@@ -3491,7 +3491,7 @@ int32_t CGMinimapFrame::OnLayerTrackUpdate(const CMouseEvent& evt) {
     }
 
     if (s_hoverRaid) {
-        for (uint32_t i = 0; i < 40; i++) {
+        for (uint32_t i = 0; i < CGRaidInfo::MAX_RAID_MEMBERS; i++) {
             if (s_hoverRaid & (1ull << i)) {
                 if (!first) {
                     SStrPack(text, "\n", sizeof(text));
