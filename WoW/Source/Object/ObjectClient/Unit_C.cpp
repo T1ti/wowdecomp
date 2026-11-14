@@ -1111,7 +1111,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     model->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
     this->SetCharacterModel(model);
     model->Release();
-    model->m_runtimeFlags ^= (model->m_runtimeFlags ^ ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_200) ? M2_FLAGS::M2_UNKNOWN_4 : 0)) & M2_FLAGS::M2_UNKNOWN_4;
+    model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES) | ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::FORCE_PROJECTED_TEXTURES) ? M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES : M2_FLAGS::M2_NONE);
     this->UpdateModelScale(oldModelData);
     this->Animate(0.0f);
     model->ForceAnimate();
@@ -1159,7 +1159,7 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_DISPLAY_CHANGE;
     this->m_specialIdleAnim = INVALID_ANIMATION;
 
-    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::SUPPRESS_HIGHLIGHT) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::DISABLE_HIGHLIGHT) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
@@ -1180,19 +1180,19 @@ void CGUnit_C::UpdateDisplayInfo(int32_t force) {
                 const SpellVisualKitRec* kit = effect->m_kitRec;
 
                 if (kit && IsDeadOrDyingAnim(kit->m_animID)) {
-                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_SPECIFIC_ANIMATION) {
                         flags |= 0x2;
                     }
 
-                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::BYPASS_ANIMATION_TIERS) {
                         flags |= 0x4;
                     }
 
-                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::PLAY_SPECIFIC_WEAPON_SPECIAL) {
                         flags |= 0x8;
                     }
 
-                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
+                    if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::DO_NOT_SHEATHE_WEAPON) {
                         flags |= 0x20;
                     }
 
@@ -2423,19 +2423,19 @@ void ApplyKitAnimFlags(uint32_t kitFlags, uint32_t* animFlags) {
         return;
     }
 
-    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::FORCE_SPECIFIC_ANIMATION) {
         *animFlags |= 0x2;
     }
 
-    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::BYPASS_ANIMATION_TIERS) {
         *animFlags |= 0x4;
     }
 
-    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::PLAY_SPECIFIC_WEAPON_SPECIAL) {
         *animFlags |= 0x8;
     }
 
-    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
+    if (kitFlags & SpellVisualKitRec::KIT_FLAGS::DO_NOT_SHEATHE_WEAPON) {
         *animFlags |= 0x20;
     }
 }
@@ -2464,19 +2464,19 @@ int32_t CGUnit_C::ChooseDeathAnim(uint32_t mask, uint32_t* anim, uint32_t* animF
         const SpellVisualKitRec* kit = effect->m_kitRec;
 
         if (kit && IsDeadOrDyingAnim(kit->m_animID)) {
-            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_SPECIFIC_ANIMATION) {
                 flags |= 0x2;
             }
 
-            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::BYPASS_ANIMATION_TIERS) {
                 flags |= 0x4;
             }
 
-            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::PLAY_SPECIFIC_WEAPON_SPECIAL) {
                 flags |= 0x8;
             }
 
-            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
+            if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::DO_NOT_SHEATHE_WEAPON) {
                 flags |= 0x20;
             }
 
@@ -2594,7 +2594,7 @@ int32_t CGUnit_C::ChooseSpellVisualKitAnim(uint32_t mask, uint32_t* anim, uint32
         return 1;
     }
 
-    if ((*animFlags & 0x10) && (kitFlags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_40)) {
+    if ((*animFlags & 0x10) && (kitFlags & SpellVisualKitRec::KIT_FLAGS::REPEAT_CHANNEL_ANIMATION)) {
         *anim = kitAnim;
     }
 
@@ -6524,7 +6524,7 @@ UNITSTANDSTATE CGUnit_C::GetClientStandState() const {
 // VERIFY: 232c855f manual
 // OFFSET: 0x0071A430
 BOOL CGUnit_C::HasBakedNpcTexture() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return TRUE;
     }
 
@@ -6572,7 +6572,7 @@ int32_t CGUnit_C::GetSpellRank(const SpellRec* spell) const {
 void CGUnit_C::ApplyAlpha(uint32_t time) {
     CM2Model* model = this->GetObjectModel();
 
-    if (this->m_forceWorldModelAlpha) {
+    if (this->m_skipMountAlpha) {
         model = this->m_worldModel;
     }
 
@@ -7101,11 +7101,11 @@ BOOL CGUnit_C::UsesNpcBakedTexture() const {
         return FALSE;
     }
 
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return TRUE;
     }
 
-    if (!this->m_displayInfoExtra && (this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4)) {
+    if (!this->m_displayInfoExtra && (this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL)) {
         return TRUE;
     }
 
@@ -7209,7 +7209,7 @@ BOOL CGUnit_C::IsControlledByViewer() const {
 // VERIFY: e21be286 manual
 // OFFSET: 0x007202C0
 BOOL CGUnit_C::CanEquipItemsInThisForm() const {
-    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
+    if ((this->m_obj->m_type & TYPE_PLAYER) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && this->m_displayInfoExtra && (this->m_displayInfoExtra->m_flags & CreatureDisplayInfoExtraRec::EXTRA_FLAGS::HAS_BAKED_TEXTURE)) {
         return TRUE;
     }
 
@@ -8547,7 +8547,7 @@ bool CGUnit_C::CanCurrentFormMount() const {
     if (displayInfo) {
         CreatureModelDataRec* modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
 
-        if (modelData && (modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_MOUNT)) {
+        if (modelData && (modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_MOUNT_WHILE_TRANSFORMED)) {
             return true;
         }
     }
@@ -9553,7 +9553,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       unk_0988(nullptr),
       m_mountModel(nullptr),
       m_mountScale(1.0f),
-      m_forceWorldModelAlpha(0),
+      m_skipMountAlpha(0),
       m_mountTransition(nullptr),
       m_mountTransitionEffect(nullptr),
       m_mountTransitionSpellId(0),
@@ -9806,7 +9806,7 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT;
     }
 
-    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::SUPPRESS_HIGHLIGHT) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::DISABLE_HIGHLIGHT) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
     } else {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HIGHLIGHT_SUPPRESSED;
@@ -9822,7 +9822,7 @@ void CGUnit_C::InitializeActivePlayerComponent() {
         return;
     }
 
-    if (this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid) {
+    if (this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid) {
         this->SetCharacterModel(CCharacterComponent::m_activePlayerComponent->m_data.m_model);
         this->m_characterComponent = component;
         CCharacterComponent::m_activePlayerComponent = nullptr;
@@ -9857,7 +9857,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
         CCharacterComponent::ReplaceMonsterSkin(this->m_worldModel, this->m_displayInfo, this->m_modelData);
 
         if (this->m_modelData) {
-            this->m_worldModel->m_runtimeFlags ^= (this->m_worldModel->m_runtimeFlags ^ ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_200) ? M2_FLAGS::M2_UNKNOWN_4 : 0)) & M2_FLAGS::M2_UNKNOWN_4;
+            this->m_worldModel->m_runtimeFlags = (this->m_worldModel->m_runtimeFlags & ~M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES) | ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::FORCE_PROJECTED_TEXTURES) ? M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES : M2_FLAGS::M2_NONE);
         }
     }
 
@@ -9871,7 +9871,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->CheckLoopSound();
 
-    if ((create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
+    if ((create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) && this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid && this->m_characterComponent) {
         this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING);
         static_cast<CGPlayer_C*>(this)->RefreshVisibleItems();
     } else {
@@ -10959,7 +10959,7 @@ void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
 
-    if ((modelRec && (modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_400)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
+    if ((modelRec && (modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_JUMP_IN_PLACE_AS_MOUNT)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
         this->m_movementData.OnJumpLocal(eventTime);
         return;
     }
@@ -13965,7 +13965,7 @@ int32_t CGUnit_C::InitializeComponent() {
         if (!result) {
             return result;
         }
-    } else if ((this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::UNKNOWN_4)) {
+    } else if ((this->m_obj->m_type & TYPE_PLAYER) && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL)) {
         this->InitializeExtendedDisplay(static_cast<CGPlayer_C*>(this), 0);
     }
 
@@ -14011,7 +14011,7 @@ void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
 // VERIFY: 2d7e1e97 manual
 // OFFSET: 0x0072B7F0
 BOOL CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
-    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS) {
+    if (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS) {
         return FALSE;
     }
 
@@ -16428,7 +16428,7 @@ void CGUnit_C::ReleaseAurasBySpell(int32_t spellId) {
         CEffect* next = effect->m_next;
 
         if (effect->m_spellId == static_cast<uint32_t>(spellId)) {
-            this->m_forceWorldModelAlpha = effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_WORLD_MODEL_ALPHA);
+            this->m_skipMountAlpha = effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::SKIP_MOUNT_ALPHA);
             effect->Release();
         }
 
@@ -16955,7 +16955,7 @@ void CGUnit_C::HandleSpellEventSound() {
 // VERIFY: 28e7526d auto
 // OFFSET: 0x0072AF60
 int32_t CGUnit_C::PlaySpellVisualKit_DelayLightningEffects(const SpellRec* spell, const SpellVisualKitRec* kit, SPELL_VISUAL_KIT_TYPE type, const C3Vector* position, WOWGUID guid, int32_t a6, int32_t a7, int32_t a8, int32_t a9, uint32_t a10, const SpellVisualRec* visual) {
-    if (!spell || !visual || !Spell_C_SpellVisualHasChainEffect(visual) || a8 || !(kit->m_flags & SpellVisualKitRec::KIT_FLAGS::DELAY_CHAIN_EFFECTS)) {
+    if (!spell || !visual || !Spell_C_SpellVisualHasChainEffect(visual) || a8 || !(kit->m_flags & SpellVisualKitRec::KIT_FLAGS::WAIT_FOR_BEAM_ACTIVATION)) {
         return 0;
     }
 
@@ -16974,7 +16974,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
     SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_leftWeaponEffect);
 
-    if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS)) {
+    if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
         }
@@ -16985,7 +16985,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
     effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_rightWeaponEffect);
 
-    if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS)) {
+    if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
         }
@@ -17020,19 +17020,19 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
     if (a5) {
         uint8_t animFlags = 0;
 
-        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_4) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_SPECIFIC_ANIMATION) {
             animFlags = 2;
         }
 
-        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_8) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::BYPASS_ANIMATION_TIERS) {
             animFlags |= 0x4;
         }
 
-        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_10) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::PLAY_SPECIFIC_WEAPON_SPECIAL) {
             animFlags |= 0x8;
         }
 
-        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::UNKNOWN_100) {
+        if (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::DO_NOT_SHEATHE_WEAPON) {
             animFlags |= 0x20;
         }
 
@@ -19680,7 +19680,7 @@ BOOL CGUnit_C::IsPlayingUnarmedAnim() {
 // VERIFY: 570e3c87 manual
 // OFFSET: 0x0072DBC0
 void CGUnit_C::AddHandItem(int32_t hand) {
-    if ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS) || !this->m_worldModel) {
+    if ((this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS) || !this->m_worldModel) {
         return;
     }
 
@@ -21107,7 +21107,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
                         effect->m_flags |= CEffect::EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA;
                     }
 
-                    this->m_forceWorldModelAlpha = (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::FORCE_WORLD_MODEL_ALPHA) != 0;
+                    this->m_skipMountAlpha = (kit->m_flags & SpellVisualKitRec::KIT_FLAGS::SKIP_MOUNT_ALPHA) != 0;
                     effect->m_fadeTime = FloatToInt64(param2 * 1000.0f);
                     effect->LinkTo(&this->m_auraEffects);
                 }
@@ -21562,7 +21562,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         return;
     }
 
-    if ((CWorld::enables & CWorld::ENABLE_FLAGS::FOOTPRINTS) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TEXTURES)) {
+    if ((CWorld::enables & CWorld::ENABLE_FLAGS::FOOTPRINTS) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TRAIL_TEXTURES)) {
         float size[2];
         size[0] = 0.0f;
         size[1] = 0.0f;

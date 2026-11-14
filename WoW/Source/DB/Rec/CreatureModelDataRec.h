@@ -11,14 +11,16 @@ class CreatureModelDataRec {
     enum MODEL_FLAGS : int32_t {
         NO_FOOTPRINT_PARTICLES = 0x1,
         NO_BREATH_PARTICLES = 2,
-        UNKNOWN_4 = 0x4,
+        IS_PLAYER_MODEL = 0x4,
         NO_TORSO_SPLIT = 0x8,
-        NO_HAND_ATTACHMENTS = 0x10,
-        NO_FOOTPRINT_TEXTURES = 0x20,
-        SUPPRESS_HIGHLIGHT = 0x40,
-        CAN_MOUNT = 0x80,
-        UNKNOWN_200 = 0x200,
-        UNKNOWN_400 = 0x400,
+        NO_ATTACHED_WEAPONS = 0x10, // Also gates hand-bound spell effects.
+        NO_FOOTPRINT_TRAIL_TEXTURES = 0x20,
+        DISABLE_HIGHLIGHT = 0x40,
+        CAN_MOUNT_WHILE_TRANSFORMED = 0x80,
+        // UNKNOWN_100 = 0x100, // Reference: DisableScaleInterpolation; current use unconfirmed.
+        FORCE_PROJECTED_TEXTURES = 0x200,
+        CAN_JUMP_IN_PLACE_AS_MOUNT = 0x400,
+        // UNKNOWN_800 = 0x800, // Unused by client.
     };
 
     static const int32_t s_numColumns = 28;

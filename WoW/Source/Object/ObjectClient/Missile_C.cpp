@@ -1344,7 +1344,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
                 unit->PlaySpellVisualKit(data);
             }
 
-            if (stateKit && unit->m_unit->m_unitFieldHealth > 0 && unit->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRE_ACTIVE_AURA) || unit->HasAuraActive(spell->m_id))) {
+            if (stateKit && unit->m_unit->m_unitFieldHealth > 0 && unit->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRES_ACTIVE_SPELL_EFFECT) || unit->HasAuraActive(spell->m_id))) {
                 PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
                 data.m_someGUID = this->m_casterGuid;
                 unit->PlaySpellVisualKit(data);
@@ -1551,7 +1551,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
 
         SpellVisualKitRec* stateKit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
 
-        if (stateKit && target->m_unit->m_unitFieldHealth > 0 && target->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRE_ACTIVE_AURA) || target->HasAuraActive(spell->m_id))) {
+        if (stateKit && target->m_unit->m_unitFieldHealth > 0 && target->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRES_ACTIVE_SPELL_EFFECT) || target->HasAuraActive(spell->m_id))) {
             PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
             data.m_someGUID = this->m_casterGuid;
             target->PlaySpellVisualKit(data);
@@ -2041,7 +2041,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         }
 
         if (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE) {
-            this->m_model->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_4;
+            this->m_model->m_runtimeFlags |= M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES;
         }
 
         float distance;

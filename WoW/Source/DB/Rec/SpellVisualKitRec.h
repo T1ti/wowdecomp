@@ -36,16 +36,17 @@ enum SPELL_VISUAL_CHAR_PROC : int32_t {
 class SpellVisualKitRec {
     public:
     enum KIT_FLAGS : int32_t {
-        DELAY_CHAIN_EFFECTS = 0x1,
-        UNKNOWN_4 = 0x4,
-        UNKNOWN_8 = 0x8,
-        UNKNOWN_10 = 0x10,
-        USE_STAND_ANIMATION = 0x20,
-        UNKNOWN_40 = 0x40,
-        REQUIRE_ACTIVE_AURA = 0x80,
-        UNKNOWN_100 = 0x100,
-        IGNORE_PARENT_EFFECTIVE_ALPHA = 0x200,
-        FORCE_WORLD_MODEL_ALPHA = 0x400,
+        WAIT_FOR_BEAM_ACTIVATION = 0x1,
+        // Reference bit1: PlayImpactKitOncePerMissileVolley; current use unconfirmed.
+        FORCE_SPECIFIC_ANIMATION = 0x4,
+        BYPASS_ANIMATION_TIERS = 0x8,
+        PLAY_SPECIFIC_WEAPON_SPECIAL = 0x10,
+        LOOP_STAND_FOR_AURA = 0x20,
+        REPEAT_CHANNEL_ANIMATION = 0x40,
+        REQUIRES_ACTIVE_SPELL_EFFECT = 0x80,
+        DO_NOT_SHEATHE_WEAPON = 0x100,
+        IGNORE_PARENT_EFFECTIVE_ALPHA = 0x200, // Reference InheritParentAlpha: effective alpha skips the parent; mesh-alpha inheritance is unchanged.
+        SKIP_MOUNT_ALPHA = 0x400,
         RAW_ANIMATION_ID_MASK = 0xC,
     };
 

@@ -283,7 +283,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0988 */ CMissile* unk_0988;
     /* 098C */ CM2Model* m_mountModel;
     /* 0990 */ float m_mountScale;
-    /* 0994 */ uint8_t m_forceWorldModelAlpha;
+    /* 0994 */ uint8_t m_skipMountAlpha;
     /* 0998 */ uint32_t m_virtualItemDisplayId [NUM_VIRTUAL_MONSTER_SLOTS];
     /* 09A4 */ CGUnitVirtualItem m_virtualItem [NUM_VIRTUAL_MONSTER_SLOTS];
     /* 09BC */ uint32_t m_nextBreathCheckTime;

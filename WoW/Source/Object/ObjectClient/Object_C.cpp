@@ -1498,7 +1498,7 @@ void CGObject_C::AuraEffectHandler(CM2Model* model, uint32_t boneId, uint32_t se
         return;
     }
 
-    if (effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::USE_STAND_ANIMATION)) {
+    if (effect->m_kitRec && (effect->m_kitRec->m_flags & SpellVisualKitRec::KIT_FLAGS::LOOP_STAND_FOR_AURA)) {
         effect->m_model->SetSequenceCallback(&CGObject_C::AuraEffectHoldHandler, reinterpret_cast<uintptr_t>(effect));
         effect->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     } else if (effect->m_model->HasSequence(ANIM_EFFECT_HOLD)) {

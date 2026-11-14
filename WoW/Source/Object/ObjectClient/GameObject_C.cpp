@@ -2706,7 +2706,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
     if (pending) {
         if (!this->IsObjectModelLoaded()) {
             this->m_pendingOneShotAnim = pending;
-            model->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_4;
+            model->m_runtimeFlags |= M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES;
             return;
         }
 
@@ -2714,7 +2714,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
         this->m_pendingOneShotAnim = 0;
     }
 
-    model->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_4;
+    model->m_runtimeFlags |= M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES;
 }
 
 // VERIFY: e5a829d0 manual

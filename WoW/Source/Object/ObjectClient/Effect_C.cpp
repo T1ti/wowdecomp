@@ -1112,7 +1112,7 @@ int32_t CEffect::UpdateAttachment() {
     if ((this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL || this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDR) && modelData) {
         CreatureModelDataRec* data = static_cast<CGUnit_C*>(object)->GetModelData();
 
-        if (data && (data->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_HAND_ATTACHMENTS)) {
+        if (data && (data->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS)) {
             this->DetachFromParent();
             return 0;
         }
@@ -1177,7 +1177,7 @@ int32_t CEffect::UpdateAttachment() {
     this->m_transportGuid = WOWGUID();
 
     if (this->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_PARENT_EFFECTIVE_ALPHA) {
-        this->m_model->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_100000;
+        this->m_model->m_runtimeFlags |= M2_FLAGS::M2_IGNORE_PARENT_EFFECTIVE_ALPHA;
     }
 
     object->SetBoundsDirty();
@@ -1354,7 +1354,7 @@ void CEffect::PostInitialize() {
     SpellRec spell;
 
     if (this->m_spellId && g_spellDB.GetRecord(this->m_spellId, &spell) && (spell.m_attributesExE & SPELL_ATTR5::SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE)) {
-        this->m_model->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_4;
+        this->m_model->m_runtimeFlags |= M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES;
     }
 
     if (!this->UpdateAttachment()) {

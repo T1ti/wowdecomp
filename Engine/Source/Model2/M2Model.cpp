@@ -4675,7 +4675,7 @@ int32_t CM2Model::HasDeferredSequence(uint16_t boneIndex, bool primary) {
 
 // VERIFY: 3115a6f8 manual
 // OFFSET: 0x0082E140
-void CM2Model::AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float alpha, float alpha2) {
+void CM2Model::AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha) {
     uint32_t flags = this->m_runtimeFlags;
 
     if (!(flags & M2_FLAGS::M2_INITIALIZED) || this->m_frameStamp == this->m_scene->m_frameStamp) {
@@ -4712,13 +4712,13 @@ void CM2Model::AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, c
 
         uint32_t current = this->m_runtimeFlags;
 
-        if (current & M2_FLAGS::M2_UNKNOWN_100000) {
+        if (current & M2_FLAGS::M2_IGNORE_PARENT_EFFECTIVE_ALPHA) {
             this->m_effectiveAlpha = this->m_fadeAlpha;
         } else {
-            this->m_effectiveAlpha = alpha * this->m_fadeAlpha;
+            this->m_effectiveAlpha = parentEffectiveAlpha * this->m_fadeAlpha;
         }
 
-        this->m_alpha = this->m_baseAlpha * alpha2 * this->m_fadeAlpha;
+        this->m_alpha = this->m_baseAlpha * parentAlpha * this->m_fadeAlpha;
 
         if (!(current & M2_FLAGS::M2_UNKNOWN_80000)) {
             this->m_emissiveColor.x = this->m_emissiveColor.x + emissive.x;
@@ -5030,7 +5030,7 @@ void CM2Model::GetCollisionFacets(const CAaBox& box, const C44Matrix& transform,
 
 // VERIFY: d48ec2da manual
 // OFFSET: 0x0082F0F0
-void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float alpha, float alpha2) {
+void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha) {
     uint32_t flags = this->m_runtimeFlags;
 
     if (!(flags & M2_FLAGS::M2_INITIALIZED) || this->m_frameStamp == this->m_scene->m_frameStamp) {
@@ -5067,13 +5067,13 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
 
         uint32_t current = this->m_runtimeFlags;
 
-        if (current & M2_FLAGS::M2_UNKNOWN_100000) {
+        if (current & M2_FLAGS::M2_IGNORE_PARENT_EFFECTIVE_ALPHA) {
             this->m_effectiveAlpha = this->m_fadeAlpha;
         } else {
-            this->m_effectiveAlpha = alpha * this->m_fadeAlpha;
+            this->m_effectiveAlpha = parentEffectiveAlpha * this->m_fadeAlpha;
         }
 
-        this->m_alpha = this->m_baseAlpha * alpha2 * this->m_fadeAlpha;
+        this->m_alpha = this->m_baseAlpha * parentAlpha * this->m_fadeAlpha;
 
         if (!(current & M2_FLAGS::M2_UNKNOWN_80000)) {
             this->m_emissiveColor.x = emissive.x + this->m_emissiveColor.x;
