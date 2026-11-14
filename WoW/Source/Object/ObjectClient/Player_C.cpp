@@ -11527,8 +11527,8 @@ bool CGPlayer_C::LoadGuildTextures(int32_t displayId) {
 int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint8_t groupType;
     msg->Get(groupType);
-    bool isRaid = (groupType & 0x2) != 0;
-    uint8_t isBattleground = groupType & 0x1;
+    bool isRaid = (groupType & GROUP_TYPE_FLAG_RAID) != 0;
+    uint8_t isBattleground = groupType & GROUP_TYPE_FLAG_BATTLEGROUND;
     uint8_t subgroup;
     msg->Get(subgroup);
     uint8_t assignments;
@@ -11538,7 +11538,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     uint8_t lfgFlags = 0;
     uint32_t lfgSlot = 0;
 
-    if (groupType & 0x8) {
+    if (groupType & GROUP_TYPE_FLAG_LFG) {
         msg->Get(lfgFlags);
         msg->Get(lfgSlot);
     }
@@ -11549,7 +11549,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     msg->Get(sequence);
 
     if (group && sequence) {
-        if (groupType & 0x1) {
+        if (groupType & GROUP_TYPE_FLAG_BATTLEGROUND) {
             if (CGPlayer_C::s_lastUpdatePVPGroup == group && CGPlayer_C::s_lastUpdatePVPTime && CGPlayer_C::s_lastUpdatePVPSequence >= sequence && static_cast<int32_t>(static_cast<uint32_t>(::time(nullptr)) - CGPlayer_C::s_lastUpdatePVPTime - 60) < 0) {
                 msg->m_read = msg->m_size;
                 return 1;
@@ -11691,7 +11691,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
 
     CGPartyInfo::SetLeader(leader);
     CGPartyInfo::SetLfgSlot(lfgSlot);
-    CGPartyInfo::SetLfgRestricted((groupType >> 2) & 1);
+    CGPartyInfo::SetLfgRestricted((groupType & GROUP_TYPE_FLAG_LFG_RESTRICTED) != 0);
     CGGameUI::UpdateThreatWarningFromCVar();
     Script_SendUniqueSignal(SCRIPT_EVENT_PARTY_MEMBERS_CHANGED);
 

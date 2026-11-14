@@ -46,6 +46,16 @@ enum PARTY_COMMAND_RESULT : uint32_t {
     PARTY_RESULT_LFG_TELEPORT_IN_COMBAT                  = 30,
 };
 
+// SMSG_GROUP_LIST group type byte.
+enum GROUP_TYPE_FLAGS : uint8_t {
+    GROUP_TYPE_FLAG_NONE           = 0x00,
+    GROUP_TYPE_FLAG_BATTLEGROUND   = 0x01,
+    GROUP_TYPE_FLAG_RAID           = 0x02,
+    GROUP_TYPE_FLAG_LFG_RESTRICTED = 0x04,
+    // The packet carries the LFG flags byte and packed LFG slot.
+    GROUP_TYPE_FLAG_LFG            = 0x08,
+};
+
 class CGPartyPetState {
     public:
     /* 0000 */ WOWGUID m_guid;
@@ -129,6 +139,13 @@ class CGPartyInfo {
         ASSISTANT = 0x1,
         MAIN_TANK = 2,
         MAIN_ASSIST = 4,
+    };
+
+    // Server-sent LFG group flags (SMSG_GROUP_LIST); only this bit is tested by the client.
+    enum LFG_FLAGS : uint8_t {
+        LFG_FLAG_NONE = 0x0,
+        // The group's LFG dungeon is finished; backfill is no longer offered.
+        LFG_FLAG_DUNGEON_COMPLETE = 0x2,
     };
 
     static void ChangeRaidDifficulty(int32_t heroic);

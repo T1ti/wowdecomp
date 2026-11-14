@@ -338,7 +338,7 @@ static int32_t Script_GetNumRandomDungeons(lua_State* L) {
 // VERIFY: 8bcc206c auto
 // OFFSET: 0x00553170
 static int32_t Script_CanPartyLFGBackfill(lua_State* L) {
-    if (CGPartyInfo::m_realNumMembers && CGPartyInfo::m_realNumMembers < 4 && CGPartyInfo::m_lfgSlot && !(CGPartyInfo::m_playerLFGFlags & 0x2)) {
+    if (CGPartyInfo::m_realNumMembers && CGPartyInfo::m_realNumMembers < 4 && CGPartyInfo::m_lfgSlot && !(CGPartyInfo::m_playerLFGFlags & CGPartyInfo::LFG_FLAGS::LFG_FLAG_DUNGEON_COMPLETE)) {
         lua_pushboolean(L, 1);
         return 1;
     }
@@ -350,7 +350,7 @@ static int32_t Script_CanPartyLFGBackfill(lua_State* L) {
 // VERIFY: 430d119c auto
 // OFFSET: 0x005556D0
 static int32_t Script_GetPartyLFGBackfillInfo(lua_State* L) {
-    if (!CGPartyInfo::m_realNumMembers || CGPartyInfo::m_realNumMembers >= 4 || !CGPartyInfo::m_lfgSlot || (CGPartyInfo::m_playerLFGFlags & 0x2)) {
+    if (!CGPartyInfo::m_realNumMembers || CGPartyInfo::m_realNumMembers >= 4 || !CGPartyInfo::m_lfgSlot || (CGPartyInfo::m_playerLFGFlags & CGPartyInfo::LFG_FLAGS::LFG_FLAG_DUNGEON_COMPLETE)) {
         return 0;
     }
 
@@ -1949,7 +1949,7 @@ static int32_t Script_PartyLFGStartBackfill(lua_State* L) {
         return 0;
     }
 
-    if (!CGPartyInfo::m_realNumMembers || CGPartyInfo::m_realNumMembers >= 4 || !CGPartyInfo::m_lfgSlot || (CGPartyInfo::m_playerLFGFlags & 0x2)) {
+    if (!CGPartyInfo::m_realNumMembers || CGPartyInfo::m_realNumMembers >= 4 || !CGPartyInfo::m_lfgSlot || (CGPartyInfo::m_playerLFGFlags & CGPartyInfo::LFG_FLAGS::LFG_FLAG_DUNGEON_COMPLETE)) {
         return 0;
     }
 
