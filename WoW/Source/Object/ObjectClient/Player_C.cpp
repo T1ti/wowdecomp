@@ -4197,6 +4197,9 @@ int32_t Packet_Group_10(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
     }
 }
 
+// SMSG_INITIAL_SPELLS category cooldown: top bit marks a cooldown on hold.
+static const uint32_t INITIAL_SPELL_COOLDOWN_ON_HOLD = 0x80000000;
+
 // VERIFY: 5322b599 manual
 // OFFSET: 0x006DF050
 int32_t Packet_SMSG_INITIAL_SPELLS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
@@ -4224,8 +4227,8 @@ int32_t Packet_SMSG_INITIAL_SPELLS(void* param, NETMESSAGE msgId, uint32_t time,
         msg->Get(category);
         msg->Get(spellCooldown);
         msg->Get(categoryCooldown);
-        bool onHold = (categoryCooldown >> 31) & 0x1;
-        categoryCooldown &= 0x7FFFFFFF;
+        bool onHold = (categoryCooldown & INITIAL_SPELL_COOLDOWN_ON_HOLD) != 0;
+        categoryCooldown &= ~INITIAL_SPELL_COOLDOWN_ON_HOLD;
         Spell_C_SetCooldownLeft(spellId, itemId, category, spellCooldown, categoryCooldown, onHold, 0);
     }
 

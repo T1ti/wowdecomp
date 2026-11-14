@@ -1337,11 +1337,11 @@ float DayNight::DNClouds::GetDensity(const C3Vector* position, float scale) {
     uint32_t y = static_cast<uint32_t>(static_cast<int64_t>(uv.y));
 
     if (x > max) {
-        x = ~(static_cast<int32_t>(x) >> 31) & max;
+        x = static_cast<int32_t>(x) < 0 ? 0 : max;
     }
 
     if (y > max) {
-        y = ~(static_cast<int32_t>(y) >> 31) & max;
+        y = static_cast<int32_t>(y) < 0 ? 0 : max;
     }
 
     return this->m_densities.m_data[(y << this->m_shift) + x] * 0.0039215689f;
