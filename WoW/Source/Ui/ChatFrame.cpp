@@ -2278,7 +2278,7 @@ int32_t CGChat::OnZoneUnderAttack(void* param, NETMESSAGE msgId, uint32_t time, 
 
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecord(channel->m_zoneChannelID);
 
-        if (rec && (rec->m_flags & 0x10000) && (!(rec->m_flags & 0x2) || areaId == CGGameUI::m_areaID)) {
+        if (rec && (rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_ATTACK_ALERTS) && (!(rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_BASED) || areaId == CGGameUI::m_areaID)) {
             CGChat::AddChatMessage(text, CHAT_MSG_CHANNEL, nullptr, 0, channel->m_name, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
     }
@@ -2320,7 +2320,7 @@ int32_t CGChat::OnDefenseMessage(void* param, NETMESSAGE msgId, uint32_t time, C
 
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecord(channel->m_zoneChannelID);
 
-        if (rec && (rec->m_flags & 0x10000) && (!(rec->m_flags & 0x2) || areaId == CGGameUI::m_areaID)) {
+        if (rec && (rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_ATTACK_ALERTS) && (!(rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_BASED) || areaId == CGGameUI::m_areaID)) {
             CGChat::AddChatMessage(text, CHAT_MSG_CHANNEL, nullptr, 0, channel->m_name, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
     }
@@ -3939,7 +3939,7 @@ void CGChat::OnChannelsUpdated() {
 
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecord(channel->m_zoneChannelID);
 
-        if (rec && (rec->m_flags & 0x10000) && (rec->m_flags & 0x2)) {
+        if (rec && (rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_ATTACK_ALERTS) && (rec->m_flags & CHAT_CHANNEL_FLAG_ZONE_BASED)) {
             break;
         }
     }
@@ -4217,7 +4217,7 @@ static bool FindGuildRecruitmentChannel() {
         for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
             ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
-            if (rec && (rec->m_flags & 0x20000)) {
+            if (rec && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT)) {
                 s_recruitmentChannelID = rec->m_id;
                 SStrCopy(s_recruitmentChannelName, rec->m_shortcut, sizeof(s_recruitmentChannelName));
                 found = true;
@@ -4334,7 +4334,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
             continue;
         }
 
-        const char* text = area && (rec->m_flags & 0x20) && (area->m_flags & 0x100) && s_cityArea ? s_cityArea->m_areaName : zoneText;
+        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_CITY_NAME) && (area->m_flags & 0x100) && s_cityArea ? s_cityArea->m_areaName : zoneText;
 
         if (!text || !*text) {
             return false;
@@ -4345,7 +4345,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
         SStrPrintf(name, sizeof(name), rec->m_name, text);
         password = "";
 
-        if (checkRecruitment && (rec->m_flags & 0x20000)) {
+        if (checkRecruitment && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT)) {
             CGChat::SetGuildRecruitmentMode(0, true);
         }
 
@@ -4921,7 +4921,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
             continue;
         }
 
-        const char* text = area && (rec->m_flags & 0x20) && (area->m_flags & 0x100) && s_cityArea ? s_cityArea->m_areaName : zoneText;
+        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_CITY_NAME) && (area->m_flags & 0x100) && s_cityArea ? s_cityArea->m_areaName : zoneText;
 
         if (!text || !*text) {
             return 0;
@@ -4931,7 +4931,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
         zoneChannelID = rec->m_id;
         SStrPrintf(name, sizeof(name), rec->m_name, text);
 
-        if (clearRecruitment && (rec->m_flags & 0x20000) && CGChat::m_guildRecruitmentMode) {
+        if (clearRecruitment && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT) && CGChat::m_guildRecruitmentMode) {
             CGChat::m_guildRecruitmentMode = 0;
         }
 
