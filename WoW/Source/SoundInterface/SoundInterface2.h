@@ -254,10 +254,10 @@ class SI2 {
     static int32_t SetVolume(SE2SoundKitObject* object, float volume);
     static void SetWeatherKitID(int32_t soundKitId);
     static void ForceUpdateZoneSounds();
-    static void SetZoneAmbienceID(int32_t type, int32_t soundAmbienceId);
-    static void SetZoneIntroMusicID(int32_t type, int32_t zoneIntroMusicId);
-    static void SetZoneMusicID(int32_t type, int32_t zoneMusicId);
-    static void SetZoneReverb(int32_t type, int32_t reverb);
+    static void SetZoneAmbienceID(ZONE_SOUND_TYPE type, int32_t soundAmbienceId);
+    static void SetZoneIntroMusicID(ZONE_SOUND_TYPE type, int32_t zoneIntroMusicId);
+    static void SetZoneMusicID(ZONE_SOUND_TYPE type, int32_t zoneMusicId);
+    static void SetZoneReverb(ZONE_SOUND_TYPE type, int32_t reverb);
     static void SetZoneUnderwaterReverb(int32_t reverb);
     static int32_t ShutDown(int32_t restart);
     static void ShutdownZoneSoundsHandler();

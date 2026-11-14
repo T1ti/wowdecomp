@@ -130,7 +130,7 @@ void SI2::StopLuaMusic() {
 
 // VERIFY: 527bb7b0 auto
 // OFFSET: 0x004C86B0
-void SI2::SetZoneReverb(int32_t type, int32_t reverb) {
+void SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE type, int32_t reverb) {
     s_zoneSounds[type].m_reverb = reverb;
     SI2::ApplyReverbSettings();
 }
@@ -321,7 +321,7 @@ void SI2::ZoneMusicFinished(SESound* sound, void* param) {
 
 // VERIFY: 4b8e2a85 manual
 // OFFSET: 0x004C8C90
-void SI2::SetZoneAmbienceID(int32_t type, int32_t soundAmbienceId) {
+void SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE type, int32_t soundAmbienceId) {
     SoundAmbienceRec* rec = g_soundAmbienceDB.GetRecord(soundAmbienceId);
 
     if (rec) {
@@ -335,7 +335,7 @@ void SI2::SetZoneAmbienceID(int32_t type, int32_t soundAmbienceId) {
 
 // VERIFY: 436a05e0 manual
 // OFFSET: 0x004C8CF0
-void SI2::SetZoneIntroMusicID(int32_t type, int32_t zoneIntroMusicId) {
+void SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE type, int32_t zoneIntroMusicId) {
     ZoneIntroMusicTableRec* rec = g_zoneIntroMusicTableDB.GetRecord(zoneIntroMusicId);
 
     if (rec) {
@@ -355,7 +355,7 @@ void SI2::SetZoneIntroMusicID(int32_t type, int32_t zoneIntroMusicId) {
 
 // VERIFY: 8c58a8a2 manual
 // OFFSET: 0x004C8D80
-void SI2::SetZoneMusicID(int32_t type, int32_t zoneMusicId) {
+void SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE type, int32_t zoneMusicId) {
     ZoneMusicRec* rec = g_zoneMusicDB.GetRecord(zoneMusicId);
 
     if (!rec) {
