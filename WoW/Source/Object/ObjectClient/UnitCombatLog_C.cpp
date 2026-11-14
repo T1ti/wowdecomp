@@ -41,7 +41,7 @@
 #include "WoW/Source/DB/Rec/SummonPropertiesRec.h"
 
 // STATIC: 0x00ADB758
-static const char* s_combatLogEventNames[50] = {
+static const char* s_combatLogEventNames[COMBAT_LOG_EVENT::NUM_COMBAT_LOG_EVENTS] = {
     "ENVIRONMENTAL_DAMAGE",
     "SWING_DAMAGE",
     "SWING_MISSED",
@@ -279,14 +279,14 @@ void SendToCombatText(COMBAT_TEXT_TYPE type) {
 // OFFSET: 0x0074D700
 void UnitCombatLogProcGo(const WOWGUID& casterGuid, const SpellRec* spell) {
     if (s_combatTextActiveUnit == casterGuid && (spell->m_attributesExF & SPELL_ATTR6::SPELL_ATTR6_FLOATING_COMBAT_TEXT_ON_CAST)) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s", s_combatTextTypes[30], spell->m_name);
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_CAST], spell->m_name);
     }
 }
 
 // VERIFY: ab3c05fe manual
 // OFFSET: 0x0074D920
 void CombatLogEntry::Clear() {
-    this->m_event = -1;
+    this->m_event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_NONE;
     this->m_pendingMask = 0;
     this->m_sourceGuid = WOWGUID();
     this->m_sourceName = nullptr;
@@ -345,7 +345,7 @@ bool CombatLogFilter::SetFilterData(const char* events, const WOWGUID& sourceGui
                 break;
             }
 
-            for (uint32_t i = 0; i < 50; i++) {
+            for (uint32_t i = 0; i < COMBAT_LOG_EVENT::NUM_COMBAT_LOG_EVENTS; i++) {
                 if (!SStrCmpI(token, s_combatLogEventNames[i], STORM_MAX_STR)) {
                     this->m_events.m_bits.m_data[i >> 5] |= 1 << (i & 0x1F);
                     break;
@@ -968,7 +968,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         int32_t blocked = info.m_blocked;
         uint32_t school = info.m_schoolMask[0];
         int32_t overkill = info.m_overkill;
-        CombatLogEntry* entry = GetCombatLogEntry(info.m_attacker, target, 1, nullptr);
+        CombatLogEntry* entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_DAMAGE, nullptr);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
         entry->m_info.m_values[2] = overkill;
         entry->m_info.m_values[4] = absorbed;
@@ -981,7 +981,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
 
         if (s_combatTextActiveUnit == target) {
             if (resisted > 0) {
-                FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[10], damage, resisted);
+                FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST], damage, resisted);
             } else if (blocked) {
                 SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK, damage, blocked);
             } else if (absorbed) {
@@ -1000,7 +1000,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
     CombatLogEntry* entry;
 
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_MISS) {
-        entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
+        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_PHYSICAL, 0);
 
         if (s_combatTextActiveUnit == target) {
@@ -1013,7 +1013,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             absorbed += info.m_absorbed[i];
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
+        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_ABSORBED, absorbed);
 
         if (s_combatTextActiveUnit == target) {
@@ -1026,7 +1026,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             resisted += info.m_resisted[i];
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
+        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_RESIST, resisted);
 
         if (s_combatTextActiveUnit == target) {
@@ -1065,7 +1065,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
                 return;
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, 2, nullptr);
+        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(missType, info.m_blocked);
 
         if (s_combatTextActiveUnit == target) {
@@ -1085,7 +1085,7 @@ int32_t Packet_SMSG_PARTYKILLLOG(void* param, NETMESSAGE msgId, uint32_t time, C
     value = 0;
     msg->Get(value);
     WOWGUID victim = WOWGUID{ value };
-    CombatLogEntry* entry = GetCombatLogEntry(killer, victim, 43, nullptr);
+    CombatLogEntry* entry = GetCombatLogEntry(killer, victim, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_PARTY_KILL, nullptr);
     QueueCombatLogEntry(entry, 0);
     return 1;
 }
@@ -1106,7 +1106,7 @@ int32_t Packet_SMSG_PROCRESIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(caster, target, 8, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(caster, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_MISS_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_RESISTED);
         entry->m_info.m_values[0] = MISS_REASON::MISS_RESIST;
         entry->m_info.m_values[5] = 0;
@@ -1141,7 +1141,7 @@ int32_t Packet_SMSG_DISPEL_FAILED(void* param, NETMESSAGE msgId, uint32_t time, 
             msg->Get(failedId);
 
             if (g_spellDB.GetRecord(failedId, &failed) && !(failed.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *failed.m_name) {
-                CombatLogEntry* entry = GetCombatLogEntry(caster, target, 39, &spell);
+                CombatLogEntry* entry = GetCombatLogEntry(caster, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DISPEL_FAILED, &spell);
                 entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
                 entry->m_info.m_values[0] = failedId;
                 QueueCombatLogEntry(entry, 0);
@@ -1158,7 +1158,7 @@ void UnitCombatLogInstakill(const WOWGUID& casterGuid, const WOWGUID& targetGuid
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(casterGuid, targetGuid, 14, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(casterGuid, targetGuid, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_INSTAKILL, &spell);
         QueueCombatLogEntry(entry, 0);
     }
 }
@@ -1170,7 +1170,7 @@ void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && spell.m_cumulativeAura > 1) {
         WOWGUID guid = unit->m_obj->m_guid;
-        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, (newStack <= oldStack) + 22, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, (newStack <= oldStack) + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED_DOSE, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT);
         entry->m_info.m_values[2] = newStack;
         reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = a6;
@@ -1190,7 +1190,7 @@ void UnitCombatLogDamageShield(const WOWGUID& victimGuid, const WOWGUID& casterG
             caster->ModifyPredictedHealth(-damage);
         }
 
-        CombatLogEntry* entry = GetCombatLogEntry(victimGuid, casterGuid, 40, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(victimGuid, casterGuid, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SHIELD, &spell);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
         entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
         entry->m_info.m_values[1] = damage;
@@ -1478,44 +1478,44 @@ void CombatLog::QueueMissedSpellText(const WOWGUID& source, const WOWGUID& dest,
     if (s_combatTextActiveUnit == dest) {
         switch (missType) {
             case MISS_REASON::MISS_PHYSICAL:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_MISS : COMBAT_TEXT_TYPE::COMBAT_TEXT_MISS);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_MISS : COMBAT_TEXT_TYPE::COMBAT_TEXT_MISS);
                 break;
 
             case MISS_REASON::MISS_RESIST:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
                 break;
 
             case MISS_REASON::MISS_DODGED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DODGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DODGE);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DODGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DODGE);
                 break;
 
             case MISS_REASON::MISS_PARRIED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_PARRY : COMBAT_TEXT_TYPE::COMBAT_TEXT_PARRY);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_PARRY : COMBAT_TEXT_TYPE::COMBAT_TEXT_PARRY);
                 break;
 
             case MISS_REASON::MISS_BLOCKED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
                 break;
 
             case MISS_REASON::MISS_EVADED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_EVADE : COMBAT_TEXT_TYPE::COMBAT_TEXT_EVADE);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_EVADE : COMBAT_TEXT_TYPE::COMBAT_TEXT_EVADE);
                 break;
 
             case MISS_REASON::MISS_IMMUNE:
             case MISS_REASON::MISS_TEMPIMMUNE:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_IMMUNE : COMBAT_TEXT_TYPE::COMBAT_TEXT_IMMUNE);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_IMMUNE : COMBAT_TEXT_TYPE::COMBAT_TEXT_IMMUNE);
                 break;
 
             case MISS_REASON::MISS_DEFLECTED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DEFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DEFLECT);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DEFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DEFLECT);
                 break;
 
             case MISS_REASON::MISS_ABSORBED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
                 break;
 
             case MISS_REASON::MISS_REFLECTED:
-                SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_REFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_REFLECT);
+                SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_REFLECT : COMBAT_TEXT_TYPE::COMBAT_TEXT_REFLECT);
                 break;
 
             default:
@@ -1541,7 +1541,7 @@ int32_t Packet_SMSG_ENCHANTMENTLOG(void* param, NETMESSAGE msgId, uint32_t time,
     SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(enchantId);
 
     if (enchant && !(enchant->m_flags & 0x2)) {
-        CombatLogEntry* entry = GetCombatLogEntry(caster, target, caster.m_guid ? 31 : 32, nullptr);
+        CombatLogEntry* entry = GetCombatLogEntry(caster, target, caster.m_guid ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_ENCHANT_APPLIED : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_ENCHANT_REMOVED, nullptr);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENCHANT_NAME;
         entry->m_info.m_names[2] = enchant->m_name;
         entry->SetExecuteItem(itemId);
@@ -1562,7 +1562,7 @@ void UnitCombatLogSpellFail(const WOWGUID& caster, int32_t spellId, const char* 
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
         WOWGUID dest = { 0 };
-        CombatLogEntry* entry = GetCombatLogEntry(caster, dest, 7, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(caster, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_CAST_FAILED, &spell);
         entry->SetFailReason(reason);
         QueueCombatLogEntry(entry, 0);
     }
@@ -1581,11 +1581,11 @@ void UnitCombatLogSpellMissed(const WOWGUID& casterGuid, const WOWGUID& targetGu
         int32_t event;
 
         if (a6) {
-            event = 33;
+            event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_MISSED;
         } else if (a5) {
-            event = 41;
+            event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SHIELD_MISSED;
         } else {
-            event = (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? 4 : 8;
+            event = (spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_RANGE_MISSED : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED;
         }
 
         CombatLog::QueueMissedSpellText(casterGuid, targetGuid, event, &spell, missType, 0, a7);
@@ -1598,7 +1598,7 @@ void CombatLog::AddSpellCastEntry(const WOWGUID& source, const WOWGUID& dest, in
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        int32_t event = (static_cast<uint32_t>(dest.m_guid >> 32) & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_GAMEOBJECT ? 16 : 15;
+        int32_t event = (static_cast<uint32_t>(dest.m_guid >> 32) & WOWGUID_HIGH_TYPE_MASK) == WOWGUID_HIGH_TYPE_GAMEOBJECT ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_CREATE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_SUMMON;
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
         QueueCombatLogEntry(entry, 0);
     }
@@ -1610,7 +1610,7 @@ void CombatLog::AddSpellResurrectEntry(const WOWGUID& source, const WOWGUID& des
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(source, dest, 46, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(source, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_RESURRECT, &spell);
         QueueCombatLogEntry(entry, 0);
     }
 }
@@ -1622,7 +1622,7 @@ void UnitCombatLogInterrupt(const WOWGUID& casterGuid, const WOWGUID& targetGuid
     SpellRec interrupted;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && g_spellDB.GetRecord(interruptedSpellId, &interrupted) && !(interrupted.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *interrupted.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(casterGuid, targetGuid, 17, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(casterGuid, targetGuid, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_INTERRUPT, &spell);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
         entry->m_info.m_values[0] = interruptedSpellId;
         QueueCombatLogEntry(entry, 0);
@@ -1645,7 +1645,7 @@ void CombatLog::AddSpellDamageEntry(const WOWGUID& source, const WOWGUID& dest, 
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && damage) {
-        CombatLogEntry* entry = GetCombatLogEntry(source, dest, 18, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(source, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_EXTRA_ATTACKS, &spell);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_ATTACK_COUNT;
         entry->m_info.m_values[0] = damage;
         QueueCombatLogEntry(entry, timeOffset);
@@ -1662,7 +1662,7 @@ void CombatLog::AddSpellExecuteEntry(const WOWGUID& source, const WOWGUID& dest,
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(source, dest, 19, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(source, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DURABILITY_DAMAGE, &spell);
         entry->SetExecuteItem(itemId);
         QueueCombatLogEntry(entry, 0);
     }
@@ -1674,7 +1674,7 @@ void CombatLog::AddSpellEnergizeEntry(const WOWGUID& source, const WOWGUID& dest
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        CombatLogEntry* entry = GetCombatLogEntry(source, dest, 20, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(source, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DURABILITY_DAMAGE_ALL, &spell);
         QueueCombatLogEntry(entry, 0);
     }
 }
@@ -1822,7 +1822,7 @@ void UnitCombatLogHeal(const WOWGUID& casterGuid, const WOWGUID& targetGuid, int
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        SendHealEvent(periodic ? 35 : 10, casterGuid, targetGuid, &spell, amount, overheal, absorbed, crit, timeOffset);
+        SendHealEvent(periodic ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_HEAL : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_HEAL, casterGuid, targetGuid, &spell, amount, overheal, absorbed, crit, timeOffset);
     }
 }
 
@@ -1842,7 +1842,7 @@ void UnitCombatLogEnergize(const WOWGUID& casterGuid, const WOWGUID& targetGuid,
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
-        SendEnergizeEvent(periodic ? 36 : 11, casterGuid, targetGuid, &spell, powerType, amount, timeOffset);
+        SendEnergizeEvent(periodic ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_ENERGIZE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_ENERGIZE, casterGuid, targetGuid, &spell, powerType, amount, timeOffset);
     }
 }
 
@@ -1858,7 +1858,7 @@ void UnitCombatLogAuraAddedOrRemoved(CGUnit_C* unit, AuraData* aura, const Spell
     }
 
     WOWGUID guid = unit->m_obj->m_guid;
-    CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, added ? 21 : 24, spell);
+    CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, added ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_REMOVED, spell);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
     QueueCombatLogEntry(entry, 0);
@@ -2007,7 +2007,7 @@ void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, co
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[3]) = crit;
     QueueCombatLogEntry(entry, timeOffset);
 
-    if (event == 35) {
+    if (event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_HEAL) {
         SpellDurationRec* duration = g_spellDurationDB.GetRecord(spell->m_durationIndex);
 
         if (duration) {
@@ -2021,13 +2021,13 @@ void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, co
 
     if (s_combatTextActiveUnit == dest) {
         if (absorbed) {
-            if (event == 35) {
-                FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d%d", s_combatTextTypes[44], GetObjectNameFromGuid(source), amount, absorbed);
+            if (event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_HEAL) {
+                FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d%d", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_PERIODIC_HEAL_ABSORB], GetObjectNameFromGuid(source), amount, absorbed);
             } else {
                 SendToCombatText(crit ? COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_CRIT_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_ABSORB, GetObjectNameFromGuid(source), amount, absorbed);
             }
-        } else if (event == 35) {
-            FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d", s_combatTextTypes[27], GetObjectNameFromGuid(source), amount);
+        } else if (event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_HEAL) {
+            FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%s%d", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_PERIODIC_HEAL], GetObjectNameFromGuid(source), amount);
         } else {
             SendToCombatText(crit ? COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL_CRIT : COMBAT_TEXT_TYPE::COMBAT_TEXT_HEAL, GetObjectNameFromGuid(source), amount);
         }
@@ -2051,7 +2051,7 @@ void SendEnergizeEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest
     QueueCombatLogEntry(entry, timeOffset);
 
     if (s_combatTextActiveUnit == dest) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == 36) + 28], value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_ENERGIZE) + COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
     }
 }
 
@@ -2069,11 +2069,11 @@ void AddPowerDrainEntry(int32_t event, const WOWGUID& source, const WOWGUID& des
     QueueCombatLogEntry(entry, timeOffset);
 
     if (s_combatTextActiveUnit == dest && value) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[28], -value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], -value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
     }
 
     if (s_combatTextActiveUnit == source && extraValue) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == 38) + 28], extraValue, GetPowerString(static_cast<POWER_TYPE>(powerType)));
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_LEECH) + COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], extraValue, GetPowerString(static_cast<POWER_TYPE>(powerType)));
     }
 }
 
@@ -2099,7 +2099,7 @@ void UnitCombatLogPowerDrain(const WOWGUID& casterGuid, const WOWGUID& targetGui
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name) {
         int32_t extra = CMath::ftrunc(amount * multiplier);
-        int32_t event = extra ? (a7 ? 38 : 13) : (a7 ? 37 : 12);
+        int32_t event = extra ? (a7 ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_LEECH : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_LEECH) : (a7 ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_DRAIN : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DRAIN);
         AddPowerDrainEntry(event, casterGuid, targetGuid, &spell, amount, powerType, extra, timeOffset);
     }
 }
@@ -2262,7 +2262,7 @@ void UnitCombatLogCastStart(const WOWGUID& caster, const WOWGUID& target, int32_
 
     if (g_spellDB.GetRecord(spellId, &spell) && !SpellIsHiddenInCombatLog(&spell) && unit->GetSpellCastingTime(&spell)) {
         WOWGUID dest = { 0 };
-        CombatLogEntry* entry = GetCombatLogEntry(caster, dest, 5, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(caster, dest, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_CAST_START, &spell);
         QueueCombatLogEntry(entry, 0);
     }
 }
@@ -2283,7 +2283,7 @@ void UnitCombatLogCastGo(const WOWGUID& caster, const WOWGUID& target, int32_t s
     }
 
     if (!unit->GetSpellCastingTime(&spell)) {
-        CombatLogEntry* entry = GetCombatLogEntry(caster, target, 6, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(caster, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_CAST_SUCCESS, &spell);
         QueueCombatLogEntry(entry, 0);
     }
 
@@ -2306,7 +2306,7 @@ void CombatLog::AddAuraReplacedEntry(const WOWGUID& source, const WOWGUID& dest,
         return;
     }
 
-    CombatLogEntry* entry = GetCombatLogEntry(source, dest, stolen + 26, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(source, dest, stolen + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DISPEL, &spell);
     entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE);
     entry->m_info.m_values[0] = replacedSpellId;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
@@ -2333,7 +2333,7 @@ void CombatLog::AddSpellRemoveEntry(const WOWGUID& source, const WOWGUID& dest, 
     }
 
     WOWGUID remover = (dispel.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_DO_NOT_LOG_CASTER) ? WOWGUID{ 0 } : source;
-    CombatLogEntry* entry = GetCombatLogEntry(remover, dest, (dispelSpellId != 0) + 28, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(remover, dest, (dispelSpellId != 0) + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_BROKEN, &spell);
 
     if (dispelSpellId) {
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;
@@ -2359,7 +2359,7 @@ void UnitCombatLogAuraRefreshed(CGUnit_C* unit, const AuraData* aura, int32_t sp
     }
 
     WOWGUID guid = unit->m_obj->m_guid;
-    CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, 25, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_REFRESH, &spell);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = a4;
     QueueCombatLogEntry(entry, 0);
@@ -2371,7 +2371,7 @@ void UnitCombatLogAuraRefreshed(CGUnit_C* unit, const AuraData* aura, int32_t sp
 // VERIFY: 9d679be0 manual
 // OFFSET: 0x00750660
 void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t damage, int32_t overkill, uint32_t school, int32_t resisted, int32_t blocked, int32_t absorbed, bool crit, bool a11, bool a12, uint32_t timeOffset) {
-    if (event != 1) {
+    if (event != COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_DAMAGE) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(dest, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
@@ -2395,17 +2395,17 @@ void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, 
     }
 
     if (resisted > 0) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[event == 9 ? 22 : 10], damage, resisted);
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%d", s_combatTextTypes[event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST], damage, resisted);
     } else if (blocked) {
-        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK, damage, blocked);
+        SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK, damage, blocked);
     } else if (absorbed) {
-        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB, damage, absorbed);
+        SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB, damage, absorbed);
     } else if (crit) {
-        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE_CRIT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_CRIT, damage);
-    } else if (event == 40) {
+        SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE_CRIT : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_CRIT, damage);
+    } else if (event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SHIELD) {
         SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE_SHIELD, damage);
     } else {
-        SendToCombatText(event == 9 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE, damage);
+        SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_DAMAGE : COMBAT_TEXT_TYPE::COMBAT_TEXT_DAMAGE, damage);
     }
 }
 
@@ -2425,12 +2425,12 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
             unit->TriggerDamageFeedback();
         }
 
-        int32_t event = periodic ? 34 : ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? 3 : 9);
+        int32_t event = periodic ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_DAMAGE : ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_RANGE_DAMAGE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE);
         SendDamageEvent(event, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo >> 1) & 1, false, false, timeOffset);
         return;
     }
 
-    int32_t event = periodic ? 33 : ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? 4 : 8);
+    int32_t event = periodic ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_MISSED : ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_RANGE_MISSED : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED);
 
     if (absorbed) {
         CombatLogEntry* entry = GetCombatLogEntry(source, dest, event, &spell);
@@ -2439,7 +2439,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[4] = absorbed;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
+            SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_ABSORB : COMBAT_TEXT_TYPE::COMBAT_TEXT_ABSORB);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -2450,7 +2450,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[6] = blocked;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
+            SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_BLOCK : COMBAT_TEXT_TYPE::COMBAT_TEXT_BLOCK);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -2461,7 +2461,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         entry->m_info.m_values[5] = resisted;
 
         if (s_combatTextActiveUnit == dest) {
-            SendToCombatText(event == 8 ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
+            SendToCombatText(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_MISSED ? COMBAT_TEXT_TYPE::COMBAT_TEXT_SPELL_RESIST : COMBAT_TEXT_TYPE::COMBAT_TEXT_RESIST);
         }
 
         QueueCombatLogEntry(entry, 0);
@@ -2477,10 +2477,10 @@ void UnitCombatLogSplitDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         return;
     }
 
-    SendDamageEvent(42, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo >> 1) & 1, false, false, timeOffset);
+    SendDamageEvent(COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SPLIT, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo >> 1) & 1, false, false, timeOffset);
 
     if (s_combatTextActiveUnit == dest) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d", s_combatTextTypes[42], damage);
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_SPLIT_DAMAGE], damage);
     }
 }
 
@@ -2762,12 +2762,12 @@ int32_t Packet_SMSG_PERIODICAURALOG(void* param, NETMESSAGE msgId, uint32_t time
 // VERIFY: c5d9ed0a manual
 // OFFSET: 0x00752ED0
 void UnitCombatLogUnitDead(CGUnit_C* unit) {
-    int32_t event = 44;
+    int32_t event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_UNIT_DIED;
     WOWGUID none = WOWGUID();
     CreatureStats_C* creature = g_creatureDBCache.GetRecord(unit->m_obj->m_entryID, none, nullptr, nullptr, false);
 
     if (creature && creature->m_type == 13) {
-        event = 49;
+        event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_UNIT_DISSIPATES;
     } else {
         SpellRec spell;
 
@@ -2775,7 +2775,7 @@ void UnitCombatLogUnitDead(CGUnit_C* unit) {
             SummonPropertiesRec* summon = g_summonPropertiesDB.GetRecord(spell.m_effectMiscValueB[0]);
 
             if (summon && static_cast<uint32_t>(summon->m_slot - SUMMON_SLOT_TOTEM_1) <= (SUMMON_SLOT_TOTEM_4 - SUMMON_SLOT_TOTEM_1)) {
-                event = 45;
+                event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_UNIT_DESTROYED;
             }
         }
     }
@@ -3158,7 +3158,7 @@ void UnitCombatLog(const WOWGUID& guid, uint32_t type, int32_t damage, int32_t a
         unit->TriggerDamageFeedback();
     }
 
-    CombatLogEntry* entry = GetCombatLogEntry(WOWGUID(), guid, 0, nullptr);
+    CombatLogEntry* entry = GetCombatLogEntry(WOWGUID(), guid, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_ENVIRONMENTAL_DAMAGE, nullptr);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENVIRONMENTAL_TYPE;
     entry->m_info.m_values[0] = type;
     entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
@@ -3193,7 +3193,7 @@ void UnitCombatLogBuildingDamage(const WOWGUID& caster, const WOWGUID& owner, co
         return;
     }
 
-    CombatLogEntry* entry = GetCombatLogEntry(caster, building, 47, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(caster, building, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_BUILDING_DAMAGE, &spell);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
     entry->m_infoBits &= ~CombatLogEntry::DAMAGE_FLAGS::DAMAGE_RESULT_MASK;
     entry->m_info.m_values[1] = damage;
@@ -3222,7 +3222,7 @@ void UnitCombatLogBuildingHeal(const WOWGUID& caster, const WOWGUID& owner, cons
         return;
     }
 
-    CombatLogEntry* entry = GetCombatLogEntry(caster, building, 48, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(caster, building, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_BUILDING_HEAL, &spell);
     entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_HEAL;
     entry->m_info.m_values[0] = amount;
     entry->m_info.m_values[1] = 0;
