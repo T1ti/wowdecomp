@@ -13,7 +13,7 @@ static TSHashTable<DSP_CHAIN_HEAD_LOOKUP, HASHKEY_STRI> s_dspChains;
 
 // VERIFY: 4b244940 auto
 // OFFSET: 0x004CD9D0
-static FMOD_DSP_TYPE TranslateDspType(int32_t type) {
+static FMOD_DSP_TYPE TranslateDspType(SI2_DSP_TYPE type) {
     switch (type) {
         case SI2_DSP_TYPE_PITCHSHIFT:
             return FMOD_DSP_TYPE_PITCHSHIFT;
@@ -90,7 +90,7 @@ void SI2::DSP_ShutDown() {
 
 // VERIFY: 015e69f4 manual
 // OFFSET: 0x004CDF70
-void SI2::DSP_CreateDsp(const char* name, int32_t type, const float* params) {
+void SI2::DSP_CreateDsp(const char* name, SI2_DSP_TYPE type, const float* params) {
     static CVar* s_enableDSPEffects = CVar::Lookup("Sound_EnableDSPEffects");
 
     if (!s_enableDSPEffects->m_intValue) {
@@ -109,7 +109,7 @@ void SI2::DSP_CreateDsp(const char* name, int32_t type, const float* params) {
 
     DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.Ptr(name);
     head->m_chain.m_nodes.LinkToTail(node);
-    node->m_type = static_cast<SI2_DSP_TYPE>(type);
+    node->m_type = type;
 
     switch (type) {
         case SI2_DSP_TYPE_PITCHSHIFT:
@@ -204,7 +204,7 @@ void SI2::DSP_Init() {
         SoundFilterElemRec* elem = (i < 0 || i >= g_soundFilterElemDB.m_numRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
         SoundFilterRec* filter = g_soundFilterDB.GetRecord(elem->m_soundFilterID);
 
-        SI2::DSP_CreateDsp(filter->m_name, elem->m_filterType, elem->m_params);
+        SI2::DSP_CreateDsp(filter->m_name, static_cast<SI2_DSP_TYPE>(elem->m_filterType), elem->m_params);
     }
 
     for (DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.m_fulllist.Head(); head; head = s_dspChains.m_fulllist.Next(head)) {
