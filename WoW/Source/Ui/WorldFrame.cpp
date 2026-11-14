@@ -317,7 +317,7 @@ void CGWorldFrame::OnLayerTrackTerrain(const HITTESTRESULT& result) {
     evt.m_point = s_spellShadowPos;
     evt.m_guid = WOWGUID();
 
-    if ((result.m_guid.m_guid & 0xF000000000000000ull) == 0x1000000000000000ull && (result.m_guid.m_guid & 0x0FF0000000000000ull) == 0x0FC0000000000000ull) {
+    if (result.m_guid.IsMOTransport()) {
         CGObject_C* transport = ClntObjMgrObjectPtr(result.m_guid, TYPE_OBJECT, __FILE__, __LINE__);
 
         if (transport) {
@@ -2181,9 +2181,7 @@ void CGWorldFrame::PerformDefaultAction(MOUSEBUTTON button) {
         case HIT_GROUND:
         case HIT_WORLD_OBJECT: {
             CTerrainClickEvent evt;
-            uint32_t high = static_cast<uint32_t>(this->m_defaultActionHit.m_guid.m_guid >> 32);
-
-            if ((high & 0xF0000000) == 0x10000000 && (high & 0xFF00000) == 0xFC00000) {
+            if (this->m_defaultActionHit.m_guid.IsMOTransport()) {
                 evt.m_guid = this->m_defaultActionHit.m_guid;
             } else {
                 evt.m_guid = WOWGUID();

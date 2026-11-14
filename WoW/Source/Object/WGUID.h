@@ -10,8 +10,6 @@ class CDataStore;
 // Preserve that exact mask rather than substituting a different GUID format.
 constexpr int32_t WOWGUID_ENTRY_SHIFT = 24;
 constexpr int32_t WOWGUID_ENTRY_MASK = 0x0FFFFFFF;
-constexpr int32_t WOWGUID_HIGH_WORD_SHIFT = 32;
-constexpr uint32_t WOWGUID_WORD_ALL_ONES = 0xFFFFFFFF;
 
 // Synthetic requester GUID for spell-backed item/tooltip/cache queries.
 constexpr uint64_t WOWGUID_SPELL_QUERY_TAG = 0x1FE0000000000000ull;
@@ -28,6 +26,13 @@ constexpr uint64_t WOWGUID_TYPE_GAMEOBJECT = 0xF010000000000000ull;
 constexpr uint64_t WOWGUID_TYPE_CREATURE = 0xF030000000000000ull;
 constexpr uint64_t WOWGUID_TYPE_PET = 0xF040000000000000ull;
 constexpr uint64_t WOWGUID_TYPE_VEHICLE = 0xF050000000000000ull;
+// Non-world GUIDs with a top nibble of 1 are compared on their top 12 bits.
+constexpr uint64_t WOWGUID_GLOBAL_TYPE_MASK = 0xFFF0000000000000ull;
+constexpr uint64_t WOWGUID_TYPE_MO_TRANSPORT = 0x1FC0000000000000ull;
+// Name cache entries of this type are kept as temporary.
+constexpr uint64_t WOWGUID_TYPE_UNKNOWN_1FD = 0x1FD0000000000000ull;
+// Invalidations of this type target the guild info cache.
+constexpr uint64_t WOWGUID_TYPE_GUILD = 0x1FF0000000000000ull;
 
 struct WOWGUID {
     /* 0000 */ uint64_t m_guid;
@@ -63,6 +68,18 @@ struct WOWGUID {
 
     bool IsVehicle() const {
         return this->GetType() == WOWGUID_TYPE_VEHICLE;
+    }
+
+    uint64_t GetGlobalType() const {
+        return this->m_guid & WOWGUID_GLOBAL_TYPE_MASK;
+    }
+
+    bool IsMOTransport() const {
+        return this->GetGlobalType() == WOWGUID_TYPE_MO_TRANSPORT;
+    }
+
+    bool IsGuild() const {
+        return this->GetGlobalType() == WOWGUID_TYPE_GUILD;
     }
 
     bool operator==(const WOWGUID& guid) const {
