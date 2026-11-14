@@ -599,8 +599,8 @@ uint32_t CGPartyInfo::GetGroupRole(const WOWGUID& guid) {
 // VERIFY: 942eebbc manual
 // OFFSET: 0x0052C8C0
 int32_t CGPartyInfo::IsPlayerOrPetInParty(const WOWGUID& guid) {
-    if (!static_cast<uint32_t>(guid.m_guid)) {
-        return static_cast<uint32_t>(guid.m_guid >> 32);
+    if (!guid) {
+        return 0;
     }
 
     for (uint32_t i = 0; i < CGPartyInfo::GetNumPartyMembers(); i++) {

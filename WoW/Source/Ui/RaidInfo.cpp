@@ -958,8 +958,8 @@ CGRaidMember* CGRaidInfo::FindMemberByGuid(WOWGUID guid) {
 // VERIFY: 2ec03ec8 manual
 // OFFSET: 0x00573200
 int32_t CGRaidInfo::IsPlayerOrPetInRaid(const WOWGUID& guid) {
-    if (!static_cast<uint32_t>(guid.m_guid)) {
-        return static_cast<uint32_t>(guid.m_guid >> 32);
+    if (!guid) {
+        return 0;
     }
 
     for (uint32_t i = 0; i < CGRaidInfo::m_numMembers; i++) {
