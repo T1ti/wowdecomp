@@ -226,13 +226,13 @@ static int32_t Script_GetGuildBankMoneyTransaction(lua_State* L) {
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     GuildBankLogEntry* entry = index >= 25 ? nullptr : &CGGuildBankInfo::m_log[6][index];
 
-    if (entry->m_type == 4) {
+    if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_DEPOSIT_MONEY) {
         lua_pushstring(L, "deposit");
-    } else if (entry->m_type == 5) {
+    } else if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_WITHDRAW_MONEY) {
         lua_pushstring(L, "withdraw");
-    } else if (entry->m_type == 8) {
+    } else if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_WITHDRAW_MONEY_FOR_TAB) {
         lua_pushstring(L, "withdrawForTab");
-    } else if (entry->m_type == 9) {
+    } else if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_BUY_TAB) {
         lua_pushstring(L, "buyTab");
     } else {
         lua_pushstring(L, "repair");
@@ -727,14 +727,14 @@ static int32_t Script_GetGuildBankTransaction(lua_State* L) {
     char type[16];
 
     switch (entry->m_type) {
-        case 1:
+        case GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_DEPOSIT_ITEM:
             SStrCopy(type, "deposit", STORM_MAX_STR);
             break;
-        case 2:
+        case GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_WITHDRAW_ITEM:
             SStrCopy(type, "withdraw", STORM_MAX_STR);
             break;
-        case 3:
-        case 7:
+        case GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM:
+        case GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM_FROM_TAB:
             SStrCopy(type, "move", STORM_MAX_STR);
             break;
         default:
@@ -762,10 +762,10 @@ static int32_t Script_GetGuildBankTransaction(lua_State* L) {
 
     lua_pushnumber(L, entry->m_count);
 
-    if (entry->m_type == 3) {
+    if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM) {
         lua_pushnumber(L, tab + 1);
         lua_pushnumber(L, entry->m_otherTab + 1);
-    } else if (entry->m_type == 7) {
+    } else if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM_FROM_TAB) {
         lua_pushnumber(L, entry->m_otherTab + 1);
         lua_pushnumber(L, tab + 1);
     } else {

@@ -473,13 +473,13 @@ int32_t Packet_MSG_GUILD_BANK_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t 
         msg->Get(entry->m_guid.m_guid);
         entry->m_index = i;
 
-        if (entry->m_type == 4 || entry->m_type == 5 || entry->m_type == 6 || entry->m_type == 8 || entry->m_type == 9) {
+        if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_DEPOSIT_MONEY || entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_WITHDRAW_MONEY || entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_REPAIR_MONEY || entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_WITHDRAW_MONEY_FOR_TAB || entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_BUY_TAB) {
             msg->Get(entry->m_money);
         } else {
             msg->Get(*reinterpret_cast<uint32_t*>(&entry->m_itemID));
             msg->Get(entry->m_count);
 
-            if (entry->m_type == 3 || entry->m_type == 7) {
+            if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM || entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_MOVE_ITEM_FROM_TAB) {
                 uint8_t otherTab;
                 msg->Get(otherTab);
                 entry->m_otherTab = otherTab;

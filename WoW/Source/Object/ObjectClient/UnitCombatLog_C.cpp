@@ -2766,7 +2766,7 @@ void UnitCombatLogUnitDead(CGUnit_C* unit) {
     WOWGUID none = WOWGUID();
     CreatureStats_C* creature = g_creatureDBCache.GetRecord(unit->m_obj->m_entryID, none, nullptr, nullptr, false);
 
-    if (creature && creature->m_type == 13) {
+    if (creature && creature->m_type == CREATURE_TYPE::CREATURE_TYPE_GAS_CLOUD) {
         event = COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_UNIT_DISSIPATES;
     } else {
         SpellRec spell;

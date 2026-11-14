@@ -16,8 +16,23 @@ struct GuildBankTabInfo {
     /* 2140 */ int32_t m_needsFullUpdate;
 };
 
+// SMSG_GUILD_BANK_LOG_QUERY_RESULTS entry type.
+enum GUILD_BANK_LOG_TYPE : uint32_t {
+    GUILD_BANK_LOG_DEPOSIT_ITEM = 1,
+    GUILD_BANK_LOG_WITHDRAW_ITEM = 2,
+    // Item moved from the logged tab to m_otherTab.
+    GUILD_BANK_LOG_MOVE_ITEM = 3,
+    GUILD_BANK_LOG_DEPOSIT_MONEY = 4,
+    GUILD_BANK_LOG_WITHDRAW_MONEY = 5,
+    GUILD_BANK_LOG_REPAIR_MONEY = 6,
+    // Item moved from m_otherTab into the logged tab.
+    GUILD_BANK_LOG_MOVE_ITEM_FROM_TAB = 7,
+    GUILD_BANK_LOG_WITHDRAW_MONEY_FOR_TAB = 8,
+    GUILD_BANK_LOG_BUY_TAB = 9,
+};
+
 struct GuildBankLogEntry {
-    /* 0000 */ uint32_t m_type;
+    /* 0000 */ uint32_t m_type; // GUILD_BANK_LOG_TYPE
     /* 0004 */ uint32_t unused_0004;
     /* 0008 */ WOWGUID m_guid;
     /* 0010 */ int32_t m_itemID;
