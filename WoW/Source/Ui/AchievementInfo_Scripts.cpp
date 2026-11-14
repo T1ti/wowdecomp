@@ -1093,7 +1093,7 @@ static int32_t Script_GetAchievementNumCriteria(lua_State* L) {
         }
 
         for (SPECIFIC_CRITERIA* node = source->m_criteria.Head(); node; node = source->m_criteria.Next(node)) {
-            if (node->m_criteria && !(node->m_criteria->m_flags & 0x2)) {
+            if (node->m_criteria && !(node->m_criteria->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_HIDDEN)) {
                 count++;
             }
         }
@@ -1231,7 +1231,7 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
                 return 0;
             }
 
-            if (!(spec->m_criteria->m_flags & 0x2) || (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR))) {
+            if (!(spec->m_criteria->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_HIDDEN) || (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR))) {
                 if (achievement->m_rec->m_flags & (ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_MAXIMUM | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_COMPLETED_CRITERIA_COUNT | ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR)) {
                     showAll = true;
                 }
@@ -1326,7 +1326,7 @@ static int32_t Script_GetAchievementCriteriaInfo(lua_State* L) {
     int32_t required = 0;
 
     if (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_PROGRESS_BAR) {
-        criteriaFlags |= 0x1;
+        criteriaFlags |= ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_PROGRESS_BAR;
 
         if (done && (flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_SUM)) {
             sum = static_cast<int64_t>(criteria->m_quantity);
@@ -1502,7 +1502,7 @@ static int32_t Script_GetAchievementLink(lua_State* L) {
         for (SPECIFIC_CRITERIA* spec = source->m_criteria.Head(); spec; spec = source->m_criteria.Next(spec)) {
             Achievement_CriteriaRec* criteria = spec->m_criteria;
 
-            if (criteria->m_flags & 0x2) {
+            if (criteria->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_HIDDEN) {
                 continue;
             }
 

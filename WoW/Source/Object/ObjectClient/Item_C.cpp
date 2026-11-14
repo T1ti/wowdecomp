@@ -408,7 +408,7 @@ uint32_t CGItem_C::GetSpellItemEnchantmentId() const {
 int32_t CGItem_C::IsMetal(int32_t materialId) {
     MaterialRec* rec = g_materialDB.GetRecord(materialId);
 
-    if (rec && (rec->m_flags & 0x1)) {
+    if (rec && (rec->m_flags & MATERIAL_FLAG_METAL)) {
         return 1;
     }
 
@@ -539,7 +539,7 @@ bool CGItem_C::HasSoulboundEnchant() {
 
         SpellItemEnchantmentRec* rec = g_spellItemEnchantmentDB.GetRecord(id);
 
-        if (rec && (rec->m_flags & 0x1)) {
+        if (rec && (rec->m_flags & ENCHANTMENT_FLAG_SOULBOUND)) {
             return true;
         }
     }

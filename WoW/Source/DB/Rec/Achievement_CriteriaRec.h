@@ -6,6 +6,18 @@
 
 class SFileImpl;
 
+// Achievement_Criteria.dbc flags tested by the client (also returned to Lua).
+// PROGRESS_BAR and HIDDEN follow FrameXML ACHIEVEMENT_CRITERIA_*.
+enum ACHIEVEMENT_CRITERIA_FLAGS : int32_t {
+    ACHIEVEMENT_CRITERIA_FLAG_NONE         = 0x00000000,
+    ACHIEVEMENT_CRITERIA_FLAG_PROGRESS_BAR = 0x00000001,
+    ACHIEVEMENT_CRITERIA_FLAG_HIDDEN       = 0x00000002,
+    // The quantity is a packed date.
+    ACHIEVEMENT_CRITERIA_FLAG_IS_DATE      = 0x00000010,
+    // The quantity is an amount of copper.
+    ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY     = 0x00000020,
+};
+
 class Achievement_CriteriaRec {
     public:
     static const int32_t s_numColumns = 31;
@@ -22,7 +34,7 @@ class Achievement_CriteriaRec {
     /* 001C */ int32_t m_failEvent;
     /* 0020 */ int32_t m_failAsset;
     /* 0024 */ const char* m_description;
-    /* 0028 */ int32_t m_flags;
+    /* 0028 */ int32_t m_flags; // ACHIEVEMENT_CRITERIA_FLAGS
     /* 002C */ int32_t m_timerStartEvent;
     /* 0030 */ int32_t m_timerAssetID;
     /* 0034 */ int32_t m_timerTime;

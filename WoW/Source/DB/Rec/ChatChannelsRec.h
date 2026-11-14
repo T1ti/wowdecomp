@@ -9,6 +9,8 @@ class SFileImpl;
 // ChatChannels.dbc flags tested by the client; names describe that behavior.
 enum CHAT_CHANNEL_FLAGS : int32_t {
     CHAT_CHANNEL_FLAG_NONE               = 0x00000000,
+    // Joined by default and shown in the default chat window.
+    CHAT_CHANNEL_FLAG_AUTO_JOIN          = 0x00000001,
     // Limited to the zone it was joined in.
     CHAT_CHANNEL_FLAG_ZONE_BASED         = 0x00000002,
     // Listed only in AREA_FLAG_CITY_CHANNELS areas.

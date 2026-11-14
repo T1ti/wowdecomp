@@ -4820,7 +4820,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                 ChatChannelsRec* rec = g_chatChannelsDB.GetRecord(s_zoneChannelDefaults[i].m_channelID);
 
-                if (!rec || !(rec->m_flags & 1)) {
+                if (!rec || !(rec->m_flags & CHAT_CHANNEL_FLAG_AUTO_JOIN)) {
                     continue;
                 }
 
@@ -4868,7 +4868,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
             ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
-            if (!(rec->m_flags & 1)) {
+            if (!(rec->m_flags & CHAT_CHANNEL_FLAG_AUTO_JOIN)) {
                 continue;
             }
 

@@ -2194,7 +2194,7 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
     for (int32_t i = 0; i < count; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
-        if (!(rec->m_flags & 0x1)) {
+        if (!(rec->m_flags & CHAT_CHANNEL_FLAG_AUTO_JOIN)) {
             continue;
         }
 

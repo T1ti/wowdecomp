@@ -1014,7 +1014,7 @@ static void LocateWeaponSubclass() {
     for (int32_t i = g_itemClassDB.m_numRecords - 1; i >= 0; i--) {
         const ItemClassRec* rec = i >= 0 && i < g_itemClassDB.m_numRecords ? &g_itemClassDB.m_records[i] : nullptr;
 
-        if (rec->m_flags & 1) {
+        if (rec->m_flags & ITEM_CLASS_FLAG_WEAPON) {
             s_weaponItemClass = rec;
         }
     }
@@ -1057,7 +1057,7 @@ void InitResistances() {
     for (int32_t i = 0; static_cast<uint32_t>(i) < count; i++) {
         const ResistancesRec* rec = i >= 0 && i < g_resistancesDB.m_numRecords ? &g_resistancesDB.m_records[i] : nullptr;
 
-        if (rec->m_flags & 1) {
+        if (rec->m_flags & RESISTANCE_FLAG_PHYSICAL) {
             s_physicalDamageClassID = i;
         }
 

@@ -8092,7 +8092,7 @@ int32_t CGTooltip::SetAchievement(int32_t achievementId, WOWGUID guid, bool comp
         for (SPECIFIC_CRITERIA* node = achievement->m_criteria.Head(); node; node = achievement->m_criteria.Next(node)) {
             Achievement_CriteriaRec* criteria = node->m_criteria;
 
-            if (!criteria || (criteria->m_flags & 0x2)) {
+            if (!criteria || (criteria->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_HIDDEN)) {
                 continue;
             }
 

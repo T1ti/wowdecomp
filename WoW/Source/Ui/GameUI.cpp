@@ -4770,7 +4770,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
 
             SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(spell.m_effectMiscValue[i]);
 
-            if (enchant && (enchant->m_flags & 1) && !item->IsBound() && !confirmed && item->GetInventoryType()) {
+            if (enchant && (enchant->m_flags & ENCHANTMENT_FLAG_SOULBOUND) && !item->IsBound() && !confirmed && item->GetInventoryType()) {
                 CGGameUI::m_lastItemSpellTarget = item->m_obj->m_guid;
                 FrameScript_SignalEvent(SCRIPT_EVENT_BIND_ENCHANT, nullptr);
                 return;

@@ -860,12 +860,12 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
 
         Achievement_CriteriaRec* rec = g_achievement_CriteriaDB.GetRecord(criteria->m_id);
 
-        if (rec && (rec->m_flags & 0x10)) {
+        if (rec && (rec->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_DATE)) {
             WowTime time;
             DBDATESTRUCT date;
             WowTime::WowDecodeTimeToDbDate(static_cast<uint32_t>(result), &date);
             SStrPrintf(buffer, size, "%02d/%02d/%d", date.m_month, date.m_day, static_cast<int16_t>(date.m_year));
-        } else if (rec && (rec->m_flags & 0x20)) {
+        } else if (rec && (rec->m_flags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY)) {
             if (colorblindMode && colorblindMode->m_intValue) {
                 GetCurrencyShortText(static_cast<int32_t>(result), buffer, size, " ");
             } else {

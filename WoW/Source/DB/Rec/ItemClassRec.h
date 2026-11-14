@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// ItemClass.dbc flags tested by the client.
+enum ITEM_CLASS_FLAGS : int32_t {
+    ITEM_CLASS_FLAG_NONE   = 0x00000000,
+    ITEM_CLASS_FLAG_WEAPON = 0x00000001,
+};
+
 class ItemClassRec {
     public:
     static const int32_t s_numColumns = 20;
@@ -14,7 +20,7 @@ class ItemClassRec {
 
     /* 0000 */ int32_t m_classID;
     /* 0004 */ int32_t m_subclassMapID;
-    /* 0008 */ int32_t m_flags;
+    /* 0008 */ int32_t m_flags; // ITEM_CLASS_FLAGS
     /* 000C */ const char* m_className;
     /* 0010 */ int32_t m_generatedID;
 

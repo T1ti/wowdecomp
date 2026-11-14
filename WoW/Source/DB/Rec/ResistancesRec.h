@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// Resistances.dbc flags tested by the client.
+enum RESISTANCE_FLAGS : int32_t {
+    RESISTANCE_FLAG_NONE     = 0x00000000,
+    RESISTANCE_FLAG_PHYSICAL = 0x00000001,
+};
+
 class ResistancesRec {
     public:
     static const int32_t s_numColumns = 20;
@@ -13,7 +19,7 @@ class ResistancesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags;
+    /* 0004 */ int32_t m_flags; // RESISTANCE_FLAGS
     /* 0008 */ int32_t m_fizzleSoundID;
     /* 000C */ const char* m_name;
 
