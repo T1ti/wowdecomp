@@ -133,14 +133,14 @@ static int32_t Script_GetSkillLineInfo(lua_State* L) {
                 }
 
                 if (hand < 3) {
-                    int32_t bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(0) - 0.5f));
+                    int32_t bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL) - 0.5f));
 
                     if (hand == 0) {
-                        bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(20) - 0.5f)) + bonus;
+                        bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_MAINHAND) - 0.5f)) + bonus;
                     } else if (hand == 1) {
-                        bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(21) - 0.5f)) + bonus;
+                        bonus = static_cast<int32_t>(lrintf(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_OFFHAND) - 0.5f)) + bonus;
                     } else if (hand == 2) {
-                        bonus = bonus + static_cast<int32_t>(lrintf(player->GetCombatRatingPct(22) - 0.5f));
+                        bonus = bonus + static_cast<int32_t>(lrintf(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_RANGED) - 0.5f));
                     }
 
                     value += bonus;

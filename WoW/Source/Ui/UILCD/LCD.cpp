@@ -940,7 +940,7 @@ void CGLCD::DisplayMeleeStats() {
     int32_t positive = CMath::fint_((CGLCD::m_player->m_unit->m_unitFieldAttackPowerMultiplier + 1.0f) * CGLCD::m_player->m_unit->m_unitFieldAttackPowerMods[0]);
     int32_t negative = CMath::fint_((CGLCD::m_player->m_unit->m_unitFieldAttackPowerMultiplier + 1.0f) * CGLCD::m_player->m_unit->m_unitFieldAttackPowerMods[1]);
     CGLCD::SetStat("POWER", power + positive + negative);
-    CGLCD::SetStat("HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[5]));
+    CGLCD::SetStat("HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[COMBAT_RATING::CR_HIT_MELEE]));
     CGLCD::SetStat("CRIT", CGLCD::m_player->m_player->m_playerCritPercentage, true);
     CGLCD::m_lcd->SetVisible(CGLCD::GetHandle("EXPERTISE"), 1);
     CGLCD::m_lcd->SetVisible(CGLCD::GetHandle("EXPERTISE_FLD"), 1);
@@ -976,7 +976,7 @@ void CGLCD::DisplayRangedStats() {
     int32_t positive = CMath::fint_((CGLCD::m_player->m_unit->m_unitFieldRangedAttackPowerMultiplier + 1.0f) * CGLCD::m_player->m_unit->m_unitFieldRangedAttackPowerMods[0]);
     int32_t negative = CMath::fint_((CGLCD::m_player->m_unit->m_unitFieldRangedAttackPowerMultiplier + 1.0f) * CGLCD::m_player->m_unit->m_unitFieldRangedAttackPowerMods[1]);
     CGLCD::SetStat("POWER", power + positive + negative);
-    CGLCD::SetStat("HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[6]));
+    CGLCD::SetStat("HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[COMBAT_RATING::CR_HIT_RANGED]));
     CGLCD::SetStat("CRIT", CGLCD::m_player->m_player->m_playerRangedCritPercentage, true);
     CGLCD::m_lcd->SetVisible(CGLCD::GetHandle("EXPERTISE"), 0);
     CGLCD::m_lcd->SetVisible(CGLCD::GetHandle("EXPERTISE_FLD"), 0);
@@ -1002,9 +1002,9 @@ void CGLCD::DisplayDefenseStats() {
     CGLCD::SetStat("BLOCK", CGLCD::m_player->m_player->m_playerBlockPercentage, true);
 
     CGPlayerLocalData* data = CGLCD::m_player->m_player;
-    int32_t melee = static_cast<int32_t>(data->m_playerFieldCombatRating1[14]);
-    int32_t ranged = static_cast<int32_t>(data->m_playerFieldCombatRating1[15]);
-    int32_t spell = static_cast<int32_t>(data->m_playerFieldCombatRating1[16]);
+    int32_t melee = static_cast<int32_t>(data->m_playerFieldCombatRating1[COMBAT_RATING::CR_CRIT_TAKEN_MELEE]);
+    int32_t ranged = static_cast<int32_t>(data->m_playerFieldCombatRating1[COMBAT_RATING::CR_CRIT_TAKEN_RANGED]);
+    int32_t spell = static_cast<int32_t>(data->m_playerFieldCombatRating1[COMBAT_RATING::CR_CRIT_TAKEN_SPELL]);
     CGLCD::SetStat("RESILIENCE", (melee < ranged ? melee : ranged) < spell ? (melee < ranged ? melee : ranged) : spell);
 }
 
@@ -1024,7 +1024,7 @@ void CGLCD::DisplaySpellStats() {
 
     CGLCD::SetStat("SPELL_DAMAGE", spellDamage);
     CGLCD::SetStat("SPELL_HEALING", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldModHealingDonePos));
-    CGLCD::SetStat("SPELL_HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[7]));
+    CGLCD::SetStat("SPELL_HIT", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[COMBAT_RATING::CR_HIT_SPELL]));
 
     float* crit = CGLCD::m_player->m_player->m_playerSpellCritPercentage1;
     float spellCrit = crit[SPELL_SCHOOL::SPELL_SCHOOL_HOLY];
@@ -1036,7 +1036,7 @@ void CGLCD::DisplaySpellStats() {
     }
 
     CGLCD::SetStat("SPELL_CRIT", spellCrit, true);
-    CGLCD::SetStat("SPELL_HASTE", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[19]));
+    CGLCD::SetStat("SPELL_HASTE", static_cast<int32_t>(CGLCD::m_player->m_player->m_playerFieldCombatRating1[COMBAT_RATING::CR_HASTE_SPELL]));
     int32_t manaRegen = 0;
 
     if (!CGLCD::m_player->m_unit->m_displayPower) {

@@ -8,6 +8,36 @@
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
 #include "WoW/Source/Object/WGUID.h"
 
+// Combat rating index; names follow FrameXML CR_* (whose Lua values are this index + 1).
+enum COMBAT_RATING : int32_t {
+    CR_WEAPON_SKILL = 0,
+    CR_DEFENSE_SKILL = 1,
+    CR_DODGE = 2,
+    CR_PARRY = 3,
+    CR_BLOCK = 4,
+    CR_HIT_MELEE = 5,
+    CR_HIT_RANGED = 6,
+    CR_HIT_SPELL = 7,
+    CR_CRIT_MELEE = 8,
+    CR_CRIT_RANGED = 9,
+    CR_CRIT_SPELL = 10,
+    CR_HIT_TAKEN_MELEE = 11,
+    CR_HIT_TAKEN_RANGED = 12,
+    CR_HIT_TAKEN_SPELL = 13,
+    CR_CRIT_TAKEN_MELEE = 14,
+    CR_CRIT_TAKEN_RANGED = 15,
+    CR_CRIT_TAKEN_SPELL = 16,
+    CR_HASTE_MELEE = 17,
+    CR_HASTE_RANGED = 18,
+    CR_HASTE_SPELL = 19,
+    CR_WEAPON_SKILL_MAINHAND = 20,
+    CR_WEAPON_SKILL_OFFHAND = 21,
+    CR_WEAPON_SKILL_RANGED = 22,
+    CR_EXPERTISE = 23,
+    CR_ARMOR_PENETRATION = 24,
+    NUM_COMBAT_RATINGS = 25,
+};
+
 class CGPlayerLocalData;
 
 struct PlayerQuestLogEntry {
@@ -429,7 +459,7 @@ class CGPlayerLocalData : public CGPlayerData {
         };
     };
     /* 10E8 */ uint32_t m_playerFieldWatchedFactionIndex;
-    /* 10EC */ uint32_t m_playerFieldCombatRating1 [25];
+    /* 10EC */ uint32_t m_playerFieldCombatRating1 [COMBAT_RATING::NUM_COMBAT_RATINGS];
     /* 1150 */ uint32_t m_playerFieldArenaTeamInfo11 [21];
     /* 11A4 */ uint32_t m_playerFieldHonorCurrency;
     /* 11A8 */ uint32_t m_playerFieldArenaCurrency;

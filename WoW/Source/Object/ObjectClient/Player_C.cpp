@@ -10459,8 +10459,8 @@ void CGPlayer_C::GetRangedAttackSkillRank(int32_t& rank, int32_t& bonus) {
         this->GetExpandedSkillRank(ability->m_skillLine, rank, bonus);
     }
 
-    bonus += static_cast<int32_t>(this->GetCombatRatingPct(0) - 0.5f);
-    bonus += static_cast<int32_t>(this->GetCombatRatingPct(22) - 0.5f);
+    bonus += static_cast<int32_t>(this->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL) - 0.5f);
+    bonus += static_cast<int32_t>(this->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_RANGED) - 0.5f);
 }
 
 // VERIFY: d1cf8e16 manual
@@ -13629,7 +13629,7 @@ void CGPlayer_C::GetDefenseSkillRank(int32_t& rank, int32_t& bonus) const {
         this->GetExpandedSkillRank(ability->m_skillLine, rank, bonus);
     }
 
-    bonus += static_cast<int32_t>(const_cast<CGPlayer_C*>(this)->GetCombatRatingPct(1) - 0.5f);
+    bonus += static_cast<int32_t>(const_cast<CGPlayer_C*>(this)->GetCombatRatingPct(COMBAT_RATING::CR_DEFENSE_SKILL) - 0.5f);
 }
 
 // VERIFY: 7a00b174 manual
@@ -13663,12 +13663,12 @@ void CGPlayer_C::GetAttackSkillRank(int32_t hand, int32_t& rank, int32_t& bonus)
     }
 
     CGPlayer_C* player = const_cast<CGPlayer_C*>(this);
-    bonus += static_cast<int32_t>(player->GetCombatRatingPct(0) - 0.5f);
+    bonus += static_cast<int32_t>(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL) - 0.5f);
 
     if (hand == 0) {
-        bonus += static_cast<int32_t>(player->GetCombatRatingPct(20) - 0.5f);
+        bonus += static_cast<int32_t>(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_MAINHAND) - 0.5f);
     } else if (hand == 1) {
-        bonus += static_cast<int32_t>(player->GetCombatRatingPct(21) - 0.5f);
+        bonus += static_cast<int32_t>(player->GetCombatRatingPct(COMBAT_RATING::CR_WEAPON_SKILL_OFFHAND) - 0.5f);
     }
 }
 

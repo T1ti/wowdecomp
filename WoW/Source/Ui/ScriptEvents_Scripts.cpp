@@ -1867,12 +1867,12 @@ static int32_t Script_GetMaxCombatRatingBonus(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= 25) {
-        luaL_error(L, "ratingIndex is in the range 1 .. %d", 25);
+    if (index >= COMBAT_RATING::NUM_COMBAT_RATINGS) {
+        luaL_error(L, "ratingIndex is in the range 1 .. %d", COMBAT_RATING::NUM_COMBAT_RATINGS);
         return 0;
     }
 
-    lua_pushnumber(L, index < 14 || index > 16 ? -1.0 : 0x1.080000Bp+5);
+    lua_pushnumber(L, index < COMBAT_RATING::CR_CRIT_TAKEN_MELEE || index > COMBAT_RATING::CR_CRIT_TAKEN_SPELL ? -1.0 : 0x1.080000Bp+5);
     return 1;
 }
 
@@ -1939,8 +1939,8 @@ static int32_t Script_GetCombatRating(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= 25) {
-        luaL_error(L, "ratingIndex is in the range 1 .. %d", 25);
+    if (index >= COMBAT_RATING::NUM_COMBAT_RATINGS) {
+        luaL_error(L, "ratingIndex is in the range 1 .. %d", COMBAT_RATING::NUM_COMBAT_RATINGS);
         return 0;
     }
 
@@ -3210,8 +3210,8 @@ static int32_t Script_GetCombatRatingBonus(lua_State* L) {
 
     int32_t rating = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(rating - 1) >= 25) {
-        luaL_error(L, "ratingIndex is in the range 1 .. %d", 25);
+    if (static_cast<uint32_t>(rating - 1) >= COMBAT_RATING::NUM_COMBAT_RATINGS) {
+        luaL_error(L, "ratingIndex is in the range 1 .. %d", COMBAT_RATING::NUM_COMBAT_RATINGS);
         return 0;
     }
 
@@ -3411,7 +3411,7 @@ static int32_t Script_GetArmorPenetration(lua_State* L) {
         return 1;
     }
 
-    lua_pushnumber(L, player->GetCombatRatingPct(24) > 100.0f ? 100.0f : player->GetCombatRatingPct(24));
+    lua_pushnumber(L, player->GetCombatRatingPct(COMBAT_RATING::CR_ARMOR_PENETRATION) > 100.0f ? 100.0f : player->GetCombatRatingPct(COMBAT_RATING::CR_ARMOR_PENETRATION));
     return 1;
 }
 
