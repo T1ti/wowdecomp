@@ -122,7 +122,7 @@ static int32_t Script_CalendarCloseEvent(lua_State* L) {
 static int32_t Script_CalendarEventGetTypes(lua_State* L) {
     lua_checkstack(L, 5);
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < CALENDAR_TYPE::NUM_CALENDAR_TYPES; i++) {
         lua_pushstring(L, FrameScript_GetText(GetEventTypeString(i), -1, GENDER_NOT_APPLICABLE));
     }
 
@@ -134,7 +134,7 @@ static int32_t Script_CalendarEventGetTypes(lua_State* L) {
 static int32_t Script_CalendarEventGetRepeatOptions(lua_State* L) {
     lua_checkstack(L, 4);
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < CALENDAR_REPEAT::NUM_CALENDAR_REPEATS; i++) {
         lua_pushstring(L, FrameScript_GetText(GetEventRepeatString(i), -1, GENDER_NOT_APPLICABLE));
     }
 

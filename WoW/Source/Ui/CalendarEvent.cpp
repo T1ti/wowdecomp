@@ -21,10 +21,10 @@
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 
 // STATIC: 0x00AD1684
-static const char* s_eventRepeatStrings[4] = { "CALENDAR_REPEAT_NEVER", "CALENDAR_REPEAT_WEEKLY", "CALENDAR_REPEAT_BIWEEKLY", "CALENDAR_REPEAT_MONTHLY" };
+static const char* s_eventRepeatStrings[CALENDAR_REPEAT::NUM_CALENDAR_REPEATS] = { "CALENDAR_REPEAT_NEVER", "CALENDAR_REPEAT_WEEKLY", "CALENDAR_REPEAT_BIWEEKLY", "CALENDAR_REPEAT_MONTHLY" };
 
 // STATIC: 0x00AD1694
-static const char* s_eventTypeStrings[5] = { "CALENDAR_TYPE_RAID", "CALENDAR_TYPE_DUNGEON", "CALENDAR_TYPE_PVP", "CALENDAR_TYPE_MEETING", "CALENDAR_TYPE_OTHER" };
+static const char* s_eventTypeStrings[CALENDAR_TYPE::NUM_CALENDAR_TYPES] = { "CALENDAR_TYPE_RAID", "CALENDAR_TYPE_DUNGEON", "CALENDAR_TYPE_PVP", "CALENDAR_TYPE_MEETING", "CALENDAR_TYPE_OTHER" };
 
 // STATIC: 0x00AD16A8
 static const char* s_eventStatusStrings[9] = { "CALENDAR_STATUS_INVITED", "CALENDAR_STATUS_ACCEPTED", "CALENDAR_STATUS_DECLINED", "CALENDAR_STATUS_CONFIRMED", "CALENDAR_STATUS_OUT", "CALENDAR_STATUS_STANDBY", "CALENDAR_STATUS_SIGNEDUP", "CALENDAR_STATUS_NOT_SIGNEDUP", "CALENDAR_STATUS_TENTATIVE" };
@@ -51,13 +51,13 @@ const char* GetEventStatusString(uint32_t status) {
 // VERIFY: 4baec31b manual
 // OFFSET: 0x005F1020
 const char* GetEventTypeString(uint32_t type) {
-    return type < 5 ? s_eventTypeStrings[type] : nullptr;
+    return type < CALENDAR_TYPE::NUM_CALENDAR_TYPES ? s_eventTypeStrings[type] : nullptr;
 }
 
 // VERIFY: 92b48cfb manual
 // OFFSET: 0x005F1040
 const char* GetEventRepeatString(uint32_t repeat) {
-    return repeat < 4 ? s_eventRepeatStrings[repeat] : nullptr;
+    return repeat < CALENDAR_REPEAT::NUM_CALENDAR_REPEATS ? s_eventRepeatStrings[repeat] : nullptr;
 }
 
 // VERIFY: d2656ad2 manual
@@ -69,8 +69,8 @@ void CGCalendarEvent::Clear() {
     this->m_moderatorInviteID = 0;
     this->m_title[0] = '\0';
     this->m_description[0] = '\0';
-    this->m_type = 0;
-    this->m_repeatOption = 0;
+    this->m_type = CALENDAR_TYPE::CALENDAR_TYPE_RAID;
+    this->m_repeatOption = CALENDAR_REPEAT::CALENDAR_REPEAT_NEVER;
     this->m_maxSize = 100;
     this->m_flags = CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_NONE;
     this->m_new = 0;
@@ -116,7 +116,7 @@ void CGCalendarEvent::SetDescription(const char* description) {
 // VERIFY: d2c0193e auto
 // OFFSET: 0x005F11D0
 void CGCalendarEvent::SetType(uint32_t type) {
-    if (type < 5 && type != this->m_type) {
+    if (type < CALENDAR_TYPE::NUM_CALENDAR_TYPES && type != this->m_type) {
         this->m_type = type;
         this->m_changed = 1;
     }
@@ -125,7 +125,7 @@ void CGCalendarEvent::SetType(uint32_t type) {
 // VERIFY: 36d2d1c6 auto
 // OFFSET: 0x005F1200
 void CGCalendarEvent::SetRepeatOption(uint32_t repeatOption) {
-    if (repeatOption < 4 && repeatOption != this->m_repeatOption) {
+    if (repeatOption < CALENDAR_REPEAT::NUM_CALENDAR_REPEATS && repeatOption != this->m_repeatOption) {
         this->m_repeatOption = repeatOption;
         this->m_changed = 1;
     }

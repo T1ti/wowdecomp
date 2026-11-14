@@ -39,6 +39,25 @@ struct InviteSortCriterion {
     /* 0004 */ uint8_t m_reverse;
 };
 
+// Editable event type (CGCalendarEvent::m_type); names follow s_eventTypeStrings.
+enum CALENDAR_TYPE : uint32_t {
+    CALENDAR_TYPE_RAID = 0,
+    CALENDAR_TYPE_DUNGEON = 1,
+    CALENDAR_TYPE_PVP = 2,
+    CALENDAR_TYPE_MEETING = 3,
+    CALENDAR_TYPE_OTHER = 4,
+    NUM_CALENDAR_TYPES = 5,
+};
+
+// Event repeat option; names follow s_eventRepeatStrings.
+enum CALENDAR_REPEAT : uint32_t {
+    CALENDAR_REPEAT_NEVER = 0,
+    CALENDAR_REPEAT_WEEKLY = 1,
+    CALENDAR_REPEAT_BIWEEKLY = 2,
+    CALENDAR_REPEAT_MONTHLY = 3,
+    NUM_CALENDAR_REPEATS = 4,
+};
+
 class CGCalendarEvent {
     public:
     // Deferred name-cache notification selector; reconstructed names.

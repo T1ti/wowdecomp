@@ -1873,9 +1873,9 @@ void CGCalendar::SetEventTextureID(uint32_t index) {
 
     uint32_t list;
 
-    if (CGCalendar::m_curEvent->m_type == 1) {
+    if (CGCalendar::m_curEvent->m_type == CALENDAR_TYPE::CALENDAR_TYPE_DUNGEON) {
         list = 0;
-    } else if (CGCalendar::m_curEvent->m_type == 0) {
+    } else if (CGCalendar::m_curEvent->m_type == CALENDAR_TYPE::CALENDAR_TYPE_RAID) {
         list = 1;
     } else {
         return;
