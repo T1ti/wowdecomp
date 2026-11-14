@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 
+enum SI2_DSP_TYPE : int32_t;
+
 class SFileImpl;
 
 class SoundFilterElemRec {
@@ -15,7 +17,7 @@ class SoundFilterElemRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_soundFilterID;
     /* 0008 */ int32_t m_orderIndex;
-    /* 000C */ int32_t m_filterType;
+    /* 000C */ SI2_DSP_TYPE m_filterType;
     /* 0010 */ float m_params [9];
 
     SoundFilterElemRec();

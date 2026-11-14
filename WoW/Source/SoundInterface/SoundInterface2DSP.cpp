@@ -204,7 +204,7 @@ void SI2::DSP_Init() {
         SoundFilterElemRec* elem = (i < 0 || i >= g_soundFilterElemDB.m_numRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
         SoundFilterRec* filter = g_soundFilterDB.GetRecord(elem->m_soundFilterID);
 
-        SI2::DSP_CreateDsp(filter->m_name, static_cast<SI2_DSP_TYPE>(elem->m_filterType), elem->m_params);
+        SI2::DSP_CreateDsp(filter->m_name, elem->m_filterType, elem->m_params);
     }
 
     for (DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.m_fulllist.Head(); head; head = s_dspChains.m_fulllist.Next(head)) {
