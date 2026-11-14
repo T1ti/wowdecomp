@@ -1165,7 +1165,7 @@ void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && spell.m_cumulativeAura > 1) {
         WOWGUID guid = unit->m_obj->m_guid;
-        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, (newStack <= oldStack) + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED_DOSE, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, newStack <= oldStack ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_REMOVED_DOSE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED_DOSE, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT);
         entry->m_info.m_values[2] = newStack;
         reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = a6;
@@ -2046,7 +2046,7 @@ void SendEnergizeEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest
     QueueCombatLogEntry(entry, timeOffset);
 
     if (s_combatTextActiveUnit == dest) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_ENERGIZE) + COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_ENERGIZE ? COMBAT_TEXT_TYPE::COMBAT_TEXT_PERIODIC_ENERGIZE : COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], value, GetPowerString(static_cast<POWER_TYPE>(powerType)));
     }
 }
 
@@ -2068,7 +2068,7 @@ void AddPowerDrainEntry(int32_t event, const WOWGUID& source, const WOWGUID& des
     }
 
     if (s_combatTextActiveUnit == source && extraValue) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[(event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_LEECH) + COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], extraValue, GetPowerString(static_cast<POWER_TYPE>(powerType)));
+        FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d%s", s_combatTextTypes[event == COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_LEECH ? COMBAT_TEXT_TYPE::COMBAT_TEXT_PERIODIC_ENERGIZE : COMBAT_TEXT_TYPE::COMBAT_TEXT_ENERGIZE], extraValue, GetPowerString(static_cast<POWER_TYPE>(powerType)));
     }
 }
 
@@ -2301,7 +2301,7 @@ void CombatLog::AddAuraReplacedEntry(const WOWGUID& source, const WOWGUID& dest,
         return;
     }
 
-    CombatLogEntry* entry = GetCombatLogEntry(source, dest, stolen + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DISPEL, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(source, dest, stolen ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_STOLEN : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DISPEL, &spell);
     entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE);
     entry->m_info.m_values[0] = replacedSpellId;
     reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = harmful;
@@ -2328,7 +2328,7 @@ void CombatLog::AddSpellRemoveEntry(const WOWGUID& source, const WOWGUID& dest, 
     }
 
     WOWGUID remover = (dispel.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_DO_NOT_LOG_CASTER) ? WOWGUID{ 0 } : source;
-    CombatLogEntry* entry = GetCombatLogEntry(remover, dest, (dispelSpellId != 0) + COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_BROKEN, &spell);
+    CombatLogEntry* entry = GetCombatLogEntry(remover, dest, dispelSpellId != 0 ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_BROKEN_SPELL : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_BROKEN, &spell);
 
     if (dispelSpellId) {
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_EXTRA_SPELL;

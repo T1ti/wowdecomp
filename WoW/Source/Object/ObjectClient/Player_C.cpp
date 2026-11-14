@@ -10256,17 +10256,17 @@ void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
 // VERIFY: fbdbff93 manual
 // OFFSET: 0x006D6C10
 void CGPlayer_C::UpdateObjComponentVisualsSlot(const VisibleItem_C* item, int32_t slot) {
-    int32_t hand;
+    VIRTUAL_MONSTER_SLOT hand;
 
-    if (slot == 15) {
-        hand = 0;
-    } else if (slot == 16) {
-        hand = 1;
+    if (slot == INVSLOT_MAINHAND) {
+        hand = VIRTUAL_MONSTER_SLOT_MAINHAND;
+    } else if (slot == INVSLOT_OFFHAND) {
+        hand = VIRTUAL_MONSTER_SLOT_OFFHAND;
     } else {
         return;
     }
 
-    const CGUnitVirtualItem* virtualItem = this->GetVirtualItem(static_cast<VIRTUAL_MONSTER_SLOT>(hand), false);
+    const CGUnitVirtualItem* virtualItem = this->GetVirtualItem(hand, false);
 
     if (!virtualItem) {
         return;
@@ -10275,18 +10275,18 @@ void CGPlayer_C::UpdateObjComponentVisualsSlot(const VisibleItem_C* item, int32_
     SHEATHE_TYPE sheatheType = static_cast<SHEATHE_TYPE>(virtualItem->m_sheatheType);
 
     if (this->m_sheatheState) {
-        if (slot == 15) {
+        if (slot == INVSLOT_MAINHAND) {
             this->UpdateObjComponentVisuals(item, CCharacterComponent::GetSheatheLink(sheatheType, true));
             this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_HANDR);
-        } else if (const_cast<VisibleItem_C*>(item)->GetInventoryType() == 14) {
+        } else if (const_cast<VisibleItem_C*>(item)->GetInventoryType() == INVTYPE_SHIELD) {
             this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
         } else {
             this->UpdateObjComponentVisuals(item, CCharacterComponent::GetSheatheLink(sheatheType, false));
             this->UpdateObjComponentVisuals(item, MODEL_ATTACHMENT_ID::ATTACH_HANDL);
         }
     } else {
-        MODEL_ATTACHMENT_ID link = CCharacterComponent::GetSheatheLink(sheatheType, slot == 15);
-        this->UpdateObjComponentVisuals(item, static_cast<MODEL_ATTACHMENT_ID>((slot != 15) + MODEL_ATTACHMENT_ID::ATTACH_HANDR));
+        MODEL_ATTACHMENT_ID link = CCharacterComponent::GetSheatheLink(sheatheType, slot == INVSLOT_MAINHAND);
+        this->UpdateObjComponentVisuals(item, slot == INVSLOT_MAINHAND ? MODEL_ATTACHMENT_ID::ATTACH_HANDR : MODEL_ATTACHMENT_ID::ATTACH_HANDL);
         this->UpdateObjComponentVisuals(item, link);
     }
 }

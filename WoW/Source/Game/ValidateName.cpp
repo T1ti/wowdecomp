@@ -546,7 +546,7 @@ VALIDATE_NAME_RESULT ValidateName(uint32_t language, const uint16_t* allowed, co
         uint32_t count = *length;
 
         if (count < 2) {
-            return static_cast<VALIDATE_NAME_RESULT>((count != 0) + NAME_NO_NAME);
+            return count != 0 ? NAME_TOO_SHORT : NAME_NO_NAME;
         }
 
         if (apostrophe == static_cast<int32_t>(count - 1)) {

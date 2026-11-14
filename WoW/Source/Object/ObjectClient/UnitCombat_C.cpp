@@ -109,7 +109,7 @@ const CGUnitVirtualItem* CGUnit_C::GetAttackingWeapon(COMBATHAND hand, bool requ
         return nullptr;
     }
 
-    while (attached->m_attachmentId != (hand != 0) + MODEL_ATTACHMENT_ID::ATTACH_HANDR) {
+    while (attached->m_attachmentId != (hand != 0 ? MODEL_ATTACHMENT_ID::ATTACH_HANDL : MODEL_ATTACHMENT_ID::ATTACH_HANDR)) {
         attached = attached->m_attachNext;
 
         if (!attached) {

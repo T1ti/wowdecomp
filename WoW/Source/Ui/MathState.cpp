@@ -320,7 +320,7 @@ int32_t MathState::CompileSum(int32_t pos) {
         }
 
         pos = this->CompileProduct(pos + 1);
-        this->m_ops[this->m_numOps] = static_cast<MATHOP>((op != '+') + MATHOP_ADD);
+        this->m_ops[this->m_numOps] = op == '+' ? MATHOP_ADD : MATHOP_SUB;
         this->m_numOps++;
     }
 

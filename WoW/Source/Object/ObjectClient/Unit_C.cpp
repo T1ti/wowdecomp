@@ -20702,7 +20702,7 @@ void CGUnit_C::SetWeaponTrail(CM2Model* model, uint32_t hand) {
         return;
     }
 
-    uint32_t link = this->m_unit->m_sheatheState ? (hand != 0) + MODEL_ATTACHMENT_ID::ATTACH_HANDR : CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), hand == 0);
+    uint32_t link = this->m_unit->m_sheatheState ? (hand != 0 ? MODEL_ATTACHMENT_ID::ATTACH_HANDL : MODEL_ATTACHMENT_ID::ATTACH_HANDR) : CCharacterComponent::GetSheatheLink(static_cast<SHEATHE_TYPE>(item->m_sheatheType), hand == 0);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
         if (attached->m_attachmentId == link) {
@@ -22833,7 +22833,7 @@ bool CGPlayer_C::CTMAttackUnit(CGUnit_C* unit) {
     }
 
     WOWGUID guid = unit->m_obj->m_guid;
-    return this->ClickToMove((modalSpell != 0) + TRACKTYPE_ATTACK, &guid, &target, 0.0f);
+    return this->ClickToMove(modalSpell != 0 ? TRACKTYPE_RANGED_ATTACK : TRACKTYPE_ATTACK, &guid, &target, 0.0f);
 }
 
 // VERIFY: c211e617 manual
