@@ -1461,8 +1461,8 @@ static int32_t Script_IsInArenaTeam(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player) {
-        for (uint32_t i = 0; i < 3; i++) {
-            if (player->m_player->m_playerFieldArenaTeamInfo11[i * 7]) {
+        for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
+            if (player->m_player->m_playerFieldArenaTeamInfo11[i * NUM_ARENA_TEAM_INFO_FIELDS]) {
                 lua_pushboolean(L, 1);
                 return 1;
             }
@@ -2030,9 +2030,9 @@ static int32_t Script_IsArenaTeamCaptain(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    uint32_t* info = player && index < 3 ? &player->m_player->m_playerFieldArenaTeamInfo11[index * 7] : nullptr;
+    uint32_t* info = player && index < MAX_ARENA_TEAMS ? &player->m_player->m_playerFieldArenaTeamInfo11[index * NUM_ARENA_TEAM_INFO_FIELDS] : nullptr;
 
-    if (!info || info[2]) {
+    if (!info || info[ARENA_TEAM_INFO_MEMBER]) {
         lua_pushnil(L);
     } else {
         lua_pushnumber(L, 1.0);

@@ -38,6 +38,21 @@ enum COMBAT_RATING : int32_t {
     NUM_COMBAT_RATINGS = 25,
 };
 
+// FrameXML MAX_ARENA_TEAMS.
+constexpr uint32_t MAX_ARENA_TEAMS = 3;
+
+// Per-team entries of m_playerFieldArenaTeamInfo11; names inferred from TrinityCore ArenaTeamInfoType.
+enum ARENA_TEAM_INFO : uint32_t {
+    ARENA_TEAM_INFO_ID = 0,
+    ARENA_TEAM_INFO_TYPE = 1,
+    ARENA_TEAM_INFO_MEMBER = 2, // team rank, 0 = captain
+    ARENA_TEAM_INFO_GAMES_WEEK = 3,
+    ARENA_TEAM_INFO_GAMES_SEASON = 4,
+    ARENA_TEAM_INFO_WINS_SEASON = 5,
+    ARENA_TEAM_INFO_PERSONAL_RATING = 6,
+    NUM_ARENA_TEAM_INFO_FIELDS = 7,
+};
+
 class CGPlayerLocalData;
 
 struct PlayerQuestLogEntry {
@@ -460,7 +475,7 @@ class CGPlayerLocalData : public CGPlayerData {
     };
     /* 10E8 */ uint32_t m_playerFieldWatchedFactionIndex;
     /* 10EC */ uint32_t m_playerFieldCombatRating1 [COMBAT_RATING::NUM_COMBAT_RATINGS];
-    /* 1150 */ uint32_t m_playerFieldArenaTeamInfo11 [21];
+    /* 1150 */ uint32_t m_playerFieldArenaTeamInfo11 [MAX_ARENA_TEAMS * NUM_ARENA_TEAM_INFO_FIELDS];
     /* 11A4 */ uint32_t m_playerFieldHonorCurrency;
     /* 11A8 */ uint32_t m_playerFieldArenaCurrency;
     /* 11AC */ uint32_t m_playerFieldMaxLevel;

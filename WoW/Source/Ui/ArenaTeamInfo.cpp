@@ -16,16 +16,16 @@
 #include "WoW/Source/Ui/ScriptEvents.h"
 
 // STATIC: 0x00A15ABC
-static const ARENA_TEAM_SIZE s_arenaBracketTypes[3] = { ARENA_TEAM_SIZE::TWO_VS_TWO, ARENA_TEAM_SIZE::THREE_VS_THREE, ARENA_TEAM_SIZE::FIVE_VS_FIVE };
+static const ARENA_TEAM_SIZE s_arenaBracketTypes[MAX_ARENA_TEAMS] = { ARENA_TEAM_SIZE::TWO_VS_TWO, ARENA_TEAM_SIZE::THREE_VS_THREE, ARENA_TEAM_SIZE::FIVE_VS_FIVE };
 
 // STATIC: 0x00ACF834
 int32_t CGArenaTeamInfo::m_showOffline = 1;
 // STATIC: 0x00C0F840
-ArenaTeam CGArenaTeamInfo::m_arenaTeams[3];
+ArenaTeam CGArenaTeamInfo::m_arenaTeams[MAX_ARENA_TEAMS];
 
 
 // STATIC: 0x00C0F7F0
-uint32_t CGArenaTeamInfo::m_nextAllowedQuery[3];
+uint32_t CGArenaTeamInfo::m_nextAllowedQuery[MAX_ARENA_TEAMS];
 
 // STATIC: 0x00C0F7FC
 ArenaTeamSort CGArenaTeamInfo::m_sortOrder[CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS];
@@ -36,7 +36,7 @@ WOWGUID CGArenaTeamInfo::m_selectedMember;
 // VERIFY: 3896de59 manual
 // OFFSET: 0x005A1F00
 ArenaTeam* CGArenaTeamInfo::GetArenaTeam(uint32_t index) {
-    if (index >= 3) {
+    if (index >= MAX_ARENA_TEAMS) {
         return nullptr;
     }
 
@@ -46,7 +46,7 @@ ArenaTeam* CGArenaTeamInfo::GetArenaTeam(uint32_t index) {
 // VERIFY: 4c036d81 auto
 // OFFSET: 0x005A28E0
 void CGArenaTeamInfo::UpdateRoster(uint32_t index, int32_t reset) {
-    if (index >= 3) {
+    if (index >= MAX_ARENA_TEAMS) {
         return;
     }
 
@@ -61,7 +61,7 @@ void CGArenaTeamInfo::UpdateRoster(uint32_t index, int32_t reset) {
 // VERIFY: 7c92b868 auto
 // OFFSET: 0x005A2B80
 ArenaTeamMember* CGArenaTeamInfo::SelectMember(uint32_t team, uint32_t index) {
-    if (team >= 3 || index >= CGArenaTeamInfo::m_arenaTeams[team].m_numMembers) {
+    if (team >= MAX_ARENA_TEAMS || index >= CGArenaTeamInfo::m_arenaTeams[team].m_numMembers) {
         CGArenaTeamInfo::m_selectedMember = WOWGUID();
         return nullptr;
     }
@@ -177,7 +177,7 @@ int32_t Packet_SMSG_ARENA_TEAM_STATS(void* param, NETMESSAGE msgId, uint32_t tim
     uint32_t index = 0;
 
     while (CGArenaTeamInfo::m_arenaTeams[index].m_teamId != teamId) {
-        if (++index >= 3) {
+        if (++index >= MAX_ARENA_TEAMS) {
             return 1;
         }
     }
@@ -225,12 +225,12 @@ int32_t Packet_SMSG_ARENA_TEAM_ROSTER(void* param, NETMESSAGE msgId, uint32_t ti
     uint32_t index = 0;
 
     while (CGArenaTeamInfo::m_arenaTeams[index].m_teamId != teamId) {
-        if (++index >= 3) {
+        if (++index >= MAX_ARENA_TEAMS) {
             return 1;
         }
     }
 
-    if (index >= 3) {
+    if (index >= MAX_ARENA_TEAMS) {
         return 1;
     }
 
@@ -291,7 +291,7 @@ void CGArenaTeamInfo::InitializeGame() {
     ClientServices::SetMessageHandler(SMSG_ARENA_TEAM_ROSTER, Packet_SMSG_ARENA_TEAM_ROSTER, nullptr);
     ClientServices::SetMessageHandler(SMSG_ARENA_TEAM_STATS, Packet_SMSG_ARENA_TEAM_STATS, nullptr);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         CGArenaTeamInfo::m_arenaTeams[i].FreeMemberArray();
     }
 
@@ -303,7 +303,7 @@ void CGArenaTeamInfo::InitializeGame() {
 
     CGArenaTeamInfo::m_showOffline = 1;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         CGArenaTeamInfo::m_nextAllowedQuery[i] = 0;
     }
 
@@ -321,20 +321,20 @@ bool CGArenaTeamInfo::CheckPersonalAndTeamRating(uint32_t rating, int32_t bracke
         return false;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
-        uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[i * 7];
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
+        uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[i * NUM_ARENA_TEAM_INFO_FIELDS];
 
         if (!info) {
             continue;
         }
 
-        int32_t type = info[1];
+        int32_t type = info[ARENA_TEAM_INFO_TYPE];
 
-        if (type < s_arenaBracketTypes[bracket] || info[6] < rating) {
+        if (type < s_arenaBracketTypes[bracket] || info[ARENA_TEAM_INFO_PERSONAL_RATING] < rating) {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < MAX_ARENA_TEAMS; j++) {
             ArenaTeam* team = &CGArenaTeamInfo::m_arenaTeams[j];
 
             if (team && team->m_type == static_cast<uint32_t>(type) && team->m_rating >= rating) {
@@ -355,11 +355,11 @@ void CGArenaTeamInfo::SetRosterShowOffline(int32_t showOffline) {
 
     CGArenaTeamInfo::m_showOffline = showOffline;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         if (CGArenaTeamInfo::m_arenaTeams[i].m_numMembers) {
             qsort(CGArenaTeamInfo::m_arenaTeams[i].m_members.m_data, CGArenaTeamInfo::m_arenaTeams[i].m_numMembers, sizeof(ArenaTeamMember*), QSortRoster);
 
-            if (i < 3) {
+            if (i < MAX_ARENA_TEAMS) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_ARENA_TEAM_ROSTER_UPDATE, nullptr);
             }
         }
@@ -389,11 +389,11 @@ void CGArenaTeamInfo::SortRoster(int32_t column) {
         break;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         if (CGArenaTeamInfo::m_arenaTeams[i].m_numMembers) {
             qsort(CGArenaTeamInfo::m_arenaTeams[i].m_members.m_data, CGArenaTeamInfo::m_arenaTeams[i].m_numMembers, sizeof(ArenaTeamMember*), QSortRoster);
 
-            if (i < 3) {
+            if (i < MAX_ARENA_TEAMS) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_ARENA_TEAM_ROSTER_UPDATE, nullptr);
             }
         }
@@ -403,7 +403,7 @@ void CGArenaTeamInfo::SortRoster(int32_t column) {
 // VERIFY: 38e6d51d manual
 // OFFSET: 0x005A2F40
 int32_t CGArenaTeamInfo::GetSelectedMemberIndex(uint32_t team) {
-    if (team >= 3 || !CGArenaTeamInfo::m_selectedMember) {
+    if (team >= MAX_ARENA_TEAMS || !CGArenaTeamInfo::m_selectedMember) {
         return -1;
     }
 
@@ -428,11 +428,11 @@ int32_t CGArenaTeamInfo::GetSelectedMemberIndex(uint32_t team) {
 void CGArenaTeamInfo::QueryRoster(uint32_t index) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!player || index >= 3) {
+    if (!player || index >= MAX_ARENA_TEAMS) {
         return;
     }
 
-    uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[index * 7];
+    uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[index * NUM_ARENA_TEAM_INFO_FIELDS];
 
     if (!info || !*info) {
         return;
@@ -461,8 +461,8 @@ void CGArenaTeamInfo::UpdateTeams(int32_t signal) {
         return;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
-        uint32_t* info = i < 3 ? &player->m_player->m_playerFieldArenaTeamInfo11[i * 7] : nullptr;
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
+        uint32_t* info = i < MAX_ARENA_TEAMS ? &player->m_player->m_playerFieldArenaTeamInfo11[i * NUM_ARENA_TEAM_INFO_FIELDS] : nullptr;
 
         if (!info) {
             continue;
@@ -496,7 +496,7 @@ void CGArenaTeamInfo::ShutdownGame() {
     ClientServices::ClearMessageHandler(SMSG_ARENA_TEAM_ROSTER);
     ClientServices::ClearMessageHandler(SMSG_ARENA_TEAM_STATS);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         CGArenaTeamInfo::m_arenaTeams[i].FreeMemberArray();
     }
 }

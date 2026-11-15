@@ -2194,11 +2194,11 @@ void CGCalendar::ArenaTeam(uint32_t index) {
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || index >= 3) {
+    if (!player || index >= MAX_ARENA_TEAMS) {
         return;
     }
 
-    uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[index * 7];
+    uint32_t* info = &player->m_player->m_playerFieldArenaTeamInfo11[index * NUM_ARENA_TEAM_INFO_FIELDS];
 
     if (!info || !*info || !CGCalendar::m_curEvent || !CGCalendar::m_curEvent->m_new || (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK)) {
         return;
