@@ -1182,8 +1182,8 @@ void World::PrepareAreaOfInterest(const C3Vector& position) {
     World::s_currentWorldPos = position;
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
-    float farZ = camera->m_farZ;
-    float nearZ = camera->m_nearZ;
+    float farZ = camera->m_clipRange.m_h;
+    float nearZ = camera->m_clipRange.m_l;
     float fov = camera->FOV();
 
     C44Matrix projection;
@@ -2041,7 +2041,7 @@ int32_t CWorldScene::FrustumCull(const C3Vector& center, float radius) {
 // OFFSET: 0x00791170
 void CWorldScene::BuildHorizonProjection(C44Matrix* projection) {
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
-    float farZ = camera->m_farZ;
+    float farZ = camera->m_clipRange.m_h;
     float fov = camera->FOV();
     GxuXformCreateProjection_Exact(fov * 0.60000002f, camera->m_aspect, farZ - 50.0f, World::s_horizonFarClipScale * World::s_farClip, *projection);
 }

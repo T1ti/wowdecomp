@@ -398,7 +398,7 @@ bool CGWorldFrame::GetScreenCoordinates(const C3Vector& world, C3Vector* screen,
 
     C4Vector projected = relative * this->m_viewProjection;
 
-    if (projected.z < this->m_camera->m_nearZ) {
+    if (projected.z < this->m_camera->m_clipRange.m_l) {
         return false;
     }
 
@@ -1560,7 +1560,7 @@ static void DrawSpellCursorShadow(uint32_t a1) {
 // OFFSET: 0x004F8410
 void CGWorldFrame::UpdateDayNight(float deltaSec) {
     DayNight::DNInfo* info = DayNight::GetInfo();
-    info->m_farClip = this->m_camera->m_farZ;
+    info->m_farClip = this->m_camera->m_clipRange.m_h;
     info->m_deltaSec = deltaSec;
     info->m_timeSec = OsGetAsyncTimeMs() * 0.001f;
     info->m_cameraPos = this->m_camera->m_position;

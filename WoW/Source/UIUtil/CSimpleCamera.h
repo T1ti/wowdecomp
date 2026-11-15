@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Tempest/C3Vector.h"
+#include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/C33Matrix.h"
 
 class CM2Scene;
@@ -16,8 +17,7 @@ class CSimpleCamera {
     /* 0004 */ CM2Scene* m_scene;
     /* 0008 */ C3Vector m_position;
     /* 0014 */ C33Matrix m_facing;
-    /* 0038 */ float m_nearZ;
-    /* 003C */ float m_farZ;
+    /* 0038 */ CRange m_clipRange;
     /* 0040 */ float m_fov;
     /* 0044 */ float m_aspect;
 

@@ -2609,7 +2609,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
             }
         }
 
-        float nearDistance = distance - this->m_nearZ;
+        float nearDistance = distance - this->m_clipRange.m_l;
 
         if (nearDistance < fadeStart) {
             if (fadeEnd >= nearDistance) {
@@ -2680,8 +2680,8 @@ int32_t CGCamera::UpdateCallback(const void* data, void* param) {
     }
 
     uint32_t time = OsGetAsyncTimeMs();
-    camera->m_nearZ = World::s_nearClip;
-    camera->m_farZ = World::s_farClip;
+    camera->m_clipRange.m_l = World::s_nearClip;
+    camera->m_clipRange.m_h = World::s_farClip;
 
     if (camera->m_model) {
         camera->CalcModelCamera(time);
@@ -3647,7 +3647,7 @@ uint32_t CGCamera::CollideCameraWithWorld(const C3Vector& target, float& distanc
     float minHeight = 0.83333331f;
     float maxHeight = this->m_height;
 
-    if (height - this->m_nearZ > 0.00000095367432f) {
+    if (height - this->m_clipRange.m_l > 0.00000095367432f) {
         if (flags & 0x30000) {
             if (state & STATE_FLAGS::STATE_LIQUID_SURFACED) {
                 minHeight = liquid + 0.22222222f;
@@ -3716,7 +3716,7 @@ uint32_t CGCamera::CollideCameraWithWorld(const C3Vector& target, float& distanc
     C3Vector base = C3Vector(target.x, target.y, height + target.z);
     float original = distance;
 
-    if (distance - this->m_nearZ > 0.00000095367432f) {
+    if (distance - this->m_clipRange.m_l > 0.00000095367432f) {
         C3Vector hit = C3Vector(0.0f, 0.0f, 0.0f);
         C3Vector forward = this->Forward();
         C3Vector end = C3Vector(base.x - forward.x * distance, base.y - forward.y * distance, base.z - forward.z * distance);
@@ -3951,7 +3951,7 @@ static int32_t CollideWithWorld(CWFrustum& frustum, uint32_t flags, float& hit) 
 // VERIFY: a4eee95a manual
 // OFFSET: 0x006059E0
 int32_t CGCamera::GetCameraDistance(float& distance, const C3Vector& position, const C3Vector& target, uint32_t flags) {
-    float range = distance - this->m_nearZ;
+    float range = distance - this->m_clipRange.m_l;
 
     if (range < 0.001f) {
         distance = 0.0f;
@@ -3982,7 +3982,7 @@ int32_t CGCamera::GetCameraDistance(float& distance, const C3Vector& position, c
     C44Matrix proj;
     C3Vector at(forward.x + position.x, forward.y + position.y, forward.z + position.z);
     GxuXformCreateLookAtSgCompat(position, at, up, view);
-    GxuXformCreateProjection_SG(this->FOV(), this->m_aspect, this->m_nearZ, this->m_farZ, proj);
+    GxuXformCreateProjection_SG(this->FOV(), this->m_aspect, this->m_clipRange.m_l, this->m_clipRange.m_h, proj);
 
     float hit = 0.0f;
     int32_t collided = 0;
