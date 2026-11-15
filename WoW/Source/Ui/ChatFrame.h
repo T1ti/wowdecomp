@@ -493,7 +493,13 @@ class CGChat {
     static int32_t IsChatLogging(int32_t type);
     static void AddCombatMessage(const char* text);
     static int32_t m_afk;
-    static int32_t m_guildRecruitmentMode;
+    // Guild recruitment channel mode, saved as "STANDARD"/"AUTO".
+    enum GUILD_RECRUITMENT_MODE : int32_t {
+        GUILD_RECRUITMENT_STANDARD = 0,
+        GUILD_RECRUITMENT_AUTO = 1,
+    };
+
+    static int32_t m_guildRecruitmentMode; // GUILD_RECRUITMENT_MODE
     static int32_t m_areaID;
     static int32_t m_paused;
     static int32_t m_voiceChatSystemStatus;

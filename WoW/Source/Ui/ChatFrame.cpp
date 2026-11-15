@@ -390,7 +390,7 @@ TSGrowableArray<PENDINGUSERLIST> s_pendingUsers;
 TSExplicitList<PENDINGTEXTEMOTE, 0> CGChat::s_pendingTextEmotes;
 
 // STATIC: 0x00AC7A3C
-int32_t CGChat::m_guildRecruitmentMode = 1;
+int32_t CGChat::m_guildRecruitmentMode = CGChat::GUILD_RECRUITMENT_AUTO;
 
 // STATIC: 0x00BCEFF0
 int32_t CGChat::m_areaID;
@@ -4346,7 +4346,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
         password = "";
 
         if (checkRecruitment && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT)) {
-            CGChat::SetGuildRecruitmentMode(0, true);
+            CGChat::SetGuildRecruitmentMode(CGChat::GUILD_RECRUITMENT_STANDARD, true);
         }
 
         break;
@@ -4381,7 +4381,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
 // VERIFY: 3d422a41 manual
 // OFFSET: 0x00507D30
 void CGChat::UpdateGuildStatus() {
-    if (CGChat::m_guildRecruitmentMode != 1 || !CGChat::m_registered) {
+    if (CGChat::m_guildRecruitmentMode != CGChat::GUILD_RECRUITMENT_AUTO || !CGChat::m_registered) {
         return;
     }
 
@@ -4601,10 +4601,10 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                 const char* rest = &line[SStrLen(s_guildRecruitmentOption)];
                 SStrTokenize(&rest, token, sizeof(token), " \r\n", nullptr);
-                int32_t mode = 1;
+                int32_t mode = CGChat::GUILD_RECRUITMENT_AUTO;
 
                 if (!SStrCmpI(token, "STANDARD", STORM_MAX_STR)) {
-                    mode = 0;
+                    mode = CGChat::GUILD_RECRUITMENT_STANDARD;
                 } else {
                     SStrCmpI(token, "AUTO", STORM_MAX_STR);
                 }
@@ -4615,7 +4615,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                 CGChat::m_guildRecruitmentMode = mode;
 
-                if (CGChat::m_registered && mode == 1) {
+                if (CGChat::m_registered && mode == CGChat::GUILD_RECRUITMENT_AUTO) {
                     CGChat::UpdateGuildStatus();
                 }
 
@@ -4932,8 +4932,8 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
         zoneChannelID = rec->m_id;
         SStrPrintf(name, sizeof(name), rec->m_name, text);
 
-        if (clearRecruitment && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT) && CGChat::m_guildRecruitmentMode) {
-            CGChat::m_guildRecruitmentMode = 0;
+        if (clearRecruitment && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT) && CGChat::m_guildRecruitmentMode != CGChat::GUILD_RECRUITMENT_STANDARD) {
+            CGChat::m_guildRecruitmentMode = CGChat::GUILD_RECRUITMENT_STANDARD;
         }
 
         break;
@@ -5288,7 +5288,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
     OsWriteFile(file, line, SStrLen(line), &written);
     SStrPrintf(line, sizeof(line), "ADDEDVERSION %d\n\n", 13);
     OsWriteFile(file, line, SStrLen(line), &written);
-    SStrPrintf(line, sizeof(line), "%s %s\n\n", s_guildRecruitmentOption, CGChat::m_guildRecruitmentMode == 1 ? "AUTO" : "STANDARD");
+    SStrPrintf(line, sizeof(line), "%s %s\n\n", s_guildRecruitmentOption, CGChat::m_guildRecruitmentMode == CGChat::GUILD_RECRUITMENT_AUTO ? "AUTO" : "STANDARD");
     OsWriteFile(file, line, SStrLen(line), &written);
     OsWriteFile(file, "CHANNELS\n", SStrLen("CHANNELS\n"), &written);
 
