@@ -83,7 +83,7 @@ static int32_t Script_CombatLogAddFilter(lua_State* L) {
         case LUA_TNUMBER:
             sourceFlags = static_cast<uint32_t>(static_cast<int64_t>(lua_tonumber(L, 2)));
 
-            if (!(sourceFlags & 0xFFFF0000) && (!(sourceFlags & 0xF) || !(sourceFlags & 0xF0) || !(sourceFlags & 0x300) || !(sourceFlags & 0xFC00))) {
+            if (!(sourceFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_SPECIAL_MASK) && (!(sourceFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK) || !(sourceFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK) || !(sourceFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_MASK) || !(sourceFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_MASK))) {
                 luaL_error(L, "CombatLogAddFilter(): incomplete filter for srcMask");
                 return 0;
             }
@@ -103,7 +103,7 @@ static int32_t Script_CombatLogAddFilter(lua_State* L) {
         case LUA_TNUMBER:
             destFlags = static_cast<uint32_t>(static_cast<int64_t>(lua_tonumber(L, 3)));
 
-            if (!(destFlags & 0xFFFF0000) && (!(destFlags & 0xF) || !(destFlags & 0xF0) || !(destFlags & 0x300) || !(destFlags & 0xFC00))) {
+            if (!(destFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_SPECIAL_MASK) && (!(destFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_AFFILIATION_MASK) || !(destFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_REACTION_MASK) || !(destFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_CONTROL_MASK) || !(destFlags & COMBATLOG_OBJECT::COMBATLOG_OBJECT_TYPE_MASK))) {
                 luaL_error(L, "CombatLogAddFilter(): incomplete filter for dstMask");
                 return 0;
             }
