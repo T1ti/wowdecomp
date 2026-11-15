@@ -265,7 +265,7 @@ class CGCamera : public CSimpleCamera {
 
     CGCamera();
     ~CGCamera();
-    void AddShake(const C3Vector& position, int32_t type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping);
+    void AddShake(const C3Vector& position, CGCameraShakeType type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping);
     void AddShakeById(int32_t shakeId, const C3Vector* position);
     void BeginBobbingSmooth();
     void CalcTerrainTilt(CGObject_C* target, uint32_t time);

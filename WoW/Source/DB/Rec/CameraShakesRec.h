@@ -5,6 +5,8 @@
 #include <cstdint>
 
 class SFileImpl;
+enum CGCameraShakeType : int32_t;
+enum CGCameraDir : int32_t;
 
 class CameraShakesRec {
     public:
@@ -13,8 +15,8 @@ class CameraShakesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_shakeType;
-    /* 0008 */ int32_t m_direction;
+    /* 0004 */ CGCameraShakeType m_shakeType;
+    /* 0008 */ CGCameraDir m_direction;
     /* 000C */ float m_amplitude;
     /* 0010 */ float m_frequency;
     /* 0014 */ float m_duration;

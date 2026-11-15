@@ -1483,12 +1483,12 @@ float CGCamera::GetDefaultZoomMaxDistance() {
 
 // VERIFY: cfc63e8a manual
 // OFFSET: 0x00606330
-void CGCamera::AddShake(const C3Vector& position, int32_t type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping) {
+void CGCamera::AddShake(const C3Vector& position, CGCameraShakeType type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping) {
     CameraShake* shake = this->m_cameraShakeList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (shake) {
         shake->m_amplitude = amplitude;
-        shake->m_type = static_cast<CGCameraShakeType>(type);
+        shake->m_type = type;
         shake->m_frequency = frequency;
         shake->m_dir = dir;
         shake->m_duration = duration;
@@ -4274,7 +4274,7 @@ void CGCamera::AddShakeById(int32_t shakeId, const C3Vector* position) {
     CameraShakesRec* shake = g_cameraShakesDB.GetRecord(shakeId);
 
     if (shake) {
-        this->AddShake(*position, shake->m_shakeType, static_cast<CGCameraDir>(shake->m_direction), shake->m_amplitude * 0.027777778f, shake->m_frequency, shake->m_duration, shake->m_phase, shake->m_coefficient);
+        this->AddShake(*position, shake->m_shakeType, shake->m_direction, shake->m_amplitude * 0.027777778f, shake->m_frequency, shake->m_duration, shake->m_phase, shake->m_coefficient);
     }
 }
 
