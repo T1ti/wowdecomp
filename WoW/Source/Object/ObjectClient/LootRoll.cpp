@@ -234,6 +234,7 @@ static void LootRollCalculateReasons(PendingLootRoll* roll, const ItemStats_C* s
 
 // VERIFY: 8b12827a manual
 // OFFSET: 0x006FA840
+// SMSG_LOOT_ROLL encodes a need roll as 0; a pass is marked by a negative roll number instead.
 static void RolledStatsAndName(const NameCache* name, PendingLootRoll* roll, const ItemStats_C* stats) {
     if (!g_showLootSpamCVar->m_intValue && (roll->m_rollerGuid != ClntObjMgrGetActivePlayer() || !roll->m_autoPass)) {
         delete roll;
@@ -505,7 +506,7 @@ static void WonStatsAndName(const NameCache* name, PendingLootRoll* roll, const 
     if (roll->m_rollerGuid == ClntObjMgrGetActivePlayer()) {
         if (g_showLootSpamCVar->m_intValue) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_YOU_WON", -1, GENDER_NOT_APPLICABLE), CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
-        } else if (roll->m_rollType == 1) {
+        } else if (roll->m_rollType == LOOT_ROLL_TYPE::LOOT_ROLL_NEED) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_YOU_WON_NO_SPAM_NEED", -1, GENDER_NOT_APPLICABLE), roll->m_rollNumber, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
         } else if (roll->m_rollType == LOOT_ROLL_TYPE::LOOT_ROLL_GREED) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_YOU_WON_NO_SPAM_GREED", -1, GENDER_NOT_APPLICABLE), roll->m_rollNumber, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
@@ -514,7 +515,7 @@ static void WonStatsAndName(const NameCache* name, PendingLootRoll* roll, const 
         }
     } else if (g_showLootSpamCVar->m_intValue) {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_WON", -1, GENDER_NOT_APPLICABLE), name->m_name, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
-    } else if (roll->m_rollType == 1) {
+    } else if (roll->m_rollType == LOOT_ROLL_TYPE::LOOT_ROLL_NEED) {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_WON_NO_SPAM_NEED", -1, GENDER_NOT_APPLICABLE), name->m_name, roll->m_rollNumber, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
     } else if (roll->m_rollType == LOOT_ROLL_TYPE::LOOT_ROLL_GREED) {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_WON_NO_SPAM_GREED", -1, GENDER_NOT_APPLICABLE), name->m_name, roll->m_rollNumber, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
