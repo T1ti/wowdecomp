@@ -36,7 +36,7 @@ TSFixedArray<TalentTabInfo*> CGTalentInfo::m_tabs;
 TSFixedArray<TalentTabInfo*> CGTalentInfo::m_petTabs;
 
 // STATIC: 0x00C21030
-CGTalentGroup_C CGTalentInfo::m_talentGroups[2];
+CGTalentGroup_C CGTalentInfo::m_talentGroups[MAX_TALENT_GROUPS];
 
 // STATIC: 0x00C210D8
 CGTalentGroup_C CGTalentInfo::m_petTalentGroup;
@@ -57,7 +57,7 @@ int32_t CGTalentInfo_Inspect::m_unspentTalentPoints;
 TSFixedArray<TalentTabInfo*> CGTalentInfo_Inspect::m_tabs;
 
 // STATIC: 0x00C21138
-CGTalentGroup_C CGTalentInfo_Inspect::m_talentGroups[2];
+CGTalentGroup_C CGTalentInfo_Inspect::m_talentGroups[MAX_TALENT_GROUPS];
 
 // VERIFY: 05fa25fb auto
 // OFFSET: 0x005C57C0
@@ -205,7 +205,8 @@ static int TierCompare(const void* a, const void* b) {
 // VERIFY: 2584c2bc auto
 // OFFSET: 0x005C5770
 uint32_t CGTalentGroup_C::GetGlyph(uint32_t index) {
-    return index < 6 ? this->m_glyphs[index] : 6;
+    // Out-of-range slots return the slot count.
+    return index < NUM_GLYPH_SLOTS ? this->m_glyphs[index] : NUM_GLYPH_SLOTS;
 }
 
 // VERIFY: 577e032d auto
@@ -601,7 +602,7 @@ int32_t CGTalentGroup_C::ValidatePreviewTalentPoints(uint32_t tabIndex, const Ta
 
     int32_t talentId = talent->m_id;
     int32_t tierId = talent->m_tierID;
-    int32_t pointsPerTier = 2 * (pet == 0) + 3;
+    int32_t pointsPerTier = pet ? PET_TALENTS_PER_TIER : PLAYER_TALENTS_PER_TIER;
 
     if (tab->m_pointsSpent + tab->m_previewPointsSpent < static_cast<uint32_t>(tierId * pointsPerTier)) {
         return 0;
@@ -953,7 +954,7 @@ static void ReadTalentGroups(CDataStore* msg, uint32_t* activeGroup, int32_t* un
             uint16_t glyph;
             msg->Get(glyph);
 
-            if (group && j < 6) {
+            if (group && j < NUM_GLYPH_SLOTS) {
                 group->m_glyphs[j] = glyph;
             }
         }
@@ -989,7 +990,7 @@ void CGTalentGroup_C::Reset() {
     this->m_tabs.Clear();
     this->m_unspentPoints = 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < NUM_GLYPH_SLOTS; i++) {
         this->m_glyphs[i] = 0;
     }
 }
@@ -1030,7 +1031,7 @@ void CGTalentInfo::ResetTalentGroups(int32_t pet) {
         return;
     }
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < MAX_TALENT_GROUPS; i++) {
         CGTalentInfo::m_talentGroups[i].Reset();
     }
 
@@ -1042,7 +1043,7 @@ void CGTalentInfo::ResetTalentGroups(int32_t pet) {
 // VERIFY: b1d0ceef manual
 // OFFSET: 0x005C9AD0
 void CGTalentInfo_Inspect::Reset() {
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < MAX_TALENT_GROUPS; i++) {
         CGTalentInfo_Inspect::m_talentGroups[i].Reset();
     }
 
