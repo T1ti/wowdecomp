@@ -38,6 +38,26 @@ struct CHATMESSAGE : public TSLinkedNode<CHATMESSAGE> {
     /* 004C */ int32_t m_type;
 };
 
+// LCD screens; names follow the screen names CGLCD::GetScreenFromName accepts.
+enum LCD_SCREEN : int32_t {
+    LCD_SCREEN_INVALID = -1,
+    LCD_SCREEN_WOW_TITLE = 0, // WoWTitleScreen
+    LCD_SCREEN_PLAYER_INFO = 1, // PlayerInfoScreen
+    LCD_SCREEN_BATTLEFIELD_ALERT = 2, // BattlefieldAlertScreen
+    LCD_SCREEN_BATTLEFIELD_STATUS = 3, // BattlefieldStatusScreen
+    LCD_SCREEN_NOT_IN_BATTLEFIELD = 4, // NotInBattlefieldScreen
+    LCD_SCREEN_WAIT_QUEUE = 5, // WaitQueueScreen
+    LCD_SCREEN_CHAT_ALERT = 6, // ChatAlertScreen
+    LCD_SCREEN_ARATHI_BASIN_MAP = 7, // ArathiBasinMapScreen
+    LCD_SCREEN_WARSONG_MAP = 8, // WarsongMapScreen
+    LCD_SCREEN_EYE_OF_THE_STORM_MAP = 9, // EyeOfTheStormMapScreen
+    LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP = 10, // StrandOfTheAncientsMapScreen
+    LCD_SCREEN_ALTERAC_VALLEY_MAP = 11, // AlteracValleyMapScreen
+    LCD_SCREEN_ISLE_OF_CONQUEST_MAP = 12, // IsleOfConquestMapScreen
+    LCD_SCREEN_FIRST_BATTLEFIELD_MAP = LCD_SCREEN_ARATHI_BASIN_MAP,
+    LCD_SCREEN_LAST_BATTLEFIELD_MAP = LCD_SCREEN_ISLE_OF_CONQUEST_MAP,
+};
+
 class CGLCD {
     public:
     static void Logout();
