@@ -628,7 +628,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
         if (ability) {
             const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, ability->m_skillLine);
 
-            if (info && !(info->m_flags & 0x80)) {
+            if (info && !(info->m_flags & SKILL_RACE_CLASS_FLAG_NO_SPELLBOOK_SKILL)) {
                 skillLine = info->m_skillID;
             }
         }
@@ -1170,7 +1170,7 @@ static uint32_t GetSpellSkillInfoIndex(int32_t spellId) {
         if (ability) {
             const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, ability->m_skillLine);
 
-            if (info && !(info->m_flags & 0x80)) {
+            if (info && !(info->m_flags & SKILL_RACE_CLASS_FLAG_NO_SPELLBOOK_SKILL)) {
                 skillLine = info->m_skillID;
             }
         }

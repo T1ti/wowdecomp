@@ -8890,7 +8890,7 @@ int32_t SkillRankChangeHandler(WOWGUID guid, uint32_t offset, uint32_t count, co
         const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, player->GetSkillLineID(index));
 
         if (skillLine) {
-            if (info && !(info->m_flags & 0x402)) {
+            if (info && !(info->m_flags & (SKILL_RACE_CLASS_FLAG_HIDDEN | SKILL_RACE_CLASS_FLAG_SINGLE_RANK))) {
                 if (!newRank) {
                     CGGameUI::DisplayError(ERR_SKILL_GAINED_S, skillLine->m_displayName);
                 } else if (static_cast<int32_t>(player->GetSkillValue(index)) > 0) {

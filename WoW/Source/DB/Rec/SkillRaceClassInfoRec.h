@@ -6,6 +6,25 @@
 
 class SFileImpl;
 
+// SkillRaceClassInfo.dbc flags tested by the client; names describe that behavior.
+enum SKILL_RACE_CLASS_FLAGS : int32_t {
+    SKILL_RACE_CLASS_FLAG_NONE              = 0x00000000,
+    // Listed in the skill frame even when not learned.
+    SKILL_RACE_CLASS_FLAG_SHOW_UNLEARNED    = 0x00000001,
+    // Not listed in the skill frame; no skill-up messages.
+    SKILL_RACE_CLASS_FLAG_HIDDEN            = 0x00000002,
+    // Listed when not learned from m_minLevel on; the first tier cost is shown.
+    SKILL_RACE_CLASS_FLAG_SHOW_AT_MIN_LEVEL = 0x00000004,
+    // The tier (step) cost is always shown.
+    SKILL_RACE_CLASS_FLAG_SHOW_TIER_COST    = 0x00000008,
+    // GetSkillLineInfo isAbandonable.
+    SKILL_RACE_CLASS_FLAG_ABANDONABLE       = 0x00000020,
+    // Spells are not grouped under this skill line in the spellbook.
+    SKILL_RACE_CLASS_FLAG_NO_SPELLBOOK_SKILL = 0x00000080,
+    // Displayed rank is capped at 1; no skill-up messages.
+    SKILL_RACE_CLASS_FLAG_SINGLE_RANK       = 0x00000400,
+};
+
 class SkillRaceClassInfoRec {
     public:
     static const int32_t s_numColumns = 8;
@@ -16,7 +35,7 @@ class SkillRaceClassInfoRec {
     /* 0004 */ int32_t m_skillID;
     /* 0008 */ int32_t m_raceMask;
     /* 000C */ int32_t m_classMask;
-    /* 0010 */ int32_t m_flags;
+    /* 0010 */ int32_t m_flags; // SKILL_RACE_CLASS_FLAGS
     /* 0014 */ int32_t m_minLevel;
     /* 0018 */ int32_t m_skillTierID;
     /* 001C */ int32_t m_skillCostIndex;
