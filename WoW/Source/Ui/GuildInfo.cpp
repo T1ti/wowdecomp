@@ -40,7 +40,7 @@ char CGGuildInfo::m_infoText[2004];
 char CGGuildInfo::m_motd[516];
 
 // STATIC: 0x00C22A70
-GuildRosterSortCriteria CGGuildInfo::m_sortCriteria[8];
+GuildRosterSortCriteria CGGuildInfo::m_sortCriteria[NUM_GUILD_ROSTER_SORT_COLUMNS];
 
 // STATIC: 0x00C22AB0
 uint32_t CGGuildInfo::m_numMembers;
@@ -406,12 +406,12 @@ int32_t QSortRoster(const void* a, const void* b) {
         return left->m_online ? -1 : 1;
     }
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_GUILD_ROSTER_SORT_COLUMNS; i++) {
         GuildRosterSortCriteria* criteria = &CGGuildInfo::m_sortCriteria[i];
         int32_t result;
 
         switch (criteria->m_column) {
-            case 0: {
+            case GUILD_ROSTER_SORT_RANK: {
                 if (right->m_rank == left->m_rank) {
                     continue;
                 }
@@ -420,7 +420,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                 break;
             }
 
-            case 1: {
+            case GUILD_ROSTER_SORT_LEVEL: {
                 if (left->m_level == right->m_level) {
                     continue;
                 }
@@ -429,12 +429,12 @@ int32_t QSortRoster(const void* a, const void* b) {
                 break;
             }
 
-            case 2: {
+            case GUILD_ROSTER_SORT_NAME: {
                 result = SStrCmpUTF8I(left->m_name, right->m_name, STORM_MAX_STR);
                 break;
             }
 
-            case 3: {
+            case GUILD_ROSTER_SORT_ZONE: {
                 AreaTableRec* leftArea = g_areaTableDB.GetRecord(left->m_zoneID);
                 AreaTableRec* rightArea = g_areaTableDB.GetRecord(right->m_zoneID);
 
@@ -446,7 +446,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                 break;
             }
 
-            case 4: {
+            case GUILD_ROSTER_SORT_CLASS: {
                 ChrClassesRec* leftClass = g_chrClassesDB.GetRecord(left->m_class);
                 ChrClassesRec* rightClass = g_chrClassesDB.GetRecord(right->m_class);
 
@@ -458,7 +458,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                 break;
             }
 
-            case 6: {
+            case GUILD_ROSTER_SORT_ONLINE: {
                 if (left->m_online && right->m_online) {
                     continue;
                 }
@@ -472,7 +472,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                 return criteria->m_descending ? -result : result;
             }
 
-            case 7: {
+            case GUILD_ROSTER_SORT_NOTE: {
                 if (right->unk_0051) {
                     right->unk_0051 = 0;
                 }
@@ -519,13 +519,13 @@ void CGGuildInfo::QueryRosterAndRanks() {
 void CGGuildInfo::SortRoster(int32_t column) {
     uint32_t index;
 
-    for (index = 0; index < 8; index++) {
+    for (index = 0; index < NUM_GUILD_ROSTER_SORT_COLUMNS; index++) {
         if (CGGuildInfo::m_sortCriteria[index].m_column == column) {
             break;
         }
     }
 
-    if (index < 8) {
+    if (index < NUM_GUILD_ROSTER_SORT_COLUMNS) {
         int32_t descending = CGGuildInfo::m_sortCriteria[index].m_descending;
 
         if (!index) {

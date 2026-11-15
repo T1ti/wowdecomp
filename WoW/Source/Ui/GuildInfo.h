@@ -63,8 +63,21 @@ struct GuildMemberInfo {
     /* 0154 */ float m_lastOnline;
 };
 
+// Guild roster sort columns; names follow the SortGuildRoster type strings.
+enum GUILD_ROSTER_SORT_COLUMN : int32_t {
+    GUILD_ROSTER_SORT_RANK = 0, // "rank"
+    GUILD_ROSTER_SORT_LEVEL = 1, // "level"
+    GUILD_ROSTER_SORT_NAME = 2, // "name"
+    GUILD_ROSTER_SORT_ZONE = 3, // "zone"
+    GUILD_ROSTER_SORT_CLASS = 4, // "class"
+    GUILD_ROSTER_SORT_GROUP = 5, // "group"
+    GUILD_ROSTER_SORT_ONLINE = 6, // "online"
+    GUILD_ROSTER_SORT_NOTE = 7, // "note"
+    NUM_GUILD_ROSTER_SORT_COLUMNS = 8,
+};
+
 struct GuildRosterSortCriteria {
-    /* 0000 */ int32_t m_column;
+    /* 0000 */ int32_t m_column; // GUILD_ROSTER_SORT_COLUMN
     /* 0004 */ int32_t m_descending;
 };
 
@@ -102,7 +115,7 @@ class CGGuildInfo {
     static void InvalidatePlayer(const WOWGUID& guid);
     static char m_infoText[2004];
     static char m_motd[516];
-    static GuildRosterSortCriteria m_sortCriteria[8];
+    static GuildRosterSortCriteria m_sortCriteria[NUM_GUILD_ROSTER_SORT_COLUMNS];
     static uint32_t m_numMembers;
     static uint32_t m_numOnlineMembers;
     static int32_t m_showOffline;

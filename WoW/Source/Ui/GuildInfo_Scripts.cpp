@@ -685,42 +685,42 @@ static int32_t Script_SortGuildRoster(lua_State* L) {
         return 0;
     }
 
-    int32_t column = 2;
+    int32_t column = GUILD_ROSTER_SORT_NAME;
     const char* type = lua_tolstring(L, 1, nullptr);
 
     if (SStrCmpI(type, "name", STORM_MAX_STR)) {
         if (!SStrCmpI(type, "level", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(1);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_LEVEL);
             return 0;
         }
 
         if (!SStrCmpI(type, "class", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(4);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_CLASS);
             return 0;
         }
 
         if (!SStrCmpI(type, "group", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(5);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_GROUP);
             return 0;
         }
 
         if (!SStrCmpI(type, "rank", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(0);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_RANK);
             return 0;
         }
 
         if (!SStrCmpI(type, "zone", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(3);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_ZONE);
             return 0;
         }
 
         if (!SStrCmpI(type, "online", STORM_MAX_STR)) {
-            CGGuildInfo::SortRoster(6);
+            CGGuildInfo::SortRoster(GUILD_ROSTER_SORT_ONLINE);
             return 0;
         }
 
         if (!SStrCmpI(type, "note", STORM_MAX_STR)) {
-            column = 7;
+            column = GUILD_ROSTER_SORT_NOTE;
         }
     }
 
