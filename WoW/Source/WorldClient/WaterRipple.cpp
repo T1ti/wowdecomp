@@ -329,7 +329,7 @@ void CWaterRipple::InitRipple(const C3Vector& pos, float rotation, float size, f
     World::TriData::matrixPoolCount = 0;
     World::TriData triData;
 
-    if (!World::GetTris(box, &triData, 0x20000)) {
+    if (!World::GetTris(box, &triData, WORLD_QUERY_LIQUID)) {
         return;
     }
 

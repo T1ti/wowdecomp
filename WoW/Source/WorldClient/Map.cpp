@@ -5060,7 +5060,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
         s_lastCollisionGUID = WOWGUID{ 0 };
         CMapObj* mapObj;
 
-        if (CMap::VectorIntersect(start, end, flags, 0x100, distance, nullptr, &mapObj, &mapObjDef, &mapObjDefGroup)) {
+        if (CMap::VectorIntersect(start, end, flags, MAPOBJ_FLAG_NO_HITTEST, distance, nullptr, &mapObj, &mapObjDef, &mapObjDefGroup)) {
             if (mapObjDef && mapObjDef->m_objectGuid.m_guid) {
                 s_lastCollisionGUID = mapObjDef->m_objectGuid;
             }
@@ -5657,7 +5657,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
             if (mapObj->TestBounds(localStart, localEnd)) {
                 float normalDot = 0.0f;
 
-                if (mapObj->VectorIntersect(localStart, localEnd, 0x220122, 0, &hitT, nullptr, mapObjDef, &normalDot, nullptr) && hitT < *t) {
+                if (mapObj->VectorIntersect(localStart, localEnd, WORLD_QUERY_RENDER_MASK | WORLD_QUERY_LIQUID, 0, &hitT, nullptr, mapObjDef, &normalDot, nullptr) && hitT < *t) {
                     *t = hitT;
 
                     if (normalDot >= 0.0f) {
@@ -5703,7 +5703,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
         if (mapObj->TestBounds(localStart, localEnd)) {
             float normalDot = 0.0f;
 
-            if (mapObj->VectorIntersect(const_cast<C3Vector&>(start), const_cast<C3Vector&>(end), 0x220122, 0, &hitT, nullptr, mapObjDef, &normalDot, nullptr) && hitT < *t) {
+            if (mapObj->VectorIntersect(const_cast<C3Vector&>(start), const_cast<C3Vector&>(end), WORLD_QUERY_RENDER_MASK | WORLD_QUERY_LIQUID, 0, &hitT, nullptr, mapObjDef, &normalDot, nullptr) && hitT < *t) {
                 *t = hitT;
 
                 if (normalDot >= 0.0f) {

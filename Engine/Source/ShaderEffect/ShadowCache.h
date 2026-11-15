@@ -39,7 +39,7 @@ struct CShadowCacheQueryData {
         QUERY_NONE = 0x0,
         QUERY_UNITS = 0x1, // Unit entities (CMapBaseObj::Type_Entity models).
         QUERY_INTERIOR = 0x2, // Interior pass: unit entities not flagged MAPOBJ_FLAG_EXTERIOR, below the cutoff height.
-        QUERY_BILLBOARDED = 0x4, // Doodads with billboard bones; also required by the 0x400 map object definition path.
+        QUERY_BILLBOARDED = 0x4, // Doodads with billboard bones; also required for MAPOBJ_FLAG_NO_DEPTH_SORT map object definitions.
         QUERY_STATIC = 0x8, // Other doodads and entities, and exterior WMO groups.
         QUERY_WORLD_MASK = QUERY_BILLBOARDED | QUERY_STATIC,
     };

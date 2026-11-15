@@ -2921,7 +2921,7 @@ void CWorldScene::LocateViewer3() {
     C3Vector end(CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z - 1760.0f);
     float dist = 1.0f;
     CMapChunk* chunk = nullptr;
-    bool hitTerrain = CMap::VectorIntersectTerrain(&start, &end, &dist, 0x100, &chunk);
+    bool hitTerrain = CMap::VectorIntersectTerrain(&start, &end, &dist, WORLD_QUERY_TERRAIN, &chunk);
 
     CMapObjDef* defs[2];
     uint32_t groups[4];
@@ -4691,13 +4691,13 @@ int32_t World::QueryAreaIdAtPosition(const C3Vector* position, int32_t* areaId) 
     C3Vector end(position->x, position->y, position->z - 1760.0f);
     float terrainDistance = 1.0f;
     CMapChunk* chunk = nullptr;
-    bool hitTerrain = CMap::VectorIntersectTerrain(&start, &end, &terrainDistance, 0x20100, &chunk);
+    bool hitTerrain = CMap::VectorIntersectTerrain(&start, &end, &terrainDistance, WORLD_QUERY_TERRAIN | WORLD_QUERY_LIQUID, &chunk);
     float objectDistance = 1.0f;
     bool hitObject = false;
     CMapObjDef* mapObjDef = nullptr;
     CMapObjDefGroup* mapObjDefGroup = nullptr;
 
-    if ((CWorld::enables & Enables::Enable_MapObjs) && CMap::VectorIntersect(&start, &end, 0x10, 1280, &objectDistance, nullptr, nullptr, &mapObjDef, &mapObjDefGroup)) {
+    if ((CWorld::enables & Enables::Enable_MapObjs) && CMap::VectorIntersect(&start, &end, WORLD_QUERY_WMO_COLLISION, MAPOBJ_FLAG_NO_HITTEST | MAPOBJ_FLAG_NO_DEPTH_SORT, &objectDistance, nullptr, nullptr, &mapObjDef, &mapObjDefGroup)) {
         hitObject = true;
     }
 

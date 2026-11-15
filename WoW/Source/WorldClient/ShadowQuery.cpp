@@ -311,7 +311,7 @@ int32_t CShadowQuery::QueryCallback(CShadowCacheQueryData& data, uint32_t frame)
         }
     } else {
         for (int32_t band = 0; band <= data.m_lastBand; band++) {
-            if (flags & 0xC) {
+            if (flags & CShadowCacheQueryData::QUERY_WORLD_MASK) {
                 CWorldOcclusion::ClearVolumes();
                 CShadowQuery::QueryMapObjDefsBand(data, band);
                 CShadowQuery::QueryTerrainBand(data, band);
@@ -525,7 +525,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             CAaBox& extents = data.m_extents[band];
             CAaBox& bbox = entity->m_bbox;
 
-            if (extents.t.x >= bbox.b.x && extents.t.y >= bbox.b.y && extents.t.z >= bbox.b.z && extents.b.x <= bbox.t.x && extents.b.y <= bbox.t.y && extents.b.z <= bbox.t.z && minRadius[band] <= entity->m_sphere.r && ((flags & 0x20000) || maxRadius[band] >= entity->m_sphere.r)) {
+            if (extents.t.x >= bbox.b.x && extents.t.y >= bbox.b.y && extents.t.z >= bbox.b.z && extents.b.x <= bbox.t.x && extents.b.y <= bbox.t.y && extents.b.z <= bbox.t.z && minRadius[band] <= entity->m_sphere.r && ((flags & MAPOBJ_FLAG_SHADOW_20000) || maxRadius[band] >= entity->m_sphere.r)) {
                 if (data.m_bandFrustums[band].Cull(bbox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(bbox) != WorldCull_notOutside)) {
                     model->GatherModelBatchesShadowMap(CShadowQuery::s_bandBuffers[band].m_untextured, CShadowQuery::s_bandBuffers[band].m_textured);
                 }
@@ -631,7 +631,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
     for (CMapObjDef* def = CMap::mapObjDefHash.m_fulllist.Head(); def; def = CMap::mapObjDefHash.Next(def)) {
         uint32_t flags = def->m_flags;
 
-        if (flags & 0x20) {
+        if (flags & MAPOBJ_FLAG_DISABLED) {
             continue;
         }
 
@@ -640,7 +640,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
         int32_t castDoodads = 0;
         int32_t castOther = 0;
 
-        if (flags & 0x400) {
+        if (flags & MAPOBJ_FLAG_NO_DEPTH_SORT) {
             if (!(data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_BILLBOARDED)) {
                 continue;
             }
