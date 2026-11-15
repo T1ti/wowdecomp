@@ -247,20 +247,21 @@ class CGTooltip : public CSimpleFrame {
     int32_t SetItem(int32_t itemId, const WOWGUID* requester, const WOWGUID* itemGuid, int32_t nameOnly, int32_t compare, int32_t useLinkInfo, int32_t append, WOWGUID owner, int32_t socketPreview, FILE* stream, int32_t hideCharges, const ItemLinkInfo* link, int32_t minimumLevel, int32_t skipLock, int32_t skipSellPrice);
 };
 
-// Item stat (mod) types; names are the s_itemModTokens strings, gaps are unnamed slots.
+// Item stat (mod) types; names are the s_itemModTokens strings. Slots with an empty token use
+// EnumeratedString names.
 enum ITEM_MOD_TYPE : int32_t {
     ITEM_MOD_MANA = 0,
     ITEM_MOD_HEALTH = 1,
-    ITEM_MOD_UNKNOWN_2 = 2,
+    ITEM_MOD_ENDURANCE = 2,
     ITEM_MOD_AGILITY = 3,
     ITEM_MOD_STRENGTH = 4,
     ITEM_MOD_INTELLECT = 5,
     ITEM_MOD_SPIRIT = 6,
     ITEM_MOD_STAMINA = 7,
-    ITEM_MOD_UNKNOWN_8 = 8,
-    ITEM_MOD_UNKNOWN_9 = 9,
-    ITEM_MOD_UNKNOWN_10 = 10,
-    ITEM_MOD_UNKNOWN_11 = 11,
+    ITEM_MOD_ENERGY = 8,
+    ITEM_MOD_RAGE = 9,
+    ITEM_MOD_FOCUS = 10,
+    ITEM_MOD_WEAPON_RATING = 11,
     ITEM_MOD_DEFENSE_SKILL_RATING = 12,
     ITEM_MOD_DODGE_RATING = 13,
     ITEM_MOD_PARRY_RATING = 14,
@@ -289,7 +290,7 @@ enum ITEM_MOD_TYPE : int32_t {
     ITEM_MOD_EXPERTISE_RATING = 37,
     ITEM_MOD_ATTACK_POWER = 38,
     ITEM_MOD_RANGED_ATTACK_POWER = 39,
-    ITEM_MOD_UNKNOWN_40 = 40,
+    ITEM_MOD_VERSATILITY = 40, // EnumeratedString name from a later version; no 3.3.5 token.
     ITEM_MOD_SPELL_HEALING_DONE = 41,
     ITEM_MOD_SPELL_DAMAGE_DONE = 42,
     ITEM_MOD_MANA_REGENERATION = 43,
