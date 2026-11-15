@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Tempest/CRange.h"
 
 class SFileImpl;
 
@@ -15,10 +16,8 @@ class DungeonMapRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_mapID;
     /* 0008 */ int32_t m_floorIndex;
-    /* 000C */ float m_minX;
-    /* 0010 */ float m_maxX;
-    /* 0014 */ float m_minY;
-    /* 0018 */ float m_maxY;
+    /* 000C */ CRange m_boundsX;
+    /* 0014 */ CRange m_boundsY;
     /* 001C */ int32_t m_parentWorldMapID;
 
     DungeonMapRec();

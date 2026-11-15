@@ -17,10 +17,10 @@ bool DungeonMapRec::Read(SFileImpl* file, const char* stringBuffer) {
     int32_t idRead = SFileReadFile(file, &this->m_id, sizeof(this->m_id), nullptr, nullptr, 0);
     int32_t mapIDRead = SFileReadFile(file, &this->m_mapID, sizeof(this->m_mapID), nullptr, nullptr, 0);
     int32_t floorIndexRead = SFileReadFile(file, &this->m_floorIndex, sizeof(this->m_floorIndex), nullptr, nullptr, 0);
-    int32_t minXRead = SFileReadFile(file, &this->m_minX, sizeof(this->m_minX), nullptr, nullptr, 0);
-    int32_t maxXRead = SFileReadFile(file, &this->m_maxX, sizeof(this->m_maxX), nullptr, nullptr, 0);
-    int32_t minYRead = SFileReadFile(file, &this->m_minY, sizeof(this->m_minY), nullptr, nullptr, 0);
-    int32_t maxYRead = SFileReadFile(file, &this->m_maxY, sizeof(this->m_maxY), nullptr, nullptr, 0);
+    int32_t minXRead = SFileReadFile(file, &this->m_boundsX.m_l, sizeof(this->m_boundsX.m_l), nullptr, nullptr, 0);
+    int32_t maxXRead = SFileReadFile(file, &this->m_boundsX.m_h, sizeof(this->m_boundsX.m_h), nullptr, nullptr, 0);
+    int32_t minYRead = SFileReadFile(file, &this->m_boundsY.m_l, sizeof(this->m_boundsY.m_l), nullptr, nullptr, 0);
+    int32_t maxYRead = SFileReadFile(file, &this->m_boundsY.m_h, sizeof(this->m_boundsY.m_h), nullptr, nullptr, 0);
     int32_t parentWorldMapIDRead = SFileReadFile(file, &this->m_parentWorldMapID, sizeof(this->m_parentWorldMapID), nullptr, nullptr, 0);
 
     if (!idRead

@@ -528,14 +528,14 @@ bool CGWorldMap::GetWorldPosition(const C3Vector& position, int32_t mapID, float
         dungeonRec = nullptr;
     }
 
-    float maxX = dungeonRec ? dungeonRec->m_maxX : area->m_locLeft;
-    float minX = dungeonRec ? dungeonRec->m_minX : area->m_locRight;
+    float maxX = dungeonRec ? dungeonRec->m_boundsX.m_h : area->m_locLeft;
+    float minX = dungeonRec ? dungeonRec->m_boundsX.m_l : area->m_locRight;
     double rangeX = maxX - minX;
     double offsetX = pos.y - minX;
     *x = 0.0 == offsetX || 0.0 == rangeX ? 0.0 : 1.0 - offsetX / rangeX;
 
-    float maxY = dungeonRec ? dungeonRec->m_maxY : area->m_locTop;
-    float minY = dungeonRec ? dungeonRec->m_minY : area->m_locBottom;
+    float maxY = dungeonRec ? dungeonRec->m_boundsY.m_h : area->m_locTop;
+    float minY = dungeonRec ? dungeonRec->m_boundsY.m_l : area->m_locBottom;
     double rangeY = maxY - minY;
     double offsetY = pos.x - minY;
     *y = 0.0 == offsetY || 0.0 == rangeY ? 0.0 : 1.0 - offsetY / rangeY;
@@ -1054,8 +1054,8 @@ int32_t CGWorldMap::GetCurrentMapHeight() {
     double height;
 
     if (dungeonRec) {
-        width = dungeonRec->m_maxX - dungeonRec->m_minX;
-        height = dungeonRec->m_maxY - dungeonRec->m_minY;
+        width = dungeonRec->m_boundsX.m_h - dungeonRec->m_boundsX.m_l;
+        height = dungeonRec->m_boundsY.m_h - dungeonRec->m_boundsY.m_l;
     } else if (CGWorldMap::m_currentZone == -1) {
         WorldMapContinentRec* continentRec = nullptr;
 
