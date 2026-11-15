@@ -6064,7 +6064,7 @@ void CMap::NewFootprint(int32_t textureId, const float* size, const C3Vector* po
 
     TerrainTypeRec* rec = g_terrainTypeDB.GetRecord(terrainType);
 
-    if (!rec || !(rec->m_flags & 0x1)) {
+    if (!rec || !(rec->m_flags & TERRAIN_TYPE_FLAG_FOOTPRINTS)) {
         return;
     }
 

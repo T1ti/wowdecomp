@@ -6,6 +6,13 @@
 
 class SFileImpl;
 
+// TerrainType.dbc flags tested by the client.
+enum TERRAIN_TYPE_FLAGS : int32_t {
+    TERRAIN_TYPE_FLAG_NONE = 0x0,
+    // CMap::NewFootprint only places footprints on terrain types with this flag.
+    TERRAIN_TYPE_FLAG_FOOTPRINTS = 0x1,
+};
+
 class TerrainTypeRec {
     public:
     static const int32_t s_numColumns = 6;
@@ -17,7 +24,7 @@ class TerrainTypeRec {
     /* 0008 */ int32_t m_footstepSprayRun;
     /* 000C */ int32_t m_footstepSprayWalk;
     /* 0010 */ int32_t m_soundID;
-    /* 0014 */ int32_t m_flags;
+    /* 0014 */ int32_t m_flags; // TERRAIN_TYPE_FLAGS
     /* 0018 */ int32_t m_generatedID;
 
     TerrainTypeRec();
