@@ -138,7 +138,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
     }
 
     if (this->m_component) {
-        for (uint32_t slot = 0; slot < 19; slot++) {
+        for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
             ItemDisplayInfoRec rec;
 
             if (!g_itemDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldItem[slot] & 0xFFFFFF, &rec) || slot == 17) {

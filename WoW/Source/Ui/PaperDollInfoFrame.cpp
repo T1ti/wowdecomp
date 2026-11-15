@@ -185,7 +185,7 @@ int32_t ResolveInventorySlotArg(lua_State* L, int32_t index, int32_t& slot) {
         }
     }
 
-    return (slot >= 0 && slot <= 22) || (slot >= 39 && slot <= 66) || (slot >= 67 && slot <= 73) || slot == -1 || (slot >= 86 && slot <= 117);
+    return (slot >= EQUIPPED_FIRST && slot <= INVSLOT_BAG3) || (slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST) || slot == INVSLOT_NONE || (slot >= KEYRING_FIRST && slot <= KEYRING_LAST);
 }
 
 // VERIFY: f340d760 auto

@@ -475,7 +475,7 @@ static int32_t Script_GetGuildInfo(lua_State* L) {
 static int32_t Script_PutItemInBag(lua_State* L) {
     int32_t slot = 0;
 
-    if (!ResolveInventorySlotArg(L, 1, slot) || slot < 19) {
+    if (!ResolveInventorySlotArg(L, 1, slot) || slot < INVSLOT_BAG0) {
         return 0;
     }
 
@@ -987,7 +987,7 @@ static int32_t Script_SocketInventoryItem(lua_State* L) {
 static int32_t Script_PickupBagFromSlot(lua_State* L) {
     int32_t slot = 0;
 
-    if (ResolveInventorySlotArg(L, 1, slot) && slot >= 19) {
+    if (ResolveInventorySlotArg(L, 1, slot) && slot >= INVSLOT_BAG0) {
         CGCharacterInfo::PickupBag(slot);
     }
 

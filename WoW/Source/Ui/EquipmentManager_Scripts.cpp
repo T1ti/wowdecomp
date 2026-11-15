@@ -332,7 +332,7 @@ static int32_t Script_GetEquipmentSetItemIDs(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    for (int32_t slot = 0; slot < 19; slot++) {
+    for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         WOWGUID guid = set->m_items[slot];
         double value;
 

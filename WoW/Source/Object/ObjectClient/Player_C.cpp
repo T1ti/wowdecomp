@@ -2191,7 +2191,7 @@ bool CGPlayer_C::UnitIsTrivial(const CGUnit_C* unit) {
 // VERIFY: 57e71b87 manual
 // OFFSET: 0x006DE330
 const VisibleItem_C* CGPlayer_C::GetVisibleItem(int32_t slot) const {
-    if (slot < 0 || slot >= 19) {
+    if (slot < 0 || slot > EQUIPPED_LAST) {
         return nullptr;
     }
 
@@ -5862,7 +5862,7 @@ const CGItem_C* CGPlayer_C::EquippedItemMeetSpellRequirements(const SpellRec* sp
         slotMask &= ~0x20000;
     }
 
-    for (int32_t slot = 0; slot < 23; slot++) {
+    for (int32_t slot = 0; slot < NUM_INVENTORY_SLOTS; slot++) {
         if (!((1 << slot) & slotMask)) {
             continue;
         }
@@ -10108,7 +10108,7 @@ int32_t CGPlayer_C::ValidateSlot(uint32_t slot, WOWGUID item) {
         return 0;
     }
 
-    if ((itemObject->m_obj->m_type & TYPE_CONTAINER) && (slot < 19 || slot > 22) && (slot < 67 || slot > 73) && itemObject->GetBag()->GetNumItems()) {
+    if ((itemObject->m_obj->m_type & TYPE_CONTAINER) && (slot < INVSLOT_BAG0 || slot > INVSLOT_BAG3) && (slot < BANKBAG_FIRST || slot > BANKBAG_LAST) && itemObject->GetBag()->GetNumItems()) {
         return 0;
     }
 
@@ -10203,7 +10203,7 @@ void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
         return;
     }
 
-    if (container == this->m_obj->m_guid && slot < 23) {
+    if (container == this->m_obj->m_guid && slot < NUM_INVENTORY_SLOTS) {
         CGGameUI::ClearCursor(1, 1);
         return;
     }

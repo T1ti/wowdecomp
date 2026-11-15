@@ -349,7 +349,7 @@ int32_t Packet_SMSG_EQUIPMENT_SET_LIST(void* param, NETMESSAGE msgId, uint32_t t
         msg->GetString(set->m_name, sizeof(set->m_name));
         msg->GetString(set->m_icon, sizeof(set->m_icon));
 
-        for (uint32_t slot = 0; slot < 19; slot++) {
+        for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
             SmartGUID item;
             *msg >> item;
             set->m_items[slot] = item;
@@ -661,7 +661,7 @@ void CGEquipmentManager::SaveSet(EQUIPMENT_SET* set, const char* name, const cha
     msg.PutString(set->m_name);
     msg.PutString(set->m_icon);
 
-    for (uint32_t slot = 0; slot < 19; slot++) {
+    for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         SmartGUID itemGuid;
         itemGuid.m_guid = set->m_items[slot].m_guid;
         msg << itemGuid;

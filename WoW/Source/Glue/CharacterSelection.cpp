@@ -465,7 +465,7 @@ void CCharacterSelection::ShowCharacter() {
 
         CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
 
-        for (uint32_t slot = 0; slot < 23; slot++) {
+        for (uint32_t slot = 0; slot < NUM_INVENTORY_SLOTS; slot++) {
             int32_t displayID = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemDisplayID[slot];
             int32_t itemVisual = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemVisualID[slot];
 

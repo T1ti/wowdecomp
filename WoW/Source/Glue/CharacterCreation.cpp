@@ -421,7 +421,7 @@ void CCharacterCreation::Dress() {
         CharacterSelectionDisplay* display = CCharacterSelection::GetCharacterDisplay(CCharacterCreation::m_existingCharacterIndex);
 
         if (display) {
-            for (uint32_t slot = 0; slot < 23; slot++) {
+            for (uint32_t slot = 0; slot < NUM_INVENTORY_SLOTS; slot++) {
                 int32_t displayID = display->m_characterInfo.m_inventoryItemDisplayID[slot];
                 int32_t itemVisual = display->m_characterInfo.m_inventoryItemVisualID[slot];
 

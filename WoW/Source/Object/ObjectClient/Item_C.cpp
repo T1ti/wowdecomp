@@ -1677,7 +1677,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
                 CGGameUI::DisplayError(ERR_CANT_USE_DISARMED);
                 return 0;
             }
-        } else if (slot >= 23) {
+        } else if (slot >= BACKPACK_FIRST) {
             CGGameUI::DisplayError(ERR_MUST_EQUIP_ITEM);
             return 0;
         }
@@ -1830,7 +1830,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     }
 
     if ((slot != 15 && slot != 16) || rec->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
-        if (slot >= 23) {
+        if (slot >= BACKPACK_FIRST) {
             return 1;
         }
 

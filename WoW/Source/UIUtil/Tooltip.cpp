@@ -5740,7 +5740,7 @@ static int32_t CollectItemSetData(CGTooltip* tooltip, const ItemSetRec* set, CGP
 
     for (int32_t pass = 0; pass < 2; pass++) {
         if (ownerPlayer) {
-            for (int32_t slot = 0; slot < 19; slot++) {
+            for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
                 const VisibleItem_C* visible = ownerPlayer->GetVisibleItem(slot);
 
                 if (visible) {
@@ -5752,7 +5752,7 @@ static int32_t CollectItemSetData(CGTooltip* tooltip, const ItemSetRec* set, CGP
                 }
             }
         } else {
-            for (int32_t slot = 0; slot < 19; slot++) {
+            for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
                 const CGItem_C* item = player->m_bag.GetItemPointer(slot);
 
                 if (item && ResolveItemSetItem(&data, pass, item->m_obj->m_entryID, slot)) {
@@ -6441,7 +6441,7 @@ static void AddItemSellPrice(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
                 }
             }
 
-            if (slot >= player->m_bag.m_numSlots || slot < 23) {
+            if (slot >= player->m_bag.m_numSlots || slot < BACKPACK_FIRST) {
                 return;
             }
         }
