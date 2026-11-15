@@ -1,4 +1,5 @@
 #include "LootFrame.h"
+#include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -227,7 +228,7 @@ static int32_t Script_GetLootSlotInfo(lua_State* L) {
             index = slot - 1;
         }
 
-        if (index < 18 && CGLootInfo::m_slots[index].m_slotType == 3) {
+        if (index < 18 && CGLootInfo::m_slots[index].m_slotType == LOOT_SLOT_TYPE_LOCKED) {
             lua_pushnumber(L, 1.0);
             return 5;
         }

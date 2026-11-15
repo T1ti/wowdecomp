@@ -76,13 +76,22 @@ struct PlayerPendingItemExpiration : public TSLinkedNode<PlayerPendingItemExpira
 struct MerchantItem;
 class ItemStats_C;
 class EmotesTextRec;
+// Per-slot loot permission from SMSG_LOOT_RESPONSE; names describe the client's handling.
+enum LOOT_SLOT_TYPE : int32_t {
+    LOOT_SLOT_TYPE_ALLOW_LOOT = 0,
+    LOOT_SLOT_TYPE_ROLL_PENDING = 1, // ERR_LOOT_ROLL_PENDING.
+    LOOT_SLOT_TYPE_MASTER = 2, // Opens the master loot list.
+    LOOT_SLOT_TYPE_LOCKED = 3, // ERR_LOOT_CANT_LOOT_THAT; GetLootSlotInfo reports it as locked.
+    LOOT_SLOT_TYPE_UNKNOWN_4 = 4, // Auto-looted without the bind-on-pickup confirmation.
+};
+
 struct PlayerLootItem {
     /* 0000 */ int32_t m_itemId;
     /* 0004 */ int32_t m_displayId;
     /* 0008 */ int32_t m_count;
     /* 000C */ int32_t m_randomSuffix;
     /* 0010 */ int32_t m_randomPropertyId;
-    /* 0014 */ int32_t m_slotType;
+    /* 0014 */ int32_t m_slotType; // LOOT_SLOT_TYPE
 };
 
 struct PlayerDance {

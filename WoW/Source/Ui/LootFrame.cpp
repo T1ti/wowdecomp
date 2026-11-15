@@ -451,13 +451,13 @@ void CGLootInfo::DoAutoLoot(int32_t a1) {
 
         int32_t slotType = CGPlayer_C::GetLootItemSlotType(slot.m_slot);
 
-        if (slotType && slotType != 4) {
+        if (slotType != LOOT_SLOT_TYPE_ALLOW_LOOT && slotType != LOOT_SLOT_TYPE_UNKNOWN_4) {
             continue;
         }
 
         ItemStats_C* stats = g_itemDBCache.GetRecord(slot.m_itemID, CGLootInfo::m_lootObj, nullptr, nullptr, false);
 
-        if (stats->m_bonding != ITEM_BINDING::ITEM_BINDING_ON_PICKUP || stats->m_quality < ITEM_QUALITY::ITEM_QUALITY_UNCOMMON || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == 4) {
+        if (stats->m_bonding != ITEM_BINDING::ITEM_BINDING_ON_PICKUP || stats->m_quality < ITEM_QUALITY::ITEM_QUALITY_UNCOMMON || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == LOOT_SLOT_TYPE_UNKNOWN_4) {
             SI2::PlayItemSound(ITEMSOUND_PICKUP, stats->m_displayId);
             CGPlayer_C::AutoStoreLootItem(slot.m_slot);
         } else if (!confirmShown) {
@@ -528,15 +528,15 @@ void CGLootInfo::LootSlot(uint32_t slot) {
     int32_t slotType = CGPlayer_C::GetLootItemSlotType(entry.m_slot);
 
     switch (slotType) {
-    case 1:
+    case LOOT_SLOT_TYPE_ROLL_PENDING:
         CGGameUI::DisplayError(ERR_LOOT_ROLL_PENDING);
         break;
 
-    case 2:
+    case LOOT_SLOT_TYPE_MASTER:
         FrameScript_SignalEvent(SCRIPT_EVENT_OPEN_MASTER_LOOT_LIST, nullptr);
         break;
 
-    case 3:
+    case LOOT_SLOT_TYPE_LOCKED:
         CGGameUI::DisplayError(ERR_LOOT_CANT_LOOT_THAT);
         break;
 
@@ -547,7 +547,7 @@ void CGLootInfo::LootSlot(uint32_t slot) {
             break;
         }
 
-        if (stats->m_bonding != ITEM_BINDING::ITEM_BINDING_ON_PICKUP || stats->m_quality < ITEM_QUALITY::ITEM_QUALITY_UNCOMMON || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == 4) {
+        if (stats->m_bonding != ITEM_BINDING::ITEM_BINDING_ON_PICKUP || stats->m_quality < ITEM_QUALITY::ITEM_QUALITY_UNCOMMON || (stats->m_flags[0] & ITEM_STATIC_FLAGS::ITEM_FLAG_MULTI_DROP) || slotType == LOOT_SLOT_TYPE_UNKNOWN_4) {
             SI2::PlayItemSound(ITEMSOUND_PICKUP, stats->m_displayId);
             CGPlayer_C::AutoStoreLootItem(entry.m_slot);
         } else if (player->GetBag()->ItemCountValid(entry.m_itemID, stats, entry.m_count, true)) {
@@ -596,7 +596,7 @@ void CGLootInfo::GiveMasterLoot(uint32_t slot, WOWGUID target) {
         slot--;
     }
 
-    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID || CGPlayer_C::GetLootItemSlotType(CGLootInfo::m_slots[slot].m_slot) != 2) {
+    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID || CGPlayer_C::GetLootItemSlotType(CGLootInfo::m_slots[slot].m_slot) != LOOT_SLOT_TYPE_MASTER) {
         return;
     }
 

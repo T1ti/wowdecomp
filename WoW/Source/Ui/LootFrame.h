@@ -32,7 +32,7 @@ struct LootSlot {
     /* 0014 */ int32_t m_randomPropertyId;
     /* 0018 */ uint8_t m_slot;
     /* 0019 */ uint8_t unused_0019[3];
-    /* 001C */ int32_t m_slotType;
+    /* 001C */ int32_t m_slotType; // LOOT_SLOT_TYPE
 };
 
 class CGLootInfo {

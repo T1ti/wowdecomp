@@ -8508,7 +8508,7 @@ void CGPlayer_C::ClearLootItemSlotType(WOWGUID lootObject, uint32_t slot) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player && player->m_lootTarget == lootObject) {
-        s_lootItems[slot].m_slotType = 0;
+        s_lootItems[slot].m_slotType = LOOT_SLOT_TYPE_ALLOW_LOOT;
     }
 }
 
