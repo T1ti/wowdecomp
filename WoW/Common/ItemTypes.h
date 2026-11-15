@@ -6,8 +6,8 @@
 // Number of parallel spell entries in an ItemStats_C cache record.
 constexpr int32_t NUM_ITEM_SPELLS = 5;
 
-// 3.3.5 ItemClass.dbc IDs. NONE is the signed no-class/restriction sentinel;
-// actual item records keep their existing raw int32/uint32/uint8 carriers.
+// 3.3.5 ItemClass.dbc IDs. NONE is the signed no-class/restriction sentinel.
+// DBC selectors use signed32; cache/runtime/packed carriers retain their widths.
 enum ITEM_CLASS : int32_t {
     ITEM_CLASS_NONE                          = -1,
     ITEM_CLASS_CONSUMABLE                    = 0,

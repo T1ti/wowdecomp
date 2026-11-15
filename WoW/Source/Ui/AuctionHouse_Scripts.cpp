@@ -475,7 +475,7 @@ static int32_t Script_QueryAuctionItems(lua_State* L) {
         }
     }
 
-    int32_t classID = -1;
+    ITEM_CLASS classID = ITEM_CLASS_NONE;
 
     if (lua_isnumber(L, 5)) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 5)) - 1;

@@ -14,7 +14,7 @@ class ItemRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_classID;
+    /* 0004 */ ITEM_CLASS m_classID;
     /* 0008 */ int32_t m_subclassID;
     /* 000C */ int32_t m_soundOverrideSubclassID;
     /* 0010 */ int32_t m_material;

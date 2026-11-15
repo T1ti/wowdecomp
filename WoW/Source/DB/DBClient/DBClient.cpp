@@ -1096,7 +1096,7 @@ void InitWeaponSubclasses() {
     s_unarmedWeapon = nullptr;
     LocateWeaponSubclass();
 
-    int32_t weaponClass = s_weaponItemClass->m_classID;
+    ITEM_CLASS weaponClass = s_weaponItemClass->m_classID;
     int32_t count = 0;
 
     for (int32_t i = g_itemSubClassDB.m_numRecords - 1; i >= 0; i--) {

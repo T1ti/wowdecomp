@@ -516,7 +516,7 @@ void InitResistances();
 void InitTerrainTypeFlags();
 void InitWeaponSubclasses();
 void SDBItemSubclassInitialize();
-const ItemSubClassRec* SDBItemSubclassGetSubClassRec(uint32_t classID, uint32_t subClassID);
+const ItemSubClassRec* SDBItemSubclassGetSubClassRec(ITEM_CLASS classID, uint32_t subClassID);
 int32_t GetPhysicalDamageClassID();
 uint32_t GetPhysicalDamageClassMask();
 

@@ -9,6 +9,7 @@
 class CDataStore;
 class CGItem_C;
 struct lua_State;
+enum ITEM_CLASS : int32_t;
 
 struct AuctionSortCriteria {
     enum COLUMN : int32_t {
@@ -42,7 +43,7 @@ struct OutbidItemInfo {
 };
 
 struct AuctionItemClass {
-    /* 0000 */ int32_t m_classID;
+    /* 0000 */ ITEM_CLASS m_classID;
     /* 0004 */ int32_t m_hasSubClasses;
 };
 

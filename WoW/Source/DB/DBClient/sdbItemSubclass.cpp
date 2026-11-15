@@ -8,12 +8,13 @@ static TSFixedArray<const ItemSubClassRec*> s_itemSubclasses[ITEM_CLASS::NUM_ITE
 
 // VERIFY: e9c59b21 manual
 // OFFSET: 0x00681090
-const ItemSubClassRec* SDBItemSubclassGetSubClassRec(uint32_t classID, uint32_t subClassID) {
-    if (classID >= sizeof(s_itemSubclasses) / sizeof(s_itemSubclasses[0]) || subClassID >= s_itemSubclasses[classID].Count()) {
+const ItemSubClassRec* SDBItemSubclassGetSubClassRec(ITEM_CLASS classID, uint32_t subClassID) {
+    uint32_t classIndex = static_cast<uint32_t>(classID);
+    if (classIndex >= sizeof(s_itemSubclasses) / sizeof(s_itemSubclasses[0]) || subClassID >= s_itemSubclasses[classIndex].Count()) {
         return nullptr;
     }
 
-    return s_itemSubclasses[classID][subClassID];
+    return s_itemSubclasses[classIndex][subClassID];
 }
 
 // VERIFY: 600df192 manual
