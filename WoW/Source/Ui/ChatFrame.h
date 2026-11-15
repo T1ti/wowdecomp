@@ -271,6 +271,10 @@ struct ZoneChannelDefault {
     /* 0004 */ int32_t m_addedVersion;
 };
 
+// FrameXML NUM_CHAT_WINDOWS and MAX_WOW_CHAT_CHANNELS.
+constexpr int32_t NUM_CHAT_WINDOWS = 10;
+constexpr int32_t MAX_WOW_CHAT_CHANNELS = 10;
+
 // Indexes into s_chatMessageGroups, named after the group strings.
 enum CHAT_MESSAGE_GROUP {
     CHAT_MESSAGE_GROUP_SYSTEM = 0,
@@ -632,7 +636,7 @@ extern uint32_t s_numSavedInstances;
 
 extern uint8_t s_collapsedHeaders[DisplayChannel::HEADER_INDEX::NUM_HEADERS];
 
-extern ChatWindowInfo s_chatWindows[10];
+extern ChatWindowInfo s_chatWindows[NUM_CHAT_WINDOWS];
 
 extern const ChatMessageGroup s_chatMessageGroups[NUM_CHAT_MESSAGE_GROUPS];
 

@@ -378,7 +378,7 @@ uint32_t s_numSavedInstances;
 TSGrowableArray<ChatColorInfo> s_channelColors;
 
 // STATIC: 0x00BCF0B0
-ChatWindowInfo s_chatWindows[10];
+ChatWindowInfo s_chatWindows[NUM_CHAT_WINDOWS];
 
 // STATIC: 0x00BCFAF0
 static TSHashTable<WORDLIST, HASHKEY_LANGUAGE> s_wordLists;
@@ -1976,10 +1976,10 @@ void ChatWindowInfo::Init() {
     this->m_shown = 0;
     this->m_unkE4 = 0;
     this->m_color = color;
-    this->m_channels.SetCount(10);
-    this->m_channelIDs.SetCount(10);
+    this->m_channels.SetCount(MAX_WOW_CHAT_CHANNELS);
+    this->m_channelIDs.SetCount(MAX_WOW_CHAT_CHANNELS);
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < MAX_WOW_CHAT_CHANNELS; i++) {
         this->m_channels.m_data[i] = nullptr;
         this->m_channelIDs.m_data[i] = 0;
     }
@@ -2886,9 +2886,9 @@ void CGChat::InitializeGame() {
         s_chatColors[i].m_unk48 = s_chatTypeInfo[i].m_unk48;
     }
 
-    s_channelColors.SetCount(10);
+    s_channelColors.SetCount(MAX_WOW_CHAT_CHANNELS);
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < MAX_WOW_CHAT_CHANNELS; i++) {
         SStrPrintf(s_channelColors.m_data[i].m_name, sizeof(s_channelColors.m_data[i].m_name), "CHANNEL%d", i + 1);
         s_channelColors.m_data[i].m_color[0] = s_chatColors[CHAT_MSG_CHANNEL].m_color[0];
         s_channelColors.m_data[i].m_color[1] = s_chatColors[CHAT_MSG_CHANNEL].m_color[1];
@@ -4272,7 +4272,7 @@ int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool 
 
     uint32_t slot;
 
-    if (number && number <= 10) {
+    if (number && number <= MAX_WOW_CHAT_CHANNELS) {
         if (number > CGChat::s_channels.m_count) {
             CGChat::s_channels.SetCount(number);
             slot = number - 1;
@@ -4293,7 +4293,7 @@ int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool 
         }
 
         if (slot == CGChat::s_channels.m_count) {
-            if (CGChat::s_channels.m_count == 10) {
+            if (CGChat::s_channels.m_count == MAX_WOW_CHAT_CHANNELS) {
                 if (!silent) {
                     CGGameUI::DisplayError(ERR_TOO_MANY_CHAT_CHANNELS);
                 }
@@ -4370,7 +4370,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
         ClientServices::Send2(&msg);
     }
 
-    if (window < 10) {
+    if (window < NUM_CHAT_WINDOWS) {
         s_chatWindows[window].AddChannel(*zoneChannelName ? *zoneChannelName : name, *zoneChannelID);
         s_chatSettingsDirty = 1;
     }
@@ -4428,13 +4428,13 @@ void CGChat::ZoneUpdate() {
                 ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
                 if ((1 << (rec->m_id - 1)) & s_joinedZoneChannels) {
-                    InternalJoinChannel(rec->m_shortcut, "", 10, false, &zoneChannelName, &zoneChannelID, true, 0, 1, 0);
+                    InternalJoinChannel(rec->m_shortcut, "", NUM_CHAT_WINDOWS /* no window */, false, &zoneChannelName, &zoneChannelID, true, 0, 1, 0);
                 }
             }
 
             if (s_pendingChannelNames.m_count) {
                 for (uint32_t i = 0; i < s_pendingChannelNames.m_count; i++) {
-                    InternalJoinChannel(s_pendingChannelNames.m_data[i], "", 10, false, &zoneChannelName, &zoneChannelID, true, s_pendingChannelFlags.m_data[i], 1, s_pendingChannelNumbers.m_data[i]);
+                    InternalJoinChannel(s_pendingChannelNames.m_data[i], "", NUM_CHAT_WINDOWS /* no window */, false, &zoneChannelName, &zoneChannelID, true, s_pendingChannelFlags.m_data[i], 1, s_pendingChannelNumbers.m_data[i]);
 
                     if (s_pendingChannelNames.m_data[i]) {
                         SMemFree(s_pendingChannelNames.m_data[i], __FILE__, __LINE__, 0);
@@ -4550,7 +4550,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             cursor = buffer;
         }
 
-        for (uint32_t i = 0; i < 10; i++) {
+        for (uint32_t i = 0; i < NUM_CHAT_WINDOWS; i++) {
             memset(s_chatWindows[i].m_messageGroups, 0, sizeof(s_chatWindows[i].m_messageGroups));
         }
 
@@ -4579,7 +4579,8 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                     uint32_t index = SStrToInt(&line[SStrLen("WINDOW") + 1]) - 1;
 
-                    if (index > 10) {
+                    // Original client bug: accepts index NUM_CHAT_WINDOWS, one past the last window.
+                    if (index > NUM_CHAT_WINDOWS) {
                         continue;
                     }
 
@@ -4938,7 +4939,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
         break;
     }
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < NUM_CHAT_WINDOWS; i++) {
         s_chatWindows[i].RemoveChannel(zoneChannelName ? zoneChannelName : name);
     }
 
@@ -5163,7 +5164,7 @@ void CGChat::ShutdownGame() {
     CGChat::s_channels.SetCount(0);
     s_channelColors.Clear();
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < NUM_CHAT_WINDOWS; i++) {
         s_chatWindows[i].Reset();
     }
 
@@ -5325,7 +5326,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
     OsWriteFile(file, "END\n\n", SStrLen("END\n\n"), &written);
 
-    for (uint32_t w = 0; w < 10; w++) {
+    for (uint32_t w = 0; w < NUM_CHAT_WINDOWS; w++) {
         ChatWindowInfo* info = &s_chatWindows[w];
         SStrPrintf(line, sizeof(line), "WINDOW %d\n", w + 1);
         OsWriteFile(file, line, SStrLen(line), &written);
