@@ -2040,11 +2040,11 @@ int32_t CGPlayer_C::GetPVPFactionIndex() const {
         return -1;
     }
 
-    if (factionRec->m_factionGroup & 0x4) {
+    if (factionRec->m_factionGroup & FACTION_GROUP_MASK_HORDE) {
         return 0;
     }
 
-    return (factionRec->m_factionGroup & 0x2) ? 1 : -1;
+    return (factionRec->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1;
 }
 
 // VERIFY: 101d568d manual

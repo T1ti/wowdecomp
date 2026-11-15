@@ -6123,7 +6123,7 @@ void CGChat::LogHonorGain(CGUnit_C* unit, const WOWGUID& victim, int32_t rank, i
     FactionTemplateRec* faction = g_factionTemplateDB.GetRecord(target->m_unit->m_unitFieldFactiontemplate);
 
     if (faction) {
-        int32_t side = (faction->m_factionGroup & 0x4) ? 0 : ((faction->m_factionGroup & 0x2) ? 1 : -1);
+        int32_t side = (faction->m_factionGroup & FACTION_GROUP_MASK_HORDE) ? 0 : ((faction->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1);
 
         if (side >= 0) {
             SStrPrintf(token, sizeof(token), "PVP_RANK_%d_%d", rank, side);

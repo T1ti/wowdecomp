@@ -1366,20 +1366,20 @@ int32_t QSortScoreData(const void* a, const void* b) {
         ChrRacesRec* leftRace = g_chrRacesDB.GetRecord(leftName->m_race);
         FactionTemplateRec* leftTemplate = g_factionTemplateDB.GetRecord(leftRace->m_factionID);
 
-        if (leftTemplate->m_factionGroup & 0x4) {
+        if (leftTemplate->m_factionGroup & FACTION_GROUP_MASK_HORDE) {
             leftFaction = 0;
         } else {
-            leftFaction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(leftName->m_race)->m_factionID)->m_factionGroup & 0x2) ? 1 : -1;
+            leftFaction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(leftName->m_race)->m_factionID)->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1;
         }
 
         int32_t rightFaction;
         ChrRacesRec* rightRace = g_chrRacesDB.GetRecord(rightName->m_race);
         FactionTemplateRec* rightTemplate = g_factionTemplateDB.GetRecord(rightRace->m_factionID);
 
-        if (rightTemplate->m_factionGroup & 0x4) {
+        if (rightTemplate->m_factionGroup & FACTION_GROUP_MASK_HORDE) {
             rightFaction = 0;
         } else {
-            rightFaction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(rightName->m_race)->m_factionID)->m_factionGroup & 0x2) ? 1 : -1;
+            rightFaction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(rightName->m_race)->m_factionID)->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1;
         }
 
         if (leftFaction != rightFaction) {
@@ -1497,8 +1497,8 @@ void BattlefieldNameCacheCallback() {
             if (name) {
                 FactionTemplateRec* factionTemplate = g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(name->m_race)->m_factionID);
 
-                if (!(factionTemplate->m_factionGroup & 0x4)) {
-                    faction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(name->m_race)->m_factionID)->m_factionGroup & 0x2) ? 1 : -1;
+                if (!(factionTemplate->m_factionGroup & FACTION_GROUP_MASK_HORDE)) {
+                    faction = (g_factionTemplateDB.GetRecord(g_chrRacesDB.GetRecord(name->m_race)->m_factionID)->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1;
                 }
             }
 

@@ -240,7 +240,7 @@ void CGCalendar::EnterWorld() {
 
         if (rec->m_faction >= 0) {
             FactionTemplateRec* faction = g_factionTemplateDB.GetRecord(player->m_unit->m_unitFieldFactiontemplate);
-            int32_t group = (faction->m_factionGroup & 0x4) ? 0 : ((faction->m_factionGroup & 0x2) ? 1 : -1);
+            int32_t group = (faction->m_factionGroup & FACTION_GROUP_MASK_HORDE) ? 0 : ((faction->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1);
 
             if (group != rec->m_faction) {
                 continue;
@@ -270,7 +270,7 @@ void CGCalendar::EnterWorld() {
 
         if (rec->m_faction >= 0) {
             FactionTemplateRec* faction = g_factionTemplateDB.GetRecord(player->m_unit->m_unitFieldFactiontemplate);
-            int32_t group = (faction->m_factionGroup & 0x4) ? 0 : ((faction->m_factionGroup & 0x2) ? 1 : -1);
+            int32_t group = (faction->m_factionGroup & FACTION_GROUP_MASK_HORDE) ? 0 : ((faction->m_factionGroup & FACTION_GROUP_MASK_ALLIANCE) ? 1 : -1);
 
             if (group != rec->m_faction) {
                 continue;
