@@ -7388,48 +7388,48 @@ int32_t CM2Model::InitializeLoaded() {
             emitter->SetParticleStyle(flags & 0x20000, flags & 0x40000, particleData->m_tailLength, flags & 0x400);
 
             CParticleMat material;
-            material.m_flags = 7;
+            material.m_flags = CParticleMat::FLAGS::DEFAULT;
             material.m_blendMode = GxBlend_Opaque;
 
             switch (particleData->m_blendMode) {
                 case M2PARTICLEBLEND_OPAQUE:
                     material.m_blendMode = GxBlend_Opaque;
-                    material.m_flags |= 4;
+                    material.m_flags |= CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_ALPHA_KEY:
                     material.m_blendMode = GxBlend_AlphaKey;
-                    material.m_flags |= 4;
+                    material.m_flags |= CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_ALPHA:
                     material.m_blendMode = GxBlend_Alpha;
-                    material.m_flags &= ~4u;
+                    material.m_flags &= ~CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_NO_ALPHA_ADD:
                     material.m_blendMode = GxBlend_NoAlphaAdd;
-                    material.m_flags &= ~4u;
+                    material.m_flags &= ~CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_ADD:
                     material.m_blendMode = GxBlend_Add;
-                    material.m_flags &= ~4u;
+                    material.m_flags &= ~CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_MOD:
                     material.m_blendMode = GxBlend_Mod;
-                    material.m_flags &= ~4u;
+                    material.m_flags &= ~CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
 
                 case M2PARTICLEBLEND_MOD2X:
                     material.m_blendMode = GxBlend_Mod2x;
-                    material.m_flags &= ~4u;
+                    material.m_flags &= ~CParticleMat::FLAGS::DEPTH_WRITE;
                     break;
             }
 
-            material.m_flags = (material.m_flags & ~1u) | ((flags & 1) ? 0 : 1);
-            material.m_flags = (material.m_flags & ~2u) | ((flags & 8) ? 0 : 2);
+            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::LIT) | ((flags & 1) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::LIT);
+            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::FOGGED) | ((flags & 8) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::FOGGED);
 
             if (flags & 2) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SORT_PARTICLES;

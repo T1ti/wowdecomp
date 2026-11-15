@@ -778,7 +778,7 @@ void CParticleEmitter2::FillOutParticleVertex(void* buffer, EGxVertexBufferForma
     vertex->m_position = static_cast<uint8_t*>(buffer) + GxVertexAttribOffset(format, GxVA_Position);
     vertex->m_positionStride = stride;
 
-    if (this->m_params.m_material.m_flags & 0x1) {
+    if (this->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT) {
         vertex->m_normalStride = stride;
         vertex->m_normal = static_cast<uint8_t*>(buffer) + GxVertexAttribOffset(format, GxVA_Normal);
     } else {
@@ -2147,8 +2147,8 @@ CParticleEmitter2::Params::Params() {
     this->m_initialSpinVariation = 0.0f;
     this->m_spin = 0.0f;
     this->m_spinVariation = 0.0f;
-    this->m_material.m_blendMode = 0;
-    this->m_material.m_flags |= 0x7;
+    this->m_material.m_blendMode = EGxBlend::GxBlend_Opaque;
+    this->m_material.m_flags |= CParticleMat::FLAGS::DEFAULT;
     this->m_colorTrack = nullptr;
     this->m_alphaTrack = nullptr;
     this->m_scaleTrack = nullptr;
@@ -2365,7 +2365,7 @@ void CParticleEmitter2::RenderParticles(const C44Matrix* frameOfReference, void*
         count = this->m_liveList.Count();
     }
 
-    EGxVertexBufferFormat format = (this->m_params.m_material.m_flags & 0x1) ? GxVBF_PNCT : GxVBF_PCT;
+    EGxVertexBufferFormat format = (this->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT) ? GxVBF_PNCT : GxVBF_PCT;
 
     if (!buffer) {
         buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, GxVertexSize(format), count * this->m_vertsPerParticle);

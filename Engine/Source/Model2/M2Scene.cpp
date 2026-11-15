@@ -77,17 +77,17 @@ void CM2Scene::SetFloat18(float value) {
 // OFFSET: 0x0081CA20
 uint32_t ParticleBlendToM2Blend(uint32_t blend) {
     switch (blend) {
-        case 1:
+        case EGxBlend::GxBlend_AlphaKey:
             return M2BLEND_ALPHA_KEY;
-        case 2:
+        case EGxBlend::GxBlend_Alpha:
             return M2BLEND_ALPHA;
-        case 3:
+        case EGxBlend::GxBlend_Add:
             return M2BLEND_ADD;
-        case 4:
+        case EGxBlend::GxBlend_Mod:
             return M2BLEND_MOD;
-        case 5:
+        case EGxBlend::GxBlend_Mod2x:
             return M2BLEND_MOD2X;
-        case 10:
+        case EGxBlend::GxBlend_NoAlphaAdd:
             return M2BLEND_NO_ALPHA_ADD;
         default:
             return M2BLEND_OPAQUE;
@@ -99,15 +99,15 @@ uint32_t ParticleBlendToM2Blend(uint32_t blend) {
 uint32_t ParticleFlagsToM2Flags(uint32_t flags) {
     uint32_t result = M2Material::FLAGS::TWO_SIDED;
 
-    if (!(flags & 1)) {
+    if (!(flags & CParticleMat::FLAGS::LIT)) {
         result = M2Material::FLAGS::UNLIT_TWO_SIDED;
     }
 
-    if (!(flags & 2)) {
+    if (!(flags & CParticleMat::FLAGS::FOGGED)) {
         result |= M2Material::FLAGS::UNFOGGED;
     }
 
-    if (!(flags & 4)) {
+    if (!(flags & CParticleMat::FLAGS::DEPTH_WRITE)) {
         result |= M2Material::FLAGS::NO_DEPTH_WRITE;
     }
 

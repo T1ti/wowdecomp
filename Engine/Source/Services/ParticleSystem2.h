@@ -46,6 +46,15 @@ class CParticle2_Model : public CParticle2 {
 
 class CParticleMat {
     public:
+    // Positive particle material enables; M2Material uses separate inverted flags.
+    enum FLAGS : uint32_t {
+        NONE = 0,
+        LIT = 1,
+        FOGGED = 2,
+        DEPTH_WRITE = 4,
+        DEFAULT = 7,
+    };
+
     /* 0000 */ uint32_t m_blendMode;
     /* 0004 */ uint32_t m_flags;
 };

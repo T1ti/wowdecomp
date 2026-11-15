@@ -718,7 +718,7 @@ void CM2SceneRender::DrawRibbon() {
 // VERIFY: 693b5e5e manual
 // OFFSET: 0x00821040
 void CM2SceneRender::RenderBatchedParticle(CParticleEmitter2* emitter, CGxBuf* buf, EGxVertexBufferFormat format, uint32_t vertexCount, uint32_t indexCount) {
-    CShaderEffect* effect = (emitter->m_params.m_material.m_flags & 1) ? this->m_particleEffect : this->m_particleUnlitEffect;
+    CShaderEffect* effect = (emitter->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT) ? this->m_particleEffect : this->m_particleUnlitEffect;
 
     g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(emitter->m_texture, 0, nullptr));
     GxRsSet(GxRs_Texture1, nullptr);
@@ -734,7 +734,7 @@ uint32_t CM2SceneRender::DrawBatchedParticle(uint32_t index, M2Element* elements
     uint32_t* first = &indices[index];
     M2Element* element = &elements[*first];
     CParticleEmitter2* emitter = element->m_emitter;
-    EGxVertexBufferFormat format = (emitter->m_params.m_material.m_flags & 1) ? GxVBF_PNCT : GxVBF_PCT;
+    EGxVertexBufferFormat format = (emitter->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT) ? GxVBF_PNCT : GxVBF_PCT;
     uint32_t vertexSize = GxVertexSize(format);
     uint32_t materialFlags = emitter->m_params.m_material.m_flags;
     uint32_t materialBlend = emitter->m_params.m_material.m_blendMode;
@@ -784,9 +784,9 @@ uint32_t CM2SceneRender::DrawBatchedParticle(uint32_t index, M2Element* elements
             break;
         }
 
-        uint32_t lit = otherEmitter->m_params.m_material.m_flags & 1;
+        BOOL lit = otherEmitter->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT;
 
-        if (lit != (materialFlags & 1) || ((otherEmitter->m_params.m_material.m_flags ^ materialFlags) & 2) || ((otherEmitter->m_params.m_material.m_flags ^ materialFlags) & 4)) {
+        if (lit != (materialFlags & CParticleMat::FLAGS::LIT) || ((otherEmitter->m_params.m_material.m_flags ^ materialFlags) & CParticleMat::FLAGS::FOGGED) || ((otherEmitter->m_params.m_material.m_flags ^ materialFlags) & CParticleMat::FLAGS::DEPTH_WRITE)) {
             break;
         }
 
@@ -850,15 +850,15 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
     M2Material material;
     material.m_flags = M2Material::FLAGS::TWO_SIDED;
 
-    if (!(flags & 1)) {
+    if (!(flags & CParticleMat::FLAGS::LIT)) {
         material.m_flags = M2Material::FLAGS::UNLIT_TWO_SIDED;
     }
 
-    if (!(flags & 2)) {
+    if (!(flags & CParticleMat::FLAGS::FOGGED)) {
         material.m_flags |= M2Material::FLAGS::UNFOGGED;
     }
 
-    if (!(flags & 4)) {
+    if (!(flags & CParticleMat::FLAGS::DEPTH_WRITE)) {
         material.m_flags |= M2Material::FLAGS::NO_DEPTH_WRITE;
     }
 
@@ -879,7 +879,7 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
 
     DebugLog("Particle: model=%s", this->m_curModel->m_shared->m_fileNameWithoutPath);
 
-    CShaderEffect* effect = (emitter->m_params.m_material.m_flags & 1) ? this->m_particleEffect : this->m_particleUnlitEffect;
+    CShaderEffect* effect = (emitter->m_params.m_material.m_flags & CParticleMat::FLAGS::LIT) ? this->m_particleEffect : this->m_particleUnlitEffect;
     g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
     GxRsSet(GxRs_Texture1, nullptr);
     effect->SetCurrent();
