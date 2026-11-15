@@ -21,7 +21,7 @@ class CreatureTypeRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_flags; // CREATURE_TYPE_REC_FLAGS
+    /* 0008 */ CREATURE_TYPE_REC_FLAGS m_flags;
 
     CreatureTypeRec();
     ~CreatureTypeRec();

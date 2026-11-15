@@ -21,7 +21,7 @@ class ItemClassRec {
 
     /* 0000 */ ITEM_CLASS m_classID;
     /* 0004 */ int32_t m_subclassMapID;
-    /* 0008 */ int32_t m_flags; // ITEM_CLASS_FLAGS
+    /* 0008 */ ITEM_CLASS_FLAGS m_flags;
     /* 000C */ const char* m_className;
     /* 0010 */ int32_t m_generatedID;
 

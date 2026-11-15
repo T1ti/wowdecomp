@@ -19,7 +19,7 @@ class ResistancesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags; // RESISTANCE_FLAGS
+    /* 0004 */ RESISTANCE_FLAGS m_flags;
     /* 0008 */ int32_t m_fizzleSoundID;
     /* 000C */ const char* m_name;
 
