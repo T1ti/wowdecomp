@@ -1908,7 +1908,7 @@ void CWorldScene::UpdateViewerLiquid() {
     if (liquidType) {
         if (liquidType != static_cast<int32_t>(s_liquidTypeId) && (CWorld::enables & Enables::Enable_Particulates)) {
             const LiquidTypeRec* rec = g_liquidTypeDB.GetRecord(liquidType);
-            bool particles = (rec->m_flags & 8) != 0;
+            bool particles = (rec->m_flags & LIQUID_TYPE_FLAG_PARTICULATES) != 0;
             CWorld::particulate->m_enabled = particles;
 
             if (particles) {
@@ -2690,7 +2690,7 @@ void CWorldScene::PrepareLiquidInstances() {
 
                 int32_t exterior;
 
-                if (((mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(group->m_flags & 2)) || (typeRec->m_flags & 0x200)) {
+                if (((mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(group->m_flags & 2)) || (typeRec->m_flags & LIQUID_TYPE_FLAG_EXTERIOR)) {
                     exterior = 1;
                 } else {
                     exterior = 0;
@@ -4338,9 +4338,9 @@ void CMap::UpdateEntity(CMapEntity* entity) {
         if (CMap::QueryAreaId(entity, areaId)) {
             const LiquidTypeRec* liquid = GetLiquidTypeRecForArea(areaId, entity->m_liquidType);
 
-            if (liquid && ((liquid->m_flags & 0x4) || entity->m_liquidHeight > entity->m_position.z)) {
-                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES) | ((liquid->m_flags & 0x1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES : 0u);
-                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES) | ((liquid->m_flags & 0x2) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES : 0u);
+            if (liquid && ((liquid->m_flags & LIQUID_TYPE_FLAG_FISHABLE) || entity->m_liquidHeight > entity->m_position.z)) {
+                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES) | ((liquid->m_flags & LIQUID_TYPE_FLAG_RIPPLES) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_RIPPLES : 0u);
+                entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES) | ((liquid->m_flags & LIQUID_TYPE_FLAG_SPLASHES) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SPLASHES : 0u);
             }
         }
     }

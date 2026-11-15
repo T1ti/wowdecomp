@@ -6,6 +6,29 @@
 
 class SFileImpl;
 
+// LiquidType.dbc flags tested by the client; names describe that behavior.
+enum LIQUID_TYPE_FLAGS : int32_t {
+    LIQUID_TYPE_FLAG_NONE            = 0x00000000,
+    // Entities in this liquid get ripples.
+    LIQUID_TYPE_FLAG_RIPPLES         = 0x00000001,
+    // Entities in this liquid get splashes.
+    LIQUID_TYPE_FLAG_SPLASHES        = 0x00000002,
+    // Kept by fishable-only liquid queries; entities ripple even above its surface.
+    LIQUID_TYPE_FLAG_FISHABLE        = 0x00000004,
+    LIQUID_TYPE_FLAG_PARTICULATES    = 0x00000008,
+    LIQUID_TYPE_FLAG_PARTICULATE_FOG = 0x00000010,
+    // Underwater fog only applies when the WMO fog has its 0x100 flag.
+    LIQUID_TYPE_FLAG_UNKNOWN_20      = 0x00000020,
+    // Underwater fog copies the current group fog.
+    LIQUID_TYPE_FLAG_USE_GROUP_FOG   = 0x00000040,
+    // No water sound while the listener is inside.
+    LIQUID_TYPE_FLAG_NO_SOUND_INSIDE = 0x00000080,
+    // Fog is only applied when the WMO fog has its 0x10 flag.
+    LIQUID_TYPE_FLAG_UNKNOWN_100     = 0x00000100,
+    // Always counted as exterior.
+    LIQUID_TYPE_FLAG_EXTERIOR        = 0x00000200,
+};
+
 class LiquidTypeRec {
     public:
     static const int32_t s_numColumns = 45;
@@ -14,7 +37,7 @@ class LiquidTypeRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_flags;
+    /* 0008 */ int32_t m_flags; // LIQUID_TYPE_FLAGS
     /* 000C */ int32_t m_soundBank;
     /* 0010 */ int32_t m_soundID;
     /* 0014 */ int32_t m_spellID;

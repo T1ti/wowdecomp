@@ -297,7 +297,7 @@ void Particulate::Render() {
     GxBufUnlock(indexBuf, 0);
     GxBufUnlock(vertexBuf, 0);
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_Fog, (liquidType->m_flags >> 4) & 1);
+    GxRsSet(GxRs_Fog, (liquidType->m_flags & LIQUID_TYPE_FLAG_PARTICULATE_FOG) != 0);
     GxRsSet(GxRs_Texture0, texture);
     GxRsSet(GxRs_BlendingMode, 2);
     GxRsSet(GxRs_AlphaRef, static_cast<int32_t>(CGxDevice::s_alphaRef[g_theGxDevicePtr->m_appRenderStates.m_data[GxRs_BlendingMode].m_value.m_data.i[0]]));

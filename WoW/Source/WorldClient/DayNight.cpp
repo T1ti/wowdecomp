@@ -2181,11 +2181,11 @@ void DayNight::UpdateFog() {
             int32_t flags = liquid->m_flags;
             underwater = 1;
 
-            if ((flags & 0x20) && !(fog.m_flags & 0x100)) {
+            if ((flags & LIQUID_TYPE_FLAG_UNKNOWN_20) && !(fog.m_flags & 0x100)) {
                 underwater = 0;
             }
 
-            if (((flags & 0x100) && !(fog.m_flags & 0x10)) || !underwater) {
+            if (((flags & LIQUID_TYPE_FLAG_UNKNOWN_100) && !(fog.m_flags & 0x10)) || !underwater) {
                 apply = false;
             }
         }
@@ -2193,7 +2193,7 @@ void DayNight::UpdateFog() {
         if (apply) {
             DayNight::ApplyFogSettings(underwater ? &fog.m_fogs.m_fog[SMOFog::UWFOG] : &fog.m_fogs.m_fog[SMOFog::FOG]);
 
-            if (underwater && liquid && (liquid->m_flags & 0x40)) {
+            if (underwater && liquid && (liquid->m_flags & LIQUID_TYPE_FLAG_USE_GROUP_FOG)) {
                 info.m_fog.m_end = info.m_fogGroup.m_end;
                 info.m_fog.m_color = info.m_fogGroup.m_color;
                 info.m_fog.m_start = info.m_fogGroup.m_start;

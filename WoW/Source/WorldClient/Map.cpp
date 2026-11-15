@@ -1391,7 +1391,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             int32_t checkType = (flags & 0x10000) && !(flags & 0x20000);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-                if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & 4)) {
+                if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
                     continue;
                 }
 
@@ -4508,7 +4508,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
             bool fishableOnly = (flags & 0x10000) && !(flags & 0x20000);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-                if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & 0x4)) {
+                if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
                     CMap::GetChunkLiquidFacets(chunk, &localBox, &rect, liquid, facets);
                 }
             }
@@ -5302,7 +5302,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         bool fishableOnly = (flags & 0x10000) && !(flags & 0x20000);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-            if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & 0x4)) {
+            if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
                 CMap::GetChunkLiquidFacets(chunk, &localFrustum, &rect, liquid, facets);
             }
         }
@@ -6253,7 +6253,7 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
         bool oceanOnly = (flags & 0x10000) && !(flags & 0x20000);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-            if (oceanOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & 0x4)) {
+            if (oceanOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
                 continue;
             }
 
