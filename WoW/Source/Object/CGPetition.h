@@ -29,8 +29,14 @@ class CGPetition {
     /* 1134 */ uint32_t m_allowedMaxLevel;
     /* 1138 */ char m_choiceText [10][64];
     /* 13B8 */ uint32_t m_numChoices;
-    /* 13BC */ uint32_t m_staticType;
+    /* 13BC */ uint32_t m_staticType; // STATIC_TYPE
     /* 13C0 */ uint32_t m_muid;
+
+    // Charter kind; names follow the strings GetPetitionInfo returns ("guild", "arena", otherwise "other").
+    enum STATIC_TYPE : uint32_t {
+        STATIC_TYPE_GUILD = 0,
+        STATIC_TYPE_ARENA = 1,
+    };
 
     CGPetition();
     CGPetition& operator=(const CGPetition& source);

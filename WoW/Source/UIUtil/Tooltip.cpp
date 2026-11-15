@@ -4183,7 +4183,7 @@ static bool AddItemPetitionLines(CGTooltip* tooltip, CGItem_C* item, const WOWGU
         return false;
     }
 
-    if (petition->m_staticType) {
+    if (petition->m_staticType != CGPetition::STATIC_TYPE_GUILD) {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("PETITION_TITLE", -1, GENDER_NOT_APPLICABLE), petition->m_title);
     } else {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("GUILD_CHARTER_TITLE", -1, GENDER_NOT_APPLICABLE), petition->m_title);
@@ -4193,7 +4193,7 @@ static bool AddItemPetitionLines(CGTooltip* tooltip, CGItem_C* item, const WOWGU
     NameCache* owner = g_nameDBCache.GetRecord(petition->m_ownerGuid.m_guid, petition->m_ownerGuid, TooltipItemCallback, tooltip, true);
 
     if (owner) {
-        const char* token = petition->m_staticType ? FrameScript_GetText("PETITION_CREATOR", -1, GENDER_NOT_APPLICABLE) : FrameScript_GetText("GUILD_CHARTER_CREATOR", -1, GENDER_NOT_APPLICABLE);
+        const char* token = petition->m_staticType != CGPetition::STATIC_TYPE_GUILD ? FrameScript_GetText("PETITION_CREATOR", -1, GENDER_NOT_APPLICABLE) : FrameScript_GetText("GUILD_CHARTER_CREATOR", -1, GENDER_NOT_APPLICABLE);
         SStrPrintf(text, sizeof(text), token, owner->m_name);
         tooltip->AddLine(text, nullptr, textColor, textColor, 0);
     }

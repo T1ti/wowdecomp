@@ -6411,7 +6411,7 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
         int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
         CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
-        if (petition && petition->m_staticType == 1 && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
+        if (petition && petition->m_staticType == CGPetition::STATIC_TYPE_ARENA && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
             found = 1;
         }
     }
@@ -6447,7 +6447,7 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
             int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
             CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
-            if (petition && petition->m_staticType == 1 && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
+            if (petition && petition->m_staticType == CGPetition::STATIC_TYPE_ARENA && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
                 found = 1;
                 break;
             }

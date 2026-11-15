@@ -56,10 +56,10 @@ static int32_t Script_CanSignPetition(lua_State* L) {
     int32_t canSign = 1;
 
     if (petition) {
-        if (petition->m_staticType == 0 || petition->m_staticType == 1) {
+        if (petition->m_staticType == CGPetition::STATIC_TYPE_GUILD || petition->m_staticType == CGPetition::STATIC_TYPE_ARENA) {
             CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-            if ((!petition->m_staticType && player && player->m_player->m_playerGuildid) || static_cast<int32_t>(CGPetitionInfo::m_numPetitionNames) >= static_cast<int32_t>(petition->m_maxSignatures)) {
+            if ((petition->m_staticType == CGPetition::STATIC_TYPE_GUILD && player && player->m_player->m_playerGuildid) || static_cast<int32_t>(CGPetitionInfo::m_numPetitionNames) >= static_cast<int32_t>(petition->m_maxSignatures)) {
                 canSign = 0;
             }
         }
@@ -106,9 +106,9 @@ static int32_t Script_GetPetitionInfo(lua_State* L) {
         return 7;
     }
 
-    if (petition->m_staticType == 0) {
+    if (petition->m_staticType == CGPetition::STATIC_TYPE_GUILD) {
         lua_pushstring(L, "guild");
-    } else if (petition->m_staticType == 1) {
+    } else if (petition->m_staticType == CGPetition::STATIC_TYPE_ARENA) {
         lua_pushstring(L, "arena");
     } else {
         lua_pushstring(L, "other");
@@ -222,7 +222,7 @@ static int32_t Script_OfferPetition(lua_State* L) {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_OFFER_PETITION));
 
-    if (petition->m_staticType == 1) {
+    if (petition->m_staticType == CGPetition::STATIC_TYPE_ARENA) {
         msg.Put(static_cast<uint32_t>(petition->m_minSignatures + 1));
     } else {
         msg.Put(static_cast<uint32_t>(0));
