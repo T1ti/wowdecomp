@@ -35,7 +35,7 @@ class SkillRaceClassInfoRec {
     /* 0004 */ int32_t m_skillID;
     /* 0008 */ int32_t m_raceMask;
     /* 000C */ int32_t m_classMask;
-    /* 0010 */ int32_t m_flags; // SKILL_RACE_CLASS_FLAGS
+    /* 0010 */ SKILL_RACE_CLASS_FLAGS m_flags;
     /* 0014 */ int32_t m_minLevel;
     /* 0018 */ int32_t m_skillTierID;
     /* 001C */ int32_t m_skillCostIndex;
