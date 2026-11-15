@@ -47,10 +47,10 @@ static C44Matrix s_particleXform(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 static C33Matrix s_billboardXform(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 
 // STATIC: 0x00B2D5B4
-static const float s_cornerOffsets[4][2] = { { -1.0f, 1.0f }, { -1.0f, -1.0f }, { 1.0f, 1.0f }, { 1.0f, -1.0f } };
+static const float s_cornerOffsets[CParticleEmitter2::VERTICES_PER_QUAD][2] = { { -1.0f, 1.0f }, { -1.0f, -1.0f }, { 1.0f, 1.0f }, { 1.0f, -1.0f } };
 
 // STATIC: 0x00B2D5D4
-static const float s_cornerTexCoords[4][2] = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f } };
+static const float s_cornerTexCoords[CParticleEmitter2::VERTICES_PER_QUAD][2] = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f } };
 
 // STATIC: 0x00DCE680
 uint32_t CParticleEmitter2::s_initCount;
@@ -322,13 +322,13 @@ void CParticleEmitter2::SetParticleStyle(int32_t head, int32_t tail, float tailL
     this->m_params.m_tailLength = tailLength;
 
     if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::HEAD) {
-        this->m_vertsPerParticle = 4;
-        this->m_indicesPerParticle = 6;
+        this->m_vertsPerParticle = CParticleEmitter2::VERTICES_PER_QUAD;
+        this->m_indicesPerParticle = CParticleEmitter2::INDICES_PER_QUAD;
     }
 
     if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::TAIL) {
-        this->m_vertsPerParticle += 4;
-        this->m_indicesPerParticle += 6;
+        this->m_vertsPerParticle += CParticleEmitter2::VERTICES_PER_QUAD;
+        this->m_indicesPerParticle += CParticleEmitter2::INDICES_PER_QUAD;
     }
 }
 
@@ -395,8 +395,8 @@ void CParticleEmitter2::Init() {
             return;
         }
 
-        CParticleEmitter2::s_indexPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Index, GxPoolUsage_Static, sizeof(uint16_t) * 0x1FFF8, GxPoolHintBit_Unk2, "CParticleEmitter2_idx");
-        CParticleEmitter2::s_indexBuf = g_theGxDevicePtr->BufCreate(CParticleEmitter2::s_indexPool, sizeof(uint16_t), 0x1FFF8, 0);
+        CParticleEmitter2::s_indexPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Index, GxPoolUsage_Static, sizeof(uint16_t) * CParticleEmitter2::INDEX_BUFFER_CAPACITY, GxPoolHintBit_Unk2, "CParticleEmitter2_idx");
+        CParticleEmitter2::s_indexBuf = g_theGxDevicePtr->BufCreate(CParticleEmitter2::s_indexPool, sizeof(uint16_t), CParticleEmitter2::INDEX_BUFFER_CAPACITY, 0);
     }
 
     CParticleEmitter2::s_initCount++;
@@ -752,7 +752,7 @@ void CParticleEmitter2::RandomizeSpin(const CParticle2& particle, float* spin, f
 // OFFSET: 0x0097A260
 void __stdcall CParticleEmitter2::RenderIndices(CGxBuf* buf) {
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(buf));
-    uint16_t* end = indices + 0x1FFF8;
+    uint16_t* end = indices + CParticleEmitter2::INDEX_BUFFER_CAPACITY;
     uint16_t vertex = 0;
 
     while (indices < end) {
@@ -762,8 +762,8 @@ void __stdcall CParticleEmitter2::RenderIndices(CGxBuf* buf) {
         indices[3] = vertex + 3;
         indices[4] = vertex + 2;
         indices[5] = vertex + 1;
-        indices += 6;
-        vertex += 4;
+        indices += CParticleEmitter2::INDICES_PER_QUAD;
+        vertex += CParticleEmitter2::VERTICES_PER_QUAD;
     }
 
     g_theGxDevicePtr->BufUnlock(buf, 0);
@@ -1467,7 +1467,7 @@ uint32_t CParticleEmitter2::GetNumBatches() {
 // VERIFY: e8406df5 auto
 // OFFSET: 0x0097BB30
 uint32_t CParticleEmitter2::GetNumPrimitives() {
-    uint32_t count = this->m_liveList.Count() * this->m_indicesPerParticle / 3;
+    uint32_t count = this->m_liveList.Count() * this->m_indicesPerParticle / CParticleEmitter2::INDICES_PER_TRIANGLE;
 
     for (uint32_t i = 0; i < this->m_childEmitterCount; i++) {
         count += this->m_childEmitters[i]->GetNumPrimitives();
@@ -1607,7 +1607,7 @@ int32_t CParticleEmitter2::BuildVertex(const CParticle2& particle, ParticleVerte
                 size.x = 1.0f / sqrt(directionSq) / inv * scale.x;
             }
 
-            for (uint32_t i = 0; i < 4; i++) {
+            for (uint32_t i = 0; i < CParticleEmitter2::VERTICES_PER_QUAD; i++) {
                 float offsetX = s_cornerOffsets[i][0] * size.x;
                 float offsetY = s_cornerOffsets[i][1] * size.y;
                 C3Vector position(offsetY * -axisY + offsetX * axisX + center.x, offsetX * axisY + offsetY * axisX + center.y, center.z);
@@ -1618,7 +1618,7 @@ int32_t CParticleEmitter2::BuildVertex(const CParticle2& particle, ParticleVerte
             }
         } else if (0.0f == this->m_params.m_spin && 0.0f == this->m_params.m_spinVariation) {
             if (flags & CParticleEmitter2::RUNTIME_FLAGS::USE_BILLBOARD_AXIS) {
-                for (uint32_t i = 0; i < 4; i++) {
+                for (uint32_t i = 0; i < CParticleEmitter2::VERTICES_PER_QUAD; i++) {
                     float offsetX = s_cornerOffsets[i][0] * scale.x;
                     float offsetY = s_cornerOffsets[i][1] * scale.y;
                     C3Vector position(s_billboardXform.b0 * offsetY + offsetX * s_billboardXform.a0 + center.x, offsetY * s_billboardXform.b1 + offsetX * s_billboardXform.a1 + center.y, offsetY * s_billboardXform.b2 + offsetX * s_billboardXform.a2 + center.z);
@@ -1628,7 +1628,7 @@ int32_t CParticleEmitter2::BuildVertex(const CParticle2& particle, ParticleVerte
                     AddVertex(this->m_worldBounds, vertex, position, color, texCoord);
                 }
             } else {
-                for (uint32_t i = 0; i < 4; i++) {
+                for (uint32_t i = 0; i < CParticleEmitter2::VERTICES_PER_QUAD; i++) {
                     C3Vector position(s_cornerOffsets[i][0] * scale.x + center.x, s_cornerOffsets[i][1] * scale.y + center.y, center.z);
                     C2Vector texCoord;
                     texCoord.x = s_cornerTexCoords[i][0] * this->m_textureCellWidth + u;
@@ -1644,7 +1644,7 @@ int32_t CParticleEmitter2::BuildVertex(const CParticle2& particle, ParticleVerte
             }
 
             if (flags & CParticleEmitter2::RUNTIME_FLAGS::USE_BILLBOARD_AXIS) {
-                for (uint32_t i = 0; i < 4; i++) {
+                for (uint32_t i = 0; i < CParticleEmitter2::VERTICES_PER_QUAD; i++) {
                     C33Matrix rotation = C33Matrix::Rotation(angle, this->m_billboardAxis, true);
                     float offsetX = s_cornerOffsets[i][0] * scale.x;
                     float offsetY = s_cornerOffsets[i][1] * scale.y;
@@ -1713,7 +1713,7 @@ int32_t CParticleEmitter2::BuildVertex(const CParticle2& particle, ParticleVerte
     float flatSq = flat.y * flat.y + flat.x * flat.x;
 
     if (flatSq < 0.00077160494f) {
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < CParticleEmitter2::VERTICES_PER_QUAD; i++) {
             C3Vector position(s_cornerOffsets[i][0] * scale.x + center.x, s_cornerOffsets[i][1] * scale.y + center.y, center.z);
             C2Vector texCoord;
             texCoord.x = s_cornerTexCoords[i][0] * this->m_textureCellWidth + u;
@@ -2359,7 +2359,7 @@ void CParticleEmitter2::RenderParticles(const C44Matrix* frameOfReference, void*
         return;
     }
 
-    uint32_t count = 0x4000 / this->m_vertsPerParticle;
+    uint32_t count = CParticleEmitter2::MAX_VERTICES_PER_BATCH / this->m_vertsPerParticle;
 
     if (count >= this->m_liveList.Count()) {
         count = this->m_liveList.Count();

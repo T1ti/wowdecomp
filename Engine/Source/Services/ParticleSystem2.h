@@ -106,6 +106,12 @@ class CParticleEmitter2 {
         RND_TABLE_MASK = 0x7F,
     };
 
+    static const uint32_t VERTICES_PER_QUAD = 4;
+    static const uint32_t INDICES_PER_QUAD = 6;
+    static const uint32_t INDICES_PER_TRIANGLE = 3;
+    static const uint32_t MAX_VERTICES_PER_BATCH = 0x4000;
+    static const uint32_t INDEX_BUFFER_CAPACITY = 0x1fff8;
+
     enum PARTICLE_TYPE : uint32_t {
         PT_QUAD = 0,
         PT_MODEL = 1,
