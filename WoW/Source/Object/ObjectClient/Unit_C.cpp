@@ -2261,7 +2261,7 @@ void CGUnit_C::RenderAutoTrackCursor() {
         color.g = 0xFF;
         color.r = 0xFF;
         color.a = 0xFF;
-        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, 1, 0.4f);
+        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS, 0.4f);
     }
 
     g_theGxDevicePtr->RsPop();
@@ -23230,7 +23230,7 @@ void CGUnit_C::RenderTargetSelection() const {
     int32_t states = CGObject_C::SetCircleRenderStates();
 
     if (states) {
-        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, 1, 0.4f);
+        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS, 0.4f);
     }
 
     if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ATTACK_TARGET_HIGHLIGHT) {
@@ -23255,7 +23255,7 @@ void CGUnit_C::RenderTargetSelection() const {
             box.Expand(amount);
 
             if (states) {
-                ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, 1, 0.4f);
+                ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS, 0.4f);
             }
         }
     }
@@ -23306,7 +23306,7 @@ void CGUnit_C::RenderPetTargetSelection() const {
     g_theGxDevicePtr->RsPush();
 
     if (CGObject_C::SetCircleRenderStates()) {
-        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, 1, 0.4f);
+        ProjectTex::Render2d(box, color, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS, 0.4f);
     }
 
     g_theGxDevicePtr->RsPop();

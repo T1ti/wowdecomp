@@ -1554,7 +1554,7 @@ static void DrawSpellCursorShadow(uint32_t queryFlags) {
     color.g = 0xFF;
     color.r = 0xFF;
     color.a = 0xFF;
-    ProjectTex::Render2d(box, color, nullptr, 0.5f, queryFlags, 5, 0.4f);
+    ProjectTex::Render2d(box, color, nullptr, 0.5f, queryFlags, PROJECT_TEX_DOODADS | PROJECT_TEX_ALL_FACES, 0.4f);
     g_theGxDevicePtr->RsPop();
 }
 

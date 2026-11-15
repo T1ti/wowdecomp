@@ -854,7 +854,7 @@ uint32_t World::GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModel
 // OFFSET: 0x0077F500
 void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, int32_t forceProjection) {
     if (forceProjection || (CWorld::enables2 & Enable_ProjectedTextures)) {
-        ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? 2 : 0, 0.40000001f);
+        ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? PROJECT_TEX_MATERIAL_COLOR : PROJECT_TEX_NONE, 0.40000001f);
     }
 }
 

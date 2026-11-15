@@ -339,7 +339,7 @@ void CWorldScene::RenderStreamingRequestDecal(CM2Model* model, const CAaBox* box
     color.g = 0xFF;
     color.r = 0xFF;
     color.a = static_cast<uint8_t>(static_cast<int32_t>(alpha * 255.0f + 0.5f));
-    ProjectTex::Render2d(bounds, color, &projection, 0.5f, WORLD_QUERY_RENDER_MASK | WORLD_QUERY_LIQUID, 0, scale);
+    ProjectTex::Render2d(bounds, color, &projection, 0.5f, WORLD_QUERY_RENDER_MASK | WORLD_QUERY_LIQUID, PROJECT_TEX_NONE, scale);
     g_theGxDevicePtr->RsPop();
 }
 
@@ -366,7 +366,7 @@ static void ProjectTexBuildVertexBuffer(World::TriData::Batch* triBatch, CGxBatc
     } else {
         batch->m_count = 0;
 
-        if (flags & 0x4) {
+        if (flags & PROJECT_TEX_ALL_FACES) {
             for (uint32_t i = 0; i < triBatch->m_indexCount; i += 3) {
                 const C3Vector& v0 = triBatch->m_vertexList[triBatch->m_indices[i]];
                 const C3Vector& v1 = triBatch->m_vertexList[triBatch->m_indices[i + 1]];
@@ -422,7 +422,7 @@ static void ProjectTexBuildVertexBufferVariant(World::TriData::Batch* triBatch, 
     } else {
         batch->m_count = 0;
 
-        if (flags & 0x4) {
+        if (flags & PROJECT_TEX_ALL_FACES) {
             for (uint32_t i = 0; i < triBatch->m_indexCount; i += 3) {
                 const C3Vector& v0 = triBatch->m_vertexList[triBatch->m_indices[i]];
                 const C3Vector& v1 = triBatch->m_vertexList[triBatch->m_indices[i + 1]];
@@ -479,7 +479,7 @@ static void ProjectTexRenderIndices(World::TriData::Batch* triBatch) {
 // VERIFY: 3c679037 auto
 // OFFSET: 0x007E35F0
 static int32_t ProjectTexRenderGetQuery2d(const CAaBox& box, uint32_t flags, uint32_t triFlags, int32_t* doodads, int32_t* tris) {
-    *doodads = flags & 0x1;
+    *doodads = flags & PROJECT_TEX_DOODADS;
     s_doodadModelCount = 0;
     s_queryTriFlags = 0;
     s_queryDoodads = 0;
@@ -532,7 +532,7 @@ void ProjectTex2dDrawShaderEffect(const CAaBox& box, const CImVector& color, uin
 
     CImVector packed = color;
 
-    if (flags & 0x2) {
+    if (flags & PROJECT_TEX_MATERIAL_COLOR) {
         CShaderEffect::SetDiffuse(C4Vector(color));
     } else {
         GxFormatColor(packed);
@@ -575,7 +575,7 @@ void ProjectTex2dDrawShaderEffect(const CAaBox& box, const CImVector& color, uin
             batch.m_minIndex = 0;
             batch.m_maxIndex = triBatch->m_indexCount - 1;
 
-            if (flags & 0x2) {
+            if (flags & PROJECT_TEX_MATERIAL_COLOR) {
                 ProjectTexBuildVertexBuffer(triBatch, &batch, flags);
             } else {
                 ProjectTexBuildVertexBufferVariant(triBatch, packed, &batch, flags);
@@ -643,7 +643,7 @@ static void ProjectTexRender2d(const CAaBox& box, const CImVector& color, uint32
 
     CImVector packed = color;
 
-    if (flags & 0x2) {
+    if (flags & PROJECT_TEX_MATERIAL_COLOR) {
         GxRsSet(GxRs_MatDiffuse, *reinterpret_cast<const int32_t*>(&color));
     } else {
         GxFormatColor(packed);
@@ -686,7 +686,7 @@ static void ProjectTexRender2d(const CAaBox& box, const CImVector& color, uint32
             batch.m_minIndex = 0;
             batch.m_maxIndex = triBatch->m_indexCount - 1;
 
-            if (flags & 0x2) {
+            if (flags & PROJECT_TEX_MATERIAL_COLOR) {
                 ProjectTexBuildVertexBuffer(triBatch, &batch, flags);
             } else {
                 ProjectTexBuildVertexBufferVariant(triBatch, packed, &batch, flags);

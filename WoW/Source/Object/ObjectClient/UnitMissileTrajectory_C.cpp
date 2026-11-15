@@ -698,7 +698,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
     color.a = static_cast<uint8_t>(s_trajectoryAlpha * 255.0f + 0.5f);
     C44Matrix rotation;
     rotation.RotateAroundZ(-facing);
-    ProjectTex::Render2d(box, color, &rotation, 0.5f, WORLD_QUERY_RENDER_MASK, 5, 0.039999999f);
+    ProjectTex::Render2d(box, color, &rotation, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS | PROJECT_TEX_ALL_FACES, 0.039999999f);
     g_theGxDevicePtr->RsPop();
 }
 
