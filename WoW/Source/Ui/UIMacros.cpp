@@ -32,7 +32,7 @@
 static TSExplicitList<MACRONODE, offsetof(MACRONODE, m_dynamicLink)> s_dynamicMacros;
 
 // STATIC: 0x00BEAE20
-uint32_t CGUIMacros::m_sortedMacros[72];
+uint32_t CGUIMacros::m_sortedMacros[NUM_SORTED_MACRO_SLOTS];
 
 // STATIC: 0x00BEAF68
 static TSHashTable<MACRONODE, HASHKEY_NONE> s_macros;
@@ -53,16 +53,16 @@ const char* CGUIMacros::m_macroRunning;
 MACRONODE* CGUIMacros::m_macroButton;
 
 // STATIC: 0x00BEAF50
-uint32_t CGUIMacros::m_numMacros[2];
+uint32_t CGUIMacros::m_numMacros[NUM_MACRO_SETS];
 
 // STATIC: 0x00BEAF58
-static uint32_t s_maxMacroID[2];
+static uint32_t s_maxMacroID[NUM_MACRO_SETS];
 
 // STATIC: 0x00A0F82C
-static const uint32_t s_maxMacros[2] = { 36, 18 };
+static const uint32_t s_maxMacros[NUM_MACRO_SETS] = { MAX_ACCOUNT_MACROS, MAX_CHARACTER_MACROS };
 
 // STATIC: 0x00A0F834
-static const uint32_t s_macroIDBase[2] = { 0, 0x1000000 };
+static const uint32_t s_macroIDBase[NUM_MACRO_SETS] = { 0, 0x1000000 };
 
 // STATIC: 0x00BEAF90
 TSGrowableArray<char*> s_macroIcons;
@@ -127,7 +127,7 @@ int32_t CGUIMacros::GetSortedIndexByName(const char* name) {
         return -1;
     }
 
-    for (int32_t i = 0; i < 72; i++) {
+    for (int32_t i = 0; i < NUM_SORTED_MACRO_SLOTS; i++) {
         if (CGUIMacros::m_sortedMacros[i] == macro->m_id) {
             return i;
         }
@@ -640,9 +640,9 @@ void CGUIMacros::CountActionBarSlots(MACRONODE* macro) {
 // OFFSET: 0x00566240
 void CGUIMacros::SortMacros() {
     memset(CGUIMacros::m_sortedMacros, 0, sizeof(CGUIMacros::m_sortedMacros));
-    MACRONODE** sorted = static_cast<MACRONODE**>(alloca(sizeof(MACRONODE*) * 36));
+    MACRONODE** sorted = static_cast<MACRONODE**>(alloca(sizeof(MACRONODE*) * MAX_ACCOUNT_MACROS));
 
-    for (uint32_t type = 0; type < 2; type++) {
+    for (uint32_t type = 0; type < NUM_MACRO_SETS; type++) {
         MACRONODE** out = sorted;
 
         for (MACRONODE* macro = s_macros.m_fulllist.Head(); macro; macro = s_macros.m_fulllist.Next(macro)) {
@@ -654,7 +654,7 @@ void CGUIMacros::SortMacros() {
         qsort(sorted, CGUIMacros::m_numMacros[type], sizeof(MACRONODE*), QSortMacrosByName);
 
         for (uint32_t i = 0; i < CGUIMacros::m_numMacros[type]; i++) {
-            CGUIMacros::m_sortedMacros[type * 36 + i] = sorted[i]->m_id;
+            CGUIMacros::m_sortedMacros[type * MAX_ACCOUNT_MACROS + i] = sorted[i]->m_id;
         }
     }
 
@@ -815,7 +815,8 @@ void CGUIMacros::LoadMacrosCallback(HOSFILE localFile, HOSFILE cacheFile, void* 
                     const char* tokens = line;
                     SStrTokenize(&tokens, token, sizeof(token), " ", nullptr);
 
-                    if (SStrCmpI(token, "MACRO", STORM_MAX_STR) || CGUIMacros::m_numMacros[type] >= 36) {
+                    // Both sets are capped at the account limit while loading.
+                    if (SStrCmpI(token, "MACRO", STORM_MAX_STR) || CGUIMacros::m_numMacros[type] >= MAX_ACCOUNT_MACROS) {
                         continue;
                     }
 
@@ -1097,7 +1098,7 @@ void CGUIMacros::SaveMacrosCallback(HOSFILE localFile, HOSFILE cacheFile, void* 
     uint32_t written = 0;
 
     for (uint32_t i = 0; i < CGUIMacros::m_numMacros[set]; i++) {
-        MACRONODE* macro = s_macros.Ptr(CGUIMacros::m_sortedMacros[36 * set + i], HASHKEY_NONE());
+        MACRONODE* macro = s_macros.Ptr(CGUIMacros::m_sortedMacros[MAX_ACCOUNT_MACROS * set + i], HASHKEY_NONE());
         char text[1536];
         SStrPrintf(text, sizeof(text), "MACRO %d \"%s\" %s\r\n", macro->m_id, macro->m_name, macro->m_icon);
         const char* body = macro->m_body;
@@ -1136,7 +1137,7 @@ uint32_t CGUIMacros::CreateMacro(const char* name, const char* icon, const char*
         return 0;
     }
 
-    uint32_t type = perCharacter != 0;
+    uint32_t type = perCharacter ? MACRO_SET_CHARACTER : MACRO_SET_ACCOUNT;
 
     if (CGUIMacros::m_numMacros[type] >= s_maxMacros[type]) {
         return 0;
