@@ -146,6 +146,30 @@ enum ITEMSOUNDTYPE : int32_t {
     // ITEMSOUND_CLOSE = 3,
 };
 
+// Game sound-kit groups; 7..17 share SFX routing but have separate voice limits.
+// Names describe 3.3.5 tables/callers; original enum spelling is unknown.
+enum SI2_SOUND_GROUP : int32_t {
+    SI2_SOUND_GROUP_SFX = 0,
+    SI2_SOUND_GROUP_MUSIC = 1,
+    SI2_SOUND_GROUP_AMBIENCE = 2,
+    SI2_SOUND_GROUP_CINEMATIC = 3,
+    SI2_SOUND_GROUP_SCRIPT_SOUND = 4,
+    SI2_SOUND_GROUP_SCRIPT_MUSIC = 5,
+    SI2_SOUND_GROUP_RACIAL_CINEMATIC = 6,
+    SI2_SOUND_GROUP_VOCAL_ERROR = 7,
+    SI2_SOUND_GROUP_SPLASH = 8,
+    SI2_SOUND_GROUP_EXERTION = 9,
+    SI2_SOUND_GROUP_WEAPON_SWING = 10,
+    SI2_SOUND_GROUP_INJURY = 11,
+    SI2_SOUND_GROUP_PLAYER_INJURY = 12,
+    SI2_SOUND_GROUP_FOOTSTEP = 13,
+    SI2_SOUND_GROUP_IMPACT = 14,
+    SI2_SOUND_GROUP_MORE_AUDIBLE_EXERTION = 15,
+    SI2_SOUND_GROUP_MORE_AUDIBLE_INJURY = 16,
+    SI2_SOUND_GROUP_PLAYER_FOOTSTEP = 17,
+    SI2_SOUND_GROUP_COUNT = 18,
+};
+
 // Inferred from 3.3.5 playback/update dispatch; original enum spelling is unknown.
 enum SI2_SOUND_USAGE : int32_t {
     SI2_SOUND_USAGE_LOOPING = 0,

@@ -38,7 +38,7 @@ static int32_t Script_PlayMusic(lua_State* L) {
         lua_error(L);
     }
 
-    SI2::PlaySoundFile(lua_tolstring(L, 1, nullptr), 5);
+    SI2::PlaySoundFile(lua_tolstring(L, 1, nullptr), SI2_SOUND_GROUP_SCRIPT_MUSIC);
     lua_pushnumber(L, 1.0);
     return 1;
 }
@@ -51,7 +51,7 @@ static int32_t Script_PlaySoundFile(lua_State* L) {
         lua_error(L);
     }
 
-    SI2::PlaySoundFile(lua_tolstring(L, 1, nullptr), 4);
+    SI2::PlaySoundFile(lua_tolstring(L, 1, nullptr), SI2_SOUND_GROUP_SCRIPT_SOUND);
     lua_pushnumber(L, 1.0);
     return 1;
 }

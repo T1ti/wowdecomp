@@ -449,14 +449,14 @@ void SI2::AIMusicFinished(SESound* sound, void* param) {
 
 // VERIFY: 26708b3b manual
 // OFFSET: 0x004C9110
-int32_t SI2::PlaySoundFile(const char* filename, int32_t group) {
+int32_t SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
 
     if (!s_enableAllSound || !s_enableAllSound->m_intValue || CGGameUI::m_inMovie) {
         return 17;
     }
 
-    if (group == 5) {
+    if (group == SI2_SOUND_GROUP_SCRIPT_MUSIC) {
         static CVar* s_enableMusic = CVar::Lookup("Sound_EnableMusic");
 
         if (!s_enableMusic || !s_enableMusic->m_intValue) {
@@ -465,15 +465,15 @@ int32_t SI2::PlaySoundFile(const char* filename, int32_t group) {
     }
 
     SESound localSound;
-    SESound* sound = group == 5 ? &s_scriptMusic.m_sound : &localSound;
+    SESound* sound = group == SI2_SOUND_GROUP_SCRIPT_MUSIC ? &s_scriptMusic.m_sound : &localSound;
 
-    sound->Create2D(filename, group != 4, nullptr, nullptr, false, false, 0, group != 5 ? 128 : 100, 0xFFFFFFFF);
+    sound->Create2D(filename, group != SI2_SOUND_GROUP_SCRIPT_SOUND, nullptr, nullptr, false, false, 0, group != SI2_SOUND_GROUP_SCRIPT_MUSIC ? 128 : 100, 0xFFFFFFFF);
     sound->SetChannelGroup(SI2::s_channelGroupNames[group], true);
 
     SI2SoundUserData* userData = new (SMemAlloc(sizeof(SI2SoundUserData), __FILE__, __LINE__, 0)) SI2SoundUserData();
 
     if (userData) {
-        userData->m_name = group != 4 ? "<SCRIPT MUSIC>" : "<SCRIPT SOUND>";
+        userData->m_name = group != SI2_SOUND_GROUP_SCRIPT_SOUND ? "<SCRIPT MUSIC>" : "<SCRIPT SOUND>";
         userData->m_soundKitId = 0;
         sound->SetUserData(userData);
     }
@@ -482,7 +482,7 @@ int32_t SI2::PlaySoundFile(const char* filename, int32_t group) {
     sound->CompleteNonBlockingLoad();
     sound->Play();
 
-    if (sound->IsPlaying() && group == 5) {
+    if (sound->IsPlaying() && group == SI2_SOUND_GROUP_SCRIPT_MUSIC) {
         SI2::sm_bLuaMusicPlaying = 1;
         s_zoneMusic.Stop(0);
     }

@@ -176,13 +176,13 @@ void SE2SoundKitProperties::ResetToDefaults() {
 
 // VERIFY: 24efb61f manual
 // OFFSET: 0x004C5A20
-float SI2::GetChannelGroupVolume(int32_t group) {
+float SI2::GetChannelGroupVolume(SI2_SOUND_GROUP group) {
     return SE2::GetChannelGroupVolume(SI2::s_channelGroupNames[group]);
 }
 
 // VERIFY: e2c427b3 auto
 // OFFSET: 0x004C5A40
-void SI2::SetChannelGroupVolume(int32_t group, float volume) {
+void SI2::SetChannelGroupVolume(SI2_SOUND_GROUP group, float volume) {
     SE2::SetChannelGroupVolume(SI2::s_channelGroupNames[group], volume);
 }
 
@@ -1184,7 +1184,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             }
 
             printf("----------playing...\n");
-            SI2::PlaySoundFile("Data\\Alert.mp3", 4);
+            SI2::PlaySoundFile("Data\\Alert.mp3", SI2_SOUND_GROUP_SCRIPT_SOUND);
             s_chaosTimer = 0.0f;
             break;
 

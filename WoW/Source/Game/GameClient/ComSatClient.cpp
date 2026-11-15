@@ -348,21 +348,21 @@ static void ResetVoiceVolumeState() {
 
     if (s_cvarSoundSFXVolume) {
         s_sfxVolumeBase = s_cvarSoundSFXVolume->m_floatValue;
-        SI2::SetChannelGroupVolume(0, s_sfxVolumeBase);
+        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_SFX, s_sfxVolumeBase);
     } else {
         s_sfxVolumeBase = 0.0f;
     }
 
     if (s_cvarSoundMusicVolume) {
         s_musicVolumeBase = s_cvarSoundMusicVolume->m_floatValue;
-        SI2::SetChannelGroupVolume(1, s_musicVolumeBase);
+        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC, s_musicVolumeBase);
     } else {
         s_musicVolumeBase = 0.0f;
     }
 
     if (s_cvarSoundAmbienceVolume) {
         s_ambienceVolumeBase = s_cvarSoundAmbienceVolume->m_floatValue;
-        SI2::SetChannelGroupVolume(2, s_ambienceVolumeBase);
+        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE, s_ambienceVolumeBase);
     } else {
         s_ambienceVolumeBase = 0.0f;
     }
@@ -1276,9 +1276,9 @@ static void InitSoundGroupFadeRates() {
     s_voiceFadeDelayRate = 0.0f == delay ? 0.0f : 1.0f / delay;
     float time = s_cvarStartTalkingTime ? s_cvarStartTalkingTime->m_floatValue : 0.2f;
     s_voiceFadeRate = 0.0f != time ? 1.0f / time : 0.0f;
-    s_sfxVolumeBase = SI2::GetChannelGroupVolume(0);
-    s_musicVolumeBase = SI2::GetChannelGroupVolume(1);
-    s_ambienceVolumeBase = SI2::GetChannelGroupVolume(2);
+    s_sfxVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_SFX);
+    s_musicVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC);
+    s_ambienceVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE);
 
     if (s_cvarSoundSFXVolume && s_cvarChatSoundVolume) {
         s_sfxVolumeDelta = s_cvarChatSoundVolume->m_floatValue * s_cvarSoundSFXVolume->m_floatValue - s_sfxVolumeBase;
@@ -1306,9 +1306,9 @@ static void UpdateSoundGroupFadeRates() {
     s_voiceFadeDelayRate = 0.0f == delay ? 0.0f : 1.0f / delay;
     float time = s_cvarStopTalkingTime ? s_cvarStopTalkingTime->m_floatValue : 3.0f;
     s_voiceFadeRate = 0.0f != time ? 1.0f / time : 0.0f;
-    s_sfxVolumeBase = SI2::GetChannelGroupVolume(0);
-    s_musicVolumeBase = SI2::GetChannelGroupVolume(1);
-    s_ambienceVolumeBase = SI2::GetChannelGroupVolume(2);
+    s_sfxVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_SFX);
+    s_musicVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC);
+    s_ambienceVolumeBase = SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE);
 
     if (s_cvarSoundSFXVolume) {
         s_sfxVolumeDelta = s_cvarSoundSFXVolume->m_floatValue - s_sfxVolumeBase;
@@ -1454,24 +1454,24 @@ static void ApplySoundGroupFade(uint32_t time) {
                 if (s_cvarSoundSFXVolume && s_cvarChatSoundVolume) {
                     float volume = s_cvarChatSoundVolume->m_floatValue * s_cvarSoundSFXVolume->m_floatValue;
 
-                    if (volume != SI2::GetChannelGroupVolume(0)) {
-                        SI2::SetChannelGroupVolume(0, s_cvarChatSoundVolume->m_floatValue * s_cvarSoundSFXVolume->m_floatValue);
+                    if (volume != SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_SFX)) {
+                        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_SFX, s_cvarChatSoundVolume->m_floatValue * s_cvarSoundSFXVolume->m_floatValue);
                     }
                 }
 
                 if (s_cvarSoundMusicVolume && s_cvarChatMusicVolume) {
                     float volume = s_cvarChatMusicVolume->m_floatValue * s_cvarSoundMusicVolume->m_floatValue;
 
-                    if (volume != SI2::GetChannelGroupVolume(1)) {
-                        SI2::SetChannelGroupVolume(1, s_cvarChatMusicVolume->m_floatValue * s_cvarSoundMusicVolume->m_floatValue);
+                    if (volume != SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC)) {
+                        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC, s_cvarChatMusicVolume->m_floatValue * s_cvarSoundMusicVolume->m_floatValue);
                     }
                 }
 
                 if (s_cvarSoundAmbienceVolume && s_cvarChatAmbienceVolume) {
                     float volume = s_cvarChatAmbienceVolume->m_floatValue * s_cvarSoundAmbienceVolume->m_floatValue;
 
-                    if (volume != SI2::GetChannelGroupVolume(2)) {
-                        SI2::SetChannelGroupVolume(2, s_cvarChatAmbienceVolume->m_floatValue * s_cvarSoundAmbienceVolume->m_floatValue);
+                    if (volume != SI2::GetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE)) {
+                        SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE, s_cvarChatAmbienceVolume->m_floatValue * s_cvarSoundAmbienceVolume->m_floatValue);
                     }
                 }
             }
@@ -1484,9 +1484,9 @@ static void ApplySoundGroupFade(uint32_t time) {
                 s_voiceFadeStartTime = 0.0f;
             }
 
-            SI2::SetChannelGroupVolume(0, fade * s_sfxVolumeDelta + s_sfxVolumeBase);
-            SI2::SetChannelGroupVolume(1, s_musicVolumeDelta * fade + s_musicVolumeBase);
-            SI2::SetChannelGroupVolume(2, s_ambienceVolumeDelta * fade + s_ambienceVolumeBase);
+            SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_SFX, fade * s_sfxVolumeDelta + s_sfxVolumeBase);
+            SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_MUSIC, s_musicVolumeDelta * fade + s_musicVolumeBase);
+            SI2::SetChannelGroupVolume(SI2_SOUND_GROUP_AMBIENCE, s_ambienceVolumeDelta * fade + s_ambienceVolumeBase);
         }
     } else if (s_voiceFadeDelayRate * (now - s_voiceFadeStartTime) >= 1.0) {
         s_voiceFadeDelayRate = 0.0f;

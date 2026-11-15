@@ -173,7 +173,7 @@ class SI2 {
     static void FreeWorldStateZoneSoundOverrides();
     static void FreeZoneIntros();
     static void FreeZoneSoundOverrides();
-    static float GetChannelGroupVolume(int32_t group);
+    static float GetChannelGroupVolume(SI2_SOUND_GROUP group);
     static int32_t GetDesiredAmbienceKitID(ZONE_SOUND_TYPE* type);
     static int32_t GetDesiredMusicKitID(ZONE_SOUND_TYPE* type, int32_t* silenceMin, int32_t* silenceMax);
     static bool GetInputDriverName(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
@@ -228,7 +228,7 @@ class SI2 {
     static int32_t PlayMissedSound(bool oneHand, const C3Vector* position, int32_t self);
     static void PlayParrySound(const CGUnitVirtualItem* weapon, const CGUnitVirtualItem* defender, int32_t crit, const C3Vector* position, int32_t self);
     static int32_t PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, const C3Vector* position, int32_t self);
-    static int32_t PlaySoundFile(const char* filename, int32_t group);
+    static int32_t PlaySoundFile(const char* filename, SI2_SOUND_GROUP group);
     static int32_t PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties);
     static void PlayVocalErrorSound(int32_t error);
     static void PlaySpellFizzleSound(uint32_t spellId, const void* object);
@@ -244,7 +244,7 @@ class SI2 {
     static int32_t ResetSoundKitVariants(const char* name);
     static int32_t Set3DPosition(SE2SoundKitObject* object, const C3Vector* position);
     static void SetAdvancedSoundPosition(uint32_t id, const C3Vector* position);
-    static void SetChannelGroupVolume(int32_t group, float volume);
+    static void SetChannelGroupVolume(SI2_SOUND_GROUP group, float volume);
     static int32_t SetListenerAttributes(const C3Vector* position, const C3Vector* forward, const C3Vector* up, const C3Vector* velocity);
     static void OverrideZoneSounds();
     static void SetOverrideZoneSounds(int32_t soundAmbienceId, int32_t zoneMusicId);
