@@ -618,7 +618,7 @@ int32_t CGActionBar::HasAction(uint32_t slot) {
         return action != 0;
     }
 
-    PetAction* petAction = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
+    PetAction* petAction = GetPetAction((slot - CGActionBar::TEMP_ACTION_FIRST) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
     if (!petAction || !petAction->m_data) {
         return 0;
@@ -850,7 +850,7 @@ const char* CGActionBar::GetTexture(int32_t slot) {
         return nullptr;
     }
 
-    PetAction* action = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
+    PetAction* action = GetPetAction((slot - CGActionBar::TEMP_ACTION_FIRST) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
     if (!action || !action->m_data) {
         return nullptr;
@@ -913,7 +913,7 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
     int32_t petSpell;
 
     if (CGActionBar::IsPetAction(slot)) {
-        PetAction* action = GetPetAction((slot - 120) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
+        PetAction* action = GetPetAction((slot - CGActionBar::TEMP_ACTION_FIRST) & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX);
 
         if (!action || !action->m_data) {
             return 0;
@@ -1313,7 +1313,7 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
         return;
     }
 
-    if (!CGUIBindings::s_bindings->m_keyStateOverride && (slot < 120 || slot >= CGActionBar::MULTICAST_ACTION_FIRST) && (CGGameUI::GetCursorSpell() || CGGameUI::GetCursorItem() || CGGameUI::m_cursorMacro || CGGameUI::GetCursorVirtualItemOfType(UICURSOR_ACTIONBAR) || CGGameUI::m_cursorEquipmentSet >= 0)) {
+    if (!CGUIBindings::s_bindings->m_keyStateOverride && (slot < CGActionBar::TEMP_ACTION_FIRST || slot >= CGActionBar::MULTICAST_ACTION_FIRST) && (CGGameUI::GetCursorSpell() || CGGameUI::GetCursorItem() || CGGameUI::m_cursorMacro || CGGameUI::GetCursorVirtualItemOfType(UICURSOR_ACTIONBAR) || CGGameUI::m_cursorEquipmentSet >= 0)) {
         CGActionBar::PutActionInSlot(slot);
         return;
     }
@@ -1757,8 +1757,8 @@ void CGActionBar::UpdateTemporaryActionBar(int32_t (*getSpell)(uint32_t index, c
         return;
     }
 
-    for (uint32_t i = 0; i < 12; i++) {
-        CGActionBar::SetAction(i + 120, getSpell(i, data), 0, 0);
+    for (uint32_t i = 0; i < CGActionBar::NUM_TEMP_ACTION_SLOTS; i++) {
+        CGActionBar::SetAction(i + CGActionBar::TEMP_ACTION_FIRST, getSpell(i, data), 0, 0);
     }
 }
 

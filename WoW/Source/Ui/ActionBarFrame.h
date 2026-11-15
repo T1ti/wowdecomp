@@ -22,6 +22,9 @@ class CGActionBar {
         TEMP_PAGE_OVERRIDE_SPELLS = 0x4,
     };
 
+    // Temporary page (pet, possess, vehicle, shapeshift override) filled by UpdateTemporaryActionBar.
+    static constexpr int32_t TEMP_ACTION_FIRST = 120;
+    static constexpr int32_t NUM_TEMP_ACTION_SLOTS = 12;
     static constexpr int32_t MULTICAST_ACTION_FIRST = 132;
     static constexpr int32_t NUM_MULTICAST_ACTION_SLOTS = 12;
     static constexpr int32_t NUM_ACTION_SLOTS = 144;

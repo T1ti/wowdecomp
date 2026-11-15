@@ -943,7 +943,7 @@ int32_t Packet_SMSG_PET_RENAMEABLE(void* param, NETMESSAGE msgId, uint32_t time,
 // VERIFY: 2c74fc11 manual
 // OFFSET: 0x005D3240
 static int32_t PetTempActionBarCallback(uint32_t index, const void* data) {
-    return index < NUM_PET_ACTION_SLOTS ? index | 0x10000000 : 0;
+    return index < NUM_PET_ACTION_SLOTS ? index | CGActionBar::ACTION_TAG_PET_ACTION : 0;
 }
 
 // VERIFY: adc6dd8d auto

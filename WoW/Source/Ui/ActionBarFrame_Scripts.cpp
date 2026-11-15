@@ -303,7 +303,7 @@ static int32_t Script_PlaceAction(lua_State* L) {
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot >= 120 && static_cast<uint32_t>(slot) < CGActionBar::MULTICAST_ACTION_FIRST) {
+    if (slot >= CGActionBar::TEMP_ACTION_FIRST && static_cast<uint32_t>(slot) < CGActionBar::MULTICAST_ACTION_FIRST) {
         return 0;
     }
 
