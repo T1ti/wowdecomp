@@ -1308,11 +1308,11 @@ int32_t CGSpellBook::GetCompanionType(const SpellRec* spell) {
 int32_t CGSpellBook::GetSkinningSpell(const CGObject_C* object) {
     uint32_t type = object->m_obj->m_type;
 
-    if (type & 0x90) {
+    if (type & (TYPE_PLAYER | TYPE_CORPSE)) {
         return s_skinPlayerCorpseSpell;
     }
 
-    if (type & 0x8) {
+    if (type & TYPE_UNIT) {
         return s_skinningSpells[static_cast<const CGUnit_C*>(object)->GetSkinningType()];
     }
 
