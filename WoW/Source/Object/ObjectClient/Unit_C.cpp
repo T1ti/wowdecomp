@@ -12974,6 +12974,15 @@ BOOL CGUnit_C::HandleMonsterMovePacket(void* param, NETMESSAGE msgId, uint32_t t
     return TRUE;
 }
 
+// Monster move facing/stop selector read after the start position (inferred from its handlers).
+enum MONSTER_MOVE_TYPE : uint8_t {
+    MONSTER_MOVE_NORMAL = 0,
+    MONSTER_MOVE_STOP = 1, // No path; snaps when already within s_cvPathingDistTolerance.
+    MONSTER_MOVE_FACE_POINT = 2,
+    MONSTER_MOVE_FACE_TARGET = 3,
+    MONSTER_MOVE_FACE_ANGLE = 4,
+};
+
 // VERIFY: 6e6a311e manual
 // OFFSET: 0x0073C8E0
 void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transport, uint8_t seat, int32_t flush) {
@@ -13004,7 +13013,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     float faceAngle = 0.0f;
 
     switch (faceType) {
-        case 1: {
+        case MONSTER_MOVE_STOP: {
             C3Vector position = this->GetRawPosition();
 
             if (CGUnit_C::s_cvPathingDistTolerance->m_floatValue * CGUnit_C::s_cvPathingDistTolerance->m_floatValue > (start.x - position.x) * (start.x - position.x) + (start.y - position.y) * (start.y - position.y) + (start.z - position.z) * (start.z - position.z)) {
@@ -13015,13 +13024,13 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
 
             break;
         }
-        case 2:
+        case MONSTER_MOVE_FACE_POINT:
             *msg >> facePoint;
             break;
-        case 3:
+        case MONSTER_MOVE_FACE_TARGET:
             msg->Get(faceTarget.m_guid);
             break;
-        case 4:
+        case MONSTER_MOVE_FACE_ANGLE:
             msg->Get(faceAngle);
             break;
     }
@@ -13034,21 +13043,21 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     uint32_t splineFlags;
     uint32_t waypoints;
 
-    if (faceType == 1) {
+    if (faceType == MONSTER_MOVE_STOP) {
         duration = 0;
-        splineFlags = 0x1000;
+        splineFlags = SPLINEFLAG_CAN_SWIM;
         waypoints = 1;
     } else {
         msg->Get(splineFlags);
 
-        if (splineFlags & 0x200000) {
+        if (splineFlags & SPLINEFLAG_ANIMATION) {
             msg->Get(animType);
             msg->Get(animStart);
         }
 
         msg->Get(duration);
 
-        if (splineFlags & 0x800) {
+        if (splineFlags & SPLINEFLAG_PARABOLIC) {
             msg->Get(verticalAcceleration);
             msg->Get(parabolicStart);
         }
@@ -13064,7 +13073,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     direction.y = sinf(facing);
     uint32_t pointCount;
 
-    if (faceType == 1) {
+    if (faceType == MONSTER_MOVE_STOP) {
         C3Vector position = this->GetRawPosition();
         points[0] = position - direction;
         points[1] = position;
@@ -13072,7 +13081,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
         points[3] = start;
         end = start;
         pointCount = 4;
-    } else if (!(splineFlags & 0x42000)) {
+    } else if (!(splineFlags & (SPLINEFLAG_FLYING | SPLINEFLAG_CATMULLROM))) {
         *msg >> end;
         C3Vector* path = &points[2];
         path[0] = start;
@@ -13132,7 +13141,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
             count++;
         }
 
-        if (splineFlags & 0x80000) {
+        if (splineFlags & SPLINEFLAG_CYCLIC) {
             points[count] = points[2];
             count++;
             points[count] = points[3];
@@ -13161,7 +13170,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
                 speed = 28.0f;
             }
 
-            if (splineFlags & 0x42000) {
+            if (splineFlags & (SPLINEFLAG_FLYING | SPLINEFLAG_CATMULLROM)) {
                 speed = 50.0f;
             }
 
@@ -13179,20 +13188,20 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
 
                 if (this->m_movementData.OnSpline(points, pointCount, duration, splineFlags, splineId)) {
                     switch (faceType) {
-                        case 2:
+                        case MONSTER_MOVE_FACE_POINT:
                             this->m_movementData.SetSplineFacePoint(facePoint);
                             break;
-                        case 3:
+                        case MONSTER_MOVE_FACE_TARGET:
                             this->m_movementData.SetSplineFaceTarget(faceTarget);
                             break;
-                        case 4:
+                        case MONSTER_MOVE_FACE_ANGLE:
                             this->m_movementData.SetSplineFaceAngle(faceAngle);
                             break;
                     }
 
-                    if (splineFlags & 0x800) {
+                    if (splineFlags & SPLINEFLAG_PARABOLIC) {
                         this->m_movementData.SetSplineParabolic(verticalAcceleration, parabolicStart);
-                    } else if (splineFlags & 0x200000) {
+                    } else if (splineFlags & SPLINEFLAG_ANIMATION) {
                         if ((this->m_animTier == ANIM_TIER_FLY && (animType == 0 || animType == 2)) || (this->m_animTier == ANIM_TIER_HOVER && animType == 0)) {
                             M2SequenceInfo info;
                             info.Clear();
