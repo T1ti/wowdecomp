@@ -18,6 +18,8 @@ enum LOCK_KEY_TYPE : int32_t {
 // Lock.dbc action IDs as tested by CGGameObject_C::IsValidOpenAction.
 // Action 4 requires the destroyed display state; its meaning is unresolved.
 enum LOCK_ACTION : int32_t {
+    // Local search sentinel; IsValidOpenAction keeps its native fallback.
+    LOCK_ACTION_NOT_FOUND = -1,
     LOCK_ACTION_OPEN = 0,
     LOCK_ACTION_UNLOCK = 1,
     LOCK_ACTION_CLOSE = 2,
@@ -34,10 +36,10 @@ class LockRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_type [NUM_LOCK_KEYS]; // LOCK_KEY_TYPE
+    /* 0004 */ LOCK_KEY_TYPE m_type [NUM_LOCK_KEYS];
     /* 0024 */ int32_t m_index [NUM_LOCK_KEYS];
     /* 0044 */ int32_t m_skill [NUM_LOCK_KEYS];
-    /* 0064 */ int32_t m_action [NUM_LOCK_KEYS];
+    /* 0064 */ LOCK_ACTION m_action [NUM_LOCK_KEYS];
 
     LockRec();
     ~LockRec();

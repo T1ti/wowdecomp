@@ -663,7 +663,7 @@ bool CGGameObject_C::IsTransport() const {
 
 // VERIFY: da4967fc manual
 // OFFSET: 0x0070EF90
-bool CGGameObject_C::IsValidOpenAction(int32_t action) const {
+bool CGGameObject_C::IsValidOpenAction(LOCK_ACTION action) const {
     if (action == LOCK_ACTION_UNKNOWN_4) {
         return this->m_displayState == GAMEOBJECT_DISPLAY_STATE_DESTROYED;
     }
@@ -3652,7 +3652,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
     bool locked = false;
 
     for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
-        int32_t type = lock->m_type[i];
+        LOCK_KEY_TYPE type = lock->m_type[i];
 
         if (!type) {
             continue;

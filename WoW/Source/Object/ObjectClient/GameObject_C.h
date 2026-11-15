@@ -25,6 +25,8 @@ static const float MAX_OBJ_INTEREST_RADIUS = 100.0f;
 static const float MAX_SITCHAIRUSE_DISTANCE = 3.0f;
 static const float MAX_SITCHAIR_DISTANCE_SQUARED = 0.16666667f;
 
+enum LOCK_ACTION : int32_t;
+
 class SpellRec;
 class CMapBaseObj;
 class CDataStore;
@@ -392,7 +394,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     uint32_t GetPropertyValue(uint32_t propertyIndex) const;
     int32_t GetPageTextMaterial() const;
     int32_t GetPageTextLanguage() const;
-    bool IsValidOpenAction(int32_t action) const;
+    bool IsValidOpenAction(LOCK_ACTION action) const;
     void LoadBaseObject(GameObjectStats_C* stats);
     void PlayCustomAnim(uint32_t anim);
     void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);

@@ -2453,7 +2453,7 @@ static int32_t Script_UnitCastingInfo(lua_State* L) {
 
                 for (uint32_t j = 0; j < NUM_LOCK_KEYS; j++) {
                     if (lock->m_type[j] == LOCK_KEY_SKILL && spell.m_effectMiscValue[i] == lock->m_index[j]) {
-                        int32_t action = lock->m_action[j];
+                        LOCK_ACTION action = lock->m_action[j];
 
                         if (action >= 0) {
                             if (action <= LOCK_ACTION_UNLOCK) {

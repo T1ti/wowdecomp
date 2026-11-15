@@ -4249,7 +4249,7 @@ static void AddItemLockLines(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
     tooltip->AddLine(text, nullptr, lockColor, lockColor, 0);
 
     for (uint32_t i = 0; i < NUM_LOCK_KEYS; i++) {
-        int32_t type = lock->m_type[i];
+        LOCK_KEY_TYPE type = lock->m_type[i];
 
         if (type == LOCK_KEY_SKILL) {
             int32_t skillSpell = 0;

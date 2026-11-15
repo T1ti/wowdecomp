@@ -1311,7 +1311,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
     SpellRec spell;
 
     for (int32_t i = 0; i < NUM_LOCK_KEYS; i++) {
-        int32_t type = lock->m_type[i];
+        LOCK_KEY_TYPE type = lock->m_type[i];
 
         if (!type) {
             continue;

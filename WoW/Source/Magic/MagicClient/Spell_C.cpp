@@ -2261,7 +2261,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 player->OnLootGameObject(hits.m_data[0]);
             }
 
-            int32_t action = -1;
+            LOCK_ACTION action = LOCK_ACTION_NOT_FOUND;
             LockRec* lock = gameObject->GetLockRec();
 
             if (!lock) {
