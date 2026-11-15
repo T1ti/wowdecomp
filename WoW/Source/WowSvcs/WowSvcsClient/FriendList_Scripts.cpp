@@ -60,7 +60,7 @@ static int32_t Script_GetNumFriends(lua_State* L) {
     uint32_t count = list->GetNumFriends();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i <= 100 && list->m_friends[i].m_connected) {
+        if (i <= FriendList::MAX_FRIENDS && list->m_friends[i].m_connected) {
             online++;
         }
     }
@@ -173,7 +173,7 @@ static int32_t Script_GetFriendInfo(lua_State* L) {
 
     if (lua_isnumber(L, 1)) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-        info = index <= 100 ? &FriendList::s_friendList->m_friends[index] : nullptr;
+        info = index <= FriendList::MAX_FRIENDS ? &FriendList::s_friendList->m_friends[index] : nullptr;
     } else {
         info = FriendList::s_friendList->GetFriendInfoByName(lua_tolstring(L, 1, nullptr));
     }
@@ -261,7 +261,7 @@ static int32_t Script_SetSelectedFriend(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     FriendList* list = FriendList::s_friendList;
 
-    if (index <= 100) {
+    if (index <= FriendList::MAX_FRIENDS) {
         list->m_selectedFriend = list->m_friends[index].m_guid;
     } else {
         list->m_selectedFriend = WOWGUID();
@@ -300,7 +300,7 @@ static int32_t Script_GetIgnoreName(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     NameCache* record;
 
-    if (index <= 50 && FriendList::s_friendList->m_ignores[index].m_guid) {
+    if (index <= FriendList::MAX_IGNORES && FriendList::s_friendList->m_ignores[index].m_guid) {
         WOWGUID none = WOWGUID();
 
         if ((record = g_nameDBCache.GetRecord(FriendList::s_friendList->m_ignores[index].m_guid.m_guid, none, nullptr, nullptr, false))) {
@@ -332,7 +332,7 @@ static int32_t Script_GetMuteName(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     NameCache* record;
 
-    if (index <= 50 && FriendList::s_friendList->m_mutes[index].m_guid) {
+    if (index <= FriendList::MAX_MUTES && FriendList::s_friendList->m_mutes[index].m_guid) {
         WOWGUID none = WOWGUID();
 
         if ((record = g_nameDBCache.GetRecord(FriendList::s_friendList->m_mutes[index].m_guid.m_guid, none, nullptr, nullptr, false))) {
@@ -364,7 +364,7 @@ static int32_t Script_SetSelectedIgnore(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     FriendList* list = FriendList::s_friendList;
 
-    if (index <= 50) {
+    if (index <= FriendList::MAX_IGNORES) {
         list->m_selectedIgnore = list->m_ignores[index].m_guid;
     } else {
         list->m_selectedIgnore = WOWGUID();
@@ -384,7 +384,7 @@ static int32_t Script_SetSelectedMute(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     FriendList* list = FriendList::s_friendList;
 
-    if (index <= 50) {
+    if (index <= FriendList::MAX_MUTES) {
         list->m_selectedMute = list->m_mutes[index].m_guid;
     } else {
         list->m_selectedMute = WOWGUID();
@@ -586,7 +586,7 @@ static int32_t Script_RemoveFriend(lua_State* L) {
     if (lua_isnumber(L, 1)) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-        if (index < 100) {
+        if (index < FriendList::MAX_FRIENDS) {
             WOWGUID guid = FriendList::s_friendList->m_friends[index].m_guid;
 
             if (guid) {
@@ -623,7 +623,7 @@ static int32_t Script_SetFriendNotes(lua_State* L) {
     if (lua_isnumber(L, 1)) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-        if (index < 100) {
+        if (index < FriendList::MAX_FRIENDS) {
             WOWGUID guid = FriendList::s_friendList->m_friends[index].m_guid;
 
             if (guid) {

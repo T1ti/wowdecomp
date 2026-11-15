@@ -106,23 +106,28 @@ struct WhoSortField {
 
 class FriendList {
     public:
+    static const int32_t MAX_FRIENDS = 100;
+    static const int32_t MAX_IGNORES = 50;
+    static const int32_t MAX_MUTES = 50;
+    static const int32_t MAX_WHO_RESULTS = 50;
+
     static void __stdcall AddFriend(const char* name, const char* note);
     static FriendList* s_friendList;
     static WhoSortField s_whoSort[NUM_WHO_SORT_TYPES];
     static uint32_t s_numWhoResults;
     static uint32_t s_totalWhoResults;
-    static WhoResult s_whoResults[50];
+    static WhoResult s_whoResults[MAX_WHO_RESULTS];
     static int32_t s_whoToUI;
 
-    /* 0000 */ FriendInfo m_friends[100];
+    /* 0000 */ FriendInfo m_friends[MAX_FRIENDS];
     /* D480 */ uint32_t m_pendingFriendNames;
     /* D484 */ uint32_t unused_D484;
     /* D488 */ WOWGUID m_selectedFriend;
-    /* D490 */ IgnoreInfo m_ignores[50];
+    /* D490 */ IgnoreInfo m_ignores[MAX_IGNORES];
     /* D7B0 */ uint32_t m_pendingIgnoreNames;
     /* D7B4 */ uint32_t unused_D7B4;
     /* D7B8 */ WOWGUID m_selectedIgnore;
-    /* D7C0 */ IgnoreInfo m_mutes[50];
+    /* D7C0 */ IgnoreInfo m_mutes[MAX_MUTES];
     /* DAE0 */ uint32_t m_pendingMuteNames;
     /* DAE4 */ uint32_t unused_DAE4;
     /* DAE8 */ WOWGUID m_selectedMute;
