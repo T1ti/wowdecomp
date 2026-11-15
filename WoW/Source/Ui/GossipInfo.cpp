@@ -22,7 +22,7 @@
 static const int32_t s_questGreenRange[20] = { 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 };
 
 // STATIC: 0x00BFC968
-GossipQuestInfo CGGossipInfo::s_quests[32];
+GossipQuestInfo CGGossipInfo::s_quests[NUMGOSSIPBUTTONS];
 
 // STATIC: 0x00C00BE8
 int32_t CGGossipInfo::s_textPending;
@@ -37,7 +37,7 @@ WOWGUID CGGossipInfo::s_gossip;
 uint32_t CGGossipInfo::s_gossipOptionsCount;
 
 // STATIC: 0x00C00BF0
-GossipOption CGGossipInfo::s_options[32];
+GossipOption CGGossipInfo::s_options[NUMGOSSIPBUTTONS];
 
 // STATIC: 0x00C00EF0
 char CGGossipInfo::s_gossipText[2048];
@@ -77,7 +77,7 @@ void CGGossipInfo::SetGossip(const WOWGUID& guid) {
 void CGGossipInfo::ClearOptions() {
     CGGossipInfo::s_gossipOptionsCount = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         GossipOption& option = CGGossipInfo::s_options[i];
 
         if (option.m_text) {
@@ -93,7 +93,7 @@ void CGGossipInfo::ClearOptions() {
         option.m_index = -1;
     }
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         CGGossipInfo::s_quests[i].m_questID = 0;
     }
 }
@@ -217,8 +217,8 @@ int32_t Packet_SMSG_GOSSIP_MESSAGE(void* param, NETMESSAGE msgId, uint32_t time,
     uint32_t count;
     msg->Get(count);
 
-    if (count > 32) {
-        count = 32;
+    if (count > NUMGOSSIPBUTTONS) {
+        count = NUMGOSSIPBUTTONS;
     }
 
     CGGossipInfo::s_gossipOptionsCount = count;
@@ -277,7 +277,7 @@ int32_t Packet_SMSG_GOSSIP_MESSAGE(void* param, NETMESSAGE msgId, uint32_t time,
 int32_t CGGossipInfo::GetNumAvailableQuests() {
     int32_t count = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         if (!CGGossipInfo::s_quests[i].m_questID) {
             break;
         }
@@ -295,7 +295,7 @@ int32_t CGGossipInfo::GetNumAvailableQuests() {
 GossipQuestInfo* CGGossipInfo::GetAvailableQuest(int32_t index) {
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         if (!CGGossipInfo::s_quests[i].m_questID) {
             return nullptr;
         }
@@ -317,7 +317,7 @@ GossipQuestInfo* CGGossipInfo::GetAvailableQuest(int32_t index) {
 int32_t CGGossipInfo::GetNumActiveQuests() {
     int32_t count = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         if (!CGGossipInfo::s_quests[i].m_questID) {
             break;
         }
@@ -335,7 +335,7 @@ int32_t CGGossipInfo::GetNumActiveQuests() {
 GossipQuestInfo* CGGossipInfo::GetActiveQuest(int32_t index) {
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         if (!CGGossipInfo::s_quests[i].m_questID) {
             return nullptr;
         }
@@ -367,7 +367,7 @@ int32_t CGQuestInfo::IsLowLevel(int32_t level) {
 // VERIFY: fd70ce48 manual
 // OFFSET: 0x0058AF10
 void CGGossipInfo::SelectGossipOption(int32_t index, const char* code, int32_t confirmed) {
-    if (CGGossipInfo::s_textPending || index < 0 || index >= 32) {
+    if (CGGossipInfo::s_textPending || index < 0 || index >= NUMGOSSIPBUTTONS) {
         return;
     }
 
@@ -415,7 +415,7 @@ void CGGossipInfo::SelectGossipOption(int32_t index, const char* code, int32_t c
 void CGGossipInfo::SelectGossipAvailableQuest(int32_t index) {
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         GossipQuestInfo& quest = CGGossipInfo::s_quests[i];
 
         if (!quest.m_questID) {
@@ -445,7 +445,7 @@ void CGGossipInfo::SelectGossipAvailableQuest(int32_t index) {
 void CGGossipInfo::SelectGossipActiveQuest(int32_t index) {
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 32; i++) {
+    for (uint32_t i = 0; i < NUMGOSSIPBUTTONS; i++) {
         GossipQuestInfo& quest = CGGossipInfo::s_quests[i];
 
         if (!quest.m_questID) {

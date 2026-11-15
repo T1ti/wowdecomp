@@ -25,6 +25,9 @@ struct GossipQuestInfo {
     /* 0014 */ char m_title[512];
 };
 
+// Gossip option and quest slots (FrameXML NUMGOSSIPBUTTONS).
+static const uint32_t NUMGOSSIPBUTTONS = 32;
+
 class CGGossipInfo {
     public:
     static int32_t GetNumAvailableQuests();
@@ -34,13 +37,13 @@ class CGGossipInfo {
     static void SelectGossipOption(int32_t index, const char* code, int32_t confirmed);
     static void SelectGossipAvailableQuest(int32_t index);
     static void SelectGossipActiveQuest(int32_t index);
-    static GossipQuestInfo s_quests[32];
+    static GossipQuestInfo s_quests[NUMGOSSIPBUTTONS];
     static int32_t s_textPending;
     static void ClearOptions();
     static void SetGossipText(int32_t textId);
     static uint32_t s_gossipID;
     static void SetGossip(const WOWGUID& guid);
-    static GossipOption s_options[32];
+    static GossipOption s_options[NUMGOSSIPBUTTONS];
     static char s_gossipText[2048];
     static void InitializeGame();
     static void ShutdownGame();
