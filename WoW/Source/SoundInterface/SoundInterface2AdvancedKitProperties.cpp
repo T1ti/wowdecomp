@@ -123,7 +123,7 @@ int32_t SI2AdvancedSound::Play() {
 
 // VERIFY: 762dbd2f manual
 // OFFSET: 0x004C9FE0
-static float GetDuckVolume(int32_t group, SI2AdvancedSound* exclude) {
+static float GetDuckVolume(SI2_DUCK_CATEGORY group, SI2AdvancedSound* exclude) {
     float volume = 1.0f;
 
     for (SuppressorSound* node = s_suppressorSounds.Head(); node; node = s_suppressorSounds.Next(node)) {
