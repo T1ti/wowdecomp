@@ -30,7 +30,7 @@ class ChatChannelsRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags; // CHAT_CHANNEL_FLAGS
+    /* 0004 */ CHAT_CHANNEL_FLAGS m_flags;
     /* 0008 */ int32_t m_factionGroup;
     /* 000C */ const char* m_name;
     /* 0010 */ const char* m_shortcut;
