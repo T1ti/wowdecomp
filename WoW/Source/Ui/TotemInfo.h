@@ -5,6 +5,9 @@
 #include <cstdint>
 #include "WoW/Source/Object/WGUID.h"
 
+// FrameXML MAX_TOTEMS.
+constexpr uint32_t MAX_TOTEMS = 4;
+
 class TotemInfo {
     public:
     /* 0000 */ int32_t m_slot;

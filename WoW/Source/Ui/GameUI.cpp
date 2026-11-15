@@ -1165,7 +1165,7 @@ uint16_t CGGameUI::m_accountDataGeneration;
 int32_t CGGameUI::unused_BD08CC;
 
 // STATIC: 0x00BD0B00
-TotemInfo CGGameUI::m_totems[4];
+TotemInfo CGGameUI::m_totems[MAX_TOTEMS];
 
 // STATIC: 0x00BD0B80
 MirrorTimerInfo CGGameUI::m_mirrorTimerInfo[NUM_UNIT_MIRROR_TIMERS];
@@ -1953,7 +1953,7 @@ void CGGameUI::InitializeGame() {
     CGGameUI::m_comboTarget = WOWGUID();
     CGGameUI::m_comboPoints = 0;
 
-    for (int32_t i = 0; i < 4; i++) {
+    for (int32_t i = 0; i < MAX_TOTEMS; i++) {
         TotemInfo& totem = CGGameUI::m_totems[i];
         totem.m_slot = i;
         totem.m_guid = WOWGUID();
@@ -4040,7 +4040,7 @@ void CGGameUI::SetFocusTarget(const WOWGUID& guid) {
 // VERIFY: 1538eb25 manual
 // OFFSET: 0x005197D0
 void CGGameUI::DestroyTotem(int32_t slot) {
-    if (static_cast<uint32_t>(slot) > 3) {
+    if (static_cast<uint32_t>(slot) >= MAX_TOTEMS) {
         return;
     }
 
@@ -4620,7 +4620,7 @@ void CGGameUI::SignalUnitCombat(const WOWGUID& guid, const char* action, int32_t
 // VERIFY: d84ea422 manual
 // OFFSET: 0x00513990
 TotemInfo* CGGameUI::GetTotemInfo(uint32_t slot) {
-    if (slot > 3) {
+    if (slot >= MAX_TOTEMS) {
         return nullptr;
     }
 
@@ -4634,7 +4634,7 @@ TotemInfo* CGGameUI::GetTotemInfo(WOWGUID guid) {
         return nullptr;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < MAX_TOTEMS; i++) {
         if (CGGameUI::m_totems[i].m_guid == guid) {
             return &CGGameUI::m_totems[i];
         }

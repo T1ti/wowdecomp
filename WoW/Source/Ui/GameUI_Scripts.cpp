@@ -1242,8 +1242,8 @@ static int32_t Script_TargetTotem(lua_State* L) {
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 3) {
-        luaL_error(L, "Totem slot must be in range of 1 to %d", 4);
+    if (slot >= MAX_TOTEMS) {
+        luaL_error(L, "Totem slot must be in range of 1 to %d", MAX_TOTEMS);
         return 0;
     }
 
@@ -2159,8 +2159,8 @@ static int32_t Script_DestroyTotem(lua_State* L) {
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (slot < 1 || slot > 4) {
-        luaL_error(L, "Totem slot must be in range of 1 to %d", 4);
+    if (slot < 1 || slot > MAX_TOTEMS) {
+        luaL_error(L, "Totem slot must be in range of 1 to %d", MAX_TOTEMS);
         return 0;
     }
 
@@ -2324,8 +2324,8 @@ static int32_t Script_GetTotemInfo(lua_State* L) {
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 3) {
-        luaL_error(L, "Totem slot must be in range of 1 to %d", 4);
+    if (slot >= MAX_TOTEMS) {
+        luaL_error(L, "Totem slot must be in range of 1 to %d", MAX_TOTEMS);
         return 0;
     }
 
@@ -2722,8 +2722,8 @@ static int32_t Script_GetTotemTimeLeft(lua_State* L) {
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 3) {
-        luaL_error(L, "Totem slot must be in range of 1 to %d", 4);
+    if (slot >= MAX_TOTEMS) {
+        luaL_error(L, "Totem slot must be in range of 1 to %d", MAX_TOTEMS);
         return 0;
     }
 

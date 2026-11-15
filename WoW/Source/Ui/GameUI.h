@@ -243,7 +243,7 @@ class CGGameUI {
     static uint32_t m_lastRegenTime;
     static WOWGUID m_comboTarget;
     static uint16_t m_accountDataGeneration;
-    static TotemInfo m_totems[4];
+    static TotemInfo m_totems[MAX_TOTEMS];
     static MirrorTimerInfo m_mirrorTimerInfo[NUM_UNIT_MIRROR_TIMERS];
     static MirrorTimerInfo* MirrorTimerGetInfo(uint32_t index);
     static uint32_t GetInstanceDifficulty();
