@@ -455,7 +455,7 @@ void CGLookingForGroup::InitializeGame() {
     CGLookingForGroup::m_proposal.m_completedMask = 0;
     CGLookingForGroup::m_proposal.m_silent = 0;
     memset(CGLookingForGroup::m_proposal.m_members, 0, sizeof(CGLookingForGroup::m_proposal.m_members));
-    CGLookingForGroup::m_roleCheckState = 0;
+    CGLookingForGroup::m_roleCheckState = CGLookingForGroup::ROLE_CHECK_NONE;
     CGLookingForGroup::m_roleCheckSlots.m_count = 0;
     CGLookingForGroup::m_roleCheckMembers.m_count = 0;
 
@@ -952,14 +952,14 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
 
             FrameScript_SignalEvent(SCRIPT_EVENT_LFG_ROLE_CHECK_UPDATE, nullptr);
 
-            if (!CGLookingForGroup::m_roleCheckMembers.m_data[localIndex].m_confirmed && CGLookingForGroup::m_roleCheckState == 2) {
+            if (!CGLookingForGroup::m_roleCheckMembers.m_data[localIndex].m_confirmed && CGLookingForGroup::m_roleCheckState == CGLookingForGroup::ROLE_CHECK_IN_PROGRESS) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_LFG_ROLE_CHECK_SHOW, nullptr);
-            } else if (CGLookingForGroup::m_roleCheckState == 5) {
+            } else if (CGLookingForGroup::m_roleCheckState == CGLookingForGroup::ROLE_CHECK_ABORTED) {
                 SI2::PlayUISound(0x43BD);
                 CGGameUI::DisplayError(ERR_LFG_ROLE_CHECK_ABORTED);
                 FrameScript_SignalEvent(SCRIPT_EVENT_LFG_ROLE_CHECK_HIDE, nullptr);
             } else {
-                if (CGLookingForGroup::m_roleCheckState == 6) {
+                if (CGLookingForGroup::m_roleCheckState == CGLookingForGroup::ROLE_CHECK_UNKNOWN_6) {
                     SI2::PlayUISound(0x43BD);
                 }
 

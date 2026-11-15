@@ -211,7 +211,15 @@ class CGLookingForGroup {
     static LFGPartyLockInfo m_partyLockInfo;
     static LFGRewardInfo m_reward;
     static LFGQueueStatus m_queueStatus;
-    static int32_t m_roleCheckState;
+    // Role check state from SMSG_LFG_ROLE_CHECK_UPDATE (names inferred from the client's reactions).
+    enum ROLE_CHECK_STATE : int32_t {
+        ROLE_CHECK_NONE = 0,
+        ROLE_CHECK_IN_PROGRESS = 2, // GetLFGRoleUpdate reports it as in progress; unconfirmed members get LFG_ROLE_CHECK_SHOW.
+        ROLE_CHECK_ABORTED = 5, // ERR_LFG_ROLE_CHECK_ABORTED.
+        ROLE_CHECK_UNKNOWN_6 = 6, // Plays the same failure sound as ROLE_CHECK_ABORTED, without the error text.
+    };
+
+    static int32_t m_roleCheckState; // ROLE_CHECK_STATE
     static TSGrowableArray<uint32_t> m_roleCheckSlots;
     static TSGrowableArray<LFGRoleCheckMember> m_roleCheckMembers;
     static void EnterWorld();

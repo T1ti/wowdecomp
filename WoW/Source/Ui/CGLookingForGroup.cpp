@@ -140,7 +140,7 @@ ROLE_FLAGS FilterRolesByClass(ROLE_FLAGS_8 roles) {
 // VERIFY: 49ccd8f7 manual
 // OFFSET: 0x00554610
 int32_t CGLookingForGroup::GetLFGRoleUpdate(lua_State* L) {
-    lua_pushboolean(L, CGLookingForGroup::m_roleCheckState == 2);
+    lua_pushboolean(L, CGLookingForGroup::m_roleCheckState == ROLE_CHECK_IN_PROGRESS);
     lua_pushnumber(L, CGLookingForGroup::m_roleCheckSlots.m_count);
     lua_pushnumber(L, CGLookingForGroup::m_roleCheckMembers.m_count);
     return 3;
@@ -531,8 +531,8 @@ int32_t CGLookingForGroup::GetQueueStatusIndex() {
 void CGLookingForGroup::ClearPartyInfo() {
     CGLookingForGroup::m_partyLockInfo.Clear();
 
-    if (CGLookingForGroup::m_roleCheckState == 2) {
-        CGLookingForGroup::m_roleCheckState = 0;
+    if (CGLookingForGroup::m_roleCheckState == ROLE_CHECK_IN_PROGRESS) {
+        CGLookingForGroup::m_roleCheckState = ROLE_CHECK_NONE;
         CGLookingForGroup::m_roleCheckSlots.m_count = 0;
         CGLookingForGroup::m_roleCheckMembers.m_count = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_LFG_ROLE_CHECK_HIDE, nullptr);
