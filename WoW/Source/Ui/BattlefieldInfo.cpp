@@ -498,7 +498,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
         for (int32_t i = 0; i < g_worldStateUIDB.m_numRecords; i++) {
             WorldStateUIRec* rec = g_worldStateUIDB.GetRecordByIndex(i);
 
-            if ((rec->m_mapID == static_cast<int32_t>(CGBattlefieldInfo::m_activeMapID) || rec->m_mapID == -1) && rec->m_type == 2) {
+            if ((rec->m_mapID == static_cast<int32_t>(CGBattlefieldInfo::m_activeMapID) || rec->m_mapID == -1) && rec->m_type == WORLD_STATE_UI_TYPE_BATTLEFIELD_STAT) {
                 if (!CGBattlefieldInfo::m_numWorldStateStats) {
                     first = i;
                 }

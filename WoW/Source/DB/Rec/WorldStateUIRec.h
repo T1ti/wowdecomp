@@ -6,6 +6,14 @@
 
 class SFileImpl;
 
+// WorldStateUI.dbc m_type, as the client sorts the rows.
+enum WORLD_STATE_UI_TYPE : int32_t {
+    WORLD_STATE_UI_TYPE_DEFAULT = 0, // Always-up world state UI.
+    WORLD_STATE_UI_TYPE_UNKNOWN_1 = 1, // Listed like WORLD_STATE_UI_TYPE_DEFAULT.
+    WORLD_STATE_UI_TYPE_BATTLEFIELD_STAT = 2, // Battleground score column for the active map.
+    WORLD_STATE_UI_TYPE_TIMER = 3, // Raises WORLD_STATE_UI_TIMER_UPDATE every second.
+};
+
 class WorldStateUIRec {
     public:
     static const int32_t s_numColumns = 63;
@@ -20,7 +28,7 @@ class WorldStateUIRec {
     /* 0014 */ const char* m_string;
     /* 0018 */ const char* m_tooltip;
     /* 001C */ int32_t m_stateVariable;
-    /* 0020 */ int32_t m_type;
+    /* 0020 */ int32_t m_type; // WORLD_STATE_UI_TYPE
     /* 0024 */ const char* m_dynamicIcon;
     /* 0028 */ const char* m_dynamicTooltip;
     /* 002C */ const char* m_extendedUi;

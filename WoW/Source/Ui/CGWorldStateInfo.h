@@ -13,7 +13,7 @@ struct WORLDSTATE : public TSHashObject<WORLDSTATE, HASHKEY_NONE> {
 
 struct WorldStateUIEntry {
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_state;
+    /* 0004 */ int32_t m_state; // WORLD_STATE_UI_TYPE
 };
 
 int32_t GetWorldState(int32_t id);
