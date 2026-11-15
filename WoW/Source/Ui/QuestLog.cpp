@@ -2082,7 +2082,7 @@ int32_t CGQuestLog::UpdateAllQuestPOI() {
             if (dungeonMap) {
                 onMap = CGQuestLog::IsPOIVisibleOnDungeonMap(&blob.m_centerX, blob.m_mapId, blob.m_floor, dungeonMap->m_id);
             } else {
-                if (!area || ((blob.m_flags & 0x4) && blob.m_worldMapAreaId != area->m_id)) {
+                if (!area || ((blob.m_flags & QuestPOIBlob::F_WORLD_MAP_AREA_ONLY) && blob.m_worldMapAreaId != area->m_id)) {
                     continue;
                 }
 
@@ -2290,7 +2290,7 @@ void CGQuestLog::UpdatePOIIcons() {
             if (dungeonMap) {
                 visible = CGQuestLog::IsPOIVisibleOnDungeonMap(&blob->m_centerX, blob->m_mapId, blob->m_floor, dungeonMap->m_id);
             } else {
-                if (!area || ((blob->m_flags & 0x4) && blob->m_worldMapAreaId != area->m_id)) {
+                if (!area || ((blob->m_flags & QuestPOIBlob::F_WORLD_MAP_AREA_ONLY) && blob->m_worldMapAreaId != area->m_id)) {
                     continue;
                 }
 

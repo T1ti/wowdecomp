@@ -27,6 +27,10 @@ struct QuestPOIPoint {
 };
 
 struct QuestPOIBlob {
+    enum FLAGS : int32_t {
+        F_WORLD_MAP_AREA_ONLY = 0x4, // Shown on the zone map only when it is m_worldMapAreaId.
+    };
+
     /* 0000 */ TSGrowableArray<QuestPOIPoint> m_points;
     /* 0010 */ int32_t m_centerX;
     /* 0014 */ int32_t m_centerY;
@@ -35,7 +39,7 @@ struct QuestPOIBlob {
     /* 0020 */ int32_t m_mapId;
     /* 0024 */ int32_t m_worldMapAreaId;
     /* 0028 */ int32_t m_floor;
-    /* 002C */ int32_t m_flags;
+    /* 002C */ int32_t m_flags; // FLAGS, from the POI query response
     /* 0030 */ int32_t m_priority;
 };
 
