@@ -5,6 +5,8 @@
 #include <cstdint>
 
 class SFileImpl;
+enum WEAPONSWING_SOUNDTYPES : int32_t;
+enum WEAPONSWINGTYPES : int32_t;
 
 class WeaponSwingSounds2Rec {
     public:
@@ -13,8 +15,8 @@ class WeaponSwingSounds2Rec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_swingType;
-    /* 0008 */ int32_t m_crit;
+    /* 0004 */ WEAPONSWING_SOUNDTYPES m_swingType;
+    /* 0008 */ WEAPONSWINGTYPES m_crit;
     /* 000C */ int32_t m_soundID;
 
     WeaponSwingSounds2Rec();
