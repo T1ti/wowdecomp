@@ -6203,22 +6203,22 @@ bool CGUnit_C::CanInteractWhileDead() const {
 // OFFSET: 0x00715E50
 uint32_t CGUnit_C::GetSkinningType() const {
     if (!this->m_creatureCacheEntry) {
-        return 0;
+        return SKINNING_TYPE_LEATHER;
     }
 
     if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM) {
-        return 1;
+        return SKINNING_TYPE_HERB;
     }
 
     if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_MINING) {
-        return 2;
+        return SKINNING_TYPE_ROCK;
     }
 
     if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING) {
-        return 3;
+        return SKINNING_TYPE_BOLTS;
     }
 
-    return 0;
+    return SKINNING_TYPE_LEATHER;
 }
 
 // VERIFY: 79224dcb auto

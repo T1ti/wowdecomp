@@ -171,6 +171,15 @@ class CGUnitVirtualItem {
 };
 
 class UnitBloodRec;
+// Skinning result kind (SPELL_EFFECT_SKINNING misc value); names follow the UNIT_SKINNABLE_* tooltip tokens.
+enum SKINNING_TYPE : uint32_t {
+    SKINNING_TYPE_LEATHER = 0,
+    SKINNING_TYPE_HERB = 1, // CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM
+    SKINNING_TYPE_ROCK = 2, // CREATURE_TYPE_FLAG_SKIN_WITH_MINING
+    SKINNING_TYPE_BOLTS = 3, // CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING
+    NUM_SKINNING_TYPES = 4,
+};
+
 class CGUnit_C : public CGObject_C, public CGUnit {
     public:
     // UpdateAmmoModel request marker: infer AMMO/THROWN from the ranged item.
@@ -591,7 +600,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     bool IsTracked() const;
     bool CanInteract(const CGGameObject_C* gameObject) const;
     void OnFlagChangedActivePlayer(uint32_t oldFlags, uint32_t changed);
-    uint32_t GetSkinningType() const;
+    uint32_t GetSkinningType() const; // SKINNING_TYPE
     void GetCursorFile(int32_t unable, char* buffer, uint32_t size) const;
     bool MountedCombatAllowed() const;
     bool CanAidPlayers() const;

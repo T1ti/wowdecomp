@@ -79,7 +79,7 @@ static int32_t s_multiCastSpells[4] = { 66842, 66843, 66844, 36936 };
 static int32_t s_dispelMask;
 
 // STATIC: 0x00BE5D6C
-static int32_t s_skinningSpells[4];
+static int32_t s_skinningSpells[NUM_SKINNING_TYPES];
 
 // STATIC: 0x00BE5D7C
 static int32_t s_skinPlayerCorpseSpell;

@@ -757,19 +757,19 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
         }
 
         switch (unit->GetSkinningType()) {
-            case 0:
+            case SKINNING_TYPE_LEATHER:
                 CursorSetMode(maxRange * maxRange < distance ? SKIN_ERROR_CURSOR : SKIN_CURSOR);
                 return;
 
-            case 1:
+            case SKINNING_TYPE_HERB:
                 CursorSetMode(maxRange * maxRange < distance ? GATHER_ERROR_CURSOR : GATHER_CURSOR);
                 return;
 
-            case 2:
+            case SKINNING_TYPE_ROCK:
                 CursorSetMode(maxRange * maxRange < distance ? MINE_ERROR_CURSOR : MINE_CURSOR);
                 return;
 
-            case 3:
+            case SKINNING_TYPE_BOLTS:
                 CursorSetMode(maxRange * maxRange < distance ? MINE_ERROR_CURSOR : MINE_CURSOR);
                 return;
 

@@ -7576,16 +7576,16 @@ void CGTooltip::AddSkinnableText(CGUnit_C* unit, char* buffer, uint32_t size) {
     const char* token;
 
     switch (unit->GetSkinningType()) {
-        case 0:
+        case SKINNING_TYPE_LEATHER:
             token = "UNIT_SKINNABLE_LEATHER";
             break;
-        case 1:
+        case SKINNING_TYPE_HERB:
             token = "UNIT_SKINNABLE_HERB";
             break;
-        case 2:
+        case SKINNING_TYPE_ROCK:
             token = "UNIT_SKINNABLE_ROCK";
             break;
-        case 3:
+        case SKINNING_TYPE_BOLTS:
             token = "UNIT_SKINNABLE_BOLTS";
             break;
         default:
