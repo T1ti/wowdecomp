@@ -15,6 +15,8 @@
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/UIUtil/Types.h"
 
+enum ITEM_ENCHANTMENT_EFFECT : int32_t;
+
 class CImVector;
 class CSimpleFontString;
 class CSimpleStatusBar;
@@ -59,6 +61,8 @@ class TalentRec;
 class CAaRect;
 class CGItem_C;
 class CGUnit_C;
+enum ITEM_ENCHANTMENT_EFFECT : int32_t;
+
 class CImVector;
 class CSimpleFontString;
 
@@ -274,7 +278,7 @@ class CGItemStatsSummary {
     void AddStatMods(const ItemStats_C* stats);
     void AddResistances(const ItemStats_C* stats);
     void AddSpellEffects(const SpellRec* spell);
-    void AddEnchantEffect(int32_t type, int32_t arg, int32_t amount);
+    void AddEnchantEffect(ITEM_ENCHANTMENT_EFFECT type, int32_t arg, int32_t amount);
     void AddEnchantment(const SpellItemEnchantmentRec* enchant);
     void AddEnchantment(const SpellItemEnchantmentRec* enchant, int32_t amount);
     void AccumulateDpsStat(const ItemStats_C* stats);

@@ -35,7 +35,7 @@ class SpellItemEnchantmentRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_charges;
-    /* 0008 */ int32_t m_effect [3];
+    /* 0008 */ ITEM_ENCHANTMENT_EFFECT m_effect [3];
     /* 0014 */ int32_t m_effectPointsMin [3];
     /* 0020 */ int32_t m_effectPointsMax [3];
     /* 002C */ int32_t m_effectArg [3];

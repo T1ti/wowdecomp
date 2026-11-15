@@ -1215,7 +1215,7 @@ int32_t CGTooltip::HideThis() {
 
 // VERIFY: 82cc22f3 auto
 // OFFSET: 0x0061F2B0
-void CGItemStatsSummary::AddEnchantEffect(int32_t type, int32_t arg, int32_t amount) {
+void CGItemStatsSummary::AddEnchantEffect(ITEM_ENCHANTMENT_EFFECT type, int32_t arg, int32_t amount) {
     switch (type) {
         case ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_EQUIP_SPELL: {
             SpellRec spell;
