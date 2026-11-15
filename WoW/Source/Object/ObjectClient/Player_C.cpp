@@ -8436,12 +8436,12 @@ int32_t SkillMaxRankChangeHandler(WOWGUID guid, uint32_t offset, uint32_t count,
 }
 
 // STATIC: 0x00C9D340
-static PlayerLootItem s_lootItems[18];
+static PlayerLootItem s_lootItems[NUM_LOOT_SLOTS];
 
 // VERIFY: 9e4784c1 auto
 // OFFSET: 0x006CEB80
 int32_t CGPlayer_C::GetLootItem(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8451,7 +8451,7 @@ int32_t CGPlayer_C::GetLootItem(uint32_t slot) {
 // VERIFY: b65d7e62 auto
 // OFFSET: 0x006CEBB0
 int32_t CGPlayer_C::GetLootItemDisplayId(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8461,7 +8461,7 @@ int32_t CGPlayer_C::GetLootItemDisplayId(uint32_t slot) {
 // VERIFY: dcfad75c auto
 // OFFSET: 0x006CEBE0
 int32_t CGPlayer_C::GetLootItemCount(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8471,7 +8471,7 @@ int32_t CGPlayer_C::GetLootItemCount(uint32_t slot) {
 // VERIFY: 5618845f auto
 // OFFSET: 0x006CEC10
 int32_t CGPlayer_C::GetLootItemRandomSuffix(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8481,7 +8481,7 @@ int32_t CGPlayer_C::GetLootItemRandomSuffix(uint32_t slot) {
 // VERIFY: 44db345a auto
 // OFFSET: 0x006CEC40
 int32_t CGPlayer_C::GetLootItemRandomPropertyId(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8491,7 +8491,7 @@ int32_t CGPlayer_C::GetLootItemRandomPropertyId(uint32_t slot) {
 // VERIFY: ad884501 auto
 // OFFSET: 0x006CEC70
 int32_t CGPlayer_C::GetLootItemSlotType(uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -8501,7 +8501,7 @@ int32_t CGPlayer_C::GetLootItemSlotType(uint32_t slot) {
 // VERIFY: 5e3e02c7 manual
 // OFFSET: 0x006DC770
 void CGPlayer_C::ClearLootItemSlotType(WOWGUID lootObject, uint32_t slot) {
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 

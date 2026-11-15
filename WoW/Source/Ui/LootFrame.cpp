@@ -25,7 +25,7 @@ uint32_t CGLootInfo::m_itemsPending;
 LOOT_ACQUIRE CGLootInfo::m_lootAcquire;
 
 // STATIC: 0x00BFA690
-LootSlot CGLootInfo::m_slots[18];
+LootSlot CGLootInfo::m_slots[NUM_LOOT_SLOTS];
 
 // STATIC: 0x00BFA8D0
 int32_t CGLootInfo::m_coins;
@@ -182,7 +182,7 @@ int32_t CGLootWindow::GetNumLootItems() {
 
     int32_t count = 0;
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         if (CGLootInfo::m_slots[i].m_itemID > 0) {
             count = i + 1;
         }
@@ -210,7 +210,7 @@ int32_t CGLootInfo::GetLootItem(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         return 0;
     }
 
@@ -232,7 +232,7 @@ int32_t CGLootInfo::GetLootItemCount(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         return 0;
     }
 
@@ -254,7 +254,7 @@ int32_t CGLootInfo::GetLootItemRandomSuffix(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         return 0;
     }
 
@@ -276,7 +276,7 @@ int32_t CGLootInfo::GetLootItemRandomPropertyId(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         return 0;
     }
 
@@ -298,7 +298,7 @@ int32_t CGLootWindow::GetLootItemRarity(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18) {
+    if (slot >= NUM_LOOT_SLOTS) {
         return 0;
     }
 
@@ -332,7 +332,7 @@ const char* CGLootInfo::GetLootSlotTexture(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID) {
+    if (slot >= NUM_LOOT_SLOTS || !CGLootInfo::m_slots[slot].m_itemID) {
         return nullptr;
     }
 
@@ -362,7 +362,7 @@ void CGLootInfo::GetLootSlotText(char* buffer, uint32_t size, uint32_t slot) {
         slot--;
     }
 
-    if (slot < 18 && CGLootInfo::m_slots[slot].m_itemID) {
+    if (slot < NUM_LOOT_SLOTS && CGLootInfo::m_slots[slot].m_itemID) {
         CGItem_C::BuildItemName(buffer, size, CGLootInfo::m_slots[slot].m_itemID, CGLootInfo::m_slots[slot].m_randomPropertyId);
     }
 }
@@ -382,7 +382,7 @@ char* CGLootInfo::GetLootSlotLink(uint32_t slot, char* buffer, uint32_t size) {
         slot--;
     }
 
-    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID) {
+    if (slot >= NUM_LOOT_SLOTS || !CGLootInfo::m_slots[slot].m_itemID) {
         return nullptr;
     }
 
@@ -413,7 +413,7 @@ int32_t CGLootInfo::HasLoot() {
         return 1;
     }
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         if (CGLootInfo::m_slots[i].m_itemID) {
             return 1;
         }
@@ -442,7 +442,7 @@ void CGLootInfo::DoAutoLoot(int32_t a1) {
 
     int32_t confirmShown = 0;
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         ::LootSlot& slot = CGLootInfo::m_slots[i];
 
         if (!slot.m_itemID) {
@@ -520,7 +520,7 @@ void CGLootInfo::LootSlot(uint32_t slot) {
         slot--;
     }
 
-    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID) {
+    if (slot >= NUM_LOOT_SLOTS || !CGLootInfo::m_slots[slot].m_itemID) {
         return;
     }
 
@@ -596,7 +596,7 @@ void CGLootInfo::GiveMasterLoot(uint32_t slot, WOWGUID target) {
         slot--;
     }
 
-    if (slot >= 18 || !CGLootInfo::m_slots[slot].m_itemID || CGPlayer_C::GetLootItemSlotType(CGLootInfo::m_slots[slot].m_slot) != LOOT_SLOT_TYPE_MASTER) {
+    if (slot >= NUM_LOOT_SLOTS || !CGLootInfo::m_slots[slot].m_itemID || CGPlayer_C::GetLootItemSlotType(CGLootInfo::m_slots[slot].m_slot) != LOOT_SLOT_TYPE_MASTER) {
         return;
     }
 
@@ -616,7 +616,7 @@ void CGLootInfo::LootButtonItemStatsCallback(int32_t id, const WOWGUID& guid, vo
         return;
     }
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         ::LootSlot& slot = CGLootInfo::m_slots[i];
 
         if (slot.m_pending && slot.m_itemID == id) {
@@ -659,7 +659,7 @@ void CGLootInfo::SetObject(CGObject_C* object, int32_t coins, LOOT_ACQUIRE lootA
             }
         }
 
-        for (uint32_t i = 0; i < 18; i++) {
+        for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
             if (CGLootInfo::m_slots[i].m_pending) {
                 g_itemDBCache.CancelCallback(CGLootInfo::m_slots[i].m_itemID, CGLootInfo::LootButtonItemStatsCallback, nullptr);
             }
@@ -688,7 +688,7 @@ void CGLootInfo::SetObject(CGObject_C* object, int32_t coins, LOOT_ACQUIRE lootA
     uint32_t count = 0;
     memset(CGLootInfo::m_slots, 0, sizeof(CGLootInfo::m_slots));
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         int32_t itemId = CGPlayer_C::GetLootItem(i);
 
         if (!itemId) {
@@ -733,7 +733,7 @@ void CGLootInfo::ClearSlot(uint8_t slot) {
     uint32_t index = 0;
 
     while (!CGLootInfo::m_slots[index].m_itemID || CGLootInfo::m_slots[index].m_slot != slot) {
-        if (++index >= 18) {
+        if (++index >= NUM_LOOT_SLOTS) {
             return;
         }
     }
@@ -760,7 +760,7 @@ void CGLootInfo::ClearSlot(uint8_t slot) {
 void CGLootInfo::OnLootSlotChanged(uint8_t slot) {
     uint32_t index = 0xFFFFFFFF;
 
-    for (uint32_t i = 0; i < 18; i++) {
+    for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
         if (CGLootInfo::m_slots[i].m_itemID && CGLootInfo::m_slots[i].m_slot == slot) {
             index = i;
             break;
@@ -768,14 +768,14 @@ void CGLootInfo::OnLootSlotChanged(uint8_t slot) {
     }
 
     if (index == 0xFFFFFFFF) {
-        for (uint32_t i = 0; i < 18; i++) {
+        for (uint32_t i = 0; i < NUM_LOOT_SLOTS; i++) {
             if (!CGLootInfo::m_slots[i].m_itemID) {
                 index = i;
                 break;
             }
         }
 
-        if (index >= 18) {
+        if (index >= NUM_LOOT_SLOTS) {
             return;
         }
     }

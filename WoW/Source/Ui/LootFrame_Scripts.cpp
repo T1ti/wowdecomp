@@ -62,7 +62,7 @@ static int32_t Script_LootSlotIsItem(lua_State* L) {
             index = slot - 2;
         }
 
-        if (index < 18 && CGLootInfo::m_slots[index].m_itemID > 0) {
+        if (index < NUM_LOOT_SLOTS && CGLootInfo::m_slots[index].m_itemID > 0) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -228,7 +228,7 @@ static int32_t Script_GetLootSlotInfo(lua_State* L) {
             index = slot - 1;
         }
 
-        if (index < 18 && CGLootInfo::m_slots[index].m_slotType == LOOT_SLOT_TYPE_LOCKED) {
+        if (index < NUM_LOOT_SLOTS && CGLootInfo::m_slots[index].m_slotType == LOOT_SLOT_TYPE_LOCKED) {
             lua_pushnumber(L, 1.0);
             return 5;
         }
