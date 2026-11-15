@@ -9,7 +9,7 @@
 // VERIFY: 1ee4db68 auto
 // OFFSET: 0x0054FDE0
 static int32_t Script_AccountMsg_GetNumTotalMsgs(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetNumTotalMsgs() failed because the headers are not loaded");
         return 0;
     }
@@ -21,7 +21,7 @@ static int32_t Script_AccountMsg_GetNumTotalMsgs(lua_State* L) {
 // VERIFY: 8e6492ed auto
 // OFFSET: 0x0054FE20
 static int32_t Script_AccountMsg_GetHeaderSubject(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetHeaderSubject() failed because the headers are not loaded");
         return 0;
     }
@@ -45,7 +45,7 @@ static int32_t Script_AccountMsg_GetHeaderSubject(lua_State* L) {
 // VERIFY: e42cdc6e auto
 // OFFSET: 0x0054FEC0
 static int32_t Script_AccountMsg_GetHeaderPriority(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetHeaderPriority() failed because the headers are not loaded");
         return 0;
     }
@@ -69,7 +69,7 @@ static int32_t Script_AccountMsg_GetHeaderPriority(lua_State* L) {
 // VERIFY: 8d652036 auto
 // OFFSET: 0x0054FF70
 static int32_t Script_AccountMsg_LoadBody(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_LoadBody() failed because the headers are not loaded");
         return 0;
     }
@@ -97,7 +97,7 @@ static int32_t Script_AccountMsg_LoadBody(lua_State* L) {
 // VERIFY: 7f42e21d auto
 // OFFSET: 0x00550020
 static int32_t Script_AccountMsg_GetBody(lua_State* L) {
-    if (g_accountMsgBody.m_state != 2) {
+    if (g_accountMsgBody.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetBody() failed because the body was not loaded");
         return 0;
     }
@@ -113,7 +113,7 @@ static int32_t Script_AccountMsg_GetBody(lua_State* L) {
 // VERIFY: 0b82481a auto
 // OFFSET: 0x00550360
 static int32_t Script_AccountMsg_GetNumUnreadMsgs(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetNumUnreadMsgs() failed because the headers are not loaded");
         return 0;
     }
@@ -133,7 +133,7 @@ static int32_t Script_AccountMsg_GetNumUnreadMsgs(lua_State* L) {
 // VERIFY: fd796aeb auto
 // OFFSET: 0x005503E0
 static int32_t Script_AccountMsg_GetNumUnreadUrgentMsgs(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetNumUnreadMsgs() failed because the headers are not loaded");
         return 0;
     }
@@ -145,7 +145,7 @@ static int32_t Script_AccountMsg_GetNumUnreadUrgentMsgs(lua_State* L) {
 // VERIFY: ddf7e51b manual
 // OFFSET: 0x00550430
 static int32_t Script_AccountMsg_GetIndexHighestPriorityUnreadMsg(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetHeaderSubject() failed because the headers are not loaded");
         return 0;
     }
@@ -159,7 +159,7 @@ static int32_t Script_AccountMsg_GetIndexHighestPriorityUnreadMsg(lua_State* L) 
 // VERIFY: 13b3d088 auto
 // OFFSET: 0x005504E0
 static int32_t Script_AccountMsg_GetIndexNextUnreadMsg(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_GetHeaderSubject() failed because the headers are not loaded");
         return 0;
     }
@@ -179,7 +179,7 @@ static int32_t Script_AccountMsg_GetIndexNextUnreadMsg(lua_State* L) {
 // VERIFY: 99c56524 auto
 // OFFSET: 0x005505B0
 static int32_t Script_AccountMsg_SetMsgRead(lua_State* L) {
-    if (g_accountMsgHeaders.m_state != 2) {
+    if (g_accountMsgHeaders.m_state != CKBPage::PAGE_STATE::READY) {
         luaL_error(L, "AccountMsg_SetMsgRead() failed because the headers are not loaded");
         return 0;
     }
