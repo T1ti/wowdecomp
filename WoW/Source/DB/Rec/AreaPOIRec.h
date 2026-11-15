@@ -8,22 +8,22 @@ class SFileImpl;
 
 // AreaPOI.dbc flags tested by the client; names follow EnumeratedString AreaPOI::Flags.
 enum AREA_POI_FLAGS : int32_t {
-    AREA_POI_FLAG_NONE                  = 0x00000000,
+    AREA_POI_FLAG_NONE                      = 0x00000000,
     // Loaded into its continent's minimap POI list.
-    AREA_POI_FLAG_MINIMAP_LIST          = 0x00000001,
+    AREA_POI_FLAG_SHOW_ON_MINIMAP           = 0x00000001,
     // Drawn on the minimap while in range.
-    AREA_POI_FLAG_MINIMAP_ICON          = 0x00000002,
-    AREA_POI_FLAG_ZONE_MAP              = 0x00000004,
-    AREA_POI_FLAG_CONTINENT_MAP         = 0x00000008,
-    AREA_POI_FLAG_WORLD_MAP             = 0x00000010,
+    AREA_POI_FLAG_SHOW_MINIMAP_ICON         = 0x00000002,
+    AREA_POI_FLAG_WORLDMAP_ZONE_ZOOM        = 0x00000004,
+    AREA_POI_FLAG_WORLDMAP_CONTINENT_ZOOM   = 0x00000008,
+    AREA_POI_FLAG_WORLDMAP_WORLD_ZOOM       = 0x00000010,
     // The map landmark uses the POI icon.
-    AREA_POI_FLAG_SHOW_ICON             = 0x00000080,
+    AREA_POI_FLAG_ALWAYS_DRAW_ICON_WORLDMAP = 0x00000080,
     // The minimap direction arrow is kept while indoors.
-    AREA_POI_FLAG_SHOW_WHEN_INDOORS     = 0x00000100,
+    AREA_POI_FLAG_SHOW_WHEN_INDOORS         = 0x00000100,
     // GetMapLandmarkInfo showInBattleMap.
-    AREA_POI_FLAG_SHOW_IN_BATTLEMAP     = 0x00000200,
+    AREA_POI_FLAG_SHOW_IN_BATTLEMAP         = 0x00000200,
     // Only shown on its own area's zone map.
-    AREA_POI_FLAG_CURRENT_AREA_ONLY     = 0x00000400,
+    AREA_POI_FLAG_ONLY_SHOW_IN_CURRENT_AREA = 0x00000400,
 };
 
 class AreaPOIRec {

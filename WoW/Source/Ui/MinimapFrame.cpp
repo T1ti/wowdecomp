@@ -354,7 +354,16 @@ static uint16_t s_insideIndices[4] = { 0, 1, 3, 2 };
 static float s_indoorTexScale = 0.33333334f;
 
 // STATIC: 0x00D3922C
-static uint32_t s_updateFlags;
+// Pending minimap rebuild work.
+enum MINIMAP_UPDATE_FLAGS : uint32_t {
+    MINIMAP_UPDATE_NONE = 0x0,
+    // Zoom or indoor state changed; the tile/quad layout must be rebuilt.
+    MINIMAP_UPDATE_RELOAD = 0x1,
+    // The rebuilt layout is waiting for tile textures to finish loading.
+    MINIMAP_UPDATE_TEXTURES_PENDING = 0x2,
+};
+
+static uint32_t s_updateFlags; // MINIMAP_UPDATE_FLAGS
 
 // STATIC: 0x00D39330
 static char s_mapObjName[260];
@@ -811,7 +820,7 @@ void UpdatePointsOfInterest() {
             continue;
         }
 
-        if (!(poi->m_flags & AREA_POI_FLAG_MINIMAP_ICON)) {
+        if (!(poi->m_flags & AREA_POI_FLAG_SHOW_MINIMAP_ICON)) {
             if (!s_poiVisible.m_data[i] && !s_poiOnEdge.m_data[i]) {
                 continue;
             }
@@ -940,7 +949,7 @@ void MinimapSetCorpsePOI(float x, float y) {
     const char* name = FrameScript_GetText("CORPSE_RED", -1, GENDER_NOT_APPLICABLE);
     s_dynamicPOIs[2].m_pos[0] = x;
     s_dynamicPOIs[2].m_pos[1] = y;
-    s_dynamicPOIs[2].m_flags = 2;
+    s_dynamicPOIs[2].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
     s_dynamicPOIs[2].m_continentID = s_mapId;
     s_dynamicPOIs[2].m_icon[0] = 8;
     s_dynamicPOIs[2].m_importance = -1;
@@ -955,7 +964,7 @@ void MinimapSetSpiritHealerPOI(float x, float y) {
     const char* name = FrameScript_GetText("SPIRIT_HEALER_RELEASE_RED", -1, GENDER_NOT_APPLICABLE);
     s_dynamicPOIs[3].m_pos[0] = x;
     s_dynamicPOIs[3].m_pos[1] = y;
-    s_dynamicPOIs[3].m_flags = 2;
+    s_dynamicPOIs[3].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
     s_dynamicPOIs[3].m_continentID = s_mapId;
     s_dynamicPOIs[3].m_icon[0] = 8;
     s_dynamicPOIs[3].m_importance = -1;
@@ -1046,7 +1055,7 @@ void MinimapInitialize(int32_t mapId) {
         for (int32_t i = g_areaPOIDB.m_numRecords - 1; i >= 0; i--) {
             AreaPOIRec* rec = g_areaPOIDB.GetRecordByIndex(i);
 
-            if (rec->m_continentID == mapId && (rec->m_flags & AREA_POI_FLAG_MINIMAP_LIST)) {
+            if (rec->m_continentID == mapId && (rec->m_flags & AREA_POI_FLAG_SHOW_ON_MINIMAP)) {
                 if (pass > 0) {
                     s_pois.m_data[count] = rec;
                 }
@@ -1366,7 +1375,7 @@ static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2
         }
     }
 
-    if ((s_updateFlags & 1) || s_tileMinX != baseTile[0] || s_tileMinY != baseTile[1] || s_tileMaxX != endX || s_tileMaxY != endY) {
+    if ((s_updateFlags & MINIMAP_UPDATE_RELOAD) || s_tileMinX != baseTile[0] || s_tileMinY != baseTile[1] || s_tileMaxX != endX || s_tileMaxY != endY) {
         SetupTextureHandles(baseTile, mapChanged, tiles);
         s_tileMinX = baseTile[0];
         s_tileMinY = baseTile[1];
@@ -1374,7 +1383,7 @@ static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2
         s_tileMaxY = endY;
     }
 
-    s_updateFlags &= ~1u;
+    s_updateFlags &= ~MINIMAP_UPDATE_RELOAD;
     C3Vector origin(HALF_WORLD_SIZE - baseTile[1] * MD_AREA_POLY_SIZE, s_mapOrigin - MD_AREA_POLY_SIZE * baseTile[0], 0.0f);
     C2Vector origin2(origin);
     float inv = 1.0f / s_tileSize.y;
@@ -1516,8 +1525,8 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
 // VERIFY: e07bae80 manual
 // OFFSET: 0x007F5BA0
 int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles, MINIMAPINDOOR* indoor, int32_t force) {
-    uint8_t reload = s_updateFlags & 1;
-    bool changed = (s_updateFlags & 3) != 0;
+    uint8_t reload = s_updateFlags & MINIMAP_UPDATE_RELOAD;
+    bool changed = (s_updateFlags & (MINIMAP_UPDATE_RELOAD | MINIMAP_UPDATE_TEXTURES_PENDING)) != 0;
     bool result = changed;
 
     if (s_worldMapRefreshTime && time(nullptr) >= static_cast<time_t>(s_worldMapRefreshTime)) {
@@ -1602,7 +1611,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
 
     indoorChecked:
         if (s_isIndoors != indoor->m_active) {
-            s_updateFlags |= 1;
+            s_updateFlags |= MINIMAP_UPDATE_RELOAD;
             s_isIndoors = indoor->m_active;
             FrameScript_SignalEvent(SCRIPT_EVENT_MINIMAP_UPDATE_ZOOM, nullptr);
         }
@@ -1660,10 +1669,10 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
                 }
             }
 
-            s_updateFlags = (s_updateFlags & ~1u) | 2;
+            s_updateFlags = (s_updateFlags & ~MINIMAP_UPDATE_RELOAD) | MINIMAP_UPDATE_TEXTURES_PENDING;
         }
 
-        if (s_updateFlags & 2) {
+        if (s_updateFlags & MINIMAP_UPDATE_TEXTURES_PENDING) {
             for (uint32_t i = 0; i < 256; i++) {
                 uint32_t flags = tiles[i].m_flags;
 
@@ -1680,7 +1689,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
                 }
             }
 
-            s_updateFlags &= ~2u;
+            s_updateFlags &= ~MINIMAP_UPDATE_TEXTURES_PENDING;
             C3Vector boxCenter;
             boxCenter.x = (s_indoorBounds.t.x + s_indoorBounds.b.x) * 0.5f;
             indoor->m_center.x = boxCenter.x;
@@ -1696,7 +1705,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
 
     texturesPending:
         if (!reload && indoor->m_invMatrix != s_mapObjInvMatrix) {
-            bool notPending = !(s_updateFlags & 2);
+            bool notPending = !(s_updateFlags & MINIMAP_UPDATE_TEXTURES_PENDING);
             indoor->m_center.x = indoor->m_center.x + delta.x;
             indoor->m_center.y = delta.y + indoor->m_center.y;
             indoor->m_center.z = delta.z + indoor->m_center.z;
@@ -3584,7 +3593,7 @@ void MinimapSetZoom(uint32_t zoom) {
     *current = zoom >= 5 ? 5 : zoom;
 
     if (previous != *current) {
-        s_updateFlags |= 0x1;
+        s_updateFlags |= MINIMAP_UPDATE_RELOAD;
         (indoors ? g_minimapInsideZoomCVar : g_minimapZoomCVar)->Set(*current, true, false, false, true);
     }
 }
