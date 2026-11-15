@@ -6,7 +6,7 @@
 
 class SFileImpl;
 
-// AreaPOI.dbc flags tested by the client; names describe that behavior.
+// AreaPOI.dbc flags tested by the client; names follow EnumeratedString AreaPOI::Flags.
 enum AREA_POI_FLAGS : int32_t {
     AREA_POI_FLAG_NONE                  = 0x00000000,
     // Loaded into its continent's minimap POI list.
@@ -18,7 +18,8 @@ enum AREA_POI_FLAGS : int32_t {
     AREA_POI_FLAG_WORLD_MAP             = 0x00000010,
     // The map landmark uses the POI icon.
     AREA_POI_FLAG_SHOW_ICON             = 0x00000080,
-    AREA_POI_FLAG_ALWAYS_SHOW_DIRECTION = 0x00000100,
+    // The minimap direction arrow is kept while indoors.
+    AREA_POI_FLAG_SHOW_WHEN_INDOORS     = 0x00000100,
     // GetMapLandmarkInfo showInBattleMap.
     AREA_POI_FLAG_SHOW_IN_BATTLEMAP     = 0x00000200,
     // Only shown on its own area's zone map.

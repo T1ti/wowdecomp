@@ -6,17 +6,17 @@
 
 class SFileImpl;
 
-// ChatChannels.dbc flags tested by the client; names describe that behavior.
+// ChatChannels.dbc flags tested by the client; names follow EnumeratedString ChatChannels::Flags.
 enum CHAT_CHANNEL_FLAGS : int32_t {
     CHAT_CHANNEL_FLAG_NONE               = 0x00000000,
     // Joined by default and shown in the default chat window.
     CHAT_CHANNEL_FLAG_AUTO_JOIN          = 0x00000001,
     // Limited to the zone it was joined in.
     CHAT_CHANNEL_FLAG_ZONE_BASED         = 0x00000002,
-    // Listed only in AREA_FLAG_CITY_CHANNELS areas.
-    CHAT_CHANNEL_FLAG_CITY_ONLY          = 0x00000010,
-    // Named after the capital city while the player is in one.
-    CHAT_CHANNEL_FLAG_CITY_NAME          = 0x00000020,
+    // Listed only in AREA_FLAG_ALLOW_TRADE_CHANNEL areas.
+    CHAT_CHANNEL_FLAG_ONLY_IN_CITIES     = 0x00000010,
+    // Named after the AREA_FLAG_LINKED_CHAT_SPECIAL_AREA area in AREA_FLAG_LINKED_CHAT_SET_IN_CITIES areas.
+    CHAT_CHANNEL_FLAG_LINKED_CHANNEL     = 0x00000020,
     // Receives ZONE_UNDER_ATTACK alerts.
     CHAT_CHANNEL_FLAG_ZONE_ATTACK_ALERTS = 0x00010000,
     // Guild recruitment channel, joined and left with the guild recruitment mode.

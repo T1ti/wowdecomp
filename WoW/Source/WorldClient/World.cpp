@@ -1583,7 +1583,7 @@ void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position) {
         AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
 
         if (area) {
-            if (!(area->m_flags & AREA_FLAG_OWN_AMBIENT) && area->m_parentAreaID) {
+            if (!(area->m_flags & AREA_FLAG_SUBZONE_AMBIENT_MULTIPLIER) && area->m_parentAreaID) {
                 area = g_areaTableDB.GetRecord(area->m_parentAreaID);
             }
 

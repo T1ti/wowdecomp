@@ -1788,7 +1788,7 @@ static int32_t Script_EnumerateServerChannels(lua_State* L) {
     for (int32_t i = 0; i < count; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
-        if (!(rec->m_flags & CHAT_CHANNEL_FLAG_CITY_ONLY) || (area->m_flags & AREA_FLAG_CITY_CHANNELS)) {
+        if (!(rec->m_flags & CHAT_CHANNEL_FLAG_ONLY_IN_CITIES) || (area->m_flags & AREA_FLAG_ALLOW_TRADE_CHANNEL)) {
             lua_pushstring(L, *rec->m_shortcut ? rec->m_shortcut : rec->m_name);
             pushed++;
         }

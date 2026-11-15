@@ -1549,11 +1549,11 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
         uint8_t indoorArea = 0;
 
         if (rootRec) {
-            if (rootRec->m_flags & WMO_AREA_FLAG_MINIMAP_OUTDOOR) {
+            if (rootRec->m_flags & WMO_AREA_FLAG_RENDER_MINIMAP) {
                 outdoorArea = 1;
             }
 
-            if (rootRec->m_flags & WMO_AREA_FLAG_MINIMAP_INDOOR_MASK) {
+            if (rootRec->m_flags & (WMO_AREA_FLAG_GENERATE_SINGLE_EXTERIOR_MAP | WMO_AREA_FLAG_STORMWIND)) {
                 indoorArea = 1;
             }
         }
@@ -1562,7 +1562,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
         int32_t wmoId;
         int32_t wmoHash;
 
-        if (groupRec && (groupRec->m_flags & WMO_AREA_FLAG_NO_INDOOR_MINIMAP)) {
+        if (groupRec && (groupRec->m_flags & WMO_AREA_FLAG_CHUNK_USES_TERRAIN_FOR_MINIMAP)) {
             inside = 0;
             s_mapObjIndoorArea = 0;
         } else if ((outdoorArea || indoorArea || inside) && World::QueryMapObjIDs(entity, &wmoId, &wmoHash, &groupId)) {
@@ -2570,7 +2570,7 @@ static int32_t MinimapBuildPOIDirectionData(TSGrowableArray<POIDIRECTIONDATA>* d
         SStrCopy(direction->m_name, poi->m_name, sizeof(direction->m_name));
         direction->m_facing = s_closestPOIFacing[i];
         poi = s_pois.m_data[s_closestPOIs[i]];
-        direction->m_alwaysShow = poi == &s_dynamicPOIs[1] || poi == &s_dynamicPOIs[2] || poi == &s_dynamicPOIs[0] || (poi->m_flags & AREA_POI_FLAG_ALWAYS_SHOW_DIRECTION);
+        direction->m_alwaysShow = poi == &s_dynamicPOIs[1] || poi == &s_dynamicPOIs[2] || poi == &s_dynamicPOIs[0] || (poi->m_flags & AREA_POI_FLAG_SHOW_WHEN_INDOORS);
         direction->m_dynamicIndex = -2;
 
         for (uint32_t j = 0; j < 4; j++) {

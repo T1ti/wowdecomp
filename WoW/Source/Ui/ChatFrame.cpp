@@ -2919,7 +2919,7 @@ void CGChat::InitializeGame() {
         i--;
         AreaTableRec* area = (i < 0 || i >= g_areaTableDB.m_numRecords) ? nullptr : &g_areaTableDB.m_records[i];
 
-        if (area->m_flags & AREA_FLAG_CITY_CHANNEL_NAME) {
+        if (area->m_flags & AREA_FLAG_LINKED_CHAT_SPECIAL_AREA) {
             s_cityArea = area;
             break;
         }
@@ -4334,7 +4334,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
             continue;
         }
 
-        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_CITY_NAME) && (area->m_flags & AREA_FLAG_CAPITAL) && s_cityArea ? s_cityArea->m_areaName : zoneText;
+        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_LINKED_CHANNEL) && (area->m_flags & AREA_FLAG_LINKED_CHAT_SET_IN_CITIES) && s_cityArea ? s_cityArea->m_areaName : zoneText;
 
         if (!text || !*text) {
             return false;
@@ -4921,7 +4921,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
             continue;
         }
 
-        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_CITY_NAME) && (area->m_flags & AREA_FLAG_CAPITAL) && s_cityArea ? s_cityArea->m_areaName : zoneText;
+        const char* text = area && (rec->m_flags & CHAT_CHANNEL_FLAG_LINKED_CHANNEL) && (area->m_flags & AREA_FLAG_LINKED_CHAT_SET_IN_CITIES) && s_cityArea ? s_cityArea->m_areaName : zoneText;
 
         if (!text || !*text) {
             return 0;

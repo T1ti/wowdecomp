@@ -2024,7 +2024,7 @@ static int32_t Script_GetZonePVPInfo(lua_State* L) {
     int32_t contested = (flags & 0x40000) != 0;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (!area || !player || (!s_isPvPRealm && !(area->m_flags & AREA_FLAG_PVP_INFO))) {
+    if (!area || !player || (!s_isPvPRealm && !(area->m_flags & AREA_FLAG_ENEMIES_PVP_FLAGGED))) {
         return 0;
     }
 
