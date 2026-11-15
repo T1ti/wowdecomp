@@ -2697,7 +2697,7 @@ void CGGameUI::ClearTarget(WOWGUID guid, int32_t a2) {
             if (object->m_obj->m_type & TYPE_UNIT) {
                 CGUnit_C* unit = static_cast<CGUnit_C*>(object);
                 PlayerNameTriggerColorUpdate(unit->m_nameDesc);
-                unit->UnregisterScript(0x1000);
+                unit->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_TARGET);
                 unit->StopNamePlateSpellbar();
             }
         }
@@ -2820,7 +2820,7 @@ void CGGameUI::Target(WOWGUID guid) {
         if (object->m_obj->m_type & TYPE_UNIT) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(object);
             PlayerNameTriggerColorUpdate(unit->m_nameDesc);
-            unit->RegisterScript(0x1000);
+            unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_TARGET);
 
             SpellRec spell;
 
@@ -4020,7 +4020,7 @@ void CGGameUI::SetFocusTarget(const WOWGUID& guid) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGameUI::m_focusTarget, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            unit->UnregisterScript(0x2000);
+            unit->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_FOCUS);
         }
     }
 
@@ -4030,7 +4030,7 @@ void CGGameUI::SetFocusTarget(const WOWGUID& guid) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGameUI::m_focusTarget, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            unit->RegisterScript(0x2000);
+            unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_FOCUS);
         }
     }
 

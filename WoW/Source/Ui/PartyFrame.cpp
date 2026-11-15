@@ -728,12 +728,12 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (unit) {
-        unit->RegisterScript(16);
+        unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY);
         const WOWGUID& petGuid = unit->m_unit->m_unitFieldCharm.m_guid ? unit->m_unit->m_unitFieldCharm : unit->m_unit->m_unitFieldSummon;
         CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(petGuid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (pet) {
-            pet->RegisterScript(32);
+            pet->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY_PET);
         }
 
         unit->UpdateReaction(true);
@@ -800,13 +800,13 @@ void CGPartyInfo::RemoveAll(int32_t a1) {
                 CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(petGuid, TYPE_UNIT, __FILE__, __LINE__));
 
                 if (pet) {
-                    pet->UnregisterScript(32);
+                    pet->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY_PET);
                 } else if (a1) {
                     CGGameUI::ClearTarget(petGuid, 1);
                 }
             }
 
-            unit->UnregisterScript(16);
+            unit->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY);
             unit->UpdateReaction(true);
         } else if (a1) {
             CGGameUI::ClearTarget(CGPartyInfo::m_members[i], 1);

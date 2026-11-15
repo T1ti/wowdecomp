@@ -20835,56 +20835,56 @@ static BOOL IsArenaOpponent(const WOWGUID& guid) {
 // OFFSET: 0x00720960
 void CGUnit_C::UpdateScriptRegistration() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    uint32_t flags = 0;
+    uint32_t flags = SCRIPT_REGISTRATION_NONE;
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        flags = 0x1;
+        flags = SCRIPT_REGISTRATION_PLAYER;
     }
 
     if (player) {
         const WOWGUID& pet = player->m_unit->m_unitFieldCharm.m_guid ? player->m_unit->m_unitFieldCharm : player->m_unit->m_unitFieldSummon;
 
         if (pet == this->m_obj->m_guid) {
-            flags |= 0x2;
+            flags |= SCRIPT_REGISTRATION_PET;
         }
     }
 
-    if (!(flags & 0x1)) {
+    if (!(flags & SCRIPT_REGISTRATION_PLAYER)) {
         WOWGUID guid = this->m_obj->m_guid;
 
         if (CGPartyInfo::IsMember(guid)) {
-            flags |= 0x10;
+            flags |= SCRIPT_REGISTRATION_PARTY;
         }
     }
 
-    if (!(flags & 0x2)) {
+    if (!(flags & SCRIPT_REGISTRATION_PET)) {
         WOWGUID guid = this->m_obj->m_guid;
 
         if (CGPartyInfo::IsMemberPet(guid, nullptr)) {
-            flags |= 0x20;
+            flags |= SCRIPT_REGISTRATION_PARTY_PET;
         }
     }
 
     WOWGUID guid = this->m_obj->m_guid;
 
     if (IsGuidInMyRaid(guid)) {
-        flags |= 0x100;
+        flags |= SCRIPT_REGISTRATION_RAID;
     }
 
     guid = this->m_obj->m_guid;
 
     if (CGRaidInfo::IsPetInRaid(guid, nullptr)) {
-        flags |= 0x200;
+        flags |= SCRIPT_REGISTRATION_RAID_PET;
     }
 
     if (CGGameUI::m_lockedTarget == this->m_obj->m_guid) {
-        flags |= 0x1000;
+        flags |= SCRIPT_REGISTRATION_TARGET;
     }
 
     guid = this->m_obj->m_guid;
 
     if (IsArenaOpponent(guid)) {
-        flags |= 0x4000;
+        flags |= SCRIPT_REGISTRATION_ARENA;
     }
 
     if (flags == this->m_scriptRegistration) {

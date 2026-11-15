@@ -201,6 +201,21 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     static void ClearNamePlateFocus();
     static void SetNamePlateFocus(const C2Vector& position);
     static void NamePlateClearAll();
+    // Why a unit is registered for script events: one bit per unit token family that refers to it
+    // (inferred from the code setting each bit; only zero/non-zero is read back).
+    enum SCRIPT_REGISTRATION_FLAGS : uint32_t {
+        SCRIPT_REGISTRATION_NONE = 0x0,
+        SCRIPT_REGISTRATION_PLAYER = 0x1,
+        SCRIPT_REGISTRATION_PET = 0x2,
+        SCRIPT_REGISTRATION_PARTY = 0x10,
+        SCRIPT_REGISTRATION_PARTY_PET = 0x20,
+        SCRIPT_REGISTRATION_RAID = 0x100,
+        SCRIPT_REGISTRATION_RAID_PET = 0x200,
+        SCRIPT_REGISTRATION_TARGET = 0x1000,
+        SCRIPT_REGISTRATION_FOCUS = 0x2000,
+        SCRIPT_REGISTRATION_ARENA = 0x4000,
+    };
+
     // Deferred name plate refresh requests, named after their NamePlate* setters.
     enum NAMEPLATE_FLAGS : uint32_t {
         NAMEPLATE_FLAG_RESORT_ALL = 0x1,

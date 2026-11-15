@@ -1899,7 +1899,7 @@ void CGBattlefieldInfo::AddArenaOpponentToSlot(const WOWGUID& guid, int32_t slot
         memset(&CGBattlefieldInfo::m_arenaOpponentStats[slot], 0, sizeof(CGPartyMemberState));
 
         if (unit) {
-            unit->RegisterScript(0x4000);
+            unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_ARENA);
         }
     }
 
@@ -1918,7 +1918,7 @@ void CGBattlefieldInfo::AddArenaOpponentPetToSlot(const WOWGUID& petGuid, const 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(petGuid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (registerNew && CGBattlefieldInfo::m_arenaOpponentPets[slot][0] != petGuid && unit) {
-        unit->RegisterScript(0x4000);
+        unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_ARENA);
     }
 
     CGBattlefieldInfo::m_arenaOpponentPets[slot][0] = petGuid;
@@ -1941,7 +1941,7 @@ void CGBattlefieldInfo::AddArenaOpponent(const WOWGUID& guid) {
             CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGBattlefieldInfo::m_arenaOpponentPets[i][0], TYPE_UNIT, __FILE__, __LINE__));
 
             if (pet) {
-                pet->UnregisterScript(0x4000);
+                pet->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_ARENA);
             }
 
             CGBattlefieldInfo::AddArenaOpponentToSlot(guid, i);

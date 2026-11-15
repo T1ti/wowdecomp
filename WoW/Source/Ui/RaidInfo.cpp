@@ -848,25 +848,25 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
             CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(petGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (pet) {
-                pet->UnregisterScript(512);
+                pet->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_RAID_PET);
             } else {
                 CGGameUI::ClearTarget(petGuid, 1);
             }
         }
 
-        unit->UnregisterScript(256);
+        unit->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_RAID);
     }
 
     for (uint32_t i = 0; i < addedCount; i++) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(added[i], TYPE_PLAYER, __FILE__, __LINE__));
 
         if (unit) {
-            unit->RegisterScript(256);
+            unit->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_RAID);
             const WOWGUID& petGuid = unit->m_unit->m_unitFieldCharm.m_guid ? unit->m_unit->m_unitFieldCharm : unit->m_unit->m_unitFieldSummon;
             CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(petGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (pet) {
-                pet->RegisterScript(512);
+                pet->RegisterScript(CGUnit_C::SCRIPT_REGISTRATION_RAID_PET);
             }
         } else {
             CDataStore msg;
