@@ -8,6 +8,7 @@
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CMath.h"
+#include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Tempest/CMemBlock.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -144,11 +145,9 @@ struct DNGlare {
     /* 005C */ uint32_t unused_005C[4];
     /* 006C */ uint32_t m_occlusionPixels;
     /* 0070 */ DNKeyframe m_alphaCurve [4];
-    /* 0090 */ float m_scaleMin;
-    /* 0094 */ float m_scaleMax;
+    /* 0090 */ CRange m_scaleRange;
     /* 0098 */ float m_minDot;
-    /* 009C */ float m_alphaMin;
-    /* 00A0 */ float m_alphaMax;
+    /* 009C */ CRange m_alphaRange;
     /* 00A4 */ float m_screenGlow;
     /* 00A8 */ DayNight::DNPlanet* m_planet;
 

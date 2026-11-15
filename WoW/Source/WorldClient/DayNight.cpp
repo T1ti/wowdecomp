@@ -980,10 +980,10 @@ void DayNight::InitSunGlare() {
     DayNight::g_sunGlare.m_enable = 1;
     DayNight::g_sunGlare.m_skipOcclusionOnce = 1;
     DayNight::g_sunGlare.m_fadeInRate = 4.0f;
-    DayNight::g_sunGlare.m_alphaMin = 0.5f;
-    DayNight::g_sunGlare.m_alphaMax = 1.0f;
-    DayNight::g_sunGlare.m_scaleMin = 3.0f;
-    DayNight::g_sunGlare.m_scaleMax = 20.0f;
+    DayNight::g_sunGlare.m_alphaRange.m_l = 0.5f;
+    DayNight::g_sunGlare.m_alphaRange.m_h = 1.0f;
+    DayNight::g_sunGlare.m_scaleRange.m_l = 3.0f;
+    DayNight::g_sunGlare.m_scaleRange.m_h = 20.0f;
     DayNight::g_sunGlare.m_minDot = 0.69999999f;
     DayNight::g_sunGlare.m_screenGlow = 0.0f;
     DayNight::g_sunGlare.m_alphaCurve[0].m_time = 0.27083334f;
@@ -1006,10 +1006,10 @@ void DayNight::InitMoonGlare() {
     DayNight::g_moonGlare.m_enable = 1;
     DayNight::g_moonGlare.m_skipOcclusionOnce = 1;
     DayNight::g_moonGlare.m_fadeInRate = 3.030303f;
-    DayNight::g_moonGlare.m_alphaMin = 0.1f;
-    DayNight::g_moonGlare.m_alphaMax = 1.0f;
-    DayNight::g_moonGlare.m_scaleMin = 1.0f;
-    DayNight::g_moonGlare.m_scaleMax = 1.0f;
+    DayNight::g_moonGlare.m_alphaRange.m_l = 0.1f;
+    DayNight::g_moonGlare.m_alphaRange.m_h = 1.0f;
+    DayNight::g_moonGlare.m_scaleRange.m_l = 1.0f;
+    DayNight::g_moonGlare.m_scaleRange.m_h = 1.0f;
     DayNight::g_moonGlare.m_minDot = 0.69999999f;
     DayNight::g_moonGlare.m_alphaCurve[0].m_time = 0.083333336f;
     DayNight::g_moonGlare.m_alphaCurve[0].m_value = 1.0f;
@@ -1242,9 +1242,9 @@ void DayNight::SetPlanets() {
     planets.m_moon.m_position.y = y * scale + info.m_cameraPos.y;
     planets.m_moon.m_position.z = cosTheta * scale + info.m_cameraPos.z;
     planets.m_moon.m_scale = DayNight::InterpTable(s_moonScale, 4, info.m_dayProgression) * planets.m_moon.m_baseScale;
-    DayNight::g_moonGlare.m_scaleMin = planets.m_moon.m_scale;
+    DayNight::g_moonGlare.m_scaleRange.m_l = planets.m_moon.m_scale;
     DayNight::g_moonGlare.m_position = planets.m_moon.m_position;
-    DayNight::g_moonGlare.m_scaleMax = planets.m_moon.m_scale;
+    DayNight::g_moonGlare.m_scaleRange.m_h = planets.m_moon.m_scale;
 
     int32_t day = CMath::fint_(info.m_day * 65536.0f - 0.5f);
     int32_t progression = CMath::fint_(info.m_dayProgression * 65536.0f - 0.5f);
@@ -3000,8 +3000,8 @@ void DayNight::DNGlare::Update(float deltaSec) {
     }
 
     float t = (dot - this->m_minDot) / (1.0f - this->m_minDot);
-    this->m_scale = ((this->m_scaleMax - this->m_scaleMin) * t + this->m_scaleMin) * this->m_baseScale;
-    this->m_color.a = static_cast<uint8_t>((t * (this->m_alphaMax - this->m_alphaMin) + this->m_alphaMin) * this->m_fade * (this->m_color.a * 0.0039215689f) * 255.0f);
+    this->m_scale = ((this->m_scaleRange.m_h - this->m_scaleRange.m_l) * t + this->m_scaleRange.m_l) * this->m_baseScale;
+    this->m_color.a = static_cast<uint8_t>((t * (this->m_alphaRange.m_h - this->m_alphaRange.m_l) + this->m_alphaRange.m_l) * this->m_fade * (this->m_color.a * 0.0039215689f) * 255.0f);
     this->m_screenGlow = pow(dot, s_glarePower) * this->m_fade;
 }
 
