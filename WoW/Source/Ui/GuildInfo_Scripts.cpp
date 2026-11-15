@@ -913,27 +913,27 @@ static int32_t Script_GetGuildEventInfo(lua_State* L) {
     char type[16];
 
     switch (entry->m_type) {
-        case 1:
+        case GuildEventLogEntry::EVENT_INVITE:
             SStrCopy(type, "invite", STORM_MAX_STR);
             break;
 
-        case 2:
+        case GuildEventLogEntry::EVENT_JOIN:
             SStrCopy(type, "join", STORM_MAX_STR);
             break;
 
-        case 3:
+        case GuildEventLogEntry::EVENT_PROMOTE:
             SStrCopy(type, "promote", STORM_MAX_STR);
             break;
 
-        case 4:
+        case GuildEventLogEntry::EVENT_DEMOTE:
             SStrCopy(type, "demote", STORM_MAX_STR);
             break;
 
-        case 5:
+        case GuildEventLogEntry::EVENT_REMOVE:
             SStrCopy(type, "remove", STORM_MAX_STR);
             break;
 
-        case 6:
+        case GuildEventLogEntry::EVENT_QUIT:
             SStrCopy(type, "quit", STORM_MAX_STR);
             break;
 

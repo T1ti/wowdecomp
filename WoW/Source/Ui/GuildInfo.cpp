@@ -152,7 +152,7 @@ int32_t Packet_MSG_GUILD_EVENT_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t
             CGGuildInfo::m_pendingEventLogNames++;
         }
 
-        if (entry.m_type == 2 || entry.m_type == 6) {
+        if (entry.m_type == GuildEventLogEntry::EVENT_JOIN || entry.m_type == GuildEventLogEntry::EVENT_QUIT) {
             entry.m_player2 = WOWGUID();
         } else {
             msg->Get(entry.m_player2.m_guid);
@@ -166,7 +166,7 @@ int32_t Packet_MSG_GUILD_EVENT_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t
             }
         }
 
-        if (entry.m_type == 3 || entry.m_type == 4) {
+        if (entry.m_type == GuildEventLogEntry::EVENT_PROMOTE || entry.m_type == GuildEventLogEntry::EVENT_DEMOTE) {
             uint8_t rank;
             msg->Get(rank);
             entry.m_rank = rank;

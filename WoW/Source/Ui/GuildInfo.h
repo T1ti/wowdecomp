@@ -69,7 +69,17 @@ struct GuildRosterSortCriteria {
 };
 
 struct GuildEventLogEntry {
-    /* 0000 */ uint32_t m_type;
+    // Names follow the strings GetGuildEventInfo returns; other values report "none".
+    enum EVENT_TYPE : uint32_t {
+        EVENT_INVITE = 1,
+        EVENT_JOIN = 2,
+        EVENT_PROMOTE = 3,
+        EVENT_DEMOTE = 4,
+        EVENT_REMOVE = 5,
+        EVENT_QUIT = 6,
+    };
+
+    /* 0000 */ uint32_t m_type; // EVENT_TYPE
     /* 0004 */ uint32_t unused_0004;
     /* 0008 */ WOWGUID m_player1;
     /* 0010 */ WOWGUID m_player2;
