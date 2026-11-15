@@ -2800,7 +2800,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
             ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(channelName);
 
             if (channel) {
-                channel->m_flags |= 0x80;
+                channel->m_flags |= ChatChannel::FLAGS::VOICE_ENABLED;
                 rebuild = 1;
             }
 
@@ -2814,7 +2814,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
             ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(channelName);
 
             if (channel) {
-                channel->m_flags &= ~0x80;
+                channel->m_flags &= ~ChatChannel::FLAGS::VOICE_ENABLED;
                 rebuild = 1;
             }
 
@@ -2827,7 +2827,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
             ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(channelName);
 
             if (channel) {
-                channel->m_flags |= 0x80;
+                channel->m_flags |= ChatChannel::FLAGS::VOICE_ENABLED;
                 rebuild = 1;
             }
 

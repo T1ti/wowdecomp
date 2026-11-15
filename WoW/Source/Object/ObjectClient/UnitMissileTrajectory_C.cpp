@@ -1163,7 +1163,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
     C3Vector center;
 
     if (rootModel && rootModel->IsLoaded(0, 0)) {
-        if (!(rootModel->m_shared->m_flags & 0x1)) {
+        if (!(rootModel->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             rootModel->WaitForLoad(nullptr);
         }
 

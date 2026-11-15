@@ -60,7 +60,7 @@ void CMapDoodadDef::UpdateBounds() {
 
         CM2Model* model = this->m_model;
 
-        if (!(model->m_shared->m_flags & 0x1)) {
+        if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             model->WaitForLoad(nullptr);
         }
 
@@ -279,7 +279,7 @@ void CMapDoodadDef::Update(const C44Matrix& matrix) {
         box = this->m_model->GetBoundingBox();
         CM2Model* model = this->m_model;
 
-        if (!(model->m_shared->m_flags & 0x1)) {
+        if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             model->WaitForLoad(nullptr);
         }
 

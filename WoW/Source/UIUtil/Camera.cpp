@@ -625,7 +625,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
                 height = (pivot.z + 0.097222224f) * scale;
             }
         } else {
-            if (!(worldModel->m_shared->m_flags & 0x1)) {
+            if (!(worldModel->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
                 worldModel->WaitForLoad(nullptr);
             }
 

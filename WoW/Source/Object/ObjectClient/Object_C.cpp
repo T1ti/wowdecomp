@@ -472,7 +472,7 @@ void CGObject_C::UpdateWorldObject(int32_t a2) {
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         CM2Model* model = this->m_worldModel;
 
-        if (!(model->m_shared->m_flags & 0x1)) {
+        if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             model->WaitForLoad(nullptr);
         }
 

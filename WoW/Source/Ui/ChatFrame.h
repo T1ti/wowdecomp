@@ -177,10 +177,17 @@ struct PENDINGUSERLIST : public TSLinkedNode<PENDINGUSERLIST> {
 
 class ChatChannel {
     public:
+    // Channel flags from the join/update packets; only this bit is tested by the client.
+    enum FLAGS : uint8_t {
+        NONE = 0x00,
+        // Toggled by VOICE_ON / VOICE_OFF channel notifications.
+        VOICE_ENABLED = 0x80,
+    };
+
     /* 0000 */ int32_t m_channelNumber;
     /* 0004 */ char m_name[128];
     /* 0084 */ TSExplicitList<PENDINGUSERLIST, 0> m_pendingUsers;
-    /* 0090 */ uint8_t m_flags;
+    /* 0090 */ uint8_t m_flags; // FLAGS
     /* 0094 */ uint32_t m_zoneChannelID;
     /* 0098 */ int32_t m_unk98;
     /* 009C */ int32_t m_unk9C;

@@ -303,7 +303,7 @@ static int32_t Script_GetRaidRosterInfo(lua_State* L) {
 
     if (unit) {
         lua_pushnumber(L, static_cast<int32_t>(unit->m_unit->m_unitFieldLevel));
-    } else if (member->m_stats.m_flags & 1) {
+    } else if (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) {
         lua_pushnumber(L, member->m_stats.m_level);
     } else {
         lua_pushnumber(L, 0.0);
@@ -320,7 +320,7 @@ static int32_t Script_GetRaidRosterInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (unit || (member->m_stats.m_flags & 1)) {
+    if (unit || (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED)) {
         int32_t zoneID = unit ? CGGameUI::m_areaID : member->m_stats.m_zoneID;
         AreaTableRec* area = g_areaTableDB.GetRecord(zoneID);
 
@@ -341,7 +341,7 @@ static int32_t Script_GetRaidRosterInfo(lua_State* L) {
     if (unit) {
         dead = unit->m_unit->m_unitFieldHealth <= 0;
     } else {
-        dead = (member->m_stats.m_flags & 4) && (member->m_stats.m_flags & 1);
+        dead = (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_DEAD) && (member->m_stats.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED);
     }
 
     if (dead) {

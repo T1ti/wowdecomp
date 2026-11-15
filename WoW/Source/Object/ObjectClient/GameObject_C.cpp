@@ -2025,7 +2025,7 @@ void CGGameObject_C::PostInit(uint32_t time, const CClientObjCreate& create, boo
         if (model->IsLoaded(0, 0)) {
             CM2Model* worldModel = this->m_worldModel;
 
-            if (!(worldModel->m_shared->m_flags & 0x1)) {
+            if (!(worldModel->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
                 worldModel->WaitForLoad(nullptr);
             }
 
@@ -2632,7 +2632,7 @@ void CGGameObject_C::UpdateWorldObject(int32_t a2) {
 
     if (model) {
         if (model->IsLoaded(0, 0)) {
-            if (!(model->m_shared->m_flags & 0x1)) {
+            if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
                 model->WaitForLoad(nullptr);
             }
 

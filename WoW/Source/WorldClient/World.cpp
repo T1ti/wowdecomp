@@ -2690,7 +2690,7 @@ void CWorldScene::PrepareLiquidInstances() {
 
                 int32_t exterior;
 
-                if (((mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(group->m_flags & 2)) || (typeRec->m_flags & LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING)) {
+                if (((mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(group->m_flags & MAPOBJ_FLAG_INTERIOR)) || (typeRec->m_flags & LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING)) {
                     exterior = 1;
                 } else {
                     exterior = 0;
@@ -5323,7 +5323,7 @@ bool World::ObjectTestConvexVolume(CMapEntity* entity, const C3Vector& point) {
 
     model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(entity))->m_model;
 
-    if (!(model->m_shared->m_flags & 0x1)) {
+    if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
         model->WaitForLoad(nullptr);
     }
 
