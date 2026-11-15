@@ -293,7 +293,7 @@ static int32_t Script_GetCategoryNumAchievements(lua_State* L) {
             continue;
         }
 
-        if ((achievement->m_category == 81 || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) && !done && !inspected) {
+        if ((achievement->m_category == ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED)) && !done && !inspected) {
             continue;
         }
 
@@ -360,7 +360,7 @@ static int32_t Script_GetNumCompletedAchievements(lua_State* L) {
             }
         }
 
-        if (achievement->m_category == 81) {
+        if (achievement->m_category == ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH) {
             continue;
         }
 
@@ -670,7 +670,7 @@ static int32_t Script_GetNumComparisonCompletedAchievements(lua_State* L) {
             }
         }
 
-        if (achievement->m_category == 81) {
+        if (achievement->m_category == ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH) {
             continue;
         }
 
@@ -865,7 +865,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
                 }
 
                 if (categoryId == -1) {
-                    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != 81) {
+                    if (!(achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH) {
                         if (GetCompletedAchievement(achievement->m_id) || GetInspectAchievement(achievement->m_id)) {
                             continue;
                         }
@@ -887,7 +887,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
                         continue;
                     }
 
-                    if ((achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != 81) {
+                    if ((achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_STATISTIC) && achievement->m_category != ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH) {
                         if (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDE_UNTIL_COMPLETED) {
                             continue;
                         }

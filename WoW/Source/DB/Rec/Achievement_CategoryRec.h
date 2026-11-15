@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// Achievement_Category.dbc rows the client tests directly.
+enum ACHIEVEMENT_CATEGORY_ID : int32_t {
+    // FrameXML FEAT_OF_STRENGTH_ID.
+    ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH = 81,
+};
+
 class Achievement_CategoryRec {
     public:
     static const int32_t s_numColumns = 20;

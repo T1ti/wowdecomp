@@ -8898,7 +8898,7 @@ int32_t SkillRankChangeHandler(WOWGUID guid, uint32_t offset, uint32_t count, co
                 }
             }
 
-            if (skillLine->m_categoryID == 9 || skillLine->m_categoryID == 11) {
+            if (skillLine->m_categoryID == SKILL_LINE_CATEGORY_SECONDARY_SKILLS || skillLine->m_categoryID == SKILL_LINE_CATEGORY_PROFESSIONS) {
                 CGPlayer_C::QueryQuestGiverStatusMultiple();
             }
         }
