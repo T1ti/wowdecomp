@@ -129,11 +129,11 @@ int32_t QSortCategory(const void* a, const void* b) {
                         continue;
                     }
 
-                    result = 2 * (roleplaying1 != 0) - 1;
+                    result = roleplaying1 ? 1 : -1;
                 } else if (roleplaying1 == roleplaying2) {
-                    result = 2 * (pvp1 != 0) - 1;
+                    result = pvp1 ? 1 : -1;
                 } else {
-                    result = 2 * (roleplaying1 != 0) - 1;
+                    result = roleplaying1 ? 1 : -1;
                 }
 
                 break;

@@ -157,7 +157,7 @@ static int32_t SortSkillTypes(const void* a, const void* b) {
     const SkillTypeInfo* typeB = *static_cast<SkillTypeInfo* const*>(b);
     SkillLineCategoryRec* recA = g_skillLineCategoryDB.GetRecord(typeA->m_categoryID);
     SkillLineCategoryRec* recB = g_skillLineCategoryDB.GetRecord(typeB->m_categoryID);
-    return 2 * (recA->m_sortIndex >= recB->m_sortIndex) - 1;
+    return recA->m_sortIndex >= recB->m_sortIndex ? 1 : -1;
 }
 
 // VERIFY: 4448ea95 manual
@@ -171,7 +171,7 @@ static int32_t SortSkillLines(const void* a, const void* b) {
             return 0;
         }
 
-        return 2 * (lineA->m_expanded == 0) - 1;
+        return lineA->m_expanded ? -1 : 1;
     }
 
     uint32_t typeA = 0;
@@ -188,7 +188,7 @@ static int32_t SortSkillLines(const void* a, const void* b) {
     }
 
     if (typeA != typeB) {
-        return 2 * (static_cast<int32_t>(typeA) >= static_cast<int32_t>(typeB)) - 1;
+        return static_cast<int32_t>(typeA) >= static_cast<int32_t>(typeB) ? 1 : -1;
     }
 
     if (!lineA->m_skillLineID) {
@@ -200,7 +200,7 @@ static int32_t SortSkillLines(const void* a, const void* b) {
     }
 
     if (lineA->unk_000C != lineB->unk_000C) {
-        return 2 * (lineA->unk_000C != 0) - 1;
+        return lineA->unk_000C ? 1 : -1;
     }
 
     SkillLineRec* recA = g_skillLineDB.GetRecord(lineA->m_skillLineID);

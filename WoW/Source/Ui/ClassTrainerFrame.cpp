@@ -214,7 +214,7 @@ static int32_t QSortServices_General(const void* a, const void* b) {
             return 0;
         }
 
-        return 2 * (serviceB->m_visible != 0) - 1;
+        return serviceB->m_visible ? 1 : -1;
     }
 
     if (CGClassTrainer::m_numSkillLines) {
@@ -232,12 +232,12 @@ static int32_t QSortServices_General(const void* a, const void* b) {
         }
 
         if (lineA != lineB) {
-            return 2 * (lineA > lineB) - 1;
+            return lineA > lineB ? 1 : -1;
         }
     }
 
     if (serviceA->m_spellID < 0 || serviceB->m_spellID < 0) {
-        return 2 * (serviceA->m_spellID >= 0) - 1;
+        return serviceA->m_spellID >= 0 ? 1 : -1;
     }
 
     SpellRec spellA;
@@ -275,15 +275,15 @@ static int32_t QSortServices_Tradeskill(const void* a, const void* b) {
             return 0;
         }
 
-        return 2 * (serviceB->m_visible != 0) - 1;
+        return serviceB->m_visible ? 1 : -1;
     }
 
     if (serviceA->m_skillLine != serviceB->m_skillLine) {
-        return 2 * (serviceA->m_skillLine > serviceB->m_skillLine) - 1;
+        return serviceA->m_skillLine > serviceB->m_skillLine ? 1 : -1;
     }
 
     if (serviceA->m_spellID < 0 || serviceB->m_spellID < 0) {
-        return 2 * (serviceA->m_spellID >= 0) - 1;
+        return serviceA->m_spellID >= 0 ? 1 : -1;
     }
 
     SpellRec spellA;

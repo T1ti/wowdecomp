@@ -5067,7 +5067,7 @@ static int QSortCompareNearestUnit(const void* a, const void* b) {
     }
 
     if (left->m_inFront != right->m_inFront) {
-        return 2 * (left->m_inFront == 0) - 1;
+        return left->m_inFront ? -1 : 1;
     }
 
     if (right->m_distanceSq == left->m_distanceSq) {

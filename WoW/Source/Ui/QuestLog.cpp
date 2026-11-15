@@ -908,7 +908,7 @@ static int32_t QSortQuestLogEntries(const void* a, const void* b) {
         return SStrSortUTF8I(questA->m_name, questB->m_name, STORM_MAX_STR);
     }
 
-    return 2 * (levelA >= levelB) - 1;
+    return levelA >= levelB ? 1 : -1;
 }
 
 // VERIFY: 01ac7701 auto

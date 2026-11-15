@@ -433,7 +433,7 @@ static int QSortFactions(const void* a, const void* b) {
         return -1;
     }
 
-    return 2 * (static_cast<int32_t>(leftHeader) >= static_cast<int32_t>(rightHeader)) - 1;
+    return static_cast<int32_t>(leftHeader) >= static_cast<int32_t>(rightHeader) ? 1 : -1;
 }
 
 // VERIFY: ec1af981 manual
@@ -498,10 +498,10 @@ static int QSortFactionHeaders(const void* a, const void* b) {
             return SStrSortUTF8I(leftRec->m_name, rightRec->m_name, STORM_MAX_STR);
         }
     } else if (!rightRec) {
-        return 2 * (left->m_factionId < right->m_factionId) - 1;
+        return left->m_factionId < right->m_factionId ? 1 : -1;
     }
 
-    return 2 * (leftRec == nullptr) - 1;
+    return leftRec == nullptr ? 1 : -1;
 }
 
 // VERIFY: b8311b86 manual

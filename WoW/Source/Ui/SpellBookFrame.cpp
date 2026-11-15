@@ -900,7 +900,7 @@ int __cdecl SortSpellUsableInfo(const void* a, const void* b) {
     }
 
     if (spellA.m_stanceBarOrder < 0 && spellB.m_stanceBarOrder < 0) {
-        return 2 * (spellA.m_id >= spellB.m_id) - 1;
+        return spellA.m_id >= spellB.m_id ? 1 : -1;
     }
 
     if (spellA.m_stanceBarOrder == -1) {
@@ -915,7 +915,7 @@ int __cdecl SortSpellUsableInfo(const void* a, const void* b) {
         return 0;
     }
 
-    return 2 * (spellA.m_stanceBarOrder >= spellB.m_stanceBarOrder) - 1;
+    return spellA.m_stanceBarOrder >= spellB.m_stanceBarOrder ? 1 : -1;
 }
 
 // VERIFY: 19695381 auto

@@ -1383,7 +1383,7 @@ int32_t QSortScoreData(const void* a, const void* b) {
         }
 
         if (leftFaction != rightFaction) {
-            return 2 * (leftFaction != CGBattlefieldInfo::m_logFilterFaction) - 1;
+            return leftFaction != CGBattlefieldInfo::m_logFilterFaction ? 1 : -1;
         }
     }
 
@@ -1442,7 +1442,7 @@ int32_t QSortScoreData(const void* a, const void* b) {
                     continue;
                 }
 
-                result = 2 * (left->m_faction >= right->m_faction) - 1;
+                result = left->m_faction >= right->m_faction ? 1 : -1;
                 return criteria->m_descending ? -result : result;
 
             case CGBattlefieldInfo::SCORE_SORT_COLUMN::COLUMN_STAT1:
@@ -1459,7 +1459,7 @@ int32_t QSortScoreData(const void* a, const void* b) {
                     continue;
                 }
 
-                result = 2 * (left->m_stats[stat] <= right->m_stats[stat]) - 1;
+                result = left->m_stats[stat] <= right->m_stats[stat] ? 1 : -1;
                 return criteria->m_descending ? -result : result;
             }
 

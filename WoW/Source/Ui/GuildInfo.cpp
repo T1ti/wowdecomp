@@ -403,7 +403,7 @@ int32_t QSortRoster(const void* a, const void* b) {
     GuildMemberInfo* right = *static_cast<GuildMemberInfo* const*>(b);
 
     if (!CGGuildInfo::m_showOffline && (!left->m_online || !right->m_online) && left->m_online != right->m_online) {
-        return 2 * (left->m_online == 0) - 1;
+        return left->m_online ? -1 : 1;
     }
 
     for (uint32_t i = 0; i < 8; i++) {
@@ -425,7 +425,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                     continue;
                 }
 
-                result = 2 * (left->m_level >= right->m_level) - 1;
+                result = left->m_level >= right->m_level ? 1 : -1;
                 break;
             }
 
@@ -464,7 +464,7 @@ int32_t QSortRoster(const void* a, const void* b) {
                 }
 
                 if (left->m_online != right->m_online) {
-                    result = 2 * (left->m_online == 0) - 1;
+                    result = left->m_online ? -1 : 1;
                     break;
                 }
 

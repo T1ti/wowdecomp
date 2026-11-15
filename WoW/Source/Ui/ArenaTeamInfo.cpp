@@ -78,7 +78,7 @@ static int32_t QSortRoster(const void* a, const void* b) {
     const ArenaTeamMember* member2 = *static_cast<ArenaTeamMember* const*>(b);
 
     if (!CGArenaTeamInfo::m_showOffline && (!member1->m_online || !member2->m_online) && member1->m_online != member2->m_online) {
-        return 2 * (member1->m_online == 0) - 1;
+        return member1->m_online ? -1 : 1;
     }
 
     for (uint32_t i = 0; i < CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS; i++) {

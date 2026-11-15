@@ -675,7 +675,7 @@ static int32_t QSortStationery(const void* a, const void* b) {
     const StationeryInfo* infoB = *static_cast<StationeryInfo* const*>(b);
 
     if (infoA->m_isDefault != infoB->m_isDefault) {
-        return 2 * (infoA->m_isDefault == 0) - 1;
+        return infoA->m_isDefault ? -1 : 1;
     }
 
     if (infoA->m_itemGUID && !infoB->m_itemGUID) {
@@ -694,15 +694,15 @@ static int32_t QSortStationery(const void* a, const void* b) {
             return 0;
         }
 
-        return 2 * (statsA == nullptr) - 1;
+        return statsA == nullptr ? 1 : -1;
     }
 
     if (!statsB) {
-        return 2 * (statsA == nullptr) - 1;
+        return statsA == nullptr ? 1 : -1;
     }
 
     if (statsA->m_buyPrice != statsB->m_buyPrice) {
-        return 2 * (statsA->m_buyPrice >= statsB->m_buyPrice) - 1;
+        return statsA->m_buyPrice >= statsB->m_buyPrice ? 1 : -1;
     }
 
     return SStrSortUTF8I(statsA->GetName(0), statsB->GetName(0), STORM_MAX_STR);

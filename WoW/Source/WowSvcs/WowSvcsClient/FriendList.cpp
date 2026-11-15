@@ -499,7 +499,7 @@ int32_t CompareWhoResults(const void* a, const void* b) {
                     continue;
                 }
 
-                result = 2 * (left.m_level >= right.m_level) - 1;
+                result = left.m_level >= right.m_level ? 1 : -1;
                 break;
 
             case WHO_SORT_CLASS: {
