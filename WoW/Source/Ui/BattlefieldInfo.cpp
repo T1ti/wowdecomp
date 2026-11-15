@@ -41,16 +41,16 @@ BattlefieldScoreSortCriteria CGBattlefieldInfo::m_scoreSortCriteria[CGBattlefiel
 TSGrowableArray<int32_t> CGBattlefieldInfo::m_battlegroundTypes;
 
 // STATIC: 0x00BE9EE0
-int32_t CGBattlefieldInfo::m_arenaOpponentSeen[5];
+int32_t CGBattlefieldInfo::m_arenaOpponentSeen[MAX_ARENA_ENEMIES];
 
 // STATIC: 0x00BE9EF8
-WOWGUID CGBattlefieldInfo::m_arenaOpponentPets[5][2];
+WOWGUID CGBattlefieldInfo::m_arenaOpponentPets[MAX_ARENA_ENEMIES][2];
 
 // STATIC: 0x00BE9F48
-WOWGUID CGBattlefieldInfo::m_arenaOpponents[5];
+WOWGUID CGBattlefieldInfo::m_arenaOpponents[MAX_ARENA_ENEMIES];
 
 // STATIC: 0x00BE8F90
-CGPartyMemberState CGBattlefieldInfo::m_arenaOpponentStats[5];
+CGPartyMemberState CGBattlefieldInfo::m_arenaOpponentStats[MAX_ARENA_ENEMIES];
 
 // STATIC: 0x00BEA580
 uint32_t CGBattlefieldInfo::m_numScores;
@@ -328,11 +328,11 @@ void CGBattlefieldInfo::EnterWorld() {
     if (!CGGameUI::m_currentlyReloadingUI) {
         memset(CGBattlefieldInfo::m_arenaOpponentPets, 0, sizeof(CGBattlefieldInfo::m_arenaOpponentPets));
 
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
             CGBattlefieldInfo::m_arenaOpponents[i] = WOWGUID();
         }
 
-        for (int32_t i = 1; i <= 5; i++) {
+        for (int32_t i = 1; i <= MAX_ARENA_ENEMIES; i++) {
             char unit[32];
             SStrPrintf(unit, sizeof(unit), "arena%d", i);
             FrameScript_SignalEvent(SCRIPT_EVENT_ARENA_OPPONENT_UPDATE, "%s%s", unit, "cleared");
@@ -372,7 +372,7 @@ int32_t CGBattlefieldInfo::GetPlayerPosition(uint32_t index, C3Vector* position)
 void CGBattlefieldInfo::OnArenaUnitDestroyed(const WOWGUID& guid) {
     char token[32];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         WOWGUID opponent = CGBattlefieldInfo::m_arenaOpponents[i];
 
         if (opponent == guid) {
@@ -396,7 +396,7 @@ void CGBattlefieldInfo::OnArenaUnitDestroyed(const WOWGUID& guid) {
         }
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponentPets[i][0] == guid) {
             CGBattlefieldInfo::m_arenaOpponentPets[i][0] = WOWGUID();
             CGBattlefieldInfo::m_arenaOpponentPets[i][1] = WOWGUID();
@@ -972,7 +972,7 @@ CGPartyMemberState* CGBattlefieldInfo::GetRemoteStats(const WOWGUID& guid) {
         return nullptr;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] == guid) {
             return &CGBattlefieldInfo::m_arenaOpponentStats[i];
         }
@@ -988,7 +988,7 @@ CGPartyPetState* CGBattlefieldInfo::GetRemotePetStats(const WOWGUID& guid) {
         return nullptr;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] && CGBattlefieldInfo::m_arenaOpponentStats[i].m_pet.m_guid == guid) {
             return &CGBattlefieldInfo::m_arenaOpponentStats[i].m_pet;
         }
@@ -1192,7 +1192,7 @@ bool CGBattlefieldInfo::GetBracketForLevel(uint32_t level, const BattlemasterLis
 // VERIFY: 1d516d84 manual
 // OFFSET: 0x006CF670
 int32_t CGBattlefieldInfo::GetArenaOpponentIndex(const WOWGUID& guid, int32_t* index) {
-    for (int32_t i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] == guid) {
             *index = i;
             return 1;
@@ -1205,7 +1205,7 @@ int32_t CGBattlefieldInfo::GetArenaOpponentIndex(const WOWGUID& guid, int32_t* i
 // VERIFY: 24eb6783 manual
 // OFFSET: 0x00549810
 CGPartyMemberState* CGBattlefieldInfo::GetRemoteStatsFromPet(const WOWGUID& petGuid) {
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] && CGBattlefieldInfo::m_arenaOpponentStats[i].m_pet.m_guid == petGuid) {
             return &CGBattlefieldInfo::m_arenaOpponentStats[i];
         }
@@ -1531,7 +1531,7 @@ void CGBattlefieldInfo::AddVehicle(const WOWGUID& guid) {
 void CGBattlefieldInfo::OnArenaUnitOutOfRange(const WOWGUID& guid) {
     char token[32];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         const WOWGUID& opponent = CGBattlefieldInfo::m_arenaOpponents[i];
 
         if (opponent == guid) {
@@ -1556,7 +1556,7 @@ void CGBattlefieldInfo::OnArenaUnitOutOfRange(const WOWGUID& guid) {
         }
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponentPets[i][0] == guid) {
             SStrPrintf(token, sizeof(token), "arenapet%d", i + 1);
             FrameScript_SignalEvent(SCRIPT_EVENT_ARENA_OPPONENT_UPDATE, "%s%s", token, "unseen");
@@ -1936,7 +1936,7 @@ void CGBattlefieldInfo::AddArenaOpponentPetToSlot(const WOWGUID& petGuid, const 
 // VERIFY: a9f9f494 manual
 // OFFSET: 0x0054D100
 void CGBattlefieldInfo::AddArenaOpponent(const WOWGUID& guid) {
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponentPets[i][1] == guid) {
             CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGBattlefieldInfo::m_arenaOpponentPets[i][0], TYPE_UNIT, __FILE__, __LINE__));
 
@@ -1949,7 +1949,7 @@ void CGBattlefieldInfo::AddArenaOpponent(const WOWGUID& guid) {
         }
     }
 
-    for (int32_t i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (!CGBattlefieldInfo::m_arenaOpponentPets[i][0] && (CGBattlefieldInfo::m_arenaOpponents[i] == guid || !CGBattlefieldInfo::m_arenaOpponents[i])) {
             CGBattlefieldInfo::AddArenaOpponentToSlot(guid, i);
             return;
@@ -1960,7 +1960,7 @@ void CGBattlefieldInfo::AddArenaOpponent(const WOWGUID& guid) {
 // VERIFY: 93acc678 manual
 // OFFSET: 0x0054D1C0
 void CGBattlefieldInfo::AddArenaOpponentPet(const WOWGUID& petGuid, const WOWGUID& ownerGuid) {
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] == ownerGuid) {
             CGBattlefieldInfo::AddArenaOpponentPetToSlot(petGuid, ownerGuid, i, 0);
             return;
@@ -1972,7 +1972,7 @@ void CGBattlefieldInfo::AddArenaOpponentPet(const WOWGUID& petGuid, const WOWGUI
         }
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (!CGBattlefieldInfo::m_arenaOpponents[i] && !CGBattlefieldInfo::m_arenaOpponentPets[i][0]) {
             CGBattlefieldInfo::AddArenaOpponentPetToSlot(petGuid, ownerGuid, i, 1);
             return;

@@ -20822,7 +20822,7 @@ void CGUnit_C::UpdateMountTransitionModel() {
 // VERIFY: 05cf001e manual
 // OFFSET: 0x00714A80
 static BOOL IsArenaOpponent(const WOWGUID& guid) {
-    for (int32_t i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < MAX_ARENA_ENEMIES; i++) {
         if (CGBattlefieldInfo::m_arenaOpponents[i] == guid) {
             return TRUE;
         }

@@ -80,6 +80,9 @@ int32_t QSortScoreData(const void* a, const void* b);
 bool IsOnTransport(CGObject_C* object);
 bool IsCurrentMapArena();
 
+// Arena opponent slots (FrameXML MAX_ARENA_ENEMIES).
+static const uint32_t MAX_ARENA_ENEMIES = 5;
+
 class CGBattlefieldInfo {
     public:
     // Shared client display states for battlefield and world-PvP queues.
@@ -154,9 +157,9 @@ class CGBattlefieldInfo {
     static void LeaveWorld();
     static void InitializeGame();
     static void ShutdownGame();
-    static WOWGUID m_arenaOpponentPets[5][2];
-    static WOWGUID m_arenaOpponents[5];
-    static CGPartyMemberState m_arenaOpponentStats[5];
+    static WOWGUID m_arenaOpponentPets[MAX_ARENA_ENEMIES][2];
+    static WOWGUID m_arenaOpponents[MAX_ARENA_ENEMIES];
+    static CGPartyMemberState m_arenaOpponentStats[MAX_ARENA_ENEMIES];
     static int32_t m_instanceType; // MAP_INSTANCE_TYPE, copied from MapRec
     static int32_t m_activeIndex;
     static BattlefieldStatus m_status[2];
@@ -203,7 +206,7 @@ class CGBattlefieldInfo {
     static uint32_t m_avgMatchmakingRating[2];
     static int32_t m_mapDone;
     static uint32_t m_winner;
-    static int32_t m_arenaOpponentSeen[5];
+    static int32_t m_arenaOpponentSeen[MAX_ARENA_ENEMIES];
     static WorldPvPQueueStatus m_worldPvPQueues[1];
     static BattlefieldScoreSortCriteria m_scoreSortCriteria[SCORE_SORT_COLUMN::NUM_COLUMNS];
     static TSGrowableArray<int32_t> m_battlegroundTypes;
