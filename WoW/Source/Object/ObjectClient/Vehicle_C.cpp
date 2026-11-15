@@ -509,7 +509,7 @@ CVehicle_C* CVehicle_C::Create(const CClientObjCreate* create, CGUnit_C* unit, i
         vehicle = nullptr;
     }
 
-    vehicle->m_flags = 0;
+    vehicle->m_flags = CVehicle_C::FLAGS::NONE;
     vehicle->m_unit = unit;
 
     float facing;
@@ -614,7 +614,7 @@ int32_t CVehicle_C::PlayBoneAnim(uint32_t boneId, uint32_t animId) {
     uint32_t slot = boneId >= 35 ? 26 : boneId;
     this->m_unit->SetKeyBoneSequence(model, slot == 26 ? 0xFFFFFFFF : slot, animId, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
     this->m_playingBoneAnims[slot >> 5] |= 1 << (slot & 0x1F);
-    this->m_flags |= 0x1;
+    this->m_flags |= CVehicle_C::FLAGS::BONE_ANIMS_PLAYING;
     return 1;
 }
 

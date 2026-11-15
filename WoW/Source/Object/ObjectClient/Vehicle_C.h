@@ -33,6 +33,13 @@ class CVehicle_C {
         /* 000C */ void (*m_callback)(CGUnit_C* unit, int32_t& a2, TSGrowableArray<CVehiclePassenger_C*>& passengers);
     };
 
+    // Runtime vehicle state; reconstructed names.
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // PlayBoneAnim started at least one bone animation (m_playingBoneAnims).
+        BONE_ANIMS_PLAYING = 0x1,
+    };
+
     static CVehicleHeap* s_vehiclePool;
 
     static void InitSystem();
@@ -42,7 +49,7 @@ class CVehicle_C {
 
     /* 0000 */ uint32_t m_memHandle;
     /* 0004 */ CGUnit_C* m_unit;
-    /* 0008 */ uint32_t m_flags;
+    /* 0008 */ uint32_t m_flags; // FLAGS
     /* 000C */ VehicleRec* m_vehicleRec;
     /* 0010 */ C44Matrix m_worldMatrix;
     /* 0050 */ float m_rawFacing;

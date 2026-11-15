@@ -20309,7 +20309,7 @@ void CGUnit_C::NamePlateClearAll() {
 // VERIFY: 80222452 manual
 // OFFSET: 0x007271D0
 void CGUnit_C::SetNamePlateFocus(const C2Vector& position) {
-    if (CGInputControl::GetActive()->m_flags & 0x6000003) {
+    if (CGInputControl::GetActive()->m_flags & INPUT_FREE_LOOK_MASK) {
         return;
     }
 
@@ -23994,7 +23994,7 @@ void CGUnit_C::ShowPlayerPVPHonorGained(WOWGUID victim, int32_t rank, int32_t ho
 void CGUnit_C::CleanUpVehicleBoneAnimsBeforeObjectModelChange() {
     CVehicle_C* vehicle = this->m_vehicle;
 
-    if (!vehicle || !(vehicle->m_flags & 0x1)) {
+    if (!vehicle || !(vehicle->m_flags & CVehicle_C::FLAGS::BONE_ANIMS_PLAYING)) {
         return;
     }
 
@@ -24019,6 +24019,6 @@ void CGUnit_C::CleanUpVehicleBoneAnimsBeforeObjectModelChange() {
         vehicle->m_boneAnimListeners[i].m_guid = WOWGUID();
     }
 
-    vehicle->m_flags &= ~0x1;
+    vehicle->m_flags &= ~CVehicle_C::FLAGS::BONE_ANIMS_PLAYING;
     vehicle->m_forceFacingGuid = WOWGUID();
 }
