@@ -25,6 +25,8 @@ enum ITEM_ENCHANTMENT_FLAGS : int32_t {
     ENCHANTMENT_FLAG_NONE      = 0x00000000,
     // Makes the enchanted item soulbound.
     ENCHANTMENT_FLAG_SOULBOUND = 0x00000001,
+    // 3.3.5 Packet_SMSG_ENCHANTMENTLOG skips apply/remove entries when set.
+    ENCHANTMENT_FLAG_SUPPRESS_COMBAT_LOG = 0x00000002,
 };
 
 class SpellItemEnchantmentRec {
@@ -41,7 +43,7 @@ class SpellItemEnchantmentRec {
     /* 002C */ int32_t m_effectArg [3];
     /* 0038 */ const char* m_name;
     /* 003C */ int32_t m_itemVisual;
-    /* 0040 */ int32_t m_flags; // ITEM_ENCHANTMENT_FLAGS
+    /* 0040 */ ITEM_ENCHANTMENT_FLAGS m_flags;
     /* 0044 */ int32_t m_srcItemID;
     /* 0048 */ int32_t m_conditionID;
     /* 004C */ int32_t m_requiredSkillID;

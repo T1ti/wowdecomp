@@ -4787,7 +4787,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
             if (item->IsBound() && !item->IsBoundForTrade() && !confirmed) {
                 SpellItemEnchantmentRec* boundEnchant;
 
-                if (spell.m_effect[i] != SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY || ((boundEnchant = g_spellItemEnchantmentDB.GetRecord(spell.m_effectMiscValue[i])) && (boundEnchant->m_flags & 1))) {
+                if (spell.m_effect[i] != SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY || ((boundEnchant = g_spellItemEnchantmentDB.GetRecord(spell.m_effectMiscValue[i])) && (boundEnchant->m_flags & ENCHANTMENT_FLAG_SOULBOUND))) {
                     CGGameUI::m_lastItemSpellTarget = item->m_obj->m_guid;
                     FrameScript_SignalEvent(SCRIPT_EVENT_END_BOUND_TRADEABLE, "%s", "itemenchant");
                     return;

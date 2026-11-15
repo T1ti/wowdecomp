@@ -1535,7 +1535,7 @@ int32_t Packet_SMSG_ENCHANTMENTLOG(void* param, NETMESSAGE msgId, uint32_t time,
 
     SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(enchantId);
 
-    if (enchant && !(enchant->m_flags & 0x2)) {
+    if (enchant && !(enchant->m_flags & ENCHANTMENT_FLAG_SUPPRESS_COMBAT_LOG)) {
         CombatLogEntry* entry = GetCombatLogEntry(caster, target, caster.m_guid ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_ENCHANT_APPLIED : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_ENCHANT_REMOVED, nullptr);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_ENCHANT_NAME;
         entry->m_info.m_names[2] = enchant->m_name;
