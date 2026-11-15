@@ -704,8 +704,8 @@ void CGLCD::UpdateMapPositions() {
         }
     }
 
-    int32_t y = CMath::fint_(map->m_sizeY * position.y + map->m_offsetY - 8.0f);
-    int32_t x = CMath::fint_(map->m_sizeX * position.x + map->m_offsetX - 8.0f);
+    int32_t y = CMath::fint_(map->m_size.y * position.y + map->m_offset.y - 8.0f);
+    int32_t x = CMath::fint_(map->m_size.x * position.x + map->m_offset.x - 8.0f);
     CGLCD::m_lcd->SetOrigin(CGLCD::GetHandle("PlayerIcon"), x, y);
     CGLCD::m_lcd->SetVisible(CGLCD::GetHandle("PlayerIcon"), 1);
 
@@ -718,8 +718,8 @@ void CGLCD::UpdateMapPositions() {
             SStrPrintf(name, sizeof(name), "PartyIcon%d", i + 1);
             void* handle = CGLCD::GetHandle(name);
             CGLCD::m_lcd->SetVisible(handle, 1);
-            int32_t memberY = CMath::fint_(map->m_sizeY * position.y + map->m_offsetY - 8.0f);
-            int32_t memberX = CMath::fint_(map->m_sizeX * position.x + map->m_offsetX - 8.0f);
+            int32_t memberY = CMath::fint_(map->m_size.y * position.y + map->m_offset.y - 8.0f);
+            int32_t memberX = CMath::fint_(map->m_size.x * position.x + map->m_offset.x - 8.0f);
             CGLCD::m_lcd->SetOrigin(handle, memberX, memberY);
         }
     }
@@ -754,8 +754,8 @@ void CGLCD::UpdateMapPositions() {
                 HBITMAP bitmap = CLCDUtils::GetBitmapForIcon(rec->m_icon[iconIndex], &size);
                 CGLCD::m_lcd->SetBitmap(icon->m_handle, bitmap);
                 visible = 1;
-                int32_t iconY = CMath::fint_(map->m_sizeY * landmark->m_y + map->m_offsetY - 8.0f);
-                int32_t iconX = CMath::fint_(map->m_sizeX * landmark->m_x + map->m_offsetX - 8.0f);
+                int32_t iconY = CMath::fint_(map->m_size.y * landmark->m_y + map->m_offset.y - 8.0f);
+                int32_t iconX = CMath::fint_(map->m_size.x * landmark->m_x + map->m_offset.x - 8.0f);
                 CGLCD::m_lcd->SetOrigin(icon->m_handle, iconX, iconY);
             }
 
@@ -788,13 +788,13 @@ void CGLCD::UpdateMapPositions() {
 
         if (!SStrCmpI(token, "AllianceFlag", STORM_MAX_STR)) {
             allianceVisible = 1;
-            int32_t flagY = CMath::fint_(map->m_sizeY * flag.y + map->m_offsetY - 8.0f);
-            int32_t flagX = CMath::fint_(map->m_sizeX * flag.x + map->m_offsetX - 8.0f);
+            int32_t flagY = CMath::fint_(map->m_size.y * flag.y + map->m_offset.y - 8.0f);
+            int32_t flagX = CMath::fint_(map->m_size.x * flag.x + map->m_offset.x - 8.0f);
             CGLCD::m_lcd->SetOrigin(CGLCD::GetHandle("AllianceFlag"), flagX, flagY);
         } else if (!SStrCmpI(token, "HordeFlag", STORM_MAX_STR)) {
             hordeVisible = 1;
-            int32_t flagY = CMath::fint_(map->m_sizeY * flag.y + map->m_offsetY - 8.0f);
-            int32_t flagX = CMath::fint_(map->m_sizeX * flag.x + map->m_offsetX - 8.0f);
+            int32_t flagY = CMath::fint_(map->m_size.y * flag.y + map->m_offset.y - 8.0f);
+            int32_t flagX = CMath::fint_(map->m_size.x * flag.x + map->m_offset.x - 8.0f);
             CGLCD::m_lcd->SetOrigin(CGLCD::GetHandle("HordeFlag"), flagX, flagY);
         }
     }
@@ -1353,14 +1353,14 @@ bool CGLCD::LoadLCDMap(int32_t screen, XMLNode* node, CStatus* status, int32_t s
     for (XMLNode* child = node->m_child; child; child = child->m_next) {
         if (!SStrCmpI(child->m_name.m_str, "Size", STORM_MAX_STR)) {
             const char* x = child->GetAttributeByName("x");
-            map->m_sizeX = x && *x ? SStrToInt(x) : 0;
+            map->m_size.x = x && *x ? SStrToInt(x) : 0;
             const char* y = child->GetAttributeByName("y");
-            map->m_sizeY = y && *y ? SStrToInt(y) : 0;
+            map->m_size.y = y && *y ? SStrToInt(y) : 0;
         } else if (!SStrCmpI(child->m_name.m_str, "Offset", STORM_MAX_STR)) {
             const char* x = child->GetAttributeByName("x");
-            map->m_offsetX = x && *x ? SStrToInt(x) : 0;
+            map->m_offset.x = x && *x ? SStrToInt(x) : 0;
             const char* y = child->GetAttributeByName("y");
-            map->m_offsetY = y && *y ? SStrToInt(y) : 0;
+            map->m_offset.y = y && *y ? SStrToInt(y) : 0;
         }
     }
 
@@ -1454,8 +1454,8 @@ bool CGLCD::LoadLCDText(int32_t screen, XMLNode* node, CStatus* status, int32_t 
             int32_t offsetX = x && *x ? SStrToInt(x) : 0;
             const char* y = child->GetAttributeByName("y");
             int32_t offsetY = y && *y ? SStrToInt(y) : 0;
-            originX = relative->m_x + offsetX;
-            originY = relative->m_y + offsetY;
+            originX = relative->m_position.x + offsetX;
+            originY = relative->m_position.y + offsetY;
         } else if (!SStrCmpI(child->m_name.m_str, "Origin", STORM_MAX_STR)) {
             const char* x = child->GetAttributeByName("x");
             originX = x && *x ? SStrToInt(x) : 0;
@@ -1484,8 +1484,8 @@ bool CGLCD::LoadLCDText(int32_t screen, XMLNode* node, CStatus* status, int32_t 
     LCDHANDLE* handle = CGLCD::m_handles.New(name, 0, 0);
     handle->m_handle = lcdText;
     handle->SetText(text);
-    handle->m_x = originX;
-    handle->m_y = originY;
+    handle->m_position.x = originX;
+    handle->m_position.y = originY;
 
     if (SStrStr(name, "CHAT_ALERT_")) {
         CGLCD::m_chatAlertLines++;
@@ -1581,8 +1581,8 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
             int32_t offsetX = x && *x ? SStrToInt(x) : 0;
             const char* y = child->GetAttributeByName("y");
             int32_t offsetY = y && *y ? SStrToInt(y) : 0;
-            originX = relative->m_x + offsetX;
-            originY = relative->m_y + offsetY;
+            originX = relative->m_position.x + offsetX;
+            originY = relative->m_position.y + offsetY;
         } else if (!SStrCmpI(child->m_name.m_str, "Size", STORM_MAX_STR)) {
             const char* x = child->GetAttributeByName("x");
             sizeX = x && *x ? SStrToInt(x) : 0;
@@ -1646,9 +1646,9 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
     CGLCD::m_lcd->SetAlpha(lcdBitmap, alpha);
 
     LCDHANDLE* handle = CGLCD::m_handles.New(name, 0, 0);
-    handle->m_y = originY;
+    handle->m_position.y = originY;
     handle->m_handle = lcdBitmap;
-    handle->m_x = originX;
+    handle->m_position.x = originX;
     return true;
 }
 
@@ -1720,8 +1720,8 @@ bool CGLCD::GeneratePOIs(XMLNode* node) {
             SStrPrintf(name, sizeof(name), "%s_%s", rec->m_name, rec->m_description);
             LCDHANDLE* handle = CGLCD::m_handles.New(name, 0, 0);
             handle->m_handle = handle;
-            handle->m_x = static_cast<int32_t>(originX);
-            handle->m_y = static_cast<int32_t>(originY);
+            handle->m_position.x = static_cast<int32_t>(originX);
+            handle->m_position.y = static_cast<int32_t>(originY);
 
             POIIcon* icon = CGLCD::m_POIIcons.NewNode(TSLIST_LINK_BEFORE, 0, 0);
             icon->m_handle = lcdBitmap;

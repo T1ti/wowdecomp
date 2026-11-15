@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "Engine/Source/Base/RCString.h"
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Tempest/C2iVector.h"
 
 class CEzLcd;
 class CGPlayer_C;
@@ -13,8 +14,7 @@ struct BattlefieldStatus;
 
 struct LCDHANDLE : public TSHashObject<LCDHANDLE, HASHKEY_CONSTSTRI> {
     /* 0018 */ void* m_handle;
-    /* 001C */ int32_t m_x;
-    /* 0020 */ int32_t m_y;
+    /* 001C */ C2iVector m_position;
     /* 0024 */ RCString m_text;
 
     void SetText(const char* text);
@@ -22,10 +22,8 @@ struct LCDHANDLE : public TSHashObject<LCDHANDLE, HASHKEY_CONSTSTRI> {
 
 struct MAPDATA : public TSLinkedNode<MAPDATA> {
     /* 0008 */ int32_t m_screen;
-    /* 000C */ int32_t m_sizeX;
-    /* 0010 */ int32_t m_sizeY;
-    /* 0014 */ int32_t m_offsetX;
-    /* 0018 */ int32_t m_offsetY;
+    /* 000C */ C2iVector m_size;
+    /* 0014 */ C2iVector m_offset;
 };
 
 struct POIIcon : public TSLinkedNode<POIIcon> {
