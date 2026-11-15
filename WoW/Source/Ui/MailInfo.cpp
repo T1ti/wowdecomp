@@ -580,7 +580,7 @@ void CGMailInfo::UpdateRecentSenders() {
             sender.m_timeLeft = 0.0f;
             sender.m_guid = WOWGUID();
             sender.m_entry = 0;
-            sender.m_messageType = 0;
+            sender.m_messageType = MAIL_MESSAGE_TYPE_NORMAL;
             sender.m_stationery = 0;
             changed = true;
         }
@@ -724,7 +724,7 @@ static void InboxAuctionItemQueryCallback(int32_t id, const WOWGUID& guid, void*
 // VERIFY: 5312eb4e manual
 // OFFSET: 0x0056F520
 void CGMailInfo::ParseInboxSubject(MailboxMessageInfo* message) {
-    if (message->m_messageType == 2) {
+    if (message->m_messageType == MAIL_MESSAGE_TYPE_AUCTION) {
         int32_t itemID = SStrToInt(message->m_invoiceSubject);
         const char* field = SStrChr(message->m_invoiceSubject, ':');
         uint32_t type = 0;
@@ -821,7 +821,7 @@ void CGMailInfo::ParseInboxSubject(MailboxMessageInfo* message) {
         return;
     }
 
-    if (message->m_messageType == 5) {
+    if (message->m_messageType == MAIL_MESSAGE_TYPE_CALENDAR) {
         const char* format;
 
         if (message->m_flags & MailboxMessageInfo::FLAGS::CALENDAR_INVITE_REMOVED) {
@@ -856,7 +856,7 @@ void CGMailInfo::RemoveMoney(uint32_t messageID) {
     CGMailInfo::m_inbox.m_data[i]->m_money = 0;
     MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[i];
 
-    if ((message->m_messageType == 2 || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
+    if ((message->m_messageType == MAIL_MESSAGE_TYPE_AUCTION || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_MAIL_DELETE));
         msg.Put(CGMailInfo::m_object.m_guid);
@@ -909,7 +909,7 @@ void CGMailInfo::RemoveItem(uint32_t messageID, uint32_t itemGuid) {
     memset(attachment, 0, sizeof(*attachment));
     message->m_cod = 0;
 
-    if ((message->m_messageType == 2 || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
+    if ((message->m_messageType == MAIL_MESSAGE_TYPE_AUCTION || (message->m_flags & MailboxMessageInfo::FLAGS::COD_PAYMENT) || (!SStrLen(message->m_body) && !message->m_mailTemplateID)) && !message->m_deletePending && !message->m_money && !GetNumAttachments(message)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_MAIL_DELETE));
         msg.Put(CGMailInfo::m_object.m_guid);
@@ -934,7 +934,7 @@ bool CGMailInfo::CanComplain(uint32_t index) {
     }
 
     MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[index];
-    return message && !message->m_messageType && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURNED) && message->m_stationery != CGMailInfo::GM_STATIONERY_ID && message->m_sender != player->m_obj->m_guid && !FriendList::s_friendList->IsFriend(message->m_sender);
+    return message && message->m_messageType == MAIL_MESSAGE_TYPE_NORMAL && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURNED) && message->m_stationery != CGMailInfo::GM_STATIONERY_ID && message->m_sender != player->m_obj->m_guid && !FriendList::s_friendList->IsFriend(message->m_sender);
 }
 
 // VERIFY: 56c85263 auto
@@ -1367,8 +1367,8 @@ bool CGMailInfo::IsSendItem(WOWGUID item) {
 // OFFSET: 0x0056D960
 const char* GetSenderName(int32_t entry, int32_t type, WOWGUID guid, int32_t stationery) {
     switch (type) {
-        case 0:
-        case 5: {
+        case MAIL_MESSAGE_TYPE_NORMAL:
+        case MAIL_MESSAGE_TYPE_CALENDAR: {
             if (stationery == CGMailInfo::GM_STATIONERY_ID) {
                 return FrameScript_GetText("GM_EMAIL_NAME", -1, GENDER_NOT_APPLICABLE);
             }
@@ -1377,7 +1377,7 @@ const char* GetSenderName(int32_t entry, int32_t type, WOWGUID guid, int32_t sta
             return name ? name->m_name : nullptr;
         }
 
-        case 2: {
+        case MAIL_MESSAGE_TYPE_AUCTION: {
             AuctionHouseRec* auctionHouse = g_auctionHouseDB.GetRecord(entry);
 
             if (auctionHouse) {
@@ -1387,7 +1387,7 @@ const char* GetSenderName(int32_t entry, int32_t type, WOWGUID guid, int32_t sta
             break;
         }
 
-        case 3: {
+        case MAIL_MESSAGE_TYPE_CREATURE: {
             WOWGUID none = WOWGUID();
             CreatureStats_C* stats = g_creatureDBCache.GetRecord(entry, none, &SenderNameQueryCallback, nullptr, false);
 
@@ -1398,7 +1398,7 @@ const char* GetSenderName(int32_t entry, int32_t type, WOWGUID guid, int32_t sta
             break;
         }
 
-        case 4: {
+        case MAIL_MESSAGE_TYPE_GAMEOBJECT: {
             WOWGUID none = WOWGUID();
             GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(entry, none, &SenderNameQueryCallback, nullptr, false);
 
@@ -1451,7 +1451,7 @@ int32_t Packet_MSG_QUERY_NEXT_MAIL_TIME(void* param, NETMESSAGE msgId, uint32_t 
         sender.m_timeLeft = 0.0f;
         sender.m_guid = WOWGUID();
         sender.m_entry = 0;
-        sender.m_messageType = 0;
+        sender.m_messageType = MAIL_MESSAGE_TYPE_NORMAL;
         sender.m_stationery = 0;
     }
 

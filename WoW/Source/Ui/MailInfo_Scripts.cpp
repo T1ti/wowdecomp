@@ -515,7 +515,7 @@ static int32_t Script_GetInboxHeaderInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (message->m_messageType || isGM) {
+    if (message->m_messageType != MAIL_MESSAGE_TYPE_NORMAL || isGM) {
         lua_pushnil(L);
 
         if (isGM) {
@@ -671,7 +671,7 @@ static int32_t Script_ReturnInboxItem(lua_State* L) {
 
     MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[index];
 
-    if (!message || message->m_deletePending || message->m_messageType || (!GetNumAttachments(message) && !message->m_money) || (message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
+    if (!message || message->m_deletePending || message->m_messageType != MAIL_MESSAGE_TYPE_NORMAL || (!GetNumAttachments(message) && !message->m_money) || (message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
         return 0;
     }
 
@@ -717,7 +717,7 @@ static int32_t Script_DeleteInboxItem(lua_State* L) {
         return 0;
     }
 
-    if (!(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK) && !message->m_messageType && (GetNumAttachments(message) || message->m_money)) {
+    if (!(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK) && message->m_messageType == MAIL_MESSAGE_TYPE_NORMAL && (GetNumAttachments(message) || message->m_money)) {
         return 0;
     }
 
@@ -744,7 +744,7 @@ static int32_t Script_InboxItemCanDelete(lua_State* L) {
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     MailboxMessageInfo* message;
 
-    if (index < CGMailInfo::m_numInboxItems && (message = CGMailInfo::m_inbox.m_data[index]) && ((message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK) || message->m_messageType || (!GetNumAttachments(message) && !message->m_money))) {
+    if (index < CGMailInfo::m_numInboxItems && (message = CGMailInfo::m_inbox.m_data[index]) && ((message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK) || message->m_messageType != MAIL_MESSAGE_TYPE_NORMAL || (!GetNumAttachments(message) && !message->m_money))) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1051,17 +1051,17 @@ static int32_t Script_GetInboxText(lua_State* L) {
         }
     } else {
         switch (message->m_messageType) {
-            case 2:
+            case MAIL_MESSAGE_TYPE_AUCTION:
                 lua_pushnil(L);
                 break;
 
-            case 0:
+            case MAIL_MESSAGE_TYPE_NORMAL:
                 SStrCopy(text, message->m_body, sizeof(text));
                 ProfanityFilter(text, false, false);
                 lua_pushstring(L, text);
                 break;
 
-            case 5: {
+            case MAIL_MESSAGE_TYPE_CALENDAR: {
                 CGCalendar::GetDateTimeText(buffer, sizeof(buffer), SStrToUnsigned(message->m_body));
                 const char* format = FrameScript_GetText((message->m_flags & MailboxMessageInfo::FLAGS::CALENDAR_INVITE_REMOVED) ? "CALENDAR_INVITE_REMOVED_MAIL_BODY" : "CALENDAR_EVENT_REMOVED_MAIL_BODY", -1, GENDER_NOT_APPLICABLE);
 
@@ -1092,7 +1092,7 @@ static int32_t Script_GetInboxText(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if ((!SStrLen(message->m_body) && !message->m_mailTemplateID) || (message->m_flags & MailboxMessageInfo::FLAGS::COPIED) || message->m_stationery == CGMailInfo::GM_STATIONERY_ID || message->m_messageType == 5 || (message->m_messageType == 2 && !message->m_invoiceItemID)) {
+    if ((!SStrLen(message->m_body) && !message->m_mailTemplateID) || (message->m_flags & MailboxMessageInfo::FLAGS::COPIED) || message->m_stationery == CGMailInfo::GM_STATIONERY_ID || message->m_messageType == MAIL_MESSAGE_TYPE_CALENDAR || (message->m_messageType == MAIL_MESSAGE_TYPE_AUCTION && !message->m_invoiceItemID)) {
         lua_pushnil(L);
     } else {
         lua_pushnumber(L, 1.0);

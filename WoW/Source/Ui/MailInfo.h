@@ -9,10 +9,19 @@
 class CDataStore;
 struct lua_State;
 
+// Sender kind of a mailbox message; named after how GetSenderName and the subject/body formatting treat each value.
+enum MAIL_MESSAGE_TYPE : int32_t {
+    MAIL_MESSAGE_TYPE_NORMAL = 0, // Player (or GM stationery) mail.
+    MAIL_MESSAGE_TYPE_AUCTION = 2, // Sender entry is an AuctionHouse.dbc ID; subject is an auction invoice.
+    MAIL_MESSAGE_TYPE_CREATURE = 3,
+    MAIL_MESSAGE_TYPE_GAMEOBJECT = 4,
+    MAIL_MESSAGE_TYPE_CALENDAR = 5, // Calendar event/invite removal notice; body is a packed date.
+};
+
 struct MailSenderInfo {
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ int32_t m_entry;
-    /* 000C */ int32_t m_messageType;
+    /* 000C */ int32_t m_messageType; // MAIL_MESSAGE_TYPE
     /* 0010 */ int32_t m_stationery;
     /* 0014 */ float m_timeLeft;
 };
@@ -60,7 +69,7 @@ struct MailboxMessageInfo {
     static const int32_t MAX_ATTACHMENTS = 16;
 
     /* 0000 */ int32_t m_messageID;
-    /* 0004 */ int32_t m_messageType;
+    /* 0004 */ int32_t m_messageType; // MAIL_MESSAGE_TYPE
     /* 0008 */ WOWGUID m_sender;
     /* 0010 */ int32_t m_senderEntry;
     /* 0014 */ char m_subject[SUBJECT_BUFFER_SIZE];
