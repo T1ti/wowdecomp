@@ -306,8 +306,8 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
 
     this->m_collideExtent = 1.0f;
     this->m_vehicleZoomEnabled = 0;
-    this->m_overrideDistanceMin = 0.0f;
-    this->m_overrideDistanceMax = 0.0f;
+    this->m_overrideDistanceRange.m_l = 0.0f;
+    this->m_overrideDistanceRange.m_h = 0.0f;
     this->m_vehicleExitZoomDistance = 0.0f;
     this->m_vehicleYawStartTime = 0;
     this->m_vehicleYawEndTime = 0;
@@ -1955,7 +1955,7 @@ void CGCamera::SetVehicleExitZoomDistance(float distance) {
 // OFFSET: 0x00600890
 void CGCamera::SetVehicleSeatZoomMaxDistance(float distance) {
     this->m_flags |= FLAGS::FLAG_VEHICLE_ZOOM_MAX;
-    this->m_overrideDistanceMax = distance;
+    this->m_overrideDistanceRange.m_h = distance;
 
     if (distance < this->m_smoothDistance.m_target) {
         this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_DISTANCE;
@@ -1982,7 +1982,7 @@ void CGCamera::SetVehicleSeatZoomMaxDistanceToDefault() {
 // OFFSET: 0x00600840
 void CGCamera::SetVehicleSeatZoomMinDistance(float distance) {
     this->m_flags |= FLAGS::FLAG_VEHICLE_ZOOM_MIN;
-    this->m_overrideDistanceMin = distance;
+    this->m_overrideDistanceRange.m_l = distance;
 
     if (distance > this->m_smoothDistance.m_target) {
         this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_DISTANCE;
@@ -2862,7 +2862,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
     float minDistance;
 
     if (this->m_flags & FLAGS::FLAG_VEHICLE_ZOOM_MIN) {
-        minDistance = this->m_overrideDistanceMin;
+        minDistance = this->m_overrideDistanceRange.m_l;
     } else if (CGBarberShop::m_barberShopEnabled) {
         minDistance = CGBarberShop::GetMinCameraDistance();
     } else {
@@ -2872,7 +2872,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
     float maxDistance;
 
     if (this->m_flags & FLAGS::FLAG_VEHICLE_ZOOM_MAX) {
-        maxDistance = this->m_overrideDistanceMax;
+        maxDistance = this->m_overrideDistanceRange.m_h;
     } else if (this->m_vehicleZoomEnabled) {
         maxDistance = 50.0f;
     } else {

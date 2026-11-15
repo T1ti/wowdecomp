@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Tempest/C3Vector.h"
+#include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/C33Matrix.h"
 #include "Engine/Source/Tempest/C34Matrix.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -237,8 +238,7 @@ class CGCamera : public CSimpleCamera {
     /* 02A8 */ CAMERA_SMOOTH m_smoothFlyingHeight;
     /* 02C0 */ float m_collideExtent;
     /* 02C4 */ uint32_t m_vehicleZoomEnabled;
-    /* 02C8 */ float m_overrideDistanceMin;
-    /* 02CC */ float m_overrideDistanceMax;
+    /* 02C8 */ CRange m_overrideDistanceRange;
     /* 02D0 */ float m_vehicleExitZoomDistance;
     /* 02D4 */ uint32_t m_vehicleYawStartTime;
     /* 02D8 */ uint32_t m_vehicleYawEndTime;
