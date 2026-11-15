@@ -1623,7 +1623,7 @@ void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
     uint32_t chunkFlags = chunk->m_header->m_flags;
     uint8_t* shadowMap = nullptr;
 
-    if ((chunkFlags & 0x1) && (CWorld::enables & Enables::Enable_Shadow)) {
+    if ((chunkFlags & SMChunk::FLAGS::HAS_SHADOW_MAP) && (CWorld::enables & Enables::Enable_Shadow)) {
         shadowMap = chunk->m_shadowMap;
     }
 
@@ -1632,7 +1632,7 @@ void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
     layerAlpha.m_alphaData = alphaData;
 
     CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
-    this->UnpackAlphaBits(CMapRenderChunk::s_defaultTex, 64 >> area->m_header->m_mampValue, &layerAlpha, shadowMap, genFormat, chunkFlags & 0x8000);
+    this->UnpackAlphaBits(CMapRenderChunk::s_defaultTex, 64 >> area->m_header->m_mampValue, &layerAlpha, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 }
 
 // VERIFY: ffeb78ca manual
@@ -1641,7 +1641,7 @@ void CMapRenderChunk::CreateShadowTex() {
     CMapChunk* chunk = this->m_mapChunks[0];
     uint8_t* shadowMap = nullptr;
 
-    if (chunk->m_header->m_flags & 0x1) {
+    if (chunk->m_header->m_flags & SMChunk::FLAGS::HAS_SHADOW_MAP) {
         shadowMap = chunk->m_shadowMap;
     }
 
@@ -1685,7 +1685,7 @@ void CMapRenderChunk::CreateShaderTexture() {
 
     uint32_t chunkFlags = chunk->m_header->m_flags;
 
-    if ((chunkFlags & 0x1) && (CWorld::enables & Enables::Enable_Shadow)) {
+    if ((chunkFlags & SMChunk::FLAGS::HAS_SHADOW_MAP) && (CWorld::enables & Enables::Enable_Shadow)) {
         shadowMap = chunk->m_shadowMap;
     }
 
@@ -1701,7 +1701,7 @@ void CMapRenderChunk::CreateShaderTexture() {
         pitch >>= 1;
     }
 
-    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, 0, pitch, size, layers, 0, shadowMap, genFormat, chunkFlags & 0x8000);
+    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, 0, pitch, size, layers, 0, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 
     if (!this->m_mapChunks[1]) {
         return;
@@ -1742,7 +1742,7 @@ void CMapRenderChunk::CreateShaderTexture() {
     uint32_t chunk2Flags = header->m_flags;
     uint8_t* shadowMap2 = nullptr;
 
-    if ((chunk2Flags & 0x1) && (CWorld::enables & Enables::Enable_Shadow)) {
+    if ((chunk2Flags & SMChunk::FLAGS::HAS_SHADOW_MAP) && (CWorld::enables & Enables::Enable_Shadow)) {
         shadowMap2 = this->m_mapChunks[1]->m_shadowMap;
     }
 
@@ -1762,7 +1762,7 @@ void CMapRenderChunk::CreateShaderTexture() {
         }
     }
 
-    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, offset, pitch, size, layers, alphaSlot, shadowMap2, genFormat, chunk2Flags & 0x8000);
+    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, offset, pitch, size, layers, alphaSlot, shadowMap2, genFormat, chunk2Flags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 }
 
 // VERIFY: ee6e5438 manual
@@ -1868,7 +1868,7 @@ void CMapRenderChunk::AllocShadowTexture() {
 
     CMapChunk* chunk = this->m_mapChunks[0];
 
-    if (!(chunk->m_header->m_flags & 0x1)) {
+    if (!(chunk->m_header->m_flags & SMChunk::FLAGS::HAS_SHADOW_MAP)) {
         return;
     }
 

@@ -188,7 +188,20 @@ struct SLVert {
 };
 
 struct SMChunk {
-    /* 0000 */ uint32_t m_flags;
+    // MCNK flags tested by the client.
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        HAS_SHADOW_MAP = 0x1,
+        IMPASSABLE = 0x2,
+        // Legacy MCLQ liquids, in LiquidType order 1..4.
+        LIQUID_WATER = 0x4,
+        LIQUID_OCEAN = 0x8,
+        LIQUID_MAGMA = 0x10,
+        LIQUID_SLIME = 0x20,
+        DO_NOT_FIX_ALPHA_MAP = 0x8000,
+    };
+
+    /* 0000 */ uint32_t m_flags; // FLAGS
     /* 0004 */ C2iVector m_index;
     /* 000C */ uint32_t m_nLayers;
     /* 0010 */ uint32_t m_nDoodadRefs;

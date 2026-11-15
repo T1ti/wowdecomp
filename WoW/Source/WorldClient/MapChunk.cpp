@@ -784,7 +784,7 @@ void CMapChunk::CreateLiquids(bool a3) {
     SMLiquidChunk* mclq = this->m_liquid;
 
     if (mclq) {
-        uint32_t flag = 4;
+        uint32_t flag = SMChunk::FLAGS::LIQUID_WATER;
 
         for (uint32_t i = 0; i < 4; i++) {
             if (flag & this->m_header->m_flags) {
@@ -1035,7 +1035,7 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool a3) {
 
     this->m_flags = static_cast<MapObjFlag>(0);
 
-    if (this->m_header->m_flags & 2) {
+    if (this->m_header->m_flags & SMChunk::FLAGS::IMPASSABLE) {
         this->m_flags = MAPOBJ_FLAG_IMPASSABLE;
     }
 
