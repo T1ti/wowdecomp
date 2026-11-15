@@ -230,7 +230,7 @@ class SI2 {
     static int32_t PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, const C3Vector* position, int32_t self);
     static int32_t PlaySoundFile(const char* filename, SI2_SOUND_GROUP group);
     static int32_t PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties);
-    static void PlayVocalErrorSound(int32_t error);
+    static void PlayVocalErrorSound(VOCALUISOUNDS error);
     static void PlaySpellFizzleSound(uint32_t spellId, const void* object);
     static void DK_GetPlayerFilterName(CGUnit_C* unit, char* name, uint32_t size);
     static int32_t PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, int32_t keepPlaying);

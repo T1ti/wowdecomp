@@ -34,7 +34,7 @@ void SI2::InitVocalErrorSounds(int32_t race, uint32_t sex) {
 
 // VERIFY: 535f9207 auto
 // OFFSET: 0x00986D00
-void SI2::PlayVocalErrorSound(int32_t error) {
+void SI2::PlayVocalErrorSound(VOCALUISOUNDS error) {
     static CVar* s_enableErrorSpeech = CVar::Lookup("Sound_EnableErrorSpeech");
 
     if (!s_enableErrorSpeech || !s_enableErrorSpeech->m_intValue || error >= static_cast<int32_t>(sizeof(s_vocalErrorSounds) / sizeof(s_vocalErrorSounds[0]))) {

@@ -5,6 +5,7 @@
 #include <cstdint>
 
 class SFileImpl;
+enum VOCALUISOUNDS : int32_t;
 
 class VocalUISoundsRec {
     public:
@@ -13,7 +14,7 @@ class VocalUISoundsRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_vocalUienum;
+    /* 0004 */ VOCALUISOUNDS m_vocalUienum;
     /* 0008 */ int32_t m_raceID;
     /* 000C */ int32_t m_normalSoundID [2];
     /* 0014 */ int32_t m_pissedSoundID [2];
