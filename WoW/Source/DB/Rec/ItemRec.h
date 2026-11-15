@@ -6,6 +6,7 @@
 #include "WoW/Common/ItemTypes.h"
 
 class SFileImpl;
+enum INVENTORY_TYPES : int32_t;
 
 class ItemRec {
     public:
@@ -19,7 +20,7 @@ class ItemRec {
     /* 000C */ int32_t m_soundOverrideSubclassID;
     /* 0010 */ int32_t m_material;
     /* 0014 */ int32_t m_displayInfoID;
-    /* 0018 */ int32_t m_inventoryType;
+    /* 0018 */ INVENTORY_TYPES m_inventoryType;
     /* 001C */ int32_t m_sheatheType;
 
     ItemRec();
