@@ -1036,17 +1036,17 @@ static int32_t Script_BNReportPlayer(lua_State* L) {
         int32_t reason;
 
         if (!SStrCmpI(type, "SPAM", STORM_MAX_STR)) {
-            reason = 0;
+            reason = BattlenetAPI::REPORT_REASON_SPAM;
         } else if (!SStrCmpI(type, "ABUSE", STORM_MAX_STR)) {
-            reason = 1;
+            reason = BattlenetAPI::REPORT_REASON_ABUSE;
         } else if (!SStrCmpI(type, "THREAT", STORM_MAX_STR)) {
-            reason = 2;
+            reason = BattlenetAPI::REPORT_REASON_THREAT;
         } else {
             if (SStrCmpI(type, "NAME", STORM_MAX_STR)) {
                 luaL_error(L, "Unknown Reason");
             }
 
-            reason = 3;
+            reason = BattlenetAPI::REPORT_REASON_NAME;
         }
 
         if (!BattlenetAPI::ReportPlayer(static_cast<uint32_t>(lua_tonumber(L, 1)), reason, note)) {

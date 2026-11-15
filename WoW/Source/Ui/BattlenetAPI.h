@@ -45,7 +45,15 @@ uint16_t RemoveCIDBlock(uint32_t presenceId);
 uint16_t RemoveFriend(uint32_t presenceId);
 uint16_t RemoveRIDBlock(uint32_t presenceId);
 uint16_t ReportFriendInvite(uint32_t presenceId);
-uint16_t ReportPlayer(uint32_t presenceId, int32_t reason, const char* note);
+// Names follow the BNReportPlayer reason strings.
+enum REPORT_REASON : int32_t {
+    REPORT_REASON_SPAM = 0,
+    REPORT_REASON_ABUSE = 1,
+    REPORT_REASON_THREAT = 2,
+    REPORT_REASON_NAME = 3,
+};
+
+uint16_t ReportPlayer(uint32_t presenceId, int32_t reason, const char* note); // reason: REPORT_REASON
 uint16_t SendChatConversationInvite(uint8_t channel, const Battlenet::Toon::FullName* toon, GeneralFunction::Callback* callback);
 uint16_t SendChatMessage(uint8_t channel, const char* message);
 uint16_t SendChatWhisper(uint32_t presenceId, const char* message);
