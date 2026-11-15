@@ -229,17 +229,17 @@ void FriendList::ReadPacket(CDataStore* msg) {
                     info.m_name = SStrDupA(name, __FILE__, __LINE__);
 
                     if (info.m_connected) {
-                        CGAutoCompleteName::AddFlags(guid, 0x24, 0, nullptr);
+                        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND | AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
                     } else {
-                        CGAutoCompleteName::AddFlags(guid, 0x4, 0, nullptr);
-                        CGAutoCompleteName::RemoveFlags(guid, 0x20);
+                        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND, 0, nullptr);
+                        CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_ONLINE);
                     }
                 } else {
                     if (info.m_connected) {
-                        CGAutoCompleteName::AddFlags(guid, 0x24, 0, nullptr);
+                        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND | AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
                     } else {
-                        CGAutoCompleteName::AddFlags(guid, 0x4, 0, nullptr);
-                        CGAutoCompleteName::RemoveFlags(guid, 0x20);
+                        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND, 0, nullptr);
+                        CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_ONLINE);
                     }
 
                     this->m_pendingFriendNames++;
@@ -1182,9 +1182,9 @@ void FriendList::SetConnected(WOWGUID guid, uint8_t connected) {
             this->m_friends[i].m_connected = connected;
 
             if (connected) {
-                CGAutoCompleteName::AddFlags(guid, 0x20, 0, nullptr);
+                CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
             } else {
-                CGAutoCompleteName::RemoveFlags(guid, 0x20);
+                CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_ONLINE);
             }
 
             return;
@@ -1662,7 +1662,7 @@ void FriendList::HandleStatus(FRIEND_RESULT status, WOWGUID guid, CDataStore* ms
             display = !deleted;
             error = static_cast<UIErrors>(4 * deleted + ERR_FRIEND_REMOVED_S);
             this->FriendRemoved(guid);
-            CGAutoCompleteName::RemoveFlags(guid, 0x4);
+            CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_FRIEND);
             friendChange = true;
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
@@ -1696,7 +1696,7 @@ void FriendList::HandleStatus(FRIEND_RESULT status, WOWGUID guid, CDataStore* ms
                 info->m_class = classId;
             }
 
-            CGAutoCompleteName::AddFlags(guid, 0x4, 0, nullptr);
+            CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND, 0, nullptr);
             this->SetConnected(guid, 1);
             friendChange = true;
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -1721,7 +1721,7 @@ void FriendList::HandleStatus(FRIEND_RESULT status, WOWGUID guid, CDataStore* ms
                 SStrCopy(this->m_friends[index].m_notes, note, sizeof(this->m_friends[index].m_notes));
             }
 
-            CGAutoCompleteName::AddFlags(guid, 0x4, 0, nullptr);
+            CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_FRIEND, 0, nullptr);
             this->SetConnected(guid, 0);
             friendChange = true;
             record = g_nameDBCache.GetRecord(guid.m_guid, guid, FriendListNameCallbackWithSort, reinterpret_cast<void*>(ERR_FRIEND_ADDED_S), false);

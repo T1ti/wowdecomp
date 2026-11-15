@@ -5205,7 +5205,7 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
             }
 
             case 3: {
-                CGAutoCompleteName::RemoveFlagsFromAllNodes(2);
+                CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GUILD);
                 CGGameUI::DisplayError(ERR_GUILD_QUIT_S, name);
                 WOWGUID none = WOWGUID();
                 CGGuildBankInfo::SetGuildBanker(none);
@@ -9608,7 +9608,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             char name[305];
             msg->GetString(name, sizeof(name));
             CGGameUI::DisplayError(ERR_CHAT_PLAYER_NOT_FOUND_S, name);
-            CGAutoCompleteName::RemoveFlagsByName(name, 32, 1, 0);
+            CGAutoCompleteName::RemoveFlagsByName(name, AUTOCOMPLETE_FLAG_ONLINE, 1, 0);
             return 1;
         }
 
@@ -11887,21 +11887,21 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
         case GUILD_EVENT_JOINED:
             error = ERR_GUILD_JOIN_S;
             msg->Get(guid.m_guid);
-            CGAutoCompleteName::AddFlags(guid, 34, 0, strings[0]);
+            CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_IN_GUILD | AUTOCOMPLETE_FLAG_ONLINE, 0, strings[0]);
             break;
 
         case GUILD_EVENT_LEFT:
             error = ERR_GUILD_LEAVE_S;
             msg->Get(guid.m_guid);
-            CGAutoCompleteName::RemoveFlags(guid, 2);
+            CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_IN_GUILD);
             break;
 
         case GUILD_EVENT_REMOVED:
             error = ERR_GUILD_REMOVE_SS;
-            CGAutoCompleteName::RemoveFlagsByName(strings[0], 2, 1, 0);
+            CGAutoCompleteName::RemoveFlagsByName(strings[0], AUTOCOMPLETE_FLAG_IN_GUILD, 1, 0);
 
             if (!SStrCmpUTF8I(ClientServices::GetCharacterName(), strings[0], STORM_MAX_STR)) {
-                CGAutoCompleteName::RemoveFlagsFromAllNodes(2);
+                CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GUILD);
             }
 
             break;
@@ -11916,7 +11916,7 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
 
         case GUILD_EVENT_DISBANDED:
             error = ERR_GUILD_DISBANDED;
-            CGAutoCompleteName::RemoveFlagsFromAllNodes(2);
+            CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GUILD);
             CGGuildBankInfo::SetGuildBanker(WOWGUID());
             memset(CGGuildBankInfo::m_guildBankTabInfo, 0, sizeof(CGGuildBankInfo::m_guildBankTabInfo));
             break;
@@ -11977,7 +11977,7 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
 
         case GUILD_EVENT_SIGNED_ON:
             msg->Get(guid.m_guid);
-            CGAutoCompleteName::AddFlags(guid, 32, 0, strings[0]);
+            CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_ONLINE, 0, strings[0]);
 
             if (!g_guildMemberNotifyCVar->m_intValue || !SStrCmp(ClientServices::GetCharacterName(), strings[0], STORM_MAX_STR) || FriendList::s_friendList->IsFriend(guid)) {
                 return 1;
@@ -11988,7 +11988,7 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
 
         case GUILD_EVENT_SIGNED_OFF:
             msg->Get(guid.m_guid);
-            CGAutoCompleteName::RemoveFlags(guid, 32);
+            CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_ONLINE);
 
             if (!g_guildMemberNotifyCVar->m_intValue || !SStrCmp(ClientServices::GetCharacterName(), strings[0], STORM_MAX_STR) || FriendList::s_friendList->IsFriend(guid)) {
                 return 1;
@@ -12953,9 +12953,9 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         WOWGUID member = guid;
 
         if (newState.m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) {
-            CGAutoCompleteName::AddFlags(member, 0x20, 0, nullptr);
+            CGAutoCompleteName::AddFlags(member, AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
         } else {
-            CGAutoCompleteName::RemoveFlags(member, 0x20);
+            CGAutoCompleteName::RemoveFlags(member, AUTOCOMPLETE_FLAG_ONLINE);
         }
     }
 

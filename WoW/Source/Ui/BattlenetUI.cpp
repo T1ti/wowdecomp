@@ -1749,7 +1749,7 @@ void BattlenetUI::FriendRemovedCB(void* param, int32_t argc, const GeneralFuncti
     }
 
     BattlenetUI::PopulateAutoComplete();
-    CGAutoCompleteName::RemoveFlags(presenceId, 0x4);
+    CGAutoCompleteName::RemoveFlags(presenceId, AUTOCOMPLETE_FLAG_FRIEND);
     BattlenetUI::SendScriptEvent(SCRIPT_EVENT_BN_FRIEND_LIST_SIZE_CHANGED, nullptr);
 
     ChatConversation conversation;
@@ -1793,7 +1793,7 @@ void BattlenetUI::OnlinePresenceChangedCB(void* param, int32_t argc, const Gener
         return;
     }
 
-    CGAutoCompleteName::RemoveFlags(update.m_data.m_presenceId, 0x20);
+    CGAutoCompleteName::RemoveFlags(update.m_data.m_presenceId, AUTOCOMPLETE_FLAG_ONLINE);
 
     if (ridFriend) {
         BattlenetUI::SendScriptEvent(SCRIPT_EVENT_BN_FRIEND_ACCOUNT_OFFLINE, "%u", update.m_data.m_presenceId);

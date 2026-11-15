@@ -327,11 +327,11 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
 
         if (member->m_online) {
             member->m_lastOnline = 0.0f;
-            CGAutoCompleteName::AddFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, 34, 0, CGGuildInfo::m_roster.m_data[i]->m_name);
+            CGAutoCompleteName::AddFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, AUTOCOMPLETE_FLAG_IN_GUILD | AUTOCOMPLETE_FLAG_ONLINE, 0, CGGuildInfo::m_roster.m_data[i]->m_name);
         } else {
             msg->Get(member->m_lastOnline);
-            CGAutoCompleteName::AddFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, 2, 0, CGGuildInfo::m_roster.m_data[i]->m_name);
-            CGAutoCompleteName::RemoveFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, 32);
+            CGAutoCompleteName::AddFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, AUTOCOMPLETE_FLAG_IN_GUILD, 0, CGGuildInfo::m_roster.m_data[i]->m_name);
+            CGAutoCompleteName::RemoveFlags(CGGuildInfo::m_roster.m_data[i]->m_guid, AUTOCOMPLETE_FLAG_ONLINE);
         }
 
         char note[128];

@@ -1080,7 +1080,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
     }
 
     if (language != 0xFFFFFFFF && (type == CHAT_MSG_WHISPER || type == CHAT_MSG_WHISPER_INFORM)) {
-        CGAutoCompleteName::AddFlags(senderGuid, 0x30, 1, senderName);
+        CGAutoCompleteName::AddFlags(senderGuid, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, senderName);
     }
 
     if (!targetName) {

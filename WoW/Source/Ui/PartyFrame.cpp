@@ -718,11 +718,11 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
 
     if (online) {
         s_partyMemberStates[index].m_flags |= CGPartyMemberState::MEMBER_FLAG_CONNECTED;
-        CGAutoCompleteName::AddFlags(guid, 33, 0, nullptr);
+        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_IN_GROUP | AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
     } else {
         s_partyMemberStates[index].m_flags &= ~CGPartyMemberState::MEMBER_FLAG_CONNECTED;
-        CGAutoCompleteName::AddFlags(guid, 1, 0, nullptr);
-        CGAutoCompleteName::RemoveFlags(guid, 32);
+        CGAutoCompleteName::AddFlags(guid, AUTOCOMPLETE_FLAG_IN_GROUP, 0, nullptr);
+        CGAutoCompleteName::RemoveFlags(guid, AUTOCOMPLETE_FLAG_ONLINE);
     }
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
@@ -830,7 +830,7 @@ void CGPartyInfo::RemoveAll(int32_t a1) {
     CGPartyInfo::m_playerRole = 0;
     CGPartyInfo::m_lfgSlot = 0;
     CGPartyInfo::m_lfgRestricted = 0;
-    CGAutoCompleteName::RemoveFlagsFromAllNodes(1);
+    CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GROUP);
 
     if (a1) {
         CGGameUI::CheckInstanceDifficultyMessages(dungeonDifficulty, raidDifficulty);

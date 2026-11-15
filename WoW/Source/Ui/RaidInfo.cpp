@@ -745,7 +745,7 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
                 fullNamePtr = fullName;
             }
 
-            CGAutoCompleteName::AddFlags(guids[i], 1, 0, fullNamePtr);
+            CGAutoCompleteName::AddFlags(guids[i], AUTOCOMPLETE_FLAG_IN_GROUP, 0, fullNamePtr);
             oldCount = CGRaidInfo::m_numMembers;
         }
 
@@ -768,7 +768,7 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
 
             if (name && ClntObjMgrGetActivePlayer()) {
                 CGGameUI::DisplayError(ERR_RAID_MEMBER_REMOVED_S, name->m_name);
-                CGAutoCompleteName::RemoveFlags(CGRaidInfo::m_members[j]->m_guid, 1);
+                CGAutoCompleteName::RemoveFlags(CGRaidInfo::m_members[j]->m_guid, AUTOCOMPLETE_FLAG_IN_GROUP);
             }
 
             oldCount = CGRaidInfo::m_numMembers;
@@ -1126,7 +1126,7 @@ void CGRaidInfo::ClearRoster() {
         }
     }
 
-    CGAutoCompleteName::RemoveFlagsFromAllNodes(1);
+    CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GROUP);
     FrameScript_SignalEvent(SCRIPT_EVENT_RAID_TARGET_UPDATE, nullptr);
     FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_ROLES_ASSIGNED, nullptr);
 }
