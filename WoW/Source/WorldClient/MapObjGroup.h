@@ -171,7 +171,7 @@ class CMapObjGroup {
         F_UNKNOWN_0x400 = 0x400, // Causes four chunk records to be skipped while parsing optional data.
         F_HAS_DOODAD_REFS = 0x800,
         F_HAS_LIQUID = 0x1000,
-        F_UNKNOWN_0x2000 = 0x2000, // wowdev: INTERIOR. Only read here to skip groups in CMap::QueryLiquidStatus.
+        F_UNKNOWN_0x2000 = 0x2000, // Only read to skip groups in CMap::QueryLiquidStatus.
         F_ALWAYS_DRAW = 0x10000, // Uses the direct exterior callback path; this build's Create() does not clear F_EXTERIOR.
         F_HAS_MORI_MORB = 0x20000,
         F_USE_SKYBOX = 0x40000,

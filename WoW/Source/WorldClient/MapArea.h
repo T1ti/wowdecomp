@@ -39,8 +39,7 @@ class CMapArea : public CMapBaseObj {
     public:
     // ADT MTXF texture flags.
     enum TEXTURE_FLAGS : uint32_t {
-        // Skip the "_s" specular texture; without pixel shaders the layer is drawn solid black
-        // (wowdev: do not load specular or height texture, use cubemap).
+        // Skip the "_s" specular texture; without pixel shaders the layer is drawn solid black.
         TEXTURE_FLAG_NO_SPECULAR = 0x1,
     };
 
