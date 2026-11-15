@@ -398,6 +398,20 @@ class M2SkinSection {
 
 class M2Data {
     public:
+    // File options and runtime ownership bits; keep the mutable carrier raw.
+    enum FLAGS : uint32_t {
+        NONE = 0,
+        ALIGN_UP_KEEP_Y_HORIZONTAL = 1,
+        UNKNOWN_2 = 2,
+        LOCAL_TINT_ONLY = 4,
+        HAS_TEXTURE_COMBINER_COMBOS = 8,
+        SORT_BY_DISTANCE = 0x10,
+        OWNS_TEXTURE_COMBOS = 0x20,
+        OWNS_TEXTURE_TRANSFORM_COMBOS = 0x40,
+        UP_ALIGNMENT_MASK = 3,
+        RUNTIME_ALLOCATION_MASK = 0x60,
+    };
+
     /* 0000 */ uint32_t m_magic;
     /* 0004 */ uint32_t m_version;
     /* 0008 */ M2Array<char> m_name;

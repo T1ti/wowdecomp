@@ -143,6 +143,9 @@ class M2ModelOptGeo {
 
 class CM2Model {
     public:
+    // SetWorldTransform resolves this sentinel from the model file options.
+    static const uint32_t USE_MODEL_ALIGNMENT = 0xFFFFFFFFu;
+
     enum INSTANCE_FLAGS : uint32_t {
         // Instance interpretation of raw creation flags; names describe current behavior.
         // Bit 1 also makes attached children use their own lighting and scale.
@@ -359,7 +362,7 @@ class CM2Model {
     void SetSequenceCallback(M2SequenceCallback callback, uint64_t param);
     void SetWorldTransform(const C44Matrix& matrix);
     void SetWorldTransform(const C3Vector& position, float rotation, float scale);
-    void SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t flags);
+    void SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t modelFlags);
     void UpdateLoaded();
     void WaitForLoad(const char* reason);
     void AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha);

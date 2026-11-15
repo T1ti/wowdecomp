@@ -4542,7 +4542,7 @@ void CM2Model::RenderModelBatchesShadowMap(const CModelBatchList& untextured, co
 
 // VERIFY: d9ea968f manual
 // OFFSET: 0x0082DD80
-void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t flags) {
+void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t modelFlags) {
     C44Matrix& transform = this->m_worldTransform;
     transform.d3 = 1.0f;
     transform.c2 = 1.0f;
@@ -4567,16 +4567,16 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
 
     C44Matrix original = transform;
 
-    if (flags == 0xFFFFFFFF) {
-        flags = this->m_shared->m_data->m_flags;
+    if (modelFlags == CM2Model::USE_MODEL_ALIGNMENT) {
+        modelFlags = this->m_shared->m_data->m_flags;
     }
 
     C3Vector& rowA = *reinterpret_cast<C3Vector*>(&transform.a0);
     C3Vector& rowB = *reinterpret_cast<C3Vector*>(&transform.b0);
     C3Vector& rowC = *reinterpret_cast<C3Vector*>(&transform.c0);
 
-    switch (flags & 3) {
-        case 1: {
+    switch (modelFlags & M2Data::FLAGS::UP_ALIGNMENT_MASK) {
+        case M2Data::FLAGS::ALIGN_UP_KEEP_Y_HORIZONTAL: {
             float x = rowA.x;
             rowB.x = -rowA.y;
             rowB.y = x;
@@ -4596,7 +4596,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
             break;
         }
 
-        case 3: {
+        case M2Data::FLAGS::UP_ALIGNMENT_MASK: {
             ComputeWorldTransformBasis(&transform, up);
             break;
         }
@@ -4693,7 +4693,7 @@ void CM2Model::AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, c
         this->m_frameOfReference = parent->m_frameOfReference;
     }
 
-    if (data->m_flags & 4) {
+    if (data->m_flags & M2Data::FLAGS::LOCAL_TINT_ONLY) {
         this->m_effectiveAlpha = this->m_fadeAlpha;
         this->m_diffuseColor.x = this->m_diffuseTintR;
         this->m_diffuseColor.y = this->m_diffuseTintG;
@@ -5048,7 +5048,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         this->m_frameOfReference = parent->m_frameOfReference;
     }
 
-    if (data->m_flags & 4) {
+    if (data->m_flags & M2Data::FLAGS::LOCAL_TINT_ONLY) {
         this->m_effectiveAlpha = this->m_fadeAlpha;
         this->m_diffuseColor.x = this->m_diffuseTintR;
         this->m_diffuseColor.y = this->m_diffuseTintG;

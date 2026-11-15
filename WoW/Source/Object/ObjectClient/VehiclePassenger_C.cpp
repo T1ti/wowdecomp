@@ -1150,7 +1150,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
         C3Vector normal = this->m_unit->m_movement->GetGroundNormal();
         float scale = this->m_unit->GetTrueScale();
         float facing = this->m_unit->GetFacing();
-        model->SetWorldTransform(this->m_unit->GetPosition(), facing, scale, normal, 0xFFFFFFFF);
+        model->SetWorldTransform(this->m_unit->GetPosition(), facing, scale, normal, CM2Model::USE_MODEL_ALIGNMENT);
     }
 
     if (model) {
@@ -1827,7 +1827,7 @@ void CVehiclePassenger_C::UpdateModel() {
         C3Vector normal = this->m_unit->m_movement->GetGroundNormal();
         float scale = this->m_unit->GetTrueScale();
         float facing = this->m_unit->GetFacing();
-        model->SetWorldTransform(this->m_unit->GetPosition(), facing, scale, normal, 0xFFFFFFFF);
+        model->SetWorldTransform(this->m_unit->GetPosition(), facing, scale, normal, CM2Model::USE_MODEL_ALIGNMENT);
         return;
     }
 
@@ -1942,7 +1942,7 @@ void CVehiclePassenger_C::UpdateModel() {
         model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
         model->m_worldTransform = matrix;
     } else {
-        model->SetWorldTransform(position, facing, scale, up, 0xFFFFFFFF);
+        model->SetWorldTransform(position, facing, scale, up, CM2Model::USE_MODEL_ALIGNMENT);
     }
 
     if (this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {

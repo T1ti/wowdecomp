@@ -9229,7 +9229,7 @@ void CGUnit_C::UpdateWorldTransform(float elapsed) {
     if (model) {
         float scale = this->GetTrueScale();
         float facing = this->GetRenderFacing();
-        model->SetWorldTransform(this->GetPosition(), facing, scale, this->m_groundNormal, 0xFFFFFFFF);
+        model->SetWorldTransform(this->GetPosition(), facing, scale, this->m_groundNormal, CM2Model::USE_MODEL_ALIGNMENT);
     }
 }
 
@@ -20788,7 +20788,7 @@ void CGUnit_C::UpdateMountTransitionModel() {
     C44Matrix world = this->m_worldModel->m_worldTransform;
     inverse = world.AffineInverse(this->GetTrueScale());
 
-    this->m_mountTransitionEffect->m_model->SetWorldTransform(position, facing, this->GetTrueScale(), up, 0xFFFFFFFF);
+    this->m_mountTransitionEffect->m_model->SetWorldTransform(position, facing, this->GetTrueScale(), up, CM2Model::USE_MODEL_ALIGNMENT);
 
     C44Matrix transform = this->m_mountTransitionEffect->m_model->m_worldTransform;
     CM2Model* model = this->m_mountTransitionEffect->m_model;
@@ -23515,11 +23515,11 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
         mountModel->WaitForLoad(nullptr);
     }
 
-    uint32_t flags = mountModel->m_shared->m_data->m_flags;
+    uint32_t modelFlags = mountModel->m_shared->m_data->m_flags;
     CM2Model* model = this->GetObjectModel();
 
     if (model) {
-        model->SetWorldTransform(this->GetPosition(), this->GetRenderFacing(), this->GetTrueScale(), this->m_groundNormal, flags & 0x3);
+        model->SetWorldTransform(this->GetPosition(), this->GetRenderFacing(), this->GetTrueScale(), this->m_groundNormal, modelFlags & M2Data::FLAGS::UP_ALIGNMENT_MASK);
     }
 
     C44Matrix transform = this->GetObjectModel()->m_worldTransform;

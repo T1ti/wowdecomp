@@ -643,7 +643,7 @@ void CM2Shared::SubstituteSimpleShaders() {
 
         M2Material* material = &this->m_data->m_materials[batch->m_materialIndex];
 
-        if (!(this->m_data->m_flags & 8)) {
+        if (!(this->m_data->m_flags & M2Data::FLAGS::HAS_TEXTURE_COMBINER_COMBOS)) {
             uint16_t coord = this->m_data->m_textureCoordCombos[batch->m_textureCoordComboIndex];
             uint16_t op = material->m_blendMode != M2BLEND_OPAQUE;
 
@@ -895,12 +895,12 @@ void CM2Shared::ConvertTextureValuesToCombos() {
 #else
     if (combos.m_count > this->m_data->m_textureCombos.m_count) {
         this->m_data->m_textureCombos.Set(static_cast<uint16_t*>(SMemAlloc(sizeof(uint16_t) * combos.m_count, __FILE__, __LINE__, 0)));
-        this->m_data->m_flags |= 0x20;
+        this->m_data->m_flags |= M2Data::FLAGS::OWNS_TEXTURE_COMBOS;
     }
 
     if (transforms.m_count > this->m_data->m_textureTransformCombos.m_count) {
         this->m_data->m_textureTransformCombos.Set(static_cast<uint16_t*>(SMemAlloc(sizeof(uint16_t) * transforms.m_count, __FILE__, __LINE__, 0)));
-        this->m_data->m_flags |= 0x40;
+        this->m_data->m_flags |= M2Data::FLAGS::OWNS_TEXTURE_TRANSFORM_COMBOS;
     }
 #endif
 
@@ -1543,7 +1543,7 @@ int32_t M2Init(uint8_t* base, uint32_t size, M2Data& data) {
         return 0;
     }
 
-    return M2Init(base, size, data, data.m_name) && M2Init(base, size, data, data.m_loops) && M2Init(base, size, data, data.m_sequences) && M2Init(base, size, data, data.m_sequenceIdxHashById) && M2Init(base, size, data, data.m_bones) && M2Init(base, size, data, data.m_boneIndicesById) && M2Init(base, size, data, data.m_vertices) && M2Init(base, size, data, data.m_colors) && M2Init(base, size, data, data.m_textures) && M2Init(base, size, data, data.m_textureWeights) && M2Init(base, size, data, data.m_textureTransforms) && M2Init(base, size, data, data.m_textureIndicesById) && M2Init(base, size, data, data.m_materials) && M2Init(base, size, data, data.m_boneCombos) && M2Init(base, size, data, data.m_textureCombos) && M2Init(base, size, data, data.m_textureCoordCombos) && M2Init(base, size, data, data.m_textureWeightCombos) && M2Init(base, size, data, data.m_textureTransformCombos) && M2Init(base, size, data, data.m_collisionIndices) && M2Init(base, size, data, data.m_collisionPositions) && M2Init(base, size, data, data.m_collisionFaceNormals) && M2Init(base, size, data, data.m_attachments) && M2Init(base, size, data, data.m_attachmentIndicesById) && M2Init(base, size, data, data.m_events) && M2Init(base, size, data, data.m_lights) && M2Init(base, size, data, data.m_cameras) && M2Init(base, size, data, data.m_cameraIndicesById) && M2Init(base, size, data, data.m_ribbons) && M2Init(base, size, data, data.m_particles) && (!(data.m_flags & 8) || M2Init(base, size, data, data.m_textureCombinerCombos));
+    return M2Init(base, size, data, data.m_name) && M2Init(base, size, data, data.m_loops) && M2Init(base, size, data, data.m_sequences) && M2Init(base, size, data, data.m_sequenceIdxHashById) && M2Init(base, size, data, data.m_bones) && M2Init(base, size, data, data.m_boneIndicesById) && M2Init(base, size, data, data.m_vertices) && M2Init(base, size, data, data.m_colors) && M2Init(base, size, data, data.m_textures) && M2Init(base, size, data, data.m_textureWeights) && M2Init(base, size, data, data.m_textureTransforms) && M2Init(base, size, data, data.m_textureIndicesById) && M2Init(base, size, data, data.m_materials) && M2Init(base, size, data, data.m_boneCombos) && M2Init(base, size, data, data.m_textureCombos) && M2Init(base, size, data, data.m_textureCoordCombos) && M2Init(base, size, data, data.m_textureWeightCombos) && M2Init(base, size, data, data.m_textureTransformCombos) && M2Init(base, size, data, data.m_collisionIndices) && M2Init(base, size, data, data.m_collisionPositions) && M2Init(base, size, data, data.m_collisionFaceNormals) && M2Init(base, size, data, data.m_attachments) && M2Init(base, size, data, data.m_attachmentIndicesById) && M2Init(base, size, data, data.m_events) && M2Init(base, size, data, data.m_lights) && M2Init(base, size, data, data.m_cameras) && M2Init(base, size, data, data.m_cameraIndicesById) && M2Init(base, size, data, data.m_ribbons) && M2Init(base, size, data, data.m_particles) && (!(data.m_flags & M2Data::FLAGS::HAS_TEXTURE_COMBINER_COMBOS) || M2Init(base, size, data, data.m_textureCombinerCombos));
 }
 
 // VERIFY: 8000b812 manual
@@ -1736,7 +1736,7 @@ int32_t CM2Shared::FinishLoading() {
         return 0;
     }
 
-    this->m_data->m_flags &= ~0x60u;
+    this->m_data->m_flags &= ~M2Data::FLAGS::RUNTIME_ALLOCATION_MASK;
 
     if (!this->Initialize()) {
         DebugLog("Failed to initialize model: %s", this->m_fileName);
@@ -1917,11 +1917,11 @@ CM2Shared::~CM2Shared() {
 
 #if !defined(WOWDECOMP_ARCH_64)
     if (this->m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED) {
-        if (this->m_data->m_flags & 0x20) {
+        if (this->m_data->m_flags & M2Data::FLAGS::OWNS_TEXTURE_COMBOS) {
             SMemFree(this->m_data->m_textureCombos.Data(), __FILE__, __LINE__, 0);
         }
 
-        if (this->m_data->m_flags & 0x40) {
+        if (this->m_data->m_flags & M2Data::FLAGS::OWNS_TEXTURE_TRANSFORM_COMBOS) {
             SMemFree(this->m_data->m_textureTransformCombos.Data(), __FILE__, __LINE__, 0);
         }
     }

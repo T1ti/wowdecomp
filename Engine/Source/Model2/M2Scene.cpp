@@ -1885,7 +1885,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             if (transparent < 1) {
                 element->m_depth = model->m_scaleSq;
                 sortDepth = model->m_scaleSq;
-            } else if (data->m_flags & 0x10) {
+            } else if (data->m_flags & M2Data::FLAGS::SORT_BY_DISTANCE) {
                 C3Vector position = section->m_sortCenterPosition * model->m_boneMatrices[section->m_centerBoneIndex];
                 element->m_depth = position.z * position.z + position.y * position.y + position.x * position.x;
                 sortDepth = model->m_scaleSq;
