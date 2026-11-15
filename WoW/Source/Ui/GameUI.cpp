@@ -6637,7 +6637,7 @@ int32_t CGGameUI::MessageHandler(void* param, NETMESSAGE msgId, uint32_t time, C
 
         case SMSG_WEATHER: {
             float transition = 1.0f;
-            uint32_t type = 0;
+            uint32_t type = WEATHER_EFFECT_NONE;
             int32_t soundKitId = 0;
             uint32_t weatherId;
             float intensity;

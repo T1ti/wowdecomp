@@ -436,7 +436,7 @@ Weather::Weather() {
     this->m_fogIntensity = 0.0f;
     this->m_intensityStartTime = 0;
     this->m_fogStartTime = 0;
-    this->m_pendingType = -1;
+    this->m_pendingType = WEATHER_EFFECT_PENDING_NONE;
     this->m_densityChanged = 0;
     this->m_immediate = 0;
     this->m_densityBlend = 1.0f;
@@ -528,7 +528,7 @@ void Weather::Reset() {
 
     this->Clear();
     this->m_startIntensity = 0.0f;
-    this->m_pendingType = -1;
+    this->m_pendingType = WEATHER_EFFECT_PENDING_NONE;
     this->m_targetIntensity = 0.0f;
     this->m_precipTexture[0] = '\0';
     this->m_intensity = 0.0f;
@@ -622,7 +622,7 @@ void Weather::Update() {
 
     bool stormUpdated = false;
 
-    if (this->m_pendingType != -1) {
+    if (this->m_pendingType != WEATHER_EFFECT_PENDING_NONE) {
         int32_t active = 0;
 
         if (this->m_rain) {
@@ -659,19 +659,19 @@ void Weather::Update() {
             this->Clear();
 
             switch (this->m_pendingType) {
-                case 1: {
+                case WEATHER_EFFECT_RAIN: {
                     void* mem = SMemAlloc(sizeof(Rain), __FILE__, __LINE__, 0);
                     this->m_rain = mem ? new (mem) Rain(130.0f, 75.0f) : nullptr;
                     break;
                 }
 
-                case 2: {
+                case WEATHER_EFFECT_SNOW: {
                     void* mem = SMemAlloc(sizeof(Snow), __FILE__, __LINE__, 0);
                     this->m_snow = mem ? new (mem) Snow(90.0f, 60.0f) : nullptr;
                     break;
                 }
 
-                case 3: {
+                case WEATHER_EFFECT_SAND: {
                     void* mem = SMemAlloc(sizeof(Sand), __FILE__, __LINE__, 0);
                     this->m_sand = mem ? new (mem) Sand(40.0f, 25.0f) : nullptr;
                     break;
@@ -680,7 +680,7 @@ void Weather::Update() {
 
             this->m_intensityStartTime = OsGetAsyncTimeMs();
             this->m_startIntensity = this->m_intensity;
-            this->m_pendingType = -1;
+            this->m_pendingType = WEATHER_EFFECT_PENDING_NONE;
         }
     }
 
@@ -701,24 +701,24 @@ void Weather::Update() {
 // OFFSET: 0x00783B60
 uint32_t Weather::GetType() const {
     if (this->m_rain) {
-        return 1;
+        return WEATHER_EFFECT_RAIN;
     }
 
     if (this->m_snow) {
-        return 2;
+        return WEATHER_EFFECT_SNOW;
     }
 
     if (this->m_sand) {
-        return 3;
+        return WEATHER_EFFECT_SAND;
     }
 
-    return 0;
+    return WEATHER_EFFECT_NONE;
 }
 
 // VERIFY: 9b9ae04a manual
 // OFFSET: 0x007846A0
 void Weather::SetType(uint32_t type, float intensity, const WeatherRec* rec, bool immediate, float transitionTime) {
-    if (s_weatherTypeForced || type > 3) {
+    if (s_weatherTypeForced || type > WEATHER_EFFECT_SAND) {
         return;
     }
 
@@ -757,10 +757,10 @@ void Weather::SetType(uint32_t type, float intensity, const WeatherRec* rec, boo
 
     float time;
 
-    if (this->GetType() == 0) {
+    if (this->GetType() == WEATHER_EFFECT_NONE) {
         this->m_targetDensityBlend = transitionTime;
         time = transitionTime;
-    } else if (type == 0) {
+    } else if (type == WEATHER_EFFECT_NONE) {
         time = this->m_targetDensityBlend;
     } else {
         time = transitionTime;
@@ -898,9 +898,9 @@ void Weather::UpdatePosDeltas() {
 // VERIFY: e5f3f9ba auto
 // OFFSET: 0x00783B90
 void Weather::FillInDefaultPrecipTexturePath(uint32_t type) {
-    if (type == 1) {
+    if (type == WEATHER_EFFECT_RAIN) {
         SStrCopy(this->m_precipTexture, "textures\\Weather\\RainDrop01.blp", 0x7FFFFFFF);
-    } else if (type == 2) {
+    } else if (type == WEATHER_EFFECT_SNOW) {
         SStrCopy(this->m_precipTexture, "textures\\Weather\\SnowFlake01.blp", 0x7FFFFFFF);
     }
 }
