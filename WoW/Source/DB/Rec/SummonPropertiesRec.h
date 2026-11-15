@@ -60,11 +60,11 @@ class SummonPropertiesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_control; // SUMMON_CONTROL
+    /* 0004 */ SUMMON_CONTROL m_control;
     /* 0008 */ int32_t m_faction;
-    /* 000C */ int32_t m_title; // SUMMON_TYPE; -1 selects the default creature title.
-    /* 0010 */ int32_t m_slot; // SUMMON_SLOT
-    /* 0014 */ int32_t m_flags; // SUMMON_PROPERTIES_FLAGS
+    /* 000C */ SUMMON_TYPE m_title; // -1 selects the default creature title.
+    /* 0010 */ SUMMON_SLOT m_slot;
+    /* 0014 */ SUMMON_PROPERTIES_FLAGS m_flags;
 
     SummonPropertiesRec();
     ~SummonPropertiesRec();
