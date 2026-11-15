@@ -1868,7 +1868,7 @@ int32_t Packet_SMSG_BATTLEFIELD_LIST(void* param, NETMESSAGE msgId, uint32_t tim
 
     CGBattlefieldInfo::m_allowJoin = 1;
 
-    if (CGBattlefieldInfo::m_bgTypeID == 32 && battlemaster) {
+    if (CGBattlefieldInfo::m_bgTypeID == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND && battlemaster) {
         CGGameUI::SetInteractTarget(battlemaster);
         CGBattlefieldInfo::m_battlemaster = battlemaster;
         FrameScript_SignalEvent(SCRIPT_EVENT_NPC_PVPQUEUE_ANYWHERE, nullptr);

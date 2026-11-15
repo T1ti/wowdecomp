@@ -256,8 +256,8 @@ void CGLCD::OnBattlefieldReady(const BattlefieldStatus* status) {
         return;
     }
 
-    if (status->m_bgTypeID == 32) {
-        BattlemasterListRec* rec = g_battlemasterListDB.GetRecord(32);
+    if (status->m_bgTypeID == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
+        BattlemasterListRec* rec = g_battlemasterListDB.GetRecord(BATTLEMASTER_LIST_RANDOM_BATTLEGROUND);
 
         if (rec) {
             CGLCD::SetScreen(2);

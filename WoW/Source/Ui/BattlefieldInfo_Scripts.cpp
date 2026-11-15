@@ -277,7 +277,7 @@ static int32_t Script_GetBattlefieldStatus(lua_State* L) {
     MapRec* map = nullptr;
 
     if (status->m_status == CGBattlefieldInfo::QUEUE_STATUS::QUEUE_CONFIRM) {
-        if (status->m_bgTypeID == 32) {
+        if (status->m_bgTypeID == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
             if (status->m_joinedQueueData) {
                 BattlemasterListRec* battlemaster = g_battlemasterListDB.GetRecord(static_cast<uint32_t>(status->m_joinedQueueData >> 16));
 

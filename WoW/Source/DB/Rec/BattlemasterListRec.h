@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// BattlemasterList.dbc IDs the client special-cases.
+enum BATTLEMASTER_LIST_ID : int32_t {
+    // Random battleground queue: the joined map comes from the queue data (NPC_PVPQUEUE_ANYWHERE).
+    BATTLEMASTER_LIST_RANDOM_BATTLEGROUND = 32,
+};
+
 class BattlemasterListRec {
     public:
     static const int32_t s_numColumns = 32;
