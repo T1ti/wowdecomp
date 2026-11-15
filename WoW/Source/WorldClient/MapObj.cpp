@@ -3212,7 +3212,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
             }
 
             g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
-            constants[3] = material.m_blendMode == 1 ? 0.87843138f : 0.0f;
+            constants[3] = material.m_blendMode == GxBlend_AlphaKey ? 0.87843138f : 0.0f;
             g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 2, constants, 1);
             CGxBatch batch;
             batch.m_primType = GxPrim_Triangles;

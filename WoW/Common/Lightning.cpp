@@ -865,7 +865,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     emissive.r = this->m_color.r;
     emissive.a = 0xFF;
     g_theGxDevicePtr->RsSet(GxRs_MatEmissive, *reinterpret_cast<int32_t*>(&emissive));
-    g_theGxDevicePtr->RsSet(GxRs_DepthWrite, static_cast<uint8_t>(this->m_chainEffects->m_blendMode) == 2);
+    g_theGxDevicePtr->RsSet(GxRs_DepthWrite, static_cast<uint8_t>(this->m_chainEffects->m_blendMode) == GxBlend_Alpha);
     g_theGxDevicePtr->RsSet(GxRs_BlendingMode, static_cast<int32_t>(static_cast<uint8_t>(this->m_chainEffects->m_blendMode)));
     GxUpdateAlphaRef(GxRs_AlphaRef);
 

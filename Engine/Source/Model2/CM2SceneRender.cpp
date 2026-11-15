@@ -564,7 +564,7 @@ void CM2SceneRender::DrawBatchProj() {
 
     CShaderEffect* effect;
 
-    if (g_theGxDevicePtr->m_appRenderStates[GxRs_BlendingMode].m_value.m_data.i[0] == 4) {
+    if (g_theGxDevicePtr->m_appRenderStates[GxRs_BlendingMode].m_value.m_data.i[0] == GxBlend_Mod) {
         effect = this->m_curLocalLighting ? this->m_projectedModAddEffect : this->m_projectedModAddUnlitEffect;
     } else {
         effect = this->m_curLocalLighting ? this->m_projectedModModEffect : this->m_projectedModModUnlitEffect;
