@@ -310,6 +310,19 @@ struct SMOGroupInfo {
 };
 
 struct SMOHeader {
+    // MOHD flags tested by the client.
+    enum FLAGS : uint16_t {
+        NONE = 0x0,
+        // Vertex colors are not attenuated toward portals.
+        NO_VERTEX_ATTENUATION = 0x1,
+        // Groups render through UnifiedRender.
+        UNIFIED_RENDER = 0x2,
+        // Group liquid values are LiquidType IDs rather than legacy indexes.
+        LIQUID_TYPE_IDS = 0x4,
+        // FixColorVertexAlpha is skipped.
+        NO_VERTEX_ALPHA_FIX = 0x8,
+    };
+
     /* 0000 */ uint32_t m_nTextures;
     /* 0004 */ uint32_t m_nGroups;
     /* 0008 */ uint32_t m_nPortals;
@@ -320,7 +333,7 @@ struct SMOHeader {
     /* 001C */ CImVector m_ambColor;
     /* 0020 */ uint32_t m_wmoID;
     /* 0024 */ CAaBox m_boundingBox;
-    /* 003C */ uint16_t m_flags;
+    /* 003C */ uint16_t m_flags; // FLAGS
     /* 003E */ uint16_t m_numLod;
 };
 

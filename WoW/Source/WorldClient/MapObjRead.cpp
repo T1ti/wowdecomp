@@ -320,7 +320,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         this->m_colorVertexListSize = chunk->m_size >> 2;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
 
-        if (!(parent->m_header->m_flags & 0x8)) {
+        if (!(parent->m_header->m_flags & SMOHeader::FLAGS::NO_VERTEX_ALPHA_FIX)) {
             this->FixColorVertexAlpha();
         }
     }
@@ -520,7 +520,7 @@ void CMapObjGroup::Create() {
     memcpy(this->m_fogs, header->m_fogIds, sizeof(this->m_fogs));
     this->m_wmoGroupId = header->m_uniqueID;
 
-    if (parent->m_header->m_flags & 0x4) {
+    if (parent->m_header->m_flags & SMOHeader::FLAGS::LIQUID_TYPE_IDS) {
         this->m_liquidType = this->GetLiquidType(header->m_groupLiquid);
     } else {
         this->m_liquidType = this->GetLiquidType(header->m_groupLiquid == 15 ? 0 : header->m_groupLiquid + 1);
@@ -536,7 +536,7 @@ void CMapObjGroup::Create() {
 
     this->m_unkLoadedFlag = (this->m_unkLoadedFlag & ~CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED) | CMapObjGroup::RUNTIME_FLAGS::LOADED;
 
-    if (mapObj->m_header->m_flags & 0x1) {
+    if (mapObj->m_header->m_flags & SMOHeader::FLAGS::NO_VERTEX_ATTENUATION) {
         this->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED;
     }
 

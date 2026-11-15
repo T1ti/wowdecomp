@@ -758,7 +758,7 @@ void CMapObjGroup::FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format) {
             CImVector base;
             base.a = 0xFF;
 
-            if (this->m_parent->m_header->m_flags & 0x2) {
+            if (this->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) {
                 base.b = 0;
                 base.g = 0;
                 base.r = 0;
@@ -841,7 +841,7 @@ void CMapObjGroup::FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format) {
         CImVector base;
         base.a = 0xFF;
 
-        if (this->m_parent->m_header->m_flags & 0x2) {
+        if (this->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) {
             base.b = 0;
             base.g = 0;
             base.r = 0;
@@ -1448,7 +1448,7 @@ void CMapObjGroup::AllocVB() {
         CMapObjGroup::vertexVBList.AllocVBB(&this->m_vertsBlock, vertexSize, this->m_vertexListCount);
     }
 
-    if (!CShaderEffect::s_enableShaders && (this->m_parent->m_header->m_flags & 0x2) && this->m_colorVertexList && this->m_transparencyBatchesCount && !this->m_transparencyVertsBlock) {
+    if (!CShaderEffect::s_enableShaders && (this->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) && this->m_colorVertexList && this->m_transparencyBatchesCount && !this->m_transparencyVertsBlock) {
         uint32_t count = this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1;
         CMapObjGroup::vertexVBList.AllocVBB(&this->m_transparencyVertsBlock, GxVertexSize(GxVBF_PNCT), count);
     }
@@ -2456,7 +2456,7 @@ bool CMapObjGroup::QueryLighting(const C3Vector& point, uint16_t face, CImVector
     uint32_t b = 2 * color->b;
     CMapObj* parent = this->m_parent;
 
-    if (parent->m_header->m_flags & 0x2) {
+    if (parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) {
         r += parent->m_argbColor.r;
         g += parent->m_argbColor.g;
         b += parent->m_argbColor.b;

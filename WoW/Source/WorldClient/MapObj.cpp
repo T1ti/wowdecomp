@@ -1339,7 +1339,7 @@ void CMapObj::RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& nd
 // VERIFY: 687366c6 manual
 // OFFSET: 0x007AC6A0
 void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
-    if (group->m_parent->m_header->m_flags & 0x2) {
+    if (group->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) {
         this->UnifiedRender(group, index);
         return;
     }
@@ -1457,7 +1457,7 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
 // VERIFY: 8a73759b manual
 // OFFSET: 0x007AC9F0
 void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
-    if (group->m_parent->m_header->m_flags & 0x2) {
+    if (group->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) {
         this->UnifiedRender(group, index);
         return;
     }
