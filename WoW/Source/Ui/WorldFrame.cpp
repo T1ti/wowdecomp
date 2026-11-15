@@ -206,11 +206,20 @@ int32_t CGWorldFrame::CanTargetCorpseSelection(const CGCorpse_C* corpse, uint32_
     return 1;
 }
 
+// Hit-test priority stored in CM2Model::m_hitTestGroup; CM2Scene prefers the higher value among overlapping hits.
+enum OBJECT_HIT_PRIORITY : uint32_t {
+    HIT_PRIORITY_NONE = 0,
+    HIT_PRIORITY_USABLE = 1, // Gameobject CanUse().
+    HIT_PRIORITY_LOOTABLE = 2, // Dead lootable unit or lootable corpse.
+    HIT_PRIORITY_ALIVE = 3, // Unit with health above zero.
+    HIT_PRIORITY_CURRENT = 0xFFFFFFFFu, // The object already under the cursor (m_hitGuid).
+};
+
 // VERIFY: 906e0891 auto
 // OFFSET: 0x004F6270
 static int32_t GetObjectHitTestType(CGObject_C* object) {
     if (!object) {
-        return 0;
+        return HIT_PRIORITY_NONE;
     }
 
     switch (object->m_obj->m_type) {
@@ -219,20 +228,20 @@ static int32_t GetObjectHitTestType(CGObject_C* object) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(object);
 
             if (unit->m_unit->m_unitFieldHealth > 0) {
-                return 3;
+                return HIT_PRIORITY_ALIVE;
             }
 
-            return unit->CanBeLooted(OsGetAsyncTimeMs()) ? 2 : 0;
+            return unit->CanBeLooted(OsGetAsyncTimeMs()) ? HIT_PRIORITY_LOOTABLE : HIT_PRIORITY_NONE;
         }
 
         case HEIR_TYPE_GAMEOBJECT:
-            return static_cast<CGGameObject_C*>(object)->CanUse() ? 1 : 0;
+            return static_cast<CGGameObject_C*>(object)->CanUse() ? HIT_PRIORITY_USABLE : HIT_PRIORITY_NONE;
 
         case HEIR_TYPE_CORPSE:
-            return static_cast<CGCorpse_C*>(object)->CanBeLooted() ? 2 : 0;
+            return static_cast<CGCorpse_C*>(object)->CanBeLooted() ? HIT_PRIORITY_LOOTABLE : HIT_PRIORITY_NONE;
 
         default:
-            return 0;
+            return HIT_PRIORITY_NONE;
     }
 }
 
@@ -269,7 +278,7 @@ void CGWorldFrame::AddObjectToHitTestList(CModelRecord* record, uint32_t flags) 
     uint32_t group;
 
     if (record->m_guid == this->m_hitGuid) {
-        group = -1;
+        group = HIT_PRIORITY_CURRENT;
     } else {
         group = GetObjectHitTestType(record->m_object);
     }
@@ -991,7 +1000,7 @@ bool CGWorldFrame::HitTestModelList(const C3Vector& start, const C3Vector& end) 
     World::s_m2Scene->BeginHitTest();
 
     for (CModelRecord* record = this->m_modelList.Head(); record; record = this->m_modelList.Next(record)) {
-        AddModelToHitTest(record->m_model, 0, record, CM2Model::HIT_TEST_RENDER);
+        AddModelToHitTest(record->m_model, HIT_PRIORITY_NONE, record, CM2Model::HIT_TEST_RENDER);
     }
 
     float t = 1.0f;

@@ -246,7 +246,7 @@ class CM2Model {
     /* 02D8 */ CM2Model** m_hitTestPrev;
     /* 02DC */ CM2Model* m_hitTestNext;
     /* 02E0 */ void* m_hitTestOwner;
-    /* 02E4 */ uint32_t m_hitTestGroup;
+    /* 02E4 */ uint32_t m_hitTestGroup; // Hit priority; the higher value wins among overlapping hits.
     /* 02E8 */ uint32_t m_handle;
     /* 02EC */ uint32_t unused_02EC;
 
