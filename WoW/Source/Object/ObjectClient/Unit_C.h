@@ -201,10 +201,25 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     static void ClearNamePlateFocus();
     static void SetNamePlateFocus(const C2Vector& position);
     static void NamePlateClearAll();
+    // Deferred name plate refresh requests, named after their NamePlate* setters.
+    enum NAMEPLATE_FLAGS : uint32_t {
+        NAMEPLATE_FLAG_RESORT_ALL = 0x1,
+        NAMEPLATE_FLAG_UPDATE_LEVELS = 0x2,
+        NAMEPLATE_FLAG_UPDATE_COLOR = 0x4,
+    };
+
+    // Click-to-move tracking state.
+    enum TRACKING_FLAGS : uint32_t {
+        TRACKING_FLAG_NONE = 0x0,
+        TRACKING_FLAG_SELF_MOVE = 0x1, // Set while Tracking* issues its own local move, turn or pitch, so the local handlers keep the target.
+        TRACKING_FLAG_FACING_REACHED = 0x2,
+        TRACKING_FLAG_PITCH_REACHED = 0x4,
+    };
+
     static WOWGUID s_activeMover;
     static uint32_t s_trackingType;
     static float s_trackingFacing;
-    static uint32_t s_namePlateFlags;
+    static uint32_t s_namePlateFlags; // NAMEPLATE_FLAGS
     static uint32_t s_missileTrajectoryTargetingSpell;
     static uint32_t s_pitchMissileTrajectoryTargetingNextFrame;
     static CVar* s_cvShowFootPrintParticles;
@@ -227,7 +242,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     static float s_unknown_CA11D0;
     static uint32_t s_trackingStuckCount;
     static WOWGUID s_trackingGUID;
-    static uint32_t s_trackingFlags;
+    static uint32_t s_trackingFlags; // TRACKING_FLAGS
     static CGNamePlateFrame* s_namePlateFocus;
 
     static const char* GetDisplayClassNameFromRecord(const ChrClassesRec* rec, int32_t sex, int32_t* displaySex);

@@ -5932,9 +5932,9 @@ void CGUnit_C::RotateFacing(float delta) {
 // OFFSET: 0x00715380
 void CGUnit_C::NamePlateSetResortAll(bool enable) {
     if (enable) {
-        s_namePlateFlags |= 0x1;
+        s_namePlateFlags |= NAMEPLATE_FLAG_RESORT_ALL;
     } else {
-        s_namePlateFlags &= ~0x1;
+        s_namePlateFlags &= ~NAMEPLATE_FLAG_RESORT_ALL;
     }
 }
 
@@ -5942,9 +5942,9 @@ void CGUnit_C::NamePlateSetResortAll(bool enable) {
 // OFFSET: 0x007153A0
 void CGUnit_C::NamePlateUpdateLevels(bool enable) {
     if (enable) {
-        s_namePlateFlags |= 0x2;
+        s_namePlateFlags |= NAMEPLATE_FLAG_UPDATE_LEVELS;
     } else {
-        s_namePlateFlags &= ~0x2;
+        s_namePlateFlags &= ~NAMEPLATE_FLAG_UPDATE_LEVELS;
     }
 }
 
@@ -5952,9 +5952,9 @@ void CGUnit_C::NamePlateUpdateLevels(bool enable) {
 // OFFSET: 0x007153C0
 void CGUnit_C::NamePlateUpdateColor(bool enable) {
     if (enable) {
-        s_namePlateFlags |= 0x4;
+        s_namePlateFlags |= NAMEPLATE_FLAG_UPDATE_COLOR;
     } else {
-        s_namePlateFlags &= ~0x4;
+        s_namePlateFlags &= ~NAMEPLATE_FLAG_UPDATE_COLOR;
     }
 }
 
@@ -10341,7 +10341,7 @@ void CGUnit_C::ClearTrackingTarget(bool a2, bool a3) {
 
     CGUnit_C::s_trackingGUID = WOWGUID();
     CGUnit_C::s_unknown_CA11D0 = 0.0f;
-    CGUnit_C::s_trackingFlags = 0;
+    CGUnit_C::s_trackingFlags = TRACKING_FLAG_NONE;
     CGUnit_C::s_trackingStuckCount = 0;
     CGUnit_C::s_trackingType = TRACKTYPE_NONE;
 }
@@ -10713,7 +10713,7 @@ void WeaponTrailsInitialize() {
 // VERIFY: bdb50cd0 manual
 // OFFSET: 0x0072EA50
 void CGUnit_C::OnSetRawFacingLocal(uint32_t eventTime, float facing) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10727,7 +10727,7 @@ void CGUnit_C::OnSetRawFacingLocal(uint32_t eventTime, float facing) {
 // VERIFY: 0e4f2f38 manual
 // OFFSET: 0x0072EAD0
 void CGUnit_C::OnSetPitchLocal(uint32_t eventTime, float pitch) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10771,7 +10771,7 @@ int32_t CGUnit_C::ClampRawAngleToLegalFacingRange(float& angle) const {
 // VERIFY: eb34d923 manual
 // OFFSET: 0x0072D3F0
 void CGUnit_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10785,7 +10785,7 @@ void CGUnit_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
 // VERIFY: 5a1f7b23 manual
 // OFFSET: 0x0072D470
 void CGUnit_C::OnPitchToAngleLocal(uint32_t eventTime, float pitch) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10837,7 +10837,7 @@ void CGUnit_C::OnTurnStopLocal(uint32_t eventTime) {
 // VERIFY: c9647570 manual
 // OFFSET: 0x0072E5D0
 void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10855,7 +10855,7 @@ void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
 // VERIFY: 97b45c2f manual
 // OFFSET: 0x0072E680
 void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10873,7 +10873,7 @@ void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
 // VERIFY: 779d8288 manual
 // OFFSET: 0x0072E730
 void CGUnit_C::OnAscendDescendStartLocal(uint32_t eventTime, int32_t ascend) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10897,7 +10897,7 @@ void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
         Spell_C_CancelChannelSpell(this->m_unit->m_unitChannelSpell);
     }
 
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10915,7 +10915,7 @@ void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
 // VERIFY: 4d6a8b9a manual
 // OFFSET: 0x0072E900
 void CGUnit_C::OnPitchStartLocal(uint32_t eventTime, int32_t up) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -10933,7 +10933,7 @@ void CGUnit_C::OnPitchStartLocal(uint32_t eventTime, int32_t up) {
 // VERIFY: 978d0d24 manual
 // OFFSET: 0x0072E9B0
 void CGUnit_C::OnPitchStopLocal(uint32_t eventTime) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -13329,7 +13329,7 @@ void CGUnit_C::SetActiveMover(uint64_t guid) {
 // VERIFY: e6e292bd manual
 // OFFSET: 0x0072AEC0
 void CGUnit_C::OnMovementInitiated(bool clearTracking, bool keepLoot) {
-    if (clearTracking && this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & 0x1)) {
+    if (clearTracking && this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
         this->ClearTrackingTarget(false, true);
     }
 
@@ -20175,11 +20175,11 @@ void CGUnit_C::NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worl
         return;
     }
 
-    if (CGUnit_C::s_namePlateFlags & 0x2) {
+    if (CGUnit_C::s_namePlateFlags & NAMEPLATE_FLAG_UPDATE_LEVELS) {
         this->m_namePlateFrame->UpdateLevelDisplay(this);
     }
 
-    if (CGUnit_C::s_namePlateFlags & 0x4) {
+    if (CGUnit_C::s_namePlateFlags & NAMEPLATE_FLAG_UPDATE_COLOR) {
         this->m_namePlateFrame->UpdateColorDisplay(this);
     }
 
@@ -20187,7 +20187,7 @@ void CGUnit_C::NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worl
     C3Vector delta(position.x - oldPosition.x, position.y - oldPosition.y, position.z - oldPosition.z);
     C2Vector delta2(delta);
 
-    if ((CGUnit_C::s_namePlateFlags & 0x1) || delta2.y * delta2.y + delta2.x * delta2.x != 0.0f) {
+    if ((CGUnit_C::s_namePlateFlags & NAMEPLATE_FLAG_RESORT_ALL) || delta2.y * delta2.y + delta2.x * delta2.x != 0.0f) {
         this->m_namePlateFrame->m_position = position;
         NamePlateSort(this->m_namePlateFrame);
         worldFrame->SetNamePlateUpdate();
@@ -22465,10 +22465,10 @@ void CGUnit_C::TrackingStopMove(uint32_t time) {
     CGInputControl::GetActive()->ToggleControlBit(INPUT_TRACKING_MOVE, 0, time, 0);
 
     if (CGInputControl::GetActive()->CanControl(this) && (this->m_movement->m_flags & MOVEMENTFLAG_MOVE_MASK)) {
-        CGUnit_C::s_trackingFlags |= 0x1;
+        CGUnit_C::s_trackingFlags |= TRACKING_FLAG_SELF_MOVE;
         this->m_movementData.OnMoveStopLocal(time);
         CGInputControl::GetActive()->UpdateMoveStopped();
-        CGUnit_C::s_trackingFlags &= ~0x1;
+        CGUnit_C::s_trackingFlags &= ~TRACKING_FLAG_SELF_MOVE;
     }
 }
 
@@ -22564,7 +22564,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
         OsGetAsyncTimeMs();
         CGUnit_C::s_unknown_CA11D0 = 0.0f;
         CGUnit_C::s_trackingGUID = WOWGUID();
-        CGUnit_C::s_trackingFlags = 0;
+        CGUnit_C::s_trackingFlags = TRACKING_FLAG_NONE;
         CGUnit_C::s_trackingStuckCount = 0;
         CGUnit_C::s_trackingType = TRACKTYPE_NONE;
     }
@@ -22781,9 +22781,9 @@ void CGUnit_C::TrackingStartMove(uint32_t time) {
     CGInputControl::GetActive()->ToggleControlBit(INPUT_TRACKING_MOVE, 1, time, 0);
 
     if (CGInputControl::GetActive()->CanControl(this)) {
-        CGUnit_C::s_trackingFlags |= 0x1;
+        CGUnit_C::s_trackingFlags |= TRACKING_FLAG_SELF_MOVE;
         this->OnMoveStartLocal(time, 1);
-        CGUnit_C::s_trackingFlags &= ~0x1;
+        CGUnit_C::s_trackingFlags &= ~TRACKING_FLAG_SELF_MOVE;
     }
 }
 
@@ -22791,9 +22791,9 @@ void CGUnit_C::TrackingStartMove(uint32_t time) {
 // OFFSET: 0x0072ED40
 void CGUnit_C::TrackingSetPitch(uint32_t time, float pitch) {
     if (CGInputControl::GetActive()->CanControl(this)) {
-        CGUnit_C::s_trackingFlags |= 0x1;
+        CGUnit_C::s_trackingFlags |= TRACKING_FLAG_SELF_MOVE;
         this->OnSetPitchLocal(time, pitch);
-        CGUnit_C::s_trackingFlags &= ~0x1;
+        CGUnit_C::s_trackingFlags &= ~TRACKING_FLAG_SELF_MOVE;
     }
 }
 
@@ -22940,9 +22940,9 @@ bool CGUnit_C::HandleTrackingPitch(float targetZ, float z, float pitch, float ma
 // OFFSET: 0x00731600
 void CGUnit_C::TrackingSetTurn(uint32_t time, float facing) {
     if (CGInputControl::GetActive()->CanControl(this)) {
-        CGUnit_C::s_trackingFlags |= 0x1;
+        CGUnit_C::s_trackingFlags |= TRACKING_FLAG_SELF_MOVE;
         this->OnSetRawFacingLocal(time, this->m_movement->GetRawFacing(facing));
-        CGUnit_C::s_trackingFlags &= ~0x1;
+        CGUnit_C::s_trackingFlags &= ~TRACKING_FLAG_SELF_MOVE;
     }
 }
 
@@ -23035,7 +23035,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
 
     float speedScale = this->m_movement->GetBaseSpeed(0) * 0.14285715f < 1.0f ? 1.0f : this->m_movement->GetBaseSpeed(0) * 0.14285715f;
 
-    if (s_clickToMoveActions[CGUnit_C::s_trackingType].m_enabled && (CGUnit_C::s_trackingFlags & 0x2)) {
+    if (s_clickToMoveActions[CGUnit_C::s_trackingType].m_enabled && (CGUnit_C::s_trackingFlags & TRACKING_FLAG_FACING_REACHED)) {
         switch (CGUnit_C::s_trackingType) {
             case TRACKTYPE_FACE:
             case TRACKTYPE_FOLLOW:
@@ -23073,7 +23073,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     if (drunkness > 0.0f) {
         moving = true;
 
-        if ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && (CGUnit_C::s_trackingFlags & 0x2)) {
+        if ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && (CGUnit_C::s_trackingFlags & TRACKING_FLAG_FACING_REACHED)) {
             desired = this->GetFacing() + turnOffset;
         }
     }
@@ -23088,9 +23088,9 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
             return;
         }
 
-        CGUnit_C::s_trackingFlags |= 0x2;
+        CGUnit_C::s_trackingFlags |= TRACKING_FLAG_FACING_REACHED;
     } else if (moving && CGUnit_C::s_trackingType == TRACKTYPE_FOLLOW && CRandom::ufloat_(g_rndSeed) * drunkness < 0.07f) {
-        CGUnit_C::s_trackingFlags &= ~0x2;
+        CGUnit_C::s_trackingFlags &= ~TRACKING_FLAG_FACING_REACHED;
     }
 
     bool overshoot = false;
@@ -23101,7 +23101,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     if ((moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && useTarget && s_trackingStuckDistanceSq < distSq3) {
         float pitch;
 
-        if (moving && (moveFlags & MOVEMENTFLAG_MOVE_MASK) && (CGUnit_C::s_trackingFlags & 0x4)) {
+        if (moving && (moveFlags & MOVEMENTFLAG_MOVE_MASK) && (CGUnit_C::s_trackingFlags & TRACKING_FLAG_PITCH_REACHED)) {
             pitch = this->GetPitch() + turnOffset;
         } else {
             pitch = CGUnit_C::ComputeTrackingElevationAngle(target, position);
@@ -23111,7 +23111,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
 
         if (!pitching) {
             DisableTrackingPitch(time);
-            CGUnit_C::s_trackingFlags |= 0x4;
+            CGUnit_C::s_trackingFlags |= TRACKING_FLAG_PITCH_REACHED;
         }
     }
 
@@ -23119,7 +23119,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
         return;
     }
 
-    if (moving && (CGUnit_C::s_trackingFlags & 0x2)) {
+    if (moving && (CGUnit_C::s_trackingFlags & TRACKING_FLAG_FACING_REACHED)) {
         float diff = CMath::normalizeangle0to2pi_(facingTo - this->GetFacing());
 
         if (diff > 2.7925267f && diff < 3.8397243f) {
