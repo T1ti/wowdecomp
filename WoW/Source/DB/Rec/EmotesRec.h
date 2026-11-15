@@ -45,7 +45,7 @@ class EmotesRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_emoteSlashCommand;
     /* 0008 */ int32_t m_animID;
-    /* 000C */ int32_t m_emoteFlags;
+    /* 000C */ EMOTE_FLAGS m_emoteFlags;
     /* 0010 */ EMOTESPECPROCS m_emoteSpecProc;
     /* 0014 */ int32_t m_emoteSpecProcParam;
     /* 0018 */ int32_t m_eventSoundID;

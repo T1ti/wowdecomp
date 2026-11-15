@@ -162,7 +162,7 @@ bool CGUnit::CanSwim() const {
 
 // VERIFY: a616de1f manual
 // OFFSET: 0x004F5410
-int32_t CGUnit::CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* standUp) const {
+int32_t CGUnit::CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const {
     *standUp = 0;
 
     if (targeted && (emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_TARGETED)) {

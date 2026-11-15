@@ -8,6 +8,7 @@
 #include "Engine/Source/Tempest/C3Vector.h"
 
 class CGUnitData;
+enum EMOTE_FLAGS : int32_t;
 class CMovement_C;
 
 class CGUnit {
@@ -29,7 +30,7 @@ class CGUnit {
     C3Vector GetVelocity() const;
 
     bool CanSwim() const;
-    int32_t CanPlayEmote(uint32_t emoteFlags, int32_t targeted, int32_t* standUp) const;
+    int32_t CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const;
     void GetResistanceAndBuffs(int32_t school, int32_t* baseValue, int32_t* total, int32_t* effective, int32_t* positive, int32_t* negative) const;
     const WOWGUID* GetCharmerOrCreatorGuid() const;
     bool HasCreator() const;
