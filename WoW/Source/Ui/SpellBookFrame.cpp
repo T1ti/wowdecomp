@@ -2288,7 +2288,7 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
             if (ability) {
                 const SkillRaceClassInfoRec* info = SpellTableLookupInfo(player->m_unit->m_raceID, player->m_unit->m_classID, ability->m_skillLine);
 
-                if (info && info->m_flags >= 0) {
+                if (info && !(info->m_flags & SKILL_RACE_CLASS_FLAG_NO_SPELLBOOK_SKILL)) {
                     skillLine = info->m_skillID;
                 }
             }
