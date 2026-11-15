@@ -554,7 +554,7 @@ void DayNight::SyncSkyAnimWithTime(DNOverrideSky* sky, int32_t minutes) {
         return;
     }
 
-    if (abs(minutes - static_cast<int32_t>(sky->m_lastTimeOfDay)) >= 2 && (sky->m_flags & 1)) {
+    if (abs(minutes - static_cast<int32_t>(sky->m_lastTimeOfDay)) >= 2 && (sky->m_flags & LIGHT_SKYBOX_FLAG_FULL_DAY)) {
         float speed = 0.000000011574074f * length;
         uint32_t time = static_cast<uint32_t>(length * (minutes * 0.00069444446f));
         sky->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, time, speed, 1, 1);
@@ -2800,7 +2800,7 @@ void DayNight::SetColors() {
 
         DNOverrideSky* sky = DayNight::GetOverrideSky(skybox->m_name, skybox->m_flags);
         float weight = blend->m_weight;
-        uint32_t flags = skybox->m_flags & 2;
+        uint32_t flags = skybox->m_flags & LIGHT_SKYBOX_FLAG_COMBINE_PROCEDURAL_AND_SKYBOX;
 
         if (weight > 0.99000001f && count && !flags) {
             count = 0;

@@ -6,6 +6,15 @@
 
 class SFileImpl;
 
+// LightSkybox.dbc flags tested by the client; names describe that behavior.
+enum LIGHT_SKYBOX_FLAGS : int32_t {
+    LIGHT_SKYBOX_FLAG_NONE                          = 0x00000000,
+    // The skybox animation is timed to the time of day.
+    LIGHT_SKYBOX_FLAG_FULL_DAY                      = 0x00000001,
+    // Kept blended with lower skyboxes even when fully weighted.
+    LIGHT_SKYBOX_FLAG_COMBINE_PROCEDURAL_AND_SKYBOX = 0x00000002,
+};
+
 class LightSkyboxRec {
     public:
     static const int32_t s_numColumns = 3;
@@ -14,7 +23,7 @@ class LightSkyboxRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_flags;
+    /* 0008 */ int32_t m_flags; // LIGHT_SKYBOX_FLAGS
 
     LightSkyboxRec();
     ~LightSkyboxRec();
