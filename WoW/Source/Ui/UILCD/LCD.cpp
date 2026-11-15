@@ -1314,7 +1314,7 @@ int32_t CGLCD::Update(const void* data, void* param) {
             CGLCD::UpdateBattlefieldStats();
         }
 
-        if (static_cast<uint32_t>(s_currentScreen - 7) <= 5) {
+        if (s_currentScreen >= 7 && s_currentScreen <= 12) {
             CGLCD::UpdateMapPositions();
         }
     } else if (CGlueMgr::m_queuePosition[0]) {

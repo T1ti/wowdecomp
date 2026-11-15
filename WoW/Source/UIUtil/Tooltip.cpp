@@ -6304,7 +6304,7 @@ static int32_t AddItemTradeLines(CGTooltip* tooltip, const ItemStats_C* stats, C
         int32_t timeLeft = purchase->m_purchasePlayedTime - player->GetPlayedTime() + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS;
 
         if (timeLeft > 0 && !item->HasEnchantments()) {
-            if (static_cast<uint32_t>(timeLeft - 3660) > 3539) {
+            if (timeLeft < 3660 || timeLeft > 7199) {
                 CGTooltip::GetDurationString(format, sizeof(format), timeLeft, "INT_SPELL_DURATION", nullptr, 0, 1);
             } else {
                 SStrPrintf(text, sizeof(text), FrameScript_GetText("INT_SPELL_DURATION_HOURS", 1, GENDER_NOT_APPLICABLE), 1);
@@ -6326,7 +6326,7 @@ static int32_t AddItemTradeLines(CGTooltip* tooltip, const ItemStats_C* stats, C
         int32_t timeLeft = item->m_item->m_itemFieldCreatePlayedTime - player->GetPlayedTime() + CGItem_C::BIND_TRADE_PERIOD_SECONDS;
 
         if (timeLeft > 0) {
-            if (static_cast<uint32_t>(timeLeft - 3660) > 3539) {
+            if (timeLeft < 3660 || timeLeft > 7199) {
                 CGTooltip::GetDurationString(format, sizeof(format), timeLeft, "INT_SPELL_DURATION", nullptr, 0, 1);
             } else {
                 SStrPrintf(text, sizeof(text), FrameScript_GetText("INT_SPELL_DURATION_HOURS", 1, GENDER_NOT_APPLICABLE), 1);

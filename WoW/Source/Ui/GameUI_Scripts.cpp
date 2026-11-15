@@ -2159,7 +2159,7 @@ static int32_t Script_DestroyTotem(lua_State* L) {
 
     int32_t slot = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(slot - 1) > 3) {
+    if (slot < 1 || slot > 4) {
         luaL_error(L, "Totem slot must be in range of 1 to %d", 4);
         return 0;
     }

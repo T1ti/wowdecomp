@@ -1425,7 +1425,7 @@ static int32_t Script_PINEntered(lua_State* L) {
         count++;
     }
 
-    if (static_cast<uint32_t>(count - 4) > 6) {
+    if (count < 4 || count > 10) {
         luaL_error(L, "Usage: PINEntered(4-10 key positions) - bad number of args %d", count);
     }
 

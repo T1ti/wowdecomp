@@ -81,7 +81,7 @@ int32_t SI2AdvancedSound::Play() {
     SE2SoundKitProperties properties;
 
     if (this->m_usage) {
-        if (static_cast<uint32_t>(this->m_usage - 1) > 1) {
+        if (this->m_usage < SI2_SOUND_USAGE_INTERVAL || this->m_usage > SI2_SOUND_USAGE_ONESHOT) {
             return 0;
         }
 

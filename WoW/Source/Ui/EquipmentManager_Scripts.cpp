@@ -379,7 +379,7 @@ static const char* s_equipmentSetIconPath = "Interface\\Icons\\";
 static int32_t Script_GetEquipmentSetInfo(lua_State* L) {
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(index - 1) > 9) {
+    if (index < 1 || index > 10) {
         luaL_error(L, "Usage: GetEquipmentSetInfo(setIndex)");
         return 0;
     }

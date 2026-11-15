@@ -2943,7 +2943,7 @@ static int32_t Script_GetPVPRankInfo(lua_State* L) {
     char token[32];
     const char* text;
 
-    if (static_cast<uint32_t>(rank - 1) <= 17 && (SStrPrintf(token, sizeof(token), "PVP_RANK_%d_%d", rank, faction), (text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE)) != nullptr) && *text) {
+    if ((rank >= 1 && rank <= 18) && (SStrPrintf(token, sizeof(token), "PVP_RANK_%d_%d", rank, faction), (text = FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE)) != nullptr) && *text) {
         lua_pushstring(L, text);
         lua_pushnumber(L, rank >= 5 ? rank - 4 : rank - 5);
     } else {

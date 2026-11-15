@@ -181,7 +181,7 @@ static int32_t Script_SetView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(view - 1) <= 4) {
+    if (view >= 1 && view <= 5) {
         CGWorldFrame::GetActiveCamera()->SetView(view, s_cvCameraViewBlendStyle->m_intValue, 0);
     }
 
@@ -198,7 +198,7 @@ static int32_t Script_SaveView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(view - 1) <= 4 && view) {
+    if (view >= 1 && view <= 5) {
         CGWorldFrame::GetActiveCamera()->CreateViewFromCamera(view);
     }
 
@@ -215,7 +215,7 @@ static int32_t Script_ResetView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (static_cast<uint32_t>(view - 1) <= 4) {
+    if (view >= 1 && view <= 5) {
         CGWorldFrame::GetActiveCamera()->ResetView(view);
     }
 
