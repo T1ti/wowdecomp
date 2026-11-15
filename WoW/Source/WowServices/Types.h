@@ -154,10 +154,28 @@ struct CHARACTER_CREATE_INFO {
     /* 0038 */ uint8_t m_outfitID;
 };
 
+// Realm list flags; names follow the GetRealmInfo returns (invalid, realmDown, load, version).
+enum REALM_FLAGS : uint8_t {
+    REALM_FLAG_NONE = 0x00,
+    REALM_FLAG_INVALID = 0x01,
+    REALM_FLAG_OFFLINE = 0x02,
+    // The entry carries the realm's major/minor/revision/build version.
+    REALM_FLAG_SPECIFY_BUILD = 0x04,
+    REALM_FLAG_RECOMMENDED = 0x20,
+    REALM_FLAG_NEW_PLAYERS = 0x40,
+    REALM_FLAG_FULL = 0x80,
+};
+
+// REALM_INFO::m_otherFlags; GetRealmInfo locked.
+enum REALM_OTHER_FLAGS : uint8_t {
+    REALM_OTHER_FLAG_NONE = 0x00,
+    REALM_OTHER_FLAG_LOCKED = 0x01,
+};
+
 struct REALM_INFO {
     /* 0000 */ uint32_t m_id;
     /* 0004 */ uint8_t m_type;
-    /* 0005 */ uint8_t m_flags;
+    /* 0005 */ uint8_t m_flags; // REALM_FLAGS
     /* 0006 */ char m_realmName [256];
     /* 0106 */ char m_realmAddress [32];
     /* 0126 */ uint8_t unused_0126[2];
@@ -170,7 +188,7 @@ struct REALM_INFO {
     /* 0134 */ uint32_t m_battlegroupId;
     /* 0138 */ uint32_t m_realmId;
     /* 013C */ uint32_t m_build;
-    /* 0140 */ uint8_t m_otherFlags;
+    /* 0140 */ uint8_t m_otherFlags; // REALM_OTHER_FLAGS
     /* 0141 */ uint8_t m_versionMajor;
     /* 0142 */ uint8_t m_versionMinor;
     /* 0143 */ uint8_t m_versionRevision;

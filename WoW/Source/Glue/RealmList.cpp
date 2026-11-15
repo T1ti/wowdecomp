@@ -30,15 +30,15 @@ TSFixedArray<RealmCategory*> CRealmList::m_categories;
 // VERIFY: 430ef903 auto
 // OFFSET: 0x004DE5B0
 float GetRealmPopulation(REALM_INFO* realm) {
-    if (static_cast<int8_t>(realm->m_flags) < 0) {
+    if (realm->m_flags & REALM_FLAG_FULL) {
         return 2.0f;
     }
 
-    if (realm->m_flags & 0x20) {
+    if (realm->m_flags & REALM_FLAG_RECOMMENDED) {
         return -3.0f;
     }
 
-    if (realm->m_flags & 0x40) {
+    if (realm->m_flags & REALM_FLAG_NEW_PLAYERS) {
         return -2.0f;
     }
 

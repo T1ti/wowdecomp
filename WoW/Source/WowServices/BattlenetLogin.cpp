@@ -617,7 +617,7 @@ void BattlenetLogin::BuildRealmListResult() {
         msg->Put(info.m_realmId);
         msg->Put(info.m_build);
 
-        if (info.m_flags & 0x4) {
+        if (info.m_flags & REALM_FLAG_SPECIFY_BUILD) {
             msg->Put(info.m_versionMajor);
             msg->Put(info.m_versionMinor);
             msg->Put(info.m_versionRevision);
@@ -1171,7 +1171,7 @@ void BattlenetLogin::UpdateRealmListData(uint32_t region, uint32_t battlegroup, 
 
             if (cursor) {
                 realm->m_versionBuild = SStrToInt(cursor + 1);
-                realm->m_flags |= 0x4;
+                realm->m_flags |= REALM_FLAG_SPECIFY_BUILD;
             }
         }
     }

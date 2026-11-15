@@ -125,13 +125,13 @@ static int32_t Script_GetRealmInfo(lua_State* L) {
     lua_pushstring(L, realm->m_realmName);
     lua_pushnumber(L, realm->m_numCharacters);
 
-    if (SFile::IsTrial() || !(realm->m_flags & 0x1)) {
+    if (SFile::IsTrial() || !(realm->m_flags & REALM_FLAG_INVALID)) {
         lua_pushnil(L);
     } else {
         lua_pushnumber(L, 1.0);
     }
 
-    if (realm->m_flags & 0x2) {
+    if (realm->m_flags & REALM_FLAG_OFFLINE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -170,13 +170,13 @@ static int32_t Script_GetRealmInfo(lua_State* L) {
 
     lua_pushnumber(L, GetRealmPopulation(realm));
 
-    if (realm->m_otherFlags & 0x1) {
+    if (realm->m_otherFlags & REALM_OTHER_FLAG_LOCKED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (realm->m_flags & 0x4) {
+    if (realm->m_flags & REALM_FLAG_SPECIFY_BUILD) {
         lua_pushnumber(L, realm->m_versionMajor);
         lua_pushnumber(L, realm->m_versionMinor);
         lua_pushnumber(L, realm->m_versionRevision);
@@ -288,7 +288,7 @@ static int32_t Script_IsInvalidTournamentRealmCategory(lua_State* L) {
 
     RealmCategory* category = CRealmList::m_categories[index];
 
-    if (!category || !category->m_category || !(category->m_category->m_flags & 0x1)) {
+    if (!category || !category->m_category || !(category->m_category->m_flags & CFG_CATEGORY_FLAG_TOURNAMENT)) {
         return 0;
     }
 
@@ -316,7 +316,7 @@ static int32_t Script_IsTournamentRealmCategory(lua_State* L) {
 
     RealmCategory* category = CRealmList::m_categories[index];
 
-    if (!category || !category->m_category || !(category->m_category->m_flags & 0x1)) {
+    if (!category || !category->m_category || !(category->m_category->m_flags & CFG_CATEGORY_FLAG_TOURNAMENT)) {
         return 0;
     }
 

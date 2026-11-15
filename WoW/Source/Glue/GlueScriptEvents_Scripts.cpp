@@ -325,7 +325,7 @@ static int32_t Script_SetCVar(lua_State* L) {
         return 0;
     }
 
-    if (var->m_flags & 0x4) {
+    if (var->m_flags & CVAR_FLAGS::CVAR_READ_ONLY) {
         luaL_error(L, "\"%s\" is read-only", name);
         return 0;
     }
@@ -588,7 +588,7 @@ static int32_t Script_GetServerName(lua_State* L) {
             if (config->m_realmType == realm->m_type) {
                 pvp = config->m_playerKillingAllowed != 0;
                 rp = config->m_roleplaying != 0;
-                down = realm->m_flags & 0x2;
+                down = realm->m_flags & REALM_FLAG_OFFLINE;
                 break;
             }
         }

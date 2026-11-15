@@ -258,7 +258,7 @@ void LoginResponse::HandleRealmData(uint32_t result, CDataStore* msg) {
             realm->m_build = 0;
         }
 
-        if (realm->m_flags & 0x4) {
+        if (realm->m_flags & REALM_FLAG_SPECIFY_BUILD) {
             msg->Get(realm->m_versionMajor);
             msg->Get(realm->m_versionMinor);
             msg->Get(realm->m_versionRevision);
@@ -275,13 +275,13 @@ void LoginResponse::HandleRealmData(uint32_t result, CDataStore* msg) {
         }
 
         if (realm->m_population == 600.0f) {
-            realm->m_flags |= 0x20;
+            realm->m_flags |= REALM_FLAG_RECOMMENDED;
             realm->m_population = 0.0f;
         } else if (realm->m_population == 200.0f) {
-            realm->m_flags |= 0x40;
+            realm->m_flags |= REALM_FLAG_NEW_PLAYERS;
             realm->m_population = 0.001f;
         } else if (realm->m_population == 400.0f) {
-            realm->m_flags |= 0x80;
+            realm->m_flags |= REALM_FLAG_FULL;
             realm->m_population = 8.0f;
         }
 
