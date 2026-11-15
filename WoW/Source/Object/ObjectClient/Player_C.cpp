@@ -5950,7 +5950,7 @@ InspectItem* CGPlayer_C::GetInspectedItem(int32_t slot) {
     s_emptyInspectItem.m_enchants[1] = visible->m_enchantment[1];
 
     if (visible->m_itemId <= 0) {
-        s_emptyInspectItem.m_flags |= 1;
+        s_emptyInspectItem.m_flags |= InspectItem::FLAGS::USABLE;
     }
 
     return &s_emptyInspectItem;
@@ -5991,7 +5991,7 @@ void CGPlayer_C::CountEquippedGems() {
         } else {
             inspect = this->GetInspectedItem(slot);
 
-            if (!inspect || !(inspect->m_flags & 1)) {
+            if (!inspect || !(inspect->m_flags & InspectItem::FLAGS::USABLE)) {
                 continue;
             }
         }
@@ -8078,7 +8078,7 @@ static void ReadInspectItems(CDataStore* msg) {
         msg->Get(reinterpret_cast<uint32_t&>(itemId));
 
         if (itemId < 0) {
-            item->m_flags |= 1;
+            item->m_flags |= InspectItem::FLAGS::USABLE;
             itemId = -itemId;
         }
 

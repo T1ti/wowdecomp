@@ -25,11 +25,18 @@ class SpellRec;
 class SpellVisualKitRec;
 
 struct InspectItem {
+    // Reconstructed name; the packet marks it with a negative item ID.
+    enum FLAGS : uint16_t {
+        NONE = 0x0,
+        // The inspected player can use the item (counts for equipped gems).
+        USABLE = 0x1,
+    };
+
     /* 0000 */ WOWGUID m_creator;
     /* 0008 */ int32_t m_itemId;
     /* 000C */ int32_t m_enchants [12];
     /* 003C */ int16_t m_randomPropertiesId;
-    /* 003E */ uint16_t m_flags;
+    /* 003E */ uint16_t m_flags; // FLAGS
     /* 0040 */ uint32_t m_propertySeed;
     /* 0044 */ uint32_t unknown_0044;
 };
