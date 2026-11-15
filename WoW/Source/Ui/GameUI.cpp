@@ -1478,7 +1478,7 @@ static int32_t TargetDirectionProc(WOWGUID guid, void* param) {
 
     CreatureTypeRec* creatureType = g_creatureTypeDB.GetRecord(unit->GetCreatureType());
 
-    if (creatureType && (creatureType->m_flags & 1)) {
+    if (creatureType && (creatureType->m_flags & CREATURE_TYPE_REC_FLAG_NO_TAB_TARGET)) {
         return 1;
     }
 
@@ -5153,7 +5153,7 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
     if (maxDistanceSq >= distanceSq) {
         CreatureTypeRec* creatureType = g_creatureTypeDB.GetRecord(unit->GetCreatureType());
 
-        if ((!creatureType || !(creatureType->m_flags & 1)) && World::QueryObjectVisible(unit->m_worldObject) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !static_cast<CGPlayer_C*>(unit)->IsCommentatorUberOrInArena())) {
+        if ((!creatureType || !(creatureType->m_flags & CREATURE_TYPE_REC_FLAG_NO_TAB_TARGET)) && World::QueryObjectVisible(unit->m_worldObject) && (!(unit->m_obj->m_type & TYPE_PLAYER) || !static_cast<CGPlayer_C*>(unit)->IsCommentatorUberOrInArena())) {
             NearestUnitData* data = s_nearestUnits.New();
             data->m_distanceSq = distanceSq;
             data->m_guid = guid;

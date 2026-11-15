@@ -6,6 +6,13 @@
 
 class SFileImpl;
 
+// CreatureType.dbc flags tested by the client.
+enum CREATURE_TYPE_REC_FLAGS : int32_t {
+    CREATURE_TYPE_REC_FLAG_NONE          = 0x00000000,
+    // Skipped by nearest/directional target selection.
+    CREATURE_TYPE_REC_FLAG_NO_TAB_TARGET = 0x00000001,
+};
+
 class CreatureTypeRec {
     public:
     static const int32_t s_numColumns = 19;
@@ -14,7 +21,7 @@ class CreatureTypeRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_flags;
+    /* 0008 */ int32_t m_flags; // CREATURE_TYPE_REC_FLAGS
 
     CreatureTypeRec();
     ~CreatureTypeRec();
