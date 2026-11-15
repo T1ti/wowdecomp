@@ -3894,7 +3894,7 @@ int32_t Packet_Group_17(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
             }
 
             if (quest) {
-                for (uint32_t i = 0; i < 4; i++) {
+                for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
                     if (static_cast<int32_t>(quest->m_objectiveId[i]) == entry && quest->m_objectiveText[i][0]) {
                         CGGameUI::DisplayError(ERR_QUEST_ADD_FOUND_SII, quest->m_objectiveText[i], count, required);
                         FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_WATCH_UPDATE, "%d", CGQuestLog::GetQuestIndex(questId));
@@ -7793,7 +7793,7 @@ static void QuestCompleteCallback(int32_t id, const WOWGUID& guid, void* param, 
 
     WOWGUID player = ClntObjMgrGetActivePlayer();
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_ITEMS; i++) {
         int32_t itemId = static_cast<int32_t>(quest->m_rewardItem[i]);
         void* count = reinterpret_cast<void*>(static_cast<uintptr_t>(quest->m_rewardItemCount[i]));
 

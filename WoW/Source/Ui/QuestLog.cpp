@@ -336,14 +336,14 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
     if (!special && !quest->m_friendlyFactionId && !quest->m_hostileFactionId && !quest->m_rewardMoney) {
         int32_t hasObjectives = 0;
 
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
             if (quest->m_objectiveId[i]) {
                 hasObjectives = 1;
                 break;
             }
         }
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
             if (quest->m_collectItemId[i]) {
                 hasObjectives = 1;
                 break;
@@ -377,7 +377,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
         }
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
             return 0;
         }
@@ -414,7 +414,7 @@ bool CGQuestLog::HasNoObjectives(uint32_t index) {
         }
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         if (quest->m_collectItemId[i] && (quest->m_collectItemId[i] != quest->m_startingItemId || static_cast<int32_t>(quest->m_collectItemCount[i]) > 1)) {
             return false;
         }
@@ -473,7 +473,7 @@ int32_t GetNumQuestLeaderBoards(int32_t questId, void (*callback)(int32_t id, co
             }
         }
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
             if (static_cast<int32_t>(quest->m_collectItemId[i]) > 0 && (quest->m_collectItemId[i] != quest->m_startingItemId || static_cast<int32_t>(quest->m_collectItemCount[i]) > 1)) {
                 count++;
             }
@@ -509,7 +509,7 @@ int32_t CountQuestItemDropsNeeded(int32_t questId, void (*callback)(int32_t id, 
     QuestCache* quest = g_questDBCache.GetRecord(questId, none, callback, param, false);
 
     if (quest) {
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
             int32_t itemId = quest->m_intermediateItemId[i];
 
             if (itemId > 0 && (static_cast<uint32_t>(itemId) != quest->m_startingItemId || static_cast<int32_t>(quest->m_intermediateItemCount[i]) > 1) && !player->m_bag.GetItemTypeCount(itemId, 8)) {
@@ -1007,7 +1007,7 @@ CGItem_C* CGQuestLog::GetQuestSpecialItem(uint32_t index) {
         return nullptr;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
         if (!quest->m_intermediateItemId[i]) {
             continue;
         }
@@ -1926,7 +1926,7 @@ void CGQuestLog::UpdateQuestItem(int32_t itemId) {
             continue;
         }
 
-        for (uint32_t j = 0; j < 6; j++) {
+        for (uint32_t j = 0; j < QUEST_COLLECT_ITEMS; j++) {
             if (static_cast<int32_t>(quest->m_collectItemId[j]) == itemId) {
                 Script_SendUniqueSignal(SCRIPT_EVENT_QUEST_LOG_UPDATE);
 
@@ -2156,7 +2156,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
         }
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
         uint32_t itemId = quest->m_intermediateItemId[i];
 
         if (itemId && itemId != quest->m_startingItemId && !player->m_bag.GetItemTypeCount(itemId, 8)) {

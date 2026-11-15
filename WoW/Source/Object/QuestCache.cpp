@@ -31,11 +31,11 @@ QuestCache::QuestCache() {
     this->m_rewardTalentPoints = 0;
     this->m_rewardArenaPoints = 0;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         this->m_rewardReputationFaction[i] = 0;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         this->m_factionRewardId[i] = 0;
     }
 
@@ -45,7 +45,7 @@ QuestCache::QuestCache() {
 
     this->m_rewardReputationMask = 0;
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_ITEMS; i++) {
         this->m_rewardItem[i] = 0;
     }
 
@@ -53,7 +53,7 @@ QuestCache::QuestCache() {
         this->m_rewardItemCount[i] = 1;
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_CHOICE_ITEMS; i++) {
         this->m_rewardChoiceItem[i] = 0;
         this->m_rewardChoiceItemCount[i] = 1;
     }
@@ -79,7 +79,7 @@ QuestCache::QuestCache() {
         this->m_intermediateItemCount[i] = 0;
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         this->m_collectItemId[i] = 0;
         this->m_collectItemCount[i] = 0;
     }
@@ -117,7 +117,7 @@ void QuestCache::Pack(CDataStore* msg) {
 
     uint32_t count = 0;
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_ITEMS; i++) {
         if (this->m_rewardItem[i]) {
             msg->Put(this->m_rewardItem[i]);
             msg->Put(this->m_rewardItemCount[i]);
@@ -132,7 +132,7 @@ void QuestCache::Pack(CDataStore* msg) {
 
     count = 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_CHOICE_ITEMS; i++) {
         if (this->m_rewardChoiceItem[i]) {
             msg->Put(this->m_rewardChoiceItem[i]);
             msg->Put(this->m_rewardChoiceItemCount[i]);
@@ -145,15 +145,15 @@ void QuestCache::Pack(CDataStore* msg) {
         msg->Put(static_cast<uint32_t>(0));
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Put(this->m_rewardReputationFaction[i]);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Put(this->m_factionRewardId[i]);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Put(static_cast<uint32_t>(this->m_rewardReputationOverride[i]));
     }
 
@@ -174,7 +174,7 @@ void QuestCache::Pack(CDataStore* msg) {
         msg->Put(this->m_intermediateItemCount[i]);
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         msg->Put(this->m_collectItemId[i]);
         msg->Put(this->m_collectItemCount[i]);
     }
@@ -224,15 +224,15 @@ void QuestCache::Unpack(CDataStore* msg) {
         msg->Get(this->m_rewardChoiceItemCount[i]);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(this->m_rewardReputationFaction[i]);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(this->m_factionRewardId[i]);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(reinterpret_cast<uint32_t&>(this->m_rewardReputationOverride[i]));
     }
 
@@ -253,7 +253,7 @@ void QuestCache::Unpack(CDataStore* msg) {
         msg->Get(this->m_intermediateItemCount[i]);
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         msg->Get(this->m_collectItemId[i]);
         msg->Get(this->m_collectItemCount[i]);
     }
@@ -293,11 +293,11 @@ QuestCache& QuestCache::operator=(const QuestCache& source) {
     this->m_rewardArenaPoints = source.m_rewardArenaPoints;
     this->m_rewardReputationMask = source.m_rewardReputationMask;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         this->m_rewardReputationFaction[i] = source.m_rewardReputationFaction[i];
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         this->m_factionRewardId[i] = source.m_factionRewardId[i];
     }
 
@@ -310,7 +310,7 @@ QuestCache& QuestCache::operator=(const QuestCache& source) {
         this->m_rewardItemCount[i] = source.m_rewardItemCount[i];
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_REWARD_CHOICE_ITEMS; i++) {
         this->m_rewardChoiceItem[i] = source.m_rewardChoiceItem[i];
         this->m_rewardChoiceItemCount[i] = source.m_rewardChoiceItemCount[i];
     }
@@ -333,7 +333,7 @@ QuestCache& QuestCache::operator=(const QuestCache& source) {
         SStrCopy(this->m_objectiveText[i], source.m_objectiveText[i], sizeof(this->m_objectiveText[i]));
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         this->m_collectItemId[i] = source.m_collectItemId[i];
         this->m_collectItemCount[i] = source.m_collectItemCount[i];
     }

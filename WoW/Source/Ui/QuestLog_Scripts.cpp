@@ -540,7 +540,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
 
     int32_t items[11] = { 0 };
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         int32_t itemId = abandon->m_collectItemId[i];
 
         if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, 8) > 0) {
@@ -576,7 +576,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
         }
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
         int32_t itemId = abandon->m_intermediateItemId[i];
 
         if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, 8) > 0) {
@@ -605,7 +605,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
             continue;
         }
 
-        for (uint32_t j = 0; j < 6; j++) {
+        for (uint32_t j = 0; j < QUEST_COLLECT_ITEMS; j++) {
             int32_t itemId = quest->m_collectItemId[j];
 
             for (uint32_t k = 0; k < 11; k++) {
@@ -1042,7 +1042,7 @@ static int32_t Script_ProcessQuestLogRewardFactions(lua_State* L) {
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_selectedQuest, none, nullptr, nullptr, false);
 
     if (quest) {
-        for (int32_t i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
             CGQuestInfo::InitRewRepFields(i, quest->m_rewardReputationFaction[i], quest->m_factionRewardId[i], quest->m_rewardReputationOverride[i]);
         }
 
