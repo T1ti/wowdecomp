@@ -726,7 +726,7 @@ int32_t CGObject_C::Animate(float elapsed) {
 // VERIFY: 4939e645 auto
 // OFFSET: 0x00743300
 void CGObject_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) {
-    if (!(flags & 0x1)) {
+    if (!(flags & MAP_OBJECT_FUNC_VISIBLE)) {
         render = 1;
     }
 }

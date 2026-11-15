@@ -2382,7 +2382,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
             model->m_lightingArg = entity;
         }
 
-        if (!entity->m_func || entity->m_func(entity->m_funcParam, 5, entity->m_funcParam64, entity->m_funcParam32)) {
+        if (!entity->m_func || entity->m_func(entity->m_funcParam, MAP_OBJECT_FUNC_VISIBLE | MAP_OBJECT_FUNC_IN_SCENE, entity->m_funcParam64, entity->m_funcParam32)) {
             CWorldScene::sortTable.m_visibleEntityList.LinkToTail(entity);
         }
 
@@ -2452,7 +2452,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 model->m_lightingArg = entity;
             }
 
-            if (!entity->m_func || entity->m_func(entity->m_funcParam, 5, entity->m_funcParam64, entity->m_funcParam32)) {
+            if (!entity->m_func || entity->m_func(entity->m_funcParam, MAP_OBJECT_FUNC_VISIBLE | MAP_OBJECT_FUNC_IN_SCENE, entity->m_funcParam64, entity->m_funcParam32)) {
                 CWorldScene::sortTable.m_visibleEntityList.LinkToTail(entity);
             }
 
@@ -2472,7 +2472,7 @@ void CWorldScene::UpdateSortedModels() {
 
     while (entity) {
         CMapEntity* next = static_cast<CMapEntity*>(CWorldScene::sortTable.m_culledEntityList.Next(entity));
-        uint32_t nearFlags = 0;
+        uint32_t nearFlags = MAP_OBJECT_FUNC_NONE;
         entity->m_sortEntryLink.Unlink();
 
         CM2Model* model = entity->m_model;
@@ -2489,7 +2489,7 @@ void CWorldScene::UpdateSortedModels() {
 
                 if (delta.x * delta.x + delta.z * delta.z + delta.y * delta.y < 1111.1111f) {
                     animating = 1;
-                    nearFlags = 2;
+                    nearFlags = MAP_OBJECT_FUNC_NEAR_CAMERA;
                 }
 
                 if (model->m_attachParent) {
@@ -2509,7 +2509,7 @@ void CWorldScene::UpdateSortedModels() {
         }
 
         if (entity->m_func) {
-            uint32_t fadeFlags = entity->m_culled < 2 ? 4 : 0;
+            uint32_t fadeFlags = entity->m_culled < 2 ? MAP_OBJECT_FUNC_IN_SCENE : MAP_OBJECT_FUNC_NONE;
             entity->m_func(entity->m_funcParam, nearFlags | fadeFlags, entity->m_funcParam64, entity->m_funcParam32);
         }
 
@@ -5093,7 +5093,7 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
         return 0;
     }
 
-    if (flags & 0x1) {
+    if (flags & MAP_OBJECT_FUNC_VISIBLE) {
         entity->m_model->SetAnimating(1);
         CM2Model* model = entity->m_model;
 

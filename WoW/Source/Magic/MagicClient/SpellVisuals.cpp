@@ -877,7 +877,7 @@ void BlizzardObject::Render(int32_t visible) {
 // VERIFY: 453b4a0d auto
 // OFFSET: 0x007FB590
 int32_t BlizzardObject::WorldObjectRender(void* param, uint32_t flags, uint64_t param64, uintptr_t param32) {
-    static_cast<BlizzardObject*>(param)->Render(flags & 1);
+    static_cast<BlizzardObject*>(param)->Render(flags & MAP_OBJECT_FUNC_VISIBLE);
     return 1;
 }
 

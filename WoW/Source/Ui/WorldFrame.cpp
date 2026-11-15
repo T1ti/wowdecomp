@@ -1815,7 +1815,7 @@ int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid,
         return 1;
     }
 
-    if (flags & 4) {
+    if (flags & MAP_OBJECT_FUNC_IN_SCENE) {
         object->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT;
     } else {
         object->m_modelFlags &= ~OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_COLLIDE_MOVEMENT;

@@ -1278,7 +1278,7 @@ void CEffect::UpdateWorldObject(float elapsed, uint32_t flags) {
         if (!(this->m_flags & EFFECT_FLAGS::EFFECT_DESTROY_PENDING) && this->m_model->IsLoaded(0, 0)) {
             CM2Model* model = this->m_model;
             CM2Model* parent = model->m_attachParent;
-            uint32_t visible = flags & 1;
+            uint32_t visible = flags & MAP_OBJECT_FUNC_VISIBLE;
 
             if (parent) {
                 model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (visible << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
