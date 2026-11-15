@@ -9,6 +9,9 @@
 class CDataStore;
 struct lua_State;
 
+// FrameXML NUM_PET_ACTION_SLOTS.
+constexpr uint32_t NUM_PET_ACTION_SLOTS = 10;
+
 class PetAction {
     public:
     // Descriptive six-bit kind IDs. 8..17 are spell-like in dispatch but their
@@ -62,7 +65,7 @@ class CGPetInfo {
     static int32_t m_possessSpell;
     static WOWGUID m_comboTarget;
     static int32_t m_attackingTarget;
-    static PetAction m_actions[10];
+    static PetAction m_actions[NUM_PET_ACTION_SLOTS];
     static uint32_t m_petMode;
     static uint32_t m_expirationTime;
     static WOWGUID m_pet;

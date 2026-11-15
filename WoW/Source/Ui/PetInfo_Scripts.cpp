@@ -626,7 +626,8 @@ static int32_t Script_PickupPetAction(lua_State* L) {
 
     uint32_t slot = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 10) {
+    // Original client bug: accepts slot NUM_PET_ACTION_SLOTS, one past the last slot.
+    if (slot > NUM_PET_ACTION_SLOTS) {
         luaL_error(L, "Invalid slot in PickupPetAction");
         return 0;
     }
@@ -672,7 +673,8 @@ static int32_t Script_TogglePetAutocast(lua_State* L) {
 
     uint32_t slot = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 10) {
+    // Original client bug: accepts slot NUM_PET_ACTION_SLOTS, one past the last slot.
+    if (slot > NUM_PET_ACTION_SLOTS) {
         luaL_error(L, "Invalid slot in TogglePetAutocast");
         return 0;
     }
@@ -699,7 +701,8 @@ static int32_t Script_CastPetAction(lua_State* L) {
 
     uint32_t slot = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 10) {
+    // Original client bug: accepts slot NUM_PET_ACTION_SLOTS, one past the last slot.
+    if (slot > NUM_PET_ACTION_SLOTS) {
         luaL_error(L, "Invalid slot in CastPetAction");
         return 0;
     }
