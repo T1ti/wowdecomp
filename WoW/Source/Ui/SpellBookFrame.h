@@ -5,6 +5,7 @@
 #include "Engine/Source/Base/RCString.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
+#include "WoW/Source/Ui/TotemInfo.h"
 
 struct lua_State;
 class CGUnit_C;
@@ -63,7 +64,7 @@ class CGSpellBook {
     static int32_t GetSpellProgressionRank(const SpellRec* spell);
     static int32_t GetCompanionType(const SpellRec* spell);
     static int32_t FindCompanionSlotByID(int32_t spellId, int32_t type);
-    static TSGrowableArray<int32_t> m_totemSpells[4];
+    static TSGrowableArray<int32_t> m_totemSpells[MAX_TOTEMS];
     static uint32_t m_interruptSchoolMask;
     static uint32_t m_interruptSpecialSchoolMask;
     static uint32_t m_silenceSchoolMask;

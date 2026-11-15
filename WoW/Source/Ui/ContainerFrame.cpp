@@ -240,7 +240,7 @@ static void TriggerMultiCastBarUpdate(const ItemStats_C* stats) {
     }
 
     if (CanTriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR)) {
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < MAX_TOTEMS; i++) {
             if (((1 << i) & mask) && CGSpellBook::m_totemSpells[i].Count()) {
                 CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
                 break;

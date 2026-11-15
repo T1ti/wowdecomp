@@ -534,7 +534,7 @@ static int32_t Script_GetMultiCastTotemSpells(lua_State* L) {
     uint32_t slot = (lua_tointeger(L, 1) - 1) & 3;
     uint32_t count = 0;
 
-    if (slot < 4) {
+    if (slot < MAX_TOTEMS) {
         TSGrowableArray<int32_t>* spells = &CGSpellBook::m_totemSpells[slot];
 
         if (spells) {

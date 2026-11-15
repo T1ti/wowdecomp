@@ -130,7 +130,7 @@ static TSGrowableArray<int32_t> s_dispelTypes;
 static TSGrowableArray<int32_t> s_summonCreatures;
 
 // STATIC: 0x00BE8EA0
-TSGrowableArray<int32_t> CGSpellBook::m_totemSpells[4];
+TSGrowableArray<int32_t> CGSpellBook::m_totemSpells[MAX_TOTEMS];
 
 // STATIC: 0x00BE8E64
 static TSHashTable<SPELLSBYNAME, HASHKEY_UTF8I> s_spellsByName;
@@ -543,7 +543,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
             int32_t category = spell.m_requiredTotemCategoryID[i];
             uint32_t slotMask = CGActionBar::GetMultiCastSlotMaskForTotemCategory(category);
 
-            for (uint32_t slot = 0; slot < 4; slot++) {
+            for (uint32_t slot = 0; slot < MAX_TOTEMS; slot++) {
                 if (!((1 << slot) & slotMask)) {
                     continue;
                 }
@@ -2240,7 +2240,7 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
 
     bool totemsEmptied = false;
 
-    for (uint32_t t = 0; t < 4; t++) {
+    for (uint32_t t = 0; t < MAX_TOTEMS; t++) {
         TSGrowableArray<int32_t>& totems = CGSpellBook::m_totemSpells[t];
 
         for (uint32_t i = totems.m_count; i; ) {
