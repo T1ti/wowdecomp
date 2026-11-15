@@ -90,6 +90,21 @@ enum SPELL_DAMAGE_CLASS : int32_t
     SPELL_DAMAGE_CLASS_RANGED = 3,
 };
 
+// SpellRec::m_preventionType: the unit state that blocks the cast.
+enum SPELL_PREVENTION_TYPE : int32_t
+{
+    SPELL_PREVENTION_TYPE_NONE    = 0,
+    SPELL_PREVENTION_TYPE_SILENCE = 1, // Blocked by UNIT_FLAG_SILENCED; interrupt/silence immunity checks apply.
+    SPELL_PREVENTION_TYPE_PACIFY  = 2, // Blocked by UNIT_FLAG_PACIFIED.
+};
+
+// SpellMechanic.dbc IDs the client tests directly; mechanic masks use 1 << id.
+enum SPELL_MECHANIC : int32_t
+{
+    SPELL_MECHANIC_SILENCE   = 9,
+    SPELL_MECHANIC_INTERRUPT = 26,
+};
+
 // Spell modifier operation IDs. Server-side names follow TrinityCore 3.3.5;
 // they are reference names, not recovered original client enum symbols.
 // Operations 13 and 25 have no producers in the reviewed build 12340 Spell.dbc;

@@ -11724,7 +11724,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
         return false;
     }
 
-    if (ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__) && spell->m_preventionType == 1) {
+    if (ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__) && spell->m_preventionType == SPELL_PREVENTION_TYPE_SILENCE) {
         bool isPlayer = (this->m_obj->m_type & TYPE_PLAYER) != 0;
         uint32_t interrupt = CGSpellBook::m_interruptSchoolMask;
         uint32_t silence = CGSpellBook::m_silenceSchoolMask;
@@ -11738,7 +11738,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
         uint32_t immunities = this->m_castImmunities;
         uint32_t schoolImmunities = this->m_castSchoolImmunities;
 
-        if (immunities & 0x4000000) {
+        if (immunities & (1 << SPELL_MECHANIC_INTERRUPT)) {
             interrupt = 0;
             interruptSpecial = 0;
         } else if (schoolImmunities) {
@@ -11746,7 +11746,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
             interruptSpecial &= ~schoolImmunities;
         }
 
-        if (immunities & 0x200) {
+        if (immunities & (1 << SPELL_MECHANIC_SILENCE)) {
             silence = 0;
             silenceSpecial = 0;
         } else if (schoolImmunities) {
@@ -13715,7 +13715,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
             SpellRec spell;
 
             if ((this->m_castingSpellId && g_spellDB.GetRecord(this->m_castingSpellId, &spell)) || (this->m_channelSpellId && g_spellDB.GetRecord(this->m_channelSpellId, &spell))) {
-                if (spell.m_preventionType == 1) {
+                if (spell.m_preventionType == SPELL_PREVENTION_TYPE_SILENCE) {
                     bool notInterruptible = this->IsCastNotInterruptible();
 
                     if (notInterruptible != this->ProcessCastNotInterruptible(&spell)) {
@@ -16057,7 +16057,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
             return false;
         }
 
-        if (spell->m_preventionType == 1 && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_SILENCED) && !Spell_C_CancelsSilence(this, spell, &reason)) {
+        if (spell->m_preventionType == SPELL_PREVENTION_TYPE_SILENCE && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_SILENCED) && !Spell_C_CancelsSilence(this, spell, &reason)) {
             if (reason) {
                 Spell_C_SpellFailed(cast, spell, SPELL_FAILED_PREVENTED_BY_MECHANIC, reason, -1, false);
             } else {
@@ -16067,7 +16067,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
             return false;
         }
 
-        if (spell->m_preventionType == 2 && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) && !Spell_C_CancelsPacify(this, spell, &reason)) {
+        if (spell->m_preventionType == SPELL_PREVENTION_TYPE_PACIFY && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PACIFIED) && !Spell_C_CancelsPacify(this, spell, &reason)) {
             if (reason) {
                 Spell_C_SpellFailed(cast, spell, SPELL_FAILED_PREVENTED_BY_MECHANIC, reason, -1, false);
             } else {

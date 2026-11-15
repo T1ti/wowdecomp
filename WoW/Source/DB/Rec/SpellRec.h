@@ -182,7 +182,7 @@ class SpellRec {
     /* 0244 */ int32_t m_spellClassMask [NUM_SPELL_CLASS_MASK_WORDS];
     /* 0250 */ int32_t m_maxTargets;
     /* 0254 */ SPELL_DAMAGE_CLASS m_defenseType;
-    /* 0258 */ int32_t m_preventionType;
+    /* 0258 */ int32_t m_preventionType; // SPELL_PREVENTION_TYPE
     /* 025C */ int32_t m_stanceBarOrder;
     /* 0260 */ float m_effectChainAmplitude [NUM_SPELL_EFFECTS];
     /* 026C */ int32_t m_minFactionID;

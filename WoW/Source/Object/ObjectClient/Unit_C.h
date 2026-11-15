@@ -343,7 +343,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0A5C */ uint8_t m_castCount;
     /* 0A60 */ int32_t m_castSpellId;
     /* 0A64 */ int32_t m_castSchoolImmunities;
-    /* 0A68 */ int32_t m_castImmunities;
+    /* 0A68 */ int32_t m_castImmunities; // Mechanic mask, 1 << SPELL_MECHANIC
     /* 0A6C */ uint32_t m_castingSpellId;
     /* 0A70 */ WOWGUID m_castingObject;
     /* 0A78 */ uint32_t m_castStartTime;
