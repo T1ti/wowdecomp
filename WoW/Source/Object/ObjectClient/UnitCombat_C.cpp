@@ -577,7 +577,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             if (this->m_lastAttackRound.m_damage && attacker && attacker->m_soundData) {
                 SE2SoundKitProperties properties;
                 properties.ResetToDefaults();
-                properties.m_group = 14;
+                properties.m_group = SI2_SOUND_GROUP_IMPACT;
 
                 switch (eventId) {
                     case M2_EVENT_ID::PlayCustomAttackSound_AH0:

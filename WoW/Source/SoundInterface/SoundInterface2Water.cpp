@@ -192,7 +192,7 @@ int32_t SI2::HandleWaterSounds(const void* data, void* param) {
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
             properties.m_fadeInTime = FADEINTIME;
-            properties.m_group = 2;
+            properties.m_group = SI2_SOUND_GROUP_AMBIENCE;
             properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
             SI2::PlaySoundKit(sound.m_soundKitId, &sound.m_position, &sound.m_object, &properties, 0, nullptr, 1, 0);
         } else if (sound.m_moved) {

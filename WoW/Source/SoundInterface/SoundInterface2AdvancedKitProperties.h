@@ -44,7 +44,7 @@ class SI2AdvancedSound {
     /* 0058 */ SI2_SOUND_USAGE m_usage;
     /* 005C */ int32_t m_nextInterval;
     /* 0060 */ CiRange m_interval;
-    /* 0068 */ int32_t m_volumeSliderCategory;
+    /* 0068 */ SI2_SOUND_GROUP m_volumeSliderCategory;
     /* 006C */ float m_duck[SI2_DUCK_COUNT];
     /* 0078 */ float m_innerRadiusOfInfluence;
     /* 007C */ float m_outerRadiusOfInfluence;

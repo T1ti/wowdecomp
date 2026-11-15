@@ -79,17 +79,17 @@ void SI2::PlayFootstepSound(int32_t footstepId, const C3Vector* position, int32_
         properties.ResetToDefaults();
         properties.m_maxDistance = loud ? 50.0f : MaximumFoostepDistance;
         properties.m_volumeScale = 0.65f;
-        properties.m_group = 17;
+        properties.m_group = SI2_SOUND_GROUP_PLAYER_FOOTSTEP;
         properties.m_priority = 115;
         SI2::PlaySoundKit(soundKitId, nullptr, nullptr, &properties, 0, nullptr, 1, 0);
     } else if ((unit->m_obj->m_type & TYPE_PLAYER) && unit->IsActivePlayer()) {
         properties.ResetToDefaults();
-        properties.m_group = 17;
+        properties.m_group = SI2_SOUND_GROUP_PLAYER_FOOTSTEP;
         properties.m_priority = 115;
         SI2::PlaySoundKit(soundKitId, position, nullptr, &properties, 0, nullptr, 1, 0);
     } else {
         properties.ResetToDefaults();
-        properties.m_group = 13;
+        properties.m_group = SI2_SOUND_GROUP_FOOTSTEP;
         properties.m_maxAudibleBehavior = SE2_MAX_AUDIBLE_MUTE;
         SI2::PlaySoundKit(soundKitId, position, nullptr, &properties, 0, nullptr, 1, 0);
     }

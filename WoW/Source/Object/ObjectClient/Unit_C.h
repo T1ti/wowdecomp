@@ -622,7 +622,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void PlayStandSound();
     int32_t GetNewNPCSoundCount(int32_t count, int32_t* soundKitId, int32_t* soundIndex) const;
     void PlayEmoteStateSound(const C3Vector* position);
-    int32_t GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const;
+    SI2_SOUND_GROUP GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const;
     void VehiclePassengerOnUninit();
     BOOL HasVehicleTransport() const;
     BOOL IsSeatedInVehicle() const;

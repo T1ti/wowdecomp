@@ -82,7 +82,7 @@ static bool MasterVolumeHandler(CVar* var, const char* oldValue, const char* val
 // VERIFY: 1f180752 auto
 // OFFSET: 0x004D0E80
 static bool SFXVolumeHandler(CVar* var, const char* oldValue, const char* value, void* arg) {
-    SE2::SetChannelGroupVolume(SI2::s_channelGroupNames[0], SStrToFloat(value));
+    SE2::SetChannelGroupVolume(SI2::s_channelGroupNames[SI2_SOUND_GROUP_SFX], SStrToFloat(value));
     return true;
 }
 
@@ -178,13 +178,13 @@ static bool EnableAllSoundHandler(CVar* var, const char* oldValue, const char* v
         static CVar* s_enableMusic = CVar::Lookup("Sound_EnableMusic");
         static CVar* s_enableAmbience = CVar::Lookup("Sound_EnableAmbience");
 
-        SE2::MuteChannelGroup(SI2::s_channelGroupNames[0], s_enableSFX->m_intValue == 0);
+        SE2::MuteChannelGroup(SI2::s_channelGroupNames[SI2_SOUND_GROUP_SFX], s_enableSFX->m_intValue == 0);
         SE2::MuteChannelGroup("MUSIC", s_enableMusic->m_intValue == 0);
         SE2::MuteChannelGroup("AMBIENCE", s_enableAmbience->m_intValue == 0);
         return true;
     }
 
-    SE2::MuteChannelGroup(SI2::s_channelGroupNames[0], true);
+    SE2::MuteChannelGroup(SI2::s_channelGroupNames[SI2_SOUND_GROUP_SFX], true);
     SE2::MuteChannelGroup("MUSIC", true);
     SE2::MuteChannelGroup("AMBIENCE", true);
     return true;
@@ -196,7 +196,7 @@ static bool EnableSFXHandler(CVar* var, const char* oldValue, const char* value,
     CVar* enableAllSound = CVar::Lookup("Sound_EnableAllSound");
 
     if (enableAllSound) {
-        SE2::MuteChannelGroup(SI2::s_channelGroupNames[0], !SStrToInt(value) || !enableAllSound->m_intValue);
+        SE2::MuteChannelGroup(SI2::s_channelGroupNames[SI2_SOUND_GROUP_SFX], !SStrToInt(value) || !enableAllSound->m_intValue);
     }
 
     return true;

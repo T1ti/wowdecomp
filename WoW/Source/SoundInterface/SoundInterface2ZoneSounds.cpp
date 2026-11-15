@@ -404,7 +404,7 @@ int32_t SI2::PlayUISound(int32_t soundKitId) {
     properties.ResetToDefaults();
 
     if (soundKitId == s_voiceChatOn || soundKitId == s_voiceChatOff) {
-        properties.m_group = 3;
+        properties.m_group = SI2_SOUND_GROUP_CINEMATIC;
     }
 
     properties.m_priority = 128;
@@ -586,7 +586,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
 
     if (!s_zoneAmbience.IsPlaying() || ambienceKitId != s_zoneAmbience.GetPlayingSoundKitId()) {
         properties.ResetToDefaults();
-        properties.m_group = 2;
+        properties.m_group = SI2_SOUND_GROUP_AMBIENCE;
         properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
         properties.m_priority = 100;
         properties.m_reverb = 0;
@@ -625,7 +625,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     }
 
     properties.ResetToDefaults();
-    properties.m_group = 1;
+    properties.m_group = SI2_SOUND_GROUP_MUSIC;
     properties.m_selectMode = SE2_FILE_SELECT_WEIGHTED_CYCLE;
     properties.m_fadeInTime = s_zoneMusic.IsPlaying() ? 4.0f : 0.01f;
     properties.m_fadeOutTime = 4.0f;

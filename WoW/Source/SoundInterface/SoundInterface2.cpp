@@ -51,7 +51,7 @@ static const char* s_raceFileNames[NUM_PLAYABLE_RACES] = {
 };
 
 // STATIC: 0x009F2010
-const char SI2::s_channelGroupNames[18][32] = {
+const char SI2::s_channelGroupNames[SI2_SOUND_GROUP_COUNT][32] = {
     "SFX",
     "MUSIC",
     "AMBIENCE",
@@ -73,7 +73,7 @@ const char SI2::s_channelGroupNames[18][32] = {
 };
 
 // STATIC: 0x009F2268
-const int32_t SI2::s_channelGroupMaxSounds[18] = {
+const int32_t SI2::s_channelGroupMaxSounds[SI2_SOUND_GROUP_COUNT] = {
     0x7FFFFFFF,
     0x7FFFFFFF,
     0x7FFFFFFF,
@@ -98,7 +98,7 @@ const int32_t SI2::s_channelGroupMaxSounds[18] = {
 static float s_subchunkRound = 0.5f;
 
 // STATIC: 0x00B4A340
-int32_t SI2::s_channelGroupNumSounds[18];
+int32_t SI2::s_channelGroupNumSounds[SI2_SOUND_GROUP_COUNT];
 
 // STATIC: 0x00B4A390
 TSGrowableArray<uint32_t> SI2::s_suppressors;
@@ -135,8 +135,8 @@ int32_t SI2::sm_bLuaMusicPlaying;
 
 // VERIFY: 8cb9a901 manual
 // OFFSET: 0x004C5B60
-static int32_t GetDownloadPriority(int32_t group) {
-    if (group <= 0 || group > 2) {
+static int32_t GetDownloadPriority(SI2_SOUND_GROUP group) {
+    if (group <= SI2_SOUND_GROUP_SFX || group > SI2_SOUND_GROUP_AMBIENCE) {
         return 5;
     }
 
@@ -152,7 +152,7 @@ void SE2SoundKitProperties::ResetToDefaults() {
     this->m_priority = -1;
     this->m_fadeInTime = 0.0f;
     this->m_fadeOutTime = 0.0f;
-    this->m_group = 0;
+    this->m_group = SI2_SOUND_GROUP_SFX;
     this->m_selectMode = SE2_FILE_SELECT_WEIGHTED_CYCLE;
     this->m_maxDistance = -1.0f;
     this->m_loopMode = SE2_LOOP_MODE_DEFAULT;
@@ -346,7 +346,7 @@ int32_t SI2::AttachToObject(SE2SoundKitObject* object, WOWGUID guid) {
 // VERIFY: f1864be0 auto
 // OFFSET: 0x004C5CC0
 void SI2::StopAllSounds(float fadeOutTime) {
-    SE2::StopAllSounds(SI2::s_channelGroupNames[0], fadeOutTime);
+    SE2::StopAllSounds(SI2::s_channelGroupNames[SI2_SOUND_GROUP_SFX], fadeOutTime);
 }
 
 // VERIFY: 218e92b2 auto
@@ -621,7 +621,7 @@ SI2SoundUserData::SI2SoundUserData() {
     this->m_name = nullptr;
     this->m_soundKitId = 0;
     this->m_def = nullptr;
-    this->m_group = 0;
+    this->m_group = SI2_SOUND_GROUP_SFX;
     this->unused_0014 = 0;
     this->m_advancedId = 0;
 }
@@ -632,7 +632,7 @@ SI2SoundUserData::~SI2SoundUserData() {
     this->m_name = nullptr;
     this->m_soundKitId = 0;
     this->m_def = nullptr;
-    this->m_group = 0;
+    this->m_group = SI2_SOUND_GROUP_SFX;
     this->unused_0014 = 0;
     this->m_advancedId = 0;
 }
@@ -731,7 +731,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         }
     }
 
-    if (properties->m_group == 2) {
+    if (properties->m_group == SI2_SOUND_GROUP_AMBIENCE) {
         static CVar* s_enableAmbience = CVar::Lookup("Sound_EnableAmbience");
 
         if (!s_enableAmbience || !s_enableAmbience->m_intValue) {
@@ -739,7 +739,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         }
     }
 
-    if (properties->m_group >= 18) {
+    if (properties->m_group >= SI2_SOUND_GROUP_COUNT) {
         return 8;
     }
 
@@ -787,7 +787,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         int32_t local = SFile::FileIsLocal(file, GetDownloadPriority(properties->m_group));
 
         if (local != 1) {
-            if (properties->m_group == 6) {
+            if (properties->m_group == SI2_SOUND_GROUP_RACIAL_CINEMATIC) {
                 if (!SFile::MakeFileLocal(file, 2, true)) {
                     return 16;
                 }
@@ -835,7 +835,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         return 0;
     }
 
-    bool randomStart = properties->m_group != 1 && properties->m_group != 5 && !properties->m_noRandomStart;
+    bool randomStart = properties->m_group != SI2_SOUND_GROUP_MUSIC && properties->m_group != SI2_SOUND_GROUP_SCRIPT_MUSIC && !properties->m_noRandomStart;
 
     if (position) {
         if (!sound->Create3D(file, looping, def->m_loadSoundGroup, def->m_soundGroup, randomStart, properties->m_streaming, properties->m_priority, properties->m_software, properties->m_coneInsideAngle, properties->m_coneOutsideAngle, properties->m_coneOutsideVolume, properties->m_coneOrientation)) {
@@ -848,7 +848,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         return 16;
     }
 
-    sound->SetChannelGroup(SI2::s_channelGroupNames[properties->m_group], properties->m_group != 3);
+    sound->SetChannelGroup(SI2::s_channelGroupNames[properties->m_group], properties->m_group != SI2_SOUND_GROUP_CINEMATIC);
 
     SI2SoundUserData* userData = new (SMemAlloc(sizeof(SI2SoundUserData), __FILE__, __LINE__, 0)) SI2SoundUserData();
     userData->m_name = def->m_name ? def->m_name : "<UNKNOWN ERROR>";

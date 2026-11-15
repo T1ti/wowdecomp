@@ -48,7 +48,7 @@ void SI2::PlayVocalErrorSound(int32_t error) {
     int32_t soundKitId = s_vocalErrorSounds[error];
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 7;
+    properties.m_group = SI2_SOUND_GROUP_VOCAL_ERROR;
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 

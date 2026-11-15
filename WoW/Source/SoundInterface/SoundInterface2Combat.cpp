@@ -91,7 +91,7 @@ void SI2::PlayParrySound(const CGUnitVirtualItem* weapon, const CGUnitVirtualIte
 
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 14;
+    properties.m_group = SI2_SOUND_GROUP_IMPACT;
 
     if (self) {
         properties.m_priority = 110;
@@ -127,7 +127,7 @@ void SI2::PlayHitSound(const CGUnitVirtualItem* weapon, int32_t impactType, int3
 
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 14;
+    properties.m_group = SI2_SOUND_GROUP_IMPACT;
 
     if (self) {
         properties.m_priority = 110;
@@ -148,7 +148,7 @@ int32_t SI2::PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, co
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
     properties.m_volume = volume;
-    properties.m_group = 10;
+    properties.m_group = SI2_SOUND_GROUP_WEAPON_SWING;
 
     if (self) {
         properties.m_priority = 110;

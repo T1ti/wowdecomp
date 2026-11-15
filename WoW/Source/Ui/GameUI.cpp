@@ -5582,7 +5582,7 @@ int32_t CGGameUI::StartCinematicCamera() {
     SI2::StopAllMusic();
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 6;
+    properties.m_group = SI2_SOUND_GROUP_RACIAL_CINEMATIC;
     properties.m_reverb = 0;
     SI2::PlaySoundKit(record->m_soundID, nullptr, &CGGameUI::m_cinematic.m_cameraMusic, &properties, 0, nullptr, 1, 0);
     DisableFadingScreen(0.25f, nullptr, nullptr);
@@ -7296,7 +7296,7 @@ void CGGameUI::StartCinematic(int32_t cinematic) {
             SI2::StopAllMusic();
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
-            properties.m_group = 3;
+            properties.m_group = SI2_SOUND_GROUP_CINEMATIC;
             properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
             SI2::PlaySoundKit(CGGameUI::m_cinematic.m_sequence->m_soundID, nullptr, &CGGameUI::m_cinematic.m_music, &properties, 0, nullptr, 1, 0);
         }

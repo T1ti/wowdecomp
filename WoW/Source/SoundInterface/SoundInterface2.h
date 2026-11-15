@@ -40,7 +40,7 @@ enum SE2_FILE_SELECT_MODE : int32_t {
 
 class SE2SoundKitProperties {
     public:
-    /* 0000 */ int32_t m_group;
+    /* 0000 */ SI2_SOUND_GROUP m_group;
     /* 0004 */ float m_volume;
     /* 0008 */ float m_volumeScale;
     /* 000C */ int32_t m_fileIndex;
@@ -87,7 +87,7 @@ class SI2SoundUserData : public SESoundUserData {
     /* 0004 */ const char* m_name;
     /* 0008 */ int32_t m_soundKitId;
     /* 000C */ VSOUNDKITDEF* m_def;
-    /* 0010 */ int32_t m_group;
+    /* 0010 */ SI2_SOUND_GROUP m_group;
     /* 0014 */ uint32_t unused_0014;
     /* 0018 */ uint32_t m_advancedId;
 
@@ -138,9 +138,9 @@ class SI2 {
         MODE_SHARED_OBJECT_SELECTED_KITS = 15,
     };
 
-    static const char s_channelGroupNames[18][32];
-    static const int32_t s_channelGroupMaxSounds[18];
-    static int32_t s_channelGroupNumSounds[18];
+    static const char s_channelGroupNames[SI2_SOUND_GROUP_COUNT][32];
+    static const int32_t s_channelGroupMaxSounds[SI2_SOUND_GROUP_COUNT];
+    static int32_t s_channelGroupNumSounds[SI2_SOUND_GROUP_COUNT];
     static TSGrowableArray<uint32_t> s_suppressors;
     static int32_t sm_bPlayerInside;
     static int32_t sm_bCameraIsUnderwater;

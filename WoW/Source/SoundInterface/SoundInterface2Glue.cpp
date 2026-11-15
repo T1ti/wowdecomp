@@ -58,7 +58,7 @@ void SI2::StartGlueAmbience(const char* name, float fadeInTime) {
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
     properties.m_fadeInTime = fadeInTime;
-    properties.m_group = 2;
+    properties.m_group = SI2_SOUND_GROUP_AMBIENCE;
     properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
     properties.m_decodeBufferSize = 0;
 
@@ -71,7 +71,7 @@ int32_t SI2::GlueMusicUpdate(const void* data, void* param) {
     if (!SI2::IsPlaying(&s_glueMusic)) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
-        properties.m_group = 1;
+        properties.m_group = SI2_SOUND_GROUP_MUSIC;
         properties.m_decodeBufferSize = 0;
 
         SI2::PlaySoundKit(s_glueMusicName, nullptr, &s_glueMusic, &properties);
@@ -99,7 +99,7 @@ int32_t SI2::CreditsMusicUpdate(const void* data, void* param) {
     if (!SI2::IsPlaying(&s_creditsMusic)) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
-        properties.m_group = 1;
+        properties.m_group = SI2_SOUND_GROUP_MUSIC;
         properties.m_selectMode = SE2_FILE_SELECT_SEQUENTIAL;
 
         SI2::PlaySoundKit(s_creditsMusicName, nullptr, &s_creditsMusic, &properties);
@@ -139,7 +139,7 @@ void SI2::StartGlueMusic(const char* name) {
 
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 1;
+    properties.m_group = SI2_SOUND_GROUP_MUSIC;
     properties.m_decodeBufferSize = 0;
 
     SI2::PlaySoundKit(s_glueMusicName, nullptr, &s_glueMusic, &properties);
@@ -164,7 +164,7 @@ void SI2::StartCreditsMusic(const char* name) {
 
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
-    properties.m_group = 1;
+    properties.m_group = SI2_SOUND_GROUP_MUSIC;
     properties.m_selectMode = SE2_FILE_SELECT_SEQUENTIAL;
 
     SI2::PlaySoundKit(s_creditsMusicName, nullptr, &s_creditsMusic, &properties);

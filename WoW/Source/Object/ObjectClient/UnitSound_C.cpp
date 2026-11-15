@@ -379,7 +379,7 @@ void CGUnit_C::PlaySplashSound(const C3Vector* position) {
         }
     }
 
-    properties.m_group = 8;
+    properties.m_group = SI2_SOUND_GROUP_SPLASH;
     SI2::PlaySoundKit(this->m_splashSoundKitId, listenerAtCharacter ? nullptr : position, nullptr, &properties, 0, nullptr, 1, 0);
 }
 
@@ -586,19 +586,19 @@ void CGUnit_C::CheckLoopSound() {
 
 // VERIFY: c9c84a2c manual
 // OFFSET: 0x00746B30
-int32_t CGUnit_C::GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const {
+SI2_SOUND_GROUP CGUnit_C::GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const {
     switch (soundType) {
         case UNITSOUNDTYPE_EXERTION:
         case UNITSOUNDTYPE_EXERTIONCRITICAL:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? 15 : 9;
+            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_EXERTION : SI2_SOUND_GROUP_EXERTION;
 
         case UNITSOUNDTYPE_INJURY:
         case UNITSOUNDTYPE_INJURYCRITICAL:
         case UNITSOUNDTYPE_INJURYCRUSHINGBLOW:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? 16 : 11;
+            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_INJURY : SI2_SOUND_GROUP_INJURY;
 
         default:
-            return 0;
+            return SI2_SOUND_GROUP_SFX;
     }
 }
 

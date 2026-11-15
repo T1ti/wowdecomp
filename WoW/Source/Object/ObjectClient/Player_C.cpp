@@ -13771,10 +13771,10 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) {
         return;
     }
 
-    int32_t group;
+    SI2_SOUND_GROUP group;
 
     if ((soundType == UNITSOUNDTYPE_INJURY || soundType == UNITSOUNDTYPE_INJURYCRITICAL || soundType == UNITSOUNDTYPE_INJURYCRUSHINGBLOW) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
-        group = 12;
+        group = SI2_SOUND_GROUP_PLAYER_INJURY;
     } else {
         group = this->GetUnitSoundKitIndex(soundType);
     }

@@ -546,17 +546,17 @@ float SI2::GetSoundVolume(SESoundUserData* userData) {
         sound = nullptr;
     }
 
-    int32_t group = data->m_group;
+    SI2_SOUND_GROUP group = data->m_group;
 
-    if (!group || group >= 7) {
+    if (!group || group >= SI2_SOUND_GROUP_VOCAL_ERROR) {
         return GetDuckVolume(SI2_DUCK_SFX, sound) * volume;
     }
 
-    if (group == 1) {
+    if (group == SI2_SOUND_GROUP_MUSIC) {
         return GetDuckVolume(SI2_DUCK_MUSIC, sound) * volume;
     }
 
-    if (group == 2) {
+    if (group == SI2_SOUND_GROUP_AMBIENCE) {
         return GetDuckVolume(SI2_DUCK_AMBIENCE, sound) * volume;
     }
 

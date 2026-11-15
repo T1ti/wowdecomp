@@ -382,7 +382,7 @@ void SI2::VoiceChat_PlayLoopbackSound() {
     userData->m_name = "<Voice Chat Loopback Sound>";
     userData->m_soundKitId = 0;
     userData->m_def = nullptr;
-    userData->m_group = 3;
+    userData->m_group = SI2_SOUND_GROUP_CINEMATIC;
 
     s_loopbackSound.m_sound.SetUserData(userData);
     s_loopbackSound.m_sound.SetFinishedCallback(SI2::SoundFinished, nullptr);
