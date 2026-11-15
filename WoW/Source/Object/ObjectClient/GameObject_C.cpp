@@ -4052,7 +4052,7 @@ void CGGameObject_C::RefreshInteractIcon() {
         player->UpdateQuestStatus(this);
     } else {
         this->m_questStatus = 0;
-        this->m_interactIconType = 0;
+        this->m_interactIconType = INTERACT_ICON_NONE;
         this->RemoveInteractIcon();
     }
 }

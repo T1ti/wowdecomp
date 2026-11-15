@@ -143,13 +143,30 @@ enum OBJECT_NAME_FLAGS : uint32_t {
 
 class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID> {
     public:
+    // s_interactIcons indices, named after the Interface\Buttons\TalkToMe*.mdx model each entry loads.
+    enum INTERACT_ICON : uint32_t {
+        INTERACT_ICON_NONE = 0,
+        INTERACT_ICON_TALK_TO_ME = 1,
+        INTERACT_ICON_QUESTION_LTBLUE = 2,
+        INTERACT_ICON_BLUE = 3,
+        INTERACT_ICON_TALK_TO_ME_4 = 4,
+        INTERACT_ICON_QUESTION_GREY = 5,
+        INTERACT_ICON_GREY = 6,
+        INTERACT_ICON_GREEN = 7, // Flight master whose taxi node is not known yet.
+        INTERACT_ICON_UNKNOWN_8 = 8, // No model.
+        INTERACT_ICON_QUESTION_MARK = 9,
+        INTERACT_ICON_QUESTION_LTBLUE_10 = 10,
+        INTERACT_ICON_BLUE_11 = 11,
+        NUM_INTERACT_ICONS = 12,
+    };
+
     struct InteractIcon {
         /* 0000 */ CM2Model* m_model;
         /* 0004 */ float m_scale;
         /* 0008 */ const char* m_fileName;
     };
 
-    static InteractIcon s_interactIcons[12];
+    static InteractIcon s_interactIcons[NUM_INTERACT_ICONS];
     static const uint32_t s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS];
     static CTexture* s_selectionTexture;
     static CVar* s_cvObjectSelectionCircle;
@@ -173,7 +190,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     /* 0044 */ TSList<void> m_objMirrorLists [6];
     /* 008C */ CM2Model* m_interactIcon;
     /* 0090 */ uint32_t m_questStatus;
-    /* 0094 */ uint32_t m_interactIconType;
+    /* 0094 */ uint32_t m_interactIconType; // INTERACT_ICON
     /* 0098 */ float m_scale;
     /* 009C */ float m_scaleModifier;
     /* 00A0 */ uint32_t m_scaleChangeTime;

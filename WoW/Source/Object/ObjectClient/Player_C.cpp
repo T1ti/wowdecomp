@@ -2298,7 +2298,7 @@ void __stdcall CGPlayer_C::OnTaxiNodeStatus(CDataStore* msg) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit && (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
-        unit->m_interactIconType = status ? 0 : 7;
+        unit->m_interactIconType = status ? CGObject_C::INTERACT_ICON_NONE : CGObject_C::INTERACT_ICON_GREEN;
         unit->UpdateInteractIcon();
     }
 }
@@ -6531,7 +6531,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
 
     WOWGUID guid = unit->m_obj->m_guid;
 
-    if (unit->m_interactIconType == 7) {
+    if (unit->m_interactIconType == CGObject_C::INTERACT_ICON_GREEN) {
         CGPlayer_C::EnableTaxiNode(guid);
 
         if (!CGUnit_C::UnitCanGossip(unit)) {
@@ -8840,7 +8840,7 @@ static int32_t InteractUpdateProc(WOWGUID guid, void* param) {
     }
 
     object->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
-    object->m_interactIconType = 0;
+    object->m_interactIconType = CGObject_C::INTERACT_ICON_NONE;
     object->RemoveInteractIcon();
     return 1;
 }

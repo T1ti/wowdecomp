@@ -53,7 +53,7 @@
 #include "Engine/Source/ShaderEffect/Types.h"
 
 // STATIC: 0x00ADAC98
-CGObject_C::InteractIcon CGObject_C::s_interactIcons[12] = {
+CGObject_C::InteractIcon CGObject_C::s_interactIcons[NUM_INTERACT_ICONS] = {
     { nullptr, 1.0f, nullptr },
     { nullptr, 1.0f, "Interface\\Buttons\\TalkToMe.mdx" },
     { nullptr, 1.0f, "Interface\\Buttons\\TalkToMeQuestion_LTBlue.mdx" },
@@ -69,7 +69,19 @@ CGObject_C::InteractIcon CGObject_C::s_interactIcons[12] = {
 };
 
 // STATIC: 0x00A34F5C
-const uint32_t CGObject_C::s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS] = { 0, 6, 1, 2, 3, 5, 10, 11, 4, 9, 9 };
+const uint32_t CGObject_C::s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS] = {
+    INTERACT_ICON_NONE,
+    INTERACT_ICON_GREY,
+    INTERACT_ICON_TALK_TO_ME,
+    INTERACT_ICON_QUESTION_LTBLUE,
+    INTERACT_ICON_BLUE,
+    INTERACT_ICON_QUESTION_GREY,
+    INTERACT_ICON_QUESTION_LTBLUE_10,
+    INTERACT_ICON_BLUE_11,
+    INTERACT_ICON_TALK_TO_ME_4,
+    INTERACT_ICON_QUESTION_MARK,
+    INTERACT_ICON_QUESTION_MARK,
+};
 
 // STATIC: 0x00CA12C4
 CTexture* CGObject_C::s_selectionTexture;
@@ -1341,7 +1353,7 @@ CGObject_C::CGObject_C(uint32_t time, const CClientObjCreate& create) {
     this->m_interactIcon = nullptr;
     this->m_height = 1.0f;
     this->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
-    this->m_interactIconType = 0;
+    this->m_interactIconType = INTERACT_ICON_NONE;
     this->m_scaleChangeTime = 0;
     this->m_effectList = nullptr;
     this->m_nameDesc = nullptr;

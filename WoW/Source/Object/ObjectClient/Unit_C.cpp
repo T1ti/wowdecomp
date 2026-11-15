@@ -2176,7 +2176,7 @@ void CGUnit_C::RefreshInteractIcon() {
 
     if (this->UnitReaction(player) < UNIT_REACTION_NEUTRAL) {
         this->m_questStatus = 0;
-        this->m_interactIconType = 0;
+        this->m_interactIconType = INTERACT_ICON_NONE;
         this->RemoveInteractIcon();
         return;
     }
@@ -2190,7 +2190,7 @@ void CGUnit_C::RefreshInteractIcon() {
     if (this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
         player->UpdateTaxiStatus(this);
     } else {
-        this->m_interactIconType = 0;
+        this->m_interactIconType = INTERACT_ICON_NONE;
     }
 
     if (!this->IsQuestGiver() && !(this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
