@@ -2926,7 +2926,7 @@ UNIT_REACTION CGUnit_C::UnitReaction(int32_t factionTemplate, const CGUnit_C* un
         CGUnit_C* controller = const_cast<CGUnit_C*>(unit)->GetControllingPlayer();
 
         if (controller && controller->IsActivePlayer()) {
-            if ((faction->m_flags & 0x1000) && (static_cast<CGPlayer_C*>(controller)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) {
+            if ((faction->m_flags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS) && (static_cast<CGPlayer_C*>(controller)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) {
                 return UNIT_REACTION_HOSTILE;
             }
 
@@ -3037,7 +3037,7 @@ UNIT_REACTION CGUnit_C::UnitReaction(const CGUnit_C* unit) const {
                 }
 
                 if (!(controller->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_IGNORE_REPUTATION) && CGUnit_C::FactionHasReputation(faction->m_faction)) {
-                    if ((faction->m_flags & 0x1000) && (static_cast<CGPlayer_C*>(controller)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) {
+                    if ((faction->m_flags & FACTION_TEMPLATE_FLAG_ATTACK_PVP_ACTIVE_PLAYERS) && (static_cast<CGPlayer_C*>(controller)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_CONTESTED_PVP)) {
                         return UNIT_REACTION_HOSTILE;
                     }
 
