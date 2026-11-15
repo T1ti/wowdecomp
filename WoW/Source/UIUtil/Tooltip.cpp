@@ -399,9 +399,9 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
                 break;
 
             case SPELL_AURA_MOD_RESISTANCE:
-                for (uint32_t r = 0; r < 7; r++) {
+                for (uint32_t r = 0; r < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; r++) {
                     if (misc & (1 << r)) {
-                        this->m_stats[r] += value;
+                        this->m_stats[STAT_SUMMARY_RESISTANCE + r] += value;
                     }
                 }
 
@@ -459,8 +459,8 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
 void CGItemStatsSummary::AddResistances(const ItemStats_C* stats) {
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_RESISTANCES;
 
-    for (uint32_t i = 0; i < 7; i++) {
-        this->m_stats[i] += stats->m_resistances[i];
+    for (uint32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
+        this->m_stats[STAT_SUMMARY_RESISTANCE + i] += stats->m_resistances[i];
     }
 }
 
@@ -1362,8 +1362,8 @@ void CGItemStatsSummary::AccumulateStats(const ItemStats_C* stats) {
     this->ScanEnchantSpells(stats);
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_RESISTANCES;
 
-    for (uint32_t i = 0; i < 7; i++) {
-        this->m_stats[i] += stats->m_resistances[i];
+    for (uint32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
+        this->m_stats[STAT_SUMMARY_RESISTANCE + i] += stats->m_resistances[i];
     }
 
     this->GetSocketFlags(stats);
@@ -7445,7 +7445,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
     SStrPrintf(buffer, size, FrameScript_GetText("HP_TEMPLATE", -1, GENDER_NOT_APPLICABLE), unit->m_unit->m_unitFieldHealth);
     this->AddLine(buffer, nullptr, textColor, textColor, 0);
 
-    for (int32_t i = 0; i < 7; i++) {
+    for (int32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
         if (i == GetPhysicalDamageClassID() || unit->m_unit->m_unitFieldResistances[i] <= 0) {
             continue;
         }
