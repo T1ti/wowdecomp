@@ -2664,9 +2664,9 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
             mapObjDefGroup->m_doodadDefLinkList.LinkToTail(link);
         }
 
-        if (!(mapObjDefGroup->m_flags & 0x2) || (mapDoodadDef->m_flags & 0x4)) {
+        if (!(mapObjDefGroup->m_flags & MAPOBJ_FLAG_INTERIOR) || (mapDoodadDef->m_flags & MAPOBJ_FLAG_EXTERIOR)) {
             mapDoodadDef->m_diffuseLightScale = 1.0f;
-            mapDoodadDef->m_flags = static_cast<MapObjFlag>((mapDoodadDef->m_flags & ~0x2) | 0x4);
+            mapDoodadDef->m_flags = static_cast<MapObjFlag>((mapDoodadDef->m_flags & ~MAPOBJ_FLAG_INTERIOR) | MAPOBJ_FLAG_EXTERIOR);
         } else {
             mapDoodadDef->m_flags = static_cast<MapObjFlag>(mapDoodadDef->m_flags | 0x2);
         }

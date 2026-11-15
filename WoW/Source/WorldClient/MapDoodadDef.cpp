@@ -113,7 +113,7 @@ void CMapDoodadDef::UpdateBounds() {
 // VERIFY: f560b093 manual
 // OFFSET: 0x007C1150
 void CMapDoodadDef::SelectLights(CM2Lighting* lighting) {
-    if (this->m_flags & 0x2) {
+    if (this->m_flags & MAPOBJ_FLAG_INTERIOR) {
         lighting->AddAmbient(C3Vector(this->m_m2AmbientColor));
         lighting->AddDiffuse(C3Vector(this->m_m2DiffuseColor), CMapStaticEntity::s_interiorSunDir);
     } else {
@@ -127,13 +127,13 @@ void CMapDoodadDef::SelectLights(CM2Lighting* lighting) {
 
     DayNight::DNInfo* dayNight = DayNight::GetInfo();
 
-    if (this->m_flags & 0x8000) {
+    if (this->m_flags & MAPOBJ_FLAG_INT_FOG) {
         lighting->SetFog(C3Vector(dayNight->m_fogInterior.m_color), dayNight->m_fogInterior.m_start, dayNight->m_fogInterior.m_end, dayNight->m_fogInterior.m_density);
     } else {
         lighting->SetFog(C3Vector(dayNight->m_fog.m_color), dayNight->m_fog.m_start, dayNight->m_fog.m_end, dayNight->m_fog.m_density);
     }
 
-    if (this->m_flags & 0x2) {
+    if (this->m_flags & MAPOBJ_FLAG_INTERIOR) {
         lighting->m_flags |= CM2Lighting::INTERIOR;
     } else {
         lighting->m_flags &= ~CM2Lighting::INTERIOR;

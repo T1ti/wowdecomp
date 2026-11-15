@@ -112,7 +112,7 @@ void CMapChunk::Purge() {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
 
-        if (!(doodadDef->m_flags & 0x200)) {
+        if (!(doodadDef->m_flags & MAPOBJ_FLAG_IN_MAPOBJ)) {
             CMapDoodadDef::Purge(doodadDef);
         }
 

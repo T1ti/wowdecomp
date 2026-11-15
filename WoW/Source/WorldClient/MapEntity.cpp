@@ -331,7 +331,7 @@ void CMapStaticEntity::SelectLights(CM2Lighting* lighting) {
 
     DayNight::DNInfo* dayNight = DayNight::GetInfo();
 
-    if ((this->m_flags & 0x8000) != 0) {
+    if ((this->m_flags & MAPOBJ_FLAG_INT_FOG) != 0) {
         lighting->SetFog(C3Vector(dayNight->m_fogInterior.m_color), dayNight->m_fogInterior.m_start, dayNight->m_fogInterior.m_end, dayNight->m_fogInterior.m_density);
     } else {
         lighting->SetFog(C3Vector(dayNight->m_fog.m_color), dayNight->m_fog.m_start, dayNight->m_fog.m_end, dayNight->m_fog.m_density);
@@ -529,7 +529,7 @@ bool CMapStaticEntity::GetMapObjAndGroup(CMapObjDef** mapObjDef, CMapObj** mapOb
         CMapObjDef* def = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
         *mapObjDef = def;
 
-        if (skipHidden && (def->m_flags & 0x400)) {
+        if (skipHidden && (def->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
             continue;
         }
 
@@ -709,7 +709,7 @@ bool CMapEntity::QueryMapObjAreaTable(WMOAreaTableRec** groupRec, WMOAreaTableRe
         CMapObj* mapObj = mapObjDef->m_owner;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & 0x400))) {
+        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT))) {
             *wmoGroupId = group->m_wmoGroupId;
             *groupRec = GetWMOAreaRec(mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, group->m_wmoGroupId);
             WMOAreaTableRec* rec = GetWMOAreaRec(mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, -1);
@@ -736,7 +736,7 @@ bool CMapEntity::QueryMapObjIDs(int32_t* wmoId, int32_t* wmoHash, int32_t* group
         CMapObj* mapObj = mapObjDef->m_owner;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->m_groupNum));
 
-        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
+        if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             *wmoId = mapObj->m_header->m_wmoID;
             *wmoHash = mapObjDef->m_owner->m_hashval;
             *groupNum = mapObjDefGroup->m_groupNum;
@@ -766,7 +766,7 @@ int32_t CMapEntity::QueryInterior() {
                 return 1;
             }
 
-            if (!(mapObjDef->m_flags & 0x400)) {
+            if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
                 break;
             }
         }
@@ -791,7 +791,7 @@ int32_t CMapEntity::QueryMapObjFileName(const char** fileName) {
         CMapObj* mapObj = mapObjDef->m_owner;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & 0x400))) {
+        if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT))) {
             *fileName = mapObj->m_wmoName;
             return 1;
         }
@@ -815,7 +815,7 @@ bool CMapEntity::QueryMapObjMinimap(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* 
         CMapObj* mapObj = mapObjDef->m_owner;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->m_groupNum));
 
-        if (!(mapObjDef->m_flags & 0x400) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
+        if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             if (!(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
                 indoorArea = 0;
             }
@@ -844,7 +844,7 @@ bool CMapEntity::QueryMapObjMatrix(C44Matrix* matrix, C44Matrix* invMatrix) {
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
 
-        if (!(mapObjDef->m_flags & 0x400)) {
+        if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
             if (matrix) {
                 *matrix = mapObjDef->m_mat;
             }

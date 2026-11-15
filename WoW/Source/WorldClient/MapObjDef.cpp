@@ -60,7 +60,7 @@ void CMapObjDefGroup::SelectLights(CM2Lighting* lighting) {
 
     DayNight::DNInfo* dayNight = DayNight::GetInfo();
 
-    if (this->m_flags & 0x8000) {
+    if (this->m_flags & MAPOBJ_FLAG_INT_FOG) {
         lighting->SetFog(C3Vector(dayNight->m_fogInterior.m_color), dayNight->m_fogInterior.m_start, dayNight->m_fogInterior.m_end, dayNight->m_fogInterior.m_density);
     } else {
         lighting->SetFog(C3Vector(dayNight->m_fog.m_color), dayNight->m_fog.m_start, dayNight->m_fog.m_end, dayNight->m_fog.m_density);
@@ -181,7 +181,7 @@ bool CMapObjDefGroup::IsAllLoaded() {
     for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
         CMapStaticEntity* doodadDef = static_cast<CMapStaticEntity*>(link->m_owner);
 
-        if (doodadDef->m_model && !(doodadDef->m_flags & 0x80)) {
+        if (doodadDef->m_model && !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             if (SFile::IsStreamingMode()) {
                 doodadDef->m_model->LinkToAsyncHead(1);
             }

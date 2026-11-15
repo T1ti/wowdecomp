@@ -710,7 +710,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                 doodad->m_shadowStamps[band] = CShadowQuery::s_stamp;
                 CM2Model* model = doodad->m_model;
 
-                if (!model || !(doodad->m_flags & 0x80) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxDoodadSize < doodad->m_sphere.r) {
+                if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxDoodadSize < doodad->m_sphere.r) {
                     continue;
                 }
 
@@ -728,7 +728,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
 // OFFSET: 0x007BC490
 void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBand, int32_t lastBand) {
     for (CMapObjDef* def = CMap::mapObjDefHash.m_fulllist.Head(); def; def = CMap::mapObjDefHash.Next(def)) {
-        if (def->m_flags & 0x20) {
+        if (def->m_flags & MAPOBJ_FLAG_DISABLED) {
             continue;
         }
 
@@ -774,7 +774,7 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
             for (CMapBaseObjLink* link = defGroup->m_doodadDefLinkList.Head(); link; link = defGroup->m_doodadDefLinkList.Next(link)) {
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
 
-                if (!doodad->m_model || !(doodad->m_flags & 0x80)) {
+                if (!doodad->m_model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED)) {
                     continue;
                 }
 
@@ -840,7 +840,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 doodad->m_shadowStamps[band] = CShadowQuery::s_stamp;
                 CM2Model* model = doodad->m_model;
 
-                if (!model || !(doodad->m_flags & 0x80) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxSize < doodad->m_sphere.r) {
+                if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxSize < doodad->m_sphere.r) {
                     continue;
                 }
 
@@ -892,7 +892,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
                 CM2Model* model = doodad->m_model;
 
-                if (!model || !(doodad->m_flags & 0x80)) {
+                if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED)) {
                     continue;
                 }
 

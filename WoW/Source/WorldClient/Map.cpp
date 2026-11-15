@@ -946,7 +946,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
 // OFFSET: 0x007A09D0
 bool CMap::QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float* height) {
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.m_fulllist.Next(mapObjDef)) {
-        if (mapObjDef->m_flags & 0x100) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) {
             continue;
         }
 
@@ -1208,7 +1208,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
             continue;
         }
 
-        if ((doodadDef->m_flags & 0x100) || !(doodadDef->m_flags & 0x80) || doodadDef->m_unkCounter == CMap::s_queryTag) {
+        if ((doodadDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_unkCounter == CMap::s_queryTag) {
             continue;
         }
 
@@ -3934,7 +3934,7 @@ void CMap::PurgeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
 
-        if (!(doodadDef->m_flags & 0x200)) {
+        if (!(doodadDef->m_flags & MAPOBJ_FLAG_IN_MAPOBJ)) {
             CMapDoodadDef::Purge(doodadDef);
         }
 
@@ -4050,11 +4050,11 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
     outGroups[2] = 0xFFFF;
 
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.m_fulllist.Next(mapObjDef)) {
-        if (mapObjDef->m_flags & 0x20) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_DISABLED) {
             continue;
         }
 
-        if (mapObjDef->m_flags & 0x400) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) {
             slot = 1;
         }
 
@@ -4245,7 +4245,7 @@ void CMap::UpdateLightBounds(CMapLight* light) {
 // VERIFY: 66f3244f auto
 // OFFSET: 0x007D9D50
 void CMap::EnableLight(CMapLight* light) {
-    light->m_flags = static_cast<MapObjFlag>(light->m_flags & ~0x20);
+    light->m_flags = static_cast<MapObjFlag>(light->m_flags & ~MAPOBJ_FLAG_DISABLED);
     light->m_light.SetVisible(1);
 }
 
@@ -4309,7 +4309,7 @@ void CMap::LinkLightToMapObjDefs(CMapLight* light) {
     CAaBox box;
 
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.Next(mapObjDef)) {
-        if (mapObjDef->m_flags & 0x20) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_DISABLED) {
             continue;
         }
 
@@ -4321,7 +4321,7 @@ void CMap::LinkLightToMapObjDefs(CMapLight* light) {
                 for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
                     CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-                    if (!(group->m_flags & 0x2) && light->m_bbox.Intersects(group->m_bbox)) {
+                    if (!(group->m_flags & MAPOBJ_FLAG_INTERIOR) && light->m_bbox.Intersects(group->m_bbox)) {
                         CMapBaseObjLink* lightLink = CMap::AllocBaseObjLink(light);
                         lightLink->m_ref = group;
                         group->m_lightLinkList.LinkToTail(lightLink);
@@ -4367,7 +4367,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
     for (CMapBaseObjLink* link = linkList->Head(); link; link = linkList->Next(link)) {
         CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((def->m_flags & 0x100) || def->m_unkCounter == CMap::s_queryTag || !def->m_model) {
+        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || def->m_unkCounter == CMap::s_queryTag || !def->m_model) {
             continue;
         }
 
@@ -4377,14 +4377,14 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
 
         CAaBox bbox = def->m_collideExt;
 
-        if (!(def->m_flags & 0x80)) {
+        if (!(def->m_flags & MAPOBJ_FLAG_PREPARED)) {
             def->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
             CAaBox modelBox = def->m_model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(def->m_mat, modelBox, bbox);
         }
 
         if (box->Intersects(bbox)) {
-            if (def->m_flags & 0x80) {
+            if (def->m_flags & MAPOBJ_FLAG_PREPARED) {
                 CMap::AppendMapObjFacets(def, box, facets);
             } else {
                 World::AddAaBoxFacets(&bbox, facets);
@@ -4581,7 +4581,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
     }
 
     for (CMapObjDef* def = CMap::mapObjDefHash.m_fulllist.Head(); def; def = CMap::mapObjDefHash.m_fulllist.Next(def)) {
-        if (def->m_flags & 0x100) {
+        if (def->m_flags & MAPOBJ_FLAG_NO_HITTEST) {
             continue;
         }
 
@@ -5158,7 +5158,7 @@ bool CMap::QueryAreaId(CMapEntity* entity, uint32_t& areaId) {
             CMapBaseObj* ref = link->m_ref;
             mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
 
-            if (!(mapObjDef->m_flags & 0x400)) {
+            if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
                 break;
             }
 
@@ -5314,7 +5314,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
             CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
-            if ((def->m_flags & 0x100) || !(def->m_flags & 0x80) || def->m_unkCounter == CMap::s_queryTag) {
+            if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(def->m_flags & MAPOBJ_FLAG_PREPARED) || def->m_unkCounter == CMap::s_queryTag) {
                 continue;
             }
 
@@ -5336,7 +5336,7 @@ bool CMap::GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t
     bool result = false;
 
     for (CMapObjDef* def = CMap::mapObjDefHash.m_fulllist.Head(); def; def = CMap::mapObjDefHash.m_fulllist.Next(def)) {
-        if ((def->m_flags & 0x100) || !frustum->Cull(def->m_bbox)) {
+        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !frustum->Cull(def->m_bbox)) {
             continue;
         }
 
@@ -5592,7 +5592,7 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             continue;
         }
 
-        if ((doodadDef->m_flags & 0x100) || !(doodadDef->m_flags & 0x80)) {
+        if ((doodadDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             continue;
         }
 
@@ -5637,7 +5637,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
         for (CMapBaseObjLink* link = chunk->m_mapObjDefLinkList.Head(); link; link = chunk->m_mapObjDefLinkList.Next(link)) {
             CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
 
-            if (mapObjDef->m_flags & 0x500) {
+            if (mapObjDef->m_flags & (MAPOBJ_FLAG_NO_HITTEST | MAPOBJ_FLAG_NO_DEPTH_SORT)) {
                 continue;
             }
 
@@ -5683,7 +5683,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
     for (CMapBaseObjLink* link = CMap::mapObjDefLinkList.Head(); link; link = CMap::mapObjDefLinkList.Next(link)) {
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
 
-        if (mapObjDef->m_flags & 0x100) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) {
             continue;
         }
 
@@ -6296,7 +6296,7 @@ bool CMap::QueryTrisMapObjDefs(const CAaBox& box, World::TriData* triData, uint3
     bool result = false;
 
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.Next(mapObjDef)) {
-        if (mapObjDef->m_flags & 0x20) {
+        if (mapObjDef->m_flags & MAPOBJ_FLAG_DISABLED) {
             continue;
         }
 
@@ -6346,7 +6346,7 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
     uint32_t count = 0;
 
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.Next(mapObjDef)) {
-        if ((mapObjDef->m_flags & 0x100) || !mapObjDef->m_bbox.Intersects(box)) {
+        if ((mapObjDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !mapObjDef->m_bbox.Intersects(box)) {
             continue;
         }
 
@@ -6428,7 +6428,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
     }
 
     doodadDef->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE;
-    doodadDef->m_flags = static_cast<MapObjFlag>((doodadDef->m_flags & 0xFFFFFFF8) | MAPOBJ_FLAG_UNPLACED);
+    doodadDef->m_flags = static_cast<MapObjFlag>((doodadDef->m_flags & ~(MAPOBJ_FLAG_UNPLACED | MAPOBJ_FLAG_INTERIOR | MAPOBJ_FLAG_EXTERIOR)) | MAPOBJ_FLAG_UNPLACED);
     CMap::LinkStaticEntity(doodadDef);
     doodadDef->ExtendChunkBounds();
     CMap::doodadDefList.LinkToTail(doodadDef);

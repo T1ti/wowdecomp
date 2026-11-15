@@ -4046,7 +4046,7 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
             def->CullMapObjDefGroupFromExterior(group, rect, 1);
 
             uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
-            int32_t interior = group->m_flags & 0x8000;
+            int32_t interior = group->m_flags & MAPOBJ_FLAG_INT_FOG;
             CWorldScene::CullDoodadsInterior(&group->m_doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, interior);
             CWorldScene::CullEntitysInterior(&group->m_entityLinkList, group->m_frustumList.Head(), 1, interior);
         }
@@ -4310,7 +4310,7 @@ void CWorldScene::SetCameraTarget(CMapEntity* entity, WOWGUID transportGuid) {
 // OFFSET: 0x007A1BC0
 void CMap::UpdateEntity(CMapEntity* entity) {
     entity->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_UPDATE_CLEAR_MASK;
-    entity->m_flags = static_cast<MapObjFlag>((entity->m_flags & ~0x7) | 0x1);
+    entity->m_flags = static_cast<MapObjFlag>((entity->m_flags & ~(MAPOBJ_FLAG_UNPLACED | MAPOBJ_FLAG_INTERIOR | MAPOBJ_FLAG_EXTERIOR)) | MAPOBJ_FLAG_UNPLACED);
     CMap::LinkStaticEntity(entity);
 
     if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {
@@ -4345,7 +4345,7 @@ void CMap::UpdateEntity(CMapEntity* entity) {
         }
     }
 
-    if (entity->m_flags & 0x2) {
+    if (entity->m_flags & MAPOBJ_FLAG_INTERIOR) {
         if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT) {
             entity->m_targetDiffuseLightScale = (2.5f - 1.0f) * (entity->m_m2DiffuseColor.a * 0.0039215689f) + 1.0f;
         } else {
@@ -4366,7 +4366,7 @@ void CMap::UpdateEntity(CMapEntity* entity) {
     color.r = static_cast<uint8_t>(static_cast<int32_t>(r));
     entity->m_targetAmbientColor = color;
 
-    if (CShadowCache::GetShadowMode() > 1 || (entity->m_flags & 0x200) || !CMap::QueryShadow(&entity->m_position)) {
+    if (CShadowCache::GetShadowMode() > 1 || (entity->m_flags & MAPOBJ_FLAG_IN_MAPOBJ) || !CMap::QueryShadow(&entity->m_position)) {
         entity->m_targetDiffuseLightScale = 2.5f;
     } else {
         entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_SHADOWED;
@@ -5080,7 +5080,7 @@ void World::ObjectSetMoveable(CMapEntity* entity, int32_t moveable) {
     if (moveable) {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | 0x1000);
     } else {
-        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~0x1000);
+        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~MAPOBJ_FLAG_PROJ_TEX);
     }
 }
 
