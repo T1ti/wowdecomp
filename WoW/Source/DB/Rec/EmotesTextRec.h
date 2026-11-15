@@ -6,6 +6,15 @@
 
 class SFileImpl;
 
+// Bits of the EmotesText m_emoteText slot index chosen when an emote is shown.
+enum EMOTES_TEXT_SLOT : uint32_t {
+    EMOTES_TEXT_SLOT_TARGET_IS_PLAYER = 0x1, // The target is the active player.
+    EMOTES_TEXT_SLOT_SENDER_IS_PLAYER = 0x2, // The active player sent it.
+    EMOTES_TEXT_SLOT_NO_TARGET = 0x4,
+    EMOTES_TEXT_SLOT_FEMALE = 0x8, // Female sender; falls back to the slot without this bit.
+    NUM_EMOTES_TEXT_SLOTS = 16,
+};
+
 class EmotesTextRec {
     public:
     static const int32_t s_numColumns = 19;
@@ -15,7 +24,7 @@ class EmotesTextRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
     /* 0008 */ int32_t m_emoteID;
-    /* 000C */ int32_t m_emoteText [16];
+    /* 000C */ int32_t m_emoteText [NUM_EMOTES_TEXT_SLOTS];
 
     EmotesTextRec();
     ~EmotesTextRec();

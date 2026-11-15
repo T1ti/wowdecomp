@@ -1066,7 +1066,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
             if (record) {
                 senderName = record->FullName(senderFullName, sizeof(senderFullName));
 
-                if (record->m_sex == 1) {
+                if (record->m_sex == UNITSEX_FEMALE) {
                     gender = GENDER_FEMALE;
                 }
             }
@@ -3263,18 +3263,18 @@ void CGChat::AddTextEmoteMessage(const WOWGUID& guid, uint32_t emote, const char
     int32_t hasTarget = 1;
 
     if (guid.m_guid == ClntObjMgrGetActivePlayer().m_guid) {
-        index = 2;
+        index = EMOTES_TEXT_SLOT_SENDER_IS_PLAYER;
         hasSender = 0;
     } else if (!SStrCmp(target, player->GetUnitName(nullptr, 1), STORM_MAX_STR)) {
-        index = 1;
+        index = EMOTES_TEXT_SLOT_TARGET_IS_PLAYER;
         hasTarget = 0;
     }
 
     if (!*target) {
-        index |= 4;
+        index |= EMOTES_TEXT_SLOT_NO_TARGET;
     }
 
-    uint32_t gender = sender->m_sex != 1 ? 0 : 8;
+    uint32_t gender = sender->m_sex != UNITSEX_FEMALE ? 0 : EMOTES_TEXT_SLOT_FEMALE;
     EmotesTextDataRec* text = g_emotesTextDataDB.GetRecord(emoteText->m_emoteText[index | gender]);
 
     if (!text || !*text->m_text) {
@@ -3282,7 +3282,7 @@ void CGChat::AddTextEmoteMessage(const WOWGUID& guid, uint32_t emote, const char
     }
 
     if (!text || !*text->m_text) {
-        index = (index & ~5) | 4;
+        index = (index & ~(EMOTES_TEXT_SLOT_TARGET_IS_PLAYER | EMOTES_TEXT_SLOT_NO_TARGET)) | EMOTES_TEXT_SLOT_NO_TARGET;
         text = g_emotesTextDataDB.GetRecord(emoteText->m_emoteText[index | gender]);
     }
 
