@@ -141,7 +141,7 @@ int32_t CGTooltip::s_objectType;
 int32_t CGTooltip::s_metatable = LUA_NOREF;
 
 // STATIC: 0x00AD2A84
-static const char* s_itemQualityColorStrings[8] = { "|cff9d9d9d", "|cffffffff", "|cff1eff00", "|cff0070dd", "|cffa335ee", "|cffff8000", "|cffe6cc80", "|cffe6cc80" };
+static const char* s_itemQualityColorStrings[ITEM_QUALITY::NUM_ITEM_QUALITIES] = { "|cff9d9d9d", "|cffffffff", "|cff1eff00", "|cff0070dd", "|cffa335ee", "|cffff8000", "|cffe6cc80", "|cffe6cc80" };
 
 // STATIC: 0x00AD2D2C
 uint32_t s_tooltipTitleColor = 0xFFFFD200;
@@ -165,7 +165,7 @@ static uint32_t s_threatStatusColors[5] = { COLOR_WHITE_ARGB, 0xFFB0B0B0, 0xFFFF
 static const char* s_classificationTokens[6] = { nullptr, "ELITE", "ELITE", nullptr, nullptr, nullptr };
 
 // STATIC: 0x00AD2D84
-static uint32_t s_itemQualityColors[8] = { 0xFF9D9D9D, COLOR_WHITE_ARGB, 0xFF1EFF00, 0xFF0070DD, 0xFFA335EE, 0xFFFF8000, 0xFFE6CC80, 0xFFE6CC80 };
+static uint32_t s_itemQualityColors[ITEM_QUALITY::NUM_ITEM_QUALITIES] = { 0xFF9D9D9D, COLOR_WHITE_ARGB, 0xFF1EFF00, 0xFF0070DD, 0xFFA335EE, 0xFFFF8000, 0xFFE6CC80, 0xFFE6CC80 };
 
 // STATIC: 0x00AD2ADC
 const char* CGTooltip::s_objectTypeName = "GameTooltip";
@@ -783,7 +783,7 @@ void CGTooltip::GetScriptTime(lua_State* L, double* time, uint32_t* count, int32
 // OFFSET: 0x0061A510
 const CImVector* CGTooltip::GetItemQualityColor(uint32_t quality) {
     if (quality >= sizeof(s_itemQualityColors) / sizeof(s_itemQualityColors[0])) {
-        quality = 1;
+        quality = ITEM_QUALITY::ITEM_QUALITY_COMMON;
     }
 
     return reinterpret_cast<const CImVector*>(&s_itemQualityColors[quality]);
@@ -793,7 +793,7 @@ const CImVector* CGTooltip::GetItemQualityColor(uint32_t quality) {
 // OFFSET: 0x0061A530
 const char* CGTooltip::GetItemQualityColorString(uint32_t quality) {
     if (quality >= sizeof(s_itemQualityColorStrings) / sizeof(s_itemQualityColorStrings[0])) {
-        quality = 1;
+        quality = ITEM_QUALITY::ITEM_QUALITY_COMMON;
     }
 
     return s_itemQualityColorStrings[quality];
@@ -2307,7 +2307,7 @@ const char* CGTooltip::CreateItemLink(int32_t itemId, uint32_t quality, int32_t 
     }
 
     if (quality >= sizeof(s_itemQualityColorStrings) / sizeof(s_itemQualityColorStrings[0])) {
-        quality = 1;
+        quality = ITEM_QUALITY::ITEM_QUALITY_COMMON;
     }
 
     const char* color = s_itemQualityColorStrings[quality];

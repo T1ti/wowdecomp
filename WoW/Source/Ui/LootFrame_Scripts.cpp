@@ -140,19 +140,19 @@ static int32_t Script_GetLootRollItemInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (roll->m_voteMask & 2) {
+    if (roll->m_voteMask & (1 << LOOT_ROLL_TYPE::LOOT_ROLL_NEED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (roll->m_voteMask & 4) {
+    if (roll->m_voteMask & (1 << LOOT_ROLL_TYPE::LOOT_ROLL_GREED)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (roll->m_voteMask & 8) {
+    if (roll->m_voteMask & (1 << LOOT_ROLL_TYPE::LOOT_ROLL_DISENCHANT)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

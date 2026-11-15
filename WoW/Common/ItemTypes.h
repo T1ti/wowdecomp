@@ -76,6 +76,19 @@ enum ITEM_SUBCLASS_ARMOR : int32_t {
   NUM_ITEM_ARMOR_SUBCLASSES = 11,
 };
 
+// Item quality; names follow the ITEM_QUALITY<n>_DESC strings.
+enum ITEM_QUALITY : uint32_t {
+    ITEM_QUALITY_POOR = 0,
+    ITEM_QUALITY_COMMON = 1,
+    ITEM_QUALITY_UNCOMMON = 2,
+    ITEM_QUALITY_RARE = 3,
+    ITEM_QUALITY_EPIC = 4,
+    ITEM_QUALITY_LEGENDARY = 5,
+    ITEM_QUALITY_ARTIFACT = 6,
+    ITEM_QUALITY_HEIRLOOM = 7,
+    NUM_ITEM_QUALITIES = 8,
+};
+
 // Binding policies recognized by the 3.3.5 client. Packet/cache words remain
 // raw uint32_t; other values retain the existing fallback behavior.
 enum ITEM_BINDING : uint32_t {

@@ -45,6 +45,14 @@ extern uint32_t s_numShownLootRolls;
 PendingLootRoll* FindRoll(int32_t id);
 WOWGUID GetMasterLootCandidate(uint32_t index);
 void LootRollShowPending();
+// RollOnLoot roll type; m_voteMask holds 1 << type for each allowed type.
+enum LOOT_ROLL_TYPE : int32_t {
+    LOOT_ROLL_PASS = 0,
+    LOOT_ROLL_NEED = 1,
+    LOOT_ROLL_GREED = 2,
+    LOOT_ROLL_DISENCHANT = 3,
+};
+
 void LootRoll(int32_t id, int32_t rollType, bool confirmed);
 
 void CloseAllLootRolls();

@@ -147,7 +147,7 @@ static int32_t Script_SetLootThreshold(lua_State* L) {
 
     uint32_t threshold = static_cast<uint32_t>(lua_tonumber(L, 1));
 
-    if (threshold - 2 > 4) {
+    if (threshold < ITEM_QUALITY::ITEM_QUALITY_UNCOMMON || threshold > ITEM_QUALITY::ITEM_QUALITY_ARTIFACT) {
         luaL_error(L, "SetLootThreshold(): threshold must be between %d and %d", 2, 6);
         return 0;
     }
