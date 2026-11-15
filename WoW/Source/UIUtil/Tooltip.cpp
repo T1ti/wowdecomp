@@ -240,7 +240,34 @@ static const int32_t s_hitRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HI
 static const int32_t s_spellPowerGroup[2] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_DAMAGE_DONE, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_HEALING_DONE };
 
 // STATIC: 0x00AD2DC8
-static const int32_t s_combatRatingStats[25] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, -1, -1, -1, 37, 44 };
+// Item mod type summarized for each COMBAT_RATING; -1 has no summary entry.
+static const int32_t s_combatRatingStats[NUM_COMBAT_RATINGS] = {
+    ITEM_MOD_WEAPON_RATING, // CR_WEAPON_SKILL
+    ITEM_MOD_DEFENSE_SKILL_RATING, // CR_DEFENSE_SKILL
+    ITEM_MOD_DODGE_RATING, // CR_DODGE
+    ITEM_MOD_PARRY_RATING, // CR_PARRY
+    ITEM_MOD_BLOCK_RATING, // CR_BLOCK
+    ITEM_MOD_HIT_MELEE_RATING, // CR_HIT_MELEE
+    ITEM_MOD_HIT_RANGED_RATING, // CR_HIT_RANGED
+    ITEM_MOD_HIT_SPELL_RATING, // CR_HIT_SPELL
+    ITEM_MOD_CRIT_MELEE_RATING, // CR_CRIT_MELEE
+    ITEM_MOD_CRIT_RANGED_RATING, // CR_CRIT_RANGED
+    ITEM_MOD_CRIT_SPELL_RATING, // CR_CRIT_SPELL
+    ITEM_MOD_HIT_TAKEN_MELEE_RATING, // CR_HIT_TAKEN_MELEE
+    ITEM_MOD_HIT_TAKEN_RANGED_RATING, // CR_HIT_TAKEN_RANGED
+    ITEM_MOD_HIT_TAKEN_SPELL_RATING, // CR_HIT_TAKEN_SPELL
+    ITEM_MOD_CRIT_TAKEN_MELEE_RATING, // CR_CRIT_TAKEN_MELEE
+    ITEM_MOD_CRIT_TAKEN_RANGED_RATING, // CR_CRIT_TAKEN_RANGED
+    ITEM_MOD_CRIT_TAKEN_SPELL_RATING, // CR_CRIT_TAKEN_SPELL
+    ITEM_MOD_HASTE_MELEE_RATING, // CR_HASTE_MELEE
+    ITEM_MOD_HASTE_RANGED_RATING, // CR_HASTE_RANGED
+    ITEM_MOD_HASTE_SPELL_RATING, // CR_HASTE_SPELL
+    -1, // CR_WEAPON_SKILL_MAINHAND
+    -1, // CR_WEAPON_SKILL_OFFHAND
+    -1, // CR_WEAPON_SKILL_RANGED
+    ITEM_MOD_EXPERTISE_RATING, // CR_EXPERTISE
+    ITEM_MOD_ARMOR_PENETRATION_RATING, // CR_ARMOR_PENETRATION
+};
 
 // STATIC: 0x00AD2A64
 static const char* s_negativeDeltaColor = "|cffff2020";
@@ -413,7 +440,7 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
                 break;
 
             case SPELL_AURA_MOD_RATING:
-                for (int32_t r = 0; r < 25; r++) {
+                for (int32_t r = 0; r < NUM_COMBAT_RATINGS; r++) {
                     if ((misc & (1 << r)) && s_combatRatingStats[r] != -1) {
                         this->m_stats[STAT_SUMMARY_ITEM_MOD + s_combatRatingStats[r]] += value;
                     }
