@@ -94,9 +94,9 @@ static int32_t Script_GetActionInfo(lua_State* L) {
             lua_pushstring(L, "companion");
             lua_pushnumber(L, CGSpellBook::FindCompanionSlotByID(spellId, type) + 1);
 
-            if (type == 0) {
+            if (type == COMPANION_TYPE_CRITTER) {
                 lua_pushstring(L, "CRITTER");
-            } else if (type == 1) {
+            } else if (type == COMPANION_TYPE_MOUNT) {
                 lua_pushstring(L, "MOUNT");
             } else {
                 lua_pushstring(L, "UNKNOWN");
