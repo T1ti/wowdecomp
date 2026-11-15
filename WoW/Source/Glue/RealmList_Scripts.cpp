@@ -380,22 +380,22 @@ static int32_t Script_SortRealms(lua_State* L) {
         return 0;
     }
 
-    int32_t criterion = 2;
+    int32_t criterion = REALM_SORT_NAME;
     const char* type = lua_tolstring(L, 1, nullptr);
 
     if (SStrCmpI(type, "name", STORM_MAX_STR)) {
         if (!SStrCmpI(type, "load", STORM_MAX_STR)) {
-            CRealmList::SortRealms(1);
+            CRealmList::SortRealms(REALM_SORT_LOAD);
             return 0;
         }
 
         if (!SStrCmpI(type, "characters", STORM_MAX_STR)) {
-            CRealmList::SortRealms(0);
+            CRealmList::SortRealms(REALM_SORT_CHARACTERS);
             return 0;
         }
 
         if (!SStrCmpI(type, "mode", STORM_MAX_STR)) {
-            criterion = 3;
+            criterion = REALM_SORT_MODE;
         }
     }
 

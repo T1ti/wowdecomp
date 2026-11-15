@@ -12,8 +12,17 @@ struct RealmCategory {
     /* 0014 */ uint32_t m_numRealms;
 };
 
+// Realm list sort keys; names follow the SortRealms type strings.
+enum REALM_SORT_CRITERION : int32_t {
+    REALM_SORT_CHARACTERS = 0, // "characters"
+    REALM_SORT_LOAD = 1, // "load"
+    REALM_SORT_NAME = 2, // "name"
+    REALM_SORT_MODE = 3, // "mode"
+    NUM_REALM_SORT_CRITERIA = 4,
+};
+
 struct RealmSortCriterion {
-    /* 0000 */ int32_t m_criterion;
+    /* 0000 */ int32_t m_criterion; // REALM_SORT_CRITERION
     /* 0004 */ int32_t m_reverse;
 };
 
@@ -25,7 +34,7 @@ class CRealmList {
     static int32_t m_preferredCategory;
     static float m_avgLoad;
     static float m_stdDevLoad;
-    static RealmSortCriterion m_sortCriteria[4];
+    static RealmSortCriterion m_sortCriteria[NUM_REALM_SORT_CRITERIA];
     static TSFixedArray<RealmCategory*> m_categories;
 
     static void Initialize();
