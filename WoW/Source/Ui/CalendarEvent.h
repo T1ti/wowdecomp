@@ -63,8 +63,19 @@ inline EventInviteInfo::EventInviteInfo() {
     this->m_notes[0] = '\0';
 }
 
+// Invite list sort keys; names follow the CalendarEventSortInvites criterion strings.
+enum INVITE_SORT_CRITERION : uint32_t {
+    INVITE_SORT_NAME = 0, // "name"
+    INVITE_SORT_LEVEL = 1, // "level"
+    INVITE_SORT_CLASS = 2, // "class"
+    INVITE_SORT_STATUS = 3, // "status"
+    INVITE_SORT_PARTY = 4, // "party"
+    INVITE_SORT_NOTES = 5, // "notes"
+    NUM_INVITE_SORT_CRITERIA = 6,
+};
+
 struct InviteSortCriterion {
-    /* 0000 */ uint32_t m_criterion;
+    /* 0000 */ uint32_t m_criterion; // INVITE_SORT_CRITERION
     /* 0004 */ uint8_t m_reverse;
 };
 
@@ -115,8 +126,8 @@ class CGCalendarEvent {
     /* 0501 */ uint8_t m_changed;
     /* 0508 */ WOWGUID m_creatorGUID;
     /* 0510 */ int32_t m_textureID;
-    /* 0514 */ InviteSortCriterion m_sortCriteria[6];
-    /* 0544 */ uint32_t m_sortType;
+    /* 0514 */ InviteSortCriterion m_sortCriteria[NUM_INVITE_SORT_CRITERIA];
+    /* 0544 */ uint32_t m_sortType; // INVITE_SORT_CRITERION
     /* 0548 */ uint32_t m_pendingNames;
     /* 054C */ INVITE_SIGNAL_TYPE m_signalType;
     /* 0550 */ uint32_t m_guildID;

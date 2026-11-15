@@ -434,21 +434,21 @@ static int32_t Script_CalendarEventSortInvites(lua_State* L) {
         return 0;
     }
 
-    uint32_t criterion = 3;
+    uint32_t criterion = INVITE_SORT_STATUS;
     const char* name = lua_tolstring(L, 1, nullptr);
 
     if (!SStrCmpI(name, "name", STORM_MAX_STR)) {
-        criterion = 0;
+        criterion = INVITE_SORT_NAME;
     } else if (!SStrCmpI(name, "level", STORM_MAX_STR)) {
-        criterion = 1;
+        criterion = INVITE_SORT_LEVEL;
     } else if (!SStrCmpI(name, "class", STORM_MAX_STR)) {
-        criterion = 2;
+        criterion = INVITE_SORT_CLASS;
     } else if (!SStrCmpI(name, "status", STORM_MAX_STR)) {
-        criterion = 3;
+        criterion = INVITE_SORT_STATUS;
     } else if (!SStrCmpI(name, "party", STORM_MAX_STR)) {
-        criterion = 4;
+        criterion = INVITE_SORT_PARTY;
     } else if (!SStrCmpI(name, "notes", STORM_MAX_STR)) {
-        criterion = 5;
+        criterion = INVITE_SORT_NOTES;
     }
 
     int32_t reverse = StringToBOOL(L, 2, 1);
@@ -469,27 +469,27 @@ static int32_t Script_CalendarEventGetInviteSortCriterion(lua_State* L) {
 
     if (criterion) {
         switch (criterion->m_criterion) {
-            case 0:
+            case INVITE_SORT_NAME:
                 name = "name";
                 break;
 
-            case 1:
+            case INVITE_SORT_LEVEL:
                 name = "level";
                 break;
 
-            case 2:
+            case INVITE_SORT_CLASS:
                 name = "class";
                 break;
 
-            case 3:
+            case INVITE_SORT_STATUS:
                 name = "status";
                 break;
 
-            case 4:
+            case INVITE_SORT_PARTY:
                 name = "party";
                 break;
 
-            case 5:
+            case INVITE_SORT_NOTES:
                 name = "notes";
                 break;
         }

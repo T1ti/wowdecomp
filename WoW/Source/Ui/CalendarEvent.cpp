@@ -36,7 +36,7 @@ static const int32_t s_inviteStatusOrder[CALENDAR_STATUS::NUM_CALENDAR_STATUS_ST
 static uint32_t s_inviteSortType;
 
 // STATIC: 0x00C243B4
-static InviteSortCriterion s_inviteSortCriteria[6];
+static InviteSortCriterion s_inviteSortCriteria[NUM_INVITE_SORT_CRITERIA];
 
 // VERIFY: 92e9c97a auto
 // OFFSET: 0x005F1000
@@ -89,7 +89,7 @@ void CGCalendarEvent::Clear() {
     this->m_signalType = CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE_INITIAL;
     this->m_sortType = 3;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < NUM_INVITE_SORT_CRITERIA; i++) {
         this->m_sortCriteria[i].m_criterion = i;
         this->m_sortCriteria[i].m_reverse = 0;
     }
@@ -331,7 +331,7 @@ static int32_t QSortInvites(const void* a, const void* b) {
     int32_t result = 0;
 
     switch (s_inviteSortType) {
-        case 0: {
+        case INVITE_SORT_NAME: {
             WOWGUID leftKey = WOWGUID();
             NameCache* leftName = g_nameDBCache.GetRecord(left->m_guid.m_guid, leftKey, nullptr, nullptr, false);
             WOWGUID rightKey = WOWGUID();
@@ -344,11 +344,11 @@ static int32_t QSortInvites(const void* a, const void* b) {
             break;
         }
 
-        case 1:
+        case INVITE_SORT_LEVEL:
             result = left->m_level - right->m_level;
             break;
 
-        case 2: {
+        case INVITE_SORT_CLASS: {
             WOWGUID leftKey = WOWGUID();
             NameCache* leftName = g_nameDBCache.GetRecord(left->m_guid.m_guid, leftKey, nullptr, nullptr, false);
             WOWGUID rightKey = WOWGUID();
@@ -366,11 +366,11 @@ static int32_t QSortInvites(const void* a, const void* b) {
             break;
         }
 
-        case 3:
+        case INVITE_SORT_STATUS:
             result = s_inviteStatusOrder[left->m_status] - s_inviteStatusOrder[right->m_status];
             break;
 
-        case 4:
+        case INVITE_SORT_PARTY:
             if (CGRaidInfo::FindMemberByGuid(left->m_guid)) {
                 if (!CGRaidInfo::FindMemberByGuid(right->m_guid)) {
                     result = -1;
@@ -381,7 +381,7 @@ static int32_t QSortInvites(const void* a, const void* b) {
 
             break;
 
-        case 5:
+        case INVITE_SORT_NOTES:
             result = SStrSortUTF8I(left->m_notes, right->m_notes, STORM_MAX_STR);
             break;
     }
@@ -390,7 +390,7 @@ static int32_t QSortInvites(const void* a, const void* b) {
         result = -result;
     }
 
-    if (s_inviteSortType && !result) {
+    if (s_inviteSortType != INVITE_SORT_NAME && !result) {
         WOWGUID leftKey = WOWGUID();
         NameCache* leftName = g_nameDBCache.GetRecord(left->m_guid.m_guid, leftKey, nullptr, nullptr, false);
         WOWGUID rightKey = WOWGUID();
@@ -409,7 +409,7 @@ static int32_t QSortInvites(const void* a, const void* b) {
 // VERIFY: 90a7ac86 manual
 // OFFSET: 0x005F1980
 bool CGCalendarEvent::SortInvites(uint32_t criterion, bool toggle) {
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < NUM_INVITE_SORT_CRITERIA; i++) {
         if (i == criterion) {
             if (toggle) {
                 this->m_sortCriteria[i].m_reverse = !this->m_sortCriteria[i].m_reverse;
@@ -1056,7 +1056,7 @@ bool CGCalendarEvent::ProcessGetEvent(CDataStore* msg, int32_t* status) {
     this->m_selectedInviteID = 0;
 
     if (!this->m_pendingNames) {
-        this->SortInvites(3, false);
+        this->SortInvites(INVITE_SORT_STATUS, false);
     }
 
     return true;
@@ -1141,7 +1141,7 @@ bool CGCalendarEvent::ProcessInitialInviteList(CDataStore* msg) {
         return true;
     }
 
-    this->SortInvites(3, false);
+    this->SortInvites(INVITE_SORT_STATUS, false);
     FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_INVITE_LIST, "%b", 1);
     return true;
 }
