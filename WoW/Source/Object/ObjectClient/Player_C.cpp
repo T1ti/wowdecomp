@@ -10033,8 +10033,8 @@ void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot,
     }
 
     CDataStore msg;
-    bool srcEquipped = srcContainer == self && (srcSlot < 23 || srcSlot - 67 <= 6);
-    bool dstEquipped = dstContainer == self && (dstSlot < 23 || dstSlot - 67 <= 6);
+    bool srcEquipped = srcContainer == self && (srcSlot < BACKPACK_FIRST || (srcSlot >= BANKBAG_FIRST && srcSlot <= BANKBAG_LAST));
+    bool dstEquipped = dstContainer == self && (dstSlot < BACKPACK_FIRST || (dstSlot >= BANKBAG_FIRST && dstSlot <= BANKBAG_LAST));
 
     if (srcEquipped != dstEquipped) {
         WOWGUID container = srcEquipped ? dstContainer : srcContainer;
@@ -10767,8 +10767,8 @@ int32_t InventoryUpdate(WOWGUID guid, uint32_t offset, uint32_t count, const voi
         return 1;
     }
 
-    if ((slot >= 39 && slot <= 66) || slot - 67 <= 6) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_PLAYERBANKSLOTS_CHANGED, "%d", slot - 38);
+    if ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST)) {
+        FrameScript_SignalEvent(SCRIPT_EVENT_PLAYERBANKSLOTS_CHANGED, "%d", slot - BANKGENERIC_FIRST + 1);
     }
 
     return 1;

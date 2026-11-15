@@ -297,7 +297,7 @@ void CGCharacterInfo::UpdateItem(WOWGUID guid) {
     }
 
     if (static_cast<uint32_t>(slot) > 22) {
-        if ((slot >= 39 && slot <= 66) || static_cast<uint32_t>(slot - 67) <= 6) {
+        if ((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST)) {
             FrameScript_SignalEvent(SCRIPT_EVENT_PLAYERBANKSLOTS_CHANGED, "%d", slot - 38);
         }
 
@@ -324,7 +324,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
         return;
     }
 
-    if (((slot >= 39 && slot <= 66) || static_cast<uint32_t>(slot - 67) <= 6) && !CGBankInfo::m_banker) {
+    if (((slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST)) && !CGBankInfo::m_banker) {
         return;
     }
 
@@ -743,7 +743,7 @@ int32_t CGCharacterInfo::PutItemInBackpack(uint32_t slot) {
         return 0;
     }
 
-    if (cursorContainer == bag && (cursorContainer != player->m_obj->m_guid || cursorSlot - 23 <= 15)) {
+    if (cursorContainer == bag && (cursorContainer != player->m_obj->m_guid || (cursorSlot >= BACKPACK_FIRST && cursorSlot <= BACKPACK_LAST))) {
         CGGameUI::ClearCursor(1, 1);
         return 1;
     }
@@ -760,7 +760,7 @@ int32_t CGCharacterInfo::PutItemInBackpack(uint32_t slot) {
     if (slot != 0xFF) {
         CGItem_C* cursorObject;
 
-        if ((cursorContainer == player->m_obj->m_guid && cursorSlot - 19 <= 3) || ((cursorObject = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(cursorItem, TYPE_ITEM, __FILE__, __LINE__))) && (cursorObject->m_obj->m_type & TYPE_CONTAINER))) {
+        if ((cursorContainer == player->m_obj->m_guid && (cursorSlot >= INVSLOT_BAG0 && cursorSlot <= INVSLOT_BAG3)) || ((cursorObject = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(cursorItem, TYPE_ITEM, __FILE__, __LINE__))) && (cursorObject->m_obj->m_type & TYPE_CONTAINER))) {
             CGGameUI::LockItem(bag);
             player->SwapItems(cursorItem, cursorContainer, cursorSlot, player->m_obj->m_guid, slot, 0);
             return 1;

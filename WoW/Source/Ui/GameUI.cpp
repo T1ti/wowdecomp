@@ -3552,7 +3552,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_BAGS);
         }
 
-        if (bag == 255 && slot - 86 <= 31) {
+        if (bag == INVENTORY_BAG_PLAYER && slot >= KEYRING_FIRST && slot <= KEYRING_LAST) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_KEYRING);
         }
 
