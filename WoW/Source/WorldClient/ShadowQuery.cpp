@@ -214,7 +214,7 @@ void CShadowQuery::FrustumCallback(CFrustum& frustum, C44Matrix& matrix, const C
     CFrustum& cull = data.m_bandFrustums[band];
     cull = frustum;
 
-    if (data.m_queryFlags[band] == 8 || !g_shadowCull->m_intValue) {
+    if (data.m_queryFlags[band] == CShadowCacheQueryData::QUERY_STATIC || !g_shadowCull->m_intValue) {
         return;
     }
 
@@ -287,7 +287,7 @@ int32_t CShadowQuery::QueryCallback(CShadowCacheQueryData& data, uint32_t frame)
     CShadowQuery::GatherShadowCasters(data, 0, data.m_lastBand);
 
     if (data.m_useFrustum) {
-        if (flags & 0xC) {
+        if (flags & CShadowCacheQueryData::QUERY_WORLD_MASK) {
             CFrustum& frustum = data.m_frustums[data.m_lastBand];
             C3Vector center(0.0f, 0.0f, 0.0f);
             center.x = frustum.corners[0].x;
@@ -447,7 +447,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
     float minRadius[3];
     maxRadius[0] = 10000.0f;
 
-    if ((data.m_queryFlags[0] & 0xC) == 4) {
+    if ((data.m_queryFlags[0] & CShadowCacheQueryData::QUERY_WORLD_MASK) == CShadowCacheQueryData::QUERY_BILLBOARDED) {
         maxRadius[0] = 25.0f;
     }
 
@@ -480,14 +480,14 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             int32_t queryFlags = data.m_queryFlags[band];
             uint32_t flags;
 
-            if (queryFlags & 0x2) {
+            if (queryFlags & CShadowCacheQueryData::QUERY_INTERIOR) {
                 if (!isUnit) {
                     continue;
                 }
 
                 flags = entity->m_flags;
 
-                if (flags & 0x4) {
+                if (flags & MAPOBJ_FLAG_EXTERIOR) {
                     continue;
                 }
 
@@ -497,7 +497,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             } else {
                 flags = entity->m_flags;
 
-                if (flags & 0x2) {
+                if (flags & MAPOBJ_FLAG_INTERIOR) {
                     if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT)) {
                         continue;
                     }
@@ -511,11 +511,11 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             int32_t wanted;
 
             if (isUnit) {
-                wanted = queryFlags & 0x1;
+                wanted = queryFlags & CShadowCacheQueryData::QUERY_UNITS;
             } else if (doodad) {
-                wanted = queryFlags & 0x4;
+                wanted = queryFlags & CShadowCacheQueryData::QUERY_BILLBOARDED;
             } else {
-                wanted = queryFlags & 0x8;
+                wanted = queryFlags & CShadowCacheQueryData::QUERY_STATIC;
             }
 
             if (!wanted) {
@@ -560,7 +560,7 @@ void CShadowQuery::GetSize(CShadowCacheQueryData& data, int32_t band, float* min
     *maxSize = 10000.0f;
 
     if (band == 0) {
-        if ((data.m_queryFlags[0] & 0xC) == 4) {
+        if ((data.m_queryFlags[0] & CShadowCacheQueryData::QUERY_WORLD_MASK) == CShadowCacheQueryData::QUERY_BILLBOARDED) {
             *maxSize = 25.0f;
             *minSize = 0.25f;
             return;
@@ -641,7 +641,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
         int32_t castOther = 0;
 
         if (flags & 0x400) {
-            if (!(data.m_queryFlags[band] & 0x4)) {
+            if (!(data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_BILLBOARDED)) {
                 continue;
             }
 
@@ -652,11 +652,11 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
         } else {
             int32_t queryFlags = data.m_queryFlags[band];
 
-            if (queryFlags & 0x8) {
+            if (queryFlags & CShadowCacheQueryData::QUERY_STATIC) {
                 castOther = 1;
             }
 
-            if (queryFlags & 0x4) {
+            if (queryFlags & CShadowCacheQueryData::QUERY_BILLBOARDED) {
                 castDoodads = 1;
             }
         }
@@ -689,7 +689,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                 continue;
             }
 
-            if (interior ? (data.m_queryFlags[band] & 0x4) : (data.m_queryFlags[band] & 0x8)) {
+            if (interior ? (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_BILLBOARDED) : (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_STATIC)) {
                 ShadowQueryBuffers& buffers = CShadowQuery::s_bandBuffers[band];
 
                 if (buffers.m_groupCount >= 0x800) {
@@ -844,7 +844,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                     continue;
                 }
 
-                int32_t wanted = model->GetBillboardBoneCount() ? (data.m_queryFlags[band] & 0x4) : (data.m_queryFlags[band] & 0x8);
+                int32_t wanted = model->GetBillboardBoneCount() ? (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_BILLBOARDED) : (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_STATIC);
 
                 if (wanted && extents.Intersects(doodad->m_bbox) && data.m_bandFrustums[band].Cull(doodad->m_bbox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(doodad->m_bbox) != WorldCull_notOutside)) {
                     model->GatherModelBatchesShadowMap(CShadowQuery::s_bandBuffers[band].m_untextured, CShadowQuery::s_bandBuffers[band].m_textured);
@@ -909,7 +909,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
                         continue;
                     }
 
-                    if (!(doodadFlag ? (data.m_queryFlags[band] & 0x4) : (data.m_queryFlags[band] & 0x8))) {
+                    if (!(doodadFlag ? (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_BILLBOARDED) : (data.m_queryFlags[band] & CShadowCacheQueryData::QUERY_STATIC))) {
                         continue;
                     }
 

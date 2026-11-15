@@ -519,7 +519,7 @@ void CShadowCache::GatherBands(CShadowCacheQueryData& data, const C3Vector& pos,
                 data.m_useCullFrustum[i] = 0;
             }
 
-            data.m_queryFlags[i] = 8;
+            data.m_queryFlags[i] = CShadowCacheQueryData::QUERY_STATIC;
 
             float bounds[4];
             bounds[0] = data.m_bounds[i][0];
@@ -598,7 +598,7 @@ void CShadowCache::GatherBands(CShadowCacheQueryData& data, const C3Vector& pos,
                 data.m_cullFrustums[i] = frustum;
             }
 
-            data.m_queryFlags[i] = 13;
+            data.m_queryFlags[i] = CShadowCacheQueryData::QUERY_UNITS | CShadowCacheQueryData::QUERY_BILLBOARDED | CShadowCacheQueryData::QUERY_STATIC;
             frustum = data.m_frustums[i];
             frustum.InvertPlanes();
 
@@ -711,7 +711,7 @@ CShadowCacheQueryData::CShadowCacheQueryData() {
     }
 
     for (uint32_t i = 0; i < 3; i++) {
-        this->m_queryFlags[i] = 0;
+        this->m_queryFlags[i] = QUERY_NONE;
         this->m_active[i] = 0;
         this->m_useCullFrustum[i] = 0;
         this->m_textureIndex[i] = 0;
@@ -1008,7 +1008,7 @@ int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
         frame = CShadowCache::s_frameCounter;
     }
 
-    data.m_queryFlags[0] = 3;
+    data.m_queryFlags[0] = CShadowCacheQueryData::QUERY_UNITS | CShadowCacheQueryData::QUERY_INTERIOR;
     data.m_useFrustum = 0;
     CShadowCache::s_queryCallback(data, frame);
 
@@ -1023,12 +1023,12 @@ int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
     CShadowCache::s_renderCallback(data, 0, target, colorTarget, CShadowCache::s_extDynShadow.m_dir);
 
     if (useCullFrustum) {
-        data.m_queryFlags[0] = 1;
+        data.m_queryFlags[0] = CShadowCacheQueryData::QUERY_UNITS;
 
         if (mode > SHADOW_HIGH) {
-            data.m_queryFlags[0] = 13;
+            data.m_queryFlags[0] = CShadowCacheQueryData::QUERY_UNITS | CShadowCacheQueryData::QUERY_BILLBOARDED | CShadowCacheQueryData::QUERY_STATIC;
         } else if (mode > SHADOW_MEDIUM) {
-            data.m_queryFlags[0] = 5;
+            data.m_queryFlags[0] = CShadowCacheQueryData::QUERY_UNITS | CShadowCacheQueryData::QUERY_BILLBOARDED;
         }
 
         CShadowCache::s_queryCallback(data, frame);

@@ -34,7 +34,17 @@ struct CShadowBand {
 };
 
 struct CShadowCacheQueryData {
-    /* 0000 */ int32_t m_queryFlags[3];
+    // Caster classes CShadowQuery gathers for a band; names describe the 3.3.5 readers.
+    enum QUERY_FLAGS : int32_t {
+        QUERY_NONE = 0x0,
+        QUERY_UNITS = 0x1, // Unit entities (CMapBaseObj::Type_Entity models).
+        QUERY_INTERIOR = 0x2, // Interior pass: unit entities not flagged MAPOBJ_FLAG_EXTERIOR, below the cutoff height.
+        QUERY_BILLBOARDED = 0x4, // Doodads with billboard bones; also required by the 0x400 map object definition path.
+        QUERY_STATIC = 0x8, // Other doodads and entities, and exterior WMO groups.
+        QUERY_WORLD_MASK = QUERY_BILLBOARDED | QUERY_STATIC,
+    };
+
+    /* 0000 */ int32_t m_queryFlags[3]; // QUERY_FLAGS
     /* 000C */ int32_t m_active[3];
     /* 0018 */ int32_t m_useCullFrustum[3];
     /* 0024 */ CAaBox m_extents[3];
