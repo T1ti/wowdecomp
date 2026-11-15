@@ -1238,7 +1238,7 @@ int32_t CM2Shared::InitializeSkinProfile() {
             M2Batch* batches = this->m_skinData->m_batches.Data();
 
             if (batches[i].m_textureCount > 1) {
-                batches[i - batches[i].m_materialLayer].m_flags |= 0x40;
+                batches[i - batches[i].m_materialLayer].m_flags |= M2Batch::FLAGS::MULTI_SAMPLE_VERTICES;
             }
         }
 
@@ -1246,8 +1246,8 @@ int32_t CM2Shared::InitializeSkinProfile() {
             M2Batch* batches = this->m_skinData->m_batches.Data();
             uint16_t layer = batches[i].m_materialLayer;
 
-            if (layer && (batches[i - layer].m_flags & 0x40)) {
-                batches[i].m_flags |= 0x40;
+            if (layer && (batches[i - layer].m_flags & M2Batch::FLAGS::MULTI_SAMPLE_VERTICES)) {
+                batches[i].m_flags |= M2Batch::FLAGS::MULTI_SAMPLE_VERTICES;
             }
         }
     }

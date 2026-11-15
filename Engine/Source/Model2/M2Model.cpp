@@ -426,7 +426,7 @@ void CM2Model::UnlinkFromCallbackList() {
 int32_t CM2Model::IsBatchDoodadCompatible(M2Batch* batch) {
     uint32_t cacheFlags = M2GetCacheFlags();
 
-    if ((cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS) && (this->m_runtimeFlags & M2_FLAGS::M2_UNKNOWN_10) && (this->m_shared->m_data->m_bones.m_count > 1 || !(cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES)) && (batch->m_flags & 0x10)) {
+    if ((cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS) && (this->m_runtimeFlags & M2_FLAGS::M2_UNKNOWN_10) && (this->m_shared->m_data->m_bones.m_count > 1 || !(cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES)) && (batch->m_flags & M2Batch::FLAGS::DOODAD_BATCHABLE)) {
         CM2Lighting* lighting = this->m_currentLighting;
 
         if (!lighting || !lighting->m_lightCount) {
@@ -2883,7 +2883,7 @@ void CM2Model::RenderModelBatchesForProjectedTexture() {
     for (uint32_t i = 0; i < count; i++) {
         M2Batch* batch = &skin->m_batches[i];
 
-        if (!batch->m_materialLayer && !(batch->m_flags & 0x20)) {
+        if (!batch->m_materialLayer && !(batch->m_flags & M2Batch::FLAGS::NO_PROJECTED_TEXTURE_RECEIVE)) {
             M2SkinSection* section = &this->m_shared->m_skinSections[batch->m_skinSectionIndex];
 
             CGxBatch gxBatch;
@@ -7723,7 +7723,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
             }
         }
 
-        if (batch->m_shader == 0x8000 || (batch->m_flags & 4) || batch->m_materialLayer) {
+        if (batch->m_shader == 0x8000 || (batch->m_flags & M2Batch::FLAGS::PROJECTED_TEXTURE) || batch->m_materialLayer) {
             continue;
         }
 

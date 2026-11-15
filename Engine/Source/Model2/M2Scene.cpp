@@ -597,7 +597,7 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
     for (uint32_t i = 0; i < skinData->m_batches.m_count; i++) {
         M2Batch* batch = &skinData->m_batches[i];
 
-        if (batch->m_materialLayer || (batch->m_flags & 8)) {
+        if (batch->m_materialLayer || (batch->m_flags & M2Batch::FLAGS::NO_HIT_TEST)) {
             continue;
         }
 
@@ -1838,7 +1838,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             }
 
             M2Material* material = &data->m_materials[batch->m_materialIndex];
-            int32_t projected = (batch->m_flags & 4) && this->m_projectTextureCallback;
+            BOOL projected = (batch->m_flags & M2Batch::FLAGS::PROJECTED_TEXTURE) && this->m_projectTextureCallback;
             M2Material* baseMaterial = batch->m_materialLayer ? &data->m_materials[batch->m_materialIndex - batch->m_materialLayer] : material;
             int32_t transparent = baseMaterial->m_blendMode > M2BLEND_ALPHA_KEY || alpha < 0.99998999f;
             CShaderEffect* effect = optimized ? model->m_optGeo->m_effects[i] : model->m_shared->m_effects[i];
@@ -1893,7 +1893,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 const C44Matrix& bone = model->m_boneMatrices[section->m_centerBoneIndex];
                 float depth;
 
-                if (batch->m_flags & 3) {
+                if (batch->m_flags & M2Batch::FLAGS::SURFACE_SORT_MASK) {
                     C3Vector position = section->m_sortCenterPosition * bone;
                     C3Vector normal = position;
                     float lengthSq = position.x * position.x + position.z * position.z + position.y * position.y;
@@ -1907,7 +1907,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
                     float radius = sqrtf(bone.a2 * bone.a2 + bone.a1 * bone.a1 + bone.a0 * bone.a0) * section->m_sortRadius;
 
-                    if (batch->m_flags & 1) {
+                    if (batch->m_flags & M2Batch::FLAGS::SORT_NEAR_SURFACE) {
                         position.x = position.x - normal.x * radius;
                         position.y = position.y - normal.y * radius;
                         position.z = position.z - normal.z * radius;

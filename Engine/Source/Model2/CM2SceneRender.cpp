@@ -182,7 +182,7 @@ void CM2SceneRender::SetBatchVertices(int32_t sharedVertices) {
             this->m_curShared->SetVertices(env != 0);
         }
     } else if (this->m_curType != this->m_prevType || this->m_curModel != this->m_prevModel || this->m_curSkinSection != this->m_prevSkinSection || !sameEnv) {
-        if (this->m_curBatch->m_flags & 0x40) {
+        if (this->m_curBatch->m_flags & M2Batch::FLAGS::MULTI_SAMPLE_VERTICES) {
             this->m_curModel->SetVerticesMultiSample(this->m_curElement->m_flags & 4, this->m_curSkinSection);
         } else {
             this->m_curModel->SetVertices(this->m_curElement->m_flags & 4, this->m_curSkinSection, env != 0);

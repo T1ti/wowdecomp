@@ -365,6 +365,19 @@ class M2Particle {
 
 class M2Batch {
     public:
+    // File and runtime batch controls; keep the mutable byte carrier raw.
+    enum FLAGS : uint8_t {
+        NONE = 0,
+        SORT_NEAR_SURFACE = 1,
+        SORT_FAR_SURFACE = 2,
+        PROJECTED_TEXTURE = 4,
+        NO_HIT_TEST = 8,
+        DOODAD_BATCHABLE = 0x10,
+        NO_PROJECTED_TEXTURE_RECEIVE = 0x20,
+        SURFACE_SORT_MASK = 3,
+        MULTI_SAMPLE_VERTICES = 0x40,
+    };
+
     /* 0000 */ uint8_t m_flags;
     /* 0001 */ int8_t m_priorityPlane;
     /* 0002 */ uint16_t m_shader;
