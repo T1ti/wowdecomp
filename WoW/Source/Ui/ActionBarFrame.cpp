@@ -24,6 +24,7 @@
 #include "Engine/Source/Tempest/CMath.h"
 #include "WoW/Source/Ui/ScriptEvents.h"
 #include "WoW/Source/Ui/SpellBookFrame.h"
+#include "WoW/Source/DB/Rec/TotemCategoryRec.h"
 #include "WoW/Source/Ui/Types.h"
 #include "WoW/Source/Ui/UIBindings.h"
 #include "WoW/Source/Ui/UIMacros.h"
@@ -544,15 +545,15 @@ static int32_t GetMultiCastTotemCategory(int32_t slot) {
         return 0;
     }
 
-    switch ((slot - CGActionBar::MULTICAST_ACTION_FIRST) % 4) {
-        case 0:
-            return 4;
-        case 1:
-            return 2;
-        case 2:
-            return 5;
-        case 3:
-            return 3;
+    switch ((slot - CGActionBar::MULTICAST_ACTION_FIRST) % MAX_TOTEMS) {
+        case TOTEM_SLOT_FIRE:
+            return TOTEM_CATEGORY_FIRE_TOTEM;
+        case TOTEM_SLOT_EARTH:
+            return TOTEM_CATEGORY_EARTH_TOTEM;
+        case TOTEM_SLOT_WATER:
+            return TOTEM_CATEGORY_WATER_TOTEM;
+        case TOTEM_SLOT_AIR:
+            return TOTEM_CATEGORY_AIR_TOTEM;
     }
 
     return 0;
@@ -562,16 +563,16 @@ static int32_t GetMultiCastTotemCategory(int32_t slot) {
 // OFFSET: 0x005A7B50
 uint32_t CGActionBar::GetMultiCastSlotMaskForTotemCategory(int32_t category) {
     switch (category) {
-        case 2:
-            return 0x2;
-        case 3:
-            return 0x8;
-        case 4:
-            return 0x1;
-        case 5:
-            return 0x4;
-        case 21:
-            return 0xF;
+        case TOTEM_CATEGORY_EARTH_TOTEM:
+            return 1 << TOTEM_SLOT_EARTH;
+        case TOTEM_CATEGORY_AIR_TOTEM:
+            return 1 << TOTEM_SLOT_AIR;
+        case TOTEM_CATEGORY_FIRE_TOTEM:
+            return 1 << TOTEM_SLOT_FIRE;
+        case TOTEM_CATEGORY_WATER_TOTEM:
+            return 1 << TOTEM_SLOT_WATER;
+        case TOTEM_CATEGORY_MASTER_TOTEM:
+            return (1 << MAX_TOTEMS) - 1;
     }
 
     return 0;
@@ -1287,7 +1288,7 @@ void CGActionBar::UpdateMultiCastBar() {
             } else if (totems && totems->m_count) {
                 int32_t spellId = totems->m_data[0];
 
-                for (int32_t slot = i + CGActionBar::MULTICAST_ACTION_FIRST; slot < static_cast<int32_t>(sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])); slot += 4) {
+                for (int32_t slot = i + CGActionBar::MULTICAST_ACTION_FIRST; slot < static_cast<int32_t>(sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])); slot += MAX_TOTEMS) {
                     if (!CGActionBar::HasAction(slot)) {
                         CGActionBar::SetAction(slot, spellId, 1, 1);
                     }

@@ -6,6 +6,15 @@
 
 class SFileImpl;
 
+// TotemCategory.dbc row IDs the client hardcodes; names inferred from the 3.3.5 row names.
+enum TOTEM_CATEGORY_ID : int32_t {
+    TOTEM_CATEGORY_EARTH_TOTEM = 2,
+    TOTEM_CATEGORY_AIR_TOTEM = 3,
+    TOTEM_CATEGORY_FIRE_TOTEM = 4,
+    TOTEM_CATEGORY_WATER_TOTEM = 5,
+    TOTEM_CATEGORY_MASTER_TOTEM = 21,
+};
+
 class TotemCategoryRec {
     public:
     static const int32_t s_numColumns = 20;
