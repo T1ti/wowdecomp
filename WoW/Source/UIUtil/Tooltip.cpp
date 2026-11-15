@@ -213,31 +213,31 @@ static const char* s_colorStrings[4] = { "|cffffffff", "|cff808080", "|cffff2020
 const char* s_inventoryTypeTokens[INVTYPE_COUNT] = { "", "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_BODY", "INVTYPE_CHEST", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET", "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_RANGED", "INVTYPE_CLOAK", "INVTYPE_2HWEAPON", "INVTYPE_BAG", "INVTYPE_TABARD", "INVTYPE_ROBE", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_AMMO", "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_QUIVER", "INVTYPE_RELIC" };
 
 // STATIC: 0x00AD6640
-const char* s_itemModTokens[49] = { "ITEM_MOD_MANA", "ITEM_MOD_HEALTH", "", "ITEM_MOD_AGILITY", "ITEM_MOD_STRENGTH", "ITEM_MOD_INTELLECT", "ITEM_MOD_SPIRIT", "ITEM_MOD_STAMINA", "", "", "", "", "ITEM_MOD_DEFENSE_SKILL_RATING", "ITEM_MOD_DODGE_RATING", "ITEM_MOD_PARRY_RATING", "ITEM_MOD_BLOCK_RATING", "ITEM_MOD_HIT_MELEE_RATING", "ITEM_MOD_HIT_RANGED_RATING", "ITEM_MOD_HIT_SPELL_RATING", "ITEM_MOD_CRIT_MELEE_RATING", "ITEM_MOD_CRIT_RANGED_RATING", "ITEM_MOD_CRIT_SPELL_RATING", "ITEM_MOD_HIT_TAKEN_MELEE_RATING", "ITEM_MOD_HIT_TAKEN_RANGED_RATING", "ITEM_MOD_HIT_TAKEN_SPELL_RATING", "ITEM_MOD_CRIT_TAKEN_MELEE_RATING", "ITEM_MOD_CRIT_TAKEN_RANGED_RATING", "ITEM_MOD_CRIT_TAKEN_SPELL_RATING", "ITEM_MOD_HASTE_MELEE_RATING", "ITEM_MOD_HASTE_RANGED_RATING", "ITEM_MOD_HASTE_SPELL_RATING", "ITEM_MOD_HIT_RATING", "ITEM_MOD_CRIT_RATING", "ITEM_MOD_HIT_TAKEN_RATING", "ITEM_MOD_CRIT_TAKEN_RATING", "ITEM_MOD_RESILIENCE_RATING", "ITEM_MOD_HASTE_RATING", "ITEM_MOD_EXPERTISE_RATING", "ITEM_MOD_ATTACK_POWER", "ITEM_MOD_RANGED_ATTACK_POWER", "", "ITEM_MOD_SPELL_HEALING_DONE", "ITEM_MOD_SPELL_DAMAGE_DONE", "ITEM_MOD_MANA_REGENERATION", "ITEM_MOD_ARMOR_PENETRATION_RATING", "ITEM_MOD_SPELL_POWER", "ITEM_MOD_HEALTH_REGEN", "ITEM_MOD_SPELL_PENETRATION", "ITEM_MOD_BLOCK_VALUE" };
+const char* s_itemModTokens[NUM_ITEM_MOD_TYPES] = { "ITEM_MOD_MANA", "ITEM_MOD_HEALTH", "", "ITEM_MOD_AGILITY", "ITEM_MOD_STRENGTH", "ITEM_MOD_INTELLECT", "ITEM_MOD_SPIRIT", "ITEM_MOD_STAMINA", "", "", "", "", "ITEM_MOD_DEFENSE_SKILL_RATING", "ITEM_MOD_DODGE_RATING", "ITEM_MOD_PARRY_RATING", "ITEM_MOD_BLOCK_RATING", "ITEM_MOD_HIT_MELEE_RATING", "ITEM_MOD_HIT_RANGED_RATING", "ITEM_MOD_HIT_SPELL_RATING", "ITEM_MOD_CRIT_MELEE_RATING", "ITEM_MOD_CRIT_RANGED_RATING", "ITEM_MOD_CRIT_SPELL_RATING", "ITEM_MOD_HIT_TAKEN_MELEE_RATING", "ITEM_MOD_HIT_TAKEN_RANGED_RATING", "ITEM_MOD_HIT_TAKEN_SPELL_RATING", "ITEM_MOD_CRIT_TAKEN_MELEE_RATING", "ITEM_MOD_CRIT_TAKEN_RANGED_RATING", "ITEM_MOD_CRIT_TAKEN_SPELL_RATING", "ITEM_MOD_HASTE_MELEE_RATING", "ITEM_MOD_HASTE_RANGED_RATING", "ITEM_MOD_HASTE_SPELL_RATING", "ITEM_MOD_HIT_RATING", "ITEM_MOD_CRIT_RATING", "ITEM_MOD_HIT_TAKEN_RATING", "ITEM_MOD_CRIT_TAKEN_RATING", "ITEM_MOD_RESILIENCE_RATING", "ITEM_MOD_HASTE_RATING", "ITEM_MOD_EXPERTISE_RATING", "ITEM_MOD_ATTACK_POWER", "ITEM_MOD_RANGED_ATTACK_POWER", "", "ITEM_MOD_SPELL_HEALING_DONE", "ITEM_MOD_SPELL_DAMAGE_DONE", "ITEM_MOD_MANA_REGENERATION", "ITEM_MOD_ARMOR_PENETRATION_RATING", "ITEM_MOD_SPELL_POWER", "ITEM_MOD_HEALTH_REGEN", "ITEM_MOD_SPELL_PENETRATION", "ITEM_MOD_BLOCK_VALUE" };
 
 // STATIC: 0x00A248F8
-static const int32_t s_attackPowerGroup[3] = { 8, 9, 54 };
+static const int32_t s_attackPowerGroup[3] = { STAT_SUMMARY_MELEE_ATTACK_POWER, STAT_SUMMARY_RANGED_ATTACK_POWER, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_MANA_REGENERATION };
 
 // STATIC: 0x00A24900
-static const int32_t s_manaRegenGroup[3] = { 54, 39, 40 };
+static const int32_t s_manaRegenGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_MANA_REGENERATION, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_RANGED_RATING };
 
 // STATIC: 0x00A24904
-static const int32_t s_hasteRatingGroup[3] = { 39, 40, 41 };
+static const int32_t s_hasteRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_RANGED_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_SPELL_RATING };
 
 // STATIC: 0x00A24910
-static const int32_t s_critTakenRatingGroup[3] = { 36, 37, 38 };
+static const int32_t s_critTakenRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_TAKEN_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_TAKEN_RANGED_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_TAKEN_SPELL_RATING };
 
 // STATIC: 0x00A2491C
-static const int32_t s_hitTakenRatingGroup[3] = { 33, 34, 35 };
+static const int32_t s_hitTakenRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_TAKEN_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_TAKEN_RANGED_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_TAKEN_SPELL_RATING };
 
 // STATIC: 0x00A24928
-static const int32_t s_critRatingGroup[3] = { 30, 31, 32 };
+static const int32_t s_critRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_RANGED_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_SPELL_RATING };
 
 // STATIC: 0x00A24934
-static const int32_t s_hitRatingGroup[3] = { 27, 28, 29 };
+static const int32_t s_hitRatingGroup[3] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_MELEE_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_RANGED_RATING, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_SPELL_RATING };
 
 // STATIC: 0x00A24940
-static const int32_t s_spellPowerGroup[2] = { 53, 52 };
+static const int32_t s_spellPowerGroup[2] = { STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_DAMAGE_DONE, STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_HEALING_DONE };
 
 // STATIC: 0x00AD2DC8
 static const int32_t s_combatRatingStats[25] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, -1, -1, -1, 37, 44 };
@@ -318,7 +318,7 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
 
         switch (spell->m_effectAura[i]) {
             case SPELL_AURA_MOD_DAMAGE_DONE:
-                this->m_stats[53] += value;
+                this->m_stats[STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_DAMAGE_DONE] += value;
                 break;
 
             case SPELL_AURA_MOD_RESISTANCE:
@@ -331,41 +331,41 @@ void CGItemStatsSummary::AddSpellEffects(const SpellRec* spell) {
                 break;
 
             case SPELL_AURA_MOD_POWER_REGEN:
-                this->m_stats[misc + 61] += value;
+                this->m_stats[STAT_SUMMARY_POWER_REGEN + misc] += value;
                 break;
 
             case SPELL_AURA_MOD_ATTACK_POWER:
-                this->m_stats[8] += value;
+                this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] += value;
                 break;
 
             case SPELL_AURA_MOD_TARGET_RESISTANCE:
-                this->m_stats[58] += -1 - spell->m_effectBasePoints[i];
+                this->m_stats[STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_PENETRATION] += -1 - spell->m_effectBasePoints[i];
                 break;
 
             case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-                this->m_stats[9] += value;
+                this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += value;
                 break;
 
             case SPELL_AURA_MOD_HEALING_DONE:
-                this->m_stats[52] += value;
+                this->m_stats[STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_HEALING_DONE] += value;
                 break;
 
             case SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT:
-                this->m_stats[26] += value;
+                this->m_stats[STAT_SUMMARY_ITEM_MOD + ITEM_MOD_BLOCK_RATING] += value;
                 break;
 
             case SPELL_AURA_MOD_SHIELD_BLOCKVALUE:
-                this->m_stats[60] += value;
+                this->m_stats[STAT_SUMMARY_BLOCK_VALUE] += value;
                 break;
 
             case SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT:
-                this->m_stats[68] += value;
+                this->m_stats[STAT_SUMMARY_HEALTH_REGEN] += value;
                 break;
 
             case SPELL_AURA_MOD_RATING:
                 for (int32_t r = 0; r < 25; r++) {
                     if ((misc & (1 << r)) && s_combatRatingStats[r] != -1) {
-                        this->m_stats[s_combatRatingStats[r] + 11] += value;
+                        this->m_stats[STAT_SUMMARY_ITEM_MOD + s_combatRatingStats[r]] += value;
                     }
                 }
 
@@ -396,19 +396,19 @@ void CGItemStatsSummary::GetSocketFlags(const ItemStats_C* stats) {
         uint32_t color = stats->m_socketColor[i];
 
         if (color & 0x1) {
-            this->m_stats[69]++;
+            this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_META]++;
         }
 
         if (color & 0x2) {
-            this->m_stats[70]++;
+            this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_RED]++;
         }
 
         if (color & 0x4) {
-            this->m_stats[71]++;
+            this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_YELLOW]++;
         }
 
         if (color & 0x8) {
-            this->m_stats[72]++;
+            this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_BLUE]++;
         }
     }
 }
@@ -421,13 +421,13 @@ void CGItemStatsSummary::AddStatMods(const ItemStats_C* stats) {
     for (int32_t i = 0; i < stats->m_statsCount; i++) {
         uint32_t type = stats->m_statType[i];
         int32_t value = stats->m_statValue[i];
-        this->m_stats[type + 11] += value;
+        this->m_stats[STAT_SUMMARY_ITEM_MOD + type] += value;
 
-        if (type == 38) {
-            this->m_stats[8] += value;
-            this->m_stats[9] += value;
-        } else if (type == 39) {
-            this->m_stats[9] += value;
+        if (type == ITEM_MOD_ATTACK_POWER) {
+            this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] += value;
+            this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += value;
+        } else if (type == ITEM_MOD_RANGED_ATTACK_POWER) {
+            this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += value;
         }
     }
 }
@@ -458,68 +458,68 @@ void CGItemStatsSummary::MakeStatNamesPretty(int32_t stat, const int32_t* group,
 // VERIFY: 7fc47552 auto
 // OFFSET: 0x0061BA90
 void CGItemStatsSummary::CleanStatNames() {
-    if (this->m_stats[8] == this->m_stats[10]) {
-        this->m_stats[10] = 0;
+    if (this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] == this->m_stats[STAT_SUMMARY_FERAL_ATTACK_POWER]) {
+        this->m_stats[STAT_SUMMARY_FERAL_ATTACK_POWER] = 0;
     }
 
-    this->MakeStatNamesPretty(56, s_spellPowerGroup, 2, 1);
-    this->MakeStatNamesPretty(42, s_hitRatingGroup, 3, 1);
-    this->MakeStatNamesPretty(43, s_critRatingGroup, 3, 1);
-    this->MakeStatNamesPretty(44, s_hitTakenRatingGroup, 3, 1);
-    this->MakeStatNamesPretty(45, s_critTakenRatingGroup, 3, 1);
-    this->MakeStatNamesPretty(47, s_hasteRatingGroup, 3, 1);
-    this->MakeStatNamesPretty(61, s_manaRegenGroup, 1, 1);
-    this->MakeStatNamesPretty(7, s_attackPowerGroup, 2, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_POWER, s_spellPowerGroup, 2, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_RATING, s_hitRatingGroup, 3, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_RATING, s_critRatingGroup, 3, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HIT_TAKEN_RATING, s_hitTakenRatingGroup, 3, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_CRIT_TAKEN_RATING, s_critTakenRatingGroup, 3, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ITEM_MOD + ITEM_MOD_HASTE_RATING, s_hasteRatingGroup, 3, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_POWER_REGEN, s_manaRegenGroup, 1, 1);
+    this->MakeStatNamesPretty(STAT_SUMMARY_ATTACK_POWER, s_attackPowerGroup, 2, 1);
 }
 
 // VERIFY: e5cf160b auto
 // OFFSET: 0x0061BB20
 char* CGItem_C::GetStatName(uint32_t stat, char* buffer, int32_t size) {
-    if (stat >= 11 && stat <= 59) {
-        SStrPrintf(buffer, size, "%s%s", s_itemModTokens[stat - 11], "_SHORT");
+    if (stat >= STAT_SUMMARY_ITEM_MOD && stat < STAT_SUMMARY_BLOCK_VALUE) {
+        SStrPrintf(buffer, size, "%s%s", s_itemModTokens[stat - STAT_SUMMARY_ITEM_MOD], "_SHORT");
         return buffer;
     }
 
-    if (stat < 7) {
+    if (stat < STAT_SUMMARY_ATTACK_POWER) {
         SStrPrintf(buffer, size, "%s%d%s", "RESISTANCE", stat, "_NAME");
         return buffer;
     }
 
-    if (stat >= 69 && stat <= 72) {
+    if (stat >= STAT_SUMMARY_EMPTY_SOCKET_META && stat <= STAT_SUMMARY_EMPTY_SOCKET_BLUE) {
         char color[64];
-        SStrCopy(color, s_socketColorNames[stat - 69], sizeof(color));
+        SStrCopy(color, s_socketColorNames[stat - STAT_SUMMARY_EMPTY_SOCKET_META], sizeof(color));
         SStrUpper(color);
         SStrPrintf(buffer, size, "%s%s", "EMPTY_SOCKET_", color);
         return buffer;
     }
 
-    if (stat >= 61 && stat <= 67) {
-        SStrPrintf(buffer, size, "%s%d%s", "ITEM_MOD_POWER_REGEN", stat - 61, "_SHORT");
+    if (stat >= STAT_SUMMARY_POWER_REGEN && stat < STAT_SUMMARY_HEALTH_REGEN) {
+        SStrPrintf(buffer, size, "%s%d%s", "ITEM_MOD_POWER_REGEN", stat - STAT_SUMMARY_POWER_REGEN, "_SHORT");
         return buffer;
     }
 
     switch (stat) {
-        case 7:
+        case STAT_SUMMARY_ATTACK_POWER:
             SStrCopy(buffer, "ITEM_MOD_ATTACK_POWER_SHORT", size);
             break;
 
-        case 8:
+        case STAT_SUMMARY_MELEE_ATTACK_POWER:
             SStrCopy(buffer, "ITEM_MOD_MELEE_ATTACK_POWER_SHORT", size);
             break;
 
-        case 9:
+        case STAT_SUMMARY_RANGED_ATTACK_POWER:
             SStrCopy(buffer, "ITEM_MOD_RANGED_ATTACK_POWER_SHORT", size);
             break;
 
-        case 10:
+        case STAT_SUMMARY_FERAL_ATTACK_POWER:
             SStrCopy(buffer, "ITEM_MOD_FERAL_ATTACK_POWER_SHORT", size);
             break;
 
-        case 60:
+        case STAT_SUMMARY_BLOCK_VALUE:
             SStrCopy(buffer, "ITEM_MOD_BLOCK_VALUE_SHORT", size);
             break;
 
-        case 68:
+        case STAT_SUMMARY_HEALTH_REGEN:
             SStrCopy(buffer, "ITEM_MOD_HEALTH_REGEN_SHORT", size);
             break;
 
@@ -1232,13 +1232,13 @@ void CGItemStatsSummary::AddEnchantEffect(ITEM_ENCHANTMENT_EFFECT type, int32_t 
             break;
 
         case ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_STAT:
-            this->m_stats[arg + 11] += amount;
+            this->m_stats[STAT_SUMMARY_ITEM_MOD + arg] += amount;
 
-            if (arg == 38) {
-                this->m_stats[8] += amount;
-                this->m_stats[9] += amount;
-            } else if (arg == 39) {
-                this->m_stats[9] += amount;
+            if (arg == ITEM_MOD_ATTACK_POWER) {
+                this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] += amount;
+                this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += amount;
+            } else if (arg == ITEM_MOD_RANGED_ATTACK_POWER) {
+                this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += amount;
             }
 
             break;
@@ -1274,7 +1274,7 @@ void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player && player->m_unit->m_classID == CLASS_DRUID) {
-        this->m_stats[10] += this->m_stats[8] + GetFeralAttackPower(stats, mainAverage + offAverage);
+        this->m_stats[STAT_SUMMARY_FERAL_ATTACK_POWER] += this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] + GetFeralAttackPower(stats, mainAverage + offAverage);
     }
 }
 
@@ -1291,7 +1291,7 @@ void CGItemStatsSummary::AccumulateStats(const ItemStats_C* stats) {
 
     this->GetSocketFlags(stats);
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_BLOCK;
-    this->m_stats[60] += stats->m_block;
+    this->m_stats[STAT_SUMMARY_BLOCK_VALUE] += stats->m_block;
     this->AccumulateDpsStat(stats);
 }
 
@@ -1324,13 +1324,13 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
             }
 
             int32_t value = budget * distribution->m_bonus[i] / 10000;
-            this->m_stats[type + 11] += value;
+            this->m_stats[STAT_SUMMARY_ITEM_MOD + type] += value;
 
-            if (type == 38) {
-                this->m_stats[8] += value;
-                this->m_stats[9] += value;
-            } else if (type == 39) {
-                this->m_stats[9] += value;
+            if (type == ITEM_MOD_ATTACK_POWER) {
+                this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] += value;
+                this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += value;
+            } else if (type == ITEM_MOD_RANGED_ATTACK_POWER) {
+                this->m_stats[STAT_SUMMARY_RANGED_ATTACK_POWER] += value;
             }
         }
     } else {
@@ -1338,7 +1338,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
     }
 
     if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::ARMOR_MASK) {
-        this->m_stats[0] += GetScalingStatArmor(values, stats->m_scalingStatValue);
+        this->m_stats[STAT_SUMMARY_RESISTANCE] += GetScalingStatArmor(values, stats->m_scalingStatValue);
     } else {
         this->AddResistances(stats);
     }
@@ -1353,14 +1353,14 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
         if (player && player->m_unit->m_classID == CLASS_DRUID) {
-            this->m_stats[10] += this->m_stats[8] + GetFeralAttackPower(stats, damage);
+            this->m_stats[STAT_SUMMARY_FERAL_ATTACK_POWER] += this->m_stats[STAT_SUMMARY_MELEE_ATTACK_POWER] + GetFeralAttackPower(stats, damage);
         }
     } else {
         this->AccumulateDpsStat(stats);
     }
 
     if (stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::SPELL_POWER) {
-        this->m_stats[56] += values->m_spellPower;
+        this->m_stats[STAT_SUMMARY_ITEM_MOD + ITEM_MOD_SPELL_POWER] += values->m_spellPower;
     }
 }
 
@@ -6934,21 +6934,21 @@ int32_t CGTooltip::SetItemDelta(const CGItemStatsSummary* summary, int32_t appen
         this->AddLine(text, nullptr, textColor, textColor, 0);
     }
 
-    for (uint32_t i = 0; i < 73; i++) {
-        if (i < 69 && i != 49 && i != 50) {
+    for (uint32_t i = 0; i < NUM_STAT_SUMMARY; i++) {
+        if (i < STAT_SUMMARY_EMPTY_SOCKET_META && i != STAT_SUMMARY_ITEM_MOD + ITEM_MOD_ATTACK_POWER && i != STAT_SUMMARY_ITEM_MOD + ITEM_MOD_RANGED_ATTACK_POWER) {
             this->AddColoredItemStat(summary->m_stats[i], FrameScript_GetText(CGItem_C::GetStatName(i, text, sizeof(text)), -1, GENDER_NOT_APPLICABLE), &first);
         }
     }
 
     char name[1024];
 
-    for (uint32_t i = 69; i < 73; i++) {
+    for (uint32_t i = STAT_SUMMARY_EMPTY_SOCKET_META; i < NUM_STAT_SUMMARY; i++) {
         if (!summary->m_stats[i]) {
             continue;
         }
 
         const char* label = FrameScript_GetText(CGItem_C::GetStatName(i, name, sizeof(name)), -1, GENDER_NOT_APPLICABLE);
-        SStrPrintf(text, sizeof(text), "|TInterface\\ItemSocketingFrame\\UI-EmptySocket-%s.blp:12|t  %s", s_socketColorNames[i - 69], label);
+        SStrPrintf(text, sizeof(text), "|TInterface\\ItemSocketingFrame\\UI-EmptySocket-%s.blp:12|t  %s", s_socketColorNames[i - STAT_SUMMARY_EMPTY_SOCKET_META], label);
         this->AddColoredItemStat(summary->m_stats[i], text, &first);
     }
 
@@ -7067,7 +7067,7 @@ CGItemStatsSummary CGItemStatsSummary::operator-(const CGItemStatsSummary& other
     result.m_dps = 0.0f;
     result.m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
 
-    for (uint32_t i = 0; i < 73; i++) {
+    for (uint32_t i = 0; i < NUM_STAT_SUMMARY; i++) {
         result.m_stats[i] = this->m_stats[i] - other.m_stats[i];
     }
 

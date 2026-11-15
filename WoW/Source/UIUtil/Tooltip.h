@@ -247,6 +247,78 @@ class CGTooltip : public CSimpleFrame {
     int32_t SetItem(int32_t itemId, const WOWGUID* requester, const WOWGUID* itemGuid, int32_t nameOnly, int32_t compare, int32_t useLinkInfo, int32_t append, WOWGUID owner, int32_t socketPreview, FILE* stream, int32_t hideCharges, const ItemLinkInfo* link, int32_t minimumLevel, int32_t skipLock, int32_t skipSellPrice);
 };
 
+// Item stat (mod) types; names are the s_itemModTokens strings, gaps are unnamed slots.
+enum ITEM_MOD_TYPE : int32_t {
+    ITEM_MOD_MANA = 0,
+    ITEM_MOD_HEALTH = 1,
+    ITEM_MOD_UNKNOWN_2 = 2,
+    ITEM_MOD_AGILITY = 3,
+    ITEM_MOD_STRENGTH = 4,
+    ITEM_MOD_INTELLECT = 5,
+    ITEM_MOD_SPIRIT = 6,
+    ITEM_MOD_STAMINA = 7,
+    ITEM_MOD_UNKNOWN_8 = 8,
+    ITEM_MOD_UNKNOWN_9 = 9,
+    ITEM_MOD_UNKNOWN_10 = 10,
+    ITEM_MOD_UNKNOWN_11 = 11,
+    ITEM_MOD_DEFENSE_SKILL_RATING = 12,
+    ITEM_MOD_DODGE_RATING = 13,
+    ITEM_MOD_PARRY_RATING = 14,
+    ITEM_MOD_BLOCK_RATING = 15,
+    ITEM_MOD_HIT_MELEE_RATING = 16,
+    ITEM_MOD_HIT_RANGED_RATING = 17,
+    ITEM_MOD_HIT_SPELL_RATING = 18,
+    ITEM_MOD_CRIT_MELEE_RATING = 19,
+    ITEM_MOD_CRIT_RANGED_RATING = 20,
+    ITEM_MOD_CRIT_SPELL_RATING = 21,
+    ITEM_MOD_HIT_TAKEN_MELEE_RATING = 22,
+    ITEM_MOD_HIT_TAKEN_RANGED_RATING = 23,
+    ITEM_MOD_HIT_TAKEN_SPELL_RATING = 24,
+    ITEM_MOD_CRIT_TAKEN_MELEE_RATING = 25,
+    ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26,
+    ITEM_MOD_CRIT_TAKEN_SPELL_RATING = 27,
+    ITEM_MOD_HASTE_MELEE_RATING = 28,
+    ITEM_MOD_HASTE_RANGED_RATING = 29,
+    ITEM_MOD_HASTE_SPELL_RATING = 30,
+    ITEM_MOD_HIT_RATING = 31,
+    ITEM_MOD_CRIT_RATING = 32,
+    ITEM_MOD_HIT_TAKEN_RATING = 33,
+    ITEM_MOD_CRIT_TAKEN_RATING = 34,
+    ITEM_MOD_RESILIENCE_RATING = 35,
+    ITEM_MOD_HASTE_RATING = 36,
+    ITEM_MOD_EXPERTISE_RATING = 37,
+    ITEM_MOD_ATTACK_POWER = 38,
+    ITEM_MOD_RANGED_ATTACK_POWER = 39,
+    ITEM_MOD_UNKNOWN_40 = 40,
+    ITEM_MOD_SPELL_HEALING_DONE = 41,
+    ITEM_MOD_SPELL_DAMAGE_DONE = 42,
+    ITEM_MOD_MANA_REGENERATION = 43,
+    ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
+    ITEM_MOD_SPELL_POWER = 45,
+    ITEM_MOD_HEALTH_REGEN = 46,
+    ITEM_MOD_SPELL_PENETRATION = 47,
+    ITEM_MOD_BLOCK_VALUE = 48,
+    NUM_ITEM_MOD_TYPES = 49,
+};
+
+// CGItemStatsSummary::m_stats indices; names follow the tokens CGItem_C::GetStatName builds for each range.
+enum ITEM_STAT_SUMMARY : int32_t {
+    STAT_SUMMARY_RESISTANCE = 0, // 0..6: RESISTANCE<n>_NAME; 0 is armor.
+    STAT_SUMMARY_ATTACK_POWER = 7,
+    STAT_SUMMARY_MELEE_ATTACK_POWER = 8,
+    STAT_SUMMARY_RANGED_ATTACK_POWER = 9,
+    STAT_SUMMARY_FERAL_ATTACK_POWER = 10,
+    STAT_SUMMARY_ITEM_MOD = 11, // 11..59: STAT_SUMMARY_ITEM_MOD + ITEM_MOD_TYPE.
+    STAT_SUMMARY_BLOCK_VALUE = 60,
+    STAT_SUMMARY_POWER_REGEN = 61, // 61..67: ITEM_MOD_POWER_REGEN<n>_SHORT by power type.
+    STAT_SUMMARY_HEALTH_REGEN = 68,
+    STAT_SUMMARY_EMPTY_SOCKET_META = 69, // 69..72 follow s_socketColorNames.
+    STAT_SUMMARY_EMPTY_SOCKET_RED = 70,
+    STAT_SUMMARY_EMPTY_SOCKET_YELLOW = 71,
+    STAT_SUMMARY_EMPTY_SOCKET_BLUE = 72,
+    NUM_STAT_SUMMARY = 73,
+};
+
 class CGItemStatsSummary {
     public:
     enum SUMMARY_FLAGS : uint32_t {
@@ -264,7 +336,7 @@ class CGItemStatsSummary {
     static int32_t GetItemComparison(CGTooltip* first, CGTooltip* second, CGItemStatsSummary* result);
 
     /* 0000 */ float m_dps;
-    /* 0004 */ int32_t m_stats[73];
+    /* 0004 */ int32_t m_stats[NUM_STAT_SUMMARY];
     /* 0128 */ uint32_t m_flags;
 
     CGItemStatsSummary();
@@ -311,6 +383,6 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
 int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info);
 
 extern const char* s_socketColorNames[5];
-extern const char* s_itemModTokens[49];
+extern const char* s_itemModTokens[NUM_ITEM_MOD_TYPES];
 
 #endif
