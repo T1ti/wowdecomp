@@ -506,7 +506,7 @@ int32_t Grunt::ClientLink::CmdRealmList(CDataStore& msg) {
         msg.Get(timeZone);
         msg.Get(realmId);
 
-        if (flags & 0x4) {
+        if (flags & REALM_FLAG_SPECIFY_BUILD) {
             uint8_t versionMajor;
             uint8_t versionMinor;
             uint8_t versionRevision;

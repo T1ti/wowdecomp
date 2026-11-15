@@ -1167,7 +1167,7 @@ bool ClientServices::SetSelectedRealmInfo(int32_t force) {
         REALM_INFO* realm = &response->m_realmList.m_data[i];
 
         if (!SStrCmpUTF8I(realm->m_realmName, ClientServices::GetSelectedRealmName(), STORM_MAX_STR)) {
-            if (!(realm->m_flags & 0x1) || force) {
+            if (!(realm->m_flags & REALM_FLAG_INVALID) || force) {
                 ClientServices::m_selectRealmInfoValid = true;
                 memcpy(&ClientServices::m_selectRealmInfo, realm, sizeof(ClientServices::m_selectRealmInfo));
                 return true;

@@ -154,6 +154,13 @@ struct CHARACTER_CREATE_INFO {
     /* 0038 */ uint8_t m_outfitID;
 };
 
+// Account flags from the legacy (Grunt) and Battle.net logon; raw protocol words stay unchanged.
+enum ACCOUNT_FLAGS : int32_t {
+    ACCOUNT_GAME_MASTER = 0x1,
+    ACCOUNT_TRIAL = 0x8,
+    ACCOUNT_PRO_PASS = 0x800000,
+};
+
 // Realm list flags; names follow the GetRealmInfo returns (invalid, realmDown, load, version).
 enum REALM_FLAGS : uint8_t {
     REALM_FLAG_NONE = 0x00,
