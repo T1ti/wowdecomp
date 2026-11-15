@@ -338,7 +338,7 @@ bool CGUnit_C::GetWeaponSwingType(bool offhand, WEAPONSWING_SOUNDTYPES* swingTyp
     const ItemSubClassRec* subClass = SDBItemSubclassGetSubClassRec(ITEM_CLASS::ITEM_CLASS_WEAPON, item->m_subclassID);
 
     if (subClass) {
-        *swingType = static_cast<WEAPONSWING_SOUNDTYPES>(subClass->m_weaponSwingSize);
+        *swingType = subClass->m_weaponSwingSize;
     }
 
     return subClass != nullptr;

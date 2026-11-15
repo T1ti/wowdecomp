@@ -5,6 +5,7 @@
 #include <cstdint>
 
 class SFileImpl;
+enum WEAPONSWING_SOUNDTYPES : int32_t;
 enum ITEM_CLASS : int32_t;
 
 // Descriptive ItemSubClass.dbc flags from native ammunition and auction checks.
@@ -36,7 +37,7 @@ class ItemSubClassRec {
     /* 0018 */ int32_t m_weaponParrySeq;
     /* 001C */ int32_t m_weaponReadySeq;
     /* 0020 */ int32_t m_weaponAttackSeq;
-    /* 0024 */ int32_t m_weaponSwingSize;
+    /* 0024 */ WEAPONSWING_SOUNDTYPES m_weaponSwingSize;
     /* 0028 */ const char* m_displayName;
     /* 002C */ const char* m_verboseName;
     /* 0030 */ int32_t m_generatedID;
