@@ -4981,7 +4981,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
 // VERIFY: 2a2301d1 auto
 // OFFSET: 0x00509780
 void CGChat::LoadChatSettings() {
-    LoadAccountData(7, CGChat::LoadChatSettingsCallback, nullptr);
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_CHAT, CGChat::LoadChatSettingsCallback, nullptr);
 }
 
 // VERIFY: 024941a0 auto
@@ -5399,7 +5399,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 // OFFSET: 0x004FFDA0
 void CGChat::SaveChatSettings() {
     s_chatSettingsDirty = 0;
-    SaveAccountData(7, CGChat::SaveChatSettingsCallback, nullptr);
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_CHAT, CGChat::SaveChatSettingsCallback, nullptr);
 }
 
 // VERIFY: 13cd8cd3 auto

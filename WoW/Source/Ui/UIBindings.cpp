@@ -498,8 +498,8 @@ void CGUIBindings::LoadBindings() {
     }
 
     s_loadPendingMask = 6;
-    LoadAccountData(2, CGUIBindings::LoadBindingsCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((s_initRound << 16) | BINDING_SET_ACCOUNT)));
-    LoadAccountData(3, CGUIBindings::LoadBindingsCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((s_initRound << 16) | BINDING_SET_CHARACTER)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_BINDINGS, CGUIBindings::LoadBindingsCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((s_initRound << 16) | BINDING_SET_ACCOUNT)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_BINDINGS, CGUIBindings::LoadBindingsCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((s_initRound << 16) | BINDING_SET_CHARACTER)));
 }
 
 // VERIFY: f3c499e6 auto
@@ -643,10 +643,10 @@ void CGUIBindings::SaveBindings() {
     }
 
     if (CGUIBindings::s_bindings->m_dirtySets & (1 << BINDING_SET_ACCOUNT)) {
-        SaveAccountData(2, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_ACCOUNT));
-        SaveAccountData(3, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
+        SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_ACCOUNT));
+        SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
     } else if (CGUIBindings::s_bindings->m_dirtySets & (1 << BINDING_SET_CHARACTER)) {
-        SaveAccountData(3, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
+        SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
     }
 }
 

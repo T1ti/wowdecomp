@@ -1814,7 +1814,7 @@ void CGGameUI::InitializeFrameXML() {
     FrameXML_RegisterLoadProgressCallback(nullptr, nullptr, 0);
     CGGameUI::Initialize();
     LoadSavedVariables(&status);
-    LoadAccountData(6, LoadPlacedFrames, nullptr);
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_LAYOUT, LoadPlacedFrames, nullptr);
     LoadAccountVariables();
     CGUIBindings::LoadBindings();
     CGUIMacros::Initialize();
@@ -6224,8 +6224,8 @@ void LoadAccountVariables() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    LoadAccountData(0, AccountVariablesLoadedCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((CGGameUI::m_accountDataGeneration << 16) | 0x10)));
-    LoadAccountData(1, AccountVariablesLoadedCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((CGGameUI::m_accountDataGeneration << 16) | 0x20)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_CONFIG, AccountVariablesLoadedCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((CGGameUI::m_accountDataGeneration << 16) | 0x10)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_CONFIG, AccountVariablesLoadedCallback, reinterpret_cast<void*>(static_cast<uintptr_t>((CGGameUI::m_accountDataGeneration << 16) | 0x20)));
 }
 
 // VERIFY: b84f77ba manual
@@ -7531,9 +7531,9 @@ void CGGameUI::Shutdown() {
     CGAchievementInfo::SaveTrackedAchievements();
     CGTutorial::SaveFlaggedTutorials();
     CGGameUI::SaveSavedVariables();
-    SaveAccountData(6, SavePlacedFrames, CGGameUI::m_simpleTop);
-    SaveAccountData(0, SaveGameCVarsCallback, reinterpret_cast<void*>(16));
-    SaveAccountData(1, SaveGameCVarsCallback, reinterpret_cast<void*>(32));
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_LAYOUT, SavePlacedFrames, CGGameUI::m_simpleTop);
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_CONFIG, SaveGameCVarsCallback, reinterpret_cast<void*>(CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT));
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_CONFIG, SaveGameCVarsCallback, reinterpret_cast<void*>(CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER));
     CVar::SaveAll();
     CVar::DeleteCharacterCVars();
     AccountDataFlush();
@@ -7748,7 +7748,7 @@ void SaveGameCVarsCallback(HOSFILE localFile, HOSFILE file, void* param) {
 
     uint32_t category = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(param));
 
-    if (category == 32) {
+    if (category == CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER) {
         CGWorldFrame::GetActiveCamera()->SaveCameraSettings();
     }
 

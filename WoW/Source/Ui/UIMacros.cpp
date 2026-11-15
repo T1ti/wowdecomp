@@ -269,8 +269,8 @@ void CGUIMacros::Initialize() {
 // OFFSET: 0x00567FD0
 void CGUIMacros::LoadMacros() {
     s_pendingLoads = 0x30000;
-    LoadAccountData(4, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x10000)));
-    LoadAccountData(5, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x20000)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_MACROS, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x10000)));
+    LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_MACROS, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x20000)));
 }
 
 // VERIFY: 1a2a9c35 auto
@@ -1125,8 +1125,8 @@ void CGUIMacros::SaveMacros() {
     }
 
     CGUIMacros::m_saveMacros = 0;
-    SaveAccountData(4, CGUIMacros::SaveMacrosCallback, nullptr);
-    SaveAccountData(5, CGUIMacros::SaveMacrosCallback, reinterpret_cast<void*>(1));
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_MACROS, CGUIMacros::SaveMacrosCallback, nullptr);
+    SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_MACROS, CGUIMacros::SaveMacrosCallback, reinterpret_cast<void*>(1));
 }
 
 // VERIFY: 9cd8630d manual

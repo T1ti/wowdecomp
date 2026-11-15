@@ -13,7 +13,7 @@
 #include "Engine/Source/Event/Event.h"
 
 // STATIC: 0x00AD94E0
-static AccountDataInfo s_accountData[] = {
+static AccountDataInfo s_accountData[ACCOUNT_DATA_TYPE::NUM_ACCOUNT_DATA_TYPES] = {
     { false, true, nullptr, "config-cache.wtf", "config-cache.old", "synchronizeConfig" },
     { false, false, nullptr, "config-cache.wtf", "config-cache.old", "synchronizeConfig" },
     { false, true, nullptr, "bindings-cache.wtf", "bindings-cache.old", "synchronizeBindings" },
