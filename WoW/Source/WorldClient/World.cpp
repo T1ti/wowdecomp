@@ -2146,7 +2146,7 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
 
     uint32_t flags = doodadDef->m_flags;
 
-    if ((flags & 0x20) || !(CWorld::enables & Enables::Enable_Doodads)) {
+    if ((flags & MAPOBJ_FLAG_DISABLED) || !(CWorld::enables & Enables::Enable_Doodads)) {
         return;
     }
 
@@ -2154,7 +2154,7 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
 
     float alpha = 1.0f;
 
-    if ((CWorld::enables & Enables::Enable_ObjectFade) && !(flags & 0x800)) {
+    if ((CWorld::enables & Enables::Enable_ObjectFade) && !(flags & MAPOBJ_FLAG_BIODOME)) {
         float dx = doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x;
         float dy = doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y;
         float dz = doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z;
