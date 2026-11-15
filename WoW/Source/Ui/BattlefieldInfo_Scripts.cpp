@@ -669,7 +669,7 @@ static int32_t Script_GetBattlefieldInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (rec->m_id == 32) {
+    if (rec->m_id == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -714,7 +714,7 @@ static int32_t Script_GetBattlegroundInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (rec->m_id == 32) {
+    if (rec->m_id == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

@@ -732,11 +732,11 @@ int32_t QSortBattlefields(const void* a, const void* b) {
     int32_t idA = *static_cast<const int32_t*>(a);
     int32_t idB = *static_cast<const int32_t*>(b);
 
-    if (idA == 32) {
+    if (idA == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
         return -1;
     }
 
-    if (idB == 32) {
+    if (idB == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
         return 1;
     }
 
@@ -1160,7 +1160,7 @@ bool CGBattlefieldInfo::GetBracketForLevel(uint32_t level, const BattlemasterLis
 
     *bracket = 0;
 
-    if (rec->m_id == 32) {
+    if (rec->m_id == BATTLEMASTER_LIST_RANDOM_BATTLEGROUND) {
         *bracket = 0;
         return level == 80;
     }
