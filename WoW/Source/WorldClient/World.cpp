@@ -2344,7 +2344,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
     while (entity) {
         CMapEntity* next = static_cast<CMapEntity*>(entry->m_entityList.Next(entity));
         entity->m_sortEntryLink.Unlink();
-        entity->m_culled = 1;
+        entity->m_culled = CMapStaticEntity::CULL_CULLED;
 
         CAaSphere sphere = entity->m_sphere;
 
@@ -2354,7 +2354,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
             continue;
         }
 
-        entity->m_culled = 0;
+        entity->m_culled = CMapStaticEntity::CULL_VISIBLE;
         CM2Model* model = entity->m_model;
 
         if (model) {
@@ -2404,12 +2404,12 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
         CMapBaseObjLink* next = linkList->Next(link);
         uint32_t entityFlags = entity->m_staticFlags;
 
-        if (!(force | (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE)) || !entity->m_culled || (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
+        if (!(force | (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE)) || entity->m_culled == CMapStaticEntity::CULL_VISIBLE || (entityFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             link = next;
             continue;
         }
 
-        entity->m_culled = 1;
+        entity->m_culled = CMapStaticEntity::CULL_CULLED;
 
         for (CWFrustum* test = frustum; test; test = test->m_link.Next()) {
             if (!test->Cull(entity->m_sphere.c, entity->m_sphere.r)) {
@@ -2417,7 +2417,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             }
 
             entity->m_sortEntryLink.Unlink();
-            entity->m_culled = 0;
+            entity->m_culled = CMapStaticEntity::CULL_VISIBLE;
 
             if (interior) {
                 entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_INT_FOG);
@@ -2509,7 +2509,7 @@ void CWorldScene::UpdateSortedModels() {
         }
 
         if (entity->m_func) {
-            uint32_t fadeFlags = entity->m_culled < 2 ? MAP_OBJECT_FUNC_IN_SCENE : MAP_OBJECT_FUNC_NONE;
+            uint32_t fadeFlags = entity->m_culled < CMapStaticEntity::CULL_UNTESTED ? MAP_OBJECT_FUNC_IN_SCENE : MAP_OBJECT_FUNC_NONE;
             entity->m_func(entity->m_funcParam, nearFlags | fadeFlags, entity->m_funcParam64, entity->m_funcParam32);
         }
 
@@ -3606,12 +3606,12 @@ void CWorldScene::CullDoodads(CSortEntry* entry, uint16_t fadeLevel) {
         }
 
         doodadDef->m_cullPassStamp = CWorldScene::s_cullPassStamp;
-        doodadDef->m_culled = 1;
+        doodadDef->m_culled = CMapStaticEntity::CULL_CULLED;
 
         bool visible = CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(doodadDef->m_sphere) && !CWorldOcclusion::QueryVolumes(&doodadDef->m_sphere);
 
         if (visible) {
-            doodadDef->m_culled = 0;
+            doodadDef->m_culled = CMapStaticEntity::CULL_VISIBLE;
             visible = CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, 0x10) < 2;
         }
 
@@ -3871,11 +3871,11 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
         } else if (doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             if (doodadDef->m_cullPassStamp != CWorldScene::s_cullPassStamp) {
                 doodadDef->m_cullPassStamp = CWorldScene::s_cullPassStamp;
-                doodadDef->m_culled = 1;
+                doodadDef->m_culled = CMapStaticEntity::CULL_CULLED;
                 int32_t culled = CWorldScene::FrustumCull(doodadDef->m_sphere.c, doodadDef->m_sphere.r);
 
                 if (!culled) {
-                    doodadDef->m_culled = 0;
+                    doodadDef->m_culled = CMapStaticEntity::CULL_VISIBLE;
                 }
 
                 if (!culled && CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, 0x10) < 2) {
@@ -3922,7 +3922,7 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
 
         if (doodadDef->m_cullPassStamp != CWorldScene::s_cullPassStamp) {
             doodadDef->m_cullPassStamp = CWorldScene::s_cullPassStamp;
-            doodadDef->m_culled = 1;
+            doodadDef->m_culled = CMapStaticEntity::CULL_CULLED;
             int32_t animate = 1;
 
             if (!(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE)) {
@@ -3938,13 +3938,13 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             doodadDef->m_model->SetAnimating(animate);
         }
 
-        if (!doodadDef->m_culled) {
+        if (doodadDef->m_culled == CMapStaticEntity::CULL_VISIBLE) {
             continue;
         }
 
         for (CWFrustum* test = frustum; test; test = test->m_link.Next()) {
             if (test->Cull(doodadDef->m_sphere.c, doodadDef->m_sphere.r)) {
-                doodadDef->m_culled = 0;
+                doodadDef->m_culled = CMapStaticEntity::CULL_VISIBLE;
 
                 if (interior) {
                     doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_INT_FOG);
@@ -4228,7 +4228,7 @@ int32_t World::QueryObjectVisible(CMapEntity* entity) {
         return 0;
     }
 
-    return entity->m_culled == 0;
+    return entity->m_culled == CMapStaticEntity::CULL_VISIBLE;
 }
 
 // VERIFY: 839ab621 auto
@@ -4261,7 +4261,7 @@ void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
 
     C3Vector corner = C3Vector(0.0f, 0.0f, 0.0f);
     CWorldScene::GetNearestCornerToCamera(&entity->m_bbox, &corner);
-    entity->m_culled = 2;
+    entity->m_culled = CMapStaticEntity::CULL_UNTESTED;
     entity->m_distanceToCamera = CWorldScene::camPlane.n.x * corner.x + CWorldScene::camPlane.n.y * corner.y + CWorldScene::camPlane.n.z * corner.z + CWorldScene::camPlane.d;
 
     if (flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {

@@ -44,7 +44,7 @@ CMapStaticEntity::CMapStaticEntity() {
     this->unused_002B = 0;
     this->m_fadeLevel = 0;
     this->m_vec2 = C3Vector(0.0f, 0.0f, 0.0f);
-    this->m_culled = 2;
+    this->m_culled = CULL_UNTESTED;
 }
 
 // VERIFY: cd4cc195 auto

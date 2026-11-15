@@ -1204,7 +1204,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && doodadDef->m_culled) {
+        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && doodadDef->m_culled != CMapStaticEntity::CULL_VISIBLE) {
             continue;
         }
 
@@ -1266,7 +1266,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapEntity* entity = static_cast<CMapEntity*>(link->m_owner);
 
-        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && entity->m_culled) {
+        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && entity->m_culled != CMapStaticEntity::CULL_VISIBLE) {
             continue;
         }
 

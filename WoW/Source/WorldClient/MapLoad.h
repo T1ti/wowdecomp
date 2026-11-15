@@ -143,8 +143,15 @@ class CMapStaticEntity : public CMapBaseObj {
 
     ~CMapStaticEntity() override;
 
+    // Result of the scene cull pass for this frame.
+    enum CULL_STATE : uint8_t {
+        CULL_VISIBLE = 0, // Inside a view frustum and not occluded.
+        CULL_CULLED = 1, // Tested and rejected.
+        CULL_UNTESTED = 2, // Not reached by the cull pass (initial state, or beyond the sort table).
+    };
+
     /* 0024 */ uint8_t m_fadeLevel;
-    /* 0025 */ uint8_t m_culled;
+    /* 0025 */ uint8_t m_culled; // CULL_STATE
     /* 0026 */ uint8_t unused_0026;
     /* 0027 */ uint8_t unused_0027;
     /* 0028 */ uint8_t m_shadowStamps[3];

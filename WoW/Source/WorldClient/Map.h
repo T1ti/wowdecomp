@@ -147,7 +147,7 @@ enum MAP_OBJECT_FUNC_FLAGS : uint32_t {
     MAP_OBJECT_FUNC_NONE = 0x0,
     MAP_OBJECT_FUNC_VISIBLE = 0x1, // Passed the frustum and occlusion tests; returning nonzero links it for rendering.
     MAP_OBJECT_FUNC_NEAR_CAMERA = 0x2, // Culled but within ~33.3 yards of the camera; its model keeps animating.
-    MAP_OBJECT_FUNC_IN_SCENE = 0x4, // Reached the cull pass this frame (m_culled below 2).
+    MAP_OBJECT_FUNC_IN_SCENE = 0x4, // Reached the cull pass this frame (m_culled is not CULL_UNTESTED).
 };
 
 typedef int32_t (*MAP_OBJECT_FUNC)(void*, uint32_t, uint64_t, uintptr_t); // flags: MAP_OBJECT_FUNC_FLAGS
