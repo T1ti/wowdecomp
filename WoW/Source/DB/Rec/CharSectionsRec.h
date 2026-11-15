@@ -5,6 +5,7 @@
 #include <cstdint>
 
 class SFileImpl;
+enum COMPONENT_VARIATIONS : int32_t;
 
 class CharSectionsRec {
     public:
@@ -41,7 +42,7 @@ class CharSectionsRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_raceID;
     /* 0008 */ int32_t m_sexID;
-    /* 000C */ int32_t m_baseSection;
+    /* 000C */ COMPONENT_VARIATIONS m_baseSection;
     /* 0010 */ const char* m_textureName [TEXTURE_INDEX::COUNT];
     /* 001C */ SECTION_FLAGS m_flags;
     /* 0020 */ int32_t m_variationIndex;

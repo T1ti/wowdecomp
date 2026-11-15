@@ -250,7 +250,7 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
     CharSectionsRec* first = (0 >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[0];
     int32_t raceID = first->m_raceID;
     int32_t sexID = first->m_sexID;
-    int32_t baseSection = first->m_baseSection;
+    COMPONENT_VARIATIONS baseSection = first->m_baseSection;
 
     for (int32_t i = 0; i < g_charSectionsDB.m_numRecords; i++) {
         CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[i];
@@ -288,7 +288,7 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
 
     sexID = 0;
     raceID = RACE_HUMAN;
-    baseSection = 0;
+    baseSection = VARIATION_SKIN;
     variationIndex = 0;
     int32_t colorIndex = 0;
 
