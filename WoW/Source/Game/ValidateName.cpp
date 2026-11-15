@@ -1158,7 +1158,7 @@ static void GetNameInfo(const char* name, RussianNameInfo* info, int32_t sex) {
     for (int32_t r = 0; r < 55; r++) {
         const RussianDeclensionRule* rule = &s_russianDeclensionRules[r];
 
-        if (rule->m_sex != 2 && sex != 2 && sex != rule->m_sex) {
+        if (rule->m_sex != UNITSEX_NONE && sex != UNITSEX_NONE && sex != rule->m_sex) {
             continue;
         }
 
