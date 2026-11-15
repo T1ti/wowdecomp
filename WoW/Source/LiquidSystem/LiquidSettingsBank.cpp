@@ -77,7 +77,7 @@ bool Liquid::CSettingsBank::UpdateRecord(Liquid::CMaterialSettings* settings, ui
         settings->m_floats[i] = typeRec->m_float[i];
     }
 
-    settings->m_transparent = materialRec->m_flags & 0x1;
+    settings->m_transparent = materialRec->m_flags & LIQUID_MATERIAL_FLAG_TRANSPARENT;
     settings->InitTexture();
 
     return true;
