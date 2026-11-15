@@ -474,7 +474,7 @@ int32_t ComSatClient_IsTalkerSquelched(WOWGUID guid, uint32_t session) {
 
     for (int32_t i = 0; i < static_cast<int32_t>(data.m_numMembers); i++) {
         if (data.m_members[i].m_guid == guid) {
-            int32_t result = data.m_members[i].m_flags & 0x8;
+            int32_t result = data.m_members[i].m_flags & COMSATMEMBER::F_TALKER_SQUELCHED;
             s_comsatDeviceLock.Leave();
             return result;
         }
@@ -503,7 +503,7 @@ int32_t ComSatClient_IsMemberVoiceActive(WOWGUID guid, uint32_t session) {
 
     for (int32_t i = 0; i < static_cast<int32_t>(data.m_numMembers); i++) {
         if (data.m_members[i].m_guid == guid) {
-            int32_t result = data.m_members[i].m_flags & 0x40;
+            int32_t result = data.m_members[i].m_flags & COMSATMEMBER::F_TALKER_ACTIVE;
             s_comsatDeviceLock.Leave();
             return result;
         }
@@ -532,7 +532,7 @@ int32_t ComSatClient_GetMemberVoiceStatus(WOWGUID guid, uint32_t session) {
 
     for (int32_t i = 0; i < static_cast<int32_t>(data.m_numMembers); i++) {
         if (data.m_members[i].m_guid == guid) {
-            int32_t result = data.m_members[i].m_flags & 0x4;
+            int32_t result = data.m_members[i].m_flags & COMSATMEMBER::F_TALKER_ENABLED;
             s_comsatDeviceLock.Leave();
             return result;
         }

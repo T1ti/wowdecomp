@@ -455,13 +455,13 @@ int32_t Script_GetVoiceSessionMemberInfoBySessionID(lua_State* L) {
 
     lua_pushstring(L, name);
 
-    if (member.m_flags & 0x4) {
+    if (member.m_flags & COMSATMEMBER::F_TALKER_ENABLED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (member.m_flags & 0x40) {
+    if (member.m_flags & COMSATMEMBER::F_TALKER_ACTIVE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -473,7 +473,7 @@ int32_t Script_GetVoiceSessionMemberInfoBySessionID(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (member.m_flags & 0x8) {
+    if (member.m_flags & COMSATMEMBER::F_TALKER_SQUELCHED) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

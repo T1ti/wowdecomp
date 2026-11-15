@@ -93,8 +93,15 @@ void VoiceStop();
 }
 
 struct COMSATMEMBER {
+    // Roster flags; names follow the 4.1.0 ComSatClient_IsTalker{Enabled,Active,Squelched}InChannel readers.
+    enum FLAGS : uint8_t {
+        F_TALKER_ENABLED = 0x4,
+        F_TALKER_SQUELCHED = 0x8,
+        F_TALKER_ACTIVE = 0x40,
+    };
+
     /* 0000 */ WOWGUID m_guid;
-    /* 0008 */ uint8_t m_flags;
+    /* 0008 */ uint8_t m_flags; // FLAGS
     /* 0009 */ uint8_t unused_0009[7];
 };
 
