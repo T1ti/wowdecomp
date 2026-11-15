@@ -17532,7 +17532,7 @@ bool CGUnit_C::CalculateThreat(const WOWGUID& guid, uint8_t* status, uint8_t* ra
 
     if (!this->m_highestThreatGuid || !entry) {
         if (status) {
-            *status = entry != nullptr;
+            *status = entry ? UnitThreat::THREAT_STATUS_LOW : UnitThreat::THREAT_STATUS_NONE;
         }
 
         if (rawPercent) {
@@ -17611,7 +17611,7 @@ void CGUnit_C::AddWorldThreatUpdateText(int32_t oldStatus, int32_t newStatus) {
         return;
     }
 
-    if ((oldStatus == 2 && newStatus == 1) || (oldStatus == 3 && newStatus == 4)) {
+    if ((oldStatus == UnitThreat::THREAT_STATUS_HIGH && newStatus == UnitThreat::THREAT_STATUS_LOW) || (oldStatus == UnitThreat::THREAT_STATUS_TANKING_INSECURE && newStatus == UnitThreat::THREAT_STATUS_TANKING_SECURE)) {
         return;
     }
 
@@ -17635,7 +17635,7 @@ UnitThreat* CGUnit_C::CreateThreatEntry(const WOWGUID& guid) {
     }
 
     entry = s_unitThreatPool->New();
-    entry->m_status = 1;
+    entry->m_status = UnitThreat::THREAT_STATUS_LOW;
     entry->m_percent = 0xFF;
     entry->m_threat = 0;
     this->m_threats.Insert(entry, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
@@ -17668,11 +17668,11 @@ bool CGUnit_C::UpdateThreatEntry(UnitThreat* entry, int32_t highestThreat, bool 
     }
 
     entry->m_percent = percent;
-    uint8_t status = percent < 100 ? 1 : 2;
+    uint8_t status = percent < 100 ? UnitThreat::THREAT_STATUS_LOW : UnitThreat::THREAT_STATUS_HIGH;
 
     if (status != entry->m_status) {
         if (activePlayer) {
-            if (s_cvThreatPlaySounds->m_intValue && status == 2 && entry->m_status == 1) {
+            if (s_cvThreatPlaySounds->m_intValue && status == UnitThreat::THREAT_STATUS_HIGH && entry->m_status == UnitThreat::THREAT_STATUS_LOW) {
                 SI2::PlayUISound(15262);
             }
 
@@ -17703,11 +17703,11 @@ void CGUnit_C::UpdateThreatStatus() {
         return;
     }
 
-    uint8_t status = 4;
+    uint8_t status = UnitThreat::THREAT_STATUS_TANKING_SECURE;
 
     for (UnitThreat* entry = this->m_threats.m_fulllist.Head(); entry; entry = this->m_threats.m_fulllist.Next(entry)) {
-        if (entry->m_key.m_guid != this->m_highestThreatGuid && entry->m_status == 2) {
-            status = 3;
+        if (entry->m_key.m_guid != this->m_highestThreatGuid && entry->m_status == UnitThreat::THREAT_STATUS_HIGH) {
+            status = UnitThreat::THREAT_STATUS_TANKING_INSECURE;
         }
     }
 
@@ -17809,7 +17809,7 @@ void CGUnit_C::RemoveThreat(const WOWGUID& guid) {
 
     if (guid == this->m_highestThreatGuid) {
         this->m_highestThreatGuid = WOWGUID();
-    } else if (entry->m_status > 1) {
+    } else if (entry->m_status > UnitThreat::THREAT_STATUS_LOW) {
         update = true;
     }
 

@@ -137,7 +137,16 @@ struct UnitThreatHandle {
 };
 
 struct UnitThreat : public UnitThreatHandle, public TSHashObject<UnitThreat, CHashKeyGUID> {
-    /* 0028 */ uint8_t m_status;
+    // UnitThreatSituation returns this minus one; also selects COMBAT_THREAT_{INCREASE,DECREASE}_<status>.
+    enum THREAT_STATUS : uint8_t {
+        THREAT_STATUS_NONE = 0, // Not on the threat list.
+        THREAT_STATUS_LOW = 1, // Below the top threat.
+        THREAT_STATUS_HIGH = 2, // At or above the top threat without being the target.
+        THREAT_STATUS_TANKING_INSECURE = 3, // Highest threat, another entry is THREAT_STATUS_HIGH.
+        THREAT_STATUS_TANKING_SECURE = 4,
+    };
+
+    /* 0028 */ uint8_t m_status; // THREAT_STATUS
     /* 0029 */ uint8_t m_percent;
     /* 002A */ uint8_t unknown_002A[2];
     /* 002C */ int32_t m_threat;
