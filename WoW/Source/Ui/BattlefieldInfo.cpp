@@ -815,7 +815,7 @@ void CGBattlefieldInfo::InitializeGame() {
     for (int32_t i = 0; i < g_battlemasterListDB.m_numRecords; i++) {
         BattlemasterListRec* rec = i < 0 || i >= g_battlemasterListDB.m_numRecords ? nullptr : &g_battlemasterListDB.m_records[i];
 
-        if (rec && rec->m_instanceType == 3) {
+        if (rec && rec->m_instanceType == MAP_INSTANCE_TYPE_PVP_BATTLEFIELD) {
             CGBattlefieldInfo::m_battlegroundTypes.New(rec->m_id);
         }
     }
@@ -832,7 +832,7 @@ void CGBattlefieldInfo::JoinBattlefield(uint32_t index, int32_t asGroup, int32_t
     }
 
     BattlemasterListRec* rec = g_battlemasterListDB.GetRecord(CGBattlefieldInfo::m_bgTypeID);
-    int32_t arena = rec && rec->m_instanceType == 4;
+    int32_t arena = rec && rec->m_instanceType == MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
 
     if (asGroup && rec && (rec->m_maxGroupSize < static_cast<int32_t>(CGPartyInfo::GetNumPartyMembers()) || rec->m_maxGroupSize < static_cast<int32_t>(CGRaidInfo::m_numMembers))) {
         CGGameUI::DisplayError(ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY);

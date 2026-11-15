@@ -337,7 +337,7 @@ static int32_t Script_GetBattlefieldMapIconScale(lua_State* L) {
 static int32_t Script_IsBattlefieldArena(lua_State* L) {
     BattlemasterListRec* rec = g_battlemasterListDB.GetRecord(CGBattlefieldInfo::m_bgTypeID);
 
-    if (rec && rec->m_instanceType == 4) {
+    if (rec && rec->m_instanceType == MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
