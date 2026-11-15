@@ -44,8 +44,8 @@ void CLCDBitmap::SetAlpha(int32_t alpha) {
 // VERIFY: 7007d609 auto
 // OFFSET: 0x0095AE20
 void CLCDBitmap::SetBitmapSize(int32_t width, int32_t height) {
-    this->m_nBitmapWidth = width;
-    this->m_nBitmapHeight = height;
+    this->m_bitmapSize.x = width;
+    this->m_bitmapSize.y = height;
 }
 
 // VERIFY: c1ff4458 manual
@@ -68,13 +68,13 @@ void CLCDBitmap::OnDraw(CLCDGfxBase& gfx) {
                 blend.AlphaFormat = 0;
             }
 
-            s_alphaBlend(gfx.GetHDC(), 0, 0, static_cast<int>(this->m_sizeLogical.cx * this->m_fZoom), static_cast<int>(this->m_sizeLogical.cy * this->m_fZoom), compatibleDC, 0, 0, this->m_nBitmapWidth, this->m_nBitmapHeight, blend);
+            s_alphaBlend(gfx.GetHDC(), 0, 0, static_cast<int>(this->m_sizeLogical.cx * this->m_fZoom), static_cast<int>(this->m_sizeLogical.cy * this->m_fZoom), compatibleDC, 0, 0, this->m_bitmapSize.x, this->m_bitmapSize.y, blend);
         }
     } else if (!this->m_bAlpha || !s_alphaBlend) {
-        StretchBlt(gfx.GetHDC(), 0, 0, this->m_sizeLogical.cx, this->m_sizeLogical.cy, compatibleDC, 0, 0, this->m_nBitmapWidth, this->m_nBitmapHeight, this->m_dwROP);
+        StretchBlt(gfx.GetHDC(), 0, 0, this->m_sizeLogical.cx, this->m_sizeLogical.cy, compatibleDC, 0, 0, this->m_bitmapSize.x, this->m_bitmapSize.y, this->m_dwROP);
     } else {
         BLENDFUNCTION blend = { AC_SRC_OVER, 0, 0xFF, AC_SRC_ALPHA };
-        s_alphaBlend(gfx.GetHDC(), 0, 0, this->m_sizeLogical.cx, this->m_sizeLogical.cy, compatibleDC, 0, 0, this->m_nBitmapWidth, this->m_nBitmapHeight, blend);
+        s_alphaBlend(gfx.GetHDC(), 0, 0, this->m_sizeLogical.cx, this->m_sizeLogical.cy, compatibleDC, 0, 0, this->m_bitmapSize.x, this->m_bitmapSize.y, blend);
     }
 
     SelectObject(compatibleDC, oldBitmap);
