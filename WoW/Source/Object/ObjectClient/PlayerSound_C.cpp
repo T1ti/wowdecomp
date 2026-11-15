@@ -23,9 +23,9 @@ uint32_t CGPlayer_C::GetImpactType() const {
         return 0;
     }
 
-    if (rec->m_flags & MATERIAL_FLAG_IMPACT_TYPE_2) {
+    if (rec->m_flags & MATERIAL_FLAG_PLATE) {
         return 2;
     }
 
-    return (rec->m_flags & MATERIAL_FLAG_IMPACT_TYPE_1) ? 1 : 0;
+    return (rec->m_flags & MATERIAL_FLAG_CHAIN) ? 1 : 0;
 }
