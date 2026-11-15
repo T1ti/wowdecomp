@@ -318,7 +318,7 @@ void CMapArea::ProcessIffChunks() {
     this->m_modelFilenamesOffsets = reinterpret_cast<uint32_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mmid)->m_data);
     this->m_wmoFilenamesOffsets = reinterpret_cast<uint32_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mwid)->m_data);
 
-    if (this->m_header->m_flags & 0x1) {
+    if (this->m_header->m_flags & SMAreaHeader::FLAGS::HAS_FLYING_BBOX) {
         this->m_flyingBbox = reinterpret_cast<int16_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mfbo)->m_data);
     }
 

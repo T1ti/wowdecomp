@@ -86,7 +86,14 @@ class CMapArea : public CMapBaseObj {
 };
 
 struct SMAreaHeader {
-    /* 0000 */ uint32_t m_flags;
+    // MHDR flags tested by the client.
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // The MFBO flying bounding box chunk is present.
+        HAS_FLYING_BBOX = 0x1,
+    };
+
+    /* 0000 */ uint32_t m_flags; // FLAGS
     /* 0004 */ uint32_t m_mcin;
     /* 0008 */ uint32_t m_mtex;
     /* 000C */ uint32_t m_mmdx;
