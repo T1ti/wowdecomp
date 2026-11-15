@@ -1929,7 +1929,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
 
         if (petState) {
             dead = petState->m_health <= 0;
-        } else if (creature && creature->m_type != 10) {
+        } else if (creature && creature->m_type != CREATURE_TYPE_NOT_SPECIFIED) {
             creatureType = g_creatureTypeDB.GetRecord(creature->m_type);
         }
     }
