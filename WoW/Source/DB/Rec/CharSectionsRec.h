@@ -43,7 +43,7 @@ class CharSectionsRec {
     /* 0008 */ int32_t m_sexID;
     /* 000C */ int32_t m_baseSection;
     /* 0010 */ const char* m_textureName [TEXTURE_INDEX::COUNT];
-    /* 001C */ int32_t m_flags;
+    /* 001C */ SECTION_FLAGS m_flags;
     /* 0020 */ int32_t m_variationIndex;
     /* 0024 */ int32_t m_colorIndex;
 

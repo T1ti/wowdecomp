@@ -9,7 +9,7 @@
 
 // VERIFY: 764bd294 manual
 // OFFSET: 0x004F39A0
-bool ComponentFlagsMatch(uint32_t flags, COMPONENT_SELECTION selection) {
+bool ComponentFlagsMatch(CharSectionsRec::SECTION_FLAGS flags, COMPONENT_SELECTION selection) {
     switch (selection) {
         case COMPONENT_SELECTION_0:
             return (flags & CharSectionsRec::SECTION_FLAGS::PLAYER) && !(flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT_OR_NPC_SKIN);

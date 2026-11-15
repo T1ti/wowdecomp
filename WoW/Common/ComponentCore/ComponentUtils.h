@@ -4,13 +4,14 @@
 #include <cstddef>
 #include <cstdint>
 #include "WoW/Common/ComponentCore/Types.h"
+#include "WoW/Source/DB/Rec/CharSectionsRec.h"
 
 struct st_race {
     /* 0000 */ CharVariationList m_variation [CHARTEXTUREVARIATIONS_NUM];
 };
 
 int32_t BuildComponentArray(uint32_t count, st_race** lookup);
-bool ComponentFlagsMatch(uint32_t flags, COMPONENT_SELECTION selection);
+bool ComponentFlagsMatch(CharSectionsRec::SECTION_FLAGS flags, COMPONENT_SELECTION selection);
 int32_t ComponentGetNumColors(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex);
 int32_t ComponentGetNumVariations(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation);
 CharSectionsRec* ComponentGetSectionsRecord(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex, int32_t colorIndex, bool* found);
