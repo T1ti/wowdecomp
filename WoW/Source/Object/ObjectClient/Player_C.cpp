@@ -9336,12 +9336,12 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         case SMSG_LEVEL_UP_INFO: {
             uint32_t level;
             uint32_t health;
-            uint32_t power[7];
+            uint32_t power[NUM_POWER_TYPES];
             uint32_t stats[5];
             msg->Get(level);
             msg->Get(health);
 
-            for (uint32_t i = 0; i < 7; i++) {
+            for (uint32_t i = 0; i < NUM_POWER_TYPES; i++) {
                 msg->Get(power[i]);
             }
 

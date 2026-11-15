@@ -1409,7 +1409,7 @@ void SI2::PlaySpellFizzleSound(uint32_t spellId, const void* object) {
         return;
     }
 
-    for (int32_t i = 0; i < 7; i++) {
+    for (int32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
         if (!((1 << i) & spell.m_schoolMask)) {
             continue;
         }
