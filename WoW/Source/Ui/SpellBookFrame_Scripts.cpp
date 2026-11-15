@@ -390,7 +390,7 @@ static int32_t Script_IsSpellKnown(lua_State* L) {
     int32_t isPet = StringToBOOL(L, 2, 0);
     bool known;
 
-    if (!(GetSpellSlot(spellId, isPet) & 0x80000000)) {
+    if (GetSpellSlot(spellId, isPet) >= 0) {
         known = true;
     } else if (isPet) {
         known = CGPetInfo::FindSpellByID(spellId) != nullptr;
@@ -566,7 +566,7 @@ static int32_t Script_ToggleSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < 1024 && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], -1);
     }
 
@@ -579,7 +579,7 @@ static int32_t Script_EnableSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < 1024 && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], 1);
     }
 
@@ -592,7 +592,7 @@ static int32_t Script_DisableSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < 1024 && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], 0);
     }
 

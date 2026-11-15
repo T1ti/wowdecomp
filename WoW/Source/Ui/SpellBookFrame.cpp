@@ -61,7 +61,7 @@ uint32_t CGSpellBook::m_silenceSchoolMask;
 uint32_t CGSpellBook::m_silenceSpecialSchoolMask;
 
 // STATIC: 0x00BE7D98
-uint32_t s_petSpellList[1024];
+uint32_t s_petSpellList[MAX_SPELLS];
 
 // STATIC: 0x00BE8DA4
 uint32_t CGSpellBook::m_numPetSpells;
@@ -88,10 +88,10 @@ static int32_t s_skinPlayerCorpseSpell;
 static int32_t s_pendingCompanions;
 
 // STATIC: 0x00BE5D88
-uint32_t s_displayedSpells[1024];
+uint32_t s_displayedSpells[MAX_SPELLS];
 
 // STATIC: 0x00BE6D88
-int32_t s_spellList[1024];
+int32_t s_spellList[MAX_SPELLS];
 
 // STATIC: 0x00BE7D88
 int32_t CGSpellBook::m_summonFriendSpell;
@@ -1344,7 +1344,7 @@ bool HasPetSpell(int32_t spellId) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 1024; i++) {
+    for (uint32_t i = 0; i < MAX_SPELLS; i++) {
         if (s_petSpellList[i] == static_cast<uint32_t>(spellId)) {
             return true;
         }
@@ -1441,19 +1441,21 @@ int32_t GetSpellIdByName(const char* name, int32_t* petSpell) {
 
 // VERIFY: 6dbee0a0 manual
 // OFFSET: 0x00540670
-bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* type, int32_t allowName) {
+// Parses either (slot, "bookType") or (name[, subtext|unit]) from the Lua stack. nextArg receives
+// the stack index of the first argument after the spell, e.g. the unit token for IsSpellInRange.
+bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* nextArg, int32_t allowName) {
     *petSpell = 0;
 
     if (lua_isnumber(L, 1) && lua_isstring(L, 2)) {
         *slot = static_cast<uint32_t>(lua_tonumber(L, 1) - 1.0);
 
-        if (*slot <= 1023) {
+        if (*slot < MAX_SPELLS) {
             if (!SStrCmpI("pet", lua_tolstring(L, 2, nullptr), STORM_MAX_STR)) {
                 *petSpell = 1;
             }
 
-            if (type) {
-                *type = 3;
+            if (nextArg) {
+                *nextArg = 3;
             }
 
             return true;
@@ -1464,18 +1466,18 @@ bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* ty
         if (!lua_isstring(L, 2) || Script_GetGUIDFromToken(lua_tolstring(L, 2, nullptr), guid, false)) {
             *slot = GetSpellSlot(GetSpellIdByName(lua_tolstring(L, 1, nullptr), petSpell), *petSpell);
 
-            if (type) {
-                *type = 2;
+            if (nextArg) {
+                *nextArg = 2;
             }
         } else {
             *slot = FindSpellSlotByName(lua_tolstring(L, 1, nullptr), lua_tolstring(L, 2, nullptr), petSpell);
 
-            if (type) {
-                *type = 3;
+            if (nextArg) {
+                *nextArg = 3;
             }
         }
 
-        return !(*slot & 0x80000000);
+        return static_cast<int32_t>(*slot) >= 0;
     }
 
     char function[1024];
@@ -1559,7 +1561,7 @@ int32_t GetSpellIdBySlot(int32_t slot, int32_t petSpell) {
     }
 
     if (petSpell) {
-        return slot < 1024 ? s_petSpellList[slot] : 0;
+        return slot < MAX_SPELLS ? s_petSpellList[slot] : 0;
     }
 
     return static_cast<uint32_t>(slot) < s_numSpells ? s_spellList[slot] : 0;
@@ -1646,7 +1648,7 @@ void CGSpellBook::PickupSpell(int32_t slot, int32_t petSpell) {
     if (slot < 0) {
         spellId = 0;
     } else if (petSpell) {
-        spellId = slot < 1024 ? s_petSpellList[slot] : 0;
+        spellId = slot < MAX_SPELLS ? s_petSpellList[slot] : 0;
     } else {
         spellId = static_cast<uint32_t>(slot) < s_numSpells ? s_spellList[slot] : 0;
     }
@@ -1703,7 +1705,7 @@ void CGSpellBook::CastSpell(int32_t slot, int32_t petSpell, WOWGUID target) {
     if (slot < 0) {
         spellId = 0;
     } else if (petSpell) {
-        spellId = slot < 1024 ? s_petSpellList[slot] : 0;
+        spellId = slot < MAX_SPELLS ? s_petSpellList[slot] : 0;
     } else {
         spellId = static_cast<uint32_t>(slot) < s_numSpells ? s_spellList[slot] : 0;
     }
@@ -2165,7 +2167,7 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
 
     int32_t removed = 0;
 
-    for (uint32_t i = 0; i < 1024; i++) {
+    for (uint32_t i = 0; i < MAX_SPELLS; i++) {
         if (s_spellList[i] != spellId) {
             continue;
         }
