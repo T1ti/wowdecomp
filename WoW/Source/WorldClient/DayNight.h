@@ -293,6 +293,9 @@ struct SMOFog {
 
     enum EFlags : int32_t {
         F_IEBLEND = 0x1,
+        // The next two are 3.3.5 additions, named after the LiquidType flags they answer.
+        F_ALLOW_SLIME_FOG = 0x10, // Required for LIQUID_TYPE_FLAG_WMO_FOG_CONTROL_SLIME liquids to apply fog.
+        F_ALLOW_UNDERWATER_FOG = 0x100, // Required for LIQUID_TYPE_FLAG_WMO_FOG_CONTROL liquids to use UWFOG.
     };
 
     struct Fog {

@@ -2181,11 +2181,11 @@ void DayNight::UpdateFog() {
             int32_t flags = liquid->m_flags;
             underwater = 1;
 
-            if ((flags & LIQUID_TYPE_FLAG_WMO_FOG_CONTROL) && !(fog.m_flags & 0x100)) {
+            if ((flags & LIQUID_TYPE_FLAG_WMO_FOG_CONTROL) && !(fog.m_flags & SMOFog::F_ALLOW_UNDERWATER_FOG)) {
                 underwater = 0;
             }
 
-            if (((flags & LIQUID_TYPE_FLAG_WMO_FOG_CONTROL_SLIME) && !(fog.m_flags & 0x10)) || !underwater) {
+            if (((flags & LIQUID_TYPE_FLAG_WMO_FOG_CONTROL_SLIME) && !(fog.m_flags & SMOFog::F_ALLOW_SLIME_FOG)) || !underwater) {
                 apply = false;
             }
         }

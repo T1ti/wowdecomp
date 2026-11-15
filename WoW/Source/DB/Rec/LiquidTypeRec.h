@@ -15,13 +15,13 @@ enum LIQUID_TYPE_FLAGS : int32_t {
     LIQUID_TYPE_FLAG_WATER_WALKING           = 0x00000004,
     LIQUID_TYPE_FLAG_PARTICLES               = 0x00000008,
     LIQUID_TYPE_FLAG_PARTICLE_FOG            = 0x00000010,
-    // Underwater fog only applies when the WMO fog has its 0x100 flag.
+    // Underwater fog only applies when the WMO fog has SMOFog::F_ALLOW_UNDERWATER_FOG.
     LIQUID_TYPE_FLAG_WMO_FOG_CONTROL         = 0x00000020,
     // Underwater fog copies the group fog instead of blending.
     LIQUID_TYPE_FLAG_NO_INTERIOR_FOG_BLEND   = 0x00000040,
     // No water sound while the listener is inside.
     LIQUID_TYPE_FLAG_OUTDOOR_AMBIENCE_ONLY   = 0x00000080,
-    // Fog is only applied when the WMO fog has its 0x10 flag.
+    // Fog is only applied when the WMO fog has SMOFog::F_ALLOW_SLIME_FOG.
     LIQUID_TYPE_FLAG_WMO_FOG_CONTROL_SLIME   = 0x00000100,
     LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING = 0x00000200,
 };
