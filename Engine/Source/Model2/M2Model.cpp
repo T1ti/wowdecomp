@@ -5702,7 +5702,7 @@ void CM2Model::AnimateParticleST(float deltaTime, uint32_t index) {
     CParticleEmitter2* emitter = this->m_particleEmitters[index];
     M2ModelParticle* particle = &this->m_particles[index];
 
-    if (!(particleData->m_flags & 0x8000)) {
+    if (!(particleData->m_flags & M2Particle::FLAGS::BURST)) {
         if (particle->m_emitting) {
             emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
         } else {
@@ -7010,15 +7010,15 @@ int32_t CM2Model::InitializeLoaded() {
 
     for (uint32_t i = 0; i < data->m_particles.m_count; i++) {
         switch (data->m_particles[i].m_emitterType) {
-            case 1:
+            case M2Particle::EMITTER_TYPE::PET_PLANE:
                 emitterBytes += sizeof(CPlaneParticleEmitter);
                 break;
 
-            case 2:
+            case M2Particle::EMITTER_TYPE::PET_SPHERE:
                 emitterBytes += sizeof(CSphereParticleEmitter);
                 break;
 
-            case 3:
+            case M2Particle::EMITTER_TYPE::PET_SPLINE:
                 emitterBytes += sizeof(CSplineParticleEmitter);
                 break;
         }
@@ -7273,13 +7273,13 @@ int32_t CM2Model::InitializeLoaded() {
             M2Particle* particleData = &data->m_particles[i];
             M2ModelParticle* particle = &this->m_particles[i];
 
-            if (particleData->m_emitterType == 1) {
+            if (particleData->m_emitterType == M2Particle::EMITTER_TYPE::PET_PLANE) {
                 this->m_particleEmitters[i] = new (emitterMemory) CPlaneParticleEmitter();
                 emitterMemory += sizeof(CPlaneParticleEmitter);
-            } else if (particleData->m_emitterType == 2) {
+            } else if (particleData->m_emitterType == M2Particle::EMITTER_TYPE::PET_SPHERE) {
                 this->m_particleEmitters[i] = new (emitterMemory) CSphereParticleEmitter();
                 emitterMemory += sizeof(CSphereParticleEmitter);
-            } else if (particleData->m_emitterType == 3) {
+            } else if (particleData->m_emitterType == M2Particle::EMITTER_TYPE::PET_SPLINE) {
                 this->m_particleEmitters[i] = new (emitterMemory) CSplineParticleEmitter();
                 emitterMemory += sizeof(CSplineParticleEmitter);
             }
@@ -7331,61 +7331,61 @@ int32_t CM2Model::InitializeLoaded() {
                 emitter->SetZsource(particleData->m_zsourceTrack.m_sequenceKeys[0][0]);
             }
 
-            uint32_t flags = particleData->m_flags;
+            M2Particle::FLAGS particleFlags = particleData->m_flags;
 
-            if (flags & 0x10) {
+            if (particleFlags & M2Particle::FLAGS::LOCAL_SPACE) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE;
             } else {
                 emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::LOCAL_SPACE;
             }
 
-            if (flags & 0x40) {
+            if (particleFlags & M2Particle::FLAGS::INHERIT_VELOCITY) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::INHERIT_VELOCITY;
             }
 
-            if (flags & 0x20) {
+            if (particleFlags & M2Particle::FLAGS::TRANSFORM_SCALE) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::TRANSFORM_SCALE;
             }
 
-            if (flags & 0x800) {
+            if (particleFlags & M2Particle::FLAGS::EMIT_ALONG_MOTION) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::EMIT_ALONG_MOTION;
             }
 
-            if (flags & 0x1000) {
+            if (particleFlags & M2Particle::FLAGS::USE_BILLBOARD_AXIS) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::USE_BILLBOARD_AXIS;
             }
 
-            if (particleData->m_emitterType == 2) {
-                if (flags & 0x80) {
+            if (particleData->m_emitterType == M2Particle::EMITTER_TYPE::PET_SPHERE) {
+                if (particleFlags & M2Particle::FLAGS::KILL_OUTWARD_PARTICLES) {
                     emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::KILL_OUTWARD_PARTICLES;
                 }
 
-                if (flags & 0x100) {
+                if (particleFlags & M2Particle::FLAGS::SPHERE_Z_VELOCITY) {
                     emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SPHERE_Z_VELOCITY;
                 }
             }
 
-            if (flags & 0x200) {
+            if (particleFlags & M2Particle::FLAGS::RANDOM_SPIN_DIRECTION) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::RANDOM_SPIN_DIRECTION;
             }
 
-            if (flags & 0x2000) {
+            if (particleFlags & M2Particle::FLAGS::PROJECT) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::PROJECT;
             }
 
-            if (flags & 0x4000) {
+            if (particleFlags & M2Particle::FLAGS::FOLLOW) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::FOLLOW;
             }
 
-            if (flags & 0x8000) {
+            if (particleFlags & M2Particle::FLAGS::BURST) {
                 emitter->m_flags &= ~CParticleEmitter2::RUNTIME_FLAGS::DATA_EMITTING;
             }
 
-            if (flags & 0x80000) {
+            if (particleFlags & M2Particle::FLAGS::SCALE_VARIATION) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SCALE_VARIATION;
             }
 
-            emitter->SetParticleStyle(flags & 0x20000, flags & 0x40000, particleData->m_tailLength, flags & 0x400);
+            emitter->SetParticleStyle(particleFlags & M2Particle::FLAGS::HEAD, particleFlags & M2Particle::FLAGS::TAIL, particleData->m_tailLength, particleFlags & M2Particle::FLAGS::CLAMP_TAIL);
 
             CParticleMat material;
             material.m_flags = CParticleMat::FLAGS::DEFAULT;
@@ -7428,21 +7428,21 @@ int32_t CM2Model::InitializeLoaded() {
                     break;
             }
 
-            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::LIT) | ((flags & 1) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::LIT);
-            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::FOGGED) | ((flags & 8) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::FOGGED);
+            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::LIT) | ((particleFlags & M2Particle::FLAGS::UNLIT) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::LIT);
+            material.m_flags = (material.m_flags & ~CParticleMat::FLAGS::FOGGED) | ((particleFlags & M2Particle::FLAGS::UNFOGGED) ? CParticleMat::FLAGS::NONE : CParticleMat::FLAGS::FOGGED);
 
-            if (flags & 2) {
+            if (particleFlags & M2Particle::FLAGS::SORT_PARTICLES) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::SORT_PARTICLES;
             }
 
-            if (flags & 4) {
+            if (particleFlags & M2Particle::FLAGS::VELOCITY_ALIGNED_HEAD) {
                 emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::VELOCITY_ALIGNED_HEAD;
             }
 
             emitter->SetTextureDimensions(particleData->m_rows, particleData->m_cols);
 
-            if (flags & 0x10000) {
-                emitter->SetChooseRandomTexture(1);
+            if (particleFlags & M2Particle::FLAGS::RANDOM_TEXTURE) {
+                emitter->SetChooseRandomTexture(TRUE);
             }
 
             emitter->SetMaterial(material, this->m_shared->m_textures[particleData->m_textureIndex]);
@@ -7486,7 +7486,7 @@ int32_t CM2Model::InitializeLoaded() {
             emitter->SetFollowParams(particleData->m_followSpeed1, particleData->m_followScale1, particleData->m_followSpeed2, particleData->m_followScale2);
             emitter->m_priorityPlane = particleData->m_priorityPlane;
 
-            if (particleData->m_emitterType == 3) {
+            if (particleData->m_emitterType == M2Particle::EMITTER_TYPE::PET_SPLINE) {
                 static_cast<CSplineParticleEmitter*>(emitter)->SetSpline(particleData->m_spline.Data(), particleData->m_spline.m_count);
             }
 

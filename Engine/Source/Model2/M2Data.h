@@ -259,15 +259,47 @@ class M2Ribbon {
 
 class M2Particle {
     public:
+    // Serialized particle controls; separate from runtime emitter and material flags.
+    enum FLAGS : uint32_t {
+        NONE = 0,
+        UNLIT = 1,
+        SORT_PARTICLES = 2,
+        VELOCITY_ALIGNED_HEAD = 4,
+        UNFOGGED = 8,
+        LOCAL_SPACE = 0x10,
+        TRANSFORM_SCALE = 0x20,
+        INHERIT_VELOCITY = 0x40,
+        KILL_OUTWARD_PARTICLES = 0x80,
+        SPHERE_Z_VELOCITY = 0x100,
+        RANDOM_SPIN_DIRECTION = 0x200,
+        CLAMP_TAIL = 0x400,
+        EMIT_ALONG_MOTION = 0x800,
+        USE_BILLBOARD_AXIS = 0x1000,
+        PROJECT = 0x2000,
+        FOLLOW = 0x4000,
+        BURST = 0x8000,
+        RANDOM_TEXTURE = 0x10000,
+        HEAD = 0x20000,
+        TAIL = 0x40000,
+        SCALE_VARIATION = 0x80000,
+    };
+
+    // Constructor tags read from the file byte; other values keep their existing fall-through.
+    enum EMITTER_TYPE : uint8_t {
+        PET_PLANE = 1,
+        PET_SPHERE = 2,
+        PET_SPLINE = 3,
+    };
+
     /* 0000 */ uint32_t m_particleId;
-    /* 0004 */ uint32_t m_flags;
+    /* 0004 */ FLAGS m_flags;
     /* 0008 */ C3Vector m_position;
     /* 0014 */ uint16_t m_boneIndex;
     /* 0016 */ uint16_t m_textureIndex;
     /* 0018 */ M2Array<char> m_geometryMdl;
     /* 0020 */ M2Array<char> m_recursionMdl;
     /* 0028 */ M2PARTICLEBLENDMODE m_blendMode;
-    /* 0029 */ uint8_t m_emitterType;
+    /* 0029 */ EMITTER_TYPE m_emitterType;
     /* 002A */ uint16_t m_colorIndex;
     /* 002C */ uint16_t unused_002C;
     /* 002E */ int16_t m_priorityPlane;
