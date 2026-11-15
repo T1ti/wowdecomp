@@ -49,7 +49,7 @@ static int32_t Script_GetInventoryItemTexture(lua_State* L) {
     if (CGCharacterInfo::CanInspect(unit)) {
         int32_t displayId = 0;
 
-        if (slot == -1) {
+        if (slot == INVSLOT_AMMO) {
             if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
                 int32_t ammoId = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
@@ -272,7 +272,7 @@ static int32_t Script_GetInventoryItemBroken(lua_State* L) {
     CGPlayer_C* unit = static_cast<CGPlayer_C*>(GetUnitFromName(unitName));
     CGItem_C* item;
 
-    if (!CGCharacterInfo::CanInspect(unit) || slot == -1 || !(item = unit->m_bag.GetItemPointer(slot)) || (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldMaxdurability || item->GetDurability()) {
+    if (!CGCharacterInfo::CanInspect(unit) || slot == INVSLOT_AMMO || !(item = unit->m_bag.GetItemPointer(slot)) || (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldMaxdurability || item->GetDurability()) {
         lua_pushnil(L);
         return 1;
     }
@@ -298,7 +298,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
         return 1;
     }
 
-    if (slot == -1) {
+    if (slot == INVSLOT_AMMO) {
         if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
             int32_t ammo = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
@@ -388,7 +388,7 @@ static int32_t Script_CursorCanGoInSlot(lua_State* L) {
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if ((player && player->ValidateSlot(slot, CGGameUI::GetCursorItem())) || (slot == -1 && CGGameUI::m_cursorItemType == UICURSOR_AMMO)) {
+    if ((player && player->ValidateSlot(slot, CGGameUI::GetCursorItem())) || (slot == INVSLOT_AMMO && CGGameUI::m_cursorItemType == UICURSOR_AMMO)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -783,7 +783,7 @@ static int32_t Script_GetInventoryItemDurability(lua_State* L) {
 
     int32_t slot = 0;
 
-    if (!ResolveInventorySlotArg(L, 1, slot) || slot == -1) {
+    if (!ResolveInventorySlotArg(L, 1, slot) || slot == INVSLOT_AMMO) {
         return 0;
     }
 
@@ -829,7 +829,7 @@ static int32_t Script_GetInventoryItemLink(lua_State* L) {
     WOWGUID guid = unit->m_obj->m_guid;
     WOWGUID activePlayer = ClntObjMgrGetActivePlayer();
 
-    if (slot == -1) {
+    if (slot == INVSLOT_AMMO) {
         int32_t ammo = guid == activePlayer ? CGCharacterInfo::GetActivePlayerAmmoID(unit) : 0;
         WOWGUID none = WOWGUID();
         ItemStats_C* stats = g_itemDBCache.GetRecord(ammo, none, nullptr, nullptr, false);
@@ -881,7 +881,7 @@ static int32_t Script_GetInventoryItemID(lua_State* L) {
     WOWGUID guid = unit->m_obj->m_guid;
     WOWGUID activePlayer = ClntObjMgrGetActivePlayer();
 
-    if (slot == -1) {
+    if (slot == INVSLOT_AMMO) {
         if (guid == activePlayer) {
             int32_t ammo = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
@@ -923,7 +923,7 @@ static int32_t Script_GetInventoryItemGems(lua_State* L) {
         return 0;
     }
 
-    if (slot == -1) {
+    if (slot == INVSLOT_AMMO) {
         return 0;
     }
 
@@ -957,7 +957,7 @@ static int32_t Script_GetInventoryItemGems(lua_State* L) {
 static int32_t Script_UseInventoryItem(lua_State* L) {
     int32_t slot = 0;
 
-    if (!ResolveInventorySlotArg(L, 1, slot) || slot == -1) {
+    if (!ResolveInventorySlotArg(L, 1, slot) || slot == INVSLOT_AMMO) {
         return 0;
     }
 
@@ -1003,7 +1003,7 @@ static int32_t Script_ShowInventorySellCursor(lua_State* L) {
 
     int32_t slot = 0;
 
-    if (!ResolveInventorySlotArg(L, 1, slot) || slot == -1) {
+    if (!ResolveInventorySlotArg(L, 1, slot) || slot == INVSLOT_AMMO) {
         return 0;
     }
 
@@ -1045,7 +1045,7 @@ static int32_t Script_SetInventoryPortraitTexture(lua_State* L) {
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
-    CGItem_C* item = slot == -1 ? player->m_bag.FindItemOfType(CGCharacterInfo::GetActivePlayerAmmoID(player), 0) : player->m_bag.GetItemPointer(slot);
+    CGItem_C* item = slot == INVSLOT_AMMO ? player->m_bag.FindItemOfType(CGCharacterInfo::GetActivePlayerAmmoID(player), 0) : player->m_bag.GetItemPointer(slot);
 
     if (item) {
         const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);

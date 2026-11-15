@@ -727,7 +727,7 @@ static int32_t Script_SetInventoryItem(lua_State* L) {
 
     int32_t slot;
 
-    if (!lua_isnumber(L, 3) || ((slot = static_cast<int32_t>(lua_tonumber(L, 3) - 1.0)) < EQUIPPED_FIRST || slot > INVSLOT_BAG3) && (slot < BANKGENERIC_FIRST || slot > BANKGENERIC_LAST) && (slot < BANKBAG_FIRST || slot > BANKBAG_LAST) && (slot < KEYRING_FIRST || slot > KEYRING_LAST) && (slot < CURRENCYTOKEN_FIRST || slot > CURRENCYTOKEN_LAST) && slot != INVSLOT_NONE) {
+    if (!lua_isnumber(L, 3) || ((slot = static_cast<int32_t>(lua_tonumber(L, 3) - 1.0)) < EQUIPPED_FIRST || slot > INVSLOT_BAG3) && (slot < BANKGENERIC_FIRST || slot > BANKGENERIC_LAST) && (slot < BANKBAG_FIRST || slot > BANKBAG_LAST) && (slot < KEYRING_FIRST || slot > KEYRING_LAST) && (slot < CURRENCYTOKEN_FIRST || slot > CURRENCYTOKEN_LAST) && slot != INVSLOT_AMMO) {
         luaL_error(L, "Invalid inventory slot in SetInventoryItem");
         return 0;
     }

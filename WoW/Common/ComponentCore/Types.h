@@ -129,6 +129,7 @@ enum INVENTORY_SLOTS {
     INVSLOT_TABARD = 18,
     EQUIPPED_LAST = 18,
     INVSLOT_NONE = -1,
+    INVSLOT_AMMO = -1, // Paper doll ammo slot (FrameXML INVSLOT_AMMO = 0, one-based).
 
     // Inclusive ranges in the active player inventory.
     INVSLOT_BAG0 = 19,

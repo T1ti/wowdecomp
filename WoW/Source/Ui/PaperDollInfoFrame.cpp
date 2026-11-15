@@ -185,7 +185,7 @@ int32_t ResolveInventorySlotArg(lua_State* L, int32_t index, int32_t& slot) {
         }
     }
 
-    return (slot >= EQUIPPED_FIRST && slot <= INVSLOT_BAG3) || (slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST) || slot == INVSLOT_NONE || (slot >= KEYRING_FIRST && slot <= KEYRING_LAST);
+    return (slot >= EQUIPPED_FIRST && slot <= INVSLOT_BAG3) || (slot >= BANKGENERIC_FIRST && slot <= BANKGENERIC_LAST) || (slot >= BANKBAG_FIRST && slot <= BANKBAG_LAST) || slot == INVSLOT_AMMO || (slot >= KEYRING_FIRST && slot <= KEYRING_LAST);
 }
 
 // VERIFY: f340d760 auto
@@ -292,7 +292,7 @@ void CGCharacterInfo::UpdateItem(WOWGUID guid) {
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
     int32_t slot = player->m_bag.FindItemSlot(guid);
 
-    if (slot == -1 && item && item->m_item->m_itemFieldContained != ClntObjMgrGetActivePlayer()) {
+    if (slot == INVSLOT_NONE && item && item->m_item->m_itemFieldContained != ClntObjMgrGetActivePlayer()) {
         slot = player->m_bag.FindItemSlot(item->m_item->m_itemFieldContained);
     }
 
@@ -336,7 +336,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
     int32_t virtualSlot;
     CGGameUI::GetCursorVirtualItem(virtualId, virtualSlot);
 
-    if (slot == -1) {
+    if (slot == INVSLOT_AMMO) {
         if (cursorItem) {
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(cursorItem, TYPE_ITEM, __FILE__, __LINE__));
 
