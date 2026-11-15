@@ -1487,7 +1487,7 @@ bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* ty
 // OFFSET: 0x0053DC20
 const char* CGSpellBook::GetSpellTexture(int32_t slot, int32_t petSpell) {
     SpellRec spell;
-    int32_t spellId = slot < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (static_cast<uint32_t>(slot) < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
         return nullptr;
@@ -1518,7 +1518,7 @@ const char* CGSpellBook::GetSpellTexture(int32_t slot, int32_t petSpell) {
 // OFFSET: 0x0053D350
 int32_t CGSpellBook::IsSelectedSlot(int32_t slot, int32_t petSpell) {
     SpellRec spell;
-    int32_t spellId = slot < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (static_cast<uint32_t>(slot) < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
         return 0;

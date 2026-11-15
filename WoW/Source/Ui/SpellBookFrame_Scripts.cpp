@@ -264,7 +264,7 @@ static int32_t Script_GetSpellName(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell)) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell)) {
         lua_pushstring(L, spell.m_name);
         lua_pushstring(L, spell.m_nameSubtext);
     } else {
@@ -287,7 +287,7 @@ static int32_t Script_IsPassiveSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -308,7 +308,7 @@ static int32_t Script_IsAttackSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && spell.m_effect[0] == SPELL_EFFECT_ATTACK) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell) && spell.m_effect[0] == SPELL_EFFECT_ATTACK) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -327,7 +327,7 @@ static int32_t Script_IsAutoRepeatSpell(lua_State* L) {
         return 0;
     }
 
-    int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
 
     if (spellId && !petSpell && (Spell_C_GetAutoRepeatingSpell() == spellId || Spell_C_GetAutoRangedCombatSpell() == spellId)) {
         lua_pushnumber(L, 1.0);
@@ -350,7 +350,7 @@ static int32_t Script_IsConsumableSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell)) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell)) {
         for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
             if (spell.m_reagent[i] && spell.m_reagentCount[i] > 0) {
                 lua_pushnumber(L, 1.0);
@@ -454,7 +454,7 @@ static int32_t Script_IsHelpfulSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -475,7 +475,7 @@ static int32_t Script_IsHarmfulSpell(lua_State* L) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HARMFUL) {
+    if (g_spellDB.GetRecord(GetSpellIdBySlot(slot, petSpell), &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HARMFUL) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -494,7 +494,7 @@ static int32_t Script_GetSpellCount(lua_State* L) {
         return 0;
     }
 
-    lua_pushnumber(L, Spell_C_GetSpellReagentUses(static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0)));
+    lua_pushnumber(L, Spell_C_GetSpellReagentUses(GetSpellIdBySlot(slot, petSpell)));
     return 1;
 }
 
@@ -519,7 +519,7 @@ static int32_t Script_GetSpellCooldown(lua_State* L) {
             return 0;
         }
 
-        spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+        spellId = GetSpellIdBySlot(slot, petSpell);
     }
 
     uint32_t start = 0;
@@ -543,7 +543,7 @@ static int32_t Script_GetSpellAutocast(lua_State* L) {
     }
 
     PetAction* action = nullptr;
-    int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
 
     if (petSpell && (action = CGPetInfo::GetPetSpellAction(spellId)) && (action->m_data & PetAction::AutocastFlags::AUTOCAST_ALLOWED)) {
         lua_pushnumber(L, 1.0);
@@ -646,7 +646,7 @@ static int32_t Script_IsCurrentSpell(lua_State* L) {
             return 0;
         }
 
-        spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+        spellId = GetSpellIdBySlot(slot, petSpell);
     }
 
     if (Spell_C_IsCurrentSpell(spellId)) {
@@ -670,7 +670,7 @@ static int32_t Script_IsUsableSpell(lua_State* L) {
 
     bool noMana = false;
     SpellRec spell;
-    int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
     CGUnit_C* caster;
 
     if (g_spellDB.GetRecord(spellId, &spell)
@@ -702,7 +702,7 @@ static int32_t Script_SpellHasRange(lua_State* L) {
     }
 
     SpellRec spell;
-    int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
     CGUnit_C* caster;
     float minRange;
     float maxRange;
@@ -733,7 +733,7 @@ static int32_t Script_IsSpellInRange(lua_State* L) {
     }
 
     SpellRec spell;
-    int32_t spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+    int32_t spellId = GetSpellIdBySlot(slot, petSpell);
     CGUnit_C* caster;
     WOWGUID target;
     uint8_t inRange;
@@ -1162,7 +1162,7 @@ static int32_t Script_GetSpellLink(lua_State* L) {
             return 0;
         }
 
-        spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+        spellId = GetSpellIdBySlot(slot, petSpell);
     }
 
     SpellRec spell;
@@ -1200,7 +1200,7 @@ static int32_t Script_GetSpellInfo(lua_State* L) {
             return 0;
         }
 
-        spellId = static_cast<int32_t>(slot) < 0 ? 0 : petSpell ? (slot < 1024 ? s_petSpellList[slot] : 0) : (slot < s_numSpells ? s_spellList[slot] : 0);
+        spellId = GetSpellIdBySlot(slot, petSpell);
     }
 
     SpellRec spell;
