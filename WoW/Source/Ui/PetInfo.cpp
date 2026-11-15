@@ -827,7 +827,7 @@ void CGPetInfo::FindPossessedSpell() {
     for (uint32_t i = 0; i < player->GetAuraCount(); i++) {
         AuraData* aura = i < player->GetAuraCount() ? &player->m_auras[i] : nullptr;
 
-        if ((aura->m_flags & 0x80) || !g_spellDB.GetRecord(aura->m_spellId, &spell)) {
+        if ((aura->m_flags & AURA_FLAG_HARMFUL) || !g_spellDB.GetRecord(aura->m_spellId, &spell)) {
             continue;
         }
 
