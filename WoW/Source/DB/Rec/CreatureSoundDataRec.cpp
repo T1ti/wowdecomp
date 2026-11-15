@@ -40,8 +40,8 @@ bool CreatureSoundDataRec::Read(SFileImpl* file, const char* stringBuffer) {
     int32_t soundPetAttackIDRead = SFileReadFile(file, &this->m_soundPetAttackID, sizeof(this->m_soundPetAttackID), nullptr, nullptr, 0);
     int32_t soundPetOrderIDRead = SFileReadFile(file, &this->m_soundPetOrderID, sizeof(this->m_soundPetOrderID), nullptr, nullptr, 0);
     int32_t soundPetDismissIDRead = SFileReadFile(file, &this->m_soundPetDismissID, sizeof(this->m_soundPetDismissID), nullptr, nullptr, 0);
-    int32_t fidgetDelaySecondsMinRead = SFileReadFile(file, &this->m_fidgetDelaySecondsMin, sizeof(this->m_fidgetDelaySecondsMin), nullptr, nullptr, 0);
-    int32_t fidgetDelaySecondsMaxRead = SFileReadFile(file, &this->m_fidgetDelaySecondsMax, sizeof(this->m_fidgetDelaySecondsMax), nullptr, nullptr, 0);
+    int32_t fidgetDelaySecondsMinRead = SFileReadFile(file, &this->m_fidgetDelaySeconds.m_l, sizeof(this->m_fidgetDelaySeconds.m_l), nullptr, nullptr, 0);
+    int32_t fidgetDelaySecondsMaxRead = SFileReadFile(file, &this->m_fidgetDelaySeconds.m_h, sizeof(this->m_fidgetDelaySeconds.m_h), nullptr, nullptr, 0);
     int32_t birthSoundIDRead = SFileReadFile(file, &this->m_birthSoundID, sizeof(this->m_birthSoundID), nullptr, nullptr, 0);
     int32_t spellCastDirectedSoundIDRead = SFileReadFile(file, &this->m_spellCastDirectedSoundID, sizeof(this->m_spellCastDirectedSoundID), nullptr, nullptr, 0);
     int32_t submergeSoundIDRead = SFileReadFile(file, &this->m_submergeSoundID, sizeof(this->m_submergeSoundID), nullptr, nullptr, 0);

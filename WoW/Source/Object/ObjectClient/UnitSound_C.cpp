@@ -522,7 +522,7 @@ int32_t CreatureSoundDataGetFidgetSound(const CreatureSoundDataRec* rec, uint32_
 // OFFSET: 0x007462A0
 float CreatureSoundDataGetFidgetDelayMin(const CreatureSoundDataRec* rec) {
     if (rec) {
-        return rec->m_fidgetDelaySecondsMin;
+        return rec->m_fidgetDelaySeconds.m_l;
     }
 
     return 0.0f;
@@ -532,7 +532,7 @@ float CreatureSoundDataGetFidgetDelayMin(const CreatureSoundDataRec* rec) {
 // OFFSET: 0x007462C0
 float CreatureSoundDataGetFidgetDelayMax(const CreatureSoundDataRec* rec) {
     if (rec) {
-        return rec->m_fidgetDelaySecondsMax;
+        return rec->m_fidgetDelaySeconds.m_h;
     }
 
     return 0.0f;

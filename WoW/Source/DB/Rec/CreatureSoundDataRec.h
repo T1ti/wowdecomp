@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Tempest/CRange.h"
 
 class SFileImpl;
 
@@ -36,8 +37,7 @@ class CreatureSoundDataRec {
     /* 0070 */ int32_t m_soundPetAttackID;
     /* 0074 */ int32_t m_soundPetOrderID;
     /* 0078 */ int32_t m_soundPetDismissID;
-    /* 007C */ float m_fidgetDelaySecondsMin;
-    /* 0080 */ float m_fidgetDelaySecondsMax;
+    /* 007C */ CRange m_fidgetDelaySeconds;
     /* 0084 */ int32_t m_birthSoundID;
     /* 0088 */ int32_t m_spellCastDirectedSoundID;
     /* 008C */ int32_t m_submergeSoundID;
