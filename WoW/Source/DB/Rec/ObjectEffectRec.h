@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// ObjectEffect.dbc m_effectRecType: what m_effectRecID refers to.
+enum OBJECT_EFFECT_REC_TYPE : int32_t {
+    OBJECT_EFFECT_REC_TYPE_SOUND_KIT = 1, // m_effectRecID is a sound kit (SoundEntries) ID.
+    OBJECT_EFFECT_REC_TYPE_UNKNOWN_2 = 2, // Skipped by the one-shot update; no other client reader.
+};
+
 class ObjectEffectRec {
     public:
     static const int32_t s_numColumns = 12;
@@ -17,7 +23,7 @@ class ObjectEffectRec {
     /* 0008 */ int32_t m_objectEffectGroupID;
     /* 000C */ int32_t m_triggerType;
     /* 0010 */ int32_t m_eventType;
-    /* 0014 */ int32_t m_effectRecType;
+    /* 0014 */ int32_t m_effectRecType; // OBJECT_EFFECT_REC_TYPE
     /* 0018 */ int32_t m_effectRecID;
     /* 001C */ int32_t m_attachment;
     /* 0020 */ float m_offset [3];

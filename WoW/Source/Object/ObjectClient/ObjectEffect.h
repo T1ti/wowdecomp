@@ -125,7 +125,7 @@ class CObjectEffectGroupDefRef : public TSLinkedNode<CObjectEffectGroupDefRef> {
 class CObjectEffectDef : public TSLinkedNode<CObjectEffectDef> {
     public:
     /* 0008 */ int32_t m_id;
-    /* 000C */ int32_t m_effectRecType;
+    /* 000C */ int32_t m_effectRecType; // OBJECT_EFFECT_REC_TYPE
     /* 0010 */ int32_t m_effectRecID;
     /* 0014 */ int32_t m_attachment;
     /* 0018 */ C3Vector m_offset;

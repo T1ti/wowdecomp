@@ -441,7 +441,7 @@ C3Vector CObjectEffect::GetWorldPosition() {
 // VERIFY: 4fb949cb manual
 // OFFSET: 0x006F2AC0
 CObjectEffect::~CObjectEffect() {
-    if (this->m_def->m_effectRecType == 1) {
+    if (this->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
         if (this->m_soundKitObject.m_sound.m_internal) {
             SI2::StopSound(&this->m_soundKitObject, 0, -1.0f, 1);
         } else if (this->m_soundKitObject.m_advancedId) {
@@ -533,7 +533,7 @@ CObjectEffectRef::CObjectEffectRef() {
 void CObjectEffect::PlayOneShot() {
     C3Vector position = this->GetWorldPosition();
 
-    if (this->m_def->m_effectRecType == 1) {
+    if (this->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
         properties.m_loopMode = SE2_LOOP_MODE_NONLOOPING;
@@ -555,7 +555,7 @@ void CObjectEffect::TriggerLoopingEffect() {
 
     C3Vector position = this->GetWorldPosition();
 
-    if (this->m_def->m_effectRecType == 1) {
+    if (this->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
         if (!SI2::IsPlaying(&this->m_soundKitObject)) {
             SI2_SOUND_USAGE usage = SI2::GetSoundKitUsage(this->m_def->m_effectRecID);
 
@@ -579,7 +579,7 @@ void CObjectEffect::TriggerLoopingEffect() {
 // VERIFY: 1fcb379b auto
 // OFFSET: 0x006F1FB0
 void CObjectEffect::UpdateLoopingEffect(CObjectEffectManager* manager) {
-    if (this->m_def->m_effectRecType != 1) {
+    if (this->m_def->m_effectRecType != OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
         return;
     }
 
@@ -626,7 +626,7 @@ void CObjectEffectManager::UpdateAllPlayingEffects() {
     CObjectEffect* effect = this->m_oneShotEffects.Head();
 
     while (effect) {
-        if (effect->m_def->m_effectRecType == 1) {
+        if (effect->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
             C3Vector position = effect->GetWorldPosition();
 
             if (SI2::IsPlaying(&effect->m_soundKitObject)) {
@@ -634,7 +634,7 @@ void CObjectEffectManager::UpdateAllPlayingEffects() {
                 effect = this->m_oneShotEffects.Next(effect);
                 continue;
             }
-        } else if (effect->m_def->m_effectRecType == 2) {
+        } else if (effect->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_UNKNOWN_2) {
             effect = this->m_oneShotEffects.Next(effect);
             continue;
         }
@@ -736,7 +736,7 @@ void CObjectEffectManager::ExitState(uint32_t state, int32_t playExitEffects) {
             this->m_loopingEffects.UnlinkNode(effect);
             this->m_oneShotEffects.LinkToTail(effect);
 
-            if (effect->m_def->m_effectRecType == 1) {
+            if (effect->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
                 if (effect->m_soundKitObject.m_advancedId) {
                     SI2::StopAdvancedSound(effect->m_soundKitObject.m_advancedId, 0, 0.7f);
                 } else {
@@ -770,7 +770,7 @@ void CObjectEffectManager::PlayLoopingEffect(CObjectEffectDef* def, int32_t grou
         effect->m_link.Unlink();
         this->m_loopingEffects.LinkToTail(effect);
 
-        if (effect->m_def->m_effectRecType == 1) {
+        if (effect->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
             effect->m_soundKitObject.m_sound.FadeInNow();
             effect->m_refCount++;
         }
