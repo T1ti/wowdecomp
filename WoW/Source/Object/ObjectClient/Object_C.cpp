@@ -808,7 +808,7 @@ int32_t CGObject_C::ShouldRenderObjectName(uint32_t flags) const {
         return 0;
     }
 
-    return (flags >> 11) & 0x1;
+    return (flags & OBJECT_NAME_UNKNOWN_0x800) != 0;
 }
 
 // VERIFY: 0bd02555 auto

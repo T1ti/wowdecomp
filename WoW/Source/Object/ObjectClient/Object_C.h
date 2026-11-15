@@ -123,6 +123,24 @@ enum QUEST_GIVER_STATUS : uint32_t {
     QUEST_GIVER_NUMITEMS = 11,
 };
 
+// s_nameMask bits, one per UnitName* CVar registered by PlayerNameRegisterCVars.
+enum OBJECT_NAME_FLAGS : uint32_t {
+    OBJECT_NAME_OWN = 0x1, // UnitNameOwn
+    OBJECT_NAME_NPC = 0x2, // UnitNameNPC
+    OBJECT_NAME_PLAYER_GUILD = 0x4, // UnitNamePlayerGuild
+    OBJECT_NAME_PLAYER_PVP_TITLE = 0x8, // UnitNamePlayerPVPTitle
+    OBJECT_NAME_ENEMY_PLAYER = 0x10, // UnitNameEnemyPlayerName
+    OBJECT_NAME_ENEMY_PET = 0x20, // UnitNameEnemyPetName
+    OBJECT_NAME_ENEMY_TOTEM = 0x40, // UnitNameEnemyTotemName
+    OBJECT_NAME_FRIENDLY_PLAYER = 0x80, // UnitNameFriendlyPlayerName
+    OBJECT_NAME_FRIENDLY_PET = 0x100, // UnitNameFriendlyPetName
+    OBJECT_NAME_FRIENDLY_TOTEM = 0x200, // UnitNameFriendlyTotemName
+    OBJECT_NAME_NON_COMBAT_CREATURE = 0x400, // UnitNameNonCombatCreatureName
+    OBJECT_NAME_UNKNOWN_0x800 = 0x800, // No CVar sets it; CGObject_C::ShouldRenderObjectName reads it.
+    OBJECT_NAME_ENEMY_GUARDIAN = 0x1000, // UnitNameEnemyGuardianName
+    OBJECT_NAME_FRIENDLY_GUARDIAN = 0x2000, // UnitNameFriendlyGuardianName
+};
+
 class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID> {
     public:
     struct InteractIcon {

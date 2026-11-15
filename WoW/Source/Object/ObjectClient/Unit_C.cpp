@@ -4737,7 +4737,7 @@ BOOL CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
     }
 
     if (this->IsControlledByViewer()) {
-        return flags & 0x1;
+        return (flags & OBJECT_NAME_OWN) != 0;
     }
 
     if (this->m_obj->m_guid == CGGameUI::m_lockedTarget) {
@@ -4746,10 +4746,10 @@ BOOL CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
         if (player->CanCooperate(this)) {
-            return (flags >> 7) & 0x1;
+            return (flags & OBJECT_NAME_FRIENDLY_PLAYER) != 0;
         }
 
-        if ((flags & 0x10) && !(this->m_unit->m_visFlags & UNIT_VIS_FLAG_CREEP)) {
+        if ((flags & OBJECT_NAME_ENEMY_PLAYER) && !(this->m_unit->m_visFlags & UNIT_VIS_FLAG_CREEP)) {
             return TRUE;
         }
 
@@ -4764,28 +4764,28 @@ BOOL CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
         }
 
         if ((this->HasCreator() && !this->HasSummoner() && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_NPC)) || this->GetCreatureType() == CREATURE_TYPE_CRITTER || this->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
-            return (flags >> 10) & 0x1;
+            return (flags & OBJECT_NAME_NON_COMBAT_CREATURE) != 0;
         }
 
         if (this->GetCreatureType() == CREATURE_TYPE_TOTEM) {
-            return friendly ? (flags >> 9) & 0x1 : (flags >> 6) & 0x1;
+            return friendly ? (flags & OBJECT_NAME_FRIENDLY_TOTEM) != 0 : (flags & OBJECT_NAME_ENEMY_TOTEM) != 0;
         }
 
         if (this->GetCreatorGuid()) {
-            return (flags >> 12) & 0x1;
+            return (flags & OBJECT_NAME_ENEMY_GUARDIAN) != 0;
         }
 
         CGUnit_C* charmer = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_unit->m_unitFieldCharmedby, TYPE_UNIT, __FILE__, __LINE__));
 
         if (player->CanCooperate(this)) {
-            return (flags >> 8) & 0x1;
+            return (flags & OBJECT_NAME_FRIENDLY_PET) != 0;
         }
 
         if (charmer && charmer->GetTransportGUID() == this->m_obj->m_guid.m_guid && (player == charmer || player->CanCooperate(charmer))) {
-            return (flags >> 8) & 0x1;
+            return (flags & OBJECT_NAME_FRIENDLY_PET) != 0;
         }
 
-        return (flags >> 5) & 0x1;
+        return (flags & OBJECT_NAME_ENEMY_PET) != 0;
     }
 
     if ((this->m_unit->m_visFlags & UNIT_VIS_FLAG_CREEP) && player->CanAttack(this)) {
@@ -4793,10 +4793,10 @@ BOOL CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
     }
 
     if (this->GetCreatureType() == CREATURE_TYPE_CRITTER || this->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
-        return (flags >> 10) & 0x1;
+        return (flags & OBJECT_NAME_NON_COMBAT_CREATURE) != 0;
     }
 
-    return (flags >> 1) & 0x1;
+    return (flags & OBJECT_NAME_NPC) != 0;
 }
 
 // VERIFY: 9e068ef2 manual
@@ -19967,10 +19967,10 @@ int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, c
     char foreignText[8] = {};
 
     int32_t lines = 0;
-    unit->GetUnitChosenTitle(titleText, sizeof(titleText), (flags & 8) != 0, &lines);
+    unit->GetUnitChosenTitle(titleText, sizeof(titleText), (flags & OBJECT_NAME_PLAYER_PVP_TITLE) != 0, &lines);
 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
-        if (flags & 4) {
+        if (flags & OBJECT_NAME_PLAYER_GUILD) {
             const char* guildName = static_cast<CGPlayer_C*>(unit)->GetPlayerGuildNameText();
 
             if (guildName && *guildName) {
