@@ -3852,7 +3852,7 @@ CM2Model::CM2Model() {
     this->m_particlePrev = nullptr;
     this->m_particleNext = nullptr;
     this->m_optGeo = nullptr;
-    this->m_hitTestMode = 0;
+    this->m_hitTestMode = HIT_TEST_RENDER;
     this->m_hitTestPrev = nullptr;
     this->m_hitTestNext = nullptr;
     this->m_hitTestOwner = nullptr;

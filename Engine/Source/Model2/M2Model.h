@@ -154,6 +154,15 @@ class CM2Model {
         INSTANCE_INITIALIZE_ON_DEMAND = 0x20,
     };
 
+    // Geometry a model is tested against once linked into CM2Scene's hit-test list.
+    enum HIT_TEST_MODE : uint32_t {
+        HIT_TEST_RENDER = 0, // All hit-testable render batches.
+        HIT_TEST_OPAQUE = 1, // Skips blended materials without M2Material::HIT_TEST_NON_OPAQUE.
+        HIT_TEST_NON_OPAQUE = 2, // Skips opaque materials.
+        HIT_TEST_COLLISION = 3, // Collision bounds and collision mesh.
+        HIT_TEST_UNKNOWN_4 = 4, // Set by CGWorldFrame for HIT_TEST_UNKNOWN_8000000; no reader distinguishes it from HIT_TEST_RENDER.
+    };
+
     /* 0000 */ uint32_t m_refCount;
     /* 0004 */ uint32_t m_creationFlags;
     /* 0008 */ CM2Model** m_scenePrev;
@@ -233,7 +242,7 @@ class CM2Model {
     /* 02C8 */ CM2Model** m_particlePrev;
     /* 02CC */ CM2Model* m_particleNext;
     /* 02D0 */ M2ModelOptGeo* m_optGeo;
-    /* 02D4 */ uint32_t m_hitTestMode;
+    /* 02D4 */ uint32_t m_hitTestMode; // HIT_TEST_MODE
     /* 02D8 */ CM2Model** m_hitTestPrev;
     /* 02DC */ CM2Model* m_hitTestNext;
     /* 02E0 */ void* m_hitTestOwner;

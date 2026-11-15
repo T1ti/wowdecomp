@@ -1222,14 +1222,18 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
 
         if (doodadDef->m_collisionGuid) {
             if (flags & WORLD_QUERY_OBJECT_COLLISION) {
-                mode = 3;
+                mode = CM2Model::HIT_TEST_COLLISION;
             } else if (flags & (WORLD_QUERY_OBJECT_RENDER | WORLD_QUERY_OBJECT_UNKNOWN_0x400000)) {
-                mode = 0;
+                mode = CM2Model::HIT_TEST_RENDER;
             }
         } else if (flags & WORLD_QUERY_M2_COLLISION) {
-            mode = 3;
+            mode = CM2Model::HIT_TEST_COLLISION;
         } else if (flags & (WORLD_QUERY_M2_RENDER | WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_M2_NON_OPAQUE)) {
-            mode = (flags & WORLD_QUERY_M2_NON_OPAQUE) ? 2 : ((flags & WORLD_QUERY_VISIBLE_OPAQUE) ? 1 : 0);
+            if (flags & WORLD_QUERY_M2_NON_OPAQUE) {
+                mode = CM2Model::HIT_TEST_NON_OPAQUE;
+            } else {
+                mode = (flags & WORLD_QUERY_VISIBLE_OPAQUE) ? CM2Model::HIT_TEST_OPAQUE : CM2Model::HIT_TEST_RENDER;
+            }
         }
 
         if (mode >= 0 && (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
@@ -1298,7 +1302,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
                 }
             }
 
-            model->m_hitTestMode = (flags & WORLD_QUERY_OBJECT_COLLISION) ? 3 : 0;
+            model->m_hitTestMode = (flags & WORLD_QUERY_OBJECT_COLLISION) ? CM2Model::HIT_TEST_COLLISION : CM2Model::HIT_TEST_RENDER;
             model->m_hitTestGroup = 0;
             model->m_hitTestOwner = entity;
         }
@@ -5617,7 +5621,7 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
                 }
             }
 
-            model->m_hitTestMode = 3;
+            model->m_hitTestMode = CM2Model::HIT_TEST_COLLISION;
             model->m_hitTestGroup = 0;
             model->m_hitTestOwner = doodadDef;
         }

@@ -297,7 +297,7 @@ uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, 
         }
 
         if (frameCheck && model->m_frameStamp != this->m_frameStamp) {
-            if (model->m_hitTestMode != 3 || model->m_attachParent) {
+            if (model->m_hitTestMode != CM2Model::HIT_TEST_COLLISION || model->m_attachParent) {
                 continue;
             }
 
@@ -305,7 +305,7 @@ uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, 
         }
 
         M2Data* data = model->m_shared->m_data;
-        const M2Bounds* bounds = model->m_hitTestMode == 3 ? &data->m_collisionBounds : &data->m_sequences[model->m_bones->m_sequence.m_sequenceIndex].m_bounds;
+        const M2Bounds* bounds = model->m_hitTestMode == CM2Model::HIT_TEST_COLLISION ? &data->m_collisionBounds : &data->m_sequences[model->m_bones->m_sequence.m_sequenceIndex].m_bounds;
 
         if (fabsf(bounds->m_radius) < 0.00000023841858f) {
             continue;
@@ -603,11 +603,11 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
 
         M2Material* material = &data->m_materials[batch->m_materialIndex];
 
-        if (model->m_hitTestMode == 2 && material->m_blendMode == M2BLEND_OPAQUE) {
+        if (model->m_hitTestMode == CM2Model::HIT_TEST_NON_OPAQUE && material->m_blendMode == M2BLEND_OPAQUE) {
             continue;
         }
 
-        if (model->m_hitTestMode == 1 && material->m_blendMode && !(material->m_flags & M2Material::FLAGS::HIT_TEST_NON_OPAQUE)) {
+        if (model->m_hitTestMode == CM2Model::HIT_TEST_OPAQUE && material->m_blendMode && !(material->m_flags & M2Material::FLAGS::HIT_TEST_NON_OPAQUE)) {
             continue;
         }
 
@@ -728,7 +728,7 @@ void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t,
                 break;
             }
 
-            if (rec->m_model->m_hitTestMode == 3) {
+            if (rec->m_model->m_hitTestMode == CM2Model::HIT_TEST_COLLISION) {
                 best = this->HitTestCollision(rec->m_model, pass, dir, d, start, rec, tMax, best);
             } else {
                 best = this->HitTestGeometry(rec->m_model, pass, dir, d, start, rec, tMax, best);
@@ -803,7 +803,7 @@ void* CM2Scene::EndHitTestCollisionWorld(const C3Vector& start, const C3Vector& 
         CM2Model* model = rec->m_model;
         M2Data* data = model->m_shared->m_data;
 
-        if (model->m_hitTestMode != 3) {
+        if (model->m_hitTestMode != CM2Model::HIT_TEST_COLLISION) {
             continue;
         }
 

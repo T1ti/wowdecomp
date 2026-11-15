@@ -275,7 +275,7 @@ void CGWorldFrame::AddObjectToHitTestList(CModelRecord* record, uint32_t flags) 
     }
 
     record->m_object = nullptr;
-    AddModelToHitTest(record->m_model, group, record, (flags & HIT_TEST_UNKNOWN_8000000) ? 4 : 0);
+    AddModelToHitTest(record->m_model, group, record, (flags & HIT_TEST_UNKNOWN_8000000) ? CM2Model::HIT_TEST_UNKNOWN_4 : CM2Model::HIT_TEST_RENDER);
 }
 
 // VERIFY: 611dc17c manual
@@ -991,7 +991,7 @@ bool CGWorldFrame::HitTestModelList(const C3Vector& start, const C3Vector& end) 
     World::s_m2Scene->BeginHitTest();
 
     for (CModelRecord* record = this->m_modelList.Head(); record; record = this->m_modelList.Next(record)) {
-        AddModelToHitTest(record->m_model, 0, record, 0);
+        AddModelToHitTest(record->m_model, 0, record, CM2Model::HIT_TEST_RENDER);
     }
 
     float t = 1.0f;
