@@ -475,7 +475,7 @@ void CGItemStatsSummary::CleanStatNames() {
 // VERIFY: e5cf160b auto
 // OFFSET: 0x0061BB20
 char* CGItem_C::GetStatName(uint32_t stat, char* buffer, int32_t size) {
-    if (stat - 11 <= 48) {
+    if (stat >= 11 && stat <= 59) {
         SStrPrintf(buffer, size, "%s%s", s_itemModTokens[stat - 11], "_SHORT");
         return buffer;
     }
@@ -485,7 +485,7 @@ char* CGItem_C::GetStatName(uint32_t stat, char* buffer, int32_t size) {
         return buffer;
     }
 
-    if (stat - 69 <= 3) {
+    if (stat >= 69 && stat <= 72) {
         char color[64];
         SStrCopy(color, s_socketColorNames[stat - 69], sizeof(color));
         SStrUpper(color);
@@ -493,7 +493,7 @@ char* CGItem_C::GetStatName(uint32_t stat, char* buffer, int32_t size) {
         return buffer;
     }
 
-    if (stat - 61 <= 6) {
+    if (stat >= 61 && stat <= 67) {
         SStrPrintf(buffer, size, "%s%d%s", "ITEM_MOD_POWER_REGEN", stat - 61, "_SHORT");
         return buffer;
     }

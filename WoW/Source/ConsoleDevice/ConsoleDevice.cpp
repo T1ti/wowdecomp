@@ -421,7 +421,7 @@ void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) 
 
     for (s_device = CreateGxDevice(api, OsWindowProc, format); !s_device; s_device = CreateGxDevice(api, OsWindowProc, format)) {
         if (format.m_multisampleCount > 1) {
-            if (format.m_multisampleCount - 2 <= 1) {
+            if (format.m_multisampleCount >= 2 && format.m_multisampleCount <= 3) {
                 format.m_multisampleCount = 1;
             } else {
                 format.m_multisampleCount -= 2;

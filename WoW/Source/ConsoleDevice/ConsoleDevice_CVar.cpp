@@ -281,7 +281,7 @@ static bool CVGxOverrideCallback(CVar* var, const char* oldValue, const char* va
 static bool CVGxMaxFPSCallback(CVar* var, const char* oldValue, const char* value, void* arg) {
     uint32_t maxFPS = SStrToInt(value);
 
-    if (maxFPS - 1 <= 6) {
+    if (maxFPS >= 1 && maxFPS <= 7) {
         maxFPS = 8;
     }
 
@@ -295,7 +295,7 @@ static bool CVGxMaxFPSCallback(CVar* var, const char* oldValue, const char* valu
 static bool CVGxMaxFPSBkCallback(CVar* var, const char* oldValue, const char* value, void* arg) {
     uint32_t maxFPSBk = SStrToInt(value);
 
-    if (maxFPSBk - 1 <= 6) {
+    if (maxFPSBk >= 1 && maxFPSBk <= 7) {
         maxFPSBk = 8;
     }
 
