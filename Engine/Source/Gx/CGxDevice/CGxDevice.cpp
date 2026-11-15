@@ -462,7 +462,7 @@ void CGxDevice::ICursorDraw() {
 
     GxRsSet(GxRs_PolygonOffset, 0);
     GxRsSet(GxRs_NormalizeNormals, 0);
-    GxRsSet(GxRs_BlendingMode, 1);
+    GxRsSet(GxRs_BlendingMode, GxBlend_AlphaKey);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Fog, 0);
@@ -2069,7 +2069,7 @@ void CGxDevice::RsInit() {
     this->RsSet(GxRs_MatEmissive, 0.0f);
     this->RsSet(GxRs_MatSpecular, 0.0f);
     this->RsSet(GxRs_NormalizeNormals, 0);
-    this->RsSet(GxRs_BlendingMode, 0);
+    this->RsSet(GxRs_BlendingMode, GxBlend_Opaque);
     this->RsSet(GxRs_FogStart, 0.0f);
     this->RsSet(GxRs_FogEnd, 1.0f);
     this->RsSet(GxRs_FogColor, static_cast<int32_t>(0xFFFF0000));

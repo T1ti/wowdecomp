@@ -422,7 +422,7 @@ static void PaintLoadingBar(const BackgroundImage* images, int32_t count, CTextu
             continue;
         }
 
-        GxRsSet(GxRs_BlendingMode, 2);
+        GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
         GxUpdateAlphaRef(GxRs_AlphaRef);
 
         const BackgroundImage& image = images[i];
@@ -1159,7 +1159,7 @@ void PaintDynamicLoadingBar() {
     index[11] = 6;
 
     g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(s_dynamicElementsTexture, 1, nullptr));
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     DYNAMICELEMENTVERT* vertices = s_dynamicElements.m_data;

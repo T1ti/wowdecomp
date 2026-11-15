@@ -125,7 +125,7 @@ void CMap::RenderWaterRipples() {
     float polygonOffset = CWorldParam::cvar_footstepBias->m_floatValue * 0.0009765774f;
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 3);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Add);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_DepthWrite, 0);

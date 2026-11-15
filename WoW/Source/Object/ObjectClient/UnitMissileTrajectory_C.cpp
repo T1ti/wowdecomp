@@ -583,7 +583,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
         GxRsSet(GxRs_ColorWrite, 15);
         GxRsSet(GxRs_Lighting, 0);
         GxRsSet(GxRs_DepthWrite, 0);
-        GxRsSet(GxRs_BlendingMode, 3);
+        GxRsSet(GxRs_BlendingMode, GxBlend_Add);
         int32_t vertexCount = 2 * s_trajectoryPointCount + 2;
         C3Vector* positions = static_cast<C3Vector*>(alloca(sizeof(C3Vector) * vertexCount));
         CImVector* colors = static_cast<CImVector*>(alloca(sizeof(CImVector) * vertexCount));
@@ -672,7 +672,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 3);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Add);
     GxRsSet(GxRs_Culling, 0);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_DepthWrite, 0);

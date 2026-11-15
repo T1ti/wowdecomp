@@ -1048,7 +1048,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         if (CShaderEffect::s_enableShaders) {
             CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
             SetShaderFogFromDayNight(~material.m_flags & SMOMaterial::F_UNFOGGED);
-            GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
+            GxRsSet(GxRs_BlendingMode, GxBlend_SrcAlphaOpaque);
             CShaderEffect::SetAlphaRefDefault();
             CMapObj::SelectWorldShaders();
             CGxBatch draw;
@@ -1067,7 +1067,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
                 CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
             }
 
-            GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(7));
+            GxRsSet(GxRs_BlendingMode, GxBlend_InvSrcAlphaAdd);
             CShaderEffect::SetAlphaRefDefault();
             CMapObj::SelectWorldShaders();
             CGxBatch draw2;
@@ -1084,7 +1084,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         group->SetTransparencyVB();
         CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) ? CMapObj::LIGHTING_MODE::UNLIT : ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
         SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) ? CMapObj::SHADER_FOG_MODE::DISABLED : CMapObj::SHADER_FOG_MODE::EXTERIOR_BLACK);
-        GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
+        GxRsSet(GxRs_BlendingMode, GxBlend_SrcAlphaOpaque);
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
@@ -1096,7 +1096,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
 
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::PARENT_COLOR);
         SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) ? CMapObj::SHADER_FOG_MODE::DISABLED : (fogMode | CMapObj::SHADER_FOG_MODE::BLACK_COLOR));
-        GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(7));
+        GxRsSet(GxRs_BlendingMode, GxBlend_InvSrcAlphaAdd);
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw2;
         draw2.m_primType = GxPrim_Triangles;
@@ -1109,7 +1109,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         group->SetVertexVB();
         CMapObjGroup::SetLighting(group, CMapObj::LIGHTING_MODE::UNLIT);
         SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
-        GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(10));
+        GxRsSet(GxRs_BlendingMode, GxBlend_NoAlphaAdd);
         CShaderEffect::SetAlphaRefDefault();
         CGxBatch draw3;
         draw3.m_primType = GxPrim_Triangles;
@@ -1579,7 +1579,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
 
         CMapObjGroup::SetLighting(group, ((material.m_flags & SMOMaterial::F_WINDOW) != 0) + 1);
         SetShaderFogFromDayNight(~material.m_flags & SMOMaterial::F_UNFOGGED);
-        GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(9));
+        GxRsSet(GxRs_BlendingMode, GxBlend_SrcAlphaOpaque);
         CShaderEffect::SetAlphaRefDefault();
         CMapObj::SelectWorldShaders();
         CGxBatch draw;
@@ -1598,7 +1598,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
             CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue() != 0;
         }
 
-        GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(7));
+        GxRsSet(GxRs_BlendingMode, GxBlend_InvSrcAlphaAdd);
         CShaderEffect::SetAlphaRefDefault();
         CMapObj::SelectWorldShaders();
         CGxBatch draw2;
@@ -3243,7 +3243,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_AlphaRef, static_cast<int32_t>(CGxDevice::s_alphaRef[g_theGxDevicePtr->m_appRenderStates.m_data[GxRs_BlendingMode].m_value.m_data.i[0]]));
     GxRsSet(GxRs_VertexShader, static_cast<void*>(nullptr));
     GxRsSet(GxRs_PixelShader, static_cast<void*>(nullptr));
@@ -3577,7 +3577,7 @@ void CMapObj::RenderPortals(CMapObjGroup* group) {
 
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>((group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) ? 0xFFFFFFFF : 0x60FF0000));
-    GxRsSet(GxRs_BlendingMode, 3);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Add);
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_DepthTest, 0);
@@ -3605,7 +3605,7 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0x80FF0000));
     GxRsSet(GxRs_Fog, 0);
     CMapObj::SetRenderModeLight();
@@ -3682,7 +3682,7 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFF8080FF));
     GxRsSet(GxRs_Fog, 0);
     CMapObj::SetRenderModeLight();
@@ -3759,7 +3759,7 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFF00FF00));
     GxRsSet(GxRs_Fog, 0);
     CMapObj::SetRenderModeLight();
@@ -3836,7 +3836,7 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFF7F7F7F));
     GxRsSet(GxRs_Fog, 0);
     CMapObj::SetRenderModeLight();
@@ -3925,12 +3925,12 @@ void CMapObj::RenderGroupCollidable(CMapObjGroup* group, uint32_t index) {
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
     g_theGxDevicePtr->MasterEnableSet(GxMasterEnable_PolygonFill, Gx_Enable);
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0x80CCCCCC));
     GxRsSet(GxRs_DepthWrite, 1);
     CMapObj::RenderGroupCollidableFaces(group);
     g_theGxDevicePtr->MasterEnableSet(GxMasterEnable_PolygonFill, Gx_Disable);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0x80111111));
     GxRsSet(GxRs_DepthWrite, 0);
     CMapObj::RenderGroupCollidableFaces(group);

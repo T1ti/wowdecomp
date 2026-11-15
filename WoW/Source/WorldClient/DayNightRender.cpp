@@ -131,7 +131,7 @@ void DayNight::DNPlanet::Render() {
     g_theGxDevicePtr->m_xforms[GxXform_World].Identity();
     g_theGxDevicePtr->XformSetView(billboard * view);
 
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Fog, 0);
@@ -173,7 +173,7 @@ void DayNight::DNSky::Render() {
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_Culling, 0);
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_BlendingMode, 3);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Add);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     GxPrimVertexPtr(this->m_nVerts, this->m_geoVerts.m_data, sizeof(C3Vector), nullptr, 0, this->m_clrVerts.m_data, sizeof(CImVector), nullptr, 0, nullptr, 0);
@@ -209,7 +209,7 @@ void DayNight::DNClouds::Render() {
     GxXformScale(GxXform_World, C3Vector(6.6666665f, 6.6666665f, 6.6666665f));
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Fog, 0);

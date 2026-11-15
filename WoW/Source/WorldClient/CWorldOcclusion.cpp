@@ -917,7 +917,7 @@ void CWorldScene::RenderOcclusionVolumes() {
     g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_DepthWrite, 0);
     GxRsSet(GxRs_Lighting, 0);

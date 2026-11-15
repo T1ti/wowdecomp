@@ -4531,7 +4531,7 @@ int32_t CM2Model::SetVerticesMultiSample(int32_t optimized, M2SkinSection* secti
 // VERIFY: 7330ed7c manual
 // OFFSET: 0x0082DA40
 void CM2Model::RenderModelBatchesShadowMap(const CModelBatchList& untextured, const CModelBatchList& textured) {
-    GxRsSet(GxRs_BlendingMode, static_cast<int32_t>(0));
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     CShaderEffect::SetAlphaRef(0.0f);
     CShaderEffect::SetDefaultShaders(0);
     CM2Model::RenderModelBatchListShadowMap(1, untextured);

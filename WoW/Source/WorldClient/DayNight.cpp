@@ -3038,7 +3038,7 @@ void DayNight::DNGlare::Render() {
     GxXformViewport(minX, maxX, minY, maxY, minZ, maxZ);
     GxXformSetViewport(minX, maxX, minY, maxY, s_skyMinZ, s_skyMaxZ);
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_BlendingMode, 3);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Add);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Fog, 0);

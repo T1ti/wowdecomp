@@ -1843,7 +1843,7 @@ void CGMinimapFrame::Render() {
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_DepthTest, 0);
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     DayNight::DNInfo* info = DayNight::GetInfo();
@@ -3182,7 +3182,7 @@ void CGMinimapFrame::RenderInsideTexture(const CImVector* color) {
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_DepthTest, 0);
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_BlendingMode, 1);
+    GxRsSet(GxRs_BlendingMode, GxBlend_AlphaKey);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     g_theGxDevicePtr->XformPush(GxXform_World);

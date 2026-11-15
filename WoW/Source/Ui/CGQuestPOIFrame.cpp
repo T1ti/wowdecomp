@@ -698,7 +698,7 @@ void CGQuestPOIFrame::Render() {
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Culling, 0);
     GxRsSet(GxRs_DepthTest, 0);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Multisample, 0);
     GxRsSet(GxRs_Texture0, fillTexture);

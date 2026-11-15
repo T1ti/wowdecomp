@@ -3179,7 +3179,7 @@ void CWorldScene::RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t 
         color = swapped;
     }
 
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxRsSet(GxRs_MatDiffuse, *reinterpret_cast<int32_t*>(&color));
     GxRsSet(GxRs_Culling, 0);
     GxRsSet(GxRs_Lighting, 0);
@@ -3306,7 +3306,7 @@ void CWorldScene::RenderOccluders() {
 
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_MatDiffuse, *reinterpret_cast<int32_t*>(&color));
     GxRsSet(GxRs_Culling, 0);
@@ -3419,7 +3419,7 @@ void CWorldScene::RenderDebugFrustum() {
 
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_MatDiffuse, *reinterpret_cast<int32_t*>(&diffuse));
     GxRsSet(GxRs_Culling, 0);

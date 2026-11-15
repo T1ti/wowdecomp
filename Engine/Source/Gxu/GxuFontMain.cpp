@@ -1,4 +1,5 @@
 #include <cstddef>
+#include "Engine/Source/ShaderEffect/Types.h"
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -1111,12 +1112,12 @@ void GxuFontUpdate() {
 
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_Culling, 0);
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_DepthWrite, 0);
     GxRsSet(GxRs_DepthTest, 0);
-    GxRsSet(GxRs_ColorOp0, 0);
-    GxRsSet(GxRs_AlphaOp0, 3);
+    GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
+    GxRsSet(GxRs_AlphaOp0, GxTexOp_PassThru);
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_ColorWrite, 15);
 

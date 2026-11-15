@@ -726,7 +726,7 @@ void CMapRenderChunk::RenderSolid() {
     C44Matrix tex1;
     GxXformSet(GxXform_Tex1, tex1);
 
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     CGxTex* gxTex = TextureGetGxTex(CWorldScene::s_defaultTexture, 1, nullptr);
@@ -754,7 +754,7 @@ void CMapRenderChunk::RenderSolidPixelShader() {
 // VERIFY: 90367efa manual
 // OFFSET: 0x007D3240
 void CMapRenderChunk::RenderSolidVertexPixelShader() {
-    GxRsSet(GxRs_BlendingMode, 0);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     CGxTex* gxTex = TextureGetGxTex(CWorldScene::s_defaultTexture, 1, nullptr);

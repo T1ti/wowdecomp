@@ -489,7 +489,7 @@ void WorldTextRenderBatch() {
     g_theGxDevicePtr->RsSet(GxRs_Lighting, 0);
     g_theGxDevicePtr->RsSet(GxRs_Fog, 0);
     g_theGxDevicePtr->RsSet(GxRs_Culling, 0);
-    g_theGxDevicePtr->RsSet(GxRs_BlendingMode, 2);
+    g_theGxDevicePtr->RsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     C44Matrix identity;

@@ -1,4 +1,5 @@
 #include <cmath>
+#include "Engine/Source/ShaderEffect/Types.h"
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Gxu/GxuFontMiscClasses.h"
@@ -516,7 +517,7 @@ void CGxStringBatch::RenderBatch() {
 
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_Culling, 0);
-    GxRsSet(GxRs_BlendingMode, 2);
+    GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     CGxShader* vertexShader;
@@ -555,8 +556,8 @@ void CGxStringBatch::RenderBatch() {
         GxShaderConstantsSet(GxSh_Vertex, 0, reinterpret_cast<const float*>(&viewProj), 4);
     } else {
         GxRsSet(GxRs_Lighting, 0);
-        GxRsSet(GxRs_ColorOp0, 0);
-        GxRsSet(GxRs_AlphaOp0, 0);
+        GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
+        GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
     }
 
     for (BATCHEDRENDERFONTDESC* desc = this->m_fontBatch.m_fulllist.Head(); desc; ) {
