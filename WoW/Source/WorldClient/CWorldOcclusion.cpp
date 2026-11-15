@@ -867,12 +867,12 @@ void CWorldScene::CreateOcclusionVolumes(const C3Vector* eye, const C3Vector* co
     for (uint32_t i = 0; i < 62; i++) {
         OcclusionVolume& volume = s_occlusionVolumes[i];
 
-        if (s_mapId != volume.m_mapID || (onlyFlagged && !(volume.m_flags & 2))) {
+        if (s_mapId != volume.m_mapID || (onlyFlagged && !(volume.m_flags & OcclusionVolume::FLAGS::UNKNOWN_2))) {
             continue;
         }
 
         if (frustum.Cull(volume.m_data.m_bounds)) {
-            CWorldOcclusion::AddVolume(eye, volume.m_data.m_positions, volume.m_data.m_positionCount, !(volume.m_flags & 1));
+            CWorldOcclusion::AddVolume(eye, volume.m_data.m_positions, volume.m_data.m_positionCount, !(volume.m_flags & OcclusionVolume::FLAGS::NO_VIEW_CLIP));
         }
     }
 }

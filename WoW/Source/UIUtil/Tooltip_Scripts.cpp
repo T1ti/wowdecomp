@@ -2301,7 +2301,7 @@ static int32_t Script_SetAuctionItem(lua_State* L) {
         link.m_stackCount = auction->m_count;
         WOWGUID none = WOWGUID();
         ItemStats_C* stats = g_itemDBCache.GetRecord(auction->m_itemID, none, nullptr, nullptr, false);
-        link.m_lockId = !stats || (auction->m_flags & 0x4) ? 0 : stats->m_lockId;
+        link.m_lockId = !stats || (auction->m_flags & ITEM_DFLAG_UNLOCKED) ? 0 : stats->m_lockId;
         WOWGUID itemGuid = WOWGUID();
         WOWGUID requester = WOWGUID();
 
@@ -2413,7 +2413,7 @@ static int32_t Script_SetGuildBankItem(lua_State* L) {
     if (player) {
         WOWGUID itemGuid = player->m_obj->m_guid;
         WOWGUID requester = WOWGUID();
-        tooltip->SetItem(info->m_itemID, &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, info->m_flags & 0x4, 0);
+        tooltip->SetItem(info->m_itemID, &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, info->m_flags & ITEM_DFLAG_UNLOCKED, 0);
     }
 
     return 0;

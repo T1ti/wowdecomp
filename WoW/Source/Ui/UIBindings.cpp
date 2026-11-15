@@ -808,10 +808,10 @@ int32_t CGUIBindings::Bind(BINDING_SET set, BINDING_MODE mode, const char* key, 
         binding = this->m_bindings[set].New(key, 0, 0);
     }
 
-    if (set) {
-        binding->m_flags &= ~1u;
+    if (set != BINDING_SET_DEFAULT) {
+        binding->m_flags &= ~KEYBINDING::FLAGS::DEFAULT;
     } else {
-        binding->m_flags |= 1u;
+        binding->m_flags |= KEYBINDING::FLAGS::DEFAULT;
     }
 
     if (!this->GetBindingCommand(binding, mode) || !command || SStrCmp(this->GetBindingCommand(binding, mode), command, STORM_MAX_STR)) {
@@ -1592,7 +1592,7 @@ void CGUIBindings::SaveBindings(BINDING_SET set, HOSFILE file) {
         int32_t first = 1;
 
         for (KEYBINDING* binding = this->m_bindings[set].m_fulllist.Head(); binding; binding = this->m_bindings[set].m_fulllist.Next(binding)) {
-            if (binding->m_flags & 1) {
+            if (binding->m_flags & KEYBINDING::FLAGS::DEFAULT) {
                 continue;
             }
 

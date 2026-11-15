@@ -16,7 +16,14 @@ struct KEYBINDINGDATA {
 
 class KEYBINDING : public TSHashObject<KEYBINDING, HASHKEY_STRI> {
     public:
-    /* 0018 */ uint32_t m_flags;
+    // Reconstructed name.
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // Bound from BINDING_SET_DEFAULT; SaveBindings skips it.
+        DEFAULT = 0x1,
+    };
+
+    /* 0018 */ uint32_t m_flags; // FLAGS
     /* 001C */ KEYBINDINGDATA m_data [4];
 
     KEYBINDING();

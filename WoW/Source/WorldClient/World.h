@@ -104,8 +104,16 @@ struct WorldOccluderData {
 };
 
 struct OcclusionVolume {
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // AddVolume is called with clipToView off.
+        NO_VIEW_CLIP = 0x1,
+        // Kept when CreateOcclusionVolumes runs with onlyFlagged.
+        UNKNOWN_2 = 0x2,
+    };
+
     /* 0000 */ int32_t m_mapID;
-    /* 0004 */ uint32_t m_flags;
+    /* 0004 */ uint32_t m_flags; // FLAGS
     /* 0008 */ OcclusionVolumeData m_data;
 };
 
