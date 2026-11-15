@@ -3506,8 +3506,8 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         SStrPrintf(text, sizeof(text), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(stats->m_displayId));
         int32_t slotIndex = bag;
 
-        if (bag == 255) {
-            slotIndex = slot - 86 > 31 ? -1 : -3;
+        if (bag == INVENTORY_BAG_PLAYER) {
+            slotIndex = slot - KEYRING_FIRST > KEYRING_LAST - KEYRING_FIRST ? BACKPACK_CONTAINER - 1 : KEYRING_CONTAINER - 1;
         }
 
         FrameScript_SignalEvent(SCRIPT_EVENT_ITEM_PUSH, "%d%s", slotIndex + 1, text);
