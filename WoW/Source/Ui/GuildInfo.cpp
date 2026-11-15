@@ -105,7 +105,7 @@ void CGGuildInfo::InitializeGame() {
     CGGuildInfo::m_infoText[0] = '\0';
     CGGuildInfo::m_motd[0] = '\0';
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < NUM_GUILD_ROSTER_SORT_COLUMNS; i++) {
         CGGuildInfo::m_sortCriteria[i].m_column = i;
         CGGuildInfo::m_sortCriteria[i].m_descending = 0;
     }
