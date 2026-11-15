@@ -409,7 +409,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
                 }
             }
 
-            if (sound->m_usage != 2 && (sound->m_timeA || sound->m_timeB || sound->m_timeC || sound->m_timeD)) {
+            if (sound->m_usage != SI2_SOUND_USAGE_ONESHOT && (sound->m_timeA || sound->m_timeB || sound->m_timeC || sound->m_timeD)) {
                 int32_t offset = sound->m_randomOffset;
                 int32_t time = s_dayTime;
 
@@ -447,9 +447,9 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
         }
 
         SI2AdvancedSound* advanced = node->m_sound;
-        int32_t usage = advanced->m_usage;
+        SI2_SOUND_USAGE usage = advanced->m_usage;
 
-        if (!advanced->m_object || usage == 2 || (!usage && advanced->m_stopped)) {
+        if (!advanced->m_object || usage == SI2_SOUND_USAGE_ONESHOT || (!usage && advanced->m_stopped)) {
             VSOUND_LOOKUP* next = s_vsoundLookup->m_fulllist.Next(node);
             s_vsoundLookup->DeleteNode(node);
             node = next;
@@ -459,7 +459,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
         if (IsInTimeWindow(advanced)) {
             if (!usage) {
                 node->m_sound->Play();
-            } else if (usage == 1) {
+            } else if (usage == SI2_SOUND_USAGE_INTERVAL) {
                 node->m_sound->m_nextInterval -= elapsed;
 
                 if (node->m_sound->m_nextInterval < 0) {
@@ -704,7 +704,7 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
     sound->m_randomOffsetRange = rec->m_randomOffsetRange;
     sound->m_volume = 1.0f;
     sound->m_randomOffset = RandomBetween(0, sound->m_randomOffsetRange);
-    sound->m_usage = forceLoop ? 0 : rec->m_usage;
+    sound->m_usage = forceLoop ? SI2_SOUND_USAGE_LOOPING : rec->m_usage;
     sound->m_interval.m_l = rec->m_timeIntervalMin;
     sound->m_interval.m_h = rec->m_timeIntervalMax;
     sound->m_nextInterval = RandomBetween(sound->m_interval.m_l, sound->m_interval.m_h);
@@ -751,7 +751,7 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
     node->m_hashval = id;
     node->m_sound = sound;
 
-    if (sound->m_usage == 2) {
+    if (sound->m_usage == SI2_SOUND_USAGE_ONESHOT) {
         sound->Play();
 
         if (SI2::IsPlaying(sound->m_object)) {

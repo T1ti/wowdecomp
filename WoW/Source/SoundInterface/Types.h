@@ -146,6 +146,13 @@ enum ITEMSOUNDTYPE : int32_t {
     // ITEMSOUND_CLOSE = 3,
 };
 
+// Inferred from 3.3.5 playback/update dispatch; original enum spelling is unknown.
+enum SI2_SOUND_USAGE : int32_t {
+    SI2_SOUND_USAGE_LOOPING = 0,
+    SI2_SOUND_USAGE_INTERVAL = 1,
+    SI2_SOUND_USAGE_ONESHOT = 2,
+};
+
 enum SI2_DSP_TYPE : int32_t {
     SI2_DSP_TYPE_UNINITIALIZED = -1,
     SI2_DSP_TYPE_NONE = 0,

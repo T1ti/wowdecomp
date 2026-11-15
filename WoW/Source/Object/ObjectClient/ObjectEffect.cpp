@@ -557,13 +557,13 @@ void CObjectEffect::TriggerLoopingEffect() {
 
     if (this->m_def->m_effectRecType == 1) {
         if (!SI2::IsPlaying(&this->m_soundKitObject)) {
-            int32_t usage = SI2::GetSoundKitUsage(this->m_def->m_effectRecID);
+            SI2_SOUND_USAGE usage = SI2::GetSoundKitUsage(this->m_def->m_effectRecID);
 
             SE2SoundKitProperties properties;
             properties.ResetToDefaults();
             properties.m_fadeInTime = 0.7f;
             properties.m_fadeOutTime = 0.7f;
-            properties.m_loopMode = static_cast<SE2_LOOP_MODE>(usage != 1);
+            properties.m_loopMode = static_cast<SE2_LOOP_MODE>(usage != SI2_SOUND_USAGE_INTERVAL);
 
             SI2::PlaySoundKit(this->m_def->m_effectRecID, &position, &this->m_soundKitObject, &properties, 0, nullptr, 0, 0);
             this->m_playCount++;

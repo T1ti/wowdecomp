@@ -6,6 +6,7 @@
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CRange.h"
+#include "WoW/Source/SoundInterface/Types.h"
 
 class SE2SoundKitObject;
 class SI2AdvancedSound;
@@ -40,7 +41,7 @@ class SI2AdvancedSound {
     /* 004C */ int32_t m_randomOffsetRange;
     /* 0050 */ int32_t m_randomOffset;
     /* 0054 */ float m_volume;
-    /* 0058 */ int32_t m_usage;
+    /* 0058 */ SI2_SOUND_USAGE m_usage;
     /* 005C */ int32_t m_nextInterval;
     /* 0060 */ CiRange m_interval;
     /* 0068 */ int32_t m_volumeSliderCategory;

@@ -188,7 +188,7 @@ class SI2 {
     static bool GetOutputDriverName(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
     static bool GetOutputDriverName_Cached(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
     static VSOUNDKITDEF* GetSoundKitDef(int32_t soundKitId);
-    static int32_t GetSoundKitUsage(int32_t soundKitId);
+    static SI2_SOUND_USAGE GetSoundKitUsage(int32_t soundKitId);
     static float GetSoundVolume(SESoundUserData* userData);
     static int32_t GetTextEmoteSoundID(uint32_t emotesTextId, uint32_t race, uint32_t sex);
     static int32_t GetTextEmoteSoundIndex(uint32_t emotesTextId, uint32_t race, uint32_t sex);

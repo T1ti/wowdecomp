@@ -304,14 +304,14 @@ uint32_t SI2::IsSoundKitLooping(int32_t soundKitId) {
 
 // VERIFY: dd9e9845 manual
 // OFFSET: 0x004C5C10
-int32_t SI2::GetSoundKitUsage(int32_t soundKitId) {
+SI2_SOUND_USAGE SI2::GetSoundKitUsage(int32_t soundKitId) {
     VSOUNDKITDEF* def = SI2::GetSoundKitDef(soundKitId);
 
     if (def && def->m_advanced) {
         return def->m_advanced->m_usage;
     }
 
-    return 2;
+    return SI2_SOUND_USAGE_ONESHOT;
 }
 
 // VERIFY: 9ff69350 manual
@@ -522,7 +522,7 @@ void SI2::SoundFinished(SESound* sound, void* param) {
 
     SI2::s_channelGroupNumSounds[userData->m_group]--;
 
-    if (userData->m_advancedId && userData->m_def && userData->m_def->m_advanced && userData->m_def->m_advanced->m_usage == 2) {
+    if (userData->m_advancedId && userData->m_def && userData->m_def->m_advanced && userData->m_def->m_advanced->m_usage == SI2_SOUND_USAGE_ONESHOT) {
         SI2::MarkAdvancedSoundStopped(userData->m_advancedId);
     }
 
