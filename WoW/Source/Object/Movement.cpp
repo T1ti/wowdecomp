@@ -107,7 +107,7 @@ CMovementGlobals::CMovementGlobals() {
     this->unknown_0110 = 0;
     this->unknown_0114 = 0;
     this->m_movers.SetLinkOffset(offsetof(CMovementShared, m_globalUnitsLink));
-    this->m_flags &= ~0x1;
+    this->m_flags &= ~FLAG_INITIALIZED;
     this->m_hasTransportTime2 = 0;
 }
 
@@ -120,7 +120,7 @@ void MovementInitialize(const char* logFile) {
     SStrCopy(globals->m_logFileName, logFile, sizeof(globals->m_logFileName));
 
     uint32_t now = OsGetAsyncTimeMs();
-    globals->m_flags |= 0x1;
+    globals->m_flags |= CMovementGlobals::FLAG_INITIALIZED;
     globals->m_idleTime = now;
     globals->m_lastUpdateTime = now;
 
