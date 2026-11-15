@@ -3084,7 +3084,7 @@ float DayNight::DNGlare::GetPointOcclusion() {
     end.z = nz * info->m_farClip + info->m_cameraPos.z;
     float distance = 1.0f;
 
-    if (World::Intersect(start, end, &hit, &distance, 0x200112, nullptr)) {
+    if (World::Intersect(start, end, &hit, &distance, WORLD_QUERY_M2_RENDER | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_OBJECT_RENDER, nullptr)) {
         return 0.0f;
     }
 

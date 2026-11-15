@@ -1496,34 +1496,34 @@ int32_t CMovement_C::CheckFallImpactThreshold(float timeFallen, float elapsed, c
 // VERIFY: 987977e3 manual
 // OFFSET: 0x0075E3D0
 uint32_t CMovement_C::GetFacetQueryFlags() const {
-    uint32_t flags = 0x100111;
+    uint32_t flags = WORLD_QUERY_COLLISION_MASK;
 
     if (!this->m_unit->IsClientControlled()) {
-        flags = 0x102111;
+        flags = WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_UNKNOWN_0x2000;
     }
 
     if (this->m_unit->IsLocalClientControlled()) {
-        flags |= 0x80000000;
+        flags |= WORLD_QUERY_UNLOADED_AS_BOUNDS;
     }
 
     uint32_t moveFlags = this->m_flags;
 
     if ((moveFlags & MOVEMENTFLAG_WATERWALKING) && !(moveFlags & MOVEMENTFLAG_SWIMMING) && (-0.6457718f < this->m_pitch || (this->m_flags2 & MOVEMENTFLAG2_UNKNOWN_9))) {
-        flags |= 0x10000;
+        flags |= WORLD_QUERY_WATER_WALK_LIQUID;
     }
 
     if (moveFlags & MOVEMENTFLAG_FLYING) {
-        flags |= 0x200;
+        flags |= WORLD_QUERY_FLIGHT_BOUNDS;
 
         if (!(this->m_flags2 & MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY)) {
-            flags |= 0x20000;
+            flags |= WORLD_QUERY_LIQUID;
         }
     }
 
     CGUnit_C* unit = this->m_unit;
 
     if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
-        flags |= 0x8000;
+        flags |= WORLD_QUERY_IGNORE_DOORS;
     }
 
     return flags;
@@ -2922,7 +2922,7 @@ int32_t CMovement_C::ValidateTestVsFacetQuery(C3Vector move) const {
     }
 
     if (this->m_flags & MOVEMENTFLAG_SWIMMING) {
-        World::GetFacets(&box, &query, &s_liquidFacets, 0x20000, nullptr);
+        World::GetFacets(&box, &query, &s_liquidFacets, WORLD_QUERY_LIQUID, nullptr);
 
         for (uint32_t i = 0; i < s_liquidFacets.facets.m_count; i++) {
             CFacet& facet = s_liquidFacets.facets.m_data[i];
@@ -3212,7 +3212,7 @@ int32_t CMovement_C::GetMoveFacets(float distance, uint32_t elapsed, C3Vector di
     }
 
     if (this->m_flags & MOVEMENTFLAG_SWIMMING) {
-        World::GetFacets(&box, &s_queryBox, &s_liquidFacets, 0x20000, nullptr);
+        World::GetFacets(&box, &s_queryBox, &s_liquidFacets, WORLD_QUERY_LIQUID, nullptr);
 
         for (uint32_t i = 0; i < s_liquidFacets.facets.m_count; i++) {
             CFacet& facet = s_liquidFacets.facets.m_data[i];
@@ -6857,7 +6857,7 @@ void CMovement_C::SnapToGroundIfCloseEnough() {
     }
 
     C3Vector hit(0.0f, 0.0f, 0.0f);
-    uint32_t flags = this->GetFacetQueryFlags() & ~0x100000;
+    uint32_t flags = this->GetFacetQueryFlags() & ~WORLD_QUERY_OBJECT_COLLISION;
     float distance = 1.0f;
     C3Vector end(this->m_position.x, this->m_position.y, this->m_position.z - 0.2f);
 
@@ -6921,11 +6921,11 @@ void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float di
     moved.t.y = box.t.y + direction.y * distance;
     moved.t.z = box.t.z + direction.z * distance;
     s_queryBox |= moved;
-    uint32_t flags = this->m_unit->IsClientControlled() ? 0x111 : 0x2111;
+    uint32_t flags = this->m_unit->IsClientControlled() ? (WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN) : (WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN | WORLD_QUERY_UNKNOWN_0x2000);
     CGUnit_C* unit = this->m_unit;
 
     if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
-        flags |= 0x8000;
+        flags |= WORLD_QUERY_IGNORE_DOORS;
     }
 
     if (!World::GetFacets(&box, &s_queryBox, &s_moveFacets, flags, nullptr)) {

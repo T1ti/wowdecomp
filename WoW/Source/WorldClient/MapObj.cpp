@@ -2306,23 +2306,36 @@ void CMapObj::SetRenderModeLight() {
 // VERIFY: 51ea4524 manual
 // OFFSET: 0x007AE140
 uint32_t CMapObj::CreateWmoIgnoreFlags(uint32_t flags) {
-    uint32_t result = 0xEE;
-    if ((flags & 0x80u) != 0)
-        return 0x2CA;
-    if ((flags & 0x10) != 0)
-        result = 0xC6;
-    if ((flags & 0x20) != 0)
-        result &= 0xDBu;
-    if ((flags & 0x40) == 0)
-        result &= ~2u;
-    if ((flags & 0x4000) == 0)
-        result &= ~0x40u;
-    if ((flags & 0x1000000) != 0) {
-        if ((flags & 0x40000000) != 0)
-            return 0xFFFFFCDB;
-        else
-            return result | 0x100;
+    if (flags & WORLD_QUERY_WMO_NON_OPAQUE) {
+        return SMOPoly::F_NOCAMCOLLIDE | SMOPoly::F_COLLISION | SMOPoly::UNKNOWN_0x40 | SMOPoly::F_COLLIDE_HIT | SMOPoly::IGNORE_OPAQUE;
     }
+
+    uint32_t result = SMOPoly::F_NOCAMCOLLIDE | SMOPoly::F_DETAIL | SMOPoly::F_COLLISION | SMOPoly::F_RENDER | SMOPoly::UNKNOWN_0x40 | SMOPoly::F_COLLIDE_HIT;
+
+    if (flags & WORLD_QUERY_WMO_COLLISION) {
+        result &= ~(SMOPoly::F_COLLISION | SMOPoly::F_RENDER);
+    }
+
+    if (flags & WORLD_QUERY_WMO_RENDER) {
+        result &= ~(SMOPoly::F_DETAIL | SMOPoly::F_RENDER);
+    }
+
+    if (!(flags & WORLD_QUERY_WMO_CAMERA)) {
+        result &= ~SMOPoly::F_NOCAMCOLLIDE;
+    }
+
+    if (!(flags & WORLD_QUERY_WALKABLE_ONLY)) {
+        result &= ~SMOPoly::UNKNOWN_0x40;
+    }
+
+    if (flags & WORLD_QUERY_VISIBLE_OPAQUE) {
+        if (flags & WORLD_QUERY_UNKNOWN_0x40000000) {
+            return ~static_cast<uint32_t>(SMOPoly::F_DETAIL | SMOPoly::F_RENDER | SMOPoly::IGNORE_BLENDED | SMOPoly::IGNORE_OPAQUE);
+        }
+
+        return result | SMOPoly::IGNORE_BLENDED;
+    }
+
     return result;
 }
 

@@ -784,7 +784,7 @@ void CMissile::FollowGround(const C3Vector& direction, float distance) {
         float t = 1.0f;
         C3Vector hit(0.0f, 0.0f, 0.0f);
 
-        if (!World::Intersect(start, end, &hit, &t, 0x111, nullptr)) {
+        if (!World::Intersect(start, end, &hit, &t, WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN, nullptr)) {
             break;
         }
 
@@ -807,7 +807,7 @@ void CMissile::FollowGround(const C3Vector& direction, float distance) {
         C3Vector hit(0.0f, 0.0f, 0.0f);
         float t = 1.0f;
 
-        if (World::Intersect(start, down, &hit, &t, 0x111, nullptr)) {
+        if (World::Intersect(start, down, &hit, &t, WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN, nullptr)) {
             float ground = this->m_groundOffset + hit.z;
             float z = this->m_position.z - (this->m_position.z - ground) * this->m_followGroundRate * distance;
 

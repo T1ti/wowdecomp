@@ -10,7 +10,7 @@ class CGxTex;
 class CImVector;
 
 namespace ProjectTex {
-    void Render2d(const CAaBox& box, const CImVector& color, const C44Matrix* matrix, float fade, uint32_t a5, uint32_t a6, float polygonOffset);
+    void Render2d(const CAaBox& box, const CImVector& color, const C44Matrix* matrix, float fade, uint32_t queryFlags, uint32_t renderFlags, float polygonOffset);
 }
 
 CGxTex* ProjectTex2dGetAddFadeTex();

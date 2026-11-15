@@ -698,7 +698,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
     color.a = static_cast<uint8_t>(s_trajectoryAlpha * 255.0f + 0.5f);
     C44Matrix rotation;
     rotation.RotateAroundZ(-facing);
-    ProjectTex::Render2d(box, color, &rotation, 0.5f, 0x200122, 5, 0.039999999f);
+    ProjectTex::Render2d(box, color, &rotation, 0.5f, WORLD_QUERY_RENDER_MASK, 5, 0.039999999f);
     g_theGxDevicePtr->RsPop();
 }
 
@@ -1187,7 +1187,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
     C3Vector hit(0.0f, 0.0f, 0.0f);
     float t = 1.0f;
 
-    if (World::Intersect(start, *launch, &hit, &t, 0x100111, nullptr)) {
+    if (World::Intersect(start, *launch, &hit, &t, WORLD_QUERY_COLLISION_MASK, nullptr)) {
         *impact = *launch;
         *time = 0.0f;
 
@@ -1227,7 +1227,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
     t = 1.0f;
     float traveled;
 
-    if (World::Intersect(from, to, &hit, &t, 0x100111, nullptr)) {
+    if (World::Intersect(from, to, &hit, &t, WORLD_QUERY_COLLISION_MASK, nullptr)) {
         *impact = hit;
         traveled = (maxSteps - steps) + t;
     } else {
@@ -1261,7 +1261,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
             to.z = velocity.z + from.z;
             t = 1.0f;
 
-            if (World::Intersect(from, to, &hit, &t, 0x100111, nullptr)) {
+            if (World::Intersect(from, to, &hit, &t, WORLD_QUERY_COLLISION_MASK, nullptr)) {
                 *impact = hit;
                 traveled = (maxSteps - steps) + t;
                 break;

@@ -322,7 +322,7 @@ void BspQuery_Segment::operator()(uint16_t face) {
     }
 
     uint8_t materialId = this->m_faces[face].m_materialId;
-    uint16_t ignoreMask = (materialId == 0xFF || !this->m_materials[materialId].m_blendMode) ? 0x200 : 0x100;
+    uint16_t ignoreMask = (materialId == 0xFF || !this->m_materials[materialId].m_blendMode) ? SMOPoly::IGNORE_OPAQUE : SMOPoly::IGNORE_BLENDED;
 
     if (this->m_faceIgnoreFlags & ignoreMask) {
         return;
@@ -450,7 +450,7 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
             continue;
         }
 
-        uint16_t ignoreMask = (poly.m_materialId == 0xFF || !this->m_materials[poly.m_materialId].m_blendMode) ? 0x200 : 0x100;
+        uint16_t ignoreMask = (poly.m_materialId == 0xFF || !this->m_materials[poly.m_materialId].m_blendMode) ? SMOPoly::IGNORE_OPAQUE : SMOPoly::IGNORE_BLENDED;
 
         if (ignore & ignoreMask) {
             continue;
@@ -1049,7 +1049,7 @@ bool CMapObjGroup::GetTris(const C3Segment& seg, float* dist, uint32_t flags, ui
     bspQuery.GetFaceIndices(0, seg, this->m_aaBsp.m_aaBox);
     this->GetTrisFromQuery(triData, &query, mapObjDef, WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE);
 
-        if ((flags & 0x30000) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID)) {
+        if ((flags & WORLD_QUERY_LIQUID_MASK) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID)) {
         this->VectorIntersectLiquid(seg, dist, flags, triData, mapObjDef);
     }
 
@@ -1722,7 +1722,7 @@ bool CMapObjGroup::VectorIntersectLiquidTiles(const C3Segment& seg, float* t, ui
         return false;
     }
 
-    if ((flags & 0x10000) && !(flags & 0x20000) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
+    if ((flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
         return false;
     }
 
@@ -1911,7 +1911,7 @@ bool CMapObjGroup::GetLiquidTris(const CAaBox& box, uint32_t flags, World::TriDa
         return false;
     }
 
-    if ((flags & 0x10000) && !(flags & 0x20000) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
+    if ((flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
         return false;
     }
 
@@ -2049,7 +2049,7 @@ bool CMapObjGroup::GetLiquidTris(const CFrustum& frustum, uint32_t flags, World:
         return false;
     }
 
-    if ((flags & 0x10000) && !(flags & 0x20000) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
+    if ((flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID) && !(g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
         return false;
     }
 
@@ -2338,7 +2338,7 @@ bool CMapObjGroup::GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnor
     bspQuery.GetFaceIndices(0, box, this->m_aaBsp.m_aaBox);
     this->GetTrisFromQuery(triData, &query, mapObjDef, overflow);
 
-    if (flags & 0x30000) {
+    if (flags & WORLD_QUERY_LIQUID_MASK) {
         this->GetLiquidTris(box, flags, triData, mapObjDef);
     }
 
@@ -2360,7 +2360,7 @@ bool CMapObjGroup::Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16
         hit = true;
     }
 
-    if ((flags & 0x30000) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) && this->VectorIntersectLiquid(seg, dist, flags, nullptr, nullptr)) {
+    if ((flags & WORLD_QUERY_LIQUID_MASK) && (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) && this->VectorIntersectLiquid(seg, dist, flags, nullptr, nullptr)) {
         *hitIndex = 0;
         hit = true;
     }
@@ -2516,7 +2516,7 @@ void BspQuery_Volume<CWFrustum>::operator()(uint16_t face) {
 bool CMapObjGroup::GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef) {
     uint32_t batchCount = World::TriData::nBatches;
 
-    if (flags & 0xF0) {
+    if (flags & WORLD_QUERY_WMO_MASK) {
         int32_t overflow = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
         BspQuery_Volume<CWFrustum> query;
         query.m_overflowFlags = &overflow;
@@ -2533,7 +2533,7 @@ bool CMapObjGroup::GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t fa
         this->GetTrisFromQuery(triData, &query, mapObjDef, overflow);
     }
 
-    if (flags & 0x30000) {
+    if (flags & WORLD_QUERY_LIQUID_MASK) {
         this->GetLiquidTris(frustum, flags, triData, mapObjDef);
     }
 

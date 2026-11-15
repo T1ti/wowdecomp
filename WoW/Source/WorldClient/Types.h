@@ -158,6 +158,12 @@ struct SMOPoly {
         F_COLLIDE_HIT = 0x80, // Temporary BSP-query mark, cleared after the query.
     };
 
+    // Face ignore bits above the flag byte, tested against the face material by the segment BSP queries.
+    enum IGNORE_FLAGS : uint16_t {
+        IGNORE_BLENDED = 0x100,
+        IGNORE_OPAQUE = 0x200,
+    };
+
     /* 0000 */ uint8_t m_flags;
     /* 0001 */ uint8_t m_materialId;
 };

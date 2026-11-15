@@ -543,7 +543,7 @@ void CGCorpse_C::RenderTargetSelection() const {
     g_theGxDevicePtr->RsPush();
 
     if (CGObject_C::SetCircleRenderStates()) {
-        ProjectTex::Render2d(box, s_deadSelectionColor, &matrix, 0.5f, 0x200122, 0, 0.4f);
+        ProjectTex::Render2d(box, s_deadSelectionColor, &matrix, 0.5f, WORLD_QUERY_RENDER_MASK, 0, 0.4f);
     }
 
     g_theGxDevicePtr->RsPop();
@@ -561,7 +561,7 @@ C3Vector CGCorpse_C::GetGroundNormal() {
         box += this->GetPosition();
         box.b.z -= height * 0.5f;
 
-        if (World::GetFacets(&box, &s_facets, 0x100111, nullptr) && s_facets.facets.Count()) {
+        if (World::GetFacets(&box, &s_facets, WORLD_QUERY_COLLISION_MASK, nullptr) && s_facets.facets.Count()) {
             float x = 0.0f;
             float y = 0.0f;
             float z = 0.0f;

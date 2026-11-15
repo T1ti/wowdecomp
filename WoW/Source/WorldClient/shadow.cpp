@@ -339,7 +339,7 @@ void CWorldScene::RenderStreamingRequestDecal(CM2Model* model, const CAaBox* box
     color.g = 0xFF;
     color.r = 0xFF;
     color.a = static_cast<uint8_t>(static_cast<int32_t>(alpha * 255.0f + 0.5f));
-    ProjectTex::Render2d(bounds, color, &projection, 0.5f, 0x220122, 0, scale);
+    ProjectTex::Render2d(bounds, color, &projection, 0.5f, WORLD_QUERY_RENDER_MASK | WORLD_QUERY_LIQUID, 0, scale);
     g_theGxDevicePtr->RsPop();
 }
 
@@ -489,7 +489,7 @@ static int32_t ProjectTexRenderGetQuery2d(const CAaBox& box, uint32_t flags, uin
 
     if (*doodads) {
         s_queryDoodads = 1;
-        s_doodadModelCount = World::GetIntersectingDoodadModels(s_doodadModelBuffer, 10, box, 0x2000000);
+        s_doodadModelCount = World::GetIntersectingDoodadModels(s_doodadModelBuffer, 10, box, WORLD_QUERY_PROJ_TEX_DOODADS);
     }
 
     if (*tris) {
@@ -716,13 +716,13 @@ static void ProjectTexRender2d(const CAaBox& box, const CImVector& color, uint32
 
 // VERIFY: 5f932eb3 manual
 // OFFSET: 0x007E4370
-void ProjectTex::Render2d(const CAaBox& box, const CImVector& color, const C44Matrix* matrix, float fade, uint32_t a5, uint32_t a6, float polygonOffset) {
+void ProjectTex::Render2d(const CAaBox& box, const CImVector& color, const C44Matrix* matrix, float fade, uint32_t queryFlags, uint32_t renderFlags, float polygonOffset) {
     C44Matrix texMatrix;
     C44Matrix fadeMatrix;
     ProjectTex2dMakeMatrices(texMatrix, fadeMatrix, box, matrix, fade, 0);
     g_theGxDevicePtr->XformPushAndSet(GxXform_Tex0, texMatrix);
     g_theGxDevicePtr->XformPushAndSet(GxXform_Tex1, fadeMatrix);
-    ProjectTexRender2d(box, color, a5, a6, polygonOffset);
+    ProjectTexRender2d(box, color, queryFlags, renderFlags, polygonOffset);
     GxXformPop(GxXform_Tex0);
     GxXformPop(GxXform_Tex1);
 }

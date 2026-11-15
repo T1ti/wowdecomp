@@ -943,7 +943,7 @@ bool BlizzardObject::Update() {
         float distance = 1.0f;
         C3Vector ground;
 
-        if (World::Intersect(start, end, &hit, &distance, 0x120111, nullptr)) {
+        if (World::Intersect(start, end, &hit, &distance, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_LIQUID, nullptr)) {
             float t = distance * 0.95f;
             ground = C3Vector(start.x + (end.x - start.x) * t, (end.y - start.y) * t + start.y, start.z + (end.z - start.z) * t);
         } else {
@@ -954,7 +954,7 @@ bool BlizzardObject::Update() {
         start = C3Vector(ground.x, ground.y, ground.z - 33.333332f);
         float groundDistance = 1.0f;
 
-        if (World::Intersect(hit, start, &shard->m_position, &groundDistance, 0x120111, nullptr)) {
+        if (World::Intersect(hit, start, &shard->m_position, &groundDistance, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_LIQUID, nullptr)) {
             if (this->m_hasFrame) {
                 shard->m_position *= this->m_frame.AffineInverse();
             }
@@ -1089,7 +1089,7 @@ bool MountTransitionObject::Tick() {
             float distance = 1.0f;
             unit->m_movement->GetGroundNormal();
 
-            if (World::Intersect(top, bottom, &hit, &distance, 0x110, nullptr)) {
+            if (World::Intersect(top, bottom, &hit, &distance, WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN, nullptr)) {
                 this->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_GROUND_HIT;
                 this->m_verticalSpeed = range - (distance * range + distance * range);
             }
@@ -1097,7 +1097,7 @@ bool MountTransitionObject::Tick() {
             this->m_verticalSpeed = fclamp(this->m_verticalSpeed, -range, range);
             this->m_position.z = this->m_verticalSpeed + this->m_position.z;
 
-            if (World::GetFacets(&box, &facets, 0x110, nullptr) && facets.facets.m_count && facets.facets.m_data->plane.n.z >= 0.35721236f) {
+            if (World::GetFacets(&box, &facets, WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN, nullptr) && facets.facets.m_count && facets.facets.m_data->plane.n.z >= 0.35721236f) {
                 normal = facets.facets.m_data->plane.n;
             }
         }

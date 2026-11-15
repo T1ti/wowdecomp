@@ -763,7 +763,7 @@ void CGGameObject_C::StartInteraction() {
 // VERIFY: ac212d62 auto
 // OFFSET: 0x0070F550
 int32_t CGGameObject_C::IsCollidable(int32_t flags) const {
-    if ((flags & 0x8000) && !this->m_gameObject->m_typeID) {
+    if ((flags & WORLD_QUERY_IGNORE_DOORS) && this->m_gameObject->m_typeID == TYPE_DOOR) {
         return 0;
     }
 

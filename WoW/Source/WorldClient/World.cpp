@@ -854,7 +854,7 @@ uint32_t World::GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModel
 // OFFSET: 0x0077F500
 void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, int32_t forceProjection) {
     if (forceProjection || (CWorld::enables2 & Enable_ProjectedTextures)) {
-        ProjectTex2dDrawShaderEffect(box, color, 0x200122, index ? 2 : 0, 0.40000001f);
+        ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? 2 : 0, 0.40000001f);
     }
 }
 
@@ -4631,7 +4631,7 @@ int32_t World::ProjectPositionCallback(const C3Vector& position, float& height, 
     C3Vector hit = { 0.0f, 0.0f, 0.0f };
     float distance = 1.0f;
 
-    if (!CMap::Intersect(const_cast<C3Vector*>(&position), &end, &hit, &distance, 0x100111, nullptr)) {
+    if (!CMap::Intersect(const_cast<C3Vector*>(&position), &end, &hit, &distance, WORLD_QUERY_COLLISION_MASK, nullptr)) {
         return 0;
     }
 

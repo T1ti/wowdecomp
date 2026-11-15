@@ -47,6 +47,61 @@ class CTexture;
 class Particulate;
 class Weather;
 
+// Query flags taken by World::Intersect, World::GetFacets, World::GetTris and
+// World::GetIntersectingDoodadModels. Names are inferred from the 3.3.5 readers;
+// neither the 0.5.3 nor the 4.1.0 symbols name them.
+enum WORLD_QUERY_FLAGS : uint32_t {
+    WORLD_QUERY_NONE                    = 0x00000000u,
+    // M2 doodads without a collision GUID. Each bit selects the CM2Model hit-test mode.
+    WORLD_QUERY_M2_COLLISION            = 0x00000001u, // Collision mesh.
+    WORLD_QUERY_M2_RENDER               = 0x00000002u, // Render batches.
+    WORLD_QUERY_M2_UNKNOWN_0x4          = 0x00000004u, // Same reader behavior as M2_RENDER except in QueryIntersectingModels; set by CGWorldFrame::HitTest.
+    WORLD_QUERY_M2_NON_OPAQUE           = 0x00000008u, // Render batches with a non-opaque blend mode only.
+    // WMO groups, mapped to SMOPoly ignore flags by CMapObj::CreateWmoIgnoreFlags.
+    WORLD_QUERY_WMO_COLLISION           = 0x00000010u,
+    WORLD_QUERY_WMO_RENDER              = 0x00000020u,
+    WORLD_QUERY_WMO_CAMERA              = 0x00000040u, // Skips SMOPoly::F_NOCAMCOLLIDE faces.
+    WORLD_QUERY_WMO_NON_OPAQUE          = 0x00000080u, // Render faces with a blended material only.
+    WORLD_QUERY_TERRAIN                 = 0x00000100u,
+    // Adds the per-area flight ceiling (MFBO) facets to box facet queries; set for flying movers.
+    WORLD_QUERY_FLIGHT_BOUNDS           = 0x00000200u,
+    // Set by CMovement_C for movers this client does not control; no reader found in 3.3.5.
+    WORLD_QUERY_UNKNOWN_0x2000          = 0x00002000u,
+    // World::GetFacets keeps facets with normal z >= cos(50 deg); WMO faces with SMOPoly 0x40 are skipped.
+    WORLD_QUERY_WALKABLE_ONLY           = 0x00004000u,
+    // Ghost movement: CGGameObject_C::IsCollidable rejects doors (gameobject type 0).
+    WORLD_QUERY_IGNORE_DOORS            = 0x00008000u,
+    // Liquids are tested only when the type has LIQUID_TYPE_FLAG_WATER_WALKING, unless WORLD_QUERY_LIQUID is also set.
+    WORLD_QUERY_WATER_WALK_LIQUID       = 0x00010000u,
+    WORLD_QUERY_LIQUID                  = 0x00020000u,
+    // Doodads with a collision GUID and collidable map entities (via World::s_objectCollisionCallback).
+    WORLD_QUERY_OBJECT_COLLISION        = 0x00100000u,
+    WORLD_QUERY_OBJECT_RENDER           = 0x00200000u,
+    WORLD_QUERY_OBJECT_UNKNOWN_0x400000 = 0x00400000u, // Same reader behavior as OBJECT_RENDER; no producer found.
+    WORLD_QUERY_OBJECT_UNKNOWN_0x800000 = 0x00800000u, // Only read as part of WORLD_QUERY_OBJECT_MASK.
+    // Skips culled doodads and entities; M2 and WMO hits are limited to opaque surfaces.
+    WORLD_QUERY_VISIBLE_OPAQUE          = 0x01000000u,
+    // QueryIntersectingModels also matches WMO doodads flagged MAPOBJ_FLAG_PROJ_TEX.
+    WORLD_QUERY_PROJ_TEX_DOODADS        = 0x02000000u,
+    // Enables the model and entity passes; with VISIBLE_OPAQUE only plain render/detail WMO faces remain. No producer found.
+    WORLD_QUERY_UNKNOWN_0x40000000      = 0x40000000u,
+    // Facet queries substitute bounding-box facets for unloaded terrain areas and WMO groups instead of failing.
+    WORLD_QUERY_UNLOADED_AS_BOUNDS      = 0x80000000u,
+
+    WORLD_QUERY_M2_MASK                 = WORLD_QUERY_M2_COLLISION | WORLD_QUERY_M2_RENDER | WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_M2_NON_OPAQUE,
+    WORLD_QUERY_WMO_MASK                = WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA | WORLD_QUERY_WMO_NON_OPAQUE,
+    WORLD_QUERY_LIQUID_MASK             = WORLD_QUERY_WATER_WALK_LIQUID | WORLD_QUERY_LIQUID,
+    WORLD_QUERY_OBJECT_MASK             = WORLD_QUERY_OBJECT_COLLISION | WORLD_QUERY_OBJECT_RENDER | WORLD_QUERY_OBJECT_UNKNOWN_0x400000 | WORLD_QUERY_OBJECT_UNKNOWN_0x800000,
+    WORLD_QUERY_DOODAD_MASK             = WORLD_QUERY_M2_MASK | WORLD_QUERY_OBJECT_MASK,
+    WORLD_QUERY_ENTITY_MASK             = WORLD_QUERY_OBJECT_MASK | WORLD_QUERY_UNKNOWN_0x40000000,
+    WORLD_QUERY_MODEL_MASK              = WORLD_QUERY_DOODAD_MASK | WORLD_QUERY_UNKNOWN_0x40000000,
+    WORLD_QUERY_COLLISION_MASK          = WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_TERRAIN | WORLD_QUERY_OBJECT_COLLISION,
+    WORLD_QUERY_RENDER_MASK             = WORLD_QUERY_M2_RENDER | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_OBJECT_RENDER,
+    // Model hits resolved against render geometry (CM2Scene::EndHitTest) rather than the collision world.
+    WORLD_QUERY_RENDER_HIT_TEST_MASK    = WORLD_QUERY_M2_RENDER | WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_M2_NON_OPAQUE | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_NON_OPAQUE
+                                        | WORLD_QUERY_OBJECT_RENDER | WORLD_QUERY_OBJECT_UNKNOWN_0x400000 | WORLD_QUERY_VISIBLE_OPAQUE,
+};
+
 typedef void (*CALLBACK_FUNC)(float, void*);
 
 class CChunkLiquid;

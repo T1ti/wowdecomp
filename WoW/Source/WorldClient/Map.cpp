@@ -1204,7 +1204,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((flags & 0x1000000) && doodadDef->m_culled) {
+        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && doodadDef->m_culled) {
             continue;
         }
 
@@ -1221,15 +1221,15 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
         int32_t mode = -1;
 
         if (doodadDef->m_collisionGuid) {
-            if (flags & 0x100000) {
+            if (flags & WORLD_QUERY_OBJECT_COLLISION) {
                 mode = 3;
-            } else if (flags & 0x600000) {
+            } else if (flags & (WORLD_QUERY_OBJECT_RENDER | WORLD_QUERY_OBJECT_UNKNOWN_0x400000)) {
                 mode = 0;
             }
-        } else if (flags & 0x1) {
+        } else if (flags & WORLD_QUERY_M2_COLLISION) {
             mode = 3;
-        } else if (flags & 0xE) {
-            mode = (flags & 0x8) ? 2 : (flags >> 24) & 1;
+        } else if (flags & (WORLD_QUERY_M2_RENDER | WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_M2_NON_OPAQUE)) {
+            mode = (flags & WORLD_QUERY_M2_NON_OPAQUE) ? 2 : ((flags & WORLD_QUERY_VISIBLE_OPAQUE) ? 1 : 0);
         }
 
         if (mode >= 0 && (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
@@ -1262,7 +1262,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapEntity* entity = static_cast<CMapEntity*>(link->m_owner);
 
-        if ((flags & 0x1000000) && entity->m_culled) {
+        if ((flags & WORLD_QUERY_VISIBLE_OPAQUE) && entity->m_culled) {
             continue;
         }
 
@@ -1298,7 +1298,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
                 }
             }
 
-            model->m_hitTestMode = (flags & 0x100000) ? 3 : 0;
+            model->m_hitTestMode = (flags & WORLD_QUERY_OBJECT_COLLISION) ? 3 : 0;
             model->m_hitTestGroup = 0;
             model->m_hitTestOwner = entity;
         }
@@ -1316,7 +1316,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
     uint32_t remaining = CMap::cCount;
     CMapChunk* chunk = nullptr;
     CMapChunk* bestChunk = nullptr;
-    uint32_t modelFlags = flags & 0x40F0000F;
+    uint32_t modelFlags = flags & WORLD_QUERY_MODEL_MASK;
 
     if (modelFlags) {
         World::s_m2Scene->BeginHitTest();
@@ -1363,7 +1363,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
                 CMap::VectorIntersectDoodadDefs(&chunk->m_doodadDefLinkList, flags);
             }
 
-            if (flags & 0x40F00000) {
+            if (flags & WORLD_QUERY_ENTITY_MASK) {
                 CMap::VectorIntersectEntitys(&chunk->m_entityLinkList, flags);
             }
         }
@@ -1374,7 +1374,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         ray.origin = origin;
         ray.dir = dir;
 
-        if (flags & 0x100) {
+        if (flags & WORLD_QUERY_TERRAIN) {
             float t = 3.4028235e38f;
 
             if (chunk->Intersect(subX, subY, ray, &t)) {
@@ -1387,8 +1387,8 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             }
         }
 
-        if (flags & 0x30000) {
-            int32_t checkType = (flags & 0x10000) && !(flags & 0x20000);
+        if (flags & WORLD_QUERY_LIQUID_MASK) {
+            int32_t checkType = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
                 if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
@@ -1422,7 +1422,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
     }
 
     if (modelFlags) {
-        if (flags & 0x16000AE) {
+        if (flags & WORLD_QUERY_RENDER_HIT_TEST_MASK) {
             C3Vector localStart = *start * CWorldScene::camTransportView;
             C3Vector localEnd = *end * CWorldScene::camTransportView;
             World::s_m2Scene->EndHitTest(localStart, localEnd, bestDist, 0);
@@ -4360,7 +4360,7 @@ void CMap::UpdateLight(CMapLight* light) {
 // VERIFY: 34c22451 manual
 // OFFSET: 0x007A50C0
 bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CAaBox* box, World::FacetData* facets, uint32_t flags) {
-    if (!(flags & 0xF0000F)) {
+    if (!(flags & WORLD_QUERY_DOODAD_MASK)) {
         return true;
     }
 
@@ -4371,7 +4371,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
             continue;
         }
 
-        if (def->m_collisionGuid.m_guid ? !(flags & 0xF00000) : !(flags & 0xF)) {
+        if (def->m_collisionGuid.m_guid ? !(flags & WORLD_QUERY_OBJECT_MASK) : !(flags & WORLD_QUERY_M2_MASK)) {
             continue;
         }
 
@@ -4413,7 +4413,7 @@ void CMap::AppendDestructibleFacets(World::ObjectCollisionData* data, CAaBox* bo
 // VERIFY: cee45fe5 manual
 // OFFSET: 0x007A5240
 void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* list, CAaBox* box, World::FacetData* facets, uint32_t flags) {
-    if (!World::s_objectCollisionCallback || !(flags & 0xF00000)) {
+    if (!World::s_objectCollisionCallback || !(flags & WORLD_QUERY_OBJECT_MASK)) {
         return;
     }
 
@@ -4500,12 +4500,12 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         localBox.b = box->b - chunk->m_topLeftCoords;
         localBox.t = box->t - chunk->m_topLeftCoords;
 
-        if (flags & 0x100) {
+        if (flags & WORLD_QUERY_TERRAIN) {
             chunk->Intersect(&rect, &localBox, &facets->facets);
         }
 
-        if (flags & 0x30000) {
-            bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
+        if (flags & WORLD_QUERY_LIQUID_MASK) {
+            bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
                 if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
@@ -4521,11 +4521,11 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
             memset(&facets->facetIds.m_data[first], 0, sizeof(uint64_t) * (count - first));
         }
 
-        if ((flags & 0xF0000F) && !CMap::GetDoodadDefFacets(&chunk->m_doodadDefLinkList, box, facets, flags)) {
+        if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&chunk->m_doodadDefLinkList, box, facets, flags)) {
             return false;
         }
 
-        if (flags & 0xF00000) {
+        if (flags & WORLD_QUERY_OBJECT_MASK) {
             CMap::QueryDestructibleFacets(&chunk->m_entityLinkList, box, facets, flags);
         }
 
@@ -4536,7 +4536,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         return true;
     }
 
-    if (static_cast<int32_t>(flags) >= 0) {
+    if (!(flags & WORLD_QUERY_UNLOADED_AS_BOUNDS)) {
         return false;
     }
 
@@ -4596,7 +4596,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
         }
 
         if (!owner->m_isGroupLoaded || !def->m_mapObjDefGroupLinkList.Head()) {
-            if (static_cast<int32_t>(flags) >= 0 || def->m_bbox.Intersects(*queryBox)) {
+            if (!(flags & WORLD_QUERY_UNLOADED_AS_BOUNDS) || def->m_bbox.Intersects(*queryBox)) {
                 return false;
             }
 
@@ -4611,7 +4611,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
         localBox.t += localCenter;
 
         if (owner->TestBounds(localBox)) {
-            if (flags & 0xF0) {
+            if (flags & WORLD_QUERY_WMO_MASK) {
                 World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
                 World::TriData::nBatches = 0;
                 World::TriData::faceIndexCursor = 0;
@@ -4626,7 +4626,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
                 }
             }
 
-            if (flags & 0x30000) {
+            if (flags & WORLD_QUERY_LIQUID_MASK) {
                 owner->GetLiquidFacets(localBox, flags, facets, def);
             }
         }
@@ -4639,15 +4639,15 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
             }
 
             if (owner->IsGroupLoaded(group->m_groupNum)) {
-                if ((flags & 0xF0000F) && !CMap::GetDoodadDefFacets(&group->m_doodadDefLinkList, box, facets, flags)) {
+                if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&group->m_doodadDefLinkList, box, facets, flags)) {
                     return false;
                 }
 
-                if (flags & 0xF00000) {
+                if (flags & WORLD_QUERY_OBJECT_MASK) {
                     CMap::QueryDestructibleFacets(&group->m_entityLinkList, box, facets, flags);
                 }
             } else {
-                if (static_cast<int32_t>(flags) >= 0) {
+                if (!(flags & WORLD_QUERY_UNLOADED_AS_BOUNDS)) {
                     return false;
                 }
 
@@ -4917,7 +4917,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
 // VERIFY: a85f0fdc manual
 // OFFSET: 0x007A30D0
 bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint32_t defIgnoreFlags, float* distance, uint16_t* hitIndex, CMapObj** outMapObj, CMapObjDef** outMapObjDef, CMapObjDefGroup** outMapObjDefGroup) {
-    uint32_t modelFlags = flags & 0x40F0000F;
+    uint32_t modelFlags = flags & WORLD_QUERY_MODEL_MASK;
 
     if (modelFlags) {
         World::s_m2Scene->BeginHitTest();
@@ -5002,7 +5002,7 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
             CMap::VectorIntersectDoodadDefs(&group->m_doodadDefLinkList, flags);
         }
 
-        if (flags & 0x40F00000) {
+        if (flags & WORLD_QUERY_ENTITY_MASK) {
             CMap::VectorIntersectEntitys(&group->m_entityLinkList, flags);
         }
     }
@@ -5051,7 +5051,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
     CMapObjDef* mapObjDef = nullptr;
     CMapObjDefGroup* mapObjDefGroup = nullptr;
 
-    if (flags & 0x40F300FF) {
+    if (flags & (WORLD_QUERY_MODEL_MASK | WORLD_QUERY_WMO_MASK | WORLD_QUERY_LIQUID_MASK)) {
         World::s_m2Scene->m_lastHit.m_model = nullptr;
         s_lastCollisionGUID = WOWGUID{ 0 };
         CMapObj* mapObj;
@@ -5073,7 +5073,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
         }
     }
 
-    if (flags & 0x40F3010F) {
+    if (flags & (WORLD_QUERY_MODEL_MASK | WORLD_QUERY_TERRAIN | WORLD_QUERY_LIQUID_MASK)) {
         World::s_m2Scene->m_lastHit.m_model = nullptr;
 
         if (CMap::VectorIntersectTerrain(start, end, distance, flags, nullptr)) {
@@ -5294,12 +5294,12 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     CWFrustum localFrustum(*frustum);
     localFrustum.Translate(C3Vector(-chunk->m_topLeftCoords.x, -chunk->m_topLeftCoords.y, -chunk->m_topLeftCoords.z));
 
-    if (flags & 0x100) {
+    if (flags & WORLD_QUERY_TERRAIN) {
         chunk->Intersect(&rect, &localFrustum, &facets->facets);
     }
 
-    if (flags & 0x30000) {
-        bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
+    if (flags & WORLD_QUERY_LIQUID_MASK) {
+        bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
             if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
@@ -5308,7 +5308,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         }
     }
 
-    if (flags & 0xF) {
+    if (flags & WORLD_QUERY_M2_MASK) {
         CAaBox box = CAaBox::Bounding(frustum->corners, 8);
 
         for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
@@ -6069,7 +6069,7 @@ void CMap::NewFootprint(int32_t textureId, const float* size, const C3Vector* po
     box.t = C3Vector(0.0f, 0.0f, 0.0f);
     CWorldMath::MakeAaBox(box, *position, size);
 
-    if (!World::GetFacets(&box, &s_footprintFacets, 0x200122, nullptr)) {
+    if (!World::GetFacets(&box, &s_footprintFacets, WORLD_QUERY_RENDER_MASK, nullptr)) {
         return;
     }
 
@@ -6245,12 +6245,12 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
     rect.maxX = cellRect.maxX - 8 * chunkX;
     rect &= s_chunkRect;
 
-    if (flags & 0x100) {
+    if (flags & WORLD_QUERY_TERRAIN) {
         result = CMap::GetTriSubchunk(chunk, &rect, &localBox);
     }
 
-    if (flags & 0x30000) {
-        bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
+    if (flags & WORLD_QUERY_LIQUID_MASK) {
+        bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
             if (walkableOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
@@ -6325,11 +6325,11 @@ bool CMap::QueryTrisMapObjDefs(const CAaBox& box, World::TriData* triData, uint3
 bool CMap::QueryTris(const CAaBox& box, World::TriData* triData, uint32_t flags) {
     bool result = false;
 
-    if (flags & 0x300F0) {
+    if (flags & (WORLD_QUERY_WMO_MASK | WORLD_QUERY_LIQUID_MASK)) {
         result = CMap::QueryTrisMapObjDefs(box, triData, flags);
     }
 
-    if (flags & 0x30100) {
+    if (flags & (WORLD_QUERY_TERRAIN | WORLD_QUERY_LIQUID_MASK)) {
         return CMap::GetTrisTerrain(box, triData, flags) | result;
     }
 
@@ -6369,18 +6369,18 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
 
                 uint32_t doodadFlags = doodadDef->m_flags;
 
-                if (!(doodadFlags & 0x80) || !doodadDef->m_bbox.Intersects(box)) {
+                if (!(doodadFlags & MAPOBJ_FLAG_PREPARED) || !doodadDef->m_bbox.Intersects(box)) {
                     continue;
                 }
 
-                uint32_t match = (flags & 0x200122) != 0;
+                uint32_t match = (flags & WORLD_QUERY_RENDER_MASK) != 0;
 
-                if (flags & 0x2000000) {
-                    match |= doodadFlags & 0x1000;
+                if (flags & WORLD_QUERY_PROJ_TEX_DOODADS) {
+                    match |= doodadFlags & MAPOBJ_FLAG_PROJ_TEX;
                 }
 
-                if (flags & 0x100111) {
-                    match |= (doodadFlags & 0x100) == 0;
+                if (flags & WORLD_QUERY_COLLISION_MASK) {
+                    match |= (doodadFlags & MAPOBJ_FLAG_NO_HITTEST) == 0;
                 }
 
                 if (match) {

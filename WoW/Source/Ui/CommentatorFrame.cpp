@@ -353,7 +353,7 @@ void CGCommentator::OnUpdate(float elapsed) {
         C3Vector hit(0.0f, 0.0f, 0.0f);
         float hitDistance = 1.0f;
 
-        if (this->m_cameraCollision && World::Intersect(target, eye, &hit, &hitDistance, 0x100171, nullptr)) {
+        if (this->m_cameraCollision && World::Intersect(target, eye, &hit, &hitDistance, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA, nullptr)) {
             C3Vector direction(target.x - hit.x, target.y - hit.y, target.z - hit.z);
             direction.NormalizeSafe();
             this->m_position.x = direction.x * 0.80000001f + hit.x;
@@ -382,7 +382,7 @@ void CGCommentator::OnUpdate(float elapsed) {
             C3Vector hit(0.0f, 0.0f, 0.0f);
             float hitDistance = 1.0f;
 
-            if (!this->m_cameraCollision || !World::Intersect(this->m_position, next, &hit, &hitDistance, 0x100171, nullptr)) {
+            if (!this->m_cameraCollision || !World::Intersect(this->m_position, next, &hit, &hitDistance, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA, nullptr)) {
                 this->m_position = next;
             }
         }

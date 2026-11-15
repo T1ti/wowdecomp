@@ -429,7 +429,7 @@ void CGCamera::CalcTerrainTilt(CGObject_C* target, uint32_t time) {
     points[2] = end;
 
     float distance = 1.0f;
-    World::Intersect(points[0], points[1], &points[2], &distance, 0x151, nullptr);
+    World::Intersect(points[0], points[1], &points[2], &distance, WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_WMO_CAMERA | WORLD_QUERY_TERRAIN, nullptr);
 
     points[2].x -= direction.x * 0.27777779f;
     points[2].y -= direction.y * 0.27777779f;
@@ -441,7 +441,7 @@ void CGCamera::CalcTerrainTilt(CGObject_C* target, uint32_t time) {
     points[4] = points[3];
 
     distance = 1.0f;
-    World::Intersect(points[2], points[3], &points[4], &distance, 0x151, nullptr);
+    World::Intersect(points[2], points[3], &points[4], &distance, WORLD_QUERY_M2_COLLISION | WORLD_QUERY_WMO_COLLISION | WORLD_QUERY_WMO_CAMERA | WORLD_QUERY_TERRAIN, nullptr);
 
     C3Vector delta;
     delta.x = points[2].x - points[0].x;
@@ -1472,7 +1472,7 @@ int32_t CGCamera::CCommand_PitchLimit(const char* command, const char* arguments
 // VERIFY: 4129fc26 auto
 // OFFSET: 0x005FEC50
 uint32_t CGCamera::GetCollisionQueryFlags() {
-    return s_cameraWaterCollision->m_intValue ? 0x120171 : 0x100171;
+    return s_cameraWaterCollision->m_intValue ? (WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA | WORLD_QUERY_LIQUID) : (WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA);
 }
 
 // VERIFY: cf6cb77a auto
@@ -3558,7 +3558,7 @@ C3Vector CGCamera::BumpCameraPositionFromLiquid(const C3Vector& target, float di
     float hitDistance = 1.0f;
     C3Vector hit = C3Vector(0.0f, 0.0f, 0.0f);
 
-    if (World::Intersect(start, end, &hit, &hitDistance, 0x20000, nullptr)) {
+    if (World::Intersect(start, end, &hit, &hitDistance, WORLD_QUERY_LIQUID, nullptr)) {
         result = hit;
 
         if (result.z < position.z) {
@@ -3567,7 +3567,7 @@ C3Vector CGCamera::BumpCameraPositionFromLiquid(const C3Vector& target, float di
             result.z = result.z - 0.22222222f;
         }
 
-        if (this->GetCameraDistance(distance, result, target, 0x100171)) {
+        if (this->GetCameraDistance(distance, result, target, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA)) {
             C3Vector forward = this->Forward();
             this->RotateOffsetByRoll(forward);
             result = C3Vector(target.x - forward.x * distance, target.y - forward.y * distance, target.z - forward.z * distance);
@@ -3643,7 +3643,7 @@ uint32_t CGCamera::CollideCameraWithWorld(const C3Vector& target, float& distanc
         return STATE_FLAGS::STATE_NONE;
     }
 
-    uint32_t flags = s_cameraWaterCollision->m_intValue ? 0x120171 : 0x100171;
+    uint32_t flags = s_cameraWaterCollision->m_intValue ? (WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA | WORLD_QUERY_LIQUID) : (WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA);
     float minHeight = 0.83333331f;
     float maxHeight = this->m_height;
 
@@ -3989,13 +3989,13 @@ int32_t CGCamera::GetCameraDistance(float& distance, const C3Vector& position, c
     CWFrustum frustum;
     CreateFrustum(proj, view, 1.0f, frustum, offset);
 
-    if (CollideWithWorld(frustum, flags & 0x30000, hit)) {
+    if (CollideWithWorld(frustum, flags & WORLD_QUERY_LIQUID_MASK, hit)) {
         collided = 1;
     }
 
     CreateFrustum(proj, view, 1.75f, frustum, offset);
 
-    if (!CollideWithWorld(frustum, flags & 0xFFFCFFFF, hit) && !collided) {
+    if (!CollideWithWorld(frustum, flags & ~WORLD_QUERY_LIQUID_MASK, hit) && !collided) {
         return 0;
     }
 

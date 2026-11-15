@@ -1066,7 +1066,9 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
     float t = 1.0f;
     float objectDistance = 0.0f;
     WOWGUID collision = WOWGUID();
-    uint32_t worldFlags = (flags & HIT_TEST_LIQUID) ? 0x1020124 : 0x1000124;
+    uint32_t worldFlags = (flags & HIT_TEST_LIQUID)
+        ? WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_TERRAIN | WORLD_QUERY_LIQUID | WORLD_QUERY_VISIBLE_OPAQUE
+        : WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_TERRAIN | WORLD_QUERY_VISIBLE_OPAQUE;
     C3Vector point = end;
     C3Vector direction = point - start;
     float length = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
@@ -1116,7 +1118,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
     if (terrain) {
         t = 1.0f;
 
-        if (World::Intersect(start, point, &hitPoint, &t, 0x100151, nullptr)) {
+        if (World::Intersect(start, point, &hitPoint, &t, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_CAMERA, nullptr)) {
             if (t < -0.001f || t > 1.001f || !_finite(t)) {
                 DebugLog("CWorld::Intersect() returned a bogus value for terrDist: %f", static_cast<double>(t));
             }
@@ -1510,7 +1512,7 @@ static C3Vector GetFacingVector(CGObject_C* object) {
 
 // VERIFY: 5b70d219 manual
 // OFFSET: 0x004F8A40
-static void DrawSpellCursorShadow(uint32_t a1) {
+static void DrawSpellCursorShadow(uint32_t queryFlags) {
     if (!s_spellShadowTexture[s_spellShadowStyle]) {
         return;
     }
@@ -1552,7 +1554,7 @@ static void DrawSpellCursorShadow(uint32_t a1) {
     color.g = 0xFF;
     color.r = 0xFF;
     color.a = 0xFF;
-    ProjectTex::Render2d(box, color, nullptr, 0.5f, a1, 5, 0.4f);
+    ProjectTex::Render2d(box, color, nullptr, 0.5f, queryFlags, 5, 0.4f);
     g_theGxDevicePtr->RsPop();
 }
 
@@ -1756,7 +1758,7 @@ void CGWorldFrame::OnWorldRender() {
     scene->Draw(M2PASS_0);
 
     if (s_spellShadowStyle < NUM_SPELL_SHADOWS) {
-        DrawSpellCursorShadow(0x200122);
+        DrawSpellCursorShadow(WORLD_QUERY_RENDER_MASK);
     }
 
     GxuSortDrawList(GxuCat_0, GxuSort_VtxStream, *World::GetCamPos());
@@ -1778,7 +1780,7 @@ void CGWorldFrame::OnWorldRender() {
     }
 
     if (s_spellShadowStyle < NUM_SPELL_SHADOWS) {
-        DrawSpellCursorShadow(0x20000);
+        DrawSpellCursorShadow(WORLD_QUERY_LIQUID);
     }
 
     SpellVisualsTick();
