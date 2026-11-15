@@ -148,7 +148,7 @@ void FriendList::Initialize() {
 FriendInfo* FriendList::ClearRecruitAFriend(WOWGUID guid) {
     for (uint32_t i = 0; i < 100; i++) {
         if (this->m_friends[i].m_guid == guid) {
-            this->m_friends[i].m_flags &= ~0x8;
+            this->m_friends[i].m_flags &= ~FRIEND_STATUS_REFER_A_FRIEND;
             return &this->m_friends[i];
         }
     }
@@ -165,7 +165,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
     msg->Get(flags);
     msg->Get(count);
 
-    if (flags & 0x1) {
+    if (flags & CONTACT_LIST_FRIEND) {
         for (uint32_t i = 0; i < 100; i++) {
             if (this->m_friends[i].m_name) {
                 SMemFree(this->m_friends[i].m_name, __FILE__, __LINE__, 0);
@@ -175,11 +175,11 @@ void FriendList::ReadPacket(CDataStore* msg) {
         }
     }
 
-    if (flags & 0x2) {
+    if (flags & CONTACT_LIST_IGNORE) {
         memset(this->m_ignores, 0, sizeof(this->m_ignores));
     }
 
-    if (flags & 0x4) {
+    if (flags & CONTACT_LIST_MUTE) {
         memset(this->m_mutes, 0, sizeof(this->m_mutes));
     }
 
@@ -191,7 +191,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
         msg->Get(entryFlags);
         msg->GetString(note, sizeof(note));
 
-        if (entryFlags & 0x1) {
+        if (entryFlags & CONTACT_LIST_FRIEND) {
             uint32_t area = 0;
             uint32_t level = 0;
             uint32_t classId = 0;
@@ -204,7 +204,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
                 msg->Get(classId);
             }
 
-            if ((flags & 0x1) && friendIndex < 100) {
+            if ((flags & CONTACT_LIST_FRIEND) && friendIndex < 100) {
                 FriendInfo& info = this->m_friends[friendIndex];
                 info.m_flags = status;
                 info.m_guid = guid;
@@ -249,7 +249,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
             }
         }
 
-        if (entryFlags & flags & 0x2) {
+        if (entryFlags & flags & CONTACT_LIST_IGNORE) {
             WOWGUID ignoreGuid = guid;
 
             for (uint32_t i = 0; i < 50; i++) {
@@ -269,7 +269,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
             }
         }
 
-        if (entryFlags & flags & 0x4) {
+        if (entryFlags & flags & CONTACT_LIST_MUTE) {
             WOWGUID muteGuid = guid;
 
             for (uint32_t i = 0; i < 50; i++) {
@@ -288,17 +288,17 @@ void FriendList::ReadPacket(CDataStore* msg) {
         }
     }
 
-    if ((flags & 0x1) && !this->m_pendingFriendNames) {
+    if ((flags & CONTACT_LIST_FRIEND) && !this->m_pendingFriendNames) {
         qsort(this->m_friends, 100, sizeof(FriendInfo), QSortFriends);
         FrameScript_SignalEvent(SCRIPT_EVENT_FRIENDLIST_UPDATE, nullptr);
     }
 
-    if ((flags & 0x2) && !this->m_pendingIgnoreNames) {
+    if ((flags & CONTACT_LIST_IGNORE) && !this->m_pendingIgnoreNames) {
         qsort(this->m_ignores, 50, sizeof(IgnoreInfo), QSortIgnore);
         FrameScript_SignalEvent(SCRIPT_EVENT_IGNORELIST_UPDATE, nullptr);
     }
 
-    if ((flags & 0x4) && !this->m_pendingMuteNames) {
+    if ((flags & CONTACT_LIST_MUTE) && !this->m_pendingMuteNames) {
         qsort(this->m_mutes, 50, sizeof(IgnoreInfo), QSortIgnore);
         FrameScript_SignalEvent(SCRIPT_EVENT_MUTELIST_UPDATE, nullptr);
     }

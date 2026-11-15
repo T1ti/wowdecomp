@@ -37,6 +37,22 @@ enum FRIEND_RESULT : uint8_t {
     FRIEND_AREA_UPDATED = 27,
 };
 
+// Contact list kinds: SMSG_CONTACT_LIST list mask and entry flags, CMSG_CONTACT_LIST request mask.
+enum CONTACT_LIST_FLAGS : uint32_t {
+    CONTACT_LIST_FRIEND = 0x1,
+    CONTACT_LIST_IGNORE = 0x2,
+    CONTACT_LIST_MUTE = 0x4,
+};
+
+// Friend status byte; AFK/DND/REFER_A_FRIEND follow the GetFriendInfo status and RAF returns.
+enum FRIEND_STATUS_FLAGS : uint8_t {
+    FRIEND_STATUS_OFFLINE = 0x0,
+    FRIEND_STATUS_ONLINE = 0x1,
+    FRIEND_STATUS_AFK = 0x2,
+    FRIEND_STATUS_DND = 0x4,
+    FRIEND_STATUS_REFER_A_FRIEND = 0x8,
+};
+
 class CDataStore;
 struct lua_State;
 
