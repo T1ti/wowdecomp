@@ -114,8 +114,27 @@ class M2Sequence {
 
 class M2CompBone {
     public:
+    // File and runtime bone controls; names reconstructed from transform consumers.
+    enum FLAGS : uint32_t {
+        NONE = 0,
+        IGNORE_PARENT_TRANSLATION = 1,
+        IGNORE_PARENT_SCALE = 2,
+        IGNORE_PARENT_ROTATION = 4,
+        BILLBOARD = 8,
+        BILLBOARD_LOCK_X = 0x10,
+        BILLBOARD_LOCK_Y = 0x20,
+        BILLBOARD_LOCK_Z = 0x40,
+        PROCEDURAL_TRANSFORM = 0x80,
+        TRANSFORMED = 0x200,
+        PARENT_OVERRIDE_MASK = 7,
+        PARENT_ROTATION_SCALE_MASK = 6,
+        BILLBOARD_MASK = 0x78,
+        LOCAL_TRANSFORM_MASK = 0x280,
+        DYNAMIC_TRANSFORM_MASK = 0x2f8,
+    };
+
     /* 0000 */ uint32_t m_boneId;
-    /* 0004 */ uint32_t m_flags;
+    /* 0004 */ FLAGS m_flags;
     /* 0008 */ uint16_t m_parentIndex;
     /* 000A */ uint16_t m_uDistToParent;
     /* 000C */ uint32_t m_boneNameCRC;

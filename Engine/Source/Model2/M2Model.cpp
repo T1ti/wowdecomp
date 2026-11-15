@@ -3709,7 +3709,7 @@ M2ModelBone::M2ModelBone() {
     this->m_invBlendDuration = 0.0f;
     this->m_blendFactor = 0.0f;
     this->m_proceduralTransform = nullptr;
-    this->m_flags = 0;
+    this->m_flags = M2CompBone::FLAGS::NONE;
     this->m_blendWeightMax = 1.0f;
     this->m_sequenceId = INVALID_ANIMATION;
     this->m_variationIndex = 0;
@@ -5269,7 +5269,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         } else {
             parentMatrix = &this->m_boneMatrices[parentIndex];
 
-            if (boneFlags & 7) {
+            if (boneFlags & M2CompBone::FLAGS::PARENT_OVERRIDE_MASK) {
                 parentTransform = this->m_boneMatrices[parentIndex];
                 parentMatrix = &parentTransform;
                 C3Vector pivot = boneData->m_pivot * parentTransform;
@@ -5278,8 +5278,8 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                 C3Vector& rowC = *reinterpret_cast<C3Vector*>(&parentTransform.c0);
                 const C44Matrix& world = this->m_matrixF4;
 
-                switch (boneFlags & 6) {
-                    case 2: {
+                switch (boneFlags & M2CompBone::FLAGS::PARENT_ROTATION_SCALE_MASK) {
+                    case M2CompBone::FLAGS::IGNORE_PARENT_SCALE: {
                         rowA.NormalizeSafe();
                         rowB.NormalizeSafe();
                         rowC.NormalizeSafe();
@@ -5298,7 +5298,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                         break;
                     }
 
-                    case 4: {
+                    case M2CompBone::FLAGS::IGNORE_PARENT_ROTATION: {
                         float lengthA = world.a2 * world.a2 + world.a1 * world.a1 + world.a0 * world.a0;
                         float scaleA = lengthA <= 0.0000099999997f ? 1.0f : sqrtf((parentTransform.a0 * parentTransform.a0 + parentTransform.a2 * parentTransform.a2 + parentTransform.a1 * parentTransform.a1) / lengthA);
                         parentTransform.a0 = world.a0 * scaleA;
@@ -5317,7 +5317,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                         break;
                     }
 
-                    case 6: {
+                    case M2CompBone::FLAGS::PARENT_ROTATION_SCALE_MASK: {
                         parentTransform.a0 = world.a0;
                         parentTransform.a1 = world.a1;
                         parentTransform.a2 = world.a2;
@@ -5331,7 +5331,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                     }
                 }
 
-                if (boneFlags & 1) {
+                if (boneFlags & M2CompBone::FLAGS::IGNORE_PARENT_TRANSLATION) {
                     parentTransform.d0 = world.d0;
                     parentTransform.d1 = world.d1;
                     parentTransform.d2 = world.d2;
@@ -5346,7 +5346,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             }
         }
 
-        int32_t animated = boneFlags & 0x280;
+        int32_t animated = boneFlags & M2CompBone::FLAGS::LOCAL_TRANSFORM_MASK;
         C44Matrix& boneMatrix = this->m_boneMatrices[i];
 
         if (animated) {
@@ -5393,7 +5393,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                 local.Scale(bone->m_scale.m_currentValue);
             }
 
-            if ((boneFlags & 0x80) && bone->m_proceduralTransform) {
+            if ((boneFlags & M2CompBone::FLAGS::PROCEDURAL_TRANSFORM) && bone->m_proceduralTransform) {
                 local *= *bone->m_proceduralTransform;
             }
 
@@ -5421,7 +5421,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             boneMatrix = *parentMatrix;
         }
 
-        uint32_t billboard = boneFlags & 0x78;
+        uint32_t billboard = boneFlags & M2CompBone::FLAGS::BILLBOARD_MASK;
 
         if (billboard) {
             C3Vector& rowA = *reinterpret_cast<C3Vector*>(&boneMatrix.a0);
@@ -5434,7 +5434,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             C3Vector pivot = p * boneMatrix;
 
             switch (billboard) {
-                case 8: {
+                case M2CompBone::FLAGS::BILLBOARD: {
                     if (animated) {
                         rowA.x = local.a1;
                         rowA.y = local.a2;
@@ -5463,7 +5463,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                     break;
                 }
 
-                case 16: {
+                case M2CompBone::FLAGS::BILLBOARD_LOCK_X: {
                     rowA.NormalizeSafe();
                     float x = rowA.x;
                     rowB.x = rowA.y;
@@ -5478,7 +5478,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                     break;
                 }
 
-                case 32: {
+                case M2CompBone::FLAGS::BILLBOARD_LOCK_Y: {
                     rowB.NormalizeSafe();
                     float x = rowB.x;
                     rowA.x = -rowB.y;
@@ -5493,7 +5493,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                     break;
                 }
 
-                case 64: {
+                case M2CompBone::FLAGS::BILLBOARD_LOCK_Z: {
                     rowC.NormalizeSafe();
                     float x = rowC.x;
                     rowB.x = rowC.y;
@@ -7540,9 +7540,9 @@ int32_t CM2Model::InitializeLoaded() {
     M2Data* currentData = currentShared->m_data;
 
     if (currentData->m_bones.m_count == 1 && currentData->m_sequences.m_count == 1) {
-        uint32_t boneFlags = currentData->m_bones[0].m_flags;
+        M2CompBone::FLAGS boneFlags = currentData->m_bones[0].m_flags;
 
-        if (!(boneFlags & 0x280) && !(boneFlags & 0x78) && !currentData->m_lights.m_count && !currentData->m_cameras.m_count && !currentData->m_ribbons.m_count && !currentData->m_particles.m_count && !currentData->m_colors.m_count) {
+        if (!(boneFlags & M2CompBone::FLAGS::LOCAL_TRANSFORM_MASK) && !(boneFlags & M2CompBone::FLAGS::BILLBOARD_MASK) && !currentData->m_lights.m_count && !currentData->m_cameras.m_count && !currentData->m_ribbons.m_count && !currentData->m_particles.m_count && !currentData->m_colors.m_count) {
             this->m_runtimeFlags |= M2_FLAGS::M2_STATIC_SINGLE_BONE_OPTIMIZED;
         }
     }

@@ -1567,7 +1567,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
                 }
 
                 float angle = delta < 0.0f ? -twist : twist;
-                this->m_worldModel->SetBoneFlags(4, 0x80, 0x80);
+                this->m_worldModel->SetBoneFlags(4, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 CM2Model* model = this->m_worldModel;
                 C3Vector axis(0.0f, 0.0f, 1.0f);
                 model->SetBoneProceduralTransform(4, C44Matrix::Rotation(angle, axis, true));
@@ -1577,7 +1577,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
             if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_BONE_6) {
                 float twist = 0.7853982f <= remaining ? 0.7853982f : remaining;
                 float angle = delta < 0.0f ? -twist : twist;
-                this->m_worldModel->SetBoneFlags(6, 0x80, 0x80);
+                this->m_worldModel->SetBoneFlags(6, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 CM2Model* model = this->m_worldModel;
                 C3Vector axis(0.0f, 0.0f, 1.0f);
                 model->SetBoneProceduralTransform(6, C44Matrix::Rotation(angle, axis, true));
@@ -1586,12 +1586,12 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     }
 
     if (clearTwist) {
-        this->m_worldModel->SetBoneFlags(4, 0, 0x80);
-        this->m_worldModel->SetBoneFlags(6, 0, 0x80);
+        this->m_worldModel->SetBoneFlags(4, M2CompBone::FLAGS::NONE, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
+        this->m_worldModel->SetBoneFlags(6, M2CompBone::FLAGS::NONE, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
     }
 
     if (pitchBone) {
-        this->m_worldModel->SetBoneFlags(4, 0x80, 0x80);
+        this->m_worldModel->SetBoneFlags(4, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
         C3Vector axis(0.0f, 1.0f, 0.0f);
         CM2Model* model = this->m_worldModel;
         model->SetBoneProceduralTransform(4, C44Matrix::Rotation(-this->GetPitch(), axis, true));
@@ -1940,7 +1940,7 @@ void CGUnit_C::RotateWheels() {
     if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         for (int32_t i = 0; i < 8; i++) {
             if ((1 << i) & this->m_wheelMask) {
-                model->SetBoneFlags(i + 27, 0x80, 0x80);
+                model->SetBoneFlags(i + 27, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 C3Vector axis(0.0f, 1.0f, 0.0f);
                 model->SetBoneProceduralTransform(i + 27, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
             }
@@ -1967,7 +1967,7 @@ void CGUnit_C::RotateWheels() {
                     }
                 }
 
-                model->SetBoneFlags(i + 27, 0x80, 0x80);
+                model->SetBoneFlags(i + 27, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 C3Vector axis(0.0f, 1.0f, 0.0f);
                 model->SetBoneProceduralTransform(i + 27, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
             }

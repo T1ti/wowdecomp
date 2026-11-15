@@ -1717,7 +1717,7 @@ int32_t CM2Shared::Initialize() {
     }
 
     for (uint32_t i = 0; i < this->m_data->m_bones.m_count; i++) {
-        if (this->m_data->m_bones[i].m_flags & 0x2F8) {
+        if (this->m_data->m_bones[i].m_flags & M2CompBone::FLAGS::DYNAMIC_TRANSFORM_MASK) {
             this->m_billboardBoneCount++;
         }
     }
