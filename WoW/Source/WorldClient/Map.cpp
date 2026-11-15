@@ -959,7 +959,7 @@ bool CMap::QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float
         C3Vector local = *pos * mapObjDef->m_invMat;
         CMapObj* mapObj = mapObjDef->m_owner;
 
-        if (mapObj->ContainsPointInBounds(local) && mapObj->QueryLiquidStatus(0x2000, local, liquidType, height)) {
+        if (mapObj->ContainsPointInBounds(local) && mapObj->QueryLiquidStatus(CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x2000, local, liquidType, height)) {
             C3Vector level(local.x, local.y, *height);
             level *= mapObjDef->m_mat;
             *height = level.z;

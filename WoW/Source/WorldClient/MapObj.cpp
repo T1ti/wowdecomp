@@ -1276,19 +1276,19 @@ void CMapObj::RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& nd
         }
 
         if (s_interiorPass) {
-            if (destFlags & 0x50148) {
-                this->AddExteriorPortalView(portal, ref, ext, destFlags & 0x10008);
+            if (destFlags & (CMapObjGroup::MOGP_FLAGS::F_USE_SKYBOX | CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR | CMapObjGroup::MOGP_FLAGS::F_SHOW_EXTERIOR_SKY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT)) {
+                this->AddExteriorPortalView(portal, ref, ext, destFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR));
 
-                if (destFlags & 0x10008) {
+                if (destFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
                     continue;
                 }
             }
         } else {
-            if (destFlags & 0x10008) {
+            if (destFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
                 continue;
             }
 
-            if (!depth && s_cullStateValid && !(destFlags & 0x140)) {
+            if (!depth && s_cullStateValid && !(destFlags & (CMapObjGroup::MOGP_FLAGS::F_SHOW_EXTERIOR_SKY | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT))) {
                 this->AddInteriorPortalView(portal, ref, ext, &s_pendingPortalViews);
             }
         }
