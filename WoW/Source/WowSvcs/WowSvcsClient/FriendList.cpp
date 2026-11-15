@@ -571,7 +571,7 @@ static void PrintWho(const char* name, int32_t race, int32_t classId, const char
         SStrPrintf(text, sizeof(text), FrameScript_GetText("WHO_LIST_FORMAT", -1, GENDER_NOT_APPLICABLE), name, name, level, raceName, className, zoneName);
     }
 
-    CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 }
 
 // VERIFY: b37debf7 manual
@@ -1040,7 +1040,7 @@ int32_t Packet_SMSG_WHO(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
     if (print) {
         char text[3000];
         SStrPrintf(text, sizeof(text), FrameScript_GetText("WHO_NUM_RESULTS", -1, GENDER_NOT_APPLICABLE), count);
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     } else {
         FrameScript_SignalEvent(SCRIPT_EVENT_WHO_LIST_UPDATE, nullptr);
     }

@@ -261,7 +261,7 @@ int32_t Packet_SMSG_INSTANCE_SAVE_CREATED(void* param, NETMESSAGE msgId, uint32_
         SStrPrintf(text, sizeof(text), "(Debug-Only Lock Notice) %s", FrameScript_GetText("INSTANCE_SAVED", -1, GENDER_NOT_APPLICABLE));
     }
 
-    CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     return 1;
 }
 
@@ -1007,7 +1007,7 @@ int32_t Packet_SMSG_PLAYER_DIFFICULTY_CHANGE(void* param, NETMESSAGE msgId, uint
             MapDifficultyRec* rec = g_mapDifficultyDB.GetRecord(value);
 
             if (rec && rec->m_message) {
-                CGChat::AddChatMessage(rec->m_message, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+                CGChat::AddChatMessage(rec->m_message, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
             }
 
             break;

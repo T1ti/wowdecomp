@@ -2780,7 +2780,7 @@ void __stdcall CGPlayer_C::ClearAFK(int32_t force) {
     }
 
     CGChat::m_afk = 0;
-    CGChat::AddChatMessage(FrameScript_GetText("CLEARED_AFK", -1, GENDER_NOT_APPLICABLE), 0, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
+    CGChat::AddChatMessage(FrameScript_GetText("CLEARED_AFK", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
 
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_MESSAGECHAT));
@@ -5167,9 +5167,9 @@ int32_t Packet_SMSG_GUILD_INFO(void* param, NETMESSAGE msgId, uint32_t time, CDa
     msg->Get(numAccounts);
     char buffer[3000];
     SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("GUILD_NAME_TEMPLATE", -1, GENDER_NOT_APPLICABLE), name);
-    CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("GUILD_INFO_TEMPLATE", -1, GENDER_NOT_APPLICABLE), created.m_month + 1, created.m_monthDay + 1, created.m_year + 2000, numMembers, numAccounts);
-    CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     return 1;
 }
 
@@ -5766,7 +5766,7 @@ void __stdcall CGPlayer_C::ReportPVPAFK(WOWGUID guid) {
     if (name) {
         char buffer[3000];
         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("REPORT_PVP_AFK_SENT", -1, GENDER_NOT_APPLICABLE), name->m_name);
-        CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 }
 
@@ -7396,7 +7396,7 @@ static void CrossedInebriationThresholdItemCallback(int32_t id, const WOWGUID& g
             SStrPrintf(token, sizeof(token), "DRUNK_MESSAGE_ITEM_OTHER%d", threshold + 1);
             const char* link = CGTooltip::GetItemHyperlinkString(id, stats->m_quality, 0, 0, 0);
             SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE), player->GetUnitName(nullptr, 1), link);
-            CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
             return;
         }
 
@@ -7413,7 +7413,7 @@ static void CrossedInebriationThresholdItemCallback(int32_t id, const WOWGUID& g
         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE), player->GetUnitName(nullptr, 1));
     }
 
-    CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 }
 
 // VERIFY: 63353f77 manual
@@ -8525,7 +8525,7 @@ int32_t __stdcall CGPlayer_C::OnLootMoneyNotify(CDataStore* msg) {
         GetCurrencyText(amount, money, sizeof(money), ", ");
         char text[3000];
         SStrPrintf(text, sizeof(text), FrameScript_GetText(alone ? "YOU_LOOT_MONEY" : "LOOT_MONEY_SPLIT", -1, GENDER_NOT_APPLICABLE), money);
-        CGChat::AddChatMessage(text, 28, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_MONEY, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     return 1;
@@ -12237,7 +12237,7 @@ int32_t ReportDailyQuestsRemaining(WOWGUID guid, uint32_t offset, uint32_t count
     }
 
     if (text[0]) {
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     return 1;
@@ -13179,7 +13179,7 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
             text = FrameScript_GetText("PVP_TOGGLE_OFF_VERBOSE", -1, GENDER_NOT_APPLICABLE);
         }
 
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     if (changed & PLAYER_FLAGS::PLAYER_FLAG_PLAY_TIME_MASK) {
@@ -14143,7 +14143,7 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
         } else if (result == 11) {
             CGGameUI::DisplayError(ERR_CURRENCY_FULL);
         } else {
-            CGChat::AddChatMessage(FrameScript_GetText("UNABLE_TO_REFUND_ITEM", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(FrameScript_GetText("UNABLE_TO_REFUND_ITEM", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
         SStrPrintf(text, sizeof(text), "Item purchase refund error code %d", result);
@@ -14167,11 +14167,11 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
 
     char text[3000];
     SStrPrintf(text, sizeof(text), FrameScript_GetText("ITEM_REFUND_MSG", -1, GENDER_NOT_APPLICABLE));
-    CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 
     if (money > 0) {
         GetCurrencyText(money, text, sizeof(text), ", ");
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     if (honor > 0) {
@@ -14183,7 +14183,7 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), 75000 - current, FrameScript_GetText("HONOR_POINTS", -1, GENDER_NOT_APPLICABLE));
         }
 
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     if (arena > 0) {
@@ -14195,7 +14195,7 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), 10000 - current, FrameScript_GetText("ARENA_POINTS", -1, GENDER_NOT_APPLICABLE));
         }
 
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     for (uint32_t i = 0; i < 5; i++) {
@@ -14217,7 +14217,7 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
         }
 
         SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), counts[i], name);
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     return 1;
@@ -14339,12 +14339,12 @@ void CGPlayer_C::SetAFK(const char* message) {
 
     if (!CGChat::m_afk) {
         if (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_DND) {
-            CGChat::AddChatMessage(FrameScript_GetText("CLEARED_DND", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(FrameScript_GetText("CLEARED_DND", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
         char buffer[3000];
         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("MARKED_AFK_MESSAGE", -1, GENDER_NOT_APPLICABLE), text);
-        CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         CGChat::m_afk = 1;
     }
 

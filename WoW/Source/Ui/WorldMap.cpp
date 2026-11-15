@@ -778,7 +778,7 @@ void CGWorldMap::SetMapToCurrentZone(int32_t debug) {
             }
 
             SStrPrintf(text, sizeof(text) - 1, "%s, Dungeon Map Info:  WMOGroupID = %d  DMapID = %d  WorldMapAreaRecID = %d  MapID = %d", text, CGGameUI::m_wmoGroupID, dungeonMap, area->m_id, area->m_mapID);
-            CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
             ConsolePrintf("%s\n", text);
             return;
         }
@@ -803,7 +803,7 @@ void CGWorldMap::SetMapToCurrentZone(int32_t debug) {
             }
 
             SStrPrintf(text, sizeof(text) - 1, "%s, True Orphan:  Continent = -1", text);
-            CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
             ConsolePrintf("%s\n", text);
             return;
         }
@@ -827,7 +827,7 @@ void CGWorldMap::SetMapToCurrentZone(int32_t debug) {
                 }
 
                 SStrPrintf(text, sizeof(text) - 1, "%s Inside Instance:  Continent = %02d  MapID = %03d", text, continent, i);
-                CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+                CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
                 ConsolePrintf("%s\n", text);
                 return;
             }
@@ -858,7 +858,7 @@ void CGWorldMap::SetMapToCurrentZone(int32_t debug) {
             }
 
             SStrPrintf(text, sizeof(text) - 1, "%s, Dungeon Map Info (continent):  WMOID = %d  DMapID = %d  DMapRec = %d  z = %5.2f", text, CGGameUI::m_wmoGroupID, dungeonMap, area->m_id, player->GetPosition().z);
-            CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
             ConsolePrintf("%s\n", text);
             return;
         }
@@ -879,7 +879,7 @@ void CGWorldMap::SetMapToCurrentZone(int32_t debug) {
     }
 
     SStrPrintf(text, sizeof(text) - 1, "%s, Normal Map:  Continent = %02d  MapID = %03d", text, continent, zone);
-    CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     ConsolePrintf("%s\n", text);
 }
 

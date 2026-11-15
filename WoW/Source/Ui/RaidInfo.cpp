@@ -459,7 +459,7 @@ int32_t Packet_MSG_RAID_READY_CHECK_CONFIRM(void* param, NETMESSAGE msgId, uint3
 
                     if (name && initiator) {
                         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("RAID_MEMBER_NOT_READY", -1, GENDER_NOT_APPLICABLE), name->m_name);
-                        CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+                        CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
                     }
                 }
 
@@ -499,7 +499,7 @@ int32_t Packet_MSG_RAID_READY_CHECK_CONFIRM(void* param, NETMESSAGE msgId, uint3
 
                     if (name) {
                         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("RAID_MEMBER_NOT_READY", -1, GENDER_NOT_APPLICABLE), name->m_name);
-                        CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+                        CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
                     }
                 }
 
@@ -576,7 +576,7 @@ int32_t Packet_MSG_RAID_READY_CHECK(void* param, NETMESSAGE msgId, uint32_t time
     CGRaidInfo::m_readyCheckTime = OsGetAsyncTimeMs() + 30000;
 
     if (initiator == ClntObjMgrGetActivePlayer()) {
-        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_START", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_START", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     if (CGRaidInfo::m_numMembers) {
@@ -1261,11 +1261,11 @@ void CGRaidInfo::CheckReadyCheckTime() {
     if (!first) {
         char text[512];
         SStrPrintf(text, sizeof(text), format, names);
-        CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     } else if (!allReady) {
-        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_FINISHED", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_FINISHED", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     } else {
-        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_ALL_READY", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(FrameScript_GetText("READY_CHECK_ALL_READY", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     CDataStore msg;

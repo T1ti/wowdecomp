@@ -1050,7 +1050,7 @@ static int32_t Script_BNReportPlayer(lua_State* L) {
         }
 
         if (!BattlenetAPI::ReportPlayer(static_cast<uint32_t>(lua_tonumber(L, 1)), reason, note)) {
-            CGChat::AddChatMessage(FrameScript_GetText("BNET_REPORT_SENT", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(FrameScript_GetText("BNET_REPORT_SENT", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
     }
 

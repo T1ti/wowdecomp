@@ -1491,7 +1491,7 @@ void BattlenetUI::DisplayError(uint16_t error, uint32_t presenceId) {
         SStrPrintf(text, sizeof(text), FrameScript_GetText("INTERNAL_STRING_ERROR", -1, GENDER_NOT_APPLICABLE), error);
     }
 
-    CGChat::AddChatMessage(text, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 
     if (error != 318) {
         CGGameUI::AddErrorMessage(text, 0);

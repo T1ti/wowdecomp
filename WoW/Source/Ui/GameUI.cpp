@@ -2052,7 +2052,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
             if (minutes <= 30) {
                 char text[3000];
                 SStrPrintf(text, sizeof(text), FrameScript_GetText("BILLING_NAG_WARNING", -1, GENDER_NOT_APPLICABLE), minutes);
-                CGChat::AddChatMessage(text, 0, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
+                CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
             }
 
             if (static_cast<int32_t>(now - CGGameUI::m_billingExpireTime) < 0) {
@@ -2101,7 +2101,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
                 }
             }
         } else if (!ClientServices::Connection()->CharacterLoggingOut()) {
-            CGChat::AddChatMessage(FrameScript_GetText("IDLE_MESSAGE", -1, GENDER_NOT_APPLICABLE), 0, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
+            CGChat::AddChatMessage(FrameScript_GetText("IDLE_MESSAGE", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
             CGLCD::IdleDisconnectWarning();
             ClientServices::Connection()->CharacterLogout(false, false);
         }
@@ -3523,7 +3523,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
                 SStrPrintf(text, sizeof(text), format, CGTooltip::GetItemHyperlinkString(itemId, stats->m_quality, 0, randomPropertyId, suffixFactor));
             }
 
-            CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+            CGChat::AddChatMessage(text, CHAT_MSG_LOOT, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
         }
 
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ITEMS);
@@ -3577,7 +3577,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             SStrPrintf(text, sizeof(text), format, player->GetUnitName(nullptr, 1), link);
         }
 
-        CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+        CGChat::AddChatMessage(text, CHAT_MSG_LOOT, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
     if ((guid == ClntObjMgrGetActivePlayer() && (stats->m_inventoryType == INVTYPE_RANGED || stats->m_inventoryType == INVTYPE_RANGEDRIGHT) && player->m_unit->m_classID != CLASS_HUNTER) || (stats->m_class == ITEM_CLASS::ITEM_CLASS_WEAPON && stats->m_subClass == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_WAND)) {
@@ -6246,7 +6246,7 @@ void CCapturePointUIManager::Update() {
         CGObject_C* object = ClntObjMgrObjectPtr(node->m_guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
         if (object && static_cast<float>(node->m_radiusSquared) > player->GetDistanceToPos(object->GetPosition())) {
-            CGChat::AddChatMessage(FrameScript_GetText("PVP_REQUIRED_FOR_CAPTURE", -1, GENDER_NOT_APPLICABLE), 0, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
+            CGChat::AddChatMessage(FrameScript_GetText("PVP_REQUIRED_FOR_CAPTURE", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, 0, 0, 0, 0, nullptr, WOWGUID(), 0, WOWGUID(), 0, 0, 0);
             this->m_nextWarningTime = time + 300000;
             return;
         }

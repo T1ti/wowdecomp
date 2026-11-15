@@ -1984,7 +1984,7 @@ int32_t Packet_SMSG_TRANSFER_ABORTED(void* param, NETMESSAGE msgId, uint32_t tim
         if (text && *text) {
             char buffer[1024];
             SStrPrintf(buffer, sizeof(buffer), text, map->m_mapName);
-            CGChat::AddChatMessage(buffer, 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID{ 0 }, 0, WOWGUID{ 0 }, 0, false, nullptr);
+            CGChat::AddChatMessage(buffer, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID{ 0 }, 0, WOWGUID{ 0 }, 0, false, nullptr);
         }
     }
 

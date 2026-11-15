@@ -232,7 +232,7 @@ static int32_t Script_GetLootMethod(lua_State* L) {
 static int32_t Script_SetOptOutOfLoot(lua_State* L) {
     int32_t optOut = lua_toboolean(L, 1);
     CGPartyInfo::SetOptOutOfLoot(optOut);
-    CGChat::AddChatMessage(FrameScript_GetText(optOut ? "OPT_OUT_LOOT_TOGGLE_ON" : "OPT_OUT_LOOT_TOGGLE_OFF", -1, GENDER_NOT_APPLICABLE), 0, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(FrameScript_GetText(optOut ? "OPT_OUT_LOOT_TOGGLE_ON" : "OPT_OUT_LOOT_TOGGLE_OFF", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     return 0;
 }
 

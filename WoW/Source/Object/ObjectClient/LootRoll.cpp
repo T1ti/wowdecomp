@@ -279,7 +279,7 @@ static void RolledStatsAndName(const NameCache* name, PendingLootRoll* roll, con
         }
     }
 
-    CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_LOOT, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     delete roll;
 }
 
@@ -435,7 +435,7 @@ int32_t LootRollStart(CDataStore* msg) {
 static void AllPassedStats(PendingLootRoll* roll, const ItemStats_C* stats) {
     char text[3000];
     SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_ALL_PASSED", -1, GENDER_NOT_APPLICABLE), CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
-    CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_LOOT, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 
     if (!roll->m_finished) {
         FrameScript_SignalEvent(SCRIPT_EVENT_CANCEL_LOOT_ROLL, "%d", roll->m_id);
@@ -523,7 +523,7 @@ static void WonStatsAndName(const NameCache* name, PendingLootRoll* roll, const 
         SStrPrintf(text, sizeof(text), FrameScript_GetText("LOOT_ROLL_WON_NO_SPAM_DE", -1, GENDER_NOT_APPLICABLE), name->m_name, roll->m_rollNumber, CGTooltip::GetItemHyperlinkString(roll->m_itemId, stats->m_quality, 0, roll->m_randomPropertyId, roll->m_randomSuffix));
     }
 
-    CGChat::AddChatMessage(text, 27, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
+    CGChat::AddChatMessage(text, CHAT_MSG_LOOT, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 
     if (!roll->m_finished) {
         FrameScript_SignalEvent(SCRIPT_EVENT_CANCEL_LOOT_ROLL, "%d", roll->m_id);
