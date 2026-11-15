@@ -2668,11 +2668,11 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
             mapDoodadDef->m_diffuseLightScale = 1.0f;
             mapDoodadDef->m_flags = static_cast<MapObjFlag>((mapDoodadDef->m_flags & ~MAPOBJ_FLAG_INTERIOR) | MAPOBJ_FLAG_EXTERIOR);
         } else {
-            mapDoodadDef->m_flags = static_cast<MapObjFlag>(mapDoodadDef->m_flags | 0x2);
+            mapDoodadDef->m_flags = static_cast<MapObjFlag>(mapDoodadDef->m_flags | MAPOBJ_FLAG_INTERIOR);
         }
     }
 
-    mapObjDefGroup->m_flags = static_cast<MapObjFlag>(mapObjDefGroup->m_flags | 0x8);
+    mapObjDefGroup->m_flags = static_cast<MapObjFlag>(mapObjDefGroup->m_flags | MAPOBJ_FLAG_REFS_CREATED);
 }
 
 // VERIFY: 3943554d auto

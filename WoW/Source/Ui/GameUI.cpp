@@ -5458,7 +5458,7 @@ void CGGameUI::UnitTooltipUpdate(const WOWGUID& guid) {
 int32_t CGGameUI::IsDynamicDifficultyMap() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && (map->m_flags & 0x100)) {
+    if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
         return 1;
     }
 
@@ -5470,7 +5470,7 @@ int32_t CGGameUI::IsDynamicDifficultyMap() {
 uint32_t CGGameUI::GetEffectiveRaidDifficulty() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && (map->m_flags & 0x100)) {
+    if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
         uint32_t difficulty = CGRaidInfo::m_numMembers ? CGPartyInfo::m_raidDifficulty : CGGameUI::m_raidDifficulty;
         return (difficulty & RAID_DIFFICULTY_SIZE_MASK) + RAID_DIFFICULTY_HEROIC_OFFSET * CGPartyInfo::m_dynamicDifficulty;
     }
@@ -7083,7 +7083,7 @@ void CGGameUI::SendRaidDifficultyMessage() {
     char token[64];
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-    if (map && (map->m_flags & 0x100)) {
+    if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
         SStrPrintf(token, sizeof(token), "RAID_DIFFICULTY%d", CGGameUI::GetCurrentRaidDifficulty() + 1);
         CGGameUI::DisplayError(ERR_RAID_LOCKOUT_CHANGED_S, FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE));
         SStrPrintf(token, sizeof(token), "PLAYER_DIFFICULTY%d", CGPartyInfo::m_dynamicDifficulty + 1);
@@ -7114,7 +7114,7 @@ void CGGameUI::SetRaidDifficulty(uint32_t difficulty, uint32_t unk, uint32_t inG
     if (inGroup) {
         MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
-        if (map && (map->m_flags & 0x100)) {
+        if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
             CGPartyInfo::ChangeRaidDifficulty(difficulty > RAID_DIFFICULTY_25MAN_NORMAL);
         } else {
             CGPartyInfo::m_raidDifficulty = difficulty;

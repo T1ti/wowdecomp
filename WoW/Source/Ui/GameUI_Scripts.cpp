@@ -1223,7 +1223,7 @@ static int32_t Script_CanMapChangeDifficulty(lua_State* L) {
 
     const MapRec* map = g_mapDB.GetRecord(mapId);
 
-    if (map && (map->m_flags & 0x100)) {
+    if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
         lua_pushnumber(L, 1.0);
         return 1;
     }
@@ -2426,7 +2426,7 @@ static int32_t Script_GetInstanceInfo(lua_State* L) {
 
     lua_pushnumber(L, CGPartyInfo::m_dynamicDifficulty);
     map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
-    lua_pushboolean(L, map && (map->m_flags & 0x100));
+    lua_pushboolean(L, map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY));
     return 7;
 }
 

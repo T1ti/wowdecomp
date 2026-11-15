@@ -8,6 +8,13 @@ class SFileImpl;
 
 // Map.dbc instance types supported by the 3.3.5 client.
 // Other raw values retain their value; UI token lookups fall back to "none".
+// Map.dbc flags tested by the client.
+enum MAP_FLAGS : int32_t {
+    MAP_FLAG_NONE               = 0x00000000,
+    // The instance difficulty can change while inside (GetInstanceInfo isDynamic).
+    MAP_FLAG_DYNAMIC_DIFFICULTY = 0x00000100,
+};
+
 enum MAP_INSTANCE_TYPE : int32_t {
     MAP_INSTANCE_TYPE_NOT_INSTANCED      = 0,
     MAP_INSTANCE_TYPE_PARTY_DUNGEON      = 1,
@@ -25,7 +32,7 @@ class MapRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_directory;
     /* 0008 */ MAP_INSTANCE_TYPE m_instanceType;
-    /* 000C */ int32_t m_flags;
+    /* 000C */ int32_t m_flags; // MAP_FLAGS
     /* 0010 */ int32_t m_pvp;
     /* 0014 */ const char* m_mapName;
     /* 0018 */ int32_t m_areaTableID;

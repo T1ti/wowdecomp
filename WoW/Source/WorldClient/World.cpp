@@ -1085,7 +1085,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->unused_00B4 = 0;
 
     if (flags & MAP_OBJECT_CREATE_FLAG_UNKNOWN_5) {
-        entity->m_flags = static_cast<MapObjFlag>(0x20000);
+        entity->m_flags = MAPOBJ_FLAG_SHADOW_20000;
     }
 
     C3Vector ambient = CMap::s_mapLight->m_light.m_ambColor;
@@ -5078,7 +5078,7 @@ void World::UpdateObjectFadeouts() {
 // OFFSET: 0x0077FE00
 void World::ObjectSetMoveable(CMapEntity* entity, int32_t moveable) {
     if (moveable) {
-        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | 0x1000);
+        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_PROJ_TEX);
     } else {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~MAPOBJ_FLAG_PROJ_TEX);
     }

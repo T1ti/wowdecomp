@@ -1641,11 +1641,11 @@ bool CMap::GetHeightTerrain(CMapChunk* chunk, C3Vector& pos, int32_t cellX, int3
 // OFFSET: 0x007B4090
 void CMapObjDefGroup::UpdateLights() {
     for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
-        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | 0x1);
+        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 
     for (CMapBaseObjLink* link = this->m_entityLinkList.Head(); link; link = this->m_entityLinkList.Next(link)) {
-        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | 0x1);
+        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 }
 
@@ -2109,7 +2109,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
 // OFFSET: 0x007B5D00
 void CMap::PrepareMapObjDef(CMapObjDef* mapObjDef, CMapObj* mapObj) {
     CAaBox bounds;
-    mapObjDef->m_flags = static_cast<MapObjFlag>(mapObjDef->m_flags | 0x80);
+    mapObjDef->m_flags = static_cast<MapObjFlag>(mapObjDef->m_flags | MAPOBJ_FLAG_PREPARED);
     mapObj->GetBounds(mapObjDef->m_sphere);
     mapObjDef->m_sphere.c *= mapObjDef->m_mat;
     mapObj->GetBounds(&bounds);

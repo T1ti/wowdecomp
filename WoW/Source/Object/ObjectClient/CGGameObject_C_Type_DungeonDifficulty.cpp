@@ -72,7 +72,7 @@ void CGGameObject_C_Type_DungeonDifficulty::UpdateDisplay(uint32_t time) {
         if (CGGameUI::GetCurrentDungeonDifficulty() == difficulty) {
             hidden = 0;
         }
-    } else if (map->m_flags & 0x100) {
+    } else if (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY) {
         int32_t difficulty = this->GetDifficulty();
 
         if (CGGameUI::GetEffectiveRaidDifficulty() == difficulty) {
