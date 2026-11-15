@@ -1391,7 +1391,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             int32_t checkType = (flags & 0x10000) && !(flags & 0x20000);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-                if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
+                if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                     continue;
                 }
 
@@ -4505,10 +4505,10 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         }
 
         if (flags & 0x30000) {
-            bool fishableOnly = (flags & 0x10000) && !(flags & 0x20000);
+            bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
 
             for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-                if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
+                if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                     CMap::GetChunkLiquidFacets(chunk, &localBox, &rect, liquid, facets);
                 }
             }
@@ -5299,10 +5299,10 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     }
 
     if (flags & 0x30000) {
-        bool fishableOnly = (flags & 0x10000) && !(flags & 0x20000);
+        bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-            if (!fishableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
+            if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                 CMap::GetChunkLiquidFacets(chunk, &localFrustum, &rect, liquid, facets);
             }
         }
@@ -6250,10 +6250,10 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
     }
 
     if (flags & 0x30000) {
-        bool oceanOnly = (flags & 0x10000) && !(flags & 0x20000);
+        bool walkableOnly = (flags & 0x10000) && !(flags & 0x20000);
 
         for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-            if (oceanOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_FISHABLE)) {
+            if (walkableOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                 continue;
             }
 

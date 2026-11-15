@@ -6,27 +6,24 @@
 
 class SFileImpl;
 
-// LiquidType.dbc flags tested by the client; names describe that behavior.
+// LiquidType.dbc flags; names follow the EnumeratedString LiquidType flags.
 enum LIQUID_TYPE_FLAGS : int32_t {
-    LIQUID_TYPE_FLAG_NONE            = 0x00000000,
-    // Entities in this liquid get ripples.
-    LIQUID_TYPE_FLAG_RIPPLES         = 0x00000001,
-    // Entities in this liquid get splashes.
-    LIQUID_TYPE_FLAG_SPLASHES        = 0x00000002,
-    // Kept by fishable-only liquid queries; entities ripple even above its surface.
-    LIQUID_TYPE_FLAG_FISHABLE        = 0x00000004,
-    LIQUID_TYPE_FLAG_PARTICULATES    = 0x00000008,
-    LIQUID_TYPE_FLAG_PARTICULATE_FOG = 0x00000010,
+    LIQUID_TYPE_FLAG_NONE                    = 0x00000000,
+    LIQUID_TYPE_FLAG_RIPPLE                  = 0x00000001,
+    LIQUID_TYPE_FLAG_SPLASH                  = 0x00000002,
+    // Walkable surface: kept by walk-on-liquid queries; entities ripple even above it.
+    LIQUID_TYPE_FLAG_WATER_WALKING           = 0x00000004,
+    LIQUID_TYPE_FLAG_PARTICLES               = 0x00000008,
+    LIQUID_TYPE_FLAG_PARTICLE_FOG            = 0x00000010,
     // Underwater fog only applies when the WMO fog has its 0x100 flag.
-    LIQUID_TYPE_FLAG_UNKNOWN_20      = 0x00000020,
-    // Underwater fog copies the current group fog.
-    LIQUID_TYPE_FLAG_USE_GROUP_FOG   = 0x00000040,
+    LIQUID_TYPE_FLAG_WMO_FOG_CONTROL         = 0x00000020,
+    // Underwater fog copies the group fog instead of blending.
+    LIQUID_TYPE_FLAG_NO_INTERIOR_FOG_BLEND   = 0x00000040,
     // No water sound while the listener is inside.
-    LIQUID_TYPE_FLAG_NO_SOUND_INSIDE = 0x00000080,
+    LIQUID_TYPE_FLAG_OUTDOOR_AMBIENCE_ONLY   = 0x00000080,
     // Fog is only applied when the WMO fog has its 0x10 flag.
-    LIQUID_TYPE_FLAG_UNKNOWN_100     = 0x00000100,
-    // Always counted as exterior.
-    LIQUID_TYPE_FLAG_EXTERIOR        = 0x00000200,
+    LIQUID_TYPE_FLAG_WMO_FOG_CONTROL_SLIME   = 0x00000100,
+    LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING = 0x00000200,
 };
 
 class LiquidTypeRec {
