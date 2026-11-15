@@ -69,7 +69,7 @@ class SpellVisualKitRec {
     /* 0038 */ int32_t m_worldEffect;
     /* 003C */ int32_t m_soundID;
     /* 0040 */ int32_t m_shakeID;
-    /* 0044 */ int32_t m_charProc [NUM_SPELL_VISUAL_CHAR_PROCS];
+    /* 0044 */ SPELL_VISUAL_CHAR_PROC m_charProc [NUM_SPELL_VISUAL_CHAR_PROCS];
     /* 0054 */ float m_charParamZero [NUM_SPELL_VISUAL_CHAR_PROCS];
     /* 0064 */ float m_charParamOne [NUM_SPELL_VISUAL_CHAR_PROCS];
     /* 0074 */ float m_charParamTwo [NUM_SPELL_VISUAL_CHAR_PROCS];
