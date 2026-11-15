@@ -183,7 +183,7 @@ void CMapChunk::ProcessIffChunks(bool a3) {
         remaining -= offsetof(SIffChunk, m_data);
 
         switch (chunk->m_token) {
-            case 0x4D434E52:
+            case SIffChunk::TOKEN_MCNR:
                 this->m_normals = reinterpret_cast<int8_t*>(data);
 
                 if (a3) {
@@ -192,30 +192,30 @@ void CMapChunk::ProcessIffChunks(bool a3) {
 
                 break;
 
-            case 0x4D435348:
+            case SIffChunk::TOKEN_MCSH:
                 this->m_shadowMap = data;
                 break;
 
-            case 0x4D435654:
+            case SIffChunk::TOKEN_MCVT:
                 this->m_height = reinterpret_cast<float*>(data);
                 break;
 
-            case 0x4D435246:
+            case SIffChunk::TOKEN_MCRF:
                 this->m_mcrfPtr = data;
                 break;
 
-            case 0x4D435345:
+            case SIffChunk::TOKEN_MCSE:
                 if (this->m_header->m_nSndEmitters) {
                     this->m_soundEmitters = reinterpret_cast<CWSoundEmitter*>(data);
                 }
 
                 break;
 
-            case 0x4D434C59:
+            case SIffChunk::TOKEN_MCLY:
                 this->m_layers = reinterpret_cast<SMLayer*>(data);
                 break;
 
-            case 0x4D434C51:
+            case SIffChunk::TOKEN_MCLQ:
                 if (this->m_header->m_sizeLiquid > 8) {
                     this->m_liquid = reinterpret_cast<SMLiquidChunk*>(data);
                     chunk->m_size = this->m_header->m_sizeLiquid - 8;
@@ -223,7 +223,7 @@ void CMapChunk::ProcessIffChunks(bool a3) {
 
                 break;
 
-            case 0x4D43414C:
+            case SIffChunk::TOKEN_MCAL:
                 this->m_additionalShadowmap = data;
 
                 if (a3) {
@@ -232,7 +232,7 @@ void CMapChunk::ProcessIffChunks(bool a3) {
 
                 break;
 
-            case 0x4D434356:
+            case SIffChunk::TOKEN_MCCV:
                 this->m_vertexShading = reinterpret_cast<uint32_t*>(data);
                 break;
         }

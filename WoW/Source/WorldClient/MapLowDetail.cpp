@@ -137,7 +137,7 @@ void CMapLowDetail::Load(const char* mapPath, const char* mapName) {
     uint32_t* chunk = reinterpret_cast<uint32_t*>(this->m_data + reinterpret_cast<uint32_t*>(this->m_data)[1] + 8);
     char* data = this->m_data + reinterpret_cast<uint32_t*>(this->m_data)[1] + 16;
 
-    if (chunk[0] == 0x4D574D4F) {
+    if (chunk[0] == SIffChunk::TOKEN_MWMO) {
         this->m_mapObjNames = data;
         uint32_t* mwid = reinterpret_cast<uint32_t*>(data + chunk[1]);
         this->m_mapObjNameOffsets = mwid + 2;
@@ -198,7 +198,7 @@ void CMapLowDetail::Load(const char* mapPath, const char* mapName) {
                 float dx = area->m_bbox.t.x - area->m_sphere.c.x;
                 area->m_sphere.r = sqrtf(dx * dx + dy * dy + dz * dz);
 
-                if (next[0] == 0x4D41484F) {
+                if (next[0] == SIffChunk::TOKEN_MAHO) {
                     uint16_t* holes = reinterpret_cast<uint16_t*>(next + 2);
                     area->m_holes = holes;
                     area->m_indexCount = 0;

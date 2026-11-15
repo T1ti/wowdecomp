@@ -117,7 +117,23 @@ enum MapObjFlag {
 };
 
 struct SIffChunk {
-    /* 0000 */ uint32_t m_token;
+    // Chunk tags the client compares; the file stores each tag byte-reversed, so the dword reads as the tag.
+    enum TOKEN : uint32_t {
+        TOKEN_MAHO = 0x4D41484F, // 'MAHO'
+        TOKEN_MCAL = 0x4D43414C, // 'MCAL'
+        TOKEN_MCCV = 0x4D434356, // 'MCCV'
+        TOKEN_MCLQ = 0x4D434C51, // 'MCLQ'
+        TOKEN_MCLY = 0x4D434C59, // 'MCLY'
+        TOKEN_MCNR = 0x4D434E52, // 'MCNR'
+        TOKEN_MCRF = 0x4D435246, // 'MCRF'
+        TOKEN_MCSE = 0x4D435345, // 'MCSE'
+        TOKEN_MCSH = 0x4D435348, // 'MCSH'
+        TOKEN_MCVP = 0x4D435650, // 'MCVP'
+        TOKEN_MCVT = 0x4D435654, // 'MCVT'
+        TOKEN_MWMO = 0x4D574D4F, // 'MWMO'
+    };
+
+    /* 0000 */ uint32_t m_token; // TOKEN
     /* 0004 */ uint32_t m_size;
     /* 0008 */ void* m_data;
 };

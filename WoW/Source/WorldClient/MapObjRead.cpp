@@ -142,7 +142,7 @@ void CMapObj::Load() {
     uint8_t* end = static_cast<uint8_t*>(this->m_pWmoData) + this->m_wmoFileSize;
     chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
 
-    if (reinterpret_cast<uint8_t*>(chunk) < end && chunk->m_token == 0x4D435650) {
+    if (reinterpret_cast<uint8_t*>(chunk) < end && chunk->m_token == SIffChunk::TOKEN_MCVP) {
         this->m_convexVolumePlanes = reinterpret_cast<C4Plane*>(&chunk->m_data);
         this->m_convexVolumePlaneCount = chunk->m_size / sizeof(C4Plane);
     }
