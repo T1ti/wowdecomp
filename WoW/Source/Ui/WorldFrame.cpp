@@ -275,7 +275,7 @@ void CGWorldFrame::AddObjectToHitTestList(CModelRecord* record, uint32_t flags) 
     }
 
     record->m_object = nullptr;
-    AddModelToHitTest(record->m_model, group, record, (flags >> 25) & 0x4);
+    AddModelToHitTest(record->m_model, group, record, (flags & HIT_TEST_UNKNOWN_8000000) ? 4 : 0);
 }
 
 // VERIFY: 611dc17c manual
@@ -473,7 +473,7 @@ void CGWorldFrame::ClearTrackedObjects() {
 // VERIFY: 8d2db281 manual
 // OFFSET: 0x004F7350
 int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
-    if (!(flags & 0x20)) {
+    if (!(flags & HIT_TEST_ME)) {
         if (unit->IsActivePlayer()) {
             return 0;
         }
@@ -485,26 +485,26 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
         }
     }
 
-    if (flags & 0xF0000) {
+    if (flags & HIT_TEST_RELATION_MASK) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-        uint32_t friends = flags & 0x40000;
+        uint32_t friends = flags & HIT_TEST_FRIENDS;
 
         if (friends && !player->CanAssist(unit, false)) {
-            return (flags & 0x800000) && unit->m_unit->m_unitFieldCharmedby && player->CanAttack(unit);
+            return (flags & HIT_TEST_POSSESSED_FRIENDS) && unit->m_unit->m_unitFieldCharmedby && player->CanAttack(unit);
         }
 
-        if (!((flags & 0x10000) && player->IsInMyPartyOrRaid(unit)) && !((flags & 0x20000) && player->IsInMyParty(unit)) && !(friends && player->CanAssist(unit, false)) && !((flags & 0x80000) && player->CanAttack(unit))) {
+        if (!((flags & HIT_TEST_PARTY) && player->IsInMyPartyOrRaid(unit)) && !((flags & HIT_TEST_RAID) && player->IsInMyParty(unit)) && !(friends && player->CanAssist(unit, false)) && !((flags & HIT_TEST_ENEMIES) && player->CanAttack(unit))) {
             return 0;
         }
     }
 
-    if (flags & 0x300000) {
-        if (unit->m_unit->m_unitFieldHealth > 0 ? !(flags & 0x100000) : !(flags & 0x200000)) {
+    if (flags & HIT_TEST_LIFE_STATE_MASK) {
+        if (unit->m_unit->m_unitFieldHealth > 0 ? !(flags & HIT_TEST_LIVE) : !(flags & HIT_TEST_DEAD)) {
             return 0;
         }
     }
 
-    if ((flags & 0x400000) && unit->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
+    if ((flags & HIT_TEST_NON_COMBAT_PET) && unit->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) {
         return 1;
     }
 
@@ -530,28 +530,28 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
 int32_t CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
     switch (object->m_obj->m_type) {
         case HEIR_TYPE_PLAYER:
-            if (!(flags & 0x10)) {
+            if (!(flags & HIT_TEST_PLAYERS)) {
                 return 0;
             }
 
             return this->IsUnitLegalSelection(static_cast<CGUnit_C*>(object), flags);
 
         case HEIR_TYPE_UNIT:
-            if (!(flags & 0x8)) {
+            if (!(flags & HIT_TEST_UNITS)) {
                 return 0;
             }
 
             return this->IsUnitLegalSelection(static_cast<CGUnit_C*>(object), flags);
 
         case HEIR_TYPE_GAMEOBJECT:
-            if (!(flags & 0x4) || (Spell_C_IsTargeting() && !Spell_C_CanTargetObject(static_cast<CGGameObject_C*>(object)))) {
+            if (!(flags & HIT_TEST_OBJECTS) || (Spell_C_IsTargeting() && !Spell_C_CanTargetObject(static_cast<CGGameObject_C*>(object)))) {
                 return 0;
             }
 
             return 1;
 
         case HEIR_TYPE_CORPSE:
-            if (!(flags & 0x40)) {
+            if (!(flags & HIT_TEST_CORPSES)) {
                 return 0;
             }
 
@@ -569,59 +569,59 @@ uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t a1) {
         uint32_t flags = 0;
 
         if (Spell_C_CanTargetTerrain()) {
-            flags = 0x3;
+            flags = HIT_TEST_TERRAIN;
         }
 
         if (Spell_C_CanTargetObjects()) {
-            flags |= 0x4;
+            flags |= HIT_TEST_OBJECTS;
         }
 
         if (Spell_C_CanTargetUnits()) {
-            flags |= 0x18;
+            flags |= HIT_TEST_UNITS | HIT_TEST_PLAYERS;
 
             if (Spell_C_CanTargetMe()) {
-                flags |= 0x20;
+                flags |= HIT_TEST_ME;
             }
 
             if (Spell_C_CanTargetParty()) {
-                flags |= 0x10000;
+                flags |= HIT_TEST_PARTY;
             }
 
             if (Spell_C_CanTargetFriends()) {
-                flags |= 0x40000;
+                flags |= HIT_TEST_FRIENDS;
             }
 
             if (Spell_C_CanTargetEnemies()) {
-                flags |= 0x80000;
+                flags |= HIT_TEST_ENEMIES;
             }
 
             if (Spell_C_CanTargetRaid()) {
-                flags |= 0x20000;
+                flags |= HIT_TEST_RAID;
             }
 
             if (Spell_C_CanTargetDead()) {
-                flags |= 0x200040;
+                flags |= HIT_TEST_CORPSES | HIT_TEST_DEAD;
             }
 
             if (Spell_C_CanTargetAlive()) {
-                flags |= 0x100000;
+                flags |= HIT_TEST_LIVE;
             }
 
             if (Spell_C_CanTargetNonCombatPet()) {
-                flags |= 0x400000;
+                flags |= HIT_TEST_NON_COMBAT_PET;
             }
 
             if (Spell_C_CanTargetPossessedFriends()) {
-                flags |= 0x800000;
+                flags |= HIT_TEST_POSSESSED_FRIENDS;
             }
         }
 
         if (Spell_C_CanTargetFriendCorpses()) {
-            flags |= 0x40040;
+            flags |= HIT_TEST_CORPSES | HIT_TEST_FRIENDS;
         }
 
         if (Spell_C_CanTargetEnemyCorpses()) {
-            flags |= 0x80040;
+            flags |= HIT_TEST_CORPSES | HIT_TEST_ENEMIES;
         }
 
         return flags;
@@ -633,15 +633,15 @@ uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t a1) {
 
     if (mover && mover->CanAutoInteract() && !CGGameUI::m_cursorItemType) {
         uint32_t moveFlags = mover->m_movement->m_flags;
-        flags = 1;
+        flags = HIT_TEST_GROUND;
 
         if ((moveFlags & MOVEMENTFLAG_WATERWALKING) && !(moveFlags & MOVEMENTFLAG_SWIMMING)) {
-            flags = 3;
+            flags = HIT_TEST_TERRAIN;
         }
     }
 
     if (player) {
-        flags |= 0x5C;
+        flags |= HIT_TEST_OBJECTS | HIT_TEST_UNITS | HIT_TEST_PLAYERS | HIT_TEST_CORPSES;
     }
 
     return flags;
@@ -1066,7 +1066,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
     float t = 1.0f;
     float objectDistance = 0.0f;
     WOWGUID collision = WOWGUID();
-    uint32_t worldFlags = (flags & 0x2) ? 0x1020124 : 0x1000124;
+    uint32_t worldFlags = (flags & HIT_TEST_LIQUID) ? 0x1020124 : 0x1000124;
     C3Vector point = end;
     C3Vector direction = point - start;
     float length = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
@@ -1096,7 +1096,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
 
     WOWGUID model = WOWGUID();
 
-    if (flags & 0x7C) {
+    if (flags & HIT_TEST_ALL_OBJS) {
         model.m_guid = this->FindClosestModel(start, point, flags, &objectDistance);
 
         if (model) {
@@ -1111,7 +1111,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
         }
     }
 
-    uint32_t terrain = flags & 0x3;
+    uint32_t terrain = flags & HIT_TEST_TERRAIN;
 
     if (terrain) {
         t = 1.0f;

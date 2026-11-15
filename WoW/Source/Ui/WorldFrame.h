@@ -119,6 +119,33 @@ class CGWorldFrame : public CSimpleFrame {
         NAME_PLATE_RESORT_PENDING = 0x2,
     };
 
+    // Hit-test selection filter (0.5.3 HIT_FILTER, re-laid out for 3.3.5).
+    enum HIT_FILTER : uint32_t {
+        HIT_TEST_NOTHING = 0x0,
+        HIT_TEST_GROUND = 0x1,
+        HIT_TEST_LIQUID = 0x2,
+        HIT_TEST_OBJECTS = 0x4,
+        HIT_TEST_UNITS = 0x8,
+        HIT_TEST_PLAYERS = 0x10,
+        HIT_TEST_ME = 0x20,
+        HIT_TEST_CORPSES = 0x40,
+        HIT_TEST_PARTY = 0x10000,
+        HIT_TEST_RAID = 0x20000,
+        HIT_TEST_FRIENDS = 0x40000,
+        HIT_TEST_ENEMIES = 0x80000,
+        HIT_TEST_LIVE = 0x100000,
+        HIT_TEST_DEAD = 0x200000,
+        HIT_TEST_NON_COMBAT_PET = 0x400000,
+        // Possessed units remain selectable when a friend-only filter rejects them.
+        HIT_TEST_POSSESSED_FRIENDS = 0x800000,
+        // Passed to model hit tests as mode 4; no producer in GetHitTestFilterFlags.
+        HIT_TEST_UNKNOWN_8000000 = 0x8000000,
+        HIT_TEST_TERRAIN = HIT_TEST_GROUND | HIT_TEST_LIQUID,
+        HIT_TEST_ALL_OBJS = HIT_TEST_OBJECTS | HIT_TEST_UNITS | HIT_TEST_PLAYERS | HIT_TEST_ME | HIT_TEST_CORPSES,
+        HIT_TEST_RELATION_MASK = HIT_TEST_PARTY | HIT_TEST_RAID | HIT_TEST_FRIENDS | HIT_TEST_ENEMIES,
+        HIT_TEST_LIFE_STATE_MASK = HIT_TEST_LIVE | HIT_TEST_DEAD,
+    };
+
     enum HIT_TYPE : int32_t {
         HIT_NONE = 0,
         HIT_GROUND = 1,
