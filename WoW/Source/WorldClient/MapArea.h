@@ -37,6 +37,13 @@ class CMapAreaChunkLink {
 
 class CMapArea : public CMapBaseObj {
     public:
+    // ADT MTXF texture flags.
+    enum TEXTURE_FLAGS : uint32_t {
+        // Skip the "_s" specular texture; without pixel shaders the layer is drawn solid black
+        // (wowdev: do not load specular or height texture, use cubemap).
+        TEXTURE_FLAG_NO_SPECULAR = 0x1,
+    };
+
     void QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
     static void Destroy();
     static void Initialize();
@@ -67,7 +74,7 @@ class CMapArea : public CMapBaseObj {
     /* 00A8 */ uint32_t* m_modelFilenamesOffsets;
     /* 00AC */ uint32_t* m_wmoFilenamesOffsets;
     /* 00B0 */ int16_t* m_flyingBbox;
-    /* 00B4 */ int32_t* m_textureFlags;
+    /* 00B4 */ int32_t* m_textureFlags; // MTXF, TEXTURE_FLAGS per texture
     /* 00B8 */ Liquid::CAreaData* m_liquid;
     /* 00BC */ CMapChunk* m_mapChunks [MAP_CHUNKS_PER_AREA];
 
@@ -110,10 +117,15 @@ struct SMAreaHeader {
     /* 0034 */ uint32_t m_unused [3];
 };
 
+// ADT MCIN entry.
 struct SMChunkInfo {
+    enum FLAGS : uint32_t {
+        F_PREPARED = 0x1, // Runtime: set by CMapArea::PrepareChunk, cleared when the area's chunks are purged.
+    };
+
     /* 0000 */ uint32_t m_offset;
     /* 0004 */ uint32_t m_size;
-    /* 0008 */ uint32_t m_flags;
+    /* 0008 */ uint32_t m_flags; // FLAGS
     /* 000C */ uint8_t unused_000C[4];
 };
 

@@ -1711,7 +1711,7 @@ void CMap::UpdateBarriers() {
         for (int32_t x = minX; x <= maxX; x++) {
             int32_t index = 64 * y + x;
 
-            if (!(CMap::m_areaInfo[index].m_flags & 1)) {
+            if (!(CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT)) {
                 continue;
             }
 
@@ -2039,7 +2039,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
         for (int32_t x = minX; x <= maxX; x++) {
             int32_t index = 64 * y + x;
 
-            if ((CMap::m_areaInfo[index].m_flags & 1) && !CMap::m_areaTable[index]) {
+            if ((CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT) && !CMap::m_areaTable[index]) {
                 CMapArea* area = CMap::PrepareArea(x, y);
                 C2Vector pos(World::s_currentWorldPos.x, World::s_currentWorldPos.y);
                 entries[entryCount].m_area = area;
@@ -4536,7 +4536,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         return true;
     }
 
-    if (!(CMap::m_areaInfo[areaIndex].m_flags & 1)) {
+    if (!(CMap::m_areaInfo[areaIndex].m_flags & SMAreaInfo::F_HAS_ADT)) {
         return true;
     }
 

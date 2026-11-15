@@ -167,8 +167,8 @@ void CMapArea::LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureI
         flags = this->m_textureFlags[textureId];
     }
 
-    if ((flags & 0x1) || !CMap::enableSpecularTerrain) {
-        if (!(flags & 0x1) || shaders) {
+    if ((flags & TEXTURE_FLAG_NO_SPECULAR) || !CMap::enableSpecularTerrain) {
+        if (!(flags & TEXTURE_FLAG_NO_SPECULAR) || shaders) {
             areaTexture->m_texture = CMap::LoadTexture(areaTexture->m_textureName);
         } else {
             CImVector color;
@@ -215,11 +215,11 @@ CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
 
     bool firstUse = true;
 
-    if (this->m_chunkInfo[index].m_flags & 0x1) {
+    if (this->m_chunkInfo[index].m_flags & SMChunkInfo::F_PREPARED) {
         firstUse = false;
     }
 
-    this->m_chunkInfo[index].m_flags |= 0x1;
+    this->m_chunkInfo[index].m_flags |= SMChunkInfo::F_PREPARED;
 
     CMapChunk* chunk = CMap::AllocMapChunk();
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(chunk);
