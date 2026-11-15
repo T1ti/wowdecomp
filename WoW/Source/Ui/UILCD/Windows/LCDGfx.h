@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <windows.h>
 #include "ThirdParty/lgLcd/lglcd.h"
+#include "Engine/Source/Tempest/C2iVector.h"
 
 class CLCDGfxBase {
     public:
     /* 0004 */ lgLcdBitmapHeader* m_pLCDScreen;
-    /* 0008 */ int32_t m_nWidth;
-    /* 000C */ int32_t m_nHeight;
+    /* 0008 */ C2iVector m_size;
     /* 0010 */ BITMAPINFO* m_pBitmapInfo;
     /* 0014 */ HDC m_hDC;
     /* 0018 */ HBITMAP m_hBitmap;

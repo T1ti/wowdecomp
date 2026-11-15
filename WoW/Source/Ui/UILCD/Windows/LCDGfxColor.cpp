@@ -18,8 +18,8 @@ CLCDGfxColor::~CLCDGfxColor() {
 HRESULT CLCDGfxColor::Initialize() {
     this->Shutdown();
 
-    this->m_nWidth = LGLCD_QVGA_BMP_WIDTH;
-    this->m_nHeight = LGLCD_QVGA_BMP_HEIGHT;
+    this->m_size.x = LGLCD_QVGA_BMP_WIDTH;
+    this->m_size.y = LGLCD_QVGA_BMP_HEIGHT;
 
     HRESULT hr = CLCDGfxBase::Initialize();
 
@@ -36,7 +36,7 @@ HRESULT CLCDGfxColor::Initialize() {
 // OFFSET: 0x0095C000
 lgLcdBitmapHeader* CLCDGfxColor::GetLCDScreen() {
     this->m_lcdBitmap.hdr.Format = LGLCD_BMP_FORMAT_QVGAx32;
-    memcpy(this->m_lcdBitmap.pixels, this->m_pBitmapBits, 4 * this->m_nWidth * this->m_nHeight);
+    memcpy(this->m_lcdBitmap.pixels, this->m_pBitmapBits, 4 * this->m_size.x * this->m_size.y);
     return this->m_pLCDScreen;
 }
 

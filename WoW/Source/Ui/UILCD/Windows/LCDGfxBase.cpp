@@ -6,8 +6,8 @@
 // OFFSET: 0x0095CA00
 CLCDGfxBase::CLCDGfxBase() {
     this->m_pLCDScreen = nullptr;
-    this->m_nWidth = 0;
-    this->m_nHeight = 0;
+    this->m_size.x = 0;
+    this->m_size.y = 0;
     this->m_pBitmapInfo = nullptr;
     this->m_hDC = nullptr;
     this->m_hBitmap = nullptr;
@@ -55,8 +55,8 @@ void CLCDGfxBase::Shutdown() {
         this->m_hDC = nullptr;
     }
 
-    this->m_nHeight = 0;
-    this->m_nWidth = 0;
+    this->m_size.y = 0;
+    this->m_size.x = 0;
 }
 
 // VERIFY: ea555123 manual
@@ -72,12 +72,12 @@ HRESULT CLCDGfxBase::CreateBitmap(uint16_t bitCount) {
     memset(this->m_pBitmapInfo, 0, sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD));
 
     this->m_pBitmapInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    this->m_pBitmapInfo->bmiHeader.biWidth = this->m_nWidth;
-    this->m_pBitmapInfo->bmiHeader.biHeight = -this->m_nHeight;
+    this->m_pBitmapInfo->bmiHeader.biWidth = this->m_size.x;
+    this->m_pBitmapInfo->bmiHeader.biHeight = -this->m_size.y;
     this->m_pBitmapInfo->bmiHeader.biPlanes = 1;
     this->m_pBitmapInfo->bmiHeader.biBitCount = bitCount;
     this->m_pBitmapInfo->bmiHeader.biCompression = BI_RGB;
-    this->m_pBitmapInfo->bmiHeader.biSizeImage = this->m_nWidth * this->m_nHeight * this->m_pBitmapInfo->bmiHeader.biBitCount / 8;
+    this->m_pBitmapInfo->bmiHeader.biSizeImage = this->m_size.x * this->m_size.y * this->m_pBitmapInfo->bmiHeader.biBitCount / 8;
     this->m_pBitmapInfo->bmiHeader.biXPelsPerMeter = 3200;
     this->m_pBitmapInfo->bmiHeader.biYPelsPerMeter = 3200;
     this->m_pBitmapInfo->bmiHeader.biClrUsed = 256;
@@ -104,7 +104,7 @@ HRESULT CLCDGfxBase::CreateBitmap(uint16_t bitCount) {
 // VERIFY: 4488d159 auto
 // OFFSET: 0x0095CA60
 void CLCDGfxBase::ClearScreen() {
-    RECT rect = { 0, 0, this->m_nWidth, this->m_nHeight };
+    RECT rect = { 0, 0, this->m_size.x, this->m_size.y };
     FillRect(this->m_hDC, &rect, static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
 }
 
@@ -138,7 +138,7 @@ HDC CLCDGfxBase::GetHDC() {
 // OFFSET: 0x0095CB10
 lgLcdBitmapHeader* CLCDGfxBase::GetLCDScreen() {
     if (this->m_pLCDScreen) {
-        memcpy(this->m_pLCDScreen + 1, this->m_pBitmapBits, 4 * this->m_nWidth * this->m_nHeight);
+        memcpy(this->m_pLCDScreen + 1, this->m_pBitmapBits, 4 * this->m_size.x * this->m_size.y);
     }
 
     return this->m_pLCDScreen;
@@ -159,11 +159,11 @@ HBITMAP CLCDGfxBase::GetHBITMAP() {
 // VERIFY: d2a3386a auto
 // OFFSET: 0x00885AE0
 int32_t CLCDGfxBase::GetWidth() {
-    return this->m_nWidth;
+    return this->m_size.x;
 }
 
 // VERIFY: 6b833aa7 auto
 // OFFSET: 0x008C32F0
 int32_t CLCDGfxBase::GetHeight() {
-    return this->m_nHeight;
+    return this->m_size.y;
 }

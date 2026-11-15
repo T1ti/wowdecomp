@@ -18,8 +18,8 @@ CLCDGfxMono::~CLCDGfxMono() {
 HRESULT CLCDGfxMono::Initialize() {
     this->Shutdown();
 
-    this->m_nWidth = LGLCD_BMP_WIDTH;
-    this->m_nHeight = LGLCD_BMP_HEIGHT;
+    this->m_size.x = LGLCD_BMP_WIDTH;
+    this->m_size.y = LGLCD_BMP_HEIGHT;
 
     HRESULT hr = CLCDGfxBase::Initialize();
 
@@ -35,7 +35,7 @@ HRESULT CLCDGfxMono::Initialize() {
 // VERIFY: c758fcd4 auto
 // OFFSET: 0x0095BF30
 void CLCDGfxMono::ClearScreen() {
-    memset(this->m_pBitmapBits, 0, this->m_nWidth * this->m_nHeight);
+    memset(this->m_pBitmapBits, 0, this->m_size.x * this->m_size.y);
     CLCDGfxBase::ClearScreen();
 }
 
@@ -43,7 +43,7 @@ void CLCDGfxMono::ClearScreen() {
 // OFFSET: 0x0095BF00
 lgLcdBitmapHeader* CLCDGfxMono::GetLCDScreen() {
     this->m_lcdBitmap.hdr.Format = LGLCD_BMP_FORMAT_160x43x1;
-    memcpy(this->m_lcdBitmap.pixels, this->m_pBitmapBits, this->m_nWidth * this->m_nHeight);
+    memcpy(this->m_lcdBitmap.pixels, this->m_pBitmapBits, this->m_size.x * this->m_size.y);
     return this->m_pLCDScreen;
 }
 
