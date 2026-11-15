@@ -90,7 +90,7 @@ int32_t CGItemSocketInfo::SetGem(uint32_t slot, WOWGUID item, WOWGUID container,
     GemPropertiesRec* properties = g_gemPropertiesDB.GetRecord(stats->m_gemProperties);
     uint32_t meta;
 
-    if (!properties || (meta = socketStats->m_socketColor[slot] & 0x1) == (properties->m_type & 0x1)) {
+    if (!properties || (meta = socketStats->m_socketColor[slot] & SOCKET_COLOR_META) == (properties->m_type & SOCKET_COLOR_META)) {
         CGItemSocketInfo::m_gemItems[slot] = item;
         CGItemSocketInfo::m_gemItemContainer[slot] = container;
         CGItemSocketInfo::m_gemContainerSlot[slot] = containerSlot;

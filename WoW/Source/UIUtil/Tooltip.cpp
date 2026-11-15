@@ -445,19 +445,19 @@ void CGItemStatsSummary::GetSocketFlags(const ItemStats_C* stats) {
     for (uint32_t i = 0; i < 3; i++) {
         uint32_t color = stats->m_socketColor[i];
 
-        if (color & 0x1) {
+        if (color & SOCKET_COLOR_META) {
             this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_META]++;
         }
 
-        if (color & 0x2) {
+        if (color & SOCKET_COLOR_RED) {
             this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_RED]++;
         }
 
-        if (color & 0x4) {
+        if (color & SOCKET_COLOR_YELLOW) {
             this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_YELLOW]++;
         }
 
-        if (color & 0x8) {
+        if (color & SOCKET_COLOR_BLUE) {
             this->m_stats[STAT_SUMMARY_EMPTY_SOCKET_BLUE]++;
         }
     }

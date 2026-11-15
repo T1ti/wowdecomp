@@ -6,6 +6,14 @@
 
 class SFileImpl;
 
+// Socket colors, as item socket masks and GemProperties m_type; bit i matches s_socketColorNames[i].
+enum SOCKET_COLOR : int32_t {
+    SOCKET_COLOR_META = 0x1,
+    SOCKET_COLOR_RED = 0x2,
+    SOCKET_COLOR_YELLOW = 0x4,
+    SOCKET_COLOR_BLUE = 0x8,
+};
+
 class GemPropertiesRec {
     public:
     static const int32_t s_numColumns = 5;
@@ -16,7 +24,7 @@ class GemPropertiesRec {
     /* 0004 */ int32_t m_enchantID;
     /* 0008 */ int32_t m_maxcountInv;
     /* 000C */ int32_t m_maxcountItem;
-    /* 0010 */ int32_t m_type;
+    /* 0010 */ int32_t m_type; // SOCKET_COLOR
 
     GemPropertiesRec();
     ~GemPropertiesRec();
