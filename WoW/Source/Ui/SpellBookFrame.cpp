@@ -118,7 +118,7 @@ TSGrowableArray<SpellBookSkillInfo*> s_skillInfos;
 TSGrowableArray<int32_t> s_trackingSpells;
 
 // STATIC: 0x00BE8DF4
-TSGrowableArray<int32_t> CGSpellBook::m_companions[2];
+TSGrowableArray<int32_t> CGSpellBook::m_companions[NUM_COMPANION_TYPES];
 
 // STATIC: 0x00BE8E14
 TSGrowableArray<int32_t> s_openLockSpells;
@@ -491,12 +491,12 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
     CGSpellBook::AddSpellToNameCache(spellId, 0);
 
     if (SpellIsCallCompanion(&spell)) {
-        int32_t type = spell.m_effect[0] == SPELL_EFFECT_SUMMON ? 0 : (spell.m_effectAura[0] != SPELL_AURA_MOUNTED) + 1;
+        int32_t type = CGSpellBook::GetCompanionType(&spell);
         *CGSpellBook::m_companions[type].New() = spellId;
 
-        if (type == 0) {
+        if (type == COMPANION_TYPE_CRITTER) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_COMPANIONS);
-        } else if (type == 1) {
+        } else if (type == COMPANION_TYPE_MOUNT) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_MOUNTS);
         }
 
@@ -1297,10 +1297,10 @@ void CGSpellBook::UpdateSelection() {
 // OFFSET: 0x0053B410
 int32_t CGSpellBook::GetCompanionType(const SpellRec* spell) {
     if (spell->m_effect[0] == SPELL_EFFECT_SUMMON) {
-        return 0;
+        return COMPANION_TYPE_CRITTER;
     }
 
-    return (spell->m_effectAura[0] != SPELL_AURA_MOUNTED) + 1;
+    return spell->m_effectAura[0] == SPELL_AURA_MOUNTED ? COMPANION_TYPE_MOUNT : COMPANION_TYPE_NONE;
 }
 
 // VERIFY: d8053ee4 manual
@@ -1615,7 +1615,7 @@ void ClearPetSpellInfo() {
 // VERIFY: 0870e37a auto
 // OFFSET: 0x0053B440
 void CGSpellBook::SendCompanionUpdate(int32_t type) {
-    if (type == 2) {
+    if (type == COMPANION_TYPE_NONE) {
         FrameScript_SignalEvent(SCRIPT_EVENT_COMPANION_UPDATE, nullptr);
     } else {
         FrameScript_SignalEvent(SCRIPT_EVENT_COMPANION_UPDATE, "%s", s_companionTypes[type]);
@@ -2314,13 +2314,8 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::WillSummonCritter(&spell)) {
-        uint32_t type = 0;
-
-        if (spell.m_effect[0] != SPELL_EFFECT_SUMMON) {
-            type = (spell.m_effectAura[0] != SPELL_AURA_MOUNTED) + 1;
-        }
-
-        TSGrowableArray<int32_t>& companions = (&CGSpellBook::m_companions[0])[type];
+        uint32_t type = CGSpellBook::GetCompanionType(&spell);
+        TSGrowableArray<int32_t>& companions = CGSpellBook::m_companions[type];
         int32_t count = companions.m_count;
         bool found = false;
 

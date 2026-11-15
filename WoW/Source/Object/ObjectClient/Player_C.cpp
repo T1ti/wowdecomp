@@ -12166,7 +12166,7 @@ int32_t CritterUpdate(WOWGUID guid, uint32_t offset, uint32_t count, const void*
     if (player) {
         CGActionBar::UpdateCritter(static_cast<const WOWGUID*>(value)->GetEntry());
         CGActionBar::UpdateCritter(player->m_unit->m_unitFieldCritter.GetEntry());
-        CGSpellBook::SendCompanionUpdate(0);
+        CGSpellBook::SendCompanionUpdate(COMPANION_TYPE_CRITTER);
     }
 
     return 1;

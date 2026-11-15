@@ -16633,7 +16633,7 @@ store:
 
     for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
         if (spell->m_effectAura[i] == SPELL_AURA_MOUNTED) {
-            CGSpellBook::SendCompanionUpdate(1);
+            CGSpellBook::SendCompanionUpdate(COMPANION_TYPE_MOUNT);
 
             if (visualIds[0]) {
                 SpellVisualRec* visual = g_spellVisualDB.GetRecord(visualIds[0]);
@@ -16717,7 +16717,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
                     break;
 
                 case SPELL_AURA_MOUNTED: {
-                    CGSpellBook::SendCompanionUpdate(1);
+                    CGSpellBook::SendCompanionUpdate(COMPANION_TYPE_MOUNT);
 
                     if (spell->m_spellVisualID[0]) {
                         SpellVisualRec* visual = g_spellVisualDB.GetRecord(spell->m_spellVisualID[0]);

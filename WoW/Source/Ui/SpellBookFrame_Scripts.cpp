@@ -29,7 +29,7 @@
 #include "Engine/Source/Base/CDataStore.h"
 
 // STATIC: 0x00ACCCC4
-const char* s_companionTypes[2] = { "CRITTER", "MOUNT" };
+const char* s_companionTypes[NUM_COMPANION_TYPES] = { "CRITTER", "MOUNT" };
 
 // VERIFY: d9335da2 manual
 // OFFSET: 0x0053C0B0
@@ -168,7 +168,7 @@ static bool GetLuaCompanionType(lua_State* L, int32_t* type) {
         return false;
     }
 
-    for (int32_t i = 0; i < 2; i++) {
+    for (int32_t i = 0; i < NUM_COMPANION_TYPES; i++) {
         if (!SStrCmpI(token, s_companionTypes[i], STORM_MAX_STR)) {
             *type = i;
             return true;

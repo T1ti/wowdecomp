@@ -41,6 +41,15 @@ struct SPELLSBYNAME : public TSHashObject<SPELLSBYNAME, HASHKEY_UTF8I> {
 class CGPlayer_C;
 class SpellRec;
 
+// Companion list index; names follow the s_companionTypes Lua tokens.
+enum COMPANION_TYPE : int32_t {
+    COMPANION_TYPE_CRITTER = 0,
+    COMPANION_TYPE_MOUNT = 1,
+    NUM_COMPANION_TYPES = 2,
+    // GetCompanionType result for a non-companion spell; SendCompanionUpdate signals without a type.
+    COMPANION_TYPE_NONE = NUM_COMPANION_TYPES,
+};
+
 class CGSpellBook {
     public:
     static void GetAppropriateSpellRank(uint32_t* spellId, CGUnit_C* caster, CGUnit_C* target);
@@ -56,7 +65,7 @@ class CGSpellBook {
     static int32_t m_stuckSpell;
     static uint32_t m_numPetSpells;
     static int32_t m_summonFriendSpell;
-    static TSGrowableArray<int32_t> m_companions[2];
+    static TSGrowableArray<int32_t> m_companions[NUM_COMPANION_TYPES];
 
     static void AddKnownSpell(int32_t spellId, int32_t notify, int32_t replaceSpell);
     static void AddSpellToNameCache(int32_t spellId, int32_t isPet);
@@ -106,7 +115,7 @@ int32_t GetSpellIdBySlot(int32_t slot, int32_t petSpell);
 bool HasSpell(int32_t spellId, int32_t petSpell);
 bool HasSpell(uint32_t spellId);
 void ClearPetSpellInfo();
-extern const char* s_companionTypes[2];
+extern const char* s_companionTypes[NUM_COMPANION_TYPES];
 extern TSGrowableArray<SpellUsableInfo> s_shapeshiftSpells;
 extern uint32_t s_numSkillInfos;
 extern uint32_t s_displayedSpells[1024];
