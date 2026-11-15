@@ -33,7 +33,7 @@ class SpellMissileRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags; // SPELL_MISSILE_FLAGS
+    /* 0004 */ SPELL_MISSILE_FLAGS m_flags;
     /* 0008 */ float m_defaultPitchMin;
     /* 000C */ float m_defaultPitchMax;
     /* 0010 */ float m_defaultSpeedMin;
