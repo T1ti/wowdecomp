@@ -2667,7 +2667,7 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
         }
 
         SMODoodadDef* doodadDef = &mapObj->m_doodadDefList[doodadRef];
-        CMapDoodadDef* mapDoodadDef = CMap::CreateDoodadDef(doodadRef, doodadDef, &mapObj->m_doodadNameList[doodadDef->m_flags & 0xFFFFFF], mapObjDef->m_hashval + 1, &mapObjDef->m_mat, static_cast<uint16_t>(overrideSet));
+        CMapDoodadDef* mapDoodadDef = CMap::CreateDoodadDef(doodadRef, doodadDef, &mapObj->m_doodadNameList[doodadDef->m_flags & SMODoodadDef::NAME_INDEX_MASK], mapObjDef->m_hashval + 1, &mapObjDef->m_mat, static_cast<uint16_t>(overrideSet));
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapDoodadDef);
         link->m_ref = mapObjDefGroup;
 

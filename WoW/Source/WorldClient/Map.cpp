@@ -2618,7 +2618,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
     mapDoodadDef->m_sphere.r = 0.0f;
     mapDoodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
 
-    if (doodadDef->m_flags & 0x1) {
+    if (doodadDef->m_flags & SMDoodadDef::F_BIODOME) {
         mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_BIODOME | MAPOBJ_FLAG_UNPLACED);
     }
 
@@ -2705,7 +2705,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
     mapDoodadDef->m_doodadSet = doodadSet;
     mapDoodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
 
-    if (doodadDef->m_flags & 0x1000000) {
+    if (doodadDef->m_flags & SMODoodadDef::F_ACCEPT_PROJ_TEX) {
         mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_PROJ_TEX | MAPOBJ_FLAG_UNPLACED);
     }
 

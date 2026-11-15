@@ -963,7 +963,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
     for (uint32_t i = 0; i < mapObjRefs; i++) {
         SMMapObjDef* def = &area->m_mapObjDef[mapObjRefList[i]];
 
-        if (def->m_flags & 0x1) {
+        if (def->m_flags & SMMapObjDef::F_DESTROYABLE) {
             if (def->m_uniqueId != 0x5476ED || CMap::mapObjDefHash.Ptr(0x5476ED, CMap::s_mapObjDefHashKey)) {
                 continue;
             }

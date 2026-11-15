@@ -64,29 +64,45 @@ struct SMAreaInfo {
     /* 0004 */ uint32_t m_unused;
 };
 
+// ADT MDDF entry.
 struct SMDoodadDef {
+    enum FLAGS : uint16_t {
+        F_BIODOME = 0x1, // Placed with MAPOBJ_FLAG_BIODOME.
+    };
+
     /* 0000 */ uint32_t m_nameId;
     /* 0004 */ uint32_t m_uniqueId;
     /* 0008 */ C3Vector m_position;
     /* 0014 */ C3Vector m_rotation;
     /* 0020 */ uint16_t m_scale;
-    /* 0022 */ uint16_t m_flags;
+    /* 0022 */ uint16_t m_flags; // FLAGS
 };
 
+// ADT MODF entry.
 struct SMMapObjDef {
+    enum FLAGS : uint16_t {
+        F_DESTROYABLE = 0x1, // Destructible building: registered as a CDestructibleProxy instead of a CMapObjDef.
+    };
+
     /* 0000 */ uint32_t m_nameId;
     /* 0004 */ uint32_t m_uniqueId;
     /* 0008 */ C3Vector m_position;
     /* 0014 */ C3Vector m_rotation;
     /* 0020 */ CAaBox m_extents;
-    /* 0038 */ uint16_t m_flags;
+    /* 0038 */ uint16_t m_flags; // FLAGS
     /* 003A */ uint16_t m_doodadSet;
     /* 003C */ uint16_t m_nameSet;
     /* 003E */ uint16_t m_scale;
 };
 
+// WMO MODD entry.
 struct SMODoodadDef {
-    /* 0000 */ uint32_t m_flags;
+    enum FLAGS : uint32_t {
+        NAME_INDEX_MASK = 0x00FFFFFF, // Offset into the MODN doodad name list.
+        F_ACCEPT_PROJ_TEX = 0x01000000, // Placed with MAPOBJ_FLAG_PROJ_TEX.
+    };
+
+    /* 0000 */ uint32_t m_flags; // FLAGS
     /* 0004 */ C3Vector m_position;
     /* 0010 */ C4Quaternion m_orientation;
     /* 0020 */ float m_scale;
