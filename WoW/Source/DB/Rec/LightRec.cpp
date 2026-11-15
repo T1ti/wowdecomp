@@ -21,8 +21,8 @@ bool LightRec::Read(SFileImpl* file, const char* stringBuffer) {
     int32_t gameCoordsRead0 = SFileReadFile(file, &this->m_gameCoords[0], sizeof(this->m_gameCoords[0]), nullptr, nullptr, 0);
     int32_t gameCoordsRead1 = SFileReadFile(file, &this->m_gameCoords[1], sizeof(this->m_gameCoords[1]), nullptr, nullptr, 0);
     int32_t gameCoordsRead2 = SFileReadFile(file, &this->m_gameCoords[2], sizeof(this->m_gameCoords[2]), nullptr, nullptr, 0);
-    int32_t gameFalloffStartRead = SFileReadFile(file, &this->m_gameFalloffStart, sizeof(this->m_gameFalloffStart), nullptr, nullptr, 0);
-    int32_t gameFalloffEndRead = SFileReadFile(file, &this->m_gameFalloffEnd, sizeof(this->m_gameFalloffEnd), nullptr, nullptr, 0);
+    int32_t gameFalloffStartRead = SFileReadFile(file, &this->m_gameFalloff.m_l, sizeof(this->m_gameFalloff.m_l), nullptr, nullptr, 0);
+    int32_t gameFalloffEndRead = SFileReadFile(file, &this->m_gameFalloff.m_h, sizeof(this->m_gameFalloff.m_h), nullptr, nullptr, 0);
     int32_t lightParamsIDRead = SFileReadFile(file, this->m_lightParamsID, sizeof(this->m_lightParamsID), nullptr, nullptr, 0);
 
     if (!idRead

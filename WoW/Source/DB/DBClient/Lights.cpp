@@ -77,8 +77,8 @@ static void TransformMapCoord(LightRec* rec, bool transform) {
         rec->m_gameCoords[0] *= 1.0f / 36.0f;
         rec->m_gameCoords[1] *= 1.0f / 36.0f;
         rec->m_gameCoords[2] *= 1.0f / 36.0f;
-        rec->m_gameFalloffStart *= 1.0f / 36.0f;
-        rec->m_gameFalloffEnd *= 1.0f / 36.0f;
+        rec->m_gameFalloff.m_l *= 1.0f / 36.0f;
+        rec->m_gameFalloff.m_h *= 1.0f / 36.0f;
 
         float offsetX = 0.0f;
         float offsetY = 0.0f;

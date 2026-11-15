@@ -580,7 +580,7 @@ bool DayNight::LightQE::HasHigherPriority(const LightQE& a, const LightQE& b) {
         return b.m_key <= a.m_key;
     }
 
-    return (*b.m_light)->m_gameFalloffStart <= (*a.m_light)->m_gameFalloffStart;
+    return (*b.m_light)->m_gameFalloff.m_l <= (*a.m_light)->m_gameFalloff.m_l;
 }
 
 // VERIFY: 464db582 auto
@@ -1078,8 +1078,8 @@ void DayNight::BlendAreaLight(CurrentLight* dst, const LightRec* light, int32_t 
     float distance = sqrt(dx * dx + dz * dz + dy * dy);
     float weight = 1.0f;
 
-    if (light->m_gameFalloffStart < distance) {
-        float fade = 1.0f - (distance - light->m_gameFalloffStart) / (light->m_gameFalloffEnd - light->m_gameFalloffStart);
+    if (light->m_gameFalloff.m_l < distance) {
+        float fade = 1.0f - (distance - light->m_gameFalloff.m_l) / (light->m_gameFalloff.m_h - light->m_gameFalloff.m_l);
         weight = fade >= 0.0f ? fade : 0.0f;
     }
 
@@ -2068,7 +2068,7 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
         for (uint32_t i = 1; i < DayNight::g_areaLights.m_count; i++) {
             const LightRec** areaLight = &DayNight::g_areaLights.m_data[i];
 
-            if (s_useZoneLights && (*areaLight)->m_gameFalloffEnd < 3.0f) {
+            if (s_useZoneLights && (*areaLight)->m_gameFalloff.m_h < 3.0f) {
                 continue;
             }
 
@@ -2078,7 +2078,7 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
             float dz = DayNight::g_dnInfo.m_lightRefPos.z - position.z;
             float distanceSq = dx * dx + dz * dz + dy * dy;
 
-            if ((*areaLight)->m_gameFalloffEnd * (*areaLight)->m_gameFalloffEnd > distanceSq) {
+            if ((*areaLight)->m_gameFalloff.m_h * (*areaLight)->m_gameFalloff.m_h > distanceSq) {
                 LightQE entry;
                 entry.m_key = distanceSq;
                 entry.m_light = areaLight;
@@ -2115,7 +2115,7 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
             float dy = DayNight::g_dnInfo.m_lightRefPos.y - overrideLight->m_gameCoords[1];
             float dz = DayNight::g_dnInfo.m_lightRefPos.z - overrideLight->m_gameCoords[2];
 
-            if (overrideLight->m_gameFalloffEnd * overrideLight->m_gameFalloffEnd > dx * dx + dy * dy + dz * dz) {
+            if (overrideLight->m_gameFalloff.m_h * overrideLight->m_gameFalloff.m_h > dx * dx + dy * dy + dz * dz) {
                 DayNight::BlendAreaLight(light, overrideLight, underwater, override->m_fade);
             }
         }
@@ -3257,8 +3257,8 @@ void DayNight::AddLightOverride(int32_t lightId, int32_t overrideId, uint32_t du
     rec->m_gameCoords[0] = light->m_gameCoords[0];
     rec->m_gameCoords[1] = light->m_gameCoords[1];
     rec->m_gameCoords[2] = light->m_gameCoords[2];
-    rec->m_gameFalloffStart = light->m_gameFalloffStart;
-    rec->m_gameFalloffEnd = light->m_gameFalloffEnd;
+    rec->m_gameFalloff.m_l = light->m_gameFalloff.m_l;
+    rec->m_gameFalloff.m_h = light->m_gameFalloff.m_h;
 
     AreaLightOverride* entry = s_areaLightOverrides.New();
 
