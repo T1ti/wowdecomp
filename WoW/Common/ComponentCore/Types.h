@@ -157,6 +157,15 @@ enum INVENTORY_SLOTS {
     TOTAL_BAG_SLOTS = 11,
 };
 
+// Lua container IDs for the player's own slot ranges; bags are 1..TOTAL_BAG_SLOTS.
+// Names follow FrameXML BACKPACK_CONTAINER, BANK_CONTAINER and KEYRING_CONTAINER.
+enum LUA_CONTAINER_ID : int32_t {
+    CONTAINER_CURRENCY_TOKEN = -4, // Currency token slots; no FrameXML constant (inferred).
+    KEYRING_CONTAINER = -2,
+    BANK_CONTAINER = -1,
+    BACKPACK_CONTAINER = 0,
+};
+
 // Slot-selection masks used by equipped-item requirement checks.
 enum INVENTORY_SLOT_MASK : uint32_t {
     INVSLOT_MASK_MAINHAND = 1u << INVSLOT_MAINHAND,

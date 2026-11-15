@@ -79,9 +79,9 @@ static int32_t Script_GetContainerNumFreeSlots(lua_State* L) {
 
     double index = lua_tonumber(L, 1);
 
-    if (index == 0.0 || (index == -1.0 && CGBankInfo::m_banker)) {
-        uint32_t first = index == 0.0 ? BACKPACK_FIRST : BANKGENERIC_FIRST;
-        uint32_t last = index == 0.0 ? BACKPACK_LAST : BANKGENERIC_LAST;
+    if (index == BACKPACK_CONTAINER || (index == BANK_CONTAINER && CGBankInfo::m_banker)) {
+        uint32_t first = index == BACKPACK_CONTAINER ? BACKPACK_FIRST : BANKGENERIC_FIRST;
+        uint32_t last = index == BACKPACK_CONTAINER ? BACKPACK_LAST : BANKGENERIC_LAST;
         int32_t free = 0;
 
         for (uint32_t slot = first; slot <= last; slot++) {
@@ -95,7 +95,7 @@ static int32_t Script_GetContainerNumFreeSlots(lua_State* L) {
         return 2;
     }
 
-    if (index != -1.0 && static_cast<uint32_t>(static_cast<int32_t>(index) - 1) <= 10) {
+    if (index != BANK_CONTAINER && static_cast<uint32_t>(static_cast<int32_t>(index) - 1) < TOTAL_BAG_SLOTS) {
         CGContainer_C* container = static_cast<CGContainer_C*>(ClntObjMgrObjectPtr(GetBagAtIndex(static_cast<int32_t>(index) - 1), TYPE_CONTAINER, __FILE__, __LINE__));
 
         if (container) {
@@ -120,15 +120,15 @@ static int32_t Script_GetContainerNumSlots(lua_State* L) {
     double slots = 0.0;
 
     if (ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) {
-        int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
+        int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1; // Lua container ID - 1
 
-        if (index == -1) {
-            slots = 16.0;
-        } else if (index == -2) {
-            slots = 28.0;
-        } else if (index == -3 || index == -5) {
-            slots = 32.0;
-        } else if (static_cast<uint32_t>(index) <= 10) {
+        if (index == BACKPACK_CONTAINER - 1) {
+            slots = MIN_BACKPACK_SLOTS;
+        } else if (index == BANK_CONTAINER - 1) {
+            slots = BANK_NUM_GEMERIC_SLOTS;
+        } else if (index == KEYRING_CONTAINER - 1 || index == CONTAINER_CURRENCY_TOKEN - 1) {
+            slots = KEYRING_LAST - KEYRING_FIRST + 1;
+        } else if (static_cast<uint32_t>(index) < TOTAL_BAG_SLOTS) {
             CGContainer_C* container = static_cast<CGContainer_C*>(ClntObjMgrObjectPtr(GetBagAtIndex(index), TYPE_CONTAINER, __FILE__, __LINE__));
 
             if (container) {
@@ -157,7 +157,7 @@ static int32_t Script_GetBagName(lua_State* L) {
             return 1;
         }
 
-        if (static_cast<uint32_t>(static_cast<int32_t>(index) - 1) <= 10) {
+        if (static_cast<uint32_t>(static_cast<int32_t>(index) - 1) < TOTAL_BAG_SLOTS) {
             CGContainer_C* container = static_cast<CGContainer_C*>(ClntObjMgrObjectPtr(GetBagAtIndex(static_cast<int32_t>(index) - 1), TYPE_CONTAINER, __FILE__, __LINE__));
 
             if (container) {
@@ -900,16 +900,16 @@ static int32_t Script_GetContainerFreeSlots(lua_State* L) {
         return 1;
     }
 
-    if (index == -1.0) {
+    if (index == BANK_CONTAINER) {
         if (!CGBankInfo::m_banker) {
             return 0;
         }
 
-        for (int32_t i = 39; i <= 66; i++) {
+        for (int32_t i = BANKGENERIC_FIRST; i <= BANKGENERIC_LAST; i++) {
             if (static_cast<uint32_t>(i) >= static_cast<uint32_t>(player->m_bag.m_numSlots) || !player->m_bag.m_slots[i]) {
                 lua_checkstack(L, 2);
                 lua_pushnumber(L, count);
-                lua_pushnumber(L, i - 38);
+                lua_pushnumber(L, i - BANKGENERIC_FIRST + 1);
                 lua_settable(L, -3);
                 count++;
             }
