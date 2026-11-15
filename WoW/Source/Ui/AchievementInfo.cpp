@@ -800,7 +800,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             }
         }
 
-        if (criteriaFlags & 0x20) {
+        if (criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY) {
             if (colorblindMode && colorblindMode->m_intValue) {
                 GetCurrencyShortText(static_cast<int32_t>(result), buffer, size, " ");
             } else {
@@ -889,7 +889,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             } else {
                 SStrPrintf(buffer, size, "0");
             }
-        } else if (criteriaFlags & 0x20) {
+        } else if (criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY) {
             if (colorblindMode && colorblindMode->m_intValue) {
                 GetCurrencyShortText(static_cast<int32_t>(result), buffer, size, " ");
             } else {
@@ -899,7 +899,7 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
             SStrPrintf(buffer, size, "%I64d", result);
         }
     } else {
-        if ((criteriaFlags & 0x20) && (criteriaFlags & 0x1)) {
+        if ((criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY) && (criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_PROGRESS_BAR)) {
             if (colorblindMode && colorblindMode->m_intValue) {
                 GetCurrencyShortText(0, buffer, size, " ");
             } else {
@@ -914,10 +914,10 @@ uint64_t CGAchievementInfo::BuildOutputString(char* buffer, int32_t size, uint64
         result = 0;
     }
 
-    if ((criteriaFlags & 0x1) && criteriaRec) {
+    if ((criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_PROGRESS_BAR) && criteriaRec) {
         char total[128];
 
-        if (criteriaFlags & 0x20) {
+        if (criteriaFlags & ACHIEVEMENT_CRITERIA_FLAGS::ACHIEVEMENT_CRITERIA_FLAG_IS_MONEY) {
             if (colorblindMode && colorblindMode->m_intValue) {
                 GetCurrencyShortText(required ? required : criteriaRec->m_quantity, total, sizeof(total), " ");
             } else {
