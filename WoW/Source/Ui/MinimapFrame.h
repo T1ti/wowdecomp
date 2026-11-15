@@ -36,6 +36,17 @@ struct MINIMAPQUAD {
 };
 
 struct MINIMAPTILE {
+    // Runtime tile state; reconstructed names.
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // UpdateQuad built the vertices; required to render.
+        QUAD_BUILT = 0x1,
+        // Claimed by the current tile/quad layout.
+        IN_USE = 0x2,
+        // The texture was created and its GX texture is not ready yet.
+        TEXTURE_PENDING = 0x4,
+    };
+
     /* 0000 */ C3Vector m_vertices[4];
     /* 0030 */ C2Vector m_texCoords[4];
     /* 0050 */ C2Vector m_maskCoords[4];
@@ -43,7 +54,7 @@ struct MINIMAPTILE {
     /* 0088 */ MINIMAPTILE* m_nextSorted;
     /* 008C */ float m_depth;
     /* 0090 */ CTexture* m_texture;
-    /* 0094 */ uint32_t m_flags;
+    /* 0094 */ uint32_t m_flags; // FLAGS
     /* 0098 */ C2iVector m_tileCoords; // Signed texture tile/quad indices; LeaveWorld resets both to -1.
     /* 00A0 */ int32_t m_groupId;
 

@@ -1139,7 +1139,7 @@ void MINIMAPTILE::BuildQuad(const CRect& rect, uint32_t index, const C2Vector* c
 // VERIFY: 92f7692a auto
 // OFFSET: 0x0057E540
 void MINIMAPTILE::Render(uint32_t index, const CImVector* color) {
-    if (!(this->m_flags & 1) || !this->m_texture) {
+    if (!(this->m_flags & MINIMAPTILE::FLAGS::QUAD_BUILT) || !this->m_texture) {
         return;
     }
 
@@ -1165,7 +1165,7 @@ void MINIMAPTILE::Render(uint32_t index, const CImVector* color) {
 // VERIFY: e8182a5d manual
 // OFFSET: 0x0057E630
 void MINIMAPTILE::UpdateQuad(uint32_t index, C2Vector center, float scale, float layoutScale, float width) {
-    this->m_flags &= ~1u;
+    this->m_flags &= ~MINIMAPTILE::FLAGS::QUAD_BUILT;
 
     if (index >= 4) {
         return;
@@ -1207,7 +1207,7 @@ void MINIMAPTILE::UpdateQuad(uint32_t index, C2Vector center, float scale, float
 
     if (quad.minX < maxY && quad.maxX > minY && maxX > quad.minY && quad.maxY > minX) {
         this->BuildQuad(rect, index, &center, scale, bounds, layoutScale, width);
-        this->m_flags |= 1;
+        this->m_flags |= MINIMAPTILE::FLAGS::QUAD_BUILT;
     }
 }
 
@@ -1273,10 +1273,10 @@ static int32_t MinimapBuildSource(const int32_t* tile, char* path, uint32_t size
 // VERIFY: dd828e8c manual
 // OFFSET: 0x007F5760
 static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE* tiles) {
-    tiles[0].m_flags &= ~2u;
-    tiles[1].m_flags &= ~2u;
-    tiles[2].m_flags &= ~2u;
-    tiles[3].m_flags &= ~2u;
+    tiles[0].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
+    tiles[1].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
+    tiles[2].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
+    tiles[3].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
 
     if (!reset) {
         for (uint32_t i = 0; i < 4; i++) {
@@ -1296,14 +1296,14 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
                         tiles[j].m_texture = nullptr;
                     }
 
-                    tiles[i].m_flags |= 2;
+                    tiles[i].m_flags |= MINIMAPTILE::FLAGS::IN_USE;
                 }
             }
         }
     }
 
     for (uint32_t i = 0; i < 4; i++) {
-        if (tiles[i].m_flags & 2) {
+        if (tiles[i].m_flags & MINIMAPTILE::FLAGS::IN_USE) {
             continue;
         }
 
@@ -1321,7 +1321,7 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
 
             CStatus status;
             CTexture* texture = TextureCreate(path, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-            tiles[i].m_flags |= 2;
+            tiles[i].m_flags |= MINIMAPTILE::FLAGS::IN_USE;
             tiles[i].m_texture = texture;
             tiles[i].m_tileCoords.x = source[0];
             tiles[i].m_tileCoords.y = source[1];
@@ -1447,10 +1447,10 @@ static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* q
 
         if (tile->m_groupId == quad->m_groupId && tile->m_tileCoords.x == quad->m_quad.x && tile->m_tileCoords.y == quad->m_quad.y) {
             if (tile->m_groupId == currentGroup) {
-                tile->m_flags |= 2;
+                tile->m_flags |= MINIMAPTILE::FLAGS::IN_USE;
                 tile->m_depth = 3.4028235e38f;
             } else {
-                tile->m_flags |= 2;
+                tile->m_flags |= MINIMAPTILE::FLAGS::IN_USE;
                 tile->m_depth = (quad->m_bounds.t.z + quad->m_bounds.b.z) * 0.5f - height;
             }
 
@@ -1466,7 +1466,7 @@ static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* q
 static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t currentGroup, float height, const char* mapObjName) {
     uint32_t index = 0;
 
-    while (tiles->m_flags & 2) {
+    while (tiles->m_flags & MINIMAPTILE::FLAGS::IN_USE) {
         index++;
         tiles++;
 
@@ -1475,7 +1475,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
         }
     }
 
-    tiles->m_flags |= 2;
+    tiles->m_flags |= MINIMAPTILE::FLAGS::IN_USE;
     char path[260];
     SStrPrintf(path, sizeof(path), s_minimapQuadFormat, mapObjName, quad->m_groupId, quad->m_quad.x, quad->m_quad.y);
     MINIMAPMD5NAME* name = s_md5Names.Ptr(path);
@@ -1494,10 +1494,10 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
     if (path[0]) {
         CStatus status;
         CTexture* texture = TextureCreate(path, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-        tiles->m_flags |= 4;
+        tiles->m_flags |= MINIMAPTILE::FLAGS::TEXTURE_PENDING;
         tiles->m_texture = texture;
     } else {
-        tiles->m_flags &= ~2u;
+        tiles->m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
         tiles->m_texture = nullptr;
     }
 
@@ -1641,7 +1641,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
             C3Vector local = *position * s_mapObjInvMatrix;
 
             for (uint32_t i = 0; i < 256; i++) {
-                tiles[i].m_flags &= ~2u;
+                tiles[i].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
             }
 
             if (quads.m_count) {
@@ -1667,15 +1667,15 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
             for (uint32_t i = 0; i < 256; i++) {
                 uint32_t flags = tiles[i].m_flags;
 
-                if ((flags & 2) && (flags & 4)) {
+                if ((flags & MINIMAPTILE::FLAGS::IN_USE) && (flags & MINIMAPTILE::FLAGS::TEXTURE_PENDING)) {
                     if (tiles[i].m_texture) {
                         if (!TextureGetGxTex(tiles[i].m_texture, 0, nullptr)) {
                             goto texturesPending;
                         }
 
-                        tiles[i].m_flags &= ~4u;
+                        tiles[i].m_flags &= ~MINIMAPTILE::FLAGS::TEXTURE_PENDING;
                     } else {
-                        tiles[i].m_flags = flags & ~2u;
+                        tiles[i].m_flags = flags & ~MINIMAPTILE::FLAGS::IN_USE;
                     }
                 }
             }
@@ -3101,7 +3101,7 @@ void CGMinimapFrame::RenderInsideSortQuads(MINIMAPTILE** head) {
     for (uint32_t i = 0; i < 256; i++) {
         MINIMAPTILE* tile = &s_tiles[i];
 
-        if (!(tile->m_flags & 2) || !tile->m_texture) {
+        if (!(tile->m_flags & MINIMAPTILE::FLAGS::IN_USE) || !tile->m_texture) {
             continue;
         }
 
