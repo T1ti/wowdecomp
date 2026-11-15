@@ -32,8 +32,8 @@ class ItemSubClassRec {
     /* 0004 */ int32_t m_subClassID;
     /* 0008 */ int32_t m_prerequisiteProficiency;
     /* 000C */ int32_t m_postrequisiteProficiency;
-    /* 0010 */ int32_t m_flags; // ITEM_SUBCLASS_FLAGS
-    /* 0014 */ int32_t m_displayFlags; // ITEM_SUBCLASS_DISPLAY_FLAGS
+    /* 0010 */ ITEM_SUBCLASS_FLAGS m_flags;
+    /* 0014 */ ITEM_SUBCLASS_DISPLAY_FLAGS m_displayFlags;
     /* 0018 */ int32_t m_weaponParrySeq;
     /* 001C */ int32_t m_weaponReadySeq;
     /* 0020 */ int32_t m_weaponAttackSeq;
