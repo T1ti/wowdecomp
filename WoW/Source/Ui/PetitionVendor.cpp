@@ -3,6 +3,7 @@
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Source/Ui/Types.h"
+#include "WoW/Source/Object/CGPetition.h"
 #include <cstring>
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
@@ -117,12 +118,12 @@ void CGPetitionVendorInfo::BuyPetition(uint32_t index, const char* name) {
         return;
     }
 
-    if (!CGPetitionVendorInfo::m_petitionItems[index].m_charterType && player->m_player->m_playerGuildid) {
+    if (CGPetitionVendorInfo::m_petitionItems[index].m_charterType == CGPetition::STATIC_TYPE_GUILD && player->m_player->m_playerGuildid) {
         CGGameUI::DisplayError(ERR_ALREADY_IN_GUILD);
         return;
     }
 
-    if (CGPetitionVendorInfo::m_petitionItems[index].m_charterType == 1) {
+    if (CGPetitionVendorInfo::m_petitionItems[index].m_charterType == CGPetition::STATIC_TYPE_ARENA) {
         for (uint32_t i = 0; i < 3; i++) {
             ArenaTeam* team = CGArenaTeamInfo::GetArenaTeam(i);
 
@@ -140,7 +141,7 @@ void CGPetitionVendorInfo::BuyPetition(uint32_t index, const char* name) {
         }
     }
 
-    if (CGPetitionVendorInfo::m_petitionItems[index].m_charterType == 1) {
+    if (CGPetitionVendorInfo::m_petitionItems[index].m_charterType == CGPetition::STATIC_TYPE_ARENA) {
         int32_t level = player->m_unit->m_unitFieldLevel;
 
         if (level != 60 && level != 70 && level != 80) {

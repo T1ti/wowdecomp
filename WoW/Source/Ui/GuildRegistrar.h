@@ -14,7 +14,7 @@ struct GuildPetitionInfo {
     /* 0004 */ uint32_t m_itemID;
     /* 0008 */ uint32_t m_displayID;
     /* 000C */ uint32_t m_cost;
-    /* 0010 */ uint32_t m_charterType;
+    /* 0010 */ uint32_t m_charterType; // CGPetition::STATIC_TYPE
     /* 0014 */ uint32_t m_requiredSignatures;
 };
 
