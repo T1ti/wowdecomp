@@ -6,6 +6,13 @@
 
 class SFileImpl;
 
+// Talent.dbc flags tested by the client.
+enum TALENT_FLAGS : int32_t {
+    TALENT_FLAG_NONE        = 0x00000000,
+    // GetTalentInfo isExceptional.
+    TALENT_FLAG_EXCEPTIONAL = 0x00000001,
+};
+
 class TalentRec {
     public:
     static const int32_t s_numColumns = 23;
@@ -19,7 +26,7 @@ class TalentRec {
     /* 0010 */ int32_t m_spellRank [9];
     /* 0034 */ int32_t m_prereqTalent [3];
     /* 0040 */ int32_t m_prereqRank [3];
-    /* 004C */ int32_t m_flags;
+    /* 004C */ int32_t m_flags; // TALENT_FLAGS
     /* 0050 */ int32_t m_requiredSpellID;
     /* 0054 */ int32_t m_categoryMask [2];
 

@@ -141,7 +141,7 @@ void ShipPath::BuildLegs() {
             }
         }
 
-        if ((node->m_flags & 0x2) && points.m_count) {
+        if ((node->m_flags & TAXI_PATH_NODE_FLAG_STOP) && points.m_count) {
             ShipPathPause* pause = &pauses.m_data[pauses.m_count++];
 
             if (pause) {
@@ -168,7 +168,7 @@ void ShipPath::BuildLegs() {
             point->z = node->m_loc[2];
         }
 
-        teleport = node->m_flags & 0x1;
+        teleport = node->m_flags & TAXI_PATH_NODE_FLAG_TELEPORT;
         index++;
 
         if (index < 0 || index >= g_taxiPathNodeDB.m_numRecords) {

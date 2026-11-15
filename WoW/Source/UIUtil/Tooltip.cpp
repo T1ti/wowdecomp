@@ -4380,7 +4380,7 @@ static const LockRec* AddItemBindLines(CGTooltip* tooltip, const ItemStats_C* st
         } else if (stats->m_itemLimitCategory) {
             ItemLimitCategoryRec* category = g_itemLimitCategoryDB.GetRecord(stats->m_itemLimitCategory);
 
-            if (category->m_flags & 1) {
+            if (category->m_flags & ITEM_LIMIT_CATEGORY_FLAG_MULTIPLE) {
                 FormatString("ITEM_LIMIT_CATEGORY_MULTIPLE", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
             } else {
                 FormatString("ITEM_LIMIT_CATEGORY", -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
@@ -6840,7 +6840,7 @@ void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, int32
         displayRank = currentRank;
     }
 
-    if (talent->m_flags & 1) {
+    if (talent->m_flags & TALENT_FLAG_EXCEPTIONAL) {
         int32_t showNext = maxRank > 0 && displayRank >= 0 && displayRank < maxRank;
         this->SetSpell(talent->m_spellRank[displayRank < 0 ? 0 : displayRank], 0, 0, isPet, 0, isInspect, useRank, talent, group, 0, usePreview, displayRank < 0 ? 0 : displayRank, displayRank, maxRank, !showNext);
 

@@ -321,7 +321,7 @@ static int32_t Script_GetTalentInfo(lua_State* L) {
                 lua_pushnumber(L, rank + 1);
                 lua_pushnumber(L, maxRank + 1);
 
-                if (talent->m_flags & 1) {
+                if (talent->m_flags & TALENT_FLAG_EXCEPTIONAL) {
                     lua_pushnumber(L, 1.0);
                 } else {
                     lua_pushnil(L);

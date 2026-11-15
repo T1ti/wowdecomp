@@ -6,6 +6,13 @@
 
 class SFileImpl;
 
+// ItemLimitCategory.dbc flags tested by the client.
+enum ITEM_LIMIT_CATEGORY_FLAGS : int32_t {
+    ITEM_LIMIT_CATEGORY_FLAG_NONE     = 0x00000000,
+    // Tooltip uses ITEM_LIMIT_CATEGORY_MULTIPLE instead of ITEM_LIMIT_CATEGORY.
+    ITEM_LIMIT_CATEGORY_FLAG_MULTIPLE = 0x00000001,
+};
+
 class ItemLimitCategoryRec {
     public:
     static const int32_t s_numColumns = 20;
@@ -15,7 +22,7 @@ class ItemLimitCategoryRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
     /* 0008 */ int32_t m_quantity;
-    /* 000C */ int32_t m_flags;
+    /* 000C */ int32_t m_flags; // ITEM_LIMIT_CATEGORY_FLAGS
 
     ItemLimitCategoryRec();
     ~ItemLimitCategoryRec();

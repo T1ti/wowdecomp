@@ -6,6 +6,15 @@
 
 class SFileImpl;
 
+// TaxiPathNode.dbc flags tested by the client.
+enum TAXI_PATH_NODE_FLAGS : int32_t {
+    TAXI_PATH_NODE_FLAG_NONE     = 0x00000000,
+    // The path continues on another map from this node.
+    TAXI_PATH_NODE_FLAG_TELEPORT = 0x00000001,
+    // The transport waits m_delay seconds at this node.
+    TAXI_PATH_NODE_FLAG_STOP     = 0x00000002,
+};
+
 class TaxiPathNodeRec {
     public:
     static const int32_t s_numColumns = 11;
@@ -17,7 +26,7 @@ class TaxiPathNodeRec {
     /* 0008 */ int32_t m_nodeIndex;
     /* 000C */ int32_t m_continentID;
     /* 0010 */ float m_loc [3];
-    /* 001C */ int32_t m_flags;
+    /* 001C */ int32_t m_flags; // TAXI_PATH_NODE_FLAGS
     /* 0020 */ int32_t m_delay;
     /* 0024 */ int32_t m_arrivalEventID;
     /* 0028 */ int32_t m_departureEventID;
