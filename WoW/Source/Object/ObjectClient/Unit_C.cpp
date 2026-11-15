@@ -2423,7 +2423,7 @@ BOOL IsMeleeAttackAnim(uint32_t animId) {
 
 // VERIFY: 27ef24ab auto
 // OFFSET: 0x00714CE0
-void ApplyKitAnimFlags(uint32_t kitFlags, uint32_t* playbackFlags) {
+void ApplyKitAnimFlags(SpellVisualKitRec::KIT_FLAGS kitFlags, uint32_t* playbackFlags) {
     if (!playbackFlags) {
         return;
     }
@@ -2524,7 +2524,7 @@ BOOL CGUnit_C::ChooseDeathAnim(uint32_t selectionMask, uint32_t* anim, uint32_t*
 
 // VERIFY: 4075ac71 manual
 // OFFSET: 0x007224D0
-int32_t CGUnit_C::GetSpellVisualKitAnim(uint32_t* anim, uint32_t* kitFlags) {
+int32_t CGUnit_C::GetSpellVisualKitAnim(uint32_t* anim, SpellVisualKitRec::KIT_FLAGS* kitFlags) {
     if (this->m_specialIdleAnim != INVALID_ANIMATION) {
         return 0;
     }
@@ -2578,7 +2578,7 @@ BOOL CGUnit_C::ChooseSpellVisualKitAnim(uint32_t selectionMask, uint32_t* anim, 
     }
 
     uint32_t kitAnim;
-    uint32_t kitFlags = 0;
+    SpellVisualKitRec::KIT_FLAGS kitFlags = SpellVisualKitRec::KIT_FLAGS::NONE;
 
     if (!this->GetSpellVisualKitAnim(&kitAnim, &kitFlags)) {
         return (selectionMask & ~ANIM_SELECTION_FLAGS::THROUGH_SPELL_VISUAL_KIT) == 0;

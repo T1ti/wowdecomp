@@ -36,6 +36,7 @@ enum SPELL_VISUAL_CHAR_PROC : int32_t {
 class SpellVisualKitRec {
     public:
     enum KIT_FLAGS : int32_t {
+        NONE = 0x0,
         WAIT_FOR_BEAM_ACTIVATION = 0x1,
         // Reference bit1: PlayImpactKitOncePerMissileVolley; current use unconfirmed.
         FORCE_SPECIFIC_ANIMATION = 0x4,
@@ -74,7 +75,7 @@ class SpellVisualKitRec {
     /* 0064 */ float m_charParamOne [NUM_SPELL_VISUAL_CHAR_PROCS];
     /* 0074 */ float m_charParamTwo [NUM_SPELL_VISUAL_CHAR_PROCS];
     /* 0084 */ float m_charParamThree [NUM_SPELL_VISUAL_CHAR_PROCS];
-    /* 0094 */ int32_t m_flags;
+    /* 0094 */ KIT_FLAGS m_flags;
 
     SpellVisualKitRec();
     ~SpellVisualKitRec();

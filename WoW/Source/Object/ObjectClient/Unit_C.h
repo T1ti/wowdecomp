@@ -14,6 +14,7 @@
 #include "WoW/Source/Object/Combat.h"
 #include "WoW/Source/Object/ObjectClient/AuraData.h"
 #include "WoW/Source/Magic/MagicClient/SpellTable.h"
+#include "WoW/Source/DB/Rec/SpellVisualKitRec.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 #include "WoW/Source/Net/Types.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -899,7 +900,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     BOOL ChooseShuffleAnim(uint32_t selectionMask, uint32_t* anim);
     BOOL ChooseStandStateAnim(uint32_t selectionMask, uint32_t* anim);
     BOOL HasAnim466();
-    int32_t GetSpellVisualKitAnim(uint32_t* anim, uint32_t* kitFlags);
+    int32_t GetSpellVisualKitAnim(uint32_t* anim, SpellVisualKitRec::KIT_FLAGS* kitFlags);
     uint32_t ResolveAnimForModel(uint32_t animId, CM2Model* model);
     void ClearLockedTarget();
     void PlayDeathAnimation(int32_t force);
@@ -1129,7 +1130,7 @@ BOOL IsBowAnim(uint32_t animId);
 BOOL IsRifleAnim(uint32_t animId);
 BOOL IsMeleeAttackAnim(uint32_t animId);
 BOOL IsUnarmedAnim(uint32_t animId);
-void ApplyKitAnimFlags(uint32_t kitFlags, uint32_t* playbackFlags);
+void ApplyKitAnimFlags(SpellVisualKitRec::KIT_FLAGS kitFlags, uint32_t* playbackFlags);
 BOOL IsFullBodyAnim(uint32_t animId);
 BOOL IsLocomotionAnimId(uint32_t animId);
 BOOL IsMeleeOrReadyAnim(uint32_t animId);
