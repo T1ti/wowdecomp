@@ -3263,15 +3263,15 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
             event.m_inviteStatus = invite->m_status;
             event.m_inviteID = invite->m_inviteID;
 
-            if (invite->m_rank) {
+            if (invite->m_rank != CALENDAR_MODERATOR_STATUS_NONE) {
                 event.m_flags |= CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_MODERATOR;
 
-                if (invite->m_rank == 2) {
+                if (invite->m_rank == CALENDAR_MODERATOR_STATUS_CREATOR) {
                     event.m_flags |= CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_CREATOR;
                 }
             }
 
-            if (invite->m_inviteType == 1) {
+            if (invite->m_inviteType == CALENDAR_INVITE_TYPE_GUILD) {
                 event.m_flags |= CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE;
                 event.m_creatorGUID = creator;
             } else {

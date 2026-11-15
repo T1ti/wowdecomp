@@ -315,7 +315,7 @@ bool CGCalendarEvent::CanModerate(uint32_t index) {
         return false;
     }
 
-    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && !this->m_invites.m_data[index]->m_inviteType) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && this->m_invites.m_data[index]->m_inviteType == CALENDAR_INVITE_TYPE_NORMAL) {
         CGCalendar::CalendarError("CALENDAR_ERROR_NO_MODERATOR", 0);
         return false;
     }
@@ -676,7 +676,7 @@ bool CGCalendarEvent::RemoveInvite(uint32_t index) {
         return false;
     }
 
-    if (this->m_invites.m_data[index]->m_moderatorStatus == 2) {
+    if (this->m_invites.m_data[index]->m_moderatorStatus == CALENDAR_MODERATOR_STATUS_CREATOR) {
         CGCalendar::CalendarError("CALENDAR_DELETE_CREATOR_FAILED", 0);
         return false;
     }
@@ -756,7 +756,7 @@ bool CGCalendarEvent::InviteRSVP(uint32_t status) {
         }
     }
 
-    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && this->m_invites.m_data[index]->m_inviteType == 1) {
+    if ((this->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && this->m_invites.m_data[index]->m_inviteType == CALENDAR_INVITE_TYPE_GUILD) {
         return false;
     }
 
@@ -939,7 +939,7 @@ CGCalendarEvent::CGCalendarEvent(WOWGUID guid, uint8_t level, int32_t calendarTy
         invite->m_guid = guid;
         invite->m_level = level;
         invite->m_status = CALENDAR_STATUS::CALENDAR_STATUS_CONFIRMED;
-        invite->m_moderatorStatus = 2;
+        invite->m_moderatorStatus = CALENDAR_MODERATOR_STATUS_CREATOR;
         invite->m_inviteType = inviteType;
         invite->m_responseTime = 0;
     }
@@ -1108,7 +1108,7 @@ bool CGCalendarEvent::ProcessInitialInviteList(CDataStore* msg) {
         invite->m_level = level;
         invite->m_status = inviteStatus;
         invite->m_moderatorStatus = moderatorStatus;
-        invite->m_inviteType = 0;
+        invite->m_inviteType = CALENDAR_INVITE_TYPE_NORMAL;
         invite->m_responseTime = 0;
     }
 
@@ -1127,8 +1127,8 @@ bool CGCalendarEvent::ProcessInitialInviteList(CDataStore* msg) {
         invite->m_guid = playerGuid;
         invite->m_level = player->m_unit->m_unitFieldLevel;
         invite->m_status = CALENDAR_STATUS::CALENDAR_STATUS_CONFIRMED;
-        invite->m_moderatorStatus = 2;
-        invite->m_inviteType = 0;
+        invite->m_moderatorStatus = CALENDAR_MODERATOR_STATUS_CREATOR;
+        invite->m_inviteType = CALENDAR_INVITE_TYPE_NORMAL;
         invite->m_responseTime = 0;
     }
 

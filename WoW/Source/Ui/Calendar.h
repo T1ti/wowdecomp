@@ -185,8 +185,8 @@ struct CalendarPendingInvite : public TSLinkedNode<CalendarPendingInvite> {
     /* 0010 */ uint64_t m_inviteID;
     /* 0018 */ WOWGUID m_inviterGuid;
     /* 0020 */ uint8_t m_status;
-    /* 0021 */ uint8_t m_rank;
-    /* 0022 */ uint8_t m_inviteType;
+    /* 0021 */ uint8_t m_rank; // CALENDAR_MODERATOR_STATUS
+    /* 0022 */ uint8_t m_inviteType; // CALENDAR_INVITE_TYPE
     /* 0023 */ uint8_t m_valid;
 
     CalendarPendingInvite();

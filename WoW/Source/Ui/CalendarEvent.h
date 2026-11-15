@@ -25,14 +25,27 @@ enum CALENDAR_STATUS : uint32_t {
     CALENDAR_STATUS_REMOVED = 9,
 };
 
+// Invitee moderation rank; names follow the strings the calendar Lua API returns.
+enum CALENDAR_MODERATOR_STATUS : uint8_t {
+    CALENDAR_MODERATOR_STATUS_NONE = 0,
+    CALENDAR_MODERATOR_STATUS_MODERATOR = 1, // "MODERATOR"
+    CALENDAR_MODERATOR_STATUS_CREATOR = 2, // "CREATOR"
+};
+
+// Invite kind; Lua reports it one-based.
+enum CALENDAR_INVITE_TYPE : uint8_t {
+    CALENDAR_INVITE_TYPE_NORMAL = 0,
+    CALENDAR_INVITE_TYPE_GUILD = 1, // Guild event entry: CALENDAR_DAY_FLAG_GUILD_INVITE, cannot be moderated.
+};
+
 struct EventInviteInfo {
     /* 0000 */ uint64_t m_inviteID;
     /* 0008 */ WOWGUID m_guid;
     /* 0010 */ uint32_t m_responseTime;
     /* 0014 */ uint8_t m_level;
     /* 0015 */ uint8_t m_status;
-    /* 0016 */ uint8_t m_moderatorStatus;
-    /* 0017 */ uint8_t m_inviteType;
+    /* 0016 */ uint8_t m_moderatorStatus; // CALENDAR_MODERATOR_STATUS
+    /* 0017 */ uint8_t m_inviteType; // CALENDAR_INVITE_TYPE
     /* 0018 */ char m_notes[128];
 
     EventInviteInfo();
@@ -45,8 +58,8 @@ inline EventInviteInfo::EventInviteInfo() {
     this->m_responseTime = 0;
     this->m_level = 0;
     this->m_status = CALENDAR_STATUS::CALENDAR_STATUS_INVITED;
-    this->m_moderatorStatus = 0;
-    this->m_inviteType = 0;
+    this->m_moderatorStatus = CALENDAR_MODERATOR_STATUS_NONE;
+    this->m_inviteType = CALENDAR_INVITE_TYPE_NORMAL;
     this->m_notes[0] = '\0';
 }
 

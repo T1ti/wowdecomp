@@ -524,7 +524,7 @@ static int32_t Script_CalendarEventSetModerator(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::SetModeratorStatus(static_cast<uint32_t>(lua_tonumber(L, 1)) - 1, 1);
+    CGCalendar::SetModeratorStatus(static_cast<uint32_t>(lua_tonumber(L, 1)) - 1, CALENDAR_MODERATOR_STATUS_MODERATOR);
     return 0;
 }
 
@@ -536,7 +536,7 @@ static int32_t Script_CalendarEventClearModerator(lua_State* L) {
         return 0;
     }
 
-    CGCalendar::SetModeratorStatus(static_cast<uint32_t>(lua_tonumber(L, 1)) - 1, 0);
+    CGCalendar::SetModeratorStatus(static_cast<uint32_t>(lua_tonumber(L, 1)) - 1, CALENDAR_MODERATOR_STATUS_NONE);
     return 0;
 }
 
@@ -796,9 +796,9 @@ static int32_t Script_CalendarEventGetInvite(lua_State* L) {
         lua_pushinteger(L, 0);
     }
 
-    if (invite->m_moderatorStatus == 1) {
+    if (invite->m_moderatorStatus == CALENDAR_MODERATOR_STATUS_MODERATOR) {
         lua_pushstring(L, "MODERATOR");
-    } else if (invite->m_moderatorStatus == 2) {
+    } else if (invite->m_moderatorStatus == CALENDAR_MODERATOR_STATUS_CREATOR) {
         lua_pushstring(L, "CREATOR");
     } else {
         lua_pushstring(L, "");
