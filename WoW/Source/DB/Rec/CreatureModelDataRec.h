@@ -28,7 +28,7 @@ class CreatureModelDataRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags;
+    /* 0004 */ MODEL_FLAGS m_flags;
     /* 0008 */ const char* m_modelName;
     /* 000C */ int32_t m_sizeClass;
     /* 0010 */ float m_modelScale;

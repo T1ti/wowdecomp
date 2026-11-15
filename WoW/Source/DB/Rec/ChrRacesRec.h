@@ -20,7 +20,7 @@ class ChrRacesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_flags;
+    /* 0004 */ RACE_FLAGS m_flags;
     /* 0008 */ int32_t m_factionID;
     /* 000C */ int32_t m_explorationSoundID;
     /* 0010 */ int32_t m_maleDisplayID;
