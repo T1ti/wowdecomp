@@ -6,6 +6,7 @@
 #include "Engine/Source/Storm/H/stpl.h"
 #include "ThirdParty/lgLcd/lglcd.h"
 #include "WoW/Source/Ui/UILCD/Windows/LCDConnection.h"
+#include "WoW/Source/Ui/UILCD/Windows/LCDBase.h"
 
 class CEzLcdPage;
 class CLCDBitmap;
@@ -68,7 +69,7 @@ class CEzLcd {
     void SetCurrentPage(CEzLcdPage* page);
     int32_t AddNewPage(int32_t page);
     void SetBackground(COLORREF color);
-    CLCDText* AddText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight);
+    CLCDText* AddText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight);
     CLCDBitmap* AddBitmap(int32_t width, int32_t height, int32_t bitmapWidth, int32_t bitmapHeight);
     CEzLcdPage* GetGlobalPage();
     HRESULT ModifyControlsOnPage(int32_t page);

@@ -28,12 +28,12 @@ CEzLcdPage::~CEzLcdPage() {
 
 // VERIFY: 8be292d0 manual
 // OFFSET: 0x0095B080
-CLCDText* CEzLcdPage::AddText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines) {
+CLCDText* CEzLcdPage::AddText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines) {
     int32_t height = 13;
     int32_t pointSize = 8;
     int32_t logicalOriginY = -1;
 
-    if (type != 1) {
+    if (type != LCD_OBJECT_TYPE_TEXT) {
         return nullptr;
     }
 
@@ -70,7 +70,7 @@ CLCDText* CEzLcdPage::AddText(int32_t type, int32_t size, int32_t alignment, int
     text->SetSizeWH(maxLengthPixels, height);
     text->SetFontPointSize(pointSize);
     text->SetLogicalOriginXY(0, logicalOriginY);
-    text->SetObjectType(1);
+    text->SetObjectType(LCD_OBJECT_TYPE_TEXT);
 
     if (numberOfLines > 1) {
         text->SetWordWrap(1);
@@ -83,12 +83,12 @@ CLCDText* CEzLcdPage::AddText(int32_t type, int32_t size, int32_t alignment, int
 
 // VERIFY: 183b66a1 manual
 // OFFSET: 0x0095B1F0
-CLCDText* CEzLcdPage::AddColorText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight) {
+CLCDText* CEzLcdPage::AddColorText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight) {
     int32_t height = 24;
     int32_t pointSize = 16;
     int32_t logicalOriginY = -3;
 
-    if (type != 1) {
+    if (type != LCD_OBJECT_TYPE_TEXT) {
         return nullptr;
     }
 
@@ -121,7 +121,7 @@ CLCDText* CEzLcdPage::AddColorText(int32_t type, int32_t size, int32_t alignment
     text->SetSizeWH(maxLengthPixels, height);
     text->SetFontPointSize(pointSize);
     text->SetLogicalOriginXY(0, logicalOriginY);
-    text->SetObjectType(1);
+    text->SetObjectType(LCD_OBJECT_TYPE_TEXT);
     text->SetUserData(userData);
 
     if (numberOfLines > 1) {

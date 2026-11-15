@@ -18,8 +18,8 @@ class CEzLcdPage : public CLCDPage {
     CEzLcdPage();
     CEzLcdPage(CEzLcd* container);
     virtual ~CEzLcdPage();
-    CLCDText* AddText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines);
-    CLCDText* AddColorText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight);
+    CLCDText* AddText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines);
+    CLCDText* AddColorText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight);
     CLCDBitmap* AddBitmap(int32_t width, int32_t height, int32_t bitmapWidth, int32_t bitmapHeight);
 };
 

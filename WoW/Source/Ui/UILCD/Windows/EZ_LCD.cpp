@@ -228,8 +228,8 @@ HRESULT CEzLcd::SetText(void* handle, const WCHAR* text) {
         return E_FAIL;
     }
 
-    if (object->GetObjectType() == 1 || object->GetObjectType() == 0) {
-        if (object->GetObjectType() == 1) {
+    if (object->GetObjectType() == LCD_OBJECT_TYPE_TEXT || object->GetObjectType() == LCD_OBJECT_TYPE_UNKNOWN_0) {
+        if (object->GetObjectType() == LCD_OBJECT_TYPE_TEXT) {
             static_cast<CLCDText*>(object)->SetText(text);
             return S_OK;
         }
@@ -243,7 +243,7 @@ HRESULT CEzLcd::SetText(void* handle, const WCHAR* text) {
 HRESULT CEzLcd::SetTextWordWrap(void* handle, bool enable) {
     CLCDBase* object = static_cast<CLCDBase*>(handle);
 
-    if (!object || object->GetObjectType() != 1) {
+    if (!object || object->GetObjectType() != LCD_OBJECT_TYPE_TEXT) {
         return E_FAIL;
     }
 
@@ -471,7 +471,7 @@ void CEzLcd::SetBackground(COLORREF color) {
 
 // VERIFY: c0fc03e2 manual
 // OFFSET: 0x00959680
-CLCDText* CEzLcd::AddText(int32_t type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight) {
+CLCDText* CEzLcd::AddText(LCD_OBJECT_TYPE type, int32_t size, int32_t alignment, int32_t maxLengthPixels, int32_t userData, int32_t numberOfLines, int32_t fontWeight) {
     CEzLcdPage* page;
 
     if (this->m_output == this->m_connection.MonoOutput()) {

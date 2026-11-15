@@ -6,6 +6,13 @@
 
 class CLCDGfxBase;
 
+// Names describe observed 3.3.5 uses; the meaning of type 0 is unknown.
+enum LCD_OBJECT_TYPE : int32_t {
+    LCD_OBJECT_TYPE_UNKNOWN_0 = 0,
+    LCD_OBJECT_TYPE_TEXT = 1,
+    LCD_OBJECT_TYPE_DEFAULT = 4
+};
+
 class CLCDBase {
     public:
     /* 0004 */ SIZE m_Size;
@@ -15,7 +22,7 @@ class CLCDBase {
     /* 001C */ POINT m_ptLogical;
     /* 0024 */ SIZE m_sizeLogical;
     /* 002C */ int32_t m_nBkMode;
-    /* 0030 */ int32_t m_nObjectType;
+    /* 0030 */ LCD_OBJECT_TYPE m_nObjectType;
     /* 0034 */ COLORREF m_crBackgroundColor;
     /* 0038 */ COLORREF m_crForegroundColor;
     /* 003C */ int32_t m_nUserData;
@@ -44,8 +51,8 @@ class CLCDBase {
     virtual SIZE& GetLogicalSize();
     virtual void SetBackgroundMode(int32_t mode);
     virtual int32_t GetBackgroundMode();
-    virtual int32_t GetObjectType();
-    virtual void SetObjectType(int32_t type);
+    virtual LCD_OBJECT_TYPE GetObjectType();
+    virtual void SetObjectType(LCD_OBJECT_TYPE type);
     virtual void SetForegroundColor(COLORREF color);
     virtual void SetBackgroundColor(COLORREF color);
     virtual void OnPrepareDraw(CLCDGfxBase& gfx);

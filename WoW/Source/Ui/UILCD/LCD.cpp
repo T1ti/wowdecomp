@@ -1472,7 +1472,7 @@ bool CGLCD::LoadLCDText(int32_t screen, XMLNode* node, CStatus* status, int32_t 
     }
 
     CGLCD::m_lcd->ModifyControlsOnPage(screen);
-    CLCDText* lcdText = CGLCD::m_lcd->AddText(1, size, alignment, maxWidth, subscreen, 1, 0);
+    CLCDText* lcdText = CGLCD::m_lcd->AddText(LCD_OBJECT_TYPE_TEXT, size, alignment, maxWidth, subscreen, 1, 0);
     CGLCD::m_lcd->SetOrigin(lcdText, originX, originY);
     CEzLcd::SetText(lcdText, text);
     CGLCD::m_lcd->SetTextWordWrap(lcdText, wrap);
