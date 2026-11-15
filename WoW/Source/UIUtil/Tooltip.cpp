@@ -4838,7 +4838,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
     int32_t needsUpdate = 0;
     int32_t allGemsMatch = 1;
 
-    for (int32_t slot = 0; slot < 12; slot++) {
+    for (int32_t slot = 0; slot < CGItemData::NUM_ENCHANTMENTS; slot++) {
         int32_t enchantId;
 
         if (item) {
@@ -5192,7 +5192,7 @@ static void AddItemStaticSocketLines(CGTooltip* tooltip, const ItemStats_C* stat
     char format[1024];
     char text[4096];
 
-    for (uint32_t slot = 0; slot < 12; slot++) {
+    for (uint32_t slot = 0; slot < CGItemData::NUM_ENCHANTMENTS; slot++) {
         uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
 
         if (socket > 2 || !stats->m_socketColor[socket]) {
