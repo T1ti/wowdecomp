@@ -271,16 +271,70 @@ struct ZoneChannelDefault {
     /* 0004 */ int32_t m_addedVersion;
 };
 
+// Indexes into s_chatMessageGroups, named after the group strings.
+enum CHAT_MESSAGE_GROUP {
+    CHAT_MESSAGE_GROUP_SYSTEM = 0,
+    CHAT_MESSAGE_GROUP_SYSTEM_NOMENU = 1,
+    CHAT_MESSAGE_GROUP_SAY = 2,
+    CHAT_MESSAGE_GROUP_EMOTE = 3,
+    CHAT_MESSAGE_GROUP_YELL = 4,
+    CHAT_MESSAGE_GROUP_WHISPER = 5,
+    CHAT_MESSAGE_GROUP_PARTY = 6,
+    CHAT_MESSAGE_GROUP_PARTY_LEADER = 7,
+    CHAT_MESSAGE_GROUP_RAID = 8,
+    CHAT_MESSAGE_GROUP_RAID_LEADER = 9,
+    CHAT_MESSAGE_GROUP_RAID_WARNING = 10,
+    CHAT_MESSAGE_GROUP_BATTLEGROUND = 11,
+    CHAT_MESSAGE_GROUP_BATTLEGROUND_LEADER = 12,
+    CHAT_MESSAGE_GROUP_GUILD = 13,
+    CHAT_MESSAGE_GROUP_OFFICER = 14,
+    CHAT_MESSAGE_GROUP_MONSTER_SAY = 15,
+    CHAT_MESSAGE_GROUP_MONSTER_YELL = 16,
+    CHAT_MESSAGE_GROUP_MONSTER_EMOTE = 17,
+    CHAT_MESSAGE_GROUP_MONSTER_WHISPER = 18,
+    CHAT_MESSAGE_GROUP_MONSTER_BOSS_EMOTE = 19,
+    CHAT_MESSAGE_GROUP_MONSTER_BOSS_WHISPER = 20,
+    CHAT_MESSAGE_GROUP_ERRORS = 21,
+    CHAT_MESSAGE_GROUP_AFK = 22,
+    CHAT_MESSAGE_GROUP_DND = 23,
+    CHAT_MESSAGE_GROUP_IGNORED = 24,
+    CHAT_MESSAGE_GROUP_BG_HORDE = 25,
+    CHAT_MESSAGE_GROUP_BG_ALLIANCE = 26,
+    CHAT_MESSAGE_GROUP_BG_NEUTRAL = 27,
+    CHAT_MESSAGE_GROUP_COMBAT_FACTION_CHANGE = 28,
+    CHAT_MESSAGE_GROUP_SKILL = 29,
+    CHAT_MESSAGE_GROUP_LOOT = 30,
+    CHAT_MESSAGE_GROUP_MONEY = 31,
+    CHAT_MESSAGE_GROUP_CHANNEL = 32,
+    CHAT_MESSAGE_GROUP_ACHIEVEMENT = 33,
+    CHAT_MESSAGE_GROUP_GUILD_ACHIEVEMENT = 34,
+    CHAT_MESSAGE_GROUP_TARGETICONS = 35,
+    CHAT_MESSAGE_GROUP_BN_WHISPER = 36,
+    CHAT_MESSAGE_GROUP_BN_WHISPER_INFORM = 37,
+    CHAT_MESSAGE_GROUP_BN_CONVERSATION = 38,
+    CHAT_MESSAGE_GROUP_BN_INLINE_TOAST_ALERT = 39,
+    CHAT_MESSAGE_GROUP_OPENING = 40,
+    CHAT_MESSAGE_GROUP_TRADESKILLS = 41,
+    CHAT_MESSAGE_GROUP_PET_INFO = 42,
+    CHAT_MESSAGE_GROUP_COMBAT_XP_GAIN = 43,
+    CHAT_MESSAGE_GROUP_COMBAT_HONOR_GAIN = 44,
+    CHAT_MESSAGE_GROUP_COMBAT_MISC_INFO = 45,
+    NUM_CHAT_MESSAGE_GROUPS = 46,
+};
+
+// Groups from OPENING on default to the second (combat log) window; earlier ones to the first.
+constexpr int32_t CHAT_MESSAGE_GROUP_FIRST_COMBAT_LOG = CHAT_MESSAGE_GROUP_OPENING;
+
 struct ChatMessageGroup {
     /* 0000 */ const char* m_name;
     /* 0004 */ bool m_default;
-    /* 0008 */ int32_t m_type;
+    /* 0008 */ int32_t m_addedVersion; // chat-cache ADDEDVERSION that introduced the group
 };
 
 class ChatWindowInfo {
     public:
     /* 0000 */ char m_name[128];
-    /* 0080 */ uint8_t m_messageGroups[46];
+    /* 0080 */ uint8_t m_messageGroups[NUM_CHAT_MESSAGE_GROUPS];
     /* 00B0 */ TSGrowableArray<char*> m_channels;
     /* 00C0 */ TSGrowableArray<int32_t> m_channelIDs;
     /* 00D0 */ int32_t m_unkD0;
@@ -580,7 +634,7 @@ extern uint8_t s_collapsedHeaders[DisplayChannel::HEADER_INDEX::NUM_HEADERS];
 
 extern ChatWindowInfo s_chatWindows[10];
 
-extern const ChatMessageGroup s_chatMessageGroups[46];
+extern const ChatMessageGroup s_chatMessageGroups[NUM_CHAT_MESSAGE_GROUPS];
 
 extern ChatColorInfo s_chatColors[CHAT_MSG_MAX];
 

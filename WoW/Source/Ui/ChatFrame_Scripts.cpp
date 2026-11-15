@@ -1120,7 +1120,7 @@ static int32_t Script_GetChatWindowMessages(lua_State* L) {
 
     int32_t count = 0;
 
-    for (uint32_t i = 0; i < 46; i++) {
+    for (uint32_t i = 0; i < NUM_CHAT_MESSAGE_GROUPS; i++) {
         if (s_chatWindows[index].m_messageGroups[i]) {
             lua_checkstack(L, 1);
             lua_pushstring(L, s_chatMessageGroups[i].m_name);
@@ -1147,7 +1147,7 @@ static int32_t Script_AddChatWindowMessages(lua_State* L) {
 
     const char* group = lua_tolstring(L, 2, nullptr);
 
-    for (uint32_t i = 0; i < 46; i++) {
+    for (uint32_t i = 0; i < NUM_CHAT_MESSAGE_GROUPS; i++) {
         if (!SStrCmpI(group, s_chatMessageGroups[i].m_name, STORM_MAX_STR)) {
             s_chatWindows[index].m_messageGroups[i] = 1;
             return 0;
@@ -1173,7 +1173,7 @@ static int32_t Script_RemoveChatWindowMessages(lua_State* L) {
 
     const char* group = lua_tolstring(L, 2, nullptr);
 
-    for (uint32_t i = 0; i < 46; i++) {
+    for (uint32_t i = 0; i < NUM_CHAT_MESSAGE_GROUPS; i++) {
         if (!SStrCmpI(group, s_chatMessageGroups[i].m_name, STORM_MAX_STR)) {
             s_chatWindows[index].m_messageGroups[i] = 0;
             return 0;
@@ -2172,7 +2172,7 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
         if (i == 0) {
             s_chatWindows[0].m_shown = 1;
 
-            for (uint32_t j = 0; j < 40; j++) {
+            for (uint32_t j = 0; j < CHAT_MESSAGE_GROUP_FIRST_COMBAT_LOG; j++) {
                 s_chatWindows[0].m_messageGroups[j] = s_chatMessageGroups[j].m_default != 0;
             }
 
@@ -2180,12 +2180,12 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
         } else if (i == 1) {
             s_chatWindows[1].m_shown = 1;
             s_chatWindows[1].m_docked = 2;
-            s_chatWindows[1].m_messageGroups[40] = 1;
-            s_chatWindows[1].m_messageGroups[41] = 1;
-            s_chatWindows[1].m_messageGroups[42] = 1;
-            s_chatWindows[1].m_messageGroups[43] = 1;
-            s_chatWindows[1].m_messageGroups[44] = 1;
-            s_chatWindows[1].m_messageGroups[45] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_OPENING] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_TRADESKILLS] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_PET_INFO] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_COMBAT_XP_GAIN] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_COMBAT_HONOR_GAIN] = 1;
+            s_chatWindows[1].m_messageGroups[CHAT_MESSAGE_GROUP_COMBAT_MISC_INFO] = 1;
         }
     }
 

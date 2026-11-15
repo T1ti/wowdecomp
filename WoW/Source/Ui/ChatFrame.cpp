@@ -274,7 +274,7 @@ static uint32_t s_profanityReplacementIndex;
 static TSFixedArray<regex_t> s_expectedSpamRecords;
 
 // STATIC: 0x009FB7C0
-const ChatMessageGroup s_chatMessageGroups[46] = {
+const ChatMessageGroup s_chatMessageGroups[NUM_CHAT_MESSAGE_GROUPS] = {
     { "SYSTEM", true, 0 },
     { "SYSTEM_NOMENU", true, 5 },
     { "SAY", true, 0 },
@@ -2902,12 +2902,12 @@ void CGChat::InitializeGame() {
         if (i == 0) {
             s_chatWindows[i].m_shown = 1;
             s_chatWindows[i].m_docked = 1;
-            memset(s_chatWindows[i].m_messageGroups, 1, 40);
+            memset(s_chatWindows[i].m_messageGroups, 1, CHAT_MESSAGE_GROUP_FIRST_COMBAT_LOG);
         } else if (i == 1) {
             s_chatWindows[i].m_shown = 1;
             s_chatWindows[i].m_docked = 2;
 
-            for (uint32_t j = 40; j < 46; j++) {
+            for (uint32_t j = CHAT_MESSAGE_GROUP_FIRST_COMBAT_LOG; j < NUM_CHAT_MESSAGE_GROUPS; j++) {
                 s_chatWindows[i].m_messageGroups[j] = s_chatMessageGroups[j].m_default != 0;
             }
         } else {
@@ -4837,8 +4837,8 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             }
 
             for (uint32_t i = 0; i < sizeof(s_chatMessageGroups) / sizeof(s_chatMessageGroups[0]); i++) {
-                if (s_chatMessageGroups[i].m_default && s_chatMessageGroups[i].m_type > addedVersion) {
-                    s_chatWindows[i < 40 ? 0 : 1].m_messageGroups[i] = 1;
+                if (s_chatMessageGroups[i].m_default && s_chatMessageGroups[i].m_addedVersion > addedVersion) {
+                    s_chatWindows[i < CHAT_MESSAGE_GROUP_FIRST_COMBAT_LOG ? 0 : 1].m_messageGroups[i] = 1;
                 }
             }
 
@@ -5357,7 +5357,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
         OsWriteFile(file, "MESSAGES\n", SStrLen("MESSAGES\n"), &written);
 
-        for (uint32_t i = 0; i < 46; i++) {
+        for (uint32_t i = 0; i < NUM_CHAT_MESSAGE_GROUPS; i++) {
             if (info->m_messageGroups[i]) {
                 SStrPrintf(line, sizeof(line), "%s\n", s_chatMessageGroups[i].m_name);
                 OsWriteFile(file, line, SStrLen(line), &written);
