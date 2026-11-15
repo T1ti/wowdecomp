@@ -18,7 +18,7 @@ class VSOUNDKITDEF {
     /* 0030 */ float m_distanceCutoff;
     /* 0034 */ float m_volume;
     /* 0038 */ int32_t m_id;
-    /* 003C */ uint32_t m_flags;
+    /* 003C */ uint32_t m_flags; // SOUND_ENTRY_FLAGS
     /* 0040 */ int32_t m_numFiles;
     /* 0044 */ int32_t m_lastIndex;
     /* 0048 */ int32_t m_frequencies[10];

@@ -299,7 +299,7 @@ uint32_t SI2::IsSoundKitLooping(int32_t soundKitId) {
         return 0;
     }
 
-    return def->m_flags & 0x200;
+    return def->m_flags & SOUND_ENTRY_FLAG_LOOPING;
 }
 
 // VERIFY: dd9e9845 manual
@@ -528,7 +528,7 @@ void SI2::SoundFinished(SESound* sound, void* param) {
 
     VSOUNDKITDEF* def = userData->m_def;
 
-    if (def && (def->m_flags & 0x20)) {
+    if (def && (def->m_flags & SOUND_ENTRY_FLAG_SUPPRESSIBLE)) {
         int32_t id = def->m_id;
 
         for (uint32_t i = 0; i < SI2::s_suppressors.Count(); i++) {
@@ -572,7 +572,7 @@ int32_t SI2::StopSound(SE2SoundKitObject* object, int32_t immediate, float fadeO
     if (userData) {
         VSOUNDKITDEF* def = userData->m_def;
 
-        if (def && (def->m_flags & 0x20)) {
+        if (def && (def->m_flags & SOUND_ENTRY_FLAG_SUPPRESSIBLE)) {
             int32_t id = def->m_id;
 
             for (uint32_t i = 0; i < SI2::s_suppressors.Count(); i++) {
@@ -748,14 +748,14 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     }
 
     if (properties->m_suppressorMode == SE2_SUPPRESSOR_MODE_HONOR) {
-        def->m_flags |= 0x20;
+        def->m_flags |= SOUND_ENTRY_FLAG_SUPPRESSIBLE;
     }
 
     if (properties->m_suppressorMode == SE2_SUPPRESSOR_MODE_IGNORE) {
-        def->m_flags &= ~0x20u;
+        def->m_flags &= ~SOUND_ENTRY_FLAG_SUPPRESSIBLE;
     }
 
-    if (def->m_flags & 0x20) {
+    if (def->m_flags & SOUND_ENTRY_FLAG_SUPPRESSIBLE) {
         for (uint32_t i = 0; i < SI2::s_suppressors.Count(); i++) {
             if (SI2::s_suppressors[i] == static_cast<uint32_t>(soundKitId)) {
                 return 15;
@@ -811,7 +811,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     int32_t looping = 0;
 
     if (properties->m_loopMode == SE2_LOOP_MODE_DEFAULT) {
-        looping = def->m_flags & 0x200;
+        looping = def->m_flags & SOUND_ENTRY_FLAG_LOOPING;
     } else if (properties->m_loopMode == SE2_LOOP_MODE_LOOPING) {
         looping = 1;
     }
@@ -863,7 +863,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     if (properties->m_volume < 0.0f || properties->m_volume > 1.0f) {
         volume = def->m_volume * properties->m_volumeScale;
 
-        if (def->m_flags & 0x800) {
+        if (def->m_flags & SOUND_ENTRY_FLAG_RANDOM_VOLUME) {
             CRange range;
             range.m_l = -0.15f;
             range.m_h = 0.15f;
@@ -875,7 +875,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
     sound->SetVolume(volume);
 
-    if (def->m_flags & 0x400) {
+    if (def->m_flags & SOUND_ENTRY_FLAG_RANDOM_PITCH) {
         CRange range;
         range.m_l = 0.85f;
         range.m_h = 1.15f;
@@ -893,7 +893,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     SI2::s_channelGroupNumSounds[properties->m_group]++;
     sound->SetFinishedCallback(SI2::SoundFinished, nullptr);
 
-    if (def->m_flags & 0x20) {
+    if (def->m_flags & SOUND_ENTRY_FLAG_SUPPRESSIBLE) {
         uint32_t i;
 
         for (i = 0; i < SI2::s_suppressors.Count(); i++) {
