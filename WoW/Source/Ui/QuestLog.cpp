@@ -93,7 +93,7 @@ int32_t CGQuestLog::m_nextQuestUpdate;
 static CVar* s_cvPOIShiftComplete;
 
 // STATIC: 0x00C23B00
-QuestPOIInfo CGQuestLog::m_questPOIs[25];
+QuestPOIInfo CGQuestLog::m_questPOIs[MAX_QUESTLOG_QUESTS];
 
 // VERIFY: 45bd143e manual
 // OFFSET: 0x005E6FA0
@@ -147,7 +147,7 @@ void CGQuestLog::InitializeGame() {
     CGQuestLog::m_timeOffset = 0;
     CGQuestLog::m_nextQuestUpdate = 0;
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
         poi->m_questId = 0;
         poi->m_iconMapId = 0;
@@ -659,7 +659,7 @@ uint32_t IsDailyQuest(int32_t index) {
 // VERIFY: d701767c manual
 // OFFSET: 0x005DEEE0
 bool CGQuestLog::GetQuestPOIIcon(int32_t questId, bool* complete, int32_t* mapId, uint32_t* mapFloor, int32_t* x, int32_t* y, int32_t* objective) {
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
 
         if (poi->m_questId == questId) {
@@ -1029,7 +1029,7 @@ bool CGQuestLog::HasQuestPOI(int32_t questId) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         if (CGQuestLog::m_questPOIs[i].m_questId == questId) {
             return true;
         }
@@ -1077,8 +1077,8 @@ void CGQuestLog::Update(int32_t a1) {
     int32_t unknown[25] = { 0 };
     int32_t timeOffset = CGQuestLog::m_timeOffset;
 
-    for (uint32_t slot = 0; slot < 25; slot++) {
-        PlayerQuestLogEntry* entry = slot > 25 ? nullptr : &player->m_player->m_playerQuestLog[slot];
+    for (uint32_t slot = 0; slot < MAX_QUESTLOG_QUESTS; slot++) {
+        PlayerQuestLogEntry* entry = slot > MAX_QUESTLOG_QUESTS ? nullptr : &player->m_player->m_playerQuestLog[slot];
         int32_t questId = entry->m_questId;
 
         if (questId <= 0) {
@@ -1312,8 +1312,8 @@ int32_t CGQuestLog::IsOnQuest(int32_t questId) {
         return 0;
     }
 
-    for (uint32_t slot = 0; slot < 25; slot++) {
-        PlayerQuestLogEntry* entry = slot > 25 ? nullptr : &player->m_player->m_playerQuestLog[slot];
+    for (uint32_t slot = 0; slot < MAX_QUESTLOG_QUESTS; slot++) {
+        PlayerQuestLogEntry* entry = slot > MAX_QUESTLOG_QUESTS ? nullptr : &player->m_player->m_playerQuestLog[slot];
 
         if (entry && entry->m_questId && static_cast<int32_t>(entry->m_questId) == questId) {
             return 1;
@@ -1784,7 +1784,7 @@ int32_t CGQuestLog::FindOrFreePOISlot(int32_t questId) {
         return -1;
     }
 
-    for (int32_t i = 0; i < 25; i++) {
+    for (int32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
 
         if (poi->m_questId == questId) {
@@ -2061,7 +2061,7 @@ int32_t CGQuestLog::UpdateAllQuestPOI() {
 
     int32_t visible = 0;
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo& poi = CGQuestLog::m_questPOIs[i];
         poi.m_objectiveMask = CGQuestLog::ComputeBlobQuestObjectives(poi.m_questId);
         poi.m_visible = 0;
@@ -2105,7 +2105,7 @@ int32_t CGQuestLog::UpdateAllQuestPOI() {
 void CGQuestLog::ShutdownGame() {
     ClientServices::ClearMessageHandler(SMSG_QUERY_TIME_RESPONSE);
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
         poi->m_questId = 0;
         poi->m_blobs.Clear();
@@ -2271,7 +2271,7 @@ void CGQuestLog::UpdatePOIIcons() {
     memset(movable, 0, sizeof(movable));
     int32_t activeList[25];
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
         float bestDistance = 3.4028235e38f;
         int32_t best = -1;
@@ -2500,7 +2500,7 @@ int32_t CGQuestLog::GetQuestPOIIndex(int32_t questId) {
         return -1;
     }
 
-    for (int32_t i = 0; i < 25; i++) {
+    for (int32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         if (CGQuestLog::m_questPOIs[i].m_questId == questId) {
             return i;
         }
@@ -2530,7 +2530,7 @@ int32_t CGQuestLog::GetPOIQuestIDByVisibleIndex(int32_t index) {
 
     int32_t visible = 0;
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
 
         if (!poi->m_visible) {
@@ -2558,7 +2558,7 @@ int32_t CGQuestLog::GetPOIQuestIDByVisibleIndex(int32_t index) {
         }
     }
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
 
         if (!poi->m_visible) {
@@ -2896,7 +2896,7 @@ bool CGQuestLog::SortQuestWatches() {
 // VERIFY: f8c30a89 manual
 // OFFSET: 0x005E70D0
 void CGQuestLog::UpdateQuestPOIFromUserServer() {
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
 
         for (uint32_t j = 0; j < poi->m_blobs.m_count; j++) {

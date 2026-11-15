@@ -1172,7 +1172,7 @@ static int32_t Script_IsUnitOnQuest(lua_State* L) {
         && (guid = GetGuidByKeyword(lua_tolstring(L, 2, nullptr)), CGPartyInfo::IsMember(guid))
         && (member = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__)))
         && !(member->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
-        for (uint32_t slot = 0; slot < 25; slot++) {
+        for (uint32_t slot = 0; slot < MAX_QUESTLOG_QUESTS; slot++) {
             PlayerQuestLogEntry* entry = member->GetQuestLogEntry(slot);
 
             if (entry && static_cast<int32_t>(entry->m_questId) == questId) {

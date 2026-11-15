@@ -3813,8 +3813,8 @@ int32_t Packet_Group_17(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
             return 1;
         }
 
-        for (int32_t i = 0; i < 25; i++) {
-            PlayerQuestLogEntry* entry = i >= 0 && i <= 25 ? &player->m_player->m_playerQuestLog[i] : nullptr;
+        for (int32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
+            PlayerQuestLogEntry* entry = i >= 0 && i <= MAX_QUESTLOG_QUESTS ? &player->m_player->m_playerQuestLog[i] : nullptr;
 
             if (entry && entry->m_questId == questId) {
                 if (entry->m_state & 0x2) {
@@ -12521,7 +12521,7 @@ void CGPlayer_C::CheckForQuestItemLoot(uint32_t itemId, uint32_t count, uint32_t
         return;
     }
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         PlayerQuestLogEntry* entry = &this->m_player->m_playerQuestLog[i];
 
         if (static_cast<int32_t>(entry->m_questId) <= 0 || CGQuestLog::IsQuestExpiredByID(entry->m_questId)) {

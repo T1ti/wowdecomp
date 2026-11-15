@@ -7,6 +7,7 @@
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
+#include "WoW/Source/Object/Player.h"
 
 class CGItem_C;
 class CDataStore;
@@ -122,7 +123,7 @@ class CGQuestLog {
     static bool HasNoObjectives(uint32_t index);
     static int32_t IsQuestExpiredByID(int32_t questId);
     static QuestLogEntry m_quests[50];
-    static QuestPOIInfo m_questPOIs[25];
+    static QuestPOIInfo m_questPOIs[MAX_QUESTLOG_QUESTS];
     static int32_t m_abandonQuest;
     static uint32_t m_numQuestWatches;
     static int32_t m_timeOffset;

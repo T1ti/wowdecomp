@@ -1147,7 +1147,7 @@ bool CGPlayer::HasAuraVision(uint8_t vision) {
 // VERIFY: d70d997f manual
 // OFFSET: 0x005E0870
 PlayerQuestLogEntry* CGPlayer::GetQuestLogEntry(uint32_t slot) {
-    if (slot > 25) {
+    if (slot > MAX_QUESTLOG_QUESTS) {
         return nullptr;
     }
 

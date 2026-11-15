@@ -9,6 +9,9 @@
 #include "WoW/Source/Object/WGUID.h"
 
 // Combat rating index; names follow FrameXML CR_* (whose Lua values are this index + 1).
+// Player quest log size (FrameXML MAX_QUESTLOG_QUESTS).
+static const uint32_t MAX_QUESTLOG_QUESTS = 25;
+
 enum COMBAT_RATING : int32_t {
     CR_WEAPON_SKILL = 0,
     CR_DEFENSE_SKILL = 1,
@@ -116,7 +119,7 @@ class CGPlayerData {
     /* 001F */ uint8_t arenaFaction; // PLAYER_BYTES_3 byte 3.
     /* 0020 */ uint32_t m_playerDuelTeam;
     /* 0024 */ uint32_t m_playerGuildTimestamp;
-    /* 0028 */ PlayerQuestLogEntry m_playerQuestLog [25];
+    /* 0028 */ PlayerQuestLogEntry m_playerQuestLog [MAX_QUESTLOG_QUESTS];
     /* 021C */ VisibleItem_C m_playerVisibleItems [19];
     /* 02B4 */ uint32_t m_playerChosenTitle;
     /* 02B8 */ int32_t m_playerFakeInebriation;

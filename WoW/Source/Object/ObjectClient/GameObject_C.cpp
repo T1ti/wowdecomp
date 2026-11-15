@@ -3809,7 +3809,7 @@ int32_t CGGameObject_C::CanHighlight() const {
         return 0;
     }
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         if (player->GetQuestLogEntry(i)->m_questId == static_cast<uint32_t>(questId)) {
             return 1;
         }
