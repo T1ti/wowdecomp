@@ -19,6 +19,13 @@ struct BattlenetUIFriend {
     /* 028C */ BSN::String<40> m_sortSurname;
 };
 
+// Battle.net friend invite results with a dedicated UI error (inferred names after that error).
+enum BN_FRIEND_INVITE_RESULT : uint16_t {
+    BN_FRIEND_INVITE_ALREADY = 604,
+    BN_FRIEND_INVITE_SELF = 617,
+    BN_FRIEND_INVITE_BLOCKED = 623,
+};
+
 class BattlenetUI {
     public:
     // Battle.net conversation channel slots (inferred name).

@@ -766,11 +766,11 @@ void BattlenetUI::FriendInviteSentCB::Call(int32_t argc, const GeneralFunction::
     UIErrors error = ERR_BN_FRIEND_REQUEST_SENT;
     uint16_t result = static_cast<uint16_t>(args[0].ToUInt64());
 
-    if (result == 604) {
+    if (result == BN_FRIEND_INVITE_ALREADY) {
         error = ERR_BN_FRIEND_ALREADY;
-    } else if (result == 617) {
+    } else if (result == BN_FRIEND_INVITE_SELF) {
         error = ERR_BN_FRIEND_SELF;
-    } else if (result == 623) {
+    } else if (result == BN_FRIEND_INVITE_BLOCKED) {
         error = ERR_BN_FRIEND_BLOCKED;
     }
 
