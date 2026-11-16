@@ -62,8 +62,33 @@ class PetAction {
     void SetAutocast(bool enable);
 };
 
+// Pet reaction mode and command, indexing the client tokens PASSIVE/DEFENSIVE/AGGRESSIVE
+// and WAIT/FOLLOW/ATTACK/DISMISS (PET_MODE_*, PET_ACTION_* and PET_*_TEXTURE strings).
+enum PET_MODE : uint32_t {
+    PET_MODE_PASSIVE = 0,
+    PET_MODE_DEFENSIVE = 1,
+    PET_MODE_AGGRESSIVE = 2,
+    NUM_PET_MODES = 3,
+};
+
+enum PET_ORDER : uint32_t {
+    PET_ORDER_WAIT = 0,
+    PET_ORDER_FOLLOW = 1,
+    PET_ORDER_ATTACK = 2,
+    PET_ORDER_DISMISS = 3,
+    NUM_PET_ORDERS = 4,
+};
+
 class CGPetInfo {
     public:
+    // m_petMode packs the PET_MODE in the low byte and the PET_ORDER from bit 8; bit 27 hides
+    // the mode and blocks pet actions unless the player rides the pet (inferred names).
+    enum : uint32_t {
+        PET_MODE_MASK = 0xFF,
+        PET_ORDERS_SHIFT = 8,
+        PET_MODE_FLAG_UNKNOWN_27 = 0x8000000,
+    };
+
     static uint8_t m_comboPoints;
     static int32_t m_possessSpell;
     static WOWGUID m_comboTarget;

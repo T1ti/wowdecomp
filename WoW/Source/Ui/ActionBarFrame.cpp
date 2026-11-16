@@ -515,7 +515,7 @@ int32_t CGActionBar::IsSpell(uint32_t slot) {
 // VERIFY: 9a0d1665 auto
 // OFFSET: 0x005A7980
 uint32_t CGPetInfo::GetPetMode() {
-    if (CGPetInfo::m_petMode & 0x8000000) {
+    if (CGPetInfo::m_petMode & CGPetInfo::PET_MODE_FLAG_UNKNOWN_27) {
         return 0;
     }
 
@@ -925,7 +925,7 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
             case PetAction::Kind::MODE:
                 return CGPetInfo::GetPetMode() == id;
             case PetAction::Kind::ORDER:
-                if ((CGPetInfo::m_petMode >> 8) == id || (id == 2 && CGPetInfo::m_attackingTarget)) {
+                if ((CGPetInfo::m_petMode >> CGPetInfo::PET_ORDERS_SHIFT) == id || (id == PET_ORDER_ATTACK && CGPetInfo::m_attackingTarget)) {
                     return 1;
                 }
             case PetAction::Kind::UNKNOWN_8:

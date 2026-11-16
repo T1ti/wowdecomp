@@ -48,10 +48,10 @@ PetAction CGPetInfo::m_actions[NUM_PET_ACTION_SLOTS];
 uint32_t CGPetInfo::m_petMode;
 
 // STATIC: 0x00A1A860
-static const char s_petModeTokens[3][32] = { "PASSIVE", "DEFENSIVE", "AGGRESSIVE" };
+static const char s_petModeTokens[NUM_PET_MODES][32] = { "PASSIVE", "DEFENSIVE", "AGGRESSIVE" };
 
 // STATIC: 0x00A1A8C0
-static const char s_petOrderTokens[4][32] = { "WAIT", "FOLLOW", "ATTACK", "DISMISS" };
+static const char s_petOrderTokens[NUM_PET_ORDERS][32] = { "WAIT", "FOLLOW", "ATTACK", "DISMISS" };
 
 // STATIC: 0x00C234CC
 uint32_t CGPetInfo::m_expirationTime;
@@ -589,14 +589,14 @@ void CGPetInfo::SetSpellAutocast(int32_t spellId, int32_t enable) {
 // VERIFY: c40a54ec auto
 // OFFSET: 0x005D2FF0
 void CGPetInfo::SetPetMode(uint32_t mode) {
-    CGPetInfo::m_petMode = mode | (CGPetInfo::m_petMode & 0xFFFFFF00);
+    CGPetInfo::m_petMode = mode | (CGPetInfo::m_petMode & ~PET_MODE_MASK);
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE, nullptr);
 }
 
 // VERIFY: a72652ae auto
 // OFFSET: 0x005D3020
 void CGPetInfo::SetPetOrders(uint32_t orders) {
-    CGPetInfo::m_petMode = (orders << 8) | (CGPetInfo::m_petMode & 0x80000FF);
+    CGPetInfo::m_petMode = (orders << PET_ORDERS_SHIFT) | (CGPetInfo::m_petMode & (PET_MODE_FLAG_UNKNOWN_27 | PET_MODE_MASK));
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE, nullptr);
 }
 
@@ -623,7 +623,7 @@ bool CGPetInfo::PetActionsUsable(bool ignoreControl) {
         const WOWGUID& owner = pet->m_unit->m_unitFieldCharmedby.m_guid ? pet->m_unit->m_unitFieldCharmedby : pet->m_unit->m_unitFieldSummonedby;
 
         if (owner == ClntObjMgrGetActivePlayer() && (ignoreControl || pet->IsControllable())) {
-            if (!(CGPetInfo::m_petMode & 0x8000000)) {
+            if (!(CGPetInfo::m_petMode & CGPetInfo::PET_MODE_FLAG_UNKNOWN_27)) {
                 return true;
             }
 
@@ -733,12 +733,12 @@ void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, in
 
             int32_t orders = action.m_data & PetAction::PackingMasks::ID_MASK;
 
-            if (orders <= 1) {
+            if (orders <= PET_ORDER_FOLLOW) {
                 CGPetInfo::SetPetOrders(orders);
                 break;
             }
 
-            if (orders != 2) {
+            if (orders != PET_ORDER_ATTACK) {
                 break;
             }
 

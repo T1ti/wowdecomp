@@ -121,7 +121,7 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
             lua_pushstring(L, buffer);
             lua_pushnumber(L, 1.0);
 
-            if (id == 2 ? CGPetInfo::m_attackingTarget != 0 : (CGPetInfo::m_petMode >> 8) == id) {
+            if (id == PET_ORDER_ATTACK ? CGPetInfo::m_attackingTarget != 0 : (CGPetInfo::m_petMode >> CGPetInfo::PET_ORDERS_SHIFT) == id) {
                 lua_pushnumber(L, 1.0);
             } else {
                 lua_pushnil(L);
