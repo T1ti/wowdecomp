@@ -48,7 +48,7 @@ class AreaTableRec {
     /* 0028 */ int32_t m_explorationLevel;
     /* 002C */ const char* m_areaName;
     /* 0030 */ int32_t m_factionGroupMask;
-    /* 0034 */ int32_t m_liquidTypeID [NUM_LIQUID_SOUND_BANKS]; // indexed by LIQUID_SOUND_BANK
+    /* 0034 */ int32_t m_liquidTypeID [NUM_LIQUID_BASIC_TYPES]; // indexed by LIQUID_BASIC_TYPE
     /* 0044 */ float m_minElevation;
     /* 0048 */ float m_ambientMultiplier;
     /* 004C */ int32_t m_lightID;

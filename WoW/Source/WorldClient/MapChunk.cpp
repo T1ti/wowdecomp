@@ -790,7 +790,7 @@ void CMapChunk::CreateLiquids(bool a3) {
             if (flag & this->m_header->m_flags) {
                 uint32_t type = LIQUID_TYPE_WATER + i;
 
-                if (s_mapId == MAP_EXPANSION01 && i == LIQUID_SOUND_BANK_MAGMA) {
+                if (s_mapId == MAP_EXPANSION01 && i == LIQUID_BASIC_TYPE_MAGMA) {
                     type = LIQUID_TYPE_GREEN_LAVA;
                 }
 
