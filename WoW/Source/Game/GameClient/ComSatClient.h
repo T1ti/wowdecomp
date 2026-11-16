@@ -105,6 +105,10 @@ struct COMSATMEMBER {
     /* 0009 */ uint8_t unused_0009[7];
 };
 
+// Voice chat session slots and members per session (inferred names).
+static const int32_t MAX_VOICE_SESSIONS = 32;
+static const int32_t MAX_VOICE_SESSION_MEMBERS = 40;
+
 struct COMSATDATA {
     enum SESSION_TYPE : int32_t {
         CHANNEL = 0,
@@ -118,10 +122,10 @@ struct COMSATDATA {
     /* 0008 */ SESSION_TYPE m_type;
     /* 000C */ char m_name[128];
     /* 008C */ uint32_t m_numMembers;
-    /* 0090 */ COMSATMEMBER m_members[40];
+    /* 0090 */ COMSATMEMBER m_members[MAX_VOICE_SESSION_MEMBERS];
 };
 
-extern COMSATDATA s_comsatData[32];
+extern COMSATDATA s_comsatData[MAX_VOICE_SESSIONS];
 extern int32_t s_currentSession;
 extern TSHashTable<TALKINGPLAYER, CHashKeyGUID> s_talkingPlayers;
 extern CVar* s_cvarEnableMicrophone;

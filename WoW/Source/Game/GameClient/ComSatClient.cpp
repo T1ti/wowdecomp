@@ -31,7 +31,7 @@
 #include "GameVersion.h"
 
 // STATIC: 0x00D31AA0
-COMSATDATA s_comsatData[32];
+COMSATDATA s_comsatData[MAX_VOICE_SESSIONS];
 
 // STATIC: 0x00D37CA0
 int32_t s_voiceActivation;
@@ -465,7 +465,7 @@ void UpdatePushToTalkKey() {
 // VERIFY: 968200fd manual
 // OFFSET: 0x007DB600
 int32_t ComSatClient_IsTalkerSquelched(WOWGUID guid, uint32_t session) {
-    if (!guid || session > 31) {
+    if (!guid || session >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
@@ -494,7 +494,7 @@ int32_t ComSatClient_IsTalkerSquelchedInChannel(WOWGUID guid, int32_t type, cons
 // VERIFY: 75ebd9f3 manual
 // OFFSET: 0x007DB6E0
 int32_t ComSatClient_IsMemberVoiceActive(WOWGUID guid, uint32_t session) {
-    if (!guid || session > 31) {
+    if (!guid || session >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
@@ -523,7 +523,7 @@ int32_t ComSatClient_IsMemberInVoiceSession(WOWGUID guid, int32_t type, const ch
 // VERIFY: 8c8597f1 manual
 // OFFSET: 0x007DB7A0
 int32_t ComSatClient_GetMemberVoiceStatus(WOWGUID guid, uint32_t session) {
-    if (!guid || session > 31) {
+    if (!guid || session >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
@@ -628,7 +628,7 @@ int32_t ComSatClient_FindSessionByTypeAndName(int32_t type, const char* name) {
         return -1;
     }
 
-    for (int32_t i = 0; i < 32; i++) {
+    for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         COMSATDATA* data = &s_comsatData[i];
 
         if (data->m_sessionID && data->m_type == type && (type || !SStrCmpUTF8I(data->m_name, name, 0x7FFFFFFF))) {
@@ -796,12 +796,12 @@ void ComSatClient_LeaveAllSessions(WOWGUID guid) {
         int32_t index = 0;
 
         while (!static_cast<uint32_t>(s_comsatData[index].m_sessionID)) {
-            if (++index >= 32) {
+            if (++index >= MAX_VOICE_SESSIONS) {
                 break;
             }
         }
 
-        if (index < 32) {
+        if (index < MAX_VOICE_SESSIONS) {
             comsat->SessionRemove(s_comsatData[index].m_sessionID, guid.m_guid);
             comsat->SessionDestroy(s_comsatData[index].m_sessionID);
             ComSatClient_LeaveSessionNotifyAll(index);
@@ -845,7 +845,7 @@ static bool FillComsatData(uint64_t session, int32_t type, const char* name) {
     int32_t index = -1;
     int32_t i;
 
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < MAX_VOICE_SESSIONS; i++) {
         if (s_comsatData[i].m_sessionID == session) {
             break;
         }
@@ -855,7 +855,7 @@ static bool FillComsatData(uint64_t session, int32_t type, const char* name) {
         }
     }
 
-    if (i < 32) {
+    if (i < MAX_VOICE_SESSIONS) {
         index = i;
         s_comsatData[index].m_sessionID = 0;
     }
@@ -966,13 +966,13 @@ void VoiceSessionRosterUpdate(uint64_t session, uint16_t networkId, int32_t type
     comsat->SessionSetTalkerNetworkIdLocal(session, self, selfNetworkId);
     int32_t index;
 
-    for (index = 0; index < 32; index++) {
+    for (index = 0; index < MAX_VOICE_SESSIONS; index++) {
         if (s_comsatData[index].m_sessionID == session) {
             break;
         }
     }
 
-    if (index < 32 && s_comsatData[index].m_type != type) {
+    if (index < MAX_VOICE_SESSIONS && s_comsatData[index].m_type != type) {
         s_comsatData[index].m_type = static_cast<COMSATDATA::SESSION_TYPE>(type);
 
         if (type) {
@@ -1107,13 +1107,13 @@ void VoiceSessionLeave(uint64_t talker, uint64_t session, int32_t type) {
     comsat->SessionDestroy(session);
     int32_t index;
 
-    for (index = 0; index < 32; index++) {
+    for (index = 0; index < MAX_VOICE_SESSIONS; index++) {
         if (s_comsatData[index].m_sessionID == session || (type == s_comsatData[index].m_type && (type == COMSATDATA::SESSION_TYPE::PARTY || type == COMSATDATA::SESSION_TYPE::RAID))) {
             break;
         }
     }
 
-    if (index < 32) {
+    if (index < MAX_VOICE_SESSIONS) {
         if (s_currentSession == index) {
             ComSatClient_LeaveSessionNotifyAll(index);
 
@@ -1177,13 +1177,13 @@ void Comsat::VoicePlateStop(uint64_t sessionId, uint64_t guid) {
 
     int32_t index;
 
-    for (index = 0; index < 32; index++) {
+    for (index = 0; index < MAX_VOICE_SESSIONS; index++) {
         if (s_comsatData[index].m_sessionID == sessionId) {
             break;
         }
     }
 
-    if (index >= 32) {
+    if (index >= MAX_VOICE_SESSIONS) {
         return;
     }
 
@@ -1231,13 +1231,13 @@ void Comsat::VoicePlateStart(uint64_t sessionId, uint64_t guid) {
 
     int32_t index;
 
-    for (index = 0; index < 32; index++) {
+    for (index = 0; index < MAX_VOICE_SESSIONS; index++) {
         if (s_comsatData[index].m_sessionID == sessionId) {
             break;
         }
     }
 
-    if (index >= 32) {
+    if (index >= MAX_VOICE_SESSIONS) {
         return;
     }
 

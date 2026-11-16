@@ -187,7 +187,7 @@ static int32_t Script_GetVoiceCurrentSessionID(lua_State* L) {
 
     int32_t id = 0;
 
-    for (int32_t i = 0; i < 32; i++) {
+    for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         if (static_cast<uint32_t>(s_comsatData[i].m_sessionID)) {
             id++;
 
@@ -207,14 +207,14 @@ static int32_t Script_GetVoiceCurrentSessionID(lua_State* L) {
 static int32_t Script_GetVoiceSessionInfo(lua_State* L) {
     uint32_t id;
 
-    if (!lua_isnumber(L, 1) || (id = static_cast<uint32_t>(lua_tonumber(L, 1))) > 31) {
+    if (!lua_isnumber(L, 1) || (id = static_cast<uint32_t>(lua_tonumber(L, 1))) >= MAX_VOICE_SESSIONS) {
         lua_pushnil(L);
         return 1;
     }
 
     uint32_t count = 0;
 
-    for (int32_t i = 0; i < 32; i++) {
+    for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         if (!static_cast<uint32_t>(s_comsatData[i].m_sessionID) || ++count != id) {
             continue;
         }
@@ -259,13 +259,13 @@ static int32_t Script_GetNumVoiceSessionMembersBySessionID(lua_State* L) {
 
     uint32_t id = static_cast<uint32_t>(lua_tonumber(L, 1));
 
-    if (id > 31) {
+    if (id >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
     uint32_t count = 0;
 
-    for (int32_t i = 0; i < 32; i++) {
+    for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         if (static_cast<uint32_t>(s_comsatData[i].m_sessionID) && ++count == id) {
             lua_pushnumber(L, s_comsatData[i].m_numMembers);
             return 1;
@@ -360,14 +360,14 @@ static int32_t Script_SetActiveVoiceChannelBySessionID(lua_State* L) {
         return 1;
     }
 
-    if (id >= 32) {
+    if (id >= MAX_VOICE_SESSIONS) {
         lua_pushnil(L);
         return 1;
     }
 
     int32_t count = 0;
 
-    for (int32_t i = 0; i < 32; i++) {
+    for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         if (s_comsatData[i].m_sessionID && ++count == id) {
             CGChat::SetActiveVoiceSession(s_comsatData[i].m_name, s_comsatData[i].m_type, -1);
             lua_pushnumber(L, 1.0);
@@ -422,26 +422,26 @@ int32_t Script_GetVoiceSessionMemberInfoBySessionID(lua_State* L) {
 
     uint32_t sessionNumber = static_cast<uint32_t>(lua_tonumber(L, 1));
 
-    if (sessionNumber > 31) {
+    if (sessionNumber >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
     uint32_t memberIndex = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (memberIndex > 39) {
+    if (memberIndex >= MAX_VOICE_SESSION_MEMBERS) {
         return 0;
     }
 
     uint32_t found = 0;
     int32_t index;
 
-    for (index = 0; index < 32; index++) {
+    for (index = 0; index < MAX_VOICE_SESSIONS; index++) {
         if (s_comsatData[index].m_sessionID && ++found == sessionNumber) {
             break;
         }
     }
 
-    if (index >= 32) {
+    if (index >= MAX_VOICE_SESSIONS) {
         return 0;
     }
 
