@@ -4474,6 +4474,17 @@ void CGChat::SetGuildRecruitmentMode(int32_t mode, bool fromJoin) {
     }
 }
 
+// LoadChatSettingsCallback parser state, named after the section keyword
+// in the ACCOUNT_DATA_CHARACTER_CHAT text that enters it (inferred names).
+enum CHAT_SETTINGS_SECTION {
+    CHAT_SETTINGS_SECTION_NONE = 0,
+    CHAT_SETTINGS_SECTION_CHANNELS = 1,
+    CHAT_SETTINGS_SECTION_COLORS = 2,
+    CHAT_SETTINGS_SECTION_WINDOW = 3,
+    CHAT_SETTINGS_SECTION_WINDOW_CHANNELS = 4,
+    CHAT_SETTINGS_SECTION_WINDOW_MESSAGES = 5,
+};
+
 // VERIFY: a08ae344 manual
 // OFFSET: 0x00508320
 void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* param) {
@@ -4523,7 +4534,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         s_pendingChannelFlags.Clear();
         s_pendingChannelNumbers.Clear();
 
-        int32_t state = 0;
+        int32_t state = CHAT_SETTINGS_SECTION_NONE;
         uint32_t window = 0;
         const char* cursor = buffer;
         char line[128];
@@ -4561,14 +4572,14 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                 continue;
             }
 
-            if (!state) {
+            if (state == CHAT_SETTINGS_SECTION_NONE) {
                 if (!SStrCmpI(line, "CHANNELS", STORM_MAX_STR)) {
-                    state = 1;
+                    state = CHAT_SETTINGS_SECTION_CHANNELS;
                     continue;
                 }
 
                 if (!SStrCmpI(line, "COLORS", STORM_MAX_STR)) {
-                    state = 2;
+                    state = CHAT_SETTINGS_SECTION_COLORS;
                     continue;
                 }
 
@@ -4585,7 +4596,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     }
 
                     window = index;
-                    state = 3;
+                    state = CHAT_SETTINGS_SECTION_WINDOW;
                 }
 
                 if (!SStrCmpI(line, "ZONECHANNELS", SStrLen("ZONECHANNELS"))) {
@@ -4622,20 +4633,20 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                 continue;
             }
 
-            if (state == 3) {
+            if (state == CHAT_SETTINGS_SECTION_WINDOW) {
                 if (!SStrCmpI(line, "CHANNELS", STORM_MAX_STR)) {
-                    state = 4;
+                    state = CHAT_SETTINGS_SECTION_WINDOW_CHANNELS;
                     continue;
                 }
 
                 if (!SStrCmpI(line, "MESSAGES", STORM_MAX_STR)) {
-                    state = 5;
+                    state = CHAT_SETTINGS_SECTION_WINDOW_MESSAGES;
                     continue;
                 }
             }
 
             if (!SStrCmpI(line, "END", STORM_MAX_STR)) {
-                state = state == 4 || state == 5 ? 3 : 0;
+                state = state == CHAT_SETTINGS_SECTION_WINDOW_CHANNELS || state == CHAT_SETTINGS_SECTION_WINDOW_MESSAGES ? CHAT_SETTINGS_SECTION_WINDOW : CHAT_SETTINGS_SECTION_NONE;
                 continue;
             }
 
@@ -4647,7 +4658,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             }
 
             switch (state) {
-                case 1: {
+                case CHAT_SETTINGS_SECTION_CHANNELS: {
                     if (version < 3) {
                         break;
                     }
@@ -4665,7 +4676,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     break;
                 }
 
-                case 2: {
+                case CHAT_SETTINGS_SECTION_COLORS: {
                     ChatColorInfo* color = nullptr;
 
                     for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
@@ -4708,7 +4719,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     break;
                 }
 
-                case 3: {
+                case CHAT_SETTINGS_SECTION_WINDOW: {
                     ChatWindowInfo* info = &s_chatWindows[window];
 
                     if (!SStrCmpI(word, "NAME", STORM_MAX_STR)) {
@@ -4791,12 +4802,12 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     break;
                 }
 
-                case 4: {
+                case CHAT_SETTINGS_SECTION_WINDOW_CHANNELS: {
                     s_chatWindows[window].AddChannel(word, 0);
                     break;
                 }
 
-                case 5: {
+                case CHAT_SETTINGS_SECTION_WINDOW_MESSAGES: {
                     for (uint32_t i = 0; i < sizeof(s_chatMessageGroups) / sizeof(s_chatMessageGroups[0]); i++) {
                         if (!SStrCmpI(word, s_chatMessageGroups[i].m_name, STORM_MAX_STR)) {
                             s_chatWindows[window].m_messageGroups[i] = 1;
