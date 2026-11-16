@@ -11765,7 +11765,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
                     for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
                         switch (auraSpell.m_effectAura[j]) {
                             case SPELL_AURA_EFFECT_IMMUNITY:
-                                if (auraSpell.m_effectMiscValue[j] == 68) {
+                                if (auraSpell.m_effectMiscValue[j] == SPELL_EFFECT_INTERRUPT_CAST) {
                                     interrupt = 0;
                                     interruptSpecial = 0;
                                 }
@@ -11773,7 +11773,7 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
                                 break;
 
                             case SPELL_AURA_STATE_IMMUNITY:
-                                if (auraSpell.m_effectMiscValue[j] == 27) {
+                                if (auraSpell.m_effectMiscValue[j] == SPELL_AURA_MOD_SILENCE) {
                                     silence = 0;
                                     silenceSpecial = 0;
                                 }
@@ -11803,10 +11803,10 @@ bool CGUnit_C::ProcessCastNotInterruptible(const SpellRec* spell) {
                             }
 
                             case SPELL_AURA_MECHANIC_IMMUNITY:
-                                if (auraSpell.m_effectMiscValue[j] == 9) {
+                                if (auraSpell.m_effectMiscValue[j] == SPELL_MECHANIC_SILENCE) {
                                     silence = 0;
                                     silenceSpecial = 0;
-                                } else if (auraSpell.m_effectMiscValue[j] == 26) {
+                                } else if (auraSpell.m_effectMiscValue[j] == SPELL_MECHANIC_INTERRUPT) {
                                     interrupt = 0;
                                     interruptSpecial = 0;
                                 }
