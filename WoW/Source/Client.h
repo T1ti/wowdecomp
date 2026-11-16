@@ -62,10 +62,21 @@ enum WOWCMDOPT {
     CMD_GX_OVERRIDE = 39,
 };
 
+// How OpenArchives treats each ARCHIVEINFO entry (inferred names): required
+// archives abort the client when missing, optional ones are skipped in trial
+// mode, alternate ones open ahead of the base set with patch priority, and
+// streaming ones open only in streaming mode.
+enum ARCHIVE_TYPE : int32_t {
+    ARCHIVE_REQUIRED  = 1,
+    ARCHIVE_OPTIONAL  = 2,
+    ARCHIVE_ALTERNATE = 3,
+    ARCHIVE_STREAMING = 4,
+};
+
 struct ARCHIVEINFO {
     /* 0000 */ const char* m_name;
-    /* 0004 */ int32_t m_unk04;
-    /* 0008 */ int32_t m_unk08;
+    /* 0004 */ int32_t m_type; // ARCHIVE_TYPE
+    /* 0008 */ int32_t m_availabilityMask; // tested against CheckDataFilesExist() + 1
     /* 000C */ bool m_opened;
 };
 

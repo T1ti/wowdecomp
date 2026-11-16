@@ -154,34 +154,34 @@ static uint32_t s_startArchivePriority = 0x40;
 
 // STATIC: 0x00AB6168
 static ARCHIVEINFO s_archives[28] = {
-    { "alternate.MPQ", 3, 3, false },
-    { "interface.MPQ", 1, 1, false },
-    { "misc.MPQ", 1, 1, false },
-    { "model.MPQ", 1, 1, false },
-    { "texture.MPQ", 1, 1, false },
-    { "terrain.MPQ", 1, 1, false },
-    { "wmo.MPQ", 1, 1, false },
-    { "sound.MPQ", 1, 1, false },
-    { "fonts.MPQ", 1, 1, false },
-    { "dbc.MPQ", 1, 1, false },
-    { "speech.MPQ", 1, 1, false },
-    { "expansionloc.MPQ", 2, 1, false },
-    { "lichkingloc.MPQ", 2, 1, false },
-    { "expansionspeech.MPQ", 2, 1, false },
-    { "lichkingspeech.MPQ", 2, 1, false },
-    { "expansion.MPQ", 2, 3, false },
-    { "lichking.MPQ", 2, 3, false },
-    { "common.MPQ", 1, 2, false },
-    { "common-2.MPQ", 2, 2, false },
-    { "****\\locale-****.MPQ", 1, 2, false },
-    { "****\\speech-****.MPQ", 1, 2, false },
-    { "****\\expansion-locale-****.MPQ", 2, 2, false },
-    { "****\\lichking-locale-****.MPQ", 2, 2, false },
-    { "****\\expansion-speech-****.MPQ", 2, 2, false },
-    { "****\\lichking-speech-****.MPQ", 2, 2, false },
-    { "development.MPQ", 2, 1, false },
-    { "streaming.MPQ", 4, 1, false },
-    { "streamingloc.MPQ", 4, 1, false },
+    { "alternate.MPQ", ARCHIVE_ALTERNATE, 3, false },
+    { "interface.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "misc.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "model.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "texture.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "terrain.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "wmo.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "sound.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "fonts.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "dbc.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "speech.MPQ", ARCHIVE_REQUIRED, 1, false },
+    { "expansionloc.MPQ", ARCHIVE_OPTIONAL, 1, false },
+    { "lichkingloc.MPQ", ARCHIVE_OPTIONAL, 1, false },
+    { "expansionspeech.MPQ", ARCHIVE_OPTIONAL, 1, false },
+    { "lichkingspeech.MPQ", ARCHIVE_OPTIONAL, 1, false },
+    { "expansion.MPQ", ARCHIVE_OPTIONAL, 3, false },
+    { "lichking.MPQ", ARCHIVE_OPTIONAL, 3, false },
+    { "common.MPQ", ARCHIVE_REQUIRED, 2, false },
+    { "common-2.MPQ", ARCHIVE_OPTIONAL, 2, false },
+    { "****\\locale-****.MPQ", ARCHIVE_REQUIRED, 2, false },
+    { "****\\speech-****.MPQ", ARCHIVE_REQUIRED, 2, false },
+    { "****\\expansion-locale-****.MPQ", ARCHIVE_OPTIONAL, 2, false },
+    { "****\\lichking-locale-****.MPQ", ARCHIVE_OPTIONAL, 2, false },
+    { "****\\expansion-speech-****.MPQ", ARCHIVE_OPTIONAL, 2, false },
+    { "****\\lichking-speech-****.MPQ", ARCHIVE_OPTIONAL, 2, false },
+    { "development.MPQ", ARCHIVE_OPTIONAL, 1, false },
+    { "streaming.MPQ", ARCHIVE_STREAMING, 1, false },
+    { "streamingloc.MPQ", ARCHIVE_STREAMING, 1, false },
 };
 // STATIC: 0x009E0DA4
 static const uint8_t s_signatureExponent[4] = { 0x01, 0x00, 0x01, 0x00 };
@@ -1379,7 +1379,7 @@ static void OpenArchives() {
     uint32_t patchCount = slot;
 
     for (uint32_t i = 0; i < sizeof(s_archives) / sizeof(s_archives[0]); i++) {
-        if (s_archives[i].m_unk04 == 3 && OpenArchiveWithRetry(s_archives[i].m_name, priority, slot, locale)) {
+        if (s_archives[i].m_type == ARCHIVE_ALTERNATE && OpenArchiveWithRetry(s_archives[i].m_name, priority, slot, locale)) {
             slot++;
             s_archives[i].m_opened = true;
             priority++;
@@ -1390,7 +1390,7 @@ static void OpenArchives() {
         SArchive* patchArchive = s_archiveHandles[patch];
 
         for (uint32_t i = 0; i < sizeof(s_archives) / sizeof(s_archives[0]); i++) {
-            if (s_archives[i].m_unk04 != 3) {
+            if (s_archives[i].m_type != ARCHIVE_ALTERNATE) {
                 continue;
             }
 
@@ -1416,14 +1416,14 @@ static void OpenArchives() {
     for (uint32_t i = 0; i < sizeof(s_archives) / sizeof(s_archives[0]); i++) {
         s_archiveHandles[slot] = nullptr;
 
-        if (s_archives[i].m_unk04 == 3 || s_archives[i].m_unk04 == 4) {
+        if (s_archives[i].m_type == ARCHIVE_ALTERNATE || s_archives[i].m_type == ARCHIVE_STREAMING) {
             slot++;
             continue;
         }
 
-        bool optional = s_archives[i].m_unk04 == 2;
-        bool available = (availability & s_archives[i].m_unk08) != 0;
-        bool allowed = !SFile::IsTrial() || s_archives[i].m_unk04 != 2;
+        bool optional = s_archives[i].m_type == ARCHIVE_OPTIONAL;
+        bool available = (availability & s_archives[i].m_availabilityMask) != 0;
+        bool allowed = !SFile::IsTrial() || s_archives[i].m_type != ARCHIVE_OPTIONAL;
 
         if (allowed && available) {
             if (!OpenArchiveWithRetry(s_archives[i].m_name, basePriority, slot, locale) && !optional) {
@@ -1463,7 +1463,7 @@ static void OpenArchives() {
 
     if (SFile::IsStreamingMode()) {
         for (uint32_t i = 0; i < sizeof(s_archives) / sizeof(s_archives[0]); i++) {
-            if (s_archives[i].m_unk04 == 4 && OpenArchiveWithRetry(s_archives[i].m_name, basePriority, slot, locale)) {
+            if (s_archives[i].m_type == ARCHIVE_STREAMING && OpenArchiveWithRetry(s_archives[i].m_name, basePriority, slot, locale)) {
                 s_archives[i].m_opened = true;
                 slot++;
             }
