@@ -757,7 +757,7 @@ void CShadowCache::ClearBandTextures() {
     clearColor.a = 0xFF;
 
     if (CShaderEffect::s_usePcfFiltering) {
-        GxRsSet(GxRs_ColorWrite, 0);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_None);
         g_theGxDevicePtr->DeviceGetRenderTarget(GxBuffers_Depth, depthTarget);
     }
 
@@ -822,7 +822,7 @@ void CShadowCache::ClearBandTextures() {
     GxRenderTargetSet(GxBuffers_Color, colorTarget, 0);
 
     if (CShaderEffect::s_usePcfFiltering) {
-        GxRsSet(GxRs_ColorWrite, 15);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_All);
         GxRenderTargetSet(GxBuffers_Depth, depthTarget, 0);
     }
 
@@ -979,7 +979,7 @@ int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
     CGxTex* depthTarget = nullptr;
 
     if (CShaderEffect::s_usePcfFiltering) {
-        GxRsSet(GxRs_ColorWrite, 0);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_None);
         g_theGxDevicePtr->DeviceGetRenderTarget(GxBuffers_Depth, depthTarget);
     }
 
@@ -1067,7 +1067,7 @@ int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
     }
 
     if (CShaderEffect::s_usePcfFiltering) {
-        GxRsSet(GxRs_ColorWrite, 15);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_All);
         GxRenderTargetSet(GxBuffers_Depth, depthTarget, 0);
     }
 

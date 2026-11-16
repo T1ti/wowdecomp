@@ -1119,7 +1119,7 @@ void GxuFontUpdate() {
     GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
     GxRsSet(GxRs_AlphaOp0, GxTexOp_PassThru);
     GxRsSet(GxRs_Fog, 0);
-    GxRsSet(GxRs_ColorWrite, 15);
+    GxRsSet(GxRs_ColorWrite, GxColorWrite_All);
 
     CGxBatch batch;
     batch.m_primType = GxPrim_Triangles;

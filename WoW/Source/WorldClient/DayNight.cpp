@@ -3103,7 +3103,7 @@ float DayNight::DNGlare::GetQueryOcclusion() {
     }
 
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_ColorWrite, 0);
+    GxRsSet(GxRs_ColorWrite, GxColorWrite_None);
     GxRsSet(GxRs_DepthWrite, 0);
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_Lighting, 0);

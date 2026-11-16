@@ -468,7 +468,7 @@ void CGxDevice::ICursorDraw() {
     GxRsSet(GxRs_Fog, 0);
     GxRsSet(GxRs_DepthTest, 0);
     GxRsSet(GxRs_DepthWrite, 0);
-    GxRsSet(GxRs_ColorWrite, 15);
+    GxRsSet(GxRs_ColorWrite, GxColorWrite_All);
     GxRsSet(GxRs_Culling, 0);
     GxRsSet(GxRs_ClipPlaneMask, 0);
     GxRsSet(GxRs_Texture0, this->m_cursorTexture);
@@ -1376,7 +1376,7 @@ void CGxDevice::IRsInit() {
     this->m_appRenderStates[GxRs_DepthTest].m_value.m_data.i[0] = 1;
     this->m_appRenderStates[GxRs_DepthFunc].m_value.m_data.i[0] = GxCmp_LEqual;
     this->m_appRenderStates[GxRs_DepthWrite].m_value.m_data.i[0] = 1;
-    this->m_appRenderStates[GxRs_ColorWrite].m_value.m_data.i[0] = 15;
+    this->m_appRenderStates[GxRs_ColorWrite].m_value.m_data.i[0] = GxColorWrite_All;
     this->m_appRenderStates[GxRs_Culling].m_value.m_data.i[0] = 1;
     this->m_appRenderStates[GxRs_ClipPlaneMask].m_value.m_data.i[0] = 0;
     this->m_appRenderStates[GxRs_Multisample].m_value.m_data.i[0] = 1;

@@ -285,6 +285,17 @@ enum EGxPoolUsage {
     GxPoolUsages_Last = 3,
 };
 
+// GxRs_ColorWrite channel mask; the D3D devices pass it straight to
+// D3DRS_COLORWRITEENABLE, so the bits follow that layout (inferred names).
+enum EGxColorWrite : int32_t {
+    GxColorWrite_None = 0x0,
+    GxColorWrite_Red = 0x1,
+    GxColorWrite_Green = 0x2,
+    GxColorWrite_Blue = 0x4,
+    GxColorWrite_Alpha = 0x8,
+    GxColorWrite_All = 0xF,
+};
+
 enum EGxRenderState {
     GxRs_PolygonOffset = 0,
     GxRs_MatDiffuse = 1,

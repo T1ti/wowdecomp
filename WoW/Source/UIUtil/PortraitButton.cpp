@@ -768,7 +768,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         GxRsSet(GxRs_Texture0, s_portraitMaskGxTex);
         GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
         GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
-        GxRsSet(GxRs_ColorWrite, 8);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_Alpha);
         GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
         GxRsSet(GxRs_Lighting, 0);
         GxRsSet(GxRs_Culling, 0);

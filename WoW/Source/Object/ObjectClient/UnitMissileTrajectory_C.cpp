@@ -580,7 +580,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
         GxRsSet(GxRs_Fog, 0);
         GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
         GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
-        GxRsSet(GxRs_ColorWrite, 15);
+        GxRsSet(GxRs_ColorWrite, GxColorWrite_All);
         GxRsSet(GxRs_Lighting, 0);
         GxRsSet(GxRs_DepthWrite, 0);
         GxRsSet(GxRs_BlendingMode, GxBlend_Add);
