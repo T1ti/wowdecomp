@@ -427,7 +427,7 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 0378 */ WOWGUID m_playerFieldPackSlot1 [16];
     /* 03F8 */ WOWGUID m_playerFieldBankSlot1 [28];
     /* 04D8 */ WOWGUID m_playerFieldBankbagSlot1 [7];
-    /* 0510 */ WOWGUID m_playerFieldVendorbuybackSlot1 [12];
+    /* 0510 */ WOWGUID m_playerFieldVendorbuybackSlot1 [NUM_BUYBACK_SLOTS];
     /* 0570 */ WOWGUID m_playerFieldKeyringSlot1 [32];
     /* 0670 */ WOWGUID m_playerFieldCurrencytokenSlot1 [32];
     /* 0770 */ WOWGUID m_playerFarsight;
@@ -468,8 +468,8 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 1068 */ uint32_t m_playerAmmoId;
     /* 106C */ uint32_t m_playerSelfResSpell;
     /* 1070 */ uint32_t m_playerFieldPvpMedals;
-    /* 1074 */ uint32_t m_playerFieldBuybackPrice1 [12];
-    /* 10A4 */ uint32_t m_playerFieldBuybackTimestamp1 [12];
+    /* 1074 */ uint32_t m_playerFieldBuybackPrice1 [NUM_BUYBACK_SLOTS];
+    /* 10A4 */ uint32_t m_playerFieldBuybackTimestamp1 [NUM_BUYBACK_SLOTS];
     /* 10D4 */ uint16_t m_playerFieldKills [2];
     /* 10D8 */ uint32_t m_playerFieldTodayContribution;
     /* 10DC */ uint32_t m_playerFieldYesterdayContribution;

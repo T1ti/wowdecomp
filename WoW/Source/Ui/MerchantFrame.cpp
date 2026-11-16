@@ -16,7 +16,7 @@
 #include "WoW/Source/Ui/Tutorial.h"
 
 // STATIC: 0x00BF90F8
-uint32_t CGMerchantInfo::m_buybackSlots[12];
+uint32_t CGMerchantInfo::m_buybackSlots[NUM_BUYBACK_SLOTS];
 
 // STATIC: 0x00BFA3F8
 uint32_t CGMerchantInfo::m_pendingItemStats;
@@ -31,7 +31,7 @@ int32_t CGMerchantInfo::m_numMerchantItems;
 uint32_t CGMerchantInfo::m_numBuybackItems;
 
 // STATIC: 0x00BF9128
-MerchantItem CGMerchantInfo::m_items[150];
+MerchantItem CGMerchantInfo::m_items[MAX_MERCHANT_ITEMS];
 
 // VERIFY: 4b63a9a7 manual
 // OFFSET: 0x00584150
@@ -101,7 +101,7 @@ static void MerchantItemStatsCallback(int32_t id, const WOWGUID& guid, void* par
 // OFFSET: 0x00584500
 void CGMerchantInfo::SetMerchant(WOWGUID merchant, const MerchantItem* items, int32_t count) {
     if (CGMerchantInfo::m_numMerchantItems) {
-        for (uint32_t i = 0; i < 150; i++) {
+        for (uint32_t i = 0; i < MAX_MERCHANT_ITEMS; i++) {
             if (CGMerchantInfo::m_items[i].m_itemID) {
                 g_itemDBCache.CancelCallback(CGMerchantInfo::m_items[i].m_itemID, MerchantItemStatsCallback, nullptr);
             }
@@ -170,11 +170,11 @@ void CGMerchantInfo::SortBuybackItems() {
         return;
     }
 
-    BuybackEntry entries[12];
+    BuybackEntry entries[NUM_BUYBACK_SLOTS];
 
-    for (uint32_t slot = BUYBACK_FIRST; slot - BUYBACK_FIRST < 12; slot++) {
-        if (slot < static_cast<uint32_t>(player->m_bag.m_numSlots) && player->m_bag.m_slots[slot] && slot - BUYBACK_FIRST < 12 && player->m_player->m_playerFieldBuybackPrice1[slot - BUYBACK_FIRST]) {
-            entries[CGMerchantInfo::m_numBuybackItems].m_timestamp = player->m_player->m_playerFieldBuybackTimestamp1[slot - 74];
+    for (uint32_t slot = BUYBACK_FIRST; slot - BUYBACK_FIRST < NUM_BUYBACK_SLOTS; slot++) {
+        if (slot < static_cast<uint32_t>(player->m_bag.m_numSlots) && player->m_bag.m_slots[slot] && slot - BUYBACK_FIRST < NUM_BUYBACK_SLOTS && player->m_player->m_playerFieldBuybackPrice1[slot - BUYBACK_FIRST]) {
+            entries[CGMerchantInfo::m_numBuybackItems].m_timestamp = player->m_player->m_playerFieldBuybackTimestamp1[slot - BUYBACK_FIRST];
             entries[CGMerchantInfo::m_numBuybackItems].m_slot = slot;
             CGMerchantInfo::m_numBuybackItems++;
         }
@@ -196,8 +196,8 @@ bool CGMerchantInfo::IsBuybackItem(WOWGUID item) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 12; i++) {
-        WOWGUID guid = static_cast<int32_t>(i + 74) < player->m_bag.m_numSlots ? player->m_bag.m_slots[i + 74] : WOWGUID();
+    for (uint32_t i = 0; i < NUM_BUYBACK_SLOTS; i++) {
+        WOWGUID guid = static_cast<int32_t>(i + BUYBACK_FIRST) < player->m_bag.m_numSlots ? player->m_bag.m_slots[i + BUYBACK_FIRST] : WOWGUID();
 
         if (guid == item) {
             return true;
@@ -247,7 +247,7 @@ void CGMerchantInfo::UpdateItemQuantity(WOWGUID merchant, int32_t slot, int32_t 
         return;
     }
 
-    for (uint32_t i = 0; i < 150; i++) {
+    for (uint32_t i = 0; i < MAX_MERCHANT_ITEMS; i++) {
         if (CGMerchantInfo::m_items[i].m_slot == slot) {
             CGMerchantInfo::m_items[i].m_maxCount = quantity;
             break;

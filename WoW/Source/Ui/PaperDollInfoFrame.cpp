@@ -531,7 +531,7 @@ void CGCharacterInfo::SocketInventoryItem(int32_t slot) {
 void CGCharacterInfo::PickupBag(uint32_t slot) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || !CGGameUI::m_hasControl || (slot - 67 <= 6 && !CGBankInfo::m_banker)) {
+    if (!player || !CGGameUI::m_hasControl || (slot - BANKBAG_FIRST <= BANKBAG_LAST - BANKBAG_FIRST && !CGBankInfo::m_banker)) {
         return;
     }
 
@@ -702,7 +702,7 @@ int32_t CGCharacterInfo::PutItemInBackpack(uint32_t slot) {
         return 0;
     }
 
-    if (slot - 67 <= 6 && !CGBankInfo::m_banker) {
+    if (slot - BANKBAG_FIRST <= BANKBAG_LAST - BANKBAG_FIRST && !CGBankInfo::m_banker) {
         return 0;
     }
 

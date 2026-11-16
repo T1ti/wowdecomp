@@ -156,6 +156,7 @@ enum INVENTORY_SLOTS {
     BANK_NUM_GEMERIC_SLOTS = 28,
     NUM_BANKBAG_SLOTS = 7,
     TOTAL_BAG_SLOTS = 11,
+    NUM_BUYBACK_SLOTS = BUYBACK_LAST - BUYBACK_FIRST + 1, // Inferred name.
 };
 
 // Lua container IDs for the player's own slot ranges; bags are 1..TOTAL_BAG_SLOTS.

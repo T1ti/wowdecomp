@@ -344,7 +344,7 @@ static int32_t Script_GetBuybackItemInfo(lua_State* L) {
         const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
         SStrPrintf(buffer, sizeof(buffer), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
         lua_pushstring(L, buffer);
-        lua_pushnumber(L, player->GetBuybackPrice(slot - 74));
+        lua_pushnumber(L, player->GetBuybackPrice(slot - BUYBACK_FIRST));
         lua_pushnumber(L, item->m_item->m_itemFieldStackCount);
         lua_pushnumber(L, 0.0);
 
@@ -580,7 +580,7 @@ static int32_t Script_ShowBuybackSellCursor(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (player && slot && player->m_bag.GetItemGuid(slot)) {
-        uint32_t price = player->GetBuybackPrice(slot - 74);
+        uint32_t price = player->GetBuybackPrice(slot - BUYBACK_FIRST);
 
         if (player->GetCoinage() >= price) {
             CursorSetMode(BUY_CURSOR);

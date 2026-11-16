@@ -563,16 +563,16 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
             if (item) {
                 bagSlot = CGPlayer_C::FindItemSlot(ClntObjMgrGetActivePlayer(), item);
 
-                if (static_cast<uint8_t>(bagSlot - 74) <= 11) {
+                if (static_cast<uint8_t>(bagSlot - BUYBACK_FIRST) <= BUYBACK_LAST - BUYBACK_FIRST) {
                     bagSlot = 0;
-                } else if (static_cast<uint8_t>(bagSlot - 39) <= 27 && !CGBankInfo::m_banker) {
+                } else if (static_cast<uint8_t>(bagSlot - BANKGENERIC_FIRST) <= BANKGENERIC_LAST - BANKGENERIC_FIRST && !CGBankInfo::m_banker) {
                     bagSlot = 0;
                 } else if (bagSlot != INVENTORY_SLOT_INVALID) {
                     bag = INVENTORY_BAG_PLAYER;
                     itemGuid.m_guid = guid.m_guid;
                 } else {
                     for (uint32_t i = INVSLOT_BAG0; i <= INVSLOT_BAG3; i++) {
-                        WOWGUID container = GetBagAtIndex(i - 19);
+                        WOWGUID container = GetBagAtIndex(i - INVSLOT_BAG0);
 
                         if (container) {
                             bagSlot = CGPlayer_C::FindItemSlot(container, item);
@@ -587,7 +587,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
 
                     if (itemGuid.m_guid == 1 && CGBankInfo::m_banker) {
                         for (uint32_t i = BANKBAG_FIRST; i <= BANKBAG_LAST; i++) {
-                            WOWGUID container = GetBagAtIndex(i - 63);
+                            WOWGUID container = GetBagAtIndex(i - BANKBAG_FIRST + NUM_BAG_SLOTS);
 
                             if (container) {
                                 bagSlot = CGPlayer_C::FindItemSlot(container, item);

@@ -300,7 +300,7 @@ uint32_t CGPlayer_C::s_lastUpdateTime;
 static WOWGUID s_lastTrainerRequest;
 
 // STATIC: 0x00C9D7D0
-static MerchantItem s_vendorItems[150];
+static MerchantItem s_vendorItems[MAX_MERCHANT_ITEMS];
 
 // STATIC: 0x00C9EB08
 static int32_t s_questsAccepted;
@@ -6656,7 +6656,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
 // VERIFY: 1167de4b manual
 // OFFSET: 0x006D9960
 int32_t CGPlayer_C::OnListInventory(CDataStore* msg) {
-    for (int32_t i = 0; i < 150; i++) {
+    for (int32_t i = 0; i < MAX_MERCHANT_ITEMS; i++) {
         s_vendorItems[i].m_slot = 0;
     }
 
@@ -6666,7 +6666,7 @@ int32_t CGPlayer_C::OnListInventory(CDataStore* msg) {
     uint8_t count;
     msg->Get(count);
 
-    if (count > 150) {
+    if (count > MAX_MERCHANT_ITEMS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -12312,7 +12312,7 @@ int32_t __stdcall CGPlayer_C::OnBuyFailed(CDataStore* msg) {
     msg->Get(result);
 
     if (result == VENDOR_BUY_RESULT::VENDOR_BUY_SOLD_OUT_REFRESH_STOCK && vendor == CGPlayer_C::s_lastVendorListReceived) {
-        for (uint32_t i = 0; i < 150; i++) {
+        for (uint32_t i = 0; i < MAX_MERCHANT_ITEMS; i++) {
             if (s_vendorItems[i].m_slot == itemId) {
                 s_vendorItems[i].m_maxCount = 0;
                 CGMerchantInfo::UpdateItemQuantity(vendor, itemId, 0);
