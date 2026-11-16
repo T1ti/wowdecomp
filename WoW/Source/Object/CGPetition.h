@@ -10,6 +10,8 @@ class CDataStore;
 class CGPetition {
     public:
     static const uint32_t s_cacheVersion = 1;
+    // Inferred name: length of m_choiceText.
+    static const int32_t NUM_CHOICES = 10;
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ uint8_t unknown_0004 [4];
@@ -27,7 +29,7 @@ class CGPetition {
     /* 112E */ uint8_t unknown_112E [2];
     /* 1130 */ uint32_t m_allowedMinLevel;
     /* 1134 */ uint32_t m_allowedMaxLevel;
-    /* 1138 */ char m_choiceText [10][64];
+    /* 1138 */ char m_choiceText [NUM_CHOICES][64];
     /* 13B8 */ uint32_t m_numChoices;
     /* 13BC */ uint32_t m_staticType; // STATIC_TYPE
     /* 13C0 */ uint32_t m_muid;

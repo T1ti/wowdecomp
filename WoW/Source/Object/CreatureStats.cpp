@@ -17,7 +17,7 @@ const char* CreatureStats::GetName(int32_t index) const {
 // VERIFY: 8a1df267 auto
 // OFFSET: 0x0098D3A0
 void CreatureStats::Pack(CDataStore* msg) const {
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         msg->PutString(this->m_name[i] ? this->m_name[i] : "");
     }
 
@@ -37,7 +37,7 @@ void CreatureStats::Pack(CDataStore* msg) const {
     msg->Put(this->m_mpModifier);
     msg->Put(static_cast<uint8_t>(this->m_racialLeader != 0));
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < NUM_QUEST_ITEMS; i++) {
         msg->Put(this->m_questItem[i]);
     }
 
@@ -49,7 +49,7 @@ void CreatureStats::Pack(CDataStore* msg) const {
 void CreatureStats::Unpack(CDataStore* msg) {
     char buffer[1024];
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         if (this->m_name[i]) {
             SMemFree(this->m_name[i], __FILE__, __LINE__, 0);
         }
@@ -94,7 +94,7 @@ void CreatureStats::Unpack(CDataStore* msg) {
     msg->Get(racialLeader);
     this->m_racialLeader = racialLeader != 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < NUM_QUEST_ITEMS; i++) {
         msg->Get(this->m_questItem[i]);
     }
 

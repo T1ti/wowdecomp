@@ -11,6 +11,8 @@ class CDataStore;
 class ItemStats_C {
     public:
     static const uint32_t s_cacheVersion = 5;
+    // Inferred name: length of m_name.
+    static const int32_t NUM_NAMES = 4;
 
     /* 0004 */ uint32_t m_class;
     /* 0008 */ uint32_t m_subClass;
@@ -80,7 +82,7 @@ class ItemStats_C {
     /* 01E8 */ uint32_t m_duration;
     /* 01EC */ uint32_t m_itemLimitCategory;
     /* 01F0 */ uint32_t m_holidayId;
-    /* 01F4 */ char* m_name [4];
+    /* 01F4 */ char* m_name [NUM_NAMES];
 
     virtual ~ItemStats_C();
 

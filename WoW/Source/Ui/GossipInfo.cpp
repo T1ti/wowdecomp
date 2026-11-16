@@ -138,7 +138,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
 
     float total = 0.0f;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_NPC_TEXT_ENTRIES; i++) {
         if (text->m_text[i][female]) {
             total += text->m_probability[i];
         }
@@ -149,7 +149,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
     float sum = 0.0f;
     int32_t index = -1;
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_NPC_TEXT_ENTRIES; i++) {
         if (text->m_text[i][female]) {
             sum += text->m_probability[i];
 
@@ -171,7 +171,7 @@ void CGGossipInfo::SetGossipText(int32_t textId) {
     const uint32_t* emoteIds = text->m_emote[index];
     uint32_t emoteCount = 0;
 
-    while (emoteCount < 3 && emoteIds[emoteCount]) {
+    while (emoteCount < NUM_NPC_TEXT_EMOTES && emoteIds[emoteCount]) {
         emoteCount++;
     }
 

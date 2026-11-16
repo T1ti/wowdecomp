@@ -6,7 +6,7 @@
 // INLINED
 ItemStats_C::ItemStats_C() {
     this->m_description = nullptr;
-    for (uint32_t i = 0; i < sizeof(this->m_name) / sizeof(this->m_name[0]); i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         this->m_name[i] = nullptr;
     }
 }
@@ -14,7 +14,7 @@ ItemStats_C::ItemStats_C() {
 // VERIFY: 8d459023 manual
 // OFFSET: [0x00668020, 0x00668860]
 ItemStats_C::~ItemStats_C() {
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         if (this->m_name[i]) {
             SMemFree(this->m_name[i], __FILE__, __LINE__, 0);
         }
@@ -35,7 +35,7 @@ void ItemStats_C::Unpack(CDataStore* msg) {
     msg->Get(this->m_subClass);
     msg->Get(this->m_soundOverrideSubclass);
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         msg->GetString(name, sizeof(name));
 
         if (name[0]) {
@@ -174,7 +174,7 @@ void ItemStats_C::Pack(CDataStore* msg) {
     msg->Put(this->m_subClass);
     msg->Put(this->m_soundOverrideSubclass);
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         if (this->m_name[i]) {
             msg->PutString(this->m_name[i]);
         } else {

@@ -69,20 +69,26 @@ enum CREATURE_TYPE_FLAGS : uint32_t
 
 class CreatureStats {
     public:
+    // Inferred names: array lengths of the creature cache record.
+    static const int32_t NUM_KILL_CREDITS = 2;
+    static const int32_t NUM_DISPLAY_IDS = 4;
+    static const int32_t NUM_QUEST_ITEMS = 6;
+    static const int32_t NUM_NAMES = 4;
+
     /* 0004 */ char* m_subName;
     /* 0008 */ char* m_iconName;
     /* 000C */ uint32_t m_typeFlags; // CREATURE_TYPE_FLAGS
     /* 0010 */ uint32_t m_type;
     /* 0014 */ uint32_t m_family;
     /* 0018 */ CREATURE_CLASSIFICATION m_rank;
-    /* 001C */ uint32_t m_killCredit [2];
-    /* 0024 */ uint32_t m_displayId [4];
+    /* 001C */ uint32_t m_killCredit [NUM_KILL_CREDITS];
+    /* 0024 */ uint32_t m_displayId [NUM_DISPLAY_IDS];
     /* 0034 */ float m_hpModifier;
     /* 0038 */ float m_mpModifier;
     /* 003C */ bool m_racialLeader;
-    /* 0040 */ uint32_t m_questItem [6];
+    /* 0040 */ uint32_t m_questItem [NUM_QUEST_ITEMS];
     /* 0058 */ uint32_t m_movementId;
-    /* 005C */ char* m_name [4];
+    /* 005C */ char* m_name [NUM_NAMES];
 
     virtual ~CreatureStats();
 
@@ -93,7 +99,7 @@ class CreatureStats {
 
 // INLINED
 inline CreatureStats::~CreatureStats() {
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_NAMES; i++) {
         if (this->m_name[i]) {
             SMemFree(this->m_name[i], __FILE__, __LINE__, 0);
         }
