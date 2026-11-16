@@ -79,7 +79,7 @@ struct CALENDARHOLIDAYNODE : public TSLinkedNode<CALENDARHOLIDAYNODE> {
     /* 0010 */ uint32_t m_startTime;
     /* 0014 */ uint32_t m_endTime;
     /* 0018 */ int32_t m_duration;
-    /* 001C */ int32_t m_type; // CALENDAR_EVENT_TABLE
+    /* 001C */ CALENDAR_EVENT_TABLE m_type;
 
     CALENDARHOLIDAYNODE();
 };
