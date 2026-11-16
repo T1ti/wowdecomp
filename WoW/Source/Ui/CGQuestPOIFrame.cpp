@@ -200,10 +200,9 @@ void CGQuestPOIFrame::UpdateMouseOverPOI(float x, float y) {
     uint32_t count = 0;
     this->m_mouseOverQuestId = 0;
     this->m_mouseOverCount = 0;
-    this->m_mouseOverObjectives[0] = 0;
-    this->m_mouseOverObjectives[1] = 0;
-    this->m_mouseOverObjectives[2] = 0;
-    this->m_mouseOverObjectives[3] = 0;
+    for (uint32_t i = 0; i < sizeof(this->m_mouseOverObjectives) / sizeof(this->m_mouseOverObjectives[0]); i++) {
+        this->m_mouseOverObjectives[i] = 0;
+    }
 
     if (x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f) {
         return;
@@ -433,10 +432,9 @@ void CGQuestPOIFrame::BuildBlobRenderData(QuestPOIRenderData* data, QuestPOIBlob
     data->m_fillIndices.SetCount(3 * count);
 
     C3Vector center(0.0f, 0.0f, 0.0f);
-    data->m_objectives[0] = 0;
-    data->m_objectives[1] = 0;
-    data->m_objectives[2] = 0;
-    data->m_objectives[3] = 0;
+    for (uint32_t i = 0; i < sizeof(data->m_objectives) / sizeof(data->m_objectives[0]); i++) {
+        data->m_objectives[i] = 0;
+    }
     data->m_objectives[0] = blob->m_objectiveIndex;
     data->m_numObjectives = 1;
     bool failed = false;

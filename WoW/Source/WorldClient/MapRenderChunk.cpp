@@ -2746,14 +2746,12 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
 void CMapRenderChunk::SetShaders(int32_t a1, int32_t a2) {
     CMapRenderChunk::s_pixelShader[1] = nullptr;
     CMapRenderChunk::s_pixelShader[0] = nullptr;
-    CMapRenderChunk::s_currentShaderX[0] = nullptr;
-    CMapRenderChunk::s_currentShaderX[1] = nullptr;
-    CMapRenderChunk::s_currentShaderX[2] = nullptr;
-    CMapRenderChunk::s_currentShaderX[3] = nullptr;
-    CMapRenderChunk::s_currentShader[0] = nullptr;
-    CMapRenderChunk::s_currentShader[1] = nullptr;
-    CMapRenderChunk::s_currentShader[2] = nullptr;
-    CMapRenderChunk::s_currentShader[3] = nullptr;
+    for (uint32_t i = 0; i < sizeof(CMapRenderChunk::s_currentShaderX) / sizeof(CMapRenderChunk::s_currentShaderX[0]); i++) {
+        CMapRenderChunk::s_currentShaderX[i] = nullptr;
+    }
+    for (uint32_t i = 0; i < sizeof(CMapRenderChunk::s_currentShader) / sizeof(CMapRenderChunk::s_currentShader[0]); i++) {
+        CMapRenderChunk::s_currentShader[i] = nullptr;
+    }
 
     if (!CMap::gTerrainPixelShadersValid) {
         if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) {

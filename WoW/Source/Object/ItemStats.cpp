@@ -6,10 +6,9 @@
 // INLINED
 ItemStats_C::ItemStats_C() {
     this->m_description = nullptr;
-    this->m_name[0] = nullptr;
-    this->m_name[1] = nullptr;
-    this->m_name[2] = nullptr;
-    this->m_name[3] = nullptr;
+    for (uint32_t i = 0; i < sizeof(this->m_name) / sizeof(this->m_name[0]); i++) {
+        this->m_name[i] = nullptr;
+    }
 }
 
 // VERIFY: 8d459023 manual

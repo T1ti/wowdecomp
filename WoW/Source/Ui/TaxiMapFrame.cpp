@@ -459,11 +459,9 @@ void CGTaxiMap::GeneratePaths() {
     }
 
     TaxiNodeInfo& node = CGTaxiMap::m_nodes.m_data[start];
-    node.m_costs[0] = 0;
-    node.m_costs[1] = 0;
-    node.m_costs[2] = 0;
-    node.m_costs[3] = 0;
-    node.m_costs[4] = 0;
+    for (uint32_t i = 0; i < sizeof(node.m_costs) / sizeof(node.m_costs[0]); i++) {
+        node.m_costs[i] = 0;
+    }
     node.m_numHops = 1;
     node.m_path = new (__FILE__, __LINE__) uint32_t[1];
     node.m_path[0] = s_currentNode->m_id;

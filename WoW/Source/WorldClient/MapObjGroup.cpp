@@ -969,10 +969,9 @@ void CMapObjGroup::Init() {
     this->m_asyncObjPtr = nullptr;
     this->m_portalStart = 0;
     this->m_portalCount = 0;
-    this->m_fogs[0] = 0;
-    this->m_fogs[1] = 0;
-    this->m_fogs[2] = 0;
-    this->m_fogs[3] = 0;
+    for (uint32_t i = 0; i < sizeof(this->m_fogs) / sizeof(this->m_fogs[0]); i++) {
+        this->m_fogs[i] = 0;
+    }
     this->m_timer = 0.0f;
     this->m_liquidVerts.y = 0;
     this->m_distToCamera = 3.4028235e38f;
