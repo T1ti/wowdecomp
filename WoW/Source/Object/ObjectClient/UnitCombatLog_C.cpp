@@ -1626,7 +1626,7 @@ void UnitCombatLogInterrupt(const WOWGUID& casterGuid, const WOWGUID& targetGuid
             SendToCombatText(COMBAT_TEXT_TYPE::COMBAT_TEXT_INTERRUPT, interrupted.m_name);
         }
 
-        SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(26);
+        SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(SPELL_MECHANIC_INTERRUPT);
 
         if (mechanic) {
             DisplayMechanicEffect(&targetGuid, &casterGuid, &spell, mechanic);
@@ -2216,7 +2216,7 @@ void UnitCombatLogSpellMechanic(const WOWGUID& guid, const AuraData* aura, const
 
         SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(mechanicId);
 
-        if (mechanic && mechanic->m_id != 26) {
+        if (mechanic && mechanic->m_id != SPELL_MECHANIC_INTERRUPT) {
             DisplayMechanicEffect(&guid, &aura->m_creator, spell, mechanic);
         }
     }
@@ -2239,7 +2239,7 @@ void UnitCombatLogSpellMechanic(const WOWGUID& guid, const AuraData* aura, const
 
     SpellMechanicRec* mechanic = g_spellMechanicDB.GetRecord(mechanicId);
 
-    if (mechanic && mechanic->m_id != 26) {
+    if (mechanic && mechanic->m_id != SPELL_MECHANIC_INTERRUPT) {
         DisplayMechanicEffect(&guid, &aura->m_creator, spell, mechanic);
     }
 }
