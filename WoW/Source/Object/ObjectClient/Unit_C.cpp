@@ -2317,8 +2317,8 @@ void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
 
 // VERIFY: 8a0e5647 manual
 // OFFSET: 0x0073D3D0
-void CGUnit_C::OnCollideFallLand(uint32_t a1, int32_t a2) {
-    this->PlayFallLandAnimation(a1, a2);
+void CGUnit_C::OnCollideFallLand(uint32_t oldFlags, int32_t jumping) {
+    this->PlayFallLandAnimation(oldFlags, jumping);
 
     if (!this->IsClientControlled() || this->m_movementData.IsSplineFlyerOrSwimmingOrSafeFalling()) {
         return;
@@ -10033,7 +10033,7 @@ float CGUnit_C::GetModelScale(uint32_t displayId) {
 
 // VERIFY: 7ba41095 manual
 // OFFSET: 0x0073AB20
-void CGUnit_C::OnMoveUpdate(uint32_t time, int32_t a3, int32_t a4) {
+void CGUnit_C::OnMoveUpdate(uint32_t time, int32_t spline, int32_t a4) {
     if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {
         this->m_vehicle->UpdateWorldMatrix();
     }
@@ -10045,7 +10045,7 @@ void CGUnit_C::OnMoveUpdate(uint32_t time, int32_t a3, int32_t a4) {
     }
 
     this->UpdateFlightStatus(time);
-    this->UpdateSwimmingStatus(time, a3);
+    this->UpdateSwimmingStatus(time, spline);
 }
 
 // VERIFY: ac360cae auto
@@ -16457,7 +16457,7 @@ float CGUnit_C::GetSpellChanceToCrit() const {
 
 // VERIFY: 8a2697bd auto
 // OFFSET: 0x00722090
-void CGUnit_C::OnAuraRemoved(uint32_t index, uint8_t a3, AuraData* aura, int32_t spellId) {
+void CGUnit_C::OnAuraRemoved(uint32_t index, uint8_t harmful, AuraData* aura, int32_t spellId) {
     SpellRec spell;
     memset(&spell, 0, sizeof(spell));
     g_spellDB.GetRecord(spellId, &spell);
@@ -16475,17 +16475,17 @@ void CGUnit_C::OnAuraRemoved(uint32_t index, uint8_t a3, AuraData* aura, int32_t
         }
     }
 
-    UnitCombatLogAuraAddedOrRemoved(this, aura, &spell, a3, 0);
+    UnitCombatLogAuraAddedOrRemoved(this, aura, &spell, harmful, 0);
 }
 
 // VERIFY: c0256707 auto
 // OFFSET: 0x00727760
-void CGUnit_C::OnAuraAdded(uint32_t index, uint8_t a3, AuraData* aura, int32_t spellId) {
+void CGUnit_C::OnAuraAdded(uint32_t index, uint8_t harmful, AuraData* aura, int32_t spellId) {
     SpellRec spell;
     memset(&spell, 0, sizeof(spell));
     g_spellDB.GetRecord(spellId, &spell);
     this->AddAuraEffect(index, &spell);
-    UnitCombatLogAuraAddedOrRemoved(this, aura, &spell, a3, 1);
+    UnitCombatLogAuraAddedOrRemoved(this, aura, &spell, harmful, 1);
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         CGActionBar::OnAuraChanged(spellId);
@@ -17377,11 +17377,11 @@ checkTarget:
 
 // VERIFY: 34778608 manual
 // OFFSET: 0x0072C2B0
-int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, int32_t a3) {
+int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, int32_t useGiven) {
     WOWGUID previousTarget = CGGameUI::m_lockedTarget;
     int32_t targetChanged = 0;
 
-    if (!this->VerifyAttackIconPressed(&target, a3, 1, 1, 1)) {
+    if (!this->VerifyAttackIconPressed(&target, useGiven, 1, 1, 1)) {
         return 0;
     }
 
@@ -17425,7 +17425,7 @@ int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, int32_t a3) {
     }
 
     if (petAttack) {
-        CGPetInfo::PetAttackTarget(target, a3);
+        CGPetInfo::PetAttackTarget(target, useGiven);
 
         if (CGPetInfo::GetPet(0) == CGUnit_C::s_activeMover) {
             CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
@@ -20569,7 +20569,7 @@ void CGUnit_C::StopSwimming(uint32_t time, int32_t spline) {
 
 // VERIFY: 4865e105 manual
 // OFFSET: 0x00730D10
-void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
+void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t spline) {
     if (this->m_movement->m_flags2 & MOVEMENTFLAG2_DISABLE_GRAVITY) {
         return;
     }
@@ -20595,11 +20595,11 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t a3) {
         }
 
         if (!(this->m_movementData.m_flags & MOVEMENTFLAG_FLYING) && (!inLiquid || exitDepth > depth || !canSwim)) {
-            this->StopSwimming(time, a3);
+            this->StopSwimming(time, spline);
         }
     } else {
         if (swimDepth < depth && canSwim && !this->m_movementData.IsJumpingUp()) {
-            this->StartSwimming(time, a3);
+            this->StartSwimming(time, spline);
         }
 
         if ((this->m_movementData.m_collisionHeight * 0.4f < depth) != (this->m_movementData.m_collisionHeight * 0.4f < this->m_swimDepth)) {
@@ -21398,7 +21398,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
 
 // VERIFY: 842ee456 manual
 // OFFSET: 0x0073D5D0
-void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
+void CGUnit_C::CreateUnitMount(int32_t force, int32_t updateCollisionBox) {
     this->m_wheelMask = 0;
 
     if (!this->m_mountModel) {
@@ -21459,7 +21459,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
         this->m_worldModel->m_emissiveTintG = 0.0f;
         this->m_worldModel->m_emissiveTintB = 0.0f;
 
-        if ((this->m_obj->m_type & TYPE_PLAYER) && a3 && !static_cast<CGPlayer_C*>(this)->UpdateMountedCollisionBox(modelData->m_mountHeight, a2)) {
+        if ((this->m_obj->m_type & TYPE_PLAYER) && updateCollisionBox && !static_cast<CGPlayer_C*>(this)->UpdateMountedCollisionBox(modelData->m_mountHeight, force)) {
             this->Dismount();
         }
     }

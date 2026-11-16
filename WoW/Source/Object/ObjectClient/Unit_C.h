@@ -872,9 +872,9 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     float GetModelScale(uint32_t displayId);
     float GetScaledModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData, float* modelScale);
     float GetModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData);
-    void OnMoveUpdate(uint32_t time, int32_t a3, int32_t a4);
+    void OnMoveUpdate(uint32_t time, int32_t spline, int32_t a4);
     void UpdateFlightStatus(uint32_t time);
-    void UpdateSwimmingStatus(uint32_t time, int32_t a3);
+    void UpdateSwimmingStatus(uint32_t time, int32_t spline);
     void StartSwimming(uint32_t time, int32_t spline);
     void StopSwimming(uint32_t time, int32_t spline);
     float GetHeightAboveGround();
@@ -885,7 +885,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void UpdateMissileTrajectory();
     void OnVehicleCameraPossiblyUnneeded();
     int32_t UpdateUnitCollisionBox(int32_t a2, int32_t a3);
-    void CreateUnitMount(int32_t a2, int32_t a3);
+    void CreateUnitMount(int32_t force, int32_t updateCollisionBox);
     void ShowLootEffect();
     void CompleteMountTransition();
     void RefreshComponentItem(int32_t itemSlot);
@@ -899,7 +899,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     BOOL IsDeadOrAttachmentDying();
     void RecreateNamePlate();
     void ScanAuraSpellsOnDisplayUpdate();
-    void OnCollideFallLand(uint32_t a1, int32_t a2);
+    void OnCollideFallLand(uint32_t oldFlags, int32_t jumping);
     void VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, int32_t a3);
     void HandleBloodPool(uint32_t time);
     void NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worldFrame);
@@ -1021,7 +1021,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void SpellInterrupted(uint8_t castCount, int32_t spellId);
     void ResetUICastingSpell();
     void OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequenceId);
-    int32_t OnAttackIconPressed(WOWGUID target, int32_t a3);
+    int32_t OnAttackIconPressed(WOWGUID target, int32_t useGiven);
     int32_t VerifyAttackIconPressed(WOWGUID* target, int32_t useGiven, int32_t checkRange, bool autoTarget, bool showErrors);
     void AddAuraSlot(uint8_t slot);
     void SortAuras();
@@ -1045,8 +1045,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     uint32_t GetSortedAuraSlot(int32_t index, const char* name, const char* rank, uint32_t filter);
     void AddAuraEffect(uint32_t index, const SpellRec* spell);
     void RemoveAuraEffect(uint32_t index, const SpellRec* spell);
-    void OnAuraAdded(uint32_t index, uint8_t a3, AuraData* aura, int32_t spellId);
-    void OnAuraRemoved(uint32_t index, uint8_t a3, AuraData* aura, int32_t spellId);
+    void OnAuraAdded(uint32_t index, uint8_t harmful, AuraData* aura, int32_t spellId);
+    void OnAuraRemoved(uint32_t index, uint8_t harmful, AuraData* aura, int32_t spellId);
     bool IsPlayingWeaponAnim() const;
     void SetSheatheStateInstant();
     void SetSheatheStateAnimate();
