@@ -201,11 +201,11 @@ int32_t Packet_SMSG_SEND_MAIL_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
     uint32_t inventoryError = BAG_INTERNAL_BAG_ERROR;
     uint32_t itemCount = 0;
     uint32_t messageID;
-    uint32_t action;
-    uint32_t result;
+    CGMailInfo::COMMAND_ACTION action;
+    CGMailInfo::COMMAND_RESULT result;
     msg->Get(messageID);
-    msg->Get(action);
-    msg->Get(result);
+    msg->Get(reinterpret_cast<uint32_t&>(action));
+    msg->Get(reinterpret_cast<uint32_t&>(result));
 
     if (result == CGMailInfo::COMMAND_RESULT::INVENTORY_ERROR) {
         msg->Get(inventoryError);

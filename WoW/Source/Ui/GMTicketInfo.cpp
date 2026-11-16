@@ -205,8 +205,8 @@ int32_t Packet_Group_5(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
     switch (msgId) {
         case SMSG_GM_TICKET_CREATE:
         case SMSG_GM_TICKET_UPDATE_TEXT: {
-            uint32_t result;
-            msg->Get(result);
+            GM_TICKET_RESPONSE result;
+            msg->Get(reinterpret_cast<uint32_t&>(result));
 
             switch (result) {
                 case GM_TICKET_RESPONSE_ALREADY_EXISTS:
@@ -231,8 +231,8 @@ int32_t Packet_Group_5(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         }
 
         case SMSG_GM_TICKET_GET_TICKET: {
-            uint32_t status;
-            msg->Get(status);
+            GM_TICKET_RESPONSE status;
+            msg->Get(reinterpret_cast<uint32_t&>(status));
 
             if (status != GM_TICKET_RESPONSE_HAS_TICKET) {
                 if (status == GM_TICKET_RESPONSE_DB_ERROR) {
@@ -269,8 +269,8 @@ int32_t Packet_Group_5(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         }
 
         case SMSG_GM_TICKET_DELETE_TICKET: {
-            uint32_t result;
-            msg->Get(result);
+            GM_TICKET_RESPONSE result;
+            msg->Get(reinterpret_cast<uint32_t&>(result));
 
             if (result == GM_TICKET_RESPONSE_DELETED) {
                 CGGMTicketInfo::m_ticketID = 0;
@@ -284,8 +284,8 @@ int32_t Packet_Group_5(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         }
 
         case SMSG_GM_TICKET_STATUS_UPDATE: {
-            uint32_t status;
-            msg->Get(status);
+            GM_TICKET_STATUS status;
+            msg->Get(reinterpret_cast<uint32_t&>(status));
 
             switch (status) {
                 case GM_TICKET_STATUS_UNKNOWN_1:

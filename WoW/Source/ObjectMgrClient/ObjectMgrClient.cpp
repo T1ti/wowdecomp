@@ -1464,8 +1464,8 @@ enum OBJECT_UPDATE_TYPE : uint8_t {
 // OFFSET: 0x004D7050
 static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t time, uint32_t count) {
     for (; index < count; index++) {
-        uint8_t type;
-        msg->Get(type);
+        OBJECT_UPDATE_TYPE type;
+        msg->Get(reinterpret_cast<uint8_t&>(type));
 
         switch (type) {
             case UPDATE_PARTIAL: {
@@ -1511,8 +1511,8 @@ static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t t
 // OFFSET: 0x004D7100
 static int32_t ObjectUpdateSecondPass(CDataStore* msg, uint32_t time, uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
-        uint8_t type;
-        msg->Get(type);
+        OBJECT_UPDATE_TYPE type;
+        msg->Get(reinterpret_cast<uint8_t&>(type));
 
         switch (type) {
             case UPDATE_PARTIAL: {
@@ -1623,8 +1623,8 @@ int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, 
     uint32_t read = msg->m_read;
     uint32_t index = 0;
 
-    uint8_t type = 0;
-    msg->Get(type);
+    OBJECT_UPDATE_TYPE type = UPDATE_PARTIAL;
+    msg->Get(reinterpret_cast<uint8_t&>(type));
 
     if (type == UPDATE_OUT_OF_RANGE) {
         UpdateOutOfRangeObjects(msg);
