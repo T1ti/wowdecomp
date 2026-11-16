@@ -22,7 +22,7 @@ bool LiquidTypeRec::Read(SFileImpl* file, const char* stringBuffer) {
     int32_t idRead = SFileReadFile(file, &this->m_id, sizeof(this->m_id), nullptr, nullptr, 0);
     int32_t nameRead = SFileReadFile(file, &nameOffset, sizeof(nameOffset), nullptr, nullptr, 0);
     int32_t flagsRead = SFileReadFile(file, &this->m_flags, sizeof(this->m_flags), nullptr, nullptr, 0);
-    int32_t soundBankRead = SFileReadFile(file, &this->m_soundBank, sizeof(this->m_soundBank), nullptr, nullptr, 0);
+    int32_t basicTypeRead = SFileReadFile(file, &this->m_basicType, sizeof(this->m_basicType), nullptr, nullptr, 0);
     int32_t soundIDRead = SFileReadFile(file, &this->m_soundID, sizeof(this->m_soundID), nullptr, nullptr, 0);
     int32_t spellIDRead = SFileReadFile(file, &this->m_spellID, sizeof(this->m_spellID), nullptr, nullptr, 0);
     int32_t maxDarkenDepthRead = SFileReadFile(file, &this->m_maxDarkenDepth, sizeof(this->m_maxDarkenDepth), nullptr, nullptr, 0);
@@ -47,7 +47,7 @@ bool LiquidTypeRec::Read(SFileImpl* file, const char* stringBuffer) {
     if (!idRead
         | !nameRead
         | !flagsRead
-        | !soundBankRead
+        | !basicTypeRead
         | !soundIDRead
         | !spellIDRead
         | !maxDarkenDepthRead
