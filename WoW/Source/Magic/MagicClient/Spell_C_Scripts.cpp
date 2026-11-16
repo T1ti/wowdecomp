@@ -56,7 +56,7 @@ static int32_t Script_SpellCanTargetGlyph(lua_State* L) {
 static int32_t Script_CannotBeResurrected(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (player->m_auraEffectMask[314 / 8] & (1 << (314 % 8)))) {
+    if (player && player->HasAuraEffect(SPELL_AURA_PREVENT_RESURRECTION)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

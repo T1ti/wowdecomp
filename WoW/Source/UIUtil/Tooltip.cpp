@@ -4022,7 +4022,7 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(info->m_guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if ((unit->m_auraEffectMask[36] & 0x80) && ClntObjMgrGetActivePlayer() && !unit->IsFriendly(ClntObjMgrGetActivePlayerObj())) {
+        if (unit->HasAuraEffect(SPELL_AURA_295) && ClntObjMgrGetActivePlayer() && !unit->IsFriendly(ClntObjMgrGetActivePlayerObj())) {
             return 0;
         }
 

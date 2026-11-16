@@ -8851,7 +8851,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
 
 // VERIFY: 91123c63 manual
 // OFFSET: 0x005A1120
-bool CGUnit_C::HasAuraEffect(int32_t auraType) const {
+bool CGUnit_C::HasAuraEffect(SPELL_AURA auraType) const {
     return (this->m_auraEffectMask[auraType / 8] & (1 << (auraType % 8))) != 0;
 }
 
@@ -17940,7 +17940,7 @@ void CGUnit_C::DoPowerRegen(POWER_TYPE powerType, uint32_t elapsed) {
             }
         }
     } else {
-        interrupted = (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) || (this->m_auraEffectMask[11] & 0x40);
+        interrupted = (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IN_COMBAT) || this->HasAuraEffect(SPELL_AURA_INTERRUPT_REGEN);
     }
 
     float regen = this->GetPowerRegen(powerType, interrupted);
@@ -19921,7 +19921,7 @@ void NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool succes
 // VERIFY: 0cbc8a3a manual
 // OFFSET: 0x0072D4F0
 int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, uint32_t a5) {
-    if (a5 && (unit->m_auraEffectMask[279 / 8] & (1 << (279 % 8)))) {
+    if (a5 && unit->HasAuraEffect(SPELL_AURA_INITIALIZE_IMAGES)) {
         SpellRec spellRec;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
@@ -23592,7 +23592,7 @@ void CGUnit_C::AttachPrecastMissileModel(const SpellVisualRec* visual, uint8_t c
 bool CGUnit_C::CheckSelfResurrect() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (!player || !(this->m_auraEffectMask[314 / 8] & (1 << (314 % 8)))) {
+    if (!player || !this->HasAuraEffect(SPELL_AURA_PREVENT_RESURRECTION)) {
         return true;
     }
 

@@ -4856,7 +4856,7 @@ int32_t CGPlayer_C::IsXRayVisionActive() {
         return 0;
     }
 
-    return (player->m_auraEffectMask[0x22] >> 1) & 1;
+    return player->HasAuraEffect(SPELL_AURA_X_RAY);
 }
 
 
@@ -7070,7 +7070,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverOfferReward(CDataStore* msg) {
 float CGPlayer_C::GetQuestXPMultiplier() {
     float multiplier = 1.0f;
 
-    if (!(this->m_auraEffectMask[291 >> 3] & (1 << (291 & 7)))) {
+    if (!this->HasAuraEffect(SPELL_AURA_MOD_XP_QUEST_PCT)) {
         return multiplier;
     }
 

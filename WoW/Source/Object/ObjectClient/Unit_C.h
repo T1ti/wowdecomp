@@ -13,6 +13,7 @@
 #include "WoW/Source/Object/Unit.h"
 #include "WoW/Source/Object/Combat.h"
 #include "WoW/Source/Object/ObjectClient/AuraData.h"
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Magic/MagicClient/SpellTable.h"
 #include "WoW/Source/DB/Rec/SpellVisualKitRec.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
@@ -440,7 +441,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0C50 */ TSCGrowableArray<AuraData, 16> m_auras;
     /* 0DD4 */ TSCGrowableArray<SortedAuraInfo, 16> m_sortedAuras [2];
     /* 0EDC */ TSCGrowableArray<uint32_t, 16> m_handItemSpellIds;
-    /* 0F20 */ uint8_t m_auraEffectMask [40];
+    /* 0F20 */ uint8_t m_auraEffectMask [(TOTAL_AURAS + 7) / 8]; // One bit per SPELL_AURA present
     /* 0F48 */ TSGrowableArray<DelayedSpellVisualKit> m_delayedSpellVisualKits;
     /* 0F58 */ uint32_t m_lightningSequence;
     /* 0F5C */ CVehicle_C* m_vehicle;
@@ -781,7 +782,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     C3Vector GetAttachmentPosition(uint32_t attachId, const C3Vector* offset);
     void UpdateAuraEffectMask();
     void UpdateObjectEffectAnimationStates();
-    bool HasAuraEffect(int32_t auraType) const;
+    bool HasAuraEffect(SPELL_AURA auraType) const;
     void CancelOpenStable();
     void RequestRepopOnLanding();
     C3Spline_CatmullRom* GetSpline();
