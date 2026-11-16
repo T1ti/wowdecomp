@@ -993,7 +993,7 @@ int32_t CGRaidInfo::IsPlayerOrPetInRaid(const WOWGUID& guid) {
 // VERIFY: 2ceb7b94 manual
 // OFFSET: 0x005723E0
 int32_t CGRaidInfo::GetPartyMemberIndex(WOWGUID guid) {
-    for (int32_t i = 0; i < 4; i++) {
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
         if (CGPartyInfo::m_members[i] == guid) {
             return i;
         }
