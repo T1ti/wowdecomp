@@ -474,7 +474,7 @@ static int32_t Script_PromoteToLeader(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, 6, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
 
     if (guid) {
         CDataStore msg;
@@ -496,7 +496,7 @@ static int32_t Script_PromoteToAssistant(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, 6, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
 
     if (guid) {
         CDataStore msg;
@@ -519,7 +519,7 @@ static int32_t Script_DemoteAssistant(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, 6, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
 
     if (guid) {
         CDataStore msg;

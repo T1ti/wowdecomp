@@ -535,7 +535,7 @@ static int32_t Script_PetAttack(lua_State* L) {
 
     if (token && *token) {
         if (!Script_GetGUIDFromToken(token, target, false)) {
-            target = CGGameUI::ClosestObjectMatch(token, 8, 1, StringToBOOL(L, 2, 0), 3.4028235e38f, 1);
+            target = CGGameUI::ClosestObjectMatch(token, 8, UNIT_TARGET_ENEMY, StringToBOOL(L, 2, 0), 3.4028235e38f, 1);
         }
 
         a3 = 1;

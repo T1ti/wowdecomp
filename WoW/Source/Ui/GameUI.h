@@ -18,6 +18,26 @@
 #include "WoW/Source/Ui/TotemInfo.h"
 #include "WoW/Source/Ui/Types.h"
 
+// Unit filter for TargetNearest*, TargetDirection* and ClosestObjectMatch,
+// named after the Script_TargetNearest* function that passes each value.
+enum UNIT_TARGET_TYPE : int32_t {
+    UNIT_TARGET_ANY           = 0, // TargetNearest
+    UNIT_TARGET_ENEMY         = 1, // TargetNearestEnemy
+    UNIT_TARGET_ENEMY_PLAYER  = 2, // TargetNearestEnemyPlayer
+    UNIT_TARGET_FRIEND        = 3, // TargetNearestFriend
+    UNIT_TARGET_FRIEND_PLAYER = 4, // TargetNearestFriendPlayer
+    UNIT_TARGET_PARTY_MEMBER  = 5, // TargetNearestPartyMember
+    UNIT_TARGET_RAID_MEMBER   = 6, // TargetNearestRaidMember
+};
+
+// CGGameUI::ShowBlockedActionFeedback type: forbidden actions signal
+// ADDON_ACTION_FORBIDDEN, the others ADDON_ACTION_BLOCKED (inferred names).
+enum BLOCKED_ACTION_TYPE : uint32_t {
+    BLOCKED_ACTION_FORBIDDEN = 0,
+    BLOCKED_ACTION_BLOCKED = 1,
+    BLOCKED_ACTION_BLOCKED_IN_COMBAT = 2,
+};
+
 class CGUnit_C;
 class CGItem_C;
 class AreaTableRec;
@@ -309,8 +329,8 @@ class CGGameUI {
     static void OpenGuildInvite(const char* inviter, const char* guild);
     static void AcceptLevelGrant();
     static void AcceptAreaSpiritHeal();
-    static void TargetDirection(float facing, float angle, int32_t type);
-    static WOWGUID ClosestObjectMatch(const char* name, uint32_t typeMask, int32_t targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems);
+    static void TargetDirection(float facing, float angle, UNIT_TARGET_TYPE type);
+    static WOWGUID ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems);
     static bool CanInspect(CGUnit_C* unit);
     static void SetCursorMoney(uint32_t amount);
     static void SetCursorMoney(uint32_t amount, UICURSORTYPE type, int32_t event);
@@ -360,7 +380,7 @@ class CGGameUI {
     static int32_t MirrorTimerToIndex(const char* timer);
     static int32_t CanResetInstance();
     static void SetLastInstanceTime(uint32_t time, int32_t mapId, int32_t currentMapId);
-    static void ShowBlockedActionFeedback(FrameScript_Object* object, uint32_t type);
+    static void ShowBlockedActionFeedback(FrameScript_Object* object, BLOCKED_ACTION_TYPE type);
     static void Reload();
     static void ResetCamera(WOWGUID guid);
     static void SetActiveCorpse(WOWGUID guid);
@@ -511,14 +531,6 @@ struct TaintStackFrame {
     /* 0064 */ const char* m_objectName;
 };
 
-// CGGameUI::ShowBlockedActionFeedback type: forbidden actions signal
-// ADDON_ACTION_FORBIDDEN, the others ADDON_ACTION_BLOCKED (inferred names).
-enum BLOCKED_ACTION_TYPE : uint32_t {
-    BLOCKED_ACTION_FORBIDDEN = 0,
-    BLOCKED_ACTION_BLOCKED = 1,
-    BLOCKED_ACTION_BLOCKED_IN_COMBAT = 2,
-};
-
 struct TAINTEVENT : public TSHashObject<TAINTEVENT, HASHKEY_STR> {
     /* 0018 */ int32_t m_type; // LUA_TAINTEVENT_*
     /* 001C */ const char* m_name;
@@ -541,20 +553,8 @@ bool SetTaintLogCallback(CVar* var, const char* oldValue, const char* value, voi
 bool ShowClassColorInNameplateCallback(CVar* var, const char* oldValue, const char* value, void* arg);
 void TaintEventCallback(lua_State* L, int32_t event, const char* name, const char* taint);
 
-// Unit filter for TargetNearest*, TargetDirection* and ClosestObjectMatch,
-// named after the Script_TargetNearest* function that passes each value.
-enum UNIT_TARGET_TYPE : int32_t {
-    UNIT_TARGET_ANY           = 0, // TargetNearest
-    UNIT_TARGET_ENEMY         = 1, // TargetNearestEnemy
-    UNIT_TARGET_ENEMY_PLAYER  = 2, // TargetNearestEnemyPlayer
-    UNIT_TARGET_FRIEND        = 3, // TargetNearestFriend
-    UNIT_TARGET_FRIEND_PLAYER = 4, // TargetNearestFriendPlayer
-    UNIT_TARGET_PARTY_MEMBER  = 5, // TargetNearestPartyMember
-    UNIT_TARGET_RAID_MEMBER   = 6, // TargetNearestRaidMember
-};
-
-void TargetNearestEnemy(int32_t reverse, int32_t type);
-int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type);
+void TargetNearestEnemy(int32_t reverse, UNIT_TARGET_TYPE type);
+int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, UNIT_TARGET_TYPE type);
 int32_t Script_IsWindowsClient(lua_State* L);
 int32_t Script_IsMacClient(lua_State* L);
 int32_t Script_GetLocale(lua_State* L);

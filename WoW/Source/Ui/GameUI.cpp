@@ -1336,7 +1336,7 @@ WOWGUID CGGameUI::GetRaidMemberPet(uint32_t index) {
 
 // VERIFY: 6d2d5c91 auto
 // OFFSET: 0x00513530
-void CGGameUI::ShowBlockedActionFeedback(FrameScript_Object* object, uint32_t type) {
+void CGGameUI::ShowBlockedActionFeedback(FrameScript_Object* object, BLOCKED_ACTION_TYPE type) {
     // STATIC: 0x00BD0C68
     static int32_t showing;
 
@@ -1443,7 +1443,7 @@ struct TargetDirectionData {
     /* 0014 */ C2Vector m_facing;
     /* 001C */ C3Vector m_originScreen;
     /* 0028 */ C2Vector m_screenDirection;
-    /* 0030 */ int32_t m_type;
+    /* 0030 */ UNIT_TARGET_TYPE m_type;
     /* 0038 */ WOWGUID m_bestGuid;
     /* 0040 */ float m_cosHalfAngle;
     /* 0044 */ int32_t m_bestInCone;
@@ -1537,7 +1537,7 @@ static int32_t TargetDirectionProc(WOWGUID guid, void* param) {
 
 // VERIFY: b87710b1 manual
 // OFFSET: 0x005252D0
-void CGGameUI::TargetDirection(float facing, float angle, int32_t type) {
+void CGGameUI::TargetDirection(float facing, float angle, UNIT_TARGET_TYPE type) {
     if (lua_tainted) {
         CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
         return;
@@ -4719,7 +4719,7 @@ static uint32_t s_nearestSortTime;
 static uint32_t s_nearestTargetTime;
 
 // STATIC: 0x00BD08D4
-static int32_t s_nearestType;
+static UNIT_TARGET_TYPE s_nearestType;
 
 // STATIC: 0x00BD0BFC
 static TSGrowableArray<NearestUnitData> s_nearestUnits;
@@ -4866,7 +4866,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
 
 struct ClosestObjectMatchData {
     /* 0000 */ uint32_t m_typeMask;
-    /* 0004 */ int32_t m_targetType;
+    /* 0004 */ UNIT_TARGET_TYPE m_targetType;
     /* 0008 */ const char* m_name;
     /* 000C */ int32_t m_nameLength;
     /* 0010 */ bool m_hasRealm;
@@ -4878,7 +4878,7 @@ struct ClosestObjectMatchData {
 
 // VERIFY: 337f01f7 auto
 // OFFSET: 0x005130D0
-static int32_t FilterClosestMatchCandidate(int32_t targetType, const WOWGUID& guid, CGUnit_C* unit) {
+static int32_t FilterClosestMatchCandidate(UNIT_TARGET_TYPE targetType, const WOWGUID& guid, CGUnit_C* unit) {
     switch (targetType) {
         case UNIT_TARGET_ENEMY:
         case UNIT_TARGET_ENEMY_PLAYER:
@@ -4974,7 +4974,7 @@ static int32_t ClosestObjectMatchProc(WOWGUID guid, void* param) {
 
 // VERIFY: 3d96dbfb manual
 // OFFSET: 0x00520190
-WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, int32_t targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems) {
+WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (!player) {
@@ -5079,7 +5079,7 @@ static int QSortCompareNearestUnit(const void* a, const void* b) {
 
 // VERIFY: 7d0d99e3 manual
 // OFFSET: 0x00518E40
-int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type) {
+int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, UNIT_TARGET_TYPE type) {
     switch (type) {
         case UNIT_TARGET_ENEMY: {
             return unit->CanAttack(target) && !target->IsDeadOrGhost() && !(target->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && target->GetClientStandState() != UNIT_DEAD;
@@ -5166,7 +5166,7 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
 
 // VERIFY: 72ff3550 manual
 // OFFSET: 0x00524FC0
-void TargetNearestEnemy(int32_t reverse, int32_t type) {
+void TargetNearestEnemy(int32_t reverse, UNIT_TARGET_TYPE type) {
     while (true) {
         if (lua_tainted) {
             CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);

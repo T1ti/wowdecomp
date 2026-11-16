@@ -3552,7 +3552,7 @@ static int32_t Script_UnitIsInMyGuild(lua_State* L) {
 
     const char* name = lua_tolstring(L, 1, nullptr);
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    WOWGUID match = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, 3, 1, FLT_MAX, 0);
+    WOWGUID match = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_FRIEND, 1, FLT_MAX, 0);
     CGPlayer_C* target = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(match, TYPE_PLAYER, __FILE__, __LINE__));
 
     if (target && player) {
