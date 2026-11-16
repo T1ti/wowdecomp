@@ -5494,7 +5494,7 @@ const char* CGUnit_C::GetDisplayRaceNameFromRecord(const ChrRacesRec* rec, int32
         return nullptr;
     }
 
-    if (sex == 0) {
+    if (sex == UNITSEX_MALE) {
         if (*rec->m_nameMale) {
             return rec->m_nameMale;
         }
@@ -5506,7 +5506,7 @@ const char* CGUnit_C::GetDisplayRaceNameFromRecord(const ChrRacesRec* rec, int32
 
             return rec->m_nameFemale;
         }
-    } else if (sex == 1) {
+    } else if (sex == UNITSEX_FEMALE) {
         if (*rec->m_nameFemale) {
             return rec->m_nameFemale;
         }
@@ -5534,7 +5534,7 @@ const char* CGUnit_C::GetDisplayClassNameFromRecord(const ChrClassesRec* rec, in
         return nullptr;
     }
 
-    if (sex == 0) {
+    if (sex == UNITSEX_MALE) {
         if (*rec->m_nameMale) {
             return rec->m_nameMale;
         }
@@ -5546,7 +5546,7 @@ const char* CGUnit_C::GetDisplayClassNameFromRecord(const ChrClassesRec* rec, in
 
             return rec->m_nameFemale;
         }
-    } else if (sex == 1) {
+    } else if (sex == UNITSEX_FEMALE) {
         if (*rec->m_nameFemale) {
             return rec->m_nameFemale;
         }
@@ -12115,7 +12115,7 @@ char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitl
     uint32_t sex = this->IsActivePlayer() ? static_cast<CGPlayer_C*>(this)->m_player->sex : this->m_unit->m_sex;
     char format[400];
 
-    if (sex == 1) {
+    if (sex == UNITSEX_FEMALE) {
         strcpy(format, strcmp(title->m_name1, "") ? title->m_name1 : title->m_name);
     } else {
         strcpy(format, strcmp(title->m_name, "") ? title->m_name : title->m_name1);

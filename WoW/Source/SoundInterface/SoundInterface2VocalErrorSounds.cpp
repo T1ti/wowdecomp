@@ -19,7 +19,7 @@ static SE2SoundKitObject s_vocalErrorObject;
 void SI2::InitVocalErrorSounds(int32_t race, uint32_t sex) {
     memset(s_vocalErrorSounds, 0, sizeof(s_vocalErrorSounds));
 
-    if (sex > 1) {
+    if (sex > UNITSEX_FEMALE) {
         return;
     }
 

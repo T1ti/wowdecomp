@@ -1150,7 +1150,7 @@ static void GetNameInfo(const char* name, RussianNameInfo* info, int32_t sex) {
     }
 
     info->m_stemLen = length;
-    info->m_rule = sex == 1 ? 36 : 35;
+    info->m_rule = sex == UNITSEX_FEMALE ? 36 : 35;
     info->m_hasAltStem = 0;
 
     int32_t bestMatch = 0;

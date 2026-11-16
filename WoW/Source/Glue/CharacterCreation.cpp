@@ -603,7 +603,7 @@ void CCharacterCreation::InitCharacterComponents(ComponentData* data, bool rando
 // VERIFY: 68a365e1 manual
 // OFFSET: 0x004E1540
 void CCharacterCreation::SetSelectedSex(uint32_t sexID) {
-    if (sexID >= 3 || sexID == CCharacterCreation::m_character->m_data.m_preferences.m_sexID) {
+    if (sexID >= UNITSEX_LAST || sexID == CCharacterCreation::m_character->m_data.m_preferences.m_sexID) {
         return;
     }
 

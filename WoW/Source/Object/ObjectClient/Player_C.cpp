@@ -1043,7 +1043,7 @@ void CGPlayer_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) 
 // VERIFY: 486d0703 auto
 // OFFSET: 0x006D5C30
 uint32_t GetDisplayIdFromRaceAndGender(uint32_t race, uint32_t gender) {
-    if (gender >= 3) {
+    if (gender >= UNITSEX_LAST) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1054,11 +1054,11 @@ uint32_t GetDisplayIdFromRaceAndGender(uint32_t race, uint32_t gender) {
     }
 
     switch (gender) {
-        case 0: {
+        case UNITSEX_MALE: {
             return raceRec->m_maleDisplayID;
         }
 
-        case 1: {
+        case UNITSEX_FEMALE: {
             return raceRec->m_femaleDisplayID;
         }
 
@@ -1071,7 +1071,7 @@ uint32_t GetDisplayIdFromRaceAndGender(uint32_t race, uint32_t gender) {
 // VERIFY: 24f1b2a8 manual
 // OFFSET: 0x006DC810
 CreatureModelDataRec* GetModelDataRec(uint32_t race, uint32_t gender) {
-    if (gender >= 3) {
+    if (gender >= UNITSEX_LAST) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 

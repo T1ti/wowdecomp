@@ -598,11 +598,11 @@ static int32_t Script_GetRewardTitle(lua_State* L) {
         return 1;
     }
 
-    int32_t gender = player ? player->m_player->sex : 0;
+    int32_t gender = player ? player->m_player->sex : UNITSEX_MALE;
     char format[256];
     format[0] = 0;
 
-    if (gender == 1) {
+    if (gender == UNITSEX_FEMALE) {
         if (strcmp(title->m_name1, "")) {
             strcpy(format, title->m_name1);
         } else {

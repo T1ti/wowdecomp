@@ -2999,7 +2999,7 @@ static int32_t Script_GetTitleName(lua_State* L) {
 
     int32_t maskId = static_cast<int32_t>(lua_tonumber(L, 1));
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    int32_t gender = player ? player->m_player->sex : 0;
+    int32_t gender = player ? player->m_player->sex : UNITSEX_MALE;
     char title[256];
     title[0] = 0;
     CharTitlesRec* rec = nullptr;
@@ -3017,7 +3017,7 @@ static int32_t Script_GetTitleName(lua_State* L) {
         return 0;
     }
 
-    if (gender == 1) {
+    if (gender == UNITSEX_FEMALE) {
         strcpy(title, strcmp(rec->m_name1, "") ? rec->m_name1 : rec->m_name);
     } else {
         strcpy(title, strcmp(rec->m_name, "") ? rec->m_name : rec->m_name1);

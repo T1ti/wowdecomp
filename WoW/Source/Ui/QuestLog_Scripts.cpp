@@ -1278,13 +1278,13 @@ static int32_t Script_GetQuestLogRewardTitle(lua_State* L) {
         gender = player->m_player->sex;
         name = player->GetUnitName(nullptr, 1);
     } else {
-        gender = 0;
+        gender = UNITSEX_MALE;
         name = "";
     }
 
     const char* format = title->m_name1;
 
-    if (!*format || (gender != 1 && *title->m_name)) {
+    if (!*format || (gender != UNITSEX_FEMALE && *title->m_name)) {
         format = title->m_name;
     }
 

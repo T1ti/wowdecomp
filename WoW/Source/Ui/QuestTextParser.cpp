@@ -789,7 +789,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
             int32_t gender = player->m_unit->m_sex;
 
-            if (gender == 2) {
+            if (gender == UNITSEX_NONE) {
                 gender = player->m_player->sex;
             }
 
@@ -1289,7 +1289,7 @@ bool QuestParserParseToken(char* buffer, uint32_t size, const NameCache* record,
 
             int32_t gender = unit ? unit->m_unit->m_sex : record->m_sex;
 
-            if (gender == 2 && unit && const_cast<CGUnit_C*>(unit)->IsActivePlayer()) {
+            if (gender == UNITSEX_NONE && unit && const_cast<CGUnit_C*>(unit)->IsActivePlayer()) {
                 gender = static_cast<const CGPlayer_C*>(unit)->m_player->sex;
             }
 

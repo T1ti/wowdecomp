@@ -27,7 +27,7 @@ TEXTEMOTELOOKUP::TEXTEMOTELOOKUP() {
 int32_t SI2::GetTextEmoteSoundID(uint32_t emotesTextId, uint32_t race, uint32_t sex) {
     TEXTEMOTELOOKUP* lookup;
 
-    if (emotesTextId < s_textEmoteLookupById.Count() && (lookup = s_textEmoteLookupById[emotesTextId]) != nullptr && race < NUM_RACES + 1 && sex < 2) {
+    if (emotesTextId < s_textEmoteLookupById.Count() && (lookup = s_textEmoteLookupById[emotesTextId]) != nullptr && race < NUM_RACES + 1 && sex < UNITSEX_NONE) {
         return lookup->m_soundIds[race][sex];
     }
 
@@ -40,7 +40,7 @@ int32_t SI2::GetTextEmoteSoundIndex(uint32_t emotesTextId, uint32_t race, uint32
     TEXTEMOTELOOKUP* lookup;
     int32_t soundKitId;
 
-    if (emotesTextId < s_textEmoteLookupById.Count() && (lookup = s_textEmoteLookupById[emotesTextId]) != nullptr && race < NUM_RACES + 1 && sex < 2) {
+    if (emotesTextId < s_textEmoteLookupById.Count() && (lookup = s_textEmoteLookupById[emotesTextId]) != nullptr && race < NUM_RACES + 1 && sex < UNITSEX_NONE) {
         soundKitId = lookup->m_soundIds[race][sex];
     } else {
         soundKitId = 0;

@@ -6211,7 +6211,7 @@ int32_t CGChat::OnTitleEarned(void* param, NETMESSAGE msgId, uint32_t time, CDat
 
     char name[256];
 
-    if (player->m_player->sex == 1) {
+    if (player->m_player->sex == UNITSEX_FEMALE) {
         if (strcmp(title->m_name1, "")) {
             SStrPrintf(name, sizeof(name), title->m_name1, player->GetUnitName(nullptr, 1));
         } else {
