@@ -5620,7 +5620,7 @@ void CGGameUI::NextCinematicInternal(void* param) {
 
 // VERIFY: 4b188323 manual
 // OFFSET: 0x00523640
-void CGGameUI::CloseLoot(bool a1, bool a2, bool a3) {
+void CGGameUI::CloseLoot(bool sendRelease, bool a2, bool showNoUIError) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     WOWGUID guid = CGLootInfo::m_lootObj;
 
@@ -5632,7 +5632,7 @@ void CGGameUI::CloseLoot(bool a1, bool a2, bool a3) {
         CGLootInfo::DoAutoLoot(1);
     }
 
-    if (a3) {
+    if (showNoUIError) {
         CGGameUI::DisplayError(ERR_LOOT_NO_UI);
     }
 
@@ -5650,7 +5650,7 @@ void CGGameUI::CloseLoot(bool a1, bool a2, bool a3) {
         player->ClearLootingObject();
     }
 
-    if (a1) {
+    if (sendRelease) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_LOOT_RELEASE));
         msg.Put(guid.m_guid);
