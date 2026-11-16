@@ -928,7 +928,7 @@ void CSimpleMovieFrame::RenderMovie(void* param) {
 void CSimpleMovieFrame::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
     CSimpleFrame::OnFrameRender(batch, layer);
 
-    if (layer == 2) {
+    if (layer == DRAWLAYER_ARTWORK) {
         batch->QueueCallback(&CSimpleMovieFrame::RenderMovie, this);
     }
 }

@@ -35,22 +35,22 @@ const char* CGCooldown::s_starTextureName = "interface\\cooldown\\star4.blp";
 const char* CGCooldown::s_edgeTextureName = "interface\\cooldown\\edge.blp";
 
 // STATIC: 0x00AD13D0
-const uint16_t CGCooldown::s_edgeIndices[6] = { 0, 2, 1, 1, 2, 3 };
+const uint16_t CGCooldown::s_edgeIndices[CGCooldown::NUM_QUAD_INDICES] = { 0, 2, 1, 1, 2, 3 };
 
 // STATIC: 0x00AD13DC
-const uint16_t CGCooldown::s_flashIndices[6] = { 0, 2, 1, 1, 2, 3 };
+const uint16_t CGCooldown::s_flashIndices[CGCooldown::NUM_QUAD_INDICES] = { 0, 2, 1, 1, 2, 3 };
 
 // STATIC: 0x00AD13E8
-const uint16_t CGCooldown::s_starIndices[24] = { 0, 9, 1, 1, 9, 2, 2, 9, 3, 3, 9, 4, 4, 9, 5, 5, 9, 6, 6, 9, 7, 7, 9, 8 };
+const uint16_t CGCooldown::s_starIndices[CGCooldown::NUM_STAR_INDICES] = { 0, 9, 1, 1, 9, 2, 2, 9, 3, 3, 9, 4, 4, 9, 5, 5, 9, 6, 6, 9, 7, 7, 9, 8 };
 
 // STATIC: 0x00AD1418
-float CGCooldown::s_flashScale[7] = { 1.0f, 0.6993007f, 0.5405405f, 0.6289308f, 0.7518797f, 0.625f, 0.8695652f };
+float CGCooldown::s_flashScale[CGCooldown::NUM_FLASH_KEYS] = { 1.0f, 0.6993007f, 0.5405405f, 0.6289308f, 0.7518797f, 0.625f, 0.8695652f };
 
 // STATIC: 0x00AD1434
-float CGCooldown::s_flashAlpha[7] = { 0.0f, 0.5f, 1.0f, 0.75f, 0.5f, 0.25f, 0.0f };
+float CGCooldown::s_flashAlpha[CGCooldown::NUM_FLASH_KEYS] = { 0.0f, 0.5f, 1.0f, 0.75f, 0.5f, 0.25f, 0.0f };
 
 // STATIC: 0x00C24254
-float CGCooldown::s_flashRotation[7] = { 0.0f, -0.1303761f, -0.25918141f, -0.39269909f, -0.51836282f, -0.6518805f, -0.78539819f };
+float CGCooldown::s_flashRotation[CGCooldown::NUM_FLASH_KEYS] = { 0.0f, -0.1303761f, -0.25918141f, -0.39269909f, -0.51836282f, -0.6518805f, -0.78539819f };
 
 // STATIC: 0x00C24240
 CDataAllocator CGCooldown::s_cooldownHeap(sizeof(CGCooldown), 100);
@@ -118,7 +118,7 @@ void CGCooldown::AnimateOctants01(uint32_t octant, float t) {
             this->m_starVerts[1].x = this->m_rect.maxX;
             this->m_starVerts[1].y = this->m_rect.maxY;
 
-            for (uint32_t i = 3; i < 9; i++) {
+            for (uint32_t i = 3; i < NUM_STAR_RIM_VERTS; i++) {
                 this->m_starVerts[i].x = this->m_rect.maxX;
                 this->m_starVerts[i].y = this->m_starVerts[1].y;
             }
@@ -129,7 +129,7 @@ void CGCooldown::AnimateOctants01(uint32_t octant, float t) {
             this->m_starVerts[2].x = x;
             this->m_starVerts[2].y = this->m_rect.maxY;
 
-            for (uint32_t i = 3; i < 9; i++) {
+            for (uint32_t i = 3; i < NUM_STAR_RIM_VERTS; i++) {
                 this->m_starVerts[i].x = this->m_starVerts[1].x;
                 this->m_starVerts[i].y = this->m_rect.maxY;
             }
@@ -181,7 +181,7 @@ void CGCooldown::AnimateOctants23(uint32_t octant, float t) {
             this->m_starVerts[5].x = x;
             this->m_starVerts[5].y = this->m_rect.minY;
 
-            for (uint32_t i = 6; i < 9; i++) {
+            for (uint32_t i = 6; i < NUM_STAR_RIM_VERTS; i++) {
                 this->m_starVerts[i].x = this->m_starVerts[4].x;
                 this->m_starVerts[i].y = this->m_rect.minY;
             }
@@ -193,7 +193,7 @@ void CGCooldown::AnimateOctants23(uint32_t octant, float t) {
             this->m_starVerts[2].x = this->m_rect.maxX;
             this->m_starVerts[2].y = cy;
 
-            for (uint32_t i = 4; i < 9; i++) {
+            for (uint32_t i = 4; i < NUM_STAR_RIM_VERTS; i++) {
                 this->m_starVerts[i].x = this->m_rect.maxX;
                 this->m_starVerts[i].y = this->m_starVerts[3].y;
             }
@@ -387,14 +387,14 @@ void CGCooldown::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
 
     CGxShader* shader = CSimpleTexture::GetImageModePixelShader(ImageMode_Normal);
 
-    if (layer == 2) {
+    if (layer == DRAWLAYER_ARTWORK) {
         if (this->m_starTexture) {
-            batch->Queue(this->m_starTexture, GxBlend_Alpha, 10, this->m_starVerts, this->m_starTexCoords, 0, &this->m_starColor, 24, CGCooldown::s_starIndices, shader);
-            batch->Queue(this->m_starTexture, GxBlend_Add, 4, this->m_flashVerts, this->m_flashTexCoords, 0, &this->m_flashColor, 6, CGCooldown::s_flashIndices, shader);
+            batch->Queue(this->m_starTexture, GxBlend_Alpha, NUM_STAR_VERTS, this->m_starVerts, this->m_starTexCoords, 0, &this->m_starColor, NUM_STAR_INDICES, CGCooldown::s_starIndices, shader);
+            batch->Queue(this->m_starTexture, GxBlend_Add, NUM_QUAD_VERTS, this->m_flashVerts, this->m_flashTexCoords, 0, &this->m_flashColor, NUM_QUAD_INDICES, CGCooldown::s_flashIndices, shader);
         }
-    } else if (layer == 3) {
+    } else if (layer == DRAWLAYER_ARTWORK_OVERLAY) {
         if (this->m_edgeTexture && this->m_drawEdge) {
-            batch->Queue(this->m_edgeTexture, GxBlend_Opaque, 4, this->m_edgeVerts, this->m_edgeTexCoords, 0, &this->m_edgeColor, 6, CGCooldown::s_edgeIndices, shader);
+            batch->Queue(this->m_edgeTexture, GxBlend_Opaque, NUM_QUAD_VERTS, this->m_edgeVerts, this->m_edgeTexCoords, 0, &this->m_edgeColor, NUM_QUAD_INDICES, CGCooldown::s_edgeIndices, shader);
         }
     }
 }
@@ -412,7 +412,7 @@ bool CGCooldown::IsA(const char* typeName) {
 // VERIFY: e5cabff8 manual
 // OFFSET: 0x005EBF20
 void CGCooldown::ResetVerts() {
-    for (uint32_t i = 0; i < 9; i++) {
+    for (uint32_t i = 0; i < NUM_STAR_RIM_VERTS; i++) {
         this->m_starVerts[i] = C3Vector(0.0f, 0.0f, 1.0f);
     }
 
@@ -472,11 +472,11 @@ void CGCooldown::AnimateVerts() {
             this->m_starTexCoords[8].y = 0.0f;
         }
 
-        this->m_starVerts[9].x = cx;
-        this->m_starVerts[9].y = cy;
-        this->m_starVerts[9].z = 1.0f;
-        this->m_starTexCoords[9].x = 0.5f;
-        this->m_starTexCoords[9].y = 0.5f;
+        this->m_starVerts[STAR_CENTER_VERT].x = cx;
+        this->m_starVerts[STAR_CENTER_VERT].y = cy;
+        this->m_starVerts[STAR_CENTER_VERT].z = 1.0f;
+        this->m_starTexCoords[STAR_CENTER_VERT].x = 0.5f;
+        this->m_starTexCoords[STAR_CENTER_VERT].y = 0.5f;
 
         if (octant < 4) {
             if (octant < 2) {
@@ -536,11 +536,11 @@ void CGCooldown::AnimateVerts() {
         this->m_starVerts[7].y = this->m_rect.maxY;
         this->m_starVerts[8].x = cx;
         this->m_starVerts[8].y = this->m_rect.maxY;
-        this->m_starVerts[9].x = cx;
-        this->m_starVerts[9].y = cy;
-        this->m_starVerts[9].z = 1.0f;
-        this->m_starTexCoords[9].x = 0.5f;
-        this->m_starTexCoords[9].y = 0.5f;
+        this->m_starVerts[STAR_CENTER_VERT].x = cx;
+        this->m_starVerts[STAR_CENTER_VERT].y = cy;
+        this->m_starVerts[STAR_CENTER_VERT].z = 1.0f;
+        this->m_starTexCoords[STAR_CENTER_VERT].x = 0.5f;
+        this->m_starTexCoords[STAR_CENTER_VERT].y = 0.5f;
         return;
     }
 

@@ -186,7 +186,7 @@ void CGQuestPOIFrame::RenderCallback(void* param) {
 void CGQuestPOIFrame::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
     CSimpleFrame::OnFrameRender(batch, layer);
 
-    if (layer == 3) {
+    if (layer == DRAWLAYER_ARTWORK_OVERLAY) {
         batch->QueueCallback(CGQuestPOIFrame::RenderCallback, this);
     }
 }

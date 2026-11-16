@@ -550,7 +550,7 @@ void CSimpleModel::OnModelLoaded(CM2Model* model) {
 void CSimpleModel::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
     this->CSimpleFrame::OnFrameRender(batch, layer);
 
-    if (this->m_model && layer == 2) {
+    if (this->m_model && layer == DRAWLAYER_ARTWORK) {
         batch->QueueCallback(&CSimpleModel::RenderModel, this);
     }
 }
