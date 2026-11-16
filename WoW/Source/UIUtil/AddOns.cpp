@@ -128,7 +128,7 @@ char* AddOnUnloadableToken(UIADDON_LOADABLE_REASON reason, UIADDON_LOADABLE_REAS
 
 // VERIFY: 200fce53 auto
 // OFFSET: 0x005F4C90
-const char* AddOnSecurityToken(int32_t security) {
+const char* AddOnSecurityToken(UIADDON_SECURITY security) {
     return s_addOnLoadableTokens[UIADDON_SECURE + security];
 }
 
@@ -1703,7 +1703,7 @@ void UnloadAddOns() {
 
 // VERIFY: 1697dec4 auto
 // OFFSET: 0x005F7670
-int32_t GetAddOnSecurity(const char* name) {
+UIADDON_SECURITY GetAddOnSecurity(const char* name) {
     UIADDON* addon = s_addons.Ptr(name);
 
     if (addon) {
