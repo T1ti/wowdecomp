@@ -2827,10 +2827,9 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
 
     this->m_combatModeTime = FrameTime::s_curTimeMs - 500;
     this->m_pvpCooldownTimestamp = 0;
-    this->m_gemCounts[0] = 0;
-    this->m_gemCounts[1] = 0;
-    this->m_gemCounts[2] = 0;
-    this->m_gemCounts[3] = 0;
+    for (uint32_t i = 0; i < sizeof(this->m_gemCounts) / sizeof(this->m_gemCounts[0]); i++) {
+        this->m_gemCounts[i] = 0;
+    }
     this->m_dance = nullptr;
     this->m_danceMoveIndex = 0;
 
@@ -5973,12 +5972,11 @@ static void CountGemsItemCacheCallback(int32_t id, const WOWGUID& guid, void* pa
 // VERIFY: 456c3dda manual
 // OFFSET: 0x006DE4D0
 void CGPlayer_C::CountEquippedGems() {
-    this->m_gemCounts[0] = 0;
-    this->m_gemCounts[1] = 0;
-    this->m_gemCounts[2] = 0;
-    this->m_gemCounts[3] = 0;
+    for (uint32_t i = 0; i < sizeof(this->m_gemCounts) / sizeof(this->m_gemCounts[0]); i++) {
+        this->m_gemCounts[i] = 0;
+    }
 
-    for (uint32_t slot = 0; slot <= 18; slot++) {
+    for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         CGItem_C* item = nullptr;
         InspectItem* inspect = nullptr;
 
@@ -6001,7 +5999,7 @@ void CGPlayer_C::CountEquippedGems() {
 
             if (ClntObjMgrGetActivePlayer() == this->m_obj->m_guid) {
                 enchantId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[socket].m_id;
-            } else if (socket <= 11) {
+            } else if (socket < CGItemData::NUM_ENCHANTMENTS) {
                 enchantId = inspect->m_enchants[socket];
             } else {
                 enchantId = 0;

@@ -3552,12 +3552,11 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         }
 
         if (this->m_turnDelta[0] == 0.0f) {
-            this->m_turnDelta[0] = diff;
-            this->m_turnDelta[1] = diff;
-            this->m_turnDelta[2] = diff;
-            this->m_turnDelta[3] = diff;
+            for (uint32_t i = 0; i < NUM_SAVED_FACING_DELTAS; i++) {
+                this->m_turnDelta[i] = diff;
+            }
         } else {
-            memmove(&this->m_turnDelta[1], &this->m_turnDelta[0], sizeof(float) * 3);
+            memmove(&this->m_turnDelta[1], &this->m_turnDelta[0], sizeof(float) * (NUM_SAVED_FACING_DELTAS - 1));
             this->m_turnDelta[0] = diff;
             float average = (this->m_turnDelta[0] + this->m_turnDelta[1] + this->m_turnDelta[2] + this->m_turnDelta[3]) * 0.25f;
 
@@ -7083,13 +7082,9 @@ void CGUnit_C::ModifyPredictedHealth(int32_t delta) {
 // VERIFY: bf8a5563 auto
 // OFFSET: 0x0071C320
 void CGUnit_C::InitPredictedPower() {
-    this->m_predictedPower[0] = this->m_unit->m_unitFieldPower[0];
-    this->m_predictedPower[1] = this->m_unit->m_unitFieldPower[1];
-    this->m_predictedPower[2] = this->m_unit->m_unitFieldPower[2];
-    this->m_predictedPower[3] = this->m_unit->m_unitFieldPower[3];
-    this->m_predictedPower[4] = this->m_unit->m_unitFieldPower[4];
-    this->m_predictedPower[5] = this->m_unit->m_unitFieldPower[5];
-    this->m_predictedPower[6] = this->m_unit->m_unitFieldPower[6];
+    for (uint32_t i = 0; i < NUM_POWER_TYPES; i++) {
+        this->m_predictedPower[i] = this->m_unit->m_unitFieldPower[i];
+    }
 }
 
 // VERIFY: 61272ca6 auto
@@ -9897,10 +9892,9 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(this->GetRawFacing());
     this->m_smoothTarget.m_velocity = 0.0f;
-    this->m_turnDelta[0] = 0.0f;
-    this->m_turnDelta[1] = 0.0f;
-    this->m_turnDelta[2] = 0.0f;
-    this->m_turnDelta[3] = 0.0f;
+    for (uint32_t i = 0; i < NUM_SAVED_FACING_DELTAS; i++) {
+        this->m_turnDelta[i] = 0.0f;
+    }
     this->Animate(0.0f);
 
     if (this->m_unit->m_unitFieldHealth > 0) {
@@ -10114,10 +10108,9 @@ void CGUnit_C::Reenable() {
     float facing = this->m_movementData.m_facing;
     this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(facing);
     this->m_smoothTarget.m_velocity = 0.0f;
-    this->m_turnDelta[0] = 0.0f;
-    this->m_turnDelta[1] = 0.0f;
-    this->m_turnDelta[2] = 0.0f;
-    this->m_turnDelta[3] = 0.0f;
+    for (uint32_t i = 0; i < NUM_SAVED_FACING_DELTAS; i++) {
+        this->m_turnDelta[i] = 0.0f;
+    }
     this->m_renderFacing = facing;
     this->m_facingVelocity = 0.0f;
     this->m_facingBlend = 1.0f;

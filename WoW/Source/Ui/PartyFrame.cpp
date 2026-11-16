@@ -543,18 +543,18 @@ int32_t CGPartyInfo::IsMemberPet(const WOWGUID& guid, int32_t* index) {
 // VERIFY: c3b2e18b auto
 // OFFSET: 0x0052D0E0
 void CGPartyInfo::InitializeGame() {
-    CGPartyInfo::m_members[0].m_guid = 0;
-    CGPartyInfo::m_members[1].m_guid = 0;
-    CGPartyInfo::m_members[2].m_guid = 0;
-    CGPartyInfo::m_members[3].m_guid = 0;
-    CGPartyInfo::m_memberAssignments[0] = 0;
-    CGPartyInfo::m_memberAssignments[1] = 0;
-    CGPartyInfo::m_memberAssignments[2] = 0;
-    CGPartyInfo::m_memberAssignments[3] = 0;
-    CGPartyInfo::m_memberRoles[0] = 0;
-    CGPartyInfo::m_memberRoles[1] = 0;
-    CGPartyInfo::m_memberRoles[2] = 0;
-    CGPartyInfo::m_memberRoles[3] = 0;
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
+        CGPartyInfo::m_members[i].m_guid = 0;
+    }
+
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
+        CGPartyInfo::m_memberAssignments[i] = 0;
+    }
+
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
+        CGPartyInfo::m_memberRoles[i] = 0;
+    }
+
     CGPartyInfo::m_leader.m_guid = 0;
     CGPartyInfo::m_leaderIndex = -1;
     CGPartyInfo::m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;

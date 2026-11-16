@@ -273,18 +273,10 @@ CEffect::CEffect() {
     this->m_kitRec = nullptr;
     this->m_effectNameRec = nullptr;
     this->m_flags = EFFECT_FLAGS::EFFECT_NONE;
-    this->m_lightning[0] = nullptr;
-    this->m_lightning[1] = nullptr;
-    this->m_lightning[2] = nullptr;
-    this->m_lightning[3] = nullptr;
-    this->m_lightning[4] = nullptr;
-    this->m_lightning[5] = nullptr;
-    this->m_lightning[6] = nullptr;
-    this->m_lightning[7] = nullptr;
-    this->m_lightning[8] = nullptr;
-    this->m_lightning[9] = nullptr;
-    this->m_lightning[10] = nullptr;
-    this->m_lightning[11] = nullptr;
+    for (uint32_t i = 0; i < sizeof(this->m_lightning) / sizeof(this->m_lightning[0]); i++) {
+        this->m_lightning[i] = nullptr;
+    }
+
     this->unknown_0080 = 0;
     this->unknown_0084 = 0;
     this->m_facing = 0.0f;
