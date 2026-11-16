@@ -112,22 +112,12 @@ static int32_t Script_GetMerchantItemCostInfo(lua_State* L) {
     if (item && item->m_itemID && (cost = g_itemExtendedCostDB.GetRecord(item->m_extendedCostID))) {
         lua_pushnumber(L, cost->m_honorPoints);
         lua_pushnumber(L, cost->m_arenaPoints);
-        uint32_t count = cost->m_itemID[0] != 0;
+        uint32_t count = 0;
 
-        if (cost->m_itemID[1]) {
-            count++;
-        }
-
-        if (cost->m_itemID[2]) {
-            count++;
-        }
-
-        if (cost->m_itemID[3]) {
-            count++;
-        }
-
-        if (cost->m_itemID[4]) {
-            count++;
+        for (uint32_t i = 0; i < sizeof(cost->m_itemID) / sizeof(cost->m_itemID[0]); i++) {
+            if (cost->m_itemID[i]) {
+                count++;
+            }
         }
 
         numItems = count;

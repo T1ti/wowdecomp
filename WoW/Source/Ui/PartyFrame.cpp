@@ -466,18 +466,12 @@ bool CGGameUI::CanChangePlayerDifficulty() {
 // VERIFY: 967e64dc auto
 // OFFSET: 0x0052CC30
 void CGPartyInfo::CheckClearLFGSlot() {
-    int32_t count = CGPartyInfo::m_members[0] ? 1 : 0;
+    int32_t count = 0;
 
-    if (CGPartyInfo::m_members[1]) {
-        count++;
-    }
-
-    if (CGPartyInfo::m_members[2]) {
-        count++;
-    }
-
-    if (CGPartyInfo::m_members[3]) {
-        count++;
+    for (int32_t i = 0; i < CGPartyInfo::MAX_PARTY_MEMBERS; i++) {
+        if (CGPartyInfo::m_members[i]) {
+            count++;
+        }
     }
 
     if (count || !CGPartyInfo::m_lfgSlot) {
