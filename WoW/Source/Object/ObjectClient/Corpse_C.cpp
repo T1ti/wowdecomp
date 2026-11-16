@@ -157,7 +157,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
                 continue;
             }
 
-            if (slot == 0) {
+            if (slot == INVSLOT_HEAD) {
                 if (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_HELM) {
                     continue;
                 }

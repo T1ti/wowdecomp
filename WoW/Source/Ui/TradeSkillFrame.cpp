@@ -702,13 +702,13 @@ void CGTradeSkillInfo::Close() {
 // OFFSET: 0x005D9F00
 const char* GetInventorySlotToken(int32_t slot) {
     switch (slot) {
-        case 10:
+        case INVSLOT_FINGER1:
             return "FINGER0SLOT_UNIQUE";
-        case 11:
+        case INVSLOT_FINGER2:
             return "FINGER1SLOT_UNIQUE";
-        case 12:
+        case INVSLOT_TRINKET1:
             return "TRINKET0SLOT_UNIQUE";
-        case 13:
+        case INVSLOT_TRINKET2:
             return "TRINKET1SLOT_UNIQUE";
         default:
             return s_invSlotTokens[slot];

@@ -10338,17 +10338,17 @@ void CGPlayer_C::EquipVisibleItem(const VisibleItem_C* item, int32_t slot) {
     }
 
     switch (slot) {
-        case 15:
+        case INVSLOT_MAINHAND:
             this->AddHandItem(0);
             this->SetWeaponTrail(this->m_worldModel, 0);
             return;
 
-        case 16:
+        case INVSLOT_OFFHAND:
             this->AddHandItem(1);
             this->SetWeaponTrail(this->m_worldModel, 1);
             return;
 
-        case 17:
+        case INVSLOT_RANGED:
             this->AddHandItem(2);
             this->SetWeaponTrail(this->m_worldModel, 2);
             return;
@@ -10389,14 +10389,14 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
 
         if (abs(item->m_itemId) && item->m_itemId <= 0) {
             switch (slot) {
-                case 15:
+                case INVSLOT_MAINHAND:
                     if (this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
                         CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(0), false);
                     }
 
                     break;
 
-                case 16:
+                case INVSLOT_OFFHAND:
                     if (this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
                         CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(0), false);
                         CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(0), true);
@@ -10404,7 +10404,7 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
 
                     break;
 
-                case 17:
+                case INVSLOT_RANGED:
                     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE || !this->m_sheatheState) {
                         CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(17), static_cast<SHEATHE_TYPE>(0), false);
                     }
@@ -10547,16 +10547,16 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
         CGActionBar::UpdateItem(abs(item->m_itemId));
 
         switch (slot) {
-            case 15:
+            case INVSLOT_MAINHAND:
                 SignalPlayerAttackEvent(0);
                 CGSpellBook::UpdateSpells(0, 0, 0);
                 break;
 
-            case 16:
+            case INVSLOT_OFFHAND:
                 SignalPlayerAttackEvent(1);
                 break;
 
-            case 17:
+            case INVSLOT_RANGED:
                 FrameScript_SignalEvent(SCRIPT_EVENT_UNIT_RANGED_ATTACK_POWER, "%s", "player");
                 CGSpellBook::UpdateSpells(0, 0, 0);
                 break;
@@ -10571,7 +10571,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
     CM2Model* detached = nullptr;
 
     switch (slot) {
-        case 15:
+        case INVSLOT_MAINHAND:
             this->ClearWeaponTrail(0);
 
             if (!thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
@@ -10597,7 +10597,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
 
             break;
 
-        case 16:
+        case INVSLOT_OFFHAND:
             this->ClearWeaponTrail(1);
 
             if (thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
@@ -10623,7 +10623,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
 
             break;
 
-        case 17:
+        case INVSLOT_RANGED:
             if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
                 uint32_t inventoryType = old->GetInventoryType();
                 this->m_worldModel->DetachAllChildrenById(inventoryType == INVTYPE_RANGEDRIGHT || inventoryType == INVTYPE_THROWN ? MODEL_ATTACHMENT_ID::ATTACH_HANDR : MODEL_ATTACHMENT_ID::ATTACH_HANDL);
