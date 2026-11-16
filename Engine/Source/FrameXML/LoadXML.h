@@ -29,12 +29,6 @@ struct XMLENUMVALUE {
     /* 0004 */ const char* m_name;
 };
 
-const char* BlendModeToString(EGxBlend blend);
-const char* CurveTypeToString(SimpleAnimCurveType curve);
-const char* DrawLayerToString(uint32_t layer);
-const char* FontFlagsToString(uint32_t flags);
-const char* FramePointToString(FRAMEPOINT point);
-const char* FrameStrataToString(FRAME_STRATA strata);
 // FrameXML_CheckSignature results, named after the GlueXML load warnings
 // ("missing signature", "corrupt signature", "modified or corrupt").
 enum XML_SIGNATURE_RESULT : int32_t {
@@ -44,6 +38,12 @@ enum XML_SIGNATURE_RESULT : int32_t {
     XML_SIGNATURE_VALID    = 3,
 };
 
+const char* BlendModeToString(EGxBlend blend);
+const char* CurveTypeToString(SimpleAnimCurveType curve);
+const char* DrawLayerToString(uint32_t layer);
+const char* FontFlagsToString(uint32_t flags);
+const char* FramePointToString(FRAMEPOINT point);
+const char* FrameStrataToString(FRAME_STRATA strata);
 int32_t FrameXML_CheckSignature(const char* tocFile, const char* extraFile, const uint8_t* modulus, uint8_t* digest);
 const char* JustifyToString(uint32_t justify);
 CSimpleAnimGroup* LoadXML_AnimGroup(XMLNode* node, CScriptRegion* region, CStatus* status);
