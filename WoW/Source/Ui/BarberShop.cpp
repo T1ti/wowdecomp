@@ -62,11 +62,11 @@ float CGBarberShop::GetMinCameraDistance() {
 // OFFSET: 0x0052E490
 const BarberShopStyleRec* CGBarberShop::GetCurrentStyle(int32_t type) {
     switch (type) {
-        case 0:
+        case BARBER_SHOP_HAIR_STYLE:
             return CGBarberShop::m_currentHairStyle->m_rec;
-        case 2:
+        case BARBER_SHOP_FACIAL_HAIR:
             return CGBarberShop::m_currentFacialHair->m_rec;
-        case 3:
+        case BARBER_SHOP_SKIN_COLOR:
             return CGBarberShop::m_currentSkinColor->m_rec;
     }
 
@@ -200,9 +200,9 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
     }
 
     component->AddItemBySlot(INVSLOT_TABARD, 54559, 0);
-    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
-    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
-    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->sex, component->m_data.m_preferences.m_skinID);
+    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(BARBER_SHOP_HAIR_STYLE, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
+    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(BARBER_SHOP_FACIAL_HAIR, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
+    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(BARBER_SHOP_SKIN_COLOR, player->m_unit->m_raceID, player->m_player->sex, component->m_data.m_preferences.m_skinID);
     CGBarberShop::m_barberShopEnabled = 1;
     FrameScript_SignalEvent(SCRIPT_EVENT_BARBER_SHOP_OPEN, nullptr);
     CGBarberShop::m_minCameraDistance = 1.0f;
@@ -256,16 +256,16 @@ void CGBarberShop::SetNextBarberShopStyle(int32_t type, bool backward) {
     }
 
     switch (type) {
-        case 0:
+        case BARBER_SHOP_HAIR_STYLE:
             if (!backward) {
                 component->SetNextHairStyle(COMPONENT_CONTEXT_1);
             } else {
                 component->SetPrevHairStyle(COMPONENT_CONTEXT_1);
             }
 
-            CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_hairStyleId);
+            CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(BARBER_SHOP_HAIR_STYLE, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_hairStyleId);
             break;
-        case 1:
+        case BARBER_SHOP_HAIR_COLOR:
             if (!backward) {
                 component->SetNextHairColor(COMPONENT_CONTEXT_1);
             } else {
@@ -273,23 +273,23 @@ void CGBarberShop::SetNextBarberShopStyle(int32_t type, bool backward) {
             }
 
             break;
-        case 2:
+        case BARBER_SHOP_FACIAL_HAIR:
             if (!backward) {
                 component->SetNextFacialFeature(COMPONENT_CONTEXT_1);
             } else {
                 component->SetPrevFacialFeature(COMPONENT_CONTEXT_1);
             }
 
-            CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_facialHairId);
+            CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(BARBER_SHOP_FACIAL_HAIR, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_facialHairId);
             break;
-        case 3:
+        case BARBER_SHOP_SKIN_COLOR:
             if (!backward) {
                 component->SetNextSkin(COMPONENT_CONTEXT_1);
             } else {
                 component->SetPrevSkin(COMPONENT_CONTEXT_1);
             }
 
-            CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_skinID);
+            CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(BARBER_SHOP_SKIN_COLOR, player->m_unit->m_raceID, player->m_unit->m_sex, component->m_data.m_preferences.m_skinID);
             break;
         default:
             break;
@@ -357,9 +357,9 @@ void CGBarberShop::EnterWorld() {
         style->m_rec = rec;
     }
 
-    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(0, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
-    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(2, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
-    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(3, player->m_unit->m_raceID, player->m_player->sex, player->m_player->skinID);
+    CGBarberShop::m_currentHairStyle = CGBarberShop::GetStyle(BARBER_SHOP_HAIR_STYLE, player->m_unit->m_raceID, player->m_player->sex, player->m_player->hairStyleID);
+    CGBarberShop::m_currentFacialHair = CGBarberShop::GetStyle(BARBER_SHOP_FACIAL_HAIR, player->m_unit->m_raceID, player->m_player->sex, player->m_player->facialHairStyleID);
+    CGBarberShop::m_currentSkinColor = CGBarberShop::GetStyle(BARBER_SHOP_SKIN_COLOR, player->m_unit->m_raceID, player->m_player->sex, player->m_player->skinID);
 }
 
 // VERIFY: 066af30d manual
@@ -395,13 +395,13 @@ bool CGBarberShop::IsCurrentStyle(int32_t type) {
     }
 
     switch (type) {
-        case 0:
+        case BARBER_SHOP_HAIR_STYLE:
             return player->m_player->hairStyleID == CGBarberShop::m_currentHairStyle->m_rec->m_data;
-        case 1:
+        case BARBER_SHOP_HAIR_COLOR:
             return player->m_player->hairColorID == component->m_data.m_preferences.m_hairColorId;
-        case 2:
+        case BARBER_SHOP_FACIAL_HAIR:
             return player->m_player->facialHairStyleID == CGBarberShop::m_currentFacialHair->m_rec->m_data;
-        case 3:
+        case BARBER_SHOP_SKIN_COLOR:
             return player->m_player->skinID == component->m_data.m_preferences.m_skinID;
         default:
             return false;
@@ -492,20 +492,20 @@ int32_t CGBarberShop::GetTotalCost() {
     float base = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, player->m_unit->m_unitFieldLevel - 1, 0);
     int32_t baseCost = static_cast<int32_t>(base);
 
-    if (!CGBarberShop::IsCurrentStyle(0)) {
+    if (!CGBarberShop::IsCurrentStyle(BARBER_SHOP_HAIR_STYLE)) {
         float value = baseCost * CGBarberShop::m_currentHairStyle->m_rec->m_costModifier;
         cost = static_cast<int32_t>(value);
-    } else if (!CGBarberShop::IsCurrentStyle(1)) {
+    } else if (!CGBarberShop::IsCurrentStyle(BARBER_SHOP_HAIR_COLOR)) {
         float value = baseCost * 0.5f;
         cost = static_cast<int32_t>(value);
     }
 
-    if (!CGBarberShop::IsCurrentStyle(2)) {
+    if (!CGBarberShop::IsCurrentStyle(BARBER_SHOP_FACIAL_HAIR)) {
         float value = baseCost * CGBarberShop::m_currentFacialHair->m_rec->m_costModifier;
         cost += static_cast<int32_t>(value);
     }
 
-    if (!CGBarberShop::IsCurrentStyle(3)) {
+    if (!CGBarberShop::IsCurrentStyle(BARBER_SHOP_SKIN_COLOR)) {
         float value = baseCost * CGBarberShop::m_currentSkinColor->m_rec->m_costModifier;
         cost += static_cast<int32_t>(value);
     }
