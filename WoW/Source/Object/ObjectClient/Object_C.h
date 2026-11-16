@@ -33,7 +33,12 @@ class SpellVisualKitRec;
 class SpellVisualEffectNameRec;
 class SpellVisualKitModelAttachRec;
 class SpellVisualRec;
-enum OUT_OF_RANGE_TYPE : int32_t;
+// Why CGObject_C::HandleOutOfRange runs, by caller (inferred names).
+enum OUT_OF_RANGE_TYPE : int32_t {
+    OUT_OF_RANGE_UPDATE = 0,    // SMSG_UPDATE_OBJECT out-of-range block
+    OUT_OF_RANGE_DESTROYED = 1, // SMSG_DESTROY_OBJECT
+    OUT_OF_RANGE_UNLOCKED = 2,  // deferred disable after ClntObjMgrUnlockObject
+};
 // Native ClearEffectKit (0x00744BD0) maps these types to SpellVisualRec fields.
 // Type 3 plays at a supplied position and is not selected by ClearEffectKit.
 enum SPELL_VISUAL_KIT_TYPE : int32_t {

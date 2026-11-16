@@ -1448,6 +1448,18 @@ static void ObjDelete(CGObject_C* object) {
     s_curMgr->m_lazyCleanupFifo[object->m_typeId - 1].LinkToTail(object);
 }
 
+// SMSG_UPDATE_OBJECT block type. Names follow the 0.5.3 symbols; 3.3.5 adds
+// a second full-update type at 3 (passed to PostInitObject as reenable),
+// moving OUT_OF_RANGE and IN_RANGE up by one.
+enum OBJECT_UPDATE_TYPE : uint8_t {
+    UPDATE_PARTIAL = 0,
+    UPDATE_MOVEMENT = 1,
+    UPDATE_FULL = 2,
+    UPDATE_FULL_UNKNOWN_3 = 3,
+    UPDATE_OUT_OF_RANGE = 4,
+    UPDATE_IN_RANGE = 5,
+};
+
 // VERIFY: 1ddf9f77 auto
 // OFFSET: 0x004D7050
 static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t time, uint32_t count) {
@@ -1456,7 +1468,7 @@ static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t t
         msg->Get(type);
 
         switch (type) {
-            case 0: {
+            case UPDATE_PARTIAL: {
                 if (!PartialUpdateFromFullUpdate(msg)) {
                     return 0;
                 }
@@ -1464,15 +1476,15 @@ static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t t
                 break;
             }
 
-            case 1: {
+            case UPDATE_MOVEMENT: {
                 SmartGUID guid;
                 *msg >> guid;
                 CClientMoveUpdate::Skip(msg);
                 break;
             }
 
-            case 2:
-            case 3: {
+            case UPDATE_FULL:
+            case UPDATE_FULL_UNKNOWN_3: {
                 if (!CreateObject(msg, time)) {
                     return 0;
                 }
@@ -1480,7 +1492,7 @@ static int32_t ObjectUpdateFirstPass(uint32_t index, CDataStore* msg, uint32_t t
                 break;
             }
 
-            case 5: {
+            case UPDATE_IN_RANGE: {
                 UpdateInRangeObjects(msg);
                 break;
             }
@@ -1503,7 +1515,7 @@ static int32_t ObjectUpdateSecondPass(CDataStore* msg, uint32_t time, uint32_t c
         msg->Get(type);
 
         switch (type) {
-            case 0: {
+            case UPDATE_PARTIAL: {
                 if (!CallMirrorHandlers(msg, false, WOWGUID())) {
                     return 0;
                 }
@@ -1511,22 +1523,22 @@ static int32_t ObjectUpdateSecondPass(CDataStore* msg, uint32_t time, uint32_t c
                 break;
             }
 
-            case 1: {
+            case UPDATE_MOVEMENT: {
                 PostMovementUpdate(msg);
                 break;
             }
 
-            case 2:
-            case 3: {
-                if (!PostInitObject(time, msg, type == 3)) {
+            case UPDATE_FULL:
+            case UPDATE_FULL_UNKNOWN_3: {
+                if (!PostInitObject(time, msg, type == UPDATE_FULL_UNKNOWN_3)) {
                     return 0;
                 }
 
                 break;
             }
 
-            case 4:
-            case 5: {
+            case UPDATE_OUT_OF_RANGE:
+            case UPDATE_IN_RANGE: {
                 SkipSetOfObjects(msg);
                 break;
             }
@@ -1572,7 +1584,7 @@ static void UpdateOutOfRangeObjects(CDataStore* msg) {
             CGBattlefieldInfo::OnArenaUnitOutOfRange(objectGuid);
         }
 
-        object->HandleOutOfRange(static_cast<OUT_OF_RANGE_TYPE>(0));
+        object->HandleOutOfRange(OUT_OF_RANGE_UPDATE);
 
         if (object->IsObjectLocked()) {
             object->SetDisablePending(1);
@@ -1614,7 +1626,7 @@ int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, 
     uint8_t type = 0;
     msg->Get(type);
 
-    if (type == 4) {
+    if (type == UPDATE_OUT_OF_RANGE) {
         UpdateOutOfRangeObjects(msg);
         index = 1;
     } else {
@@ -1694,7 +1706,7 @@ int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time,
         static_cast<CGUnit_C*>(object)->OnDeath();
     }
 
-    object->HandleOutOfRange(static_cast<OUT_OF_RANGE_TYPE>(1));
+    object->HandleOutOfRange(OUT_OF_RANGE_DESTROYED);
 
     if (object->IsObjectLocked()) {
         object->SetDisablePending(1);
@@ -1743,7 +1755,7 @@ void ClntObjMgrUnlockObject(WOWGUID guid, const char* fileName, int32_t lineNumb
         return;
     }
 
-    object->HandleOutOfRange(static_cast<OUT_OF_RANGE_TYPE>(2));
+    object->HandleOutOfRange(OUT_OF_RANGE_UNLOCKED);
 
     if (object->IsObjectLocked()) {
         object->SetDisablePending(1);

@@ -222,7 +222,7 @@ static void DynamicObjectDecayHandler(CM2Model* model, uint32_t boneId, uint32_t
 // VERIFY: 254821be auto
 // OFFSET: 0x00704A70
 void CGDynamicObject_C::HandleOutOfRange(OUT_OF_RANGE_TYPE type) {
-    if (type != 1) {
+    if (type != OUT_OF_RANGE_DESTROYED) {
         return;
     }
 
