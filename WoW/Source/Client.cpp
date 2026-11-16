@@ -212,10 +212,10 @@ static const char* s_dataDirectories[3] = { "Data\\", "..\\Data\\", "Data\\" };
 WowClientDB<Startup_StringsRec> g_startup_StringsDB;
 
 // STATIC: 0x00AD2FE0
-const char* s_iniLocaleNames[9] = { "enUS", "koKR", "frFR", "deDE", "zhCN", "zhTW", "esES", "esMX", "ruRU" };
+const char* s_iniLocaleNames[NUM_LOCALES] = { "enUS", "koKR", "frFR", "deDE", "zhCN", "zhTW", "esES", "esMX", "ruRU" };
 
 // STATIC: 0x00AD3004
-uint32_t s_localeIds[9] = { 'enUS', 'koKR', 'frFR', 'deDE', 'zhCN', 'zhTW', 'esES', 'esMX', 'ruRU' };
+uint32_t s_localeIds[NUM_LOCALES] = { 'enUS', 'koKR', 'frFR', 'deDE', 'zhCN', 'zhTW', 'esES', 'esMX', 'ruRU' };
 
 // STATIC: 0x00B2F99C
 int32_t s_region;
@@ -268,7 +268,7 @@ static char s_installLocation[1024];
 bool g_hasIsoLocale[NUM_DB_LOCALES];
 
 // STATIC: 0x00C5DE9C
-int32_t s_locale;
+WOW_LOCALE s_locale;
 
 // STATIC: 0x00B2F040
 static const char* s_directory;
@@ -1498,19 +1498,19 @@ static void OpenArchives() {
             SFile::s_locale = code;
             bool isGB = SStrCmpI("enGB", s_iniLocale, STORM_MAX_STR) == 0;
 
-            for (int32_t i = 0; i < 9; i++) {
+            for (int32_t i = 0; i < NUM_LOCALES; i++) {
                 if (!SStrCmpI(s_iniLocale, s_iniLocaleNames[i], STORM_MAX_STR) || (isGB && !SStrCmpI("enUS", s_iniLocaleNames[i], STORM_MAX_STR))) {
-                    s_locale = i;
+                    s_locale = static_cast<WOW_LOCALE>(i);
 
-                    switch (i) {
-                        case 1:
-                        case 2:
-                        case 4:
-                        case 5:
+                    switch (s_locale) {
+                        case LOCALE_ko_KR:
+                        case LOCALE_fr_FR:
+                        case LOCALE_zh_CN:
+                        case LOCALE_zh_TW:
                             FrameScript_SetPluralRule(PLURAL_RULE_1);
                             break;
 
-                        case 8:
+                        case LOCALE_ru_RU:
                             FrameScript_SetPluralRule(PLURAL_RULE_2);
                             break;
 

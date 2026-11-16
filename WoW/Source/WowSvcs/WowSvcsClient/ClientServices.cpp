@@ -857,24 +857,24 @@ void ClientServices::Logon(const char* username, const char* password) {
 
     if (ClientServices::s_decorateAccountName->m_intValue) {
         switch (s_locale) {
-            case 0:
-            case 7:
+            case LOCALE_en_US:
+            case LOCALE_es_MX:
                 SStrPrintf(accountName, sizeof(accountName), s_region == 3 ? "%s#EU" : "%s#US", username);
                 break;
 
-            case 1:
+            case LOCALE_ko_KR:
                 SStrPrintf(accountName, sizeof(accountName), "%s#KR", username);
                 break;
 
-            case 2:
-            case 3:
-            case 6:
-            case 8:
+            case LOCALE_fr_FR:
+            case LOCALE_de_DE:
+            case LOCALE_es_ES:
+            case LOCALE_ru_RU:
                 SStrPrintf(accountName, sizeof(accountName), "%s#EU", username);
                 break;
 
-            case 4:
-            case 5:
+            case LOCALE_zh_CN:
+            case LOCALE_zh_TW:
                 SStrPrintf(accountName, sizeof(accountName), "%s#CN", username);
                 break;
 

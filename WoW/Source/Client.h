@@ -80,6 +80,21 @@ struct ARCHIVEINFO {
     /* 000C */ bool m_opened;
 };
 
+// Client locale, indexing s_iniLocaleNames/s_localeIds (names in the 0.5.3 WOW_LOCALE style;
+// the 3.3.5 order differs from 0.5.3 and from DB_LOCALE_INDEX).
+enum WOW_LOCALE : int32_t {
+    LOCALE_en_US = 0,
+    LOCALE_ko_KR = 1,
+    LOCALE_fr_FR = 2,
+    LOCALE_de_DE = 3,
+    LOCALE_zh_CN = 4,
+    LOCALE_zh_TW = 5,
+    LOCALE_es_ES = 6,
+    LOCALE_es_MX = 7,
+    LOCALE_ru_RU = 8,
+    NUM_LOCALES = 9,
+};
+
 extern CVar* g_accountListVar;
 extern CVar* g_accountNameVar;
 extern CVar* g_accountUsesTokenVar;
@@ -101,9 +116,9 @@ extern CVar* s_cvTextureFilteringMode;
 extern CVar* s_desktopGammaCvar;
 extern uint8_t s_expansionLevel;
 extern CVar* s_gammaCvar;
-extern int32_t s_locale;
-extern const char* s_iniLocaleNames[9];
-extern uint32_t s_localeIds[9];
+extern WOW_LOCALE s_locale;
+extern const char* s_iniLocaleNames[NUM_LOCALES];
+extern uint32_t s_localeIds[NUM_LOCALES];
 extern char s_localeCode[5];
 extern int32_t s_isPvPRealm;
 extern int32_t s_region;

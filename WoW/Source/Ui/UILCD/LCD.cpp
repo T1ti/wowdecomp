@@ -123,12 +123,12 @@ static bool IsLCDAvailable() {
     }
 
     switch (s_locale) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 6:
-        case 7: {
+        case LOCALE_en_US:
+        case LOCALE_ko_KR:
+        case LOCALE_fr_FR:
+        case LOCALE_de_DE:
+        case LOCALE_es_ES:
+        case LOCALE_es_MX: {
             return true;
         }
 
@@ -452,7 +452,7 @@ int32_t CGLCD::GetScreenFromName(const char* name) {
 // VERIFY: 81ad9697 auto
 // OFFSET: 0x00848010
 static bool IsAsianLocale() {
-    return s_locale == 1 || (s_locale > 3 && s_locale <= 5);
+    return s_locale == LOCALE_ko_KR || (s_locale > LOCALE_de_DE && s_locale <= LOCALE_zh_TW);
 }
 
 // VERIFY: f6f78e1f auto

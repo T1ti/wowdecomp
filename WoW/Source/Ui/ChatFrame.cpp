@@ -1828,7 +1828,7 @@ static void TranslateMessageCase(const char* word, char* dest, uint32_t size, co
         size--;
     }
 
-    if (s_locale == 1 || (s_locale > 3 && s_locale <= 5)) {
+    if (s_locale == LOCALE_ko_KR || (s_locale > LOCALE_de_DE && s_locale <= LOCALE_zh_TW)) {
         for (char c = *word; c && *source && size; c = *++word) {
             char s = *source++;
 
@@ -2034,7 +2034,7 @@ void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* tex
     char stripped[3000];
     StripHyperlinks(text, stripped, sizeof(stripped));
 
-    int32_t syllables = s_locale == 4 || s_locale == 5 ? 2 : 0;
+    int32_t syllables = s_locale == LOCALE_zh_CN || s_locale == LOCALE_zh_TW ? 2 : 0;
     *buffer = 0;
 
     const char* current = stripped;

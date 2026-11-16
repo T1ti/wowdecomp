@@ -455,7 +455,7 @@ bool CVarHandler_threatWarning(CVar* var, const char* oldValue, const char* valu
 // OFFSET: 0x0051D9B0
 void CGGameUI::RegisterGameCVars() {
     g_deselectOnClickCVar = CVar::Register("deselectOnClick", "Clear the target when clicking on terrain", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_GAME, false, nullptr, false);
-    g_cvAutoInteract = CVar::Register("autoInteract", "Toggles auto-move to interact target", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_locale == 1 ? "1" : "0", AutoInteractStateChangedCallback, CATEGORY_GAME, false, nullptr, false);
+    g_cvAutoInteract = CVar::Register("autoInteract", "Toggles auto-move to interact target", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_locale == LOCALE_ko_KR ? "1" : "0", AutoInteractStateChangedCallback, CATEGORY_GAME, false, nullptr, false);
     g_autoStandCVar = CVar::Register("autoStand", "Automatically stand when needed", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_GAME, false, nullptr, false);
     g_autoDismountCVar = CVar::Register("autoDismount", "Automatically dismount when needed", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "1", nullptr, CATEGORY_GAME, false, nullptr, false);
     g_autoDismountFlyingCVar = CVar::Register("autoDismountFlying", "If enabled, your character will automatically dismount before casting while flying", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_GAME, false, nullptr, false);

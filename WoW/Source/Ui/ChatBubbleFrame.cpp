@@ -247,7 +247,7 @@ void CGChatBubbleFrame::Initialize(const WOWGUID& unit, const char* text, const 
     this->m_fontString->SetWidth(0.0f);
     this->m_fontString->SetHeight(0.0f);
 
-    if (s_locale == 1) {
+    if (s_locale == LOCALE_ko_KR) {
         this->m_fontString->SetJustifyH(1);
     }
 

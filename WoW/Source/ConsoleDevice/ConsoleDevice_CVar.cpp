@@ -536,7 +536,7 @@ void RegisterStereoCVars() {
 // OFFSET: 0x0076A630
 void RegisterGxCVars() {
     const CGxFormat& format = *s_defaults.m_format;
-    bool window = s_locale == 4;
+    bool window = s_locale == LOCALE_zh_CN;
     char value[260];
 
     s_cvWidescreen = CVar::Register("widescreen", "Allow widescreen support", CVAR_FLAGS::CVAR_NONE, "1", nullptr, CATEGORY_GRAPHICS, false, nullptr, false);
