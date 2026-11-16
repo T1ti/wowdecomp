@@ -155,6 +155,19 @@ struct LFGRoleCheckMember {
     /* 0014 */ uint32_t unused_0014;
 };
 
+// SMSG_LFG_TELEPORT_DENIED reason. Names follow the error the client shows for each value
+// (inferred); reasons 5 and 7 are silent, 3 and unlisted values show ERR_CLIENT_LOCKED_OUT.
+enum LFG_TELEPORT_DENIED_REASON : uint32_t {
+    LFG_TELEPORT_DENIED_NONE = 0,
+    LFG_TELEPORT_DENIED_PLAYER_DEAD = 1,
+    LFG_TELEPORT_DENIED_FALLING = 2,
+    LFG_TELEPORT_DENIED_UNKNOWN_3 = 3,
+    LFG_TELEPORT_DENIED_FATIGUE = 4,
+    LFG_TELEPORT_DENIED_UNKNOWN_5 = 5,
+    LFG_TELEPORT_DENIED_INVALID_LOCATION = 6,
+    LFG_TELEPORT_DENIED_UNKNOWN_7 = 7,
+};
+
 class LfgDungeonsRec;
 class CGLookingForGroup {
     public:

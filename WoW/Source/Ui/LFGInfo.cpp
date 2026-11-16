@@ -724,24 +724,24 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
             DebugLog("LFGMessage: LFG_TELEPORT_DENIED - Reason: %u", reason);
 
             switch (reason) {
-                case 0:
-                case 5:
-                case 7:
+                case LFG_TELEPORT_DENIED_NONE:
+                case LFG_TELEPORT_DENIED_UNKNOWN_5:
+                case LFG_TELEPORT_DENIED_UNKNOWN_7:
                     break;
 
-                case 1:
+                case LFG_TELEPORT_DENIED_PLAYER_DEAD:
                     CGGameUI::DisplayError(ERR_PLAYER_DEAD);
                     break;
 
-                case 2:
+                case LFG_TELEPORT_DENIED_FALLING:
                     CGGameUI::DisplayError(ERR_NOT_WHILE_FALLING);
                     break;
 
-                case 4:
+                case LFG_TELEPORT_DENIED_FATIGUE:
                     CGGameUI::DisplayError(ERR_NOT_WHILE_FATIGUED);
                     break;
 
-                case 6:
+                case LFG_TELEPORT_DENIED_INVALID_LOCATION:
                     CGGameUI::DisplayError(ERR_INVALID_TELEPORT_LOCATION);
                     CGGameUI::DisplayError(ERR_CLIENT_LOCKED_OUT);
                     break;
