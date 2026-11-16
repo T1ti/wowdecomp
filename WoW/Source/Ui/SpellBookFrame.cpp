@@ -72,8 +72,11 @@ TSBitField<TSFixedArray<uint32_t> > s_knownSpellBits;
 // STATIC: 0x00BE8DD8
 TSFixedArray<int32_t> CGSpellBook::m_languageSpells;
 
+// Inferred name: length of the multi-cast totem spell table below.
+static const int32_t NUM_MULTI_CAST_SPELLS = 4;
+
 // STATIC: 0x00ACCCCC
-static int32_t s_multiCastSpells[4] = { 66842, 66843, 66844, 36936 };
+static int32_t s_multiCastSpells[NUM_MULTI_CAST_SPELLS] = { 66842, 66843, 66844, 36936 };
 
 // STATIC: 0x00BE5D68
 static int32_t s_dispelMask;
@@ -539,7 +542,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
     bool canTriggerTotemTutorial = CanTriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
 
     if (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_CAN_BE_MULTI_CAST) {
-        for (uint32_t i = 0; i < 2; i++) {
+        for (uint32_t i = 0; i < NUM_SPELL_REQUIRED_TOTEM_CATEGORIES; i++) {
             int32_t category = spell.m_requiredTotemCategoryID[i];
             uint32_t slotMask = CGActionBar::GetMultiCastSlotMaskForTotemCategory(category);
 
@@ -1001,7 +1004,7 @@ static void MakeSpellVisualKitLocal(int32_t id) {
     MakeSpellVisualEffectNameLocal(kit->m_leftWeaponEffect);
     MakeSpellVisualEffectNameLocal(kit->m_rightWeaponEffect);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUAL_SPECIAL_EFFECTS; i++) {
         MakeSpellVisualEffectNameLocal(kit->m_specialEffect[i]);
     }
 
@@ -1018,7 +1021,7 @@ static void MakeKnownSpellVisualKitsLocal(int32_t SpellVisualRec::* kit) {
             continue;
         }
 
-        for (uint32_t j = 0; j < 2; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_VISUALS; j++) {
             if (!spell.m_spellVisualID[j]) {
                 continue;
             }
@@ -1042,7 +1045,7 @@ static void MakeKnownSpellMissilesLocal() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 2; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_VISUALS; j++) {
             if (!spell.m_spellVisualID[j]) {
                 continue;
             }
@@ -1082,7 +1085,7 @@ void PrefetchSpellVisuals(int32_t spellId) {
         return;
     }
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_VISUALS; i++) {
         if (!spell.m_spellVisualID[i]) {
             continue;
         }
@@ -1910,7 +1913,7 @@ int32_t CGSpellBook::CanShowAura(const SpellRec* spell, const WOWGUID* caster, b
         uint32_t i = 0;
 
         while (!Spell_IsAreaAuraEffect(spell->m_effect[i])) {
-            if (++i >= 3) {
+            if (++i >= NUM_SPELL_EFFECTS) {
                 return 0;
             }
         }
@@ -2025,7 +2028,7 @@ void CGSpellBook::GetAppropriateSpellRank(uint32_t* spellId, CGUnit_C* caster, C
     uint32_t i = 0;
 
     while (!spell.m_effectAura[i]) {
-        if (++i >= 3) {
+        if (++i >= NUM_SPELL_EFFECTS) {
             return;
         }
     }
@@ -2153,7 +2156,7 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
         CGSpellBook::m_autoRangedSpell = 0;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_SKINNING_TYPES; i++) {
         if (spellId == s_skinningSpells[i]) {
             s_skinningSpells[i] = 0;
         }
@@ -2268,13 +2271,13 @@ void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
 
     uint32_t multiCast;
 
-    for (multiCast = 0; multiCast < 4; multiCast++) {
+    for (multiCast = 0; multiCast < NUM_MULTI_CAST_SPELLS; multiCast++) {
         if (spellId == s_multiCastSpells[multiCast]) {
             break;
         }
     }
 
-    if (multiCast < 4 || totemsEmptied) {
+    if (multiCast < NUM_MULTI_CAST_SPELLS || totemsEmptied) {
         CGActionBar::UpdateMultiCastBar();
     }
 

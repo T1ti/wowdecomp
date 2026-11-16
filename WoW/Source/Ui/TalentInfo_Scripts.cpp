@@ -289,7 +289,7 @@ static int32_t Script_GetTalentInfo(lua_State* L) {
         if (talent && (!pet || CGTalentInfo::IsTalentAvailableForPet(unit, talent))) {
             int32_t maxRank = -1;
 
-            for (int32_t i = 8; i >= 0; i--) {
+            for (int32_t i = MAX_TALENT_RANKS - 1; i >= 0; i--) {
                 if (talent->m_spellRank[i] && maxRank < 0) {
                     maxRank = i;
                 }
@@ -413,7 +413,7 @@ static int32_t Script_GetTalentPrereqs(lua_State* L) {
         const TalentRec* talent = &tab->m_talents[talentIndex];
 
         if (talent) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < MAX_TALENT_PREREQS; i++) {
                 int32_t prereqId = talent->m_prereqTalent[i];
 
                 if (!prereqId) {
@@ -522,7 +522,7 @@ static int32_t Script_LearnTalent(lua_State* L) {
     int32_t rank = -1;
     int32_t maxRank = -1;
 
-    for (int32_t i = 8; i >= 0; i--) {
+    for (int32_t i = MAX_TALENT_RANKS - 1; i >= 0; i--) {
         if (talent->m_spellRank[i]) {
             maxRank = i;
             break;

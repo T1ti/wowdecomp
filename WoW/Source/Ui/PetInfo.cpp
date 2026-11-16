@@ -1033,7 +1033,7 @@ void CGPetInfo::PetRename(const char* name, const char* declinedNames) {
     if (declinedNames) {
         msg.Put(static_cast<uint8_t>(1));
 
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_DECLINED_NAME_CASES; i++) {
             msg.PutString(declinedNames);
             declinedNames += 96;
         }

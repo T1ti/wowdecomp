@@ -12,6 +12,9 @@ struct lua_State;
 // FrameXML NUM_PET_ACTION_SLOTS.
 constexpr uint32_t NUM_PET_ACTION_SLOTS = 10;
 
+// Inferred name: grammatical cases of a declined pet name sent by PetRename.
+constexpr int32_t NUM_DECLINED_NAME_CASES = 5;
+
 class PetAction {
     public:
     // Descriptive six-bit kind IDs. 8..17 are spell-like in dispatch but their

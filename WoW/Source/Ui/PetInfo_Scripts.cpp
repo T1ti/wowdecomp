@@ -599,9 +599,9 @@ static int32_t Script_PetRename(lua_State* L) {
         return 0;
     }
 
-    char declinedNames[5][96];
+    char declinedNames[NUM_DECLINED_NAME_CASES][96];
 
-    for (int32_t i = 0; i < 5; i++) {
+    for (int32_t i = 0; i < NUM_DECLINED_NAME_CASES; i++) {
         const char* declined = lua_tolstring(L, i + 2, nullptr);
 
         if (!declined || !*declined) {

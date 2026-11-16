@@ -9,6 +9,9 @@ class SFileImpl;
 // Four independent procedural-effect slots in SpellVisualKit.dbc.
 constexpr int32_t NUM_SPELL_VISUAL_CHAR_PROCS = 4;
 
+// Inferred name: length of SpellVisualKitRec::m_specialEffect.
+constexpr int32_t NUM_SPELL_VISUAL_SPECIAL_EFFECTS = 3;
+
 // Descriptive client behavior. Unresolved meanings remain UNKNOWN, not UNUSED.
 // IDs 0 and 12 share the native chain-lightning branch (0x007265C0).
 enum SPELL_VISUAL_CHAR_PROC : int32_t {
@@ -66,7 +69,7 @@ class SpellVisualKitRec {
     /* 0020 */ int32_t m_breathEffect;
     /* 0024 */ int32_t m_leftWeaponEffect;
     /* 0028 */ int32_t m_rightWeaponEffect;
-    /* 002C */ int32_t m_specialEffect [3];
+    /* 002C */ int32_t m_specialEffect [NUM_SPELL_VISUAL_SPECIAL_EFFECTS];
     /* 0038 */ int32_t m_worldEffect;
     /* 003C */ int32_t m_soundID;
     /* 0040 */ int32_t m_shakeID;

@@ -612,7 +612,7 @@ int32_t CGTalentGroup_C::ValidatePreviewTalentPoints(uint32_t tabIndex, const Ta
     int32_t rank = item ? item->m_rank : -1;
     int32_t previewRank = item ? item->m_previewRank : -1;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_TALENT_PREREQS; i++) {
         int32_t prereqId = talent->m_prereqTalent[i];
 
         if (prereqId && g_talentDB.GetRecord(prereqId)) {
@@ -626,7 +626,7 @@ int32_t CGTalentGroup_C::ValidatePreviewTalentPoints(uint32_t tabIndex, const Ta
 
     int32_t maxRank = rank;
 
-    for (int32_t i = 8; i >= 0; i--) {
+    for (int32_t i = MAX_TALENT_RANKS - 1; i >= 0; i--) {
         if (talent->m_spellRank[i]) {
             maxRank = i;
             break;
@@ -658,7 +658,7 @@ int32_t CGTalentGroup_C::ValidatePreviewTalentPoints(uint32_t tabIndex, const Ta
             continue;
         }
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < MAX_TALENT_PREREQS; i++) {
             int32_t prereqId = otherTalent->m_prereqTalent[i];
 
             if (prereqId && g_talentDB.GetRecord(prereqId) == talent && item && change + item->m_previewRank < otherTalent->m_prereqRank[i]) {
@@ -818,7 +818,7 @@ void CGTalentGroup_C::AddTalentItem(int32_t talentId, int32_t rank) {
 
     TalentRec* talent = g_talentDB.GetRecord(talentId);
 
-    if (!talent || static_cast<uint32_t>(rank) >= 9 || !talent->m_spellRank[rank]) {
+    if (!talent || static_cast<uint32_t>(rank) >= MAX_TALENT_RANKS || !talent->m_spellRank[rank]) {
         return;
     }
 

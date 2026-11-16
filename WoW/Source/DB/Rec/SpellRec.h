@@ -7,6 +7,10 @@
 
 class SFileImpl;
 
+// Inferred names: array lengths of SpellRec::m_spellVisualID and m_requiredTotemCategoryID.
+constexpr int32_t NUM_SPELL_VISUALS = 2;
+constexpr int32_t NUM_SPELL_REQUIRED_TOTEM_CATEGORIES = 2;
+
 class SpellRec {
     public:
     // Separate 3.3.5 DBC words: all data-observed bits, plus native client-only bits.
@@ -166,7 +170,7 @@ class SpellRec {
     /* 01E8 */ int32_t m_effectSpellClassMaskA [NUM_SPELL_EFFECTS];
     /* 01F4 */ int32_t m_effectSpellClassMaskB [NUM_SPELL_EFFECTS];
     /* 0200 */ int32_t m_effectSpellClassMaskC [NUM_SPELL_EFFECTS];
-    /* 020C */ int32_t m_spellVisualID [2];
+    /* 020C */ int32_t m_spellVisualID [NUM_SPELL_VISUALS];
     /* 0214 */ int32_t m_spellIconID;
     /* 0218 */ int32_t m_activeIconID;
     /* 021C */ int32_t m_spellPriority;
@@ -188,7 +192,7 @@ class SpellRec {
     /* 026C */ int32_t m_minFactionID;
     /* 0270 */ int32_t m_minReputation;
     /* 0274 */ int32_t m_requiredAuraVision;
-    /* 0278 */ int32_t m_requiredTotemCategoryID [2];
+    /* 0278 */ int32_t m_requiredTotemCategoryID [NUM_SPELL_REQUIRED_TOTEM_CATEGORIES];
     /* 0280 */ int32_t m_requiredAreasID;
     /* 0284 */ int32_t m_schoolMask;
     /* 0288 */ int32_t m_runeCostID;
