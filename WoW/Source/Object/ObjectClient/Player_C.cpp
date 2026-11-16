@@ -5193,17 +5193,17 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
 
     if (result == GUILD_COMMAND_RESULT::GUILD_RESULT_SUCCESS) {
         switch (command) {
-            case 0: {
+            case GUILD_COMMAND_CREATE: {
                 CGGameUI::DisplayError(ERR_GUILD_CREATE_S, name);
                 break;
             }
 
-            case 1: {
+            case GUILD_COMMAND_INVITE: {
                 CGGameUI::DisplayError(ERR_GUILD_INVITE_S, name);
                 break;
             }
 
-            case 3: {
+            case GUILD_COMMAND_QUIT: {
                 CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GUILD);
                 CGGameUI::DisplayError(ERR_GUILD_QUIT_S, name);
                 WOWGUID none = WOWGUID();
@@ -5211,13 +5211,13 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
                 break;
             }
 
-            case 14: {
+            case GUILD_COMMAND_FOUNDER: {
                 CGGameUI::DisplayError(ERR_GUILD_FOUNDER_S, name);
                 break;
             }
 
-            case 19:
-            case 20: {
+            case GUILD_COMMAND_UNKNOWN_19:
+            case GUILD_COMMAND_UNKNOWN_20: {
                 UpdateGuildRoster(1);
                 break;
             }
@@ -5263,7 +5263,7 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
         }
 
         case GUILD_COMMAND_RESULT::GUILD_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION: {
-            if (command == 3) {
+            if (command == GUILD_COMMAND_QUIT) {
                 CGGameUI::DisplayError(ERR_GUILD_LEADER_LEAVE);
             } else {
                 CGGameUI::DisplayError(ERR_GUILD_PERMISSIONS);
@@ -5318,7 +5318,7 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
         }
 
         case GUILD_COMMAND_RESULT::GUILD_RESULT_REFRESH_ROSTER: {
-            if (command == 5) {
+            if (command == GUILD_COMMAND_UNKNOWN_5) {
                 UpdateGuildRoster(1);
             }
 
@@ -5578,22 +5578,22 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
 
     if (error == ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_SUCCESS) {
         switch (command) {
-            case 0: {
+            case ARENA_TEAM_COMMAND_CREATE: {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_CREATE_S, team);
                 break;
             }
 
-            case 1: {
+            case ARENA_TEAM_COMMAND_INVITE: {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_INVITE_SS, player, team);
                 break;
             }
 
-            case 3: {
+            case ARENA_TEAM_COMMAND_QUIT: {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_QUIT_S, team);
                 break;
             }
 
-            case 14: {
+            case ARENA_TEAM_COMMAND_FOUNDER: {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_FOUNDER_S, team);
                 break;
             }
@@ -5639,7 +5639,7 @@ int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uin
         }
 
         case ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_LEADER_CANNOT_LEAVE_OR_NO_PERMISSION: {
-            if (command == 3) {
+            if (command == ARENA_TEAM_COMMAND_QUIT) {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_LEADER_LEAVE_S, team);
             } else {
                 CGGameUI::DisplayError(ERR_ARENA_TEAM_PERMISSIONS);

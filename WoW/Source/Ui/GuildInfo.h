@@ -9,6 +9,19 @@
 class CDataStore;
 struct lua_State;
 
+// SMSG_GUILD_COMMAND_RESULT command word. Named values follow the success
+// messages (ERR_GUILD_CREATE_S, ERR_GUILD_INVITE_S, ERR_GUILD_QUIT_S,
+// ERR_GUILD_FOUNDER_S); the others only trigger roster refreshes.
+enum GUILD_COMMAND_TYPE : uint32_t {
+    GUILD_COMMAND_CREATE     = 0,
+    GUILD_COMMAND_INVITE     = 1,
+    GUILD_COMMAND_QUIT       = 3,
+    GUILD_COMMAND_UNKNOWN_5  = 5,
+    GUILD_COMMAND_FOUNDER    = 14,
+    GUILD_COMMAND_UNKNOWN_19 = 19,
+    GUILD_COMMAND_UNKNOWN_20 = 20,
+};
+
 // SMSG_GUILD_COMMAND_RESULT result word, separate from guild command/event IDs.
 // Names describe verified client actions; unknown results keep the silent default.
 enum GUILD_COMMAND_RESULT : uint32_t {

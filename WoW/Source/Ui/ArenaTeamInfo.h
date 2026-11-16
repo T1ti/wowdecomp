@@ -10,6 +10,15 @@
 struct lua_State;
 class CDataStore;
 
+// SMSG_ARENA_TEAM_COMMAND_RESULT command word, named after the success
+// messages (ERR_ARENA_TEAM_CREATE_S, _INVITE_SS, _QUIT_S, _FOUNDER_S).
+enum ARENA_TEAM_COMMAND_TYPE : uint32_t {
+    ARENA_TEAM_COMMAND_CREATE  = 0,
+    ARENA_TEAM_COMMAND_INVITE  = 1,
+    ARENA_TEAM_COMMAND_QUIT    = 3,
+    ARENA_TEAM_COMMAND_FOUNDER = 14,
+};
+
 // SMSG_ARENA_TEAM_COMMAND_RESULT result word, separate from command/event IDs.
 // Unknown results retain the original silent default.
 enum ARENA_TEAM_COMMAND_RESULT : uint32_t {
