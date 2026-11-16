@@ -1325,7 +1325,7 @@ void World::SetDetailDoodadDist(float dist) {
 float World::ValidateFarClip(float farClip, int32_t mapID) {
     float maxFarClip = 4750.0f / 3.0f;
 
-    if (mapID < 530 || mapID == 575 || mapID == 543) {
+    if (mapID < MAP_EXPANSION01 || mapID == MAP_UTGARDE_PINNACLE || mapID == MAP_HELLFIRE_RAMPART) {
         if (!CWorldParam::cvar_farClipOverride || CWorldParam::cvar_farClipOverride->m_intValue < 1) {
             maxFarClip = 2375.0f / 3.0f;
         }
@@ -1405,7 +1405,7 @@ void DayNight::Update(int32_t reset, const C3Vector* cameraPos) {
     DNInfo* info = DayNight::GetInfo();
     int32_t fogMode = static_cast<uint32_t>(g_theGxDevicePtr->Caps().m_shaderTargets[0]) > 1;
 
-    if (s_mapId < 530) {
+    if (s_mapId < MAP_EXPANSION01) {
         fogMode = 0;
     }
 

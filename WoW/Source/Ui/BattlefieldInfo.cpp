@@ -1605,7 +1605,7 @@ const char* CGBattlefieldInfo::GetFlagToken(uint32_t index) {
         }
     }
 
-    if (CGBattlefieldInfo::m_activeMapID == 566) {
+    if (CGBattlefieldInfo::m_activeMapID == MAP_NETHERSTORM_BG) {
         return s_flagTokens[faction == 0];
     }
 

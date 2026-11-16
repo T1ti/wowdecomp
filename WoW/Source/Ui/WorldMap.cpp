@@ -470,7 +470,7 @@ bool CGWorldMap::GetWorldPosition(const C3Vector& position, int32_t mapID, float
     WorldMapContinentRec* continentRec = CGWorldMap::GetContinentRec(newMapID);
 
     if (continentRec && CGWorldMap::m_currentContinent == -1) {
-        if (outland && newMapID == 530) {
+        if (outland && newMapID == MAP_EXPANSION01) {
             *outland = true;
         }
 

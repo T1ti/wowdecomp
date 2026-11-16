@@ -12064,10 +12064,13 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
     return 1;
 }
 
+// Spell.dbc "Cold Weather Flying", required to fly in Northrend.
+static const uint32_t SPELL_COLD_WEATHER_FLYING = 54197;
+
 // VERIFY: 4f7b81f9 manual
 // OFFSET: 0x007261B0
 bool CGPlayer_C::IsInFlyableZone(int32_t checkContinent) {
-    return IsInFlyableArea() && (!(this->m_obj->m_type & TYPE_PLAYER) || !checkContinent || CGGameUI::m_iCurrentMapID != 571 || HasSpell(static_cast<uint32_t>(54197)));
+    return IsInFlyableArea() && (!(this->m_obj->m_type & TYPE_PLAYER) || !checkContinent || CGGameUI::m_iCurrentMapID != MAP_NORTHREND || HasSpell(SPELL_COLD_WEATHER_FLYING));
 }
 
 // VERIFY: 0c1f1342 manual

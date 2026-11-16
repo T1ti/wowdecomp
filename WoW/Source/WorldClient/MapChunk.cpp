@@ -790,7 +790,7 @@ void CMapChunk::CreateLiquids(bool a3) {
             if (flag & this->m_header->m_flags) {
                 uint32_t type = i + 1;
 
-                if (s_mapId == 530 && i == 2) {
+                if (s_mapId == MAP_EXPANSION01 && i == 2) {
                     type = 15;
                 }
 

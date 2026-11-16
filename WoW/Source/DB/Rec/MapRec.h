@@ -6,8 +6,6 @@
 
 class SFileImpl;
 
-// Map.dbc instance types supported by the 3.3.5 client.
-// Other raw values retain their value; UI token lookups fall back to "none".
 // Map.dbc flags tested by the client.
 enum MAP_FLAGS : int32_t {
     MAP_FLAG_NONE               = 0x00000000,
@@ -15,12 +13,24 @@ enum MAP_FLAGS : int32_t {
     MAP_FLAG_DYNAMIC_DIFFICULTY = 0x00000100,
 };
 
+// Map.dbc instance types supported by the 3.3.5 client.
+// Other raw values retain their value; UI token lookups fall back to "none".
 enum MAP_INSTANCE_TYPE : int32_t {
     MAP_INSTANCE_TYPE_NOT_INSTANCED      = 0,
     MAP_INSTANCE_TYPE_PARTY_DUNGEON      = 1,
     MAP_INSTANCE_TYPE_RAID_DUNGEON       = 2,
     MAP_INSTANCE_TYPE_PVP_BATTLEFIELD    = 3,
     MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD  = 4,
+};
+
+// Map.dbc rows the client tests directly, named after m_directory. Maps below
+// MAP_EXPANSION01 (Outland) are the original game's.
+enum MAP_ID : int32_t {
+    MAP_EXPANSION01      = 530, // Outland
+    MAP_HELLFIRE_RAMPART = 543, // Hellfire Citadel: Ramparts
+    MAP_NETHERSTORM_BG   = 566, // Eye of the Storm
+    MAP_NORTHREND        = 571,
+    MAP_UTGARDE_PINNACLE = 575,
 };
 
 class MapRec {
