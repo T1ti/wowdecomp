@@ -1079,7 +1079,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
         }
     }
 
-    if (language != 0xFFFFFFFF && (type == CHAT_MSG_WHISPER || type == CHAT_MSG_WHISPER_INFORM)) {
+    if (language != LANG_ADDON && (type == CHAT_MSG_WHISPER || type == CHAT_MSG_WHISPER_INFORM)) {
         CGAutoCompleteName::AddFlags(senderGuid, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, senderName);
     }
 
@@ -1108,7 +1108,7 @@ void CGChat::AddChatMessage(const char* text, int32_t type, const char* senderNa
 
     char buffer[3000];
 
-    if (language == 0xFFFFFFFF) {
+    if (language == LANG_ADDON) {
         char message[3000];
         memset(message, 0, sizeof(message));
 
@@ -1616,13 +1616,13 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
             text = static_cast<const char*>(data);
             msg->Get(chatTag);
 
-            if (chatTag & 0x10) {
+            if (chatTag & CHAT_TAG_DEV) {
                 flags = "DEV";
-            } else if (chatTag & 0x4) {
+            } else if (chatTag & CHAT_TAG_GM) {
                 flags = "GM";
-            } else if (chatTag & 0x2) {
+            } else if (chatTag & CHAT_TAG_DND) {
                 flags = "DND";
-            } else if (chatTag & 0x1) {
+            } else if (chatTag & CHAT_TAG_AFK) {
                 flags = "AFK";
             }
 
@@ -1632,16 +1632,16 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
                 CGChat::RecordWhisperDest(senderGuid);
             }
 
-            if ((type == CHAT_MSG_WHISPER || type == CHAT_MSG_BATTLENET) && (chatTag & 0x8) && !(chatTag & 0x4) && language != 0xFFFFFFFF) {
+            if ((type == CHAT_MSG_WHISPER || type == CHAT_MSG_BATTLENET) && (chatTag & CHAT_TAG_UNKNOWN_3) && !(chatTag & CHAT_TAG_GM) && language != LANG_ADDON) {
                 if ((!player || senderGuid != player->m_obj->m_guid) && (!FriendList::s_friendList || !FriendList::s_friendList->IsFriend(senderGuid)) && !CGChat::IsInWhisperHistory(senderGuid)) {
                     CGChat::SendIgnoredResponse(senderGuid, 1);
                     return 1;
                 }
             }
 
-            if (FriendList::s_friendList && FriendList::s_friendList->IsIgnored(senderGuid, true) && !(chatTag & 0x4)) {
+            if (FriendList::s_friendList && FriendList::s_friendList->IsIgnored(senderGuid, true) && !(chatTag & CHAT_TAG_GM)) {
                 if (type == CHAT_MSG_WHISPER) {
-                    if (language == 0xFFFFFFFF) {
+                    if (language == LANG_ADDON) {
                         return 1;
                     }
 

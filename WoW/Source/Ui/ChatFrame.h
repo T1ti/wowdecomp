@@ -273,6 +273,19 @@ struct ZoneChannelDefault {
 
 // FrameXML NUM_CHAT_WINDOWS and MAX_WOW_CHAT_CHANNELS.
 constexpr int32_t NUM_CHAT_WINDOWS = 10;
+
+// Chat language sent by SendAddonMessage; the text carries "prefix	message" (inferred name).
+constexpr uint32_t LANG_ADDON = 0xFFFFFFFF;
+
+// SMSG_MESSAGECHAT sender tag. AFK/DND/GM/DEV follow the flag strings the client attaches;
+// UNKNOWN_3 blocks whispers from strangers unless the sender is also tagged GM.
+enum CHAT_TAG : uint8_t {
+    CHAT_TAG_AFK = 0x1,
+    CHAT_TAG_DND = 0x2,
+    CHAT_TAG_GM = 0x4,
+    CHAT_TAG_UNKNOWN_3 = 0x8,
+    CHAT_TAG_DEV = 0x10,
+};
 constexpr int32_t MAX_WOW_CHAT_CHANNELS = 10;
 
 // SMSG_CHAT_RESTRICTED type byte, named after the error each one displays.

@@ -224,7 +224,7 @@ static int32_t Script_SendChatMessage(lua_State* L) {
         escape = SStrChr(next, '|');
     }
 
-    if ((type == CHAT_MSG_WHISPER || type == CHAT_MSG_CHANNEL || type == CHAT_MSG_BATTLENET) && language != 0xFFFFFFFF) {
+    if ((type == CHAT_MSG_WHISPER || type == CHAT_MSG_CHANNEL || type == CHAT_MSG_BATTLENET) && language != LANG_ADDON) {
         CGChat::ProcessThrottledChat();
 
         if (type == CHAT_MSG_WHISPER || type == CHAT_MSG_BATTLENET) {
@@ -904,7 +904,7 @@ static int32_t Script_SendAddonMessage(lua_State* L) {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_MESSAGECHAT));
     msg.Put(static_cast<uint32_t>(type));
-    msg.Put(static_cast<uint32_t>(0xFFFFFFFF));
+    msg.Put(LANG_ADDON);
 
     if (type == CHAT_MSG_WHISPER) {
         msg.PutString(target);
