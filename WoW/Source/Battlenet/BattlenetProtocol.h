@@ -218,6 +218,19 @@ struct AccountName {
     /* 008C */ BSN::String<32> m_surname;
 };
 
+// FieldVal choice tags, named after the union member each one selects
+// (inferred names).
+enum FIELDVAL_TAG : int32_t {
+    FIELDVAL_NONE         = -1,
+    FIELDVAL_UNKNOWN_1    = 1, // byte read through m_bool: online state, faction, level
+    FIELDVAL_FOURCC       = 5,
+    FIELDVAL_INT          = 6,
+    FIELDVAL_BOOL         = 11,
+    FIELDVAL_STRING       = 13,
+    FIELDVAL_TOON_NAME    = 17,
+    FIELDVAL_ACCOUNT_NAME = 18,
+};
+
 struct FieldVal : public BSN::Choice {
     union {
         /* 0004 */ bool m_bool;

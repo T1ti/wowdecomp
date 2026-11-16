@@ -345,7 +345,7 @@ bool BattlenetUI::AddToFriendList(uint32_t presenceId) {
 
     Battlenet::Presence::FieldVal accountName = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ACCOUNT_NAME].m_field);
 
-    if (accountName.m_tag == 18) {
+    if (accountName.m_tag == Battlenet::Presence::FIELDVAL_ACCOUNT_NAME) {
         SStrPrintf(entry->m_name.m_data, sizeof(entry->m_name.m_data), FrameScript_GetText("BATTLENET_NAME_FORMAT", -1, GENDER_NOT_APPLICABLE), entry->m_givenName.m_data, entry->m_surname.m_data);
         entry->m_givenName = accountName.m_accountName.m_givenName.m_data;
         entry->m_surname = accountName.m_accountName.m_surname.m_data;
@@ -358,7 +358,7 @@ bool BattlenetUI::AddToFriendList(uint32_t presenceId) {
     }
 
     Battlenet::Presence::FieldVal program = BattlenetAPI::GetPresenceValue(entry->m_presenceID, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_PROGRAM].m_field);
-    entry->m_program = program.m_tag != 5 ? 0 : program.m_fourCC.m_value;
+    entry->m_program = program.m_tag != Battlenet::Presence::FIELDVAL_FOURCC ? 0 : program.m_fourCC.m_value;
 
     return true;
 }
@@ -396,7 +396,7 @@ uint32_t BattlenetUI::GetSelfRealmID() {
     if (!BattlenetUI::s_selfRealm) {
         Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(BattlenetAPI::GetPresenceIDForCurrentToon(), BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
 
-        if (toon.m_tag == 17) {
+        if (toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME) {
             BattlenetUI::s_selfRealm = toon.m_toonName.m_realm;
             return BattlenetUI::s_selfRealm;
         }
@@ -417,11 +417,11 @@ int32_t BattlenetUI::QSortFriendListCB(const void* a, const void* b) {
     bool isOnline1 = false;
     bool isOnline2 = false;
 
-    if (online1.m_tag == 1) {
+    if (online1.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         isOnline1 = online1.m_bool != 0;
     }
 
-    if (online2.m_tag == 1) {
+    if (online2.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         isOnline2 = online2.m_bool != 0;
     }
 
@@ -542,18 +542,18 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
     lua_pushstring(L, BattlenetUI::m_friends[index].m_givenName.m_data);
     lua_pushstring(L, BattlenetUI::m_friends[index].m_surname.m_data);
 
-    if (toon.m_tag == 17) {
+    if (toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME) {
         uint32_t toonId = BattlenetAPI::GetPresenceIDForToon(&toon.m_toonName);
         const char* toonName = BattlenetAPI::GetToonNameForPresenceId(presenceId, false);
 
         if (!toonName) {
-            toonName = toon.Get<17, Battlenet::Toon::FullName>().m_name.m_data;
+            toonName = toon.Get<Battlenet::Presence::FIELDVAL_TOON_NAME, Battlenet::Toon::FullName>().m_name.m_data;
         }
 
         lua_pushstring(L, toonName);
         lua_pushnumber(L, toonId);
 
-        BSN::FourCC program = toon.Get<17, Battlenet::Toon::FullName>().m_program;
+        BSN::FourCC program = toon.Get<Battlenet::Presence::FIELDVAL_TOON_NAME, Battlenet::Toon::FullName>().m_program;
         program.ToString(BattlenetUI::s_programString, sizeof(BattlenetUI::s_programString));
         lua_pushstring(L, BattlenetUI::s_programString);
     } else {
@@ -564,7 +564,7 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
 
     bool isOnline = false;
 
-    if (online.m_tag == 1) {
+    if (online.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         isOnline = online.m_bool != 0;
     }
 
@@ -572,7 +572,7 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
 
     uint32_t lastOnlineTime = 0;
 
-    if (lastOnline.m_tag == 6) {
+    if (lastOnline.m_tag == Battlenet::Presence::FIELDVAL_INT) {
         lastOnlineTime = lastOnline.m_int;
     }
 
@@ -580,7 +580,7 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
 
     uint8_t isAFK = 0;
 
-    if (afk.m_tag == 11) {
+    if (afk.m_tag == Battlenet::Presence::FIELDVAL_BOOL) {
         isAFK = afk.m_bool;
     }
 
@@ -588,19 +588,19 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
 
     uint8_t isDND = 0;
 
-    if (dnd.m_tag == 11) {
+    if (dnd.m_tag == Battlenet::Presence::FIELDVAL_BOOL) {
         isDND = dnd.m_bool;
     }
 
     lua_pushboolean(L, isDND);
 
-    if (broadcast.m_tag == 13) {
+    if (broadcast.m_tag == Battlenet::Presence::FIELDVAL_STRING) {
         lua_pushstring(L, broadcast.m_string.m_data);
     } else {
         lua_pushnil(L);
     }
 
-    if (note.m_tag == 13) {
+    if (note.m_tag == Battlenet::Presence::FIELDVAL_STRING) {
         lua_pushstring(L, note.m_string.m_data);
     } else {
         lua_pushnil(L);
@@ -609,7 +609,7 @@ int32_t BattlenetUI::BNGetFriendInfoHelper(lua_State* L, uint32_t index) {
     lua_pushboolean(L, BattlenetAPI::IsRIDFriend(presenceId));
 
     afk = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_BROADCAST_TIME].m_field);
-    lua_pushnumber(L, afk.m_tag == 6 ? afk.m_int : 0.0);
+    lua_pushnumber(L, afk.m_tag == Battlenet::Presence::FIELDVAL_INT ? afk.m_int : 0.0);
 
     return 14;
 }
@@ -621,16 +621,16 @@ int32_t BattlenetUI::BNGetToonInfoHelper(lua_State* L, uint32_t presenceId) {
 
     Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
 
-    if (toon.m_tag == 17) {
+    if (toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME) {
         const char* toonName = BattlenetAPI::GetToonNameForPresenceId(presenceId, false);
 
         if (!toonName) {
-            toonName = toon.Get<17, Battlenet::Toon::FullName>().m_name.m_data;
+            toonName = toon.Get<Battlenet::Presence::FIELDVAL_TOON_NAME, Battlenet::Toon::FullName>().m_name.m_data;
         }
 
         lua_pushstring(L, toonName);
 
-        BSN::FourCC program = toon.Get<17, Battlenet::Toon::FullName>().m_program;
+        BSN::FourCC program = toon.Get<Battlenet::Presence::FIELDVAL_TOON_NAME, Battlenet::Toon::FullName>().m_program;
         program.ToString(BattlenetUI::s_programString, sizeof(BattlenetUI::s_programString));
         lua_pushstring(L, BattlenetUI::s_programString);
     } else {
@@ -639,26 +639,26 @@ int32_t BattlenetUI::BNGetToonInfoHelper(lua_State* L, uint32_t presenceId) {
     }
 
     Battlenet::Presence::FieldVal realm = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_REALM_NAME].m_field);
-    lua_pushstring(L, realm.m_tag == 13 ? realm.m_string.m_data : "");
+    lua_pushstring(L, realm.m_tag == Battlenet::Presence::FIELDVAL_STRING ? realm.m_string.m_data : "");
 
     Battlenet::Presence::FieldVal value = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_FACTION].m_field);
-    lua_pushnumber(L, value.m_tag == 1 ? value.m_bool : -1.0);
+    lua_pushnumber(L, value.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1 ? value.m_bool : -1.0);
 
     Battlenet::Presence::FieldVal race = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_RACE].m_field);
-    lua_pushstring(L, race.m_tag == 13 ? race.m_string.m_data : "");
+    lua_pushstring(L, race.m_tag == Battlenet::Presence::FIELDVAL_STRING ? race.m_string.m_data : "");
 
     Battlenet::Presence::FieldVal classValue = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_CLASS].m_field);
-    lua_pushstring(L, classValue.m_tag == 13 ? classValue.m_string.m_data : "");
+    lua_pushstring(L, classValue.m_tag == Battlenet::Presence::FIELDVAL_STRING ? classValue.m_string.m_data : "");
 
     Battlenet::Presence::FieldVal guild = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_GUILD].m_field);
-    lua_pushstring(L, guild.m_tag == 13 ? guild.m_string.m_data : "");
+    lua_pushstring(L, guild.m_tag == Battlenet::Presence::FIELDVAL_STRING ? guild.m_string.m_data : "");
 
     Battlenet::Presence::FieldVal area = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_AREA].m_field);
-    lua_pushstring(L, area.m_tag == 13 ? area.m_string.m_data : "");
+    lua_pushstring(L, area.m_tag == Battlenet::Presence::FIELDVAL_STRING ? area.m_string.m_data : "");
 
     value = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_LEVEL].m_field);
 
-    if (value.m_tag == 1) {
+    if (value.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         char level[8];
         SStrPrintf(level, sizeof(level), "%u", value.m_bool);
         lua_pushstring(L, level);
@@ -667,19 +667,19 @@ int32_t BattlenetUI::BNGetToonInfoHelper(lua_State* L, uint32_t presenceId) {
     }
 
     Battlenet::Presence::FieldVal gameText = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_GAME_TEXT].m_field);
-    lua_pushstring(L, gameText.m_tag == 13 ? gameText.m_string.m_data : "");
+    lua_pushstring(L, gameText.m_tag == Battlenet::Presence::FIELDVAL_STRING ? gameText.m_string.m_data : "");
 
     Battlenet::Presence::FieldVal broadcast = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_BROADCAST].m_field);
-    lua_pushstring(L, broadcast.m_tag == 13 ? broadcast.m_string.m_data : "");
+    lua_pushstring(L, broadcast.m_tag == Battlenet::Presence::FIELDVAL_STRING ? broadcast.m_string.m_data : "");
 
     value = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_BROADCAST_TIME].m_field);
-    lua_pushnumber(L, value.m_tag == 6 ? value.m_int : 0.0);
+    lua_pushnumber(L, value.m_tag == Battlenet::Presence::FIELDVAL_INT ? value.m_int : 0.0);
 
     value = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE].m_field);
 
     bool isOnline = false;
 
-    if (value.m_tag == 1) {
+    if (value.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         isOnline = value.m_bool != 0;
     }
 
@@ -746,7 +746,7 @@ const char* BattlenetUI::GetNameForPresenceIdHelper(uint32_t presenceId) {
 
     Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
 
-    if (toon.m_tag != 17 || (realm == toon.m_toonName.m_realm && toon.m_toonName.m_program.m_value == Battlenet::Program::WOW.m_value)) {
+    if (toon.m_tag != Battlenet::Presence::FIELDVAL_TOON_NAME || (realm == toon.m_toonName.m_realm && toon.m_toonName.m_program.m_value == Battlenet::Program::WOW.m_value)) {
         return BattlenetAPI::GetNameForPresenceId(presenceId, false);
     }
 
@@ -844,7 +844,7 @@ void BattlenetUI::FriendInviteAddedCB(void* param, int32_t argc, const GeneralFu
 
     Battlenet::Presence::FieldVal onlineTime = BattlenetAPI::GetPresenceValue(BattlenetAPI::GetPresenceIDForCurrentToon(), BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE_TIME].m_field);
 
-    if (onlineTime.m_tag != 6 || invite.m_time < onlineTime.Get<6, int32_t>()) {
+    if (onlineTime.m_tag != Battlenet::Presence::FIELDVAL_INT || invite.m_time < onlineTime.Get<Battlenet::Presence::FIELDVAL_INT, int32_t>()) {
         return;
     }
 
@@ -958,7 +958,7 @@ void BattlenetUI::NewPresenceCB(void* param, int32_t argc, const GeneralFunction
 
     Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
 
-    if (toon.m_tag == 17) {
+    if (toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME) {
         if (BattlenetAPI::HasRIDFriendship(presenceId)) {
             BattlenetUI::SendScriptEvent(SCRIPT_EVENT_BN_FRIEND_TOON_ONLINE, "%u", presenceId);
             DebugLog("BNUI: >> TOON %s is now ONLINE. ID %u (new presence)", BattlenetUI::GetNameForPresenceIdHelper(presenceId), presenceId);
@@ -989,7 +989,7 @@ void BattlenetUI::ToonNameUpdateCB(void* param, int32_t argc, const GeneralFunct
     BSN::BSNEncodedObject<Battlenet::Presence::FieldUpdate, Protocol> update(args[0].ToObject());
     bool friendship = BattlenetAPI::HasRIDFriendship(update.m_data.m_presenceId);
 
-    if (update.m_data.m_value.m_tag == 17) {
+    if (update.m_data.m_value.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME) {
         BattlenetUI::SendScriptEvent(SCRIPT_EVENT_BN_TOON_NAME_UPDATED, "%u%s%b", update.m_data.m_presenceId, update.m_data.m_value.m_toonName.m_name.m_data, friendship);
         DebugLog("BNUI: Toon Name Updated, %s friend. ID %u, name %s", friendship ? "" : "non", update.m_data.m_presenceId, update.m_data.m_value.m_toonName.m_name.m_data);
     }
@@ -1014,7 +1014,7 @@ void BattlenetUI::OnlineTimeChangedCB(void* param, int32_t argc, const GeneralFu
 
     BSN::BSNEncodedObject<Battlenet::Presence::FieldUpdate, Protocol> update(args[0].ToObject());
 
-    if (BattlenetAPI::IsSelf(update.m_data.m_presenceId) || update.m_data.m_value.m_tag != 6) {
+    if (BattlenetAPI::IsSelf(update.m_data.m_presenceId) || update.m_data.m_value.m_tag != Battlenet::Presence::FIELDVAL_INT) {
         return;
     }
 
@@ -1028,11 +1028,11 @@ void BattlenetUI::OnlineTimeChangedCB(void* param, int32_t argc, const GeneralFu
 
     Battlenet::Presence::FieldVal selfTime = BattlenetAPI::GetPresenceValue(BattlenetAPI::GetPresenceIDForCurrentToon(), BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE_TIME].m_field);
 
-    if (selfTime.m_tag != 6) {
+    if (selfTime.m_tag != Battlenet::Presence::FIELDVAL_INT) {
         return;
     }
 
-    int32_t selfOnlineTime = selfTime.Get<6, int32_t>();
+    int32_t selfOnlineTime = selfTime.Get<Battlenet::Presence::FIELDVAL_INT, int32_t>();
 
     if (selfOnlineTime && onlineTime && onlineTime > selfOnlineTime) {
         if (ridFriend) {
@@ -1070,7 +1070,7 @@ void BattlenetUI::LastOnlineChangedCB(void* param, int32_t argc, const GeneralFu
 
     BSN::BSNEncodedObject<Battlenet::Presence::FieldUpdate, Protocol> update(args[0].ToObject());
 
-    if (update.m_data.m_value.m_tag == 6) {
+    if (update.m_data.m_value.m_tag == Battlenet::Presence::FIELDVAL_INT) {
         DebugLog("BNUI: Last Online for ID %u is now %d", update.m_data.m_presenceId, update.m_data.m_value.m_int);
     } else {
         DebugLog("BNUI: Last Online for ID %u changed", update.m_data.m_presenceId);
@@ -1096,16 +1096,16 @@ void BattlenetUI::CustomMessageChangedCB(void* param, int32_t argc, const Genera
     Battlenet::Presence::FieldVal value = BattlenetAPI::GetPresenceValue(toonId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE_TIME].m_field);
     int32_t onlineTime = 0;
 
-    if (value.m_tag == 6) {
+    if (value.m_tag == Battlenet::Presence::FIELDVAL_INT) {
         onlineTime = value.m_int;
     }
 
-    const char* message = update.m_data.m_value.m_tag == 13 ? update.m_data.m_value.m_string.m_data : "";
+    const char* message = update.m_data.m_value.m_tag == Battlenet::Presence::FIELDVAL_STRING ? update.m_data.m_value.m_string.m_data : "";
     int32_t broadcastTime = 0;
 
     value = BattlenetAPI::GetPresenceValue(update.m_data.m_presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_BROADCAST_TIME].m_field);
 
-    if (value.m_tag == 6) {
+    if (value.m_tag == Battlenet::Presence::FIELDVAL_INT) {
         broadcastTime = value.m_int;
     }
 
@@ -1119,7 +1119,7 @@ void BattlenetUI::CustomMessageChangedCB(void* param, int32_t argc, const Genera
 
             Battlenet::Presence::FieldVal friendTime = BattlenetAPI::GetPresenceValue(update.m_data.m_presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE_TIME].m_field);
 
-            if (friendTime.m_tag == 6 && broadcastTime < friendTime.Get<6, int32_t>()) {
+            if (friendTime.m_tag == Battlenet::Presence::FIELDVAL_INT && broadcastTime < friendTime.Get<Battlenet::Presence::FIELDVAL_INT, int32_t>()) {
                 return;
             }
 
@@ -1171,9 +1171,9 @@ void BattlenetUI::ChatWhisperSentCB(void* param, int32_t argc, const GeneralFunc
     Battlenet::Presence::FieldVal afk = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_AFK].m_field);
     Battlenet::Presence::FieldVal dnd = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_DND].m_field);
 
-    if (afk.m_tag == 11 && afk.m_bool) {
+    if (afk.m_tag == Battlenet::Presence::FIELDVAL_BOOL && afk.m_bool) {
         flags = "AFK";
-    } else if (dnd.m_tag == 11 && dnd.m_bool) {
+    } else if (dnd.m_tag == Battlenet::Presence::FIELDVAL_BOOL && dnd.m_bool) {
         flags = "DND";
     }
 
@@ -1185,7 +1185,7 @@ void BattlenetUI::ChatWhisperSentCB(void* param, int32_t argc, const GeneralFunc
     conversation.m_inactive = 1;
     CGChat::AddChatMessage(text, CHAT_MSG_BN_WHISPER_INFORM, BattlenetUI::GetNameForPresenceIdHelper(presenceId), 0, nullptr, nullptr, flags, WOWGUID(), 0, WOWGUID(), 0, false, &conversation);
 
-    DebugLog("BNUI: Whisper Sent to %s, ID %u. %s", toon.m_tag == 17 ? toon.m_toonName.m_name.m_data : "unknown", presenceId, message);
+    DebugLog("BNUI: Whisper Sent to %s, ID %u. %s", toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME ? toon.m_toonName.m_name.m_data : "unknown", presenceId, message);
 }
 
 // VERIFY: 869184a5 manual
@@ -1211,9 +1211,9 @@ void BattlenetUI::ChatWhisperReceivedCB(void* param, int32_t argc, const General
     Battlenet::Presence::FieldVal afk = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_AFK].m_field);
     Battlenet::Presence::FieldVal dnd = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_DND].m_field);
 
-    if (afk.m_tag == 11 && afk.m_bool) {
+    if (afk.m_tag == Battlenet::Presence::FIELDVAL_BOOL && afk.m_bool) {
         flags = "AFK";
-    } else if (dnd.m_tag == 11 && dnd.m_bool) {
+    } else if (dnd.m_tag == Battlenet::Presence::FIELDVAL_BOOL && dnd.m_bool) {
         flags = "DND";
     }
 
@@ -1225,7 +1225,7 @@ void BattlenetUI::ChatWhisperReceivedCB(void* param, int32_t argc, const General
     conversation.m_inactive = 1;
     CGChat::AddChatMessage(text, CHAT_MSG_BN_WHISPER, BattlenetUI::GetNameForPresenceIdHelper(presenceId), 0, nullptr, nullptr, flags, WOWGUID(), 0, WOWGUID(), 0, false, &conversation);
 
-    DebugLog("BNUI: Whisper Received From %s, ID %u. %s", toon.m_tag == 17 ? toon.m_toonName.m_name.m_data : "unknown", presenceId, message);
+    DebugLog("BNUI: Whisper Received From %s, ID %u. %s", toon.m_tag == Battlenet::Presence::FIELDVAL_TOON_NAME ? toon.m_toonName.m_name.m_data : "unknown", presenceId, message);
 }
 
 // VERIFY: 3c7d99a1 manual
@@ -1627,7 +1627,7 @@ void BattlenetUI::PopulateAutoComplete() {
         bool online = false;
         Battlenet::Presence::FieldVal value = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_ONLINE].m_field);
 
-        if (value.m_tag == 1) {
+        if (value.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
             online = value.m_bool != 0;
         }
 
@@ -1774,7 +1774,7 @@ void BattlenetUI::OnlinePresenceChangedCB(void* param, int32_t argc, const Gener
     BSN::BSNEncodedObject<Battlenet::Presence::FieldUpdate, Protocol> update(args[0].ToObject());
     bool online = false;
 
-    if (update.m_data.m_value.m_tag == 1) {
+    if (update.m_data.m_value.m_tag == Battlenet::Presence::FIELDVAL_UNKNOWN_1) {
         online = update.m_data.m_value.m_bool != 0;
     }
 

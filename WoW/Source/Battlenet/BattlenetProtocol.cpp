@@ -57,7 +57,7 @@ BSN::FourCC Battlenet::Program::WOW("WoW");
 
 // INLINED
 Battlenet::Presence::FieldVal::FieldVal() {
-    this->m_tag = -1;
+    this->m_tag = Battlenet::Presence::FIELDVAL_NONE;
     memset(this->m_value, 0, sizeof(this->m_value));
 }
 
