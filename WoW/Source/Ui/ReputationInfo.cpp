@@ -364,7 +364,7 @@ static bool FactionHasReputationForPlayer(const FactionRec* faction) {
     uint8_t classId = player->m_unit->m_classID;
     uint8_t race = player->m_unit->m_raceID;
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_FACTION_REPUTATION_ENTRIES; i++) {
         int32_t raceMask = faction->m_reputationRaceMask[i];
         int32_t classMask = faction->m_reputationClassMask[i];
 
@@ -729,7 +729,7 @@ void CGReputationInfo::EnterWorld() {
 
         CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_factionId = faction->m_id;
 
-        for (uint32_t k = 0; k < 4; k++) {
+        for (uint32_t k = 0; k < NUM_FACTION_REPUTATION_ENTRIES; k++) {
             int32_t raceMask = faction->m_reputationRaceMask[k];
             int32_t classMask = faction->m_reputationClassMask[k];
 

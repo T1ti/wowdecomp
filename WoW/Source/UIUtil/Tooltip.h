@@ -12,6 +12,7 @@
 #include "Engine/Source/FrameScript/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Common/WowTime.h"
+#include "WoW/Source/DB/Rec/ItemSetRec.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/UIUtil/Types.h"
 
@@ -85,7 +86,7 @@ struct FrameStackInfo {
 struct ItemSetTooltipData {
     /* 0000 */ CGTooltip* m_tooltip;
     /* 0004 */ const ItemSetRec* m_set;
-    /* 0008 */ ItemNameCache_C* m_items [17];
+    /* 0008 */ ItemNameCache_C* m_items [NUM_ITEM_SET_ITEMS];
     /* 004C */ int32_t* m_equipped;
     /* 0050 */ uint8_t m_slotUsed [19];
 };

@@ -4795,7 +4795,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
             }
 
             if (enchant && item->GetEnchantmentSpell(0) && !item->HasOnUseEnchant()) {
-                for (uint32_t j = 0; j < 3; j++) {
+                for (uint32_t j = 0; j < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; j++) {
                     if (enchant->m_effect[j] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL && enchant->m_effectArg[j]) {
                         Spell_C_SpellFailed(cast, &spell, 170, -1, -1, 0);
                         return;

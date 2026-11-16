@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: enchantments of an ItemRandomProperties.dbc record.
+constexpr int32_t NUM_ITEM_RANDOM_PROPERTY_ENCHANTMENTS = 5;
+
 class ItemRandomPropertiesRec {
     public:
     static const int32_t s_numColumns = 24;
@@ -14,7 +17,7 @@ class ItemRandomPropertiesRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_enchantment [5];
+    /* 0008 */ int32_t m_enchantment [NUM_ITEM_RANDOM_PROPERTY_ENCHANTMENTS];
     /* 001C */ const char* m_nameLang;
 
     ItemRandomPropertiesRec();

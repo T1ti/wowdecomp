@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// Inferred name: set bonus spells of an ItemSet.dbc record.
+constexpr int32_t NUM_ITEM_SET_SPELLS = 8;
+
+// Inferred name: items of an ItemSet.dbc record.
+constexpr int32_t NUM_ITEM_SET_ITEMS = 17;
+
 class ItemSetRec {
     public:
     static const int32_t s_numColumns = 53;
@@ -14,9 +20,9 @@ class ItemSetRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
-    /* 0008 */ int32_t m_itemID [17];
-    /* 004C */ int32_t m_setSpellID [8];
-    /* 006C */ int32_t m_setThreshold [8];
+    /* 0008 */ int32_t m_itemID [NUM_ITEM_SET_ITEMS];
+    /* 004C */ int32_t m_setSpellID [NUM_ITEM_SET_SPELLS];
+    /* 006C */ int32_t m_setThreshold [NUM_ITEM_SET_SPELLS];
     /* 008C */ int32_t m_requiredSkill;
     /* 0090 */ int32_t m_requiredSkillRank;
 

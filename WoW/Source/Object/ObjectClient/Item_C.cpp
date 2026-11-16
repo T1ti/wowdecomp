@@ -393,7 +393,7 @@ uint32_t CGItem_C::GetSpellItemEnchantmentId() const {
             continue;
         }
 
-        for (uint32_t j = 0; j < 3; j++) {
+        for (uint32_t j = 0; j < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; j++) {
             if (rec->m_effectArg[j] && rec->m_effect[j] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                 return this->m_item->m_itemFieldEnchantment[i].m_id;
             }
@@ -619,7 +619,7 @@ int32_t CGItem_C::GetPrismaticSocketCount() {
         return 0;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
         if (rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_PRISMATIC_SOCKET) {
             return rec->m_effectPointsMin[i];
         }
@@ -786,7 +786,7 @@ int32_t CGItem_C::GetUsableSpellCharges() const {
         SpellItemEnchantmentRec* rec = g_spellItemEnchantmentDB.GetRecord(id);
 
         if (rec) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
                 if (rec->m_effectArg[i] && rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                     return rec->m_charges;
                 }
@@ -927,7 +927,7 @@ int32_t CGItem_C::GetCurrentSpellCharges() {
         SpellItemEnchantmentRec* rec = g_spellItemEnchantmentDB.GetRecord(this->GetSpellItemEnchantmentId());
 
         if (rec) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
                 if (rec->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL && rec->m_effectArg[i]) {
                     if (!this->IsPetition()) {
                         return this->m_item->m_itemFieldEnchantment[i].m_charges;
@@ -1227,7 +1227,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
         SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(this->m_item->m_itemFieldEnchantment[slot].m_id);
 
         if (enchant) {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
                 if (enchant->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_USE_SPELL) {
                     spellId = enchant->m_effectArg[i];
                     break;

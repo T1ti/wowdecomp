@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: race/class reputation entries of a Faction.dbc record.
+constexpr int32_t NUM_FACTION_REPUTATION_ENTRIES = 4;
+
 class FactionRec {
     public:
     static const int32_t s_numColumns = 57;
@@ -14,10 +17,10 @@ class FactionRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_reputationIndex;
-    /* 0008 */ int32_t m_reputationRaceMask [4];
-    /* 0018 */ int32_t m_reputationClassMask [4];
-    /* 0028 */ int32_t m_reputationBase [4];
-    /* 0038 */ int32_t m_reputationFlags [4]; // FACTION_FLAGS
+    /* 0008 */ int32_t m_reputationRaceMask [NUM_FACTION_REPUTATION_ENTRIES];
+    /* 0018 */ int32_t m_reputationClassMask [NUM_FACTION_REPUTATION_ENTRIES];
+    /* 0028 */ int32_t m_reputationBase [NUM_FACTION_REPUTATION_ENTRIES];
+    /* 0038 */ int32_t m_reputationFlags [NUM_FACTION_REPUTATION_ENTRIES]; // FACTION_FLAGS
     /* 0048 */ int32_t m_parentFactionID;
     /* 004C */ float m_parentFactionMod [2];
     /* 0054 */ int32_t m_parentFactionCap [2];

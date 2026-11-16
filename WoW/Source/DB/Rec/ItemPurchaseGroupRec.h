@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: items of an ItemPurchaseGroup.dbc record.
+constexpr int32_t NUM_ITEM_PURCHASE_GROUP_ITEMS = 8;
+
 class ItemPurchaseGroupRec {
     public:
     static const int32_t s_numColumns = 26;
@@ -13,7 +16,7 @@ class ItemPurchaseGroupRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_itemID [8];
+    /* 0004 */ int32_t m_itemID [NUM_ITEM_PURCHASE_GROUP_ITEMS];
     /* 0024 */ const char* m_name;
 
     ItemPurchaseGroupRec();

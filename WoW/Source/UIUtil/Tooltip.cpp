@@ -1444,7 +1444,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
 // VERIFY: e578015f auto
 // OFFSET: 0x0061F940
 void CGItemStatsSummary::AddEnchantment(const SpellItemEnchantmentRec* enchant) {
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
         this->AddEnchantEffect(enchant->m_effect[i], enchant->m_effectArg[i], (enchant->m_effectPointsMin[i] + enchant->m_effectPointsMax[i]) / 2);
     }
 }
@@ -1452,7 +1452,7 @@ void CGItemStatsSummary::AddEnchantment(const SpellItemEnchantmentRec* enchant) 
 // VERIFY: f46f01b2 auto
 // OFFSET: 0x0061F980
 void CGItemStatsSummary::AddEnchantment(const SpellItemEnchantmentRec* enchant, int32_t amount) {
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
         this->AddEnchantEffect(enchant->m_effect[i], enchant->m_effectArg[i], amount);
     }
 }
@@ -1469,7 +1469,7 @@ void CGItemStatsSummary::FillOutRandomProperties(int32_t randomPropertiesId, uin
             return;
         }
 
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_RANDOM_PROPERTY_ENCHANTMENTS; i++) {
             SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(properties->m_enchantment[i]);
 
             if (enchant) {
@@ -1486,7 +1486,7 @@ void CGItemStatsSummary::FillOutRandomProperties(int32_t randomPropertiesId, uin
         return;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_RANDOM_SUFFIX_ENCHANTMENTS; i++) {
         int32_t amount = CGItem_C::GetRandomPropertyValue(i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1, randomPropertiesId, static_cast<uint16_t>(seed));
         SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(suffix->m_enchantment[i]);
 
@@ -2105,7 +2105,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
         FactionRec* faction = factionTemplate ? g_factionDB.GetRecord(factionTemplate->m_faction) : nullptr;
 
         if (faction && faction->m_reputationIndex >= 0) {
-            for (uint32_t i = 0; i < 4; i++) {
+            for (uint32_t i = 0; i < NUM_FACTION_REPUTATION_ENTRIES; i++) {
                 uint32_t raceMask = faction->m_reputationRaceMask[i];
                 uint32_t classMask = faction->m_reputationClassMask[i];
 
@@ -4173,7 +4173,7 @@ bool ResolveItemSetItem(ItemSetTooltipData* data, int32_t pass, int32_t itemId, 
     }
 
     if (!pass) {
-        for (uint32_t i = 0; i < 17; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_SET_ITEMS; i++) {
             if (!data->m_equipped[i] && itemId == data->m_set->m_itemID[i]) {
                 data->m_equipped[i] = itemId;
                 data->m_slotUsed[slot] = 1;
@@ -4188,7 +4188,7 @@ bool ResolveItemSetItem(ItemSetTooltipData* data, int32_t pass, int32_t itemId, 
         return false;
     }
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SET_ITEMS; i++) {
         if (data->m_equipped[i] || !data->m_items[i]) {
             continue;
         }
@@ -5652,7 +5652,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
                     if (group) {
                         bool owned = false;
 
-                        for (uint32_t i = 0; i < 8; i++) {
+                        for (uint32_t i = 0; i < NUM_ITEM_PURCHASE_GROUP_ITEMS; i++) {
                             if (group->m_itemID[i] && player->m_bag.FindItemOfType(group->m_itemID[i], 8)) {
                                 owned = true;
                                 break;
@@ -5698,7 +5698,7 @@ static int32_t CollectItemSetData(CGTooltip* tooltip, const ItemSetRec* set, CGP
     data.m_equipped = equipped;
     memset(data.m_slotUsed, 0, sizeof(data.m_slotUsed));
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SET_ITEMS; i++) {
         if (!set->m_itemID[i]) {
             data.m_items[i] = nullptr;
             continue;
@@ -6109,7 +6109,7 @@ static void AddItemSetLines(CGTooltip* tooltip, const ItemSetRec* set, CGPlayer_
         tooltip->AddLine(text, nullptr, color, color, 0);
     }
 
-    for (uint32_t i = 0; i < 17; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SET_ITEMS; i++) {
         if (!set->m_itemID[i]) {
             continue;
         }
@@ -6144,16 +6144,16 @@ static void AddItemSetLines(CGTooltip* tooltip, const ItemSetRec* set, CGPlayer_
     }
 
     tooltip->AddLine(" ", nullptr, titleColor, titleColor, 1);
-    uint8_t order[8];
+    uint8_t order[NUM_ITEM_SET_SPELLS];
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SET_SPELLS; i++) {
         order[i] = i;
     }
 
     s_sortItemSet = set;
-    qsort(order, 8, sizeof(order[0]), SortItemSetBonuses);
+    qsort(order, NUM_ITEM_SET_SPELLS, sizeof(order[0]), SortItemSetBonuses);
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < NUM_ITEM_SET_SPELLS; i++) {
         uint8_t index = order[i];
 
         if (stream) {
@@ -6550,7 +6550,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
                 ItemRandomPropertiesRec* properties = g_itemRandomPropertiesDB.GetRecord(randomPropertiesId);
 
                 if (properties) {
-                    for (uint32_t i = 0; i < 5; i++) {
+                    for (uint32_t i = 0; i < NUM_ITEM_RANDOM_PROPERTY_ENCHANTMENTS; i++) {
                         this->m_itemLinkInfo.m_enchants[i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1] = properties->m_enchantment[i];
                     }
                 }
@@ -6558,8 +6558,8 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
                 ItemRandomSuffixRec* suffix = g_itemRandomSuffixDB.GetRecord(-randomPropertiesId);
 
                 if (suffix) {
-                    for (uint32_t i = 0; i < 5; i++) {
-                        this->m_itemLinkInfo.m_enchants[i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1] = i < 5 ? suffix->m_enchantment[i] : 0;
+                    for (uint32_t i = 0; i < NUM_ITEM_RANDOM_SUFFIX_ENCHANTMENTS; i++) {
+                        this->m_itemLinkInfo.m_enchants[i + CGItemData::ENCHANTMENT_SLOT::RANDOM_PROPERTY_1] = i < NUM_ITEM_RANDOM_SUFFIX_ENCHANTMENTS ? suffix->m_enchantment[i] : 0;
                     }
                 }
             }
@@ -6631,7 +6631,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
                 SpellItemEnchantmentRec* prismatic = g_spellItemEnchantmentDB.GetRecord(this->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC]);
 
                 if (prismatic) {
-                    for (uint32_t i = 0; i < 3; i++) {
+                    for (uint32_t i = 0; i < NUM_SPELL_ITEM_ENCHANTMENT_EFFECTS; i++) {
                         if (prismatic->m_effect[i] == ITEM_ENCHANTMENT_EFFECT::ENCHANTMENT_EFFECT_PRISMATIC_SOCKET) {
                             numSockets += prismatic->m_effectPointsMin[i];
                             break;
@@ -6674,7 +6674,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
     int32_t skillOk = 0;
     int32_t numItems = 0;
     int32_t numEquipped = 0;
-    int32_t equipped[17];
+    int32_t equipped[NUM_ITEM_SET_ITEMS];
     memset(equipped, 0, sizeof(equipped));
 
     if (stats->m_itemSet) {
@@ -6695,7 +6695,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
     if (set && !socketPreview) {
         AddItemSetLines(this, set, player, equipped, numItems, numEquipped, skillOk, stream);
     } else if (stream) {
-        for (int32_t i = 0; i < 8; i++) {
+        for (int32_t i = 0; i < NUM_ITEM_SET_SPELLS; i++) {
             char buffer[260];
             sprintf(buffer, "\t\t\t<setspelldesc_%d></setspelldesc_%d>\n", i, i);
             fputs(buffer, stream);
