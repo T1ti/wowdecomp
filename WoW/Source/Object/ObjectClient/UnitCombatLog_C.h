@@ -380,6 +380,18 @@ void SendHealEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, co
 void SendEnergizeEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t powerType, int32_t amount, uint32_t timeOffset);
 void AddPowerDrainEntry(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t amount, int32_t powerType, int32_t extra, uint32_t timeOffset);
 void SendDamageEvent(int32_t event, const WOWGUID& source, const WOWGUID& dest, const SpellRec* spell, int32_t damage, int32_t overkill, uint32_t school, int32_t resisted, int32_t blocked, int32_t absorbed, bool crit, bool a11, bool a12, uint32_t timeOffset);
+// SMSG_SPELLNONMELEEDAMAGELOG hit bits, separate from HIT_INFO_FLAGS. CRIT and SPLIT follow client
+// handling (split damage is logged as DAMAGE_SPLIT); UNKNOWN_4 logs the target as the source.
+// With the debug byte set, UNKNOWN_0 and UNKNOWN_2 each add two floats and UNKNOWN_5 six floats.
+enum SPELL_HIT_TYPE : uint32_t {
+    SPELL_HIT_TYPE_UNKNOWN_0 = 0x1,
+    SPELL_HIT_TYPE_CRIT = 0x2,
+    SPELL_HIT_TYPE_UNKNOWN_2 = 0x4,
+    SPELL_HIT_TYPE_SPLIT = 0x8,
+    SPELL_HIT_TYPE_UNKNOWN_4 = 0x10,
+    SPELL_HIT_TYPE_UNKNOWN_5 = 0x20,
+};
+
 void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_t spellId, int32_t damage, int32_t overkill, uint32_t school, int32_t absorbed, int32_t resisted, int32_t blocked, uint32_t hitInfo, bool periodic, uint32_t timeOffset);
 void UnitCombatLogSplitDamage(const WOWGUID& source, const WOWGUID& dest, int32_t spellId, int32_t damage, int32_t overkill, uint32_t school, int32_t absorbed, int32_t resisted, int32_t blocked, uint32_t hitInfo, uint32_t timeOffset);
 void UnitCombatLogSpellMechanic(const WOWGUID& guid, const AuraData* aura, const SpellRec* spell);

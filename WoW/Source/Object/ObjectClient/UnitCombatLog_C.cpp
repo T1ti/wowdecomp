@@ -2421,7 +2421,7 @@ void UnitCombatLogSpellDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         }
 
         int32_t event = periodic ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_PERIODIC_DAMAGE : ((spell.m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_NORMAL_RANGED_ATTACK) ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_RANGE_DAMAGE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_DAMAGE);
-        SendDamageEvent(event, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo >> 1) & 1, false, false, timeOffset);
+        SendDamageEvent(event, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo & SPELL_HIT_TYPE_CRIT) != 0, false, false, timeOffset);
         return;
     }
 
@@ -2472,7 +2472,7 @@ void UnitCombatLogSplitDamage(const WOWGUID& source, const WOWGUID& dest, int32_
         return;
     }
 
-    SendDamageEvent(COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SPLIT, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo >> 1) & 1, false, false, timeOffset);
+    SendDamageEvent(COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_DAMAGE_SPLIT, source, dest, &spell, damage, overkill, school, resisted, blocked, absorbed, (hitInfo & SPELL_HIT_TYPE_CRIT) != 0, false, false, timeOffset);
 
     if (s_combatTextActiveUnit == dest) {
         FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_TEXT_UPDATE, "%s%d", s_combatTextTypes[COMBAT_TEXT_TYPE::COMBAT_TEXT_SPLIT_DAMAGE], damage);
@@ -2542,7 +2542,7 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
     msg->Get(debug);
 
     // The spell packet has its own hit bits; UNIT_COMBAT expects HIT_INFO_FLAGS.
-    bool crit = (hitInfo & 0x2) != 0;
+    bool crit = (hitInfo & SPELL_HIT_TYPE_CRIT) != 0;
     uint32_t feedbackHitInfo = crit ? HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL : HIT_INFO_FLAGS::HIT_INFO_FLAG_NONE;
 
     if (absorbed) {
@@ -2560,7 +2560,7 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
     SpellRec spell;
     int32_t found = g_spellDB.GetRecord(spellId, &spell);
 
-    if (hitInfo & 0x8) {
+    if (hitInfo & SPELL_HIT_TYPE_SPLIT) {
         UnitCombatLogSplitDamage(caster, target, spellId, damage, overkill, school, absorbed, resisted, blocked, hitInfo, timeOffset);
 
         if (found && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
@@ -2570,7 +2570,7 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
         return 1;
     }
 
-    WOWGUID source = (hitInfo & 0x10) ? target : caster;
+    WOWGUID source = (hitInfo & SPELL_HIT_TYPE_UNKNOWN_4) ? target : caster;
     UnitCombatLogSpellDamage(source, target, spellId, damage, overkill, school, absorbed, resisted, blocked, hitInfo, periodic, timeOffset);
 
     if (found && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
@@ -2593,21 +2593,21 @@ int32_t CombatLog::HandleSpellNonMeleeDamageLog(CDataStore* msg, int32_t timeOff
     if (debug) {
         float value;
 
-        if (hitInfo & 0x1) {
+        if (hitInfo & SPELL_HIT_TYPE_UNKNOWN_0) {
             value = 0.0f;
             msg->Get(value);
             value = 0.0f;
             msg->Get(value);
         }
 
-        if (hitInfo & 0x4) {
+        if (hitInfo & SPELL_HIT_TYPE_UNKNOWN_2) {
             value = 0.0f;
             msg->Get(value);
             value = 0.0f;
             msg->Get(value);
         }
 
-        if (hitInfo & 0x20) {
+        if (hitInfo & SPELL_HIT_TYPE_UNKNOWN_5) {
             for (uint32_t i = 0; i < 6; i++) {
                 value = 0.0f;
                 msg->Get(value);
@@ -2680,7 +2680,7 @@ int32_t CombatLog::HandlePeriodicAuraLog(CDataStore* msg, int32_t timeOffset) {
 
                     if (crit) {
                         feedbackHitInfo |= HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL;
-                        hitInfo = 2;
+                        hitInfo = SPELL_HIT_TYPE_CRIT;
                     }
 
                     CGGameUI::ShowCombatFeedback(target, damage, school, feedbackHitInfo);
