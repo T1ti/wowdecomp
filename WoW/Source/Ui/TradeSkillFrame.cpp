@@ -51,13 +51,13 @@ uint32_t CGTradeSkillInfo::m_subClassFilter = 0xFFFFFFFF;
 uint32_t CGTradeSkillInfo::m_subClassFilterIndex = 0xFFFFFFFF;
 
 // STATIC: 0x00AD0E08
-uint32_t CGTradeSkillInfo::m_invTypeFilter = 0xFFFFFFFF;
+uint32_t CGTradeSkillInfo::m_invTypeFilter = INVSLOT_MASK_ALL;
 
 // STATIC: 0x00AD0E0C
 uint32_t CGTradeSkillInfo::m_collapseFilter = 0xFFFFFFFF;
 
 // STATIC: 0x00AD0E10
-const char* s_invSlotTokens[27] = { "HEADSLOT", "NECKSLOT", "SHOULDERSLOT", "SHIRTSLOT", "CHESTSLOT", "WAISTSLOT", "LEGSSLOT", "FEETSLOT", "WRISTSLOT", "HANDSSLOT", "FINGER0SLOT", "FINGER1SLOT", "TRINKET0SLOT", "TRINKET1SLOT", "BACKSLOT", "MAINHANDSLOT", "SECONDARYHANDSLOT", "RANGEDSLOT", "TABARDSLOT", "BAGSLOT", "BAGSLOT", "BAGSLOT", "BAGSLOT", "ENCHSLOT_WEAPON", "ENCHSLOT_2HWEAPON", "SHIELDSLOT", "NONEQUIPSLOT" };
+const char* s_invSlotTokens[NUM_TRADESKILL_INVSLOTS] = { "HEADSLOT", "NECKSLOT", "SHOULDERSLOT", "SHIRTSLOT", "CHESTSLOT", "WAISTSLOT", "LEGSSLOT", "FEETSLOT", "WRISTSLOT", "HANDSSLOT", "FINGER0SLOT", "FINGER1SLOT", "TRINKET0SLOT", "TRINKET1SLOT", "BACKSLOT", "MAINHANDSLOT", "SECONDARYHANDSLOT", "RANGEDSLOT", "TABARDSLOT", "BAGSLOT", "BAGSLOT", "BAGSLOT", "BAGSLOT", "ENCHSLOT_WEAPON", "ENCHSLOT_2HWEAPON", "SHIELDSLOT", "NONEQUIPSLOT" };
 
 // STATIC: 0x00C23598
 WOWGUID CGTradeSkillInfo::m_playerGuid;
@@ -515,24 +515,24 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
 #endif
 
                 if (stats->m_inventoryType == INVTYPE_BAG) {
-                    info->m_invTypeMask = 0x80000;
+                    info->m_invTypeMask = 1u << INVSLOT_BAG0;
                 } else if (stats->m_inventoryType == INVTYPE_FINGER) {
-                    info->m_invTypeMask = 0x400;
+                    info->m_invTypeMask = 1u << INVSLOT_FINGER1;
                 } else if (stats->m_inventoryType == INVTYPE_TRINKET) {
-                    info->m_invTypeMask = 0x1000;
+                    info->m_invTypeMask = 1u << INVSLOT_TRINKET1;
                 }
 
                 if (!info->m_invTypeMask) {
-                    info->m_invTypeMask = 0x4000000;
+                    info->m_invTypeMask = 1u << TRADESKILL_INVSLOT_NONEQUIP;
                 }
             } else {
                 info->m_itemClass = ITEM_CLASS::ITEM_CLASS_NONE;
                 info->m_itemSubClass = -1;
                 info->m_itemLevel = 0;
-                info->m_invTypeMask = 0x4000000;
+                info->m_invTypeMask = 1u << TRADESKILL_INVSLOT_NONEQUIP;
 
                 if (spell.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_WEAPON) {
-                    info->m_invTypeMask = (spell.m_equippedItemSubclass & 0x1) ? 0x800000 : 0x1000000;
+                    info->m_invTypeMask = (spell.m_equippedItemSubclass & (1 << ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_AXE)) ? 1u << TRADESKILL_INVSLOT_ENCH_WEAPON : 1u << TRADESKILL_INVSLOT_ENCH_2HWEAPON;
                 } else if (spell.m_equippedItemClass == ITEM_CLASS::ITEM_CLASS_ARMOR) {
                     if (spell.m_equippedItemInvTypes) {
                         info->m_invTypeMask = 0;
@@ -541,12 +541,12 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                             if ((1 << j) & spell.m_equippedItemInvTypes) {
                                 info->m_invTypeMask = s_inventoryTypeSlots[j];
 
-                                if (info->m_invTypeMask & 0x80000) {
-                                    info->m_invTypeMask &= 0xFF8FFFFF;
-                                } else if (info->m_invTypeMask & 0x400) {
-                                    info->m_invTypeMask &= ~0x800;
-                                } else if (info->m_invTypeMask & 0x1000) {
-                                    info->m_invTypeMask &= ~0x2000;
+                                if (info->m_invTypeMask & (1u << INVSLOT_BAG0)) {
+                                    info->m_invTypeMask &= ~((1u << INVSLOT_BAG1) | (1u << INVSLOT_BAG2) | (1u << INVSLOT_BAG3));
+                                } else if (info->m_invTypeMask & (1u << INVSLOT_FINGER1)) {
+                                    info->m_invTypeMask &= ~(1u << INVSLOT_FINGER2);
+                                } else if (info->m_invTypeMask & (1u << INVSLOT_TRINKET1)) {
+                                    info->m_invTypeMask &= ~(1u << INVSLOT_TRINKET2);
                                 }
 
                                 break;
@@ -554,10 +554,10 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                         }
 
                         if (!info->m_invTypeMask) {
-                            info->m_invTypeMask = 0x4000000;
+                            info->m_invTypeMask = 1u << TRADESKILL_INVSLOT_NONEQUIP;
                         }
                     } else if (spell.m_equippedItemSubclass & (1 << ITEM_SUBCLASS_ARMOR::ITEM_SUBCLASS_ARMOR_SHIELD)) {
-                        info->m_invTypeMask = 0x2000000;
+                        info->m_invTypeMask = 1u << TRADESKILL_INVSLOT_SHIELD;
                     }
                 }
             }
@@ -1387,7 +1387,7 @@ void CGTradeSkillInfo::SetTradeSkill(int32_t spellId, const WOWGUID& guid, const
         CGTradeSkillInfo::m_itemMaxLevelFilter = 0;
         CGTradeSkillInfo::m_showOnlyMakeable = 0;
         CGTradeSkillInfo::m_subClassFilter = 0xFFFFFFFF;
-        CGTradeSkillInfo::m_invTypeFilter = 0xFFFFFFFF;
+        CGTradeSkillInfo::m_invTypeFilter = INVSLOT_MASK_ALL;
         CGTradeSkillInfo::m_collapseFilter = 0xFFFFFFFF;
         CGTradeSkillInfo::m_invSlots = 0;
         CGTradeSkillInfo::m_selectedSkill = 0;
