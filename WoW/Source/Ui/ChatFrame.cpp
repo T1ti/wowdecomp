@@ -4534,7 +4534,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         s_pendingChannelFlags.Clear();
         s_pendingChannelNumbers.Clear();
 
-        int32_t state = CHAT_SETTINGS_SECTION_NONE;
+        CHAT_SETTINGS_SECTION state = CHAT_SETTINGS_SECTION_NONE;
         uint32_t window = 0;
         const char* cursor = buffer;
         char line[128];
