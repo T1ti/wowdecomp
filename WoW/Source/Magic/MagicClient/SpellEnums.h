@@ -33,6 +33,11 @@ constexpr int32_t NUM_SPELL_SHAPESHIFT_FORMS = NUM_SPELL_SHAPESHIFT_MASK_WORDS *
 // Special IDs referenced directly by native client behavior.
 // TrinityCore 3.3.5 Battleground.h identifies 2584 as Waiting to Resurrect.
 constexpr int32_t SPELL_ID_WAITING_TO_RESURRECT = 2584;
+// Names below are the Spell.dbc names of each ID.
+constexpr int32_t SPELL_ID_INACTIVE = 43681;
+constexpr int32_t SPELL_ID_COLD_WEATHER_FLYING = 54197;
+constexpr int32_t SPELL_ID_DUNGEON_DESERTER = 71041;
+constexpr int32_t SPELL_ID_DUNGEON_COOLDOWN = 71328;
 
 // Native reagent sentinel: skipped by use counting and reagent failure text.
 // Its underlying data meaning has not been established; it is not called unused.

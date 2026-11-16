@@ -2356,7 +2356,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 return;
             }
 
-            if (item->GetEnchantmentSpell(0) == spellId) {
+            if (item->GetEnchantmentSpell(SPELL_EFFECT_NONE) == spellId) {
                 uint32_t cooldown;
                 uint32_t categoryCooldown;
                 uint32_t category;
@@ -3874,7 +3874,7 @@ bool Spell_C_GetItemCooldown(CGItem_C* item, uint32_t* duration, uint32_t* start
         return false;
     }
 
-    return s_spellHistory[SPELL_HISTORY_PLAYER].GetSpellCooldown(item->GetEnchantmentSpell(0), item->m_obj->m_entryID, duration, start, enable);
+    return s_spellHistory[SPELL_HISTORY_PLAYER].GetSpellCooldown(item->GetEnchantmentSpell(SPELL_EFFECT_NONE), item->m_obj->m_entryID, duration, start, enable);
 }
 
 // VERIFY: dac09432 auto

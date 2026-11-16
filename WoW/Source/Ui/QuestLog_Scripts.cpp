@@ -1371,7 +1371,7 @@ static int32_t Script_IsQuestLogSpecialItemInRange(lua_State* L) {
     }
 
     CGItem_C* item = CGQuestLog::GetQuestSpecialItem(static_cast<uint32_t>(static_cast<int64_t>(lua_tonumber(L, 1))) - 1);
-    int32_t spellId = item ? item->GetEnchantmentSpell(0) : 0;
+    int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : 0;
     SpellRec spell;
     CGPlayer_C* player;
     WOWGUID target;

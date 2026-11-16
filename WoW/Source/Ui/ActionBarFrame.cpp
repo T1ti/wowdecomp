@@ -483,7 +483,7 @@ int32_t CGActionBar::GetItemSpell(uint32_t slot) {
         return 0;
     }
 
-    return item->GetEnchantmentSpell(0);
+    return item->GetEnchantmentSpell(SPELL_EFFECT_NONE);
 }
 
 // VERIFY: f09a82bf auto
@@ -734,7 +734,7 @@ int32_t CGActionBar::CalculateItemCount(int32_t itemId) {
         return player->GetBag()->GetItemTypeCharges(itemId, 0);
     }
 
-    int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
+    int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -1169,7 +1169,7 @@ void CGActionBar::PutActionInSlot(int32_t slot) {
             return;
         }
 
-        if (!CGItem_C::GetUseSpell(itemId) && ((!item && !(item = CGActionBar::FindUseEnchantItemPtr(itemId))) || !item->GetEnchantmentSpell(0))) {
+        if (!CGItem_C::GetUseSpell(itemId) && ((!item && !(item = CGActionBar::FindUseEnchantItemPtr(itemId))) || !item->GetEnchantmentSpell(SPELL_EFFECT_NONE))) {
             if ((itemRec->m_inventoryType == INVTYPE_NON_EQUIP) || itemRec->m_inventoryType == INVTYPE_BAG) {
                 return;
             }
@@ -1959,7 +1959,7 @@ void CGActionBar::UpdateItem(int32_t itemId) {
             continue;
         }
 
-        int32_t spellId = enchantItem ? enchantItem->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(item);
+        int32_t spellId = enchantItem ? enchantItem->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(item);
 
         if (!spellId) {
             continue;

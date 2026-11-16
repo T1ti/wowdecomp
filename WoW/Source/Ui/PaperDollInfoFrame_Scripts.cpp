@@ -193,7 +193,8 @@ static int32_t Script_GetInventorySlotInfo(lua_State* L) {
                 lua_pushnumber(L, rec->m_slotNumber);
                 lua_pushstring(L, rec->m_slotIcon);
 
-                if (rec->m_slotNumber == 18) {
+                // PaperDollItemFrame slot numbers are one-based (the Lua inventory slot IDs).
+                if (rec->m_slotNumber == INVSLOT_RANGED + 1) {
                     lua_pushnumber(L, 1.0);
                 } else {
                     lua_pushnil(L);
@@ -242,7 +243,7 @@ static int32_t Script_GetInventoryItemCooldown(lua_State* L) {
     CGPlayer_C* unit;
     CGItem_C* item;
 
-    if (slot != -1 && CGCharacterInfo::CanInspect(unit = static_cast<CGPlayer_C*>(GetUnitFromName(unitName))) && (item = unit->m_bag.GetItemPointer(slot)) && item->GetEnchantmentSpell(0) && (!item->GetUsableSpellCharges() || item->GetCurrentSpellCharges())) {
+    if (slot != -1 && CGCharacterInfo::CanInspect(unit = static_cast<CGPlayer_C*>(GetUnitFromName(unitName))) && (item = unit->m_bag.GetItemPointer(slot)) && item->GetEnchantmentSpell(SPELL_EFFECT_NONE) && (!item->GetUsableSpellCharges() || item->GetCurrentSpellCharges())) {
         uint32_t start = 0;
         uint32_t duration = 0;
         uint32_t enable = 0;

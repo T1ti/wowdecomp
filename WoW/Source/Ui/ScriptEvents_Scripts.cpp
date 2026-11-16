@@ -4000,7 +4000,7 @@ static int32_t Script_PlayerIsPVPInactive(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (unit->HasAuraBySpellId(43681)) {
+        if (unit->HasAuraBySpellId(SPELL_ID_INACTIVE)) {
             inactive = 1;
         }
     } else {
@@ -4015,8 +4015,8 @@ static int32_t Script_PlayerIsPVPInactive(lua_State* L) {
         }
 
         if (auras) {
-            for (uint32_t i = 0; i < 64 && auras[i]; i++) {
-                if (auras[i] == 43681) {
+            for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS && auras[i]; i++) {
+                if (auras[i] == SPELL_ID_INACTIVE) {
                     inactive = 1;
                     break;
                 }

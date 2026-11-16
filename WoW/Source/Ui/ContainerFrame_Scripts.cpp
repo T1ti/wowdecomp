@@ -375,7 +375,7 @@ static int32_t Script_UseContainerItem(lua_State* L) {
     }
 
     if (CGTradeInfo::m_tradingPlayer) {
-        int32_t enchant = item->GetEnchantmentSpell(53) || item->GetEnchantmentSpell(54) || item->GetEnchantmentSpell(156) || item->GetEnchantmentSpell(33);
+        int32_t enchant = item->GetEnchantmentSpell(SPELL_EFFECT_ENCHANT_ITEM) || item->GetEnchantmentSpell(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || item->GetEnchantmentSpell(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC) || item->GetEnchantmentSpell(SPELL_EFFECT_OPEN_LOCK);
 
         if (CGTradeInfo::m_enchantingItem && enchant) {
             CGTradeInfo::SetEnchantingItem(item);

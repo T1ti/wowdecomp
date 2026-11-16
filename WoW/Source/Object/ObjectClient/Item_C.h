@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
+#include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Item.h"
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/Object/ObjectClient/Unit_C.h"
@@ -123,7 +124,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     static int32_t IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry);
     int32_t GetRandomPropertyValue(int32_t slot);
     int32_t GetRepairCost();
-    int32_t GetEnchantmentSpell(int32_t a1);
+    int32_t GetEnchantmentSpell(SPELL_EFFECT effect);
     void GetSpellCooldownInfo(uint32_t& cooldown, uint32_t& categoryCooldown, uint32_t& category);
     bool IsBoundForTrade();
     bool IsPetition();

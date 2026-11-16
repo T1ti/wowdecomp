@@ -1319,7 +1319,7 @@ static int32_t Script_UnitHasLFGRandomCooldown(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        lua_pushboolean(L, unit->HasAuraBySpellId(71328));
+        lua_pushboolean(L, unit->HasAuraBySpellId(SPELL_ID_DUNGEON_COOLDOWN));
         return 1;
     }
 
@@ -1357,7 +1357,7 @@ static int32_t Script_UnitHasLFGDeserter(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        lua_pushboolean(L, unit->HasAuraBySpellId(71041));
+        lua_pushboolean(L, unit->HasAuraBySpellId(SPELL_ID_DUNGEON_DESERTER));
         return 1;
     }
 

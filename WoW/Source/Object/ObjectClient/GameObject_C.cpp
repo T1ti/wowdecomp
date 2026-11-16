@@ -3771,7 +3771,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
 
             if (item) {
                 if (spellId) {
-                    *spellId = item->GetEnchantmentSpell(33);
+                    *spellId = item->GetEnchantmentSpell(SPELL_EFFECT_OPEN_LOCK);
                 }
 
                 if (key) {

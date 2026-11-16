@@ -12064,13 +12064,10 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
     return 1;
 }
 
-// Spell.dbc "Cold Weather Flying", required to fly in Northrend.
-static const uint32_t SPELL_COLD_WEATHER_FLYING = 54197;
-
 // VERIFY: 4f7b81f9 manual
 // OFFSET: 0x007261B0
 bool CGPlayer_C::IsInFlyableZone(int32_t checkContinent) {
-    return IsInFlyableArea() && (!(this->m_obj->m_type & TYPE_PLAYER) || !checkContinent || CGGameUI::m_iCurrentMapID != MAP_NORTHREND || HasSpell(SPELL_COLD_WEATHER_FLYING));
+    return IsInFlyableArea() && (!(this->m_obj->m_type & TYPE_PLAYER) || !checkContinent || CGGameUI::m_iCurrentMapID != MAP_NORTHREND || HasSpell(SPELL_ID_COLD_WEATHER_FLYING));
 }
 
 // VERIFY: 0c1f1342 manual
@@ -12758,7 +12755,7 @@ uint32_t CGPlayer_C::BuildPartyMemberStatsChanges(const CGPartyMemberState* oldS
         changes |= 0x100;
     }
 
-    for (uint32_t i = 0; i < 64; i++) {
+    for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
         if (newState->m_auras[i] != oldState->m_auras[i] || newState->m_auraFlags[i] != oldState->m_auraFlags[i]) {
             changes |= 0x200;
             break;
@@ -12797,7 +12794,7 @@ uint32_t CGPlayer_C::BuildPartyMemberStatsChanges(const CGPartyMemberState* oldS
         changes |= 0x20000;
     }
 
-    for (uint32_t i = 0; i < 64; i++) {
+    for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
         if (newState->m_pet.m_auras[i] != oldState->m_pet.m_auras[i] || newState->m_pet.m_auraFlags[i] != oldState->m_pet.m_auraFlags[i]) {
             changes |= 0x40000;
             break;
@@ -13003,7 +13000,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         uint64_t auraMask;
         msg->Get(auraMask);
 
-        for (uint32_t i = 0; i < 64; i++) {
+        for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
             if (auraMask & (static_cast<uint64_t>(1) << i)) {
                 msg->Get(reinterpret_cast<uint32_t&>(newState.m_auras[i]));
                 msg->Get(newState.m_auraFlags[i]);
@@ -13052,7 +13049,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         uint64_t auraMask;
         msg->Get(auraMask);
 
-        for (uint32_t i = 0; i < 64; i++) {
+        for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
             if (auraMask & (static_cast<uint64_t>(1) << i)) {
                 msg->Get(reinterpret_cast<uint32_t&>(newState.m_pet.m_auras[i]));
                 msg->Get(newState.m_pet.m_auraFlags[i]);
@@ -14469,13 +14466,13 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
         state->m_auraFlags[count] = aura->m_flags;
         count++;
 
-        if (count == 64) {
+        if (count == MAX_PARTY_MEMBER_AURAS) {
             break;
         }
     }
 
-    if (count < 64) {
-        memset(&state->m_auras[count], 0, sizeof(int32_t) * (64 - count));
+    if (count < MAX_PARTY_MEMBER_AURAS) {
+        memset(&state->m_auras[count], 0, sizeof(int32_t) * (MAX_PARTY_MEMBER_AURAS - count));
     }
 
     CGUnitData* unit = this->m_unit;

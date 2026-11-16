@@ -4085,8 +4085,8 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
     bool raid = (info->m_filter & BUFF_FILTER_RAID) != 0;
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 64 && auras[i]; i++) {
-        if (helpful != !(auraFlags[i] & 0x80)) {
+    for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS && auras[i]; i++) {
+        if (helpful != !(auraFlags[i] & AURA_FLAG_HARMFUL)) {
             continue;
         }
 
@@ -4098,7 +4098,7 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
 
         WOWGUID caster = { 0 };
 
-        if (!CGSpellBook::CanShowAura(&spell, &caster, (auraFlags[i] & 0x8) != 0)) {
+        if (!CGSpellBook::CanShowAura(&spell, &caster, (auraFlags[i] & AURA_FLAG_SELF_CAST) != 0)) {
             continue;
         }
 
@@ -4106,7 +4106,7 @@ int32_t SetTooltipUnitAura(CGTooltip* tooltip, ScriptAuraInfo* info) {
             continue;
         }
 
-        if ((auraFlags[i] & 0x10) ? (info->m_filter & BUFF_FILTER_NOT_CANCELABLE) : (info->m_filter & BUFF_FILTER_CANCELABLE)) {
+        if ((auraFlags[i] & AURA_FLAG_CANCELABLE) ? (info->m_filter & BUFF_FILTER_NOT_CANCELABLE) : (info->m_filter & BUFF_FILTER_CANCELABLE)) {
             continue;
         }
 
@@ -6466,7 +6466,7 @@ static void AddItemSellPrice(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
         return;
     }
 
-    if (item->GetEnchantmentSpell(0) && !item->HasOnUseEnchant() && item->GetUsableSpellCharges() < -1) {
+    if (item->GetEnchantmentSpell(SPELL_EFFECT_NONE) && !item->HasOnUseEnchant() && item->GetUsableSpellCharges() < -1) {
         price = price * item->GetCurrentSpellCharges() / item->GetUsableSpellCharges();
     }
 

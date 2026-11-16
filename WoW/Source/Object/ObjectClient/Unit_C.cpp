@@ -23695,13 +23695,13 @@ void CGUnit_C::FillPartyMemberPetState(CGPartyPetState* state) {
             state->m_auraFlags[count] = aura->m_flags;
             count++;
 
-            if (count == 64) {
+            if (count == MAX_PARTY_MEMBER_AURAS) {
                 return;
             }
         }
     }
 
-    memset(&state->m_auras[count], 0, sizeof(state->m_auras[0]) * (64 - count));
+    memset(&state->m_auras[count], 0, sizeof(state->m_auras[0]) * (MAX_PARTY_MEMBER_AURAS - count));
 }
 
 // VERIFY: 80a37933 manual

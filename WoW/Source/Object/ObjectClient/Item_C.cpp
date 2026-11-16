@@ -1058,7 +1058,7 @@ void CGItem_C::GetSpellCooldownInfo(uint32_t& cooldown, uint32_t& categoryCooldo
     if (this->GetSpellItemEnchantmentId()) {
         SpellRec spell;
 
-        if (g_spellDB.GetRecord(this->GetEnchantmentSpell(0), &spell)) {
+        if (g_spellDB.GetRecord(this->GetEnchantmentSpell(SPELL_EFFECT_NONE), &spell)) {
             cooldown = spell.m_recoveryTime;
             categoryCooldown = spell.m_categoryRecoveryTime;
             category = spell.m_category;
@@ -1187,7 +1187,7 @@ int32_t CGItem_C::GetRandomPropertyValue(int32_t slot, int32_t randomPropertiesI
 
 // VERIFY: bf61ad32 manual
 // OFFSET: 0x00707C60
-int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
+int32_t CGItem_C::GetEnchantmentSpell(SPELL_EFFECT effect) {
     SpellRec spell;
     int32_t spellId = 0;
     ItemStats_C* stats = g_itemDBCache.GetRecord(this->m_obj->m_entryID, WOWGUID{ 0 }, nullptr, nullptr, false);
@@ -1201,7 +1201,7 @@ int32_t CGItem_C::GetEnchantmentSpell(int32_t effect) {
             continue;
         }
 
-        bool match = !effect;
+        bool match = effect == SPELL_EFFECT_NONE;
 
         if (!match && g_spellDB.GetRecord(stats->m_spellId[i], &spell)) {
             for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
@@ -1385,7 +1385,7 @@ int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spel
 
                 if (item) {
                     if (spellId) {
-                        *spellId = item->GetEnchantmentSpell(0);
+                        *spellId = item->GetEnchantmentSpell(SPELL_EFFECT_NONE);
                     }
 
                     if (key) {
@@ -1414,7 +1414,7 @@ int32_t CGItem_C::GetRandomPropertyValue(int32_t slot) {
 // VERIFY: eaccfb41 auto
 // OFFSET: 0x00708C10
 int32_t CGItem_C::CanBeUsed() {
-    return this->GetEnchantmentSpell(0) != 0;
+    return this->GetEnchantmentSpell(SPELL_EFFECT_NONE) != 0;
 }
 
 // VERIFY: 2efe0bae auto
@@ -1526,7 +1526,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
         return 0;
     }
 
-    int32_t spellId = this->GetEnchantmentSpell(0);
+    int32_t spellId = this->GetEnchantmentSpell(SPELL_EFFECT_NONE);
     SpellRec spell;
     int32_t hasSpell = g_spellDB.GetRecord(spellId, &spell);
     int16_t overrideId = static_cast<int16_t>(player->m_player->m_overrideSpellsID);
@@ -1650,7 +1650,7 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
         return 0;
     }
 
-    if (!this->GetEnchantmentSpell(0)) {
+    if (!this->GetEnchantmentSpell(SPELL_EFFECT_NONE)) {
         return 0;
     }
 

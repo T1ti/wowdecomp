@@ -2699,7 +2699,7 @@ static int32_t Script_GetItemSpell(lua_State* L) {
     }
 
     CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
-    int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
+    int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
 
     if (g_spellDB.GetRecord(spellId, &spell)) {
         lua_pushstring(L, spell.m_name);
@@ -4193,7 +4193,7 @@ static int32_t Script_IsHelpfulItem(lua_State* L) {
     }
 
     CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
-    int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
+    int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HELPFUL) {
@@ -4217,7 +4217,7 @@ static int32_t Script_IsHarmfulItem(lua_State* L) {
     }
 
     CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
-    int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
+    int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && SpellRec::IsHelpfulOrHarmful(&spell) == SPELL_DISPOSITION_HARMFUL) {
@@ -4292,7 +4292,7 @@ static int32_t GetItemSpell(int32_t itemId) {
     CGItem_C* item = CGActionBar::FindUseEnchantItemPtr(itemId);
 
     if (item) {
-        return item->GetEnchantmentSpell(0);
+        return item->GetEnchantmentSpell(SPELL_EFFECT_NONE);
     }
 
     return CGItem_C::GetUseSpell(itemId);
@@ -4976,7 +4976,7 @@ static int32_t Script_GetItemCount(lua_State* L) {
                     total = player->GetBag()->GetItemTypeCharges(itemId, 0);
                 }
 
-                int32_t spellId = item ? item->GetEnchantmentSpell(0) : CGItem_C::GetUseSpell(itemId);
+                int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
                 int32_t uses = Spell_C_GetSpellReagentUses(spellId);
 
                 if (uses) {

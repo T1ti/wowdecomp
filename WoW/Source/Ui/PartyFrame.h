@@ -56,6 +56,10 @@ enum GROUP_TYPE_FLAGS : uint8_t {
     GROUP_TYPE_FLAG_LFG            = 0x08,
 };
 
+// Inferred name: aura slots in party member and pet stats, one bit each in the
+// 64-bit aura update mask of SMSG_PARTY_MEMBER_STATS.
+constexpr int32_t MAX_PARTY_MEMBER_AURAS = 64;
+
 class CGPartyPetState {
     public:
     /* 0000 */ WOWGUID m_guid;
@@ -67,8 +71,8 @@ class CGPartyPetState {
     /* 0060 */ uint32_t m_maxHealth;
     /* 0064 */ uint16_t m_power;
     /* 0066 */ uint16_t m_maxPower;
-    /* 0068 */ int32_t m_auras[64];
-    /* 0168 */ uint8_t m_auraFlags[64];
+    /* 0068 */ int32_t m_auras[MAX_PARTY_MEMBER_AURAS];
+    /* 0168 */ uint8_t m_auraFlags[MAX_PARTY_MEMBER_AURAS];
 };
 
 class CGPartyMemberState {
@@ -102,8 +106,8 @@ class CGPartyMemberState {
     /* 001A */ uint16_t m_zoneID;
     /* 001C */ int16_t m_posX;
     /* 001E */ int16_t m_posY;
-    /* 0020 */ int32_t m_auras[64];
-    /* 0120 */ uint8_t m_auraFlags[64];
+    /* 0020 */ int32_t m_auras[MAX_PARTY_MEMBER_AURAS];
+    /* 0120 */ uint8_t m_auraFlags[MAX_PARTY_MEMBER_AURAS];
     /* 0160 */ CGPartyPetState m_pet;
     /* 0308 */ uint32_t m_vehicleSeatId;
     /* 030C */ uint32_t unused_030C;
