@@ -147,7 +147,7 @@ static int32_t Script_GetEquipmentSetLocations(lua_State* L) {
 
     CGBag_C* inventory = player->GetBag();
 
-    for (int32_t i = 0; i <= 18; i++) {
+    for (int32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
 
         if (!item) {
@@ -175,7 +175,7 @@ static int32_t Script_GetEquipmentSetLocations(lua_State* L) {
         return 1;
     }
 
-    for (int32_t i = 23; i <= 38; i++) {
+    for (int32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
 
         if (!item) {
@@ -243,7 +243,7 @@ static int32_t Script_GetEquipmentSetLocations(lua_State* L) {
     }
 
     if (CGBankInfo::m_banker) {
-        for (int32_t i = 39; i <= 66; i++) {
+        for (int32_t i = BANKGENERIC_FIRST; i <= BANKGENERIC_LAST; i++) {
             CGItem_C* item = inventory->GetItemPointer(i);
 
             if (!item) {

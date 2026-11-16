@@ -615,7 +615,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
 
     int32_t bypass = (chrClass->m_flags & ChrClassesRec::CLASS_FLAGS::HAS_RELIC_SLOT) != 0;
 
-    for (int32_t i = 0; i <= 18; i++) {
+    for (int32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
 
         if (item && item->CanGoInSlot(slot, bypass) && CGCharacterInfo::CanEquipItem(item, slot)) {
@@ -626,7 +626,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
         }
     }
 
-    for (int32_t i = 23; i <= 38; i++) {
+    for (int32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
 
         if (item && item->CanGoInSlot(slot, bypass)) {
@@ -673,7 +673,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
         return 1;
     }
 
-    for (int32_t i = 39; i <= 66; i++) {
+    for (int32_t i = BANKGENERIC_FIRST; i <= BANKGENERIC_LAST; i++) {
         CGItem_C* item = inventory->GetItemPointer(i);
 
         if (item && item->CanGoInSlot(slot, bypass)) {

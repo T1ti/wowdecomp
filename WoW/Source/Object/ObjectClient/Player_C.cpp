@@ -2513,7 +2513,7 @@ void CGPlayer_C::ReadItem(WOWGUID guid, uint8_t slot) {
         return;
     }
 
-    for (uint32_t index = 19; index < 23; index++) {
+    for (uint32_t index = INVSLOT_BAG0; index <= INVSLOT_BAG3; index++) {
         WOWGUID bagGuid = index < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[index] : WOWGUID();
 
         if (bagGuid == guid) {
@@ -6292,7 +6292,7 @@ void GuildCharterTurnInCallback(int32_t id, const WOWGUID& guid, void* param, bo
 
 // OFFSET: 0x006DD3A0
 void CGPlayer_C::TurnInGuildCharter() {
-    for (uint32_t i = 23; i <= 38; i++) {
+    for (uint32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST; i++) {
         WOWGUID guid = i < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[i] : WOWGUID();
 
         if (!guid) {
@@ -6322,7 +6322,7 @@ void CGPlayer_C::TurnInGuildCharter() {
         }
     }
 
-    for (uint32_t i = 19; i <= 22; i++) {
+    for (uint32_t i = INVSLOT_BAG0; i <= INVSLOT_BAG3; i++) {
         WOWGUID bagGuid = i < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[i] : WOWGUID();
         CGItem_C* container = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bagGuid, TYPE_ITEM, __FILE__, __LINE__));
 
@@ -6392,7 +6392,7 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
     uint32_t borderColor = CGPetitionVendorInfo::m_arenaBorderColor;
     CGPlayer_C::s_turnInArenaCharter = turnIn;
 
-    for (uint32_t i = 23; i <= 38 && !found; i++) {
+    for (uint32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST && !found; i++) {
         WOWGUID guid = i < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[i] : WOWGUID();
 
         if (!guid) {
@@ -6414,7 +6414,7 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
         }
     }
 
-    for (uint32_t i = 19; i <= 22 && !found; i++) {
+    for (uint32_t i = INVSLOT_BAG0; i <= INVSLOT_BAG3 && !found; i++) {
         WOWGUID bagGuid = i < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[i] : WOWGUID();
         CGItem_C* container = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bagGuid, TYPE_ITEM, __FILE__, __LINE__));
 
@@ -6605,7 +6605,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
 // VERIFY: 2014c9e0 manual
 // OFFSET: 0x006D1760
 void CGPlayer_C::RequestAllItemPurchaseData() {
-    for (int32_t i = 0; i <= 18; i++) {
+    for (int32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         if (static_cast<uint32_t>(i) >= static_cast<uint32_t>(this->m_bag.m_numSlots) || !this->m_bag.m_slots[i]) {
             continue;
         }
@@ -6617,7 +6617,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
         }
     }
 
-    for (int32_t i = 23; i <= 38; i++) {
+    for (int32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST; i++) {
         if (static_cast<uint32_t>(i) >= static_cast<uint32_t>(this->m_bag.m_numSlots) || !this->m_bag.m_slots[i]) {
             continue;
         }
@@ -6629,7 +6629,7 @@ void CGPlayer_C::RequestAllItemPurchaseData() {
         }
     }
 
-    for (int32_t i = 19; i <= 22; i++) {
+    for (int32_t i = INVSLOT_BAG0; i <= INVSLOT_BAG3; i++) {
         WOWGUID guid = static_cast<uint32_t>(i) < static_cast<uint32_t>(this->m_bag.m_numSlots) ? this->m_bag.m_slots[i] : WOWGUID();
         CGItem_C* container = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
@@ -8066,7 +8066,7 @@ static void ReadInspectItems(CDataStore* msg) {
     uint32_t mask = 0;
     msg->Get(mask);
 
-    for (uint32_t i = 0; i < 19; i++, mask >>= 1) {
+    for (uint32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++, mask >>= 1) {
         if (!(mask & 1)) {
             continue;
         }
@@ -14389,7 +14389,7 @@ void CGPlayer_C::EquipItem(CGItem_C* item) {
     visible.m_enchantment[0] = 0;
     visible.m_enchantment[1] = 0;
 
-    for (int32_t i = 0; i < 19; i++) {
+    for (int32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         if (!((1 << i) & 0x7C3FD)) {
             continue;
         }

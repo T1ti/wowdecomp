@@ -887,7 +887,7 @@ static int32_t Script_GetContainerFreeSlots(lua_State* L) {
     double index = lua_tonumber(L, 1);
 
     if (index == 0.0) {
-        for (int32_t i = 23; i <= 38; i++) {
+        for (int32_t i = BACKPACK_FIRST; i <= BACKPACK_LAST; i++) {
             if (static_cast<uint32_t>(i) >= static_cast<uint32_t>(player->m_bag.m_numSlots) || !player->m_bag.m_slots[i]) {
                 lua_checkstack(L, 2);
                 lua_pushnumber(L, count);

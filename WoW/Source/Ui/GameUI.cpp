@@ -3541,7 +3541,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         uint32_t slots = s_inventoryTypeSlots[stats->m_inventoryType];
 #endif
 
-        for (uint32_t i = 0; i < 23; i++) {
+        for (uint32_t i = 0; i < NUM_INVENTORY_SLOTS; i++) {
             if (((1 << i) & slots) && IsTutorialFlagged(TUTORIAL::TUTORIAL_PLAYER_STATUS)) {
                 CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_EQUIPPABLE_ITEMS);
                 break;

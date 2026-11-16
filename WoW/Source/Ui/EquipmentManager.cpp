@@ -366,7 +366,7 @@ int32_t Packet_SMSG_EQUIPMENT_SET_LIST(void* param, NETMESSAGE msgId, uint32_t t
 // VERIFY: aa7448be auto
 // OFFSET: 0x005AD700
 void CGEquipmentManager::ClearIgnoredSlots() {
-    for (uint32_t i = 0; i < 19; i++) {
+    for (uint32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         CGEquipmentManager::m_ignoredSlots[i] = 0;
     }
 }
@@ -378,7 +378,7 @@ int32_t CGEquipmentManager::SetContainsLockedItems(const EQUIPMENT_SET* set) {
         return 0;
     }
 
-    for (uint32_t i = 0; i <= 18; i++) {
+    for (uint32_t i = EQUIPPED_FIRST; i <= EQUIPPED_LAST; i++) {
         if (set->m_items[i].m_guid > 1) {
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(set->m_items[i], TYPE_ITEM, __FILE__, __LINE__));
 
@@ -571,7 +571,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
                     bag = INVENTORY_BAG_PLAYER;
                     itemGuid.m_guid = guid.m_guid;
                 } else {
-                    for (uint32_t i = 19; i <= 22; i++) {
+                    for (uint32_t i = INVSLOT_BAG0; i <= INVSLOT_BAG3; i++) {
                         WOWGUID container = GetBagAtIndex(i - 19);
 
                         if (container) {
@@ -586,7 +586,7 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
                     }
 
                     if (itemGuid.m_guid == 1 && CGBankInfo::m_banker) {
-                        for (uint32_t i = 67; i <= 73; i++) {
+                        for (uint32_t i = BANKBAG_FIRST; i <= BANKBAG_LAST; i++) {
                             WOWGUID container = GetBagAtIndex(i - 63);
 
                             if (container) {
