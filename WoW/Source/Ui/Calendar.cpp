@@ -48,7 +48,11 @@ static TSList<CALENDARHOLIDAYNODE, TSGetLink<CALENDARHOLIDAYNODE> > s_holidays;
 static TSList<CALENDARRAIDRESETNODE, TSGetLink<CALENDARRAIDRESETNODE> > s_raidResets;
 
 // STATIC: 0x00C20808
-static TSGrowableArray<CalendarDayEvent*> s_days[3][31];
+// Previous, current and next month, by day (inferred names).
+static const uint32_t CALENDAR_VISIBLE_MONTHS = 3;
+static const uint32_t MAX_DAYS_PER_MONTH = 31;
+
+static TSGrowableArray<CalendarDayEvent*> s_days[CALENDAR_VISIBLE_MONTHS][MAX_DAYS_PER_MONTH];
 
 // STATIC: 0x00C20DD8
 static CalendarEventTables s_eventTables;
@@ -454,8 +458,8 @@ void CGCalendar::ShutdownGame() {
     s_pendingInvites.Clear();
     s_dynamicHolidays.InternalClear(0);
 
-    for (uint32_t month = 0; month < 3; month++) {
-        for (uint32_t day = 0; day < 31; day++) {
+    for (uint32_t month = 0; month < CALENDAR_VISIBLE_MONTHS; month++) {
+        for (uint32_t day = 0; day < MAX_DAYS_PER_MONTH; day++) {
             s_days[month][day].m_count = 0;
         }
     }
@@ -1032,8 +1036,8 @@ void CGCalendar::UpdateDisplayList(bool signal) {
     int32_t month = (CGCalendar::m_absMonth + 11) % 12;
     int32_t year = month == 11 ? CGCalendar::m_absYear - 1 : CGCalendar::m_absYear;
 
-    for (uint32_t m = 0; m < 3; m++) {
-        for (uint32_t d = 0; d < 31; d++) {
+    for (uint32_t m = 0; m < CALENDAR_VISIBLE_MONTHS; m++) {
+        for (uint32_t d = 0; d < MAX_DAYS_PER_MONTH; d++) {
             TSGrowableArray<CalendarDayEvent*>& list = s_days[m][d];
             uint32_t count = 0;
             list.m_count = 0;
@@ -1073,7 +1077,7 @@ void CGCalendar::UpdateDisplayList(bool signal) {
             list.SetCount(count);
         }
 
-        for (uint32_t d = 0; d < 31; d++) {
+        for (uint32_t d = 0; d < MAX_DAYS_PER_MONTH; d++) {
             qsort(s_days[m][d].m_data, s_days[m][d].Count(), sizeof(CalendarDayEvent*), QSortEvents);
         }
 
@@ -1099,8 +1103,8 @@ void CGCalendar::SetFilter(CVar* var, int32_t value) {
     int32_t month = (CGCalendar::m_absMonth + 11) % 12;
     int32_t year = month == 11 ? CGCalendar::m_absYear - 1 : CGCalendar::m_absYear;
 
-    for (uint32_t m = 0; m < 3; m++) {
-        for (uint32_t d = 0; d < 31; d++) {
+    for (uint32_t m = 0; m < CALENDAR_VISIBLE_MONTHS; m++) {
+        for (uint32_t d = 0; d < MAX_DAYS_PER_MONTH; d++) {
             TSGrowableArray<CalendarDayEvent*>& list = s_days[m][d];
             uint32_t count = 0;
             list.m_count = 0;
@@ -1140,7 +1144,7 @@ void CGCalendar::SetFilter(CVar* var, int32_t value) {
             list.SetCount(count);
         }
 
-        for (uint32_t d = 0; d < 31; d++) {
+        for (uint32_t d = 0; d < MAX_DAYS_PER_MONTH; d++) {
             qsort(s_days[m][d].m_data, s_days[m][d].Count(), sizeof(CalendarDayEvent*), QSortEvents);
         }
 
