@@ -788,10 +788,10 @@ void CMapChunk::CreateLiquids(bool a3) {
 
         for (uint32_t i = 0; i < 4; i++) {
             if (flag & this->m_header->m_flags) {
-                uint32_t type = i + 1;
+                uint32_t type = LIQUID_TYPE_WATER + i;
 
-                if (s_mapId == MAP_EXPANSION01 && i == 2) {
-                    type = 15;
+                if (s_mapId == MAP_EXPANSION01 && i == LIQUID_SOUND_BANK_MAGMA) {
+                    type = LIQUID_TYPE_GREEN_LAVA;
                 }
 
                 LiquidTypeRec* typeRec = g_liquidTypeDB.GetRecord(type);

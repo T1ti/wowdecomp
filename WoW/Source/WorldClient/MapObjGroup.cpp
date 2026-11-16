@@ -1565,19 +1565,19 @@ CMapObjGroup::~CMapObjGroup() {
 // VERIFY: 0c68f770 auto
 // OFFSET: 0x007D7310
 int32_t CMapObjGroup::GetLiquidType(uint32_t groupLiquid) {
-    if (groupLiquid < 21 && groupLiquid) {
+    if (groupLiquid < NUM_BASIC_LIQUID_TYPES && groupLiquid) {
         switch ((groupLiquid - 1) & 3) {
-            case 0:
-                return (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_USE_ALTERNATE_LIQUID_TYPE) ? 14 : 13;
+            case LIQUID_SOUND_BANK_WATER:
+                return (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_USE_ALTERNATE_LIQUID_TYPE) ? LIQUID_TYPE_WMO_OCEAN : LIQUID_TYPE_WMO_WATER;
 
-            case 1:
-                return 14;
+            case LIQUID_SOUND_BANK_OCEAN:
+                return LIQUID_TYPE_WMO_OCEAN;
 
-            case 2:
-                return 19;
+            case LIQUID_SOUND_BANK_MAGMA:
+                return LIQUID_TYPE_WMO_MAGMA;
 
-            case 3:
-                return 20;
+            case LIQUID_SOUND_BANK_SLIME:
+                return LIQUID_TYPE_WMO_SLIME;
         }
     }
 

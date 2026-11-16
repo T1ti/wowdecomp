@@ -5194,7 +5194,7 @@ const LiquidTypeRec* GetLiquidTypeRecForArea(uint32_t areaId, uint16_t liquidTyp
         return nullptr;
     }
 
-    if (areaId && liquidType < 21) {
+    if (areaId && liquidType < NUM_BASIC_LIQUID_TYPES) {
         uint32_t index = (liquidType - 1) & 3;
         AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
 

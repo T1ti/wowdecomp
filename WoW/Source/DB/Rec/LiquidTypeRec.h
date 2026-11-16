@@ -26,6 +26,32 @@ enum LIQUID_TYPE_FLAGS : int32_t {
     LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING = 0x00000200,
 };
 
+// LiquidType.dbc m_soundBank: the base kind of a liquid. Basic IDs below
+// NUM_BASIC_LIQUID_TYPES cycle through these, so (id - 1) & 3 gives the kind;
+// AreaTable m_liquidTypeID is indexed by it. Names follow the DBC records.
+enum LIQUID_SOUND_BANK : int32_t {
+    LIQUID_SOUND_BANK_WATER = 0,
+    LIQUID_SOUND_BANK_OCEAN = 1,
+    LIQUID_SOUND_BANK_MAGMA = 2,
+    LIQUID_SOUND_BANK_SLIME = 3,
+    NUM_LIQUID_SOUND_BANKS  = 4,
+};
+
+// LiquidType.dbc rows the client uses directly, named after m_name.
+enum LIQUID_TYPE_ID : int32_t {
+    LIQUID_TYPE_WATER              = 1,
+    LIQUID_TYPE_OCEAN              = 2,
+    LIQUID_TYPE_MAGMA              = 3,
+    LIQUID_TYPE_SLIME              = 4,
+    LIQUID_TYPE_WMO_WATER          = 13,
+    LIQUID_TYPE_WMO_OCEAN          = 14,
+    LIQUID_TYPE_GREEN_LAVA         = 15,
+    LIQUID_TYPE_WMO_WATER_INTERIOR = 17,
+    LIQUID_TYPE_WMO_MAGMA          = 19,
+    LIQUID_TYPE_WMO_SLIME          = 20,
+    NUM_BASIC_LIQUID_TYPES         = 21,
+};
+
 class LiquidTypeRec {
     public:
     static const int32_t s_numColumns = 45;
@@ -35,7 +61,7 @@ class LiquidTypeRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
     /* 0008 */ int32_t m_flags; // LIQUID_TYPE_FLAGS
-    /* 000C */ int32_t m_soundBank;
+    /* 000C */ int32_t m_soundBank; // ENUM LIQUID_SOUND_BANK
     /* 0010 */ int32_t m_soundID;
     /* 0014 */ int32_t m_spellID;
     /* 0018 */ float m_maxDarkenDepth;

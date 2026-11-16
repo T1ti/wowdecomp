@@ -2695,8 +2695,8 @@ void CWorldScene::PrepareLiquidInstances() {
                 } else {
                     exterior = 0;
 
-                    if (liquidType < 21 && liquidType && !((liquidType - 1) & 3)) {
-                        liquidType = 17;
+                    if (liquidType < NUM_BASIC_LIQUID_TYPES && liquidType && ((liquidType - 1) & 3) == LIQUID_SOUND_BANK_WATER) {
+                        liquidType = LIQUID_TYPE_WMO_WATER_INTERIOR;
                         typeRec = g_liquidTypeDB.GetRecord(liquidType);
                     }
                 }
