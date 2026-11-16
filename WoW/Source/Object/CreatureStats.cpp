@@ -26,7 +26,7 @@ void CreatureStats::Pack(CDataStore* msg) const {
     msg->Put(this->m_typeFlags);
     msg->Put(this->m_type);
     msg->Put(this->m_family);
-    msg->Put(this->m_rank);
+    msg->Put(static_cast<uint32_t>(this->m_rank));
     msg->Put(this->m_killCredit[0]);
     msg->Put(this->m_killCredit[1]);
     msg->Put(this->m_displayId[0]);
@@ -80,7 +80,7 @@ void CreatureStats::Unpack(CDataStore* msg) {
     msg->Get(this->m_typeFlags);
     msg->Get(this->m_type);
     msg->Get(this->m_family);
-    msg->Get(this->m_rank);
+    msg->Get(reinterpret_cast<uint32_t&>(this->m_rank));
     msg->Get(this->m_killCredit[0]);
     msg->Get(this->m_killCredit[1]);
     msg->Get(this->m_displayId[0]);

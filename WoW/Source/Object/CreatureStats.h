@@ -74,7 +74,7 @@ class CreatureStats {
     /* 000C */ uint32_t m_typeFlags; // CREATURE_TYPE_FLAGS
     /* 0010 */ uint32_t m_type;
     /* 0014 */ uint32_t m_family;
-    /* 0018 */ uint32_t m_rank; // CREATURE_CLASSIFICATION
+    /* 0018 */ CREATURE_CLASSIFICATION m_rank;
     /* 001C */ uint32_t m_killCredit [2];
     /* 0024 */ uint32_t m_displayId [4];
     /* 0034 */ float m_hpModifier;

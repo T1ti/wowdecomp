@@ -6301,7 +6301,7 @@ CREATURE_CLASSIFICATION CGUnit_C::GetCreatureClassification() const {
         return CREATURE_CLASSIFICATION_NORMAL;
     }
 
-    return static_cast<CREATURE_CLASSIFICATION>(this->m_creatureCacheEntry->m_rank);
+    return this->m_creatureCacheEntry->m_rank;
 }
 
 // VERIFY: d337d178 auto
