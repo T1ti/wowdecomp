@@ -525,7 +525,7 @@ static int32_t Script_GetInspectArenaTeamData(lua_State* L) {
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= 3) {
+    if (index >= MAX_ARENA_TEAMS) {
         return 0;
     }
 

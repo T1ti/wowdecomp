@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Required-item columns per ItemExtendedCost.dbc record (inferred name).
+static const uint32_t MAX_ITEM_EXTENDED_COST_ITEMS = 5;
+
 class ItemExtendedCostRec {
     public:
     static const int32_t s_numColumns = 16;
@@ -16,8 +19,8 @@ class ItemExtendedCostRec {
     /* 0004 */ int32_t m_honorPoints;
     /* 0008 */ int32_t m_arenaPoints;
     /* 000C */ int32_t m_arenaBracket;
-    /* 0010 */ int32_t m_itemID [5];
-    /* 0024 */ int32_t m_itemCount [5];
+    /* 0010 */ int32_t m_itemID [MAX_ITEM_EXTENDED_COST_ITEMS];
+    /* 0024 */ int32_t m_itemCount [MAX_ITEM_EXTENDED_COST_ITEMS];
     /* 0038 */ int32_t m_requiredArenaRating;
     /* 003C */ int32_t m_itemPurchaseGroup;
 

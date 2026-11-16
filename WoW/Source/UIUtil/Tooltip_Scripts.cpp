@@ -1921,7 +1921,7 @@ static int32_t Script_SetTradeSkillItem(lua_State* L) {
             }
         }
 
-        if (i >= 8) {
+        if (i >= NUM_SPELL_REAGENTS) {
             luaL_error(L, "Invalid trade skill item in SetTradeSkillItem(index [,reagent])");
         }
 

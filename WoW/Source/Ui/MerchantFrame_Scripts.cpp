@@ -114,7 +114,7 @@ static int32_t Script_GetMerchantItemCostInfo(lua_State* L) {
         lua_pushnumber(L, cost->m_arenaPoints);
         uint32_t count = 0;
 
-        for (uint32_t i = 0; i < sizeof(cost->m_itemID) / sizeof(cost->m_itemID[0]); i++) {
+        for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
             if (cost->m_itemID[i]) {
                 count++;
             }
@@ -206,7 +206,7 @@ static int32_t Script_GetMerchantItemCostItem(lua_State* L) {
     int32_t found = 0;
     uint32_t i;
 
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
         if (!cost->m_itemID[i]) {
             continue;
         }
@@ -218,7 +218,7 @@ static int32_t Script_GetMerchantItemCostItem(lua_State* L) {
         found++;
     }
 
-    if (i >= 5) {
+    if (i >= MAX_ITEM_EXTENDED_COST_ITEMS) {
         lua_pushnil(L);
         lua_pushnumber(L, 0.0);
         return 2;
@@ -548,7 +548,7 @@ static int32_t Script_ShowMerchantSellCursor(lua_State* L) {
     if (player->m_player->m_playerFieldArenaCurrency < static_cast<uint32_t>(cost->m_arenaPoints) || player->m_player->m_playerFieldHonorCurrency < static_cast<uint32_t>(cost->m_honorPoints)) {
         unable = 1;
     } else {
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
             if (cost->m_itemID[i] && cost->m_itemCount[i] > 0 && player->m_bag.GetItemTypeCount(cost->m_itemID[i], 0) < cost->m_itemCount[i]) {
                 unable = 1;
                 break;
