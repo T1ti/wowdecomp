@@ -13369,11 +13369,11 @@ static int32_t DanceTimerCallback(const void* data, uint64_t guid, void* param) 
 // OFFSET: 0x006E18D0
 void CGPlayer_C::PlayDanceMove(const DanceMovesRec* move) {
     switch (move->m_type) {
-        case 0:
+        case DANCE_MOVE_ANIMATION:
             this->PlayBaseAnimation(move->m_param, ANIM_PLAY_FLAGS::PLAY_NONE);
             break;
 
-        case 1: {
+        case DANCE_MOVE_SPELL_VISUAL_KIT: {
             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(move->m_param);
 
             if (kit) {
@@ -13384,7 +13384,7 @@ void CGPlayer_C::PlayDanceMove(const DanceMovesRec* move) {
             break;
         }
 
-        case 2: {
+        case DANCE_MOVE_SOUND_KIT: {
             C3Vector position = this->GetPosition();
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
@@ -13396,14 +13396,14 @@ void CGPlayer_C::PlayDanceMove(const DanceMovesRec* move) {
             break;
         }
 
-        case 3:
-        case 4: {
+        case DANCE_MOVE_PAUSE:
+        case DANCE_MOVE_REPEAT_PREVIOUS: {
             ClientSetTimer(1000 * move->m_param, DanceTimerCallback, this->m_obj->m_guid.m_guid, nullptr);
 
-            if (move->m_type == 4) {
+            if (move->m_type == DANCE_MOVE_REPEAT_PREVIOUS) {
                 DanceMovesRec* previous = g_danceMovesDB.GetRecord(this->m_dance->m_moves[this->m_danceMoveIndex - 1]);
 
-                if (previous->m_type == 4 || previous->m_type == 3) {
+                if (previous->m_type == DANCE_MOVE_REPEAT_PREVIOUS || previous->m_type == DANCE_MOVE_PAUSE) {
                     SErrDisplayAppFatalMessage("", "", 0);
                 }
 
@@ -13430,7 +13430,7 @@ void CGPlayer_C::DanceMoveAnimComplete() {
     int32_t index = this->m_danceMoveIndex;
     DanceMovesRec* move = g_danceMovesDB.GetRecord(dance->m_moves[index]);
 
-    if (move->m_type == 4 && index > 0) {
+    if (move->m_type == DANCE_MOVE_REPEAT_PREVIOUS && index > 0) {
         this->PlayDanceMove(g_danceMovesDB.GetRecord(dance->m_moves[index - 1]));
     } else {
         this->DanceMoveComplete();

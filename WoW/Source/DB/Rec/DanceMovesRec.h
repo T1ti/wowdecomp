@@ -6,6 +6,16 @@
 
 class SFileImpl;
 
+// DanceMoves.dbc m_type, by what CGPlayer_C::PlayDanceMove does with m_param
+// (inferred names).
+enum DANCE_MOVE_TYPE : int32_t {
+    DANCE_MOVE_ANIMATION        = 0, // m_param is an animation ID
+    DANCE_MOVE_SPELL_VISUAL_KIT = 1, // m_param is a SpellVisualKit ID
+    DANCE_MOVE_SOUND_KIT        = 2, // m_param is a SoundEntries ID
+    DANCE_MOVE_PAUSE            = 3, // m_param is a wait in seconds
+    DANCE_MOVE_REPEAT_PREVIOUS  = 4, // waits, then replays the previous move
+};
+
 class DanceMovesRec {
     public:
     static const int32_t s_numColumns = 24;
@@ -13,7 +23,7 @@ class DanceMovesRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_type;
+    /* 0004 */ int32_t m_type; // ENUM DANCE_MOVE_TYPE
     /* 0008 */ int32_t m_param;
     /* 000C */ int32_t m_fallback;
     /* 0010 */ int32_t m_racemask;
