@@ -75,7 +75,7 @@ enum ARCHIVE_TYPE : int32_t {
 
 struct ARCHIVEINFO {
     /* 0000 */ const char* m_name;
-    /* 0004 */ int32_t m_type; // ARCHIVE_TYPE
+    /* 0004 */ ARCHIVE_TYPE m_type;
     /* 0008 */ int32_t m_availabilityMask; // tested against CheckDataFilesExist() + 1
     /* 000C */ bool m_opened;
 };
