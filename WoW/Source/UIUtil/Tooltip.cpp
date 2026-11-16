@@ -2577,7 +2577,7 @@ int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* gr
 
     int32_t met = 1;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_TALENT_PREREQS; i++) {
         int32_t prereqId = talent->m_prereqTalent[i];
 
         if (!prereqId) {
@@ -2597,7 +2597,7 @@ int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* gr
             continue;
         }
 
-        for (uint32_t r = rank; r < 9; r++) {
+        for (uint32_t r = rank; r < MAX_TALENT_RANKS; r++) {
             int32_t spellId = prereq->m_spellRank[r];
 
             if (spellId) {
@@ -6895,7 +6895,7 @@ void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, int32
     int32_t currentRank = -1;
     int32_t maxRank = -1;
 
-    for (int32_t i = 8; i >= 0; i--) {
+    for (int32_t i = MAX_TALENT_RANKS - 1; i >= 0; i--) {
         if (talent->m_spellRank[i]) {
             maxRank = i;
             break;
