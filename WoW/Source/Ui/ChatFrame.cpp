@@ -3415,7 +3415,7 @@ void CGChat::UpdateLanguages() {
 // VERIFY: ab07ffc0 manual
 // OFFSET: 0x004FE1C0
 const char* CGChat::GetChannelStringForDisplay(int32_t session, int32_t* type) {
-    *type = 4;
+    *type = DisplayChannel::TYPE::HEADER;
 
     if (static_cast<uint32_t>(session) >= s_numDisplayChannels) {
         return nullptr;
@@ -3914,11 +3914,11 @@ void RebuildDisplayChannelList(int32_t signal) {
 
     int32_t type = s_activeDisplayChannelType;
 
-    if (type == 2) {
+    if (type == DisplayChannel::TYPE::PARTY) {
         type = BuildPartyDisplayList();
     }
 
-    if (type == 3 || type == 1) {
+    if (type == DisplayChannel::TYPE::RAID || type == DisplayChannel::TYPE::BATTLEGROUND) {
         BuildRaidDisplayList(type);
     }
 
@@ -5031,7 +5031,7 @@ uint32_t CGChat::FindDisplayChannelIndex(const char* name, int32_t type) {
         int32_t displayType;
         const char* channel = CGChat::GetChannelStringForDisplay(i, &displayType);
 
-        if (!channel || displayType == 4 || displayType != type) {
+        if (!channel || displayType == DisplayChannel::TYPE::HEADER || displayType != type) {
             continue;
         }
 

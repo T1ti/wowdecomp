@@ -372,7 +372,7 @@ static int32_t Script_SetSelectedDisplayChannel(lua_State* L) {
     int32_t type;
     const char* channel = CGChat::GetChannelStringForDisplay(static_cast<int32_t>(lua_tonumber(L, 1)) - 1, &type);
 
-    if (!channel || type == 4) {
+    if (!channel || type == DisplayChannel::TYPE::HEADER) {
         return 0;
     }
 
@@ -382,11 +382,11 @@ static int32_t Script_SetSelectedDisplayChannel(lua_State* L) {
 
     SetCurrentActiveDisplayChannel(channel, type);
 
-    if (!type) {
+    if (type == DisplayChannel::TYPE::CHANNEL) {
         ChannelDisplayCommand(L, CMSG_CHAT_CHANNEL_DISPLAY_LIST, "GetChannelRosterInfo");
-    } else if (type == 2) {
+    } else if (type == DisplayChannel::TYPE::PARTY) {
         BuildPartyDisplayList();
-    } else if (type == 3 || type == 1) {
+    } else if (type == DisplayChannel::TYPE::RAID || type == DisplayChannel::TYPE::BATTLEGROUND) {
         BuildRaidDisplayList(type);
     }
 
@@ -1383,7 +1383,7 @@ static int32_t Script_GetChannelRosterInfo(lua_State* L) {
     int32_t type;
     const char* name = CGChat::GetChannelStringForDisplay(static_cast<int32_t>(lua_tonumber(L, 1)) - 1, &type);
 
-    if (!name || type == 4) {
+    if (!name || type == DisplayChannel::TYPE::HEADER) {
         return 0;
     }
 
@@ -1391,16 +1391,16 @@ static int32_t Script_GetChannelRosterInfo(lua_State* L) {
         SetCurrentActiveDisplayChannel(name, type);
 
         switch (type) {
-            case 0:
+            case DisplayChannel::TYPE::CHANNEL:
                 ChannelDisplayCommand(L, CMSG_CHAT_CHANNEL_DISPLAY_LIST, "GetChannelRosterInfo");
                 return 0;
 
-            case 2:
+            case DisplayChannel::TYPE::PARTY:
                 BuildPartyDisplayList();
                 return 0;
 
-            case 1:
-            case 3:
+            case DisplayChannel::TYPE::BATTLEGROUND:
+            case DisplayChannel::TYPE::RAID:
                 BuildRaidDisplayList(type);
                 break;
         }
@@ -2233,7 +2233,7 @@ static int32_t Script_GetNumChannelMembers(lua_State* L) {
     int32_t type;
     const char* channel = CGChat::GetChannelStringForDisplay(static_cast<int32_t>(lua_tonumber(L, 1)) - 1, &type);
 
-    if (!channel || type == 4) {
+    if (!channel || type == DisplayChannel::TYPE::HEADER) {
         lua_pushnil(L);
         return 1;
     }
@@ -2244,17 +2244,17 @@ static int32_t Script_GetNumChannelMembers(lua_State* L) {
         SetCurrentActiveDisplayChannel(channel, type);
 
         switch (type) {
-            case 0:
+            case DisplayChannel::TYPE::CHANNEL:
                 ChannelDisplayCommand(L, CMSG_CHAT_CHANNEL_DISPLAY_LIST, "GetNumChannelMembers");
                 lua_pushnil(L);
                 return 1;
 
-            case 2:
+            case DisplayChannel::TYPE::PARTY:
                 count = BuildPartyDisplayList();
                 break;
 
-            case 1:
-            case 3:
+            case DisplayChannel::TYPE::BATTLEGROUND:
+            case DisplayChannel::TYPE::RAID:
                 count = BuildRaidDisplayList(type);
                 break;
 
