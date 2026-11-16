@@ -19748,13 +19748,14 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         if (!(this->m_obj->m_type & TYPE_PLAYER) && (mainItem = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false)) && mainItem->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             uint8_t subclass = mainItem->m_subclassID;
 
-            if (subclass == 1 || subclass == 5 || subclass == 8 || subclass == 10 || subclass == 12 || subclass == 6 || subclass == 17 || subclass == 20) {
+            if (subclass == ITEM_SUBCLASS_WEAPON_AXE2 || subclass == ITEM_SUBCLASS_WEAPON_MACE2 || subclass == ITEM_SUBCLASS_WEAPON_SWORD2 || subclass == ITEM_SUBCLASS_WEAPON_STAFF
+                || subclass == ITEM_SUBCLASS_WEAPON_EXOTIC2 || subclass == ITEM_SUBCLASS_WEAPON_POLEARM || subclass == ITEM_SUBCLASS_WEAPON_SPEAR || subclass == ITEM_SUBCLASS_WEAPON_FISHING_POLE) {
                 return;
             }
         }
 
         attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDL;
-        invSlot = static_cast<INVENTORY_SLOTS>(16);
+        invSlot = INVSLOT_OFFHAND;
         mainHand = false;
     } else {
         if (this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
