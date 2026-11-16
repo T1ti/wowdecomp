@@ -53,10 +53,44 @@ enum GUILD_COMMAND_RESULT : uint32_t {
     GUILD_RESULT_ITEM_NOT_FOUND                             = 29,
 };
 
+// GuildRankInfo::m_rights. Bits tested by one Lua function are named after it (CanGuildPromote,
+// CanEditMOTD, ...); chat bits follow the GuildControl option order (Guildchat/Officerchat
+// Listen/Speak). Bit 17 is only toggled through the rank control flags.
+enum GUILD_RANK_RIGHTS : uint32_t {
+    GUILD_RIGHT_GUILDCHAT_LISTEN = 0x1,
+    GUILD_RIGHT_GUILDCHAT_SPEAK = 0x2,
+    GUILD_RIGHT_OFFICERCHAT_LISTEN = 0x4,
+    GUILD_RIGHT_OFFICERCHAT_SPEAK = 0x8,
+    GUILD_RIGHT_INVITE = 0x10,
+    GUILD_RIGHT_REMOVE = 0x20,
+    GUILD_RIGHT_PROMOTE = 0x80,
+    GUILD_RIGHT_DEMOTE = 0x100,
+    GUILD_RIGHT_EDIT_MOTD = 0x1000,
+    GUILD_RIGHT_EDIT_PUBLIC_NOTE = 0x2000,
+    GUILD_RIGHT_VIEW_OFFICER_NOTE = 0x4000,
+    GUILD_RIGHT_EDIT_OFFICER_NOTE = 0x8000,
+    GUILD_RIGHT_EDIT_GUILD_INFO = 0x10000,
+    GUILD_RIGHT_UNKNOWN_17 = 0x20000,
+    GUILD_RIGHT_BANK_REPAIR = 0x40000,
+    GUILD_RIGHT_WITHDRAW_BANK_MONEY = 0x80000,
+    GUILD_RIGHT_EDIT_GUILD_EVENT = 0x100000,
+};
+
+// GuildRankInfo::m_bankTabRights, named after the GetGuildBankTabInfo/GetGuildBankTabPermissions
+// returns (isViewable, canDeposit) and CanEditGuildTabInfo.
+enum GUILDBANK_TAB_RIGHTS : uint32_t {
+    GUILDBANK_TAB_RIGHT_VIEW = 0x1,
+    GUILDBANK_TAB_RIGHT_DEPOSIT = 0x2,
+    GUILDBANK_TAB_RIGHT_UPDATE_TEXT = 0x4,
+};
+
+// Rank permission toggles exposed by GuildControlGetRankFlags/GuildControlSetRankFlag (inferred name).
+constexpr uint32_t NUM_GUILD_RANK_FLAGS = 17;
+
 struct GuildRankInfo {
-    /* 0000 */ uint32_t m_rights;
+    /* 0000 */ uint32_t m_rights; // GUILD_RANK_RIGHTS
     /* 0004 */ int32_t m_bankMoneyPerDay;
-    /* 0008 */ uint32_t m_bankTabRights[MAX_GUILDBANK_TABS];
+    /* 0008 */ uint32_t m_bankTabRights[MAX_GUILDBANK_TABS]; // GUILDBANK_TAB_RIGHTS
     /* 0020 */ int32_t m_bankTabStacksPerDay[MAX_GUILDBANK_TABS];
 };
 

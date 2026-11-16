@@ -615,7 +615,7 @@ bool CGGuildInfo::CanEditGuildEvent() {
         return false;
     }
 
-    return (CGGuildInfo::m_rankInfo[player->m_player->m_playerGuildrank].m_rights >> 20) & 1;
+    return (CGGuildInfo::m_rankInfo[player->m_player->m_playerGuildrank].m_rights & GUILD_RIGHT_EDIT_GUILD_EVENT) != 0;
 }
 
 // VERIFY: 24e11556 manual

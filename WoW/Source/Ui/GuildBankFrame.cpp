@@ -181,7 +181,7 @@ void CGGuildBankInfo::SwapItems(uint8_t tab, uint32_t slot, WOWGUID item, WOWGUI
     msg.Put(static_cast<uint8_t>(slot));
     msg.Put(static_cast<uint32_t>(bankItemId));
 
-    if (!(CGGuildInfo::GetGuildBankTabPermissionsByRankID(tab, player->m_player->m_playerGuildrank) & 2)) {
+    if (!(CGGuildInfo::GetGuildBankTabPermissionsByRankID(tab, player->m_player->m_playerGuildrank) & GUILDBANK_TAB_RIGHT_DEPOSIT)) {
         CGGameUI::DisplayError(ERR_GUILD_PERMISSIONS);
         return;
     }
@@ -239,7 +239,7 @@ void CGGuildBankInfo::SwapBankItems(uint8_t tab, uint32_t slot, int32_t itemId, 
         return;
     }
 
-    if (!(CGGuildInfo::GetGuildBankTabPermissionsByRankID(tab, player->m_player->m_playerGuildrank) & 2)) {
+    if (!(CGGuildInfo::GetGuildBankTabPermissionsByRankID(tab, player->m_player->m_playerGuildrank) & GUILDBANK_TAB_RIGHT_DEPOSIT)) {
         CGGameUI::DisplayError(ERR_GUILD_PERMISSIONS);
         return;
     }

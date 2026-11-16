@@ -113,7 +113,7 @@ static int32_t Script_CanWithdrawGuildBankMoney(lua_State* L) {
     if (player && player->m_player->m_playerGuildid) {
         const GuildRankInfo& rank = CGGuildInfo::m_rankInfo[player->m_player->m_playerGuildrank];
 
-        if (rank.m_bankMoneyPerDay && (rank.m_rights & 0x80000)) {
+        if (rank.m_bankMoneyPerDay && (rank.m_rights & GUILD_RIGHT_WITHDRAW_BANK_MONEY)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }
@@ -606,13 +606,13 @@ static int32_t Script_GetGuildBankTabInfo(lua_State* L) {
     uint32_t rank = player->m_player->m_playerGuildrank;
     uint8_t rights = CGGuildInfo::GetGuildBankTabPermissionsByRankID(tab, rank);
 
-    if (rights & 1) {
+    if (rights & GUILDBANK_TAB_RIGHT_VIEW) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    if (rights & 2) {
+    if (rights & GUILDBANK_TAB_RIGHT_DEPOSIT) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
