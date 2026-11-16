@@ -967,9 +967,9 @@ static int32_t Script_CalendarContextInviteType(lua_State* L) {
     }
 
     if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
-        lua_pushinteger(L, 2);
+        lua_pushinteger(L, CALENDAR_INVITE_TYPE_GUILD + 1);
     } else {
-        lua_pushinteger(L, 1);
+        lua_pushinteger(L, CALENDAR_INVITE_TYPE_NORMAL + 1);
     }
 
     return 1;
@@ -1935,8 +1935,8 @@ static int32_t Script_CalendarGetEventInfo(lua_State* L) {
         lua_pushnumber(L, invite->m_status + 1);
         lua_pushnumber(L, invite->m_inviteType + 1);
     } else if (event->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) {
-        lua_pushnumber(L, 8.0);
-        lua_pushnumber(L, 2.0);
+        lua_pushnumber(L, CALENDAR_STATUS_NOT_SIGNEDUP + 1);
+        lua_pushnumber(L, CALENDAR_INVITE_TYPE_GUILD + 1);
     } else {
         lua_pushnumber(L, 0.0);
         lua_pushnumber(L, 0.0);
