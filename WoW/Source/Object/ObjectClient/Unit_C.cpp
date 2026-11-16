@@ -6298,7 +6298,7 @@ float CGUnit_C::GetMaxCameraHeight() const {
 // OFFSET: 0x00718A00
 uint32_t CGUnit_C::GetCreatureClassification() const {
     if (!this->m_creatureCacheEntry || this->m_unit->m_unitFieldPetnumber) {
-        return 0;
+        return CREATURE_CLASSIFICATION_NORMAL;
     }
 
     return this->m_creatureCacheEntry->m_rank;

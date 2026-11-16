@@ -151,7 +151,7 @@ int32_t Script_IsXPUserDisabled(lua_State* L);
 const int32_t s_unitSexValues[UNITSEX_LAST] = { GENDER_MALE, GENDER_FEMALE, GENDER_NONE };
 
 // STATIC: 0x00AD21BC
-static const char* s_unitClassificationTokens[7] = { "normal", "elite", "rareelite", "worldboss", "rare", "trivial", nullptr };
+static const char* s_unitClassificationTokens[NUM_CREATURE_CLASSIFICATIONS + 1] = { "normal", "elite", "rareelite", "worldboss", "rare", "trivial", nullptr };
 
 // VERIFY: e1b7cfaf manual
 // OFFSET: 0x0060FD40

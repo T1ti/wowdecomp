@@ -7,6 +7,18 @@
 
 class CDataStore;
 
+// CreatureStats::m_rank, as returned by CGUnit_C::GetCreatureClassification;
+// named after the UnitClassification tokens it indexes.
+enum CREATURE_CLASSIFICATION : uint32_t {
+    CREATURE_CLASSIFICATION_NORMAL     = 0, // "normal"
+    CREATURE_CLASSIFICATION_ELITE      = 1, // "elite"
+    CREATURE_CLASSIFICATION_RARE_ELITE = 2, // "rareelite"
+    CREATURE_CLASSIFICATION_WORLD_BOSS = 3, // "worldboss"
+    CREATURE_CLASSIFICATION_RARE       = 4, // "rare"
+    CREATURE_CLASSIFICATION_TRIVIAL    = 5, // "trivial"
+    NUM_CREATURE_CLASSIFICATIONS       = 6,
+};
+
 // Creature-query/cache type flags for the 3.3.5 client.
 // These masks are distinct from the four server static-flag words and flags_extra.
 enum CREATURE_TYPE_FLAGS : uint32_t
@@ -62,7 +74,7 @@ class CreatureStats {
     /* 000C */ uint32_t m_typeFlags; // CREATURE_TYPE_FLAGS
     /* 0010 */ uint32_t m_type;
     /* 0014 */ uint32_t m_family;
-    /* 0018 */ uint32_t m_rank;
+    /* 0018 */ uint32_t m_rank; // CREATURE_CLASSIFICATION
     /* 001C */ uint32_t m_killCredit [2];
     /* 0024 */ uint32_t m_displayId [4];
     /* 0034 */ float m_hpModifier;

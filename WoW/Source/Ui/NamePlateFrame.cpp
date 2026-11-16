@@ -1,5 +1,6 @@
 #include "NamePlateFrame.h"
 #include "Engine/Source/Tempest/Color.h"
+#include "WoW/Source/Object/CreatureStats.h"
 #include "WoW/Common/Types.h"
 #include <new>
 #include <typeinfo>
@@ -136,7 +137,7 @@ static const CImVector* GetDifficultyColor(int32_t level, int32_t playerLevel) {
 void CGNamePlateFrame::UpdateEliteIcon(CGUnit_C* unit) {
     uint32_t classification = unit->GetCreatureClassification();
 
-    if (unit->IsBossMob() || classification == 2 || classification == 1) {
+    if (unit->IsBossMob() || classification == CREATURE_CLASSIFICATION_RARE_ELITE || classification == CREATURE_CLASSIFICATION_ELITE) {
         this->m_eliteNameplateIcon->m_shown = 1;
         this->m_eliteNameplateIcon->ShowThis();
     } else {

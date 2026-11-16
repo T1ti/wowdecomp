@@ -162,7 +162,7 @@ static uint32_t s_tooltipGreenColor = COLOR_GREEN_ARGB;
 static uint32_t s_threatStatusColors[5] = { COLOR_WHITE_ARGB, 0xFFB0B0B0, 0xFFFFFF77, 0xFFFF9900, COLOR_RED_ARGB };
 
 // STATIC: 0x00AD2E6C
-static const char* s_classificationTokens[6] = { nullptr, "ELITE", "ELITE", nullptr, nullptr, nullptr };
+static const char* s_classificationTokens[NUM_CREATURE_CLASSIFICATIONS] = { nullptr, "ELITE", "ELITE", nullptr, nullptr, nullptr };
 
 // STATIC: 0x00AD2D84
 static uint32_t s_itemQualityColors[ITEM_QUALITY::NUM_ITEM_QUALITIES] = { 0xFF9D9D9D, COLOR_WHITE_ARGB, 0xFF1EFF00, 0xFF0070DD, 0xFFA335EE, 0xFFFF8000, 0xFFE6CC80, 0xFFE6CC80 };
