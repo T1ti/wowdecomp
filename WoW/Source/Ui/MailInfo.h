@@ -113,10 +113,16 @@ class CGMailInfo {
 
     static const int32_t INBOX_QUERY_INTERVAL_MS = 60000;
 
+    // Auction mail type from the subject's "item:random:type" fields; the
+    // added values follow the AUCTION_*_MAIL_SUBJECT string each one selects.
     enum INVOICE_TYPE : int32_t {
         UNSET = -1,
+        OUTBID = 0, // AUCTION_OUTBID_MAIL_SUBJECT
         BUYER = 1,
         SELLER = 2,
+        EXPIRED = 3, // AUCTION_EXPIRED_MAIL_SUBJECT
+        REMOVED = 4, // AUCTION_REMOVED_MAIL_SUBJECT
+        REMOVED_UNKNOWN_5 = 5, // also AUCTION_REMOVED_MAIL_SUBJECT
         SELLER_TEMP_INVOICE = 6,
     };
 
@@ -143,6 +149,17 @@ class CGMailInfo {
     static const int32_t POSTAGE_PER_ITEM = 30;
 
     static const int32_t NUM_INBOX_HEADER_INFO_RESULTS = 14;
+
+    // SMSG_MAIL_COMMAND_RESULT action word, named after what a successful result
+    // does; 3 and 4 both remove the mail (inferred names).
+    enum COMMAND_ACTION : uint32_t {
+        ACTION_SEND = 0,
+        ACTION_TAKE_MONEY = 1,
+        ACTION_TAKE_ITEM = 2,
+        ACTION_REMOVE_UNKNOWN_3 = 3,
+        ACTION_REMOVE_UNKNOWN_4 = 4,
+        ACTION_COPY = 5,
+    };
 
     enum COMMAND_RESULT : uint32_t {
         SUCCESS = 0,

@@ -209,41 +209,41 @@ int32_t Packet_SMSG_SEND_MAIL_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
 
     if (result == CGMailInfo::COMMAND_RESULT::INVENTORY_ERROR) {
         msg->Get(inventoryError);
-    } else if (action == 2 && (!result || result == CGMailInfo::COMMAND_RESULT::ATTACHMENT_EXPIRED)) {
+    } else if (action == CGMailInfo::COMMAND_ACTION::ACTION_TAKE_ITEM && (!result || result == CGMailInfo::COMMAND_RESULT::ATTACHMENT_EXPIRED)) {
         msg->Get(itemGuid);
         msg->Get(itemCount);
     }
 
-    if (action == 2 && result) {
+    if (action == CGMailInfo::COMMAND_ACTION::ACTION_TAKE_ITEM && result) {
         CGMailInfo::m_autoLooting = nullptr;
     }
 
     switch (result) {
         case CGMailInfo::COMMAND_RESULT::SUCCESS: {
             switch (action) {
-                case 0: {
+                case CGMailInfo::COMMAND_ACTION::ACTION_SEND: {
                     CGGameUI::DisplayError(ERR_MAIL_SENT);
                     CGMailInfo::ClearSendMail(true);
                     break;
                 }
 
-                case 1: {
+                case CGMailInfo::COMMAND_ACTION::ACTION_TAKE_MONEY: {
                     CGMailInfo::RemoveMoney(messageID);
                     break;
                 }
 
-                case 2: {
+                case CGMailInfo::COMMAND_ACTION::ACTION_TAKE_ITEM: {
                     CGMailInfo::RemoveItem(messageID, itemGuid);
                     break;
                 }
 
-                case 3:
-                case 4: {
+                case CGMailInfo::COMMAND_ACTION::ACTION_REMOVE_UNKNOWN_3:
+                case CGMailInfo::COMMAND_ACTION::ACTION_REMOVE_UNKNOWN_4: {
                     CGMailInfo::RemoveMail(messageID);
                     break;
                 }
 
-                case 5: {
+                case CGMailInfo::COMMAND_ACTION::ACTION_COPY: {
                     CGMailInfo::SetMailCopied(messageID);
                     break;
                 }
@@ -323,12 +323,12 @@ int32_t Packet_SMSG_SEND_MAIL_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
         }
     }
 
-    if (!action) {
+    if (action == CGMailInfo::COMMAND_ACTION::ACTION_SEND) {
         CGMailInfo::m_commandPending = 0;
         CGMailInfo::m_sendPending = 0;
     }
 
-    if (!result && action == 2 && CGMailInfo::m_autoLooting) {
+    if (!result && action == CGMailInfo::COMMAND_ACTION::ACTION_TAKE_ITEM && CGMailInfo::m_autoLooting) {
         MailboxMessageInfo* message = CGMailInfo::m_autoLooting;
         CGMailInfo::m_autoLooting = nullptr;
         CGMailInfo::ProcessAutoLootAttachments(message);
@@ -768,7 +768,7 @@ void CGMailInfo::ParseInboxSubject(MailboxMessageInfo* message) {
         const char* format;
 
         switch (type) {
-            case 0: {
+            case CGMailInfo::INVOICE_TYPE::OUTBID: {
                 format = FrameScript_GetText("AUCTION_OUTBID_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE);
                 break;
             }
@@ -783,13 +783,13 @@ void CGMailInfo::ParseInboxSubject(MailboxMessageInfo* message) {
                 break;
             }
 
-            case 3: {
+            case CGMailInfo::INVOICE_TYPE::EXPIRED: {
                 format = FrameScript_GetText("AUCTION_EXPIRED_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE);
                 break;
             }
 
-            case 4:
-            case 5: {
+            case CGMailInfo::INVOICE_TYPE::REMOVED:
+            case CGMailInfo::INVOICE_TYPE::REMOVED_UNKNOWN_5: {
                 format = FrameScript_GetText("AUCTION_REMOVED_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE);
                 break;
             }
