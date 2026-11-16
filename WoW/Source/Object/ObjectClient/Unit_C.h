@@ -884,7 +884,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void UpdateDisplay(uint32_t time);
     void UpdateMissileTrajectory();
     void OnVehicleCameraPossiblyUnneeded();
-    int32_t UpdateUnitCollisionBox(int32_t a2, int32_t a3);
+    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force);
     void CreateUnitMount(int32_t force, int32_t updateCollisionBox);
     void ShowLootEffect();
     void CompleteMountTransition();

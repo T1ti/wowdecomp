@@ -141,7 +141,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
 
     void DanceMoveAnimComplete();
     static int32_t IsXRayVisionActive();
-    void AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t a4);
+    void AddKnownSpell(int32_t spellId, int32_t a2, int32_t notify, int32_t a4);
     void AutoEquipItem(WOWGUID container, uint32_t slot, int32_t ignoreBind);
     void TurnOffGuildTabardPurchase();
     static int32_t GetNewContinentID();
@@ -444,7 +444,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     float GetModDamageDonePct(int32_t school) const;
     const CGItem_C* EquippedItemMeetSpellRequirements(const SpellRec* spell, uint32_t slotMask);
     int32_t HasZoneExplored(int32_t zone);
-    int32_t UpdateUnitCollisionBox(int32_t a2, int32_t a3);
+    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force);
     int32_t UpdateMountedCollisionBox(float mountHeight, int32_t force);
     int32_t IsCommentatorUberOrInArena() const;
     int32_t IsInMelee() const;

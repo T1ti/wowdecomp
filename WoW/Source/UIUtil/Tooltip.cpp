@@ -637,7 +637,7 @@ static int32_t ObjHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32
 
 // VERIFY: a6e35840 auto
 // OFFSET: 0x0061BFF0
-const char* CGTooltip::GetAchievementHyperlink(int32_t achievementId, WOWGUID guid, int32_t a3, WowTime time, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
+const char* CGTooltip::GetAchievementHyperlink(int32_t achievementId, WOWGUID guid, int32_t completed, WowTime time, int32_t criteria1, int32_t criteria2, int32_t criteria3, int32_t criteria4) {
     AchievementRec* achievement = g_achievementDB.GetRecord(achievementId);
 
     if (!achievement) {
@@ -646,7 +646,7 @@ const char* CGTooltip::GetAchievementHyperlink(int32_t achievementId, WOWGUID gu
 
     char name[800];
     QuestParserParseText(achievement->m_title, name, sizeof(name), guid, nullptr, 0);
-    SStrPrintf(s_itemLink, sizeof(s_itemLink), "%s|Hachievement:%d:%016I64X:%d:%d:%d:%d:%u:%u:%u:%u|h[%s]|h%s", "|cffffff00", achievementId, guid.m_guid, static_cast<uint8_t>(a3), time.m_month + 1, time.m_monthDay + 1, time.m_year, a5, a6, a7, a8, name, "|r");
+    SStrPrintf(s_itemLink, sizeof(s_itemLink), "%s|Hachievement:%d:%016I64X:%d:%d:%d:%d:%u:%u:%u:%u|h[%s]|h%s", "|cffffff00", achievementId, guid.m_guid, static_cast<uint8_t>(completed), time.m_month + 1, time.m_monthDay + 1, time.m_year, criteria1, criteria2, criteria3, criteria4, name, "|r");
     return s_itemLink;
 }
 
@@ -7872,7 +7872,7 @@ void CGTooltip::SetFrameStack(bool showHidden) {
 
 // VERIFY: 21654104 auto
 // OFFSET: 0x00625350
-void CGTooltip::SetBuff(int32_t spellId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6) {
+void CGTooltip::SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t a4, int32_t parseUnit, int32_t parsePet) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
 
@@ -7886,7 +7886,7 @@ void CGTooltip::SetBuff(int32_t spellId, int32_t a2, int32_t a3, int32_t a4, int
     }
 
     if (spell.m_cumulativeAura <= 1) {
-        a3 = 1;
+        stackCount = 1;
     }
 
     const char* dispelName = nullptr;
@@ -7903,7 +7903,7 @@ void CGTooltip::SetBuff(int32_t spellId, int32_t a2, int32_t a3, int32_t a4, int
 
     if (spell.m_auraDescription && *spell.m_auraDescription) {
         char text[1024];
-        SpellParserParseText(&spell, text, sizeof(text), a6, a5, a2, 1, a3, 1);
+        SpellParserParseText(&spell, text, sizeof(text), parsePet, parseUnit, spellLevel, 1, stackCount, 1);
         this->AddLine(text, nullptr, textColor, textColor, 1);
     }
 }

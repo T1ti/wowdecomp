@@ -2446,7 +2446,7 @@ void CGGameUI::SendTarget(WOWGUID guid) {
 
 // VERIFY: 57da3148 manual
 // OFFSET: 0x00519280
-void CGGameUI::ClearCursor(int32_t a1, int32_t a2) {
+void CGGameUI::ClearCursor(int32_t unlock, int32_t sendEvent) {
     if (CGPlayer_C::IsGiftWrapping()) {
         CGPlayer_C::CancelGiftWrap();
     }
@@ -2455,7 +2455,7 @@ void CGGameUI::ClearCursor(int32_t a1, int32_t a2) {
 
     switch (CGGameUI::m_cursorItemType) {
         case UICURSOR_ITEM: {
-            if (a1 && CGGameUI::m_cursorItem) {
+            if (unlock && CGGameUI::m_cursorItem) {
                 CGGameUI::UnlockItem(CGGameUI::m_cursorItem);
             }
 
@@ -2475,7 +2475,7 @@ void CGGameUI::ClearCursor(int32_t a1, int32_t a2) {
             CGGameUI::m_cursorMoney = 0;
             SI2::PlaySoundKit("LOOTWINDOWCOINSOUND", nullptr, nullptr, nullptr);
 
-            if (a2) {
+            if (sendEvent) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_MONEY, nullptr);
             }
 
@@ -2515,7 +2515,7 @@ void CGGameUI::ClearCursor(int32_t a1, int32_t a2) {
         case UICURSOR_GUILDBANK_ITEM:
             SI2::PlayItemSound(ITEMSOUND_DROP, CGGameUI::m_cursorVirtualDisplay);
 
-            if (a1 && CGGameUI::m_cursorVirtualID) {
+            if (unlock && CGGameUI::m_cursorVirtualID) {
                 CGGuildBankInfo::Unlock(CGGameUI::m_cursorVirtualID, CGGameUI::m_cursorVirtualSlot);
                 FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_ITEM_LOCK_CHANGED, nullptr);
             }
@@ -2529,7 +2529,7 @@ void CGGameUI::ClearCursor(int32_t a1, int32_t a2) {
             CGGameUI::m_cursorMoney = 0;
             SI2::PlaySoundKit("LOOTWINDOWCOINSOUND", nullptr, nullptr, nullptr);
 
-            if (a2) {
+            if (sendEvent) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_UPDATE_MONEY, nullptr);
             }
 
@@ -5812,14 +5812,14 @@ int32_t CGGameUI::GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t 
 
 // VERIFY: 2e88ceb5 manual
 // OFFSET: 0x00520770
-void CGGameUI::SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t a4, int32_t stackSplit, int32_t playSound) {
+void CGGameUI::SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t unlock, int32_t stackSplit, int32_t playSound) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!player || (!CGGameUI::m_hasControl && !(player->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI))) {
         return;
     }
 
-    CGGameUI::ClearCursor(a4, 1);
+    CGGameUI::ClearCursor(unlock, 1);
 
     if (!item) {
         return;

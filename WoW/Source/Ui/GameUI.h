@@ -293,7 +293,7 @@ class CGGameUI {
     static bool UnitHighlightsCVarCallback(CVar* var, const char* oldValue, const char* value, void* arg);
     static void ShowBlockedFrameFeedback(CScriptRegion* region);
     static void AutoMouseOver();
-    static void ClearCursor(int32_t a1, int32_t a2);
+    static void ClearCursor(int32_t unlock, int32_t sendEvent);
     static void UpdateThreatWarningEnabled(int32_t value);
     static void UpdateUnitHighlights();
     static void UpdateAreaSpiritHealerDistance();
@@ -338,7 +338,7 @@ class CGGameUI {
     static int32_t VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t a3);
     static void LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3);
     static void TargetTradeItem();
-    static void SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t a4, int32_t stackSplit, int32_t playSound);
+    static void SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t unlock, int32_t stackSplit, int32_t playSound);
     static WOWGUID m_lockedTarget;
     static int32_t m_visible;
     static WOWGUID m_lastEnemyTarget;

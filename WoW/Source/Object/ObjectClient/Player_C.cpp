@@ -4748,18 +4748,18 @@ int16_t CGPlayer_C::GetSkillModifier(int32_t index) {
 
 // VERIFY: c0b0e280 auto
 // OFFSET: 0x006E7B00
-void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t a4) {
+void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t notify, int32_t a4) {
     if (spellId > g_spellDB.m_maxID) {
         SysMsgPrintf(SYSMSG_ERROR, 2, "NOSPELLIDFOUND|%d", spellId);
         return;
     }
 
     if (a4) {
-        if (a3) {
+        if (notify) {
             CGActionBar::ReplaceSpell(0, spellId);
         }
 
-        CGSpellBook::AddKnownSpell(spellId, a3, 0);
+        CGSpellBook::AddKnownSpell(spellId, notify, 0);
     }
 
     SpellRec spell;
@@ -4832,7 +4832,7 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t 
         }
     }
 
-    if (a3) {
+    if (notify) {
         CGClassTrainer::RefreshList();
     }
 
@@ -11082,7 +11082,7 @@ int32_t CGPlayer_C::UpdateMountedCollisionBox(float mountHeight, int32_t force) 
 
 // VERIFY: 5cad3e09 auto
 // OFFSET: 0x006D78C0
-int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t a2, int32_t a3) {
+int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force) {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid);
     CreatureModelDataRec* modelData = displayInfo ? g_creatureModelDataDB.GetRecord(displayInfo->m_modelID) : nullptr;
 
@@ -11107,11 +11107,11 @@ int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t a2, int32_t a3) {
         SysMsgPrintf(SYSMSG_ERROR, 2, "CreatureModelData record %d (%s) collision width is too small.", displayInfo->m_modelID, modelData->m_modelName);
     }
 
-    if (!a2 && this->IsActivePlayer() && this->m_movementData.CollisionBoxDoesntFit(modelData->m_collisionWidth, modelData->m_collisionHeight, scale)) {
+    if (!skipFitCheck && this->IsActivePlayer() && this->m_movementData.CollisionBoxDoesntFit(modelData->m_collisionWidth, modelData->m_collisionHeight, scale)) {
         return 0;
     }
 
-    this->m_movementData.SetCollisionBox(modelData->m_collisionWidth, modelData->m_collisionHeight, scale, modelScale, a3);
+    this->m_movementData.SetCollisionBox(modelData->m_collisionWidth, modelData->m_collisionHeight, scale, modelScale, force);
     return 1;
 }
 

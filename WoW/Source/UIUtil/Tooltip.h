@@ -129,7 +129,7 @@ class CGTooltip : public CSimpleFrame {
     static const char* GetSpellLink(int32_t spellId);
     static const char* GetGlyphLink(int32_t slotId, int32_t glyphId);
     static const char* GetTalentHyperlinkString(const TalentRec* talent, const char* name, int32_t rank);
-    static const char* GetAchievementHyperlink(int32_t achievementId, WOWGUID guid, int32_t a3, WowTime time, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
+    static const char* GetAchievementHyperlink(int32_t achievementId, WOWGUID guid, int32_t completed, WowTime time, int32_t criteria1, int32_t criteria2, int32_t criteria3, int32_t criteria4);
     static int32_t GetObjectType();
     static void RegisterScriptMethods(lua_State* L);
 
@@ -212,7 +212,7 @@ class CGTooltip : public CSimpleFrame {
     void AddDeltaHeader(int32_t* first);
     void AddColoredItemStat(int32_t value, const char* name, int32_t* first);
     int32_t SetItemDelta(const CGItemStatsSummary* summary, int32_t append);
-    void SetBuff(int32_t spellId, int32_t a2, int32_t a3, int32_t a4, int32_t a5, int32_t a6);
+    void SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t a4, int32_t parseUnit, int32_t parsePet);
     void SetFrameStack(bool showHidden);
     void FadeOut();
     void ResetPosition(int32_t force);

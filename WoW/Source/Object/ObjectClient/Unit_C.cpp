@@ -20735,9 +20735,9 @@ float CGUnit_C::GetScaledModelScale(const CreatureDisplayInfoRec* displayInfo, c
 
 // VERIFY: 1dce3fba manual
 // OFFSET: 0x00725F50
-int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t a2, int32_t a3) {
+int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force) {
     if (this->m_obj->m_type & TYPE_PLAYER) {
-        return static_cast<CGPlayer_C*>(this)->UpdateUnitCollisionBox(a2, a3);
+        return static_cast<CGPlayer_C*>(this)->UpdateUnitCollisionBox(skipFitCheck, force);
     }
 
     CreatureDisplayInfoRec* displayInfo;
