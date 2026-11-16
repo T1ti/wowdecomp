@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
+#include "WoW/Source/DB/Rec/BarberShopStyleRec.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Ui/USEABLESTYLE.h"
 
@@ -27,7 +28,7 @@ class CGBarberShop {
     };
 
     static void EnterWorld();
-    static STYLEREC* GetStyle(int32_t type, int32_t race, int32_t sex, int32_t data);
+    static STYLEREC* GetStyle(BARBER_SHOP_STYLE_TYPE type, int32_t race, int32_t sex, int32_t data);
     static float GetMinCameraDistance();
     static uint8_t m_barberShopEnabled;
     static uint8_t m_helmHidden;
@@ -42,13 +43,13 @@ class CGBarberShop {
 
     static void AppearanceApplied();
     static void DisableBarberShop();
-    static const BarberShopStyleRec* GetCurrentStyle(int32_t type);
+    static const BarberShopStyleRec* GetCurrentStyle(BARBER_SHOP_STYLE_TYPE type);
     static void ResetAppearance();
-    static bool IsCurrentStyle(int32_t type);
+    static bool IsCurrentStyle(BARBER_SHOP_STYLE_TYPE type);
     static int32_t GetTotalCost();
     static void ApplyAppearanceChange();
     static void Reset();
-    static void SetNextBarberShopStyle(int32_t type, bool backward);
+    static void SetNextBarberShopStyle(BARBER_SHOP_STYLE_TYPE type, bool backward);
     static void InitializeGame();
     static void ShutdownGame();
     static void RegisterScriptFunctions();

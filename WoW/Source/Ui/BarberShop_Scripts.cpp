@@ -49,7 +49,7 @@ static int32_t Script_GetBarberShopStyleInfo(lua_State* L) {
         float value = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * 0.5f;
         cost = static_cast<int32_t>(value);
     } else {
-        const BarberShopStyleRec* style = CGBarberShop::GetCurrentStyle(index);
+        const BarberShopStyleRec* style = CGBarberShop::GetCurrentStyle(static_cast<BARBER_SHOP_STYLE_TYPE>(index));
         lua_pushstring(L, style->m_displayName);
         lua_pushstring(L, style->m_description);
         float value = GetGameTableValue(GAME_TABLE_BARBER_SHOP_COST_BASE, ClntObjMgrGetActivePlayerObj()->m_unit->m_unitFieldLevel - 1, 0) * style->m_costModifier;
@@ -58,7 +58,7 @@ static int32_t Script_GetBarberShopStyleInfo(lua_State* L) {
 
     lua_pushinteger(L, cost);
 
-    if (CGBarberShop::IsCurrentStyle(index)) {
+    if (CGBarberShop::IsCurrentStyle(static_cast<BARBER_SHOP_STYLE_TYPE>(index))) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -107,7 +107,7 @@ static int32_t Script_SetNextBarberShopStyle(lua_State* L) {
 
     if (index <= BARBER_SHOP_SKIN_COLOR && (index != BARBER_SHOP_SKIN_COLOR || CGBarberShop::m_currentSkinColor)) {
         bool backward = StringToBOOL(L, 2, 0) != 0;
-        CGBarberShop::SetNextBarberShopStyle(index, backward);
+        CGBarberShop::SetNextBarberShopStyle(static_cast<BARBER_SHOP_STYLE_TYPE>(index), backward);
     }
 
     return 0;

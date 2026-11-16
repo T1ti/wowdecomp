@@ -60,7 +60,7 @@ float CGBarberShop::GetMinCameraDistance() {
 
 // VERIFY: 8a411dd0 auto
 // OFFSET: 0x0052E490
-const BarberShopStyleRec* CGBarberShop::GetCurrentStyle(int32_t type) {
+const BarberShopStyleRec* CGBarberShop::GetCurrentStyle(BARBER_SHOP_STYLE_TYPE type) {
     switch (type) {
         case BARBER_SHOP_HAIR_STYLE:
             return CGBarberShop::m_currentHairStyle->m_rec;
@@ -238,7 +238,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
 
 // VERIFY: 09bc12d2 manual
 // OFFSET: 0x0052FC80
-void CGBarberShop::SetNextBarberShopStyle(int32_t type, bool backward) {
+void CGBarberShop::SetNextBarberShopStyle(BARBER_SHOP_STYLE_TYPE type, bool backward) {
     if (!CGBarberShop::m_barberShopEnabled) {
         return;
     }
@@ -309,7 +309,7 @@ void CGBarberShop::InitializeGame() {
 
 // VERIFY: d45ddf6d manual
 // OFFSET: 0x0052F760
-STYLEREC* CGBarberShop::GetStyle(int32_t type, int32_t race, int32_t sex, int32_t data) {
+STYLEREC* CGBarberShop::GetStyle(BARBER_SHOP_STYLE_TYPE type, int32_t race, int32_t sex, int32_t data) {
     HASHKEY_NONE key;
     USEABLESTYLE* useable = CGBarberShop::m_useableStyles.Ptr(type, key);
 
@@ -386,7 +386,7 @@ void CGBarberShop::ResetAppearance() {
 
 // VERIFY: fb38ad28 manual
 // OFFSET: 0x0052E790
-bool CGBarberShop::IsCurrentStyle(int32_t type) {
+bool CGBarberShop::IsCurrentStyle(BARBER_SHOP_STYLE_TYPE type) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     CCharacterComponent* component = player->m_characterComponent;
 

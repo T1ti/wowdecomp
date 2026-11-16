@@ -17,6 +17,7 @@
 #include "WoW/Source/DB/Rec/SpellVisualKitRec.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 #include "WoW/Source/Net/Types.h"
+#include "WoW/Source/Object/CreatureStats.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CImVector.h"
@@ -610,7 +611,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     int32_t GetPredictedHealth() const;
     void SetPredictedHealth(int32_t health);
     float GetMaxCameraHeight() const;
-    uint32_t GetCreatureClassification() const;
+    CREATURE_CLASSIFICATION GetCreatureClassification() const;
     BOOL IsDeepInLiquid() const;
     bool DoNotLogDeath() const;
     CGUnit_C* GetControllingPlayer();

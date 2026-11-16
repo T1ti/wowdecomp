@@ -6296,12 +6296,12 @@ float CGUnit_C::GetMaxCameraHeight() const {
 
 // VERIFY: 5cc27cbd auto
 // OFFSET: 0x00718A00
-uint32_t CGUnit_C::GetCreatureClassification() const {
+CREATURE_CLASSIFICATION CGUnit_C::GetCreatureClassification() const {
     if (!this->m_creatureCacheEntry || this->m_unit->m_unitFieldPetnumber) {
         return CREATURE_CLASSIFICATION_NORMAL;
     }
 
-    return this->m_creatureCacheEntry->m_rank;
+    return static_cast<CREATURE_CLASSIFICATION>(this->m_creatureCacheEntry->m_rank);
 }
 
 // VERIFY: d337d178 auto
