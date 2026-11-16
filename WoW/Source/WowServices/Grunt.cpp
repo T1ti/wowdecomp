@@ -600,7 +600,7 @@ int32_t Grunt::ClientLink::CmdAuthLogonChallenge(CDataStore& msg) {
         uint32_t pinSeed = 0;
         void* pinSalt = nullptr;
 
-        if (securityFlags & 0x1) {
+        if (securityFlags & GRUNT_SECURITY_PIN) {
             if (!CanReadNumBytes(msg, 20)) {
                 return 0;
             }
@@ -615,7 +615,7 @@ int32_t Grunt::ClientLink::CmdAuthLogonChallenge(CDataStore& msg) {
         uint8_t matrixChallengeCount = 0;
         uint64_t matrixSeed = 0;
 
-        if (securityFlags & 0x2) {
+        if (securityFlags & GRUNT_SECURITY_MATRIX) {
             if (!CanReadNumBytes(msg, 12)) {
                 return 0;
             }
@@ -626,14 +626,14 @@ int32_t Grunt::ClientLink::CmdAuthLogonChallenge(CDataStore& msg) {
             msg.Get(matrixChallengeCount);
             msg.Get(matrixSeed);
 
-            if ((securityFlags & 0x2) && !matrixChallengeCount) {
+            if ((securityFlags & GRUNT_SECURITY_MATRIX) && !matrixChallengeCount) {
                 return 1;
             }
         }
 
         uint8_t tokenRequired = 0;
 
-        if (securityFlags & 0x4) {
+        if (securityFlags & GRUNT_SECURITY_TOKEN) {
             if (!CanReadNumBytes(msg, 1)) {
                 return 0;
             }
@@ -656,9 +656,9 @@ int32_t Grunt::ClientLink::CmdAuthLogonChallenge(CDataStore& msg) {
             this->m_clientResponse->LogonResult(Grunt::GRUNT_RESULT_INCORRECT_PASSWORD, nullptr, 0, 0);
         } else {
             this->SetState(ClientLink::CLIENT_STATE::STATE_LOGON_VERSION_PROOF_PENDING);
-            this->m_clientResponse->SetPinInfo((securityFlags & 0x1) == 0x1, pinSeed, static_cast<uint8_t*>(pinSalt));
-            this->m_clientResponse->SetMatrixInfo((securityFlags & 0x2) == 0x2, matrixWidth, matrixHeight, matrixDigitCount, matrixDigitCount, false, matrixChallengeCount, matrixSeed, this->m_srpClient.m_sessionKey, sizeof(this->m_srpClient.m_sessionKey));
-            this->m_clientResponse->SetTokenInfo((securityFlags & 0x4) == 0x4, tokenRequired);
+            this->m_clientResponse->SetPinInfo((securityFlags & GRUNT_SECURITY_PIN) == GRUNT_SECURITY_PIN, pinSeed, static_cast<uint8_t*>(pinSalt));
+            this->m_clientResponse->SetMatrixInfo((securityFlags & GRUNT_SECURITY_MATRIX) == GRUNT_SECURITY_MATRIX, matrixWidth, matrixHeight, matrixDigitCount, matrixDigitCount, false, matrixChallengeCount, matrixSeed, this->m_srpClient.m_sessionKey, sizeof(this->m_srpClient.m_sessionKey));
+            this->m_clientResponse->SetTokenInfo((securityFlags & GRUNT_SECURITY_TOKEN) == GRUNT_SECURITY_TOKEN, tokenRequired);
             this->m_clientResponse->GetVersionProof(static_cast<uint8_t*>(versionChallenge));
         }
 

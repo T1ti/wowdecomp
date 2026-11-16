@@ -15,6 +15,13 @@
 
 bool CanReadNumBytes(CDataStore& msg, uint32_t bytes);
 
+// Grunt logon challenge security flags, named after the ClientResponse setter each one enables.
+enum GRUNT_SECURITY_FLAGS : uint8_t {
+    GRUNT_SECURITY_PIN = 0x1,
+    GRUNT_SECURITY_MATRIX = 0x2,
+    GRUNT_SECURITY_TOKEN = 0x4,
+};
+
 namespace Grunt {
 // Shared server/hello-info protocol discriminator;unknown words remain raw.
 enum SERVER_LINK_TYPE : uint32_t {
