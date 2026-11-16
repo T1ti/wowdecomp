@@ -52,6 +52,11 @@ class M2ModelParticle;
 class M2ModelRibbon;
 class M2ModelTextureTransform;
 
+// Inferred names: key bone ID of a bone with no key bone (as a bone argument it addresses
+// the root bone sequence), and the sequence variation that picks a random variation.
+static const uint32_t M2_KEY_BONE_NONE = 0xFFFFFFFF;
+static const uint32_t M2_RANDOM_VARIATION = 0xFFFFFFFF;
+
 typedef void (*M2EventCallback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param);
 typedef void (*M2SequenceCallback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 

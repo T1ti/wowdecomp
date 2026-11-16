@@ -541,7 +541,7 @@ void DayNight::SyncSkyAnimWithTime(DNOverrideSky* sky, int32_t minutes) {
 
     if (!sky->m_animLengthMs) {
         M2BoneSequenceInfo info;
-        sky->m_model->GetBoneSequenceInfo(0xFFFFFFFF, info);
+        sky->m_model->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
         sky->m_animLengthMs = info.m_endTime - info.m_startTime;
     }
 
@@ -554,7 +554,7 @@ void DayNight::SyncSkyAnimWithTime(DNOverrideSky* sky, int32_t minutes) {
     if (abs(minutes - static_cast<int32_t>(sky->m_lastTimeOfDay)) >= 2 && (sky->m_flags & LIGHT_SKYBOX_FLAG_FULL_DAY)) {
         float speed = 0.000000011574074f * length;
         uint32_t time = static_cast<uint32_t>(length * (minutes * 0.00069444446f));
-        sky->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, time, speed, 1, 1);
+        sky->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, time, speed, 1, 1);
     }
 
     sky->m_lastTimeOfDay = minutes;

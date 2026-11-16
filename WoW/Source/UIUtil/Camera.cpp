@@ -1793,7 +1793,7 @@ void CGCamera::OnVehicleCameraDestroyed() {
 void CGCamera::ResetModelCamera() {
     this->m_someTime = OsGetAsyncTimeMs();
     this->GetScene()->SetTime(0);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+    this->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
 }
 
 // VERIFY: 24591d4d auto
@@ -4191,7 +4191,7 @@ int32_t CGCamera::FinishLoadingModel() {
     this->m_state |= STATE_FLAGS::STATE_LOADED;
     this->m_someTime = OsGetAsyncTimeMs();
     this->GetScene()->SetTime(0);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+    this->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
     this->m_model->SetAnimating(1);
     C3Vector cameraPos;
     this->GetScene()->Animate(cameraPos);

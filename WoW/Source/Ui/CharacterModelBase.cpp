@@ -264,7 +264,7 @@ void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
     CCharacterComponent::RemoveVisuals(model);
     this->SetModel(model);
     this->SetFrameAlpha(static_cast<uint8_t>(unit->GetBaseAlpha() * 255.0f));
-    model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 
     for (CM2Model* attached = model->m_attachList; attached; attached = attached->m_attachNext) {
         if (attached->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_HANDL) {
@@ -310,7 +310,7 @@ void CGCharacterModelBase::SetUpModel(const CreatureStats_C* stats) {
 
     CCharacterComponent::ReplaceMonsterSkin(model, displayRec, modelRec);
     this->SetModel(model);
-    model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     model->Release();
 }
 

@@ -526,12 +526,12 @@ void CVehiclePassenger_C::StartMirroringVehicleAnims() {
     }
 
     M2BoneSequenceInfo info;
-    vehicleModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
+    vehicleModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
 
     if (info.m_sequenceId >= ANIM_COUNT) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     } else {
-        model->SetBoneSequence(0xFFFFFFFF, info.m_sequenceId, info.m_variationIndex, info.m_time, info.m_speed, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, info.m_sequenceId, info.m_variationIndex, info.m_time, info.m_speed, 1, 1);
     }
 
     for (uint32_t bone = 0; bone < 35; bone++) {

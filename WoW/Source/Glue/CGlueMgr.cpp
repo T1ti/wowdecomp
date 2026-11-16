@@ -432,7 +432,7 @@ static bool CreateIntroScene(uint8_t classID, uint8_t raceID, C3Vector& position
             model->SetWorldTransform(transform);
 
             scene->SetTime(0);
-            model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+            model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
             model->SetAnimating(1);
 
             C3Vector cameraPos;

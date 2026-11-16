@@ -65,7 +65,7 @@ void CGGameObject_C_Type_QuestGiver::StartInteraction() {
         anim = info.m_animId;
     }
 
-    if (model->GetBoneSequenceId(0xFFFFFFFF) != anim) {
+    if (model->GetBoneSequenceId(M2_KEY_BONE_NONE) != anim) {
         this->UpdateAnimState(ANIMSTATE_OPENING);
     }
 }

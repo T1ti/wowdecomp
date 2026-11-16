@@ -211,10 +211,10 @@ void CGUnit_C::PlayRangedItemPull() {
         this->m_worldModel->GetBoneSequenceInfo(4, info);
 
         if (info.m_sequenceId == INVALID_ANIMATION) {
-            this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
+            this->m_worldModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
         }
     } else {
-        this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
+        this->m_worldModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
     }
 
     if (info.m_finished) {
@@ -231,7 +231,7 @@ void CGUnit_C::PlayRangedItemPull() {
     M2SequenceInfo sequence;
     sequence.Clear();
     this->m_rangedWeaponModel->GetSequenceInfo(ANIM_ITEM_BOWPULL, 0, sequence);
-    this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_BOWPULL, 0, 0, static_cast<float>(static_cast<int32_t>(sequence.m_duration)) / remaining, 1, 1);
+    this->m_rangedWeaponModel->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_ITEM_BOWPULL, 0, 0, static_cast<float>(static_cast<int32_t>(sequence.m_duration)) / remaining, 1, 1);
 }
 
 // VERIFY: ee364054 manual
@@ -605,7 +605,7 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
                 VICTIMSTATES victimState = attacker->m_lastAttackRound.m_victimState;
 
                 if (!victimState || victimState == VS_DODGE || victimState == VS_EVADE) {
-                    attacker->SetKeyBoneSequenceSpeed(attacker->m_worldModel, 0xFFFFFFFF, 0.5f, 0);
+                    attacker->SetKeyBoneSequenceSpeed(attacker->m_worldModel, M2_KEY_BONE_NONE, 0.5f, 0);
                 }
             } else if (!target) {
                 if (this->m_obj->m_type & TYPE_PLAYER) {

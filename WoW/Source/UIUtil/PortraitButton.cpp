@@ -605,7 +605,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
     }
 
     CCharacterComponent::RemoveVisuals(model);
-    model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0, 0, 0.0f, 0, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, 0, 0, 0.0f, 0, 1);
 
     float viewportMinX;
     float viewportMaxX;

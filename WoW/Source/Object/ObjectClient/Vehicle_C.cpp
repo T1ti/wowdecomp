@@ -590,7 +590,7 @@ int32_t CVehicle_C::PlayBoneAnim(uint32_t boneId, uint32_t animId) {
     }
 
     uint32_t slot = boneId >= 35 ? 26 : boneId;
-    this->m_unit->SetKeyBoneSequence(model, slot == 26 ? 0xFFFFFFFF : slot, animId, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+    this->m_unit->SetKeyBoneSequence(model, slot == 26 ? M2_KEY_BONE_NONE : slot, animId, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
     this->m_playingBoneAnims[slot >> 5] |= 1 << (slot & 0x1F);
     this->m_flags |= CVehicle_C::FLAGS::BONE_ANIMS_PLAYING;
     return 1;
@@ -666,7 +666,7 @@ void CVehicle_C::EnterWorld() {
 // VERIFY: 269d0959 auto
 // OFFSET: 0x00757420
 void CVehicle_C::PlayBoneAnimOrFallback(CM2Model* model, uint32_t boneId) {
-    uint32_t bone = boneId == 26 ? 0xFFFFFFFF : boneId;
+    uint32_t bone = boneId == 26 ? M2_KEY_BONE_NONE : boneId;
 
     if (!this->m_unit->UnsetKeyBoneSequence(model, bone, TRUE, TRUE, FALSE)) {
         this->BoneAnimEndHandler(model, bone, INVALID_ANIMATION, 1, 0);
@@ -753,7 +753,7 @@ void CVehicle_C::BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t s
     if (!interrupted) {
         if (handled) {
             s_inBoneAnimEnd = 1;
-            this->m_unit->SetKeyBoneSequence(model, boneId == 26 ? 0xFFFFFFFF : boneId, sequenceId, 0xFFFFFFFF, time, 1.0f, 1, 1, 0);
+            this->m_unit->SetKeyBoneSequence(model, boneId == 26 ? M2_KEY_BONE_NONE : boneId, sequenceId, M2_RANDOM_VARIATION, time, 1.0f, 1, 1, 0);
             s_inBoneAnimEnd = 0;
         } else if (boneId == 26) {
             this->m_unit->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);

@@ -826,7 +826,7 @@ void BlizzardObject::Render(int32_t visible) {
 
         if (!shard->m_started) {
             shard->m_started = 1;
-            shard->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            shard->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         }
 
         shard->m_model->SetAnimating(1);
@@ -999,7 +999,7 @@ int32_t MountTransitionObject::UpdateCharacterData() {
 
     this->m_attachPivot = mountModel->GetAttachmentPivot(MODEL_ATTACHMENT_ID::ATTACH_SHIELD);
     M2BoneSequenceInfo info;
-    model->GetBoneSequenceInfo(0xFFFFFFFF, info);
+    model->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
     float rate = 1.0f / static_cast<float>(info.m_endTime - info.m_startTime);
     this->m_animRate = rate;
     uint32_t anim = unit->GetCurrentTorsoAnimId();

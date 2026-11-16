@@ -245,7 +245,7 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
     doodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
     doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
     doodadDef->m_model->m_lightingArg = doodadDef;
-    doodadDef->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    doodadDef->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 
     if (waitForLoad) {
         doodadDef->m_model->IsLoaded(1, 0);

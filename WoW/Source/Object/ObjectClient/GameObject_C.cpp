@@ -1160,7 +1160,7 @@ void CGGameObject_C_Type_WorldObj::SequenceFinishedHandler(CM2Model* model, uint
         }
     }
 
-    model->SetBoneSequence(0xFFFFFFFF, next, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, next, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 }
 
 // VERIFY: 5f0fe2c4 manual
@@ -1184,7 +1184,7 @@ CGGameObject_C_Type_DestructibleBuilding::CGGameObject_C_Type_DestructibleBuildi
 // OFFSET: 0x0070B870
 void CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param) {
     if (!interrupted && sequenceId != ANIM_GAMEOBJ_CUSTOM1) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM1, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_CUSTOM1, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1295,7 +1295,7 @@ uint16_t CGGameObject_C_Type_DestructibleBuilding::GetAmbientDoodadSet(int32_t s
 // OFFSET: 0x0070B800
 void CGGameObject_C_Type_DestructibleBuilding::DestructSequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param) {
     if (!interrupted && sequenceId) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1307,9 +1307,9 @@ void CGGameObject_C_Type_DestructibleBuilding::ImpactEffectSequenceFinishedHandl
     }
 
     if (sequenceId == ANIM_GAMEOBJ_CUSTOM0) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM1, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_CUSTOM1, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     } else {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -1321,9 +1321,9 @@ void CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler(CM2Mod
     }
 
     if (sequenceId == ANIM_GAMEOBJ_CUSTOM0 || sequenceId == ANIM_GAMEOBJ_CUSTOM1) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_CUSTOM2, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_CUSTOM2, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     } else if (sequenceId == ANIM_GAMEOBJ_CUSTOM2) {
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_GAMEOBJ_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_GAMEOBJ_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -2960,7 +2960,7 @@ void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t state) {
 
             if ((current == ANIMSTATE_OPENING && state == ANIMSTATE_CLOSING) || (current == ANIMSTATE_CLOSING && state == ANIMSTATE_OPENING) || (current == ANIMSTATE_DESTROYING && state == ANIMSTATE_REBUILDING) || (current == ANIMSTATE_REBUILDING && state == ANIMSTATE_DESTROYING)) {
                 M2BoneSequenceInfo info;
-                model->GetBoneSequenceInfo(0xFFFFFFFF, info);
+                model->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
 
                 if (static_cast<int32_t>(info.m_endTime - info.m_startTime) > 0) {
                     uint32_t elapsed = model->m_scene->m_time - info.m_startTime;
@@ -3064,14 +3064,14 @@ void CGGameObject_C_TypeAnimated::SetSequence(CM2Model* model) {
                 break;
         }
 
-        if (sequence == model->GetBoneSequenceId(0xFFFFFFFF)) {
+        if (sequence == model->GetBoneSequenceId(M2_KEY_BONE_NONE)) {
             return;
         }
     }
 
 effects:
     if (this->m_owner->m_effectManager) {
-        uint32_t current = model->GetBoneSequenceId(0xFFFFFFFF);
+        uint32_t current = model->GetBoneSequenceId(M2_KEY_BONE_NONE);
 
         if (current != sequence) {
             OBJECT_EFFECT_STATE exitState = FindObjectEffectStateFromAnimID(current, 0);
@@ -3106,7 +3106,7 @@ effects:
         }
     }
 
-    model->SetBoneSequence(0xFFFFFFFF, sequence, 0xFFFFFFFF, startTime, speed, this->m_animState != ANIMSTATE_SPAWN, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, startTime, speed, this->m_animState != ANIMSTATE_SPAWN, 1);
 
     if (keepTime) {
         uint32_t time = model->m_scene->m_time;
@@ -3927,7 +3927,7 @@ int32_t CGGameObject_C_TypeBase::CheckRange() const {
 
     if (!owner->m_gameObject->m_typeID) {
         M2BoneSequenceInfo info;
-        model->GetBoneSequenceInfo(0xFFFFFFFF, info);
+        model->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
         M2SequenceInfo sequence;
         sequence.Clear();
         model->GetSequenceInfo(info.m_sequenceId, info.m_variationIndex, sequence);

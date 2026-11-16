@@ -364,7 +364,7 @@ void CEffect::CreateModelFromEffect(CM2Model* model, void* arg) {
         effect->SetEmissionRateIgnoresDistance(1);
     }
 
-    model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_EFFECT_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 }
 
 // VERIFY: 392d7fa2 manual
@@ -1501,7 +1501,7 @@ void CEffect::CreateProceduralEffectImpl(int32_t expireTime, float param, uint32
                 duration = info.m_duration;
             }
 
-            unit->SetBoneSequenceTimeRecursive(unit->m_mountModel, 0xFFFFFFFF, duration, FALSE);
+            unit->SetBoneSequenceTimeRecursive(unit->m_mountModel, M2_KEY_BONE_NONE, duration, FALSE);
         }
 
         unit->UpdateBoneSequenceFlags(unit->m_mountModel, TRUE, FALSE);
@@ -1523,7 +1523,7 @@ void CEffect::CreateProceduralEffectImpl(int32_t expireTime, float param, uint32
                 duration = info.m_duration;
             }
 
-            unit->SetBoneSequenceTimeRecursive(unit->m_worldModel, 0xFFFFFFFF, duration, FALSE);
+            unit->SetBoneSequenceTimeRecursive(unit->m_worldModel, M2_KEY_BONE_NONE, duration, FALSE);
         }
 
         unit->UpdateBoneSequenceFlags(unit->m_worldModel, TRUE, FALSE);
@@ -1589,7 +1589,7 @@ int32_t CEffect::LoadMountTransitionModel() {
     this->m_model->SetSequenceCallback(&MountTransitionSequenceCB, reinterpret_cast<uintptr_t>(this));
     this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
     CCharacterComponent::ReplaceMonsterSkin(this->m_model, display, modelData);
-    this->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    this->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_BIRTH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     CM2Model* model = this->m_model;
 
     if (model->m_attachParent) {

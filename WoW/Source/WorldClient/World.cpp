@@ -901,7 +901,7 @@ void World::ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t a3,
         reinterpret_cast<CMapObjDef*>(entity)->SetSequence(sequence, a3, static_cast<uint16_t>(doodadSet));
     } else if (entity->m_type & CMapBaseObj::Type_DoodadDef) {
         if (entity->m_model) {
-            entity->m_model->SetBoneSequence(0xFFFFFFFF, sequence, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            entity->m_model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         }
     }
 }

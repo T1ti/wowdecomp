@@ -39,9 +39,9 @@ static void AnimFinishedCallback(CM2Model* model, uint32_t boneId, uint32_t sequ
     }
 
     if (object->m_stateFlags & CGDynamicObject_C::STATE_FLAGS::HAVE_HOLD_SEQUENCE) {
-        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_HOLD, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        object->GetObjectModel()->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_EFFECT_HOLD, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     } else {
-        object->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        object->GetObjectModel()->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_EFFECT_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -231,7 +231,7 @@ void CGDynamicObject_C::HandleOutOfRange(OUT_OF_RANGE_TYPE type) {
     if (model && model->IsLoaded(0, 0) && model->HasSequence(ANIM_EFFECT_DECAY)) {
         ClntObjMgrLockObject(this->m_obj->m_guid);
         model->SetSequenceCallback(&DynamicObjectDecayHandler, reinterpret_cast<uintptr_t>(this));
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_EFFECT_DECAY, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_EFFECT_DECAY, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -323,7 +323,7 @@ void CGDynamicObject_C::ModelLoaded(CM2Model* model) {
     }
 
     if (this->GetObjectModel()->HasSequence(ANIM_BIRTH)) {
-        this->GetObjectModel()->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->GetObjectModel()->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_BIRTH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -414,7 +414,7 @@ void CGDynamicObject_C::UpdateDisplay(uint32_t time) {
     if (model) {
         model->SetEmittersEnabled(1);
         model->SetRibbonsEnabled(1);
-        model->SetBoneSequence(0xFFFFFFFF, ANIM_BIRTH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_BIRTH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         this->ObjectVisKitProc();
     }
 }

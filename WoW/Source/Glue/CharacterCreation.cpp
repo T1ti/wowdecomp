@@ -572,7 +572,7 @@ void CCharacterCreation::InitCharacterComponents(ComponentData* data, bool rando
     CCharacterCreation::m_charCustomizeFrame->m_lightArray2[0].unk_01BC = 1;
     data->m_model->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
     data->m_model->m_lightingArg = CCharacterCreation::m_charCustomizeFrame->m_lightArray2;
-    data->m_model->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0, 0, 1.0f, 1, 1);
+    data->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, 0, 0, 1.0f, 1, 1);
     data->m_flags |= ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
 
     CCharacterCreation::m_character->Init(data, nullptr);

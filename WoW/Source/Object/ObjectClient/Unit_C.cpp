@@ -1607,7 +1607,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TURNING_RIGHT;
         }
 
-        uint32_t sequence = this->GetObjectModel()->GetBoneSequenceId(0xFFFFFFFF);
+        uint32_t sequence = this->GetObjectModel()->GetBoneSequenceId(M2_KEY_BONE_NONE);
         uint32_t flags = this->m_movement->m_flags;
         uint32_t wanted = sequence;
 
@@ -3244,9 +3244,9 @@ void CGUnit_C::ObjectNameVisibilityChanged() {
     }
 
     if (PlayerNameShowing(this->m_nameDesc) || this->m_namePlateFrame) {
-        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, ANIM_STAND_HIGH, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->m_interactIcon->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND_HIGH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     } else {
-        this->m_interactIcon->SetBoneSequence(0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        this->m_interactIcon->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -4160,7 +4160,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         blend = 0;
     }
 
-    if (!keepVariation && anim != INVALID_ANIMATION && slot->m_variationIndex != 0xFFFFFFFF) {
+    if (!keepVariation && anim != INVALID_ANIMATION && slot->m_variationIndex != M2_RANDOM_VARIATION) {
         M2SequenceInfo info;
         info.Clear();
         this->m_worldModel->GetSequenceInfo(anim, 0, info);
@@ -4171,7 +4171,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         }
     }
 
-    uint32_t bone = torso ? this->m_torsoKeyBone : 0xFFFFFFFF;
+    uint32_t bone = torso ? this->m_torsoKeyBone : M2_KEY_BONE_NONE;
 
     if (currentAnim == playing) {
         if (!(fabsf(this->m_worldModel->GetBoneSequenceSpeed(bone) - slot->m_speed) < 2.3841858e-7f)) {
@@ -4286,7 +4286,7 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
-            sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+            sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
         sequence = INVALID_ANIMATION;
@@ -4453,7 +4453,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     }
 
     if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO) && IsMeleeAttackAnim(previousAnim) && IsMeleeAttackAnim(anim)) {
-        this->SetKeyBoneSequenceSpeed(this->m_worldModel, hasTorso ? this->m_torsoKeyBone : 0xFFFFFFFF, 2.0f, 0);
+        this->SetKeyBoneSequenceSpeed(this->m_worldModel, hasTorso ? this->m_torsoKeyBone : M2_KEY_BONE_NONE, 2.0f, 0);
         this->m_meleeAttackAnimId = anim;
         return;
     }
@@ -4471,7 +4471,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     uint32_t variation = 0xFFFFFFFF;
 
     if (IsCorpseAnim(animId) && IsDeadOrDyingAnim(this->GetCurrentTorsoAnimId())) {
-        this->GetObjectModel()->GetBoneSequenceAnimId(0xFFFFFFFF, &variation);
+        this->GetObjectModel()->GetBoneSequenceAnimId(M2_KEY_BONE_NONE, &variation);
     }
 
     M2SequenceInfo info;
@@ -4483,7 +4483,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
 
         if (info.m_duration) {
             M2BoneSequenceInfo current;
-            this->GetObjectModel()->GetBoneSequenceInfo(0xFFFFFFFF, current);
+            this->GetObjectModel()->GetBoneSequenceInfo(M2_KEY_BONE_NONE, current);
             M2SequenceInfo currentInfo;
             currentInfo.Clear();
             this->GetObjectModel()->GetSequenceInfo(current.m_sequenceId, current.m_variationIndex, currentInfo);
@@ -4685,7 +4685,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     }
 
     if (updateMount && this->m_mountModel && mountSlot.m_sequenceId != INVALID_ANIMATION && (mount.m_sequenceId != mountSlot.m_sequenceId || fabsf(mount.m_speed - mountSlot.m_speed) > 0.01f)) {
-        this->SetKeyBoneSequence(this->m_mountModel, 0xFFFFFFFF, mountSlot.m_sequenceId, mountSlot.m_variationIndex, mountSlot.m_time, mountSlot.m_speed, blendMount, 1, 0);
+        this->SetKeyBoneSequence(this->m_mountModel, M2_KEY_BONE_NONE, mountSlot.m_sequenceId, mountSlot.m_variationIndex, mountSlot.m_time, mountSlot.m_speed, blendMount, 1, 0);
     }
 
     if (IsDeadOrDyingAnim(anim)) {
@@ -4696,7 +4696,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
             this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, TRUE, TRUE, FALSE);
         }
 
-        this->UnsetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, TRUE, FALSE, FALSE);
+        this->UnsetKeyBoneSequence(this->m_worldModel, M2_KEY_BONE_NONE, TRUE, FALSE, FALSE);
     }
 
     if ((!updateBase || torsoSlot.m_sequenceId != INVALID_ANIMATION || baseSlot.m_sequenceId != torso.m_sequenceId) && updateTorso) {
@@ -6859,13 +6859,13 @@ uint32_t CGUnit_C::GetCurrentTorsoAnimId() const {
     }
 
     if (this->m_torsoKeyBone == -1) {
-        return this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+        return this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
     uint32_t anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone);
 
     if (anim == INVALID_ANIMATION) {
-        return this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+        return this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
     return anim;
@@ -6875,7 +6875,7 @@ uint32_t CGUnit_C::GetCurrentTorsoAnimId() const {
 // OFFSET: 0x007172B0
 uint32_t CGUnit_C::GetCurrentBaseAnimId() const {
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        return this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+        return this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
     return INVALID_ANIMATION;
@@ -6885,7 +6885,7 @@ uint32_t CGUnit_C::GetCurrentBaseAnimId() const {
 // OFFSET: 0x007172E0
 uint32_t CGUnit_C::GetCurrentMountAnimId() const {
     if (this->m_mountModel && this->m_mountModel->IsLoaded(0, 0)) {
-        return this->m_mountModel->GetBoneSequenceId(0xFFFFFFFF);
+        return this->m_mountModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
     return INVALID_ANIMATION;
@@ -6904,7 +6904,7 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     mount->m_complete = 0;
 
     if (this->m_mountModel && this->m_mountModel->IsLoaded(0, 0)) {
-        this->m_mountModel->GetBoneSequenceInfo(0xFFFFFFFF, *mount);
+        this->m_mountModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, *mount);
     } else {
         mount->m_finished = 1;
     }
@@ -6928,7 +6928,7 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     base->m_endTime = 0;
     base->m_finished = 0;
     base->m_complete = 0;
-    this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, *base);
+    this->m_worldModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, *base);
 
     if (base->m_complete) {
         base->m_finished = 1;
@@ -7509,7 +7509,7 @@ float CGUnit_C::GetTorsoAnimProgress() const {
     }
 
     if (info.m_sequenceId == INVALID_ANIMATION) {
-        this->m_worldModel->GetBoneSequenceInfo(0xFFFFFFFF, info);
+        this->m_worldModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
     }
 
     float duration = static_cast<float>(static_cast<int32_t>(info.m_endTime - info.m_startTime));
@@ -8021,7 +8021,7 @@ bool CGUnit_C::AnimSuppressesMovement() const {
     uint32_t anim;
 
     if (this->m_torsoKeyBone == -1 || (anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
-        anim = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+        anim = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
     if (anim > (ANIM_COUNT - 1)) {
@@ -8252,7 +8252,7 @@ BOOL CGUnit_C::ChooseFallAnim(uint32_t* anim) const {
         return falling;
     }
 
-    uint32_t current = (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) ? this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF) : 0xFFFFFFFF;
+    uint32_t current = (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) ? this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE) : 0xFFFFFFFF;
     *anim = IsAirborneAnim(current) ? ANIM_COUNT : ANIM_FALL;
     return TRUE;
 }
@@ -9292,8 +9292,8 @@ void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t seq
     M2BoneSequenceInfo info;
 
     if (model->IsLoaded(0, 0) && model->HasBone(boneId) && (model->GetBoneSequenceInfo(boneId, info), info.m_sequenceId == sequenceId) && time && fabs(speed) > 0.001f && info.m_finished) {
-        if (boneId == 0xFFFFFFFF || boneId == 26) {
-            model->SetBoneSequence(boneId, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+        if (boneId == M2_KEY_BONE_NONE || boneId == 26) {
+            model->SetBoneSequence(boneId, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         } else {
             model->UnsetBoneSequence(boneId, blend, primary);
         }
@@ -9454,11 +9454,11 @@ void CGUnit_C::ResetKeyBoneSequences() {
             }
         }
 
-        this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(model, M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
     }
 
     if (this->m_mountModel) {
-        this->SetKeyBoneSequence(this->m_mountModel, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_mountModel, M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
     }
 }
 
@@ -9945,7 +9945,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         if (this->m_torsoKeyBone == -1 || (sequenceId = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
-            sequenceId = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+            sequenceId = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
         sequenceId = INVALID_ANIMATION;
@@ -11379,8 +11379,8 @@ void CGUnit_C::CancelRangedMode() {
 
     CM2Model* model = this->m_rangedWeaponModel;
 
-    if (model && model->IsLoaded(0, 0) && model->GetBoneSequenceId(0xFFFFFFFF) != ANIM_ITEM_BOWRELEASE) {
-        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+    if (model && model->IsLoaded(0, 0) && model->GetBoneSequenceId(M2_KEY_BONE_NONE) != ANIM_ITEM_BOWRELEASE) {
+        this->m_rangedWeaponModel->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_ITEM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 }
 
@@ -14314,7 +14314,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14323,7 +14323,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
 
         if (item && (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN)) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14347,7 +14347,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14356,7 +14356,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
 
         if (item && item->m_inventoryType != INVTYPE_RANGEDRIGHT && item->m_inventoryType != INVTYPE_THROWN) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14377,14 +14377,14 @@ void CGUnit_C::SetSheatheStateAnimate() {
             const CGUnitVirtualItem* left = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
             if (right) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
                 this->UnsheatheRightWeapon();
             }
 
             if (left) {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             } else {
                 this->UnsheatheLeftWeapon();
@@ -14411,11 +14411,11 @@ void CGUnit_C::SetSheatheStateAnimate() {
             }
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
                 this->UnsheatheLeftWeapon();
             } else {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
                 this->UnsheatheRightWeapon();
             }
@@ -14433,12 +14433,12 @@ void CGUnit_C::SetSheatheStateAnimate() {
         const CGUnitVirtualItem* left = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
 
         if (right) {
-            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << right->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
         }
 
         if (left) {
-            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << left->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
         }
     } else if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
@@ -14448,10 +14448,10 @@ void CGUnit_C::SetSheatheStateAnimate() {
             this->ShowRangedWeapon(true, nullptr);
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 3, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
-                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, 2, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             }
         }
@@ -14473,7 +14473,7 @@ void CGUnit_C::AnimEndCallback(CM2Model* model, uint32_t boneId, uint32_t sequen
         return;
     }
 
-    if (boneId != 0xFFFFFFFF && boneId != 26 && !interrupted && model) {
+    if (boneId != M2_KEY_BONE_NONE && boneId != 26 && !interrupted && model) {
         model->UnsetBoneSequence(boneId, 1, 1);
     }
 }
@@ -14507,7 +14507,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     if (this->m_specialIdleAnim != INVALID_ANIMATION && this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         BOOL torso = this->m_torsoKeyBone != -1 && static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == this->m_specialIdleAnim;
         int32_t special = this->m_specialIdleAnim;
-        BOOL base = static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF)) == special;
+        BOOL base = static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE)) == special;
 
         if ((static_cast<int32_t>(sequenceId) == special && (!torso || !base)) || (!torso && !base)) {
             this->m_specialIdleAnim = INVALID_ANIMATION;
@@ -14576,7 +14576,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
         }
     }
 
-    if (boneId != 0xFFFFFFFF && boneId != 26) {
+    if (boneId != M2_KEY_BONE_NONE && boneId != 26) {
         this->OnKeyBoneAnimEnd(model, boneId, sequenceId);
         return;
     }
@@ -14642,7 +14642,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_DEAD, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, M2_KEY_BONE_NONE, ANIM_DEAD, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
@@ -14769,7 +14769,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
             this->m_ammoModel->DetachFromParent();
             this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
-            this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+            this->m_rangedWeaponModel->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_ITEM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
             this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_SEQUENCE_ENDED, ANIM_SELECTION_FLAGS::ALL);
             return;
         }
@@ -14818,7 +14818,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, ANIM_DROWNED, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, M2_KEY_BONE_NONE, ANIM_DROWNED, info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
@@ -14871,7 +14871,7 @@ void CGUnit_C::OnBaseAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequence
 
             M2BoneSequenceInfo info;
             model->GetBoneSequenceInfo(boneId, info);
-            this->SetKeyBoneSequence(model, 0xFFFFFFFF, this->ResolveAnimForModel(ANIM_DEATH_END_HOLD, nullptr), info.m_variationIndex, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(model, M2_KEY_BONE_NONE, this->ResolveAnimForModel(ANIM_DEATH_END_HOLD, nullptr), info.m_variationIndex, 0, 1.0f, 1, 1, 0);
             this->UpdateObjectEffectAnimationStates();
             return;
         }
@@ -14933,7 +14933,7 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
         }
 
         if (static_cast<int32_t>(boneId) != this->m_torsoKeyBone || !ridingLower || this->m_vehiclePassenger->GetUpperAnim(seat) == ANIM_COUNT) {
-            uint32_t current = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+            uint32_t current = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
 
             if (!IsUpperBodyAnim(anim) || !this->ShouldSplitTorsoAnimation(anim, current) || anim == current) {
                 unsetTorso = 1;
@@ -14946,7 +14946,7 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
     if (this->ApplyAttachmentAnimOverride(nullptr, nullptr, &torso, 1, nullptr, nullptr, &overrideTorso, nullptr, nullptr)) {
         this->SetKeyBoneSequence(model, boneId, overrideTorso.m_sequenceId, overrideTorso.m_variationIndex, overrideTorso.m_time, overrideTorso.m_speed, 1, 1, 0);
     } else if (!unsetTorso) {
-        this->SetKeyBoneSequence(model, boneId, anim, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(model, boneId, anim, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
     } else if (model && (!this->m_vehiclePassenger || !this->m_vehiclePassenger->OverridesModelAnimation())) {
         if (model->IsLoaded(0, 0) && model->BoneHasParent(boneId)) {
             model->UnsetBoneSequence(boneId, 1, 1);
@@ -17160,7 +17160,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     }
 
     if (keyBone == static_cast<uint32_t>(this->m_torsoKeyBone)) {
-        uint32_t sequenceId = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+        uint32_t sequenceId = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
 
         if (IsWeaponReadyAnim(sequenceId) || !sequenceId) {
             keyBone = 0xFFFFFFFF;
@@ -17170,7 +17170,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     uint32_t resolved = this->ResolveAnimForModel(animId, nullptr);
 
     if (this->m_worldModel->HasSequence(resolved)) {
-        this->SetKeyBoneSequence(this->m_worldModel, keyBone, resolved, 0xFFFFFFFF, 0, 1.0f, 0, 0, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, keyBone, resolved, M2_RANDOM_VARIATION, 0, 1.0f, 0, 0, 0);
     }
 
     this->UpdateObjectEffectAnimationStates();
@@ -18101,7 +18101,7 @@ void CGUnit_C::OnLife(bool a1) {
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SCRIPTED_FACING;
     this->CheckLoopSound();
     this->m_lootableTime = 0;
-    this->SetKeyBoneSequenceSpeed(this->m_worldModel, 0xFFFFFFFF, 1.0f, 0);
+    this->SetKeyBoneSequenceSpeed(this->m_worldModel, M2_KEY_BONE_NONE, 1.0f, 0);
     this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
     PlayerNameTriggerColorUpdate(this->m_nameDesc);
 
@@ -18866,13 +18866,13 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
                     eventPosition = this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW);
 
                     if (this->m_rangedWeaponModel) {
-                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                        this->m_rangedWeaponModel->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_ITEM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
                     }
                 } else if (IsRifleAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_BULLET)) {
                     eventPosition = this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_BULLET);
 
                     if (this->m_rangedWeaponModel) {
-                        this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_BOWRELEASE, 0xFFFFFFFF, 0, 1.0f, 1, 1);
+                        this->m_rangedWeaponModel->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_ITEM_BOWRELEASE, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
                     }
                 } else {
                     eventPosition = *position;
@@ -19675,7 +19675,7 @@ BOOL CGUnit_C::IsPlayingUnarmedAnim() {
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
-            sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+            sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     }
 
@@ -21261,7 +21261,7 @@ bool CGUnit_C::IsPlayingWeaponAnim() const {
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
         if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
-            sequence = this->m_worldModel->GetBoneSequenceId(0xFFFFFFFF);
+            sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
         sequence = INVALID_ANIMATION;
@@ -21369,7 +21369,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
     this->m_worldModel->m_diffuseTintG = mount->m_diffuseTintG;
     this->m_worldModel->m_diffuseTintB = mount->m_diffuseTintB;
     this->SetMountModel(nullptr);
-    this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, ANIM_STAND, 0xFFFFFFFF, 0, 1.0f, 0, 1, 0);
+    this->SetKeyBoneSequence(this->m_worldModel, M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1, 0);
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESET_ON_MOUNT_REMOVAL;
     this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
     this->UpdateSelectionRadius();
@@ -21444,7 +21444,7 @@ void CGUnit_C::CreateUnitMount(int32_t a2, int32_t a3) {
             this->m_mountModel->AttachToParent(parent, attachmentId, nullptr, 0);
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, 0xFFFFFFFF, this->m_mountAnimBehaviorId, 0xFFFFFFFF, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, M2_KEY_BONE_NONE, this->m_mountAnimBehaviorId, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         C44Matrix scale(1.0f / this->m_mountScale);
         this->m_worldModel->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
         this->m_worldModel->m_worldTransform = scale;

@@ -980,7 +980,7 @@ CAaBox CM2Model::GetSplitBodyBoundingBox(uint32_t boneId) {
 
     uint32_t count = data->m_sequences.m_count;
 
-    if (count <= 1 || boneId == 0xFFFFFFFF || boneId >= data->m_boneIndicesById.m_count) {
+    if (count <= 1 || boneId == M2_KEY_BONE_NONE || boneId >= data->m_boneIndicesById.m_count) {
         return this->GetCurrentBoundingBox();
     }
 
@@ -1326,7 +1326,7 @@ int32_t CM2Model::HasBone(uint32_t boneId) {
 
     M2Data* data = this->m_shared->m_data;
 
-    return data->m_bones.m_count && (boneId == 0xFFFFFFFF || (boneId < data->m_boneIndicesById.m_count && data->m_boneIndicesById[boneId] != 0xFFFF));
+    return data->m_bones.m_count && (boneId == M2_KEY_BONE_NONE || (boneId < data->m_boneIndicesById.m_count && data->m_boneIndicesById[boneId] != 0xFFFF));
 }
 
 // VERIFY: addba282 manual
@@ -1339,7 +1339,7 @@ C3Vector CM2Model::GetBonePivot(uint32_t boneId) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1377,7 +1377,7 @@ void CM2Model::SetBoneFlags(uint32_t boneId, uint32_t flags, uint32_t mask) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1400,7 +1400,7 @@ int32_t CM2Model::GetBoneSequenceInfo(uint32_t boneId, M2BoneSequenceInfo& info)
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1442,7 +1442,7 @@ uint32_t CM2Model::GetBoneSequenceId(uint32_t boneId) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1471,7 +1471,7 @@ uint32_t CM2Model::GetBoneSequenceAnimId(uint32_t boneId, uint32_t* variation) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1506,7 +1506,7 @@ float CM2Model::GetBoneSequenceSpeed(uint32_t boneId) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1533,7 +1533,7 @@ int32_t CM2Model::OnSequenceInterrupted(uint32_t boneId, uint16_t boneIndex) {
 
     M2CompBone* compBone = &this->m_shared->m_data->m_bones[boneIndex];
 
-    if (compBone->m_boneId == 0xFFFFFFFF && boneIndex) {
+    if (compBone->m_boneId == M2_KEY_BONE_NONE && boneIndex) {
         return 1;
     }
 
@@ -1556,7 +1556,7 @@ int32_t CM2Model::BoneHasParent(uint32_t boneId) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1719,7 +1719,7 @@ void CM2Model::SetBoneSequenceTime(uint32_t boneId, uint32_t time) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1767,7 +1767,7 @@ void CM2Model::SetBoneSequenceSpeed(uint32_t boneId, float speed) {
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -1883,7 +1883,7 @@ void CM2Model::SetBoneProceduralTransform(uint32_t boneId, const C44Matrix& matr
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         index = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         index = data->m_boneIndicesById[boneId];
@@ -4604,7 +4604,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
 
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         M2BoneSequenceInfo state;
-        this->GetBoneSequenceInfo(0xFFFFFFFF, state);
+        this->GetBoneSequenceInfo(M2_KEY_BONE_NONE, state);
 
         if (state.m_sequenceId != INVALID_ANIMATION) {
             M2SequenceInfo info;
@@ -4900,7 +4900,7 @@ uint32_t CM2Model::ProcessSequenceCallback(uint32_t boneIndex, uint32_t frame, u
     M2Data* data = this->m_shared->m_data;
     M2ModelBone* bone = &this->m_bones[boneIndex];
 
-    if (data->m_bones[boneIndex].m_boneId != 0xFFFFFFFF || !boneIndex) {
+    if (data->m_bones[boneIndex].m_boneId != M2_KEY_BONE_NONE || !boneIndex) {
         if (frame - time != lastFrame) {
             CM2Model::s_sequenceCallbacks.SetCount(0);
             lastFrame = frame - time;
@@ -6372,7 +6372,7 @@ void CM2Model::CallSequenceCallback(M2ModelCallback* entry) {
     uint32_t boneId = entry->m_boneId;
     uint16_t boneIndex;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         boneIndex = data->m_boneIndicesById[boneId];
@@ -6710,7 +6710,7 @@ void CM2Model::UnsetBoneSequence(uint32_t boneId, int32_t blend, int32_t primary
     M2Data* data = this->m_shared->m_data;
     uint16_t boneIndex;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         boneIndex = data->m_boneIndicesById[boneId];
@@ -6816,7 +6816,7 @@ void CM2Model::SetBoneSequence(uint32_t boneId, uint32_t sequenceId, uint32_t va
     M2Data* data = this->m_shared->m_data;
     uint16_t boneIndex;
 
-    if (boneId == 0xFFFFFFFF) {
+    if (boneId == M2_KEY_BONE_NONE) {
         boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
         boneIndex = data->m_boneIndicesById[boneId];
@@ -6830,8 +6830,8 @@ void CM2Model::SetBoneSequence(uint32_t boneId, uint32_t sequenceId, uint32_t va
 
     M2SequenceFallback fallback;
     this->SequenceFallbackById(&fallback, sequenceId);
-    int32_t pickRandom = variation == 0xFFFFFFFF;
-    uint16_t index = this->FindSequenceIndex(data, fallback.m_id, variation != 0xFFFFFFFF ? variation : 0);
+    int32_t pickRandom = variation == M2_RANDOM_VARIATION;
+    uint16_t index = this->FindSequenceIndex(data, fallback.m_id, variation != M2_RANDOM_VARIATION ? variation : 0);
 
     if (index == 0xFFFF) {
         pickRandom = 1;
@@ -7557,7 +7557,7 @@ int32_t CM2Model::InitializeLoaded() {
     }
 
     uint32_t sequenceId = this->HasSequence(this->m_shared->m_data, standId) ? ANIM_STAND : data->m_sequences[0].m_id;
-    this->SetBoneSequence(0xFFFFFFFF, sequenceId, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+    this->SetBoneSequence(M2_KEY_BONE_NONE, sequenceId, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
 
     if (this->m_sequenceCallback || data->m_sequences.m_count > 1 || (this->m_eventCallback && data->m_events.m_count)) {
         this->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_400000;
@@ -7669,7 +7669,7 @@ void CM2Model::AttachToScene(CM2Scene* scene) {
 
         M2SequenceFallback fallback;
         uint32_t sequenceId = this->HasSequence(data, this->SequenceFallbackById(&fallback, ANIM_STAND)->m_id) ? ANIM_STAND : data->m_sequences[0].m_id;
-        this->SetBoneSequence(0xFFFFFFFF, sequenceId, 0xFFFFFFFF, 0, 1.0f, 0, 1);
+        this->SetBoneSequence(M2_KEY_BONE_NONE, sequenceId, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
     } else {
         for (CM2ModelCall* call = this->m_modelCallList; call; call = call->m_next) {
             call->m_time += this->m_scene->m_time;
