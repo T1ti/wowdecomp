@@ -3744,7 +3744,7 @@ int32_t GetEnchantmentConditionText(CGPlayer_C* player, const SpellItemEnchantme
 
     int32_t allMet = 1;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_ENCHANTMENT_CONDITIONS; i++) {
         char line[1024];
         char rightName[1024];
         char text[1024];
@@ -7506,7 +7506,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
     spells[0] = '\0';
     int32_t first = 1;
 
-    for (uint32_t j = 0; j < 2; j++) {
+    for (uint32_t j = 0; j < NUM_CREATURE_FAMILY_SKILL_LINES; j++) {
         for (int32_t i = 0; i < g_skillLineAbilityDB.m_numRecords; i++) {
             SkillLineAbilityRec* ability = g_skillLineAbilityDB.GetRecordByIndex(i);
 

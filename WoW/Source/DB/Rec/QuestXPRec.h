@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: difficulty columns of a QuestXP.dbc record.
+constexpr int32_t NUM_QUEST_XP_DIFFICULTIES = 10;
+
 class QuestXPRec {
     public:
     static const int32_t s_numColumns = 11;
@@ -13,7 +16,7 @@ class QuestXPRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_difficulty [10];
+    /* 0004 */ int32_t m_difficulty [NUM_QUEST_XP_DIFFICULTIES];
 
     QuestXPRec();
     ~QuestXPRec();

@@ -7268,7 +7268,7 @@ void CGUnit_C::PreemptivelyCancelShapeshift() {
     if (shapeshift) {
         CGUnitData* unit = this->m_unit;
 
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < NUM_SHAPESHIFT_DISPLAY_IDS; i++) {
             if (unit->m_unitFieldDisplayid == shapeshift->m_creatureDisplayID[i]) {
                 this->m_displayId = unit->m_unitFieldNativedisplayid;
                 this->UpdateDisplayInfo(0);
@@ -8918,7 +8918,7 @@ bool __stdcall CGUnit_C::IsAreaInAreaGroup(int32_t areaId, int32_t areaGroupId, 
             return false;
         }
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < NUM_AREA_GROUP_AREAS; i++) {
             if (!group->m_areaID[i]) {
                 break;
             }
@@ -13487,7 +13487,7 @@ SkillLineAbilityRec* CGUnit_C::LookupAbility(int32_t spellId) {
     CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_creatureCacheEntry->m_family);
 
     if (family) {
-        for (uint32_t i = 0; i < 2; i++) {
+        for (uint32_t i = 0; i < NUM_CREATURE_FAMILY_SKILL_LINES; i++) {
             ability = SpellTableLookupPetAbility(family->m_skillLine[i], spellId);
 
             if (ability) {
@@ -13976,7 +13976,7 @@ int32_t CGUnit_C::InitializeComponent() {
 
     if (!(this->m_obj->m_type & TYPE_PLAYER) || !static_cast<CGPlayer_C*>(this)->RefreshVisibleItems()) {
         if ((!CGPlayer_C::IsXRayVisionActive() || !this->UsesNpcBakedTexture()) && this->m_characterComponent && this->m_displayInfoExtra) {
-            for (uint32_t i = 0; i < 11; i++) {
+            for (uint32_t i = 0; i < NUM_CREATURE_DISPLAY_EXTRA_ITEMS; i++) {
                 int32_t displayId = this->m_displayInfoExtra->m_npcitemDisplay[i];
 
                 if (displayId) {
@@ -20268,7 +20268,7 @@ void CGUnit_C::CancelShapeshiftForMount() {
                 continue;
             }
 
-            for (uint32_t d = 0; d < 4; d++) {
+            for (uint32_t d = 0; d < NUM_SHAPESHIFT_DISPLAY_IDS; d++) {
                 if (!form->m_creatureDisplayID[d]) {
                     continue;
                 }
@@ -23853,7 +23853,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         this->m_characterComponent->Init(&data, nullptr);
 
         if (this->m_characterComponent && this->m_displayInfoExtra) {
-            for (uint32_t i = 0; i < 11; i++) {
+            for (uint32_t i = 0; i < NUM_CREATURE_DISPLAY_EXTRA_ITEMS; i++) {
                 int32_t itemDisplay = this->m_displayInfoExtra->m_npcitemDisplay[i];
 
                 if (itemDisplay) {

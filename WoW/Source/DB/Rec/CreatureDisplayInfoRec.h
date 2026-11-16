@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: texture variations of a CreatureDisplayInfo.dbc record.
+constexpr int32_t NUM_CREATURE_TEXTURE_VARIATIONS = 3;
+
 class CreatureDisplayInfoRec {
     public:
     static const int32_t s_numColumns = 16;
@@ -18,7 +21,7 @@ class CreatureDisplayInfoRec {
     /* 000C */ int32_t m_extendedDisplayInfoID;
     /* 0010 */ float m_creatureModelScale;
     /* 0014 */ int32_t m_creatureModelAlpha;
-    /* 0018 */ const char* m_textureVariation [3];
+    /* 0018 */ const char* m_textureVariation [NUM_CREATURE_TEXTURE_VARIATIONS];
     /* 0024 */ const char* m_portraitTextureName;
     /* 0028 */ int32_t m_sizeClass;
     /* 002C */ int32_t m_bloodID;

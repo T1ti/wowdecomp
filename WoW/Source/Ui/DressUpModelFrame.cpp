@@ -632,7 +632,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
     data.m_model->m_refCount++;
     this->m_component->Init(&data, nullptr);
 
-    for (uint32_t i = 0; i < 11; i++) {
+    for (uint32_t i = 0; i < NUM_CREATURE_DISPLAY_EXTRA_ITEMS; i++) {
         if (extra->m_npcitemDisplay[i]) {
             this->m_component->AddItem(static_cast<ITEM_SLOT>(i), extra->m_npcitemDisplay[i], 0);
         }

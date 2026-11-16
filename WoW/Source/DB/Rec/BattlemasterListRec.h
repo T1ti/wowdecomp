@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: maps of a BattlemasterList.dbc record.
+constexpr int32_t NUM_BATTLEMASTER_LIST_MAPS = 8;
+
 // BattlemasterList.dbc IDs the client special-cases.
 enum BATTLEMASTER_LIST_ID : int32_t {
     // Random battleground queue: the joined map comes from the queue data (NPC_PVPQUEUE_ANYWHERE).
@@ -19,7 +22,7 @@ class BattlemasterListRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_mapID [8];
+    /* 0004 */ int32_t m_mapID [NUM_BATTLEMASTER_LIST_MAPS];
     /* 0024 */ int32_t m_instanceType;
     /* 0028 */ int32_t m_groupsAllowed;
     /* 002C */ const char* m_name;

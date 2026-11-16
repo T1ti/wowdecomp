@@ -687,7 +687,7 @@ void CGWorldMap::SetMap(uint32_t continent, uint32_t zone, int32_t dungeonMap) {
                 continue;
             }
 
-            for (uint32_t j = 0; j < 4; j++) {
+            for (uint32_t j = 0; j < NUM_WORLD_MAP_OVERLAY_AREAS; j++) {
                 AreaTableRec* area = overlay->m_areaID[j] ? g_areaTableDB.GetRecord(overlay->m_areaID[j]) : nullptr;
 
                 if (!area || (area->m_explorationLevel >= 0 && !player->HasZoneExplored(area->m_areaBit))) {

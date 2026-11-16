@@ -484,7 +484,7 @@ void CCharacterCreation::Dress() {
             continue;
         }
 
-        for (int32_t j = 0; j < 24; j++) {
+        for (int32_t j = 0; j < NUM_CHAR_START_OUTFIT_ITEMS; j++) {
             int32_t displayID = outfit->m_displayItemID[j];
             int32_t type = outfit->m_inventoryType[j];
 

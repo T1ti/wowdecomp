@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: questions of a GMSurveySurveys.dbc record.
+constexpr int32_t NUM_GM_SURVEY_QUESTIONS = 10;
+
 class GMSurveySurveysRec {
     public:
     static const int32_t s_numColumns = 11;
@@ -13,7 +16,7 @@ class GMSurveySurveysRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_questionIds [10];
+    /* 0004 */ int32_t m_questionIds [NUM_GM_SURVEY_QUESTIONS];
 
     GMSurveySurveysRec();
     ~GMSurveySurveysRec();

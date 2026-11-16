@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: explicit enemy and friend factions of a FactionTemplate.dbc record.
+constexpr int32_t NUM_FACTION_TEMPLATE_RELATIONS = 4;
+
 // FactionTemplate.dbc flags tested by the client; names follow EnumeratedString FactionTemplate::Flags.
 enum FACTION_TEMPLATE_FLAGS : int32_t {
     FACTION_TEMPLATE_FLAG_NONE                       = 0x00000000,
@@ -34,8 +37,8 @@ class FactionTemplateRec {
     /* 000C */ int32_t m_factionGroup; // FACTION_GROUP_MASK
     /* 0010 */ int32_t m_friendGroup;
     /* 0014 */ int32_t m_enemyGroup;
-    /* 0018 */ int32_t m_enemies [4];
-    /* 0028 */ int32_t m_friend [4];
+    /* 0018 */ int32_t m_enemies [NUM_FACTION_TEMPLATE_RELATIONS];
+    /* 0028 */ int32_t m_friend [NUM_FACTION_TEMPLATE_RELATIONS];
 
     FactionTemplateRec();
     ~FactionTemplateRec();

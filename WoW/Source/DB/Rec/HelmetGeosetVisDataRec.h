@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: hidden geoset groups of a HelmetGeosetVisData.dbc record.
+constexpr int32_t NUM_HELMET_HIDE_GEOSETS = 7;
+
 class HelmetGeosetVisDataRec {
     public:
     static const int32_t s_numColumns = 8;
@@ -13,7 +16,7 @@ class HelmetGeosetVisDataRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_hideGeoset [7];
+    /* 0004 */ int32_t m_hideGeoset [NUM_HELMET_HIDE_GEOSETS];
 
     HelmetGeosetVisDataRec();
     ~HelmetGeosetVisDataRec();

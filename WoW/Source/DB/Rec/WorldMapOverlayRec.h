@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: areas of a WorldMapOverlay.dbc record.
+constexpr int32_t NUM_WORLD_MAP_OVERLAY_AREAS = 4;
+
 class WorldMapOverlayRec {
     public:
     static const int32_t s_numColumns = 17;
@@ -14,7 +17,7 @@ class WorldMapOverlayRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_mapAreaID;
-    /* 0008 */ int32_t m_areaID [4];
+    /* 0008 */ int32_t m_areaID [NUM_WORLD_MAP_OVERLAY_AREAS];
     /* 0018 */ int32_t m_mapPointX;
     /* 001C */ int32_t m_mapPointY;
     /* 0020 */ const char* m_textureName;

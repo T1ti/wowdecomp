@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: power displays of a Vehicle.dbc record.
+constexpr int32_t NUM_VEHICLE_POWER_DISPLAYS = 3;
+
 // Seat columns per Vehicle.dbc record.
 static const uint32_t MAX_VEHICLE_SEATS = 8;
 
@@ -70,7 +73,7 @@ class VehicleRec {
     /* 0088 */ int32_t m_uiLocomotionType;
     /* 008C */ float m_msslTrgtImpactTexRadius;
     /* 0090 */ int32_t m_vehicleUiindicatorID;
-    /* 0094 */ int32_t m_powerDisplayID [3];
+    /* 0094 */ int32_t m_powerDisplayID [NUM_VEHICLE_POWER_DISPLAYS];
 
     VehicleRec();
     ~VehicleRec();

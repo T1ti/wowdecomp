@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: extended UI state variables of a WorldStateUI.dbc record.
+constexpr int32_t NUM_WORLD_STATE_UI_EXTENDED_VARIABLES = 3;
+
 // WorldStateUI.dbc m_type, as the client sorts the rows.
 enum WORLD_STATE_UI_TYPE : int32_t {
     WORLD_STATE_UI_TYPE_DEFAULT = 0, // Always-up world state UI.
@@ -32,7 +35,7 @@ class WorldStateUIRec {
     /* 0024 */ const char* m_dynamicIcon;
     /* 0028 */ const char* m_dynamicTooltip;
     /* 002C */ const char* m_extendedUi;
-    /* 0030 */ int32_t m_extendedUistateVariable [3];
+    /* 0030 */ int32_t m_extendedUistateVariable [NUM_WORLD_STATE_UI_EXTENDED_VARIABLES];
 
     WorldStateUIRec();
     ~WorldStateUIRec();

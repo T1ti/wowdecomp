@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: doodads of a GroundEffectTexture.dbc record.
+constexpr int32_t NUM_GROUND_EFFECT_DOODADS = 4;
+
 class GroundEffectTextureRec {
     public:
     static const int32_t s_numColumns = 11;
@@ -13,8 +16,8 @@ class GroundEffectTextureRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_doodadID [4];
-    /* 0014 */ int32_t m_doodadWeight [4];
+    /* 0004 */ int32_t m_doodadID [NUM_GROUND_EFFECT_DOODADS];
+    /* 0014 */ int32_t m_doodadWeight [NUM_GROUND_EFFECT_DOODADS];
     /* 0024 */ int32_t m_density;
     /* 0028 */ int32_t m_sound;
 

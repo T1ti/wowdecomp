@@ -7,6 +7,9 @@
 
 class SFileImpl;
 
+// Inferred name: LightParams entries of a Light.dbc record.
+constexpr int32_t NUM_LIGHT_PARAMS = 8;
+
 class LightRec {
     public:
     static const int32_t s_numColumns = 15;
@@ -17,7 +20,7 @@ class LightRec {
     /* 0004 */ int32_t m_continentID;
     /* 0008 */ float m_gameCoords [3];
     /* 0014 */ CRange m_gameFalloff;
-    /* 001C */ int32_t m_lightParamsID [8];
+    /* 001C */ int32_t m_lightParamsID [NUM_LIGHT_PARAMS];
 
     LightRec();
     ~LightRec();

@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: icons of an AreaPOI.dbc record.
+constexpr int32_t NUM_AREA_POI_ICONS = 9;
+
 // AreaPOI.dbc flags tested by the client; names follow EnumeratedString AreaPOI::Flags.
 enum AREA_POI_FLAGS : int32_t {
     AREA_POI_FLAG_NONE                      = 0x00000000,
@@ -34,7 +37,7 @@ class AreaPOIRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_importance;
-    /* 0008 */ int32_t m_icon [9];
+    /* 0008 */ int32_t m_icon [NUM_AREA_POI_ICONS];
     /* 002C */ int32_t m_factionID;
     /* 0030 */ float m_pos [3];
     /* 003C */ int32_t m_continentID;

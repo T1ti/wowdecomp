@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: items of a CharStartOutfit.dbc record.
+constexpr int32_t NUM_CHAR_START_OUTFIT_ITEMS = 24;
+
 class CharStartOutfitRec {
     public:
     static const int32_t s_numColumns = 77;
@@ -17,9 +20,9 @@ class CharStartOutfitRec {
     /* 0005 */ int8_t m_classID;
     /* 0006 */ int8_t m_sexID;
     /* 0007 */ int8_t m_outfitID;
-    /* 0008 */ int32_t m_itemID [24];
-    /* 0068 */ int32_t m_displayItemID [24];
-    /* 00C8 */ int32_t m_inventoryType [24];
+    /* 0008 */ int32_t m_itemID [NUM_CHAR_START_OUTFIT_ITEMS];
+    /* 0068 */ int32_t m_displayItemID [NUM_CHAR_START_OUTFIT_ITEMS];
+    /* 00C8 */ int32_t m_inventoryType [NUM_CHAR_START_OUTFIT_ITEMS];
 
     CharStartOutfitRec();
     ~CharStartOutfitRec();

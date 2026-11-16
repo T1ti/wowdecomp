@@ -345,7 +345,7 @@ void ApplyGameObjectArtKit(CM2Model* model, int32_t artKit) {
         CStatus status;
         CGxTexFlags flags(GxTex_LinearMipNearest, 1, 1, 0, 0, 0, 1, 0, 0, 0);
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < NUM_GAME_OBJECT_ART_KIT_TEXTURES; i++) {
             if (*rec->m_textureVariation[i]) {
                 CTexture* texture = TextureCreate(rec->m_textureVariation[i], flags, &status, 0);
 
@@ -356,7 +356,7 @@ void ApplyGameObjectArtKit(CM2Model* model, int32_t artKit) {
             }
         }
 
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < NUM_GAME_OBJECT_ART_KIT_MODELS; i++) {
             if (*rec->m_attachModel[i]) {
                 CM2Model* child = model->m_scene->CreateModel(rec->m_attachModel[i], 0);
 

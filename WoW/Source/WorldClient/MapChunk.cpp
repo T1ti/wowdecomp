@@ -1105,7 +1105,7 @@ int32_t CMapChunk::LoadDetailDoodadModels() {
             continue;
         }
 
-        for (uint32_t j = 0; j < 4; j++) {
+        for (uint32_t j = 0; j < NUM_GROUND_EFFECT_DOODADS; j++) {
             if (record->m_doodadID[j] && !CDetailDoodad::LoadModel(record->m_doodadID[j])) {
                 loaded = 0;
             }
@@ -1232,7 +1232,7 @@ void CMapChunk::CreateDetailDoodads() {
         uint32_t slot = 0;
         uint32_t filled = 0;
 
-        for (uint32_t k = 0; k < 4; k++) {
+        for (uint32_t k = 0; k < NUM_GROUND_EFFECT_DOODADS; k++) {
             int32_t weight = record->m_doodadWeight[k];
             int32_t id = record->m_doodadID[k];
 

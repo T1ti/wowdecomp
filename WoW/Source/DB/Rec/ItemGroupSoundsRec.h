@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: sounds of an ItemGroupSounds.dbc record.
+constexpr int32_t NUM_ITEM_GROUP_SOUNDS = 4;
+
 class ItemGroupSoundsRec {
     public:
     static const int32_t s_numColumns = 5;
@@ -13,7 +16,7 @@ class ItemGroupSoundsRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_sound [4];
+    /* 0004 */ int32_t m_sound [NUM_ITEM_GROUP_SOUNDS];
 
     ItemGroupSoundsRec();
     ~ItemGroupSoundsRec();

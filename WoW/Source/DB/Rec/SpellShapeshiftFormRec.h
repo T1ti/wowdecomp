@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// Inferred name: preset spells of a SpellShapeshiftForm.dbc record.
+constexpr int32_t NUM_SHAPESHIFT_PRESET_SPELLS = 8;
+
+// Inferred name: creature displays of a SpellShapeshiftForm.dbc record.
+constexpr int32_t NUM_SHAPESHIFT_DISPLAY_IDS = 4;
+
 // Descriptive 3.3.5 client meanings. UNKNOWN does not mean unused in data.
 enum SPELL_SHAPESHIFT_FORM_FLAGS : int32_t {
     SPELL_SHAPESHIFT_FORM_FLAG_STANCE = 0x1,
@@ -37,8 +43,8 @@ class SpellShapeshiftFormRec {
     /* 0010 */ int32_t m_creatureType;
     /* 0014 */ int32_t m_attackIconID;
     /* 0018 */ int32_t m_combatRoundTime;
-    /* 001C */ int32_t m_creatureDisplayID [4];
-    /* 002C */ int32_t m_presetSpellID [8];
+    /* 001C */ int32_t m_creatureDisplayID [NUM_SHAPESHIFT_DISPLAY_IDS];
+    /* 002C */ int32_t m_presetSpellID [NUM_SHAPESHIFT_PRESET_SPELLS];
 
     SpellShapeshiftFormRec();
     ~SpellShapeshiftFormRec();

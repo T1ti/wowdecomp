@@ -29,7 +29,7 @@ static void InitWeaponImpactSound(WeaponImpactSoundsRec* rec) {
 
     IMPACTSOUNDARRAY* sounds = &s_impactSounds.m_data[rec->m_weaponSubClassID];
 
-    for (int32_t i = 0; i < 10; i++) {
+    for (int32_t i = 0; i < NUM_WEAPON_IMPACT_SOUNDS; i++) {
         sounds->m_sounds[i][rec->m_parrySoundType].m_soundId = rec->m_impactSoundID[i];
         sounds->m_sounds[i][rec->m_parrySoundType].m_critSoundId = rec->m_critImpactSoundID[i];
     }

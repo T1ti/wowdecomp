@@ -7,6 +7,12 @@
 
 class SFileImpl;
 
+// Inferred name: custom attack sounds of a CreatureSoundData.dbc record.
+constexpr int32_t NUM_CREATURE_SOUND_CUSTOM_ATTACKS = 4;
+
+// Inferred name: fidget sounds of a CreatureSoundData.dbc record.
+constexpr int32_t NUM_CREATURE_SOUND_FIDGETS = 5;
+
 class CreatureSoundDataRec {
     public:
     static const int32_t s_numColumns = 38;
@@ -27,8 +33,8 @@ class CreatureSoundDataRec {
     /* 002C */ int32_t m_soundWingFlapID;
     /* 0030 */ int32_t m_soundWingGlideID;
     /* 0034 */ int32_t m_soundAlertID;
-    /* 0038 */ int32_t m_soundFidget [5];
-    /* 004C */ int32_t m_customAttack [4];
+    /* 0038 */ int32_t m_soundFidget [NUM_CREATURE_SOUND_FIDGETS];
+    /* 004C */ int32_t m_customAttack [NUM_CREATURE_SOUND_CUSTOM_ATTACKS];
     /* 005C */ int32_t m_npcsoundID;
     /* 0060 */ int32_t m_loopSoundID;
     /* 0064 */ int32_t m_creatureImpactType;

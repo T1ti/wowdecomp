@@ -454,7 +454,7 @@ void SI2::InitSoundKitLookup() {
 
         VSOUNDKITDEF* def = new (SMemAlloc(sizeof(VSOUNDKITDEF), __FILE__, __LINE__, 0)) VSOUNDKITDEF();
 
-        for (int32_t j = 0; j < 10; j++) {
+        for (int32_t j = 0; j < NUM_SOUND_ENTRY_FILES; j++) {
             const char* file = rec->m_file[j];
 
             if (!file || !*file) {

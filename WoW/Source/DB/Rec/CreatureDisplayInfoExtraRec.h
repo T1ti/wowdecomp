@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Inferred name: NPC item displays of a CreatureDisplayInfoExtra.dbc record.
+constexpr int32_t NUM_CREATURE_DISPLAY_EXTRA_ITEMS = 11;
+
 class CreatureDisplayInfoExtraRec {
     public:
     enum EXTRA_FLAGS : int32_t {
@@ -24,7 +27,7 @@ class CreatureDisplayInfoExtraRec {
     /* 0014 */ int32_t m_hairStyleID;
     /* 0018 */ int32_t m_hairColorID;
     /* 001C */ int32_t m_facialHairID;
-    /* 0020 */ int32_t m_npcitemDisplay [11];
+    /* 0020 */ int32_t m_npcitemDisplay [NUM_CREATURE_DISPLAY_EXTRA_ITEMS];
     /* 004C */ int32_t m_flags;
     /* 0050 */ const char* m_bakeName;
 
