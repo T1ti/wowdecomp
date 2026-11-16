@@ -8223,7 +8223,7 @@ void CGPlayer_C::ToggleSheathe() {
             return;
         }
 
-        if (model->GetBoneSequenceId(3) == 90 || model->GetBoneSequenceId(2) == 90 || model->GetBoneSequenceId(3) == 89 || model->GetBoneSequenceId(2) == 89) {
+        if (model->GetBoneSequenceId(3) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(2) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(3) == ANIM_SHEATH || model->GetBoneSequenceId(2) == ANIM_SHEATH) {
             return;
         }
     }
@@ -10601,7 +10601,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             this->ClearWeaponTrail(1);
 
             if (thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == INVTYPE_SHIELD);
                 break;
             }
 
@@ -10614,7 +10614,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == INVTYPE_SHIELD);
 
             if (detached) {
                 detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);
@@ -11129,7 +11129,7 @@ bool CGPlayer_C::OnGuildChanged(int32_t a2) {
 
     VisibleItem_C* tabard = &this->m_player->m_playerVisibleItems[18];
 
-    if (!tabard || tabard->GetInventoryType() != 19) {
+    if (!tabard || tabard->GetInventoryType() != INVTYPE_TABARD) {
         return false;
     }
 
@@ -14318,7 +14318,7 @@ void CGPlayer_C::TurnOffGuildTabardPurchase() {
     WOWGUID tabard = bag->m_numSlots > INVSLOT_TABARD ? bag->m_slots[INVSLOT_TABARD] : WOWGUID();
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(tabard, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (item && item->GetInventoryType() == 19) {
+    if (item && item->GetInventoryType() == INVTYPE_TABARD) {
         int32_t displayId = item->GetDisplayID();
 
         if (displayId) {

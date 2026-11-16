@@ -1450,7 +1450,7 @@ int32_t Packet_SMSG_AUCTION_LIST_PENDING_SALES(void* param, NETMESSAGE msgId, ui
         uint32_t action;
         uint32_t auctionId;
 
-        if (ParseAuctionMailSubject(subject, &itemId, &randomPropertyId, &action, &auctionId) != 4 || action != 2) {
+        if (ParseAuctionMailSubject(subject, &itemId, &randomPropertyId, &action, &auctionId) != 4 || action != CGMailInfo::INVOICE_TYPE::SELLER) {
             continue;
         }
 

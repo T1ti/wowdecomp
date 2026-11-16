@@ -11379,7 +11379,7 @@ void CGUnit_C::CancelRangedMode() {
 
     CM2Model* model = this->m_rangedWeaponModel;
 
-    if (model && model->IsLoaded(0, 0) && model->GetBoneSequenceId(0xFFFFFFFF) != 161) {
+    if (model && model->IsLoaded(0, 0) && model->GetBoneSequenceId(0xFFFFFFFF) != ANIM_ITEM_BOWRELEASE) {
         this->m_rangedWeaponModel->SetBoneSequence(0xFFFFFFFF, ANIM_ITEM_STAND, 0xFFFFFFFF, 0, 1.0f, 1, 1);
     }
 }

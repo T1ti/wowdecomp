@@ -7304,7 +7304,7 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
 
                 if (!item) {
                     mainHand = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
-                    item = mainHand && mainHand->GetInventoryType() == 17 ? mainHand : nullptr;
+                    item = mainHand && mainHand->GetInventoryType() == INVTYPE_2HWEAPON ? mainHand : nullptr;
                 }
             }
         }
