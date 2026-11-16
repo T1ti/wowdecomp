@@ -13220,16 +13220,16 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
 
     if (!started) {
         switch (faceType) {
-            case 2: {
+            case MONSTER_MOVE_FACE_POINT: {
                 C3Vector target = this->m_movementData.CPassenger::GetPosition(facePoint);
                 C3Vector position = this->GetPosition();
                 this->m_movementData.SetFacingAndFlush(CalculateFacingTo(&position, &target), flush);
                 break;
             }
-            case 3:
+            case MONSTER_MOVE_FACE_TARGET:
                 this->FaceTarget(faceTarget, flush);
                 break;
-            case 4:
+            case MONSTER_MOVE_FACE_ANGLE:
                 this->m_movementData.SetFacingAndFlush(this->m_movement->GetFacing(faceAngle), flush);
                 break;
         }
@@ -19586,13 +19586,13 @@ void CGUnit_C::ChatBubbleShow(int32_t type, const char* text) {
     }
 
     switch (type) {
-        case 1:
-        case 2:
-        case 6:
-        case 12:
-        case 14:
-        case 51: {
-            CVar* cvar = (type == 2 || type == 51) ? g_chatBubblesPartyCVar : g_chatBubblesCVar;
+        case CHAT_MSG_SAY:
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_YELL:
+        case CHAT_MSG_MONSTER_SAY:
+        case CHAT_MSG_MONSTER_YELL:
+        case CHAT_MSG_PARTY_LEADER: {
+            CVar* cvar = (type == CHAT_MSG_PARTY || type == CHAT_MSG_PARTY_LEADER) ? g_chatBubblesPartyCVar : g_chatBubblesCVar;
 
             if (!cvar->m_intValue) {
                 return;
