@@ -31,7 +31,7 @@
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 
 // STATIC: 0x00A15EEC
-static const uint32_t s_guildBankTabCosts[6] = { 1000000, 2500000, 5000000, 10000000, 25000000, 50000000 };
+static const uint32_t s_guildBankTabCosts[MAX_GUILDBANK_TABS] = { 1000000, 2500000, 5000000, 10000000, 25000000, 50000000 };
 
 // VERIFY: 245690a9 auto
 // OFFSET: 0x005A4410
@@ -57,7 +57,7 @@ static int32_t Script_GetNumGuildBankTabs(lua_State* L) {
 // VERIFY: 166b513c auto
 // OFFSET: 0x005A45B0
 static int32_t Script_GetNumGuildBankMoneyTransactions(lua_State* L) {
-    lua_pushnumber(L, CGGuildBankInfo::m_numLogEntries[6]);
+    lua_pushnumber(L, CGGuildBankInfo::m_numLogEntries[GUILDBANK_MONEY_LOG_TAB]);
     return 1;
 }
 
@@ -71,7 +71,7 @@ static int32_t Script_SetCurrentGuildBankTab(lua_State* L) {
 
     uint32_t tab = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (tab < 6) {
+    if (tab < MAX_GUILDBANK_TABS) {
         CGGuildBankInfo::m_currentTab = tab;
     }
 
@@ -96,7 +96,7 @@ static int32_t Script_GetGuildBankTabCost(lua_State* L) {
 
     uint32_t cost;
 
-    if (CGGuildBankInfo::m_numTabs < 6 && (cost = s_guildBankTabCosts[CGGuildBankInfo::m_numTabs])) {
+    if (CGGuildBankInfo::m_numTabs < MAX_GUILDBANK_TABS && (cost = s_guildBankTabCosts[CGGuildBankInfo::m_numTabs])) {
         lua_pushnumber(L, cost);
     } else {
         lua_pushnil(L);
@@ -157,7 +157,7 @@ static int32_t Script_GetNumGuildBankTransactions(lua_State* L) {
     }
 
     uint8_t tab = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    lua_pushnumber(L, tab >= 7 ? 0 : CGGuildBankInfo::m_numLogEntries[tab]);
+    lua_pushnumber(L, tab >= MAX_GUILDBANK_TABS + 1 ? 0 : CGGuildBankInfo::m_numLogEntries[tab]);
     return 1;
 }
 
@@ -172,7 +172,7 @@ static int32_t Script_GetGuildBankText(lua_State* L) {
     int32_t value = static_cast<int32_t>(lua_tonumber(L, 1));
     uint8_t tab = value - 1;
 
-    if (static_cast<uint8_t>(value - 1) < 6 && tab < CGGuildBankInfo::m_numTabs) {
+    if (static_cast<uint8_t>(value - 1) < MAX_GUILDBANK_TABS && tab < CGGuildBankInfo::m_numTabs) {
         char text[8192];
         SStrCopy(text, CGGuildBankInfo::m_guildBankTabInfo[tab].m_text, sizeof(text));
         lua_pushstring(L, text);
@@ -194,7 +194,7 @@ static int32_t Script_GetGuildBankItemLink(lua_State* L) {
     uint8_t tab = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (tab >= 6 || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
+    if (tab >= MAX_GUILDBANK_TABS || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
         return 0;
     }
 
@@ -224,7 +224,7 @@ static int32_t Script_GetGuildBankMoneyTransaction(lua_State* L) {
     }
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    GuildBankLogEntry* entry = index >= 25 ? nullptr : &CGGuildBankInfo::m_log[6][index];
+    GuildBankLogEntry* entry = index >= MAX_GUILDBANK_LOG_ENTRIES ? nullptr : &CGGuildBankInfo::m_log[GUILDBANK_MONEY_LOG_TAB][index];
 
     if (entry->m_type == GUILD_BANK_LOG_TYPE::GUILD_BANK_LOG_DEPOSIT_MONEY) {
         lua_pushstring(L, "deposit");
@@ -271,7 +271,7 @@ static int32_t Script_QueryGuildBankTab(lua_State* L) {
 
     double tab = lua_tonumber(L, 1);
 
-    if (static_cast<uint32_t>(tab - 1.0) < 6) {
+    if (static_cast<uint32_t>(tab - 1.0) < MAX_GUILDBANK_TABS) {
         SendGuildBankQueryTabOpcode(static_cast<uint8_t>(tab - 1.0));
     }
 
@@ -346,14 +346,14 @@ static int32_t Script_GetGuildBankItemInfo(lua_State* L) {
     GuildBankSlotInfo* info;
     ItemRec* rec;
 
-    if (tab < 6 && slot < CGGuildBankInfo::m_tabSlots[tabByte].m_count && (info = &CGGuildBankInfo::m_tabSlots[tab].m_data[slot])->m_itemID && info && ClntObjMgrGetActivePlayerObj() && (rec = g_itemDB.GetRecord(info->m_itemID))) {
+    if (tab < MAX_GUILDBANK_TABS && slot < CGGuildBankInfo::m_tabSlots[tabByte].m_count && (info = &CGGuildBankInfo::m_tabSlots[tab].m_data[slot])->m_itemID && info && ClntObjMgrGetActivePlayerObj() && (rec = g_itemDB.GetRecord(info->m_itemID))) {
         const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
         char texture[260];
         SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(rec->m_displayInfoID));
         lua_pushstring(L, texture);
         lua_pushnumber(L, info->m_count);
 
-        if (CGGameUI::VirtualItemIsLocked(info->m_itemID, slot + 98 * tab, 0)) {
+        if (CGGameUI::VirtualItemIsLocked(info->m_itemID, slot + MAX_GUILDBANK_SLOTS_PER_TAB * tab, 0)) {
             lua_pushnumber(L, 1.0);
         } else {
             lua_pushnil(L);
@@ -383,7 +383,7 @@ static int32_t Script_PickupGuildBankItem(lua_State* L) {
     uint8_t tab = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     uint8_t slot = static_cast<int32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (tab >= 6 || slot >= 98) {
+    if (tab >= MAX_GUILDBANK_TABS || slot >= MAX_GUILDBANK_SLOTS_PER_TAB) {
         return 0;
     }
 
@@ -421,7 +421,7 @@ static int32_t Script_PickupGuildBankItem(lua_State* L) {
     ItemRec* rec = g_itemDB.GetRecord(info->m_itemID);
 
     if (rec) {
-        uint32_t bankSlot = slot + 98 * tab;
+        uint32_t bankSlot = slot + MAX_GUILDBANK_SLOTS_PER_TAB * tab;
 
         if (!CGGameUI::VirtualItemIsLocked(info->m_itemID, bankSlot, 0)) {
             CGGameUI::SetCursorVirtualItem(info->m_itemID, rec->m_displayInfoID, bankSlot, UICURSOR_GUILDBANK_ITEM, 0);
@@ -456,7 +456,7 @@ static int32_t Script_AutoStoreGuildBankItem(lua_State* L) {
     int32_t value = static_cast<int32_t>(lua_tonumber(L, 2));
     uint8_t slot = value - 1;
 
-    if (tab >= 6 || static_cast<uint8_t>(value - 1) >= 98) {
+    if (tab >= MAX_GUILDBANK_TABS || static_cast<uint8_t>(value - 1) >= MAX_GUILDBANK_SLOTS_PER_TAB) {
         return 0;
     }
 
@@ -512,13 +512,13 @@ static int32_t Script_SplitGuildBankItem(lua_State* L) {
     uint8_t tab = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     uint8_t slot = static_cast<int32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (tab >= 6 || slot >= 98) {
+    if (tab >= MAX_GUILDBANK_TABS || slot >= MAX_GUILDBANK_SLOTS_PER_TAB) {
         return 0;
     }
 
     int32_t virtualId = 0;
     int32_t virtualSlot = 0;
-    uint32_t bankSlot = slot + 98 * tab;
+    uint32_t bankSlot = slot + MAX_GUILDBANK_SLOTS_PER_TAB * tab;
 
     if (CGGameUI::m_cursorItemType == UICURSOR_GUILDBANK_ITEM) {
         CGGameUI::GetCursorVirtualItem(virtualId, virtualSlot);
@@ -573,7 +573,7 @@ static int32_t Script_GetGuildBankTabInfo(lua_State* L) {
     int32_t value = static_cast<int32_t>(lua_tonumber(L, 1));
     uint8_t tab = value - 1;
 
-    if (static_cast<uint8_t>(value - 1) >= 6 || tab >= CGGuildBankInfo::m_numTabs) {
+    if (static_cast<uint8_t>(value - 1) >= MAX_GUILDBANK_TABS || tab >= CGGuildBankInfo::m_numTabs) {
         lua_pushnil(L);
         lua_pushnil(L);
         lua_pushnil(L);
@@ -718,7 +718,7 @@ static int32_t Script_GetGuildBankTransaction(lua_State* L) {
 
     uint8_t tab = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     uint8_t index = static_cast<int32_t>(lua_tonumber(L, 2)) - 1;
-    GuildBankLogEntry* entry = tab >= 7 || index >= 25 ? nullptr : &CGGuildBankInfo::m_log[tab][index];
+    GuildBankLogEntry* entry = tab >= MAX_GUILDBANK_TABS + 1 || index >= MAX_GUILDBANK_LOG_ENTRIES ? nullptr : &CGGuildBankInfo::m_log[tab][index];
 
     if (!ClntObjMgrGetActivePlayerObj()) {
         return 0;

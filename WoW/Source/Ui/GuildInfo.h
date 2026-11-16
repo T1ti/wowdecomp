@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
+#include "WoW/Source/Ui/GuildBankFrame.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CDataStore;
@@ -55,8 +56,8 @@ enum GUILD_COMMAND_RESULT : uint32_t {
 struct GuildRankInfo {
     /* 0000 */ uint32_t m_rights;
     /* 0004 */ int32_t m_bankMoneyPerDay;
-    /* 0008 */ uint32_t m_bankTabRights[6];
-    /* 0020 */ int32_t m_bankTabStacksPerDay[6];
+    /* 0008 */ uint32_t m_bankTabRights[MAX_GUILDBANK_TABS];
+    /* 0020 */ int32_t m_bankTabStacksPerDay[MAX_GUILDBANK_TABS];
 };
 
 struct GuildMemberInfo {

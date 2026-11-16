@@ -357,7 +357,7 @@ static int32_t Script_CanEditGuildTabInfo(lua_State* L) {
     uint32_t tab = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && (tab < 6 ? CGGuildInfo::m_rankInfo[player->m_player->m_playerGuildrank].m_bankTabRights[tab] : 0) & 4) {
+    if (player && (tab < MAX_GUILDBANK_TABS ? CGGuildInfo::m_rankInfo[player->m_player->m_playerGuildrank].m_bankTabRights[tab] : 0) & 4) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -384,7 +384,7 @@ static int32_t Script_SetGuildBankTabPermissions(lua_State* L) {
     }
 #endif
     int32_t enabled = StringToBOOL(L, 3, 0);
-    uint32_t rights = tab < 6 ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[tab] : 0;
+    uint32_t rights = tab < MAX_GUILDBANK_TABS ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[tab] : 0;
     uint32_t flag = s_guildBankTabPermissionFlags[index];
 
     if (enabled) {
@@ -767,7 +767,7 @@ static int32_t Script_GuildControlSaveRank(lua_State* L) {
     msg.PutString(rankName);
     msg.Put(static_cast<uint32_t>(10000 * CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankMoneyPerDay));
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
         msg.Put(CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[i]);
         msg.Put(static_cast<uint32_t>(CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabStacksPerDay[i]));
     }
@@ -814,7 +814,7 @@ static int32_t Script_GetGuildBankTabPermissions(lua_State* L) {
     }
 
     uint8_t tab = static_cast<uint8_t>(static_cast<int32_t>(lua_tonumber(L, 1)) - 1);
-    uint32_t rights = tab < 6 ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[tab] : 0;
+    uint32_t rights = tab < MAX_GUILDBANK_TABS ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabRights[tab] : 0;
 
     if (rights & 0x1) {
         lua_pushnumber(L, 1.0);
@@ -834,7 +834,7 @@ static int32_t Script_GetGuildBankTabPermissions(lua_State* L) {
         lua_pushnil(L);
     }
 
-    lua_pushnumber(L, tab < 6 ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabStacksPerDay[tab] : 0);
+    lua_pushnumber(L, tab < MAX_GUILDBANK_TABS ? CGGuildInfo::m_rankInfo[s_guildControlRank].m_bankTabStacksPerDay[tab] : 0);
     return 4;
 }
 

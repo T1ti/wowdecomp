@@ -216,7 +216,7 @@ void CGGuildInfo::EnterWorld() {
         ClientServices::Send2(&msg);
     }
 
-    for (int32_t i = 0; i < 6; i++) {
+    for (int32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
         CGGuildInfo::m_rankInfo[0].m_bankTabRights[i] = -1;
         CGGuildInfo::m_rankInfo[0].m_bankTabStacksPerDay[i] = -1;
     }
@@ -254,7 +254,7 @@ int32_t Packet_MSG_GUILD_PERMISSIONS(void* param, NETMESSAGE msgId, uint32_t tim
     msg->Get(numTabs);
     CGGuildBankInfo::m_numTabs = numTabs;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
         msg->Get(CGGuildInfo::m_rankInfo[rank].m_bankTabRights[i]);
         msg->Get(reinterpret_cast<uint32_t&>(CGGuildInfo::m_rankInfo[rank].m_bankTabStacksPerDay[i]));
     }
@@ -294,7 +294,7 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
         msg->Get(info.m_rights);
         msg->Get(reinterpret_cast<uint32_t&>(info.m_bankMoneyPerDay));
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
             msg->Get(info.m_bankTabRights[i]);
             msg->Get(reinterpret_cast<uint32_t&>(info.m_bankTabStacksPerDay[i]));
         }
@@ -358,7 +358,7 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
 // VERIFY: a337f7c7 auto
 // OFFSET: 0x005A41C0
 uint32_t CGGuildInfo::GetGuildBankTabPermissionsByRankID(uint8_t tab, uint32_t rank) {
-    if (tab >= 6) {
+    if (tab >= MAX_GUILDBANK_TABS) {
         return 0;
     }
 
@@ -368,7 +368,7 @@ uint32_t CGGuildInfo::GetGuildBankTabPermissionsByRankID(uint8_t tab, uint32_t r
 // VERIFY: 1ea3ac33 auto
 // OFFSET: 0x005A41F0
 int32_t CGGuildInfo::GetNumGuildBankTabItemWithdrawalsByRankID(uint8_t tab, uint32_t rank) {
-    if (tab >= 6) {
+    if (tab >= MAX_GUILDBANK_TABS) {
         return 0;
     }
 

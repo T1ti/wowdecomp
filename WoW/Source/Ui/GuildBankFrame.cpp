@@ -26,7 +26,7 @@ WOWGUID CGGuildBankInfo::m_banker;
 WOWGUID CGGuildBankInfo::m_pendingBanker;
 
 // STATIC: 0x00C11458
-GuildBankTabInfo CGGuildBankInfo::m_guildBankTabInfo[6];
+GuildBankTabInfo CGGuildBankInfo::m_guildBankTabInfo[MAX_GUILDBANK_TABS];
 
 // STATIC: 0x00C1DC0C
 uint8_t CGGuildBankInfo::m_numTabs;
@@ -41,7 +41,7 @@ static uint32_t s_pendingItemQueries;
 static uint32_t s_pendingLogQueries;
 
 // STATIC: 0x00C0F900
-GuildBankLogEntry CGGuildBankInfo::m_log[7][25];
+GuildBankLogEntry CGGuildBankInfo::m_log[MAX_GUILDBANK_TABS + 1][MAX_GUILDBANK_LOG_ENTRIES];
 
 // STATIC: 0x00C1DC30
 uint32_t CGGuildBankInfo::m_withdrawMoneyRemaining;
@@ -53,16 +53,16 @@ int32_t CGGuildBankInfo::m_remainingWithdrawMoney;
 uint64_t CGGuildBankInfo::m_money;
 
 // STATIC: 0x00C1DBF0
-int32_t CGGuildBankInfo::m_numLogEntries[7];
+int32_t CGGuildBankInfo::m_numLogEntries[MAX_GUILDBANK_TABS + 1];
 
 // STATIC: 0x00ACF8C8
 uint8_t CGGuildBankInfo::m_logTab = 0xFF;
 
 // STATIC: 0x00C0F8E8
-int32_t CGGuildBankInfo::m_tabContentsDirty[6];
+int32_t CGGuildBankInfo::m_tabContentsDirty[MAX_GUILDBANK_TABS];
 
 // STATIC: 0x00C1DC38
-TSGrowableArray<GuildBankSlotInfo> CGGuildBankInfo::m_tabSlots[6];
+TSGrowableArray<GuildBankSlotInfo> CGGuildBankInfo::m_tabSlots[MAX_GUILDBANK_TABS];
 
 // VERIFY: a63db2b3 auto
 // OFFSET: 0x005A77D0
@@ -266,7 +266,7 @@ void CGGuildBankInfo::SwapBankItems(uint8_t tab, uint32_t slot, int32_t itemId, 
     if (!stats || !(stackable = stats->m_stackable)) {
         if (itemId == bankItemId) {
             CGGameUI::ClearCursor(1, 1);
-            CGGameUI::UnlockVirtualItem(bankItemId, slot + 98 * sourceTab, 0);
+            CGGameUI::UnlockVirtualItem(bankItemId, slot + MAX_GUILDBANK_SLOTS_PER_TAB * sourceTab, 0);
             return;
         }
     } else if (!bankItemId) {
@@ -289,7 +289,7 @@ void CGGuildBankInfo::SwapBankItems(uint8_t tab, uint32_t slot, int32_t itemId, 
         }
     }
 
-    uint32_t otherTab = virtualSlot / 98;
+    uint32_t otherTab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
 
     if (otherTab != sourceTab && ((bankItemId && !CGGuildInfo::GetNumGuildBankTabItemWithdrawalsByRankID(tab, player->m_player->m_playerGuildrank)) || !CGGuildInfo::GetNumGuildBankTabItemWithdrawalsByRankID(otherTab, player->m_player->m_playerGuildrank))) {
         CGGameUI::DisplayError(ERR_GUILD_PERMISSIONS);
@@ -297,7 +297,7 @@ void CGGuildBankInfo::SwapBankItems(uint8_t tab, uint32_t slot, int32_t itemId, 
     }
 
     msg.Put(static_cast<uint8_t>(otherTab));
-    msg.Put(static_cast<uint8_t>(virtualSlot % 98));
+    msg.Put(static_cast<uint8_t>(virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB));
     msg.Put(static_cast<uint32_t>(itemId));
     msg.Put(static_cast<uint8_t>(0));
     msg.Put(static_cast<uint32_t>(count));
@@ -318,17 +318,17 @@ void CGGuildBankInfo::AutoStoreItem(WOWGUID item, WOWGUID container, uint32_t sl
 // VERIFY: 640c8ae9 manual
 // OFFSET: 0x005A56F0
 void CGGuildBankInfo::EnterWorld() {
-    for (int32_t i = 0; i < 6; i++) {
+    for (int32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
         CGGuildBankInfo::m_numLogEntries[i] = 0;
     }
 
-    CGGuildBankInfo::m_numLogEntries[6] = 0;
+    CGGuildBankInfo::m_numLogEntries[GUILDBANK_MONEY_LOG_TAB] = 0;
     CGGuildBankInfo::m_numTabs = 0;
     CGGuildBankInfo::m_banker = WOWGUID{ 0 };
     CGGuildBankInfo::m_pendingBanker = WOWGUID{ 0 };
     CGGuildBankInfo::m_logTab = 0xFF;
 
-    for (int32_t tab = 0; tab < 6; tab++) {
+    for (int32_t tab = 0; tab < MAX_GUILDBANK_TABS; tab++) {
         for (uint32_t i = 0; i < CGGuildBankInfo::m_tabSlots[tab].m_count; i++) {
             CGGuildBankInfo::m_tabSlots[tab].m_data[i].m_itemID = 0;
         }
@@ -346,14 +346,14 @@ void CGGuildBankInfo::EnterWorld() {
 // VERIFY: be4957f6 auto
 // OFFSET: 0x005A42E0
 void CGGuildBankInfo::GetTabAndSlotFromVirtual(uint32_t virtualSlot, uint32_t* tab, uint32_t* slot) {
-    *tab = virtualSlot / 98;
-    *slot = virtualSlot % 98;
+    *tab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
+    *slot = virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB;
 }
 
 // VERIFY: 0087723a manual
 // OFFSET: 0x005A4C10
 GuildBankSlotInfo* CGGuildBankInfo::GetGuildBankItem(uint32_t tab, uint32_t slot) {
-    if (tab >= 6 || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
+    if (tab >= MAX_GUILDBANK_TABS || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
         return nullptr;
     }
 
@@ -364,10 +364,10 @@ GuildBankSlotInfo* CGGuildBankInfo::GetGuildBankItem(uint32_t tab, uint32_t slot
 // VERIFY: 1ed0b08f auto
 // OFFSET: 0x005A4C40
 int32_t CGGuildBankInfo::IsLocked(int32_t itemId, uint32_t virtualSlot) {
-    uint32_t tab = virtualSlot / 98;
-    uint32_t slot = virtualSlot % 98;
+    uint32_t tab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
+    uint32_t slot = virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB;
 
-    if (tab >= 6 || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
+    if (tab >= MAX_GUILDBANK_TABS || slot >= CGGuildBankInfo::m_tabSlots[tab].m_count) {
         return 0;
     }
 
@@ -383,10 +383,10 @@ int32_t CGGuildBankInfo::IsLocked(int32_t itemId, uint32_t virtualSlot) {
 // VERIFY: 801e1127 auto
 // OFFSET: 0x005A4C90
 void CGGuildBankInfo::Lock(int32_t itemId, uint32_t virtualSlot) {
-    uint32_t tab = virtualSlot / 98;
-    uint32_t slot = virtualSlot % 98;
+    uint32_t tab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
+    uint32_t slot = virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB;
 
-    if (tab < 6 && slot < CGGuildBankInfo::m_tabSlots[tab].m_count) {
+    if (tab < MAX_GUILDBANK_TABS && slot < CGGuildBankInfo::m_tabSlots[tab].m_count) {
         GuildBankSlotInfo* info = &CGGuildBankInfo::m_tabSlots[tab].m_data[slot];
 
         if (itemId == info->m_itemID) {
@@ -398,10 +398,10 @@ void CGGuildBankInfo::Lock(int32_t itemId, uint32_t virtualSlot) {
 // VERIFY: 95bfeaf2 auto
 // OFFSET: 0x005A4CE0
 void CGGuildBankInfo::Unlock(int32_t itemId, uint32_t virtualSlot) {
-    uint32_t tab = virtualSlot / 98;
-    uint32_t slot = virtualSlot % 98;
+    uint32_t tab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
+    uint32_t slot = virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB;
 
-    if (tab < 6 && slot < CGGuildBankInfo::m_tabSlots[tab].m_count) {
+    if (tab < MAX_GUILDBANK_TABS && slot < CGGuildBankInfo::m_tabSlots[tab].m_count) {
         GuildBankSlotInfo* info = &CGGuildBankInfo::m_tabSlots[tab].m_data[slot];
 
         if (itemId == info->m_itemID) {
@@ -413,7 +413,7 @@ void CGGuildBankInfo::Unlock(int32_t itemId, uint32_t virtualSlot) {
 // VERIFY: 23aee2aa auto
 // OFFSET: 0x005A7760
 void CGGuildBankInfo::ClearAllTabs() {
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_GUILDBANK_TABS; i++) {
         CGGuildBankInfo::m_tabSlots[i].Clear();
         CGGuildBankInfo::m_guildBankTabInfo[i].m_needsFullUpdate = 1;
         CGGuildBankInfo::m_tabContentsDirty[i] = 1;
@@ -450,10 +450,10 @@ int32_t Packet_MSG_GUILD_BANK_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t 
     msg->Get(tab);
     msg->Get(count);
 
-    if (s_pendingLogQueries && CGGuildBankInfo::m_logTab < 7) {
+    if (s_pendingLogQueries && CGGuildBankInfo::m_logTab < MAX_GUILDBANK_TABS + 1) {
         s_pendingLogQueries = 0;
 
-        for (uint32_t i = 0; i < 25; i++) {
+        for (uint32_t i = 0; i < MAX_GUILDBANK_LOG_ENTRIES; i++) {
             GuildBankLogEntry* entry = &CGGuildBankInfo::m_log[CGGuildBankInfo::m_logTab][i];
             g_nameDBCache.CancelCallback(entry->m_guid.m_guid, Signal_EVENT_GUILDBANKLOG_UPDATE, nullptr);
 
@@ -540,7 +540,7 @@ int32_t Packet_MSG_QUERY_GUILD_BANK_TEXT(void* param, NETMESSAGE msgId, uint32_t
 // VERIFY: 03f83d73 manual
 // OFFSET: 0x005A4B60
 void CGGuildBankInfo::ClearGuildTabList(uint32_t tab) {
-    if (tab >= 6) {
+    if (tab >= MAX_GUILDBANK_TABS) {
         return;
     }
 
@@ -703,7 +703,7 @@ int32_t Packet_SMSG_GUILD_BANK_LIST(void* param, NETMESSAGE msgId, uint32_t time
     CGGuildBankInfo::m_money = money;
 
     if (!CGGuildBankInfo::m_tabSlots[tab].m_count) {
-        CGGuildBankInfo::m_tabSlots[tab].SetCount(98);
+        CGGuildBankInfo::m_tabSlots[tab].SetCount(MAX_GUILDBANK_SLOTS_PER_TAB);
         CGGuildBankInfo::ClearGuildTabList(tab);
     }
 
@@ -744,7 +744,7 @@ int32_t Packet_SMSG_GUILD_BANK_LIST(void* param, NETMESSAGE msgId, uint32_t time
         uint8_t slotIndex;
         msg->Get(slotIndex);
 
-        if (cursorId && tab == static_cast<uint32_t>(cursorSlot) / 98 && slotIndex == static_cast<uint32_t>(cursorSlot) % 98) {
+        if (cursorId && tab == static_cast<uint32_t>(cursorSlot) / MAX_GUILDBANK_SLOTS_PER_TAB && slotIndex == static_cast<uint32_t>(cursorSlot) % MAX_GUILDBANK_SLOTS_PER_TAB) {
             CGGameUI::ClearCursor(1, 1);
             CGGameUI::UnlockVirtualItem(cursorId, cursorSlot, 0);
         }
