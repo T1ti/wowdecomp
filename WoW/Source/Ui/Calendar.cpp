@@ -430,7 +430,7 @@ int32_t PH_CALENDAR_GROUP(void* param, NETMESSAGE msgId, uint32_t time, CDataSto
 // VERIFY: 11872a05 manual
 // OFFSET: 0x005C1E40
 CalendarEventTables::CalendarEventTables() {
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < NUM_CALENDAR_EVENT_TABLES; i++) {
         this->m_counts[i] = 0;
     }
 }
@@ -438,7 +438,7 @@ CalendarEventTables::CalendarEventTables() {
 // VERIFY: d895f606 manual
 // OFFSET: 0x005BE220
 void CalendarEventTables::Clear() {
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < NUM_CALENDAR_EVENT_TABLES; i++) {
         this->m_counts[i] = 0;
         this->m_tables[i].InternalClear(0);
     }
@@ -697,7 +697,7 @@ bool GameCalendarGetMaxCreateDate(WowTime* date) {
 }
 
 // STATIC: 0x00ACFF94
-static CVar** s_eventFilters[8] = { nullptr, nullptr, &s_cvCalendarShowLockouts, &s_cvCalendarShowResets, nullptr, &s_cvCalendarShowWeeklyHolidays, &s_cvCalendarShowDarkmoon, &s_cvCalendarShowBattlegrounds };
+static CVar** s_eventFilters[NUM_CALENDAR_EVENT_TABLES] = { nullptr, nullptr, &s_cvCalendarShowLockouts, &s_cvCalendarShowResets, nullptr, &s_cvCalendarShowWeeklyHolidays, &s_cvCalendarShowDarkmoon, &s_cvCalendarShowBattlegrounds };
 
 // VERIFY: f0f4c3be auto
 // OFFSET: 0x005B7820
@@ -764,7 +764,7 @@ static bool ComputeEventOccurrence(const WowTime* now, const WowTime* rangeStart
 
     int32_t durationMinutes = 60 * duration;
 
-    for (uint32_t i = 0; i < 26; i++) {
+    for (uint32_t i = 0; i < MAX_HOLIDAY_DATES; i++) {
         if (!dates[i]) {
             continue;
         }
@@ -1049,7 +1049,7 @@ void CGCalendar::UpdateDisplayList(bool signal) {
             uint32_t hash;
             WowTime::WowEncodeTime(hash, &date);
 
-            for (uint32_t t = 0; t < 8; t++) {
+            for (uint32_t t = 0; t < NUM_CALENDAR_EVENT_TABLES; t++) {
                 CVar** filter = s_eventFilters[t];
 
                 if (filter && !(*filter && (*filter)->m_intValue)) {
@@ -1116,7 +1116,7 @@ void CGCalendar::SetFilter(CVar* var, int32_t value) {
             uint32_t hash;
             WowTime::WowEncodeTime(hash, &date);
 
-            for (uint32_t t = 0; t < 8; t++) {
+            for (uint32_t t = 0; t < NUM_CALENDAR_EVENT_TABLES; t++) {
                 CVar** filter = s_eventFilters[t];
 
                 if (filter && *filter && !(*filter == var ? value : (*filter)->m_intValue)) {
@@ -1206,7 +1206,7 @@ void CGCalendar::InitHolidays() {
             durations = holiday->m_duration;
         }
 
-        for (int32_t j = 0; j < 10; j++) {
+        for (int32_t j = 0; j < MAX_HOLIDAY_DURATIONS; j++) {
             if (!(factionMask & flags[j])) {
                 continue;
             }
@@ -1229,7 +1229,7 @@ void CGCalendar::InitHolidays() {
 
                 node->m_duration = total;
 
-                for (int32_t k = 0; k < 10; k++) {
+                for (int32_t k = 0; k < MAX_HOLIDAY_DURATIONS; k++) {
                     if (k != j) {
                         node->m_duration += durations[k];
                     }
@@ -1242,12 +1242,12 @@ void CGCalendar::InitHolidays() {
                 node->m_duration *= 60;
             }
 
-            if (filterType == 0) {
-                node->m_type = 5;
-            } else if (filterType == 1) {
-                node->m_type = 6;
-            } else if (filterType == 2) {
-                node->m_type = 7;
+            if (filterType == HOLIDAY_CALENDAR_FILTER_WEEKLY_HOLIDAYS) {
+                node->m_type = CALENDAR_EVENT_TABLE_WEEKLY_HOLIDAY;
+            } else if (filterType == HOLIDAY_CALENDAR_FILTER_DARKMOON) {
+                node->m_type = CALENDAR_EVENT_TABLE_DARKMOON;
+            } else if (filterType == HOLIDAY_CALENDAR_FILTER_BATTLEGROUNDS) {
+                node->m_type = CALENDAR_EVENT_TABLE_BATTLEGROUND;
             }
         }
     }
@@ -1341,16 +1341,16 @@ void CGCalendar::InsertEvent(CalendarDayEvent* event, int32_t table) {
 // VERIFY: 1cd1e699 manual
 // OFFSET: 0x005C23C0
 void CGCalendar::CalculateEvents(bool signal) {
-    s_eventTables.m_counts[4] = 0;
-    s_eventTables.m_tables[4].InternalClear(0);
-    s_eventTables.m_counts[5] = 0;
-    s_eventTables.m_tables[5].InternalClear(0);
-    s_eventTables.m_counts[6] = 0;
-    s_eventTables.m_tables[6].InternalClear(0);
-    s_eventTables.m_counts[7] = 0;
-    s_eventTables.m_tables[7].InternalClear(0);
-    s_eventTables.m_counts[3] = 0;
-    s_eventTables.m_tables[3].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_HOLIDAY] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_HOLIDAY].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_WEEKLY_HOLIDAY] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_WEEKLY_HOLIDAY].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_DARKMOON] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_DARKMOON].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_BATTLEGROUND] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_BATTLEGROUND].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_RAID_RESET] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_RESET].InternalClear(0);
 
     WowTime start;
     WowTime end;
@@ -1470,7 +1470,7 @@ void CGCalendar::CalculateEvents(bool signal) {
                 event->m_title[0] = '\0';
                 event->m_type = CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_RESET;
                 WowTime::WowEncodeTime(event->m_startTime, &reset);
-                CGCalendar::InsertEvent(event, 3);
+                CGCalendar::InsertEvent(event, CALENDAR_EVENT_TABLE_RAID_RESET);
             }
 
             reset.AddHolidayDuration(node->m_interval);
@@ -2504,7 +2504,7 @@ void CGCalendar::InvalidatePlayer(WOWGUID guid) {
         return;
     }
 
-    for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[0].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[0].Next(entry)) {
+    for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_PLAYER].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_PLAYER].Next(entry)) {
         for (uint32_t i = 0; i < entry->m_events.Count(); i++) {
             if (entry->m_events.m_data[i]->m_creatorGUID == guid) {
                 CGCalendar::GetCalendar();
@@ -2700,7 +2700,7 @@ void CGCalendar::ProcessInvite(CDataStore* msg, uint8_t* clearPending) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_EVENT_LIST, nullptr);
             }
         } else {
-            for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[1].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[1].Next(entry)) {
+            for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].Next(entry)) {
                 for (uint32_t i = 0; i < entry->m_events.Count(); i++) {
                     if (entry->m_events.m_data[i]->m_eventID == eventID) {
                         entry->m_events.m_data[i]->m_inviteID = inviteID;
@@ -2744,7 +2744,7 @@ void CGCalendar::ProcessInviteRemoved(CDataStore* msg, uint8_t* clearPending) {
                 FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_EVENT_LIST, nullptr);
             }
         } else {
-            for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[1].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[1].Next(entry)) {
+            for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].Next(entry)) {
                 for (uint32_t i = 0; i < entry->m_events.Count(); i++) {
                     if (entry->m_events.m_data[i]->m_eventID == eventID) {
                         entry->m_events.m_data[i]->m_inviteID = 0;
@@ -2882,7 +2882,7 @@ void CGCalendar::SetInviteFlag(uint64_t eventID, uint32_t flag, bool set) {
         WowTime::WowEncodeTime(key, &date);
         event = s_eventTables.GetEvent((flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) != 0, key, eventID);
     } else {
-        for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[0].m_fulllist.Head(); entry && !event; entry = s_eventTables.m_tables[0].Next(entry)) {
+        for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_PLAYER].m_fulllist.Head(); entry && !event; entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_PLAYER].Next(entry)) {
             for (uint32_t i = 0; i < entry->m_events.Count(); i++) {
                 if (entry->m_events.m_data[i]->m_eventID == eventID) {
                     event = entry->m_events.m_data[i];
@@ -2919,7 +2919,7 @@ void CGCalendar::ProcessLockoutRemoved(CDataStore* msg) {
     msg->Get(reinterpret_cast<uint32_t&>(mapID));
 
     if (mapID < 0) {
-        for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[2].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[2].Next(entry)) {
+        for (CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_LOCKOUT].m_fulllist.Head(); entry; entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_LOCKOUT].Next(entry)) {
             uint32_t count = entry->m_events.Count();
 
             if (!count) {
@@ -2960,7 +2960,7 @@ void CGCalendar::ProcessLockoutRemoved(CDataStore* msg) {
         key.m_year = reset.m_year;
         uint32_t hash;
         WowTime::WowEncodeTime(hash, &key);
-        CALENDAREVENTHASH* entry = s_eventTables.m_tables[2].Ptr(hash, HASHKEY_NONE());
+        CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_LOCKOUT].Ptr(hash, HASHKEY_NONE());
 
         if (entry) {
             uint32_t count = entry->m_events.Count();
@@ -3106,7 +3106,7 @@ void CGCalendar::ProcessEventRemovedAlert(CDataStore* msg, uint8_t* clearPending
     int32_t table = 0;
 
     while (!s_eventTables.Delete(table, key, eventID)) {
-        if (++table > 1) {
+        if (++table > CALENDAR_EVENT_TABLE_GUILD) {
             return;
         }
     }
@@ -3158,8 +3158,8 @@ void CGCalendar::GuildChanged() {
         return;
     }
 
-    s_eventTables.m_counts[1] = 0;
-    s_eventTables.m_tables[1].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_GUILD] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].InternalClear(0);
 
     if (s_eventClipboard.m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_MASK) {
         memset(&s_eventClipboard, 0, sizeof(s_eventClipboard));
@@ -3179,7 +3179,7 @@ void CGCalendar::InsertLockoutEvent(int32_t mapID, int32_t difficulty, uint64_t 
     event->m_title[0] = '\0';
     event->m_startTime = time;
     event->m_type = CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_LOCKOUT;
-    CGCalendar::InsertEvent(event, 2);
+    CGCalendar::InsertEvent(event, CALENDAR_EVENT_TABLE_RAID_LOCKOUT);
 }
 
 // VERIFY: c522fef8 manual
@@ -3218,10 +3218,10 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
         }
     }
 
-    s_eventTables.m_counts[0] = 0;
-    s_eventTables.m_tables[0].InternalClear(0);
-    s_eventTables.m_counts[1] = 0;
-    s_eventTables.m_tables[1].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_PLAYER] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_PLAYER].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_GUILD] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_GUILD].InternalClear(0);
 
     WOWGUID activePlayer = ClntObjMgrGetActivePlayer();
     uint32_t numEvents;
@@ -3339,8 +3339,8 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
     msg->Get(serverDate);
     WowTime::WowDecodeTime(serverDate, &serverTime);
 
-    s_eventTables.m_counts[2] = 0;
-    s_eventTables.m_tables[2].InternalClear(0);
+    s_eventTables.m_counts[CALENDAR_EVENT_TABLE_RAID_LOCKOUT] = 0;
+    s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_LOCKOUT].InternalClear(0);
 
     uint32_t numLockouts;
     msg->Get(numLockouts);
@@ -3411,21 +3411,21 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
             int32_t filterType;
             msg->Get(reinterpret_cast<uint32_t&>(filterType));
 
-            int32_t dates[26];
+            int32_t dates[MAX_HOLIDAY_DATES];
 
-            for (uint32_t j = 0; j < 26; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DATES; j++) {
                 msg->Get(reinterpret_cast<uint32_t&>(dates[j]));
             }
 
-            int32_t durations[10];
+            int32_t durations[MAX_HOLIDAY_DURATIONS];
 
-            for (uint32_t j = 0; j < 10; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DURATIONS; j++) {
                 msg->Get(reinterpret_cast<uint32_t&>(durations[j]));
             }
 
-            int32_t flags[10];
+            int32_t flags[MAX_HOLIDAY_DURATIONS];
 
-            for (uint32_t j = 0; j < 10; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DURATIONS; j++) {
                 msg->Get(reinterpret_cast<uint32_t&>(flags[j]));
             }
 
@@ -3438,15 +3438,15 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
             holiday->m_priority = priority;
             holiday->m_calendarFilterType = filterType;
 
-            for (uint32_t j = 0; j < 26; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DATES; j++) {
                 holiday->m_date[j] = dates[j];
             }
 
-            for (uint32_t j = 0; j < 10; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DURATIONS; j++) {
                 holiday->m_duration[j] = durations[j];
             }
 
-            for (uint32_t j = 0; j < 10; j++) {
+            for (uint32_t j = 0; j < MAX_HOLIDAY_DURATIONS; j++) {
                 holiday->m_calendarFlags[j] = flags[j];
             }
 
@@ -3510,7 +3510,7 @@ void CGCalendar::ProcessLockoutUpdated(CDataStore* msg) {
     key.m_year = oldDate.m_year;
     uint32_t hash;
     WowTime::WowEncodeTime(hash, &key);
-    CALENDAREVENTHASH* entry = s_eventTables.m_tables[2].Ptr(hash, HASHKEY_NONE());
+    CALENDAREVENTHASH* entry = s_eventTables.m_tables[CALENDAR_EVENT_TABLE_RAID_LOCKOUT].Ptr(hash, HASHKEY_NONE());
 
     if (entry) {
         uint32_t count = entry->m_events.Count();
@@ -3525,7 +3525,7 @@ void CGCalendar::ProcessLockoutUpdated(CDataStore* msg) {
                 if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_RAID_LOCKOUT) && event->m_holidayID == static_cast<uint32_t>(mapID) && event->m_endTime == static_cast<uint32_t>(difficulty) && EncodeDate(newDate.m_month, newDate.m_monthDay, newDate.m_year) != hash) {
                     WowTime::WowEncodeTime(time, &newDate);
                     event->m_startTime = time;
-                    CGCalendar::InsertEvent(event, 2);
+                    CGCalendar::InsertEvent(event, CALENDAR_EVENT_TABLE_RAID_LOCKOUT);
                 } else {
                     keep[kept++] = event;
                 }

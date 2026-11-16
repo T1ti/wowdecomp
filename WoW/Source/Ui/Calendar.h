@@ -5,6 +5,7 @@
 #include "WoW/Source/Net/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
+#include "WoW/Source/DB/Rec/HolidaysRec.h"
 
 class CDataStore;
 class CGCalendarEvent;
@@ -58,13 +59,27 @@ enum CALENDAR_COMMAND_RESULT : uint32_t {
     CALENDAR_RESULT_NO_MODERATOR                          = 40,
 };
 
+// CalendarEventTables slots, one per event source; the holiday tables follow
+// the calendarShow* filter CVars (inferred names).
+enum CALENDAR_EVENT_TABLE : int32_t {
+    CALENDAR_EVENT_TABLE_PLAYER         = 0,
+    CALENDAR_EVENT_TABLE_GUILD          = 1,
+    CALENDAR_EVENT_TABLE_RAID_LOCKOUT   = 2,
+    CALENDAR_EVENT_TABLE_RAID_RESET     = 3,
+    CALENDAR_EVENT_TABLE_HOLIDAY        = 4,
+    CALENDAR_EVENT_TABLE_WEEKLY_HOLIDAY = 5,
+    CALENDAR_EVENT_TABLE_DARKMOON       = 6,
+    CALENDAR_EVENT_TABLE_BATTLEGROUND   = 7,
+    NUM_CALENDAR_EVENT_TABLES           = 8,
+};
+
 struct CALENDARHOLIDAYNODE : public TSLinkedNode<CALENDARHOLIDAYNODE> {
     /* 0008 */ HolidaysRec* m_holiday;
     /* 000C */ int32_t m_index;
     /* 0010 */ uint32_t m_startTime;
     /* 0014 */ uint32_t m_endTime;
     /* 0018 */ int32_t m_duration;
-    /* 001C */ int32_t m_type;
+    /* 001C */ int32_t m_type; // CALENDAR_EVENT_TABLE
 
     CALENDARHOLIDAYNODE();
 };
@@ -76,7 +91,7 @@ inline CALENDARHOLIDAYNODE::CALENDARHOLIDAYNODE() {
     this->m_startTime = 0;
     this->m_endTime = 0;
     this->m_duration = 0;
-    this->m_type = 4;
+    this->m_type = CALENDAR_EVENT_TABLE_HOLIDAY;
 }
 
 struct CALENDARRAIDRESETNODE : public TSLinkedNode<CALENDARRAIDRESETNODE> {
@@ -90,9 +105,9 @@ struct DYNAMICHOLIDAYHASH : public TSHashObject<DYNAMICHOLIDAYHASH, HASHKEY_NONE
     /* 001C */ int32_t m_looping;
     /* 0020 */ int32_t m_priority;
     /* 0024 */ int32_t m_calendarFilterType;
-    /* 0028 */ int32_t m_date[26];
-    /* 0090 */ int32_t m_duration[10];
-    /* 00B8 */ int32_t m_calendarFlags[10];
+    /* 0028 */ int32_t m_date[MAX_HOLIDAY_DATES];
+    /* 0090 */ int32_t m_duration[MAX_HOLIDAY_DURATIONS];
+    /* 00B8 */ int32_t m_calendarFlags[MAX_HOLIDAY_DURATIONS];
     /* 00E0 */ char m_textureFileName[64];
 };
 
@@ -171,8 +186,8 @@ struct CalendarEventSelection {
 
 class CalendarEventTables {
     public:
-    /* 0000 */ TSHashTable<CALENDAREVENTHASH, HASHKEY_NONE> m_tables[8];
-    /* 0140 */ int32_t m_counts[8];
+    /* 0000 */ TSHashTable<CALENDAREVENTHASH, HASHKEY_NONE> m_tables[NUM_CALENDAR_EVENT_TABLES];
+    /* 0140 */ int32_t m_counts[NUM_CALENDAR_EVENT_TABLES];
 
     CalendarEventTables();
     void Clear();
