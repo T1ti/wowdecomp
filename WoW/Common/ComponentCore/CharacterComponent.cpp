@@ -384,7 +384,7 @@ static void CompressBlockSSE(const uint8_t* src, uint32_t stride, uint32_t* out)
 // OFFSET: 0x004E7650
 void CCharacterComponent::DestroyRenderTextures() {
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
-        for (int32_t layer = 0; layer < 7; layer++) {
+        for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
             if (this->m_section[section].m_layerItemDisplayId[layer] && this->m_section[section].m_layerTex[layer]) {
                 TextureCacheDestroyTexture(this->m_section[section].m_layerTex[layer]);
                 this->m_section[section].m_layerTex[layer] = nullptr;
@@ -1272,7 +1272,7 @@ void CCharacterComponent::CreateRequestAU() {
 void CCharacterComponent::CreateRequestAL() {
     this->m_request->m_baseTextures[SECTION_ARM_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
             this->m_request->AddLayer(SECTION_ARM_LOWER, this->m_section[SECTION_ARM_LOWER].m_layerTex[layer]);
         }
@@ -1354,7 +1354,7 @@ void CCharacterComponent::CreateRequestTU() {
 void CCharacterComponent::CreateRequestTL() {
     this->m_request->m_baseTextures[SECTION_TORSO_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_LOWER].m_layerMask) {
             this->m_request->AddLayer(SECTION_TORSO_LOWER, this->m_section[SECTION_TORSO_LOWER].m_layerTex[layer]);
         }
@@ -3376,7 +3376,7 @@ bool CCharacterComponent::ItemsLoaded(int32_t wait) {
 
         CharacterSection& sectionData = this->m_section[section];
 
-        for (int32_t layer = 0; layer < 7; layer++) {
+        for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
             if (sectionData.m_layerItemDisplayId[layer]) {
                 if (!sectionData.m_layerTex[layer]) {
                     ItemDisplayInfoRec rec;
@@ -3459,7 +3459,7 @@ void CCharacterComponent::GeosRenderPrep() {
 
     int32_t layer;
 
-    for (layer = 1; layer < 7; layer++) {
+    for (layer = 1; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
             break;
         }
@@ -4135,7 +4135,7 @@ void CCharacterComponent::ComputeLoadProgress(int64_t& local, int64_t& total) {
     }
 
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
-        for (int32_t layer = 0; layer < 7; layer++) {
+        for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
             if (this->m_section[section].m_layerTex[layer]) {
                 TextureCacheComputeLoadProgress(this->m_section[section].m_layerTex[layer], local, total);
             }
@@ -4159,7 +4159,7 @@ static bool __stdcall ItemDisplayHasGeosetGroup(uint32_t displayID, int32_t grou
 
 // INLINED
 inline CharacterSection::CharacterSection() {
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         this->m_layerTex[layer] = nullptr;
         this->m_layerItemDisplayId[layer] = 0;
     }
@@ -4169,7 +4169,7 @@ inline CharacterSection::CharacterSection() {
 
 // INLINED
 inline CharacterSection::~CharacterSection() {
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if (this->m_layerTex[layer]) {
             TextureCacheDestroyTexture(this->m_layerTex[layer]);
         }
@@ -4776,7 +4776,7 @@ void CCharacterComponent::RenderPrepAU() {
 void CCharacterComponent::RenderPrepAL() {
     CCharacterComponent::PasteFromSkin(SECTION_ARM_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
             CCharacterComponent::PasteToSection(SECTION_ARM_LOWER, this->m_section[SECTION_ARM_LOWER].m_layerTex[layer], CCharacterComponent::s_textureBuffer);
         }
@@ -4858,7 +4858,7 @@ void CCharacterComponent::RenderPrepTU() {
 void CCharacterComponent::RenderPrepTL() {
     CCharacterComponent::PasteFromSkin(SECTION_TORSO_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
 
-    for (int32_t layer = 0; layer < 7; layer++) {
+    for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_LOWER].m_layerMask) {
             CCharacterComponent::PasteToSection(SECTION_TORSO_LOWER, this->m_section[SECTION_TORSO_LOWER].m_layerTex[layer], CCharacterComponent::s_textureBuffer);
         }

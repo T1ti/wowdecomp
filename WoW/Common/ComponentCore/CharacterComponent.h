@@ -37,9 +37,12 @@ struct CharacterBaseVariation {
     ~CharacterBaseVariation();
 };
 
+// Item texture layers per body section, ordered by s_itemPriority (inferred name).
+static const int32_t NUM_SECTION_LAYERS = 7;
+
 struct CharacterSection {
-    /* 0000 */ HTEXTURECACHE m_layerTex [7];
-    /* 001C */ uint32_t m_layerItemDisplayId [7];
+    /* 0000 */ HTEXTURECACHE m_layerTex [NUM_SECTION_LAYERS];
+    /* 001C */ uint32_t m_layerItemDisplayId [NUM_SECTION_LAYERS];
     /* 0038 */ uint32_t m_layerMask;
 
     CharacterSection();
