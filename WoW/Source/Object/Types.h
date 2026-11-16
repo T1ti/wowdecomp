@@ -141,6 +141,8 @@ enum PLAYER_FLAGS : uint32_t {
     PLAYER_FLAG_UNKNOWN_26                         = 0x04000000u,
     PLAYER_FLAG_UNKNOWN_27                         = 0x08000000u,
     PLAYER_FLAG_UNKNOWN_28                         = 0x10000000u,
+    // SMSG_PLAY_TIME_WARNING tests bits 29..31 for ERR_APPROACHING_NO_PLAY_TIME_2,
+    // ERR_APPROACHING_PARTIAL_PLAY_TIME_2 and ERR_UNHEALTHY_TIME.
     PLAYER_FLAG_UNKNOWN_29                         = 0x20000000u,
     PLAYER_FLAG_UNKNOWN_30                         = 0x40000000u,
     PLAYER_FLAG_UNKNOWN_31                         = 0x80000000u,

@@ -3323,13 +3323,13 @@ int32_t Packet_SMSG_PLAY_TIME_WARNING(void* param, NETMESSAGE msgId, uint32_t ti
     char remaining[30];
     SStrPrintf(remaining, sizeof(remaining), "%2d:%02d", seconds / 60 / 60, seconds / 60 % 60);
 
-    if (flags & 0x1000) {
+    if (flags & PLAYER_FLAG_PARTIAL_PLAY_TIME) {
         CGGameUI::DisplayError(ERR_APPROACHING_PARTIAL_PLAY_TIME, remaining);
-    } else if (flags & 0x40000000) {
+    } else if (flags & PLAYER_FLAG_UNKNOWN_30) {
         CGGameUI::DisplayError(ERR_APPROACHING_PARTIAL_PLAY_TIME_2, remaining);
-    } else if (flags & 0x2000) {
+    } else if (flags & PLAYER_FLAG_NO_PLAY_TIME) {
         CGGameUI::DisplayError(ERR_APPROACHING_NO_PLAY_TIME, remaining);
-    } else if (flags & 0x20000000) {
+    } else if (flags & PLAYER_FLAG_UNKNOWN_29) {
         CGGameUI::DisplayError(ERR_APPROACHING_NO_PLAY_TIME_2, remaining);
     } else if (flags < 0) {
         CGGameUI::DisplayError(ERR_UNHEALTHY_TIME);
