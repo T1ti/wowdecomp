@@ -136,7 +136,7 @@ int32_t MathState::Expect(const char* expected, int32_t* pos) {
     int32_t length;
 
     if (!this->NextToken(token, pos, &length) || SStrCmpI(token, expected, STORM_MAX_STR)) {
-        this->m_status = 1;
+        this->m_status = MATH_STATUS_ERROR;
         return 0;
     }
 
@@ -209,7 +209,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
 
             for (int32_t i = argCount - 1; i; i--) {
                 if (!this->NextToken(separator, &pos, &length) || SStrCmpI(separator, ",", STORM_MAX_STR)) {
-                    this->m_status = 1;
+                    this->m_status = MATH_STATUS_ERROR;
                 }
 
                 pos = this->CompileSum(pos);
@@ -248,7 +248,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
     }
 
     if (!isdigit(first) && first != '.') {
-        this->m_status = 1;
+        this->m_status = MATH_STATUS_ERROR;
         return pos;
     }
 
@@ -398,7 +398,7 @@ void MathState::ExecuteFunction(uint32_t op, MathStack* stack) {
         }
 
         default:
-            this->m_status = 1;
+            this->m_status = MATH_STATUS_ERROR;
             result = 0.0f;
             break;
     }
@@ -463,7 +463,7 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
 
         default:
             result = 0.0f;
-            this->m_status = 1;
+            this->m_status = MATH_STATUS_ERROR;
             break;
     }
 
@@ -904,7 +904,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
             default:
                 value = 0.0f;
-                this->m_status = 1;
+                this->m_status = MATH_STATUS_ERROR;
                 break;
         }
     }
@@ -929,7 +929,7 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
 
         if (op == MATHOP_SPELL) {
             if (!g_spellDB.GetRecord(QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(*intArg++), &loaded)) {
-                this->m_status = 1;
+                this->m_status = MATH_STATUS_ERROR;
                 return 0.0f;
             }
 
@@ -980,7 +980,7 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
 
     float result = 0.0f;
 
-    if (this->m_status == 2) {
+    if (this->m_status == MATH_STATUS_EVALUATING) {
         result = stack.m_values[stack.m_top];
     }
 

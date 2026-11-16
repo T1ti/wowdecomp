@@ -176,9 +176,17 @@ struct MathStack {
     /* 0080 */ int32_t m_top;
 };
 
+// MathState::m_status: compiling, failed (compile or evaluate), or evaluating,
+// as QuestTextParser drives it (inferred names).
+enum MATH_STATUS : uint32_t {
+    MATH_STATUS_COMPILING  = 0,
+    MATH_STATUS_ERROR      = 1,
+    MATH_STATUS_EVALUATING = 2,
+};
+
 class MathState {
     public:
-    /* 0000 */ uint32_t m_status;
+    /* 0000 */ MATH_STATUS m_status;
     /* 0004 */ uint32_t m_numOps;
     /* 0008 */ MATHOP m_ops[128]; // Packed opcodes; integer operands are stored separately.
     /* 0088 */ uint32_t m_numConstants;

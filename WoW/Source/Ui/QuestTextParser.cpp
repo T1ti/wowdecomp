@@ -452,17 +452,17 @@ static int32_t SpellParserExpression(const SpellRec* spell, char* buffer, uint32
     s_mathState.m_numIntArgs = 0;
     s_mathState.m_numVariables = 0;
     s_mathState.m_name = "TomT";
-    s_mathState.m_status = 0;
+    s_mathState.m_status = MATH_STATUS_COMPILING;
     s_mathState.CompileSum(0);
 
-    if (s_mathState.m_status == 1) {
+    if (s_mathState.m_status == MATH_STATUS_ERROR) {
         return 0;
     }
 
-    s_mathState.m_status = 2;
+    s_mathState.m_status = MATH_STATUS_EVALUATING;
     *value = s_mathState.Evaluate(spell, spellLevel, scale, parseUnit, parsePet, noModifiers);
 
-    if (s_mathState.m_status != 2) {
+    if (s_mathState.m_status != MATH_STATUS_EVALUATING) {
         return 0;
     }
 
