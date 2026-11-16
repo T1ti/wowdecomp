@@ -1393,7 +1393,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
     if (stats->m_scalingStatValue) {
         int32_t budget = GetScalingStatBudget(values, stats->m_scalingStatValue);
 
-        for (uint32_t i = 0; i < 10; i++) {
+        for (uint32_t i = 0; i < NUM_SCALING_STAT_DISTRIBUTION_STATS; i++) {
             int32_t type = distribution->m_statID[i];
 
             if (type <= 0) {
@@ -4676,7 +4676,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
         tooltip->AddLine(text, speed, textColor, textColor, 0);
         first = 0;
     } else {
-        for (uint32_t i = 0; i < 2; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_DAMAGES; i++) {
             float minValue = stats->m_damageMin[i];
             float maxValue = stats->m_damageMax[i];
             int32_t minDamage = static_cast<int32_t>(minValue <= 0.0f ? minValue - 0.99995f : minValue);
@@ -4771,7 +4771,7 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
         for (uint32_t i = 0; i < 11; i++) {
             uint32_t j = 0;
 
-            for (; j < 10; j++) {
+            for (; j < NUM_ITEM_STATS; j++) {
                 if (stats->m_statValue[j] && stats->m_statType[j] != static_cast<uint32_t>(-1) && stats->m_statType[j] == s_primaryStatOrder[i]) {
                     break;
                 }
@@ -4797,7 +4797,7 @@ static void AddItemArmorAndStatLines(CGTooltip* tooltip, const ItemStats_C* stat
             int32_t value = 0;
             uint32_t j = 0;
 
-            for (; j < 10; j++) {
+            for (; j < NUM_SCALING_STAT_DISTRIBUTION_STATS; j++) {
                 if (distribution->m_bonus[j] && (value = budget * distribution->m_bonus[j] / 10000) != 0 && distribution->m_statID[j] == s_primaryStatOrder[i]) {
                     break;
                 }
@@ -5783,7 +5783,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
     }
 
     if (!stats->m_scalingStatValue) {
-        for (uint32_t i = 0; i < 10; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_STATS; i++) {
             int32_t value = stats->m_statValue[i];
 
             if (!value || stats->m_statType[i] == static_cast<uint32_t>(-1)) {
@@ -5824,7 +5824,7 @@ static void AddItemSpellStatLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         int32_t budget = GetScalingStatBudget(values, stats->m_scalingStatValue);
 
         if (budget) {
-            for (uint32_t i = 0; i < 10; i++) {
+            for (uint32_t i = 0; i < NUM_SCALING_STAT_DISTRIBUTION_STATS; i++) {
                 int32_t value;
 
                 if (!distribution->m_bonus[i] || (value = distribution->m_bonus[i] * budget / 10000) == 0) {

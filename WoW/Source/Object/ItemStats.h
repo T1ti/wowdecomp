@@ -36,13 +36,13 @@ class ItemStats_C {
     /* 005C */ int32_t m_stackable;
     /* 0060 */ uint32_t m_containerSlots;
     /* 0064 */ int32_t m_statsCount;
-    /* 0068 */ uint32_t m_statType [10];
-    /* 0090 */ uint32_t m_statValue [10];
+    /* 0068 */ uint32_t m_statType [NUM_ITEM_STATS];
+    /* 0090 */ uint32_t m_statValue [NUM_ITEM_STATS];
     /* 00B8 */ uint32_t m_scalingStatDistribution;
     /* 00BC */ uint32_t m_scalingStatValue;
-    /* 00C0 */ float m_damageMin [2];
-    /* 00C8 */ float m_damageMax [2];
-    /* 00D0 */ uint32_t m_damageType [2];
+    /* 00C0 */ float m_damageMin [NUM_ITEM_DAMAGES];
+    /* 00C8 */ float m_damageMax [NUM_ITEM_DAMAGES];
+    /* 00D0 */ uint32_t m_damageType [NUM_ITEM_DAMAGES];
     /* 00D8 */ uint32_t m_resistances [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 00F4 */ int32_t m_delay;
     /* 00F8 */ uint32_t m_ammoType;

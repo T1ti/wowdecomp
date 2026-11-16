@@ -1040,7 +1040,7 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
     char format[1024];
 
     if (stats) {
-        for (uint32_t i = 0; i < 10; i++) {
+        for (uint32_t i = 0; i < NUM_ITEM_STATS; i++) {
             int32_t value = stats->m_statValue[i];
 
             if (value <= 0 || static_cast<int32_t>(stats->m_statType[i]) < 0) {

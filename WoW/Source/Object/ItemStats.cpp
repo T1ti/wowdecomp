@@ -99,14 +99,14 @@ void ItemStats_C::Unpack(CDataStore* msg) {
     }
 #endif
 
-    for (; stat < 10; stat++) {
+    for (; stat < NUM_ITEM_STATS; stat++) {
         this->m_statType[stat] = -1;
     }
 
     msg->Get(this->m_scalingStatDistribution);
     msg->Get(this->m_scalingStatValue);
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_DAMAGES; i++) {
         msg->Get(reinterpret_cast<uint32_t&>(this->m_damageMin[i]));
         msg->Get(reinterpret_cast<uint32_t&>(this->m_damageMax[i]));
         msg->Get(this->m_damageType[i]);
@@ -224,7 +224,7 @@ void ItemStats_C::Pack(CDataStore* msg) {
     msg->Put(this->m_scalingStatDistribution);
     msg->Put(this->m_scalingStatValue);
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_DAMAGES; i++) {
         msg->Put(reinterpret_cast<uint32_t&>(this->m_damageMin[i]));
         msg->Put(reinterpret_cast<uint32_t&>(this->m_damageMax[i]));
         msg->Put(this->m_damageType[i]);

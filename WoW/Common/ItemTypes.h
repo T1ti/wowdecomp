@@ -6,6 +6,10 @@
 // Number of parallel spell entries in an ItemStats_C cache record.
 constexpr int32_t NUM_ITEM_SPELLS = 5;
 
+// Inferred names: stat and damage entries in an ItemStats_C cache record.
+constexpr int32_t NUM_ITEM_STATS = 10;
+constexpr int32_t NUM_ITEM_DAMAGES = 2;
+
 // Item sockets (FrameXML ItemSocketingFrame.lua MAX_NUM_SOCKETS).
 constexpr int32_t MAX_NUM_SOCKETS = 3;
 

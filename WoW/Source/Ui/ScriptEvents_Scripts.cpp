@@ -3783,7 +3783,7 @@ static int32_t Script_UnitRangedDamage(lua_State* L) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(abs(item->m_itemId), none, nullptr, nullptr, false);
 
         if (stats) {
-            for (uint32_t i = 0; i < 2; i++) {
+            for (uint32_t i = 0; i < NUM_ITEM_DAMAGES; i++) {
                 if (stats->m_damageMin[i] > 0.0f) {
                     school = stats->m_damageType[i];
                     break;
