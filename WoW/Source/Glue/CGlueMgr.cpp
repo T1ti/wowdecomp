@@ -473,8 +473,8 @@ int32_t CGlueMgr::OnCharRenameResult(void* param, NETMESSAGE msgId, uint32_t tim
     FrameScript_SignalEvent(GLUE_EVENT_CLOSE_STATUS_DIALOG, nullptr);
 
     if (result) {
-        if (result == 50) {
-            FrameScript_SignalEvent(GLUE_EVENT_FORCE_RENAME_CHARACTER, "%s", ClientServices::GetErrorToken(50));
+        if (result == CHAR_CREATE_NAME_IN_USE) {
+            FrameScript_SignalEvent(GLUE_EVENT_FORCE_RENAME_CHARACTER, "%s", ClientServices::GetErrorToken(CHAR_CREATE_NAME_IN_USE));
         } else {
             FrameScript_SignalEvent(GLUE_EVENT_FORCE_RENAME_CHARACTER, "%s", FrameScript_GetText("CHAR_RENAME_FAILED", -1, GENDER_NOT_APPLICABLE));
         }
@@ -2466,7 +2466,7 @@ int32_t CGlueMgr::OnCharCustomizeResult(void* param, NETMESSAGE msgId, uint32_t 
     }
 
     if (result) {
-        const char* text = FrameScript_GetText(result == 50 ? ClientServices::GetErrorToken(50) : "CHAR_CUSTOMIZE_FAILED", -1, GENDER_NOT_APPLICABLE);
+        const char* text = FrameScript_GetText(result == CHAR_CREATE_NAME_IN_USE ? ClientServices::GetErrorToken(CHAR_CREATE_NAME_IN_USE) : "CHAR_CUSTOMIZE_FAILED", -1, GENDER_NOT_APPLICABLE);
         FrameScript_SignalEvent(GLUE_EVENT_OPEN_STATUS_DIALOG, "%s%s", "OKAY", text);
         return 1;
     }

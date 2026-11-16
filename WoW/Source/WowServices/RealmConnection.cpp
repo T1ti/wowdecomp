@@ -278,19 +278,19 @@ int32_t RealmConnection::HandleAuthResponse(uint32_t msgId, uint32_t time, CData
     uint8_t result;
     msg->Get(result);
 
-    if (result == 12 || result == 27) {
-        if (result == 12) {
+    if (result == AUTH_OK || result == AUTH_WAIT_QUEUE) {
+        if (result == AUTH_OK) {
             this->m_authenticated = 1;
         }
 
-        if (msg->m_size - (result == 27 ? 5 : 0) - msg->m_read >= 10) {
+        if (msg->m_size - (result == AUTH_WAIT_QUEUE ? 5 : 0) - msg->m_read >= 10) {
             msg->Get(this->m_billingTimeRemaining);
             msg->Get(this->m_billingFlags);
             msg->Get(this->m_billingTimeRested);
             msg->Get(this->m_accountExpansion);
         }
 
-        if (result == 27) {
+        if (result == AUTH_WAIT_QUEUE) {
             msg->Get(this->m_queuePosition);
 
             uint8_t freeCharacterMigration = 0;
