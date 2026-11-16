@@ -26,6 +26,9 @@ class CVehicleHeap {
 
 class CVehicle_C {
     public:
+    // Bone animation listener slots (inferred name).
+    static const uint32_t MAX_BONE_ANIM_LISTENERS = 16;
+
     static void EnterWorld();
     struct BoneAnimListener {
         /* 0000 */ WOWGUID m_guid;
@@ -55,7 +58,7 @@ class CVehicle_C {
     /* 0050 */ float m_rawFacing;
     /* 0054 */ float m_largestPassengerBoundsRadius;
     /* 0058 */ uint32_t m_playingBoneAnims [2];
-    /* 0060 */ BoneAnimListener m_boneAnimListeners [16];
+    /* 0060 */ BoneAnimListener m_boneAnimListeners [MAX_BONE_ANIM_LISTENERS];
     /* 0160 */ WOWGUID m_forceFacingGuid;
     /* 0168 */ uint32_t m_forceFacingBone;
     /* 016C */ uint8_t m_mirroringAnimsMask;

@@ -24024,7 +24024,7 @@ void CGUnit_C::CleanUpVehicleBoneAnimsBeforeObjectModelChange() {
     vehicle->m_playingBoneAnims[0] = 0;
     vehicle->m_playingBoneAnims[1] = 0;
 
-    for (uint32_t i = 0; i < 16; i++) {
+    for (uint32_t i = 0; i < CVehicle_C::MAX_BONE_ANIM_LISTENERS; i++) {
         vehicle->m_boneAnimListeners[i].m_guid = WOWGUID();
     }
 

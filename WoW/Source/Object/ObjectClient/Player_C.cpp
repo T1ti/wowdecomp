@@ -14489,7 +14489,7 @@ void CGPlayer_C::FillPartyMemberState(CGPartyMemberState* state) {
     VehicleRec* vehicle = transport && transport->m_vehicle ? transport->m_vehicle->m_vehicleRec : nullptr;
     uint8_t seat = this->m_movementData.m_transportSeat;
 
-    if (vehicle && seat < 8) {
+    if (vehicle && seat < MAX_VEHICLE_SEATS) {
         state->m_vehicleSeatId = vehicle->m_seatID[seat];
     } else {
         state->m_vehicleSeatId = 0;

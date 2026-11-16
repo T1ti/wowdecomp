@@ -6,6 +6,9 @@
 
 class SFileImpl;
 
+// Seat columns per Vehicle.dbc record.
+static const uint32_t MAX_VEHICLE_SEATS = 8;
+
 class VehicleRec {
     public:
     // DBC flags; distinct from CVehicle_C runtime state and VehicleSeatRec flags.
@@ -45,7 +48,7 @@ class VehicleRec {
     /* 000C */ float m_pitchSpeed;
     /* 0010 */ float m_pitchMin;
     /* 0014 */ float m_pitchMax;
-    /* 0018 */ int32_t m_seatID [8];
+    /* 0018 */ int32_t m_seatID [MAX_VEHICLE_SEATS];
     /* 0038 */ float m_mouseLookOffsetPitch;
     /* 003C */ float m_cameraFadeDistScalarMin;
     /* 0040 */ float m_cameraFadeDistScalarMax;

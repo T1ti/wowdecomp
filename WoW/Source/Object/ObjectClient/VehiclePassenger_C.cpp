@@ -644,7 +644,7 @@ void CVehiclePassenger_C::Uninit() {
     if (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS) {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS;
 
-        if (this->m_seat < 8) {
+        if (this->m_seat < MAX_VEHICLE_SEATS) {
             CGUnit_C* vehicleUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_vehicleGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicleUnit && vehicleUnit->m_vehicle) {
@@ -1052,7 +1052,7 @@ void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t se
     if (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS) {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS;
 
-        if (this->m_seat < 8) {
+        if (this->m_seat < MAX_VEHICLE_SEATS) {
             CGUnit_C* vehicleUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_vehicleGuid, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicleUnit && vehicleUnit->m_vehicle) {
