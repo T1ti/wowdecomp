@@ -10575,7 +10575,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             this->ClearWeaponTrail(0);
 
             if (!thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, old->GetSheatheType(), false);
                 break;
             }
 
@@ -10588,7 +10588,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, old->GetSheatheType(), false);
 
             if (detached) {
                 detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDR, nullptr, 0);
@@ -10601,7 +10601,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             this->ClearWeaponTrail(1);
 
             if (thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == INVTYPE_SHIELD);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, old->GetSheatheType(), old->GetInventoryType() == INVTYPE_SHIELD);
                 break;
             }
 
@@ -10614,7 +10614,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == INVTYPE_SHIELD);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, old->GetSheatheType(), old->GetInventoryType() == INVTYPE_SHIELD);
 
             if (detached) {
                 detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);

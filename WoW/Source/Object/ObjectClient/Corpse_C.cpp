@@ -151,7 +151,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
                 if (item) {
                     CM2Model* worldModel = this->m_worldModel;
                     bool shield = item->GetInventoryType() == INVTYPE_SHIELD;
-                    CCharacterComponent::AddHandItem(worldModel, &rec, static_cast<INVENTORY_SLOTS>(slot), static_cast<SHEATHE_TYPE>(item->GetSheatheType()), false, shield, false, 0);
+                    CCharacterComponent::AddHandItem(worldModel, &rec, static_cast<INVENTORY_SLOTS>(slot), item->GetSheatheType(), false, shield, false, 0);
                 }
 
                 continue;

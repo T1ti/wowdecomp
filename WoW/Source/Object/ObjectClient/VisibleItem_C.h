@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Common/ComponentCore/Types.h"
 
 class VisibleItem_C {
     public:
@@ -11,10 +12,10 @@ class VisibleItem_C {
 
     uint32_t GetClassID();
     uint32_t GetSubtypeID();
-    uint32_t GetInventoryType();
+    INVENTORY_TYPES GetInventoryType();
     uint32_t GetDisplayID();
     uint32_t GetMaterial();
-    uint32_t GetSheatheType();
+    SHEATHE_TYPE GetSheatheType();
     uint32_t GetSoundOverrideSubclassID();
     int32_t GetItemEnchantmentVisualID();
 };

@@ -1048,7 +1048,7 @@ static void SignalVehicleTransitionEvent(WOWGUID guid, const VehicleRec* vehicle
 
 // VERIFY: 01220e79 manual
 // OFFSET: 0x007489C0
-void CVehiclePassenger_C::SetState(uint32_t state, CGUnit_C* vehicle, uint8_t seat, VehicleSeatRec* seatRec, uint32_t time, WOWGUID relativeGuid) {
+void CVehiclePassenger_C::SetState(TRANSITION_STATE state, CGUnit_C* vehicle, uint8_t seat, VehicleSeatRec* seatRec, uint32_t time, WOWGUID relativeGuid) {
     if (this->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS) {
         this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_MIRRORING_VEHICLE_ANIMS;
 
@@ -1487,7 +1487,7 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
     this->m_flags &= ~VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_END_VALUES_COMPUTED;
     VehicleSeatRec* seatRec = this->m_seatRec;
     this->m_transitionVehicleGuid = target;
-    uint32_t state = entering ? TRANSITION_STATE::STATE_RIDING : TRANSITION_STATE::STATE_NONE;
+    TRANSITION_STATE state = entering ? TRANSITION_STATE::STATE_RIDING : TRANSITION_STATE::STATE_NONE;
     this->m_transitionSeat = seat;
     WOWGUID lookup;
 
@@ -1576,7 +1576,7 @@ void CVehiclePassenger_C::OnReloadUI() {
         return;
     }
 
-    int32_t state = static_cast<int32_t>(player->m_vehiclePassenger->m_state);
+    int32_t state = player->m_vehiclePassenger->m_state;
 
     if (state <= TRANSITION_STATE::STATE_NONE) {
         return;

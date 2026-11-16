@@ -187,7 +187,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(attached, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(offhand->GetSheatheType()), offhand->GetInventoryType() == INVTYPE_SHIELD);
+            CCharacterComponent::RemoveHandItem(attached, INVSLOT_OFFHAND, offhand->GetSheatheType(), offhand->GetInventoryType() == INVTYPE_SHIELD);
 
             if (attached) {
                 attached->AttachToParent(attached, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);
@@ -195,7 +195,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
             }
         } else {
             CM2Model* model = player->m_worldModel;
-            CCharacterComponent::RemoveHandItem(model, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(offhand->GetSheatheType()), offhand->GetInventoryType() == INVTYPE_SHIELD);
+            CCharacterComponent::RemoveHandItem(model, INVSLOT_OFFHAND, offhand->GetSheatheType(), offhand->GetInventoryType() == INVTYPE_SHIELD);
         }
     }
 

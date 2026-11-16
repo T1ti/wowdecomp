@@ -101,14 +101,14 @@ class CVehiclePassenger_C {
 
     void StopMovement();
     void BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uint8_t instant);
-    void SetState(uint32_t state, CGUnit_C* vehicle, uint8_t seat, VehicleSeatRec* seatRec, uint32_t time, WOWGUID vehicleGuid);
+    void SetState(TRANSITION_STATE state, CGUnit_C* vehicle, uint8_t seat, VehicleSeatRec* seatRec, uint32_t time, WOWGUID vehicleGuid);
 
     /* 0000 */ uint32_t m_memHandle;
     /* 0004 */ CVehiclePassenger_C* m_prev;
     /* 0008 */ CVehiclePassenger_C* m_next;
     /* 000C */ CGUnit_C* m_unit;
     /* 0010 */ uint32_t m_flags; // VEHICLE_PASSENGER_FLAGS
-    /* 0014 */ uint32_t m_state;
+    /* 0014 */ TRANSITION_STATE m_state;
     /* 0018 */ uint32_t m_prevState;
     /* 001C */ uint32_t unknown_001C;
     /* 0020 */ WOWGUID m_vehicleGuid;

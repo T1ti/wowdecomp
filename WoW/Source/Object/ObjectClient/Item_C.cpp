@@ -496,7 +496,7 @@ uint32_t CGItem_C::GetSubtypeID() const {
 
 // VERIFY: 6c114c7d auto
 // OFFSET: 0x00707280
-uint32_t CGItem_C::GetInventoryType() const {
+INVENTORY_TYPES CGItem_C::GetInventoryType() const {
     ItemRec* rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
 
     return rec ? rec->m_inventoryType : INVTYPE_NON_EQUIP;
@@ -512,10 +512,10 @@ uint32_t CGItem_C::GetDisplayID() const {
 
 // VERIFY: 8c746859 auto
 // OFFSET: 0x00707330
-uint32_t CGItem_C::GetSheatheType() const {
+SHEATHE_TYPE CGItem_C::GetSheatheType() const {
     ItemRec* rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
 
-    return rec ? rec->m_sheatheType : 0;
+    return rec ? static_cast<SHEATHE_TYPE>(rec->m_sheatheType) : SHEATHE_NONE;
 }
 
 // INLINED

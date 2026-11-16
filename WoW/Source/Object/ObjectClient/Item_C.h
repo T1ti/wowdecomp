@@ -98,14 +98,14 @@ class CGItem_C : public CGObject_C, public CGItem {
     int32_t CanBeUsed();
     uint32_t GetExpirationTimeLeft() const;
     char* GetFullItemName(char* buffer, uint32_t size) const;
-    uint32_t GetInventoryType() const;
+    INVENTORY_TYPES GetInventoryType() const;
     static char* GetStatName(uint32_t stat, char* buffer, int32_t size);
     int32_t GetNumSockets();
     int32_t GetOnUseSlot() const;
     int32_t GetPrismaticSocketCount();
     int32_t GetRandomItemSlot() const;
     int32_t GetRandomPropertyPoints() const;
-    uint32_t GetSheatheType() const;
+    SHEATHE_TYPE GetSheatheType() const;
     uint32_t GetSpellItemEnchantmentId() const;
     ItemStats_C* GetStats() const;
     uint32_t GetSubtypeID() const;
