@@ -3529,7 +3529,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_ITEMS);
 
         for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
-            if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE && (stats->m_class || (stats->m_subClass != 4 && stats->m_subClass != 5))) {
+            if (stats->m_spellId[i] && stats->m_spellTrigger[i] == ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE && (stats->m_class != ITEM_CLASS_CONSUMABLE || (stats->m_subClass != ITEM_SUBCLASS_CONSUMABLE_SCROLL && stats->m_subClass != ITEM_SUBCLASS_CONSUMABLE_FOOD_DRINK))) {
                 CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_USABLE_ITEMS);
                 break;
             }
@@ -3560,7 +3560,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_HEARTHSTONES);
         }
 
-        if (player->m_unit->m_unitFieldLevel >= 2 && !stats->m_class && (stats->m_subClass == 4 || stats->m_subClass == 5)) {
+        if (player->m_unit->m_unitFieldLevel >= 2 && stats->m_class == ITEM_CLASS_CONSUMABLE && (stats->m_subClass == ITEM_SUBCLASS_CONSUMABLE_SCROLL || stats->m_subClass == ITEM_SUBCLASS_CONSUMABLE_FOOD_DRINK)) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_FOOD);
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_DRINK);
         }
