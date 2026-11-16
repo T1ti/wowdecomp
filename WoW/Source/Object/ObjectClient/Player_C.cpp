@@ -14136,9 +14136,9 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
     if (result) {
         char text[256];
 
-        if (result == 10) {
+        if (result == ITEM_REFUND_RESULT_INV_FULL) {
             CGGameUI::DisplayError(ERR_INV_FULL);
-        } else if (result == 11) {
+        } else if (result == ITEM_REFUND_RESULT_CURRENCY_FULL) {
             CGGameUI::DisplayError(ERR_CURRENCY_FULL);
         } else {
             CGChat::AddChatMessage(FrameScript_GetText("UNABLE_TO_REFUND_ITEM", -1, GENDER_NOT_APPLICABLE), CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);

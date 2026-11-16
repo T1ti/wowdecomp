@@ -103,6 +103,14 @@ struct PlayerDance {
 class DanceMovesRec;
 class CEffect;
 
+// SMSG_ITEM_REFUND_RESULT codes with a dedicated client error (inferred names); other nonzero
+// codes print UNABLE_TO_REFUND_ITEM.
+enum ITEM_REFUND_RESULT : uint32_t {
+    ITEM_REFUND_RESULT_OK = 0,
+    ITEM_REFUND_RESULT_INV_FULL = 10,
+    ITEM_REFUND_RESULT_CURRENCY_FULL = 11,
+};
+
 class CGPlayer_C : public CGUnit_C, public CGPlayer {
     public:
     // Build 12340 UI outcomes; 13 and 18 share ALREADY_ON without proved distinct meanings.
