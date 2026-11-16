@@ -13396,14 +13396,14 @@ void CGPlayer_C::PlayDanceMove(const DanceMovesRec* move) {
             break;
         }
 
-        case DANCE_MOVE_PAUSE:
-        case DANCE_MOVE_REPEAT_PREVIOUS: {
+        case DANCE_MOVE_HOLD:
+        case DANCE_MOVE_REPEAT: {
             ClientSetTimer(1000 * move->m_param, DanceTimerCallback, this->m_obj->m_guid.m_guid, nullptr);
 
-            if (move->m_type == DANCE_MOVE_REPEAT_PREVIOUS) {
+            if (move->m_type == DANCE_MOVE_REPEAT) {
                 DanceMovesRec* previous = g_danceMovesDB.GetRecord(this->m_dance->m_moves[this->m_danceMoveIndex - 1]);
 
-                if (previous->m_type == DANCE_MOVE_REPEAT_PREVIOUS || previous->m_type == DANCE_MOVE_PAUSE) {
+                if (previous->m_type == DANCE_MOVE_REPEAT          || previous->m_type == DANCE_MOVE_HOLD) {
                     SErrDisplayAppFatalMessage("", "", 0);
                 }
 
@@ -13430,7 +13430,7 @@ void CGPlayer_C::DanceMoveAnimComplete() {
     int32_t index = this->m_danceMoveIndex;
     DanceMovesRec* move = g_danceMovesDB.GetRecord(dance->m_moves[index]);
 
-    if (move->m_type == DANCE_MOVE_REPEAT_PREVIOUS && index > 0) {
+    if (move->m_type == DANCE_MOVE_REPEAT          && index > 0) {
         this->PlayDanceMove(g_danceMovesDB.GetRecord(dance->m_moves[index - 1]));
     } else {
         this->DanceMoveComplete();

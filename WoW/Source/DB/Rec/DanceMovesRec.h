@@ -6,14 +6,14 @@
 
 class SFileImpl;
 
-// DanceMoves.dbc m_type, by what CGPlayer_C::PlayDanceMove does with m_param
-// (inferred names).
+// DanceMoves.dbc m_type, by what CGPlayer_C::PlayDanceMove does with m_param;
+// HOLD and REPEAT follow the records' "Hold - N Sec" / "Repeat - N Sec" names.
 enum DANCE_MOVE_TYPE : int32_t {
     DANCE_MOVE_ANIMATION        = 0, // m_param is an animation ID
     DANCE_MOVE_SPELL_VISUAL_KIT = 1, // m_param is a SpellVisualKit ID
     DANCE_MOVE_SOUND_KIT        = 2, // m_param is a SoundEntries ID
-    DANCE_MOVE_PAUSE            = 3, // m_param is a wait in seconds
-    DANCE_MOVE_REPEAT_PREVIOUS  = 4, // waits, then replays the previous move
+    DANCE_MOVE_HOLD             = 3, // m_param is a wait in seconds
+    DANCE_MOVE_REPEAT           = 4, // waits, then replays the previous move
 };
 
 class DanceMovesRec {
