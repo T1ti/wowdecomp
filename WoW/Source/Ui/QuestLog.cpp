@@ -39,7 +39,7 @@
 #include "WoW/Source/DB/Rec/WorldMapAreaRec.h"
 
 // STATIC: 0x00C23618
-int32_t CGQuestLog::m_sortTypes[25];
+int32_t CGQuestLog::m_sortTypes[MAX_QUESTLOG_SORT_TYPES];
 
 // STATIC: 0x00C23AD4
 uint32_t CGQuestLog::m_numSortTypes;
@@ -69,10 +69,10 @@ float CGQuestLog::m_questIconOverlapDist = 12.0f;
 static const int32_t s_questGreenRange[20] = { 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8 };
 
 // STATIC: 0x00C23680
-QuestWatch CGQuestLog::m_questWatches[25];
+QuestWatch CGQuestLog::m_questWatches[MAX_WATCHABLE_QUESTS];
 
 // STATIC: 0x00C237B0
-QuestLogEntry CGQuestLog::m_quests[50];
+QuestLogEntry CGQuestLog::m_quests[MAX_QUESTLOG_ENTRIES];
 
 // STATIC: 0x00C23AE4
 uint32_t CGQuestLog::m_numShownQuests;
@@ -300,7 +300,7 @@ int32_t CGQuestLog::IsQuestFailed(uint32_t index) {
 // VERIFY: 1f30d3fb manual
 // OFFSET: 0x005DEEB0
 int32_t CGQuestLog::GetQuestIndex(int32_t questId) {
-    for (int32_t i = 0; i < 50; i++) {
+    for (int32_t i = 0; i < MAX_QUESTLOG_ENTRIES; i++) {
         if (!CGQuestLog::m_quests[i].m_isHeader && CGQuestLog::m_quests[i].m_questId == questId) {
             return i + 1;
         }
@@ -323,7 +323,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
     }
 
     int32_t slot = CGQuestLog::m_quests[index].m_logSlot;
-    PlayerQuestLogEntry* entry = slot >= 0 && slot <= 25 ? &player->m_player->m_playerQuestLog[slot] : nullptr;
+    PlayerQuestLogEntry* entry = slot >= 0 && slot <= MAX_QUESTLOG_QUESTS ? &player->m_player->m_playerQuestLog[slot] : nullptr;
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, QuestQueryCallback, nullptr, false);
 
@@ -400,7 +400,7 @@ bool CGQuestLog::HasNoObjectives(uint32_t index) {
     }
 
     int32_t slot = CGQuestLog::m_quests[index].m_logSlot;
-    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) <= 25 ? &player->m_player->m_playerQuestLog[slot] : nullptr;
+    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) <= MAX_QUESTLOG_QUESTS ? &player->m_player->m_playerQuestLog[slot] : nullptr;
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, QuestQueryCallback, nullptr, false);
 
@@ -447,7 +447,7 @@ void CGQuestLog::AbandonSelectedQuest() {
         return;
     }
 
-    for (int32_t i = 0; i < 50; i++) {
+    for (int32_t i = 0; i < MAX_QUESTLOG_ENTRIES; i++) {
         if (!CGQuestLog::m_quests[i].m_isHeader && CGQuestLog::m_quests[i].m_questId == CGQuestLog::m_abandonQuest) {
             CGPlayer_C::QuestLogRemoveQuest(static_cast<uint8_t>(CGQuestLog::m_quests[i].m_logSlot));
             return;
@@ -527,13 +527,13 @@ int32_t CGQuestLog::AddQuestWatch(int32_t questId, int32_t duration) {
     int32_t now = static_cast<int32_t>(time(nullptr));
     int32_t i;
 
-    for (i = 0; i < 50; i++) {
+    for (i = 0; i < MAX_QUESTLOG_ENTRIES; i++) {
         if (!CGQuestLog::m_quests[i].m_isHeader && CGQuestLog::m_quests[i].m_questId == questId) {
             break;
         }
     }
 
-    if (i >= 50) {
+    if (i >= MAX_QUESTLOG_ENTRIES) {
         return now;
     }
 
@@ -547,7 +547,7 @@ int32_t CGQuestLog::AddQuestWatch(int32_t questId, int32_t duration) {
         }
     }
 
-    if (CGQuestLog::m_numQuestWatches < 25) {
+    if (CGQuestLog::m_numQuestWatches < MAX_WATCHABLE_QUESTS) {
         uint32_t index = CGQuestLog::m_numQuestWatches;
         CGQuestLog::m_questWatches[index].m_questId = questId;
         CGQuestLog::m_questWatches[index].m_expireTime = duration ? duration + now : 0;
@@ -835,36 +835,36 @@ static int32_t QSortQuestLogEntries(const void* a, const void* b) {
     uint32_t i;
 
     if (headerA) {
-        for (i = 0; i < 25 && CGQuestLog::m_sortTypes[i] != idA; i++) {
+        for (i = 0; i < MAX_QUESTLOG_SORT_TYPES && CGQuestLog::m_sortTypes[i] != idA; i++) {
         }
     } else {
         if (!questA) {
             return 0;
         }
 
-        for (i = 0; i < 25 && CGQuestLog::m_sortTypes[i] != static_cast<int32_t>(questA->m_areaIdOrSortId); i++) {
+        for (i = 0; i < MAX_QUESTLOG_SORT_TYPES && CGQuestLog::m_sortTypes[i] != static_cast<int32_t>(questA->m_areaIdOrSortId); i++) {
         }
     }
 
-    if (i < 25) {
+    if (i < MAX_QUESTLOG_SORT_TYPES) {
         sortA = i;
     }
 
     if (headerB) {
-        for (i = 0; i < 25 && CGQuestLog::m_sortTypes[i] != idB; i++) {
+        for (i = 0; i < MAX_QUESTLOG_SORT_TYPES && CGQuestLog::m_sortTypes[i] != idB; i++) {
         }
     } else {
         if (!questB) {
             return 0;
         }
 
-        for (i = 0; i < 25 && CGQuestLog::m_sortTypes[i] != static_cast<int32_t>(questB->m_areaIdOrSortId); i++) {
+        for (i = 0; i < MAX_QUESTLOG_SORT_TYPES && CGQuestLog::m_sortTypes[i] != static_cast<int32_t>(questB->m_areaIdOrSortId); i++) {
         }
     }
 
-    sortB = i < 25 ? i : 0;
-    int32_t hiddenA = !headerA && sortA < 25 && !((1 << sortA) & s_cvQuestLogCollapseFilter->m_intValue);
-    int32_t hiddenB = !headerB && sortB < 25 && !((1 << sortB) & s_cvQuestLogCollapseFilter->m_intValue);
+    sortB = i < MAX_QUESTLOG_SORT_TYPES ? i : 0;
+    int32_t hiddenA = !headerA && sortA < MAX_QUESTLOG_SORT_TYPES && !((1 << sortA) & s_cvQuestLogCollapseFilter->m_intValue);
+    int32_t hiddenB = !headerB && sortB < MAX_QUESTLOG_SORT_TYPES && !((1 << sortB) & s_cvQuestLogCollapseFilter->m_intValue);
 
     if (hiddenA) {
         if (hiddenB) {
@@ -924,7 +924,7 @@ void CGQuestLog::FilterAndSortQuests() {
 
         uint32_t sortId = GetQuestSortId(i);
 
-        if (sortId < 25 && !((1 << sortId) & s_cvQuestLogCollapseFilter->m_intValue)) {
+        if (sortId < MAX_QUESTLOG_SORT_TYPES && !((1 << sortId) & s_cvQuestLogCollapseFilter->m_intValue)) {
             CGQuestLog::m_numShownQuests--;
         }
     }
@@ -1074,7 +1074,7 @@ void CGQuestLog::Update(int32_t a1) {
     CGQuestLog::m_numSortTypes = 0;
     s_questCallbackCount = 0;
     int32_t numUnknown = 0;
-    int32_t unknown[25] = { 0 };
+    int32_t unknown[MAX_QUESTLOG_QUESTS] = { 0 };
     int32_t timeOffset = CGQuestLog::m_timeOffset;
 
     for (uint32_t slot = 0; slot < MAX_QUESTLOG_QUESTS; slot++) {
@@ -1180,7 +1180,7 @@ void CGQuestLog::Update(int32_t a1) {
         msg.Put(static_cast<uint32_t>(CMSG_QUEST_POI_QUERY));
         msg.Put(static_cast<uint32_t>(numUnknown));
 
-        for (uint32_t i = 0; i < 25; i++) {
+        for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
             if (unknown[i]) {
                 msg.Put(static_cast<uint32_t>(unknown[i]));
             }
@@ -1366,7 +1366,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
 
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(questId, none, params->m_questCallback, params->m_param, false);
-    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) > 25 ? nullptr : &player->m_player->m_playerQuestLog[slot];
+    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) > MAX_QUESTLOG_QUESTS ? nullptr : &player->m_player->m_playerQuestLog[slot];
 
     if (!quest || (params->m_requireLogEntry && !entry)) {
         return 0;
@@ -1637,7 +1637,7 @@ int32_t CGQuestLog::GetQuestLogItemDropByID(int32_t questId, QuestLogLeaderBoard
 
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(questId, none, params->m_questCallback, params->m_param, false);
-    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) > 25 ? nullptr : &player->m_player->m_playerQuestLog[slot];
+    PlayerQuestLogEntry* entry = static_cast<uint32_t>(slot) > MAX_QUESTLOG_QUESTS ? nullptr : &player->m_player->m_playerQuestLog[slot];
 
     if (!quest || (params->m_requireLogEntry && !entry)) {
         return 0;
@@ -1713,7 +1713,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardForObject(int32_t questId, int32_t object
     if (index >= 0 && index < CGQuestLog::m_numQuest && !CGQuestLog::m_quests[index].m_isHeader) {
         uint32_t slot = CGQuestLog::m_quests[index].m_logSlot;
 
-        if (slot <= 25) {
+        if (slot <= MAX_QUESTLOG_QUESTS) {
             entry = &player->m_player->m_playerQuestLog[slot];
         }
     }
@@ -1822,7 +1822,7 @@ void CGQuestLog::HandlePOIQueryResponse(CDataStore* msg) {
         uint32_t slot = CGQuestLog::FindOrFreePOISlot(questId);
         QuestPOIInfo* poi = nullptr;
 
-        if (!known && slot <= 24) {
+        if (!known && slot < MAX_QUESTLOG_QUESTS) {
             poi = &CGQuestLog::m_questPOIs[slot];
             poi->m_questId = questId;
             poi->m_blobs.SetCount(numBlobs);
@@ -2132,7 +2132,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
     }
 
     uint32_t slot = CGQuestLog::m_quests[index].m_logSlot;
-    PlayerQuestLogEntry* entry = slot <= 25 ? &player->m_player->m_playerQuestLog[slot] : nullptr;
+    PlayerQuestLogEntry* entry = slot <= MAX_QUESTLOG_QUESTS ? &player->m_player->m_playerQuestLog[slot] : nullptr;
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, nullptr, nullptr, false);
 
@@ -2264,12 +2264,12 @@ void CGQuestLog::UpdatePOIIcons() {
     C3Vector position = player->GetPosition();
     int32_t numActive = 0;
     int32_t numComplete = 0;
-    int32_t chain[25];
-    int32_t completeList[25];
+    int32_t chain[MAX_QUESTLOG_QUESTS];
+    int32_t completeList[MAX_QUESTLOG_QUESTS];
     memset(chain, 0, sizeof(chain));
-    uint8_t movable[25];
+    uint8_t movable[MAX_QUESTLOG_QUESTS];
     memset(movable, 0, sizeof(movable));
-    int32_t activeList[25];
+    int32_t activeList[MAX_QUESTLOG_QUESTS];
 
     for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
@@ -2331,7 +2331,7 @@ void CGQuestLog::UpdatePOIIcons() {
 
         uint32_t logIndex = 0;
 
-        for (uint32_t k = 0; k < 50; k++) {
+        for (uint32_t k = 0; k < MAX_QUESTLOG_ENTRIES; k++) {
             if (!CGQuestLog::m_quests[k].m_isHeader && CGQuestLog::m_quests[k].m_questId == poi->m_questId) {
                 logIndex = k + 1;
                 break;
@@ -2376,7 +2376,7 @@ void CGQuestLog::UpdatePOIIcons() {
     }
 
     for (int32_t iteration = 0; iteration < s_poiOverlapIterations; iteration++) {
-        int32_t forces[25][2];
+        int32_t forces[MAX_QUESTLOG_QUESTS][2];
         memset(forces, 0, sizeof(forces));
 
         for (int32_t a = 0; a < numActive; a++) {
@@ -2514,7 +2514,7 @@ int32_t CGQuestLog::GetQuestPOIIndex(int32_t questId) {
 QuestPOIInfo* CGQuestLog::GetQuestPOIInfo(int32_t questId) {
     uint32_t index = CGQuestLog::GetQuestPOIIndex(questId);
 
-    if (index > 24) {
+    if (index >= MAX_QUESTLOG_QUESTS) {
         return nullptr;
     }
 
@@ -2524,7 +2524,7 @@ QuestPOIInfo* CGQuestLog::GetQuestPOIInfo(int32_t questId) {
 // VERIFY: c90d8914 manual
 // OFFSET: 0x005E3840
 int32_t CGQuestLog::GetPOIQuestIDByVisibleIndex(int32_t index) {
-    if (static_cast<uint32_t>(index) > 24) {
+    if (static_cast<uint32_t>(index) >= MAX_QUESTLOG_QUESTS) {
         return -1;
     }
 
@@ -2609,7 +2609,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardForItem(int32_t questId, int32_t itemId, 
     if (index >= 0 && index < CGQuestLog::m_numQuest && !CGQuestLog::m_quests[index].m_isHeader) {
         uint32_t slot = CGQuestLog::m_quests[index].m_logSlot;
 
-        if (slot <= 25) {
+        if (slot <= MAX_QUESTLOG_QUESTS) {
             entry = &player->m_player->m_playerQuestLog[slot];
         }
     }
@@ -2662,10 +2662,10 @@ int32_t CGQuestLog::GetQuestWorldMapAreaID(int32_t questId, int32_t* floor) {
     if (current) {
         uint32_t index;
 
-        for (index = 0; index < 25 && CGQuestLog::m_questPOIs[index].m_questId != questId; index++) {
+        for (index = 0; index < MAX_QUESTLOG_QUESTS && CGQuestLog::m_questPOIs[index].m_questId != questId; index++) {
         }
 
-        if (index < 25) {
+        if (index < MAX_QUESTLOG_QUESTS) {
             QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[index];
             uint32_t objectives = CGQuestLog::ComputeBlobQuestObjectives(poi->m_questId);
             float bestDistance = 3.4028235e38f;
@@ -2725,7 +2725,7 @@ int32_t CGQuestLog::GetQuestWorldMapAreaID(int32_t questId, int32_t* floor) {
     uint32_t header = 0;
     uint32_t i;
 
-    for (i = 0; i < 50; i++) {
+    for (i = 0; i < MAX_QUESTLOG_ENTRIES; i++) {
         if (CGQuestLog::m_quests[i].m_isHeader) {
             header = i;
         } else if (CGQuestLog::m_quests[i].m_questId == questId) {
@@ -2733,7 +2733,7 @@ int32_t CGQuestLog::GetQuestWorldMapAreaID(int32_t questId, int32_t* floor) {
         }
     }
 
-    if (i >= 50) {
+    if (i >= MAX_QUESTLOG_ENTRIES) {
         return 0;
     }
 

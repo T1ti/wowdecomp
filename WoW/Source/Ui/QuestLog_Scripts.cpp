@@ -127,7 +127,7 @@ static int32_t Script_GetQuestWatchIndex(lua_State* L) {
     }
 
     for (uint32_t i = 0; i < CGQuestLog::m_numQuestWatches; i++) {
-        if ((i < 25 ? CGQuestLog::m_questWatches[i].m_questId : 0) == questId) {
+        if ((i < MAX_WATCHABLE_QUESTS ? CGQuestLog::m_questWatches[i].m_questId : 0) == questId) {
             lua_pushnumber(L, i + 1);
             return 1;
         }
@@ -152,7 +152,7 @@ static int32_t Script_IsQuestWatched(lua_State* L) {
 
         if (questId && CGQuestLog::m_numQuestWatches) {
             for (uint32_t i = 0; i < CGQuestLog::m_numQuestWatches; i++) {
-                if ((i < 25 ? CGQuestLog::m_questWatches[i].m_questId : 0) == questId) {
+                if ((i < MAX_WATCHABLE_QUESTS ? CGQuestLog::m_questWatches[i].m_questId : 0) == questId) {
                     watched = 1;
                 }
             }
@@ -179,7 +179,7 @@ static int32_t Script_GetQuestIndexForWatch(lua_State* L) {
     uint32_t watch = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     int32_t questId;
 
-    if (watch < 25 && (questId = CGQuestLog::m_questWatches[watch].m_questId) && CGQuestLog::m_numQuest) {
+    if (watch < MAX_WATCHABLE_QUESTS && (questId = CGQuestLog::m_questWatches[watch].m_questId) && CGQuestLog::m_numQuest) {
         for (uint32_t i = 0; i < static_cast<uint32_t>(CGQuestLog::m_numQuest); i++) {
             int32_t id = static_cast<int32_t>(i) < 0 || static_cast<int32_t>(i) >= CGQuestLog::m_numQuest || CGQuestLog::m_quests[i].m_isHeader ? 0 : CGQuestLog::m_quests[i].m_questId;
 
@@ -267,7 +267,7 @@ static int32_t Script_GetQuestTimers(lua_State* L) {
 
         int32_t slot = CGQuestLog::m_quests[i].m_logSlot;
 
-        if (slot < 0 || slot > 25) {
+        if (slot < 0 || slot > MAX_QUESTLOG_QUESTS) {
             continue;
         }
 
@@ -923,7 +923,7 @@ static int32_t Script_GetQuestIndexForTimer(lua_State* L) {
 
             int32_t slot = CGQuestLog::m_quests[i].m_logSlot;
 
-            if (slot < 0 || slot > 25) {
+            if (slot < 0 || slot > MAX_QUESTLOG_QUESTS) {
                 continue;
             }
 
@@ -1073,7 +1073,7 @@ static int32_t Script_QuestPOIGetQuestIDByIndex(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index > 24) {
+    if (index >= MAX_QUESTLOG_QUESTS) {
         return 0;
     }
 
@@ -1109,7 +1109,7 @@ static int32_t Script_GetQuestLogTimeLeft(lua_State* L) {
         int32_t index = CGQuestLog::GetSelectedLogEntry();
         uint32_t slot = index < 0 ? 0 : CGQuestLog::m_quests[index].m_logSlot;
 
-        if (slot <= 25) {
+        if (slot <= MAX_QUESTLOG_QUESTS) {
             PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
             int32_t timeOffset = CGQuestLog::m_timeOffset;
 
@@ -1139,7 +1139,7 @@ static int32_t Script_IsCurrentQuestFailed(lua_State* L) {
         int32_t index = CGQuestLog::GetSelectedLogEntry();
         uint32_t slot = index < 0 ? 0 : CGQuestLog::m_quests[index].m_logSlot;
 
-        if (slot <= 25) {
+        if (slot <= MAX_QUESTLOG_QUESTS) {
             PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
             if (entry && ((entry->m_state & 2) || CGQuestLog::IsSelectedQuestExpired())) {
@@ -1460,7 +1460,7 @@ static int32_t Script_GetQuestLogTitle(lua_State* L) {
         lua_pushnumber(L, 1.0);
         uint32_t sortId = GetQuestSortId(index);
 
-        if (sortId >= 25 || ((1 << sortId) & s_cvQuestLogCollapseFilter->m_intValue)) {
+        if (sortId >= MAX_QUESTLOG_SORT_TYPES || ((1 << sortId) & s_cvQuestLogCollapseFilter->m_intValue)) {
             lua_pushnil(L);
         } else {
             lua_pushnumber(L, 1.0);
@@ -1477,7 +1477,7 @@ static int32_t Script_GetQuestLogTitle(lua_State* L) {
         if (index >= 0 && index < CGQuestLog::m_numQuest && !CGQuestLog::m_quests[index].m_isHeader) {
             uint32_t slot = CGQuestLog::m_quests[index].m_logSlot;
 
-            if (slot <= 25) {
+            if (slot <= MAX_QUESTLOG_QUESTS) {
                 PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
                 if (entry && (entry->m_state & 2)) {

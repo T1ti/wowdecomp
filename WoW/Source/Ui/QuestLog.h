@@ -9,6 +9,14 @@
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/Player.h"
 
+// FrameXML WatchFrame.lua MAX_WATCHABLE_QUESTS.
+constexpr uint32_t MAX_WATCHABLE_QUESTS = 25;
+
+// Inferred names: quest sort headers (one collapse-filter bit each), and quest log rows
+// (every log quest plus one header per sort type).
+constexpr uint32_t MAX_QUESTLOG_SORT_TYPES = 25;
+constexpr uint32_t MAX_QUESTLOG_ENTRIES = MAX_QUESTLOG_QUESTS + MAX_QUESTLOG_SORT_TYPES;
+
 class CGItem_C;
 class CDataStore;
 
@@ -98,7 +106,7 @@ class CGQuestLog {
     static int32_t FindOrFreePOISlot(int32_t questId);
     static int32_t GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoardParams* params);
     static int32_t GetQuestLeaderBoardForObject(int32_t questId, int32_t objectId, QuestLogLeaderBoardParams* params);
-    static int32_t m_sortTypes[25];
+    static int32_t m_sortTypes[MAX_QUESTLOG_SORT_TYPES];
     static uint32_t m_numSortTypes;
     static int32_t m_questResetTime;
     static uint8_t m_trackedQuestsLoaded;
@@ -122,7 +130,7 @@ class CGQuestLog {
     static int32_t IsQuestFailed(uint32_t index);
     static bool HasNoObjectives(uint32_t index);
     static int32_t IsQuestExpiredByID(int32_t questId);
-    static QuestLogEntry m_quests[50];
+    static QuestLogEntry m_quests[MAX_QUESTLOG_ENTRIES];
     static QuestPOIInfo m_questPOIs[MAX_QUESTLOG_QUESTS];
     static int32_t m_abandonQuest;
     static uint32_t m_numQuestWatches;
@@ -133,7 +141,7 @@ class CGQuestLog {
     static void SetServerTime(int32_t serverTime, int32_t resetTime);
     static int32_t SetQuestExpired(uint32_t index);
     static void UpdateQuestPOIFromUserServer();
-    static QuestWatch m_questWatches[25];
+    static QuestWatch m_questWatches[MAX_WATCHABLE_QUESTS];
     static uint32_t m_numShownQuests;
     static void Update(int32_t a1);
     static void EnterWorld();

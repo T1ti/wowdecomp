@@ -7134,7 +7134,7 @@ int32_t OnUpdateQuest(WOWGUID guid, uint32_t offset, uint32_t count, const void*
 
     CGQuestLog::Update(1);
     uint32_t slot = (offset - 0x28) / sizeof(PlayerQuestLogEntry);
-    PlayerQuestLogEntry* entry = slot > 25 ? nullptr : &player->m_player->m_playerQuestLog[slot];
+    PlayerQuestLogEntry* entry = slot > MAX_QUESTLOG_QUESTS ? nullptr : &player->m_player->m_playerQuestLog[slot];
     const PlayerQuestLogEntry* old = static_cast<const PlayerQuestLogEntry*>(value);
     uint32_t questId = entry->m_questId;
     WOWGUID none = { 0 };
