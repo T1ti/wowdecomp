@@ -1749,22 +1749,22 @@ void CGGameUI::InitializeFrameXML() {
     uint8_t signature[16];
 
     switch (FrameXML_CheckSignature("Interface\\FrameXML\\FrameXML.toc", "Interface\\FrameXML\\Bindings.xml", InterfaceKey, signature)) {
-        case 0:
+        case XML_SIGNATURE_MISSING:
             status.Add(STATUS_WARNING, "FrameXML missing signature");
             ClientPostClose(10);
             break;
 
-        case 1:
+        case XML_SIGNATURE_CORRUPT:
             status.Add(STATUS_WARNING, "FrameXML has corrupt signature");
             ClientPostClose(10);
             break;
 
-        case 2:
+        case XML_SIGNATURE_MODIFIED:
             status.Add(STATUS_WARNING, "FrameXML is modified or corrupt");
             ClientPostClose(10);
             break;
 
-        case 3:
+        case XML_SIGNATURE_VALID:
             break;
 
         default:

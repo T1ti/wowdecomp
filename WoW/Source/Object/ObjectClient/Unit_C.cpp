@@ -909,12 +909,12 @@ static float GetExtraDisplayScale(const CreatureDisplayInfoRec* displayInfo) {
     int32_t displayId = 0;
 
     switch (extra->m_displaySexID) {
-        case 0: {
+        case UNITSEX_MALE: {
             displayId = race->m_maleDisplayID;
             break;
         }
 
-        case 1: {
+        case UNITSEX_FEMALE: {
             displayId = race->m_femaleDisplayID;
             break;
         }
@@ -14134,17 +14134,17 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
     MODEL_ATTACHMENT_ID handLink;
 
     switch (hand) {
-        case 0: {
+        case VIRTUAL_MONSTER_SLOT_MAINHAND: {
             handLink = ATTACH_HANDR;
             break;
         }
 
-        case 1: {
+        case VIRTUAL_MONSTER_SLOT_OFFHAND: {
             handLink = item->m_inventoryType != INVTYPE_SHIELD ? ATTACH_HANDL : ATTACH_SHIELD;
             break;
         }
 
-        case 2: {
+        case VIRTUAL_MONSTER_SLOT_RANGED: {
             handLink = mainHand ? ATTACH_HANDR : ATTACH_HANDL;
             break;
         }
