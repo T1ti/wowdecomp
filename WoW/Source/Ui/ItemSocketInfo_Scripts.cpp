@@ -7,6 +7,7 @@
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
+#include "WoW/Source/DB/Rec/GemPropertiesRec.h"
 #include "WoW/Source/DB/Rec/SpellItemEnchantmentRec.h"
 #include "WoW/Source/Object/ItemStats.h"
 #include "WoW/Source/Object/ObjectClient/Item_C.h"
@@ -33,7 +34,7 @@ static int32_t Script_GetSocketTypes(lua_State* L) {
 
     uint32_t color = stats->m_socketColor[static_cast<int32_t>(index - 1)];
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < NUM_SOCKET_COLORS; i++) {
         if ((1 << i) & color) {
             lua_pushstring(L, s_socketColorNames[i]);
             count++;
@@ -103,7 +104,7 @@ static int32_t Script_GetNewSocketInfo(lua_State* L) {
 
     double number = lua_tonumber(L, 1);
     uint32_t index = static_cast<int32_t>(number) - 1;
-    WOWGUID guid = index >= 3 ? WOWGUID() : CGItemSocketInfo::m_gemItems[index];
+    WOWGUID guid = index >= MAX_NUM_SOCKETS ? WOWGUID() : CGItemSocketInfo::m_gemItems[index];
     CGItem_C* gem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
     ItemStats_C* stats = nullptr;
 
@@ -145,7 +146,7 @@ static int32_t Script_GetNewSocketLink(lua_State* L) {
     }
 
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    WOWGUID guid = index >= 3 ? WOWGUID() : CGItemSocketInfo::m_gemItems[index];
+    WOWGUID guid = index >= MAX_NUM_SOCKETS ? WOWGUID() : CGItemSocketInfo::m_gemItems[index];
     CGItem_C* gem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!gem) {
@@ -210,7 +211,7 @@ static int32_t Script_GetExistingSocketInfo(lua_State* L) {
     SpellItemEnchantmentRec* enchant;
     ItemStats_C* stats;
 
-    if (!item || index >= 3 || !(enchant = g_spellItemEnchantmentDB.GetRecord(item->GetEnchantmentId(index + 2))) || !enchant->m_srcItemID) {
+    if (!item || index >= MAX_NUM_SOCKETS || !(enchant = g_spellItemEnchantmentDB.GetRecord(item->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + index))) || !enchant->m_srcItemID) {
         lua_pushnil(L);
         lua_pushnil(L);
         lua_pushnil(L);
@@ -255,11 +256,11 @@ static int32_t Script_GetExistingSocketLink(lua_State* L) {
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(CGItemSocketInfo::m_socketItem, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!item || index >= 3) {
+    if (!item || index >= MAX_NUM_SOCKETS) {
         return 0;
     }
 
-    SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(item->GetEnchantmentId(index + 2));
+    SpellItemEnchantmentRec* enchant = g_spellItemEnchantmentDB.GetRecord(item->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + index));
 
     if (!enchant || !enchant->m_srcItemID) {
         return 0;

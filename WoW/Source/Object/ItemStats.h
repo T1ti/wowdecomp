@@ -71,8 +71,8 @@ class ItemStats_C {
     /* 01B4 */ uint32_t m_map;
     /* 01B8 */ uint32_t m_bagFamily;
     /* 01BC */ uint32_t m_totemCategory;
-    /* 01C0 */ uint32_t m_socketColor [3];
-    /* 01CC */ uint32_t m_socketContent [3];
+    /* 01C0 */ uint32_t m_socketColor [MAX_NUM_SOCKETS]; // SOCKET_COLOR mask
+    /* 01CC */ uint32_t m_socketContent [MAX_NUM_SOCKETS];
     /* 01D8 */ uint32_t m_socketBonus;
     /* 01DC */ uint32_t m_gemProperties;
     /* 01E0 */ uint32_t m_requiredDisenchantSkill;

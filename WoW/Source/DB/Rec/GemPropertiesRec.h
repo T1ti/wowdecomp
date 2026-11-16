@@ -14,6 +14,9 @@ enum SOCKET_COLOR : int32_t {
     SOCKET_COLOR_BLUE = 0x8,
 };
 
+// Inferred name: number of SOCKET_COLOR bits.
+constexpr int32_t NUM_SOCKET_COLORS = 4;
+
 class GemPropertiesRec {
     public:
     static const int32_t s_numColumns = 5;

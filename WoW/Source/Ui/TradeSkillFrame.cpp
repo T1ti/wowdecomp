@@ -1132,14 +1132,14 @@ bool Profession_FilterSpell(int32_t spellId, int32_t minLevel, int32_t maxLevel,
             }
         }
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
             uint32_t color = stats->m_socketColor[i];
 
             if (!color) {
                 continue;
             }
 
-            for (uint32_t j = 0; j < 4; j++) {
+            for (uint32_t j = 0; j < NUM_SOCKET_COLORS; j++) {
                 if (!((1 << j) & color)) {
                     continue;
                 }

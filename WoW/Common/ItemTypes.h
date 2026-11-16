@@ -6,6 +6,9 @@
 // Number of parallel spell entries in an ItemStats_C cache record.
 constexpr int32_t NUM_ITEM_SPELLS = 5;
 
+// Item sockets (FrameXML ItemSocketingFrame.lua MAX_NUM_SOCKETS).
+constexpr int32_t MAX_NUM_SOCKETS = 3;
+
 // 3.3.5 ItemClass.dbc IDs. NONE is the signed no-class/restriction sentinel.
 // DBC selectors use signed32; cache/runtime/packed carriers retain their widths.
 enum ITEM_CLASS : int32_t {

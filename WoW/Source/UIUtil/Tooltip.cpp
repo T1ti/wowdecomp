@@ -469,7 +469,7 @@ void CGItemStatsSummary::AddResistances(const ItemStats_C* stats) {
 void CGItemStatsSummary::GetSocketFlags(const ItemStats_C* stats) {
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_SOCKETS;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
         uint32_t color = stats->m_socketColor[i];
 
         if (color & SOCKET_COLOR_META) {
@@ -2404,9 +2404,9 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
 
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, WOWGUID(), nullptr, nullptr, false);
     uint32_t wrapped = (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0;
-    int32_t gems[3];
+    int32_t gems[MAX_NUM_SOCKETS];
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
         if (!wrapped && !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
             gems[i] = item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i].m_id;
         } else {
@@ -4875,10 +4875,10 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         }
 
         uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
-        int32_t isSocket = socket <= 2 && static_cast<int32_t>(socket) < numSockets;
+        int32_t isSocket = socket < MAX_NUM_SOCKETS && static_cast<int32_t>(socket) < numSockets;
 
-        if (socket <= 2 && socketPreview) {
-            WOWGUID gemGuid = socket < 3 ? CGItemSocketInfo::m_gemItems[socket] : WOWGUID{ 0 };
+        if (socket < MAX_NUM_SOCKETS && socketPreview) {
+            WOWGUID gemGuid = socket < MAX_NUM_SOCKETS ? CGItemSocketInfo::m_gemItems[socket] : WOWGUID{ 0 };
             CGItem_C* gemItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(gemGuid, TYPE_ITEM, __FILE__, __LINE__));
             SpellItemEnchantmentRec* current = g_spellItemEnchantmentDB.GetRecord(abs(enchantId));
 
@@ -4903,7 +4903,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         }
 
         if (!enchantId) {
-            if (socket > 2 || !isSocket || socketPreview) {
+            if (socket >= MAX_NUM_SOCKETS || !isSocket || socketPreview) {
                 continue;
             }
 
@@ -4912,7 +4912,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             if (color) {
                 allGemsMatch = 0;
 
-                for (uint32_t i = 0; i < 4; i++) {
+                for (uint32_t i = 0; i < NUM_SOCKET_COLORS; i++) {
                     if (!((1 << i) & color)) {
                         continue;
                     }
@@ -5222,13 +5222,13 @@ static void AddItemStaticSocketLines(CGTooltip* tooltip, const ItemStats_C* stat
     for (uint32_t slot = 0; slot < CGItemData::NUM_ENCHANTMENTS; slot++) {
         uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
 
-        if (socket > 2 || !stats->m_socketColor[socket]) {
+        if (socket >= MAX_NUM_SOCKETS || !stats->m_socketColor[socket]) {
             continue;
         }
 
         uint32_t color = stats->m_socketColor[socket];
 
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < NUM_SOCKET_COLORS; i++) {
             if (!((1 << i) & color)) {
                 continue;
             }
@@ -6621,7 +6621,7 @@ int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGU
         if (item) {
             numSockets = item->GetNumSockets();
         } else {
-            for (uint32_t i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
                 if (stats->m_socketColor[i]) {
                     numSockets++;
                 }

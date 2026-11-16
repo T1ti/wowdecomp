@@ -153,7 +153,7 @@ void ItemStats_C::Unpack(CDataStore* msg) {
     msg->Get(this->m_bagFamily);
     msg->Get(this->m_totemCategory);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
         msg->Get(this->m_socketColor[i]);
         msg->Get(this->m_socketContent[i]);
     }
@@ -266,7 +266,7 @@ void ItemStats_C::Pack(CDataStore* msg) {
     msg->Put(this->m_bagFamily);
     msg->Put(this->m_totemCategory);
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
         msg->Put(this->m_socketColor[i]);
         msg->Put(this->m_socketContent[i]);
     }
