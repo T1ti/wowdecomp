@@ -253,7 +253,7 @@ static char s_streamingError[2051];
 HEVENTCONTEXT g_clientEventContext;
 
 // STATIC: 0x00B2F9A4
-static int32_t s_closeErrorStringId;
+static STARTUP_STRING_ID s_closeErrorStringId;
 
 // STATIC: 0x00B2F9D8
 static uint32_t s_timeTestError;
@@ -773,7 +773,7 @@ static int32_t ClientIdle(const void* data, void* param) {
 
 // VERIFY: bf995614 auto
 // OFFSET: 0x004033C0
-void ClientPostClose(int32_t reason) {
+void ClientPostClose(STARTUP_STRING_ID reason) {
     s_closeErrorStringId = reason;
     EventPostClose();
 }
