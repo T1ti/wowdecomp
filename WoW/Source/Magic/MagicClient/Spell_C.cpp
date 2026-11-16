@@ -365,7 +365,7 @@ bool Spell_C_HasEffect(const SpellRec* spell, int32_t effect) {
 // VERIFY: 4b3db043 auto
 // OFFSET: 0x007FE820
 int32_t Spell_C_IsOverride(int32_t spellId, const OverrideSpellDataRec* rec) {
-    for (uint32_t i = 0; i < sizeof(rec->m_spells) / sizeof(rec->m_spells[0]); i++) {
+    for (uint32_t i = 0; i < MAX_OVERRIDE_SPELLS; i++) {
         if (rec->m_spells[i] == spellId) {
             return 1;
         }

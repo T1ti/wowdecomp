@@ -14,6 +14,9 @@ enum OVERRIDE_SPELL_DATA_FLAGS : int32_t {
     OVERRIDE_SPELL_DATA_FLAG_ALLOW_NON_OVERRIDE_SPELLS = 0x4,
 };
 
+// Spell columns per OverrideSpellData.dbc record.
+static const uint32_t MAX_OVERRIDE_SPELLS = 10;
+
 class OverrideSpellDataRec {
     public:
     static const int32_t s_numColumns = 12;
@@ -21,7 +24,7 @@ class OverrideSpellDataRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_spells [10];
+    /* 0004 */ int32_t m_spells [MAX_OVERRIDE_SPELLS];
     /* 002C */ int32_t m_flags;
 
     OverrideSpellDataRec();

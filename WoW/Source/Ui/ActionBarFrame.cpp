@@ -1606,7 +1606,7 @@ static int32_t HasOverrideSpellData(const OverrideSpellDataRec* rec) {
         return 0;
     }
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < MAX_OVERRIDE_SPELLS; i++) {
         if (rec->m_spells[i]) {
             return 1;
         }
@@ -1618,7 +1618,7 @@ static int32_t HasOverrideSpellData(const OverrideSpellDataRec* rec) {
 // VERIFY: 5c0eac99 auto
 // OFFSET: 0x005A7CF0
 static int32_t GetOverrideSpell(uint32_t index, const void* data) {
-    if (data && index < 10) {
+    if (data && index < MAX_OVERRIDE_SPELLS) {
         return static_cast<const OverrideSpellDataRec*>(data)->m_spells[index];
     }
 
@@ -2004,7 +2004,7 @@ bool CGActionBar::IsEquipmentSetValid(int32_t setId) {
 // VERIFY: 82e513fa manual
 // OFFSET: 0x005ABE70
 void CGActionBar::PickupAction(uint32_t slot) {
-    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1) || !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || (slot >= 120 && slot < CGActionBar::MULTICAST_ACTION_FIRST)) {
+    if (slot > (CGActionBar::NUM_ACTION_SLOTS - 1) || !CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || (slot >= CGActionBar::TEMP_ACTION_FIRST && slot < CGActionBar::MULTICAST_ACTION_FIRST)) {
         return;
     }
 
