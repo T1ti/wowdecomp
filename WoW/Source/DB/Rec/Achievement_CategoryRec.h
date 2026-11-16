@@ -8,6 +8,11 @@ class SFileImpl;
 
 // Achievement_Category.dbc rows the client tests directly.
 enum ACHIEVEMENT_CATEGORY_ID : int32_t {
+    // Lua-only pseudo categories: every achievement, every statistic (inferred names).
+    ACHIEVEMENT_CATEGORY_ALL_STATISTICS = -2,
+    ACHIEVEMENT_CATEGORY_ALL_ACHIEVEMENTS = -1,
+    // Root of the statistics tree (DBC name "Statistics").
+    ACHIEVEMENT_CATEGORY_STATISTICS = 1,
     // FrameXML FEAT_OF_STRENGTH_ID.
     ACHIEVEMENT_CATEGORY_FEATS_OF_STRENGTH = 81,
 };

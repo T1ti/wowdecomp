@@ -151,7 +151,7 @@ bool CGAchievementInfo::IsCriteriaStat(int32_t criteriaId) {
         return false;
     }
 
-    if (category->m_id == 1) {
+    if (category->m_id == ACHIEVEMENT_CATEGORY_STATISTICS) {
         return true;
     }
 
@@ -161,7 +161,7 @@ bool CGAchievementInfo::IsCriteriaStat(int32_t criteriaId) {
         return false;
     }
 
-    while (category->m_id != 1) {
+    while (category->m_id != ACHIEVEMENT_CATEGORY_STATISTICS) {
         category = g_achievement_CategoryDB.GetRecord(category->m_parent);
 
         if (!category) {
@@ -748,12 +748,12 @@ bool CGAchievementInfo::IsRealAchievement(int32_t id) {
 
     Achievement_CategoryRec* category = g_achievement_CategoryDB.GetRecord(achievement->m_category);
 
-    if (!category || category->m_id == 1) {
+    if (!category || category->m_id == ACHIEVEMENT_CATEGORY_STATISTICS) {
         return false;
     }
 
     for (category = g_achievement_CategoryDB.GetRecord(category->m_parent); category; category = g_achievement_CategoryDB.GetRecord(category->m_parent)) {
-        if (category->m_id == 1) {
+        if (category->m_id == ACHIEVEMENT_CATEGORY_STATISTICS) {
             return false;
         }
     }
