@@ -290,7 +290,7 @@ static void WriteConnectionLog(const char* text) {
 // VERIFY: c565c343 auto
 // OFFSET: 0x004D8360
 void CGlueMgr::QuitGameAndRunLauncher() {
-    ClientPostClose(0);
+    ClientPostClose(STARTUP_STRING_NONE);
     SCreateProcess("Launcher.exe", nullptr, nullptr, nullptr);
 }
 
@@ -785,7 +785,7 @@ void CGlueMgr::Resume() {
         }
     }
 
-    ClientPostClose(9);
+    ClientPostClose(MSG_GLUEXML_UI_CORRUPT);
 }
 
 // VERIFY: fc9c4123 auto
@@ -2168,7 +2168,7 @@ void CGlueMgr::DisplayLoginStatus() {
 // VERIFY: 6397c8fa auto
 // OFFSET: 0x004D8350
 void CGlueMgr::QuitGame() {
-    ClientPostClose(0);
+    ClientPostClose(STARTUP_STRING_NONE);
 }
 
 // VERIFY: 36e76190 manual

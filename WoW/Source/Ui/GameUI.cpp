@@ -1751,24 +1751,24 @@ void CGGameUI::InitializeFrameXML() {
     switch (FrameXML_CheckSignature("Interface\\FrameXML\\FrameXML.toc", "Interface\\FrameXML\\Bindings.xml", InterfaceKey, signature)) {
         case XML_SIGNATURE_MISSING:
             status.Add(STATUS_WARNING, "FrameXML missing signature");
-            ClientPostClose(10);
+            ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
             break;
 
         case XML_SIGNATURE_CORRUPT:
             status.Add(STATUS_WARNING, "FrameXML has corrupt signature");
-            ClientPostClose(10);
+            ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
             break;
 
         case XML_SIGNATURE_MODIFIED:
             status.Add(STATUS_WARNING, "FrameXML is modified or corrupt");
-            ClientPostClose(10);
+            ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
             break;
 
         case XML_SIGNATURE_VALID:
             break;
 
         default:
-            ClientPostClose(10);
+            ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
             break;
     }
 
@@ -1793,7 +1793,7 @@ void CGGameUI::InitializeFrameXML() {
 
 #ifndef DISABLE_SIGNATURE_CHECKS
     if (memcmp(signature, digest, sizeof(digest))) {
-        ClientPostClose(10);
+        ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
     }
 #endif
 

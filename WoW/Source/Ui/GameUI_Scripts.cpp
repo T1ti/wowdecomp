@@ -195,7 +195,7 @@ static int32_t Script_CancelTrade(lua_State* L) {
 // VERIFY: 64da4b3d auto
 // OFFSET: 0x00510A00
 static int32_t Script_ForceQuit(lua_State* L) {
-    ClientPostClose(0);
+    ClientPostClose(STARTUP_STRING_NONE);
     return 0;
 }
 

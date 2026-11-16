@@ -437,15 +437,15 @@ void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) 
             if (desktopTried) {
                 GxLog("ConsoleDeviceInitialize(): no output device available!");
 
-                Startup_StringsRec* titleRec = g_startup_StringsDB.GetRecord(1);
+                Startup_StringsRec* titleRec = g_startup_StringsDB.GetRecord(MSG_TITLE_WOW);
                 const char* caption = titleRec ? titleRec->m_message : "World of Warcraft";
                 const char* message;
 
                 if (api == GxApi_D3d9 || api == GxApi_D3d9Ex) {
-                    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(2);
+                    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(MSG_GX_INIT_FAILED_D3D);
                     message = rec ? rec->m_message : "World of Warcraft was unable to start up 3D acceleration. Please make sure DirectX 9.0c is installed and your video drivers are up-to-date.";
                 } else {
-                    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(3);
+                    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(MSG_GX_INIT_FAILED);
                     message = rec ? rec->m_message : "World of Warcraft was unable to start up 3D acceleration.";
                 }
 
@@ -519,9 +519,9 @@ void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) 
         return;
     }
 
-    Startup_StringsRec* titleRec = g_startup_StringsDB.GetRecord(1);
+    Startup_StringsRec* titleRec = g_startup_StringsDB.GetRecord(MSG_TITLE_WOW);
     const char* caption = titleRec ? titleRec->m_message : "World of Warcraft";
-    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(4);
+    Startup_StringsRec* rec = g_startup_StringsDB.GetRecord(MSG_HW_UNSUPPORTED);
     const char* message = rec ? rec->m_message : "Your 3D accelerator card is not supported by World of Warcraft. Please install a 3D accelerator card with dual-TMU support.";
 
     OsGuiMessageBox(nullptr, OSGUI_MESSAGE_STYLE_OK, message, caption);

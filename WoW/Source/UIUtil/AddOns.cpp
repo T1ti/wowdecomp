@@ -1088,7 +1088,7 @@ bool LoadAddOn(const char* name, bool demandLoad, CStatus* status) {
 
 #ifndef DISABLE_SIGNATURE_CHECKS
         if (addon->m_status == UIADDON_SECURITY_SECURE && memcmp(addon->m_digest, digest, sizeof(digest))) {
-            ClientPostClose(10);
+            ClientPostClose(MSG_FRAMEXML_UI_CORRUPT);
         }
 #endif
 

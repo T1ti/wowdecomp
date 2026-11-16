@@ -1543,7 +1543,7 @@ void ClientConnection::HandleLogoutComplete() {
     this->m_loggingOut = 0;
 
     if (this->m_quitAfterLogout) {
-        ClientPostClose(0);
+        ClientPostClose(STARTUP_STRING_NONE);
     }
 }
 

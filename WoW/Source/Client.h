@@ -116,7 +116,7 @@ int32_t CCommand_TimingInfo(const char* command, const char* arguments);
 bool CheckDataFilesExist();
 void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogin);
 void ClientInitializeGame(uint32_t mapId, C3Vector position);
-void ClientPostClose(int32_t reason);
+void ClientPostClose(int32_t reason); // reason: STARTUP_STRING_ID shown on exit
 uint32_t ClientSetTimer(uint32_t delay, EVENTHANDLERFUNC handler, void* param);
 uint32_t ClientSetTimer(uint32_t delay, EVENTHANDLERGUIDFUNC handler, uint64_t guid, void* param);
 void ClientRegisterConsoleCommands();

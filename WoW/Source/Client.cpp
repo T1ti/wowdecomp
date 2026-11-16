@@ -1789,7 +1789,7 @@ void BeginCloseGame() {
     StopStreaming();
 
     if (s_closeErrorStringId) {
-        Startup_StringsRec* title = g_startup_StringsDB.GetRecord(1);
+        Startup_StringsRec* title = g_startup_StringsDB.GetRecord(MSG_TITLE_WOW);
         Startup_StringsRec* message = g_startup_StringsDB.GetRecord(s_closeErrorStringId);
         OsGuiMessageBox(nullptr, OSGUI_MESSAGE_STYLE_OK, message ? message->m_message : "Unknown Error", title ? title->m_message : "World of Warcraft");
     }
