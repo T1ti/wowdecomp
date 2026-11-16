@@ -4771,7 +4771,7 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t a3, int32_t 
     SkillLineAbilityRec* ability = SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
     SkillLineRec* skillLine = ability ? g_skillLineDB.GetRecord(ability->m_skillLine) : nullptr;
 
-    if (skillLine && skillLine->m_id == 778) {
+    if (skillLine && skillLine->m_id == SKILL_LINE_COMPANIONS) {
         this->m_companionSpells.Add(1, &spellId);
     }
 

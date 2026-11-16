@@ -12,6 +12,11 @@ enum SKILL_LINE_CATEGORY_ID : int32_t {
     SKILL_LINE_CATEGORY_PROFESSIONS = 11,
 };
 
+// SkillLine.dbc rows the client tests directly, named after m_displayName.
+enum SKILL_LINE_ID : int32_t {
+    SKILL_LINE_COMPANIONS = 778,
+};
+
 class SkillLineRec {
     public:
     static const int32_t s_numColumns = 56;
