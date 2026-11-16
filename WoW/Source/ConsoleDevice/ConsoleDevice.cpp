@@ -505,7 +505,7 @@ void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) 
         }
 
         if (s_hwDetect || s_hwChanged) {
-            s_defaults.unk_0019 = g_theGxDevicePtr->Caps().m_shaderTargets[4] != 0;
+            s_defaults.unk_0019 = g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] != GxShPS_none;
         }
 
         char version[32];

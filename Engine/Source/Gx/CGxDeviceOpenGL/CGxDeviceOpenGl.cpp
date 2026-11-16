@@ -736,15 +736,15 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
 
     if (pixelTarget == -1 || !pixelTargets[pixelTarget]) {
         if (pixelTargets[12]) {
-            this->m_caps.m_shaderTargets[GxSh_Pixel] = 12;
+            this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_arbfp1;
         } else if (pixelTargets[10]) {
-            this->m_caps.m_shaderTargets[GxSh_Pixel] = 10;
+            this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_nvts3;
         } else if (pixelTargets[9]) {
-            this->m_caps.m_shaderTargets[GxSh_Pixel] = 9;
+            this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_nvts2;
         } else if (pixelTargets[8]) {
-            this->m_caps.m_shaderTargets[GxSh_Pixel] = 8;
+            this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_nvts;
         } else if (pixelTargets[7]) {
-            this->m_caps.m_shaderTargets[GxSh_Pixel] = 7;
+            this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_nvrc;
         }
     } else {
         this->m_caps.m_shaderTargets[GxSh_Pixel] = pixelTarget;
@@ -755,13 +755,13 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
     if (vertexTarget == -1 || !vertexTargets[vertexTarget]) {
         if (this->m_caps.m_shaderTargets[GxSh_Pixel]) {
             if (vertexTargets[6]) {
-                this->m_caps.m_shaderTargets[GxSh_Vertex] = 6;
+                this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_arbvp1;
             } else if (vertexTargets[7]) {
-                this->m_caps.m_shaderTargets[GxSh_Vertex] = 7;
+                this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_arbvp1_cg12;
             } else if (vertexTargets[9]) {
-                this->m_caps.m_shaderTargets[GxSh_Vertex] = 9;
+                this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_nvvp2;
             } else if (vertexTargets[8]) {
-                this->m_caps.m_shaderTargets[GxSh_Vertex] = 8;
+                this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_nvvp;
             }
         }
     } else {
@@ -804,7 +804,7 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
     this->m_caps.m_colorWrite = 1;
     glGetIntegerv(GL_MAX_CLIP_PLANES, reinterpret_cast<GLint*>(&this->m_caps.m_maxClipPlanes));
 
-    if (this->m_caps.m_shaderTargets[GxSh_Vertex] == 6 || this->m_caps.m_shaderTargets[GxSh_Vertex] == 7) {
+    if (this->m_caps.m_shaderTargets[GxSh_Vertex] == GxShVS_arbvp1 || this->m_caps.m_shaderTargets[GxSh_Vertex] == GxShVS_arbvp1_cg12) {
         this->m_caps.m_maxClipPlanes = 0;
     }
 
@@ -834,7 +834,7 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
     this->m_caps.unused_0114[3] = 0;
     this->m_caps.unused_0114[4] = 0;
     this->m_caps.m_stereoAvailable = 0;
-    this->m_caps.unk_0138 = this->m_caps.m_shaderTargets[GxSh_Pixel] != 12;
+    this->m_caps.unk_0138 = this->m_caps.m_shaderTargets[GxSh_Pixel] != GxShPS_arbfp1;
     this->Log(this->m_caps);
 }
 
@@ -4504,7 +4504,7 @@ void CGxDeviceOpenGl::IShaderDeletePixel(CGxShader*& shader) {
         return;
     }
 
-    if (this->m_caps.m_shaderTargets[GxSh_Pixel] == 12) {
+    if (this->m_caps.m_shaderTargets[GxSh_Pixel] == GxShPS_arbfp1) {
         glDeleteProgramsARB(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
     }
 
@@ -4819,7 +4819,7 @@ void CGxDeviceOpenGl::IPixelShaderPatch(CGxShader* shader) {
 
     shader->m_patched = 1;
 
-    if (this->m_caps.m_shaderTargets[GxSh_Pixel] != 12) {
+    if (this->m_caps.m_shaderTargets[GxSh_Pixel] != GxShPS_arbfp1) {
         return;
     }
 
@@ -5152,7 +5152,7 @@ void CGxDeviceOpenGl::IShaderForceRecreation() {
     TSExplicitList<CGxShader>& pixelShaders = this->m_shaderList[GxSh_Pixel].m_fulllist;
 
     for (CGxShader* shader = pixelShaders.Head(); !pixelShaders.IsEnd(shader); shader = pixelShaders.RawNext(shader)) {
-        if (shader->m_apiSpecific && this->m_caps.m_shaderTargets[GxSh_Pixel] == 12) {
+        if (shader->m_apiSpecific && this->m_caps.m_shaderTargets[GxSh_Pixel] == GxShPS_arbfp1) {
             glDeleteProgramsARB(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
         }
 

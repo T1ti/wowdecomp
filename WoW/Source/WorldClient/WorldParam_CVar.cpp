@@ -485,7 +485,7 @@ bool CWorldParam::SpecularCallback(CVar* var, const char* oldValue, const char* 
         return true;
     }
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= 0) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= GxShPS_none) {
         ConsoleWrite("Specular not enabled.  Requires pixel shaders.", DEFAULT_COLOR);
 
         return false;

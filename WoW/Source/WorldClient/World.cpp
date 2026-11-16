@@ -1390,7 +1390,7 @@ void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, in
 void CWorldScene::ApplyFogState() {
     DayNight::DNInfo* info = DayNight::GetInfo();
 
-    if (!g_theGxDevicePtr->Caps().m_shaderTargets[0]) {
+    if (!g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex]) {
         GxRsSet(GxRs_FogStart, info->m_fog.m_start);
         GxRsSet(GxRs_FogEnd, info->m_fog.m_end);
     }
@@ -1403,7 +1403,7 @@ void CWorldScene::ApplyFogState() {
 void DayNight::Update(int32_t reset, const C3Vector* cameraPos) {
     float glare = 0.0f;
     DNInfo* info = DayNight::GetInfo();
-    int32_t fogMode = static_cast<uint32_t>(g_theGxDevicePtr->Caps().m_shaderTargets[0]) > 1;
+    int32_t fogMode = static_cast<uint32_t>(g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex]) > GxShVS_vs_1_1;
 
     if (s_mapId < MAP_EXPANSION01) {
         fogMode = 0;
@@ -1672,11 +1672,11 @@ void CWorld::Initialize() {
     CWorld::chunkCnt = 0;
     CWorld::s_elapsedTicks = 0;
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[4] > 0) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] > GxShPS_none) {
         CWorld::enables |= Enables::Enable_PixelShaders;
     }
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[0] > 0) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] > GxShVS_none) {
         CWorld::enables2 |= Enable_VertexShader;
     }
 

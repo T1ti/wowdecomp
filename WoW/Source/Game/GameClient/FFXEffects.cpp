@@ -64,7 +64,7 @@ PassDeath::PassDeath(FFX::Tex** inputs, uint32_t count, FFX::Tex* output, EGxBle
     this->m_shaders[PassDeath::SHADER_SELECTION::PRIMARY_VARIANT] = nullptr;
     this->m_shaders[PassDeath::SHADER_SELECTION::RECTANGLE_PERMUTATION] = nullptr;
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 8 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 9 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 10) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvts || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvts2 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvts3) {
         g_theGxDevicePtr->ShaderCreate(this->m_shaders, GxSh_Pixel, "Shaders\\Pixel", FFX::s_useRECT ? "FFXDeath_nvts_rect" : "FFXDeath_nvts_2d", 1);
         return;
     }
@@ -134,14 +134,14 @@ void PassDeathNVRC::Execute() {
 EffectDeath::EffectDeath() {
     this->m_cvar = CVar::Register("ffxDeath", "full screen death effect", CVAR_FLAGS::CVAR_ARCHIVE, this->m_defaultEnabled ? "1" : "0", FFX::CVarCallback, 1, false, nullptr, false);
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 7) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvrc) {
         FFX::Tex* inputs[] = { &FFX::s_full[0] };
         FFX::Pass* pass = new (__FILE__, __LINE__) PassDeathNVRC(inputs, 1, &FFX::s_screen, GxBlend_Opaque, true);
         this->m_passes.New(pass);
         return;
     }
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= 0) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= GxShPS_none) {
         return;
     }
 
@@ -173,7 +173,7 @@ EffectDeath::~EffectDeath() {
 EffectNetherWorld::EffectNetherWorld() {
     this->m_cvar = CVar::Register("ffxNetherWorld", "full screen nether world effect (for invisibility)", CVAR_FLAGS::CVAR_ARCHIVE, "1", FFX::CVarCallback, 1, false, nullptr, false);
 
-    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 7 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= 0) {
+    if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvrc || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] <= GxShPS_none) {
         return;
     }
 

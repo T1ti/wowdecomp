@@ -204,11 +204,11 @@ int32_t CShadowCache::ValidateShadowMode(EShadowMode mode) {
             switch (g_theGxDevicePtr->DeviceApi()) {
                 case GxApi_D3d9:
                 case GxApi_D3d9Ex:
-                    if (vertexTarget != 1 && vertexTarget != 2 && vertexTarget != 3) {
+                    if (vertexTarget != GxShVS_vs_1_1 && vertexTarget != GxShVS_vs_2_0 && vertexTarget != GxShVS_vs_3_0) {
                         return 0;
                     }
 
-                    if (pixelTarget != 3 && pixelTarget != 4) {
+                    if (pixelTarget != GxShPS_ps_2_0 && pixelTarget != GxShPS_ps_3_0) {
                         return 0;
                     }
 
@@ -219,7 +219,7 @@ int32_t CShadowCache::ValidateShadowMode(EShadowMode mode) {
                     return depthFormat;
 
                 case GxApi_GLL:
-                    if ((vertexTarget == 6 || vertexTarget == 10) && (pixelTarget == 12 || pixelTarget == 11)) {
+                    if ((vertexTarget == GxShVS_arbvp1 || vertexTarget == GxShVS_nvvp3) && (pixelTarget == GxShPS_arbfp1 || pixelTarget == GxShPS_nvfp2)) {
                         return depthFormat;
                     }
 
@@ -235,7 +235,7 @@ int32_t CShadowCache::ValidateShadowMode(EShadowMode mode) {
             switch (g_theGxDevicePtr->DeviceApi()) {
                 case GxApi_D3d9:
                 case GxApi_D3d9Ex:
-                    if (vertexTarget != 3 || pixelTarget != 4) {
+                    if (vertexTarget != GxShVS_vs_3_0 || pixelTarget != GxShPS_ps_3_0) {
                         return 0;
                     }
 

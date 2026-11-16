@@ -127,10 +127,10 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
     }
 
     if (flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) {
-        int32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[0];
-        int32_t pixelTarget = g_theGxDevicePtr->Caps().m_shaderTargets[4];
+        int32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex];
+        int32_t pixelTarget = g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel];
 
-        if (vertexTarget > 0 && pixelTarget > 0) {
+        if (vertexTarget > GxShVS_none && pixelTarget > GxShPS_none) {
             this->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS;
         }
     }
@@ -144,7 +144,7 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
     }
 
     if (g_theGxDevicePtr->Caps().m_maxClipPlanes) {
-        uint32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[0];
+        uint32_t vertexTarget = g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex];
 
         if (vertexTarget - 6 > 1) {
             this->m_flags |= flags & CM2Cache::CACHE_FLAGS::CACHE_CLIP_PLANES;

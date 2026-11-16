@@ -287,13 +287,13 @@ PassGlowWave::PassGlowWave(FFX::Tex** inputs, uint32_t count, FFX::Tex* output, 
 
         s_waveTexFormat = GxTex_Uv88;
 
-        if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 12
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 11
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 2
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 3
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 4
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 5
-            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == 6) {
+        if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_arbfp1
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_nvfp2
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_1_4
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_2_0
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_3_0
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_4_0
+            || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_5_0) {
             s_waveTexFormat = GxTex_Argb8888;
         }
 

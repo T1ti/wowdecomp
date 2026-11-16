@@ -369,7 +369,7 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
         this->m_renderFlags |= RENDER_FLAGS::FLAG_UNLIT_LAYERS;
     }
 
-    if (g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[0] && g_theGxDevicePtr->Caps().m_shaderTargets[4] && (renderLayer->m_flags & SMLayer::LAYER_FLAGS::USE_CUBE_MAP_REFLECTION)) {
+    if (g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] && (renderLayer->m_flags & SMLayer::LAYER_FLAGS::USE_CUBE_MAP_REFLECTION)) {
         this->m_renderFlags |= RENDER_FLAGS::FLAG_SPECULAR;
     }
 

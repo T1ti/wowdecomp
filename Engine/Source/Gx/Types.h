@@ -396,6 +396,44 @@ enum EGxShTarget {
     GxShTargets_Last = 6,
 };
 
+// Pixel shader profile in CGxCaps::m_shaderTargets[GxSh_Pixel], named after
+// CGxDevice::s_pixelShaderTargetNames.
+enum EGxShPixelTarget : int32_t {
+    GxShPS_none = 0,
+    GxShPS_ps_1_1 = 1,
+    GxShPS_ps_1_4 = 2,
+    GxShPS_ps_2_0 = 3,
+    GxShPS_ps_3_0 = 4,
+    GxShPS_ps_4_0 = 5,
+    GxShPS_ps_5_0 = 6,
+    GxShPS_nvrc = 7,
+    GxShPS_nvts = 8,
+    GxShPS_nvts2 = 9,
+    GxShPS_nvts3 = 10,
+    GxShPS_nvfp2 = 11,
+    GxShPS_arbfp1 = 12,
+    GxShPS_glsl = 13,
+    GxShPS_Last = 14,
+};
+
+// Vertex shader profile in CGxCaps::m_shaderTargets[GxSh_Vertex], named after
+// CGxDevice::s_vertexShaderTargetNames.
+enum EGxShVertexTarget : int32_t {
+    GxShVS_none = 0,
+    GxShVS_vs_1_1 = 1,
+    GxShVS_vs_2_0 = 2,
+    GxShVS_vs_3_0 = 3,
+    GxShVS_vs_4_0 = 4,
+    GxShVS_vs_5_0 = 5,
+    GxShVS_arbvp1 = 6,
+    GxShVS_arbvp1_cg12 = 7,
+    GxShVS_nvvp = 8,
+    GxShVS_nvvp2 = 9,
+    GxShVS_nvvp3 = 10,
+    GxShVS_glsl = 11,
+    GxShVS_Last = 12,
+};
+
 typedef intptr_t (*GxWindowProc)(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam);
 
 enum EGxuDrawListCategory {

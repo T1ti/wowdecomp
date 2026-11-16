@@ -2424,24 +2424,24 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
     uint32_t pixelShaderVersion = this->m_d3dCaps.PixelShaderVersion;
 
     if (pixelShaderVersion >= D3DPS_VERSION(3, 0)) {
-        this->m_caps.m_shaderTargets[GxSh_Pixel] = 4;
+        this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_ps_3_0;
     } else if (pixelShaderVersion >= D3DPS_VERSION(2, 0)) {
-        this->m_caps.m_shaderTargets[GxSh_Pixel] = 3;
+        this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_ps_2_0;
     } else if (pixelShaderVersion >= D3DPS_VERSION(1, 4)) {
-        this->m_caps.m_shaderTargets[GxSh_Pixel] = 2;
+        this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_ps_1_4;
     } else if (pixelShaderVersion >= D3DPS_VERSION(1, 1)) {
-        this->m_caps.m_shaderTargets[GxSh_Pixel] = 1;
+        this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_ps_1_1;
     }
 
     if (this->m_caps.m_shaderTargets[GxSh_Pixel]) {
         uint32_t vertexShaderVersion = this->m_d3dCaps.VertexShaderVersion;
 
         if (vertexShaderVersion >= D3DVS_VERSION(3, 0)) {
-            this->m_caps.m_shaderTargets[GxSh_Vertex] = 3;
+            this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_vs_3_0;
         } else if (vertexShaderVersion >= D3DVS_VERSION(2, 0)) {
-            this->m_caps.m_shaderTargets[GxSh_Vertex] = 2;
+            this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_vs_2_0;
         } else if (vertexShaderVersion == D3DVS_VERSION(1, 1)) {
-            this->m_caps.m_shaderTargets[GxSh_Vertex] = 1;
+            this->m_caps.m_shaderTargets[GxSh_Vertex] = GxShVS_vs_1_1;
         }
 
         this->m_caps.m_shaderConstants[GxSh_Vertex] = this->m_d3dCaps.MaxVertexShaderConst;
@@ -2455,8 +2455,8 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
         this->m_caps.m_shaderTargets[GxSh_Vertex] = format.m_fixedFunction[GxSh_Vertex];
     }
 
-    if (this->m_caps.m_shaderTargets[GxSh_Pixel] == 4 && this->m_caps.m_shaderTargets[GxSh_Vertex] != 3) {
-        this->m_caps.m_shaderTargets[GxSh_Pixel] = 3;
+    if (this->m_caps.m_shaderTargets[GxSh_Pixel] == GxShPS_ps_3_0 && this->m_caps.m_shaderTargets[GxSh_Vertex] != GxShVS_vs_3_0) {
+        this->m_caps.m_shaderTargets[GxSh_Pixel] = GxShPS_ps_2_0;
     }
 
     D3DDEVICE_CREATION_PARAMETERS creationParameters;
@@ -2479,7 +2479,7 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
 
     this->m_caps.m_generateMipMaps = (this->m_d3dCaps.Caps2 & D3DCAPS2_CANAUTOGENMIPMAP) != 0;
 
-    if (this->m_caps.m_shaderTargets[GxSh_Vertex] <= 1) {
+    if (this->m_caps.m_shaderTargets[GxSh_Vertex] <= GxShVS_vs_1_1) {
         s_gxAttribToD3dAttribType[GxVAT_UByte4] = D3DDECLTYPE_D3DCOLOR;
         s_gxAttribToD3dAttribType[GxVAT_UByte4N] = D3DDECLTYPE_D3DCOLOR;
     }
@@ -2526,8 +2526,8 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
     this->m_caps.unused_0114[2] = 0;
     this->m_caps.unused_0114[3] = 0;
     this->m_caps.unused_0114[4] = 0;
-    this->m_caps.unk_0134 = this->m_caps.m_shaderTargets[GxSh_Pixel] != 4;
-    this->m_caps.unk_0138 = this->m_caps.m_shaderTargets[GxSh_Pixel] != 4;
+    this->m_caps.unk_0134 = this->m_caps.m_shaderTargets[GxSh_Pixel] != GxShPS_ps_3_0;
+    this->m_caps.unk_0138 = this->m_caps.m_shaderTargets[GxSh_Pixel] != GxShPS_ps_3_0;
 }
 
 // VERIFY: 5091454f manual

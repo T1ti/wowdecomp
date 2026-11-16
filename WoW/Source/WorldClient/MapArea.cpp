@@ -159,7 +159,7 @@ void CMapArea::BatchChunks(const C2iVector& pos) {
 // VERIFY: bb694f33 manual
 // OFFSET: 0x007D6980
 void CMapArea::LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureId) {
-    bool shaders = g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[0] && g_theGxDevicePtr->Caps().m_shaderTargets[4];
+    bool shaders = g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel];
 
     uint8_t flags = 0;
 

@@ -425,7 +425,7 @@ void CM2Lighting::SetupGxFog() {
         return;
     }
 
-    if (!g_theGxDevicePtr->Caps().m_shaderTargets[0]) {
+    if (!g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex]) {
         GxRsSet(GxRs_FogStart, this->m_fogStart);
         GxRsSet(GxRs_FogEnd, this->m_fogEnd);
     }
