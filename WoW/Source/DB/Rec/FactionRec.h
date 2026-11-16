@@ -17,7 +17,7 @@ class FactionRec {
     /* 0008 */ int32_t m_reputationRaceMask [4];
     /* 0018 */ int32_t m_reputationClassMask [4];
     /* 0028 */ int32_t m_reputationBase [4];
-    /* 0038 */ int32_t m_reputationFlags [4];
+    /* 0038 */ int32_t m_reputationFlags [4]; // FACTION_FLAGS
     /* 0048 */ int32_t m_parentFactionID;
     /* 004C */ float m_parentFactionMod [2];
     /* 0054 */ int32_t m_parentFactionCap [2];

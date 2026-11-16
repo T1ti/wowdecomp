@@ -2110,7 +2110,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
                 uint32_t classMask = faction->m_reputationClassMask[i];
 
                 if ((!raceMask || ((1 << (activePlayer->m_unit->m_raceID - 1)) & raceMask)) && (raceMask || classMask) && (!classMask || ((1 << (activePlayer->m_unit->m_classID - 1)) & classMask))) {
-                    if (!(faction->m_reputationFlags[i] & 0x4)) {
+                    if (!(faction->m_reputationFlags[i] & FACTION_FLAG_HIDDEN)) {
                         this->AddLine(faction->m_name, nullptr, textColor, textColor, 0);
                     }
 
