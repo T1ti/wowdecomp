@@ -9646,19 +9646,19 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             msg->Get(type);
 
             switch (type) {
-                case 0:
+                case CHAT_RESTRICTION_RESTRICTED:
                     CGGameUI::DisplayError(ERR_CHAT_RESTRICTED);
                     break;
 
-                case 1:
+                case CHAT_RESTRICTION_THROTTLED:
                     CGGameUI::DisplayError(ERR_CHAT_THROTTLED);
                     break;
 
-                case 2:
+                case CHAT_RESTRICTION_SQUELCHED:
                     CGGameUI::DisplayError(ERR_USER_SQUELCHED);
                     break;
 
-                case 3:
+                case CHAT_RESTRICTION_YELL_RESTRICTED:
                     CGGameUI::DisplayError(ERR_YELL_RESTRICTED);
                     break;
             }

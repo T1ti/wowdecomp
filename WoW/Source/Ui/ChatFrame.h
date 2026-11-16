@@ -275,6 +275,14 @@ struct ZoneChannelDefault {
 constexpr int32_t NUM_CHAT_WINDOWS = 10;
 constexpr int32_t MAX_WOW_CHAT_CHANNELS = 10;
 
+// SMSG_CHAT_RESTRICTED type byte, named after the error each one displays.
+enum CHAT_RESTRICTION_TYPE : uint8_t {
+    CHAT_RESTRICTION_RESTRICTED      = 0, // ERR_CHAT_RESTRICTED
+    CHAT_RESTRICTION_THROTTLED       = 1, // ERR_CHAT_THROTTLED
+    CHAT_RESTRICTION_SQUELCHED       = 2, // ERR_USER_SQUELCHED
+    CHAT_RESTRICTION_YELL_RESTRICTED = 3, // ERR_YELL_RESTRICTED
+};
+
 // Indexes into s_chatMessageGroups, named after the group strings.
 enum CHAT_MESSAGE_GROUP {
     CHAT_MESSAGE_GROUP_SYSTEM = 0,
