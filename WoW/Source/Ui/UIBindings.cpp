@@ -340,15 +340,15 @@ void OVERRIDEKEYBINDING::SetOverrideBinding(void* owner, int32_t priority, const
 // VERIFY: 124eeff1 manual
 // OFFSET: 0x0055D990
 int32_t CGUIBindings::AddMetaPrefix(uint32_t modifiers, char*& binding, int32_t& maxLength) {
-    if ((modifiers & 0x30) == 0x30) {
+    if ((modifiers & META_KEY_ALT) == META_KEY_ALT) {
         SStrCopy(binding, "ALT-", maxLength);
         binding += 4;
         maxLength -= 4;
-    } else if (modifiers & 0x10) {
+    } else if (modifiers & META_KEY_LALT) {
         SStrCopy(binding, "LALT-", maxLength);
         binding += 5;
         maxLength -= 5;
-    } else if (modifiers & 0x20) {
+    } else if (modifiers & META_KEY_RALT) {
         SStrCopy(binding, "RALT-", maxLength);
         binding += 5;
         maxLength -= 5;
@@ -358,15 +358,15 @@ int32_t CGUIBindings::AddMetaPrefix(uint32_t modifiers, char*& binding, int32_t&
         return 0;
     }
 
-    if ((modifiers & 0xC) == 0xC) {
+    if ((modifiers & META_KEY_CONTROL) == META_KEY_CONTROL) {
         SStrCopy(binding, "CTRL-", maxLength);
         binding += 5;
         maxLength -= 5;
-    } else if (modifiers & 0x4) {
+    } else if (modifiers & META_KEY_LCONTROL) {
         SStrCopy(binding, "LCTRL-", maxLength);
         binding += 6;
         maxLength -= 6;
-    } else if (modifiers & 0x8) {
+    } else if (modifiers & META_KEY_RCONTROL) {
         SStrCopy(binding, "RCTRL-", maxLength);
         binding += 6;
         maxLength -= 6;
@@ -376,15 +376,15 @@ int32_t CGUIBindings::AddMetaPrefix(uint32_t modifiers, char*& binding, int32_t&
         return 0;
     }
 
-    if ((modifiers & 0x3) == 0x3) {
+    if ((modifiers & META_KEY_SHIFT) == META_KEY_SHIFT) {
         SStrCopy(binding, "SHIFT-", maxLength);
         binding += 6;
         maxLength -= 6;
-    } else if (modifiers & 0x1) {
+    } else if (modifiers & META_KEY_LSHIFT) {
         SStrCopy(binding, "LSHIFT-", maxLength);
         binding += 7;
         maxLength -= 7;
-    } else if (modifiers & 0x2) {
+    } else if (modifiers & META_KEY_RSHIFT) {
         SStrCopy(binding, "RSHIFT-", maxLength);
         binding += 7;
         maxLength -= 7;
@@ -398,31 +398,31 @@ int32_t CGUIBindings::AddMetaPrefix(uint32_t modifiers, char*& binding, int32_t&
 void CGUIBindings::AddModifiers(uint32_t& modifiers, const char*& binding) {
     while (*binding) {
         if (!SStrCmpI(binding, "LSHIFT", 6)) {
-            modifiers |= 0x1;
+            modifiers |= META_KEY_LSHIFT;
             binding += 6;
         } else if (!SStrCmpI(binding, "RSHIFT", 6)) {
-            modifiers |= 0x2;
+            modifiers |= META_KEY_RSHIFT;
             binding += 6;
         } else if (!SStrCmpI(binding, "SHIFT", 5)) {
-            modifiers |= 0x3;
+            modifiers |= META_KEY_SHIFT;
             binding += 5;
         } else if (!SStrCmpI(binding, "LCTRL", 5)) {
-            modifiers |= 0x4;
+            modifiers |= META_KEY_LCONTROL;
             binding += 5;
         } else if (!SStrCmpI(binding, "RCTRL", 5)) {
-            modifiers |= 0x8;
+            modifiers |= META_KEY_RCONTROL;
             binding += 5;
         } else if (!SStrCmpI(binding, "CTRL", 4)) {
-            modifiers |= 0xC;
+            modifiers |= META_KEY_CONTROL;
             binding += 4;
         } else if (!SStrCmpI(binding, "LALT", 4)) {
-            modifiers |= 0x10;
+            modifiers |= META_KEY_LALT;
             binding += 4;
         } else if (!SStrCmpI(binding, "RALT", 4)) {
-            modifiers |= 0x20;
+            modifiers |= META_KEY_RALT;
             binding += 4;
         } else if (!SStrCmpI(binding, "ALT", 3)) {
-            modifiers |= 0x30;
+            modifiers |= META_KEY_ALT;
             binding += 3;
         } else {
             return;
@@ -677,31 +677,31 @@ void CGUIBindings::Shutdown() {
 void CGUIBindings::StripModifiers(uint32_t& modifiers, const char* binding) {
     while (*binding) {
         if (!SStrCmpI(binding, "LSHIFT", 6)) {
-            modifiers &= ~0x1u;
+            modifiers &= ~META_KEY_LSHIFT;
             binding += 6;
         } else if (!SStrCmpI(binding, "RSHIFT", 6)) {
-            modifiers &= ~0x2u;
+            modifiers &= ~META_KEY_RSHIFT;
             binding += 6;
         } else if (!SStrCmpI(binding, "SHIFT", 5)) {
-            modifiers &= ~0x3u;
+            modifiers &= ~META_KEY_SHIFT;
             binding += 5;
         } else if (!SStrCmpI(binding, "LCTRL", 5)) {
-            modifiers &= ~0x4u;
+            modifiers &= ~META_KEY_LCONTROL;
             binding += 5;
         } else if (!SStrCmpI(binding, "RCTRL", 5)) {
-            modifiers &= ~0x8u;
+            modifiers &= ~META_KEY_RCONTROL;
             binding += 5;
         } else if (!SStrCmpI(binding, "CTRL", 4)) {
-            modifiers &= ~0xCu;
+            modifiers &= ~META_KEY_CONTROL;
             binding += 4;
         } else if (!SStrCmpI(binding, "LALT", 4)) {
-            modifiers &= ~0x10u;
+            modifiers &= ~META_KEY_LALT;
             binding += 4;
         } else if (!SStrCmpI(binding, "RALT", 4)) {
-            modifiers &= ~0x20u;
+            modifiers &= ~META_KEY_RALT;
             binding += 4;
         } else if (!SStrCmpI(binding, "ALT", 3)) {
-            modifiers &= ~0x30u;
+            modifiers &= ~META_KEY_ALT;
             binding += 3;
         } else {
             return;
@@ -1248,16 +1248,16 @@ KEYBINDING* CGUIBindings::GetKeyBinding(BINDING_MODE mode, const char* key) {
             uint32_t modifiers = 0;
             CGUIBindings::AddModifiers(modifiers, key);
 
-            if (modifiers & 0x3) {
-                modifiers |= 0x3;
+            if (modifiers & META_KEY_SHIFT) {
+                modifiers |= META_KEY_SHIFT;
             }
 
-            if (modifiers & 0xC) {
-                modifiers |= 0xC;
+            if (modifiers & META_KEY_CONTROL) {
+                modifiers |= META_KEY_CONTROL;
             }
 
-            if (modifiers & 0x30) {
-                modifiers |= 0x30;
+            if (modifiers & META_KEY_ALT) {
+                modifiers |= META_KEY_ALT;
             }
 
             char genericKey[128];
@@ -1408,31 +1408,31 @@ int32_t CGUIBindings::IsModifiedClick(const char* action) {
 
     result = 1;
 
-    if ((modifiers & 0x3) == 0x1) {
+    if ((modifiers & META_KEY_SHIFT) == META_KEY_LSHIFT) {
         if (!CGGameUI::IsKeyDown(KEY_LSHIFT)) {
             result = 0;
         }
-    } else if ((modifiers & 0x3) == 0x2 || ((modifiers & 0x3) == 0x3 && !CGGameUI::IsKeyDown(KEY_LSHIFT))) {
+    } else if ((modifiers & META_KEY_SHIFT) == META_KEY_RSHIFT || ((modifiers & META_KEY_SHIFT) == META_KEY_SHIFT && !CGGameUI::IsKeyDown(KEY_LSHIFT))) {
         if (!CGGameUI::IsKeyDown(KEY_RSHIFT)) {
             result = 0;
         }
     }
 
-    if ((modifiers & 0xC) == 0x4) {
+    if ((modifiers & META_KEY_CONTROL) == META_KEY_LCONTROL) {
         if (!CGGameUI::IsKeyDown(KEY_LCONTROL)) {
             result = 0;
         }
-    } else if ((modifiers & 0xC) == 0x8 || ((modifiers & 0xC) == 0xC && !CGGameUI::IsKeyDown(KEY_LCONTROL))) {
+    } else if ((modifiers & META_KEY_CONTROL) == META_KEY_RCONTROL || ((modifiers & META_KEY_CONTROL) == META_KEY_CONTROL && !CGGameUI::IsKeyDown(KEY_LCONTROL))) {
         if (!CGGameUI::IsKeyDown(KEY_RCONTROL)) {
             result = 0;
         }
     }
 
-    if ((modifiers & 0x30) == 0x10) {
+    if ((modifiers & META_KEY_ALT) == META_KEY_LALT) {
         if (!CGGameUI::IsKeyDown(KEY_LALT)) {
             result = 0;
         }
-    } else if ((modifiers & 0x30) == 0x20 || ((modifiers & 0x30) == 0x30 && !CGGameUI::IsKeyDown(KEY_LALT))) {
+    } else if ((modifiers & META_KEY_ALT) == META_KEY_RALT || ((modifiers & META_KEY_ALT) == META_KEY_ALT && !CGGameUI::IsKeyDown(KEY_LALT))) {
         if (!CGGameUI::IsKeyDown(KEY_RALT)) {
             result = 0;
         }
