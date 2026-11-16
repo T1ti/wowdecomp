@@ -215,6 +215,12 @@ bool Login::GetCdKeys(Grunt::CdKey& cdKey) {
     return this->m_loginResponse->GetCdKeys(cdKey);
 }
 
+// Realm list population sentinels; each is replaced by the REALM_FLAG_* it
+// stands for and a display population (inferred names).
+static const float REALM_POPULATION_NEW_PLAYERS = 200.0f;
+static const float REALM_POPULATION_FULL = 400.0f;
+static const float REALM_POPULATION_RECOMMENDED = 600.0f;
+
 // VERIFY: 829265f4 manual
 // OFFSET: 0x00465B20
 void LoginResponse::HandleRealmData(uint32_t result, CDataStore* msg) {
@@ -274,13 +280,13 @@ void LoginResponse::HandleRealmData(uint32_t result, CDataStore* msg) {
             break;
         }
 
-        if (realm->m_population == 600.0f) {
+        if (realm->m_population == REALM_POPULATION_RECOMMENDED) {
             realm->m_flags |= REALM_FLAG_RECOMMENDED;
             realm->m_population = 0.0f;
-        } else if (realm->m_population == 200.0f) {
+        } else if (realm->m_population == REALM_POPULATION_NEW_PLAYERS) {
             realm->m_flags |= REALM_FLAG_NEW_PLAYERS;
             realm->m_population = 0.001f;
-        } else if (realm->m_population == 400.0f) {
+        } else if (realm->m_population == REALM_POPULATION_FULL) {
             realm->m_flags |= REALM_FLAG_FULL;
             realm->m_population = 8.0f;
         }
