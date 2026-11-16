@@ -177,13 +177,13 @@ void CMissile::ApplyMotionScriptFunctionRotationAndScale(const SimpleScriptIO& i
 
 // VERIFY: 4f254f8a manual
 // OFFSET: 0x006FF030
-uint32_t CMissile::GetHitResult() const {
+MISS_REASON CMissile::GetHitResult() const {
     if (!(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_BOUNCING) || (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_REFLECTED)) {
         return this->m_hitResult;
     }
 
     if (this->m_currentTarget >= this->m_targetHitResults.m_count) {
-        return 0;
+        return MISS_NONE;
     }
 
     return this->m_targetHitResults.m_data[this->m_currentTarget];
@@ -191,13 +191,13 @@ uint32_t CMissile::GetHitResult() const {
 
 // VERIFY: 55dc76e0 manual
 // OFFSET: 0x006FF070
-uint32_t CMissile::GetMissReason() const {
+MISS_REASON CMissile::GetMissReason() const {
     if (!(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_BOUNCING)) {
         return this->m_missReason;
     }
 
     if (this->m_currentTarget >= this->m_targetMissReasons.m_count) {
-        return 0;
+        return MISS_NONE;
     }
 
     return this->m_targetMissReasons.m_data[this->m_currentTarget];
@@ -215,7 +215,7 @@ int32_t CMissile::IsHit() const {
 
 // VERIFY: 95e36e53 manual
 // OFFSET: 0x006FEFF0
-void CMissile::SetHitResult(uint32_t result) {
+void CMissile::SetHitResult(MISS_REASON result) {
     if (!(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_BOUNCING) || (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_REFLECTED) || this->m_currentTarget >= this->m_targetHitResults.m_count) {
         this->m_hitResult = result;
     } else {
@@ -1325,11 +1325,11 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
         }
 
         if (hitResultCount) {
-            uint32_t result = this->m_targetHitResults.m_data[i];
+            MISS_REASON result = this->m_targetHitResults.m_data[i];
 
             if (result && !(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_FEEDBACK_REPORTED) && !this->m_missileIndex) {
                 if (spell && !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
-                    unit->AddWorldText(this->m_casterGuid, static_cast<MISS_REASON>(result), spell, 0);
+                    unit->AddWorldText(this->m_casterGuid, result, spell, 0);
                     CGGameUI::ShowSpellMissFeedback(unit->m_obj->m_guid, result);
                 }
 
@@ -1865,7 +1865,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(this->m_spellID, &spell) && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG) && !this->m_missileIndex) {
-                target->AddWorldText(this->m_casterGuid, static_cast<MISS_REASON>(this->GetHitResult()), &spell, 0);
+                target->AddWorldText(this->m_casterGuid, this->GetHitResult(), &spell, 0);
                 CGGameUI::ShowSpellMissFeedback(target->m_obj->m_guid, this->GetHitResult());
                 UnitCombatLogSpellMissed(this->m_casterGuid, target->m_obj->m_guid, this->m_spellID, this->GetHitResult(), 0, 0, 0);
             }
@@ -1946,7 +1946,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
         } else if (flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_REFLECT) {
             this->m_targetGuid = this->m_casterGuid;
             this->m_flags = (flags & ~MISSILE_FLAGS::MISSILE_FLAG_REFLECTION_RESET_MASK) | MISSILE_FLAGS::MISSILE_FLAG_REFLECTED;
-            uint32_t reason = this->GetMissReason();
+            MISS_REASON reason = this->GetMissReason();
             this->SetHitResult(reason);
 
             if (!reason) {

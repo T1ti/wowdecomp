@@ -1816,19 +1816,19 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
     uint8_t missCount = 0;
     msg->Get(missCount);
     TSStackArray<WOWGUID> misses(static_cast<WOWGUID*>(alloca(sizeof(WOWGUID) * missCount)), missCount, 1);
-    TSStackArray<uint32_t> missReasons(static_cast<uint32_t*>(alloca(sizeof(uint32_t) * missCount)), missCount, 1);
-    TSStackArray<uint32_t> reflectResults(static_cast<uint32_t*>(alloca(sizeof(uint32_t) * missCount)), missCount, 1);
+    TSStackArray<MISS_REASON> missReasons(static_cast<MISS_REASON*>(alloca(sizeof(MISS_REASON) * missCount)), missCount, 1);
+    TSStackArray<MISS_REASON> reflectResults(static_cast<MISS_REASON*>(alloca(sizeof(MISS_REASON) * missCount)), missCount, 1);
 
     for (uint32_t i = 0; i < missCount; i++) {
         msg->Get(misses.m_data[i].m_guid);
         uint8_t value = 0;
         msg->Get(value);
-        missReasons.m_data[i] = value;
+        missReasons.m_data[i] = static_cast<MISS_REASON>(value);
 
         if (missReasons.m_data[i] == MISS_REFLECTED) {
             value = 0;
             msg->Get(value);
-            reflectResults.m_data[i] = value;
+            reflectResults.m_data[i] = static_cast<MISS_REASON>(value);
         }
     }
 
@@ -2028,7 +2028,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                 CGUnit_C* target = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(misses.m_data[i], TYPE_UNIT, __FILE__, __LINE__));
 
                 if (target) {
-                    target->AddWorldText(source, static_cast<MISS_REASON>(missReasons.m_data[i]), &spell, false);
+                    target->AddWorldText(source, missReasons.m_data[i], &spell, false);
                 }
 
                 CGGameUI::ShowSpellMissFeedback(misses.m_data[i], missReasons.m_data[i]);
@@ -2041,7 +2041,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     CGUnit_C* reflector = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(caster, TYPE_UNIT, __FILE__, __LINE__));
 
                     if (reflector) {
-                        reflector->AddWorldText(source, static_cast<MISS_REASON>(reflectResults.m_data[i]), &spell, false);
+                        reflector->AddWorldText(source, reflectResults.m_data[i], &spell, false);
                     }
 
                     CGGameUI::ShowSpellMissFeedback(caster, reflectResults.m_data[i]);
@@ -9008,7 +9008,7 @@ bool Spell_C_HandleItemDrop(CGItem_C* item, CGUnit_C* unit) {
 
 // VERIFY: 6676674c manual
 // OFFSET: 0x007FFFB0
-void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* unit, const SpellRec* spell, const SpellVisualRec* visual, uint32_t ammoDisplayId, uint32_t ammoInventoryType, PendingSpellCastData* data, const TSStackArray<uint32_t>* missReasons, const TSStackArray<uint32_t>* reflectResults, uint32_t delay) {
+void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* unit, const SpellRec* spell, const SpellVisualRec* visual, uint32_t ammoDisplayId, uint32_t ammoInventoryType, PendingSpellCastData* data, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay) {
     if (!unit || (!visual->m_hasMissile && !ammoDisplayId)) {
         return;
     }
@@ -9020,14 +9020,14 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
     if (targets.m_count && (targetFlags & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT)) && unitTargets) {
         for (uint32_t i = 0; i < targets.m_count; i++) {
             if (ClntObjMgrObjectPtr(targets.m_data[i], TYPE_OBJECT, __FILE__, __LINE__)) {
-                uint32_t reflectResult = reflectResults ? reflectResults->m_data[i] : 0;
-                uint32_t missReason = missReasons ? missReasons->m_data[i] : 1;
+                MISS_REASON reflectResult = reflectResults ? reflectResults->m_data[i] : MISS_NONE;
+                MISS_REASON missReason = missReasons ? missReasons->m_data[i] : MISS_PHYSICAL;
                 unit->CreateMissile(&targets.m_data[i], data, ammoDisplayId, ammoInventoryType, hit, missReason, reflectResult, visual, spell->m_id, &targets, nullptr, nullptr, delay);
             }
         }
     } else if ((targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) && (targets.m_count || !(visual->m_flags & SPELL_VISUAL_FLAG_NO_MISSILE_IF_NO_TARGETS))) {
         WOWGUID none = { 0 };
-        unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, missReasons == nullptr, 1, 0, visual, spell->m_id, &targets, missReasons, reflectResults, delay);
+        unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, missReasons == nullptr, MISS_PHYSICAL, MISS_NONE, visual, spell->m_id, &targets, missReasons, reflectResults, delay);
     }
 }
 
@@ -9045,7 +9045,7 @@ void CreateMissilesForTargetPoints(const TSStackArray<SpellCastTargetPoint>& poi
 
 // VERIFY: 8b98e965 manual
 // OFFSET: 0x00800180
-void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<WOWGUID>& misses, CGUnit_C* unit, const SpellRec* spell, const SpellVisualRec* visual, uint32_t ammoDisplayId, uint32_t ammoInventoryType, PendingSpellCastData* data, const TSStackArray<uint32_t>& missReasons, const TSStackArray<uint32_t>& reflectResults, uint32_t delay) {
+void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<WOWGUID>& misses, CGUnit_C* unit, const SpellRec* spell, const SpellVisualRec* visual, uint32_t ammoDisplayId, uint32_t ammoInventoryType, PendingSpellCastData* data, const TSStackArray<MISS_REASON>& missReasons, const TSStackArray<MISS_REASON>& reflectResults, uint32_t delay) {
     if (!unit || (!visual->m_hasMissile && !ammoDisplayId)) {
         return;
     }
@@ -9054,17 +9054,17 @@ void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<W
 
     TSStackArray<WOWGUID> targets(static_cast<WOWGUID*>(alloca(sizeof(WOWGUID) * count)), count, 0);
 
-    TSStackArray<uint32_t> reasons(static_cast<uint32_t*>(alloca(sizeof(uint32_t) * count)), count, 0);
+    TSStackArray<MISS_REASON> reasons(static_cast<MISS_REASON*>(alloca(sizeof(MISS_REASON) * count)), count, 0);
 
-    TSStackArray<uint32_t> reflects(static_cast<uint32_t*>(alloca(sizeof(uint32_t) * count)), count, 0);
+    TSStackArray<MISS_REASON> reflects(static_cast<MISS_REASON*>(alloca(sizeof(MISS_REASON) * count)), count, 0);
 
     uint32_t index = 0;
 
     if (!(data->m_castFlags & PendingSpellCastData::CastFlags::CAST_MISSES_FIRST)) {
         for (; index < hits.m_count; index++) {
             targets.m_data[index] = hits.m_data[index];
-            reasons.m_data[index] = 0;
-            reflects.m_data[index] = 0;
+            reasons.m_data[index] = MISS_NONE;
+            reflects.m_data[index] = MISS_NONE;
         }
 
         for (uint32_t i = 0; i < misses.m_count; i++, index++) {
@@ -9081,13 +9081,13 @@ void LaunchMissileVisual(const TSStackArray<WOWGUID>& hits, const TSStackArray<W
 
         for (uint32_t i = 0; i < hits.m_count; i++, index++) {
             targets.m_data[index] = hits.m_data[i];
-            reasons.m_data[index] = 0;
-            reflects.m_data[index] = 0;
+            reasons.m_data[index] = MISS_NONE;
+            reflects.m_data[index] = MISS_NONE;
         }
     }
 
     WOWGUID none = { 0 };
-    unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, 1, 1, 0, visual, spell->m_id, &targets, &reasons, &reflects, delay);
+    unit->CreateMissile(&none, data, ammoDisplayId, ammoInventoryType, 1, MISS_PHYSICAL, MISS_NONE, visual, spell->m_id, &targets, &reasons, &reflects, delay);
 }
 
 // VERIFY: 0b671995 manual
@@ -9106,8 +9106,8 @@ void Spell_C_PlayMissileTrajectoryCastVisuals(CGUnit_C* unit, PendingSpellCast* 
     }
 
     TSStackArray<WOWGUID> misses(nullptr, 0, 0);
-    TSStackArray<uint32_t> missReasons(nullptr, 0, 0);
-    TSStackArray<uint32_t> reflectResults(nullptr, 0, 0);
+    TSStackArray<MISS_REASON> missReasons(nullptr, 0, 0);
+    TSStackArray<MISS_REASON> reflectResults(nullptr, 0, 0);
 
     if (!visual) {
         return;
@@ -9303,7 +9303,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_speed = spell.m_speed;
         missile->m_baseSpeed = spell.m_speed;
         missile->m_hitResult = MISS_NONE;
-        missile->m_missReason = 0;
+        missile->m_missReason = MISS_NONE;
         missile->m_flags = MISSILE_FLAGS::MISSILE_FLAG_HIT;
         missile->m_scale = scale;
         missile->m_soundKitID = visual->m_missileSound;

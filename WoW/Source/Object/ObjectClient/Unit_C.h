@@ -1071,7 +1071,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay);
     CM2Model* CreateItemModel(uint32_t displayId, uint32_t inventoryType, float* scale);
     CM2Model* CreateItemModel(uint32_t hand, float* scale);
-    void CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, uint32_t missReason, uint32_t reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<uint32_t>* missReasons, const TSStackArray<uint32_t>* reflectResults, uint32_t delay);
+    void CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay);
     void OnAuraUpdate(CDataStore* msg, bool updateAll);
     void OnAttackStop(uint64_t target, int32_t faceTarget);
     void PlayAttackerRound(const ATTACKROUNDINFO& info);

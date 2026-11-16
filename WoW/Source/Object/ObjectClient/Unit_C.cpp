@@ -18944,7 +18944,7 @@ void CGUnit_C::PlayParryAnimation() {
 
 // VERIFY: bb462764 manual
 // OFFSET: 0x00732FF0
-void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, uint32_t missReason, uint32_t reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<uint32_t>* missReasons, const TSStackArray<uint32_t>* reflectResults, uint32_t delay) {
+void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -19281,7 +19281,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     missile->m_baseSpeed = spell.m_speed;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_hitResult = MISS_NONE;
-    missile->m_missReason = 0;
+    missile->m_missReason = MISS_NONE;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);
@@ -19470,7 +19470,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     missile->m_baseSpeed = spell.m_speed;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_hitResult = MISS_NONE;
-    missile->m_missReason = 0;
+    missile->m_missReason = MISS_NONE;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         const CGUnitVirtualItem* item = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_RANGED, false);

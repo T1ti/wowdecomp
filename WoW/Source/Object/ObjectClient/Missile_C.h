@@ -7,6 +7,7 @@
 #include "Engine/Source/Storm/Source/SLock.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 #include "WoW/Source/Magic/MagicClient/Spell_C.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 
@@ -157,13 +158,13 @@ class CMissile {
     /* 0070 */ C3Vector m_attachOffset;
     /* 007C */ int32_t m_soundKitID;
     /* 0080 */ SE2SoundKitObject m_missileSound;
-    /* 0094 */ uint32_t m_hitResult;
-    /* 0098 */ uint32_t m_missReason;
+    /* 0094 */ MISS_REASON m_hitResult;
+    /* 0098 */ MISS_REASON m_missReason;
     /* 009C */ uint32_t m_destroyTime;
     /* 00A0 */ TSGrowableArray<uint64_t> m_targets;
     /* 00B0 */ TSGrowableArray<SpellCastTargetPoint> m_targetPoints;
-    /* 00C0 */ TSGrowableArray<uint32_t> m_targetHitResults;
-    /* 00D0 */ TSGrowableArray<uint32_t> m_targetMissReasons;
+    /* 00C0 */ TSGrowableArray<MISS_REASON> m_targetHitResults;
+    /* 00D0 */ TSGrowableArray<MISS_REASON> m_targetMissReasons;
     /* 00E0 */ uint32_t m_victimAnimTime;
     /* 00E4 */ uint32_t m_castTime;
     /* 00E8 */ uint32_t m_duration;
@@ -212,10 +213,10 @@ class CMissile {
     int32_t ApplyMotionScriptFunctionTranslation(const SimpleScriptIO& io, C44Matrix& matrix);
     int32_t CallMotionScriptFunction(SimpleScriptIO& io);
     void DetermineMissType();
-    uint32_t GetHitResult() const;
-    uint32_t GetMissReason() const;
+    MISS_REASON GetHitResult() const;
+    MISS_REASON GetMissReason() const;
     int32_t IsHit() const;
-    void SetHitResult(uint32_t result);
+    void SetHitResult(MISS_REASON result);
     void SetRemoteCollisionPos(const C3Vector& position);
     C3Vector TransformPositionByTransport();
     void UpdateProgress(float distance);

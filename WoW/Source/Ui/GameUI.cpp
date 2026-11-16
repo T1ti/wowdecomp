@@ -4562,7 +4562,7 @@ void CGGameUI::SetLastItemSpellTarget(WOWGUID guid) {
 
 // VERIFY: 86781bd1 auto
 // OFFSET: 0x00513410
-void CGGameUI::ShowSpellMissFeedback(const WOWGUID& guid, int32_t reason) {
+void CGGameUI::ShowSpellMissFeedback(const WOWGUID& guid, MISS_REASON reason) {
     if (static_cast<uint32_t>(reason) > 11) {
         return;
     }

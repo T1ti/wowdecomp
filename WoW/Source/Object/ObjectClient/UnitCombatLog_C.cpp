@@ -1565,7 +1565,7 @@ void UnitCombatLogSpellFail(const WOWGUID& caster, int32_t spellId, const char* 
 
 // VERIFY: 94b0219d auto
 // OFFSET: 0x00751B80
-void UnitCombatLogSpellMissed(const WOWGUID& casterGuid, const WOWGUID& targetGuid, int32_t spellId, int32_t missType, bool a5, bool a6, int32_t a7) {
+void UnitCombatLogSpellMissed(const WOWGUID& casterGuid, const WOWGUID& targetGuid, int32_t spellId, MISS_REASON missType, bool a5, bool a6, int32_t a7) {
     if (!missType) {
         return;
     }
@@ -1899,8 +1899,8 @@ int32_t CombatLog::HandleSpellLogMiss(CDataStore* msg, int32_t timeOffset) {
         uint64_t targetValue = 0;
         msg->Get(targetValue);
         WOWGUID target = WOWGUID{ targetValue };
-        uint8_t missType = 0;
-        msg->Get(missType);
+        MISS_REASON missType = MISS_NONE;
+        msg->Get(reinterpret_cast<uint8_t&>(missType));
 
         if (hasDebug) {
             float a = 0.0f;
@@ -1913,7 +1913,7 @@ int32_t CombatLog::HandleSpellLogMiss(CDataStore* msg, int32_t timeOffset) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(target, TYPE_UNIT, __FILE__, __LINE__));
 
             if (unit) {
-                unit->AddWorldText(caster, static_cast<MISS_REASON>(missType), &spell, false);
+                unit->AddWorldText(caster, missType, &spell, false);
             }
         }
     }
