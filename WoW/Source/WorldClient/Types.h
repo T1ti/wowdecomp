@@ -96,6 +96,7 @@ enum Enables2 {
 };
 
 enum MapObjFlag {
+    MAPOBJ_FLAG_NONE = 0,
     MAPOBJ_FLAG_UNPLACED = 1,
     MAPOBJ_FLAG_INTERIOR = 2,
     MAPOBJ_FLAG_EXTERIOR = 4,

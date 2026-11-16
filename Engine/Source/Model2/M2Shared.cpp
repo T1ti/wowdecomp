@@ -32,10 +32,10 @@ static const uint32_t s_skinProfileBoneCounts[4] = { 256, 64, 53, 21 };
 static uint32_t s_sequenceIndex = 0xFFFFFFFF;
 
 // STATIC: 0x00AF59E8
-static const EGxTexOp s_alphaOps[8] = { static_cast<EGxTexOp>(3), static_cast<EGxTexOp>(0), static_cast<EGxTexOp>(3), static_cast<EGxTexOp>(2), static_cast<EGxTexOp>(1), static_cast<EGxTexOp>(3), static_cast<EGxTexOp>(3), static_cast<EGxTexOp>(3) };
+static const EGxTexOp s_alphaOps[8] = { GxTexOp_PassThru, GxTexOp_Mod, GxTexOp_PassThru, GxTexOp_Add, GxTexOp_Mod2x, GxTexOp_PassThru, GxTexOp_PassThru, GxTexOp_PassThru };
 
 // STATIC: 0x00AF5A08
-static const EGxTexOp s_colorOps[8] = { static_cast<EGxTexOp>(0), static_cast<EGxTexOp>(0), static_cast<EGxTexOp>(4), static_cast<EGxTexOp>(2), static_cast<EGxTexOp>(1), static_cast<EGxTexOp>(5), static_cast<EGxTexOp>(1), static_cast<EGxTexOp>(2) };
+static const EGxTexOp s_colorOps[8] = { GxTexOp_Mod, GxTexOp_Mod, GxTexOp_Decal, GxTexOp_Add, GxTexOp_Mod2x, GxTexOp_Fade, GxTexOp_Mod2x, GxTexOp_Add };
 
 // STATIC: 0x00D41258
 static uint8_t* s_sequenceData;
@@ -716,8 +716,8 @@ CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
     } else {
         const char* vertexShader = nullptr;
         const char* pixelShader = nullptr;
-        EGxTexOp colorOp = static_cast<EGxTexOp>(0);
-        EGxTexOp alphaOp = static_cast<EGxTexOp>(0);
+        EGxTexOp colorOp = GxTexOp_Mod;
+        EGxTexOp alphaOp = GxTexOp_Mod;
 
         switch (batch->m_shader & 0x7FFF) {
             case 0:
@@ -725,20 +725,20 @@ CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
             case 1:
                 pixelShader = "Combiners_Opaque_Mod2xNA_Alpha";
                 vertexShader = "Diffuse_T1_Env";
-                colorOp = static_cast<EGxTexOp>(0);
-                alphaOp = static_cast<EGxTexOp>(3);
+                colorOp = GxTexOp_Mod;
+                alphaOp = GxTexOp_PassThru;
                 break;
             case 2:
                 pixelShader = "Combiners_Opaque_AddAlpha";
                 vertexShader = "Diffuse_T1_Env";
-                colorOp = static_cast<EGxTexOp>(0);
-                alphaOp = static_cast<EGxTexOp>(3);
+                colorOp = GxTexOp_Mod;
+                alphaOp = GxTexOp_PassThru;
                 break;
             case 3:
                 pixelShader = "Combiners_Opaque_AddAlpha_Alpha";
                 vertexShader = "Diffuse_T1_Env";
-                colorOp = static_cast<EGxTexOp>(0);
-                alphaOp = static_cast<EGxTexOp>(3);
+                colorOp = GxTexOp_Mod;
+                alphaOp = GxTexOp_PassThru;
                 break;
             default:
                 break;

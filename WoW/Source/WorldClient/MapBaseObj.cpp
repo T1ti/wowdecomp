@@ -10,7 +10,7 @@ CMapBaseObj::~CMapBaseObj() {
 CMapBaseObj::CMapBaseObj() {
     this->m_type = CMapBaseObj::Type_BaseObj;
     this->m_refCount = 0;
-    this->m_flags = static_cast<MapObjFlag>(0);
+    this->m_flags = MAPOBJ_FLAG_NONE;
 }
 
 // VERIFY: a8266a2d auto

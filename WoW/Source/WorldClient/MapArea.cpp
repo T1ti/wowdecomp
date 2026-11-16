@@ -227,7 +227,7 @@ CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
     this->m_chunkLinkList.LinkToTail(link);
 
     chunk->m_aIndex.x = chunkX;
-    chunk->m_flags = static_cast<MapObjFlag>(0);
+    chunk->m_flags = MAPOBJ_FLAG_NONE;
     chunk->m_aIndex.y = chunkY;
     chunk->m_cOffset.x = chunkX + this->m_tileChunkIndex.x;
     chunk->m_cOffset.y = chunkY + this->m_tileChunkIndex.y;

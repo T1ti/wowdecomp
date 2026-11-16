@@ -1080,7 +1080,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->m_targetDiffuseLightScale = 1.0f;
     entity->m_type |= CMapBaseObj::Type_UserCreated;
     entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CREATE_CLEAR_MASK) | MapStaticFlagsFromObjectCreateFlags(flags);
-    entity->m_flags = static_cast<MapObjFlag>(0);
+    entity->m_flags = MAPOBJ_FLAG_NONE;
     entity->m_func = nullptr;
     entity->unused_00B4 = 0;
 

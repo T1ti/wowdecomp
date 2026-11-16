@@ -1051,13 +1051,13 @@ void VoiceSessionRosterUpdate(uint64_t session, uint16_t networkId, int32_t type
         }
 
         if (j < FriendList::s_friendList->GetNumIgnores()) {
-            comsat->MuteTalker(0, members[i].m_guid.m_guid, static_cast<ComSat::MuteSetting>(0));
+            comsat->MuteTalker(0, members[i].m_guid.m_guid, ComSat::MUTE_SETTING_MUTE);
             continue;
         }
 
         for (uint32_t k = 0; k < FriendList::s_friendList->GetNumMutes(); k++) {
             if (members[i].m_guid.m_guid == FriendList::s_friendList->GetIgnore(k)) {
-                comsat->MuteTalker(0, members[i].m_guid.m_guid, static_cast<ComSat::MuteSetting>(0));
+                comsat->MuteTalker(0, members[i].m_guid.m_guid, ComSat::MUTE_SETTING_MUTE);
             }
         }
     }

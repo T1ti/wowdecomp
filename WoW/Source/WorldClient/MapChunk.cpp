@@ -1033,7 +1033,7 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool a3) {
     this->CreateLiquids(a3);
     this->CreateSoundEmitters(a3);
 
-    this->m_flags = static_cast<MapObjFlag>(0);
+    this->m_flags = MAPOBJ_FLAG_NONE;
 
     if (this->m_header->m_flags & SMChunk::FLAGS::IMPASSABLE) {
         this->m_flags = MAPOBJ_FLAG_IMPASSABLE;

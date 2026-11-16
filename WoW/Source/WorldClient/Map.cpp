@@ -2584,7 +2584,7 @@ void CMap::CreateMapObjDefGroups(CMapObj* mapObj, CMapObjDef* mapObjDef) {
 
         group->m_groupNum = i;
         group->m_ambientColor = mapObjDef->m_argbColor;
-        group->m_flags = static_cast<MapObjFlag>(0);
+        group->m_flags = MAPOBJ_FLAG_NONE;
         group->m_flags = static_cast<MapObjFlag>(group->m_flags | ((mapObj->GetGroupFlags(i) & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) ? MAPOBJ_FLAG_EXTERIOR : MAPOBJ_FLAG_INTERIOR));
     }
 }
@@ -2762,7 +2762,7 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
     float rotY = mapObjectDef->m_rotation.x * 0.017453292f;
     float rotZ = 0.017453292f * mapObjectDef->m_rotation.y;
 
-    mapObjDef->m_flags = static_cast<MapObjFlag>(0);
+    mapObjDef->m_flags = MAPOBJ_FLAG_NONE;
     mapObjDef->m_nameId = mapObjectDef->m_nameId;
     mapObjDef->m_doodadSet = mapObjectDef->m_doodadSet;
     mapObjDef->m_nameSet = mapObjectDef->m_nameSet;
@@ -2841,7 +2841,7 @@ CMapObjDef* CMap::CreateMapObjDef(const char* fileName, const C3Vector* position
         mapObj->WaitLoad();
     }
 
-    mapObjDef->m_flags = static_cast<MapObjFlag>(0);
+    mapObjDef->m_flags = MAPOBJ_FLAG_NONE;
 
     if (doodadSetCount) {
         mapObjDef->m_flags = MAPOBJ_FLAG_MAPOBJDEF;
@@ -2944,7 +2944,7 @@ void CMap::LoadWdt() {
             float rotY = def.m_rotation.x * 0.017453292f;
             float rotZ = 0.017453292f * def.m_rotation.y;
 
-            mapObjDef->m_flags = static_cast<MapObjFlag>(0);
+            mapObjDef->m_flags = MAPOBJ_FLAG_NONE;
             mapObjDef->m_nameId = def.m_nameId;
             mapObjDef->m_doodadSet = def.m_doodadSet;
             mapObjDef->m_nameSet = def.m_nameSet;
@@ -4181,7 +4181,7 @@ CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
 
     area->m_tileChunkIndex.x = MAP_CHUNKS_PER_AREA_AXIS * areaIndexX;
     area->m_index.y = areaIndexY;
-    area->m_flags = static_cast<MapObjFlag>(0);
+    area->m_flags = MAPOBJ_FLAG_NONE;
     area->m_index.x = areaIndexX;
     area->m_tileChunkIndex.y = MAP_CHUNKS_PER_AREA_AXIS * areaIndexY;
 
@@ -4212,7 +4212,7 @@ CMapLight::CMapLight() {
 // OFFSET: 0x007D9BD0
 CMapLight* CMap::CreateLight(uint8_t dynamic, uint8_t a2) {
     CMapLight* light = CMap::AllocLight();
-    light->m_flags = static_cast<MapObjFlag>(0);
+    light->m_flags = MAPOBJ_FLAG_NONE;
     light->m_position = C3Vector(0.0f, 0.0f, 0.0f);
     light->m_sphere.r = 0.0f;
     light->m_sphere.c = C3Vector(0.0f, 0.0f, 0.0f);
