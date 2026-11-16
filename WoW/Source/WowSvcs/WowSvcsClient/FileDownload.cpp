@@ -17,8 +17,8 @@ static SCritSect s_downloadLock;
 // INLINED
 FileDownload::FileDownload() {
     this->m_partial = false;
-    this->m_status = 0;
-    this->m_reason = 0;
+    this->m_status = FILE_DOWNLOAD_STATUS_IN_PROGRESS;
+    this->m_reason = DOWNLOAD_FAILURE_NONE;
     this->m_accepted = false;
     this->m_bytesSinceSave = 0;
     this->m_reasonData = 0;
@@ -70,8 +70,8 @@ void GruntFileDownload::RenamePartial() {
     }
 
     if (!OsMoveFile(path, this->m_fileName)) {
-        this->m_status = 3;
-        this->m_reason = 1;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+        this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
     }
 }
 
@@ -156,7 +156,7 @@ bool GruntFileDownload::ValidateForContinue(bool& complete) {
 
 // VERIFY: c4202440 auto
 // OFFSET: 0x006BA2D0
-int32_t GruntFileDownload::GetStatus() {
+FILE_DOWNLOAD_STATUS GruntFileDownload::GetStatus() {
     return this->m_status;
 }
 
@@ -170,8 +170,8 @@ void GruntFileDownload::WriteHeader() {
     Header header = this->m_header;
 
     if (!this->m_unit->Write(&header, this->m_header.m_size, sizeof(header))) {
-        this->m_status = 3;
-        this->m_reason = 1;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+        this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
     }
 }
 
@@ -191,14 +191,14 @@ void GruntFileDownload::Proceed(const uint8_t* data, uint32_t size) {
                 this->WriteHeader();
             }
         } else {
-            this->m_status = 3;
-            this->m_reason = 1;
+            this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+            this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
         }
 
         if (this->m_header.m_received == this->m_header.m_size) {
             uint8_t digest[16];
             GruntFileDownload::CalculateMD5(this->m_unit, 0, this->m_header.m_size, digest);
-            this->m_status = (memcmp(digest, this->m_header.m_md5, sizeof(digest)) != 0) + 2;
+            this->m_status = memcmp(digest, this->m_header.m_md5, sizeof(digest)) ? FILE_DOWNLOAD_STATUS_FAILED : FILE_DOWNLOAD_STATUS_COMPLETE;
         }
     } else {
         success = false;
@@ -207,7 +207,7 @@ void GruntFileDownload::Proceed(const uint8_t* data, uint32_t size) {
     s_downloadLock.Leave();
 
     if (!success) {
-        this->m_status = 3;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
     }
 }
 
@@ -275,7 +275,7 @@ bool GruntFileDownload::Initialize(const char* fileName, const uint8_t* md5, uin
 
                 if (complete) {
                     result = false;
-                    this->m_status = 2;
+                    this->m_status = FILE_DOWNLOAD_STATUS_COMPLETE;
                 }
 
                 offset = this->m_header.m_received;
@@ -294,7 +294,7 @@ bool GruntFileDownload::Initialize(const char* fileName, const uint8_t* md5, uin
 
         if (this->m_unit) {
             if (this->VerifyFile()) {
-                this->m_status = 2;
+                this->m_status = FILE_DOWNLOAD_STATUS_COMPLETE;
                 offset = this->m_header.m_received;
                 result = false;
                 done = true;
@@ -314,14 +314,14 @@ bool GruntFileDownload::Initialize(const char* fileName, const uint8_t* md5, uin
     this->m_partial = true;
 
     if (!this->m_unit) {
-        this->m_status = 3;
-        this->m_reason = 1;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+        this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
         return false;
     }
 
     if (!this->m_unit->SetFileSize(this->m_header.m_size + sizeof(Header))) {
-        this->m_reason = 2;
-        this->m_status = 3;
+        this->m_reason = DOWNLOAD_FAILURE_DISK_FULL;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
         this->m_reasonData = static_cast<uint32_t>((this->m_header.m_size + sizeof(Header)) >> 20) + 1;
         return false;
     }
@@ -341,8 +341,8 @@ void GruntFileDownload::CompleteDownload() {
     if (this->m_unit->SetFileSize(this->m_header.m_size)) {
         rename = this->m_partial;
     } else {
-        this->m_status = 3;
-        this->m_reason = 1;
+        this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+        this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
     }
 
     this->Close(false, rename);
@@ -353,8 +353,8 @@ void GruntFileDownload::CompleteDownload() {
 void GruntFileDownload::StopDownload() {
     s_downloadLock.Enter();
 
-    this->m_status = 3;
-    this->m_reason = 3;
+    this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+    this->m_reason = DOWNLOAD_FAILURE_STOPPED;
 
     if (this->m_unit) {
         this->WriteHeader();
@@ -366,8 +366,8 @@ void GruntFileDownload::StopDownload() {
 
 // VERIFY: a4caa0f9 manual
 // OFFSET: 0x006BAA50
-int32_t BattlenetFileDownload::GetStatus() {
-    if (static_cast<uint32_t>(this->m_status) <= 1) {
+FILE_DOWNLOAD_STATUS BattlenetFileDownload::GetStatus() {
+    if (static_cast<uint32_t>(this->m_status) <= FILE_DOWNLOAD_STATUS_UNKNOWN_1) {
         bool complete = true;
         bool done = true;
 
@@ -384,7 +384,7 @@ int32_t BattlenetFileDownload::GetStatus() {
         }
 
         if (done) {
-            this->m_status = complete ? 2 : 3;
+            this->m_status = complete ? FILE_DOWNLOAD_STATUS_COMPLETE : FILE_DOWNLOAD_STATUS_FAILED;
         }
     }
 
@@ -418,8 +418,8 @@ float BattlenetFileDownload::GetProgress() {
 // VERIFY: 30c6343a auto
 // OFFSET: 0x006BABF0
 void BattlenetFileDownload::StopDownload() {
-    this->m_status = 3;
-    this->m_reason = 3;
+    this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
+    this->m_reason = DOWNLOAD_FAILURE_STOPPED;
 
     for (int32_t i = 0; i < this->m_numDownloads; i++) {
         this->m_downloads[i]->Cancel();
@@ -441,8 +441,8 @@ void BattlenetFileDownload::CompleteDownload() {
         Storm::IOUnit* unit = Storm::IOFileUnit::Create(param, nullptr);
 
         if (!unit) {
-            this->m_reason = 1;
-            this->m_status = 3;
+            this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
+            this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
             return;
         }
 
@@ -450,8 +450,8 @@ void BattlenetFileDownload::CompleteDownload() {
         unit->Release();
 
         if (!written) {
-            this->m_reason = 1;
-            this->m_status = 3;
+            this->m_reason = DOWNLOAD_FAILURE_FILE_ERROR;
+            this->m_status = FILE_DOWNLOAD_STATUS_FAILED;
             return;
         }
     }
@@ -470,7 +470,7 @@ BattlenetFileDownload::BattlenetFileDownload() {
 
 // VERIFY: aef01f8b auto
 // OFFSET: 0x006BAEE0
-int32_t GruntFileDownload::GetReason(uint32_t* data) {
+DOWNLOAD_FAILURE_REASON GruntFileDownload::GetReason(uint32_t* data) {
     if (data) {
         *data = this->m_reasonData;
     }
@@ -480,7 +480,7 @@ int32_t GruntFileDownload::GetReason(uint32_t* data) {
 
 // VERIFY: b66ff56a auto
 // OFFSET: 0x006BAEE0
-int32_t BattlenetFileDownload::GetReason(uint32_t* data) {
+DOWNLOAD_FAILURE_REASON BattlenetFileDownload::GetReason(uint32_t* data) {
     if (data) {
         *data = this->m_reasonData;
     }
@@ -522,7 +522,7 @@ bool BattlenetFileDownload::Initialize(const char* fileName, const uint8_t* md5,
 
     for (const char* instruction = login->GetPatchInstruction(0); instruction; instruction = login->GetPatchInstruction(++this->m_numDownloads)) {
         if (!SStrCmp(instruction, "redirect monolithic", SStrLen("redirect monolithic"))) {
-            this->m_status = 4;
+            this->m_status = FILE_DOWNLOAD_STATUS_REDIRECT;
             return true;
         }
     }

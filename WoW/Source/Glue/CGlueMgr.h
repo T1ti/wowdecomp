@@ -27,6 +27,7 @@ namespace FFX {
 struct MipBits;
 class CSizeEvent;
 class FileDownload;
+enum DOWNLOAD_FAILURE_REASON : int32_t;
 class NetClient;
 struct CVar;
 
@@ -141,7 +142,7 @@ class CGlueMgr {
     static bool PatchDownloadExecutePrepatch(SArchive* archive);
     static bool PatchDownloadExtractCommand(SArchive* archive, const char* name);
     static void PatchDownloadFeed(const uint8_t* data, uint32_t size);
-    static void PatchFailed(int32_t reason, uint32_t data);
+    static void PatchFailed(DOWNLOAD_FAILURE_REASON reason, uint32_t data);
     static void QuitGameAndRunLauncher();
     static void SurveyDownloadFeed(const uint8_t* data, uint32_t size);
     static bool DeclineCharacter(WOWGUID guid, const char** names);

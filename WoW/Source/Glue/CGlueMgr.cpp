@@ -1245,7 +1245,7 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
     }
 
     if (idleState == IDLE_13) {
-        if (CGlueMgr::m_surveyDownload && CGlueMgr::m_surveyDownload->GetStatus() == 2) {
+        if (CGlueMgr::m_surveyDownload && CGlueMgr::m_surveyDownload->GetStatus() == FILE_DOWNLOAD_STATUS_COMPLETE) {
             if (CGlueMgr::m_executedSurvey) {
                 if (OsGetAsyncTimeMs() - CGlueMgr::m_surveyTimer > 1500) {
                     CGlueMgr::SurveyDownloadEnd();

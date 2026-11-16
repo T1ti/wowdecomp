@@ -213,7 +213,7 @@ void CGlueMgr::PatchDownloadCancel() {
 
 // VERIFY: 70646025 manual
 // OFFSET: 0x004E5420
-void CGlueMgr::PatchFailed(int32_t reason, uint32_t data) {
+void CGlueMgr::PatchFailed(DOWNLOAD_FAILURE_REASON reason, uint32_t data) {
     ClientServices::LoginConnection()->Logoff();
     CGlueMgr::m_idleState = IDLE_NONE;
     CGlueMgr::m_showedDisconnect = 0;
@@ -222,7 +222,7 @@ void CGlueMgr::PatchFailed(int32_t reason, uint32_t data) {
     char buffer[1024];
     const char* text;
 
-    if (reason == 2) {
+    if (reason == DOWNLOAD_FAILURE_DISK_FULL) {
         uint32_t megabytes = data;
 
         if (megabytes < 2) {
@@ -242,7 +242,7 @@ void CGlueMgr::PatchFailed(int32_t reason, uint32_t data) {
 // OFFSET: 0x004E54D0
 void CGlueMgr::PatchDownloadIdle() {
     switch (CGlueMgr::m_patchDownload->GetStatus()) {
-        case 2: {
+        case FILE_DOWNLOAD_STATUS_COMPLETE: {
             CGlueMgr::m_patchDownloadProgress = 1.0f;
             FrameScript_SignalEvent(GLUE_EVENT_PATCH_DOWNLOADED, nullptr);
 
@@ -252,9 +252,9 @@ void CGlueMgr::PatchDownloadIdle() {
 
             CGlueMgr::m_patchDownload->CompleteDownload();
 
-            if (CGlueMgr::m_patchDownload->GetStatus() == 3) {
+            if (CGlueMgr::m_patchDownload->GetStatus() == FILE_DOWNLOAD_STATUS_FAILED) {
                 uint32_t data;
-                int32_t reason = CGlueMgr::m_patchDownload->GetReason(&data);
+                DOWNLOAD_FAILURE_REASON reason = CGlueMgr::m_patchDownload->GetReason(&data);
                 CGlueMgr::PatchFailed(reason, data);
             } else {
                 CGlueMgr::m_idleState = IDLE_NONE;
@@ -269,7 +269,7 @@ void CGlueMgr::PatchDownloadIdle() {
             break;
         }
 
-        case 3: {
+        case FILE_DOWNLOAD_STATUS_FAILED: {
             if (CGlueMgr::m_patchDownload->Accepted()) {
                 ClientServices::LoginConnection()->FileComplete(false);
             }
@@ -277,7 +277,7 @@ void CGlueMgr::PatchDownloadIdle() {
             CGlueMgr::m_patchDownload->Destroy(true);
 
             uint32_t data;
-            int32_t reason = CGlueMgr::m_patchDownload->GetReason(&data);
+            DOWNLOAD_FAILURE_REASON reason = CGlueMgr::m_patchDownload->GetReason(&data);
             CGlueMgr::PatchFailed(reason, data);
 
             if (CGlueMgr::m_patchDownload) {
@@ -288,7 +288,7 @@ void CGlueMgr::PatchDownloadIdle() {
             break;
         }
 
-        case 4: {
+        case FILE_DOWNLOAD_STATUS_REDIRECT: {
             if (CGlueMgr::m_patchDownload) {
                 delete CGlueMgr::m_patchDownload;
             }
@@ -342,7 +342,7 @@ void CGlueMgr::PatchDownloadApply() {
     bool success = false;
     SArchive* archive = nullptr;
     int32_t opened = SFileOpenArchive("wow-patch.mpq", 100, 0, &archive);
-    int32_t reason = 0;
+    DOWNLOAD_FAILURE_REASON reason = DOWNLOAD_FAILURE_NONE;
     CGlueMgr::m_deleteLocalPatch = false;
 
     if (opened) {
@@ -353,10 +353,10 @@ void CGlueMgr::PatchDownloadApply() {
             success = CGlueMgr::PatchDownloadExecutePrepatch(archive);
 
             if (!success) {
-                reason = 6;
+                reason = DOWNLOAD_FAILURE_PREPATCH_FAILED;
             }
         } else {
-            reason = 5;
+            reason = DOWNLOAD_FAILURE_ARCHIVE_INVALID;
         }
 
         SFileCloseArchive(archive);
@@ -372,7 +372,7 @@ void CGlueMgr::PatchDownloadApply() {
             return;
         }
     } else {
-        reason = SErrGetLastError() == 2 ? 4 : 5;
+        reason = SErrGetLastError() == 2 ? DOWNLOAD_FAILURE_ARCHIVE_NOT_FOUND : DOWNLOAD_FAILURE_ARCHIVE_INVALID;
     }
 
     CGlueMgr::PatchFailed(reason, 0);
