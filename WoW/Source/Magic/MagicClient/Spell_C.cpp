@@ -9302,7 +9302,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
         missile->m_castID = data->m_castCount;
         missile->m_speed = spell.m_speed;
         missile->m_baseSpeed = spell.m_speed;
-        missile->m_hitResult = 0;
+        missile->m_hitResult = MISS_NONE;
         missile->m_missReason = 0;
         missile->m_flags = MISSILE_FLAGS::MISSILE_FLAG_HIT;
         missile->m_scale = scale;

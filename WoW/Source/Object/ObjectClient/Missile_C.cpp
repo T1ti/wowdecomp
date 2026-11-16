@@ -238,32 +238,32 @@ void CMissile::DetermineMissType() {
     }
 
     switch (this->GetHitResult()) {
-        case 1:
-        case 3:
-        case 6: {
+        case MISS_PHYSICAL:
+        case MISS_DODGED:
+        case MISS_EVADED: {
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY;
             break;
         }
 
-        case 2:
-        case 7:
-        case 8: {
+        case MISS_RESIST:
+        case MISS_IMMUNE:
+        case MISS_TEMPIMMUNE: {
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_RESIST;
             break;
         }
 
-        case 4: {
+        case MISS_PARRIED: {
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT;
-            this->SetHitResult(9);
+            this->SetHitResult(MISS_DEFLECTED);
             break;
         }
 
-        case 5: {
+        case MISS_BLOCKED: {
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_BLOCK;
             break;
         }
 
-        case 11: {
+        case MISS_REFLECTED: {
             if (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_REFLECT_AS_DEFLECT) {
                 this->m_flags = (this->m_flags & ~(MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT | MISSILE_FLAGS::MISSILE_FLAG_REFLECT_AS_DEFLECT)) | MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT;
             } else {
@@ -275,7 +275,7 @@ void CMissile::DetermineMissType() {
 
         default: {
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT;
-            this->m_hitResult = 9;
+            this->m_hitResult = MISS_DEFLECTED;
             break;
         }
     }
@@ -915,7 +915,7 @@ CMissile::CMissile() {
     this->m_attachmentID = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_attachOffset = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_soundKitID = 0;
-    this->m_hitResult = 0;
+    this->m_hitResult = MISS_NONE;
     this->m_destroyTime = 0;
     this->m_victimAnimTime = 0;
     this->m_castTime = 0;

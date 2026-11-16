@@ -19280,7 +19280,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     missile->m_speed = spell.m_speed;
     missile->m_baseSpeed = spell.m_speed;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
-    missile->m_hitResult = 0;
+    missile->m_hitResult = MISS_NONE;
     missile->m_missReason = 0;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
@@ -19469,7 +19469,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     missile->m_speed = spell.m_speed;
     missile->m_baseSpeed = spell.m_speed;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
-    missile->m_hitResult = 0;
+    missile->m_hitResult = MISS_NONE;
     missile->m_missReason = 0;
 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
