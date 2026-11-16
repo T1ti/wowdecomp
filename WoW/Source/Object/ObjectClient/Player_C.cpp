@@ -14241,7 +14241,7 @@ int32_t OnUpdatePlayerRuneRegen(WOWGUID guid, uint32_t offset, uint32_t count, c
         return 1;
     }
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < CGRuneInfo::MAX_RUNE_SLOTS; i++) {
         if (static_cast<uint32_t>(CGRuneInfo::GetRuneTypeByIndex(i, false)) != type || ((1 << i) & predicted) || !CGRuneInfo::GetRuneLastUsedTime(i)) {
             continue;
         }

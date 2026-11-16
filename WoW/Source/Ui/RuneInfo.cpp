@@ -11,16 +11,16 @@
 #include "WoW/Source/Ui/SpellBookFrame.h"
 #include "WoW/Source/Ui/Types.h"
 // STATIC: 0x00C24304
-int32_t CGRuneInfo::m_runes[8];
+int32_t CGRuneInfo::m_runes[MAX_RUNE_SLOTS];
 
 // STATIC: 0x00C24324
-int32_t CGRuneInfo::m_baseRunes[8];
+int32_t CGRuneInfo::m_baseRunes[MAX_RUNE_SLOTS];
 
 // STATIC: 0x00C24344
-uint32_t CGRuneInfo::m_runeCooldowns[8];
+uint32_t CGRuneInfo::m_runeCooldowns[MAX_RUNE_SLOTS];
 
 // STATIC: 0x00C24364
-uint32_t CGRuneInfo::m_runeLastUsed[8];
+uint32_t CGRuneInfo::m_runeLastUsed[MAX_RUNE_SLOTS];
 
 // STATIC: 0x00C24384
 uint32_t CGRuneInfo::m_numRunes;
@@ -32,28 +32,28 @@ uint32_t CGRuneInfo::m_predictedRunes;
 // VERIFY: 6c8047e1 auto
 // OFFSET: 0x005EDEF0
 void CGRuneInfo::InitializeGame() {
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < MAX_RUNE_SLOTS; i++) {
         CGRuneInfo::m_runeLastUsed[i] = 0;
     }
 
-    for (uint32_t i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < MAX_RUNE_SLOTS; i++) {
         CGRuneInfo::m_runeCooldowns[i] = 0;
     }
 
-    CGRuneInfo::m_runes[0] = 0;
-    CGRuneInfo::m_baseRunes[0] = 0;
-    CGRuneInfo::m_runes[1] = 0;
-    CGRuneInfo::m_baseRunes[1] = 0;
-    CGRuneInfo::m_runes[2] = 1;
-    CGRuneInfo::m_baseRunes[2] = 1;
-    CGRuneInfo::m_runes[3] = 1;
-    CGRuneInfo::m_baseRunes[3] = 1;
+    CGRuneInfo::m_runes[0] = RUNE_TYPE_BLOOD;
+    CGRuneInfo::m_baseRunes[0] = RUNE_TYPE_BLOOD;
+    CGRuneInfo::m_runes[1] = RUNE_TYPE_BLOOD;
+    CGRuneInfo::m_baseRunes[1] = RUNE_TYPE_BLOOD;
+    CGRuneInfo::m_runes[2] = RUNE_TYPE_UNHOLY;
+    CGRuneInfo::m_baseRunes[2] = RUNE_TYPE_UNHOLY;
+    CGRuneInfo::m_runes[3] = RUNE_TYPE_UNHOLY;
+    CGRuneInfo::m_baseRunes[3] = RUNE_TYPE_UNHOLY;
     CGRuneInfo::m_predictedRunes = 0xFFFFFFFF;
     CGRuneInfo::m_numRunes = NUM_INITIAL_RUNES;
-    CGRuneInfo::m_runes[4] = 2;
-    CGRuneInfo::m_baseRunes[4] = 2;
-    CGRuneInfo::m_runes[5] = 2;
-    CGRuneInfo::m_baseRunes[5] = 2;
+    CGRuneInfo::m_runes[4] = RUNE_TYPE_FROST;
+    CGRuneInfo::m_baseRunes[4] = RUNE_TYPE_FROST;
+    CGRuneInfo::m_runes[5] = RUNE_TYPE_FROST;
+    CGRuneInfo::m_baseRunes[5] = RUNE_TYPE_FROST;
 }
 
 // VERIFY: 2b125080 manual
@@ -67,7 +67,7 @@ bool CGRuneInfo::IsRuneIndexValid(int32_t index) {
         return static_cast<uint32_t>(index) < CGRuneInfo::m_numRunes;
     }
 
-    return index < 8;
+    return index < MAX_RUNE_SLOTS;
 }
 
 // VERIFY: afb005fb auto
@@ -147,7 +147,7 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
     bool short2 = false;
 
     if (cost->m_blood) {
-        int32_t have = CGRuneInfo::CountPredictedRunesOfType(0);
+        int32_t have = CGRuneInfo::CountPredictedRunesOfType(RUNE_TYPE_BLOOD);
         int32_t need = cost->m_blood;
 
         if (pct > SPELL_PERCENT_BASE) {
@@ -159,13 +159,13 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
             short1 = true;
 
             if (needed) {
-                needed[0] = need - have;
+                needed[RUNE_TYPE_BLOOD] = need - have;
             }
         }
     }
 
     if (cost->m_unholy) {
-        int32_t have = CGRuneInfo::CountPredictedRunesOfType(1);
+        int32_t have = CGRuneInfo::CountPredictedRunesOfType(RUNE_TYPE_UNHOLY);
         int32_t need = cost->m_unholy;
 
         if (pct > SPELL_PERCENT_BASE) {
@@ -177,13 +177,13 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
             short1 = true;
 
             if (needed) {
-                needed[1] = need - have;
+                needed[RUNE_TYPE_UNHOLY] = need - have;
             }
         }
     }
 
     if (cost->m_frost) {
-        int32_t have = CGRuneInfo::CountPredictedRunesOfType(2);
+        int32_t have = CGRuneInfo::CountPredictedRunesOfType(RUNE_TYPE_FROST);
         int32_t need = cost->m_frost;
 
         if (pct > SPELL_PERCENT_BASE) {
@@ -195,7 +195,7 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
             short2 = true;
 
             if (needed) {
-                needed[2] = need - have;
+                needed[RUNE_TYPE_FROST] = need - have;
             }
         }
     }
@@ -204,12 +204,12 @@ bool CGRuneInfo::HasRunesForSpell(int32_t spellId, int32_t* needed) {
         return true;
     }
 
-    if (CGRuneInfo::CountPredictedRunesOfType(3) >= missing) {
+    if (CGRuneInfo::CountPredictedRunesOfType(RUNE_TYPE_DEATH) >= missing) {
         return true;
     }
 
     if (needed) {
-        needed[3] = missing - CGRuneInfo::CountPredictedRunesOfType(3);
+        needed[RUNE_TYPE_DEATH] = missing - CGRuneInfo::CountPredictedRunesOfType(RUNE_TYPE_DEATH);
     }
 
     return false;
@@ -223,7 +223,7 @@ bool CGRuneInfo::ComputeRuneSpellCooldown(const SpellRec* spell, uint32_t* coold
     }
 
     SpellRuneCostRec* cost = g_spellRuneCostDB.GetRecord(spell->m_runeCostID);
-    int32_t needed[4] = { 0, 0, 0, 0 };
+    int32_t needed[NUM_RUNE_TYPES] = { 0, 0, 0, 0 };
 
     if (!cost || CGRuneInfo::HasRunesForSpell(spell->m_id, needed)) {
         return false;
@@ -231,12 +231,12 @@ bool CGRuneInfo::ComputeRuneSpellCooldown(const SpellRec* spell, uint32_t* coold
 
     uint32_t latest = 0;
     int32_t latestIndex = 0;
-    uint32_t times[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    uint32_t times[MAX_RUNE_SLOTS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < MAX_RUNE_SLOTS; i++) {
         int32_t type = CGRuneInfo::m_runes[i];
 
-        if (type != 3 && needed[type]) {
+        if (type != RUNE_TYPE_DEATH && needed[type]) {
             uint32_t time = CGRuneInfo::GetRuneRechargeTime(i);
             times[i] = time;
 
@@ -247,8 +247,8 @@ bool CGRuneInfo::ComputeRuneSpellCooldown(const SpellRec* spell, uint32_t* coold
         }
     }
 
-    for (int32_t i = 0; i < 8; i++) {
-        if (CGRuneInfo::m_runes[i] != 3 || !ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__) || ((1 << i) & CGRuneInfo::m_predictedRunes) || !CGRuneInfo::m_runeCooldowns[i]) {
+    for (int32_t i = 0; i < MAX_RUNE_SLOTS; i++) {
+        if (CGRuneInfo::m_runes[i] != RUNE_TYPE_DEATH || !ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__) || ((1 << i) & CGRuneInfo::m_predictedRunes) || !CGRuneInfo::m_runeCooldowns[i]) {
             continue;
         }
 
@@ -263,8 +263,8 @@ bool CGRuneInfo::ComputeRuneSpellCooldown(const SpellRec* spell, uint32_t* coold
             latestIndex = 0;
             latest = 0;
 
-            for (int32_t j = 0; j < 8; j++) {
-                if (CGRuneInfo::m_runes[j] != 3 && (!latest || static_cast<int32_t>(times[j] - latest) >= 0)) {
+            for (int32_t j = 0; j < MAX_RUNE_SLOTS; j++) {
+                if (CGRuneInfo::m_runes[j] != RUNE_TYPE_DEATH && (!latest || static_cast<int32_t>(times[j] - latest) >= 0)) {
                     latest = times[j];
                     latestIndex = j;
                 }
@@ -361,7 +361,7 @@ void CGRuneInfo::SetPredictedRunes(uint8_t available, uint8_t used, const uint8_
 
     CGRuneInfo::m_predictedRunes = used;
 
-    for (int32_t i = 0; i < 8; i++) {
+    for (int32_t i = 0; i < MAX_RUNE_SLOTS; i++) {
         int32_t bit = 1 << i;
 
         if ((available & bit) && !(used & bit)) {
