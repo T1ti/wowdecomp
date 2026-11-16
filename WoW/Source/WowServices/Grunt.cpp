@@ -12,13 +12,13 @@
 
 // STATIC: 0x00B24D00
 static Grunt::Command<Grunt::ClientLink> s_authCmds[] = {
-    { 0x00, {}, "ClientLink::CMD_AUTH_LOGON_CHALLENGE", &Grunt::ClientLink::CmdAuthLogonChallenge },
-    { 0x01, {}, "ClientLink::CMD_AUTH_LOGON_PROOF", &Grunt::ClientLink::CmdAuthLogonProof },
-    { 0x02, {}, "ClientLink::CMD_AUTH_RECONNECT_CHALLENGE", &Grunt::ClientLink::CmdAuthReconnectChallenge },
-    { 0x03, {}, "ClientLink::CMD_AUTH_RECONNECT_PROOF", &Grunt::ClientLink::CmdAuthReconnectProof },
-    { 0x10, {}, "ClientLink::CMD_REALM_LIST", &Grunt::ClientLink::CmdRealmList },
-    { 0x30, {}, "ClientLink::CMD_XFER_INITIATE", &Grunt::ClientLink::CmdXferInitiate },
-    { 0x31, {}, "ClientLink::CMD_XFER_DATA", &Grunt::ClientLink::CmdXferData },
+    { Grunt::CMD_AUTH_LOGON_CHALLENGE, {}, "ClientLink::CMD_AUTH_LOGON_CHALLENGE", &Grunt::ClientLink::CmdAuthLogonChallenge },
+    { Grunt::CMD_AUTH_LOGON_PROOF, {}, "ClientLink::CMD_AUTH_LOGON_PROOF", &Grunt::ClientLink::CmdAuthLogonProof },
+    { Grunt::CMD_AUTH_RECONNECT_CHALLENGE, {}, "ClientLink::CMD_AUTH_RECONNECT_CHALLENGE", &Grunt::ClientLink::CmdAuthReconnectChallenge },
+    { Grunt::CMD_AUTH_RECONNECT_PROOF, {}, "ClientLink::CMD_AUTH_RECONNECT_PROOF", &Grunt::ClientLink::CmdAuthReconnectProof },
+    { Grunt::CMD_REALM_LIST, {}, "ClientLink::CMD_REALM_LIST", &Grunt::ClientLink::CmdRealmList },
+    { Grunt::CMD_XFER_INITIATE, {}, "ClientLink::CMD_XFER_INITIATE", &Grunt::ClientLink::CmdXferInitiate },
+    { Grunt::CMD_XFER_DATA, {}, "ClientLink::CMD_XFER_DATA", &Grunt::ClientLink::CmdXferData },
 };
 
 // STATIC: 0x00D45CD0
@@ -233,7 +233,7 @@ void Grunt::ClientLink::LogonNewSession(const Grunt::ClientLink::Logon& logon) {
     this->m_srpClient.BeginAuthentication(s_accountNameUnDecorated, password);
 
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(0));
+    msg.Put(static_cast<uint8_t>(CMD_AUTH_LOGON_CHALLENGE));
     msg.Put(static_cast<uint8_t>(8));
     this->PackLogon(msg, logon);
     msg.Finalize();
@@ -252,7 +252,7 @@ void Grunt::ClientLink::LogonStoredSession(const Grunt::ClientLink::Logon& logon
     memcpy(this->m_reconnectKey, logon.m_password, sizeof(this->m_reconnectKey));
 
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(2));
+    msg.Put(static_cast<uint8_t>(CMD_AUTH_RECONNECT_CHALLENGE));
     msg.Put(static_cast<uint8_t>(8));
     this->PackLogon(msg, logon);
     msg.Finalize();
@@ -263,7 +263,7 @@ void Grunt::ClientLink::LogonStoredSession(const Grunt::ClientLink::Logon& logon
 // OFFSET: 0x008CDB90
 void Grunt::ClientLink::SendSurveyData(uint16_t size, uint8_t* data) {
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(4));
+    msg.Put(static_cast<uint8_t>(CMD_SURVEY_RESULT));
     msg.Put(this->m_surveyId);
     msg.Put(static_cast<uint8_t>(0));
     msg.Put(size);
@@ -276,7 +276,7 @@ void Grunt::ClientLink::SendSurveyData(uint16_t size, uint8_t* data) {
 // OFFSET: 0x008CDD00
 void Grunt::ClientLink::SendSurveyFailed() {
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(4));
+    msg.Put(static_cast<uint8_t>(CMD_SURVEY_RESULT));
     msg.Put(this->m_surveyId);
     msg.Put(static_cast<uint8_t>(1));
     msg.Put(static_cast<uint16_t>(0));
@@ -789,7 +789,7 @@ void Grunt::ClientLink::GetRealmList() {
     }
 
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(0x10));
+    msg.Put(static_cast<uint8_t>(CMD_REALM_LIST));
     msg.Put(static_cast<uint32_t>(0));
     msg.Finalize();
     this->Send(msg);
@@ -808,7 +808,7 @@ void Grunt::ClientLink::ProveVersion(const uint8_t* versionChecksum) {
     }
 
     if (this->m_state == ClientLink::CLIENT_STATE::STATE_LOGON_VERSION_PROOF_PENDING) {
-        msg.Put(static_cast<uint8_t>(1));
+        msg.Put(static_cast<uint8_t>(CMD_AUTH_LOGON_PROOF));
         msg.PutData(this->m_srpClient.m_publicKey, sizeof(this->m_srpClient.m_publicKey));
         msg.PutData(this->m_srpClient.m_clientProof, sizeof(this->m_srpClient.m_clientProof));
 
@@ -888,7 +888,7 @@ void Grunt::ClientLink::ProveVersion(const uint8_t* versionChecksum) {
         MD5Update(&md5, clientSalt, sizeof(clientSalt));
         MD5Final(clientSalt, &md5);
 
-        msg.Put(static_cast<uint8_t>(3));
+        msg.Put(static_cast<uint8_t>(CMD_AUTH_RECONNECT_PROOF));
         msg.PutData(clientSalt, sizeof(clientSalt));
 
         SHA1_Init(&context);
@@ -1060,13 +1060,13 @@ void Grunt::ClientLink::FileStatus(bool accept, uint64_t offset) {
 
     if (accept) {
         if (offset) {
-            msg.Put(static_cast<uint8_t>(0x33));
+            msg.Put(static_cast<uint8_t>(CMD_XFER_RESUME));
             msg.Put(offset);
         } else {
-            msg.Put(static_cast<uint8_t>(0x32));
+            msg.Put(static_cast<uint8_t>(CMD_XFER_ACCEPT));
         }
     } else {
-        msg.Put(static_cast<uint8_t>(0x34));
+        msg.Put(static_cast<uint8_t>(CMD_XFER_CANCEL));
     }
 
     msg.Finalize();
@@ -1077,7 +1077,7 @@ void Grunt::ClientLink::FileStatus(bool accept, uint64_t offset) {
 // OFFSET: 0x008CDFC0
 void Grunt::ClientLink::FileComplete() {
     CDataStoreCache<1024> msg;
-    msg.Put(static_cast<uint8_t>(0x34));
+    msg.Put(static_cast<uint8_t>(CMD_XFER_CANCEL));
     msg.Finalize();
     this->Send(msg);
 }
