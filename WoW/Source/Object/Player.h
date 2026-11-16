@@ -6,6 +6,7 @@
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
+#include "WoW/Source/Object/QuestCache.h"
 #include "WoW/Source/Object/WGUID.h"
 
 // Combat rating index; names follow FrameXML CR_* (whose Lua values are this index + 1).
@@ -61,7 +62,7 @@ class CGPlayerLocalData;
 struct PlayerQuestLogEntry {
     /* 0000 */ uint32_t m_questId;
     /* 0004 */ uint32_t m_state;
-    /* 0008 */ uint16_t m_counts [4];
+    /* 0008 */ uint16_t m_counts [QUEST_OBJECTIVES];
     /* 0010 */ uint32_t m_time;
 };
 

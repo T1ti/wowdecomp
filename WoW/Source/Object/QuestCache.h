@@ -78,7 +78,7 @@ class QuestCache {
     /* 1C5C */ uint32_t m_collectItemCount[QUEST_COLLECT_ITEMS];
     /* 1C74 */ uint32_t m_intermediateItemId[QUEST_INTERMEDIATE_ITEMS];
     /* 1C84 */ uint32_t m_intermediateItemCount[QUEST_INTERMEDIATE_ITEMS];
-    /* 1C94 */ char m_objectiveText[4][256];
+    /* 1C94 */ char m_objectiveText[QUEST_OBJECTIVES][256];
     /* 2094 */ uint32_t m_rewardTitleId;
     /* 2098 */ uint32_t m_requiredPlayersKilled;
     /* 209C */ uint32_t m_rewardTalentPoints;

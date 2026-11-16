@@ -313,13 +313,13 @@ static int32_t Script_GetNumQuestLogRewards(lua_State* L) {
     if (quest) {
         uint32_t i;
 
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < QUEST_REWARD_ITEMS; i++) {
             if (!quest->m_rewardItem[i]) {
                 break;
             }
         }
 
-        if (i < 4) {
+        if (i < QUEST_REWARD_ITEMS) {
             count = i;
         }
     }
@@ -338,13 +338,13 @@ static int32_t Script_GetNumQuestLogChoices(lua_State* L) {
     if (quest) {
         uint32_t i;
 
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < QUEST_REWARD_CHOICE_ITEMS; i++) {
             if (!quest->m_rewardChoiceItem[i]) {
                 break;
             }
         }
 
-        if (i <= 6) {
+        if (i <= QUEST_REWARD_CHOICE_ITEMS) {
             count = i;
         }
     }

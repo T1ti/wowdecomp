@@ -371,7 +371,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
         return 0;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
         if (quest->m_objectiveId[i] && entry->m_counts[i] < quest->m_objectiveRequiredCount[i]) {
             return 0;
         }
@@ -408,7 +408,7 @@ bool CGQuestLog::HasNoObjectives(uint32_t index) {
         return false;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
         if (quest->m_objectiveId[i]) {
             return false;
         }
@@ -467,7 +467,7 @@ int32_t GetNumQuestLeaderBoards(int32_t questId, void (*callback)(int32_t id, co
             count = 1;
         }
 
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
             if (quest->m_objectiveId[i]) {
                 count++;
             }
@@ -1391,7 +1391,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
 
     char buffer[4096];
 
-    for (uint32_t i = 0; found < params->m_index && i < 4; i++) {
+    for (uint32_t i = 0; found < params->m_index && i < QUEST_OBJECTIVES; i++) {
         if (!quest->m_objectiveId[i]) {
             if (params->m_countEmpty) {
                 found++;
@@ -1487,7 +1487,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
     }
 
     if (!CGQuestLog::IsQuestCompleteEx(CGQuestLog::GetQuestIndex(questId) - 1, 1)) {
-        for (uint32_t i = 0; found < params->m_index && i < 4; i++) {
+        for (uint32_t i = 0; found < params->m_index && i < QUEST_INTERMEDIATE_ITEMS; i++) {
             int32_t itemId = quest->m_intermediateItemId[i];
 
             if (itemId <= 0) {
@@ -1646,7 +1646,7 @@ int32_t CGQuestLog::GetQuestLogItemDropByID(int32_t questId, QuestLogLeaderBoard
     int32_t found = -1;
     char buffer[4096];
 
-    for (uint32_t i = 0; found < params->m_index && i < 4; i++) {
+    for (uint32_t i = 0; found < params->m_index && i < QUEST_INTERMEDIATE_ITEMS; i++) {
         if (static_cast<int32_t>(quest->m_intermediateItemId[i]) <= 0) {
             if (params->m_countEmpty) {
                 found++;
@@ -2144,15 +2144,15 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
         return 0xFFFFFFFF;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
+    for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
         if (quest->m_objectiveId[i] && entry->m_counts[i] < quest->m_objectiveRequiredCount[i]) {
             result |= 1 << i;
         }
     }
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
-            result |= 1 << (i + 4);
+            result |= 1 << (i + QUEST_OBJECTIVES);
         }
     }
 
@@ -2160,7 +2160,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
         uint32_t itemId = quest->m_intermediateItemId[i];
 
         if (itemId && itemId != quest->m_startingItemId && !player->m_bag.GetItemTypeCount(itemId, 8)) {
-            result |= 1 << (i + 10);
+            result |= 1 << (i + QUEST_OBJECTIVES + QUEST_COLLECT_ITEMS);
         }
     }
 
