@@ -12721,88 +12721,88 @@ void __stdcall CGPlayer_C::ShowTaxiNodes(CDataStore* msg) {
 // VERIFY: b3eb651b manual
 // OFFSET: 0x006CBA60
 uint32_t CGPlayer_C::BuildPartyMemberStatsChanges(const CGPartyMemberState* oldState, const CGPartyMemberState* newState) {
-    uint32_t changes = newState->m_flags != oldState->m_flags;
+    uint32_t changes = newState->m_flags != oldState->m_flags ? CGPartyMemberState::GROUP_UPDATE_FLAG_STATUS : 0;
 
     if (newState->m_health != oldState->m_health) {
-        changes |= 0x2;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_HP;
     }
 
     if (newState->m_maxHealth != oldState->m_maxHealth) {
-        changes |= 0x4;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_HP;
     }
 
     if (newState->m_powerType != oldState->m_powerType) {
-        changes |= 0x8;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_POWER_TYPE;
     }
 
     if (newState->m_power != oldState->m_power) {
-        changes |= 0x10;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_POWER;
     }
 
     if (newState->m_maxPower != oldState->m_maxPower) {
-        changes |= 0x20;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_POWER;
     }
 
     if (newState->m_level != oldState->m_level) {
-        changes |= 0x40;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_LEVEL;
     }
 
     if (newState->m_zoneID != oldState->m_zoneID) {
-        changes |= 0x80;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_ZONE;
     }
 
     if (newState->m_posX != oldState->m_posX || newState->m_posY != oldState->m_posY) {
-        changes |= 0x100;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_POSITION;
     }
 
     for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
         if (newState->m_auras[i] != oldState->m_auras[i] || newState->m_auraFlags[i] != oldState->m_auraFlags[i]) {
-            changes |= 0x200;
+            changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_AURAS;
             break;
         }
     }
 
     if (newState->m_pet.m_guid != oldState->m_pet.m_guid) {
-        changes |= 0x400;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_GUID;
     }
 
     if (SStrCmp(newState->m_pet.m_name, oldState->m_pet.m_name, STORM_MAX_STR)) {
-        changes |= 0x800;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_NAME;
     }
 
     if (newState->m_pet.m_displayId != oldState->m_pet.m_displayId) {
-        changes |= 0x1000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MODEL_ID;
     }
 
     if (newState->m_pet.m_health != oldState->m_pet.m_health) {
-        changes |= 0x2000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_HP;
     }
 
     if (newState->m_pet.m_maxHealth != oldState->m_pet.m_maxHealth) {
-        changes |= 0x4000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_HP;
     }
 
     if (newState->m_pet.m_powerType != oldState->m_pet.m_powerType) {
-        changes |= 0x8000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_POWER_TYPE;
     }
 
     if (newState->m_pet.m_power != oldState->m_pet.m_power) {
-        changes |= 0x10000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_POWER;
     }
 
     if (newState->m_pet.m_maxPower != oldState->m_pet.m_maxPower) {
-        changes |= 0x20000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_POWER;
     }
 
     for (uint32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
         if (newState->m_pet.m_auras[i] != oldState->m_pet.m_auras[i] || newState->m_pet.m_auraFlags[i] != oldState->m_pet.m_auraFlags[i]) {
-            changes |= 0x40000;
+            changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_PET_AURAS;
             break;
         }
     }
 
     if (newState->m_vehicleSeatId != oldState->m_vehicleSeatId) {
-        changes |= 0x80000;
+        changes |= CGPartyMemberState::GROUP_UPDATE_FLAG_VEHICLE_SEAT;
     }
 
     return changes;
@@ -12811,33 +12811,33 @@ uint32_t CGPlayer_C::BuildPartyMemberStatsChanges(const CGPartyMemberState* oldS
 // VERIFY: 9b1bc63a manual
 // OFFSET: 0x006CF740
 void CGPlayer_C::DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t changes, const CGPartyMemberState* oldState, const CGPartyMemberState* newState) {
-    if (changes & 0x1) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_STATUS) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_HEALTH);
         Script_SendUnitSignal(guid, newState->m_powerType + SCRIPT_EVENT_UNIT_MANA);
-        changes &= ~0x12;
+        changes &= ~(CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_HP | CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_POWER);
     }
 
-    if (changes & 0x40) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_LEVEL) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_LEVEL);
     }
 
-    if (changes & 0x2) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_HP) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_HEALTH);
     }
 
-    if (changes & 0x4) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_HP) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_MAXHEALTH);
     }
 
-    if (changes & 0x8) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_POWER_TYPE) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_DISPLAYPOWER);
     }
 
-    if (changes & 0x10) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_POWER) {
         Script_SendUnitSignal(guid, newState->m_powerType + SCRIPT_EVENT_UNIT_MANA);
     }
 
-    if (changes & 0x20) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_POWER) {
         Script_SendUnitSignal(guid, newState->m_powerType + SCRIPT_EVENT_UNIT_MAXMANA);
     }
 
@@ -12845,11 +12845,11 @@ void CGPlayer_C::DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t c
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_FACTION);
     }
 
-    if (changes & 0x200) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_AURAS) {
         Script_SendUniqueSignal(guid, SCRIPT_EVENT_UNIT_AURA);
     }
 
-    if (changes & 0x400) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_GUID) {
         CGUnit_C* oldPet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(oldState->m_pet.m_guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (oldPet) {
@@ -12866,40 +12866,40 @@ void CGPlayer_C::DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t c
     }
 
     if (newState->m_pet.m_guid) {
-        if (changes & 0x800) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_NAME) {
             CGGameUI::UnitNameUpdate(newState->m_pet.m_guid);
         }
 
-        if (changes & 0x1000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MODEL_ID) {
             CGGameUI::UnitModelUpdate(newState->m_pet.m_guid, 3);
         }
 
-        if (changes & 0x2000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_HP) {
             Script_SendUnitSignal(newState->m_pet.m_guid, SCRIPT_EVENT_UNIT_HEALTH);
         }
 
-        if (changes & 0x4000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_HP) {
             Script_SendUnitSignal(newState->m_pet.m_guid, SCRIPT_EVENT_UNIT_MAXHEALTH);
         }
 
-        if (changes & 0x8000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_POWER_TYPE) {
             Script_SendUnitSignal(newState->m_pet.m_guid, SCRIPT_EVENT_UNIT_DISPLAYPOWER);
         }
 
-        if (changes & 0x10000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_POWER) {
             Script_SendUnitSignal(newState->m_pet.m_guid, newState->m_pet.m_powerType + SCRIPT_EVENT_UNIT_MANA);
         }
 
-        if (changes & 0x20000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_POWER) {
             Script_SendUnitSignal(newState->m_pet.m_guid, newState->m_pet.m_powerType + SCRIPT_EVENT_UNIT_MAXMANA);
         }
 
-        if (changes & 0x40000) {
+        if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_AURAS) {
             Script_SendUniqueSignal(newState->m_pet.m_guid, SCRIPT_EVENT_UNIT_AURA);
         }
     }
 
-    if (changes & 0x80000) {
+    if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_VEHICLE_SEAT) {
         VehicleSeatRec* seat = g_vehicleSeatDB.GetRecord(newState->m_vehicleSeatId);
 
         if (seat) {
@@ -12946,7 +12946,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
     uint32_t mask;
     msg->Get(mask);
 
-    if (mask & 0x1) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_STATUS) {
         msg->Get(newState.m_flags);
         WOWGUID member = guid;
 
@@ -12957,46 +12957,46 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         }
     }
 
-    if (static_cast<int32_t>(mask) >= 0) {
+    if (!(mask & CGPartyMemberState::GROUP_UPDATE_FLAG_UNKNOWN_31)) {
         newState.m_flags &= ~CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5;
     } else {
         newState.m_flags |= CGPartyMemberState::MEMBER_FLAG_UNKNOWN_5;
     }
 
-    if (mask & 0x2) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_HP) {
         msg->Get(newState.m_health);
     }
 
-    if (mask & 0x4) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_HP) {
         msg->Get(newState.m_maxHealth);
     }
 
-    if (mask & 0x8) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_POWER_TYPE) {
         msg->Get(newState.m_powerType);
     }
 
-    if (mask & 0x10) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_CUR_POWER) {
         msg->Get(newState.m_power);
     }
 
-    if (mask & 0x20) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_MAX_POWER) {
         msg->Get(newState.m_maxPower);
     }
 
-    if (mask & 0x40) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_LEVEL) {
         msg->Get(newState.m_level);
     }
 
-    if (mask & 0x80) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_ZONE) {
         msg->Get(newState.m_zoneID);
     }
 
-    if (mask & 0x100) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_POSITION) {
         msg->Get(reinterpret_cast<uint16_t&>(newState.m_posX));
         msg->Get(reinterpret_cast<uint16_t&>(newState.m_posY));
     }
 
-    if (mask & 0x200) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_AURAS) {
         uint64_t auraMask;
         msg->Get(auraMask);
 
@@ -13008,7 +13008,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         }
     }
 
-    if (mask & 0x400) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_GUID) {
         msg->Get(newState.m_pet.m_guid.m_guid);
 
         if (arena && newState.m_pet.m_guid) {
@@ -13017,35 +13017,35 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         }
     }
 
-    if (mask & 0x800) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_NAME) {
         msg->GetString(newState.m_pet.m_name, sizeof(newState.m_pet.m_name));
     }
 
-    if (mask & 0x1000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MODEL_ID) {
         msg->Get(newState.m_pet.m_displayId);
     }
 
-    if (mask & 0x2000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_HP) {
         msg->Get(newState.m_pet.m_health);
     }
 
-    if (mask & 0x4000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_HP) {
         msg->Get(newState.m_pet.m_maxHealth);
     }
 
-    if (mask & 0x8000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_POWER_TYPE) {
         msg->Get(newState.m_pet.m_powerType);
     }
 
-    if (mask & 0x10000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_POWER) {
         msg->Get(newState.m_pet.m_power);
     }
 
-    if (mask & 0x20000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MAX_POWER) {
         msg->Get(newState.m_pet.m_maxPower);
     }
 
-    if (mask & 0x40000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_AURAS) {
         uint64_t auraMask;
         msg->Get(auraMask);
 
@@ -13057,7 +13057,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
         }
     }
 
-    if (mask & 0x80000) {
+    if (mask & CGPartyMemberState::GROUP_UPDATE_FLAG_VEHICLE_SEAT) {
         msg->Get(newState.m_vehicleSeatId);
     }
 
@@ -13065,7 +13065,7 @@ int32_t Packet_HandlePartyMemberStats(void* param, NETMESSAGE msgId, uint32_t ti
     int32_t index;
 
     if (CGBattlefieldInfo::GetArenaOpponentIndex(guid, &index) && CGBattlefieldInfo::m_arenaOpponentSeen[index]) {
-        changes = 0xFFFFFFFF;
+        changes = CGPartyMemberState::GROUP_UPDATE_FLAG_ALL;
 
         if (CGBattlefieldInfo::GetArenaOpponentIndex(guid, &index)) {
             CGBattlefieldInfo::m_arenaOpponentSeen[index] = 0;

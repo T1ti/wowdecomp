@@ -94,6 +94,33 @@ class CGPartyMemberState {
         MEMBER_FLAG_PVP_MASK = 0x12,
     };
 
+    // SMSG_PARTY_MEMBER_STATS field mask, also used for the local change mask. Each bit
+    // carries the field it is named after (TrinityCore uses the same GROUP_UPDATE_FLAG_* names).
+    enum UpdateFlags : uint32_t {
+        GROUP_UPDATE_FLAG_STATUS = 0x1,
+        GROUP_UPDATE_FLAG_CUR_HP = 0x2,
+        GROUP_UPDATE_FLAG_MAX_HP = 0x4,
+        GROUP_UPDATE_FLAG_POWER_TYPE = 0x8,
+        GROUP_UPDATE_FLAG_CUR_POWER = 0x10,
+        GROUP_UPDATE_FLAG_MAX_POWER = 0x20,
+        GROUP_UPDATE_FLAG_LEVEL = 0x40,
+        GROUP_UPDATE_FLAG_ZONE = 0x80,
+        GROUP_UPDATE_FLAG_POSITION = 0x100,
+        GROUP_UPDATE_FLAG_AURAS = 0x200,
+        GROUP_UPDATE_FLAG_PET_GUID = 0x400,
+        GROUP_UPDATE_FLAG_PET_NAME = 0x800,
+        GROUP_UPDATE_FLAG_PET_MODEL_ID = 0x1000,
+        GROUP_UPDATE_FLAG_PET_CUR_HP = 0x2000,
+        GROUP_UPDATE_FLAG_PET_MAX_HP = 0x4000,
+        GROUP_UPDATE_FLAG_PET_POWER_TYPE = 0x8000,
+        GROUP_UPDATE_FLAG_PET_CUR_POWER = 0x10000,
+        GROUP_UPDATE_FLAG_PET_MAX_POWER = 0x20000,
+        GROUP_UPDATE_FLAG_PET_AURAS = 0x40000,
+        GROUP_UPDATE_FLAG_VEHICLE_SEAT = 0x80000,
+        GROUP_UPDATE_FLAG_UNKNOWN_31 = 0x80000000, // Mirrored into MEMBER_FLAG_UNKNOWN_5.
+        GROUP_UPDATE_FLAG_ALL = 0xFFFFFFFF,
+    };
+
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ uint16_t m_flags;
     /* 000A */ uint8_t m_powerType;
