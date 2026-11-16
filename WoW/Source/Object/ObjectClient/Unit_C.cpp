@@ -19726,7 +19726,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         }
 
         attachId = MODEL_ATTACHMENT_ID::ATTACH_HANDR;
-        invSlot = static_cast<INVENTORY_SLOTS>(15);
+        invSlot = INVSLOT_MAINHAND;
         mainHand = true;
     } else if (hand == 1) {
         const CGUnitVirtualItem* offItem;
@@ -19759,7 +19759,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         mainHand = false;
     } else {
         if (this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(17), static_cast<SHEATHE_TYPE>(0), false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_RANGED, SHEATHE_NONE, false);
             return;
         }
 

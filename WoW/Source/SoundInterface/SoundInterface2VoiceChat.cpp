@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <new>
+#include "WoW/Source/Client.h"
 #include "WoW/Source/SoundInterface/SoundInterface2VoiceChat.h"
 #include "Engine/Source/Base/CmdLine.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
@@ -182,7 +183,7 @@ static void MonitorCallback(float* data, uint32_t count) {
 // VERIFY: e6a66d96 auto
 // OFFSET: 0x00986700
 void SI2::VoiceChat_InitCapture(float sampleRate) {
-    if (CmdLineGetBool(static_cast<CMDOPT>(26))) {
+    if (CmdLineGetBool(static_cast<CMDOPT>(CMD_NO_SOUND))) {
         return;
     }
 

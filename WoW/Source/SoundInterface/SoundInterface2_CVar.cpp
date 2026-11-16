@@ -8,6 +8,7 @@
 #include "Engine/Source/Os/System.h"
 #include "Engine/Source/SoundEngine/SoundEngine.h"
 #include "Engine/Source/Storm/H/storm.h"
+#include "WoW/Source/Client.h"
 #include "WoW/Source/Game/GameClient/ComSatClient.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 #include "WoW/Source/Ui/GameUI.h"
@@ -262,7 +263,7 @@ void SI2::RegisterCVars() {
     CVar::Register("Sound_EnablePetSounds", "Enables pet sounds", CVAR_FLAGS::CVAR_NONE, "1", nullptr, 7, false, nullptr, false);
     CVar::Register("Sound_EnableSoundWhenGameIsInBG", "Enable Sound When Game Is In Background", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 7, false, nullptr, false);
 
-    if (CmdLineGetBool(static_cast<CMDOPT>(27))) {
+    if (CmdLineGetBool(static_cast<CMDOPT>(CMD_SOUND_CHAOS))) {
         CVar::Register("Sound_ChaosMode", "Testing to break sound engine", CVAR_FLAGS::CVAR_NONE, "0", ChaosModeHandler, 7, false, nullptr, false);
         CVar::Lookup("Sound_ChaosMode")->Set("0", true, false, false, true);
     }

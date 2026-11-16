@@ -1720,7 +1720,7 @@ bool BattlenetLogin::IsConnected() {
 // VERIFY: 191ce575 auto
 // OFFSET: 0x008C52D0
 LOGIN_STATE BattlenetLogin::NextSecurityState(LOGIN_STATE state) {
-    return static_cast<LOGIN_STATE>(14);
+    return LOGIN_STATE_CHECKINGVERSIONS;
 }
 
 // VERIFY: 9df286c6 auto

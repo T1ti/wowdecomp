@@ -63,14 +63,14 @@ static MATHOP LookupMathFunction(const char* name, int32_t* argCount) {
     }
 
     *argCount = 0;
-    return static_cast<MATHOP>(0);
+    return MATHOP_CONSTANT;
 }
 
 // VERIFY: 924c0932 auto
 // OFFSET: 0x00576B50
 static MATHOP LookupMathVariable(const char* name) {
     if (!name || !*name) {
-        return static_cast<MATHOP>(0);
+        return MATHOP_CONSTANT;
     }
 
     for (uint32_t i = 0; i < 140; i++) {
@@ -79,7 +79,7 @@ static MATHOP LookupMathVariable(const char* name) {
         }
     }
 
-    return static_cast<MATHOP>(0);
+    return MATHOP_CONSTANT;
 }
 
 // VERIFY: 217b88e2 auto

@@ -148,13 +148,13 @@ void CGDressUpModelFrame::Undress() {
     }
 
     if (this->m_mainHand.m_classID) {
-        CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(this->m_mainHand.m_sheatheType), this->m_mainHand.m_inventoryType == INVTYPE_SHIELD);
+        CCharacterComponent::RemoveHandItem(this->m_model, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(this->m_mainHand.m_sheatheType), this->m_mainHand.m_inventoryType == INVTYPE_SHIELD);
         this->m_mainHand.m_classID = 0;
         this->m_mainHand.m_inventoryType = INVTYPE_NON_EQUIP;
     }
 
     if (this->m_offHand.m_classID) {
-        CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(this->m_offHand.m_sheatheType), this->m_offHand.m_inventoryType == INVTYPE_SHIELD);
+        CCharacterComponent::RemoveHandItem(this->m_model, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(this->m_offHand.m_sheatheType), this->m_offHand.m_inventoryType == INVTYPE_SHIELD);
         this->m_offHand.m_classID = 0;
         this->m_offHand.m_inventoryType = INVTYPE_NON_EQUIP;
     }
@@ -299,7 +299,7 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
 
     switch (stats->m_inventoryType) {
         case INVTYPE_HEAD:
-            slot = static_cast<ITEM_SLOT>(0);
+            slot = ITEMSLOT_HEAD;
             break;
 
         case INVTYPE_NECK:
@@ -309,40 +309,40 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
             return;
 
         case INVTYPE_SHOULDERS:
-            slot = static_cast<ITEM_SLOT>(1);
+            slot = ITEMSLOT_SHOULDER;
             break;
 
         case INVTYPE_BODY:
-            slot = static_cast<ITEM_SLOT>(2);
+            slot = ITEMSLOT_SHIRT;
             break;
 
         case INVTYPE_CHEST:
         case INVTYPE_ROBE:
-            slot = static_cast<ITEM_SLOT>(3);
+            slot = ITEMSLOT_CHEST;
             break;
 
         case INVTYPE_WAIST:
-            slot = static_cast<ITEM_SLOT>(4);
+            slot = ITEMSLOT_BELT;
             break;
 
         case INVTYPE_LEGS:
-            slot = static_cast<ITEM_SLOT>(5);
+            slot = ITEMSLOT_PANTS;
             break;
 
         case INVTYPE_FEET:
-            slot = static_cast<ITEM_SLOT>(6);
+            slot = ITEMSLOT_BOOTS;
             break;
 
         case INVTYPE_WRISTS:
-            slot = static_cast<ITEM_SLOT>(7);
+            slot = ITEMSLOT_BRACERS;
             break;
 
         case INVTYPE_HANDS:
-            slot = static_cast<ITEM_SLOT>(8);
+            slot = ITEMSLOT_GLOVES;
             break;
 
         case INVTYPE_CLOAK:
-            slot = static_cast<ITEM_SLOT>(10);
+            slot = ITEMSLOT_CAPE;
             break;
 
         case INVTYPE_TABARD: {
@@ -350,8 +350,8 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
                 return;
             }
 
-            this->m_component->RemoveItem(static_cast<ITEM_SLOT>(9));
-            this->m_component->AddItem(static_cast<ITEM_SLOT>(9), stats->m_displayId, visual);
+            this->m_component->RemoveItem(ITEMSLOT_TABARD);
+            this->m_component->AddItem(ITEMSLOT_TABARD, stats->m_displayId, visual);
             ItemDisplayInfoRec display;
 
             if (g_itemDisplayInfoDB.GetRecord(stats->m_displayId, &display) && (display.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
@@ -444,7 +444,7 @@ mainHand:
                 s_mainHandItemId = itemId;
 
                 if (this->m_offHand.m_classID && !HandItemsCompatible(stats->m_inventoryType, this->m_offHand.m_inventoryType, player && CGPlayer_C::CanDualWield())) {
-                    CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(this->m_offHand.m_sheatheType), this->m_offHand.m_inventoryType == INVTYPE_SHIELD);
+                    CCharacterComponent::RemoveHandItem(this->m_model, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(this->m_offHand.m_sheatheType), this->m_offHand.m_inventoryType == INVTYPE_SHIELD);
                     s_offHandItemId = 0;
                 }
 
@@ -454,7 +454,7 @@ offHand:
                 s_offHandItemId = itemId;
 
                 if (this->m_mainHand.m_classID && !HandItemsCompatible(this->m_mainHand.m_inventoryType, stats->m_inventoryType, player && CGPlayer_C::CanDualWield())) {
-                    CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(this->m_mainHand.m_sheatheType), this->m_mainHand.m_inventoryType == INVTYPE_SHIELD);
+                    CCharacterComponent::RemoveHandItem(this->m_model, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(this->m_mainHand.m_sheatheType), this->m_mainHand.m_inventoryType == INVTYPE_SHIELD);
                     s_mainHandItemId = 0;
                 }
 

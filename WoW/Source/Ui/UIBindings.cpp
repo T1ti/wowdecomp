@@ -1851,49 +1851,49 @@ MOUSEBUTTON StringToMouseButton(const char* string) {
 MOUSEBUTTON IndexToMouseButton(uint32_t index) {
     switch (index) {
         case 1:
-            return static_cast<MOUSEBUTTON>(0x1);
+            return MOUSE_BUTTON_LEFT;
 
         case 2:
-            return static_cast<MOUSEBUTTON>(0x4);
+            return MOUSE_BUTTON_RIGHT;
 
         case 3:
-            return static_cast<MOUSEBUTTON>(0x2);
+            return MOUSE_BUTTON_MIDDLE;
 
         case 4:
-            return static_cast<MOUSEBUTTON>(0x8);
+            return MOUSE_BUTTON_XBUTTON1;
 
         case 5:
-            return static_cast<MOUSEBUTTON>(0x10);
+            return MOUSE_BUTTON_XBUTTON2;
 
         case 6:
-            return static_cast<MOUSEBUTTON>(0x20);
+            return MOUSE_BUTTON_XBUTTON3;
 
         case 7:
-            return static_cast<MOUSEBUTTON>(0x40);
+            return MOUSE_BUTTON_XBUTTON4;
 
         case 8:
-            return static_cast<MOUSEBUTTON>(0x80);
+            return MOUSE_BUTTON_XBUTTON5;
 
         case 9:
-            return static_cast<MOUSEBUTTON>(0x100);
+            return MOUSE_BUTTON_XBUTTON6;
 
         case 10:
-            return static_cast<MOUSEBUTTON>(0x200);
+            return MOUSE_BUTTON_XBUTTON7;
 
         case 11:
-            return static_cast<MOUSEBUTTON>(0x400);
+            return MOUSE_BUTTON_XBUTTON8;
 
         case 12:
-            return static_cast<MOUSEBUTTON>(0x800);
+            return MOUSE_BUTTON_XBUTTON9;
 
         case 13:
-            return static_cast<MOUSEBUTTON>(0x1000);
+            return MOUSE_BUTTON_XBUTTON10;
 
         case 14:
-            return static_cast<MOUSEBUTTON>(0x2000);
+            return MOUSE_BUTTON_XBUTTON11;
 
         case 15:
-            return static_cast<MOUSEBUTTON>(0x4000);
+            return MOUSE_BUTTON_XBUTTON12;
 
         case 16:
             return static_cast<MOUSEBUTTON>(MOUSE_BUTTON_XBUTTON13);

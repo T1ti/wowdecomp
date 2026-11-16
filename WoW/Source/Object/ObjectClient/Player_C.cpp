@@ -567,7 +567,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
-                    component->AddItemBySlot(static_cast<INVENTORY_SLOTS>(0), head->GetDisplayID(), 0);
+                    component->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
                 }
             }
         }
@@ -599,7 +599,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
-                    component->AddItemBySlot(static_cast<INVENTORY_SLOTS>(0), head->GetDisplayID(), 0);
+                    component->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
                 }
             }
         }
@@ -6216,7 +6216,7 @@ void CGPlayer_C::TalkToSpiritGuide(const WOWGUID& guid) {
 // OFFSET: 0x006DD0F0
 void CGPlayer_C::HideHelm() {
     if (this->CanEquipItemsInThisForm() && this->m_characterComponent) {
-        this->m_characterComponent->RemoveItemBySlot(static_cast<INVENTORY_SLOTS>(0));
+        this->m_characterComponent->RemoveItemBySlot(INVSLOT_HEAD);
     }
 
     if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
@@ -6234,7 +6234,7 @@ void CGPlayer_C::HideHelm() {
 // OFFSET: 0x006DD1B0
 void CGPlayer_C::HideCloak() {
     if (this->CanEquipItemsInThisForm() && this->m_characterComponent) {
-        this->m_characterComponent->RemoveItemBySlot(static_cast<INVENTORY_SLOTS>(14));
+        this->m_characterComponent->RemoveItemBySlot(INVSLOT_BACK);
     }
 
     if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
@@ -10391,27 +10391,27 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
             switch (slot) {
                 case INVSLOT_MAINHAND:
                     if (this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(0), false);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_NONE, false);
                     }
 
                     break;
 
                 case INVSLOT_OFFHAND:
                     if (this->m_sheatheState <= WEAPONMODE_NORMALMODE) {
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(0), false);
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(0), true);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, SHEATHE_NONE, false);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, SHEATHE_NONE, true);
                     }
 
                     break;
 
                 case INVSLOT_RANGED:
                     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE || !this->m_sheatheState) {
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(17), static_cast<SHEATHE_TYPE>(0), false);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_RANGED, SHEATHE_NONE, false);
                     }
 
                     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(0), false);
-                        CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(0), false);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, SHEATHE_NONE, false);
+                        CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_NONE, false);
                     }
 
                     break;
@@ -10428,10 +10428,10 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
         this->EquipVisibleItem(item, slot);
 
         if (!item->m_itemId && slot == INVSLOT_MAINHAND) {
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(0), false);
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(1), false);
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(2), false);
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(3), false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_NONE, false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_MAINHAND, false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_BACK, false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, SHEATHE_HIP, false);
         }
     }
 
@@ -10470,7 +10470,7 @@ void CGPlayer_C::ShowHelm() {
     VisibleItem_C* head = &this->m_player->m_playerVisibleItems[0];
 
     if (head && head->GetDisplayID() && this->CanEquipItemsInThisForm() && this->m_characterComponent) {
-        this->m_characterComponent->AddItemBySlot(static_cast<INVENTORY_SLOTS>(0), head->GetDisplayID(), 0);
+        this->m_characterComponent->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
     }
 
     if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
@@ -10490,7 +10490,7 @@ void CGPlayer_C::ShowCloak() {
     VisibleItem_C* back = &this->m_player->m_playerVisibleItems[14];
 
     if (back && back->GetDisplayID() && this->CanEquipItemsInThisForm() && this->m_characterComponent) {
-        this->m_characterComponent->AddItemBySlot(static_cast<INVENTORY_SLOTS>(14), back->GetDisplayID(), 0);
+        this->m_characterComponent->AddItemBySlot(INVSLOT_BACK, back->GetDisplayID(), 0);
     }
 
     if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
@@ -10575,7 +10575,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             this->ClearWeaponTrail(0);
 
             if (!thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
                 break;
             }
 
@@ -10588,7 +10588,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_MAINHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), false);
 
             if (detached) {
                 detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDR, nullptr, 0);
@@ -10601,7 +10601,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
             this->ClearWeaponTrail(1);
 
             if (thrown || this->m_sheatheState != WEAPONMODE_RANGEDMODE) {
-                CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
+                CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
                 break;
             }
 
@@ -10614,7 +10614,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
                 }
             }
 
-            CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(16), static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
+            CCharacterComponent::RemoveHandItem(this->m_worldModel, INVSLOT_OFFHAND, static_cast<SHEATHE_TYPE>(old->GetSheatheType()), old->GetInventoryType() == 14);
 
             if (detached) {
                 detached->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_HANDL, nullptr, 0);

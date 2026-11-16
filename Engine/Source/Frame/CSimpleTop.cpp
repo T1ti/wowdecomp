@@ -1163,7 +1163,7 @@ CSimpleTop::CSimpleTop() {
     }
 
     this->m_mousePosition.m_mode = MOUSE_MODE_NORMAL;
-    this->m_mousePosition.m_button = static_cast<MOUSEBUTTON>(0);
+    this->m_mousePosition.m_button = MOUSE_BUTTON_NONE;
     this->m_mousePosition.m_buttonState = 0;
     this->m_mousePosition.m_metaKeyState = 0;
     this->m_mousePosition.m_flags = 0;

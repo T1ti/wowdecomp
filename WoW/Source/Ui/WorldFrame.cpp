@@ -2385,7 +2385,7 @@ int32_t CGWorldFrame::OnLayerKeyDown(const CKeyEvent& evt) {
     }
 
     state.m_modifiers = evt.m_data.m_metaKeyState;
-    return CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 1, 1, static_cast<BINDING_MODE>(4));
+    return CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 1, 1, BINDING_MODE_ACTIVE);
 }
 
 // VERIFY: e0914772 manual
@@ -2416,7 +2416,7 @@ int32_t CGWorldFrame::OnLayerKeyUp(const CKeyEvent& evt) {
 
     if (state.m_keyString[0]) {
         state.m_modifiers |= evt.m_data.m_metaKeyState;
-        result = CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 0, 1, static_cast<BINDING_MODE>(4));
+        result = CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 0, 1, BINDING_MODE_ACTIVE);
         state.m_keyString[0] = 0;
     }
 
@@ -2437,7 +2437,7 @@ int32_t CGWorldFrame::OnLayerMouseDown(const CMouseEvent& evt, const char* btn) 
     }
 
     state.m_modifiers = evt.m_data.m_metaKeyState;
-    return CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 1, 1, static_cast<BINDING_MODE>(4));
+    return CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 1, 1, BINDING_MODE_ACTIVE);
 }
 
 // VERIFY: 513360ba manual
@@ -2457,7 +2457,7 @@ int32_t CGWorldFrame::OnLayerMouseUp(const CMouseEvent& evt, const char* btn) {
 
     if (state.m_keyString[0]) {
         state.m_modifiers |= evt.m_data.m_metaKeyState;
-        result = CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 0, 1, static_cast<BINDING_MODE>(4));
+        result = CGUIBindings::s_bindings->ExecKey(state.m_modifiers, state.m_keyString, 0, 1, BINDING_MODE_ACTIVE);
         state.m_keyString[0] = 0;
     }
 
@@ -2485,8 +2485,8 @@ int32_t CGWorldFrame::OnLayerMouseWheel(const CMouseEvent& evt) {
         return 0;
     }
 
-    int32_t down = CGUIBindings::s_bindings->ExecKey(evt.m_data.m_metaKeyState, binding, 1, 1, static_cast<BINDING_MODE>(4));
-    return CGUIBindings::s_bindings->ExecKey(evt.m_data.m_metaKeyState, binding, 0, 1, static_cast<BINDING_MODE>(4)) + down;
+    int32_t down = CGUIBindings::s_bindings->ExecKey(evt.m_data.m_metaKeyState, binding, 1, 1, BINDING_MODE_ACTIVE);
+    return CGUIBindings::s_bindings->ExecKey(evt.m_data.m_metaKeyState, binding, 0, 1, BINDING_MODE_ACTIVE) + down;
 }
 
 // VERIFY: 548e1cb9 manual

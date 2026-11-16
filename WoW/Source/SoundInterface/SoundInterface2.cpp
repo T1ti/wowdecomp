@@ -1,4 +1,5 @@
 #include <cstddef>
+#include "WoW/Source/Client.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include <cstdint>
@@ -1302,7 +1303,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 // VERIFY: 3e5c36df auto
 // OFFSET: 0x004C82E0
 int32_t SI2::Init(int32_t restart) {
-    if (CmdLineGetBool(static_cast<CMDOPT>(26))) {
+    if (CmdLineGetBool(static_cast<CMDOPT>(CMD_NO_SOUND))) {
         SI2::RegisterSoundEngineCVars();
         SI2::RegisterCVars();
         return 17;
@@ -1381,7 +1382,7 @@ int32_t SI2::Init(int32_t restart) {
 
     SI2::CreateSoundGroups();
 
-    if (CmdLineGetBool(static_cast<CMDOPT>(27))) {
+    if (CmdLineGetBool(static_cast<CMDOPT>(CMD_SOUND_CHAOS))) {
         EventRegister(EVENT_ID_POLL, SI2::ChaosModeUpdate);
     }
 
