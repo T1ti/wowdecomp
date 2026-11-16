@@ -152,11 +152,11 @@ int32_t CGGameObject_C::OnFlagsChanged(WOWGUID guid, uint32_t fieldOffset, uint3
 // OFFSET: 0x00710BE0
 void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
     CGGameObject_C* owner = this->m_owner;
-    this->m_states[0].m_displayId = owner->m_stats->m_displayID;
-    GameObjectDisplayInfoRec* display = g_gameObjectDisplayInfoDB.GetRecord(this->m_states[0].m_displayId);
+    this->m_states[DESTRUCTIBLE_STATE_INTACT].m_displayId = owner->m_stats->m_displayID;
+    GameObjectDisplayInfoRec* display = g_gameObjectDisplayInfoDB.GetRecord(this->m_states[DESTRUCTIBLE_STATE_INTACT].m_displayId);
 
     if (display) {
-        this->m_states[0].m_modelName = display->m_modelName;
+        this->m_states[DESTRUCTIBLE_STATE_INTACT].m_modelName = display->m_modelName;
     } else {
         SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building - Game object id %d is missing its display record %d", owner->m_obj->m_entryID, owner->m_gameObject->m_displayID);
     }
@@ -164,11 +164,11 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
     this->m_modelData = g_destructibleModelDataDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_DESTRUCTIBLE_DATA)));
 
     if (this->m_modelData) {
-        this->m_states[1].m_displayId = this->m_modelData->m_state1WMO;
-        this->m_states[2].m_displayId = this->m_modelData->m_state2WMO;
-        this->m_states[3].m_displayId = this->m_modelData->m_state3WMO;
+        this->m_states[DESTRUCTIBLE_STATE_DAMAGED].m_displayId = this->m_modelData->m_state1WMO;
+        this->m_states[DESTRUCTIBLE_STATE_DESTROYED].m_displayId = this->m_modelData->m_state2WMO;
+        this->m_states[DESTRUCTIBLE_STATE_REBUILDING].m_displayId = this->m_modelData->m_state3WMO;
 
-        for (int32_t i = 1; i < 4; i++) {
+        for (int32_t i = DESTRUCTIBLE_STATE_DAMAGED; i < NUM_DESTRUCTIBLE_STATES; i++) {
             DestructibleBuildingState& entry = this->m_states[i];
 
             if (entry.m_displayId) {
@@ -240,9 +240,9 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
             }
         }
 
-        if (this->m_states[0].m_modelName) {
+        if (this->m_states[DESTRUCTIBLE_STATE_INTACT].m_modelName) {
             uint64_t guid = this->m_owner->m_obj->m_guid.m_guid;
-            this->m_baseCollision = static_cast<CMapEntity*>(CWorld::ObjectCreate(this->m_states[0].m_modelName, position, this->m_owner->GetFacing(), 0, 0, guid, 0, nullptr, nullptr, 0));
+            this->m_baseCollision = static_cast<CMapEntity*>(CWorld::ObjectCreate(this->m_states[DESTRUCTIBLE_STATE_INTACT].m_modelName, position, this->m_owner->GetFacing(), 0, 0, guid, 0, nullptr, nullptr, 0));
 
             if (this->m_baseCollision) {
                 World::ObjectSetRenderEnabled(this->m_baseCollision, 0);
@@ -1233,13 +1233,13 @@ void CGGameObject_C_Type_DestructibleBuilding::Disable() {
 uint16_t CGGameObject_C_Type_DestructibleBuilding::GetImpactEffectDoodadSet(int32_t state) const {
     if (this->m_modelData) {
         switch (state >> 1) {
-            case 0:
+            case DESTRUCTIBLE_STATE_INTACT:
                 return this->m_modelData->m_state0ImpactEffectDoodadSet;
 
-            case 1:
+            case DESTRUCTIBLE_STATE_DAMAGED:
                 return this->m_modelData->m_state1ImpactEffectDoodadSet;
 
-            case 2:
+            case DESTRUCTIBLE_STATE_DESTROYED:
                 return this->m_modelData->m_state2ImpactEffectDoodadSet;
         }
     }
@@ -1252,13 +1252,13 @@ uint16_t CGGameObject_C_Type_DestructibleBuilding::GetImpactEffectDoodadSet(int3
 uint16_t CGGameObject_C_Type_DestructibleBuilding::GetDestructionDoodadSet(int32_t state) const {
     if (this->m_modelData) {
         switch (state >> 1) {
-            case 1:
+            case DESTRUCTIBLE_STATE_DAMAGED:
                 return this->m_modelData->m_state1DestructionDoodadSet;
 
-            case 2:
+            case DESTRUCTIBLE_STATE_DESTROYED:
                 return this->m_modelData->m_state2DestructionDoodadSet;
 
-            case 3:
+            case DESTRUCTIBLE_STATE_REBUILDING:
                 return this->m_modelData->m_state3InitDoodadSet;
         }
     }
@@ -1274,16 +1274,16 @@ uint16_t CGGameObject_C_Type_DestructibleBuilding::GetAmbientDoodadSet(int32_t s
     }
 
     switch (state >> 1) {
-        case 0:
+        case DESTRUCTIBLE_STATE_INTACT:
             return this->m_modelData->m_state0AmbientDoodadSet;
 
-        case 1:
+        case DESTRUCTIBLE_STATE_DAMAGED:
             return this->m_modelData->m_state1AmbientDoodadSet;
 
-        case 2:
+        case DESTRUCTIBLE_STATE_DESTROYED:
             return this->m_modelData->m_state2AmbientDoodadSet;
 
-        case 3:
+        case DESTRUCTIBLE_STATE_REBUILDING:
             return this->m_modelData->m_state3AmbientDoodadSet;
 
         default:
@@ -2223,7 +2223,7 @@ bool CGGameObject_C_Type_DestructibleBuilding::CanHighlight() const {
 // VERIFY: aad75636 manual
 // OFFSET: 0x0070DFA0
 void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
-    int32_t current = 0;
+    int32_t current = DESTRUCTIBLE_STATE_INTACT;
 
     do {
         if (this->m_states[current].m_object == this->m_worldObject) {
@@ -2231,7 +2231,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         }
 
         current++;
-    } while (current < 4);
+    } while (current < NUM_DESTRUCTIBLE_STATES);
 
     int32_t state = ((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT;
 
@@ -2253,7 +2253,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         World::ObjectEnableCollision(this->m_worldObject, 0);
     }
 
-    if (this->m_worldObject && state > current && state != 3 && state) {
+    if (this->m_worldObject && state > current && state != DESTRUCTIBLE_STATE_REBUILDING && state != DESTRUCTIBLE_STATE_INTACT) {
         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
         if (mover && !mover->HasVehicleTransport() && !(mover->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
@@ -2355,15 +2355,15 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         uint16_t set;
 
         switch (((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT) {
-            case 1:
+            case DESTRUCTIBLE_STATE_DAMAGED:
                 set = this->m_modelData->m_state1DestructionDoodadSet;
                 break;
 
-            case 2:
+            case DESTRUCTIBLE_STATE_DESTROYED:
                 set = this->m_modelData->m_state2DestructionDoodadSet;
                 break;
 
-            case 3:
+            case DESTRUCTIBLE_STATE_REBUILDING:
                 set = this->m_modelData->m_state3InitDoodadSet;
                 break;
 
@@ -2387,19 +2387,19 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
     uint16_t ambient;
 
     switch (((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT) {
-        case 0:
+        case DESTRUCTIBLE_STATE_INTACT:
             ambient = this->m_modelData->m_state0AmbientDoodadSet;
             break;
 
-        case 1:
+        case DESTRUCTIBLE_STATE_DAMAGED:
             ambient = this->m_modelData->m_state1AmbientDoodadSet;
             break;
 
-        case 2:
+        case DESTRUCTIBLE_STATE_DESTROYED:
             ambient = this->m_modelData->m_state2AmbientDoodadSet;
             break;
 
-        case 3:
+        case DESTRUCTIBLE_STATE_REBUILDING:
             ambient = this->m_modelData->m_state3AmbientDoodadSet;
             break;
 

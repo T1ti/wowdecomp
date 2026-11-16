@@ -256,7 +256,7 @@ class CGGameObject_C_Type_DestructibleBuilding : public CGGameObject_C_Type_Worl
     static void ImpactEffectSequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
     static void MovedDoodadSequenceHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 
-    /* 0014 */ DestructibleBuildingState m_states [4];
+    /* 0014 */ DestructibleBuildingState m_states [NUM_DESTRUCTIBLE_STATES];
     /* 0054 */ int32_t m_previousState;
     /* 0058 */ float m_baseZ;
     /* 005C */ uint32_t m_animStartTime;

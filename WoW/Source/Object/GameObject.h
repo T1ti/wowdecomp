@@ -21,6 +21,17 @@ class CGGameObject {
     /* 0004 */ void* m_gameObjectMirror;
 };
 
+// Destructible building state packed in CGGameObjectData::m_flags. States 1..3 use
+// DestructibleModelData m_state1WMO..m_state3WMO, whose models are named *_damaged,
+// *_destroyed and *_destroyed_construction (e.g. GuardTower); state 0 is the base display.
+enum DESTRUCTIBLE_STATE : int32_t {
+    DESTRUCTIBLE_STATE_INTACT = 0,
+    DESTRUCTIBLE_STATE_DAMAGED = 1,
+    DESTRUCTIBLE_STATE_DESTROYED = 2,
+    DESTRUCTIBLE_STATE_REBUILDING = 3,
+    NUM_DESTRUCTIBLE_STATES = 4,
+};
+
 class CGGameObjectData {
     public:
     // Static flags and packed destructible data share a raw uint32 mirror.
