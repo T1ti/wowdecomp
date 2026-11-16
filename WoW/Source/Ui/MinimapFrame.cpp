@@ -151,11 +151,17 @@ CTexture* s_blipTexture;
 // STATIC: 0x00BEBA3C
 CTexture* s_iconTexture;
 
+// Icon cells in the minimap object icon atlas, a square grid (inferred name).
+static const uint32_t NUM_MINIMAP_ICONS = 196;
+
+// Cells in the class blip atlas, two rows of eight (inferred name).
+static const uint32_t NUM_CLASS_BLIPS = 16;
+
 // STATIC: 0x00BF6148
-static C2Vector s_iconTexCoords[196][4];
+static C2Vector s_iconTexCoords[NUM_MINIMAP_ICONS][4];
 
 // STATIC: 0x00BF79C8
-static C2Vector s_classBlipTexCoords[16][4];
+static C2Vector s_classBlipTexCoords[NUM_CLASS_BLIPS][4];
 
 // STATIC: 0x00BF7BC8
 static C2Vector s_blipTexCoords[32][4];
@@ -296,8 +302,11 @@ static MINIMAPQUAD s_quads[4] = {
     { { 0.0f, 0.5f, 0.5f, 1.0f }, C2Vector(0.0f, 1.0f) },
 };
 
+// Tile slots for the indoor (WMO) minimap (inferred name).
+static const uint32_t MAX_MINIMAP_TILES = 256;
+
 // STATIC: 0x00BEBB10
-static MINIMAPTILE s_tiles[256];
+static MINIMAPTILE s_tiles[MAX_MINIMAP_TILES];
 
 // STATIC: 0x00BF5F10
 static MINIMAPINDOOR s_indoor;
@@ -656,11 +665,11 @@ void CGMinimapFrame::InitializeGame() {
     uint32_t height = 256;
     TextureGetDimensions(s_iconTexture, &width, &height, 1);
 
-    uint32_t columns = CMath::sqrt_(196);
+    uint32_t columns = CMath::sqrt_(NUM_MINIMAP_ICONS);
     float texel = 1.0f / width;
     float size = texel * 18.0f;
 
-    for (uint32_t i = 0; i < 196; i++) {
+    for (uint32_t i = 0; i < NUM_MINIMAP_ICONS; i++) {
         float left = (i % columns) * size + texel;
         float right = left + size - texel;
         float top = (i / columns) * size + texel;
@@ -676,7 +685,7 @@ void CGMinimapFrame::InitializeGame() {
         s_iconTexCoords[i][3].y = top;
     }
 
-    for (uint32_t i = 0; i < 16; i++) {
+    for (uint32_t i = 0; i < NUM_CLASS_BLIPS; i++) {
         float left = (i & 7) * 0.125f;
         float bottom = ((i >> 3) + 1) * 0.5f;
         float right = ((i & 7) + 1) * 0.125f;
@@ -1223,7 +1232,7 @@ void MINIMAPTILE::UpdateQuad(uint32_t index, C2Vector center, float scale, float
 // VERIFY: 2aace7b1 auto
 // OFFSET: 0x0057E780
 void CGMinimapFrame::UpdateQuads(const C2Vector& center, float scale) {
-    for (uint32_t i = 0; i < 256; i++) {
+    for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
         s_tiles[i].UpdateQuad(i, center, scale, this->m_layoutScale, this->GetWidth());
     }
 }
@@ -1451,7 +1460,7 @@ static void MinimapSetMapObjName(CMapEntity* entity) {
 // VERIFY: a165470a manual
 // OFFSET: 0x007F3CE0
 static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t currentGroup, float height) {
-    for (uint32_t i = 0; i < 256; i++) {
+    for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
         MINIMAPTILE* tile = &tiles[i];
 
         if (tile->m_groupId == quad->m_groupId && tile->m_tileCoords.x == quad->m_quad.x && tile->m_tileCoords.y == quad->m_quad.y) {
@@ -1479,7 +1488,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
         index++;
         tiles++;
 
-        if (index >= 256) {
+        if (index >= MAX_MINIMAP_TILES) {
             return;
         }
     }
@@ -1582,7 +1591,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
                 SetupMapObjMatrices(entity);
                 MinimapSetMapObjName(entity);
 
-                for (uint32_t i = 0; i < 256; i++) {
+                for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
                     tiles[i].m_groupId = -1;
                 }
 
@@ -1642,14 +1651,14 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
             s_indoorBounds.t.y = radius + minY;
             s_indoorBounds.t.z = s_indoorBounds.b.z + half;
 
-            MINIMAPQUADINFO* buffer = static_cast<MINIMAPQUADINFO*>(alloca(256 * sizeof(MINIMAPQUADINFO)));
+            MINIMAPQUADINFO* buffer = static_cast<MINIMAPQUADINFO*>(alloca(MAX_MINIMAP_TILES * sizeof(MINIMAPQUADINFO)));
             TSStackArray<MINIMAPQUADINFO> quads(buffer, 0, 0);
             CAaBox box = s_indoorBounds;
             box.Expand(radius);
-            World::QueryMapObjMinimap(entity, &box, &quads, 256, inside != 0, s_mapObjIndoorArea);
+            World::QueryMapObjMinimap(entity, &box, &quads, MAX_MINIMAP_TILES, inside != 0, s_mapObjIndoorArea);
             C3Vector local = *position * s_mapObjInvMatrix;
 
-            for (uint32_t i = 0; i < 256; i++) {
+            for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
                 tiles[i].m_flags &= ~MINIMAPTILE::FLAGS::IN_USE;
             }
 
@@ -1673,7 +1682,7 @@ int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* positio
         }
 
         if (s_updateFlags & MINIMAP_UPDATE_TEXTURES_PENDING) {
-            for (uint32_t i = 0; i < 256; i++) {
+            for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
                 uint32_t flags = tiles[i].m_flags;
 
                 if ((flags & MINIMAPTILE::FLAGS::IN_USE) && (flags & MINIMAPTILE::FLAGS::TEXTURE_PENDING)) {
@@ -2681,7 +2690,7 @@ void CGMinimapFrame::RenderOverlay(const C44Matrix& rotation) {
 void CGMinimapFrame::LeaveWorld() {
     MinimapShutdown();
 
-    for (uint32_t i = 0; i < 256; i++) {
+    for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
         if (s_tiles[i].m_texture) {
             HandleClose(reinterpret_cast<HOBJECT>(s_tiles[i].m_texture));
             s_tiles[i].m_texture = nullptr;
@@ -3107,7 +3116,7 @@ void CGMinimapFrame::RenderRaidArrows(const C44Matrix& rotation) {
 // VERIFY: b168ac00 manual
 // OFFSET: 0x0057BD10
 void CGMinimapFrame::RenderInsideSortQuads(MINIMAPTILE** head) {
-    for (uint32_t i = 0; i < 256; i++) {
+    for (uint32_t i = 0; i < MAX_MINIMAP_TILES; i++) {
         MINIMAPTILE* tile = &s_tiles[i];
 
         if (!(tile->m_flags & MINIMAPTILE::FLAGS::IN_USE) || !tile->m_texture) {
