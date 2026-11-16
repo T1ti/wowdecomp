@@ -511,8 +511,16 @@ struct TaintStackFrame {
     /* 0064 */ const char* m_objectName;
 };
 
+// CGGameUI::ShowBlockedActionFeedback type: forbidden actions signal
+// ADDON_ACTION_FORBIDDEN, the others ADDON_ACTION_BLOCKED (inferred names).
+enum BLOCKED_ACTION_TYPE : uint32_t {
+    BLOCKED_ACTION_FORBIDDEN = 0,
+    BLOCKED_ACTION_BLOCKED = 1,
+    BLOCKED_ACTION_BLOCKED_IN_COMBAT = 2,
+};
+
 struct TAINTEVENT : public TSHashObject<TAINTEVENT, HASHKEY_STR> {
-    /* 0018 */ int32_t m_type;
+    /* 0018 */ int32_t m_type; // LUA_TAINTEVENT_*
     /* 001C */ const char* m_name;
     /* 0020 */ const char* m_taint;
     /* 0024 */ TSGrowableArray<TaintStackFrame> m_stack;

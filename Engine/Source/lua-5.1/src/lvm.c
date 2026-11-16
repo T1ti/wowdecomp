@@ -131,7 +131,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       if (!ttisnil(res) ||  /* result is no nil? */
           (tm = fasttm(L, h->metatable, TM_INDEX)) == NULL) { /* or no TM? */
         if (lua_tainteventcallback && hvalue(t) == hvalue(gt(L)) && ttisstring(key) && res->taint && !lua_taintedclosure)
-          lua_tainteventcallback(L, 2, svalue(key), res->taint);
+          lua_tainteventcallback(L, LUA_TAINTEVENT_EXECUTION_TAINTED, svalue(key), res->taint);
         setobj2s(L, val, res);
         return;
       }
@@ -162,7 +162,7 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
           (tm = fasttm(L, h->metatable, TM_NEWINDEX)) == NULL) { /* or no TM? */
         if (lua_tainteventcallback && hvalue(t) == hvalue(gt(L)) && ttisstring(key) && val->taint &&
             (ttisnil(oldval) || oldval->taint != val->taint))
-          lua_tainteventcallback(L, 1, svalue(key), val->taint);
+          lua_tainteventcallback(L, LUA_TAINTEVENT_GLOBAL_TAINTED, svalue(key), val->taint);
         setobj2t(L, oldval, val);
         luaC_barriert(L, h, val);
         return;

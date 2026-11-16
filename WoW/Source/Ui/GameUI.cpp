@@ -1351,7 +1351,7 @@ void CGGameUI::ShowBlockedActionFeedback(FrameScript_Object* object, uint32_t ty
     FrameScript_GetCurrentFunction(L, function, sizeof(function));
     SStrPack(function, "()", sizeof(function));
 
-    if (type) {
+    if (type != BLOCKED_ACTION_FORBIDDEN) {
         if (lua_tainted == g_macroTaint) {
             FrameScript_SignalEvent(SCRIPT_EVENT_MACRO_ACTION_BLOCKED, "%s", function);
         } else {
@@ -1364,10 +1364,10 @@ void CGGameUI::ShowBlockedActionFeedback(FrameScript_Object* object, uint32_t ty
     }
 
     if (lua_tainteventcallback) {
-        if (type == 2) {
-            lua_tainteventcallback(L, 4, nullptr, lua_tainted);
+        if (type == BLOCKED_ACTION_BLOCKED_IN_COMBAT) {
+            lua_tainteventcallback(L, LUA_TAINTEVENT_ACTION_BLOCKED_COMBAT, nullptr, lua_tainted);
         } else {
-            lua_tainteventcallback(L, 3, nullptr, lua_tainted);
+            lua_tainteventcallback(L, LUA_TAINTEVENT_ACTION_BLOCKED, nullptr, lua_tainted);
         }
     }
 
@@ -1539,7 +1539,7 @@ static int32_t TargetDirectionProc(WOWGUID guid, void* param) {
 // OFFSET: 0x005252D0
 void CGGameUI::TargetDirection(float facing, float angle, int32_t type) {
     if (lua_tainted) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
         return;
     }
 
@@ -1627,7 +1627,7 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
             case UI_ACTION::UI_ACTION_UNKNOWN_5:
             case UI_ACTION::UI_ACTION_UNKNOWN_16:
             case UI_ACTION::UI_ACTION_GM_TICKET:
-                CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+                CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
                 return 0;
 
             case UI_ACTION::UI_ACTION_TRADE_SKILL:
@@ -1645,7 +1645,7 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
                 }
 
                 if (!CGGameUI::m_simpleTop->unused_1250) {
-                    CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+                    CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
                     return 0;
                 }
 
@@ -1661,7 +1661,7 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
                 }
 
                 if (!CGGameUI::m_simpleTop->m_allowProtectedActions) {
-                    CGGameUI::ShowBlockedActionFeedback(nullptr, 2);
+                    CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED_IN_COMBAT);
                     return 0;
                 }
 
@@ -2228,7 +2228,7 @@ void CGGameUI::ScaleToScreenSize(int32_t width, int32_t height, int32_t force) {
 
     if (fabs(CGGameUI::m_aspect - aspect) >= 0.001f) {
         if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-            CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+            CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
             CGGameUI::m_aspect = aspect;
         } else {
             CGGameUI::m_aspect = aspect;
@@ -2791,7 +2791,7 @@ void CGGameUI::Target(WOWGUID guid) {
     }
 
     if (lua_tainted) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
         return;
     }
 
@@ -3920,7 +3920,7 @@ void SignalEvent_EVENT_PARTY_INVITE_REQUEST(const char* name) {
 // VERIFY: 4e6f4271 auto
 // OFFSET: 0x00513640
 void CGGameUI::ShowBlockedFrameFeedback(CScriptRegion* region) {
-    CGGameUI::ShowBlockedActionFeedback(region, 2);
+    CGGameUI::ShowBlockedActionFeedback(region, BLOCKED_ACTION_BLOCKED_IN_COMBAT);
 }
 
 // VERIFY: 31aed9df auto
@@ -4012,7 +4012,7 @@ void CGGameUI::SetFocusTarget(const WOWGUID& guid) {
     }
 
     if (lua_tainted) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
         return;
     }
 
@@ -5169,7 +5169,7 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
 void TargetNearestEnemy(int32_t reverse, int32_t type) {
     while (true) {
         if (lua_tainted) {
-            CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+            CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
             return;
         }
 
@@ -7366,25 +7366,25 @@ static void PrintTaintEvent(TAINTEVENT* event) {
     }
 
     switch (event->m_type) {
-        case 1:
+        case LUA_TAINTEVENT_GLOBAL_TAINTED:
             SStrPrintf(text, sizeof(text), "Global variable %s tainted by %s - %s", event->m_name, event->m_taint, context);
             DebugLog("%s\n", text);
             SLogWrite(s_taintLog, "%s", text);
             break;
 
-        case 2:
+        case LUA_TAINTEVENT_EXECUTION_TAINTED:
             SStrPrintf(text, sizeof(text), "Execution tainted by %s while reading %s - %s", event->m_taint, event->m_name, context);
             DebugLog("%s\n", text);
             SLogWrite(s_taintLog, "%s", text);
             break;
 
-        case 3:
+        case LUA_TAINTEVENT_ACTION_BLOCKED:
             SStrPrintf(text, sizeof(text), "An action was blocked because of taint from %s - %s", event->m_taint, context);
             DebugLog("%s\n", text);
             SLogWrite(s_taintLog, "%s", text);
             break;
 
-        case 4:
+        case LUA_TAINTEVENT_ACTION_BLOCKED_COMBAT:
             SStrPrintf(text, sizeof(text), "An action was blocked in combat because of taint from %s - %s", event->m_taint, context);
             DebugLog("%s\n", text);
             SLogWrite(s_taintLog, "%s", text);
@@ -7409,7 +7409,7 @@ void TaintEventCallback(lua_State* L, int32_t event, const char* name, const cha
         taint = "MACRO_TAINT";
     }
 
-    if (g_taintLogCVar->m_intValue == 1 && (event == 3 || event == 4) && s_lastTaintEvent.m_type == 2 && s_lastTaintEvent.m_taint == taint) {
+    if (g_taintLogCVar->m_intValue == 1 && (event == LUA_TAINTEVENT_ACTION_BLOCKED || event == LUA_TAINTEVENT_ACTION_BLOCKED_COMBAT) && s_lastTaintEvent.m_type == LUA_TAINTEVENT_EXECUTION_TAINTED && s_lastTaintEvent.m_taint == taint) {
         TAINTEVENT* global = s_taintEvents.Ptr(s_lastTaintEvent.m_name);
 
         if (global) {
@@ -7421,7 +7421,7 @@ void TaintEventCallback(lua_State* L, int32_t event, const char* name, const cha
 
     TAINTEVENT* record;
 
-    if (event == 1) {
+    if (event == LUA_TAINTEVENT_GLOBAL_TAINTED) {
         record = s_taintEvents.Ptr(name);
 
         if (!record) {
@@ -7466,7 +7466,7 @@ void TaintEventCallback(lua_State* L, int32_t event, const char* name, const cha
         } while (lua_getstack(L, level++, &ar));
     }
 
-    if (g_taintLogCVar->m_intValue != 1 || (event != 1 && event != 2)) {
+    if (g_taintLogCVar->m_intValue != 1 || (event != LUA_TAINTEVENT_GLOBAL_TAINTED && event != LUA_TAINTEVENT_EXECUTION_TAINTED)) {
         PrintTaintEvent(record);
     }
 }
@@ -7808,7 +7808,7 @@ const char* CGGameUI::GetErrorToken(int32_t error) {
 // OFFSET: 0x0051D960
 void CGGameUI::Reload() {
     if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
         return;
     }
 

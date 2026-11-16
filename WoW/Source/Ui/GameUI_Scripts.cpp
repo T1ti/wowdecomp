@@ -1759,7 +1759,7 @@ static int32_t Script_SetCVar(lua_State* L) {
     }
 
     if ((var->m_flags & CVAR_FLAGS::CVAR_PROTECTED) && !CSimpleTop::GetInstance()->m_allowProtectedActions) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 2);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED_IN_COMBAT);
         return 0;
     }
 
@@ -2096,7 +2096,7 @@ static int32_t Script_SetUIVisibility(lua_State* L) {
 // OFFSET: 0x0051AC90
 static int32_t Script_CancelLogout(lua_State* L) {
     if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
         return 0;
     }
 
@@ -4612,7 +4612,7 @@ static int32_t Script_UninviteUnit(lua_State* L) {
     }
 
     if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
         return 0;
     }
 
@@ -5440,7 +5440,7 @@ static int32_t Script_GameMovieFinished(lua_State* L) {
 // OFFSET: 0x005222E0
 static int32_t Script_ReloadUI(lua_State* L) {
     if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
         return 0;
     }
 
@@ -5678,7 +5678,7 @@ static int32_t Script_SetCurrentTitle(lua_State* L) {
     }
 
     if (lua_tainted && CGGameUI::m_simpleTop && !CGGameUI::m_simpleTop->unused_1250) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 1);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_BLOCKED);
         return 0;
     }
 
@@ -6102,7 +6102,7 @@ static int32_t Script_InteractUnit(lua_State* L) {
     }
 
     if (lua_tainted) {
-        CGGameUI::ShowBlockedActionFeedback(nullptr, 0);
+        CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
         return 0;
     }
 

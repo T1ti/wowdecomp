@@ -110,6 +110,14 @@ LUA_API int lua_taintedclosure;
 LUA_API const char *lua_closuretaint;
 LUA_API const char *lua_gctag;
 
+/* lua_tainteventcallback event IDs, named after the taint log messages */
+enum {
+  LUA_TAINTEVENT_GLOBAL_TAINTED = 1,       /* "Global variable %s tainted by %s" */
+  LUA_TAINTEVENT_EXECUTION_TAINTED = 2,    /* "Execution tainted by %s while reading %s" */
+  LUA_TAINTEVENT_ACTION_BLOCKED = 3,       /* "An action was blocked because of taint" */
+  LUA_TAINTEVENT_ACTION_BLOCKED_COMBAT = 4 /* "An action was blocked in combat" */
+};
+
 typedef void (*lua_TaintEventCallback) (lua_State *L, int event, const char *name, const char *taint);
 LUA_API lua_TaintEventCallback lua_tainteventcallback;
 
