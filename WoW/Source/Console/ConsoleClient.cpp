@@ -806,7 +806,7 @@ static int32_t OnKeyDownRepeat(const void* data, void* param) {
             break;
 
         case KEY_PAGEUP:
-            if (key->m_metaKeyState & 3) {
+            if (key->m_metaKeyState & META_KEY_SHIFT) {
                 CONSOLELINE* ptr = s_currlineptr;
 
                 for (int32_t i = 0; i < 10 && ptr; i++) {
@@ -837,7 +837,7 @@ static int32_t OnKeyDownRepeat(const void* data, void* param) {
             break;
 
         case KEY_PAGEDOWN:
-            if (key->m_metaKeyState & 3) {
+            if (key->m_metaKeyState & META_KEY_SHIFT) {
                 CONSOLELINE* ptr = s_currlineptr;
 
                 for (int32_t i = 0; i < 10 && ptr; i++) {
@@ -871,7 +871,7 @@ static int32_t OnKeyDownRepeat(const void* data, void* param) {
             break;
     }
 
-    if (key->m_key != KEY_TAB && key->m_key != KEY_LSHIFT && key->m_key != KEY_RSHIFT && key->m_key != KEY_LALT && key->m_key != KEY_RALT && !(key->m_metaKeyState & 0xC)) {
+    if (key->m_key != KEY_TAB && key->m_key != KEY_LSHIFT && key->m_key != KEY_RSHIFT && key->m_key != KEY_LALT && key->m_key != KEY_RALT && !(key->m_metaKeyState & META_KEY_CONTROL)) {
         s_completionMode = 0;
         ResetHighlight();
     }
@@ -1089,7 +1089,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
                 SStrCopy(s_partial, reinterpret_cast<const char*>(line->m_buffer) + line->m_inputstart, STORM_MAX_STR);
             }
 
-            if (ConsoleCommandComplete(s_partial, &s_completedCmd, (key->m_metaKeyState & 3) != 0)) {
+            if (ConsoleCommandComplete(s_partial, &s_completedCmd, (key->m_metaKeyState & META_KEY_SHIFT) != 0)) {
                 MakeCommandCurrent(line, s_completedCmd);
             }
 
@@ -1123,7 +1123,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case KEY_HOME:
-            if (key->m_metaKeyState & 0xC) {
+            if (key->m_metaKeyState & META_KEY_CONTROL) {
                 s_currlineptr = s_linelist.Tail();
             } else if (line->m_inputpos > line->m_inputstart) {
                 line->m_inputpos = line->m_inputstart;
@@ -1132,7 +1132,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case KEY_END:
-            if (key->m_metaKeyState & 0xC) {
+            if (key->m_metaKeyState & META_KEY_CONTROL) {
                 s_currlineptr = s_linelist.Head();
             } else if (line->m_inputpos < line->m_chars) {
                 line->m_inputpos = line->m_chars;
@@ -1141,7 +1141,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case KEY_PAGEUP:
-            if (key->m_metaKeyState & 3) {
+            if (key->m_metaKeyState & META_KEY_SHIFT) {
                 CONSOLELINE* ptr = s_currlineptr;
 
                 for (int32_t i = 0; i < 10 && ptr; i++) {
@@ -1172,7 +1172,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case KEY_PAGEDOWN:
-            if (key->m_metaKeyState & 3) {
+            if (key->m_metaKeyState & META_KEY_SHIFT) {
                 CONSOLELINE* ptr = s_currlineptr;
 
                 for (int32_t i = 0; i < 10 && ptr; i++) {
@@ -1203,7 +1203,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case 'C':
-            if (key->m_metaKeyState & 0xC) {
+            if (key->m_metaKeyState & META_KEY_CONTROL) {
                 if (s_copyText[0]) {
                     char buffer[128];
                     uint32_t length = s_highlightRightCharIndex - s_highlightLeftCharIndex;
@@ -1223,7 +1223,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
 
         case 'V':
-            if (key->m_metaKeyState & 0xC) {
+            if (key->m_metaKeyState & META_KEY_CONTROL) {
                 char* text = OsClipboardGetString();
 
                 if (text) {
@@ -1239,7 +1239,7 @@ static int32_t OnKeyDown(const void* data, void* param) {
             break;
     }
 
-    if (key->m_key != KEY_TAB && key->m_key != KEY_LSHIFT && key->m_key != KEY_RSHIFT && key->m_key != KEY_LALT && key->m_key != KEY_RALT && !(key->m_metaKeyState & 0xC)) {
+    if (key->m_key != KEY_TAB && key->m_key != KEY_LSHIFT && key->m_key != KEY_RSHIFT && key->m_key != KEY_LALT && key->m_key != KEY_RALT && !(key->m_metaKeyState & META_KEY_CONTROL)) {
         s_completionMode = 0;
         ResetHighlight();
     }

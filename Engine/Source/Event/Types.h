@@ -119,6 +119,20 @@ enum KEY : uint32_t {
     KEY_LAST = 0x313,
 };
 
+// m_metaKeyState: bit (1 << key) is set while that meta KEY is held (IEvtDispatchKeyDown).
+// Inferred names.
+enum META_KEY_STATE : uint32_t {
+    META_KEY_LSHIFT = 1u << KEY_LSHIFT,
+    META_KEY_RSHIFT = 1u << KEY_RSHIFT,
+    META_KEY_LCONTROL = 1u << KEY_LCONTROL,
+    META_KEY_RCONTROL = 1u << KEY_RCONTROL,
+    META_KEY_LALT = 1u << KEY_LALT,
+    META_KEY_RALT = 1u << KEY_RALT,
+    META_KEY_SHIFT = META_KEY_LSHIFT | META_KEY_RSHIFT,
+    META_KEY_CONTROL = META_KEY_LCONTROL | META_KEY_RCONTROL,
+    META_KEY_ALT = META_KEY_LALT | META_KEY_RALT,
+};
+
 enum MOUSEBUTTON : uint32_t {
     MOUSE_BUTTON_NONE = 0,
     MOUSE_BUTTON_LEFT = 1,
