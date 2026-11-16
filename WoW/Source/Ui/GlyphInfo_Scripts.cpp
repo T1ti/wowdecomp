@@ -23,7 +23,7 @@
 // VERIFY: 6144c30d auto
 // OFFSET: 0x005B71E0
 static int32_t Script_GetNumGlyphSockets(lua_State* L) {
-    lua_pushnumber(L, 6.0);
+    lua_pushnumber(L, NUM_GLYPH_SLOTS);
     return 1;
 }
 

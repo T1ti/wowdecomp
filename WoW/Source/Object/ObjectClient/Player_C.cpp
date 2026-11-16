@@ -2373,7 +2373,7 @@ int32_t OnUpdatePlayerGlyphSlotsEnabled(WOWGUID guid, uint32_t offset, uint32_t 
     if (player) {
         uint32_t enabled = *static_cast<const uint32_t*>(value);
 
-        for (uint32_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < NUM_GLYPH_SLOTS; i++) {
             uint32_t bit = 1 << i;
 
             if (player->m_player->m_playerGlyphsEnabled & bit) {
