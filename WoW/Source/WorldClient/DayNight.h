@@ -36,6 +36,11 @@ struct DNKeyframe {
 namespace DayNight {
 class CurrentLight {
     public:
+    // Interpolated color slot counts (inferred names).
+    static const uint32_t NUM_SKY_COLORS = 6;
+    static const uint32_t NUM_SUN_CLOUD_COLORS = 5;
+    static const uint32_t NUM_WATER_COLORS = 4;
+
     struct SkyboxBlend {
         /* 0000 */ uint32_t m_id;
         /* 0004 */ float m_weight;
@@ -44,9 +49,9 @@ class CurrentLight {
     /* 0000 */ CImVector m_ambient;
     /* 0004 */ CImVector m_diffuse;
     /* 0008 */ CImVector m_shadowOpacity;
-    /* 000C */ CImVector m_skyColors [6];
-    /* 0024 */ CImVector m_sunCloudColors [5];
-    /* 0038 */ CImVector m_waterColors [4];
+    /* 000C */ CImVector m_skyColors [NUM_SKY_COLORS];
+    /* 0024 */ CImVector m_sunCloudColors [NUM_SUN_CLOUD_COLORS];
+    /* 0038 */ CImVector m_waterColors [NUM_WATER_COLORS];
     /* 0048 */ float m_fogEnd;
     /* 004C */ float m_fogStartMul;
     /* 0050 */ float m_fogRate;

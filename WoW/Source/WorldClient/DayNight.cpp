@@ -355,21 +355,18 @@ void DayNight::BlendColors(CurrentLight* dst, const CurrentLight* src, float t) 
 
     dst->m_diffuse = DayNight::InterpColor(dst->m_diffuse, src->m_diffuse, t);
     dst->m_ambient = DayNight::InterpColor(dst->m_ambient, src->m_ambient, t);
-    dst->m_skyColors[0] = DayNight::InterpColor(dst->m_skyColors[0], src->m_skyColors[0], t);
-    dst->m_skyColors[1] = DayNight::InterpColor(dst->m_skyColors[1], src->m_skyColors[1], t);
-    dst->m_skyColors[2] = DayNight::InterpColor(dst->m_skyColors[2], src->m_skyColors[2], t);
-    dst->m_skyColors[3] = DayNight::InterpColor(dst->m_skyColors[3], src->m_skyColors[3], t);
-    dst->m_skyColors[4] = DayNight::InterpColor(dst->m_skyColors[4], src->m_skyColors[4], t);
-    dst->m_skyColors[5] = DayNight::InterpColor(dst->m_skyColors[5], src->m_skyColors[5], t);
-    dst->m_sunCloudColors[0] = DayNight::InterpColor(dst->m_sunCloudColors[0], src->m_sunCloudColors[0], t);
-    dst->m_sunCloudColors[1] = DayNight::InterpColor(dst->m_sunCloudColors[1], src->m_sunCloudColors[1], t);
-    dst->m_sunCloudColors[2] = DayNight::InterpColor(dst->m_sunCloudColors[2], src->m_sunCloudColors[2], t);
-    dst->m_sunCloudColors[3] = DayNight::InterpColor(dst->m_sunCloudColors[3], src->m_sunCloudColors[3], t);
-    dst->m_sunCloudColors[4] = DayNight::InterpColor(dst->m_sunCloudColors[4], src->m_sunCloudColors[4], t);
-    dst->m_waterColors[0] = DayNight::InterpColor(dst->m_waterColors[0], src->m_waterColors[0], t);
-    dst->m_waterColors[1] = DayNight::InterpColor(dst->m_waterColors[1], src->m_waterColors[1], t);
-    dst->m_waterColors[2] = DayNight::InterpColor(dst->m_waterColors[2], src->m_waterColors[2], t);
-    dst->m_waterColors[3] = DayNight::InterpColor(dst->m_waterColors[3], src->m_waterColors[3], t);
+    for (uint32_t i = 0; i < CurrentLight::NUM_SKY_COLORS; i++) {
+        dst->m_skyColors[i] = DayNight::InterpColor(dst->m_skyColors[i], src->m_skyColors[i], t);
+    }
+
+    for (uint32_t i = 0; i < CurrentLight::NUM_SUN_CLOUD_COLORS; i++) {
+        dst->m_sunCloudColors[i] = DayNight::InterpColor(dst->m_sunCloudColors[i], src->m_sunCloudColors[i], t);
+    }
+
+    for (uint32_t i = 0; i < CurrentLight::NUM_WATER_COLORS; i++) {
+        dst->m_waterColors[i] = DayNight::InterpColor(dst->m_waterColors[i], src->m_waterColors[i], t);
+    }
+
     dst->m_fogEnd = (src->m_fogEnd - dst->m_fogEnd) * t + dst->m_fogEnd;
     dst->m_fogStartMul = (src->m_fogStartMul - dst->m_fogStartMul) * t + dst->m_fogStartMul;
     dst->m_fogRate = (src->m_fogRate - dst->m_fogRate) * t + dst->m_fogRate;
@@ -817,21 +814,18 @@ DayNight::CurrentLight& DayNight::CurrentLight::operator=(const CurrentLight& so
     this->m_ambient = source.m_ambient;
     this->m_diffuse = source.m_diffuse;
     this->m_shadowOpacity = source.m_shadowOpacity;
-    this->m_skyColors[0] = source.m_skyColors[0];
-    this->m_skyColors[1] = source.m_skyColors[1];
-    this->m_skyColors[2] = source.m_skyColors[2];
-    this->m_skyColors[3] = source.m_skyColors[3];
-    this->m_skyColors[4] = source.m_skyColors[4];
-    this->m_skyColors[5] = source.m_skyColors[5];
-    this->m_sunCloudColors[0] = source.m_sunCloudColors[0];
-    this->m_sunCloudColors[1] = source.m_sunCloudColors[1];
-    this->m_sunCloudColors[2] = source.m_sunCloudColors[2];
-    this->m_sunCloudColors[3] = source.m_sunCloudColors[3];
-    this->m_sunCloudColors[4] = source.m_sunCloudColors[4];
-    this->m_waterColors[0] = source.m_waterColors[0];
-    this->m_waterColors[1] = source.m_waterColors[1];
-    this->m_waterColors[2] = source.m_waterColors[2];
-    this->m_waterColors[3] = source.m_waterColors[3];
+    for (uint32_t i = 0; i < NUM_SKY_COLORS; i++) {
+        this->m_skyColors[i] = source.m_skyColors[i];
+    }
+
+    for (uint32_t i = 0; i < NUM_SUN_CLOUD_COLORS; i++) {
+        this->m_sunCloudColors[i] = source.m_sunCloudColors[i];
+    }
+
+    for (uint32_t i = 0; i < NUM_WATER_COLORS; i++) {
+        this->m_waterColors[i] = source.m_waterColors[i];
+    }
+
     this->m_fogEnd = source.m_fogEnd;
     this->m_fogStartMul = source.m_fogStartMul;
     this->m_fogRate = source.m_fogRate;
