@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <windows.h>
 
+// Inferred name: declined name forms (grammatical cases other than the nominative).
+constexpr int32_t NUM_DECLENSIONS = 5;
+
 enum CHARSET : int32_t {
     CHARSET_UNKNOWN = -1,
     CHARSET_LATIN1 = 0,

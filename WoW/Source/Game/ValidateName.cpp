@@ -1271,7 +1271,7 @@ static int32_t FormatCase(char* declensions, uint32_t set, const RussianNameInfo
     uint16_t buffer[1024];
 
     if (id == 71) {
-        for (int32_t i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < NUM_DECLENSIONS; i++) {
             declensions[i * 1024] = '\0';
         }
 
@@ -1293,7 +1293,7 @@ static int32_t FormatCase(char* declensions, uint32_t set, const RussianNameInfo
 
         buffer[length] = 0;
 
-        for (int32_t i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < NUM_DECLENSIONS; i++) {
             SUniConvertUTF16to8(&declensions[i * 1024], 1024, buffer, 1024, nullptr, nullptr);
         }
 

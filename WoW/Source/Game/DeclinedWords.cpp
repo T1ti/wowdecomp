@@ -131,9 +131,9 @@ int32_t GetDeclinedWord(const char* word, int32_t declension, char* buffer, uint
             }
         }
 
-        char declensions[5][1024];
+        char declensions[NUM_DECLENSIONS][1024];
 
-        if (index <= 4 && GetNameDeclensions(s_locale, declensions[0], word, 2, 0)) {
+        if (index < NUM_DECLENSIONS && GetNameDeclensions(s_locale, declensions[0], word, 2, 0)) {
             return SStrCopy(buffer, declensions[index], bufferSize);
         }
 

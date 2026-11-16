@@ -3854,21 +3854,21 @@ static int32_t Script_DeclineName(lua_State* L) {
         }
     }
 
-    char declensions[5][1024];
+    char declensions[NUM_DECLENSIONS][1024];
 
     if (GetNameDeclensions(s_locale, declensions[0], name, sex, static_cast<int32_t>(lua_tonumber(L, 3)) - 1)) {
-        for (uint32_t i = 0; i < 5; i++) {
+        for (uint32_t i = 0; i < NUM_DECLENSIONS; i++) {
             lua_pushstring(L, declensions[i]);
         }
 
-        return 5;
+        return NUM_DECLENSIONS;
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < NUM_DECLENSIONS; i++) {
         lua_pushnil(L);
     }
 
-    return 5;
+    return NUM_DECLENSIONS;
 }
 
 // VERIFY: 7075ea82 auto

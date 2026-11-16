@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Game/Types.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CDataStore;
@@ -12,7 +13,7 @@ class NameCache {
     static const uint32_t s_cacheVersion = 4;
 
     struct DeclinedNames {
-        /* 0000 */ char m_names[5][64];
+        /* 0000 */ char m_names[NUM_DECLENSIONS][64];
     };
 
     /* 0000 */ char m_name[48];

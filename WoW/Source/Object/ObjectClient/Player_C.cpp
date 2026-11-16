@@ -9261,9 +9261,9 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             msg->Get(declined);
 
             if (declined) {
-                char declensions[5][96];
+                char declensions[NUM_DECLENSIONS][96];
 
-                for (uint32_t i = 0; i < 5; i++) {
+                for (uint32_t i = 0; i < NUM_DECLENSIONS; i++) {
                     msg->GetString(declensions[i], sizeof(declensions[i]));
                 }
 
