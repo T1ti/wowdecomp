@@ -53,7 +53,7 @@ int32_t Packet_MSG_LIST_STABLED_PETS(void* param, NETMESSAGE msgId, uint32_t tim
         msg->Get(reinterpret_cast<uint32_t&>(pet.m_entry));
         msg->Get(pet.m_level);
         msg->GetString(pet.m_name, sizeof(pet.m_name));
-        msg->Get(pet.m_state);
+        msg->Get(reinterpret_cast<uint8_t&>(pet.m_state));
 
         if (!(pet.m_state & STABLE_PET_STATE_STABLED)) {
             CGStableInfo::m_pets[0].m_entry = pet.m_entry;
@@ -73,8 +73,8 @@ int32_t Packet_MSG_LIST_STABLED_PETS(void* param, NETMESSAGE msgId, uint32_t tim
 // VERIFY: 03f68cbf manual
 // OFFSET: 0x005A17F0
 int32_t Packet_SMSG_STABLE_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint8_t result;
-    msg->Get(result);
+    STABLE_RESULT result;
+    msg->Get(reinterpret_cast<uint8_t&>(result));
 
     switch (result) {
         case STABLE_RESULT_NOT_ENOUGH_MONEY:

@@ -5184,12 +5184,12 @@ int32_t Packet_MSG_TABARDVENDOR_ACTIVATE(void* param, NETMESSAGE msgId, uint32_t
 // VERIFY: c2ac9c5f manual
 // OFFSET: 0x006CC590
 int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint32_t command;
+    GUILD_COMMAND_TYPE command;
     char name[96];
-    uint32_t result;
-    msg->Get(command);
+    GUILD_COMMAND_RESULT result;
+    msg->Get(reinterpret_cast<uint32_t&>(command));
     msg->GetString(name, sizeof(name));
-    msg->Get(result);
+    msg->Get(reinterpret_cast<uint32_t&>(result));
 
     if (result == GUILD_COMMAND_RESULT::GUILD_RESULT_SUCCESS) {
         switch (command) {
@@ -5352,8 +5352,8 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
 // VERIFY: 9746b975 auto
 // OFFSET: 0x006CC980
 int32_t Packet_SMSG_ARENA_TEAM_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint8_t event = 0;
-    msg->Get(event);
+    ARENA_TEAM_EVENT event = static_cast<ARENA_TEAM_EVENT>(0);
+    msg->Get(reinterpret_cast<uint8_t&>(event));
     uint8_t count;
     msg->Get(count);
     char strings[3][256];
@@ -5567,14 +5567,14 @@ int32_t __stdcall CGPlayer_C::OnTurnInPetitionResults(CDataStore* msg) {
 // VERIFY: fc2ddd1d auto
 // OFFSET: 0x006CCB20
 int32_t Packet_SMSG_ARENA_TEAM_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint32_t command;
+    ARENA_TEAM_COMMAND_TYPE command;
     char team[96];
     char player[48];
-    uint32_t error;
-    msg->Get(command);
+    ARENA_TEAM_COMMAND_RESULT error;
+    msg->Get(reinterpret_cast<uint32_t&>(command));
     msg->GetString(team, sizeof(team));
     msg->GetString(player, sizeof(player));
-    msg->Get(error);
+    msg->Get(reinterpret_cast<uint32_t&>(error));
 
     if (error == ARENA_TEAM_COMMAND_RESULT::ARENA_RESULT_SUCCESS) {
         switch (command) {
@@ -9642,8 +9642,8 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         }
 
         case SMSG_CHAT_RESTRICTED: {
-            uint8_t type;
-            msg->Get(type);
+            CHAT_RESTRICTION_TYPE type;
+            msg->Get(reinterpret_cast<uint8_t&>(type));
 
             switch (type) {
                 case CHAT_RESTRICTION_RESTRICTED:

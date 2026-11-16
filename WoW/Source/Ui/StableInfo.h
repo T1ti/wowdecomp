@@ -29,7 +29,7 @@ struct StablePetInfo {
     /* 0004 */ uint32_t m_level;
     /* 0008 */ int32_t m_entry;
     /* 000C */ char m_name[80];
-    /* 005C */ uint8_t m_state; // STABLE_PET_STATE
+    /* 005C */ STABLE_PET_STATE m_state;
     /* 005D */ uint8_t unused_005D[3];
 };
 
