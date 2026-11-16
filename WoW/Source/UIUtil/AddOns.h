@@ -19,7 +19,7 @@ struct UIADDON : public TSHashObject<UIADDON, HASHKEY_STRI> {
     /* 001A */ uint8_t unused_001A[2];
     /* 001C */ uint32_t m_interfaceVersion;
     /* 0020 */ uint32_t m_revision;
-    /* 0024 */ uint32_t m_status;
+    /* 0024 */ uint32_t m_status; // UIADDON_SECURITY
     /* 0028 */ bool m_secure;
     /* 0029 */ bool m_blizzard;
     /* 002A */ bool m_signed;

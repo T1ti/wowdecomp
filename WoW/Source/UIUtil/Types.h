@@ -188,6 +188,14 @@ enum UIADDON_LOADABLE_REASON : int32_t {
     UIADDON_SECURE = 9,
 };
 
+// UIADDON::m_status, as returned by GetAddOnSecurity; AddOnSecurityToken maps
+// it onto the SECURE, INSECURE and BANNED tokens that follow UIADDON_SECURE.
+enum UIADDON_SECURITY : uint32_t {
+    UIADDON_SECURITY_SECURE = 0,
+    UIADDON_SECURITY_INSECURE = 1,
+    UIADDON_SECURITY_BANNED = 2,
+};
+
 enum PENDING_DEFAULT_ACTION {
     INPUT_RELEASE_NONE = 0,
     INPUT_RELEASE_SELECT = 1,

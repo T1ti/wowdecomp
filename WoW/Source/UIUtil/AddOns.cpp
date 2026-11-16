@@ -21,6 +21,11 @@
 #include "WoW/Source/Ui/Types.h"
 #include "WoW/Source/Ui/UIBindings.h"
 
+// Interface version this client accepts from .toc files, and the oldest one
+// it still treats as compatible (inferred names).
+static const uint32_t CODE_INTERFACE_VERSION = 30300;
+static const uint32_t MIN_ADDON_INTERFACE_VERSION = 20000;
+
 // STATIC: 0x00AD17B4
 static const char* s_addOnLoadableTokens[12] = { "LOADABLE", "MISSING", "DISABLED", "BANNED", "CORRUPT", "INSECURE", "DEMAND_LOADED", "INTERFACE_VERSION", "INCOMPATIBLE", "SECURE", "INSECURE", "BANNED" };
 
@@ -96,7 +101,7 @@ static void ReadDataInterfaceVersion() {
 // VERIFY: 99fcd940 auto
 // OFFSET: 0x005F4C10
 uint32_t GetCodeInterfaceVersion() {
-    return 30300;
+    return CODE_INTERFACE_VERSION;
 }
 
 // VERIFY: 75e0f3ca auto
@@ -389,7 +394,7 @@ UIADDON::UIADDON() {
     this->m_checkingLoadable = 0;
     this->m_url = nullptr;
     this->m_numFiles = 0;
-    this->m_status = 1;
+    this->m_status = UIADDON_SECURITY_INSECURE;
     this->m_enabledByDefault = true;
     this->m_outOfDate = 0;
     this->m_hasPublicKey = false;
@@ -697,7 +702,7 @@ void SetAddOnInfoRequest(CDataStore* msg) {
             WriteURL(path, addon->m_url);
         }
 
-        addon->m_status = 1;
+        addon->m_status = UIADDON_SECURITY_INSECURE;
         addon->m_signed = false;
 
         if (state == 2) {
@@ -706,7 +711,7 @@ void SetAddOnInfoRequest(CDataStore* msg) {
             addon->m_blizzard = false;
 
             if (!state) {
-                addon->m_status = 2;
+                addon->m_status = UIADDON_SECURITY_BANNED;
                 continue;
             }
         }
@@ -719,10 +724,10 @@ void SetAddOnInfoRequest(CDataStore* msg) {
 
         int32_t result = FrameXML_CheckSignature(toc, bindings, addon->m_hasPublicKey ? addon->m_publicKey : nullptr, addon->m_digest);
 
-        if (result == 2) {
+        if (result == XML_SIGNATURE_MODIFIED) {
             addon->m_signed = true;
-        } else if (result == 3) {
-            addon->m_status = 0;
+        } else if (result == XML_SIGNATURE_VALID) {
+            addon->m_status = UIADDON_SECURITY_SECURE;
         }
     }
 
@@ -754,7 +759,7 @@ void SetAddOnInfoRequest(CDataStore* msg) {
         UIADDON::METADATA* version = addon->m_metadata.Ptr("Version");
 
         if (IsBannedAddOn(name, version ? version->m_value : nullptr)) {
-            addon->m_status = 2;
+            addon->m_status = UIADDON_SECURITY_BANNED;
         }
     }
 
@@ -852,7 +857,7 @@ bool IsAddOnLoadable(const char* name, bool demandLoad, UIADDON_LOADABLE_REASON&
         return false;
     }
 
-    if (addon->m_status == 2) {
+    if (addon->m_status == UIADDON_SECURITY_BANNED) {
         reason = UIADDON_BANNED;
         return false;
     }
@@ -862,12 +867,12 @@ bool IsAddOnLoadable(const char* name, bool demandLoad, UIADDON_LOADABLE_REASON&
         return false;
     }
 
-    if (addon->m_interfaceVersion < 20000) {
+    if (addon->m_interfaceVersion < MIN_ADDON_INTERFACE_VERSION) {
         reason = UIADDON_INCOMPATIBLE;
         return false;
     }
 
-    if (addon->m_interfaceVersion != 30300) {
+    if (addon->m_interfaceVersion != CODE_INTERFACE_VERSION) {
         reason = UIADDON_INTERFACE_VERSION;
 
         if (g_checkAddonVersionVar->m_intValue) {
@@ -1037,11 +1042,11 @@ bool LoadAddOn(const char* name, bool demandLoad, CStatus* status) {
         const char* savedTaint = lua_tainted;
 
         if (++lua_taintexpected && !lua_taintedclosure) {
-            lua_tainted = addon->m_status ? addonName : nullptr;
+            lua_tainted = addon->m_status != UIADDON_SECURITY_SECURE ? addonName : nullptr;
         }
 
         const char* savedTag = lua_gctag;
-        lua_gctag = addon->m_status ? addonName : nullptr;
+        lua_gctag = addon->m_status != UIADDON_SECURITY_SECURE ? addonName : nullptr;
 
         CStatus addonStatus;
         MD5_CTX md5;
@@ -1082,7 +1087,7 @@ bool LoadAddOn(const char* name, bool demandLoad, CStatus* status) {
         MD5Final(digest, &md5);
 
 #ifndef DISABLE_SIGNATURE_CHECKS
-        if (!addon->m_status && memcmp(addon->m_digest, digest, sizeof(digest))) {
+        if (addon->m_status == UIADDON_SECURITY_SECURE && memcmp(addon->m_digest, digest, sizeof(digest))) {
             ClientPostClose(10);
         }
 #endif
@@ -1705,7 +1710,7 @@ int32_t GetAddOnSecurity(const char* name) {
         return addon->m_status;
     }
 
-    return 1;
+    return UIADDON_SECURITY_INSECURE;
 }
 
 // VERIFY: 6b68ae99 manual
@@ -1780,7 +1785,7 @@ const char* GetAddOnURL(const char* name) {
 
     const char* url = addon->m_url;
 
-    if (!url || !*url || addon->m_status == 2) {
+    if (!url || !*url || addon->m_status == UIADDON_SECURITY_BANNED) {
         return nullptr;
     }
 
