@@ -14,6 +14,21 @@ constexpr uint32_t MAX_REQUIRED_ITEMS = 6;
 // Inferred name: reward factions listed for a quest, reputation spillover included.
 constexpr uint32_t MAX_QUEST_REWARD_FACTIONS = 10;
 
+// Per-quest type sent with quest giver and gossip quest lists (0.5.3 s_lastQuestListType).
+// Inferred names from client handling: type 0 is offered as a direct turn-in, 3 and 4 are
+// both listed as active quests, and every other type is listed as available.
+enum QUEST_LIST_TYPE : uint32_t {
+    QUEST_LIST_TYPE_TURN_IN = 0,
+    QUEST_LIST_TYPE_UNKNOWN_1 = 1,
+    QUEST_LIST_TYPE_UNKNOWN_2 = 2,
+    QUEST_LIST_TYPE_ACTIVE_3 = 3,
+    QUEST_LIST_TYPE_ACTIVE_4 = 4,
+};
+
+inline bool IsActiveQuestListType(uint32_t type) {
+    return type == QUEST_LIST_TYPE_ACTIVE_3 || type == QUEST_LIST_TYPE_ACTIVE_4;
+}
+
 enum QUEST_STATE : int32_t {
     QUEST_GREETING = 0,
     QUEST_OFFER = 1,

@@ -21,7 +21,7 @@ struct GossipQuestInfo {
     /* 0004 */ int32_t m_level;
     /* 0008 */ uint32_t m_flags;
     /* 000C */ uint32_t m_repeatable;
-    /* 0010 */ uint32_t m_icon;
+    /* 0010 */ uint32_t m_icon; // QUEST_LIST_TYPE
     /* 0014 */ char m_title[512];
 };
 

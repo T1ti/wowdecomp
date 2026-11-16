@@ -282,7 +282,7 @@ int32_t CGGossipInfo::GetNumAvailableQuests() {
             break;
         }
 
-        if (CGGossipInfo::s_quests[i].m_icon != 3 && CGGossipInfo::s_quests[i].m_icon != 4) {
+        if (!IsActiveQuestListType(CGGossipInfo::s_quests[i].m_icon)) {
             count++;
         }
     }
@@ -300,7 +300,7 @@ GossipQuestInfo* CGGossipInfo::GetAvailableQuest(int32_t index) {
             return nullptr;
         }
 
-        if (CGGossipInfo::s_quests[i].m_icon != 3 && CGGossipInfo::s_quests[i].m_icon != 4) {
+        if (!IsActiveQuestListType(CGGossipInfo::s_quests[i].m_icon)) {
             if (found == index) {
                 return &CGGossipInfo::s_quests[i];
             }
@@ -322,7 +322,7 @@ int32_t CGGossipInfo::GetNumActiveQuests() {
             break;
         }
 
-        if (CGGossipInfo::s_quests[i].m_icon == 3 || CGGossipInfo::s_quests[i].m_icon == 4) {
+        if (IsActiveQuestListType(CGGossipInfo::s_quests[i].m_icon)) {
             count++;
         }
     }
@@ -340,7 +340,7 @@ GossipQuestInfo* CGGossipInfo::GetActiveQuest(int32_t index) {
             return nullptr;
         }
 
-        if (CGGossipInfo::s_quests[i].m_icon == 3 || CGGossipInfo::s_quests[i].m_icon == 4) {
+        if (IsActiveQuestListType(CGGossipInfo::s_quests[i].m_icon)) {
             if (found == index) {
                 return &CGGossipInfo::s_quests[i];
             }
@@ -422,14 +422,14 @@ void CGGossipInfo::SelectGossipAvailableQuest(int32_t index) {
             break;
         }
 
-        if (quest.m_icon == 3 || quest.m_icon == 4) {
+        if (IsActiveQuestListType(quest.m_icon)) {
             continue;
         }
 
         if (found == index && ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) {
             WOWGUID gossip = CGGossipInfo::s_gossip;
 
-            if (quest.m_icon) {
+            if (quest.m_icon != QUEST_LIST_TYPE_TURN_IN) {
                 CGPlayer_C::QueryQuest(gossip, quest.m_questID);
             } else {
                 CGPlayer_C::CompleteQuest(gossip, quest.m_questID);
@@ -452,7 +452,7 @@ void CGGossipInfo::SelectGossipActiveQuest(int32_t index) {
             break;
         }
 
-        if (quest.m_icon != 3 && quest.m_icon != 4) {
+        if (!IsActiveQuestListType(quest.m_icon)) {
             continue;
         }
 

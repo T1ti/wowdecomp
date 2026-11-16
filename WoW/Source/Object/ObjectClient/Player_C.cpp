@@ -312,7 +312,7 @@ static WOWGUID s_questListNpc;
 static uint32_t s_questListIds[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9D6D0
-static uint32_t s_questListStatus[MAX_NUM_QUESTS];
+static uint32_t s_questListStatus[MAX_NUM_QUESTS]; // QUEST_LIST_TYPE
 
 // STATIC: 0x00C9D650
 static uint32_t s_questListLevels[MAX_NUM_QUESTS];
@@ -7476,10 +7476,10 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestList(CDataStore* msg) {
 
         uint32_t status = s_questListStatus[i];
 
-        if (status == 3 || status == 4) {
+        if (IsActiveQuestListType(status)) {
             CGQuestInfo::AddQuestInProgress(s_questListIds[i], titles[i], s_questListLevels[i], s_questListFlags[i], s_questListRepeatable[i]);
         } else {
-            CGQuestInfo::AddQuest(s_questListIds[i], titles[i], s_questListLevels[i], s_questListFlags[i], status == 0, s_questListRepeatable[i]);
+            CGQuestInfo::AddQuest(s_questListIds[i], titles[i], s_questListLevels[i], s_questListFlags[i], status == QUEST_LIST_TYPE_TURN_IN, s_questListRepeatable[i]);
         }
     }
 
