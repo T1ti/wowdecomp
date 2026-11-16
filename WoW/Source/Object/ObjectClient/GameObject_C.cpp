@@ -91,7 +91,7 @@
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 
 // STATIC: 0x00A335E8
-static const uint32_t s_oneShotAnims[7] = { 0xFFFFFFFF, ANIMSTATE_SPAWN, ANIMSTATE_CUSTOM0, ANIMSTATE_CUSTOM1, ANIMSTATE_CUSTOM2, ANIMSTATE_CUSTOM3, ANIMSTATE_DESPAWN };
+static const uint32_t s_oneShotAnims[NUM_ONE_SHOT_ANIMS] = { 0xFFFFFFFF, ANIMSTATE_SPAWN, ANIMSTATE_CUSTOM0, ANIMSTATE_CUSTOM1, ANIMSTATE_CUSTOM2, ANIMSTATE_CUSTOM3, ANIMSTATE_DESPAWN };
 
 // STATIC: 0x00ADA974
 static uint32_t s_buildingDamageColor = 0xFFFF8400;
@@ -696,11 +696,11 @@ bool CGGameObject_C::IsValidOpenAction(LOCK_ACTION action) const {
 // VERIFY: d9a403af manual
 // OFFSET: 0x0070BDE0
 void CGGameObject_C::PlayCustomAnim(uint32_t anim) {
-    uint32_t pending = anim + 2;
+    uint32_t pending = anim + ONE_SHOT_ANIM_CUSTOM0;
 
     if (this->IsObjectModelLoaded()) {
         this->m_typeData->ActivateOneShotAnim(s_oneShotAnims[pending]);
-        this->m_pendingOneShotAnim = 0;
+        this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         this->m_pendingOneShotAnim = pending;
     }
@@ -938,9 +938,9 @@ void CGGameObject_C_TypeAnimated::PostInit(bool a1) {
 
     if (owner->IsObjectModelLoaded()) {
         owner->m_typeData->ActivateOneShotAnim(ANIMSTATE_SPAWN);
-        owner->m_pendingOneShotAnim = 0;
+        owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
-        owner->m_pendingOneShotAnim = 1;
+        owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_SPAWN;
     }
 }
 
@@ -1378,12 +1378,12 @@ int32_t Packet_SMSG_GAMEOBJECT_DESPAWN_ANIM(void* param, NETMESSAGE msgId, uint3
 
     if (object) {
         if (!object->IsObjectModelLoaded()) {
-            object->m_pendingOneShotAnim = 6;
+            object->m_pendingOneShotAnim = ONE_SHOT_ANIM_DESPAWN;
             return 1;
         }
 
-        object->m_typeData->ActivateOneShotAnim(12);
-        object->m_pendingOneShotAnim = 0;
+        object->m_typeData->ActivateOneShotAnim(ANIMSTATE_DESPAWN);
+        object->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     }
 
     return 1;
@@ -1887,7 +1887,7 @@ void CGGameObject_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_typeData(nullptr), m_stats(nullptr) {
     this->m_worldBounds.b = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_worldBounds.t = C3Vector(0.0f, 0.0f, 0.0f);
-    this->m_pendingOneShotAnim = 0;
+    this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     this->m_hasWorldBounds = 0;
     this->m_lootEffect = nullptr;
     this->m_displayState = this->m_gameObject->m_state;
@@ -2603,10 +2603,10 @@ void CGGameObject_C_Type_GuildBank::StartInteraction() {
     CGGameObject_C* owner = this->m_owner;
 
     if (owner->IsObjectModelLoaded()) {
-        owner->m_typeData->ActivateOneShotAnim(8);
-        owner->m_pendingOneShotAnim = 0;
+        owner->m_typeData->ActivateOneShotAnim(ANIMSTATE_CUSTOM0);
+        owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
-        owner->m_pendingOneShotAnim = 2;
+        owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_CUSTOM0;
     }
 }
 
@@ -2711,7 +2711,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
         }
 
         this->m_typeData->ActivateOneShotAnim(s_oneShotAnims[pending]);
-        this->m_pendingOneShotAnim = 0;
+        this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     }
 
     model->m_runtimeFlags |= M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES;

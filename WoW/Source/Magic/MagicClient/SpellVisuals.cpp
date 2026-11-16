@@ -1017,8 +1017,8 @@ int32_t MountTransitionObject::UpdateCharacterData() {
     this->m_eventPivot *= world;
     world = unit->m_worldModel->m_worldTransform;
     this->m_jumpVector = *reinterpret_cast<const C3Vector*>(&world.d0) - this->m_eventPivot;
-    uint32_t jumpStart = mountModel->GetEventSequenceTime(127, M2_EVENT_ID::MountTransitionBegin_STB);
-    uint32_t jumpEnd = mountModel->GetEventSequenceTime(127, M2_EVENT_ID::MountTransitionEnd_STE);
+    uint32_t jumpStart = mountModel->GetEventSequenceTime(ANIM_BIRTH, M2_EVENT_ID::MountTransitionBegin_STB);
+    uint32_t jumpEnd = mountModel->GetEventSequenceTime(ANIM_BIRTH, M2_EVENT_ID::MountTransitionEnd_STE);
     this->m_jumpStart = static_cast<float>(jumpStart) * rate;
     this->m_jumpEnd = rate * static_cast<float>(jumpEnd);
     this->m_jumpRate = this->m_jumpEnd - this->m_jumpStart;

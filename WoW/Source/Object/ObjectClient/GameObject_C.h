@@ -120,6 +120,18 @@ enum : int32_t {
     NUM_GAMEOBJ_ANIMSTATES = 13,
 };
 
+// CGGameObject_C::m_pendingOneShotAnim: index into s_oneShotAnims, queued until the model loads (inferred names).
+enum : int32_t {
+    ONE_SHOT_ANIM_NONE = 0,
+    ONE_SHOT_ANIM_SPAWN = 1,
+    ONE_SHOT_ANIM_CUSTOM0 = 2,
+    ONE_SHOT_ANIM_CUSTOM1 = 3,
+    ONE_SHOT_ANIM_CUSTOM2 = 4,
+    ONE_SHOT_ANIM_CUSTOM3 = 5,
+    ONE_SHOT_ANIM_DESPAWN = 6,
+    NUM_ONE_SHOT_ANIMS = 7,
+};
+
 class CGGameObject_C_TypeAnimated : public CGGameObject_C_TypeBase {
     public:
     static uint32_t s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES];
