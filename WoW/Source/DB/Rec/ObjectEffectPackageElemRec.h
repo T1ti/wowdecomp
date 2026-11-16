@@ -15,7 +15,7 @@ class ObjectEffectPackageElemRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_objectEffectPackageID;
     /* 0008 */ int32_t m_objectEffectGroupID;
-    /* 000C */ int32_t m_stateType;
+    /* 000C */ int32_t m_stateType; // ENUM OBJECT_EFFECT_STATE
 
     ObjectEffectPackageElemRec();
     ~ObjectEffectPackageElemRec();

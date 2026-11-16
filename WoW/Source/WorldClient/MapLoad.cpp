@@ -77,10 +77,10 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
-                object->m_effectManager->EnterState(2, 1, 0);
-                object->m_effectManager->ExitState(3, 1);
-                object->m_effectManager->ExitState(4, 1);
-                object->m_effectManager->ExitState(5, 1);
+                object->m_effectManager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1, 0);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             }
 
             break;
@@ -90,10 +90,10 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
-                object->m_effectManager->EnterState(3, 1, 0);
-                object->m_effectManager->ExitState(2, 1);
-                object->m_effectManager->ExitState(4, 1);
-                object->m_effectManager->ExitState(5, 1);
+                object->m_effectManager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1, 0);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             }
 
             break;
@@ -103,10 +103,10 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
-                object->m_effectManager->EnterState(4, 1, 0);
-                object->m_effectManager->ExitState(3, 1);
-                object->m_effectManager->ExitState(2, 1);
-                object->m_effectManager->ExitState(5, 1);
+                object->m_effectManager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1, 0);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             }
 
             break;
@@ -116,10 +116,10 @@ void CMapStaticEntity::ModelEventCallback(CM2Model* model, uint32_t boneId, uint
             CGObject_C* object = ClntObjMgrObjectPtr(doodadDef->m_collisionGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
             if (object && object->IsTransport() && object->m_effectManager) {
-                object->m_effectManager->EnterState(5, 1, 0);
-                object->m_effectManager->ExitState(3, 1);
-                object->m_effectManager->ExitState(4, 1);
-                object->m_effectManager->ExitState(2, 1);
+                object->m_effectManager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1, 0);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+                object->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
             }
 
             break;

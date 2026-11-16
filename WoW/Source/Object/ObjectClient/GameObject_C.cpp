@@ -1400,34 +1400,34 @@ void CGGameObject_C_Type_MapObjTransport::UpdateObjectEffectState(uint32_t anim)
 
     switch (anim) {
         case ANIM_GAMEOBJ_STAND: {
-            manager->EnterState(2, 1, 0);
-            this->m_owner->m_effectManager->ExitState(3, 1);
-            this->m_owner->m_effectManager->ExitState(4, 1);
-            this->m_owner->m_effectManager->ExitState(5, 1);
+            manager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1, 0);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             break;
         }
 
         case ANIM_SHIP_START: {
-            manager->EnterState(3, 1, 0);
-            this->m_owner->m_effectManager->ExitState(2, 1);
-            this->m_owner->m_effectManager->ExitState(4, 1);
-            this->m_owner->m_effectManager->ExitState(5, 1);
+            manager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1, 0);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             break;
         }
 
         case ANIM_SHIP_MOVING: {
-            manager->EnterState(4, 1, 0);
-            this->m_owner->m_effectManager->ExitState(3, 1);
-            this->m_owner->m_effectManager->ExitState(2, 1);
-            this->m_owner->m_effectManager->ExitState(5, 1);
+            manager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1, 0);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1);
             break;
         }
 
         case ANIM_SHIP_STOP: {
-            manager->EnterState(5, 1, 0);
-            this->m_owner->m_effectManager->ExitState(3, 1);
-            this->m_owner->m_effectManager->ExitState(4, 1);
-            this->m_owner->m_effectManager->ExitState(2, 1);
+            manager->EnterState(OBJECT_EFFECT_STATE_TRANSPORT_DECELERATING, 1, 0);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_ACCELERATING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_MOVING, 1);
+            this->m_owner->m_effectManager->ExitState(OBJECT_EFFECT_STATE_TRANSPORT_STOPPED, 1);
             break;
         }
     }
@@ -1479,30 +1479,30 @@ void CGGameObject_C::UpdateObjectEffectAnimationStates(uint32_t anim) {
     this->m_effectManager->EnterState(state, 1, 0);
 
     if (state == 15 || state == 81) {
-        this->m_effectManager->ExitState(37, 1);
-        this->m_effectManager->ExitState(38, 1);
-        this->m_effectManager->ExitState(6, 1);
-        this->m_effectManager->ExitState(7, 1);
-        this->m_effectManager->ExitState(47, 1);
-        this->m_effectManager->ExitState(48, 1);
-        this->m_effectManager->ExitState(49, 1);
-        this->m_effectManager->ExitState(50, 1);
-        this->m_effectManager->ExitState(51, 1);
-        this->m_effectManager->ExitState(52, 1);
-        this->m_effectManager->ExitState(53, 1);
-        this->m_effectManager->ExitState(54, 1);
-        this->m_effectManager->ExitState(55, 1);
-        this->m_effectManager->ExitState(56, 1);
-        this->m_effectManager->ExitState(57, 1);
-        this->m_effectManager->ExitState(58, 1);
-        this->m_effectManager->ExitState(59, 1);
-        this->m_effectManager->ExitState(60, 1);
-        this->m_effectManager->ExitState(61, 1);
-        this->m_effectManager->ExitState(62, 1);
-        this->m_effectManager->ExitState(63, 1);
-        this->m_effectManager->ExitState(64, 1);
-        this->m_effectManager->ExitState(65, 1);
-        this->m_effectManager->ExitState(66, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_MOVING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_DESCENDING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_TURNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_TURNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1);
     }
 
     this->m_effectAnimState = state;

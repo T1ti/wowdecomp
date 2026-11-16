@@ -8802,30 +8802,30 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
             this->m_effectManager->EnterState(state, 1, 0);
 
             if (state == 15 || state == 81) {
-                this->m_effectManager->ExitState(37, 1);
-                this->m_effectManager->ExitState(38, 1);
-                this->m_effectManager->ExitState(6, 1);
-                this->m_effectManager->ExitState(7, 1);
-                this->m_effectManager->ExitState(47, 1);
-                this->m_effectManager->ExitState(48, 1);
-                this->m_effectManager->ExitState(49, 1);
-                this->m_effectManager->ExitState(50, 1);
-                this->m_effectManager->ExitState(51, 1);
-                this->m_effectManager->ExitState(52, 1);
-                this->m_effectManager->ExitState(53, 1);
-                this->m_effectManager->ExitState(54, 1);
-                this->m_effectManager->ExitState(55, 1);
-                this->m_effectManager->ExitState(56, 1);
-                this->m_effectManager->ExitState(57, 1);
-                this->m_effectManager->ExitState(58, 1);
-                this->m_effectManager->ExitState(59, 1);
-                this->m_effectManager->ExitState(60, 1);
-                this->m_effectManager->ExitState(61, 1);
-                this->m_effectManager->ExitState(62, 1);
-                this->m_effectManager->ExitState(63, 1);
-                this->m_effectManager->ExitState(64, 1);
-                this->m_effectManager->ExitState(65, 1);
-                this->m_effectManager->ExitState(66, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_MOVING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_DESCENDING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_TURNING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_TURNING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1);
+                this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1);
             }
         }
 
@@ -11196,80 +11196,80 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
         return;
     }
 
-    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? 0x25 : 0x26, 1, 0);
+    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? OBJECT_EFFECT_STATE_MOVEMENT_MOVING : OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING, 1, 0);
 
     if (this->m_movement->m_flags & MOVEMENTFLAG_ASCENDING) {
-        this->m_effectManager->EnterState(0x6, 1, 0);
+        this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1, 0);
     } else if (this->m_movement->m_flags & MOVEMENTFLAG_DESCENDING) {
-        this->m_effectManager->EnterState(0x7, 1, 0);
+        this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_DESCENDING, 1, 0);
     }
 
-    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? 0x2F : 0x30, 1, 0);
+    this->m_effectManager->EnterState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? OBJECT_EFFECT_STATE_MOVEMENT_TURNING : OBJECT_EFFECT_STATE_MOVEMENT_NOT_TURNING, 1, 0);
 
     if (this->m_movement->m_flags & MOVEMENTFLAG_FLYING) {
-        this->m_effectManager->EnterState(0x3D, 1, 0);
+        this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1, 0);
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) {
-            this->m_effectManager->EnterState(0x3E, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) {
-            this->m_effectManager->EnterState(0x3F, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
-            this->m_effectManager->EnterState(0x42, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
-                this->m_effectManager->EnterState(0x40, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1, 0);
             }
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_RIGHT) {
-                this->m_effectManager->EnterState(0x41, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1, 0);
             }
         }
     } else if (this->IsBelowHalfBaseSpeed()) {
-        this->m_effectManager->EnterState(0x31, 1, 0);
+        this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1, 0);
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) {
-            this->m_effectManager->EnterState(0x32, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) {
-            this->m_effectManager->EnterState(0x33, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
-            this->m_effectManager->EnterState(0x36, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
-                this->m_effectManager->EnterState(0x34, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1, 0);
             }
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_RIGHT) {
-                this->m_effectManager->EnterState(0x35, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1, 0);
             }
         }
     } else if (this->IsRunning()) {
-        this->m_effectManager->EnterState(0x37, 1, 0);
+        this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1, 0);
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) {
-            this->m_effectManager->EnterState(0x38, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) {
-            this->m_effectManager->EnterState(0x39, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1, 0);
         }
 
         if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
-            this->m_effectManager->EnterState(0x3C, 1, 0);
+            this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1, 0);
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) {
-                this->m_effectManager->EnterState(0x3A, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1, 0);
             }
 
             if (this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_RIGHT) {
-                this->m_effectManager->EnterState(0x3B, 1, 0);
+                this->m_effectManager->EnterState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1, 0);
             }
         }
     }
@@ -11277,88 +11277,88 @@ void CGUnit_C::UpdateObjectEffectMovementStates() {
     uint32_t flags = this->m_movement->m_flags;
 
     if (!(flags & MOVEMENTFLAG_MOVE_MASK)) {
-        this->m_effectManager->ExitState(0x31, 1);
-        this->m_effectManager->ExitState(0x32, 1);
-        this->m_effectManager->ExitState(0x33, 1);
-        this->m_effectManager->ExitState(0x37, 1);
-        this->m_effectManager->ExitState(0x38, 1);
-        this->m_effectManager->ExitState(0x39, 1);
-        this->m_effectManager->ExitState(0x3D, 1);
-        this->m_effectManager->ExitState(0x3E, 1);
-        this->m_effectManager->ExitState(0x3F, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1);
     } else if (flags & MOVEMENTFLAG_FLYING) {
-        this->m_effectManager->ExitState(0x37, 1);
-        this->m_effectManager->ExitState(0x38, 1);
-        this->m_effectManager->ExitState(0x39, 1);
-        this->m_effectManager->ExitState(0x31, 1);
-        this->m_effectManager->ExitState(0x32, 1);
-        this->m_effectManager->ExitState(0x33, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? 0x3F : 0x3E, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD : OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
     } else if (this->IsBelowHalfBaseSpeed()) {
-        this->m_effectManager->ExitState(0x37, 1);
-        this->m_effectManager->ExitState(0x38, 1);
-        this->m_effectManager->ExitState(0x39, 1);
-        this->m_effectManager->ExitState(0x3D, 1);
-        this->m_effectManager->ExitState(0x3E, 1);
-        this->m_effectManager->ExitState(0x3F, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? 0x33 : 0x32, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD : OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
     } else if (this->IsRunning()) {
-        this->m_effectManager->ExitState(0x3D, 1);
-        this->m_effectManager->ExitState(0x3E, 1);
-        this->m_effectManager->ExitState(0x3F, 1);
-        this->m_effectManager->ExitState(0x31, 1);
-        this->m_effectManager->ExitState(0x32, 1);
-        this->m_effectManager->ExitState(0x33, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? 0x39 : 0x38, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_BACKWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_FORWARD, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_BACKWARD, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_FORWARD) ? OBJECT_EFFECT_STATE_MOVEMENT_WALKING_BACKWARD : OBJECT_EFFECT_STATE_MOVEMENT_WALKING_FORWARD, 1);
     }
 
     flags = this->m_movement->m_flags;
 
     if (!(flags & MOVEMENTFLAG_STRAFE_MASK)) {
-        this->m_effectManager->ExitState(0x34, 1);
-        this->m_effectManager->ExitState(0x35, 1);
-        this->m_effectManager->ExitState(0x36, 1);
-        this->m_effectManager->ExitState(0x3A, 1);
-        this->m_effectManager->ExitState(0x3B, 1);
-        this->m_effectManager->ExitState(0x3C, 1);
-        this->m_effectManager->ExitState(0x40, 1);
-        this->m_effectManager->ExitState(0x41, 1);
-        this->m_effectManager->ExitState(0x42, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1);
     } else if (flags & MOVEMENTFLAG_FLYING) {
-        this->m_effectManager->ExitState(0x34, 1);
-        this->m_effectManager->ExitState(0x35, 1);
-        this->m_effectManager->ExitState(0x36, 1);
-        this->m_effectManager->ExitState(0x3A, 1);
-        this->m_effectManager->ExitState(0x3B, 1);
-        this->m_effectManager->ExitState(0x3C, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? 0x41 : 0x40, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT : OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
     } else if (this->IsBelowHalfBaseSpeed()) {
-        this->m_effectManager->ExitState(0x3A, 1);
-        this->m_effectManager->ExitState(0x3B, 1);
-        this->m_effectManager->ExitState(0x3C, 1);
-        this->m_effectManager->ExitState(0x40, 1);
-        this->m_effectManager->ExitState(0x41, 1);
-        this->m_effectManager->ExitState(0x42, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? 0x35 : 0x34, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_WALKING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT : OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
     } else if (this->IsRunning()) {
-        this->m_effectManager->ExitState(0x34, 1);
-        this->m_effectManager->ExitState(0x35, 1);
-        this->m_effectManager->ExitState(0x36, 1);
-        this->m_effectManager->ExitState(0x40, 1);
-        this->m_effectManager->ExitState(0x41, 1);
-        this->m_effectManager->ExitState(0x42, 1);
-        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? 0x3B : 0x3A, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_RUNNING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_LEFT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_RIGHT, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_FLYING_SIDEWAYS, 1);
+        this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_STRAFE_LEFT) ? OBJECT_EFFECT_STATE_MOVEMENT_WALKING_RIGHT : OBJECT_EFFECT_STATE_MOVEMENT_WALKING_LEFT, 1);
     }
 
-    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? 0x26 : 0x25, 1);
-    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? 0x30 : 0x2F, 1);
+    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) ? OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING : OBJECT_EFFECT_STATE_MOVEMENT_MOVING, 1);
+    this->m_effectManager->ExitState((this->m_movement->m_flags & MOVEMENTFLAG_TURN_MASK) ? OBJECT_EFFECT_STATE_MOVEMENT_NOT_TURNING : OBJECT_EFFECT_STATE_MOVEMENT_TURNING, 1);
 
     if (!(this->m_movement->m_flags & MOVEMENTFLAG_ASCENDING)) {
-        this->m_effectManager->ExitState(0x6, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1);
     }
 
     if (!(this->m_movement->m_flags & MOVEMENTFLAG_DESCENDING)) {
-        this->m_effectManager->ExitState(0x7, 1);
+        this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_DESCENDING, 1);
     }
 }
 
