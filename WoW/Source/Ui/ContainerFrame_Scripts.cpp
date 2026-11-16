@@ -52,7 +52,7 @@ static int32_t Script_ContainerIDToInventoryID(lua_State* L) {
 
     uint32_t id = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (id > 10) {
+    if (id >= TOTAL_BAG_SLOTS) {
         luaL_error(L, "ContainerIDToInventoryID(): invalid container ID");
         return 0;
     }
@@ -621,7 +621,7 @@ static int32_t Script_SetBagPortraitTexture(lua_State* L) {
         return 0;
     }
 
-    if (slot >= 11) {
+    if (slot >= TOTAL_BAG_SLOTS) {
         luaL_error(L, "Invalid slot in SetBagPortraitTexture");
         return 0;
     }
@@ -918,7 +918,7 @@ static int32_t Script_GetContainerFreeSlots(lua_State* L) {
         return 1;
     }
 
-    if (static_cast<uint32_t>(index - 1.0) > 10) {
+    if (static_cast<uint32_t>(index - 1.0) >= TOTAL_BAG_SLOTS) {
         return 0;
     }
 
