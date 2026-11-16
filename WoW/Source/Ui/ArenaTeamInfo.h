@@ -19,6 +19,17 @@ enum ARENA_TEAM_COMMAND_TYPE : uint32_t {
     ARENA_TEAM_COMMAND_FOUNDER = 14,
 };
 
+// SMSG_ARENA_TEAM_EVENT event byte, named after the error each one displays;
+// the values line up with GUILD_EVENT.
+enum ARENA_TEAM_EVENT : uint8_t {
+    ARENA_TEAM_EVENT_JOINED         = 3, // ERR_ARENA_TEAM_JOIN_SS / _YOU_JOIN_S
+    ARENA_TEAM_EVENT_LEFT           = 4, // ERR_ARENA_TEAM_LEAVE_SS
+    ARENA_TEAM_EVENT_REMOVED        = 5, // ERR_ARENA_TEAM_REMOVE_SSS
+    ARENA_TEAM_EVENT_LEADER_IS      = 6, // ERR_ARENA_TEAM_LEADER_IS_SS
+    ARENA_TEAM_EVENT_LEADER_CHANGED = 7, // ERR_ARENA_TEAM_LEADER_CHANGED_SSS
+    ARENA_TEAM_EVENT_DISBANDED      = 8, // ERR_ARENA_TEAM_DISBANDED_S
+};
+
 // SMSG_ARENA_TEAM_COMMAND_RESULT result word, separate from command/event IDs.
 // Unknown results retain the original silent default.
 enum ARENA_TEAM_COMMAND_RESULT : uint32_t {

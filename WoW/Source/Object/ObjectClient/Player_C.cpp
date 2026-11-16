@@ -5366,7 +5366,7 @@ int32_t Packet_SMSG_ARENA_TEAM_EVENT(void* param, NETMESSAGE msgId, uint32_t tim
     WOWGUID guid;
 
     switch (event) {
-        case 3: {
+        case ARENA_TEAM_EVENT_JOINED: {
             if (SStrCmpUTF8I(ClientServices::GetCharacterName(), strings[0], STORM_MAX_STR)) {
                 error = ERR_ARENA_TEAM_JOIN_SS;
             } else {
@@ -5379,28 +5379,28 @@ int32_t Packet_SMSG_ARENA_TEAM_EVENT(void* param, NETMESSAGE msgId, uint32_t tim
             break;
         }
 
-        case 4: {
+        case ARENA_TEAM_EVENT_LEFT: {
             error = ERR_ARENA_TEAM_LEAVE_SS;
             msg->Get(guid.m_guid);
             break;
         }
 
-        case 5: {
+        case ARENA_TEAM_EVENT_REMOVED: {
             error = ERR_ARENA_TEAM_REMOVE_SSS;
             break;
         }
 
-        case 6: {
+        case ARENA_TEAM_EVENT_LEADER_IS: {
             error = ERR_ARENA_TEAM_LEADER_IS_SS;
             break;
         }
 
-        case 7: {
+        case ARENA_TEAM_EVENT_LEADER_CHANGED: {
             error = ERR_ARENA_TEAM_LEADER_CHANGED_SSS;
             break;
         }
 
-        case 8: {
+        case ARENA_TEAM_EVENT_DISBANDED: {
             error = ERR_ARENA_TEAM_DISBANDED_S;
             break;
         }
