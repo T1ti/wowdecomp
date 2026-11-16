@@ -624,7 +624,7 @@ void CGTradeInfo::HandleTradeMessage(TRADE_STATUS status, int32_t bagResult, int
         case TRADE_STATUS_FAILED:
             CGTradeInfo::UnlockTradeItems();
 
-            if (bagResult == 84 && itemId) {
+            if (bagResult == BAG_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS && itemId) {
                 WOWGUID none = WOWGUID();
                 ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
@@ -632,7 +632,7 @@ void CGTradeInfo::HandleTradeMessage(TRADE_STATUS status, int32_t bagResult, int
                     ItemLimitCategoryRec* category = g_itemLimitCategoryDB.GetRecord(stats->m_itemLimitCategory);
 
                     if (category) {
-                        CGGameUI::DisplayError(static_cast<UIErrors>(CGTradeInfo::GetGameError(84, target)), category->m_quantity, category->m_name);
+                        CGGameUI::DisplayError(static_cast<UIErrors>(CGTradeInfo::GetGameError(BAG_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS, target)), category->m_quantity, category->m_name);
                     }
                 }
             } else {
