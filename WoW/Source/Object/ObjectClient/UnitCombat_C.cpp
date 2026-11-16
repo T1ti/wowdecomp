@@ -208,7 +208,7 @@ void CGUnit_C::PlayRangedItemPull() {
     info.m_sequenceId = INVALID_ANIMATION;
 
     if (this->m_torsoKeyBone == 4) {
-        this->m_worldModel->GetBoneSequenceInfo(4, info);
+        this->m_worldModel->GetBoneSequenceInfo(KEY_BONE_SPINE_LOW, info);
 
         if (info.m_sequenceId == INVALID_ANIMATION) {
             this->m_worldModel->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);

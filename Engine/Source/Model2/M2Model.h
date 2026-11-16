@@ -57,6 +57,47 @@ class M2ModelTextureTransform;
 static const uint32_t M2_KEY_BONE_NONE = 0xFFFFFFFF;
 static const uint32_t M2_RANDOM_VARIATION = 0xFFFFFFFF;
 
+// M2 key bone IDs (M2CompBone::m_boneId and boneId arguments). Bones named after a $ model
+// marker use that marker's M2_EVENT_ID name; $CHD has no event name here.
+enum KEY_BONE_ID : uint32_t {
+    KEY_BONE_ARM_L = 0,
+    KEY_BONE_ARM_R = 1,
+    KEY_BONE_SHOULDER_L = 2,
+    KEY_BONE_SHOULDER_R = 3,
+    KEY_BONE_SPINE_LOW = 4, // "Upper Body" in anim kits; Head is used when absent.
+    KEY_BONE_WAIST = 5,
+    KEY_BONE_HEAD = 6,
+    KEY_BONE_JAW = 7,
+    KEY_BONE_INDEX_FINGER_R = 8,
+    KEY_BONE_MIDDLE_FINGER_R = 9,
+    KEY_BONE_PINKY_FINGER_R = 10,
+    KEY_BONE_RING_FINGER_R = 11,
+    KEY_BONE_THUMB_R = 12,
+    KEY_BONE_INDEX_FINGER_L = 13,
+    KEY_BONE_MIDDLE_FINGER_L = 14,
+    KEY_BONE_PINKY_FINGER_L = 15,
+    KEY_BONE_RING_FINGER_L = 16,
+    KEY_BONE_THUMB_L = 17,
+    KEY_BONE_EVENT_BREATH = 18, // $BTH
+    KEY_BONE_EVENT_MISSILE_RELEASE_RIGHT = 19, // $CSR
+    KEY_BONE_EVENT_MISSILE_RELEASE_LEFT = 20, // $CSL
+    KEY_BONE_BREATH = 21, // _Breath
+    KEY_BONE_NAME = 22, // _Name
+    KEY_BONE_NAME_MOUNT = 23, // _NameMount
+    KEY_BONE_EVENT_CHD = 24, // $CHD
+    KEY_BONE_EVENT_FISHING_POLE = 25, // $CCH
+    KEY_BONE_ROOT = 26,
+    KEY_BONE_WHEEL1 = 27,
+    KEY_BONE_WHEEL2 = 28,
+    KEY_BONE_WHEEL3 = 29,
+    KEY_BONE_WHEEL4 = 30,
+    KEY_BONE_WHEEL5 = 31,
+    KEY_BONE_WHEEL6 = 32,
+    KEY_BONE_WHEEL7 = 33,
+    KEY_BONE_WHEEL8 = 34,
+    NUM_KEY_BONES = 35,
+};
+
 typedef void (*M2EventCallback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param);
 typedef void (*M2SequenceCallback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 

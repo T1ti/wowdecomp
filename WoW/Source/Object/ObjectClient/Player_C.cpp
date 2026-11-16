@@ -8219,11 +8219,11 @@ void CGPlayer_C::ToggleSheathe() {
         int32_t hasSheathe = model->HasSequence(ANIM_HIP_SHEATH);
         int32_t hasUnsheathe = model->HasSequence(ANIM_SHEATH);
 
-        if (!hasSheathe || !hasUnsheathe || !model->HasBone(3) || !model->HasBone(2)) {
+        if (!hasSheathe || !hasUnsheathe || !model->HasBone(KEY_BONE_SHOULDER_R) || !model->HasBone(KEY_BONE_SHOULDER_L)) {
             return;
         }
 
-        if (model->GetBoneSequenceId(3) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(2) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(3) == ANIM_SHEATH || model->GetBoneSequenceId(2) == ANIM_SHEATH) {
+        if (model->GetBoneSequenceId(KEY_BONE_SHOULDER_R) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(KEY_BONE_SHOULDER_L) == ANIM_HIP_SHEATH || model->GetBoneSequenceId(KEY_BONE_SHOULDER_R) == ANIM_SHEATH || model->GetBoneSequenceId(KEY_BONE_SHOULDER_L) == ANIM_SHEATH) {
             return;
         }
     }
