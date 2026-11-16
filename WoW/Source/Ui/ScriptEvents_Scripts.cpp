@@ -882,6 +882,10 @@ static int32_t Script_UnitName(lua_State* L) {
     return 2;
 }
 
+// UnitPower/UnitPowerMax "type" argument meaning the unit's displayed power;
+// larger values are rejected (inferred name).
+static const uint32_t SCRIPT_POWER_TYPE_DISPLAYED = NUM_POWER_TYPES;
+
 // VERIFY: 5bacc158 manual
 // OFFSET: 0x0060ED40
 static int32_t Script_UnitPower(lua_State* L) {
@@ -890,12 +894,12 @@ static int32_t Script_UnitPower(lua_State* L) {
         return 0;
     }
 
-    uint32_t powerType = 7;
+    uint32_t powerType = SCRIPT_POWER_TYPE_DISPLAYED;
 
     if (lua_isnumber(L, 2)) {
         powerType = static_cast<uint32_t>(lua_tointeger(L, 2));
 
-        if (powerType >= 8) {
+        if (powerType > SCRIPT_POWER_TYPE_DISPLAYED) {
             lua_pushnumber(L, 0.0);
             return 1;
         }
@@ -908,7 +912,7 @@ static int32_t Script_UnitPower(lua_State* L) {
     double power = 0.0;
 
     if (unit) {
-        if (powerType == 7) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED) {
             powerType = unit->m_unit->m_displayPower;
         }
 
@@ -916,11 +920,11 @@ static int32_t Script_UnitPower(lua_State* L) {
             power = static_cast<uint32_t>(unit->GetPredictedPower(static_cast<POWER_TYPE>(powerType))) / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(powerType));
         }
     } else if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid)) {
-        if (powerType == 7 || powerType == state->m_powerType) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED || powerType == state->m_powerType) {
             power = state->m_power / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(state->m_powerType));
         }
     } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid)) {
-        if (powerType == 7 || powerType == petState->m_powerType) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED || powerType == petState->m_powerType) {
             power = petState->m_power / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(petState->m_powerType));
         }
     }
@@ -937,12 +941,12 @@ static int32_t Script_UnitPowerMax(lua_State* L) {
         return 0;
     }
 
-    uint32_t powerType = 7;
+    uint32_t powerType = SCRIPT_POWER_TYPE_DISPLAYED;
 
     if (lua_isnumber(L, 2)) {
         powerType = static_cast<uint32_t>(lua_tointeger(L, 2));
 
-        if (powerType >= 8) {
+        if (powerType > SCRIPT_POWER_TYPE_DISPLAYED) {
             lua_pushnumber(L, 0.0);
             return 1;
         }
@@ -955,17 +959,17 @@ static int32_t Script_UnitPowerMax(lua_State* L) {
     double power = 0.0;
 
     if (unit) {
-        if (powerType == 7) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED) {
             powerType = unit->m_unit->m_displayPower;
         }
 
         power = unit->m_unit->m_unitFieldMaxpower[powerType] / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(powerType));
     } else if (CGPartyMemberState* state = CGPartyMemberStateRepository::GetState(unitGuid)) {
-        if (powerType == 7 || powerType == state->m_powerType) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED || powerType == state->m_powerType) {
             power = state->m_maxPower / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(state->m_powerType));
         }
     } else if (CGPartyPetState* petState = CGPartyMemberStateRepository::FindPetState(unitGuid)) {
-        if (powerType == 7 || powerType == petState->m_powerType) {
+        if (powerType == SCRIPT_POWER_TYPE_DISPLAYED || powerType == petState->m_powerType) {
             power = petState->m_maxPower / Spell_C_GetPowerDisplayMod(static_cast<POWER_TYPE>(petState->m_powerType));
         }
     }
