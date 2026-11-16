@@ -8749,7 +8749,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
     }
 
     struct {
-        uint32_t m_state;
+        OBJECT_EFFECT_STATE m_state;
         int32_t m_slot;
     } states[3];
 
@@ -8763,7 +8763,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
         }
     }
 
-    uint32_t previous[3];
+    OBJECT_EFFECT_STATE previous[3];
     previous[0] = this->m_animEffectStates[0];
     previous[1] = this->m_animEffectStates[1];
     previous[2] = this->m_animEffectStates[2];
@@ -8779,13 +8779,13 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
             }
 
             if (j == count) {
-                this->m_animEffectStates[i] = 0;
+                this->m_animEffectStates[i] = OBJECT_EFFECT_STATE_INVALID;
             }
         }
     }
 
     for (int32_t i = 0; i < count; i++) {
-        uint32_t state = states[i].m_state;
+        OBJECT_EFFECT_STATE state = states[i].m_state;
         int32_t j;
 
         for (j = 0; j < 3; j++) {
@@ -8801,7 +8801,7 @@ void CGUnit_C::UpdateObjectEffectAnimationStates() {
         if (state) {
             this->m_effectManager->EnterState(state, 1, 0);
 
-            if (state == 15 || state == 81) {
+            if (state == OBJECT_EFFECT_STATE_ANIM_DEATH || state == OBJECT_EFFECT_STATE_ANIM_DEAD) {
                 this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_MOVING, 1);
                 this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING, 1);
                 this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1);
@@ -10478,8 +10478,8 @@ void CGUnit_C::Disable() {
     this->KillCreatureLoopSound();
 
     if (this->m_effectManager) {
-        for (int32_t i = 1; i < 82; i++) {
-            this->m_effectManager->ExitState(i, 0);
+        for (int32_t i = OBJECT_EFFECT_STATE_ALWAYS; i < NUM_OBJECT_EFFECT_STATES; i++) {
+            this->m_effectManager->ExitState(static_cast<OBJECT_EFFECT_STATE>(i), 0);
         }
     }
 
@@ -20911,9 +20911,9 @@ void CGUnit_C::CreateOrDestroyObjectEffectManager() {
     int32_t packageId = displayInfo ? displayInfo->m_objectEffectPackageID : 0;
 
     if (this->m_effectManager && this->m_effectManager->m_packageId != packageId) {
-        this->m_animEffectStates[0] = 0;
-        this->m_animEffectStates[1] = 0;
-        this->m_animEffectStates[2] = 0;
+        this->m_animEffectStates[0] = OBJECT_EFFECT_STATE_INVALID;
+        this->m_animEffectStates[1] = OBJECT_EFFECT_STATE_INVALID;
+        this->m_animEffectStates[2] = OBJECT_EFFECT_STATE_INVALID;
         delete this->m_effectManager;
         this->m_effectManager = nullptr;
     }
@@ -20926,9 +20926,9 @@ void CGUnit_C::CreateOrDestroyObjectEffectManager() {
     this->m_effectManager = mem ? new (mem) CObjectEffectManager() : nullptr;
 
     if (this->m_effectManager->Init(displayInfo->m_objectEffectPackageID, this)) {
-        this->m_animEffectStates[0] = 0;
-        this->m_animEffectStates[1] = 0;
-        this->m_animEffectStates[2] = 0;
+        this->m_animEffectStates[0] = OBJECT_EFFECT_STATE_INVALID;
+        this->m_animEffectStates[1] = OBJECT_EFFECT_STATE_INVALID;
+        this->m_animEffectStates[2] = OBJECT_EFFECT_STATE_INVALID;
         this->UpdateObjectEffectMovementStates();
     } else {
         delete this->m_effectManager;

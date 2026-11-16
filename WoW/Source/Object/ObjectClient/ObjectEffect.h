@@ -7,6 +7,7 @@
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
+#include "WoW/Source/Object/ObjectClient/Types.h"
 
 class CGObject_C;
 class CObjectEffectDef;
@@ -65,8 +66,8 @@ class CObjectEffectManager {
 
     CObjectEffectManager();
     ~CObjectEffectManager();
-    void EnterState(uint32_t state, int32_t playEnterEffects, int32_t refresh);
-    void ExitState(uint32_t state, int32_t playExitEffects);
+    void EnterState(OBJECT_EFFECT_STATE state, int32_t playEnterEffects, int32_t refresh);
+    void ExitState(OBJECT_EFFECT_STATE state, int32_t playExitEffects);
     int32_t Init(int32_t packageId, CGObject_C* owner);
     void PlayLoopingEffect(CObjectEffectDef* def, int32_t groupId);
     void PlayOneShotEffect(CObjectEffectDef* def);
@@ -77,8 +78,8 @@ class CObjectEffectManager {
 
 struct ObjectEffectAnimState {
     /* 0000 */ int32_t m_animID;
-    /* 0004 */ int32_t m_stateID;
-    /* 0008 */ int32_t m_altStateID;
+    /* 0004 */ OBJECT_EFFECT_STATE m_stateID;
+    /* 0008 */ OBJECT_EFFECT_STATE m_altStateID;
 };
 
 class CObjectEffectModifier {
@@ -170,7 +171,7 @@ struct OBJ_EFFECT_PACKAGE_DEF_LOOKUP : public TSHashObject<OBJ_EFFECT_PACKAGE_DE
     /* 0018 */ CObjectEffectPackageDef m_objectEffectPackageDef;
 };
 
-int32_t FindObjectEffectStateFromAnimID(int32_t animId, int32_t alternate);
+OBJECT_EFFECT_STATE FindObjectEffectStateFromAnimID(int32_t animId, int32_t alternate);
 void InitObjectEffectStateMap();
 void ObjectEffectSystem_ShutDown();
 void ObjectEffectSystem_Initialize();

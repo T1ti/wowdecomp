@@ -507,7 +507,7 @@ void CObjectEffectModifier::Apply(CObjectEffectManager* manager, CObjectEffect* 
 
 // VERIFY: 07e2b193 auto
 // OFFSET: 0x006F17F0
-int32_t FindObjectEffectStateFromAnimID(int32_t animId, int32_t alternate) {
+OBJECT_EFFECT_STATE FindObjectEffectStateFromAnimID(int32_t animId, int32_t alternate) {
     if (alternate == 1) {
         return s_objectEffectAnimStateMap[animId].m_altStateID;
     }
@@ -697,7 +697,7 @@ void CObjectEffectManager::PlayOneShotEffect(CObjectEffectDef* def) {
 
 // VERIFY: 4b360386 manual
 // OFFSET: 0x006F61D0
-void CObjectEffectManager::ExitState(uint32_t state, int32_t playExitEffects) {
+void CObjectEffectManager::ExitState(OBJECT_EFFECT_STATE state, int32_t playExitEffects) {
     if (!this->m_states.Get(state)) {
         return;
     }
@@ -814,7 +814,7 @@ void CObjectEffectManager::PlayLoopingEffect(CObjectEffectDef* def, int32_t grou
 // OFFSET: 0x006F70B0
 void CObjectEffectManager::ShutDown() {
     for (int32_t state = 0; state < NUM_OBJECT_EFFECT_STATES; state++) {
-        this->ExitState(state, 0);
+        this->ExitState(static_cast<OBJECT_EFFECT_STATE>(state), 0);
     }
 
     for (OBJ_EFFECT_REF_LIST_LOOKUP* refList = this->m_refLists.m_fulllist.Head(); refList; refList = this->m_refLists.Next(refList)) {
@@ -844,7 +844,7 @@ void CObjectEffectManager::ShutDown() {
 
 // VERIFY: 6bb11b7f manual
 // OFFSET: 0x006F7270
-void CObjectEffectManager::EnterState(uint32_t state, int32_t playEnterEffects, int32_t refresh) {
+void CObjectEffectManager::EnterState(OBJECT_EFFECT_STATE state, int32_t playEnterEffects, int32_t refresh) {
     if (refresh) {
         if (!this->m_states.Get(state)) {
             return;

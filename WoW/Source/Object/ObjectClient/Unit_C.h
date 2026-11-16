@@ -329,7 +329,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0930 */ uint32_t m_reactionSoundPriority;
     /* 0934 */ SE2SoundKitObject m_reactionSound;
     /* 0948 */ uint32_t m_floodsafeTurnPitch [4];
-    /* 0958 */ uint32_t m_animEffectStates [3];
+    /* 0958 */ OBJECT_EFFECT_STATE m_animEffectStates [3];
     /* 0964 */ const CreatureStats_C* m_creatureCacheEntry;
     /* 0968 */ const CreatureDisplayInfoRec* m_displayInfo;
     /* 096C */ const CreatureDisplayInfoExtraRec* m_displayInfoExtra;

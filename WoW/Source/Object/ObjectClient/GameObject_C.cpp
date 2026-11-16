@@ -1469,7 +1469,7 @@ void CGGameObject_C::UpdateObjectEffectAnimationStates(uint32_t anim) {
         return;
     }
 
-    uint32_t state = FindObjectEffectStateFromAnimID(anim, 0);
+    OBJECT_EFFECT_STATE state = FindObjectEffectStateFromAnimID(anim, 0);
 
     if (!state || state == this->m_effectAnimState) {
         return;
@@ -2006,7 +2006,7 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
             break;
     }
 
-    this->m_effectAnimState = 0;
+    this->m_effectAnimState = OBJECT_EFFECT_STATE_INVALID;
 }
 
 // VERIFY: cd300a2b auto
@@ -3074,13 +3074,13 @@ effects:
         uint32_t current = model->GetBoneSequenceId(0xFFFFFFFF);
 
         if (current != sequence) {
-            int32_t exitState = FindObjectEffectStateFromAnimID(current, 0);
+            OBJECT_EFFECT_STATE exitState = FindObjectEffectStateFromAnimID(current, 0);
 
             if (exitState) {
                 this->m_owner->m_effectManager->ExitState(exitState, 1);
             }
 
-            int32_t enterState = FindObjectEffectStateFromAnimID(sequence, 0);
+            OBJECT_EFFECT_STATE enterState = FindObjectEffectStateFromAnimID(sequence, 0);
 
             if (enterState) {
                 this->m_owner->m_effectManager->EnterState(enterState, 1, 0);
