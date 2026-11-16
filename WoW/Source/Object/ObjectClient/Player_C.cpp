@@ -309,19 +309,19 @@ static int32_t s_questsAccepted;
 static WOWGUID s_questListNpc;
 
 // STATIC: 0x00C9D750
-static uint32_t s_questListIds[32];
+static uint32_t s_questListIds[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9D6D0
-static uint32_t s_questListStatus[32];
+static uint32_t s_questListStatus[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9D650
-static uint32_t s_questListLevels[32];
+static uint32_t s_questListLevels[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9D5D0
-static uint32_t s_questListFlags[32];
+static uint32_t s_questListFlags[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9D550
-static uint32_t s_questListRepeatable[32];
+static uint32_t s_questListRepeatable[MAX_NUM_QUESTS];
 
 // STATIC: 0x00C9EB04
 static uint32_t s_questFailedReason;
@@ -6758,9 +6758,9 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestDetails(CDataStore* msg) {
     uint32_t numChoices;
     msg->Get(numChoices);
 
-    uint32_t choiceItems[6] = { 0 };
-    uint32_t choiceDisplays[6] = { 0 };
-    uint32_t choiceCounts[6];
+    uint32_t choiceItems[QUEST_REWARD_CHOICE_ITEMS] = { 0 };
+    uint32_t choiceDisplays[QUEST_REWARD_CHOICE_ITEMS] = { 0 };
+    uint32_t choiceCounts[QUEST_REWARD_CHOICE_ITEMS];
 
     for (int32_t i = 0; i < static_cast<int32_t>(numChoices); i++) {
         msg->Get(choiceItems[i]);
@@ -6771,9 +6771,9 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestDetails(CDataStore* msg) {
     uint32_t numRewards;
     msg->Get(numRewards);
 
-    uint32_t rewardItems[4] = { 0 };
-    uint32_t rewardDisplays[4] = { 0 };
-    uint32_t rewardCounts[4];
+    uint32_t rewardItems[QUEST_REWARD_ITEMS] = { 0 };
+    uint32_t rewardDisplays[QUEST_REWARD_ITEMS] = { 0 };
+    uint32_t rewardCounts[QUEST_REWARD_ITEMS];
 
     for (int32_t i = 0; i < static_cast<int32_t>(numRewards); i++) {
         msg->Get(rewardItems[i]);
@@ -6811,21 +6811,21 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestDetails(CDataStore* msg) {
     uint32_t factionMask;
     msg->Get(factionMask);
 
-    uint32_t factionIDs[5];
+    uint32_t factionIDs[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionIDs[i]);
     }
 
-    uint32_t factionValues[5];
+    uint32_t factionValues[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionValues[i]);
     }
 
-    uint32_t factionOverrides[5];
+    uint32_t factionOverrides[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionOverrides[i]);
     }
 
@@ -6985,9 +6985,9 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverOfferReward(CDataStore* msg) {
     uint32_t numChoices;
     msg->Get(numChoices);
 
-    uint32_t choiceItems[6] = { 0 };
-    uint32_t choiceDisplays[6] = { 0 };
-    uint32_t choiceCounts[6];
+    uint32_t choiceItems[QUEST_REWARD_CHOICE_ITEMS] = { 0 };
+    uint32_t choiceDisplays[QUEST_REWARD_CHOICE_ITEMS] = { 0 };
+    uint32_t choiceCounts[QUEST_REWARD_CHOICE_ITEMS];
 
     for (int32_t i = 0; i < static_cast<int32_t>(numChoices); i++) {
         msg->Get(choiceItems[i]);
@@ -6998,9 +6998,9 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverOfferReward(CDataStore* msg) {
     uint32_t numRewards;
     msg->Get(numRewards);
 
-    uint32_t rewardItems[4] = { 0 };
-    uint32_t rewardDisplays[4] = { 0 };
-    uint32_t rewardCounts[4];
+    uint32_t rewardItems[QUEST_REWARD_ITEMS] = { 0 };
+    uint32_t rewardDisplays[QUEST_REWARD_ITEMS] = { 0 };
+    uint32_t rewardCounts[QUEST_REWARD_ITEMS];
 
     for (int32_t i = 0; i < static_cast<int32_t>(numRewards); i++) {
         msg->Get(rewardItems[i]);
@@ -7041,21 +7041,21 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverOfferReward(CDataStore* msg) {
     uint32_t factionMask;
     msg->Get(factionMask);
 
-    uint32_t factionIDs[5];
+    uint32_t factionIDs[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionIDs[i]);
     }
 
-    uint32_t factionValues[5];
+    uint32_t factionValues[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionValues[i]);
     }
 
-    uint32_t factionOverrides[5];
+    uint32_t factionOverrides[QUEST_REPUTATION_REWARDS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < QUEST_REPUTATION_REWARDS; i++) {
         msg->Get(factionOverrides[i]);
     }
 
@@ -7460,7 +7460,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestList(CDataStore* msg) {
     memset(s_questListRepeatable, 0, sizeof(s_questListRepeatable));
     CGQuestInfo::SetState(npc, WOWGUID(), QUEST_GREETING, greeting, 0, 0);
 
-    char titles[32][512];
+    char titles[MAX_NUM_QUESTS][512];
 
     for (uint32_t i = 0; i < count; i++) {
         msg->Get(s_questListIds[i]);
@@ -7527,9 +7527,9 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverRequestItems(CDataStore* msg) {
     uint32_t numItems;
     msg->Get(numItems);
 
-    uint32_t itemIds[6] = { 0 };
-    uint32_t itemCounts[6];
-    uint32_t itemDisplays[6];
+    uint32_t itemIds[MAX_REQUIRED_ITEMS] = { 0 };
+    uint32_t itemCounts[MAX_REQUIRED_ITEMS];
+    uint32_t itemDisplays[MAX_REQUIRED_ITEMS];
 
     for (int32_t i = 0; i < static_cast<int32_t>(numItems); i++) {
         msg->Get(itemIds[i]);

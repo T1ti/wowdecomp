@@ -210,7 +210,7 @@ static int32_t Script_ConfirmAcceptQuest(lua_State* L) {
 static int32_t Script_GetNumQuestRewards(lua_State* L) {
     uint32_t count = 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_REQUIRED_ITEMS; i++) {
         if (!CGQuestInfo::m_questItems[i].m_reward.m_itemID) {
             break;
         }
@@ -227,7 +227,7 @@ static int32_t Script_GetNumQuestRewards(lua_State* L) {
 static int32_t Script_GetNumQuestChoices(lua_State* L) {
     uint32_t count = 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_REQUIRED_ITEMS; i++) {
         if (!CGQuestInfo::m_questItems[i].m_choice.m_itemID) {
             break;
         }
@@ -244,7 +244,7 @@ static int32_t Script_GetNumQuestChoices(lua_State* L) {
 static int32_t Script_GetNumQuestItems(lua_State* L) {
     uint32_t count = 0;
 
-    for (uint32_t i = 0; i < 6; i++) {
+    for (uint32_t i = 0; i < MAX_REQUIRED_ITEMS; i++) {
         if (!CGQuestInfo::m_questItems[i].m_required.m_displayID) {
             break;
         }

@@ -3,7 +3,16 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/QuestCache.h"
 #include "WoW/Source/Object/WGUID.h"
+
+// Quest giver dialog list sizes (FrameXML QuestFrame.lua MAX_NUM_QUESTS, MAX_REQUIRED_ITEMS).
+// Each QuestItemSlot holds the reward, choice and required item at one index.
+constexpr uint32_t MAX_NUM_QUESTS = 32;
+constexpr uint32_t MAX_REQUIRED_ITEMS = 6;
+
+// Inferred name: reward factions listed for a quest, reputation spillover included.
+constexpr uint32_t MAX_QUEST_REWARD_FACTIONS = 10;
 
 enum QUEST_STATE : int32_t {
     QUEST_GREETING = 0,
@@ -36,8 +45,8 @@ struct QuestGiverQuest {
 
 class CGQuestInfo {
     public:
-    static int32_t m_rewardFactionList[10];
-    static int32_t m_rewardFactionAmounts[10];
+    static int32_t m_rewardFactionList[MAX_QUEST_REWARD_FACTIONS];
+    static int32_t m_rewardFactionAmounts[MAX_QUEST_REWARD_FACTIONS];
     static int32_t IsLowLevel(int32_t level);
     static QUEST_STATE m_state;
     static int32_t m_currentQuest;
@@ -50,9 +59,9 @@ class CGQuestInfo {
     static int32_t m_rewardSpellCast;
     static int32_t m_rewardTitle;
     static uint32_t m_rewardFactionMask;
-    static int32_t m_rewardFactionIDs[5];
-    static int32_t m_rewardFactionValues[5];
-    static int32_t m_rewardFactionOverrides[5];
+    static int32_t m_rewardFactionIDs[QUEST_REPUTATION_REWARDS];
+    static int32_t m_rewardFactionValues[QUEST_REPUTATION_REWARDS];
+    static int32_t m_rewardFactionOverrides[QUEST_REPUTATION_REWARDS];
     static void ClearState();
     static void ClearQuestItems();
     static void ProcessQuestLogRewardFactions();
@@ -77,9 +86,9 @@ class CGQuestInfo {
     static int32_t m_rewardTalents;
     static int32_t m_numQuests;
     static int32_t m_numInProgress;
-    static QuestItemSlot m_questItems[6];
-    static QuestGiverQuest m_inProgressQuests[32];
-    static QuestGiverQuest m_availableQuests[32];
+    static QuestItemSlot m_questItems[MAX_REQUIRED_ITEMS];
+    static QuestGiverQuest m_inProgressQuests[MAX_NUM_QUESTS];
+    static QuestGiverQuest m_availableQuests[MAX_NUM_QUESTS];
     static uint32_t m_rewardHonor;
     static int32_t m_rewardArenaPoints;
     static int32_t m_requiredMoney;

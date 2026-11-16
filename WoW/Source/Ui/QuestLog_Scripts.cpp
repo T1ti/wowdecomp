@@ -460,8 +460,8 @@ static int32_t Script_GetQuestLogRewardFactionInfo(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1) - 1.0);
-    lua_pushnumber(L, index > 9 ? 0 : CGQuestInfo::m_rewardFactionList[index]);
-    lua_pushnumber(L, index > 9 ? 0 : CGQuestInfo::m_rewardFactionAmounts[index]);
+    lua_pushnumber(L, index >= MAX_QUEST_REWARD_FACTIONS ? 0 : CGQuestInfo::m_rewardFactionList[index]);
+    lua_pushnumber(L, index >= MAX_QUEST_REWARD_FACTIONS ? 0 : CGQuestInfo::m_rewardFactionAmounts[index]);
     return 2;
 }
 
