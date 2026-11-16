@@ -731,22 +731,22 @@ void CGlueMgr::Resume() {
     uint8_t expectedDigest[16];
 
     switch (FrameXML_CheckSignature("Interface\\GlueXML\\GlueXML.toc", nullptr, InterfaceKey, expectedDigest)) {
-        case 0: {
+        case XML_SIGNATURE_MISSING: {
             status.Add(STATUS_WARNING, "GlueXML missing signature");
             break;
         }
 
-        case 1: {
+        case XML_SIGNATURE_CORRUPT: {
             status.Add(STATUS_WARNING, "GlueXML has corrupt signature");
             break;
         }
 
-        case 2: {
+        case XML_SIGNATURE_MODIFIED: {
             status.Add(STATUS_WARNING, "GlueXML is modified or corrupt");
             break;
         }
 
-        case 3: {
+        case XML_SIGNATURE_VALID: {
             FrameXML_FreeHashNodes();
             FrameXML_CreateFrames("Interface\\GlueXML\\GlueXML.toc", nullptr, &md5, &status);
 

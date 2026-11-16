@@ -1071,7 +1071,7 @@ static int32_t VerifySignature(const uint8_t* data, uint32_t size, const uint8_t
 int32_t FrameXML_CheckSignature(const char* tocFile, const char* extraFile, const uint8_t* modulus, uint8_t* digest) {
 #ifdef DISABLE_SIGNATURE_CHECKS
     CalculateSignatureMD5(tocFile, extraFile, digest);
-    return 3;
+    return XML_SIGNATURE_VALID;
 #endif
 
     char sigFile[260];
@@ -1081,12 +1081,12 @@ int32_t FrameXML_CheckSignature(const char* tocFile, const char* extraFile, cons
     uint32_t size;
 
     if (!SFile::ReadFile(nullptr, sigFile, &data, &size, 0, 1, nullptr)) {
-        return 0;
+        return XML_SIGNATURE_MISSING;
     }
 
     if (size != 276) {
         SFile::Unload(data);
-        return 1;
+        return XML_SIGNATURE_CORRUPT;
     }
 
     char* name = SStrChrR(sigFile, '\\');
@@ -1095,7 +1095,7 @@ int32_t FrameXML_CheckSignature(const char* tocFile, const char* extraFile, cons
 
     if (!VerifySignature(static_cast<const uint8_t*>(data), size, modulus, name)) {
         SFile::Unload(data);
-        return 1;
+        return XML_SIGNATURE_CORRUPT;
     }
 
     uint8_t signedDigest[16];
@@ -1104,5 +1104,5 @@ int32_t FrameXML_CheckSignature(const char* tocFile, const char* extraFile, cons
 
     CalculateSignatureMD5(tocFile, extraFile, digest);
 
-    return memcmp(signedDigest, digest, sizeof(signedDigest)) ? 2 : 3;
+    return memcmp(signedDigest, digest, sizeof(signedDigest)) ? XML_SIGNATURE_MODIFIED : XML_SIGNATURE_VALID;
 }
