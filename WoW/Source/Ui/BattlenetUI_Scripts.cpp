@@ -605,7 +605,7 @@ static int32_t Script_BNInviteToConversation(lua_State* L) {
 
     uint8_t channel = static_cast<uint8_t>(lua_tonumber(L, 1) - 1.0);
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         luaL_error(L, "Invalid Channel");
     }
 
@@ -644,7 +644,7 @@ static int32_t Script_BNLeaveConversation(lua_State* L) {
 
     double channel = lua_tonumber(L, 1) - 1.0;
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         luaL_error(L, "Invalid Channel");
     }
 
@@ -669,7 +669,7 @@ static int32_t Script_BNSendConversationMessage(lua_State* L) {
             char message[1026];
             FilterChatLinks(text, message, 1021);
 
-            if (channel >= 6) {
+            if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
                 luaL_error(L, "Invalid Channel");
             }
 
@@ -1517,7 +1517,7 @@ static int32_t Script_BNGetConversationMemberInfo(lua_State* L) {
     double indexNumber = lua_tonumber(L, 2);
     uint32_t index = static_cast<uint32_t>(indexNumber - 1);
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         luaL_error(L, "Invalid Channel");
     }
 

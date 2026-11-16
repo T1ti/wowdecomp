@@ -21,6 +21,9 @@ struct BattlenetUIFriend {
 
 class BattlenetUI {
     public:
+    // Battle.net conversation channel slots (inferred name).
+    static const int32_t MAX_CHAT_CHANNELS = 6;
+
     struct EventCallback {
         /* 0000 */ const char* m_event;
         /* 0004 */ GeneralFunction::SimpleCallbackFunc m_func;

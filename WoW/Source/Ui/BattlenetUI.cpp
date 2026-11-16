@@ -1240,7 +1240,7 @@ void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFu
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     int32_t type = static_cast<int32_t>(args[1].ToInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1298,7 +1298,7 @@ void BattlenetUI::ChatChannelLeftCB(void* param, int32_t argc, const GeneralFunc
 
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1323,7 +1323,7 @@ void BattlenetUI::ChatChannelClosedCB(void* param, int32_t argc, const GeneralFu
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     uint32_t presenceId = static_cast<uint32_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1353,7 +1353,7 @@ void BattlenetUI::ChatChannelMessageReceivedCB(void* param, int32_t argc, const 
         message = "";
     }
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1381,7 +1381,7 @@ void BattlenetUI::ChatChannelMessageBlockedCB(void* param, int32_t argc, const G
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     uint32_t presenceId = static_cast<uint32_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1401,7 +1401,7 @@ void BattlenetUI::ChatChannelMemberJoinedCB(void* param, int32_t argc, const Gen
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     uint32_t presenceId = static_cast<uint32_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1428,7 +1428,7 @@ void BattlenetUI::ChatChannelMemberLeftCB(void* param, int32_t argc, const Gener
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     uint32_t presenceId = static_cast<uint32_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1453,7 +1453,7 @@ void BattlenetUI::ChatChannelMemberUpdatedCB(void* param, int32_t argc, const Ge
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
     uint32_t presenceId = static_cast<uint32_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1634,7 +1634,7 @@ void BattlenetUI::PopulateAutoComplete() {
         BattlenetUI::UpdateAutoComplete(presenceId, (online ? 0x20 : 0) | 0x4, 0, name);
     }
 
-    for (uint8_t channel = 0; channel < 6; channel++) {
+    for (uint8_t channel = 0; channel < BattlenetUI::MAX_CHAT_CHANNELS; channel++) {
         Battlenet::Chat::MemberList members = BattlenetAPI::GetChatMemberList(channel);
         uint32_t memberCount = members.m_members.m_count;
 
@@ -1859,7 +1859,7 @@ void BattlenetUI::ChatChannelCreateCB(void* param, int32_t argc, const GeneralFu
 
     uint8_t channel = static_cast<uint8_t>(args[1].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1882,7 +1882,7 @@ void BattlenetUI::ChatChannelInviteCB(void* param, int32_t argc, const GeneralFu
     uint32_t presenceId = BattlenetAPI::GetPresenceIDForToon(&toon.m_data);
     uint8_t channel = static_cast<uint8_t>(args[2].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -1907,7 +1907,7 @@ void BattlenetUI::ChatChannelMessageUndeliverableCB(void* param, int32_t argc, c
 
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
 
-    if (channel >= 6) {
+    if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
