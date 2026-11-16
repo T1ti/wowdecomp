@@ -2001,7 +2001,7 @@ static int32_t Script_SetMerchantCostItem(lua_State* L) {
 
     int32_t found = 0;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
         if (!cost->m_itemID[i]) {
             continue;
         }
