@@ -17319,7 +17319,7 @@ int32_t CGUnit_C::VerifyAttackIconPressed(WOWGUID* target, int32_t useGiven, int
         }
 
         if (autoTarget) {
-            TargetNearestEnemy(0, 1);
+            TargetNearestEnemy(0, UNIT_TARGET_ENEMY);
         }
 
         *target = CGGameUI::m_lockedTarget;

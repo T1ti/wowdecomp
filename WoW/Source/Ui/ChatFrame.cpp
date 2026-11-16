@@ -5869,7 +5869,7 @@ void CGChat::SilencePartyMember(bool silence, const char* name) {
         return;
     }
 
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? 6 : 5, 0, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? UNIT_TARGET_RAID_MEMBER : UNIT_TARGET_PARTY_MEMBER, 0, 3.4028235e38f, 0);
 
     if (!guid) {
         CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);

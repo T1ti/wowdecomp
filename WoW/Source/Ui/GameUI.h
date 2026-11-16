@@ -533,6 +533,18 @@ bool SetTaintLogCallback(CVar* var, const char* oldValue, const char* value, voi
 bool ShowClassColorInNameplateCallback(CVar* var, const char* oldValue, const char* value, void* arg);
 void TaintEventCallback(lua_State* L, int32_t event, const char* name, const char* taint);
 
+// Unit filter for TargetNearest*, TargetDirection* and ClosestObjectMatch,
+// named after the Script_TargetNearest* function that passes each value.
+enum UNIT_TARGET_TYPE : int32_t {
+    UNIT_TARGET_ANY           = 0, // TargetNearest
+    UNIT_TARGET_ENEMY         = 1, // TargetNearestEnemy
+    UNIT_TARGET_ENEMY_PLAYER  = 2, // TargetNearestEnemyPlayer
+    UNIT_TARGET_FRIEND        = 3, // TargetNearestFriend
+    UNIT_TARGET_FRIEND_PLAYER = 4, // TargetNearestFriendPlayer
+    UNIT_TARGET_PARTY_MEMBER  = 5, // TargetNearestPartyMember
+    UNIT_TARGET_RAID_MEMBER   = 6, // TargetNearestRaidMember
+};
+
 void TargetNearestEnemy(int32_t reverse, int32_t type);
 int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type);
 int32_t Script_IsWindowsClient(lua_State* L);

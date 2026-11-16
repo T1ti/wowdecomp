@@ -2750,7 +2750,7 @@ static int32_t Script_StopCinematic(lua_State* L) {
 // OFFSET: 0x00525A90
 static int32_t Script_TargetNearest(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
-        TargetNearestEnemy(StringToBOOL(L, 1, 0), 0);
+        TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ANY);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -2761,7 +2761,7 @@ static int32_t Script_TargetNearest(lua_State* L) {
 // OFFSET: 0x00525AD0
 static int32_t Script_TargetNearestEnemy(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
-        TargetNearestEnemy(StringToBOOL(L, 1, 0), 1);
+        TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ENEMY);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -2772,7 +2772,7 @@ static int32_t Script_TargetNearestEnemy(lua_State* L) {
 // OFFSET: 0x00525B10
 static int32_t Script_TargetNearestEnemyPlayer(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
-        TargetNearestEnemy(StringToBOOL(L, 1, 0), 2);
+        TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ENEMY_PLAYER);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -2783,7 +2783,7 @@ static int32_t Script_TargetNearestEnemyPlayer(lua_State* L) {
 // OFFSET: 0x00525B50
 static int32_t Script_TargetNearestFriend(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
-        TargetNearestEnemy(StringToBOOL(L, 1, 0), 3);
+        TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_FRIEND);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -2794,7 +2794,7 @@ static int32_t Script_TargetNearestFriend(lua_State* L) {
 // OFFSET: 0x00525B90
 static int32_t Script_TargetNearestFriendPlayer(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
-        TargetNearestEnemy(StringToBOOL(L, 1, 0), 4);
+        TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_FRIEND_PLAYER);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -2804,14 +2804,14 @@ static int32_t Script_TargetNearestFriendPlayer(lua_State* L) {
 // VERIFY: b149bc61 auto
 // OFFSET: 0x00525BD0
 static int32_t Script_TargetNearestPartyMember(lua_State* L) {
-    TargetNearestEnemy(StringToBOOL(L, 1, 0), 5);
+    TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_PARTY_MEMBER);
     return 0;
 }
 
 // VERIFY: 3be6e022 auto
 // OFFSET: 0x00525C00
 static int32_t Script_TargetNearestRaidMember(lua_State* L) {
-    TargetNearestEnemy(StringToBOOL(L, 1, 0), 6);
+    TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_RAID_MEMBER);
     return 0;
 }
 
@@ -5495,10 +5495,10 @@ static int32_t Script_DeleteCursorItem(lua_State* L) {
 // OFFSET: 0x005224C0
 static int32_t Script_FollowUnit(lua_State* L) {
     const char* name = lua_tolstring(L, 1, nullptr);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, 3, StringToBOOL(L, 2, 0), FLT_MAX, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_FRIEND, StringToBOOL(L, 2, 0), FLT_MAX, 0);
 
     if (!guid) {
-        guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, 0, StringToBOOL(L, 2, 0), FLT_MAX, 0);
+        guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, UNIT_TARGET_ANY, StringToBOOL(L, 2, 0), FLT_MAX, 0);
     }
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -5748,7 +5748,7 @@ static int32_t Script_StartAttack(lua_State* L) {
 
     if (token && *token) {
         if (!Script_GetGUIDFromToken(token, guid, false)) {
-            guid = CGGameUI::ClosestObjectMatch(token, TYPE_UNIT, 1, StringToBOOL(L, 2, 0), FLT_MAX, 1);
+            guid = CGGameUI::ClosestObjectMatch(token, TYPE_UNIT, UNIT_TARGET_ENEMY, StringToBOOL(L, 2, 0), FLT_MAX, 1);
         }
 
         hasTarget = 1;
@@ -5906,7 +5906,7 @@ static void TargetIfValid(const WOWGUID& guid) {
 static int32_t Script_TargetUnit(lua_State* L) {
     const char* name = lua_tolstring(L, 1, nullptr);
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, 0, exact, FLT_MAX, 1);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, UNIT_TARGET_ANY, exact, FLT_MAX, 1);
 
     if (guid) {
         TargetIfValid(guid);
@@ -5926,7 +5926,7 @@ static int32_t Script_TargetDirectionEnemy(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
         float facing = static_cast<float>(lua_tonumber(L, 1));
         float angle = static_cast<float>(lua_isnumber(L, 2) ? lua_tonumber(L, 2) : 0.0);
-        CGGameUI::TargetDirection(facing, angle, 1);
+        CGGameUI::TargetDirection(facing, angle, UNIT_TARGET_ENEMY);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -5944,7 +5944,7 @@ static int32_t Script_TargetDirectionFriend(lua_State* L) {
     if (CGUIMacros::IsActionAllowed(5)) {
         float facing = static_cast<float>(lua_tonumber(L, 1));
         float angle = static_cast<float>(lua_isnumber(L, 2) ? lua_tonumber(L, 2) : 0.0);
-        CGGameUI::TargetDirection(facing, angle, 3);
+        CGGameUI::TargetDirection(facing, angle, UNIT_TARGET_FRIEND);
         CGUIMacros::m_state &= ~0x20u;
     }
 
@@ -5983,7 +5983,7 @@ static int32_t Script_TargetLastFriend(lua_State* L) {
 static int32_t Script_AssistUnit(lua_State* L) {
     const char* name = lua_tolstring(L, 1, nullptr);
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, 0, exact, FLT_MAX, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, UNIT_TARGET_ANY, exact, FLT_MAX, 0);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
@@ -6096,7 +6096,7 @@ static int32_t Script_InteractUnit(lua_State* L) {
     WOWGUID guid;
 
     if (SStrCmpI(token, "mouseover", STORM_MAX_STR)) {
-        guid = CGGameUI::ClosestObjectMatch(token, TYPE_OBJECT, 0, StringToBOOL(L, 2, 0), FLT_MAX, 0);
+        guid = CGGameUI::ClosestObjectMatch(token, TYPE_OBJECT, UNIT_TARGET_ANY, StringToBOOL(L, 2, 0), FLT_MAX, 0);
     } else {
         guid = CGGameUI::m_currentObjectTrack;
     }

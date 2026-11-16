@@ -4880,28 +4880,28 @@ struct ClosestObjectMatchData {
 // OFFSET: 0x005130D0
 static int32_t FilterClosestMatchCandidate(int32_t targetType, const WOWGUID& guid, CGUnit_C* unit) {
     switch (targetType) {
-        case 1:
-        case 2:
+        case UNIT_TARGET_ENEMY:
+        case UNIT_TARGET_ENEMY_PLAYER:
             return 0;
 
-        case 4: {
+        case UNIT_TARGET_FRIEND_PLAYER: {
 
             if (!guid.IsPlayer()) {
                 return 0;
             }
         }
 
-        case 3:
+        case UNIT_TARGET_FRIEND:
             return guid != unit->m_obj->m_guid && CGGameUI::IsRaidMemberOrPet(guid) ? 1 : 0;
 
-        case 5:
+        case UNIT_TARGET_PARTY_MEMBER:
             if (guid == unit->m_obj->m_guid) {
                 return 0;
             }
 
             return CGPartyInfo::IsMember(guid) ? 1 : 0;
 
-        case 6:
+        case UNIT_TARGET_RAID_MEMBER:
             return guid != unit->m_obj->m_guid && CGGameUI::IsPartyMember(guid) ? 1 : 0;
 
         default:
@@ -5022,7 +5022,7 @@ WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, int32_
     data.m_bestDistance = maxDistance;
     data.m_ignoreHostileTotems = ignoreHostileTotems;
 
-    if (targetType != 1 && targetType != 2) {
+    if (targetType != UNIT_TARGET_ENEMY && targetType != UNIT_TARGET_ENEMY_PLAYER) {
         for (uint32_t i = 0; i < 4; i++) {
             WOWGUID member = GetPartyMemberGUID(i);
 
@@ -5036,7 +5036,7 @@ WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, int32_
             }
         }
 
-        if (targetType != 5) {
+        if (targetType != UNIT_TARGET_PARTY_MEMBER) {
             for (uint32_t i = 0; i < CGRaidInfo::m_numMembers; i++) {
                 WOWGUID member = CGRaidInfo::m_members[i]->m_guid;
 
@@ -5081,11 +5081,11 @@ static int QSortCompareNearestUnit(const void* a, const void* b) {
 // OFFSET: 0x00518E40
 int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type) {
     switch (type) {
-        case 1: {
+        case UNIT_TARGET_ENEMY: {
             return unit->CanAttack(target) && !target->IsDeadOrGhost() && !(target->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && target->GetClientStandState() != UNIT_DEAD;
         }
 
-        case 2: {
+        case UNIT_TARGET_ENEMY_PLAYER: {
             if (!(target->m_obj->m_type & TYPE_PLAYER)) {
                 return 0;
             }
@@ -5093,11 +5093,11 @@ int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type) {
             return unit->CanAttack(target) && !target->IsDeadOrGhost() && !(target->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) && target->GetClientStandState() != UNIT_DEAD;
         }
 
-        case 3: {
+        case UNIT_TARGET_FRIEND: {
             return unit->CanAssist(target, false) && target->m_unit->m_unitFieldHealth > 0;
         }
 
-        case 4: {
+        case UNIT_TARGET_FRIEND_PLAYER: {
             if (!(target->m_obj->m_type & TYPE_PLAYER)) {
                 return 0;
             }
@@ -5105,11 +5105,11 @@ int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, int32_t type) {
             return unit->CanAssist(target, false) && target->m_unit->m_unitFieldHealth > 0;
         }
 
-        case 5: {
+        case UNIT_TARGET_PARTY_MEMBER: {
             return CGPartyInfo::IsMember(target->m_obj->m_guid) ? 1 : 0;
         }
 
-        case 6: {
+        case UNIT_TARGET_RAID_MEMBER: {
             return CGGameUI::IsPartyMember(target->m_obj->m_guid) != 0;
         }
 

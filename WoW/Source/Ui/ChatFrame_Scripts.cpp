@@ -1957,7 +1957,7 @@ static int32_t Script_DoEmote(lua_State* L) {
     const char* token = lua_tolstring(L, 2, nullptr);
 
     if (token && *token && *token != '%') {
-        target = CGGameUI::ClosestObjectMatch(token, TYPE_PLAYER, 0, 0, 3.4028235e38f, 0);
+        target = CGGameUI::ClosestObjectMatch(token, TYPE_PLAYER, UNIT_TARGET_ANY, 0, 3.4028235e38f, 0);
     }
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
