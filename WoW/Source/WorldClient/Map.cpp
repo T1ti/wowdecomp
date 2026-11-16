@@ -4743,12 +4743,12 @@ bool CMap::CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, W
 
 // VERIFY: f40f6721 manual
 // OFFSET: 0x007A5F20
-bool CMap::GetFacets(CAaBox* a1, CAaBox* a2, World::FacetData* a3, uint32_t a4, uint32_t* a5) {
+bool CMap::GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status) {
     CMap::mapGetFacetsCount++;
     CMap::s_queryTag++;
-    a3->facets.SetCount(0);
+    facets->facets.SetCount(0);
 
-    if (!CMap::GetMapObjFacets(a1, a2, a3, a4, a5)) {
+    if (!CMap::GetMapObjFacets(queryBox, box, facets, flags, status)) {
         return false;
     }
 
@@ -4756,15 +4756,15 @@ bool CMap::GetFacets(CAaBox* a1, CAaBox* a2, World::FacetData* a3, uint32_t a4, 
         return true;
     }
 
-    float topX = -(a2->t.x - HALF_WORLD_SIZE);
-    float topY = -(a2->t.y - HALF_WORLD_SIZE);
-    float bottomX = -(a2->b.x - HALF_WORLD_SIZE);
+    float topX = -(box->t.x - HALF_WORLD_SIZE);
+    float topY = -(box->t.y - HALF_WORLD_SIZE);
+    float bottomX = -(box->b.x - HALF_WORLD_SIZE);
 
     if (topY < 0.0f) {
         return false;
     }
 
-    float bottomY = -(a2->b.y - HALF_WORLD_SIZE);
+    float bottomY = -(box->b.y - HALF_WORLD_SIZE);
 
     if (topX < 0.0f || bottomY >= 34133.332f || bottomX >= 34133.332f) {
         return false;
@@ -4779,16 +4779,16 @@ bool CMap::GetFacets(CAaBox* a1, CAaBox* a2, World::FacetData* a3, uint32_t a4, 
 
     for (int32_t y = rect.minY >> 3; y <= rect.maxY >> 3; y++) {
         for (int32_t x = rect.minX >> 3; x <= rect.maxX >> 3; x++) {
-            if (!CMap::GetChunkFacets(x, y, &rect, a1, a2, a3, a4)) {
+            if (!CMap::GetChunkFacets(x, y, &rect, queryBox, box, facets, flags)) {
                 result = false;
             }
         }
     }
 
-    if (a4 & 0x200) {
+    if (flags & WORLD_QUERY_FLIGHT_BOUNDS) {
         for (int32_t y = (rect.minY >> 3) >> 4; y <= (rect.maxY >> 3) >> 4; y++) {
             for (int32_t x = (rect.minX >> 3) >> 4; x <= (rect.maxX >> 3) >> 4; x++) {
-                if (!CMap::CreateFlightBoundsFacets(x, y, a2, a3)) {
+                if (!CMap::CreateFlightBoundsFacets(x, y, box, facets)) {
                     result = false;
                 }
             }
@@ -5969,7 +5969,7 @@ void CMap::Unload() {
 
 // VERIFY: 6b4c3b7f auto
 // OFFSET: 0x0079D460
-void CMap::CreateWaterRipple(const C3Vector& pos, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8) {
+void CMap::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player) {
     if (CWorld::s_waterRipples && !World::s_waterLOD) {
         float alpha = 1.0f;
 
@@ -5977,7 +5977,7 @@ void CMap::CreateWaterRipple(const C3Vector& pos, float a2, float a3, float a4, 
             alpha = a5 * 6.0f;
         }
 
-        WaterRipple::Create(pos, a2, a3, alpha, a4, a6, a7, a8);
+        WaterRipple::Create(pos, facing, size, alpha, duration, growth, type, player);
     }
 }
 

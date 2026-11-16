@@ -680,8 +680,8 @@ int32_t World::QueryLiquidSounds(CMapEntity* entity, float radius, TSGrowableArr
 
 // VERIFY: baf0a035 auto
 // OFFSET: 0x0077F400
-void World::CreateWaterRipple(const C3Vector& pos, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8) {
-    CMap::CreateWaterRipple(pos, a2, a3, a4, a5, a6, a7, a8);
+void World::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player) {
+    CMap::CreateWaterRipple(pos, facing, size, duration, a5, growth, type, player);
 }
 
 // VERIFY: e146f1dc auto
@@ -1795,25 +1795,25 @@ int32_t World::GetFlightBoundsLower(const C3Vector& pos, float* height) {
 
 // VERIFY: 581a8753 manual
 // OFFSET: 0x00783910
-bool World::GetFacets(CAaBox* a1, CAaBox* a2, FacetData* a3, uint32_t a4, uint32_t* a5) {
-    a3->facets.SetCount(0);
-    a3->facetIds.SetCount(0);
-    if (a5)
-        *a5 = 0;
-    if ((a4 & 0x4000) == 0)
-        return CMap::GetFacets(a1, a2, a3, a4, a5) != 0;
+bool World::GetFacets(CAaBox* queryBox, CAaBox* box, FacetData* facets, uint32_t flags, uint32_t* status) {
+    facets->facets.SetCount(0);
+    facets->facetIds.SetCount(0);
+    if (status)
+        *status = 0;
+    if ((flags & WORLD_QUERY_WALKABLE_ONLY) == 0)
+        return CMap::GetFacets(queryBox, box, facets, flags, status) != 0;
 
     static FacetData facetData;
 
     facetData.facets.SetCount(0);
     facetData.facetIds.SetCount(0);
-    if (!CMap::GetFacets(a1, a2, &facetData, a4, a5))
+    if (!CMap::GetFacets(queryBox, box, &facetData, flags, status))
         return 0;
 
     for (int32_t i = 0; i < facetData.facets.Count(); i++) {
         if (facetData.facets[i].plane.n.z >= 0.64278764f) {
-            a3->facets.Add(1, &facetData.facets[i]);
-            a3->facetIds.Add(1, &facetData.facetIds[i]);
+            facets->facets.Add(1, &facetData.facets[i]);
+            facets->facetIds.Add(1, &facetData.facetIds[i]);
         }
     }
     return 1;

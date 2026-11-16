@@ -363,7 +363,7 @@ class CMap {
     static bool QueryShadow(C3Vector* pos);
     static DepthCoordTable* GetDepthCoordTable(uint32_t liquidType);
     static CChunkLiquid* AllocChunkLiquid();
-    static void CreateWaterRipple(const C3Vector& pos, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8);
+    static void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player);
     static void QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
     static bool QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* a4, int32_t checkGround);
     static bool QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* height, int32_t checkGround);
@@ -418,7 +418,7 @@ class CMap {
     static bool LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapObjDef** outDefs, uint32_t* outGroups);
     static void TestQueryAdd(const CFacet& facet, CImVector color, const C44Matrix* mat);
     static bool QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float* height);
-    static bool GetFacets(CAaBox* a1, CAaBox* a2, World::FacetData* a3, uint32_t a4, uint32_t* a5);
+    static bool GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status);
     static bool GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status);
     static bool QueryFacets(CFrustum* frustum, World::FacetData* facets, uint32_t flags, uint32_t* count);
     static bool GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags);

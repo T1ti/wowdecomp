@@ -483,7 +483,7 @@ namespace World {
     C3Vector* GetCamPos();
     void SetObjectCollisionCallback(int32_t (*callback)(WOWGUID* guid, uintptr_t param, ObjectCollisionData* data, uint32_t flags));
     void FindOrCreateDestructibleProxy(CDestructibleProxy* proxy);
-    void CreateWaterRipple(const C3Vector& pos, float a2, float a3, float a4, float a5, float a6, int32_t a7, int32_t a8);
+    void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player);
     int32_t QueryLiquidSounds(CMapEntity* entity, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
     int32_t QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height);
     int32_t ObjectIsDrawable(CMapBaseObj* object);
@@ -553,7 +553,7 @@ void SetNearClip(float nearClip);
 void SetTexLodBias(float bias);
 float ValidateFarClip(float farClip, int32_t mapID);
     bool NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint32_t* outCount);
-    bool GetFacets(CAaBox* a1, CAaBox* a2, FacetData* a3, uint32_t a4, uint32_t* a5);
+    bool GetFacets(CAaBox* queryBox, CAaBox* box, FacetData* facets, uint32_t flags, uint32_t* status);
     bool NDCXform(CFrustum* frustum, C44Matrix* out, bool includeTranslation);
     bool IsValidPosition(float x, float y, float z, float a4);
     bool IsValidPosition(const C3Vector& position, float a4);
