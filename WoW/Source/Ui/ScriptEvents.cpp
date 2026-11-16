@@ -367,16 +367,16 @@ void ScriptEventsRegisterUnit(CGUnit_C* unit) {
         uint32_t size;
 
         switch (i) {
-            case 0:
-            case 2:
-            case 6:
-            case 12:
+            case CGUnitData::UNIT_FIELD_CHARM:
+            case CGUnitData::UNIT_FIELD_SUMMON:
+            case CGUnitData::UNIT_FIELD_CHARMEDBY:
+            case CGUnitData::UNIT_FIELD_TARGET:
                 size = sizeof(WOWGUID);
                 break;
 
-            case 125:
-            case 132:
-                size = 28;
+            case CGUnitData::UNIT_FIELD_POWER_COST_MODIFIER:
+            case CGUnitData::UNIT_FIELD_POWER_COST_MULTIPLIER:
+                size = CGUnitData::UNIT_FIELD_POWER_COST_MODIFIER_SIZE * sizeof(uint32_t);
                 break;
 
             default:

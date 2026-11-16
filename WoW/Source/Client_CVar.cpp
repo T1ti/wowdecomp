@@ -186,7 +186,7 @@ static void DisplayErrorLevelStatus() {
     uint32_t minLevel = SysMsgGetMinDisplayLevel();
     uint32_t maxLevel = SysMsgGetMaxDisplayLevel();
 
-    if (!minLevel && maxLevel == 3) {
+    if (minLevel == STATUS_INFO && maxLevel == STATUS_FATAL) {
         ConsoleWrite("Displaying all system messages", DEFAULT_COLOR);
         return;
     }
@@ -199,19 +199,19 @@ static void DisplayErrorLevelStatus() {
     }
 
     switch (minLevel) {
-        case 0:
+        case STATUS_INFO:
             SStrPack(status, "informational messages", STORM_MAX_STR);
             break;
 
-        case 1:
+        case STATUS_WARNING:
             SStrPack(status, "warnings", STORM_MAX_STR);
             break;
 
-        case 2:
+        case STATUS_ERROR:
             SStrPack(status, "errors", STORM_MAX_STR);
             break;
 
-        case 3:
+        case STATUS_FATAL:
             SStrPack(status, "fatal errors", STORM_MAX_STR);
             break;
 
@@ -221,15 +221,15 @@ static void DisplayErrorLevelStatus() {
 
     if (minLevel != maxLevel) {
         switch (maxLevel) {
-            case 1:
+            case STATUS_WARNING:
                 SStrPack(status, " through warnings", STORM_MAX_STR);
                 break;
 
-            case 2:
+            case STATUS_ERROR:
                 SStrPack(status, " through errors", STORM_MAX_STR);
                 break;
 
-            case 3:
+            case STATUS_FATAL:
                 SStrPack(status, " through fatal errors", STORM_MAX_STR);
                 break;
         }

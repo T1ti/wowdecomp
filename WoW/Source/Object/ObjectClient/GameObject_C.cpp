@@ -961,17 +961,17 @@ void CGGameObject_C_TypeAnimated::ResetAnimState() {
     int32_t state = -1;
 
     switch (owner->m_displayState) {
-        case 0: {
+        case GAMEOBJECT_DISPLAY_STATE_OPEN: {
             state = (owner->m_gameObject->m_pathProgress == 0xFFFF) + ANIMSTATE_OPENING;
             break;
         }
 
-        case 1: {
+        case GAMEOBJECT_DISPLAY_STATE_CLOSED: {
             state = owner->m_gameObject->m_pathProgress != 0xFFFF ? ANIMSTATE_CLOSING : ANIMSTATE_CLOSED;
             break;
         }
 
-        case 2: {
+        case GAMEOBJECT_DISPLAY_STATE_DESTROYED: {
             state = (owner->m_gameObject->m_pathProgress == 0xFFFF) + ANIMSTATE_DESTROYING;
             break;
         }
