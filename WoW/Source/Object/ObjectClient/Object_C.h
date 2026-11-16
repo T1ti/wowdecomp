@@ -286,7 +286,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     void ClearEffectList(int32_t all);
     void ClearSpellEffect(uint32_t spellId, int32_t all);
     void DoFade(float alpha, uint32_t time);
-    void PlayEffectName(int32_t attachType, uint32_t a3, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach);
+    void PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach);
     C44Matrix GetModelMatrix();
     C3Vector GetModelPosition();
     int32_t GetQuestGiverCursor(int32_t highlighted);
@@ -317,7 +317,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     void SetModelFinish(CM2Model* model);
     void SetModel(CM2Model* model);
     void PlaySpellVisualKit(const PlaySpellVisuaKitData& data);
-    void ClearEffectKit(int32_t spellId, int32_t kitType, int32_t a4, int32_t a5, int32_t a6);
+    void ClearEffectKit(int32_t spellId, int32_t kitType, int32_t fadeTime, int32_t matchSpell, int32_t matchFadeTime);
 };
 
 struct DBCACHEHASH_NAME : public TSHashObject<DBCACHEHASH_NAME, CHashKeyGUID> {

@@ -3199,7 +3199,7 @@ void CGGameObject_C_TypeAnimated::HandleAnimEvent(uint32_t eventId, uint32_t dat
 
 // VERIFY: c5be7d0b manual
 // OFFSET: 0x007110B0
-CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, int32_t a4, uint32_t doodadSetCount, const int16_t* doodadSets) {
+CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, int32_t waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets) {
     const char* name = this->GetModelFileNameInternal();
 
     if (!name) {
@@ -3207,7 +3207,7 @@ CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, int32_t a4, uint32_
     }
 
     C3Vector position = this->m_passenger.GetPosition(this->m_passenger.m_position);
-    CMapBaseObj* object = CWorld::ObjectCreate(name, position, this->GetFacing(), a4, 0, guid, doodadSetCount, doodadSets, nullptr, 0);
+    CMapBaseObj* object = CWorld::ObjectCreate(name, position, this->GetFacing(), waitLoad, 0, guid, doodadSetCount, doodadSets, nullptr, 0);
 
     if (!object) {
         SysMsgPrintf(SYSMSG_ERROR, 2, "Game object (%d): failed to load: \"%s\"", this->m_obj->m_entryID, name);

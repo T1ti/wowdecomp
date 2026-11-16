@@ -1521,9 +1521,9 @@ void CGObject_C::AuraEffectHandler(CM2Model* model, uint32_t boneId, uint32_t se
 
 // VERIFY: 0fe69e0d auto
 // OFFSET: 0x00744790
-void CGObject_C::PlayEffectName(int32_t attachType, uint32_t a3, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach) {
+void CGObject_C::PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach) {
     CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
-    effect->m_expireTime = a3;
+    effect->m_expireTime = expireTime;
 
     WOWGUID source = this->m_obj->m_guid;
 
@@ -1883,7 +1883,7 @@ void CGObject_C::EffectOnceHandler(CM2Model* model, uint32_t boneId, uint32_t se
 
 // VERIFY: 211f8e2d auto
 // OFFSET: 0x00744BD0
-void CGObject_C::ClearEffectKit(int32_t spellId, int32_t kitType, int32_t a4, int32_t a5, int32_t a6) {
+void CGObject_C::ClearEffectKit(int32_t spellId, int32_t kitType, int32_t fadeTime, int32_t matchSpell, int32_t matchFadeTime) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -1937,7 +1937,7 @@ void CGObject_C::ClearEffectKit(int32_t spellId, int32_t kitType, int32_t a4, in
     while (effect) {
         CEffect* next = effect->m_next;
 
-        if (effect->m_kitRec && effect->m_kitRec->m_id == kit->m_id && (!a5 || effect->m_spellId == static_cast<uint32_t>(spellId)) && (!a6 || effect->m_fadeTime == static_cast<uint32_t>(a4))) {
+        if (effect->m_kitRec && effect->m_kitRec->m_id == kit->m_id && (!matchSpell || effect->m_spellId == static_cast<uint32_t>(spellId)) && (!matchFadeTime || effect->m_fadeTime == static_cast<uint32_t>(fadeTime))) {
             effect->MoveToDestroyList();
         }
 

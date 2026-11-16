@@ -3852,10 +3852,10 @@ bool Spell_C_HasNoReagentCost(CGPlayer_C* player, const SpellRec* spell) {
 
 // VERIFY: bfe60446 manual
 // OFFSET: 0x008016C0
-int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t a5, int32_t a6, int32_t a7, int32_t a8) {
+int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers) {
     float low;
     float high;
-    Spell_C_GetMinMaxPoints(spell, effectIndex, &low, &high, a5, a6, a7, a8);
+    Spell_C_GetMinMaxPoints(spell, effectIndex, &low, &high, spellLevel, isPet, isUnit, noModifiers);
     *minPoints = CMath::ftrunc(low);
     *maxPoints = CMath::ftrunc(high);
     return 0;

@@ -206,7 +206,7 @@ void Spell_C_CancelCastingSpellByMovement();
 void Spell_C_CancelChannelSpell(int32_t spellId);
 int32_t Spell_C_GetAutoRepeatingSpell();
 void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category, int32_t cooldownLeft, int32_t categoryCooldownLeft, bool onHold, int32_t pet);
-int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t a5, int32_t a6, int32_t a7, int32_t a8);
+int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers);
 void Spell_C_CancelAutoRepeat(bool a1);
 void Spell_C_CancelSpellsWithId(int32_t spellId);
 void Spell_C_SetAutoRangedCombatSpell(int32_t spellId);
