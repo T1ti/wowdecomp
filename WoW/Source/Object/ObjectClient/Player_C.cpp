@@ -2102,7 +2102,7 @@ bool CGPlayer_C::IsDeadOrGhost() const {
 int32_t CGPlayer_C::GetSkillIndex(int32_t skillId) const {
     int32_t index = 0;
 
-    for (uint32_t i = 0; i < 128; i++) {
+    for (uint32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
         uint16_t id = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
         if (id == skillId) {
@@ -4719,7 +4719,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
         return 0;
     }
 
-    for (int32_t i = 0; i < 128; i++) {
+    for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
         uint16_t skillId = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
         if (skillId == ability->m_skillLine) {
@@ -8875,7 +8875,7 @@ int32_t SkillRankChangeHandler(WOWGUID guid, uint32_t offset, uint32_t count, co
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(guid, TYPE_PLAYER, __FILE__, __LINE__));
     uint32_t index = (offset - offsetof(CGPlayerLocalData, m_playerSkillInfo[0].m_rank)) / sizeof(PlayerSkillInfo);
 
-    if (index >= 128) {
+    if (index >= NUM_PLAYER_SKILLS) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -12217,7 +12217,7 @@ int32_t ReportDailyQuestsRemaining(WOWGUID guid, uint32_t offset, uint32_t count
 
     int32_t completed = 0;
 
-    for (uint32_t i = 0; i < 25; i++) {
+    for (uint32_t i = 0; i < MAX_DAILY_QUESTS; i++) {
         if (player->m_player->m_playerFieldDailyQuests1[i]) {
             completed++;
         }

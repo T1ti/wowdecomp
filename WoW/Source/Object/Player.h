@@ -13,6 +13,12 @@
 // Player quest log size (FrameXML MAX_QUESTLOG_QUESTS).
 static const uint32_t MAX_QUESTLOG_QUESTS = 25;
 
+// Daily quests tracked per player; GetMaxDailyQuests returns it (inferred name).
+constexpr int32_t MAX_DAILY_QUESTS = 25;
+
+// Inferred name: skill slots in the player update fields.
+constexpr int32_t NUM_PLAYER_SKILLS = 128;
+
 enum COMBAT_RATING : int32_t {
     CR_WEAPON_SKILL = 0,
     CR_DEFENSE_SKILL = 1,
@@ -429,7 +435,7 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 0790 */ WOWGUID m_playerFieldKnownCurrencies;
     /* 0798 */ uint32_t m_playerXp;
     /* 079C */ uint32_t m_playerNextLevelXp;
-    /* 07A0 */ PlayerSkillInfo m_playerSkillInfo [128];
+    /* 07A0 */ PlayerSkillInfo m_playerSkillInfo [NUM_PLAYER_SKILLS];
     /* 0DA0 */ int32_t m_playerCharacterPoints [2];
     /* 0DA8 */ uint32_t m_playerTrackCreatures;
     /* 0DAC */ uint32_t m_playerTrackResources;
@@ -483,7 +489,7 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 11A4 */ uint32_t m_playerFieldHonorCurrency;
     /* 11A8 */ uint32_t m_playerFieldArenaCurrency;
     /* 11AC */ uint32_t m_playerFieldMaxLevel;
-    /* 11B0 */ uint32_t m_playerFieldDailyQuests1 [25];
+    /* 11B0 */ uint32_t m_playerFieldDailyQuests1 [MAX_DAILY_QUESTS];
     /* 1214 */ float m_playerRuneRegen1 [4];
     /* 1224 */ uint32_t m_playerNoReagentCost1 [NUM_SPELL_CLASS_MASK_WORDS];
     /* 1230 */ uint32_t m_playerFieldGlyphSlots1 [6];

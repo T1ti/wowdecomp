@@ -135,7 +135,7 @@ static int32_t Script_GetSuggestedGroupNum(lua_State* L) {
 // VERIFY: f7458957 auto
 // OFFSET: 0x0058C470
 static int32_t Script_GetMaxDailyQuests(lua_State* L) {
-    lua_pushnumber(L, 25.0);
+    lua_pushnumber(L, MAX_DAILY_QUESTS);
     return 1;
 }
 
@@ -324,7 +324,7 @@ static int32_t Script_GetDailyQuestsCompleted(lua_State* L) {
     int32_t count = 0;
 
     if (player) {
-        for (uint32_t i = 0; i < 25; i++) {
+        for (uint32_t i = 0; i < MAX_DAILY_QUESTS; i++) {
             if (player->m_player->m_playerFieldDailyQuests1[i]) {
                 count++;
             }

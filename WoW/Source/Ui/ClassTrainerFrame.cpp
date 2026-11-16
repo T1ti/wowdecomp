@@ -427,7 +427,7 @@ void CGClassTrainer::RefreshList() {
                 Spell_C_GetMinMaxPoints(&spell, e, &minPoints, &maxPoints, 0, 0, 0, 0);
                 total++;
 
-                for (int32_t i = 0; i < 128; i++) {
+                for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
                     uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                     if (skillId == spell.m_effectMiscValue[e]) {
@@ -479,7 +479,7 @@ void CGClassTrainer::RefreshList() {
         if (CGClassTrainer::m_services.m_data[s]->m_skillReq) {
             int32_t maxRank = 0;
 
-            for (int32_t i = 0; i < 128; i++) {
+            for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
                 uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                 if (skillId == CGClassTrainer::m_services.m_data[s]->m_skillReq) {

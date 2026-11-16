@@ -439,13 +439,13 @@ static int32_t Script_GetTrainerServiceSkillReq(lua_State* L) {
     if (player && service && service->m_skillReq && service->m_skillRankReq && (skillLine = g_skillLineDB.GetRecord(service->m_skillReq))) {
         int32_t i;
 
-        for (i = 0; i < 128; i++) {
+        for (i = 0; i < NUM_PLAYER_SKILLS; i++) {
             if (player->GetSkillLineID(i) == service->m_skillReq) {
                 break;
             }
         }
 
-        if (i >= 128 || static_cast<int32_t>(player->GetSkillValue(i)) < service->m_skillRankReq) {
+        if (i >= NUM_PLAYER_SKILLS || static_cast<int32_t>(player->GetSkillValue(i)) < service->m_skillRankReq) {
             met = 0;
         }
 
@@ -549,7 +549,7 @@ static int32_t Script_GetTrainerServiceStepReq(lua_State* L) {
             }
 
             if (effect < NUM_SPELL_EFFECTS) {
-                for (int32_t i = 0; i < 128; i++) {
+                for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
                     uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                     if (skillId == spell.m_effectMiscValue[effect]) {

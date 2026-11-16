@@ -11,6 +11,9 @@ class CDataStore;
 struct lua_State;
 class FactionRec;
 
+// Inferred name: player reputation slots, indexed by FactionRec::m_reputationIndex.
+constexpr int32_t NUM_FACTION_STANDINGS = 128;
+
 // Reputation standing flags (SMSG_INITIALIZE_FACTIONS and updates); names describe client behavior.
 enum FACTION_FLAGS : uint8_t {
     FACTION_FLAG_NONE         = 0x00,
@@ -63,7 +66,7 @@ struct FACTION : public TSHashObject<FACTION, HASHKEY_NONE> {
 class CGReputationInfo {
     public:
     static TSGrowableArray<const FactionRec*>* GetFactionChildren(int32_t faction);
-    static FactionStanding m_factionStandings[128];
+    static FactionStanding m_factionStandings[NUM_FACTION_STANDINGS];
     static const int32_t m_reactionThresholds[NUM_UNIT_REACTIONS + 1];
     static FactionHeader* m_headers[64];
     static uint32_t m_numHeaders;
