@@ -38,7 +38,7 @@
 // VERIFY: ebcdce34 auto
 // OFFSET: 0x005D6FF0
 static int32_t Script_GetMaxArenaCurrency(lua_State* L) {
-    lua_pushnumber(L, 10000.0);
+    lua_pushnumber(L, MAX_ARENA_CURRENCY);
     return 1;
 }
 

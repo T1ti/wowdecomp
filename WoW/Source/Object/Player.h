@@ -13,6 +13,10 @@
 // Player quest log size (FrameXML MAX_QUESTLOG_QUESTS).
 static const uint32_t MAX_QUESTLOG_QUESTS = 25;
 
+// Currency caps returned by GetHonorCurrency and GetMaxArenaCurrency (inferred names).
+constexpr uint32_t MAX_HONOR_CURRENCY = 75000;
+constexpr uint32_t MAX_ARENA_CURRENCY = 10000;
+
 // Daily quests tracked per player; GetMaxDailyQuests returns it (inferred name).
 constexpr int32_t MAX_DAILY_QUESTS = 25;
 

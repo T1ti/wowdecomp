@@ -617,7 +617,7 @@ static int32_t Script_UnitSex(lua_State* L) {
 static int32_t Script_GetHonorCurrency(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     lua_pushnumber(L, player ? player->m_player->m_playerFieldHonorCurrency : 0.0);
-    lua_pushnumber(L, 75000.0);
+    lua_pushnumber(L, MAX_HONOR_CURRENCY);
     return 2;
 }
 
@@ -626,7 +626,7 @@ static int32_t Script_GetHonorCurrency(lua_State* L) {
 static int32_t Script_GetArenaCurrency(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     lua_pushnumber(L, player ? player->m_player->m_playerFieldArenaCurrency : 0.0);
-    lua_pushnumber(L, 10000.0);
+    lua_pushnumber(L, MAX_ARENA_CURRENCY);
     return 2;
 }
 

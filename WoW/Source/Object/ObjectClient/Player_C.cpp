@@ -14155,10 +14155,10 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
     msg->Get(reinterpret_cast<uint32_t&>(honor));
     int32_t arena;
     msg->Get(reinterpret_cast<uint32_t&>(arena));
-    int32_t items[5];
-    int32_t counts[5];
+    int32_t items[MAX_ITEM_EXTENDED_COST_ITEMS];
+    int32_t counts[MAX_ITEM_EXTENDED_COST_ITEMS];
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
         msg->Get(reinterpret_cast<uint32_t&>(items[i]));
         msg->Get(reinterpret_cast<uint32_t&>(counts[i]));
     }
@@ -14175,10 +14175,10 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
     if (honor > 0) {
         uint32_t current = this->m_player->m_playerFieldHonorCurrency;
 
-        if (current + honor <= 75000) {
+        if (current + honor <= MAX_HONOR_CURRENCY) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), honor, FrameScript_GetText("HONOR_POINTS", -1, GENDER_NOT_APPLICABLE));
         } else {
-            SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), 75000 - current, FrameScript_GetText("HONOR_POINTS", -1, GENDER_NOT_APPLICABLE));
+            SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), MAX_HONOR_CURRENCY - current, FrameScript_GetText("HONOR_POINTS", -1, GENDER_NOT_APPLICABLE));
         }
 
         CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
@@ -14187,16 +14187,16 @@ int32_t CGPlayer_C::OnItemRefundResult(CDataStore* msg) {
     if (arena > 0) {
         uint32_t current = this->m_player->m_playerFieldArenaCurrency;
 
-        if (current + arena <= 10000) {
+        if (current + arena <= MAX_ARENA_CURRENCY) {
             SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), arena, FrameScript_GetText("ARENA_POINTS", -1, GENDER_NOT_APPLICABLE));
         } else {
-            SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), 10000 - current, FrameScript_GetText("ARENA_POINTS", -1, GENDER_NOT_APPLICABLE));
+            SStrPrintf(text, sizeof(text), FrameScript_GetText("CURRENCY_AMOUNT_REFUND_FORMAT", -1, GENDER_NOT_APPLICABLE), MAX_ARENA_CURRENCY - current, FrameScript_GetText("ARENA_POINTS", -1, GENDER_NOT_APPLICABLE));
         }
 
         CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
     }
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
         if (counts[i] <= 0) {
             continue;
         }
