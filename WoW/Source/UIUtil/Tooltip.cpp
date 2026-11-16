@@ -7313,7 +7313,7 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
             return 0;
         }
     } else {
-        for (int32_t slot = 0; slot <= 18; slot++) {
+        for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
             if (!((1 << slot) & slots)) {
                 continue;
             }
@@ -7691,7 +7691,7 @@ int32_t CGTooltip::SetEquipmentSet(uint32_t setId) {
     uint32_t flags = CGBankInfo::m_banker.m_guid ? 14 : 6;
     int32_t missing[19];
 
-    for (int32_t slot = 0; slot <= 18; slot++) {
+    for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         WOWGUID guid = set->m_items[slot];
 
         if (!guid.m_guid) {

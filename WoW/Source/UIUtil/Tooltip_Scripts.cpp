@@ -2436,7 +2436,7 @@ static int32_t Script_SetBackpackToken(lua_State* L) {
         return 0;
     }
 
-    for (uint32_t slot = 118; slot <= 149; slot++) {
+    for (uint32_t slot = CURRENCYTOKEN_FIRST; slot <= CURRENCYTOKEN_LAST; slot++) {
         WOWGUID guid = static_cast<int32_t>(slot) < player->m_bag.m_numSlots ? player->m_bag.m_slots[slot] : WOWGUID();
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
@@ -2563,7 +2563,7 @@ static int32_t Script_SetCurrencyToken(lua_State* L) {
         return 0;
     }
 
-    for (uint32_t slot = 118; slot <= 149; slot++) {
+    for (uint32_t slot = CURRENCYTOKEN_FIRST; slot <= CURRENCYTOKEN_LAST; slot++) {
         WOWGUID guid = slot < static_cast<uint32_t>(player->m_bag.m_numSlots) ? player->m_bag.m_slots[slot] : WOWGUID();
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 

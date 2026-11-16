@@ -141,11 +141,11 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
         for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
             ItemDisplayInfoRec rec;
 
-            if (!g_itemDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldItem[slot] & 0xFFFFFF, &rec) || slot == 17) {
+            if (!g_itemDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldItem[slot] & 0xFFFFFF, &rec) || slot == INVSLOT_RANGED) {
                 continue;
             }
 
-            if (slot == 15 || slot == 16) {
+            if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND) {
                 CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->m_corpse->m_corpseFieldItem[slot] }, TYPE_ITEM, __FILE__, __LINE__));
 
                 if (item) {
@@ -161,13 +161,13 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3
                 if (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_HELM) {
                     continue;
                 }
-            } else if (slot == 14 && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_CLOAK)) {
+            } else if (slot == INVSLOT_BACK && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_HIDE_CLOAK)) {
                 continue;
             }
 
             this->m_component->AddItemBySlot(static_cast<INVENTORY_SLOTS>(slot), rec.m_id, 0);
 
-            if (slot == 18 && (rec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
+            if (slot == INVSLOT_TABARD && (rec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
                 this->ApplyGuildColor(1);
             }
         }

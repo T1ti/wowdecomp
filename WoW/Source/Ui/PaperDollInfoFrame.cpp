@@ -403,7 +403,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
         }
 
         if (!player->ValidateSlot(slot, cursorItem)) {
-            if (cursorContainer == player->m_obj->m_guid && cursorSlot < 19) {
+            if (cursorContainer == player->m_obj->m_guid && cursorSlot < INVSLOT_BAG0) {
                 CGGameUI::ClearCursor(1, 1);
                 return;
             }
@@ -598,7 +598,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         return false;
     }
 
-    if (slot == 16 && (stats->m_inventoryType == INVTYPE_WEAPONOFFHAND || stats->m_inventoryType == INVTYPE_WEAPON) && !CGPlayer_C::CanDualWield()) {
+    if (slot == INVSLOT_OFFHAND && (stats->m_inventoryType == INVTYPE_WEAPONOFFHAND || stats->m_inventoryType == INVTYPE_WEAPON) && !CGPlayer_C::CanDualWield()) {
         return false;
     }
 

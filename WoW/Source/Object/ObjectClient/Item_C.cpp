@@ -129,9 +129,9 @@ static void ItemIDChangedCacheCallback(int32_t id, const WOWGUID& guid, void* pa
         if (player) {
             int32_t slot = player->m_bag.FindItemSlot(guid);
 
-            if (slot == 15 || slot == 16) {
+            if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND) {
                 CGActionBar::UpdateAttackAction();
-            } else if (slot == 17) {
+            } else if (slot == INVSLOT_RANGED) {
                 CGActionBar::UpdateRangedAttackAction();
             }
         }
@@ -196,11 +196,11 @@ static int32_t OnUpdateDurability(WOWGUID guid, uint32_t fieldOffset, uint32_t f
                 int32_t invSlot = -1;
                 int32_t slot = owner->GetBag()->FindItemSlot(item->m_obj->m_guid);
 
-                if (slot == 15) {
-                    invSlot = 15;
-                } else if (slot == 16) {
-                    invSlot = 16;
-                } else if (slot == 17) {
+                if (slot == INVSLOT_MAINHAND) {
+                    invSlot = INVSLOT_MAINHAND;
+                } else if (slot == INVSLOT_OFFHAND) {
+                    invSlot = INVSLOT_OFFHAND;
+                } else if (slot == INVSLOT_RANGED) {
                     invSlot = (item->m_virtualItem.m_inventoryType != INVTYPE_RANGEDRIGHT) + 15;
                 }
 
@@ -1667,12 +1667,12 @@ int32_t CGItem_C::UseItem(WOWGUID* target, int32_t confirmed) {
 
         int32_t slot = player->GetBag()->FindItemSlot(this->m_obj->m_guid);
 
-        if (slot == 15) {
+        if (slot == INVSLOT_MAINHAND) {
             if (player->IsDisarmed(0)) {
                 CGGameUI::DisplayError(ERR_CANT_USE_DISARMED);
                 return 0;
             }
-        } else if (slot == 16) {
+        } else if (slot == INVSLOT_OFFHAND) {
             if (player->IsDisarmed(1)) {
                 CGGameUI::DisplayError(ERR_CANT_USE_DISARMED);
                 return 0;
@@ -1771,9 +1771,9 @@ void CGItem_C::PostInitWithStats() {
             player->GetPendingEnchantTime(this);
             int32_t slot = player->m_bag.FindItemSlot(this->m_obj->m_guid);
 
-            if (slot == 15 || slot == 16) {
+            if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND) {
                 CGActionBar::UpdateAttackAction();
-            } else if (slot == 17) {
+            } else if (slot == INVSLOT_RANGED) {
                 CGActionBar::UpdateRangedAttackAction();
             }
         }
@@ -1821,7 +1821,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     }
 #endif
 
-    if (slot == 17) {
+    if (slot == INVSLOT_RANGED) {
         if (bypass != (rec->m_inventoryType == INVTYPE_RELIC)) {
             return 0;
         }
@@ -1829,7 +1829,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
         return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
     }
 
-    if ((slot != 15 && slot != 16) || rec->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
+    if ((slot != INVSLOT_MAINHAND && slot != INVSLOT_OFFHAND) || rec->m_classID != ITEM_CLASS::ITEM_CLASS_WEAPON) {
         if (slot >= BACKPACK_FIRST) {
             return 1;
         }
@@ -1837,7 +1837,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
         return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
     }
 
-    if (slot == 16) {
+    if (slot == INVSLOT_OFFHAND) {
         if (rec->m_inventoryType != INVTYPE_2HWEAPON && rec->m_inventoryType != INVTYPE_WEAPONMAINHAND) {
             return (s_inventoryTypeSlots[rec->m_inventoryType] & (1 << slot)) != 0;
         }
@@ -1922,7 +1922,7 @@ void CGItem_C::UpdateEnchantments() {
 
     uint8_t slot = owner->FindSlotIndex(this->m_obj->m_guid);
 
-    if (slot <= 18) {
+    if (slot <= EQUIPPED_LAST) {
         owner->UpdateObjComponentVisualsSlot(owner->GetVisibleItem(slot), slot);
     }
 }

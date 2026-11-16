@@ -10361,12 +10361,12 @@ void CGPlayer_C::EquipVisibleItem(const VisibleItem_C* item, int32_t slot) {
         return;
     }
 
-    if (slot == 18) {
+    if (slot == INVSLOT_TABARD) {
         this->LoadGuildTextures(const_cast<VisibleItem_C*>(item)->GetDisplayID());
         return;
     }
 
-    if ((slot == 0 && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM)) || (slot == 14 && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK))) {
+    if ((slot == INVSLOT_HEAD && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM)) || (slot == INVSLOT_BACK && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK))) {
         return;
     }
 
@@ -10384,7 +10384,7 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
         return 1;
     }
 
-    for (uint32_t slot = 0; slot <= 18; slot++) {
+    for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         VisibleItem_C* item = &this->m_player->m_playerVisibleItems[slot];
 
         if (abs(item->m_itemId) && item->m_itemId <= 0) {
@@ -10427,7 +10427,7 @@ int32_t CGPlayer_C::RefreshVisibleItems() {
 
         this->EquipVisibleItem(item, slot);
 
-        if (!item->m_itemId && slot == 15) {
+        if (!item->m_itemId && slot == INVSLOT_MAINHAND) {
             CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(0), false);
             CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(1), false);
             CCharacterComponent::RemoveHandItem(this->m_worldModel, static_cast<INVENTORY_SLOTS>(15), static_cast<SHEATHE_TYPE>(2), false);
@@ -10527,7 +10527,7 @@ void CGPlayer_C::UpdateHandItemVisual(MODEL_ATTACHMENT_ID link, int32_t hand) {
 void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleItem_C* oldItem) {
     VisibleItem_C* item = nullptr;
 
-    if (!oldItem || slot > 18 || !(item = &this->m_player->m_playerVisibleItems[slot])) {
+    if (!oldItem || slot > EQUIPPED_LAST || !(item = &this->m_player->m_playerVisibleItems[slot])) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -10665,7 +10665,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
 applyEffects:
     this->ApplyComponentItemsFromEffects();
 
-    if (this->m_sheatheState == WEAPONMODE_RANGEDMODE && slot == 17) {
+    if (this->m_sheatheState == WEAPONMODE_RANGEDMODE && slot == INVSLOT_RANGED) {
         this->SetSheatheState(WEAPONMODE_RANGEDMODE, FALSE, FALSE);
         this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
     }
@@ -10747,13 +10747,13 @@ int32_t InventoryUpdate(WOWGUID guid, uint32_t offset, uint32_t count, const voi
         CGGameUI::UnlockItem(item);
     }
 
-    if (slot == 15 || slot == 16) {
+    if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND) {
         CGActionBar::UpdateAttackAction();
-    } else if (slot == 17) {
+    } else if (slot == INVSLOT_RANGED) {
         CGActionBar::UpdateRangedAttackAction();
     }
 
-    if (slot <= 18) {
+    if (slot <= EQUIPPED_LAST) {
         player->CountEquippedGems();
 
         if (item) {
@@ -14312,7 +14312,7 @@ void CGPlayer_C::TurnOffGuildTabardPurchase() {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    WOWGUID tabard = bag->m_numSlots > 18 ? bag->m_slots[18] : WOWGUID();
+    WOWGUID tabard = bag->m_numSlots > INVSLOT_TABARD ? bag->m_slots[INVSLOT_TABARD] : WOWGUID();
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(tabard, TYPE_ITEM, __FILE__, __LINE__));
 
     if (item && item->GetInventoryType() == 19) {

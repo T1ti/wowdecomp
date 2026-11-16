@@ -404,7 +404,7 @@ int32_t CGEquipmentManager::SetUsesLockedSlots(const EQUIPMENT_SET* set) {
         return 0;
     }
 
-    for (int32_t slot = 0; slot <= 18; slot++) {
+    for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         if (set->m_items[slot].m_guid == 1) {
             continue;
         }
@@ -542,14 +542,14 @@ bool CGEquipmentManager::UseEquipmentSet(const EQUIPMENT_SET* set) {
     bool missingWarned = false;
     char buffer[3000];
 
-    for (uint32_t slot = 0; slot <= 18; slot++) {
+    for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         WOWGUID guid = set->m_items[slot];
         SmartGUID itemGuid;
         itemGuid.m_guid = 1;
         uint8_t bag = 0;
         uint8_t bagSlot = 0;
 
-        if ((inCombat && slot != 15 && slot != 16 && slot != 17) || guid.m_guid == 1) {
+        if ((inCombat && slot != INVSLOT_MAINHAND && slot != INVSLOT_OFFHAND && slot != INVSLOT_RANGED) || guid.m_guid == 1) {
             if (inCombat && !combatWarned && guid.m_guid != 1 && guid.m_guid != player->m_bag.GetItemGuid(slot)) {
                 SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("EQUIPMENT_MANAGER_COMBAT_SWAP", -1, GENDER_NOT_APPLICABLE), set->m_name);
                 FrameScript_SignalEvent(SCRIPT_EVENT_UI_ERROR_MESSAGE, "%s", buffer);
@@ -639,7 +639,7 @@ void CGEquipmentManager::SaveSet(EQUIPMENT_SET* set, const char* name, const cha
         return;
     }
 
-    for (uint32_t slot = 0; slot <= 18; slot++) {
+    for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         if (CGEquipmentManager::m_ignoredSlots[slot]) {
             set->m_items[slot].m_guid = 1;
         } else {

@@ -699,7 +699,7 @@ static int32_t Script_GetContainerItemPurchaseInfo(lua_State* L) {
         CGBag_C* bag = &ClntObjMgrGetActivePlayerObj()->m_bag;
         uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2) - 1);
 
-        if (!bag || slot > 18) {
+        if (!bag || slot > EQUIPPED_LAST) {
             return 0;
         }
 
@@ -1027,7 +1027,7 @@ static int32_t Script_GetContainerItemPurchaseItem(lua_State* L) {
         CGBag_C* bag = &ClntObjMgrGetActivePlayerObj()->m_bag;
         uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2) - 1);
 
-        if (!bag || slot > 18) {
+        if (!bag || slot > EQUIPPED_LAST) {
             return 0;
         }
 
@@ -1109,7 +1109,7 @@ static int32_t Script_ContainerRefundItemPurchase(lua_State* L) {
         CGBag_C* bag = &ClntObjMgrGetActivePlayerObj()->m_bag;
         uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2) - 1);
 
-        if (!bag || slot > 18) {
+        if (!bag || slot > EQUIPPED_LAST) {
             CGGameUI::DisplayError(ERR_INTERNAL_BAG_ERROR);
             return 0;
         }

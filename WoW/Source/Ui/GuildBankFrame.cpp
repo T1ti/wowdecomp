@@ -161,7 +161,7 @@ void CGGuildBankInfo::SwapItems(uint8_t tab, uint32_t slot, WOWGUID item, WOWGUI
         return;
     }
 
-    if (container == player->m_obj->m_guid && containerSlot < 23) {
+    if (container == player->m_obj->m_guid && containerSlot < NUM_INVENTORY_SLOTS) {
         CGGameUI::DisplayError(ERR_GUILD_BANK_EQUIPPED_ITEM);
         return;
     }

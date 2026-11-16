@@ -23,7 +23,7 @@
 static int32_t Script_EquipmentManagerIgnoreSlotForSave(lua_State* L) {
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 18) {
+    if (slot > EQUIPPED_LAST) {
         luaL_error(L, "Usage: EquipmentManagerIgnoreSlotForSave(slot)");
         return 0;
     }
@@ -37,7 +37,7 @@ static int32_t Script_EquipmentManagerIgnoreSlotForSave(lua_State* L) {
 static int32_t Script_EquipmentManagerUnignoreSlotForSave(lua_State* L) {
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 18) {
+    if (slot > EQUIPPED_LAST) {
         luaL_error(L, "Usage: UpdatePendingEquipmentSetSlot(slot)");
         return 0;
     }
@@ -51,7 +51,7 @@ static int32_t Script_EquipmentManagerUnignoreSlotForSave(lua_State* L) {
 static int32_t Script_EquipmentManagerIsSlotIgnoredForSave(lua_State* L) {
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot > 18) {
+    if (slot > EQUIPPED_LAST) {
         luaL_error(L, "Usage: EquipmentSetIsSlotIgnoredForSave(slot)");
         return 0;
     }
@@ -124,7 +124,7 @@ static int32_t Script_GetEquipmentSetLocations(lua_State* L) {
     int32_t pending[19];
     int32_t count = 0;
 
-    for (int32_t slot = 0; slot <= 18; slot++) {
+    for (int32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
         WOWGUID guid = set->m_items[slot];
 
         if (guid) {
@@ -564,7 +564,7 @@ static int32_t Script_SaveEquipmentSet(lua_State* L) {
     } else {
         int32_t slot = abs(iconIndex) - 1;
 
-        if (slot <= 18) {
+        if (slot <= EQUIPPED_LAST) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
             if (player) {

@@ -4498,7 +4498,7 @@ static int32_t Script_EquipCursorItem(lua_State* L) {
             return 0;
         }
 
-        if (container == player->m_obj->m_guid && sourceSlot < 19) {
+        if (container == player->m_obj->m_guid && sourceSlot < INVSLOT_BAG0) {
             CGGameUI::ClearCursor(1, 1);
             return 0;
         }
@@ -5312,7 +5312,7 @@ static int32_t Script_EquipItemByName(lua_State* L) {
             return 0;
         }
 
-        if (item && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) && (player->m_bag.m_guid != container || slot > 18)) {
+        if (item && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED) && (player->m_bag.m_guid != container || slot > EQUIPPED_LAST)) {
             player->AutoEquipItem(container, slot, 0);
         }
 
@@ -5345,7 +5345,7 @@ static int32_t Script_EquipItemByName(lua_State* L) {
         }
     }
 
-    if (dstSlot > 18) {
+    if (dstSlot > EQUIPPED_LAST) {
         luaL_error(L, "EquipItemByName(): Invalid inventory dstSlot");
     }
 

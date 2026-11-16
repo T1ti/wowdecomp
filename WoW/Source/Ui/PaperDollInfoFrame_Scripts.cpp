@@ -324,7 +324,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
         return 1;
     }
 
-    if (slot > 22) {
+    if (slot > INVSLOT_BAG3) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -412,7 +412,7 @@ static int32_t Script_GetWeaponEnchantInfo(lua_State* L) {
         return 6;
     }
 
-    for (int32_t slot = 15; slot <= 16; slot++) {
+    for (int32_t slot = INVSLOT_MAINHAND; slot <= INVSLOT_OFFHAND; slot++) {
         CGItem_C* item = player->m_bag.GetItemPointer(slot);
 
         if (item && item->GetEnchantmentId(CGItemData::ENCHANTMENT_SLOT::TEMPORARY)) {
@@ -574,7 +574,7 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
     if (lua_isnumber(L, 1)) {
         slot = static_cast<int32_t>(lua_tonumber(L, 1) - 1.0);
 
-        if (slot > 18) {
+        if (slot > EQUIPPED_LAST) {
             return 0;
         }
     } else {

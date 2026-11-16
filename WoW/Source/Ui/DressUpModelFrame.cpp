@@ -535,11 +535,11 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
         s_nextHand = 15;
 
         if (player->GetBag()) {
-            for (uint32_t slot = 0; slot <= 18; slot++) {
+            for (uint32_t slot = 0; slot <= EQUIPPED_LAST; slot++) {
                 const VisibleItem_C* item;
                 int32_t hand;
 
-                if (slot == 15) {
+                if (slot == INVSLOT_MAINHAND) {
                     item = player->GetVisibleItem(15);
 
                     if (!item) {
@@ -547,7 +547,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
                     }
 
                     hand = 15;
-                } else if (slot == 16) {
+                } else if (slot == INVSLOT_OFFHAND) {
                     item = player->GetVisibleItem(16);
 
                     if (!item) {
@@ -556,7 +556,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
 
                     hand = 16;
                 } else {
-                    if (slot == 0 ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) != 0 : slot == 14 ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) != 0 : slot == 17) {
+                    if (slot == INVSLOT_HEAD ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) != 0 : slot == INVSLOT_BACK ? (player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) != 0 : slot == INVSLOT_RANGED) {
                         continue;
                     }
 

@@ -69,7 +69,7 @@ static int32_t Script_GetBackpackCurrencyInfo(lua_State* L) {
             CGBag_C* bag = player->GetBag();
 
             if (bag) {
-                for (uint32_t slot = 118; slot <= 149; slot++) {
+                for (uint32_t slot = CURRENCYTOKEN_FIRST; slot <= CURRENCYTOKEN_LAST; slot++) {
                     WOWGUID itemGuid;
                     itemGuid.m_guid = bag->GetItemGuid(slot);
                     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(itemGuid, TYPE_ITEM, __FILE__, __LINE__));
@@ -145,7 +145,7 @@ int32_t Script_GetCurrencyListInfo(lua_State* L) {
             CGBag_C* bag = player->GetBag();
 
             if (bag) {
-                for (uint32_t slot = 118; slot <= 149; slot++) {
+                for (uint32_t slot = CURRENCYTOKEN_FIRST; slot <= CURRENCYTOKEN_LAST; slot++) {
                     WOWGUID itemGuid;
                     itemGuid.m_guid = bag->GetItemGuid(slot);
                     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(itemGuid, TYPE_ITEM, __FILE__, __LINE__));

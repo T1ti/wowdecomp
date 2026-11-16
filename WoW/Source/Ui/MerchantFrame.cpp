@@ -172,8 +172,8 @@ void CGMerchantInfo::SortBuybackItems() {
 
     BuybackEntry entries[12];
 
-    for (uint32_t slot = 74; slot - 74 < 12; slot++) {
-        if (slot < static_cast<uint32_t>(player->m_bag.m_numSlots) && player->m_bag.m_slots[slot] && slot - 74 < 12 && player->m_player->m_playerFieldBuybackPrice1[slot - 74]) {
+    for (uint32_t slot = BUYBACK_FIRST; slot - BUYBACK_FIRST < 12; slot++) {
+        if (slot < static_cast<uint32_t>(player->m_bag.m_numSlots) && player->m_bag.m_slots[slot] && slot - BUYBACK_FIRST < 12 && player->m_player->m_playerFieldBuybackPrice1[slot - BUYBACK_FIRST]) {
             entries[CGMerchantInfo::m_numBuybackItems].m_timestamp = player->m_player->m_playerFieldBuybackTimestamp1[slot - 74];
             entries[CGMerchantInfo::m_numBuybackItems].m_slot = slot;
             CGMerchantInfo::m_numBuybackItems++;
