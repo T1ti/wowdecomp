@@ -2001,11 +2001,11 @@ static int32_t Script_GetZonePVPInfo(lua_State* L) {
 
     const char* type = nullptr;
 
-    if (flags & 0x800) {
+    if (flags & AREA_FLAG_NO_PVP) {
         type = "sanctuary";
-    } else if (flags & 0x80) {
+    } else if (flags & AREA_FLAG_FREE_FOR_ALL_PVP) {
         type = "arena";
-    } else if (flags & 0x1000000) {
+    } else if (flags & AREA_FLAG_COMBAT_ZONE) {
         type = "combat";
     }
 
@@ -2021,7 +2021,7 @@ static int32_t Script_GetZonePVPInfo(lua_State* L) {
         return 2;
     }
 
-    int32_t contested = (flags & 0x40000) != 0;
+    int32_t contested = (flags & AREA_FLAG_CONTESTED) != 0;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!area || !player || (!s_isPvPRealm && !(area->m_flags & AREA_FLAG_ENEMIES_PVP_FLAGGED))) {
