@@ -3408,7 +3408,7 @@ void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg) {
             msg->Get(reinterpret_cast<uint32_t&>(looping));
             int32_t priority;
             msg->Get(reinterpret_cast<uint32_t&>(priority));
-            int32_t filterType;
+            HOLIDAY_CALENDAR_FILTER_TYPE filterType;
             msg->Get(reinterpret_cast<uint32_t&>(filterType));
 
             int32_t dates[MAX_HOLIDAY_DATES];
