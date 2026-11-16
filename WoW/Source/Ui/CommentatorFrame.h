@@ -32,6 +32,10 @@ inline CommentatorInstanceKey::CommentatorInstanceKey() {
 
 class CGCommentator {
     public:
+    // Teams per instance and players listed per team (inferred names).
+    static const int32_t NUM_TEAMS = 2;
+    static const int32_t MAX_TEAM_PLAYERS = 5;
+
     struct PlayerInfo {
         /* 0000 */ WOWGUID m_guid;
         /* 0008 */ uint32_t unk_0008;
@@ -57,9 +61,9 @@ class CGCommentator {
         /* 0008 */ uint32_t m_mapID;
         /* 000C */ CommentatorInstanceKey m_key;
         /* 0018 */ uint32_t unk_0018;
-        /* 001C */ uint32_t m_numPlayers[2];
+        /* 001C */ uint32_t m_numPlayers[NUM_TEAMS];
         /* 0024 */ uint32_t unused_0024;
-        /* 0028 */ CGCommentator::PlayerInfo m_players[2][5];
+        /* 0028 */ CGCommentator::PlayerInfo m_players[NUM_TEAMS][MAX_TEAM_PLAYERS];
     };
 
     struct MapInfo {

@@ -478,7 +478,7 @@ static int32_t Script_CommentatorGetPlayerInfo(lua_State* L) {
     uint32_t faction = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (faction >= 2) {
+    if (faction >= CGCommentator::NUM_TEAMS) {
         luaL_error(L, "Error: faction index too large");
         return 0;
     }
@@ -530,7 +530,7 @@ static int32_t Script_CommentatorFollowPlayer(lua_State* L) {
     uint32_t faction = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 2));
 
-    if (faction >= 2) {
+    if (faction >= CGCommentator::NUM_TEAMS) {
         luaL_error(L, "Error: faction index too large");
         return 0;
     }
@@ -576,7 +576,7 @@ static int32_t Script_CommentatorLookatPlayer(lua_State* L) {
     uint32_t faction = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 2));
 
-    if (faction >= 2) {
+    if (faction >= CGCommentator::NUM_TEAMS) {
         luaL_error(L, "Error: faction index too large");
         return 0;
     }
@@ -659,7 +659,7 @@ static int32_t Script_CommentatorSetPlayerIndex(lua_State* L) {
     uint32_t faction = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
 
-    if (faction >= 2) {
+    if (faction >= CGCommentator::NUM_TEAMS) {
         luaL_error(L, "Error: faction index too large");
         return 0;
     }

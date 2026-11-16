@@ -474,9 +474,9 @@ uint64_t CGCommentator::GetArenaMember(int32_t index) {
 
     int32_t faction = 0;
 
-    if (index >= 5) {
+    if (index >= CGCommentator::MAX_TEAM_PLAYERS) {
         faction = 1;
-        index -= 5;
+        index -= CGCommentator::MAX_TEAM_PLAYERS;
     }
 
     if (index >= 0 && static_cast<uint32_t>(index) < instance->m_numPlayers[faction]) {
