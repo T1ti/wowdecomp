@@ -2453,9 +2453,9 @@ static int32_t Script_GetRestState(lua_State* L) {
 // OFFSET: 0x0051B960
 static int32_t Script_GetXPExhaustion(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    ExhaustionRec* rested = g_exhaustionDB.GetRecord(1);
+    ExhaustionRec* rested = g_exhaustionDB.GetRecord(EXHAUSTION_RESTED);
 
-    if (!player || player->m_player->restState != 1) {
+    if (!player || player->m_player->restState != EXHAUSTION_RESTED) {
         lua_pushnil(L);
         return 1;
     }

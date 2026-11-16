@@ -3037,7 +3037,7 @@ static void UnitCombatLogShowXPGained(CGUnit_C* unit, int32_t amount, float grou
 }
 
 // STATIC: 0x00AC7FB4
-static const char* s_exhaustionTokens[7] = { nullptr, "COMBATLOG_XPGAIN_EXHAUSTION1", "COMBATLOG_XPGAIN_EXHAUSTION2", "NULL", "COMBATLOG_XPGAIN_EXHAUSTION4", "COMBATLOG_XPGAIN_EXHAUSTION5", "COMBATLOG_XPGAIN_EXHAUSTION1" };
+static const char* s_exhaustionTokens[NUM_EXHAUSTION_STATES] = { nullptr, "COMBATLOG_XPGAIN_EXHAUSTION1", "COMBATLOG_XPGAIN_EXHAUSTION2", "NULL", "COMBATLOG_XPGAIN_EXHAUSTION4", "COMBATLOG_XPGAIN_EXHAUSTION5", "COMBATLOG_XPGAIN_EXHAUSTION1" };
 
 // VERIFY: 610143a3 manual
 // OFFSET: 0x0050B300
@@ -3056,13 +3056,13 @@ void CGChat::LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type, int32_t bon
         uint32_t restState = player->m_player->restState;
 
         if (referAFriend) {
-            restState = 6;
+            restState = EXHAUSTION_REFER_A_FRIEND;
         }
 
         ExhaustionRec* exhaustion = g_exhaustionDB.GetRecord(restState);
 
         if (exhaustion && !fequal(exhaustion->m_factor, 0.0f) && !fequal(exhaustion->m_factor, 1.0f)) {
-            if (restState >= 7) {
+            if (restState >= NUM_EXHAUSTION_STATES) {
                 SErrDisplayAppFatalMessage("", "", 0);
             }
 
@@ -3103,7 +3103,7 @@ void CGChat::LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type, int32_t bon
     int32_t rafBonus = CMath::fint_(amount * 0.6666667f);
     char bonusText[32];
     SStrPrintf(bonusText, sizeof(bonusText), "%s%d", rafBonus >= 0 ? "+" : "", rafBonus);
-    ExhaustionRec* exhaustion = g_exhaustionDB.GetRecord(6);
+    ExhaustionRec* exhaustion = g_exhaustionDB.GetRecord(EXHAUSTION_REFER_A_FRIEND);
     char text[3000];
     SStrPrintf(text, sizeof(text), FrameScript_GetText("COMBATLOG_XPGAIN_QUEST", -1, GENDER_NOT_APPLICABLE), amount, bonusText, exhaustion->m_name, rafBonus);
     CGChat::AddChatMessage(text, CHAT_MSG_COMBAT_XP_GAIN, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);

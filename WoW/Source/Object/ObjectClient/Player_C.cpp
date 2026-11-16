@@ -12277,7 +12277,7 @@ int32_t OnUpdateRestState(WOWGUID guid, uint32_t offset, uint32_t count, const v
     if (player) {
         uint32_t state = player->m_player->restState;
 
-        if (state < 3) {
+        if (state < sizeof(s_restStateInfo) / sizeof(s_restStateInfo[0])) {
             if (s_restStateInfo[state].m_error != ERR_MAX_VALUE) {
                 CGGameUI::DisplayError(s_restStateInfo[state].m_error);
             }
