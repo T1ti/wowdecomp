@@ -14056,7 +14056,7 @@ BOOL CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
     MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, displayRecPtr, INVSLOT_RANGED, static_cast<SHEATHE_TYPE>(item->m_sheatheType), sheathed, false, isRightHand, 0);
 
     if (this->m_characterComponent) {
-        this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
+        this->m_characterComponent->SetItemSlotUsingAttachSlot(ITEMSLOT_NONE, link);
     }
 
     CM2Model* child = this->m_worldModel->m_attachList;
@@ -19786,7 +19786,7 @@ void CGUnit_C::AddHandItem(int32_t hand) {
     MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, invSlot, sheatheType, sheathed, shield, ranged, 0);
 
     if (this->m_characterComponent) {
-        this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
+        this->m_characterComponent->SetItemSlotUsingAttachSlot(ITEMSLOT_NONE, link);
     }
 
     if (this->m_obj->m_type & TYPE_PLAYER) {
@@ -21915,7 +21915,7 @@ void CGUnit_C::OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId
         MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(this->m_worldModel, &displayRec, s_virtualItemInvSlots[slot], static_cast<SHEATHE_TYPE>(current->m_sheatheType), this->m_sheatheState == WEAPONMODE_SHEATHEDMODE, current->m_inventoryType == INVTYPE_SHIELD, false, 0);
 
         if (this->m_characterComponent) {
-            this->m_characterComponent->SetItemSlotUsingAttachSlot(static_cast<ITEM_SLOT>(-1), link);
+            this->m_characterComponent->SetItemSlotUsingAttachSlot(ITEMSLOT_NONE, link);
         }
 
         this->SetWeaponTrail(this->m_worldModel, slot);

@@ -211,6 +211,7 @@ enum INVENTORY_TYPES : int32_t {
 };
 
 enum ITEM_SLOT {
+    ITEMSLOT_NONE = -1, // Attach point not mapped to an item slot (inferred name).
     ITEMSLOT_HEAD = 0,
     ITEMSLOT_SHOULDER = 1,
     ITEMSLOT_SHIRT = 2, // BodyOrShirt

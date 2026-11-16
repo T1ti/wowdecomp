@@ -3074,7 +3074,7 @@ void CGGameUI::DisplayError(UIErrors error, ...) {
             break;
 
         case ERRORTEXT_CONSOLE:
-            ConsoleWriteA(buffer, static_cast<COLOR_T>(3));
+            ConsoleWriteA(buffer, ERROR_COLOR);
             break;
 
         default:

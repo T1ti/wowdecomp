@@ -3749,7 +3749,7 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
         case ITEMSLOT_11:
             if (this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] == ITEMSLOT_11) {
                 CCharacterComponent::RemoveLinkpt(this->m_data.m_model, ATTACH_SHEATH_MAINHAND);
-                this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] = -1;
+                this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] = ITEMSLOT_NONE;
             }
 
             this->m_itemDisplayID[itemSlot] = 0;
