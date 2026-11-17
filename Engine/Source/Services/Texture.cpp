@@ -787,36 +787,37 @@ void UpdateBlpTextureAsync(EGxTexCommand command, uint32_t width, uint32_t heigh
             texels = bits;
 
             if (texture->m_gxTexTarget == GxTex_CubeMap) {
+                // Cube faces are stored side by side in the order +X, -Z, -X, +Z, +Y, -Y.
                 uint32_t order = face;
 
                 switch (face) {
-                    case 0:
+                    case GxTex_PositiveX:
                         order = 0;
                         break;
 
-                    case 1:
+                    case GxTex_NegativeX:
                         order = 2;
                         break;
 
-                    case 2:
+                    case GxTex_PositiveY:
                         order = 4;
                         break;
 
-                    case 3:
+                    case GxTex_NegativeY:
                         order = 5;
                         break;
 
-                    case 4:
+                    case GxTex_PositiveZ:
                         order = 3;
                         break;
 
-                    case 5:
+                    case GxTex_NegativeZ:
                         order = 1;
                         break;
                 }
 
                 texels = bits + order * texelStrideInBytes;
-                texelStrideInBytes *= 6;
+                texelStrideInBytes *= GxTexCubeFaces_Last;
             }
 
             break;
@@ -1739,36 +1740,37 @@ void UpdateTgaTexture(EGxTexCommand command, uint32_t width, uint32_t height, ui
             texels = bits;
 
             if (texture->m_gxTexTarget == GxTex_CubeMap) {
+                // Cube faces are stored side by side in the order +X, -Z, -X, +Z, +Y, -Y.
                 uint32_t order = face;
 
                 switch (face) {
-                    case 0:
+                    case GxTex_PositiveX:
                         order = 0;
                         break;
 
-                    case 1:
+                    case GxTex_NegativeX:
                         order = 2;
                         break;
 
-                    case 2:
+                    case GxTex_PositiveY:
                         order = 4;
                         break;
 
-                    case 3:
+                    case GxTex_NegativeY:
                         order = 5;
                         break;
 
-                    case 4:
+                    case GxTex_PositiveZ:
                         order = 3;
                         break;
 
-                    case 5:
+                    case GxTex_NegativeZ:
                         order = 1;
                         break;
                 }
 
                 texels = bits + order * texelStrideInBytes;
-                texelStrideInBytes *= 6;
+                texelStrideInBytes *= GxTexCubeFaces_Last;
             }
 
             break;
@@ -1820,9 +1822,9 @@ int32_t PumpBlpTextureAsync(CTexture* texture, void* data) {
     uint32_t faceWidth = width;
     EGxTexTarget target = GxTex_2d;
 
-    if (width == 6 * height) {
+    if (width == GxTexCubeFaces_Last * height) {
         target = GxTex_CubeMap;
-        faceWidth = width / 6;
+        faceWidth = width / GxTexCubeFaces_Last;
     }
 
     texture->m_gxHeight = height;
