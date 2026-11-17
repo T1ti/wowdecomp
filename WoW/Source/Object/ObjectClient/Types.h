@@ -388,6 +388,22 @@ enum AI_REACTION : uint32_t {
     // NUM_AI_REACTIONS = 4,
 };
 
+// CGUnit_C::OnAiReaction reaction, also kept as m_reactionSoundPriority (a playing sound is only
+// replaced by a higher value). Named after the CreatureSoundData field each one plays.
+enum AI_REACTION_SOUND : int32_t {
+    AI_REACTION_SOUND_AGGRO = 0,
+    AI_REACTION_SOUND_PET_ORDER = 1,
+    AI_REACTION_SOUND_PET_ATTACK = 2,
+    AI_REACTION_SOUND_UNKNOWN_3 = 3, // No case in OnAiReaction.
+    AI_REACTION_SOUND_DEATH = 4,
+};
+
+// SMSG_PET_ACTION_SOUND action.
+enum PET_ACTION_SOUND : uint32_t {
+    PET_ACTION_SOUND_ORDER = 0,
+    PET_ACTION_SOUND_ATTACK = 1,
+};
+
 enum UNIT_REACTION : int32_t {
     UNIT_REACTION_HATED = 0,
     UNIT_REACTION_HOSTILE = 1,

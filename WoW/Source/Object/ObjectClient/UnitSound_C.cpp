@@ -711,7 +711,7 @@ void CGUnit_C::PlayDismountSound() {
 // VERIFY: 82755190 auto
 // OFFSET: 0x007474B0
 void CGUnit_C::OnAiReaction(int32_t reaction) {
-    if (reaction == 4 && this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_SCREAM)) {
+    if (reaction == AI_REACTION_SOUND_DEATH && this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_SCREAM)) {
         return;
     }
 
@@ -730,7 +730,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
     int32_t soundKitId;
 
     switch (this->m_reactionSoundPriority) {
-    case 0:
+    case AI_REACTION_SOUND_AGGRO:
         if (s_enablePetSounds && !s_enablePetSounds->m_intValue && this->m_unit->m_unitFieldPetnumber) {
             return;
         }
@@ -738,7 +738,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
         soundKitId = this->m_soundData->m_soundAggroID;
         break;
 
-    case 1:
+    case AI_REACTION_SOUND_PET_ORDER:
         if (s_enablePetSounds && !s_enablePetSounds->m_intValue && this->m_unit->m_unitFieldPetnumber) {
             return;
         }
@@ -746,7 +746,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
         soundKitId = this->m_soundData->m_soundPetOrderID;
         break;
 
-    case 2:
+    case AI_REACTION_SOUND_PET_ATTACK:
         if (s_enablePetSounds && !s_enablePetSounds->m_intValue && this->m_unit->m_unitFieldPetnumber) {
             return;
         }
@@ -754,7 +754,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
         soundKitId = this->m_soundData->m_soundPetAttackID;
         break;
 
-    case 4:
+    case AI_REACTION_SOUND_DEATH:
         soundKitId = this->m_soundData->m_soundDeathID;
         break;
 

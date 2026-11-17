@@ -17902,7 +17902,7 @@ BOOL Packet_SMSG_AI_REACTION(void* param, NETMESSAGE msgId, uint32_t time, CData
         if (reaction == AI_REACT_ALERT) {
             unit->PlayUnitSound(UNITSOUNDTYPE_ALERT, 0);
         } else if (reaction == AI_REACT_HOSTILE) {
-            unit->OnAiReaction(0);
+            unit->OnAiReaction(AI_REACTION_SOUND_AGGRO);
         }
     }
 
@@ -17919,10 +17919,10 @@ BOOL Packet_SMSG_PET_ACTION_SOUND(void* param, NETMESSAGE msgId, uint32_t time, 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (!action) {
-            unit->OnAiReaction(1);
-        } else if (action == 1) {
-            unit->OnAiReaction(2);
+        if (action == PET_ACTION_SOUND_ORDER) {
+            unit->OnAiReaction(AI_REACTION_SOUND_PET_ORDER);
+        } else if (action == PET_ACTION_SOUND_ATTACK) {
+            unit->OnAiReaction(AI_REACTION_SOUND_PET_ATTACK);
         }
     }
 
@@ -23928,7 +23928,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
             }
 
             this->CheckLoopSound();
-            this->OnAiReaction(4);
+            this->OnAiReaction(AI_REACTION_SOUND_DEATH);
             this->PlayDeathAnimation(1);
         } else {
             this->CheckLoopSound();
