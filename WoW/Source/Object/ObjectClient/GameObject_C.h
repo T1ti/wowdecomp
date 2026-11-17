@@ -75,7 +75,7 @@ class CGGameObject_C_TypeBase {
     virtual void AddPassenger(CPassenger* passenger, int32_t a2);
     virtual int32_t IsPointInside(const C3Vector& point) const;
     virtual CMapBaseObj* GetMapObjectTransportID() const;
-    virtual void PostInit(bool a1);
+    virtual void PostInit(bool reenable);
     virtual void PostInitWithStats();
     virtual void Reenable();
     virtual void Disable();
@@ -153,7 +153,7 @@ class CGGameObject_C_TypeAnimated : public CGGameObject_C_TypeBase {
     virtual void HandleAnimFinished();
     virtual void ActivateOneShotAnim(uint32_t anim);
     virtual const char* DebugStatus();
-    virtual void PostInit(bool a1);
+    virtual void PostInit(bool reenable);
     virtual void Disable();
     virtual void PostReenable();
     virtual void UpdateDisplay(uint32_t time);
@@ -276,7 +276,7 @@ class CGGameObject_C_Type_DestructibleBuilding : public CGGameObject_C_Type_Worl
     virtual int32_t IsHighlightSuppressed() const;
     virtual void OnUpdateFlags(uint32_t changed);
     virtual void HandleAnimEvent(uint32_t eventId, uint32_t data, const C3Vector& position, uint32_t time);
-    virtual void PostInit(bool a1);
+    virtual void PostInit(bool reenable);
     virtual void PostInitWithStats();
     virtual void Disable();
     virtual void PostReenable();
@@ -351,7 +351,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
 
     virtual C3Vector GetPosition() const;
     virtual C3Vector GetRawPosition() const;
-    void UpdateWorldObject(int32_t a2) override;
+    void UpdateWorldObject(int32_t skipEntityUpdate) override;
     float GetFacing() const override;
     float GetRawFacing() const override;
     C4Quaternion GetRotation() const override;

@@ -77,14 +77,14 @@ void CGCorpse_C::ApplyGuildColor(int32_t request) {
 
 // VERIFY: 54fbf329 manual
 // OFFSET: 0x00705B20
-void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3) {
+void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
     this->m_passenger.PostInit(create.m_move.m_status.m_position);
 
     if (!this->GetTransportGUID()) {
         this->m_passenger.m_facing = create.m_move.m_status.m_facing;
     }
 
-    this->CGObject_C::PostInit(time, create, a3);
+    this->CGObject_C::PostInit(time, create, reenable);
 
     CM2Model* model = this->m_worldModel;
     int32_t useComponent = 1;

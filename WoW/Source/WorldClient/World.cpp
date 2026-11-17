@@ -976,7 +976,7 @@ void World::ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask) 
 
 // VERIFY: 4aa10153 manual
 // OFFSET: 0x00780240
-void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphere& sphere, C3Vector& vec, bool a6, uint32_t a7) {
+void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphere& sphere, C3Vector& vec, bool skipEntityUpdate, uint32_t splitBodyBone) {
     C3Vector position = { mat.d0, mat.d1, mat.d2 };
     float scale = sqrtf(mat.a2 * mat.a2 + (mat.a1 * mat.a1 + mat.a0 * mat.a0));
     C3Vector vec2 = vec * mat;
@@ -1006,10 +1006,10 @@ void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphe
     entity->m_scale = scale;
     entity->m_sphere.c = center;
     entity->m_sphere.r = radius;
-    entity->unk_00A4 = a7;
+    entity->m_splitBodyBone = splitBodyBone;
 
     if (positionDelta.SquaredMag() > 0.000001f || vec2Delta.SquaredMag() > 0.0001f || bottomDelta.SquaredMag() > 0.0001f || topDelta.SquaredMag() > 0.0001f || centerDelta.SquaredMag() > 0.0001f || radiusDelta > 0.0001f) {
-        if (!a6) {
+        if (!skipEntityUpdate) {
             CMap::UpdateEntity(entity);
         }
     }
@@ -4402,7 +4402,7 @@ void CWorldScene::RenderEntitys() {
 
         if (entity->m_model) {
             if (entity->m_model->IsLoaded(0, 1)) {
-                CWorldScene::CullModelSplitBody(entity->m_model, entity->unk_00A4, (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) != 0);
+                CWorldScene::CullModelSplitBody(entity->m_model, entity->m_splitBodyBone, (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) != 0);
             } else if (streaming) {
                 entity->m_model->LinkToAsyncHead(0);
             }

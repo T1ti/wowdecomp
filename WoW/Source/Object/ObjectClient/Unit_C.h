@@ -510,7 +510,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     int32_t AddPassenger(CPassenger* passenger, int32_t a2) override;
     C3Vector GetPosition() const override;
     void Disable() override;
-    void UpdateWorldObject(int32_t a2) override;
+    void UpdateWorldObject(int32_t skipEntityUpdate) override;
     void PreAnimate(CGWorldFrame* frame) override;
     void RefreshInteractIcon() override;
     void ScaleChangeUpdate() override;

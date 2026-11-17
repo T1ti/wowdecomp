@@ -465,7 +465,7 @@ void CGObject_C::SetModelFinish(CM2Model* model) {
 
 // VERIFY: fcd6a1dd manual
 // OFFSET: 0x007438E0
-void CGObject_C::UpdateWorldObject(int32_t a2) {
+void CGObject_C::UpdateWorldObject(int32_t skipEntityUpdate) {
     if (!this->m_worldObject) {
         return;
     }
@@ -494,7 +494,7 @@ void CGObject_C::UpdateWorldObject(int32_t a2) {
         sphere = this->m_worldModel->GetBoundingSphere();
     }
 
-    CMap::ObjectUpdate(this->m_worldObject, mat, box, sphere, vec, a2, 0xFFFFFFFF);
+    CMap::ObjectUpdate(this->m_worldObject, mat, box, sphere, vec, skipEntityUpdate, 0xFFFFFFFF);
 }
 
 // VERIFY: 6f30b42a auto
@@ -1389,7 +1389,7 @@ void CGObject_C::Initialize() {
 
 // VERIFY: 64b6f506 auto
 // OFFSET: 0x00744A50
-void CGObject_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3) {
+void CGObject_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
     this->m_modelFlags |= OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED;
     this->DoFade(this->GetBaseAlpha(), this->ShouldFadeIn() ? 1000 : 0);
     this->RefreshInteractIcon();

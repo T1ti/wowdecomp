@@ -961,7 +961,7 @@ float CGUnit_C::GetModelScale(const CreatureDisplayInfoRec* displayInfo, const C
 
 // VERIFY: 3f33188f manual
 // OFFSET: 0x007370D0
-void CGUnit_C::UpdateWorldObject(int32_t a2) {
+void CGUnit_C::UpdateWorldObject(int32_t skipEntityUpdate) {
     if (this->m_worldObject) {
         C44Matrix matrix;
         CM2Model* model = this->GetObjectModel();
@@ -1005,7 +1005,7 @@ void CGUnit_C::UpdateWorldObject(int32_t a2) {
             }
         }
 
-        CMap::ObjectUpdate(this->m_worldObject, matrix, box, sphere, vec, a2, this->m_torsoKeyBone);
+        CMap::ObjectUpdate(this->m_worldObject, matrix, box, sphere, vec, skipEntityUpdate, this->m_torsoKeyBone);
     }
 
     if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {

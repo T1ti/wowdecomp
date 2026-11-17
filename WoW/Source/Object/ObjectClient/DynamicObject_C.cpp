@@ -64,14 +64,14 @@ CGDynamicObject_C::~CGDynamicObject_C() {
 
 // VERIFY: 2fd08b4c manual
 // OFFSET: 0x00705230
-void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3) {
+void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
     this->m_passenger.PostInit(create.m_move.m_status.m_position);
 
     if (!this->GetTransportGUID()) {
         this->m_passenger.m_facing = create.m_move.m_status.m_facing;
     }
 
-    this->CGObject_C::PostInit(time, create, a3);
+    this->CGObject_C::PostInit(time, create, reenable);
 
     int32_t inTransit = Spell_C_IsSpellInTransit(this->m_dynamicObject->m_caster, this->m_dynamicObject->m_spellID, this->m_dynamicObject->m_castTime);
     this->m_stateFlags ^= (this->m_stateFlags ^ (inTransit * 2)) & CGDynamicObject_C::STATE_FLAGS::SPELL_IN_TRANSIT;

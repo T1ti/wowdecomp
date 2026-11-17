@@ -358,8 +358,8 @@ void CGItem_C::PostReenable() {
 
 // VERIFY: fffdf723 auto
 // OFFSET: 0x0070AF80
-void CGItem_C::PostInit(uint32_t time, const CClientObjCreate& create, bool a3) {
-    this->CGObject_C::PostInit(time, create, a3);
+void CGItem_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
+    this->CGObject_C::PostInit(time, create, reenable);
     this->RequestItemCacheInfo();
 }
 

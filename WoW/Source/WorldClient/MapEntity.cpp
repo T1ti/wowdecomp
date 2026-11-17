@@ -162,7 +162,7 @@ CMapEntity::CMapEntity() {
     this->m_groundType = 0;
     this->m_liquidType = 0;
     this->unused_00BE = 0;
-    this->unk_00A4 = 0xFFFFFFFF;
+    this->m_splitBodyBone = 0xFFFFFFFF;
     this->m_targetAmbientColor.b = 0xFF;
     this->m_targetAmbientColor.g = 0x00;
     this->m_targetAmbientColor.r = 0x00;

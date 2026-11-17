@@ -219,7 +219,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     virtual void Reenable();
     virtual void PostReenable();
     virtual void HandleOutOfRange(OUT_OF_RANGE_TYPE type);
-    virtual void UpdateWorldObject(int32_t a2);
+    virtual void UpdateWorldObject(int32_t skipEntityUpdate);
     virtual int32_t ShouldFadeout();
     virtual void UpdateDisplayInfo(int32_t force);
     virtual C3Vector GetNamePosition() const;
@@ -297,7 +297,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     int32_t IsObjectModelLoaded();
     int32_t IsReadyToDraw();
     void ModelChanged();
-    void PostInit(uint32_t time, const CClientObjCreate& create, bool a3);
+    void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
     void ReleaseModel();
     void RemoveInteractIcon();
     void SetBlock(int32_t index, uint32_t value);

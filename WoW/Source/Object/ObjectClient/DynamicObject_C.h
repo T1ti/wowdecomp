@@ -54,7 +54,7 @@ class CGDynamicObject_C : public CGObject_C, public CGDynamicObject {
     CGDynamicObject_C(uint32_t time, const CClientObjCreate& create);
     void HandleAnimEvent(uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time);
     void ObjectVisKitProc();
-    void PostInit(uint32_t time, const CClientObjCreate& create, bool a3);
+    void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
     void SetStorage(uint32_t* storage, uint32_t* saved);
     void UpdateDisplay(uint32_t time);
     SpellVisualEffectNameRec* GetVisualEffectNameRec(const SpellRec* spell) const;

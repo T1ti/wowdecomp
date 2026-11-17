@@ -54,7 +54,7 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
     float GetDisplayScale() const;
     uint32_t GetFactionTemplate() const;
     const char* GetPortraitTexture() const;
-    void PostInit(uint32_t time, const CClientObjCreate& create, bool a3);
+    void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
     void ShowLootEffect();
     void OnFlagChanged(uint32_t oldFlags);
     void OnDynamicFlagChanged(uint32_t oldFlags);

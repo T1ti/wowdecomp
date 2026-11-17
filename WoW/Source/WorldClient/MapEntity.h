@@ -41,7 +41,7 @@ class CMapEntity : public CMapStaticEntity {
     /* 0094 */ void* m_funcParam;
     /* 0098 */ uint64_t m_funcParam64;
     /* 00A0 */ uintptr_t m_funcParam32;
-    /* 00A4 */ uint32_t unk_00A4;
+    /* 00A4 */ uint32_t m_splitBodyBone; // CWorldScene::CullModelSplitBody bone (the unit torso key bone)
     /* 00A8 */ C3Vector unused_00A8;
     /* 00B4 */ uint32_t unused_00B4;
     /* 00B8 */ int32_t m_groundType;

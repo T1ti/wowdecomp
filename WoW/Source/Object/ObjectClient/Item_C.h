@@ -131,7 +131,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     bool IsInstanceBound() const;
     bool IsPermanentlyBoundForTrade();
     bool IsZoneBound() const;
-    void PostInit(uint32_t time, const CClientObjCreate& create, bool a3);
+    void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
     void PostInitWithStats();
     void RequestItemCacheInfo();
     void RequestItemPurchaseData();

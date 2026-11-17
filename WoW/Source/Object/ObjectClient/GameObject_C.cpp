@@ -929,8 +929,8 @@ void CGGameObject_C_TypeAnimated::OnUpdateFlags(uint32_t changed) {
 
 // VERIFY: 366e7076 manual
 // OFFSET: 0x0070C370
-void CGGameObject_C_TypeAnimated::PostInit(bool a1) {
-    if (!a1) {
+void CGGameObject_C_TypeAnimated::PostInit(bool reenable) {
+    if (!reenable) {
         return;
     }
 
@@ -1791,7 +1791,7 @@ CMapBaseObj* CGGameObject_C_TypeBase::GetMapObjectTransportID() const {
 
 // VERIFY: 980ed0eb auto
 // OFFSET: 0x00632050
-void CGGameObject_C_TypeBase::PostInit(bool a1) {
+void CGGameObject_C_TypeBase::PostInit(bool reenable) {
 }
 
 // VERIFY: 8b5d6ada auto
@@ -2161,7 +2161,7 @@ void CGGameObject_C_Type_MapObjTransport::UpdateState(int32_t oldState, int32_t 
 
 // VERIFY: 70dac489 manual
 // OFFSET: 0x0070DDD0
-void CGGameObject_C_Type_DestructibleBuilding::PostInit(bool a1) {
+void CGGameObject_C_Type_DestructibleBuilding::PostInit(bool reenable) {
     GameObjectDisplayInfoRec* display = g_gameObjectDisplayInfoDB.GetRecord(this->m_owner->m_gameObject->m_displayID);
 
     if (display) {
@@ -2618,7 +2618,7 @@ CAaBox CGGameObject_C::GetWorldBounds() const {
 
 // VERIFY: 218fceeb manual
 // OFFSET: 0x0070CBE0
-void CGGameObject_C::UpdateWorldObject(int32_t a2) {
+void CGGameObject_C::UpdateWorldObject(int32_t skipEntityUpdate) {
     this->m_matrix.Identity();
     this->m_matrix.Translate(this->GetPosition());
     this->m_matrix.Rotate(this->GetRotation());
@@ -2648,7 +2648,7 @@ void CGGameObject_C::UpdateWorldObject(int32_t a2) {
     }
 
     if (this->m_worldObject) {
-        CMap::ObjectUpdate(this->m_worldObject, this->m_matrix, box, sphere, center, a2, 0xFFFFFFFF);
+        CMap::ObjectUpdate(this->m_worldObject, this->m_matrix, box, sphere, center, skipEntityUpdate, 0xFFFFFFFF);
     }
 }
 
