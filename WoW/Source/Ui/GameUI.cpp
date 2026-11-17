@@ -5769,8 +5769,10 @@ void CGGameUI::GetCursorVirtualItem(int32_t& id, int32_t& slot) {
 
 // VERIFY: 81869e6f manual
 // OFFSET: 0x005137A0
-int32_t CGGameUI::VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t a3) {
-    if (!id || a3) {
+// Virtual items are guild bank slots. Every caller passes 0 for unknownSource; any other value
+// makes these virtual item functions do nothing.
+BOOL CGGameUI::VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t unknownSource) {
+    if (!id || unknownSource) {
         return 0;
     }
 
@@ -5779,8 +5781,8 @@ int32_t CGGameUI::VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t 
 
 // VERIFY: 08ac5aa0 auto
 // OFFSET: 0x005137D0
-void CGGameUI::LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3) {
-    if (!id || a3) {
+void CGGameUI::LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t unknownSource) {
+    if (!id || unknownSource) {
         return;
     }
 
@@ -5790,8 +5792,8 @@ void CGGameUI::LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3) {
 
 // VERIFY: db216ca5 auto
 // OFFSET: 0x00513800
-void CGGameUI::UnlockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3) {
-    if (id && !a3) {
+void CGGameUI::UnlockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t unknownSource) {
+    if (id && !unknownSource) {
         CGGuildBankInfo::Unlock(id, virtualSlot);
         FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_ITEM_LOCK_CHANGED, nullptr);
     }
@@ -5799,8 +5801,8 @@ void CGGameUI::UnlockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3) {
 
 // VERIFY: 4e4f1fbc manual
 // OFFSET: 0x00513830
-int32_t CGGameUI::GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t a3) {
-    if (!id || a3) {
+int32_t CGGameUI::GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t unknownSource) {
+    if (!id || unknownSource) {
         return 0;
     }
 

@@ -335,8 +335,8 @@ class CGGameUI {
     static bool CanInspect(CGUnit_C* unit);
     static void SetCursorMoney(uint32_t amount);
     static void SetCursorMoney(uint32_t amount, UICURSORTYPE type, int32_t event);
-    static int32_t VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t a3);
-    static void LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3);
+    static BOOL VirtualItemIsLocked(int32_t id, uint32_t virtualSlot, int32_t unknownSource);
+    static void LockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t unknownSource);
     static void TargetTradeItem();
     static void SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t unlock, int32_t stackSplit, int32_t playSound);
     static WOWGUID m_lockedTarget;
@@ -420,8 +420,8 @@ class CGGameUI {
     static int32_t GetCursorSpell();
     static int32_t GetCursorVirtualItem();
     static void GetCursorVirtualItem(int32_t& id, int32_t& slot);
-    static int32_t GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t a3);
-    static void UnlockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t a3);
+    static int32_t GetVirtualItemCount(int32_t id, uint32_t virtualSlot, int32_t unknownSource);
+    static void UnlockVirtualItem(int32_t id, uint32_t virtualSlot, int32_t unknownSource);
     static int32_t GetCursorVirtualItemOfType(UICURSORTYPE type);
     static void DropCursorSpell();
     static void SetCursorSpell(int32_t spellId);
