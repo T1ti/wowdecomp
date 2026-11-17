@@ -17,6 +17,12 @@ struct KERNINGHASHKEY {
 };
 
 struct KERNNODE : public TSHashObject<KERNNODE, KERNINGHASHKEY> {
+    // Which cached spacing value is valid.
+    enum KERN_FLAGS : uint32_t {
+        KERN_FIXED_WIDTH_SPACING = 0x1,
+        KERN_PROPORTIONAL_SPACING = 0x2,
+    };
+
     /* 0018 */ uint32_t m_flags;
     /* 001C */ float m_proportionalSpacing;
     /* 0020 */ float m_fixedWidthSpacing;

@@ -247,7 +247,7 @@ float CGxFont::ComputeStep(uint32_t code, uint32_t nextCode) {
 
     KERNNODE* node = this->m_kernInfo.Ptr(code, key);
 
-    if (node && (node->m_flags & 2)) {
+    if (node && (node->m_flags & KERNNODE::KERN_PROPORTIONAL_SPACING)) {
         return node->m_proportionalSpacing;
     }
 
@@ -273,7 +273,7 @@ float CGxFont::ComputeStep(uint32_t code, uint32_t nextCode) {
         node = this->m_kernInfo.New(code, key, 0, 0);
     }
 
-    node->m_flags |= 2;
+    node->m_flags |= KERNNODE::KERN_PROPORTIONAL_SPACING;
     node->m_proportionalSpacing = ceil(step);
 
     return node->m_proportionalSpacing;
@@ -287,7 +287,7 @@ float CGxFont::ComputeStepFixedWidth(uint32_t code, uint32_t nextCode) {
 
     KERNNODE* node = this->m_kernInfo.Ptr(code, key);
 
-    if (node && (node->m_flags & 1)) {
+    if (node && (node->m_flags & KERNNODE::KERN_FIXED_WIDTH_SPACING)) {
         return node->m_fixedWidthSpacing;
     }
 
@@ -296,7 +296,7 @@ float CGxFont::ComputeStepFixedWidth(uint32_t code, uint32_t nextCode) {
             node = this->m_kernInfo.New(code, key, 0, 0);
         }
 
-        node->m_flags |= 1;
+        node->m_flags |= KERNNODE::KERN_FIXED_WIDTH_SPACING;
         node->m_fixedWidthSpacing = 0.0f;
 
         return 0.0f;
