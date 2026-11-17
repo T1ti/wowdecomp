@@ -119,9 +119,9 @@ void CollisionInfoSetFaces(const WOWGUID& guid, const TSGrowableArray<CFacet>& f
 }
 
 // 0.5.3 reference: CollisionInfoColorFace (0x004DD370). A face only moves up the FACET_COLOR order.
-// TODO: 0.5.3 called this from the CMovement obstacle and surface tests (CheckSurfaceObstacles, FindObstacles,
-// GetNextSurface, TraceSurface, EnqueueFacets); the 3.3.5 CMovement_C counterparts are not hooked yet, so every facet
-// stays FACET_UNTESTED.
+// 0.5.3 called it from the CMovement obstacle and surface tests. 3.3.5 movement was rewritten around
+// CMovement_C::DistanceToMove, so the calls sit there (CollisionInfoColorSweep) and in CMovement_C::TraceSurface
+// (obstructing and too-steep facets as FACET_BLOCKING).
 void CollisionInfoColorFace(uint32_t face, FACET_COLOR color) {
     if (!s_acceptingFacets || face >= s_debugFacetColors.Count() || color <= s_debugFacetColors.m_data[face]) {
         return;
@@ -132,6 +132,21 @@ void CollisionInfoColorFace(uint32_t face, FACET_COLOR color) {
     for (uint32_t i = 0; i < 3; i++) {
         s_debugTriVerts.m_data[face * 3 + i].c = MakeColor(s_facetColor[color]);
     }
+}
+
+// Debug feature: colors one CMovement_C::DistanceToMove sweep over the move facets. Every facet of the set was tested
+// (0.5.3 FindObstacles colored facets it skipped FACET_TESTED_UNTOUCHED) and the facet the sweep stopped at was touched
+// (0.5.3 TraceSurface colored the surface it followed FACET_TESTED_TOUCHED). No 0.5.3 function of its own.
+void CollisionInfoColorSweep(uint32_t hitFace) {
+    if (!s_acceptingFacets) {
+        return;
+    }
+
+    for (uint32_t i = 0; i < s_debugFacetColors.m_count; i++) {
+        CollisionInfoColorFace(i, FACET_TESTED_UNTOUCHED);
+    }
+
+    CollisionInfoColorFace(hitFace, FACET_TESTED_TOUCHED);
 }
 
 // 0.5.3 reference: CollisionInfoAddBox (0x004DDDC0). Adds the 12 triangles of an axis-aligned box.
@@ -197,8 +212,9 @@ int32_t ToggleCollisionInfo() {
 }
 
 // 0.5.3 reference: RenderCollisionInfo (0x00613280).
-// 0.5.3 called it from CGWorldFrame::OnWorldRender; here CWorldScene::Render calls it next to
-// CWorldScene::RenderCollisionDebug, whose world-view transform it shares.
+// Called from CGWorldFrame::OnWorldRender after the world, M2 models, liquids and particles, like 0.5.3. Depth testing
+// is off (like CWorldScene::RenderCollisionDebug) so the facets, box and lines stay visible through the geometry they
+// belong to.
 void RenderCollisionInfo() {
     if (!s_debugCollision || (!s_debugTriIndices.Count() && !s_debugLineIndices.Count())) {
         return;
@@ -215,6 +231,7 @@ void RenderCollisionInfo() {
     GxUpdateAlphaRef(GxRs_AlphaRef);
     GxRsSet(GxRs_Lighting, 0);
     GxRsSet(GxRs_DepthWrite, 0);
+    GxRsSet(GxRs_DepthTest, 0);
     GxRsSet(GxRs_Culling, 0);
 
     if (s_debugTriIndices.Count()) {

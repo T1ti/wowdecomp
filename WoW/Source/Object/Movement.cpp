@@ -3110,6 +3110,13 @@ int32_t CMovement_C::DistanceToMove(World::FacetData* facets, const C3Vector& di
         }
     }
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: collision info coloring (0.5.3 FindObstacles / TraceSurface CollisionInfoColorFace calls).
+    if (facets == &s_moveFacets) {
+        CollisionInfoColorSweep(*facetIndex);
+    }
+#endif
+
     *moveDistance = hitDistance >= 0.0013888889f ? hitDistance : 0.0f;
     return 1;
 }
@@ -3923,6 +3930,11 @@ uint32_t CMovement_C::TraceSurface(uint32_t time, uint32_t elapsed, float distan
                     goto finish;
                 }
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+                // Debug feature: 0.5.3 CheckSurfaceObstacles colored too-steep facets as blocking.
+                CollisionInfoColorFace(facetIndex, FACET_BLOCKING);
+#endif
+
                 const CFacet& facet = s_moveFacets.facets.m_data[facetIndex];
 
                 if ((this->m_flags & MOVEMENTFLAG_SPLINE_ELEVATION) && facet.plane.n.y * dir2D.y + facet.plane.n.x * dir2D.x <= -0.0000099999997f) {
@@ -3968,6 +3980,11 @@ uint32_t CMovement_C::TraceSurface(uint32_t time, uint32_t elapsed, float distan
             if (this->UseWalkableRedirection(facetIndex, &cleared)) {
                 hasBox = GetBoxPushNormal(planes, planeCount, boxNormal);
             } else {
+#ifdef WOWDECOMP_DEBUG_FEATURES
+                // Debug feature: 0.5.3 CheckSurfaceObstacles colored obstructing (non-walkable) facets as blocking.
+                CollisionInfoColorFace(facetIndex, FACET_BLOCKING);
+#endif
+
                 if (cleared) {
                     goto fall;
                 }

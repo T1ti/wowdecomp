@@ -249,11 +249,6 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         CMap::debugVertexArray.SetCount(0);
         CMap::debugIndexArray.m_count = 0;
     }
-
-#ifdef WOWDECOMP_DEBUG_FEATURES
-    // Debug feature: collision info display (0.5.3 RenderCollisionInfo, see CollisionInfo_Debug.cpp).
-    RenderCollisionInfo();
-#endif
 }
 
 

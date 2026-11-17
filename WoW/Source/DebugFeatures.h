@@ -37,6 +37,7 @@ void CollisionInfoSetWatchGUID(const WOWGUID& guid);
 void CollisionInfoReset();
 void CollisionInfoSetFaces(const WOWGUID& guid, const TSGrowableArray<CFacet>& facets);
 void CollisionInfoColorFace(uint32_t face, FACET_COLOR color);
+void CollisionInfoColorSweep(uint32_t hitFace);
 void CollisionInfoSetFallBox(const C3Vector& position, float radius, float height);
 void CollisionInfoAddBox(const C3Vector& minimum, const C3Vector& maximum);
 void CollisionInfoAddVector(const C3Vector& start, const C3Vector& end);
