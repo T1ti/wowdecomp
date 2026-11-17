@@ -6951,7 +6951,7 @@ bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report,
     }
 
     for (uint32_t i = 0; i < sizeof(spell->m_requiredTotemCategoryID) / sizeof(spell->m_requiredTotemCategoryID[0]); i++) {
-        if (spell->m_requiredTotemCategoryID[i] && !player->m_bag.FindTotemCategory(spell->m_requiredTotemCategoryID[i], 0)) {
+        if (spell->m_requiredTotemCategoryID[i] && !player->m_bag.FindTotemCategory(spell->m_requiredTotemCategoryID[i], BAG_SEARCH_NONE)) {
             if (report) {
                 Spell_C_SpellFailed(cast, spell, SPELL_FAILED_TOTEM_CATEGORY, spell->m_requiredTotemCategoryID[i], -1, false);
             }

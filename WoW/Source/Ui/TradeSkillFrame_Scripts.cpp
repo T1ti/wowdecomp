@@ -1111,7 +1111,7 @@ static int32_t Script_GetTradeSkillTools(lua_State* L) {
                 lua_checkstack(L, 2);
                 lua_pushstring(L, category->m_name);
 
-                if (player->m_bag.FindTotemCategory(spell.m_requiredTotemCategoryID[i], 0)) {
+                if (player->m_bag.FindTotemCategory(spell.m_requiredTotemCategoryID[i], BAG_SEARCH_NONE)) {
                     lua_pushnumber(L, 1.0);
                 } else {
                     lua_pushnil(L);

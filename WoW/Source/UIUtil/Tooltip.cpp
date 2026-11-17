@@ -2932,7 +2932,7 @@ static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer
             SStrPack(text, ", ", sizeof(text));
         }
 
-        if (player->m_bag.FindTotemCategory(spell->m_requiredTotemCategoryID[i], 0)) {
+        if (player->m_bag.FindTotemCategory(spell->m_requiredTotemCategoryID[i], BAG_SEARCH_NONE)) {
             SStrPack(text, category->m_name, sizeof(text));
         } else {
             SStrPack(text, s_tooltipRedColorString, sizeof(text));

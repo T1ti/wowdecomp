@@ -135,6 +135,7 @@
 #include "WoW/Source/Ui/TabardModelFrame.h"
 #include "WoW/Source/Ui/TalentInfo.h"
 #include "WoW/Source/Ui/TaxiMapFrame.h"
+#include "WoW/Source/DB/Rec/TotemCategoryRec.h"
 #include "WoW/Source/Ui/TotemInfo.h"
 #include "WoW/Source/Ui/TradeFrame.h"
 #include "WoW/Source/Ui/TradeSkillFrame.h"
@@ -2347,24 +2348,24 @@ static int32_t Script_GetTotemInfo(lua_State* L) {
         int32_t category = 0;
 
         switch (slot) {
-            case 0:
-                category = 4;
+            case TOTEM_SLOT_FIRE:
+                category = TOTEM_CATEGORY_FIRE_TOTEM;
                 break;
 
-            case 1:
-                category = 2;
+            case TOTEM_SLOT_EARTH:
+                category = TOTEM_CATEGORY_EARTH_TOTEM;
                 break;
 
-            case 2:
-                category = 5;
+            case TOTEM_SLOT_WATER:
+                category = TOTEM_CATEGORY_WATER_TOTEM;
                 break;
 
-            case 3:
-                category = 3;
+            case TOTEM_SLOT_AIR:
+                category = TOTEM_CATEGORY_AIR_TOTEM;
                 break;
         }
 
-        found = player->m_bag.FindTotemCategory(category, 8);
+        found = player->m_bag.FindTotemCategory(category, BAG_SEARCH_BANK);
     }
 
     lua_pushboolean(L, found);

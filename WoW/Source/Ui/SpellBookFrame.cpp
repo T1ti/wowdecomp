@@ -615,7 +615,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replace
                 }
 
                 // The native test is inverted: it only triggers once the tutorial can no longer trigger.
-                if (!canTriggerTotemTutorial && updateMultiCast && player && player->m_bag.FindTotemCategory(category, 8)) {
+                if (!canTriggerTotemTutorial && updateMultiCast && player && player->m_bag.FindTotemCategory(category, BAG_SEARCH_BANK)) {
                     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TOTEM_BAR);
                     canTriggerTotemTutorial = true;
                 }
