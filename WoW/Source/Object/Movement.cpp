@@ -34,6 +34,7 @@
 #include "WoW/Source/UIUtil/InputControl.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
+#include "WoW/Source/DebugFeatures.h"
 
 static const float MAX_SHORT_RANGE_TELEPORT_SQUARED = 22500.0f;
 
@@ -3210,6 +3211,13 @@ int32_t CMovement_C::GetMoveFacets(float distance, uint32_t elapsed, C3Vector di
     if (!World::GetFacets(&box, &s_queryBox, &s_moveFacets, this->GetFacetQueryFlags(), nullptr)) {
         return 0;
     }
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: 0.5.3 GetMoveFacets fed the collision info display here (world space, before the transport
+    // transform below).
+    CollisionInfoSetFaces(*this->m_ownerGuid, s_moveFacets.facets);
+    this->ShowCollisionBox(position, direction);
+#endif
 
     if (this->m_flags & MOVEMENTFLAG_SWIMMING) {
         World::GetFacets(&box, &s_queryBox, &s_liquidFacets, WORLD_QUERY_LIQUID, nullptr);

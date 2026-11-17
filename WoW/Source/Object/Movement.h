@@ -304,7 +304,7 @@ class CMovement_C : public CMovementShared {
     // Debug features (CollisionInfo_Debug.cpp), stripped from the 3.3.5 release build.
     static int32_t ToggleFallLogging();
     static int32_t ToggleLogging();
-    void ShowCollisionBox(const C3Vector& position, uint32_t color);
+    void ShowCollisionBox(const C3Vector& position, const C3Vector& move);
 #endif
 };
 

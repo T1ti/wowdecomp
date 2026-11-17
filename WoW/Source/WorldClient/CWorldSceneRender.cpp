@@ -28,6 +28,7 @@
 #include "Engine/Source/Gx/CGxMatrixStack.h"
 #include "Engine/Source/ShaderEffect/ShadowCache.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
+#include "WoW/Source/DebugFeatures.h"
 
 // VERIFY: 78b69e1a manual
 // OFFSET: 0x007D5610
@@ -248,6 +249,11 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         CMap::debugVertexArray.SetCount(0);
         CMap::debugIndexArray.m_count = 0;
     }
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: collision info display (0.5.3 RenderCollisionInfo, see CollisionInfo_Debug.cpp).
+    RenderCollisionInfo();
+#endif
 }
 
 
