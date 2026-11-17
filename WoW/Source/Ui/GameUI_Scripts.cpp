@@ -6213,8 +6213,9 @@ static int32_t Script_TogglePlayerBounds(lua_State* L) {
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePortals(lua_State* L) {
 #ifdef WOWDECOMP_DEBUG_FEATURES
-    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
-    // 0.5.3 Script_TogglePortals (0x004E2A00) is already a return-0 stub.
+    // Debug feature: compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // 0.5.3 Script_TogglePortals (0x004E2A00) is already a return-0 stub; this calls the matching world render mode.
+    CWorld::ConsoleCommand_ShowPortals(nullptr, "");
 #endif
     return 0;
 }
@@ -6223,8 +6224,9 @@ static int32_t Script_TogglePortals(lua_State* L) {
 // OFFSET: 0x008E5250
 static int32_t Script_ToggleTris(lua_State* L) {
 #ifdef WOWDECOMP_DEBUG_FEATURES
-    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
-    // 0.5.3 Script_ToggleTris (0x004E29F0) is already a return-0 stub.
+    // Debug feature: compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // 0.5.3 Script_ToggleTris (0x004E29F0) is already a return-0 stub; this calls the matching world render mode.
+    CWorld::ConsoleCommand_ShowTris(nullptr, "");
 #endif
     return 0;
 }
