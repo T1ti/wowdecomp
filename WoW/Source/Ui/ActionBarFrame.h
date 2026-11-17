@@ -28,6 +28,12 @@ class CGActionBar {
     static constexpr int32_t MULTICAST_ACTION_FIRST = 132;
     static constexpr int32_t NUM_MULTICAST_ACTION_SLOTS = 12;
     static constexpr int32_t NUM_ACTION_SLOTS = 144;
+    // FrameXML NUM_ACTIONBAR_BUTTONS and NUM_ACTIONBAR_PAGES.
+    static constexpr int32_t NUM_ACTIONBAR_BUTTONS = 12;
+    static constexpr int32_t NUM_ACTIONBAR_PAGES = 6;
+    // GetMultiCastBarOffset: FrameXML uses page NUM_ACTIONBAR_PAGES + offset, whose first slot is
+    // MULTICAST_ACTION_FIRST (pages are one-based).
+    static constexpr int32_t MULTICAST_PAGE_OFFSET = MULTICAST_ACTION_FIRST / NUM_ACTIONBAR_BUTTONS + 1 - NUM_ACTIONBAR_PAGES;
 
     // Top-nibble client action tags; a zero complete word still means an empty slot.
     enum ACTION_TAG : uint32_t {

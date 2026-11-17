@@ -462,7 +462,7 @@ static int32_t Script_IsPossessBarVisible(lua_State* L) {
 // VERIFY: 690fc1a3 auto
 // OFFSET: 0x005B71E0
 static int32_t Script_GetMultiCastBarOffset(lua_State* L) {
-    lua_pushnumber(L, 6.0);
+    lua_pushnumber(L, CGActionBar::MULTICAST_PAGE_OFFSET);
     return 1;
 }
 
