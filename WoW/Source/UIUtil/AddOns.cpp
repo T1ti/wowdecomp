@@ -524,7 +524,7 @@ static int32_t ComputeAddOnEnableState(const char* name) {
     UIADDON* addon = s_addons.Ptr(name);
 
     if (!addon) {
-        return 0;
+        return ADDON_ENABLE_STATE_DISABLED;
     }
 
     uint32_t total = 0;
@@ -543,14 +543,14 @@ static int32_t ComputeAddOnEnableState(const char* name) {
     }
 
     if (!total) {
-        return addon->m_enabledByDefault ? 2 : 0;
+        return addon->m_enabledByDefault ? ADDON_ENABLE_STATE_ALL : ADDON_ENABLE_STATE_DISABLED;
     }
 
     if (!enabled) {
-        return 0;
+        return ADDON_ENABLE_STATE_DISABLED;
     }
 
-    return 2 - (enabled < total);
+    return enabled < total ? ADDON_ENABLE_STATE_SOME : ADDON_ENABLE_STATE_ALL;
 }
 
 // VERIFY: 8a5c7a5a auto
@@ -782,7 +782,7 @@ int32_t GetAddOnEnableState(const char* name, const char* character, bool comput
     UIADDON* addon = s_addons.Ptr(name);
 
     if (!addon) {
-        return 0;
+        return ADDON_ENABLE_STATE_DISABLED;
     }
 
     uint32_t total = 0;
@@ -800,15 +800,15 @@ int32_t GetAddOnEnableState(const char* name, const char* character, bool comput
             state = addonState->m_enabled;
         } else if (compute) {
             switch (ComputeAddOnEnableState(name)) {
-                case 0:
+                case ADDON_ENABLE_STATE_DISABLED:
                     state = false;
                     break;
 
-                case 1:
+                case ADDON_ENABLE_STATE_SOME:
                     state = addon->m_enabledByDefault;
                     break;
 
-                case 2:
+                case ADDON_ENABLE_STATE_ALL:
                     state = true;
                     break;
             }
@@ -828,14 +828,14 @@ int32_t GetAddOnEnableState(const char* name, const char* character, bool comput
     }
 
     if (!total) {
-        return addon->m_enabledByDefault ? 2 : 0;
+        return addon->m_enabledByDefault ? ADDON_ENABLE_STATE_ALL : ADDON_ENABLE_STATE_DISABLED;
     }
 
     if (!enabled) {
-        return 0;
+        return ADDON_ENABLE_STATE_DISABLED;
     }
 
-    return 2 - (enabled < total);
+    return enabled < total ? ADDON_ENABLE_STATE_SOME : ADDON_ENABLE_STATE_ALL;
 }
 
 // VERIFY: 34f50be6 manual

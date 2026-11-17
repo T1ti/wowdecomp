@@ -8,6 +8,13 @@
 
 class CDataStore;
 
+// GetAddOnEnableState result (GlueXML AddonList.lua: "disabled, enabled for some, enabled for all").
+enum ADDON_ENABLE_STATE : int32_t {
+    ADDON_ENABLE_STATE_DISABLED = 0,
+    ADDON_ENABLE_STATE_SOME = 1,
+    ADDON_ENABLE_STATE_ALL = 2,
+};
+
 struct UIADDON : public TSHashObject<UIADDON, HASHKEY_STRI> {
     struct METADATA : public TSHashObject<UIADDON::METADATA, HASHKEY_STRI> {
         /* 0018 */ char* m_value;
