@@ -5930,7 +5930,7 @@ void CGGameUI::UpdateThreatWarningFromCVar() {
 
 // VERIFY: 41a190dc manual
 // OFFSET: 0x00521BF0
-void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t a3) {
+void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t socialColors) {
     // STATIC: 0x00BD0C94
     static CImVector s_reactionColors[NUM_UNIT_REACTIONS] = { CImVector(COLOR_RED_BGRA), CImVector(COLOR_RED_BGRA), CImVector(0x00, 0x80, 0xFF, 0xFF), CImVector(COLOR_YELLOW_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA), CImVector(COLOR_GREEN_BGRA) };
 
@@ -5960,11 +5960,11 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
             CGPartyMemberState* state = CGPartyInfo::GetRemoteStats(guid);
 
             if (state || (state = CGRaidInfo::GetRemoteStats(guid)) || (state = CGBattlefieldInfo::GetRemoteStats(guid))) {
-                pvp = (reinterpret_cast<const uint8_t*>(state)[8] & 2) != 0;
+                pvp = (state->m_flags & CGPartyMemberState::MEMBER_FLAG_PVP) != 0;
             }
         }
 
-        if (a3) {
+        if (socialColors) {
             if (CGPartyInfo::IsMemberOrPet(guid) && CGPartyInfo::m_realNumMembers) {
                 *color = pvp ? s_partyPvpColor : s_partyColor;
                 return;
@@ -5976,7 +5976,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
             }
         }
 
-        *color = pvp ? s_reactionColors[UNIT_REACTION_FRIENDLY] : s_playerColors[a3];
+        *color = pvp ? s_reactionColors[UNIT_REACTION_FRIENDLY] : s_playerColors[socialColors];
         return;
     }
 
@@ -6007,7 +6007,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
 
     if (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) {
         if (unit->CanAttack(viewer)) {
-            *color = viewer->CanAttack(unit) ? s_reactionColors[UNIT_REACTION_HOSTILE] : s_playerColors[a3];
+            *color = viewer->CanAttack(unit) ? s_reactionColors[UNIT_REACTION_HOSTILE] : s_playerColors[socialColors];
             return;
         }
 
@@ -6019,7 +6019,7 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
         uint8_t pvpFlags = unit->m_unit->m_pvpFlags;
         bool pvp = (pvpFlags & UNIT_PVP_FLAG_PVP) && !(pvpFlags & UNIT_PVP_FLAG_SANCTUARY) && !(viewer->m_unit->m_pvpFlags & UNIT_PVP_FLAG_SANCTUARY) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD;
 
-        if (a3) {
+        if (socialColors) {
             if (CGPartyInfo::IsMemberOrPet(guid) && CGPartyInfo::m_realNumMembers) {
                 *color = pvp ? s_partyPvpColor : s_partyColor;
                 return;
@@ -6031,8 +6031,8 @@ void CGGameUI::GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color,
             }
         }
 
-        *color = pvp ? s_reactionColors[unit->UnitReaction(viewer)] : s_playerColors[a3];
-    } else if (a3 && (unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD))) {
+        *color = pvp ? s_reactionColors[unit->UnitReaction(viewer)] : s_playerColors[socialColors];
+    } else if (socialColors && (unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD))) {
         *color = s_deadSelectionColor;
     } else {
         *color = s_reactionColors[unit->UnitReaction(viewer)];

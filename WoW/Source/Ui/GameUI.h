@@ -410,7 +410,7 @@ class CGGameUI {
     static void ClearTarget(WOWGUID guid, int32_t a2);
     static int32_t IsPartyMember(const WOWGUID& guid);
     static int32_t IsInParty(const WOWGUID& guid);
-    static void GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t a3);
+    static void GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t socialColors);
     static void SetFocusTarget(const WOWGUID& guid);
     static void UnitModelUpdate(const WOWGUID& guid, uint32_t flags);
     static CGPartyMemberState* GetPartyMemberStateFromPet(const WOWGUID& petGuid);
