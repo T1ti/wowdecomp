@@ -1288,7 +1288,7 @@ void CMapChunk::CreateDetailDoodads() {
                 continue;
             }
 
-            if ((data->m_record->m_flags & 2) || !this->m_vertexShading) {
+            if ((data->m_record->m_flags & GROUND_EFFECT_DOODAD_NO_VERTEX_SHADING) || !this->m_vertexShading) {
                 color.r = 0xFF;
                 color.g = 0xFF;
                 color.b = 0xFF;

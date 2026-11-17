@@ -384,7 +384,7 @@ void CDetailDoodadInstBatch::FillVertices() {
             color = swapped;
         }
 
-        if (data->m_record->m_flags & 1) {
+        if (data->m_record->m_flags & GROUND_EFFECT_DOODAD_ALIGN_TO_TERRAIN) {
             if ((add.m_triIndex & 0xFC) != cell) {
                 cell = add.m_triIndex & 0xFC;
                 built = 0;
