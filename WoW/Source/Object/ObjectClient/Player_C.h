@@ -525,7 +525,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     int32_t RefreshVisibleItems();
     void OnDeath();
     void EquipItem(CGItem_C* item);
-    bool OnGuildChanged(int32_t a2);
+    bool OnGuildChanged(int32_t guildIdChanged);
     void FillPartyMemberState(CGPartyMemberState* state);
     static uint32_t BuildPartyMemberStatsChanges(const CGPartyMemberState* oldState, const CGPartyMemberState* newState);
     static void DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t changes, const CGPartyMemberState* oldState, const CGPartyMemberState* newState);

@@ -564,7 +564,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
             component->SetHairStyle(player->m_player->hairStyleID, nullptr);
 
             if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
-                VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
+                VisibleItem_C* head = &player->m_player->m_playerVisibleItems[INVSLOT_HEAD];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
                     component->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
@@ -596,7 +596,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
             component->SetBeardStyle(player->m_player->facialHairStyleID, true, nullptr);
 
             if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
-                VisibleItem_C* head = &player->m_player->m_playerVisibleItems[0];
+                VisibleItem_C* head = &player->m_player->m_playerVisibleItems[INVSLOT_HEAD];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
                     component->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
@@ -10467,7 +10467,7 @@ void CGPlayer_C::GetRangedAttackSkillRank(int32_t& rank, int32_t& bonus) {
 // VERIFY: d1cf8e16 manual
 // OFFSET: 0x006E0E00
 void CGPlayer_C::ShowHelm() {
-    VisibleItem_C* head = &this->m_player->m_playerVisibleItems[0];
+    VisibleItem_C* head = &this->m_player->m_playerVisibleItems[INVSLOT_HEAD];
 
     if (head && head->GetDisplayID() && this->CanEquipItemsInThisForm() && this->m_characterComponent) {
         this->m_characterComponent->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
@@ -10487,7 +10487,7 @@ void CGPlayer_C::ShowHelm() {
 // VERIFY: bde8b931 manual
 // OFFSET: 0x006E0EF0
 void CGPlayer_C::ShowCloak() {
-    VisibleItem_C* back = &this->m_player->m_playerVisibleItems[14];
+    VisibleItem_C* back = &this->m_player->m_playerVisibleItems[INVSLOT_BACK];
 
     if (back && back->GetDisplayID() && this->CanEquipItemsInThisForm() && this->m_characterComponent) {
         this->m_characterComponent->AddItemBySlot(INVSLOT_BACK, back->GetDisplayID(), 0);
@@ -11117,17 +11117,17 @@ int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force) 
 
 // VERIFY: 2a4f40b4 auto
 // OFFSET: 0x006DF7A0
-bool CGPlayer_C::OnGuildChanged(int32_t a2) {
+bool CGPlayer_C::OnGuildChanged(int32_t guildIdChanged) {
     this->UpdateUnitNameText();
     FrameScript_SignalEvent(SCRIPT_EVENT_TABARD_CANSAVE_CHANGED, nullptr);
     WOWGUID guid = this->m_obj->m_guid;
     Script_SendUnitSignal(guid, SCRIPT_EVENT_PLAYER_GUILD_UPDATE);
 
-    if (a2 && ClntObjMgrGetActivePlayer() == this->m_obj->m_guid) {
+    if (guildIdChanged && ClntObjMgrGetActivePlayer() == this->m_obj->m_guid) {
         CGCalendar::GuildChanged();
     }
 
-    VisibleItem_C* tabard = &this->m_player->m_playerVisibleItems[18];
+    VisibleItem_C* tabard = &this->m_player->m_playerVisibleItems[INVSLOT_TABARD];
 
     if (!tabard || tabard->GetInventoryType() != INVTYPE_TABARD) {
         return false;
@@ -13683,19 +13683,19 @@ const CGUnitVirtualItem* CGPlayer_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, b
             return nullptr;
         }
 
-        item = &this->m_player->m_playerVisibleItems[15];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_MAINHAND];
     } else if (slot == VIRTUAL_MONSTER_SLOT_OFFHAND) {
         if (!ignoreDisarm && this->IsDisarmed(1)) {
             return nullptr;
         }
 
-        item = &this->m_player->m_playerVisibleItems[16];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_OFFHAND];
     } else if (slot == VIRTUAL_MONSTER_SLOT_RANGED) {
         if (!ignoreDisarm && (this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_DISARM_RANGED)) {
             return nullptr;
         }
 
-        item = &this->m_player->m_playerVisibleItems[17];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_RANGED];
     }
 
     if ((ignoreDisarm || (item && item->m_itemId > 0)) && item && abs(item->m_itemId)) {
@@ -13722,15 +13722,15 @@ uint32_t CGPlayer_C::GetVirtualItemDisplayID(VIRTUAL_MONSTER_SLOT slot) const {
             return 0;
         }
 
-        item = &this->m_player->m_playerVisibleItems[15];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_MAINHAND];
     } else if (slot == VIRTUAL_MONSTER_SLOT_OFFHAND) {
         if (this->IsDisarmed(1)) {
             return 0;
         }
 
-        item = &this->m_player->m_playerVisibleItems[16];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_OFFHAND];
     } else if (slot == VIRTUAL_MONSTER_SLOT_RANGED) {
-        item = &this->m_player->m_playerVisibleItems[17];
+        item = &this->m_player->m_playerVisibleItems[INVSLOT_RANGED];
     } else {
         return 0;
     }
