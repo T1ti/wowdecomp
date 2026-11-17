@@ -1324,17 +1324,17 @@ void CGWorldFrame::SetScreenEffect(int32_t effect) {
     }
 
     switch (rec->m_effect) {
-        case 0:
+        case SCREEN_EFFECT_GLOW:
             DayNight::ClearOverrideFog();
             FFX::SetEffect(CGWorldFrame::ffxEffectGlow);
             break;
 
-        case 1:
+        case SCREEN_EFFECT_DEATH:
             DayNight::ClearOverrideFog();
             FFX::SetEffect(CGWorldFrame::ffxEffectDeath);
             break;
 
-        case 2: {
+        case SCREEN_EFFECT_NETHER_WORLD: {
             CImVector color;
 
             if (FFX::s_cvarFFX->m_intValue) {
@@ -1354,7 +1354,7 @@ void CGWorldFrame::SetScreenEffect(int32_t effect) {
             break;
         }
 
-        case 3:
+        case SCREEN_EFFECT_SWIRLING_FOG:
             if (g_theGxDevicePtr->DeviceApi()) {
                 DayNight::ClearOverrideFog();
                 PassFogSeed::DeviceRestoredCallback();
