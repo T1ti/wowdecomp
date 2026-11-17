@@ -390,18 +390,18 @@ void CGUnit_C::PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source
     WOWGUID mover = CGUnit_C::s_activeMover;
 
     switch (reason) {
-        case 3:
+        case MISS_DODGED:
             this->PlayBaseAnimation(ANIM_DODGE, ANIM_PLAY_FLAGS::PLAY_NONE);
             break;
 
-        case 4: {
+        case MISS_PARRIED: {
             this->PlayParryAnimation();
             C3Vector position = this->GetPosition();
             SI2::PlayParrySound(weapon, this->GetParryingItem(false), 0, &position, mover == source);
             break;
         }
 
-        case 5: {
+        case MISS_BLOCKED: {
             this->PlayBaseAnimation(ANIM_SHIELD_BLOCK, ANIM_PLAY_FLAGS::PLAY_NONE);
             this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_MAINHAND, false);
             const CGUnitVirtualItem* shield = this->GetVirtualItem(VIRTUAL_MONSTER_SLOT_OFFHAND, false);
