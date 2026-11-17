@@ -14314,7 +14314,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14323,7 +14323,7 @@ int32_t CGUnit_C::UnsheatheRightWeapon() {
 
         if (item && (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN)) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14347,7 +14347,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
             return 0;
         }
 
-        this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+        this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         return 1;
     }
 
@@ -14356,7 +14356,7 @@ int32_t CGUnit_C::UnsheatheLeftWeapon() {
 
         if (item && item->m_inventoryType != INVTYPE_RANGEDRIGHT && item->m_inventoryType != INVTYPE_THROWN) {
             this->ShowRangedWeapon(true, nullptr);
-            this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+            this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
             return 1;
         }
     }
@@ -14448,10 +14448,10 @@ void CGUnit_C::SetSheatheStateAnimate() {
             this->ShowRangedWeapon(true, nullptr);
 
             if (item->m_inventoryType == INVTYPE_RANGEDRIGHT || item->m_inventoryType == INVTYPE_THROWN) {
-                this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_R, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_RIGHT;
             } else {
-                this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & 0x88) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
+                this->SetKeyBoneSequence(this->m_worldModel, KEY_BONE_SHOULDER_L, ((1 << item->m_sheatheType) & ((1 << SHEATHE_HIP) | (1 << SHEATHE_HIDDEN))) ? ANIM_HIP_SHEATH : ANIM_SHEATH, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
                 this->m_animFlags |= UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UNSHEATHE_LEFT;
             }
         }

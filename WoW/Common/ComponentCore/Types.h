@@ -233,6 +233,9 @@ enum SHEATHE_TYPE {
     SHEATHE_BACK = 2,
     SHEATHE_HIP = 3,
     SHEATHE_SHIELD = 4,
+    // Inferred: Item.dbc gives it to fist weapons and held-in-off-hand items. GetSheatheLink has no
+    // attachment for it, so the item is hidden while sheathed; it uses the hip sheathe animation.
+    SHEATHE_HIDDEN = 7,
 };
 
 enum COMPONENT_CONTEXT {
