@@ -221,6 +221,13 @@ class CMap {
     static CMapArea* m_areaTable[MAP_AREA_COUNT];
     static SMAreaInfo m_areaInfo[MAP_AREA_COUNT];
     static TSGrowableArray<uint32_t> scCollideList;
+    // Capacity set by CMap::Initialize; the DX/DY walks stop 4 entries early because one step appends up to two cells.
+    static const uint32_t COLLIDE_LIST_SIZE = 2048;
+    // INLINED: appends one (cellX, cellY) pair to the vector query cell list.
+    static void AddCollideCell(uint32_t cellX, uint32_t cellY) {
+        CMap::scCollideList.m_data[CMap::cCount++] = cellX;
+        CMap::scCollideList.m_data[CMap::cCount++] = cellY;
+    }
     static int32_t bActive;
     static int32_t bDungeon;
     static int32_t s_useSSE;
@@ -305,10 +312,10 @@ class CMap {
         return CMap::m_areaTable[CMap::GetAreaIndex(areaX, areaY)];
     }
     static CMapArea* GetAreaForChunk(int32_t chunkX, int32_t chunkY) {
-        return CMap::GetArea((chunkX >> 4) & MAP_AREA_INDEX_MASK, (chunkY >> 4) & MAP_AREA_INDEX_MASK);
+        return CMap::GetArea((chunkX >> MAP_CHUNK_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK, (chunkY >> MAP_CHUNK_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK);
     }
     static CMapArea* GetAreaForCell(int32_t cellX, int32_t cellY) {
-        return CMap::GetArea((cellX >> 7) & MAP_AREA_INDEX_MASK, (cellY >> 7) & MAP_AREA_INDEX_MASK);
+        return CMap::GetArea((cellX >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK, (cellY >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK);
     }
     static CMapArea* GetAreaAtPosition(const C2Vector* pos);
     static CMapChunk* GetChunkAtPosition(const C2Vector* pos);

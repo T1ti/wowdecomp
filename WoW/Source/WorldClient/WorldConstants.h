@@ -28,6 +28,19 @@ static const int MAP_CHUNKS_PER_RENDER_BATCH = 2;
 static const int TERRAIN_TILES_PER_CHUNK_AXIS = 8;
 // The 3.3.5 vertex grid has nine corner samples along each axis.
 static const int TERRAIN_VERTICES_PER_CHUNK_AXIS = TERRAIN_TILES_PER_CHUNK_AXIS + 1;
+
+// Collision and liquid queries address the world as a grid of cells: one cell per terrain tile.
+static const int MAP_CELLS_PER_CHUNK_AXIS = TERRAIN_TILES_PER_CHUNK_AXIS;
+// Cell coordinate within its chunk: the low three bits, 0x7.
+static const int MAP_CELL_INDEX_MASK = MAP_CELLS_PER_CHUNK_AXIS - 1;
+// 1024 chunks x 8 cells = 8192 (0x2000) cells along each world axis.
+static const int MAP_CELLS_PER_MAP_AXIS = MAP_CHUNKS_PER_MAP_AXIS * MAP_CELLS_PER_CHUNK_AXIS;
+// Clears the in-chunk bits of a world cell coordinate, leaving the chunk's first cell: 0x1FF8.
+static const int MAP_CELL_CHUNK_MASK = (MAP_CELLS_PER_MAP_AXIS - 1) & ~MAP_CELL_INDEX_MASK;
+// Shifts converting coordinates to coarser grids: cell -> chunk (/8), chunk -> area (/16), cell -> area (/128).
+static const int MAP_CELL_TO_CHUNK_SHIFT = 3;
+static const int MAP_CHUNK_TO_AREA_SHIFT = 4;
+static const int MAP_CELL_TO_AREA_SHIFT = MAP_CELL_TO_CHUNK_SHIFT + MAP_CHUNK_TO_AREA_SHIFT;
 // Rows contain nine corner vertices followed by eight center vertices (17 total).
 static const int TERRAIN_CHUNK_VERTEX_ROW_STRIDE = TERRAIN_VERTICES_PER_CHUNK_AXIS + TERRAIN_TILES_PER_CHUNK_AXIS;
 // 3.3.5 CMapChunk::InitializeVertexGrid emits 9 x 9 corner vertices plus 8 x 8 centers = 145.

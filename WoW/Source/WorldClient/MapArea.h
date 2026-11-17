@@ -84,7 +84,7 @@ class CMapArea : public CMapBaseObj {
         return this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK) + (chunkX & MAP_CHUNK_INDEX_MASK)];
     }
     CMapChunk* GetChunkForCell(int32_t cellX, int32_t cellY) const {
-        return this->GetChunk(cellX >> 3, cellY >> 3);
+        return this->GetChunk(cellX >> MAP_CELL_TO_CHUNK_SHIFT, cellY >> MAP_CELL_TO_CHUNK_SHIFT);
     }
     void Load(const char* fileName);
     void LoadTextures(char* fileNames, uint32_t fileNamesSize);

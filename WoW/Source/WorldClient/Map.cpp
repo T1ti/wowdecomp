@@ -702,7 +702,7 @@ void CMap::Initialize() {
         CMap::m_areaInfo[i].m_flags = 0;
     }
 
-    CMap::scCollideList.SetCount(2048);
+    CMap::scCollideList.SetCount(CMap::COLLIDE_LIST_SIZE);
 
     CMap::cCount = 0;
     CMap::s_queryTag = 0;
@@ -923,8 +923,8 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
     }
 
     C2iVector tile;
-    tile.x = cellX & 7;
-    tile.y = cellY & 7;
+    tile.x = cellX & MAP_CELL_INDEX_MASK;
+    tile.y = cellY & MAP_CELL_INDEX_MASK;
 
     C2Vector frac(cellYf - cellX, cellXf - cellY);
 
@@ -1022,14 +1022,12 @@ void CMap::VectorIntersectSX(CiRect& rect) {
 
     if (x <= rect.maxX) {
         do {
-            CMap::scCollideList.m_data[CMap::cCount++] = x;
-            CMap::scCollideList.m_data[CMap::cCount++] = rect.minY;
+            CMap::AddCollideCell(x, rect.minY);
             x++;
         } while (x <= rect.maxX);
     } else {
         do {
-            CMap::scCollideList.m_data[CMap::cCount++] = x;
-            CMap::scCollideList.m_data[CMap::cCount++] = rect.minY;
+            CMap::AddCollideCell(x, rect.minY);
             x--;
         } while (x >= rect.maxX);
     }
@@ -1042,14 +1040,12 @@ void CMap::VectorIntersectSY(CiRect& rect) {
 
     if (y <= rect.maxY) {
         do {
-            CMap::scCollideList.m_data[CMap::cCount++] = rect.minX;
-            CMap::scCollideList.m_data[CMap::cCount++] = y;
+            CMap::AddCollideCell(rect.minX, y);
             y++;
         } while (y <= rect.maxY);
     } else {
         do {
-            CMap::scCollideList.m_data[CMap::cCount++] = rect.minX;
-            CMap::scCollideList.m_data[CMap::cCount++] = y;
+            CMap::AddCollideCell(rect.minX, y);
             y--;
         } while (y >= rect.maxY);
     }
@@ -1076,33 +1072,29 @@ void CMap::VectorIntersectDX(C3Vector& start, C3Vector& end, CiRect& cells) {
 
     float edge = next * SMOLTILE_SIZE;
 
-    CMap::scCollideList.m_data[CMap::cCount++] = x;
-    CMap::scCollideList.m_data[CMap::cCount++] = y;
+    CMap::AddCollideCell(x, y);
 
     while (x != cells.maxX + step) {
-        if (CMap::cCount >= 0x7FC) {
+        if (CMap::cCount >= CMap::COLLIDE_LIST_SIZE - 4) {
             return;
         }
 
         int32_t edgeY = CMath::fint_((slope * edge + intercept) * OO_COORD_TO_SUBCHUNK - 0.5f);
 
         if (edgeY != y) {
-            CMap::scCollideList.m_data[CMap::cCount++] = x;
-            CMap::scCollideList.m_data[CMap::cCount++] = edgeY;
+            CMap::AddCollideCell(x, edgeY);
         }
 
         x += step;
         edge = step * SMOLTILE_SIZE + edge;
 
-        CMap::scCollideList.m_data[CMap::cCount++] = x;
-        CMap::scCollideList.m_data[CMap::cCount++] = edgeY;
+        CMap::AddCollideCell(x, edgeY);
 
         y = edgeY;
     }
 
     if (y != cells.maxY) {
-        CMap::scCollideList.m_data[CMap::cCount++] = cells.maxX;
-        CMap::scCollideList.m_data[CMap::cCount++] = cells.maxY;
+        CMap::AddCollideCell(cells.maxX, cells.maxY);
     }
 }
 
@@ -1128,32 +1120,29 @@ void CMap::VectorIntersectDY(C3Vector& start, C3Vector& end, CiRect& cells) {
 
     float edge = next * SMOLTILE_SIZE;
 
-    CMap::scCollideList.m_data[CMap::cCount++] = cells.minX;
-    CMap::scCollideList.m_data[CMap::cCount++] = cells.minY;
+    CMap::AddCollideCell(cells.minX, cells.minY);
 
     while (y != cells.maxY + step) {
-        if (CMap::cCount >= 0x7FC) {
+        if (CMap::cCount >= CMap::COLLIDE_LIST_SIZE - 4) {
             return;
         }
 
         int32_t edgeX = CMath::fint_((edge - intercept) * invSlope * OO_COORD_TO_SUBCHUNK - 0.5f);
 
         if (edgeX != x) {
-            CMap::scCollideList.m_data[CMap::cCount++] = edgeX;
-            CMap::scCollideList.m_data[CMap::cCount++] = y;
+            CMap::AddCollideCell(edgeX, y);
         }
 
-        CMap::scCollideList.m_data[CMap::cCount++] = edgeX;
         edge = step * SMOLTILE_SIZE + edge;
         y += step;
-        CMap::scCollideList.m_data[CMap::cCount++] = y;
+
+        CMap::AddCollideCell(edgeX, y);
 
         x = edgeX;
     }
 
     if (x != cells.maxX) {
-        CMap::scCollideList.m_data[CMap::cCount++] = cells.maxX;
-        CMap::scCollideList.m_data[CMap::cCount++] = cells.maxY;
+        CMap::AddCollideCell(cells.maxX, cells.maxY);
     }
 }
 
@@ -1321,8 +1310,10 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
 // OFFSET: 0x007A3570
 bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* distance, uint32_t flags, CMapChunk** hitChunk) {
     uint32_t* entry = CMap::scCollideList.m_data;
-    uint32_t lastY = entry[0] & 0x2000;
-    uint32_t lastX = entry[1] & 0x2000;
+    // The binary seeds the current chunk from the first entry's out-of-range bit, with X and Y crossed.
+    // In-range cells give 0 for both, so a walk starting in the world's corner chunk never loads a chunk.
+    uint32_t lastChunkCellY = entry[0] & MAP_CELLS_PER_MAP_AXIS;
+    uint32_t lastChunkCellX = entry[1] & MAP_CELLS_PER_MAP_AXIS;
     uint32_t remaining = CMap::cCount;
     CMapChunk* chunk = nullptr;
     CMapChunk* bestChunk = nullptr;
@@ -1346,11 +1337,14 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         remaining -= 2;
         entry += 2;
 
-        if (cellX > 0x2000 || cellY > 0x2000) {
+        if (cellX > MAP_CELLS_PER_MAP_AXIS || cellY > MAP_CELLS_PER_MAP_AXIS) {
             break;
         }
 
-        if ((cellX & 0x1FF8) != lastX || (cellY & 0x1FF8) != lastY) {
+        uint32_t chunkCellX = cellX & MAP_CELL_CHUNK_MASK;
+        uint32_t chunkCellY = cellY & MAP_CELL_CHUNK_MASK;
+
+        if (chunkCellX != lastChunkCellX || chunkCellY != lastChunkCellY) {
             CMapArea* area = CMap::GetAreaForCell(cellX, cellY);
 
             if (!area || area->m_asyncObject) {
@@ -1363,8 +1357,8 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
                 break;
             }
 
-            lastX = cellX & 0x1FF8;
-            lastY = cellY & 0x1FF8;
+            lastChunkCellX = chunkCellX;
+            lastChunkCellY = chunkCellY;
             origin.x = start->x - chunk->m_topLeftCoords.x;
             origin.y = start->y - chunk->m_topLeftCoords.y;
             origin.z = start->z - chunk->m_topLeftCoords.z;
@@ -1378,8 +1372,8 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             }
         }
 
-        uint32_t subX = cellX & 7;
-        uint32_t subY = cellY & 7;
+        uint32_t subX = cellX & MAP_CELL_INDEX_MASK;
+        uint32_t subY = cellY & MAP_CELL_INDEX_MASK;
         C3Ray ray;
         ray.origin = origin;
         ray.dir = dir;
@@ -1591,8 +1585,8 @@ void CMap::TestQueryAdd(const CFacet& facet, CImVector color, const C44Matrix* m
 // VERIFY: de8ab0e3 manual
 // OFFSET: 0x007AD3B0
 bool CMap::GetHeightTerrain(CMapChunk* chunk, C3Vector& pos, int32_t cellX, int32_t cellY, float* outHeight) {
-    int32_t col = cellX & 7;
-    int32_t row = cellY & 7;
+    int32_t col = cellX & MAP_CELL_INDEX_MASK;
+    int32_t row = cellY & MAP_CELL_INDEX_MASK;
 
     if (chunk->m_header->m_holes & CMap::s_holeMask[4 * (row >> 1) + (col >> 1)]) {
         return false;
@@ -5425,7 +5419,7 @@ bool CMap::QueryGroundTypeTerrain(C3Vector* pos, uint32_t* groundType) {
     int32_t cellY = CMath::fint_(cellYf - 0.5f);
     int32_t cellX = CMath::fint_(cellXf - 0.5f);
 
-    CMapArea* area = CMap::GetLoadedArea((cellX >> 7) & MAP_AREA_INDEX_MASK, (cellY >> 7) & MAP_AREA_INDEX_MASK);
+    CMapArea* area = CMap::GetLoadedArea((cellX >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK, (cellY >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK);
 
     if (!area) {
         return false;
@@ -5437,8 +5431,8 @@ bool CMap::QueryGroundTypeTerrain(C3Vector* pos, uint32_t* groundType) {
         return false;
     }
 
-    int32_t col = cellX & 7;
-    int32_t row = cellY & 7;
+    int32_t col = cellX & MAP_CELL_INDEX_MASK;
+    int32_t row = cellY & MAP_CELL_INDEX_MASK;
 
     if (chunk->m_header->m_holes & CMap::s_holeMask[4 * (row >> 1) + (col >> 1)]) {
         return false;
@@ -5470,8 +5464,8 @@ void CMap::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World:
     sphere.c.z = 0.0f;
     sphere.r = radius;
 
-    int32_t areaRow = (cellX >> 7) & MAP_AREA_INDEX_MASK;
-    int32_t areaCol = (cellY >> 7) & MAP_AREA_INDEX_MASK;
+    int32_t areaRow = (cellX >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK;
+    int32_t areaCol = (cellY >> MAP_CELL_TO_AREA_SHIFT) & MAP_AREA_INDEX_MASK;
     int32_t minRow = areaRow - 1 > 0 ? areaRow - 1 : 0;
     int32_t maxRow = areaRow + 1 >= MAP_AREAS_PER_AXIS - 1 ? MAP_AREAS_PER_AXIS - 1 : areaRow + 1;
     int32_t minCol = areaCol - 1 > 0 ? areaCol - 1 : 0;
