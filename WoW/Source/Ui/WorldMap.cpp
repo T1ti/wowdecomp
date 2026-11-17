@@ -52,10 +52,10 @@ CSimpleModel* CGWorldMap::m_playerArrowEffectFrame;
 CSimpleModel* CGWorldMap::m_playerMiniArrowEffectFrame;
 
 // STATIC: 0x00ACCF04
-int32_t CGWorldMap::m_currentContinent = -1;
+int32_t CGWorldMap::m_currentContinent = WORLDMAP_CONTINENT_WORLD;
 
 // STATIC: 0x00ACCF08
-int32_t CGWorldMap::m_currentZone = -1;
+int32_t CGWorldMap::m_currentZone = WORLDMAP_ZONE_NONE;
 
 // STATIC: 0x00ACCF0C
 int32_t CGWorldMap::m_currentDungeonMap = -1;
@@ -469,7 +469,7 @@ bool CGWorldMap::GetWorldPosition(const C3Vector& position, int32_t mapID, float
     CGWorldMap::TransformPosition(mapID, position.x, position.y, &newMapID, &transformed.x, &transformed.y, &transformedDungeonMap);
     WorldMapContinentRec* continentRec = CGWorldMap::GetContinentRec(newMapID);
 
-    if (continentRec && CGWorldMap::m_currentContinent == -1) {
+    if (continentRec && CGWorldMap::m_currentContinent == WORLDMAP_CONTINENT_WORLD) {
         if (outland && newMapID == MAP_EXPANSION01) {
             *outland = true;
         }
@@ -558,11 +558,11 @@ void CGWorldMap::GetPOIPosition(const AreaPOIRec* poi, float* x, float* y) {
         return;
     }
 
-    if (((CGWorldMap::m_currentContinent >= 0 && CGWorldMap::m_currentZone >= 0) || CGWorldMap::m_currentContinent == -2) && !(poi->m_flags & AREA_POI_FLAG_WORLDMAP_ZONE_ZOOM)) {
+    if (((CGWorldMap::m_currentContinent >= 0 && CGWorldMap::m_currentZone >= 0) || CGWorldMap::m_currentContinent == WORLDMAP_CONTINENT_COSMIC) && !(poi->m_flags & AREA_POI_FLAG_WORLDMAP_ZONE_ZOOM)) {
         return;
     }
 
-    if (CGWorldMap::m_currentContinent == -1 && !(poi->m_flags & AREA_POI_FLAG_WORLDMAP_WORLD_ZOOM)) {
+    if (CGWorldMap::m_currentContinent == WORLDMAP_CONTINENT_WORLD && !(poi->m_flags & AREA_POI_FLAG_WORLDMAP_WORLD_ZOOM)) {
         return;
     }
 
@@ -593,7 +593,7 @@ void CGWorldMap::GetPOIPosition(const AreaPOIRec* poi, float* x, float* y) {
 void CGWorldMap::SetMap(uint32_t continent, uint32_t zone, int32_t dungeonMap) {
     if (continent < CGWorldMap::m_continents.m_count) {
         CGWorldMap::m_currentContinent = continent;
-        CGWorldMap::m_currentZone = zone < CGWorldMap::m_continents.m_data[continent].m_zones.m_count ? zone : -1;
+        CGWorldMap::m_currentZone = zone < CGWorldMap::m_continents.m_data[continent].m_zones.m_count ? zone : WORLDMAP_ZONE_NONE;
         CGWorldMap::m_currentOrphanZone = -1;
         CGWorldMap::m_currentDungeonMap = -1;
         WorldMapAreaRec* area = g_worldMapAreaDB.GetRecord(CGWorldMap::GetZoneID(continent, zone));
@@ -604,8 +604,8 @@ void CGWorldMap::SetMap(uint32_t continent, uint32_t zone, int32_t dungeonMap) {
         }
     } else {
         CGWorldMap::m_currentContinent = continent;
-        CGWorldMap::m_currentZone = -1;
-        CGWorldMap::m_currentOrphanZone = continent == static_cast<uint32_t>(-2) ? zone : -1;
+        CGWorldMap::m_currentZone = WORLDMAP_ZONE_NONE;
+        CGWorldMap::m_currentOrphanZone = continent == static_cast<uint32_t>(WORLDMAP_CONTINENT_COSMIC) ? zone : -1;
         CGWorldMap::m_currentDungeonMap = dungeonMap;
     }
 
@@ -1056,7 +1056,7 @@ int32_t CGWorldMap::GetCurrentMapHeight() {
     if (dungeonRec) {
         width = dungeonRec->m_boundsX.m_h - dungeonRec->m_boundsX.m_l;
         height = dungeonRec->m_boundsY.m_h - dungeonRec->m_boundsY.m_l;
-    } else if (CGWorldMap::m_currentZone == -1) {
+    } else if (CGWorldMap::m_currentZone == WORLDMAP_ZONE_NONE) {
         WorldMapContinentRec* continentRec = nullptr;
 
         for (int32_t i = 0; i < g_worldMapContinentDB.m_numRecords; i++) {
@@ -1128,7 +1128,7 @@ bool CGWorldMap::GetPlayerPosition(WOWGUID guid, float* x, float* y) {
 int32_t CGWorldMap::GetMapAreaFromPos(float x, float y) {
     int32_t areaID = CGWorldMap::GetCurrentAreaID();
 
-    if (areaID == -1 || CGWorldMap::m_currentContinent == -2) {
+    if (areaID == -1 || CGWorldMap::m_currentContinent == WORLDMAP_CONTINENT_COSMIC) {
         return 0;
     }
 
@@ -1171,11 +1171,11 @@ int32_t CGWorldMap::GetMapAreaFromPos(float x, float y) {
 int32_t CGWorldMap::GetMapHighlight(float x, float y) {
     int32_t continent = CGWorldMap::m_currentContinent;
 
-    if (continent == -2) {
+    if (continent == WORLDMAP_CONTINENT_COSMIC) {
         return 0;
     }
 
-    if (continent != -1) {
+    if (continent != WORLDMAP_CONTINENT_WORLD) {
         int32_t area = CGWorldMap::GetMapAreaFromPos(x, y);
 
         if (CGWorldMap::m_currentZone >= 0 && CGWorldMap::m_continents.m_data[continent].m_zones.m_data[CGWorldMap::m_currentZone] == area) {

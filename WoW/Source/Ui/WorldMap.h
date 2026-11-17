@@ -59,6 +59,15 @@ struct WorldMapLandmarkInfo {
 
 bool WorldMapTransformPosition(int32_t mapID, float x, float y, int32_t* outMapID, float* outX, float* outY, int32_t* outDungeonMapID);
 
+// CGWorldMap::m_currentContinent/m_currentZone values below zero. Lua reports both one higher, so
+// WORLD and COSMIC are FrameXML's WORLDMAP_WORLD_ID (0) and WORLDMAP_COSMIC_ID (-1).
+constexpr int32_t WORLDMAP_CONTINENT_WORLD = -1;
+constexpr int32_t WORLDMAP_CONTINENT_COSMIC = -2; // Shows m_currentOrphanZone.
+constexpr int32_t WORLDMAP_ZONE_NONE = -1; // Continent view (GetCurrentMapZone 0).
+
+// GetMapLandmarkInfo textureIndex returned for graveyard landmarks.
+constexpr int32_t WORLDMAP_LANDMARK_TEXTURE_GRAVEYARD = 6;
+
 class CGWorldMap {
     public:
     static uint32_t m_numLandmarks;

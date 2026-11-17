@@ -1589,7 +1589,7 @@ static int32_t Script_QuestMapUpdateAllQuests(lua_State* L) {
     DungeonMapRec* dungeonMap = g_dungeonMapDB.GetRecord(dungeonMapId);
     int32_t updated = 0;
 
-    if ((area && (CGWorldMap::m_currentZone != -1 || CGWorldMap::m_currentContinent == -2)) || dungeonMap) {
+    if ((area && (CGWorldMap::m_currentZone != WORLDMAP_ZONE_NONE || CGWorldMap::m_currentContinent == WORLDMAP_CONTINENT_COSMIC)) || dungeonMap) {
         updated = CGQuestLog::UpdateAllQuestPOI();
     }
 
