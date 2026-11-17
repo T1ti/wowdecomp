@@ -3091,14 +3091,14 @@ float CGUnit_C::GetPlayerDiscount(const CGUnit_C* unit) const {
 
 // VERIFY: bf2201d9 manual
 // OFFSET: 0x004FD0E0
-const char* CGUnit_C::GetVisibleUnitName(const char** realm, int32_t a2) {
+const char* CGUnit_C::GetVisibleUnitName(const char** realm, int32_t followOverride) {
     if (!(this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_UNINTERACTIBLE)) {
-        return this->GetUnitName(realm, a2);
+        return this->GetUnitName(realm, followOverride);
     }
 
 
     if ((this->m_obj->m_type & TYPE_PLAYER) || (this->m_obj->m_guid.IsVehicle() && this->GetControllingPlayer())) {
-        return this->GetUnitName(realm, a2);
+        return this->GetUnitName(realm, followOverride);
     }
 
     return nullptr;
@@ -4047,14 +4047,14 @@ const VehicleSeatRec* CGUnit_C::GetPassengerSeatRec() const {
 
 // VERIFY: 49948b61 auto
 // OFFSET: 0x00715BA0
-void CGUnit_C::UpdateWeaponTrails(const uint32_t* a2, uint32_t a3) {
+void CGUnit_C::UpdateWeaponTrails(const uint32_t* color, uint32_t duration) {
     if (this->m_sheatheState != WEAPONMODE_NORMALMODE) {
         return;
     }
 
     for (int32_t i = 0; i < 2; i++) {
         if (this->m_weaponTrails[i]) {
-            WeaponTrailSetDrawTrail(this->m_weaponTrails[i], a2, a3);
+            WeaponTrailSetDrawTrail(this->m_weaponTrails[i], color, duration);
         }
     }
 }
@@ -4458,12 +4458,12 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
         return;
     }
 
-    uint32_t trail = this->m_pendingWeaponTrail[1];
+    uint32_t trail = this->m_pendingWeaponTrailDuration;
     this->m_meleeAttackAnimId = INVALID_ANIMATION;
 
     if (trail) {
-        this->UpdateWeaponTrails(&this->m_pendingWeaponTrail[0], trail);
-        this->m_pendingWeaponTrail[1] = 0;
+        this->UpdateWeaponTrails(&this->m_pendingWeaponTrailColor, trail);
+        this->m_pendingWeaponTrailDuration = 0;
     }
 
     float speed = 1.0f;
@@ -9603,7 +9603,8 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_proceduralFadeStart(0),
       m_proceduralFadeDuration(0),
       m_proceduralFadeEndAlpha(0),
-      m_pendingWeaponTrail(),
+      m_pendingWeaponTrailColor(),
+      m_pendingWeaponTrailDuration(),
       m_modelScale(1.0f),
       m_rangedWeaponModel(nullptr),
       m_ammoModel(nullptr),
@@ -10654,7 +10655,7 @@ void CGUnit_C::Disable() {
     SI2::StopSound(&this->m_npcInteractSound, 0, 2.0f, 1);
     this->ClearTrackingTarget(false, true);
 
-    this->m_pendingWeaponTrail[1] = 0;
+    this->m_pendingWeaponTrailDuration = 0;
     this->m_emoteQueue[0].m_delay = 0;
     this->m_emoteQueue[1].m_delay = 0;
     this->m_emoteQueue[1].m_emote = 0;
@@ -17105,9 +17106,9 @@ void CGUnit_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVi
 
     this->CreateProceduralEffect(spell, visual, kit, 0, effectFlags, guid);
 
-    if (this->m_pendingWeaponTrail[1]) {
-        this->UpdateWeaponTrails(&this->m_pendingWeaponTrail[0], this->m_pendingWeaponTrail[1]);
-        this->m_pendingWeaponTrail[1] = 0;
+    if (this->m_pendingWeaponTrailDuration) {
+        this->UpdateWeaponTrails(&this->m_pendingWeaponTrailColor, this->m_pendingWeaponTrailDuration);
+        this->m_pendingWeaponTrailDuration = 0;
     }
 
     if (!(effectFlags & CEffect::EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND) && kit->m_soundID) {
@@ -21069,8 +21070,8 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case SPELL_VISUAL_CHAR_PROC_WEAPON_TRAIL: {
-                this->m_pendingWeaponTrail[0] = (static_cast<int32_t>(param3) << 24) | static_cast<int32_t>(param0);
-                this->m_pendingWeaponTrail[1] = static_cast<int32_t>(param2);
+                this->m_pendingWeaponTrailColor = (static_cast<int32_t>(param3) << 24) | static_cast<int32_t>(param0);
+                this->m_pendingWeaponTrailDuration = static_cast<int32_t>(param2);
                 break;
             }
 

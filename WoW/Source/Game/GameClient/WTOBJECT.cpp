@@ -220,8 +220,8 @@ void WTOBJECT::SetDrawTrail(const uint32_t* color, uint32_t duration) {
 
 // VERIFY: b37df885 auto
 // OFFSET: 0x007E5080
-void WeaponTrailSetDrawTrail(WTOBJECT* trail, const uint32_t* a2, uint32_t a3) {
-    if (a3 && trail) {
-        trail->SetDrawTrail(a2, a3);
+void WeaponTrailSetDrawTrail(WTOBJECT* trail, const uint32_t* color, uint32_t duration) {
+    if (duration && trail) {
+        trail->SetDrawTrail(color, duration);
     }
 }

@@ -35,7 +35,7 @@ class WTOBJECT {
 WTOBJECT* WeaponTrailCreate(CM2Model* model);
 void WeaponTrailClose(WTOBJECT* trail);
 void WeaponTrailsShutdown();
-void WeaponTrailSetDrawTrail(WTOBJECT* trail, const uint32_t* a2, uint32_t a3);
+void WeaponTrailSetDrawTrail(WTOBJECT* trail, const uint32_t* color, uint32_t duration);
 
 void WorldTextInitialize();
 void WorldTextShutdown();

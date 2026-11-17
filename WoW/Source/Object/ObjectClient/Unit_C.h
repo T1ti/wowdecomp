@@ -415,7 +415,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0B28 */ uint32_t m_proceduralFadeStart;
     /* 0B2C */ uint32_t m_proceduralFadeDuration;
     /* 0B30 */ uint32_t m_proceduralFadeEndAlpha;
-    /* 0B34 */ uint32_t m_pendingWeaponTrail [2];
+    /* 0B34 */ uint32_t m_pendingWeaponTrailColor;
+    /* 0B38 */ uint32_t m_pendingWeaponTrailDuration;
     /* 0B3C */ float m_modelScale;
     /* 0B40 */ CM2Model* m_rangedWeaponModel;
     /* 0B44 */ CM2Model* m_ammoModel;
@@ -867,7 +868,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     int32_t GetAbilitySkillLine(int32_t spellId);
     void SignalPlayerGainsVehicleDataEvent();
     const char* GetUnitName(const char** realm, int32_t a2);
-    const char* GetVisibleUnitName(const char** realm, int32_t a2);
+    const char* GetVisibleUnitName(const char** realm, int32_t followOverride);
     void SetCharacterModel(CM2Model* model);
     float GetModelScale(uint32_t displayId);
     float GetScaledModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData, float* modelScale);
@@ -960,7 +961,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     uint64_t GetComboPointTarget() const;
     bool IsVehiclePassengerSeated() const;
     const VehicleSeatRec* GetPassengerSeatRec() const;
-    void UpdateWeaponTrails(const uint32_t* a2, uint32_t a3);
+    void UpdateWeaponTrails(const uint32_t* color, uint32_t duration);
     int32_t ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, const M2BoneSequenceInfo* base, const M2BoneSequenceInfo* torso, int32_t hasTorso, M2BoneSequenceInfo* mountOut, M2BoneSequenceInfo* baseOut, M2BoneSequenceInfo* torsoOut, int32_t* keepBase, int32_t* keepTorso);
     void ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation);
     BOOL ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim);
