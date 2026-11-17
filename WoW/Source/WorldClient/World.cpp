@@ -680,8 +680,8 @@ int32_t World::QueryLiquidSounds(CMapEntity* entity, float radius, TSGrowableArr
 
 // VERIFY: baf0a035 auto
 // OFFSET: 0x0077F400
-void World::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player) {
-    CMap::CreateWaterRipple(pos, facing, size, duration, a5, growth, type, player);
+void World::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player) {
+    CMap::CreateWaterRipple(pos, facing, size, duration, width, growth, type, player);
 }
 
 // VERIFY: e146f1dc auto
@@ -5272,13 +5272,13 @@ void World::ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callbac
 
 // VERIFY: f7bce300 auto
 // OFFSET: 0x0077FD60
-void World::ObjectUpdate(CMapBaseObj* object, const C3Vector* position, float facing, float a4, float a5, int32_t snap) {
+void World::ObjectUpdate(CMapBaseObj* object, const C3Vector* position, float facing, float pitch, float roll, BOOL snap) {
     if (snap) {
         CMap::SnapBaseObjToSubChunk(object, position, facing);
     }
 
     if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        CMapObjDef::UpdatePos(static_cast<CMapObjDef*>(object), position, facing, a4, a5);
+        CMapObjDef::UpdatePos(static_cast<CMapObjDef*>(object), position, facing, pitch, roll);
     } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
         CMap::UpdateDoodadDef(static_cast<CMapDoodadDef*>(object), position, facing);
     }

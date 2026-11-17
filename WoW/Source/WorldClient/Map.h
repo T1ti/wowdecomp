@@ -377,7 +377,7 @@ class CMap {
     static bool QueryShadow(C3Vector* pos);
     static DepthCoordTable* GetDepthCoordTable(uint32_t liquidType);
     static CChunkLiquid* AllocChunkLiquid();
-    static void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player);
+    static void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player);
     static void QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
     static bool QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* a4, int32_t checkGround);
     static bool QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* height, int32_t checkGround);

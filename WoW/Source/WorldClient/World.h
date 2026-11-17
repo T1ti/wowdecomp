@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/CBoundingBox.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
@@ -492,7 +493,7 @@ namespace World {
     C3Vector* GetCamPos();
     void SetObjectCollisionCallback(int32_t (*callback)(WOWGUID* guid, uintptr_t param, ObjectCollisionData* data, uint32_t flags));
     void FindOrCreateDestructibleProxy(CDestructibleProxy* proxy);
-    void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player);
+    void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player);
     int32_t QueryLiquidSounds(CMapEntity* entity, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
     int32_t QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height);
     int32_t ObjectIsDrawable(CMapBaseObj* object);
@@ -579,7 +580,7 @@ float ValidateFarClip(float farClip, int32_t mapID);
     void ObjectSetHidden(CMapEntity* entity, int32_t hidden);
     void ObjectEnableCollision(CMapBaseObj* object, int32_t enable);
     void FreeDestructibleProxy(CDestructibleProxy* proxy);
-    void ObjectUpdate(CMapBaseObj* object, const C3Vector* position, float facing, float a4, float a5, int32_t snap);
+    void ObjectUpdate(CMapBaseObj* object, const C3Vector* position, float facing, float pitch, float roll, BOOL snap);
     void ObjectSetAlwaysExterior(CMapBaseObj* object, int32_t enable);
     int32_t ObjectMoveDoodads(CMapBaseObj* source, uint16_t doodadSet, CMapBaseObj* target, uint16_t targetDoodadSet);
     void ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, int32_t ignore, uint16_t doodadSet);

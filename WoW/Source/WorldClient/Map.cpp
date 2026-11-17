@@ -5969,12 +5969,12 @@ void CMap::Unload() {
 
 // VERIFY: 6b4c3b7f auto
 // OFFSET: 0x0079D460
-void CMap::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float a5, float growth, int32_t type, int32_t player) {
+void CMap::CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player) {
     if (CWorld::s_waterRipples && !World::s_waterLOD) {
         float alpha = 1.0f;
 
-        if (a5 < 0.16666667f) {
-            alpha = a5 * 6.0f;
+        if (width < 0.16666667f) {
+            alpha = width * 6.0f;
         }
 
         WaterRipple::Create(pos, facing, size, alpha, duration, growth, type, player);

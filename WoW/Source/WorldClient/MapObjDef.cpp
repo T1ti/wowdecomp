@@ -107,15 +107,15 @@ int32_t CMapObjDef::GetGroundType(uint32_t groupNum, uint16_t faceIndex) {
 
 // VERIFY: 14be0e9a manual
 // OFFSET: 0x007B66E0
-void CMapObjDef::UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, float facing, float a4, float a5) {
+void CMapObjDef::UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, float facing, float pitch, float roll) {
     mapObjDef->m_position = *position;
     mapObjDef->m_mat = C44Matrix();
     mapObjDef->m_mat.d0 = position->x;
     mapObjDef->m_mat.d1 = position->y;
     mapObjDef->m_mat.d2 = position->z;
     mapObjDef->m_mat.RotateAroundZ(facing);
-    mapObjDef->m_mat.RotateAroundY(a4);
-    mapObjDef->m_mat.RotateAroundX(a5);
+    mapObjDef->m_mat.RotateAroundY(pitch);
+    mapObjDef->m_mat.RotateAroundX(roll);
     mapObjDef->m_invMat = mapObjDef->m_mat.AffineInverse();
     CMapObjDef::UpdateMoved(mapObjDef);
 }

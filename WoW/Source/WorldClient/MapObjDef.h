@@ -60,7 +60,7 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     static void UpdateMatrix(CMapObjDef* mapObjDef, const C44Matrix& matrix);
     void SetSequenceFinishedCallback(M2SequenceCallback callback, uint64_t param, uint16_t doodadSet);
     static void UpdateMoved(CMapObjDef* mapObjDef);
-    static void UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, float facing, float a4, float a5);
+    static void UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, float facing, float pitch, float roll);
     static void LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, int32_t testBounds);
     static int32_t MoveDoodadDefs(CMapObjDef* source, uint16_t doodadSet, CMapObjDef* target, uint16_t targetDoodadSet);
     static void SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t ignore, uint16_t doodadSet);
