@@ -26,6 +26,13 @@ enum BN_FRIEND_INVITE_RESULT : uint16_t {
     BN_FRIEND_INVITE_BLOCKED = 623,
 };
 
+// BattlenetUI::SystemMessageCB message IDs, named after the BN_SYSTEM_MESSAGE type strings.
+enum BN_SYSTEM_MESSAGE_ID : uint32_t {
+    BN_SYSTEM_MESSAGE_SHUTDOWN_MINUTES = 3800,
+    BN_SYSTEM_MESSAGE_SHUTDOWN_SECONDS = 3801,
+    BN_SYSTEM_MESSAGE_SHUTDOWN_NOW = 3802,
+};
+
 class BattlenetUI {
     public:
     // Battle.net conversation channel slots (inferred name).

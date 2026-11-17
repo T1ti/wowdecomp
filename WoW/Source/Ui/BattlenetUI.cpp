@@ -1578,17 +1578,17 @@ void BattlenetUI::SystemMessageCB(void* param, int32_t argc, const GeneralFuncti
     uint32_t value = 0;
 
     switch (static_cast<uint32_t>(args[0].ToUInt64())) {
-        case 3800:
+        case BN_SYSTEM_MESSAGE_SHUTDOWN_MINUTES:
             type = "shutdown minutes";
             value = static_cast<uint32_t>(args[1].ToUInt64());
             break;
 
-        case 3801:
+        case BN_SYSTEM_MESSAGE_SHUTDOWN_SECONDS:
             type = "shutdown seconds";
             value = static_cast<uint32_t>(args[1].ToUInt64());
             break;
 
-        case 3802:
+        case BN_SYSTEM_MESSAGE_SHUTDOWN_NOW:
             type = "shutdown now";
             break;
     }
