@@ -114,6 +114,15 @@ struct ARCHIVEINFO {
     /* 000C */ bool m_opened;
 };
 
+// Client and account expansion level (GlobalStrings EXPANSION_NAME0..2; CGlueMgr reports them as
+// the "CL", "BC" and "LK" account types).
+enum EXPANSION_LEVEL : uint8_t {
+    EXPANSION_CLASSIC = 0,
+    EXPANSION_BURNING_CRUSADE = 1,
+    EXPANSION_LICH_KING = 2,
+    NUM_EXPANSIONS = 3,
+};
+
 // Client locale, indexing s_iniLocaleNames/s_localeIds (names in the 0.5.3 WOW_LOCALE style;
 // the 3.3.5 order differs from 0.5.3 and from DB_LOCALE_INDEX).
 enum WOW_LOCALE : int32_t {

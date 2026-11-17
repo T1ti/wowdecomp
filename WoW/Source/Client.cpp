@@ -731,7 +731,7 @@ static void LoadMopaqFileSigningData(const char* locale) {
         return;
     }
 
-    bool expansion = s_expansionLevel >= 1;
+    bool expansion = s_expansionLevel >= EXPANSION_BURNING_CRUSADE;
     uint32_t localeTag = *reinterpret_cast<const uint32_t*>(locale);
 
     while (record < data + size && SStrCmp(record, "NGIS", 4)) {
@@ -1047,7 +1047,7 @@ static void InitializeClient() {
         StartDataPreloadThread();
     }
 
-    if (s_expansionLevel == 1) {
+    if (s_expansionLevel == EXPANSION_BURNING_CRUSADE) {
         if (s_cvExpansionMovie->m_intValue == 1) {
             s_cvExpansionMovie->Set("0", true, false, false, true);
             s_cvMovie->Set("0", true, false, false, true);
@@ -1473,9 +1473,9 @@ static void OpenArchives() {
     s_archiveHandles.SetCount(slot);
 
     if (s_archiveHandles[s_firstBaseArchive + ARCHIVE_INDEX_LICHKING]) {
-        s_expansionLevel = 2;
+        s_expansionLevel = EXPANSION_LICH_KING;
     } else {
-        s_expansionLevel = s_archiveHandles[s_firstBaseArchive + ARCHIVE_INDEX_EXPANSION] != nullptr;
+        s_expansionLevel = s_archiveHandles[s_firstBaseArchive + ARCHIVE_INDEX_EXPANSION] ? EXPANSION_BURNING_CRUSADE : EXPANSION_CLASSIC;
     }
 
     void* profile = ProfileCreate();

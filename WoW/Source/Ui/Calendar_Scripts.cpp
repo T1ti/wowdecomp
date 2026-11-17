@@ -21,6 +21,7 @@
 #include "Engine/Source/FrameXML/LoadXML.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
+#include "WoW/Source/Client.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/ChrClassesRec.h"
 #include "WoW/Source/DB/Rec/HolidaysRec.h"
@@ -88,7 +89,7 @@ static int32_t Script_CalendarGetNumPendingInvites(lua_State* L) {
 }
 
 // STATIC: 0x00A18684
-static const int32_t s_expansionMaxLevels[3] = { 60, 70, 80 };
+static const int32_t s_expansionMaxLevels[NUM_EXPANSIONS] = { 60, 70, 80 };
 
 // VERIFY: 93df37f7 auto
 // OFFSET: 0x005B81F0

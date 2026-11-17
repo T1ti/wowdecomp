@@ -1411,17 +1411,17 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
             }
         } else {
             switch (ClientServices::Connection()->m_accountExpansion) {
-                case 0: {
+                case EXPANSION_CLASSIC: {
                     accountType->Set("CL", true, false, false, true);
                     break;
                 }
 
-                case 1: {
+                case EXPANSION_BURNING_CRUSADE: {
                     accountType->Set("BC", true, false, false, true);
                     break;
                 }
 
-                case 2: {
+                case EXPANSION_LICH_KING: {
                     accountType->Set("LK", true, false, false, true);
                     break;
                 }
