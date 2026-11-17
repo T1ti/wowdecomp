@@ -83,17 +83,17 @@ void CMapLowDetail::CullHorizonAreas(const C3Vector* pos) {
         minCol = 0;
     }
 
-    if (maxCol >= 64) {
-        maxCol = 63;
+    if (maxCol >= MAP_AREAS_PER_AXIS) {
+        maxCol = MAP_AREAS_PER_AXIS - 1;
     }
 
-    if (maxRow >= 64) {
-        maxRow = 63;
+    if (maxRow >= MAP_AREAS_PER_AXIS) {
+        maxRow = MAP_AREAS_PER_AXIS - 1;
     }
 
     for (int32_t r = minRow; r <= maxRow; r++) {
         for (int32_t c = minCol; c <= maxCol; c++) {
-            CMapAreaLow* area = this->m_areas[64 * r + c];
+            CMapAreaLow* area = this->m_areas[CMap::GetAreaIndex(c, r)];
 
             if (!area || CWorldScene::FrustumCull(&area->m_bbox) || CWorldOcclusion::QueryVolumes(&area->m_sphere)) {
                 continue;

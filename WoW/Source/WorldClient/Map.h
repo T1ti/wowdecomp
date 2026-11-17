@@ -297,6 +297,19 @@ class CMap {
     static int32_t SafeRead(const char* fileName, SFileImpl* file, void* buffer, uint32_t size);
     static CMapArea* AllocArea();
     static CMapArea* GetLoadedArea(int32_t areaX, int32_t areaY);
+    // INLINED: area table lookups by area, chunk (16 per area) and cell (128 per area) coordinates.
+    static int32_t GetAreaIndex(int32_t areaX, int32_t areaY) {
+        return MAP_AREAS_PER_AXIS * areaY + areaX;
+    }
+    static CMapArea* GetArea(int32_t areaX, int32_t areaY) {
+        return CMap::m_areaTable[CMap::GetAreaIndex(areaX, areaY)];
+    }
+    static CMapArea* GetAreaForChunk(int32_t chunkX, int32_t chunkY) {
+        return CMap::GetArea((chunkX >> 4) & MAP_AREA_INDEX_MASK, (chunkY >> 4) & MAP_AREA_INDEX_MASK);
+    }
+    static CMapArea* GetAreaForCell(int32_t cellX, int32_t cellY) {
+        return CMap::GetArea((cellX >> 7) & MAP_AREA_INDEX_MASK, (cellY >> 7) & MAP_AREA_INDEX_MASK);
+    }
     static CMapArea* GetAreaAtPosition(const C2Vector* pos);
     static CMapChunk* GetChunkAtPosition(const C2Vector* pos);
     static CMapAreaLow* AllocAreaLow();
