@@ -286,7 +286,7 @@ CAaSphere* CChunkLiquid::GetSphere() {
 
 // INLINED
 CMapChunkLiquidBuf::CMapChunkLiquidBuf() {
-    this->m_flags = 0;
+    this->m_flags = CMapChunkLiquidBuf::FLAGS::NONE;
     this->m_flushTimer = 0.0f;
     this->m_vertexDataSize = 0;
     this->m_indexDataSize = 0;
@@ -544,7 +544,7 @@ void CMapChunkLiquidBuf::Update(float elapsed) {
         while (buf) {
             CMapChunkLiquidBuf* next = list->m_liquids.Next(buf);
 
-            if (!(buf->m_flags & 0x1)) {
+            if (!(buf->m_flags & CMapChunkLiquidBuf::FLAGS::UNKNOWN_1)) {
                 buf->m_flushTimer += elapsed;
 
                 if (buf->m_flushTimer > 5.0f) {

@@ -15,6 +15,12 @@ class CMapChunkLiquidBuf {
     public:
     static TSList<CMapChunkLiquid, TSGetExplicitLink<CMapChunkLiquid> > s_freeLists;
 
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // Free buffers with this bit are never released by Update's idle flush; no caller sets it.
+        UNKNOWN_1 = 0x1,
+    };
+
     static CMapChunkLiquidBuf* Alloc(uint32_t vertexCount, uint32_t indexCount, int32_t flags, EGxVertexBufferFormat format);
     static CMapChunkLiquidBuf* CreateBuf(uint32_t vertexCount, uint32_t indexCount, int32_t flags, uint32_t vertexSize);
     static void Free(CMapChunkLiquidBuf* buf);

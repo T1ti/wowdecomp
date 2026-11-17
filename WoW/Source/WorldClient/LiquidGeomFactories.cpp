@@ -267,7 +267,7 @@ void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf*
     }
 
     if (!this->m_buf) {
-        this->m_buf = CMapChunkLiquidBuf::Alloc(vertexCount, indexCount, 0, format);
+        this->m_buf = CMapChunkLiquidBuf::Alloc(vertexCount, indexCount, CMapChunkLiquidBuf::FLAGS::NONE, format);
     }
 
     *vertexBuf = this->m_buf->m_vertexBuf;
