@@ -2,6 +2,7 @@
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
 #include "Engine/Source/Services/SysMessage.h"
 #include "WoW/Source/DB/WowClientDB.h"
+#include "WoW/Source/DB/Rec/LiquidMaterialRec.h"
 #include "WoW/Source/DB/Rec/LiquidTypeRec.h"
 
 // STATIC: 0x00D43B24
@@ -63,7 +64,7 @@ Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
     Liquid::IMaterial* material = nullptr;
 
     switch (materialId) {
-        case 1:
+        case LIQUID_MATERIAL_WATER:
             if (shaders) {
                 if (Liquid::s_specularEnabled) {
                     material = Liquid::CMaterialWater::Create();
@@ -75,7 +76,7 @@ Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
             }
             break;
 
-        case 2:
+        case LIQUID_MATERIAL_MAGMA:
             if (shaders) {
                 material = Liquid::CMaterialMagma::Create();
             } else {
@@ -83,7 +84,7 @@ Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
             }
             break;
 
-        case 3:
+        case LIQUID_MATERIAL_PROCEDURAL_WATER:
             if (shaders) {
                 material = Liquid::CMaterialProcWater::Create();
             } else {
