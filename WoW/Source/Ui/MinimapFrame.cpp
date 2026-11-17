@@ -2104,19 +2104,19 @@ void CGMinimapFrame::Render() {
             TSGrowableArray<OBJINFO>* list;
 
             switch (vehicleRec->m_uiLocomotionType) {
-                case 0:
+                case VEHICLE_UI_LOCOMOTION_DRIVE:
                     list = (vehicle->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) ? &s_objInfo[MINIMAP_VEHICLE_GROUND_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_GROUND_UNOCCUPIED];
                     break;
 
-                case 1:
+                case VEHICLE_UI_LOCOMOTION_FLY:
                     list = (vehicle->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) ? &s_objInfo[MINIMAP_VEHICLE_AIR_OCCUPIED] : &s_objInfo[MINIMAP_VEHICLE_AIR_UNOCCUPIED];
                     break;
 
-                case 3:
+                case VEHICLE_UI_LOCOMOTION_AIRSHIP_HORDE:
                     list = &s_objInfo[MINIMAP_VEHICLE_AIR_HORDE];
                     break;
 
-                case 4:
+                case VEHICLE_UI_LOCOMOTION_AIRSHIP_ALLIANCE:
                     list = &s_objInfo[MINIMAP_VEHICLE_AIR_ALLIANCE];
                     break;
 

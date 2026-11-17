@@ -878,7 +878,7 @@ static int32_t Script_GetBattlefieldPosition(lua_State* L) {
 }
 
 // STATIC: 0x00AD6B14
-static const char* s_vehicleTypes[5] = { "Drive", "Fly", "Idle", "Airship Horde", "Airship Alliance" };
+static const char* s_vehicleTypes[NUM_VEHICLE_UI_LOCOMOTION_TYPES] = { "Drive", "Fly", "Idle", "Airship Horde", "Airship Alliance" };
 
 // VERIFY: 312f393d manual
 // OFFSET: 0x0054C4D0

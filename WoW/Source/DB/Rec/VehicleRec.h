@@ -12,6 +12,16 @@ constexpr int32_t NUM_VEHICLE_POWER_DISPLAYS = 3;
 // Seat columns per Vehicle.dbc record.
 static const uint32_t MAX_VEHICLE_SEATS = 8;
 
+// Vehicle.dbc m_uiLocomotionType, named after GetBattlefieldVehicleInfo's s_vehicleTypes strings.
+enum VEHICLE_UI_LOCOMOTION_TYPE : int32_t {
+    VEHICLE_UI_LOCOMOTION_DRIVE = 0, // "Drive"
+    VEHICLE_UI_LOCOMOTION_FLY = 1, // "Fly"
+    VEHICLE_UI_LOCOMOTION_IDLE = 2, // "Idle"
+    VEHICLE_UI_LOCOMOTION_AIRSHIP_HORDE = 3, // "Airship Horde"
+    VEHICLE_UI_LOCOMOTION_AIRSHIP_ALLIANCE = 4, // "Airship Alliance"
+    NUM_VEHICLE_UI_LOCOMOTION_TYPES = 5,
+};
+
 class VehicleRec {
     public:
     // DBC flags; distinct from CVehicle_C runtime state and VehicleSeatRec flags.
@@ -70,7 +80,7 @@ class VehicleRec {
     /* 0078 */ const char* m_msslTrgtImpactTexture;
     /* 007C */ const char* m_msslTrgtImpactModel [2];
     /* 0084 */ float m_cameraYawOffset;
-    /* 0088 */ int32_t m_uiLocomotionType;
+    /* 0088 */ int32_t m_uiLocomotionType; // VEHICLE_UI_LOCOMOTION_TYPE
     /* 008C */ float m_msslTrgtImpactTexRadius;
     /* 0090 */ int32_t m_vehicleUiindicatorID;
     /* 0094 */ int32_t m_powerDisplayID [NUM_VEHICLE_POWER_DISPLAYS];
