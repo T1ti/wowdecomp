@@ -44,6 +44,19 @@ static const int LIQUID_VERTICES_PER_CHUNK_AXIS = LIQUID_TILES_PER_CHUNK_AXIS + 
 // 3.3.5 CMapChunk::CreateLiquids sets tile bounds to 0..8; CreateVertXY adds the edge samples: 9 x 9 = 81.
 static const int LIQUID_VERTEX_COUNT_PER_CHUNK = LIQUID_VERTICES_PER_CHUNK_AXIS * LIQUID_VERTICES_PER_CHUNK_AXIS;
 
+// Low-detail (WDL MARE) area grid: 16 x 16 cells per area.
+static const int LOW_DETAIL_CELLS_PER_AXIS = 16;
+// The 17 x 17 outer vertex grid comes first, then one inner vertex per cell.
+static const int LOW_DETAIL_OUTER_VERTICES_PER_AXIS = LOW_DETAIL_CELLS_PER_AXIS + 1;
+// 17 x 17 = 289 outer vertices.
+static const int LOW_DETAIL_OUTER_VERTEX_COUNT = LOW_DETAIL_OUTER_VERTICES_PER_AXIS * LOW_DETAIL_OUTER_VERTICES_PER_AXIS;
+// 289 outer + 16 x 16 inner = 545 vertices (MARE heights).
+static const int LOW_DETAIL_VERTEX_COUNT = LOW_DETAIL_OUTER_VERTEX_COUNT + LOW_DETAIL_CELLS_PER_AXIS * LOW_DETAIL_CELLS_PER_AXIS;
+// CMap::BuildLowDetailGridIndices emits four triangles (12 indices) per cell.
+static const int LOW_DETAIL_INDICES_PER_CELL = 12;
+// 16 x 16 cells x 12 indices = 3072 for an area without holes.
+static const int LOW_DETAIL_INDEX_COUNT = LOW_DETAIL_CELLS_PER_AXIS * LOW_DETAIL_CELLS_PER_AXIS * LOW_DETAIL_INDICES_PER_CELL;
+
 static const float MD_AREA_POLY_SIZE = 533.33331f; // adt size
 // half tile size : 266.66666f
 static const float TERRAIN_SPEC_EXP = 20.0f;

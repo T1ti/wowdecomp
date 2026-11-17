@@ -15,6 +15,12 @@ struct SMMapObjDef;
 
 class CMapAreaLow {
     public:
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        // Never set in this client; when set, the shared full-grid index buffer is not used.
+        UNKNOWN_1 = 0x1,
+    };
+
     /* 0000 */ uint32_t m_objectIndex;
     /* 0004 */ CAaBox m_bbox;
     /* 001C */ CAaSphere m_sphere;
