@@ -1813,7 +1813,7 @@ lookup:
 
 // VERIFY: 6f35979f manual
 // OFFSET: 0x00621070
-int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUID& healthGuid, int32_t a4) {
+int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUID& healthGuid, BOOL hideOffline) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
@@ -2089,7 +2089,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUI
 
     this->AddLine(line, nullptr, textColor, textColor, 0);
 
-    if (!unit && state && !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && !a4) {
+    if (!unit && state && !(state->m_flags & CGPartyMemberState::MEMBER_FLAG_CONNECTED) && !hideOffline) {
         this->AddLine(FrameScript_GetText("PLAYER_OFFLINE", -1, GENDER_NOT_APPLICABLE), nullptr, textColor, textColor, 0);
 
         if (this->m_onTooltipSetUnit.m_luaRef) {
@@ -2644,7 +2644,7 @@ int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* gr
 
 // VERIFY: 5d06b108 manual
 // OFFSET: 0x00622800
-void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, int32_t a7, int32_t a8, int32_t isPet, int32_t usePreview) {
+void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, int32_t isInspect, int32_t useRank, int32_t isPet, int32_t usePreview) {
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
 
@@ -2659,7 +2659,7 @@ void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* gro
     }
 
     if (usePreview) {
-        if (prereqsMet && !a7 && !a8) {
+        if (prereqsMet && !isInspect && !useRank) {
             int32_t count;
 
             if (group->CanAddPreviewTalentPoints(talent, 1, &count, isPet)) {
@@ -2673,7 +2673,7 @@ void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* gro
     } else {
         uint32_t unspent = CGTalentInfo::GetUnspentTalentPoints(activeGroup, isPet);
 
-        if (prereqsMet && !a7 && !a8 && unspent && rank != maxRank) {
+        if (prereqsMet && !isInspect && !useRank && unspent && rank != maxRank) {
             this->AddLine(FrameScript_GetText("TOOLTIP_TALENT_LEARN", -1, GENDER_NOT_APPLICABLE), nullptr, greenColor, greenColor, 0);
         }
     }
@@ -3233,7 +3233,7 @@ void CGTooltip::AddColoredItemStat(int32_t value, const char* name, int32_t* fir
 
 // VERIFY: 8edeac88 manual
 // OFFSET: 0x006238A0
-int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t a8, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t a13, int32_t rank, int32_t maxRank, int32_t showLearn) {
+int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t a13, int32_t rank, int32_t maxRank, int32_t showLearn) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
@@ -3393,7 +3393,7 @@ int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, i
         }
 
         if (talent && !isInspect && showLearn) {
-            this->AddTalentLearnText(talent, talentGroup, prereqsMet, rank, maxRank, 0, a8, isPet, usePreview);
+            this->AddTalentLearnText(talent, talentGroup, prereqsMet, rank, maxRank, 0, useRank, isPet, usePreview);
         }
 
         if (createsItem && spell.m_effectItemType[0]) {
@@ -7872,7 +7872,7 @@ void CGTooltip::SetFrameStack(bool showHidden) {
 
 // VERIFY: 21654104 auto
 // OFFSET: 0x00625350
-void CGTooltip::SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t a4, int32_t parseUnit, int32_t parsePet) {
+void CGTooltip::SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t auraFlags, int32_t parseUnit, int32_t parsePet) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
 
@@ -8101,7 +8101,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
 
 // VERIFY: b08d75d5 manual
 // OFFSET: 0x00627220
-int32_t CGTooltip::SetAchievement(int32_t achievementId, WOWGUID guid, bool completed, WowTime time, uint32_t criteria1, uint32_t criteria2, uint32_t criteria3, uint32_t criteria4, int32_t a10) {
+int32_t CGTooltip::SetAchievement(int32_t achievementId, WOWGUID guid, bool completed, WowTime time, uint32_t criteria1, uint32_t criteria2, uint32_t criteria3, uint32_t criteria4, BOOL fromNameCallback) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
@@ -8115,7 +8115,7 @@ int32_t CGTooltip::SetAchievement(int32_t achievementId, WOWGUID guid, bool comp
     WOWGUID requester = { 0 };
     NameCache* name = g_nameDBCache.GetRecord(guid.m_guid, requester, TooltipAchievementCallback, this, true);
 
-    if (!name && !a10) {
+    if (!name && !fromNameCallback) {
         return 1;
     }
 

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include <cstdio>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
@@ -212,13 +213,13 @@ class CGTooltip : public CSimpleFrame {
     void AddDeltaHeader(int32_t* first);
     void AddColoredItemStat(int32_t value, const char* name, int32_t* first);
     int32_t SetItemDelta(const CGItemStatsSummary* summary, int32_t append);
-    void SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t a4, int32_t parseUnit, int32_t parsePet);
+    void SetBuff(int32_t spellId, int32_t spellLevel, int32_t stackCount, int32_t auraFlags, int32_t parseUnit, int32_t parsePet);
     void SetFrameStack(bool showHidden);
     void FadeOut();
     void ResetPosition(int32_t force);
     void SetOwner(CSimpleFrame* owner, TOOLTIP_ANCHORPOINT anchorType, float offsetX, float offsetY);
     void SetDefaultAnchor();
-    int32_t SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUID& healthGuid, int32_t a4);
+    int32_t SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUID& healthGuid, BOOL hideOffline);
     void SetObject(const WOWGUID& guid);
     void SetCorpse(const WOWGUID& guid);
     void AddFontStrings(CSimpleFontString* left, CSimpleFontString* right);
@@ -239,12 +240,12 @@ class CGTooltip : public CSimpleFrame {
     int32_t SetItemNoStats();
     static void GetFloatDurationString(char* buffer, uint32_t size, float time, const char* token, const char* prefix);
     int32_t AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* group, int32_t isInspect, int32_t isPet, int32_t usePreview);
-    void AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, int32_t a7, int32_t a8, int32_t isPet, int32_t usePreview);
+    void AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, int32_t isInspect, int32_t useRank, int32_t isPet, int32_t usePreview);
     int32_t SetQuest(int32_t questId);
     void SetGlyph(int32_t slotId, int32_t glyphId, int32_t enabled, int32_t hideRemove, int32_t parseUnit);
     void SetTalent(const TalentRec* talent, CGTalentGroup_C* group, int32_t isInspect, int32_t useRank, int32_t rank, int32_t isPet, int32_t usePreview);
-    int32_t SetAchievement(int32_t achievementId, WOWGUID guid, bool completed, WowTime time, uint32_t criteria1, uint32_t criteria2, uint32_t criteria3, uint32_t criteria4, int32_t a10);
-    int32_t SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t a8, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t a13, int32_t rank, int32_t maxRank, int32_t showLearn);
+    int32_t SetAchievement(int32_t achievementId, WOWGUID guid, bool completed, WowTime time, uint32_t criteria1, uint32_t criteria2, uint32_t criteria3, uint32_t criteria4, BOOL fromNameCallback);
+    int32_t SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t a13, int32_t rank, int32_t maxRank, int32_t showLearn);
     int32_t SetItem(int32_t itemId, const WOWGUID* requester, const WOWGUID* itemGuid, int32_t nameOnly, int32_t compare, int32_t useLinkInfo, int32_t append, WOWGUID owner, int32_t socketPreview, FILE* stream, int32_t hideCharges, const ItemLinkInfo* link, int32_t minimumLevel, int32_t skipLock, int32_t skipSellPrice);
 };
 
