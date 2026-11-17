@@ -408,7 +408,7 @@ void RealmConnection::RequestCharacterEnum() {
 
 // VERIFY: 490618f4 manual
 // OFFSET: 0x00464AB0
-void RealmConnection::RequestCharacterLogin(WOWGUID guid, int32_t a2) {
+void RealmConnection::RequestCharacterLogin(WOWGUID guid, int32_t unknown2) {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_PLAYER_LOGIN));
     msg.Put(guid.m_guid);
@@ -468,7 +468,7 @@ RealmConnection::~RealmConnection() {
 
 // VERIFY: a9aa9a7d auto
 // OFFSET: 0x006B1B90
-void RealmResponse::JoinRealmResult(uint32_t realmID, int32_t result, int32_t a3, int32_t a4, int32_t a5) {
+void RealmResponse::JoinRealmResult(uint32_t realmID, int32_t result, int32_t unknown3, int32_t unknown4, int32_t unknown5) {
 }
 
 // VERIFY: 01c03df0 auto
@@ -478,17 +478,17 @@ void RealmResponse::OnChatPlayerNotFound(RealmConnection* connection, const char
 
 // VERIFY: 0ef00e5d auto
 // OFFSET: 0x006B0960
-void RealmResponse::OnCharacterRestored(RealmConnection* connection, bool success, uint32_t a3, uint32_t a4, uint32_t a5, uint64_t a6, uint64_t a7, uint32_t a8, const char* a9, uint32_t a10, CDataStore* msg, uint64_t a12, uint64_t a13) {
+void RealmResponse::OnCharacterRestored(RealmConnection* connection, bool success, uint32_t unknown3, uint32_t unknown4, uint32_t unknown5, uint64_t unknown6, uint64_t unknown7, uint32_t unknown8, const char* unknown9, uint32_t unknown10, CDataStore* msg, uint64_t unknown12, uint64_t unknown13) {
 }
 
 // VERIFY: 4201e0ab auto
 // OFFSET: 0x006B1B80
-void RealmResponse::OnChangeArenaTeamRating(RealmConnection* connection, bool success, int32_t a3, int32_t a4) {
+void RealmResponse::OnChangeArenaTeamRating(RealmConnection* connection, bool success, int32_t unknown3, int32_t unknown4) {
 }
 
 // VERIFY: ceede6fc auto
 // OFFSET: 0x006B1B80
-void RealmResponse::OnServerInfo(RealmConnection* connection, int32_t a2, int32_t a3, char* a4) {
+void RealmResponse::OnServerInfo(RealmConnection* connection, int32_t unknown2, int32_t unknown3, char* unknown4) {
 }
 
 // VERIFY: d7d1893d auto

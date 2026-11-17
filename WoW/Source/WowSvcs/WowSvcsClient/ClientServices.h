@@ -64,7 +64,7 @@ class ClientConnection : public RealmConnection {
     void Cleanup();
     void Complete(int32_t result, int32_t errorCode);
     void CharacterAbortLogout();
-    void CharacterLogin(WOWGUID guid, int32_t a2);
+    void CharacterLogin(WOWGUID guid, int32_t unknown2);
     int32_t CharacterLoggingOut();
     void CharacterLogout(bool quit, bool instant);
     void CharacterForceLogout();
@@ -166,7 +166,7 @@ class ClientServices : public LoginResponse {
     void FileData(const uint8_t* data, uint32_t size) override;
     const char* GetLoginServer() override;
     LOGIN_SERVER_TYPE GetLoginServerType() override;
-    void JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) override;
+    void JoinRealmResult(uint32_t realmId, int32_t address, int32_t port, int32_t unknown4, int32_t error) override;
     void LoginServerStatus(LOGIN_STATE state, LOGIN_RESULT result, const char* addressString, const char* stateString, const char* resultString, uint16_t flags) override;
     void RealmEnumCallback(uint32_t result) override;
 };

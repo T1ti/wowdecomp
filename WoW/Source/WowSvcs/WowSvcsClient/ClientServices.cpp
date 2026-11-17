@@ -1373,7 +1373,7 @@ void ClientConnection::RequestCharacterCreate(const CHARACTER_CREATE_INFO& info)
 
 // VERIFY: ac426310 manual
 // OFFSET: 0x006B1790
-void ClientConnection::CharacterLogin(WOWGUID guid, int32_t a2) {
+void ClientConnection::CharacterLogin(WOWGUID guid, int32_t unknown2) {
     this->Initiate(COP_LOGIN_CHARACTER, CHAR_LOGIN_IN_PROGRESS, nullptr);
 
     if (!this->m_connected) {
@@ -1381,7 +1381,7 @@ void ClientConnection::CharacterLogin(WOWGUID guid, int32_t a2) {
         return;
     }
 
-    this->RequestCharacterLogin(guid, a2);
+    this->RequestCharacterLogin(guid, unknown2);
     this->m_characterLoggedIn = 1;
 }
 
@@ -1549,7 +1549,7 @@ void ClientConnection::HandleLogoutComplete() {
 
 // VERIFY: a00d1e9e manual
 // OFFSET: 0x006B3070
-void ClientServices::JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
+void ClientServices::JoinRealmResult(uint32_t realmId, int32_t address, int32_t port, int32_t unknown4, int32_t error) {
     if (ClientServices::s_loginObj->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         return;
     }
@@ -1570,8 +1570,8 @@ void ClientServices::JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, i
     loginData.m_loginServerType = ClientServices::s_loginObj->GetLoginServerType();
     ClientServices::Connection()->SetLoginData(&loginData);
 
-    if (a2 || a3) {
-        SStrPrintf(ClientServices::m_selectRealmInfo.m_realmAddress, sizeof(ClientServices::m_selectRealmInfo.m_realmAddress), "%d.%d.%d.%d:%u", (a2 >> 24) & 0xFF, (a2 >> 16) & 0xFF, (a2 >> 8) & 0xFF, a2 & 0xFF, a3);
+    if (address || port) {
+        SStrPrintf(ClientServices::m_selectRealmInfo.m_realmAddress, sizeof(ClientServices::m_selectRealmInfo.m_realmAddress), "%d.%d.%d.%d:%u", (address >> 24) & 0xFF, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF, port);
     }
 
     ClientServices::ConnectToSelectedServer();
