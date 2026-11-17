@@ -87,6 +87,17 @@ enum GUILDBANK_TAB_RIGHTS : uint32_t {
 // Rank permission toggles exposed by GuildControlGetRankFlags/GuildControlSetRankFlag (inferred name).
 constexpr uint32_t NUM_GUILD_RANK_FLAGS = 17;
 
+// Size of CGGuildInfo::m_rankInfo; GuildControlAddRank stops sending CMSG_GUILD_ADD_RANK at this count.
+constexpr uint32_t MAX_GUILD_RANKS = 10;
+
+// GuildMemberInfo::m_status bits from the roster. Any nonzero status marks the member online;
+// GetGuildRosterInfo reports DND and AFK with the CHAT_FLAG_DND and CHAT_FLAG_AFK strings.
+enum GUILD_MEMBER_STATUS : uint8_t {
+    GUILD_MEMBER_STATUS_ONLINE = 0x1, // inferred
+    GUILD_MEMBER_STATUS_AFK = 0x2,
+    GUILD_MEMBER_STATUS_DND = 0x4,
+};
+
 struct GuildRankInfo {
     /* 0000 */ uint32_t m_rights; // GUILD_RANK_RIGHTS
     /* 0004 */ int32_t m_bankMoneyPerDay;
@@ -172,7 +183,7 @@ class CGGuildInfo {
     static int32_t m_pendingEventLogNames;
     static uint8_t m_saveToFile;
     static TSGrowableArray<GuildMemberInfo*> m_roster;
-    static GuildRankInfo m_rankInfo[10];
+    static GuildRankInfo m_rankInfo[MAX_GUILD_RANKS];
     static int32_t m_numEventLogEntries;
     static uint32_t m_numRanks;
     static GuildEventLogEntry m_eventLog[100];

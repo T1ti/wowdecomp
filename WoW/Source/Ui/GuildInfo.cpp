@@ -31,7 +31,7 @@ int32_t CGGuildInfo::m_numEventLogEntries;
 // STATIC: 0x00C22AB8
 uint32_t CGGuildInfo::m_numRanks;
 // STATIC: 0x00C21E60
-GuildRankInfo CGGuildInfo::m_rankInfo[10];
+GuildRankInfo CGGuildInfo::m_rankInfo[MAX_GUILD_RANKS];
 
 // STATIC: 0x00C22090
 char CGGuildInfo::m_infoText[2004];
@@ -300,7 +300,7 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
         }
     }
 
-    for (; rank < 10; rank++) {
+    for (; rank < MAX_GUILD_RANKS; rank++) {
         memset(&CGGuildInfo::m_rankInfo[rank], 0, sizeof(GuildRankInfo));
     }
 

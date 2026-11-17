@@ -515,9 +515,9 @@ static int32_t Script_GetGuildRosterInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (member->m_status & 0x4) {
+    if (member->m_status & GUILD_MEMBER_STATUS_DND) {
         lua_pushstring(L, FrameScript_GetText("CHAT_FLAG_DND", -1, GENDER_NOT_APPLICABLE));
-    } else if (member->m_status & 0x2) {
+    } else if (member->m_status & GUILD_MEMBER_STATUS_AFK) {
         lua_pushstring(L, FrameScript_GetText("CHAT_FLAG_AFK", -1, GENDER_NOT_APPLICABLE));
     } else {
         lua_pushstring(L, "");
@@ -794,7 +794,7 @@ static int32_t Script_GuildControlAddRank(lua_State* L) {
     char rankName[64];
     ScrubString(name, rankName, 16, sizeof(rankName), 1);
 
-    if (CGGuildInfo::m_numRanks < 10) {
+    if (CGGuildInfo::m_numRanks < MAX_GUILD_RANKS) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_GUILD_ADD_RANK));
         msg.PutString(rankName);
