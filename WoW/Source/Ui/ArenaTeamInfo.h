@@ -22,6 +22,10 @@ enum ARENA_TEAM_COMMAND_TYPE : uint32_t {
 // SMSG_ARENA_TEAM_EVENT event byte, named after the error each one displays;
 // the values line up with GUILD_EVENT.
 enum ARENA_TEAM_EVENT : uint8_t {
+    // 0..2 are not handled by SMSG_ARENA_TEAM_EVENT (default branch).
+    ARENA_TEAM_EVENT_UNKNOWN_0      = 0,
+    ARENA_TEAM_EVENT_UNKNOWN_1      = 1,
+    ARENA_TEAM_EVENT_UNKNOWN_2      = 2,
     ARENA_TEAM_EVENT_JOINED         = 3, // ERR_ARENA_TEAM_JOIN_SS / _YOU_JOIN_S
     ARENA_TEAM_EVENT_LEFT           = 4, // ERR_ARENA_TEAM_LEAVE_SS
     ARENA_TEAM_EVENT_REMOVED        = 5, // ERR_ARENA_TEAM_REMOVE_SSS

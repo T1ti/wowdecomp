@@ -5352,7 +5352,7 @@ int32_t Packet_SMSG_GUILD_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32_t
 // VERIFY: 9746b975 auto
 // OFFSET: 0x006CC980
 int32_t Packet_SMSG_ARENA_TEAM_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    ARENA_TEAM_EVENT event = static_cast<ARENA_TEAM_EVENT>(0);
+    ARENA_TEAM_EVENT event = ARENA_TEAM_EVENT_UNKNOWN_0;
     msg->Get(reinterpret_cast<uint8_t&>(event));
     uint8_t count;
     msg->Get(count);
