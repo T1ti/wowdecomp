@@ -49,7 +49,7 @@ Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
         }
 
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Material Bank: Liquid type [%d] not found, defaulting to water!", liquidType);
-        liquidType = 1;
+        liquidType = LIQUID_TYPE_WATER;
     }
 
     uint32_t materialId = typeRec->m_materialID;

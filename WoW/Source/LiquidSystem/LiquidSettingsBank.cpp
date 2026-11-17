@@ -101,7 +101,7 @@ Liquid::CMaterialSettings* Liquid::CSettingsBank::GetSettings(uint32_t liquidTyp
         }
 
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Settings Bank: Liquid type [%d] not found, defaulting to water!", liquidType);
-        liquidType = 1;
+        liquidType = LIQUID_TYPE_WATER;
     }
 
     Liquid::CSettingsBank::s_settings.GrowToFit(liquidType, 1);
