@@ -810,7 +810,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
 
     for (int32_t row = rect.minY; row <= rect.maxY; row++) {
         for (int32_t col = rect.minX; col <= rect.maxX; col++) {
-            CMapArea* area = CMap::m_areaTable[(((row >> 4) & 0x3F) << 6) + ((col >> 4) & 0x3F)];
+            CMapArea* area = CMap::m_areaTable[(((row >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS) + ((col >> 4) & MAP_AREA_INDEX_MASK)];
 
             if (!area || area->m_asyncObject) {
                 continue;
@@ -866,7 +866,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
 
     for (int32_t row = rect.minY; row <= rect.maxY; row++) {
         for (int32_t col = rect.minX; col <= rect.maxX; col++) {
-            CMapArea* area = CMap::m_areaTable[(((row >> 4) & 0x3F) << 6) + ((col >> 4) & 0x3F)];
+            CMapArea* area = CMap::m_areaTable[(((row >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS) + ((col >> 4) & MAP_AREA_INDEX_MASK)];
 
             if (!area || area->m_asyncObject) {
                 continue;

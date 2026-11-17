@@ -195,13 +195,13 @@ uint32_t CMap::s_queryTag;
 uint32_t CMap::cCount;
 
 // STATIC: 0x00CE08D0
-CMapAreaMed* CMap::unk[4096];
+CMapAreaMed* CMap::unk[MAP_AREA_COUNT];
 
 // STATIC: 0x00CE48D0
-CMapArea* CMap::m_areaTable[4096];
+CMapArea* CMap::m_areaTable[MAP_AREA_COUNT];
 
 // STATIC: 0x00CE88D0
-SMAreaInfo CMap::m_areaInfo[4096];
+SMAreaInfo CMap::m_areaInfo[MAP_AREA_COUNT];
 
 // STATIC: 0x00CF08F0
 int32_t CMap::bActive;
@@ -405,7 +405,7 @@ WOWGUID s_lastCollisionGUID;
 // VERIFY: 738eb1a4 manual
 // OFFSET: 0x0079B440
 CMapArea* CMap::GetLoadedArea(int32_t areaX, int32_t areaY) {
-    CMapArea* area = CMap::m_areaTable[64 * areaY + areaX];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * areaY + areaX];
 
     if (area && area->m_asyncObject) {
         return nullptr;
@@ -876,7 +876,7 @@ bool CMap::QueryShadow(C3Vector* pos) {
 
     int32_t cellX = CMath::fint_(y * OO_COORD_TO_CHUNK - 0.5f);
     int32_t cellY = CMath::fint_(x * OO_COORD_TO_CHUNK - 0.5f);
-    CMapArea* area = CMap::GetLoadedArea((cellX >> 4) & 0x3F, (cellY >> 4) & 0x3F);
+    CMapArea* area = CMap::GetLoadedArea((cellX >> 4) & MAP_AREA_INDEX_MASK, (cellY >> 4) & MAP_AREA_INDEX_MASK);
 
     if (!area) {
         return false;
@@ -904,7 +904,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
     int32_t cellX = CMath::fint_(cellYf - 0.5f);
     int32_t cellY = CMath::fint_(cellXf - 0.5f);
 
-    CMapArea* area = CMap::m_areaTable[64 * ((cellY >> 7) & 0x3F) + ((cellX >> 7) & 0x3F)];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((cellY >> 7) & MAP_AREA_INDEX_MASK) + ((cellX >> 7) & MAP_AREA_INDEX_MASK)];
 
     if (!area || area->m_asyncObject) {
         return false;
@@ -1345,7 +1345,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         }
 
         if ((cellX & 0x1FF8) != lastX || (cellY & 0x1FF8) != lastY) {
-            CMapArea* area = CMap::m_areaTable[64 * ((cellY >> 7) & 0x3F) + ((cellX >> 7) & 0x3F)];
+            CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((cellY >> 7) & MAP_AREA_INDEX_MASK) + ((cellX >> 7) & MAP_AREA_INDEX_MASK)];
 
             if (!area || area->m_asyncObject) {
                 break;
@@ -1673,7 +1673,7 @@ CMapArea* CMap::GetAreaAtPosition(const C2Vector* pos) {
     float y = -(pos->y - HALF_WORLD_SIZE) * 0.001875f;
     x = x * 0.001875f;
 
-    return CMap::m_areaTable[64 * CMath::fint_(x - 0.5f) + CMath::fint_(y - 0.5f)];
+    return CMap::m_areaTable[MAP_AREAS_PER_AXIS * CMath::fint_(x - 0.5f) + CMath::fint_(y - 0.5f)];
 }
 
 // VERIFY: 8231832c manual
@@ -1685,7 +1685,7 @@ CMapChunk* CMap::GetChunkAtPosition(const C2Vector* pos) {
 
     int32_t chunkY = CMath::fint_(x - 0.5f);
     int32_t chunkX = CMath::fint_(y - 0.5f);
-    CMapArea* area = CMap::m_areaTable[64 * ((chunkY >> 4) & 0x3F) + ((chunkX >> 4) & 0x3F)];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((chunkY >> 4) & MAP_AREA_INDEX_MASK) + ((chunkX >> 4) & MAP_AREA_INDEX_MASK)];
 
     if (!area) {
         return nullptr;
@@ -1709,7 +1709,7 @@ void CMap::UpdateBarriers() {
 
     for (int32_t y = minY; y <= maxY; y++) {
         for (int32_t x = minX; x <= maxX; x++) {
-            int32_t index = 64 * y + x;
+            int32_t index = MAP_AREAS_PER_AXIS * y + x;
 
             if (!(CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT)) {
                 continue;
@@ -1730,7 +1730,7 @@ void CMap::UpdateBarriers() {
                 mode = CWorldScene::s_barrier.m_mode;
             }
 
-            neighbor = CMap::m_areaTable[index - 64];
+            neighbor = CMap::m_areaTable[index - MAP_AREAS_PER_AXIS];
 
             if (!neighbor || neighbor->m_asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.t.x, area->m_bounds.t.y);
@@ -1748,7 +1748,7 @@ void CMap::UpdateBarriers() {
                 mode = CWorldScene::s_barrier.m_mode;
             }
 
-            neighbor = CMap::m_areaTable[index + 64];
+            neighbor = CMap::m_areaTable[index + MAP_AREAS_PER_AXIS];
 
             if (!neighbor || neighbor->m_asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.b.x, area->m_bounds.b.y);
@@ -2037,7 +2037,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
 
     for (int32_t y = minY; y <= maxY; y++) {
         for (int32_t x = minX; x <= maxX; x++) {
-            int32_t index = 64 * y + x;
+            int32_t index = MAP_AREAS_PER_AXIS * y + x;
 
             if ((CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT) && !CMap::m_areaTable[index]) {
                 CMapArea* area = CMap::PrepareArea(x, y);
@@ -3443,7 +3443,7 @@ bool CMap::LinkStaticEntityGetChunk(C3Vector& pos, float* outHeight, CMapChunk**
     int32_t cellX = CMath::fint_(-(pos.y - HALF_WORLD_SIZE) * OO_COORD_TO_SUBCHUNK - 0.5f);
     int32_t cellY = CMath::fint_(OO_COORD_TO_SUBCHUNK * -(pos.x - HALF_WORLD_SIZE) - 0.5f);
 
-    CMapArea* area = CMap::m_areaTable[64 * ((cellY >> 7) & 0x3F) + ((cellX >> 7) & 0x3F)];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((cellY >> 7) & MAP_AREA_INDEX_MASK) + ((cellX >> 7) & MAP_AREA_INDEX_MASK)];
 
     if (!area || area->m_asyncObject) {
         return false;
@@ -3566,7 +3566,7 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
 
     for (int32_t row = firstRow; row <= lastRow; row++) {
         for (int32_t col = firstCol; col <= lastCol; col++) {
-            CMapArea* area = CMap::m_areaTable[(((row >> 4) & 0x3F) << 6) + ((col >> 4) & 0x3F)];
+            CMapArea* area = CMap::m_areaTable[(((row >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS) + ((col >> 4) & MAP_AREA_INDEX_MASK)];
 
             if (!area || area->m_asyncObject) {
                 continue;
@@ -4010,7 +4010,7 @@ void CMap::PurgeMapObjDef(CMapObjDef* mapObjDef) {
 // VERIFY: ad81d8da auto
 // OFFSET: 0x007C3700
 void CMap::PurgeArea(CMapArea* area) {
-    CMap::m_areaTable[64 * area->m_index.y + area->m_index.x] = nullptr;
+    CMap::m_areaTable[MAP_AREAS_PER_AXIS * area->m_index.y + area->m_index.x] = nullptr;
     area->Purge();
     CMap::FreeArea(area);
 }
@@ -4024,7 +4024,7 @@ void CMap::PurgeMaps() {
         CMapBaseObjLink* next = CMap::s_unk_ADFBEC.Next(link);
         CMapArea* area = static_cast<CMapArea*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
-        CMap::m_areaTable[64 * area->m_index.y + area->m_index.x] = nullptr;
+        CMap::m_areaTable[MAP_AREAS_PER_AXIS * area->m_index.y + area->m_index.x] = nullptr;
         area->Purge();
         CMap::FreeArea(area);
         link = next;
@@ -4192,7 +4192,7 @@ CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
     area->m_bounds.b.x = area->m_topLeft2.x - MD_AREA_POLY_SIZE;
     area->m_bounds.b.y = area->m_topLeft2.y - MD_AREA_POLY_SIZE;
 
-    CMap::m_areaTable[64 * areaIndexY + areaIndexX] = area;
+    CMap::m_areaTable[MAP_AREAS_PER_AXIS * areaIndexY + areaIndexX] = area;
 
     return area;
 }
@@ -4287,7 +4287,7 @@ void CMap::LinkLightToChunks(CMapLight* light) {
 
     for (int32_t x = minX; x <= maxX; x++) {
         for (int32_t y = minY; y <= maxY; y++) {
-            CMapArea* area = CMap::m_areaTable[(((x >> 4) & 0x3F) << 6) + ((y >> 4) & 0x3F)];
+            CMapArea* area = CMap::m_areaTable[(((x >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS) + ((y >> 4) & MAP_AREA_INDEX_MASK)];
 
             if (!area || area->m_asyncObject) {
                 continue;
@@ -4464,7 +4464,7 @@ bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CCh
 // OFFSET: 0x007A5A60
 bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags) {
     uint32_t first = facets->facets.Count();
-    int32_t areaIndex = ((chunkX >> 4) & 0x3F) + (((chunkY >> 4) & 0x3F) << 6);
+    int32_t areaIndex = ((chunkX >> 4) & MAP_AREA_INDEX_MASK) + (((chunkY >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS);
     CMapArea* area = CMap::m_areaTable[areaIndex];
 
     if (area && !area->m_asyncObject) {
@@ -4666,7 +4666,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
 // VERIFY: 5c2f5676 manual
 // OFFSET: 0x007A4590
 bool CMap::CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, World::FacetData* facets) {
-    CMapArea* area = CMap::m_areaTable[64 * areaY + areaX];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * areaY + areaX];
 
     if (!area || area->m_asyncObject) {
         return false;
@@ -5115,7 +5115,7 @@ int32_t CMap::QueryAreaIdTerrain(const C3Vector* pos) {
     int32_t cellY = CMath::fint_(y - 0.5f);
     x = x * OO_COORD_TO_CHUNK;
     int32_t cellX = CMath::fint_(x - 0.5f);
-    CMapArea* area = CMap::m_areaTable[64 * ((cellX >> 4) & 0x3F) + ((cellY >> 4) & 0x3F)];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((cellX >> 4) & MAP_AREA_INDEX_MASK) + ((cellY >> 4) & MAP_AREA_INDEX_MASK)];
 
     if (!area || area->m_asyncObject) {
         return 0;
@@ -5261,7 +5261,7 @@ bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* re
 // OFFSET: 0x007A5330
 bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrustum* frustum, World::FacetData* facets, uint32_t flags) {
     uint32_t first = facets->facets.Count();
-    CMapArea* area = CMap::m_areaTable[((chunkX >> 4) & 0x3F) + (((chunkY >> 4) & 0x3F) << 6)];
+    CMapArea* area = CMap::m_areaTable[((chunkX >> 4) & MAP_AREA_INDEX_MASK) + (((chunkY >> 4) & MAP_AREA_INDEX_MASK) * MAP_AREAS_PER_AXIS)];
 
     if (!area || area->m_asyncObject) {
         return false;
@@ -5419,7 +5419,7 @@ bool CMap::QueryGroundTypeTerrain(C3Vector* pos, uint32_t* groundType) {
     int32_t cellY = CMath::fint_(cellYf - 0.5f);
     int32_t cellX = CMath::fint_(cellXf - 0.5f);
 
-    CMapArea* area = CMap::GetLoadedArea((cellX >> 7) & 0x3F, (cellY >> 7) & 0x3F);
+    CMapArea* area = CMap::GetLoadedArea((cellX >> 7) & MAP_AREA_INDEX_MASK, (cellY >> 7) & MAP_AREA_INDEX_MASK);
 
     if (!area) {
         return false;
@@ -5464,16 +5464,16 @@ void CMap::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World:
     sphere.c.z = 0.0f;
     sphere.r = radius;
 
-    int32_t areaRow = (cellX >> 7) & 0x3F;
-    int32_t areaCol = (cellY >> 7) & 0x3F;
+    int32_t areaRow = (cellX >> 7) & MAP_AREA_INDEX_MASK;
+    int32_t areaCol = (cellY >> 7) & MAP_AREA_INDEX_MASK;
     int32_t minRow = areaRow - 1 > 0 ? areaRow - 1 : 0;
-    int32_t maxRow = areaRow + 1 >= 63 ? 63 : areaRow + 1;
+    int32_t maxRow = areaRow + 1 >= MAP_AREAS_PER_AXIS - 1 ? MAP_AREAS_PER_AXIS - 1 : areaRow + 1;
     int32_t minCol = areaCol - 1 > 0 ? areaCol - 1 : 0;
-    int32_t maxCol = areaCol + 1 >= 63 ? 63 : areaCol + 1;
+    int32_t maxCol = areaCol + 1 >= MAP_AREAS_PER_AXIS - 1 ? MAP_AREAS_PER_AXIS - 1 : areaCol + 1;
 
     for (int32_t row = minRow; row <= maxRow; row++) {
         for (int32_t col = minCol; col <= maxCol; col++) {
-            CMapArea* area = CMap::m_areaTable[(row << 6) + col];
+            CMapArea* area = CMap::m_areaTable[row * MAP_AREAS_PER_AXIS + col];
 
             if (!area || area->m_asyncObject) {
                 continue;
@@ -5533,7 +5533,7 @@ int32_t CMap::GetFlightBounds(const C3Vector& pos, float* height, int32_t which)
     x = x * 0.00375f;
     int32_t cellX = CMath::fint_(x - 0.5f);
 
-    CMapArea* area = CMap::m_areaTable[((cellX >> 1) << 6) + (cellY >> 1)];
+    CMapArea* area = CMap::m_areaTable[((cellX >> 1) * MAP_AREAS_PER_AXIS) + (cellY >> 1)];
 
     if (!area || area->m_asyncObject || !area->m_flyingBbox) {
         return 0;
@@ -5743,7 +5743,7 @@ bool CMap::QueryHeight(const C3Vector& position, float range, float* height) {
         float chunkX = OO_COORD_TO_SUBCHUNK * -(position.x - HALF_WORLD_SIZE);
         int32_t cellY = CMath::fint_(chunkY - 0.5f);
         int32_t cellX = CMath::fint_(chunkX - 0.5f);
-        CMapArea* area = CMap::m_areaTable[64 * ((cellX >> 7) & 0x3F) + ((cellY >> 7) & 0x3F)];
+        CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((cellX >> 7) & MAP_AREA_INDEX_MASK) + ((cellY >> 7) & MAP_AREA_INDEX_MASK)];
 
         if (!area || area->m_asyncObject) {
             return false;
@@ -6221,7 +6221,7 @@ bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* bo
 // VERIFY: c11b2d43 manual
 // OFFSET: 0x007A6630
 bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, const CAaBox& box, World::TriData* triData, uint32_t flags) {
-    CMapArea* area = CMap::m_areaTable[64 * ((chunkY >> 4) & 0x3F) + ((chunkX >> 4) & 0x3F)];
+    CMapArea* area = CMap::m_areaTable[MAP_AREAS_PER_AXIS * ((chunkY >> 4) & MAP_AREA_INDEX_MASK) + ((chunkX >> 4) & MAP_AREA_INDEX_MASK)];
 
     if (!area || area->m_asyncObject) {
         return false;

@@ -151,8 +151,8 @@ void CMapLowDetail::Load(const char* mapPath, const char* mapName) {
 
     uint32_t index = 0;
 
-    for (uint32_t y = 0; y < 1024; y += 16) {
-        for (uint32_t x = 0; x < 1024; x += 16) {
+    for (uint32_t y = 0; y < MAP_CHUNKS_PER_MAP_AXIS; y += MAP_CHUNKS_PER_AREA_AXIS) {
+        for (uint32_t x = 0; x < MAP_CHUNKS_PER_MAP_AXIS; x += MAP_CHUNKS_PER_AREA_AXIS) {
             if (this->m_areaOffsets[index]) {
                 char* mare = this->m_data + this->m_areaOffsets[index];
                 CMapAreaLow* area = CMap::AllocAreaLow();

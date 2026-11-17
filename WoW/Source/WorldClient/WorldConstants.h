@@ -1,6 +1,15 @@
 #ifndef WOW_SOURCE_WORLDCLIENT_WORLDCONSTANTS_H
 #define WOW_SOURCE_WORLDCLIENT_WORLDCONSTANTS_H
 
+// The world map is a 64 x 64 grid of areas (ADT tiles).
+static const int MAP_AREAS_PER_AXIS = 64;
+// Area coordinates use the low six bits: 0x3F (63).
+static const int MAP_AREA_INDEX_MASK = MAP_AREAS_PER_AXIS - 1;
+// 64 x 64 = 4096 areas.
+static const int MAP_AREA_COUNT = MAP_AREAS_PER_AXIS * MAP_AREAS_PER_AXIS;
+// 64 areas x 16 chunks = 1024 chunks along each world axis.
+static const int MAP_CHUNKS_PER_MAP_AXIS = 1024;
+
 // 3.3.5 CMapArea::BatchChunks uses a 16-element row stride and a 16 x 16 area grid.
 static const int MAP_CHUNKS_PER_AREA_AXIS = 16;
 // 16-axis chunk coordinates use the low four bits: 0xF (15).

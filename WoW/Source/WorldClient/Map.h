@@ -11,6 +11,7 @@
 #include "Engine/Source/Gx/CGxVertexPC.h"
 #include "Engine/Source/Gx/CGxVertexPNCT2.h"
 #include "Engine/Source/Storm/H/stpl.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "WoW/Source/WorldClient/CMapBaseObjLink.h"
 #include "WoW/Source/WorldClient/MapLowDetail.h"
@@ -216,9 +217,9 @@ class CMap {
     static int32_t bspRecurseCount;
     static uint32_t s_queryTag;
     static uint32_t cCount;
-    static CMapAreaMed* unk[4096];
-    static CMapArea* m_areaTable[4096];
-    static SMAreaInfo m_areaInfo[4096];
+    static CMapAreaMed* unk[MAP_AREA_COUNT];
+    static CMapArea* m_areaTable[MAP_AREA_COUNT];
+    static SMAreaInfo m_areaInfo[MAP_AREA_COUNT];
     static TSGrowableArray<uint32_t> scCollideList;
     static int32_t bActive;
     static int32_t bDungeon;

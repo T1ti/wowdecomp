@@ -1242,32 +1242,32 @@ void World::PrepareAreaOfInterest(const C3Vector& position) {
         CWorld::chunkRect.minX = 0;
     }
 
-    if (CWorld::chunkRect.maxX >= 1024) {
-        CWorld::chunkRect.maxX = 1023;
+    if (CWorld::chunkRect.maxX >= MAP_CHUNKS_PER_MAP_AXIS) {
+        CWorld::chunkRect.maxX = MAP_CHUNKS_PER_MAP_AXIS - 1;
     }
 
     if (CWorld::chunkRect.minY < 0) {
         CWorld::chunkRect.minY = 0;
     }
 
-    if (CWorld::chunkRect.maxY >= 1024) {
-        CWorld::chunkRect.maxY = 1023;
+    if (CWorld::chunkRect.maxY >= MAP_CHUNKS_PER_MAP_AXIS) {
+        CWorld::chunkRect.maxY = MAP_CHUNKS_PER_MAP_AXIS - 1;
     }
 
     if (CWorld::gbChunkRect.minX < 0) {
         CWorld::gbChunkRect.minX = 0;
     }
 
-    if (CWorld::gbChunkRect.maxX >= 1024) {
-        CWorld::gbChunkRect.maxX = 1023;
+    if (CWorld::gbChunkRect.maxX >= MAP_CHUNKS_PER_MAP_AXIS) {
+        CWorld::gbChunkRect.maxX = MAP_CHUNKS_PER_MAP_AXIS - 1;
     }
 
     if (CWorld::gbChunkRect.minY < 0) {
         CWorld::gbChunkRect.minY = 0;
     }
 
-    if (CWorld::gbChunkRect.maxY >= 1024) {
-        CWorld::gbChunkRect.maxY = 1023;
+    if (CWorld::gbChunkRect.maxY >= MAP_CHUNKS_PER_MAP_AXIS) {
+        CWorld::gbChunkRect.maxY = MAP_CHUNKS_PER_MAP_AXIS - 1;
     }
 }
 

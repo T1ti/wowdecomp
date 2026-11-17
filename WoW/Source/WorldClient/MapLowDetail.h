@@ -9,6 +9,7 @@
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CAaSphere.h"
 #include "WoW/Source/WorldClient/FVBBList.h"
+#include "WoW/Source/WorldClient/WorldConstants.h"
 
 class CMapObjDef;
 struct SMMapObjDef;
@@ -51,7 +52,7 @@ class CMapLowDetail {
     /* 000C */ SMMapObjDef* m_mapObjDefs;
     /* 0010 */ uint32_t m_mapObjDefCount;
     /* 0014 */ uint32_t* m_areaOffsets;
-    /* 0018 */ CMapAreaLow* m_areas [4096];
+    /* 0018 */ CMapAreaLow* m_areas [MAP_AREA_COUNT];
     /* 4018 */ TSGrowableArray<CMapObjDef*> m_mapObjDefList;
 
     CMapLowDetail();
