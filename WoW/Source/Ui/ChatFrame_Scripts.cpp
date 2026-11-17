@@ -145,7 +145,7 @@ static int32_t Script_SendChatMessage(lua_State* L) {
 
         ChatChannel* channel = &CGChat::s_channels.m_data[number - 1];
 
-        if (channel->m_channelNumber != number || channel->m_unk9C) {
+        if (channel->m_channelNumber != number || channel->m_left) {
             return 0;
         }
 
@@ -733,7 +733,7 @@ static int32_t Script_ListChannels(lua_State* L) {
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (channel->m_channelNumber && !channel->m_unk9C) {
+        if (channel->m_channelNumber && !channel->m_left) {
             char entry[138];
             SStrPrintf(entry, sizeof(entry), "[%d. %s] ", channel->m_channelNumber, channel->m_name);
 
@@ -1028,7 +1028,7 @@ static int32_t Script_GetChannelList(lua_State* L) {
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (channel->m_channelNumber && !channel->m_unk9C) {
+        if (channel->m_channelNumber && !channel->m_left) {
             lua_pushnumber(L, channel->m_channelNumber);
             ChatChannelsRec* rec = channel->m_zoneChannelID ? g_chatChannelsDB.GetRecord(channel->m_zoneChannelID) : nullptr;
 
@@ -1058,7 +1058,7 @@ static int32_t Script_GetChannelName(lua_State* L) {
         } else {
             channel = &CGChat::s_channels.m_data[number - 1];
 
-            if (channel->m_channelNumber != number || channel->m_unk9C) {
+            if (channel->m_channelNumber != number || channel->m_left) {
                 channel = nullptr;
             }
         }
@@ -1073,7 +1073,7 @@ static int32_t Script_GetChannelName(lua_State* L) {
 
     lua_pushnumber(L, channel ? channel->m_channelNumber : 0);
     lua_pushstring(L, channel ? channel->m_name : nullptr);
-    lua_pushnumber(L, channel ? channel->m_unk98 : 0);
+    lua_pushnumber(L, channel ? channel->m_instanceID : 0);
     return 3;
 }
 

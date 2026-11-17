@@ -684,26 +684,26 @@ static void SendChatEvent(ChatChannel* channel, uint32_t language, const char* t
     int32_t channelIndex;
     uint32_t zoneChannelID;
     const char* channelBaseName;
-    uint32_t unused;
+    uint32_t instanceID;
 
     if (channel) {
         channelIndex = channel->m_channelNumber;
-        unused = channel->m_unk98;
+        instanceID = channel->m_instanceID;
         zoneChannelID = channel->m_zoneChannelID;
         channelBaseName = channel->m_name;
     } else {
-        unused = 0;
+        instanceID = 0;
         channelBaseName = "";
         channelIndex = conversation && !conversation->m_inactive ? conversation->m_index + 1 : 0;
         zoneChannelID = 0;
     }
 
-    FrameScript_SignalEvent(s_chatEvents[type], "%s%s%s%s%s%s%d%d%s%d%d%s%u", text ? text : "", senderName ? senderName : "", languageName, channelString ? channelString : "", targetName ? targetName : "", flags ? flags : "", zoneChannelID, channelIndex, channelBaseName, unused, lineID, guidString, presenceID);
+    FrameScript_SignalEvent(s_chatEvents[type], "%s%s%s%s%s%s%d%d%s%d%d%s%u", text ? text : "", senderName ? senderName : "", languageName, channelString ? channelString : "", targetName ? targetName : "", flags ? flags : "", zoneChannelID, channelIndex, channelBaseName, instanceID, lineID, guidString, presenceID);
 }
 
 // VERIFY: 4dbf06e6 manual
 // OFFSET: 0x004FDD80
-void CGChat::RecordChat(const char* text, int32_t type, const char* senderName, WOWGUID senderGuid, uint32_t senderUnk, uint32_t a6, const char* channelName, uint32_t lineID, const CGPlayer_C* player) {
+void CGChat::RecordChat(const char* text, int32_t type, const char* senderName, WOWGUID senderGuid, uint32_t senderUnk, uint32_t zoneChannelID, const char* channelName, uint32_t lineID, const CGPlayer_C* player) {
     if (!s_chatHistoryInitialized) {
         for (uint32_t i = 0; i < sizeof(CGChat::m_chatHistory) / sizeof(CGChat::m_chatHistory[0]); i++) {
             ChatRecord* record = &CGChat::m_chatHistory[i];
@@ -713,7 +713,7 @@ void CGChat::RecordChat(const char* text, int32_t type, const char* senderName, 
             record->m_description[0] = 0;
             record->m_text[0] = 0;
             record->m_type = 0;
-            record->m_unk17B0 = 0;
+            record->m_zoneChannelID = 0;
             record->m_lineID = 0;
             record->m_time = 0;
         }
@@ -734,7 +734,7 @@ void CGChat::RecordChat(const char* text, int32_t type, const char* senderName, 
     record->m_type = type;
     record->m_senderGuid = senderGuid;
     record->m_senderUnk = senderUnk;
-    record->m_unk17B0 = a6;
+    record->m_zoneChannelID = zoneChannelID;
 
     if (senderName) {
         SStrCopy(record->m_senderName, senderName, sizeof(record->m_senderName));
@@ -776,11 +776,11 @@ int32_t StringToLanguage(const char* string, uint32_t* language) {
 
 // VERIFY: 8add7663 manual
 // OFFSET: 0x00500180
-void CGChat::SendIgnoredResponse(WOWGUID guid, uint8_t a2) {
+void CGChat::SendIgnoredResponse(WOWGUID guid, CHAT_IGNORED_REASON reason) {
     WDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_CHAT_REPORT_IGNORED));
     msg.Put(guid.m_guid);
-    msg.Put(a2);
+    msg.Put(static_cast<uint8_t>(reason));
     msg.Finalize();
     ClientServices::Send2(&msg);
 }
@@ -1634,7 +1634,7 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
 
             if ((type == CHAT_MSG_WHISPER || type == CHAT_MSG_BATTLENET) && (chatTag & CHAT_TAG_UNKNOWN_3) && !(chatTag & CHAT_TAG_GM) && language != LANG_ADDON) {
                 if ((!player || senderGuid != player->m_obj->m_guid) && (!FriendList::s_friendList || !FriendList::s_friendList->IsFriend(senderGuid)) && !CGChat::IsInWhisperHistory(senderGuid)) {
-                    CGChat::SendIgnoredResponse(senderGuid, 1);
+                    CGChat::SendIgnoredResponse(senderGuid, CHAT_IGNORED_REASON_UNKNOWN_1);
                     return 1;
                 }
             }
@@ -1645,7 +1645,7 @@ int32_t CGChat::ChatMessageReceived(CDataStore* msg, bool isGM) {
                         return 1;
                     }
 
-                    CGChat::SendIgnoredResponse(senderGuid, 0);
+                    CGChat::SendIgnoredResponse(senderGuid, CHAT_IGNORED_REASON_IGNORED);
                 }
 
                 if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_IGNORED && type != CHAT_MSG_RESTRICTED) {
@@ -1865,7 +1865,7 @@ static void TranslateMessageCase(const char* word, char* dest, uint32_t size, co
 // OFFSET: 0x004FDEE0
 int32_t CGChat::GetChannelID(const char* name) {
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
-        if (!SStrCmpUTF8I(CGChat::s_channels.m_data[i].m_name, name, STORM_MAX_STR) && !CGChat::s_channels.m_data[i].m_unk9C) {
+        if (!SStrCmpUTF8I(CGChat::s_channels.m_data[i].m_name, name, STORM_MAX_STR) && !CGChat::s_channels.m_data[i].m_left) {
             return CGChat::s_channels.m_data[i].m_channelNumber;
         }
     }
@@ -2016,7 +2016,7 @@ int32_t CGChat::OnCheckReloadSpamFilter(void* param, NETMESSAGE msgId, uint32_t 
 
 // VERIFY: 1e90f0ce manual
 // OFFSET: 0x00505930
-void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* text, char* buffer, uint32_t size, int32_t a6, int32_t a7) {
+void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* text, char* buffer, uint32_t size, BOOL keepTags, BOOL keepSeparators) {
     if (!text || !buffer) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
@@ -2049,7 +2049,7 @@ void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* tex
                 break;
             }
 
-            if (c == '<' && a6) {
+            if (c == '<' && keepTags) {
                 for (uint32_t t = sgetu8(reinterpret_cast<const uint8_t*>(current), &chars); t != 0xFFFFFFFF; t = sgetu8(reinterpret_cast<const uint8_t*>(current), &chars)) {
                     int32_t i;
 
@@ -2065,7 +2065,7 @@ void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* tex
                         break;
                     }
                 }
-            } else if (a7) {
+            } else if (keepSeparators) {
                 int32_t i;
 
                 for (i = 0; i < chars; i++) {
@@ -2154,7 +2154,7 @@ void CGChat::TranslateMessage(uint32_t language, uint32_t skill, const char* tex
 
 // VERIFY: 3bdaf6af manual
 // OFFSET: 0x00507880
-void CGChat::JoinedChannel(uint32_t id, const char* name, uint32_t a3, uint8_t flags) {
+void CGChat::JoinedChannel(uint32_t id, const char* name, uint32_t instanceID, uint8_t flags) {
     ChatChannel* channel = id ? CGChat::GetChannelByChatChannelID(id) : GetChannelByName(name);
 
     if (!channel || !channel->m_channelNumber) {
@@ -2162,14 +2162,14 @@ void CGChat::JoinedChannel(uint32_t id, const char* name, uint32_t a3, uint8_t f
     }
 
     uint32_t zoneChannelID = channel->m_zoneChannelID;
-    channel->m_unk9C = 0;
+    channel->m_left = 0;
 
     if (zoneChannelID) {
         s_joinedZoneChannels |= 1 << (zoneChannelID - 1);
         SStrCopy(channel->m_name, name, sizeof(channel->m_name));
     }
 
-    channel->m_unk98 = a3;
+    channel->m_instanceID = instanceID;
     channel->m_flags = flags;
     CGChat::OnChannelsUpdated();
 }
@@ -2183,7 +2183,7 @@ void CGChat::LeftChannel(uint32_t id, const char* name) {
         return;
     }
 
-    channel->m_unk9C = 1;
+    channel->m_left = 1;
 
     if (s_activeVoiceChannel) {
         int32_t type;
@@ -2219,7 +2219,7 @@ void CGChat::ResetChannel(uint32_t id, const char* name) {
         channel->m_channelNumber = 0;
         channel->m_name[0] = 0;
         channel->m_zoneChannelID = 0;
-        channel->m_unk9C = 1;
+        channel->m_left = 1;
         channel->m_unkA0 = 1;
     }
 
@@ -2272,7 +2272,7 @@ int32_t CGChat::OnZoneUnderAttack(void* param, NETMESSAGE msgId, uint32_t time, 
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (!channel->m_channelNumber || channel->m_unk9C) {
+        if (!channel->m_channelNumber || channel->m_left) {
             continue;
         }
 
@@ -2314,7 +2314,7 @@ int32_t CGChat::OnDefenseMessage(void* param, NETMESSAGE msgId, uint32_t time, C
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (!channel->m_channelNumber || channel->m_unk9C) {
+        if (!channel->m_channelNumber || channel->m_left) {
             continue;
         }
 
@@ -2480,7 +2480,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
     char extra[516];
     uint8_t flags;
     uint32_t zoneChannelID = 0;
-    uint32_t channelFlags;
+    uint32_t instanceID;
     uint8_t oldFlags;
     uint8_t newFlags;
     uint8_t suspended;
@@ -2523,7 +2523,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
         case CGChat::CHANNEL_NOTIFY::YOU_JOINED: {
             msg->Get(flags);
             msg->Get(zoneChannelID);
-            msg->Get(channelFlags);
+            msg->Get(instanceID);
 
             if (msg->IsRead()) {
                 extra[0] = 0;
@@ -2534,7 +2534,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
             type = CHAT_MSG_CHANNEL_NOTICE;
             ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(channelName);
 
-            if (!channel || channel->m_unk9C) {
+            if (!channel || channel->m_left) {
                 SStrCopy(text, "YOU_JOINED", sizeof(text));
             } else {
                 SStrCopy(text, "YOU_CHANGED", sizeof(text));
@@ -2544,7 +2544,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
                 }
             }
 
-            CGChat::JoinedChannel(zoneChannelID, channelName, channelFlags, flags);
+            CGChat::JoinedChannel(zoneChannelID, channelName, instanceID, flags);
             break;
         }
 
@@ -3847,7 +3847,7 @@ void RebuildDisplayChannelList(int32_t signal) {
                     entry->m_collapsed = 0;
                     entry->m_channelIndex = i;
                     entry->m_headerIndex = DisplayChannel::HEADER_INDEX::NO_HEADER;
-                    entry->m_enabled = channel->m_unk9C == 0;
+                    entry->m_enabled = channel->m_left == 0;
                     entry->m_type = DisplayChannel::TYPE::CHANNEL;
                     entry->m_voiceEnabled = 0;
                     entry->m_count = 0;
@@ -3933,7 +3933,7 @@ void CGChat::OnChannelsUpdated() {
     for (uint32_t i = 0; i < CGChat::s_channels.Count(); i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (!channel->m_channelNumber || channel->m_unk9C) {
+        if (!channel->m_channelNumber || channel->m_left) {
             continue;
         }
 
@@ -4200,7 +4200,7 @@ const char* CGChat::GetChannelString(const char* name) {
     if (number >= 1 && number <= static_cast<int32_t>(CGChat::s_channels.m_count)) {
         ChatChannel* channel = &CGChat::s_channels.m_data[number - 1];
 
-        if (channel->m_channelNumber == number && !channel->m_unk9C) {
+        if (channel->m_channelNumber == number && !channel->m_left) {
             return channel->m_name;
         }
     }
@@ -4261,7 +4261,7 @@ void ChatWindowInfo::AddChannel(const char* name, int32_t id) {
 
 // VERIFY: f2e39696 manual
 // OFFSET: 0x005076B0
-int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool a4, bool a5, uint32_t number) {
+int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool hasVoice, bool permanent, uint32_t number) {
     if (GetChannelByName(name)) {
         return 0;
     }
@@ -4309,16 +4309,16 @@ int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool 
     channel->m_channelNumber = slot + 1;
     SStrCopy(channel->m_name, name, sizeof(channel->m_name));
     channel->m_zoneChannelID = id;
-    channel->m_unk9C = 1;
+    channel->m_left = 1;
     channel->m_unkA0 = 0;
-    channel->m_unkA4 = a4;
-    channel->m_unkA5 = a5;
+    channel->m_hasVoice = hasVoice;
+    channel->m_permanent = permanent;
     return 1;
 }
 
 // VERIFY: 8b7bb244 manual
 // OFFSET: 0x00507A80
-bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, int32_t a8, int32_t a9, uint32_t number) {
+bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, int32_t hasVoice, int32_t permanent, uint32_t number) {
     *zoneChannelName = nullptr;
     *zoneChannelID = 0;
 
@@ -4355,7 +4355,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
     ChatChannel* channel = *zoneChannelID ? CGChat::GetChannelByChatChannelID(*zoneChannelID) : GetChannelByName(name);
 
     if (!channel) {
-        if (!CGChat::AddChatChannel(name, *zoneChannelID, silent, a8 != 0, a9 != 0, number)) {
+        if (!CGChat::AddChatChannel(name, *zoneChannelID, silent, hasVoice != 0, permanent != 0, number)) {
             return false;
         }
 
@@ -4363,7 +4363,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
         msg.Put(static_cast<uint32_t>(CMSG_CHAT_JOIN_CHANNEL));
         msg.Put(static_cast<uint32_t>(*zoneChannelID));
         msg.Put(static_cast<uint8_t>(silent));
-        msg.Put(static_cast<uint8_t>(a8));
+        msg.Put(static_cast<uint8_t>(hasVoice));
         msg.PutString(name);
         msg.PutString(password);
         msg.Finalize();
@@ -4956,7 +4956,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
 
     ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(name);
 
-    if (channel && (!channel->m_unk9C || force)) {
+    if (channel && (!channel->m_left || force)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CHAT_LEAVE_CHANNEL));
         msg.Put(static_cast<uint32_t>(channel->m_zoneChannelID));
@@ -4971,14 +4971,14 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
             s_joinedZoneChannels &= ~(1 << (id - 1));
         }
 
-        if (channel->m_unk9C == 1) {
+        if (channel->m_left == 1) {
             ChatChannel* entry = id ? CGChat::GetChannelByChatChannelID(id) : GetChannelByName(channel->m_name);
 
             if (entry) {
                 entry->m_channelNumber = 0;
                 entry->m_name[0] = '\0';
                 entry->m_zoneChannelID = 0;
-                entry->m_unk9C = 1;
+                entry->m_left = 1;
                 entry->m_unkA0 = 1;
             }
 
@@ -5005,7 +5005,7 @@ const char* CGChat::GetChannelShortName(int32_t number, bool includeInactive) {
 
     ChatChannel* channel = &CGChat::s_channels.m_data[number - 1];
 
-    if (channel->m_channelNumber != number || (!includeInactive && channel->m_unk9C)) {
+    if (channel->m_channelNumber != number || (!includeInactive && channel->m_left)) {
         return nullptr;
     }
 
@@ -5306,8 +5306,8 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
     for (uint32_t i = 0; i < CGChat::s_channels.m_count; i++) {
         ChatChannel* channel = &CGChat::s_channels.m_data[i];
 
-        if (channel->m_channelNumber && !channel->m_unk9C && !channel->m_zoneChannelID && channel->m_unkA5) {
-            SStrPrintf(line, sizeof(line), "%s %d %d\n", channel->m_name, channel->m_unkA4 != 0, channel->m_channelNumber);
+        if (channel->m_channelNumber && !channel->m_left && !channel->m_zoneChannelID && channel->m_permanent) {
+            SStrPrintf(line, sizeof(line), "%s %d %d\n", channel->m_name, channel->m_hasVoice != 0, channel->m_channelNumber);
             OsWriteFile(file, line, SStrLen(line), &written);
         }
     }
@@ -5617,10 +5617,10 @@ ChatChannel::ChatChannel() {
     this->m_pendingUsers.Clear();
     this->m_flags = 0;
     this->m_zoneChannelID = 0;
-    this->m_unk98 = 0;
-    this->m_unkA4 = 0;
-    this->m_unkA5 = 0;
-    this->m_unk9C = 1;
+    this->m_instanceID = 0;
+    this->m_hasVoice = 0;
+    this->m_permanent = 0;
+    this->m_left = 1;
     this->m_unkA0 = 1;
 }
 
@@ -5696,7 +5696,7 @@ ChatRecord* GetChatRecordEx(const char* name, const char* text, uint32_t lineID)
             continue;
         }
 
-        CGChat::COMPLAINT_PRIORITY priority = GetComplaintPriority(record->m_type, record->m_unk17B0);
+        CGChat::COMPLAINT_PRIORITY priority = GetComplaintPriority(record->m_type, record->m_zoneChannelID);
 
         if (priority < bestPriority && (!name || !SStrCmpI(name, record->m_senderName, STORM_MAX_STR)) && (!text || !SStrCmpI(text, record->m_text, STORM_MAX_STR)) && (!lineID || lineID == record->m_lineID)) {
             best = record;
@@ -6328,7 +6328,7 @@ void ComplainChat(const char* name, const char* text, uint32_t lineID) {
     msg.Put(record->m_senderGuid.m_guid);
     msg.Put(record->m_senderUnk);
     msg.Put(static_cast<uint32_t>(record->m_type));
-    msg.Put(record->m_unk17B0);
+    msg.Put(record->m_zoneChannelID);
     msg.Put(static_cast<uint32_t>(::time(nullptr) - record->m_time));
     msg.PutString(record->m_description);
     msg.Finalize();
