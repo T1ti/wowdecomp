@@ -359,10 +359,11 @@ namespace Liquid {
     C44Matrix* GetTexScrollMtx(const C2Vector& speed);
     int32_t Initialize(int32_t useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
     void InvalidateProceduralTextures();
-    void SetCircularWave(uint32_t index, const C2Vector& a2, const C2Vector& a3, float a4, float a5, float a6, float speed);
-    void SetDirectionalWave(uint32_t index, const C2Vector& direction, float a3, float a4, float a5, float speed);
+    void SetCircularWave(uint32_t index, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed);
+    void SetDirectionalWave(uint32_t index, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed);
     void SetProcWaterLighting(const CM2Lighting& lighting);
-    void SetProcWaterParams(float a1, float a2, float a3, float a4, float a5, float a6, float a7);
+    // Parameters are LiquidType.dbc m_float[11..17] (the first scaled to world coordinates).
+    void SetProcWaterParams(float liquidFloat11, float liquidFloat12, float liquidFloat13, float liquidFloat14, float liquidFloat15, float liquidFloat16, float liquidFloat17);
     void SetShaderConstants();
     void SetShaderLighting(const CM2Lighting& lighting);
     void SetShaderTransforms(const C3Vector& cameraPos, const C44Matrix& transform);

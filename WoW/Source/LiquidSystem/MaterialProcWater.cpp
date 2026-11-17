@@ -30,48 +30,48 @@ Liquid::VSWaveConstants Liquid::s_vsWaveConstants;
 
 // VERIFY: 241af1fe manual
 // OFFSET: 0x008A3620
-void Liquid::SetDirectionalWave(uint32_t index, const C2Vector& direction, float a3, float a4, float a5, float speed) {
+void Liquid::SetDirectionalWave(uint32_t index, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed) {
     Liquid::s_vsWaveConstants.m_directionalPhase[index] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
 
-    float clampedA3 = a3 < 0.001f ? 0.001f : a3;
+    float clampedUnknown3 = unknown3 < 0.001f ? 0.001f : unknown3;
     C4Vector& wave = Liquid::s_vsWaveConstants.m_directionalWaves[index];
     wave.x = direction.x;
     wave.y = direction.y;
-    wave.z = 1.0f / clampedA3;
-    wave.w = a5;
+    wave.z = 1.0f / clampedUnknown3;
+    wave.w = unknown5;
 
-    Liquid::s_vsWaveConstants.unk_0050[index] = 1.0f / (a4 < 0.001f ? 0.001f : a4);
+    Liquid::s_vsWaveConstants.unk_0050[index] = 1.0f / (unknown4 < 0.001f ? 0.001f : unknown4);
 }
 
 // VERIFY: ffbfd269 manual
 // OFFSET: 0x008A3710
-void Liquid::SetCircularWave(uint32_t index, const C2Vector& a2, const C2Vector& a3, float a4, float a5, float a6, float speed) {
+void Liquid::SetCircularWave(uint32_t index, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed) {
     Liquid::s_vsWaveConstants.m_circularPhase[index] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
 
-    float invA4 = 1.0f / (a4 < 0.001f ? 0.001f : a4);
-    Liquid::s_vsWaveConstants.unk_0060[index] = 1.0f / (a5 < 0.001f ? 0.001f : a5);
+    float invUnknown4 = 1.0f / (unknown4 < 0.001f ? 0.001f : unknown4);
+    Liquid::s_vsWaveConstants.unk_0060[index] = 1.0f / (unknown5 < 0.001f ? 0.001f : unknown5);
 
     C4Vector& wave = Liquid::s_vsWaveConstants.m_circularWaves[index];
-    wave.x = a2.x;
-    wave.y = a2.y;
-    wave.z = a3.x;
-    wave.w = a3.y;
+    wave.x = unknown2.x;
+    wave.y = unknown2.y;
+    wave.z = unknown3.x;
+    wave.w = unknown3.y;
 
-    Liquid::s_vsWaveConstants.unk_00A0[index] = invA4;
-    Liquid::s_vsWaveConstants.unk_00B0[index] = a6;
+    Liquid::s_vsWaveConstants.unk_00A0[index] = invUnknown4;
+    Liquid::s_vsWaveConstants.unk_00B0[index] = unknown6;
 }
 
 // VERIFY: e47f29d4 manual
 // OFFSET: 0x008A3810
-void Liquid::SetProcWaterParams(float a1, float a2, float a3, float a4, float a5, float a6, float a7) {
+void Liquid::SetProcWaterParams(float liquidFloat11, float liquidFloat12, float liquidFloat13, float liquidFloat14, float liquidFloat15, float liquidFloat16, float liquidFloat17) {
     float* params = Liquid::s_psProcWaterConstants.m_params;
-    params[0] = 1.0f / (a1 < 0.001f ? 0.001f : a1);
-    params[1] = a2;
-    params[2] = a3;
-    params[3] = a4;
-    params[4] = a7;
-    params[5] = a5;
-    params[6] = a6;
+    params[0] = 1.0f / (liquidFloat11 < 0.001f ? 0.001f : liquidFloat11);
+    params[1] = liquidFloat12;
+    params[2] = liquidFloat13;
+    params[3] = liquidFloat14;
+    params[4] = liquidFloat17;
+    params[5] = liquidFloat15;
+    params[6] = liquidFloat16;
     params[7] = 0.0f;
 }
 
@@ -290,26 +290,26 @@ void Liquid::CMaterialProcWater::Render(Liquid::IEnvironment* environment, Liqui
 
     for (uint32_t i = 0; i < 3; i++) {
         if (waves + 8 > wavesEnd) {
-            C2Vector a2;
-            C2Vector a3;
-            Liquid::SetCircularWave(i, a2, a3, 0.0f, 0.0f, 0.0f, 0.0f);
+            C2Vector unknown2;
+            C2Vector unknown3;
+            Liquid::SetCircularWave(i, unknown2, unknown3, 0.0f, 0.0f, 0.0f, 0.0f);
         } else {
-            C2Vector a3(waves[2], waves[3]);
-            C2Vector a2(waves[0], waves[1]);
-            Liquid::SetCircularWave(i, a2, a3, waves[4], waves[5], waves[6], waves[7]);
+            C2Vector unknown3(waves[2], waves[3]);
+            C2Vector unknown2(waves[0], waves[1]);
+            Liquid::SetCircularWave(i, unknown2, unknown3, waves[4], waves[5], waves[6], waves[7]);
         }
 
         waves += 8;
     }
 
-    float param0 = settings->GetFloat(11) * Liquid::WorldCoordScale();
-    float param1 = settings->GetFloat(12);
-    float param2 = settings->GetFloat(13);
-    float param3 = settings->GetFloat(14);
-    float param4 = settings->GetFloat(15);
-    float param5 = settings->GetFloat(16);
-    float param6 = settings->GetFloat(17);
-    Liquid::SetProcWaterParams(param0, param1, param2, param3, param4, param5, param6);
+    float liquidFloat11 = settings->GetFloat(11) * Liquid::WorldCoordScale();
+    float liquidFloat12 = settings->GetFloat(12);
+    float liquidFloat13 = settings->GetFloat(13);
+    float liquidFloat14 = settings->GetFloat(14);
+    float liquidFloat15 = settings->GetFloat(15);
+    float liquidFloat16 = settings->GetFloat(16);
+    float liquidFloat17 = settings->GetFloat(17);
+    Liquid::SetProcWaterParams(liquidFloat11, liquidFloat12, liquidFloat13, liquidFloat14, liquidFloat15, liquidFloat16, liquidFloat17);
 
     Liquid::SetShaderConstants();
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 46, reinterpret_cast<const float*>(&Liquid::s_vsWaveConstants), 12);
