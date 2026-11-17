@@ -364,19 +364,19 @@ void ObjectEffectSystem_Initialize() {
         effectRef->m_effectDef = &effectLookup->m_objectEffectDef;
 
         switch (rec->m_triggerType) {
-            case 1:
+            case OBJECT_EFFECT_TRIGGER_ENTER:
                 groupLookup->m_objectEffectGroupDef.m_enterEffects.LinkToTail(effectRef);
                 break;
 
-            case 2:
+            case OBJECT_EFFECT_TRIGGER_LOOP:
                 groupLookup->m_objectEffectGroupDef.m_loopEffects.LinkToTail(effectRef);
                 break;
 
-            case 3:
+            case OBJECT_EFFECT_TRIGGER_EXIT:
                 groupLookup->m_objectEffectGroupDef.m_exitEffects.LinkToTail(effectRef);
                 break;
 
-            case 4:
+            case OBJECT_EFFECT_TRIGGER_EVENT:
                 groupLookup->m_objectEffectGroupDef.m_eventEffects.LinkToTail(effectRef);
                 break;
         }
