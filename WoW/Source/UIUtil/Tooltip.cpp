@@ -7822,7 +7822,7 @@ void CGTooltip::SetFrameStack(bool showHidden) {
 
         info.m_strata = frame->m_strata;
         info.m_level = frame->m_level;
-        info.m_mouseEnabled = (frame->m_enabledEventsBitmask & 0x4) != 0;
+        info.m_mouseEnabled = (frame->m_enabledEventsBitmask & (1 << SIMPLE_EVENT_MOUSE)) != 0;
         info.m_visible = visible;
         s_frameStack.Add(1, &info);
     }

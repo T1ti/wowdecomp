@@ -1748,7 +1748,7 @@ static int32_t Script_SetUnitBuff(lua_State* L) {
         luaL_error(L, "Usage: %s:SetUnitBuff(\"unit\", [index] or [\"name\", \"rank\"][, \"filter\"])", name ? name : "<unnamed>");
     }
 
-    info.m_filter = (info.m_filter & 0xFC) | BUFF_FILTER_HELPFUL;
+    info.m_filter = (info.m_filter & ~(BUFF_FILTER_HELPFUL | BUFF_FILTER_HARMFUL)) | BUFF_FILTER_HELPFUL;
     return SetTooltipUnitAura(tooltip, &info);
 }
 
@@ -1763,7 +1763,7 @@ static int32_t Script_SetUnitDebuff(lua_State* L) {
         luaL_error(L, "Usage: %s:SetUnitDebuff(\"unit\", [index] or [\"name\", \"rank\"][, \"filter\"])", name ? name : "<unnamed>");
     }
 
-    info.m_filter = (info.m_filter & 0xFC) | BUFF_FILTER_HARMFUL;
+    info.m_filter = (info.m_filter & ~(BUFF_FILTER_HELPFUL | BUFF_FILTER_HARMFUL)) | BUFF_FILTER_HARMFUL;
     return SetTooltipUnitAura(tooltip, &info);
 }
 
