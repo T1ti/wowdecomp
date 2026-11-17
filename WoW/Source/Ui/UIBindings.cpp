@@ -594,7 +594,7 @@ char* CGUIBindings::MouseEventToString(const CMouseEvent& evt, char* binding, in
         return nullptr;
     }
 
-    if (evt.m_id == 0x400500C8 || evt.m_id == 0x400500C9) {
+    if (evt.m_id == EVENT_MOUSE_DOWN || evt.m_id == EVENT_MOUSE_UP) {
         switch (evt.m_data.m_button) {
             case MOUSE_BUTTON_LEFT:
                 SStrCopy(binding, "BUTTON1", maxLength);
@@ -622,7 +622,7 @@ char* CGUIBindings::MouseEventToString(const CMouseEvent& evt, char* binding, in
         }
     }
 
-    if (evt.m_id == 0x400500CD) {
+    if (evt.m_id == EVENT_MOUSE_WHEEL) {
         if (static_cast<int32_t>(evt.m_data.m_wheelAmount) < 0) {
             SStrCopy(binding, "MOUSEWHEELDOWN", maxLength);
         } else {

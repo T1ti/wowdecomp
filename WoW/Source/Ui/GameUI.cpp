@@ -2120,7 +2120,7 @@ void CGGameUI::GetDeathReleaseLocation(int32_t& mapID, C3Vector& position) {
 // VERIFY: 53c66aae manual
 // OFFSET: 0x00512CD0
 int32_t CGGameUI::FilterMouseMotion(CMouseEvent* evt) {
-    if (evt->m_id != 0x400500CB) {
+    if (evt->m_id != EVENT_MOUSE_MOVE_RELATIVE) {
         return 0;
     }
 
@@ -3840,7 +3840,7 @@ void CGGameUI::UnitModelUpdate(const WOWGUID& guid, uint32_t flags) {
 // VERIFY: 6cededd1 auto
 // OFFSET: 0x0051FA50
 int32_t CGGameUI::FilterMouseDown(CMouseEvent* evt) {
-    if (evt->m_id == 0x400500C8 && evt->m_data.m_button == MOUSE_BUTTON_RIGHT) {
+    if (evt->m_id == EVENT_MOUSE_DOWN && evt->m_data.m_button == MOUSE_BUTTON_RIGHT) {
         if (CGGameUI::m_cursorItem || CGGameUI::m_cursorVirtualID || CGGameUI::m_cursorMoney || CGGameUI::m_cursorSpell || CGGameUI::m_cursorPetAction.m_data || CGGameUI::m_cursorMacro || CGGameUI::m_cursorPet || CGPlayer_C::IsGiftWrapping()) {
             CGGameUI::ClearCursor(1, 1);
             return 1;
@@ -3851,7 +3851,7 @@ int32_t CGGameUI::FilterMouseDown(CMouseEvent* evt) {
         return 0;
     }
 
-    if (evt->m_id == 0x400500C8) {
+    if (evt->m_id == EVENT_MOUSE_DOWN) {
         CGWorldFrame::s_currentWorldFrame->OnLayerMouseDown(*evt, nullptr);
     } else {
         CGWorldFrame::s_currentWorldFrame->OnLayerMouseUp(*evt, nullptr);

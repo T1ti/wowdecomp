@@ -184,7 +184,7 @@ void CSimpleTop::SetMouseFocus(CSimpleFrame* frame) {
         evt = this->m_mousePosition;
         evt.m_data.m_mousePosition.x = 0.0f;
         evt.m_data.m_mousePosition.y = 0.0f;
-        evt.m_id = 0x400500C9;
+        evt.m_id = EVENT_MOUSE_UP;
         this->m_mouseCapture->OnLayerMouseUp(evt, nullptr);
         this->m_mouseCapture = nullptr;
     }
@@ -424,7 +424,7 @@ int32_t CSimpleTop::OnMouseMove(const void* data, void* param) {
     evt = *mouseData;
 
     CSimpleFrame* oldFocus = top->m_mouseFocus;
-    evt.m_id = 0x400500CA;
+    evt.m_id = EVENT_MOUSE_MOVE;
 
     CSimpleFrame* newFocus = nullptr;
     int32_t motion = mouseData != &top->m_mousePosition;
@@ -502,7 +502,7 @@ int32_t CSimpleTop::OnMouseMoveRelative(const void* data, void* param) {
 
     CMouseEvent evt;
     evt = *mouseData;
-    evt.m_id = 0x400500CB;
+    evt.m_id = EVENT_MOUSE_MOVE_RELATIVE;
     CSimpleTop::s_eventTime = mouseData->m_time;
 
     return !callback || !callback(&evt);
@@ -520,7 +520,7 @@ int32_t CSimpleTop::OnMouseUp(const void* data, void* param) {
     CMouseEvent evt;
     evt = *mouseData;
     CSimpleTop::s_eventTime = mouseData->m_time;
-    evt.m_id = 0x400500C9;
+    evt.m_id = EVENT_MOUSE_UP;
 
     if (top->m_moveResizeReason == MOVERESIZE_REASON_LAYOUT || top->m_moveResizeReason == MOVERESIZE_REASON_TITLE) {
         top->StopMoveOrResizeFrame();
@@ -556,7 +556,7 @@ int32_t CSimpleTop::OnMouseWheel(const void* data, void* param) {
 
     C2Vector pt;
     CSimpleTop::s_eventTime = mouseData->m_time;
-    evt.m_id = 0x400500CD;
+    evt.m_id = EVENT_MOUSE_WHEEL;
     NDCToDDC(top->m_mousePosition.m_x, top->m_mousePosition.m_y, &pt.x, &pt.y);
 
     for (int32_t strata = FRAME_STRATA_TOOLTIP; strata >= 0; strata--) {
@@ -913,7 +913,7 @@ int32_t CSimpleTop::OnMouseDown(const void* data, void* param) {
     CMouseEvent evt;
     evt = *mouseData;
     CSimpleTop::s_eventTime = mouseData->m_time;
-    evt.m_id = 0x400500C8;
+    evt.m_id = EVENT_MOUSE_DOWN;
     memcpy(&top->m_mousePosition, mouseData, sizeof(top->m_mousePosition));
 
     if (top->m_moveResizeEnabled && (EventIsKeyDown(KEY_LCONTROL) || EventIsKeyDown(KEY_LALT))) {
