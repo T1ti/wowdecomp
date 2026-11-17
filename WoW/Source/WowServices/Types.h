@@ -27,6 +27,12 @@ enum BN_EVENT_ID {
     BN_EVENT_SEND_SURVEY_INFO = 14,
 };
 
+// Returned by Login::GetLoginServerType: GruntLogin returns 0, BattlenetLogin returns 1.
+enum LOGIN_SERVER_TYPE : int32_t {
+    LOGIN_SERVER_GRUNT = 0,
+    LOGIN_SERVER_BATTLENET = 1,
+};
+
 enum LOGIN_RESULT {
     LOGIN_OK = 0,
     LOGIN_INVALID_CHALLENGE_MESSAGE = 1,

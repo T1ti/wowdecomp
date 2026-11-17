@@ -23,7 +23,7 @@ static int32_t Script_RequestRealmList(lua_State* L) {
 // VERIFY: 67f9da3d auto
 // OFFSET: 0x004DE450
 static int32_t Script_RealmListUpdateRate(lua_State* L) {
-    if (ClientServices::LoginConnection() && ClientServices::LoginConnection()->GetLoginServerType() == 1) {
+    if (ClientServices::LoginConnection() && ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
         lua_pushnumber(L, 4.0);
         return 1;
     }

@@ -74,7 +74,7 @@ void CGlueMgr::SurveySendResults() {
 // VERIFY: 65419e70 auto
 // OFFSET: 0x004E48E0
 void CGlueMgr::SurveyDownloadStart() {
-    if (ClientServices::LoginConnection()->GetLoginServerType()) {
+    if (ClientServices::LoginConnection()->GetLoginServerType() != LOGIN_SERVER_GRUNT) {
         return;
     }
 

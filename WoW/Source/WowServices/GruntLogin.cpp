@@ -276,8 +276,8 @@ void GruntLogin::Update() {
 void GruntLogin::JoinRealm(uint32_t a1, uint32_t a2, uint32_t a3) {
 }
 
-int32_t GruntLogin::GetLoginServerType() {
-    return 0;
+LOGIN_SERVER_TYPE GruntLogin::GetLoginServerType() {
+    return LOGIN_SERVER_GRUNT;
 }
 
 // VERIFY: d9686987 auto

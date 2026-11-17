@@ -182,7 +182,7 @@ class BattlenetLogin : public Login {
     void Init(LoginResponse* loginResponse) override;
     ~BattlenetLogin() override;
     void JoinRealm(uint32_t region, uint32_t battlegroup, uint32_t id) override;
-    int32_t GetLoginServerType() override;
+    LOGIN_SERVER_TYPE GetLoginServerType() override;
 
     BattlenetLogin();
     void BuildRealmListResult();

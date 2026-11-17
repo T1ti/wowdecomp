@@ -160,7 +160,7 @@ void CGlueMgr::PatchDownloadStart() {
         delete CGlueMgr::m_patchDownload;
     }
 
-    if (ClientServices::LoginConnection()->GetLoginServerType() == 1) {
+    if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
         CGlueMgr::m_patchDownload = new (__FILE__, __LINE__) BattlenetFileDownload;
     } else {
         CGlueMgr::m_patchDownload = new (__FILE__, __LINE__) GruntFileDownload;
@@ -185,7 +185,7 @@ void CGlueMgr::PatchDownloadStart() {
     uint64_t offset;
     bool accept = CGlueMgr::m_patchDownload->Initialize(path, ClientServices::LoginConnection()->m_fileMD5, size, offset);
 
-    if (!ClientServices::LoginConnection()->GetLoginServerType()) {
+    if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_GRUNT) {
         ClientServices::FileAccept(accept, offset);
     }
 }
@@ -201,7 +201,7 @@ void CGlueMgr::PatchDownloadCancel() {
 
     CGlueMgr::m_patchDownload = nullptr;
 
-    if (!ClientServices::LoginConnection()->GetLoginServerType()) {
+    if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_GRUNT) {
         ClientServices::LoginConnection()->FileComplete(false);
     }
 
@@ -318,7 +318,7 @@ void CGlueMgr::PatchDownloadIdle() {
                 CGlueMgr::m_patchDownloadProgress = CGlueMgr::m_patchDownload->GetProgress();
                 FrameScript_SignalEvent(GLUE_EVENT_PATCH_UPDATE_PROGRESS, nullptr);
 
-                if (!ClientServices::LoginConnection()->GetLoginServerType() && !ClientServices::LoginConnection()->IsLoggedOn()) {
+                if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_GRUNT && !ClientServices::LoginConnection()->IsLoggedOn()) {
                     CGlueMgr::PatchDownloadCancel();
                     FrameScript_SignalEvent(GLUE_EVENT_OPEN_STATUS_DIALOG, "%s%s", "OKAY", FrameScript_GetText("DISCONNECTED", -1, GENDER_NOT_APPLICABLE));
                 }

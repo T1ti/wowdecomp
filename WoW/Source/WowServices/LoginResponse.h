@@ -24,7 +24,7 @@ class LoginResponse {
     virtual bool GetCdKeys(Grunt::CdKey& cdKey);
     virtual void FileData(const uint8_t* data, uint32_t size);
     virtual const char* GetLoginServer() = 0;
-    virtual int32_t GetLoginServerType() = 0;
+    virtual LOGIN_SERVER_TYPE GetLoginServerType() = 0;
     virtual void JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) = 0;
     virtual void LoginServerStatus(LOGIN_STATE state, LOGIN_RESULT result, const char* addressString, const char* stateString, const char* resultString, uint16_t flags) = 0;
     virtual void RealmEnumCallback(uint32_t result) = 0;

@@ -1290,7 +1290,7 @@ static int32_t Script_GetNumGameAccounts(lua_State* L) {
         return 0;
     }
 
-    if (login->GetLoginServerType() != 1) {
+    if (login->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         luaL_error(L, "Wrong login type");
         return 0;
     }
@@ -1315,7 +1315,7 @@ static int32_t Script_GetGameAccountInfo(lua_State* L) {
         return 0;
     }
 
-    if (login->GetLoginServerType() != 1) {
+    if (login->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         luaL_error(L, "Wrong login type");
         return 0;
     }
@@ -1348,7 +1348,7 @@ static int32_t Script_SetGameAccount(lua_State* L) {
         return 0;
     }
 
-    if (login->GetLoginServerType() != 1) {
+    if (login->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         luaL_error(L, "Wrong login type");
         return 0;
     }

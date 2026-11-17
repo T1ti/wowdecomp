@@ -1926,6 +1926,6 @@ void BattlenetLogin::SendSurveyFailed() {
 
 // VERIFY: 4092e10a auto
 // OFFSET: 0x008C8DE0
-int32_t BattlenetLogin::GetLoginServerType() {
-    return 1;
+LOGIN_SERVER_TYPE BattlenetLogin::GetLoginServerType() {
+    return LOGIN_SERVER_BATTLENET;
 }

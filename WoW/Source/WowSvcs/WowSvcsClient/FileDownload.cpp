@@ -510,11 +510,11 @@ void BattlenetFileDownload::Proceed(const uint8_t* data, uint32_t size) {
 bool BattlenetFileDownload::Initialize(const char* fileName, const uint8_t* md5, uint64_t size, uint64_t& offset) {
     BattlenetLogin* login = static_cast<BattlenetLogin*>(ClientServices::LoginConnection());
 
-    if (!login || login->GetLoginServerType() != 1) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    if (login->GetLoginServerType() != 1) {
+    if (login->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         return false;
     }
 

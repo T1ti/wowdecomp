@@ -165,7 +165,7 @@ class ClientServices : public LoginResponse {
     bool GetCdKeys(Grunt::CdKey& cdKey) override;
     void FileData(const uint8_t* data, uint32_t size) override;
     const char* GetLoginServer() override;
-    int32_t GetLoginServerType() override;
+    LOGIN_SERVER_TYPE GetLoginServerType() override;
     void JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) override;
     void LoginServerStatus(LOGIN_STATE state, LOGIN_RESULT result, const char* addressString, const char* stateString, const char* resultString, uint16_t flags) override;
     void RealmEnumCallback(uint32_t result) override;

@@ -250,7 +250,7 @@ void LoginResponse::HandleRealmData(uint32_t result, CDataStore* msg) {
         msg->Get(realm->m_numCharacters);
         msg->Get(realm->m_category);
 
-        if (this->GetLoginServerType() == 1) {
+        if (this->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
             msg->Get(realm->m_regionId);
             msg->Get(realm->m_battlegroupId);
             msg->Get(realm->m_realmId);

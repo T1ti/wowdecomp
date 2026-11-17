@@ -862,7 +862,7 @@ int32_t CGlueMgr::HandleBattlenetDisconnect() {
         return 0;
     }
 
-    if (!ClientServices::LoginConnection() || ClientServices::LoginConnection()->GetLoginServerType() != 1) {
+    if (!ClientServices::LoginConnection() || ClientServices::LoginConnection()->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         return 0;
     }
 
@@ -1269,7 +1269,7 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
     }
 
     if (idleState == IDLE_ACCOUNT_LOGIN) {
-        if (ClientServices::LoginConnection()->GetLoginServerType() == 1 && CGlueMgr::m_loginState == LOGIN_STATE_FAILED) {
+        if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_BATTLENET && CGlueMgr::m_loginState == LOGIN_STATE_FAILED) {
             CGlueMgr::DisplayLoginStatus();
             ClientServices::Connection()->Cancel(2);
             ClientServices::LoginConnection()->Logoff();
@@ -2059,7 +2059,7 @@ void CGlueMgr::EnterWorld() {
     CVar::SaveAll();
     TextureGxCacheFlush();
 
-    if (!ClientServices::LoginConnection()->GetLoginServerType()) {
+    if (ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_GRUNT) {
         ClientServices::LoginConnection()->Logoff();
     }
 

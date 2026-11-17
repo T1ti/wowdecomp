@@ -18,7 +18,7 @@ static int32_t Script_BNConnected(lua_State* L) {
     bool connected = false;
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
         int32_t state = static_cast<BattlenetLogin*>(login)->m_serviceState;
 
         if (state == 7 || state == 6 || state == 3) {
@@ -34,7 +34,7 @@ static int32_t Script_BNConnected(lua_State* L) {
 // OFFSET: 0x00530F20
 static int32_t Script_IsBNLogin(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
-    lua_pushboolean(L, login && login->GetLoginServerType() == 1);
+    lua_pushboolean(L, login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET);
     return 1;
 }
 
@@ -43,7 +43,7 @@ static int32_t Script_IsBNLogin(lua_State* L) {
 static int32_t Script_BNGetInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -83,7 +83,7 @@ static int32_t Script_BNGetInfo(lua_State* L) {
 static int32_t Script_BNGetNumFriends(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendListLoaded) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendListLoaded) {
         lua_pushnumber(L, 0.0);
         lua_pushnumber(L, 0.0);
         return 2;
@@ -116,7 +116,7 @@ static int32_t Script_BNGetNumFriends(lua_State* L) {
 static int32_t Script_BNGetNumFriendToons(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -154,7 +154,7 @@ static int32_t Script_BNGetNumFriendToons(lua_State* L) {
 static int32_t Script_BNRemoveFriend(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNRemoveFriend(ID)");
         }
@@ -172,7 +172,7 @@ static int32_t Script_BNRemoveFriend(lua_State* L) {
 static int32_t Script_BNSetFriendNote(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNSetFriendNote(ID, noteText)");
         }
@@ -201,7 +201,7 @@ static int32_t Script_BNSetFriendNote(lua_State* L) {
 static int32_t Script_BNGetNumFriendInvites(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendInvites) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendInvites) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -223,7 +223,7 @@ static int32_t Script_BNGetNumFriendInvites(lua_State* L) {
 static int32_t Script_BNGetFriendInviteInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -280,7 +280,7 @@ static int32_t Script_BNGetFriendInviteInfo(lua_State* L) {
 static int32_t Script_BNSendFriendInvite(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isstring(L, 1)) {
             luaL_error(L, "Usage: BNSendFriendInvite(text, noteText)");
         }
@@ -315,7 +315,7 @@ static int32_t Script_BNSendFriendInvite(lua_State* L) {
 static int32_t Script_BNSendFriendInviteByID(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isstring(L, 1)) {
             luaL_error(L, "Usage: BNSendFriendInviteByID(ID, noteText)");
         }
@@ -350,7 +350,7 @@ static int32_t Script_BNSendFriendInviteByID(lua_State* L) {
 static int32_t Script_BNAcceptFriendInvite(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNAcceptFriendInvite(ID)");
         }
@@ -366,7 +366,7 @@ static int32_t Script_BNAcceptFriendInvite(lua_State* L) {
 static int32_t Script_BNDeclineFriendInvite(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNDeclineFriendInvite(ID)");
         }
@@ -382,7 +382,7 @@ static int32_t Script_BNDeclineFriendInvite(lua_State* L) {
 static int32_t Script_BNReportFriendInvite(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNReportFriendInvite(ID)");
         }
@@ -398,7 +398,7 @@ static int32_t Script_BNReportFriendInvite(lua_State* L) {
 static int32_t Script_BNSetAFK(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (lua_type(L, 1) != LUA_TBOOLEAN) {
             luaL_error(L, "Usage: BNSetAFK(bool)");
         }
@@ -418,7 +418,7 @@ static int32_t Script_BNSetAFK(lua_State* L) {
 static int32_t Script_BNSetDND(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (lua_type(L, 1) != LUA_TBOOLEAN) {
             luaL_error(L, "Usage: BNSetDND(bool)");
         }
@@ -438,7 +438,7 @@ static int32_t Script_BNSetDND(lua_State* L) {
 static int32_t Script_BNSetCustomMessage(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isstring(L, 1)) {
             luaL_error(L, "Usage: BNSetCustomMessage(text)");
         }
@@ -480,7 +480,7 @@ static int32_t Script_BNGetCustomMessageTable(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
     uint32_t i = 0;
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -530,7 +530,7 @@ static int32_t Script_BNGetCustomMessageTable(lua_State* L) {
 static int32_t Script_BNSetFocus(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         Battlenet::Presence::FieldVal value;
         value.m_tag = 0;
         BattlenetAPI::SetPresenceValue(BattlenetUI::s_presenceCallbacks[BN_PRESENCE_FOCUS].m_field, &value);
@@ -544,7 +544,7 @@ static int32_t Script_BNSetFocus(lua_State* L) {
 static int32_t Script_BNCreateConversation(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -589,7 +589,7 @@ static int32_t Script_BNCreateConversation(lua_State* L) {
 static int32_t Script_BNInviteToConversation(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -630,7 +630,7 @@ static int32_t Script_BNInviteToConversation(lua_State* L) {
 static int32_t Script_BNLeaveConversation(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -657,7 +657,7 @@ static int32_t Script_BNLeaveConversation(lua_State* L) {
 static int32_t Script_BNSendConversationMessage(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1) || !lua_isstring(L, 2)) {
             luaL_error(L, "Usage: BNSendConversationMessage(channel,text)");
         }
@@ -685,7 +685,7 @@ static int32_t Script_BNSendConversationMessage(lua_State* L) {
 static int32_t Script_BNGetNumConversationMembers(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -717,7 +717,7 @@ static int32_t Script_BNGetNumConversationMembers(lua_State* L) {
 static int32_t Script_BNGetConversationInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -741,7 +741,7 @@ static int32_t Script_BNGetConversationInfo(lua_State* L) {
 static int32_t Script_BNGetNumBlocked(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -763,7 +763,7 @@ static int32_t Script_BNGetNumBlocked(lua_State* L) {
 static int32_t Script_BNIsBlocked(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -784,7 +784,7 @@ static int32_t Script_BNIsBlocked(lua_State* L) {
 static int32_t Script_BNSetBlocked(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1) || lua_type(L, 2) != LUA_TBOOLEAN) {
             luaL_error(L, "Usage: BNSetBlocked(ID, true/false)");
         }
@@ -809,7 +809,7 @@ static int32_t Script_BNSetBlocked(lua_State* L) {
 static int32_t Script_BNSetSelectedBlock(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -839,7 +839,7 @@ static int32_t Script_BNSetSelectedBlock(lua_State* L) {
 static int32_t Script_BNGetSelectedBlock(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -864,7 +864,7 @@ static int32_t Script_BNGetSelectedBlock(lua_State* L) {
 static int32_t Script_BNGetNumBlockedToons(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -886,7 +886,7 @@ static int32_t Script_BNGetNumBlockedToons(lua_State* L) {
 static int32_t Script_BNGetBlockedToonInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -916,7 +916,7 @@ static int32_t Script_BNGetBlockedToonInfo(lua_State* L) {
 static int32_t Script_BNIsToonBlocked(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -937,7 +937,7 @@ static int32_t Script_BNIsToonBlocked(lua_State* L) {
 static int32_t Script_BNSetToonBlocked(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1) || lua_type(L, 2) != LUA_TBOOLEAN) {
             luaL_error(L, "Usage: BNSetToonBlocked(ID, true/false)");
         }
@@ -962,7 +962,7 @@ static int32_t Script_BNSetToonBlocked(lua_State* L) {
 static int32_t Script_BNSetSelectedToonBlock(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -992,7 +992,7 @@ static int32_t Script_BNSetSelectedToonBlock(lua_State* L) {
 static int32_t Script_BNGetSelectedToonBlock(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -1017,7 +1017,7 @@ static int32_t Script_BNGetSelectedToonBlock(lua_State* L) {
 static int32_t Script_BNReportPlayer(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1) || !lua_isstring(L, 2)) {
             luaL_error(L, "Usage: BNReportPlayer(ID,typeText,note)");
         }
@@ -1061,7 +1061,7 @@ static int32_t Script_BNReportPlayer(lua_State* L) {
 // OFFSET: 0x00537010
 static int32_t Script_BNFeaturesEnabledAndConnected(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
-    lua_pushboolean(L, login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled() && static_cast<BattlenetLogin*>(login)->IsConnected());
+    lua_pushboolean(L, login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled() && static_cast<BattlenetLogin*>(login)->IsConnected());
     return 1;
 }
 
@@ -1069,7 +1069,7 @@ static int32_t Script_BNFeaturesEnabledAndConnected(lua_State* L) {
 // OFFSET: 0x00537070
 static int32_t Script_BNFeaturesEnabled(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
-    lua_pushboolean(L, login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled());
+    lua_pushboolean(L, login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled());
     return 1;
 }
 
@@ -1078,7 +1078,7 @@ static int32_t Script_BNFeaturesEnabled(lua_State* L) {
 static int32_t Script_BNGetNumFOF(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1119,7 +1119,7 @@ static int32_t Script_BNGetNumFOF(lua_State* L) {
 static int32_t Script_BNGetFOFInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1201,7 +1201,7 @@ static int32_t Script_BNGetFOFInfo(lua_State* L) {
 static int32_t Script_BNSetSelectedFriend(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1234,7 +1234,7 @@ static int32_t Script_BNSetSelectedFriend(lua_State* L) {
 static int32_t Script_BNGetSelectedFriend(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled() && BattlenetUI::m_friendListLoaded && BattlenetUI::s_selectedFriend) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled() && BattlenetUI::m_friendListLoaded && BattlenetUI::s_selectedFriend) {
         int32_t index = BattlenetUI::FindFriendIndex(BattlenetUI::s_selectedFriend);
 
         if (index < 0) {
@@ -1255,7 +1255,7 @@ static int32_t Script_BNGetSelectedFriend(lua_State* L) {
 static int32_t Script_BNSetMatureLanguageFilter(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (lua_type(L, 1) != LUA_TBOOLEAN) {
             luaL_error(L, "Usage: BNSetMatureLanguageFilter(true/false)");
         }
@@ -1279,7 +1279,7 @@ static int32_t Script_BNSetMatureLanguageFilter(lua_State* L) {
 static int32_t Script_BNGetMatureLanguageFilter(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1300,7 +1300,7 @@ static int32_t Script_BNGetMatureLanguageFilter(lua_State* L) {
 static int32_t Script_BNIsSelf(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1317,7 +1317,7 @@ static int32_t Script_BNIsSelf(lua_State* L) {
 static int32_t Script_BNIsFriend(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1334,7 +1334,7 @@ static int32_t Script_BNIsFriend(lua_State* L) {
 static int32_t Script_BNGetMaxPlayersInConversation(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1347,7 +1347,7 @@ static int32_t Script_BNGetMaxPlayersInConversation(lua_State* L) {
 static int32_t Script_BNGetFriendInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1373,7 +1373,7 @@ static int32_t Script_BNGetFriendInfo(lua_State* L) {
 static int32_t Script_BNGetFriendInfoByID(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1395,7 +1395,7 @@ static int32_t Script_BNGetFriendInfoByID(lua_State* L) {
 static int32_t Script_BNGetFriendToonInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1455,7 +1455,7 @@ static int32_t Script_BNGetFriendToonInfo(lua_State* L) {
 static int32_t Script_BNGetToonInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1471,7 +1471,7 @@ static int32_t Script_BNGetToonInfo(lua_State* L) {
 static int32_t Script_BNSendWhisper(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1) || !lua_isstring(L, 2)) {
             luaL_error(L, "Usage: BNSendWhisper(id,text)");
         }
@@ -1501,7 +1501,7 @@ static int32_t Script_BNSendWhisper(lua_State* L) {
 static int32_t Script_BNGetConversationMemberInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1542,7 +1542,7 @@ static int32_t Script_BNGetConversationMemberInfo(lua_State* L) {
 static int32_t Script_BNListConversation(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (login && login->GetLoginServerType() == 1 && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
+    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled()) {
         if (!lua_isnumber(L, 1)) {
             luaL_error(L, "Usage: BNListConversation(channel)");
         }
@@ -1594,7 +1594,7 @@ static int32_t Script_BNListConversation(lua_State* L) {
 static int32_t Script_BNGetBlockedInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 
@@ -1624,7 +1624,7 @@ static int32_t Script_BNGetBlockedInfo(lua_State* L) {
 static int32_t Script_BNRequestFOFInfo(lua_State* L) {
     Login* login = ClientServices::LoginConnection();
 
-    if (!login || login->GetLoginServerType() != 1 || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
         return 0;
     }
 

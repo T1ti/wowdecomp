@@ -86,7 +86,7 @@ class GruntLogin : public Login {
     void Init(LoginResponse* loginResponse) override;
     ~GruntLogin() override;
     void JoinRealm(uint32_t a1, uint32_t a2, uint32_t a3) override;
-    int32_t GetLoginServerType() override;
+    LOGIN_SERVER_TYPE GetLoginServerType() override;
 
     GruntLogin();
     void EncodePinDigits(uint32_t seed);

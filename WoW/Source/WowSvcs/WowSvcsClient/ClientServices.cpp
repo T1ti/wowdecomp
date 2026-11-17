@@ -836,7 +836,7 @@ void ClientServices::Logon(const char* username, const char* password) {
 
     bool battlenet = SStrChr(username, '@') != nullptr;
 
-    if (ClientServices::s_loginObj && ((ClientServices::s_loginObj->GetLoginServerType() == 1 && !battlenet) || (ClientServices::s_loginObj->GetLoginServerType() == 0 && battlenet))) {
+    if (ClientServices::s_loginObj && ((ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !battlenet) || (ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_GRUNT && battlenet))) {
         delete ClientServices::s_loginObj;
         ClientServices::s_loginObj = nullptr;
     }
@@ -887,8 +887,8 @@ void ClientServices::Logon(const char* username, const char* password) {
 
     ClientServices::s_loginObj->SetLogonCreds(accountName, password);
 
-    const char* portal = ClientServices::s_loginObj->GetLoginServerType() == 1 ? ClientServices::s_portalVar->m_stringValue.m_str : "";
-    const char* realmList = ClientServices::s_loginObj->GetLoginServerType() == 1 ? ClientServices::s_realmListBNVar->m_stringValue.m_str : ClientServices::s_realmListVar->m_stringValue.m_str;
+    const char* portal = ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_BATTLENET ? ClientServices::s_portalVar->m_stringValue.m_str : "";
+    const char* realmList = ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_BATTLENET ? ClientServices::s_realmListBNVar->m_stringValue.m_str : ClientServices::s_realmListVar->m_stringValue.m_str;
     ClientServices::s_loginObj->Logon(realmList, portal);
 }
 
@@ -986,9 +986,9 @@ void ClientServices::SendPacket(CDataStore* msg) {
 
 // VERIFY: 89403ad4 manual
 // OFFSET: 0x004D9FE0
-int32_t ClientServices::GetLoginServerType() {
+LOGIN_SERVER_TYPE ClientServices::GetLoginServerType() {
     if (!ClientServices::LoginConnection()) {
-        return 0;
+        return LOGIN_SERVER_GRUNT;
     }
 
     return ClientServices::LoginConnection()->GetLoginServerType();
@@ -1087,7 +1087,7 @@ void ClientServices::RealmEnumCallback(uint32_t result) {
         return;
     }
 
-    if (ClientServices::s_loginObj->GetLoginServerType() == 1) {
+    if (ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
         if (ClientServices::m_selectRealmInfoValid || ClientServices::SetSelectedRealmInfo(0)) {
             connection->m_realmConnectPending = 1;
             ClientServices::s_loginObj->JoinRealm(ClientServices::m_selectRealmInfo.m_regionId, ClientServices::m_selectRealmInfo.m_battlegroupId, ClientServices::m_selectRealmInfo.m_realmId);
@@ -1506,7 +1506,7 @@ void ClientConnection::HandleLogoutAbortAck() {
 // VERIFY: 52ab6642 manual
 // OFFSET: 0x006B0F00
 const char* ClientServices::GetLoginServer() {
-    if (ClientServices::s_loginObj->GetLoginServerType() == 1) {
+    if (ClientServices::s_loginObj->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
         return ClientServices::s_realmListBNVar->m_stringValue.m_str;
     }
 
@@ -1550,7 +1550,7 @@ void ClientConnection::HandleLogoutComplete() {
 // VERIFY: a00d1e9e manual
 // OFFSET: 0x006B3070
 void ClientServices::JoinRealmResult(uint32_t realmId, int32_t a2, int32_t a3, int32_t a4, int32_t a5) {
-    if (ClientServices::s_loginObj->GetLoginServerType() != 1) {
+    if (ClientServices::s_loginObj->GetLoginServerType() != LOGIN_SERVER_BATTLENET) {
         return;
     }
 

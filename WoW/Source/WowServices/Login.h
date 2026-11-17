@@ -88,7 +88,7 @@ class Login : public Grunt::ClientResponse {
     virtual void Init(LoginResponse* loginResponse) = 0;
     virtual ~Login();
     virtual void JoinRealm(uint32_t a1, uint32_t a2, uint32_t a3) = 0;
-    virtual int32_t GetLoginServerType() = 0;
+    virtual LOGIN_SERVER_TYPE GetLoginServerType() = 0;
 
     Login();
     void SetLogonCreds(const char* accountName, const char* password);
