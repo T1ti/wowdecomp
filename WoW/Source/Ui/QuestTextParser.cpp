@@ -1125,7 +1125,7 @@ int32_t SpellParserParseText(const SpellRec* spell, char* buffer, uint32_t size,
 
 // VERIFY: b9d5f6fa manual
 // OFFSET: 0x00579590
-int32_t QuestParserParseText(const char* text, char* buffer, uint32_t size, const WOWGUID& guid, const char* name, int32_t a6) {
+int32_t QuestParserParseText(const char* text, char* buffer, uint32_t size, const WOWGUID& guid, const char* name, int32_t achievement) {
     bool failed = false;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
     NameCache* record;
@@ -1154,7 +1154,7 @@ int32_t QuestParserParseText(const char* text, char* buffer, uint32_t size, cons
 
         cursor = token + 1;
 
-        if (!QuestParserParseToken(buffer, size, record, name, a6, guid, unit, &cursor)) {
+        if (!QuestParserParseToken(buffer, size, record, name, achievement, guid, unit, &cursor)) {
             SStrPack(buffer, "$", size);
             failed = true;
         }

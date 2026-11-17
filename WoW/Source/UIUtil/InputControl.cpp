@@ -1230,7 +1230,7 @@ void CGInputControl::PitchPlayer(uint32_t time, CGUnit_C* unit) {
 
 // VERIFY: c0d2e3b9 manual
 // OFFSET: 0x005FBBC0
-void CGInputControl::UpdatePlayer(uint32_t time, int32_t a2) {
+void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!mover) {
@@ -1238,7 +1238,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, int32_t a2) {
     }
 
     if ((mover->m_obj->m_type & TYPE_PLAYER) && static_cast<CGPlayer_C*>(mover)->IsCommentatorUberOrInArena()) {
-        CGCommentator::s_Commentator.UpdateCameraVelocity(this->m_flags, a2);
+        CGCommentator::s_Commentator.UpdateCameraVelocity(this->m_flags, canControl);
         return;
     }
 
@@ -1248,8 +1248,8 @@ void CGInputControl::UpdatePlayer(uint32_t time, int32_t a2) {
         time = lastUpdateTime;
     }
 
-    bool canMove = a2 && CGInputControl::CanMove(mover);
-    bool canTurn = a2 && CGInputControl::CanTurn(mover);
+    bool canMove = canControl && CGInputControl::CanMove(mover);
+    bool canTurn = canControl && CGInputControl::CanTurn(mover);
 
     if (canMove) {
         this->MovePlayer(time, mover);

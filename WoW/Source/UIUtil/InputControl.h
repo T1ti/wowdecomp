@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/UIUtil/Types.h"
 
@@ -93,7 +94,7 @@ class CGInputControl {
     bool DetectWowMouse();
     void VehicleAimChange(uint32_t time, float delta);
     void UpdateMoveStopped();
-    void UpdatePlayer(uint32_t time, int32_t a2);
+    void UpdatePlayer(uint32_t time, BOOL canControl);
     void ToggleControlBit(uint32_t bit, int32_t enable, uint32_t time, int32_t keepSmoothing);
     int32_t SetControlBit(uint32_t bit, uint32_t time);
     int32_t UnsetControlBit(uint32_t bit, uint32_t time, int32_t keepSmoothing);

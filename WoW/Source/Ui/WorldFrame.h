@@ -228,14 +228,14 @@ class CGWorldFrame : public CSimpleFrame {
     void OnWorldUpdate();
     void UpdateDayNight(float deltaSec);
     int32_t HandleSpriteTrack(WOWGUID guid);
-    int32_t HitTestPoint(float x, float y, int32_t a3, HITTESTRESULT* result);
+    int32_t HitTestPoint(float x, float y, int32_t unknown3, HITTESTRESULT* result);
     int32_t CanTargetCorpseSelection(const CGCorpse_C* corpse, uint32_t flags);
     static void __stdcall CursorTrackObject(CGGameObject_C* object);
     static void __stdcall CursorTrackUnit(CGUnit_C* unit);
     static void __stdcall CursorTrackCorpse(CGCorpse_C* corpse);
     int32_t IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags);
     int32_t IsLegalSelection(CGObject_C* object, uint32_t flags);
-    uint32_t GetHitTestFilterFlags(int32_t a1);
+    uint32_t GetHitTestFilterFlags(int32_t unknown1);
     uint64_t FindClosestModel(const C3Vector& start, const C3Vector& end, uint32_t flags, float* distance);
     int32_t HitTest(const C3Vector& start, const C3Vector& end, uint32_t flags, HITTESTRESULT* result);
     void OnLayerTrackObject(const HITTESTRESULT& result);

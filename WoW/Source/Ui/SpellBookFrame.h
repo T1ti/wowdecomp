@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_SPELLBOOKFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/RCString.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -86,7 +87,7 @@ class CGSpellBook {
     static void UpdateCompanions();
     static void UpdateSelection();
     static void UpdateUsablePower();
-    static void UpdateSpells(int32_t a1, int32_t a2, int32_t a3);
+    static void UpdateSpells(BOOL sortSpells, BOOL sortPetSpells, BOOL updateSchoolMasks);
     static void UpdateUsable();
     static void CastSpell(int32_t spellId, int32_t petSpell, WOWGUID target);
     static void InitializeGame();

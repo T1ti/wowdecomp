@@ -247,10 +247,10 @@ void CGTradeSkillInfo::ClearItemCallbacks() {
 
 // VERIFY: 4ce9d9f6 manual
 // OFFSET: 0x005DCC40
-void CGTradeSkillInfo::SetInvTypeFilter(int32_t a1) {
+void CGTradeSkillInfo::SetInvTypeFilter(BOOL applySubClassFilter) {
     CGTradeSkillInfo::m_filteredSkills = CGTradeSkillInfo::m_numDisplayEntries;
 
-    if (a1) {
+    if (applySubClassFilter) {
         for (uint32_t i = 0; i < CGTradeSkillInfo::m_numSubClasses; i++) {
             CGTradeSkillInfo::m_subClassList.m_data[i]->m_shown = (CGTradeSkillInfo::m_subClassFilter & (1 << i)) != 0;
             CGTradeSkillInfo::m_subClassList.m_data[i]->m_collapsed = (CGTradeSkillInfo::m_collapseFilter & (1 << i)) == 0;

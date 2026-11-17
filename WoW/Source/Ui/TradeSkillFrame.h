@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_TRADESKILLFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -66,7 +67,7 @@ class CGTradeSkillInfo {
     static uint32_t m_invTypeFilter;
     static uint32_t m_collapseFilter;
     static void ClearItemCallbacks();
-    static void SetInvTypeFilter(int32_t a1);
+    static void SetInvTypeFilter(BOOL applySubClassFilter);
     static int32_t GetSubClassIndexFromSkill(uint32_t index);
     static int32_t m_filteredSkills;
     static int32_t m_spellID;

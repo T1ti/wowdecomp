@@ -573,7 +573,7 @@ int32_t CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
 
 // VERIFY: 4da5a71a manual
 // OFFSET: 0x004F7650
-uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t a1) {
+uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t unknown1) {
     if (Spell_C_IsTargeting()) {
         uint32_t flags = 0;
 
@@ -1187,7 +1187,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
 
 // VERIFY: 53a93536 auto
 // OFFSET: 0x004F9DA0
-int32_t CGWorldFrame::HitTestPoint(float x, float y, int32_t a3, HITTESTRESULT* result) {
+int32_t CGWorldFrame::HitTestPoint(float x, float y, int32_t unknown3, HITTESTRESULT* result) {
     if (!(CGInputControl::GetActive()->m_mouseModeFlags & INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_CURSOR_ON)) {
         return HIT_NONE;
     }
@@ -1201,7 +1201,7 @@ int32_t CGWorldFrame::HitTestPoint(float x, float y, int32_t a3, HITTESTRESULT* 
     this->m_camera->SetupWorldProjection(this->m_viewportDDC);
 
     int32_t kind = HIT_NONE;
-    uint32_t flags = this->GetHitTestFilterFlags(a3);
+    uint32_t flags = this->GetHitTestFilterFlags(unknown3);
 
     if (flags) {
         C3Vector start = { 0.0f, 0.0f, 0.0f };

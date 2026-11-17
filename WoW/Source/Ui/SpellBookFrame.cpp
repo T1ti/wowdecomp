@@ -723,8 +723,8 @@ void CGSpellBook::UpdateCompanions() {
 
 // VERIFY: 3365a24e manual
 // OFFSET: 0x0053CA70
-void CGSpellBook::UpdateSpells(int32_t a1, int32_t a2, int32_t a3) {
-    if (a1) {
+void CGSpellBook::UpdateSpells(BOOL sortSpells, BOOL sortPetSpells, BOOL updateSchoolMasks) {
+    if (sortSpells) {
         qsort(s_skillInfos.m_data, s_numSkillInfos, sizeof(s_skillInfos.m_data[0]), SortSkillInfoByName);
         qsort(s_spellList, s_numSpells, sizeof(s_spellList[0]), SortSpellsForDisplay);
 
@@ -733,7 +733,7 @@ void CGSpellBook::UpdateSpells(int32_t a1, int32_t a2, int32_t a3) {
         }
     }
 
-    if (a2) {
+    if (sortPetSpells) {
         qsort(s_petSpellList, CGSpellBook::m_numPetSpells, sizeof(s_petSpellList[0]), SortSpellsForDisplay);
     }
 
@@ -777,7 +777,7 @@ void CGSpellBook::UpdateSpells(int32_t a1, int32_t a2, int32_t a3) {
         spellIndex += s_skillInfos.m_data[tab]->m_count - 1;
     }
 
-    if (a3) {
+    if (updateSchoolMasks) {
         CGSpellBook::m_interruptSchoolMask = 0;
         CGSpellBook::m_interruptSpecialSchoolMask = 0;
         CGSpellBook::m_silenceSchoolMask = 0;
@@ -810,7 +810,7 @@ void CGSpellBook::UpdateSpells(int32_t a1, int32_t a2, int32_t a3) {
         }
     }
 
-    if (a1 || a2) {
+    if (sortSpells || sortPetSpells) {
         CGUIMacros::UpdateMacroSpells();
     }
 
