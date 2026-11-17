@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -190,8 +191,8 @@ class CMovement_C : public CMovementShared {
     void ValidateWorldPosition(const C3Vector& position) const;
     int32_t UpdateTransportStatus(const CClientObjCreate& create);
     int32_t UpdateTransportStatus(WOWGUID transport, uint8_t seat);
-    void FlushMoveQueue(int32_t a1, int32_t a2);
-    void RemoveFromMoversList(int32_t a1);
+    void FlushMoveQueue(BOOL removeSpline, BOOL halt);
+    void RemoveFromMoversList(BOOL stopSpline);
     int32_t UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, int32_t force);
     void AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status);
     void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, const C2Vector& direction, float speed, float verticalSpeed, const CMovementStatus* status);
@@ -200,7 +201,7 @@ class CMovement_C : public CMovementShared {
     int32_t UpdateLaunchStatus(uint32_t time, const CMovementStatus& status, MoveEventId eventId, const C2Vector& direction, float speed, float verticalSpeed);
     void OnSetActiveMover();
     void OnUnsetActiveMover();
-    void FlushMoveEvent(CPlayerMoveEvent* event, int32_t a3);
+    void FlushMoveEvent(CPlayerMoveEvent* event, BOOL removeSpline);
     void Extrapolate(uint32_t time, uint32_t elapsed);
     int32_t UpdateStatus(uint32_t time, const CMovementStatus& status, MoveEventId eventId, float value);
     int32_t UpdateFacingStatus(uint32_t time, const CMovementStatus& status);
@@ -245,7 +246,7 @@ class CMovement_C : public CMovementShared {
     int32_t OnSpline(const C3Vector* points, uint32_t pointCount, uint32_t duration, uint32_t splineFlags, uint32_t splineId);
     void OnSplineSnap(uint32_t splineId, const C3Vector& destination, uint32_t splineFlags, int32_t flush);
     void SetFacingAndFlush(float facing, int32_t flush);
-    void ForceSetTransport(WOWGUID transport, uint8_t seat, int32_t a3);
+    void ForceSetTransport(WOWGUID transport, uint8_t seat, BOOL force);
     void SetSplineParabolic(float verticalAcceleration, uint32_t effectStartTime);
     void SetSplineAnimation(uint8_t animType, uint32_t effectStartTime);
     void OnSplineStopSwim();
@@ -253,7 +254,7 @@ class CMovement_C : public CMovementShared {
     void OnSplineRoot();
     void OnSplineUnRoot();
     int32_t OnSplineEnableGravity(int32_t enable);
-    void UpdateHoverState(int32_t hover, int32_t a3);
+    void UpdateHoverState(BOOL hover, BOOL startFalling);
     void SnapToGroundIfCloseEnough();
     void Disable();
     void SendFallReset(uint32_t time);
@@ -267,7 +268,7 @@ class CMovement_C : public CMovementShared {
     void CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint32_t oldFlags, uint32_t oldFlags2, int32_t jumping, int32_t transportChanged);
     int32_t GetMoveFacets(float distance, uint32_t elapsed, C3Vector direction);
     int32_t SetTransport(WOWGUID transport);
-    int32_t ForceSetTransportInt(WOWGUID transport, uint8_t seat, int32_t a3);
+    int32_t ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL force);
     uint32_t Swim(uint32_t time, uint32_t elapsed, float distance, C3Vector direction);
     int32_t TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed);
     uint32_t FallDown(uint32_t time, uint32_t elapsed, C3Vector move, int32_t notify);
@@ -290,7 +291,7 @@ class CMovement_C : public CMovementShared {
     int32_t TryStartFlight();
     int32_t InsertTurnToAngleStop(uint32_t time, float facing);
     int32_t InsertPitchToAngleStop(uint32_t time, float pitch);
-    void Teleport(WOWGUID transport, const C3Vector& position, float facing, int32_t a4, int32_t needAck, uint8_t seat);
+    void Teleport(WOWGUID transport, const C3Vector& position, float facing, BOOL removeSpline, BOOL needAck, uint8_t seat);
     uint32_t RequestMove(uint32_t time, uint32_t elapsed, const C3Vector& move);
     int32_t PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position);
     void ApplyMovement(uint32_t time, uint32_t elapsed);
