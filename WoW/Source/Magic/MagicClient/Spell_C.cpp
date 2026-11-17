@@ -2989,12 +2989,12 @@ bool Spell_C_IsCurrentItem(int32_t itemId) {
 
 // VERIFY: 1ec86af2 manual
 // OFFSET: 0x00807560
-void Spell_C_CancelAutoRepeat(bool a1) {
+void Spell_C_CancelAutoRepeat(bool notifyServer) {
     if (!s_autoRepeatingSpell) {
         return;
     }
 
-    if (a1) {
+    if (notifyServer) {
         WDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CANCEL_AUTO_REPEAT_SPELL));
         msg.Finalize();

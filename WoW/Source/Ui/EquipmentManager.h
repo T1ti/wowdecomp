@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_EQUIPMENTMANAGER_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -41,7 +42,7 @@ class CGEquipmentManager {
     static uint8_t m_swapPending;
     static int32_t m_ignoredSlots[19];
     static int32_t m_pendingSetID;
-    static int32_t CanUseEquipmentSets(bool a1);
+    static BOOL CanUseEquipmentSets(bool updateActionBar);
     static const EQUIPMENT_SET* GetSetByID(int32_t id);
     static int32_t SetContainsLockedItems(const EQUIPMENT_SET* set);
     static int32_t SetUsesLockedSlots(const EQUIPMENT_SET* set);

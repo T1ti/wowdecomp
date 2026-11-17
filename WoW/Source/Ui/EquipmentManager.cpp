@@ -51,7 +51,7 @@ void CGEquipmentManager::EnterWorld() {
 
 // VERIFY: 6b01312b auto
 // OFFSET: 0x005AD6B0
-int32_t CGEquipmentManager::CanUseEquipmentSets(bool a1) {
+BOOL CGEquipmentManager::CanUseEquipmentSets(bool updateActionBar) {
     uint8_t canUse = 0;
 
     if (!CGEquipmentManager::m_swapPending) {
@@ -65,7 +65,7 @@ int32_t CGEquipmentManager::CanUseEquipmentSets(bool a1) {
     if (CGEquipmentManager::m_lastCanUseEquipmentSetsValue != canUse) {
         CGEquipmentManager::m_lastCanUseEquipmentSetsValue = canUse;
 
-        if (a1) {
+        if (updateActionBar) {
             CGActionBar::UpdateUsable();
         }
     }
