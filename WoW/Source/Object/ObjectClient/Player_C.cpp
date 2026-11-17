@@ -912,14 +912,14 @@ void CGPlayer_C::TurnOnGuildTabardPurchase() {
 
 // VERIFY: ed82bd8b manual
 // OFFSET: 0x006D2950
-void CGPlayer_C::HandleRepopRequest(bool a2) {
+void CGPlayer_C::HandleRepopRequest(bool automatic) {
     if (!this->IsDeadOrGhost() || !this->CheckSelfResurrect()) {
         return;
     }
 
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_REPOP_REQUEST));
-    msg.Put(static_cast<uint8_t>(a2 != 0));
+    msg.Put(static_cast<uint8_t>(automatic != 0));
     msg.Finalize();
     ClientServices::Send2(&msg);
 }
@@ -1810,12 +1810,12 @@ void __stdcall CGPlayer_C::QueryQuest(const WOWGUID& questGiver, int32_t questId
 
 // VERIFY: c799eb8b manual
 // OFFSET: 0x006D4CA0
-void __stdcall CGPlayer_C::AcceptQuest(const WOWGUID& questGiver, int32_t questId, int32_t a3) {
+void __stdcall CGPlayer_C::AcceptQuest(const WOWGUID& questGiver, int32_t questId, int32_t startCheat) {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_QUEST_GIVER_ACCEPT_QUEST));
     msg.Put(questGiver.m_guid);
     msg.Put(static_cast<uint32_t>(questId));
-    msg.Put(static_cast<uint32_t>(a3));
+    msg.Put(static_cast<uint32_t>(startCheat));
     msg.Finalize();
     ClientServices::Send2(&msg);
 }
@@ -4748,13 +4748,13 @@ int16_t CGPlayer_C::GetSkillModifier(int32_t index) {
 
 // VERIFY: c0b0e280 auto
 // OFFSET: 0x006E7B00
-void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t a2, int32_t notify, int32_t a4) {
+void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, int32_t notify, int32_t addToSpellBook) {
     if (spellId > g_spellDB.m_maxID) {
         SysMsgPrintf(SYSMSG_ERROR, 2, "NOSPELLIDFOUND|%d", spellId);
         return;
     }
 
-    if (a4) {
+    if (addToSpellBook) {
         if (notify) {
             CGActionBar::ReplaceSpell(0, spellId);
         }
@@ -14059,7 +14059,7 @@ void CGPlayer_C::UpdateObjComponentVisuals(const VisibleItem_C* item, MODEL_ATTA
 
 // VERIFY: b478364d auto
 // OFFSET: 0x006D6F40
-void CGPlayer_C::HandleSkinning(CGObject_C* object, bool autoInteract, bool a4) {
+void CGPlayer_C::HandleSkinning(CGObject_C* object, bool autoInteract, bool updateAutoLoot) {
     float minRange;
     float maxRange;
     Spell_C::GetSpellRange(this, CGSpellBook::GetSkinningSpell(object), &minRange, &maxRange, object);
@@ -14075,7 +14075,7 @@ void CGPlayer_C::HandleSkinning(CGObject_C* object, bool autoInteract, bool a4) 
         Spell_C::CastSpell(CGSpellBook::GetSkinningSpell(object), nullptr, object->m_obj->m_guid, false);
     }
 
-    if (a4) {
+    if (updateAutoLoot) {
         this->m_autoLoot = CGGameUI::IsAutoLooting() != 0;
 
         if (this->m_autoLoot && this->m_lootTarget) {

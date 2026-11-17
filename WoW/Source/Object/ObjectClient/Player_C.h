@@ -141,7 +141,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
 
     void DanceMoveAnimComplete();
     static int32_t IsXRayVisionActive();
-    void AddKnownSpell(int32_t spellId, int32_t a2, int32_t notify, int32_t a4);
+    void AddKnownSpell(int32_t spellId, int32_t slot, int32_t notify, int32_t addToSpellBook);
     void AutoEquipItem(WOWGUID container, uint32_t slot, int32_t ignoreBind);
     void TurnOffGuildTabardPurchase();
     static int32_t GetNewContinentID();
@@ -163,7 +163,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static void __stdcall AcceptArenaTeam();
     static void __stdcall AcceptGroup(uint32_t roles);
     static void __stdcall AcceptGuild();
-    static void __stdcall AcceptQuest(const WOWGUID& questGiver, int32_t questId, int32_t a3);
+    static void __stdcall AcceptQuest(const WOWGUID& questGiver, int32_t questId, int32_t startCheat);
     static void __stdcall AcceptResurrectRequest(int32_t accept);
     static void __stdcall AutoStoreLootItem(uint8_t slot);
     static void __stdcall BuyPetition(const WOWGUID& vendor, CGPetition* petition);
@@ -479,7 +479,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void UpdateAttackPosition(const CGUnit_C* target);
     void UpdateQuestStatus(CGObject_C* object);
     void UpdateTaxiStatus(CGUnit_C* unit);
-    void HandleRepopRequest(bool a2);
+    void HandleRepopRequest(bool automatic);
     void SetClientStandState(UNITSTANDSTATE standState);
     void SetCombatMode();
     CGUnit_C* GetPossessedUnit();
@@ -509,7 +509,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void SetAutoLoot(int32_t autoLoot);
     bool CanInteract(const CGUnit_C* unit) const;
     void LootUnit(CGUnit_C* unit, bool autoInteract);
-    void HandleSkinning(CGObject_C* object, bool autoInteract, bool a4);
+    void HandleSkinning(CGObject_C* object, bool autoInteract, bool updateAutoLoot);
     void HandleOnRightClick(CGUnit_C* unit, bool autoInteract);
     bool CTMAttackUnit(CGUnit_C* unit);
     void CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int32_t silent);
