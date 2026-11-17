@@ -854,13 +854,19 @@ void CMap::FootprintInitialize() {
 
 // VERIFY: 7ce5c762 manual
 // OFFSET: 0x0079E4B0
-CGxShader* CMap::GetPixelShader(bool a1, bool a2, bool a3) {
-    if (!a1)
+CGxShader* CMap::GetPixelShader(bool bigAlpha, bool baseLayer, bool specular) {
+    if (!bigAlpha) {
         return CMap::pixelShader_Terrain0[0];
-    if (!a2)
+    }
+
+    if (!baseLayer) {
         return CMap::pixelShader_Terrain0[2];
-    if (a3)
+    }
+
+    if (specular) {
         return CMap::pixelShader_Terrain0_env;
+    }
+
     return CMap::pixelShader_Terrain0[1];
 }
 
@@ -2512,16 +2518,16 @@ void CMap::ValidateShaders() {
     CMap::enableSpecularTerrain = false;
 
     if (CWorld::enables & Enables::Enable_PixelShaders) {
-        CGxShader* specularShader = CMap::GetPixelShader(bigAlpha, true, false);
-        CGxShader* shader = CMap::GetPixelShader(bigAlpha, false, false);
-        valid = specularShader && specularShader->Valid() && shader && shader->Valid();
+        CGxShader* baseLayerShader = CMap::GetPixelShader(bigAlpha, true, false);
+        CGxShader* layerShader = CMap::GetPixelShader(bigAlpha, false, false);
+        valid = baseLayerShader && baseLayerShader->Valid() && layerShader && layerShader->Valid();
         CMap::gTerrainPixelShadersValid = valid;
     }
 
     if (CMap::enableSpecular && valid) {
-        CGxShader* specularShader = CMap::GetPixelShader(bigAlpha, true, false);
-        CGxShader* shader = CMap::GetPixelShader(bigAlpha, false, false);
-        CMap::enableSpecularTerrain = specularShader && specularShader->Valid() && shader && shader->Valid();
+        CGxShader* baseLayerShader = CMap::GetPixelShader(bigAlpha, true, false);
+        CGxShader* layerShader = CMap::GetPixelShader(bigAlpha, false, false);
+        CMap::enableSpecularTerrain = baseLayerShader && baseLayerShader->Valid() && layerShader && layerShader->Valid();
     }
 
     if (CMap::enableVertexShaders) {
