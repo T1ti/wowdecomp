@@ -129,7 +129,7 @@ void CGItemText::DisplayText(const WOWGUID& guid, int32_t translate) {
 
 // VERIFY: 71021321 manual
 // OFFSET: 0x0058A1A0
-void CGItemText::SetItem(const WOWGUID& guid, int32_t a2) {
+void CGItemText::SetItem(const WOWGUID& guid, BOOL refresh) {
     if (guid != CGItemText::m_itemGUID) {
         CGGameUI::ClearInteractTarget(CGItemText::m_itemGUID, 0);
         CGItemText::m_itemGUID = guid;
@@ -143,7 +143,7 @@ void CGItemText::SetItem(const WOWGUID& guid, int32_t a2) {
             FrameScript_SignalEvent(SCRIPT_EVENT_ITEM_TEXT_CLOSED, nullptr);
             return;
         }
-    } else if (!a2 && guid) {
+    } else if (!refresh && guid) {
         CGGameUI::ClearInteractTarget(CGItemText::m_itemGUID, 0);
         FrameScript_SignalEvent(SCRIPT_EVENT_ITEM_TEXT_CLOSED, nullptr);
         return;

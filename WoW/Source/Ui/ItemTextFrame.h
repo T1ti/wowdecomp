@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
@@ -19,7 +20,7 @@ class CGItemText {
     static char m_text[8000];
     static TSGrowableArray<int32_t> m_pages;
 
-    static void SetItem(const WOWGUID& guid, int32_t a2);
+    static void SetItem(const WOWGUID& guid, BOOL refresh);
     static void DisplayText(const WOWGUID& guid, int32_t translate);
     static void ItemTextCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
 };

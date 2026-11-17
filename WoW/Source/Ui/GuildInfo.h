@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_GUILDINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Ui/GuildBankFrame.h"
@@ -204,7 +205,7 @@ int32_t Packet_MSG_GUILD_PERMISSIONS(void* param, NETMESSAGE msgId, uint32_t tim
 int32_t Packet_MSG_GUILD_EVENT_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t QSortRoster(const void* a, const void* b);
 void GuildInfoCacheCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
-void UpdateGuildRoster(int32_t a1);
+void UpdateGuildRoster(BOOL canRequestUpdate);
 
 int32_t Script_GuildRoster(lua_State* L);
 void GuildInfoRegisterScriptFunctions();

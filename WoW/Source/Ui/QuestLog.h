@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -143,7 +144,7 @@ class CGQuestLog {
     static void UpdateQuestPOIFromUserServer();
     static QuestWatch m_questWatches[MAX_WATCHABLE_QUESTS];
     static uint32_t m_numShownQuests;
-    static void Update(int32_t a1);
+    static void Update(BOOL rebuild);
     static void EnterWorld();
     static int32_t m_numQuest;
     static int32_t m_selectedQuest;
@@ -159,7 +160,7 @@ class CGQuestLog {
     static bool GetQuestPOIIcon(int32_t questId, bool* complete, int32_t* mapId, uint32_t* mapFloor, int32_t* x, int32_t* y, int32_t* objective);
     static int32_t GetQuestLogItemDropByID(int32_t questId, QuestLogLeaderBoardParams* params);
     static int32_t GetQuestPOILeaderBoardByID(int32_t questId, QuestLogLeaderBoardParams* params);
-    static int32_t IsQuestCompleteEx(uint32_t index, int32_t a2);
+    static int32_t IsQuestCompleteEx(uint32_t index, BOOL requireObjectives);
     static int32_t SetQuestExpiredByID(int32_t questId);
     static void UpdateWatchTimers();
     static void UpdateQuestItem(int32_t itemId);

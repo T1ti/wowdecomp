@@ -383,8 +383,8 @@ void CGGuildInfo::SetMOTD(const char* motd) {
 
 // VERIFY: 8962a32a auto
 // OFFSET: 0x005CA0F0
-void UpdateGuildRoster(int32_t a1) {
-    if (a1) {
+void UpdateGuildRoster(BOOL canRequestUpdate) {
+    if (canRequestUpdate) {
         CGGuildInfo::m_nextAllowedQuery = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_GUILD_ROSTER_UPDATE, "%d", 1);
     } else {

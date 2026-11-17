@@ -776,7 +776,7 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
 
 // VERIFY: 295fee69 manual
 // OFFSET: 0x0052D6E0
-void CGPartyInfo::RemoveAll(int32_t a1) {
+void CGPartyInfo::RemoveAll(BOOL notify) {
     uint32_t dungeonDifficulty = CGGameUI::GetCurrentDungeonDifficulty();
     uint32_t raidDifficulty = CGGameUI::GetCurrentRaidDifficulty();
 
@@ -795,14 +795,14 @@ void CGPartyInfo::RemoveAll(int32_t a1) {
 
                 if (pet) {
                     pet->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY_PET);
-                } else if (a1) {
+                } else if (notify) {
                     CGGameUI::ClearTarget(petGuid, 1);
                 }
             }
 
             unit->UnregisterScript(CGUnit_C::SCRIPT_REGISTRATION_PARTY);
             unit->UpdateReaction(true);
-        } else if (a1) {
+        } else if (notify) {
             CGGameUI::ClearTarget(CGPartyInfo::m_members[i], 1);
         }
 
@@ -826,7 +826,7 @@ void CGPartyInfo::RemoveAll(int32_t a1) {
     CGPartyInfo::m_lfgRestricted = 0;
     CGAutoCompleteName::RemoveFlagsFromAllNodes(AUTOCOMPLETE_FLAG_IN_GROUP);
 
-    if (a1) {
+    if (notify) {
         CGGameUI::CheckInstanceDifficultyMessages(dungeonDifficulty, raidDifficulty);
         Script_SendUniqueSignal(SCRIPT_EVENT_PARTY_MEMBERS_CHANGED);
         Script_SendUniqueSignal(SCRIPT_EVENT_PLAYER_ROLES_ASSIGNED);

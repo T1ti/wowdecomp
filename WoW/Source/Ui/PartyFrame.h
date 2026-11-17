@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
@@ -219,7 +220,7 @@ class CGPartyInfo {
     static uint8_t GetPartyAssignments(const WOWGUID& guid);
     static int32_t GetPartyAssignments(lua_State* L, int32_t assignment);
     static uint32_t m_lastAssignmentTime;
-    static void RemoveAll(int32_t a1);
+    static void RemoveAll(BOOL notify);
     static void AddMember(WOWGUID guid, int32_t online, const CGPartyMemberState* state, uint8_t assignments, uint32_t role, const PartyReadyCheckInfo* readyCheck);
     static void GetReadyCheckInfo(PartyReadyCheckInfo* info, uint32_t index);
     static void SetReadyCheckInfo(const PartyReadyCheckInfo* info, uint32_t index);

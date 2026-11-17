@@ -424,7 +424,7 @@ int32_t CGLootInfo::HasLoot() {
 
 // VERIFY: 8a56cb16 manual
 // OFFSET: 0x00588F90
-void CGLootInfo::DoAutoLoot(int32_t a1) {
+void CGLootInfo::DoAutoLoot(BOOL closing) {
     if (CGLootInfo::m_itemsPending) {
         return;
     }
@@ -475,7 +475,7 @@ void CGLootInfo::DoAutoLoot(int32_t a1) {
         return;
     }
 
-    if (!a1) {
+    if (!closing) {
         FrameScript_SignalEvent(SCRIPT_EVENT_LOOT_OPENED, "%d", 1);
     }
 }

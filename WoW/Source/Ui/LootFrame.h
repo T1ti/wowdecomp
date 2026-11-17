@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Ui/Types.h"
 
@@ -50,7 +51,7 @@ class CGLootInfo {
     static void InitializeGame();
     static void ShutdownGame();
     static void LeaveWorld();
-    static void DoAutoLoot(int32_t a1);
+    static void DoAutoLoot(BOOL closing);
     static int32_t HasLoot();
     static void LootSlot(uint32_t slot);
     static void ConfirmLootSlot(uint32_t slot);

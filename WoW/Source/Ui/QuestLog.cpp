@@ -1040,8 +1040,8 @@ bool CGQuestLog::HasQuestPOI(int32_t questId) {
 
 // VERIFY: 86468e46 manual
 // OFFSET: 0x005E6940
-void CGQuestLog::Update(int32_t a1) {
-    if (!a1) {
+void CGQuestLog::Update(BOOL rebuild) {
+    if (!rebuild) {
         Script_SendUniqueSignal(SCRIPT_EVENT_QUEST_LOG_UPDATE);
         return;
     }
