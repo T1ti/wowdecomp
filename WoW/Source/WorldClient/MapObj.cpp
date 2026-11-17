@@ -1158,7 +1158,12 @@ void CMapObj::RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<
     }
 
     if (CWorld::enables & Enables::Enable_Portals) {
+#ifdef WOWDECOMP_DEBUG_FEATURES
+        // Debug feature: drawn at the end of the frame so later geometry does not paint over the planes.
+        this->DebugDeferPortals(group);
+#else
         this->RenderPortals(group);
+#endif
     }
 }
 

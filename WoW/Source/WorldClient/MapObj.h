@@ -257,6 +257,10 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     void InvokeRenderCallback(uint32_t groupNum);
     void UnifiedRender(CMapObjGroup* group, uint32_t index);
     void RenderPortals(CMapObjGroup* group);
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature (WorldRender_Debug.cpp): holds the portal planes back until WorldDebugRenderLate.
+    void DebugDeferPortals(CMapObjGroup* group);
+#endif
     CMapObjGroup* AttenTransVerts(CMapObjGroup* group);
     void SetupMapObjDefCull(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget);
     void ClassifyPortalPlane(SMOPortal* portal, SPortalExt* portalExt);

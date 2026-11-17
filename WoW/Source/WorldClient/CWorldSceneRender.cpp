@@ -245,9 +245,13 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CursorReleaseItemMips();
 
     if (CWorld::enables & Enables::Enable_CollisionDebug) {
+#ifdef WOWDECOMP_DEBUG_FEATURES
+        // Debug feature: drawn at the end of the frame by WorldDebugRenderLate (WorldRender_Debug.cpp).
+#else
         CWorldScene::RenderCollisionDebug();
         CMap::debugVertexArray.SetCount(0);
         CMap::debugIndexArray.m_count = 0;
+#endif
     }
 }
 

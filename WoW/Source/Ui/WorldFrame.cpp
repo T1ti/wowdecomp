@@ -1806,7 +1806,9 @@ void CGWorldFrame::OnWorldRender() {
     DayNight::RenderGlares();
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
-    // Debug feature: collision info display, drawn after the world, models and liquids like 0.5.3 OnWorldRender.
+    // Debug feature: world debug overlays (portal planes, query facets) and the collision info display, drawn after
+    // the world, models and liquids like 0.5.3 OnWorldRender.
+    WorldDebugRenderLate();
     RenderCollisionInfo();
 #endif
 

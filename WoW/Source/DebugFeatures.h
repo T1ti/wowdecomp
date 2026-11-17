@@ -49,6 +49,9 @@ void UnitDebugRegisterConsoleCommands();
 void UnitCombatDebugLogEnable(int32_t enable);
 void UnitDebugCombatLogOnEnable(int32_t enable);
 
+// WorldClient/WorldRender_Debug.cpp
+void WorldDebugRenderLate();
+
 // WorldClient/World_Debug.cpp
 void ZoneDebugInitialize();
 bool ZoneDebugIsInCurrentZone(float x, float y);
