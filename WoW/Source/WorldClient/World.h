@@ -416,6 +416,15 @@ namespace World {
     class TriData;
     class HitTestDebug {
         public:
+        // m_type: the kind of map object that was hit (set by CMap::SetHitTestDebug).
+        enum TYPE : int32_t {
+            TYPE_NONE = 0,
+            TYPE_DOODAD = 1, // CMapBaseObj::Type_DoodadDef
+            TYPE_ENTITY = 2, // CMapBaseObj::Type_Entity
+            TYPE_UNKNOWN_3 = 3, // Never set.
+            TYPE_MAP_OBJ_GROUP = 4, // CMapBaseObj::Type_MapObjDefGroup
+        };
+
         struct Model {
             /* 0000 */ const char* m_name;
             /* 0004 */ int32_t m_depth;
@@ -444,7 +453,7 @@ namespace World {
             /* 0008 */ C2iVector m_chunkOffset;
         };
 
-        /* 0000 */ int32_t m_type;
+        /* 0000 */ int32_t m_type; // TYPE
         /* 0004 */ uint32_t m_numModels;
         /* 0008 */ uint32_t m_numParents;
         /* 000C */ Model m_models[16];

@@ -4813,7 +4813,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
     hitInfo->m_sphere.r = 0.0f;
     hitInfo->m_labelPos.x = 0.0f;
     hitInfo->m_labelPos.y = 0.0f;
-    hitInfo->m_type = 0;
+    hitInfo->m_type = World::HitTestDebug::TYPE_NONE;
     hitInfo->m_numModels = 0;
     hitInfo->m_numParents = 0;
     hitInfo->m_labelPos.z = 0.0f;
@@ -4826,7 +4826,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
 
     if (hitObject->m_type & CMapBaseObj::Type_DoodadDef) {
         CMapStaticEntity* entity = static_cast<CMapStaticEntity*>(hitObject);
-        hitInfo->m_type = 1;
+        hitInfo->m_type = World::HitTestDebug::TYPE_DOODAD;
         hitInfo->m_bbox = entity->m_bbox;
         hitInfo->m_sphere = entity->m_sphere;
         hitInfo->m_labelPos = entity->m_vec2;
@@ -4834,7 +4834,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         model = entity->m_model;
     } else if (hitObject->m_type & CMapBaseObj::Type_Entity) {
         CMapStaticEntity* entity = static_cast<CMapStaticEntity*>(hitObject);
-        hitInfo->m_type = 2;
+        hitInfo->m_type = World::HitTestDebug::TYPE_ENTITY;
         hitInfo->m_bbox = entity->m_bbox;
         hitInfo->m_sphere = entity->m_sphere;
         hitInfo->m_labelPos = entity->m_vec2;
@@ -4852,7 +4852,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         CMapObj* mapObj = mapObjDef->m_owner;
         CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
         World::HitTestDebug::Model* entry = &hitInfo->m_models[hitInfo->m_numModels++];
-        hitInfo->m_type = 4;
+        hitInfo->m_type = World::HitTestDebug::TYPE_MAP_OBJ_GROUP;
         entry->m_name = PathFileName(mapObj->m_wmoName);
         entry->m_depth = 0;
         entry->m_bbox = defGroup->m_bbox;
