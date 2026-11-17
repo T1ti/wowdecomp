@@ -26,6 +26,14 @@ enum BN_FRIEND_INVITE_RESULT : uint16_t {
     BN_FRIEND_INVITE_BLOCKED = 623,
 };
 
+// Battle.net error codes the client itself raises. Their text comes from the Battle.net module
+// (BattlenetAPI_GetErrorString), so the meaning is not named in the client.
+enum BN_ERROR : uint16_t {
+    // Raised by BNSendWhisper when the target has no toon name; DisplayError keeps it out of the
+    // UI error frame.
+    BN_ERROR_UNKNOWN_318 = 318,
+};
+
 // BattlenetUI::SystemMessageCB message IDs, named after the BN_SYSTEM_MESSAGE type strings.
 enum BN_SYSTEM_MESSAGE_ID : uint32_t {
     BN_SYSTEM_MESSAGE_SHUTDOWN_MINUTES = 3800,

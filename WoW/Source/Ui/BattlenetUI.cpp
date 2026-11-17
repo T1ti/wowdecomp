@@ -1493,7 +1493,7 @@ void BattlenetUI::DisplayError(uint16_t error, uint32_t presenceId) {
 
     CGChat::AddChatMessage(text, CHAT_MSG_SYSTEM, nullptr, 0, nullptr, nullptr, nullptr, WOWGUID(), 0, WOWGUID(), 0, false, nullptr);
 
-    if (error != 318) {
+    if (error != BN_ERROR_UNKNOWN_318) {
         CGGameUI::AddErrorMessage(text, 0);
     }
 }

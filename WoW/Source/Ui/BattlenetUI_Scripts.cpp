@@ -1489,7 +1489,7 @@ static int32_t Script_BNSendWhisper(lua_State* L) {
                 return 0;
             }
 
-            BattlenetUI::DisplayError(318, static_cast<uint32_t>(presenceId));
+            BattlenetUI::DisplayError(BN_ERROR_UNKNOWN_318, static_cast<uint32_t>(presenceId));
         }
     }
 
