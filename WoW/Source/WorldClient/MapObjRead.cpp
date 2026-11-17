@@ -169,21 +169,21 @@ void CMapObj::CreateMaterial(uint8_t texture) {
     }
 
     switch (material.m_shader) {
-        case 3:
-        case 5:
-        case 6:
+        case CMapObj::SHADER_TYPE::ENVIRONMENT:
+        case CMapObj::SHADER_TYPE::ENVIRONMENT_METAL:
+        case CMapObj::SHADER_TYPE::COMPOSITE:
             if (*texture2) {
                 break;
             }
 
-            material.m_shader = 4;
+            material.m_shader = CMapObj::SHADER_TYPE::OPAQUE_EFFECT;
             texture2 = nullptr;
             break;
 
-        case 0:
-        case 1:
-        case 2:
-        case 4:
+        case CMapObj::SHADER_TYPE::DIFFUSE:
+        case CMapObj::SHADER_TYPE::SPECULAR:
+        case CMapObj::SHADER_TYPE::METAL:
+        case CMapObj::SHADER_TYPE::OPAQUE_EFFECT:
             texture2 = nullptr;
             break;
 
@@ -585,7 +585,7 @@ void CMapObjGroup::Create() {
     }
 
     for (uint32_t i = 0; i < batchCount; i++) {
-        if (mapObj->m_materialList[this->m_batchList[i].m_texture].m_shader == 6) {
+        if (mapObj->m_materialList[this->m_batchList[i].m_texture].m_shader == CMapObj::SHADER_TYPE::COMPOSITE) {
             this->m_unkLoadedFlag |= CMapObjGroup::RUNTIME_FLAGS::EXTENDED_VERTEX_FORMAT;
             return;
         }
