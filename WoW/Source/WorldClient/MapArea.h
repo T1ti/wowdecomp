@@ -79,6 +79,13 @@ class CMapArea : public CMapBaseObj {
 
     CMapArea();
     ~CMapArea() override;
+    // INLINED: chunk lookups by world chunk coordinates (16 per area) and cell coordinates (8 per chunk).
+    CMapChunk* GetChunk(int32_t chunkX, int32_t chunkY) const {
+        return this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (chunkY & MAP_CHUNK_INDEX_MASK) + (chunkX & MAP_CHUNK_INDEX_MASK)];
+    }
+    CMapChunk* GetChunkForCell(int32_t cellX, int32_t cellY) const {
+        return this->GetChunk(cellX >> 3, cellY >> 3);
+    }
     void Load(const char* fileName);
     void LoadTextures(char* fileNames, uint32_t fileNamesSize);
     void LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureId);
