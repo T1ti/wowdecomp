@@ -228,8 +228,24 @@ static float s_trackCursorMaxSize = 0.75f;
 // STATIC: 0x00ADAC14
 static uint32_t s_trackCursorPeriod = 500;
 
+// CGUnit_C::CreateRipple ripple type, chosen from the movement flags or the trigger.
+enum RIPPLE_TYPE : uint32_t {
+    RIPPLE_IDLE = 0,
+    RIPPLE_TURN = 1,
+    RIPPLE_MOVE = 2,
+    RIPPLE_SPLASH = 3, // From RIPPLE_TRIGGER_UNKNOWN_201; its only producer also plays the splash sound.
+    NUM_RIPPLE_TYPES = 4,
+};
+
+// CGUnit_C::CreateRipple trigger. Nonzero values restart the ripple timer; 201 is sent when the
+// unit crosses 40% of its collision height in liquid. The meaning of the value itself is unknown.
+enum RIPPLE_TRIGGER : uint32_t {
+    RIPPLE_TRIGGER_UPDATE = 0,
+    RIPPLE_TRIGGER_UNKNOWN_201 = 201,
+};
+
 // STATIC: 0x00ADAC00
-static uint8_t s_rippleDirectional[4] = { 0, 0, 1, 0 };
+static uint8_t s_rippleDirectional[NUM_RIPPLE_TYPES] = { 0, 0, 1, 0 };
 
 // STATIC: 0x00ADAA98
 static uint8_t s_attackTargetColor[4] = { 0x00, 0x00, 0xFF, 0xFF };
@@ -1481,7 +1497,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
     }
 
     this->ProcessEmoteQueue();
-    this->CreateRipple(0);
+    this->CreateRipple(RIPPLE_TRIGGER_UPDATE);
 
     const VehicleRec* vehicleRec = this->m_vehicle ? this->m_vehicle->m_vehicleRec : nullptr;
     uint32_t pitchBone;
@@ -1977,7 +1993,7 @@ void CGUnit_C::RotateWheels() {
 
 // VERIFY: 30525646 manual
 // OFFSET: 0x0071CBA0
-void CGUnit_C::CreateRipple(uint32_t a2) {
+void CGUnit_C::CreateRipple(uint32_t trigger) {
     int32_t liquidType;
     float liquidHeight;
     int32_t a4;
@@ -1994,21 +2010,21 @@ void CGUnit_C::CreateRipple(uint32_t a2) {
         return;
     }
 
-    uint32_t type = 0;
+    uint32_t type = RIPPLE_IDLE;
 
-    if (a2) {
+    if (trigger != RIPPLE_TRIGGER_UPDATE) {
         this->m_nextRippleTime = 0;
 
-        if (a2 == 201) {
-            type = 3;
+        if (trigger == RIPPLE_TRIGGER_UNKNOWN_201) {
+            type = RIPPLE_SPLASH;
         }
     } else {
         uint32_t flags = this->m_movement->m_flags;
 
         if (flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) {
-            type = 2;
+            type = RIPPLE_MOVE;
         } else if (flags & MOVEMENTFLAG_TURN_MASK) {
-            type = 1;
+            type = RIPPLE_TURN;
         }
     }
 
@@ -2067,7 +2083,7 @@ void CGUnit_C::CreateRipple(uint32_t a2) {
         size = depthFactor * size;
     }
 
-    if (!type) {
+    if (type == RIPPLE_IDLE) {
         width = width * 0.8f;
         rippleSpeed = rippleSpeed * 0.25f;
         size = size * 0.6f;
@@ -20606,7 +20622,7 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t spline) {
         if ((this->m_movementData.m_collisionHeight * 0.4f < depth) != (this->m_movementData.m_collisionHeight * 0.4f < this->m_swimDepth)) {
             C3Vector position = this->GetPosition();
             this->PlaySplashSound(&position);
-            this->CreateRipple(201);
+            this->CreateRipple(RIPPLE_TRIGGER_UNKNOWN_201);
         }
 
         this->m_swimDepth = depth;
