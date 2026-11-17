@@ -288,7 +288,7 @@ class CMap {
     static void Unload();
     static void ValidateShaders();
     static CGxShader* GetPixelShader(bool a1, bool a2, bool a3);
-    static CGxShader* GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t shadowMode, int32_t a4, int32_t a5);
+    static CGxShader* GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t shadowMode, int32_t specular, int32_t unlitLayers);
     static void Load(const char* mapName, int32_t zoneID);
     static void LoadTex();
     static void LoadWdt();

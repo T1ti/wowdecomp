@@ -438,23 +438,23 @@ DepthCoordTable* CMap::GetDepthCoordTable(uint32_t liquidType) {
 
 // VERIFY: e651a57d manual
 // OFFSET: 0x0079E5C0
-CGxShader* CMap::GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t shadowMode, int32_t a4, int32_t a5) {
+CGxShader* CMap::GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t shadowMode, int32_t specular, int32_t unlitLayers) {
     int32_t layerIndex = layers - 1;
 
     switch (shadowMode) {
         case 0:
-            return CMap::pixelShader_Terrain1[16 * a5 + 8 * bigAlpha + 2 * layerIndex + a4];
+            return CMap::pixelShader_Terrain1[16 * unlitLayers + 8 * bigAlpha + 2 * layerIndex + specular];
 
         case 1:
             if (g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_ps_2_0 || g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] == GxShPS_arbfp1) {
-                return CMap::pixelShader_Terrain2[16 * a5 + 8 * bigAlpha + 2 * layerIndex + a4];
+                return CMap::pixelShader_Terrain2[16 * unlitLayers + 8 * bigAlpha + 2 * layerIndex + specular];
             }
 
-            return CMap::pixelShader_Terrain3[48 * a5 + 24 * bigAlpha + 2 * layerIndex + a4];
+            return CMap::pixelShader_Terrain3[48 * unlitLayers + 24 * bigAlpha + 2 * layerIndex + specular];
 
         case 2:
         case 3:
-            return CMap::pixelShader_Terrain3[48 * a5 - 8 + 24 * bigAlpha + 8 * shadowMode + 2 * layerIndex + a4];
+            return CMap::pixelShader_Terrain3[48 * unlitLayers - 8 + 24 * bigAlpha + 8 * shadowMode + 2 * layerIndex + specular];
 
         default:
             return nullptr;

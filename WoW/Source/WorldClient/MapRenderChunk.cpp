@@ -2743,7 +2743,7 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
 
 // VERIFY: 1f2ad08e manual
 // OFFSET: 0x007D3E10
-void CMapRenderChunk::SetShaders(int32_t a1, int32_t a2) {
+void CMapRenderChunk::SetShaders(int32_t specular, int32_t unlitLayers) {
     CMapRenderChunk::s_pixelShader[1] = nullptr;
     CMapRenderChunk::s_pixelShader[0] = nullptr;
     for (uint32_t i = 0; i < sizeof(CMapRenderChunk::s_currentShaderX) / sizeof(CMapRenderChunk::s_currentShaderX[0]); i++) {
@@ -2765,11 +2765,11 @@ void CMapRenderChunk::SetShaders(int32_t a1, int32_t a2) {
 
     int32_t bigAlpha = (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) != 0;
     int32_t shadowMode = CShadowCache::GetShadowValue();
-    CMapRenderChunk::s_pixelShader[1] = CMap::GetPixelShader(bigAlpha, true, a1);
-    CMapRenderChunk::s_pixelShader[0] = CMap::GetPixelShader(bigAlpha, false, a1);
+    CMapRenderChunk::s_pixelShader[1] = CMap::GetPixelShader(bigAlpha, true, specular);
+    CMapRenderChunk::s_pixelShader[0] = CMap::GetPixelShader(bigAlpha, false, specular);
 
     for (int32_t layers = 1; layers <= 4; layers++) {
-        CGxShader* shader = CMap::GetTerrainPixelShader(bigAlpha, layers, shadowMode, a1, a2);
+        CGxShader* shader = CMap::GetTerrainPixelShader(bigAlpha, layers, shadowMode, specular, unlitLayers);
 
         if (layers <= g_theGxDevicePtr->Caps().m_numTmus && shader && shader->Valid()) {
             CMapRenderChunk::s_currentShaderX[layers - 1] = shader;

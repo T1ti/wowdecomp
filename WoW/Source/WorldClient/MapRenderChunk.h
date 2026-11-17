@@ -118,7 +118,7 @@ class CMapRenderChunk {
     static void UpdateShadowGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     static void RenderMultiPassAlpha(CMapRenderChunk* renderChunk);
     static void RenderMultiPassAdditive(CMapRenderChunk* renderChunk);
-    static void SetShaders(int32_t a1, int32_t a2);
+    static void SetShaders(int32_t specular, int32_t unlitLayers);
     static void InitializeVertexShaderConstants(const C44Matrix& world, const C44Matrix& view);
     static CGxShader* GetVertexShader(int32_t pointLights, int32_t layers, int32_t specular, int32_t vertexColor, int32_t a5, int32_t shadow);
     static void ComputeTexMatrices(C44Matrix& layerMatrix, C44Matrix& alphaMatrix, const C3Vector& offset, float scale);
