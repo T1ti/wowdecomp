@@ -1400,7 +1400,7 @@ uint32_t System_SFile::SearchHashTable(ARCHIVEREC* archive, const char* name, bo
     }
 
     if (found != -1 && deleted) {
-        *deleted = (archive->GetBlockEntry(table[found].m_blockIndex).m_flags & 0x2000000) != 0;
+        *deleted = (archive->GetBlockEntry(table[found].m_blockIndex).m_flags & System_SFile::MPQ_FILE_DELETE_MARKER) != 0;
     }
 
     return found;
@@ -1473,7 +1473,7 @@ uint32_t System_SFile::FindBlockEntry(ARCHIVEREC* archive, const Blizzard::Util:
         return -1;
     }
 
-    *deleted = (archive->GetBlockEntry(it->second).m_flags & 0x2000000) != 0;
+    *deleted = (archive->GetBlockEntry(it->second).m_flags & System_SFile::MPQ_FILE_DELETE_MARKER) != 0;
 
     return it->second;
 }
@@ -1641,7 +1641,7 @@ int32_t FindFileInOneArchive(System_SFile::ARCHIVEREC* archive, const char* name
                 return 0;
             }
 
-            deleted = (archive->GetBlockEntry(lookup->m_blockIndex).m_flags & 0x2000000) != 0;
+            deleted = (archive->GetBlockEntry(lookup->m_blockIndex).m_flags & System_SFile::MPQ_FILE_DELETE_MARKER) != 0;
         } else {
             lookup->m_hashIndex = System_SFile::SearchHashTable(archive, name, true, &deleted);
 
@@ -2855,7 +2855,7 @@ bool System_SFile::PrepareArchiveForWriting(ARCHIVEREC* archive) {
                 HASHENTRY& entry = archive->m_hashTable[index];
                 BLOCKENTRY block = archive->GetBlockEntry(entry.m_blockIndex);
                 HASHENTRY& next = archive->m_hashTable[(index + 1) & (archive->m_hashTable.size() - 1)];
-                block.m_flags &= ~0x80000000;
+                block.m_flags &= ~System_SFile::MPQ_FILE_EXISTS;
                 archive->SetBlockEntry(entry.m_blockIndex, block);
                 entry.m_blockIndex = (next.m_blockIndex == 0xFFFFFFFF) - 2;
                 archive->m_dataEnd = -1;
@@ -2871,7 +2871,7 @@ bool System_SFile::PrepareArchiveForWriting(ARCHIVEREC* archive) {
                 HASHENTRY& entry = archive->m_hashTable[index];
                 BLOCKENTRY block = archive->GetBlockEntry(entry.m_blockIndex);
                 HASHENTRY& next = archive->m_hashTable[(index + 1) & (archive->m_hashTable.size() - 1)];
-                block.m_flags &= ~0x80000000;
+                block.m_flags &= ~System_SFile::MPQ_FILE_EXISTS;
                 archive->SetBlockEntry(entry.m_blockIndex, block);
                 entry.m_blockIndex = (next.m_blockIndex == 0xFFFFFFFF) - 2;
                 archive->m_dataEnd = -1;
@@ -2887,7 +2887,7 @@ bool System_SFile::PrepareArchiveForWriting(ARCHIVEREC* archive) {
                 HASHENTRY& entry = archive->m_hashTable[index];
                 BLOCKENTRY block = archive->GetBlockEntry(entry.m_blockIndex);
                 HASHENTRY& next = archive->m_hashTable[(index + 1) & (archive->m_hashTable.size() - 1)];
-                block.m_flags &= ~0x80000000;
+                block.m_flags &= ~System_SFile::MPQ_FILE_EXISTS;
                 archive->SetBlockEntry(entry.m_blockIndex, block);
                 entry.m_blockIndex = (next.m_blockIndex == 0xFFFFFFFF) - 2;
                 archive->m_dataEnd = -1;
@@ -2974,7 +2974,7 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
             System_SFile::HASHENTRY& entry = record->m_hashTable[index];
             System_SFile::BLOCKENTRY block = record->GetBlockEntry(entry.m_blockIndex);
             System_SFile::HASHENTRY& next = record->m_hashTable[(index + 1) & (record->m_hashTable.size() - 1)];
-            block.m_flags &= ~0x80000000;
+            block.m_flags &= ~System_SFile::MPQ_FILE_EXISTS;
             record->SetBlockEntry(entry.m_blockIndex, block);
             entry.m_blockIndex = (next.m_blockIndex == 0xFFFFFFFF) - 2;
             record->m_dataEnd = -1;
@@ -3000,14 +3000,14 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
     entry.m_offset = dataEnd;
     entry.m_compressedSize = 0;
     entry.m_fileSize = size;
-    entry.m_flags = flags | 0x80000000;
+    entry.m_flags = flags | System_SFile::MPQ_FILE_EXISTS;
     entry.m_fileTime = 0;
     entry.m_crc = 0;
     entry.m_md5 = System_SFile::s_emptyMd5;
     entry.m_md5Check = false;
 
-    if ((flags & 0x1000200) == 0x200) {
-        entry.m_flags = flags | 0x84000000;
+    if ((flags & (System_SFile::MPQ_FILE_SINGLE_UNIT | System_SFile::MPQ_FILE_COMPRESS)) == System_SFile::MPQ_FILE_COMPRESS) {
+        entry.m_flags = flags | System_SFile::MPQ_FILE_EXISTS | System_SFile::MPQ_FILE_SECTOR_CRC;
     }
 
     uint32_t blockIndex = record->m_blockTable.size();
@@ -3063,11 +3063,11 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
     record->m_blockTable.push_back(entry);
     record->m_file->m_refCount.Increment();
 
-    if (size && (flags & 0xFF00)) {
+    if (size && (flags & System_SFile::MPQ_FILE_COMPRESS_MASK)) {
         IOUnitContainer container(sizeof(IOMpqArchiveWriteUnit), sizeof(IOAlignUnit), sizeof(IOCrcUnit), sizeof(IOMd5Unit), sizeof(IOMpqWriteUnit), sizeof(IORangeUnit), 0);
         IOUnit* unit;
 
-        if (flags & 0x1000000) {
+        if (flags & System_SFile::MPQ_FILE_SINGLE_UNIT) {
             unit = System_SFile::CreateRangeUnit(&container, dataEnd, dataEnd + size, record->m_file);
             unit = IOMpqWriteUnit::CreateSingle(&container, record->m_compression, size, System_SFile::FinishFileWrite, &writer, unit);
             unit = IOMd5Unit::Create(&container, size, (record->m_attributeFlags & System_SFile::ATTRIBUTE_FLAGS::ATTRIBUTE_FLAG_MD5) ? System_SFile::SetFileMd5 : nullptr, false, &md5Unit, unit);

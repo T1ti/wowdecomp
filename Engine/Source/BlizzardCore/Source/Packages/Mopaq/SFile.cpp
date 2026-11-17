@@ -116,28 +116,28 @@ int32_t Blizzard::Mopaq::SFileOpenFileEx(System_SFile::ARCHIVEREC* handle, const
         case 1: {
             System_SFile::BLOCKENTRY entry = archive->GetBlockEntry(blockIndex);
 
-            if (!(entry.m_flags & 0x80000000)) {
+            if (!(entry.m_flags & System_SFile::MPQ_FILE_EXISTS)) {
                 error = 1006;
                 goto fail;
             }
 
             IOChecksumUnit* checksum = nullptr;
 
-            if (entry.m_flags & 0xFFF00) {
+            if (entry.m_flags & System_SFile::MPQ_FILE_TRANSFORM_MASK) {
                 uint32_t fileSize = entry.m_fileSize;
                 uint32_t key = 0;
 
-                if (entry.m_flags & 0xF0000) {
+                if (entry.m_flags & System_SFile::MPQ_FILE_ENCRYPTION_MASK) {
                     key = System_MPQEncrypt::Hash(Blizzard::String::FindFilename(name), 3);
 
-                    if (entry.m_flags & 0x20000) {
+                    if (entry.m_flags & System_SFile::MPQ_FILE_FIX_KEY) {
                         key = fileSize ^ (key + static_cast<uint32_t>(entry.m_offset) - static_cast<uint32_t>(archive->m_archiveOffset));
                     }
                 }
 
                 archive->m_file->m_refCount.Increment();
 
-                if (entry.m_flags & 0x1000000) {
+                if (entry.m_flags & System_SFile::MPQ_FILE_SINGLE_UNIT) {
                     IOUnitContainer container(sizeof(IOMpqArchiveReadUnit), sizeof(IOCrcUnit), sizeof(IOAlignUnit), sizeof(IOLockUnit), sizeof(IOMpqReadUnit), sizeof(IORangeUnit), 0);
                     IOUnit* range = System_SFile::CreateRangeUnit(&container, entry.m_offset, entry.m_offset + entry.m_compressedSize, archive->m_file);
                     IOUnit* read = IOMpqReadUnit::CreateSingle(&container, fileSize, entry.m_compressedSize, entry.m_flags, key, range);
@@ -146,7 +146,7 @@ int32_t Blizzard::Mopaq::SFileOpenFileEx(System_SFile::ARCHIVEREC* handle, const
                     IOUnit* lock = IOLockUnit::Create(&container, align);
                     file = IOMpqArchiveReadUnit::Create(&container, archive, name, blockIndex, lock);
                 } else {
-                    bool checkCrc = !(entry.m_flags & 0x4000000) && entry.m_crc;
+                    bool checkCrc = !(entry.m_flags & System_SFile::MPQ_FILE_SECTOR_CRC) && entry.m_crc;
                     IOUnitContainer container(sizeof(IOMpqArchiveReadUnit), sizeof(IOCrcUnit), sizeof(IOAlignUnit), sizeof(IOLockUnit), sizeof(IOMpqReadUnit), sizeof(IORangeUnit), 0);
                     IOUnit* range = System_SFile::CreateRangeUnit(&container, entry.m_offset, entry.m_offset + entry.m_compressedSize, archive->m_file);
                     IOUnit* read = IOMpqReadUnit::Create(&container, fileSize, entry.m_compressedSize, archive->m_sectorSize, entry.m_flags, key, range);
