@@ -405,12 +405,12 @@ void CCharacterComponent::ComponentCloseFingers(CM2Model* model, COMP_HAND_SLOT 
     uint32_t first;
     uint32_t last;
 
-    if (hand) {
-        first = 13;
-        last = 17;
+    if (hand == COMP_HAND_LEFT) {
+        first = KEY_BONE_INDEX_FINGER_L;
+        last = KEY_BONE_THUMB_L;
     } else {
-        first = 8;
-        last = 12;
+        first = KEY_BONE_INDEX_FINGER_R;
+        last = KEY_BONE_THUMB_R;
     }
 
     for (uint32_t bone = first; bone <= last; bone++) {
@@ -424,12 +424,12 @@ void CCharacterComponent::ComponentOpenFingers(CM2Model* model, COMP_HAND_SLOT h
     uint32_t first;
     uint32_t last;
 
-    if (hand) {
-        first = 13;
-        last = 17;
+    if (hand == COMP_HAND_LEFT) {
+        first = KEY_BONE_INDEX_FINGER_L;
+        last = KEY_BONE_THUMB_L;
     } else {
-        first = 8;
-        last = 12;
+        first = KEY_BONE_INDEX_FINGER_R;
+        last = KEY_BONE_THUMB_R;
     }
 
     for (uint32_t bone = first; bone <= last; bone++) {
@@ -513,11 +513,11 @@ void CCharacterComponent::RemoveLinkpt(CM2Model* model, MODEL_ATTACHMENT_ID link
     }
 
     if (link == ATTACH_SHIELD || link == ATTACH_HANDL) {
-        for (uint32_t bone = 13; bone <= 17; bone++) {
+        for (uint32_t bone = KEY_BONE_INDEX_FINGER_L; bone <= KEY_BONE_THUMB_L; bone++) {
             model->UnsetBoneSequence(bone, 0, 1);
         }
     } else if (link == ATTACH_HANDR) {
-        for (uint32_t bone = 8; bone <= 12; bone++) {
+        for (uint32_t bone = KEY_BONE_INDEX_FINGER_R; bone <= KEY_BONE_THUMB_R; bone++) {
             model->UnsetBoneSequence(bone, 0, 1);
         }
     }
