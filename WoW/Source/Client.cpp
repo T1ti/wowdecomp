@@ -153,7 +153,7 @@ static const _ARGLIST s_wowArgList[] = {
 static uint32_t s_startArchivePriority = 0x40;
 
 // STATIC: 0x00AB6168
-static ARCHIVEINFO s_archives[28] = {
+static ARCHIVEINFO s_archives[NUM_ARCHIVES] = {
     { "alternate.MPQ", ARCHIVE_ALTERNATE, 3, false },
     { "interface.MPQ", ARCHIVE_REQUIRED, 1, false },
     { "misc.MPQ", ARCHIVE_REQUIRED, 1, false },
@@ -342,7 +342,7 @@ static int32_t ListArchiveFilter(const char* fileName, void* param) {
 
 // VERIFY: 4bb4cdc6 auto
 // OFFSET: 0x004049F0
-static void ListArchives(const char* prefix, int32_t index, int32_t (*callback)(const char* fileName, void* param), void* param) {
+static void ListArchives(const char* prefix, ARCHIVE_INDEX index, int32_t (*callback)(const char* fileName, void* param), void* param) {
     ARCHIVELISTPARAMS params;
     params.m_prefix = prefix;
     params.m_prefixLength = SStrLen(prefix);
@@ -638,10 +638,10 @@ bool CheckDataFilesExist() {
     char dataPath[1024];
     char parentPath[1024];
 
-    BuildDataFileName(0, dataPath, sizeof(dataPath), s_archives[17].m_name, "----");
-    BuildDataFileName(1, parentPath, sizeof(parentPath), s_archives[17].m_name, "----");
+    BuildDataFileName(0, dataPath, sizeof(dataPath), s_archives[ARCHIVE_INDEX_COMMON].m_name, "----");
+    BuildDataFileName(1, parentPath, sizeof(parentPath), s_archives[ARCHIVE_INDEX_COMMON].m_name, "----");
 
-    if (BuildDataFileName(2, installPath, sizeof(installPath), s_archives[17].m_name, "----")) {
+    if (BuildDataFileName(2, installPath, sizeof(installPath), s_archives[ARCHIVE_INDEX_COMMON].m_name, "----")) {
         return OsFileExists(dataPath) || OsFileExists(parentPath) || OsFileExists(installPath);
     }
 
@@ -660,7 +660,7 @@ static void CheckAvailableLocales(char* locale) {
         g_hasIsoLocale[i] = false;
 
         for (int32_t directory = 0; directory < 3; directory++) {
-            if (BuildDataFileName(directory, path, sizeof(path), s_archives[19].m_name, g_localeNames[i]) && OsFileExists(path)) {
+            if (BuildDataFileName(directory, path, sizeof(path), s_archives[ARCHIVE_INDEX_LOCALE].m_name, g_localeNames[i]) && OsFileExists(path)) {
                 g_hasIsoLocale[i] = true;
                 break;
             }
@@ -1472,10 +1472,10 @@ static void OpenArchives() {
 
     s_archiveHandles.SetCount(slot);
 
-    if (s_archiveHandles[s_firstBaseArchive + 16]) {
+    if (s_archiveHandles[s_firstBaseArchive + ARCHIVE_INDEX_LICHKING]) {
         s_expansionLevel = 2;
     } else {
-        s_expansionLevel = s_archiveHandles[s_firstBaseArchive + 15] != nullptr;
+        s_expansionLevel = s_archiveHandles[s_firstBaseArchive + ARCHIVE_INDEX_EXPANSION] != nullptr;
     }
 
     void* profile = ProfileCreate();
@@ -1847,10 +1847,10 @@ int32_t CommonMain() {
 // VERIFY: 8f0a8d05 manual
 // OFFSET: 0x00404A80
 void ListInterfaceArchive(const char* prefix, int32_t (*callback)(const char* fileName, void* param), void* param) {
-    if (s_archiveHandles.m_data[s_firstBaseArchive + 1]) {
-        ListArchives(prefix, 1, callback, param);
+    if (s_archiveHandles.m_data[s_firstBaseArchive + ARCHIVE_INDEX_INTERFACE]) {
+        ListArchives(prefix, ARCHIVE_INDEX_INTERFACE, callback, param);
     } else {
-        ListArchives(prefix, 19, callback, param);
+        ListArchives(prefix, ARCHIVE_INDEX_LOCALE, callback, param);
     }
 }
 
