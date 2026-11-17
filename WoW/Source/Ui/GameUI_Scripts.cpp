@@ -2749,9 +2749,9 @@ static int32_t Script_StopCinematic(lua_State* L) {
 // VERIFY: 8266a857 manual
 // OFFSET: 0x00525A90
 static int32_t Script_TargetNearest(lua_State* L) {
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ANY);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -2760,9 +2760,9 @@ static int32_t Script_TargetNearest(lua_State* L) {
 // VERIFY: 54ce30e6 manual
 // OFFSET: 0x00525AD0
 static int32_t Script_TargetNearestEnemy(lua_State* L) {
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ENEMY);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -2771,9 +2771,9 @@ static int32_t Script_TargetNearestEnemy(lua_State* L) {
 // VERIFY: 32d545fd manual
 // OFFSET: 0x00525B10
 static int32_t Script_TargetNearestEnemyPlayer(lua_State* L) {
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_ENEMY_PLAYER);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -2782,9 +2782,9 @@ static int32_t Script_TargetNearestEnemyPlayer(lua_State* L) {
 // VERIFY: bcf021cd manual
 // OFFSET: 0x00525B50
 static int32_t Script_TargetNearestFriend(lua_State* L) {
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_FRIEND);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -2793,9 +2793,9 @@ static int32_t Script_TargetNearestFriend(lua_State* L) {
 // VERIFY: 04298fa1 manual
 // OFFSET: 0x00525B90
 static int32_t Script_TargetNearestFriendPlayer(lua_State* L) {
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         TargetNearestEnemy(StringToBOOL(L, 1, 0), UNIT_TARGET_FRIEND_PLAYER);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -5923,11 +5923,11 @@ static int32_t Script_TargetDirectionEnemy(lua_State* L) {
         return 0;
     }
 
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         float facing = static_cast<float>(lua_tonumber(L, 1));
         float angle = static_cast<float>(lua_isnumber(L, 2) ? lua_tonumber(L, 2) : 0.0);
         CGGameUI::TargetDirection(facing, angle, UNIT_TARGET_ENEMY);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;
@@ -5941,11 +5941,11 @@ static int32_t Script_TargetDirectionFriend(lua_State* L) {
         return 0;
     }
 
-    if (CGUIMacros::IsActionAllowed(5)) {
+    if (CGUIMacros::IsActionAllowed(UI_ACTION_TARGET_NEAREST)) {
         float facing = static_cast<float>(lua_tonumber(L, 1));
         float angle = static_cast<float>(lua_isnumber(L, 2) ? lua_tonumber(L, 2) : 0.0);
         CGGameUI::TargetDirection(facing, angle, UNIT_TARGET_FRIEND);
-        CGUIMacros::m_state &= ~0x20u;
+        CGUIMacros::m_state &= ~UI_ACTION_MASK_TARGET_NEAREST;
     }
 
     return 0;

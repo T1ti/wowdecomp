@@ -1507,7 +1507,7 @@ enum UI_ACTION : uint32_t {
     UI_ACTION_CAST_SPELL = 2,
     UI_ACTION_RUN_MACRO = 3,
     UI_ACTION_PARTY_ASSIGNMENT = 4,
-    UI_ACTION_UNKNOWN_5 = 5,
+    UI_ACTION_TARGET_NEAREST = 5, // Only producers: the TargetNearest* and TargetDirection* scripts.
     UI_ACTION_TRADE_SKILL = 6,
     UI_ACTION_TRADE_ACCEPT = 7,
     UI_ACTION_AUCTION = 8,
@@ -1529,6 +1529,7 @@ enum UI_ACTION : uint32_t {
 };
 
 constexpr uint32_t UI_ACTION_MASK_CAST_SPELL = 1u << UI_ACTION_CAST_SPELL;
+constexpr uint32_t UI_ACTION_MASK_TARGET_NEAREST = 1u << UI_ACTION_TARGET_NEAREST;
 
 enum SCRIPT_EVENT {
 #define SCRIPT_EVENT_ENUM(name, index) SCRIPT_EVENT_##name = index,

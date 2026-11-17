@@ -1624,7 +1624,7 @@ int32_t CGGameUI::CanPerformAction(uint32_t action) {
             case UI_ACTION::UI_ACTION_CAST_SPELL:
             case UI_ACTION::UI_ACTION_RUN_MACRO:
             case UI_ACTION::UI_ACTION_PARTY_ASSIGNMENT:
-            case UI_ACTION::UI_ACTION_UNKNOWN_5:
+            case UI_ACTION::UI_ACTION_TARGET_NEAREST:
             case UI_ACTION::UI_ACTION_UNKNOWN_16:
             case UI_ACTION::UI_ACTION_GM_TICKET:
                 CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
