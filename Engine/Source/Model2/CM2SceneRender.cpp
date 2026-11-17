@@ -79,13 +79,13 @@ void CM2SceneRender::SetupTextures() {
     int32_t envSecond;
 
     if (!CShaderEffect::s_enableShaders) {
-        if (batch->m_shader & 0x8000) {
+        if (batch->m_shader & M2Batch::SHADER_ID::SPECIAL) {
             count = 1;
         }
 
         envSecond = 0;
     } else {
-        envSecond = (batch->m_shader & 0x4000) && count == 1;
+        envSecond = (batch->m_shader & M2Batch::SHADER_ID::TEX_COORD_1) && count == 1;
     }
 
     uint32_t i = 0;
@@ -113,7 +113,7 @@ void CM2SceneRender::SetupTextures() {
             uint32_t stage = envSecond ? 1 : i;
             uint16_t shader = this->m_curBatch->m_shader;
 
-            if ((shader & 0x8000) || !((shader >> shift) & 8)) {
+            if ((shader & M2Batch::SHADER_ID::SPECIAL) || !((shader >> shift) & M2COMBINER_ENVMAP)) {
                 if (transform >= this->m_data->m_textureTransforms.m_count) {
                     CShaderEffect::SetTexMtx_Identity(stage);
                 } else {
@@ -174,8 +174,8 @@ void CM2SceneRender::SetBatchVertices(int32_t sharedVertices) {
         return;
     }
 
-    uint32_t env = this->m_curBatch->m_shader & 0x4000;
-    int32_t sameEnv = this->m_prevBatch && env == (this->m_prevBatch->m_shader & 0x4000u);
+    uint32_t env = this->m_curBatch->m_shader & M2Batch::SHADER_ID::TEX_COORD_1;
+    int32_t sameEnv = this->m_prevBatch && env == (this->m_prevBatch->m_shader & M2Batch::SHADER_ID::TEX_COORD_1);
 
     if (sharedVertices) {
         if (this->m_curType != this->m_prevType || this->m_curShared != this->m_prevShared || !sameEnv) {

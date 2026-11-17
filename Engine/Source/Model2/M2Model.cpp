@@ -2184,7 +2184,7 @@ uint32_t CM2Model::GetNumGeometryBatches() {
             }
         }
 
-        if (batch->m_shader == 0x8000) {
+        if (batch->m_shader == M2Batch::SHADER_ID::SPECIAL_COMBINED) {
             continue;
         }
 
@@ -2237,7 +2237,7 @@ uint32_t CM2Model::GetNumCombinableDoodadBatches() {
             }
         }
 
-        if (batch->m_shader == 0x8000) {
+        if (batch->m_shader == M2Batch::SHADER_ID::SPECIAL_COMBINED) {
             continue;
         }
 
@@ -2289,7 +2289,7 @@ uint32_t CM2Model::GetNumPrimitives() {
             }
         }
 
-        if (batch->m_shader == 0x8000) {
+        if (batch->m_shader == M2Batch::SHADER_ID::SPECIAL_COMBINED) {
             continue;
         }
 
@@ -7723,7 +7723,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
             }
         }
 
-        if (batch->m_shader == 0x8000 || (batch->m_flags & M2Batch::FLAGS::PROJECTED_TEXTURE) || batch->m_materialLayer) {
+        if (batch->m_shader == M2Batch::SHADER_ID::SPECIAL_COMBINED || (batch->m_flags & M2Batch::FLAGS::PROJECTED_TEXTURE) || batch->m_materialLayer) {
             continue;
         }
 

@@ -378,6 +378,19 @@ class M2Batch {
         MULTI_SAMPLE_VERTICES = 0x40,
     };
 
+    // Runtime m_shader word (CM2Shared::SubstituteSimpleShaders): bits 4..7 hold the first
+    // texture's M2COMBINER op and bits 0..3 the second's. With SPECIAL set, the low bits index
+    // the fixed effects in CM2Shared::GetEffect, named here after their pixel shaders.
+    enum SHADER_ID : uint16_t {
+        TEX_COORD_1 = 0x4000, // The last texture samples texture coord set 1 (SetVertices(1)).
+        SPECIAL = 0x8000,
+        SPECIAL_INDEX_MASK = 0x7FFF,
+        SPECIAL_COMBINED = 0x8000, // Merged into the preceding batch; GetEffect returns nullptr.
+        SPECIAL_OPAQUE_MOD2XNA_ALPHA = 0x8001,
+        SPECIAL_OPAQUE_ADDALPHA = 0x8002,
+        SPECIAL_OPAQUE_ADDALPHA_ALPHA = 0x8003,
+    };
+
     /* 0000 */ uint8_t m_flags;
     /* 0001 */ int8_t m_priorityPlane;
     /* 0002 */ uint16_t m_shader;

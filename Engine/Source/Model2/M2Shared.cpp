@@ -637,7 +637,7 @@ void CM2Shared::SubstituteSimpleShaders() {
     for (uint32_t i = 0; i < this->m_skinData->m_batches.m_count; i++) {
         M2Batch* batch = &this->m_skinData->m_batches[i];
 
-        if (batch->m_shader & 0x8000) {
+        if (batch->m_shader & M2Batch::SHADER_ID::SPECIAL) {
             continue;
         }
 
@@ -654,7 +654,7 @@ void CM2Shared::SubstituteSimpleShaders() {
             batch->m_shader = op << 4;
 
             if (coord == 1) {
-                batch->m_shader |= 0x4000;
+                batch->m_shader |= M2Batch::SHADER_ID::TEX_COORD_1;
             }
         } else {
             uint16_t combiner = batch->m_shader;
@@ -676,7 +676,7 @@ void CM2Shared::SubstituteSimpleShaders() {
                 }
 
                 if (coord == 1 && j + 1 == batch->m_textureCount) {
-                    batch->m_shader |= 0x4000;
+                    batch->m_shader |= M2Batch::SHADER_ID::TEX_COORD_1;
                 }
             }
 
@@ -711,7 +711,7 @@ int32_t M2Init<M2Texture>(uint8_t* base, uint32_t size, const M2Data& data, M2Ar
 CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
     CShaderEffect* effect;
 
-    if (!(batch->m_shader & 0x8000)) {
+    if (!(batch->m_shader & M2Batch::SHADER_ID::SPECIAL)) {
         effect = this->GetEffect(batch->m_textureCount, batch->m_shader, batch->m_textureCoordComboIndex);
     } else {
         const char* vertexShader = nullptr;
@@ -719,7 +719,7 @@ CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
         EGxTexOp colorOp = GxTexOp_Mod;
         EGxTexOp alphaOp = GxTexOp_Mod;
 
-        switch (batch->m_shader & 0x7FFF) {
+        switch (batch->m_shader & M2Batch::SHADER_ID::SPECIAL_INDEX_MASK) {
             case 0:
                 return nullptr;
             case 1:
@@ -1038,7 +1038,7 @@ void CM2Shared::SubstituteSpecializedShaders() {
             state1 = 0;
 
             if (batch->m_textureCount && material->m_blendMode == M2BLEND_OPAQUE) {
-                batch->m_shader &= 0xFF8F;
+                batch->m_shader &= ~(M2COMBINER_OP_MASK << 4);
             }
 
             base = &this->m_skinData->m_batches[i];
@@ -1047,8 +1047,8 @@ void CM2Shared::SubstituteSpecializedShaders() {
         switch (state0) {
             case 1:
                 if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & M2Material::FLAGS::UNLIT) && batch->m_textureComboIndex == (base->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
-                    batch->m_shader = 0x8000;
-                    base->m_shader = 0x8001;
+                    batch->m_shader = M2Batch::SHADER_ID::SPECIAL_COMBINED;
+                    base->m_shader = M2Batch::SHADER_ID::SPECIAL_OPAQUE_MOD2XNA_ALPHA;
                     state0 = 3;
                     continue;
                 }
@@ -1073,9 +1073,9 @@ void CM2Shared::SubstituteSpecializedShaders() {
                 break;
             case 1:
                 if ((material->m_blendMode == M2BLEND_ADD || material->m_blendMode == M2BLEND_MOD2X) && batch->m_textureCount == 1 && this->m_data->m_textureCoordCombos[batch->m_textureCoordComboIndex] > 2 && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
-                    batch->m_shader = 0x8000;
+                    batch->m_shader = M2Batch::SHADER_ID::SPECIAL_COMBINED;
                     combined = true;
-                    base->m_shader = material->m_blendMode != M2BLEND_ADD ? 0xE : 0x8002;
+                    base->m_shader = material->m_blendMode != M2BLEND_ADD ? (M2COMBINER_OPAQUE << 4) | M2COMBINER_ENVMAP | M2COMBINER_MOD2X_NA : M2Batch::SHADER_ID::SPECIAL_OPAQUE_ADDALPHA;
                     base->m_textureCount = 2;
                     state1 = 2;
                     base->m_textureComboIndex = static_cast<uint16_t>((base->m_textureComboIndex & 0xFF) | (batch->m_textureComboIndex << 8));
@@ -1087,9 +1087,9 @@ void CM2Shared::SubstituteSpecializedShaders() {
                 break;
             case 2:
                 if ((material->m_blendMode == M2BLEND_ALPHA || material->m_blendMode == M2BLEND_ALPHA_KEY) && batch->m_textureCount == 1 && !((material->m_flags ^ this->m_data->m_materials[base->m_materialIndex].m_flags) & M2Material::FLAGS::UNLIT) && (base->m_textureComboIndex & 0xFF) == (batch->m_textureComboIndex & 0xFF) && this->m_data->m_textureWeightCombos[base->m_textureWeightComboIndex] == this->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]) {
-                    batch->m_shader = 0x8000;
+                    batch->m_shader = M2Batch::SHADER_ID::SPECIAL_COMBINED;
                     state1 = 3;
-                    base->m_shader = base->m_shader == 0x8002 ? 0x8003 : 0x8001;
+                    base->m_shader = base->m_shader == M2Batch::SHADER_ID::SPECIAL_OPAQUE_ADDALPHA ? M2Batch::SHADER_ID::SPECIAL_OPAQUE_ADDALPHA_ALPHA : M2Batch::SHADER_ID::SPECIAL_OPAQUE_MOD2XNA_ALPHA;
                     continue;
                 }
 

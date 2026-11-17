@@ -1819,7 +1819,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 }
             }
 
-            if (batch->m_shader == 0x8000) {
+            if (batch->m_shader == M2Batch::SHADER_ID::SPECIAL_COMBINED) {
                 continue;
             }
 
