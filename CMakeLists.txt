@@ -54,6 +54,13 @@ if (WOWDECOMP_DISABLE_SIGNATURE_CHECKS)
     add_compile_definitions(DISABLE_SIGNATURE_CHECKS=1)
 endif ()
 
+# Off by default: debug features (0.5.3 debug commands, CVars and render modes stripped from the 3.3.5 release build)
+# are compiled only when ON. The release build stays identical to the original.
+option(WOWDECOMP_DEBUG_FEATURES "Build the debug-feature shells stripped from the release client" OFF)
+if (WOWDECOMP_DEBUG_FEATURES)
+    add_compile_definitions(WOWDECOMP_DEBUG_FEATURES=1)
+endif ()
+
 # Game identity (build 12340, version 3.3.5, client name) lives in GameVersion.h at the repository root.
 # WaystoneVersion.h is regenerated from git on every build; the login screen shows its build number.
 set(WAYSTONE_VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/WaystoneVersion.h)

@@ -428,6 +428,11 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     bool IsUsableInCombat() const;
     bool IsUsableMounted() const;
     bool IsUsableWhileImmune() const;
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature (Unit_C_Debug.cpp), stripped from the 3.3.5 release build.
+    const char* GetDebugStatus() const;
+#endif
 };
 
 void ApplyGameObjectArtKit(CM2Model* model, int32_t artKit);

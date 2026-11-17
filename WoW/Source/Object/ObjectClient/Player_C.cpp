@@ -154,6 +154,7 @@
 #include "WoW/Source/Ui/Tutorial.h"
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/UIUtil/PortraitButton.h"
+#include "WoW/Source/DebugFeatures.h"
 
 struct GUILDUPDATETIMESTAMP {
     /* 0000 */ uint32_t m_guildId;
@@ -855,6 +856,9 @@ void CGPlayer_C::Shutdown() {
 // OFFSET: 0x006E8EE0
 void PlayerClientInitialize() {
     CGPlayer_C::PlayerInitializeMessageHandlers();
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    UnitDebugRegisterConsoleCommands();
+#endif
 
     for (uint32_t i = 0; i < ITEM_CLASS::NUM_ITEM_CLASSES; i++) {
         s_playerProficiencies[i] = ITEM_PROFICIENCY_NO_MASK;

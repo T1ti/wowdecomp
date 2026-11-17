@@ -169,6 +169,7 @@
 #include "WoW/Source/DB/Rec/PaperDollItemFrameRec.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "GameVersion.h"
+#include "WoW/Source/DebugFeatures.h"
 
 // STATIC: 0x00BD0CC4
 static CWOWClientStatus* s_loadAddOnStatus;
@@ -6119,7 +6120,7 @@ static int32_t Script_InteractUnit(lua_State* L) {
 // VERIFY: 18a1aa02 auto
 // OFFSET: 0x008E5250
 static int32_t Script_GetDebugStats(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 reference: Script_GetDebugStats (0x004E1E50) builds a text block with game time, player position, compass facing, CWorld::QueryChunkName and day progression.
 #endif
@@ -6129,7 +6130,7 @@ static int32_t Script_GetDebugStats(lua_State* L) {
 // VERIFY: 2d906ed2 auto
 // OFFSET: 0x008E5250
 static int32_t Script_GetExtendedItemInfo(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: appears debug-only (inferred from the name and the return-0 stub in the 3.3.5 release build).
     // No 0.5.3 reference.
 #endif
@@ -6139,7 +6140,7 @@ static int32_t Script_GetExtendedItemInfo(lua_State* L) {
 // VERIFY: a2a81f16 auto
 // OFFSET: 0x008E5250
 static int32_t Script_ResetPerformanceValues(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 reference: Script_ResetPerformanceValues (0x004E2B20) calls ScrnPerfResetTimePeaks().
 #endif
@@ -6149,7 +6150,7 @@ static int32_t Script_ResetPerformanceValues(lua_State* L) {
 // VERIFY: fd2073f6 auto
 // OFFSET: 0x008E5250
 static int32_t Script_ToggleCollision(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 Script_ToggleCollision (0x004E2A10) is already a return-0 stub; possibly related: CMovement::ToggleCollision (0x004CBBA0).
 #endif
@@ -6159,9 +6160,10 @@ static int32_t Script_ToggleCollision(lua_State* L) {
 // VERIFY: 6257dd9e auto
 // OFFSET: 0x008E5250
 static int32_t Script_ToggleCollisionDisplay(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 Script_ToggleCollisionDisplay (0x004E2A20) is already a return-0 stub; possibly related: ToggleCollisionInfo (0x00613220) / RenderCollisionInfo (0x00613280).
+    ToggleCollisionInfo();
 #endif
     return 0;
 }
@@ -6169,7 +6171,7 @@ static int32_t Script_ToggleCollisionDisplay(lua_State* L) {
 // VERIFY: b21b6e35 auto
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePerformanceDisplay(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 reference: Script_TogglePerformanceDisplay (0x004E2AF0) calls ScrnPerfEnable(!ScrnPerfIsEnabled()).
 #endif
@@ -6179,7 +6181,7 @@ static int32_t Script_TogglePerformanceDisplay(lua_State* L) {
 // VERIFY: 8b4eb514 auto
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePerformancePause(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -6189,7 +6191,7 @@ static int32_t Script_TogglePerformancePause(lua_State* L) {
 // VERIFY: cfd0fad1 auto
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePerformanceValues(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 reference: Script_TogglePerformanceValues (0x004E2B10) calls ScrnPerfToggleDisplayedValues().
 #endif
@@ -6199,9 +6201,10 @@ static int32_t Script_TogglePerformanceValues(lua_State* L) {
 // VERIFY: f89e457c auto
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePlayerBounds(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 reference: Script_TogglePlayerBounds (0x004E2B30) calls CGPlayer_C::TogglePlayerBounds (0x005DCE60), which flips boundsPresent and calls ModelShowBoundingSphere / ModelHideBounds on the active player's model.
+    CGPlayer_C::TogglePlayerBounds();
 #endif
     return 0;
 }
@@ -6209,7 +6212,7 @@ static int32_t Script_TogglePlayerBounds(lua_State* L) {
 // VERIFY: e0ce0afb auto
 // OFFSET: 0x008E5250
 static int32_t Script_TogglePortals(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 Script_TogglePortals (0x004E2A00) is already a return-0 stub.
 #endif
@@ -6219,7 +6222,7 @@ static int32_t Script_TogglePortals(lua_State* L) {
 // VERIFY: b6b7441a auto
 // OFFSET: 0x008E5250
 static int32_t Script_ToggleTris(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // 0.5.3 Script_ToggleTris (0x004E29F0) is already a return-0 stub.
 #endif

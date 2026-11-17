@@ -445,6 +445,20 @@ class CM2Model {
     int32_t SetVertices(int32_t optimized, M2SkinSection* section, int32_t texCoord);
     int32_t SetVerticesMultiSample(int32_t optimized, M2SkinSection* section);
     void UnlinkFromCallbackList();
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug features (M2Model_Debug.cpp): 0.5.3 Model* debug display, stripped from the 3.3.5 release build.
+    static int32_t AnimateLogToggle(const char* fileName);
+    static int32_t RenderSceneLogToggle(const char* fileName);
+    void HideBounds();
+    void ShowBoundingBox();
+    void ShowBoundingSphere();
+    void ShowCollision(int32_t show);
+    void ShowCollisionAaBox(int32_t show);
+    void ShowHitTestGeometry();
+    void ShowMaterialLayer(uint32_t material, uint32_t layer, int32_t show);
+    void ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue);
+#endif
 };
 
 class M2SequenceFallback {

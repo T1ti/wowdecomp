@@ -31,6 +31,7 @@
 #include <cstring>
 #include "Engine/Source/Base/Coordinate.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "WoW/Source/DebugFeatures.h"
 
 // STATIC: 0x00C5CDF0
 static CTexture* s_portraitMaskTexture;
@@ -139,6 +140,9 @@ void PortraitInitialize() {
 
     s_playerPortraitCache = nullptr;
     s_unitPortraitCache = nullptr;
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    PortraitDebugRegisterConsoleCommands();
+#endif
 }
 
 // VERIFY: 59c574b9 auto

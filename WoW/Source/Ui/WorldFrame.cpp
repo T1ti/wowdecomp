@@ -91,6 +91,7 @@
 #include <cmath>
 #include "WoW/Source/Ui/SpellBookFrame.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "WoW/Source/DebugFeatures.h"
 
 // STATIC: 0x009F9864
 static const CURSORMODE s_skinCursorModes[2] = { SKIN_ALLIANCE_CURSOR, SKIN_HORDE_CURSOR };
@@ -1281,6 +1282,9 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     CGWorldFrame::ffxEffectSwirlingFog = new (__FILE__, __LINE__) EffectSwirlingFog();
 
     CGWorldFrame::UpdateScreenEffect();
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    WorldFrameDebugInitialize();
+#endif
 }
 
 // VERIFY: 74e81b7f auto

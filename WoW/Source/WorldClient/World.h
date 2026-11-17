@@ -652,6 +652,37 @@ class CWorld {
     static void ObjectDestroy(CMapBaseObj* object);
     static CMapBaseObj* ObjectCreate(const char* name, const C3Vector& position, float facing, int32_t waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
     static void Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position);
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug features (World_Debug.cpp): 0.5.3 console commands and render modes, stripped from the 3.3.5 release build.
+    static void DebugRegisterConsoleCommands();
+    static int32_t ConsoleCommand_DebugBSP(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_DebugZones(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_DetailDoodadTest(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_EnumTextureGxCache(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_EnumTextures(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_GroupOnly(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_MapObjLightMode(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_PortalVis(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_Proj(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowAABoxes(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowCollision(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowCrappyBatches(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowDoodads(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowMapObjBSP(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowMapObjLight(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowMapObjTex(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowMapObjs(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowNormals(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowPortals(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowQuery(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowTerrain(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_ShowTris(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_WaterMaxLOD(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_WaterShow(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_WaterSpecular(const char* command, const char* arguments);
+    static int32_t ConsoleCommand_WaterWaves(const char* command, const char* arguments);
+#endif
 };
 
 extern float s_viewerLiquidDepth;

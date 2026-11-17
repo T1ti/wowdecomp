@@ -183,6 +183,10 @@ enum SKINNING_TYPE : uint32_t {
     NUM_SKINNING_TYPES = 4,
 };
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+class ATTACKROUNDINFO;
+#endif
+
 class CGUnit_C : public CGObject_C, public CGUnit {
     public:
     // UpdateAmmoModel request marker: infer AMMO/THROWN from the ranged item.
@@ -1104,6 +1108,13 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void TrackingSetTurn(uint32_t time, float facing);
     bool HandleTrackingPitch(float targetZ, float z, float pitch, float maxStep, uint32_t time, bool* overshoot);
     bool HandleTrackingFacing(float facing, float maxTurn, uint32_t time);
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug features (Unit_C_Debug.cpp), stripped from the 3.3.5 release build.
+    int32_t GetDebugStateInfo(ATTACKROUNDINFO* info);
+    void RenderDebugPathing();
+    void SetDebugHitRolls(const ATTACKROUNDINFO& info);
+#endif
 };
 
 void CreatureQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);

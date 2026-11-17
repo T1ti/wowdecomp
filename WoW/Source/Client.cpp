@@ -113,6 +113,7 @@
 #include "WoW/Source/WowSvcs/WowSvcsClient/FriendList.h"
 #include "WoW/Source/WowSysMessageOutput.h"
 #include "GameVersion.h"
+#include "WoW/Source/DebugFeatures.h"
 
 namespace {
 
@@ -1013,6 +1014,9 @@ static void InitializeClient() {
     LoadingScreenInitialize();
     FrameScript_Initialize(0);
     SI2::Init(0);
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    SndDebugInitialize();
+#endif
     ObjectEffectSystem_Initialize();
     FrameXML_RegisterDefault();
     GlueScriptEventsInitialize();
@@ -1864,6 +1868,9 @@ void GameClientCommands::Uninstall() {
     ConsoleCommandUnregister("showplayer");
     ConsoleCommandUnregister("togglehelm");
     ConsoleCommandUnregister("togglecloak");
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    GameClientCommandsDebugUninstall();
+#endif
 }
 
 // VERIFY: 0fe7767a auto
@@ -1876,6 +1883,9 @@ void GameClientCommands::Install() {
     ConsoleCommandRegister("showplayer", CCommand_TogglePlayer, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("togglehelm", CCommand_ToggleHelm, CATEGORY_GAME, nullptr);
     ConsoleCommandRegister("togglecloak", CCommand_ToggleCloak, CATEGORY_GAME, nullptr);
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    GameClientCommandsDebugInstall();
+#endif
 }
 
 // VERIFY: 94d63d11 auto

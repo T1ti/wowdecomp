@@ -245,6 +245,11 @@ class CGWorldFrame : public CSimpleFrame {
     void SetPlayerFadeCameraValue(uint8_t value);
     void UnitClear();
     void SetCameraTarget(CGObject_C* target, int32_t freeLook);
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature (WorldFrame_Debug.cpp), stripped from the 3.3.5 release build.
+    int32_t TogglePlayerRender();
+#endif
 };
 
 class CWorldClickEvent {

@@ -758,7 +758,7 @@ static int32_t Script_debuglocals(lua_State* L) {
 // VERIFY: 85de31cd auto
 // OFFSET: 0x008E5250
 static int32_t Script_debugload(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -768,7 +768,7 @@ static int32_t Script_debugload(lua_State* L) {
 // VERIFY: 2907b51f auto
 // OFFSET: 0x008E5250
 static int32_t Script_debuginfo(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 Script_debuginfo; 0.5.3 FrameScript_Initialize does reference a "debuginfo" string and sub_6E6440 emits "// DEBUGINFO - %s:%d" (possibly related).
 #endif
@@ -778,7 +778,7 @@ static int32_t Script_debuginfo(lua_State* L) {
 // VERIFY: c72f64d9 auto
 // OFFSET: 0x008E5250
 static int32_t Script_debugprint(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -788,7 +788,7 @@ static int32_t Script_debugprint(lua_State* L) {
 // VERIFY: 41518b2f auto
 // OFFSET: 0x008E5250
 static int32_t Script_debugdump(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -798,7 +798,7 @@ static int32_t Script_debugdump(lua_State* L) {
 // VERIFY: 7104531d auto
 // OFFSET: 0x008E5250
 static int32_t Script_debugbreak(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -808,7 +808,7 @@ static int32_t Script_debugbreak(lua_State* L) {
 // VERIFY: 11b77409 auto
 // OFFSET: 0x008E5250
 static int32_t Script_debughook(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif
@@ -818,7 +818,7 @@ static int32_t Script_debughook(lua_State* L) {
 // VERIFY: 580c4aae auto
 // OFFSET: 0x008E5250
 static int32_t Script_debugtimestamp(lua_State* L) {
-#ifndef NDEBUG
+#ifdef WOWDECOMP_DEBUG_FEATURES
     // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
     // No 0.5.3 reference.
 #endif

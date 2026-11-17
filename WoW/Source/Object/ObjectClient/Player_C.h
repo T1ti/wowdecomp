@@ -546,6 +546,11 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void SetActiveMirrorHandlers();
     void UnsetActiveMirrorHandlers();
     void MeleeModeLeave();
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature (Unit_C_Debug.cpp), stripped from the 3.3.5 release build.
+    static void TogglePlayerBounds();
+#endif
 };
 
 class PlaySpellVisuaKitData {

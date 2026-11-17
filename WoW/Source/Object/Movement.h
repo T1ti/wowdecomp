@@ -299,6 +299,13 @@ class CMovement_C : public CMovementShared {
     int32_t IsSlopeFallable(uint32_t facet, const C3Vector& move) const;
     C3Vector GetSteepSurfacePushNormal(uint32_t facet, const C4Plane* planes, uint32_t count);
     C2Vector CalcFallObstaclePush(const C3Vector& direction, float distance, float maxDistance, uint32_t facet, const C4Plane* planes, uint32_t count);
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug features (CollisionInfo_Debug.cpp), stripped from the 3.3.5 release build.
+    static int32_t ToggleFallLogging();
+    static int32_t ToggleLogging();
+    void ShowCollisionBox(const C3Vector& position, uint32_t color);
+#endif
 };
 
 #endif

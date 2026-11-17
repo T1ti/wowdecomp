@@ -1753,6 +1753,9 @@ void CWorld::Initialize() {
     ConsoleCommandRegister("showSimpleDoodads", CWorld::ConsoleCommand_ShowSimpleDoodads, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("detailDoodadAlpha", CWorld::ConsoleCommand_DetailDoodadAlpha, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("characterAmbient", CWorld::ConsoleCommand_CharacterAmbient, CATEGORY_GRAPHICS, nullptr);
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    CWorld::DebugRegisterConsoleCommands();
+#endif
 
     ZonesInitialize();
 }

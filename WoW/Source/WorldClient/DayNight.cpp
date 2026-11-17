@@ -35,6 +35,7 @@
 #include "Engine/Source/Gxu/Gxu.h"
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "WoW/Source/DebugFeatures.h"
 
 static const float SUNRISE = 0.22916667f;
 static const float NOON = 0.5f;
@@ -2581,6 +2582,9 @@ void DayNight::LoadMap(int32_t mapId) {
     DayNight::s_lightFlags = 0;
     s_cvSkyCloudLOD = CVar::Register("SkyCloudLOD", nullptr, CVAR_FLAGS::CVAR_NONE, "0", CWorldParam::CloudLODCallback, 1, false, nullptr, false);
     ConsoleCommandRegister("SkySunGlare", SkySunGlare, CATEGORY_GRAPHICS, "0, 1");
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    DayNightDebugRegisterConsoleCommands();
+#endif
     DayNight::g_forceFullUpdate = 1;
 }
 
