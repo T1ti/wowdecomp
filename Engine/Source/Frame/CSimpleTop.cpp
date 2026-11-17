@@ -1143,7 +1143,7 @@ CSimpleTop::CSimpleTop() {
     this->m_actionBlockedCallback = nullptr;
 
     CSimpleTop::s_instance = this;
-    ScrnLayerCreate(nullptr, 1.0f, 4, nullptr, &PaintScreen, &this->m_screenLayer);
+    ScrnLayerCreate(nullptr, 1.0f, SCRN_LAYER_FULLSCREEN_VIEWPORT, nullptr, &PaintScreen, &this->m_screenLayer);
     this->EnableEvents();
 
     memset(this->m_keydownCapture, 0, sizeof(this->m_keydownCapture));

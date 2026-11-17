@@ -347,9 +347,9 @@ void LoadingScreenSetTransparent(bool transparent) {
     uint32_t flags = ScrnLayerGetFlags(s_loadingScreenLayer);
 
     if (transparent) {
-        ScrnLayerSetFlags(s_loadingScreenLayer, flags | 0x1);
+        ScrnLayerSetFlags(s_loadingScreenLayer, flags | SCRN_LAYER_TRANSPARENT);
     } else {
-        ScrnLayerSetFlags(s_loadingScreenLayer, flags & ~0x1u);
+        ScrnLayerSetFlags(s_loadingScreenLayer, flags & ~SCRN_LAYER_TRANSPARENT);
     }
 }
 
@@ -644,7 +644,7 @@ static void UpdateProgressBar(int32_t force) {
 // OFFSET: 0x0040A990
 static void InitializeProgressBar(bool loadingWorld) {
     if (s_loadingScreenLayer) {
-        ScrnLayerSetFlags(s_loadingScreenLayer, ScrnLayerGetFlags(s_loadingScreenLayer) & ~0x1u);
+        ScrnLayerSetFlags(s_loadingScreenLayer, ScrnLayerGetFlags(s_loadingScreenLayer) & ~SCRN_LAYER_TRANSPARENT);
     }
 
     s_xmlProgress = 0.0f;
@@ -667,7 +667,7 @@ static void InitializeProgressBar(bool loadingWorld) {
         rect.left = 0.0f;
         rect.top = 1.0f;
         rect.right = 1.0f;
-        ScrnLayerCreate(&rect, 9.0f, 6, nullptr, LoadingScreenPaint, &s_loadingScreenLayer);
+        ScrnLayerCreate(&rect, 9.0f, SCRN_LAYER_ORTHO | SCRN_LAYER_FULLSCREEN_VIEWPORT, nullptr, LoadingScreenPaint, &s_loadingScreenLayer);
         InitializeProgressBarEvents();
     }
 
@@ -1020,7 +1020,7 @@ void LoadingScreenMiniEnable() {
     rect.left = 0.0f;
     rect.top = 1.0f;
     rect.right = 1.0f;
-    ScrnLayerCreate(&rect, 9.0f, 3, nullptr, LoadingScreenMiniPaint, &s_miniLoadingLayer);
+    ScrnLayerCreate(&rect, 9.0f, SCRN_LAYER_TRANSPARENT | SCRN_LAYER_ORTHO, nullptr, LoadingScreenMiniPaint, &s_miniLoadingLayer);
     s_progress = 0.5f;
 }
 

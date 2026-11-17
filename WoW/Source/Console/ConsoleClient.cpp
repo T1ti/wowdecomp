@@ -1288,8 +1288,8 @@ void ConsoleScreenInitialize(const char* title) {
     SStrCopy(s_fontName, "Fonts\\ARIALN.ttf", sizeof(s_fontName));
     s_textFont = TextBlockGenerateFont(s_fontName, 0, NDCToDDCHeight(s_fontHeight));
 
-    ScrnLayerCreate(&s_rect, 6.0f, 3, nullptr, PaintBackground, &s_layerBackground);
-    ScrnLayerCreate(&s_rect, 7.0f, 3, nullptr, PaintText, &s_layerText);
+    ScrnLayerCreate(&s_rect, 6.0f, SCRN_LAYER_TRANSPARENT | SCRN_LAYER_ORTHO, nullptr, PaintBackground, &s_layerBackground);
+    ScrnLayerCreate(&s_rect, 7.0f, SCRN_LAYER_TRANSPARENT | SCRN_LAYER_ORTHO, nullptr, PaintText, &s_layerText);
 
     RegisterHandlers();
 

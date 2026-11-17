@@ -179,7 +179,7 @@ void EnableFadingScreen(float duration, void (*callback)(void*), void* param) {
 
     s_fadeTexture = TextureCreate(8, 8, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), reinterpret_cast<void*>(static_cast<uintptr_t>(0xFF000000)), GxuUpdateSingleColorTexture, nullptr, 0);
     RECTF rect = { 0.0f, 0.0f, 1.0f, 1.0f };
-    ScrnLayerCreate(&rect, 10.0f, duration != 0.0f ? 7 : 6, nullptr, FadingScreenPaint, &s_fadeLayer);
+    ScrnLayerCreate(&rect, 10.0f, duration != 0.0f ? SCRN_LAYER_TRANSPARENT | SCRN_LAYER_ORTHO | SCRN_LAYER_FULLSCREEN_VIEWPORT : SCRN_LAYER_ORTHO | SCRN_LAYER_FULLSCREEN_VIEWPORT, nullptr, FadingScreenPaint, &s_fadeLayer);
     RegisterHandlers();
     s_fadeDuration = duration;
     s_fadeStarted = 0;
