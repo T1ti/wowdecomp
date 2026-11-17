@@ -889,7 +889,7 @@ int32_t CGItem_C::GetRandomPropertyPoints() const {
     uint32_t quality = stats->m_quality;
     uint32_t slot = this->GetRandomItemSlot();
 
-    if (slot > 4) {
+    if (slot >= NUM_RAND_PROP_POINTS) {
         return 0;
     }
 
@@ -900,13 +900,13 @@ int32_t CGItem_C::GetRandomPropertyPoints() const {
     }
 
     switch (quality) {
-        case 2:
+        case ITEM_QUALITY_UNCOMMON:
             return rec->m_good[slot];
 
-        case 3:
+        case ITEM_QUALITY_RARE:
             return rec->m_superior[slot];
 
-        case 4:
+        case ITEM_QUALITY_EPIC:
             return rec->m_epic[slot];
 
         default:
