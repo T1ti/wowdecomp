@@ -27,14 +27,15 @@ static TSGrowableArray<uint16_t> s_debugTriIndices;
 static TSGrowableArray<FACET_COLOR> s_debugFacetColors;
 static TSGrowableArray<CGxVertexPC> s_debugLineVerts;
 static TSGrowableArray<uint16_t> s_debugLineIndices;
+static TSGrowableArray<uint16_t> s_debugDrawIndices;
 
-// 0.5.3 s_facetColor (0x00842664) RGB values. 0.5.3 stored alpha 0 for every color but FACET_UNTESTED; alpha is forced
-// to half here so every state stays visible over the world.
+// 0.5.3 s_facetColor (0x00842664) RGB values. 0.5.3 stored alpha 0 for every color but FACET_UNTESTED; here the
+// non-blocking states are half transparent and blocking facets are opaque so they always read as green.
 static const uint32_t s_facetColor[NUM_FACET_COLORS] = {
     0x80FF0080, // FACET_UNTESTED
     0x80FF0080, // FACET_TESTED_UNTOUCHED
     0x80FFFF80, // FACET_TESTED_TOUCHED
-    0x8000FF80, // FACET_BLOCKING
+    0xFF00FF80, // FACET_BLOCKING
 };
 
 static const uint32_t s_boxColor = 0x80FF0000;    // 0.5.3 RenderCollisionInfo box diffuse.
@@ -235,12 +236,31 @@ void RenderCollisionInfo() {
     GxRsSet(GxRs_Culling, 0);
 
     if (s_debugTriIndices.Count()) {
+        // Facets draw in FACET_COLOR order so higher states blend over lower ones (blocking last), then the box.
+        // 0.5.3 drew them in gather order.
+        s_debugDrawIndices.SetCount(0);
+        uint32_t facetCount = s_debugFacetColors.m_count;
+
+        for (uint32_t color = 0; color < NUM_FACET_COLORS; color++) {
+            for (uint32_t i = 0; i < facetCount; i++) {
+                if (s_debugFacetColors.m_data[i] == color) {
+                    for (uint32_t j = 0; j < 3; j++) {
+                        *s_debugDrawIndices.New() = s_debugTriIndices.m_data[i * 3 + j];
+                    }
+                }
+            }
+        }
+
+        for (uint32_t i = facetCount * 3; i < s_debugTriIndices.m_count; i++) {
+            *s_debugDrawIndices.New() = s_debugTriIndices.m_data[i];
+        }
+
         CGxVertexPC* vertices = s_debugTriVerts.m_data;
         GxPrimVertexPtr(s_debugTriVerts.Count(), &vertices->p, sizeof(CGxVertexPC), nullptr, 0, &vertices->c, sizeof(CGxVertexPC), nullptr, 0, nullptr, 0);
-        GxPrimIndexPtr(s_debugTriIndices.Count(), s_debugTriIndices.m_data);
+        GxPrimIndexPtr(s_debugDrawIndices.Count(), s_debugDrawIndices.m_data);
 
         CGxBatch batch;
-        batch.m_count = s_debugTriIndices.Count();
+        batch.m_count = s_debugDrawIndices.Count();
         batch.m_maxIndex = s_debugTriVerts.Count() - 1;
         batch.m_primType = GxPrim_Triangles;
         batch.m_start = 0;
@@ -268,8 +288,10 @@ void RenderCollisionInfo() {
 
 // 0.5.3 reference: CMovement::ShowCollisionBox (0x004D2700), called from CMovement::CollideRequestMove.
 // position is the world position the move starts from and move the unit move vector. 0.5.3 drew the fall shape while
-// falling, else the collision box (raised by the step-up height) and a move vector from its middle; 0.5.3 also used the
-// redirected direction while redirected, which is not tracked here.
+// falling, else the collision box and a move vector from its middle; 0.5.3 also used the redirected direction while
+// redirected, which is not tracked here. 0.5.3 raised the box bottom by m_stepUpHeight, but the 3.3.5 step-up height is
+// about as tall as the collision height (that left a thin slab at head height), so the box is drawn as
+// BuildCollisionBox builds it, from the feet up to m_collisionHeight.
 void CMovement_C::ShowCollisionBox(const C3Vector& position, const C3Vector& move) {
     if (this->m_flags & MOVEMENTFLAG_FALL_MASK) {
         CollisionInfoSetFallBox(position, this->m_collisionRadius, this->m_collisionHeight);
@@ -278,10 +300,9 @@ void CMovement_C::ShowCollisionBox(const C3Vector& position, const C3Vector& mov
 
     CAaBox box;
     this->BuildCollisionBox(position, box);
-    box.b.z = box.b.z + this->GetStepUpHeight();
     CollisionInfoAddBox(box.b, box.t);
 
-    C3Vector middle(position.x, position.y, position.z + (this->m_collisionHeight + this->GetStepUpHeight()) * 0.5f);
+    C3Vector middle(position.x, position.y, position.z + this->m_collisionHeight * 0.5f);
     CollisionInfoAddVector(middle, move);
 }
 
