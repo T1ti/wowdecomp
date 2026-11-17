@@ -1081,8 +1081,8 @@ int32_t CM2Scene::SortOpaqueGeoBatches(M2Element* a, M2Element* b) {
             return 1;
         }
 
-        int32_t optimizedA = a->m_flags & 4;
-        int32_t optimizedB = b->m_flags & 4;
+        int32_t optimizedA = a->m_flags & M2Element::FLAGS::OPTIMIZED;
+        int32_t optimizedB = b->m_flags & M2Element::FLAGS::OPTIMIZED;
 
         if (optimizedA < optimizedB) {
             return -1;
@@ -1273,8 +1273,8 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
         return 1;
     }
 
-    uint32_t splitB = elementB->m_flags & 1;
-    uint32_t splitA = elementA->m_flags & 1;
+    uint32_t splitB = elementB->m_flags & M2Element::FLAGS::DEPTH_ONLY;
+    uint32_t splitA = elementA->m_flags & M2Element::FLAGS::DEPTH_ONLY;
 
     if (splitA > splitB) {
         return -1;
@@ -1654,7 +1654,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
     element->m_alpha = alpha;
     element->m_model = model;
     element->m_type = M2_ELEMENT_PARTICLE;
-    element->m_flags = 0;
+    element->m_flags = M2Element::FLAGS::NONE;
     element->m_emitter = emitter;
     element->m_priorityPlane = emitter->m_priorityPlane;
     element->m_sortDepth = model->m_scaleSq;
@@ -1862,14 +1862,14 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             }
 
             element->m_model = model;
-            element->m_flags = 0;
+            element->m_flags = M2Element::FLAGS::NONE;
 
             if (transparent == 1 && above && below && !projected) {
-                element->m_flags = 2;
+                element->m_flags = M2Element::FLAGS::LIQUID_CLIP;
             }
 
             if (optimized) {
-                element->m_flags |= 4;
+                element->m_flags |= M2Element::FLAGS::OPTIMIZED;
             }
 
             element->m_alpha = alpha;
@@ -1972,7 +1972,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 }
 
                 *copy = this->m_elements.m_data[elementIndex - 1];
-                copy->m_flags |= 1;
+                copy->m_flags |= M2Element::FLAGS::DEPTH_ONLY;
 
                 if (above) {
                     this->m_passElements[1].New(elementIndex);
@@ -2009,7 +2009,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             element->m_index = i;
             element->m_type = M2_ELEMENT_RIBBON;
             element->m_model = model;
-            element->m_flags = 0;
+            element->m_flags = M2Element::FLAGS::NONE;
             element->m_priorityPlane = ribbon->m_priorityPlane;
             element->m_sortDepth = model->m_scaleSq;
             element->m_effect = nullptr;
@@ -2038,7 +2038,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 element->m_type = M2_ELEMENT_CALLBACK;
                 element->m_alpha = 1.0f;
                 element->m_model = model;
-                element->m_flags = 0;
+                element->m_flags = M2Element::FLAGS::NONE;
                 element->m_index = 0;
                 element->m_priorityPlane = 0;
                 element->m_sortDepth = model->m_scaleSq;

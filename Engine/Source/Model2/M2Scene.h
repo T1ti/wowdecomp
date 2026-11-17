@@ -29,6 +29,13 @@ class M2HitRec {
 
 class M2Element {
     public:
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        DEPTH_ONLY = 0x1, // Depth-sorted copy of a transparent batch drawn with color writes off.
+        LIQUID_CLIP = 0x2, // Transparent batch above and below liquid; clipped by the liquid plane.
+        OPTIMIZED = 0x4, // Uses the model's own optimized vertex and index buffers.
+    };
+
     /* 0000 */ M2_ELEMENT_TYPE m_type;
     /* 0004 */ CM2Model* m_model;
     /* 0008 */ uint32_t m_flags;

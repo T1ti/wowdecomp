@@ -183,9 +183,9 @@ void CM2SceneRender::SetBatchVertices(int32_t sharedVertices) {
         }
     } else if (this->m_curType != this->m_prevType || this->m_curModel != this->m_prevModel || this->m_curSkinSection != this->m_prevSkinSection || !sameEnv) {
         if (this->m_curBatch->m_flags & M2Batch::FLAGS::MULTI_SAMPLE_VERTICES) {
-            this->m_curModel->SetVerticesMultiSample(this->m_curElement->m_flags & 4, this->m_curSkinSection);
+            this->m_curModel->SetVerticesMultiSample(this->m_curElement->m_flags & M2Element::FLAGS::OPTIMIZED, this->m_curSkinSection);
         } else {
-            this->m_curModel->SetVertices(this->m_curElement->m_flags & 4, this->m_curSkinSection, env != 0);
+            this->m_curModel->SetVertices(this->m_curElement->m_flags & M2Element::FLAGS::OPTIMIZED, this->m_curSkinSection, env != 0);
         }
     }
 }
@@ -248,11 +248,11 @@ void CM2SceneRender::SetupLighting() {
         CShaderEffect::SetFogEnabled(0);
     }
 
-    if (this->m_curType == this->m_prevType && this->m_curModel == this->m_prevModel && this->m_curLighting == this->m_prevLighting && !((this->m_curElement->m_flags ^ this->m_prevElement->m_flags) & 2)) {
+    if (this->m_curType == this->m_prevType && this->m_curModel == this->m_prevModel && this->m_curLighting == this->m_prevLighting && !((this->m_curElement->m_flags ^ this->m_prevElement->m_flags) & M2Element::FLAGS::LIQUID_CLIP)) {
         return;
     }
 
-    if (this->m_curElement->m_flags & 2) {
+    if (this->m_curElement->m_flags & M2Element::FLAGS::LIQUID_CLIP) {
         C4Vector plane;
         plane.x = this->m_curLighting->m_liquidPlane.n.x;
         plane.y = this->m_curLighting->m_liquidPlane.n.y;
@@ -280,16 +280,16 @@ void CM2SceneRender::SetupLighting() {
 // VERIFY: 767b92a0 manual
 // OFFSET: 0x0081FE90
 void CM2SceneRender::SetupMaterial() {
-    if (this->m_curType != this->m_prevType || this->m_curMaterial != this->m_prevMaterial || ((this->m_prevElement->m_flags ^ this->m_curElement->m_flags) & 1) || this->m_prevElement->m_alpha != this->m_curElement->m_alpha) {
+    if (this->m_curType != this->m_prevType || this->m_curMaterial != this->m_prevMaterial || ((this->m_prevElement->m_flags ^ this->m_curElement->m_flags) & M2Element::FLAGS::DEPTH_ONLY) || this->m_prevElement->m_alpha != this->m_curElement->m_alpha) {
         int32_t blend;
 
-        if (this->m_curElement->m_flags & 1) {
+        if (this->m_curElement->m_flags & M2Element::FLAGS::DEPTH_ONLY) {
             blend = this->m_curMaterial->m_blendMode == M2BLEND_ALPHA_KEY;
         } else {
             blend = s_blendModes[this->m_pass][this->m_curMaterial->m_blendMode];
         }
 
-        GxRsSet(GxRs_ColorWrite, (this->m_curElement->m_flags & 1) ? 0 : 15);
+        GxRsSet(GxRs_ColorWrite, (this->m_curElement->m_flags & M2Element::FLAGS::DEPTH_ONLY) ? 0 : 15);
         GxRsSet(GxRs_BlendingMode, blend);
 
         float alphaRef;
@@ -449,11 +449,11 @@ void CM2SceneRender::DrawBatch() {
         g_theGxDevicePtr->ShaderConstantsUnlock(GxSh_Vertex, 31, 3 * this->m_curSkinSection->m_boneCount);
     }
 
-    if (this->m_curElement->m_flags & 4) {
+    if (this->m_curElement->m_flags & M2Element::FLAGS::OPTIMIZED) {
         if (this->m_curType != this->m_prevType || this->m_curModel != this->m_prevModel) {
             this->m_curModel->SetIndices();
         }
-    } else if (this->m_curType != this->m_prevType || this->m_curShared != this->m_prevShared || (this->m_prevElement->m_flags & 4)) {
+    } else if (this->m_curType != this->m_prevType || this->m_curShared != this->m_prevShared || (this->m_prevElement->m_flags & M2Element::FLAGS::OPTIMIZED)) {
         this->m_curShared->SetIndices();
     }
 
