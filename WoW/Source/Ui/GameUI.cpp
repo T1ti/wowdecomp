@@ -2677,7 +2677,7 @@ bool IsTutorialFlagged(uint32_t tutorial) {
 
 // VERIFY: 9f2b88f1 manual
 // OFFSET: 0x005241B0
-void CGGameUI::ClearTarget(WOWGUID guid, int32_t a2) {
+void CGGameUI::ClearTarget(WOWGUID guid, BOOL sendSelection) {
     int32_t noMgr = ClntObjMgrGetCurrent() == nullptr;
 
     if (!CGGameUI::m_lockedTarget || (guid && guid != CGGameUI::m_lockedTarget)) {
@@ -2719,7 +2719,7 @@ void CGGameUI::ClearTarget(WOWGUID guid, int32_t a2) {
         }
     }
 
-    if (a2) {
+    if (sendSelection) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SET_SELECTION));
         msg.Put(CGGameUI::m_lockedTarget.m_guid);
@@ -3907,8 +3907,8 @@ int32_t CGGameUI::IsInParty(const WOWGUID& guid) {
 
 // VERIFY: 145d6878 auto
 // OFFSET: 0x00512520
-void CGGameUI::OpenPlayerSkinned(bool a1) {
-    FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_SKINNED, "%d", a1 != 0);
+void CGGameUI::OpenPlayerSkinned(bool freeRepop) {
+    FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_SKINNED, "%d", freeRepop != 0);
 }
 
 // VERIFY: 1e182166 auto
@@ -4368,7 +4368,7 @@ void CGGameUI::CloseInteraction() {
 
 // VERIFY: 2ebbfda4 manual
 // OFFSET: 0x00518D50
-void CGGameUI::ClearInteractTarget(const WOWGUID& guid, int32_t a2) {
+void CGGameUI::ClearInteractTarget(const WOWGUID& guid, BOOL silent) {
     if (!CGGameUI::m_interactTarget || CGGameUI::m_interactTarget != guid) {
         return;
     }
@@ -4376,7 +4376,7 @@ void CGGameUI::ClearInteractTarget(const WOWGUID& guid, int32_t a2) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGameUI::m_interactTarget, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit && !(unit->m_obj->m_type & TYPE_PLAYER)) {
-        if (!a2) {
+        if (!silent) {
             unit->PlayNPCSound(false);
         }
 
@@ -5620,7 +5620,7 @@ void CGGameUI::NextCinematicInternal(void* param) {
 
 // VERIFY: 4b188323 manual
 // OFFSET: 0x00523640
-void CGGameUI::CloseLoot(bool sendRelease, bool a2, bool showNoUIError) {
+void CGGameUI::CloseLoot(bool sendRelease, bool interrupted, bool showNoUIError) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     WOWGUID guid = CGLootInfo::m_lootObj;
 
@@ -5628,7 +5628,7 @@ void CGGameUI::CloseLoot(bool sendRelease, bool a2, bool showNoUIError) {
         return;
     }
 
-    if ((CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_4 || CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_7 || CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_8) && CGLootInfo::HasLoot() && !a2) {
+    if ((CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_4 || CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_7 || CGLootDisplay::GetLootAcquireType() == LOOT_ACQUIRE_UNKNOWN_8) && CGLootInfo::HasLoot() && !interrupted) {
         CGLootInfo::DoAutoLoot(1);
     }
 
@@ -5639,7 +5639,7 @@ void CGGameUI::CloseLoot(bool sendRelease, bool a2, bool showNoUIError) {
     CGObject_C* object = ClntObjMgrObjectPtr(guid, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (object && (object->m_obj->m_type & TYPE_ITEM)) {
-        if (a2) {
+        if (interrupted) {
             return;
         }
 

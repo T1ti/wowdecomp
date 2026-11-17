@@ -225,7 +225,7 @@ class CGGameUI {
     static void DisplayNameError(VALIDATE_NAME_RESULT error);
     static void UpdateActivePlayer();
     static void ClearClientControls();
-    static void OpenPlayerSkinned(bool a1);
+    static void OpenPlayerSkinned(bool freeRepop);
     static void OpenResurrectRequest(const char* name);
     static void CancelPartyInvite();
     static void SetSummonRequest(WOWGUID summoner, uint32_t area, uint32_t timeout);
@@ -396,8 +396,8 @@ class CGGameUI {
     static TotemInfo* GetTotemInfo(uint32_t slot);
     static int32_t IsKeyDown(KEY key);
     static int32_t IsRaidMemberOrPet(const WOWGUID& guid);
-    static void ClearInteractTarget(const WOWGUID& guid, int32_t a2);
-    static void CloseLoot(bool sendRelease, bool a2, bool showNoUIError);
+    static void ClearInteractTarget(const WOWGUID& guid, BOOL silent);
+    static void CloseLoot(bool sendRelease, bool interrupted, bool showNoUIError);
     static void OpenLoot(CGObject_C* object, int32_t coins, LOOT_ACQUIRE lootAcquire);
     static void ClearLootSlot(uint8_t slot);
     static void LootSlotChanged(uint8_t slot);
@@ -407,7 +407,7 @@ class CGGameUI {
     static void RegisterSavedVariable(const char* name, int32_t perCharacter);
     static void BreakTarget(WOWGUID guid);
     static void DestroyTotem(int32_t slot);
-    static void ClearTarget(WOWGUID guid, int32_t a2);
+    static void ClearTarget(WOWGUID guid, BOOL sendSelection);
     static int32_t IsPartyMember(const WOWGUID& guid);
     static int32_t IsInParty(const WOWGUID& guid);
     static void GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t socialColors);
