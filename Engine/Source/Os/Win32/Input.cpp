@@ -534,6 +534,16 @@ static int32_t ConvertKeyCode(uint32_t vkey, KEY* key) {
             return 1;
 
         default: {
+#ifdef WOWDECOMP_DEBUG_FEATURES
+            // Debug feature: the key left of 1 (scan code 0x29: ` on US layouts, ² on AZERTY) is the console key on
+            // every layout. The release client maps keys by their unshifted character, so layouts without an
+            // unshifted ` (AZERTY, where it is the AltGr+7 dead key) cannot reach KEY_TILDE.
+            if (MapVirtualKeyA(vkey, MAPVK_VK_TO_VSC) == 0x29) {
+                *key = KEY_TILDE;
+                return 1;
+            }
+#endif
+
             uint32_t ch = MapVirtualKeyA(vkey, MAPVK_VK_TO_CHAR) & 0xFFFF;
             *key = static_cast<KEY>(ch);
             if (ch == 0 || ch > 0xFF) {
