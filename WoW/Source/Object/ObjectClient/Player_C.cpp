@@ -524,7 +524,7 @@ static int32_t OnUpdatePlayerHairColor(WOWGUID guid, uint32_t fieldOffset, uint3
             return 1;
         }
 
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     }
 
     return 1;
@@ -545,7 +545,7 @@ static int32_t OnUpdatePlayerSkinID(WOWGUID guid, uint32_t fieldOffset, uint32_t
             return 1;
         }
 
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     }
 
     return 1;
@@ -577,7 +577,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
             return 1;
         }
 
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     }
 
     return 1;
@@ -609,7 +609,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
             return 1;
         }
 
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     }
 
     return 1;
@@ -907,7 +907,7 @@ void CGPlayer_C::TurnOnGuildTabardPurchase() {
     }
 
     WOWGUID guid = this->m_obj->m_guid;
-    CGGameUI::UnitModelUpdate(guid, 3);
+    CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
 }
 
 // VERIFY: ed82bd8b manual
@@ -10670,7 +10670,7 @@ applyEffects:
         this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
     }
 
-    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, 3);
+    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, UI_MODEL_UPDATE_ALL);
 }
 
 // VERIFY: f9d20eba manual
@@ -12871,7 +12871,7 @@ void CGPlayer_C::DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t c
         }
 
         if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_MODEL_ID) {
-            CGGameUI::UnitModelUpdate(newState->m_pet.m_guid, 3);
+            CGGameUI::UnitModelUpdate(newState->m_pet.m_guid, UI_MODEL_UPDATE_ALL);
         }
 
         if (changes & CGPartyMemberState::GROUP_UPDATE_FLAG_PET_CUR_HP) {
@@ -13128,7 +13128,7 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
     }
 
     if (changed & PLAYER_FLAGS::PLAYER_FLAG_HIDE_EQUIPMENT_MASK) {
-        UpdateModelForUI(this->m_obj->m_guid, 3);
+        UpdateModelForUI(this->m_obj->m_guid, UI_MODEL_UPDATE_ALL);
     }
 
     Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_PLAYER_FLAGS_CHANGED);
@@ -14051,7 +14051,7 @@ void CGPlayer_C::UpdateObjComponentVisuals(const VisibleItem_C* item, MODEL_ATTA
     for (CM2Model* model = this->m_worldModel->m_attachList; model; model = model->m_attachNext) {
         if (model->m_attachmentId == static_cast<uint32_t>(link)) {
             CCharacterComponent::ComponentUtilAddItemVisual(model, visual);
-            CGGameUI::UnitModelUpdate(this->m_obj->m_guid, 3);
+            CGGameUI::UnitModelUpdate(this->m_obj->m_guid, UI_MODEL_UPDATE_ALL);
             return;
         }
     }
@@ -14323,7 +14323,7 @@ void CGPlayer_C::TurnOffGuildTabardPurchase() {
         }
     }
 
-    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, 3);
+    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, UI_MODEL_UPDATE_ALL);
 }
 
 // VERIFY: 670b0b5c manual

@@ -189,11 +189,11 @@ void UpdatePendingPortraits() {
         uint32_t flags = request->m_flags;
         s_freePortraits.LinkToTail(request);
 
-        if (flags & 2) {
+        if (flags & UI_MODEL_UPDATE_PORTRAIT) {
             Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_PORTRAIT_UPDATE);
         }
 
-        if (flags & 1) {
+        if (flags & UI_MODEL_UPDATE_MODEL) {
             Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_MODEL_CHANGED);
         }
     }
@@ -202,7 +202,7 @@ void UpdatePendingPortraits() {
 // VERIFY: e142378a auto
 // OFFSET: 0x00618110
 void UpdateModelForUI(const WOWGUID& guid, uint32_t flags) {
-    if (flags & 2) {
+    if (flags & UI_MODEL_UPDATE_PORTRAIT) {
         PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
 
         if (portrait) {
@@ -210,11 +210,11 @@ void UpdateModelForUI(const WOWGUID& guid, uint32_t flags) {
         }
     }
 
-    if (flags & 2) {
+    if (flags & UI_MODEL_UPDATE_PORTRAIT) {
         Script_SendUniqueSignal(guid, SCRIPT_EVENT_UNIT_PORTRAIT_UPDATE);
     }
 
-    if (flags & 1) {
+    if (flags & UI_MODEL_UPDATE_MODEL) {
         Script_SendUniqueSignal(guid, SCRIPT_EVENT_UNIT_MODEL_CHANGED);
     }
 }
@@ -526,7 +526,7 @@ void SetPortraitTexture(CSimpleTexture* texture, const char* fileName) {
 // VERIFY: f3347f07 manual
 // OFFSET: 0x00619580
 void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
-    if (!texture || !unit || AddPendingPortraitFlags(unit, 2)) {
+    if (!texture || !unit || AddPendingPortraitFlags(unit, UI_MODEL_UPDATE_PORTRAIT)) {
         return;
     }
 
@@ -557,7 +557,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         }
     }
 
-    if (QueuePortraitUpdate(unit, 2)) {
+    if (QueuePortraitUpdate(unit, UI_MODEL_UPDATE_PORTRAIT)) {
         return;
     }
 

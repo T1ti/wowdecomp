@@ -658,7 +658,7 @@ void CEffect::ClearItemVisualEffect() {
             if (unit->m_characterComponent) {
                 unit->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(this->m_itemSlot));
                 unit->RefreshComponentItem(this->m_itemSlot);
-                CGGameUI::UnitModelUpdate(this->m_sourceGuid, 3);
+                CGGameUI::UnitModelUpdate(this->m_sourceGuid, UI_MODEL_UPDATE_ALL);
             }
 
             this->m_itemSlot = 12;
@@ -1561,7 +1561,7 @@ void CEffect::ApplyItemVisual() {
         if (component) {
             component->RemoveItem(static_cast<ITEM_SLOT>(this->m_itemSlot));
             component->AddItem(static_cast<ITEM_SLOT>(this->m_itemSlot), &rec, 0);
-            CGGameUI::UnitModelUpdate(this->m_sourceGuid, 3);
+            CGGameUI::UnitModelUpdate(this->m_sourceGuid, UI_MODEL_UPDATE_ALL);
         }
     }
 }

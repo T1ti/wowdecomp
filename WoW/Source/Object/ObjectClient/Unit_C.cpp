@@ -13992,7 +13992,7 @@ int32_t CGUnit_C::InitializeComponent() {
     }
 
     this->ApplyComponentItemsFromEffects();
-    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, 3);
+    CGGameUI::UnitModelUpdate(this->m_obj->m_guid, UI_MODEL_UPDATE_ALL);
     return 1;
 }
 
@@ -14997,7 +14997,7 @@ void CGUnit_C::ExchangeSheathedWeapon(const C3Vector* position, uint32_t hand, u
     }
 
     WOWGUID guid = this->m_obj->m_guid;
-    CGGameUI::UnitModelUpdate(guid, 1);
+    CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_MODEL);
 }
 
 // VERIFY: 9b6e2325 manual
@@ -23869,7 +23869,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
     this->AddHandItem(2);
     this->ApplyComponentItemsFromEffects();
     WOWGUID guid = this->m_obj->m_guid;
-    CGGameUI::UnitModelUpdate(guid, 3);
+    CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
 }
 

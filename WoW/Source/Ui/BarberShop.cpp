@@ -470,7 +470,7 @@ void CGBarberShop::DisableBarberShop() {
 
     if (CGBarberShop::m_resetPortrait) {
         WOWGUID guid = ClntObjMgrGetActivePlayer();
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
         CGBarberShop::m_resetPortrait = 0;
     }
 }

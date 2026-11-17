@@ -14,6 +14,7 @@
 #include "WoW/Source/Object/ObjectClient/Unit_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/UIUtil/PortraitButton.h"
+#include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/CreatureDisplayInfoRec.h"
@@ -247,7 +248,7 @@ void CGCharacterModelBase::RefreshUnit(WOWGUID guid) {
 // VERIFY: 838456da manual
 // OFFSET: 0x005975E0
 void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
-    if (!ReadyModelForUI(unit, 3)) {
+    if (!ReadyModelForUI(unit, UI_MODEL_UPDATE_ALL)) {
         return;
     }
 

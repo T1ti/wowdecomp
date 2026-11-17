@@ -3135,7 +3135,7 @@ static int32_t Script_UnitIsFriend(lua_State* L) {
 // OFFSET: 0x00608540
 static void PortraitQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success) {
     if (success) {
-        CGGameUI::UnitModelUpdate(guid, 3);
+        CGGameUI::UnitModelUpdate(guid, UI_MODEL_UPDATE_ALL);
     }
 }
 

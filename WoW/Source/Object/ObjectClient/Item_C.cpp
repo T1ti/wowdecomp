@@ -208,13 +208,13 @@ static int32_t OnUpdateDurability(WOWGUID guid, uint32_t fieldOffset, uint32_t f
                     CCharacterComponent::RemoveHandItem(owner->m_worldModel, static_cast<INVENTORY_SLOTS>(invSlot), static_cast<SHEATHE_TYPE>(item->m_virtualItem.m_sheatheType), item->m_virtualItem.m_inventoryType == INVTYPE_SHIELD);
 
                     WOWGUID ownerGuid = owner->m_obj->m_guid;
-                    CGGameUI::UnitModelUpdate(ownerGuid, 3);
+                    CGGameUI::UnitModelUpdate(ownerGuid, UI_MODEL_UPDATE_ALL);
                 }
             } else if (!(item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) && item->m_item->m_itemFieldDurability && !oldDurability) {
                 owner->EquipItem(item);
 
                 WOWGUID ownerGuid = owner->m_obj->m_guid;
-                CGGameUI::UnitModelUpdate(ownerGuid, 3);
+                CGGameUI::UnitModelUpdate(ownerGuid, UI_MODEL_UPDATE_ALL);
             }
         }
     }

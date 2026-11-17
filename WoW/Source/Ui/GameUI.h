@@ -580,6 +580,13 @@ extern CVar* g_chatBubblesPartyCVar;
 
 void UpdateInstanceOwnershipPacket(int32_t owns);
 
+// UpdateModelForUI flags, named after the unit events each one sends.
+enum UI_MODEL_UPDATE_FLAGS : uint32_t {
+    UI_MODEL_UPDATE_MODEL = 0x1, // UNIT_MODEL_CHANGED
+    UI_MODEL_UPDATE_PORTRAIT = 0x2, // Dirties the cached portrait and sends UNIT_PORTRAIT_UPDATE.
+    UI_MODEL_UPDATE_ALL = 0x3,
+};
+
 void UpdateModelForUI(const WOWGUID& guid, uint32_t flags);
 
 extern CVar* s_cvLfgSelectedRoles;
