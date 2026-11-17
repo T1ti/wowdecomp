@@ -1954,17 +1954,17 @@ void CGUnit_C::RotateWheels() {
     CMoveSpline* spline = movement->m_spline;
 
     if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
-        for (int32_t i = 0; i < 8; i++) {
+        for (int32_t i = 0; i < NUM_WHEEL_KEY_BONES; i++) {
             if ((1 << i) & this->m_wheelMask) {
-                model->SetBoneFlags(i + 27, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
+                model->SetBoneFlags(KEY_BONE_WHEEL1 + i, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 C3Vector axis(0.0f, 1.0f, 0.0f);
-                model->SetBoneProceduralTransform(i + 27, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
+                model->SetBoneProceduralTransform(KEY_BONE_WHEEL1 + i, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
             }
         }
     } else {
-        for (int32_t i = 0; i < 8; i++) {
+        for (int32_t i = 0; i < NUM_WHEEL_KEY_BONES; i++) {
             if ((1 << i) & this->m_wheelMask) {
-                C3Vector pivot = model->GetBonePivot(i + 27);
+                C3Vector pivot = model->GetBonePivot(KEY_BONE_WHEEL1 + i);
 
                 if (fabsf(pivot.z) > 0.001f) {
                     C44Matrix transform = model->m_worldTransform;
@@ -1983,9 +1983,9 @@ void CGUnit_C::RotateWheels() {
                     }
                 }
 
-                model->SetBoneFlags(i + 27, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
+                model->SetBoneFlags(KEY_BONE_WHEEL1 + i, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
                 C3Vector axis(0.0f, 1.0f, 0.0f);
-                model->SetBoneProceduralTransform(i + 27, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
+                model->SetBoneProceduralTransform(KEY_BONE_WHEEL1 + i, C44Matrix::Rotation(this->m_wheelAngles[i], axis, true));
             }
         }
     }
@@ -6284,10 +6284,10 @@ void CGUnit_C::InitWheels() {
     this->m_wheelMask = 0;
     CM2Model* model = this->GetObjectModel();
 
-    for (uint32_t bone = 27; bone <= 34; bone++) {
+    for (uint32_t bone = KEY_BONE_WHEEL1; bone <= KEY_BONE_WHEEL8; bone++) {
         if (model->HasBone(bone)) {
-            this->m_wheelMask |= 1 << (bone - 27);
-            this->m_wheelAngles[bone - 27] = 0.0f;
+            this->m_wheelMask |= 1 << (bone - KEY_BONE_WHEEL1);
+            this->m_wheelAngles[bone - KEY_BONE_WHEEL1] = 0.0f;
         }
     }
 }
@@ -10050,7 +10050,7 @@ float CGUnit_C::GetModelScale(uint32_t displayId) {
 
 // VERIFY: 7ba41095 manual
 // OFFSET: 0x0073AB20
-void CGUnit_C::OnMoveUpdate(uint32_t time, int32_t spline, int32_t a4) {
+void CGUnit_C::OnMoveUpdate(uint32_t time, int32_t spline, BOOL postInit) {
     if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {
         this->m_vehicle->UpdateWorldMatrix();
     }
@@ -18114,7 +18114,7 @@ void CGUnit_C::RemoveLootEffect() {
 
 // VERIFY: d074dfc8 auto
 // OFFSET: 0x0073D530
-void CGUnit_C::OnLife(bool a1) {
+void CGUnit_C::OnLife(bool deadFlagCleared) {
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SCRIPTED_FACING;
     this->CheckLoopSound();
     this->m_lootableTime = 0;
@@ -18126,7 +18126,7 @@ void CGUnit_C::OnLife(bool a1) {
         this->m_namePlateFrame->UpdateColorDisplay(this);
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !a1) {
+    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !deadFlagCleared) {
         SendQuestGiverStatusMultipleQuery();
         CGGameUI::UnlockAllItems();
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_ALIVE, nullptr);
@@ -18146,7 +18146,7 @@ void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
 
     if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
         Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_HEALTH);
-        Script_SendUnitSignal(this->m_obj->m_guid, this->m_unit->m_displayPower + 19);
+        Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_MANA + this->m_unit->m_displayPower);
 
         if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
             this->OnDeath();
@@ -18260,7 +18260,7 @@ void CGUnit_C::RefreshComponentItem(int32_t itemSlot) {
 
 // VERIFY: 0f53e72a manual
 // OFFSET: 0x0072E430
-void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool a4) {
+void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool fullClear) {
     if (spellId != this->m_castSpellId) {
         return;
     }
@@ -18271,7 +18271,7 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool a4) {
     this->m_castSchoolImmunities = 0;
     this->m_castImmunities = 0;
 
-    if (!a4) {
+    if (!fullClear) {
         return;
     }
 
@@ -19937,8 +19937,8 @@ void NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool succes
 
 // VERIFY: 0cbc8a3a manual
 // OFFSET: 0x0072D4F0
-int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, uint32_t a5) {
-    if (a5 && unit->HasAuraEffect(SPELL_AURA_INITIALIZE_IMAGES)) {
+int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, BOOL resolveMirrorImage) {
+    if (resolveMirrorImage && unit->HasAuraEffect(SPELL_AURA_INITIALIZE_IMAGES)) {
         SpellRec spellRec;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {

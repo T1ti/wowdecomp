@@ -98,6 +98,9 @@ enum KEY_BONE_ID : uint32_t {
     NUM_KEY_BONES = 35,
 };
 
+// Vehicle wheel key bones KEY_BONE_WHEEL1..KEY_BONE_WHEEL8.
+constexpr int32_t NUM_WHEEL_KEY_BONES = KEY_BONE_WHEEL8 - KEY_BONE_WHEEL1 + 1;
+
 typedef void (*M2EventCallback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param);
 typedef void (*M2SequenceCallback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 

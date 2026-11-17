@@ -6,6 +6,7 @@
 #include "Engine/Source/Base/Types.h"
 #include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Model2/M2Model.h"
 #include "WoW/Source/Object/Movement.h"
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
@@ -454,7 +455,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0F74 */ uint32_t m_missileTrajectoryEnd;
     /* 0F78 */ uint8_t m_missileTrajectoryReleased;
     /* 0F7C */ uint32_t m_wheelMask;
-    /* 0F80 */ float m_wheelAngles [8];
+    /* 0F80 */ float m_wheelAngles [NUM_WHEEL_KEY_BONES];
     /* 0FA0 */ uint32_t m_lastWheelUpdateTime;
     /* 0FA4 */ int32_t m_specialIdleAnim;
     /* 0FA8 */ CM2Model* m_precastMissileModel;
@@ -873,7 +874,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     float GetModelScale(uint32_t displayId);
     float GetScaledModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData, float* modelScale);
     float GetModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData);
-    void OnMoveUpdate(uint32_t time, int32_t spline, int32_t a4);
+    void OnMoveUpdate(uint32_t time, int32_t spline, BOOL postInit);
     void UpdateFlightStatus(uint32_t time);
     void UpdateSwimmingStatus(uint32_t time, int32_t spline);
     void StartSwimming(uint32_t time, int32_t spline);
@@ -921,7 +922,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnFlagChanged(uint32_t oldFlags);
     void OnLevelChange();
     void AddWorldXPGainText(int32_t amount);
-    void OnLife(bool a1);
+    void OnLife(bool deadFlagCleared);
     void OnMountDisplayChanged(int32_t displayId);
     void OnPvPFlagChanged(uint8_t oldFlags);
     void OnVirtualItemChanged(VIRTUAL_MONSTER_SLOT slot, int32_t oldItemId);
@@ -969,7 +970,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ShowHandItemSpellEffects(BOOL show, BOOL force);
     void SetHandItemSpellEffectsVisible(BOOL visible);
     void PropagateSmoothFacing(float facing);
-    static int32_t UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, uint32_t a5);
+    static int32_t UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, char* buffer, uint32_t size, BOOL resolveMirrorImage);
     void RenderAutoTrackCursor();
     void UpdateChannelEffects();
     void CreateOrDestroyObjectEffectManager();
@@ -1017,7 +1018,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void SetUICastingSpell(int32_t spellId, const WOWGUID& target, int32_t castTime);
     void SetUIChannelSpell(int32_t spellId, int32_t duration);
     bool SetTrackingTarget(const WOWGUID& target, int32_t type);
-    void ClearCastingSpell(int32_t spellId, bool clearChannel, bool a4);
+    void ClearCastingSpell(int32_t spellId, bool clearChannel, bool fullClear);
     void AttachPrecastMissileModel(const SpellVisualRec* visual, uint8_t castCount);
     void SpellInterrupted(uint8_t castCount, int32_t spellId);
     void ResetUICastingSpell();
