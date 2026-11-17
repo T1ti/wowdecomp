@@ -555,7 +555,7 @@ int32_t UnitModeUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t field
         unit->DestroyNamePlate();
         unit->m_creatureCacheEntry = stats;
         CGGameUI::UnitNameUpdate(guid);
-        Script_SendUnitSignal(guid, 148);
+        Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_CLASSIFICATION_CHANGED);
 
         TotemInfo* totem = CGGameUI::GetTotemInfo(guid);
 
@@ -597,7 +597,7 @@ int32_t PetNumberChangeHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
         unit->DestroyNamePlate();
     }
 
-    Script_SendUnitSignal(guid, 148);
+    Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_CLASSIFICATION_CHANGED);
 
     if (guid == CGPetInfo::GetPet(0)) {
         FrameScript_SignalEvent(SCRIPT_EVENT_PET_UI_UPDATE, nullptr);
@@ -9962,13 +9962,13 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     const WOWGUID& charmedBy = this->m_unit->m_unitFieldCharmedby;
 
     if (charmedBy) {
-        Script_SendUnitSignal(charmedBy, 0);
+        Script_SendUnitSignal(charmedBy, SCRIPT_EVENT_UNIT_PET);
     }
 
     const WOWGUID& summonedBy = this->m_unit->m_unitFieldSummonedby;
 
     if (summonedBy) {
-        Script_SendUnitSignal(summonedBy, 2);
+        Script_SendUnitSignal(summonedBy, SCRIPT_EVENT_UNIT_PET_2);
     }
 
     this->UpdatePartyMemberPetState();
@@ -18113,7 +18113,7 @@ void CGUnit_C::OnLife(bool a1) {
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !a1) {
         SendQuestGiverStatusMultipleQuery();
         CGGameUI::UnlockAllItems();
-        FrameScript_SignalEvent(257, nullptr);
+        FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_ALIVE, nullptr);
     }
 }
 
@@ -18129,7 +18129,7 @@ void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
     }
 
     if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
-        Script_SendUnitSignal(this->m_obj->m_guid, 18);
+        Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_HEALTH);
         Script_SendUnitSignal(this->m_obj->m_guid, this->m_unit->m_displayPower + 19);
 
         if (this->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD) {
@@ -18148,7 +18148,7 @@ void CGUnit_C::OnDynamicFlagsChanged(uint32_t oldFlags) {
     }
 
     if ((oldFlags ^ this->m_unit->m_unitDynamicFlags) & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_TAPPED) {
-        Script_SendUnitSignal(this->m_obj->m_guid, 49);
+        Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
     }
 }
 
@@ -18170,7 +18170,7 @@ static int32_t PetColorUpdateProc(WOWGUID guid, void* param) {
             unit->m_namePlateFrame->UpdateColorDisplay(unit);
         }
 
-        Script_SendUnitSignal(unit->m_obj->m_guid, 49);
+        Script_SendUnitSignal(unit->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
     }
 
     return 1;
@@ -18513,7 +18513,7 @@ static int32_t UnitColorUpdateProc(WOWGUID guid, void* param) {
             unit->m_namePlateFrame->UpdateColorDisplay(unit);
         }
 
-        Script_SendUnitSignal(unit->m_obj->m_guid, 49);
+        Script_SendUnitSignal(unit->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
     }
 
     return 1;
@@ -18528,7 +18528,7 @@ void CGUnit_C::UpdateReaction(bool a1) {
         this->m_namePlateFrame->UpdateColorDisplay(this);
     }
 
-    Script_SendUnitSignal(this->m_obj->m_guid, 49);
+    Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
 
     if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
         SendQuestGiverStatusMultipleQuery();

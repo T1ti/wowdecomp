@@ -952,7 +952,7 @@ void CGPetInfo::SetComboPoints(WOWGUID target, uint8_t points) {
     CGPetInfo::m_comboTarget = target;
     CGPetInfo::m_comboPoints = points;
     CGSpellBook::UpdateUsable();
-    Script_SendUnitSignal(CGPetInfo::GetPet(0), 149);
+    Script_SendUnitSignal(CGPetInfo::GetPet(0), SCRIPT_EVENT_UNIT_COMBO_POINTS);
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE_USABLE, nullptr);
 }
 
