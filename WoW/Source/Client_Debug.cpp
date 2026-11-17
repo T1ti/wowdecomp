@@ -2,68 +2,97 @@
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "WoW/Source/Net/Types.h"
+#include "Engine/Source/ConsoleBase/IConsole.h"
+#include "Engine/Source/Gx/Gx.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
+// Debug feature: console command "light".
+// 0.5.3 reference: CCommand_ToggleLighting (0x00402F80). Takes 0 or 1.
+static int32_t CCommand_ToggleLighting(const char* command, const char* arguments) {
+    int32_t enable = SStrToInt(arguments);
+    GxMasterEnableSet(GxMasterEnable_Lighting, enable);
+    ConsoleWrite(enable ? "Lighting enabled" : "Lighting disabled", DEFAULT_COLOR);
+
+    return 1;
+}
+
 // Debug feature: console command "fog".
 // 0.5.3 reference: CCommand_ToggleFog (0x00402FB0).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Takes 0 or 1.
 static int32_t CCommand_ToggleFog(const char* command, const char* arguments) {
+    int32_t enable = SStrToInt(arguments);
+    GxMasterEnableSet(GxMasterEnable_Fog, enable);
+    ConsoleWrite(enable ? "Fog enabled" : "Fog disabled", DEFAULT_COLOR);
+
     return 1;
 }
 
 // Debug feature: console command "DepthTest".
 // 0.5.3 reference: CCommand_ToggleDepthTesting (0x00402FF0).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 static int32_t CCommand_ToggleDepthTesting(const char* command, const char* arguments) {
+    int32_t enable = !GxMasterEnable(GxMasterEnable_DepthTest);
+    GxMasterEnableSet(GxMasterEnable_DepthTest, enable);
+    ConsoleWrite(enable ? "Depth Testing enabled" : "Depth Testing disabled", DEFAULT_COLOR);
+
     return 1;
 }
 
 // Debug feature: console command "DepthSet".
 // 0.5.3 reference: CCommand_ToggleDepthSetting (0x00403030).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 static int32_t CCommand_ToggleDepthSetting(const char* command, const char* arguments) {
+    int32_t enable = !GxMasterEnable(GxMasterEnable_DepthWrite);
+    GxMasterEnableSet(GxMasterEnable_DepthWrite, enable);
+    ConsoleWrite(enable ? "Depth Writing enabled" : "Depth Writing disabled", DEFAULT_COLOR);
+
     return 1;
 }
 
 // Debug feature: console command "culling".
 // 0.5.3 reference: CCommand_ToggleCulling (0x00403070).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 static int32_t CCommand_ToggleCulling(const char* command, const char* arguments) {
+    int32_t enable = !GxMasterEnable(GxMasterEnable_Culling);
+    GxMasterEnableSet(GxMasterEnable_Culling, enable);
+    ConsoleWrite(enable ? "Back Face Culling enabled" : "Back Face Culling disabled", DEFAULT_COLOR);
+
     return 1;
 }
 
 // Debug feature: console command "dblbuffer".
 // 0.5.3 reference: CCommand_ToggleDblBuffer (0x004030B0).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 static int32_t CCommand_ToggleDblBuffer(const char* command, const char* arguments) {
+    int32_t enable = !GxMasterEnable(GxMasterEnable_DoubleBuffering);
+    GxMasterEnableSet(GxMasterEnable_DoubleBuffering, enable);
+    ConsoleWrite(enable ? "Double Buffering enabled" : "DoubleBuffering disabled", DEFAULT_COLOR);
+
     return 1;
 }
 
 // Debug feature: console command "resxy".
 // 0.5.3 reference: CCommand_SetResolutionXY (0x004030F0).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Already an empty stub in 0.5.3 (the gx* CVars replaced it), so it stays empty.
 static int32_t CCommand_SetResolutionXY(const char* command, const char* arguments) {
     return 1;
 }
 
 // Debug feature: console command "resmode".
 // 0.5.3 reference: CCommand_SetResolutionMode (0x00403100).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Already an empty stub in 0.5.3 (the gx* CVars replaced it), so it stays empty.
 static int32_t CCommand_SetResolutionMode(const char* command, const char* arguments) {
     return 1;
 }
 
 // Debug feature: console command "bitdepth".
 // 0.5.3 reference: CCommand_SetColorDepth (0x00403110).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Already an empty stub in 0.5.3 (the gx* CVars replaced it), so it stays empty.
 static int32_t CCommand_SetColorDepth(const char* command, const char* arguments) {
     return 1;
 }
 
 // Debug feature: console command "3dapi".
 // 0.5.3 reference: CCommand_SetAPI (0x00403120).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Already an empty stub in 0.5.3 (the gx* CVars replaced it), so it stays empty.
 static int32_t CCommand_SetAPI(const char* command, const char* arguments) {
     return 1;
 }
@@ -207,6 +236,7 @@ static int32_t DebugAIStateHandler(void* param, NETMESSAGE msgId, uint32_t time,
 
 // Debug feature: registers the 0.5.3 ClientRegisterConsoleCommands debug commands and CVars.
 void ClientDebugRegisterConsoleCommands() {
+    ConsoleCommandRegister("light", CCommand_ToggleLighting, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("fog", CCommand_ToggleFog, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("DepthTest", CCommand_ToggleDepthTesting, CATEGORY_GRAPHICS, nullptr);
     ConsoleCommandRegister("DepthSet", CCommand_ToggleDepthSetting, CATEGORY_GRAPHICS, nullptr);

@@ -55,7 +55,8 @@ if (WOWDECOMP_DISABLE_SIGNATURE_CHECKS)
 endif ()
 
 # Off by default: debug features (0.5.3 debug commands, CVars and render modes stripped from the 3.3.5 release build)
-# are compiled only when ON. The release build stays identical to the original.
+# are compiled only when ON, and the console is then always available (no -console argument needed).
+# The release build stays identical to the original.
 option(WOWDECOMP_DEBUG_FEATURES "Build the debug-feature shells stripped from the release client" OFF)
 if (WOWDECOMP_DEBUG_FEATURES)
     add_compile_definitions(WOWDECOMP_DEBUG_FEATURES=1)

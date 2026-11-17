@@ -324,6 +324,11 @@ void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3) 
 
     s_consoleAccessEnabled = CmdLineGetBool(static_cast<CMDOPT>(CMD_CONSOLE));
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the console is always available, without the -console argument.
+    s_consoleAccessEnabled = 1;
+#endif
+
     ConsoleDetectSetDefaultsFormat(s_defaults, s_hardware);
     RegisterGxCVars();
     ConsoleCommandRegister("gxRestart", CCGxRestart, CATEGORY_GRAPHICS, nullptr);
