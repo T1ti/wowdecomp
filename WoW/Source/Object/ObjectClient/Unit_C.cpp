@@ -10302,7 +10302,7 @@ void CGUnit_C::OnDeath() {
 
 // VERIFY: 2de1faa3 auto
 // OFFSET: 0x007272C0
-void CGUnit_C::ClearTrackingTarget(bool a2, bool a3) {
+void CGUnit_C::ClearTrackingTarget(bool faceTarget, bool stopMovement) {
     if (this->m_obj->m_guid != CGUnit_C::s_activeMover || CGUnit_C::s_trackingType == TRACKTYPE_NONE) {
         return;
     }
@@ -10313,7 +10313,7 @@ void CGUnit_C::ClearTrackingTarget(bool a2, bool a3) {
 
     uint32_t time = OsGetAsyncTimeMs();
 
-    if (a2) {
+    if (faceTarget) {
         CGObject_C* target = ClntObjMgrObjectPtr(CGUnit_C::s_trackingGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
         if (target) {
@@ -10324,7 +10324,7 @@ void CGUnit_C::ClearTrackingTarget(bool a2, bool a3) {
         }
     }
 
-    if (a3) {
+    if (stopMovement) {
         if (s_clickToMoveActions[CGUnit_C::s_trackingType].m_enabled) {
             this->TrackingStopMove(time);
         }
@@ -18521,7 +18521,7 @@ static int32_t UnitColorUpdateProc(WOWGUID guid, void* param) {
 
 // VERIFY: 550305c8 auto
 // OFFSET: 0x0071F8F0
-void CGUnit_C::UpdateReaction(bool a1) {
+void CGUnit_C::UpdateReaction(bool updatePetColors) {
     PlayerNameTriggerColorUpdate(this->m_nameDesc);
 
     if (this->m_namePlateFrame) {
@@ -18536,7 +18536,7 @@ void CGUnit_C::UpdateReaction(bool a1) {
         return;
     }
 
-    if (a1) {
+    if (updatePetColors) {
         ClntObjMgrEnumVisibleObjects(PetColorUpdateProc, this);
     }
 
@@ -21347,7 +21347,7 @@ void CGUnit_C::HandlePendingTrackEvents() {
 
 // VERIFY: 0f2f9494 manual
 // OFFSET: 0x0073D940
-void CGUnit_C::DestroyUnitMount(int32_t a2) {
+void CGUnit_C::DestroyUnitMount(int32_t updateCollisionBox) {
     if (!this->m_mountModel) {
         return;
     }
@@ -21383,7 +21383,7 @@ void CGUnit_C::DestroyUnitMount(int32_t a2) {
 
     this->PlayDismountSound();
 
-    if (a2) {
+    if (updateCollisionBox) {
         this->UpdateUnitCollisionBox(1, 0);
     }
 
@@ -21953,7 +21953,7 @@ void CGUnit_C::CancelShapeshift() {
 
 // VERIFY: 8e89ab2b manual
 // OFFSET: 0x00719B80
-void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32_t a3) {
+void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32_t flying) {
     if (elapsed < 0.011111111f) {
         elapsed = 0.011111111f;
     } else if (elapsed >= 0.050000001f) {
@@ -22031,7 +22031,7 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
 
     float targetRoll;
 
-    if (a3) {
+    if (flying) {
         targetRoll = facingDelta / elapsed * -0.15000001f;
         float rollDelta = targetRoll - this->m_smoothSwimRoll;
         float rate = elapsed * HALF_PI;

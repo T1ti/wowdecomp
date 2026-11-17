@@ -890,9 +890,9 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ShowLootEffect();
     void CompleteMountTransition();
     void RefreshComponentItem(int32_t itemSlot);
-    void UpdateReaction(bool a1);
+    void UpdateReaction(bool updatePetColors);
     void ApplyModelFade();
-    void ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32_t a3);
+    void ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32_t flying);
     int32_t InitializeComponent();
     void MountTransitionSetCharacterTransform(float elapsed);
     void UpdateMountTransitionModel();
@@ -980,13 +980,13 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     float GetPlayerDiscount(const CGUnit_C* unit) const;
     void SetAttacking(WOWGUID guid);
     void UpdateObjectEffectMovementStates();
-    void DestroyUnitMount(int32_t a2);
+    void DestroyUnitMount(int32_t updateCollisionBox);
     void SetMountModel(CM2Model* model);
     void OnDeathAnimate();
     void ReadLootList(CDataStore* msg);
     void RemoveLootEffect();
     void DropTargetOnDeath();
-    void ClearTrackingTarget(bool a2, bool a3);
+    void ClearTrackingTarget(bool faceTarget, bool stopMovement);
     void HandleTracking(float drunkness, float turnOffset);
     void OnSetPitchLocal(uint32_t eventTime, float pitch);
     void OnPitchToAngleLocal(uint32_t eventTime, float pitch);
