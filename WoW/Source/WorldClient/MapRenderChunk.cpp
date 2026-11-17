@@ -2794,4 +2794,8 @@ void CMapRenderChunk::SetShaders(int32_t specular, int32_t unlitLayers) {
 // VERIFY: dba386e8 manual
 // OFFSET: 0x005EEB70
 void CMapRenderChunk::RenderZoneDebug() {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared empty stub).
+    // No 0.5.3 reference.
+#endif
 }

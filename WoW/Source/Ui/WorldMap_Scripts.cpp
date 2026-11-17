@@ -343,6 +343,10 @@ static int32_t Script_IsZoomOutAvailable(lua_State* L) {
 // VERIFY: 5a3fa27a auto
 // OFFSET: 0x00608560
 static int32_t Script_GetNumMapDebugObjects(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared push-0 stub).
+    // No 0.5.3 reference.
+#endif
     lua_pushnumber(L, 0.0);
     return 1;
 }
@@ -350,6 +354,10 @@ static int32_t Script_GetNumMapDebugObjects(lua_State* L) {
 // VERIFY: 550ba9da auto
 // OFFSET: 0x008E5250
 static int32_t Script_HasDebugZoneMap(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // No 0.5.3 reference.
+#endif
     return 0;
 }
 
@@ -1144,18 +1152,30 @@ static int32_t Script_SetDungeonMapLevel(lua_State* L) {
 // VERIFY: 5c8fe2ff auto
 // OFFSET: 0x008E5250
 static int32_t Script_GetMapDebugObjectInfo(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // No 0.5.3 reference.
+#endif
     return 0;
 }
 
 // VERIFY: 254a479d auto
 // OFFSET: 0x008E5250
 static int32_t Script_TeleportToDebugObject(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // No 0.5.3 reference.
+#endif
     return 0;
 }
 
 // VERIFY: 0d559bc9 auto
 // OFFSET: 0x008E5250
 static int32_t Script_GetDebugZoneMap(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared return-0 stub).
+    // No 0.5.3 reference.
+#endif
     return 0;
 }
 

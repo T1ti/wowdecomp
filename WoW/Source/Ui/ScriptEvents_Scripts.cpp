@@ -782,6 +782,10 @@ static int32_t Script_ConsoleExec(lua_State* L) {
 // VERIFY: 20774f42 auto
 // OFFSET: 0x00510BB0
 static int32_t Script_ReadFile(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: appears debug-only; the 3.3.5 release build only raises "Access Denied" (shared stub).
+    // No 0.5.3 reference.
+#endif
     luaL_error(L, "Access Denied");
     return 0;
 }
@@ -789,6 +793,10 @@ static int32_t Script_ReadFile(lua_State* L) {
 // VERIFY: 972d4262 auto
 // OFFSET: 0x00510BB0
 static int32_t Script_DeleteFile(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: appears debug-only; the 3.3.5 release build only raises "Access Denied" (shared stub).
+    // No 0.5.3 reference.
+#endif
     luaL_error(L, "Access Denied");
     return 0;
 }
@@ -796,6 +804,10 @@ static int32_t Script_DeleteFile(lua_State* L) {
 // VERIFY: f25bf2fd auto
 // OFFSET: 0x00510BB0
 static int32_t Script_AppendToFile(lua_State* L) {
+#ifndef NDEBUG
+    // TODO: appears debug-only; the 3.3.5 release build only raises "Access Denied" (shared stub).
+    // No 0.5.3 reference.
+#endif
     luaL_error(L, "Access Denied");
     return 0;
 }
