@@ -275,7 +275,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     virtual float GetBaseAlpha() const;
     virtual bool IsTransport() const;
     virtual int32_t IsPointInside(const C3Vector& point) const;
-    virtual int32_t AddPassenger(CPassenger* passenger, int32_t a2);
+    virtual int32_t AddPassenger(CPassenger* passenger, int32_t reason);
     virtual float GetSpeed() const;
     virtual void PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVisualKitRec* kit, SPELL_VISUAL_KIT_TYPE type, const C3Vector* position, BOOL playAnim, BOOL harmful, WOWGUID guid, uint32_t effectFadeTime, const SpellVisualRec* visual, uint32_t effectFlags, BOOL hasEffect);
     virtual void PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t a5, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect);

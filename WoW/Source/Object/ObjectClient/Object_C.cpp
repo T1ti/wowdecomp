@@ -872,7 +872,7 @@ int32_t CGObject_C::IsPointInside(const C3Vector& point) const {
 
 // VERIFY: 49a82b24 auto
 // OFFSET: 0x004D6000
-int32_t CGObject_C::AddPassenger(CPassenger* passenger, int32_t a2) {
+int32_t CGObject_C::AddPassenger(CPassenger* passenger, int32_t reason) {
     return 1;
 }
 

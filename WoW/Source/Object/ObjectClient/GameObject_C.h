@@ -72,7 +72,7 @@ class CGGameObject_C_TypeBase {
     virtual float GetFacing() const;
     virtual float GetRawFacing() const;
     virtual float GetSpeed() const;
-    virtual void AddPassenger(CPassenger* passenger, int32_t a2);
+    virtual void AddPassenger(CPassenger* passenger, int32_t reason);
     virtual int32_t IsPointInside(const C3Vector& point) const;
     virtual CMapBaseObj* GetMapObjectTransportID() const;
     virtual void PostInit(bool reenable);
@@ -208,7 +208,7 @@ class CGGameObject_C_Type_TransportBase : public CGGameObject_C_Type_WorldObj {
     virtual C3Vector GetPosition() const;
     virtual C3Vector GetRawPosition() const;
     virtual float GetSpeed() const;
-    virtual void AddPassenger(CPassenger* passenger, int32_t a2);
+    virtual void AddPassenger(CPassenger* passenger, int32_t reason);
     virtual int32_t IsPointInside(const C3Vector& point) const;
     virtual void PostInitWithStats();
     virtual void Reenable();
@@ -227,7 +227,7 @@ class CGGameObject_C_Type_MapObjTransport : public CGGameObject_C_Type_Transport
     /* 0080 */ uint32_t m_currentLeg;
 
     virtual void UpdateState(int32_t oldState, int32_t newState);
-    virtual void AddPassenger(CPassenger* passenger, int32_t a2);
+    virtual void AddPassenger(CPassenger* passenger, int32_t reason);
     virtual void PostInitWithStats();
     virtual void PostReenable();
     virtual ShipPath* GetShipPath() const;
@@ -371,7 +371,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     virtual float GetBaseAlpha() const;
     virtual bool IsTransport() const;
     virtual int32_t IsPointInside(const C3Vector& point) const;
-    virtual int32_t AddPassenger(CPassenger* passenger, int32_t a2);
+    virtual int32_t AddPassenger(CPassenger* passenger, int32_t reason);
     virtual float GetSpeed() const;
     virtual ShipPath* GetShipPath() const;
     C3Vector GetNamePosition() const override;

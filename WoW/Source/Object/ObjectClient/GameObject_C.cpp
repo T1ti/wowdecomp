@@ -443,8 +443,8 @@ void CGGameObject_C::AddToolTipInfo(CGTooltip* tooltip) {
 
 // VERIFY: 5a089c89 auto
 // OFFSET: 0x00712EB0
-int32_t CGGameObject_C::AddPassenger(CPassenger* passenger, int32_t a2) {
-    this->m_typeData->AddPassenger(passenger, a2);
+int32_t CGGameObject_C::AddPassenger(CPassenger* passenger, int32_t reason) {
+    this->m_typeData->AddPassenger(passenger, reason);
     return 1;
 }
 
@@ -1096,8 +1096,8 @@ uint32_t CGGameObject_C_Type_TransportBase::GetTransportUpdateTime() const {
 
 // VERIFY: db902dce auto
 // OFFSET: 0x00711CD0
-void CGGameObject_C_Type_MapObjTransport::AddPassenger(CPassenger* passenger, int32_t a2) {
-    CGGameObject_C_Type_TransportBase::AddPassenger(passenger, a2);
+void CGGameObject_C_Type_MapObjTransport::AddPassenger(CPassenger* passenger, int32_t reason) {
+    CGGameObject_C_Type_TransportBase::AddPassenger(passenger, reason);
 }
 
 // VERIFY: a94a9743 manual
@@ -1774,7 +1774,7 @@ float CGGameObject_C_TypeBase::GetSpeed() const {
 
 // VERIFY: 4c00802d auto
 // OFFSET: 0x00653A10
-void CGGameObject_C_TypeBase::AddPassenger(CPassenger* passenger, int32_t a2) {
+void CGGameObject_C_TypeBase::AddPassenger(CPassenger* passenger, int32_t reason) {
 }
 
 // VERIFY: 8d4e2b06 auto
@@ -2838,11 +2838,11 @@ int32_t CGGameObject_C::CanChangeCursor() const {
 
 // VERIFY: 9f6a62fd manual
 // OFFSET: 0x00711AB0
-void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int32_t a2) {
+void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int32_t reason) {
     passenger->m_link.Unlink();
     this->m_passengers.LinkToTail(passenger);
 
-    if (a2 && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (!this->m_worldObject || !World::ObjectIsLoaded(this->m_worldObject))) {
+    if (reason && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (!this->m_worldObject || !World::ObjectIsLoaded(this->m_worldObject))) {
         static_cast<CMovementShared*>(passenger)->SetSplineEnabled();
     }
 
