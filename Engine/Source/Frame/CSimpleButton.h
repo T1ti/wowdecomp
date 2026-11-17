@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
 #include "Engine/Source/Frame/Types.h"
@@ -130,7 +131,7 @@ class CSimpleButton : public CSimpleFrame {
     virtual void UnregisterRegion(CSimpleRegion* region);
     virtual void OnLayerHide();
     virtual void OnLayerCursorEnter(int32_t motion);
-    virtual void OnLayerCursorExit(int32_t motion, int32_t a3);
+    virtual void OnLayerCursorExit(int32_t motion, BOOL releaseMouse);
     virtual int32_t OnLayerMouseDown(const CMouseEvent& evt, const char* btn);
     virtual int32_t OnLayerMouseUp(const CMouseEvent& evt, const char* btn);
     virtual void OnDragStart(const CMouseEvent& evt);

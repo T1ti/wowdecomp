@@ -147,12 +147,12 @@ float CSimpleTop::RoundToPixelHeight(float ddcHeight) {
 
 // VERIFY: 03c64564 auto
 // OFFSET: 0x00493F30
-void CSimpleTop::HideFrame(CSimpleFrame* frame, int32_t a3) {
-    if (this->m_moveResizeFrame == frame && !a3) {
+void CSimpleTop::HideFrame(CSimpleFrame* frame, BOOL reregister) {
+    if (this->m_moveResizeFrame == frame && !reregister) {
         this->StopMoveOrResizeFrame();
     }
 
-    frame->UnregisterForEvents(a3);
+    frame->UnregisterForEvents(reregister);
 
     CFrameStrata* strata = this->m_strata[frame->m_strata];
 
@@ -991,7 +991,7 @@ void CSimpleTop::NotifyFrameMovedOrResized(CSimpleFrame* frame) {
 
 // VERIFY: e3307852 manual
 // OFFSET: 0x00495880
-void CSimpleTop::RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, int32_t a4, int32_t priority) {
+void CSimpleTop::RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister, int32_t priority) {
     CSimpleSortedArray<FRAMEPRIORITY*>& queue = this->m_eventqueue[event][frame->m_strata];
 
     if (priority == -1) {
@@ -1003,14 +1003,14 @@ void CSimpleTop::RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, i
     framePriority->m_priority = priority;
     queue.Insert(framePriority);
 
-    if (!a4 && event == SIMPLE_EVENT_MOUSE) {
+    if (!reregister && event == SIMPLE_EVENT_MOUSE) {
         this->m_checkFocus = 1;
     }
 }
 
 // VERIFY: 4939f5d1 manual
 // OFFSET: 0x00495900
-void CSimpleTop::UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, int32_t a4) {
+void CSimpleTop::UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister) {
     CSimpleSortedArray<FRAMEPRIORITY*>& queue = this->m_eventqueue[event][frame->m_strata];
 
     for (uint32_t i = 0; i < queue.m_count; i++) {
@@ -1023,7 +1023,7 @@ void CSimpleTop::UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event,
         queue.Remove(i);
         delete framePriority;
 
-        if (a4) {
+        if (reregister) {
             return;
         }
 
@@ -1183,9 +1183,9 @@ CSimpleTop::CSimpleTop() {
 
 // VERIFY: 4c3b2719 auto
 // OFFSET: 0x004960D0
-void CSimpleTop::ShowFrame(CSimpleFrame* frame, int32_t a3) {
+void CSimpleTop::ShowFrame(CSimpleFrame* frame, BOOL reregister) {
     this->m_strata[frame->m_strata]->AddFrame(frame);
-    frame->RegisterForEvents(a3);
+    frame->RegisterForEvents(reregister);
 }
 
 // VERIFY: 9bb3362f manual

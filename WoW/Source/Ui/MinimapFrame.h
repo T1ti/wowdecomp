@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
 #include "Engine/Source/Gx/CGxTex.h"
@@ -209,7 +210,7 @@ class CGMinimapFrame : public CSimpleFrame {
     void OnLayerUpdate(float elapsedSec) override;
     int32_t OnLayerTrackUpdate(const CMouseEvent& evt) override;
     void OnFrameRender(CRenderBatch* batch, uint32_t layer) override;
-    void OnLayerCursorExit(int32_t motion, int32_t a3) override;
+    void OnLayerCursorExit(int32_t motion, BOOL releaseMouse) override;
     bool UpdateScale(bool force) override;
 
     CGMinimapFrame(CSimpleFrame* parent);

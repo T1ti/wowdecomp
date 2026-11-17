@@ -460,20 +460,20 @@ void CSimpleFrame::SetFrameAlpha(uint8_t alpha) {
 
 // VERIFY: ee3b3c89 auto
 // OFFSET: 0x0048EA40
-void CSimpleFrame::RegisterForEvents(int32_t a2) {
+void CSimpleFrame::RegisterForEvents(BOOL reregister) {
     for (uint32_t i = 0; i < NUM_SIMPLE_EVENTS; i++) {
         if ((1 << i) & this->m_enabledEventsBitmask) {
-            this->m_simpleTop->RegisterForEvent(this, static_cast<CSimpleEventType>(i), a2, -1);
+            this->m_simpleTop->RegisterForEvent(this, static_cast<CSimpleEventType>(i), reregister, -1);
         }
     }
 }
 
 // VERIFY: 68083be0 auto
 // OFFSET: 0x0048EA80
-void CSimpleFrame::UnregisterForEvents(int32_t a2) {
+void CSimpleFrame::UnregisterForEvents(BOOL reregister) {
     for (uint32_t i = 0; i < NUM_SIMPLE_EVENTS; i++) {
         if ((1 << i) & this->m_enabledEventsBitmask) {
-            this->m_simpleTop->UnregisterForEvent(this, static_cast<CSimpleEventType>(i), a2);
+            this->m_simpleTop->UnregisterForEvent(this, static_cast<CSimpleEventType>(i), reregister);
         }
     }
 }
@@ -1490,7 +1490,7 @@ void CSimpleFrame::OnLayerCursorEnter(int32_t motion) {
 
 // VERIFY: ebe4e67e manual
 // OFFSET: 0x00490980
-void CSimpleFrame::OnLayerCursorExit(int32_t motion, int32_t a3) {
+void CSimpleFrame::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
     if (this->m_hoverFrame) {
         this->m_hoverFrame->Hide();
     }
@@ -1500,7 +1500,7 @@ void CSimpleFrame::OnLayerCursorExit(int32_t motion, int32_t a3) {
         this->NotifyDrawLayerChanged(DRAWLAYER_HIGHLIGHT);
     }
 
-    if (a3) {
+    if (releaseMouse) {
         this->m_isMouseDown = 0;
         this->m_isMouseDragging = 0;
     }
@@ -1565,7 +1565,7 @@ void CSimpleFrame::GetScriptTime(lua_State* L, double* time, uint32_t* count, in
 
 // VERIFY: c1ad0fe4 manual
 // OFFSET: 0x00490F60
-void CSimpleFrame::SetBeingScrolled(int32_t scrolled, int32_t a3) {
+void CSimpleFrame::SetBeingScrolled(int32_t scrolled, int32_t scrollChild) {
     uint32_t visible = this->m_isVisible;
 
     if (visible) {
@@ -1578,8 +1578,8 @@ void CSimpleFrame::SetBeingScrolled(int32_t scrolled, int32_t a3) {
         this->m_frameFlags &= ~FrameFlags::FRAME_BEING_SCROLLED;
     }
 
-    if (a3 >= 0) {
-        if (a3) {
+    if (scrollChild >= 0) {
+        if (scrollChild) {
             this->m_frameFlags |= FrameFlags::FRAME_SCROLL_CHILD;
         } else {
             this->m_frameFlags &= ~FrameFlags::FRAME_SCROLL_CHILD;

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include <limits>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
@@ -207,7 +208,7 @@ class CGWorldFrame : public CSimpleFrame {
     int32_t OnLayerTrackUpdate(const CMouseEvent& evt) override;
     void OnFrameRender(CRenderBatch* batch, uint32_t layer) override;
     void OnFrameSizeChanged(const CRect& rect) override;
-    void OnLayerCursorExit(int32_t motion, int32_t a3) override;
+    void OnLayerCursorExit(int32_t motion, BOOL releaseMouse) override;
     int32_t OnLayerKeyDown(const CKeyEvent& evt) override;
     int32_t OnLayerKeyUp(const CKeyEvent& evt) override;
     int32_t OnLayerMouseDown(const CMouseEvent& evt, const char* btn) override;

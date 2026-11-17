@@ -546,9 +546,9 @@ void CGMinimapFrame::OnLayerUpdate(float elapsedSec) {
 
 // VERIFY: 44ce878d auto
 // OFFSET: 0x0057D580
-void CGMinimapFrame::OnLayerCursorExit(int32_t motion, int32_t a3) {
+void CGMinimapFrame::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
     CGGameUI::m_gameTooltip->Hide();
-    CSimpleFrame::OnLayerCursorExit(motion, a3);
+    CSimpleFrame::OnLayerCursorExit(motion, releaseMouse);
 }
 
 // VERIFY: b41af30f auto

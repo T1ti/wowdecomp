@@ -25,7 +25,7 @@ void CSimpleHyperlinkButton::OnLayerCursorEnter(int32_t motion) {
 
 // VERIFY: e8af4768 auto
 // OFFSET: 0x00978570
-void CSimpleHyperlinkButton::OnLayerCursorExit(int32_t motion, int32_t a3) {
+void CSimpleHyperlinkButton::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
     static_cast<CSimpleHyperlinkedFrame*>(this->m_parent)->OnHyperlinkLeave(this->m_linkData, this->m_linkText);
 }
 

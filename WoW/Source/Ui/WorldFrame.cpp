@@ -2344,8 +2344,8 @@ static const char* KeyCodeToString(KEY key) {
 
 // VERIFY: 00570459 auto
 // OFFSET: 0x004F5C10
-void CGWorldFrame::OnLayerCursorExit(int32_t motion, int32_t a3) {
-    this->CSimpleFrame::OnLayerCursorExit(motion, a3);
+void CGWorldFrame::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
+    this->CSimpleFrame::OnLayerCursorExit(motion, releaseMouse);
     WOWGUID tracked = this->m_trackedGuid;
 
     if (tracked) {

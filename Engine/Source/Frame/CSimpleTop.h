@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Scrn/Types.h"
 #include "Engine/Source/Event/Types.h"
 #include "Engine/Source/Frame/CLayoutFrame.h"
@@ -109,7 +110,7 @@ class CSimpleTop : public CLayoutFrame {
     void DisableEvents();
     void EnableEvents();
     void GetCursorPosition(C2Vector& position);
-    void HideFrame(CSimpleFrame* frame, int32_t a3);
+    void HideFrame(CSimpleFrame* frame, BOOL reregister);
     int32_t LowerFrame(CSimpleFrame* frame);
     void MoveOrResizeFrame(const CMouseEvent& evt);
     void NotifyFrameDelayedLoad(CSimpleFrame* frame);
@@ -119,16 +120,16 @@ class CSimpleTop : public CLayoutFrame {
     void OnLayerUpdate(float elapsedSec);
     int32_t RaiseFrame(CSimpleFrame* frame, int32_t checkOcclusion);
     void RegisterForCleanup(CSimpleFrame* frame);
-    void RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, int32_t a4, int32_t priority);
+    void RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister, int32_t priority);
     void RegisterFrame(CSimpleFrame* frame);
     void SetCursor(MipBits* image);
     void SetMouseFocus(CSimpleFrame* frame);
-    void ShowFrame(CSimpleFrame* frame, int32_t a3);
+    void ShowFrame(CSimpleFrame* frame, BOOL reregister);
     int32_t StartMoveOrResizeFrame(const CMouseEvent& evt, MOVERESIZE_REASON reason, int32_t resize);
     int32_t StartMoveOrResizeFrame(CSimpleFrame* frame, MOVERESIZE_REASON reason, float x, float y, FRAMEPOINT point);
     int32_t StartMoveOrResizeFrame(CSimpleFrame* frame, MOVERESIZE_REASON reason, float x, float y, int32_t resize);
     void StopMoveOrResizeFrame();
-    void UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, int32_t a4);
+    void UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister);
     void UnregisterFrame(CSimpleFrame* frame);
     void ValidateDeletedFrame(CSimpleFrame* frame);
 };

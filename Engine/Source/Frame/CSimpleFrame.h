@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CScriptRegion.h"
 #include "Engine/Source/Frame/CRenderBatch.h"
@@ -174,7 +175,7 @@ class CSimpleFrame : public CScriptRegion {
     virtual void OnScreenSizeChanged();
     virtual void OnFrameSizeChanged(float width, float height);
     virtual void OnLayerCursorEnter(int32_t motion);
-    virtual void OnLayerCursorExit(int32_t motion, int32_t a3);
+    virtual void OnLayerCursorExit(int32_t motion, BOOL releaseMouse);
     virtual int32_t OnLayerIme(const CImeEvent& evt);
     virtual int32_t OnLayerKeyDownRepeat(const CKeyEvent& evt);
     virtual int32_t OnLayerChar(const CCharEvent& evt);
@@ -223,7 +224,7 @@ class CSimpleFrame : public CScriptRegion {
     void NotifyDrawLayerChanged(uint32_t drawLayer);
     void NotifyScrollParent();
     void Raise();
-    void RegisterForEvents(int32_t a2);
+    void RegisterForEvents(BOOL reregister);
     void RegisterRegion(CSimpleRegion* region);
     void RemoveFrameRegion(CSimpleRegion* region, uint32_t drawLayer);
     void RunOnAttributeChangedScript(const char* name, int32_t luaRef);
@@ -234,7 +235,7 @@ class CSimpleFrame : public CScriptRegion {
     void RunOnSizeChangedScript(float width, float height);
     void SetAttribute(const char* name, int32_t luaRef);
     void SetBackdrop(CBackdropGenerator* backdrop);
-    void SetBeingScrolled(int32_t scrolled, int32_t a3);
+    void SetBeingScrolled(int32_t scrolled, int32_t scrollChild);
     void SetClampRectInsets(float left, float right, float top, float bottom);
     void SetFrameAlpha(uint8_t alpha);
     bool SetFrameDepth(float depth, bool force);
@@ -245,7 +246,7 @@ class CSimpleFrame : public CScriptRegion {
     void SetHitRectInsets(float left, float right, float top, float bottom);
     int32_t Show();
     int32_t TestHitRect(const C2Vector& pt);
-    void UnregisterForEvents(int32_t a2);
+    void UnregisterForEvents(BOOL reregister);
 };
 
 #endif

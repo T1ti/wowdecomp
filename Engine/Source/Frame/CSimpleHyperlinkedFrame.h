@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleButton.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
@@ -45,7 +46,7 @@ class CSimpleHyperlinkButton : public CSimpleButton {
 
     virtual ~CSimpleHyperlinkButton();
     virtual void OnLayerCursorEnter(int32_t motion);
-    virtual void OnLayerCursorExit(int32_t motion, int32_t a3);
+    virtual void OnLayerCursorExit(int32_t motion, BOOL releaseMouse);
     virtual void OnClick(const char* btn, int32_t down);
 
     CSimpleHyperlinkButton(CSimpleHyperlinkedFrame* parent);

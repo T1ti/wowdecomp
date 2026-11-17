@@ -848,9 +848,9 @@ void CSimpleButton::OnLayerCursorEnter(int32_t motion) {
 
 // VERIFY: f683541a auto
 // OFFSET: 0x0096FD00
-void CSimpleButton::OnLayerCursorExit(int32_t motion, int32_t a3) {
+void CSimpleButton::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
     if (this->m_state != BUTTONSTATE_DISABLED) {
-        CSimpleFrame::OnLayerCursorExit(motion, a3);
+        CSimpleFrame::OnLayerCursorExit(motion, releaseMouse);
         this->UpdateTextState(this->m_state);
         return;
     }
