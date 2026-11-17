@@ -327,7 +327,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, QuestQueryCallback, nullptr, false);
 
-    if (!quest || !entry || (entry->m_state & 2) || CGQuestLog::IsQuestFailed(index)) {
+    if (!quest || !entry || (entry->m_state & QUEST_LOG_ENTRY_FAILED) || CGQuestLog::IsQuestFailed(index)) {
         return 0;
     }
 
@@ -355,7 +355,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
         }
     }
 
-    if (special && !(entry->m_state & 1)) {
+    if (special && !(entry->m_state & QUEST_LOG_ENTRY_COMPLETE)) {
         return 0;
     }
 
@@ -404,7 +404,7 @@ bool CGQuestLog::HasNoObjectives(uint32_t index) {
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, QuestQueryCallback, nullptr, false);
 
-    if (!quest || !entry || (entry->m_state & 2) || CGQuestLog::IsQuestFailed(index)) {
+    if (!quest || !entry || (entry->m_state & QUEST_LOG_ENTRY_FAILED) || CGQuestLog::IsQuestFailed(index)) {
         return false;
     }
 
@@ -1102,7 +1102,7 @@ void CGQuestLog::Update(int32_t a1) {
         CGQuestLog::m_quests[CGQuestLog::m_numQuest].m_logSlot = slot;
         CGQuestLog::m_numQuest++;
 
-        if (entry->m_time && !(entry->m_state & 2) && timeOffset + static_cast<int32_t>(entry->m_time) - static_cast<int32_t>(time(nullptr)) - 1 < 0) {
+        if (entry->m_time && !(entry->m_state & QUEST_LOG_ENTRY_FAILED) && timeOffset + static_cast<int32_t>(entry->m_time) - static_cast<int32_t>(time(nullptr)) - 1 < 0) {
             CGQuestLog::SetQuestExpired(CGQuestLog::m_numQuest - 1);
         }
 
@@ -1382,7 +1382,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
             SStrCopy(type, "event", STORM_MAX_STR);
 
             if (entry) {
-                params->m_complete = entry->m_state & 1;
+                params->m_complete = entry->m_state & QUEST_LOG_ENTRY_COMPLETE;
             }
 
             return 1;
@@ -2032,7 +2032,7 @@ int32_t CGQuestLog::GetQuestPOILeaderBoardByID(int32_t questId, QuestLogLeaderBo
 
     SStrCopy(params->m_text, quest->m_endText, STORM_MAX_STR);
     SStrCopy(params->m_type, "event", STORM_MAX_STR);
-    params->m_complete = entry->m_state & 1;
+    params->m_complete = entry->m_state & QUEST_LOG_ENTRY_COMPLETE;
     return 1;
 }
 
@@ -2136,7 +2136,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
     WOWGUID none = { 0 };
     QuestCache* quest = g_questDBCache.GetRecord(CGQuestLog::m_quests[index].m_questId, none, nullptr, nullptr, false);
 
-    if (!quest || !entry || (entry->m_state & 2) || CGQuestLog::IsQuestFailed(index)) {
+    if (!quest || !entry || (entry->m_state & QUEST_LOG_ENTRY_FAILED) || CGQuestLog::IsQuestFailed(index)) {
         return 0;
     }
 
@@ -2164,7 +2164,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
         }
     }
 
-    if ((quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK) && !(entry->m_state & 1)) {
+    if ((quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK) && !(entry->m_state & QUEST_LOG_ENTRY_COMPLETE)) {
         result |= 0x10000;
     }
 

@@ -273,7 +273,7 @@ static int32_t Script_GetQuestTimers(lua_State* L) {
 
         PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
-        if (!entry || !entry->m_time || (entry->m_state & 2) || (i < CGQuestLog::m_numQuest && CGQuestLog::m_quests[i].m_expired)) {
+        if (!entry || !entry->m_time || (entry->m_state & QUEST_LOG_ENTRY_FAILED) || (i < CGQuestLog::m_numQuest && CGQuestLog::m_quests[i].m_expired)) {
             continue;
         }
 
@@ -929,7 +929,7 @@ static int32_t Script_GetQuestIndexForTimer(lua_State* L) {
 
             PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
-            if (!entry || !entry->m_time || (entry->m_state & 2) || timeOffset - static_cast<int32_t>(time(nullptr)) + static_cast<int32_t>(entry->m_time) - 1 < 0) {
+            if (!entry || !entry->m_time || (entry->m_state & QUEST_LOG_ENTRY_FAILED) || timeOffset - static_cast<int32_t>(time(nullptr)) + static_cast<int32_t>(entry->m_time) - 1 < 0) {
                 continue;
             }
 
@@ -1113,7 +1113,7 @@ static int32_t Script_GetQuestLogTimeLeft(lua_State* L) {
             PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
             int32_t timeOffset = CGQuestLog::m_timeOffset;
 
-            if (entry && entry->m_time && !(entry->m_state & 2) && timeOffset) {
+            if (entry && entry->m_time && !(entry->m_state & QUEST_LOG_ENTRY_FAILED) && timeOffset) {
                 int32_t left = timeOffset + static_cast<int32_t>(entry->m_time) - static_cast<int32_t>(time(nullptr)) - 1;
 
                 if (left < 0) {
@@ -1142,7 +1142,7 @@ static int32_t Script_IsCurrentQuestFailed(lua_State* L) {
         if (slot <= MAX_QUESTLOG_QUESTS) {
             PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
-            if (entry && ((entry->m_state & 2) || CGQuestLog::IsSelectedQuestExpired())) {
+            if (entry && ((entry->m_state & QUEST_LOG_ENTRY_FAILED) || CGQuestLog::IsSelectedQuestExpired())) {
                 lua_pushnumber(L, 1.0);
                 return 1;
             }
@@ -1480,7 +1480,7 @@ static int32_t Script_GetQuestLogTitle(lua_State* L) {
             if (slot <= MAX_QUESTLOG_QUESTS) {
                 PlayerQuestLogEntry* entry = &player->m_player->m_playerQuestLog[slot];
 
-                if (entry && (entry->m_state & 2)) {
+                if (entry && (entry->m_state & QUEST_LOG_ENTRY_FAILED)) {
                     failed = true;
                 }
             }

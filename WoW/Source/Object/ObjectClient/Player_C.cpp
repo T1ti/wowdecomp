@@ -3816,7 +3816,7 @@ int32_t Packet_Group_17(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
             PlayerQuestLogEntry* entry = i >= 0 && i <= MAX_QUESTLOG_QUESTS ? &player->m_player->m_playerQuestLog[i] : nullptr;
 
             if (entry && entry->m_questId == questId) {
-                if (entry->m_state & 0x2) {
+                if (entry->m_state & QUEST_LOG_ENTRY_FAILED) {
                     expired = 1;
                 }
 
@@ -7139,7 +7139,7 @@ int32_t OnUpdateQuest(WOWGUID guid, uint32_t offset, uint32_t count, const void*
     uint32_t questId = entry->m_questId;
     WOWGUID none = { 0 };
 
-    if (questId && (questId != old->m_questId || (!(entry->m_state & 2) && (old->m_state & 2)))) {
+    if (questId && (questId != old->m_questId || (!(entry->m_state & QUEST_LOG_ENTRY_FAILED) && (old->m_state & QUEST_LOG_ENTRY_FAILED)))) {
         QuestCache* quest = g_questDBCache.GetRecord(questId, none, QuestAcceptCallback, nullptr, false);
 
         if (quest) {

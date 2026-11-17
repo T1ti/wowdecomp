@@ -69,6 +69,13 @@ enum ARENA_TEAM_INFO : uint32_t {
 
 class CGPlayerLocalData;
 
+// PlayerQuestLogEntry::m_state bits: COMPLETE is reported as the "event" objective's completion,
+// FAILED makes GetQuestLogTitle report the quest as failed (-1).
+enum QUEST_LOG_ENTRY_STATE : uint32_t {
+    QUEST_LOG_ENTRY_COMPLETE = 0x1,
+    QUEST_LOG_ENTRY_FAILED = 0x2,
+};
+
 struct PlayerQuestLogEntry {
     /* 0000 */ uint32_t m_questId;
     /* 0004 */ uint32_t m_state;
