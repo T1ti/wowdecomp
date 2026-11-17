@@ -889,7 +889,7 @@ void CGObject_C::PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const Spell
 
 // VERIFY: 6ea82269 auto
 // OFFSET: 0x00743560
-void CGObject_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t a5, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect) {
+void CGObject_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t fadeTime, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect) {
 }
 
 // VERIFY: acfa0e6e auto
@@ -1521,7 +1521,7 @@ void CGObject_C::AuraEffectHandler(CM2Model* model, uint32_t boneId, uint32_t se
 
 // VERIFY: 0fe69e0d auto
 // OFFSET: 0x00744790
-void CGObject_C::PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach) {
+void CGObject_C::PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t fadeTime, const SpellVisualKitModelAttachRec* attach) {
     CEffect* effect = new (SMemAlloc(sizeof(CEffect), __FILE__, __LINE__, 0)) CEffect();
     effect->m_expireTime = expireTime;
 
@@ -1531,7 +1531,7 @@ void CGObject_C::PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t
         target = this->m_obj->m_guid;
     }
 
-    effect->AddEffect(attachType, spellId, kit, effectName, &target, &source, *flags, callback, position, a11, attach);
+    effect->AddEffect(attachType, spellId, kit, effectName, &target, &source, *flags, callback, position, fadeTime, attach);
 
     if (*flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_CONNECTION) {
         effect->SetEnabled(0);

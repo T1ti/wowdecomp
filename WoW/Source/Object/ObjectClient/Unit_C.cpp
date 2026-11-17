@@ -16987,7 +16987,7 @@ BOOL CGUnit_C::PlaySpellVisualKit_DelayLightningEffects(const SpellRec* spell, c
 
 // VERIFY: 6c474fbc auto
 // OFFSET: 0x0073A6C0
-void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t a5, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect) {
+void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t fadeTime, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect) {
     int32_t spellId = 0;
 
     if (spell) {
@@ -17001,7 +17001,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
         }
 
-        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDL, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDL, 0, spellId, kit, effectName, &flags, callback, position, guid, fadeTime, nullptr);
         *hasEffect = TRUE;
     }
 
@@ -17012,7 +17012,7 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
         }
 
-        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDR, 0, spellId, kit, effectName, &flags, callback, position, guid, a5, nullptr);
+        this->PlayEffectName(MODEL_ATTACHMENT_ID::ATTACH_HANDR, 0, spellId, kit, effectName, &flags, callback, position, guid, fadeTime, nullptr);
         *hasEffect = TRUE;
     }
 }

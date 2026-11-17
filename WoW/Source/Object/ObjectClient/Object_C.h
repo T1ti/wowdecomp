@@ -278,7 +278,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     virtual int32_t AddPassenger(CPassenger* passenger, int32_t reason);
     virtual float GetSpeed() const;
     virtual void PlaySpellVisualKit_PlayAnims(const SpellRec* spell, const SpellVisualKitRec* kit, SPELL_VISUAL_KIT_TYPE type, const C3Vector* position, BOOL playAnim, BOOL harmful, WOWGUID guid, uint32_t effectFadeTime, const SpellVisualRec* visual, uint32_t effectFlags, BOOL hasEffect);
-    virtual void PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t a5, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect);
+    virtual void PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const SpellVisualKitRec* kit, const C3Vector* position, WOWGUID guid, uint32_t fadeTime, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), BOOL* hasEffect);
     virtual BOOL PlaySpellVisualKit_DelayLightningEffects(const SpellRec* spell, const SpellVisualKitRec* kit, SPELL_VISUAL_KIT_TYPE type, const C3Vector* position, WOWGUID guid, BOOL playAnim, BOOL harmful, BOOL skipBeamWait, int32_t lightningAttachment, uint32_t unusedFlags, const SpellVisualRec* visual);
 
     CGObject_C();
@@ -286,7 +286,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     void ClearEffectList(int32_t all);
     void ClearSpellEffect(uint32_t spellId, int32_t all);
     void DoFade(float alpha, uint32_t time);
-    void PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t a11, const SpellVisualKitModelAttachRec* attach);
+    void PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t* flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, WOWGUID target, uint32_t fadeTime, const SpellVisualKitModelAttachRec* attach);
     C44Matrix GetModelMatrix();
     C3Vector GetModelPosition();
     int32_t GetQuestGiverCursor(int32_t highlighted);

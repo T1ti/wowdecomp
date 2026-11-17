@@ -321,7 +321,7 @@ void CEffect::Release() {
 
 // VERIFY: 07c58fd0 manual
 // OFFSET: 0x006F7C40
-void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, const WOWGUID* guid, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), uint32_t a9, const SpellVisualKitModelAttachRec* attach, WOWGUID transport) {
+void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, const WOWGUID* guid, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), uint32_t fadeTime, const SpellVisualKitModelAttachRec* attach, WOWGUID transport) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!unit) {
@@ -336,7 +336,7 @@ void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, co
     this->m_kitRec = kit;
     this->m_spellId = spellId;
     this->m_startTime = time;
-    this->m_fadeTime = a9;
+    this->m_fadeTime = fadeTime;
     this->m_facing = unit->GetSmoothFacing();
     this->m_attachRec = attach;
     this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
@@ -406,7 +406,7 @@ void CEffect::EffectEvent(CM2Model* model, uint32_t boneId, uint32_t eventId, ui
 
 // VERIFY: ac84d6f6 manual
 // OFFSET: 0x006F94C0
-void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, const WOWGUID* target, const WOWGUID* source, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t a10, const SpellVisualKitModelAttachRec* attach) {
+void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, const WOWGUID* target, const WOWGUID* source, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t fadeTime, const SpellVisualKitModelAttachRec* attach) {
     CGObject_C* object = static_cast<CGObject_C*>(ClntObjMgrObjectPtr(*source, TYPE_OBJECT, __FILE__, __LINE__));
 
     if (!object) {
@@ -424,7 +424,7 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
     this->m_sourceGuid = *target;
     this->m_targetGuid = *source;
     this->m_kitRec = kit;
-    this->m_fadeTime = a10;
+    this->m_fadeTime = fadeTime;
     this->m_attachRec = attach;
     this->m_spellId = spellId;
     this->m_effectNameRec = effectName;
@@ -1447,7 +1447,7 @@ static void MountTransitionSequenceCB(CM2Model* model, uint32_t boneId, uint32_t
 
 // VERIFY: 84fadc9f auto
 // OFFSET: 0x006F7D60
-void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t a8, WOWGUID transport) {
+void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t fadeTime, WOWGUID transport) {
     this->m_effectNameRec = effectName;
     this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_sourceGuid = WOWGUID();
@@ -1458,7 +1458,7 @@ void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, cons
     this->m_kitRec = kit;
     this->m_effectNameRec = effectName;
     this->m_flags = flags | EFFECT_FLAGS::EFFECT_WORLD_SPACE;
-    this->m_fadeTime = a8;
+    this->m_fadeTime = fadeTime;
     this->m_model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0);
 
     if (this->m_model) {
