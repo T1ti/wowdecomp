@@ -1170,7 +1170,7 @@ static void CenterMouse() {
 
 // OFFSET: 0x00869E00
 int32_t OsInputGet(OSINPUT* id, int32_t* param0, int32_t* param1, int32_t* param2, int32_t* param3) {
-    *id = static_cast<OSINPUT>(-1);
+    *id = OS_INPUT_NONE;
 
     if (s_windowSize && !IsIconic(static_cast<HWND>(OsGuiGetWindow(OSGUI_WINDOW_TYPE_GX)))) {
         s_windowSize = 0;
