@@ -3050,7 +3050,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         blendStyle = 2;
     }
 
-    SysMsgPrintf(SYSMSG_INFO, 4, "Camera view %s", s_cameraViewModeNames[view]);
+    SysMsgPrintf(SYSMSG_INFO, SYSMSG_FILTER_UI, "Camera view %s", s_cameraViewModeNames[view]);
     uint32_t time = OsGetAsyncTimeMs();
 
     if (this->m_viewIndex != view) {

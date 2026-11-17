@@ -2683,7 +2683,7 @@ void CWorldScene::PrepareLiquidInstances() {
                 const LiquidTypeRec* typeRec = g_liquidTypeDB.GetRecord(liquidType);
 
                 if (!typeRec) {
-                    SysMsgPrintf(SYSMSG_ERROR, 2, "WMO: Liquid type [%d] not found, defaulting to water!", liquidType);
+                    SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "WMO: Liquid type [%d] not found, defaulting to water!", liquidType);
                     liquidType = 1;
                     typeRec = g_liquidTypeDB.GetRecord(liquidType);
                 }
@@ -4470,7 +4470,7 @@ uint32_t World::TriDataToFacetData(void* unused, FacetData* facets, WOWGUID guid
             float lengthSq = facet->plane.n.z * facet->plane.n.z + facet->plane.n.y * facet->plane.n.y + facet->plane.n.x * facet->plane.n.x;
 
             if (lengthSq == 0.0f) {
-                SysMsgPrintf(SYSMSG_ERROR, 2, "Found degenerate triangle -- data needs to be fixed\n");
+                SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Found degenerate triangle -- data needs to be fixed\n");
                 facet->plane.n.x = 0.0f;
                 facet->plane.n.y = 0.0f;
                 facet->plane.n.z = 1.0f;

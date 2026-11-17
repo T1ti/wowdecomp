@@ -204,7 +204,7 @@ void CGUnit_C::PlayDeathThud() {
     if (!soundKitId) {
         int32_t defaults[5] = { 907, 912, 917, 922, 927 };
         soundKitId = defaults[size];
-        SysMsgPrintf(SYSMSG_WARNING, 2, "INVALID DEATH THUD SOUND: DEFAULTING TO ID %d", soundKitId);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "INVALID DEATH THUD SOUND: DEFAULTING TO ID %d", soundKitId);
     }
 
     SI2::PlaySoundKit(soundKitId, &position, nullptr, nullptr, 0, nullptr, 1, 0);

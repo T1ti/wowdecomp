@@ -1271,7 +1271,7 @@ static int32_t MinimapBuildSource(const int32_t* tile, char* path, uint32_t size
     MapRec* map = g_mapDB.GetRecord(s_mapId);
 
     if (!map || !*map->m_directory) {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "NOCONTINENTNAME|%d", s_mapId);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOCONTINENTNAME|%d", s_mapId);
         return 0;
     }
 
@@ -1279,7 +1279,7 @@ static int32_t MinimapBuildSource(const int32_t* tile, char* path, uint32_t size
     MINIMAPMD5NAME* name = s_md5Names.Ptr(path);
 
     if (!name) {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "No minimap texture: \"%s\"", path);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "No minimap texture: \"%s\"", path);
         *path = 0;
         return 0;
     }
@@ -1344,7 +1344,7 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
             tiles[i].m_tileCoords.x = source[0];
             tiles[i].m_tileCoords.y = source[1];
         } else {
-            SysMsgPrintf(SYSMSG_ERROR, 4, "MINIMAPCHUNKNOTFOUND|%d|%d", source[0], source[1]);
+            SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_UI, "MINIMAPCHUNKNOTFOUND|%d|%d", source[0], source[1]);
         }
     }
 }
@@ -1501,7 +1501,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
     if (name) {
         SStrPrintf(path, sizeof(path), "%s\\%s", s_minimapTexturePath, name->m_md5Name);
     } else {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "No minimap texture: \"%s\"", path);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "No minimap texture: \"%s\"", path);
         path[0] = 0;
     }
 

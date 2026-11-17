@@ -185,7 +185,7 @@ void CGObject_C::AddWorldObject() {
     }
 
     if (this->m_worldObject) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "OBJECTALREADYACTIVE|0x%016I64X", this->m_obj->m_guid.m_guid);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "OBJECTALREADYACTIVE|0x%016I64X", this->m_obj->m_guid.m_guid);
         return;
     }
 

@@ -13,6 +13,20 @@ struct SYSMSGSEVERITY {
     /* 0004 */ float m_duration;
 };
 
+// SysMsgPrintf filter bits; bit i is s_filterNames[i] used by the ErrorFilter CVar.
+enum SYSMSG_FILTER : uint32_t {
+    SYSMSG_FILTER_GENERAL = 0x1,
+    SYSMSG_FILTER_WORLD = 0x2,
+    SYSMSG_FILTER_UI = 0x4,
+    SYSMSG_FILTER_ANIMATION = 0x8,
+    SYSMSG_FILTER_MODELS = 0x10,
+    SYSMSG_FILTER_OBJECTS = 0x20,
+    SYSMSG_FILTER_SOUND = 0x40,
+    SYSMSG_FILTER_MOVEMENT = 0x80,
+    SYSMSG_FILTER_NETWORK = 0x100,
+    SYSMSG_FILTER_ALL = 0xFFFFFFFF,
+};
+
 int32_t SysMsgAdd(const char* text, SYSMSG_TYPE severity);
 int32_t SysMsgAdd(CStatus* status);
 int32_t SysMsgPrintf(SYSMSG_TYPE severity, const char* format, ...);

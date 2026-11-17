@@ -94,7 +94,7 @@ int32_t SysMsgPrintf(SYSMSG_TYPE severity, uint32_t flags, const char* format, .
 int32_t SysMsgPrintf(SYSMSG_TYPE severity, const char* format, ...) {
     va_list args;
     va_start(args, format);
-    int32_t result = SysMsgVPrintf(severity, 1, format, args);
+    int32_t result = SysMsgVPrintf(severity, SYSMSG_FILTER_GENERAL, format, args);
     va_end(args);
 
     return result;

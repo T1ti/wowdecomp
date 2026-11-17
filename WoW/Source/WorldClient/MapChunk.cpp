@@ -988,7 +988,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
 
             if (proxy.m_sphere.r < 0.001f) {
                 proxy.m_sphere.r = 50.0f;
-                SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building WMO(%s) has invalid geobox", &area->m_wmoFileNames[area->m_wmoFilenamesOffsets[def->m_nameId]]);
+                SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Destructible building WMO(%s) has invalid geobox", &area->m_wmoFileNames[area->m_wmoFilenamesOffsets[def->m_nameId]]);
             }
 
             World::FindOrCreateDestructibleProxy(&proxy);

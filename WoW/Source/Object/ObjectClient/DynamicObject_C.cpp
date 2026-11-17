@@ -239,21 +239,21 @@ void CGDynamicObject_C::HandleOutOfRange(OUT_OF_RANGE_TYPE type) {
 // OFFSET: 0x00704B30
 SpellVisualEffectNameRec* CGDynamicObject_C::GetVisualEffectNameRec(const SpellRec* spell) const {
     if (!spell) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "NOSPELLIDFOUND|%d", this->m_dynamicObject->m_spellID);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", this->m_dynamicObject->m_spellID);
         return nullptr;
     }
 
     const SpellVisualRec* visual = GetSpellVisual(spell);
 
     if (!visual) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "SPELLVISUALIDNOTFOUND|%d|%d", spell->m_spellVisualID[0], this->m_dynamicObject->m_spellID);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "SPELLVISUALIDNOTFOUND|%d|%d", spell->m_spellVisualID[0], this->m_dynamicObject->m_spellID);
         return nullptr;
     }
 
     SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_persistentAreaKit);
 
     if (!kit) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "SPELLVISUALKITIDNOTFOUND|%d", visual->m_persistentAreaKit);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "SPELLVISUALKITIDNOTFOUND|%d", visual->m_persistentAreaKit);
         return nullptr;
     }
 
@@ -263,7 +263,7 @@ SpellVisualEffectNameRec* CGDynamicObject_C::GetVisualEffectNameRec(const SpellR
         effect = g_spellVisualEffectNameDB.GetRecord(kit->m_baseEffect);
 
         if (!effect) {
-            SysMsgPrintf(SYSMSG_WARNING, 2, "SPELLEFFECTIDNOTFOUND|%d", kit->m_worldEffect);
+            SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "SPELLEFFECTIDNOTFOUND|%d", kit->m_worldEffect);
         }
     }
 
@@ -386,14 +386,14 @@ int32_t CGDynamicObject_C::GetModelFileName(const char** name) const {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(this->m_dynamicObject->m_spellID, &spell)) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "NOSPELLIDFOUND|%d", this->m_dynamicObject->m_spellID);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", this->m_dynamicObject->m_spellID);
         return 0;
     }
 
     SpellVisualEffectNameRec* effect = this->GetVisualEffectNameRec(&spell);
 
     if (!effect) {
-        SysMsgPrintf(SYSMSG_FATAL, 2, "NOOBJECTFILENAME|%d|Dynamic", this->m_obj->m_entryID);
+        SysMsgPrintf(SYSMSG_FATAL, SYSMSG_FILTER_WORLD, "NOOBJECTFILENAME|%d|Dynamic", this->m_obj->m_entryID);
         return 0;
     }
 

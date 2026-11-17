@@ -1122,7 +1122,7 @@ const char* CGItem_C::GetInventoryArt(int32_t displayId) {
         }
     }
 
-    SysMsgPrintf(SYSMSG_ERROR, 2, "NOINVENTORYICON|%d", displayId);
+    SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOINVENTORYICON|%d", displayId);
     return "INV_Misc_QuestionMark";
 }
 

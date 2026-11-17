@@ -1044,7 +1044,7 @@ int32_t CGUnit_C::DisplayInfoNeedsUpdate() {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(displayId);
 
     if (!displayInfo) {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "NOUNITDISPLAYID|%d|%s", displayId, this->GetUnitName(nullptr, 1));
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOUNITDISPLAYID|%d|%s", displayId, this->GetUnitName(nullptr, 1));
         return 0;
     }
 
@@ -1342,7 +1342,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
 
         this->UpdateInteractIconAttach();
     } else if (model == this->m_mountModel && !this->m_mountModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_SHIELD)) {
-        SysMsgPrintf(SYSMSG_ERROR, 0x10, "MOUNTDISPLAYIDNOMOUNTATTACHMENT|%d", this->m_mountDisplayId);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_MODELS, "MOUNTDISPLAYIDNOMOUNTATTACHMENT|%d", this->m_mountDisplayId);
     }
 
     if (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
@@ -7026,14 +7026,14 @@ CreatureModelDataRec* CGUnit_C::GetModelData() const {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(displayId);
 
     if (!displayInfo) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "NOCREATUREDISPLAYIDFOUND|%d", displayId);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "NOCREATUREDISPLAYIDFOUND|%d", displayId);
         return nullptr;
     }
 
     CreatureModelDataRec* modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
 
     if (!modelData) {
-        SysMsgPrintf(SYSMSG_WARNING, 16, "INVALIDDISPLAYMODELRECORD|%d|%d", displayInfo->m_modelID, displayInfo->m_id);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_MODELS, "INVALIDDISPLAYMODELRECORD|%d|%d", displayInfo->m_modelID, displayInfo->m_id);
         return nullptr;
     }
 
@@ -9763,7 +9763,7 @@ void CGUnit_C::RefreshDataPointers() {
     this->m_displayInfo = g_creatureDisplayInfoDB.GetRecord(displayId);
 
     if (!this->m_displayInfo) {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "NOUNITDISPLAYID|%d|%s", displayId, this->GetUnitName(nullptr, 1));
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOUNITDISPLAYID|%d|%s", displayId, this->GetUnitName(nullptr, 1));
         this->m_displayInfo = g_creatureDisplayInfoDB.m_numRecords > 0 ? g_creatureDisplayInfoDB.m_records : nullptr;
     }
 
@@ -16939,7 +16939,7 @@ void CGUnit_C::HandleSpellEventSound() {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(this->m_castSpellId, &spell)) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "NOSPELLIDFOUND|%d", this->m_castSpellId);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", this->m_castSpellId);
         return;
     }
 
@@ -16947,7 +16947,7 @@ void CGUnit_C::HandleSpellEventSound() {
     const SpellVisualRec* visual = this->GetAppropriateSpellVisual(&spell, visualRec, 0, 0);
 
     if (!visual) {
-        SysMsgPrintf(SYSMSG_WARNING, 2, "SPELLVISUALIDNOTFOUND|%d", spell.m_spellVisualID[0]);
+        SysMsgPrintf(SYSMSG_WARNING, SYSMSG_FILTER_WORLD, "SPELLVISUALIDNOTFOUND|%d", spell.m_spellVisualID[0]);
         return;
     }
 

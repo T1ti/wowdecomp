@@ -158,7 +158,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
     if (display) {
         this->m_states[DESTRUCTIBLE_STATE_INTACT].m_modelName = display->m_modelName;
     } else {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building - Game object id %d is missing its display record %d", owner->m_obj->m_entryID, owner->m_gameObject->m_displayID);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Destructible building - Game object id %d is missing its display record %d", owner->m_obj->m_entryID, owner->m_gameObject->m_displayID);
     }
 
     this->m_modelData = g_destructibleModelDataDB.GetRecord(this->m_owner->GetPropertyValue(CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_DESTRUCTIBLE_DATA)));
@@ -179,7 +179,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
                     continue;
                 }
 
-                SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building - Game object id %d is missing its display record %d for state %d", this->m_owner->m_obj->m_entryID, this->m_owner->m_gameObject->m_displayID, i);
+                SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Destructible building - Game object id %d is missing its display record %d for state %d", this->m_owner->m_obj->m_entryID, this->m_owner->m_gameObject->m_displayID, i);
             }
 
             entry.m_displayId = this->m_states[i - 1].m_displayId;
@@ -236,7 +236,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
                     World::ObjectEnableCollision(this->m_rebuildEffect, 0);
                 }
             } else {
-                SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building - Game object id %d is missing its rebuild FX display record %d", this->m_owner->m_obj->m_entryID, this->m_owner->m_gameObject->m_displayID);
+                SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Destructible building - Game object id %d is missing its rebuild FX display record %d", this->m_owner->m_obj->m_entryID, this->m_owner->m_gameObject->m_displayID);
             }
         }
 
@@ -536,7 +536,7 @@ const char* CGGameObject_C::GetModelFileNameInternal() const {
         return rec->m_modelName;
     }
 
-    SysMsgPrintf(SYSMSG_ERROR, 2, "Game object id %d is missing its display record %d", this->m_obj->m_entryID, displayID);
+    SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Game object id %d is missing its display record %d", this->m_obj->m_entryID, displayID);
     return nullptr;
 }
 
@@ -2002,7 +2002,7 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
             break;
         default:
             this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Null), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Null(this);
-            SysMsgPrintf(SYSMSG_FATAL, 2, "BADBASEGAMEOBJECT|%d", this->m_gameObject->m_typeID);
+            SysMsgPrintf(SYSMSG_FATAL, SYSMSG_FILTER_WORLD, "BADBASEGAMEOBJECT|%d", this->m_gameObject->m_typeID);
             break;
     }
 
@@ -2197,7 +2197,7 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInit(bool reenable) {
 
         if (this->m_proxy.m_sphere.r < 0.001f) {
             this->m_proxy.m_sphere.r = 50.0f;
-            SysMsgPrintf(SYSMSG_ERROR, 2, "Destructible building WMO(%s) has invalid geobox", display->m_modelName);
+            SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Destructible building WMO(%s) has invalid geobox", display->m_modelName);
         }
 
         World::FindOrCreateDestructibleProxy(&this->m_proxy);
@@ -3210,7 +3210,7 @@ CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, int32_t waitLoad, u
     CMapBaseObj* object = CWorld::ObjectCreate(name, position, this->GetFacing(), waitLoad, 0, guid, doodadSetCount, doodadSets, nullptr, 0);
 
     if (!object) {
-        SysMsgPrintf(SYSMSG_ERROR, 2, "Game object (%d): failed to load: \"%s\"", this->m_obj->m_entryID, name);
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Game object (%d): failed to load: \"%s\"", this->m_obj->m_entryID, name);
     }
 
     return static_cast<CMapEntity*>(object);

@@ -275,7 +275,7 @@ static bool ErrorDisplayMaxLevelCallback(CVar* var, const char* oldValue, const 
 static void PrintFilterMask() {
     uint32_t filter = SysMsgGetFilter();
 
-    if (filter == 0xFFFFFFFF) {
+    if (filter == SYSMSG_FILTER_ALL) {
         ConsoleWrite("Now filtering: all messages", DEFAULT_COLOR);
         return;
     }
