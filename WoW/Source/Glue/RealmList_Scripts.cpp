@@ -20,15 +20,19 @@ static int32_t Script_RequestRealmList(lua_State* L) {
     return 0;
 }
 
+// RealmListUpdateRate results: seconds GlueXML waits before requesting the realm list again.
+static const double REALM_LIST_UPDATE_RATE_BATTLENET = 4.0;
+static const double REALM_LIST_UPDATE_RATE_GRUNT = 5.0;
+
 // VERIFY: 67f9da3d auto
 // OFFSET: 0x004DE450
 static int32_t Script_RealmListUpdateRate(lua_State* L) {
     if (ClientServices::LoginConnection() && ClientServices::LoginConnection()->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
-        lua_pushnumber(L, 4.0);
+        lua_pushnumber(L, REALM_LIST_UPDATE_RATE_BATTLENET);
         return 1;
     }
 
-    lua_pushnumber(L, 5.0);
+    lua_pushnumber(L, REALM_LIST_UPDATE_RATE_GRUNT);
     return 1;
 }
 
