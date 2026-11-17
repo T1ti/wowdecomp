@@ -115,9 +115,9 @@ class CMapChunk : public CMapBaseObj {
 
     CMapChunk();
     ~CMapChunk() override;
-    void Create(SIffChunk* headerChunk, bool a3);
+    void Create(SIffChunk* headerChunk, bool firstUse);
     void CreateRefs(CMapArea* mapChunk, uint32_t* mcrfPtr, uint32_t doodadRefs, uint32_t mapObjRefs);
-    void ProcessIffChunks(bool a3);
+    void ProcessIffChunks(bool firstUse);
     void CreateBounds();
     int32_t Intersect(int32_t subX, int32_t subY, const C3Ray& ray, float* t);
     void RenderPrep();
@@ -128,8 +128,8 @@ class CMapChunk : public CMapBaseObj {
     void UpdateLights();
     void GetVertexPosition(int32_t index, C3Vector* pos);
     void ClipBufferUpdate();
-    void CreateLiquids(bool a3);
-    void CreateSoundEmitters(bool a3);
+    void CreateLiquids(bool firstUse);
+    void CreateSoundEmitters(bool firstUse);
     void CreateDetailDoodads();
     int32_t LoadDetailDoodadModels();
     void GetLiquidBounds(CAaBox& box) const;

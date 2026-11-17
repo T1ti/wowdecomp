@@ -171,7 +171,7 @@ void CMapChunk::SelectLights(CM2Lighting* lighting) {
 
 // VERIFY: 092514c8 manual
 // OFFSET: 0x007C3A10
-void CMapChunk::ProcessIffChunks(bool a3) {
+void CMapChunk::ProcessIffChunks(bool firstUse) {
     SIffChunk* headerChunk = reinterpret_cast<SIffChunk*>(this->m_chunkInfoBeginPtr);
     this->m_header = reinterpret_cast<SMChunk*>(&headerChunk->m_data);
 
@@ -186,7 +186,7 @@ void CMapChunk::ProcessIffChunks(bool a3) {
             case SIffChunk::TOKEN_MCNR:
                 this->m_normals = reinterpret_cast<int8_t*>(data);
 
-                if (a3) {
+                if (firstUse) {
                     chunk->m_size = 448;
                 }
 
@@ -226,7 +226,7 @@ void CMapChunk::ProcessIffChunks(bool a3) {
             case SIffChunk::TOKEN_MCAL:
                 this->m_additionalShadowmap = data;
 
-                if (a3) {
+                if (firstUse) {
                     chunk->m_size = this->m_header->m_sizeAlpha - 8;
                 }
 
@@ -771,7 +771,7 @@ bool CMapChunk::GetLiquidHeight(const C2Vector& pos, float* height) const {
 
 // VERIFY: bb038337 manual
 // OFFSET: 0x007C5690
-void CMapChunk::CreateLiquids(bool a3) {
+void CMapChunk::CreateLiquids(bool firstUse) {
     CChunkLiquid* liquid = this->m_liquidChunkLinkList.Head();
 
     while (liquid) {
@@ -931,7 +931,7 @@ CMapChunk::CMapChunk() {
 
 // VERIFY: ecd160bb manual
 // OFFSET: 0x007C6060
-void CMapChunk::CreateSoundEmitters(bool a3) {
+void CMapChunk::CreateSoundEmitters(bool firstUse) {
     if (!this->m_soundHandleList.IsEnd(this->m_soundHandleList.Head())) {
         return;
     }
@@ -1017,9 +1017,9 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
 
 // VERIFY: 637523f5 manual
 // OFFSET: 0x007C64B0
-void CMapChunk::Create(SIffChunk* headerChunk, bool a3) {
+void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
     this->m_chunkInfoBeginPtr = reinterpret_cast<uint8_t*>(headerChunk);
-    this->ProcessIffChunks(a3);
+    this->ProcessIffChunks(firstUse);
 
     this->m_areaId = this->m_header->m_areaid;
     this->m_topLeftCoords.x = 17066.666f - this->m_cOffset.y * 33.333332f;
@@ -1030,8 +1030,8 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool a3) {
     this->m_noEffectDoodad = this->m_header->m_noEffectDoodad;
 
     this->CreateBounds();
-    this->CreateLiquids(a3);
-    this->CreateSoundEmitters(a3);
+    this->CreateLiquids(firstUse);
+    this->CreateSoundEmitters(firstUse);
 
     this->m_flags = MAPOBJ_FLAG_NONE;
 
