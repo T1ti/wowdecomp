@@ -46,7 +46,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
     CGlueLoading::m_loadStartTime = time;
 
     switch (CGlueLoading::m_loadState) {
-        case 1: {
+        case CGlueLoading::LOAD_STATE_LOADING: {
             int64_t loaded;
             int64_t total;
             float progress = CGlueLoading::ComputeLoadProgress(component, loaded, total);
@@ -60,7 +60,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
             bool done = false;
 
             if (loaded == total) {
-                CGlueLoading::m_loadState = 2;
+                CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_FINISHING;
                 CGlueLoading::m_loadCompleteTime = time + 250;
                 done = true;
             }
@@ -85,7 +85,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
             break;
         }
 
-        case 2: {
+        case CGlueLoading::LOAD_STATE_FINISHING: {
             CGlueLoading::m_loadProgress += elapsed * 4.0f;
 
             if (CGlueLoading::m_loadProgress > 1.0f) {
@@ -96,7 +96,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
 
             if (time > CGlueLoading::m_loadCompleteTime) {
                 LoadingScreenMiniDisable();
-                CGlueLoading::m_loadState = 3;
+                CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_DONE;
             }
 
             break;
@@ -120,7 +120,7 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgres
 
         if (loaded == total) {
             LoadingScreenMiniDisable();
-            CGlueLoading::m_loadState = 3;
+            CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_DONE;
         } else {
             if (component) {
                 CM2Model* model = component->m_data.m_model;
@@ -140,7 +140,7 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgres
 
             CGlueLoading::m_startProgress = keepProgress ? progress : 0.0f;
             CGlueLoading::m_loadProgress = progress;
-            CGlueLoading::m_loadState = 1;
+            CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_LOADING;
             CGlueLoading::m_loadStartTime = OsGetAsyncTimeMs();
         }
     } else {
@@ -149,6 +149,6 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgres
             component->m_data.m_model->IsDrawable(1, 1);
         }
 
-        CGlueLoading::m_loadState = 3;
+        CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_DONE;
     }
 }
