@@ -261,7 +261,7 @@ class CGCalendar {
     static int32_t GetMonth(int32_t offset, int32_t* month, int32_t* year, int32_t* days, int32_t* weekDay);
     static int32_t ClampAbsMonthDay(int32_t month, int32_t year, int32_t* outMonth, int32_t* outYear, int32_t* days, int32_t* weekDay);
     static bool ComputeEventIndex(const CalendarEventSelection* selection, int32_t* monthOffset, int32_t* day, int32_t* index);
-    static void CalculateEvents(bool a1);
+    static void CalculateEvents(bool signal);
     static void InitHolidays();
     static bool ValidateDate(const WowTime* date);
     static bool GetDayEvent(uint32_t offset, uint32_t day);

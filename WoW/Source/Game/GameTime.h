@@ -45,7 +45,7 @@ class CGameTime : public WowTime {
     TIMESTAMPCALLBACK* GameTimeRegisterCallback(const WowTime* time, void (__stdcall* callback)(CGameTime* time, void* param), void* param);
     float GameTimeSetMinutesPerSecond(float minutesPerSecond);
     void GameTimeSetTime(const WowTime& time, bool tick);
-    void GameTimeSync(const WowTime& time, bool a2);
+    void GameTimeSync(const WowTime& time, bool force);
     void GameTimeUpdate(float elapsed);
     bool IsDaytime();
     void TickMinute();

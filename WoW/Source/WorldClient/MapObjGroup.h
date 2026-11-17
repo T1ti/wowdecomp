@@ -310,7 +310,6 @@ class CMapObjGroup {
     bool GetTris(const C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     void GetTrisFromQuery(World::TriData* triData, BspQuery* query, CMapObjDef* mapObjDef, uint32_t statusFlags);
-    void GetTrisFromQuery(uint32_t a2, BspQuery* a3, CMapObjDef* mapObjDef, uint32_t a5);
     static void SetLighting(CMapObjGroup* group, uint32_t mode);
     bool Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, int32_t* hitIndex);
     bool GetFacesForLinking(C3Segment& seg, float* t0, int32_t* face0, float* t1, int32_t* face1);
@@ -409,9 +408,9 @@ class VBBList {
 
     void Destroy();
     VBBList_Block* AllocBlock();
-    void AllocVBB(VBBList_Block** a1, uint32_t itemSize, uint32_t itemCount);
+    void AllocVBB(VBBList_Block** slot, uint32_t itemSize, uint32_t itemCount);
     void FreeVBB(VBBList_Block* block);
-    void AssignBlock(VBBList_Block* a1, VBBList_Block** a2, uint32_t itemSize, uint32_t itemCount);
+    void AssignBlock(VBBList_Block* block, VBBList_Block** slot, uint32_t itemSize, uint32_t itemCount);
 };
 
 namespace World {

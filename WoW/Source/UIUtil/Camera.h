@@ -168,7 +168,7 @@ class CGCamera : public CSimpleCamera {
     void CalcTargetCamera(CGObject_C* target, uint32_t time);
     void FaceTarget(CGObject_C* target, uint32_t time);
     void SyncFreeLookFacing();
-    void UpdateFreeLookFacing(float x, float y, float* a3);
+    void UpdateFreeLookFacing(float x, float y, float* pitchOut);
     void SetTelescope(int32_t telescope);
     static int32_t UpdateCallback(const void* data, void* param);
     static int32_t CCommand_PitchLimit(const char* command, const char* arguments);

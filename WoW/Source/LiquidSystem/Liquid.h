@@ -357,7 +357,7 @@ namespace Liquid {
     void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     const char* GetShaderSuffix();
     C44Matrix* GetTexScrollMtx(const C2Vector& speed);
-    int32_t Initialize(int32_t a1, float a2, int32_t a3, const char* a4, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
+    int32_t Initialize(int32_t useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
     void InvalidateProceduralTextures();
     void SetCircularWave(uint32_t index, const C2Vector& a2, const C2Vector& a3, float a4, float a5, float a6, float speed);
     void SetDirectionalWave(uint32_t index, const C2Vector& direction, float a3, float a4, float a5, float speed);
