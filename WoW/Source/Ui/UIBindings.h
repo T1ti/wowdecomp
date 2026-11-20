@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Status.h"
 #include "Engine/Source/Event/Types.h"
 #include "Engine/Source/Os/OsFile.h"
@@ -101,9 +102,9 @@ class CGUIBindings {
     int32_t Bind(BINDING_SET set, BINDING_MODE mode, const char* key, const char* command);
     void ClearOverrideBindings(void* owner, bool checkPermission);
     void CopyBindings(BINDING_SET source, BINDING_SET dest);
-    void EnableBindingMode(BINDING_MODE mode, int32_t enable);
-    int32_t ExecCommand(const char* command, int32_t isDown, float pressure, int32_t allowPressure, int32_t isPressure, int32_t isAngle, float angle, float precision, const char* taint);
-    int32_t ExecKey(uint32_t modifiers, const char* key, int32_t isDown, int32_t allowPressure, BINDING_MODE mode);
+    void EnableBindingMode(BINDING_MODE mode, BOOL enable);
+    int32_t ExecCommand(const char* command, BOOL isDown, float pressure, BOOL allowPressure, BOOL isPressure, BOOL isAngle, float angle, float precision, const char* taint);
+    int32_t ExecKey(uint32_t modifiers, const char* key, BOOL isDown, BOOL allowPressure, BINDING_MODE mode);
     void FinishLoadBindings();
     const char* GetBindingCommand(KEYBINDING* binding, BINDING_MODE mode);
     int32_t GetBindingIndex(KEYBINDING* binding, BINDING_MODE mode);

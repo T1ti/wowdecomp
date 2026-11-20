@@ -1078,7 +1078,7 @@ int32_t CGUnit_C::DisplayInfoNeedsUpdate() {
 
 // VERIFY: 503fd361 manual
 // OFFSET: 0x0073E410
-void CGUnit_C::UpdateDisplayInfo(int32_t force) {
+void CGUnit_C::UpdateDisplayInfo(BOOL force) {
     if (!force && !this->DisplayInfoNeedsUpdate()) {
         return;
     }
@@ -2846,7 +2846,7 @@ void CGUnit_C::ClearLockedTarget() {
 
 // VERIFY: 0f134e5c auto
 // OFFSET: 0x0073AF80
-void CGUnit_C::PlayDeathAnimation(int32_t force) {
+void CGUnit_C::PlayDeathAnimation(BOOL force) {
     if (!force && IsDeadOrDyingAnim(this->GetCurrentTorsoAnimId())) {
         return;
     }
@@ -4078,7 +4078,7 @@ void CGUnit_C::UpdateWeaponTrails(const uint32_t* color, uint32_t duration) {
 
 // VERIFY: 03d43f0a manual
 // OFFSET: 0x0071E400
-int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, const M2BoneSequenceInfo* base, const M2BoneSequenceInfo* torso, int32_t hasTorso, M2BoneSequenceInfo* mountOut, M2BoneSequenceInfo* baseOut, M2BoneSequenceInfo* torsoOut, int32_t* keepBase, int32_t* keepTorso) {
+int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, const M2BoneSequenceInfo* base, const M2BoneSequenceInfo* torso, BOOL hasTorso, M2BoneSequenceInfo* mountOut, M2BoneSequenceInfo* baseOut, M2BoneSequenceInfo* torsoOut, int32_t* keepBase, int32_t* keepTorso) {
     CEffect* effect = this->m_effectList;
 
     while (true) {
@@ -4156,7 +4156,7 @@ int32_t CGUnit_C::ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, c
 
 // VERIFY: 9be483c3 manual
 // OFFSET: 0x00737EF0
-void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation) {
+void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, BOOL keepVariation) {
     uint32_t anim = slot->m_sequenceId;
     uint32_t playing = anim;
     bool casting = this->m_unit->m_unitChannelSpell || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING);
@@ -6910,7 +6910,7 @@ uint32_t CGUnit_C::GetCurrentMountAnimId() const {
 
 // VERIFY: ab38fe5b manual
 // OFFSET: 0x007173F0
-void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequenceInfo* base, M2BoneSequenceInfo* torso, int32_t keepFinished) const {
+void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequenceInfo* base, M2BoneSequenceInfo* torso, BOOL keepFinished) const {
     mount->m_sequenceId = ANIM_STAND;
     mount->m_variationIndex = 0;
     mount->m_time = 0;
@@ -8400,7 +8400,7 @@ float CGUnit_C::GetSmoothFacing() const {
 
 // VERIFY: 7a726f02 manual
 // OFFSET: 0x0071E340
-void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, int32_t force) const {
+void CGUnit_C::ChooseDefaultAnim(uint32_t& anim, BOOL force) const {
     CVehiclePassenger_C* passenger = this->m_vehiclePassenger;
 
     if (passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && passenger->GetLowerAnim(passenger->m_seatRec) != ANIM_COUNT) {
@@ -9247,7 +9247,7 @@ void CGUnit_C::UpdateWorldTransform(float elapsed) {
 
 // VERIFY: 315f8bea manual
 // OFFSET: 0x00735CC0
-void CGUnit_C::SetKeyBoneSequenceSpeed(CM2Model* model, uint32_t boneId, float speed, int32_t force) {
+void CGUnit_C::SetKeyBoneSequenceSpeed(CM2Model* model, uint32_t boneId, float speed, BOOL force) {
     if (!model) {
         return;
     }
@@ -9291,7 +9291,7 @@ void CGUnit_C::ReleaseEffectsBySpell(int32_t spellId) {
 
 // VERIFY: e1b2b150 manual
 // OFFSET: 0x00735820
-void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary, int32_t force) {
+void CGUnit_C::SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary, BOOL force) {
     if (!model) {
         return;
     }
@@ -12114,7 +12114,7 @@ const char* CGUnit_C::GetUnitName(const char** realm, int32_t followOverride) {
 
 // VERIFY: 0393d565 manual
 // OFFSET: 0x0072A290
-char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitle, int32_t* lines) {
+char* CGUnit_C::GetUnitChosenTitle(char* buffer, uint32_t size, BOOL showTitle, int32_t* lines) {
     if (lines) {
         *lines = 1;
     }
@@ -13886,7 +13886,7 @@ void CGUnit_C::SetLocalClientControl(bool control) {
 
 // VERIFY: 39443c6e auto
 // OFFSET: 0x0071D010
-int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, int32_t hasDisplayInfo) {
+int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, BOOL hasDisplayInfo) {
     this->m_characterComponent = CCharacterComponent::AllocComponent();
     ComponentData data;
 
@@ -17204,7 +17204,7 @@ void CGUnit_C::TriggerDamageFeedback() {
 
 // VERIFY: b7d9f2a8 manual
 // OFFSET: 0x0072BDB0
-int32_t CGUnit_C::VerifyAttackIconPressed(WOWGUID* target, int32_t useGiven, int32_t checkRange, bool autoTarget, bool showErrors) {
+int32_t CGUnit_C::VerifyAttackIconPressed(WOWGUID* target, BOOL useGiven, int32_t checkRange, bool autoTarget, bool showErrors) {
     if (this->IsDeadOrGhost()) {
         CGPlayer_C* player;
 
@@ -17395,7 +17395,7 @@ checkTarget:
 
 // VERIFY: 34778608 manual
 // OFFSET: 0x0072C2B0
-int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, int32_t useGiven) {
+int32_t CGUnit_C::OnAttackIconPressed(WOWGUID target, BOOL useGiven) {
     WOWGUID previousTarget = CGGameUI::m_lockedTarget;
     int32_t targetChanged = 0;
 
@@ -20753,7 +20753,7 @@ float CGUnit_C::GetScaledModelScale(const CreatureDisplayInfoRec* displayInfo, c
 
 // VERIFY: 1dce3fba manual
 // OFFSET: 0x00725F50
-int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force) {
+int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force) {
     if (this->m_obj->m_type & TYPE_PLAYER) {
         return static_cast<CGPlayer_C*>(this)->UpdateUnitCollisionBox(skipFitCheck, force);
     }
@@ -21416,7 +21416,7 @@ void CGUnit_C::DestroyUnitMount(int32_t updateCollisionBox) {
 
 // VERIFY: 842ee456 manual
 // OFFSET: 0x0073D5D0
-void CGUnit_C::CreateUnitMount(int32_t force, int32_t updateCollisionBox) {
+void CGUnit_C::CreateUnitMount(BOOL force, int32_t updateCollisionBox) {
     this->m_wheelMask = 0;
 
     if (!this->m_mountModel) {

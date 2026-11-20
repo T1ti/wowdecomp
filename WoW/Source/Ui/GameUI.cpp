@@ -2197,7 +2197,7 @@ CGPartyPetState* CGPartyMemberStateRepository::FindPetState(const WOWGUID& guid)
 
 // VERIFY: c132a45d auto
 // OFFSET: 0x0051FB80
-void CGGameUI::ScaleToScreenSize(int32_t width, int32_t height, int32_t force) {
+void CGGameUI::ScaleToScreenSize(int32_t width, int32_t height, BOOL force) {
     if (!force && CGGameUI::m_screenWidth > 0 && CGGameUI::m_screenWidth == width && CGGameUI::m_screenHeight > 0 && CGGameUI::m_screenHeight == height) {
         return;
     }
@@ -4974,7 +4974,7 @@ static int32_t ClosestObjectMatchProc(WOWGUID guid, void* param) {
 
 // VERIFY: 3d96dbfb manual
 // OFFSET: 0x00520190
-WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems) {
+WOWGUID CGGameUI::ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, BOOL ignoreHostileTotems) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (!player) {
@@ -5166,7 +5166,7 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
 
 // VERIFY: 72ff3550 manual
 // OFFSET: 0x00524FC0
-void TargetNearestEnemy(int32_t reverse, UNIT_TARGET_TYPE type) {
+void TargetNearestEnemy(BOOL reverse, UNIT_TARGET_TYPE type) {
     while (true) {
         if (lua_tainted) {
             CGGameUI::ShowBlockedActionFeedback(nullptr, BLOCKED_ACTION_FORBIDDEN);
@@ -5671,7 +5671,7 @@ void CGGameUI::CloseLoot(bool sendRelease, bool interrupted, bool showNoUIError)
 
 // VERIFY: 5fa8caad auto
 // OFFSET: 0x00524600
-void CGGameUI::SetRegenEnabled(int32_t enabled) {
+void CGGameUI::SetRegenEnabled(BOOL enabled) {
     if (enabled) {
         CGGameUI::m_simpleTop->m_allowProtectedActions = 1;
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_REGEN_ENABLED, nullptr);

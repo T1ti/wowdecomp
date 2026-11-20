@@ -816,7 +816,7 @@ void BlizzardObject::SetFrameOfReference(const C44Matrix* matrix) {
 
 // VERIFY: 46a85d71 manual
 // OFFSET: 0x007FB2D0
-void BlizzardObject::Render(int32_t visible) {
+void BlizzardObject::Render(BOOL visible) {
     C3Vector position(0.0f, 0.0f, 0.0f);
 
     for (Shard* shard = this->m_shards.Head(); shard; shard = this->m_shards.Next(shard)) {

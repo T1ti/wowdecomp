@@ -191,7 +191,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     public:
     // UpdateAmmoModel request marker: infer AMMO/THROWN from the ranged item.
     static constexpr uint32_t AUTO_AMMO_INVENTORY_TYPE = 30;
-    int32_t InitializeExtendedDisplay(CGPlayer_C* player, int32_t hasDisplayInfo);
+    int32_t InitializeExtendedDisplay(CGPlayer_C* player, BOOL hasDisplayInfo);
     void ApplyComponentItemsFromEffects();
     void AddHandItem(int32_t hand);
     void ClearWeaponTrail(int32_t hand);
@@ -475,7 +475,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     virtual void GetDNDText(char* buffer, uint32_t size) const;
     virtual void GetGMText(char* buffer, uint32_t size) const;
     virtual void GetDevText(char* buffer, uint32_t size) const;
-    virtual void PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force);
+    virtual void PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force);
     virtual void PlayFoleySound();
     virtual uint32_t GetImpactType() const;
     virtual const CGUnitVirtualItem* GetDefendingItem() const;
@@ -529,7 +529,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     const char* GetObjectName() const override;
     BOOL ShouldRenderObjectName(uint32_t flags) const override;
     void OnRightClick() override;
-    void UpdateDisplayInfo(int32_t force) override;
+    void UpdateDisplayInfo(BOOL force) override;
     int32_t Animate(float elapsed) override;
     void ModelLoaded(CM2Model* model) override;
     void ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) override;
@@ -649,7 +649,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     uint32_t GetCurrentTorsoAnimId() const;
     uint32_t GetCurrentBaseAnimId() const;
     uint32_t GetCurrentMountAnimId() const;
-    void GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequenceInfo* base, M2BoneSequenceInfo* torso, int32_t keepFinished) const;
+    void GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequenceInfo* base, M2BoneSequenceInfo* torso, BOOL keepFinished) const;
     int32_t FindDefaultAnimForTier(int32_t tier, uint32_t* anim) const;
     CreatureModelDataRec* GetModelData() const;
     BOOL CanBeLooted(uint32_t time) const;
@@ -733,7 +733,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ResetSmoothFacing();
     float GetSmoothFacing() const;
     void UpdateSmoothFacing(float* facingOffset);
-    void ChooseDefaultAnim(uint32_t& anim, int32_t force) const;
+    void ChooseDefaultAnim(uint32_t& anim, BOOL force) const;
     void UpdateSelectionRadius();
     void OnRemoteMissileTrajectoryCollision(MissileCollisionData* data);
     UNIT_REACTION UnitReaction(const CGCorpse_C* corpse) const;
@@ -799,7 +799,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     bool GetFlashColor(uint32_t time, CImVector& color);
     BOOL IsFacingUnchangedSinceSent() const;
     bool ShouldKneelForLoot() const;
-    void SetVehicleExitVoluntary(int32_t enable);
+    void SetVehicleExitVoluntary(BOOL enable);
     void VehicleExit();
     void VehiclePrevSeat();
     void VehicleNextSeat();
@@ -820,9 +820,9 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWGUID transport, uint8_t seat);
     BOOL IsInFrontOfTargetWithGuid(const WOWGUID& guid) const;
     void UpdateWorldTransform(float elapsed);
-    void SetKeyBoneSequenceSpeed(CM2Model* model, uint32_t boneId, float speed, int32_t force);
+    void SetKeyBoneSequenceSpeed(CM2Model* model, uint32_t boneId, float speed, BOOL force);
     void ReleaseEffectsBySpell(int32_t spellId);
-    void SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary, int32_t force);
+    void SetKeyBoneSequence(CM2Model* model, uint32_t boneId, uint32_t sequenceId, uint32_t variation, uint32_t time, float speed, int32_t blend, int32_t primary, BOOL force);
     BOOL UnsetKeyBoneSequence(CM2Model* model, uint32_t boneId, BOOL blend, BOOL primary, BOOL force);
     void SetBoneSequenceTimeRecursive(CM2Model* model, uint32_t boneId, uint32_t time, BOOL force);
     void UpdateBoneSequenceFlags(CM2Model* model, BOOL freeze, BOOL force);
@@ -864,7 +864,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void OnAiReaction(int32_t reaction);
     void DoPowerRegen(POWER_TYPE powerType, uint32_t elapsed);
     void DoPowerRegen(uint32_t elapsed);
-    char* GetUnitChosenTitle(char* buffer, uint32_t size, int32_t showTitle, int32_t* lines);
+    char* GetUnitChosenTitle(char* buffer, uint32_t size, BOOL showTitle, int32_t* lines);
     void RequestTalkEmote(TALKANIMATION index);
     void ChatBubbleShow(int32_t type, const char* text);
     void ChatBubbleRemove();
@@ -890,8 +890,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void UpdateDisplay(uint32_t time);
     void UpdateMissileTrajectory();
     void OnVehicleCameraPossiblyUnneeded();
-    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force);
-    void CreateUnitMount(int32_t force, int32_t updateCollisionBox);
+    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force);
+    void CreateUnitMount(BOOL force, int32_t updateCollisionBox);
     void ShowLootEffect();
     void CompleteMountTransition();
     void RefreshComponentItem(int32_t itemSlot);
@@ -959,7 +959,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     int32_t GetSpellVisualKitAnim(uint32_t* anim, SpellVisualKitRec::KIT_FLAGS* kitFlags);
     uint32_t ResolveAnimForModel(uint32_t animId, CM2Model* model);
     void ClearLockedTarget();
-    void PlayDeathAnimation(int32_t force);
+    void PlayDeathAnimation(BOOL force);
     static UNIT_REACTION UnitReaction(int32_t factionTemplate, const CGUnit_C* unit);
     bool IsFriendly(const CGUnit_C* unit) const;
     bool IsHatedTowards(const CGUnit_C* unit) const;
@@ -967,8 +967,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     bool IsVehiclePassengerSeated() const;
     const VehicleSeatRec* GetPassengerSeatRec() const;
     void UpdateWeaponTrails(const uint32_t* color, uint32_t duration);
-    int32_t ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, const M2BoneSequenceInfo* base, const M2BoneSequenceInfo* torso, int32_t hasTorso, M2BoneSequenceInfo* mountOut, M2BoneSequenceInfo* baseOut, M2BoneSequenceInfo* torsoOut, int32_t* keepBase, int32_t* keepTorso);
-    void ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, int32_t keepVariation);
+    int32_t ApplyAttachmentAnimOverride(const M2BoneSequenceInfo* mount, const M2BoneSequenceInfo* base, const M2BoneSequenceInfo* torso, BOOL hasTorso, M2BoneSequenceInfo* mountOut, M2BoneSequenceInfo* baseOut, M2BoneSequenceInfo* torsoOut, int32_t* keepBase, int32_t* keepTorso);
+    void ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentAnim, int32_t torso, uint32_t previousAnim, int32_t blend, BOOL keepVariation);
     BOOL ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim);
     void UpdateHandItemAnimEffects(bool force);
     void ShowHandItemSpellEffects(BOOL show, BOOL force);
@@ -1027,8 +1027,8 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void SpellInterrupted(uint8_t castCount, int32_t spellId);
     void ResetUICastingSpell();
     void OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t sequenceId);
-    int32_t OnAttackIconPressed(WOWGUID target, int32_t useGiven);
-    int32_t VerifyAttackIconPressed(WOWGUID* target, int32_t useGiven, int32_t checkRange, bool autoTarget, bool showErrors);
+    int32_t OnAttackIconPressed(WOWGUID target, BOOL useGiven);
+    int32_t VerifyAttackIconPressed(WOWGUID* target, BOOL useGiven, int32_t checkRange, bool autoTarget, bool showErrors);
     void AddAuraSlot(uint8_t slot);
     void SortAuras();
     void ReleaseAurasBySpell(int32_t spellId);

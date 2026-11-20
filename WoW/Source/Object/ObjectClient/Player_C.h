@@ -141,8 +141,8 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
 
     void DanceMoveAnimComplete();
     static int32_t IsXRayVisionActive();
-    void AddKnownSpell(int32_t spellId, int32_t slot, int32_t notify, int32_t addToSpellBook);
-    void AutoEquipItem(WOWGUID container, uint32_t slot, int32_t ignoreBind);
+    void AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32_t addToSpellBook);
+    void AutoEquipItem(WOWGUID container, uint32_t slot, BOOL ignoreBind);
     void TurnOffGuildTabardPurchase();
     static int32_t GetNewContinentID();
     void CountEquippedGems();
@@ -170,7 +170,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static int32_t s_turnInArenaCharter;
     void TurnInGuildCharter();
     int32_t TurnInArenaCharter(int32_t turnIn);
-    static void __stdcall ClearAFK(int32_t force);
+    static void __stdcall ClearAFK(BOOL force);
     static void __stdcall ClearPartyAssignment(uint8_t assignment, WOWGUID guid);
     static void __stdcall CompleteQuest(const WOWGUID& questGiver, int32_t questId);
     static void __stdcall DeclineArenaTeam();
@@ -346,7 +346,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     ~CGPlayer_C() override;
     void Disable() override;
     void OnSpellEffectClear(CEffect* effect) override;
-    void PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) override;
+    void PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) override;
     void PlayFoleySound() override;
     const CGUnitVirtualItem* GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, bool ignoreDisarm) const override;
     uint32_t GetVirtualItemDisplayID(VIRTUAL_MONSTER_SLOT slot) const override;
@@ -383,8 +383,8 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     int32_t CheckBinderDistance();
     int32_t CheckSpiritHealerDistance();
     int32_t CheckTalentMasterDistance();
-    void AutoEquipCursorItem(int32_t ignoreBind);
-    void AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, int32_t ignoreBind);
+    void AutoEquipCursorItem(BOOL ignoreBind);
+    void AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, BOOL ignoreBind);
     void ClearPendingEquip(uint32_t index, int32_t equip);
     void GroupInvite(const char* name, uint32_t flags);
     CGItem_C* GetSoulstone();
@@ -401,7 +401,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void GiftWrap(CGItem_C* item);
     void SplitItem(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstContainer, uint32_t dstSlot, uint32_t count);
     void SwapGuildBankItem(int32_t itemId, uint32_t virtualSlot, uint8_t bag, uint8_t slot, uint32_t count);
-    void SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstContainer, uint32_t dstSlot, int32_t ignoreBind);
+    void SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstContainer, uint32_t dstSlot, BOOL ignoreBind);
     int32_t ValidateSlot(uint32_t slot, WOWGUID item);
     bool GetPackAndSlot(const CGItem_C* item, uint8_t* bag, uint8_t* slot);
     void OpenLootItem(CGItem_C* item);
@@ -444,8 +444,8 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     float GetModDamageDonePct(int32_t school) const;
     const CGItem_C* EquippedItemMeetSpellRequirements(const SpellRec* spell, uint32_t slotMask);
     int32_t HasZoneExplored(int32_t zone);
-    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force);
-    int32_t UpdateMountedCollisionBox(float mountHeight, int32_t force);
+    int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force);
+    int32_t UpdateMountedCollisionBox(float mountHeight, BOOL force);
     int32_t IsCommentatorUberOrInArena() const;
     int32_t IsInMelee() const;
     void OnLootGameObject(const WOWGUID& guid);
@@ -504,7 +504,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     int32_t CanUseItem(const ItemStats_C* stats, int32_t& error);
     static void BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t unknown5);
     int32_t OnItemRefundResult(CDataStore* msg);
-    void DelKnownSpell(int32_t spellId, int32_t silent);
+    void DelKnownSpell(int32_t spellId, BOOL silent);
     bool VehicleAllowsInteraction() const;
     void SetAutoLoot(int32_t autoLoot);
     bool CanInteract(const CGUnit_C* unit) const;
@@ -512,7 +512,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void HandleSkinning(CGObject_C* object, bool autoInteract, bool updateAutoLoot);
     void HandleOnRightClick(CGUnit_C* unit, bool autoInteract);
     bool CTMAttackUnit(CGUnit_C* unit);
-    void CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int32_t silent);
+    void CombatModeEnter(const WOWGUID& target, int32_t queueRanged, BOOL silent);
     void MeleeModeEnter(const WOWGUID& target);
     void ExitAutoCombatMode();
     void OnLevelChange();

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Os/OsURLDownload.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -153,7 +154,7 @@ class CGlueMgr {
     static void FactionChange(WOWGUID guid, const CHARACTER_CREATE_INFO* info);
     static WOWGUID GetActive();
     static void GetCharacterList();
-    static void GetRealmList(int32_t showDialog);
+    static void GetRealmList(BOOL showDialog);
     static int32_t HandleBattlenetDisconnect();
     static int32_t NetDisconnectHandler(NetClient* client);
     static void HandleDisplaySizeChanged(const CSizeEvent& event);

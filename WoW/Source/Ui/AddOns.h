@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_ADDONS_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/UIUtil/Types.h"
 
@@ -35,7 +36,7 @@ void LoadAddOns(CStatus* status);
 void UnloadAddOns();
 void SaveAddOnEnableState();
 bool IsAddonVersionCheckEnabled();
-void SetAddonVersionCheck(int32_t enable);
+void SetAddonVersionCheck(BOOL enable);
 const char* GetAddOnURL(const char* name);
 bool IsAddOnUpdateAvailable(const char* name);
 

@@ -1134,7 +1134,7 @@ void CGRaidInfo::ClearRoster() {
 
 // VERIFY: 9403a697 manual
 // OFFSET: 0x00573070
-void CGRaidInfo::EnableMember(CGPlayer_C* player, int32_t enable) {
+void CGRaidInfo::EnableMember(CGPlayer_C* player, BOOL enable) {
     WOWGUID guid = player->m_obj->m_guid;
     uint32_t index;
 

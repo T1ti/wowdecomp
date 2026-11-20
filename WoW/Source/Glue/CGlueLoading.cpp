@@ -112,7 +112,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
 
 // VERIFY: 57ed6fc9 manual
 // OFFSET: 0x004E6AE0
-void CGlueLoading::StartLoad(CCharacterComponent* component, int32_t keepProgress) {
+void CGlueLoading::StartLoad(CCharacterComponent* component, BOOL keepProgress) {
     if (SFile::IsTrial()) {
         int64_t loaded;
         int64_t total;

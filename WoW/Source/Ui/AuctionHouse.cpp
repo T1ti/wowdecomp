@@ -1191,7 +1191,7 @@ void CGAuctionHouse::SortBidderList(int32_t column) {
 
 // VERIFY: a9ee9c34 manual
 // OFFSET: 0x0059D0B0
-bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, int32_t showError) {
+bool CGAuctionHouse::IsSellItemValid(CGItem_C* item, BOOL showError) {
     UIErrors error;
     WOWGUID none = WOWGUID();
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);

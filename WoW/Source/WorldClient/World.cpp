@@ -853,7 +853,7 @@ uint32_t World::GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModel
 
 // VERIFY: fbdca5c7 auto
 // OFFSET: 0x0077F500
-void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, int32_t forceProjection) {
+void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, BOOL forceProjection) {
     if (forceProjection || (CWorld::enables2 & Enable_ProjectedTextures)) {
         ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? PROJECT_TEX_MATERIAL_COLOR : PROJECT_TEX_NONE, 0.40000001f);
     }
@@ -861,7 +861,7 @@ void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, in
 
 // VERIFY: 7b66e8de auto
 // OFFSET: 0x0077FE20
-void World::ObjectSetAlwaysExterior(CMapBaseObj* object, int32_t enable) {
+void World::ObjectSetAlwaysExterior(CMapBaseObj* object, BOOL enable) {
     if (enable) {
         object->m_flags = static_cast<MapObjFlag>(object->m_flags | MAPOBJ_FLAG_NO_MAPOBJ_LINK);
     } else {
@@ -881,7 +881,7 @@ int32_t World::ObjectMoveDoodads(CMapBaseObj* source, uint16_t doodadSet, CMapBa
 
 // VERIFY: dcda60dd auto
 // OFFSET: 0x0077FE80
-void World::ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, int32_t ignore, uint16_t doodadSet) {
+void World::ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, BOOL ignore, uint16_t doodadSet) {
     if (object->m_type & CMapBaseObj::Type_MapObjDef) {
         CMapObjDef::SetDoodadEmittersIgnoresDistance(static_cast<CMapObjDef*>(object), ignore, doodadSet);
     }
@@ -889,7 +889,7 @@ void World::ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, int32_t 
 
 // VERIFY: 35100e77 auto
 // OFFSET: 0x0077FEA0
-void World::ObjectSetDoodadsEnabled(CMapBaseObj* object, int32_t enable, uint16_t doodadSet) {
+void World::ObjectSetDoodadsEnabled(CMapBaseObj* object, BOOL enable, uint16_t doodadSet) {
     if (object->m_type & CMapBaseObj::Type_MapObjDef) {
         CMapObjDef::SetDoodadsEnabled(static_cast<CMapObjDef*>(object), enable, doodadSet);
     }
@@ -939,7 +939,7 @@ int32_t World::ObjectIsWMO(CMapBaseObj* object) {
 
 // VERIFY: 740254e1 auto
 // OFFSET: 0x007801A0
-void World::ObjectEnableCollision(CMapBaseObj* object, int32_t enable) {
+void World::ObjectEnableCollision(CMapBaseObj* object, BOOL enable) {
     if (enable) {
         object->m_flags = static_cast<MapObjFlag>(object->m_flags & ~MAPOBJ_FLAG_NO_HITTEST);
     } else {
@@ -1018,7 +1018,7 @@ void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphe
 
 // VERIFY: d0b5cfbd manual
 // OFFSET: 0x00781500
-void World::Preload(const C3Vector& position, int32_t showLoading) {
+void World::Preload(const C3Vector& position, BOOL showLoading) {
     World::PrepareAreaOfInterest(position);
     s_preloadX = FLT_MAX;
     s_preloadY = FLT_MAX;
@@ -2398,7 +2398,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
 
 // VERIFY: 91948de5 manual
 // OFFSET: 0x00793270
-void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, int32_t force, int32_t interior) {
+void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, BOOL force, int32_t interior) {
     s_entityCanLink = 0;
 
     CMapBaseObjLink* link = linkList->Head();
@@ -4243,7 +4243,7 @@ void World::TickObject(CMapEntity* entity) {
 
 // VERIFY: 8b1b26ac manual
 // OFFSET: 0x0077F2F0
-void World::ObjectSetHidden(CMapEntity* entity, int32_t hidden) {
+void World::ObjectSetHidden(CMapEntity* entity, BOOL hidden) {
     entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN) | ((hidden & 1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN : 0u);
 }
 
@@ -4986,7 +4986,7 @@ void CWorldScene::RenderHorizon() {
 
 // VERIFY: 8f0548db manual
 // OFFSET: 0x00783A60
-void World::ObjectSetRenderEnabled(CMapBaseObj* object, int32_t enable) {
+void World::ObjectSetRenderEnabled(CMapBaseObj* object, BOOL enable) {
     if (enable) {
         object->m_flags = static_cast<MapObjFlag>(object->m_flags & ~MAPOBJ_FLAG_DISABLED);
     } else {
@@ -5228,7 +5228,7 @@ int32_t World::QueryOutdoors(CMapEntity* entity) {
 
 // VERIFY: 4fb148c8 auto
 // OFFSET: 0x00783500
-CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, float facing, int32_t waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id) {
+CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, float facing, BOOL waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id) {
     const char* extension = SStrChrR(name, '.');
 
     if (extension && !SStrCmpI(extension, ".wmo", STORM_MAX_STR)) {

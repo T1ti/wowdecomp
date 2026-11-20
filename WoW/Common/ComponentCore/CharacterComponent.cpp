@@ -3338,7 +3338,7 @@ void CCharacterComponent::PasteTransparent8BitScale(HTEXTURECACHE texture, MipBi
 
 // VERIFY: 48812964 auto
 // OFFSET: 0x004ED640
-bool CCharacterComponent::VariationsLoaded(int32_t wait) {
+bool CCharacterComponent::VariationsLoaded(BOOL wait) {
     TCTEXTUREINFO info;
     info.m_width = 0;
     info.m_height = 0;
@@ -3361,7 +3361,7 @@ bool CCharacterComponent::VariationsLoaded(int32_t wait) {
 
 // VERIFY: 904485bb manual
 // OFFSET: 0x004ED6D0
-bool CCharacterComponent::ItemsLoaded(int32_t wait) {
+bool CCharacterComponent::ItemsLoaded(BOOL wait) {
     bool loaded = true;
     TCTEXTUREINFO info;
     info.m_width = 0;
@@ -5107,7 +5107,7 @@ void CCharacterComponent::RenderPrepSections() {
 
 // VERIFY: e78118c6 manual
 // OFFSET: 0x004F1520
-bool CCharacterComponent::RenderPrep(int32_t wait) {
+bool CCharacterComponent::RenderPrep(BOOL wait) {
     if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
             this->GeosRenderPrep();
@@ -5252,7 +5252,7 @@ int32_t CCharacterComponent::Update(const void* data, void* param) {
 
 // VERIFY: fa1ec921 manual
 // OFFSET: 0x004F1A20
-bool CCharacterComponent::Initialize(EGxTexFormat format, uint32_t mipLevels, int32_t useThread, int32_t useCompression) {
+bool CCharacterComponent::Initialize(EGxTexFormat format, uint32_t mipLevels, BOOL useThread, BOOL useCompression) {
     s_componentHeap = new (__FILE__, __LINE__) uint32_t(ObjectAllocAddHeap(sizeof(CCharacterComponent), 32, "CCharacterComponent", true));
     s_pathEnd = s_path;
     s_pathEnd2 = s_path2;

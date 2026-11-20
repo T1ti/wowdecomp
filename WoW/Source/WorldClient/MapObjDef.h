@@ -4,6 +4,7 @@
 #include "Engine/Source/Model2/M2Model.h"
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -63,8 +64,8 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     static void UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, float facing, float pitch, float roll);
     static void LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, int32_t testBounds);
     static int32_t MoveDoodadDefs(CMapObjDef* source, uint16_t doodadSet, CMapObjDef* target, uint16_t targetDoodadSet);
-    static void SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t ignore, uint16_t doodadSet);
-    static void SetDoodadsEnabled(CMapObjDef* mapObjDef, int32_t enable, uint16_t doodadSet);
+    static void SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ignore, uint16_t doodadSet);
+    static void SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t doodadSet);
     void SetEventCallback(M2EventCallback callback, uint64_t param, uint16_t doodadSet);
     /* 003C */ C3Vector m_position;
     /* 0048 */ CAaBox m_bbox;

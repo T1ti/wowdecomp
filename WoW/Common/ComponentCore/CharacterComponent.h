@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/DB/Rec/CharSectionsRec.h"
 #include "Engine/Source/BLPFile/Types.h"
 #include "Engine/Source/Gx/Types.h"
@@ -150,7 +151,7 @@ class CCharacterComponent {
     static char* GetTabardBorderFileName(COMPONENT_SECTIONS section, int32_t border, int32_t color, char* buffer, int32_t size);
     static char* GetTabardEmblemFileName(COMPONENT_SECTIONS section, int32_t emblem, int32_t color, char* buffer, int32_t size);
     static bool Initialize();
-    static bool Initialize(EGxTexFormat format, uint32_t mipLevels, int32_t useThread, int32_t useCompression);
+    static bool Initialize(EGxTexFormat format, uint32_t mipLevels, BOOL useThread, BOOL useCompression);
     static CM2Model* MakeAmmoModel(CM2Model* model, const ItemDisplayInfoRec* displayRec, uint32_t invType);
     static void Paste(HTEXTURECACHE texture, MipBits* dstMips, const C2iVector& dstPos, const C2iVector& srcPos, const C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel);
     static void PasteCrappyGreen(MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset);
@@ -230,7 +231,7 @@ class CCharacterComponent {
     bool Init(ComponentData* data, const char* debug);
     bool IsHelmModelCorrect();
     bool IsQuiverModelCorrect();
-    bool ItemsLoaded(int32_t wait);
+    bool ItemsLoaded(BOOL wait);
     void LoadBaseVariation(CHARTEXTUREVARIATIONS variation, int32_t textureIndex, int32_t variationIndex, int32_t colorIndex, COMPONENT_SECTIONS section, const char* debug);
     HTEXTURECACHE LoadItemComponentTexture(const ItemDisplayInfoRec* displayRec, COMPONENT_SECTIONS section);
     void Prep();
@@ -239,7 +240,7 @@ class CCharacterComponent {
     void RemoveItem(ITEM_SLOT itemSlot);
     void RemoveItemBySlot(INVENTORY_SLOTS invSlot);
     void RemoveItemByType(INVENTORY_TYPES invType);
-    bool RenderPrep(int32_t wait);
+    bool RenderPrep(BOOL wait);
     void RenderPrepAL();
     void RenderPrepAll();
     void RenderPrepAU();
@@ -296,7 +297,7 @@ class CCharacterComponent {
     void UpdateItemTU(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply);
     void UpdateSections();
     int32_t UpdateTextureSlot(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t layer);
-    bool VariationsLoaded(int32_t wait);
+    bool VariationsLoaded(BOOL wait);
 };
 
 bool ComponentVarHandler(CVar* var, const char* oldValue, const char* value, void* arg);

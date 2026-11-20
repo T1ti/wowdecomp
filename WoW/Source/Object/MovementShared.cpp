@@ -101,7 +101,7 @@ CMovementShared::CMovementShared(const WOWGUID& transportGuid, const C3Vector& p
 
 // VERIFY: 6ed825ce auto
 // OFFSET: 0x009880C0
-void CMovementShared::CalcCurrentSpeed(int32_t force) {
+void CMovementShared::CalcCurrentSpeed(BOOL force) {
     if (!(this->m_flags & MOVEMENTFLAG_FALLING) || force) {
         this->m_currentSpeed = this->GetBaseSpeed(force);
     }
@@ -174,7 +174,7 @@ void CMovementShared::ComputeSplineDurationModifier(float progress) {
 
 // VERIFY: dfbd51e3 manual
 // OFFSET: 0x00987EF0
-void CMovementShared::CalcDirection(int32_t force) {
+void CMovementShared::CalcDirection(BOOL force) {
     if ((this->m_flags & MOVEMENTFLAG_FALLING) && !force) {
         return;
     }
@@ -480,7 +480,7 @@ void CMovementShared::ClearSplineEnabled() {
 
 // VERIFY: 376f5cc2 manual
 // OFFSET: 0x0098B310
-int32_t CMovementShared::EnableGravity(int32_t enable) {
+int32_t CMovementShared::EnableGravity(BOOL enable) {
     uint32_t flags = this->m_flags;
     uint32_t newFlags = enable ? flags & ~MOVEMENTFLAG_DISABLE_GRAVITY : flags | MOVEMENTFLAG_DISABLE_GRAVITY;
     this->m_flags = newFlags;
@@ -495,7 +495,7 @@ int32_t CMovementShared::EnableGravity(int32_t enable) {
 
 // VERIFY: 35440c64 auto
 // OFFSET: 0x00987440
-void CMovementShared::FeatherFall(int32_t enable) {
+void CMovementShared::FeatherFall(BOOL enable) {
     if (enable) {
         this->m_flags |= MOVEMENTFLAG_SAFE_FALL;
     } else {
@@ -607,7 +607,7 @@ float CMovementShared::GetModifiedSplineDuration() const {
 
 // VERIFY: f513badf manual
 // OFFSET: 0x006E9870
-NETMESSAGE CMovementShared::GetMoveEventMsgId(uint32_t oldFlags, int32_t ignoreJump) const {
+NETMESSAGE CMovementShared::GetMoveEventMsgId(uint32_t oldFlags, BOOL ignoreJump) const {
     uint32_t flags = this->m_flags;
     uint32_t changed = flags ^ oldFlags;
 
@@ -640,7 +640,7 @@ NETMESSAGE CMovementShared::GetMoveEventMsgId(uint32_t oldFlags, int32_t ignoreJ
 
 // VERIFY: 7e64f279 auto
 // OFFSET: 0x00987460
-void CMovementShared::Hover(int32_t enable) {
+void CMovementShared::Hover(BOOL enable) {
     if (enable) {
         this->m_flags = this->m_flags & ~MOVEMENTFLAG_SPLINE_ELEVATION | MOVEMENTFLAG_HOVER;
     } else {
@@ -1155,7 +1155,7 @@ void CMovementShared::SetSplineEnabled() {
 
 // VERIFY: eb9a83e4 auto
 // OFFSET: 0x0098B590
-void CMovementShared::SetAnimTierInTrans(int32_t enable) {
+void CMovementShared::SetAnimTierInTrans(BOOL enable) {
     if (enable) {
         this->m_flags2 |= MOVEMENTFLAG2_ANIM_TIER_IN_TRANS;
     } else {
@@ -1165,7 +1165,7 @@ void CMovementShared::SetAnimTierInTrans(int32_t enable) {
 
 // VERIFY: 9e882e99 auto
 // OFFSET: 0x0098B570
-void CMovementShared::SetJumpSplineInAir(int32_t enable) {
+void CMovementShared::SetJumpSplineInAir(BOOL enable) {
     if (enable) {
         this->m_flags2 |= MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR;
     } else {
@@ -1175,7 +1175,7 @@ void CMovementShared::SetJumpSplineInAir(int32_t enable) {
 
 // VERIFY: 7691e079 auto
 // OFFSET: 0x0098B5B0
-void CMovementShared::SetVehicleExitVoluntary(int32_t enable) {
+void CMovementShared::SetVehicleExitVoluntary(BOOL enable) {
     if (enable) {
         this->m_flags2 |= MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY;
     } else {
@@ -1185,7 +1185,7 @@ void CMovementShared::SetVehicleExitVoluntary(int32_t enable) {
 
 // VERIFY: b3738b01 manual
 // OFFSET: 0x00988A20
-int32_t CMovementShared::StartMove(int32_t forward, int32_t force) {
+int32_t CMovementShared::StartMove(int32_t forward, BOOL force) {
     this->m_flags &= ~(MOVEMENTFLAG_PENDING_STOP | MOVEMENTFLAG_PENDING_FORWARD | MOVEMENTFLAG_PENDING_BACKWARD);
     uint32_t flags = this->m_flags;
     int32_t falling = 0;
@@ -1335,7 +1335,7 @@ float CMovementShared::TimeToJumpPeak() const {
 
 // VERIFY: 1e261ca6 auto
 // OFFSET: 0x009881D0
-void CMovementShared::UpdateAnchors(int32_t force) {
+void CMovementShared::UpdateAnchors(BOOL force) {
     this->m_anchorFacing = this->m_facing;
     this->m_anchorPos = this->m_position;
     this->m_anchorPitch = this->m_pitch;
@@ -1414,7 +1414,7 @@ uint64_t CMovementShared::UpdateTransportStatus(const CMovementStatus& status) {
 
 // VERIFY: a88b400e manual
 // OFFSET: 0x009873F0
-void CMovementShared::WalkOnWater(int32_t enable) {
+void CMovementShared::WalkOnWater(BOOL enable) {
     if (enable) {
         this->m_flags |= MOVEMENTFLAG_WATERWALKING;
     } else {

@@ -271,7 +271,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     void AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPortalExt* ext, TSGrowableArray<CPortalView>* views);
     void RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& ndcRect, uint32_t depth, int32_t interior);
     void RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* groups);
-    bool VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, int32_t useSphere);
+    bool VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, BOOL useSphere);
     void RenderThruPortalsExterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, CRect& ndcRect, int32_t groupNum);
     bool Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_t flags, uint32_t ignoreFlags, uint32_t groupNum, int32_t* hitIndex);
     SMOMaterial* GetLiquidMaterial(int32_t groupIndex);

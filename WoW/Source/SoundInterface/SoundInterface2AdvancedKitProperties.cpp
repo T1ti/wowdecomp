@@ -53,7 +53,7 @@ static int32_t IsInTimeWindow(SI2AdvancedSound* sound) {
 
 // VERIFY: 42218333 auto
 // OFFSET: 0x004C9D50
-static void StopAdvancedSoundObject(SI2AdvancedSound* sound, int32_t immediate) {
+static void StopAdvancedSoundObject(SI2AdvancedSound* sound, BOOL immediate) {
     if (!sound) {
         return;
     }
@@ -637,7 +637,7 @@ void SI2::StopAdvancedSound(uint32_t id, int32_t remove, float fadeOutTime) {
 
 // VERIFY: 87c34bf4 manual
 // OFFSET: 0x004CB580
-int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, int32_t forceLoop) {
+int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop) {
     if (!rec) {
         return 24;
     }

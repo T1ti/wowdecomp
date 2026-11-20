@@ -193,7 +193,7 @@ class CGGuildInfo {
     static void InitializeGame();
     static void ShutdownGame();
     static void QueryPermissions();
-    static void SetShowOffline(int32_t show);
+    static void SetShowOffline(BOOL show);
     static int32_t GetSelectedMemberIndex();
     static bool CanEditGuildEvent();
 };

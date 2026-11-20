@@ -348,7 +348,7 @@ bool CGArenaTeamInfo::CheckPersonalAndTeamRating(uint32_t rating, int32_t bracke
 
 // VERIFY: ce2b2810 manual
 // OFFSET: 0x005A2E10
-void CGArenaTeamInfo::SetRosterShowOffline(int32_t showOffline) {
+void CGArenaTeamInfo::SetRosterShowOffline(BOOL showOffline) {
     if (showOffline == CGArenaTeamInfo::m_showOffline) {
         return;
     }

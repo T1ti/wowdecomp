@@ -89,7 +89,7 @@ void CEzLcd::OnSoftButtons(uint32_t buttons) {
 
 // VERIFY: 3a32c162 auto
 // OFFSET: 0x009592F0
-int32_t CEzLcd::Initialize(const char* friendlyName, int32_t lcdType, int32_t isAutoStartable, int32_t isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext) {
+int32_t CEzLcd::Initialize(const char* friendlyName, int32_t lcdType, BOOL isAutoStartable, BOOL isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext) {
     if (this->unk_01A8 || this->unused_01AC) {
         return E_FAIL;
     }
@@ -291,7 +291,7 @@ HRESULT CEzLcd::SetOrigin(void* handle, int32_t x, int32_t y) {
 
 // VERIFY: 7bb16566 manual
 // OFFSET: 0x00958FE0
-HRESULT CEzLcd::SetVisible(void* handle, int32_t visible) {
+HRESULT CEzLcd::SetVisible(void* handle, BOOL visible) {
     CLCDBase* object = static_cast<CLCDBase*>(handle);
 
     if (!object) {

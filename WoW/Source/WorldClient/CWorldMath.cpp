@@ -147,7 +147,7 @@ bool CWorldMath::VectorIntersectAABox2(CAaBox& box, C3Vector& start, C3Vector& e
 
 // VERIFY: e47b9bbd manual
 // OFFSET: 0x007F9650
-void CWorldMath::ClipVertexListToPlane(const C3Vector* verts, uint32_t count, C3Vector* out, uint32_t& outCount, const C4Plane& plane, float epsilon, int32_t keepCoplanar) {
+void CWorldMath::ClipVertexListToPlane(const C3Vector* verts, uint32_t count, C3Vector* out, uint32_t& outCount, const C4Plane& plane, float epsilon, BOOL keepCoplanar) {
     uint32_t sideCount[3] = { 0, 0, 0 };
     uint32_t i;
 

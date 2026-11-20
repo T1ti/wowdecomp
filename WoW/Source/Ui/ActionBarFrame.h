@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_ACTIONBARFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 
 struct lua_State;
@@ -90,9 +91,9 @@ class CGActionBar {
     static int32_t HasValidTarget(uint32_t slot, WOWGUID target, int32_t* inRange);
     static int32_t IsRangedAttackAction(uint32_t slot);
     static int32_t UpdateUsableAction(uint32_t slot, int32_t& noMana);
-    static void SetAction(int32_t slot, uint32_t action, int32_t sendToServer, int32_t silent);
+    static void SetAction(int32_t slot, uint32_t action, int32_t sendToServer, BOOL silent);
     static void UpdateBonusBar();
-    static void SetTemporaryActionBarFlags(uint32_t flags, int32_t enable);
+    static void SetTemporaryActionBarFlags(uint32_t flags, BOOL enable);
     static void UpdateShapeShiftBar();
     static void InitializeGame();
     static void ShutdownGame();
@@ -124,7 +125,7 @@ class CGActionBar {
     static void GetCooldown(int32_t slot, uint32_t& start, uint32_t& duration, uint32_t& enable);
     static const char* GetTexture(int32_t slot);
     static int32_t IsCurrentAction(int32_t slot);
-    static void SlotChanged(int32_t slot, int32_t sendToServer, int32_t silent);
+    static void SlotChanged(int32_t slot, int32_t sendToServer, BOOL silent);
     static void UseAction(int32_t slot, const WOWGUID& target, const char* button);
     static void UpdateMacro(uint32_t macroId);
 };

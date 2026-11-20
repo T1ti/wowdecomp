@@ -342,7 +342,7 @@ class CWorldScene {
     static void RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t interior);
     static void UpdateViewerLiquid();
     static void CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, uint16_t fadeLevel, int32_t interior);
-    static void CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, int32_t force, int32_t interior);
+    static void CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, BOOL force, int32_t interior);
     static void CullChunks(CSortEntry* entry, int32_t index);
     static void Render(const C3Vector& cameraPos, float time);
     static void RenderChunks();
@@ -507,7 +507,7 @@ namespace World {
     int32_t QueryMapObjFileName(CMapEntity* entity, const char** fileName);
     bool QueryMapObjMinimap(CMapEntity* entity, CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads, int32_t inside, uint8_t indoorArea);
     bool QueryMapObjMatrix(CMapEntity* entity, C44Matrix* matrix, C44Matrix* invMatrix);
-    void Preload(const C3Vector& position, int32_t showLoading);
+    void Preload(const C3Vector& position, BOOL showLoading);
     int32_t QueryMapId();
     void UpdateObjectFadeouts();
     void Update(const C3Vector& position);
@@ -550,7 +550,7 @@ extern int32_t s_waterLOD;
 
 int32_t FrustumCull(const CAaBox& box);
 int32_t ProjectPositionCallback(const C3Vector& position, float& height, void* param);
-void ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, int32_t forceProjection);
+void ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, BOOL forceProjection);
 bool MapIsDungeon();
 void ObjectDestroy(CMapEntity* entity);
 void ObjectSetUpdateCallback(CMapEntity* entity, int32_t (*func)(void*, uint32_t, uint64_t, uintptr_t), void* param);
@@ -577,18 +577,18 @@ float ValidateFarClip(float farClip, int32_t mapID);
     void ObjectSetMoveable(CMapEntity* entity, int32_t moveable);
     int32_t ObjectIsLoaded(CMapBaseObj* object);
     int32_t ObjectIsWMO(CMapBaseObj* object);
-    void ObjectSetHidden(CMapEntity* entity, int32_t hidden);
-    void ObjectEnableCollision(CMapBaseObj* object, int32_t enable);
+    void ObjectSetHidden(CMapEntity* entity, BOOL hidden);
+    void ObjectEnableCollision(CMapBaseObj* object, BOOL enable);
     void FreeDestructibleProxy(CDestructibleProxy* proxy);
     void ObjectUpdate(CMapBaseObj* object, const C3Vector* position, float facing, float pitch, float roll, BOOL snap);
-    void ObjectSetAlwaysExterior(CMapBaseObj* object, int32_t enable);
+    void ObjectSetAlwaysExterior(CMapBaseObj* object, BOOL enable);
     int32_t ObjectMoveDoodads(CMapBaseObj* source, uint16_t doodadSet, CMapBaseObj* target, uint16_t targetDoodadSet);
-    void ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, int32_t ignore, uint16_t doodadSet);
-    void ObjectSetDoodadsEnabled(CMapBaseObj* object, int32_t enable, uint16_t doodadSet);
+    void ObjectSetDoodadEmittersIgnoresDistance(CMapBaseObj* object, BOOL ignore, uint16_t doodadSet);
+    void ObjectSetDoodadsEnabled(CMapBaseObj* object, BOOL enable, uint16_t doodadSet);
     void ObjectSetEventCallback(CMapBaseObj* object, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param), uint64_t param, uint16_t doodadSet);
     void ObjectGetExtents(CMapBaseObj* object, CAaBox* extents);
     uint64_t QueryObjectParentParam64(CMapBaseObj* object);
-    void ObjectSetRenderEnabled(CMapBaseObj* object, int32_t enable);
+    void ObjectSetRenderEnabled(CMapBaseObj* object, BOOL enable);
     bool GetTris(const CAaBox& box, World::TriData* triData, uint32_t flags);
     uint32_t GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags);
     void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t doodadSet);
@@ -650,7 +650,7 @@ class CWorld {
     static void Initialize();
     static void LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4);
     static void ObjectDestroy(CMapBaseObj* object);
-    static CMapBaseObj* ObjectCreate(const char* name, const C3Vector& position, float facing, int32_t waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
+    static CMapBaseObj* ObjectCreate(const char* name, const C3Vector& position, float facing, BOOL waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
     static void Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position);
 
 #ifdef WOWDECOMP_DEBUG_FEATURES

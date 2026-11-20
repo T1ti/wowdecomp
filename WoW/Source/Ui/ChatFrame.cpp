@@ -4319,7 +4319,7 @@ int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool 
 
 // VERIFY: 8b7bb244 manual
 // OFFSET: 0x00507A80
-bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, int32_t hasVoice, int32_t permanent, uint32_t number) {
+bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, BOOL hasVoice, int32_t permanent, uint32_t number) {
     *zoneChannelName = nullptr;
     *zoneChannelID = 0;
 

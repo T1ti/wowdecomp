@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Ui/PartyFrame.h"
@@ -68,7 +69,7 @@ class CGRaidInfo {
     static CGRaidMember* FindMemberByGuid(WOWGUID guid);
     static CGPartyPetState* GetRemotePetStats(const WOWGUID& guid);
 
-    static void EnableMember(CGPlayer_C* player, int32_t enable);
+    static void EnableMember(CGPlayer_C* player, BOOL enable);
     static void UpdateRealStats(uint32_t count, WOWGUID leader);
     static void ClearRoster();
     static void CheckReadyCheckTime();

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2Vector.h"
@@ -150,7 +151,7 @@ class CGBattlefieldInfo {
         NUM_COLUMNS = 17,
     };
 
-    static void JoinBattlefield(uint32_t index, int32_t asGroup, int32_t isRated);
+    static void JoinBattlefield(uint32_t index, int32_t asGroup, BOOL isRated);
     static void RequestBattlegroundInstanceInfo(uint32_t index);
     static void SetBattlemaster(WOWGUID battlemaster);
     static void EnterWorld();

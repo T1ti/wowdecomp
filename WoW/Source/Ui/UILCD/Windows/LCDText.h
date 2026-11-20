@@ -30,7 +30,7 @@ class CLCDText : public CLCDBase {
     virtual HFONT GetFont();
     virtual void SetText(const WCHAR* text);
     virtual const WCHAR* GetText();
-    virtual void SetWordWrap(int32_t enable);
+    virtual void SetWordWrap(BOOL enable);
     virtual SIZE& GetVExtent();
     virtual SIZE& GetHExtent();
     virtual void CalculateExtent(int32_t singleLine);

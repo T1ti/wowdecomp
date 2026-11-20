@@ -933,7 +933,7 @@ void CGUIBindings::CopyBindings(BINDING_SET source, BINDING_SET dest) {
 
 // VERIFY: 9ac6f481 auto
 // OFFSET: 0x0055E550
-void CGUIBindings::EnableBindingMode(BINDING_MODE mode, int32_t enable) {
+void CGUIBindings::EnableBindingMode(BINDING_MODE mode, BOOL enable) {
     if (!mode) {
         return;
     }
@@ -965,7 +965,7 @@ void CGUIBindings::EnableBindingMode(BINDING_MODE mode, int32_t enable) {
 
 // VERIFY: 3bf1ffd2 manual
 // OFFSET: 0x0055F860
-int32_t CGUIBindings::ExecCommand(const char* command, int32_t isDown, float pressure, int32_t allowPressure, int32_t isPressure, int32_t isAngle, float angle, float precision, const char* taint) {
+int32_t CGUIBindings::ExecCommand(const char* command, BOOL isDown, float pressure, BOOL allowPressure, BOOL isPressure, BOOL isAngle, float angle, float precision, const char* taint) {
     if (!command || !*command) {
         return 0;
     }
@@ -1006,7 +1006,7 @@ int32_t CGUIBindings::ExecCommand(const char* command, int32_t isDown, float pre
 
 // VERIFY: 9242eb88 manual
 // OFFSET: 0x00563150
-int32_t CGUIBindings::ExecKey(uint32_t modifiers, const char* key, int32_t isDown, int32_t allowPressure, BINDING_MODE mode) {
+int32_t CGUIBindings::ExecKey(uint32_t modifiers, const char* key, BOOL isDown, BOOL allowPressure, BINDING_MODE mode) {
     char reducedKey[128];
     KEYBINDING* binding = this->GetReducedKeyBinding(mode, key, reducedKey, sizeof(reducedKey));
 

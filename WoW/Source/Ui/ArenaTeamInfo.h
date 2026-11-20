@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_ARENATEAMINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
@@ -131,7 +132,7 @@ class CGArenaTeamInfo {
     static void UpdateTeams(int32_t signal);
     static bool CheckPersonalAndTeamRating(uint32_t rating, int32_t bracket);
     static ArenaTeamMember* SelectMember(uint32_t team, uint32_t index);
-    static void SetRosterShowOffline(int32_t showOffline);
+    static void SetRosterShowOffline(BOOL showOffline);
     static void SortRoster(int32_t column);
     static int32_t GetSelectedMemberIndex(uint32_t team);
     static ArenaTeam* GetArenaTeam(uint32_t index);

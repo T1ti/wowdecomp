@@ -633,7 +633,7 @@ void CMovement_C::OnSkipTime(uint32_t time) {
 
 // VERIFY: 15cccdda auto
 // OFFSET: 0x006E9240
-void CMovement_C::OnWaterWalk(int32_t enable) {
+void CMovement_C::OnWaterWalk(BOOL enable) {
     this->WalkOnWater(enable);
 }
 
@@ -794,13 +794,13 @@ void CMovement_C::OnAscendDescendStopLocal(uint32_t eventTime) {
 
 // VERIFY: 76dfcd21 auto
 // OFFSET: 0x006EF060
-void CMovement_C::OnCanFlyLocal(uint32_t eventTime, uint32_t ackCounter, int32_t canFly) {
+void CMovement_C::OnCanFlyLocal(uint32_t eventTime, uint32_t ackCounter, BOOL canFly) {
     this->AddPlayerMoveEvent(eventTime, canFly ? MOVEEVENT_SET_CAN_FLY : MOVEEVENT_UNSET_CAN_FLY, true, ackCounter, 0.0f, 0.0f, 0);
 }
 
 // VERIFY: 88ede5f4 auto
 // OFFSET: 0x006EF150
-void CMovement_C::OnCanTransitionBetweenSwimAndFlyLocal(uint32_t eventTime, uint32_t ackCounter, int32_t canTransition) {
+void CMovement_C::OnCanTransitionBetweenSwimAndFlyLocal(uint32_t eventTime, uint32_t ackCounter, BOOL canTransition) {
     this->AddPlayerMoveEvent(eventTime, canTransition ? MOVEEVENT_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : MOVEEVENT_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, true, ackCounter, 0.0f, 0.0f, 0);
 }
 
@@ -1469,7 +1469,7 @@ void CMovement_C::QueueFallEvent(uint32_t eventTime) {
 
 // VERIFY: 193562a4 manual
 // OFFSET: 0x0075E040
-int32_t CMovement_C::CheckFallImpactThreshold(float timeFallen, float elapsed, const C3Vector& move, int32_t force) const {
+int32_t CMovement_C::CheckFallImpactThreshold(float timeFallen, float elapsed, const C3Vector& move, BOOL force) const {
     if (force) {
         return 1;
     }
@@ -1638,7 +1638,7 @@ int32_t CMovement_C::OnWalkSpeedChange(float value) {
 
 // VERIFY: b9bcc84b auto
 // OFFSET: 0x006E9250
-void CMovement_C::OnFeatherFall(int32_t enable) {
+void CMovement_C::OnFeatherFall(BOOL enable) {
     this->FeatherFall(enable);
     this->PostFeatherFall();
 }
@@ -1651,7 +1651,7 @@ void CMovement_C::OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWG
 
 // VERIFY: 047dad0f auto
 // OFFSET: 0x006E9570
-void CMovement_C::SetCollisionBox(float width, float height, float scale, float referenceScale, int32_t force) {
+void CMovement_C::SetCollisionBox(float width, float height, float scale, float referenceScale, BOOL force) {
     float stepUpScale = 1.0f;
 
     if (!(fabs(referenceScale) < 2.3841858e-7f)) {
@@ -1670,7 +1670,7 @@ void CMovement_C::SetCollisionBox(float width, float height, float scale, float 
 
 // VERIFY: 8b6b9a4f manual
 // OFFSET: 0x006E9470
-void CMovement_C::SnapToSpline(const C3Vector& position, int32_t force) {
+void CMovement_C::SnapToSpline(const C3Vector& position, BOOL force) {
     if (!force) {
         float dx = position.x - this->m_position.x;
         float dy = position.y - this->m_position.y;
@@ -1700,7 +1700,7 @@ void CMovement_C::ValidateWorldPosition(const C3Vector& position) const {
 
 // VERIFY: 98dc8a0f auto
 // OFFSET: 0x0075EB00
-float CMovement_C::GetTimeJustFallen(float elapsed, float timeFallen, C3Vector* move, float* distance, int32_t force, float speed) {
+float CMovement_C::GetTimeJustFallen(float elapsed, float timeFallen, C3Vector* move, float* distance, BOOL force, float speed) {
     int32_t impact = this->CheckFallImpactThreshold(timeFallen, elapsed, *move, force);
     float moveTime = 0.0f;
 
@@ -1769,7 +1769,7 @@ CMovement_C::CMovement_C(const C3Vector& position, float facing, const WOWGUID& 
 
 // VERIFY: db4836af manual
 // OFFSET: 0x0075E0C0
-C3Vector CMovement_C::CalcRunWalkWalkableObstaclePush(const C3Vector& move, float* scale, C3Vector normal, int32_t useAltNormal, const C3Vector& altNormal) const {
+C3Vector CMovement_C::CalcRunWalkWalkableObstaclePush(const C3Vector& move, float* scale, C3Vector normal, BOOL useAltNormal, const C3Vector& altNormal) const {
     if (useAltNormal && normal.z <= 0.64278764f && !(fabs(altNormal.z * altNormal.z + altNormal.y * altNormal.y + altNormal.x * altNormal.x) < 2.3841858e-7f)) {
         normal.x = -altNormal.x;
         normal.y = -altNormal.y;
@@ -1887,7 +1887,7 @@ void CMovement_C::Launch(const C2Vector& direction, float speed, float verticalS
 
 // VERIFY: 9bb92d2b auto
 // OFFSET: 0x006EBE50
-void CMovement_C::SplineToggleEnableFlying(int32_t enable) {
+void CMovement_C::SplineToggleEnableFlying(BOOL enable) {
     if (enable) {
         if (this->StartFlight()) {
             this->HandlePendingActions();
@@ -3467,7 +3467,7 @@ int32_t CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* dis
 
 // VERIFY: 8938b491 manual
 // OFFSET: 0x007612B0
-uint32_t CMovement_C::FallDown(uint32_t time, uint32_t elapsed, C3Vector move, int32_t notify) {
+uint32_t CMovement_C::FallDown(uint32_t time, uint32_t elapsed, C3Vector move, BOOL notify) {
     float timeFallen = 0.0f;
     float totalTime = elapsed * 0.001f;
     float startTime = 0.001f * static_cast<float>(this->m_fallTimeMs);
@@ -4550,7 +4550,7 @@ void CMovement_C::Halt() {
 
 // VERIFY: e3d98fe3 auto
 // OFFSET: 0x006E9F10
-void CMovement_C::FinishSpline(int32_t force) {
+void CMovement_C::FinishSpline(BOOL force) {
     this->SnapToSpline(this->m_spline->m_finalDestination, force);
     this->m_spline->m_start = this->m_spline->m_duration;
     this->m_spline->m_flags |= SPLINEFLAG_DONE;
@@ -5583,7 +5583,7 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
 
 // VERIFY: 930c3840 manual
 // OFFSET: 0x006EB730
-int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, int32_t force) {
+int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, BOOL force) {
     if ((!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))
         && this->m_unit->m_vehiclePassenger
         && (this->m_unit->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM)) {
@@ -6525,7 +6525,7 @@ void CMovement_C::OnSplineUnRoot() {
 
 // VERIFY: 341da3f2 auto
 // OFFSET: 0x006EBC20
-int32_t CMovement_C::OnSplineEnableGravity(int32_t enable) {
+int32_t CMovement_C::OnSplineEnableGravity(BOOL enable) {
     if (!this->EnableGravity(enable)) {
         return 0;
     }

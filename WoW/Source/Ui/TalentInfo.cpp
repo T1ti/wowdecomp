@@ -174,7 +174,7 @@ CGTalentGroup_C* CGTalentInfo::GetTalentGroup(uint32_t index, int32_t pet) {
 
 // VERIFY: 02243f68 manual
 // OFFSET: 0x005C60C0
-int32_t TalentInfoIsSpellKnown(int32_t spellId, int32_t isInspect, int32_t isPet) {
+int32_t TalentInfoIsSpellKnown(int32_t spellId, BOOL isInspect, BOOL isPet) {
     if (isInspect) {
         return isPet == 0;
     }

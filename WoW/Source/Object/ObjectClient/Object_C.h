@@ -221,7 +221,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     virtual void HandleOutOfRange(OUT_OF_RANGE_TYPE type);
     virtual void UpdateWorldObject(int32_t skipEntityUpdate);
     virtual int32_t ShouldFadeout();
-    virtual void UpdateDisplayInfo(int32_t force);
+    virtual void UpdateDisplayInfo(BOOL force);
     virtual C3Vector GetNamePosition() const;
     virtual CGBag_C* GetBag();
     virtual const CGBag_C* GetBag() const;
@@ -303,7 +303,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     void SetBlock(int32_t index, uint32_t value);
     void SetBoundsDirty();
     void SetDisablePending(int32_t pending);
-    void SetInteractIconVisible(int32_t visible);
+    void SetInteractIconVisible(BOOL visible);
     CM2Model* SetModelStart(CM2Model* model);
     void SetObjectLocked(int32_t locked);
     void SetQuestStatus(uint32_t status);

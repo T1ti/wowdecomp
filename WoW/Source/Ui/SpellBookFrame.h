@@ -71,8 +71,8 @@ class CGSpellBook {
     static int32_t m_summonFriendSpell;
     static TSGrowableArray<int32_t> m_companions[NUM_COMPANION_TYPES];
 
-    static void AddKnownSpell(int32_t spellId, int32_t notify, int32_t replaceSpell);
-    static void AddSpellToNameCache(int32_t spellId, int32_t isPet);
+    static void AddKnownSpell(int32_t spellId, BOOL notify, int32_t replaceSpell);
+    static void AddSpellToNameCache(int32_t spellId, BOOL isPet);
     static void CompanionCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
     static int32_t GetSpellProgressionRank(const SpellRec* spell);
     static int32_t GetCompanionType(const SpellRec* spell);
@@ -95,7 +95,7 @@ class CGSpellBook {
     static void MakeKnownSpellModelsLocal();
     static int32_t GetSkinningSpell(const CGObject_C* object);
     static void ReplaceSpell(int32_t oldSpell, int32_t newSpell);
-    static void DelKnownSpell(int32_t spellId, int32_t notify);
+    static void DelKnownSpell(int32_t spellId, BOOL notify);
     static void SendCompanionUpdate(int32_t type);
     static int32_t GetSpellRankOrLevel(const SpellRec* spell);
     static void PickupSpell(int32_t slot, int32_t petSpell);
@@ -148,7 +148,7 @@ extern TSBitField<TSFixedArray<uint32_t> > s_knownSpellBits;
 
 int32_t FindSpellSlotByName(const char* name, const char* subtext, int32_t* petSpell);
 int32_t GetSpellIdByName(const char* name, int32_t* petSpell);
-bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* nextArg, int32_t allowName);
+bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* nextArg, BOOL allowName);
 bool HasPetSpell(int32_t spellId);
 extern TSGrowableArray<int32_t> s_openLockSpells;
 

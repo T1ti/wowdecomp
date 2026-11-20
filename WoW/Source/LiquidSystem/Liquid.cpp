@@ -50,7 +50,7 @@ Liquid::IMaterial::~IMaterial() {
 
 // VERIFY: afda035c auto
 // OFFSET: 0x008A1770
-int32_t Liquid::Initialize(int32_t useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB) {
+int32_t Liquid::Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB) {
     SStrCopy(Liquid::s_shaderPath, shaderPath, sizeof(Liquid::s_shaderPath));
     Liquid::s_worldCoordScale = worldCoordScale;
     Liquid::s_settingsBankRefCount++;
@@ -94,13 +94,13 @@ void Liquid::CInstance::Purge() {
 
 // VERIFY: 0c7c5584 auto
 // OFFSET: 0x008A1720
-void Liquid::SetShadersEnabled(int32_t enabled) {
+void Liquid::SetShadersEnabled(BOOL enabled) {
     Liquid::s_shadersEnabled = enabled;
 }
 
 // VERIFY: 6952e6f0 auto
 // OFFSET: 0x008A1730
-void Liquid::SetSpecularEnabled(int32_t enabled) {
+void Liquid::SetSpecularEnabled(BOOL enabled) {
     Liquid::s_specularEnabled = enabled;
 }
 

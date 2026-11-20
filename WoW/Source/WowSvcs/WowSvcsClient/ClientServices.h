@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Net/NetClient/NetClient.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/WowServices/LoginResponse.h"
@@ -55,7 +56,7 @@ class ClientConnection : public RealmConnection {
     void HandleCharacterDelete(uint8_t result) override;
     void HandleCharacterLoginFailed(uint8_t result) override;
     void HandleLogoutComplete() override;
-    void HandleLogoutResponse(int32_t result, int32_t instant) override;
+    void HandleLogoutResponse(int32_t result, BOOL instant) override;
     void HandleLogoutAbortAck() override;
 
     ClientConnection(RealmResponse* realmResponse);

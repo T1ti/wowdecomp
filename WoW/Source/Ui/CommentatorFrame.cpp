@@ -19,7 +19,7 @@ CGCommentator CGCommentator::s_Commentator;
 
 // VERIFY: 892bcb14 manual
 // OFFSET: 0x0056B5C0
-void CGCommentator::UpdateCameraVelocity(uint32_t controlFlags, int32_t canControl) {
+void CGCommentator::UpdateCameraVelocity(uint32_t controlFlags, BOOL canControl) {
     if (!ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__) || !CGWorldFrame::GetActiveCamera()) {
         return;
     }

@@ -792,7 +792,7 @@ void DayNight::ClearOverrideFog() {
 
 // VERIFY: fd35bd95 auto
 // OFFSET: 0x007ED870
-void DayNight::SetOverrideFog(float startScalar, float end, CImVector color, int32_t showSky) {
+void DayNight::SetOverrideFog(float startScalar, float end, CImVector color, BOOL showSky) {
     if (!s_fogOverride) {
         s_savedFogEnd = DayNight::g_dnInfo.m_bands.m_fogEnd;
         s_savedSkyFog = DayNight::g_dnInfo.m_bands.m_skyColors[5];

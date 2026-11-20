@@ -865,7 +865,7 @@ C33Matrix CGCamera::ParentToWorld() const {
 
 // VERIFY: fcfbed22 manual
 // OFFSET: 0x00601B70
-void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, int32_t immediate) {
+void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, BOOL immediate) {
     if (!target || !(target->m_obj->m_type & TYPE_UNIT)) {
         return;
     }
@@ -1333,7 +1333,7 @@ int32_t CGCamera::StartSmoothHeight(float height, float rate, uint32_t startTime
 
 // VERIFY: e32ed6b7 auto
 // OFFSET: 0x00604940
-int32_t CGCamera::UpdateInebriation(float drunkness, int32_t immediate) {
+int32_t CGCamera::UpdateInebriation(float drunkness, BOOL immediate) {
     if (this->m_state & STATE_FLAGS::STATE_TELESCOPE_TRANSITION_MASK) {
         return 0;
     }
@@ -1633,7 +1633,7 @@ void CGCamera::CreateViewFromCamera(uint32_t view) {
 
 // VERIFY: 6166086b auto
 // OFFSET: 0x00604850
-void CGCamera::DisableFreeLook(int32_t keepSmoothing) {
+void CGCamera::DisableFreeLook(BOOL keepSmoothing) {
     this->SetModeNormal();
 
     if (keepSmoothing) {
@@ -2013,7 +2013,7 @@ void CGCamera::SetVehicleTrackingStyle(uint32_t style) {
 
 // VERIFY: 2dba7f2c auto
 // OFFSET: 0x00600590
-void CGCamera::SetVehicleZoomEnabled(int32_t enabled, float duration, int32_t animate) {
+void CGCamera::SetVehicleZoomEnabled(BOOL enabled, float duration, int32_t animate) {
     if (this->m_vehicleZoomEnabled == enabled) {
         return;
     }
@@ -2165,7 +2165,7 @@ int32_t CGCamera::StartSmoothYaw(float yaw, float rate, uint32_t startTime) {
 
 // VERIFY: 64b57dbf auto
 // OFFSET: 0x005FE6A0
-void CGCamera::UpdateAutoInteractState(int32_t enabled) {
+void CGCamera::UpdateAutoInteractState(BOOL enabled) {
     if (enabled) {
         this->m_flags |= FLAGS::FLAG_AUTO_INTERACT;
     } else {

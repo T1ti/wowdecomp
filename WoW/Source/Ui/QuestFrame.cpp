@@ -155,7 +155,7 @@ QuestGiverQuest CGQuestInfo::m_availableQuests[MAX_NUM_QUESTS];
 
 // VERIFY: 63c859fb manual
 // OFFSET: 0x0058CA70
-void CGQuestInfo::QuestGiverFinished(int32_t keepOpen, uint32_t questId, int32_t notify) {
+void CGQuestInfo::QuestGiverFinished(BOOL keepOpen, uint32_t questId, BOOL notify) {
     if (!CGQuestInfo::m_npc) {
         return;
     }
@@ -577,7 +577,7 @@ void CGQuestInfo::EndQuestList() {
 
 // VERIFY: 1a14e0c3 manual
 // OFFSET: 0x0058BA80
-void CGQuestInfo::AddItemRequest(const char* title, const uint32_t* itemIds, const uint32_t* itemCounts, const uint32_t* itemDisplays, int32_t numItems, int32_t requiredMoney, int32_t canComplete, int32_t autoLaunched, int32_t suggestedGroupNum, uint32_t questFlags) {
+void CGQuestInfo::AddItemRequest(const char* title, const uint32_t* itemIds, const uint32_t* itemCounts, const uint32_t* itemDisplays, int32_t numItems, int32_t requiredMoney, BOOL canComplete, int32_t autoLaunched, int32_t suggestedGroupNum, uint32_t questFlags) {
     int32_t i = 0;
 
     for (; i < numItems; i++) {

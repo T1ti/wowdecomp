@@ -2105,7 +2105,7 @@ int32_t CMapObj::GetDoodadSet(uint32_t index) {
 
 // VERIFY: 9a315686 auto
 // OFFSET: 0x007AF280
-bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, int32_t useSphere) {
+bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, BOOL useSphere) {
     C3Ray ray;
     ray.origin = seg.start;
     float dx = seg.end.x - seg.start.x;

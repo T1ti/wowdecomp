@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_TRADEFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 
 // Native slots 0..5 transfer items; slot 6 is retained for services such as enchanting.
@@ -115,7 +116,7 @@ class CGTradeInfo {
 
     static void UpdatePlayerItem(WOWGUID guid);
     static void AddCursorItem(int32_t bound);
-    static void InitiateTrade(WOWGUID guid, int32_t useCursorItem);
+    static void InitiateTrade(WOWGUID guid, BOOL useCursorItem);
     static void UnlockTradeItems();
     static void DenyPlayerItem(int32_t slot);
     static int32_t GetGameError(int32_t error, int32_t target);

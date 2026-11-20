@@ -639,7 +639,7 @@ int32_t StringToChatType(const char* string, int32_t* type);
 int32_t StringToLanguage(const char* string, uint32_t* language);
 ChatChannel* GetChannelByName(const char* name);
 int32_t FormatTime(char* buffer, uint32_t size, int32_t seconds);
-bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, int32_t hasVoice, int32_t permanent, uint32_t number);
+bool InternalJoinChannel(const char* channelName, const char* password, uint32_t window, bool checkRecruitment, const char** zoneChannelName, int32_t* zoneChannelID, bool silent, BOOL hasVoice, int32_t permanent, uint32_t number);
 int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, bool force);
 bool ProfanityFilter(char* text, bool cache, bool force);
 ChatRecord* GetChatRecord(int32_t index);

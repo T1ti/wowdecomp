@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Net/Types.h"
 
 class CDataStore;
@@ -45,7 +46,7 @@ class CGGMTicketInfo {
     static void ShutdownGame();
     static int32_t m_ticketID;
     static int32_t m_responseID;
-    static void CreateTicket(const char* text, int32_t needResponse, uint32_t moreHelp);
+    static void CreateTicket(const char* text, BOOL needResponse, uint32_t moreHelp);
 };
 
 class CGGMReportLag {

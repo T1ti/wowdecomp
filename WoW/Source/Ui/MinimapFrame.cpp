@@ -1533,7 +1533,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
 
 // VERIFY: e07bae80 manual
 // OFFSET: 0x007F5BA0
-int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles, MINIMAPINDOOR* indoor, int32_t force) {
+int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles, MINIMAPINDOOR* indoor, BOOL force) {
     uint8_t reload = s_updateFlags & MINIMAP_UPDATE_RELOAD;
     bool changed = (s_updateFlags & (MINIMAP_UPDATE_RELOAD | MINIMAP_UPDATE_TEXTURES_PENDING)) != 0;
     bool result = changed;

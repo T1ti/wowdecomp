@@ -179,7 +179,7 @@ class CGGameUI {
     static void ThreatMapAdd(const WOWGUID& unit, const WOWGUID& target);
     static void UnitTooltipUpdate(const WOWGUID& guid);
     static void UnlockAllItems();
-    static void SetRegenEnabled(int32_t enabled);
+    static void SetRegenEnabled(BOOL enabled);
 
     static TSHashTable<SAVEDVARIABLE, HASHKEY_STR> s_savedVariables[2];
     static int32_t HandleMouseDown(const CMouseEvent& evt);
@@ -288,7 +288,7 @@ class CGGameUI {
     static void InitializeFrameXML();
     static void InitializeGame();
     static void RegisterGameCVars();
-    static void ScaleToScreenSize(int32_t width, int32_t height, int32_t force);
+    static void ScaleToScreenSize(int32_t width, int32_t height, BOOL force);
     static void SetUIScale(float scale);
     static bool UnitHighlightsCVarCallback(CVar* var, const char* oldValue, const char* value, void* arg);
     static void ShowBlockedFrameFeedback(CScriptRegion* region);
@@ -331,7 +331,7 @@ class CGGameUI {
     static void AcceptLevelGrant();
     static void AcceptAreaSpiritHeal();
     static void TargetDirection(float facing, float angle, UNIT_TARGET_TYPE type);
-    static WOWGUID ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, int32_t ignoreHostileTotems);
+    static WOWGUID ClosestObjectMatch(const char* name, uint32_t typeMask, UNIT_TARGET_TYPE targetType, int32_t exact, float maxDistance, BOOL ignoreHostileTotems);
     static bool CanInspect(CGUnit_C* unit);
     static void SetCursorMoney(uint32_t amount);
     static void SetCursorMoney(uint32_t amount, UICURSORTYPE type, int32_t event);
@@ -554,7 +554,7 @@ bool SetTaintLogCallback(CVar* var, const char* oldValue, const char* value, voi
 bool ShowClassColorInNameplateCallback(CVar* var, const char* oldValue, const char* value, void* arg);
 void TaintEventCallback(lua_State* L, int32_t event, const char* name, const char* taint);
 
-void TargetNearestEnemy(int32_t reverse, UNIT_TARGET_TYPE type);
+void TargetNearestEnemy(BOOL reverse, UNIT_TARGET_TYPE type);
 int32_t UnitMatchesTargetType(CGUnit_C* unit, CGUnit_C* target, UNIT_TARGET_TYPE type);
 int32_t Script_IsWindowsClient(lua_State* L);
 int32_t Script_IsMacClient(lua_State* L);

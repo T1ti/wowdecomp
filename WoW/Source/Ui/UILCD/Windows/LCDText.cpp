@@ -180,7 +180,7 @@ const WCHAR* CLCDText::GetText() {
 
 // VERIFY: 8d8bb657 auto
 // OFFSET: 0x0095C4E0
-void CLCDText::SetWordWrap(int32_t enable) {
+void CLCDText::SetWordWrap(BOOL enable) {
     this->m_bRecalcExtent = 1;
 
     if (enable) {

@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_AUCTIONHOUSE_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
@@ -200,7 +201,7 @@ class CGAuctionHouse {
     static void InitializeGame();
     static void ShutdownGame();
     static uint8_t m_auctionsTabShowing;
-    static bool IsSellItemValid(CGItem_C* item, int32_t showError);
+    static bool IsSellItemValid(CGItem_C* item, BOOL showError);
     static void GetSellItem(WOWGUID* item, WOWGUID* container, uint8_t* slot);
     static void SetSellItem(WOWGUID item, WOWGUID container, uint8_t slot);
     static int32_t m_auctionHouseID;

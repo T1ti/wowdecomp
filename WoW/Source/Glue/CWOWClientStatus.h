@@ -2,6 +2,7 @@
 #define WOW_SOURCE_GLUE_CWOWCLIENTSTATUS_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Status.h"
 #include "Engine/Source/Storm/H/storm.h"
 
@@ -12,7 +13,7 @@ class CWOWClientStatus : public CStatus {
     virtual ~CWOWClientStatus();
 
     CWOWClientStatus(const char* logFileName);
-    CWOWClientStatus(const char* logFileName, int32_t append);
+    CWOWClientStatus(const char* logFileName, BOOL append);
 };
 
 #endif

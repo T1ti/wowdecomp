@@ -284,7 +284,7 @@ void CGSpellBook::ClearSpells() {
 
 // VERIFY: f6883164 manual
 // OFFSET: 0x00542030
-void CGSpellBook::AddKnownSpell(int32_t spellId, int32_t notify, int32_t replaceSpell) {
+void CGSpellBook::AddKnownSpell(int32_t spellId, BOOL notify, int32_t replaceSpell) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -1238,7 +1238,7 @@ int __cdecl SortSpellsForDisplay(const void* a, const void* b) {
 
 // VERIFY: c77f786b manual
 // OFFSET: 0x00541DF0
-void CGSpellBook::AddSpellToNameCache(int32_t spellId, int32_t isPet) {
+void CGSpellBook::AddSpellToNameCache(int32_t spellId, BOOL isPet) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -1446,7 +1446,7 @@ int32_t GetSpellIdByName(const char* name, int32_t* petSpell) {
 // OFFSET: 0x00540670
 // Parses either (slot, "bookType") or (name[, subtext|unit]) from the Lua stack. nextArg receives
 // the stack index of the first argument after the spell, e.g. the unit token for IsSpellInRange.
-bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* nextArg, int32_t allowName) {
+bool GetSlotFromLua(lua_State* L, uint32_t* slot, int32_t* petSpell, int32_t* nextArg, BOOL allowName) {
     *petSpell = 0;
 
     if (lua_isnumber(L, 1) && lua_isstring(L, 2)) {
@@ -2137,7 +2137,7 @@ int32_t CGSpellBook::IsShapeshiftSpell(int32_t spellId) {
 
 // VERIFY: f3047ba9 manual
 // OFFSET: 0x0053FAD0
-void CGSpellBook::DelKnownSpell(int32_t spellId, int32_t notify) {
+void CGSpellBook::DelKnownSpell(int32_t spellId, BOOL notify) {
     s_knownSpellBits.Clear(spellId);
 
     if (spellId == CGSpellBook::m_duelSpell) {

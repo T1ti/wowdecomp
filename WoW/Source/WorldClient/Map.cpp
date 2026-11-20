@@ -2656,7 +2656,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
 
 // VERIFY: 84c1a3e9 manual
 // OFFSET: 0x007BEB40
-CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, int32_t waitForLoad) {
+CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, BOOL waitForLoad) {
     int32_t id = CMap::uniqueId--;
     HASHKEY_DWORD key = { 0 };
     CMap::doodadDefHash.Ptr(id, key);
@@ -2825,7 +2825,7 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
 
 // VERIFY: 5ac717a0 manual
 // OFFSET: 0x007BF120
-CMapObjDef* CMap::CreateMapObjDef(const char* fileName, const C3Vector* position, float facing, int32_t waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id) {
+CMapObjDef* CMap::CreateMapObjDef(const char* fileName, const C3Vector* position, float facing, BOOL waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id) {
     uint32_t uniqueId = id;
 
     if (!id) {

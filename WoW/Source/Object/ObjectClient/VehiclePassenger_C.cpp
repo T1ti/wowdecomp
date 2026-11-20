@@ -209,7 +209,7 @@ CVehicle_C* CVehiclePassenger_C::GetVehicle() const {
 
 // VERIFY: bcb00fbb manual
 // OFFSET: 0x00749C20
-void CVehiclePassenger_C::AddPendingRescueTransition(WOWGUID passengerGuid, WOWGUID vehicleGuid, uint8_t seat, int32_t instant) {
+void CVehiclePassenger_C::AddPendingRescueTransition(WOWGUID passengerGuid, WOWGUID vehicleGuid, uint8_t seat, BOOL instant) {
     VehiclePassengerRescueTransition* transition = s_rescueTransitions->New();
     transition->m_passengerGuid = passengerGuid;
     transition->m_vehicleGuid = vehicleGuid;
@@ -2068,7 +2068,7 @@ int32_t CVehiclePassenger_C::UpdateState(CGUnit_C* vehicle, VehicleSeatRec* seat
 
 // VERIFY: 8024836e manual
 // OFFSET: 0x0074B200
-void CVehiclePassenger_C::OnUpdateTransport(WOWGUID transport, uint8_t seat, CGUnit_C* vehicle, int32_t deferred) {
+void CVehiclePassenger_C::OnUpdateTransport(WOWGUID transport, uint8_t seat, CGUnit_C* vehicle, BOOL deferred) {
     if (transport) {
         if (vehicle) {
             this->m_vehicleRec = vehicle->m_vehicle ? vehicle->m_vehicle->m_vehicleRec : nullptr;

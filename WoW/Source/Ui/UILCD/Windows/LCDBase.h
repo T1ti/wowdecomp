@@ -39,9 +39,9 @@ class CLCDBase {
     virtual SIZE& GetSize();
     virtual int32_t GetWidth();
     virtual int32_t GetHeight();
-    virtual void Show(int32_t show);
+    virtual void Show(BOOL show);
     virtual int32_t IsVisible();
-    virtual void Invert(int32_t enable);
+    virtual void Invert(BOOL enable);
     virtual void ResetUpdate();
     virtual void SetLogicalOriginXY(int32_t x, int32_t y);
     virtual void SetLogicalOrigin(POINT& pt);

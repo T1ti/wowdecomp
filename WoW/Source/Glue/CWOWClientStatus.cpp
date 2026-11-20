@@ -12,7 +12,7 @@ CWOWClientStatus::CWOWClientStatus(const char* logFileName) {
 
 // VERIFY: 92e4f487 manual
 // OFFSET: 0x004DA580
-CWOWClientStatus::CWOWClientStatus(const char* logFileName, int32_t append) {
+CWOWClientStatus::CWOWClientStatus(const char* logFileName, BOOL append) {
     this->m_log = nullptr;
 
     if (logFileName && *logFileName && !SLogCreate(logFileName, append ? 4 : 0, &this->m_log)) {

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 
 class SFileImpl;
@@ -212,7 +213,7 @@ class SpellRec {
     static bool IsAffectedBy(const SpellRec* spell, const SpellRec* modifier, int32_t effect);
     static bool UsableInShapeshift(const SpellRec* spell, int32_t form);
     static bool NotUsableInShapeshiftForm(const SpellRec* spell, int32_t form);
-    static int32_t GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUnit, int32_t allowNegative);
+    static int32_t GetCastTime(const SpellRec* spell, BOOL isPet, BOOL isUnit, BOOL allowNegative);
     static bool IsMeleeRange(const SpellRec* spell);
     static bool IsMinimumRange(const SpellRec* spell);
     static void GetMinRange(const SpellRec* spell, float* range);

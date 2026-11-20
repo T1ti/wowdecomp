@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/NetClient/NetClient.h"
@@ -129,7 +130,7 @@ class RealmConnection : public NetClient {
     virtual void HandleCharacterDelete(uint8_t result) = 0;
     virtual void HandleCharacterLoginFailed(uint8_t result) = 0;
     virtual void HandleLogoutComplete() = 0;
-    virtual void HandleLogoutResponse(int32_t result, int32_t instant) = 0;
+    virtual void HandleLogoutResponse(int32_t result, BOOL instant) = 0;
     virtual void HandleLogoutAbortAck() = 0;
 
     RealmConnection(RealmResponse* realmResponse);

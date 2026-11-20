@@ -279,7 +279,7 @@ static void LootMasterNameCallback(int32_t id, const WOWGUID& guid, void* param,
 
 // VERIFY: 7acb8197 auto
 // OFFSET: 0x0052BD90
-int32_t CGPartyInfo::SetLootMethod(LOOT_METHOD method, WOWGUID master, int32_t threshold, int32_t force) {
+int32_t CGPartyInfo::SetLootMethod(LOOT_METHOD method, WOWGUID master, int32_t threshold, BOOL force) {
     int32_t changed = 0;
 
     if (force || CGPartyInfo::m_lootMethod != method) {
@@ -909,7 +909,7 @@ void CGPartyInfo::ClearRecruitAFriend(WOWGUID guid) {
 
 // VERIFY: 93e9c613 manual
 // OFFSET: 0x0052C760
-void CGPartyInfo::EnableMember(CGPlayer_C* player, int32_t enable) {
+void CGPartyInfo::EnableMember(CGPlayer_C* player, BOOL enable) {
     WOWGUID guid = player->m_obj->m_guid;
     uint32_t index;
 

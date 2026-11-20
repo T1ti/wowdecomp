@@ -2,6 +2,7 @@
 #define WOW_SOURCE_GLUE_CGLUELOADING_H
 
 #include <cstdint>
+#include <windows.h>
 
 class CCharacterComponent;
 
@@ -23,7 +24,7 @@ class CGlueLoading {
 
     static float ComputeLoadProgress(CCharacterComponent* component, int64_t& loaded, int64_t& total);
     static int32_t Idle(CCharacterComponent* component);
-    static void StartLoad(CCharacterComponent* component, int32_t keepProgress);
+    static void StartLoad(CCharacterComponent* component, BOOL keepProgress);
 };
 
 #endif

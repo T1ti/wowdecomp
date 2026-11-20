@@ -3473,7 +3473,7 @@ bool SpellRec::UsableInShapeshift(const SpellRec* spell, int32_t form) {
 
 // VERIFY: 18bb777f manual
 // OFFSET: 0x007FF070
-uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, int32_t isPet, int32_t isUnit) {
+uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, BOOL isPet, BOOL isUnit) {
     CGUnit_C* unit;
 
     if (isUnit) {
@@ -3512,7 +3512,7 @@ int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* uni
 
 // VERIFY: 9130a9d8 manual
 // OFFSET: 0x007FF180
-int32_t SpellRec::GetCastTime(const SpellRec* spell, int32_t isPet, int32_t isUnit, int32_t allowNegative) {
+int32_t SpellRec::GetCastTime(const SpellRec* spell, BOOL isPet, BOOL isUnit, BOOL allowNegative) {
     if (!spell) {
         return 0;
     }
@@ -3700,7 +3700,7 @@ void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minR
 
 // VERIFY: ac5e661b manual
 // OFFSET: 0x007FF770
-void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers) {
+void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, BOOL isPet, BOOL isUnit, int32_t noModifiers) {
     *minPoints = 0.0f;
     *maxPoints = 0.0f;
 
@@ -3790,7 +3790,7 @@ bool SpellRec::HasModifier(const SpellRec* spell, SPELL_MOD_OP modifier) {
 
 // VERIFY: 03db76ed manual
 // OFFSET: 0x00800A70
-int32_t Spell_C_GetDuration(const SpellRec* spell, int32_t isPet, int32_t isUnit, int32_t noModifiers, int32_t applyHaste) {
+int32_t Spell_C_GetDuration(const SpellRec* spell, BOOL isPet, BOOL isUnit, int32_t noModifiers, int32_t applyHaste) {
     if (!spell) {
         return 0;
     }
@@ -3852,7 +3852,7 @@ bool Spell_C_HasNoReagentCost(CGPlayer_C* player, const SpellRec* spell) {
 
 // VERIFY: bfe60446 manual
 // OFFSET: 0x008016C0
-int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers) {
+int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, BOOL isPet, BOOL isUnit, int32_t noModifiers) {
     float low;
     float high;
     Spell_C_GetMinMaxPoints(spell, effectIndex, &low, &high, spellLevel, isPet, isUnit, noModifiers);

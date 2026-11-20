@@ -87,7 +87,7 @@ class CGInputControl {
     void SetMouseCVarHandler(bool enable);
     void UpdateJoystickMouseMode();
     void UpdateHalted();
-    void UpdateMouseMode(int32_t force);
+    void UpdateMouseMode(BOOL force);
     void EnterWorld();
     void OnFocusChange(const CFocusEvent& event);
     int32_t WowMouseConnected();
@@ -95,9 +95,9 @@ class CGInputControl {
     void VehicleAimChange(uint32_t time, float delta);
     void UpdateMoveStopped();
     void UpdatePlayer(uint32_t time, BOOL canControl);
-    void ToggleControlBit(uint32_t bit, int32_t enable, uint32_t time, int32_t keepSmoothing);
+    void ToggleControlBit(uint32_t bit, BOOL enable, uint32_t time, BOOL keepSmoothing);
     int32_t SetControlBit(uint32_t bit, uint32_t time);
-    int32_t UnsetControlBit(uint32_t bit, uint32_t time, int32_t keepSmoothing);
+    int32_t UnsetControlBit(uint32_t bit, uint32_t time, BOOL keepSmoothing);
     void OnTurnToAngleStop();
     void Reset();
     void MovePlayer(uint32_t time, CGUnit_C* unit);

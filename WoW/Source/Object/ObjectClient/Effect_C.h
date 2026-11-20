@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
@@ -158,8 +159,8 @@ class CEffect {
     void EffectUpdate();
     void MoveToOrphanList();
     void Release();
-    void SetEmissionRateIgnoresDistance(int32_t ignore);
-    void SetEnabled(int32_t enabled);
+    void SetEmissionRateIgnoresDistance(BOOL ignore);
+    void SetEnabled(BOOL enabled);
     void UnLinkSelf();
 };
 

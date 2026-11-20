@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_PETINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -113,7 +114,7 @@ class CGPetInfo {
     static int32_t PetActionSlotUsable(const PetAction* action);
     static void PetAbandon();
     static void PetRename(const char* name, const char* declinedNames);
-    static void SetAutocast(uint32_t index, int32_t enable);
+    static void SetAutocast(uint32_t index, BOOL enable);
     static void PlaceAction(const PetAction& action, uint32_t index);
     static void PickupAction(uint32_t index, int32_t sendToServer);
     static void PlaceCursorAction(PetAction action, uint32_t index);
@@ -121,7 +122,7 @@ class CGPetInfo {
     static bool PetActionsUsable(bool ignoreControl);
     static void PetClearTarget();
     static void PetDismiss();
-    static void PetAttackTarget(const WOWGUID& target, int32_t useGiven);
+    static void PetAttackTarget(const WOWGUID& target, BOOL useGiven);
     static void SetPetCount(uint32_t count);
     static int32_t IsAttackAction(uint32_t index);
     static uint32_t GetPetMode();
@@ -129,12 +130,12 @@ class CGPetInfo {
     static void SetComboPoints(WOWGUID target, uint8_t points);
     static void SetIsAttackingTarget(int32_t attacking);
     static void UpdatePetTempBar();
-    static void SendPetAction(const PetAction& action, const WOWGUID& target, int32_t useGiven);
+    static void SendPetAction(const PetAction& action, const WOWGUID& target, BOOL useGiven);
     static PetAction* GetPetSpellAction(int32_t spellId);
     static void UpdatePetSpellAction(const PetAction* action);
     static void SetPossessedSpell(int32_t spellId);
     static int32_t SetAction(uint32_t index, const PetAction& action, int32_t sendToServer);
-    static void SetSpellAutocast(int32_t spellId, int32_t enable);
+    static void SetSpellAutocast(int32_t spellId, BOOL enable);
     static void SetPetMode(uint32_t mode);
     static void SetPetOrders(uint32_t orders);
     static const char* GetModeToken(uint32_t mode);

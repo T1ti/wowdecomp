@@ -228,10 +228,10 @@ class CGPartyInfo {
     static void SetLeader(WOWGUID leader);
     static void SetLfgRestricted(int32_t restricted);
     static void SetLfgSlot(int32_t slot);
-    static int32_t SetLootMethod(LOOT_METHOD method, WOWGUID master, int32_t threshold, int32_t force);
+    static int32_t SetLootMethod(LOOT_METHOD method, WOWGUID master, int32_t threshold, BOOL force);
     static void UpdateRealStats(uint32_t count, WOWGUID leader);
     static void SetOptOutOfLoot(int32_t optOut);
-    static void EnableMember(CGPlayer_C* player, int32_t enable);
+    static void EnableMember(CGPlayer_C* player, BOOL enable);
     static int32_t IsMemberPet(const WOWGUID& guid, int32_t* index);
     static CGPartyMemberState* GetRemoteStats(const WOWGUID& guid);
     static void ClearRecruitAFriend(WOWGUID guid);

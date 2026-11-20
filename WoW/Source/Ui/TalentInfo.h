@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
@@ -117,7 +118,7 @@ class CGTalentInfo {
 
 void TalentInfoRegisterScriptFunctions();
 void TalentInfoUnregisterScriptFunctions();
-int32_t TalentInfoIsSpellKnown(int32_t spellId, int32_t isInspect, int32_t isPet);
+int32_t TalentInfoIsSpellKnown(int32_t spellId, BOOL isInspect, BOOL isPet);
 uint32_t TalentInfoGetScriptGroupIndex(lua_State* L, int32_t index);
 CGTalentGroup_C* TalentInfoGetTalentGroup(uint32_t index, int32_t inspect, int32_t pet);
 TalentGroupItem_C* TalentInfoGetTalentItem(uint32_t group, int32_t talentId, int32_t inspect, int32_t pet);

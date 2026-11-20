@@ -538,7 +538,7 @@ void LFGQueueStatus::Clear() {
 
 // VERIFY: 9624669a auto
 // OFFSET: 0x00552900
-void CGLookingForGroup::ShowProposal(int32_t silent) {
+void CGLookingForGroup::ShowProposal(BOOL silent) {
     FrameScript_SignalEvent(SCRIPT_EVENT_LFG_PROPOSAL_UPDATE, nullptr);
 
     if (CGLookingForGroup::m_lastProposalID != CGLookingForGroup::m_proposal.m_proposalId) {

@@ -94,7 +94,7 @@ class CVehiclePassenger_C {
     static void UpdateAll(uint32_t time);
     static void OnVehicleRideLoopAnimEnd(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers);
     static void OnVehicleTransitionAnimEnd(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers);
-    static void AddPendingRescueTransition(WOWGUID passengerGuid, WOWGUID vehicleGuid, uint8_t seat, int32_t instant);
+    static void AddPendingRescueTransition(WOWGUID passengerGuid, WOWGUID vehicleGuid, uint8_t seat, BOOL instant);
     static CVehiclePassenger_C* Alloc(CGUnit_C* unit);
     static void Init(CGUnit_C* unit);
     static void SendTransitionUIEvents(WOWGUID guid, const VehicleRec* vehicleRec, const VehicleSeatRec* seatRec, int32_t fromState, int32_t toState);
@@ -186,7 +186,7 @@ class CVehiclePassenger_C {
     void ComputeModelTransform(C44Matrix& matrix, CM2Model*& model, CGUnit_C* vehicle, const VehicleSeatRec* seat, uint32_t attachment, float facing);
     void ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* seatRec, uint32_t time, C3Vector& endPosition);
     int32_t PostSetState(CGUnit_C* vehicle, VehicleSeatRec* seatRec, uint32_t time);
-    void OnUpdateTransport(WOWGUID transport, uint8_t seat, CGUnit_C* vehicle, int32_t deferred);
+    void OnUpdateTransport(WOWGUID transport, uint8_t seat, CGUnit_C* vehicle, BOOL deferred);
     int32_t CheckForVehicleTransitionAnimTimeout();
     void StopWaitingForVehicleTransitionAnim();
     void ExecuteAllDeferredVehicleTransitionAnimSplines();

@@ -1156,7 +1156,7 @@ void ClientConnection::Connect() {
 
 // VERIFY: 3d1c919f manual
 // OFFSET: 0x006B2CF0
-bool ClientServices::SetSelectedRealmInfo(int32_t force) {
+bool ClientServices::SetSelectedRealmInfo(BOOL force) {
     LoginResponse* response = ClientServices::CreateLoginResponse();
 
     if (!response) {
@@ -1630,7 +1630,7 @@ void ClientServices::LoginEnterToken(const char* token) {
 
 // VERIFY: e448981b manual
 // OFFSET: 0x006B08B0
-void ClientConnection::HandleLogoutResponse(int32_t result, int32_t instant) {
+void ClientConnection::HandleLogoutResponse(int32_t result, BOOL instant) {
     if (result) {
         CGGameUI::DisplayError(ERR_LOGOUT_FAILED);
         this->m_loggingOut = 0;

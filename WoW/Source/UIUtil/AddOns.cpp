@@ -1766,7 +1766,7 @@ bool IsAddonVersionCheckEnabled() {
 
 // VERIFY: e8b33bcf auto
 // OFFSET: 0x005F4CB0
-void SetAddonVersionCheck(int32_t enable) {
+void SetAddonVersionCheck(BOOL enable) {
     if (enable) {
         g_checkAddonVersionVar->Set("1", true, false, false, true);
     } else {

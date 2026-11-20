@@ -292,7 +292,7 @@ static void PortraitLightingCallback(CM2Model* model, CM2Lighting* lighting, voi
 
 // VERIFY: 2cd9b1ae auto
 // OFFSET: 0x00616F90
-static void PortraitCachePurge(PORTRAITCACHE** head, uint32_t maxEntries, int32_t force) {
+static void PortraitCachePurge(PORTRAITCACHE** head, uint32_t maxEntries, BOOL force) {
     uint32_t index = 1;
     PORTRAITCACHE* next;
 

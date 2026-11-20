@@ -134,7 +134,7 @@ const SpellVisualEffectNameRec* GetSpecialSpellVisualEffectNameRec(int32_t effec
 
 // VERIFY: 582bd84a auto
 // OFFSET: 0x006F75F0
-void CEffect::SetEmissionRateIgnoresDistance(int32_t ignore) {
+void CEffect::SetEmissionRateIgnoresDistance(BOOL ignore) {
     if (!this->m_model || !this->m_model->IsLoaded(0, 0)) {
         return;
     }
@@ -197,7 +197,7 @@ void CEffect::DetachFromParent() {
 
 // VERIFY: 552c4366 auto
 // OFFSET: 0x006F7870
-void CEffect::SetEnabled(int32_t enabled) {
+void CEffect::SetEnabled(BOOL enabled) {
     if (!this->m_model) {
         return;
     }

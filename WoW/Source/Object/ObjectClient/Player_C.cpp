@@ -2778,7 +2778,7 @@ void CGPlayer_C::UpdateAttackPosition(const CGUnit_C* target) {
 
 // VERIFY: f794ab61 manual
 // OFFSET: 0x006D52D0
-void __stdcall CGPlayer_C::ClearAFK(int32_t force) {
+void __stdcall CGPlayer_C::ClearAFK(BOOL force) {
     if (!CGChat::m_afk || (!force && !g_autoClearAFKCVar->m_intValue)) {
         return;
     }
@@ -4606,7 +4606,7 @@ void CGPlayer_C::PlayerInitializeMessageHandlers() {
 
 // VERIFY: ea8acbe5 manual
 // OFFSET: 0x006E4950
-void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, int32_t silent) {
+void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, BOOL silent) {
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ATTACK)) {
         return;
     }
@@ -4752,7 +4752,7 @@ int16_t CGPlayer_C::GetSkillModifier(int32_t index) {
 
 // VERIFY: c0b0e280 auto
 // OFFSET: 0x006E7B00
-void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, int32_t notify, int32_t addToSpellBook) {
+void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32_t addToSpellBook) {
     if (spellId > g_spellDB.m_maxID) {
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", spellId);
         return;
@@ -7959,7 +7959,7 @@ int32_t OnUpdatePlayerAuraVision(WOWGUID guid, uint32_t offset, uint32_t count, 
 
 // VERIFY: 5071e977 manual
 // OFFSET: 0x006E71D0
-void CGPlayer_C::DelKnownSpell(int32_t spellId, int32_t silent) {
+void CGPlayer_C::DelKnownSpell(int32_t spellId, BOOL silent) {
     if (spellId > g_spellDB.m_maxID) {
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", spellId);
         return;
@@ -10019,7 +10019,7 @@ void CGPlayer_C::GiftWrap(CGItem_C* item) {
 
 // VERIFY: 0b114c36 manual
 // OFFSET: 0x006DF890
-void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstContainer, uint32_t dstSlot, int32_t ignoreBind) {
+void CGPlayer_C::SwapItems(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstContainer, uint32_t dstSlot, BOOL ignoreBind) {
     if (srcSlot > 255 || dstSlot > 255) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
@@ -10176,7 +10176,7 @@ static void AutoEquipStatsCallback(int32_t id, const WOWGUID& guid, void* param,
 
 // VERIFY: 2b35572b manual
 // OFFSET: 0x006DFC40
-void CGPlayer_C::AutoEquipCursorItem(int32_t ignoreBind) {
+void CGPlayer_C::AutoEquipCursorItem(BOOL ignoreBind) {
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_EQUIP_ITEM)) {
         return;
     }
@@ -10306,7 +10306,7 @@ uint32_t CGPlayer_C::GetEquippedItemDisplayId() {
 
 // VERIFY: 79a55964 manual
 // OFFSET: 0x006DFEE0
-void CGPlayer_C::AutoEquipItem(WOWGUID container, uint32_t slot, int32_t ignoreBind) {
+void CGPlayer_C::AutoEquipItem(WOWGUID container, uint32_t slot, BOOL ignoreBind) {
     CGObject_C* object = ClntObjMgrObjectPtr(container, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!object || !object->GetBag()) {
@@ -11050,7 +11050,7 @@ int32_t __stdcall CGPlayer_C::CanSummonFriend(WOWGUID guid) {
 
 // VERIFY: 0c3db187 auto
 // OFFSET: 0x006D7720
-int32_t CGPlayer_C::UpdateMountedCollisionBox(float mountHeight, int32_t force) {
+int32_t CGPlayer_C::UpdateMountedCollisionBox(float mountHeight, BOOL force) {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid);
     CreatureModelDataRec* modelData = displayInfo ? g_creatureModelDataDB.GetRecord(displayInfo->m_modelID) : nullptr;
 
@@ -11086,7 +11086,7 @@ int32_t CGPlayer_C::UpdateMountedCollisionBox(float mountHeight, int32_t force) 
 
 // VERIFY: 5cad3e09 auto
 // OFFSET: 0x006D78C0
-int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t skipFitCheck, int32_t force) {
+int32_t CGPlayer_C::UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force) {
     CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid);
     CreatureModelDataRec* modelData = displayInfo ? g_creatureModelDataDB.GetRecord(displayInfo->m_modelID) : nullptr;
 
@@ -11177,7 +11177,7 @@ void PlayerShutdownSounds() {
 
 // VERIFY: a218f4b9 manual
 // OFFSET: 0x006DFF90
-void CGPlayer_C::AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, int32_t ignoreBind) {
+void CGPlayer_C::AutoEquipItemToSlot(CGItem_C* item, uint32_t slot, BOOL ignoreBind) {
     if (!item) {
         return;
     }
@@ -13758,7 +13758,7 @@ static const uint32_t s_playerSoundChance[NUM_UNITSOUNDTYPES] = { 35, 100, 30, 1
 
 // VERIFY: 904e0dd6 manual
 // OFFSET: 0x007631A0
-void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) {
+void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
     if (!force && CRandom::dice_(101, g_rndSeed) > s_playerSoundChance[soundType]) {
         return;
     }

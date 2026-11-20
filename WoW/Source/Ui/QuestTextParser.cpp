@@ -1097,7 +1097,7 @@ static int32_t SpellParserParseSubText(const SpellRec* spell, char* buffer, uint
 
 // VERIFY: 17c38493 auto
 // OFFSET: 0x0057ABC0
-int32_t SpellParserParseText(const SpellRec* spell, char* buffer, uint32_t size, int32_t parsePet, int32_t parseUnit, int32_t spellLevel, int32_t useAuraDescription, int32_t scale, int32_t noModifiers) {
+int32_t SpellParserParseText(const SpellRec* spell, char* buffer, uint32_t size, int32_t parsePet, int32_t parseUnit, int32_t spellLevel, BOOL useAuraDescription, int32_t scale, int32_t noModifiers) {
     *buffer = '\0';
 
     if (!spellLevel) {

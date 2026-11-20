@@ -109,7 +109,7 @@ void InputControlInitialize() {
 
 // VERIFY: f53f4378 auto
 // OFFSET: 0x005FA890
-void CGInputControl::UpdateMouseMode(int32_t force) {
+void CGInputControl::UpdateMouseMode(BOOL force) {
     uint32_t flags = this->m_mouseModeFlags;
     uint32_t cursorOn;
 
@@ -919,7 +919,7 @@ int32_t CGInputControl::SetControlBit(uint32_t bit, uint32_t time) {
 
 // VERIFY: 308e3e2e manual
 // OFFSET: 0x005FA450
-int32_t CGInputControl::UnsetControlBit(uint32_t bit, uint32_t time, int32_t keepSmoothing) {
+int32_t CGInputControl::UnsetControlBit(uint32_t bit, uint32_t time, BOOL keepSmoothing) {
     if (!(bit & this->m_flags)) {
         return 0;
     }
@@ -1316,7 +1316,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
 
 // VERIFY: ad249167 manual
 // OFFSET: 0x005FBE10
-void CGInputControl::ToggleControlBit(uint32_t bit, int32_t enable, uint32_t time, int32_t keepSmoothing) {
+void CGInputControl::ToggleControlBit(uint32_t bit, BOOL enable, uint32_t time, BOOL keepSmoothing) {
     int32_t changed = enable ? this->SetControlBit(bit, time) : this->UnsetControlBit(bit, time, keepSmoothing);
 
     if (!changed) {

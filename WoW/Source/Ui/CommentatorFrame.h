@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -124,7 +125,7 @@ class CGCommentator {
     void Init();
     void OnUpdate(float elapsed);
     void SnapCameraToPlayer();
-    void UpdateCameraVelocity(uint32_t controlFlags, int32_t canControl);
+    void UpdateCameraVelocity(uint32_t controlFlags, BOOL canControl);
     void SetMoveSpeed(float speed);
     void SetPosYawPitch(const C3Vector& position, float facing, float pitch);
     void SetFov(float fov);

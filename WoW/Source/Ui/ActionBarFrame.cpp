@@ -949,7 +949,7 @@ int32_t CGActionBar::IsCurrentAction(int32_t slot) {
 
 // VERIFY: b884f81a manual
 // OFFSET: 0x005AA390
-void CGActionBar::SlotChanged(int32_t slot, int32_t sendToServer, int32_t silent) {
+void CGActionBar::SlotChanged(int32_t slot, int32_t sendToServer, BOOL silent) {
     if (slot < 0 || slot >= sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])) {
         return;
     }
@@ -1016,7 +1016,7 @@ void CGActionBar::RemoveEquipmentSet(uint32_t id) {
 
 // VERIFY: 8e72a9c5 manual
 // OFFSET: 0x005AAE80
-void CGActionBar::SetAction(int32_t slot, uint32_t action, int32_t sendToServer, int32_t silent) {
+void CGActionBar::SetAction(int32_t slot, uint32_t action, int32_t sendToServer, BOOL silent) {
     if (slot < 0 || slot >= sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0])) {
         return;
     }
@@ -1742,7 +1742,7 @@ void CGActionBar::UpdateMacro(uint32_t macroId) {
 
 // VERIFY: c1c240db auto
 // OFFSET: 0x005A7C20
-void CGActionBar::SetTemporaryActionBarFlags(uint32_t flags, int32_t enable) {
+void CGActionBar::SetTemporaryActionBarFlags(uint32_t flags, BOOL enable) {
     if (enable) {
         CGActionBar::m_tempPageActiveFlags |= flags;
     } else {

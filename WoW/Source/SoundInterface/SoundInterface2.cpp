@@ -567,7 +567,7 @@ int32_t SI2::ResetSoundKitVariants(const char* name) {
 
 // VERIFY: 2c0f24c2 auto
 // OFFSET: 0x004C6390
-int32_t SI2::StopSound(SE2SoundKitObject* object, int32_t immediate, float fadeOutTime, int32_t stopAdvanced) {
+int32_t SI2::StopSound(SE2SoundKitObject* object, BOOL immediate, float fadeOutTime, int32_t stopAdvanced) {
     SI2SoundUserData* userData = static_cast<SI2SoundUserData*>(object->m_sound.GetUserData());
 
     if (userData) {
@@ -606,7 +606,7 @@ int32_t SI2ZoneSoundPair::GetPlayingSoundKitId() {
 
 // VERIFY: 71a7805b manual
 // OFFSET: 0x004C6450
-void SI2ZoneSoundPair::Stop(int32_t immediate) {
+void SI2ZoneSoundPair::Stop(BOOL immediate) {
     SI2::StopSound(&this->m_sounds[this->m_current].m_object, immediate, -1.0f, 1);
     this->m_sounds[this->m_current].m_type = SI2::ZONE_SOUND_TYPE::SOURCE_NONE;
     this->m_sounds[this->m_current].m_soundKitId = 0;
@@ -680,7 +680,7 @@ void SI2::RegisterDeviceChangeHandler() {
 
 // VERIFY: 5c43095a manual
 // OFFSET: 0x004C6A40
-int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, int32_t keepPlaying) {
+int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying) {
     if (soundKitId <= 0) {
         return 5;
     }
@@ -925,7 +925,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
 // VERIFY: 4ec0a358 manual
 // OFFSET: 0x004C7140
-int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, int32_t immediate, float fadeOutTime) {
+int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime) {
     if (type >= SI2::ZONE_SOUND_TYPE::NUM_SOURCE_SLOTS) {
         SI2::StopSound(&this->m_sounds[this->m_current].m_object, 0, -1.0f, 1);
         this->m_sounds[this->m_current].m_type = type;

@@ -878,7 +878,7 @@ const char* CGTooltip::GetItemQualityColorString(uint32_t quality) {
 
 // VERIFY: 217f6dcb manual
 // OFFSET: 0x0061B040
-void CGTooltip::ResetPosition(int32_t force) {
+void CGTooltip::ResetPosition(BOOL force) {
     if (!this->m_owner || this->m_anchorType == ANCHOR_PRESERVE) {
         return;
     }
@@ -1813,7 +1813,7 @@ lookup:
 
 // VERIFY: 6f35979f manual
 // OFFSET: 0x00621070
-int32_t CGTooltip::SetUnit(const WOWGUID& guid, int32_t showHealth, const WOWGUID& healthGuid, BOOL hideOffline) {
+int32_t CGTooltip::SetUnit(const WOWGUID& guid, BOOL showHealth, const WOWGUID& healthGuid, BOOL hideOffline) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
@@ -2567,7 +2567,7 @@ void TooltipSpellCallback(int32_t id, const WOWGUID& guid, void* param, bool suc
 
 // VERIFY: 73537865 manual
 // OFFSET: 0x006224F0
-int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* group, int32_t isInspect, int32_t isPet, int32_t usePreview) {
+int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* group, BOOL isInspect, BOOL isPet, BOOL usePreview) {
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
     char text[256];
 
@@ -2644,7 +2644,7 @@ int32_t CGTooltip::AddTalentPrereqs(const TalentRec* talent, CGTalentGroup_C* gr
 
 // VERIFY: 5d06b108 manual
 // OFFSET: 0x00622800
-void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, int32_t isInspect, int32_t useRank, int32_t isPet, int32_t usePreview) {
+void CGTooltip::AddTalentLearnText(const TalentRec* talent, CGTalentGroup_C* group, int32_t prereqsMet, int32_t rank, int32_t maxRank, BOOL isInspect, BOOL useRank, BOOL isPet, BOOL usePreview) {
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
 
@@ -2767,7 +2767,7 @@ static void FormatSpellRange(char* range, float minRange, float maxRange, float 
 }
 
 // INLINED
-static void AddSpellRangeLines(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C* caster, int32_t brief, char* cost, char* range) {
+static void AddSpellRangeLines(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C* caster, BOOL brief, char* cost, char* range) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     float enemyMin = 0.0f;
     float enemyMax = 0.0f;
@@ -2829,7 +2829,7 @@ static void AddSpellRangeLines(CGTooltip* tooltip, const SpellRec* spell, CGUnit
 }
 
 // INLINED
-static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, int32_t isPet, int32_t isInspect, int32_t powerCost, int32_t cooldown) {
+static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, BOOL isPet, BOOL isInspect, int32_t powerCost, int32_t cooldown) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char castTime[128];
     char recastTime[128];
@@ -2876,7 +2876,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, i
 }
 
 // INLINED
-static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, int32_t brief) {
+static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL brief) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[4096];
     int32_t first = 1;
@@ -2948,7 +2948,7 @@ static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer
 }
 
 // INLINED
-static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, int32_t brief, int32_t isPet) {
+static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL brief, BOOL isPet) {
     char items[512];
     char format[128];
     char text[512];
@@ -3015,7 +3015,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
 }
 
 // INLINED
-static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C* caster, int32_t brief) {
+static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C* caster, BOOL brief) {
     char forms[512];
     char format[128];
     char text[128];
@@ -3068,7 +3068,7 @@ static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C
 }
 
 // INLINED
-static void AddSpellReputationLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, int32_t brief) {
+static void AddSpellReputationLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL brief) {
     char token[128];
     char text[128];
 
@@ -3091,7 +3091,7 @@ static void AddSpellReputationLine(CGTooltip* tooltip, const SpellRec* spell, CG
 }
 
 // INLINED
-static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, int32_t brief) {
+static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL brief) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[4096];
     char reagent[128];
@@ -3144,7 +3144,7 @@ static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPla
 }
 
 // INLINED
-static int32_t AddSpellEffectChanceLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, int32_t isTradeSkill) {
+static int32_t AddSpellEffectChanceLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL isTradeSkill) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[128];
     int32_t effect = spell->m_effect[0];
@@ -3233,7 +3233,7 @@ void CGTooltip::AddColoredItemStat(int32_t value, const char* name, int32_t* fir
 
 // VERIFY: 8edeac88 manual
 // OFFSET: 0x006238A0
-int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t spellRank, int32_t rank, int32_t maxRank, int32_t showLearn) {
+int32_t CGTooltip::SetSpell(int32_t spellId, BOOL brief, uint32_t cooldown, BOOL isPet, BOOL showRank, BOOL isInspect, BOOL useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, BOOL append, BOOL usePreview, int32_t spellRank, int32_t rank, int32_t maxRank, BOOL showLearn) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
@@ -4206,7 +4206,7 @@ bool ResolveItemSetItem(ItemSetTooltipData* data, int32_t pass, int32_t itemId, 
 }
 
 // INLINED
-static void AddItemNameLines(CGTooltip* tooltip, const ItemStats_C* stats, int32_t itemId, int32_t randomPropertiesId, int32_t nameOnly, int32_t append, int32_t destroyGem) {
+static void AddItemNameLines(CGTooltip* tooltip, const ItemStats_C* stats, int32_t itemId, int32_t randomPropertiesId, int32_t nameOnly, BOOL append, int32_t destroyGem) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& grayColor = *reinterpret_cast<const CImVector*>(&s_tooltipGrayColor);
     const CImVector& greenColor = *reinterpret_cast<const CImVector*>(&s_tooltipGreenColor);
@@ -6491,7 +6491,7 @@ static void AddItemSellPrice(CGTooltip* tooltip, const ItemStats_C* stats, CGIte
 
 // VERIFY: 3c6e8093 manual
 // OFFSET: 0x006277F0
-int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGUID* itemGuid, int32_t nameOnly, int32_t compare, int32_t useLinkInfo, int32_t append, WOWGUID owner, int32_t socketPreview, FILE* stream, int32_t hideCharges, const ItemLinkInfo* link, int32_t minimumLevel, int32_t skipLock, int32_t skipSellPrice) {
+int32_t CGTooltip::SetItem(int32_t itemId, const WOWGUID* requester, const WOWGUID* itemGuid, int32_t nameOnly, int32_t compare, BOOL useLinkInfo, BOOL append, WOWGUID owner, int32_t socketPreview, FILE* stream, int32_t hideCharges, const ItemLinkInfo* link, int32_t minimumLevel, int32_t skipLock, int32_t skipSellPrice) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);
@@ -6830,7 +6830,7 @@ const char* CGTooltip::GetGlyphLink(int32_t slotId, int32_t glyphId) {
 
 // VERIFY: ed6fe309 manual
 // OFFSET: 0x00622BA0
-void CGTooltip::SetGlyph(int32_t slotId, int32_t glyphId, int32_t enabled, int32_t hideRemove, int32_t parseUnit) {
+void CGTooltip::SetGlyph(int32_t slotId, int32_t glyphId, BOOL enabled, int32_t hideRemove, int32_t parseUnit) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& grayColor = *reinterpret_cast<const CImVector*>(&s_skillColors[0]);
@@ -6883,7 +6883,7 @@ void CGTooltip::SetGlyph(int32_t slotId, int32_t glyphId, int32_t enabled, int32
 
 // VERIFY: a6d7c47a manual
 // OFFSET: 0x00626E20
-void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, int32_t isInspect, int32_t useRank, int32_t rank, int32_t isPet, int32_t usePreview) {
+void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, BOOL isInspect, BOOL useRank, int32_t rank, BOOL isPet, BOOL usePreview) {
     if (!talent) {
         this->Hide();
         return;
@@ -6993,7 +6993,7 @@ void CGTooltip::AddLine(const char* left, const char* right, int32_t wrap) {
 
 // VERIFY: 1678db84 auto
 // OFFSET: 0x0062D930
-int32_t CGTooltip::SetItemDelta(const CGItemStatsSummary* summary, int32_t append) {
+int32_t CGTooltip::SetItemDelta(const CGItemStatsSummary* summary, BOOL append) {
     if (!append) {
         this->ClearTooltip();
     }

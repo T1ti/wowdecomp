@@ -9,6 +9,7 @@
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/SoundInterface/Types.h"
 
 class C3Vector;
@@ -46,8 +47,8 @@ void RenderCollisionInfo();
 
 // Object/ObjectClient/Unit_C_Debug.cpp
 void UnitDebugRegisterConsoleCommands();
-void UnitCombatDebugLogEnable(int32_t enable);
-void UnitDebugCombatLogOnEnable(int32_t enable);
+void UnitCombatDebugLogEnable(BOOL enable);
+void UnitDebugCombatLogOnEnable(BOOL enable);
 
 // WorldClient/WorldRender_Debug.cpp
 void WorldDebugRenderLate();

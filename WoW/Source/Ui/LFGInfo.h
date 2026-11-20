@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_LFGINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Ui/LFGLIST.h"
 #include "WoW/Source/Ui/LFGRoles.h"
@@ -252,7 +253,7 @@ class CGLookingForGroup {
     static bool HasRaidDungeon(LFGInfo* info);
     static void UpdateLFDEntries();
     static void UpdateLFREntries();
-    static void ShowProposal(int32_t silent);
+    static void ShowProposal(BOOL silent);
     static void ParsePartyInfo(CDataStore* msg);
     static void ParseBlackList(CDataStore* msg, LFGLockInfo* lockInfo);
     static void UpdateRandomDungeons();

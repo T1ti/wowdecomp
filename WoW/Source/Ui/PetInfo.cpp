@@ -524,7 +524,7 @@ int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t se
 
 // VERIFY: f67f93cb manual
 // OFFSET: 0x005D5D20
-void CGPetInfo::SetAutocast(uint32_t index, int32_t enable) {
+void CGPetInfo::SetAutocast(uint32_t index, BOOL enable) {
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
         return;
     }
@@ -548,7 +548,7 @@ void CGPetInfo::SetAutocast(uint32_t index, int32_t enable) {
 
 // VERIFY: ad93780d manual
 // OFFSET: 0x005D5E10
-void CGPetInfo::SetSpellAutocast(int32_t spellId, int32_t enable) {
+void CGPetInfo::SetSpellAutocast(int32_t spellId, BOOL enable) {
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !CGPetInfo::PetActionsUsable(false)) {
         return;
     }
@@ -638,7 +638,7 @@ bool CGPetInfo::PetActionsUsable(bool ignoreControl) {
 
 // VERIFY: 06236977 manual
 // OFFSET: 0x005D4210
-void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, int32_t useGiven) {
+void CGPetInfo::SendPetAction(const PetAction& action, const WOWGUID& target, BOOL useGiven) {
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL)) {
         return;
     }
@@ -1167,7 +1167,7 @@ void CGPetInfo::SetPet(WOWGUID pet, uint32_t expiration, int32_t family) {
 
 // VERIFY: 833963cb auto
 // OFFSET: 0x005D4620
-void CGPetInfo::PetAttackTarget(const WOWGUID& target, int32_t useGiven) {
+void CGPetInfo::PetAttackTarget(const WOWGUID& target, BOOL useGiven) {
     PetAction action;
     action.m_data = 0x7000002;
     CGPetInfo::SendPetAction(action, target, useGiven);

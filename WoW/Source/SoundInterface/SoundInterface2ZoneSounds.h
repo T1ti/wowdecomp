@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/SoundInterface/SoundInterface2.h"
 
@@ -46,8 +47,8 @@ class SI2ZoneSoundPair {
     int32_t GetPlayingSoundKitId();
     bool IsPlaying();
     void SetFinishedCallback(void (*callback)(SESound*, void*), void* param);
-    void Stop(int32_t immediate);
-    int32_t Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, int32_t immediate, float fadeOutTime);
+    void Stop(BOOL immediate);
+    int32_t Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime);
 };
 
 #endif

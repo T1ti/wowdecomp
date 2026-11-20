@@ -535,7 +535,7 @@ int32_t CGObject_C::ShouldFadeout() {
 
 // VERIFY: b5a67297 auto
 // OFFSET: 0x00632050
-void CGObject_C::UpdateDisplayInfo(int32_t force) {
+void CGObject_C::UpdateDisplayInfo(BOOL force) {
 }
 
 // VERIFY: 6b122e4b auto
@@ -1114,7 +1114,7 @@ void CGObject_C::SetDisablePending(int32_t pending) {
 
 // VERIFY: 63d58122 manual
 // OFFSET: 0x00745140
-void CGObject_C::SetInteractIconVisible(int32_t visible) {
+void CGObject_C::SetInteractIconVisible(BOOL visible) {
     CM2Model* icon = this->m_interactIcon;
 
     if (!icon || !icon->m_attachParent) {

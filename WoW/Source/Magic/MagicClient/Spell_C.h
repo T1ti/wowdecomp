@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Game/GameClient/tables.h"
 #include "WoW/Source/Object/Types.h"
@@ -206,7 +207,7 @@ void Spell_C_CancelCastingSpellByMovement();
 void Spell_C_CancelChannelSpell(int32_t spellId);
 int32_t Spell_C_GetAutoRepeatingSpell();
 void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category, int32_t cooldownLeft, int32_t categoryCooldownLeft, bool onHold, int32_t pet);
-int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers);
+int32_t Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, int32_t* minPoints, int32_t* maxPoints, int32_t spellLevel, BOOL isPet, BOOL isUnit, int32_t noModifiers);
 void Spell_C_CancelAutoRepeat(bool notifyServer);
 void Spell_C_CancelSpellsWithId(int32_t spellId);
 void Spell_C_SetAutoRangedCombatSpell(int32_t spellId);
@@ -282,13 +283,13 @@ bool Spell_C_HasCooldownOnEvent(const SpellRec* spell, WOWGUID guid);
 void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, int32_t pet);
 bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, SPELL_MOD_OP modifier);
 bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, SPELL_MOD_OP modifier);
-uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, int32_t isPet, int32_t isUnit);
+uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, BOOL isPet, BOOL isUnit);
 int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* unit);
-void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, int32_t isPet, int32_t isUnit, int32_t noModifiers);
+void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, BOOL isPet, BOOL isUnit, int32_t noModifiers);
 void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minRange, float* maxRange, int32_t friendly, CGObject_C* target);
 void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minRange, float* maxRange, CGObject_C* target);
 CGUnit_C* Spell_C_TargetImpliedTarget(CGUnit_C* target, const SpellRec* spell, uint32_t needTargets, CGUnit_C* caster);
-int32_t Spell_C_GetDuration(const SpellRec* spell, int32_t isPet, int32_t isUnit, int32_t noModifiers, int32_t applyHaste);
+int32_t Spell_C_GetDuration(const SpellRec* spell, BOOL isPet, BOOL isUnit, int32_t noModifiers, int32_t applyHaste);
 bool Spell_C_HasNoReagentCost(CGPlayer_C* player, const SpellRec* spell);
 int32_t Spell_C_GetTargetingSpell();
 bool Spell_C_GetItemCooldown(CGItem_C* item, uint32_t* duration, uint32_t* start, uint32_t* enable);

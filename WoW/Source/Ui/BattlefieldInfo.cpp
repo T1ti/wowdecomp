@@ -826,7 +826,7 @@ void CGBattlefieldInfo::InitializeGame() {
 
 // VERIFY: b9485434 manual
 // OFFSET: 0x0054CC70
-void CGBattlefieldInfo::JoinBattlefield(uint32_t index, int32_t asGroup, int32_t isRated) {
+void CGBattlefieldInfo::JoinBattlefield(uint32_t index, int32_t asGroup, BOOL isRated) {
     if (!CGBattlefieldInfo::m_allowJoin) {
         return;
     }

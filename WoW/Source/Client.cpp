@@ -2037,7 +2037,7 @@ static void ClientBeginTaxiBenchmarkMode() {
 
 // VERIFY: a664a31a manual
 // OFFSET: 0x00404F60
-static void ClientEndTaxiBenchmarkMode(int32_t silent) {
+static void ClientEndTaxiBenchmarkMode(BOOL silent) {
     if (!s_clientTaxiBenchEnabled) {
         return;
     }

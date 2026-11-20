@@ -3199,7 +3199,7 @@ void CGGameObject_C_TypeAnimated::HandleAnimEvent(uint32_t eventId, uint32_t dat
 
 // VERIFY: c5be7d0b manual
 // OFFSET: 0x007110B0
-CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, int32_t waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets) {
+CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, BOOL waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets) {
     const char* name = this->GetModelFileNameInternal();
 
     if (!name) {

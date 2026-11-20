@@ -482,7 +482,7 @@ uint32_t CGUnit_C::IsStrafingDisabled() const {
 
 // VERIFY: dcad4d49 auto
 // OFFSET: 0x0074B9B0
-void CGUnit_C::SetVehicleExitVoluntary(int32_t enable) {
+void CGUnit_C::SetVehicleExitVoluntary(BOOL enable) {
     this->m_movementData.SetVehicleExitVoluntary(enable);
 }
 

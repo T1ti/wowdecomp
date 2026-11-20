@@ -2082,7 +2082,7 @@ void CGlueMgr::GetCharacterList() {
 
 // VERIFY: 616c4f30 auto
 // OFFSET: 0x004D9610
-void CGlueMgr::GetRealmList(int32_t showDialog) {
+void CGlueMgr::GetRealmList(BOOL showDialog) {
     CGlueMgr::m_idleState = IDLE_REALM_LIST;
     CGlueMgr::m_showedDisconnect = 0;
 

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -71,9 +72,9 @@ class CMovementShared : public CPassenger {
     /* 00C0 */ uint32_t m_statusTimeMs;
 
     CMovementShared(const WOWGUID& transportGuid, const C3Vector& position, float facing, const WOWGUID& ownerGuid);
-    void CalcCurrentSpeed(int32_t force);
+    void CalcCurrentSpeed(BOOL force);
     void CalcDirection();
-    void CalcDirection(int32_t force);
+    void CalcDirection(BOOL force);
     float CalcFallStartElevation(uint32_t time) const;
     float CalcSplineHeight(uint32_t time, float z) const;
     float CalcTimeFallen(float distance, int32_t upward) const;
@@ -91,8 +92,8 @@ class CMovementShared : public CPassenger {
     void ClearSplineEnabled();
     void RemoveSpline();
     void ComputeSplineDurationModifier(float progress);
-    int32_t EnableGravity(int32_t enable);
-    void FeatherFall(int32_t enable);
+    int32_t EnableGravity(BOOL enable);
+    void FeatherFall(BOOL enable);
     void ForceStopMove(int32_t tryFall);
     void ForceStopStrafe();
     float GetBaseSpeed(int32_t walk) const;
@@ -101,10 +102,10 @@ class CMovementShared : public CPassenger {
     float GetFeatherFallVelocity() const;
     C3Vector GetGroundNormal() const;
     float GetModifiedSplineDuration() const;
-    NETMESSAGE GetMoveEventMsgId(uint32_t oldFlags, int32_t ignoreJump) const;
+    NETMESSAGE GetMoveEventMsgId(uint32_t oldFlags, BOOL ignoreJump) const;
     void GetMoveStatus(NETMESSAGE msgId, uint32_t gameTime, CMovementStatus* status) const;
     C3Vector GetPosition() const;
-    void Hover(int32_t enable);
+    void Hover(BOOL enable);
     int32_t IsFalling() const;
     int32_t IsFallingSwimmingFlying() const;
     int32_t IsGravityDisabled() const;
@@ -133,18 +134,18 @@ class CMovementShared : public CPassenger {
     float RelDistanceFallen(uint32_t time) const;
     float RelDistanceFallen(uint32_t time, float z) const;
     void ResetSpline(uint32_t splineId, uint32_t splineFlags);
-    void SetAnimTierInTrans(int32_t enable);
+    void SetAnimTierInTrans(BOOL enable);
     void SetFacing(float facing);
-    void SetJumpSplineInAir(int32_t enable);
+    void SetJumpSplineInAir(BOOL enable);
     int32_t SetPitch(float pitch);
     void SetRawFacing(float facing);
     void SetRunMode(int32_t run);
     void SetSplineEnabled();
-    void SetVehicleExitVoluntary(int32_t enable);
+    void SetVehicleExitVoluntary(BOOL enable);
     int32_t StartAscensionDescension(int32_t ascend);
     int32_t StartFalling(float velocity);
     int32_t StartFlight();
-    int32_t StartMove(int32_t forward, int32_t force);
+    int32_t StartMove(int32_t forward, BOOL force);
     void StartPitch(int32_t up);
     int32_t StartStrafe(int32_t left);
     void StartSwim();
@@ -164,12 +165,12 @@ class CMovementShared : public CPassenger {
     void TryRoot();
     int32_t TryStartFalling();
     void UnRoot(int32_t tryFall);
-    void UpdateAnchors(int32_t force);
+    void UpdateAnchors(BOOL force);
     void UpdateBaseStatus(const CMovementStatus& status);
     void UpdateFallState(const CMovementStatus& status);
     void UpdateFallingFar();
     uint64_t UpdateTransportStatus(const CMovementStatus& status);
-    void WalkOnWater(int32_t enable);
+    void WalkOnWater(BOOL enable);
     void Teleport(const C3Vector& position, float facing, int32_t removeSpline);
     void TransformSpline(const C44Matrix& matrix, float facing);
     void TransportTransform(const C44Matrix& matrix, float facing, const C3Vector& oldPosition);

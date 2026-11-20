@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/SoundEngine/SoundEngine.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -149,7 +150,7 @@ class SI2 {
     static int32_t sm_bLuaMusicPlaying;
     static TSGrowableArray<uint32_t> sm_aIntroMusicNextValidPlayTime;
 
-    static int32_t AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, int32_t forceLoop);
+    static int32_t AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop);
     static void AIMusicFinished(SESound* sound, void* param);
     static void ApplyReverbSettings();
     static int32_t AttachToObject(SE2SoundKitObject* object, WOWGUID guid);
@@ -233,7 +234,7 @@ class SI2 {
     static void PlayVocalErrorSound(VOCALUISOUNDS error);
     static void PlaySpellFizzleSound(uint32_t spellId, const void* object);
     static void DK_GetPlayerFilterName(CGUnit_C* unit, char* name, uint32_t size);
-    static int32_t PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, int32_t keepPlaying);
+    static int32_t PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying);
     static int32_t PlayUISound(int32_t soundKitId);
     static int32_t PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, const C3Vector* position, int32_t quiet, int32_t self);
     static void RegisterCVars();
@@ -275,7 +276,7 @@ class SI2 {
     static void StopGlueAmbience(float fadeOutTime);
     static void StopGlueMusic(float fadeOutTime);
     static void StopLuaMusic();
-    static int32_t StopSound(SE2SoundKitObject* object, int32_t immediate, float fadeOutTime, int32_t stopAdvanced);
+    static int32_t StopSound(SE2SoundKitObject* object, BOOL immediate, float fadeOutTime, int32_t stopAdvanced);
     static void StopZoneAmbience();
     static void UnregisterScriptFunctions();
     static int32_t UpdateAdvancedSounds(const void* data, void* param);

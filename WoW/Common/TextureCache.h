@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/BLPFile/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Common/ComponentCore/Types.h"
@@ -33,7 +34,7 @@ HTEXTURECACHE TextureCacheCopyTexture(HTEXTURECACHE handle);
 HTEXTURECACHE TextureCacheCreateTexture(const char* fileName);
 void TextureCacheDestroy();
 void TextureCacheDestroyTexture(HTEXTURECACHE handle);
-int32_t TextureCacheGetInfo(HTEXTURECACHE handle, TCTEXTUREINFO& info, int32_t wait);
+int32_t TextureCacheGetInfo(HTEXTURECACHE handle, TCTEXTUREINFO& info, BOOL wait);
 void* TextureCacheGetMip(HTEXTURECACHE handle, uint32_t mipLevel);
 BlpPalPixel* TextureCacheGetPal(HTEXTURECACHE handle);
 int32_t TextureCacheHasMips(HTEXTURECACHE handle);

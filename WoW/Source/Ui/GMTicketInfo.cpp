@@ -61,7 +61,7 @@ static int32_t IsTicketTextValid(const char* text) {
 
 // VERIFY: 5d46286a manual
 // OFFSET: 0x005AC8F0
-void CGGMTicketInfo::CreateTicket(const char* text, int32_t needResponse, uint32_t moreHelp) {
+void CGGMTicketInfo::CreateTicket(const char* text, BOOL needResponse, uint32_t moreHelp) {
     if (moreHelp) {
         if (!CGGMTicketInfo::m_responseID) {
             return;

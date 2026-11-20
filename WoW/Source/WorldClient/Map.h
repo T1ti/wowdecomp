@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C4Quaternion.h"
 #include "Engine/Source/Tempest/CAaBox.h"
@@ -182,7 +183,7 @@ class CMap {
     public:
     static void UpdateDoodadDefTransform(CMapDoodadDef* doodadDef, const C44Matrix& matrix);
     static void UpdateDoodadDefBounds(CMapDoodadDef* doodadDef);
-    static CMapObjDef* CreateMapObjDef(const char* fileName, const C3Vector* position, float facing, int32_t waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
+    static CMapObjDef* CreateMapObjDef(const char* fileName, const C3Vector* position, float facing, BOOL waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
     static void SnapBaseObjToSubChunk(CMapBaseObj* baseObj, const C3Vector* position, float facing);
     static void UpdateDoodadDef(CMapDoodadDef* doodadDef, const C3Vector* position, float facing);
     static TSGrowableArray<CGxVertexPC> debugVertexArray;
@@ -361,7 +362,7 @@ class CMap {
     static CMapLight* AllocLight();
     static CMapObjDef* CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3Vector* center, bool cached);
     static CMapDoodadDef* CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDef, C3Vector* center);
-    static CMapDoodadDef* CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, int32_t waitForLoad);
+    static CMapDoodadDef* CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, BOOL waitForLoad);
     static CMapLight* CreateLight(uint8_t dynamic, uint8_t excludeFromMapObjLighting);
     static CMapDoodadDef* CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef, char* name, uint32_t key, C44Matrix* mat, uint16_t doodadSet);
     static void FreeBaseObjLinksInBounds(CAaBox* box);

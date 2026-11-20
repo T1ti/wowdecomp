@@ -374,7 +374,7 @@ int32_t CMapObjDef::MoveDoodadDefs(CMapObjDef* source, uint16_t doodadSet, CMapO
 
 // VERIFY: 8aef7968 manual
 // OFFSET: 0x007B69C0
-void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, int32_t ignore, uint16_t doodadSet) {
+void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ignore, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
@@ -434,7 +434,7 @@ void CMap::LinkDoodadDefToMapObjDefs(CMapDoodadDef* doodadDef, CMapObjDef* skip)
 
 // VERIFY: 973b4b33 manual
 // OFFSET: 0x007B6F60
-void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, int32_t enable, uint16_t doodadSet) {
+void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
         CMapBaseObjLink* next;

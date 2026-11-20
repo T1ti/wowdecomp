@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -51,7 +52,7 @@ class BlizzardObject : public TSLinkedNode<BlizzardObject> {
     ~BlizzardObject();
     C3Vector GetWorldPosition() const;
     void SetFrameOfReference(const C44Matrix* matrix);
-    void Render(int32_t visible);
+    void Render(BOOL visible);
     void Init(const C3Vector* position, const char* modelName, float radius, float rate);
     bool Update();
 };

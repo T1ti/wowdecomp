@@ -82,7 +82,7 @@ void Trade_C_Destroy() {
 
 // VERIFY: efe27afc manual
 // OFFSET: 0x00703CF0
-void CGTradeInfo::InitiateTrade(WOWGUID target, int32_t useCursorItem) {
+void CGTradeInfo::InitiateTrade(WOWGUID target, BOOL useCursorItem) {
     if (s_tradeTarget) {
         CGGameUI::DisplayError(ERR_ALREADY_TRADING);
         return;

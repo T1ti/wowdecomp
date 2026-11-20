@@ -624,7 +624,7 @@ static void LoadingScreenPaint(void* param, const RECTF* rect, const RECTF* visi
 
 // VERIFY: 0ced5aa1 auto
 // OFFSET: 0x0040A920
-static void UpdateProgressBar(int32_t force) {
+static void UpdateProgressBar(BOOL force) {
     uint32_t time = OsGetAsyncTimeMs();
     EventInputProcess(EventGetCurrentContext());
 

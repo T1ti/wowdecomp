@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Handle.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Tempest/C2Vector.h"
@@ -266,7 +267,7 @@ namespace DayNight {
     void SetPlanets();
     CImVector DarkenColor(CImVector color, float scale);
     float InterpTable(const C2Vector* table, uint32_t count, float t);
-    void SetOverrideFog(float startScalar, float end, CImVector color, int32_t showSky);
+    void SetOverrideFog(float startScalar, float end, CImVector color, BOOL showSky);
     void ClearOverrideFog();
     void SetOverrideLightParamsID(uint32_t id);
     void ClearOverrideLightParamsID();

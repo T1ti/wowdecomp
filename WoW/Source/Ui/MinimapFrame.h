@@ -236,7 +236,7 @@ void MinimapRegisterScriptFunctions();
 void MinimapUnregisterScriptFunctions();
 
 void MinimapInitialize(int32_t mapId);
-int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles, MINIMAPINDOOR* indoor, int32_t force);
+int32_t MinimapUpdate(CMapEntity* entity, int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles, MINIMAPINDOOR* indoor, BOOL force);
 TSGrowableArray<AreaPOIRec*>* MinimapGetPOI(int32_t* changed);
 float MinimapGetViewRadius();
 AreaPOIRec* MinimapGetGossipPoi();

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/C33Matrix.h"
@@ -282,7 +283,7 @@ class CGCamera : public CSimpleCamera {
     void ClearVehicleExitZoomDistance();
     void CreateViewFromCamera(uint32_t view);
     void DecIgnoreFacing();
-    void DisableFreeLook(int32_t keepSmoothing);
+    void DisableFreeLook(BOOL keepSmoothing);
     void EnableFreeLook();
     int32_t FinishLoadingTarget(CGObject_C* target);
     C3Vector GetCameraPosition(const C3Vector& target, float distance, const C3Vector& offset);
@@ -300,7 +301,7 @@ class CGCamera : public CSimpleCamera {
     void LoadCameraSettings();
     void MakeRelativeTo(WOWGUID guid);
     C33Matrix ParentToWorld() const;
-    void PerformTerrainTilt(CGObject_C* target, uint32_t time, int32_t immediate);
+    void PerformTerrainTilt(CGObject_C* target, uint32_t time, BOOL immediate);
     void PickVehicleCamera();
     void OnVehicleCameraDestroyed();
     void ResetModelCamera();
@@ -324,7 +325,7 @@ class CGCamera : public CSimpleCamera {
     void SetVehicleSeatZoomMinDistance(float distance);
     void SetVehicleSeatZoomMinDistanceToDefault();
     void SetVehicleTrackingStyle(uint32_t style);
-    void SetVehicleZoomEnabled(int32_t enabled, float duration, int32_t animate);
+    void SetVehicleZoomEnabled(BOOL enabled, float duration, int32_t animate);
     int32_t ShouldSmoothPitch(float minPitch, float maxPitch);
     int32_t SmoothSetDistance(float distance, float delay, float scale, uint32_t time);
     int32_t SmoothSetFlyingMountHeight(float height, float delay, float scale, uint32_t time);
@@ -339,11 +340,11 @@ class CGCamera : public CSimpleCamera {
     int32_t StartSmoothPitch(float pitch, float rate, uint32_t startTime);
     int32_t StartSmoothTargetOffset(float offset, float rate, uint32_t startTime);
     int32_t StartSmoothYaw(float yaw, float rate, uint32_t startTime);
-    void UpdateAutoInteractState(int32_t enabled);
+    void UpdateAutoInteractState(BOOL enabled);
     void UpdateBobbingState(int32_t moving);
     void SmoothFreeLook(CGInputControl* input, int32_t idle);
     void UpdateTrackingState(int32_t tracking);
-    int32_t UpdateInebriation(float drunkness, int32_t immediate);
+    int32_t UpdateInebriation(float drunkness, BOOL immediate);
     float UpdateLiquidSurfaceStatus(CGObject_C* target);
     void UpdateMountHeightOrOffset(CGUnit_C* unit);
     void UpdateTargetFacing(CGObject_C* target, float& yaw, float& pitch, float& roll);

@@ -158,7 +158,7 @@ void TextureCacheDestroy() {
 
 // VERIFY: 65c3dd55 auto
 // OFFSET: 0x004F2E50
-int32_t TextureCacheGetInfo(HTEXTURECACHE handle, TCTEXTUREINFO& info, int32_t wait) {
+int32_t TextureCacheGetInfo(HTEXTURECACHE handle, TCTEXTUREINFO& info, BOOL wait) {
     CACHEENTRY* entry = handle;
 
     if (!entry) {

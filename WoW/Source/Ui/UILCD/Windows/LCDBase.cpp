@@ -96,7 +96,7 @@ void CLCDBase::Shutdown() {
 
 // VERIFY: dbc03d2b auto
 // OFFSET: 0x0095BE10
-void CLCDBase::Show(int32_t show) {
+void CLCDBase::Show(BOOL show) {
     this->m_bVisible = show;
 }
 
@@ -108,7 +108,7 @@ int32_t CLCDBase::IsVisible() {
 
 // VERIFY: 6e0ea336 auto
 // OFFSET: 0x0095BE20
-void CLCDBase::Invert(int32_t enable) {
+void CLCDBase::Invert(BOOL enable) {
     this->m_bInverted = enable;
 }
 

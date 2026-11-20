@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/QuestCache.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -86,7 +87,7 @@ class CGQuestInfo {
     static void SetState(WOWGUID npc, WOWGUID inform, QUEST_STATE state, const char* text, int32_t questId, int32_t startCheat);
     static void SetLogDescription(const char* text);
     static void AddReward(const char* title, const uint32_t* choiceItems, const uint32_t* choiceDisplays, const uint32_t* choiceCounts, int32_t numChoices, const uint32_t* rewardItems, const uint32_t* rewardDisplays, const uint32_t* rewardCounts, int32_t numRewards, int32_t money, int32_t xp, uint32_t honor, float honorMultiplier, int32_t spell, int32_t spellCast, int32_t autoLaunched, int32_t suggestedGroupNum, int32_t rewardTitle, int32_t talents, int32_t arenaPoints, uint32_t factionMask, const uint32_t* factionIDs, const uint32_t* factionValues, const uint32_t* factionOverrides, uint32_t questFlags);
-    static void QuestGiverFinished(int32_t keepOpen, uint32_t questId, int32_t notify);
+    static void QuestGiverFinished(BOOL keepOpen, uint32_t questId, BOOL notify);
     static void EnterWorld();
     static WOWGUID m_npc;
     static WOWGUID m_npcInform;
@@ -117,7 +118,7 @@ class CGQuestInfo {
     static void AddQuest(int32_t questId, const char* title, int32_t level, int32_t flags, int32_t turnIn, int32_t repeatable);
     static void AddQuestInProgress(int32_t questId, const char* title, int32_t level, int32_t flags, int32_t repeatable);
     static void EndQuestList();
-    static void AddItemRequest(const char* title, const uint32_t* itemIds, const uint32_t* itemCounts, const uint32_t* itemDisplays, int32_t numItems, int32_t requiredMoney, int32_t canComplete, int32_t autoLaunched, int32_t suggestedGroupNum, uint32_t questFlags);
+    static void AddItemRequest(const char* title, const uint32_t* itemIds, const uint32_t* itemCounts, const uint32_t* itemDisplays, int32_t numItems, int32_t requiredMoney, BOOL canComplete, int32_t autoLaunched, int32_t suggestedGroupNum, uint32_t questFlags);
     static int32_t GetNumQuestChoices();
     static int32_t GetQuestItemID(const char* type, uint32_t index);
     static bool IsQuestCompleteAt(uint32_t index);

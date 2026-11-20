@@ -188,7 +188,7 @@ int32_t Packet_MSG_GUILD_EVENT_LOG_QUERY(void* param, NETMESSAGE msgId, uint32_t
 
 // VERIFY: 6089fd22 auto
 // OFFSET: 0x005CA870
-void CGGuildInfo::SetShowOffline(int32_t show) {
+void CGGuildInfo::SetShowOffline(BOOL show) {
     if (show == CGGuildInfo::m_showOffline) {
         return;
     }

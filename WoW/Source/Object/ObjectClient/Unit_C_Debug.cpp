@@ -65,12 +65,12 @@ static void ShowForceActionFlags() {
 // Debug feature: combat debug log.
 // 0.5.3 reference: UnitCombatDebugLogEnable (0x0061D730).
 // TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
-void UnitCombatDebugLogEnable(int32_t enable) {
+void UnitCombatDebugLogEnable(BOOL enable) {
 }
 
 // 0.5.3 reference: UnitDebugCombatLogOnEnable (0x0061CD50).
 // TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
-void UnitDebugCombatLogOnEnable(int32_t enable) {
+void UnitDebugCombatLogOnEnable(BOOL enable) {
 }
 
 // Debug feature: unit pathing display.
