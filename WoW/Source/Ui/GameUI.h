@@ -231,7 +231,7 @@ class CGGameUI {
     static void SetSummonRequest(WOWGUID summoner, uint32_t area, uint32_t timeout);
     static uint32_t m_cursorMoney;
     static int32_t m_phaseMask;
-    static int32_t m_hasControl;
+    static BOOL m_hasControl;
     static uint8_t m_currentlyReloadingUI;
     static uint8_t m_reloadUIRequested;
     static uint8_t m_loggingIn;
@@ -239,7 +239,7 @@ class CGGameUI {
     static CSimpleFrame* m_UISimpleParent;
     static int32_t m_screenWidth;
     static int32_t m_screenHeight;
-    static int32_t m_inCinematic;
+    static BOOL m_inCinematic;
     static WOWGUID m_directionalTarget;
     static WOWGUID m_pendingLevelGranter;
     static uint32_t m_raidDifficulty;
@@ -340,11 +340,11 @@ class CGGameUI {
     static void TargetTradeItem();
     static void SetCursorItem(WOWGUID item, WOWGUID container, uint32_t slot, int32_t unlock, int32_t stackSplit, int32_t playSound);
     static WOWGUID m_lockedTarget;
-    static int32_t m_visible;
+    static BOOL m_visible;
     static WOWGUID m_lastEnemyTarget;
     static WOWGUID m_corpseGUID;
-    static int32_t m_initialized;
-    static int32_t m_inMovie;
+    static BOOL m_initialized;
+    static BOOL m_inMovie;
     static int32_t m_movieFileDataID;
     static int32_t m_movieVolume;
     static float m_aspect;
@@ -484,7 +484,7 @@ struct MirrorTimerInfo {
     /* 0004 */ int32_t m_value;
     /* 0008 */ int32_t m_maxValue;
     /* 000C */ int32_t m_scale;
-    /* 0010 */ int32_t m_paused;
+    /* 0010 */ BOOL m_paused;
     /* 0014 */ int32_t m_spellId;
     /* 0018 */ uint32_t m_startTime;
 };

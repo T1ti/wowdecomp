@@ -29,7 +29,7 @@ struct AuctionSortCriteria {
 
     /* 0000 */ COLUMN m_column;
     /* 0004 */ int32_t m_reverse;
-    /* 0008 */ int32_t m_valid;
+    /* 0008 */ BOOL m_valid;
 };
 
 struct AuctionSellItem {
@@ -45,7 +45,7 @@ struct OutbidItemInfo {
 
 struct AuctionItemClass {
     /* 0000 */ ITEM_CLASS m_classID;
-    /* 0004 */ int32_t m_hasSubClasses;
+    /* 0004 */ BOOL m_hasSubClasses;
 };
 
 struct AuctionInvType {
@@ -180,8 +180,8 @@ class CGAuctionHouse {
     static uint32_t m_lastQueryTime[LIST_TYPE::NUM_LIST_TYPES];
     static int32_t m_queryPending[LIST_TYPE::NUM_LIST_TYPES];
     static uint32_t m_numTotalOwned;
-    static int32_t m_canGetOwnerList;
-    static int32_t m_canGetBidderList;
+    static BOOL m_canGetOwnerList;
+    static BOOL m_canGetBidderList;
     static int32_t m_pendingBrowseItems;
     static int32_t m_pendingOwnedItems;
     static int32_t m_pendingSoldItems;

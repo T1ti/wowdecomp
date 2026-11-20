@@ -25,7 +25,7 @@ struct InspectArenaTeam {
 class CGCharacterInfo {
     public:
     static TSFixedArray<int32_t> m_invAlertStatus;
-    static int32_t m_hasHonorData;
+    static BOOL m_hasHonorData;
     static int32_t m_honorRequestPending;
     static uint32_t m_inspectLifetimeHonorableKills;
     static uint32_t m_inspectYesterdayHonor;

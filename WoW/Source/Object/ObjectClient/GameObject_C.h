@@ -346,7 +346,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     /* 0200 */ uint32_t m_transportTimeOffset;
     /* 0204 */ int32_t m_displayState;
     /* 0208 */ int32_t m_pendingOneShotAnim;
-    /* 020C */ int32_t m_hasWorldBounds;
+    /* 020C */ BOOL m_hasWorldBounds;
     /* 0210 */ CM2Model* m_lootEffect;
     /* 0214 */ OBJECT_EFFECT_STATE m_effectAnimState;
 

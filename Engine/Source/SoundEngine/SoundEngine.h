@@ -95,7 +95,7 @@ class SEStreamCallbacks {
 class SEWaveDataNode : public TSLinkedNode<SEWaveDataNode> {
     public:
     /* 0008 */ FMOD::Sound* m_sound;
-    /* 000C */ int32_t m_loaded;
+    /* 000C */ BOOL m_loaded;
     /* 0010 */ char m_name[128];
     /* 0090 */ uint32_t m_hash;
     /* 0094 */ int32_t m_refCount;
@@ -140,7 +140,7 @@ class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     /* 0094 */ float m_coneOutsideAngle;
     /* 0098 */ float m_coneOutsideVolume;
     /* 009C */ C3Vector m_coneOrientation;
-    /* 00A8 */ int32_t m_loaded;
+    /* 00A8 */ BOOL m_loaded;
     /* 00AC */ void (*m_finishedCallback)(SESound*, void*);
     /* 00B0 */ void* m_finishedParam;
     /* 00B4 */ void (*m_finishedCallback2)(SESound*, void*);

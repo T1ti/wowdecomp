@@ -41,7 +41,7 @@ class ClientConnection : public RealmConnection {
     /* 2F48 */ int32_t m_statusResult;
     /* 2F4C */ WOWCS_OPS m_statusOp;
     /* 2F50 */ int32_t m_errorCode;
-    /* 2F54 */ int32_t m_inGame;
+    /* 2F54 */ BOOL m_inGame;
     /* 2F58 */ uint8_t m_quitAfterLogout;
     /* 2F59 */ uint8_t m_loggingOut;
     /* 2F5A */ uint8_t m_realmConnectPending;

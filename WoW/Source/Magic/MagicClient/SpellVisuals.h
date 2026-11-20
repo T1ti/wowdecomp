@@ -46,7 +46,7 @@ class BlizzardObject : public TSLinkedNode<BlizzardObject> {
     /* 0128 */ float unused_0128[4];
     /* 0138 */ TSList<Shard> m_shards;
     /* 0144 */ C44Matrix m_frame;
-    /* 0184 */ int32_t m_hasFrame;
+    /* 0184 */ BOOL m_hasFrame;
 
     BlizzardObject();
     ~BlizzardObject();

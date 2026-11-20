@@ -22,7 +22,7 @@ struct GuildBankTabInfo {
     /* 0000 */ char m_name[64];
     /* 0040 */ char m_icon[256];
     /* 0140 */ char m_text[8192];
-    /* 2140 */ int32_t m_needsFullUpdate;
+    /* 2140 */ BOOL m_needsFullUpdate;
 };
 
 // SMSG_GUILD_BANK_LOG_QUERY_RESULTS entry type.
@@ -60,7 +60,7 @@ struct GuildBankSlotInfo {
     /* 0010 */ uint32_t m_enchantId;
     /* 0014 */ uint32_t m_spellCharges;
     /* 0018 */ uint32_t m_enchants[3];
-    /* 0024 */ int32_t m_locked;
+    /* 0024 */ BOOL m_locked;
     /* 0028 */ uint32_t m_flags;
 };
 

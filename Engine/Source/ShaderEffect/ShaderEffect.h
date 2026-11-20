@@ -29,7 +29,7 @@ struct LocalLights {
 class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     public:
     static CShaderEffect* s_curEffect;
-    static int32_t s_enableShaders;
+    static BOOL s_enableShaders;
     static C4Vector s_fogColorAlphaRef;
     static float s_fogMul;
     static C4Vector s_fogParams;
@@ -41,7 +41,7 @@ class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     static C3Vector s_sunDiffuse;
     static C3Vector s_sunDir;
     static C3Vector s_sunSpec;
-    static int32_t s_useAlphaRef;
+    static BOOL s_useAlphaRef;
     static uint32_t s_usePcfFiltering;
 
     static void ComputeLocalLights(LocalLights* localLights, uint32_t lightCount, CM2Light** lights, const C3Vector* origin);

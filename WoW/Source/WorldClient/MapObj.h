@@ -193,7 +193,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     /* 01D4 */ int32_t m_refCount;
     /* 01D8 */ float m_flushTimer;
     /* 01DC */ CAsyncObject* m_asyncObject;
-    /* 01E0 */ int32_t m_isGroupLoaded;
+    /* 01E0 */ BOOL m_isGroupLoaded;
     /* 01E4 */ uint16_t m_interiorGroupCount;
     /* 01E6 */ uint8_t unused_01E6[2];
     /* 01E8 */ TSExplicitList<CMapObjGroup, offsetof(CMapObjGroup, m_asyncLoadLink)> m_mapObjGroupList;

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -20,7 +21,7 @@ namespace Liquid {
         static CChunkGeomFactory* Create(const TSGrowableArray<CChunkLiquid*>& chunks);
 
         /* 0004 */ int32_t m_refCount;
-        /* 0008 */ int32_t m_dirty;
+        /* 0008 */ BOOL m_dirty;
         /* 000C */ TSGrowableArray<CChunkLiquid*> m_chunks;
         /* 001C */ CMapChunkLiquidBuf* m_buf;
         /* 0020 */ CGxBatch m_batch;

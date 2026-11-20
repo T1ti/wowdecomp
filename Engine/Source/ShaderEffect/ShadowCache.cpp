@@ -41,7 +41,7 @@ const uint32_t CShadowCache::s_shadowValues[NUM_SHADOW_MODES + 1] = { 0, 1, 1, 2
 CTexture* CShadowCache::s_intDynShadow;
 
 // STATIC: 0x00D4314C
-int32_t CShadowCache::s_needsRebuild;
+BOOL CShadowCache::s_needsRebuild;
 
 // STATIC: 0x00D43150
 uint32_t CShadowCache::s_shadowSize;

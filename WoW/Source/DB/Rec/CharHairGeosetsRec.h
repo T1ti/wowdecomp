@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class SFileImpl;
 
@@ -17,7 +18,7 @@ class CharHairGeosetsRec {
     /* 0008 */ int32_t m_sexID;
     /* 000C */ int32_t m_variationID;
     /* 0010 */ int32_t m_geosetID;
-    /* 0014 */ int32_t m_showscalp;
+    /* 0014 */ BOOL m_showscalp;
 
     CharHairGeosetsRec();
     ~CharHairGeosetsRec();

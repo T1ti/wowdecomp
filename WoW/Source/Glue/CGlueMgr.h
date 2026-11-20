@@ -57,7 +57,7 @@ class CGlueMgr {
     static char m_currentScreen[64];
     static CSimpleTop* m_simpleTop;
     static int32_t m_reload;
-    static int32_t m_initialized;
+    static BOOL m_initialized;
     static int32_t m_suspended;
     static int32_t m_disconnectPending;
     static int32_t m_reconnect;
@@ -93,7 +93,7 @@ class CGlueMgr {
     static uint32_t m_pendingTimerAlert;
     static int32_t m_accountMsgAvailable;
     static uint32_t m_numChangedOptionWarnings;
-    static int32_t m_showedDisconnect;
+    static BOOL m_showedDisconnect;
     static Agreements m_latestAgreements;
     static TSGrowableArray<const char*> m_changedOptionWarnings;
     static uint32_t m_surveyTimer;

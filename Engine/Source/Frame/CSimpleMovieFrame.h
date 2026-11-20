@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -63,7 +64,7 @@ class CSimpleMovieFrame : public CSimpleFrame {
     static void RenderMovie(void* param);
 
     /* 029C */ SESound m_sound;
-    /* 02A0 */ int32_t m_isPlaying;
+    /* 02A0 */ BOOL m_isPlaying;
     /* 02A4 */ int32_t m_finished;
     /* 02A8 */ int32_t m_subtitlesEnabled;
     /* 02AC */ int32_t m_audioRestart;

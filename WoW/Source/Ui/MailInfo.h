@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_MAILINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
@@ -29,7 +30,7 @@ struct MailSenderInfo {
 struct StationeryInfo {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_itemID;
-    /* 0008 */ int32_t m_isDefault;
+    /* 0008 */ BOOL m_isDefault;
     /* 000C */ int32_t unused_000C;
     /* 0010 */ WOWGUID m_itemGUID;
 };

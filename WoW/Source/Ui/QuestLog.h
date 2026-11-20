@@ -28,7 +28,7 @@ class QuestLogLeaderBoardParams;
 struct QuestLogEntry {
     /* 0000 */ int32_t m_questId;
     /* 0004 */ int32_t m_logSlot;
-    /* 0008 */ int32_t m_isHeader;
+    /* 0008 */ BOOL m_isHeader;
     /* 000C */ int32_t m_expired;
 };
 

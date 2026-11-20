@@ -226,7 +226,7 @@ class CWorldScene {
     static GxuScene s_unk_B2EB68;
     static CTexture* s_defaultBlendTexture;
     static CTexture* s_defaultTexture;
-    static int32_t s_hasPendingExteriorGroups;
+    static BOOL s_hasPendingExteriorGroups;
     static int32_t s_fogPermute;
     static float s_fogFovPadding;
     static CMapEntity* camTargetEntity;

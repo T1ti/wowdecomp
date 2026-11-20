@@ -49,13 +49,13 @@ struct TrainerServiceInfo {
     /* 0024 */ int32_t m_abilityReq[3];
     /* 0030 */ uint8_t m_state;
     /* 0031 */ uint8_t unused_0031[3];
-    /* 0034 */ int32_t m_visible;
+    /* 0034 */ BOOL m_visible;
 };
 
 struct TrainerSkillLineInfo {
     /* 0000 */ int32_t m_skillLine;
     /* 0004 */ uint32_t m_stateCounts[NUM_TRAINER_SERVICE_TYPES];
-    /* 001C */ int32_t m_visible;
+    /* 001C */ BOOL m_visible;
     /* 0020 */ int32_t m_collapsed;
     /* 0024 */ int32_t unk_0024;
 };

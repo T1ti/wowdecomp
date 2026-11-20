@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class SFileImpl;
 
@@ -30,7 +31,7 @@ class SkillLineRec {
     /* 0010 */ const char* m_description;
     /* 0014 */ int32_t m_spellIconID;
     /* 0018 */ const char* m_alternateVerb;
-    /* 001C */ int32_t m_canLink;
+    /* 001C */ BOOL m_canLink;
 
     SkillLineRec();
     ~SkillLineRec();

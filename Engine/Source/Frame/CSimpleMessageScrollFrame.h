@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Base/RefCount.h"
 #include "Engine/Source/Frame/CSimpleFontedFrame.h"
@@ -32,7 +33,7 @@ class CSimpleMessageScrollFrameLine {
     public:
     /* 0000 */ char* m_text;
     /* 0004 */ CImVector m_color;
-    /* 0008 */ int32_t m_isVisible;
+    /* 0008 */ BOOL m_isVisible;
     /* 000C */ float m_timeLeft;
     /* 0010 */ float m_fadeLeft;
     /* 0014 */ int32_t m_typeID;

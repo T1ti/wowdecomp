@@ -144,7 +144,7 @@ class CGPartyMemberState {
 struct PartyReadyCheckInfo {
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ int32_t m_pending;
-    /* 000C */ int32_t m_ready;
+    /* 000C */ BOOL m_ready;
 };
 
 class CGPartyInfo {

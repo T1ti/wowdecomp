@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class SFileImpl;
 
@@ -15,7 +16,7 @@ class LoadingScreensRec {
     /* 0000 */ int32_t m_id;
     /* 0004 */ const char* m_name;
     /* 0008 */ const char* m_fileName;
-    /* 000C */ int32_t m_hasWideScreen;
+    /* 000C */ BOOL m_hasWideScreen;
 
     LoadingScreensRec();
     ~LoadingScreensRec();

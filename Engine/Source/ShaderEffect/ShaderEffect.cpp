@@ -13,7 +13,7 @@
 #include "Engine/Source/Tempest/CImVector.h"
 
 // STATIC: 0x00D43008
-int32_t CShaderEffect::s_useAlphaRef;
+BOOL CShaderEffect::s_useAlphaRef;
 
 // STATIC: 0x00D4300C
 float CShaderEffect::s_fogMul;
@@ -31,7 +31,7 @@ uint32_t CShaderEffect::s_localLightCount;
 int32_t CShaderEffect::s_lightEnabled;
 
 // STATIC: 0x00D43020
-int32_t CShaderEffect::s_enableShaders;
+BOOL CShaderEffect::s_enableShaders;
 
 // STATIC: 0x00D43024
 CShaderEffect* CShaderEffect::s_curEffect;

@@ -36,13 +36,13 @@ struct TradeSkillInfo {
     /* 0014 */ int32_t m_itemLevel;
     /* 0018 */ int32_t m_numAvailable;
     /* 001C */ int32_t m_skillLineRank;
-    /* 0020 */ int32_t m_visible;
+    /* 0020 */ BOOL m_visible;
 };
 
 struct TradeSkillSubClassInfo {
     /* 0000 */ int32_t m_itemClass;
     /* 0004 */ int32_t m_itemSubClass;
-    /* 0008 */ int32_t m_shown;
+    /* 0008 */ BOOL m_shown;
     /* 000C */ int32_t m_collapsed;
     /* 0010 */ uint32_t m_invTypeMask;
 };
@@ -55,8 +55,8 @@ class CGTradeSkillInfo {
     static uint32_t m_itemsPending;
     static uint32_t m_numDisplayEntries;
     static uint32_t m_numSubClasses;
-    static int32_t m_showOnlyMakeable;
-    static int32_t m_showOnlySkillUps;
+    static BOOL m_showOnlyMakeable;
+    static BOOL m_showOnlySkillUps;
     static uint32_t m_invSlots;
     static int32_t m_skillRank;
     static int32_t m_skillMaxRank;

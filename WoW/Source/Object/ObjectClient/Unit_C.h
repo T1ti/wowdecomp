@@ -218,7 +218,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     static BOOL HandleSpeedChangePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
     static void RegisterMirrorHandlers();
     static void UnregisterMirrorHandlers();
-    static int32_t s_initialized;
+    static BOOL s_initialized;
     static void StopMissileTrajectoryTargeting();
     static void RenderMissileTrajectoryTargetingTexture();
     static void UnitNameplatesReposition(CGWorldFrame* worldFrame);

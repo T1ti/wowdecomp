@@ -200,7 +200,7 @@ static EmotesRec* s_talkEmotes[TALKANIM_NUMTALKANIMS];
 static UnitThreatHeap* s_unitThreatPool;
 
 // STATIC: 0x00CA1254
-int32_t CGUnit_C::s_initialized;
+BOOL CGUnit_C::s_initialized;
 
 // STATIC: 0x00CA1238
 WOWGUID CGUnit_C::s_activeMover;

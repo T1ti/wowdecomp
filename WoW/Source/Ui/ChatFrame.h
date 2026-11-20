@@ -232,7 +232,7 @@ struct DisplayChannel {
     /* 0004 */ HEADER_INDEX m_headerIndex;
     /* 0008 */ TYPE m_type;
     /* 000C */ int32_t m_collapsed;
-    /* 0010 */ int32_t m_enabled;
+    /* 0010 */ BOOL m_enabled;
     /* 0014 */ int32_t m_voiceEnabled;
     /* 0018 */ FLAGS m_flags;
     /* 001C */ int32_t m_count;
@@ -530,7 +530,7 @@ class CGChat {
 
     static int32_t m_guildRecruitmentMode; // GUILD_RECRUITMENT_MODE
     static int32_t m_areaID;
-    static int32_t m_paused;
+    static BOOL m_paused;
     static int32_t m_voiceChatSystemStatus;
     static ChatRecord m_chatHistory[60];
     static uint32_t m_currentChatIndex;
@@ -554,8 +554,8 @@ class CGChat {
     static BOOL IsInWhisperSourceHistory(const char* name);
     static void SendIgnoredResponse(WOWGUID guid, CHAT_IGNORED_REASON reason);
     static TSGrowableArray<ChatChannel> s_channels;
-    static int32_t m_loaded;
-    static int32_t m_registered;
+    static BOOL m_loaded;
+    static BOOL m_registered;
     static int32_t m_complaintsSystemStatus;
     static DisplayChannel s_displayChannels[20];
     static char s_activeDisplayChannelName[128];

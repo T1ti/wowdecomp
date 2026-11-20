@@ -64,7 +64,7 @@ struct CGxPushedRenderState {
 struct CGxAppRenderState {
     /* 0000 */ CGxStateBom m_value;
     /* 0010 */ uint32_t m_stackDepth;
-    /* 0014 */ int32_t m_dirty;
+    /* 0014 */ BOOL m_dirty;
 };
 
 typedef void (__fastcall* GxDeviceCallback)();
@@ -81,9 +81,9 @@ class CGxDevice {
     /* 0014 */ TSGrowableArray<uint32_t> m_stackOffsets;
     /* 0024 */ TSGrowableArray<EGxRenderState> m_dirtyStates;
     /* 0034 */ EGxPrim m_primType;
-    /* 0038 */ int32_t m_indexLocked;
+    /* 0038 */ BOOL m_indexLocked;
     /* 003C */ int32_t m_vertexLocked;
-    /* 0040 */ int32_t m_inBeginEnd;
+    /* 0040 */ BOOL m_inBeginEnd;
     /* 0044 */ C3Vector m_primVertex;
     /* 0050 */ C2Vector m_primTexCoord [8];
     /* 0090 */ C3Vector m_primNormal;

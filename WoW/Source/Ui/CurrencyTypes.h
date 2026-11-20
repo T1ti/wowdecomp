@@ -17,9 +17,9 @@ struct CurrencyListEntry {
     /* 0000 */ const char* m_name;
     /* 0004 */ int32_t m_itemID;
     /* 0008 */ int32_t m_categoryID;
-    /* 000C */ int32_t m_isHeader;
-    /* 0010 */ int32_t m_isExpanded;
-    /* 0014 */ int32_t m_isWatched;
+    /* 000C */ BOOL m_isHeader;
+    /* 0010 */ BOOL m_isExpanded;
+    /* 0014 */ BOOL m_isWatched;
 };
 
 class CurrencyTypesRec;

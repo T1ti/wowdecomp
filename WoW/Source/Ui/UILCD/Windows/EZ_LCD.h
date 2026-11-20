@@ -29,10 +29,10 @@ class CEzLcd {
     /* 01B0 */ int32_t m_currentMonoPageIndex;
     /* 01B4 */ int32_t m_currentColorPageIndex;
     /* 01B8 */ int32_t unused_01B8;
-    /* 01BC */ int32_t m_initialized;
+    /* 01BC */ BOOL m_initialized;
     /* 01C0 */ lgLcdConfigureContext* m_configContext;
-    /* 01C4 */ int32_t m_isPersistent;
-    /* 01C8 */ int32_t m_isAutoStartable;
+    /* 01C4 */ BOOL m_isPersistent;
+    /* 01C8 */ BOOL m_isAutoStartable;
     /* 01CC */ uint32_t unused_01CC;
     /* 01D0 */ uint32_t unused_01D0;
     /* 01D4 */ int32_t unused_01D4;

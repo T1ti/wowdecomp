@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CRange.h"
@@ -48,7 +49,7 @@ class SI2AdvancedSound {
     /* 006C */ float m_duck[SI2_DUCK_COUNT];
     /* 0078 */ float m_innerRadiusOfInfluence;
     /* 007C */ float m_outerRadiusOfInfluence;
-    /* 0080 */ int32_t m_inRange;
+    /* 0080 */ BOOL m_inRange;
     /* 0084 */ int32_t m_timeToDuck;
     /* 0088 */ int32_t m_timeToUnduck;
     /* 008C */ float m_insideAngle;

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
@@ -53,8 +54,8 @@ struct WorldMapLandmarkInfo {
     /* 0000 */ int32_t m_id;
     /* 0004 */ float m_x;
     /* 0008 */ float m_y;
-    /* 000C */ int32_t m_isGraveyard;
-    /* 0010 */ int32_t m_isGossip;
+    /* 000C */ BOOL m_isGraveyard;
+    /* 0010 */ BOOL m_isGossip;
 };
 
 bool WorldMapTransformPosition(int32_t mapID, float x, float y, int32_t* outMapID, float* outX, float* outY, int32_t* outDungeonMapID);

@@ -182,7 +182,7 @@ class CGBattlefieldInfo {
     static uint32_t m_positionUpdateTime;
     static C2Vector m_flagPositions[2];
     static int32_t m_logFilterFaction;
-    static int32_t m_allowJoin;
+    static BOOL m_allowJoin;
     static int32_t m_selectedInstance;
     static int32_t m_bgTypeID;
     static uint8_t m_hasHolidayWinToday;

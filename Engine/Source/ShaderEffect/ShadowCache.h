@@ -60,7 +60,7 @@ struct CShadowCacheQueryData {
     /* 0994 */ float m_texBounds[3][4];
     /* 09C4 */ C44Matrix m_matrices[3];
     /* 0A84 */ int32_t m_lastBand;
-    /* 0A88 */ int32_t m_useFrustum;
+    /* 0A88 */ BOOL m_useFrustum;
 
     CShadowCacheQueryData();
 };
@@ -80,7 +80,7 @@ class CShadowCache {
     static ShadowFrustumCallback s_frustumCallback;
     static CTexture* s_intDynShadow;
     static ShadowMatrixCallback s_matrixCallback;
-    static int32_t s_needsRebuild;
+    static BOOL s_needsRebuild;
     static C4Vector s_pcfOffsets[8];
     static ShadowQueryCallback s_queryCallback;
     static int32_t s_recreateTextures;

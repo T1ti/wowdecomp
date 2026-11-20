@@ -424,7 +424,7 @@ static CWFrustum unk_CDD200;
 static int32_t unk_CD8F40;
 
 // STATIC: 0x00CD8778
-int32_t CWorldScene::s_hasPendingExteriorGroups;
+BOOL CWorldScene::s_hasPendingExteriorGroups;
 
 // STATIC: 0x00ADF3F0
 int32_t s_entityCanLink;

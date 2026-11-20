@@ -195,7 +195,7 @@ struct TCPLISTEN : public NETSELSOCK {
     /* 0010 */ uint32_t m_portAddr;
     /* 0014 */ NETEVENTPROC m_eventProc;
     /* 0018 */ void* m_user;
-    /* 001C */ int32_t m_enabled;
+    /* 001C */ BOOL m_enabled;
     /* 0020 */ TSList<TCPACCEPT, TSGetLink<TCPACCEPT> > m_acceptList;
 };
 

@@ -211,7 +211,7 @@ int32_t CMap::bActive;
 int32_t CMap::bDungeon;
 
 // STATIC: 0x00CF08F8
-int32_t CMap::s_useSSE;
+BOOL CMap::s_useSSE;
 
 // STATIC: 0x00CF4928
 TSGrowableArray<uint32_t> CMap::scCollideList;
@@ -334,7 +334,7 @@ uint32_t CMap::version;
 int32_t CMap::bPreload = 1;
 
 // STATIC: 0x00CE0494
-int32_t CMap::s_isStreamingMode;
+BOOL CMap::s_isStreamingMode;
 
 // STATIC: 0x00CE049C
 bool CMap::s_enableTriangleStrips;

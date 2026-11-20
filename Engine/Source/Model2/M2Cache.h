@@ -46,7 +46,7 @@ class CM2Cache {
 
     static uint32_t STORMAPI ThreadProc(void* param);
 
-    /* 0000 */ int32_t m_initialized;
+    /* 0000 */ BOOL m_initialized;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ CM2Shared* m_freeList;
     /* 000C */ CM2Shared** m_freeListTail;

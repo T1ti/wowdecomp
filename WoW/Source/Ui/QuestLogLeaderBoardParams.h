@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 struct WOWGUID;
 
@@ -13,7 +14,7 @@ class QuestLogLeaderBoardParams {
     /* 0000 */ int32_t m_index;
     /* 0004 */ int32_t m_requireLogEntry;
     /* 0008 */ int32_t m_countEmpty;
-    /* 000C */ int32_t m_showProgress;
+    /* 000C */ BOOL m_showProgress;
     /* 0010 */ void (*m_questCallback)(int32_t id, const WOWGUID& guid, void* param, bool success);
     /* 0014 */ void (*m_objectCallback)(int32_t id, const WOWGUID& guid, void* param, bool success);
     /* 0018 */ void (*m_creatureCallback)(int32_t id, const WOWGUID& guid, void* param, bool success);

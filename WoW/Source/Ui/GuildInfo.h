@@ -162,7 +162,7 @@ struct GuildEventLogEntry {
 
 struct GuildRankFlag {
     /* 0000 */ uint32_t m_mask;
-    /* 0004 */ int32_t m_enabled;
+    /* 0004 */ BOOL m_enabled;
 };
 
 class CGGuildInfo {
@@ -178,7 +178,7 @@ class CGGuildInfo {
     static GuildRosterSortCriteria m_sortCriteria[NUM_GUILD_ROSTER_SORT_COLUMNS];
     static uint32_t m_numMembers;
     static uint32_t m_numOnlineMembers;
-    static int32_t m_showOffline;
+    static BOOL m_showOffline;
     static WOWGUID m_selectedMember;
     static int32_t m_nextAllowedQuery;
     static int32_t m_pendingEventLogNames;

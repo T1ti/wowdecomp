@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
@@ -12,8 +13,8 @@ class CGxShader : public TSHashObject<CGxShader, HASHKEY_STRI> {
     /* 0020 */ void* m_apiSpecific;
     /* 0024 */ int32_t m_target;
     /* 0028 */ int32_t unused_0028;
-    /* 002C */ int32_t m_valid;
-    /* 0030 */ int32_t m_loaded;
+    /* 002C */ BOOL m_valid;
+    /* 0030 */ BOOL m_loaded;
     /* 0034 */ int32_t unused_0034;
     /* 0038 */ int32_t m_patched;
     /* 003C */ int32_t unk_003C;

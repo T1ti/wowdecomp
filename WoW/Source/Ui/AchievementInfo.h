@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_ACHIEVEMENTINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
@@ -58,7 +59,7 @@ class CGAchievementInfo {
     public:
     static void LeaveWorld();
     static void SaveTrackedAchievements();
-    static int32_t m_showAchievementUI;
+    static BOOL m_showAchievementUI;
     static void LoadTrackedAchievements();
     static void RemoveTrackedAchievement(int32_t id);
     static WOWGUID m_inspect;

@@ -120,7 +120,7 @@ class CGArenaTeamInfo {
     };
 
     static ArenaTeam m_arenaTeams[MAX_ARENA_TEAMS];
-    static int32_t m_showOffline;
+    static BOOL m_showOffline;
     static uint32_t m_nextAllowedQuery[MAX_ARENA_TEAMS];
     static ArenaTeamSort m_sortOrder[CGArenaTeamInfo::SORT_COLUMN::NUM_COLUMNS];
     static WOWGUID m_selectedMember;

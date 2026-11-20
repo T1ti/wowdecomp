@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include <cstring>
 #include <new>
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
@@ -15,7 +16,7 @@ uint32_t CompressRow(const uint8_t* src, uint32_t size, uint8_t* dst);
 
 class WowClientDB_Base {
     public:
-    /* 0004 */ int32_t m_loaded;
+    /* 0004 */ BOOL m_loaded;
     /* 0008 */ int32_t m_numRecords;
     /* 000C */ int32_t m_maxID;
     /* 0010 */ int32_t m_minID;

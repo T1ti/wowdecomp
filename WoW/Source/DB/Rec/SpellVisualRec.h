@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class SFileImpl;
 
@@ -60,7 +61,7 @@ class SpellVisualRec {
     /* 0010 */ int32_t m_stateKit;
     /* 0014 */ int32_t m_stateDoneKit;
     /* 0018 */ int32_t m_channelKit;
-    /* 001C */ int32_t m_hasMissile;
+    /* 001C */ BOOL m_hasMissile;
     /* 0020 */ int32_t m_missileModel;
     /* 0024 */ int32_t m_missilePathType;
     /* 0028 */ int32_t m_missileDestinationAttachment;

@@ -195,7 +195,7 @@ class CMap {
     static bool enableTerrainShaderVertex;
     static uint32_t version;
     static int32_t bPreload;
-    static int32_t s_isStreamingMode;
+    static BOOL s_isStreamingMode;
     static bool s_enableTriangleStrips;
     static bool enableSpecular;
     static bool enablePixelShaders;
@@ -231,7 +231,7 @@ class CMap {
     }
     static int32_t bActive;
     static int32_t bDungeon;
-    static int32_t s_useSSE;
+    static BOOL s_useSSE;
     static int32_t freeCounts[11];
     static float s_liquidAlphaScale;
     static float s_depthCoordTable0[256];

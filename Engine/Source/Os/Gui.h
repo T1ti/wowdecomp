@@ -166,7 +166,7 @@ class COsDialog {
     /* 0024 */ COsControl* m_cancelButton;
     /* 0028 */ int32_t m_trackMouse;
     /* 002C */ int32_t m_mouseInside;
-    /* 0030 */ int32_t m_needNewTrack;
+    /* 0030 */ BOOL m_needNewTrack;
     /* 0034 */ int32_t m_tooltipsEnabled;
     /* 0038 */ int32_t m_contextMenuEnabled;
     /* 003C */ COsMenu* m_contextMenu;

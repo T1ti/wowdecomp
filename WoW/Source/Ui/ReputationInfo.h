@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_REPUTATIONINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
@@ -42,7 +43,7 @@ struct FactionStanding {
 struct FactionListEntry {
     /* 0000 */ int32_t m_repListId;
     /* 0004 */ int32_t m_factionId;
-    /* 0008 */ int32_t m_isHeader;
+    /* 0008 */ BOOL m_isHeader;
     /* 000C */ uint32_t m_headerIndex;
     /* 0010 */ int32_t m_parent;
 };

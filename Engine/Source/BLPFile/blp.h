@@ -15,7 +15,7 @@ class CBLPFile {
     /* 0000 */ MipBits* m_images;
     /* 0004 */ BLPHeader m_header;
     /* 0498 */ void* m_inMemoryImage;
-    /* 049C */ int32_t m_inMemoryNeedsFree;
+    /* 049C */ BOOL m_inMemoryNeedsFree;
     /* 04A0 */ uint32_t m_numLevels;
     /* 04A4 */ uint32_t m_quality;
     /* 04A8 */ uint32_t m_colorMapping;

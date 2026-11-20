@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C4Vector.h"
 
@@ -50,7 +51,7 @@ class CGxApiLight {
     /* 0034 */ float m_constantAttenuation;
     /* 0038 */ float m_linearAttenuation;
     /* 003C */ float m_quadraticAttenuation;
-    /* 0040 */ int32_t m_enable;
+    /* 0040 */ BOOL m_enable;
     /* 0044 */ uint16_t m_flags;
     /* 0046 */ uint16_t m_updateMask; // Applicable fields; attenuation is positional-light only.
 

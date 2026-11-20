@@ -65,7 +65,7 @@ class SE2SoundKitProperties {
     /* 0054 */ float m_coneOutsideVolume;
     /* 0058 */ const C3Vector* m_coneOrientation;
     /* 005C */ int32_t m_checkStreaming;
-    /* 0060 */ int32_t m_useDspChain;
+    /* 0060 */ BOOL m_useDspChain;
     /* 0064 */ char m_dspChainName[128];
     /* 00E4 */ int32_t m_forceLoop;
 

@@ -223,7 +223,7 @@ class CGxDeviceD3d : public CGxDevice {
     /* 3AD0 */ TSGrowableArray<CGxDeviceD3d::GxVertexDecl> m_gxVertexDecl;
     /* 3AE0 */ LPDIRECT3DVERTEXDECLARATION9 m_d3dVertexDecl [14];
     /* 3B18 */ D3DDISPLAYMODE m_desktopDisplayMode;
-    /* 3B28 */ int32_t m_inScene;
+    /* 3B28 */ BOOL m_inScene;
     /* 3B2C */ int32_t m_ambientOnlyMode;
     /* 3B30 */ D3DFORMAT m_devDepthFormat;
     /* 3B34 */ D3DFORMAT m_devAdapterFormat;

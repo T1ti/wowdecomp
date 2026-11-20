@@ -26,8 +26,8 @@ class CGRaidMember {
     /* 0008 */ uint32_t m_subgroup;
     /* 000C */ RANK m_rank;
     /* 0010 */ CGPartyMemberState m_stats;
-    /* 0320 */ int32_t m_readyCheckPending;
-    /* 0324 */ int32_t m_readyCheckReady;
+    /* 0320 */ BOOL m_readyCheckPending;
+    /* 0324 */ BOOL m_readyCheckReady;
     /* 0328 */ uint8_t m_assignments;
     /* 0329 */ uint8_t unused_0329[3];
     /* 032C */ uint32_t m_groupRole;
