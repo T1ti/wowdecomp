@@ -1405,7 +1405,7 @@ static int32_t Script_CalendarEventGetTextures(lua_State* L) {
             lua_pushinteger(L, dungeon->m_expansionLevel);
             MapDifficultyRec* difficulty;
 
-            if (type == 1 && (difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(dungeon->m_mapID, dungeon->m_difficulty, nullptr))) {
+            if (type == CALENDAR_TYPE_RAID + 1 && (difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(dungeon->m_mapID, dungeon->m_difficulty, nullptr))) {
                 lua_pushstring(L, FrameScript_GetText(difficulty->m_difficultystring, -1, GENDER_NOT_APPLICABLE));
             } else {
                 lua_pushstring(L, "");
