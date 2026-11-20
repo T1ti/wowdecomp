@@ -81,7 +81,7 @@ template <class T, class P>
 void Battlenet::TumorManager::SendEvent(const BSN::FourCC& eventId, const T& data) {
     BSN::BSNEncodedObjectPtr<T, P, 1> object(&data);
     object.IncRef();
-    this->SendEvent(6, eventId, &object);
+    this->SendEvent(Event::EVENT_TYPE_CREEP, eventId, &object);
 }
 
 #endif

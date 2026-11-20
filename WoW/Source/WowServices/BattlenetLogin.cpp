@@ -1648,11 +1648,11 @@ void BattlenetLogin::EventQueueUpdate() {
 // VERIFY: 09ca53f7 manual
 // OFFSET: 0x008C9EA0
 void BattlenetApplication::RecvEvent(const Battlenet::Event::Header& header, const BSN::EncodedObject* data) {
-    if (header.m_eventType == 5) {
+    if (header.m_eventType == Battlenet::Event::EVENT_TYPE_LARVA) {
         BSN::BSNEncodedObject<Battlenet::Event::Larva::Invoke, Protocol> invoke;
         invoke.WalkAndGet(data);
         this->m_login->HandleInvoke(&invoke.m_data);
-    } else if (header.m_eventType == 1) {
+    } else if (header.m_eventType == Battlenet::Event::EVENT_TYPE_UPDATE) {
         BSN::BSNEncodedObject<Battlenet::Event::Update::Invoke, Protocol> invoke;
         invoke.WalkAndGet(data);
         this->m_login->HandleUpdateInvoke(&invoke.m_data);

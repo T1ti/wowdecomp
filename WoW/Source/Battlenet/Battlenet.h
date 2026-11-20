@@ -44,6 +44,22 @@ struct DNSInfo {
 }
 
 namespace Event {
+// Event::Header::m_eventType values. UPDATE, LARVA and CREEP are named after the payload
+// decoded or sent with them (inferred); the others only appear in the creep tendril handler table.
+enum EVENT_TYPE : uint8_t {
+    EVENT_TYPE_UPDATE = 1,
+    EVENT_TYPE_UNKNOWN_2 = 2,
+    EVENT_TYPE_UNKNOWN_3 = 3,
+    EVENT_TYPE_LARVA = 5,
+    EVENT_TYPE_CREEP = 6,
+    EVENT_TYPE_UNKNOWN_8 = 8,
+    EVENT_TYPE_UNKNOWN_9 = 9,
+    EVENT_TYPE_UNKNOWN_10 = 10,
+    EVENT_TYPE_UNKNOWN_11 = 11,
+    EVENT_TYPE_UNKNOWN_14 = 14,
+    EVENT_TYPE_UNKNOWN_15 = 15,
+};
+
 struct Header {
     struct Source {
         /* 0000 */ bool m_exists;
@@ -62,7 +78,7 @@ struct Header {
         /* 0004 */ uint32_t m_value;
     };
 
-    /* 0000 */ uint8_t m_eventType;
+    /* 0000 */ uint8_t m_eventType; // EVENT_TYPE
     /* 0004 */ Source m_source;
     /* 0010 */ Target m_target;
 

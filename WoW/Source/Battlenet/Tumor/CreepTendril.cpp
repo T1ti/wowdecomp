@@ -88,17 +88,17 @@ Battlenet::CreepTendril::Instance::Instance(const Authentication::Settings& sett
 
     this->m_creep = Battlenet::CreepTendril::s_creepCreate(this, encoder.m_data, (encoder.m_position + 7) >> 3);
 
-    this->m_eventHandlers[1] = &Instance::ProcessEventData<1>;
-    this->m_eventHandlers[2] = &Instance::ProcessEventData<2>;
-    this->m_eventHandlers[3] = &Instance::ProcessEventData<3>;
-    this->m_eventHandlers[10] = &Instance::ProcessEventData<10>;
-    this->m_eventHandlers[11] = &Instance::ProcessEventData<11>;
-    this->m_eventHandlers[5] = &Instance::ProcessEventData<5>;
-    this->m_eventHandlers[6] = &Instance::ProcessEventData<6>;
-    this->m_eventHandlers[9] = &Instance::ProcessEventData<9>;
-    this->m_eventHandlers[8] = &Instance::ProcessEventData<8>;
-    this->m_eventHandlers[14] = &Instance::ProcessEventData<14>;
-    this->m_eventHandlers[15] = &Instance::ProcessEventData<15>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UPDATE] = &Instance::ProcessEventData<Event::EVENT_TYPE_UPDATE>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_2] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_2>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_3] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_3>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_10] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_10>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_11] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_11>;
+    this->m_eventHandlers[Event::EVENT_TYPE_LARVA] = &Instance::ProcessEventData<Event::EVENT_TYPE_LARVA>;
+    this->m_eventHandlers[Event::EVENT_TYPE_CREEP] = &Instance::ProcessEventData<Event::EVENT_TYPE_CREEP>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_9] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_9>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_8] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_8>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_14] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_14>;
+    this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_15] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_15>;
 }
 
 // VERIFY: 58336dcd auto
