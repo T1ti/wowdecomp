@@ -2407,7 +2407,7 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
     int32_t gems[MAX_NUM_SOCKETS];
 
     for (uint32_t i = 0; i < MAX_NUM_SOCKETS; i++) {
-        if (!wrapped && !(item->IsPetition())) {
+        if (!wrapped && !item->IsPetition()) {
             gems[i] = item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::SOCKET_1 + i].m_id;
         } else {
             gems[i] = 0;
@@ -2424,7 +2424,7 @@ const char* CGTooltip::GetItemHyperlinkString(CGItem_C* item) {
     } else {
         randomPropertiesId = item->m_item->m_itemFieldRandomPropertiesId;
         seed = item->m_item->m_itemFieldPropertySeed;
-        enchant = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PERMANENT].m_id;
+        enchant = item->IsPetition() ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PERMANENT].m_id;
     }
 
     return CGTooltip::CreateItemLink(item->m_obj->m_entryID, stats ? stats->m_quality : 1, enchant, gems, randomPropertiesId, seed);
@@ -4249,11 +4249,11 @@ static bool AddItemPetitionLines(CGTooltip* tooltip, CGItem_C* item, const WOWGU
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[4096];
 
-    if (!(item->IsPetition())) {
+    if (!item->IsPetition()) {
         return true;
     }
 
-    int32_t petitionId = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+    int32_t petitionId = item->IsPetition() ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
     CGPetition* petition = g_petitionCache.GetRecord(petitionId, *itemGuid, TooltipItemCallback, tooltip, true);
 
     if (!petition) {
@@ -4869,7 +4869,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         int32_t enchantId;
 
         if (item) {
-            enchantId = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_id;
+            enchantId = item->IsPetition() ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_id;
         } else {
             enchantId = tooltip->m_itemLinkInfo.m_enchants[slot];
         }
@@ -4935,7 +4935,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             int32_t prismaticId = 0;
 
             if (item) {
-                prismaticId = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
+                prismaticId = item->IsPetition() ? 0 : item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
             } else if (tooltip->m_itemUseLinkInfo) {
                 prismaticId = tooltip->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC];
             }
@@ -4994,7 +4994,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             *useSpell = enchant->m_effectArg[0];
 
             if (item) {
-                *useCharges = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_charges;
+                *useCharges = item->IsPetition() ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_charges;
             } else {
                 *useCharges = tooltip->m_itemLinkInfo.m_enchantCharges[slot];
             }
@@ -5028,14 +5028,14 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             SStrCopy(text, format, sizeof(text));
         }
 
-        if (!item || !(item->IsPetition())) {
+        if (!item || !item->IsPetition()) {
             int32_t hasCharges = item ? item->m_item->m_itemFieldEnchantment[slot].m_charges : tooltip->m_itemLinkInfo.m_enchantCharges[slot];
 
             if (hasCharges) {
                 int32_t count;
 
                 if (item) {
-                    count = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_charges;
+                    count = item->IsPetition() ? 0 : item->m_item->m_itemFieldEnchantment[slot].m_charges;
                 } else {
                     count = tooltip->m_itemLinkInfo.m_enchantCharges[slot];
                 }
@@ -5071,7 +5071,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         bool prismaticEmpty;
 
         if (item) {
-            prismaticEmpty = (item->IsPetition()) || !item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
+            prismaticEmpty = item->IsPetition() || !item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PRISMATIC].m_id;
         } else {
             prismaticEmpty = !tooltip->m_itemLinkInfo.m_enchants[CGItemData::ENCHANTMENT_SLOT::PRISMATIC];
         }
@@ -5088,7 +5088,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             }
         } else if (!stats->m_socketColor[socket] || !prismaticEmpty) {
             if (item) {
-                if (!(item->IsPetition())) {
+                if (!item->IsPetition()) {
                     socketEnchantId = item->m_item->m_itemFieldEnchantment[slot].m_id;
                 }
             } else if (tooltip->m_itemUseLinkInfo) {

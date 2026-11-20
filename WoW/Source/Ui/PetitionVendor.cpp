@@ -68,7 +68,7 @@ int32_t CGPetitionVendorInfo::ClickPetitionButton(WOWGUID item, WOWGUID containe
 
     CGItem_C* object = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(item, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!object || !(object->IsPetition())) {
+    if (!object || !object->IsPetition()) {
         return 0;
     }
 

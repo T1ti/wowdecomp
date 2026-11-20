@@ -6427,7 +6427,7 @@ void CPlayerMoveEvent::FromMoveStatus(const CMovementStatus& status) {
 // VERIFY: 90a2e8c4 manual
 // OFFSET: 0x006EA550
 void CMovement_C::Extrapolate(uint32_t time, uint32_t elapsed) {
-    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || (this->IsOnSpline())) {
+    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || this->IsOnSpline()) {
         return;
     }
 
