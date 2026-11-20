@@ -106,6 +106,13 @@ class CSimpleTop : public CLayoutFrame {
     virtual ~CSimpleTop();
 
     CSimpleTop();
+    // INLINED: reports a protected action that ProtectedFunctionsAllowed refused (name inferred).
+    void NotifyActionBlocked(CScriptRegion* region) {
+        if (this->m_actionBlockedCallback) {
+            this->m_actionBlockedCallback(region);
+        }
+    }
+
     void CompressStrata(int32_t strata);
     void DisableEvents();
     void EnableEvents();

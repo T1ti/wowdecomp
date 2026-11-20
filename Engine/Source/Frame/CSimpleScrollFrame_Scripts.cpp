@@ -48,9 +48,7 @@ static int32_t Script_SetScrollChild(lua_State* L) {
     }
 
     if (!child->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(scrollFrame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(scrollFrame);
 
         return 0;
     }
@@ -89,9 +87,7 @@ static int32_t Script_SetHorizontalScroll(lua_State* L) {
     CSimpleScrollFrame* scrollFrame = static_cast<CSimpleScrollFrame*>(FrameScript_GetObjectThis(L, CSimpleScrollFrame::GetObjectType()));
 
     if (!scrollFrame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(scrollFrame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(scrollFrame);
 
         return 0;
     }
@@ -113,9 +109,7 @@ static int32_t Script_SetVerticalScroll(lua_State* L) {
     CSimpleScrollFrame* scrollFrame = static_cast<CSimpleScrollFrame*>(FrameScript_GetObjectThis(L, CSimpleScrollFrame::GetObjectType()));
 
     if (!scrollFrame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(scrollFrame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(scrollFrame);
 
         return 0;
     }

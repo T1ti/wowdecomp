@@ -791,9 +791,7 @@ bool CSimpleFrame::SetFrameDepth(float depth, bool force) {
 // OFFSET: 0x0048F620
 int32_t CSimpleFrame::Hide() {
     if (!this->ProtectedFunctionsAllowed()) {
-        if (this->m_simpleTop->m_actionBlockedCallback) {
-            this->m_simpleTop->m_actionBlockedCallback(nullptr);
-        }
+        this->m_simpleTop->NotifyActionBlocked(nullptr);
 
         return 0;
     }
@@ -806,9 +804,7 @@ int32_t CSimpleFrame::Hide() {
 // OFFSET: 0x0048F660
 int32_t CSimpleFrame::Show() {
     if (!this->ProtectedFunctionsAllowed()) {
-        if (this->m_simpleTop->m_actionBlockedCallback) {
-            this->m_simpleTop->m_actionBlockedCallback(nullptr);
-        }
+        this->m_simpleTop->NotifyActionBlocked(nullptr);
 
         return 0;
     }

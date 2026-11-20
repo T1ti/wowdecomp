@@ -273,9 +273,7 @@ static int32_t Script_SetWidth(lua_State* L) {
     CScriptRegion* region = static_cast<CScriptRegion*>(FrameScript_GetObjectThis(L, CScriptRegion::GetObjectType()));
 
     if (!region->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(region);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(region);
 
         return 0;
     }
@@ -319,9 +317,7 @@ static int32_t Script_SetHeight(lua_State* L) {
     CScriptRegion* region = static_cast<CScriptRegion*>(FrameScript_GetObjectThis(L, CScriptRegion::GetObjectType()));
 
     if (!region->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(region);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(region);
 
         return 0;
     }
@@ -362,9 +358,7 @@ static int32_t Script_SetSize(lua_State* L) {
     CScriptRegion* region = static_cast<CScriptRegion*>(FrameScript_GetObjectThis(L, CScriptRegion::GetObjectType()));
 
     if (!region->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(region);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(region);
 
         return 0;
     }

@@ -306,9 +306,7 @@ static int32_t Script_SetFrameStrata(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -346,9 +344,7 @@ static int32_t Script_SetFrameLevel(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -760,9 +756,7 @@ static int32_t Script_SetAttribute(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed() && !frame->AttributeChangesAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -827,9 +821,7 @@ static int32_t Script_SetScale(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -909,9 +901,7 @@ static int32_t Script_SetID(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -932,9 +922,7 @@ static int32_t Script_SetToplevel(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -991,9 +979,7 @@ static int32_t Script_Show(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1008,9 +994,7 @@ static int32_t Script_Hide(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1053,9 +1037,7 @@ static int32_t Script_Raise(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1070,9 +1052,7 @@ static int32_t Script_Lower(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1106,9 +1086,7 @@ static int32_t Script_SetHitRectInsets(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1453,9 +1431,7 @@ static int32_t Script_EnableKeyboard(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1491,9 +1467,7 @@ static int32_t Script_EnableMouse(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1527,9 +1501,7 @@ static int32_t Script_EnableMouseWheel(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }
@@ -1563,9 +1535,7 @@ static int32_t Script_EnableJoystick(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
     if (!frame->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(frame);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(frame);
 
         return 0;
     }

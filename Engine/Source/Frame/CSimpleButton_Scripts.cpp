@@ -94,9 +94,7 @@ static int32_t Script_Enable(lua_State* L) {
     CSimpleButton* button = static_cast<CSimpleButton*>(FrameScript_GetObjectThis(L, CSimpleButton::GetObjectType()));
 
     if (!button->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(button);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(button);
 
         return 0;
     }
@@ -111,9 +109,7 @@ static int32_t Script_Disable(lua_State* L) {
     CSimpleButton* button = static_cast<CSimpleButton*>(FrameScript_GetObjectThis(L, CSimpleButton::GetObjectType()));
 
     if (!button->ProtectedFunctionsAllowed()) {
-        if (CSimpleTop::s_instance->m_actionBlockedCallback) {
-            CSimpleTop::s_instance->m_actionBlockedCallback(button);
-        }
+        CSimpleTop::s_instance->NotifyActionBlocked(button);
 
         return 0;
     }
