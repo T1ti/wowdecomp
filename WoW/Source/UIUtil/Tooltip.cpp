@@ -7162,7 +7162,7 @@ void TooltipCorpseCallback(int32_t id, const WOWGUID& guid, void* param, bool su
 
     CGTooltip* tooltip = static_cast<CGTooltip*>(param);
 
-    if (static_cast<uint32_t>(tooltip->m_corpseGuid.m_guid)) {
+    if (tooltip->m_corpseGuid.GetLow()) {
         WOWGUID corpse = tooltip->m_corpseGuid;
         tooltip->SetCorpse(corpse);
         tooltip->CalculateSize();
@@ -7386,7 +7386,7 @@ void TooltipObjectCallback(int32_t id, const WOWGUID& guid, void* param, bool su
 
     CGTooltip* tooltip = static_cast<CGTooltip*>(param);
 
-    if (static_cast<uint32_t>(tooltip->m_objectGuid.m_guid)) {
+    if (tooltip->m_objectGuid.GetLow()) {
         WOWGUID object = tooltip->m_objectGuid;
         tooltip->SetObject(object);
         tooltip->CalculateSize();

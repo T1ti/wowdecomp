@@ -7366,10 +7366,10 @@ void Spell_C_RemovePeriodicClientTrigger(WOWGUID caster, int32_t auraSpellId) {
 void Spell_C_AddProcessedDestLocSpellCast(WOWGUID caster, uint8_t count, uint32_t time) {
     CHashKeyGUID key;
     key.m_guid = caster;
-    DESTLOCSPELLCASTINDEXHASHNODE* node = s_destLocSpellCasts.Ptr(static_cast<uint32_t>(caster.m_guid), key);
+    DESTLOCSPELLCASTINDEXHASHNODE* node = s_destLocSpellCasts.Ptr(caster.GetLow(), key);
 
     if (!node) {
-        node = s_destLocSpellCasts.New(static_cast<uint32_t>(caster.m_guid), key, 0, 0);
+        node = s_destLocSpellCasts.New(caster.GetLow(), key, 0, 0);
     }
 
     node->m_castCount = count;
@@ -7387,7 +7387,7 @@ int32_t Packet_SMSG_NOTIFY_DEST_LOC_SPELL_CAST(void* param, NETMESSAGE msgId, ui
     if (data.m_caster) {
         CHashKeyGUID key;
         key.m_guid = data.m_caster;
-        DESTLOCSPELLCASTINDEXHASHNODE* node = s_destLocSpellCasts.Ptr(static_cast<uint32_t>(data.m_caster.m_guid), key);
+        DESTLOCSPELLCASTINDEXHASHNODE* node = s_destLocSpellCasts.Ptr(data.m_caster.GetLow(), key);
 
         if (node && static_cast<int8_t>(data.unk_0038 - node->m_castCount) <= 0) {
             return 1;

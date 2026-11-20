@@ -1700,13 +1700,13 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
             msg->Get(guid.m_guid);
 
             if (!guid.IsPlayer()) {
-                LFGListParty* party = list->m_parties.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+                LFGListParty* party = list->m_parties.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
                 if (party) {
                     list->DeleteParty(party);
                 }
             } else {
-                LFGListPlayer* player = list->m_players.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+                LFGListPlayer* player = list->m_players.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
                 if (player) {
                     list->RemovePlayer(player);
@@ -1749,11 +1749,11 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
     for (uint32_t i = 0; i < count; i++) {
         WOWGUID guid;
         msg->Get(guid.m_guid);
-        LFGListPlayer* player = list->m_players.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        LFGListPlayer* player = list->m_players.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (!player) {
             player = new (__FILE__, __LINE__) LFGListPlayer();
-            list->m_players.Insert(player, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+            list->m_players.Insert(player, guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
             if (!g_nameDBCache.GetRecord(guid.m_guid, guid, LFGNameCacheCallback, nullptr, false)) {
                 list->m_pendingNames++;

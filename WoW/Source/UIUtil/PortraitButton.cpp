@@ -207,7 +207,7 @@ void UpdatePendingPortraits() {
 // OFFSET: 0x00618110
 void UpdateModelForUI(const WOWGUID& guid, uint32_t flags) {
     if (flags & UI_MODEL_UPDATE_PORTRAIT) {
-        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (portrait) {
             portrait->m_cache.m_dirty = 1;
@@ -431,7 +431,7 @@ static int32_t AddPendingPortraitFlags(CGUnit_C* unit, uint32_t flags) {
 // OFFSET: 0x00618180
 void SetPortraitTexture(CSimpleTexture* texture, uint32_t race, uint32_t sex, WOWGUID guid) {
     if (guid) {
-        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (portrait && portrait->m_cache.m_texture && !portrait->m_cache.m_dirty) {
             texture->SetTexture(portrait->m_cache.m_texture);
@@ -543,7 +543,7 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         WOWGUID guid = unit->m_obj->m_guid;
-        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (portrait && !portrait->m_cache.m_dirty) {
             texture->SetTexture(portrait->m_cache.m_texture);
@@ -668,10 +668,10 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
 
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         WOWGUID guid = unit->m_obj->m_guid;
-        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        PLAYERPORTRAIT* portrait = s_playerPortraits.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (!portrait) {
-            portrait = s_playerPortraits.New(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid), 0, 0);
+            portrait = s_playerPortraits.New(guid.GetLow(), CHashKeyGUID(guid.m_guid), 0, 0);
         }
 
         cache = &portrait->m_cache;

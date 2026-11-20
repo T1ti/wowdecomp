@@ -1519,7 +1519,7 @@ C3Vector CVehiclePassenger_C::GetEndPosition() {
     CGUnit_C* vehicle;
     CM2Model* model;
 
-    if (this->m_state && static_cast<uint32_t>(this->m_transitionVehicleGuid.m_guid) && (vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transitionVehicleGuid, TYPE_UNIT, __FILE__, __LINE__))) != nullptr && (model = vehicle->GetObjectModel()) != nullptr && model->IsLoaded(0, 0) && seatRec) {
+    if (this->m_state && this->m_transitionVehicleGuid.GetLow() && (vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transitionVehicleGuid, TYPE_UNIT, __FILE__, __LINE__))) != nullptr && (model = vehicle->GetObjectModel()) != nullptr && model->IsLoaded(0, 0) && seatRec) {
         C3Vector position(0.0f, 0.0f, 0.0f);
         this->ComputeSeatPos(vehicle, model, seatRec, position);
         return position;

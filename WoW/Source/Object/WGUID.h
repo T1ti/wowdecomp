@@ -42,6 +42,14 @@ struct WOWGUID {
     }
 
     // INLINED helpers; every client copy is expanded in place.
+    uint32_t GetLow() const {
+        return static_cast<uint32_t>(this->m_guid);
+    }
+
+    uint32_t GetHigh() const {
+        return static_cast<uint32_t>(this->m_guid >> 32);
+    }
+
     uint64_t GetType() const {
         return this->m_guid & WOWGUID_TYPE_MASK;
     }

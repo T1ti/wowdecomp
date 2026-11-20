@@ -278,7 +278,7 @@ int32_t CGAutoCompleteName::RemoveFlagsFromAllNodes(uint32_t flags) {
 // OFFSET: 0x0057AED0
 static AUTOCOMPLETE_NAMENODE* FindNodeByPresenceId(const uint32_t& presenceId) {
     for (AUTOCOMPLETE_NAMENODE* node = CGAutoCompleteName::m_list.Head(); node; node = CGAutoCompleteName::m_list.Next(node)) {
-        if (node->m_presenceId && presenceId == static_cast<uint32_t>(node->m_guid.m_guid)) {
+        if (node->m_presenceId && presenceId == node->m_guid.GetLow()) {
             return node;
         }
     }

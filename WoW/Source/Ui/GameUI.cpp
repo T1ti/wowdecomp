@@ -5403,7 +5403,7 @@ void CGGameUI::THREATMAP::AddUnit(const WOWGUID& guid) {
 // VERIFY: 2285dd15 auto
 // OFFSET: 0x0052A1A0
 uint8_t CGUnit_C::GetThreatSituation(const WOWGUID& guid) {
-    CGGameUI::THREATMAP* map = CGGameUI::s_threatMap.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGGameUI::THREATMAP* map = CGGameUI::s_threatMap.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (map) {
         return map->ComputeMaxThreatLevel(guid);
@@ -5415,7 +5415,7 @@ uint8_t CGUnit_C::GetThreatSituation(const WOWGUID& guid) {
 // VERIFY: 88074792 auto
 // OFFSET: 0x0052A160
 void CGGameUI::ThreatMapRemove(const WOWGUID& unit, const WOWGUID& target) {
-    CGGameUI::THREATMAP* map = CGGameUI::s_threatMap.Ptr(static_cast<uint32_t>(target.m_guid), CHashKeyGUID(target.m_guid));
+    CGGameUI::THREATMAP* map = CGGameUI::s_threatMap.Ptr(target.GetLow(), CHashKeyGUID(target.m_guid));
 
     if (map) {
         map->RemoveUnit(unit);
@@ -5425,7 +5425,7 @@ void CGGameUI::ThreatMapRemove(const WOWGUID& unit, const WOWGUID& target) {
 // VERIFY: c9bac8e5 manual
 // OFFSET: 0x0052B370
 void CGGameUI::ThreatMapAdd(const WOWGUID& unit, const WOWGUID& target) {
-    uint32_t hashval = static_cast<uint32_t>(target.m_guid);
+    uint32_t hashval = target.GetLow();
     CHashKeyGUID key(target.m_guid);
     CGGameUI::THREATMAP* map = CGGameUI::s_threatMap.Ptr(hashval, key);
 

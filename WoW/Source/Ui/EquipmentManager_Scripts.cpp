@@ -336,7 +336,7 @@ static int32_t Script_GetEquipmentSetItemIDs(lua_State* L) {
         WOWGUID guid = set->m_items[slot];
         double value;
 
-        if (!static_cast<uint32_t>(guid.m_guid)) {
+        if (!guid.GetLow()) {
             lua_checkstack(L, 2);
             lua_pushnumber(L, slot + 1);
             value = 0.0;

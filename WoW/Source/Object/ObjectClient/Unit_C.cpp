@@ -17538,7 +17538,7 @@ UnitThreat* UnitThreatHeap::New() {
 // VERIFY: 9e64e02c manual
 // OFFSET: 0x007374C0
 bool CGUnit_C::CalculateThreat(const WOWGUID& guid, uint8_t* status, uint8_t* rawPercent, float* percent, int32_t* threat) {
-    UnitThreat* entry = this->m_threats.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    UnitThreat* entry = this->m_threats.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!this->m_highestThreatGuid || !entry) {
         if (status) {
@@ -17638,7 +17638,7 @@ void CGUnit_C::AddWorldThreatUpdateText(int32_t oldStatus, int32_t newStatus) {
 // VERIFY: a407c868 manual
 // OFFSET: 0x007416F0
 UnitThreat* CGUnit_C::CreateThreatEntry(const WOWGUID& guid) {
-    UnitThreat* entry = this->m_threats.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    UnitThreat* entry = this->m_threats.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (entry) {
         return entry;
@@ -17648,7 +17648,7 @@ UnitThreat* CGUnit_C::CreateThreatEntry(const WOWGUID& guid) {
     entry->m_status = UnitThreat::THREAT_STATUS_LOW;
     entry->m_percent = 0xFF;
     entry->m_threat = 0;
-    this->m_threats.Insert(entry, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    this->m_threats.Insert(entry, guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (guid == ClntObjMgrGetActivePlayer()) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY;
@@ -17707,7 +17707,7 @@ bool CGUnit_C::UpdateThreatEntry(UnitThreat* entry, int32_t highestThreat, bool 
 // VERIFY: 1e748a95 manual
 // OFFSET: 0x00737620
 void CGUnit_C::UpdateThreatStatus() {
-    UnitThreat* highest = this->m_threats.Ptr(static_cast<uint32_t>(this->m_highestThreatGuid.m_guid), CHashKeyGUID(this->m_highestThreatGuid.m_guid));
+    UnitThreat* highest = this->m_threats.Ptr(this->m_highestThreatGuid.GetLow(), CHashKeyGUID(this->m_highestThreatGuid.m_guid));
 
     if (!highest) {
         return;
@@ -17777,7 +17777,7 @@ void CGUnit_C::UpdateThreat(CDataStore* msg, bool highest) {
     }
 
     bool changed = false;
-    UnitThreat* top = this->m_threats.Ptr(static_cast<uint32_t>(this->m_highestThreatGuid.m_guid), CHashKeyGUID(this->m_highestThreatGuid.m_guid));
+    UnitThreat* top = this->m_threats.Ptr(this->m_highestThreatGuid.GetLow(), CHashKeyGUID(this->m_highestThreatGuid.m_guid));
 
     if (this->m_highestThreatGuid && top) {
         int32_t highestThreat = top->m_threat;
@@ -17809,7 +17809,7 @@ void CGUnit_C::UpdateThreat(CDataStore* msg, bool highest) {
 // VERIFY: 2c8e0d1d manual
 // OFFSET: 0x00737750
 void CGUnit_C::RemoveThreat(const WOWGUID& guid) {
-    UnitThreat* entry = this->m_threats.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    UnitThreat* entry = this->m_threats.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!entry) {
         return;

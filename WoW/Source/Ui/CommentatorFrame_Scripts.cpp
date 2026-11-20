@@ -387,8 +387,8 @@ static int32_t Script_CommentatorGetInstanceInfo(lua_State* L) {
     CGCommentator::InstanceInfo* instance = &map->m_instances.m_data[instanceIndex];
     lua_pushnumber(L, instance->m_mapID);
     lua_pushnumber(L, instance->unk_0018);
-    lua_pushnumber(L, static_cast<uint32_t>(instance->m_guid.m_guid));
-    lua_pushnumber(L, static_cast<uint32_t>(instance->m_guid.m_guid >> 32));
+    lua_pushnumber(L, instance->m_guid.GetLow());
+    lua_pushnumber(L, instance->m_guid.GetHigh());
     return 4;
 }
 

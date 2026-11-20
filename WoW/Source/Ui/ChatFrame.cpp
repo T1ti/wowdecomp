@@ -3541,7 +3541,7 @@ void CGChat::NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, boo
             }
         }
 
-        if ((!static_cast<uint32_t>(senderGuid.m_guid) || senderName || chat->m_senderName) && (!chat->m_targetGuid || targetName || chat->m_targetName)) {
+        if ((!senderGuid.GetLow() || senderName || chat->m_senderName) && (!chat->m_targetGuid || targetName || chat->m_targetName)) {
             if (s_queueChat) {
                 chat->m_queued = 1;
                 continue;

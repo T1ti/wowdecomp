@@ -677,7 +677,7 @@ void ComSatClient_SendEvent(int32_t event, WOWGUID guid) {
 // VERIFY: e9df536e auto
 // OFFSET: 0x007DEEC0
 bool ComSatClient_IsPlayerMuted(WOWGUID guid) {
-    return s_mutedPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid)) != nullptr;
+    return s_mutedPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid)) != nullptr;
 }
 
 // VERIFY: b6621cc2 manual
@@ -693,7 +693,7 @@ static void ComSatClient_SetCurrentSessionI(int32_t index) {
         name = "";
         WOWGUID player = ClntObjMgrGetActivePlayer();
 
-        if (s_talkingPlayers.Ptr(static_cast<uint32_t>(player.m_guid), CHashKeyGUID(player.m_guid))) {
+        if (s_talkingPlayers.Ptr(player.GetLow(), CHashKeyGUID(player.m_guid))) {
             Script_SendUnitSignal(player, SCRIPT_EVENT_VOICE_STOP);
             ComSatClient_SendEvent(SCRIPT_EVENT_VOICE_PLATE_STOP, player);
         }
@@ -774,7 +774,7 @@ static void ComSatClient_LeaveSessionNotifyAll(int32_t index) {
 
         Script_SendUnitSignal(guid, SCRIPT_EVENT_VOICE_STOP);
         ComSatClient_SendEvent(SCRIPT_EVENT_VOICE_PLATE_STOP, guid);
-        TALKINGPLAYER* talker = s_talkingPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        TALKINGPLAYER* talker = s_talkingPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (talker) {
             s_talkingPlayers.Delete(talker);
@@ -814,7 +814,7 @@ void ComSatClient_LeaveAllSessions(WOWGUID guid) {
                 s_currentSession = -1;
                 WOWGUID player = ClntObjMgrGetActivePlayer();
 
-                if (s_talkingPlayers.Ptr(static_cast<uint32_t>(player.m_guid), CHashKeyGUID(player.m_guid))) {
+                if (s_talkingPlayers.Ptr(player.GetLow(), CHashKeyGUID(player.m_guid))) {
                     Script_SendUnitSignal(player, SCRIPT_EVENT_VOICE_STOP);
                     ComSatClient_SendEvent(SCRIPT_EVENT_VOICE_PLATE_STOP, player);
                 }
@@ -885,7 +885,7 @@ static bool FillComsatData(uint64_t session, int32_t type, const char* name) {
 // VERIFY: 75f2517c auto
 // OFFSET: 0x007DD6F0
 static bool ComSatClient_IsPlayerTalking(WOWGUID guid) {
-    return s_talkingPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid)) != nullptr;
+    return s_talkingPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid)) != nullptr;
 }
 
 // VERIFY: 6f6aa26e auto
@@ -1124,7 +1124,7 @@ void VoiceSessionLeave(uint64_t talker, uint64_t session, int32_t type) {
             s_currentSession = -1;
             WOWGUID player = ClntObjMgrGetActivePlayer();
 
-            if (s_talkingPlayers.Ptr(static_cast<uint32_t>(player.m_guid), CHashKeyGUID(player.m_guid))) {
+            if (s_talkingPlayers.Ptr(player.GetLow(), CHashKeyGUID(player.m_guid))) {
                 Script_SendUnitSignal(player, SCRIPT_EVENT_VOICE_STOP);
                 ComSatClient_SendEvent(SCRIPT_EVENT_VOICE_PLATE_STOP, player);
             }
@@ -1146,7 +1146,7 @@ void VoiceSessionLeave(uint64_t talker, uint64_t session, int32_t type) {
 // VERIFY: c227625a auto
 // OFFSET: 0x007DD6A0
 static void RemoveTalkingPlayer(WOWGUID guid) {
-    TALKINGPLAYER* talker = s_talkingPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    TALKINGPLAYER* talker = s_talkingPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (talker) {
         s_talkingPlayers.Delete(talker);
@@ -1190,7 +1190,7 @@ void Comsat::VoicePlateStop(uint64_t sessionId, uint64_t guid) {
     Script_SendUnitSignal(name->m_guid, SCRIPT_EVENT_VOICE_STOP);
     ComSatClient_SendEvent(SCRIPT_EVENT_VOICE_PLATE_STOP, name->m_guid);
     WOWGUID player = name->m_guid;
-    TALKINGPLAYER* talker = s_talkingPlayers.Ptr(static_cast<uint32_t>(player.m_guid), CHashKeyGUID(player.m_guid));
+    TALKINGPLAYER* talker = s_talkingPlayers.Ptr(player.GetLow(), CHashKeyGUID(player.m_guid));
 
     if (talker) {
         s_talkingPlayers.Delete(talker);
@@ -1204,8 +1204,8 @@ void Comsat::VoicePlateStop(uint64_t sessionId, uint64_t guid) {
 // VERIFY: 89c87ddd manual
 // OFFSET: 0x007DF410
 static void AddTalkingPlayer(WOWGUID guid) {
-    if (!s_talkingPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid))) {
-        s_talkingPlayers.New(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid), 0, 0);
+    if (!s_talkingPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid))) {
+        s_talkingPlayers.New(guid.GetLow(), CHashKeyGUID(guid.m_guid), 0, 0);
     }
 }
 
@@ -1424,7 +1424,7 @@ static void DispatchComSatEvents() {
 // VERIFY: d579125f auto
 // OFFSET: 0x007DD720
 bool ComSatClient_IsMutedPlayer(WOWGUID guid) {
-    return s_mutedPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid)) != nullptr;
+    return s_mutedPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid)) != nullptr;
 }
 
 // VERIFY: d5d21c9a auto
@@ -1436,7 +1436,7 @@ static bool IsVoiceActive() {
 
     WOWGUID player = s_localPlayer;
 
-    if (!s_talkingPlayers.Ptr(static_cast<uint32_t>(player.m_guid), CHashKeyGUID(player.m_guid)) && !SI2::VoiceChat_IsRecordingLoopbackSound() && !SI2::VoiceChat_IsPlayingLoopbackSound()) {
+    if (!s_talkingPlayers.Ptr(player.GetLow(), CHashKeyGUID(player.m_guid)) && !SI2::VoiceChat_IsRecordingLoopbackSound() && !SI2::VoiceChat_IsPlayingLoopbackSound()) {
         return false;
     }
 
@@ -1512,14 +1512,14 @@ static void ApplySoundGroupFade(uint32_t time) {
 // VERIFY: 4a995b3c manual
 // OFFSET: 0x007DF4B0
 static void MarkPlayerMuted(WOWGUID guid, int32_t muted) {
-    MUTEDPLAYER* entry = s_mutedPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    MUTEDPLAYER* entry = s_mutedPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (entry) {
         if (!muted) {
             s_mutedPlayers.Delete(entry);
         }
     } else if (muted) {
-        s_mutedPlayers.New(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid), 0, 0);
+        s_mutedPlayers.New(guid.GetLow(), CHashKeyGUID(guid.m_guid), 0, 0);
     }
 }
 
@@ -1529,7 +1529,7 @@ void VoiceSessionSetTalkerMuted(WOWGUID guid, int32_t muted) {
     AddComSatEvent(ComSatEvent::COMMAND::MUTE_TALKER, static_cast<uint32_t>(muted), guid.m_guid);
 
     if (muted == 2) {
-        MarkPlayerMuted(guid, s_mutedPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid)) == nullptr);
+        MarkPlayerMuted(guid, s_mutedPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid)) == nullptr);
     } else {
         MarkPlayerMuted(guid, muted == 0);
     }

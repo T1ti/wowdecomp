@@ -218,7 +218,7 @@ CGObject_C* ClntObjMgrObjectPtr(WOWGUID guid, OBJECT_TYPE mask, const char* file
         return nullptr;
     }
 
-    CGObject_C* object = mgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = mgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object && !(object->m_obj->m_type & mask)) {
         return nullptr;
@@ -279,7 +279,7 @@ uint32_t ClntObjMgrGetPlayerType() {
 // OFFSET: 0x004D4CA0
 void ClntObjMgrHideObject(WOWGUID guid) {
     ObjectMgr* mgr = s_curMgr;
-    CGObject_C* object = mgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = mgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object && mgr->m_visibleObjects.IsLinked(object)) {
         mgr->m_visibleObjects.UnlinkNode(object);
@@ -290,13 +290,13 @@ void ClntObjMgrHideObject(WOWGUID guid) {
 // OFFSET: 0x004D6BC0
 void ClntObjMgrLinkInNewObject(CGObject_C* object) {
     WOWGUID guid = object->m_obj->m_guid;
-    s_curMgr->m_objects.Insert(object, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    s_curMgr->m_objects.Insert(object, guid.GetLow(), CHashKeyGUID(guid.m_guid));
 }
 
 // VERIFY: be60d36c manual
 // OFFSET: 0x004D4D60
 void ClntObjMgrLockObject(WOWGUID guid) {
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object) {
         object->SetObjectLocked(1);
@@ -324,7 +324,7 @@ void ClntObjMgrSetTypeMirrorHandler(OBJECT_TYPE_ID typeId, uint32_t fieldOffset,
 // OFFSET: 0x004D4D00
 void ClntObjMgrShowObject(WOWGUID guid) {
     ObjectMgr* mgr = s_curMgr;
-    CGObject_C* object = mgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = mgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object && !mgr->m_visibleObjects.IsLinked(object)) {
         mgr->m_visibleObjects.LinkToTail(object);
@@ -980,7 +980,7 @@ static int32_t CallMirrorHandlers(CDataStore* msg, bool postInit, WOWGUID guid) 
         guid = smartGuid;
     }
 
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return SkipPartialObjectUpdate(msg);
@@ -1112,7 +1112,7 @@ static void DestroyAllObjects() {
 // OFFSET: 0x004D5A80
 void ClntObjMgrSetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire) {
     ObjectMgr* mgr = s_curMgr;
-    CGObject_C* object = mgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = mgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return;
@@ -1126,7 +1126,7 @@ void ClntObjMgrSetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t
 // VERIFY: a922342a manual
 // OFFSET: 0x004D5B40
 void ClntObjMgrUnsetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t fieldOffset, MIRRORHANDLERFUNC function, void* param) {
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object) {
         UnassignMirrorHandler(GetObjectMirrorList(typeId, object, fieldOffset >> 2), function, param);
@@ -1184,7 +1184,7 @@ static int32_t PostInitObject(uint32_t time, CDataStore* msg, bool reenable) {
         return 0;
     }
 
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return 0;
@@ -1270,14 +1270,14 @@ static CGObject_C* GetUpdateObject(WOWGUID guid, int32_t* reenabled) {
     *reenabled = 0;
 
     ObjectMgr* mgr = s_curMgr;
-    CGObject_C* object = mgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = mgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (object) {
         object->SetDisablePending(0);
         return object;
     }
 
-    object = mgr->m_lazyCleanupObjects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    object = mgr->m_lazyCleanupObjects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return nullptr;
@@ -1285,7 +1285,7 @@ static CGObject_C* GetUpdateObject(WOWGUID guid, int32_t* reenabled) {
 
     mgr->m_lazyCleanupObjects.Unlink(object);
     object->m_link.Unlink();
-    mgr->m_objects.Insert(object, static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    mgr->m_objects.Insert(object, guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     ObjectMgr* current = s_curMgr;
 
@@ -1581,7 +1581,7 @@ static void UpdateOutOfRangeObjects(CDataStore* msg) {
             continue;
         }
 
-        CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (!object) {
             continue;
@@ -1612,7 +1612,7 @@ static void UpdateOutOfRangeObjects(CDataStore* msg) {
             continue;
         }
 
-        CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+        CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
         if (object && !object->IsObjectLocked()) {
             ObjDelete(object);
@@ -1704,7 +1704,7 @@ int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time,
     uint8_t death;
     msg->Get(death);
 
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return 1;
@@ -1751,7 +1751,7 @@ void ClntObjMgrInitializeStd(uint32_t mapId) {
 // VERIFY: 35db2401 manual
 // OFFSET: 0x004D77E0
 void ClntObjMgrUnlockObject(WOWGUID guid, const char* fileName, int32_t lineNumber) {
-    CGObject_C* object = s_curMgr->m_objects.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid));
+    CGObject_C* object = s_curMgr->m_objects.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid));
 
     if (!object) {
         return;

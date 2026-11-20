@@ -3028,7 +3028,7 @@ void CWorldScene::RenderMapObjDefGroups() {
             DayNight::DNInfo* info = DayNight::GetInfo();
             CWorldScene::SetupLighting(&lighting, &CWorldScene::s_activeWorldView);
 
-            if (static_cast<uint32_t>(mapObjDef->m_objectGuid.m_guid) && mapObjDef->m_objectGuid == s_highlightedObjectGuid) {
+            if (mapObjDef->m_objectGuid.GetLow() && mapObjDef->m_objectGuid == s_highlightedObjectGuid) {
                 CMapObj::SetEmissiveAmbient(info->m_light1.m_ambient);
             }
 

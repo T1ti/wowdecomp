@@ -2132,7 +2132,7 @@ void FriendList::SetNotes(WOWGUID guid, const char* notes) {
 // OFFSET: 0x006B5DE0
 void FriendList::AddOrDelIgnore(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_IGNORES; i++) {
-        if (!static_cast<uint32_t>(this->m_ignores[i].m_guid.m_guid)) {
+        if (!this->m_ignores[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2172,7 +2172,7 @@ void FriendList::AddOrDelIgnore(const char* name) {
 // OFFSET: 0x006B5F70
 void FriendList::AddIgnore(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_IGNORES; i++) {
-        if (!static_cast<uint32_t>(this->m_ignores[i].m_guid.m_guid)) {
+        if (!this->m_ignores[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2210,7 +2210,7 @@ void FriendList::AddIgnore(const char* name) {
 // OFFSET: 0x006B6130
 void FriendList::AddOrDelVoiceIgnore(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_MUTES; i++) {
-        if (!static_cast<uint32_t>(this->m_mutes[i].m_guid.m_guid)) {
+        if (!this->m_mutes[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2250,7 +2250,7 @@ void FriendList::AddOrDelVoiceIgnore(const char* name) {
 // OFFSET: 0x006B62C0
 void FriendList::AddVoiceIgnore(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_MUTES; i++) {
-        if (!static_cast<uint32_t>(this->m_mutes[i].m_guid.m_guid)) {
+        if (!this->m_mutes[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2288,7 +2288,7 @@ void FriendList::AddVoiceIgnore(const char* name) {
 // OFFSET: 0x006B6E10
 void FriendList::AddOrRemoveFriend(const char* name, const char* notes) {
     for (uint32_t i = 0; i < FriendList::MAX_FRIENDS; i++) {
-        if (!static_cast<uint32_t>(this->m_friends[i].m_guid.m_guid)) {
+        if (!this->m_friends[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2346,7 +2346,7 @@ void FriendList::SetFriendNotes(const char* name, const char* notes) {
 // OFFSET: 0x006B7040
 void FriendList::DelIgnore(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_IGNORES; i++) {
-        if (!static_cast<uint32_t>(this->m_ignores[i].m_guid.m_guid)) {
+        if (!this->m_ignores[i].m_guid.GetLow()) {
             continue;
         }
 
@@ -2378,7 +2378,7 @@ void FriendList::DelIgnore(const char* name) {
 // OFFSET: 0x006B7120
 void FriendList::DelMute(const char* name) {
     for (uint32_t i = 0; i < FriendList::MAX_MUTES; i++) {
-        if (!static_cast<uint32_t>(this->m_mutes[i].m_guid.m_guid)) {
+        if (!this->m_mutes[i].m_guid.GetLow()) {
             continue;
         }
 

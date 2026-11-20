@@ -285,7 +285,7 @@ static int32_t Script_UnitIsTalking(lua_State* L) {
     WOWGUID guid = { 0 };
     CGChat::ChatTokenToGUID(lua_tolstring(L, 1, nullptr), guid);
 
-    if (guid && s_talkingPlayers.Ptr(static_cast<uint32_t>(guid.m_guid), CHashKeyGUID(guid.m_guid))) {
+    if (guid && s_talkingPlayers.Ptr(guid.GetLow(), CHashKeyGUID(guid.m_guid))) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
