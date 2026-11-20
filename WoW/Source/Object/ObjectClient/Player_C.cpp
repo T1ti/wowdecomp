@@ -6872,7 +6872,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestDetails(CDataStore* msg) {
 
 // VERIFY: ba5bd839 manual
 // OFFSET: 0x006D2DE0
-void CGPlayer_C::BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t a5) {
+void CGPlayer_C::BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t unknown5) {
     if (!item) {
         return;
     }
@@ -6883,7 +6883,7 @@ void CGPlayer_C::BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t coun
     msg.Put(static_cast<uint32_t>(item->m_itemID));
     msg.Put(static_cast<uint32_t>(item->m_slot));
     msg.Put(count);
-    msg.Put(a5);
+    msg.Put(unknown5);
     msg.Finalize();
     ClientServices::Send2(&msg);
 }

@@ -604,7 +604,7 @@ class CGChat {
     static void InviteNameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
     static int32_t IsRecordedType(int32_t type);
     static void RecordChat(const char* text, int32_t type, const char* senderName, WOWGUID senderGuid, uint32_t senderUnk, uint32_t zoneChannelID, const char* channelName, uint32_t lineID, const CGPlayer_C* player);
-    static void QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t a9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation);
+    static void QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t unknown9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation);
     static void NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
     static void TranslateMessage(uint32_t language, uint32_t skill, const char* text, char* buffer, uint32_t size, BOOL keepTags, BOOL keepSeparators);
     static void AddWhisperThrottled(uint32_t time);

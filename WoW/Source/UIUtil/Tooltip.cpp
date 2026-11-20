@@ -3233,7 +3233,7 @@ void CGTooltip::AddColoredItemStat(int32_t value, const char* name, int32_t* fir
 
 // VERIFY: 8edeac88 manual
 // OFFSET: 0x006238A0
-int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t a13, int32_t rank, int32_t maxRank, int32_t showLearn) {
+int32_t CGTooltip::SetSpell(int32_t spellId, int32_t brief, uint32_t cooldown, int32_t isPet, int32_t showRank, int32_t isInspect, int32_t useRank, const TalentRec* talent, CGTalentGroup_C* talentGroup, int32_t append, int32_t usePreview, int32_t spellRank, int32_t rank, int32_t maxRank, int32_t showLearn) {
     const CImVector& titleColor = *reinterpret_cast<const CImVector*>(&s_tooltipTitleColor);
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     const CImVector& redColor = *reinterpret_cast<const CImVector*>(&s_tooltipRedColor);

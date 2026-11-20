@@ -424,8 +424,8 @@ void CGUnit_C::OnVehicleCameraPossiblyUnneeded() {
 
 // VERIFY: 6c23ff21 auto
 // OFFSET: 0x0074CF30
-void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, int32_t a3) {
-    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_POST_INIT_COMPLETE) && !a3) {
+void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, BOOL deferred) {
+    if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_POST_INIT_COMPLETE) && !deferred) {
         return;
     }
 
@@ -461,7 +461,7 @@ void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat
         this->m_vehiclePassenger = CVehiclePassenger_C::Alloc(this);
     }
 
-    this->m_vehiclePassenger->OnUpdateTransport(guid, seat, vehicle, a3);
+    this->m_vehiclePassenger->OnUpdateTransport(guid, seat, vehicle, deferred);
 
     if (this->m_vehicleCamera) {
         this->m_vehicleCamera->BeginTransition(FrameTime::s_curTimeMs);

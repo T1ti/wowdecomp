@@ -502,7 +502,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     float CalcRewardHonor(float honor);
     float GetQuestXPMultiplier();
     int32_t CanUseItem(const ItemStats_C* stats, int32_t& error);
-    static void BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t a5);
+    static void BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t unknown5);
     int32_t OnItemRefundResult(CDataStore* msg);
     void DelKnownSpell(int32_t spellId, int32_t silent);
     bool VehicleAllowsInteraction() const;

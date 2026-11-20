@@ -906,7 +906,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void RecreateNamePlate();
     void ScanAuraSpellsOnDisplayUpdate();
     void OnCollideFallLand(uint32_t oldFlags, int32_t jumping);
-    void VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, int32_t a3);
+    void VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat, BOOL deferred);
     void HandleBloodPool(uint32_t time);
     void NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worldFrame);
     void ReleaseMissiles();

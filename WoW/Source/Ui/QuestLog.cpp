@@ -311,7 +311,7 @@ int32_t CGQuestLog::GetQuestIndex(int32_t questId) {
 
 // VERIFY: 728ea3e9 manual
 // OFFSET: 0x005E0EA0
-int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
+int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
     if (index >= static_cast<uint32_t>(CGQuestLog::m_numQuest) || CGQuestLog::m_quests[index].m_isHeader) {
         return 0;
     }
@@ -350,7 +350,7 @@ int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, int32_t a2) {
             }
         }
 
-        if (a2 && !hasObjectives && !quest->m_requiredPlayersKilled) {
+        if (requireObjectives && !hasObjectives && !quest->m_requiredPlayersKilled) {
             return 0;
         }
     }

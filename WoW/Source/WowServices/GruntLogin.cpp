@@ -273,7 +273,7 @@ void GruntLogin::LogonResult(Grunt::Result result, const uint8_t* sessionKey, ui
 void GruntLogin::Update() {
 }
 
-void GruntLogin::JoinRealm(uint32_t a1, uint32_t a2, uint32_t a3) {
+void GruntLogin::JoinRealm(uint32_t region, uint32_t battlegroup, uint32_t id) {
 }
 
 LOGIN_SERVER_TYPE GruntLogin::GetLoginServerType() {

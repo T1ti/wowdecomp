@@ -637,7 +637,7 @@ void SI2::StopAdvancedSound(uint32_t id, int32_t remove, float fadeOutTime) {
 
 // VERIFY: 87c34bf4 manual
 // OFFSET: 0x004CB580
-int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t a7, int32_t checkDistance, int32_t forceLoop) {
+int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, int32_t forceLoop) {
     if (!rec) {
         return 24;
     }
@@ -740,7 +740,7 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
     }
 
     sound->m_orientation = *orientation;
-    sound->unused_0008 = a7;
+    sound->unused_0008 = unknown7;
 
     sound->m_id = s_nextAdvancedId;
     sound->m_object->m_advancedId = s_nextAdvancedId;

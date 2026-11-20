@@ -808,7 +808,7 @@ THROTTLEDCHAT::~THROTTLEDCHAT() {
 
 // VERIFY: f592c07c manual
 // OFFSET: 0x00502D00
-void CGChat::QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t a9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation) {
+void CGChat::QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t unknown9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation) {
     PENDINGCHAT* chat = CGChat::s_pendingChat.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     chat->m_senderGuid = senderGuid;
@@ -819,7 +819,7 @@ void CGChat::QueueChatText(const char* text, int32_t type, const char* senderNam
     chat->m_targetName = targetName ? SStrDupA(targetName, __FILE__, __LINE__) : nullptr;
     chat->m_language = language;
     chat->m_queued = queued;
-    chat->unused_0030 = a9;
+    chat->unused_0030 = unknown9;
     chat->m_achievementID = achievementID;
     chat->m_isGM = isGM;
     chat->m_conversation = conversation ? new (SMemAlloc(sizeof(ChatConversation), __FILE__, __LINE__, 0)) ChatConversation(*conversation) : nullptr;
