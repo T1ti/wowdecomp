@@ -27,8 +27,8 @@ static int32_t s_inBoneAnimEnd;
 
 // VERIFY: 94e658f9 auto
 // OFFSET: 0x00756C90
-uint32_t CVehicle_C::IsSpecialBoneAnimPlaying() const {
-    return this->m_playingBoneAnims[0] & 0x4000000;
+uint32_t CVehicle_C::IsRootBoneAnimPlaying() const {
+    return this->TestBoneAnimBit(KEY_BONE_ROOT);
 }
 
 // VERIFY: ce2db0fa manual
@@ -146,7 +146,7 @@ uint32_t CVehicle_C::IsBoneAnimPlaying(uint32_t bone) const {
         bone = KEY_BONE_ROOT;
     }
 
-    return this->m_playingBoneAnims[bone >> 5] & (1 << (bone & 0x1F));
+    return this->TestBoneAnimBit(bone);
 }
 
 // VERIFY: 0f448e4f manual
@@ -166,7 +166,7 @@ int32_t CVehicle_C::HasHighPriorityCastingAnim() const {
 // VERIFY: cfe65bc9 manual
 // OFFSET: 0x007571C0
 int32_t CVehicle_C::HasHighPriorityAnim() const {
-    if (this->m_playingBoneAnims[0] & 0x4000000) {
+    if (this->TestBoneAnimBit(KEY_BONE_ROOT)) {
         return 1;
     }
 
@@ -507,8 +507,7 @@ CVehicle_C* CVehicle_C::Create(const CClientObjCreate* create, CGUnit_C* unit, i
     vehicle->m_rawFacing = facing;
     vehicle->m_largestPassengerBoundsRadius = 0.0f;
     vehicle->UpdateFreeSeatMask();
-    vehicle->m_playingBoneAnims[0] = 0;
-    vehicle->m_playingBoneAnims[1] = 0;
+    vehicle->ClearBoneAnimBits();
 
     for (uint32_t i = 0; i < MAX_BONE_ANIM_LISTENERS; i++) {
         vehicle->m_boneAnimListeners[i].m_guid = WOWGUID();
@@ -591,7 +590,7 @@ int32_t CVehicle_C::PlayBoneAnim(uint32_t boneId, uint32_t animId) {
 
     uint32_t slot = boneId >= NUM_KEY_BONES ? KEY_BONE_ROOT : boneId;
     this->m_unit->SetKeyBoneSequence(model, slot == KEY_BONE_ROOT ? M2_KEY_BONE_NONE : slot, animId, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
-    this->m_playingBoneAnims[slot >> 5] |= 1 << (slot & 0x1F);
+    this->SetBoneAnimBit(slot);
     this->m_flags |= CVehicle_C::FLAGS::BONE_ANIMS_PLAYING;
     return 1;
 }
@@ -696,7 +695,7 @@ void CVehicle_C::RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid) {
         }
     }
 
-    if (i != 16 || !((1 << (boneId & 0x1F)) & this->m_playingBoneAnims[boneId >> 5])) {
+    if (i != MAX_BONE_ANIM_LISTENERS || !this->TestBoneAnimBit(boneId)) {
         return;
     }
 
@@ -742,7 +741,7 @@ void CVehicle_C::BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t s
     }
 
     if (interrupted || !handled) {
-        this->m_playingBoneAnims[boneId >> 5] &= ~(1 << (boneId & 0x1F));
+        this->ClearBoneAnimBit(boneId);
     }
 
     if (boneId == this->m_forceFacingBone) {

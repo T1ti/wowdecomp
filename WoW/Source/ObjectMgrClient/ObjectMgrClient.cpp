@@ -498,6 +498,14 @@ static uint32_t GetNumDwordBlocks(uint32_t type, WOWGUID guid) {
     }
 }
 
+// Update packets carry at most 42 dirty-mask words (1344 fields); PLAYER_END needs 37.
+static const uint32_t MAX_DIRTY_MASK_BLOCKS = 42;
+
+// INLINED: one dirty bit per update field.
+static bool IsFieldDirty(const uint32_t* masks, uint32_t field) {
+    return (masks[field >> 5] & (1 << (field & 0x1F))) != 0;
+}
+
 // VERIFY: 09b26427 manual
 // OFFSET: 0x004D3F10
 static int32_t ExtractDirtyMasks(CDataStore* msg, uint8_t* blockCount, uint32_t* masks) {
@@ -505,7 +513,7 @@ static int32_t ExtractDirtyMasks(CDataStore* msg, uint8_t* blockCount, uint32_t*
     msg->Get(count);
     *blockCount = count;
 
-    if (count > 42) {
+    if (count > MAX_DIRTY_MASK_BLOCKS) {
         return 0;
     }
 
@@ -515,8 +523,8 @@ static int32_t ExtractDirtyMasks(CDataStore* msg, uint8_t* blockCount, uint32_t*
         msg->Get(masks[i]);
     }
 
-    if (i < 42) {
-        memset(&masks[i], 0, sizeof(uint32_t) * (42 - i));
+    if (i < MAX_DIRTY_MASK_BLOCKS) {
+        memset(&masks[i], 0, sizeof(uint32_t) * (MAX_DIRTY_MASK_BLOCKS - i));
     }
 
     return 1;
@@ -525,7 +533,7 @@ static int32_t ExtractDirtyMasks(CDataStore* msg, uint8_t* blockCount, uint32_t*
 // VERIFY: 3918bd3a manual
 // OFFSET: 0x004D3F80
 static int32_t SkipPartialObjectUpdate(CDataStore* msg) {
-    uint32_t masks[42];
+    uint32_t masks[MAX_DIRTY_MASK_BLOCKS];
     uint8_t blockCount;
 
     if (!ExtractDirtyMasks(msg, &blockCount, masks)) {
@@ -533,7 +541,7 @@ static int32_t SkipPartialObjectUpdate(CDataStore* msg) {
     }
 
     for (uint32_t i = 0; i < 32u * blockCount; i++) {
-        if (masks[i >> 5] & (1 << (i & 31))) {
+        if (IsFieldDirty(masks, i)) {
             uint32_t value;
             msg->Get(value);
         }
@@ -913,7 +921,7 @@ static int32_t LinkPendingNodes(TSExplicitList<CMirrorHandler, offsetof(CMirrorH
 // VERIFY: 5cf2342e manual
 // OFFSET: 0x004D53C0
 static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataStore* msg, bool skipMirrorUpdate, bool zeroFillAbsent) {
-    uint32_t masks[42];
+    uint32_t masks[MAX_DIRTY_MASK_BLOCKS];
     uint8_t blockCount;
 
     if (!ExtractDirtyMasks(msg, &blockCount, masks)) {
@@ -949,7 +957,7 @@ static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataSt
 
         uint32_t value;
 
-        if (masks[i >> 5] & (1 << (i & 31))) {
+        if (IsFieldDirty(masks, i)) {
             msg->GetArray(reinterpret_cast<uint8_t*>(&value), sizeof(value));
         } else if (zeroFillAbsent) {
             value = 0;
@@ -978,7 +986,7 @@ static int32_t CallMirrorHandlers(CDataStore* msg, bool postInit, WOWGUID guid) 
         return SkipPartialObjectUpdate(msg);
     }
 
-    uint32_t masks[42];
+    uint32_t masks[MAX_DIRTY_MASK_BLOCKS];
     uint8_t blockCount;
 
     if (!ExtractDirtyMasks(msg, &blockCount, masks)) {
@@ -1000,7 +1008,7 @@ static int32_t CallMirrorHandlers(CDataStore* msg, bool postInit, WOWGUID guid) 
         LinkPendingNodes(&pending, &s_typeMirrorHandlers[typeId][i - typeBase]);
         LinkPendingNodes(&pending, GetObjectMirrorList(typeId, object, i - typeBase));
 
-        if (masks[i >> 5] & (1 << (i & 31))) {
+        if (IsFieldDirty(masks, i)) {
             uint32_t value = 0;
             msg->Get(value);
         } else if (!postInit) {

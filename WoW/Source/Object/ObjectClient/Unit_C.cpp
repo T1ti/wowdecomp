@@ -4413,7 +4413,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
         return;
     }
 
-    if (this->GetObjectModel()->m_lastAnimTime || (this->GetVehicleRec() && this->m_vehicle->IsSpecialBoneAnimPlaying())) {
+    if (this->GetObjectModel()->m_lastAnimTime || (this->GetVehicleRec() && this->m_vehicle->IsRootBoneAnimPlaying())) {
         return;
     }
 
@@ -24025,15 +24025,14 @@ void CGUnit_C::CleanUpVehicleBoneAnimsBeforeObjectModelChange() {
     }
 
     if (model->IsLoaded(0, 0)) {
-        for (uint32_t bone = 0; bone < 35; bone++) {
-            if (vehicle->m_playingBoneAnims[bone >> 5] & (1 << (bone & 0x1F))) {
+        for (uint32_t bone = 0; bone < NUM_KEY_BONES; bone++) {
+            if (vehicle->TestBoneAnimBit(bone)) {
                 vehicle->PlayBoneAnimOrFallback(model, bone);
             }
         }
     }
 
-    vehicle->m_playingBoneAnims[0] = 0;
-    vehicle->m_playingBoneAnims[1] = 0;
+    vehicle->ClearBoneAnimBits();
 
     for (uint32_t i = 0; i < CVehicle_C::MAX_BONE_ANIM_LISTENERS; i++) {
         vehicle->m_boneAnimListeners[i].m_guid = WOWGUID();

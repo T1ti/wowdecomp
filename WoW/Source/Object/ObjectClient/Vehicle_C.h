@@ -69,7 +69,7 @@ class CVehicle_C {
 
     CVehicle_C();
     VehicleSeatRec* GetVehicleSeatRec(uint8_t seat) const;
-    uint32_t IsSpecialBoneAnimPlaying() const;
+    uint32_t IsRootBoneAnimPlaying() const;
     int32_t InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers));
     void UninstallBoneAnimListener(WOWGUID guid);
     void RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid);
@@ -81,6 +81,20 @@ class CVehicle_C {
     int32_t IsSuppressingCameraPitchWhileMouseAiming() const;
     int32_t HasHighPriorityCastingAnim() const;
     uint32_t IsBoneAnimPlaying(uint32_t bone) const;
+    // INLINED: m_playingBoneAnims holds one bit per key bone.
+    uint32_t TestBoneAnimBit(uint32_t bone) const {
+        return this->m_playingBoneAnims[bone >> 5] & (1 << (bone & 0x1F));
+    }
+    void SetBoneAnimBit(uint32_t bone) {
+        this->m_playingBoneAnims[bone >> 5] |= 1 << (bone & 0x1F);
+    }
+    void ClearBoneAnimBit(uint32_t bone) {
+        this->m_playingBoneAnims[bone >> 5] &= ~(1 << (bone & 0x1F));
+    }
+    void ClearBoneAnimBits() {
+        this->m_playingBoneAnims[0] = 0;
+        this->m_playingBoneAnims[1] = 0;
+    }
     void BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time);
     void PlayBoneAnimOrFallback(CM2Model* model, uint32_t boneId);
     int32_t HasHighPriorityAnim() const;
