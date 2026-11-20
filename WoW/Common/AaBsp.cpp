@@ -126,7 +126,7 @@ CAaBsp::CAaBsp() {
 void CAaBsp::Free() {
     if (g_BspDigestCache) {
         for (uint32_t i = 0; i < this->m_nNodes; i++) {
-            if (this->m_nodes[i].m_flags & 0x4) {
+            if (this->m_nodes[i].m_flags & CAaBspNode::Flag_Leaf) {
                 g_BspDigestCache->RemoveEntry(&this->m_nodes[i]);
             }
         }
