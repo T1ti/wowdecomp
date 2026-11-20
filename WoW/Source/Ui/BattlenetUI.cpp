@@ -923,7 +923,7 @@ void BattlenetUI::FactionUpdateCB(void* param, int32_t argc, const GeneralFuncti
     BSN::BSNEncodedObject<Battlenet::Presence::FieldUpdate, Protocol> update(args[0].ToObject());
 
     if (!BattlenetAPI::IsSelf(update.m_data.m_presenceId)) {
-        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, 0x20, 0, nullptr);
+        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
     }
 }
 
@@ -982,7 +982,7 @@ void BattlenetUI::ToonNameUpdateCB(void* param, int32_t argc, const GeneralFunct
     }
 
     if (!BattlenetAPI::IsSelf(update.m_data.m_presenceId)) {
-        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, 0x20, 0, nullptr);
+        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
     }
 }
 
@@ -1143,7 +1143,7 @@ void BattlenetUI::ChatWhisperSentCB(void* param, int32_t argc, const GeneralFunc
         message = "";
     }
 
-    BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+    BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
 
     Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
     const char* flags = nullptr;
@@ -1181,7 +1181,7 @@ void BattlenetUI::ChatWhisperReceivedCB(void* param, int32_t argc, const General
         message = "";
     }
 
-    BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+    BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
 
     Battlenet::Presence::FieldVal toon = BattlenetAPI::GetPresenceValue(presenceId, BattlenetUI::s_presenceCallbacks[BN_PRESENCE_TOON_NAME].m_field);
     const char* flags = nullptr;
@@ -1224,7 +1224,7 @@ void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFu
 
     for (uint32_t i = 0; i < count; i++) {
         uint32_t presenceId = members.m_members.m_data[i];
-        BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+        BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
     }
 
     if (type == 2) {
@@ -1328,7 +1328,7 @@ void BattlenetUI::ChatChannelMessageReceivedCB(void* param, int32_t argc, const 
 
     char text[1024];
     FilterChatLinks(message, text, 1021);
-    BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+    BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
 
     ChatConversation conversation;
     conversation.m_index = channel;
@@ -1370,7 +1370,7 @@ void BattlenetUI::ChatChannelMemberJoinedCB(void* param, int32_t argc, const Gen
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+    BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
 
     ChatConversation conversation;
     conversation.m_index = channel;
@@ -1580,7 +1580,7 @@ void BattlenetUI::PopulateAutoComplete() {
             online = value.m_bool != 0;
         }
 
-        BattlenetUI::UpdateAutoComplete(presenceId, (online ? 0x20 : 0) | 0x4, 0, name);
+        BattlenetUI::UpdateAutoComplete(presenceId, (online ? AUTOCOMPLETE_FLAG_ONLINE : AUTOCOMPLETE_FLAG_NONE) | AUTOCOMPLETE_FLAG_FRIEND, 0, name);
     }
 
     for (uint8_t channel = 0; channel < BattlenetUI::MAX_CHAT_CHANNELS; channel++) {
@@ -1589,7 +1589,7 @@ void BattlenetUI::PopulateAutoComplete() {
 
         for (uint32_t i = 0; i < memberCount; i++) {
             uint32_t presenceId = members.m_members.m_data[i];
-            BattlenetUI::UpdateAutoComplete(presenceId, 0x30, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
+            BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
         }
     }
 }
@@ -1729,7 +1729,7 @@ void BattlenetUI::OnlinePresenceChangedCB(void* param, int32_t argc, const Gener
     }
 
     if (online) {
-        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, 0x20, 0, nullptr);
+        BattlenetUI::UpdateAutoComplete(update.m_data.m_presenceId, AUTOCOMPLETE_FLAG_ONLINE, 0, nullptr);
         BattlenetUI::SendScriptEvent(SCRIPT_EVENT_BN_FRIEND_INFO_CHANGED, nullptr);
         return;
     }
