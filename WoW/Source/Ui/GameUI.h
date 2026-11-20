@@ -157,6 +157,13 @@ struct CinematicInfo {
     /* 0034 */ uint32_t unused_0034;
 };
 
+// END_REFUND event argument and EndRefund script argument: which refund-ending action the
+// confirmation resumes (names inferred from Script_EndRefund).
+enum END_REFUND_TYPE : int32_t {
+    END_REFUND_TYPE_ITEM_SPELL = 1, // Casts the item spell on m_lastItemSpellTarget.
+    END_REFUND_TYPE_SOCKET = 2, // Accepts the pending item socketing.
+};
+
 class CGGameUI {
     public:
     static void SendRaidDifficultyMessage();

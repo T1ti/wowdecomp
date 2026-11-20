@@ -4778,7 +4778,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
 
             if (purchase && spell.m_effect[i] != SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY && !confirmed && static_cast<int32_t>(purchase->m_purchasePlayedTime - ClntObjMgrGetActivePlayerObj()->GetPlayedTime() + CGItem_C::ItemPurchaseData::REFUND_PERIOD_SECONDS) > 0) {
                 CGGameUI::m_lastItemSpellTarget = item->m_obj->m_guid;
-                FrameScript_SignalEvent(SCRIPT_EVENT_END_REFUND, "%d", 1);
+                FrameScript_SignalEvent(SCRIPT_EVENT_END_REFUND, "%d", END_REFUND_TYPE_ITEM_SPELL);
                 return;
             }
 

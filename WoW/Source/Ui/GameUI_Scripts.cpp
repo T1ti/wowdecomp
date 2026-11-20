@@ -5811,12 +5811,12 @@ static int32_t Script_EndRefund(lua_State* L) {
 
     int32_t type = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (type == 1) {
+    if (type == END_REFUND_TYPE_ITEM_SPELL) {
         CGGameUI::CastItemSpell(CGGameUI::m_lastItemSpellTarget, 1);
         return 0;
     }
 
-    if (type == 2) {
+    if (type == END_REFUND_TYPE_SOCKET) {
         CGItemSocketInfo::Accept();
     }
 
