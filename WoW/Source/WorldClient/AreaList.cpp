@@ -320,9 +320,9 @@ bool AreaListZoneHasBreathParticles(CMapEntity* entity) {
     AreaTableRec* parent = g_areaTableDB.GetRecord(area->m_parentAreaID);
     int32_t flags = area->m_flags;
 
-    if (!(flags & 2) && parent) {
+    if (!(flags & AREA_FLAG_BREATH_PARTICLES_OVERRIDE_PARENT) && parent) {
         flags = parent->m_flags;
     }
 
-    return flags & 1;
+    return flags & AREA_FLAG_EMIT_BREATH_PARTICLES;
 }

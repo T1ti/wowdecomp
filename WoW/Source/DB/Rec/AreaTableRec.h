@@ -11,6 +11,9 @@ class SFileImpl;
 // except FLYABLE and NO_FLYING, whose bits mean something else in that later table.
 enum AREA_FLAGS : int32_t {
     AREA_FLAG_NONE                      = 0x00000000,
+    AREA_FLAG_EMIT_BREATH_PARTICLES     = 0x00000001,
+    // Use this area's own breath particle bit instead of the parent area's.
+    AREA_FLAG_BREATH_PARTICLES_OVERRIDE_PARENT = 0x00000002,
     // City-only chat channels are listed here.
     AREA_FLAG_ALLOW_TRADE_CHANNEL       = 0x00000008,
     // Reports zone PvP info even on normal realms.
