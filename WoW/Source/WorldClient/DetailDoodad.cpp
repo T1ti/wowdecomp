@@ -202,9 +202,7 @@ void CDetailDoodadInstBatch::FillIndices() {
     for (uint32_t i = 0; i < this->m_adds.Count(); i++) {
         CM2Model* model = CDetailDoodad::s_doodadList[this->m_adds[i].m_doodadId]->m_model;
 
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         M2SkinProfile* skin = model->m_shared->m_skinData;
 
@@ -322,9 +320,7 @@ void CDetailDoodadData::ModelLoadedCallback(CM2Model* model, void* arg) {
     CDetailDoodadData* data = static_cast<CDetailDoodadData*>(arg);
     CM2Model* doodadModel = data->m_model;
 
-    if (!(doodadModel->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        doodadModel->WaitForLoad(nullptr);
-    }
+    doodadModel->EnsureInitialized();
 
     data->m_texture = CMap::LoadTexture(doodadModel->m_shared->m_data->m_textures[0].m_filename.Data());
 }
@@ -352,16 +348,12 @@ void CDetailDoodadInstBatch::FillVertices() {
         CDetailDoodadData* data = CDetailDoodad::s_doodadList[add.m_doodadId];
         CM2Model* model = data->m_model;
 
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         M2Data* m2Data = model->m_shared->m_data;
         model = data->m_model;
 
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         M2SkinProfile* skin = model->m_shared->m_skinData;
         uint32_t vertexCount = skin->m_vertices.m_count;
@@ -663,9 +655,7 @@ void CDetailDoodadInst::AddDoodad(uint32_t id, const C3Vector& position, float r
     CDetailDoodadData* data = CDetailDoodad::s_doodadList[id];
     CM2Model* model = data->m_model;
 
-    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        model->WaitForLoad(nullptr);
-    }
+    model->EnsureInitialized();
 
     M2SkinProfile* skin = model->m_shared->m_skinData;
     uint32_t vertexCount = skin->m_vertices.m_count;

@@ -258,9 +258,7 @@ void CGCharacterModelBase::SetUpModel(CGUnit_C* unit) {
         return;
     }
 
-    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        model->WaitForLoad(nullptr);
-    }
+    model->EnsureInitialized();
 
     CCharacterComponent::RemoveVisuals(model);
     this->SetModel(model);

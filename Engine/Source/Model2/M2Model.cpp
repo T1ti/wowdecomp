@@ -147,9 +147,7 @@ void CM2Model::SetAnimating(int32_t animating) {
             goto unlink;
         }
 
-        if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            this->WaitForLoad(nullptr);
-        }
+        this->EnsureInitialized();
     }
 
     if (animating) {
@@ -258,9 +256,7 @@ void CM2Model::SetLightEnabled(uint32_t index, uint32_t enabled) {
 // VERIFY: 15a8f3dc auto
 // OFFSET: 0x00824170
 CCamera* CM2Model::GetCameraByIndex(uint32_t index) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     return this->m_cameras[index].m_camera;
 }
@@ -329,9 +325,7 @@ BOOL CM2Model::HasLiveParticles() {
 // VERIFY: b133747e auto
 // OFFSET: 0x00824320
 uint32_t CM2Model::GetInstanceCountMax() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     return this->m_shared->m_maxInstances;
 }
@@ -339,9 +333,7 @@ uint32_t CM2Model::GetInstanceCountMax() {
 // VERIFY: 1593de47 auto
 // OFFSET: 0x00824380
 uint32_t CM2Model::GetCurrentLightCount() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     CM2Lighting* lighting = this->m_currentLighting;
 
@@ -832,9 +824,7 @@ void CM2Model::ReplaceParticleColor(uint32_t id, CImVector color0, CImVector col
 // VERIFY: bf0dc568 manual
 // OFFSET: 0x008254F0
 CAaBox CM2Model::GetMaxBoundingBoxPlusAttachments() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     CAaBox box = this->m_shared->m_data->m_bounds.m_extent;
 
@@ -865,9 +855,7 @@ CAaBox CM2Model::GetMaxBoundingBoxPlusAttachments() {
 // VERIFY: fbee199d manual
 // OFFSET: 0x00825660
 CAaSphere CM2Model::GetMaxBoundingSpherePlusAttachments() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     const M2Bounds& bounds = this->m_shared->m_data->m_bounds;
     CAaSphere sphere;
@@ -1082,9 +1070,7 @@ BOOL CM2Model::HasSequence(const M2Data* data, uint32_t id) {
 // VERIFY: 73b3e0d6 auto
 // OFFSET: 0x00825EE0
 BOOL CM2Model::HasSequence(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     return this->HasSequence(this->m_shared->m_data, id);
 }
@@ -1096,9 +1082,7 @@ uint32_t CM2Model::ResolveSequenceFallback(uint32_t id) {
         return INVALID_ANIMATION;
     }
 
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     int32_t visited[ANIM_COUNT];
     memset(visited, 0, sizeof(visited));
@@ -1140,9 +1124,7 @@ BOOL CM2Model::IsSequenceLoaded(uint32_t id) {
         return 0;
     }
 
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     return this->ResolveSequenceFallback(id) != 0xFFFFFFFF;
 }
@@ -1196,9 +1178,7 @@ uint16_t CM2Model::FindSequenceIndex(const M2Data* data, uint32_t id, int32_t va
 // VERIFY: 5546bff4 manual
 // OFFSET: 0x008261B0
 uint32_t CM2Model::FindSequenceVariationCount(const M2Data* data, uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     uint32_t hashCount = data->m_sequenceIdxHashById.m_count;
     uint32_t index = 0xFFFF;
@@ -1245,9 +1225,7 @@ uint32_t CM2Model::FindSequenceVariationCount(const M2Data* data, uint32_t id) {
 // VERIFY: 339ad9b4 auto
 // OFFSET: 0x008262F0
 uint32_t CM2Model::GetSequenceVariationCount(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     return this->FindSequenceVariationCount(this->m_shared->m_data, id);
 }
@@ -1320,9 +1298,7 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
 // VERIFY: ba1ac68b auto
 // OFFSET: 0x008264B0
 BOOL CM2Model::HasBone(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
 
@@ -1332,9 +1308,7 @@ BOOL CM2Model::HasBone(uint32_t boneId) {
 // VERIFY: addba282 manual
 // OFFSET: 0x00826530
 C3Vector CM2Model::GetBonePivot(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1393,9 +1367,7 @@ void CM2Model::SetBoneFlags(uint32_t boneId, uint32_t flags, uint32_t mask) {
 // VERIFY: 5b14b345 manual
 // OFFSET: 0x008266B0
 int32_t CM2Model::GetBoneSequenceInfo(uint32_t boneId, M2BoneSequenceInfo& info) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1435,9 +1407,7 @@ int32_t CM2Model::GetBoneSequenceInfo(uint32_t boneId, M2BoneSequenceInfo& info)
 // VERIFY: 271ac2da manual
 // OFFSET: 0x008267E0
 uint32_t CM2Model::GetBoneSequenceId(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1464,9 +1434,7 @@ uint32_t CM2Model::GetBoneSequenceAnimId(uint32_t boneId, uint32_t* variation) {
         *variation = 0;
     }
 
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1499,9 +1467,7 @@ uint32_t CM2Model::GetBoneSequenceAnimId(uint32_t boneId, uint32_t* variation) {
 // VERIFY: a5462ec6 manual
 // OFFSET: 0x00826930
 float CM2Model::GetBoneSequenceSpeed(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1549,9 +1515,7 @@ int32_t CM2Model::OnSequenceInterrupted(uint32_t boneId, uint16_t boneIndex) {
 // VERIFY: a5ebd842 manual
 // OFFSET: 0x00826A60
 int32_t CM2Model::BoneHasParent(uint32_t boneId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index;
@@ -1907,9 +1871,7 @@ void CM2Model::SetBoneProceduralTransform(uint32_t boneId, const C44Matrix& matr
 // VERIFY: 9445f766 auto
 // OFFSET: 0x008273D0
 BOOL CM2Model::HasAttachment(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
 
@@ -1923,9 +1885,7 @@ BOOL CM2Model::HasAttachment(uint32_t id) {
 // VERIFY: f01becc2 manual
 // OFFSET: 0x00827460
 C3Vector CM2Model::GetAttachmentPivot(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t index = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFFFFFF;
@@ -1996,9 +1956,7 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
 // VERIFY: ad2a989b manual
 // OFFSET: 0x008275F0
 BOOL CM2Model::HasEvent(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
 
@@ -2030,9 +1988,7 @@ int32_t CM2Model::FindEvent(uint32_t id, C3Vector** position, uint16_t* bone) {
 // VERIFY: 3c23ff24 manual
 // OFFSET: 0x008276F0
 C3Vector CM2Model::GetEventPivot(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     C3Vector* position;
     uint16_t bone;
@@ -2047,9 +2003,7 @@ C3Vector CM2Model::GetEventPivot(uint32_t id) {
 // VERIFY: 64018054 manual
 // OFFSET: 0x00827780
 uint32_t CM2Model::GetEventSequenceTime(uint32_t sequenceId, uint32_t eventId) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint32_t hashCount = data->m_sequenceIdxHashById.m_count;
@@ -2099,9 +2053,7 @@ uint32_t CM2Model::GetEventSequenceTime(uint32_t sequenceId, uint32_t eventId) {
 // VERIFY: db72d94c manual
 // OFFSET: 0x008278E0
 BOOL CM2Model::HasCamera(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     return id < data->m_cameraIndicesById.m_count && data->m_cameraIndicesById[id] != 0xFFFF;
@@ -2110,9 +2062,7 @@ BOOL CM2Model::HasCamera(uint32_t id) {
 // VERIFY: 37987c84 manual
 // OFFSET: 0x00827960
 CCamera* CM2Model::GetCameraById(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
 
@@ -2161,9 +2111,7 @@ void CM2Model::SetEmittersEnabled(BOOL enabled) {
 // VERIFY: 962d124c manual
 // OFFSET: 0x00827A90
 uint32_t CM2Model::GetNumGeometryBatches() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2ModelOptGeo* optGeo = this->m_optGeo;
     uint32_t visible = 0;
@@ -2210,9 +2158,7 @@ uint32_t CM2Model::GetNumGeometryBatches() {
 // VERIFY: 71314806 manual
 // OFFSET: 0x00827E30
 uint32_t CM2Model::GetNumCombinableDoodadBatches() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2ModelOptGeo* optGeo = this->m_optGeo;
     M2SkinProfile* skin = this->m_shared->m_skinData;
@@ -2263,9 +2209,7 @@ uint32_t CM2Model::GetNumCombinableDoodadBatches() {
 // VERIFY: d7b7ec48 manual
 // OFFSET: 0x00827F70
 uint32_t CM2Model::GetNumPrimitives() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2ModelOptGeo* optGeo = this->m_optGeo;
     M2SkinProfile* skin = this->m_shared->m_skinData;
@@ -2868,9 +2812,7 @@ int32_t CM2Model::GetRegionBounds(M2SkinSection* section, CAaBox& box, C44Matrix
 // VERIFY: 15cdfc90 manual
 // OFFSET: 0x00829AA0
 void CM2Model::RenderModelBatchesForProjectedTexture() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     CM2Shared* shared = this->m_shared;
     uint32_t count = shared->m_skinData->m_batches.m_count;
@@ -4279,9 +4221,7 @@ void CM2Model::OptimizeVisibleGeometry() {
 // VERIFY: aa052318 manual
 // OFFSET: 0x0082CED0
 void CM2Model::GetSequenceInfo(uint32_t id, uint32_t variation, M2SequenceInfo& info) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2SequenceFallback fallback;
     this->SequenceFallbackById(&fallback, id);
@@ -4332,9 +4272,7 @@ void CM2Model::GetSequenceInfo(uint32_t id, uint32_t variation, M2SequenceInfo& 
 // VERIFY: 349f9473 manual
 // OFFSET: 0x0082D1A0
 uint32_t CM2Model::GetNumBatches() {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     uint32_t batches = this->GetNumGeometryBatches();
     M2Data* data = this->m_shared->m_data;
@@ -4917,9 +4855,7 @@ uint32_t CM2Model::ProcessSequenceCallback(uint32_t boneIndex, uint32_t frame, u
 // VERIFY: 745168f8 manual
 // OFFSET: 0x0082EC30
 void CM2Model::GetCollisionFacets(const CAaBox& box, const C44Matrix& transform, TSGrowableArray<CFacet>& facets) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
 
@@ -5984,9 +5920,7 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
 // VERIFY: 4c99f6ab manual
 // OFFSET: 0x00831330
 C3Vector CM2Model::GetAttachmentPosition(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint16_t bone = 0xFFFF;
@@ -6004,9 +5938,7 @@ C3Vector CM2Model::GetAttachmentPosition(uint32_t id) {
 // VERIFY: 726b46b5 manual
 // OFFSET: 0x00831410
 C44Matrix CM2Model::GetAttachmentWorldTransform(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint16_t bone = 0xFFFF;
@@ -6035,9 +5967,7 @@ C44Matrix CM2Model::GetAttachmentWorldTransform(uint32_t id) {
 // VERIFY: fbe80c3c auto
 // OFFSET: 0x00831550
 float CM2Model::GetAttachmentWorldScale(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
     uint16_t bone = 0xFFFF;
@@ -6139,9 +6069,7 @@ void CM2Model::AttachToParent(CM2Model* parent, uint32_t id, const C3Vector* pos
 // VERIFY: c5304a4f auto
 // OFFSET: 0x008317E0
 C3Vector CM2Model::GetEventPosition(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     C3Vector* position;
     uint16_t bone;
@@ -6157,9 +6085,7 @@ C3Vector CM2Model::GetEventPosition(uint32_t id) {
 // VERIFY: 462f2ec0 manual
 // OFFSET: 0x008318A0
 C44Matrix CM2Model::GetEventWorldTransform(uint32_t id) {
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     C3Vector* position;
     uint16_t bone;
@@ -7552,9 +7478,7 @@ int32_t CM2Model::InitializeLoaded() {
     M2SequenceFallback fallback;
     uint16_t standId = this->SequenceFallbackById(&fallback, ANIM_STAND)->m_id;
 
-    if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        this->WaitForLoad(nullptr);
-    }
+    this->EnsureInitialized();
 
     uint32_t sequenceId = this->HasSequence(this->m_shared->m_data, standId) ? ANIM_STAND : data->m_sequences[0].m_id;
     this->SetBoneSequence(M2_KEY_BONE_NONE, sequenceId, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);

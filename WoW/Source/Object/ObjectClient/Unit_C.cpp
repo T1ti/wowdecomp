@@ -13942,9 +13942,7 @@ void CGUnit_C::BowModelLoaded(CM2Model* model, void* arg) {
         return;
     }
 
-    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        model->WaitForLoad(nullptr);
-    }
+    model->EnsureInitialized();
 
     SysMsgPrintf(SYSMSG_WARNING, "Bow model '%s' equipped without proper events.  Bowstring won't draw.", model->m_shared->m_data->m_name.Data());
 }
@@ -23450,9 +23448,7 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
 
     CM2Model* mountModel = this->m_mountTransitionEffect->m_model;
 
-    if (!(mountModel->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        mountModel->WaitForLoad(nullptr);
-    }
+    mountModel->EnsureInitialized();
 
     uint32_t modelFlags = mountModel->m_shared->m_data->m_flags;
     CM2Model* model = this->GetObjectModel();

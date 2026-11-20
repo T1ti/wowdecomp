@@ -1825,9 +1825,7 @@ void CMissile::CalcPosition(int32_t advance) {
                 for (uint32_t i = 0; ; i++) {
                     CM2Model* emitterModel = this->m_model;
 
-                    if (!(emitterModel->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                        emitterModel->WaitForLoad(nullptr);
-                    }
+                    emitterModel->EnsureInitialized();
 
                     if (i >= emitterModel->m_shared->m_data->m_particles.m_count) {
                         break;
@@ -1835,9 +1833,7 @@ void CMissile::CalcPosition(int32_t advance) {
 
                     emitterModel = this->m_model;
 
-                    if (!(emitterModel->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                        emitterModel->WaitForLoad(nullptr);
-                    }
+                    emitterModel->EnsureInitialized();
 
                     emitterModel->m_particleEmitters[i]->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
                 }

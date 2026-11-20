@@ -392,9 +392,7 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ig
             for (uint32_t i = 0;; i++) {
                 CM2Model* model = doodadDef->m_model;
 
-                if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                    model->WaitForLoad(nullptr);
-                }
+                model->EnsureInitialized();
 
                 if (i >= model->m_shared->m_data->m_particles.m_count) {
                     break;
@@ -402,9 +400,7 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ig
 
                 model = doodadDef->m_model;
 
-                if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                    model->WaitForLoad(nullptr);
-                }
+                model->EnsureInitialized();
 
                 CParticleEmitter2* emitter = model->m_particleEmitters[i];
 

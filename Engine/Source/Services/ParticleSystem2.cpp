@@ -1078,24 +1078,18 @@ static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg) {
         return;
     }
 
-    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        model->WaitForLoad(nullptr);
-    }
+    model->EnsureInitialized();
 
     uint32_t count = CParticleEmitter2::MAX_CHILD_EMITTERS;
 
     if (model->m_shared->m_data->m_particles.m_count < CParticleEmitter2::MAX_CHILD_EMITTERS) {
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         count = model->m_shared->m_data->m_particles.m_count;
     }
 
     for (uint32_t i = 0; i < count; i++) {
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         CParticleEmitter2* child = model->m_particleEmitters[i];
         emitter->m_childEmitters[emitter->m_childEmitterCount++] = child;

@@ -336,9 +336,7 @@ void CSimpleModel::SetCameraByIndex(uint32_t index) {
 
     CM2Model* model = this->m_model;
 
-    if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-        model->WaitForLoad(nullptr);
-    }
+    model->EnsureInitialized();
 
     if (index < model->m_shared->m_data->m_cameras.m_count) {
         this->SetCamera(this->m_model->GetCameraByIndex(index));

@@ -1171,9 +1171,7 @@ static void AddHitDebugModel(World::HitTestDebug* hitInfo, int32_t depth, CM2Mod
         entry->m_numOtherBatches = model->GetNumBatches() - entry->m_numGeometryBatches;
         entry->m_numBones = (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) ? model->m_shared->m_data->m_bones.m_count : 0;
 
-        if (!(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-            model->WaitForLoad(nullptr);
-        }
+        model->EnsureInitialized();
 
         entry->m_numLights = model->m_shared->m_data->m_lights.m_count;
         entry->m_numCurrentLights = model->GetCurrentLightCount();

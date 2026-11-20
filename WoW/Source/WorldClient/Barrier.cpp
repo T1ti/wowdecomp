@@ -357,9 +357,7 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
         for (uint32_t j = 0; ; j++) {
             CM2Model* loaded = CBarrier::s_sparkles[i];
 
-            if (!(loaded->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                loaded->WaitForLoad(nullptr);
-            }
+            loaded->EnsureInitialized();
 
             if (j >= loaded->m_shared->m_data->m_particles.m_count) {
                 break;
@@ -367,9 +365,7 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
 
             CM2Model* emitterModel = CBarrier::s_sparkles[i];
 
-            if (!(emitterModel->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
-                emitterModel->WaitForLoad(nullptr);
-            }
+            emitterModel->EnsureInitialized();
 
             CParticleEmitter2* emitter = emitterModel->m_particleEmitters[j];
             emitter->SetWidth(100.0f);

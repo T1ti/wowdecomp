@@ -424,6 +424,12 @@ class CM2Model {
     void SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t modelFlags);
     void UpdateLoaded();
     void WaitForLoad(const char* reason);
+    // INLINED: blocks until the model's shared data is loaded and it is initialized.
+    void EnsureInitialized() {
+        if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
+            this->WaitForLoad(nullptr);
+        }
+    }
     void AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha);
     void AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha);
     void AnimateParticleST(float deltaTime, uint32_t index);
