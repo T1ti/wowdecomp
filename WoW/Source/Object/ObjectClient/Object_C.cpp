@@ -1044,7 +1044,7 @@ void CGObject_C::ModelChanged() {
     uint32_t loaded = this->GetObjectModel()->IsLoaded(0, 1);
     CAaBox box = this->GetObjectModel()->GetBoundingBox();
 
-    if (box.t.x > box.b.x && box.t.y > box.b.y && box.t.z > box.b.z) {
+    if (box.IsValid()) {
         this->m_height = box.t.z - box.b.z;
     } else {
         this->m_height = 0.0f;

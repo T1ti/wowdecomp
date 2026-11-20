@@ -2190,7 +2190,7 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
             continue;
         }
 
-        if (box.t.x >= mapObjDef->m_bbox.b.x && box.t.y >= mapObjDef->m_bbox.b.y && box.t.z >= mapObjDef->m_bbox.b.z && box.b.x <= mapObjDef->m_bbox.t.x && box.b.y <= mapObjDef->m_bbox.t.y && box.b.z <= mapObjDef->m_bbox.t.z) {
+        if (box.Intersects(mapObjDef->m_bbox)) {
             remaining++;
 
             if (mapObj->m_distToCamera > 0.0f) {

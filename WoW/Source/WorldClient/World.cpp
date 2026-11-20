@@ -990,7 +990,7 @@ void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphe
         center = sphere.c * mat;
     }
 
-    if (box.t.x > box.b.x && box.t.y > box.b.y && box.t.z > box.b.z) {
+    if (box.IsValid()) {
         bbox = CAaBox::Transform(box, mat);
     }
 
@@ -4040,7 +4040,7 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
             const CAaBox& a = visible->m_bbox;
             const CAaBox& b = group->m_bbox;
 
-            if (a.t.x >= b.b.x && a.t.y >= b.b.y && a.t.z >= b.b.z && a.b.x <= b.t.x && a.b.y <= b.t.y && a.b.z <= b.t.z) {
+            if (a.Intersects(b)) {
                 overlaps = true;
                 break;
             }

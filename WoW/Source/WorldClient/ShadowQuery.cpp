@@ -226,7 +226,7 @@ void CShadowQuery::FrustumCallback(CFrustum& frustum, C44Matrix& matrix, const C
     box.t = C3Vector::Max(box.t, C3Vector(-1.0f, -1.0f, -1.0f));
     box.t = C3Vector::Min(box.t, C3Vector(1.0f, 1.0f, 1.0f));
 
-    if (box.t.x > box.b.x && box.t.y > box.b.y && box.t.z > box.b.z) {
+    if (box.IsValid()) {
         C44Matrix ortho;
         GxuXformCreateOrtho(-(bounds[0] * box.b.x), bounds[1] * box.t.x, -(bounds[2] * box.b.y), box.t.y * bounds[3], 1.0f, 4000.0f, ortho);
         GxuXformCalcFrustumCorners(view, ortho, corners);
@@ -525,7 +525,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             CAaBox& extents = data.m_extents[band];
             CAaBox& bbox = entity->m_bbox;
 
-            if (extents.t.x >= bbox.b.x && extents.t.y >= bbox.b.y && extents.t.z >= bbox.b.z && extents.b.x <= bbox.t.x && extents.b.y <= bbox.t.y && extents.b.z <= bbox.t.z && minRadius[band] <= entity->m_sphere.r && ((flags & MAPOBJ_FLAG_SHADOW_20000) || maxRadius[band] >= entity->m_sphere.r)) {
+            if (extents.Intersects(bbox) && minRadius[band] <= entity->m_sphere.r && ((flags & MAPOBJ_FLAG_SHADOW_20000) || maxRadius[band] >= entity->m_sphere.r)) {
                 if (data.m_bandFrustums[band].Cull(bbox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(bbox) != WorldCull_notOutside)) {
                     model->GatherModelBatchesShadowMap(CShadowQuery::s_bandBuffers[band].m_untextured, CShadowQuery::s_bandBuffers[band].m_textured);
                 }
@@ -734,7 +734,7 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
 
         CAaBox& lastExtents = data.m_extents[lastBand];
 
-        if (!(lastExtents.t.x >= def->m_bbox.b.x && lastExtents.t.y >= def->m_bbox.b.y && lastExtents.t.z >= def->m_bbox.b.z && lastExtents.b.x <= def->m_bbox.t.x && lastExtents.b.y <= def->m_bbox.t.y && lastExtents.b.z <= def->m_bbox.t.z)) {
+        if (!(lastExtents.Intersects(def->m_bbox))) {
             continue;
         }
 
@@ -822,7 +822,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 continue;
             }
 
-            if (!(extents.t.x >= chunk->m_bbox.b.x && extents.t.y >= chunk->m_bbox.b.y && extents.t.z >= chunk->m_bbox.b.z && extents.b.x <= chunk->m_bbox.t.x && extents.b.y <= chunk->m_bbox.t.y && extents.b.z <= chunk->m_bbox.t.z)) {
+            if (!(extents.Intersects(chunk->m_bbox))) {
                 continue;
             }
 
@@ -880,7 +880,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
 
             CAaBox& lastExtents = data.m_extents[lastBand];
 
-            if (!(lastExtents.t.x >= chunk->m_bbox.b.x && lastExtents.t.y >= chunk->m_bbox.b.y && lastExtents.t.z >= chunk->m_bbox.b.z && lastExtents.b.x <= chunk->m_bbox.t.x && lastExtents.b.y <= chunk->m_bbox.t.y && lastExtents.b.z <= chunk->m_bbox.t.z)) {
+            if (!(lastExtents.Intersects(chunk->m_bbox))) {
                 continue;
             }
 
