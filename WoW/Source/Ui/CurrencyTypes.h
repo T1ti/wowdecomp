@@ -10,7 +10,7 @@ struct CurrencyCategoryInfo {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_expanded;
     /* 0008 */ const char* m_name;
-    /* 000C */ int32_t m_flags;
+    /* 000C */ int32_t m_flags; // CURRENCY_CATEGORY_FLAGS
 };
 
 struct CurrencyListEntry {
