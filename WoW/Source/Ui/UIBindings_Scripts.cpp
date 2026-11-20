@@ -629,11 +629,7 @@ static int32_t Script_GetClickFrame(lua_State* L) {
         return 1;
     }
 
-    if (!frame->m_luaRegistered) {
-        frame->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->GetLuaObjectRef());
     return 1;
 }
 

@@ -1910,11 +1910,7 @@ void CGWorldFrame::OnLayerUpdate(float elapsedSec) {
         lua_pushstring(L, "SecureButton_GetModifiedUnit");
         lua_rawget(L, LUA_GLOBALSINDEX);
 
-        if (!focus->m_luaRegistered) {
-            focus->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, focus->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, focus->GetLuaObjectRef());
         lua_pushstring(L, CGUIMacros::m_macroRunning);
 
         if (!lua_pcall(L, 2, 1, -4)) {

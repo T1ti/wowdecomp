@@ -1938,11 +1938,7 @@ static int32_t Script_GetMouseFocus(lua_State* L) {
         return 1;
     }
 
-    if (!focus->m_luaRegistered) {
-        focus->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, focus->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, focus->GetLuaObjectRef());
     return 1;
 }
 

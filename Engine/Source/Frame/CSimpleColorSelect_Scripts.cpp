@@ -34,11 +34,7 @@ static int32_t Script_GetColorWheelTexture(lua_State* L) {
         return 1;
     }
 
-    if (!texture->m_luaRegistered) {
-        texture->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->GetLuaObjectRef());
     return 1;
 }
 
@@ -89,11 +85,7 @@ static int32_t Script_GetColorWheelThumbTexture(lua_State* L) {
         return 1;
     }
 
-    if (!texture->m_luaRegistered) {
-        texture->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->GetLuaObjectRef());
     return 1;
 }
 
@@ -149,11 +141,7 @@ static int32_t Script_GetColorValueTexture(lua_State* L) {
         return 1;
     }
 
-    if (!texture->m_luaRegistered) {
-        texture->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->GetLuaObjectRef());
     return 1;
 }
 
@@ -204,11 +192,7 @@ static int32_t Script_GetColorValueThumbTexture(lua_State* L) {
         return 1;
     }
 
-    if (!texture->m_luaRegistered) {
-        texture->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->GetLuaObjectRef());
     return 1;
 }
 

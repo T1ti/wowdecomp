@@ -71,11 +71,7 @@ static int32_t Script_GetControlPoints(lua_State* L) {
     for (uint32_t i = 0; i < count; i++) {
         CSimpleControlPoint* point = path->GetControlPoint(i);
 
-        if (!point->m_luaRegistered) {
-            point->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, point->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, point->GetLuaObjectRef());
     }
 
     return count;
@@ -139,11 +135,7 @@ static int32_t Script_CreateControlPoint(lua_State* L) {
 
     path->NotifyControlPointAdded(point);
 
-    if (!point->m_luaRegistered) {
-        point->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, point->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, point->GetLuaObjectRef());
     return 1;
 }
 

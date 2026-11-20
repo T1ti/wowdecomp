@@ -70,11 +70,7 @@ static int32_t Script_CreateFont(lua_State* L) {
 
     CSimpleFont* font = CSimpleFont::GetFont(lua_tolstring(L, 1, nullptr), 1);
 
-    if (!font->m_luaRegistered) {
-        font->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, font->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, font->GetLuaObjectRef());
     return 1;
 }
 
@@ -88,11 +84,7 @@ static int32_t Script_GetCurrentKeyBoardFocus(lua_State* L) {
         return 1;
     }
 
-    if (!focus->m_luaRegistered) {
-        focus->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, focus->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, focus->GetLuaObjectRef());
     return 1;
 }
 
@@ -126,11 +118,7 @@ static int32_t Script_EnumerateFrames(lua_State* L) {
         return 1;
     }
 
-    if (!frame->m_luaRegistered) {
-        frame->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->GetLuaObjectRef());
     return 1;
 }
 
@@ -237,11 +225,7 @@ static int32_t Script_CreateFrame(lua_State* L) {
         return 0;
     }
 
-    if (!frame->m_luaRegistered) {
-        frame->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->GetLuaObjectRef());
     return 1;
 }
 
@@ -268,11 +252,7 @@ static int32_t Script_GetFramesRegisteredForEvent(lua_State* L) {
     for (EVENTLISTENERNODE* node = listeners->Head(); node; node = listeners->Next(node)) {
         FrameScript_Object* listener = node->m_listener;
 
-        if (!listener->m_luaRegistered) {
-            listener->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, listener->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, listener->GetLuaObjectRef());
     }
 
     return count;

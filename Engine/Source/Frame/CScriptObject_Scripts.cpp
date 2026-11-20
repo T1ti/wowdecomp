@@ -80,11 +80,7 @@ static int32_t Script_GetParent(lua_State* L) {
     CScriptObject* parent = object->GetScriptObjectParent();
 
     if (parent) {
-        if (!parent->m_luaRegistered) {
-            parent->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, parent->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, parent->GetLuaObjectRef());
     } else {
         lua_pushnil(L);
     }

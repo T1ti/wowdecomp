@@ -176,11 +176,7 @@ static int32_t Script_GetOwner(lua_State* L) {
         return 1;
     }
 
-    if (!owner->m_luaRegistered) {
-        owner->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, owner->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, owner->GetLuaObjectRef());
     return 1;
 }
 

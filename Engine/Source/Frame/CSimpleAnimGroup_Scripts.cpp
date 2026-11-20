@@ -364,11 +364,7 @@ static int32_t Script_GetAnimations(lua_State* L) {
     }
 
     for (CSimpleAnim* anim = animations->Head(); anim; anim = animations->Next(anim)) {
-        if (!anim->m_luaRegistered) {
-            anim->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, anim->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, anim->GetLuaObjectRef());
     }
 
     return count;
@@ -463,11 +459,7 @@ static int32_t Script_CreateAnimation(lua_State* L) {
 
     group->NotifyAnimAdded(anim);
 
-    if (!anim->m_luaRegistered) {
-        anim->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, anim->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, anim->GetLuaObjectRef());
     return 1;
 }
 

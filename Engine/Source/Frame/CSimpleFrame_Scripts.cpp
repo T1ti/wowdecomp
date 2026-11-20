@@ -38,11 +38,7 @@ static int32_t Script_GetTitleRegion(lua_State* L) {
         return 1;
     }
 
-    if (!titleRegion->m_luaRegistered) {
-        titleRegion->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, titleRegion->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, titleRegion->GetLuaObjectRef());
     return 1;
 }
 
@@ -62,11 +58,7 @@ static int32_t Script_CreateTitleRegion(lua_State* L) {
         titleRegion->SetDeferredResize((frame->m_layoutFlags >> 8) & (CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE >> 8));
     }
 
-    if (!titleRegion->m_luaRegistered) {
-        titleRegion->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, titleRegion->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, titleRegion->GetLuaObjectRef());
     return 1;
 }
 
@@ -128,11 +120,7 @@ static int32_t Script_CreateTexture(lua_State* L) {
         texture->AnimActivated(nullptr, 1, alphaAnimating);
     }
 
-    if (!texture->m_luaRegistered) {
-        texture->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, texture->GetLuaObjectRef());
     return 1;
 }
 
@@ -202,11 +190,7 @@ static int32_t Script_CreateFontString(lua_State* L) {
         string->AnimActivated(nullptr, 1, alphaAnimating);
     }
 
-    if (!string->m_luaRegistered) {
-        string->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, string->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, string->GetLuaObjectRef());
     return 1;
 }
 
@@ -262,11 +246,7 @@ static int32_t Script_GetRegions(lua_State* L) {
     }
 
     for (CSimpleRegion* region = frame->m_regions.Head(); region; region = frame->m_regions.Next(region)) {
-        if (!region->m_luaRegistered) {
-            region->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, region->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, region->GetLuaObjectRef());
     }
 
     return count;
@@ -305,11 +285,7 @@ static int32_t Script_GetChildren(lua_State* L) {
     for (SIMPLEFRAMENODE* node = frame->m_children.Head(); node; node = node->m_link.Next()) {
         CSimpleFrame* child = node->m_frame;
 
-        if (!child->m_luaRegistered) {
-            child->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, child->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, child->GetLuaObjectRef());
     }
 
     return count;

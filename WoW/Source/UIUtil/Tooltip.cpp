@@ -7790,11 +7790,7 @@ void CGTooltip::SetFrameStack(bool showHidden) {
         const char* name = frame->GetName();
 
         if (!name || !*name) {
-            if (!frame->m_luaRegistered) {
-                frame->RegisterScriptObject(nullptr);
-            }
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, frame->m_luaObjectRef);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, frame->GetLuaObjectRef());
             SStrPrintf(info.m_name, sizeof(info.m_name), "%s: %p", lua_typename(L, lua_type(L, -1)), lua_topointer(L, -1));
             lua_settop(L, -2);
         } else {

@@ -130,11 +130,7 @@ int32_t CSimpleFont_GetFontObject(const char* name, CSimpleFont* font, lua_State
         return 1;
     }
 
-    if (!parent->m_luaRegistered) {
-        parent->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, parent->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, parent->GetLuaObjectRef());
 
     return 1;
 }

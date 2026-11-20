@@ -446,11 +446,7 @@ static int32_t Script_GetPoint(lua_State* L) {
     } else {
         CScriptRegion* relativeRegion = static_cast<CScriptRegion*>(relative);
 
-        if (!relativeRegion->m_luaRegistered) {
-            relativeRegion->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, relativeRegion->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, relativeRegion->GetLuaObjectRef());
     }
 
     lua_pushstring(L, FramePointToString(framePoint->m_framePoint));
@@ -669,11 +665,7 @@ static int32_t Script_GetAnimationGroups(lua_State* L) {
     }
 
     for (CSimpleAnimGroup* group = groups->Head(); group; group = groups->Next(group)) {
-        if (!group->m_luaRegistered) {
-            group->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, group->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, group->GetLuaObjectRef());
     }
 
     return count;
@@ -722,11 +714,7 @@ static int32_t Script_CreateAnimationGroup(lua_State* L) {
         FrameXML_ReleaseHashNode(lua_tolstring(L, 3, nullptr));
     }
 
-    if (!group->m_luaRegistered) {
-        group->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, group->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, group->GetLuaObjectRef());
     return 1;
 }
 

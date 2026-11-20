@@ -95,18 +95,10 @@ void CSimpleControlPoint::LoadXML(XMLNode* node, CStatus* status) {
         CScriptObject* parent = this->GetScriptObjectParent();
 
         if (parent) {
-            if (!parent->m_luaRegistered) {
-                parent->RegisterScriptObject(nullptr);
-            }
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, parent->m_luaObjectRef);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, parent->GetLuaObjectRef());
             lua_pushstring(L, parentKey);
 
-            if (!this->m_luaRegistered) {
-                this->RegisterScriptObject(nullptr);
-            }
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, this->m_luaObjectRef);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, this->GetLuaObjectRef());
             lua_settable(L, -3);
             lua_settop(L, -2);
         }

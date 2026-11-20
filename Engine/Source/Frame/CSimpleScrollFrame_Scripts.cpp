@@ -79,11 +79,7 @@ static int32_t Script_GetScrollChild(lua_State* L) {
         return 1;
     }
 
-    if (!child->m_luaRegistered) {
-        child->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, child->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, child->GetLuaObjectRef());
     return 1;
 }
 

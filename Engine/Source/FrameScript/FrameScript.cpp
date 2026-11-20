@@ -1250,11 +1250,7 @@ void FrameScript_Execute(int32_t function, FrameScript_Object* object, int32_t a
         lua_pushstring(L, "this");
         lua_rawget(L, LUA_GLOBALSINDEX);
 
-        if (!object->m_luaRegistered) {
-            object->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, object->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, object->GetLuaObjectRef());
         lua_setglobal(L, "this");
     }
 
@@ -1300,11 +1296,7 @@ void FrameScript_Execute(int32_t function, FrameScript_Object* object, int32_t a
     lua_rawgeti(L, LUA_REGISTRYINDEX, function);
 
     if (object) {
-        if (!object->m_luaRegistered) {
-            object->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, object->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, object->GetLuaObjectRef());
         callArgs = argCount + 1;
     }
 

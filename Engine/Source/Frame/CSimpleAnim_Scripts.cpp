@@ -354,11 +354,7 @@ static int32_t Script_GetRegionParent(lua_State* L) {
     CScriptRegion* region = anim->GetRegionParent();
 
     if (region) {
-        if (!region->m_luaRegistered) {
-            region->RegisterScriptObject(nullptr);
-        }
-
-        lua_rawgeti(L, LUA_REGISTRYINDEX, region->m_luaObjectRef);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, region->GetLuaObjectRef());
     } else {
         lua_pushnil(L);
     }

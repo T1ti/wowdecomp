@@ -216,11 +216,7 @@ static int32_t Script_GetFontObject(lua_State* L) {
         return 1;
     }
 
-    if (!font->m_luaRegistered) {
-        font->RegisterScriptObject(nullptr);
-    }
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, font->m_luaObjectRef);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, font->GetLuaObjectRef());
 
     return 1;
 }
