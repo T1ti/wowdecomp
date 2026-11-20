@@ -411,6 +411,14 @@ enum CHAT_IGNORED_REASON : uint8_t {
     CHAT_IGNORED_REASON_UNKNOWN_1 = 1,
 };
 
+// SMSG_LOG_XPGAIN type byte. Only KILL carries the rest bonus and group multiplier; the
+// refer-a-friend quest line is shown for UNKNOWN_1 and UNKNOWN_6 (other meanings unknown).
+enum XP_GAIN_TYPE : uint8_t {
+    XP_GAIN_KILL = 0,
+    XP_GAIN_UNKNOWN_1 = 1,
+    XP_GAIN_UNKNOWN_6 = 6,
+};
+
 class CGChat {
     public:
     enum LOG_TYPE : int32_t {
@@ -575,7 +583,7 @@ class CGChat {
     static int32_t OnTitleEarned(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
     static int32_t OnResetFailedNotify(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
     static void OnLogXPGain(int32_t amount);
-    static void LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type, int32_t bonus, float groupMult, bool referAFriend);
+    static void LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type /* XP_GAIN_TYPE */, int32_t bonus, float groupMult, bool referAFriend);
     static int32_t OnDurabilityDamageDeath(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
     static int32_t OnChannelMemberCount(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
     static int32_t OnComsatReconnectAttempt(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);

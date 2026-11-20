@@ -3049,7 +3049,7 @@ void CGChat::LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type, int32_t bon
         player->AddWorldXPGainText(amount);
     }
 
-    if (unit && !type) {
+    if (unit && type == XP_GAIN_KILL) {
         if (!player) {
             return;
         }
@@ -3096,7 +3096,7 @@ void CGChat::LogXPGain(CGUnit_C* unit, int32_t amount, int32_t type, int32_t bon
         return;
     }
 
-    if (!referAFriend || (type != 1 && type != 6)) {
+    if (!referAFriend || (type != XP_GAIN_UNKNOWN_1 && type != XP_GAIN_UNKNOWN_6)) {
         UnitCombatLogShowXPGained(unit, amount, groupMult);
         return;
     }
@@ -3122,7 +3122,7 @@ int32_t Packet_SMSG_LOG_XPGAIN(void* param, NETMESSAGE msgId, uint32_t time, CDa
     float groupMult = 1.0f;
     uint32_t bonus = 0;
 
-    if (!type) {
+    if (type == XP_GAIN_KILL) {
         msg->Get(bonus);
         msg->Get(groupMult);
     }
