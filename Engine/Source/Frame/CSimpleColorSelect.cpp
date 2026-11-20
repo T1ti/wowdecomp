@@ -25,6 +25,7 @@
 #include "Engine/Source/lua-5.1/src/lauxlib.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "WoW/Source/Ui/TabardModelFrame.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00B2CDB0
 int32_t CSimpleColorSelect::s_metatable = LUA_NOREF;
@@ -224,7 +225,7 @@ void CSimpleColorSelect::RepositionWheelThumb() {
     }
 
     C2Vector offset;
-    float angle = this->m_hsv.x * 0.017453292f;
+    float angle = this->m_hsv.x * DEG_TO_RAD;
     offset.x = cos(angle);
     offset.y = sin(angle);
 
@@ -364,7 +365,7 @@ int32_t CSimpleColorSelect::OnLayerTrackUpdate(const CMouseEvent& evt) {
             float y = (point.y - (rect.maxY + rect.minY) * 0.5f) / ((rect.maxY - rect.minY) * 0.5f);
             float distance = sqrt(y * y + x * x);
 
-            this->m_hsv.x = (atan2(y, x) + 3.1415927f) * 57.29578f;
+            this->m_hsv.x = (atan2(y, x) + PI) * RAD_TO_DEG;
 
             if (distance >= 1.0f) {
                 distance = 1.0f;
@@ -468,7 +469,7 @@ void CSimpleColorSelect::SetColorWheelTexture(CSimpleTexture* texture) {
 
                     if (distanceSq <= 64 * 64) {
                         C3Vector rgb;
-                        C3Vector hsv((atan2(static_cast<double>(y), static_cast<double>(x)) + 3.1415927f) * 57.29578f, sqrt(static_cast<double>(distanceSq)) * 0.015625f, 1.0f);
+                        C3Vector hsv((atan2(static_cast<double>(y), static_cast<double>(x)) + PI) * RAD_TO_DEG, sqrt(static_cast<double>(distanceSq)) * 0.015625f, 1.0f);
                         HSVtoRGB(hsv, rgb);
                         color = rgb;
                     }

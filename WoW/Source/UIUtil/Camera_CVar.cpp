@@ -2,6 +2,7 @@
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/UIUtil/Camera.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00C24970
 CVar* s_cvCameraSmoothTimeMax;
@@ -366,8 +367,8 @@ static bool ValidateCameraDistance(CVar* var, const char* oldValue, const char* 
 // VERIFY: c58861df auto
 // OFFSET: 0x005FD6D0
 static bool ValidateCameraPitch(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float minPitch = MIN_PITCH_ANGLE * 57.29578f;
-    float maxPitch = MAX_PITCH_ANGLE * 57.29578f;
+    float minPitch = MIN_PITCH_ANGLE * RAD_TO_DEG;
+    float maxPitch = MAX_PITCH_ANGLE * RAD_TO_DEG;
     float pitch = SStrToFloat(value);
 
     if (pitch >= minPitch && pitch <= maxPitch) {

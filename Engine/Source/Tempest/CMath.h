@@ -8,6 +8,8 @@
 static const float PI = 3.1415927f;
 static const float HALF_PI = 1.5707964f;
 static const float TWO_PI = 6.2831855f;
+static const float DEG_TO_RAD = 0.017453292f; // PI / 180
+static const float RAD_TO_DEG = 57.29578f; // 180 / PI
 
 enum : uint32_t {
     rexp = 0x3F800000, // Float exponent bias, encoded as the bits of 1.0f.

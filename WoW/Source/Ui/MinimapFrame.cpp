@@ -1434,7 +1434,7 @@ static void SetupMapObjMatrices(CMapEntity* entity) {
     s_mapObjMatrix.d0 = 0.0f;
     s_mapObjMatrix.d1 = 0.0f;
     s_mapObjMatrix.d2 = 0.0f;
-    s_mapObjMatrix.RotateAroundZ(s_mapObjRotation * 0.017453292f);
+    s_mapObjMatrix.RotateAroundZ(s_mapObjRotation * DEG_TO_RAD);
 }
 
 // VERIFY: 8100c6e5 auto

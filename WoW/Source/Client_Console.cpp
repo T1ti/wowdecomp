@@ -18,6 +18,7 @@
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 803d6cc2 auto
 // OFFSET: 0x00401B00
@@ -111,7 +112,7 @@ static int32_t TeleportCheat(const char* arguments, int32_t charm) {
     }
 
     SStrTokenize(&arguments, token, sizeof(token), whitespace, nullptr);
-    float facing = token[0] ? SStrToFloat(token) * 0.017453292f : player->GetFacing();
+    float facing = token[0] ? SStrToFloat(token) * DEG_TO_RAD : player->GetFacing();
 
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(charm ? CMSG_MOVE_CHARM_PORT_CHEAT : MSG_MOVE_TELEPORT_CHEAT));
@@ -179,7 +180,7 @@ int32_t CCommand_WorldTeleport(const char* command, const char* arguments) {
         }
 
         SStrTokenize(&arguments, token, sizeof(token), whitespace, nullptr);
-        facing = token[0] ? SStrToFloat(token) * 0.017453292f : player->GetFacing();
+        facing = token[0] ? SStrToFloat(token) * DEG_TO_RAD : player->GetFacing();
     } else {
         WorldSafeLocsRec* loc = nullptr;
         int32_t i;
@@ -268,7 +269,7 @@ int32_t CCommand_SetRawPos(const char* command, const char* arguments) {
     }
 
     SStrTokenize(&arguments, token, sizeof(token), whitespace, nullptr);
-    float facing = token[0] ? SStrToFloat(token) * 0.017453292f : player->GetRawFacing();
+    float facing = token[0] ? SStrToFloat(token) * DEG_TO_RAD : player->GetRawFacing();
 
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_MOVE_SET_RAW_POSITION));

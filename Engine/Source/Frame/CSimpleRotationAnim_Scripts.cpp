@@ -7,6 +7,7 @@
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
 #include "Engine/Source/lua-5.1/src/lauxlib.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 7ff99a36 auto
 // OFFSET: 0x004A61F0
@@ -54,7 +55,7 @@ static int32_t Script_SetDegrees(lua_State* L) {
         return 0;
     }
 
-    anim->m_radians = lua_tonumber(L, 2) * 0.017453292f;
+    anim->m_radians = lua_tonumber(L, 2) * DEG_TO_RAD;
     return 0;
 }
 
@@ -62,7 +63,7 @@ static int32_t Script_SetDegrees(lua_State* L) {
 // OFFSET: 0x004A63C0
 static int32_t Script_GetDegrees(lua_State* L) {
     CSimpleRotationAnim* anim = static_cast<CSimpleRotationAnim*>(FrameScript_GetObjectThis(L, CSimpleRotationAnim::GetObjectType()));
-    lua_pushnumber(L, anim->m_radians * 57.29578f);
+    lua_pushnumber(L, anim->m_radians * RAD_TO_DEG);
     return 1;
 }
 

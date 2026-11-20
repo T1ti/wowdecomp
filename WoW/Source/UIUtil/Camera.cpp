@@ -214,7 +214,7 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     this->m_viewIndex = s_cvCameraView->m_intValue;
     this->m_distance = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[0]);
     this->m_yaw = 0.0f;
-    this->m_pitch = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[1]) * 0.017453292f;
+    this->m_pitch = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[1]) * DEG_TO_RAD;
     this->m_roll = 0.0f;
     this->m_height = 0.0f;
     this->m_yawOffset = 0.0f;
@@ -775,7 +775,7 @@ void CGCamera::InitializeView() {
             float value = s_cvCameraViewData[i][j]->m_floatValue;
 
             if (s_cameraViewAngular[j]) {
-                value *= 0.017453292f;
+                value *= DEG_TO_RAD;
             }
 
             this->m_views[i].Component(j) = value;
@@ -968,7 +968,7 @@ int32_t CGCamera::SetDesiredFoVOffset(float offset, float delay, float scale, ui
     if (this->m_state & STATE_FLAGS::STATE_TELESCOPE_TRANSITION_MASK) {
         duration = 0.5f;
     } else {
-        duration = scale * (fabsf(offset - this->m_targetFov) / (s_cvCameraFoVSmoothSpeed->m_floatValue * 0.017453292f));
+        duration = scale * (fabsf(offset - this->m_targetFov) / (s_cvCameraFoVSmoothSpeed->m_floatValue * DEG_TO_RAD));
     }
 
     return this->StartSmoothFoV(offset, duration, time - static_cast<int32_t>(delay * -1000.0f));
@@ -990,7 +990,7 @@ int32_t CGCamera::SetDesiredGroundOffset(float offset, float delay, float scale,
     this->m_smoothGroundTilt.m_param4 = delay;
     this->m_smoothGroundTilt.m_param3 = scale;
 
-    float duration = scale * (fabsf(offset - this->m_groundTilt) / (s_cvCameraGroundSmoothSpeed->m_floatValue * 0.017453292f));
+    float duration = scale * (fabsf(offset - this->m_groundTilt) / (s_cvCameraGroundSmoothSpeed->m_floatValue * DEG_TO_RAD));
 
     return this->StartSmoothGroundTilt(offset, duration, time - static_cast<int32_t>(delay * -1000.0f));
 }
@@ -1464,8 +1464,8 @@ void CGCamera::UpdateYaw(float delta) {
 // VERIFY: 3e57388a auto
 // OFFSET: 0x005FE400
 int32_t CGCamera::CCommand_PitchLimit(const char* command, const char* arguments) {
-    MAX_PITCH_ANGLE = SStrToFloat(arguments) * 0.017453292f;
-    MIN_PITCH_ANGLE = SStrToFloat(arguments) * -0.017453292f;
+    MAX_PITCH_ANGLE = SStrToFloat(arguments) * DEG_TO_RAD;
+    MIN_PITCH_ANGLE = SStrToFloat(arguments) * -DEG_TO_RAD;
     return 1;
 }
 
@@ -1757,7 +1757,7 @@ int32_t CGCamera::IsViewDefault(uint32_t view) {
         float value = SStrToFloat(s_cameraViewDefaults[view].m_values[i]);
 
         if (s_cameraViewAngular[i]) {
-            value *= 0.017453292f;
+            value *= DEG_TO_RAD;
         }
 
         if (!(fabsf(this->m_views[view].Component(i) - value) < 0.001f)) {
@@ -1776,7 +1776,7 @@ void CGCamera::LoadCameraSettings() {
     this->m_distance = distance;
     this->m_smoothDistance.m_target = distance;
 
-    float pitch = s_cvCameraSavedPitch->m_floatValue * 0.017453292f;
+    float pitch = s_cvCameraSavedPitch->m_floatValue * DEG_TO_RAD;
     this->m_pitch = pitch;
     this->m_smoothPitch.m_target = pitch;
 }
@@ -1828,7 +1828,7 @@ void CGCamera::SaveCameraSettings() {
         s_cvCameraSavedDistance->Set(buffer, true, false, false, true);
     }
 
-    SStrPrintf(buffer, sizeof(buffer), "%f", this->m_smoothPitch.m_target * 57.29578f);
+    SStrPrintf(buffer, sizeof(buffer), "%f", this->m_smoothPitch.m_target * RAD_TO_DEG);
     s_cvCameraSavedPitch->Set(buffer, true, false, false, true);
 }
 
@@ -1845,7 +1845,7 @@ void CGCamera::SaveViewToCVars(uint32_t view, float distance, float pitch, float
         float value = this->m_views[view].Component(i);
 
         if (s_cameraViewAngular[i]) {
-            value *= 57.29578f;
+            value *= RAD_TO_DEG;
         }
 
         SStrPrintf(buffer, sizeof(buffer), "%f", value);
@@ -1869,7 +1869,7 @@ int32_t CGCamera::SetDesiredPitchAngle(float pitch, float delay, float scale, ui
     this->m_smoothPitch.m_param4 = delay;
     this->m_smoothPitch.m_param3 = scale;
 
-    float duration = scale * (fabsf(pitch - this->m_pitch) / (s_cvCameraPitchSmoothSpeed->m_floatValue * 0.017453292f));
+    float duration = scale * (fabsf(pitch - this->m_pitch) / (s_cvCameraPitchSmoothSpeed->m_floatValue * DEG_TO_RAD));
 
     return this->StartSmoothPitch(pitch, duration, time - static_cast<int32_t>(delay * -1000.0f));
 }
@@ -1890,7 +1890,7 @@ int32_t CGCamera::SetDesiredTargetOffset(float offset, float delay, float scale,
     this->m_smoothTargetOffset.m_param4 = delay;
     this->m_smoothTargetOffset.m_param3 = scale;
 
-    float duration = scale * (fabsf(offset - this->m_targetOffset) / (s_cvCameraTargetSmoothSpeed->m_floatValue * 0.017453292f));
+    float duration = scale * (fabsf(offset - this->m_targetOffset) / (s_cvCameraTargetSmoothSpeed->m_floatValue * DEG_TO_RAD));
 
     return this->StartSmoothTargetOffset(offset, duration, time - static_cast<int32_t>(delay * -1000.0f));
 }
@@ -1939,7 +1939,7 @@ int32_t CGCamera::SetDesiredYawAngle(float yaw, float delay, float scale, uint32
     this->m_smoothYaw.m_param4 = delay;
     this->m_smoothYaw.m_param3 = scale;
 
-    float duration = scale * (fabsf(yaw - this->m_yaw) / (s_cvCameraYawSmoothSpeed->m_floatValue * 0.017453292f));
+    float duration = scale * (fabsf(yaw - this->m_yaw) / (s_cvCameraYawSmoothSpeed->m_floatValue * DEG_TO_RAD));
 
     return this->StartSmoothYaw(yaw, duration, time - static_cast<int32_t>(delay * -1000.0f));
 }
@@ -2440,8 +2440,8 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         uint32_t surfacing = state & STATE_FLAGS::STATE_LIQUID_SURFACED;
 
         if ((surfacing || (state & STATE_FLAGS::STATE_LIQUID_SUBMERGED)) && s_cvCameraDive->m_intValue && fnotequal(unitPitch, 0.0f) && !autoTracking) {
-            float surfacePitch = s_cvCameraSurfacePitch->m_floatValue * 0.017453292f;
-            float submergePitch = 0.017453292f * s_cvCameraSubmergePitch->m_floatValue;
+            float surfacePitch = s_cvCameraSurfacePitch->m_floatValue * DEG_TO_RAD;
+            float submergePitch = DEG_TO_RAD * s_cvCameraSubmergePitch->m_floatValue;
             bool pitchPlayer = false;
             bool decided = false;
 
@@ -2477,7 +2477,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         }
 
         if (haveFinalPitch) {
-            finalPitch = finalPitch * 0.017453292f;
+            finalPitch = finalPitch * DEG_TO_RAD;
 
             if (0.0f != finalPitch) {
                 if (this->m_state & STATE_FLAGS::STATE_FREE_LOOK) {
@@ -2731,8 +2731,8 @@ void CGCamera::UpdateFreeLookFacing(float x, float y, float* pitchOut) {
     float pivotDYMin = s_cvCameraPivotDYMin->m_floatValue;
     DDCToNDC(x, y, &x, &y);
 
-    float yawDelta = yawSpeed * 0.017453292f * (x * 0.00125f);
-    float pitchDelta = 0.017453292f * pitchSpeed * (y * 0.0016666667f);
+    float yawDelta = yawSpeed * DEG_TO_RAD * (x * 0.00125f);
+    float pitchDelta = DEG_TO_RAD * pitchSpeed * (y * 0.0016666667f);
     float pitchSign = s_cvMouseInvertPitch->m_intValue ? -1.0f : 1.0f;
     float yawSign = s_cvMouseInvertYaw->m_intValue ? -1.0f : 1.0f;
 
@@ -2835,8 +2835,8 @@ void CGCamera::SyncFreeLookFacing() {
     uint32_t state = this->m_state;
 
     if (!(state & STATE_FLAGS::STATE_TRACKING) && ((state & STATE_FLAGS::STATE_LIQUID_SURFACED) || (state & STATE_FLAGS::STATE_LIQUID_SUBMERGED)) && s_cvCameraDive->m_intValue && (!player || player->GetDrunknessTurnValue() == 0.0f)) {
-        float surfacePitch = s_cvCameraSurfacePitch->m_floatValue * 0.017453292f;
-        float submergePitch = 0.017453292f * s_cvCameraSubmergePitch->m_floatValue;
+        float surfacePitch = s_cvCameraSurfacePitch->m_floatValue * DEG_TO_RAD;
+        float submergePitch = DEG_TO_RAD * s_cvCameraSubmergePitch->m_floatValue;
 
         if ((state & STATE_FLAGS::STATE_LIQUID_SUBMERGED) && surfacePitch < 0.0f && pitch < 0.0f && pitch > surfacePitch) {
             pitch = 0.0f;
@@ -2949,7 +2949,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
                 break;
 
             case CAMERA_MOVE_RIGHT:
-                this->m_smoothYaw.m_target = s_cvCameraYawMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_RIGHT] * static_cast<float>(elapsed) * 0.001f * 0.017453292f + this->m_smoothYaw.m_target;
+                this->m_smoothYaw.m_target = s_cvCameraYawMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_RIGHT] * static_cast<float>(elapsed) * 0.001f * DEG_TO_RAD + this->m_smoothYaw.m_target;
 
                 if (this->m_smoothYaw.m_target > TWO_PI) {
                     do {
@@ -2964,7 +2964,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
                 break;
 
             case CAMERA_MOVE_LEFT:
-                this->m_smoothYaw.m_target = this->m_smoothYaw.m_target - s_cvCameraYawMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_LEFT] * static_cast<float>(elapsed) * 0.001f * 0.017453292f;
+                this->m_smoothYaw.m_target = this->m_smoothYaw.m_target - s_cvCameraYawMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_LEFT] * static_cast<float>(elapsed) * 0.001f * DEG_TO_RAD;
 
                 if (this->m_smoothYaw.m_target < 0.0f) {
                     do {
@@ -2979,7 +2979,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
                 break;
 
             case CAMERA_MOVE_UP:
-                this->m_smoothPitch.m_target = s_cvCameraPitchMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_UP] * static_cast<float>(elapsed) * 0.001f * 0.017453292f + this->m_smoothPitch.m_target;
+                this->m_smoothPitch.m_target = s_cvCameraPitchMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_UP] * static_cast<float>(elapsed) * 0.001f * DEG_TO_RAD + this->m_smoothPitch.m_target;
 
                 if (this->m_smoothPitch.m_target > MAX_PITCH_ANGLE) {
                     this->m_smoothPitch.m_target = MAX_PITCH_ANGLE;
@@ -2992,7 +2992,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
                 break;
 
             case CAMERA_MOVE_DOWN:
-                this->m_smoothPitch.m_target = this->m_smoothPitch.m_target - s_cvCameraPitchMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_DOWN] * static_cast<float>(elapsed) * 0.001f * 0.017453292f;
+                this->m_smoothPitch.m_target = this->m_smoothPitch.m_target - s_cvCameraPitchMoveSpeed->m_floatValue * this->m_motionSpeed[CAMERA_MOVE_DOWN] * static_cast<float>(elapsed) * 0.001f * DEG_TO_RAD;
 
                 if (this->m_smoothPitch.m_target < MIN_PITCH_ANGLE) {
                     this->m_smoothPitch.m_target = MIN_PITCH_ANGLE;
@@ -3020,7 +3020,7 @@ void CGCamera::ResetView(int32_t view) {
 
     for (uint32_t i = 0; i < 3; i++) {
         if (s_cameraViewAngular[i]) {
-            this->m_views[view].Component(i) = SStrToFloat(s_cameraViewDefaults[view].m_values[i]) * 0.017453292f;
+            this->m_views[view].Component(i) = SStrToFloat(s_cameraViewDefaults[view].m_values[i]) * DEG_TO_RAD;
         } else {
             this->m_views[view].Component(i) = SStrToFloat(s_cameraViewDefaults[view].m_values[i]);
         }
@@ -3428,10 +3428,10 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
         }
     }
 
-    float pitchMin = s_cvCameraPitchSmoothMin->m_floatValue * 0.017453292f;
-    float pitchMax = s_cvCameraPitchSmoothMax->m_floatValue * 0.017453292f;
-    float yawMin = s_cvCameraYawSmoothMin->m_floatValue * 0.017453292f;
-    float yawMax = 0.017453292f * s_cvCameraYawSmoothMax->m_floatValue;
+    float pitchMin = s_cvCameraPitchSmoothMin->m_floatValue * DEG_TO_RAD;
+    float pitchMax = s_cvCameraPitchSmoothMax->m_floatValue * DEG_TO_RAD;
+    float yawMin = s_cvCameraYawSmoothMin->m_floatValue * DEG_TO_RAD;
+    float yawMax = DEG_TO_RAD * s_cvCameraYawSmoothMax->m_floatValue;
 
     int32_t smoothPitch = this->ShouldSmoothPitch(pitchMin, pitchMax);
     int32_t smoothTarget = this->CanSmoothTarget();
@@ -4122,7 +4122,7 @@ void CGCamera::SetTelescope(int32_t telescope) {
     uint32_t time = OsGetAsyncTimeMs();
     this->SetView(0, 2, 1);
     this->m_state = (this->m_state & ~(STATE_FLAGS::STATE_TELESCOPE | STATE_FLAGS::STATE_TELESCOPE_ENTERING | STATE_FLAGS::STATE_TELESCOPE_LEAVING)) | (STATE_FLAGS::STATE_TELESCOPE | STATE_FLAGS::STATE_TELESCOPE_ENTERING);
-    this->StartSmoothFoV(telescope * 0.017453292f - this->m_fov, 0.5f, time);
+    this->StartSmoothFoV(telescope * DEG_TO_RAD - this->m_fov, 0.5f, time);
     this->StartSmoothDistance(0.0f, 0.5f, time);
 
     if (fabsf(this->m_targetOffset) < 2.3841858e-7f) {
@@ -4257,7 +4257,7 @@ void CGCamera::RestoreSavedDistancePitch() {
     this->m_distance = distance;
     this->m_smoothDistance.m_target = distance;
 
-    float pitch = s_cvCameraSavedPitch->m_floatValue * 0.017453292f;
+    float pitch = s_cvCameraSavedPitch->m_floatValue * DEG_TO_RAD;
     this->m_pitch = pitch;
     this->m_smoothPitch.m_target = pitch;
 }

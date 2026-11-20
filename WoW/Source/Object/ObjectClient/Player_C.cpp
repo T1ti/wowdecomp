@@ -2955,7 +2955,7 @@ static float GetDrunkTurnOffset(uint32_t time, float drunkness) {
         return 0.0f;
     }
 
-    float phase = time * 0.017453292f * drunkness;
+    float phase = time * DEG_TO_RAD * drunkness;
     return (cosf(0.154f * phase) + cosf(phase * 0.195f) + cosf(phase * 0.093f)) * 0.333333f * (drunkness * 0.01308997f);
 }
 

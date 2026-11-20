@@ -1666,7 +1666,7 @@ void CEffect::DrawFishingString(CM2Model* model, const CM2Lighting* lighting, vo
         vertices[i].p.x = dx * t + start.x;
         vertices[i].p.y = dy * t + start.y;
         vertices[i].p.z = dz * t + start.z;
-        vertices[i].p.z = vertices[i].p.z - sinf(t * 3.1415927f) * 0.5f;
+        vertices[i].p.z = vertices[i].p.z - sinf(t * PI) * 0.5f;
         vertices[i].c = color;
     }
 

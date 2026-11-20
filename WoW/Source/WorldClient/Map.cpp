@@ -2624,15 +2624,15 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
 
     mapDoodadDef->m_model = nullptr;
 
-    float rotX = doodadDef->m_rotation.z * 0.017453292f;
-    float rotY = doodadDef->m_rotation.x * 0.017453292f;
-    float rotZ = 0.017453292f * doodadDef->m_rotation.y;
+    float rotX = doodadDef->m_rotation.z * DEG_TO_RAD;
+    float rotY = doodadDef->m_rotation.x * DEG_TO_RAD;
+    float rotZ = DEG_TO_RAD * doodadDef->m_rotation.y;
 
     mapDoodadDef->m_mat = C44Matrix();
     mapDoodadDef->m_mat.d0 = mapDoodadDef->m_position.x;
     mapDoodadDef->m_mat.d1 = mapDoodadDef->m_position.y;
     mapDoodadDef->m_mat.d2 = mapDoodadDef->m_position.z;
-    mapDoodadDef->m_mat.RotateAroundZ(rotZ + 3.1415927f);
+    mapDoodadDef->m_mat.RotateAroundZ(rotZ + PI);
     mapDoodadDef->m_mat.RotateAroundY(rotY);
     mapDoodadDef->m_mat.RotateAroundX(rotX);
     mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
@@ -2758,9 +2758,9 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
     mapObjDef->m_position.y = mapObjDef->m_position.y + center->y;
     mapObjDef->m_position.z = center->z + mapObjDef->m_position.z;
 
-    float rotX = mapObjectDef->m_rotation.z * 0.017453292f;
-    float rotY = mapObjectDef->m_rotation.x * 0.017453292f;
-    float rotZ = 0.017453292f * mapObjectDef->m_rotation.y;
+    float rotX = mapObjectDef->m_rotation.z * DEG_TO_RAD;
+    float rotY = mapObjectDef->m_rotation.x * DEG_TO_RAD;
+    float rotZ = DEG_TO_RAD * mapObjectDef->m_rotation.y;
 
     mapObjDef->m_flags = MAPOBJ_FLAG_NONE;
     mapObjDef->m_nameId = mapObjectDef->m_nameId;
@@ -2790,7 +2790,7 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
     mapObjDef->m_mat.d0 = mapObjDef->m_position.x;
     mapObjDef->m_mat.d1 = mapObjDef->m_position.y;
     mapObjDef->m_mat.d2 = mapObjDef->m_position.z;
-    mapObjDef->m_mat.RotateAroundZ(rotZ + 3.1415927f);
+    mapObjDef->m_mat.RotateAroundZ(rotZ + PI);
     mapObjDef->m_mat.RotateAroundY(rotY);
     mapObjDef->m_mat.RotateAroundX(rotX);
     mapObjDef->m_invMat = mapObjDef->m_mat.AffineInverse();
@@ -2940,9 +2940,9 @@ void CMap::LoadWdt() {
             mapObjDef->m_position.y = -def.m_position.x;
             mapObjDef->m_position.z = def.m_position.y;
 
-            float rotX = def.m_rotation.z * 0.017453292f;
-            float rotY = def.m_rotation.x * 0.017453292f;
-            float rotZ = 0.017453292f * def.m_rotation.y;
+            float rotX = def.m_rotation.z * DEG_TO_RAD;
+            float rotY = def.m_rotation.x * DEG_TO_RAD;
+            float rotZ = DEG_TO_RAD * def.m_rotation.y;
 
             mapObjDef->m_flags = MAPOBJ_FLAG_NONE;
             mapObjDef->m_nameId = def.m_nameId;
@@ -2972,7 +2972,7 @@ void CMap::LoadWdt() {
             mapObjDef->m_mat.d0 = mapObjDef->m_position.x;
             mapObjDef->m_mat.d1 = mapObjDef->m_position.y;
             mapObjDef->m_mat.d2 = mapObjDef->m_position.z;
-            mapObjDef->m_mat.RotateAroundZ(rotZ + 3.1415927f);
+            mapObjDef->m_mat.RotateAroundZ(rotZ + PI);
             mapObjDef->m_mat.RotateAroundY(rotY);
             mapObjDef->m_mat.RotateAroundX(rotX);
             mapObjDef->m_invMat = mapObjDef->m_mat.AffineInverse();

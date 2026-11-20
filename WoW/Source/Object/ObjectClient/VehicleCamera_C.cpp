@@ -695,13 +695,13 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
         CVehicleCamera_C::ConvertSmoothFacingFromRawToWorld(this->m_targetFacing, object);
     }
 
-    if (oldTarget > this->m_targetFacing + 3.1415927f) {
+    if (oldTarget > this->m_targetFacing + PI) {
         do {
             this->m_targetFacing = this->m_targetFacing + TWO_PI;
-        } while (this->m_targetFacing + 3.1415927f < oldTarget);
+        } while (this->m_targetFacing + PI < oldTarget);
     }
 
-    while (this->m_targetFacing - 3.1415927f > oldTarget) {
+    while (this->m_targetFacing - PI > oldTarget) {
         this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 
@@ -737,11 +737,11 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
             } else {
                 float chase = this->m_targetFacing;
 
-                while (chase + 3.1415927f < this->m_rawFacingChaser.m_value) {
+                while (chase + PI < this->m_rawFacingChaser.m_value) {
                     chase = chase + TWO_PI;
                 }
 
-                while (chase - 3.1415927f > this->m_rawFacingChaser.m_value) {
+                while (chase - PI > this->m_rawFacingChaser.m_value) {
                     chase = chase - TWO_PI;
                 }
 

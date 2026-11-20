@@ -414,7 +414,7 @@ void CGObject_C::PreAnimate(CGWorldFrame* frame) {
         int32_t elapsed = time - this->m_scaleChangeTime;
 
         if (elapsed < 2000) {
-            this->m_scale = (this->GetScale() - this->m_scaleChangeStart) * (-cosf(elapsed * 0.0005f * 3.1415927f) * 0.5f + 0.5f) + this->m_scaleChangeStart;
+            this->m_scale = (this->GetScale() - this->m_scaleChangeStart) * (-cosf(elapsed * 0.0005f * PI) * 0.5f + 0.5f) + this->m_scaleChangeStart;
             this->ScaleChangeUpdate();
         } else {
             this->m_scale = this->m_obj->m_scale;

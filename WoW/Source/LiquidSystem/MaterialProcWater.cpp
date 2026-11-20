@@ -197,12 +197,12 @@ void Liquid::CMaterialProcWater::Render(Liquid::IEnvironment* environment, Liqui
 
     for (uint32_t i = 0; i < 4; i++) {
         scales[i] = settings->GetFloat(i) * Liquid::WorldCoordScale();
-        angles[i] = settings->GetFloat(i + 4) * 57.29578f;
+        angles[i] = settings->GetFloat(i + 4) * RAD_TO_DEG;
     }
 
     float scale4 = settings->GetFloat(8) * Liquid::WorldCoordScale();
     float scale5 = settings->GetFloat(9) * Liquid::WorldCoordScale();
-    float angle5 = settings->GetFloat(10) * 57.29578f;
+    float angle5 = settings->GetFloat(10) * RAD_TO_DEG;
 
     g_theGxDevicePtr->RsPush();
 
@@ -344,7 +344,7 @@ void Liquid::CMaterialProcWaterFFP::Render(Liquid::IEnvironment* environment, Li
 
     float scale0 = settings->GetFloat(8) * Liquid::WorldCoordScale();
     float scale1 = settings->GetFloat(9) * Liquid::WorldCoordScale();
-    float angle1 = settings->GetFloat(10) * 57.29578f;
+    float angle1 = settings->GetFloat(10) * RAD_TO_DEG;
 
     g_theGxDevicePtr->RsPush();
     g_theGxDevicePtr->XformPush(GxXform_World);

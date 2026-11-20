@@ -108,13 +108,13 @@ float CPassenger::GetRawFacingFromRotation() const {
 
     if (2.3841858e-7f <= fabsf(x)) {
         if (fabsf(y) < 2.3841858e-7f) {
-            return 0.0f < x ? 0.0f : 3.1415927f;
+            return 0.0f < x ? 0.0f : PI;
         }
 
         return static_cast<float>(atan2(y, x));
     }
 
-    return 0.0f <= y ? 0.5f * 3.1415927f : 1.5f * 3.1415927f;
+    return 0.0f <= y ? HALF_PI : 1.5f * PI;
 }
 
 // VERIFY: 954d19c3 manual

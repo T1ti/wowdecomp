@@ -4,6 +4,7 @@
 #include "Engine/Source/Model2/M2Light.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00D45098
 CDataAllocator Liquid::s_waterFFPAllocator(sizeof(Liquid::CMaterialWaterFFP), 8);
@@ -140,7 +141,7 @@ void Liquid::CMaterialWater::Render(Liquid::IEnvironment* environment, Liquid::I
     }
 
     float scale1 = settings->GetFloat(0);
-    float angle1 = settings->GetFloat(1) * 57.29578f;
+    float angle1 = settings->GetFloat(1) * RAD_TO_DEG;
     float scale0 = settings->GetFloat(2);
 
     g_theGxDevicePtr->RsPush();
@@ -219,7 +220,7 @@ void Liquid::CMaterialWaterNoSpec::Render(Liquid::IEnvironment* environment, Liq
     }
 
     float scale1 = settings->GetFloat(0);
-    float angle1 = settings->GetFloat(1) * 57.29578f;
+    float angle1 = settings->GetFloat(1) * RAD_TO_DEG;
     float scale0 = settings->GetFloat(2);
 
     g_theGxDevicePtr->RsPush();
@@ -298,7 +299,7 @@ void Liquid::CMaterialWaterFFP::Render(Liquid::IEnvironment* environment, Liquid
     }
 
     float scale1 = settings->GetFloat(0) * Liquid::WorldCoordScale();
-    float angle1 = settings->GetFloat(1) * 57.29578f;
+    float angle1 = settings->GetFloat(1) * RAD_TO_DEG;
     float scale0 = settings->GetFloat(2) * Liquid::WorldCoordScale();
 
     g_theGxDevicePtr->RsPush();

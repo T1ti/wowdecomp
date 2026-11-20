@@ -151,15 +151,15 @@ void CMissile::AdjustTrajectoryDuration(uint32_t duration) {
 // OFFSET: 0x006FEB20
 void CMissile::ApplyMotionScriptFunctionRotationAndScale(const SimpleScriptIO& io, C44Matrix& matrix) {
     if (0.0 != io.m_numbers.m_data[5]) {
-        matrix.RotateAroundZ(io.m_numbers.m_data[5] * 0.017453292f);
+        matrix.RotateAroundZ(io.m_numbers.m_data[5] * DEG_TO_RAD);
     }
 
     if (0.0 != io.m_numbers.m_data[6]) {
-        matrix.RotateAroundY(io.m_numbers.m_data[6] * 0.017453292f);
+        matrix.RotateAroundY(io.m_numbers.m_data[6] * DEG_TO_RAD);
     }
 
     if (0.0 != io.m_numbers.m_data[7]) {
-        matrix.RotateAroundX(io.m_numbers.m_data[7] * 0.017453292f);
+        matrix.RotateAroundX(io.m_numbers.m_data[7] * DEG_TO_RAD);
     }
 
     const double* numbers = io.m_numbers.m_data;
@@ -358,7 +358,7 @@ int32_t CMissile::ApplyMotionScriptFunctionTranslation(const SimpleScriptIO& io,
     const double* numbers = io.m_numbers.m_data;
 
     if (0.0 != numbers[1]) {
-        double angle = numbers[0] * 0.017453292f;
+        double angle = numbers[0] * DEG_TO_RAD;
         double s = sin(angle);
         matrix.d0 = s * side.x * numbers[1] + matrix.d0;
         matrix.d1 = s * side.y * numbers[1] + matrix.d1;

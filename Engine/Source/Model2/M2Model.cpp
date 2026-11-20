@@ -7176,7 +7176,7 @@ int32_t CM2Model::InitializeLoaded() {
             M2Camera* cameraData = &data->m_cameras[i];
             CCamera* camera = CameraCreate();
 
-            if (!(cameraData->m_fieldOfView > 0.0f) || cameraData->m_fieldOfView >= 3.1415927f) {
+            if (!(cameraData->m_fieldOfView > 0.0f) || cameraData->m_fieldOfView >= PI) {
                 DebugLog("\"%s\", %s = %g", "shared->fieldOfView > 0.0f && shared->fieldOfView < PI", "shared->fieldOfView", static_cast<double>(cameraData->m_fieldOfView));
                 break;
             }

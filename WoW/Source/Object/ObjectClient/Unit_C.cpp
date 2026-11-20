@@ -1880,9 +1880,9 @@ void CGUnit_C::ProcessEmoteQueue() {
 void CGUnit_C::SmoothFacingAngle(float facing) {
     float target = this->m_smoothTarget.m_value;
 
-    if (target + 3.1415927f < this->m_renderFacing) {
+    if (target + PI < this->m_renderFacing) {
         target = target + TWO_PI;
-    } else if (target - 3.1415927f > this->m_renderFacing) {
+    } else if (target - PI > this->m_renderFacing) {
         target = target - TWO_PI;
     }
 
@@ -1895,9 +1895,9 @@ void CGUnit_C::SmoothFacingAngle(float facing) {
     float render = CMath::normalizeAnglePi(this->m_renderFacing);
     this->m_renderFacing = render;
 
-    if (facing + 3.1415927f < render) {
+    if (facing + PI < render) {
         facing = facing + TWO_PI;
-    } else if (facing - 3.1415927f > render) {
+    } else if (facing - PI > render) {
         facing = facing - TWO_PI;
     }
 
@@ -1974,11 +1974,11 @@ void CGUnit_C::RotateWheels() {
                     pivot.z = pivot.z * scale;
                     this->m_wheelAngles[i] = (pivot.y * turn + distance) / pivot.z + this->m_wheelAngles[i];
 
-                    while (this->m_wheelAngles[i] < -3.1415927f) {
+                    while (this->m_wheelAngles[i] < -PI) {
                         this->m_wheelAngles[i] = this->m_wheelAngles[i] + TWO_PI;
                     }
 
-                    while (this->m_wheelAngles[i] > 3.1415927f) {
+                    while (this->m_wheelAngles[i] > PI) {
                         this->m_wheelAngles[i] = this->m_wheelAngles[i] - TWO_PI;
                     }
                 }
@@ -2113,7 +2113,7 @@ void CGUnit_C::CreateRipple(uint32_t trigger) {
                 angle = angle - HALF_PI;
             }
         } else if (flags & MOVEMENTFLAG_BACKWARD) {
-            angle = angle + 3.1415927f;
+            angle = angle + PI;
         }
     } else {
         angle = CRandom::ufloat_(g_rndSeed) * TWO_PI;
@@ -3305,13 +3305,13 @@ float CalculateFacingTo(const C3Vector* from, const C3Vector* to) {
 
     if (2.3841858e-7f <= fabsf(dx)) {
         if (fabsf(dy) < 2.3841858e-7f) {
-            return from->x <= to->x ? 0.0f : 3.1415927f;
+            return from->x <= to->x ? 0.0f : PI;
         }
 
         return static_cast<float>(atan2(dy, dx));
     }
 
-    return 0.0f <= dy ? 0.5f * 3.1415927f : 1.5f * 3.1415927f;
+    return 0.0f <= dy ? HALF_PI : 1.5f * PI;
 }
 
 // VERIFY: b5a3e88a manual
@@ -3516,18 +3516,18 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
     CreatureMovementInfoRec* movementInfo = g_creatureMovementInfoDB.GetRecord(this->m_creatureCacheEntry ? this->m_creatureCacheEntry->m_movementId : 0);
 
     if (movementInfo && 0.00001f < movementInfo->m_smoothFacingChaseRate) {
-        if (facing + 3.1415927f < this->m_smoothTarget.m_value) {
+        if (facing + PI < this->m_smoothTarget.m_value) {
             facing = facing + TWO_PI;
-        } else if (facing - 3.1415927f > this->m_smoothTarget.m_value) {
+        } else if (facing - PI > this->m_smoothTarget.m_value) {
             facing = facing - TWO_PI;
         }
 
         this->m_smoothTarget.Chase(&facing, movementInfo->m_smoothFacingChaseRate, CGWorldFrame::s_currentWorldFrame->m_elapsedSec);
         this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(this->m_smoothTarget.m_value);
     } else if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) && !(this->m_obj->m_type & TYPE_PLAYER)) {
-        if (facing + 3.1415927f < this->m_smoothTarget.m_value) {
+        if (facing + PI < this->m_smoothTarget.m_value) {
             facing = facing + TWO_PI;
-        } else if (facing - 3.1415927f > this->m_smoothTarget.m_value) {
+        } else if (facing - PI > this->m_smoothTarget.m_value) {
             facing = facing - TWO_PI;
         }
 
@@ -3536,9 +3536,9 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
     } else {
         float diff = facing - this->m_smoothTarget.m_value;
 
-        if (3.1415927f < diff) {
+        if (PI < diff) {
             diff = diff - TWO_PI;
-        } else if (diff < -3.1415927f) {
+        } else if (diff < -PI) {
             diff = diff + TWO_PI;
         }
 
@@ -22010,18 +22010,18 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     float facingDelta = facing - this->m_smoothFacing;
     this->m_smoothFacing = facing;
 
-    if (facingDelta > 3.1415927f) {
+    if (facingDelta > PI) {
         facingDelta = facingDelta - TWO_PI;
-    } else if (facingDelta < -3.1415927f) {
+    } else if (facingDelta < -PI) {
         facingDelta = facingDelta + TWO_PI;
     }
 
     float pitchDelta = targetPitch - this->m_smoothSwimPitch;
 
     if (fabs(pitchDelta) >= 0.0099999998f) {
-        if (pitchDelta > 3.1415927f) {
+        if (pitchDelta > PI) {
             pitchDelta = pitchDelta - TWO_PI;
-        } else if (pitchDelta < -3.1415927f) {
+        } else if (pitchDelta < -PI) {
             pitchDelta = pitchDelta + TWO_PI;
         }
 
@@ -22036,9 +22036,9 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
         float smoothed = pitchDelta * rate + this->m_smoothSwimPitch;
         this->m_smoothSwimPitch = smoothed;
 
-        if (smoothed > 3.1415927f) {
+        if (smoothed > PI) {
             this->m_smoothSwimPitch = smoothed - TWO_PI;
-        } else if (smoothed < -3.1415927f) {
+        } else if (smoothed < -PI) {
             this->m_smoothSwimPitch = smoothed + TWO_PI;
         }
     } else {
@@ -22082,9 +22082,9 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     if (this->m_clientFlags2 & UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_FACING) {
         float yawDelta = facing - this->m_smoothFacingTarget;
 
-        if (yawDelta > 3.1415927f) {
+        if (yawDelta > PI) {
             yawDelta = yawDelta - TWO_PI;
-        } else if (yawDelta < -3.1415927f) {
+        } else if (yawDelta < -PI) {
             yawDelta = yawDelta + TWO_PI;
         }
 
@@ -22590,7 +22590,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
     CGUnit_C::s_trackingDirection = facing;
     CGUnit_C::s_trackingGUID = *guid;
     CGUnit_C::s_trackingPosition = *position;
-    s_trackingTurnRate = (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : 3.1415927f;
+    s_trackingTurnRate = (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : PI;
     CGUnit_C::s_trackingStuckCount = 0;
     s_trackingInteractDistance = sqrt(s_trackingInteractDistanceSq);
     CGUnit_C::s_unknown_CA11D0 = 0.0f;
@@ -22973,17 +22973,17 @@ bool CGUnit_C::HandleTrackingFacing(float facing, float maxTurn, uint32_t time) 
 
     if (movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) {
         s_trackingTurnRate = movement->m_turnRate;
-    } else if (3.1415927f == s_trackingTurnRate) {
-        s_trackingTurnRate = (delta <= 2.0943952f || delta >= 4.1887903f ? 800.0f : 1200.0f) * 0.017453292f;
+    } else if (PI == s_trackingTurnRate) {
+        s_trackingTurnRate = (delta <= 2.0943952f || delta >= 4.1887903f ? 800.0f : 1200.0f) * DEG_TO_RAD;
     }
 
-    float turn = delta <= 3.1415927f ? delta : TWO_PI - delta;
+    float turn = delta <= PI ? delta : TWO_PI - delta;
 
     if (maxTurn <= turn) {
         turn = maxTurn;
     }
 
-    float newFacing = delta <= 3.1415927f ? this->GetFacing() + turn : this->GetFacing() - turn;
+    float newFacing = delta <= PI ? this->GetFacing() + turn : this->GetFacing() - turn;
     this->TrackingSetTurn(time, CMath::normalizeangle0to2pi_(newFacing));
     return true;
 }
@@ -23105,7 +23105,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     }
 
     bool overshoot = false;
-    float pitchStep = static_cast<float>(fmod(static_cast<double>(elapsed * 3.1415927f), 6.283185307179586));
+    float pitchStep = static_cast<float>(fmod(static_cast<double>(elapsed * PI), 6.283185307179586));
     bool pitching = false;
     uint32_t moveFlags = this->m_movement->m_flags;
 

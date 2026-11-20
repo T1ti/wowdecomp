@@ -1345,7 +1345,7 @@ void CMapChunk::CreateDetailDoodads() {
             position.y -= cellX;
             position.z = -((position.x * plane.n.x + position.y * plane.n.y + plane.d) / plane.n.z);
 
-            float rotation = (CRandom::sfloat_(seed) + 1.0f) * 3.1415927f;
+            float rotation = (CRandom::sfloat_(seed) + 1.0f) * PI;
             float scale = CRandom::sfloat_(seed) * 0.33f + 1.0f;
 
             inst->AddDoodad(id, position, rotation, scale, plane.n, static_cast<uint16_t>(tri), color);

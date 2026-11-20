@@ -20,6 +20,7 @@
 #include "WoW/Source/Glue/CharacterSelectionDisplay.h"
 #include "WoW/Source/Glue/Types.h"
 #include "WoW/Source/Object/ObjectClient/Unit_C.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 769d9898 auto
 // OFFSET: 0x004E2F60
@@ -62,7 +63,7 @@ static int32_t Script_UpdateSelectionCustomizationScene(lua_State* L) {
 // VERIFY: cc0ab9ef auto
 // OFFSET: 0x004E3000
 static int32_t Script_GetCharacterSelectFacing(lua_State* L) {
-    lua_pushnumber(L, CCharacterSelection::s_charFacing * 57.29578f);
+    lua_pushnumber(L, CCharacterSelection::s_charFacing * RAD_TO_DEG);
     return 1;
 }
 
@@ -74,7 +75,7 @@ static int32_t Script_SetCharacterSelectFacing(lua_State* L) {
         return 0;
     }
 
-    CharacterSelectionDisplay::SetCharacterFacing(lua_tonumber(L, 1) * 0.017453292f);
+    CharacterSelectionDisplay::SetCharacterFacing(lua_tonumber(L, 1) * DEG_TO_RAD);
     return 1;
 }
 

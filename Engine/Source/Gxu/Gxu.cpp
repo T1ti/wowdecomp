@@ -8,11 +8,12 @@
 #include "Engine/Source/Tempest/C4Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Tempest/CRect.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 4c6a7536 manual
 // OFFSET: 0x006BF370
 void GxuXformCreateProjection_Exact(float fovyInRadians, float aspect, float minZ, float maxZ, C44Matrix& dst) {
-    if (!(fovyInRadians > 0.0f && fovyInRadians < 3.1415927f)) {
+    if (!(fovyInRadians > 0.0f && fovyInRadians < PI)) {
         DebugLog("\"%s\", %s = %g", "fovyInRadians > 0.0f && fovyInRadians < PI", "fovyInRadians", fovyInRadians);
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;

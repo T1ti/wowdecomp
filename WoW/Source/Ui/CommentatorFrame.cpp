@@ -253,8 +253,8 @@ void CGCommentator::SetFov(float fov) {
 
     this->m_targetFov = fov;
 
-    if (fov <= 0.017453292f) {
-        this->m_targetFov = 0.017453292f;
+    if (fov <= DEG_TO_RAD) {
+        this->m_targetFov = DEG_TO_RAD;
     } else {
         this->m_targetFov = fov;
     }
@@ -423,7 +423,7 @@ void CGCommentator::OnUpdate(float elapsed) {
     }
 
     float delta = this->m_targetFov - this->m_fov;
-    float maxDelta = (this->m_fov - 0.017453292f) * 0.19259088f + 0.2f;
+    float maxDelta = (this->m_fov - DEG_TO_RAD) * 0.19259088f + 0.2f;
 
     if (maxDelta <= delta) {
         delta = maxDelta;
@@ -451,7 +451,7 @@ void CGCommentator::OnUpdate(float elapsed) {
     }
 
     this->m_fov = fov;
-    this->m_fov = this->m_fov > 0.017453292f ? this->m_fov : 0.017453292f;
+    this->m_fov = this->m_fov > DEG_TO_RAD ? this->m_fov : DEG_TO_RAD;
 
     if (this->m_fov >= 2.0943952f) {
         this->m_fov = 2.0943952f;

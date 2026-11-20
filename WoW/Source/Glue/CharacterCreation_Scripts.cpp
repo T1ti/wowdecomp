@@ -22,6 +22,7 @@
 #include "WoW/Source/Ui/LFGInfo.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/Types.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 
 // VERIFY: a2e71192 auto
@@ -316,7 +317,7 @@ static int32_t Script_CycleCharCustomization(lua_State* L) {
 // VERIFY: e5380494 auto
 // OFFSET: 0x004E0BE0
 static int32_t Script_GetCharacterCreateFacing(lua_State* L) {
-    lua_pushnumber(L, CCharacterCreation::m_charFacing * 57.29578f);
+    lua_pushnumber(L, CCharacterCreation::m_charFacing * RAD_TO_DEG);
     return 1;
 }
 
@@ -328,7 +329,7 @@ static int32_t Script_SetCharacterCreateFacing(lua_State* L) {
         return 0;
     }
 
-    CCharacterCreation::SetCharacterFacing(lua_tonumber(L, 1) * 0.017453292f);
+    CCharacterCreation::SetCharacterFacing(lua_tonumber(L, 1) * DEG_TO_RAD);
     return 1;
 }
 

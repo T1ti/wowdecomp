@@ -2416,7 +2416,7 @@ void DayNight::DNClouds::GenSphere(float radius) {
     color.r = 0xFF;
 
     for (uint32_t row = 0; row < 12; row++) {
-        float theta = s_cloudThetaTable[row] * 3.1415927f;
+        float theta = s_cloudThetaTable[row] * PI;
         float sinTheta = sin(theta);
         float texRadius = 0.5f * (row * 0.090909094f);
         float z = radius * cos(theta) + zOffset;
@@ -2479,7 +2479,7 @@ void DayNight::DNSky::GenSphere(float sphRadius) {
     float prevTheta = 0.0f;
 
     for (int32_t row = 0; row < SKY_NUMBANDS; row++) {
-        float theta = s_skyThetaTable[row] * 3.1415927f;
+        float theta = s_skyThetaTable[row] * PI;
         float cosTheta = CMath::cos_(theta);
         float sinTheta = CMath::sin_(theta);
         float z = sphRadius * cosTheta + zOffset;
@@ -2493,14 +2493,14 @@ void DayNight::DNSky::GenSphere(float sphRadius) {
             verts->z = z;
             verts++;
 
-            if (top || CMath::fequal(theta, 3.1415927f) || ++i >= 24) {
+            if (top || CMath::fequal(theta, PI) || ++i >= 24) {
                 break;
             }
         }
 
         if (row > 0) {
             bool prevPole = CMath::fequal(prevTheta, 0.0f);
-            bool pole = CMath::fequal(theta, 3.1415927f);
+            bool pole = CMath::fequal(theta, PI);
 
             for (uint32_t i = 0; i < 25; i++) {
                 *indices++ = (prevPole ? 0 : i % 24) + prevRowStart;

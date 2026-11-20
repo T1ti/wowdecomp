@@ -2184,7 +2184,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
     }
 
     if (spline->m_flags & SPLINEFLAG_BACKWARD) {
-        this->m_facing = this->m_facing - 3.1415927f;
+        this->m_facing = this->m_facing - PI;
     }
 
     if (this->m_facing < 0.0f) {

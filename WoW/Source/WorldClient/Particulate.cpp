@@ -118,8 +118,8 @@ void Particulate::InitParticles(uint32_t count) {
 // VERIFY: d68e0ec8 manual
 // OFFSET: 0x0079BCC0
 void Particulate::InitMovement() {
-    float theta = CRandom::sfloat_(g_rndSeed) * 3.1415927f;
-    float phi = CRandom::sfloat_(g_rndSeed) * 3.1415927f;
+    float theta = CRandom::sfloat_(g_rndSeed) * PI;
+    float phi = CRandom::sfloat_(g_rndSeed) * PI;
     float sinTheta = sin(theta);
 
     this->m_movement.m_dir.y = sin(phi) * sinTheta;

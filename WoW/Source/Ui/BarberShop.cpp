@@ -21,6 +21,7 @@
 #include "WoW/Source/Magic/MagicClient/Spell_C.h"
 #include "Engine/Source/Model2/M2Model.h"
 #include "WoW/Source/Net/Types.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00BD19B8
 uint8_t CGBarberShop::m_barberShopEnabled;
@@ -230,7 +231,7 @@ int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t t
             distance = CGBarberShop::m_minCameraDistance + CGBarberShop::m_minCameraDistance;
         }
 
-        camera->BarberShopSetView(distance, 3.1415927f, 0.0f);
+        camera->BarberShopSetView(distance, PI, 0.0f);
     }
 
     return 1;

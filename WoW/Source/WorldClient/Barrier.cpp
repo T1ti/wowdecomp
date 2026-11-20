@@ -19,6 +19,7 @@
 #include "Engine/Source/Model2/M2Data.h"
 #include "Engine/Source/Services/ParticleSystem2.h"
 #include "Engine/Source/ShaderEffect/Types.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00CD85F8
 CM2Model* CBarrier::s_sparkles[4];
@@ -418,8 +419,8 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     s_patternPhase = elapsedSec * 0.1f + s_patternPhase;
 
-    if (s_patternPhase > 3.1415927f) {
-        s_patternPhase = s_patternPhase - 3.1415927f;
+    if (s_patternPhase > PI) {
+        s_patternPhase = s_patternPhase - PI;
     }
 
     if (vertices && indices) {

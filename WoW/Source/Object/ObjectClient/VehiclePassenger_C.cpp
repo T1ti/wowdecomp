@@ -83,11 +83,11 @@ void CVehiclePassenger_C::OnVehicleRideLoopAnimEnd(CGUnit_C* unit, BOOL& keepLis
 void CVehiclePassenger_C::UpdateSmoothFacing() {
     this->m_targetFacing = this->m_unit->GetFacing();
 
-    while (this->m_targetFacing + 3.1415927f < this->m_smoothFacing) {
+    while (this->m_targetFacing + PI < this->m_smoothFacing) {
         this->m_targetFacing = this->m_targetFacing + TWO_PI;
     }
 
-    while (this->m_targetFacing - 3.1415927f > this->m_smoothFacing) {
+    while (this->m_targetFacing - PI > this->m_smoothFacing) {
         this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 
@@ -1006,7 +1006,7 @@ void CVehiclePassenger_C::UpdateBlend(uint32_t time, VehicleSeatRec* seatRec) {
     uint32_t flags = seatRec->m_flags;
 
     if ((flags & easeIn) && (flags & easeOut)) {
-        this->m_facingBlend = 0.5f - std::cos(this->m_facingBlend * 3.1415927f) * 0.5f;
+        this->m_facingBlend = 0.5f - std::cos(this->m_facingBlend * PI) * 0.5f;
     } else if (seatRec->m_flags & easeIn) {
         this->m_facingBlend = this->m_facingBlend * this->m_facingBlend;
     } else if (flags & easeOut) {
@@ -1673,11 +1673,11 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
 
     this->m_targetFacing = this->m_unit->GetFacing();
 
-    while (this->m_targetFacing + 3.1415927f < this->m_smoothFacing) {
+    while (this->m_targetFacing + PI < this->m_smoothFacing) {
         this->m_targetFacing = this->m_targetFacing + TWO_PI;
     }
 
-    while (this->m_targetFacing - 3.1415927f > this->m_smoothFacing) {
+    while (this->m_targetFacing - PI > this->m_smoothFacing) {
         this->m_targetFacing = this->m_targetFacing - TWO_PI;
     }
 

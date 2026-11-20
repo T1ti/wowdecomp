@@ -52,7 +52,7 @@ void CSimpleAnimSCurveSmoother::SetWeights(float in, float out) {
 // OFFSET: 0x00497BA0
 float CSimpleAnimSCurveSmoother::GetSmoothProgress(float progress) {
     if (fabsf(this->m_in) >= 0.001f && fabsf(this->m_out) >= 0.001f) {
-        return 0.5f - cosf(progress * 3.1415927f) * 0.5f;
+        return 0.5f - cosf(progress * PI) * 0.5f;
     }
 
     if (fabsf(this->m_in) >= 0.001f) {

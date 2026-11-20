@@ -8,6 +8,7 @@
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "WoW/Source/Ui/BarberShop.h"
 #include "WoW/Source/Ui/WorldFrame.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 60071b01 auto
 // OFFSET: 0x006017E0
@@ -258,7 +259,7 @@ static int32_t Script_FlipCameraYaw(lua_State* L) {
 
     float degrees = static_cast<float>(lua_tonumber(L, 1));
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
-    camera->m_yawOffset = degrees * 0.017453292f + camera->m_yawOffset;
+    camera->m_yawOffset = degrees * DEG_TO_RAD + camera->m_yawOffset;
     return 0;
 }
 

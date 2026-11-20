@@ -9,6 +9,7 @@
 #include "Engine/Source/Os/TimeManager.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C2Vector.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 namespace Input {
     // STATIC: 0x00B41828
@@ -313,7 +314,7 @@ void IEvtDispatchJoystickStick(EvtContext* context, int32_t id, int32_t x, int32
     data.unused_0000 = 0;
     data.m_id = id;
     data.m_value = sqrtf(stickY * stickY + stickX * stickX);
-    data.m_angle = 3.1415927f - atan2f(stickX, stickY);
+    data.m_angle = PI - atan2f(stickX, stickY);
     data.m_x = stickX;
     data.m_y = stickY;
     data.m_time = time;

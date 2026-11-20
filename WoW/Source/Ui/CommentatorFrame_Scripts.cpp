@@ -15,6 +15,7 @@
 #include "WoW/Source/UIUtil/Camera.h"
 #include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Source/WorldClient/World.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: b9b450f8 manual
 // OFFSET: 0x00569230
@@ -182,9 +183,9 @@ static int32_t Script_CommentatorGetCamera(lua_State* L) {
     lua_pushnumber(L, CGCommentator::s_Commentator.m_position.x);
     lua_pushnumber(L, CGCommentator::s_Commentator.m_position.y);
     lua_pushnumber(L, CGCommentator::s_Commentator.m_position.z);
-    lua_pushnumber(L, camera->m_yaw * 57.29578f);
-    lua_pushnumber(L, camera->m_pitch * 57.29578f);
-    lua_pushnumber(L, CGCommentator::s_Commentator.m_fov * 57.29578f);
+    lua_pushnumber(L, camera->m_yaw * RAD_TO_DEG);
+    lua_pushnumber(L, camera->m_pitch * RAD_TO_DEG);
+    lua_pushnumber(L, CGCommentator::s_Commentator.m_fov * RAD_TO_DEG);
     return 6;
 }
 
@@ -275,12 +276,12 @@ static int32_t Script_CommentatorZoomIn(lua_State* L) {
         zoom = limit;
     }
 
-    CGCommentator::s_Commentator.m_targetFov = zoom < 2.0943952f ? (zoom > 0.017453292f ? zoom : 0.017453292f) : 2.0943952f;
+    CGCommentator::s_Commentator.m_targetFov = zoom < 2.0943952f ? (zoom > DEG_TO_RAD ? zoom : DEG_TO_RAD) : 2.0943952f;
 
     if (CGCommentator::s_Commentator.m_targetFov >= 2.0943952f) {
         CGCommentator::s_Commentator.m_targetFov = 2.0943952f;
-    } else if (CGCommentator::s_Commentator.m_targetFov <= 0.017453292f) {
-        CGCommentator::s_Commentator.m_targetFov = 0.017453292f;
+    } else if (CGCommentator::s_Commentator.m_targetFov <= DEG_TO_RAD) {
+        CGCommentator::s_Commentator.m_targetFov = DEG_TO_RAD;
     }
 
     return 0;
@@ -302,12 +303,12 @@ static int32_t Script_CommentatorZoomOut(lua_State* L) {
         zoom = limit;
     }
 
-    CGCommentator::s_Commentator.m_targetFov = zoom < 2.0943952f ? (zoom > 0.017453292f ? zoom : 0.017453292f) : 2.0943952f;
+    CGCommentator::s_Commentator.m_targetFov = zoom < 2.0943952f ? (zoom > DEG_TO_RAD ? zoom : DEG_TO_RAD) : 2.0943952f;
 
     if (CGCommentator::s_Commentator.m_targetFov >= 2.0943952f) {
         CGCommentator::s_Commentator.m_targetFov = 2.0943952f;
-    } else if (CGCommentator::s_Commentator.m_targetFov <= 0.017453292f) {
-        CGCommentator::s_Commentator.m_targetFov = 0.017453292f;
+    } else if (CGCommentator::s_Commentator.m_targetFov <= DEG_TO_RAD) {
+        CGCommentator::s_Commentator.m_targetFov = DEG_TO_RAD;
     }
 
     return 0;
@@ -707,19 +708,19 @@ static int32_t Script_CommentatorSetCamera(lua_State* L) {
 
     float yaw = lua_tonumber(L, 4);
     float pitch = lua_tonumber(L, 5) * 0.017453292;
-    CGCommentator::s_Commentator.SetPosYawPitch(position, 0.017453292f * yaw, pitch);
+    CGCommentator::s_Commentator.SetPosYawPitch(position, DEG_TO_RAD * yaw, pitch);
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
 
     if (camera) {
         float fov = lua_tonumber(L, 6) * 0.017453292;
 
-        if (fov > 0.017453292f) {
+        if (fov > DEG_TO_RAD) {
             if (fov >= 2.0943952f) {
                 fov = 2.0943952f;
             }
         } else {
-            fov = 0.017453292f;
+            fov = DEG_TO_RAD;
         }
 
         CGCommentator::s_Commentator.m_fov = fov;

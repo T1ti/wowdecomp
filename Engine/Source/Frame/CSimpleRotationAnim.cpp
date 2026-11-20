@@ -11,6 +11,7 @@
 #include "Engine/Source/Frame/CSimpleAnimGroup.h"
 #include "Engine/Source/FrameXML/LoadXML.h"
 #include "Engine/Source/FrameXML/XMLTree.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00AC1A20
 int32_t CSimpleRotationAnim::s_metatable = LUA_NOREF;
@@ -90,7 +91,7 @@ void CSimpleRotationAnim::LoadXML(XMLNode* node, CStatus* status) {
     const char* degrees = node->GetAttributeByName("degrees");
 
     if (degrees && *degrees) {
-        this->m_radians = SStrToFloat(degrees) * 0.017453292f;
+        this->m_radians = SStrToFloat(degrees) * DEG_TO_RAD;
     }
 
     const char* radians = node->GetAttributeByName("radians");

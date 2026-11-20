@@ -82,7 +82,7 @@ void __stdcall Rain::GetMotionBlurMatrix(C33Matrix* matrix) {
     axis.x *= invAxis;
     axis.y *= invAxis;
     axis.z *= invAxis;
-    matrix->Rotate(angle * 0.017453292f, axis, true);
+    matrix->Rotate(angle * DEG_TO_RAD, axis, true);
 }
 
 // VERIFY: 1f283a72 manual
