@@ -112,7 +112,7 @@ class CMapRenderChunk {
     static void UpdatePools();
     static void SetVertexFormat(EGxVertexBufferFormat format);
     static void PurgeChunkBufBlocks();
-    static CMapChunkBuf* AllocBuf(int32_t a1, CMapRenderChunk* renderChunk);
+    static CMapChunkBuf* AllocBuf(int32_t flags, CMapRenderChunk* renderChunk);
     static CTexture* AllocTexture(uint32_t width, uint32_t height, void* userArg, GxTexUserFunc userFunc, EGxTexFormat format, EGxTexFormat dataFormat);
     static void UpdateShaderGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     static void UpdateLayerGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);

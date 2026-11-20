@@ -281,7 +281,7 @@ namespace DayNight {
     void DrawSky(DNOverrideSky* sky, float weight);
     int32_t GetFogOverride();
     void RenderGlares();
-    void SetBlendSky(uint32_t index, const char* sky, int32_t a3, float blend);
+    void SetBlendSky(uint32_t index, const char* sky, int32_t flags, float blend);
     void UpdateStars();
     void AddLightOverride(int32_t lightId, int32_t overrideId, uint32_t duration);
     void RemoveLightOverride(int32_t lightId, uint32_t duration);

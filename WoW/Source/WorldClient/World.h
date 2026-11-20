@@ -507,7 +507,7 @@ namespace World {
     int32_t QueryMapObjFileName(CMapEntity* entity, const char** fileName);
     bool QueryMapObjMinimap(CMapEntity* entity, CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads, int32_t inside, uint8_t indoorArea);
     bool QueryMapObjMatrix(CMapEntity* entity, C44Matrix* matrix, C44Matrix* invMatrix);
-    void Preload(const C3Vector& position, int32_t a2);
+    void Preload(const C3Vector& position, int32_t showLoading);
     int32_t QueryMapId();
     void UpdateObjectFadeouts();
     void Update(const C3Vector& position);
@@ -591,7 +591,7 @@ float ValidateFarClip(float farClip, int32_t mapID);
     void ObjectSetRenderEnabled(CMapBaseObj* object, int32_t enable);
     bool GetTris(const CAaBox& box, World::TriData* triData, uint32_t flags);
     uint32_t GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags);
-    void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t a4);
+    void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t doodadSet);
     void ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask);
     void ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param), uint64_t param, uint16_t doodad);
     bool ObjectTestConvexVolume(CMapEntity* entity, const C3Vector& point);
@@ -648,7 +648,7 @@ class CWorld {
     static int32_t ConsoleCommand_WaterRipples(const char* command, const char* arguments);
     static void Destroy();
     static void Initialize();
-    static void LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused_a4);
+    static void LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4);
     static void ObjectDestroy(CMapBaseObj* object);
     static CMapBaseObj* ObjectCreate(const char* name, const C3Vector& position, float facing, int32_t waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
     static void Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position);

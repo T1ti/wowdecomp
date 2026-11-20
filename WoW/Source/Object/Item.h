@@ -19,7 +19,7 @@ class CGItem {
     /* 0004 */ CGItemData* m_item;
     /* 0008 */ void* m_itemMirror;
 
-    virtual uint32_t GetItemStaticFlags(int32_t a1) = 0;
+    virtual uint32_t GetItemStaticFlags(int32_t index) = 0;
 
     int32_t IsUsable() const;
     uint32_t GetEnchantmentId(int32_t slot);

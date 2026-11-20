@@ -33,7 +33,7 @@ uint32_t CVehicle_C::IsSpecialBoneAnimPlaying() const {
 
 // VERIFY: ce2db0fa manual
 // OFFSET: 0x00756D10
-int32_t CVehicle_C::InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, int32_t& a2, TSGrowableArray<CVehiclePassenger_C*>& passengers)) {
+int32_t CVehicle_C::InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers)) {
     if (boneId >= NUM_KEY_BONES) {
         boneId = KEY_BONE_ROOT;
     }
@@ -732,9 +732,9 @@ void CVehicle_C::BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t s
         }
 
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(listener.m_guid, TYPE_UNIT, __FILE__, __LINE__));
-        int32_t keep = 0;
+        BOOL keepListening = 0;
 
-        if (unit && listener.m_callback && (listener.m_callback(unit, keep, passengers), keep)) {
+        if (unit && listener.m_callback && (listener.m_callback(unit, keepListening, passengers), keepListening)) {
             handled = 1;
         } else {
             listener.m_guid = WOWGUID{ 0 };

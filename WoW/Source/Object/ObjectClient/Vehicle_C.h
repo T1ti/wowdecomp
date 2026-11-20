@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -33,7 +34,7 @@ class CVehicle_C {
     struct BoneAnimListener {
         /* 0000 */ WOWGUID m_guid;
         /* 0008 */ uint32_t m_boneId;
-        /* 000C */ void (*m_callback)(CGUnit_C* unit, int32_t& a2, TSGrowableArray<CVehiclePassenger_C*>& passengers);
+        /* 000C */ void (*m_callback)(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers);
     };
 
     // Runtime vehicle state; reconstructed names.
@@ -69,7 +70,7 @@ class CVehicle_C {
     CVehicle_C();
     VehicleSeatRec* GetVehicleSeatRec(uint8_t seat) const;
     uint32_t IsSpecialBoneAnimPlaying() const;
-    int32_t InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, int32_t& a2, TSGrowableArray<CVehiclePassenger_C*>& passengers));
+    int32_t InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers));
     void UninstallBoneAnimListener(WOWGUID guid);
     void RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid);
     int32_t CanPlayBoneAnim(uint32_t animId) const;

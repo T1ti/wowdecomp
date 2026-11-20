@@ -433,8 +433,8 @@ class CMap {
     static void VectorIntersectDoodadDefs(TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>* list, uint32_t flags);
     static void VectorIntersectSY(CiRect& rect);
     static void VectorIntersectSX(CiRect& rect);
-    static void VectorIntersectDY(C3Vector& a1, C3Vector& a2, CiRect& rect);
-    static void VectorIntersectDX(C3Vector& a1, C3Vector& a2, CiRect& rect);
+    static void VectorIntersectDY(C3Vector& start, C3Vector& end, CiRect& cells);
+    static void VectorIntersectDX(C3Vector& start, C3Vector& end, CiRect& cells);
     static void SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject);
     static bool LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapObjDef** outDefs, uint32_t* outGroups);
     static void TestQueryAdd(const CFacet& facet, CImVector color, const C44Matrix* mat);

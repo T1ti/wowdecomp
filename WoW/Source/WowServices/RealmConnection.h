@@ -158,10 +158,10 @@ class RealmResponse {
     virtual void MessageReceived(RealmConnection* connection, uint32_t message) = 0;
     virtual void OnChatReceived(RealmConnection* connection, WOWGUID guid, const char* text, uint8_t type) = 0;
     virtual void OnChatPlayerNotFound(RealmConnection* connection, const char* name);
-    virtual void OnAccountOnline(RealmConnection* connection, int32_t a2, WOWGUID guid) = 0;
+    virtual void OnAccountOnline(RealmConnection* connection, int32_t unknown2, WOWGUID guid) = 0;
     virtual void OnCharacterRestored(RealmConnection* connection, bool success, uint32_t unknown3, uint32_t unknown4, uint32_t unknown5, uint64_t unknown6, uint64_t unknown7, uint32_t unknown8, const char* unknown9, uint32_t unknown10, CDataStore* msg, uint64_t unknown12, uint64_t unknown13);
     virtual void OnChangeArenaTeamRating(RealmConnection* connection, bool success, int32_t unknown3, int32_t unknown4);
-    virtual void OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t a3, int32_t a4, int32_t a5, int32_t a6) = 0;
+    virtual void OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t unknown3, int32_t unknown4, int32_t unknown5, int32_t unknown6) = 0;
     virtual void OnServerInfo(RealmConnection* connection, int32_t unknown2, int32_t unknown3, char* unknown4);
     virtual void HandleConnect(RealmConnection* connection) = 0;
     virtual void HandleDisconnect(RealmConnection* connection) = 0;

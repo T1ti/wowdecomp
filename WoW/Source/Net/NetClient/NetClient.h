@@ -136,7 +136,7 @@ class NetClient : public WowConnectionResponse {
     void HandleRedirectClient(WowConnection* connection, CDataStore* msg);
     void HandleResumeComms(WowConnection* connection, CDataStore* msg);
     void HandleSuspendComms(WowConnection* connection, CDataStore* msg);
-    int32_t ProcessMessage(uint32_t timeReceived, CDataStore* msg, int32_t unused_a4);
+    int32_t ProcessMessage(uint32_t timeReceived, CDataStore* msg, int32_t unused4);
     void Ping();
     void PollEventQueue();
     void Disconnect();

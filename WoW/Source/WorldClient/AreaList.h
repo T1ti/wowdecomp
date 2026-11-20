@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-int32_t AreaListGetName(uint32_t areaId, char* buffer, uint32_t size, int32_t a4);
+int32_t AreaListGetName(uint32_t areaId, char* buffer, uint32_t size, int32_t includeParent);
 
 void AreaListShutdown();
 

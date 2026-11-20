@@ -49,7 +49,7 @@ void ConsoleDeviceDefaults(OPTION_PAGE page);
 void ConsoleDeviceDestroy();
 DefaultSettings* ConsoleDeviceGetDefaultSettings();
 int32_t ConsoleDeviceHardwareChanged();
-void ConsoleDeviceInitialize(const char* title, bool unused_a2, bool unused_a3);
+void ConsoleDeviceInitialize(const char* title, bool unused2, bool unused3);
 Hardware* ConsoleGetHardware();
 void ConsoleGxOverride(const char* list);
 int32_t IsConsoleEnabled();

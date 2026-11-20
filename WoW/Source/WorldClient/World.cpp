@@ -1361,7 +1361,7 @@ void World::SetFarClip(float farClip) {
 
 // VERIFY: 833d137a auto
 // OFFSET: 0x00781430
-void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused_a4) {
+void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4) {
     World::s_farClip = World::ValidateFarClip(CWorldParam::cvar_farClip->m_floatValue, zoneID);
     World::s_nearClip = 0.2f;
     World::s_prevFarClip = World::s_farClip;

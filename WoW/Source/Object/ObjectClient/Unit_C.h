@@ -475,7 +475,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     virtual void GetDNDText(char* buffer, uint32_t size) const;
     virtual void GetGMText(char* buffer, uint32_t size) const;
     virtual void GetDevText(char* buffer, uint32_t size) const;
-    virtual void PlayUnitSound(UNITSOUNDTYPE soundType, int32_t a2);
+    virtual void PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force);
     virtual void PlayFoleySound();
     virtual uint32_t GetImpactType() const;
     virtual const CGUnitVirtualItem* GetDefendingItem() const;
@@ -745,7 +745,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void UpdateAmmoModel(uint32_t displayId, uint32_t invType);
     void PlayFidgetSound(uint32_t index);
     void PlayDeathThud();
-    void HandlePlayStandSound(uint32_t eventId, int32_t unused_a3);
+    void HandlePlayStandSound(uint32_t eventId, int32_t unused3);
     void HandleFootfallAnimEvent(const C3Vector& position);
     void OnFlightLocal(uint32_t eventTime, int32_t flying);
     void OnMoveStartLocal(uint32_t eventTime, int32_t forward);
@@ -872,7 +872,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     SkillLineAbilityRec* LookupAbility(int32_t spellId);
     int32_t GetAbilitySkillLine(int32_t spellId);
     void SignalPlayerGainsVehicleDataEvent();
-    const char* GetUnitName(const char** realm, int32_t a2);
+    const char* GetUnitName(const char** realm, int32_t followOverride);
     const char* GetVisibleUnitName(const char** realm, int32_t followOverride);
     void SetCharacterModel(CM2Model* model);
     float GetModelScale(uint32_t displayId);
@@ -1071,7 +1071,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     UnitBloodRec* GetBloodRecord();
     void ModifyPredictedPower(POWER_TYPE powerType, int32_t delta);
     void AddWorldText(const WOWGUID& source, MISS_REASON reason, const SpellRec* spell, bool periodic);
-    void AddWorldHealingText(const WOWGUID& source, int32_t amount, const SpellRec* spell, bool crit, int32_t unused_a6);
+    void AddWorldHealingText(const WOWGUID& source, int32_t amount, const SpellRec* spell, bool crit, int32_t unused6);
     void AddWorldHonorGainText(int32_t honor, int32_t pvpRank, const char* victimName);
     void PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source);
     void CreateMissile(const SpellCastTargetPoint* point, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay);

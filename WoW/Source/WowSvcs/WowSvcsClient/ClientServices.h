@@ -90,8 +90,8 @@ class ClientRealmResponseAdapter : public RealmResponse {
     void GameServerResult(RealmConnection* connection, const char* message1, const char* message2, const char* message3) override;
     void MessageReceived(RealmConnection* connection, uint32_t message) override;
     void OnChatReceived(RealmConnection* connection, WOWGUID guid, const char* text, uint8_t type) override;
-    void OnAccountOnline(RealmConnection* connection, int32_t unused_a2, WOWGUID guid) override;
-    void OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t unused_a3, int32_t unused_a4, int32_t unused_a5, int32_t unused_a6) override;
+    void OnAccountOnline(RealmConnection* connection, int32_t unknown2, WOWGUID guid) override;
+    void OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t unknown3, int32_t unknown4, int32_t unknown5, int32_t unknown6) override;
     void HandleConnect(RealmConnection* connection) override;
     void HandleDisconnect(RealmConnection* connection) override;
     void HandleCantConnect(RealmConnection* connection) override;

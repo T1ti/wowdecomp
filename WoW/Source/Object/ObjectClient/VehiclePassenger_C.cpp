@@ -74,8 +74,8 @@ int32_t CVehiclePassenger_C::IsWaitingForVehicleTransitionAnimGrabEvent(uint32_t
 
 // VERIFY: 3edd387b auto
 // OFFSET: 0x00747980
-void CVehiclePassenger_C::OnVehicleRideLoopAnimEnd(CGUnit_C* unit, int32_t& done, TSGrowableArray<CVehiclePassenger_C*>& passengers) {
-    done = 1;
+void CVehiclePassenger_C::OnVehicleRideLoopAnimEnd(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers) {
+    keepListening = 1;
 }
 
 // VERIFY: 0697d6f6 auto
@@ -219,8 +219,8 @@ void CVehiclePassenger_C::AddPendingRescueTransition(WOWGUID passengerGuid, WOWG
 
 // VERIFY: c31d4cfc manual
 // OFFSET: 0x00749D50
-void CVehiclePassenger_C::OnVehicleTransitionAnimEnd(CGUnit_C* unit, int32_t& done, TSGrowableArray<CVehiclePassenger_C*>& passengers) {
-    done = 0;
+void CVehiclePassenger_C::OnVehicleTransitionAnimEnd(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers) {
+    keepListening = 0;
     CVehiclePassenger_C* passenger = unit->m_vehiclePassenger;
 
     if (passenger && !(passenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_UNKNOWN_31)) {

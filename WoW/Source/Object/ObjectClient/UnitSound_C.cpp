@@ -212,7 +212,7 @@ void CGUnit_C::PlayDeathThud() {
 
 // VERIFY: 8792f0f0 auto
 // OFFSET: 0x007471A0
-void CGUnit_C::HandlePlayStandSound(uint32_t eventId, int32_t unused_a3) {
+void CGUnit_C::HandlePlayStandSound(uint32_t eventId, int32_t unused3) {
     switch (eventId) {
         case M2_EVENT_ID::PlayFidgetSound1_FD1:
             this->PlayFidgetSound(0);

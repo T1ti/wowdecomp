@@ -2256,7 +2256,7 @@ void CMapObj::Destroy() {
 
 // VERIFY: e6f8b5e3 manual
 // OFFSET: 0x007B0040
-void CMapObj::ClearCache(int32_t unused_a1) {
+void CMapObj::ClearCache(int32_t unused1) {
     CMapObj* mapObj = CMapObj::mapObjHash.m_fulllist.Head();
 
     while (mapObj) {
@@ -2811,8 +2811,8 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 
 // VERIFY: d090e248 manual
 // OFFSET: 0x007AE8D0
-bool CMapObj::TestGroupBounds(CAaBox& box, uint32_t groupNum, int32_t a3) {
-    return (!a3 || (this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
+bool CMapObj::TestGroupBounds(CAaBox& box, uint32_t groupNum, BOOL requireLoaded) {
+    return (!requireLoaded || (this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
 }
 
 // VERIFY: aacb9f67 manual

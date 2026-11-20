@@ -192,9 +192,9 @@ void NetClient::PopObjMgr() {
 
 // VERIFY: f58d5266 manual
 // OFFSET: 0x004D3750
-int32_t ClntObjMgrIsValid(int32_t a1) {
+int32_t ClntObjMgrIsValid(uint32_t flags) {
     ObjectMgr* mgr = s_curMgr;
-    return mgr && SMemIsValidPointer(mgr, sizeof(ObjectMgr), a1);
+    return mgr && SMemIsValidPointer(mgr, sizeof(ObjectMgr), flags);
 }
 
 // VERIFY: 1c37b7e9 manual

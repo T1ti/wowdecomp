@@ -117,7 +117,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     static LIGHTING_MODE s_lightingMode;
     static uint32_t s_maxLiquidQueryDepth;
 
-    static void ClearCache(int32_t unused_a1);
+    static void ClearCache(int32_t unused1);
     static void DestroyPools();
 
     int32_t IsAllLoaded();

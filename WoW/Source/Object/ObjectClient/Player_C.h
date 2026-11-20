@@ -393,7 +393,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void ShowCloak();
     void HideCloak();
     void ToggleSheathe();
-    void AutoStoreItemInBag(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstBag, int32_t unused_a5);
+    void AutoStoreItemInBag(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstBag, int32_t unused5);
     static uint8_t FindItemSlot(WOWGUID container, const CGItem_C* item);
     void SaveTabard(int32_t emblemStyle, int32_t emblemColor, int32_t borderStyle, int32_t borderColor, int32_t background, WOWGUID npc);
     static bool CanSaveTabardNow();
@@ -684,7 +684,7 @@ int32_t Packet_SMSG_COMBAT_LOG_MULTIPLE(void* param, NETMESSAGE msgId, uint32_t 
 int32_t Player_C_SetPlayerRenderDisabled(int32_t disabled);
 int32_t Player_C_TogglePlayerRender();
 void SetAttackSwingError(int32_t error);
-void __stdcall SignalPlayerAttackEvent(int32_t unused_a1);
+void __stdcall SignalPlayerAttackEvent(int32_t unused1);
 void SignalPlayerSkillStatEvents();
 void PlayerSignalSkillStatChanges();
 void SendQuestGiverStatusMultipleQuery();

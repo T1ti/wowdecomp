@@ -652,7 +652,7 @@ ChatRecord* GetChatRecordEx(const char* name, const char* text, uint32_t lineID)
 void ComplainChat(const char* name, const char* text, uint32_t lineID);
 uint32_t BuildPartyDisplayList();
 uint32_t BuildRaidDisplayList(int32_t type);
-void RebuildDisplayChannelList(int32_t a1);
+void RebuildDisplayChannelList(int32_t signal);
 bool SpamFilter(char* text, bool cache);
 bool ChatParserParseText(const char* text, char* buffer, uint32_t size);
 bool InebriatedParseText(const char* text, char* buffer, uint32_t size, float drunkness);

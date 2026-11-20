@@ -1390,7 +1390,7 @@ uint32_t CGPlayer_C::GetBindAreaID() {
 
 // VERIFY: f0168031 auto
 // OFFSET: 0x006CEF20
-void __stdcall SignalPlayerAttackEvent(int32_t unused_a1) {
+void __stdcall SignalPlayerAttackEvent(int32_t unused1) {
     FrameScript_SignalEvent(SCRIPT_EVENT_UNIT_ATTACK, "%s", "player");
 }
 
@@ -10125,7 +10125,7 @@ int32_t CGPlayer_C::ValidateSlot(uint32_t slot, WOWGUID item) {
 
 // VERIFY: 03aa23c8 manual
 // OFFSET: 0x006DBAE0
-void CGPlayer_C::AutoStoreItemInBag(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstBag, int32_t unused_a5) {
+void CGPlayer_C::AutoStoreItemInBag(WOWGUID item, WOWGUID srcContainer, uint32_t srcSlot, WOWGUID dstBag, int32_t unused5) {
     if (srcSlot > 255) {
         SErrDisplayAppFatalMessage("", "", 0);
     }

@@ -222,7 +222,7 @@ extern volatile long s_additionalCheckArmed;
 
 void CheckAndSendBotDetected();
 void AdditionalCheck1();
-uint8_t AdditionalCheck1Scan(const AdditionalCheckInterface* iface, int32_t unused_a2);
+uint8_t AdditionalCheck1Scan(const AdditionalCheckInterface* iface, int32_t unused2);
 void InitTokenSeed(const uint8_t* key);
 void* Client_MemAlloc(uint32_t bytes);
 void Client_MemFree(void* ptr);

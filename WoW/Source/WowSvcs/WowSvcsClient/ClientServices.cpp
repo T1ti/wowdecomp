@@ -1453,12 +1453,12 @@ void ClientRealmResponseAdapter::OnChatReceived(RealmConnection* connection, WOW
 
 // VERIFY: 01b28e4e auto
 // OFFSET: 0x006B1B80
-void ClientRealmResponseAdapter::OnAccountOnline(RealmConnection* connection, int32_t unused_a2, WOWGUID guid) {
+void ClientRealmResponseAdapter::OnAccountOnline(RealmConnection* connection, int32_t unknown2, WOWGUID guid) {
 }
 
 // VERIFY: 93d4ae81 auto
 // OFFSET: 0x006B1BA0
-void ClientRealmResponseAdapter::OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t unused_a3, int32_t unused_a4, int32_t unused_a5, int32_t unused_a6) {
+void ClientRealmResponseAdapter::OnAFKMonitorInfoResponse(RealmConnection* connection, WOWGUID guid, int32_t unknown3, int32_t unknown4, int32_t unknown5, int32_t unknown6) {
 }
 
 // VERIFY: a13283da auto

@@ -74,7 +74,7 @@ void ClntObjMgrHideObject(WOWGUID guid);
 void ClntObjMgrInitialize();
 void ClntObjMgrInitializeShared();
 void ClntObjMgrInitializeStd(uint32_t mapId);
-int32_t ClntObjMgrIsValid(int32_t a1);
+int32_t ClntObjMgrIsValid(uint32_t flags);
 void ClntObjMgrLinkInNewObject(CGObject_C* object);
 void ClntObjMgrLockObject(WOWGUID guid);
 void ClntObjMgrReenableObject(WOWGUID guid);

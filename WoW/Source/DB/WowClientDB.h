@@ -23,7 +23,7 @@ class WowClientDB_Base {
 
     virtual ~WowClientDB_Base();
     virtual void Load(const char* file, int32_t line) = 0;
-    virtual void Unk08(int32_t a1) = 0;
+    virtual void Unk08(int32_t unknown1) = 0;
 
     WowClientDB_Base();
 };
@@ -39,7 +39,7 @@ template <class T>
 class WowClientDB_Common : public WowClientDB_Base {
     public:
     void Load(const char* file, int32_t line) override;
-    void Unk08(int32_t a1) override;
+    void Unk08(int32_t unknown1) override;
     virtual void LoadRecords(SFileImpl* f, const char* file, int32_t line) = 0;
     virtual int32_t GetRecordByIndex(int32_t index, void* rec) const = 0;
     virtual void Free() = 0;
@@ -166,7 +166,7 @@ void WowClientDB_Common<T>::Load(const char* file, int32_t line) {
 }
 
 template <class T>
-void WowClientDB_Common<T>::Unk08(int32_t a1) {
+void WowClientDB_Common<T>::Unk08(int32_t unknown1) {
 }
 
 // INLINED

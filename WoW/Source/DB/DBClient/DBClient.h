@@ -386,7 +386,7 @@ extern WowClientDB<MailTemplateRec> g_mailTemplateDB;
 extern WowClientDB<MapRec> g_mapDB;
 extern WowClientDB<MapDifficultyRec> g_mapDifficultyDB;
 
-MapDifficultyRec* GetMapDifficultyEntryByMapIdAndDifficulty(int32_t mapId, uint32_t difficulty, int32_t* a3);
+MapDifficultyRec* GetMapDifficultyEntryByMapIdAndDifficulty(int32_t mapId, uint32_t difficulty, int32_t* index);
 int32_t GetMaxPlayersForMap(const MapRec* map, int32_t difficulty);
 int32_t GetMapResetTime(int32_t mapId, uint32_t difficulty);
 extern WowClientDB<MaterialRec> g_materialDB;
