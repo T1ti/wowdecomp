@@ -13759,7 +13759,7 @@ static const uint32_t s_playerSoundChance[NUM_UNITSOUNDTYPES] = { 35, 100, 30, 1
 // VERIFY: 904e0dd6 manual
 // OFFSET: 0x007631A0
 void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, int32_t force) {
-    if (!force && static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 101) >> 32) > s_playerSoundChance[soundType]) {
+    if (!force && CRandom::dice_(101, g_rndSeed) > s_playerSoundChance[soundType]) {
         return;
     }
 

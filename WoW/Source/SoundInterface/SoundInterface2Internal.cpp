@@ -142,7 +142,7 @@ const char* VSOUNDKITDEF::SelectFile(SE2_FILE_SELECT_MODE mode, int32_t* index, 
         }
     }
 
-    int32_t roll = mode ? static_cast<int32_t>((static_cast<uint64_t>(static_cast<uint32_t>(total)) * CRandom::uint32_(g_rndSeed)) >> 32) : 0;
+    int32_t roll = mode ? static_cast<int32_t>(CRandom::dice_(total, g_rndSeed)) : 0;
 
     int32_t state = 1;
 

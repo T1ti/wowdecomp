@@ -71,7 +71,7 @@ void CNameGen::GenerateName(char* buffer, uint32_t size) {
             break;
         }
 
-        int32_t roll = static_cast<int32_t>((static_cast<uint64_t>(total) * CRandom::uint32_(g_rndSeed)) >> 32);
+        int32_t roll = static_cast<int32_t>(CRandom::dice_(total, g_rndSeed));
 
         for (int32_t i = first; i <= last; i++) {
             if (roll < this->m_dictionary.m_data[i].m_count) {

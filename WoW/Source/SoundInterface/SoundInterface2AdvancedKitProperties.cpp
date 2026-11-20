@@ -69,7 +69,7 @@ static void StopAdvancedSoundObject(SI2AdvancedSound* sound, int32_t immediate) 
 // OFFSET: 0x004C9D90
 static int32_t RandomBetween(int32_t min, int32_t max) {
     if (max > min) {
-        return min + static_cast<int32_t>((static_cast<uint64_t>(static_cast<uint32_t>(max - min)) * CRandom::uint32_(g_rndSeed)) >> 32);
+        return min + static_cast<int32_t>(CRandom::dice_(max - min, g_rndSeed));
     }
 
     return max;

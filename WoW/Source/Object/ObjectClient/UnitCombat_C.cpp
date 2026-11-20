@@ -160,7 +160,7 @@ void CGUnit_C::PlayVictimRound(const ATTACKROUNDINFO& info) {
             return;
         }
 
-        s_nextVictimImpactTime = static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 2000) >> 32) + now + 3000;
+        s_nextVictimImpactTime = CRandom::dice_(2000, g_rndSeed) + now + 3000;
     }
 
     if (info.m_victimState == VS_PARRY) {

@@ -1043,7 +1043,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
     position.y = 0.0f;
     position.z = 0.0f;
 
-    uint32_t soundKitId = static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32);
+    uint32_t soundKitId = CRandom::dice_(s_maxSoundKitId, g_rndSeed);
 
     static SE2SoundKitObject s_object2D;
     static SE2SoundKitObject s_object3D;
@@ -1076,13 +1076,13 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             properties.m_streaming = true;
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
         case CHAOS_MODE::MODE_RANDOM_3D:
             if (s_chaosElapsedMs >= 100) {
                 properties.m_streaming = false;
                 position = RandomListenerOffset();
-                SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+                SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
                 s_chaosElapsedMs = 0;
             }
 
@@ -1095,10 +1095,10 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             properties.m_streaming = true;
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
             properties.m_streaming = false;
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
         case CHAOS_MODE::MODE_STREAMED_AND_NORMAL_2D:
             if (s_chaosElapsedMs < 100) {
@@ -1106,12 +1106,12 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             }
 
             properties.m_streaming = true;
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
 
         case CHAOS_MODE::MODE_RANDOM_2D:
             if (s_chaosElapsedMs >= 100) {
                 properties.m_streaming = false;
-                SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
+                SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), nullptr, nullptr, &properties, 0, nullptr, 1, 0);
                 s_chaosElapsedMs = 0;
             }
 
@@ -1217,9 +1217,9 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
             s_chaosElapsedMs = 0;
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
             if (s_chaosRestartTimer <= 10.0f) {
                 break;
@@ -1245,7 +1245,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             }
 
             s_chaosElapsedMs = 0;
-            uint32_t sameId = static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32);
+            uint32_t sameId = CRandom::dice_(s_maxSoundKitId, g_rndSeed);
 
             for (int32_t i = 20; i; i--) {
                 position = RandomListenerOffset();
@@ -1253,7 +1253,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             }
 
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(static_cast<int32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * s_maxSoundKitId) >> 32), &position, nullptr, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(static_cast<int32_t>(CRandom::dice_(s_maxSoundKitId, g_rndSeed)), &position, nullptr, &properties, 0, nullptr, 1, 0);
 
             if (s_chaosRestartTimer <= 10.0f) {
                 break;
@@ -1273,21 +1273,21 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
             int32_t ids[3] = { 13061, 15969, 12173 };
 
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
             position = RandomListenerOffset();
-            SI2::PlaySoundKit(ids[(static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3) >> 32], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(ids[CRandom::dice_(3, g_rndSeed)], &position, &s_object3D, &properties, 0, nullptr, 1, 0);
 
             break;
         }

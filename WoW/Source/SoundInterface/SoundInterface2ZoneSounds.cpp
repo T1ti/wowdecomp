@@ -308,7 +308,7 @@ void SI2::ZoneMusicFinished(SESound* sound, void* param) {
 
         if (silenceMax > silenceMin) {
             static CRndSeed s_seed(0);
-            SI2::sm_nextZoneMusicTime = now + silenceMin + static_cast<uint32_t>((static_cast<uint64_t>(silenceMax - silenceMin) * CRandom::uint32_(s_seed)) >> 32);
+            SI2::sm_nextZoneMusicTime = now + silenceMin + CRandom::dice_(silenceMax - silenceMin, s_seed);
         } else {
             SI2::sm_nextZoneMusicTime = now + silenceMax;
         }

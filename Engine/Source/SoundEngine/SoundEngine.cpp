@@ -1554,8 +1554,7 @@ void SESoundInternal::Play() {
     if (this->m_type == SESOUNDTYPE_FILE && this->m_randomStart && this->m_channel->getMode(&mode) == FMOD_OK && (mode & FMOD_LOOP_NORMAL)) {
         uint32_t length = 0;
         static_cast<SEFileSound*>(this)->m_sound->getLength(&length, FMOD_TIMEUNIT_PCMBYTES);
-        uint32_t random = CRandom::uint32_(g_rndSeed);
-        this->m_channel->setPosition(static_cast<uint32_t>((static_cast<uint64_t>(random) * (length >> 1)) >> 32) & ~7u, FMOD_TIMEUNIT_PCMBYTES);
+        this->m_channel->setPosition(CRandom::dice_(length >> 1, g_rndSeed) & ~7u, FMOD_TIMEUNIT_PCMBYTES);
     }
 
     if (this->m_fadeInTime > 0.0f) {

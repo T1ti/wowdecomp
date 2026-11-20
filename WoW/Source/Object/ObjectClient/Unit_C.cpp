@@ -2124,7 +2124,7 @@ void CGUnit_C::CreateRipple(uint32_t trigger) {
     if (s_rippleDirectional[type]) {
         this->m_nextRippleTime = time - static_cast<int32_t>(depthFactor * speedFactor * 0.25f * -1000.0f);
     } else {
-        this->m_nextRippleTime = static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 50) >> 32) + time + 400;
+        this->m_nextRippleTime = CRandom::dice_(50, g_rndSeed) + time + 400;
     }
 }
 
@@ -18070,7 +18070,7 @@ void CGUnit_C::HandleBloodPool(uint32_t time) {
         return;
     }
 
-    this->m_nextBloodPoolTime = static_cast<uint32_t>((static_cast<uint64_t>(CRandom::uint32_(g_rndSeed)) * 3000) >> 32) + time + 2000;
+    this->m_nextBloodPoolTime = CRandom::dice_(3000, g_rndSeed) + time + 2000;
     CRandom::sfloat_(g_rndSeed);
     CRandom::sfloat_(g_rndSeed);
 }

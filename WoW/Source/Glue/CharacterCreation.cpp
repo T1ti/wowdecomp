@@ -141,13 +141,13 @@ int32_t CCharacterCreation::Idle(const void* data, void* param) {
 // VERIFY: 95595a1c manual
 // OFFSET: 0x004DFF10
 void CCharacterCreation::GetRandomRaceAndSex(ComponentData* data) {
-    data->m_preferences.m_sexID = static_cast<uint32_t>((static_cast<uint64_t>(2) * CRandom::uint32_(g_rndSeed)) >> 32);
+    data->m_preferences.m_sexID = CRandom::dice_(2, g_rndSeed);
 
     ChrRacesRec* raceRec;
 
     do {
         uint32_t count = CCharacterCreation::m_races.Count();
-        uint32_t index = count > 0 ? static_cast<uint32_t>((static_cast<uint64_t>(count) * CRandom::uint32_(g_rndSeed)) >> 32) : 0;
+        uint32_t index = count > 0 ? CRandom::dice_(count, g_rndSeed) : 0;
         data->m_preferences.m_raceID = CCharacterCreation::m_races.m_data[index];
         raceRec = g_chrRacesDB.GetRecord(data->m_preferences.m_raceID);
     } while (raceRec->m_requiredExpansion > ClientServices::Connection()->m_accountExpansion);
@@ -411,7 +411,7 @@ int32_t CCharacterCreation::GetRandomClassID() {
         return classes[0];
     }
 
-    return classes[static_cast<uint32_t>((static_cast<uint64_t>(count) * CRandom::uint32_(g_rndSeed)) >> 32)];
+    return classes[CRandom::dice_(count, g_rndSeed)];
 }
 
 // VERIFY: b15e5451 auto

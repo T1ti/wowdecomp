@@ -167,7 +167,7 @@ void CGTabardModelFrame::InitializeTabardColors(CGPlayer_C* player) {
         seed.SetSeed(OsGetAsyncTimeMs());
 
         for (uint32_t i = 0; i < 5; i++) {
-            this->m_variations[i] = static_cast<int32_t>((static_cast<uint64_t>(s_tabardVariationCounts[i]) * CRandom::uint32_(seed)) >> 32);
+            this->m_variations[i] = static_cast<int32_t>(CRandom::dice_(s_tabardVariationCounts[i], seed));
         }
     } else {
         this->m_variations[0] = stats->m_emblemStyle;
