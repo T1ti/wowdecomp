@@ -1452,7 +1452,7 @@ bool ScrubString(const char* source, char* dest, int32_t maxChars, uint32_t dest
     bool valid = ValidateStringIsUTF8(source);
     StripPipes(source, dest, destSize);
 
-    if ((flags & 1) && TruncateNewLines(dest)) {
+    if ((flags & SCRUB_FLAG_TRUNCATE_NEWLINES) && TruncateNewLines(dest)) {
         valid = false;
     }
 

@@ -518,7 +518,7 @@ static int32_t Script_RenameEquipmentSet(lua_State* L) {
     const char* newName = lua_tolstring(L, 2, nullptr);
     char name[128];
 
-    if (!ScrubString(newName, name, 32, sizeof(name), 1)) {
+    if (!ScrubString(newName, name, 32, sizeof(name), SCRUB_FLAG_TRUNCATE_NEWLINES)) {
         luaL_error(L, "Invalid string for setName");
         return 0;
     }
@@ -548,7 +548,7 @@ static int32_t Script_SaveEquipmentSet(lua_State* L) {
     int32_t iconIndex = static_cast<int32_t>(lua_tonumber(L, 2));
     char name[128];
 
-    if (!ScrubString(setName, name, 32, sizeof(name), 1)) {
+    if (!ScrubString(setName, name, 32, sizeof(name), SCRUB_FLAG_TRUNCATE_NEWLINES)) {
         luaL_error(L, "Invalid string for setName");
         return 0;
     }

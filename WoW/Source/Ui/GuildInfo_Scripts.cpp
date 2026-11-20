@@ -609,7 +609,7 @@ static int32_t Script_GuildRosterSetPublicNote(lua_State* L) {
 
     const char* note = lua_tolstring(L, 2, nullptr);
     char scrubbed[128];
-    ScrubString(note, scrubbed, 32, sizeof(scrubbed), 1);
+    ScrubString(note, scrubbed, 32, sizeof(scrubbed), SCRUB_FLAG_TRUNCATE_NEWLINES);
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
     if (index >= CGGuildInfo::m_numMembers) {
@@ -648,7 +648,7 @@ static int32_t Script_GuildRosterSetOfficerNote(lua_State* L) {
 
     const char* note = lua_tolstring(L, 2, nullptr);
     char scrubbed[128];
-    ScrubString(note, scrubbed, 32, sizeof(scrubbed), 1);
+    ScrubString(note, scrubbed, 32, sizeof(scrubbed), SCRUB_FLAG_TRUNCATE_NEWLINES);
     uint32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
 
     if (index >= CGGuildInfo::m_numMembers) {
@@ -743,7 +743,7 @@ static int32_t Script_GuildControlSaveRank(lua_State* L) {
     }
 
     char rankName[64];
-    ScrubString(name, rankName, 16, sizeof(rankName), 1);
+    ScrubString(name, rankName, 16, sizeof(rankName), SCRUB_FLAG_TRUNCATE_NEWLINES);
     int32_t rank = s_guildControlRank;
 
     if (static_cast<uint32_t>(rank) >= CGGuildInfo::m_numRanks) {
@@ -792,7 +792,7 @@ static int32_t Script_GuildControlAddRank(lua_State* L) {
     }
 
     char rankName[64];
-    ScrubString(name, rankName, 16, sizeof(rankName), 1);
+    ScrubString(name, rankName, 16, sizeof(rankName), SCRUB_FLAG_TRUNCATE_NEWLINES);
 
     if (CGGuildInfo::m_numRanks < MAX_GUILD_RANKS) {
         CDataStore msg;
@@ -851,7 +851,7 @@ static int32_t Script_SetGuildInfoText(lua_State* L) {
     scrubbed[0] = '\0';
 
     if (text && *text) {
-        ScrubString(text, scrubbed, 501, sizeof(scrubbed), 0);
+        ScrubString(text, scrubbed, 501, sizeof(scrubbed), SCRUB_FLAG_NONE);
     }
 
     CDataStore msg;

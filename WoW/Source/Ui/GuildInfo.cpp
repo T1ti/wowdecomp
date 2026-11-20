@@ -282,10 +282,10 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
 
     char motd[516];
     msg->GetString(motd, sizeof(motd));
-    ScrubString(motd, CGGuildInfo::m_motd, 129, sizeof(CGGuildInfo::m_motd), 1);
+    ScrubString(motd, CGGuildInfo::m_motd, 129, sizeof(CGGuildInfo::m_motd), SCRUB_FLAG_TRUNCATE_NEWLINES);
     char infoText[2004];
     msg->GetString(infoText, sizeof(infoText));
-    ScrubString(infoText, CGGuildInfo::m_infoText, 501, sizeof(CGGuildInfo::m_infoText), 0);
+    ScrubString(infoText, CGGuildInfo::m_infoText, 501, sizeof(CGGuildInfo::m_infoText), SCRUB_FLAG_NONE);
     msg->Get(CGGuildInfo::m_numRanks);
     uint32_t rank = 0;
 
@@ -336,9 +336,9 @@ int32_t Packet_SMSG_GUILD_ROSTER(void* param, NETMESSAGE msgId, uint32_t time, C
 
         char note[128];
         msg->GetString(note, sizeof(note));
-        ScrubString(note, CGGuildInfo::m_roster.m_data[i]->m_note, 32, sizeof(member->m_note), 1);
+        ScrubString(note, CGGuildInfo::m_roster.m_data[i]->m_note, 32, sizeof(member->m_note), SCRUB_FLAG_TRUNCATE_NEWLINES);
         msg->GetString(note, sizeof(note));
-        ScrubString(note, CGGuildInfo::m_roster.m_data[i]->m_officerNote, 32, sizeof(member->m_officerNote), 1);
+        ScrubString(note, CGGuildInfo::m_roster.m_data[i]->m_officerNote, 32, sizeof(member->m_officerNote), SCRUB_FLAG_TRUNCATE_NEWLINES);
 
         if (CGGuildInfo::m_roster.m_data[i]->m_online) {
             CGGuildInfo::m_numOnlineMembers++;
@@ -378,7 +378,7 @@ int32_t CGGuildInfo::GetNumGuildBankTabItemWithdrawalsByRankID(uint8_t tab, uint
 // VERIFY: e01e8061 auto
 // OFFSET: 0x005CA060
 void CGGuildInfo::SetMOTD(const char* motd) {
-    ScrubString(motd, CGGuildInfo::m_motd, 129, sizeof(CGGuildInfo::m_motd), 1);
+    ScrubString(motd, CGGuildInfo::m_motd, 129, sizeof(CGGuildInfo::m_motd), SCRUB_FLAG_TRUNCATE_NEWLINES);
 }
 
 // VERIFY: 8962a32a auto

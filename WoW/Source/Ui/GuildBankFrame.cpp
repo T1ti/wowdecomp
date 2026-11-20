@@ -78,7 +78,7 @@ void CGGuildBankInfo::InitializeGame() {
 // VERIFY: b01d82c8 auto
 // OFFSET: 0x005A4220
 void CGGuildBankInfo::UpdateTabInfo(uint8_t tab, const char* name, const char* icon) {
-    ScrubString(name, CGGuildBankInfo::m_guildBankTabInfo[tab].m_name, 16, sizeof(CGGuildBankInfo::m_guildBankTabInfo[tab].m_name), 1);
+    ScrubString(name, CGGuildBankInfo::m_guildBankTabInfo[tab].m_name, 16, sizeof(CGGuildBankInfo::m_guildBankTabInfo[tab].m_name), SCRUB_FLAG_TRUNCATE_NEWLINES);
     SStrCopy(CGGuildBankInfo::m_guildBankTabInfo[tab].m_icon, icon, STORM_MAX_STR);
     FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_UPDATE_TABS, nullptr);
 }
@@ -532,7 +532,7 @@ int32_t Packet_MSG_QUERY_GUILD_BANK_TEXT(void* param, NETMESSAGE msgId, uint32_t
     char text[8192];
     msg->Get(tab);
     msg->GetString(text, sizeof(text));
-    ScrubString(text, CGGuildBankInfo::m_guildBankTabInfo[tab].m_text, 2048, sizeof(CGGuildBankInfo::m_guildBankTabInfo[tab].m_text), 0);
+    ScrubString(text, CGGuildBankInfo::m_guildBankTabInfo[tab].m_text, 2048, sizeof(CGGuildBankInfo::m_guildBankTabInfo[tab].m_text), SCRUB_FLAG_NONE);
     FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_UPDATE_TEXT, "%d", tab + 1);
     return 1;
 }
@@ -610,7 +610,7 @@ void CGGuildBankInfo::QueryGuildBankText(uint8_t tab) {
 // OFFSET: 0x005A5A00
 void CGGuildBankInfo::SetTabInfo(uint8_t tab, const char* name, const char* icon) {
     char scrubbed[64];
-    ScrubString(name, scrubbed, 16, sizeof(scrubbed), 1);
+    ScrubString(name, scrubbed, 16, sizeof(scrubbed), SCRUB_FLAG_TRUNCATE_NEWLINES);
     VALIDATE_NAME_RESULT error = ValidateGuildBankTabName(s_locale, scrubbed);
 
     if (error) {
@@ -715,7 +715,7 @@ int32_t Packet_SMSG_GUILD_BANK_LIST(void* param, NETMESSAGE msgId, uint32_t time
             char icon[256];
             msg->GetString(name, sizeof(name));
             msg->GetString(icon, sizeof(icon));
-            ScrubString(name, CGGuildBankInfo::m_guildBankTabInfo[i].m_name, 16, sizeof(name), 1);
+            ScrubString(name, CGGuildBankInfo::m_guildBankTabInfo[i].m_name, 16, sizeof(name), SCRUB_FLAG_TRUNCATE_NEWLINES);
             SStrCopy(CGGuildBankInfo::m_guildBankTabInfo[i].m_icon, icon, STORM_MAX_STR);
             FrameScript_SignalEvent(SCRIPT_EVENT_GUILDBANK_UPDATE_TABS, nullptr);
         }

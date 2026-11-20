@@ -99,7 +99,7 @@ void CGCalendarEvent::Clear() {
 // OFFSET: 0x005F1130
 void CGCalendarEvent::SetTitle(const char* title) {
     if (title && SStrCmp(title, this->m_title, STORM_MAX_STR)) {
-        ScrubString(title, this->m_title, 32, sizeof(this->m_title), 1);
+        ScrubString(title, this->m_title, 32, sizeof(this->m_title), SCRUB_FLAG_TRUNCATE_NEWLINES);
         this->m_changed = 1;
     }
 }
@@ -108,7 +108,7 @@ void CGCalendarEvent::SetTitle(const char* title) {
 // OFFSET: 0x005F1180
 void CGCalendarEvent::SetDescription(const char* description) {
     if (description && SStrCmp(description, this->m_description, STORM_MAX_STR)) {
-        ScrubString(description, this->m_description, 256, sizeof(this->m_description), 0);
+        ScrubString(description, this->m_description, 256, sizeof(this->m_description), SCRUB_FLAG_NONE);
         this->m_changed = 1;
     }
 }

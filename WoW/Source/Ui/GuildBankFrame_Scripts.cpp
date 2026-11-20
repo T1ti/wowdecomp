@@ -811,7 +811,7 @@ static int32_t Script_SetGuildBankText(lua_State* L) {
     scrubbed[0] = '\0';
 
     if (text && *text) {
-        ScrubString(text, scrubbed, 2048, 8192, 0);
+        ScrubString(text, scrubbed, 2048, 8192, SCRUB_FLAG_NONE);
     }
 
     CGGuildBankInfo::SetGuildBankText(tab, scrubbed);

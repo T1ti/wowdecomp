@@ -1599,7 +1599,7 @@ static float s_commentSendTime;
 // OFFSET: 0x005539A0
 void CGLookingForGroup::SetLFGComment(const char* comment) {
     char scrubbed[256];
-    ScrubString(comment, scrubbed, 64, sizeof(scrubbed), 1);
+    ScrubString(comment, scrubbed, 64, sizeof(scrubbed), SCRUB_FLAG_TRUNCATE_NEWLINES);
     SStrCopy(CGLookingForGroup::m_localInfo.m_comment, scrubbed, sizeof(CGLookingForGroup::m_localInfo.m_comment));
 
     if (!CGLookingForGroup::m_localInfo.m_joined) {

@@ -3998,7 +3998,7 @@ static int32_t Script_GuildSetMOTD(lua_State* L) {
     motd[0] = 0;
 
     if (text && *text) {
-        ScrubString(text, motd, 129, sizeof(motd), 1);
+        ScrubString(text, motd, 129, sizeof(motd), SCRUB_FLAG_TRUNCATE_NEWLINES);
     }
 
     msg.PutString(motd);
@@ -4620,7 +4620,7 @@ static int32_t Script_UninviteUnit(lua_State* L) {
     scrubbed[0] = 0;
 
     if (reason && *reason) {
-        ScrubString(reason, scrubbed, 64, sizeof(scrubbed), 1);
+        ScrubString(reason, scrubbed, 64, sizeof(scrubbed), SCRUB_FLAG_TRUNCATE_NEWLINES);
     }
 
     WOWGUID guid;

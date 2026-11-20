@@ -11940,7 +11940,7 @@ int32_t Packet_SMSG_GUILD_EVENT(void* param, NETMESSAGE msgId, uint32_t time, CD
             uint32_t rank = SStrToInt(strings[0]);
             char name[64];
             SStrCopy(name, strings[1], sizeof(name));
-            ScrubString(name, stats->m_rankNames[rank], 16, sizeof(stats->m_rankNames[rank]), 1);
+            ScrubString(name, stats->m_rankNames[rank], 16, sizeof(stats->m_rankNames[rank]), SCRUB_FLAG_TRUNCATE_NEWLINES);
             stats->m_numRanks = SStrToInt(strings[2]);
             UpdateGuildRoster(1);
 

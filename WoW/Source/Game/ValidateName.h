@@ -38,7 +38,13 @@ uint16_t ToLower(uint16_t c);
 void CaseAccentInsensitiveParse(char* string, uint32_t size, int32_t locale);
 bool StripHyperlinks(const char* text, char* buffer, uint32_t size);
 
-bool ScrubString(const char* source, char* dest, int32_t maxChars, uint32_t destSize, int32_t flags);
+// ScrubString flags; name inferred from the TruncateNewLines call it enables.
+enum SCRUB_FLAGS : int32_t {
+    SCRUB_FLAG_NONE = 0x0,
+    SCRUB_FLAG_TRUNCATE_NEWLINES = 0x1,
+};
+
+bool ScrubString(const char* source, char* dest, int32_t maxChars, uint32_t destSize, int32_t flags); // SCRUB_FLAGS
 bool FixCharacterNameCase(char* dest, const char* source, uint32_t size);
 
 int32_t GetNumRussianNameDeclensionSets(const char* name, int32_t sex);
