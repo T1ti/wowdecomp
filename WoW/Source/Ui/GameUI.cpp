@@ -3340,7 +3340,7 @@ void CGGameUI::SetCursorPet(int32_t index) {
 // VERIFY: f5e488ca auto
 // OFFSET: 0x00520D30
 void CGGameUI::SetCursorVirtualItem(int32_t id, int32_t displayId, int32_t slot, UICURSORTYPE type, int32_t stackSplit) {
-    if (!CGGameUI::m_hasControl && type != 7) {
+    if (!CGGameUI::m_hasControl && type != UICURSOR_ACTIONBAR) {
         return;
     }
 
@@ -3356,7 +3356,7 @@ void CGGameUI::SetCursorVirtualItem(int32_t id, int32_t displayId, int32_t slot,
     CGGameUI::m_cursorItemType = type;
     CGGameUI::m_stackSplit = stackSplit;
 
-    if (type == 7) {
+    if (type == UICURSOR_ACTIONBAR) {
         CGActionBar::ShowGrid();
         CGGameUI::m_cursorHasAction = 1;
     }
