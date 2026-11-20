@@ -70,8 +70,16 @@ static uint32_t s_trajectoryStartTime;
 // STATIC: 0x00CA0AC0
 static uint32_t s_trajectoryFadeStart;
 
+// What drives the trajectory display, after the VehicleRec trajectory flag that selected it (inferred names).
+enum TRAJECTORY_MODE : int32_t {
+    TRAJECTORY_MODE_DEFAULT = 0, // TRAJECTORY_ALWAYS or TRAJECTORY_CAST_MISSILE; also "inactive" once faded.
+    TRAJECTORY_MODE_MOUSE_DRAG = 1,
+    TRAJECTORY_MODE_PITCH_INPUT = 2,
+    TRAJECTORY_MODE_FREE_LOOK = 3,
+};
+
 // STATIC: 0x00CA0AC4
-static int32_t s_trajectoryMode;
+static TRAJECTORY_MODE s_trajectoryMode;
 
 // STATIC: 0x00CA0AC8
 C3Vector* CGUnit_C::s_trajectoryPoints;
@@ -364,29 +372,29 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
     }
 
     uint32_t flags = vehicleRec->m_flags;
-    int32_t mode;
+    TRAJECTORY_MODE mode;
     bool active;
 
     if (flags & VehicleRec::FLAGS::TRAJECTORY_ALWAYS) {
-        mode = 0;
+        mode = TRAJECTORY_MODE_DEFAULT;
         active = true;
-        s_trajectoryMode = 0;
+        s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
     } else if ((flags & VehicleRec::FLAGS::TRAJECTORY_MOUSE_DRAG) && input->IsMouseDragging()) {
-        mode = 1;
+        mode = TRAJECTORY_MODE_MOUSE_DRAG;
         active = true;
-        s_trajectoryMode = 1;
+        s_trajectoryMode = TRAJECTORY_MODE_MOUSE_DRAG;
     } else if ((flags & VehicleRec::FLAGS::TRAJECTORY_PITCH_INPUT) && (pitchNextFrame || (input->m_flags & INPUT_PITCH_PLAYER_MASK))) {
-        mode = 2;
+        mode = TRAJECTORY_MODE_PITCH_INPUT;
         active = true;
-        s_trajectoryMode = 2;
+        s_trajectoryMode = TRAJECTORY_MODE_PITCH_INPUT;
     } else if ((flags & VehicleRec::FLAGS::TRAJECTORY_FREE_LOOK) && input->CanSyncFreeLookFacing(unit)) {
-        mode = 3;
+        mode = TRAJECTORY_MODE_FREE_LOOK;
         active = true;
-        s_trajectoryMode = 3;
+        s_trajectoryMode = TRAJECTORY_MODE_FREE_LOOK;
     } else if ((vehicleRec->m_flags & VehicleRec::FLAGS::TRAJECTORY_CAST_MISSILE) && hasMissile) {
-        mode = 0;
+        mode = TRAJECTORY_MODE_DEFAULT;
         active = true;
-        s_trajectoryMode = 0;
+        s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
     } else {
         mode = s_trajectoryMode;
         active = false;
@@ -398,16 +406,16 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
     if (active) {
         s_trajectoryFadeStart = 0;
     } else {
-        if (!mode) {
+        if (mode == TRAJECTORY_MODE_DEFAULT) {
             s_trajectoryFadeStart = 0;
-            s_trajectoryMode = 0;
+            s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
             return;
         }
 
         if (!s_trajectoryFadeStart) {
             if (static_cast<int32_t>(CGUnit_C::s_missileTrajectoryTargetingSpell) <= 0) {
                 s_trajectoryFadeStart = 0;
-                s_trajectoryMode = 0;
+                s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
                 return;
             }
 
@@ -419,9 +427,9 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
         } else {
             float linger;
 
-            if (mode == 1) {
+            if (mode == TRAJECTORY_MODE_MOUSE_DRAG) {
                 linger = vehicleRec->m_msslTrgtTurnLingering;
-            } else if (mode == 2) {
+            } else if (mode == TRAJECTORY_MODE_PITCH_INPUT) {
                 linger = vehicleRec->m_msslTrgtPitchLingering;
             } else {
                 linger = vehicleRec->m_msslTrgtMouseLingering;
@@ -442,7 +450,7 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
                 if (!fadeMs) {
                     s_trajectoryAlpha = 0.0f;
                     s_trajectoryFadeStart = 0;
-                    s_trajectoryMode = 0;
+                    s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
                     return;
                 }
 
@@ -450,7 +458,7 @@ void CGUnit_C::UpdateMissileTrajectoryTargeting() {
 
                 if (s_trajectoryAlpha <= 0.0f) {
                     s_trajectoryFadeStart = 0;
-                    s_trajectoryMode = 0;
+                    s_trajectoryMode = TRAJECTORY_MODE_DEFAULT;
                     return;
                 }
 
