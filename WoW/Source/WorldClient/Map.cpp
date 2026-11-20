@@ -4091,11 +4091,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
             C3Segment seg;
             seg.start = localStart;
             seg.end = localEnd;
-            World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-            World::TriData::nBatches = 0;
-            World::TriData::faceIndexCursor = 0;
-            World::TriData::indexCursor = 0;
-            World::TriData::matrixPoolCount = 0;
+            World::TriData::ResetPools();
 
             World::TriData triData;
 
@@ -4447,11 +4443,7 @@ void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMa
 // VERIFY: aa0cecc5 manual
 // OFFSET: 0x007A3CF0
 bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets) {
-    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-    World::TriData::nBatches = 0;
-    World::TriData::faceIndexCursor = 0;
-    World::TriData::indexCursor = 0;
-    World::TriData::matrixPoolCount = 0;
+    World::TriData::ResetPools();
     World::TriData triData;
 
     if (!liquid->GetTris(&triData, *box, *rect)) {
@@ -4617,11 +4609,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
 
         if (owner->TestBounds(localBox)) {
             if (flags & WORLD_QUERY_WMO_MASK) {
-                World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-                World::TriData::nBatches = 0;
-                World::TriData::faceIndexCursor = 0;
-                World::TriData::indexCursor = 0;
-                World::TriData::matrixPoolCount = 0;
+                World::TriData::ResetPools();
                 World::TriData triData;
                 owner->GetTris(localBox, flags, &triData, def);
                 World::TriDataToFacetData(&triData, facets, def->m_objectGuid);
@@ -5244,11 +5232,7 @@ WMOAreaTableRec* GetWMOAreaRec(int32_t wmoId, int32_t nameSet, int32_t groupId) 
 // VERIFY: ff49ec1c manual
 // OFFSET: 0x007A3D50
 bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets) {
-    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-    World::TriData::nBatches = 0;
-    World::TriData::faceIndexCursor = 0;
-    World::TriData::indexCursor = 0;
-    World::TriData::matrixPoolCount = 0;
+    World::TriData::ResetPools();
     World::TriData triData;
 
     if (!liquid->GetTris(&triData, *frustum, *rect)) {
@@ -5355,11 +5339,7 @@ bool CMap::GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t
         CMapObj* owner = def->m_owner;
 
         if (owner) {
-            World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-            World::TriData::nBatches = 0;
-            World::TriData::faceIndexCursor = 0;
-            World::TriData::indexCursor = 0;
-            World::TriData::matrixPoolCount = 0;
+            World::TriData::ResetPools();
             World::TriData triData;
             result |= owner->GetTris(localFrustum, flags, &triData, def);
             World::TriDataToFacetData(&triData, facets, WOWGUID{ 0 });

@@ -2848,11 +2848,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
     }
 
     World::TriData triData;
-    World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-    World::TriData::nBatches = 0;
-    World::TriData::faceIndexCursor = 0;
-    World::TriData::indexCursor = 0;
-    World::TriData::matrixPoolCount = 0;
+    World::TriData::ResetPools();
 
     if (!group->GetTris(seg, &dist, 0, 8, &triData, nullptr)) {
         return false;
@@ -3350,11 +3346,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
             continue;
         }
 
-        World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-        World::TriData::nBatches = 0;
-        World::TriData::faceIndexCursor = 0;
-        World::TriData::indexCursor = 0;
-        World::TriData::matrixPoolCount = 0;
+        World::TriData::ResetPools();
         World::TriData triData;
 
         if (!group->GetTris(seg, t, flags, ignoreFlags, &triData, mapObjDef)) {

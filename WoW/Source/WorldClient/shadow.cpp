@@ -494,11 +494,7 @@ static int32_t ProjectTexRenderGetQuery2d(const CAaBox& box, uint32_t flags, uin
 
     if (*tris) {
         s_queryTriFlags = triFlags;
-        World::TriData::statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
-        World::TriData::nBatches = 0;
-        World::TriData::faceIndexCursor = 0;
-        World::TriData::indexCursor = 0;
-        World::TriData::matrixPoolCount = 0;
+        World::TriData::ResetPools();
         World::GetTris(box, &s_queryTriData, triFlags);
     }
 

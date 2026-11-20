@@ -443,6 +443,15 @@ namespace World {
         static Batch* AllocBatch();
         static Batch* __stdcall AllocBatch(uint32_t indexCount, uint32_t faceCount);
         static uint16_t* __stdcall AllocIndices(uint32_t count);
+
+        // INLINED: empties the shared query pools before a new triangle query.
+        static void ResetPools() {
+            statusFlags = WORLD_TRI_QUERY_STATUS::TRI_QUERY_STATUS_NONE;
+            nBatches = 0;
+            faceIndexCursor = 0;
+            indexCursor = 0;
+            matrixPoolCount = 0;
+        }
     };
 }
 
