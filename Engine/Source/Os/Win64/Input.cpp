@@ -1473,6 +1473,13 @@ intptr_t OsWindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t
             }
 
             KEY key;
+#ifdef WOWDECOMP_DEBUG_FEATURES
+            // Debug feature: take the console key from the message's own scan code (0x29, the key left of 1, not
+            // extended) so it works on every layout, whatever virtual key the layout reports for it.
+            if (((lparam >> 16) & 0xFF) == 0x29 && !(lparam & 0x1000000)) {
+                key = KEY_TILDE;
+            } else
+#endif
             if (!ConvertKeyCode(vkey, &key)) {
                 break;
             }
