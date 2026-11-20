@@ -14098,7 +14098,7 @@ BOOL CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
         if (sheathed) {
             this->m_characterComponent->RemoveItem(ITEMSLOT_11);
         } else if (!isRightHand) {
-            CGItem_C* ammo = static_cast<CGPlayer_C*>(this)->m_bag.FindItemOfClass(11, 0, 2);
+            CGItem_C* ammo = static_cast<CGPlayer_C*>(this)->m_bag.FindItemOfClass(ITEM_CLASS_QUIVER, 0, BAG_SEARCH_BAG_SLOTS);
 
             if (ammo) {
                 this->m_characterComponent->AddItem(ITEMSLOT_11, ammo->GetDisplayID(), 0);

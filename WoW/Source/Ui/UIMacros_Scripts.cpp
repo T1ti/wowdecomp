@@ -440,7 +440,7 @@ static int32_t Script_GetMacroItem(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (player) {
-        CGItem_C* item = player->m_bag.FindItemOfType(macro->m_itemID, 0);
+        CGItem_C* item = player->m_bag.FindItemOfType(macro->m_itemID, BAG_SEARCH_NONE);
 
         if (item) {
             lua_pushstring(L, item->GetFullItemName(name, sizeof(name)));

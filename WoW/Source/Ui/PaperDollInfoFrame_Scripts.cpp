@@ -53,7 +53,7 @@ static int32_t Script_GetInventoryItemTexture(lua_State* L) {
             if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
                 int32_t ammoId = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
-                if (ammoId && unit->GetBag()->GetItemTypeCount(ammoId, 0)) {
+                if (ammoId && unit->GetBag()->GetItemTypeCount(ammoId, BAG_SEARCH_NONE)) {
                     WOWGUID requester = unit->m_obj->m_guid;
                     ItemStats_C* stats = g_itemDBCache.GetRecord(ammoId, requester, UnitInventoryChangedCallback, nullptr, false);
 
@@ -304,7 +304,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
             int32_t ammo = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
             if (ammo) {
-                lua_pushnumber(L, unit->GetBag()->GetItemTypeCount(ammo, 0));
+                lua_pushnumber(L, unit->GetBag()->GetItemTypeCount(ammo, BAG_SEARCH_NONE));
                 return 1;
             }
         }
@@ -341,10 +341,10 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
             break;
         }
 
-        if (item->GetBag()->GetItemTypeCount(-1, 0) <= 0) {
+        if (item->GetBag()->GetItemTypeCount(-1, BAG_SEARCH_NONE) <= 0) {
             lua_pushnumber(L, 0.0);
         } else {
-            lua_pushnumber(L, item->GetBag()->GetItemTypeCount(-1, 0));
+            lua_pushnumber(L, item->GetBag()->GetItemTypeCount(-1, BAG_SEARCH_NONE));
         }
 
         return 1;
@@ -1046,7 +1046,7 @@ static int32_t Script_SetInventoryPortraitTexture(lua_State* L) {
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
-    CGItem_C* item = slot == INVSLOT_AMMO ? player->m_bag.FindItemOfType(CGCharacterInfo::GetActivePlayerAmmoID(player), 0) : player->m_bag.GetItemPointer(slot);
+    CGItem_C* item = slot == INVSLOT_AMMO ? player->m_bag.FindItemOfType(CGCharacterInfo::GetActivePlayerAmmoID(player), BAG_SEARCH_NONE) : player->m_bag.GetItemPointer(slot);
 
     if (item) {
         const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);

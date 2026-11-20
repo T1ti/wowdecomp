@@ -215,7 +215,7 @@ static int32_t Script_IsEquippedItem(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     WOWGUID guid = tooltip->m_itemGuid;
 
-    if (player && guid != WOWGUID() && player->m_bag.FindItem(FindItemByGUID, &guid, 1)) {
+    if (player && guid != WOWGUID() && player->m_bag.FindItem(FindItemByGUID, &guid, BAG_SEARCH_EQUIPMENT)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -746,7 +746,7 @@ static int32_t Script_SetInventoryItem(lua_State* L) {
         int32_t ammoId = CGCharacterInfo::GetActivePlayerAmmoID(unit);
         CGItem_C* ammo;
 
-        if (ammoId && (ammo = unit->GetBag()->FindItemOfType(ammoId, 0)) != nullptr) {
+        if (ammoId && (ammo = unit->GetBag()->FindItemOfType(ammoId, BAG_SEARCH_NONE)) != nullptr) {
             WOWGUID itemGuid = ammo->m_obj->m_guid;
             WOWGUID requester = unit->m_obj->m_guid;
             tooltip->SetItem(ammoId, &requester, &itemGuid, 0, 0, 0, 0, WOWGUID{ 0 }, 0, nullptr, 0, nullptr, 0, 0, 0);
@@ -1024,19 +1024,19 @@ static int32_t Script_SetAction(lua_State* L) {
                 flags = charges != -1 && charges ? 161 : 129;
                 item = player->m_bag.FindItemOfType(itemId, flags);
 
-                if (!item && (flags & 0x20)) {
-                    item = player->m_bag.FindItemOfType(itemId, 32);
+                if (!item && (flags & BAG_SEARCH_REQUIRE_CHARGES)) {
+                    item = player->m_bag.FindItemOfType(itemId, BAG_SEARCH_REQUIRE_CHARGES);
                 }
 
                 if (!item) {
-                    item = player->m_bag.FindItemOfType(itemId, 128);
+                    item = player->m_bag.FindItemOfType(itemId, BAG_SEARCH_IGNORE_ITEM_STATE);
                 }
             } else {
                 flags = charges != -1 && charges ? 288 : 256;
                 item = player->m_bag.FindItemOfType(itemId, flags);
 
-                if (!item && (flags & 0x20)) {
-                    item = player->m_bag.FindItemOfType(itemId, flags & ~0x20);
+                if (!item && (flags & BAG_SEARCH_REQUIRE_CHARGES)) {
+                    item = player->m_bag.FindItemOfType(itemId, flags & ~BAG_SEARCH_REQUIRE_CHARGES);
                 }
             }
         }

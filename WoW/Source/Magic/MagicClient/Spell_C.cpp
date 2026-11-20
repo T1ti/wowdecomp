@@ -3172,7 +3172,7 @@ int32_t Spell_C_GetSpellReagentUses(const SpellRec* spell) {
         int32_t reagent = spell->m_reagent[i];
 
         if (reagent != SPELL_REAGENT_UNKNOWN_MINUS_2 && reagent && spell->m_reagentCount[i] > 0) {
-            int32_t count = player->GetBag()->GetItemTypeCount(reagent, 0) / spell->m_reagentCount[i];
+            int32_t count = player->GetBag()->GetItemTypeCount(reagent, BAG_SEARCH_NONE) / spell->m_reagentCount[i];
 
             if (count < uses) {
                 uses = count;
@@ -6872,7 +6872,7 @@ static int32_t FindAmmoByType(const CGItem_C* item, void* param) {
             return 1;
         }
     } else if (const_cast<CGItem_C*>(item)->GetBag() && search->m_item) {
-        search->m_item = const_cast<CGItem_C*>(item)->GetBag()->FindItem(FindAmmoByType, search, 0);
+        search->m_item = const_cast<CGItem_C*>(item)->GetBag()->FindItem(FindAmmoByType, search, BAG_SEARCH_NONE);
         return 1;
     }
 
@@ -6941,7 +6941,7 @@ bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report,
     CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
 
     for (uint32_t i = 0; i < sizeof(spell->m_totem) / sizeof(spell->m_totem[0]); i++) {
-        if (spell->m_totem[i] && !player->m_bag.FindItemOfType(spell->m_totem[i], 0)) {
+        if (spell->m_totem[i] && !player->m_bag.FindItemOfType(spell->m_totem[i], BAG_SEARCH_NONE)) {
             if (report) {
                 Spell_C_SpellFailed(cast, spell, SPELL_FAILED_TOTEMS, spell->m_totem[i], -1, false);
             }
@@ -6969,7 +6969,7 @@ bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report,
             continue;
         }
 
-        int32_t count = player->m_bag.GetItemTypeCount(spell->m_reagent[i], 0);
+        int32_t count = player->m_bag.GetItemTypeCount(spell->m_reagent[i], BAG_SEARCH_NONE);
         int32_t needed = spell->m_reagentCount[i];
         WOWGUID none = { 0 };
         ItemStats_C* stats = g_itemDBCache.GetRecord(spell->m_reagent[i], none, nullptr, nullptr, false);
@@ -7085,7 +7085,7 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
     search.m_ammoId = CGCharacterInfo::GetActivePlayerAmmoID(player);
     search.m_item = nullptr;
 
-    if (!player->m_bag.FindItem(FindAmmoByType, &search, 0)) {
+    if (!player->m_bag.FindItem(FindAmmoByType, &search, BAG_SEARCH_NONE)) {
         if (report) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_NEED_AMMO, ammoType, -1, false);
         }

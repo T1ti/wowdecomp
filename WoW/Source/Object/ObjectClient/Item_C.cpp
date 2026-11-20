@@ -1381,7 +1381,7 @@ BOOL CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId
 
             if (player) {
                 locked = 1;
-                CGItem_C* item = player->m_bag.FindItemOfType(lock->m_index[i], 0);
+                CGItem_C* item = player->m_bag.FindItemOfType(lock->m_index[i], BAG_SEARCH_NONE);
 
                 if (item) {
                     if (spellId) {
@@ -1441,7 +1441,7 @@ void CGItem_C::SignalEvent(CGItem_C* item, uint32_t event) {
     WOWGUID container;
     uint32_t slot;
 
-    if (!bag->FindItem(FindItemCallback, item, container, slot, 136)) {
+    if (!bag->FindItem(FindItemCallback, item, container, slot, BAG_SEARCH_IGNORE_ITEM_STATE | BAG_SEARCH_BANK)) {
         return;
     }
 

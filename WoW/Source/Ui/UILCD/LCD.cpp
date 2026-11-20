@@ -673,11 +673,11 @@ static int32_t GetAmmoCount() {
     int32_t ammoId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerAmmoId : 0;
 
     if (CGLCD::m_player->m_unit->m_classID == CLASS_WARLOCK) {
-        return CGLCD::m_player->m_bag.GetItemTypeCount(6265, 0);
+        return CGLCD::m_player->m_bag.GetItemTypeCount(ITEM_ID_SOUL_SHARD, BAG_SEARCH_NONE);
     }
 
     if (ammoId) {
-        return CGLCD::m_player->m_bag.GetItemTypeCount(ammoId, 0);
+        return CGLCD::m_player->m_bag.GetItemTypeCount(ammoId, BAG_SEARCH_NONE);
     }
 
     return 0;
@@ -815,7 +815,7 @@ void CGLCD::SetStat(const char* name, int32_t value) {
     if (SStrCmpI(name, "SOUL_SHARD", STORM_MAX_STR)) {
         CEzLcd::SetText(handle->m_handle, FrameScript_GetText(handle->m_text.m_str, -1, GENDER_NOT_APPLICABLE));
     } else if (CGLCD::m_lcd->IsDeviceAvailable(1)) {
-        ItemStats_C* stats = g_itemDBCache.GetRecord(6265, WOWGUID{ 0 }, nullptr, nullptr, false);
+        ItemStats_C* stats = g_itemDBCache.GetRecord(ITEM_ID_SOUL_SHARD, WOWGUID{ 0 }, nullptr, nullptr, false);
 
         if (stats) {
             CEzLcd::SetText(handle->m_handle, stats->GetName(1));

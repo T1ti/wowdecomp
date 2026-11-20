@@ -677,7 +677,7 @@ BOOL CGQuestInfo::IsCompletable() {
             return 1;
         }
 
-        if (player->m_bag.GetItemTypeCount(itemId, 8) < CGQuestInfo::m_questItems[i].m_required.m_count) {
+        if (player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK) < CGQuestInfo::m_questItems[i].m_required.m_count) {
             return 0;
         }
     }

@@ -484,7 +484,7 @@ void CGTradeSkillInfo::RefreshList(int32_t full) {
                     continue;
                 }
 
-                int32_t available = player ? player->m_bag.GetItemTypeCount(spell.m_reagent[m], 0) / spell.m_reagentCount[m] : 0;
+                int32_t available = player ? player->m_bag.GetItemTypeCount(spell.m_reagent[m], BAG_SEARCH_NONE) / spell.m_reagentCount[m] : 0;
 
                 if (numAvailable == -1 || numAvailable >= available) {
                     numAvailable = available;

@@ -588,9 +588,9 @@ int32_t EvaluateEquipped(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
         CGItem_C* item;
 
         if (inventoryType > INVTYPE_NON_EQUIP) {
-            item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, 1);
+            item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, BAG_SEARCH_EQUIPMENT);
         } else {
-            item = player->m_bag.FindItem(&FindItemClassTypeCallback, text, container, slot, 1);
+            item = player->m_bag.FindItem(&FindItemClassTypeCallback, text, container, slot, BAG_SEARCH_EQUIPMENT);
         }
 
         if (item) {

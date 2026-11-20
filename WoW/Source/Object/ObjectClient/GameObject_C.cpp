@@ -3767,7 +3767,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                 continue;
             }
 
-            CGItem_C* item = player->m_bag.FindItemOfType(lock->m_index[i], 0);
+            CGItem_C* item = player->m_bag.FindItemOfType(lock->m_index[i], BAG_SEARCH_NONE);
 
             if (item) {
                 if (spellId) {

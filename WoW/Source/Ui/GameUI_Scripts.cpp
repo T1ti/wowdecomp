@@ -2962,7 +2962,7 @@ static int32_t Script_AutoEquipCursorItem(lua_State* L) {
 static int32_t Script_HasKey(lua_State* L) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player && player->m_bag.FindItemOfBagFamily(0x100, 79)) {
+    if (player && player->m_bag.FindItemOfBagFamily(ITEM_BAG_FAMILY_MASK_KEYS, inventoryFlags | BAG_SEARCH_BANK | BAG_SEARCH_KEYRING)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -4975,7 +4975,7 @@ static int32_t Script_GetItemCount(lua_State* L) {
                 int32_t charges = item ? item->GetUsableSpellCharges() : CGItem_C::NumBaseCharges(itemId);
 
                 if (charges < 0) {
-                    total = player->GetBag()->GetItemTypeCharges(itemId, 0);
+                    total = player->GetBag()->GetItemTypeCharges(itemId, BAG_SEARCH_NONE);
                 }
 
                 int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
@@ -5011,7 +5011,7 @@ static int32_t Script_IsUsableItem(lua_State* L) {
     bool noMana = false;
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (player && itemId && player->m_bag.GetItemTypeCount(itemId, 0) && !Spell_C_NeedsCooldownEvent(itemId)) {
+    if (player && itemId && player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_NONE) && !Spell_C_NeedsCooldownEvent(itemId)) {
         WOWGUID none = WOWGUID();
         ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
         bool check = true;
@@ -5134,9 +5134,9 @@ static int32_t Script_IsEquippedItem(lua_State* L) {
         CGItem_C* item;
 
         if (lua_isnumber(L, 1)) {
-            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), 1);
+            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), BAG_SEARCH_EQUIPMENT);
         } else {
-            item = player->m_bag.FindItemByFullName(lua_tolstring(L, 1, nullptr), 1);
+            item = player->m_bag.FindItemByFullName(lua_tolstring(L, 1, nullptr), BAG_SEARCH_EQUIPMENT);
         }
 
         if (item) {
@@ -5176,9 +5176,9 @@ static int32_t Script_IsEquippedItemType(lua_State* L) {
         CGItem_C* item;
 
         if (inventoryType > INVTYPE_NON_EQUIP) {
-            item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, 1);
+            item = player->m_bag.FindItem(&CanEquipInSlotCallback, &inventoryType, container, slot, BAG_SEARCH_EQUIPMENT);
         } else {
-            item = player->m_bag.FindItem(&FindItemClassTypeCallback, const_cast<char*>(type), container, slot, 1);
+            item = player->m_bag.FindItem(&FindItemClassTypeCallback, const_cast<char*>(type), container, slot, BAG_SEARCH_EQUIPMENT);
         }
 
         if (item) {
@@ -5265,9 +5265,9 @@ static int32_t Script_UseItemByName(lua_State* L) {
         CGItem_C* item;
 
         if (lua_isnumber(L, 1)) {
-            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), 0);
+            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), BAG_SEARCH_NONE);
         } else {
-            item = player->m_bag.FindItemByFullName(lua_tolstring(L, 1, nullptr), 0);
+            item = player->m_bag.FindItemByFullName(lua_tolstring(L, 1, nullptr), BAG_SEARCH_NONE);
         }
 
         if (item) {
@@ -5297,10 +5297,10 @@ static int32_t Script_EquipItemByName(lua_State* L) {
 
     if (!lua_isnumber(L, 2) && !lua_isstring(L, 2)) {
         if (lua_isnumber(L, 1)) {
-            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, 6);
+            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, BAG_SEARCH_BAG_SLOTS | BAG_SEARCH_BACKPACK);
 
             if (!container) {
-                item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, 0);
+                item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, BAG_SEARCH_NONE);
             }
         } else {
             item = player->m_bag.GetItemIdByName(lua_tolstring(L, 1, nullptr), container, slot, 6);
@@ -5352,10 +5352,10 @@ static int32_t Script_EquipItemByName(lua_State* L) {
     }
 
     if (lua_isnumber(L, 1)) {
-        item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, 6);
+        item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, BAG_SEARCH_BAG_SLOTS | BAG_SEARCH_BACKPACK);
 
         if (!item) {
-            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, 0);
+            item = player->m_bag.FindItemOfType(lua_tointeger(L, 1), container, slot, BAG_SEARCH_NONE);
         }
     } else {
         item = player->m_bag.GetItemIdByName(lua_tolstring(L, 1, nullptr), container, slot, 6);

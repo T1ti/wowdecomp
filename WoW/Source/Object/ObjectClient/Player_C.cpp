@@ -10850,7 +10850,7 @@ static int32_t SoulStoneCompare(const CGItem_C* item, void* param) {
 // VERIFY: 9d69e881 auto
 // OFFSET: 0x006D6640
 CGItem_C* CGPlayer_C::GetSoulstone() {
-    return this->m_bag.FindItem(&SoulStoneCompare, nullptr, 0);
+    return this->m_bag.FindItem(&SoulStoneCompare, nullptr, BAG_SEARCH_NONE);
 }
 
 // VERIFY: 1ab76c61 auto

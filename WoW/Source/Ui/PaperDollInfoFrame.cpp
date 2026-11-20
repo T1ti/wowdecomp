@@ -367,7 +367,7 @@ void CGCharacterInfo::PickupInventoryItem(int32_t slot) {
 
         int32_t ammo = CGCharacterInfo::GetActivePlayerAmmoID(player);
 
-        if (!ammo || !player->GetBag()->GetItemTypeCount(ammo, 0)) {
+        if (!ammo || !player->GetBag()->GetItemTypeCount(ammo, BAG_SEARCH_NONE)) {
             CGGameUI::ClearCursor(1, 1);
             return;
         }
@@ -791,7 +791,7 @@ int32_t CGCharacterInfo::CalculateInventoryAlertStatus(CGPlayer_C* player, uint3
             return 0;
         }
 
-        return static_cast<uint32_t>(player->m_bag.GetItemTypeCount(ammo, 0)) <= 20;
+        return static_cast<uint32_t>(player->m_bag.GetItemTypeCount(ammo, BAG_SEARCH_NONE)) <= 20;
     }
 
     CGItem_C* item = player->m_bag.GetItemPointer(s_inventoryAlertSlots[slot]);

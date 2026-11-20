@@ -992,7 +992,7 @@ void CGMailInfo::UpdateStationeryList() {
 
     for (uint32_t i = 0; i < CGMailInfo::m_stationeries.m_count; i++) {
         StationeryRec* rec = g_stationeryDB.GetRecord(CGMailInfo::m_stationeries.m_data[i]->m_id);
-        CGItem_C* item = player->m_bag.FindItemOfType(rec->m_itemID, 0);
+        CGItem_C* item = player->m_bag.FindItemOfType(rec->m_itemID, BAG_SEARCH_NONE);
         CGMailInfo::m_stationeries.m_data[i]->m_itemGUID = item ? item->m_obj->m_guid : WOWGUID{ 0 };
 
         if (CGMailInfo::m_stationeries.m_data[i]->m_isDefault || CGMailInfo::m_stationeries.m_data[i]->m_itemGUID) {

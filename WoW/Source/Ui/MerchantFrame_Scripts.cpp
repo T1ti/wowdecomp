@@ -549,7 +549,7 @@ static int32_t Script_ShowMerchantSellCursor(lua_State* L) {
         unable = 1;
     } else {
         for (uint32_t i = 0; i < MAX_ITEM_EXTENDED_COST_ITEMS; i++) {
-            if (cost->m_itemID[i] && cost->m_itemCount[i] > 0 && player->m_bag.GetItemTypeCount(cost->m_itemID[i], 0) < cost->m_itemCount[i]) {
+            if (cost->m_itemID[i] && cost->m_itemCount[i] > 0 && player->m_bag.GetItemTypeCount(cost->m_itemID[i], BAG_SEARCH_NONE) < cost->m_itemCount[i]) {
                 unable = 1;
                 break;
             }

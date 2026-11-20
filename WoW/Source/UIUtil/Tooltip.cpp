@@ -2904,7 +2904,7 @@ static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer
             SStrPack(text, ", ", sizeof(text));
         }
 
-        CGItem_C* item = player->m_bag.FindItemOfType(spell->m_totem[i], 0);
+        CGItem_C* item = player->m_bag.FindItemOfType(spell->m_totem[i], BAG_SEARCH_NONE);
 
         if (!item) {
             SStrPack(text, s_tooltipRedColorString, sizeof(text));
@@ -3128,7 +3128,7 @@ static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPla
             SStrPrintf(reagent, sizeof(reagent), "%s (%d)", name, spell->m_reagentCount[i]);
         }
 
-        if (player->m_bag.GetItemTypeCount(spell->m_reagent[i], 0) >= spell->m_reagentCount[i]) {
+        if (player->m_bag.GetItemTypeCount(spell->m_reagent[i], BAG_SEARCH_NONE) >= spell->m_reagentCount[i]) {
             SStrPack(text, reagent, sizeof(text));
         } else {
             SStrPack(text, s_tooltipRedColorString, sizeof(text));
@@ -3986,7 +3986,7 @@ void CGTooltip::AddSpellReagents(const SpellRec* spell, const char* token, void 
 
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-        if (player && player->m_bag.GetItemTypeCount(spell->m_reagent[i], 0) >= spell->m_reagentCount[i]) {
+        if (player && player->m_bag.GetItemTypeCount(spell->m_reagent[i], BAG_SEARCH_NONE) >= spell->m_reagentCount[i]) {
             SStrPack(text, reagent, sizeof(text));
         } else {
             SStrPack(text, s_tooltipRedColorString, sizeof(text));
@@ -5653,7 +5653,7 @@ static void AddItemRequirementLines(CGTooltip* tooltip, const ItemStats_C* stats
                         bool owned = false;
 
                         for (uint32_t i = 0; i < NUM_ITEM_PURCHASE_GROUP_ITEMS; i++) {
-                            if (group->m_itemID[i] && player->m_bag.FindItemOfType(group->m_itemID[i], 8)) {
+                            if (group->m_itemID[i] && player->m_bag.FindItemOfType(group->m_itemID[i], BAG_SEARCH_BANK)) {
                                 owned = true;
                                 break;
                             }
@@ -7083,14 +7083,14 @@ int32_t CGTooltip::SetMacro(uint32_t macroId) {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
             CGItem_C* item;
 
-            if (player && (item = player->m_bag.FindItemOfType(macro->m_itemID, 0))) {
+            if (player && (item = player->m_bag.FindItemOfType(macro->m_itemID, BAG_SEARCH_NONE))) {
                 this->m_itemLinkInfo.Clear();
                 this->m_itemLinkInfo.m_cooldown = enable && start && duration ? duration + start - OsGetAsyncTimeMs() : 0;
                 WOWGUID none = { 0 };
                 ItemStats_C* stats = g_itemDBCache.GetRecord(macro->m_itemID, none, nullptr, nullptr, false);
 
                 if (stats && stats->m_spellCharges[0] != -1 && stats->m_spellCharges[0]) {
-                    this->m_itemLinkInfo.m_spellCharges = player->m_bag.GetItemTypeCharges(macro->m_itemID, 0);
+                    this->m_itemLinkInfo.m_spellCharges = player->m_bag.GetItemTypeCharges(macro->m_itemID, BAG_SEARCH_NONE);
                 }
 
                 WOWGUID guid = item->m_obj->m_guid;

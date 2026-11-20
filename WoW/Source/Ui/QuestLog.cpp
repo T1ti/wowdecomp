@@ -379,7 +379,7 @@ BOOL CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
     }
 
     for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
-        if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
+        if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], BAG_SEARCH_BANK) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
             return 0;
         }
     }
@@ -513,7 +513,7 @@ int32_t CountQuestItemDropsNeeded(int32_t questId, void (*callback)(int32_t id, 
         for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
             int32_t itemId = quest->m_intermediateItemId[i];
 
-            if (itemId > 0 && (static_cast<uint32_t>(itemId) != quest->m_startingItemId || static_cast<int32_t>(quest->m_intermediateItemCount[i]) > 1) && !player->m_bag.GetItemTypeCount(itemId, 8)) {
+            if (itemId > 0 && (static_cast<uint32_t>(itemId) != quest->m_startingItemId || static_cast<int32_t>(quest->m_intermediateItemCount[i]) > 1) && !player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK)) {
                 count++;
             }
         }
@@ -998,7 +998,7 @@ CGItem_C* CGQuestLog::GetQuestSpecialItem(uint32_t index) {
     }
 
     CGBag_C* bag = &player->m_bag;
-    CGItem_C* item = bag->FindItemOfType(quest->m_startingItemId, 0);
+    CGItem_C* item = bag->FindItemOfType(quest->m_startingItemId, BAG_SEARCH_NONE);
 
     if (item && item->CanBeUsed()) {
         return item;
@@ -1013,7 +1013,7 @@ CGItem_C* CGQuestLog::GetQuestSpecialItem(uint32_t index) {
             continue;
         }
 
-        item = bag->FindItemOfType(quest->m_intermediateItemId[i], 0);
+        item = bag->FindItemOfType(quest->m_intermediateItemId[i], BAG_SEARCH_NONE);
 
         if (item && item->CanBeUsed()) {
             return item;
@@ -1470,8 +1470,8 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
         if (showProgress) {
             int32_t have = required;
 
-            if (player->m_bag.GetItemTypeCount(itemId, 8) < required) {
-                have = player->m_bag.GetItemTypeCount(itemId, 8);
+            if (player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK) < required) {
+                have = player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK);
             }
 
             const char* format = FrameScript_GetText("QUEST_ITEMS_NEEDED", -1, GENDER_NOT_APPLICABLE);
@@ -1505,7 +1505,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
 
             ItemStats_C* item = g_itemDBCache.GetRecord(itemId, none, params->m_itemCallback, params->m_param, false);
             uint32_t plural = FrameScript_GetPluralIndex(1);
-            int32_t have = player->m_bag.GetItemTypeCount(itemId, 8);
+            int32_t have = player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK);
             const char* format = FrameScript_GetText("QUEST_INTERMEDIATE_ITEMS_NEEDED", -1, GENDER_NOT_APPLICABLE);
             const char* name;
 
@@ -1668,8 +1668,8 @@ int32_t CGQuestLog::GetQuestLogItemDropByID(int32_t questId, QuestLogLeaderBoard
             int32_t required = quest->m_intermediateItemCount[i];
             int32_t count = required;
 
-            if (player->m_bag.GetItemTypeCount(quest->m_intermediateItemId[i], 8) < required) {
-                count = player->m_bag.GetItemTypeCount(quest->m_intermediateItemId[i], 8);
+            if (player->m_bag.GetItemTypeCount(quest->m_intermediateItemId[i], BAG_SEARCH_BANK) < required) {
+                count = player->m_bag.GetItemTypeCount(quest->m_intermediateItemId[i], BAG_SEARCH_BANK);
             }
 
             const char* format = FrameScript_GetText("QUEST_ITEMS_NEEDED", -1, GENDER_NOT_APPLICABLE);
@@ -2152,7 +2152,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
     }
 
     for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
-        if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
+        if (quest->m_collectItemId[i] && player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], BAG_SEARCH_BANK) < static_cast<int32_t>(quest->m_collectItemCount[i])) {
             result |= 1 << (i + QUEST_OBJECTIVES);
         }
     }
@@ -2160,7 +2160,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
     for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
         uint32_t itemId = quest->m_intermediateItemId[i];
 
-        if (itemId && itemId != quest->m_startingItemId && !player->m_bag.GetItemTypeCount(itemId, 8)) {
+        if (itemId && itemId != quest->m_startingItemId && !player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK)) {
             result |= 1 << (i + QUEST_OBJECTIVES + QUEST_COLLECT_ITEMS);
         }
     }
@@ -2632,8 +2632,8 @@ int32_t CGQuestLog::GetQuestLeaderBoardForItem(int32_t questId, int32_t itemId, 
     int32_t required = quest->m_collectItemCount[i];
     int32_t have = required;
 
-    if (player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8) < required) {
-        have = player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], 8);
+    if (player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], BAG_SEARCH_BANK) < required) {
+        have = player->m_bag.GetItemTypeCount(quest->m_collectItemId[i], BAG_SEARCH_BANK);
     }
 
     const char* format = FrameScript_GetText("QUEST_ITEMS_NEEDED", -1, GENDER_NOT_APPLICABLE);

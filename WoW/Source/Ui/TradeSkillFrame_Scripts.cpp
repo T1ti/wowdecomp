@@ -1022,7 +1022,7 @@ static int32_t Script_GetTradeSkillReagentInfo(lua_State* L) {
 
                 lua_pushnumber(L, spell.m_reagentCount[i]);
                 CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-                lua_pushnumber(L, player ? player->m_bag.GetItemTypeCount(itemId, 0) : 0.0);
+                lua_pushnumber(L, player ? player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_NONE) : 0.0);
                 return 4;
             }
         }
@@ -1094,7 +1094,7 @@ static int32_t Script_GetTradeSkillTools(lua_State* L) {
                 lua_checkstack(L, 2);
                 lua_pushstring(L, stats->m_name[0]);
 
-                if (player->m_bag.FindItemOfType(spell.m_totem[i], 0)) {
+                if (player->m_bag.FindItemOfType(spell.m_totem[i], BAG_SEARCH_NONE)) {
                     lua_pushnumber(L, 1.0);
                 } else {
                     lua_pushnil(L);

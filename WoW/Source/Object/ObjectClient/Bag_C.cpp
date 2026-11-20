@@ -880,7 +880,7 @@ bool CGBag_C::ItemCountValid(int32_t itemId, const ItemStats_C* stats, int32_t c
             int32_t data[2] = { itemId, 0 };
             WOWGUID container;
             uint32_t slot;
-            this->FindItem(GetItemTypeCountCallback, data, container, slot, 79);
+            this->FindItem(GetItemTypeCountCallback, data, container, slot, inventoryFlags | BAG_SEARCH_BANK | BAG_SEARCH_KEYRING);
             current = data[1];
         }
 
@@ -898,7 +898,7 @@ bool CGBag_C::ItemCountValid(int32_t itemId, const ItemStats_C* stats, int32_t c
         int32_t data[2] = { static_cast<int32_t>(stats->m_itemLimitCategory), 0 };
         WOWGUID container;
         uint32_t slot;
-        this->FindItem(GetItemLimitCategoryCallback, data, container, slot, 79);
+        this->FindItem(GetItemLimitCategoryCallback, data, container, slot, inventoryFlags | BAG_SEARCH_BANK | BAG_SEARCH_KEYRING);
 
         if (count + data[1] > category->m_quantity) {
             if (showError) {

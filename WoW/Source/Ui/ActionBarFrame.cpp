@@ -151,10 +151,10 @@ CGItem_C* CGActionBar::FindUseEnchantItemPtr(int32_t itemId) {
         return nullptr;
     }
 
-    CGItem_C* item = player->m_bag.FindItemOfType(itemId, 161);
+    CGItem_C* item = player->m_bag.FindItemOfType(itemId, BAG_SEARCH_IGNORE_ITEM_STATE | BAG_SEARCH_REQUIRE_CHARGES | BAG_SEARCH_EQUIPMENT);
 
     if (!item) {
-        return player->m_bag.FindItemOfType(itemId, 129);
+        return player->m_bag.FindItemOfType(itemId, BAG_SEARCH_IGNORE_ITEM_STATE | BAG_SEARCH_EQUIPMENT);
     }
 
     return item;
@@ -714,7 +714,7 @@ int32_t CGActionBar::CalculateItemCount(int32_t itemId) {
         return 0;
     }
 
-    int32_t count = player->GetBag()->GetItemTypeCount(itemId, 128);
+    int32_t count = player->GetBag()->GetItemTypeCount(itemId, BAG_SEARCH_IGNORE_ITEM_STATE);
 
     if (!count) {
         return 0;
@@ -731,7 +731,7 @@ int32_t CGActionBar::CalculateItemCount(int32_t itemId) {
     int32_t charges = item ? item->GetUsableSpellCharges() : CGItem_C::NumBaseCharges(itemId);
 
     if (charges < 0) {
-        return player->GetBag()->GetItemTypeCharges(itemId, 0);
+        return player->GetBag()->GetItemTypeCharges(itemId, BAG_SEARCH_NONE);
     }
 
     int32_t spellId = item ? item->GetEnchantmentSpell(SPELL_EFFECT_NONE) : CGItem_C::GetUseSpell(itemId);
@@ -1350,7 +1350,7 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
                 WOWGUID container;
                 uint32_t itemSlot = 0;
 
-                if ((((flags & 0x20) && (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 32)) != nullptr) || (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, 128)) != nullptr) && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
+                if ((((flags & BAG_SEARCH_REQUIRE_CHARGES) && (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, BAG_SEARCH_REQUIRE_CHARGES)) != nullptr) || (item = player->m_bag.FindItemOfType(itemId, container, itemSlot, BAG_SEARCH_IGNORE_ITEM_STATE)) != nullptr) && !(item->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
                     player->AutoEquipItem(container, itemSlot, 0);
                 }
 
@@ -1360,8 +1360,8 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
             uint32_t flags = charges != -1 && charges ? 288 : 256;
             item = player->m_bag.FindItemOfType(itemId, flags);
 
-            if (!item && (flags & 0x20)) {
-                item = player->m_bag.FindItemOfType(itemId, flags & ~0x20);
+            if (!item && (flags & BAG_SEARCH_REQUIRE_CHARGES)) {
+                item = player->m_bag.FindItemOfType(itemId, flags & ~BAG_SEARCH_REQUIRE_CHARGES);
             }
 
             if (!item) {
@@ -1522,7 +1522,7 @@ BOOL CGActionBar::IsEquippedAction(uint32_t slot) {
     int32_t charges = enchantItem ? enchantItem->GetUsableSpellCharges() : CGItem_C::NumBaseCharges(itemId);
     uint32_t flags = charges != -1 && charges ? 161 : 129;
     CGBag_C* bag = &player->m_bag;
-    return bag->FindItemOfType(itemId, flags) || ((flags & 0x20) && !bag->FindItemOfType(itemId, 32) && bag->FindItemOfType(itemId, flags & ~0x20));
+    return bag->FindItemOfType(itemId, flags) || ((flags & BAG_SEARCH_REQUIRE_CHARGES) && !bag->FindItemOfType(itemId, BAG_SEARCH_REQUIRE_CHARGES) && bag->FindItemOfType(itemId, flags & ~BAG_SEARCH_REQUIRE_CHARGES));
 }
 
 // VERIFY: 20f78ef5 manual

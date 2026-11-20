@@ -543,7 +543,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
     for (uint32_t i = 0; i < QUEST_COLLECT_ITEMS; i++) {
         int32_t itemId = abandon->m_collectItemId[i];
 
-        if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, 8) > 0) {
+        if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK) > 0) {
             ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
             if (stats && stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
@@ -561,7 +561,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
 
     int32_t startingItem = abandon->m_startingItemId;
 
-    if (startingItem > 0 && player->m_bag.GetItemTypeCount(startingItem, 8) > 0) {
+    if (startingItem > 0 && player->m_bag.GetItemTypeCount(startingItem, BAG_SEARCH_BANK) > 0) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(startingItem, none, nullptr, nullptr, false);
 
         if (stats && stats->m_bonding == ITEM_BINDING::ITEM_BINDING_QUEST) {
@@ -579,7 +579,7 @@ static int32_t Script_GetAbandonQuestItems(lua_State* L) {
     for (uint32_t i = 0; i < QUEST_INTERMEDIATE_ITEMS; i++) {
         int32_t itemId = abandon->m_intermediateItemId[i];
 
-        if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, 8) > 0) {
+        if (itemId > 0 && player->m_bag.GetItemTypeCount(itemId, BAG_SEARCH_BANK) > 0) {
             uint32_t j;
 
             for (j = 0; j < count && items[j] != itemId; j++) {

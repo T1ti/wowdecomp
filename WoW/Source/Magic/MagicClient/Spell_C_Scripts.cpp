@@ -81,7 +81,7 @@ static int32_t Script_SpellTargetItem(lua_State* L) {
     CGItem_C* item;
 
     if (lua_isnumber(L, 1)) {
-        item = player->m_bag.FindItemOfType(static_cast<int32_t>(lua_tonumber(L, 1)), 0);
+        item = player->m_bag.FindItemOfType(static_cast<int32_t>(lua_tonumber(L, 1)), BAG_SEARCH_NONE);
     } else if (lua_isstring(L, 1)) {
         item = player->m_bag.FindItemByName(lua_tolstring(L, 1, nullptr), 0);
     } else {
