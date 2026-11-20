@@ -1618,7 +1618,7 @@ void CGUIBindings::SaveBindings(BINDING_SET set, HOSFILE file) {
         uint32_t flags;
         click->GetBinding(set, binding, sizeof(binding), &flags);
 
-        if (!(flags & 1)) {
+        if (!(flags & MODIFIEDCLICK_DATA::FLAGS::DEFAULT)) {
             SStrPrintf(buffer, sizeof(buffer), "modifiedclick %s %s\r\n", binding, click->m_key.m_str);
             OsWriteFile(file, buffer, SStrLen(buffer), &written);
         }

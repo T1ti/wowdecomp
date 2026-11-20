@@ -11,7 +11,13 @@ struct HASHKEY_STRI;
 class MODIFIEDCLICK;
 
 struct MODIFIEDCLICK_DATA {
-    /* 0000 */ uint32_t m_flags;
+    // Mirrors KEYBINDING::FLAGS (inferred).
+    enum FLAGS : uint32_t {
+        NONE = 0x0,
+        DEFAULT = 0x1, // The binding came from BINDING_SET_DEFAULT.
+    };
+
+    /* 0000 */ uint32_t m_flags; // FLAGS
     /* 0004 */ uint32_t m_modifiers;
     /* 0008 */ const char* m_button;
 };
