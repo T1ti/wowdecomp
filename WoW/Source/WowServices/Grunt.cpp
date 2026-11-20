@@ -1200,7 +1200,7 @@ void Grunt::ServerLink::Send(CDataStore& msg) {
 void Grunt::ServerLink::SendConnected(CDataStore& msg) {
     this->m_lock.Enter();
 
-    if (this->m_connection && this->m_state == 3) {
+    if (this->m_connection && this->m_state == SERVER_STATE::SERVER_STATE_CONNECTED) {
         uint32_t size = msg.m_size;
         void* data;
         msg.GetDataInSitu(data, size);
@@ -1495,7 +1495,7 @@ int32_t Grunt::ServerLink::CmdGruntHello(CDataStore& msg) {
         this->m_response->HelloComplete();
     }
 
-    this->m_state = 3;
+    this->m_state = SERVER_STATE::SERVER_STATE_CONNECTED;
 
     if (this->m_linkType == Grunt::SERVER_LINK_TYPE::SERVER_LINK_BATTLENET) {
         this->SendFeatures();

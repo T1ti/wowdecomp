@@ -303,6 +303,13 @@ class ServerResponse {
 
 class ServerLink : public WowConnectionResponse, public Grunt::Pending, public Grunt::Timer::Event {
     public:
+    // The binary only stores SERVER_STATE_CONNECTED (after CmdGruntHello) and tests for it before
+    // sending; other values are unknown. Name inferred.
+    enum SERVER_STATE : int32_t {
+        SERVER_STATE_NONE = 0,
+        SERVER_STATE_CONNECTED = 3,
+    };
+
     struct Feature {
         /* 0000 */ uint32_t m_id;
         /* 0004 */ uint32_t m_version;
@@ -321,7 +328,7 @@ class ServerLink : public WowConnectionResponse, public Grunt::Pending, public G
     /* 00A0 */ uint32_t m_serverAddress;
     /* 00A4 */ uint8_t unused_00A4[8];
     /* 00AC */ uint32_t m_lastPongTime;
-    /* 00B0 */ int32_t m_state;
+    /* 00B0 */ int32_t m_state; // SERVER_STATE
     /* 00B4 */ const char* m_serverName;
     /* 00B8 */ uint8_t unused_00B8[8];
     /* 00C0 */ SCritSect m_lock;
