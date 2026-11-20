@@ -2564,7 +2564,7 @@ static int32_t Script_SetCurrencyToken(lua_State* L) {
     }
 
     for (uint32_t slot = CURRENCYTOKEN_FIRST; slot <= CURRENCYTOKEN_LAST; slot++) {
-        WOWGUID guid = slot < static_cast<uint32_t>(player->m_bag.m_numSlots) ? player->m_bag.m_slots[slot] : WOWGUID();
+        WOWGUID guid = WOWGUID{ player->m_bag.GetItemGuid(slot) };
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
         if (item && item->m_obj->m_entryID == entry->m_itemID) {

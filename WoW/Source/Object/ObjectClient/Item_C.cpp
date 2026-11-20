@@ -1474,7 +1474,7 @@ void CGItem_C::SignalEvent(CGItem_C* item, uint32_t event) {
     }
 
     for (uint32_t i = 0; i < NUM_BAG_SLOTS; i++) {
-        WOWGUID guid = i + INVSLOT_BAG0 < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[i + INVSLOT_BAG0] : WOWGUID();
+        WOWGUID guid = WOWGUID{ bag->GetItemGuid(i + INVSLOT_BAG0) };
 
         if (guid == container) {
             FrameScript_SignalEvent(event, "%d%d", i + 1, slot + 1);
@@ -1483,7 +1483,7 @@ void CGItem_C::SignalEvent(CGItem_C* item, uint32_t event) {
     }
 
     for (uint32_t i = 0; i < NUM_BANKBAG_SLOTS; i++) {
-        WOWGUID guid = i + BANKBAG_FIRST < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[i + BANKBAG_FIRST] : WOWGUID();
+        WOWGUID guid = WOWGUID{ bag->GetItemGuid(i + BANKBAG_FIRST) };
 
         if (guid == container) {
             FrameScript_SignalEvent(event, "%d%d", i + NUM_BAG_SLOTS + 1, slot + 1);

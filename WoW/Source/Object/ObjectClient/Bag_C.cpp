@@ -60,7 +60,7 @@ int32_t CGBag_C::FindItemSlot(const CGItem_C* item) const {
     }
 
     for (uint32_t slot = 0; slot < static_cast<uint32_t>(this->m_numSlots); slot++) {
-        WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+        WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
 
         if (ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__) == item) {
             return slot;
@@ -77,7 +77,7 @@ const CGItem_C* CGBag_C::GetItemPointer(int32_t slot) const {
         return nullptr;
     }
 
-    WOWGUID guid = static_cast<uint32_t>(slot) < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+    WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
 
     return static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 }
@@ -89,7 +89,7 @@ CGItem_C* CGBag_C::GetItemPointer(int32_t slot) {
         return nullptr;
     }
 
-    WOWGUID guid = static_cast<uint32_t>(slot) < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+    WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
 
     return static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 }
@@ -106,7 +106,7 @@ int32_t CGBag_C::GetNumFreeInvSlots() {
             }
 
             if (slot - INVSLOT_BAG0 <= INVSLOT_BAG3 - INVSLOT_BAG0) {
-                WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+                WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
                 CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
                 if (item && item->GetClassID() == ITEM_CLASS::ITEM_CLASS_CONTAINER) {
@@ -148,7 +148,7 @@ uint32_t CGBag_C::GetAvgEquippedDurability() const {
             continue;
         }
 
-        WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+        WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
         if (!item) {
@@ -479,7 +479,7 @@ bool CGBag_C::FindTotemCategory(int32_t type, int32_t& mask, bool recurse, uint3
 
     while (slot < static_cast<uint32_t>(this->m_numSlots)) {
         if (!this->m_hasBank || SlotMatchesSearchFlags(slot, flags)) {
-            WOWGUID guid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+            WOWGUID guid = WOWGUID{ this->GetItemGuid(slot) };
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
             if (item && (!this->m_hasBank || slot < BUYBACK_FIRST || slot > BUYBACK_LAST)) {
@@ -536,11 +536,11 @@ bool CGBag_C::ContainsItem(WOWGUID guid, bool recurse, uint32_t flags) const {
 
     while (slot < static_cast<uint32_t>(this->m_numSlots)) {
         if (!hasBank || SlotMatchesSearchFlags(slot, flags)) {
-            WOWGUID slotGuid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+            WOWGUID slotGuid = WOWGUID{ this->GetItemGuid(slot) };
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(slotGuid, TYPE_ITEM, __FILE__, __LINE__));
 
             if (item && (!hasBank || slot < BUYBACK_FIRST || slot > BUYBACK_LAST)) {
-                WOWGUID itemGuid = slot < static_cast<uint32_t>(this->m_numSlots) ? this->m_slots[slot] : WOWGUID();
+                WOWGUID itemGuid = WOWGUID{ this->GetItemGuid(slot) };
 
                 if (itemGuid == guid) {
                     return true;

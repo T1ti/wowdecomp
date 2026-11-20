@@ -659,7 +659,7 @@ const char* CGActionBar::GetAttackTexture() {
     }
 
     CGBag_C* bag = player->GetBag();
-    WOWGUID guid = 15 < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[15] : WOWGUID();
+    WOWGUID guid = WOWGUID{ bag->GetItemGuid(15) };
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item) {
@@ -686,7 +686,7 @@ const char* CGActionBar::GetRangedTexture() {
     }
 
     CGBag_C* bag = player->GetBag();
-    WOWGUID guid = 17 < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[17] : WOWGUID();
+    WOWGUID guid = WOWGUID{ bag->GetItemGuid(17) };
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
     if (!item || item->GetSubtypeID() == ITEM_SUBCLASS_WEAPON::ITEM_SUBCLASS_WEAPON_THROWN) {

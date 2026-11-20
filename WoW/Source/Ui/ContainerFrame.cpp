@@ -271,7 +271,7 @@ int32_t UpdateContainerContents(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
 
     uint32_t slot = (fieldOffset - offsetof(CGContainerData, m_containerFieldSlot1)) / sizeof(WOWGUID);
     CGBag_C* bag = container->GetBag();
-    WOWGUID newGuid = slot < static_cast<uint32_t>(bag->m_numSlots) ? bag->m_slots[slot] : WOWGUID();
+    WOWGUID newGuid = WOWGUID{ bag->GetItemGuid(slot) };
     const WOWGUID& oldGuid = *static_cast<const WOWGUID*>(oldValue);
     CGItem_C* oldItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(oldGuid, TYPE_ITEM, __FILE__, __LINE__));
     CGItem_C* newItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(newGuid, TYPE_ITEM, __FILE__, __LINE__));
@@ -324,7 +324,7 @@ int32_t UpdateInvContents(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize
     }
 
     uint32_t slot = (fieldOffset - offsetof(CGPlayerLocalData, m_playerFieldInvSlotHead)) / sizeof(WOWGUID);
-    WOWGUID newGuid = slot < static_cast<uint32_t>(player->m_bag.m_numSlots) ? player->m_bag.m_slots[slot] : WOWGUID();
+    WOWGUID newGuid = WOWGUID{ player->m_bag.GetItemGuid(slot) };
     const WOWGUID& oldGuid = *static_cast<const WOWGUID*>(oldValue);
     CGItem_C* oldItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(oldGuid, TYPE_ITEM, __FILE__, __LINE__));
     CGItem_C* newItem = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(newGuid, TYPE_ITEM, __FILE__, __LINE__));
@@ -382,7 +382,7 @@ void CGContainerInfo::UpdateContainers() {
 
     for (uint32_t i = 0; i < TOTAL_BAG_SLOTS; i++) {
         uint32_t slot = i < 4 ? i + 19 : i + 63;
-        WOWGUID guid = slot < static_cast<uint32_t>(player->m_bag.m_numSlots) ? player->m_bag.m_slots[slot] : WOWGUID();
+        WOWGUID guid = WOWGUID{ player->m_bag.GetItemGuid(slot) };
 
         if (guid == CGContainerInfo::m_containers[i]) {
             continue;
