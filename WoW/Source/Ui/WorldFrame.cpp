@@ -1419,7 +1419,7 @@ void CGWorldFrame::UpdateScreenEffect() {
             return;
         }
 
-        if (player->m_player->m_packedOverrideRegenVision & 0x40000000) {
+        if (player->m_player->m_auraVision & AURA_VISION_FLAG_INVISIBILITY_DETECT) {
             CGWorldFrame::SetScreenEffect(81);
             return;
         }
