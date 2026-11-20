@@ -2354,7 +2354,7 @@ static int32_t Script_UnitResistance(lua_State* L) {
     int32_t effective;
 
     if (unit && (unit->m_obj->m_type & TYPE_UNIT)) {
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit->IsActivePlayer()) {
             unit->GetResistanceAndBuffs(school, &base, &total, &effective, &positive, &negative);
         } else {
             int32_t resistance = unit->m_unit->m_unitFieldResistances[school];
@@ -2382,7 +2382,7 @@ static int32_t Script_UnitDefense(lua_State* L) {
     int32_t rank = 0;
     int32_t bonus = 0;
 
-    if (unit && (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() || unit->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer())) {
+    if (unit && (unit->IsActivePlayer() || unit->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer())) {
         unit->GetDefenseSkillRank(rank, bonus);
     }
 
@@ -2408,7 +2408,7 @@ static int32_t Script_UnitAttackBothHands(lua_State* L) {
 
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
 
-    if (unit && (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() || unit->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer())) {
+    if (unit && (unit->IsActivePlayer() || unit->m_unit->m_unitFieldSummonedby == ClntObjMgrGetActivePlayer())) {
         for (int32_t i = 0; i < 2; i++) {
             unit->GetAttackSkillRank(i, rank[i], bonus[i]);
 
@@ -2840,7 +2840,7 @@ static int32_t Script_UnitCharacterPoints(lua_State* L) {
     }
 
     for (uint32_t i = 0; i < 2; i++) {
-        int32_t points = unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? static_cast<CGPlayer_C*>(unit)->m_player->m_playerCharacterPoints[i] : 0;
+        int32_t points = unit->IsActivePlayer() ? static_cast<CGPlayer_C*>(unit)->m_player->m_playerCharacterPoints[i] : 0;
         lua_pushnumber(L, points);
     }
 
@@ -3804,12 +3804,12 @@ static int32_t Script_UnitRangedDamage(lua_State* L) {
         }
     }
 
-    uint32_t positive = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[school] : 0;
+    uint32_t positive = player->IsActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[school] : 0;
     lua_pushnumber(L, positive);
-    uint32_t negative = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldModDamageDoneNeg[school] : 0;
+    uint32_t negative = player->IsActivePlayer() ? player->m_player->m_playerFieldModDamageDoneNeg[school] : 0;
     lua_pushnumber(L, negative);
 
-    if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (player->IsActivePlayer()) {
         lua_pushnumber(L, *reinterpret_cast<float*>(&player->m_player->m_playerFieldModDamageDonePct[school]));
     } else {
         lua_pushnumber(L, 0.0);

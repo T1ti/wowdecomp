@@ -670,7 +670,7 @@ static int32_t GetAmmoCount() {
     }
 
     CGPlayer_C* player = CGLCD::m_player;
-    int32_t ammoId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerAmmoId : 0;
+    int32_t ammoId = player->IsActivePlayer() ? player->m_player->m_playerAmmoId : 0;
 
     if (CGLCD::m_player->m_unit->m_classID == CLASS_WARLOCK) {
         return CGLCD::m_player->m_bag.GetItemTypeCount(ITEM_ID_SOUL_SHARD, BAG_SEARCH_NONE);
@@ -1012,7 +1012,7 @@ void CGLCD::DisplayDefenseStats() {
 // OFFSET: 0x00849D10
 void CGLCD::DisplaySpellStats() {
     CGPlayer_C* player = CGLCD::m_player;
-    int32_t spellDamage = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[SPELL_SCHOOL::SPELL_SCHOOL_HOLY] : 0;
+    int32_t spellDamage = player->IsActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[SPELL_SCHOOL::SPELL_SCHOOL_HOLY] : 0;
 
     for (int32_t school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; school++) {
         int32_t damage = CGLCD::m_player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;

@@ -303,7 +303,7 @@ void PlayerSignalSkillStatChanges() {
 
     for (uint32_t i = 0; i < 128; i++) {
         CGPlayerLocalData* data = static_cast<CGPlayerLocalData*>(player->m_player);
-        uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? data->m_playerSkillInfo[i].m_skillId : 0;
+        uint16_t skillId = player->IsActivePlayer() ? data->m_playerSkillInfo[i].m_skillId : 0;
 
         if (!skillId) {
             continue;

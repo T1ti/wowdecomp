@@ -17,7 +17,7 @@ static TSHashTable<FOOTSTEPSNDCACHE, HASHKEY_NONE> s_footstepSounds;
 
 // VERIFY: a8ad1552 auto
 // OFFSET: 0x004CEE50
-bool CGUnit_C::IsActivePlayer() {
+bool CGUnit_C::IsActivePlayer() const {
     return this->m_obj->m_guid == ClntObjMgrGetActivePlayer();
 }
 

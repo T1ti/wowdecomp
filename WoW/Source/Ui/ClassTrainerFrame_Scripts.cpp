@@ -549,7 +549,7 @@ static int32_t Script_GetTrainerServiceStepReq(lua_State* L) {
 
             if (effect < NUM_SPELL_EFFECTS) {
                 for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
-                    uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
+                    uint16_t skillId = player->IsActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                     if (skillId == spell.m_effectMiscValue[effect]) {
                         int32_t minPoints;

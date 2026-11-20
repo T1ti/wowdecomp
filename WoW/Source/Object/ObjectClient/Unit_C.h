@@ -543,7 +543,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     const SpellVisualRec* GetAppropriateSpellVisual(const SpellRec* spell, SpellVisualRec& visual, int32_t visualId, int32_t lowViolenceVisualId) const override;
     void ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment) override;
 
-    bool IsActivePlayer();
+    bool IsActivePlayer() const;
     CGUnit_C(uint32_t time, const CClientObjCreate& create);
     ~CGUnit_C();
     void ClearWeaponTrailHandles();

@@ -412,7 +412,7 @@ int32_t DisplayIDUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
             unit->m_displayId = 0;
         }
 
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGBarberShop::m_barberShopEnabled) {
+        if (unit->IsActivePlayer() && CGBarberShop::m_barberShopEnabled) {
             CGBarberShop::DisableBarberShop();
         }
 
@@ -738,7 +738,7 @@ int32_t UnitHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
         unit->OnLife(false);
     }
 
-    if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (unit->IsActivePlayer()) {
         CGSpellBook::UpdateUsable();
     }
 
@@ -2224,7 +2224,7 @@ void CGUnit_C::OnPvPFlagChanged(uint8_t oldFlags) {
 
     this->UpdateReaction(false);
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP)) {
+    if (this->IsActivePlayer() && (this->m_unit->m_pvpFlags & UNIT_PVP_FLAG_PVP)) {
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_PVP);
     }
 }
@@ -2874,7 +2874,7 @@ void CGUnit_C::PlayDeathAnimation(BOOL force) {
 // VERIFY: e532d825 manual
 // OFFSET: 0x0073F060
 void CGUnit_C::UpdateClientStandState(UNITSTANDSTATE standState) {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         static_cast<CGPlayer_C*>(this)->SetClientStandState(standState);
     }
 
@@ -3023,11 +3023,11 @@ UNIT_REACTION CGUnit_C::UnitReaction(const CGUnit_C* unit) const {
                     return CGUnit_C::UnitReaction(this->m_unit->m_unitFieldFactiontemplate, unit);
                 }
             }
-        } else if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !otherController) {
+        } else if (this->IsActivePlayer() && !otherController) {
             if (self->IsDuelingWith(other)) {
                 return UNIT_REACTION_HOSTILE;
             }
-        } else if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !controller) {
+        } else if (unit->IsActivePlayer() && !controller) {
             if (other->IsDuelingWith(self)) {
                 return UNIT_REACTION_HOSTILE;
             }
@@ -3043,7 +3043,7 @@ UNIT_REACTION CGUnit_C::UnitReaction(const CGUnit_C* unit) const {
     if (data->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) {
         CGUnit_C* controller = self->GetControllingPlayer();
 
-        if (controller && controller->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (controller && controller->IsActivePlayer()) {
             FactionTemplateRec* faction = g_factionTemplateDB.GetRecord(unit->m_unit->m_unitFieldFactiontemplate);
 
             if (faction) {
@@ -3318,7 +3318,7 @@ float CalculateFacingTo(const C3Vector* from, const C3Vector* to) {
 // VERIFY: b5a3e88a manual
 // OFFSET: 0x0071B700
 uint64_t CGUnit_C::GetComboPointTarget() const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return static_cast<const CGPlayer_C*>(this)->m_lootTarget.m_guid;
     }
 
@@ -3366,11 +3366,11 @@ bool CGUnit_C::IsDuelingWith(CGUnit_C* unit) {
         return dueling;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !otherController) {
+    if (this->IsActivePlayer() && !otherController) {
         if (unit->GetCharmerOrCreatorGuid()->m_guid && *unit->GetCharmerOrCreatorGuid() == CGDuelInfo::m_dueler) {
             dueling = true;
         }
-    } else if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !controller) {
+    } else if (unit->IsActivePlayer() && !controller) {
         if (this->GetCharmerOrCreatorGuid()->m_guid && *this->GetCharmerOrCreatorGuid() == CGDuelInfo::m_dueler) {
             dueling = true;
         }
@@ -4818,7 +4818,7 @@ BOOL CGUnit_C::ShouldRenderObjectName(uint32_t flags) const {
 // VERIFY: 9e068ef2 manual
 // OFFSET: 0x0071B090
 bool CGUnit_C::CanAutoStand() const {
-    return this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && g_autoStandCVar->m_intValue;
+    return this->IsActivePlayer() && g_autoStandCVar->m_intValue;
 }
 
 // VERIFY: dde625d3 auto
@@ -7113,7 +7113,7 @@ void CGUnit_C::SetManaRegenInterrupt() {
 // VERIFY: 7e46098c manual
 // OFFSET: 0x0071C500
 BOOL CGUnit_C::UsesNpcBakedTexture() const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return FALSE;
     }
 
@@ -7219,7 +7219,7 @@ void CGUnit_C::GetFootprintInfo(int32_t* textureId, float* size) const {
 // VERIFY: 99ea3d4f auto
 // OFFSET: 0x0071FFC0
 BOOL CGUnit_C::IsControlledByViewer() const {
-    return this->m_obj->m_guid == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == s_activeMover || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_CONTROLLED_BY_VIEWER);
+    return this->IsActivePlayer() || this->m_obj->m_guid == s_activeMover || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_CONTROLLED_BY_VIEWER);
 }
 
 // VERIFY: e21be286 manual
@@ -7359,7 +7359,7 @@ void CGUnit_C::TrackingMakeRelativeTo(const C44Matrix* transform, float facing) 
 const char* CGUnit_C::GetFrameScriptText(const char* token, int32_t count) const {
     UNIT_SEX sex;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         sex = static_cast<UNIT_SEX>(static_cast<const CGPlayer_C*>(this)->m_player->sex);
     } else {
         sex = static_cast<UNIT_SEX>(this->m_unit->m_sex);
@@ -7622,7 +7622,7 @@ void CGUnit_C::GetSwimMatrix(C44Matrix& matrix) const {
 // VERIFY: 54b43bec manual
 // OFFSET: 0x0071B6B0
 BOOL CGUnit_C::IsLooting() const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         const WOWGUID& target = static_cast<const CGPlayer_C*>(this)->m_lootTarget;
         return static_cast<bool>(target);
     }
@@ -10026,7 +10026,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
         CGBattlefieldInfo::AddArenaOpponentPet(petGuid, *owner);
     }
 
-    if (this->m_vehicle && this->m_vehicle->m_vehicleRec && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->m_vehicle && this->m_vehicle->m_vehicleRec && this->IsActivePlayer()) {
         this->SignalPlayerGainsVehicleDataEvent();
     }
 }
@@ -10401,7 +10401,7 @@ CGUnit_C::~CGUnit_C() {
 
     this->m_nameDesc = nullptr;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         if (this->m_worldModel) {
             this->m_worldModel->m_lastAnimTime = 0;
         }
@@ -13221,7 +13221,7 @@ void CGUnit_C::SetActiveMover(uint64_t guid) {
         if (!oldMover->m_movement->m_spline || (oldMover->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
             oldMover->m_movementData.OnUnsetActiveMover();
 
-            if (oldMover->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+            if (oldMover->IsActivePlayer()) {
                 oldMover->SendMovementUpdate(CMSG_MOVE_NOT_ACTIVE_MOVER);
             }
         }
@@ -13614,7 +13614,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
                 this->AddAuraEffect(i, &spell);
             }
 
-            if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+            if (this->IsActivePlayer()) {
                 CGActionBar::OnAuraChanged(spellId);
 
                 if (CGSpellBook::IsTrackingSpell(spellId)) {
@@ -13695,7 +13695,7 @@ void CGUnit_C::SetSheatheState(WEAPONMODE weaponMode, BOOL instant, BOOL noSend)
     this->m_sheatheState = weaponMode;
     this->m_previousSheatheState = oldState;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !noSend) {
+    if (this->IsActivePlayer() && !noSend) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SET_SHEATHED));
         msg.Put(static_cast<uint32_t>(this->m_sheatheState));
@@ -13793,7 +13793,7 @@ void CGUnit_C::SetLocalClientControl(bool control) {
         this->m_movementData.ResetFallOnControlLoss();
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGGameUI::OnClientControlChanged((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) != 0);
 
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) {
@@ -13848,7 +13848,7 @@ int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, BOOL hasDisplayI
     }
 
     data.m_model = this->m_worldModel;
-    data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
+    data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
     data.m_model->m_refCount++;
 
     if (player) {
@@ -14038,7 +14038,7 @@ BOOL CGUnit_C::ShowRangedWeapon(bool sheathed, bool* rightHand) {
         }
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && track) {
+    if (this->IsActivePlayer() && track) {
         this->SetTrackingTarget(CGGameUI::m_lockedTarget, TRACKTYPE_SPELLPRECAST);
     }
 
@@ -14101,7 +14101,7 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
 
     bool skipAdd = false;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGBarberShop::m_barberShopEnabled && item->m_inventoryType == INVTYPE_SHIELD) {
+    if (this->IsActivePlayer() && CGBarberShop::m_barberShopEnabled && item->m_inventoryType == INVTYPE_SHIELD) {
         skipAdd = true;
         to = ATTACH_NONE;
     }
@@ -15332,7 +15332,7 @@ void CGUnit_C::OnVisFlagChanged(uint8_t oldFlags) {
             this->m_namePlateFrame->UpdateNameDisplay(this);
         }
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_STEALTH, nullptr);
             CGSpellBook::UpdateUsable();
         }
@@ -15352,7 +15352,7 @@ void CGUnit_C::OnVisFlagChanged(uint8_t oldFlags) {
 // VERIFY: 230b0055 manual
 // OFFSET: 0x007260E0
 bool CGUnit_C::IsSpellKnown(int32_t spellId) {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         if (static_cast<uint32_t>(spellId) <= static_cast<uint32_t>(g_spellDB.m_maxID)) {
             return s_knownSpellBits.IsSet(spellId);
         }
@@ -15857,7 +15857,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
             return false;
         }
     } else {
-        bool player = this->m_obj->m_guid == ClntObjMgrGetActivePlayer();
+        bool player = this->IsActivePlayer();
 
         if (Spell_C_GetSpellCooldown(spell->m_id, !player, nullptr, nullptr, nullptr)) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_NOT_READY, -1, -1, false);
@@ -16397,7 +16397,7 @@ void CGUnit_C::OnAuraRemoved(uint32_t index, uint8_t harmful, AuraData* aura, in
     g_spellDB.GetRecord(spellId, &spell);
     this->RemoveAuraEffect(index, &spell);
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGActionBar::OnAuraChanged(spellId);
 
         if (CGSpellBook::IsTrackingSpell(spellId)) {
@@ -16421,7 +16421,7 @@ void CGUnit_C::OnAuraAdded(uint32_t index, uint8_t harmful, AuraData* aura, int3
     this->AddAuraEffect(index, &spell);
     UnitCombatLogAuraAddedOrRemoved(this, aura, &spell, harmful, 1);
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGActionBar::OnAuraChanged(spellId);
 
         if (spellId != CGMinimapFrame::s_trackingSpell && CGSpellBook::IsTrackingSpell(spellId)) {
@@ -16587,7 +16587,7 @@ store:
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (this->GetControllingPlayer() == player || this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->GetControllingPlayer() == player || this->IsActivePlayer()) {
         for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell->m_effectAura[i] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 int32_t period = spell->m_effectAuraPeriod[i];
@@ -16645,7 +16645,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
         return;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             switch (spell->m_effectAura[i]) {
                 case SPELL_AURA_FAR_SIGHT:
@@ -16706,7 +16706,7 @@ void CGUnit_C::RemoveAuraEffect(uint32_t index, const SpellRec* spell) {
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-    if (this->GetControllingPlayer() == player || this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->GetControllingPlayer() == player || this->IsActivePlayer()) {
         for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
             if (spell->m_effectAura[i] == SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT) {
                 Spell_C_RemovePeriodicClientTrigger(this->m_obj->m_guid, spell->m_id);
@@ -17849,7 +17849,7 @@ BOOL Packet_SMSG_PET_ACTION_SOUND(void* param, NETMESSAGE msgId, uint32_t time, 
 // VERIFY: 4b8cff5c manual
 // OFFSET: 0x00722D80
 void CGUnit_C::DoPowerRegen(POWER_TYPE powerType, uint32_t elapsed) {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (static_cast<CGPlayer_C*>(this)->m_player->m_powerRegenDisabledMask & (1 << powerType))) {
+    if (this->IsActivePlayer() && (static_cast<CGPlayer_C*>(this)->m_player->m_powerRegenDisabledMask & (1 << powerType))) {
         return;
     }
 
@@ -17932,7 +17932,7 @@ void CGUnit_C::DoPowerRegen(uint32_t elapsed) {
         }
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && powerType == POWER_TYPE_RUNIC_POWER) {
+    if (this->IsActivePlayer() && powerType == POWER_TYPE_RUNIC_POWER) {
         uint32_t runes = CGRuneInfo::m_predictedRunes;
         uint32_t previous = CGRuneInfo::m_predictedRunes;
         uint32_t now = FrameTime::s_curTimeMs;
@@ -18043,7 +18043,7 @@ void CGUnit_C::OnLife(bool deadFlagCleared) {
         this->m_namePlateFrame->UpdateColorDisplay(this);
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !deadFlagCleared) {
+    if (this->IsActivePlayer() && !deadFlagCleared) {
         SendQuestGiverStatusMultipleQuery();
         CGGameUI::UnlockAllItems();
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_ALIVE, nullptr);
@@ -18224,7 +18224,7 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool fullCl
         this->m_fishingLineEffect = nullptr;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGGameUI::CloseLoot(true, (this->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) != 0, false);
     }
 }
@@ -18372,7 +18372,7 @@ void CGUnit_C::OnChannelObjectChanged(WOWGUID oldObject, int32_t oldSpell) {
 
     SpellRec spell;
 
-    if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell) && (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell) && (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) && this->IsActivePlayer()) {
         WOWGUID target = this->m_unit->m_unitFieldChannelObject;
         this->SetTrackingTarget(target, TRACKTYPE_SPELLCHANNEL);
     }
@@ -18391,7 +18391,7 @@ void CGUnit_C::UpdateChannelEffects() {
     if (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_TRACK_CHANNEL_TARGET;
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             WOWGUID target = this->m_unit->m_unitFieldChannelObject;
             this->SetTrackingTarget(target, TRACKTYPE_SPELLCHANNEL);
         }
@@ -18433,7 +18433,7 @@ bool CGUnit_C::CanInteract(const CGGameObject_C* gameObject) const {
 static int32_t UnitColorUpdateProc(WOWGUID guid, void* param) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!unit || unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (!unit || unit->IsActivePlayer()) {
         return 1;
     }
 
@@ -18463,7 +18463,7 @@ void CGUnit_C::UpdateReaction(bool updatePetColors) {
 
     Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         SendQuestGiverStatusMultipleQuery();
         ClntObjMgrEnumVisibleObjects(UnitColorUpdateProc, nullptr);
         return;
@@ -18508,7 +18508,7 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
     uint32_t flags = this->m_unit->m_unitFieldFlags;
     uint32_t changed = oldFlags ^ flags;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         this->OnFlagChangedActivePlayer(flags, changed);
     } else if (static_cast<int32_t>(this->m_unit->m_unitFieldHealth) > 0 && (changed & UNIT_FLAGS::UNIT_FLAG_LOOTING)) {
         this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
@@ -18543,7 +18543,7 @@ void CGUnit_C::OnFlagChanged(uint32_t oldFlags) {
             }
         }
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             CGSpellBook::UpdateUsable();
         }
     }
@@ -20553,7 +20553,7 @@ void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t spline) {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && wasSwimming != (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
+    if (this->IsActivePlayer() && wasSwimming != (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SWIMMING)) {
         CGSpellBook::UpdateUsable();
     }
 }
@@ -20765,7 +20765,7 @@ void CGUnit_C::UpdateScriptRegistration() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     uint32_t flags = SCRIPT_REGISTRATION_NONE;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         flags = SCRIPT_REGISTRATION_PLAYER;
     }
 
@@ -21106,7 +21106,7 @@ BOOL CGUnit_C::IsHostileCritter() {
         return FALSE;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return FALSE;
     }
 
@@ -21238,7 +21238,7 @@ void CGUnit_C::DropTargetOnDeath() {
 // OFFSET: 0x0071B1E0
 void CGUnit_C::HandlePendingTrackEvents() {
     if (s_pendingAttackTarget) {
-        if (ClntObjMgrObjectPtr(s_pendingAttackTarget, TYPE_UNIT, __FILE__, __LINE__) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (ClntObjMgrObjectPtr(s_pendingAttackTarget, TYPE_UNIT, __FILE__, __LINE__) && this->IsActivePlayer()) {
             static_cast<CGPlayer_C*>(this)->CombatModeEnter(s_pendingAttackTarget, 0, 0);
         }
 
@@ -21246,7 +21246,7 @@ void CGUnit_C::HandlePendingTrackEvents() {
     } else if (s_pendingLootTarget) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(s_pendingLootTarget, TYPE_UNIT, __FILE__, __LINE__));
 
-        if (unit && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit && this->IsActivePlayer()) {
             static_cast<CGPlayer_C*>(this)->LootUnit(unit, false);
         }
 
@@ -22291,7 +22291,7 @@ BOOL Packet_SMSG_CANCEL_AUTO_REPEAT(void* param, NETMESSAGE msgId, uint32_t time
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit->IsActivePlayer()) {
             Spell_C_CancelAutoRepeat(false);
         }
 
@@ -22765,7 +22765,7 @@ bool CGPlayer_C::CTMAttackUnit(CGUnit_C* unit) {
         target.z = -((plane.n.y * target.y + plane.n.x * target.x + plane.d) / plane.n.z);
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         modalSpell = GetModalNextSpell();
     }
 
@@ -23679,7 +23679,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
 
         this->m_characterComponent = CCharacterComponent::AllocComponent();
         data.m_model = this->m_worldModel;
-        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
+        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
         data.m_model->m_refCount++;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_1);
         this->m_characterComponent->Init(&data, nullptr);
@@ -23851,7 +23851,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
         }
     }
 
-    if ((changed & UNIT_FLAGS2::UNIT_FLAG2_COMPREHEND_LANGUAGES) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((changed & UNIT_FLAGS2::UNIT_FLAG2_COMPREHEND_LANGUAGES) && this->IsActivePlayer()) {
         CGChat::UpdateLanguages();
     }
 
@@ -23888,7 +23888,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
             }
         }
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             CGSpellBook::UpdateUsable();
         }
     }
@@ -23908,7 +23908,7 @@ void CGUnit_C::OnFlag2Changed(uint32_t oldFlags) {
             this->AddHandItem(2);
         }
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             CGSpellBook::UpdateUsable();
         }
     }

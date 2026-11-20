@@ -50,7 +50,7 @@ static int32_t Script_GetInventoryItemTexture(lua_State* L) {
         int32_t displayId = 0;
 
         if (slot == INVSLOT_AMMO) {
-            if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+            if (unit->IsActivePlayer()) {
                 int32_t ammoId = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
                 if (ammoId && unit->GetBag()->GetItemTypeCount(ammoId, BAG_SEARCH_NONE)) {
@@ -299,7 +299,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
     }
 
     if (slot == INVSLOT_AMMO) {
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit->IsActivePlayer()) {
             int32_t ammo = CGCharacterInfo::GetActivePlayerAmmoID(unit);
 
             if (ammo) {

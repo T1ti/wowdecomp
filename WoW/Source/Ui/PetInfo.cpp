@@ -1051,7 +1051,7 @@ void CGPetInfo::UpdatePetTempBar() {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
     int32_t active = 0;
 
-    if (player && player->m_obj->m_guid == ClntObjMgrGetActivePlayer() && player->m_player->m_playerFarsight.m_guid && player->GetFarSightGuid() == CGPetInfo::GetPet(0).m_guid && CGPetInfo::IsPetBarUsed()) {
+    if (player && player->IsActivePlayer() && player->m_player->m_playerFarsight.m_guid && player->GetFarSightGuid() == CGPetInfo::GetPet(0).m_guid && CGPetInfo::IsPetBarUsed()) {
         active = 1;
         CVehicle_C* vehicle;
         VehicleSeatRec* seat;

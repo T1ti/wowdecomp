@@ -88,8 +88,8 @@ int32_t PlayerCharacterPointsUpdateHandler(WOWGUID guid, uint32_t fieldOffset, u
 
     if (player) {
         const int32_t* oldPoints = static_cast<const int32_t*>(oldValue);
-        int32_t points2 = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerCharacterPoints[1] : 0;
-        int32_t points1 = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerCharacterPoints[0] : 0;
+        int32_t points2 = player->IsActivePlayer() ? player->m_player->m_playerCharacterPoints[1] : 0;
+        int32_t points1 = player->IsActivePlayer() ? player->m_player->m_playerCharacterPoints[0] : 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_CHARACTER_POINTS_CHANGED, "%d%d", points1 - oldPoints[0], points2 - oldPoints[1]);
     }
 
@@ -164,7 +164,7 @@ BOOL CGCharacterInfo::CanInspect(const CGPlayer_C* unit) {
         return 0;
     }
 
-    return unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() || unit->m_obj->m_guid == CGCharacterInfo::m_inspectTarget;
+    return unit->IsActivePlayer() || unit->m_obj->m_guid == CGCharacterInfo::m_inspectTarget;
 }
 
 // VERIFY: 97f574c5 manual
@@ -203,7 +203,7 @@ int32_t GetUnitAndSlotFromLua(lua_State* L, const char*& unit, int32_t& slot) {
 // VERIFY: d19c5b13 manual
 // OFFSET: 0x005E8300
 int32_t CGCharacterInfo::GetActivePlayerAmmoID(const CGPlayer_C* player) {
-    if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (player->IsActivePlayer()) {
         return player->m_player->m_playerAmmoId;
     }
 

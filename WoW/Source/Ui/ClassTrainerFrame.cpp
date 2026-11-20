@@ -428,10 +428,10 @@ void CGClassTrainer::RefreshList() {
                 total++;
 
                 for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
-                    uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
+                    uint16_t skillId = player->IsActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                     if (skillId == spell.m_effectMiscValue[e]) {
-                        uint16_t step = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_step : 0;
+                        uint16_t step = player->IsActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_step : 0;
 
                         if (step >= maxPoints) {
                             known++;
@@ -480,10 +480,10 @@ void CGClassTrainer::RefreshList() {
             int32_t maxRank = 0;
 
             for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
-                uint16_t skillId = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
+                uint16_t skillId = player->IsActivePlayer() ? player->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
                 if (skillId == CGClassTrainer::m_services.m_data[s]->m_skillReq) {
-                    if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+                    if (player->IsActivePlayer()) {
                         maxRank = player->m_player->m_playerSkillInfo[i].m_maxRank;
 
                         if (maxRank > 0) {

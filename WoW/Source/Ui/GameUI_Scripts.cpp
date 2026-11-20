@@ -2422,7 +2422,7 @@ static int32_t Script_GetXPExhaustion(lua_State* L) {
         return 1;
     }
 
-    uint32_t experience = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerRestStateExperience : 0;
+    uint32_t experience = player->IsActivePlayer() ? player->m_player->m_playerRestStateExperience : 0;
     lua_pushnumber(L, experience * rested->m_factor);
     return 1;
 }
@@ -4751,7 +4751,7 @@ static int32_t Script_DropItemOnUnit(lua_State* L) {
     if (unit->m_obj->m_type & TYPE_PLAYER) {
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit->IsActivePlayer()) {
             if (!player) {
                 SErrDisplayAppFatalMessage("", "", 0);
             }

@@ -173,7 +173,7 @@ static int32_t OnUpdateDynamicFlags(WOWGUID guid, uint32_t fieldOffset, uint32_t
     if (item && ((*static_cast<const uint8_t*>(oldValue) ^ item->m_item->m_itemFieldFlags) & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_UNUSABLE)) {
         CGPlayer_C* owner = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(item->m_item->m_itemFieldOwner, TYPE_PLAYER, __FILE__, __LINE__));
 
-        if (owner && owner->m_obj->m_guid == ClntObjMgrGetActivePlayer() && static_cast<uint32_t>(owner->GetBag()->FindItemSlot(item->m_obj->m_guid)) <= 18) {
+        if (owner && owner->IsActivePlayer() && static_cast<uint32_t>(owner->GetBag()->FindItemSlot(item->m_obj->m_guid)) <= 18) {
             CGCharacterInfo::UpdateInventoryAlerts();
         }
     }
@@ -1923,7 +1923,7 @@ void CGItem_C::UpdateEnchantments() {
         return;
     }
 
-    if (owner->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (owner->IsActivePlayer()) {
         CGActionBar::UpdateItem(this->m_obj->m_entryID);
         CGTradeInfo::UpdatePlayerItem(this->m_obj->m_guid);
         CGContainerInfo::UpdateItem(this->m_obj->m_guid);

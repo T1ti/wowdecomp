@@ -63,7 +63,7 @@ static int32_t Script_GetAdjustedSkillPoints(lua_State* L) {
     int32_t points = 0;
 
     if (player) {
-        if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (player->IsActivePlayer()) {
             points = player->m_player->m_playerCharacterPoints[1] - CGSkillInfo::m_skillUpPoints;
         } else {
             points = -CGSkillInfo::m_skillUpPoints;

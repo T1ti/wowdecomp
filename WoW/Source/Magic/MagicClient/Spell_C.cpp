@@ -1214,7 +1214,7 @@ void CGUnit_C::SetPredictedPower(POWER_TYPE powerType, int32_t value) {
         Script_SendUnitSignal(this->m_obj->m_guid, powerType + SCRIPT_EVENT_UNIT_MANA);
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == CGPetInfo::GetPet(0)) {
+    if (this->IsActivePlayer() || this->m_obj->m_guid == CGPetInfo::GetPet(0)) {
         CGSpellBook::UpdateUsablePower();
     }
 }
@@ -5062,7 +5062,7 @@ int32_t Packet_SMSG_SPELL_DELAYED(void* param, NETMESSAGE msgId, uint32_t time, 
         SpellRec spell;
 
         if (g_spellDB.GetRecord(unit->m_castingSpellId, &spell)) {
-            if ((spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_FORCE_DISPLAY_CASTBAR) || (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() || (!(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && !(spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_NO_CAST_LOG))))) {
+            if ((spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_FORCE_DISPLAY_CASTBAR) || (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) && (unit->IsActivePlayer() || (!(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && !(spell.m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_NO_CAST_LOG))))) {
                 unit->DelayCast(delay);
                 Script_SendUnitSpellSignal(guid, unit->m_castCount, &spell, SCRIPT_EVENT_UNIT_SPELLCAST_DELAYED);
             }
@@ -8464,7 +8464,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     if (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         bool usable;
 
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (unit->IsActivePlayer()) {
             CGItem_C* weapon = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(WOWGUID{ static_cast<CGPlayer_C*>(unit)->m_bag.GetItemGuid(INVSLOT_RANGED) }, TYPE_ITEM, __FILE__, __LINE__));
             usable = weapon && weapon->IsUsable();
         } else {
@@ -8480,7 +8480,7 @@ bool Spell_C_CastSpell(CGUnit_C* caster, int32_t spellId, const CGItem_C* item, 
     if (spell.m_attributesEx & (SPELL_ATTR1::SPELL_ATTR1_FINISHING_MOVE_DAMAGE | SPELL_ATTR1::SPELL_ATTR1_FINISHING_MOVE_DURATION)) {
         bool noComboPoints;
 
-        if (unit->m_obj->m_guid == ClntObjMgrGetActivePlayer() && !CGGameUI::GetComboPoints(target)) {
+        if (unit->IsActivePlayer() && !CGGameUI::GetComboPoints(target)) {
             noComboPoints = true;
         } else {
             noComboPoints = unit->m_obj->m_guid == CGPetInfo::GetPet(0) && !CGPetInfo::GetComboPoints(target);

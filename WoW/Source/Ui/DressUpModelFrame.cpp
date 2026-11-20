@@ -527,7 +527,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
         data.m_preferences.m_hairColorId = player->m_player->hairColorID;
         data.m_preferences.m_facialHairId = player->m_player->facialHairStyleID;
         data.m_model = model;
-        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
+        data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(player->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_2);
         this->m_component->Init(&data, nullptr);
         s_mainHandItemId = 0;

@@ -495,7 +495,7 @@ static int32_t OnUpdateInebriation(WOWGUID guid, uint32_t fieldOffset, uint32_t 
     if (player) {
         float drunkness = player->GetDrunknessTurnValue();
 
-        if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (player->IsActivePlayer()) {
             CGUnit_C* target = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGGameUI::m_lockedTarget, TYPE_UNIT, __FILE__, __LINE__));
 
             if (target && player->CanAttack(target)) {
@@ -1021,7 +1021,7 @@ void CGPlayer_C::PreAnimate(CGWorldFrame* frame) {
 
     uint32_t time = FrameTime::s_curTimeMs;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && this->m_combat.m_attacking.m_guid && static_cast<int32_t>(time - s_attackSwingErrorTime) >= 0) {
+    if (this->IsActivePlayer() && this->m_combat.m_attacking.m_guid && static_cast<int32_t>(time - s_attackSwingErrorTime) >= 0) {
         if (s_attackSwingError == 1) {
             s_attackSwingErrorTime = time + 4000;
             CGGameUI::DisplayError(ERR_BADATTACKPOS);
@@ -1039,7 +1039,7 @@ void CGPlayer_C::ShouldRender(uint32_t flags, int32_t& culled, int32_t& hidden) 
 
     if (this->IsCommentatorUberOrInArena() || ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) && this->m_pendingItemCacheCount)) {
         hidden = 1;
-    } else if (!s_playerRenderDisabled && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    } else if (!s_playerRenderDisabled && this->IsActivePlayer()) {
         hidden = 1;
     }
 }
@@ -1981,7 +1981,7 @@ void CGPlayer_C::StartTaxiExpress(WOWGUID guid, const uint32_t* nodes, int32_t c
 // VERIFY: daeba6e5 auto
 // OFFSET: 0x006D64E0
 UNITSTANDSTATE CGPlayer_C::GetClientStandState() const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_clientStandState;
     }
 
@@ -2107,7 +2107,7 @@ int32_t CGPlayer_C::GetSkillIndex(int32_t skillId) const {
     int32_t index = 0;
 
     for (uint32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
-        uint16_t id = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
+        uint16_t id = this->IsActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
         if (id == skillId) {
             break;
@@ -2126,7 +2126,7 @@ int32_t CGPlayer_C::GetSkillIndex(int32_t skillId) const {
 // VERIFY: 43bc2c57 manual
 // OFFSET: 0x006DC8D0
 void CGPlayer_C::GetAFKText(char* buffer, uint32_t size) const {
-    if ((this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGChat::m_afk) || (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK)) {
+    if ((this->IsActivePlayer() && CGChat::m_afk) || (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK)) {
         const char* text = FrameScript_GetText("CHAT_FLAG_AFK", -1, GENDER_NOT_APPLICABLE);
 
         if (text && *text) {
@@ -2233,7 +2233,7 @@ int32_t CGPlayer_C::GetPVPToggleTimer() const {
 // VERIFY: 8ab92411 auto
 // OFFSET: 0x006DE7E0
 uint32_t CGPlayer_C::GetEquippedAmmoDisplayId() const {
-    int32_t ammoId = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerAmmoId : 0;
+    int32_t ammoId = this->IsActivePlayer() ? this->m_player->m_playerAmmoId : 0;
     ItemRec* rec = g_itemDB.GetRecord(ammoId);
 
     return rec ? rec->m_displayInfoID : 0;
@@ -2591,7 +2591,7 @@ bool CGPlayer_C::GetExpandedSkillRank(int32_t skillId, int32_t& rank, int32_t& b
     }
 
     rank = this->GetSkillValue(index);
-    bonus = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[index].m_tempBonus : 0;
+    bonus = this->IsActivePlayer() ? this->m_player->m_playerSkillInfo[index].m_tempBonus : 0;
 
     return true;
 }
@@ -2605,7 +2605,7 @@ int32_t CGPlayer_C::GetSkillRank(int32_t skillId) const {
         return 0;
     }
 
-    int16_t bonus = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[index].m_tempBonus : 0;
+    int16_t bonus = this->IsActivePlayer() ? this->m_player->m_playerSkillInfo[index].m_tempBonus : 0;
     int32_t rank = bonus + this->GetSkillValue(index);
 
     return rank < 0 ? 0 : rank;
@@ -2806,7 +2806,7 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
       m_lootTarget(),
       m_autoLoot(0) {
     CGPlayerLocalData* player = this->m_player;
-    bool activePlayer = this->m_obj->m_guid == ClntObjMgrGetActivePlayer();
+    bool activePlayer = this->IsActivePlayer();
     this->m_bag.m_guid = this->m_obj->m_guid;
     this->m_bag.m_hasBank = 1;
     this->m_bag.m_numSlots = activePlayer ? PLAYER_INVENTORY_SLOTS : 0;
@@ -2817,7 +2817,7 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
         this->GetUnitName(nullptr, 1);
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         for (uint32_t i = 0; i < 1002; i++) {
             new (&this->m_playerLocalMirrorLists[i]) TSList<void>();
         }
@@ -2844,7 +2844,7 @@ CGPlayer_C::CGPlayer_C(uint32_t time, const CClientObjCreate& create)
     this->m_playedTime = -1;
     this->m_playedTimeBase = 0;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_REQUEST_PLAYED_TIME));
         msg.Put(static_cast<uint8_t>(0));
@@ -2888,7 +2888,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
         }
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         this->PostInitActivePlayer();
     } else {
         this->UpdatePartyMemberState();
@@ -2905,7 +2905,7 @@ void CGPlayer_C::Reenable() {
     this->CGUnit_C::Reenable();
     this->m_pendingItemCacheCount = 0;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         this->SetActiveMirrorHandlers();
         CGGameUI::EnterWorld();
     }
@@ -3098,7 +3098,7 @@ void CGPlayer_C::PostInitActivePlayer() {
     if (!ClntObjMgrGetPlayerType()) {
         this->SetLocalClientControl(true);
 
-        WOWGUID farsight = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerFarsight : WOWGUID();
+        WOWGUID farsight = this->IsActivePlayer() ? this->m_player->m_playerFarsight : WOWGUID();
         WOWGUID charm = this->m_unit->m_unitFieldCharm;
         CGUnit_C* charmed = nullptr;
         WOWGUID controlled;
@@ -3172,7 +3172,7 @@ CGUnit_C* CGPlayer_C::GetPossessedUnit() {
 
     WOWGUID farsight;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         farsight = this->m_player->m_playerFarsight;
     }
 
@@ -3194,7 +3194,7 @@ CGUnit_C* CGPlayer_C::GetPossessedUnit() {
 // VERIFY: 3e8a1a90 manual
 // OFFSET: 0x006E1660
 void CGPlayer_C::SetCombatMode() {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (this->CGUnit_C::IsInMelee() || this->m_combat.m_attackSent)) {
+    if (this->IsActivePlayer() && (this->CGUnit_C::IsInMelee() || this->m_combat.m_attackSent)) {
         this->StopAttack();
         Spell_C_CancelMeleeSpells();
     }
@@ -4724,7 +4724,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
     }
 
     for (int32_t i = 0; i < NUM_PLAYER_SKILLS; i++) {
-        uint16_t skillId = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
+        uint16_t skillId = this->IsActivePlayer() ? this->m_player->m_playerSkillInfo[i].m_skillId : 0;
 
         if (skillId == ability->m_skillLine) {
             if (!g_skillLineDB.GetRecord(ability->m_skillLine)) {
@@ -4921,7 +4921,7 @@ uint32_t Spell_C_EncodeSequenceIntoMissileTrajectory(uint32_t* pitch, uint32_t* 
 // VERIFY: 3100171d manual
 // OFFSET: 0x0060A600
 uint32_t CGPlayer_C::GetNextLevelXP() const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_player->m_playerNextLevelXp;
     }
 
@@ -5715,7 +5715,7 @@ bool CGPlayer_C::CanTrackObject(CGObject_C* object) {
         return false;
     }
 
-    uint32_t trackResources = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerTrackResources : 0;
+    uint32_t trackResources = this->IsActivePlayer() ? this->m_player->m_playerTrackResources : 0;
     LockRec* lock = gameObject->GetLockRec();
 
     if (!lock) {
@@ -5883,7 +5883,7 @@ const CGItem_C* CGPlayer_C::EquippedItemMeetSpellRequirements(const SpellRec* sp
 // VERIFY: 6a792bb7 manual
 // OFFSET: 0x00578210
 int32_t CGPlayer_C::GetModDamageDonePos(int32_t school) const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_player->m_playerFieldModDamageDonePos[school];
     }
 
@@ -5893,7 +5893,7 @@ int32_t CGPlayer_C::GetModDamageDonePos(int32_t school) const {
 // VERIFY: 816c9e22 manual
 // OFFSET: 0x00578250
 int32_t CGPlayer_C::GetModDamageDoneNeg(int32_t school) const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_player->m_playerFieldModDamageDoneNeg[school];
     }
 
@@ -5903,7 +5903,7 @@ int32_t CGPlayer_C::GetModDamageDoneNeg(int32_t school) const {
 // VERIFY: 55676844 manual
 // OFFSET: 0x00578290
 float CGPlayer_C::GetModDamageDonePct(int32_t school) const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_player->m_playerFieldModDamageDonePct[school];
     }
 
@@ -6223,7 +6223,7 @@ void CGPlayer_C::HideHelm() {
         this->m_characterComponent->RemoveItemBySlot(INVSLOT_HEAD);
     }
 
-    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->IsActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_HELM));
         msg.Put(static_cast<uint8_t>(0));
@@ -6241,7 +6241,7 @@ void CGPlayer_C::HideCloak() {
         this->m_characterComponent->RemoveItemBySlot(INVSLOT_BACK);
     }
 
-    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (!(this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->IsActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_CLOAK));
         msg.Put(static_cast<uint8_t>(0));
@@ -7132,7 +7132,7 @@ int32_t OnUpdateQuest(WOWGUID guid, uint32_t offset, uint32_t count, const void*
         return 1;
     }
 
-    if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (player->IsActivePlayer()) {
         CGPlayer_C::QueryQuestGiverStatusMultiple();
     }
 
@@ -7406,7 +7406,7 @@ static void CrossedInebriationThresholdItemCallback(int32_t id, const WOWGUID& g
         const char* link = CGTooltip::GetItemHyperlinkString(id, stats->m_quality, 0, 0, 0);
         SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText(token, -1, GENDER_NOT_APPLICABLE), link);
     } else {
-        if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (player->IsActivePlayer()) {
             SStrPrintf(token, sizeof(token), "DRUNK_MESSAGE_SELF%d", threshold + 1);
         } else {
             SStrPrintf(token, sizeof(token), "DRUNK_MESSAGE_OTHER%d", threshold + 1);
@@ -8157,7 +8157,7 @@ void CGPlayer_C::ExitAutoCombatMode() {
 // VERIFY: 3148365b manual
 // OFFSET: 0x006D5F70
 void CGPlayer_C::MeleeModeLeave() {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && (this->CGUnit_C::IsInMelee() || this->m_combat.m_attackSent)) {
+    if (this->IsActivePlayer() && (this->CGUnit_C::IsInMelee() || this->m_combat.m_attackSent)) {
         this->StopAttack();
         Spell_C_CancelMeleeSpells();
     }
@@ -8420,7 +8420,7 @@ int32_t CGPlayer_C::AutoCombatModeEventHandler(const void* data, void* param) {
 // VERIFY: b36390c6 auto
 // OFFSET: 0x006D66E0
 void CGPlayer_C::OnLevelChange() {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGSpellBook::UpdateSpells(0, 0, 0);
         CGClassTrainer::RefreshList();
         CGUnit_C::NamePlateUpdateLevels(true);
@@ -8865,7 +8865,7 @@ void SendQuestGiverStatusMultipleQuery() {
 // VERIFY: d34ef321 manual
 // OFFSET: 0x005946C0
 uint16_t CGPlayer_C::GetSkillLineID(int32_t index) const {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         return this->m_player->m_playerSkillInfo[index].m_skillId;
     }
 
@@ -10299,7 +10299,7 @@ void CGPlayer_C::UpdateObjComponentVisualsSlot(const VisibleItem_C* item, int32_
 // VERIFY: b088396b manual
 // OFFSET: 0x006DE7E0
 uint32_t CGPlayer_C::GetEquippedItemDisplayId() {
-    int32_t ammo = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerAmmoId : 0;
+    int32_t ammo = this->IsActivePlayer() ? this->m_player->m_playerAmmoId : 0;
     ItemRec* rec = g_itemDB.GetRecord(ammo);
     return rec ? rec->m_displayInfoID : 0;
 }
@@ -10477,7 +10477,7 @@ void CGPlayer_C::ShowHelm() {
         this->m_characterComponent->AddItemBySlot(INVSLOT_HEAD, head->GetDisplayID(), 0);
     }
 
-    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && this->IsActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_HELM));
         msg.Put(static_cast<uint8_t>(1));
@@ -10497,7 +10497,7 @@ void CGPlayer_C::ShowCloak() {
         this->m_characterComponent->AddItemBySlot(INVSLOT_BACK, back->GetDisplayID(), 0);
     }
 
-    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_CLOAK) && this->IsActivePlayer()) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SHOWING_CLOAK));
         msg.Put(static_cast<uint8_t>(1));
@@ -10545,7 +10545,7 @@ void CGPlayer_C::UpdateInventoryComponent(INVENTORY_SLOTS slot, const VisibleIte
     CGTradeSkillInfo::RefreshList(0);
     CGCharacterInfo::UpdateInventoryAlerts();
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         CGActionBar::UpdateUsable();
         CGActionBar::UpdateItem(abs(old->m_itemId));
         CGActionBar::UpdateItem(abs(item->m_itemId));
@@ -12212,7 +12212,7 @@ int32_t ReportDailyQuestsRemaining(WOWGUID guid, uint32_t offset, uint32_t count
         return 1;
     }
 
-    if (player->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (player->IsActivePlayer()) {
         CGPlayer_C::QueryQuestGiverStatusMultiple();
     }
 
@@ -12263,7 +12263,7 @@ int32_t OnUpdateMoney(WOWGUID guid, uint32_t offset, uint32_t count, const void*
         return 1;
     }
 
-    uint32_t coinage = player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? player->m_player->m_playerFieldCoinage : 0;
+    uint32_t coinage = player->IsActivePlayer() ? player->m_player->m_playerFieldCoinage : 0;
 
     if (tradeMoney > coinage) {
         CGTradeInfo::RemoveMoney(tradeMoney - player->GetCoinage());
@@ -13122,7 +13122,7 @@ void CGPlayer_C::TogglePlayerFlag(uint32_t oldFlags) {
     if (changed & PLAYER_FLAGS::PLAYER_FLAG_NAME_TAGS_MASK) {
         PlayerNameTriggerNameRegenerate(this->m_nameDesc);
 
-        if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+        if (this->IsActivePlayer()) {
             CGChat::m_afk = this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_AFK;
         }
     }
@@ -13346,7 +13346,7 @@ void CGPlayer_C::StartDance(PlayerDance* dance) {
 // VERIFY: daebf535 manual
 // OFFSET: 0x006E17C0
 void CGPlayer_C::DanceMoveComplete() {
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         WDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_SYNC_DANCE));
         msg.Finalize();
@@ -13482,7 +13482,7 @@ void CGPlayer_C::Disable() {
         }
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         this->UnsetActiveMirrorHandlers();
         CGGameUI::CancelMirrorTimers();
         CGGameUI::LeaveWorld();
@@ -13534,7 +13534,7 @@ CGPlayer_C::~CGPlayer_C() {
         }
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         this->DestructActivePlayer();
     }
 
@@ -13568,7 +13568,7 @@ int32_t CGPlayer_C::GetSpellCastingTime(const SpellRec* spell) const {
         time = castTime->m_minimum;
     }
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         Spell_C_ModifySpellValue(spell, time, SPELLMOD_CASTING_TIME);
     }
 
@@ -13775,7 +13775,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
 
     SI2_SOUND_GROUP group;
 
-    if ((soundType == UNITSOUNDTYPE_INJURY || soundType == UNITSOUNDTYPE_INJURYCRITICAL || soundType == UNITSOUNDTYPE_INJURYCRUSHINGBLOW) && this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if ((soundType == UNITSOUNDTYPE_INJURY || soundType == UNITSOUNDTYPE_INJURYCRITICAL || soundType == UNITSOUNDTYPE_INJURYCRUSHINGBLOW) && this->IsActivePlayer()) {
         group = SI2_SOUND_GROUP_PLAYER_INJURY;
     } else {
         group = this->GetUnitSoundKitIndex(soundType);
@@ -13788,7 +13788,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
     SE2SoundKitProperties properties;
     const C3Vector* soundPosition;
 
-    if (this->m_obj->m_guid == ClntObjMgrGetActivePlayer()) {
+    if (this->IsActivePlayer()) {
         properties.ResetToDefaults();
         properties.m_group = group;
 
@@ -13827,11 +13827,11 @@ void CGPlayer_C::PlayFoleySound() {
     static CVar* s_enableForSelf = CVar::Lookup("Sound_EnableArmorFoleySoundForSelf");
     static CVar* s_enableForOthers = CVar::Lookup("Sound_EnableArmorFoleySoundForOthers");
 
-    if ((this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && s_enableForSelf && s_enableForSelf->m_intValue) || (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() && s_enableForOthers && s_enableForOthers->m_intValue)) {
+    if ((this->IsActivePlayer() && s_enableForSelf && s_enableForSelf->m_intValue) || (this->m_obj->m_guid != ClntObjMgrGetActivePlayer() && s_enableForOthers && s_enableForOthers->m_intValue)) {
         VisibleItem_C* chest = const_cast<VisibleItem_C*>(this->GetVisibleItem(4));
 
         if (chest) {
-            int32_t local = this->m_obj->m_guid == ClntObjMgrGetActivePlayer();
+            int32_t local = this->IsActivePlayer();
             C3Vector position = this->GetPosition();
             SI2::PlayFoleySound(chest->GetMaterial(), &position, local);
         }
@@ -14542,9 +14542,9 @@ void __stdcall CGPlayer_C::ServerBindConfirm(WOWGUID item, uint64_t srcContainer
 // VERIFY: 0cd657ae manual
 // OFFSET: 0x006E2880
 bool CGPlayer_C::ToggleFarSight(CGObject_C* object) {
-    WOWGUID farsight = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? this->m_player->m_playerFarsight : WOWGUID();
+    WOWGUID farsight = this->IsActivePlayer() ? this->m_player->m_playerFarsight : WOWGUID();
     CGObject_C* target = ClntObjMgrObjectPtr(farsight, TYPE_OBJECT, __FILE__, __LINE__);
-    bool hasFarsight = this->m_obj->m_guid == ClntObjMgrGetActivePlayer() && this->m_player->m_playerFarsight;
+    bool hasFarsight = this->IsActivePlayer() && this->m_player->m_playerFarsight;
 
     if (hasFarsight && !target) {
         if (Spell_C_IsTargeting()) {
