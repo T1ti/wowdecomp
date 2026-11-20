@@ -787,13 +787,13 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     if (properties->m_checkStreaming) {
         int32_t local = SFile::FileIsLocal(file, GetDownloadPriority(properties->m_group));
 
-        if (local != 1) {
+        if (local != SFILE_LOCAL_YES) {
             if (properties->m_group == SI2_SOUND_GROUP_RACIAL_CINEMATIC) {
                 if (!SFile::MakeFileLocal(file, 2, true)) {
                     return 16;
                 }
-            } else if (local == 0 || local == 2) {
-                if (local == 0) {
+            } else if (local == SFILE_LOCAL_NO || local == SFILE_LOCAL_PARTIAL) {
+                if (local == SFILE_LOCAL_NO) {
                     SFile::MakeFileLocal(file, GetDownloadPriority(properties->m_group), false);
                 }
 

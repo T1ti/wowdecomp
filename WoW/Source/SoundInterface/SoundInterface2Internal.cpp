@@ -144,12 +144,12 @@ const char* VSOUNDKITDEF::SelectFile(SE2_FILE_SELECT_MODE mode, int32_t* index, 
 
     int32_t roll = mode ? static_cast<int32_t>(CRandom::dice_(total, g_rndSeed)) : 0;
 
-    int32_t state = 1;
+    int32_t state = SFILE_LOCAL_YES;
 
     if (this->m_pendingIndex >= 0) {
         state = SFile::FileIsLocal(this->m_files[this->m_pendingIndex], priority);
 
-        if (state && state != 2) {
+        if (state != SFILE_LOCAL_NO && state != SFILE_LOCAL_PARTIAL) {
             this->m_pendingIndex = -1;
         }
     }
@@ -172,7 +172,7 @@ const char* VSOUNDKITDEF::SelectFile(SE2_FILE_SELECT_MODE mode, int32_t* index, 
             state = SFile::FileIsLocal(this->m_files[i], priority);
         }
 
-        if (state && state != 2) {
+        if (state != SFILE_LOCAL_NO && state != SFILE_LOCAL_PARTIAL) {
             this->m_weights[i]--;
             selected = i;
         } else {

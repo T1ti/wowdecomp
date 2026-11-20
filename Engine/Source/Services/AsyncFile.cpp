@@ -254,7 +254,7 @@ int32_t NetQueuePromoteLocalFiles(const void* data, void* param) {
             while (!s_asyncQueues[i]->m_readList.IsEnd(object)) {
                 CAsyncObject* next = s_asyncQueues[i]->m_readList.RawNext(object);
 
-                if (SFile::FileIsLocal(object->m_file, 6) == 1) {
+                if (SFile::FileIsLocal(object->m_file, 6) == SFILE_LOCAL_YES) {
                     s_asyncQueues[0]->m_readList.LinkToTail(object);
                     object->m_queue = s_asyncQueues[0];
                 }
@@ -538,7 +538,7 @@ void AsyncFileReadObject(CAsyncObject* object, int32_t urgent) {
     if (SFile::IsStreamingMode()) {
         int32_t local = SFile::FileIsLocal(object->m_file, 6);
 
-        if (!local || local == 2) {
+        if (local == SFILE_LOCAL_NO || local == SFILE_LOCAL_PARTIAL) {
             object->m_char24 = 1;
             queue = object->m_priority > 127 ? s_asyncQueues[2] : s_asyncQueues[1];
         }

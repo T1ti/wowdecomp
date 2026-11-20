@@ -488,7 +488,7 @@ static bool LoadSimpleBackgroundTexture() {
                 }
 
                 if (SFile::FileExistsInArchives(path)) {
-                    if (!SFile::IsTrial() || SFile::FileIsLocal(path, 6) == 1) {
+                    if (!SFile::IsTrial() || SFile::FileIsLocal(path, 6) == SFILE_LOCAL_YES) {
                         CGxTexFlags flags;
                         s_simpleBackgroundTexture = TextureCreate(path, flags, &status, 1);
 
@@ -502,7 +502,7 @@ static bool LoadSimpleBackgroundTexture() {
             }
 
             if (!s_simpleBackgroundTexture && SFile::FileExistsInArchives(screenRec->m_fileName)) {
-                if (!SFile::IsTrial() || SFile::FileIsLocal(screenRec->m_fileName, 6) == 1) {
+                if (!SFile::IsTrial() || SFile::FileIsLocal(screenRec->m_fileName, 6) == SFILE_LOCAL_YES) {
                     CGxTexFlags flags;
                     s_simpleBackgroundTexture = TextureCreate(screenRec->m_fileName, flags, &status, 1);
                 } else {
