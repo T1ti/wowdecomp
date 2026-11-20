@@ -424,7 +424,7 @@ int32_t CGActionBar::UpdateUsableAction(uint32_t slot, int32_t& noMana) {
 // VERIFY: dc4895e6 auto
 // OFFSET: 0x005AA470
 void CGActionBar::UpdateUsable() {
-    int32_t changed = 0;
+    BOOL changed = 0;
 
     for (uint32_t i = 0; i < sizeof(CGActionBar::m_slotActions) / sizeof(CGActionBar::m_slotActions[0]); i++) {
         int32_t noMana;
@@ -1428,7 +1428,7 @@ void CGActionBar::UpdateBonusBar() {
     }
 
     if (offset != CGActionBar::m_bonusBarOffset) {
-        int32_t wasTemp = CGActionBar::m_bonusBarOffset == 5;
+        BOOL wasTemp = CGActionBar::m_bonusBarOffset == 5;
         CGActionBar::m_bonusBarOffset = offset;
 
         if (wasTemp) {
@@ -1767,7 +1767,7 @@ void CGActionBar::UpdateTemporaryActionBar(int32_t (*getSpell)(uint32_t index, c
 void CGActionBar::UpdateUsablePower() {
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
     SpellRec spell;
-    int32_t changed = 0;
+    BOOL changed = 0;
 
     for (uint32_t i = 0; i < CGActionBar::NUM_ACTION_SLOTS; i++) {
         if (!CGActionBar::m_slotUsable[i]) {

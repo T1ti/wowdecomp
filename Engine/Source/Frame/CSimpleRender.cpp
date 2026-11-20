@@ -607,7 +607,7 @@ int32_t CSimpleRender::CalcBatchCounts(CRenderBatch* batch, uint32_t* vertCounts
 
     for (uint32_t i = 0; i < batch->m_texturelist.Count(); i++) {
         CSimpleBatchedMesh* mesh = &batch->m_texturelist[i];
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         if (mesh->m_textureID != textureID) {
             textureID = mesh->m_textureID;
@@ -691,7 +691,7 @@ void CSimpleRender::DrawBatch(CRenderBatch* batch) {
 
         for (uint32_t i = 0; i < meshCount; i++) {
             CSimpleBatchedMesh* mesh = &batch->m_texturelist[i];
-            int32_t changed = 0;
+            BOOL changed = 0;
 
             if (mesh->m_textureID != textureID) {
                 textureID = mesh->m_textureID;
@@ -2558,7 +2558,7 @@ void CSimpleTexture::LoadXML(XMLNode* node, CStatus* status) {
             float ury = 0.0f;
             float lrx = 1.0f;
             float lry = 1.0f;
-            int32_t valid = 1;
+            BOOL valid = 1;
 
             XMLNode* rectNode = child->GetChildByName("Rect");
 

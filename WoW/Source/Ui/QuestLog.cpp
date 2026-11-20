@@ -335,7 +335,7 @@ BOOL CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
     uint32_t special = quest->m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_COMPLETION_STATE_MASK;
 
     if (!special && !quest->m_friendlyFactionId && !quest->m_hostileFactionId && !quest->m_rewardMoney) {
-        int32_t hasObjectives = 0;
+        BOOL hasObjectives = 0;
 
         for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
             if (quest->m_objectiveId[i]) {

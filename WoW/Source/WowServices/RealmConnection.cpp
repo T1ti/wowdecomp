@@ -78,7 +78,7 @@ int32_t RealmConnection::HandleCharEnum(uint32_t msgId, uint32_t time, CDataStor
         }
     }
 
-    int32_t success = 0;
+    BOOL success = 0;
 
     if (msg->IsRead()) {
         if (!invalid) {

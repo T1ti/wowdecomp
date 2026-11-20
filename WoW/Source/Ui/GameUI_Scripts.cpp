@@ -5326,7 +5326,7 @@ static int32_t Script_EquipItemByName(lua_State* L) {
     if (lua_isnumber(L, 2)) {
         dstSlot = static_cast<int32_t>(lua_tonumber(L, 2)) - 1;
     } else {
-        int32_t found = 0;
+        BOOL found = 0;
 
         if (lua_isstring(L, 2)) {
             const char* name = lua_tolstring(L, 2, nullptr);
@@ -5739,7 +5739,7 @@ static int32_t Script_PickupItem(lua_State* L) {
 // OFFSET: 0x00523090
 static int32_t Script_StartAttack(lua_State* L) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    int32_t hasTarget = 0;
+    BOOL hasTarget = 0;
 
     if (!player) {
         return 0;

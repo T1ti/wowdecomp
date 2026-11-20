@@ -360,7 +360,7 @@ static int32_t Script_GetPossessInfo(lua_State* L) {
                 lua_pushnil(L);
             }
 
-            int32_t enabled = 1;
+            BOOL enabled = 1;
             SpellRec spell;
 
             if (g_spellDB.GetRecord(CGPetInfo::m_possessSpell, &spell) && (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_NO_AURA_CANCEL)) {

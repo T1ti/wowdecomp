@@ -53,7 +53,7 @@ static int32_t Script_SignPetition(lua_State* L) {
 // OFFSET: 0x005CF040
 static int32_t Script_CanSignPetition(lua_State* L) {
     CGPetition* petition = CGPetitionInfo::m_petition;
-    int32_t canSign = 1;
+    BOOL canSign = 1;
 
     if (petition) {
         if (petition->m_staticType == CGPetition::STATIC_TYPE_GUILD || petition->m_staticType == CGPetition::STATIC_TYPE_ARENA) {

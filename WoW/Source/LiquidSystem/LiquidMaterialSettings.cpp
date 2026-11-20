@@ -136,7 +136,7 @@ void Liquid::CMaterialSettings::InitTexture() {
 
         if (animated) {
             char fileName[128];
-            int32_t hasBlob = 0;
+            BOOL hasBlob = 0;
 
             for (uint32_t frame = 1; frame <= NUM_LIQUID_TEX_FRAMES; frame++) {
                 SStrPrintf(fileName, sizeof(fileName), name, frame);

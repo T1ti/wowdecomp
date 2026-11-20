@@ -165,7 +165,7 @@ void CChunkLiquid::BuildIndices(uint16_t* indices, uint16_t baseVertex, CGxBatch
     uint16_t vertex = baseVertex;
     uint16_t below = baseVertex + this->m_tileEnd.y - this->m_tileBegin.y + 1;
     uint16_t last = 0;
-    int32_t inStrip = 0;
+    BOOL inStrip = 0;
 
     for (int32_t row = this->m_tileBegin.x; row < this->m_tileEnd.x; row++) {
         uint16_t belowNext = below + 1;

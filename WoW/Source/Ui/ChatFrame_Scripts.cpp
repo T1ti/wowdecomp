@@ -929,7 +929,7 @@ static int32_t Script_ChangeChatColor(lua_State* L) {
     uint8_t r = static_cast<uint8_t>(lua_tonumber(L, 2) * 255.0);
     uint8_t g = static_cast<uint8_t>(lua_tonumber(L, 3) * 255.0);
     uint8_t b = static_cast<uint8_t>(lua_tonumber(L, 4) * 255.0);
-    int32_t found = 0;
+    BOOL found = 0;
 
     for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
         if (!SStrCmpI(type, s_chatColors[i].m_name, STORM_MAX_STR)) {
@@ -968,7 +968,7 @@ static int32_t Script_SetChatColorNameByClass(lua_State* L) {
 
     const char* type = lua_tolstring(L, 1, nullptr);
     bool colorNameByClass = StringToBOOL(L, 2, 0) != 0;
-    int32_t found = 0;
+    BOOL found = 0;
 
     for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
         if (!SStrCmpI(type, s_chatColors[i].m_name, STORM_MAX_STR)) {
@@ -1093,7 +1093,7 @@ static int32_t Script_IsVoiceChatAllowed(lua_State* L) {
 // VERIFY: b67ad7f0 auto
 // OFFSET: 0x004FCBF0
 static int32_t Script_IsVoiceChatEnabled(lua_State* L) {
-    int32_t enabled = s_cvarEnableVoiceChat && s_cvarEnableVoiceChat->m_intValue;
+    BOOL enabled = s_cvarEnableVoiceChat && s_cvarEnableVoiceChat->m_intValue;
     int32_t disabledByClient = ComSatClient_IsComsatDisabledByClient();
 
     if (CGChat::m_voiceChatSystemStatus && enabled && !disabledByClient) {

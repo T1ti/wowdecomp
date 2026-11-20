@@ -254,7 +254,7 @@ static int32_t Script_RunBinding(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
-    int32_t isDown = 1;
+    BOOL isDown = 1;
     float pressure;
 
     if (!lua_isstring(L, 2) || SStrCmpI(lua_tolstring(L, 2, nullptr), "up", STORM_MAX_STR)) {

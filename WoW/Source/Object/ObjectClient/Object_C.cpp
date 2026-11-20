@@ -1171,7 +1171,7 @@ void CGObject_C::SetQuestStatus(uint32_t status) {
     }
 
     uint32_t icon = CGObject_C::s_questStatusIcons[status];
-    int32_t changed = icon != CGObject_C::s_questStatusIcons[previous] || (icon && !this->m_interactIcon);
+    BOOL changed = icon != CGObject_C::s_questStatusIcons[previous] || (icon && !this->m_interactIcon);
     this->m_questStatus = status;
 
     if (changed) {

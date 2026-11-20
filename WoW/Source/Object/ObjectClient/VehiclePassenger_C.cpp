@@ -536,7 +536,7 @@ void CVehiclePassenger_C::StartMirroringVehicleAnims() {
 
     for (uint32_t bone = 0; bone < 35; bone++) {
         int32_t vehicleHasBone = vehicleModel->HasBone(bone);
-        int32_t hasBone = model->HasBone(bone);
+        BOOL hasBone = model->HasBone(bone);
 
         if (vehicleHasBone) {
             if (!hasBone) {
@@ -1183,7 +1183,7 @@ void CVehiclePassenger_C::SetState(TRANSITION_STATE state, CGUnit_C* vehicle, ui
     }
 
     uint32_t prevState = this->m_state;
-    int32_t keepAnimFlags = (prevState == TRANSITION_STATE::STATE_ENTER_DELAY && state == TRANSITION_STATE::STATE_ENTERING) || prevState == TRANSITION_STATE::STATE_EXIT_DELAY;
+    BOOL keepAnimFlags = (prevState == TRANSITION_STATE::STATE_ENTER_DELAY && state == TRANSITION_STATE::STATE_ENTERING) || prevState == TRANSITION_STATE::STATE_EXIT_DELAY;
     int32_t entered = !prevState && state == TRANSITION_STATE::STATE_RIDING;
     this->m_state = state;
     CGUnit_C* root = nullptr;
@@ -1279,7 +1279,7 @@ void CVehiclePassenger_C::ComputeModelTransform(C44Matrix& matrix, CM2Model*& mo
         facing = this->m_lockedWorldFacing - vehicleFacing;
     }
 
-    int32_t hasAttachment = model->HasAttachment(attachment);
+    BOOL hasAttachment = model->HasAttachment(attachment);
     matrix.RotateAroundZ(facing - seat->m_field33512213027);
 
     if (0.0f != seat->m_field33512213029) {
@@ -1840,7 +1840,7 @@ void CVehiclePassenger_C::UpdateModel() {
     }
 
     C44Matrix matrix;
-    int32_t useMatrix = 0;
+    BOOL useMatrix = 0;
     C3Vector position(0.0f, 0.0f, 0.0f);
     C3Vector up(0.0f, 0.0f, 0.0f);
     float facing;

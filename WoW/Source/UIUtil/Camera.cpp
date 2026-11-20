@@ -3173,7 +3173,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         return;
     }
 
-    int32_t changed;
+    BOOL changed;
 
     if (!transition) {
         int32_t distanceChanged = fnotequalz(this->m_distance, this->m_views[view].m_distance, 0.001f) != 0;

@@ -1307,7 +1307,7 @@ int32_t CGItem_C::GetRepairCost() {
 // VERIFY: 84e69779 manual
 // OFFSET: 0x007086B0
 BOOL CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry) {
-    int32_t locked = 0;
+    BOOL locked = 0;
     SpellRec spell;
 
     for (int32_t i = 0; i < NUM_LOCK_KEYS; i++) {

@@ -2446,7 +2446,7 @@ int32_t CMovement_C::CollisionBoxDoesntFit(float width, float height, float scal
 // VERIFY: ae5e5bd7 manual
 // OFFSET: 0x0075C5A0
 static int32_t ClipMovementPyramid(World::FacetData* facets, const C3Vector& direction, const C4Plane* clipPlanes, uint32_t clipCount, const C4Plane* planes, uint32_t planeIndex, float* distance, uint32_t* facetIndex) {
-    int32_t found = 0;
+    BOOL found = 0;
     ClipPolygon polygon;
     polygon.m_count = 3;
 
@@ -5071,7 +5071,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                 }
 
                 case MOVEEVENT_UNROOT: {
-                    int32_t wasJumping = this->IsJumping();
+                    BOOL wasJumping = this->IsJumping();
                     uint32_t rootFlags = this->m_flags;
                     uint32_t rootFlags2 = this->m_flags2;
                     this->UnRoot(!event->m_needAck || this->m_unit->IsActiveMover());
@@ -5406,8 +5406,8 @@ void CMovement_C::MoveUnits(uint32_t time, uint32_t lastUpdateTime) {
 // VERIFY: 1ce66aca manual
 // OFFSET: 0x006E9C30
 int32_t CMovement_C::PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position) {
-    int32_t wasInAir = (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
-    int32_t wasAnimTier = (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
+    BOOL wasInAir = (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
+    BOOL wasAnimTier = (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
 
     if (!this->CMovementShared::PlotUnitSplineMovement(time, position)) {
         return 0;

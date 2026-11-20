@@ -1106,7 +1106,7 @@ int32_t Packet_SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE(void* param, NETMESSA
     msg->Get(accepted);
     msg->Get(loggingIn);
     msg->Get(warmup);
-    int32_t inArea = 0;
+    BOOL inArea = 0;
     AreaTableRec* area;
 
     if (CGGameUI::m_areaID == areaID || ((area = g_areaTableDB.GetRecord(CGGameUI::m_areaID)) != nullptr && area->m_parentAreaID == areaID)) {

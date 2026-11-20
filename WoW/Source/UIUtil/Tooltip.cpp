@@ -1972,10 +1972,10 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, BOOL showHealth, const WOWGUID& 
     char level[32];
 
     CGPlayer_C* activePlayer = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    int32_t dead = 0;
+    BOOL dead = 0;
     CreatureTypeRec* creatureType = nullptr;
     int32_t unitLevel = 0;
-    int32_t showLevel = 1;
+    BOOL showLevel = 1;
 
     if (unit) {
         dead = unit->m_unit->m_unitFieldHealth <= 0 || (unit->m_unit->m_unitDynamicFlags & UNIT_DYNAMIC_FLAGS::UNIT_DYNFLAG_DEAD);
@@ -2879,7 +2879,7 @@ static int32_t AddSpellCastTimeLine(CGTooltip* tooltip, const SpellRec* spell, B
 static void AddSpellToolLine(CGTooltip* tooltip, const SpellRec* spell, CGPlayer_C* player, BOOL brief) {
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[4096];
-    int32_t first = 1;
+    BOOL first = 1;
     int32_t allFound = 1;
 
     for (uint32_t i = 0; i < 2; i++) {
@@ -2958,7 +2958,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
     }
 
     items[0] = '\0';
-    int32_t found = 0;
+    BOOL found = 0;
 
     for (int32_t i = 0; i < g_itemSubClassMaskDB.m_numRecords; i++) {
         ItemSubClassMaskRec* mask = &g_itemSubClassMaskDB.m_records[i];
@@ -2970,7 +2970,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
         }
     }
 
-    int32_t first = 1;
+    BOOL first = 1;
     int32_t equipped = 1;
     uint32_t slotMask = (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON) ? 0x8000 : (spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) ? 0x10000 : 0xFFFFFFFF;
 
@@ -3024,7 +3024,7 @@ static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C
         return;
     }
 
-    int32_t first = 1;
+    BOOL first = 1;
     int32_t needsForm = spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_WHILE_NOT_SHAPESHIFTED_CASTER_FORM;
 
     if (!needsForm) {
@@ -3095,7 +3095,7 @@ static void AddSpellReagentLine(CGTooltip* tooltip, const SpellRec* spell, CGPla
     const CImVector& textColor = *reinterpret_cast<const CImVector*>(&s_tooltipTextColor);
     char text[4096];
     char reagent[128];
-    int32_t first = 1;
+    BOOL first = 1;
     int32_t allFound = 1;
 
     for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
@@ -3953,7 +3953,7 @@ void CGTooltip::AddSpellReagents(const SpellRec* spell, const char* token, void 
     char line[4096];
     char text[4096];
     char reagent[1024];
-    int32_t first = 1;
+    BOOL first = 1;
 
     for (uint32_t i = 0; i < NUM_SPELL_REAGENTS; i++) {
         int32_t itemId = spell->m_reagent[i];
@@ -4655,7 +4655,7 @@ static float AddItemDamageLines(CGTooltip* tooltip, const ItemStats_C* stats, co
     char speed[1024];
     char school[4096];
     float average = 0.0f;
-    int32_t first = 1;
+    BOOL first = 1;
 
     if ((stats->m_scalingStatValue & ItemStats_C::SCALING_STAT_FLAGS::DAMAGE_MASK) && values) {
         float minDamage;
@@ -4875,7 +4875,7 @@ static int32_t AddItemSocketLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         }
 
         uint32_t socket = slot - CGItemData::ENCHANTMENT_SLOT::SOCKET_1;
-        int32_t isSocket = socket < MAX_NUM_SOCKETS && static_cast<int32_t>(socket) < numSockets;
+        BOOL isSocket = socket < MAX_NUM_SOCKETS && static_cast<int32_t>(socket) < numSockets;
 
         if (socket < MAX_NUM_SOCKETS && socketPreview) {
             WOWGUID gemGuid = socket < MAX_NUM_SOCKETS ? CGItemSocketInfo::m_gemItems[socket] : WOWGUID{ 0 };
@@ -5435,7 +5435,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
 
         if (!allClasses) {
             list[0] = '\0';
-            int32_t first = 1;
+            BOOL first = 1;
             allowed = 0;
 
             for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
@@ -5880,7 +5880,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
     char text[4096];
     char line[1024];
     char buffer[4096];
-    int32_t isRecipe = 0;
+    BOOL isRecipe = 0;
 
     for (int32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         if (stream) {
@@ -6021,7 +6021,7 @@ static int32_t AddItemSpellTriggerLines(CGTooltip* tooltip, const ItemStats_C* s
             WOWGUID requester = { 0 };
             WOWGUID itemGuid = { 0 };
             tooltip->SetItem(created.m_effectItemType[0], &requester, &itemGuid, 0, 0, 0, 1, WOWGUID{ 0 }, 0, nullptr, hideCharges, nullptr, 0, 0, 1);
-            int32_t first = 1;
+            BOOL first = 1;
             int32_t missing = 0;
             text[0] = '\0';
 
@@ -6918,7 +6918,7 @@ void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, BOOL 
     }
 
     if (talent->m_flags & TALENT_FLAG_EXCEPTIONAL) {
-        int32_t showNext = maxRank > 0 && displayRank >= 0 && displayRank < maxRank;
+        BOOL showNext = maxRank > 0 && displayRank >= 0 && displayRank < maxRank;
         this->SetSpell(talent->m_spellRank[displayRank < 0 ? 0 : displayRank], 0, 0, isPet, 0, isInspect, useRank, talent, group, 0, usePreview, displayRank < 0 ? 0 : displayRank, displayRank, maxRank, !showNext);
 
         if (showNext) {
@@ -6933,8 +6933,8 @@ void CGTooltip::SetTalent(const TalentRec* talent, CGTalentGroup_C* group, BOOL 
     int32_t nextSpellId = talent->m_spellRank[displayRank + 1];
     SpellRec spell;
     SpellRec nextSpell;
-    int32_t hasSpell = displayRank < 0 ? 0 : g_spellDB.GetRecord(spellId, &spell);
-    int32_t hasNext = displayRank >= maxRank ? 0 : g_spellDB.GetRecord(nextSpellId, &nextSpell);
+    BOOL hasSpell = displayRank < 0 ? 0 : g_spellDB.GetRecord(spellId, &spell);
+    BOOL hasNext = displayRank >= maxRank ? 0 : g_spellDB.GetRecord(nextSpellId, &nextSpell);
 
     if (!hasSpell && !hasNext) {
         return;
@@ -7504,7 +7504,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
 
     char spells[512];
     spells[0] = '\0';
-    int32_t first = 1;
+    BOOL first = 1;
 
     for (uint32_t j = 0; j < NUM_CREATURE_FAMILY_SKILL_LINES; j++) {
         for (int32_t i = 0; i < g_skillLineAbilityDB.m_numRecords; i++) {

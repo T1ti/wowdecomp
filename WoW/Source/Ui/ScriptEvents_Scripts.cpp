@@ -2269,7 +2269,7 @@ static int32_t Script_UnitArmor(lua_State* L) {
 // VERIFY: 0d546523 auto
 // OFFSET: 0x00613D20
 static int32_t Script_CanEjectPassengerFromSeat(lua_State* L) {
-    int32_t canEject = 0;
+    BOOL canEject = 0;
 
     if (!lua_isnumber(L, 1)) {
         luaL_error(L, "Usage: CanEjectPassengerFromSeat(seatIndex)");
@@ -4339,8 +4339,8 @@ static int32_t Script_UnitVehicleSeatInfo(lua_State* L) {
     const char* type;
     const char* occupant;
     const char* realm;
-    int32_t canEject;
-    int32_t canSwitch;
+    BOOL canEject;
+    BOOL canSwitch;
 
     if (!vehicle || !vehicle->m_vehicleRec || !vehicle->GetVirtualSeatInfo(seat, type, occupant, realm, canEject, canSwitch)) {
         return 0;

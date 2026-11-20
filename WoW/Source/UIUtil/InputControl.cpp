@@ -667,10 +667,10 @@ void CGInputControl::OnMouseMoveRel(const CMouseEvent& evt) {
     }
 
     this->m_lastMouseMoveFrame = frame;
-    int32_t allowPitch = 1;
+    BOOL allowPitch = 1;
     this->m_dragAccumX = std::fabs(x) + this->m_dragAccumX;
     this->m_dragAccumY = std::fabs(y) + this->m_dragAccumY;
-    int32_t canSync = this->CanSyncFreeLookFacing(mover);
+    BOOL canSync = this->CanSyncFreeLookFacing(mover);
 
     if (canSync && mover && mover->m_vehicle && mover->m_vehicle->m_vehicleRec && mover->m_vehicle->IsSuppressingCameraPitchWhileMouseAiming()) {
         allowPitch = 0;
@@ -853,13 +853,13 @@ int32_t CGInputControl::SetControlBit(uint32_t bit, uint32_t time) {
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
     uint32_t flags = this->m_flags;
-    int32_t wasIdle = !(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK);
+    BOOL wasIdle = !(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK);
     uint32_t wasLooking = flags & INPUT_FREE_LOOK_MASK;
     uint32_t wasMouseDown = flags & INPUT_MOUSE_LOOK_MASK;
-    int32_t wasBothButtons = (flags & INPUT_TURN_PLAYER) && (flags & INPUT_TURN_CAMERA);
+    BOOL wasBothButtons = (flags & INPUT_TURN_PLAYER) && (flags & INPUT_TURN_CAMERA);
     uint32_t wasRightLook = flags & INPUT_CAMERA_LOOK_MASK;
     uint32_t wasLeftLook = flags & INPUT_PLAYER_LOOK_MASK;
-    int32_t wasMouseTurn = (flags & INPUT_PLAYER_LOOK_MASK) && (flags & INPUT_TURN_PLAYER_MASK);
+    BOOL wasMouseTurn = (flags & INPUT_PLAYER_LOOK_MASK) && (flags & INPUT_TURN_PLAYER_MASK);
 
     this->m_flags = flags | bit;
 
@@ -928,11 +928,11 @@ int32_t CGInputControl::UnsetControlBit(uint32_t bit, uint32_t time, BOOL keepSm
     uint32_t flags = this->m_flags;
     uint32_t wasLooking = flags & INPUT_FREE_LOOK_MASK;
     uint32_t wasMouseDown = flags & INPUT_MOUSE_LOOK_MASK;
-    int32_t wasIdle = !(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK);
-    int32_t wasBothButtons = (flags & INPUT_TURN_PLAYER) && (flags & INPUT_TURN_CAMERA);
+    BOOL wasIdle = !(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK);
+    BOOL wasBothButtons = (flags & INPUT_TURN_PLAYER) && (flags & INPUT_TURN_CAMERA);
     uint32_t wasRightLook = flags & INPUT_CAMERA_LOOK_MASK;
     uint32_t wasLeftLook = flags & INPUT_PLAYER_LOOK_MASK;
-    int32_t wasMouseTurn = (flags & INPUT_PLAYER_LOOK_MASK) && (flags & INPUT_TURN_PLAYER_MASK);
+    BOOL wasMouseTurn = (flags & INPUT_PLAYER_LOOK_MASK) && (flags & INPUT_TURN_PLAYER_MASK);
 
     this->m_flags = flags & ~bit;
 

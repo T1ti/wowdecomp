@@ -69,7 +69,7 @@ void TEXTURECACHE::PasteGlyphOutlinedMonochrome(const GLYPHBITMAPDATA& data, uin
                 }
 
                 uint16_t* cell = &buffer[row + x];
-                int32_t found;
+                BOOL found;
 
                 if (y == 0) {
                     if (x == 0) {
@@ -210,7 +210,7 @@ void TEXTURECACHE::PasteGlyphOutlinedAA(const GLYPHBITMAPDATA& data, uint16_t* d
                     continue;
                 }
 
-                int32_t found;
+                BOOL found;
 
                 if (y == 0) {
                     if (x == 0) {

@@ -622,7 +622,7 @@ void FriendList::SendWho(const char* filter) {
         cursor += chars;
     }
 
-    int32_t inQuote = 0;
+    BOOL inQuote = 0;
     uint32_t c = sgetu8(reinterpret_cast<const uint8_t*>(cursor), &chars);
 
     while (c != 0xFFFFFFFF) {

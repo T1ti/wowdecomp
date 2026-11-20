@@ -1049,7 +1049,7 @@ int32_t CShadowCache::Update(const C3Vector& pos, BOOL useCullFrustum) {
         }
 
         if (useCullFrustum || mode < SHADOW_VERY_HIGH) {
-            int32_t useBandCull = 0;
+            BOOL useBandCull = 0;
             CFrustum frustum;
 
             if (mode < SHADOW_VERY_HIGH) {

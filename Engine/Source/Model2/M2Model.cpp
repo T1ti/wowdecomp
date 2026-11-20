@@ -2504,7 +2504,7 @@ void CM2Model::AnimateST() {
     for (uint32_t i = 0; i < data->m_lights.m_count; i++) {
         M2ModelLight* light = &this->m_lights[i];
         M2Light* lightData = &data->m_lights[i];
-        int32_t visible;
+        BOOL visible;
 
         if (light->m_enabled && light->m_visibilityTrack.m_currentValue) {
             visible = 1;
@@ -4029,7 +4029,7 @@ CAaSphere CM2Model::GetCurrentBoundingSphere() {
 void CM2Model::SetGeometryVisible(uint32_t first, uint32_t last, BOOL visible) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         for (uint32_t i = 0; i < skin->m_skinSections.m_count; i++) {
             uint32_t id = skin->m_skinSections[i].m_skinSectionId;
@@ -4068,7 +4068,7 @@ void CM2Model::SetGeometryVisible(uint32_t first, uint32_t last, BOOL visible) {
 void CM2Model::SetGeosetVisibilityRange(uint32_t first, uint32_t last, BOOL visible) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         for (uint32_t i = 0; i < skin->m_skinSections.m_count; i++) {
             if (first <= i && i <= last) {
@@ -4128,7 +4128,7 @@ void CM2Model::OptimizeVisibleGeometry() {
     uint32_t batchCount = 0;
     uint32_t sectionCount = 0;
     uint32_t visibleCount = 0;
-    int32_t keepVertices = (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) || (shared->m_data->m_bones.m_count == 1 && (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES));
+    BOOL keepVertices = (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) || (shared->m_data->m_bones.m_count == 1 && (cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES));
 
     for (uint32_t i = 0; i < skin->m_batches.m_count; i++) {
         M2Batch* batch = &skin->m_batches[i];

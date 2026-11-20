@@ -245,7 +245,7 @@ int32_t OsIMEGetCandidates(uint32_t listMask, uint32_t& pageStart, uint32_t& pag
         return 0;
     }
 
-    int32_t changed = 0;
+    BOOL changed = 0;
     CANDIDATELIST* list = static_cast<CANDIDATELIST*>(SMemAlloc(listSize, __FILE__, __LINE__, 0));
     ImmGetCandidateListA(context, index, list, listSize);
 

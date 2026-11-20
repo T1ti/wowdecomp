@@ -252,7 +252,7 @@ void SI2::ReleaseSoundGroups() {
 // OFFSET: 0x004CBE70
 int32_t SI2::UpdateZoneSoundsForWorldState(int32_t areaId, int32_t zoneId, int32_t wmoAreaId, int32_t wmoGroupAreaId, int32_t inside) {
     int32_t count = s_worldStateZoneSoundOverrides.Count();
-    int32_t found = 0;
+    BOOL found = 0;
 
     if (inside) {
         for (int32_t i = 0; i < count; i++) {

@@ -1589,7 +1589,7 @@ void CGUIBindings::SaveBindings(BINDING_SET set, HOSFILE file) {
     uint32_t written;
 
     for (int32_t mode = 0; mode < NUM_BINDING_MODES; mode++) {
-        int32_t first = 1;
+        BOOL first = 1;
 
         for (KEYBINDING* binding = this->m_bindings[set].m_fulllist.Head(); binding; binding = this->m_bindings[set].m_fulllist.Next(binding)) {
             if (binding->m_flags & KEYBINDING::FLAGS::DEFAULT) {

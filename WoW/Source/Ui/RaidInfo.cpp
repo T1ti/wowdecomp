@@ -1201,7 +1201,7 @@ void CGRaidInfo::CheckReadyCheckTime() {
 
     CGRaidInfo::m_readyCheckTime = 0;
     const char* format = FrameScript_GetText("RAID_MEMBERS_AFK", -1, GENDER_NOT_APPLICABLE);
-    int32_t first = 1;
+    BOOL first = 1;
     int32_t allReady = 1;
     char names[512];
 

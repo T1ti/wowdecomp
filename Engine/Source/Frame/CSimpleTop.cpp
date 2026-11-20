@@ -375,7 +375,7 @@ int32_t CSimpleTop::OnKeyUp(const void* data, void* param) {
     const EVENT_DATA_KEY* keyData = static_cast<const EVENT_DATA_KEY*>(data);
     CSimpleTop* top = static_cast<CSimpleTop*>(param);
     CSimpleFrame* frame = top->m_keydownCapture[keyData->m_key];
-    int32_t handled = 0;
+    BOOL handled = 0;
 
     CSimpleTop::s_eventTime = keyData->m_time;
 
@@ -400,7 +400,7 @@ int32_t CSimpleTop::OnKeyDownRepeat(const void* data, void* param) {
     const EVENT_DATA_KEY* keyData = static_cast<const EVENT_DATA_KEY*>(data);
     CSimpleTop* top = static_cast<CSimpleTop*>(param);
     CSimpleFrame* frame = top->m_keydownCapture[keyData->m_key];
-    int32_t handled = 0;
+    BOOL handled = 0;
 
     if (frame) {
         CKeyEvent evt;
@@ -515,7 +515,7 @@ int32_t CSimpleTop::OnMouseUp(const void* data, void* param) {
     CSimpleTop* top = static_cast<CSimpleTop*>(param);
     CSimpleFrame* capture = top->m_mouseCapture;
     int32_t (*callback)(CMouseEvent*) = top->m_mouseButtonCallback;
-    int32_t handled = 0;
+    BOOL handled = 0;
 
     CMouseEvent evt;
     evt = *mouseData;

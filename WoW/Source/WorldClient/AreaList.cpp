@@ -239,7 +239,7 @@ void AreaListRegisterLocation(int32_t mapId, CMapEntity* entity) {
     int32_t wmoHash = -1;
     int32_t wmoGroupNum = -1;
     int32_t inMapObj = World::QueryMapObjIDs(entity, &wmoId, &wmoHash, &wmoGroupNum);
-    int32_t changed = inMapObj != s_inMapObj;
+    BOOL changed = inMapObj != s_inMapObj;
     s_inMapObj = inMapObj;
     bool updated;
 

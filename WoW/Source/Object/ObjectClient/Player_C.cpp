@@ -467,7 +467,7 @@ static int32_t GetWeaponSubClassCount(int32_t* count) {
     }
 
     int32_t maxSubClass = 0;
-    int32_t found = 0;
+    BOOL found = 0;
     int32_t index = g_itemSubClassDB.m_numRecords;
 
     while (index--) {
@@ -6386,7 +6386,7 @@ void ArenaCharterTurnInCallback(int32_t id, const WOWGUID& guid, void* param, bo
 // VERIFY: 553471e9 manual
 // OFFSET: 0x006DD680
 int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
-    int32_t found = 0;
+    BOOL found = 0;
     CGItem_C* charter = nullptr;
     uint32_t teamSize = CGPetitionVendorInfo::m_arenaTeamSize;
     uint32_t background = CGPetitionVendorInfo::m_arenaBackgroundColor;
@@ -7554,7 +7554,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverRequestItems(CDataStore* msg) {
     msg->Get(completable3);
 
     CGQuestInfo::SetState(npc, WOWGUID(), QUEST_ACCEPTED, text, questId, 0);
-    int32_t canComplete = completable0 && completable1 && completable2 && completable3;
+    BOOL canComplete = completable0 && completable1 && completable2 && completable3;
     CGQuestInfo::AddItemRequest(title, itemIds, itemCounts, itemDisplays, numItems, requiredMoney, canComplete, autoLaunched, suggestedGroupNum, flags);
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(npc, TYPE_UNIT, __FILE__, __LINE__));
@@ -8220,8 +8220,8 @@ void CGPlayer_C::ToggleSheathe() {
             return;
         }
 
-        int32_t hasSheathe = model->HasSequence(ANIM_HIP_SHEATH);
-        int32_t hasUnsheathe = model->HasSequence(ANIM_SHEATH);
+        BOOL hasSheathe = model->HasSequence(ANIM_HIP_SHEATH);
+        BOOL hasUnsheathe = model->HasSequence(ANIM_SHEATH);
 
         if (!hasSheathe || !hasUnsheathe || !model->HasBone(KEY_BONE_SHOULDER_R) || !model->HasBone(KEY_BONE_SHOULDER_L)) {
             return;
@@ -11579,7 +11579,7 @@ int32_t Packet_SMSG_GROUP_LIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
     msg->Get(memberCount);
     WOWGUID oldMembers[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
     WOWGUID partyGuids[CGPartyInfo::MAX_PARTY_MEMBERS] = {};
-    int32_t wasInGroup = 0;
+    BOOL wasInGroup = 0;
     WOWGUID raidGuids[CGRaidInfo::MAX_RAID_MEMBERS] = {};
     uint32_t dungeonDifficulty = CGGameUI::GetCurrentDungeonDifficulty();
     uint32_t raidDifficulty = CGGameUI::GetCurrentRaidDifficulty();

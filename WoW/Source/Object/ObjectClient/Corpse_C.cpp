@@ -87,7 +87,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
     this->CGObject_C::PostInit(time, create, reenable);
 
     CM2Model* model = this->m_worldModel;
-    int32_t useComponent = 1;
+    BOOL useComponent = 1;
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldDisplayId);
     CreatureModelDataRec* modelRec = nullptr;
 

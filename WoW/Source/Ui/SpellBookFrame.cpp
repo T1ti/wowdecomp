@@ -172,7 +172,7 @@ void CGSpellBook::UpdateUsable() {
             entry.m_noMana = noMana;
         }
 
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         if (s_shapeshiftSpells.m_count) {
             for (uint32_t i = 0; i < s_shapeshiftSpells.m_count; i++) {
@@ -1854,7 +1854,7 @@ void CGSpellBook::UpdateUsablePower() {
         }
     }
 
-    int32_t changed = 0;
+    BOOL changed = 0;
 
     for (uint32_t i = 0; i < s_shapeshiftSpells.m_count; i++) {
         SpellUsableInfo* info = &s_shapeshiftSpells.m_data[i];

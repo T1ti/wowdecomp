@@ -79,7 +79,7 @@ void IEvtQueuePost(EvtContext* context, EVENTID id, const void* data, uint32_t b
 // VERIFY: aa0a8976 manual
 // OFFSET: 0x004808A0
 static void UpdateSyncKeyState(EvtContext* context, KEY key, EVENTID& id) {
-    int32_t found = 0;
+    BOOL found = 0;
 
     context->m_critsect.Enter();
 
@@ -156,7 +156,7 @@ int32_t IEvtQueueCheckSyncKeyState(EvtContext* context, KEY key) {
         return 0;
     }
 
-    int32_t found = 0;
+    BOOL found = 0;
 
     context->m_critsect.Enter();
 

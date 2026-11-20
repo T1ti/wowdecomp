@@ -103,7 +103,7 @@ static void GetViewerPosition(C3Vector* position) {
 // OFFSET: 0x007BB570
 void CShadowQuery::Update() {
     C3Vector direction = CMap::s_mapLight->m_light.m_dir;
-    int32_t useCullFrustum = CWorldScene::frustumPortalView.m_maxViewDepth >= 0.0f || CWorldScene::s_hasPendingExteriorGroups;
+    BOOL useCullFrustum = CWorldScene::frustumPortalView.m_maxViewDepth >= 0.0f || CWorldScene::s_hasPendingExteriorGroups;
     float z = direction.z * 5.0f;
 
     if (z < -1.2f) {
@@ -468,7 +468,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             continue;
         }
 
-        int32_t isUnit = 1;
+        BOOL isUnit = 1;
 
         if (!(entity->m_type & CMapBaseObj::Type_Entity) || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS)) {
             isUnit = 0;

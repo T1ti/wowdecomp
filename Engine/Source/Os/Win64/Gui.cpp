@@ -356,7 +356,7 @@ int32_t OsGuiProcessMessage(void* message) {
         return 0;
     }
 
-    int32_t handled = 0;
+    BOOL handled = 0;
 
     if (s_menuHotkeysEnabled) {
         for (uint32_t i = 0; i < s_menubars.Count(); i++) {

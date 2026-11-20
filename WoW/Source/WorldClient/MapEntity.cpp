@@ -421,7 +421,7 @@ void CMapEntity::Tick() {
     int32_t targetR = this->m_targetAmbientColor.r;
     int32_t targetG = this->m_targetAmbientColor.g;
     int32_t targetB = this->m_targetAmbientColor.b;
-    int32_t changed = 0;
+    BOOL changed = 0;
 
     if (targetR - r) {
         changed = 1;

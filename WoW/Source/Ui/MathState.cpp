@@ -918,7 +918,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers) {
     MathStack stack;
     stack.m_top = 32;
-    int32_t useLoaded = 0;
+    BOOL useLoaded = 0;
     SpellRec loaded;
     const float* constant = this->m_constants;
     const float* variable = this->m_variables;

@@ -280,7 +280,7 @@ static void LootMasterNameCallback(int32_t id, const WOWGUID& guid, void* param,
 // VERIFY: 7acb8197 auto
 // OFFSET: 0x0052BD90
 int32_t CGPartyInfo::SetLootMethod(LOOT_METHOD method, WOWGUID master, int32_t threshold, BOOL force) {
-    int32_t changed = 0;
+    BOOL changed = 0;
 
     if (force || CGPartyInfo::m_lootMethod != method) {
         CGPartyInfo::m_lootMethod = method;

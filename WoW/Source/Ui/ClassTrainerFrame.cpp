@@ -307,7 +307,7 @@ void CGClassTrainer::FilterAndSortServices() {
     int32_t filter = g_serviceTypeFilterCVar->m_intValue;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(CGClassTrainer::m_numSkillLines); i++) {
-        int32_t visible = 0;
+        BOOL visible = 0;
 
         for (uint32_t state = 0; state < NUM_TRAINER_SERVICE_TYPES; state++) {
             if (((1 << state) & filter) && CGClassTrainer::m_skillLines.m_data[i]->m_stateCounts[state]) {

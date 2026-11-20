@@ -1088,7 +1088,7 @@ int32_t Packet_SMSG_PET_GUIDS(void* param, NETMESSAGE msgId, uint32_t time, CDat
 // VERIFY: 138ffa1d manual
 // OFFSET: 0x005D6900
 void CGPetInfo::SetPet(WOWGUID pet, uint32_t expiration, int32_t family) {
-    int32_t changed = CGPetInfo::m_pet != pet;
+    BOOL changed = CGPetInfo::m_pet != pet;
     CGPetInfo::m_pet = pet;
 
     if (pet) {

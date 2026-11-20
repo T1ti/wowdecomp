@@ -721,7 +721,7 @@ void CVehicle_C::BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t s
     }
 
     TSGrowableArray<CVehiclePassenger_C*> passengers;
-    int32_t handled = 0;
+    BOOL handled = 0;
 
     for (int32_t i = 0; i < MAX_BONE_ANIM_LISTENERS; i++) {
         BoneAnimListener& listener = this->m_boneAnimListeners[i];

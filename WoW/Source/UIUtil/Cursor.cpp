@@ -280,7 +280,7 @@ void CursorGrabVirtualItem(int32_t displayId) {
 // OFFSET: 0x00616830
 int32_t CursorSetFromName(const char* name) {
     int32_t result = !SStrCmpI(s_cursorFile, name, STORM_MAX_STR);
-    int32_t changed = !result || s_cursorMode != NUM_CURSOR_MODES;
+    BOOL changed = !result || s_cursorMode != NUM_CURSOR_MODES;
 
     if (!result) {
         uint32_t width = 0;

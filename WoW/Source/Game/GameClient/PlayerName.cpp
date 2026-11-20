@@ -336,7 +336,7 @@ void PLAYERNAMEDESC::Render() {
         return;
     }
 
-    int32_t showName = object->ShouldRenderObjectName(s_nameMask);
+    BOOL showName = object->ShouldRenderObjectName(s_nameMask);
     float lineHeight = PlayerNameComputeScale(object) * 0.2f;
     C3Vector position = object->GetNamePosition();
 

@@ -2444,7 +2444,7 @@ bool CMapObj::QueryLiquidStatus(uint32_t ignoreFlags, const C3Vector& pos, int32
 void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint8_t>* sharedVerts, uint16_t** indices, uint16_t baseVertex) {
     int32_t rowStride = group->m_liquidVerts.x + sharedVerts[0].m_count;
     uint16_t lastIndex = 0;
-    int32_t inStrip = 0;
+    BOOL inStrip = 0;
     uint32_t sharedRow = 0;
     int32_t outRow = 0;
 
@@ -2465,7 +2465,7 @@ void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint
 
             for (int32_t x = 0; x < group->m_liquidTiles.x; x++) {
                 uint8_t flags = group->m_liquidTileList[group->m_liquidTiles.x * y + x].m_flags;
-                int32_t visible = (flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
+                BOOL visible = (flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
                 int32_t duplicateCol = 0;
 
                 if (sharedCol < sharedVerts[0].m_count && sharedVerts[0].m_data[sharedCol] == x) {
@@ -4051,7 +4051,7 @@ BOOL CMapObj::IsAllLoaded() {
 // VERIFY: 2b62f89e auto
 // OFFSET: 0x007AF850
 BOOL CMapObj::IsAllDrawable() {
-    int32_t loaded = this->IsAllLoaded();
+    BOOL loaded = this->IsAllLoaded();
 
     if (!loaded) {
         return loaded;

@@ -373,7 +373,7 @@ int32_t CSimpleMovieFrame::ParseAVIFile(const char* fileName) {
 
                     streamIndex++;
                 } else {
-                    int32_t isFormat = !SStrCmpI(&header[offset], "strf", 4);
+                    BOOL isFormat = !SStrCmpI(&header[offset], "strf", 4);
                     offset += 8;
 
                     if (isFormat && videoStream >= 0 && audioStream < 0) {

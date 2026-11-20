@@ -850,7 +850,7 @@ void CGxDevice::ShaderConstantsSet(EGxShTarget target, uint32_t index, const flo
     float* dest = &shadow.constants[index * 4];
 
     for (uint32_t i = index; i < index + count; i++) {
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         for (uint32_t c = 0; c < 4; c++) {
             if (constants[c] != dest[c]) {

@@ -1493,7 +1493,7 @@ static int32_t TargetDirectionProc(WOWGUID guid, void* param) {
         return 1;
     }
 
-    int32_t inCone = 1;
+    BOOL inCone = 1;
     C2Vector direction = C2Vector(position);
     direction.x = direction.x - data->m_originPosition.x;
     direction.y = direction.y - data->m_originPosition.y;
@@ -5140,7 +5140,7 @@ static int32_t TargetUpdateProc(WOWGUID guid, void* param) {
     float facingTo = CalculateFacingTo(&fromPos, &targetPos);
     float delta = fmod(facingTo - searcher->GetFacing() + 12.566371f, TWO_PI);
     static float s_coneAngle = 0.52359879f;
-    int32_t inFront = 0;
+    BOOL inFront = 0;
     float maxDistanceSq;
 
     if (s_coneAngle > delta || TWO_PI - s_coneAngle < delta) {
@@ -6937,7 +6937,7 @@ static void UpdateCorpseRange(int32_t inRange) {
 // VERIFY: d4e934e0 manual
 // OFFSET: 0x0051F5C0
 void CGGameUI::UpdateCorpseDistance() {
-    int32_t inRange = 0;
+    BOOL inRange = 0;
 
     if (CGGameUI::m_corpseMapID >= 0) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));

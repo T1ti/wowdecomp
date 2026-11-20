@@ -476,7 +476,7 @@ static int32_t Script_GetLFGInfoLocal(lua_State* L) {
 // OFFSET: 0x00552F30
 static int32_t Script_GetLFGInfoServer(lua_State* L) {
     LFGInfo* info;
-    int32_t inParty;
+    BOOL inParty;
 
     if (CGPartyInfo::m_members[0] || CGRaidInfo::m_numMembers) {
         info = &CGLookingForGroup::m_partyInfo;

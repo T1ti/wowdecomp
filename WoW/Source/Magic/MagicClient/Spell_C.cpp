@@ -9014,7 +9014,7 @@ void CreateMissilesForTargets(const TSStackArray<WOWGUID>& targets, CGUnit_C* un
     }
 
     uint32_t targetFlags = data->m_targetFlags;
-    int32_t hit = missReasons == nullptr;
+    BOOL hit = missReasons == nullptr;
     bool unitTargets = !(targetFlags & SPELL_TARGET_TYPE::TARGET_FLAG_LOCATION_MASK) || (visual->m_flags & SPELL_VISUAL_FLAG_ONE_MISSILE_OR_BEAM_PER_TARGET);
 
     if (targets.m_count && (targetFlags & (SPELL_TARGET_TYPE::TARGET_FLAG_UNIT | SPELL_TARGET_TYPE::TARGET_FLAG_GAMEOBJECT)) && unitTargets) {

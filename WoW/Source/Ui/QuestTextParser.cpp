@@ -679,7 +679,7 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
 
     const char* text = *cursor;
     uint32_t index = 0;
-    int32_t hasIndex = 0;
+    BOOL hasIndex = 0;
 
     if (static_cast<uint8_t>(text[1] - '1') <= 8) {
         index = text[1] - '1';

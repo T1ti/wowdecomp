@@ -1552,7 +1552,7 @@ void LoadAddOnEnableState(const char* character) {
 // VERIFY: 3bde2f06 manual
 // OFFSET: 0x005F5620
 void UnloadAddOns() {
-    int32_t changed = 0;
+    BOOL changed = 0;
     char path[260];
     SStrPrintf(path, sizeof(path), "WTF\\Account\\%s\\SavedVariables", s_addOnAccountName);
 

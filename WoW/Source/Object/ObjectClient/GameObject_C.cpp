@@ -3570,7 +3570,7 @@ uint32_t CGGameObject_C_Type_MapObjTransport::GetSequenceTimeFromRealTime(uint32
 void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
     *moved = 0;
     C44Matrix& matrix = this->m_owner->m_matrix;
-    int32_t isWMO = 0;
+    BOOL isWMO = 0;
 
     if (this->m_worldObject) {
         World::ObjectUpdate(this->m_worldObject, matrix);

@@ -1301,7 +1301,7 @@ void CEffect::PostInitialize() {
     }
 
     this->m_flags |= EFFECT_FLAGS::EFFECT_POST_INITIALIZED;
-    int32_t hasSound = !(this->m_flags & EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND) && this->m_kitRec && this->m_kitRec->m_soundID && this->m_kitRec->m_soundID != -1;
+    BOOL hasSound = !(this->m_flags & EFFECT_FLAGS::EFFECT_SUPPRESS_SOUND) && this->m_kitRec && this->m_kitRec->m_soundID && this->m_kitRec->m_soundID != -1;
 
     if ((this->m_flags & EFFECT_FLAGS::EFFECT_WORLD_SPACE) && !this->m_mapEntity && this->m_model) {
         CGObject_C* source = ClntObjMgrObjectPtr(this->m_sourceGuid, TYPE_OBJECT, __FILE__, __LINE__);

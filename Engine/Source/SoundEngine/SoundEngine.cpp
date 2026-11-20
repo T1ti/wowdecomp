@@ -2895,7 +2895,7 @@ int32_t SE2::CreateWaveData(FMOD::System* system, const char* filename, FMOD_MOD
     internal->m_randomStart = randomStart;
 
     uint32_t hash = SStrHash(key, 0, 0);
-    int32_t loaded;
+    BOOL loaded;
 
     if (cacheable) {
         for (SEWaveDataNode* node = s_waveDataList.Head(); node; node = s_waveDataList.Next(node)) {
@@ -3119,7 +3119,7 @@ void SE2::CreateChatSound(FMOD::System* system, SEStreamCallbacks* callbacks, FM
 // OFFSET: 0x0087C710
 int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), BOOL enableReverb, BOOL enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart) {
     FMOD_INITFLAGS flags = FMOD_INIT_NORMAL;
-    int32_t success = 1;
+    BOOL success = 1;
 
     s_gameOutputDeviceName[0] = '\0';
     s_chatOutputDeviceName[0] = '\0';

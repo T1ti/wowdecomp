@@ -393,7 +393,7 @@ void DayNight::LightLoad(TSGrowableArray<const LightRec*>& lights, int32_t mapId
         }
     }
 
-    int32_t hasDefault = 0;
+    BOOL hasDefault = 0;
     lights.SetCount(count);
     uint32_t index = 1;
 

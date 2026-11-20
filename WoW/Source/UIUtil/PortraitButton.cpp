@@ -363,7 +363,7 @@ static TSFixedArray<uint8_t>* GetAlphaMask(uint32_t size) {
     }
 
     mask->SetCount(size * size);
-    int32_t loaded = 0;
+    BOOL loaded = 0;
     CTgaFile tga;
     const char* tgaName = nullptr;
 

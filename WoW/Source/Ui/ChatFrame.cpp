@@ -3260,8 +3260,8 @@ void CGChat::AddTextEmoteMessage(const WOWGUID& guid, uint32_t emote, const char
     }
 
     uint32_t index = 0;
-    int32_t hasSender = 1;
-    int32_t hasTarget = 1;
+    BOOL hasSender = 1;
+    BOOL hasTarget = 1;
 
     if (guid.m_guid == ClntObjMgrGetActivePlayer().m_guid) {
         index = EMOTES_TEXT_SLOT_SENDER_IS_PLAYER;
@@ -5727,7 +5727,7 @@ static void LogTradeSkillCreateCallback(int32_t id, const WOWGUID& guid, void* p
 // VERIFY: 16533f83 auto
 // OFFSET: 0x004FBAB0
 BOOL CGChat::IsVoiceChatEnabled() {
-    int32_t enabled = s_cvarEnableVoiceChat && s_cvarEnableVoiceChat->m_intValue;
+    BOOL enabled = s_cvarEnableVoiceChat && s_cvarEnableVoiceChat->m_intValue;
     int32_t disabled = ComSatClient_IsComsatDisabledByClient();
     return CGChat::m_voiceChatSystemStatus && enabled && !disabled;
 }

@@ -263,7 +263,7 @@ void CShaderEffect::SetCurrent() {
 // VERIFY: 0344992e manual
 // OFFSET: 0x00873060
 void CShaderEffect::SetShaders(uint32_t vertexPermute, uint32_t pixelPermute) {
-    int32_t useAlphaRef = 1;
+    BOOL useAlphaRef = 1;
 
     if (CShaderEffect::s_enableShaders) {
         g_theGxDevicePtr->RsSet(GxRs_VertexShader, CShaderEffect::s_curEffect->m_vertexShaders[vertexPermute]);

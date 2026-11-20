@@ -1386,7 +1386,7 @@ void CCharacterComponent::CreateRequestLU() {
 void CCharacterComponent::CreateRequestLL() {
     this->m_request->m_baseTextures[SECTION_LEG_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
-    int32_t first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
+    BOOL first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
     int32_t last = 2 * ((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) == 0) + 4;
 
     for (int32_t layer = first; layer < last; layer++) {
@@ -5219,7 +5219,7 @@ void CCharacterComponent::DestroyComponentFreeLists() {
 // VERIFY: 0f866952 manual
 // OFFSET: 0x004F18F0
 int32_t CCharacterComponent::Update(const void* data, void* param) {
-    int32_t hasContext = g_theGxDevicePtr ? g_theGxDevicePtr->CapsHasContext(-1) : 0;
+    BOOL hasContext = g_theGxDevicePtr ? g_theGxDevicePtr->CapsHasContext(-1) : 0;
 
     for (CCharacterComponent* component = CCharacterComponent::s_queue.Head(); component;) {
         CCharacterComponent* next = CCharacterComponent::s_queue.Next(component);

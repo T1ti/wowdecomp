@@ -3768,7 +3768,7 @@ void CMap::LinkStaticEntitySingle2(CMapStaticEntity* entity) {
 
     int32_t index = 0;
     int32_t interior = 0;
-    int32_t hit = 0;
+    BOOL hit = 0;
     MapObjIntersectData interiorHit[2];
     MapObjIntersectData groundHit[2];
 
@@ -3890,7 +3890,7 @@ void CMap::LinkStaticEntityMultiple2(CMapStaticEntity* entity) {
     }
 
     int32_t interior = 0;
-    int32_t hit;
+    BOOL hit;
     MapObjIntersectData interiorHit[2];
     MapObjIntersectData groundHit[2];
 

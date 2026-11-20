@@ -4544,7 +4544,7 @@ void CGxDeviceOpenGl::ShaderConstantsSet(EGxShTarget target, uint32_t index, con
     float* dest = &shadow.constants[index * 4];
 
     for (uint32_t i = index; i < index + count; i++) {
-        int32_t changed = 0;
+        BOOL changed = 0;
 
         if (constants[0] != dest[0]) {
             changed = 1;

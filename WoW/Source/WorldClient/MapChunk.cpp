@@ -1088,7 +1088,7 @@ void CMapChunk::ClipBufferUpdate() {
 // VERIFY: bd05b674 auto
 // OFFSET: 0x007D05F0
 int32_t CMapChunk::LoadDetailDoodadModels() {
-    int32_t loaded = 1;
+    BOOL loaded = 1;
 
     for (uint32_t i = 0; i < this->m_header->m_nLayers; i++) {
         int32_t effectId = this->m_layers[i].m_effectId;
@@ -1435,7 +1435,7 @@ bool CMapChunk::CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB) {
 // VERIFY: 774ebb1a manual
 // OFFSET: 0x007D8730
 int32_t CMapChunk::Intersect(int32_t subX, int32_t subY, const C3Ray& ray, float* t) {
-    int32_t hit = 0;
+    BOOL hit = 0;
 
     if (this->m_header->m_holes & CMap::s_holeMask[4 * (subY >> 1) + (subX >> 1)]) {
         return 0;
