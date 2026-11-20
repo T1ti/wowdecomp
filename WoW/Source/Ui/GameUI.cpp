@@ -6288,7 +6288,7 @@ static int32_t AutoMouseOverProc(WOWGUID guid, void* param) {
     C3Vector moverPos = data->m_mover->GetPosition();
     C3Vector objectPos = object->GetPosition();
     C3Vector dir = objectPos - moverPos;
-    float distSq = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+    float distSq = dir.SquaredMag();
     dir.NormalizeSafe();
     float dot = data->m_facing.z * dir.z + data->m_facing.y * dir.y + data->m_facing.x * dir.x;
 

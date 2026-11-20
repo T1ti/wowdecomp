@@ -72,7 +72,7 @@ void __stdcall Rain::GetMotionBlurMatrix(C33Matrix* matrix) {
     float dirZ = invLength * 0.0f * 0.0f;
     float dirX = wind.x * invLength;
     C3Vector axis(dirY - dirZ, dirZ - dirX, dirX * 0.0f - 0.0f * dirY);
-    float axisSq = axis.x * axis.x + axis.y * axis.y + axis.z * axis.z;
+    float axisSq = axis.SquaredMag();
 
     if (fabs(axisSq) < 0.001f) {
         return;

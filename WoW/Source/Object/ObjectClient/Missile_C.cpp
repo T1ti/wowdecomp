@@ -1919,7 +1919,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
     if (!(flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY)) {
         if (flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_DEFLECT) {
             C3Vector dir(-direction->x, -direction->y, -direction->z);
-            float length = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+            float length = sqrt(dir.SquaredMag());
 
             if (fnotequal(length, 0.0f) && fnotequal(length, fabs(dir.z))) {
                 dir /= length;

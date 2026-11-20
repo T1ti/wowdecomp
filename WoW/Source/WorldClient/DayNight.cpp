@@ -1292,7 +1292,7 @@ void DayNight::DNClouds::WorldToTexture(const C3Vector* world, C2Vector* uv) {
     dir.z = static_cast<float>(world->z - DayNight::g_dnInfo.m_cameraPos.z - -cos(0.7853981852531433));
 
     C3Vector up(0.0f, 0.0f, 1.0f);
-    float angle = static_cast<float>(acos((dir.x * up.x + dir.y * up.y + dir.z * up.z) / (sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z) * sqrt(up.x * up.x + up.y * up.y + up.z * up.z))));
+    float angle = static_cast<float>(acos((dir.x * up.x + dir.y * up.y + dir.z * up.z) / (sqrt(dir.SquaredMag()) * sqrt(up.SquaredMag()))));
 
     if (angle > 0.78539819f) {
         angle = 0.78539819f;

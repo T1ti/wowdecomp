@@ -1514,7 +1514,7 @@ void CMapChunk::Intersect(CiRect* rect, CAaBox* box, TSGrowableArray<CFacet>* fa
                     facet->plane.n.x = e1.y * e2.z - e1.z * e2.y;
                     facet->plane.n.y = e1.z * e2.x - e2.z * e1.x;
                     facet->plane.n.z = e2.y * e1.x - e2.x * e1.y;
-                    float scale = 1.0f / sqrtf(facet->plane.n.x * facet->plane.n.x + facet->plane.n.y * facet->plane.n.y + facet->plane.n.z * facet->plane.n.z);
+                    float scale = 1.0f / sqrtf(facet->plane.n.SquaredMag());
                     facet->plane.n.x *= scale;
                     facet->plane.n.y *= scale;
                     facet->plane.n.z *= scale;
@@ -1576,7 +1576,7 @@ void CMapChunk::Intersect(CiRect* rect, const CFrustum* frustum, TSGrowableArray
                     facet->plane.n.x = e1.y * e2.z - e1.z * e2.y;
                     facet->plane.n.y = e1.z * e2.x - e2.z * e1.x;
                     facet->plane.n.z = e2.y * e1.x - e2.x * e1.y;
-                    float scale = 1.0f / sqrtf(facet->plane.n.x * facet->plane.n.x + facet->plane.n.y * facet->plane.n.y + facet->plane.n.z * facet->plane.n.z);
+                    float scale = 1.0f / sqrtf(facet->plane.n.SquaredMag());
                     facet->plane.n.x *= scale;
                     facet->plane.n.y *= scale;
                     facet->plane.n.z *= scale;

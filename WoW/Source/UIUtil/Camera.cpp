@@ -2524,7 +2524,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
     if (!this->m_relativeTo && !s_cameraWaterCollision->m_intValue && 0.0f == this->m_vehicleYawOffset && (!unit || !unit->GetCanFly())) {
         C3Vector forward = C3Vector(cameraTarget.x - this->m_position.x, cameraTarget.y - this->m_position.y, cameraTarget.z - this->m_position.z);
 
-        if (forward.x * forward.x + forward.y * forward.y + forward.z * forward.z > 0.1f) {
+        if (forward.SquaredMag() > 0.1f) {
             forward.Normalize();
             this->SetFacing(forward);
         }
@@ -3960,7 +3960,7 @@ int32_t CGCamera::GetCameraDistance(float& distance, const C3Vector& position, c
 
     C3Vector dir = target - position;
 
-    if (dir.x * dir.x + dir.y * dir.y + dir.z * dir.z < 0.001f) {
+    if (dir.SquaredMag() < 0.001f) {
         return 0;
     }
 

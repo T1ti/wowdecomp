@@ -130,7 +130,7 @@ void Particulate::InitMovement() {
         this->m_movement.m_dir.z = -this->m_movement.m_dir.z;
     }
 
-    float invLength = 1.0f / sqrt(this->m_movement.m_dir.x * this->m_movement.m_dir.x + this->m_movement.m_dir.y * this->m_movement.m_dir.y + this->m_movement.m_dir.z * this->m_movement.m_dir.z);
+    float invLength = 1.0f / sqrt(this->m_movement.m_dir.SquaredMag());
     this->m_movement.m_dir.x = this->m_movement.m_dir.x * invLength;
     this->m_movement.m_dir.y = this->m_movement.m_dir.y * invLength;
     this->m_movement.m_dir.z = this->m_movement.m_dir.z * invLength;
@@ -192,7 +192,7 @@ void Particulate::Update() {
     C3Vector delta(this->m_prevCameraPos.x - CWorldScene::s_activeWorldView.x, this->m_prevCameraPos.y - CWorldScene::s_activeWorldView.y, this->m_prevCameraPos.z - CWorldScene::s_activeWorldView.z);
     this->m_prevCameraPos = CWorldScene::s_activeWorldView;
 
-    if (this->m_spawnAreaSize * this->m_spawnAreaSize < delta.x * delta.x + delta.y * delta.y + delta.z * delta.z) {
+    if (this->m_spawnAreaSize * this->m_spawnAreaSize < delta.SquaredMag()) {
         this->InitParticles(this->m_liquidType);
         delta.x = 0.0f;
         delta.y = 0.0f;

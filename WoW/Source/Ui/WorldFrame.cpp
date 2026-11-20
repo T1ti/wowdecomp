@@ -1063,7 +1063,7 @@ uint64_t CGWorldFrame::FindClosestModel(const C3Vector& start, const C3Vector& e
     }
 
     C3Vector delta = viewEnd - viewStart;
-    float hitDistance = sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z) * t;
+    float hitDistance = sqrt(delta.SquaredMag()) * t;
     hit->m_distance = hitDistance;
     *distance = hitDistance;
     return hit->m_guid.m_guid;
@@ -1081,7 +1081,7 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
         : WORLD_QUERY_M2_UNKNOWN_0x4 | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_TERRAIN | WORLD_QUERY_VISIBLE_OPAQUE;
     C3Vector point = end;
     C3Vector direction = point - start;
-    float length = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+    float length = direction.SquaredMag();
 
     if (fabs(length) >= 0.00000023841858f) {
         length = sqrt(length);

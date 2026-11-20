@@ -1798,7 +1798,7 @@ void SEFileSound::CompleteNonBlockingLoad() {
             return;
         }
 
-        if (sqrt(this->m_coneOrientation.x * this->m_coneOrientation.x + this->m_coneOrientation.y * this->m_coneOrientation.y + this->m_coneOrientation.z * this->m_coneOrientation.z) < 0.0001f) {
+        if (sqrt(this->m_coneOrientation.SquaredMag()) < 0.0001f) {
             this->m_coneOrientation.x = 0.0f;
             this->m_coneOrientation.y = 0.0f;
             this->m_coneOrientation.z = 1.0f;

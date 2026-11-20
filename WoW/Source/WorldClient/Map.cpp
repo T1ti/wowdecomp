@@ -4580,7 +4580,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
         float radius = sqrtf(extent.x * extent.x + (extent.y * extent.y + extent.z * extent.z)) + proxy->m_sphere.r;
         C3Vector delta = proxy->m_sphere.c - center;
 
-        if (delta.x * delta.x + delta.y * delta.y + delta.z * delta.z < radius * radius) {
+        if (delta.SquaredMag() < radius * radius) {
             return false;
         }
     }

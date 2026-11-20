@@ -23181,7 +23181,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
         dir.y = target.y - position.y;
         dir.z = target.z - position.z;
 
-        if (dir.x * dir.x + dir.y * dir.y + dir.z * dir.z > 2.0f) {
+        if (dir.SquaredMag() > 2.0f) {
             dir.Normalize();
 
             if (fabs((dir.y + dir.x) * 0.0f + dir.z) > s_flightAngleCos) {
