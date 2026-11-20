@@ -188,8 +188,6 @@ enum UIADDON_LOADABLE_REASON : int32_t {
     UIADDON_SECURE = 9,
 };
 
-// UIADDON::m_status, as returned by GetAddOnSecurity; AddOnSecurityToken maps
-// it onto the SECURE, INSECURE and BANNED tokens that follow UIADDON_SECURE.
 // SMSG_ADDON_INFO per-addon state byte; names inferred from how SetAddOnInfoRequest applies it.
 enum ADDON_INFO_STATE : uint8_t {
     ADDON_INFO_STATE_BANNED = 0, // The addon is marked UIADDON_SECURITY_BANNED.
@@ -197,6 +195,8 @@ enum ADDON_INFO_STATE : uint8_t {
     ADDON_INFO_STATE_BLIZZARD = 2, // Sets UIADDON::m_blizzard.
 };
 
+// UIADDON::m_status, as returned by GetAddOnSecurity; AddOnSecurityToken maps
+// it onto the SECURE, INSECURE and BANNED tokens that follow UIADDON_SECURE.
 enum UIADDON_SECURITY : uint32_t {
     UIADDON_SECURITY_SECURE = 0,
     UIADDON_SECURITY_INSECURE = 1,
