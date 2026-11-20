@@ -1725,7 +1725,7 @@ void CMovementShared::ForceStopMove(int32_t tryFall) {
     this->CalcCurrentSpeed(0);
     this->UpdateAnchors(0);
 
-    if (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (this->IsOnSpline()) {
         this->m_spline->m_flags |= SPLINEFLAG_NO_SPLINE;
 
         if (tryFall && this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_FLYING) && !this->IsFallingSwimmingFlying()) {
@@ -1741,7 +1741,7 @@ int32_t CMovementShared::Jump(int32_t checkHover) {
         return 0;
     }
 
-    if (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_FLYING)) {
+    if (this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_FLYING)) {
         return 0;
     }
 

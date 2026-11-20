@@ -3116,7 +3116,7 @@ int32_t CMovement_C::SetTransport(WOWGUID transport) {
         return 0;
     }
 
-    if (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (this->IsOnSpline()) {
         return 0;
     }
 
@@ -5069,7 +5069,7 @@ void CMovement_C::ApplyMovement(uint32_t time, uint32_t elapsed) {
     C3Vector destination;
     uint32_t consumed = 0;
 
-    if (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (this->IsOnSpline()) {
         destination = this->m_spline->m_finalDestination;
     }
 
@@ -5255,18 +5255,18 @@ void CMovement_C::MoveUnits(uint32_t time, uint32_t lastUpdateTime) {
 // VERIFY: 1ce66aca manual
 // OFFSET: 0x006E9C30
 int32_t CMovement_C::PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position) {
-    BOOL wasInAir = (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
-    BOOL wasAnimTier = (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
+    BOOL wasInAir = (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
+    BOOL wasAnimTier = (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
 
     if (!this->CMovementShared::PlotUnitSplineMovement(time, position)) {
         return 0;
     }
 
-    if (!wasInAir && (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if (!wasInAir && (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
         this->m_unit->ProcessLocalMoveEvent(time, MSG_MOVE_JUMP, true, 0.0f, 0, 0, 255);
     }
 
-    if (!wasAnimTier && (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION)) {
+    if (!wasAnimTier && (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION)) {
         this->m_unit->SetAnimType(static_cast<uint8_t>(this->m_spline->m_flags));
     }
 
@@ -6427,7 +6427,7 @@ void CPlayerMoveEvent::FromMoveStatus(const CMovementStatus& status) {
 // VERIFY: 90a2e8c4 manual
 // OFFSET: 0x006EA550
 void CMovement_C::Extrapolate(uint32_t time, uint32_t elapsed) {
-    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
+    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || (this->IsOnSpline())) {
         return;
     }
 
@@ -6695,7 +6695,7 @@ void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float di
         return;
     }
 
-    if (this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (this->IsOnSpline()) {
         return;
     }
 
