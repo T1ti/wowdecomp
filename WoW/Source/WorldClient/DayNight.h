@@ -273,7 +273,7 @@ namespace DayNight {
     void ClearOverrideLightParamsID();
     void SetFogMode(int32_t mode);
     void UnloadMap();
-    void ClearLightFlag(int32_t bit);
+    void ClearLightFlag(int32_t bit); // LIGHT_FLAG_BIT
     void ResetFogAccumulators(bool updateClouds);
     void InitSunGlare();
     void InitMoonGlare();
@@ -372,7 +372,18 @@ class GlareBase {
 
 extern int32_t s_mapId;
 extern int32_t g_forceFullUpdate;
-extern int32_t s_lightFlags;
+// s_lightFlags bits; names inferred from the effect each bit drives.
+enum LIGHT_FLAG_BIT : int32_t {
+    LIGHT_FLAG_BIT_GLOW = 0, // Blends sky and fog toward the glow color by s_glowBlend.
+    LIGHT_FLAG_BIT_ECLIPSE = 1, // Applies ApplyFogEclipse to both fogs.
+};
+
+enum LIGHT_FLAGS : int32_t {
+    LIGHT_FLAG_GLOW = 1 << LIGHT_FLAG_BIT_GLOW,
+    LIGHT_FLAG_ECLIPSE = 1 << LIGHT_FLAG_BIT_ECLIPSE,
+};
+
+extern int32_t s_lightFlags; // LIGHT_FLAGS
 extern float s_glowBlend;
 extern DNStars g_stars;
 extern DNSky g_sky;

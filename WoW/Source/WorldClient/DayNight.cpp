@@ -1663,7 +1663,7 @@ void DayNight::DNSky::SetColors() {
     CImVector ramp[6] = {};
     float highlight = DayNight::InterpTable(s_highlightCurve, 6, info.m_dayProgression) * info.m_bands.m_highlightSky;
 
-    if (DayNight::s_lightFlags & 1) {
+    if (DayNight::s_lightFlags & DayNight::LIGHT_FLAG_GLOW) {
         for (int32_t i = 0; i < 6; i++) {
             uint8_t fraction = CMath::fint_((1.0f - DayNight::s_glowBlend) * 255.0f);
             CImVector glow = s_glowColor;
@@ -2242,12 +2242,12 @@ void DayNight::UpdateFog() {
         info.m_fogInterior.m_density = 2.0f * interiorDensity;
     }
 
-    if (DayNight::s_lightFlags & 2) {
+    if (DayNight::s_lightFlags & DayNight::LIGHT_FLAG_ECLIPSE) {
         ApplyFogEclipse(&info.m_fog);
         ApplyFogEclipse(&info.m_fogInterior);
     }
 
-    if (DayNight::s_lightFlags & 1) {
+    if (DayNight::s_lightFlags & DayNight::LIGHT_FLAG_GLOW) {
         if (info.m_timeSec <= s_glowEndTime) {
             float fade = 1.0f / static_cast<float>(CMath::exp2_((info.m_timeSec - s_glowStartTime) / s_glowDuration * 7.2134752f));
 
@@ -2261,7 +2261,7 @@ void DayNight::UpdateFog() {
             ApplyFogColorBlend(&info.m_fog);
             ApplyFogColorBlend(&info.m_fogInterior);
         } else {
-            DayNight::s_lightFlags &= ~1;
+            DayNight::s_lightFlags &= ~DayNight::LIGHT_FLAG_GLOW;
         }
     }
 }

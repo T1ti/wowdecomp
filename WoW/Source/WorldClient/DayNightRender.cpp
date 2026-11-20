@@ -217,7 +217,7 @@ void DayNight::DNClouds::Render() {
     GxRsSet(GxRs_Culling, 0);
     g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
 
-    if (DayNight::s_lightFlags & 1) {
+    if (DayNight::s_lightFlags & DayNight::LIGHT_FLAG_GLOW) {
         CImVector glow;
         glow.b = 0xFF;
         glow.g = 0xFF;

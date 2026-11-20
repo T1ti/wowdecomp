@@ -1423,12 +1423,12 @@ void DayNight::Update(int32_t reset, const C3Vector* cameraPos) {
         }
 
         DayNight::ResetFogAccumulators(true);
-        DayNight::ClearLightFlag(1);
+        DayNight::ClearLightFlag(DayNight::LIGHT_FLAG_BIT_ECLIPSE);
     } else {
         glare = DayNight::g_sunGlare.m_screenGlow * 0.35f;
 
         if (glare == 0.0f) {
-            DayNight::ClearLightFlag(1);
+            DayNight::ClearLightFlag(DayNight::LIGHT_FLAG_BIT_ECLIPSE);
         }
     }
 
