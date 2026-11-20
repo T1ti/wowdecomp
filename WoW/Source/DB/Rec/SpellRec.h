@@ -18,6 +18,15 @@ class SpellRec {
     // Added reference names follow the user-supplied later-version EnumeratedString labels;
     // they do not establish identical 3.3.5 semantics. Channel DELAY is a guessed TC 3.3.5 name.
     // Existing client-verified names/values and raw signed32 fields remain unchanged.
+    // m_procTypeMask; the only bit the client tests. Name inferred from the fixed period the
+    // tooltip and math parsers show for it.
+    enum ProcTypeFlags : int32_t {
+        PROC_HEARTBEAT = 0x00000001,
+    };
+
+    // Period the tooltip and math parsers show for PROC_HEARTBEAT spells (inferred name).
+    static const int32_t HEARTBEAT_PROC_PERIOD_MS = 5000;
+
     enum InterruptFlags : int32_t {
         INTERRUPT_ON_MOVEMENT = 0x00000001,
         INTERRUPT_DMG_PUSHBACK_PLAYER = 0x00000002, // Unused by client; later-version label.
@@ -129,7 +138,7 @@ class SpellRec {
     /* 007C */ int32_t m_interruptFlags;
     /* 0080 */ int32_t m_auraInterruptFlags;
     /* 0084 */ int32_t m_channelInterruptFlags;
-    /* 0088 */ int32_t m_procTypeMask;
+    /* 0088 */ int32_t m_procTypeMask; // ProcTypeFlags
     /* 008C */ int32_t m_procChance;
     /* 0090 */ int32_t m_procCharges;
     /* 0094 */ int32_t m_maxLevel;

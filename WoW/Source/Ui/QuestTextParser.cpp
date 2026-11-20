@@ -979,8 +979,8 @@ static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint3
         case 't': {
             int32_t period;
 
-            if (spell->m_procTypeMask & 1) {
-                period = 5000;
+            if (spell->m_procTypeMask & SpellRec::PROC_HEARTBEAT) {
+                period = SpellRec::HEARTBEAT_PROC_PERIOD_MS;
             } else {
                 period = spell->m_effectAuraPeriod[index];
                 Spell_C_ModifySpellValue(spell, period, SPELLMOD_ACTIVATION_TIME);

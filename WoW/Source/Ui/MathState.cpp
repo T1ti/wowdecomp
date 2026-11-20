@@ -600,8 +600,8 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
             case MATHOP_AURA_PERIOD_3_UPPER: {
                 int32_t period = 0;
 
-                if (spell->m_procTypeMask & 1) {
-                    period = 5000;
+                if (spell->m_procTypeMask & SpellRec::PROC_HEARTBEAT) {
+                    period = SpellRec::HEARTBEAT_PROC_PERIOD_MS;
                 } else {
                     uint32_t index = op < MATHOP_AURA_PERIOD_1_UPPER ? op - MATHOP_AURA_PERIOD_1 : op - MATHOP_AURA_PERIOD_1_UPPER;
 
