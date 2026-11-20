@@ -1057,9 +1057,7 @@ C44Matrix* CEffect::TransformPosition(C44Matrix* matrix, CGObject_C* object) {
 // OFFSET: 0x006F8C50
 int32_t CEffect::UpdateAttachment() {
     if (this->m_attachmentId == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
-        if (this->m_model && this->m_model->m_attachParent) {
-            this->m_model->DetachFromParent();
-        }
+        this->DetachFromParent();
 
         return 1;
     }
@@ -1075,9 +1073,7 @@ int32_t CEffect::UpdateAttachment() {
     }
 
     if (!object) {
-        if (this->m_model && this->m_model->m_attachParent) {
-            this->m_model->DetachFromParent();
-        }
+        this->DetachFromParent();
 
         return 0;
     }
@@ -1087,9 +1083,7 @@ int32_t CEffect::UpdateAttachment() {
     if (parent && !parent->IsLoaded(0, 0)) {
         DebugLog("**** CEffect::UpdateAttachment() called before %s finished loading\n", parent->m_shared->m_fileNameWithoutPath);
 
-        if (this->m_model && this->m_model->m_attachParent) {
-            this->m_model->DetachFromParent();
-        }
+        this->DetachFromParent();
 
         this->MoveToDestroyList();
         return 0;
@@ -1107,9 +1101,7 @@ int32_t CEffect::UpdateAttachment() {
     }
 
     if (!parent || !parent->HasAttachment(this->m_attachmentId)) {
-        if (this->m_model && this->m_model->m_attachParent) {
-            this->m_model->DetachFromParent();
-        }
+        this->DetachFromParent();
 
         this->MoveToDestroyList();
         return 0;
