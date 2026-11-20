@@ -275,7 +275,7 @@ void CMapStaticEntity::SelectLights(CM2Lighting* lighting) {
         C3Vector dir = { 0.0f, 0.0f, 0.0f };
         C3Vector ambient = { 0.0f, 0.0f, 0.0f };
 
-        if ((this->m_flags & 4) != 0) {
+        if (this->m_flags & MAPOBJ_FLAG_EXTERIOR) {
             CM2Light* light = &CMap::s_mapLight->m_light;
 
             diffuse.x = light->m_dirColor.x * this->m_diffuseLightScale;
