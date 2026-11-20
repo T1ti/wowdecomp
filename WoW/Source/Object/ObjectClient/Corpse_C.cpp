@@ -173,7 +173,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
         }
     }
 
-    if ((this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) && !this->m_lootEffect) {
+    if ((this->CanBeLooted()) && !this->m_lootEffect) {
         const SpellVisualEffectNameRec* effect = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
         this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(effect->m_fileName, 0);
 
@@ -263,7 +263,7 @@ float CGCorpse_C::GetTrueScale() const {
 // VERIFY: e46b7590 manual
 // OFFSET: 0x00706590
 BOOL CGCorpse_C::CanHighlight() const {
-    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE);
+    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->CanBeLooted());
 }
 
 // VERIFY: 5ae4217a auto
@@ -317,7 +317,7 @@ void CGCorpse_C::OnFlagChanged(uint32_t oldFlags) {
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0);
     this->SetModel(model);
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
+    if (this->CanBeLooted()) {
         this->ShowLootEffect();
     }
 
@@ -335,7 +335,7 @@ void CGCorpse_C::OnDynamicFlagChanged(uint32_t oldFlags) {
         return;
     }
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
+    if (this->CanBeLooted()) {
         this->ShowLootEffect();
         return;
     }
@@ -477,7 +477,7 @@ void CGCorpse_C::Reenable() {
     CGObject_C::Reenable();
     this->m_corpseFlags &= ~CGCorpse_C::RUNTIME_FLAGS::GROUND_NORMAL_CACHED;
 
-    if (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE) {
+    if (this->CanBeLooted()) {
         this->ShowLootEffect();
     }
 
@@ -499,7 +499,7 @@ void CGCorpse_C::OnRightClick() {
         return;
     }
 
-    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) && (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE)) {
+    if ((player->m_mountDisplayId <= 0 || (player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) && (this->CanBeLooted())) {
         if (player->m_obj->m_guid != CGUnit_C::s_activeMover) {
             return;
         }
