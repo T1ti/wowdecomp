@@ -890,7 +890,7 @@ void SE2::EnableReverb(BOOL enable) {
 
 // VERIFY: 9f66d261 auto
 // OFFSET: 0x008782A0
-int32_t SE2::IsReverbEnabled() {
+BOOL SE2::IsReverbEnabled() {
     return s_reverbEnabled;
 }
 
@@ -908,13 +908,13 @@ void SE2::UnlockSoundList() {
 
 // VERIFY: d2076f78 auto
 // OFFSET: 0x00878CB0
-int32_t SE2::IsInitialized() {
+BOOL SE2::IsInitialized() {
     return s_initialized;
 }
 
 // VERIFY: f294f661 auto
 // OFFSET: 0x00878CC0
-int32_t SE2::IsChatSoundInitialized() {
+BOOL SE2::IsChatSoundInitialized() {
     return SE2::sm_bCaptureInitialized;
 }
 
@@ -1491,7 +1491,7 @@ SESoundInternal::~SESoundInternal() {
 
 // VERIFY: 7abdae88 auto
 // OFFSET: 0x008C8DE0
-int32_t SESoundInternal::IsReadyForRelease() {
+BOOL SESoundInternal::IsReadyForRelease() {
     return 1;
 }
 
@@ -1607,7 +1607,7 @@ SEFileSound::~SEFileSound() {
 
 // VERIFY: c201109e auto
 // OFFSET: 0x0087BE80
-int32_t SEFileSound::IsReadyForRelease() {
+BOOL SEFileSound::IsReadyForRelease() {
     bool ready;
 
     if (!this->m_sound) {

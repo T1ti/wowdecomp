@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_UILCD_WINDOWS_LCDOUTPUT_H
 
 #include <cstdint>
+#include <windows.h>
 #include "ThirdParty/lgLcd/lglcd.h"
 #include "WoW/Source/Ui/UILCD/Windows/LCDCollection.h"
 
@@ -36,11 +37,11 @@ class CLCDOutput : public CLCDCollection {
     void Close();
     void SetGfx(CLCDGfxBase* gfx);
     void SetGlobalPage(CLCDPage* page);
-    int32_t IsOpened();
+    BOOL IsOpened();
     HRESULT HandleErrorFromAPI(DWORD result);
     int32_t GetDeviceId();
     void ResetDeviceType();
-    int32_t HasDeviceType();
+    BOOL HasDeviceType();
     int32_t OpenByType(lgLcdOpenByTypeContext& context);
     int32_t ReOpenDeviceType();
     void ShowPage(CLCDPage* page, int32_t activate);

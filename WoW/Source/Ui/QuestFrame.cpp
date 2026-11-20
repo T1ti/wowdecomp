@@ -659,7 +659,7 @@ bool CGQuestInfo::IsQuestCompleteAt(uint32_t index) {
 
 // VERIFY: db67485a manual
 // OFFSET: 0x0058CBB0
-int32_t CGQuestInfo::IsCompletable() {
+BOOL CGQuestInfo::IsCompletable() {
     if (!CGQuestInfo::m_canComplete) {
         return 0;
     }

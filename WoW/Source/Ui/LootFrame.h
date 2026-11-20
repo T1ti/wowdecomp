@@ -52,7 +52,7 @@ class CGLootInfo {
     static void ShutdownGame();
     static void LeaveWorld();
     static void DoAutoLoot(BOOL closing);
-    static int32_t HasLoot();
+    static BOOL HasLoot();
     static void LootSlot(uint32_t slot);
     static void ConfirmLootSlot(uint32_t slot);
     static void GiveMasterLoot(uint32_t slot, WOWGUID target);

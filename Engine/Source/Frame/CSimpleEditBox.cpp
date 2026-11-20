@@ -54,13 +54,13 @@ CDataAllocator CSimpleEditBox::s_allocator(sizeof(CSimpleEditBox), 100);
 
 // VERIFY: a90b971d auto
 // OFFSET: 0x009634E0
-static int32_t IsShiftDown() {
+static BOOL IsShiftDown() {
     return EventIsKeyDown(KEY_LSHIFT) || EventIsKeyDown(KEY_RSHIFT);
 }
 
 // VERIFY: 4d240939 auto
 // OFFSET: 0x00963510
-static int32_t IsControlDown() {
+static BOOL IsControlDown() {
     return EventIsKeyDown(KEY_LCONTROL) || EventIsKeyDown(KEY_RCONTROL);
 }
 

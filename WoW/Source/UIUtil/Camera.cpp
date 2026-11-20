@@ -1692,13 +1692,13 @@ C3Vector CGCamera::GetCameraPosition(const C3Vector& target, float distance, con
 
 // VERIFY: 94f5ae4c auto
 // OFFSET: 0x005FE310
-int32_t CGCamera::HasModelCamera() {
+BOOL CGCamera::HasModelCamera() {
     return this->m_modelCameraHandle != nullptr;
 }
 
 // VERIFY: 0bbc9b0f manual
 // OFFSET: 0x005FFE50
-int32_t CGCamera::HasTargetOffset() {
+BOOL CGCamera::HasTargetOffset() {
     if (fabsf(this->m_bobOffset.z + this->m_bobOffset.y + this->m_bobOffset.x) < 0.001f) {
         return 0;
     }
@@ -1740,19 +1740,19 @@ uint32_t CGCamera::IsBobbingAllowed(CGObject_C* target) {
 
 // VERIFY: a444f5b9 manual
 // OFFSET: 0x005FFF40
-int32_t CGCamera::IsCustomViewSmoothingActive() {
+BOOL CGCamera::IsCustomViewSmoothingActive() {
     return !(this->m_state & STATE_FLAGS::STATE_FREE_LOOK_DISABLED) && (s_cvCameraCustomViewSmoothing->m_intValue || this->IsViewDefault(this->m_viewIndex)) && !(this->m_state & STATE_FLAGS::STATE_TELESCOPE_ENTERING);
 }
 
 // VERIFY: 5125ed06 auto
 // OFFSET: 0x005FE3A0
-int32_t CGCamera::IsFirstPersonView() {
+BOOL CGCamera::IsFirstPersonView() {
     return this->m_distance < 1.8315002f;
 }
 
 // VERIFY: 00e1843f manual
 // OFFSET: 0x005FF8E0
-int32_t CGCamera::IsViewDefault(uint32_t view) {
+BOOL CGCamera::IsViewDefault(uint32_t view) {
     for (uint32_t i = 0; i < 3; i++) {
         float value = SStrToFloat(s_cameraViewDefaults[view].m_values[i]);
 
@@ -2050,7 +2050,7 @@ void CGCamera::SetVehicleZoomEnabled(BOOL enabled, float duration, int32_t anima
 
 // VERIFY: ebb194ac manual
 // OFFSET: 0x005FFEB0
-int32_t CGCamera::ShouldSmoothPitch(float minPitch, float maxPitch) {
+BOOL CGCamera::ShouldSmoothPitch(float minPitch, float maxPitch) {
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_UNIT, __FILE__, __LINE__);
 
     return target && !(this->m_state & STATE_FLAGS::STATE_FREE_LOOK) && s_cvCameraSmoothPitch->m_intValue && !(static_cast<CGUnit_C*>(target)->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && (minPitch > this->m_pitch || maxPitch < this->m_pitch);
@@ -3257,7 +3257,7 @@ void CGCamera::UpdateTrackingState(int32_t tracking) {
 
 // VERIFY: 3634e85f manual
 // OFFSET: 0x00602600
-int32_t CGCamera::CanSmoothTarget() {
+BOOL CGCamera::CanSmoothTarget() {
     if (fabs(this->m_targetOffset) < 0.001f) {
         return 0;
     }
@@ -3277,7 +3277,7 @@ int32_t CGCamera::CanSmoothTarget() {
 
 // VERIFY: 76fb08be manual
 // OFFSET: 0x00602680
-int32_t CGCamera::CanSmoothYaw(float yawMin, float yawMax) {
+BOOL CGCamera::CanSmoothYaw(float yawMin, float yawMax) {
     CGObject_C* target = ClntObjMgrObjectPtr(this->m_targetGUID, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!target || (this->m_state & STATE_FLAGS::STATE_FREE_LOOK) || !s_cvCameraSmoothYaw->m_intValue) {

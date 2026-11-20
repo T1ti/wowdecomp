@@ -159,7 +159,7 @@ void UnitInventoryChangedCallback(int32_t id, const WOWGUID& guid, void* param, 
 
 // VERIFY: 45ff113c manual
 // OFFSET: 0x005E7A00
-int32_t CGCharacterInfo::CanInspect(const CGPlayer_C* unit) {
+BOOL CGCharacterInfo::CanInspect(const CGPlayer_C* unit) {
     if (!unit) {
         return 0;
     }

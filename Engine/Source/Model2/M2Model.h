@@ -316,7 +316,7 @@ class CM2Model {
 
     CM2Model();
     ~CM2Model();
-    int32_t CanUpdateNonReadyTextures();
+    BOOL CanUpdateNonReadyTextures();
     void ChangeEmittersFrameOfReference(const C44Matrix* matrix);
     void ChangeFrameOfReference(const C44Matrix* matrix);
     void ComputeLoadProgress(int64_t& loaded, int64_t& total);
@@ -327,8 +327,8 @@ class CM2Model {
     C3Vector GetAttachmentPivot(uint32_t id);
     C3Vector GetEventPivot(uint32_t id);
     uint32_t GetEventSequenceTime(uint32_t sequenceId, uint32_t eventId);
-    int32_t HasAttachment(uint32_t id);
-    int32_t HasEvent(uint32_t id);
+    BOOL HasAttachment(uint32_t id);
+    BOOL HasEvent(uint32_t id);
     void LoadSequence(uint32_t id);
     void PickRandomSequenceVariation(uint32_t* variation, uint16_t* sequenceIndex);
     M2SequenceFallback* SequenceFallbackById(M2SequenceFallback* result, uint32_t id);
@@ -353,10 +353,10 @@ class CM2Model {
     uint32_t GetSequenceVariationCount(uint32_t id);
     CAaBox GetSplitBodyBoundingBox(uint32_t boneId);
     C3Vector GetWorldPosition();
-    int32_t HasBone(uint32_t boneId);
-    int32_t HasSequence(const M2Data* data, uint32_t id);
-    int32_t HasSequence(uint32_t id);
-    int32_t IsSequenceLoaded(uint32_t id);
+    BOOL HasBone(uint32_t boneId);
+    BOOL HasSequence(const M2Data* data, uint32_t id);
+    BOOL HasSequence(uint32_t id);
+    BOOL IsSequenceLoaded(uint32_t id);
     uint32_t ResolveSequenceFallback(uint32_t id);
     void SetBoneFlags(uint32_t boneId, uint32_t flags, uint32_t mask);
     void UnoptimizeVisibleGeometry();
@@ -384,7 +384,7 @@ class CM2Model {
     void ForceAnimate();
     uint32_t ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIndex, uint32_t timeOffset, uint32_t period, uint32_t startTime, uint32_t endTime, uint32_t callbackTime);
     void AnimateParticlesMT();
-    int32_t HasDeferredSequence(uint16_t boneIndex, bool primary);
+    BOOL HasDeferredSequence(uint16_t boneIndex, bool primary);
     uint32_t ProcessSequenceCallback(uint32_t boneIndex, uint32_t frame, uint32_t time, uint32_t lastFrame);
     void AnimateTextureTransformsMT();
     void FreeInternalResources();
@@ -401,13 +401,13 @@ class CM2Model {
     uint32_t GetNumCombinableDoodadBatches();
     uint32_t GetNumGeometryBatches();
     uint32_t GetNumPrimitives();
-    int32_t HasCamera(uint32_t id);
+    BOOL HasCamera(uint32_t id);
     void SetEmittersEnabled(BOOL enabled);
     CCamera* GetCameraByIndex(uint32_t index); // Borrowed camera-service handle; the model retains ownership.
     uint32_t GetCurrentLightCount();
     uint32_t GetInstanceCountMax();
-    int32_t HasLiveParticles();
-    int32_t HasLiveRibbons();
+    BOOL HasLiveParticles();
+    BOOL HasLiveRibbons();
     uint32_t IsLoaded(BOOL wait, int32_t recursive);
     void LinkToAsyncHead(int32_t textures);
     void LinkToAsyncHeadRecursive(int32_t textures);
@@ -431,8 +431,8 @@ class CM2Model {
     int32_t GetRegionBounds(M2SkinSection* section, CAaBox& box, C44Matrix& matrix);
     int32_t Initialize(CM2Scene* scene, CM2Shared* shared, CM2Model* source, uint32_t flags);
     int32_t InitializeLoaded();
-    int32_t IsBatchDoodadCompatible(M2Batch* batch);
-    int32_t IsDrawable(int32_t a, int32_t b);
+    BOOL IsBatchDoodadCompatible(M2Batch* batch);
+    BOOL IsDrawable(int32_t a, int32_t b);
     void LinkToCallbackListTail();
     int32_t OnSequenceInterrupted(uint32_t boneId, uint16_t boneIndex);
     void ProcessCallbacksRecursive();

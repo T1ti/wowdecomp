@@ -3,13 +3,14 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class HidManager;
 
 class SteelseriesMouse {
     public:
     virtual ~SteelseriesMouse();
-    virtual int32_t IsConnected() = 0;
+    virtual BOOL IsConnected() = 0;
 };
 
 class WowMouse : public SteelseriesMouse {
@@ -18,7 +19,7 @@ class WowMouse : public SteelseriesMouse {
 
     WowMouse();
     ~WowMouse() override;
-    int32_t IsConnected() override;
+    BOOL IsConnected() override;
 };
 
 #endif

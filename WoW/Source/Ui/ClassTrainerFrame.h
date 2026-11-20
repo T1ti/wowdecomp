@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -84,7 +85,7 @@ class CGClassTrainer {
     static int32_t GetSelectionIndex();
     static const char* GetServiceType(uint32_t index);
     static int32_t GetSkillLineIndexFromService(uint32_t index);
-    static int32_t IsCollapsedHeader(uint32_t index);
+    static BOOL IsCollapsedHeader(uint32_t index);
     static void BuyService();
     static const char* GetServiceName(uint32_t index);
     static const char* GetServiceSubtext(uint32_t index);

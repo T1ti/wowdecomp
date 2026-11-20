@@ -5073,7 +5073,7 @@ static int32_t Script_IsUsableItem(lua_State* L) {
 
 // VERIFY: 35e2d9c5 auto
 // OFFSET: 0x005176F0
-int32_t CanEquipInSlotCallback(const CGItem_C* item, void* param) {
+BOOL CanEquipInSlotCallback(const CGItem_C* item, void* param) {
     WOWGUID none = WOWGUID();
     ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
     return stats && static_cast<int32_t>(stats->m_inventoryType) == *static_cast<int32_t*>(param);

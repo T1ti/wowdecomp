@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 
 class CAsyncObject;
@@ -31,7 +32,7 @@ class CAsyncObject {
     /* 0026 */ uint16_t m_padding;
     /* 0028 */ TSLink<CAsyncObject> m_link;
 
-    int32_t IsPending();
+    BOOL IsPending();
 };
 
 enum TEXTBLOCK_STYLE_FLAGS : uint32_t {

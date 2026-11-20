@@ -383,7 +383,7 @@ void CGCurrencyTypes::SetUnused(int32_t index, int32_t unused) {
 
 // VERIFY: 86e21a80 manual
 // OFFSET: 0x005B04F0
-int32_t CGCurrencyTypes::IsCurrencyShown(int32_t index) {
+BOOL CGCurrencyTypes::IsCurrencyShown(int32_t index) {
     if (index < 0 || index >= CGCurrencyTypes::m_listSize) {
         return 0;
     }

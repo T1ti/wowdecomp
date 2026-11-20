@@ -18,7 +18,7 @@
 
 // VERIFY: f6a00a90 manual
 // OFFSET: 0x006C02F0
-static int32_t CanWrapBetween(uint32_t previous, uint32_t next) {
+static BOOL CanWrapBetween(uint32_t previous, uint32_t next) {
     if (!previous) {
         return 0;
     }

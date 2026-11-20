@@ -294,7 +294,7 @@ int32_t GetQuestItemRewards(const char* type, int32_t index) {
 
 // VERIFY: 88d84110 auto
 // OFFSET: 0x005DEE30
-int32_t CGQuestLog::IsQuestFailed(uint32_t index) {
+BOOL CGQuestLog::IsQuestFailed(uint32_t index) {
     return index < static_cast<uint32_t>(CGQuestLog::m_numQuest) && !CGQuestLog::m_quests[index].m_isHeader && CGQuestLog::m_quests[index].m_expired;
 }
 
@@ -312,7 +312,7 @@ int32_t CGQuestLog::GetQuestIndex(int32_t questId) {
 
 // VERIFY: 728ea3e9 manual
 // OFFSET: 0x005E0EA0
-int32_t CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
+BOOL CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
     if (index >= static_cast<uint32_t>(CGQuestLog::m_numQuest) || CGQuestLog::m_quests[index].m_isHeader) {
         return 0;
     }
@@ -803,7 +803,7 @@ const char* GetQuestTag(int32_t index) {
 
 // VERIFY: 074af98c auto
 // OFFSET: 0x005E00E0
-int32_t CGQuestLog::IsSelectedQuestExpired() {
+BOOL CGQuestLog::IsSelectedQuestExpired() {
     uint32_t index = CGQuestLog::GetSelectedLogEntry();
     return index < static_cast<uint32_t>(CGQuestLog::m_numQuest) && !CGQuestLog::m_quests[index].m_isHeader && CGQuestLog::m_quests[index].m_expired;
 }
@@ -1306,7 +1306,7 @@ int32_t CalculateExperience(int32_t questId, int32_t level) {
 
 // VERIFY: 0b7beaf9 manual
 // OFFSET: 0x005E11D0
-int32_t CGQuestLog::IsOnQuest(int32_t questId) {
+BOOL CGQuestLog::IsOnQuest(int32_t questId) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!player || (player->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)) {
@@ -1895,7 +1895,7 @@ void RemoveQuestPointDisplay(int32_t questId) {
 
 // VERIFY: fca734d5 auto
 // OFFSET: 0x005DEE60
-int32_t CGQuestLog::IsQuestExpiredByID(int32_t questId) {
+BOOL CGQuestLog::IsQuestExpiredByID(int32_t questId) {
     for (int32_t i = 0; i < CGQuestLog::m_numQuest; i++) {
         if (CGQuestLog::m_quests[i].m_questId == questId) {
             return !CGQuestLog::m_quests[i].m_isHeader && CGQuestLog::m_quests[i].m_expired;

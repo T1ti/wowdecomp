@@ -183,7 +183,7 @@ int32_t CGClassTrainer::GetSkillLineIndexFromService(uint32_t index) {
 
 // VERIFY: b36e2c37 manual
 // OFFSET: 0x00594300
-int32_t CGClassTrainer::IsCollapsedHeader(uint32_t index) {
+BOOL CGClassTrainer::IsCollapsedHeader(uint32_t index) {
     if (index >= CGClassTrainer::m_numServices) {
         return 0;
     }

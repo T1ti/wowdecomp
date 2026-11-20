@@ -220,13 +220,13 @@ const char* CGCorpse_C::GetPortraitTexture() const {
 
 // VERIFY: e4a2c418 auto
 // OFFSET: 0x007058B0
-int32_t CGCorpse_C::ShouldFadeout() {
+BOOL CGCorpse_C::ShouldFadeout() {
     return !this->m_component || (TextureIsReadyNow(this->m_component->m_baseSkinTexture) && this->m_component->RenderPrep(0));
 }
 
 // VERIFY: 761d4ea2 auto
 // OFFSET: 0x007058F0
-int32_t CGCorpse_C::CanBeLooted() const {
+BOOL CGCorpse_C::CanBeLooted() const {
     return this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE;
 }
 
@@ -262,7 +262,7 @@ float CGCorpse_C::GetTrueScale() const {
 
 // VERIFY: e46b7590 manual
 // OFFSET: 0x00706590
-int32_t CGCorpse_C::CanHighlight() const {
+BOOL CGCorpse_C::CanHighlight() const {
     return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->m_corpse->m_corpseFieldDynamicFlags & CORPSE_DYNAMIC_FLAGS::CORPSE_DFLAG_LOOTABLE);
 }
 

@@ -228,7 +228,7 @@ uint32_t TalentInfoGetScriptGroupIndex(lua_State* L, int32_t index) {
 
 // VERIFY: 09a769af manual
 // OFFSET: 0x005C5A20
-int32_t CGTalentInfo::IsTalentAvailableForPet(CGUnit_C* pet, const TalentRec* talent) {
+BOOL CGTalentInfo::IsTalentAvailableForPet(CGUnit_C* pet, const TalentRec* talent) {
     if (!pet || !talent) {
         return 0;
     }
@@ -695,7 +695,7 @@ int32_t CGTalentGroup_C::ValidatePreviewTalentPoints(uint32_t tabIndex, const Ta
 
 // VERIFY: ed5f15fd auto
 // OFFSET: 0x005C76E0
-int32_t CGTalentGroup_C::CanAddPreviewTalentPoints(const TalentRec* talent, int32_t points, int32_t* delta, int32_t pet) {
+BOOL CGTalentGroup_C::CanAddPreviewTalentPoints(const TalentRec* talent, int32_t points, int32_t* delta, int32_t pet) {
     *delta = 0;
 
     if (!points) {

@@ -149,8 +149,8 @@ class CVehiclePassenger_C {
     CVehiclePassenger_C();
     void ClearFlag8();
     void DeleteAllDeferredVehicleTransitionAnimSplines();
-    int32_t IsWaitingForVehicleTransitionAnimGrabEvent(uint32_t eventId) const;
-    int32_t IsWaitingForVehicleTransitionAnimThrowEvent(uint32_t eventId) const;
+    BOOL IsWaitingForVehicleTransitionAnimGrabEvent(uint32_t eventId) const;
+    BOOL IsWaitingForVehicleTransitionAnimThrowEvent(uint32_t eventId) const;
     void UpdateSmoothFacing();
     void LockWorldFacingNextFrame(float facing);
     CGUnit_C* GetVehicleUnit() const;
@@ -181,8 +181,8 @@ class CVehiclePassenger_C {
     int32_t OverridesModelAnimation() const;
 
     void UpdateModel();
-    int32_t IsInTransitionMotion() const;
-    int32_t IsEntering() const;
+    BOOL IsInTransitionMotion() const;
+    BOOL IsEntering() const;
     void ComputeModelTransform(C44Matrix& matrix, CM2Model*& model, CGUnit_C* vehicle, const VehicleSeatRec* seat, uint32_t attachment, float facing);
     void ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* seatRec, uint32_t time, C3Vector& endPosition);
     int32_t PostSetState(CGUnit_C* vehicle, VehicleSeatRec* seatRec, uint32_t time);

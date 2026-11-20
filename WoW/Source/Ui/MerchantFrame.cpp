@@ -235,7 +235,7 @@ void CGMerchantInfo::RefreshList() {
 
 // VERIFY: ceeabfca manual
 // OFFSET: 0x005845B0
-int32_t CGMerchantInfo::CanRepair() {
+BOOL CGMerchantInfo::CanRepair() {
     CGUnit_C* merchant = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGMerchantInfo::m_merchant, TYPE_UNIT, __FILE__, __LINE__));
     return merchant && (merchant->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_REPAIR);
 }

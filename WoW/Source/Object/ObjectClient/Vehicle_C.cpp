@@ -127,7 +127,7 @@ VehicleSeatRec* CVehicle_C::GetVehicleSeatRec(uint8_t seat) const {
 
 // VERIFY: 244d9d64 auto
 // OFFSET: 0x00756F00
-int32_t CVehicle_C::IsSuppressingCameraPitchWhileMouseAiming() const {
+BOOL CVehicle_C::IsSuppressingCameraPitchWhileMouseAiming() const {
     if (!(this->m_unit->m_movement->m_flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) && this->m_vehicleRec && (this->m_vehicleRec->m_flags & VehicleRec::FLAGS::MOUSE_AIM_CAMERA_PITCH_MASK) == VehicleRec::FLAGS::ALLOW_CAMERA_PITCH_INPUT) {
         return 1;
     }
@@ -151,7 +151,7 @@ uint32_t CVehicle_C::IsBoneAnimPlaying(uint32_t bone) const {
 
 // VERIFY: 0f448e4f manual
 // OFFSET: 0x00756F40
-int32_t CVehicle_C::HasHighPriorityCastingAnim() const {
+BOOL CVehicle_C::HasHighPriorityCastingAnim() const {
     if (this->m_vehicleRec && (this->m_vehicleRec->m_flags & VehicleRec::FLAGS::HIGH_PRIORITY_CASTING_ANIMATION)) {
         CGUnit_C* unit = this->m_unit;
 
@@ -165,7 +165,7 @@ int32_t CVehicle_C::HasHighPriorityCastingAnim() const {
 
 // VERIFY: cfe65bc9 manual
 // OFFSET: 0x007571C0
-int32_t CVehicle_C::HasHighPriorityAnim() const {
+BOOL CVehicle_C::HasHighPriorityAnim() const {
     if (this->TestBoneAnimBit(KEY_BONE_ROOT)) {
         return 1;
     }
@@ -597,7 +597,7 @@ int32_t CVehicle_C::PlayBoneAnim(uint32_t boneId, uint32_t animId) {
 
 // VERIFY: 039e64eb auto
 // OFFSET: 0x00756CA0
-int32_t CVehicle_C::CanPlayBoneAnim(uint32_t animId) const {
+BOOL CVehicle_C::CanPlayBoneAnim(uint32_t animId) const {
     if (!this->m_unit->GetObjectModel()) {
         return 0;
     }

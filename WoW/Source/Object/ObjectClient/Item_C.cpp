@@ -405,7 +405,7 @@ uint32_t CGItem_C::GetSpellItemEnchantmentId() const {
 
 // VERIFY: 414ca99f auto
 // OFFSET: 0x00706FA0
-int32_t CGItem_C::IsMetal(int32_t materialId) {
+BOOL CGItem_C::IsMetal(int32_t materialId) {
     MaterialRec* rec = g_materialDB.GetRecord(materialId);
 
     if (rec && (rec->m_flags & MATERIAL_FLAG_METAL)) {
@@ -916,7 +916,7 @@ int32_t CGItem_C::GetRandomPropertyPoints() const {
 
 // VERIFY: 6de9acae auto
 // OFFSET: 0x00707DB0
-int32_t CGItem_C::HasOnUseEnchant() const {
+BOOL CGItem_C::HasOnUseEnchant() const {
     return this->GetSpellItemEnchantmentId() != 0;
 }
 
@@ -950,7 +950,7 @@ int32_t CGItem_C::GetCurrentSpellCharges() {
 
 // VERIFY: a124b25b manual
 // OFFSET: 0x00707E60
-int32_t CGItem_C::HasUseEffect() {
+BOOL CGItem_C::HasUseEffect() {
     if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PLAYERCAST) {
         return 1;
     }
@@ -1306,7 +1306,7 @@ int32_t CGItem_C::GetRepairCost() {
 
 // VERIFY: 84e69779 manual
 // OFFSET: 0x007086B0
-int32_t CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry) {
+BOOL CGItem_C::IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry) {
     int32_t locked = 0;
     SpellRec spell;
 
@@ -1413,7 +1413,7 @@ int32_t CGItem_C::GetRandomPropertyValue(int32_t slot) {
 
 // VERIFY: eaccfb41 auto
 // OFFSET: 0x00708C10
-int32_t CGItem_C::CanBeUsed() {
+BOOL CGItem_C::CanBeUsed() {
     return this->GetEnchantmentSpell(SPELL_EFFECT_NONE) != 0;
 }
 
@@ -1797,7 +1797,7 @@ void CGItem_C::PostInitWithStats() {
 
 // VERIFY: f72af9bc manual
 // OFFSET: 0x007082B0
-int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
+BOOL CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
     WOWGUID none = WOWGUID();
     ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, nullptr, nullptr, false);
 
@@ -1876,7 +1876,7 @@ int32_t CGItem_C::CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass) {
 
 // VERIFY: e12d8511 auto
 // OFFSET: 0x00708500
-int32_t CGItem_C::CanGoInSlot(uint32_t slot, int32_t bypass) {
+BOOL CGItem_C::CanGoInSlot(uint32_t slot, int32_t bypass) {
     return CGItem_C::CanGoInSlot(this->m_obj->m_entryID, slot, bypass);
 }
 

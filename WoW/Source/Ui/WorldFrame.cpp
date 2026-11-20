@@ -199,7 +199,7 @@ void CGWorldFrame::SetNamePlateUpdate() {
 
 // VERIFY: c20f460f auto
 // OFFSET: 0x004F58E0
-int32_t CGWorldFrame::CanTargetCorpseSelection(const CGCorpse_C* corpse, uint32_t flags) {
+BOOL CGWorldFrame::CanTargetCorpseSelection(const CGCorpse_C* corpse, uint32_t flags) {
     if (Spell_C_IsTargeting()) {
         return Spell_C_CanTargetCorpse(corpse);
     }
@@ -482,7 +482,7 @@ void CGWorldFrame::ClearTrackedObjects() {
 
 // VERIFY: 8d2db281 manual
 // OFFSET: 0x004F7350
-int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
+BOOL CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
     if (!(flags & HIT_TEST_ME)) {
         if (unit->IsActivePlayer()) {
             return 0;
@@ -537,7 +537,7 @@ int32_t CGWorldFrame::IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags) {
 
 // VERIFY: 120569f0 auto
 // OFFSET: 0x004F7530
-int32_t CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
+BOOL CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
     switch (object->m_obj->m_type) {
         case HEIR_TYPE_PLAYER:
             if (!(flags & HIT_TEST_PLAYERS)) {

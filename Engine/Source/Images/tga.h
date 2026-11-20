@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 
 class SFileImpl;
 
@@ -80,7 +81,7 @@ class CTgaFile {
     uint32_t Height() const;
     uint8_t* Image();
     TGA32Pixel* ImageTGA32Pixel();
-    int32_t IsTopDown() const;
+    BOOL IsTopDown() const;
     int32_t LoadImageData(uint32_t flags);
     int32_t Open(const char* fileName, int32_t flags);
     uint32_t PreImageBytes();

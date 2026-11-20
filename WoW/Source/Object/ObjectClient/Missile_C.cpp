@@ -205,7 +205,7 @@ MISS_REASON CMissile::GetMissReason() const {
 
 // VERIFY: 4bf82194 manual
 // OFFSET: 0x006FEFB0
-int32_t CMissile::IsHit() const {
+BOOL CMissile::IsHit() const {
     if (!(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_BOUNCING) || (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_REFLECTED)) {
         return this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_HIT;
     }

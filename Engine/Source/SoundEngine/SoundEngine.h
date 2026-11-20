@@ -152,7 +152,7 @@ class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     /* 00D0 */ uint32_t m_id;
 
     virtual ~SESoundInternal() = 0;
-    virtual int32_t IsReadyForRelease();
+    virtual BOOL IsReadyForRelease();
 
     SESoundInternal();
     float GetScaledVolume();
@@ -174,7 +174,7 @@ class SEFileSound : public SESoundInternal {
     /* 00FC */ SEWaveDataNode* m_waveData;
 
     virtual ~SEFileSound();
-    virtual int32_t IsReadyForRelease();
+    virtual BOOL IsReadyForRelease();
 
     SEFileSound();
     void AbortNonBlockingLoad(FMOD_RESULT result);
@@ -289,9 +289,9 @@ class SE2 {
     static int32_t Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), BOOL enableReverb, BOOL enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart);
     static void InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, int32_t* inputDriverIndex, const char* inputDriverName, float sampleRate);
     static bool IsCapturing();
-    static int32_t IsChatSoundInitialized();
-    static int32_t IsInitialized();
-    static int32_t IsReverbEnabled();
+    static BOOL IsChatSoundInitialized();
+    static BOOL IsInitialized();
+    static BOOL IsReverbEnabled();
     static void LockSoundList();
     static void Log_Write(const char* format, ...);
     static void Log_Write(uint32_t line, const char* file, FMOD_RESULT result, const char* format, ...);

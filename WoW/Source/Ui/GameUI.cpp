@@ -1386,7 +1386,7 @@ uint32_t CGGameUI::GetCurrentDungeonDifficulty() {
 
 // VERIFY: be7e09f1 manual
 // OFFSET: 0x005194E0
-int32_t CGGameUI::CanResetInstance() {
+BOOL CGGameUI::CanResetInstance() {
     if (!CGGameUI::m_bOwnsInstance) {
         return 0;
     }
@@ -1616,7 +1616,7 @@ void CGGameUI::TargetDirection(float facing, float angle, UNIT_TARGET_TYPE type)
 
 // VERIFY: 9da22ed9 auto
 // OFFSET: 0x005191C0
-int32_t CGGameUI::CanPerformAction(uint32_t action) {
+BOOL CGGameUI::CanPerformAction(uint32_t action) {
     if (lua_tainted) {
         switch (action) {
             case UI_ACTION::UI_ACTION_MOVEMENT:
@@ -2147,7 +2147,7 @@ void CGGameUI::UpdateActivePlayer() {
 
 // VERIFY: 874cc04c auto
 // OFFSET: 0x00512D20
-int32_t CGGameUI::IsKeyDown(KEY key) {
+BOOL CGGameUI::IsKeyDown(KEY key) {
     if (key <= KEY_RALT && CGUIBindings::s_bindings->m_keyStateOverride) {
         return ((1 << key) & CGUIBindings::s_bindings->m_heldModifiers) != 0;
     }
@@ -3098,7 +3098,7 @@ uint8_t CGGameUI::GetComboPoints(WOWGUID target) {
 
 // VERIFY: 8e70952b auto
 // OFFSET: 0x00512A00
-int32_t CGGameUI::IsPartyMember(const WOWGUID& guid) {
+BOOL CGGameUI::IsPartyMember(const WOWGUID& guid) {
     if (CGPartyInfo::IsMember(guid)) {
         return 1;
     }
@@ -3901,7 +3901,7 @@ void CGGameUI::CancelPartyInvite() {
 
 // VERIFY: 59ada9c1 auto
 // OFFSET: 0x005129F0
-int32_t CGGameUI::IsInParty(const WOWGUID& guid) {
+BOOL CGGameUI::IsInParty(const WOWGUID& guid) {
     return CGPartyInfo::IsMember(guid);
 }
 
@@ -4086,7 +4086,7 @@ void LoadSavedVariables(CStatus* status) {
 
 // VERIFY: 0408242c auto
 // OFFSET: 0x00513700
-int32_t CGGameUI::IsAutoLooting() {
+BOOL CGGameUI::IsAutoLooting() {
     if (!CGUIBindings::s_bindings) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
@@ -5455,7 +5455,7 @@ void CGGameUI::UnitTooltipUpdate(const WOWGUID& guid) {
 
 // VERIFY: 08e23167 manual
 // OFFSET: 0x00519640
-int32_t CGGameUI::IsDynamicDifficultyMap() {
+BOOL CGGameUI::IsDynamicDifficultyMap() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
     if (map && (map->m_flags & MAP_FLAG_DYNAMIC_DIFFICULTY)) {
@@ -5515,7 +5515,7 @@ void CGGameUI::DoPowerRegen() {
 
 // VERIFY: 8e843e3a auto
 // OFFSET: 0x00512A30
-int32_t CGGameUI::IsRaidMemberOrPet(const WOWGUID& guid) {
+BOOL CGGameUI::IsRaidMemberOrPet(const WOWGUID& guid) {
     if (CGPartyInfo::IsMemberOrPet(guid)) {
         return 1;
     }
@@ -7571,7 +7571,7 @@ void CGGameUI::Shutdown() {
 
 // VERIFY: 39aaac88 manual
 // OFFSET: 0x0051A1D0
-int32_t IsInFlyableArea() {
+BOOL IsInFlyableArea() {
     AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_subzoneID);
 
     if (!area) {

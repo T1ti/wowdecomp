@@ -128,7 +128,7 @@ static void AcquireBuffers(uint32_t vertexCount, CGxBuf** vertexBuf, uint32_t in
 
 // VERIFY: c83ff776 auto
 // OFFSET: 0x007B0D40
-int32_t CDetailDoodadInst::HasBatches() {
+BOOL CDetailDoodadInst::HasBatches() {
     for (uint32_t i = 0; i < 4; i++) {
         if (this->m_batches[i].m_vertexBuf) {
             return 1;

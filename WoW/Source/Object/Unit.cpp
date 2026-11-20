@@ -162,7 +162,7 @@ bool CGUnit::CanSwim() const {
 
 // VERIFY: a616de1f manual
 // OFFSET: 0x004F5410
-int32_t CGUnit::CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const {
+BOOL CGUnit::CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const {
     *standUp = 0;
 
     if (targeted && (emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_TARGETED)) {
@@ -252,13 +252,13 @@ int32_t CGUnit::GetEffectiveStat(int32_t stat) const {
 
 // VERIFY: 4fc14c7a manual
 // OFFSET: 0x00716160
-int32_t CGUnit::HasAuraState(int32_t state) const {
+BOOL CGUnit::HasAuraState(int32_t state) const {
     return (this->m_unit->m_unitFieldAurastate & (1 << (state - 1))) != 0;
 }
 
 // VERIFY: a8bc343d manual
 // OFFSET: 0x004F5290
-int32_t CGUnit::IsOnFlyingSpline() const {
+BOOL CGUnit::IsOnFlyingSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
 
     if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
@@ -270,20 +270,20 @@ int32_t CGUnit::IsOnFlyingSpline() const {
 
 // VERIFY: dd6976d0 auto
 // OFFSET: 0x005F9810
-int32_t CGUnit::IsOnSpline() const {
+BOOL CGUnit::IsOnSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
     return spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE);
 }
 
 // VERIFY: ea2cbe01 auto
 // OFFSET: 0x005FEE10
-int32_t CGUnit::IsJumping() const {
+BOOL CGUnit::IsJumping() const {
     return (this->m_movement->m_flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_movement->m_fallVelocity;
 }
 
 // VERIFY: 4e64bda0 auto
 // OFFSET: 0x005FA9E0
-int32_t CGUnit::CanMove() const {
+BOOL CGUnit::CanMove() const {
     return this->m_unit->m_unitFieldHealth > 0 && !(this->m_movement->m_flags & (MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) && this->m_unit->m_standState != UNIT_DEAD;
 }
 

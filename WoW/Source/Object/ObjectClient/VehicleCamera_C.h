@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/Object/ObjectClient/Missile_C.h"
@@ -91,8 +92,8 @@ class CVehicleCamera_C {
     uint64_t GetRelativeTo() const;
     int32_t WouldAddingNextCameraCreateLoop(const CVehicleCamera_C* next) const;
     void Destroy();
-    int32_t IsHierarchyChasingFacing() const;
-    int32_t IsTransitioningFacing() const;
+    BOOL IsHierarchyChasingFacing() const;
+    BOOL IsTransitioningFacing() const;
     int32_t UpdateTransitionFlags();
     float GetTransitionProgress(uint32_t time) const;
     int32_t AttachToHierarchy();

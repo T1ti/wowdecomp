@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -30,7 +31,7 @@ class CGUnit {
     C3Vector GetVelocity() const;
 
     bool CanSwim() const;
-    int32_t CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const;
+    BOOL CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const;
     void GetResistanceAndBuffs(int32_t school, int32_t* baseValue, int32_t* total, int32_t* effective, int32_t* positive, int32_t* negative) const;
     const WOWGUID* GetCharmerOrCreatorGuid() const;
     bool HasCreator() const;
@@ -43,11 +44,11 @@ class CGUnit {
     float GetSpellCostMultiplier(int32_t schoolMask) const;
     float GetMeleeRange(const CGUnit* target) const;
     int32_t GetEffectiveStat(int32_t stat) const;
-    int32_t HasAuraState(int32_t state) const;
-    int32_t IsOnFlyingSpline() const;
-    int32_t IsOnSpline() const;
-    int32_t IsJumping() const;
-    int32_t CanMove() const;
+    BOOL HasAuraState(int32_t state) const;
+    BOOL IsOnFlyingSpline() const;
+    BOOL IsOnSpline() const;
+    BOOL IsJumping() const;
+    BOOL CanMove() const;
     float GetFacing(float facing) const;
     float GetPowerRegen(POWER_TYPE powerType, bool inCombat) const;
 };

@@ -68,14 +68,14 @@ class CGActionBar {
     static int32_t m_slotItemCount[NUM_ACTION_SLOTS];
     static uint32_t m_slotActions[NUM_ACTION_SLOTS];
 
-    static int32_t IsMacro(uint32_t slot);
+    static BOOL IsMacro(uint32_t slot);
     static void OnAuraChanged(int32_t spellId);
     static uint32_t GetMacroID(uint32_t slot);
-    static int32_t IsItem(uint32_t slot);
-    static int32_t IsPetAction(uint32_t slot);
-    static int32_t IsEquipmentSet(uint32_t slot);
+    static BOOL IsItem(uint32_t slot);
+    static BOOL IsPetAction(uint32_t slot);
+    static BOOL IsEquipmentSet(uint32_t slot);
     static int32_t GetEquipmentSetID(uint32_t slot);
-    static int32_t HasMacro(uint32_t slot);
+    static BOOL HasMacro(uint32_t slot);
     static void PickupAction(uint32_t slot);
     static int32_t GetItem(uint32_t slot);
     static int32_t GetMacroItem(uint32_t slot);
@@ -83,13 +83,13 @@ class CGActionBar {
     static int32_t GetItemSpell(uint32_t slot);
     static int32_t GetPetActionSpell(uint32_t slot);
     static CGItem_C* FindUseEnchantItemPtr(int32_t itemId);
-    static int32_t IsEquippedAction(uint32_t slot);
-    static int32_t IsConsumableAction(uint32_t slot);
+    static BOOL IsEquippedAction(uint32_t slot);
+    static BOOL IsConsumableAction(uint32_t slot);
     static int32_t GetSpell(uint32_t slot, int32_t& petSpell);
-    static int32_t IsAttackAction(uint32_t slot);
-    static int32_t IsAutoRepeatAction(uint32_t slot);
-    static int32_t HasValidTarget(uint32_t slot, WOWGUID target, int32_t* inRange);
-    static int32_t IsRangedAttackAction(uint32_t slot);
+    static BOOL IsAttackAction(uint32_t slot);
+    static BOOL IsAutoRepeatAction(uint32_t slot);
+    static BOOL HasValidTarget(uint32_t slot, WOWGUID target, int32_t* inRange);
+    static BOOL IsRangedAttackAction(uint32_t slot);
     static int32_t UpdateUsableAction(uint32_t slot, int32_t& noMana);
     static void SetAction(int32_t slot, uint32_t action, int32_t sendToServer, BOOL silent);
     static void UpdateBonusBar();
@@ -109,14 +109,14 @@ class CGActionBar {
     static void UpdateEquipmentSet(uint32_t id);
     static void RemoveEquipmentSet(uint32_t id);
     static void ReplaceSpell(int32_t oldSpell, int32_t newSpell);
-    static int32_t HasAction(uint32_t slot);
+    static BOOL HasAction(uint32_t slot);
     static void PutActionInSlot(int32_t slot);
     static void UpdateMultiCastBar();
     static void RemoveMacro(int32_t spellId);
     static void RemoveMacroActions(uint32_t macroId);
     static uint32_t GetMultiCastSlotMaskForTotemCategory(int32_t category);
     static bool IsEquipmentSetValid(int32_t setId);
-    static int32_t IsSpell(uint32_t slot);
+    static BOOL IsSpell(uint32_t slot);
     static void ShowGrid();
     static void UpdateSelection();
     static const char* GetAttackTexture();
@@ -124,7 +124,7 @@ class CGActionBar {
     static int32_t CalculateItemCount(int32_t itemId);
     static void GetCooldown(int32_t slot, uint32_t& start, uint32_t& duration, uint32_t& enable);
     static const char* GetTexture(int32_t slot);
-    static int32_t IsCurrentAction(int32_t slot);
+    static BOOL IsCurrentAction(int32_t slot);
     static void SlotChanged(int32_t slot, int32_t sendToServer, BOOL silent);
     static void UseAction(int32_t slot, const WOWGUID& target, const char* button);
     static void UpdateMacro(uint32_t macroId);
@@ -132,8 +132,8 @@ class CGActionBar {
 
 void ItemStatsCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
 
-int32_t IsStackableAucItem(uint32_t slot);
-int32_t IsMultiCastSpellForSlot(int32_t slot, const SpellRec* spell, int32_t* category);
+BOOL IsStackableAucItem(uint32_t slot);
+BOOL IsMultiCastSpellForSlot(int32_t slot, const SpellRec* spell, int32_t* category);
 void ActionBarRegisterScriptFunctions();
 void ActionBarUnregisterScriptFunctions();
 

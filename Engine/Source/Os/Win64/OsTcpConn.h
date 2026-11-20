@@ -92,7 +92,7 @@ struct NETSELSOCK {
     /* 0004 */ SOCKET m_sock;
 
     virtual void Selected(TCPNET* net, SELECTSET selectSet) = 0;
-    virtual int32_t IsClosed();
+    virtual BOOL IsClosed();
     virtual void AddToSelectSets(NETSELECTSETS* selectSets) = 0;
 };
 

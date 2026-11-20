@@ -1391,7 +1391,7 @@ CParticleEmitter2::SimpleKey::SimpleKey() {
 
 // VERIFY: b35364c3 auto
 // OFFSET: 0x0097B9E0
-int32_t CParticleEmitter2::HasLiveParticles() {
+BOOL CParticleEmitter2::HasLiveParticles() {
     if (this->m_liveList.Count()) {
         return 1;
     }

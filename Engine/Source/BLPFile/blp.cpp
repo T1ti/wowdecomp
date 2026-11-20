@@ -73,7 +73,7 @@ uint32_t CBLPFile::HasMips() const {
 }
 
 // INLINED
-int32_t CBLPFile::IsValidMip(uint32_t mipLevel) const {
+BOOL CBLPFile::IsValidMip(uint32_t mipLevel) const {
     return !mipLevel || (this->HasMips() && mipLevel < this->m_numLevels);
 }
 

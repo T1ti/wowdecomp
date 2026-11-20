@@ -235,7 +235,7 @@ void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid) {
 
 // VERIFY: 178bd755 auto
 // OFFSET: 0x0074D430
-int32_t IsCombatTextActiveUnit(WOWGUID guid) {
+BOOL IsCombatTextActiveUnit(WOWGUID guid) {
     return s_combatTextActiveUnit == guid;
 }
 

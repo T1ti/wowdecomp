@@ -34,7 +34,7 @@ void CLCDPage::SetExpiration(DWORD milliseconds) {
 
 // VERIFY: 0fbb7a63 auto
 // OFFSET: 0x0095B4A0
-int32_t CLCDPage::HasExpired() {
+BOOL CLCDPage::HasExpired() {
     if (this->m_dwStartTime && this->m_dwExpirationTime && this->m_dwEllapsedTime < this->m_dwExpirationTime) {
         return 0;
     }

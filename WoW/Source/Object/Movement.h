@@ -50,7 +50,7 @@ class CPlayerMoveQueue : public TSList<CPlayerMoveEvent, TSGetExplicitLink<CPlay
     void Enqueue(CPlayerMoveEvent* event);
     void FreeAll();
     void FreeAllExceptTimeSync();
-    int32_t HasEventBetween(MoveEventId first, MoveEventId last);
+    BOOL HasEventBetween(MoveEventId first, MoveEventId last);
     int32_t RequeueEntry(MoveEventId eventId, uint32_t eventTime);
     void UnlinkEventById(MoveEventId eventId);
 };
@@ -97,10 +97,10 @@ class CMovement_C : public CMovementShared {
     float GetStepUpHeight() const;
     int32_t HandlePendingActions();
     int32_t Interpolate(uint32_t now, uint32_t elapsed, C3Vector* position, float* facing, float* pitch);
-    int32_t IsFacetOverhead(uint32_t facet) const;
-    int32_t IsFacetWall(uint32_t facet) const;
-    int32_t IsJumping() const;
-    int32_t IsValidPosition() const;
+    BOOL IsFacetOverhead(uint32_t facet) const;
+    BOOL IsFacetWall(uint32_t facet) const;
+    BOOL IsJumping() const;
+    BOOL IsValidPosition() const;
     void Launch(const C2Vector& direction, float speed, float verticalSpeed);
     void OnAscendDescendStartLocal(uint32_t eventTime, int32_t ascend);
     void OnAscendDescendStopLocal(uint32_t eventTime);
@@ -296,7 +296,7 @@ class CMovement_C : public CMovementShared {
     int32_t PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position);
     void ApplyMovement(uint32_t time, uint32_t elapsed);
     void ExecuteMovement(uint32_t time, uint32_t lastTime);
-    int32_t IsSlopeFallable(uint32_t facet, const C3Vector& move) const;
+    BOOL IsSlopeFallable(uint32_t facet, const C3Vector& move) const;
     C3Vector GetSteepSurfacePushNormal(uint32_t facet, const C4Plane* planes, uint32_t count);
     C2Vector CalcFallObstaclePush(const C3Vector& direction, float distance, float maxDistance, uint32_t facet, const C4Plane* planes, uint32_t count);
 

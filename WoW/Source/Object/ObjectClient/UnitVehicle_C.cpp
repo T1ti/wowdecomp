@@ -500,7 +500,7 @@ void CGUnit_C::OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWGUID
 
 // VERIFY: 561780c9 auto
 // OFFSET: 0x0074BB60
-int32_t CGUnit_C::ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* seat) const {
+BOOL CGUnit_C::ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* seat) const {
     return seat->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
         ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_VOLUNTARY_EXIT
         : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_FORCED_EXIT);

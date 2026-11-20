@@ -462,7 +462,7 @@ bool CGGameObject_C::CanUse() const {
 
 // VERIFY: 6c3c1365 auto
 // OFFSET: 0x0070BA10
-int32_t CGGameObject_C::CanUseNow() const {
+BOOL CGGameObject_C::CanUseNow() const {
     return this->m_typeData->CanUseNow(nullptr, nullptr, nullptr);
 }
 
@@ -625,25 +625,25 @@ uint64_t CGGameObject_C::GetTransportGUID() const {
 
 // VERIFY: 551dd805 manual
 // OFFSET: 0x00712E80
-int32_t CGGameObject_C::IsHighlightSuppressed() const {
+BOOL CGGameObject_C::IsHighlightSuppressed() const {
     return this->m_typeData->IsHighlightSuppressed();
 }
 
 // VERIFY: 4bfff0e2 manual
 // OFFSET: 0x00712E90
-int32_t CGGameObject_C::IsPointInside(const C3Vector& point) const {
+BOOL CGGameObject_C::IsPointInside(const C3Vector& point) const {
     return this->m_typeData->IsPointInside(point);
 }
 
 // VERIFY: de769fdd auto
 // OFFSET: 0x0070F7B0
-int32_t CGGameObject_C::IsQuestGiver() const {
+BOOL CGGameObject_C::IsQuestGiver() const {
     return this->m_gameObject->m_typeID == TYPE_QUESTGIVER;
 }
 
 // VERIFY: 142300a5 auto
 // OFFSET: 0x00712E60
-int32_t CGGameObject_C::IsSolidSelectable() const {
+BOOL CGGameObject_C::IsSolidSelectable() const {
     if (this->m_hasWorldBounds) {
         return 1;
     }
@@ -743,7 +743,7 @@ void CGGameObject_C::SetPathProgress(float progress) {
 
 // VERIFY: 562579c7 auto
 // OFFSET: 0x0070B9E0
-int32_t CGGameObject_C::ShouldFadeIn() const {
+BOOL CGGameObject_C::ShouldFadeIn() const {
     return this->m_typeData->ShouldFadeIn();
 }
 
@@ -762,7 +762,7 @@ void CGGameObject_C::StartInteraction() {
 
 // VERIFY: ac212d62 auto
 // OFFSET: 0x0070F550
-int32_t CGGameObject_C::IsCollidable(int32_t flags) const {
+BOOL CGGameObject_C::IsCollidable(int32_t flags) const {
     if ((flags & WORLD_QUERY_IGNORE_DOORS) && this->m_gameObject->m_typeID == TYPE_DOOR) {
         return 0;
     }
@@ -1329,7 +1329,7 @@ void CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler(CM2Mod
 
 // VERIFY: fa4d5319 manual
 // OFFSET: 0x0070CA90
-int32_t CGGameObject_C_Type_DestructibleBuilding::IsHighlightSuppressed() const {
+BOOL CGGameObject_C_Type_DestructibleBuilding::IsHighlightSuppressed() const {
     if (this->m_modelData && this->m_modelData->m_doNotHighlight) {
         return 1;
     }
@@ -1703,7 +1703,7 @@ bool CGGameObject_C_TypeBase::CanHighlight() const {
 
 // VERIFY: 092326ba auto
 // OFFSET: 0x008E5250
-int32_t CGGameObject_C_TypeBase::IsHighlightSuppressed() const {
+BOOL CGGameObject_C_TypeBase::IsHighlightSuppressed() const {
     return 0;
 }
 
@@ -1779,7 +1779,7 @@ void CGGameObject_C_TypeBase::AddPassenger(CPassenger* passenger, int32_t reason
 
 // VERIFY: 8d4e2b06 auto
 // OFFSET: 0x004899F0
-int32_t CGGameObject_C_TypeBase::IsPointInside(const C3Vector& point) const {
+BOOL CGGameObject_C_TypeBase::IsPointInside(const C3Vector& point) const {
     return 0;
 }
 
@@ -2121,7 +2121,7 @@ C3Vector CGGameObject_C_Type_TransportBase::GetPosition() const {
 
 // VERIFY: d5e93300 auto
 // OFFSET: 0x0070B360
-int32_t CGGameObject_C_Type_TransportBase::IsPointInside(const C3Vector& point) const {
+BOOL CGGameObject_C_Type_TransportBase::IsPointInside(const C3Vector& point) const {
     if (!this->m_worldObject) {
         return 1;
     }
@@ -3792,7 +3792,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
 
 // VERIFY: a7ddafb5 manual
 // OFFSET: 0x0070F580
-int32_t CGGameObject_C::CanHighlight() const {
+BOOL CGGameObject_C::CanHighlight() const {
     if (!this->m_typeData->CanHighlight()) {
         return 0;
     }

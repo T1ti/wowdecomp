@@ -6153,7 +6153,7 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
 
 // VERIFY: 10210842 manual
 // OFFSET: 0x00807DA0
-int32_t SpellHistory::IsOnHold(int32_t spellId, int32_t itemId) {
+BOOL SpellHistory::IsOnHold(int32_t spellId, int32_t itemId) {
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {

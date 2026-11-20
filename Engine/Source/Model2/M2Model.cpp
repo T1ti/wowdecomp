@@ -101,7 +101,7 @@ void CM2Model::DetachFromScene() {
 
 // VERIFY: d45d8886 auto
 // OFFSET: 0x00823E40
-int32_t CM2Model::CanUpdateNonReadyTextures() {
+BOOL CM2Model::CanUpdateNonReadyTextures() {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         return 0;
     }
@@ -267,7 +267,7 @@ CCamera* CM2Model::GetCameraByIndex(uint32_t index) {
 
 // VERIFY: 38985dd6 auto
 // OFFSET: 0x008241D0
-int32_t CM2Model::HasLiveRibbons() {
+BOOL CM2Model::HasLiveRibbons() {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         return 0;
     }
@@ -310,7 +310,7 @@ void CM2Model::SetRibbonsEnabled(uint32_t enabled) {
 
 // VERIFY: 8386034a manual
 // OFFSET: 0x008242C0
-int32_t CM2Model::HasLiveParticles() {
+BOOL CM2Model::HasLiveParticles() {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         return 0;
     }
@@ -423,7 +423,7 @@ void CM2Model::UnlinkFromCallbackList() {
 
 // VERIFY: a722b0dd auto
 // OFFSET: 0x00824550
-int32_t CM2Model::IsBatchDoodadCompatible(M2Batch* batch) {
+BOOL CM2Model::IsBatchDoodadCompatible(M2Batch* batch) {
     uint32_t cacheFlags = M2GetCacheFlags();
 
     if ((cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_BATCH_DOODADS) && (this->m_runtimeFlags & M2_FLAGS::M2_UNKNOWN_10) && (this->m_shared->m_data->m_bones.m_count > 1 || !(cacheFlags & CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES)) && (batch->m_flags & M2Batch::FLAGS::DOODAD_BATCHABLE)) {
@@ -628,7 +628,7 @@ uint32_t CM2Model::IsLoaded(BOOL wait, int32_t recursive) {
 
 // VERIFY: 1574132e auto
 // OFFSET: 0x00824FC0
-int32_t CM2Model::IsDrawable(BOOL wait, int32_t recursive) {
+BOOL CM2Model::IsDrawable(BOOL wait, int32_t recursive) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) && wait) {
         this->WaitForLoad(nullptr);
     }
@@ -1046,7 +1046,7 @@ void CM2Model::UnoptimizeVisibleGeometry() {
 
 // VERIFY: 8a7a94e4 manual
 // OFFSET: 0x00825E00
-int32_t CM2Model::HasSequence(const M2Data* data, uint32_t id) {
+BOOL CM2Model::HasSequence(const M2Data* data, uint32_t id) {
     uint32_t hashCount = data->m_sequenceIdxHashById.m_count;
     uint32_t index;
 
@@ -1081,7 +1081,7 @@ int32_t CM2Model::HasSequence(const M2Data* data, uint32_t id) {
 
 // VERIFY: 73b3e0d6 auto
 // OFFSET: 0x00825EE0
-int32_t CM2Model::HasSequence(uint32_t id) {
+BOOL CM2Model::HasSequence(uint32_t id) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         this->WaitForLoad(nullptr);
     }
@@ -1135,7 +1135,7 @@ uint32_t CM2Model::ResolveSequenceFallback(uint32_t id) {
 
 // VERIFY: af94bf41 manual
 // OFFSET: 0x00826050
-int32_t CM2Model::IsSequenceLoaded(uint32_t id) {
+BOOL CM2Model::IsSequenceLoaded(uint32_t id) {
     if (id >= ANIM_COUNT) {
         return 0;
     }
@@ -1319,7 +1319,7 @@ M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, u
 
 // VERIFY: ba1ac68b auto
 // OFFSET: 0x008264B0
-int32_t CM2Model::HasBone(uint32_t boneId) {
+BOOL CM2Model::HasBone(uint32_t boneId) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         this->WaitForLoad(nullptr);
     }
@@ -1906,7 +1906,7 @@ void CM2Model::SetBoneProceduralTransform(uint32_t boneId, const C44Matrix& matr
 
 // VERIFY: 9445f766 auto
 // OFFSET: 0x008273D0
-int32_t CM2Model::HasAttachment(uint32_t id) {
+BOOL CM2Model::HasAttachment(uint32_t id) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         this->WaitForLoad(nullptr);
     }
@@ -1995,7 +1995,7 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
 
 // VERIFY: ad2a989b manual
 // OFFSET: 0x008275F0
-int32_t CM2Model::HasEvent(uint32_t id) {
+BOOL CM2Model::HasEvent(uint32_t id) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         this->WaitForLoad(nullptr);
     }
@@ -2098,7 +2098,7 @@ uint32_t CM2Model::GetEventSequenceTime(uint32_t sequenceId, uint32_t eventId) {
 
 // VERIFY: db72d94c manual
 // OFFSET: 0x008278E0
-int32_t CM2Model::HasCamera(uint32_t id) {
+BOOL CM2Model::HasCamera(uint32_t id) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
         this->WaitForLoad(nullptr);
     }
@@ -4659,7 +4659,7 @@ void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float
 
 // VERIFY: 577fb428 manual
 // OFFSET: 0x0082E0C0
-int32_t CM2Model::HasDeferredSequence(uint16_t boneIndex, bool primary) {
+BOOL CM2Model::HasDeferredSequence(uint16_t boneIndex, bool primary) {
     TSList<CM2SequenceLoad>& loads = this->m_shared->m_sequenceLoads;
 
     for (CM2SequenceLoad* load = loads.Head(); !loads.IsEnd(load); load = loads.RawNext(load)) {

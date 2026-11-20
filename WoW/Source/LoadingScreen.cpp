@@ -522,7 +522,7 @@ static bool LoadSimpleBackgroundTexture() {
 
 // VERIFY: 91dabb04 manual
 // OFFSET: 0x00409800
-int32_t IsStillLoading() {
+BOOL IsStillLoading() {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!player || !player->GetTransportGUID()) {

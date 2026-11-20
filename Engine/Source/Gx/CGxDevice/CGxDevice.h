@@ -333,7 +333,7 @@ class CGxDevice {
     void LightEnable(uint32_t index, BOOL enable);
     void LightSet(uint32_t index, const CGxLight& light, const C3Vector& pos);
     int32_t MasterEnable(EGxMasterEnables state);
-    int32_t NeedsUpdate(uint32_t app, uint32_t hw, uint32_t appDisables, uint32_t hwDisables, uint32_t flagPos, int32_t& enable);
+    BOOL NeedsUpdate(uint32_t app, uint32_t hw, uint32_t appDisables, uint32_t hwDisables, uint32_t flagPos, int32_t& enable);
     uint32_t PrimCalcCount(EGxPrim primType, uint32_t indexCount);
     void PrimIndexPtr(CGxBuf* buf);
     void PrimVertexFormat(CGxBuf* buf, const CGxVertexAttrib* attribs, uint32_t count);

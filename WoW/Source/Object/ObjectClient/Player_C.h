@@ -140,7 +140,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     };
 
     void DanceMoveAnimComplete();
-    static int32_t IsXRayVisionActive();
+    static BOOL IsXRayVisionActive();
     void AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32_t addToSpellBook);
     void AutoEquipItem(WOWGUID container, uint32_t slot, BOOL ignoreBind);
     void TurnOffGuildTabardPurchase();
@@ -184,10 +184,10 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     static uint32_t GetPendingMovie();
     static uint32_t GetProficiency(uint8_t itemClass);
     static bool CanDualWield();
-    int32_t CanLoot(const CGObject_C* object);
+    BOOL CanLoot(const CGObject_C* object);
     static void __stdcall GetQuestReward(const WOWGUID& questGiver, int32_t questId, int32_t reward);
     static void __stdcall GiveQuestItems(const WOWGUID& questGiver, int32_t questId);
-    static int32_t IsGiftWrapping();
+    static BOOL IsGiftWrapping();
     static void BuyItemInSlot(WOWGUID merchant, const MerchantItem* item, uint32_t count, WOWGUID bag, uint8_t slot);
     static void CancelGiftWrap();
     static int32_t AutoCombatModeEventHandler(const void* data, void* param);
@@ -443,11 +443,11 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     int32_t GetModDamageDoneNeg(int32_t school) const;
     float GetModDamageDonePct(int32_t school) const;
     const CGItem_C* EquippedItemMeetSpellRequirements(const SpellRec* spell, uint32_t slotMask);
-    int32_t HasZoneExplored(int32_t zone);
+    BOOL HasZoneExplored(int32_t zone);
     int32_t UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force);
     int32_t UpdateMountedCollisionBox(float mountHeight, BOOL force);
-    int32_t IsCommentatorUberOrInArena() const;
-    int32_t IsInMelee() const;
+    BOOL IsCommentatorUberOrInArena() const;
+    BOOL IsInMelee() const;
     void OnLootGameObject(const WOWGUID& guid);
     bool HasEquipBypassSkill(int32_t skillId) const;
     void LootMoney();
@@ -501,7 +501,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void RequestAllItemPurchaseData();
     float CalcRewardHonor(float honor);
     float GetQuestXPMultiplier();
-    int32_t CanUseItem(const ItemStats_C* stats, int32_t& error);
+    BOOL CanUseItem(const ItemStats_C* stats, int32_t& error);
     static void BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t count, uint8_t unknown5);
     int32_t OnItemRefundResult(CDataStore* msg);
     void DelKnownSpell(int32_t spellId, BOOL silent);

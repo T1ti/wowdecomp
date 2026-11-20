@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 
 class CGItemData;
@@ -21,7 +22,7 @@ class CGItem {
 
     virtual uint32_t GetItemStaticFlags(int32_t index) = 0;
 
-    int32_t IsUsable() const;
+    BOOL IsUsable() const;
     uint32_t GetEnchantmentId(int32_t slot);
     uint32_t GetEnchantmentDuration(int32_t slot);
     int32_t GetEnchantmentCharges(int32_t slot);

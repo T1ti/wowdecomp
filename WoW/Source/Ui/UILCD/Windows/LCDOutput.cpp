@@ -55,7 +55,7 @@ void CLCDOutput::SetGlobalPage(CLCDPage* page) {
 
 // VERIFY: 944c185d auto
 // OFFSET: 0x00959D60
-int32_t CLCDOutput::IsOpened() {
+BOOL CLCDOutput::IsOpened() {
     return this->m_hDevice != LGLCD_INVALID_DEVICE;
 }
 
@@ -122,7 +122,7 @@ void CLCDOutput::ResetDeviceType() {
 
 // VERIFY: bf2ba328 auto
 // OFFSET: 0x00959E50
-int32_t CLCDOutput::HasDeviceType() {
+BOOL CLCDOutput::HasDeviceType() {
     return this->m_OpenByTypeContext.deviceType != 0;
 }
 

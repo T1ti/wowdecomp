@@ -58,11 +58,11 @@ class CGSpellBook {
     public:
     static void GetAppropriateSpellRank(uint32_t* spellId, CGUnit_C* caster, CGUnit_C* target);
     static const char* GetSpellTexture(int32_t slot, int32_t petSpell);
-    static int32_t IsSelectedSlot(int32_t slot, int32_t petSpell);
+    static BOOL IsSelectedSlot(int32_t slot, int32_t petSpell);
     static int32_t FindSpellByName(const char* name, const char* subtext, int32_t* petSpell);
     static int32_t m_autoRangedSpell;
     static void UpdateCooldowns();
-    static int32_t IsTrackingSpell(int32_t spellId);
+    static BOOL IsTrackingSpell(int32_t spellId);
     static TSFixedArray<int32_t> m_languageSpells;
     static TSGrowableArray<int32_t> m_unlearnedSpells;
     static int32_t m_duelSpell;
@@ -100,17 +100,17 @@ class CGSpellBook {
     static int32_t GetSpellRankOrLevel(const SpellRec* spell);
     static void PickupSpell(int32_t slot, int32_t petSpell);
     static void PickupCompanion(int32_t type, uint32_t index);
-    static int32_t IsAuraCaster(WOWGUID guid, const WOWGUID* caster);
+    static BOOL IsAuraCaster(WOWGUID guid, const WOWGUID* caster);
     static int32_t FindRaidDispel(int32_t dispelType);
     static bool IsUnlearnedSpell(int32_t spellId);
     static void AddPetSpell(int32_t spellId);
     static void DelSpellFromNameCache(int32_t spellId, int32_t petSpell);
     static uint32_t GetShapeshiftForm(int32_t requireForm);
-    static int32_t CanShowAura(const SpellRec* spell, const WOWGUID* caster, bool helpful);
-    static int32_t CanApplyAura(const AuraData* aura);
+    static BOOL CanShowAura(const SpellRec* spell, const WOWGUID* caster, bool helpful);
+    static BOOL CanApplyAura(const AuraData* aura);
     static int32_t FindRaidBuff(int32_t spellId);
-    static int32_t IsShapeshiftSpell(int32_t spellId);
-    static int32_t CanStealAura(const CGUnit_C* unit, const AuraData* aura, const SpellRec* spell);
+    static BOOL IsShapeshiftSpell(int32_t spellId);
+    static BOOL CanStealAura(const CGUnit_C* unit, const AuraData* aura, const SpellRec* spell);
 };
 
 int32_t IsValidSpell(const char* name, int32_t* petSpell);

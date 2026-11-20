@@ -707,7 +707,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void PlayVehicleExitEndAnimation(const VehicleSeatRec* seat, uint32_t anim);
     CGUnit_C* FindRootVehicleOfPassengerChain(CGUnit_C* stop);
     BOOL VehiclePassengerIsTransitionAllowed(const VehicleSeatRec* seat, BOOL checkSeat) const;
-    int32_t ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* seat) const;
+    BOOL ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* seat) const;
     BOOL IsRunning() const;
     BOOL ChooseMovementAnim(uint32_t selectionMask, uint32_t* anim) const;
     float GetStandHeight() const;

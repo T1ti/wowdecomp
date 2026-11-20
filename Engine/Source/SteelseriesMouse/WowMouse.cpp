@@ -30,6 +30,6 @@ WowMouse::~WowMouse() {
 
 // VERIFY: c463f2f6 auto
 // OFFSET: 0x008C2F30
-int32_t WowMouse::IsConnected() {
+BOOL WowMouse::IsConnected() {
     return this->m_hidManager->GetDeviceCount() != 0;
 }

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleAnim.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
@@ -69,7 +70,7 @@ class CSimpleModel : public CSimpleFrame {
     virtual void UpdateAlpha();
     virtual void SetModel(const char* fileName);
     virtual void SetModel(CM2Model* model);
-    virtual int32_t IsDrawable();
+    virtual BOOL IsDrawable();
     virtual void SetGlow(float glow);
     virtual void UpdateModel();
     virtual void OnModelLoaded(CM2Model* model);

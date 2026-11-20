@@ -363,7 +363,7 @@ GuildBankSlotInfo* CGGuildBankInfo::GetGuildBankItem(uint32_t tab, uint32_t slot
 
 // VERIFY: 1ed0b08f auto
 // OFFSET: 0x005A4C40
-int32_t CGGuildBankInfo::IsLocked(int32_t itemId, uint32_t virtualSlot) {
+BOOL CGGuildBankInfo::IsLocked(int32_t itemId, uint32_t virtualSlot) {
     uint32_t tab = virtualSlot / MAX_GUILDBANK_SLOTS_PER_TAB;
     uint32_t slot = virtualSlot % MAX_GUILDBANK_SLOTS_PER_TAB;
 

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Object/WGUID.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
@@ -363,7 +364,7 @@ int32_t Packet_SMSG_PROCRESIST(void* param, NETMESSAGE msgId, uint32_t time, CDa
 int32_t Packet_SMSG_DISPEL_FAILED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_DESTRUCTIBLE_BUILDING_DAMAGE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 void __stdcall CheckToSanitizeUnitLowGuid(WOWGUID* guid);
-int32_t IsCombatTextActiveUnit(WOWGUID guid);
+BOOL IsCombatTextActiveUnit(WOWGUID guid);
 void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount);
 void SendToCombatText(COMBAT_TEXT_TYPE type, const char* text, int32_t amount, int32_t overflow);
 void SendToCombatText(COMBAT_TEXT_TYPE type, int32_t amount, int32_t overflow);

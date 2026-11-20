@@ -63,7 +63,7 @@ class CGQuestInfo {
     public:
     static int32_t m_rewardFactionList[MAX_QUEST_REWARD_FACTIONS];
     static int32_t m_rewardFactionAmounts[MAX_QUEST_REWARD_FACTIONS];
-    static int32_t IsLowLevel(int32_t level);
+    static BOOL IsLowLevel(int32_t level);
     static QUEST_STATE m_state;
     static int32_t m_currentQuest;
     static int32_t m_autoLaunched;
@@ -122,7 +122,7 @@ class CGQuestInfo {
     static int32_t GetNumQuestChoices();
     static int32_t GetQuestItemID(const char* type, uint32_t index);
     static bool IsQuestCompleteAt(uint32_t index);
-    static int32_t IsCompletable();
+    static BOOL IsCompletable();
     static void QueryQuest(uint32_t index);
     static void CompleteQuest(uint32_t index);
     static void AcceptQuest();

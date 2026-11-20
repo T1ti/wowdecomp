@@ -103,7 +103,7 @@ static int32_t s_fontStringCount;
 
 // VERIFY: 0e98fd61 auto
 // OFFSET: 0x004826D0
-static int32_t IsRectOffscreen(const CRect& rect) {
+static BOOL IsRectOffscreen(const CRect& rect) {
     return rect.maxY < 0.0f || rect.minY > 1.0f || rect.maxX < 0.0f || rect.minX > 1.0f;
 }
 
@@ -2170,7 +2170,7 @@ float CSimpleTexture::GetHeight() {
 
 // VERIFY: d5f393df auto
 // OFFSET: 0x004818D0
-int32_t CSimpleTexture::IsObjectLoaded() {
+BOOL CSimpleTexture::IsObjectLoaded() {
     if (this->m_texture && !TextureIsLoaded(this->m_texture)) {
         return 0;
     }

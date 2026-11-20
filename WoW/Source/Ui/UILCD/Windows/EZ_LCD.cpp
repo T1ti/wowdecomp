@@ -185,13 +185,13 @@ void CEzLcd::Update() {
 
 // VERIFY: 23e6b3c3 manual
 // OFFSET: 0x00959240
-int32_t CEzLcd::IsConnected() {
+BOOL CEzLcd::IsConnected() {
     return this->m_connection.IsConnected();
 }
 
 // VERIFY: f18f64d0 manual
 // OFFSET: 0x00958E30
-int32_t CEzLcd::IsDeviceAvailable(int32_t type) {
+BOOL CEzLcd::IsDeviceAvailable(int32_t type) {
     CLCDOutput* output;
 
     if (type == 0) {

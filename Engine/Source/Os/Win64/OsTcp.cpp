@@ -187,7 +187,7 @@ void OsNet::SLTCPCONN::StartRead() {
 }
 
 // OFFSET: 0x0086D700
-int32_t OsNet::NETSELSOCK::IsClosed() {
+BOOL OsNet::NETSELSOCK::IsClosed() {
     return this->m_sock == INVALID_SOCKET;
 }
 

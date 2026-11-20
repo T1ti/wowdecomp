@@ -64,7 +64,7 @@ int32_t SI2::PlayFoleySound(int32_t materialId, const C3Vector* position, int32_
 
 // VERIFY: 9dd45739 manual
 // OFFSET: 0x004CFE00
-int32_t SI2::IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* position) {
+BOOL SI2::IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* position) {
     SEChannelInfo info[512];
     uint32_t hardwareCount;
     uint32_t softwareCount;

@@ -1297,7 +1297,7 @@ bool CGPlayer_C::CanDualWield() {
 
 // VERIFY: 3a070edb manual
 // OFFSET: 0x006D5A60
-int32_t CGPlayer_C::CanLoot(const CGObject_C* object) {
+BOOL CGPlayer_C::CanLoot(const CGObject_C* object) {
     if (!object) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
@@ -1404,7 +1404,7 @@ void SignalPlayerSkillStatEvents() {
 
 // VERIFY: 7ca6e35b auto
 // OFFSET: 0x006CEFB0
-int32_t CGPlayer_C::IsGiftWrapping() {
+BOOL CGPlayer_C::IsGiftWrapping() {
     return static_cast<bool>(s_giftWrapItem);
 }
 
@@ -2241,7 +2241,7 @@ uint32_t CGPlayer_C::GetEquippedAmmoDisplayId() const {
 
 // VERIFY: f842d174 manual
 // OFFSET: 0x006DE980
-int32_t CGPlayer_C::IsCommentatorUberOrInArena() const {
+BOOL CGPlayer_C::IsCommentatorUberOrInArena() const {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
     uint32_t flags = this->m_player->m_playerFlags;
 
@@ -2309,7 +2309,7 @@ void __stdcall CGPlayer_C::OnTaxiNodeStatus(CDataStore* msg) {
 
 // VERIFY: 2a53878e manual
 // OFFSET: 0x006D71A0
-int32_t CGItem::IsUsable() const {
+BOOL CGItem::IsUsable() const {
     uint32_t flags = this->m_item->m_itemFieldFlags;
 
     return (((flags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) != 0) || !this->m_item->m_itemFieldMaxdurability || this->m_item->m_itemFieldDurability) && !((flags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_UNUSABLE) != 0);
@@ -2433,13 +2433,13 @@ int32_t CGPlayer_C::GetEquipBypassSkill(uint32_t index) const {
 
 // VERIFY: 2b34eb63 auto
 // OFFSET: 0x005140E0
-int32_t CGPlayer_C::IsInMelee() const {
+BOOL CGPlayer_C::IsInMelee() const {
     return (this->m_combatModeFlags & COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_COMBAT) || this->CGUnit_C::IsInMelee();
 }
 
 // VERIFY: 03afa9dc manual
 // OFFSET: 0x00546150
-int32_t CGPlayer_C::HasZoneExplored(int32_t zone) {
+BOOL CGPlayer_C::HasZoneExplored(int32_t zone) {
     if (this->m_obj->m_guid != ClntObjMgrGetActivePlayer()) {
         return 0;
     }
@@ -4853,7 +4853,7 @@ int32_t GetModalNextSpell() {
 
 // VERIFY: 3f2316b1 manual
 // OFFSET: 0x006DE840
-int32_t CGPlayer_C::IsXRayVisionActive() {
+BOOL CGPlayer_C::IsXRayVisionActive() {
     CGUnit_C* player = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!player) {
@@ -6890,7 +6890,7 @@ void CGPlayer_C::BuyItem(WOWGUID vendor, const MerchantItem* item, uint32_t coun
 
 // VERIFY: 604e7050 manual
 // OFFSET: 0x006DC3F0
-int32_t CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
+BOOL CGPlayer_C::CanUseItem(const ItemStats_C* stats, int32_t& error) {
     error = ERR_MAX_VALUE;
 
     if (!stats) {
@@ -8165,7 +8165,7 @@ void CGPlayer_C::MeleeModeLeave() {
 
 // VERIFY: a9e0121f auto
 // OFFSET: 0x006CEB10
-static int32_t IsCastAnimation(uint32_t anim) {
+static BOOL IsCastAnimation(uint32_t anim) {
     switch (anim) {
         case ANIM_ATTACK_BOW:
         case ANIM_ATTACK_RIFLE:

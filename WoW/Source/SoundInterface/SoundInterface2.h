@@ -212,12 +212,12 @@ class SI2 {
     static void InitZoneSoundsHandler();
     static void IntroMusicFinished(SESound* sound, void* param);
     static int32_t IntroMusicOkToPlay(int32_t soundKitId, ZONE_SOUND_TYPE type);
-    static int32_t IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position);
+    static BOOL IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position);
     static bool IsLooping(SE2SoundKitObject* object);
     static bool IsPlaying(SE2SoundKitObject* object);
     static uint32_t IsSoundKitLooping(int32_t soundKitId);
-    static int32_t IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* position);
-    static int32_t IsUnderwater();
+    static BOOL IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* position);
+    static BOOL IsUnderwater();
     static int32_t LookupSoundKitId(const char* name);
     static void MarkAdvancedSoundStopped(uint32_t id);
     static int32_t OnFocusChanged(const void* data, void* param);

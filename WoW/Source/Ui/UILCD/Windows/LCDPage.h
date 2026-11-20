@@ -21,7 +21,7 @@ class CLCDPage : public CLCDCollection {
     virtual void OnDraw(CLCDGfxBase& gfx);
     virtual void OnUpdate(uint32_t timestamp);
     virtual void SetExpiration(DWORD milliseconds);
-    virtual int32_t HasExpired();
+    virtual BOOL HasExpired();
     virtual void OnLCDButtonDown(int32_t button);
     virtual void OnLCDButtonUp(int32_t button);
 

@@ -43,7 +43,7 @@ void CSimpleRegion::SetParent(CSimpleFrame* parent) {
 
 // VERIFY: bb364772 auto
 // OFFSET: 0x004879B0
-int32_t CSimpleRegion::CanBeAnchorFor(CLayoutFrame* frame) {
+BOOL CSimpleRegion::CanBeAnchorFor(CLayoutFrame* frame) {
     return frame->IsProtected() == 0;
 }
 

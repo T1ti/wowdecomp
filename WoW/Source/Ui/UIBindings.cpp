@@ -104,7 +104,7 @@ static char s_bindKey[2];
 
 // VERIFY: ba836cb5 manual
 // OFFSET: 0x0055DAB0
-static int32_t IsValidKeyName(const char* key) {
+static BOOL IsValidKeyName(const char* key) {
     bool found;
 
     do {
@@ -1374,7 +1374,7 @@ KEYBINDING* CGUIBindings::GetReducedKeyBinding(BINDING_MODE mode, const char* ke
 
 // VERIFY: ced91a43 manual
 // OFFSET: 0x0055F940
-int32_t CGUIBindings::IsModifiedClick(const char* action) {
+BOOL CGUIBindings::IsModifiedClick(const char* action) {
     int32_t result = 0;
 
     if (!action) {

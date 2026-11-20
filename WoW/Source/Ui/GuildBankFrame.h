@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_GUILDBANKFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Net/Types.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -97,7 +98,7 @@ class CGGuildBankInfo {
     static void Unlock(int32_t itemId, uint32_t virtualSlot);
     static void GetTabAndSlotFromVirtual(uint32_t virtualSlot, uint32_t* tab, uint32_t* slot);
     static GuildBankSlotInfo* GetGuildBankItem(uint32_t tab, uint32_t slot);
-    static int32_t IsLocked(int32_t itemId, uint32_t virtualSlot);
+    static BOOL IsLocked(int32_t itemId, uint32_t virtualSlot);
     static void Lock(int32_t itemId, uint32_t virtualSlot);
     static void BuyGuildBankTab();
     static void SwapItems(uint8_t tab, uint32_t slot, WOWGUID item, WOWGUID container, uint32_t containerSlot, int32_t split);

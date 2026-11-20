@@ -265,7 +265,7 @@ void PlayerNameDelete(PLAYERNAMEDESC* desc) {
 
 // VERIFY: f8567035 manual
 // OFFSET: 0x007E5340
-int32_t PLAYERNAMEDESC::ShouldRender(CGObject_C* object, uint32_t raidTarget) {
+BOOL PLAYERNAMEDESC::ShouldRender(CGObject_C* object, uint32_t raidTarget) {
     int32_t show = 1;
 
     if (object && (object->m_obj->m_type & TYPE_UNIT)) {

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Storm/Source/SLock.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -215,7 +216,7 @@ class CMissile {
     void DetermineMissType();
     MISS_REASON GetHitResult() const;
     MISS_REASON GetMissReason() const;
-    int32_t IsHit() const;
+    BOOL IsHit() const;
     void SetHitResult(MISS_REASON result);
     void SetRemoteCollisionPos(const C3Vector& position);
     C3Vector TransformPositionByTransport();

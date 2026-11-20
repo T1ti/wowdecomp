@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WoW/Source/Object/Corpse.h"
@@ -33,9 +34,9 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
     /* 028C */ uint8_t unknown_028C [4];
 
     ~CGCorpse_C() override;
-    int32_t ShouldFadeout() override;
+    BOOL ShouldFadeout() override;
     float GetTrueScale() const override;
-    int32_t CanHighlight() const override;
+    BOOL CanHighlight() const override;
     float GetFacing() const override;
     void ModelLoaded(CM2Model* model) override;
     void Disable() override;
@@ -49,7 +50,7 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
 
     CGCorpse_C(uint32_t time, const CClientObjCreate& create);
     void ApplyGuildColor(int32_t request);
-    int32_t CanBeLooted() const;
+    BOOL CanBeLooted() const;
     void SetStorage(uint32_t* storage, uint32_t* saved);
     float GetDisplayScale() const;
     uint32_t GetFactionTemplate() const;

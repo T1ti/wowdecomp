@@ -40,7 +40,7 @@ void SI2::DestroyVSoundLookup() {
 
 // VERIFY: 80cb0ed8 auto
 // OFFSET: 0x004C9CF0
-static int32_t IsInTimeWindow(SI2AdvancedSound* sound) {
+static BOOL IsInTimeWindow(SI2AdvancedSound* sound) {
     int32_t offset = sound->m_randomOffset;
     int32_t now = s_dayTime;
 
@@ -182,7 +182,7 @@ SI2AdvancedSound::~SI2AdvancedSound() {
 
 // VERIFY: 1ee25e28 auto
 // OFFSET: 0x004CA130
-int32_t SI2::IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position) {
+BOOL SI2::IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position) {
     if (!s_vsoundLookup) {
         return 1;
     }

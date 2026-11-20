@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_MERCHANTFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Common/ComponentCore/Types.h"
 #include "WoW/Source/Object/WGUID.h"
 
@@ -38,7 +39,7 @@ class CGMerchantInfo {
     static void SetMerchant(WOWGUID merchant, const MerchantItem* items, int32_t count);
     static void RefreshList();
     static void UpdateItemQuantity(WOWGUID merchant, int32_t slot, int32_t quantity);
-    static int32_t CanRepair();
+    static BOOL CanRepair();
     static bool IsBuybackItem(WOWGUID item);
     static void CloseMerchant();
     static void EnterWorld();

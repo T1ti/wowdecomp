@@ -51,8 +51,8 @@ class CScriptRegion : public CScriptObject, public CLayoutFrame {
 
     CScriptRegion();
     void GetActiveAnimInfo(int32_t type, int32_t& active, int32_t& activeOfType);
-    int32_t HasActiveAnimGroup();
-    int32_t HasActiveAnimOfType(int32_t type);
+    BOOL HasActiveAnimGroup();
+    BOOL HasActiveAnimOfType(int32_t type);
     bool IsMouseOver(float top, float bottom, float left, float right);
     void LoadXML_Animations(XMLNode* node, CStatus* status);
     bool ProtectedFunctionsAllowed();

@@ -132,7 +132,7 @@ static char s_argName[6] = "arg0";
 
 // VERIFY: 6f7f711d manual
 // OFFSET: 0x00816770
-static int32_t IsNotFinite(double value) {
+static BOOL IsNotFinite(double value) {
     return !std::isfinite(value);
 }
 

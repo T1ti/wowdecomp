@@ -41,7 +41,7 @@ void CGGMTicketInfo::InitializeGame() {
 
 // VERIFY: bc332241 auto
 // OFFSET: 0x005AC170
-static int32_t IsTicketTextValid(const char* text) {
+static BOOL IsTicketTextValid(const char* text) {
     if (SStrLenUTF8(text) > 500) {
         CGGameUI::DisplayError(ERR_TICKET_TEXT_TOO_LONG);
         return 0;

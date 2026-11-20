@@ -102,7 +102,7 @@ OsGuiHandle COsTreeView::GetEditControl() {
 
 // VERIFY: da6670f7 manual
 // OFFSET: 0x0086C600
-int32_t COsTreeView::IsCharacterAllowed(char c) {
+BOOL COsTreeView::IsCharacterAllowed(char c) {
     if (!this->GetEditControl()) {
         return 1;
     }
@@ -228,7 +228,7 @@ static COsDialog* sGetOsGuiPointer(void* window) {
 }
 
 // INLINED
-int32_t COsEditBox::IsCharacterAllowed(char c) {
+BOOL COsEditBox::IsCharacterAllowed(char c) {
     if (!this->m_filtersEnabled) {
         return 1;
     }
@@ -247,12 +247,12 @@ OsGuiHandle COsDialog::GetParentWindow() {
 }
 
 // INLINED
-int32_t COsDialog::HasFlag(uint32_t flag) {
+BOOL COsDialog::HasFlag(uint32_t flag) {
     return (this->m_flags & flag) != 0;
 }
 
 // INLINED
-int32_t COsDialog::IsInFront() {
+BOOL COsDialog::IsInFront() {
     return this->m_handle == OsGuiGetWindow(OSGUI_WINDOW_TYPE_FRONT);
 }
 

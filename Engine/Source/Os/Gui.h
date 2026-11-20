@@ -2,6 +2,7 @@
 #define ENGINE_SOURCE_OS_GUI_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 #include "Engine/Source/Tempest/CImVector.h"
@@ -125,7 +126,7 @@ class COsEditBox : public COsControl {
     /* 0030 */ uint32_t m_filters;
     /* 0034 */ int32_t m_selSize;
 
-    int32_t IsCharacterAllowed(char c);
+    BOOL IsCharacterAllowed(char c);
 };
 
 class COsTreeView : public COsControl {
@@ -147,7 +148,7 @@ class COsTreeView : public COsControl {
     /* 0084 */ TSGrowableArray<OsGuiTreeItemParams> m_itemParams;
 
     OsGuiHandle GetEditControl();
-    int32_t IsCharacterAllowed(char c);
+    BOOL IsCharacterAllowed(char c);
 };
 
 class COsTabControl : public COsControl {
@@ -177,8 +178,8 @@ class COsDialog {
 
     COsControl* FindControl(OsGuiHandle handle);
     OsGuiHandle GetParentWindow();
-    int32_t HasFlag(uint32_t flag);
-    int32_t IsInFront();
+    BOOL HasFlag(uint32_t flag);
+    BOOL IsInFront();
     int32_t OnCancel();
     int32_t OnControlTab();
     int32_t OnEvent(int32_t itemId, int32_t notifyCode, int32_t code);

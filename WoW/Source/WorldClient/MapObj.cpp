@@ -1900,7 +1900,7 @@ void CMapObj::Clear() {
 
 // VERIFY: c6f5dc77 manual
 // OFFSET: 0x007AE4C0
-int32_t CMapObj::IsGroupLoaded(int32_t index) {
+BOOL CMapObj::IsGroupLoaded(int32_t index) {
     if (this->m_isGroupLoaded) {
         return this->m_mapObjGroupArray[index]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED;
     }
@@ -1910,7 +1910,7 @@ int32_t CMapObj::IsGroupLoaded(int32_t index) {
 
 // VERIFY: 2a027261 manual
 // OFFSET: 0x007AE4F0
-int32_t CMapObj::IsGroupLoading(int32_t index) {
+BOOL CMapObj::IsGroupLoading(int32_t index) {
     return this->m_isGroupLoaded && this->m_mapObjGroupArray[index]->m_asyncObjPtr != nullptr;
 }
 
@@ -4034,7 +4034,7 @@ bool CMapObj::TestConvexVolume(const C3Vector& point) {
 
 // VERIFY: c777c00f manual
 // OFFSET: 0x007AF740
-int32_t CMapObj::IsAllLoaded() {
+BOOL CMapObj::IsAllLoaded() {
     if (!this->m_isGroupLoaded) {
         return 0;
     }
@@ -4050,7 +4050,7 @@ int32_t CMapObj::IsAllLoaded() {
 
 // VERIFY: 2b62f89e auto
 // OFFSET: 0x007AF850
-int32_t CMapObj::IsAllDrawable() {
+BOOL CMapObj::IsAllDrawable() {
     int32_t loaded = this->IsAllLoaded();
 
     if (!loaded) {

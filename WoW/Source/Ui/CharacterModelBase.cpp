@@ -38,7 +38,7 @@ CDataAllocator CGCharacterModelBase::s_characterModelHeap(sizeof(CGCharacterMode
 
 // VERIFY: 80f18f2c auto
 // OFFSET: 0x00597290
-static int32_t IsUnitDrawable(CGUnit_C* unit) {
+static BOOL IsUnitDrawable(CGUnit_C* unit) {
     if (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING) {
         return 0;
     }
@@ -194,7 +194,7 @@ int32_t CGCharacterModelBase::ShowThis() {
 
 // VERIFY: 07392823 manual
 // OFFSET: 0x00597AA0
-int32_t CGCharacterModelBase::IsDrawable() {
+BOOL CGCharacterModelBase::IsDrawable() {
     if (!this->m_model || !this->m_model->IsDrawable(0, 1)) {
         return 0;
     }

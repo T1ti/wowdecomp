@@ -48,7 +48,7 @@ class CGRaidInfo {
     static uint32_t m_realNumMembers;
     static WOWGUID m_selectedMember;
 
-    static int32_t IsPlayerOrPetInRaid(const WOWGUID& guid);
+    static BOOL IsPlayerOrPetInRaid(const WOWGUID& guid);
     static uint32_t m_readyCheckTime;
     static WOWGUID m_readyCheckInitiator;
     static uint32_t m_readyCheckTimer;
@@ -61,8 +61,8 @@ class CGRaidInfo {
     static void ShutdownGame();
     static int32_t ProcessReadyCheckTimer(const void* data, void* param);
     static int32_t GetPartyMemberIndex(WOWGUID guid);
-    static int32_t IsPartyMemberReadyCheckPending(uint32_t index);
-    static int32_t IsPartyMemberReadyCheckReady(uint32_t index);
+    static BOOL IsPartyMemberReadyCheckPending(uint32_t index);
+    static BOOL IsPartyMemberReadyCheckReady(uint32_t index);
     static CGPartyMemberState* GetRemoteStats(const WOWGUID& guid);
     static void ClearRecruitAFriend(WOWGUID guid);
     static CGPartyMemberState* GetRemoteStatsFromPet(const WOWGUID& petGuid);
@@ -77,9 +77,9 @@ class CGRaidInfo {
     static void SetRaidTarget(uint32_t index, const WOWGUID& guid);
     static void RosterUpdateRefreshReadyCheck(uint32_t removed, WOWGUID leader);
     static void UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, const uint8_t* flags, const uint32_t* roles, const uint8_t* online, uint32_t count, uint8_t battleground);
-    static int32_t IsPetInRaid(const WOWGUID& guid, int32_t* index);
-    static int32_t IsPlayerRaidOfficer(const WOWGUID& guid);
-    static int32_t IsPVPRaid();
+    static BOOL IsPetInRaid(const WOWGUID& guid, int32_t* index);
+    static BOOL IsPlayerRaidOfficer(const WOWGUID& guid);
+    static BOOL IsPVPRaid();
     static int32_t GetMemberIndexByGuid(WOWGUID guid);
     static CGRaidMember* GetMember(uint32_t index);
     static int32_t GetSelectedMemberIndex();

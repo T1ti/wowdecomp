@@ -183,7 +183,7 @@ CVehicleCamera_C::CVehicleCamera_C() {
 
 // VERIFY: 0d3b9410 manual
 // OFFSET: 0x007597D0
-int32_t CVehicleCamera_C::IsHierarchyChasingFacing() const {
+BOOL CVehicleCamera_C::IsHierarchyChasingFacing() const {
     const CVehicleCamera_C* camera = this;
 
     while (true) {
@@ -225,7 +225,7 @@ int32_t CVehicleCamera_C::IsHierarchyChasingFacing() const {
 
 // VERIFY: 611f0110 auto
 // OFFSET: 0x005FAA10
-int32_t CVehicleCamera_C::IsTransitioningFacing() const {
+BOOL CVehicleCamera_C::IsTransitioningFacing() const {
     if (!(this->m_flags & CAMERA_FLAGS::FLAG_FACING_INTERPOLATION)) {
         return 0;
     }

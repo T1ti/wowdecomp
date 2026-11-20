@@ -273,7 +273,7 @@ class CGGameUI {
     static int32_t FilterMouseMotion(CMouseEvent* evt);
     static void HandleDisplaySizeChanged(const CSizeEvent& evt);
     static void DisplayError(UIErrors error, ...);
-    static int32_t IsAutoLooting();
+    static BOOL IsAutoLooting();
     static void ShowCombatFeedback(const WOWGUID& guid, int32_t amount, uint32_t schoolMask, uint32_t hitInfo);
     static void ShowSpellMissFeedback(const WOWGUID& guid, MISS_REASON reason);
     static void ShowHealingFeedback(const WOWGUID& guid, int32_t amount, bool crit);
@@ -363,8 +363,8 @@ class CGGameUI {
     static CinematicInfo m_cinematic;
     static void LoadTrackedState();
     static void LoadMinimapTrackingState(const char* state);
-    static int32_t CanPerformAction(uint32_t action);
-    static int32_t IsDynamicDifficultyMap();
+    static BOOL CanPerformAction(uint32_t action);
+    static BOOL IsDynamicDifficultyMap();
     static bool CanChangePlayerDifficulty();
     static void CastItemSpell(WOWGUID guid, int32_t confirmed);
     static const char* LastErrorMessage();
@@ -379,7 +379,7 @@ class CGGameUI {
     static uint32_t GetEffectiveRaidDifficulty();
     static void GetInstanceLockInfo(uint32_t* remaining, uint32_t* completedMask, uint32_t* extending);
     static int32_t MirrorTimerToIndex(const char* timer);
-    static int32_t CanResetInstance();
+    static BOOL CanResetInstance();
     static void SetLastInstanceTime(uint32_t time, int32_t mapId, int32_t currentMapId);
     static void ShowBlockedActionFeedback(FrameScript_Object* object, BLOCKED_ACTION_TYPE type);
     static void Reload();
@@ -394,8 +394,8 @@ class CGGameUI {
     static int32_t SequenceMusicIsPlaying();
     static TotemInfo* GetTotemInfo(WOWGUID guid);
     static TotemInfo* GetTotemInfo(uint32_t slot);
-    static int32_t IsKeyDown(KEY key);
-    static int32_t IsRaidMemberOrPet(const WOWGUID& guid);
+    static BOOL IsKeyDown(KEY key);
+    static BOOL IsRaidMemberOrPet(const WOWGUID& guid);
     static void ClearInteractTarget(const WOWGUID& guid, BOOL silent);
     static void CloseLoot(bool sendRelease, bool interrupted, bool showNoUIError);
     static void OpenLoot(CGObject_C* object, int32_t coins, LOOT_ACQUIRE lootAcquire);
@@ -408,8 +408,8 @@ class CGGameUI {
     static void BreakTarget(WOWGUID guid);
     static void DestroyTotem(int32_t slot);
     static void ClearTarget(WOWGUID guid, BOOL sendSelection);
-    static int32_t IsPartyMember(const WOWGUID& guid);
-    static int32_t IsInParty(const WOWGUID& guid);
+    static BOOL IsPartyMember(const WOWGUID& guid);
+    static BOOL IsInParty(const WOWGUID& guid);
     static void GetSelectionHighlightColor(const WOWGUID& guid, CImVector* color, int32_t socialColors);
     static void SetFocusTarget(const WOWGUID& guid);
     static void UnitModelUpdate(const WOWGUID& guid, uint32_t flags);
@@ -540,8 +540,8 @@ struct TAINTEVENT : public TSHashObject<TAINTEVENT, HASHKEY_STR> {
 };
 
 void LoadScriptFunctions();
-int32_t IsInFlyableArea();
-int32_t CanEquipInSlotCallback(const CGItem_C* item, void* param);
+BOOL IsInFlyableArea();
+BOOL CanEquipInSlotCallback(const CGItem_C* item, void* param);
 int32_t FindItemClassTypeCallback(const CGItem_C* item, void* param);
 void UnloadScriptFunctions();
 void SavePlacedFrames(HOSFILE localFile, HOSFILE file, void* param);

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleModel.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -40,7 +41,7 @@ class CGCharacterModelBase : public CSimpleModel {
     const char* GetObjectTypeName() override;
     int32_t HideThis() override;
     int32_t ShowThis() override;
-    int32_t IsDrawable() override;
+    BOOL IsDrawable() override;
     void UpdateModel() override;
     void OnModelLoaded(CM2Model* model) override;
     virtual CM2Model* GetDuplicateUnitCharacterModel(CGUnit_C* unit);

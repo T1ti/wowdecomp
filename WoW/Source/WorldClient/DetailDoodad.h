@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/CGxTex.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Gx/CGxBuf.h"
@@ -119,7 +120,7 @@ class CDetailDoodadInst {
     ~CDetailDoodadInst();
     void AddDoodad(uint32_t id, const C3Vector& position, float rotation, float scale, const C3Vector& normal, uint16_t triIndex, const CImVector& color);
     void DrawBatches();
-    int32_t HasBatches();
+    BOOL HasBatches();
     void FreeBuffers();
     void Free();
 };

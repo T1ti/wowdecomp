@@ -63,7 +63,7 @@ void CVehiclePassenger_C::DeleteAllDeferredVehicleTransitionAnimSplines() {
 
 // VERIFY: 31cbea9a manual
 // OFFSET: 0x00747930
-int32_t CVehiclePassenger_C::IsWaitingForVehicleTransitionAnimGrabEvent(uint32_t eventId) const {
+BOOL CVehiclePassenger_C::IsWaitingForVehicleTransitionAnimGrabEvent(uint32_t eventId) const {
     uint32_t flags = this->m_flags;
     uint8_t index = static_cast<uint8_t>(eventId >> 24);
     return (flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM)
@@ -140,7 +140,7 @@ void CVehiclePassenger_C::StartDeferringVehicleTransitionAnimSpline(CDataStore* 
 
 // VERIFY: a002108c manual
 // OFFSET: 0x007481E0
-int32_t CVehiclePassenger_C::IsWaitingForVehicleTransitionAnimThrowEvent(uint32_t eventId) const {
+BOOL CVehiclePassenger_C::IsWaitingForVehicleTransitionAnimThrowEvent(uint32_t eventId) const {
     uint32_t flags = this->m_flags;
     uint8_t index = static_cast<uint8_t>(eventId >> 24);
     return (flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM)
@@ -961,13 +961,13 @@ static const uint32_t s_seatAttachments[22] = { MODEL_ATTACHMENT_ID::ATTACH_UNIT
 
 // VERIFY: aa11b3c6 auto
 // OFFSET: 0x00716450
-int32_t CVehiclePassenger_C::IsInTransitionMotion() const {
+BOOL CVehiclePassenger_C::IsInTransitionMotion() const {
     return this->m_state == TRANSITION_STATE::STATE_ENTERING || this->m_state == TRANSITION_STATE::STATE_EXITING;
 }
 
 // VERIFY: 42d85f81 auto
 // OFFSET: 0x00747D50
-int32_t CVehiclePassenger_C::IsEntering() const {
+BOOL CVehiclePassenger_C::IsEntering() const {
     return this->m_state == TRANSITION_STATE::STATE_ENTER_DELAY || this->m_state == TRANSITION_STATE::STATE_ENTERING;
 }
 

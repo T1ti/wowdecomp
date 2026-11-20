@@ -249,7 +249,7 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
 
 // VERIFY: 9ae639f9 auto
 // OFFSET: 0x005D41B0
-int32_t CGPetInfo::IsAttackAction(uint32_t index) {
+BOOL CGPetInfo::IsAttackAction(uint32_t index) {
     PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
 
     if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_ORDER && (action->m_data & PetAction::PackingMasks::ID_MASK) == 2) {
@@ -281,7 +281,7 @@ void CGPetInfo::InitializeGame() {
 
 // VERIFY: b893299b manual
 // OFFSET: 0x005D35B0
-int32_t CGPetInfo::IsPetBarUsed() {
+BOOL CGPetInfo::IsPetBarUsed() {
     if (!s_pets.Count() || !s_pets.m_data[0]) {
         return 0;
     }

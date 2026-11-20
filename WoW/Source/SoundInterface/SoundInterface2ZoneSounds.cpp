@@ -117,7 +117,7 @@ void SI2::SetUnderwaterStatus(int32_t underwater) {
 
 // VERIFY: 8cc2bd07 auto
 // OFFSET: 0x004C8670
-int32_t SI2::IsUnderwater() {
+BOOL SI2::IsUnderwater() {
     return SI2::sm_bCameraIsUnderwater;
 }
 

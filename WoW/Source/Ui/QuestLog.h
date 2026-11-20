@@ -103,7 +103,7 @@ class CGQuestLog {
     static bool IsPOIVisibleOnDungeonMap(const int32_t* point, int32_t mapId, int32_t floor, int32_t dungeonMapId);
     static bool IsPOIOnCurrentMap(const int32_t* point, int32_t mapId, int32_t currentMapId);
     static int32_t GetQuestLogSlot(int32_t index);
-    static int32_t IsOnQuest(int32_t questId);
+    static BOOL IsOnQuest(int32_t questId);
     static int32_t FindOrFreePOISlot(int32_t questId);
     static int32_t GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoardParams* params);
     static int32_t GetQuestLeaderBoardForObject(int32_t questId, int32_t objectId, QuestLogLeaderBoardParams* params);
@@ -114,7 +114,7 @@ class CGQuestLog {
     static void FilterAndSortQuests();
     static void LoadTrackedQuests();
     static bool HasQuestPOI(int32_t questId);
-    static int32_t IsSelectedQuestExpired();
+    static BOOL IsSelectedQuestExpired();
     static void RemoveQuestWatch(int32_t questId);
     static void ShiftQuestWatches(uint32_t from, uint32_t to);
     static CGItem_C* GetQuestSpecialItem(uint32_t index);
@@ -128,9 +128,9 @@ class CGQuestLog {
     static int32_t GetQuestIndex(int32_t questId);
     static int32_t GetQuestPOIIndex(int32_t questId);
     static QuestPOIInfo* GetQuestPOIInfo(int32_t questId);
-    static int32_t IsQuestFailed(uint32_t index);
+    static BOOL IsQuestFailed(uint32_t index);
     static bool HasNoObjectives(uint32_t index);
-    static int32_t IsQuestExpiredByID(int32_t questId);
+    static BOOL IsQuestExpiredByID(int32_t questId);
     static QuestLogEntry m_quests[MAX_QUESTLOG_ENTRIES];
     static QuestPOIInfo m_questPOIs[MAX_QUESTLOG_QUESTS];
     static int32_t m_abandonQuest;
@@ -160,7 +160,7 @@ class CGQuestLog {
     static bool GetQuestPOIIcon(int32_t questId, bool* complete, int32_t* mapId, uint32_t* mapFloor, int32_t* x, int32_t* y, int32_t* objective);
     static int32_t GetQuestLogItemDropByID(int32_t questId, QuestLogLeaderBoardParams* params);
     static int32_t GetQuestPOILeaderBoardByID(int32_t questId, QuestLogLeaderBoardParams* params);
-    static int32_t IsQuestCompleteEx(uint32_t index, BOOL requireObjectives);
+    static BOOL IsQuestCompleteEx(uint32_t index, BOOL requireObjectives);
     static int32_t SetQuestExpiredByID(int32_t questId);
     static void UpdateWatchTimers();
     static void UpdateQuestItem(int32_t itemId);

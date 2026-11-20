@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Item.h"
@@ -60,7 +61,7 @@ class CGItem_C : public CGObject_C, public CGItem {
 
     static char* BuildItemName(char* buffer, uint32_t size, int32_t itemId, int32_t randomPropertiesId);
     static void GetCooldowns(int32_t itemId, uint32_t& cooldown, uint32_t& categoryCooldown, uint32_t& category);
-    static int32_t IsMetal(int32_t materialId);
+    static BOOL IsMetal(int32_t materialId);
     static int32_t NumBaseCharges(int32_t itemId);
     static void RemoveNameFromCache(const char* name);
     static const char* GetInventoryArt(int32_t displayId);
@@ -86,8 +87,8 @@ class CGItem_C : public CGObject_C, public CGItem {
 
     CGItem_C(uint32_t time, const CClientObjCreate& create);
     uint32_t GetBagFamily() const;
-    static int32_t CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass);
-    int32_t CanGoInSlot(uint32_t slot, int32_t bypass);
+    static BOOL CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass);
+    BOOL CanGoInSlot(uint32_t slot, int32_t bypass);
     uint32_t GetClassID() const;
     int32_t GetCurrentSpellCharges();
     uint32_t GetDisplayID() const;
@@ -96,7 +97,7 @@ class CGItem_C : public CGObject_C, public CGItem {
     static WOWGUID s_bindOnUseTarget;
     static WOWGUID s_bindOnUseItem;
     static void ConfirmBindOnUse();
-    int32_t CanBeUsed();
+    BOOL CanBeUsed();
     uint32_t GetExpirationTimeLeft() const;
     char* GetFullItemName(char* buffer, uint32_t size) const;
     INVENTORY_TYPES GetInventoryType() const;
@@ -112,16 +113,16 @@ class CGItem_C : public CGObject_C, public CGItem {
     uint32_t GetSubtypeID() const;
     int32_t GetUsableSpellCharges() const;
     bool HasEnchantments();
-    int32_t HasOnUseEnchant() const;
+    BOOL HasOnUseEnchant() const;
     bool HasSoulboundEnchant();
-    int32_t HasUseEffect();
+    BOOL HasUseEffect();
     bool IsBound();
     void Unlock();
     void Lock();
     static void SignalEvent(CGItem_C* item, uint32_t event);
     static int32_t GetUseSpell(int32_t itemId);
     static int32_t GetRandomPropertyValue(int32_t slot, int32_t randomPropertiesId, int32_t points);
-    static int32_t IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry);
+    static BOOL IsLocked(const LockRec* lock, int32_t itemLevel, int32_t* spellId, int32_t* skillValue, int32_t* requiredSkill, int32_t* lockIndex, CGItem_C** key, int32_t* entry);
     int32_t GetRandomPropertyValue(int32_t slot);
     int32_t GetRepairCost();
     int32_t GetEnchantmentSpell(SPELL_EFFECT effect);

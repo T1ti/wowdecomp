@@ -79,7 +79,7 @@ class CGTalentGroup_C {
     void ResetPreviewTalentPoints(uint32_t tabIndex);
     void ResetAllPreviewTalentPoints();
     int32_t ValidatePreviewTalentPoints(uint32_t tabIndex, const TalentRec* talent, int32_t points, int32_t* delta, int32_t pet);
-    int32_t CanAddPreviewTalentPoints(const TalentRec* talent, int32_t points, int32_t* delta, int32_t pet);
+    BOOL CanAddPreviewTalentPoints(const TalentRec* talent, int32_t points, int32_t* delta, int32_t pet);
     void AddPreviewTalentPoints(uint32_t tabIndex, const TalentRec* talent, int32_t points, int32_t pet);
 };
 
@@ -101,7 +101,7 @@ class CGTalentInfo {
     static uint32_t GetUnspentTalentPoints(uint32_t index, int32_t pet);
     static CGTalentGroup_C* GetTalentGroup(uint32_t index, int32_t pet);
     static TalentTabInfo* GetTab(uint32_t index, int32_t inspect, int32_t pet);
-    static int32_t IsTalentAvailableForPet(CGUnit_C* pet, const TalentRec* talent);
+    static BOOL IsTalentAvailableForPet(CGUnit_C* pet, const TalentRec* talent);
     static TalentGroupItem_C* GetTalentItem(uint32_t group, int32_t talentId, int32_t pet);
     static int32_t GetPreviewPointsSpent(uint32_t group, int32_t pet);
     static void AddPreviewTalentPoints(uint32_t group, uint32_t tab, uint32_t talentIndex, int32_t points, int32_t pet);

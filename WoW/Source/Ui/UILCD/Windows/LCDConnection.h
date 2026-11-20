@@ -44,7 +44,7 @@ class CLCDConnection {
     virtual int32_t InitializeConnection(lgLcdConnectContextEx& connectContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext);
     virtual int32_t Initialize(lgLcdConnectContext& connectContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext);
     virtual void Shutdown();
-    virtual int32_t IsConnected();
+    virtual BOOL IsConnected();
     virtual int32_t GetConnectionId();
     virtual void Update();
     virtual void OnDeviceArrival(uint32_t displayType);

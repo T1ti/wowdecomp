@@ -186,7 +186,7 @@ void CGInputControl::UpdateMoveStopped() {
 
 // VERIFY: 4f6c9ca3 manual
 // OFFSET: 0x005F9600
-int32_t CGInputControl::IsMouseDrag(uint32_t time) const {
+BOOL CGInputControl::IsMouseDrag(uint32_t time) const {
     uint32_t elapsed = time - this->m_lookStartTime;
 
     if (static_cast<int32_t>(elapsed - 800) >= 0) {
@@ -237,7 +237,7 @@ bool CGInputControl::DetectWowMouse() {
 
 // VERIFY: 7c49134b auto
 // OFFSET: 0x005F9830
-int32_t CGInputControl::IsMouseDragging() const {
+BOOL CGInputControl::IsMouseDragging() const {
     uint32_t flags = this->m_flags;
 
     return (flags & INPUT_TURN_PLAYER_MASK) && !(flags & INPUT_PLAYER_LOOK_MASK);
@@ -245,7 +245,7 @@ int32_t CGInputControl::IsMouseDragging() const {
 
 // VERIFY: f9f95644 manual
 // OFFSET: 0x005F9850
-int32_t CGInputControl::IsIdle() const {
+BOOL CGInputControl::IsIdle() const {
     uint32_t flags = this->m_flags;
 
     return !(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK);
@@ -337,7 +337,7 @@ CGUnit_C* GetVehicleUnitPtr() {
 
 // VERIFY: 1144f12f auto
 // OFFSET: 0x005FA060
-int32_t __stdcall CGInputControl::CanControl(CGUnit_C* unit) {
+BOOL __stdcall CGInputControl::CanControl(CGUnit_C* unit) {
     if (!unit || unit->m_unit->m_unitFieldHealth <= 0) {
         return 0;
     }
@@ -423,7 +423,7 @@ void CGInputControl::SendUIVehicleAngleUpdate(float angle) {
 
 // VERIFY: 6da9c237 manual
 // OFFSET: 0x005FB560
-int32_t CGInputControl::IsVehicleSeatFlagSet(uint32_t flags) const {
+BOOL CGInputControl::IsVehicleSeatFlagSet(uint32_t flags) const {
     CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!mover) {
@@ -479,19 +479,19 @@ void CGInputControl::SetMouselookOverrideBinding(const char* key, const char* bi
 
 // VERIFY: 82de0c4b manual
 // OFFSET: 0x005FA0D0
-int32_t __stdcall CGInputControl::CanTurn(CGUnit_C* unit) {
+BOOL __stdcall CGInputControl::CanTurn(CGUnit_C* unit) {
     return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning();
 }
 
 // VERIFY: feb80d65 manual
 // OFFSET: 0x005FA110
-int32_t CGInputControl::CanSyncFreeLookFacing(CGUnit_C* unit) const {
+BOOL CGInputControl::CanSyncFreeLookFacing(CGUnit_C* unit) const {
     return CGInputControl::CanControl(unit) && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) && !unit->IsVehiclePreventingTurning() && (this->m_flags & INPUT_PLAYER_LOOK_MASK) && (unit->GetClientStandState() == UNIT_STANDING);
 }
 
 // VERIFY: 83a6aa8d manual
 // OFFSET: 0x005FA420
-int32_t CGInputControl::IsMouseDragMoving() const {
+BOOL CGInputControl::IsMouseDragMoving() const {
     int32_t result = this->IsMouseDrag(OsGetAsyncTimeMs());
 
     if (result) {
@@ -559,7 +559,7 @@ void CGInputControl::EnterWorld() {
 
 // VERIFY: 988e7786 manual
 // OFFSET: 0x005FAC90
-int32_t __stdcall CGInputControl::CanMove(CGUnit_C* unit) {
+BOOL __stdcall CGInputControl::CanMove(CGUnit_C* unit) {
     if (!CGInputControl::CanControl(unit)) {
         return 0;
     }

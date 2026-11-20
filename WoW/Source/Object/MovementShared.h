@@ -78,7 +78,7 @@ class CMovementShared : public CPassenger {
     float CalcFallStartElevation(uint32_t time) const;
     float CalcSplineHeight(uint32_t time, float z) const;
     float CalcTimeFallen(float distance, int32_t upward) const;
-    int32_t CanCollideWhileFlying() const;
+    BOOL CanCollideWhileFlying() const;
     int32_t ChangeFlightBackSpeed(float speed);
     int32_t ChangeFlightSpeed(float speed);
     int32_t ChangePitchRate(float rate);
@@ -106,19 +106,19 @@ class CMovementShared : public CPassenger {
     void GetMoveStatus(NETMESSAGE msgId, uint32_t gameTime, CMovementStatus* status) const;
     C3Vector GetPosition() const;
     void Hover(BOOL enable);
-    int32_t IsFalling() const;
-    int32_t IsFallingSwimmingFlying() const;
-    int32_t IsGravityDisabled() const;
-    int32_t IsJumpingUp() const;
+    BOOL IsFalling() const;
+    BOOL IsFallingSwimmingFlying() const;
+    BOOL IsGravityDisabled() const;
+    BOOL IsJumpingUp() const;
     int32_t Jump(int32_t checkHover);
-    int32_t IsOnFallingSpline() const;
-    int32_t IsOnFlyingSpline() const;
-    int32_t IsOnParabolicSpline() const;
-    int32_t IsOnSpline() const;
-    int32_t IsSplineFlyerOrFlyingOrSwimming() const;
-    int32_t IsSplineFlyerOrHovering() const;
-    int32_t IsSplineFlyerOrHoveringFlyingOrSwimming() const;
-    int32_t IsSplineFlyerOrSwimmingOrSafeFalling() const;
+    BOOL IsOnFallingSpline() const;
+    BOOL IsOnFlyingSpline() const;
+    BOOL IsOnParabolicSpline() const;
+    BOOL IsOnSpline() const;
+    BOOL IsSplineFlyerOrFlyingOrSwimming() const;
+    BOOL IsSplineFlyerOrHovering() const;
+    BOOL IsSplineFlyerOrHoveringFlyingOrSwimming() const;
+    BOOL IsSplineFlyerOrSwimmingOrSafeFalling() const;
     C3Vector GetDestination() const;
     void PlotAscendDescend(float dt, C3Vector* move) const;
     float PlotFacing(float dt) const;
@@ -182,7 +182,7 @@ class CMovementShared : public CPassenger {
 };
 
 int32_t AckMessageNeedsIndex(uint32_t msgId);
-int32_t IsAckMessage(uint32_t msgId);
-int32_t IsMessageAllowedWhileOnSpline(uint32_t msgId);
+BOOL IsAckMessage(uint32_t msgId);
+BOOL IsMessageAllowedWhileOnSpline(uint32_t msgId);
 
 #endif

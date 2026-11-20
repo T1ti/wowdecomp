@@ -73,13 +73,13 @@ class CVehicle_C {
     int32_t InstallBoneAnimListener(WOWGUID guid, uint32_t boneId, void (*callback)(CGUnit_C* unit, BOOL& keepListening, TSGrowableArray<CVehiclePassenger_C*>& passengers));
     void UninstallBoneAnimListener(WOWGUID guid);
     void RemoveBoneAnimListener(uint32_t boneId, WOWGUID guid);
-    int32_t CanPlayBoneAnim(uint32_t animId) const;
+    BOOL CanPlayBoneAnim(uint32_t animId) const;
     void SetBoneAnimForceFacing(WOWGUID guid, uint32_t boneId);
     bool IsMirroringAnimsToPassengers() const;
     void OnPassengerStartMirroringAnims(uint8_t seat);
     void OnPassengerStopMirroringAnims(uint8_t seat);
-    int32_t IsSuppressingCameraPitchWhileMouseAiming() const;
-    int32_t HasHighPriorityCastingAnim() const;
+    BOOL IsSuppressingCameraPitchWhileMouseAiming() const;
+    BOOL HasHighPriorityCastingAnim() const;
     uint32_t IsBoneAnimPlaying(uint32_t bone) const;
     // INLINED: m_playingBoneAnims holds one bit per key bone.
     uint32_t TestBoneAnimBit(uint32_t bone) const {
@@ -97,7 +97,7 @@ class CVehicle_C {
     }
     void BoneAnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time);
     void PlayBoneAnimOrFallback(CM2Model* model, uint32_t boneId);
-    int32_t HasHighPriorityAnim() const;
+    BOOL HasHighPriorityAnim() const;
     int32_t GetVirtualSeatCount() const;
     int32_t GetVehicleAndSeatFromVirtualSeatsRemaining(int32_t& remaining, const CVehicle_C*& vehicle, uint8_t& seat) const;
     CGUnit_C* FindPassengerUnit(uint8_t seat);

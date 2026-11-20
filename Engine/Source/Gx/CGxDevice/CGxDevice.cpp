@@ -773,7 +773,7 @@ void CGxDevice::LightEnable(uint32_t index, BOOL enable) {
 
 // VERIFY: 45b10c41 manual
 // OFFSET: 0x006830B0
-int32_t CGxDevice::NeedsUpdate(uint32_t app, uint32_t hw, uint32_t appDisables, uint32_t hwDisables, uint32_t flagPos, int32_t& enable) {
+BOOL CGxDevice::NeedsUpdate(uint32_t app, uint32_t hw, uint32_t appDisables, uint32_t hwDisables, uint32_t flagPos, int32_t& enable) {
     enable = (app & (1 << flagPos) & ~appDisables) != 0;
     return enable != ((hw & (1 << flagPos) & ~hwDisables) != 0);
 }

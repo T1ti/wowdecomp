@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_PAPERDOLLINFOFRAME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Net/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Object/WGUID.h"
@@ -36,7 +37,7 @@ class CGCharacterInfo {
     static int32_t CalculateInventoryAlertStatus(CGPlayer_C* player, uint32_t slot);
     static void RegisterMirrorHandlers(WOWGUID guid);
     static WOWGUID m_inspectTarget;
-    static int32_t CanInspect(const CGPlayer_C* unit);
+    static BOOL CanInspect(const CGPlayer_C* unit);
     static int32_t GetActivePlayerAmmoID(const CGPlayer_C* player);
     static void PickupInventoryItem(int32_t slot);
     static int32_t PutItemInBackpack(uint32_t slot);

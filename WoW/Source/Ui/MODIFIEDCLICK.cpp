@@ -7,7 +7,7 @@
 
 // VERIFY: dfca5dad manual
 // OFFSET: 0x0055D6B0
-int32_t MODIFIEDCLICK::IsActive(BINDING_SET set) {
+BOOL MODIFIEDCLICK::IsActive(BINDING_SET set) {
     const char* button = this->m_data[set].m_button;
     uint32_t modifiers = this->m_data[set].m_modifiers;
 

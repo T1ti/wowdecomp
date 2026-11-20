@@ -333,7 +333,7 @@ float CMovementShared::CalcTimeFallen(float distance, int32_t upward) const {
 
 // VERIFY: 02812862 manual
 // OFFSET: 0x0075EE00
-int32_t CMovementShared::CanCollideWhileFlying() const {
+BOOL CMovementShared::CanCollideWhileFlying() const {
     if (this->IsSplineFlyerOrFlyingOrSwimming()) {
         return 1;
     }
@@ -650,7 +650,7 @@ void CMovementShared::Hover(BOOL enable) {
 
 // VERIFY: 3866bcdb manual
 // OFFSET: 0x00723350
-int32_t CMovementShared::IsFalling() const {
+BOOL CMovementShared::IsFalling() const {
     uint32_t flags = this->m_flags;
 
     if ((flags & MOVEMENTFLAG_FALLING) && ((flags & MOVEMENTFLAG_FALLING_FAR) || 0.0f != this->m_fallVelocity)) {
@@ -680,7 +680,7 @@ int32_t CMovementShared::IsFalling() const {
 
 // VERIFY: a2dcabe3 auto
 // OFFSET: 0x006EABA0
-int32_t CMovementShared::IsFallingSwimmingFlying() const {
+BOOL CMovementShared::IsFallingSwimmingFlying() const {
     if (this->IsGravityDisabled()) {
         return 1;
     }
@@ -690,7 +690,7 @@ int32_t CMovementShared::IsFallingSwimmingFlying() const {
 
 // VERIFY: 3688d9cf auto
 // OFFSET: 0x006E9AD0
-int32_t CMovementShared::IsGravityDisabled() const {
+BOOL CMovementShared::IsGravityDisabled() const {
     CMoveSpline* spline = this->m_spline;
 
     if (spline) {
@@ -708,13 +708,13 @@ int32_t CMovementShared::IsGravityDisabled() const {
 
 // VERIFY: bc4424ec manual
 // OFFSET: 0x00986EA0
-int32_t CMovementShared::IsJumpingUp() const {
+BOOL CMovementShared::IsJumpingUp() const {
     return (this->m_flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_fallVelocity && this->m_fallVelocity * -0.051837362f > this->m_fallTimeMs * 0.001f;
 }
 
 // VERIFY: df155953 manual
 // OFFSET: 0x006E9A70
-int32_t CMovementShared::IsOnFallingSpline() const {
+BOOL CMovementShared::IsOnFallingSpline() const {
     CMoveSpline* spline = this->m_spline;
 
     if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FALLING)) {
@@ -726,7 +726,7 @@ int32_t CMovementShared::IsOnFallingSpline() const {
 
 // VERIFY: 5918282d manual
 // OFFSET: 0x004F5260
-int32_t CMovementShared::IsOnFlyingSpline() const {
+BOOL CMovementShared::IsOnFlyingSpline() const {
     CMoveSpline* spline = this->m_spline;
 
     if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
@@ -738,7 +738,7 @@ int32_t CMovementShared::IsOnFlyingSpline() const {
 
 // VERIFY: 45332d36 manual
 // OFFSET: 0x006E9AA0
-int32_t CMovementShared::IsOnParabolicSpline() const {
+BOOL CMovementShared::IsOnParabolicSpline() const {
     CMoveSpline* spline = this->m_spline;
 
     if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_PARABOLIC)) {
@@ -750,13 +750,13 @@ int32_t CMovementShared::IsOnParabolicSpline() const {
 
 // VERIFY: 80c031fa auto
 // OFFSET: 0x004F5240
-int32_t CMovementShared::IsOnSpline() const {
+BOOL CMovementShared::IsOnSpline() const {
     return this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE);
 }
 
 // VERIFY: 1e461b71 auto
 // OFFSET: 0x0075EDA0
-int32_t CMovementShared::IsSplineFlyerOrFlyingOrSwimming() const {
+BOOL CMovementShared::IsSplineFlyerOrFlyingOrSwimming() const {
     if (this->IsGravityDisabled()) {
         return 1;
     }
@@ -776,7 +776,7 @@ C3Vector CMovementShared::GetDestination() const {
 
 // VERIFY: 1fb3fd04 auto
 // OFFSET: 0x0071C660
-int32_t CMovementShared::IsSplineFlyerOrSwimmingOrSafeFalling() const {
+BOOL CMovementShared::IsSplineFlyerOrSwimmingOrSafeFalling() const {
     if (this->IsGravityDisabled()) {
         return 1;
     }
@@ -786,7 +786,7 @@ int32_t CMovementShared::IsSplineFlyerOrSwimmingOrSafeFalling() const {
 
 // VERIFY: 034517b9 manual
 // OFFSET: 0x0071C6C0
-int32_t CMovementShared::IsSplineFlyerOrHovering() const {
+BOOL CMovementShared::IsSplineFlyerOrHovering() const {
     if (this->IsGravityDisabled()) {
         return 1;
     }
@@ -796,7 +796,7 @@ int32_t CMovementShared::IsSplineFlyerOrHovering() const {
 
 // VERIFY: 5facc0ca auto
 // OFFSET: 0x0071C720
-int32_t CMovementShared::IsSplineFlyerOrHoveringFlyingOrSwimming() const {
+BOOL CMovementShared::IsSplineFlyerOrHoveringFlyingOrSwimming() const {
     if (this->IsGravityDisabled()) {
         return 1;
     }
@@ -1937,7 +1937,7 @@ int32_t AckMessageNeedsIndex(uint32_t msgId) {
 
 // VERIFY: 16a6e259 auto
 // OFFSET: 0x00990420
-int32_t IsAckMessage(uint32_t msgId) {
+BOOL IsAckMessage(uint32_t msgId) {
     return msgId == CMSG_FORCE_MOVE_ROOT_ACK
         || msgId == CMSG_FORCE_MOVE_UNROOT_ACK
         || msgId == MSG_MOVE_TELEPORT_ACK
@@ -1964,7 +1964,7 @@ int32_t IsAckMessage(uint32_t msgId) {
 
 // VERIFY: 46e794c2 manual
 // OFFSET: 0x009904E0
-int32_t IsMessageAllowedWhileOnSpline(uint32_t msgId) {
+BOOL IsMessageAllowedWhileOnSpline(uint32_t msgId) {
     switch (msgId) {
         case MSG_MOVE_START_SWIM:
         case MSG_MOVE_STOP_SWIM:

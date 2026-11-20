@@ -89,7 +89,7 @@ void CRibbonEmitter::SetGravity(float gravity) {
 
 // VERIFY: bfe848c9 auto
 // OFFSET: 0x0097F640
-int32_t CRibbonEmitter::IsDead() {
+BOOL CRibbonEmitter::IsDead() {
     return this->m_readPos == this->m_writePos;
 }
 

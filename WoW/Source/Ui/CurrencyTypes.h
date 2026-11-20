@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_CURRENCYTYPES_H
 
 #include <cstdint>
+#include <windows.h>
 
 struct lua_State;
 
@@ -27,7 +28,7 @@ class CGCurrencyTypes {
     public:
     static void LeaveWorld();
     static CurrencyTypesRec* GetCurrencyRec(int32_t index);
-    static int32_t IsCurrencyShown(int32_t index);
+    static BOOL IsCurrencyShown(int32_t index);
     static CurrencyListEntry* GetDisplayListInfo(int32_t index);
     static int32_t m_listSize;
     static CurrencyListEntry m_list[95];

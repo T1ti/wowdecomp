@@ -404,7 +404,7 @@ LOOT_ACQUIRE CGLootDisplay::GetLootAcquireType() {
 
 // VERIFY: 500b1dce manual
 // OFFSET: 0x00588EB0
-int32_t CGLootInfo::HasLoot() {
+BOOL CGLootInfo::HasLoot() {
     if (!ClntObjMgrObjectPtr(CGLootInfo::m_lootObj, TYPE_OBJECT, __FILE__, __LINE__)) {
         return 0;
     }

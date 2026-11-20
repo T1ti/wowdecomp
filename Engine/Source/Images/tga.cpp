@@ -36,7 +36,7 @@ uint32_t CTgaFile::Height() const {
 }
 
 // INLINED
-int32_t CTgaFile::IsTopDown() const {
+BOOL CTgaFile::IsTopDown() const {
     return this->m_header.m_desc.m_bTopBottomOrder;
 }
 

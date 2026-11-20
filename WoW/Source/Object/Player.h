@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
@@ -113,7 +114,7 @@ class CGPlayer {
     /* 0004 */ void* m_playerMirror;
 
     float GetDrunknessTurnValue();
-    int32_t HasZoneExplored(int32_t zone);
+    BOOL HasZoneExplored(int32_t zone);
     bool IsDrunk();
 };
 

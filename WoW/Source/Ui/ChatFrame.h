@@ -519,7 +519,7 @@ class CGChat {
     static const char* GetChannelShortName(int32_t number, bool includeInactive);
     static uint32_t FindDisplayChannelIndex(const char* name, int32_t type);
     static int32_t AddChatChannel(const char* name, uint32_t id, bool silent, bool hasVoice, bool permanent, uint32_t number);
-    static int32_t IsChatLogging(int32_t type);
+    static BOOL IsChatLogging(int32_t type);
     static void AddCombatMessage(const char* text);
     static int32_t m_afk;
     // Guild recruitment channel mode, saved as "STANDARD"/"AUTO".
@@ -550,8 +550,8 @@ class CGChat {
     static int32_t ChatMessageReceived(CDataStore* msg, bool isGM);
     static void RecordWhisperSource(WOWGUID guid);
     static void RecordWhisperDest(WOWGUID guid);
-    static int32_t IsInWhisperHistory(WOWGUID guid);
-    static int32_t IsInWhisperSourceHistory(const char* name);
+    static BOOL IsInWhisperHistory(WOWGUID guid);
+    static BOOL IsInWhisperSourceHistory(const char* name);
     static void SendIgnoredResponse(WOWGUID guid, CHAT_IGNORED_REASON reason);
     static TSGrowableArray<ChatChannel> s_channels;
     static int32_t m_loaded;
@@ -602,19 +602,19 @@ class CGChat {
     static void TextEmoteNameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
     static void HandleFlagsChanged(WOWGUID guid, uint8_t oldFlags, uint8_t newFlags, const char* channel);
     static void InviteNameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
-    static int32_t IsRecordedType(int32_t type);
+    static BOOL IsRecordedType(int32_t type);
     static void RecordChat(const char* text, int32_t type, const char* senderName, WOWGUID senderGuid, uint32_t senderUnk, uint32_t zoneChannelID, const char* channelName, uint32_t lineID, const CGPlayer_C* player);
     static void QueueChatText(const char* text, int32_t type, const char* senderName, const char* targetName, uint32_t language, const char* channelName, const char* flags, int32_t queued, int32_t unknown9, WOWGUID senderGuid, uint32_t senderUnk, WOWGUID targetGuid, int32_t achievementID, bool isGM, const ChatConversation* conversation);
     static void NameQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
     static void TranslateMessage(uint32_t language, uint32_t skill, const char* text, char* buffer, uint32_t size, BOOL keepTags, BOOL keepSeparators);
     static void AddWhisperThrottled(uint32_t time);
-    static int32_t IsWhisperThrottled(uint32_t time);
-    static int32_t IsChannelThrottled(const char* channel, uint32_t time);
+    static BOOL IsWhisperThrottled(uint32_t time);
+    static BOOL IsChannelThrottled(const char* channel, uint32_t time);
     static void AddChannelThrottled(const char* channel, uint32_t time);
     static void AddThrottledChat(int32_t type, uint32_t language, const char* target, const char* text);
     static int32_t GetActiveVoiceSession();
     static void SetGuildRecruitmentMode(int32_t mode, bool fromJoin);
-    static int32_t IsVoiceChatEnabled();
+    static BOOL IsVoiceChatEnabled();
     static bool CanComplain(WOWGUID guid);
     static void VoiceSessionUpdate(const char* name, int32_t type);
     static void NewVoiceSession(const char* name, int32_t type);
@@ -625,8 +625,8 @@ class CGChat {
     static void LogOpenLock(const WOWGUID& guid, const SpellRec* spell, const ItemStats_C* stats);
     static void LogOpenLock(const WOWGUID& guid, const SpellRec* spell, const GameObjectStats_C* stats);
     static const char* GetChannelStringForDisplay(int32_t session, int32_t* type);
-    static int32_t IsPaused();
-    static int32_t IsVoiceChatAllowed();
+    static BOOL IsPaused();
+    static BOOL IsVoiceChatAllowed();
     static void ProcessThrottledChat();
     static void LeaveWorld();
     static void Pause();

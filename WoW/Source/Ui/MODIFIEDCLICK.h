@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 #include "WoW/Source/Ui/Types.h"
 
@@ -20,7 +21,7 @@ class MODIFIEDCLICK : public TSHashObject<MODIFIEDCLICK, HASHKEY_STRI> {
     /* 0018 */ MODIFIEDCLICK_DATA m_data [4];
 
     void GetBinding(BINDING_SET set, char* binding, int32_t maxLength, uint32_t* flags);
-    int32_t IsActive(BINDING_SET set);
+    BOOL IsActive(BINDING_SET set);
     int32_t SetBinding(BINDING_SET set, const char* binding);
 };
 

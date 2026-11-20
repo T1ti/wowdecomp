@@ -92,10 +92,10 @@ class CLayoutFrame {
     virtual float GetHeight();
     virtual void GetSize(float& width, float& height, BOOL ignoreRect);
     virtual void GetClampRectInsets(float& left, float& right, float& top, float& bottom);
-    virtual int32_t IsAttachmentOrigin();
-    virtual int32_t CanBeAnchorFor(CLayoutFrame* frame);
+    virtual BOOL IsAttachmentOrigin();
+    virtual BOOL CanBeAnchorFor(CLayoutFrame* frame);
     virtual CLayoutFrame* GetLayoutFrameByName(const char* name);
-    virtual int32_t IsObjectLoaded();
+    virtual BOOL IsObjectLoaded();
     virtual void OnFrameSizeChanged(const CRect& rect);
 
     CLayoutFrame();
@@ -113,10 +113,10 @@ class CLayoutFrame {
     int32_t GetFramePointY(const FRAMEPOINT* points, int32_t count, float& y);
     void GetHorizontalFramePoint(const FRAMEPOINT* points, int32_t count, float& x);
     int32_t GetRect(CRect* rect);
-    int32_t HasAnyFramepoints();
+    BOOL HasAnyFramepoints();
     void GetVerticalFramePoint(const FRAMEPOINT* points, int32_t count, float& y);
     uint32_t IsProtected();
-    int32_t IsResizeDependency(CLayoutFrame* frame);
+    BOOL IsResizeDependency(CLayoutFrame* frame);
     uint32_t IsResizePending();
     float Left();
     void MarkFramePointsUnused();

@@ -177,7 +177,7 @@ int32_t CGRaidInfo::GetSelectedMemberIndex() {
 
 // VERIFY: df976625 manual
 // OFFSET: 0x005726F0
-int32_t IsGuidInMyRaid(const WOWGUID& guid) {
+BOOL IsGuidInMyRaid(const WOWGUID& guid) {
     if (!guid) {
         return 0;
     }
@@ -193,7 +193,7 @@ int32_t IsGuidInMyRaid(const WOWGUID& guid) {
 
 // VERIFY: 2f9aefc8 manual
 // OFFSET: 0x00572740
-int32_t CGRaidInfo::IsPlayerRaidOfficer(const WOWGUID& guid) {
+BOOL CGRaidInfo::IsPlayerRaidOfficer(const WOWGUID& guid) {
     if (!guid) {
         return 0;
     }
@@ -226,7 +226,7 @@ void CGRaidInfo::SetRaidTarget(uint32_t index, const WOWGUID& guid) {
 
 // VERIFY: 3bba49eb auto
 // OFFSET: 0x00572F50
-int32_t CGRaidInfo::IsPVPRaid() {
+BOOL CGRaidInfo::IsPVPRaid() {
     MapRec* map = g_mapDB.GetRecord(CGGameUI::m_iCurrentMapID);
 
     if (map && map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PVP_BATTLEFIELD) {
@@ -348,7 +348,7 @@ CGPartyPetState* CGRaidInfo::GetRemotePetStats(const WOWGUID& guid) {
 
 // VERIFY: 52124f6c manual
 // OFFSET: 0x00573150
-int32_t CGRaidInfo::IsPetInRaid(const WOWGUID& guid, int32_t* index) {
+BOOL CGRaidInfo::IsPetInRaid(const WOWGUID& guid, int32_t* index) {
     if (!guid) {
         return 0;
     }
@@ -958,7 +958,7 @@ CGRaidMember* CGRaidInfo::FindMemberByGuid(WOWGUID guid) {
 
 // VERIFY: 2ec03ec8 manual
 // OFFSET: 0x00573200
-int32_t CGRaidInfo::IsPlayerOrPetInRaid(const WOWGUID& guid) {
+BOOL CGRaidInfo::IsPlayerOrPetInRaid(const WOWGUID& guid) {
     if (!guid) {
         return 0;
     }
@@ -1005,13 +1005,13 @@ int32_t CGRaidInfo::GetPartyMemberIndex(WOWGUID guid) {
 
 // VERIFY: 7ec85a21 manual
 // OFFSET: 0x00572450
-int32_t CGRaidInfo::IsPartyMemberReadyCheckPending(uint32_t index) {
+BOOL CGRaidInfo::IsPartyMemberReadyCheckPending(uint32_t index) {
     return index < CGPartyInfo::MAX_PARTY_MEMBERS ? CGRaidInfo::m_partyReadyCheckPending[index] : 0;
 }
 
 // VERIFY: 1c65956c manual
 // OFFSET: 0x00572470
-int32_t CGRaidInfo::IsPartyMemberReadyCheckReady(uint32_t index) {
+BOOL CGRaidInfo::IsPartyMemberReadyCheckReady(uint32_t index) {
     return index < CGPartyInfo::MAX_PARTY_MEMBERS ? CGRaidInfo::m_partyReadyCheckReady[index] : 0;
 }
 

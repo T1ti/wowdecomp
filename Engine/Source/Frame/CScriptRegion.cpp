@@ -179,7 +179,7 @@ void CScriptRegion::LoadXML(XMLNode* node, CStatus* status) {
 
 // VERIFY: 23893fb6 auto
 // OFFSET: 0x00488740
-int32_t CScriptRegion::HasActiveAnimGroup() {
+BOOL CScriptRegion::HasActiveAnimGroup() {
     for (CScriptRegion* region = this; region; region = region->m_parent) {
         if (region->m_playingAnimGroups && region->m_playingAnimGroups->Head()) {
             return 1;
@@ -191,7 +191,7 @@ int32_t CScriptRegion::HasActiveAnimGroup() {
 
 // VERIFY: 0d8bdeba manual
 // OFFSET: 0x00488770
-int32_t CScriptRegion::HasActiveAnimOfType(int32_t type) {
+BOOL CScriptRegion::HasActiveAnimOfType(int32_t type) {
     for (CScriptRegion* region = this; region; region = region->m_parent) {
         if (region->m_playingAnimGroups && region->m_playingAnimGroups->Head()) {
             for (CSimpleAnimGroup* group = region->m_playingAnimGroups->Head(); group; group = region->m_playingAnimGroups->Next(group)) {

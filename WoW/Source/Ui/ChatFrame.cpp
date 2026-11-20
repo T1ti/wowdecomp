@@ -428,7 +428,7 @@ TSGrowableArray<RaidInstanceInfo> s_savedInstances;
 
 // VERIFY: 36ed0e4f auto
 // OFFSET: 0x004FBAF0
-int32_t CGChat::IsVoiceChatAllowed() {
+BOOL CGChat::IsVoiceChatAllowed() {
     return CGChat::m_voiceChatSystemStatus && !ComSatClient_IsComsatDisabledByClient();
 }
 
@@ -461,7 +461,7 @@ static int QSortDisplayListMembers(const void* a, const void* b) {
 
 // VERIFY: 22eb502f auto
 // OFFSET: 0x004FB1A0
-int32_t CGChat::IsRecordedType(int32_t type) {
+BOOL CGChat::IsRecordedType(int32_t type) {
     switch (type) {
         case CHAT_MSG_SAY:
         case CHAT_MSG_PARTY:
@@ -493,7 +493,7 @@ int32_t CGChat::IsRecordedType(int32_t type) {
 
 // VERIFY: dba1cff5 auto
 // OFFSET: 0x004FB6A0
-int32_t CGChat::IsInWhisperSourceHistory(const char* name) {
+BOOL CGChat::IsInWhisperSourceHistory(const char* name) {
     for (uint32_t i = 0; i < sizeof(CGChat::m_whisperSrcHistory) / sizeof(CGChat::m_whisperSrcHistory[0]); i++) {
         WOWGUID guid = CGChat::m_whisperSrcHistory[i];
 
@@ -536,7 +536,7 @@ void CGChat::RecordWhisperSource(WOWGUID guid) {
 
 // VERIFY: a7359be4 manual
 // OFFSET: 0x004FB7E0
-int32_t CGChat::IsInWhisperHistory(WOWGUID guid) {
+BOOL CGChat::IsInWhisperHistory(WOWGUID guid) {
     if (!guid) {
         return 0;
     }
@@ -576,7 +576,7 @@ void CGChat::RecordWhisperDest(WOWGUID guid) {
 
 // VERIFY: 56f83f4b auto
 // OFFSET: 0x004FB8F0
-int32_t CGChat::IsWhisperThrottled(uint32_t time) {
+BOOL CGChat::IsWhisperThrottled(uint32_t time) {
     uint32_t last = s_whisperThrottleTimes[s_whisperThrottleIndex];
     return last && static_cast<int32_t>(time - last - 10000) < 0;
 }
@@ -842,7 +842,7 @@ void CGChat::QueueChatText(const char* text, int32_t type, const char* senderNam
 
 // VERIFY: 5382bfae auto
 // OFFSET: 0x00502F60
-int32_t CGChat::IsChannelThrottled(const char* channel, uint32_t time) {
+BOOL CGChat::IsChannelThrottled(const char* channel, uint32_t time) {
     CHATTHROTTLE* throttle = s_channelThrottle.Ptr(channel);
 
     if (throttle) {
@@ -4112,7 +4112,7 @@ void CGChat::LogFactionChanged(int32_t faction, int32_t delta, int32_t generic, 
 
 // VERIFY: 5920534b auto
 // OFFSET: 0x004FB400
-int32_t CGChat::IsChatLogging(int32_t type) {
+BOOL CGChat::IsChatLogging(int32_t type) {
     return s_chatLogging[type];
 }
 
@@ -5606,7 +5606,7 @@ void CGChat::Resume() {
 
 // VERIFY: 7732767c auto
 // OFFSET: 0x004CFBA0
-int32_t CGChat::IsPaused() {
+BOOL CGChat::IsPaused() {
     return CGChat::m_paused;
 }
 
@@ -5726,7 +5726,7 @@ static void LogTradeSkillCreateCallback(int32_t id, const WOWGUID& guid, void* p
 
 // VERIFY: 16533f83 auto
 // OFFSET: 0x004FBAB0
-int32_t CGChat::IsVoiceChatEnabled() {
+BOOL CGChat::IsVoiceChatEnabled() {
     int32_t enabled = s_cvarEnableVoiceChat && s_cvarEnableVoiceChat->m_intValue;
     int32_t disabled = ComSatClient_IsComsatDisabledByClient();
     return CGChat::m_voiceChatSystemStatus && enabled && !disabled;

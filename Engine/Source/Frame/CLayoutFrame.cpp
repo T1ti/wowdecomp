@@ -98,7 +98,7 @@ void GetRectFramePoints(const CRect& rect, C2Vector* points) {
 
 // VERIFY: 25624977 auto
 // OFFSET: 0x00482AC0
-int32_t CLayoutFrame::HasAnyFramepoints() {
+BOOL CLayoutFrame::HasAnyFramepoints() {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         if (this->m_framePoints[i] && !(this->m_framePoints[i]->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             return 1;
@@ -319,7 +319,7 @@ void CLayoutFrame::ProtectFramepoints(uint32_t flag) {
 
 // VERIFY: 88709e27 auto
 // OFFSET: 0x004891D0
-int32_t CLayoutFrame::IsResizeDependency(CLayoutFrame* frame) {
+BOOL CLayoutFrame::IsResizeDependency(CLayoutFrame* frame) {
     CLayoutFrame* checked = nullptr;
 
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
@@ -824,7 +824,7 @@ void CLayoutFrame::SetClampedToScreen(int32_t clamped) {
 
 // VERIFY: e34ecf75 auto
 // OFFSET: 0x0048A160
-int32_t CLayoutFrame::CanBeAnchorFor(CLayoutFrame* frame) {
+BOOL CLayoutFrame::CanBeAnchorFor(CLayoutFrame* frame) {
     if (!frame->IsProtected()) {
         return 1;
     }
@@ -1426,7 +1426,7 @@ CLayoutFrame* CLayoutFrame::GetLayoutParent() {
 void CLayoutFrame::PropagateProtectFlagToParent(uint32_t flag) {
 }
 
-int32_t CLayoutFrame::IsAttachmentOrigin() {
+BOOL CLayoutFrame::IsAttachmentOrigin() {
     return 0;
 }
 
@@ -1434,6 +1434,6 @@ CLayoutFrame* CLayoutFrame::GetLayoutFrameByName(const char* name) {
     return nullptr;
 }
 
-int32_t CLayoutFrame::IsObjectLoaded() {
+BOOL CLayoutFrame::IsObjectLoaded() {
     return 1;
 }

@@ -194,7 +194,7 @@ class CGPartyInfo {
     static void InitializeGame();
     static void ShutdownGame();
     static void CheckClearLFGSlot();
-    static int32_t IsMemberOrPet(const WOWGUID& guid);
+    static BOOL IsMemberOrPet(const WOWGUID& guid);
     static void RegisterScriptFunctions();
     static void UnregisterScriptFunctions();
     static WOWGUID m_members[MAX_PARTY_MEMBERS];
@@ -216,7 +216,7 @@ class CGPartyInfo {
 
     static uint32_t GetNumPartyMembers();
     static uint32_t GetGroupRole(const WOWGUID& guid);
-    static int32_t IsMember(const WOWGUID& guid);
+    static BOOL IsMember(const WOWGUID& guid);
     static uint8_t GetPartyAssignments(const WOWGUID& guid);
     static int32_t GetPartyAssignments(lua_State* L, int32_t assignment);
     static uint32_t m_lastAssignmentTime;
@@ -232,12 +232,12 @@ class CGPartyInfo {
     static void UpdateRealStats(uint32_t count, WOWGUID leader);
     static void SetOptOutOfLoot(int32_t optOut);
     static void EnableMember(CGPlayer_C* player, BOOL enable);
-    static int32_t IsMemberPet(const WOWGUID& guid, int32_t* index);
+    static BOOL IsMemberPet(const WOWGUID& guid, int32_t* index);
     static CGPartyMemberState* GetRemoteStats(const WOWGUID& guid);
     static void ClearRecruitAFriend(WOWGUID guid);
     static CGPartyMemberState* GetRemoteStatsFromPet(const WOWGUID& petGuid);
     static CGPartyMemberState* GetMemberState(uint32_t index);
-    static int32_t IsPlayerOrPetInParty(const WOWGUID& guid);
+    static BOOL IsPlayerOrPetInParty(const WOWGUID& guid);
     static CGPartyPetState* GetRemotePetStats(const WOWGUID& guid);
 };
 
@@ -253,8 +253,8 @@ WOWGUID GetPartyMemberGUID(uint32_t index);
 WOWGUID GetPartyPetGUID(uint32_t index);
 
 
-int32_t IsGuidInMyRaid(const WOWGUID& guid);
-int32_t CanSendPartyCommand();
+BOOL IsGuidInMyRaid(const WOWGUID& guid);
+BOOL CanSendPartyCommand();
 
 int32_t Packet_SMSG_INSTANCE_SAVE_CREATED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_PLAYER_DIFFICULTY_CHANGE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);

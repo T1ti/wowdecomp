@@ -78,7 +78,7 @@ class CSimpleTexture : public CSimpleRegion {
     virtual void LoadXML(XMLNode* node, CStatus* status);
     virtual float GetWidth();
     virtual float GetHeight();
-    virtual int32_t IsObjectLoaded();
+    virtual BOOL IsObjectLoaded();
     virtual void OnFrameSizeChanged(const CRect& rect);
 
     CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, BOOL show);

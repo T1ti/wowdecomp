@@ -345,7 +345,7 @@ void CGReputationInfo::SetWatchedFaction(int32_t faction) {
 
 // VERIFY: 37feb002 manual
 // OFFSET: 0x005D0C70
-static int32_t IsPlayerWatchingFaction(int32_t faction) {
+static BOOL IsPlayerWatchingFaction(int32_t faction) {
     FactionRec* rec = g_factionDB.GetRecord(faction);
     int32_t index = rec ? rec->m_reputationIndex : -1;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));

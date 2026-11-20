@@ -120,8 +120,8 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     static void ClearCache(int32_t unused1);
     static void DestroyPools();
 
-    int32_t IsAllLoaded();
-    int32_t IsAllDrawable();
+    BOOL IsAllLoaded();
+    BOOL IsAllDrawable();
     bool TestConvexVolume(const C3Vector& point);
     static void Destroy();
     static void Initialize();
@@ -234,10 +234,10 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     void QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads, int32_t inside, uint32_t flagsMask, uint32_t depth);
     void GetMinimapQuads(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads);
     SMOGroupInfo* GetGroupInfo(int32_t index);
-    int32_t IsGroupLoaded(int32_t index);
+    BOOL IsGroupLoaded(int32_t index);
     char* GetGroupName(int32_t index);
     CMapObjGroup* GetGroup(int32_t index, BOOL allowUnloaded);
-    int32_t IsGroupLoading(int32_t index);
+    BOOL IsGroupLoading(int32_t index);
     void RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)>* frustumList);
     void CreateMaterial(uint8_t texture);
     void CreateMaterials();

@@ -2,6 +2,7 @@
 #define WOW_SOURCE_CONSOLEDEVICE_CONSOLEDEVICE_H
 
 #include <cstdint>
+#include <windows.h>
 #include "WoW/Source/Types.h"
 
 class CGxFormat;
@@ -52,7 +53,7 @@ int32_t ConsoleDeviceHardwareChanged();
 void ConsoleDeviceInitialize(const char* title, bool unused2, bool unused3);
 Hardware* ConsoleGetHardware();
 void ConsoleGxOverride(const char* list);
-int32_t IsConsoleEnabled();
+BOOL IsConsoleEnabled();
 void RegisterGxCVars();
 void RegisterStereoCVars();
 void RemoveConsoleDeviceDefaultCallback(void (*callback)(OPTION_PAGE page));

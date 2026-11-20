@@ -83,7 +83,7 @@ int32_t ConsoleDeviceExists() {
 
 // VERIFY: 6e7fe291 auto
 // OFFSET: 0x00769230
-int32_t IsConsoleEnabled() {
+BOOL IsConsoleEnabled() {
     return s_consoleAccessEnabled;
 }
 

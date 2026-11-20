@@ -1521,7 +1521,7 @@ const char* CGSpellBook::GetSpellTexture(int32_t slot, int32_t petSpell) {
 
 // VERIFY: aa6df244 manual
 // OFFSET: 0x0053D350
-int32_t CGSpellBook::IsSelectedSlot(int32_t slot, int32_t petSpell) {
+BOOL CGSpellBook::IsSelectedSlot(int32_t slot, int32_t petSpell) {
     SpellRec spell;
     int32_t spellId = GetSpellIdBySlot(slot, petSpell);
 
@@ -1598,7 +1598,7 @@ void CGSpellBook::UpdateCooldowns() {
 
 // VERIFY: 47f87173 auto
 // OFFSET: 0x0053BD10
-int32_t CGSpellBook::IsTrackingSpell(int32_t spellId) {
+BOOL CGSpellBook::IsTrackingSpell(int32_t spellId) {
     for (uint32_t i = s_trackingSpells.Count(); i; ) {
         i--;
 
@@ -1725,7 +1725,7 @@ void CGSpellBook::CastSpell(int32_t slot, int32_t petSpell, WOWGUID target) {
 
 // VERIFY: cb3b2a4b manual
 // OFFSET: 0x0053BD70
-int32_t CGSpellBook::IsAuraCaster(WOWGUID guid, const WOWGUID* caster) {
+BOOL CGSpellBook::IsAuraCaster(WOWGUID guid, const WOWGUID* caster) {
     if (!guid.m_guid || !caster || !caster->m_guid) {
         return 0;
     }
@@ -1904,7 +1904,7 @@ uint32_t CGSpellBook::GetShapeshiftForm(int32_t requireForm) {
 
 // VERIFY: cfe23c3b manual
 // OFFSET: 0x0053D580
-int32_t CGSpellBook::CanShowAura(const SpellRec* spell, const WOWGUID* caster, bool helpful) {
+BOOL CGSpellBook::CanShowAura(const SpellRec* spell, const WOWGUID* caster, bool helpful) {
     if ((spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG) || (spell->m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_NO_AURA_ICON)) {
         return 0;
     }
@@ -1944,7 +1944,7 @@ int32_t CGSpellBook::CanShowAura(const SpellRec* spell, const WOWGUID* caster, b
 
 // VERIFY: ce8605b3 manual
 // OFFSET: 0x0053D750
-int32_t CGSpellBook::CanApplyAura(const AuraData* aura) {
+BOOL CGSpellBook::CanApplyAura(const AuraData* aura) {
     if (!aura) {
         return 0;
     }
@@ -2093,7 +2093,7 @@ void CGSpellBook::GetAppropriateSpellRank(uint32_t* spellId, CGUnit_C* caster, C
 
 // VERIFY: a1eaf271 manual
 // OFFSET: 0x0053D680
-int32_t CGSpellBook::CanStealAura(const CGUnit_C* unit, const AuraData* aura, const SpellRec* spell) {
+BOOL CGSpellBook::CanStealAura(const CGUnit_C* unit, const AuraData* aura, const SpellRec* spell) {
     if (!s_dispelMask) {
         return 0;
     }
@@ -2123,7 +2123,7 @@ int32_t CGSpellBook::CanStealAura(const CGUnit_C* unit, const AuraData* aura, co
 
 // VERIFY: 88e8003e auto
 // OFFSET: 0x0053BD40
-int32_t CGSpellBook::IsShapeshiftSpell(int32_t spellId) {
+BOOL CGSpellBook::IsShapeshiftSpell(int32_t spellId) {
     for (uint32_t i = s_shapeshiftSpells.m_count; i; ) {
         i--;
 

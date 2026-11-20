@@ -354,7 +354,7 @@ GossipQuestInfo* CGGossipInfo::GetActiveQuest(int32_t index) {
 
 // VERIFY: 19587bce manual
 // OFFSET: 0x0058ABA0
-int32_t CGQuestInfo::IsLowLevel(int32_t level) {
+BOOL CGQuestInfo::IsLowLevel(int32_t level) {
     if (level == -1) {
         return 0;
     }

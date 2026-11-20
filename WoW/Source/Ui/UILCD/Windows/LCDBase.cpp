@@ -102,7 +102,7 @@ void CLCDBase::Show(BOOL show) {
 
 // VERIFY: 894332e8 auto
 // OFFSET: 0x00431E70
-int32_t CLCDBase::IsVisible() {
+BOOL CLCDBase::IsVisible() {
     return this->m_bVisible;
 }
 

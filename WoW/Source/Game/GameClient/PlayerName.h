@@ -36,7 +36,7 @@ class PLAYERNAMEDESC {
     /* 0030 */ float m_zOffset;
     /* 0034 */ uint32_t unused_0034;
 
-    static int32_t ShouldRender(CGObject_C* object, uint32_t raidTarget);
+    static BOOL ShouldRender(CGObject_C* object, uint32_t raidTarget);
 
     void CreateWorldText(uint32_t type, const char* text, const CImVector* color, const int32_t* pvpRank);
     void DeleteWorldText(uint32_t type);

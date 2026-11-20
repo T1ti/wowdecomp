@@ -44,13 +44,13 @@ class CGInputControl {
     static CGInputControl* s_inputControl;
 
     static int32_t CameraCanPitchPlayer();
-    static int32_t __stdcall CanControl(CGUnit_C* unit);
-    static int32_t __stdcall CanMove(CGUnit_C* unit);
-    static int32_t __stdcall CanTurn(CGUnit_C* unit);
+    static BOOL __stdcall CanControl(CGUnit_C* unit);
+    static BOOL __stdcall CanMove(CGUnit_C* unit);
+    static BOOL __stdcall CanTurn(CGUnit_C* unit);
     static void Destroy();
     static CGInputControl* GetActive();
     static float GetUIVehiclePower();
-    int32_t IsVehicleSeatFlagSet(uint32_t flags) const;
+    BOOL IsVehicleSeatFlagSet(uint32_t flags) const;
     static void SendUIVehicleAngleUpdate(float angle);
     static int32_t WowMouseEnabled();
 
@@ -77,11 +77,11 @@ class CGInputControl {
     CGInputControl();
     ~CGInputControl();
     int32_t CameraCanTurnPlayer() const;
-    int32_t CanSyncFreeLookFacing(CGUnit_C* unit) const;
-    int32_t IsIdle() const;
-    int32_t IsMouseDrag(uint32_t time) const;
-    int32_t IsMouseDragMoving() const;
-    int32_t IsMouseDragging() const;
+    BOOL CanSyncFreeLookFacing(CGUnit_C* unit) const;
+    BOOL IsIdle() const;
+    BOOL IsMouseDrag(uint32_t time) const;
+    BOOL IsMouseDragMoving() const;
+    BOOL IsMouseDragging() const;
     void OnPitchToAngleStop();
     void SetMouselookOverrideBinding(const char* key, const char* binding);
     void SetMouseCVarHandler(bool enable);

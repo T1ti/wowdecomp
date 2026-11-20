@@ -163,7 +163,7 @@ void CPlayerMoveQueue::FreeAllExceptTimeSync() {
 
 // VERIFY: e65bbdf5 manual
 // OFFSET: 0x006EAC00
-int32_t CPlayerMoveQueue::HasEventBetween(MoveEventId first, MoveEventId last) {
+BOOL CPlayerMoveQueue::HasEventBetween(MoveEventId first, MoveEventId last) {
     for (CPlayerMoveEvent* event = this->Head(); event; event = event->m_link.Next()) {
         if (event->m_eventId >= first && event->m_eventId <= last) {
             return 1;
@@ -452,7 +452,7 @@ C3Vector CMovement_C::PushOffObstacleEdge(const C3Vector& point, const C3Vector&
 
 // VERIFY: ddb278fe manual
 // OFFSET: 0x0075CFE0
-int32_t CMovement_C::IsFacetOverhead(uint32_t facet) const {
+BOOL CMovement_C::IsFacetOverhead(uint32_t facet) const {
     float left = this->m_position.x - this->m_collisionRadius;
     float right = this->m_collisionRadius + this->m_position.x;
     float front = this->m_position.y - this->m_collisionRadius;
@@ -472,7 +472,7 @@ int32_t CMovement_C::IsFacetOverhead(uint32_t facet) const {
 
 // VERIFY: c4ba2cd0 manual
 // OFFSET: 0x0075D2D0
-int32_t CMovement_C::IsFacetWall(uint32_t facet) const {
+BOOL CMovement_C::IsFacetWall(uint32_t facet) const {
     const CFacet& data = s_moveFacets.facets.m_data[facet];
 
     if (data.plane.n.z > 0.64278764f) {
@@ -609,13 +609,13 @@ int32_t CMovement_C::Interpolate(uint32_t now, uint32_t elapsed, C3Vector* posit
 
 // VERIFY: 14204d2d auto
 // OFFSET: 0x005FEDE0
-int32_t CMovement_C::IsJumping() const {
+BOOL CMovement_C::IsJumping() const {
     return (this->m_flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_fallVelocity;
 }
 
 // VERIFY: 47ecbc25 auto
 // OFFSET: 0x006E9440
-int32_t CMovement_C::IsValidPosition() const {
+BOOL CMovement_C::IsValidPosition() const {
     return World::IsValidPosition(this->m_position.x, this->m_position.y, this->m_position.z, 2.0f) != 0;
 }
 
@@ -2038,13 +2038,13 @@ static void Swap(C4Plane& a, C4Plane& b) {
 
 // VERIFY: 6455122b auto
 // OFFSET: 0x0075B690
-static int32_t IsSurfaceTooSteep(uint32_t facet) {
+static BOOL IsSurfaceTooSteep(uint32_t facet) {
     return s_moveFacets.facets.m_data[facet].plane.n.z <= 0.64278764f;
 }
 
 // VERIFY: 8257420a manual
 // OFFSET: 0x0075B6C0
-static int32_t IsTooSteepForUnit(const CGUnit_C* unit, uint32_t facet) {
+static BOOL IsTooSteepForUnit(const CGUnit_C* unit, uint32_t facet) {
     if (unit->IsClientControlled()) {
         return !(s_moveFacets.facets.m_data[facet].plane.n.z > 0.64278764f);
     }
@@ -2558,7 +2558,7 @@ static int32_t WalkableFacetEnclosesPoint(uint32_t facet, const C3Vector& point)
 
 // VERIFY: 2873d0d7 manual
 // OFFSET: 0x0075D340
-int32_t CMovement_C::IsSlopeFallable(uint32_t facet, const C3Vector& move) const {
+BOOL CMovement_C::IsSlopeFallable(uint32_t facet, const C3Vector& move) const {
     C3Vector point(this->m_position.x + move.x, this->m_position.y + move.y, this->m_position.z + move.z);
     float threshold = this->m_unit->IsClientControlled() ? 0.64278764f : 0.17364818f;
     return threshold < s_moveFacets.facets.m_data[facet].plane.n.z && WalkableFacetEnclosesPoint(facet, point);

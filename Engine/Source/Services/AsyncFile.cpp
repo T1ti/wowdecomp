@@ -74,7 +74,7 @@ SCritSect g_queueLock;
 
 // VERIFY: 5a8ab5a9 auto
 // OFFSET: 0x004B50A0
-int32_t CAsyncObject::IsPending() {
+BOOL CAsyncObject::IsPending() {
     return !this->m_isCurrent && !this->m_isRead && !this->m_isProcessed;
 }
 

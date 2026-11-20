@@ -106,7 +106,7 @@ class CGPetInfo {
     static void FindPossessedSpell();
     static WOWGUID GetPet(uint32_t index);
     static PetAction* FindSpellByID(int32_t spellId);
-    static int32_t IsPetBarUsed();
+    static BOOL IsPetBarUsed();
     static void UpdateCooldowns();
     static WOWGUID GetTarget();
     static void HideGrid();
@@ -124,7 +124,7 @@ class CGPetInfo {
     static void PetDismiss();
     static void PetAttackTarget(const WOWGUID& target, BOOL useGiven);
     static void SetPetCount(uint32_t count);
-    static int32_t IsAttackAction(uint32_t index);
+    static BOOL IsAttackAction(uint32_t index);
     static uint32_t GetPetMode();
     static void SetPet(WOWGUID pet, uint32_t expiration, int32_t family);
     static void SetComboPoints(WOWGUID target, uint8_t points);

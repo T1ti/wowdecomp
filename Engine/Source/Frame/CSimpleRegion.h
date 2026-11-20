@@ -37,7 +37,7 @@ class CSimpleRegion : public CScriptRegion {
     virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha);
     virtual void AnimDeactivated(CSimpleAnimGroup* group, int32_t last);
     virtual void AddAnimAlpha(int16_t alpha);
-    virtual int32_t CanBeAnchorFor(CLayoutFrame* frame);
+    virtual BOOL CanBeAnchorFor(CLayoutFrame* frame);
     virtual void OnColorChanged(bool changed);
     virtual void OnScreenSizeChanged();
     virtual void Draw(CRenderBatch* batch) = 0;

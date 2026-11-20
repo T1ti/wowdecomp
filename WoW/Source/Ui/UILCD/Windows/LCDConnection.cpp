@@ -108,7 +108,7 @@ void CLCDConnection::Shutdown() {
 
 // VERIFY: 2ca96c41 auto
 // OFFSET: 0x0095A480
-int32_t CLCDConnection::IsConnected() {
+BOOL CLCDConnection::IsConnected() {
     return this->m_hConnection != LGLCD_INVALID_CONNECTION;
 }
 

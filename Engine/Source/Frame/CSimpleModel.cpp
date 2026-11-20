@@ -69,7 +69,7 @@ void CSimpleModel::operator delete(void* ptr) {
 
 // VERIFY: 56a4df90 auto
 // OFFSET: 0x004E60B0
-int32_t CSimpleModel::IsDrawable() {
+BOOL CSimpleModel::IsDrawable() {
     return this->m_model && this->m_model->IsDrawable(0, 1);
 }
 

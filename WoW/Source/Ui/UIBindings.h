@@ -115,7 +115,7 @@ class CGUIBindings {
     const char* GetModifiedClick(int32_t index);
     int32_t GetNumCommandKeys(BINDING_SET set, BINDING_MODE mode, const char* command);
     KEYBINDING* GetReducedKeyBinding(BINDING_MODE mode, const char* key, char* reducedKey, uint32_t maxLength);
-    int32_t IsModifiedClick(const char* action);
+    BOOL IsModifiedClick(const char* action);
     int32_t Load(const char* file, MD5_CTX* md5, CStatus* status);
     void LoadBinding(const char* file, XMLNode* node, CStatus* status);
     void LoadModifiedClick(const char* file, XMLNode* node, CStatus* status);
