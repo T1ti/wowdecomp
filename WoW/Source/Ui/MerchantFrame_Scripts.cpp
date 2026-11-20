@@ -233,9 +233,8 @@ static int32_t Script_GetMerchantItemCostItem(lua_State* L) {
         return 2;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
     lua_pushnumber(L, cost->m_itemCount[i]);
     lua_pushstring(L, CGTooltip::GetItemHyperlinkString(cost->m_itemID[i], stats->m_quality, 0, 0, 0));
@@ -289,9 +288,8 @@ static int32_t Script_GetMerchantItemInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(item->m_displayID));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), item->m_displayID);
     lua_pushstring(L, texture);
     lua_pushnumber(L, item->m_price);
     lua_pushnumber(L, item->m_buyCount);
@@ -341,8 +339,7 @@ static int32_t Script_GetBuybackItemInfo(lua_State* L) {
         item->GetFullItemName(buffer, sizeof(buffer));
         lua_pushstring(L, buffer);
 
-        const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-        SStrPrintf(buffer, sizeof(buffer), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
+        item->GetInventoryArtPath(buffer, sizeof(buffer));
         lua_pushstring(L, buffer);
         lua_pushnumber(L, player->GetBuybackPrice(slot - BUYBACK_FIRST));
         lua_pushnumber(L, item->m_item->m_itemFieldStackCount);

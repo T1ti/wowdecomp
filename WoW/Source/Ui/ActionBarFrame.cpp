@@ -666,12 +666,9 @@ const char* CGActionBar::GetAttackTexture() {
         return "Interface\\Buttons\\Spell-Reset";
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-
     // STATIC: 0x00C1E5A8
     static char s_texture[260];
-
-    SStrPrintf(s_texture, sizeof(s_texture), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
+    item->GetInventoryArtPath(s_texture, sizeof(s_texture));
     return s_texture;
 }
 
@@ -696,12 +693,9 @@ const char* CGActionBar::GetRangedTexture() {
         return nullptr;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-
     // STATIC: 0x00C1E6B0
     static char s_texture[260];
-
-    SStrPrintf(s_texture, sizeof(s_texture), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
+    item->GetInventoryArtPath(s_texture, sizeof(s_texture));
     return s_texture;
 }
 

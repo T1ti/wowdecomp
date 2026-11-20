@@ -234,8 +234,7 @@ static int32_t Script_GetStationeryInfo(lua_State* L) {
     WOWGUID none = { 0 };
 
     if (index < CGMailInfo::m_stationeries.Count() && (stationery = CGMailInfo::m_stationeries.m_data[index]) && (stats = g_itemDBCache.GetRecord(stationery->m_itemID, none, nullptr, nullptr, false))) {
-        const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-        SStrPrintf(s_stationeryTexture, sizeof(s_stationeryTexture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+        CGItem_C::GetInventoryArtPath(s_stationeryTexture, sizeof(s_stationeryTexture), stats->m_displayId);
         lua_pushstring(L, stats->m_name[0]);
         lua_pushstring(L, s_stationeryTexture);
 
@@ -912,9 +911,8 @@ static int32_t Script_GetSendMailItem(lua_State* L) {
     char name[CGMailInfo::ITEM_NAME_BUFFER_SIZE];
     item->GetFullItemName(name, sizeof(name));
     lua_pushstring(L, name);
-    const char* iconPath = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[CGMailInfo::TEXTURE_PATH_BUFFER_SIZE];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", iconPath, *iconPath ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
     lua_pushnumber(L, item->m_item->m_itemFieldStackCount);
     lua_pushnumber(L, stats->m_inventoryType ? static_cast<int32_t>(stats->m_quality) : -1);
@@ -1154,8 +1152,7 @@ static int32_t Script_GetInboxItem(lua_State* L) {
     char name[CGMailInfo::ITEM_NAME_BUFFER_SIZE];
     CGItem_C::BuildItemName(name, sizeof(name), attachment->m_itemID, attachment->m_randomPropertiesID);
     lua_pushstring(L, name);
-    const char* iconPath = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", iconPath, *iconPath ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
     lua_pushnumber(L, static_cast<int32_t>(attachment->m_count));
     lua_pushnumber(L, stats->m_inventoryType ? static_cast<int32_t>(stats->m_quality) : -1);

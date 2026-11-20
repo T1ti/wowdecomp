@@ -347,9 +347,8 @@ static int32_t Script_GetGuildBankItemInfo(lua_State* L) {
     ItemRec* rec;
 
     if (tab < MAX_GUILDBANK_TABS && slot < CGGuildBankInfo::m_tabSlots[tabByte].m_count && (info = &CGGuildBankInfo::m_tabSlots[tab].m_data[slot])->m_itemID && info && ClntObjMgrGetActivePlayerObj() && (rec = g_itemDB.GetRecord(info->m_itemID))) {
-        const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
         char texture[260];
-        SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(rec->m_displayInfoID));
+        CGItem_C::GetInventoryArtPath(texture, sizeof(texture), rec->m_displayInfoID);
         lua_pushstring(L, texture);
         lua_pushnumber(L, info->m_count);
 

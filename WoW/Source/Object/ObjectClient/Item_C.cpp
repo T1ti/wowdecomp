@@ -1138,6 +1138,18 @@ const char* CGItem_C::GetInventoryArt() const {
     return CGItem_C::GetInventoryArt(0);
 }
 
+// INLINED: formats "<inventory icon path>\<icon name>" for an item display, as used by the item texture getters.
+void CGItem_C::GetInventoryArtPath(char* buffer, uint32_t size, int32_t displayId) {
+    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
+    SStrPrintf(buffer, size, "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(displayId));
+}
+
+// INLINED: same as GetInventoryArtPath(buffer, size, displayId) for this item's display.
+void CGItem_C::GetInventoryArtPath(char* buffer, uint32_t size) const {
+    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
+    SStrPrintf(buffer, size, "%s%s%s", path, *path ? "\\" : "", this->GetInventoryArt());
+}
+
 // VERIFY: 61c58006 manual
 // OFFSET: 0x00584AC0
 uint32_t CGItem::GetDurability() const {

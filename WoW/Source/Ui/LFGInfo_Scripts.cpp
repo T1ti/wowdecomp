@@ -631,8 +631,7 @@ static int32_t Script_GetLFGDungeonRewardInfo(lua_State* L) {
         name = stats->GetName(0);
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(item->m_displayID));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), item->m_displayID);
     lua_pushstring(L, name);
     lua_pushstring(L, texture);
     lua_pushnumber(L, item->m_quantity);
@@ -693,8 +692,7 @@ static int32_t Script_GetLFGCompletionRewardItem(lua_State* L) {
         item = CGLookingForGroup::m_reward.m_items.Next(item);
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    SStrPrintf(s_rewardItemTexture, sizeof(s_rewardItemTexture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(item->m_displayID));
+    CGItem_C::GetInventoryArtPath(s_rewardItemTexture, sizeof(s_rewardItemTexture), item->m_displayID);
     lua_pushstring(L, s_rewardItemTexture);
     lua_pushnumber(L, item->m_quantity);
     return 2;

@@ -872,8 +872,7 @@ int32_t CGQuestInfo::QuestItemInfo(const char* type, uint32_t index, char* name,
         *quality = stats->m_inventoryType ? stats->m_quality : -1;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    SStrPrintf(s_questItemTexture, sizeof(s_questItemTexture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(displayId));
+    CGItem_C::GetInventoryArtPath(s_questItemTexture, sizeof(s_questItemTexture), displayId);
     SStrCopy(texture, s_questItemTexture, textureSize);
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));

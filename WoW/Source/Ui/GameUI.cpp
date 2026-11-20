@@ -3501,9 +3501,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
     char text[3000];
 
     if (guid == ClntObjMgrGetActivePlayer()) {
-        const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-        const char* separator = *path ? "\\" : "";
-        SStrPrintf(text, sizeof(text), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(stats->m_displayId));
+        CGItem_C::GetInventoryArtPath(text, sizeof(text), stats->m_displayId);
         int32_t slotIndex = bag;
 
         if (bag == INVENTORY_BAG_PLAYER) {

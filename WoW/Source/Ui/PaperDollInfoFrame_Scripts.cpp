@@ -78,8 +78,7 @@ static int32_t Script_GetInventoryItemTexture(lua_State* L) {
 
         if (displayId) {
             char texture[260];
-            const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-            SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(displayId));
+            CGItem_C::GetInventoryArtPath(texture, sizeof(texture), displayId);
             lua_pushstring(L, texture);
             return 1;
         }
@@ -1049,9 +1048,8 @@ static int32_t Script_SetInventoryPortraitTexture(lua_State* L) {
     CGItem_C* item = slot == INVSLOT_AMMO ? player->m_bag.FindItemOfType(CGCharacterInfo::GetActivePlayerAmmoID(player), BAG_SEARCH_NONE) : player->m_bag.GetItemPointer(slot);
 
     if (item) {
-        const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
         char buffer[260];
-        SStrPrintf(buffer, sizeof(buffer), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
+        item->GetInventoryArtPath(buffer, sizeof(buffer));
         SetPortraitTexture(texture, buffer);
     }
 

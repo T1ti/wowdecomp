@@ -397,10 +397,8 @@ static int32_t Script_GetTradeSkillIcon(lua_State* L) {
                 ItemRec* item = g_itemDB.GetRecord(spell.m_effectItemType[0]);
 
                 if (item) {
-                    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-                    const char* separator = *path ? "\\" : "";
                     char texture[260];
-                    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(item->m_displayInfoID));
+                    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), item->m_displayInfoID);
                     lua_pushstring(L, texture);
                     return 1;
                 }
@@ -1010,10 +1008,8 @@ static int32_t Script_GetTradeSkillReagentInfo(lua_State* L) {
 
                 if (stats) {
                     lua_pushstring(L, stats->GetName(0));
-                    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-                    const char* separator = *path ? "\\" : "";
                     char texture[260];
-                    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(stats->m_displayId));
+                    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
                     lua_pushstring(L, texture);
                 } else {
                     lua_pushnil(L);

@@ -197,9 +197,8 @@ static int32_t Script_GetContainerItemInfo(lua_State* L) {
         return 0;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", item->GetInventoryArt());
+    item->GetInventoryArtPath(texture, sizeof(texture));
     lua_pushstring(L, texture);
     lua_pushnumber(L, item->m_item->m_itemFieldStackCount);
 
@@ -633,9 +632,8 @@ static int32_t Script_SetBagPortraitTexture(lua_State* L) {
         return 0;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char fileName[260];
-    SStrPrintf(fileName, sizeof(fileName), "%s%s%s", path, *path ? "\\" : "", bag->GetInventoryArt());
+    bag->GetInventoryArtPath(fileName, sizeof(fileName));
     SetPortraitTexture(texture, fileName);
     return 0;
 }
@@ -860,8 +858,7 @@ static bool BuildItemIconPath(int32_t itemId, char* buffer, uint32_t size) {
         return false;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    SStrPrintf(buffer, size, "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(rec->m_displayInfoID));
+    CGItem_C::GetInventoryArtPath(buffer, size, rec->m_displayInfoID);
     return true;
 }
 

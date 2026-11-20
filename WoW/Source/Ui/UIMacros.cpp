@@ -184,11 +184,10 @@ void CGUIMacros::GetFullIconPath(uint32_t id, char* buffer, uint32_t size) {
 
     if (!SStrCmp(macro->m_icon, "INV_Misc_QuestionMark", STORM_MAX_STR)) {
         if (macro->m_itemID) {
-            const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
             WOWGUID none = WOWGUID();
             ItemStats_C* stats = g_itemDBCache.GetRecord(macro->m_itemID, none, nullptr, nullptr, false);
             int32_t displayId = stats ? stats->m_displayId : 0;
-            SStrPrintf(buffer, size, "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(displayId));
+            CGItem_C::GetInventoryArtPath(buffer, size, displayId);
             return;
         }
 

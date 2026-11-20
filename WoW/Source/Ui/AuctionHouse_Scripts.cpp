@@ -850,9 +850,8 @@ static int32_t Script_GetAuctionItemInfo(lua_State* L) {
     CGItem_C::BuildItemName(name, sizeof(name), auction->m_itemID, auction->m_randomPropertyID);
     lua_pushstring(L, name);
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
 
     lua_pushnumber(L, auction->m_count);
@@ -1047,9 +1046,8 @@ static int32_t Script_GetAuctionSellItemInfo(lua_State* L) {
     item->GetFullItemName(name, sizeof(name));
     lua_pushstring(L, name);
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, *path ? "\\" : "", CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
 
     lua_pushnumber(L, item->m_item->m_itemFieldStackCount);

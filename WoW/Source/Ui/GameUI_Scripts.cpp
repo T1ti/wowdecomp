@@ -2679,10 +2679,8 @@ static int32_t Script_GetItemInfo(lua_State* L) {
 #else
     lua_pushstring(L, s_inventoryTypeTokens[stats->m_inventoryType]);
 #endif
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    const char* separator = *path ? "\\" : "";
     char texture[260];
-    SStrPrintf(texture, sizeof(texture), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(texture, sizeof(texture), stats->m_displayId);
     lua_pushstring(L, texture);
     lua_pushnumber(L, static_cast<int32_t>(stats->m_sellPrice));
     return 11;
@@ -4175,10 +4173,8 @@ static int32_t Script_GetItemIcon(lua_State* L) {
         return 0;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    const char* separator = *path ? "\\" : "";
     char icon[260];
-    SStrPrintf(icon, sizeof(icon), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(item->m_displayInfoID));
+    CGItem_C::GetInventoryArtPath(icon, sizeof(icon), item->m_displayInfoID);
     lua_pushstring(L, icon);
     return 1;
 }

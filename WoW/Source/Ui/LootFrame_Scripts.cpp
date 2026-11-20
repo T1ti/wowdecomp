@@ -126,9 +126,7 @@ static int32_t Script_GetLootRollItemInfo(lua_State* L) {
         return 0;
     }
 
-    const char* path = ClientDBStringLookup(SLOOKUP_INVENTORYICONPATH);
-    const char* separator = *path ? "\\" : "";
-    SStrPrintf(buffer, sizeof(buffer), "%s%s%s", path, separator, CGItem_C::GetInventoryArt(stats->m_displayId));
+    CGItem_C::GetInventoryArtPath(buffer, sizeof(buffer), stats->m_displayId);
     lua_pushstring(L, buffer);
     CGItem_C::BuildItemName(buffer, sizeof(buffer), roll->m_itemId, roll->m_randomPropertyId);
     lua_pushstring(L, buffer);
