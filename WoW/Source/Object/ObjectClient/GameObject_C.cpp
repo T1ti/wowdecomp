@@ -1478,7 +1478,7 @@ void CGGameObject_C::UpdateObjectEffectAnimationStates(uint32_t anim) {
     this->m_effectManager->ExitState(this->m_effectAnimState, 1);
     this->m_effectManager->EnterState(state, 1, 0);
 
-    if (state == 15 || state == 81) {
+    if (state == OBJECT_EFFECT_STATE_ANIM_DEATH || state == OBJECT_EFFECT_STATE_ANIM_DEAD) {
         this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_MOVING, 1);
         this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_NOT_MOVING, 1);
         this->m_effectManager->ExitState(OBJECT_EFFECT_STATE_MOVEMENT_ASCENDING, 1);
@@ -2307,7 +2307,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 
     this->m_worldObject = object;
     this->m_previousState = current;
-    entry.m_animate = !state || state == 3;
+    entry.m_animate = state == DESTRUCTIBLE_STATE_INTACT || state == DESTRUCTIBLE_STATE_REBUILDING;
 
     if (!this->m_worldObject || entry.m_loading) {
         return;
@@ -3973,11 +3973,11 @@ bool CGGameObject_C::IsUsableInCombat() const {
 bool CGGameObject_C::IsUsableMounted() const {
     int8_t type = this->m_gameObject->m_typeID;
 
-    if (type == 19) {
+    if (type == TYPE_MAILBOX) {
         return true;
     }
 
-    if (type == 32) {
+    if (type == TYPE_BARBER_CHAIR) {
         return false;
     }
 
@@ -3989,7 +3989,7 @@ bool CGGameObject_C::IsUsableMounted() const {
 bool CGGameObject_C::IsUsableWhileImmune() const {
     int8_t type = this->m_gameObject->m_typeID;
 
-    if (type == 3) {
+    if (type == TYPE_CHEST) {
         return false;
     }
 
