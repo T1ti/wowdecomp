@@ -614,6 +614,13 @@ int32_t Packet_SMSG_LEARNED_SPELL(void* param, NETMESSAGE msgId, uint32_t time, 
 int32_t Packet_SMSG_REMOVED_SPELL(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_SUPERCEDED_SPELL(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_INITIAL_SPELLS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+// SMSG_ACTION_BUTTONS state byte; names inferred from what the handler does with each value.
+enum ACTION_BUTTONS_STATE : uint8_t {
+    ACTION_BUTTONS_STATE_LOAD = 0, // Reads the buttons only.
+    ACTION_BUTTONS_STATE_LOAD_AND_APPLY = 1, // Reads the buttons and puts the valid ones on the action bar.
+    ACTION_BUTTONS_STATE_PENDING = 2, // No buttons follow; marks the player's buttons as pending.
+};
+
 int32_t Packet_SMSG_ACTION_BUTTONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_GROUP_INVITE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_GROUP_CANCEL(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);

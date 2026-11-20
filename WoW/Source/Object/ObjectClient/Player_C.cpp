@@ -4075,7 +4075,7 @@ int32_t Packet_SMSG_ACTION_BUTTONS(void* param, NETMESSAGE msgId, uint32_t time,
     uint32_t mode = state;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (mode == 2) {
+    if (mode == ACTION_BUTTONS_STATE_PENDING) {
         if (player) {
             player->m_actionButtonsPending = 1;
         }
@@ -4083,7 +4083,7 @@ int32_t Packet_SMSG_ACTION_BUTTONS(void* param, NETMESSAGE msgId, uint32_t time,
         return 1;
     }
 
-    if (mode > 1) {
+    if (mode > ACTION_BUTTONS_STATE_LOAD_AND_APPLY) {
         return 1;
     }
 
@@ -4091,7 +4091,7 @@ int32_t Packet_SMSG_ACTION_BUTTONS(void* param, NETMESSAGE msgId, uint32_t time,
         msg->Get(reinterpret_cast<uint32_t&>(s_actionButtons[i]));
     }
 
-    if (mode == 1 && player) {
+    if (mode == ACTION_BUTTONS_STATE_LOAD_AND_APPLY && player) {
         player->m_actionButtonsPending = 0;
 
         for (uint32_t i = 0; i < sizeof(s_actionButtons) / sizeof(s_actionButtons[0]); i++) {
