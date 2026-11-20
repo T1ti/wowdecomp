@@ -899,8 +899,8 @@ void Weather::UpdatePosDeltas() {
 // OFFSET: 0x00783B90
 void Weather::FillInDefaultPrecipTexturePath(uint32_t type) {
     if (type == WEATHER_EFFECT_RAIN) {
-        SStrCopy(this->m_precipTexture, "textures\\Weather\\RainDrop01.blp", 0x7FFFFFFF);
+        SStrCopy(this->m_precipTexture, "textures\\Weather\\RainDrop01.blp", STORM_MAX_STR);
     } else if (type == WEATHER_EFFECT_SNOW) {
-        SStrCopy(this->m_precipTexture, "textures\\Weather\\SnowFlake01.blp", 0x7FFFFFFF);
+        SStrCopy(this->m_precipTexture, "textures\\Weather\\SnowFlake01.blp", STORM_MAX_STR);
     }
 }

@@ -29,10 +29,10 @@ static void SortNameNode(AUTOCOMPLETE_NAMENODE* node) {
                 continue;
             }
 
-            if (current->m_lastUsed == node->m_lastUsed && SStrCmpUTF8I(current->m_name, node->m_name, 0x7FFFFFFF) < 0) {
+            if (current->m_lastUsed == node->m_lastUsed && SStrCmpUTF8I(current->m_name, node->m_name, STORM_MAX_STR) < 0) {
                 continue;
             }
-        } else if (SStrCmpUTF8I(current->m_name, node->m_name, 0x7FFFFFFF) < 0) {
+        } else if (SStrCmpUTF8I(current->m_name, node->m_name, STORM_MAX_STR) < 0) {
             continue;
         }
 

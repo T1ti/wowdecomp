@@ -375,7 +375,7 @@ int32_t QSortFriends(const void* a, const void* b) {
     }
 
     if (friendA->m_name && friendB->m_name) {
-        return SStrSortUTF8I(friendA->m_name, friendB->m_name, 0x7FFFFFFF);
+        return SStrSortUTF8I(friendA->m_name, friendB->m_name, STORM_MAX_STR);
     }
 
     if (!friendA->m_name && !friendB->m_name) {
@@ -416,7 +416,7 @@ int32_t QSortIgnore(const void* a, const void* b) {
 
     char fullNameA[305];
     char fullNameB[305];
-    return SStrCmp(nameA->FullName(fullNameA, sizeof(fullNameA)), nameB->FullName(fullNameB, sizeof(fullNameB)), 0x7FFFFFFF);
+    return SStrCmp(nameA->FullName(fullNameA, sizeof(fullNameA)), nameB->FullName(fullNameB, sizeof(fullNameB)), STORM_MAX_STR);
 }
 
 // VERIFY: 851ea1b0 manual

@@ -98,7 +98,7 @@ static int32_t QSortZones(const void* a, const void* b) {
         AreaTableRec* areaB = g_areaTableDB.GetRecord(zoneB->m_areaID);
 
         if (areaA && areaB) {
-            return SStrSortUTF8I(areaA->m_areaName, areaB->m_areaName, 0x7FFFFFFF);
+            return SStrSortUTF8I(areaA->m_areaName, areaB->m_areaName, STORM_MAX_STR);
         }
     }
 

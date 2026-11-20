@@ -113,9 +113,9 @@ int32_t COsTreeView::IsCharacterAllowed(char c) {
 
 // OFFSET: 0x0086C650
 void OsGuiSetWindowTitle(OsGuiHandle window, const char* title) {
-    uint32_t length = SUniConvertUTF8to16Len(title, 0x7FFFFFFF, nullptr);
+    uint32_t length = SUniConvertUTF8to16Len(title, STORM_MAX_STR, nullptr);
     uint16_t* wideTitle = static_cast<uint16_t*>(_alloca(length * sizeof(uint16_t)));
-    SUniConvertUTF8to16(wideTitle, length, title, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(wideTitle, length, title, STORM_MAX_STR, nullptr, nullptr);
 
     SetWindowTextW(static_cast<HWND>(window), reinterpret_cast<const wchar_t*>(wideTitle));
 }
@@ -144,17 +144,17 @@ void OsGuiSetGxWindow(OsGuiHandle window) {
 
 // OFFSET: 0x0086C6E0
 int32_t OsGuiMessageBox(OsGuiHandle parentWindow, int32_t style, const char* message, const char* title) {
-    uint32_t messageLength = SUniConvertUTF8to16Len(message, 0x7FFFFFFF, nullptr);
+    uint32_t messageLength = SUniConvertUTF8to16Len(message, STORM_MAX_STR, nullptr);
     uint16_t* wideMessage = static_cast<uint16_t*>(_alloca(messageLength * sizeof(uint16_t)));
-    SUniConvertUTF8to16(wideMessage, messageLength, message, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(wideMessage, messageLength, message, STORM_MAX_STR, nullptr, nullptr);
 
     if (!title) {
         title = "";
     }
 
-    uint32_t titleLength = SUniConvertUTF8to16Len(title, 0x7FFFFFFF, nullptr);
+    uint32_t titleLength = SUniConvertUTF8to16Len(title, STORM_MAX_STR, nullptr);
     uint16_t* wideTitle = static_cast<uint16_t*>(_alloca(titleLength * sizeof(uint16_t)));
-    SUniConvertUTF8to16(wideTitle, titleLength, title, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(wideTitle, titleLength, title, STORM_MAX_STR, nullptr, nullptr);
 
     UINT type = MB_OK;
 

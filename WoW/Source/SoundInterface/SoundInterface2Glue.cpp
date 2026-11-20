@@ -130,7 +130,7 @@ void SI2::StartGlueMusic(const char* name) {
     EventUnregister(EVENT_ID_POLL, SI2::CreditsMusicUpdate);
     SI2::StopSound(&s_creditsMusic, 0, FADEOUT_TIME, 1);
 
-    if (!name || !SStrCmpI(name, s_glueMusicName, 0x7FFFFFFF)) {
+    if (!name || !SStrCmpI(name, s_glueMusicName, STORM_MAX_STR)) {
         return;
     }
 

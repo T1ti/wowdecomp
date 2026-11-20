@@ -138,7 +138,7 @@ int32_t EvaluateButton(const WOWGUID* unit, const TSGrowableArray<MacroSubstring
             name[length] = '\0';
         }
 
-        if ((button && !SStrCmpUTF8I(name, button, 0x7FFFFFFF)) || (macroButton && !SStrCmpUTF8I(name, macroButton, 0x7FFFFFFF))) {
+        if ((button && !SStrCmpUTF8I(name, button, STORM_MAX_STR)) || (macroButton && !SStrCmpUTF8I(name, macroButton, STORM_MAX_STR))) {
             return 1;
         }
     }
@@ -338,7 +338,7 @@ int32_t EvaluateCursor(const WOWGUID* unit, const TSGrowableArray<MacroSubstring
         memcpy(text, arg.m_start, length);
         text[length] = '\0';
 
-        if (!SStrCmpI(text, type, 0x7FFFFFFF)) {
+        if (!SStrCmpI(text, type, STORM_MAX_STR)) {
             return 1;
         }
     }
@@ -545,7 +545,7 @@ int32_t EvaluatePet(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>* 
         memcpy(text, arg.m_start, length);
         text[length] = '\0';
 
-        if (!SStrCmpUTF8I(text, name, 0x7FFFFFFF) || !SStrCmpUTF8I(text, family, 0x7FFFFFFF)) {
+        if (!SStrCmpUTF8I(text, name, STORM_MAX_STR) || !SStrCmpUTF8I(text, family, STORM_MAX_STR)) {
             return 1;
         }
     }
@@ -577,7 +577,7 @@ int32_t EvaluateEquipped(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
         int32_t inventoryType = INVTYPE_INVALID;
 
         for (int32_t j = 0; j < INVTYPE_COUNT; j++) {
-            if (!SStrCmpI(text, s_inventoryTypeTokens[j], 0x7FFFFFFF) || !SStrCmpUTF8I(text, FrameScript_GetText(s_inventoryTypeTokens[j], -1, GENDER_NOT_APPLICABLE), 0x7FFFFFFF)) {
+            if (!SStrCmpI(text, s_inventoryTypeTokens[j], STORM_MAX_STR) || !SStrCmpUTF8I(text, FrameScript_GetText(s_inventoryTypeTokens[j], -1, GENDER_NOT_APPLICABLE), STORM_MAX_STR)) {
                 inventoryType = j;
                 break;
             }
@@ -633,7 +633,7 @@ int32_t EvaluateChanneling(const WOWGUID* unit, const TSGrowableArray<MacroSubst
         memcpy(text, arg.m_start, length);
         text[length] = '\0';
 
-        if (!SStrCmpUTF8I(text, spell.m_name, 0x7FFFFFFF)) {
+        if (!SStrCmpUTF8I(text, spell.m_name, STORM_MAX_STR)) {
             return 1;
         }
     }

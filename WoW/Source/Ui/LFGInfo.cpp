@@ -187,7 +187,7 @@ static int QSortLFGDungeons(const void* a, const void* b) {
         return leftLevel / 2 - rightLevel / 2;
     }
 
-    return SStrCmpUTF8I(leftRec->m_name, rightRec->m_name, 0x7FFFFFFF);
+    return SStrCmpUTF8I(leftRec->m_name, rightRec->m_name, STORM_MAX_STR);
 }
 
 // VERIFY: 2c369f9d manual
@@ -569,7 +569,7 @@ bool LFGInfo::Equals(const LFGInfo& other) const {
         return false;
     }
 
-    if (memcmp(this->m_roles, other.m_roles, sizeof(this->m_roles)) || SStrCmp(this->m_comment, other.m_comment, 0x7FFFFFFF)) {
+    if (memcmp(this->m_roles, other.m_roles, sizeof(this->m_roles)) || SStrCmp(this->m_comment, other.m_comment, STORM_MAX_STR)) {
         return false;
     }
 

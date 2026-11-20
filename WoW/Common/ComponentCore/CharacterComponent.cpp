@@ -3836,7 +3836,7 @@ bool CCharacterComponent::IsHelmModelCorrect() {
 
     strcpy(OsPathFindExtensionWithoutDot(s_path), "m2");
 
-    return SStrCmpI(attached->m_shared->m_fileName, s_path, 0x7FFFFFFF) == 0;
+    return SStrCmpI(attached->m_shared->m_fileName, s_path, STORM_MAX_STR) == 0;
 }
 
 // VERIFY: 9417cc2f manual
@@ -3934,7 +3934,7 @@ bool CCharacterComponent::IsQuiverModelCorrect() {
 
     strcpy(OsPathFindExtensionWithoutDot(s_path), "m2");
 
-    return SStrCmpI(attached->m_shared->m_fileName, s_path, 0x7FFFFFFF) == 0;
+    return SStrCmpI(attached->m_shared->m_fileName, s_path, STORM_MAX_STR) == 0;
 }
 
 // VERIFY: 15c4da05 manual
@@ -4038,7 +4038,7 @@ int32_t CCharacterComponent::AreShoulderModelsCorrect() {
     strcpy(OsPathFindExtensionWithoutDot(s_path), "m2");
     strcpy(OsPathFindExtensionWithoutDot(s_path2), "m2");
 
-    if (SStrCmpI(left->m_shared->m_fileName, s_path, 0x7FFFFFFF) || SStrCmpI(right->m_shared->m_fileName, s_path2, 0x7FFFFFFF)) {
+    if (SStrCmpI(left->m_shared->m_fileName, s_path, STORM_MAX_STR) || SStrCmpI(right->m_shared->m_fileName, s_path2, STORM_MAX_STR)) {
         return 0;
     }
 

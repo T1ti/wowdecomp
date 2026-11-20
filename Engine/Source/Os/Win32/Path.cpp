@@ -19,7 +19,7 @@ uint32_t GetModuleFileNameUTF8(void* module, char* path, uint32_t size) {
     GetModuleFileNameW(static_cast<HMODULE>(module), reinterpret_cast<LPWSTR>(wide), wideSize);
 
     uint32_t written;
-    SUniConvertUTF16to8(path, size, wide, 0x7FFFFFFF, &written, nullptr);
+    SUniConvertUTF16to8(path, size, wide, STORM_MAX_STR, &written, nullptr);
 
     if (size - 1 >= written) {
         path[written] = '\0';
@@ -48,7 +48,7 @@ CommandLineUTF8::CommandLineUTF8() {
     m_commandLine = static_cast<char*>(SMemAlloc(size, __FILE__, __LINE__, 0));
 
     uint32_t written;
-    SUniConvertUTF16to8(m_commandLine, size, reinterpret_cast<const uint16_t*>(commandLine), 0x7FFFFFFF, &written, nullptr);
+    SUniConvertUTF16to8(m_commandLine, size, reinterpret_cast<const uint16_t*>(commandLine), STORM_MAX_STR, &written, nullptr);
 
     if (size - 1 >= written) {
         m_commandLine[written] = '\0';

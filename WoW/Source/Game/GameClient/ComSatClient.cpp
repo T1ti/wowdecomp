@@ -619,7 +619,7 @@ int32_t ComSatClient_FindSessionByTypeAndName(int32_t type, const char* name) {
             return cached;
         }
 
-        if (!SStrCmpUTF8I(s_comsatData[cached].m_name, name, 0x7FFFFFFF)) {
+        if (!SStrCmpUTF8I(s_comsatData[cached].m_name, name, STORM_MAX_STR)) {
             return s_lastFoundSession;
         }
     }
@@ -631,7 +631,7 @@ int32_t ComSatClient_FindSessionByTypeAndName(int32_t type, const char* name) {
     for (int32_t i = 0; i < MAX_VOICE_SESSIONS; i++) {
         COMSATDATA* data = &s_comsatData[i];
 
-        if (data->m_sessionID && data->m_type == type && (type || !SStrCmpUTF8I(data->m_name, name, 0x7FFFFFFF))) {
+        if (data->m_sessionID && data->m_type == type && (type || !SStrCmpUTF8I(data->m_name, name, STORM_MAX_STR))) {
             s_lastFoundSession = i;
             return i;
         }

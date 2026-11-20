@@ -487,13 +487,13 @@ int32_t IOsVersionChecksum(IOsVersionHashCallback& callback, const char* path, i
         uint16_t* widePath = nullptr;
 
         if (path) {
-            uint32_t length = SUniConvertUTF8to16Len(path, 0x7FFFFFFF, nullptr) + 1;
+            uint32_t length = SUniConvertUTF8to16Len(path, STORM_MAX_STR, nullptr) + 1;
             widePath = static_cast<uint16_t*>(SMemAlloc(length * sizeof(uint16_t), __FILE__, __LINE__, 0));
             if (!widePath) {
                 return 0;
             }
 
-            SUniConvertUTF8to16(widePath, length, path, 0x7FFFFFFF, nullptr, nullptr);
+            SUniConvertUTF8to16(widePath, length, path, STORM_MAX_STR, nullptr, nullptr);
         }
 
         HMODULE module = GetModuleHandleW(reinterpret_cast<LPCWSTR>(widePath));

@@ -5962,8 +5962,8 @@ void CMap::Unload() {
     CMap::bDungeon = 0;
     CMap::enableChunkBatching = 0;
     char path[260];
-    SStrCopy(path, CMap::wdtFilename, 0x7FFFFFFF);
-    SStrCopy(strrchr(path, '.'), ".tex", 0x7FFFFFFF);
+    SStrCopy(path, CMap::wdtFilename, STORM_MAX_STR);
+    SStrCopy(strrchr(path, '.'), ".tex", STORM_MAX_STR);
     TextureUnloadBlob(path);
 }
 

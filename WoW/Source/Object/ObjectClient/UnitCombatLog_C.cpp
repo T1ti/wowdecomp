@@ -2831,7 +2831,7 @@ bool CombatLogFilter::MatchesFilter(int32_t event, const WOWGUID& sourceGuid, ui
     }
 
     const char* name = this->m_spellName.m_str;
-    return !name || (spellName && !SStrCmpUTF8I(spellName, name, 0x7FFFFFFF));
+    return !name || (spellName && !SStrCmpUTF8I(spellName, name, STORM_MAX_STR));
 }
 
 // OFFSET: 0x00753980

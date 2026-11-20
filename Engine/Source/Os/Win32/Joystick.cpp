@@ -181,7 +181,7 @@ static BOOL CALLBACK EnumDevicesCallback(LPCDIDEVICEINSTANCEA instance, LPVOID r
     }
 
     for (uint32_t i = 0; i < sizeof(s_relativeDevices) / sizeof(s_relativeDevices[0]); i++) {
-        if (!SStrCmpI(instance->tszInstanceName, s_relativeDevices[i], 0x7FFFFFFF)) {
+        if (!SStrCmpI(instance->tszInstanceName, s_relativeDevices[i], STORM_MAX_STR)) {
             joystick->m_relative = true;
             break;
         }

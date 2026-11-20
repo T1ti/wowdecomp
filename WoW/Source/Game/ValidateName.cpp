@@ -1143,7 +1143,7 @@ VALIDATE_NAME_RESULT ValidateCharacterNameDeclension(int32_t locale, const char*
 static void GetNameInfo(const char* name, RussianNameInfo* info, int32_t sex) {
     int32_t length = SStrLenUTF8(name);
     memset(info->m_name, 0, sizeof(info->m_name));
-    SUniConvertUTF8to16(info->m_name, 1024, name, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(info->m_name, 1024, name, STORM_MAX_STR, nullptr, nullptr);
 
     for (int32_t i = 0; i < 1024; i++) {
         info->m_name[i] = ToLower(info->m_name[i]);
@@ -1335,7 +1335,7 @@ static int32_t FormatCase(char* declensions, uint32_t set, const RussianNameInfo
 // OFFSET: 0x0076E270
 int32_t RussianNameNeedsDeclensions(const char* name) {
     uint16_t c = 0;
-    SUniConvertUTF8to16(&c, 1, name, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(&c, 1, name, STORM_MAX_STR, nullptr, nullptr);
     return IsRussian(c);
 }
 
@@ -1394,7 +1394,7 @@ bool IsRussianDeclensionValid(const char* name, const char* declension) {
     GetNameInfo(name, &info, 2);
 
     uint16_t wide[1024];
-    SUniConvertUTF8to16(wide, 1024, declension, 0x7FFFFFFF, nullptr, nullptr);
+    SUniConvertUTF8to16(wide, 1024, declension, STORM_MAX_STR, nullptr, nullptr);
 
     int32_t stem = info.m_hasAltStem ? info.m_altStemLen : info.m_stemLen;
     int32_t i = 0;
