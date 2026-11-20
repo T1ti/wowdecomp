@@ -232,11 +232,11 @@ void CRealmList::SetPreferredInfo(int32_t index, int32_t pvp, int32_t roleplayin
 
         uint8_t flags = realm->m_flags;
 
-        if (flags & 0x3) {
+        if (flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE)) {
             continue;
         }
 
-        if (flags & 0x20) {
+        if (flags & REALM_FLAG_RECOMMENDED) {
             FrameScript_SignalEvent(GLUE_EVENT_SUGGEST_REALM, "%d%d", index, i + 1);
             return;
         }

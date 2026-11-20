@@ -11,6 +11,14 @@
 
 class WowConnectionNet {
     public:
+    // Work requested for a connection by the network thread; names follow the WowConnection handlers.
+    enum SERVICE_FLAGS : uint32_t {
+        SERVICE_WRITES = 0x1,
+        SERVICE_READS = 0x2,
+        SERVICE_EXCEPTIONS = 0x4,
+        SERVICE_DISCONNECT = 0x8,
+    };
+
 #pragma pack(push, 1)
     struct WORKER {
         /* 0000 */ WowConnectionNet* m_owner;
