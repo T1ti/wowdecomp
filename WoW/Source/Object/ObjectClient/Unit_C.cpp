@@ -3,6 +3,7 @@
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Common/Types.h"
 #include "Unit_C.h"
+#include <cfloat>
 #include <cmath>
 #include <new>
 #include <typeinfo>
@@ -9589,7 +9590,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_footprintWidth(0.27777779f),
       m_footprintParticleScale(1.0f),
       m_lastSentFacing(-10.0f),
-      m_lastSentPitch(3.4028235e38f),
+      m_lastSentPitch(FLT_MAX),
       m_nextRippleTime(0),
       m_castCount(0),
       m_castSpellId(0),

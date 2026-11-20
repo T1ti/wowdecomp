@@ -1466,7 +1466,7 @@ static MINIMAPTILE* MinimapFindTile(MINIMAPTILE* tiles, const MINIMAPQUADINFO* q
         if (tile->m_groupId == quad->m_groupId && tile->m_tileCoords.x == quad->m_quad.x && tile->m_tileCoords.y == quad->m_quad.y) {
             if (tile->m_groupId == currentGroup) {
                 tile->m_flags |= MINIMAPTILE::FLAGS::IN_USE;
-                tile->m_depth = 3.4028235e38f;
+                tile->m_depth = FLT_MAX;
             } else {
                 tile->m_flags |= MINIMAPTILE::FLAGS::IN_USE;
                 tile->m_depth = (quad->m_bounds.t.z + quad->m_bounds.b.z) * 0.5f - height;
@@ -1525,7 +1525,7 @@ static void SetupQuad(MINIMAPTILE* tiles, const MINIMAPQUADINFO* quad, int32_t c
     tiles->m_groupId = quad->m_groupId;
 
     if (tiles->m_groupId == currentGroup) {
-        tiles->m_depth = 3.4028235e38f;
+        tiles->m_depth = FLT_MAX;
     } else {
         tiles->m_depth = (tiles->m_bounds.t.z + tiles->m_bounds.b.z) * 0.5f - height;
     }

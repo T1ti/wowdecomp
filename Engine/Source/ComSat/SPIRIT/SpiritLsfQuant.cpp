@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cmath>
 #include <cstdint>
 #include "Engine/Source/ComSat/SPIRIT/ipmr.h"
@@ -174,7 +175,7 @@ void SPIRIT_IP_MR_V3_NAME_78(SPIRIT_IPMR_ENC_UNK0D20* state, const SPIRIT_IPMR_T
     }
 
     SPIRIT_IP_MR_V3_NAME_190(state->unk_1960, current);
-    float best = 3.4028235e38f;
+    float best = FLT_MAX;
     frame->unk_02B4 = 0;
     float diff[10];
 

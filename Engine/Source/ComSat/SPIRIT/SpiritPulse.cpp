@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -112,7 +113,7 @@ void SPIRIT_IP_MR_V3_SearchTrackPulses(SPIRIT_IPMR_TRACK* track, float* target, 
     used[track->unk_0018[0]] = 1;
 
     for (int32_t k = 1; k < count; k++) {
-        best = -3.4028235e38f;
+        best = -FLT_MAX;
         float gain = track->unk_0004[k - 1];
         int32_t previous = track->unk_0018[k - 1];
 

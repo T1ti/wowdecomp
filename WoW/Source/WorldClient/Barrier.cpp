@@ -4,6 +4,7 @@
 #include "Engine/Source/Tempest/C3Ray.h"
 #include "Engine/Source/Tempest/C3Segment.h"
 #include "Engine/Source/Tempest/C2Vector.h"
+#include <cfloat>
 #include <cmath>
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CAaBox.h"
@@ -158,7 +159,7 @@ void CBarrier::AddAxisAlignedWall(const C2Vector& start, const C2Vector& end, fl
         return;
     }
 
-    float t = 3.4028235e38f;
+    float t = FLT_MAX;
     C3Segment segment;
     segment.start = C3Vector(start.x, start.y, this->m_viewerPos.z);
     segment.end = C3Vector(end.x, end.y, this->m_viewerPos.z);

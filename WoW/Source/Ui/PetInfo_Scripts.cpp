@@ -7,6 +7,7 @@
 #include "WoW/Source/Magic/MagicClient/Spell_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/Object/ObjectClient/Unit_C.h"
+#include <cfloat>
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -535,7 +536,7 @@ static int32_t Script_PetAttack(lua_State* L) {
 
     if (token && *token) {
         if (!Script_GetGUIDFromToken(token, target, false)) {
-            target = CGGameUI::ClosestObjectMatch(token, 8, UNIT_TARGET_ENEMY, StringToBOOL(L, 2, 0), 3.4028235e38f, 1);
+            target = CGGameUI::ClosestObjectMatch(token, 8, UNIT_TARGET_ENEMY, StringToBOOL(L, 2, 0), FLT_MAX, 1);
         }
 
         a3 = 1;

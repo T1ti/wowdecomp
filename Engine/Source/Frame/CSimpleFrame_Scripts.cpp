@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -213,7 +214,7 @@ static int32_t Script_CreateFontString(lua_State* L) {
 // OFFSET: 0x0049E700
 static int32_t Script_GetBoundsRect(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
-    CRect rect = { 3.4028235e38f, 3.4028235e38f, 0.0f, 0.0f };
+    CRect rect = { FLT_MAX, FLT_MAX, 0.0f, 0.0f };
 
     if (!frame->GetBoundsRect(rect)) {
         return 0;

@@ -1,5 +1,6 @@
 #include "Movement.h"
 #include "WoW/Source/Object/Types.h"
+#include <cfloat>
 #include <cmath>
 #include <cstddef>
 #include <cstring>
@@ -1779,7 +1780,7 @@ C3Vector CMovement_C::CalcRunWalkWalkableObstaclePush(const C3Vector& move, floa
     float height;
 
     if (fabs(normal.z) < 2.3841858e-7f) {
-        height = push >= 0.0f ? 3.4028235e38f : -3.4028235e38f;
+        height = push >= 0.0f ? FLT_MAX : -FLT_MAX;
     } else {
         height = push / normal.z;
     }
@@ -2054,8 +2055,8 @@ static int32_t IsTooSteepForUnit(const CGUnit_C* unit, uint32_t facet) {
 // VERIFY: 83e9ad0d manual
 // OFFSET: 0x0075B710
 static void ClipPolygonToPlane(ClipPolygon& polygon, int32_t planeIndex, const C4Plane& plane) {
-    float minDist = 3.4028235e38f;
-    float maxDist = -3.4028235e38f;
+    float minDist = FLT_MAX;
+    float maxDist = -FLT_MAX;
     int32_t count = polygon.m_count;
     float dist[15];
 
@@ -2472,7 +2473,7 @@ static int32_t ClipMovementPyramid(World::FacetData* facets, const C3Vector& dir
             continue;
         }
 
-        float d = 3.4028235e38f;
+        float d = FLT_MAX;
 
         if (ClipGenericPolygon(polygon, planes, planeIndex, &d, direction) && d <= *distance) {
             *distance = d;
@@ -2567,7 +2568,7 @@ int32_t CMovement_C::IsSlopeFallable(uint32_t facet, const C3Vector& move) const
 // OFFSET: 0x0075D4B0
 static void ComputeSteepSurfacePushNormalHelper(uint32_t facet, const C3Vector& direction, C3Vector& edge, const C3Vector& point) {
     uint32_t next[3] = { 1, 2, 0 };
-    float best = 3.4028235e38f;
+    float best = FLT_MAX;
     edge = C3Vector(0.0f, 0.0f, 0.0f);
     const CFacet& data = s_moveFacets.facets.m_data[facet];
 

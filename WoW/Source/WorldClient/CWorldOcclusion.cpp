@@ -1,4 +1,5 @@
 #include "CWorldOcclusion.h"
+#include <cfloat>
 #include <malloc.h>
 #include <cmath>
 #include <cstring>
@@ -533,9 +534,9 @@ uint32_t CWorldOcclusion::QueryBuffer(CAaBox* box, uint8_t flags) {
         return 0;
     }
 
-    float minX = 3.4028235e38f;
-    float maxX = -3.4028235e38f;
-    float maxY = -3.4028235e38f;
+    float minX = FLT_MAX;
+    float maxX = -FLT_MAX;
+    float maxY = -FLT_MAX;
     const C3Vector* corners[2] = { &box->b, &box->t };
 
     for (uint32_t i = 0; i < 8; i++) {
@@ -613,8 +614,8 @@ void CWorldOccluder::ClipBufferUpdate() {
 // OFFSET: 0x007CC890
 WorldOccluderData::WorldOccluderData(int32_t mapId, float depth, C3Vector* verts, uint32_t count) {
     this->m_mapId = mapId;
-    this->m_bounds.b = C3Vector(3.4028235e38f, 3.4028235e38f, 3.4028235e38f);
-    this->m_bounds.t = C3Vector(-3.4028235e38f, -3.4028235e38f, -3.4028235e38f);
+    this->m_bounds.b = C3Vector(FLT_MAX, FLT_MAX, FLT_MAX);
+    this->m_bounds.t = C3Vector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
     this->m_verts = verts;
     this->m_count = count;
 

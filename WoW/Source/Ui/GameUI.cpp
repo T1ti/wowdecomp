@@ -7694,7 +7694,7 @@ static void PlacedFrameCallback(HOSFILE file, CSimpleFrame* frame) {
     C2Vector points[9];
     GetRectFramePoints(parentRect, parentPoints);
     GetRectFramePoints(rect, points);
-    float best = 3.4028235e38f;
+    float best = FLT_MAX;
 
     for (int32_t i = 0; i < 9; i++) {
         float ox = parentPoints[i].x - points[i].x;

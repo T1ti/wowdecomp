@@ -4,6 +4,7 @@
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/WowSvcs/WowSvcsClient/ClientServices.h"
+#include <cfloat>
 #include <cstring>
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
@@ -2273,7 +2274,7 @@ void CGQuestLog::UpdatePOIIcons() {
 
     for (uint32_t i = 0; i < MAX_QUESTLOG_QUESTS; i++) {
         QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[i];
-        float bestDistance = 3.4028235e38f;
+        float bestDistance = FLT_MAX;
         int32_t best = -1;
         int32_t bestPriority = 10;
 
@@ -2668,7 +2669,7 @@ int32_t CGQuestLog::GetQuestWorldMapAreaID(int32_t questId, int32_t* floor) {
         if (index < MAX_QUESTLOG_QUESTS) {
             QuestPOIInfo* poi = &CGQuestLog::m_questPOIs[index];
             uint32_t objectives = CGQuestLog::ComputeBlobQuestObjectives(poi->m_questId);
-            float bestDistance = 3.4028235e38f;
+            float bestDistance = FLT_MAX;
             poi->m_objectiveMask = objectives;
             int32_t bestArea = 0;
             int32_t bestFloor = 0;
@@ -2813,10 +2814,10 @@ static float GetQuestPOIDistance(int32_t questId) {
     int32_t index = CGQuestLog::GetQuestPOIIndex(questId);
 
     if (index < 0) {
-        return 3.4028235e38f;
+        return FLT_MAX;
     }
 
-    float bestDistance = 3.4028235e38f;
+    float bestDistance = FLT_MAX;
     int32_t bestFloorDelta = 0x7FFFFFFF;
     int32_t continent = CGPlayer_C::GetNewContinentID();
     int32_t dungeonMapId = CGWorldMap::m_currentOrphanZone != -1 ? CGWorldMap::m_currentDungeonMap : -1;

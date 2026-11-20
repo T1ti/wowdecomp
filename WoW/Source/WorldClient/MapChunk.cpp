@@ -6,6 +6,7 @@
 #include "Engine/Source/Tempest/CRandom.h"
 #include "Engine/Source/Tempest/C3Ray.h"
 #include "Engine/Source/Tempest/NTempest.h"
+#include <cfloat>
 #include <cmath>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Base/RCString.h"
@@ -657,8 +658,8 @@ void CMapChunk::CreateBounds() {
     this->m_bbox.t.x = 17066.666f - 33.333332f * tileY;
     this->m_bbox.b.y = 17066.666f - 33.333332f * (tileX + 1);
     this->m_bbox.t.y = 17066.666f - 33.333332f * tileX;
-    this->m_bbox.b.z = 3.4028235e38f;
-    this->m_bbox.t.z = -3.4028235e38f;
+    this->m_bbox.b.z = FLT_MAX;
+    this->m_bbox.t.z = -FLT_MAX;
 
     float* h = this->m_height;
     int count = 29;
@@ -856,8 +857,8 @@ void CMapChunk::CreateLiquids(bool firstUse) {
     }
 
     if (!this->m_liquidChunkLinkList.Head()) {
-        this->m_liquidBounds.b = C3Vector(3.4028235e38f, 3.4028235e38f, 3.4028235e38f);
-        this->m_liquidBounds.t = C3Vector(-3.4028235e38f, -3.4028235e38f, -3.4028235e38f);
+        this->m_liquidBounds.b = C3Vector(FLT_MAX, FLT_MAX, FLT_MAX);
+        this->m_liquidBounds.t = C3Vector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
     } else {
         this->GetLiquidBounds(this->m_liquidBounds);
     }

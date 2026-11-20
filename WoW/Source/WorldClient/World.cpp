@@ -1,5 +1,6 @@
 #include "World.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
+#include <cfloat>
 #include <cstdlib>
 #include <new>
 #include <algorithm>
@@ -122,10 +123,10 @@ static const char* s_zonePaths[11] = {
 };
 
 // STATIC: 0x00ADEED8
-static float s_preloadX = 3.4028235e38f;
+static float s_preloadX = FLT_MAX;
 
 // STATIC: 0x00ADEEDC
-static float s_preloadY = 3.4028235e38f;
+static float s_preloadY = FLT_MAX;
 
 // STATIC: 0x00CD775C
 static uint32_t s_preloadCount;
@@ -1019,8 +1020,8 @@ void CMap::ObjectUpdate(CMapEntity* entity, C44Matrix& mat, CAaBox& box, CAaSphe
 // OFFSET: 0x00781500
 void World::Preload(const C3Vector& position, int32_t showLoading) {
     World::PrepareAreaOfInterest(position);
-    s_preloadX = 3.4028235e38f;
-    s_preloadY = 3.4028235e38f;
+    s_preloadX = FLT_MAX;
+    s_preloadY = FLT_MAX;
     CWorld::gbChunkRectOld = CWorld::gbChunkRect;
     s_preloadCount = 0;
 
@@ -4189,10 +4190,10 @@ void World::AddAaBoxFacets(CAaBox* box, FacetData* facets) {
 // VERIFY: 215cffa8 manual
 // OFFSET: 0x007A6B90
 void __stdcall CWorldScene::CalcScreenRectFromVerts(CRect& rect, C3Vector* clippedVerts, uint32_t clippedCount) {
-    rect.minX = 3.4028235e38f;
-    rect.maxX = -3.4028235e38f;
-    rect.maxY = -3.4028235e38f;
-    rect.minY = 3.4028235e38f;
+    rect.minX = FLT_MAX;
+    rect.maxX = -FLT_MAX;
+    rect.maxY = -FLT_MAX;
+    rect.minY = FLT_MAX;
 
     for (uint32_t i = 0; i < clippedCount; i++) {
         if (rect.minX > clippedVerts[i].x)

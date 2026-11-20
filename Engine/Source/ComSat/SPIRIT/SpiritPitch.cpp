@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cmath>
 #include <cstdint>
 #include <xmmintrin.h>
@@ -34,7 +35,7 @@ const float s_ipmrTableB236B0[16] = {
 // VERIFY: 8d127739 manual
 // OFFSET: 0x0089EDE0
 int16_t SPIRIT_IP_MR_V3_NAME_111(const float* x) {
-    float best = -3.4028235e38f;
+    float best = -FLT_MAX;
     int32_t lag = 143;
 
     for (int32_t t = 143; t >= 80; t--) {
@@ -57,7 +58,7 @@ int16_t SPIRIT_IP_MR_V3_NAME_111(const float* x) {
         normalized = _mm_cvtss_f32(_mm_rsqrt_ss(_mm_set_ss(energy))) * best;
     }
 
-    float best2 = -3.4028235e38f;
+    float best2 = -FLT_MAX;
     int32_t lag2 = 79;
 
     for (int32_t t = 79; t >= 40; t--) {
@@ -84,7 +85,7 @@ int16_t SPIRIT_IP_MR_V3_NAME_111(const float* x) {
         }
     }
 
-    float best3 = -3.4028235e38f;
+    float best3 = -FLT_MAX;
     int32_t lag3 = 39;
 
     for (int32_t t = 39; t >= 20; t--) {
@@ -182,7 +183,7 @@ void SPIRIT_IP_MR_V3_PitchCorrelationNormalized(int16_t first, const float* exci
 // VERIFY: 9bdc2bf2 manual
 // OFFSET: 0x0089F470
 void SPIRIT_IP_MR_V3_RefineFractionalPitch(const float* correlation, int16_t* lag, int16_t* fraction, int16_t last) {
-    float best = -3.4028235e38f;
+    float best = -FLT_MAX;
     const float* x1 = &correlation[*lag];
     const float* x0 = x1 - 1;
     int32_t c = 1;

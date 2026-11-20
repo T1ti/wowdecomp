@@ -1,5 +1,6 @@
 #include "PartyFrame.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
+#include <cfloat>
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -275,7 +276,7 @@ static int32_t Script_SilenceMember(lua_State* L) {
     }
 
     const char* name = lua_tolstring(L, 1, nullptr);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? UNIT_TARGET_RAID_MEMBER : UNIT_TARGET_PARTY_MEMBER, 0, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? UNIT_TARGET_RAID_MEMBER : UNIT_TARGET_PARTY_MEMBER, 0, FLT_MAX, 0);
 
     if (!guid) {
         CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);
@@ -310,7 +311,7 @@ static int32_t Script_UnSilenceMember(lua_State* L) {
     }
 
     const char* name = lua_tolstring(L, 1, nullptr);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? UNIT_TARGET_RAID_MEMBER : UNIT_TARGET_PARTY_MEMBER, 0, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, CGRaidInfo::m_numMembers ? UNIT_TARGET_RAID_MEMBER : UNIT_TARGET_PARTY_MEMBER, 0, FLT_MAX, 0);
 
     if (!guid) {
         CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);
@@ -386,9 +387,9 @@ static int32_t Script_SetLootMethod(lua_State* L) {
         }
 
         if (CGRaidInfo::m_numMembers) {
-            master = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, StringToBOOL(L, 3, 0), 3.4028235e38f, 0);
+            master = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, StringToBOOL(L, 3, 0), FLT_MAX, 0);
         } else {
-            master = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_PARTY_MEMBER, StringToBOOL(L, 3, 0), 3.4028235e38f, 0);
+            master = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_PARTY_MEMBER, StringToBOOL(L, 3, 0), FLT_MAX, 0);
         }
 
         if (!master || (!CGPartyInfo::IsMember(master) && !IsGuidInMyRaid(master))) {
@@ -451,10 +452,10 @@ static int32_t SetOrClearAssignment(lua_State* L, bool set) {
 
     if (lua_isstring(L, 2)) {
         const char* name = lua_tolstring(L, 2, nullptr);
-        guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, StringToBOOL(L, 3, 0), 3.4028235e38f, 0);
+        guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, StringToBOOL(L, 3, 0), FLT_MAX, 0);
 
         if (!guid) {
-            WOWGUID unit = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, UNIT_TARGET_ANY, StringToBOOL(L, 3, 0), 3.4028235e38f, 0);
+            WOWGUID unit = CGGameUI::ClosestObjectMatch(name, TYPE_UNIT, UNIT_TARGET_ANY, StringToBOOL(L, 3, 0), FLT_MAX, 0);
 
             if (ClntObjMgrObjectPtr(unit, TYPE_UNIT, __FILE__, __LINE__)) {
                 CGGameUI::DisplayError(ERR_MEETING_STONE_TARGET_NOT_IN_PARTY);

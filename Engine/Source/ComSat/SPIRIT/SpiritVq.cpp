@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cstdint>
 #include <cstring>
 #include "Engine/Source/ComSat/SPIRIT/ipmr.h"
@@ -101,7 +102,7 @@ float SPIRIT_IP_MR_V3_NAME_331(const float* codebook, const float* target, const
         int32_t slot = 0;
 
         for (int32_t i = 0; i < 8; i++) {
-            newDist[i] = 3.4028235e38f;
+            newDist[i] = FLT_MAX;
         }
 
         for (int32_t e = 0; e < size; e++) {

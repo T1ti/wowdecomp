@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -2200,12 +2201,12 @@ CParticleEmitter2::CParticleEmitter2() : m_random(0) {
     this->m_followIntercept = 0.0f;
     this->m_followSlope = 0.0f;
     this->m_ivelTimer = 0.0f;
-    this->m_worldBounds.b.x = 3.4028235e38f;
-    this->m_worldBounds.b.y = 3.4028235e38f;
-    this->m_worldBounds.b.z = 3.4028235e38f;
-    this->m_worldBounds.t.x = -3.4028235e38f;
-    this->m_worldBounds.t.y = -3.4028235e38f;
-    this->m_worldBounds.t.z = -3.4028235e38f;
+    this->m_worldBounds.b.x = FLT_MAX;
+    this->m_worldBounds.b.y = FLT_MAX;
+    this->m_worldBounds.b.z = FLT_MAX;
+    this->m_worldBounds.t.x = -FLT_MAX;
+    this->m_worldBounds.t.y = -FLT_MAX;
+    this->m_worldBounds.t.z = -FLT_MAX;
     this->unused_0230 = 0;
 
     this->m_random.SetSeed((rand() << 16) | static_cast<uint16_t>(rand()));
@@ -2438,12 +2439,12 @@ void CParticleEmitter2::PlaceParticleModels(const C44Matrix* frameOfReference) {
 // VERIFY: 75d4c0c2 manual
 // OFFSET: 0x0097EA60
 void CParticleEmitter2::Render(const C44Matrix* frameOfReference, void* buffer, uint32_t first) {
-    this->m_worldBounds.b.x = 3.4028235e38f;
-    this->m_worldBounds.b.y = 3.4028235e38f;
-    this->m_worldBounds.t.x = -3.4028235e38f;
-    this->m_worldBounds.b.z = 3.4028235e38f;
-    this->m_worldBounds.t.y = -3.4028235e38f;
-    this->m_worldBounds.t.z = -3.4028235e38f;
+    this->m_worldBounds.b.x = FLT_MAX;
+    this->m_worldBounds.b.y = FLT_MAX;
+    this->m_worldBounds.t.x = -FLT_MAX;
+    this->m_worldBounds.b.z = FLT_MAX;
+    this->m_worldBounds.t.y = -FLT_MAX;
+    this->m_worldBounds.t.z = -FLT_MAX;
 
     if (!this->m_liveList.Count()) {
         this->m_batchFlags &= ~CParticleEmitter2::BATCH_FLAGS::BATCH_FIRST_RENDER;

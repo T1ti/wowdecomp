@@ -3,6 +3,7 @@
 #include "WoW/Source/WorldClient/BspQuery_SegmentLink.h"
 #include "WoW/Source/WorldClient/Map.h"
 #include "Engine/Source/Tempest/CFacet.h"
+#include <cfloat>
 #include <cstring>
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/ShaderEffect/ShaderEffect.h"
@@ -974,7 +975,7 @@ void CMapObjGroup::Init() {
     }
     this->m_timer = 0.0f;
     this->m_liquidVerts.y = 0;
-    this->m_distToCamera = 3.4028235e38f;
+    this->m_distToCamera = FLT_MAX;
     this->m_liquidCorner.x = 0.0f;
     this->m_liquidCorner.y = 0.0f;
     this->m_liquidVerts.x = 0;
@@ -1223,7 +1224,7 @@ bool CMapObjGroup::QueryLiquid(const C3Vector& pos, int32_t* liquidType, float* 
 
     if (!this->m_liquidTiles.x || !this->m_liquidTiles.y) {
         *liquidType = type;
-        *level = 3.4028235e38f;
+        *level = FLT_MAX;
         return true;
     }
 

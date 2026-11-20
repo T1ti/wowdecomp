@@ -1,6 +1,7 @@
 #include "MapObj.h"
 #include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
+#include <cfloat>
 #include <cstdlib>
 #include <malloc.h>
 #include <new>
@@ -848,10 +849,10 @@ void CMapObj::TransformPortal(SMOPortal* portal, SPortalExt* portalExt) {
         portalExt->m_rect.maxY = 1.0f;
         portalExt->m_rect.minY = -1.0f;
     } else if (portalExt->m_flags & SPortalExt::F_SCREEN_CULLED) {
-        portalExt->m_rect.minX = 3.4028235e38f;
-        portalExt->m_rect.maxX = -3.4028235e38f;
-        portalExt->m_rect.maxY = -3.4028235e38f;
-        portalExt->m_rect.minY = 3.4028235e38f;
+        portalExt->m_rect.minX = FLT_MAX;
+        portalExt->m_rect.maxX = -FLT_MAX;
+        portalExt->m_rect.maxY = -FLT_MAX;
+        portalExt->m_rect.minY = FLT_MAX;
     } else {
         CWorldScene::CalcScreenRectFromVerts(portalExt->m_rect, clipped, clippedCount);
     }
@@ -1847,7 +1848,7 @@ void CMapObj::Init() {
     this->m_refCount = 0;
     this->m_pWmoData = nullptr;
     this->m_bbox.b = C3Vector(0.0f, 0.0f, 0.0f);
-    this->m_distToCamera = 3.4028235e38f;
+    this->m_distToCamera = FLT_MAX;
     this->m_bbox.t = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_wmoFileSize = 0;
     this->m_asyncObject = nullptr;
@@ -2725,7 +2726,7 @@ void CMapObj::DistFromClosestExtPortal(uint32_t depth, uint32_t flags, CMapObjGr
 // OFFSET: 0x007D8010
 float CMapObj::DistFromClosestExtPortal(CMapObjGroup* group, const C3Vector& pos, int32_t exteriorLit) {
     uint32_t flags = exteriorLit ? CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK : CMapObjGroup::MOGP_FLAGS::F_EXTERIOR;
-    float dist = 3.4028235e38f;
+    float dist = FLT_MAX;
     this->DistFromClosestExtPortal(0, flags, group, nullptr, pos, &dist);
 
     return dist;
@@ -4128,7 +4129,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
                 AsyncFileReadLinkObject(object, 1);
             }
 
-            group->m_distToCamera = 3.4028235e38f;
+            group->m_distToCamera = FLT_MAX;
         }
 
         AsyncFile::LeaveQueueLock();
@@ -4159,7 +4160,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
                 AsyncFileReadLinkObject(object, 1);
             }
 
-            mapObj->m_distToCamera = 3.4028235e38f;
+            mapObj->m_distToCamera = FLT_MAX;
         }
 
         AsyncFile::LeaveQueueLock();

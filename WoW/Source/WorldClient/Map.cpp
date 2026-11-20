@@ -4,6 +4,7 @@
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "Engine/Source/ShaderEffect/ShadowCache.h"
 #if defined(_MSC_VER)
+#include <cfloat>
 #include <malloc.h>
 #else
 #include <alloca.h>
@@ -1379,7 +1380,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         ray.dir = dir;
 
         if (flags & WORLD_QUERY_TERRAIN) {
-            float t = 3.4028235e38f;
+            float t = FLT_MAX;
 
             if (chunk->Intersect(subX, subY, ray, &t)) {
                 float dist = t * invLength;

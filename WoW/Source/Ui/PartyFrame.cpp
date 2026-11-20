@@ -18,6 +18,7 @@
 #include "WoW/Source/Ui/RaidInfo.h"
 #include "WoW/Source/Game/GameClient/NameCache.h"
 #include "WoW/Source/DB/DBClient/DBCacheInstances.h"
+#include <cfloat>
 #include <cstring>
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "Engine/Source/FrameXML/LoadXML.h"
@@ -408,7 +409,7 @@ int32_t CGPartyInfo::GetPartyAssignments(lua_State* L, int32_t assignment) {
 
     if (lua_isstring(L, 2)) {
         const char* name = lua_tolstring(L, 2, nullptr);
-        WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_PARTY_MEMBER, StringToBOOL(L, 3, 0), 3.4028235e38f, 0);
+        WOWGUID guid = CGGameUI::ClosestObjectMatch(name, TYPE_PLAYER, UNIT_TARGET_PARTY_MEMBER, StringToBOOL(L, 3, 0), FLT_MAX, 0);
 
         if (!guid) {
             CGGameUI::DisplayError(ERR_TARGET_NOT_IN_GROUP_S, name);

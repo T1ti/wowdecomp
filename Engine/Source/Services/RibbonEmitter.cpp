@@ -1,3 +1,4 @@
+#include <cfloat>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -306,12 +307,12 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
         vertex[1].c = color;
     }
 
-    this->m_worldBounds.b.x = 3.4028235e38f;
-    this->m_worldBounds.b.y = 3.4028235e38f;
-    this->m_worldBounds.b.z = 3.4028235e38f;
-    this->m_worldBounds.t.x = -3.4028235e38f;
-    this->m_worldBounds.t.y = -3.4028235e38f;
-    this->m_worldBounds.t.z = -3.4028235e38f;
+    this->m_worldBounds.b.x = FLT_MAX;
+    this->m_worldBounds.b.y = FLT_MAX;
+    this->m_worldBounds.b.z = FLT_MAX;
+    this->m_worldBounds.t.x = -FLT_MAX;
+    this->m_worldBounds.t.y = -FLT_MAX;
+    this->m_worldBounds.t.z = -FLT_MAX;
 
     for (uint32_t i = this->m_readPos; i != this->m_writePos;) {
         CGxVertexPCT* vertex = &this->m_gxVertices.m_data[2 * i];
@@ -389,12 +390,12 @@ CRibbonEmitter::CRibbonEmitter() {
     this->m_texSlotBox.minY = 0.0f;
     this->m_texSlotBox.maxX = 0.0f;
     this->m_texSlotBox.maxY = 0.0f;
-    this->m_worldBounds.b.x = 3.4028235e38f;
-    this->m_worldBounds.b.y = 3.4028235e38f;
-    this->m_worldBounds.b.z = 3.4028235e38f;
-    this->m_worldBounds.t.x = -3.4028235e38f;
-    this->m_worldBounds.t.y = -3.4028235e38f;
-    this->m_worldBounds.t.z = -3.4028235e38f;
+    this->m_worldBounds.b.x = FLT_MAX;
+    this->m_worldBounds.b.y = FLT_MAX;
+    this->m_worldBounds.b.z = FLT_MAX;
+    this->m_worldBounds.t.x = -FLT_MAX;
+    this->m_worldBounds.t.y = -FLT_MAX;
+    this->m_worldBounds.t.z = -FLT_MAX;
     this->m_texBox.minX = 0.0f;
     this->m_texBox.minY = 0.0f;
     this->m_texBox.maxX = 0.0f;

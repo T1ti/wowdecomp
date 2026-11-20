@@ -1,6 +1,7 @@
 #include "RaidInfo.h"
 #include "WoW/Source/Ui/LFGInfo.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
+#include <cfloat>
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
@@ -474,7 +475,7 @@ static int32_t Script_PromoteToLeader(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, FLT_MAX, 0);
 
     if (guid) {
         CDataStore msg;
@@ -496,7 +497,7 @@ static int32_t Script_PromoteToAssistant(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, FLT_MAX, 0);
 
     if (guid) {
         CDataStore msg;
@@ -519,7 +520,7 @@ static int32_t Script_DemoteAssistant(lua_State* L) {
     }
 
     int32_t exact = StringToBOOL(L, 2, 0);
-    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, 3.4028235e38f, 0);
+    WOWGUID guid = CGGameUI::ClosestObjectMatch(lua_tolstring(L, 1, nullptr), TYPE_PLAYER, UNIT_TARGET_RAID_MEMBER, exact, FLT_MAX, 0);
 
     if (guid) {
         CDataStore msg;
