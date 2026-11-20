@@ -198,7 +198,7 @@ BannedAddOnCache* FindBannedAddOn(const char* name, const char* version) {
     for (_BANNEDADDON* entry = s_bannedAddOns.m_fulllist.Head(); entry; entry = s_bannedAddOns.m_fulllist.Next(entry)) {
         BannedAddOnCache* cache = &entry->m_cache;
 
-        if ((cache->m_flags & 1) && !memcmp(cache->m_nameMd5, nameMd5, sizeof(nameMd5)) && (!memcmp(cache->m_versionMd5, s_emptyMd5, sizeof(s_emptyMd5)) || !memcmp(cache->m_versionMd5, versionMd5, sizeof(versionMd5)))) {
+        if ((cache->m_flags & BANNED_ADDON_FLAG_ACTIVE) && !memcmp(cache->m_nameMd5, nameMd5, sizeof(nameMd5)) && (!memcmp(cache->m_versionMd5, s_emptyMd5, sizeof(s_emptyMd5)) || !memcmp(cache->m_versionMd5, versionMd5, sizeof(versionMd5)))) {
             return cache;
         }
     }

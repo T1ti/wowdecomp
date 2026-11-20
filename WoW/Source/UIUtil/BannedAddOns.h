@@ -11,7 +11,7 @@ class BannedAddOnCache {
     /* 0004 */ uint8_t m_nameMd5[16];
     /* 0014 */ uint8_t m_versionMd5[16];
     /* 0024 */ int32_t m_lastModified;
-    /* 0028 */ int32_t m_flags;
+    /* 0028 */ int32_t m_flags; // BANNED_ADDON_FLAGS
 
     BannedAddOnCache();
     BannedAddOnCache& operator=(const BannedAddOnCache& source);
