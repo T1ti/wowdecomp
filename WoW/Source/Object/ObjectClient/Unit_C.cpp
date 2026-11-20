@@ -10724,9 +10724,7 @@ void WeaponTrailsInitialize() {
 // VERIFY: bdb50cd0 manual
 // OFFSET: 0x0072EA50
 void CGUnit_C::OnSetRawFacingLocal(uint32_t eventTime, float facing) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
+    this->OnMovementInitiated(true, true);
 
     this->m_movementData.OnSetRawFacingLocal(eventTime, facing);
 
@@ -10738,17 +10736,7 @@ void CGUnit_C::OnSetRawFacingLocal(uint32_t eventTime, float facing) {
 // VERIFY: 0e4f2f38 manual
 // OFFSET: 0x0072EAD0
 void CGUnit_C::OnSetPitchLocal(uint32_t eventTime, float pitch) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnSetPitchLocal(eventTime, pitch);
 }
@@ -10782,9 +10770,7 @@ int32_t CGUnit_C::ClampRawAngleToLegalFacingRange(float& angle) const {
 // VERIFY: eb34d923 manual
 // OFFSET: 0x0072D3F0
 void CGUnit_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
+    this->OnMovementInitiated(true, true);
 
     this->m_movementData.OnTurnToAngleLocal(eventTime, facing);
 
@@ -10796,9 +10782,7 @@ void CGUnit_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
 // VERIFY: 5a1f7b23 manual
 // OFFSET: 0x0072D470
 void CGUnit_C::OnPitchToAngleLocal(uint32_t eventTime, float pitch) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
+    this->OnMovementInitiated(true, true);
 
     this->m_movementData.OnPitchToAngleLocal(eventTime, pitch);
 
@@ -10848,17 +10832,7 @@ void CGUnit_C::OnTurnStopLocal(uint32_t eventTime) {
 // VERIFY: c9647570 manual
 // OFFSET: 0x0072E5D0
 void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnMoveStartLocal(eventTime, forward);
 }
@@ -10866,17 +10840,7 @@ void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
 // VERIFY: 97b45c2f manual
 // OFFSET: 0x0072E680
 void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnStrafeStartLocal(eventTime, left);
 }
@@ -10884,17 +10848,7 @@ void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
 // VERIFY: 779d8288 manual
 // OFFSET: 0x0072E730
 void CGUnit_C::OnAscendDescendStartLocal(uint32_t eventTime, int32_t ascend) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnAscendDescendStartLocal(eventTime, ascend);
 }
@@ -10908,17 +10862,7 @@ void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
         Spell_C_CancelChannelSpell(this->m_unit->m_unitChannelSpell);
     }
 
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnTurnStartLocal(eventTime, left);
 }
@@ -10926,17 +10870,7 @@ void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
 // VERIFY: 4d6a8b9a manual
 // OFFSET: 0x0072E900
 void CGUnit_C::OnPitchStartLocal(uint32_t eventTime, int32_t up) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnPitchStartLocal(eventTime, up);
 }
@@ -10944,17 +10878,7 @@ void CGUnit_C::OnPitchStartLocal(uint32_t eventTime, int32_t up) {
 // VERIFY: 978d0d24 manual
 // OFFSET: 0x0072E9B0
 void CGUnit_C::OnPitchStopLocal(uint32_t eventTime) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover && CGUnit_C::s_trackingType != TRACKTYPE_NONE && !(CGUnit_C::s_trackingFlags & TRACKING_FLAG_SELF_MOVE)) {
-        this->ClearTrackingTarget(false, true);
-    }
-
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnPitchStopLocal(eventTime);
 }
@@ -10962,13 +10886,7 @@ void CGUnit_C::OnPitchStopLocal(uint32_t eventTime) {
 // VERIFY: 6f683f46 manual
 // OFFSET: 0x0072EB80
 void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
-    if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-
-        if (player && player->IsLooting()) {
-            CGGameUI::CloseLoot(true, true, false);
-        }
-    }
+    this->OnMovementInitiated(false, false);
 
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
