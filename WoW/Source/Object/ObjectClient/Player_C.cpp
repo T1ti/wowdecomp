@@ -6002,7 +6002,7 @@ void CGPlayer_C::CountEquippedGems() {
             int32_t enchantId;
 
             if (ClntObjMgrGetActivePlayer() == this->m_obj->m_guid) {
-                enchantId = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? 0 : item->m_item->m_itemFieldEnchantment[socket].m_id;
+                enchantId = (item->IsPetition()) ? 0 : item->m_item->m_itemFieldEnchantment[socket].m_id;
             } else if (socket < CGItemData::NUM_ENCHANTMENTS) {
                 enchantId = inspect->m_enchants[socket];
             } else {
@@ -6264,12 +6264,12 @@ int32_t CGPlayer_C::OnPetitionRename(CDataStore* msg) {
 
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-    if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) || !item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id) {
+    if (!item || !(item->IsPetition()) || !item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id) {
         return 1;
     }
 
     WOWGUID none = WOWGUID();
-    int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+    int32_t id = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
     CGPetition* petition = g_petitionCache.GetRecord(id, none, nullptr, nullptr, false);
 
     if (petition) {
@@ -6305,11 +6305,11 @@ void CGPlayer_C::TurnInGuildCharter() {
 
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-        if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
+        if (!item || !(item->IsPetition())) {
             continue;
         }
 
-        int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+        int32_t id = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
         CGPetition* petition = g_petitionCache.GetRecord(id, guid, GuildCharterTurnInCallback, nullptr, false);
 
         if (!petition) {
@@ -6344,11 +6344,11 @@ void CGPlayer_C::TurnInGuildCharter() {
 
             CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
-            if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
+            if (!item || !(item->IsPetition())) {
                 continue;
             }
 
-            int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+            int32_t id = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
             CGPetition* petition = g_petitionCache.GetRecord(id, guid, GuildCharterTurnInCallback, nullptr, false);
 
             if (!petition) {
@@ -6406,11 +6406,11 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
         CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
         charter = item;
 
-        if (!item || !(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
+        if (!item || !(item->IsPetition())) {
             continue;
         }
 
-        int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+        int32_t id = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
         CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
         if (petition && petition->m_staticType == CGPetition::STATIC_TYPE_ARENA && (!turnIn || petition->m_minSignatures == teamSize - 1)) {
@@ -6442,11 +6442,11 @@ int32_t CGPlayer_C::TurnInArenaCharter(int32_t turnIn) {
 
             charter = item;
 
-            if (!(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
+            if (!(item->IsPetition())) {
                 continue;
             }
 
-            int32_t id = (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
+            int32_t id = (item->IsPetition()) ? item->m_item->m_itemFieldEnchantment[CGItemData::ENCHANTMENT_SLOT::PETITION].m_id : 0;
             CGPetition* petition = g_petitionCache.GetRecord(id, guid, ArenaCharterTurnInCallback, nullptr, false);
 
             if (petition && petition->m_staticType == CGPetition::STATIC_TYPE_ARENA && (!turnIn || petition->m_minSignatures == teamSize - 1)) {

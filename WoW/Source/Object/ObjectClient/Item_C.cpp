@@ -1913,7 +1913,7 @@ int32_t GetItemIDByName(const char* name) {
 // VERIFY: 6c2f725a manual
 // OFFSET: 0x00707F50
 void CGItem_C::UpdateEnchantments() {
-    if (this->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
+    if (this->IsPetition()) {
         return;
     }
 

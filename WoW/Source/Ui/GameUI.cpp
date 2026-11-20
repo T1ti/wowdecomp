@@ -4742,7 +4742,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
         int32_t effect = spell.m_effect[i];
 
         if (effect == SPELL_EFFECT_ENCHANT_ITEM || effect == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY || effect == SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC) {
-            if (item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION) {
+            if (item->IsPetition()) {
                 return;
             }
 
@@ -4803,7 +4803,7 @@ void CGGameUI::CastItemSpell(WOWGUID guid, int32_t confirmed) {
 
             uint32_t slot = spell.m_effect[i] != SPELL_EFFECT_ENCHANT_ITEM;
 
-            if (!(item->GetItemStaticFlags(0) & ITEM_STATIC_FLAGS::ITEM_FLAG_PETITION)) {
+            if (!(item->IsPetition())) {
                 int32_t existingId = item->m_item->m_itemFieldEnchantment[slot].m_id;
 
                 if (existingId) {
