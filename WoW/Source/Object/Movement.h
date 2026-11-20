@@ -192,6 +192,7 @@ class CMovement_C : public CMovementShared {
     int32_t UpdateTransportStatus(const CClientObjCreate& create);
     int32_t UpdateTransportStatus(WOWGUID transport, uint8_t seat);
     void FlushMoveQueue(BOOL removeSpline, BOOL halt);
+    void AddToMoversList();
     void RemoveFromMoversList(BOOL stopSpline);
     int32_t UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, BOOL force);
     void AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status);

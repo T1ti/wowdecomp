@@ -752,13 +752,7 @@ void CMovement_C::AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId even
     event->m_ackCounter = 0;
     event->m_moveExtraFlags = MOVEMENTFLAG2_NONE;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: ea0758f0 auto
@@ -771,13 +765,7 @@ void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bo
     event->m_ackCounter = ackCounter;
     event->m_moveExtraFlags = extraFlags;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: b9e313d9 auto
@@ -933,13 +921,7 @@ void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, 
     this->UpdateStatusInternal(time, update->m_status, statusChanged, activePlayer, 1);
 
     if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
-        if (!this->m_globalUnitsLink.m_next) {
-            CMovementGlobals* globals = MovementGetGlobals();
-
-            if (globals) {
-                globals->m_movers.LinkToHead(this);
-            }
-        }
+        this->AddToMoversList();
     } else {
         this->RemoveFromMoversList(1);
     }
@@ -951,12 +933,8 @@ void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, 
     if (!(this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
         if (activePlayer) {
             this->OnFallLocal(time);
-        } else if (this->TryStartFalling() && !this->m_globalUnitsLink.m_next) {
-            CMovementGlobals* globals = MovementGetGlobals();
-
-            if (globals) {
-                globals->m_movers.LinkToHead(this);
-            }
+        } else if (this->TryStartFalling()) {
+            this->AddToMoversList();
         }
     }
 
@@ -983,13 +961,7 @@ void CMovement_C::OnFlightBackSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: d16823ed auto
@@ -1000,13 +972,7 @@ void CMovement_C::OnFlightBackSpeedChangeLocal(uint32_t eventTime, uint32_t ackC
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: b7c435c0 auto
@@ -1023,13 +989,7 @@ void CMovement_C::OnFlightSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 2e542412 auto
@@ -1040,13 +1000,7 @@ void CMovement_C::OnFlightSpeedChangeLocal(uint32_t eventTime, uint32_t ackCount
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: ad9f01bd auto
@@ -1072,13 +1026,7 @@ void CMovement_C::OnLaunchLocal(uint32_t eventTime, uint32_t ackCounter, const C
     event->m_launchSpeed = speed;
     event->m_launchVerticalSpeed = verticalSpeed;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: f22b99fe auto
@@ -1101,13 +1049,7 @@ void CMovement_C::OnPitchRateChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 8a5eeb60 auto
@@ -1118,13 +1060,7 @@ void CMovement_C::OnPitchRateChangeLocal(uint32_t eventTime, uint32_t ackCounter
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 85716caa auto
@@ -1165,13 +1101,7 @@ void CMovement_C::OnRunBackSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 83d31a1b auto
@@ -1182,13 +1112,7 @@ void CMovement_C::OnRunBackSpeedChangeLocal(uint32_t eventTime, uint32_t ackCoun
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 7b9ea868 auto
@@ -1199,13 +1123,7 @@ void CMovement_C::OnRunSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 55f19341 auto
@@ -1216,13 +1134,7 @@ void CMovement_C::OnRunSpeedChangeLocal(uint32_t eventTime, uint32_t ackCounter,
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 31a38b65 auto
@@ -1233,13 +1145,7 @@ void CMovement_C::OnSetCollisionHeight(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 213e5c5a auto
@@ -1250,13 +1156,7 @@ void CMovement_C::OnSetCollisionHeightLocal(uint32_t eventTime, uint32_t ackCoun
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: b7c54e54 auto
@@ -1302,13 +1202,7 @@ void CMovement_C::OnSwimBackSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: c6690fa9 auto
@@ -1319,13 +1213,7 @@ void CMovement_C::OnSwimBackSpeedChangeLocal(uint32_t eventTime, uint32_t ackCou
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: a35422a3 auto
@@ -1336,13 +1224,7 @@ void CMovement_C::OnSwimSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 7f0fc534 auto
@@ -1353,13 +1235,7 @@ void CMovement_C::OnSwimSpeedChangeLocal(uint32_t eventTime, uint32_t ackCounter
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 25306062 auto
@@ -1388,13 +1264,7 @@ void CMovement_C::OnTurnRateChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 003e4758 auto
@@ -1405,13 +1275,7 @@ void CMovement_C::OnTurnRateChangeLocal(uint32_t eventTime, uint32_t ackCounter,
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 6df42ae1 auto
@@ -1429,13 +1293,7 @@ void CMovement_C::OnWalkSpeedChange(uint32_t eventTime, float value) {
     event->m_needAck = 0;
     event->m_ackCounter = 0;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: d5ba5c2f auto
@@ -1446,13 +1304,7 @@ void CMovement_C::OnWalkSpeedChangeLocal(uint32_t eventTime, uint32_t ackCounter
     event->m_ackCounter = ackCounter;
     event->m_needAck = 1;
     this->m_moveQueue.Enqueue(event);
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 }
 
 // VERIFY: 6af8b4ef auto
@@ -1967,13 +1819,7 @@ void CMovement_C::OnSwimStopLocal(uint32_t eventTime) {
         this->StopSwim();
 
         if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
-            if (!this->m_globalUnitsLink.IsLinked()) {
-                CMovementGlobals* globals = MovementGetGlobals();
-
-                if (globals) {
-                    globals->m_movers.LinkToHead(this);
-                }
-            }
+            this->AddToMoversList();
         }
 
         this->m_unit->ProcessLocalMoveEvent(eventTime, MSG_MOVE_STOP_SWIM, true, 0.0f, 0, 0, 255);
@@ -4390,12 +4236,8 @@ void CMovement_C::OnSplineStop(uint32_t time) {
 
     this->RemoveSpline();
 
-    if (this->TryStartFalling() && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if (this->TryStartFalling()) {
+        this->AddToMoversList();
     }
 
     this->m_unit->SendSplineDone(time, splineId);
@@ -4582,6 +4424,17 @@ int32_t CMovement_C::HeartBeat(const CPlayerMoveEvent* event) {
     return 1;
 }
 
+// INLINED: links the mover into the global movers list so CMovementGlobals updates it; counterpart of RemoveFromMoversList.
+void CMovement_C::AddToMoversList() {
+    if (!this->m_globalUnitsLink.IsLinked()) {
+        CMovementGlobals* globals = MovementGetGlobals();
+
+        if (globals) {
+            globals->m_movers.LinkToHead(this);
+        }
+    }
+}
+
 // VERIFY: 16a88b02 auto
 // OFFSET: 0x006EAF50
 void CMovement_C::RemoveFromMoversList(BOOL stopSpline) {
@@ -4647,12 +4500,8 @@ void CMovement_C::GravityStateChanged() {
     }
 
 falling:
-    if (this->TryStartFalling() && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if (this->TryStartFalling()) {
+        this->AddToMoversList();
     }
 }
 
@@ -5566,12 +5415,8 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
     this->CMovementShared::Teleport(position, facing, removeSpline);
     this->RemoveFromMoversList(1);
 
-    if ((!needAck || this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) && this->TryStartFalling() && !this->m_globalUnitsLink.m_next) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if ((!needAck || this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) && this->TryStartFalling()) {
+        this->AddToMoversList();
     }
 
     C3Vector world = this->GetPosition(this->m_position);
@@ -5694,13 +5539,7 @@ void CMovement_C::AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventId, b
 
     this->m_moveQueue.Enqueue(event);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     if (status && !queued) {
         this->SetInterpolation(MovementGetGlobals()->m_lastUpdateTime);
@@ -5909,13 +5748,7 @@ int32_t CMovement_C::UpdateStatus(uint32_t time, const CMovementStatus& status, 
     }
 
     if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
-        if (!this->m_globalUnitsLink.IsLinked()) {
-            CMovementGlobals* globals = MovementGetGlobals();
-
-            if (globals) {
-                globals->m_movers.LinkToHead(this);
-            }
-        }
+        this->AddToMoversList();
     } else {
         this->RemoveFromMoversList(1);
     }
@@ -5942,13 +5775,7 @@ int32_t CMovement_C::UpdateFacingStatus(uint32_t time, const CMovementStatus& st
     }
 
     if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
-        if (!this->m_globalUnitsLink.IsLinked()) {
-            CMovementGlobals* globals = MovementGetGlobals();
-
-            if (globals) {
-                globals->m_movers.LinkToHead(this);
-            }
-        }
+        this->AddToMoversList();
     } else {
         this->RemoveFromMoversList(1);
     }
@@ -6089,12 +5916,8 @@ int32_t CMovement_C::OnMoveUnRoot(uint32_t time, const CMovementStatus& status) 
 
     this->UnRoot(1);
 
-    if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
+        this->AddToMoversList();
     }
 
     this->m_unit->UnRootEffects();
@@ -6147,13 +5970,7 @@ int32_t CMovement_C::OnStopSwim(uint32_t time, const CMovementStatus& status) {
 
     this->StopSwim();
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6167,13 +5984,7 @@ int32_t CMovement_C::OnPitchStart(uint32_t time, const CMovementStatus& status, 
 
     this->StartPitch(up);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6201,12 +6012,8 @@ int32_t CMovement_C::OnSetWaterWalk(uint32_t time, const CMovementStatus& status
         return 0;
     }
 
-    if (!(this->m_flags & MOVEMENTFLAG_WATERWALKING) && this->TryStartFalling() && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if (!(this->m_flags & MOVEMENTFLAG_WATERWALKING) && this->TryStartFalling()) {
+        this->AddToMoversList();
     }
 
     return 1;
@@ -6233,13 +6040,7 @@ int32_t CMovement_C::OnMoveHover(uint32_t time, const CMovementStatus& status) {
         this->TryStartFalling();
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     this->Hover(hover);
     return 1;
@@ -6288,13 +6089,7 @@ int32_t CMovement_C::OnStartAscendDescend(uint32_t time, const CMovementStatus& 
         return 0;
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6323,13 +6118,7 @@ int32_t CMovement_C::OnMoveStart(uint32_t time, const CMovementStatus& status, i
         return 0;
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6341,13 +6130,7 @@ int32_t CMovement_C::OnStrafeStart(uint32_t time, const CMovementStatus& status,
         return 0;
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6359,13 +6142,7 @@ int32_t CMovement_C::OnJump(uint32_t time, const CMovementStatus& status) {
         return 0;
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6405,13 +6182,7 @@ int32_t CMovement_C::OnTurnStart(uint32_t time, const CMovementStatus& status, i
 
     this->StartTurn(left);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6464,12 +6235,8 @@ int32_t CMovement_C::OnTeleport(uint32_t time, const CMovementStatus& status) {
 void CMovement_C::OnSplineStopSwim() {
     this->StopSwim();
 
-    if (((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if (((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head())) {
+        this->AddToMoversList();
     }
 }
 
@@ -6482,13 +6249,7 @@ void CMovement_C::OnSplineToggleHover(int32_t hover) {
         this->TryStartFalling();
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     this->Hover(hover);
 }
@@ -6512,12 +6273,8 @@ void CMovement_C::OnSplineRoot() {
 void CMovement_C::OnSplineUnRoot() {
     this->UnRoot(1);
 
-    if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) && !this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
+    if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
+        this->AddToMoversList();
     }
 
     this->m_unit->UnRootEffects();
@@ -6581,13 +6338,7 @@ int32_t CMovement_C::TryStartFallingLocal() {
         return 0;
     }
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
@@ -6608,13 +6359,7 @@ int32_t CMovement_C::OnSpline(const C3Vector* points, uint32_t pointCount, uint3
     this->AddSpline(points[pointCount - 1]);
     CMovementShared::OnSpline(MovementGetGlobals()->m_lastUpdateTime, points, pointCount, duration, splineFlags, splineId);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     this->m_spline->m_spline.Pos(1.0f, this->m_spline->m_finalDestination, C3Spline::EVAL_ARCLENGTH);
     return 1;
@@ -6734,13 +6479,7 @@ void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bo
 
     this->m_moveQueue.Enqueue(event);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     if (status && !queued) {
         this->SetInterpolation(MovementGetGlobals()->m_lastUpdateTime);
@@ -6769,13 +6508,7 @@ void CMovement_C::AddPlayerTeleportEvent(uint32_t eventTime, bool needAck, uint3
 
     this->m_moveQueue.Enqueue(event);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     if (status.m_moveExtraFlags & MOVEMENTFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM) {
         this->m_unit->VehiclePassengerStartWaitingForVehicleTransitionAnim(status.m_transportGuid.m_guid, status.m_transportSeat);
@@ -6807,13 +6540,7 @@ int32_t CMovement_C::UpdateLaunchStatus(uint32_t time, const CMovementStatus& st
     }
 
     if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
-        if (!this->m_globalUnitsLink.IsLinked()) {
-            CMovementGlobals* globals = MovementGetGlobals();
-
-            if (globals) {
-                globals->m_movers.LinkToHead(this);
-            }
-        }
+        this->AddToMoversList();
     } else {
         this->RemoveFromMoversList(1);
     }
@@ -6864,13 +6591,7 @@ int32_t CMovement_C::OnLaunch(uint32_t time, const CMovementStatus& status, cons
 
     this->Launch(direction, speed, verticalSpeed);
 
-    if (!this->m_globalUnitsLink.IsLinked()) {
-        CMovementGlobals* globals = MovementGetGlobals();
-
-        if (globals) {
-            globals->m_movers.LinkToHead(this);
-        }
-    }
+    this->AddToMoversList();
 
     return 1;
 }
