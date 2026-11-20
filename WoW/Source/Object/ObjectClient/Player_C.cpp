@@ -9594,9 +9594,9 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             uint32_t type;
             msg->Get(type);
 
-            if (type == 2 || type == 51) {
+            if (type == CHAT_MSG_PARTY || type == CHAT_MSG_PARTY_LEADER) {
                 CGGameUI::DisplayError(ERR_NOT_IN_GROUP);
-            } else if (type == 3 || type == 39 || type == 40) {
+            } else if (type == CHAT_MSG_RAID || type == CHAT_MSG_RAID_LEADER || type == CHAT_MSG_RAID_WARNING) {
                 CGGameUI::DisplayError(ERR_NOT_IN_RAID);
             }
 
