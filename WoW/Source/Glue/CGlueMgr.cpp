@@ -1803,7 +1803,7 @@ void CGlueMgr::LogConnectionStatus(const char* format, ...) {
 void CGlueMgr::SetLoginStateAndResult(LOGIN_STATE state, LOGIN_RESULT result, const char* addressString, const char* stateString, const char* resultString, uint16_t flags) {
     CGlueMgr::LogConnectionStatus("GRUNT: state: %s result: %s %s", stateString, resultString, addressString ? addressString : "");
 
-    if (flags & 0x1) {
+    if (flags & LOGIN_FLAGS::LOGIN_FLAG_ACCOUNT_MESSAGE_AVAILABLE) {
         CGlueMgr::m_accountMsgAvailable = 1;
     }
 

@@ -810,7 +810,7 @@ void CMapObj::AddExteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPorta
 
     C3Vector* clipped = nullptr;
     uint32_t clippedCount = 0;
-    ext->m_flags |= this->TransformAndClipVerts((flags >> 4) & 1, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
+    ext->m_flags |= this->TransformAndClipVerts((flags & SPortalExt::F_NO_OCCLUSION) != 0, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
 
     if (clippedCount > 2) {
         CPortalView view;
@@ -838,9 +838,9 @@ void CMapObj::TransformPortal(SMOPortal* portal, SPortalExt* portalExt) {
     uint32_t clippedCount = 0;
     uint16_t flags = portalExt->m_flags;
 
-    if (!(flags & 0x2)) {
+    if (!(flags & SPortalExt::F_INTERSECT_NEAR)) {
         C3Vector offset(0.0f, 0.0f, 0.0f);
-        portalExt->m_flags |= this->TransformAndClipVerts((flags >> 4) & 1, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
+        portalExt->m_flags |= this->TransformAndClipVerts((flags & SPortalExt::F_NO_OCCLUSION) != 0, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
     }
 
     if (portalExt->m_flags & SPortalExt::F_INTERSECT_NEAR) {
@@ -893,7 +893,7 @@ void CMapObj::AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPorta
 
     C3Vector* clipped = nullptr;
     uint32_t clippedCount = 0;
-    ext->m_flags |= this->TransformAndClipVerts((flags >> 4) & 1, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
+    ext->m_flags |= this->TransformAndClipVerts((flags & SPortalExt::F_NO_OCCLUSION) != 0, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, offset, clipped, clippedCount);
 
     if (clippedCount > 2) {
         CPortalView view;

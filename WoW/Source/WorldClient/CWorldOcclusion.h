@@ -49,6 +49,11 @@ class CWorldOcclusion {
         QUERY_FLAG_UNKNOWN_20 = 0x20,
     };
 
+    enum UPDATE_FLAGS : uint32_t {
+        UPDATE_FLAG_NONE = 0x0,
+        UPDATE_FLAG_MARK_MASK = 0x1, // Also marks the covered columns in CWorldScene::s_clipBufferMask (inferred).
+    };
+
     static TSGrowableArray<C4Plane> planeArray;
     static TSGrowableArray<CClipVolume> clipVolumeArray;
 

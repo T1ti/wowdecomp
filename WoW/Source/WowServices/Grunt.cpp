@@ -1550,10 +1550,10 @@ int32_t Grunt::ServerLink::CmdGruntProveSession(CDataStore& msg) {
         msg.Get(info.m_expansionLevel);
         msg.Get(reinterpret_cast<uint32_t&>(info.unk_0068));
 
-        info.m_accountFlags &= 0x6A8E040F;
+        info.m_accountFlags &= ACCOUNT_FLAGS::ACCOUNT_FLAGS_RETAINED_MASK;
 
         if (info.unk_0068 > 0) {
-            info.m_accountFlags |= 0x10;
+            info.m_accountFlags |= ACCOUNT_FLAGS::ACCOUNT_UNKNOWN_10;
         }
 
         msg.Get(info.unk_006C);

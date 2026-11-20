@@ -463,7 +463,7 @@ void CWorldOcclusion::UpdateBuffer(const C3Vector* points, int32_t count, uint32
             x1 = 383;
         }
 
-        if (flags & 1) {
+        if (flags & UPDATE_FLAG_MARK_MASK) {
             if (x0 <= x1) {
                 memset(&CWorldScene::s_clipBufferMask[x0], 1, x1 - x0 + 1);
 
@@ -607,7 +607,7 @@ void CWorldScene::AddWorldOccluders() {
 // VERIFY: be6bb79d auto
 // OFFSET: 0x007CC880
 void CWorldOccluder::ClipBufferUpdate() {
-    CWorldOcclusion::UpdateBuffer(this->m_points, 2, 1);
+    CWorldOcclusion::UpdateBuffer(this->m_points, 2, CWorldOcclusion::UPDATE_FLAG_MARK_MASK);
 }
 
 // VERIFY: 7e61d360 manual
