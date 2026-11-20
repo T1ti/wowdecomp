@@ -31,8 +31,8 @@ void CGGameObject_C_Type_TrapDoor::PostInitWithStats() {
     World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
     World::ObjectUpdate(this->m_worldObject, this->m_owner->GetMatrix());
 
-    if (this->m_owner->m_gameObject->m_state != 1) {
-        this->UpdateState(1, 0);
+    if (this->m_owner->m_gameObject->m_state != GAMEOBJECT_DISPLAY_STATE_CLOSED) {
+        this->UpdateState(GAMEOBJECT_DISPLAY_STATE_CLOSED, GAMEOBJECT_DISPLAY_STATE_OPEN);
     }
 }
 

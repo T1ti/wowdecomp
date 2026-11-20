@@ -98,7 +98,7 @@ class CGGameObjectData {
     /* 0022 */ uint16_t m_pathProgress;
     /* 0024 */ uint32_t m_faction;
     /* 0028 */ uint32_t m_level;
-    /* 002C */ int8_t m_state;
+    /* 002C */ int8_t m_state; // GAMEOBJECT_DISPLAY_STATE
     /* 002D */ int8_t m_typeID;
     /* 002E */ int8_t m_artKit;
     /* 002F */ uint8_t m_animProgress;

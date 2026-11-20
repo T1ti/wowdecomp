@@ -3294,7 +3294,7 @@ void CGGameObject_C_Type_MapObjTransport::InitializeMovement() {
         if (gameObject->m_dynamicFlags & CGGameObjectData::DYNFLAG_STOP_AT_CURRENT_LOCATION) {
             this->m_shipPath.WaitAtCurrentLocation(offsetTime);
         } else {
-            this->m_shipPath.WaitAtNextPausePoint(offsetTime, gameObject->m_state == 1);
+            this->m_shipPath.WaitAtNextPausePoint(offsetTime, gameObject->m_state == GAMEOBJECT_DISPLAY_STATE_CLOSED);
         }
     }
 
