@@ -50,7 +50,7 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
 
     float t = 0.0f;
 
-    if (!NTempest::Intersect(this->m_ray, this->m_vertexList, &this->m_indices[3 * face], &t, nullptr, 0.0020000001f)) {
+    if (!NTempest::Intersect(this->m_ray, this->m_vertexList, &this->m_indices[3 * face], &t, nullptr, 0.002f)) {
         return;
     }
 
@@ -155,12 +155,12 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
         maxZ = this->m_seg.start.z;
     }
 
-    minX -= 0.0099999998f;
-    maxX += 0.0099999998f;
-    minY -= 0.0099999998f;
-    maxY += 0.0099999998f;
-    minZ -= 0.0099999998f;
-    maxZ += 0.0099999998f;
+    minX -= 0.01f;
+    maxX += 0.01f;
+    minY -= 0.01f;
+    maxY += 0.01f;
+    minZ -= 0.01f;
+    maxZ += 0.01f;
 
     uint8_t outcodes[450];
 
@@ -218,7 +218,7 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
 
         float t = 0.0f;
 
-        if (!NTempest::Intersect(this->m_ray, digest->m_vertices, verts, &t, nullptr, 0.0020000001f)) {
+        if (!NTempest::Intersect(this->m_ray, digest->m_vertices, verts, &t, nullptr, 0.002f)) {
             continue;
         }
 

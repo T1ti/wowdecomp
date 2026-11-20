@@ -1450,7 +1450,7 @@ int32_t CMapChunk::Intersect(int32_t subX, int32_t subY, const C3Ray& ray, float
         CMapChunk::vertexList[tri[2]].z = this->m_height[tri[2]];
         float hitT = 0.0f;
 
-        if (NTempest::Intersect(ray, CMapChunk::vertexList, tri, &hitT, nullptr, 0.0099999998f)) {
+        if (NTempest::Intersect(ray, CMapChunk::vertexList, tri, &hitT, nullptr, 0.01f)) {
             hit = 1;
 
             if (hitT < *t && hitT >= 0.0f) {

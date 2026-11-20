@@ -383,8 +383,8 @@ int32_t CShadowQuery::RenderCallback(CShadowCacheQueryData& data, int32_t band, 
     inverseView = copy.Inverse(determinant);
 
     effect->SetCurrent();
-    float constants[4] = { 0.0f, 0.0f, 0.0f, 0.00025000001f };
-    CShadowCache::SetShadowScale(0.00025000001f);
+    float constants[4] = { 0.0f, 0.0f, 0.0f, 0.00025f };
+    CShadowCache::SetShadowScale(0.00025f);
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 0, constants, 1);
     CShaderEffect::s_shadowValue = CShadowCache::GetShadowValue();
     g_theGxDevicePtr->XformSetProjection(data.m_matrices[band]);

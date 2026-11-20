@@ -97,7 +97,7 @@ void C3Spline_Bezier3::IFrameArclength(float t, C44Matrix& frame) {
 
     float length = sqrt(vel.z * vel.z + vel.y * vel.y + vel.x * vel.x);
 
-    if (!(fabs(length) < 0.0099999998f)) {
+    if (!(fabs(length) < 0.01f)) {
         float inv = 1.0f / length;
         vel.x = vel.x * inv;
         frame.a0 = vel.x;

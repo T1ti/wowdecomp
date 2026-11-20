@@ -250,7 +250,7 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
     float start = 1.0f;
 
     if (!(this->m_flags & CRibbonEmitter::RUNTIME_FLAGS::UPDATED) && this->m_edgesPerSec > 0.0f) {
-        dt = 1.0f / this->m_edgesPerSec + 0.000099999997f;
+        dt = 1.0f / this->m_edgesPerSec + 0.0001f;
     }
 
     if (dt < 0.0f) {

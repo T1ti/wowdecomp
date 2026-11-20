@@ -91,12 +91,12 @@ static const float HALF_LIQUID_TILE_GRID_SIZE_SQ = 277.77777f;
 // Keep the stored float values: calculating reciprocals can round differently.
 static const float SMOLTILE_SIZE = 4.1666665f; // 0.5.3 symbol: MD_LIQUID_POLY_SIZE.
 static const float OOSMOLTILE_SIZE = 0.240000010f; // 1.0 / 4.1666665f.
-static const float OO_COORD_TO_CHUNK = 0.029999999f;
+static const float OO_COORD_TO_CHUNK = 0.03f;
 static const float OO_COORD_TO_CHUNK_RADIUS = 0.030000001f; // Distinct upward-rounded scale used before ceil.
-static const float OO_COORD_TO_SUBCHUNK = 0.23999999f;
+static const float OO_COORD_TO_SUBCHUNK = 0.24f;
 
 // Distance-to-bucket scale for world scene sorting.
-static const float CBDIVISOR = 0.029999999f;
+static const float CBDIVISOR = 0.03f;
 
 static const float OO_COORD_TO_SHADOW = 1.92f;
 static const float HALF_SMOLTILE_SIZE = 2.0833333f;

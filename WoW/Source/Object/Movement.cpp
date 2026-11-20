@@ -3531,7 +3531,7 @@ uint32_t CMovement_C::FallDown(uint32_t time, uint32_t elapsed, C3Vector move, B
                 goto stop;
             }
 
-            if (timeFallen + 0.00050000002f >= totalTime) {
+            if (timeFallen + 0.0005f >= totalTime) {
                 endTime = totalTime;
                 goto finish;
             }
@@ -3539,7 +3539,7 @@ uint32_t CMovement_C::FallDown(uint32_t time, uint32_t elapsed, C3Vector move, B
             slid = 1;
             float left = length - distance;
 
-            if (dt > 0.00050000002f) {
+            if (dt > 0.0005f) {
                 stuck = 1;
             } else if (++stuck > 5) {
                 if (flattened || !CMath::fnotequal(length2D, 0.0f)) {

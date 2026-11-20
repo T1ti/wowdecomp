@@ -51,10 +51,10 @@ void Snow::InitFlake(SnowFlakeParticle* flake, float time, const C3Vector* origi
     float randomX = CRandom::ufloat_(g_rndSeed);
     C3Vector offset((randomX - 0.5f) * size.x, (randomY - 0.5f) * size.y, size.z * 0.0f);
     float randomAngle = CRandom::ufloat_(g_rndSeed);
-    float angle = (TWO_PI - this->m_intensity * 5.9341197f) * (randomAngle - 0.5f) - 1.5700001f;
+    float angle = (TWO_PI - this->m_intensity * 5.9341197f) * (randomAngle - 0.5f) - 1.57f;
     float c = cos(angle);
     float s = sin(angle);
-    float baseSpeed = this->m_intensity * 5.9850001f + 0.015f;
+    float baseSpeed = this->m_intensity * 5.985f + 0.015f;
     float speed = (CRandom::ufloat_(g_rndSeed) - 0.5f) * this->m_intensity + baseSpeed;
     float fall = -2.0f - this->m_intensity * 3.5f;
     float randomFall = CRandom::ufloat_(g_rndSeed) * this->m_intensity;
@@ -287,9 +287,9 @@ void Snow::UpdatePackets() {
         }
     }
 
-    float tick = 0.016666999f;
+    float tick = 0.016667f;
 
-    if (FrameTime::s_tickTimeSec < 0.016666999f) {
+    if (FrameTime::s_tickTimeSec < 0.016667f) {
         tick = FrameTime::s_tickTimeSec;
     }
 
@@ -533,7 +533,7 @@ void Snow::Render() {
 
 // VERIFY: 97f25e33 manual
 // OFFSET: 0x0078CD30
-Snow::Snow(float width, float height) : m_bbox(C3Vector(0.0f, 0.0f, 0.0f), C3Vector(0.0f, 0.0f, 0.0f)), m_mists(12.0f, C3Vector(44.0f, 44.0f, 25.0f), "textures\\Weather\\SnowMist01.blp", -1.5700001f, 0.34906587f, 9.0f, 3.0f, 128) {
+Snow::Snow(float width, float height) : m_bbox(C3Vector(0.0f, 0.0f, 0.0f), C3Vector(0.0f, 0.0f, 0.0f)), m_mists(12.0f, C3Vector(44.0f, 44.0f, 25.0f), "textures\\Weather\\SnowMist01.blp", -1.57f, 0.34906587f, 9.0f, 3.0f, 128) {
     this->m_useWeatherShaders = 1;
     this->m_fadeOut = 0;
     this->m_snowFlakePacketList.m_activePacketsCount = 0;

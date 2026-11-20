@@ -416,7 +416,7 @@ void CGInputControl::SendUIVehicleAngleUpdate(float angle) {
     }
 
     float range = pitchMax - pitchMin;
-    float normalized = fabsf(range) <= 0.000099999997f ? 0.0f : (angle - pitchMin) / range;
+    float normalized = fabsf(range) <= 0.0001f ? 0.0f : (angle - pitchMin) / range;
 
     FrameScript_SignalEvent(SCRIPT_EVENT_VEHICLE_ANGLE_UPDATE, "%f%f", static_cast<double>(normalized), static_cast<double>(angle));
 }
@@ -584,14 +584,14 @@ void __stdcall ScaleMouseDeltaByFov(float* dx, float* dy) {
     float clamped = 1.0f;
 
     if (fovScale < 1.0f) {
-        clamped = 0.050000001f;
+        clamped = 0.05f;
 
-        if (fovScale > 0.050000001f) {
+        if (fovScale > 0.05f) {
             clamped = fovScale;
         }
     }
 
-    float scale = 0.050000001f + clamped * 0.94999999f;
+    float scale = 0.05f + clamped * 0.95f;
     *dx = *dx * scale;
     *dy = scale * *dy;
 }

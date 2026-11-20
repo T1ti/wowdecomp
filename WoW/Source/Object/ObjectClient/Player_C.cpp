@@ -7087,7 +7087,7 @@ float CGPlayer_C::GetQuestXPMultiplier() {
 
         for (uint32_t j = 0; j < NUM_SPELL_EFFECTS; j++) {
             if (spell.m_effectAura[j] == SPELL_AURA_MOD_XP_QUEST_PCT) {
-                multiplier = (spell.m_effectBasePoints[j] + 1) * 0.0099999998f + multiplier;
+                multiplier = (spell.m_effectBasePoints[j] + 1) * 0.01f + multiplier;
             }
         }
     }
@@ -12120,7 +12120,7 @@ int32_t OnUpdateShapeshiftForm(WOWGUID guid, uint32_t offset, uint32_t count, co
                     int32_t listenerAtCharacter = s_listenerAtCharacter->m_intValue;
                     SE2SoundKitProperties properties;
                     properties.ResetToDefaults();
-                    properties.m_volumeScale = listenerAtCharacter ? 0.64999998f : 1.0f;
+                    properties.m_volumeScale = listenerAtCharacter ? 0.65f : 1.0f;
                     properties.m_priority = 110;
                     SI2::PlaySoundKit(10063, listenerAtCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
                 } else {
@@ -13793,7 +13793,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
         properties.m_group = group;
 
         if (listenerAtCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
 
         properties.m_priority = 110;
@@ -14239,7 +14239,7 @@ int32_t OnUpdatePlayerRuneRegen(WOWGUID guid, uint32_t offset, uint32_t count, c
     uint32_t predicted = CGRuneInfo::m_predictedRunes;
     float current = player->m_player->m_playerRuneRegen1[type];
 
-    if (rate < 0.0099999998f || current < 0.0099999998f) {
+    if (rate < 0.01f || current < 0.01f) {
         return 1;
     }
 

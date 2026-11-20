@@ -490,11 +490,11 @@ void CAaBsp_Query_Segment<T>::GetFaceIndices(uint32_t nodeIndex, const C3Segment
     const float* boxB = &box.b.x;
     const float* boxT = &box.t.x;
 
-    if (!(segB[axis] - boxB[axis] >= -0.0099999998f || segT[axis] - boxB[axis] >= -0.0099999998f)) {
+    if (!(segB[axis] - boxB[axis] >= -0.01f || segT[axis] - boxB[axis] >= -0.01f)) {
         return;
     }
 
-    if (!(boxT[axis] - segB[axis] >= 0.0099999998f || boxT[axis] - segT[axis] >= 0.0099999998f)) {
+    if (!(boxT[axis] - segB[axis] >= 0.01f || boxT[axis] - segT[axis] >= 0.01f)) {
         return;
     }
 
@@ -506,7 +506,7 @@ void CAaBsp_Query_Segment<T>::GetFaceIndices(uint32_t nodeIndex, const C3Segment
     float distB = segB[axis] - node->m_planeDist;
     float distT;
 
-    if ((distB >= -0.0099999998f && distB <= 0.0099999998f) || ((distT = segT[axis] - node->m_planeDist) >= -0.0099999998f && distT <= 0.0099999998f)) {
+    if ((distB >= -0.01f && distB <= 0.01f) || ((distT = segT[axis] - node->m_planeDist) >= -0.01f && distT <= 0.01f)) {
         if (node->m_posChild != CAaBspNode::Flag_NoChild) {
             this->GetFaceIndices(node->m_posChild, seg, posBox);
         }
@@ -518,7 +518,7 @@ void CAaBsp_Query_Segment<T>::GetFaceIndices(uint32_t nodeIndex, const C3Segment
         return;
     }
 
-    if (distB > 0.0099999998f && distT > 0.0099999998f) {
+    if (distB > 0.01f && distT > 0.01f) {
         if (node->m_posChild != CAaBspNode::Flag_NoChild) {
             this->GetFaceIndices(node->m_posChild, seg, posBox);
         }
@@ -526,7 +526,7 @@ void CAaBsp_Query_Segment<T>::GetFaceIndices(uint32_t nodeIndex, const C3Segment
         return;
     }
 
-    if (distB < -0.0099999998f && distT < -0.0099999998f) {
+    if (distB < -0.01f && distT < -0.01f) {
         if (node->m_negChild != CAaBspNode::Flag_NoChild) {
             this->GetFaceIndices(node->m_negChild, seg, negBox);
         }

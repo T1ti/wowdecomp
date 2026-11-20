@@ -2368,7 +2368,7 @@ void CGQuestLog::UpdatePOIIcons() {
     int32_t span = static_cast<int32_t>(fabs(area->m_locLeft - area->m_locRight));
     float radius = span * (CGQuestLog::m_questIconOverlapDist + CGQuestLog::m_questIconOverlapDist) * 0.0009765625f;
     uint32_t nudge = 0;
-    float maxStep = 0.050000001f * radius;
+    float maxStep = 0.05f * radius;
     float radiusSq = radius * radius;
 
     for (int32_t k = 0; k < numActive; k++) {

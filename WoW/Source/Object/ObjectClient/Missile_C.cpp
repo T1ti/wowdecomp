@@ -167,10 +167,10 @@ void CMissile::ApplyMotionScriptFunctionRotationAndScale(const SimpleScriptIO& i
     if (numbers[11] > 0.0) {
         double scale = numbers[11];
 
-        if (0.0099999998f < scale) {
+        if (0.01f < scale) {
             matrix.Scale((float)scale);
         } else {
-            matrix.Scale(0.0099999998f);
+            matrix.Scale(0.01f);
         }
     }
 }
@@ -444,7 +444,7 @@ int32_t CMissile::CallMotionScriptFunction(SimpleScriptIO& io) {
         float scale = io.m_numbers.m_data[10] + this->m_baseSpeed;
         this->m_speed = scale;
         this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_OVERRIDES_SPEED;
-        this->m_speed = 0.0099999998f < scale ? scale : 0.0099999998f;
+        this->m_speed = 0.01f < scale ? scale : 0.01f;
     }
 
     return 1;
@@ -461,7 +461,7 @@ ChaserState::ChaserState(const C3Vector& position, const C3Vector& velocity) {
 // OFFSET: 0x006FF4C0
 void ChaserState::ChaserImplementation(const C3Vector& target, float stiffness, float elapsed) {
     float x = stiffness * elapsed;
-    float damping = 1.0f / (x + x * x * x * 0.235f + x * x * 0.47999999f + 1.0f);
+    float damping = 1.0f / (x + x * x * x * 0.235f + x * x * 0.48f + 1.0f);
     float dx = this->m_position.x - target.x;
     float dy = this->m_position.y - target.y;
     float dz = this->m_position.z - target.z;
@@ -766,7 +766,7 @@ void CMissile::FollowGround(const C3Vector& direction, float distance) {
     C3Vector target(direction.x * distance * 2.0f + this->m_position.x, direction.y * distance * 2.0f + this->m_position.y, direction.z * distance * 2.0f + this->m_position.z);
     C3Vector flat;
 
-    if (fabs(direction.z) <= 0.99900001f) {
+    if (fabs(direction.z) <= 0.999f) {
         float inv = 1.0f / sqrt(direction.y * direction.y + direction.x * direction.x);
         flat = C3Vector(direction.x * inv, direction.y * inv, inv * 0.0f);
     } else {
@@ -794,7 +794,7 @@ void CMissile::FollowGround(const C3Vector& direction, float distance) {
         remaining = (1.0f - t) * remaining;
         this->m_position.z = this->m_groundOffset + this->m_position.z;
 
-        if (t > 0.99900001f || --steps <= 0) {
+        if (t > 0.999f || --steps <= 0) {
             break;
         }
     }
@@ -991,7 +991,7 @@ CMissile::~CMissile() {
 
     this->m_next = nullptr;
     this->m_prevLink = nullptr;
-    SI2::StopSound(&this->m_missileSound, 0, 0.15000001f, 1);
+    SI2::StopSound(&this->m_missileSound, 0, 0.15f, 1);
     this->m_targets.SetCount(0);
     this->m_targetHitResults.SetCount(0);
     this->m_targetMissReasons.SetCount(0);
@@ -1206,7 +1206,7 @@ void CMissile::InitializeTrajectory() {
     int32_t result = SpellUtils_ComputeMissileTrajectory(pitch, &delta, this->m_gravity, &speed, &this->m_travelTime, &velocity);
 
     if (!result) {
-        pitch = (this->m_gravity < 0.0f ? -0.0099999998f : 0.0099999998f) + this->m_pitch;
+        pitch = (this->m_gravity < 0.0f ? -0.01f : 0.01f) + this->m_pitch;
 
         if (pitch > HALF_PI) {
             pitch = pitch - (pitch - HALF_PI) * 2.0f;
@@ -1226,15 +1226,15 @@ void CMissile::InitializeTrajectory() {
             speed = this->m_trajectorySpeed;
             this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
-            if (this->m_travelTime < 0.000099999997f) {
+            if (this->m_travelTime < 0.0001f) {
                 speed = missile->m_defaultSpeedMin;
                 this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
-                if (this->m_travelTime < 0.000099999997f) {
+                if (this->m_travelTime < 0.0001f) {
                     speed = missile->m_defaultSpeedMax;
                     this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
-                    if (this->m_travelTime < 0.000099999997f) {
+                    if (this->m_travelTime < 0.0001f) {
                         this->m_flags &= ~MISSILE_FLAGS::MISSILE_FLAG_BALLISTIC_TRAJECTORY;
                     }
                 }
@@ -1251,8 +1251,8 @@ void CMissile::InitializeTrajectory() {
 
     float remaining = static_cast<int32_t>(this->m_arrivalTime - OsGetAsyncTimeMs()) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
 
-    if (remaining < 0.000099999997f) {
-        remaining = 0.000099999997f;
+    if (remaining < 0.0001f) {
+        remaining = 0.0001f;
     }
 
     if (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_BALLISTIC_TRAJECTORY) {
@@ -1413,11 +1413,11 @@ void CMissile::ComputeModelMatrix(C44Matrix* matrix, const C3Vector* position, c
             float length = sqrt(delta.y * delta.y + delta.z * delta.z + delta.x * delta.x);
 
             if (length > 2.3841858e-7f) {
-                if (length < 0.0099999998f && (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_HAS_SMOOTH_DIRECTION)) {
+                if (length < 0.01f && (this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_HAS_SMOOTH_DIRECTION)) {
                     float weight = length * 100.0f;
 
-                    if (weight < 0.050000001f) {
-                        weight = 0.050000001f;
+                    if (weight < 0.05f) {
+                        weight = 0.05f;
                     }
 
                     delta *= weight;
@@ -1590,7 +1590,7 @@ void CMissile::ReachedTarget(CGUnit_C* target, const C3Vector* direction) {
         this->m_lastModelPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
     }
 
-    SI2::StopSound(&this->m_missileSound, 0, 0.15000001f, 1);
+    SI2::StopSound(&this->m_missileSound, 0, 0.15f, 1);
     this->m_flags &= ~MISSILE_FLAGS::MISSILE_FLAG_BALLISTIC_TRAJECTORY;
     SpellRec spell;
 
@@ -1801,7 +1801,7 @@ void CMissile::CalcPosition(int32_t advance) {
         this->m_lastModelPos = C3Vector(matrix.d0, matrix.d1, matrix.d2);
 
         if (this->m_fizzleTime) {
-            float fade = (this->m_fizzleTime - now) * 0.0020000001f;
+            float fade = (this->m_fizzleTime - now) * 0.002f;
             this->m_model->m_fadeAlpha = fclamp(fade, 0.0f, 1.0f);
 
             if (fade <= 0.0f) {

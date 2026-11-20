@@ -698,7 +698,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
     color.a = static_cast<uint8_t>(s_trajectoryAlpha * 255.0f + 0.5f);
     C44Matrix rotation;
     rotation.RotateAroundZ(-facing);
-    ProjectTex::Render2d(box, color, &rotation, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS | PROJECT_TEX_ALL_FACES, 0.039999999f);
+    ProjectTex::Render2d(box, color, &rotation, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_DOODADS | PROJECT_TEX_ALL_FACES, 0.04f);
     g_theGxDevicePtr->RsPop();
 }
 
@@ -838,7 +838,7 @@ float CMissileCollision::ComputeUnitRank(CGUnit_C* unit) {
     unit->GetMissileCollisionSphere(&sphere, this->m_dir);
     float radius = this->m_missile->m_collisionRadius + sphere.r;
 
-    if (radius < 0.000099999997f) {
+    if (radius < 0.0001f) {
         return -1.0f;
     }
 
@@ -853,7 +853,7 @@ float CMissileCollision::ComputeUnitRank(CGUnit_C* unit) {
         float distance = fabs(this->m_perp.y * dy + this->m_perp.x * dx);
         float along = (this->m_perp.x * distance + position.x - this->m_start.x) * this->m_dir.x + (this->m_perp.y * distance + position.y - this->m_start.y) * this->m_dir.y;
 
-        if (along < 0.000099999997f) {
+        if (along < 0.0001f) {
             float sx = this->m_start.x - position.x;
             float sy = this->m_start.y - position.y;
             rank = (radius * radius - (sx * sx + sy * sy)) * 10000.0f;
@@ -999,13 +999,13 @@ int32_t CMissileCollision::Init(const C3Vector* start, const C3Vector* end, floa
 
         this->m_speed = cosine * speed;
 
-        if (this->m_speed < 0.000099999997f) {
-            this->m_speed = 0.000099999997f;
+        if (this->m_speed < 0.0001f) {
+            this->m_speed = 0.0001f;
         }
     } else {
         float time;
 
-        if (speed <= 0.000099999997f) {
+        if (speed <= 0.0001f) {
             time = 1.0f;
         } else {
             float dz = end->z - start->z;
@@ -1014,8 +1014,8 @@ int32_t CMissileCollision::Init(const C3Vector* start, const C3Vector* end, floa
             time = sqrt(dx * dx + (dy * dy + dz * dz)) / speed;
         }
 
-        this->m_speed = 0.0099999998f / time;
-        this->m_start.x = this->m_start.x - 0.0099999998f;
+        this->m_speed = 0.01f / time;
+        this->m_start.x = this->m_start.x - 0.01f;
         this->m_dir.x = 1.0f;
         this->m_dir.y = 0.0f;
         this->m_length = 1.0f;
@@ -1109,15 +1109,15 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         yaw = (missile->m_randomizeFacingMax - missile->m_randomizeFacingMin) * (*reinterpret_cast<float*>(&bits) - 1.0f) + base;
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
-        *pitch = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *pitch - 0.0099999998f;
+        *pitch = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *pitch - 0.01f;
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
-        *speed = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *speed - 0.0099999998f;
+        *speed = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + *speed - 0.01f;
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         launch->x = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.2f + launch->x - 0.1f;
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
         launch->y = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.2f + launch->y - 0.1f;
         bits = (CRandom::uint32_(g_rndSeed) & rmant) | rexp;
-        launch->z = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + launch->z - 0.0099999998f;
+        launch->z = (*reinterpret_cast<float*>(&bits) - 1.0f) * 0.02f + launch->z - 0.01f;
     }
 
     float cosPitch = cos(*pitch);
@@ -1154,7 +1154,7 @@ int32_t CGUnit_C::ComputeMissileTrajectory(const SpellRec* spell, float* pitch, 
 
     int32_t steps;
 
-    if (missile->m_maxDuration <= 0.000099999997f || (steps = static_cast<int32_t>(missile->m_maxDuration * 10.0f)) > 200) {
+    if (missile->m_maxDuration <= 0.0001f || (steps = static_cast<int32_t>(missile->m_maxDuration * 10.0f)) > 200) {
         steps = 200;
     }
 

@@ -521,8 +521,8 @@ void ShipPath::GetRollAndPitch(uint32_t time, float speed, float turn, C3Vector*
 // OFFSET: 0x007F7DD0
 void ShipPath::ComputeRollAndPitch(float speed, float facing, float distance, uint32_t leg, float turn, uint32_t time, C3Vector* position, float* roll, float* pitch) {
     if (speed > 0.0f) {
-        float low = this->m_physics->m_speedDampThresh * 0.15000001f;
-        float high = this->m_physics->m_speedDampThresh * 0.30000001f;
+        float low = this->m_physics->m_speedDampThresh * 0.15f;
+        float high = this->m_physics->m_speedDampThresh * 0.3f;
 
         if (speed < low) {
             speed = 0.0f;
@@ -534,7 +534,7 @@ void ShipPath::ComputeRollAndPitch(float speed, float facing, float distance, ui
         C3Vector vel(0.0f, 0.0f, 0.0f);
 
         for (int32_t i = 1; i < 5; i++) {
-            float ahead = distance - speed * static_cast<float>(i) * 0.44999999f;
+            float ahead = distance - speed * static_cast<float>(i) * 0.45f;
 
             if (ahead < 0.0f) {
                 ahead = 0.0f;

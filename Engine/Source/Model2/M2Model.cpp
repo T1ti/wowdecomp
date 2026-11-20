@@ -2199,7 +2199,7 @@ uint32_t CM2Model::GetNumGeometryBatches() {
             alpha *= this->m_textureWeights[data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
         }
 
-        if (alpha >= 0.000099999997f) {
+        if (alpha >= 0.0001f) {
             visible++;
         }
     }
@@ -2252,7 +2252,7 @@ uint32_t CM2Model::GetNumCombinableDoodadBatches() {
             alpha *= this->m_textureWeights[data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
         }
 
-        if (alpha >= 0.000099999997f && this->IsBatchDoodadCompatible(batch)) {
+        if (alpha >= 0.0001f && this->IsBatchDoodadCompatible(batch)) {
             combinable++;
         }
     }
@@ -2304,7 +2304,7 @@ uint32_t CM2Model::GetNumPrimitives() {
             alpha *= this->m_textureWeights[this->m_shared->m_data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
         }
 
-        if (alpha >= 0.000099999997f) {
+        if (alpha >= 0.0001f) {
             primitives += section->m_indexCount / 3;
         }
     }
@@ -2316,7 +2316,7 @@ uint32_t CM2Model::GetNumPrimitives() {
     }
 
     for (uint32_t i = 0; i < this->m_shared->m_data->m_particles.m_count; i++) {
-        if (this->m_particles[i].m_active && this->m_effectiveAlpha >= 0.000099999997f) {
+        if (this->m_particles[i].m_active && this->m_effectiveAlpha >= 0.0001f) {
             primitives += this->m_particleEmitters[i]->GetNumPrimitives();
         }
     }
@@ -4349,7 +4349,7 @@ uint32_t CM2Model::GetNumBatches() {
                 alpha *= ribbon->m_alphaTrack.m_currentValue;
             }
 
-            if (alpha >= 0.000099999997f) {
+            if (alpha >= 0.0001f) {
                 batches += this->m_ribbonEmitters[i]->GetNumBatches();
             }
         }
@@ -4358,7 +4358,7 @@ uint32_t CM2Model::GetNumBatches() {
     }
 
     for (uint32_t i = 0; i < this->m_shared->m_data->m_particles.m_count; i++) {
-        if (this->m_particles[i].m_active && this->m_effectiveAlpha >= 0.000099999997f) {
+        if (this->m_particles[i].m_active && this->m_effectiveAlpha >= 0.0001f) {
             batches += this->m_particleEmitters[i]->GetNumBatches();
         }
     }
@@ -7744,7 +7744,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
             alpha *= this->m_textureWeights[data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
         }
 
-        if (alpha >= 0.55000001f) {
+        if (alpha >= 0.55f) {
             (material->m_blendMode ? textured : untextured).Add(this, i);
         }
     }

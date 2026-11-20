@@ -103,9 +103,9 @@ void Liquid::CWaveManager::PrepareRenderTransform(const C3Vector* camPos) {
             wave.m_dirX = dir.x;
             wave.m_dirY = dir.y;
 
-            wave.m_speed = (rand() % 1000) * 0.039999999f + 10.0f;
+            wave.m_speed = (rand() % 1000) * 0.04f + 10.0f;
             wave.m_length = (rand() % 1000) * 0.2f + 200.0f;
-            wave.m_amplitude = (rand() % 1000) * 0.00050000002f + 0.5f;
+            wave.m_amplitude = (rand() % 1000) * 0.0005f + 0.5f;
             wave.unk_001C = (rand() % 1000) * 0.000030000001f + 0.02f;
 
             this->m_data.m_waves[i] = wave;

@@ -178,7 +178,7 @@ DayNight::DNInfo DayNight::g_dnInfo;
 static C2Vector s_highlightCurve[6] = { C2Vector(0.125f, 0.0f), C2Vector(0.27083334f, 1.0f), C2Vector(0.29166669f, 0.0f), C2Vector(0.85416663f, 0.0f), C2Vector(0.89583331f, 1.0f), C2Vector(0.99930555f, 0.0f) };
 
 // STATIC: 0x00AF4BAC
-static C2Vector s_skyFaceCurve[6] = { C2Vector(0.125f, 1.0f), C2Vector(0.375f, 0.0f), C2Vector(0.5f, -0.5f), C2Vector(0.625f, -0.69999999f), C2Vector(0.75f, -0.5f), C2Vector(0.875f, 0.0f) };
+static C2Vector s_skyFaceCurve[6] = { C2Vector(0.125f, 1.0f), C2Vector(0.375f, 0.0f), C2Vector(0.5f, -0.5f), C2Vector(0.625f, -0.7f), C2Vector(0.75f, -0.5f), C2Vector(0.875f, 0.0f) };
 
 enum SKY_CONSTANTS : int32_t {
     SKY_NUMBANDS = 7,
@@ -250,7 +250,7 @@ static const uint32_t s_cloudLodSize[5] = { 128, 256, 512, 1024, 2048 };
 static const uint32_t s_cloudLodShift[5] = { 7, 8, 9, 10, 11 };
 
 // STATIC: 0x00A41AD4
-static const float s_cloudThetaTable[12] = { 0.0f, 0.025f, 0.050000001f, 0.075000003f, 0.1f, 0.125f, 0.15000001f, 0.175f, 0.205f, 0.23f, 0.245f, 0.25f };
+static const float s_cloudThetaTable[12] = { 0.0f, 0.025f, 0.05f, 0.075f, 0.1f, 0.125f, 0.15f, 0.175f, 0.205f, 0.23f, 0.245f, 0.25f };
 
 // STATIC: 0x00A41B04
 static const uint8_t s_cloudAlphaTable[12] = { 255, 255, 255, 255, 255, 255, 255, 255, 255, 128, 0, 0 };
@@ -924,8 +924,8 @@ void DayNight::DNPlanet::ClipGeometry(C3Vector* verts, C2Vector* texCoords, CImV
         texCoords[3].y = t;
     }
 
-    float fadeTop = verts[0].z + dz - 0.40000001f;
-    float fadeBottom = verts[2].z + dz - 0.40000001f;
+    float fadeTop = verts[0].z + dz - 0.4f;
+    float fadeBottom = verts[2].z + dz - 0.4f;
 
     if (fadeTop > 0.001f && fadeBottom < 0.001f) {
         *vertCount = 6;
@@ -942,10 +942,10 @@ void DayNight::DNPlanet::ClipGeometry(C3Vector* verts, C2Vector* texCoords, CImV
     }
 
     for (uint32_t i = 0; i < *vertCount; i++) {
-        float fade = dz + verts[i].z - 0.40000001f;
+        float fade = dz + verts[i].z - 0.4f;
 
         if (fade < 0.001f) {
-            float alpha = (0.40000001f + fade) * 2.5f;
+            float alpha = (0.4f + fade) * 2.5f;
 
             if (alpha < 0.0f) {
                 alpha = 0.0f;
@@ -979,7 +979,7 @@ void DayNight::InitSunGlare() {
     DayNight::g_sunGlare.m_alphaRange.m_h = 1.0f;
     DayNight::g_sunGlare.m_scaleRange.m_l = 3.0f;
     DayNight::g_sunGlare.m_scaleRange.m_h = 20.0f;
-    DayNight::g_sunGlare.m_minDot = 0.69999999f;
+    DayNight::g_sunGlare.m_minDot = 0.7f;
     DayNight::g_sunGlare.m_screenGlow = 0.0f;
     DayNight::g_sunGlare.m_alphaCurve[0].m_time = 0.27083334f;
     DayNight::g_sunGlare.m_alphaCurve[0].m_value = 0.0f;
@@ -1005,7 +1005,7 @@ void DayNight::InitMoonGlare() {
     DayNight::g_moonGlare.m_alphaRange.m_h = 1.0f;
     DayNight::g_moonGlare.m_scaleRange.m_l = 1.0f;
     DayNight::g_moonGlare.m_scaleRange.m_h = 1.0f;
-    DayNight::g_moonGlare.m_minDot = 0.69999999f;
+    DayNight::g_moonGlare.m_minDot = 0.7f;
     DayNight::g_moonGlare.m_alphaCurve[0].m_time = 0.083333336f;
     DayNight::g_moonGlare.m_alphaCurve[0].m_value = 1.0f;
     DayNight::g_moonGlare.m_alphaCurve[1].m_time = 0.13541667f;
@@ -1087,7 +1087,7 @@ void DayNight::BlendZoneLight(CurrentLight* dst, const LightRec* light, int32_t 
     CurrentLight blend;
     DayNight::BlendAreaLightColors(&blend, light, underwater);
 
-    float fade = (100.0f - distPct) * 0.0099999998f;
+    float fade = (100.0f - distPct) * 0.01f;
     float weight;
 
     if (fade <= 0.0f) {
@@ -1415,13 +1415,13 @@ void DayNight::DNClouds::UpdateTextureAnimation() {
         return;
     }
 
-    if (info.m_skybox && info.m_skyboxWeight > 0.99000001f) {
+    if (info.m_skybox && info.m_skyboxWeight > 0.99f) {
         this->m_fullUpdate = 0;
         return;
     }
 
     for (int32_t i = 0; i < 3; i++) {
-        if (info.m_blendSkybox[i] && info.m_blendSkyboxWeight[i] > 0.99000001f && !info.m_blendSkyboxFlags[i]) {
+        if (info.m_blendSkybox[i] && info.m_blendSkyboxWeight[i] > 0.99f && !info.m_blendSkyboxFlags[i]) {
             this->m_fullUpdate = 0;
             return;
         }
@@ -1703,7 +1703,7 @@ void DayNight::DNSky::SetColors() {
                 DayNight::ColorLerpBytes(&color, &info.m_bands.m_skyColors[row], &ramp[row], (1.0f - face) * highlight);
             } else {
                 CImVector dark;
-                DayNight::ColorLerpBytes(&dark, &ramp[row], &info.m_bands.m_skyColors[0], highlight * 0.69999999f);
+                DayNight::ColorLerpBytes(&dark, &ramp[row], &info.m_bands.m_skyColors[0], highlight * 0.7f);
                 DayNight::ColorLerpBytes(&color, &ramp[row], &dark, -face * highlight);
             }
 
@@ -1818,14 +1818,14 @@ void DayNight::RenderSky(CPortalView* view) {
 
     bool drawObjects = true;
 
-    if (info.m_skybox && info.m_skybox->m_model && info.m_skybox->m_model->IsDrawable(0, 0) && info.m_skyboxWeight > 0.99000001f) {
+    if (info.m_skybox && info.m_skybox->m_model && info.m_skybox->m_model->IsDrawable(0, 0) && info.m_skyboxWeight > 0.99f) {
         drawObjects = false;
     }
 
     for (int32_t i = 0; i < 3; i++) {
         DNOverrideSky* sky = info.m_blendSkybox[i];
 
-        if (sky && sky->m_model && sky->m_model->IsDrawable(0, 0) && info.m_blendSkyboxWeight[i] > 0.99000001f && !info.m_blendSkyboxFlags[i]) {
+        if (sky && sky->m_model && sky->m_model->IsDrawable(0, 0) && info.m_blendSkyboxWeight[i] > 0.99f && !info.m_blendSkyboxFlags[i]) {
             drawObjects = false;
         }
     }
@@ -2205,7 +2205,7 @@ void DayNight::UpdateFog() {
         density = info.m_fog.m_density;
     }
 
-    float blend = distance * 0.039999999f;
+    float blend = distance * 0.04f;
 
     if (blend < 0.0f) {
         blend = 0.0f;
@@ -2551,7 +2551,7 @@ void DayNight::LoadMap(int32_t mapId) {
     }
 
     DayNight::g_clouds.m_density = static_cast<uint8_t>((1.0f - density) * 255.0f);
-    DayNight::g_clouds.SetSharpness(0.95999998f);
+    DayNight::g_clouds.SetSharpness(0.96f);
     DayNight::g_clouds.m_enabled = 1;
     DayNight::GlareBase::m_masterEnable = 1;
     DayNight::InitSunGlare();
@@ -2789,7 +2789,7 @@ void DayNight::SetColors() {
         float weight = blend->m_weight;
         uint32_t flags = skybox->m_flags & LIGHT_SKYBOX_FLAG_COMBINE_PROCEDURAL_AND_SKYBOX;
 
-        if (weight > 0.99000001f && count && !flags) {
+        if (weight > 0.99f && count && !flags) {
             count = 0;
         }
 

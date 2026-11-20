@@ -631,7 +631,7 @@ static int32_t Script_VehicleAimGetNormAngle(lua_State* L) {
     }
 
     float range = pitchMax - pitchMin;
-    float angle = fabs(range) <= 0.000099999997f ? 0.0f : (unit->GetPitch() - pitchMin) / range;
+    float angle = fabs(range) <= 0.0001f ? 0.0f : (unit->GetPitch() - pitchMin) / range;
     lua_pushnumber(L, angle);
     return 1;
 }

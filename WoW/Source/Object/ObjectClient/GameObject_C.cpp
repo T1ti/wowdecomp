@@ -794,7 +794,7 @@ void CGGameObject_C::UpdateInteractIconAttach() {
     this->m_interactIcon->AttachToParent(this->m_worldModel, MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME, nullptr, 0);
     C44Matrix transform = this->m_worldModel->GetAttachmentWorldTransform(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME);
 
-    if (transform.c1 < 0.99000001f) {
+    if (transform.c1 < 0.99f) {
         C44Matrix inverse = transform.AffineInverse();
         inverse.d0 = 0.0f;
         inverse.d1 = 0.0f;

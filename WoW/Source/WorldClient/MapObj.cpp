@@ -2122,7 +2122,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
         bool hit;
 
         if (useSphere) {
-            hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.0099999998f);
+            hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.01f);
         } else {
             if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[g]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
                 continue;

@@ -930,7 +930,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
     C2Vector frac(cellYf - cellX, cellXf - cellY);
 
     for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
-        if (liquid->TileExists(tile.x, tile.y) && liquid->GetHeight(frac, tile, *height) && *height + 0.0099999998f > pos->z) {
+        if (liquid->TileExists(tile.x, tile.y) && liquid->GetHeight(frac, tile, *height) && *height + 0.01f > pos->z) {
             if (!checkGround) {
                 *liquidType = liquid->m_type;
                 return true;
@@ -939,7 +939,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
             float ground = -10000.0f;
             CMap::GetHeightTerrain(chunk, *const_cast<C3Vector*>(pos), cellX, cellY, &ground);
 
-            if (pos->z + 0.0099999998f > ground) {
+            if (pos->z + 0.01f > ground) {
                 *liquidType = liquid->m_type;
                 return true;
             }
@@ -1413,7 +1413,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
                     float t = 0.0f;
                     uint32_t tri[3] = { base + pattern[3 * i], base + pattern[3 * i + 1], base + pattern[3 * i + 2] };
 
-                    if (NTempest::Intersect(ray, liquid->m_verts, tri, &t, nullptr, 0.0099999998f)) {
+                    if (NTempest::Intersect(ray, liquid->m_verts, tri, &t, nullptr, 0.01f)) {
                         float dist = t * invLength;
 
                         if (bestDist > dist && dist >= 0.0f) {
@@ -2350,7 +2350,7 @@ void CMap::PrepareUpdate(bool addToScene) {
         AsyncFileReadWaitAll();
 
         if (World::s_loadProgressCallback) {
-            World::s_loadProgressCallback(0.66000003f, World::s_loadProgressParam);
+            World::s_loadProgressCallback(0.66f, World::s_loadProgressParam);
         }
 
         CMap::PreUpdateAreas(addToScene);
@@ -2443,7 +2443,7 @@ void CMap::PrepareUpdate(bool addToScene) {
             remaining = CMap::ComputeMapObjLoadProgress(chunk, &progress, mapObjTotal);
 
             if (World::s_loadProgressCallback) {
-                World::s_loadProgressCallback(static_cast<float>(mapObjTotal - remaining) * 0.30000001f / static_cast<float>(mapObjTotal) + 0.44999999f, World::s_loadProgressParam);
+                World::s_loadProgressCallback(static_cast<float>(mapObjTotal - remaining) * 0.3f / static_cast<float>(mapObjTotal) + 0.45f, World::s_loadProgressParam);
             }
         } while (remaining);
     }
@@ -3881,7 +3881,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefInterior(CMapStaticEntity* entity
 void CMap::LinkStaticEntityMultiple2(CMapStaticEntity* entity) {
     C3Vector top(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z + 4.0f);
     C3Vector bottom(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z - 1000.0f);
-    C3Vector mid(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z + 0.15000001f);
+    C3Vector mid(entity->m_vec2.x, entity->m_vec2.y, entity->m_vec2.z + 0.15f);
 
     float boxTop = entity->m_bbox.t.z + 0.1f;
 
@@ -4113,7 +4113,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
         seg.end = localEnd;
         uint32_t portalGroups[2];
 
-        if (mapObj->VectorIntersectPortal(seg, &portalT, portalGroups, 0) && portalT - dists[slot] < 0.000099999997f) {
+        if (mapObj->VectorIntersectPortal(seg, &portalT, portalGroups, 0) && portalT - dists[slot] < 0.0001f) {
             exterior = (mapObj->GetGroupInfo(portalGroups[0])->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) >> 3;
             dists[slot] = portalT;
             outDefs[slot] = mapObjDef;

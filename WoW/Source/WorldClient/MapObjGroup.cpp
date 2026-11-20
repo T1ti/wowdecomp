@@ -342,7 +342,7 @@ void BspQuery_Segment::operator()(uint16_t face) {
 
     float t = 0.0f;
 
-    if (!NTempest::Intersect(this->m_ray, this->m_vertexList, &this->m_indices[3 * face], &t, nullptr, 0.0020000001f)) {
+    if (!NTempest::Intersect(this->m_ray, this->m_vertexList, &this->m_indices[3 * face], &t, nullptr, 0.002f)) {
         return;
     }
 
@@ -397,12 +397,12 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
         maxZ = this->m_seg.start.z;
     }
 
-    minX -= 0.0099999998f;
-    maxX += 0.0099999998f;
-    minY -= 0.0099999998f;
-    maxY += 0.0099999998f;
-    minZ -= 0.0099999998f;
-    maxZ += 0.0099999998f;
+    minX -= 0.01f;
+    maxX += 0.01f;
+    minY -= 0.01f;
+    maxY += 0.01f;
+    minZ -= 0.01f;
+    maxZ += 0.01f;
 
     uint8_t outcodes[450];
 
@@ -476,7 +476,7 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
 
         float t = 0.0f;
 
-        if (!NTempest::Intersect(this->m_ray, digest->m_vertices, verts, &t, nullptr, 0.0020000001f)) {
+        if (!NTempest::Intersect(this->m_ray, digest->m_vertices, verts, &t, nullptr, 0.002f)) {
             continue;
         }
 
@@ -1247,7 +1247,7 @@ bool CMapObjGroup::QueryLiquid(const C3Vector& pos, int32_t* liquidType, float* 
     float dy = fy - tile.y;
     int32_t v0 = tile.y * this->m_liquidVerts.x + tile.x;
     int32_t v1 = this->m_liquidVerts.x + v0;
-    float offset = (g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING) ? 0.0099999998f : 0.0f;
+    float offset = (g_liquidTypeDB.GetRecord(type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING) ? 0.01f : 0.0f;
 
     const SMOLVert* verts = this->m_liquidVertexList;
     float h0 = verts[v0].m_waterVert.m_height;
@@ -1765,7 +1765,7 @@ bool CMapObjGroup::VectorIntersectLiquidTiles(const C3Segment& seg, float* t, ui
 
                 float hitT = 1.0f;
 
-                if (!NTempest::Intersect(ray, verts, triIndices, &hitT, nullptr, 0.0099999998f)) {
+                if (!NTempest::Intersect(ray, verts, triIndices, &hitT, nullptr, 0.01f)) {
                     continue;
                 }
 

@@ -441,7 +441,7 @@ void PassNetherBlur::Execute() {
     float y = (view->c1 + view->b1) * 0.0f + view->a1;
     float z = (view->c2 + view->b2) * 0.0f + view->a2;
 
-    if (fabs(z) > 0.000099999997f) {
+    if (fabs(z) > 0.0001f) {
         float inv = 1.0f / z;
         x *= inv;
         y *= inv;
@@ -606,7 +606,7 @@ void EffectSwirlingFog::SetParameters(int32_t count, const int32_t* params) {
     static_cast<PassFogSeed*>(this->m_passes[PASS_STAGE::SEED_PASS])->m_color = params[0];
     static_cast<PassPropagateFog*>(this->m_passes[PASS_STAGE::PROPAGATION_PASS])->unk_005C = params[1] * ONE_OVER_255;
     PassFogCombine* combine = static_cast<PassFogCombine*>(this->m_passes[PASS_STAGE::COMBINE_PASS]);
-    combine->m_density = params[2] * 0.0099999998f;
+    combine->m_density = params[2] * 0.01f;
     combine->m_fadeTime = 3.0f;
 }
 

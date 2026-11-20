@@ -1671,7 +1671,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
         additiveCount++;
     }
 
-    if (blend > 1 || alpha < 0.99998999f) {
+    if (blend > 1 || alpha < 0.99999f) {
         TSGrowableArray<uint32_t>* list = (!split || (emitter->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROJECT)) ? &this->m_passElements[2] : &this->m_passElements[1];
         list->New(index);
     } else {
@@ -1834,14 +1834,14 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
                 alpha *= model->m_textureWeights[data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
             }
 
-            if (alpha < 0.000099999997f) {
+            if (alpha < 0.0001f) {
                 continue;
             }
 
             M2Material* material = &data->m_materials[batch->m_materialIndex];
             BOOL projected = (batch->m_flags & M2Batch::FLAGS::PROJECTED_TEXTURE) && this->m_projectTextureCallback;
             M2Material* baseMaterial = batch->m_materialLayer ? &data->m_materials[batch->m_materialIndex - batch->m_materialLayer] : material;
-            int32_t transparent = baseMaterial->m_blendMode > M2BLEND_ALPHA_KEY || alpha < 0.99998999f;
+            int32_t transparent = baseMaterial->m_blendMode > M2BLEND_ALPHA_KEY || alpha < 0.99999f;
             CShaderEffect* effect = optimized ? model->m_optGeo->m_effects[i] : model->m_shared->m_effects[i];
 
             if (!effect) {
@@ -2019,7 +2019,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             element->m_pixelPermute = 0xFFFFFFFF;
             element->m_shadowValue = 0;
 
-            if (material->m_blendMode > M2BLEND_ALPHA_KEY || alpha < 0.99998999f) {
+            if (material->m_blendMode > M2BLEND_ALPHA_KEY || alpha < 0.99999f) {
                 if (above) {
                     this->m_passElements[1].New(elementIndex);
                 } else {
@@ -2104,7 +2104,7 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             float alpha = model->m_effectiveAlpha;
 
-            if (alpha < 0.000099999997f) {
+            if (alpha < 0.0001f) {
                 continue;
             }
 

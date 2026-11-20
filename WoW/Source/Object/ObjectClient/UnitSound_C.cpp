@@ -297,7 +297,7 @@ void CGUnit_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
         properties.m_group = this->GetUnitSoundKitIndex(soundType);
 
         if (listenerAtCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
 
         properties.m_priority = 110;
@@ -375,7 +375,7 @@ void CGUnit_C::PlaySplashSound(const C3Vector* position) {
         properties.m_priority = 110;
 
         if (listenerAtCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
     }
 
@@ -423,7 +423,7 @@ void CGUnit_C::PlayAISound(int32_t soundKitId) {
     if (s_activeMover == this->m_obj->m_guid && s_listenerAtCharacter->m_intValue) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
-        properties.m_volumeScale = 0.64999998f;
+        properties.m_volumeScale = 0.65f;
         properties.m_priority = 110;
         SI2::PlaySoundKit(soundKitId, nullptr, &this->m_aiSound, &properties, 0, nullptr, 1, 0);
     } else {
@@ -660,7 +660,7 @@ void CGUnit_C::PlayEmoteSound(int32_t soundKitId, bool checkCVars, int32_t fileI
         properties.m_priority = 110;
 
         if (atCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
     }
 
@@ -701,7 +701,7 @@ void CGUnit_C::PlayDismountSound() {
         properties.m_priority = 110;
 
         if (listenerAtCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
     }
 
@@ -788,7 +788,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
         }
 
         if (listenerAtCharacter) {
-            properties.m_volumeScale = 0.64999998f;
+            properties.m_volumeScale = 0.65f;
         }
     }
 

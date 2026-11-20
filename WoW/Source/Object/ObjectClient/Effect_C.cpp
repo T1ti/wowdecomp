@@ -387,7 +387,7 @@ void CEffect::EffectEvent(CM2Model* model, uint32_t boneId, uint32_t eventId, ui
             int32_t listenerAtCharacter = s_listenerAtCharacter->m_intValue;
 
             if (listenerAtCharacter) {
-                properties.m_volumeScale = 0.64999998f;
+                properties.m_volumeScale = 0.65f;
             }
 
             properties.m_priority = 110;
@@ -699,7 +699,7 @@ void CEffect::MoveToDestroyList() {
     }
 
     if (SI2::IsLooping(&this->m_soundKitObject)) {
-        SI2::StopSound(&this->m_soundKitObject, 0, 0.15000001f, 1);
+        SI2::StopSound(&this->m_soundKitObject, 0, 0.15f, 1);
     } else {
         SI2::Detach(&this->m_soundKitObject);
     }
@@ -799,7 +799,7 @@ CEffect::~CEffect() {
     }
 
     if (SI2::IsLooping(&this->m_soundKitObject)) {
-        SI2::StopSound(&this->m_soundKitObject, 0, 0.15000001f, 1);
+        SI2::StopSound(&this->m_soundKitObject, 0, 0.15f, 1);
     } else {
         SI2::Detach(&this->m_soundKitObject);
     }
@@ -938,7 +938,7 @@ float __stdcall CEffect::ComputeModelScaleFromTarget(CGObject_C* object) {
         size = depth;
     }
 
-    size *= 0.30000001f;
+    size *= 0.3f;
 
     if (size <= 1.0f) {
         return 1.0f * scale;
@@ -1418,7 +1418,7 @@ void CEffect::PostInitialize() {
     properties.m_maxAudibleBehavior = SE2_MAX_AUDIBLE_MUTE;
 
     if (listenerAtCharacter) {
-        properties.m_volumeScale = 0.64999998f;
+        properties.m_volumeScale = 0.65f;
     } else {
         position = this->TransformPositionByTransport();
         soundPosition = &position;

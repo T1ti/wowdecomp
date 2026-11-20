@@ -526,7 +526,7 @@ void CGQuestPOIFrame::BuildBlobRenderData(QuestPOIRenderData* data, QuestPOIBlob
             nz = inverse * 0.0f;
         }
 
-        float border = this->m_borderScalar * 0.0099999998f;
+        float border = this->m_borderScalar * 0.01f;
         nx *= border;
         ny *= border;
         nz *= border;

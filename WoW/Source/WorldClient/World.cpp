@@ -855,7 +855,7 @@ uint32_t World::GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModel
 // OFFSET: 0x0077F500
 void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, int32_t index, void* param, BOOL forceProjection) {
     if (forceProjection || (CWorld::enables2 & Enable_ProjectedTextures)) {
-        ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? PROJECT_TEX_MATERIAL_COLOR : PROJECT_TEX_NONE, 0.40000001f);
+        ProjectTex2dDrawShaderEffect(box, color, WORLD_QUERY_RENDER_MASK, index ? PROJECT_TEX_MATERIAL_COLOR : PROJECT_TEX_NONE, 0.4f);
     }
 }
 
@@ -1425,7 +1425,7 @@ void DayNight::Update(int32_t reset, const C3Vector* cameraPos) {
         DayNight::ResetFogAccumulators(true);
         DayNight::ClearLightFlag(1);
     } else {
-        glare = DayNight::g_sunGlare.m_screenGlow * 0.34999999f;
+        glare = DayNight::g_sunGlare.m_screenGlow * 0.35f;
 
         if (glare == 0.0f) {
             DayNight::ClearLightFlag(1);
@@ -2047,7 +2047,7 @@ void CWorldScene::BuildHorizonProjection(C44Matrix* projection) {
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
     float farZ = camera->m_clipRange.m_h;
     float fov = camera->FOV();
-    GxuXformCreateProjection_Exact(fov * 0.60000002f, camera->m_aspect, farZ - 50.0f, World::s_horizonFarClipScale * World::s_farClip, *projection);
+    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, World::s_horizonFarClipScale * World::s_farClip, *projection);
 }
 
 // VERIFY: 6cb64bd1 manual
@@ -2172,9 +2172,9 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
             float dist = CMap::s_useSSE ? sqrtf(distSq) : sqrt(distSq);
             alpha = 1.0f - (dist - CWorldScene::s_fadeDistMin[doodadDef->m_fadeLevel]) / CWorldScene::s_fadeRangeDefault[doodadDef->m_fadeLevel];
 
-            if (alpha > 0.99000001f) {
+            if (alpha > 0.99f) {
                 alpha = 1.0f;
-            } else if (alpha <= 0.0099999998f) {
+            } else if (alpha <= 0.01f) {
                 return;
             }
         }
@@ -2817,7 +2817,7 @@ void CWorldScene::Update(C3Vector* camPos, C3Vector* camTarget) {
     C3Vector dirXY(CWorldScene::camVec.x, CWorldScene::camVec.y, 0.0f);
     float lenSqXY = dirXY.y * dirXY.y + dirXY.x * dirXY.x;
 
-    if (lenSqXY > 0.000099999997f) {
+    if (lenSqXY > 0.0001f) {
         float invXY = 1.0f / sqrt(lenSqXY);
         dirXY.x *= invXY;
         dirXY.y *= invXY;
@@ -2883,7 +2883,7 @@ void CWorldScene::Update(C3Vector* camPos, C3Vector* camTarget) {
     CWorldScene::camPlane.n = CWorldScene::camVec;
     CWorldScene::camPlane.d = -(camPos->x * CWorldScene::camVec.x + camPos->y * CWorldScene::camVec.y + CWorldScene::camVec.z * camPos->z);
 
-    if (lenSqXY > 0.000099999997f) {
+    if (lenSqXY > 0.0001f) {
         C44Matrix lookAt;
         GxuXformCreateLookAtSgCompat(C3Vector(0.0f, 0.0f, 0.0f), dirXY, C3Vector(0.0f, 0.0f, 1.0f), lookAt);
         lookAt.Translate(-CWorldScene::s_activeWorldView);
@@ -4336,7 +4336,7 @@ void CMap::UpdateEntity(CMapEntity* entity) {
         }
     }
 
-    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) && (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP) && entity->m_liquidHeight + 0.0099999998f > entity->m_position.z) {
+    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) && (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP) && entity->m_liquidHeight + 0.01f > entity->m_position.z) {
         uint32_t areaId;
 
         if (CMap::QueryAreaId(entity, areaId)) {
@@ -4572,7 +4572,7 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
                     float denom = src->info[prev]->bc[plane] - src->info[i]->bc[plane];
 
                     if (0.0f == denom) {
-                        denom = 0.000099999997f;
+                        denom = 0.0001f;
                     }
 
                     float t = src->info[prev]->bc[plane] / denom;
@@ -5060,7 +5060,7 @@ void World::UpdateObjectFadeouts() {
                 }
             }
 
-            float alpha = (1.0f - static_cast<float>(elapsed) * 0.00050000002f) * fadeout->m_alpha;
+            float alpha = (1.0f - static_cast<float>(elapsed) * 0.0005f) * fadeout->m_alpha;
 
             if (alpha >= 0.0f) {
                 model->m_fadeAlpha = alpha <= 1.0f ? alpha * ((3.0f - (alpha + alpha)) * alpha) : 1.0f;
@@ -5149,7 +5149,7 @@ void CGObject_C::PrepareToFadeInt(CMapEntity* entity, float alpha, uint64_t tran
         return;
     }
 
-    if (!entity->m_model || !entity->m_model->IsDrawable(0, 0) || alpha < 0.0099999998f || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
+    if (!entity->m_model || !entity->m_model->IsDrawable(0, 0) || alpha < 0.01f || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
         World::ObjectDestroy(entity);
         return;
     }

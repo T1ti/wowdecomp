@@ -1038,7 +1038,7 @@ static void InitializeClient() {
     CWorld::Initialize();
     ShadowInit();
     GxuLightInitialize();
-    GxuLightSetGridSize(16.665001f);
+    GxuLightSetGridSize(16.665f);
     InputControlInitialize();
     CGlueMgr::Initialize();
 

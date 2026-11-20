@@ -199,7 +199,7 @@ BOOL CVehicleCamera_C::IsHierarchyChasingFacing() const {
                     return 1;
                 }
             } else {
-                if (seat->m_field33512213052 > 0.000099999997f) {
+                if (seat->m_field33512213052 > 0.0001f) {
                     return 1;
                 }
 
@@ -588,7 +588,7 @@ void CVehicleCamera_C::UpdatePosition(CGUnit_C* target, uint32_t time, float pro
     C3Vector end = this->ComputeEndWorldPosition(target);
     float elapsed = static_cast<float>(time - this->m_lastUpdateTime) * 0.001f;
     float x = elapsed * 2.5f;
-    float damping = 1.0f / (x + x * x * x * 0.235f + x * x * 0.47999999f + 1.0f);
+    float damping = 1.0f / (x + x * x * x * 0.235f + x * x * 0.48f + 1.0f);
     float offset = this->m_collideFraction - 1.0f;
     float velocity = elapsed * (offset * 2.5f + this->m_collideVelocity);
     this->m_collideFraction = (offset + velocity) * damping + 1.0f;
@@ -603,7 +603,7 @@ void CVehicleCamera_C::UpdatePosition(CGUnit_C* target, uint32_t time, float pro
 
     uint32_t state = this->m_state;
 
-    if (this->m_seatRec && this->m_seatRec->m_field33512213051 > 0.000099999997f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
+    if (this->m_seatRec && this->m_seatRec->m_field33512213051 > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
         if (next) {
             end -= next->m_curWorldPos;
         } else {
@@ -708,7 +708,7 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
     float elapsed = static_cast<float>(time - this->m_lastUpdateTime) * 0.001f;
     uint32_t state = this->m_state;
 
-    if (this->m_seatRec && this->m_seatRec->m_field33512213052 > 0.000099999997f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
+    if (this->m_seatRec && this->m_seatRec->m_field33512213052 > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
         if (this->m_flags & CAMERA_FLAGS::FLAG_RESET_END_CHASERS) {
             this->m_endFacingChaser.m_value = this->m_targetFacing;
             this->m_endFacingChaser.m_velocity = 0.0f;

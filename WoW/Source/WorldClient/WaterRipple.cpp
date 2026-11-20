@@ -34,7 +34,7 @@ static const char* s_rippleTextureNames[2] = {
 };
 
 // STATIC: 0x00A3FAC0
-static float s_rippleFadeFraction[2] = { 0.40000001f, 0.40000001f };
+static float s_rippleFadeFraction[2] = { 0.4f, 0.4f };
 
 // STATIC: 0x00ADFB58
 static TSExplicitList<CWaterRipple, offsetof(CWaterRipple, m_link)> s_activeRipples;

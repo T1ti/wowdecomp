@@ -42,7 +42,7 @@ int16_t CWorldView::GetFadeLevelForDistance(float distance) {
 // VERIFY: ee050906 auto
 // OFFSET: 0x007927E0
 void CWorldView::AddOccluder(const C3Vector& a, const C3Vector& b) {
-    if (CWorldScene::camVec.z < -0.89999998f || CWorldScene::camVec.z > 0.89999998f) {
+    if (CWorldScene::camVec.z < -0.9f || CWorldScene::camVec.z > 0.9f) {
         return;
     }
 

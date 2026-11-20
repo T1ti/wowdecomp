@@ -2212,12 +2212,12 @@ void CGGameUI::ScaleToScreenSize(int32_t width, int32_t height, BOOL force) {
         scale = aspect * 0.75f;
     }
 
-    if (scale <= 0.89999998f) {
-        scale = 0.89999998f;
+    if (scale <= 0.9f) {
+        scale = 0.9f;
     }
 
-    if (scale <= 0.63999999f) {
-        scale = 0.63999999f;
+    if (scale <= 0.64f) {
+        scale = 0.64f;
     }
 
     if (CGGameUI::m_UISimpleParent) {
@@ -2247,7 +2247,7 @@ void CGGameUI::HandleDisplaySizeChanged(const CSizeEvent& evt) {
             scale = CGGameUI::m_aspect * 0.75f;
         }
 
-        if (scale >= 0.63999999f) {
+        if (scale >= 0.64f) {
             CGGameUI::SetUIScale(scale);
             float aspect = Screen::GetAspectRatio();
 

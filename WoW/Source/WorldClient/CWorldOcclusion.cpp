@@ -49,169 +49,169 @@ static C3Vector s_clipBufferVerts[9];
 static int32_t s_occlusionVolumesInit;
 
 // STATIC: 0x00AEFCE0
-static C3Vector s_occlusionVolumeVerts0[4] = { C3Vector(-8814.79004f, 474.859985f, 0.0f), C3Vector(-8814.79004f, 474.859985f, 138.869995f), C3Vector(-8986.45996f, 679.73999f, 138.869995f), C3Vector(-8986.45996f, 679.73999f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts0[4] = { C3Vector(-8814.79f, 474.86f, 0.0f), C3Vector(-8814.79f, 474.86f, 138.87f), C3Vector(-8986.46f, 679.74f, 138.87f), C3Vector(-8986.46f, 679.74f, 0.0f) };
 
 // STATIC: 0x00AEF318
-static C3Vector s_occlusionVolumeVerts1[8] = { C3Vector(5567.66016f, 714.340027f, 596.679993f), C3Vector(5605.31982f, 394.26001f, 596.679993f), C3Vector(5888.74023f, 382.140015f, 596.679993f), C3Vector(6026.97998f, 494.670013f, 596.679993f), C3Vector(6051.12012f, 634.179993f, 596.679993f), C3Vector(5952.54004f, 849.710022f, 596.679993f), C3Vector(5793.60986f, 991.539978f, 596.679993f), C3Vector(5582.06006f, 799.390015f, 596.679993f) };
+static C3Vector s_occlusionVolumeVerts1[8] = { C3Vector(5567.66f, 714.34f, 596.68f), C3Vector(5605.32f, 394.26f, 596.68f), C3Vector(5888.74f, 382.14f, 596.68f), C3Vector(6026.98f, 494.67f, 596.68f), C3Vector(6051.12f, 634.18f, 596.68f), C3Vector(5952.54f, 849.71f, 596.68f), C3Vector(5793.61f, 991.54f, 596.68f), C3Vector(5582.06f, 799.39f, 596.68f) };
 
 // STATIC: 0x00AEF378
-static C3Vector s_occlusionVolumeVerts2[6] = { C3Vector(5634.5f, 419.0f, 630.400024f), C3Vector(5612.56982f, 814.0f, 630.400024f), C3Vector(5810.18994f, 953.830017f, 630.400024f), C3Vector(5955.66992f, 785.400024f, 630.400024f), C3Vector(6025.93018f, 545.390015f, 630.400024f), C3Vector(5817.91016f, 394.350006f, 630.400024f) };
+static C3Vector s_occlusionVolumeVerts2[6] = { C3Vector(5634.5f, 419.0f, 630.4f), C3Vector(5612.57f, 814.0f, 630.4f), C3Vector(5810.19f, 953.83f, 630.4f), C3Vector(5955.67f, 785.4f, 630.4f), C3Vector(6025.93f, 545.39f, 630.4f), C3Vector(5817.91f, 394.35f, 630.4f) };
 
 // STATIC: 0x00AEF3C0
-static C3Vector s_occlusionVolumeVerts3[4] = { C3Vector(5892.49023f, 627.299988f, 620.0f), C3Vector(5892.49023f, 627.299988f, 664.0f), C3Vector(5990.5f, 557.700012f, 664.0f), C3Vector(5990.5f, 557.700012f, 620.0f) };
+static C3Vector s_occlusionVolumeVerts3[4] = { C3Vector(5892.49f, 627.3f, 620.0f), C3Vector(5892.49f, 627.3f, 664.0f), C3Vector(5990.5f, 557.7f, 664.0f), C3Vector(5990.5f, 557.7f, 620.0f) };
 
 // STATIC: 0x00AEF3F0
 static C3Vector s_occlusionVolumeVerts4[4] = { C3Vector(5847.0f, 539.0f, 620.0f), C3Vector(5847.0f, 539.0f, 685.0f), C3Vector(5800.0f, 526.0f, 685.0f), C3Vector(5800.0f, 526.0f, 620.0f) };
 
 // STATIC: 0x00AEF420
-static C3Vector s_occlusionVolumeVerts5[4] = { C3Vector(5827.39014f, 603.349976f, 620.340027f), C3Vector(5827.39014f, 603.349976f, 679.340027f), C3Vector(5786.06006f, 590.070007f, 678.059998f), C3Vector(5786.06006f, 590.070007f, 620.059998f) };
+static C3Vector s_occlusionVolumeVerts5[4] = { C3Vector(5827.39f, 603.35f, 620.34f), C3Vector(5827.39f, 603.35f, 679.34f), C3Vector(5786.06f, 590.07f, 678.06f), C3Vector(5786.06f, 590.07f, 620.06f) };
 
 // STATIC: 0x00AEF450
-static C3Vector s_occlusionVolumeVerts6[4] = { C3Vector(5730.99023f, 679.309998f, 620.76001f), C3Vector(5730.99023f, 679.309998f, 670.76001f), C3Vector(5679.87012f, 720.150024f, 670.76001f), C3Vector(5679.87012f, 720.150024f, 620.76001f) };
+static C3Vector s_occlusionVolumeVerts6[4] = { C3Vector(5730.99f, 679.31f, 620.76f), C3Vector(5730.99f, 679.31f, 670.76f), C3Vector(5679.87f, 720.15f, 670.76f), C3Vector(5679.87f, 720.15f, 620.76f) };
 
 // STATIC: 0x00AEF480
-static C3Vector s_occlusionVolumeVerts7[4] = { C3Vector(5774.5f, 655.429993f, 620.150024f), C3Vector(5774.5f, 655.429993f, 661.150024f), C3Vector(5762.91992f, 611.929993f, 661.150024f), C3Vector(5762.91992f, 611.929993f, 620.150024f) };
+static C3Vector s_occlusionVolumeVerts7[4] = { C3Vector(5774.5f, 655.43f, 620.15f), C3Vector(5774.5f, 655.43f, 661.15f), C3Vector(5762.92f, 611.93f, 661.15f), C3Vector(5762.92f, 611.93f, 620.15f) };
 
 // STATIC: 0x00AEF4B0
-static C3Vector s_occlusionVolumeVerts8[4] = { C3Vector(5784.6499f, 664.969971f, 620.02002f), C3Vector(5784.6499f, 664.969971f, 658.02002f), C3Vector(5823.0f, 686.909973f, 658.02002f), C3Vector(5823.0f, 686.909973f, 620.02002f) };
+static C3Vector s_occlusionVolumeVerts8[4] = { C3Vector(5784.6499f, 664.97f, 620.02f), C3Vector(5784.6499f, 664.97f, 658.02f), C3Vector(5823.0f, 686.91f, 658.02f), C3Vector(5823.0f, 686.91f, 620.02f) };
 
 // STATIC: 0x00AEF4E0
-static C3Vector s_occlusionVolumeVerts9[4] = { C3Vector(5841.56006f, 633.280029f, 620.659973f), C3Vector(5841.56006f, 633.280029f, 669.659973f), C3Vector(5845.91992f, 669.590027f, 664.719971f), C3Vector(5845.91992f, 669.590027f, 620.719971f) };
+static C3Vector s_occlusionVolumeVerts9[4] = { C3Vector(5841.56f, 633.28f, 620.66f), C3Vector(5841.56f, 633.28f, 669.66f), C3Vector(5845.92f, 669.59f, 664.72f), C3Vector(5845.92f, 669.59f, 620.72f) };
 
 // STATIC: 0x00AEF510
-static C3Vector s_occlusionVolumeVerts10[4] = { C3Vector(5904.16992f, 618.48999f, 620.409973f), C3Vector(5904.16992f, 618.48999f, 672.409973f), C3Vector(5883.91992f, 591.090027f, 672.359985f), C3Vector(5883.91992f, 591.090027f, 620.359985f) };
+static C3Vector s_occlusionVolumeVerts10[4] = { C3Vector(5904.17f, 618.49f, 620.41f), C3Vector(5904.17f, 618.49f, 672.41f), C3Vector(5883.92f, 591.09f, 672.36f), C3Vector(5883.92f, 591.09f, 620.36f) };
 
 // STATIC: 0x00AEF540
-static C3Vector s_occlusionVolumeVerts11[4] = { C3Vector(5895.04004f, 627.820007f, 620.552979f), C3Vector(5895.04004f, 627.820007f, 649.552979f), C3Vector(5834.77979f, 553.960022f, 649.552979f), C3Vector(5834.77979f, 553.960022f, 620.552979f) };
+static C3Vector s_occlusionVolumeVerts11[4] = { C3Vector(5895.04f, 627.82f, 620.553f), C3Vector(5895.04f, 627.82f, 649.553f), C3Vector(5834.78f, 553.96f, 649.553f), C3Vector(5834.78f, 553.96f, 620.553f) };
 
 // STATIC: 0x00AEF570
-static C3Vector s_occlusionVolumeVerts12[4] = { C3Vector(5899.41016f, 668.109985f, 620.539978f), C3Vector(5899.41016f, 668.109985f, 676.539978f), C3Vector(5941.06006f, 714.98999f, 661.169983f), C3Vector(5941.06006f, 714.98999f, 620.169983f) };
+static C3Vector s_occlusionVolumeVerts12[4] = { C3Vector(5899.41f, 668.11f, 620.54f), C3Vector(5899.41f, 668.11f, 676.54f), C3Vector(5941.06f, 714.99f, 661.17f), C3Vector(5941.06f, 714.99f, 620.17f) };
 
 // STATIC: 0x00AEF5A0
-static C3Vector s_occlusionVolumeVerts13[4] = { C3Vector(5864.97021f, 751.169983f, 620.590027f), C3Vector(5864.97021f, 751.169983f, 669.590027f), C3Vector(5835.75f, 720.710022f, 669.590027f), C3Vector(5835.75f, 720.710022f, 620.590027f) };
+static C3Vector s_occlusionVolumeVerts13[4] = { C3Vector(5864.97f, 751.17f, 620.59f), C3Vector(5864.97f, 751.17f, 669.59f), C3Vector(5835.75f, 720.71f, 669.59f), C3Vector(5835.75f, 720.71f, 620.59f) };
 
 // STATIC: 0x00AEF5D0
-static C3Vector s_occlusionVolumeVerts14[5] = { C3Vector(5636.4502f, 398.959991f, 630.0f), C3Vector(5947.9502f, 827.400024f, 630.0f), C3Vector(5924.75f, 796.799988f, 574.109985f), C3Vector(5806.25f, 636.309998f, 397.399994f), C3Vector(5636.4502f, 398.959991f, 574.109985f) };
+static C3Vector s_occlusionVolumeVerts14[5] = { C3Vector(5636.4502f, 398.96f, 630.0f), C3Vector(5947.9502f, 827.4f, 630.0f), C3Vector(5924.75f, 796.8f, 574.11f), C3Vector(5806.25f, 636.31f, 397.4f), C3Vector(5636.4502f, 398.96f, 574.11f) };
 
 // STATIC: 0x00AEF60C
-static C3Vector s_occlusionVolumeVerts15[5] = { C3Vector(5590.91016f, 783.859985f, 630.0f), C3Vector(6006.8999f, 537.080017f, 630.0f), C3Vector(5971.75f, 552.690002f, 558.75f), C3Vector(5806.25f, 636.309998f, 397.399994f), C3Vector(5631.60986f, 751.340027f, 527.849976f) };
+static C3Vector s_occlusionVolumeVerts15[5] = { C3Vector(5590.91f, 783.86f, 630.0f), C3Vector(6006.9f, 537.08f, 630.0f), C3Vector(5971.75f, 552.69f, 558.75f), C3Vector(5806.25f, 636.31f, 397.4f), C3Vector(5631.61f, 751.34f, 527.85f) };
 
 // STATIC: 0x00AEF648
-static C3Vector s_occlusionVolumeVerts16[4] = { C3Vector(5749.8501f, 865.609985f, 630.0f), C3Vector(5749.8501f, 865.609985f, 704.0f), C3Vector(5864.16992f, 851.469971f, 704.0f), C3Vector(5864.16992f, 851.469971f, 630.0f) };
+static C3Vector s_occlusionVolumeVerts16[4] = { C3Vector(5749.8501f, 865.61f, 630.0f), C3Vector(5749.8501f, 865.61f, 704.0f), C3Vector(5864.17f, 851.47f, 704.0f), C3Vector(5864.17f, 851.47f, 630.0f) };
 
 // STATIC: 0x00AEF678
-static C3Vector s_occlusionVolumeVerts17[4] = { C3Vector(5800.50977f, 816.419983f, 630.0f), C3Vector(5800.50977f, 816.419983f, 704.0f), C3Vector(5814.83984f, 906.580017f, 704.0f), C3Vector(5814.83984f, 906.580017f, 630.0f) };
+static C3Vector s_occlusionVolumeVerts17[4] = { C3Vector(5800.51f, 816.42f, 630.0f), C3Vector(5800.51f, 816.42f, 704.0f), C3Vector(5814.84f, 906.58f, 704.0f), C3Vector(5814.84f, 906.58f, 630.0f) };
 
 // STATIC: 0x00AEF6A8
-static C3Vector s_occlusionVolumeVerts18[4] = { C3Vector(5868.95996f, 572.640015f, 623.440002f), C3Vector(5868.95996f, 572.640015f, 665.440002f), C3Vector(5847.00977f, 539.190002f, 665.440002f), C3Vector(5847.00977f, 539.190002f, 623.440002f) };
+static C3Vector s_occlusionVolumeVerts18[4] = { C3Vector(5868.96f, 572.64f, 623.44f), C3Vector(5868.96f, 572.64f, 665.44f), C3Vector(5847.01f, 539.19f, 665.44f), C3Vector(5847.01f, 539.19f, 623.44f) };
 
 // STATIC: 0x00AEF6D8
-static C3Vector s_occlusionVolumeVerts19[4] = { C3Vector(5867.43018f, 720.049988f, 624.900024f), C3Vector(5867.43018f, 720.049988f, 654.900024f), C3Vector(5893.14014f, 700.97998f, 654.690002f), C3Vector(5893.14014f, 700.97998f, 624.690002f) };
+static C3Vector s_occlusionVolumeVerts19[4] = { C3Vector(5867.43f, 720.05f, 624.9f), C3Vector(5867.43f, 720.05f, 654.9f), C3Vector(5893.14f, 700.98f, 654.69f), C3Vector(5893.14f, 700.98f, 624.69f) };
 
 // STATIC: 0x00AEF708
-static C3Vector s_occlusionVolumeVerts20[7] = { C3Vector(2478.83008f, -5620.12988f, 366.5f), C3Vector(2491.94995f, -5599.3999f, 366.5f), C3Vector(2487.5f, -5574.9502f, 366.5f), C3Vector(2466.23999f, -5561.56006f, 366.5f), C3Vector(2441.82007f, -5566.62988f, 366.5f), C3Vector(2433.40991f, -5612.20996f, 366.5f), C3Vector(2454.25f, -5625.66016f, 366.5f) };
+static C3Vector s_occlusionVolumeVerts20[7] = { C3Vector(2478.83f, -5620.13f, 366.5f), C3Vector(2491.95f, -5599.4f, 366.5f), C3Vector(2487.5f, -5574.9502f, 366.5f), C3Vector(2466.24f, -5561.56f, 366.5f), C3Vector(2441.82f, -5566.63f, 366.5f), C3Vector(2433.41f, -5612.21f, 366.5f), C3Vector(2454.25f, -5625.66f, 366.5f) };
 
 // STATIC: 0x00AEF75C
-static C3Vector s_occlusionVolumeVerts21[4] = { C3Vector(2510.16992f, -5702.89014f, 364.0f), C3Vector(2491.44995f, -5658.31982f, 520.0f), C3Vector(2429.59009f, -5523.72021f, 520.0f), C3Vector(2413.67993f, -5483.43994f, 364.0f) };
+static C3Vector s_occlusionVolumeVerts21[4] = { C3Vector(2510.17f, -5702.89f, 364.0f), C3Vector(2491.45f, -5658.32f, 520.0f), C3Vector(2429.59f, -5523.72f, 520.0f), C3Vector(2413.68f, -5483.44f, 364.0f) };
 
 // STATIC: 0x00AEF790
-static C3Vector s_occlusionVolumeVerts22[7] = { C3Vector(2370.94995f, -5680.14014f, 382.0f), C3Vector(2351.13989f, -5635.16016f, 382.0f), C3Vector(2377.80005f, -5472.43994f, 382.0f), C3Vector(2512.1499f, -5448.47021f, 382.0f), C3Vector(2586.20996f, -5551.41992f, 382.0f), C3Vector(2537.37988f, -5704.72998f, 382.0f), C3Vector(2425.21997f, -5744.56006f, 382.0f) };
+static C3Vector s_occlusionVolumeVerts22[7] = { C3Vector(2370.95f, -5680.14f, 382.0f), C3Vector(2351.14f, -5635.16f, 382.0f), C3Vector(2377.8f, -5472.44f, 382.0f), C3Vector(2512.1499f, -5448.47f, 382.0f), C3Vector(2586.21f, -5551.42f, 382.0f), C3Vector(2537.38f, -5704.73f, 382.0f), C3Vector(2425.22f, -5744.56f, 382.0f) };
 
 // STATIC: 0x00AEF7E4
-static C3Vector s_occlusionVolumeVerts23[5] = { C3Vector(2364.06006f, -5692.39014f, 382.23999f), C3Vector(2347.53003f, -5672.2002f, 382.23999f), C3Vector(2333.75f, -5647.47021f, 382.23999f), C3Vector(2353.04004f, -5636.87988f, 382.23999f), C3Vector(2382.53003f, -5679.75977f, 382.23999f) };
+static C3Vector s_occlusionVolumeVerts23[5] = { C3Vector(2364.06f, -5692.39f, 382.24f), C3Vector(2347.53f, -5672.2f, 382.24f), C3Vector(2333.75f, -5647.47f, 382.24f), C3Vector(2353.04f, -5636.88f, 382.24f), C3Vector(2382.53f, -5679.76f, 382.24f) };
 
 // STATIC: 0x00AEF820
-static C3Vector s_occlusionVolumeVerts24[4] = { C3Vector(1204.95996f, -4963.31982f, 0.0f), C3Vector(1198.35999f, -4933.68994f, 346.079987f), C3Vector(1158.87f, -4823.16992f, 344.76001f), C3Vector(1149.31006f, -4791.83008f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts24[4] = { C3Vector(1204.96f, -4963.32f, 0.0f), C3Vector(1198.36f, -4933.69f, 346.08f), C3Vector(1158.87f, -4823.17f, 344.76f), C3Vector(1149.31f, -4791.83f, 0.0f) };
 
 // STATIC: 0x00AEF850
-static C3Vector s_occlusionVolumeVerts25[4] = { C3Vector(1219.40002f, -5004.41992f, 0.0f), C3Vector(1219.40002f, -5004.41992f, 173.610001f), C3Vector(1128.43005f, -4743.66016f, 173.130005f), C3Vector(1128.43005f, -4743.66016f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts25[4] = { C3Vector(1219.4f, -5004.42f, 0.0f), C3Vector(1219.4f, -5004.42f, 173.61f), C3Vector(1128.43f, -4743.66f, 173.13f), C3Vector(1128.43f, -4743.66f, 0.0f) };
 
 // STATIC: 0x00AEF880
-static C3Vector s_occlusionVolumeVerts26[7] = { C3Vector(1111.31006f, -4819.8999f, 172.490005f), C3Vector(1090.0f, -4809.75977f, 172.490005f), C3Vector(1073.63f, -4794.27002f, 172.490005f), C3Vector(1069.92004f, -4767.41016f, 172.490005f), C3Vector(1098.58997f, -4757.35986f, 172.490005f), C3Vector(1163.56006f, -4754.04004f, 172.490005f), C3Vector(1167.65002f, -4794.54004f, 172.490005f) };
+static C3Vector s_occlusionVolumeVerts26[7] = { C3Vector(1111.31f, -4819.9f, 172.49f), C3Vector(1090.0f, -4809.76f, 172.49f), C3Vector(1073.63f, -4794.27f, 172.49f), C3Vector(1069.92f, -4767.41f, 172.49f), C3Vector(1098.59f, -4757.36f, 172.49f), C3Vector(1163.56f, -4754.04f, 172.49f), C3Vector(1167.65f, -4794.54f, 172.49f) };
 
 // STATIC: 0x00AEF8D4
-static C3Vector s_occlusionVolumeVerts27[5] = { C3Vector(1142.31995f, -5006.37988f, 172.119995f), C3Vector(1153.18005f, -4968.25f, 172.119995f), C3Vector(1254.25f, -4932.14014f, 172.119995f), C3Vector(1286.37f, -4988.77002f, 172.119995f), C3Vector(1156.18005f, -5028.95996f, 172.119995f) };
+static C3Vector s_occlusionVolumeVerts27[5] = { C3Vector(1142.32f, -5006.38f, 172.12f), C3Vector(1153.18f, -4968.25f, 172.12f), C3Vector(1254.25f, -4932.14f, 172.12f), C3Vector(1286.37f, -4988.77f, 172.12f), C3Vector(1156.18f, -5028.96f, 172.12f) };
 
 // STATIC: 0x00AEF910
-static C3Vector s_occlusionVolumeVerts28[4] = { C3Vector(2181.38989f, 5312.52979f, -50.0f), C3Vector(2181.38989f, 5312.52979f, 44.9700012f), C3Vector(2116.82007f, 5332.81006f, 44.9700012f), C3Vector(2116.82007f, 5332.81006f, -50.0f) };
+static C3Vector s_occlusionVolumeVerts28[4] = { C3Vector(2181.39f, 5312.53f, -50.0f), C3Vector(2181.39f, 5312.53f, 44.97f), C3Vector(2116.82f, 5332.81f, 44.97f), C3Vector(2116.82f, 5332.81f, -50.0f) };
 
 // STATIC: 0x00AEF940
-static C3Vector s_occlusionVolumeVerts29[4] = { C3Vector(2116.82007f, 5332.81006f, -50.0f), C3Vector(2116.82007f, 5332.81006f, 44.9700012f), C3Vector(2100.21997f, 5284.27002f, 44.9700012f), C3Vector(2100.21997f, 5284.27002f, -50.0f) };
+static C3Vector s_occlusionVolumeVerts29[4] = { C3Vector(2116.82f, 5332.81f, -50.0f), C3Vector(2116.82f, 5332.81f, 44.97f), C3Vector(2100.22f, 5284.27f, 44.97f), C3Vector(2100.22f, 5284.27f, -50.0f) };
 
 // STATIC: 0x00AEF970
-static C3Vector s_occlusionVolumeVerts30[4] = { C3Vector(2324.45996f, 5188.87988f, -50.0f), C3Vector(2324.45996f, 5188.87988f, 38.2900009f), C3Vector(2273.20996f, 5209.70996f, 38.2900009f), C3Vector(2273.20996f, 5209.70996f, -50.0f) };
+static C3Vector s_occlusionVolumeVerts30[4] = { C3Vector(2324.46f, 5188.88f, -50.0f), C3Vector(2324.46f, 5188.88f, 38.29f), C3Vector(2273.21f, 5209.71f, 38.29f), C3Vector(2273.21f, 5209.71f, -50.0f) };
 
 // STATIC: 0x00AEF9A0
-static C3Vector s_occlusionVolumeVerts31[4] = { C3Vector(2275.62988f, 5190.16992f, -50.0f), C3Vector(2275.62988f, 5190.16992f, 39.5800018f), C3Vector(2286.95996f, 5210.31006f, 39.5800018f), C3Vector(2286.95996f, 5210.31006f, -50.0f) };
+static C3Vector s_occlusionVolumeVerts31[4] = { C3Vector(2275.63f, 5190.17f, -50.0f), C3Vector(2275.63f, 5190.17f, 39.58f), C3Vector(2286.96f, 5210.31f, 39.58f), C3Vector(2286.96f, 5210.31f, -50.0f) };
 
 // STATIC: 0x00AEF9D0
-static C3Vector s_occlusionVolumeVerts32[4] = { C3Vector(2878.06006f, 6177.6001f, 207.710007f), C3Vector(2937.51001f, 6113.31982f, 207.710007f), C3Vector(2905.16992f, 6082.3999f, 207.710007f), C3Vector(2845.54004f, 6145.41992f, 207.710007f) };
+static C3Vector s_occlusionVolumeVerts32[4] = { C3Vector(2878.06f, 6177.6f, 207.71f), C3Vector(2937.51f, 6113.32f, 207.71f), C3Vector(2905.17f, 6082.4f, 207.71f), C3Vector(2845.54f, 6145.42f, 207.71f) };
 
 // STATIC: 0x00AEFA00
-static C3Vector s_occlusionVolumeVerts33[4] = { C3Vector(2763.38989f, 6089.56982f, 207.809998f), C3Vector(2828.62988f, 6147.74023f, 207.809998f), C3Vector(2797.19995f, 6179.5498f, 207.809998f), C3Vector(2733.96997f, 6120.93018f, 207.809998f) };
+static C3Vector s_occlusionVolumeVerts33[4] = { C3Vector(2763.39f, 6089.57f, 207.81f), C3Vector(2828.63f, 6147.74f, 207.81f), C3Vector(2797.2f, 6179.5498f, 207.81f), C3Vector(2733.97f, 6120.93f, 207.81f) };
 
 // STATIC: 0x00AEFA30
-static C3Vector s_occlusionVolumeVerts34[4] = { C3Vector(2741.27002f, 6261.16016f, 207.809998f), C3Vector(2799.12012f, 6196.66992f, 207.809998f), C3Vector(2831.20996f, 6228.18994f, 207.809998f), C3Vector(2773.36011f, 6292.16992f, 207.809998f) };
+static C3Vector s_occlusionVolumeVerts34[4] = { C3Vector(2741.27f, 6261.16f, 207.81f), C3Vector(2799.12f, 6196.67f, 207.81f), C3Vector(2831.21f, 6228.19f, 207.81f), C3Vector(2773.36f, 6292.17f, 207.81f) };
 
 // STATIC: 0x00AEFA60
-static C3Vector s_occlusionVolumeVerts35[4] = { C3Vector(2902.29004f, 6274.68018f, 202.809998f), C3Vector(2846.67993f, 6224.75977f, 202.809998f), C3Vector(2880.3999f, 6195.16992f, 202.809998f), C3Vector(2931.47998f, 6241.72998f, 202.809998f) };
+static C3Vector s_occlusionVolumeVerts35[4] = { C3Vector(2902.29f, 6274.68f, 202.81f), C3Vector(2846.68f, 6224.76f, 202.81f), C3Vector(2880.4f, 6195.17f, 202.81f), C3Vector(2931.48f, 6241.73f, 202.81f) };
 
 // STATIC: 0x00AEFA90
-static C3Vector s_occlusionVolumeVerts36[4] = { C3Vector(2926.83008f, 6120.47021f, 79.0500031f), C3Vector(2781.04004f, 6278.5498f, 79.0800018f), C3Vector(2772.78003f, 6291.58008f, 203.899994f), C3Vector(2935.22998f, 6114.39014f, 192.479996f) };
+static C3Vector s_occlusionVolumeVerts36[4] = { C3Vector(2926.83f, 6120.47f, 79.05f), C3Vector(2781.04f, 6278.5498f, 79.08f), C3Vector(2772.78f, 6291.58f, 203.9f), C3Vector(2935.23f, 6114.39f, 192.48f) };
 
 // STATIC: 0x00AEFAC0
-static C3Vector s_occlusionVolumeVerts37[4] = { C3Vector(2853.65991f, 6199.45996f, 202.5f), C3Vector(2910.86011f, 6255.33008f, 200.339996f), C3Vector(2885.68994f, 6230.22998f, 74.6900024f), C3Vector(2860.12012f, 6206.81006f, 82.6900024f) };
+static C3Vector s_occlusionVolumeVerts37[4] = { C3Vector(2853.66f, 6199.46f, 202.5f), C3Vector(2910.86f, 6255.33f, 200.34f), C3Vector(2885.69f, 6230.23f, 74.69f), C3Vector(2860.12f, 6206.81f, 82.69f) };
 
 // STATIC: 0x00AEFAF0
-static C3Vector s_occlusionVolumeVerts38[4] = { C3Vector(2826.04004f, 6175.62012f, 80.3700027f), C3Vector(2760.6499f, 6116.41992f, 78.8600006f), C3Vector(2747.80005f, 6104.56982f, 203.550003f), C3Vector(2826.79004f, 6176.22021f, 203.270004f) };
+static C3Vector s_occlusionVolumeVerts38[4] = { C3Vector(2826.04f, 6175.62f, 80.37f), C3Vector(2760.6499f, 6116.42f, 78.86f), C3Vector(2747.8f, 6104.57f, 203.55f), C3Vector(2826.79f, 6176.22f, 203.27f) };
 
 // STATIC: 0x00AEFB20
-static C3Vector s_occlusionVolumeVerts39[5] = { C3Vector(2924.91992f, 6123.45996f, 191.494003f), C3Vector(2940.1001f, 6198.47021f, 191.494003f), C3Vector(2914.90991f, 6257.2002f, 191.494003f), C3Vector(2860.75f, 6282.54004f, 191.494003f), C3Vector(2781.79004f, 6276.06982f, 191.494003f) };
+static C3Vector s_occlusionVolumeVerts39[5] = { C3Vector(2924.92f, 6123.46f, 191.494f), C3Vector(2940.1f, 6198.47f, 191.494f), C3Vector(2914.91f, 6257.2f, 191.494f), C3Vector(2860.75f, 6282.54f, 191.494f), C3Vector(2781.79f, 6276.07f, 191.494f) };
 
 // STATIC: 0x00AEFB5C
-static C3Vector s_occlusionVolumeVerts40[4] = { C3Vector(3968.21997f, -3566.95996f, 256.790009f), C3Vector(3968.21997f, -3566.95996f, 377.160004f), C3Vector(3940.76001f, -3451.53003f, 354.329987f), C3Vector(3940.76001f, -3451.53003f, 291.480011f) };
+static C3Vector s_occlusionVolumeVerts40[4] = { C3Vector(3968.22f, -3566.96f, 256.79f), C3Vector(3968.22f, -3566.96f, 377.16f), C3Vector(3940.76f, -3451.53f, 354.33f), C3Vector(3940.76f, -3451.53f, 291.48f) };
 
 // STATIC: 0x00AEFB8C
-static C3Vector s_occlusionVolumeVerts41[4] = { C3Vector(4792.56982f, -1936.70996f, 160.0f), C3Vector(4792.56982f, -1936.70996f, 295.200012f), C3Vector(4791.64014f, -2034.21997f, 295.200012f), C3Vector(4791.64014f, -2034.21997f, 160.0f) };
+static C3Vector s_occlusionVolumeVerts41[4] = { C3Vector(4792.57f, -1936.71f, 160.0f), C3Vector(4792.57f, -1936.71f, 295.2f), C3Vector(4791.64f, -2034.22f, 295.2f), C3Vector(4791.64f, -2034.22f, 160.0f) };
 
 // STATIC: 0x00AEFBBC
-static C3Vector s_occlusionVolumeVerts42[4] = { C3Vector(4790.41016f, -2159.31006f, 295.200012f), C3Vector(4790.41016f, -2159.31006f, 160.0f), C3Vector(4791.3501f, -2056.95996f, 160.0f), C3Vector(4791.3501f, -2056.95996f, 295.200012f) };
+static C3Vector s_occlusionVolumeVerts42[4] = { C3Vector(4790.41f, -2159.31f, 295.2f), C3Vector(4790.41f, -2159.31f, 160.0f), C3Vector(4791.3501f, -2056.96f, 160.0f), C3Vector(4791.3501f, -2056.96f, 295.2f) };
 
 // STATIC: 0x00AEFD88
-static C3Vector s_occlusionVolumeVerts43[5] = { C3Vector(-208.169998f, -661.929993f, 120.120003f), C3Vector(-232.25f, -655.880005f, 120.120003f), C3Vector(-262.429993f, -661.539978f, 120.120003f), C3Vector(-261.609985f, -693.070007f, 120.120003f), C3Vector(-220.75f, -701.130005f, 120.120003f) };
+static C3Vector s_occlusionVolumeVerts43[5] = { C3Vector(-208.17f, -661.93f, 120.12f), C3Vector(-232.25f, -655.88f, 120.12f), C3Vector(-262.43f, -661.54f, 120.12f), C3Vector(-261.61f, -693.07f, 120.12f), C3Vector(-220.75f, -701.13f, 120.12f) };
 
 // STATIC: 0x00AEFDC4
-static C3Vector s_occlusionVolumeVerts44[4] = { C3Vector(-336.98999f, -570.869995f, 46.5400009f), C3Vector(-327.170013f, -684.76001f, 46.5400009f), C3Vector(-510.790009f, -626.059998f, 46.5400009f), C3Vector(-467.160004f, -575.200012f, 46.5400009f) };
+static C3Vector s_occlusionVolumeVerts44[4] = { C3Vector(-336.99f, -570.87f, 46.54f), C3Vector(-327.17f, -684.76f, 46.54f), C3Vector(-510.79f, -626.06f, 46.54f), C3Vector(-467.16f, -575.2f, 46.54f) };
 
 // STATIC: 0x00AEFDF4
-static C3Vector s_occlusionVolumeVerts45[4] = { C3Vector(-336.720001f, -777.349976f, 0.0f), C3Vector(-336.720001f, -777.349976f, 126.599998f), C3Vector(-335.709991f, -707.359985f, 126.599998f), C3Vector(-335.709991f, -707.359985f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts45[4] = { C3Vector(-336.72f, -777.35f, 0.0f), C3Vector(-336.72f, -777.35f, 126.6f), C3Vector(-335.71f, -707.36f, 126.6f), C3Vector(-335.71f, -707.36f, 0.0f) };
 
 // STATIC: 0x00AEFE24
-static C3Vector s_occlusionVolumeVerts46[4] = { C3Vector(-364.899994f, -637.22998f, 0.0f), C3Vector(-364.899994f, -637.22998f, 85.5299988f), C3Vector(-365.040009f, -806.450012f, 87.6800003f), C3Vector(-365.040009f, -806.450012f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts46[4] = { C3Vector(-364.9f, -637.23f, 0.0f), C3Vector(-364.9f, -637.23f, 85.53f), C3Vector(-365.04f, -806.45f, 87.68f), C3Vector(-365.04f, -806.45f, 0.0f) };
 
 // STATIC: 0x00AEFE54
-static C3Vector s_occlusionVolumeVerts47[4] = { C3Vector(-227.259995f, -760.090027f, 0.0f), C3Vector(-227.259995f, -760.090027f, 101.339996f), C3Vector(-444.859985f, -740.530029f, 91.1800003f), C3Vector(-444.859985f, -740.530029f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts47[4] = { C3Vector(-227.26f, -760.09f, 0.0f), C3Vector(-227.26f, -760.09f, 101.34f), C3Vector(-444.86f, -740.53f, 91.18f), C3Vector(-444.86f, -740.53f, 0.0f) };
 
 // STATIC: 0x00AEFE84
-static C3Vector s_occlusionVolumeVerts48[5] = { C3Vector(-287.790009f, -547.27002f, 6.36000013f), C3Vector(-227.240005f, -735.280029f, 6.36000013f), C3Vector(-393.959991f, -846.23999f, 6.36000013f), C3Vector(-499.179993f, -683.280029f, 6.36000013f), C3Vector(-441.809998f, -599.640015f, 6.36000013f) };
+static C3Vector s_occlusionVolumeVerts48[5] = { C3Vector(-287.79f, -547.27f, 6.36f), C3Vector(-227.24f, -735.28f, 6.36f), C3Vector(-393.96f, -846.24f, 6.36f), C3Vector(-499.18f, -683.28f, 6.36f), C3Vector(-441.81f, -599.64f, 6.36f) };
 
 // STATIC: 0x00AEFBEC
-static C3Vector s_occlusionVolumeVerts49[4] = { C3Vector(1530.72998f, -3570.53003f, 158.300003f), C3Vector(1418.81995f, -3136.56006f, 158.300003f), C3Vector(1418.81995f, -3136.56006f, 0.0f), C3Vector(1530.72998f, -3570.53003f, 0.0f) };
+static C3Vector s_occlusionVolumeVerts49[4] = { C3Vector(1530.73f, -3570.53f, 158.3f), C3Vector(1418.82f, -3136.56f, 158.3f), C3Vector(1418.82f, -3136.56f, 0.0f), C3Vector(1530.73f, -3570.53f, 0.0f) };
 
 // STATIC: 0x00AEFC1C
-static C3Vector s_occlusionVolumeVerts50[4] = { C3Vector(1579.05005f, -3461.44995f, 147.199997f), C3Vector(1535.65002f, -3238.25f, 147.199997f), C3Vector(1447.47998f, -3239.18994f, 147.199997f), C3Vector(1467.60999f, -3591.0f, 147.199997f) };
+static C3Vector s_occlusionVolumeVerts50[4] = { C3Vector(1579.05f, -3461.45f, 147.2f), C3Vector(1535.65f, -3238.25f, 147.2f), C3Vector(1447.48f, -3239.19f, 147.2f), C3Vector(1467.61f, -3591.0f, 147.2f) };
 
 // STATIC: 0x00AEFC50
-static C3Vector s_occlusionVolumeVerts51[7] = { C3Vector(1713.95996f, -3423.56006f, 133.839996f), C3Vector(1637.57996f, -3417.65991f, 133.839996f), C3Vector(1608.12f, -3365.8999f, 133.839996f), C3Vector(1608.5f, -3307.29004f, 133.839996f), C3Vector(1635.44995f, -3263.93994f, 133.839996f), C3Vector(1687.90002f, -3252.33008f, 133.839996f), C3Vector(1747.5f, -3271.53003f, 133.839996f) };
+static C3Vector s_occlusionVolumeVerts51[7] = { C3Vector(1713.96f, -3423.56f, 133.84f), C3Vector(1637.58f, -3417.66f, 133.84f), C3Vector(1608.12f, -3365.9f, 133.84f), C3Vector(1608.5f, -3307.29f, 133.84f), C3Vector(1635.45f, -3263.94f, 133.84f), C3Vector(1687.9f, -3252.33f, 133.84f), C3Vector(1747.5f, -3271.53f, 133.84f) };
 
 // STATIC: 0x00AEFCA4
-static C3Vector s_occlusionVolumeVerts52[5] = { C3Vector(1747.57996f, -3461.09009f, 139.0f), C3Vector(1658.70996f, -3446.07007f, 139.0f), C3Vector(1625.67004f, -3548.93994f, 139.0f), C3Vector(1676.44995f, -3612.45996f, 139.0f), C3Vector(1720.95996f, -3582.86011f, 139.0f) };
+static C3Vector s_occlusionVolumeVerts52[5] = { C3Vector(1747.58f, -3461.09f, 139.0f), C3Vector(1658.71f, -3446.07f, 139.0f), C3Vector(1625.67f, -3548.94f, 139.0f), C3Vector(1676.45f, -3612.46f, 139.0f), C3Vector(1720.96f, -3582.86f, 139.0f) };
 
 // STATIC: 0x00AEFD10
-static C3Vector s_occlusionVolumeVerts53[5] = { C3Vector(301.839996f, -475.679993f, 104.580002f), C3Vector(293.690002f, -509.899994f, 104.580002f), C3Vector(307.109985f, -528.01001f, 104.580002f), C3Vector(485.309998f, -525.929993f, 104.580002f), C3Vector(496.529999f, -493.970001f, 104.580002f) };
+static C3Vector s_occlusionVolumeVerts53[5] = { C3Vector(301.84f, -475.68f, 104.58f), C3Vector(293.69f, -509.9f, 104.58f), C3Vector(307.11f, -528.01f, 104.58f), C3Vector(485.31f, -525.93f, 104.58f), C3Vector(496.53f, -493.97f, 104.58f) };
 
 // STATIC: 0x00AEFD4C
-static C3Vector s_occlusionVolumeVerts54[5] = { C3Vector(481.859985f, -273.23999f, 103.43f), C3Vector(499.190002f, -264.26001f, 103.43f), C3Vector(490.119995f, -233.919998f, 103.43f), C3Vector(304.619995f, -229.970001f, 103.43f), C3Vector(302.910004f, -268.570007f, 103.43f) };
+static C3Vector s_occlusionVolumeVerts54[5] = { C3Vector(481.86f, -273.24f, 103.43f), C3Vector(499.19f, -264.26f, 103.43f), C3Vector(490.12f, -233.92f, 103.43f), C3Vector(304.62f, -229.97f, 103.43f), C3Vector(302.91f, -268.57f, 103.43f) };
 
 // STATIC: 0x00AEFEC0
 static C3Vector s_occlusionVolumeVerts55[4] = { C3Vector(2087.0f, 300.0f, 503.0f), C3Vector(2087.0f, -300.0f, 503.0f), C3Vector(2087.0f, -300.0f, -2000.0f), C3Vector(2087.0f, 300.0f, -2000.0f) };
@@ -226,13 +226,13 @@ static C3Vector s_occlusionVolumeVerts57[4] = { C3Vector(2087.0f, 300.0f, 500.0f
 static C3Vector s_occlusionVolumeVerts58[4] = { C3Vector(9000.0f, -1300.0f, 10000.0f), C3Vector(9000.0f, -1300.0f, -10000.0f), C3Vector(-9000.0f, -1300.0f, -10000.0f), C3Vector(-9000.0f, -1300.0f, 10000.0f) };
 
 // STATIC: 0x00AEFF80
-static C3Vector s_occlusionVolumeVerts59[8] = { C3Vector(-274.299988f, 2212.69995f, 175.0f), C3Vector(-316.200012f, 2120.5f, 175.0f), C3Vector(-435.899994f, 2033.80005f, 175.0f), C3Vector(-549.5f, 2104.6001f, 175.0f), C3Vector(-613.599976f, 2212.30005f, 175.0f), C3Vector(-547.400024f, 2320.6001f, 175.0f), C3Vector(-438.100006f, 2382.30005f, 175.0f), C3Vector(-326.899994f, 2320.5f, 175.0f) };
+static C3Vector s_occlusionVolumeVerts59[8] = { C3Vector(-274.3f, 2212.7f, 175.0f), C3Vector(-316.2f, 2120.5f, 175.0f), C3Vector(-435.9f, 2033.8f, 175.0f), C3Vector(-549.5f, 2104.6f, 175.0f), C3Vector(-613.6f, 2212.3f, 175.0f), C3Vector(-547.4f, 2320.6f, 175.0f), C3Vector(-438.1f, 2382.3f, 175.0f), C3Vector(-326.9f, 2320.5f, 175.0f) };
 
 // STATIC: 0x00AEFFE0
-static C3Vector s_occlusionVolumeVerts60[4] = { C3Vector(-470.600006f, 2243.30005f, 614.0f), C3Vector(-520.099976f, 2293.3999f, -163.899994f), C3Vector(-336.100006f, 2116.0f, -163.300003f), C3Vector(-405.700012f, 2179.5f, 614.0f) };
+static C3Vector s_occlusionVolumeVerts60[4] = { C3Vector(-470.6f, 2243.3f, 614.0f), C3Vector(-520.1f, 2293.4f, -163.9f), C3Vector(-336.1f, 2116.0f, -163.3f), C3Vector(-405.7f, 2179.5f, 614.0f) };
 
 // STATIC: 0x00AF0010
-static C3Vector s_occlusionVolumeVerts61[4] = { C3Vector(-475.600006f, 2173.80005f, 614.0f), C3Vector(-502.200012f, 2148.69995f, -158.0f), C3Vector(-344.399994f, 2309.0f, -158.0f), C3Vector(-403.899994f, 2243.69995f, 614.0f) };
+static C3Vector s_occlusionVolumeVerts61[4] = { C3Vector(-475.6f, 2173.8f, 614.0f), C3Vector(-502.2f, 2148.7f, -158.0f), C3Vector(-344.4f, 2309.0f, -158.0f), C3Vector(-403.9f, 2243.7f, 614.0f) };
 
 // STATIC: 0x00AF0040
 static OcclusionVolume s_occlusionVolumes[62] = {
@@ -301,19 +301,19 @@ static OcclusionVolume s_occlusionVolumes[62] = {
 };
 
 // STATIC: 0x00AEEF78
-static C3Vector s_worldOccluderVerts0[22] = { C3Vector(2287.72998f, 5169.47998f, 44.1699982f), C3Vector(2297.80005f, 5165.72021f, 44.1699982f), C3Vector(2296.86011f, 5166.18994f, 33.6300011f), C3Vector(2328.37988f, 5159.77002f, 33.6300011f), C3Vector(2327.02002f, 5159.72998f, 45.0f), C3Vector(2337.20996f, 5163.87988f, 45.0f), C3Vector(2335.61011f, 5162.58984f, 30.8999996f), C3Vector(2364.8999f, 5187.66992f, 30.8999996f), C3Vector(2364.08008f, 5186.95996f, 39.1500015f), C3Vector(2372.45996f, 5196.06006f, 39.1500015f), C3Vector(2372.95996f, 5192.8999f, 27.8099995f), C3Vector(2381.71997f, 5230.60986f, 27.8099995f), C3Vector(2381.62012f, 5229.2002f, 40.9000015f), C3Vector(2381.37988f, 5239.99023f, 40.9000015f), C3Vector(2370.56006f, 5272.83984f, 47.0f), C3Vector(2365.47998f, 5281.81006f, 47.0f), C3Vector(2366.57007f, 5281.31006f, 33.0999985f), C3Vector(2342.16992f, 5301.83984f, 33.0999985f), C3Vector(2341.38989f, 5302.18994f, 50.6300011f), C3Vector(2325.29004f, 5313.29004f, 50.6300011f), C3Vector(2325.29004f, 5313.29004f, 50.6300011f), C3Vector(2314.61011f, 5303.97021f, 50.6300011f) };
+static C3Vector s_worldOccluderVerts0[22] = { C3Vector(2287.73f, 5169.48f, 44.17f), C3Vector(2297.8f, 5165.72f, 44.17f), C3Vector(2296.86f, 5166.19f, 33.63f), C3Vector(2328.38f, 5159.77f, 33.63f), C3Vector(2327.02f, 5159.73f, 45.0f), C3Vector(2337.21f, 5163.88f, 45.0f), C3Vector(2335.61f, 5162.59f, 30.9f), C3Vector(2364.9f, 5187.67f, 30.9f), C3Vector(2364.08f, 5186.96f, 39.15f), C3Vector(2372.46f, 5196.06f, 39.15f), C3Vector(2372.96f, 5192.9f, 27.81f), C3Vector(2381.72f, 5230.61f, 27.81f), C3Vector(2381.62f, 5229.2f, 40.9f), C3Vector(2381.38f, 5239.99f, 40.9f), C3Vector(2370.56f, 5272.84f, 47.0f), C3Vector(2365.48f, 5281.81f, 47.0f), C3Vector(2366.57f, 5281.31f, 33.1f), C3Vector(2342.17f, 5301.84f, 33.1f), C3Vector(2341.39f, 5302.19f, 50.63f), C3Vector(2325.29f, 5313.29f, 50.63f), C3Vector(2325.29f, 5313.29f, 50.63f), C3Vector(2314.61f, 5303.97f, 50.63f) };
 
 // STATIC: 0x00AEF080
-static C3Vector s_worldOccluderVerts1[16] = { C3Vector(2189.1001f, 5348.62988f, 44.7400017f), C3Vector(2200.34009f, 5343.43018f, 44.7400017f), C3Vector(2122.22998f, 5368.75977f, 32.3600006f), C3Vector(2076.05005f, 5340.02002f, 32.3600006f), C3Vector(2076.05005f, 5340.02002f, 32.3600006f), C3Vector(2064.67993f, 5300.58984f, 32.3600006f), C3Vector(2065.1001f, 5302.50977f, 64.3199997f), C3Vector(2063.46997f, 5290.35986f, 64.3199997f), C3Vector(2062.59009f, 5291.6001f, 51.3300018f), C3Vector(2077.09009f, 5252.00977f, 51.3300018f), C3Vector(2077.09009f, 5252.00977f, 51.3300018f), C3Vector(2109.76001f, 5225.79004f, 51.3300018f), C3Vector(2108.5f, 5228.31006f, 39.7599983f), C3Vector(2190.55005f, 5195.1001f, 39.7599983f), C3Vector(2189.1001f, 5348.62988f, 44.7400017f), C3Vector(2200.34009f, 5343.43018f, 44.7400017f) };
+static C3Vector s_worldOccluderVerts1[16] = { C3Vector(2189.1f, 5348.63f, 44.74f), C3Vector(2200.34f, 5343.43f, 44.74f), C3Vector(2122.23f, 5368.76f, 32.36f), C3Vector(2076.05f, 5340.02f, 32.36f), C3Vector(2076.05f, 5340.02f, 32.36f), C3Vector(2064.68f, 5300.59f, 32.36f), C3Vector(2065.1f, 5302.51f, 64.32f), C3Vector(2063.47f, 5290.36f, 64.32f), C3Vector(2062.59f, 5291.6f, 51.33f), C3Vector(2077.09f, 5252.01f, 51.33f), C3Vector(2077.09f, 5252.01f, 51.33f), C3Vector(2109.76f, 5225.79f, 51.33f), C3Vector(2108.5f, 5228.31f, 39.76f), C3Vector(2190.55f, 5195.1f, 39.76f), C3Vector(2189.1f, 5348.63f, 44.74f), C3Vector(2200.34f, 5343.43f, 44.74f) };
 
 // STATIC: 0x00AEF140
-static C3Vector s_worldOccluderVerts2[6] = { C3Vector(701.409973f, -5045.22021f, 25.0f), C3Vector(702.150024f, -5032.52002f, 25.0f), C3Vector(702.320007f, -5034.81006f, 15.8100004f), C3Vector(704.030029f, -4994.79004f, 15.8100004f), C3Vector(703.460022f, -4995.75f, 19.4300003f), C3Vector(701.070007f, -4983.97998f, 19.4300003f) };
+static C3Vector s_worldOccluderVerts2[6] = { C3Vector(701.41f, -5045.22f, 25.0f), C3Vector(702.15f, -5032.52f, 25.0f), C3Vector(702.32f, -5034.81f, 15.81f), C3Vector(704.03f, -4994.79f, 15.81f), C3Vector(703.46f, -4995.75f, 19.43f), C3Vector(701.07f, -4983.98f, 19.43f) };
 
 // STATIC: 0x00AEF188
-static C3Vector s_worldOccluderVerts3[6] = { C3Vector(693.52002f, -4946.7002f, 20.2999992f), C3Vector(690.320007f, -4934.54004f, 19.3600006f), C3Vector(691.159973f, -4936.68994f, 15.3999996f), C3Vector(675.849976f, -4907.31006f, 15.3999996f), C3Vector(676.570007f, -4907.72021f, 28.3799992f), C3Vector(670.090027f, -4896.62012f, 28.3799992f) };
+static C3Vector s_worldOccluderVerts3[6] = { C3Vector(693.52f, -4946.7f, 20.3f), C3Vector(690.32f, -4934.54f, 19.36f), C3Vector(691.16f, -4936.69f, 15.4f), C3Vector(675.85f, -4907.31f, 15.4f), C3Vector(676.57f, -4907.72f, 28.38f), C3Vector(670.09f, -4896.62f, 28.38f) };
 
 // STATIC: 0x00AEF1D0
-static C3Vector s_worldOccluderVerts4[22] = { C3Vector(3922.27002f, -3780.83008f, 223.880005f), C3Vector(3931.12988f, -3816.6499f, 225.300003f), C3Vector(3930.42993f, -3816.25f, 247.050003f), C3Vector(3972.51001f, -3865.33008f, 246.880005f), C3Vector(3985.02002f, -3862.97998f, 266.380005f), C3Vector(4019.30005f, -3871.8501f, 266.380005f), C3Vector(4018.84009f, -3870.28003f, 283.140015f), C3Vector(4057.41992f, -3866.94995f, 283.600006f), C3Vector(4057.41992f, -3866.94995f, 283.600006f), C3Vector(4090.54004f, -3839.40991f, 283.140015f), C3Vector(4097.93018f, -3813.61011f, 312.859985f), C3Vector(4108.39014f, -3773.71997f, 310.559998f), C3Vector(4108.39014f, -3773.71997f, 310.559998f), C3Vector(4085.13989f, -3743.48999f, 312.859985f), C3Vector(4070.07007f, -3716.09009f, 279.630005f), C3Vector(4032.63989f, -3689.23999f, 283.549988f), C3Vector(4032.63989f, -3689.23999f, 283.549988f), C3Vector(4005.66992f, -3693.69995f, 279.630005f), C3Vector(4003.37988f, -3697.04004f, 266.73999f), C3Vector(3963.34009f, -3709.25f, 240.449997f), C3Vector(3963.34009f, -3709.25f, 240.449997f), C3Vector(3936.93994f, -3745.72998f, 230.220001f) };
+static C3Vector s_worldOccluderVerts4[22] = { C3Vector(3922.27f, -3780.83f, 223.88f), C3Vector(3931.13f, -3816.6499f, 225.3f), C3Vector(3930.43f, -3816.25f, 247.05f), C3Vector(3972.51f, -3865.33f, 246.88f), C3Vector(3985.02f, -3862.98f, 266.38f), C3Vector(4019.3f, -3871.8501f, 266.38f), C3Vector(4018.84f, -3870.28f, 283.14f), C3Vector(4057.42f, -3866.95f, 283.6f), C3Vector(4057.42f, -3866.95f, 283.6f), C3Vector(4090.54f, -3839.41f, 283.14f), C3Vector(4097.93f, -3813.61f, 312.86f), C3Vector(4108.39f, -3773.72f, 310.56f), C3Vector(4108.39f, -3773.72f, 310.56f), C3Vector(4085.14f, -3743.49f, 312.86f), C3Vector(4070.07f, -3716.09f, 279.63f), C3Vector(4032.64f, -3689.24f, 283.55f), C3Vector(4032.64f, -3689.24f, 283.55f), C3Vector(4005.67f, -3693.7f, 279.63f), C3Vector(4003.38f, -3697.04f, 266.74f), C3Vector(3963.34f, -3709.25f, 240.45f), C3Vector(3963.34f, -3709.25f, 240.45f), C3Vector(3936.94f, -3745.73f, 230.22f) };
 
 // STATIC: 0x00D2DC20
 static WorldOccluderData s_worldOccluders[5] = {
@@ -332,7 +332,7 @@ void CWorldOccluder::Initialize() {
 // VERIFY: 4db2afc6 manual
 // OFFSET: 0x0078F6A0
 void CWorldOcclusion::UpdateBufferChunk(const C3Vector* verts, const float* heights, const uint32_t* indices, int32_t count, const C3Vector* offset, int32_t holes) {
-    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.89999998f || CWorldScene::camVec.z > 0.89999998f) {
+    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.9f || CWorldScene::camVec.z > 0.9f) {
         return;
     }
 
@@ -417,7 +417,7 @@ void CWorldOcclusion::UpdateBufferChunk(const C3Vector* verts, const float* heig
 // VERIFY: 5b9f55f1 manual
 // OFFSET: 0x0078F900
 void CWorldOcclusion::UpdateBuffer(const C3Vector* points, int32_t count, uint32_t flags) {
-    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.89999998f || CWorldScene::camVec.z > 0.89999998f) {
+    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.9f || CWorldScene::camVec.z > 0.9f) {
         return;
     }
 
@@ -486,7 +486,7 @@ void CWorldOcclusion::UpdateBuffer(const C3Vector* points, int32_t count, uint32
 // VERIFY: a0f63ed4 manual
 // OFFSET: 0x0078FC40
 uint32_t CWorldOcclusion::QueryBuffer(const C3Vector& center, float radius, uint8_t flags) {
-    if (!(CWorld::enables & Enables::Enable_Culling) || fabs(radius) < 2.3841858e-07f || CWorldScene::camVec.z < -0.89999998f || CWorldScene::camVec.z > 0.89999998f) {
+    if (!(CWorld::enables & Enables::Enable_Culling) || fabs(radius) < 2.3841858e-07f || CWorldScene::camVec.z < -0.9f || CWorldScene::camVec.z > 0.9f) {
         return 0;
     }
 
@@ -530,7 +530,7 @@ uint32_t CWorldOcclusion::QueryBuffer(const C3Vector& center, float radius, uint
 // VERIFY: 3ac5bc19 auto
 // OFFSET: 0x0078FDC0
 uint32_t CWorldOcclusion::QueryBuffer(CAaBox* box, uint8_t flags) {
-    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.89999998f || CWorldScene::camVec.z > 0.89999998f) {
+    if (!(CWorld::enables & Enables::Enable_Culling) || CWorldScene::camVec.z < -0.9f || CWorldScene::camVec.z > 0.9f) {
         return 0;
     }
 
@@ -786,7 +786,7 @@ void CWorldOcclusion::AddVolume(const C3Vector* eye, const C3Vector* verts, int3
 
         C3Vector* clipped = static_cast<C3Vector*>(alloca(sizeof(C3Vector) * 2 * count));
         uint32_t clippedCount = 0;
-        CWorldMath::ClipVertexListToPlane(verts, count, clipped, clippedCount, viewPlane, 0.000099999997f, 1);
+        CWorldMath::ClipVertexListToPlane(verts, count, clipped, clippedCount, viewPlane, 0.0001f, 1);
 
         if (clippedCount <= 2) {
             return;
@@ -806,7 +806,7 @@ void CWorldOcclusion::AddVolume(const C3Vector* eye, const C3Vector* verts, int3
 
             float lengthSq = plane.n.y * plane.n.y + plane.n.z * plane.n.z + plane.n.x * plane.n.x;
 
-            if (lengthSq > 0.000099999997f) {
+            if (lengthSq > 0.0001f) {
                 float inv = 1.0f / sqrtf(lengthSq);
                 plane.n.x = plane.n.x * inv;
                 plane.n.y = plane.n.y * inv;

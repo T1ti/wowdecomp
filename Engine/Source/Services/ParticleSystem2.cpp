@@ -702,12 +702,12 @@ void CParticleEmitter2::InterpolateAllTracks(const CParticle2& particle, CImVect
         float scaleX = CRandom::sfloat_(seed) * this->m_params.m_scaleVariationX + 1.0f;
         float scaleY = this->m_params.m_scaleVariationY * variationY + 1.0f;
 
-        if (scaleY <= 0.000099999997f) {
-            scaleY = 0.000099999997f;
+        if (scaleY <= 0.0001f) {
+            scaleY = 0.0001f;
         }
 
-        if (scaleX <= 0.000099999997f) {
-            scale->x = 0.000099999997f * scale->x;
+        if (scaleX <= 0.0001f) {
+            scale->x = 0.0001f * scale->x;
         } else {
             scale->x = scaleX * scale->x;
         }
@@ -716,8 +716,8 @@ void CParticleEmitter2::InterpolateAllTracks(const CParticle2& particle, CImVect
     } else {
         float scaleXY = CRandom::sfloat_(seed) * this->m_params.m_scaleVariationX + 1.0f;
 
-        if (scaleXY < 0.000099999997f) {
-            scaleXY = 0.000099999997f;
+        if (scaleXY < 0.0001f) {
+            scaleXY = 0.0001f;
         }
 
         scale->x = scale->x * scaleXY;
@@ -1513,7 +1513,7 @@ void CParticleEmitter2::SetEmissionRate(float rate) {
 int32_t CParticleEmitter2::MoveParticle(CParticle2_Model& particle, float deltaTime) {
     float speed = sqrt(particle.m_angularVelocity.z * particle.m_angularVelocity.z + particle.m_angularVelocity.y * particle.m_angularVelocity.y + particle.m_angularVelocity.x * particle.m_angularVelocity.x);
 
-    if (speed > 0.000099999997f) {
+    if (speed > 0.0001f) {
         float halfAngle = speed * deltaTime * 0.5f;
         float scale = sin(halfAngle) * (1.0f / speed);
 
@@ -3090,7 +3090,7 @@ void CSplineParticleEmitter::CreateParticle(CParticle2& particle, float time, co
             tangent.y = tangent.y * scale;
             tangent.z = scale * tangent.z;
 
-            if (fabs(tangent.z + (tangent.x + tangent.y) * 0.0f) > 0.89999998f) {
+            if (fabs(tangent.z + (tangent.x + tangent.y) * 0.0f) > 0.9f) {
                 up.z = 1.0f;
             }
 

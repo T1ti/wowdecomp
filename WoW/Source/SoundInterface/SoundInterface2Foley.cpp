@@ -160,7 +160,7 @@ void SI2::UpdateTaxiSounds(float elapsed) {
         }
 
         uint32_t roll = CRandom::dice_(static_cast<uint32_t>(static_cast<int64_t>(range * 100.0f)), g_rndSeed);
-        s_taxiFidgetDelay = static_cast<float>(roll) * 0.0099999998f + delayMin;
+        s_taxiFidgetDelay = static_cast<float>(roll) * 0.01f + delayMin;
     }
 
     if (!SI2::IsPlaying(&s_taxiSound)) {

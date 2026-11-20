@@ -6527,7 +6527,7 @@ BOOL CGUnit_C::IsSplashing(const C3Vector& position) const {
         int32_t flag9;
         World::QueryObjectLiquidFlags(this->m_worldObject, &flag8, &flag9);
 
-        if (flag9 && height + 0.0099999998f > position.z && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
+        if (flag9 && height + 0.01f > position.z && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
             return TRUE;
         }
     }
@@ -8448,7 +8448,7 @@ void CGUnit_C::UpdateSelectionRadius() {
     this->m_selectionRadius = sqrt(scaled);
 
     if (scaled > 5.0f) {
-        this->m_selectionRadius = this->m_selectionRadius + (scaled - 5.0f) * (scaled - 5.0f) * 0.059999999f;
+        this->m_selectionRadius = this->m_selectionRadius + (scaled - 5.0f) * (scaled - 5.0f) * 0.06f;
     }
 
     if (this->m_selectionRadius > 10.0f) {
@@ -21973,8 +21973,8 @@ void CGUnit_C::CancelShapeshift() {
 void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32_t flying) {
     if (elapsed < 0.011111111f) {
         elapsed = 0.011111111f;
-    } else if (elapsed >= 0.050000001f) {
-        elapsed = 0.050000001f;
+    } else if (elapsed >= 0.05f) {
+        elapsed = 0.05f;
     }
 
     uint32_t moveFlags = this->m_movement->m_flags;
@@ -22019,7 +22019,7 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
 
     float pitchDelta = targetPitch - this->m_smoothSwimPitch;
 
-    if (fabs(pitchDelta) >= 0.0099999998f) {
+    if (fabs(pitchDelta) >= 0.01f) {
         if (pitchDelta > PI) {
             pitchDelta = pitchDelta - TWO_PI;
         } else if (pitchDelta < -PI) {
@@ -22049,7 +22049,7 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     float targetRoll;
 
     if (flying) {
-        targetRoll = facingDelta / elapsed * -0.15000001f;
+        targetRoll = facingDelta / elapsed * -0.15f;
         float rollDelta = targetRoll - this->m_smoothSwimRoll;
         float rate = elapsed * HALF_PI;
 
@@ -22129,12 +22129,12 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
     matrix->d1 = position.y;
     matrix->d2 = position.z;
     uint32_t flags = this->m_clientFlags2 & ~UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SWIM_SMOOTHING;
-    flags |= fabs(this->m_smoothSwimPitch - targetPitch) > 0.0099999998f ? UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_PITCH : 0;
+    flags |= fabs(this->m_smoothSwimPitch - targetPitch) > 0.01f ? UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_PITCH : 0;
     this->m_clientFlags2 = flags;
-    flags |= fabs(this->m_smoothSwimRoll - targetRoll) <= 0.0099999998f ? 0 : UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_ROLL;
+    flags |= fabs(this->m_smoothSwimRoll - targetRoll) <= 0.01f ? 0 : UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_ROLL;
     this->m_clientFlags2 = flags;
 
-    if (fabs(this->m_smoothFacingTarget - facing) <= 0.0099999998f) {
+    if (fabs(this->m_smoothFacingTarget - facing) <= 0.01f) {
         this->m_clientFlags2 = flags;
     } else {
         this->m_clientFlags2 = flags | UNIT_CLIENT_FLAGS2::UNIT_CLIENT_FLAG2_SMOOTH_SWIM_FACING;
@@ -22882,7 +22882,7 @@ void CGUnit_C::SetTrackingDirection(const C3Vector& direction) {
     if (flying) {
         float pitch = 0.0f;
 
-        if (up > 0.86602002f) {
+        if (up > 0.86602f) {
             pitch = CopySign(HALF_PI, dir.z);
         } else if (up > 0.17364f) {
             pitch = asin(dir.z);

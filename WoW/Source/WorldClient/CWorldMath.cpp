@@ -272,7 +272,7 @@ int32_t CWorldMath::PointInPolygon(int32_t count, const C2Vector* points, const 
 // VERIFY: fd69952e auto
 // OFFSET: 0x0079F6F0
 void CWorldMath::MakeAaBox(CAaBox& box, const C3Vector& center, const float* size) {
-    float extent = (size[1] >= size[0] ? size[1] : size[0]) * 0.66000003f;
+    float extent = (size[1] >= size[0] ? size[1] : size[0]) * 0.66f;
     box.b = center;
     box.t = center;
     box.b.x -= extent;

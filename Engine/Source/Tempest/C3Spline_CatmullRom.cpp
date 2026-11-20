@@ -171,7 +171,7 @@ void C3Spline_CatmullRom::IFrameArclength(float t, C44Matrix& frame) {
 
         float velSq = vel.z * vel.z + vel.y * vel.y + vel.x * vel.x;
 
-        if (velSq > 0.000099999997f) {
+        if (velSq > 0.0001f) {
             float inv = 1.0f / sqrt(velSq);
             vel.x = vel.x * inv;
             vel.y = vel.y * inv;

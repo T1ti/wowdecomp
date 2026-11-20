@@ -119,10 +119,10 @@
 #include "WoW/Source/UIUtil/Cursor.h"
 
 static const float LINE_SPACING = 2.0f;
-static const float COLUMN_SPACING = 38.400002f;
+static const float COLUMN_SPACING = 38.4f;
 static const float XOFFSET = 10.24f;
 static const float YOFFSET = 10.24f;
-static const float WORDWRAP_MIN_WIDTH = 230.39999f;
+static const float WORDWRAP_MIN_WIDTH = 230.4f;
 static const float TOOLTIP_FADE_TIME = 2.0f;
 
 // STATIC: 0x00AD2AAC
@@ -1073,7 +1073,7 @@ void CGTooltip::CalculateSize() {
 
             for (uint32_t j = 0; j < this->m_numTextures; j++) {
                 if (this->m_textureLines[j] == i) {
-                    lineWidth = this->m_textures[j]->GetWidth() + lineWidth + 0.0049999999f;
+                    lineWidth = this->m_textures[j]->GetWidth() + lineWidth + 0.005f;
                     break;
                 }
             }
@@ -1137,7 +1137,7 @@ void CGTooltip::CalculateSize() {
 
         for (uint32_t j = 0; j < this->m_numTextures; j++) {
             if (this->m_textureLines[j] == i) {
-                offset = width - this->m_textures[j]->GetWidth() - 0.0049999999f;
+                offset = width - this->m_textures[j]->GetWidth() - 0.005f;
                 break;
             }
         }
@@ -1426,7 +1426,7 @@ void CGItemStatsSummary::FillOutScalingItem(const ItemStats_C* stats, int32_t le
         GetScalingStatDamage(values, stats->m_scalingStatValue, &minDamage, &maxDamage);
         float total = minDamage + maxDamage;
         this->m_dps = 0.5f * total;
-        float damage = total * stats->m_delay * 0.00050000002f;
+        float damage = total * stats->m_delay * 0.0005f;
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
         if (player && player->m_unit->m_classID == CLASS_DRUID) {
@@ -3883,13 +3883,13 @@ void CGTooltip::AddTexture(const char* texture, const CAaRect& coords, const CIm
     if (index && this->m_textureLines[index - 1] == lines - 2) {
         offset = 0.0f;
     } else {
-        offset = this->m_textures[index]->GetWidth() + 0.0049999999f;
+        offset = this->m_textures[index]->GetWidth() + 0.005f;
     }
 
     CSimpleFontString** strings = &this->m_leftStrings.m_data[line];
     strings[0]->SetPoint(FRAMEPOINT_TOPLEFT, strings[-1], FRAMEPOINT_BOTTOMLEFT, offset, NDCToDDCWidth(-2.0f / (CoordinateGetAspectCompensation() * 1024.0f)), 1);
     this->m_textures[this->m_numTextures]->MarkFramePointsUnused();
-    this->m_textures[this->m_numTextures]->SetPoint(FRAMEPOINT_TOPRIGHT, this->m_leftStrings.m_data[line], FRAMEPOINT_TOPLEFT, -0.0049999999f, 0.0f, 1);
+    this->m_textures[this->m_numTextures]->SetPoint(FRAMEPOINT_TOPRIGHT, this->m_leftStrings.m_data[line], FRAMEPOINT_TOPLEFT, -0.005f, 0.0f, 1);
 
     if (line < this->m_maxLines - 1) {
         CSimpleFontString** next = &this->m_leftStrings.m_data[line];
@@ -3897,7 +3897,7 @@ void CGTooltip::AddTexture(const char* texture, const CAaRect& coords, const CIm
         if (next[1]) {
             CSimpleTexture* current = this->m_textures[this->m_numTextures];
             float y = NDCToDDCWidth(-2.0f / (CoordinateGetAspectCompensation() * 1024.0f));
-            next[1]->SetPoint(FRAMEPOINT_TOPLEFT, next[0], FRAMEPOINT_BOTTOMLEFT, -(current->GetWidth() + 0.0049999999f), y, 1);
+            next[1]->SetPoint(FRAMEPOINT_TOPLEFT, next[0], FRAMEPOINT_BOTTOMLEFT, -(current->GetWidth() + 0.005f), y, 1);
         }
     }
 

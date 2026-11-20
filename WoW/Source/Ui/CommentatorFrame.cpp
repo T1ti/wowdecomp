@@ -96,7 +96,7 @@ void CGCommentator::UpdateCameraVelocity(uint32_t controlFlags, BOOL canControl)
         turn = 0;
     }
 
-    this->m_yawVelocity = turn * 0.050000001f;
+    this->m_yawVelocity = turn * 0.05f;
 }
 
 // VERIFY: a105314a manual
@@ -356,9 +356,9 @@ void CGCommentator::OnUpdate(float elapsed) {
         if (this->m_cameraCollision && World::Intersect(target, eye, &hit, &hitDistance, WORLD_QUERY_COLLISION_MASK | WORLD_QUERY_WMO_RENDER | WORLD_QUERY_WMO_CAMERA, nullptr)) {
             C3Vector direction(target.x - hit.x, target.y - hit.y, target.z - hit.z);
             direction.NormalizeSafe();
-            this->m_position.x = direction.x * 0.80000001f + hit.x;
-            this->m_position.y = direction.y * 0.80000001f + hit.y;
-            this->m_position.z = direction.z * 0.80000001f + hit.z;
+            this->m_position.x = direction.x * 0.8f + hit.x;
+            this->m_position.y = direction.y * 0.8f + hit.y;
+            this->m_position.z = direction.z * 0.8f + hit.z;
         } else {
             this->m_position = eye;
         }
@@ -400,7 +400,7 @@ void CGCommentator::OnUpdate(float elapsed) {
             C3Vector direction(target.x - this->m_position.x, target.y - this->m_position.y, z - this->m_position.z);
             direction.NormalizeSafe();
 
-            if (direction.x * direction.x + direction.z * direction.z + direction.y * direction.y < 0.000099999997f) {
+            if (direction.x * direction.x + direction.z * direction.z + direction.y * direction.y < 0.0001f) {
                 direction.x = 1.0f;
                 direction.y = 0.0f;
                 direction.z = 0.0f;

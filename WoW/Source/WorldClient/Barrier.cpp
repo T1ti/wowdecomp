@@ -114,7 +114,7 @@ void CBarrier::AddBarrierConvexPoly(C3Vector* verts, uint32_t count, float radiu
     ray.origin = this->m_viewerPos;
     ray.dir = -contact.m_plane.n;
 
-    if (!NTempest::Intersect(ray, contact.m_plane, nullptr, &contact.m_point, 0.0099999998f)) {
+    if (!NTempest::Intersect(ray, contact.m_plane, nullptr, &contact.m_point, 0.01f)) {
         return;
     }
 
@@ -165,7 +165,7 @@ void CBarrier::AddAxisAlignedWall(const C2Vector& start, const C2Vector& end, fl
     segment.end = C3Vector(end.x, end.y, this->m_viewerPos.z);
     float dist = sqrt(NTempest::DistanceSquared(segment, this->m_viewerPos, &t));
 
-    if (0.99900001f * radius < dist) {
+    if (0.999f * radius < dist) {
         return;
     }
 
@@ -201,12 +201,12 @@ void CBarrier::AddBarrier(const CAaBox& box, float radius) {
     }
 
     CAaBox grown;
-    grown.b.x = box.b.x - 0.050000001f;
-    grown.b.y = box.b.y - 0.050000001f;
-    grown.b.z = box.b.z - 0.050000001f;
-    grown.t.x = box.t.x + 0.050000001f;
-    grown.t.y = box.t.y + 0.050000001f;
-    grown.t.z = box.t.z + 0.050000001f;
+    grown.b.x = box.b.x - 0.05f;
+    grown.b.y = box.b.y - 0.05f;
+    grown.b.z = box.b.z - 0.05f;
+    grown.t.x = box.t.x + 0.05f;
+    grown.t.y = box.t.y + 0.05f;
+    grown.t.z = box.t.z + 0.05f;
 
     if (NTempest::Distance(grown, this->m_viewerPos) > radius) {
         return;
@@ -459,8 +459,8 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
                 vertices->m_color = color;
 
                 if (odd) {
-                    vertices->m_t1x = source->m_t1x * 0.050000001f + 0.5f;
-                    vertices->m_t1y = 0.050000001f * source->m_t1y - static_cast<float>(fmod(s_patternPhase, 3.1415927410125732)) * 1.5915494f;
+                    vertices->m_t1x = source->m_t1x * 0.05f + 0.5f;
+                    vertices->m_t1y = 0.05f * source->m_t1y - static_cast<float>(fmod(s_patternPhase, 3.1415927410125732)) * 1.5915494f;
                 } else {
                     vertices->m_t1x = source->m_t1x * 0.1f;
                     vertices->m_t1y = 0.1f * source->m_t1y - static_cast<float>(fmod(s_patternPhase, 3.1415927410125732)) * 1.5915494f;

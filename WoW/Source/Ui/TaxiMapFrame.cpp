@@ -431,7 +431,7 @@ void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
 
     for (uint32_t j = 0; j < 5; j++) {
         info.m_costs[j] = static_cast<int32_t>(scale * cost + parentNode.m_costs[j]);
-        scale = scale - 0.050000001f;
+        scale = scale - 0.05f;
     }
 
     info.m_distance = distance;

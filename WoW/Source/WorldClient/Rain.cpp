@@ -175,10 +175,10 @@ void Rain::InitDrop(RainDropParticle* drop, float time) {
     float randomY = CRandom::ufloat_(g_rndSeed);
     C3Vector offset((CRandom::ufloat_(g_rndSeed) - 0.5f) * size.x, (randomY - 0.5f) * size.y, size.z * 0.0f);
     float randomAngle = CRandom::ufloat_(g_rndSeed);
-    float angle = (randomAngle - 0.5f) * (this->m_intensity * 0.20943952f + 0.052359879f) - 1.5700001f;
+    float angle = (randomAngle - 0.5f) * (this->m_intensity * 0.20943952f + 0.052359879f) - 1.57f;
     float c = cos(angle);
     float s = sin(angle);
-    float baseSpeed = this->m_intensity * 9.4899998f + 0.0099999998f;
+    float baseSpeed = this->m_intensity * 9.49f + 0.01f;
     float spread = (CRandom::ufloat_(g_rndSeed) - 0.5f) * this->m_intensity;
     float speed = spread + spread + baseSpeed;
     float fall = -28.0f - this->m_intensity * 4.0f;
@@ -372,9 +372,9 @@ void Rain::UpdatePackets() {
         return;
     }
 
-    float tick = 0.016666999f;
+    float tick = 0.016667f;
 
-    if (FrameTime::s_tickTimeSec < 0.016666999f) {
+    if (FrameTime::s_tickTimeSec < 0.016667f) {
         tick = FrameTime::s_tickTimeSec;
     }
 
@@ -575,9 +575,9 @@ void Rain::RenderDropPacketsSW() {
             side.x *= scale;
             side.y *= scale;
             side.z *= scale;
-            vertices[0].p = side * -0.050000001f + head;
+            vertices[0].p = side * -0.05f + head;
             vertices[0].tc = tex0;
-            vertices[1].p = head + side * 0.050000001f;
+            vertices[1].p = head + side * 0.05f;
             vertices[1].tc = tex1;
             C3Vector streak = direction * 2.0f;
             vertices[2].p.x = blur.a0 * streak.x + blur.a1 * streak.y + blur.a2 * streak.z + tail.x;
@@ -742,8 +742,8 @@ void Rain::RenderDropPackets() {
     float texV[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
     float texU[4] = { 1.0f, 1.0f, 0.0f, 0.0f };
     float half[4] = { 0.5f, 0.0f, 0.0f, 0.0f };
-    float widthLeft[4] = { -0.050000001f, -0.050000001f, -0.050000001f, 0.0f };
-    float widthRight[4] = { 0.050000001f, 0.050000001f, 0.050000001f, 0.0f };
+    float widthLeft[4] = { -0.05f, -0.05f, -0.05f, 0.0f };
+    float widthRight[4] = { 0.05f, 0.05f, 0.05f, 0.0f };
     float zero0[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     float zero1[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     float zero2[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -816,7 +816,7 @@ Rain::~Rain() {
 
 // VERIFY: 7c030b6b manual
 // OFFSET: 0x0078CA90
-Rain::Rain(float width, float height) : m_bbox(C3Vector(0.0f, 0.0f, 0.0f), C3Vector(0.0f, 0.0f, 0.0f)), m_mists(12.0f, C3Vector(44.0f, 44.0f, 25.0f), "textures\\Weather\\SnowMist01.blp", -1.5700001f, 0.34906587f, 5.0f, 1.2f, 128) {
+Rain::Rain(float width, float height) : m_bbox(C3Vector(0.0f, 0.0f, 0.0f), C3Vector(0.0f, 0.0f, 0.0f)), m_mists(12.0f, C3Vector(44.0f, 44.0f, 25.0f), "textures\\Weather\\SnowMist01.blp", -1.57f, 0.34906587f, 5.0f, 1.2f, 128) {
     this->m_useWeatherShaders = 1;
     this->m_fadeOut = 0;
     this->m_rainDropPacketList.m_activePacketsCount = 0;
