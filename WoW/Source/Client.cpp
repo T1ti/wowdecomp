@@ -900,7 +900,7 @@ static int32_t LoadNewWorld(const void* data, void* param) {
     ClntObjMgrDestroy();
     SpellVisualsClear();
     CEffect::Destroy();
-    CGWorldFrame::SetScreenEffect(0);
+    CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_NONE);
 
     if (CGWorldFrame::s_currentWorldFrame) {
         CGWorldFrame::s_currentWorldFrame->UnitClear();
@@ -1591,7 +1591,7 @@ void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogi
     CGUnit_C::PostShutdown();
     SpellVisualsClear();
     CEffect::Destroy();
-    CGWorldFrame::SetScreenEffect(0);
+    CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_NONE);
 
     if (CGWorldFrame::s_currentWorldFrame) {
         CGWorldFrame::s_currentWorldFrame->UnitClear();

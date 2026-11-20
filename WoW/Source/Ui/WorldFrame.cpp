@@ -1415,17 +1415,17 @@ void CGWorldFrame::UpdateScreenEffect() {
         }
 
         if ((player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && CGBattlefieldInfo::m_instanceType != MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD) {
-            CGWorldFrame::SetScreenEffect(1);
+            CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_GHOST);
             return;
         }
 
         if (player->m_player->m_auraVision & AURA_VISION_FLAG_INVISIBILITY_DETECT) {
-            CGWorldFrame::SetScreenEffect(81);
+            CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_INVIS);
             return;
         }
     }
 
-    CGWorldFrame::SetScreenEffect(0);
+    CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_NONE);
 }
 
 // VERIFY: 8df0efa3 manual
