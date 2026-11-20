@@ -1646,15 +1646,7 @@ bool CGCalendar::CanEditCurrentEvent() {
 // VERIFY: 784b0912 manual
 // OFFSET: 0x005B7D60
 void CGCalendar::SetInviteStatus(uint32_t index, uint32_t status) {
-    if (!CGCalendar::m_curEvent) {
-        return;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return;
     }
 
@@ -1666,15 +1658,7 @@ void CGCalendar::SetInviteStatus(uint32_t index, uint32_t status) {
 // VERIFY: 60d9ba2b manual
 // OFFSET: 0x005B7DC0
 void CGCalendar::SetModeratorStatus(uint32_t index, uint32_t status) {
-    if (!CGCalendar::m_curEvent) {
-        return;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return;
     }
 
@@ -1863,15 +1847,7 @@ bool CGCalendar::SetEventLockoutTime(uint32_t hour, uint32_t minute) {
 // VERIFY: a4ee2027 manual
 // OFFSET: 0x005B9630
 void CGCalendar::SetEventTextureID(uint32_t index) {
-    if (!CGCalendar::m_curEvent) {
-        return;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return;
     }
 

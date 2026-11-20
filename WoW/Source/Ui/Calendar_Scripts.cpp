@@ -1161,15 +1161,7 @@ static int32_t Script_CalendarEventSetTitle(lua_State* L) {
         title = lua_tolstring(L, 1, nullptr);
     }
 
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1186,15 +1178,7 @@ static int32_t Script_CalendarEventSetDescription(lua_State* L) {
         description = lua_tolstring(L, 1, nullptr);
     }
 
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1211,15 +1195,7 @@ static int32_t Script_CalendarEventSetType(lua_State* L) {
 
     double type = lua_tonumber(L, 1);
 
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1236,15 +1212,7 @@ static int32_t Script_CalendarEventSetRepeatOption(lua_State* L) {
 
     double repeatOption = lua_tonumber(L, 1);
 
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1261,15 +1229,7 @@ static int32_t Script_CalendarEventSetSize(lua_State* L) {
 
     double size = lua_tonumber(L, 1);
 
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1366,15 +1326,7 @@ static int32_t Script_CalendarEventSetTextureID(lua_State* L) {
 // VERIFY: 20d6b24e manual
 // OFFSET: 0x005BB870
 static int32_t Script_CalendarEventSetLocked(lua_State* L) {
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1385,15 +1337,7 @@ static int32_t Script_CalendarEventSetLocked(lua_State* L) {
 // VERIFY: 0d84b1df manual
 // OFFSET: 0x005BB8B0
 static int32_t Script_CalendarEventClearLocked(lua_State* L) {
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1404,15 +1348,7 @@ static int32_t Script_CalendarEventClearLocked(lua_State* L) {
 // VERIFY: 3a4a63e9 manual
 // OFFSET: 0x005BB8F0
 static int32_t Script_CalendarEventSetAutoApprove(lua_State* L) {
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
@@ -1423,15 +1359,7 @@ static int32_t Script_CalendarEventSetAutoApprove(lua_State* L) {
 // VERIFY: b8e3ea42 manual
 // OFFSET: 0x005BB930
 static int32_t Script_CalendarEventClearAutoApprove(lua_State* L) {
-    if (!CGCalendar::m_curEvent) {
-        return 0;
-    }
-
-    if (CGCalendar::m_curEvent->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_ANNOUNCEMENT) {
-        if (!CGGuildInfo::CanEditGuildEvent()) {
-            return 0;
-        }
-    } else if (!CGCalendar::m_curEvent->IsModerator()) {
+    if (!CGCalendar::CanEditCurrentEvent()) {
         return 0;
     }
 
