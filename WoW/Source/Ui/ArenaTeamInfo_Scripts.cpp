@@ -142,7 +142,7 @@ static int32_t Script_GetArenaTeam(lua_State* L) {
 // VERIFY: 9361dbb0 auto
 // OFFSET: 0x005A2A40
 static int32_t Script_GetCurrentArenaSeason(lua_State* L) {
-    lua_pushnumber(L, GetWorldState(3191));
+    lua_pushnumber(L, GetWorldState(WORLD_STATE_ARENA_SEASON));
     return 1;
 }
 

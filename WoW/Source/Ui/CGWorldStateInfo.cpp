@@ -126,7 +126,7 @@ bool CGWorldStateInfo::SetWorldState(uint32_t state, uint32_t value) {
 
     worldState->m_value = value;
 
-    if (state == 3191) {
+    if (state == WORLD_STATE_ARENA_SEASON) {
         FrameScript_SignalEvent(SCRIPT_EVENT_ARENA_SEASON_WORLD_STATE, nullptr);
     }
 
