@@ -165,7 +165,7 @@ void CMapStaticEntity::AdjustLightmap(const CImVector* color, CImVector* diffuse
     *diffuse = *color;
 
     if (brightest < limit.b) {
-        C3Vector rgb(diffuse->r * 0.0039215689f, diffuse->g * 0.0039215689f, color->b * 0.0039215689f);
+        C3Vector rgb(diffuse->r * ONE_OVER_255, diffuse->g * ONE_OVER_255, color->b * ONE_OVER_255);
         C3Vector hsv(0.0f, 0.0f, 0.0f);
         RGBtoHSV(rgb, hsv);
         hsv.z = static_cast<float>(limit.b) / static_cast<float>(brightest) * hsv.z;

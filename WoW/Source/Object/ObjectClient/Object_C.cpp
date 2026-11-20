@@ -370,7 +370,7 @@ void CGObject_C::Fadeout() {
             this->Animate(0.0f);
         }
 
-        CGObject_C::PrepareToFadeInt(this->m_worldObject, this->m_alpha * 0.0039215689f, this->GetTransportGUID());
+        CGObject_C::PrepareToFadeInt(this->m_worldObject, this->m_alpha * ONE_OVER_255, this->GetTransportGUID());
         this->m_worldObject = nullptr;
     } else {
         World::ObjectDestroy(this->m_worldObject);

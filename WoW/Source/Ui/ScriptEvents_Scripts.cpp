@@ -1015,9 +1015,9 @@ static int32_t Script_UnitPowerType(lua_State* L) {
         if (display && display->m_actualType == unit->m_unit->m_displayPower) {
             lua_pushnumber(L, display->m_actualType);
             lua_pushstring(L, display->m_globalStringBaseTag);
-            lua_pushnumber(L, static_cast<uint8_t>(display->m_red) * 0.0039215689f);
-            lua_pushnumber(L, static_cast<uint8_t>(display->m_green) * 0.0039215689f);
-            lua_pushnumber(L, static_cast<uint8_t>(display->m_blue) * 0.0039215689f);
+            lua_pushnumber(L, static_cast<uint8_t>(display->m_red) * ONE_OVER_255);
+            lua_pushnumber(L, static_cast<uint8_t>(display->m_green) * ONE_OVER_255);
+            lua_pushnumber(L, static_cast<uint8_t>(display->m_blue) * ONE_OVER_255);
             return 5;
         }
     }

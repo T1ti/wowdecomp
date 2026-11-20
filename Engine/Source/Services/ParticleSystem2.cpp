@@ -933,10 +933,10 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     model->m_worldTransform = transform;
 
     model = particle.m_model;
-    model->m_diffuseTintR = color.r * 0.0039215689f;
-    model->m_diffuseTintG = color.g * 0.0039215689f;
-    model->m_diffuseTintB = color.b * 0.0039215689f;
-    particle.m_model->m_fadeAlpha = 0.0039215689f * alphaByte;
+    model->m_diffuseTintR = color.r * ONE_OVER_255;
+    model->m_diffuseTintG = color.g * ONE_OVER_255;
+    model->m_diffuseTintB = color.b * ONE_OVER_255;
+    particle.m_model->m_fadeAlpha = ONE_OVER_255 * alphaByte;
 
     model = particle.m_model;
 

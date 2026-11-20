@@ -79,7 +79,7 @@ void DayNight::DNStars::Render() {
         model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
-    this->m_model->m_fadeAlpha = this->m_color.a * 0.0039215689f;
+    this->m_model->m_fadeAlpha = this->m_color.a * ONE_OVER_255;
 
     uint32_t elapsed = OsGetAsyncTimeMs() - this->m_lastTimeMs;
     this->m_scene->AdvanceTime(elapsed);

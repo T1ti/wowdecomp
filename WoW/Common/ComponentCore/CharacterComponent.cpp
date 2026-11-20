@@ -49,6 +49,7 @@
 #include "WoW/Source/DB/Rec/ItemVisualsRec.h"
 #include "WoW/Source/DB/Rec/ParticleColorRec.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x009F6A00
 static int32_t s_itemPriority[NUM_ITEM_SLOTS][NUM_COMPONENT_SECTIONS] = {
@@ -1430,9 +1431,9 @@ static void CompressBlock(const uint8_t* src, uint32_t stride, uint8_t* out) {
         for (int32_t x = 0; x < 4; x++) {
             const uint8_t* pixel = src + y * stride + 4 * x;
             float* color = colors[y * 4 + x];
-            color[0] = pixel[0] * 0.0039215689f;
-            color[1] = pixel[1] * 0.0039215689f;
-            color[2] = pixel[2] * 0.0039215689f;
+            color[0] = pixel[0] * ONE_OVER_255;
+            color[1] = pixel[1] * ONE_OVER_255;
+            color[2] = pixel[2] * ONE_OVER_255;
         }
     }
 

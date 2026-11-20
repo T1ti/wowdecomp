@@ -1827,9 +1827,9 @@ void CGUnit_C::UpdateModelTint(uint32_t time) {
         color = this->m_procEffects->m_color;
     }
 
-    float r = color.r * 0.0039215689f;
-    float g = color.g * 0.0039215689f;
-    float b = 0.0039215689f * color.b;
+    float r = color.r * ONE_OVER_255;
+    float g = color.g * ONE_OVER_255;
+    float b = ONE_OVER_255 * color.b;
     CM2Model* model = this->GetObjectModel();
     model->m_diffuseTintR = r;
     model->m_diffuseTintG = g;

@@ -4351,7 +4351,7 @@ void CMap::UpdateEntity(CMapEntity* entity) {
 
     if (entity->m_flags & MAPOBJ_FLAG_INTERIOR) {
         if (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_BLEND_OUTDOOR_LIGHT) {
-            entity->m_targetDiffuseLightScale = (2.5f - 1.0f) * (entity->m_m2DiffuseColor.a * 0.0039215689f) + 1.0f;
+            entity->m_targetDiffuseLightScale = (2.5f - 1.0f) * (entity->m_m2DiffuseColor.a * ONE_OVER_255) + 1.0f;
         } else {
             entity->m_targetDiffuseLightScale = 1.0f;
         }

@@ -3045,7 +3045,7 @@ void CM2Model::TransformVerticesNoUVSelect_cpp(const CM2Model* model, const M2Sk
             indices = *reinterpret_cast<uint32_t*>(&vertex->m_indices);
 
             const C44Matrix& bone = bones[vertex->m_indices.b[0]];
-            float weight = vertex->m_weights.b[0] * 0.0039215689f;
+            float weight = vertex->m_weights.b[0] * ONE_OVER_255;
             matrix.a0 = bone.a0 * weight;
             matrix.a1 = bone.a1 * weight;
             matrix.a2 = bone.a2 * weight;
@@ -3061,7 +3061,7 @@ void CM2Model::TransformVerticesNoUVSelect_cpp(const CM2Model* model, const M2Sk
 
             for (uint32_t k = 1; k < 4 && vertex->m_weights.b[k]; k++) {
                 const C44Matrix& next = bones[vertex->m_indices.b[k]];
-                weight = vertex->m_weights.b[k] * 0.0039215689f;
+                weight = vertex->m_weights.b[k] * ONE_OVER_255;
                 matrix.a0 += next.a0 * weight;
                 matrix.a1 += next.a1 * weight;
                 matrix.a2 += next.a2 * weight;
@@ -3103,7 +3103,7 @@ void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, ui
             indices = *reinterpret_cast<uint32_t*>(&vertex->m_indices);
 
             const C44Matrix& bone = bones[vertex->m_indices.b[0]];
-            float weight = vertex->m_weights.b[0] * 0.0039215689f;
+            float weight = vertex->m_weights.b[0] * ONE_OVER_255;
             matrix.a0 = bone.a0 * weight;
             matrix.a1 = bone.a1 * weight;
             matrix.a2 = bone.a2 * weight;
@@ -3119,7 +3119,7 @@ void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, ui
 
             for (uint32_t k = 1; k < 4 && vertex->m_weights.b[k]; k++) {
                 const C44Matrix& next = bones[vertex->m_indices.b[k]];
-                weight = vertex->m_weights.b[k] * 0.0039215689f;
+                weight = vertex->m_weights.b[k] * ONE_OVER_255;
                 matrix.a0 += next.a0 * weight;
                 matrix.a1 += next.a1 * weight;
                 matrix.a2 += next.a2 * weight;
@@ -3192,7 +3192,7 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
             weights = static_cast<uint32_t>(vertex->m_weights);
             indices = static_cast<uint32_t>(vertex->m_indices);
 
-            __m128 weight = _mm_set1_ps(vertex->m_weights[0] * 0.0039215689f);
+            __m128 weight = _mm_set1_ps(vertex->m_weights[0] * ONE_OVER_255);
             const float* bone = reinterpret_cast<const float*>(&bones[vertex->m_indices[0]]);
             row0 = _mm_mul_ps(_mm_load_ps(&bone[0]), weight);
             row1 = _mm_mul_ps(_mm_load_ps(&bone[4]), weight);
@@ -3200,7 +3200,7 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
             row3 = _mm_mul_ps(_mm_load_ps(&bone[12]), weight);
 
             for (uint32_t i = 1; i < 4 && vertex->m_weights[i]; i++) {
-                weight = _mm_set1_ps(vertex->m_weights[i] * 0.0039215689f);
+                weight = _mm_set1_ps(vertex->m_weights[i] * ONE_OVER_255);
                 bone = reinterpret_cast<const float*>(&bones[vertex->m_indices[i]]);
                 row0 = _mm_add_ps(row0, _mm_mul_ps(_mm_load_ps(&bone[0]), weight));
                 row1 = _mm_add_ps(row1, _mm_mul_ps(_mm_load_ps(&bone[4]), weight));

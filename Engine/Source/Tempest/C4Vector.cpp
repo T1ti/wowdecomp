@@ -1,6 +1,7 @@
 #include <cmath>
 #include "Engine/Source/Tempest/C4Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 42d2cfec manual
 // OFFSET: 0x00979110
@@ -19,8 +20,8 @@ void C4Vector::NormalizeSafe() {
 // VERIFY: f1de32d2 manual
 // OFFSET: 0x00984C90
 C4Vector::C4Vector(const CImVector& color) {
-    this->x = color.r * 0.0039215689f;
-    this->y = color.g * 0.0039215689f;
-    this->z = color.b * 0.0039215689f;
-    this->w = 0.0039215689f * color.a;
+    this->x = color.r * ONE_OVER_255;
+    this->y = color.g * ONE_OVER_255;
+    this->z = color.b * ONE_OVER_255;
+    this->w = ONE_OVER_255 * color.a;
 }

@@ -10,6 +10,7 @@
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/lua-5.1/src/lauxlib.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: cb237dcc auto
 // OFFSET: 0x0048E150
@@ -107,7 +108,7 @@ static int32_t Script_GetAlpha(lua_State* L) {
 
     CImVector color;
     string->GetVertexColor(color);
-    lua_pushnumber(L, color.a * 0.0039215689f);
+    lua_pushnumber(L, color.a * ONE_OVER_255);
 
     return 1;
 }

@@ -193,7 +193,7 @@ void CM2SceneRender::SetBatchVertices(int32_t sharedVertices) {
 // VERIFY: 8bd7c1b0 auto
 // OFFSET: 0x0081F800
 int32_t CM2SceneRender::LightingColorsMatch(const CM2Lighting* a, const CM2Lighting* b) {
-    return fabsf(a->m_sunAmbient.x - b->m_sunAmbient.x) < 0.0039215689f && fabsf(a->m_sunAmbient.y - b->m_sunAmbient.y) < 0.0039215689f && fabsf(a->m_sunAmbient.z - b->m_sunAmbient.z) < 0.0039215689f && fabsf(a->m_sunDiffuse.x - b->m_sunDiffuse.x) < 0.0039215689f && fequalz(a->m_sunDiffuse.y, b->m_sunDiffuse.y, 0.0039215689f) && fequalz(a->m_sunDiffuse.z, b->m_sunDiffuse.z, 0.0039215689f);
+    return fabsf(a->m_sunAmbient.x - b->m_sunAmbient.x) < ONE_OVER_255 && fabsf(a->m_sunAmbient.y - b->m_sunAmbient.y) < ONE_OVER_255 && fabsf(a->m_sunAmbient.z - b->m_sunAmbient.z) < ONE_OVER_255 && fabsf(a->m_sunDiffuse.x - b->m_sunDiffuse.x) < ONE_OVER_255 && fequalz(a->m_sunDiffuse.y, b->m_sunDiffuse.y, ONE_OVER_255) && fequalz(a->m_sunDiffuse.z, b->m_sunDiffuse.z, ONE_OVER_255);
 }
 
 // VERIFY: 702a8f8e manual
@@ -299,7 +299,7 @@ void CM2SceneRender::SetupMaterial() {
         } else if (this->m_curMaterial->m_blendMode == M2BLEND_ALPHA_KEY) {
             alphaRef = this->m_curElement->m_alpha * 0.87843138f;
         } else {
-            alphaRef = 0.0039215689f;
+            alphaRef = ONE_OVER_255;
         }
 
         CShaderEffect::SetAlphaRef(alphaRef);

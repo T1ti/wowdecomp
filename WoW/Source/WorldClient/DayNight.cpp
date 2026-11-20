@@ -1339,7 +1339,7 @@ float DayNight::DNClouds::GetDensity(const C3Vector* position, float scale) {
         y = static_cast<int32_t>(y) < 0 ? 0 : max;
     }
 
-    return this->m_densities.m_data[(y << this->m_shift) + x] * 0.0039215689f;
+    return this->m_densities.m_data[(y << this->m_shift) + x] * ONE_OVER_255;
 }
 
 // VERIFY: e28145b2 manual
@@ -1562,7 +1562,7 @@ void DayNight::DNClouds::UpdateTextureAnimation() {
                 float sunZ = sunPos.z;
 
                 uint8_t shadeLevel = ((static_cast<uint8_t>(0xFF - alpha)) >> 1) + 0x40;
-                float shade = shadeLevel * 0.0039215689f;
+                float shade = shadeLevel * ONE_OVER_255;
                 float red = shadeColor.x * shade + baseColor.x;
                 float green = shadeColor.y * shade + baseColor.y;
                 float blue = shadeColor.z * shade + baseColor.z;
@@ -2988,7 +2988,7 @@ void DayNight::DNGlare::Update(float deltaSec) {
 
     float t = (dot - this->m_minDot) / (1.0f - this->m_minDot);
     this->m_scale = ((this->m_scaleRange.m_h - this->m_scaleRange.m_l) * t + this->m_scaleRange.m_l) * this->m_baseScale;
-    this->m_color.a = static_cast<uint8_t>((t * (this->m_alphaRange.m_h - this->m_alphaRange.m_l) + this->m_alphaRange.m_l) * this->m_fade * (this->m_color.a * 0.0039215689f) * 255.0f);
+    this->m_color.a = static_cast<uint8_t>((t * (this->m_alphaRange.m_h - this->m_alphaRange.m_l) + this->m_alphaRange.m_l) * this->m_fade * (this->m_color.a * ONE_OVER_255) * 255.0f);
     this->m_screenGlow = pow(dot, s_glarePower) * this->m_fade;
 }
 

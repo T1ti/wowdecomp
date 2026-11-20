@@ -3,6 +3,7 @@
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C4Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 237e1aa1 auto
 // OFFSET: 0x00407990
@@ -149,9 +150,9 @@ C3Vector::C3Vector(const C4Vector& v) {
 // VERIFY: 6a482f8d manual
 // OFFSET: 0x00982970
 C3Vector::C3Vector(const CImVector& color) {
-    this->x = color.r * 0.0039215689f;
-    this->y = color.g * 0.0039215689f;
-    this->z = 0.0039215689f * color.b;
+    this->x = color.r * ONE_OVER_255;
+    this->y = color.g * ONE_OVER_255;
+    this->z = ONE_OVER_255 * color.b;
 }
 
 // VERIFY: 6cb56de3 manual

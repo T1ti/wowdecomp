@@ -12,6 +12,7 @@
 #include "Engine/Source/Tempest/CRect.h"
 #include "Engine/Source/lua-5.1/src/lauxlib.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00AC1110
 int32_t CSimpleTexture::s_metatable = LUA_NOREF;
@@ -205,7 +206,7 @@ static int32_t Script_GetAlpha(lua_State* L) {
     CImVector color;
 
     texture->GetVertexColor(color);
-    lua_pushnumber(L, color.a * 0.0039215689f);
+    lua_pushnumber(L, color.a * ONE_OVER_255);
 
     return 1;
 }

@@ -10,6 +10,7 @@
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "WoW/Source/Ui/SpellBookFrame.h"
 #include "WoW/Source/Ui/Types.h"
+#include "Engine/Source/Tempest/CMath.h"
 // STATIC: 0x00C24304
 int32_t CGRuneInfo::m_runes[MAX_RUNE_SLOTS];
 
@@ -369,7 +370,7 @@ void CGRuneInfo::SetPredictedRunes(uint8_t available, uint8_t used, const uint8_
                 float progress = 0.0f;
 
                 if (cooldowns) {
-                    progress = cooldowns[i] * 0.0039215689f;
+                    progress = cooldowns[i] * ONE_OVER_255;
 
                     if (progress > 1.0f) {
                         progress = 1.0f;
@@ -402,7 +403,7 @@ void CGRuneInfo::ResyncRunes(CDataStore* msg) {
         CGRuneInfo::m_baseRunes[i] = type;
         uint8_t cooldown;
         msg->Get(cooldown);
-        float progress = cooldown * 0.0039215689f;
+        float progress = cooldown * ONE_OVER_255;
 
         if (progress > 1.0f) {
             progress = 1.0f;

@@ -21,6 +21,7 @@
 #include "Engine/Source/Tempest/C33Matrix.h"
 #include "Engine/Source/Tempest/C3Ray.h"
 #include "Engine/Source/Tempest/NTempest.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00A45374
 const uint32_t s_localLighting[M2BLEND_COUNT] = { 1, 1, 1, 1, 1, 0, 0 };
@@ -373,7 +374,7 @@ uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, 
 // OFFSET: 0x0081D2C0
 void M2BlendBoneMatricesSSE(const C44Matrix* bones, ubyte4 weights, ubyte4 indices, C44Matrix* result) {
     const float* bone = reinterpret_cast<const float*>(&bones[indices.b[0]]);
-    __m128 weight = _mm_set1_ps(weights.b[0] * 0.0039215689f);
+    __m128 weight = _mm_set1_ps(weights.b[0] * ONE_OVER_255);
     __m128 row0 = _mm_mul_ps(_mm_loadu_ps(&bone[0]), weight);
     __m128 row1 = _mm_mul_ps(_mm_loadu_ps(&bone[4]), weight);
     __m128 row2 = _mm_mul_ps(_mm_loadu_ps(&bone[8]), weight);
@@ -385,7 +386,7 @@ void M2BlendBoneMatricesSSE(const C44Matrix* bones, ubyte4 weights, ubyte4 indic
         }
 
         bone = reinterpret_cast<const float*>(&bones[indices.b[i]]);
-        weight = _mm_set1_ps(weights.b[i] * 0.0039215689f);
+        weight = _mm_set1_ps(weights.b[i] * ONE_OVER_255);
         row0 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(&bone[0]), weight), row0);
         row1 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(&bone[4]), weight), row1);
         row2 = _mm_add_ps(_mm_mul_ps(_mm_loadu_ps(&bone[8]), weight), row2);
@@ -407,7 +408,7 @@ void M2BlendBoneMatricesSSE(const C44Matrix* bones, ubyte4 weights, ubyte4 indic
 // OFFSET: 0x0081D3D0
 void M2BlendBoneMatrices(const C44Matrix* bones, ubyte4 weights, ubyte4 indices, C44Matrix* result) {
     const C44Matrix* bone = &bones[indices.b[0]];
-    float weight = weights.b[0] * 0.0039215689f;
+    float weight = weights.b[0] * ONE_OVER_255;
     result->a0 = bone->a0 * weight;
     result->a1 = bone->a1 * weight;
     result->a2 = bone->a2 * weight;
@@ -427,7 +428,7 @@ void M2BlendBoneMatrices(const C44Matrix* bones, ubyte4 weights, ubyte4 indices,
         }
 
         bone = &bones[indices.b[i]];
-        weight = weights.b[i] * 0.0039215689f;
+        weight = weights.b[i] * ONE_OVER_255;
         result->a0 = bone->a0 * weight + result->a0;
         result->a1 = bone->a1 * weight + result->a1;
         result->a2 = bone->a2 * weight + result->a2;

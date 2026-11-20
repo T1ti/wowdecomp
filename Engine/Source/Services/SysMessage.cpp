@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "Engine/Source/Services/SysMessage.h"
 #include "Engine/Source/Storm/H/storm.h"
+#include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x00AC3208
 static const SYSMSGSEVERITY s_severities[SYSMSG_NUMTYPES] = { { 0xFF, 0xFF, 0xFF, 0, 10.0f }, { 0xFF, 0xFF, 0x7F, 0, 15.0f }, { 0xFF, 0x7F, 0x7F, 0, 15.0f }, { 0x7F, 0xFF, 0xFF, 0, 20.0f } };
@@ -22,9 +23,9 @@ static int32_t s_minSeverity;
 // VERIFY: 847a42a2 auto
 // OFFSET: 0x004B4EE0
 void SysMsgGetSeverityColor(SYSMSG_TYPE severity, float& red, float& green, float& blue) {
-    red = s_severities[severity].m_red * 0.0039215689f;
-    green = s_severities[severity].m_green * 0.0039215689f;
-    blue = s_severities[severity].m_blue * 0.0039215689f;
+    red = s_severities[severity].m_red * ONE_OVER_255;
+    green = s_severities[severity].m_green * ONE_OVER_255;
+    blue = s_severities[severity].m_blue * ONE_OVER_255;
 }
 
 // VERIFY: e98afe5a manual

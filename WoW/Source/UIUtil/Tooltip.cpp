@@ -629,7 +629,7 @@ static int32_t ObjHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32
     if (object) {
         CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(param);
         statusBar->SetMinMaxValues(0.0f, 1.0f);
-        statusBar->SetValue(static_cast<float>(object->m_gameObject->m_animProgress) * 0.0039215689f);
+        statusBar->SetValue(static_cast<float>(object->m_gameObject->m_animProgress) * ONE_OVER_255);
     }
 
     return 1;
@@ -8090,7 +8090,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
         this->m_healthGuid = this->m_objectGuid;
         ClntObjMgrSetObjMirrorHandler(this->m_healthGuid, ID_GAMEOBJECT, offsetof(CGGameObjectData, m_animProgress), sizeof(uint8_t), ObjHealthUpdateHandler, this->m_statusBar, HANDLER_PRIORITY_NORMAL, 0);
         this->m_statusBar->SetMinMaxValues(0.0f, 1.0f);
-        this->m_statusBar->SetValue(static_cast<float>(object->m_gameObject->m_animProgress) * 0.0039215689f);
+        this->m_statusBar->SetValue(static_cast<float>(object->m_gameObject->m_animProgress) * ONE_OVER_255);
         this->m_statusBar->Show();
         this->Show();
     } else {

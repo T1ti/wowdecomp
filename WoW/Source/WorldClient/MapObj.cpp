@@ -720,18 +720,18 @@ void CMapObjGroup::SetLighting(CMapObjGroup* group, uint32_t mode) {
 
     switch (mode) {
         case CMapObj::LIGHTING_MODE::DAY_NIGHT:
-            diffuse = C3Vector(info->m_light1.m_diffuse.r * 0.0039215689f, info->m_light1.m_diffuse.g * 0.0039215689f, info->m_light1.m_diffuse.b * 0.0039215689f);
-            ambient = C3Vector(info->m_light1.m_ambient.r * 0.0039215689f, info->m_light1.m_ambient.g * 0.0039215689f, 0.0039215689f * info->m_light1.m_ambient.b);
+            diffuse = C3Vector(info->m_light1.m_diffuse.r * ONE_OVER_255, info->m_light1.m_diffuse.g * ONE_OVER_255, info->m_light1.m_diffuse.b * ONE_OVER_255);
+            ambient = C3Vector(info->m_light1.m_ambient.r * ONE_OVER_255, info->m_light1.m_ambient.g * ONE_OVER_255, ONE_OVER_255 * info->m_light1.m_ambient.b);
             break;
 
         case CMapObj::LIGHTING_MODE::DAY_NIGHT_MID:
-            diffuse = C3Vector(info->m_light1.m_mid0.r * 0.0039215689f, info->m_light1.m_mid0.g * 0.0039215689f, info->m_light1.m_mid0.b * 0.0039215689f);
-            ambient = C3Vector(info->m_light1.m_mid1.r * 0.0039215689f, info->m_light1.m_mid1.g * 0.0039215689f, 0.0039215689f * info->m_light1.m_mid1.b);
+            diffuse = C3Vector(info->m_light1.m_mid0.r * ONE_OVER_255, info->m_light1.m_mid0.g * ONE_OVER_255, info->m_light1.m_mid0.b * ONE_OVER_255);
+            ambient = C3Vector(info->m_light1.m_mid1.r * ONE_OVER_255, info->m_light1.m_mid1.g * ONE_OVER_255, ONE_OVER_255 * info->m_light1.m_mid1.b);
             break;
 
         case CMapObj::LIGHTING_MODE::PARENT_COLOR: {
             CImVector& color = group->m_parent->m_argbColor;
-            ambient = C3Vector(color.r * 0.0039215689f, color.g * 0.0039215689f, 0.0039215689f * color.b);
+            ambient = C3Vector(color.r * ONE_OVER_255, color.g * ONE_OVER_255, ONE_OVER_255 * color.b);
             break;
         }
 

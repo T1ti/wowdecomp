@@ -259,9 +259,9 @@ int32_t CSimpleModel::SetLightHelper(lua_State* L, int32_t index, CM2Light* ligh
         next += 3;
     }
 
-    light->m_ambColor.x = ambColor.r * 0.0039215689f * ambIntensity;
-    light->m_ambColor.y = ambColor.g * 0.0039215689f * ambIntensity;
-    light->m_ambColor.z = ambColor.b * 0.0039215689f * ambIntensity;
+    light->m_ambColor.x = ambColor.r * ONE_OVER_255 * ambIntensity;
+    light->m_ambColor.y = ambColor.g * ONE_OVER_255 * ambIntensity;
+    light->m_ambColor.z = ambColor.b * ONE_OVER_255 * ambIntensity;
 
     if (lua_isnumber(L, next)) {
         float dirIntensity = lua_tonumber(L, next);
@@ -276,9 +276,9 @@ int32_t CSimpleModel::SetLightHelper(lua_State* L, int32_t index, CM2Light* ligh
             FrameScript_GetColorNoAlpha(L, next, dirColor);
         }
 
-        light->m_dirColor.x = dirColor.r * 0.0039215689f * dirIntensity;
-        light->m_dirColor.y = dirColor.g * 0.0039215689f * dirIntensity;
-        light->m_dirColor.z = dirColor.b * 0.0039215689f * dirIntensity;
+        light->m_dirColor.x = dirColor.r * ONE_OVER_255 * dirIntensity;
+        light->m_dirColor.y = dirColor.g * ONE_OVER_255 * dirIntensity;
+        light->m_dirColor.z = dirColor.b * ONE_OVER_255 * dirIntensity;
     }
 
     return 1;
