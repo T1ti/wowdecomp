@@ -1638,7 +1638,7 @@ static int32_t Script_UnitIsEnemy(lua_State* L) {
     CGUnit_C* unit = GetUnitFromName(lua_tolstring(L, 1, nullptr));
     CGUnit_C* other = GetUnitFromName(lua_tolstring(L, 2, nullptr));
 
-    if (unit && other && unit->UnitReaction(other) <= UNIT_REACTION_HOSTILE) {
+    if (unit && other && unit->IsHatedTowards(other)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1734,7 +1734,7 @@ static int32_t Script_UnitCreatureFamily(lua_State* L) {
 static int32_t Script_IsFlying(lua_State* L) {
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
+    if (unit && unit->IsSeatedInVehicle()) {
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ unit->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
     }
 
@@ -1824,7 +1824,7 @@ static int32_t Script_UnitControllingVehicle(lua_State* L) {
     if (Script_GetGUIDFromToken(token, guid, false)) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-        if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && unit->GetTransportGUID() == unit->m_unit->m_unitFieldCharm.m_guid) {
+        if (unit && unit->IsSeatedInVehicle() && unit->GetTransportGUID() == unit->m_unit->m_unitFieldCharm.m_guid) {
             controlling = 1;
         }
     }
@@ -2596,7 +2596,7 @@ static int32_t Script_UnitLevel(lua_State* L) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
         level = unit->m_unit->m_unitFieldLevel;
 
-        if ((player && unit->UnitReaction(player) <= UNIT_REACTION_HOSTILE && static_cast<int32_t>(player->m_unit->m_unitFieldLevel) <= static_cast<int32_t>(unit->m_unit->m_unitFieldLevel) - 10) || unit->IsBossMob()) {
+        if ((player && unit->IsHatedTowards(player) && static_cast<int32_t>(player->m_unit->m_unitFieldLevel) <= static_cast<int32_t>(unit->m_unit->m_unitFieldLevel) - 10) || unit->IsBossMob()) {
             level = -1;
         } else if (level > 0 && player && (player->m_player->inebriation || player->m_player->m_playerFakeInebriation) && player->CanAttack(unit)) {
             level -= RoundToInt64(player->GetDrunknessTurnValue() * 5.0f);

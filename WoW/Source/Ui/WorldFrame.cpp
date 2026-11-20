@@ -930,7 +930,7 @@ void CGWorldFrame::SetPlayerFadeCameraValue(uint8_t value) {
         return;
     }
 
-    if ((unit->m_vehicle && unit->m_vehicle->m_vehicleRec) || (unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING)) {
+    if ((unit->m_vehicle && unit->m_vehicle->m_vehicleRec) || (unit->IsSeatedInVehicle())) {
         unit = unit->m_vehiclePassenger ? unit->m_vehiclePassenger->GetStoredRootVehicleUnit() : unit->FindRootVehicle(nullptr);
 
         if (!unit) {

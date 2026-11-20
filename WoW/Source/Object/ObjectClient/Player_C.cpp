@@ -891,7 +891,7 @@ void CGPlayer_C::UpdateQuestStatus(CGObject_C* object) {
 // VERIFY: c64646b5 manual
 // OFFSET: 0x006D5130
 void CGPlayer_C::UpdateTaxiStatus(CGUnit_C* unit) {
-    if (unit->UnitReaction(this) <= UNIT_REACTION_HOSTILE || !(unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
+    if (unit->IsHatedTowards(this) || !(unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER)) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
@@ -2866,7 +2866,7 @@ void CGPlayer_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 // VERIFY: aa03190b auto
 // OFFSET: 0x006E8280
 void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reenable) {
-    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_standState);
+    this->m_clientStandState = this->GetClientStandState();
     this->CGUnit_C::PostInit(time, create, reenable);
     this->GetUnitName(nullptr, 1);
     this->OnGuildChanged(0);
@@ -2901,7 +2901,7 @@ void CGPlayer_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
 // VERIFY: 5414e18a auto
 // OFFSET: 0x006E6150
 void CGPlayer_C::Reenable() {
-    this->m_clientStandState = static_cast<UNITSTANDSTATE>(this->m_unit->m_standState);
+    this->m_clientStandState = this->GetClientStandState();
     this->CGUnit_C::Reenable();
     this->m_pendingItemCacheCount = 0;
 

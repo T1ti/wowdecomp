@@ -2574,7 +2574,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         float fadeStart = 1.8315002f;
         float fadeEnd = 0.0027777778f;
 
-        if (fadeUnit && ((fadeUnit->m_vehicle && fadeUnit->m_vehicle->m_vehicleRec) || (fadeUnit->m_vehiclePassenger && fadeUnit->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING)) && !sharedVehicle) {
+        if (fadeUnit && ((fadeUnit->m_vehicle && fadeUnit->m_vehicle->m_vehicleRec) || (fadeUnit->IsSeatedInVehicle())) && !sharedVehicle) {
             if (!fadeUnit->m_vehicle || !fadeUnit->m_vehicle->m_vehicleRec) {
                 fadeUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ fadeUnit->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
             }

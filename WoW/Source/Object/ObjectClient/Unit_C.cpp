@@ -752,7 +752,7 @@ int32_t StandStateUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {
-            unit->UpdateClientStandState(static_cast<UNITSTANDSTATE>(unit->m_unit->m_standState));
+            unit->UpdateClientStandState(unit->GetClientStandState());
         }
     }
 
@@ -1379,7 +1379,7 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         this->InitWheels();
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING) {
+    if (this->IsSeatedInVehicle()) {
         CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__));
 
         if (vehicle) {
@@ -2476,7 +2476,7 @@ BOOL CGUnit_C::ChooseDeathAnim(uint32_t selectionMask, uint32_t* anim, uint32_t*
         return (selectionMask & ~ANIM_SELECTION_FLAGS::DEATH) == 0;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
+    if (this->IsSeatedInVehicle() && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_PLAY_DEATH_ANIMATION)) {
         return (selectionMask & ~ANIM_SELECTION_FLAGS::DEATH) == 0;
     }
 
@@ -4049,7 +4049,7 @@ uint32_t CGUnit_C::ResolveAnimForModel(uint32_t animId, CM2Model* model) {
 // VERIFY: fa7abd5c auto
 // OFFSET: 0x004F6250
 bool CGUnit_C::IsVehiclePassengerSeated() const {
-    return this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING;
+    return this->IsSeatedInVehicle();
 }
 
 // VERIFY: ce80d12a auto
@@ -4248,7 +4248,7 @@ BOOL CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim) 
         return FALSE;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && this->m_vehiclePassenger->GetLowerAnim(this->m_vehiclePassenger->m_seatRec) != ANIM_COUNT) {
+    if (this->IsSeatedInVehicle() && this->m_vehiclePassenger->GetLowerAnim(this->m_vehiclePassenger->m_seatRec) != ANIM_COUNT) {
         return TRUE;
     }
 
@@ -7819,7 +7819,7 @@ void CGUnit_C::GetAttackSkillRank(int32_t hand, int32_t& rank, int32_t& bonus) c
 void CGUnit_C::SetMaxAlpha(float alpha) {
     CGUnit_C* transport;
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && (transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__)))) {
+    if (this->IsSeatedInVehicle() && (transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_UNIT, __FILE__, __LINE__)))) {
         CM2Model* model = this->GetObjectModel();
 
         if (model && model->m_attachParent == transport->GetObjectModel()) {
@@ -10020,7 +10020,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD
         && this->m_unit->m_unitFieldPetnumber
         && player
-        && player->UnitReaction(this) <= UNIT_REACTION_HOSTILE) {
+        && player->IsHatedTowards(this)) {
         WOWGUID petGuid = this->m_obj->m_guid;
         const WOWGUID* owner = this->m_unit->m_unitFieldCharmedby ? &this->m_unit->m_unitFieldCharmedby : &this->m_unit->m_unitFieldCreatedby;
         CGBattlefieldInfo::AddArenaOpponentPet(petGuid, *owner);
@@ -10243,7 +10243,7 @@ void CGUnit_C::PostReenable() {
     if (CGBattlefieldInfo::m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_ARENA_BATTLEFIELD
         && this->m_unit->m_unitFieldPetnumber
         && player
-        && player->UnitReaction(this) <= UNIT_REACTION_HOSTILE) {
+        && player->IsHatedTowards(this)) {
         WOWGUID petGuid = this->m_obj->m_guid;
         const WOWGUID* owner = this->m_unit->m_unitFieldCharmedby ? &this->m_unit->m_unitFieldCharmedby : &this->m_unit->m_unitFieldCreatedby;
         CGBattlefieldInfo::AddArenaOpponentPet(petGuid, *owner);
@@ -10891,7 +10891,7 @@ void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
     CreatureModelDataRec* modelRec = displayRec ? g_creatureModelDataDB.GetRecord(displayRec->m_modelID) : nullptr;
 
-    if ((modelRec && (modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_JUMP_IN_PLACE_AS_MOUNT)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
+    if ((modelRec && (modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::CAN_JUMP_IN_PLACE_AS_MOUNT)) || this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || (this->GetCanFly()) || ((this->m_movement->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) && !this->m_movementData.IsGravityDisabled())) {
         this->m_movementData.OnJumpLocal(eventTime);
         return;
     }
@@ -11391,7 +11391,7 @@ void CGUnit_C::MoveEventHappened(uint32_t msgId) {
             break;
 
         case CMSG_MOVE_SET_CAN_FLY_ACK:
-            if (!(this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) {
+            if (!(this->GetCanFly())) {
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_JUMP_START;
             }
 
@@ -13794,9 +13794,9 @@ void CGUnit_C::SetLocalClientControl(bool control) {
     }
 
     if (this->IsActivePlayer()) {
-        CGGameUI::OnClientControlChanged((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) != 0);
+        CGGameUI::OnClientControlChanged((this->IsLocalClientControlled()) != 0);
 
-        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) {
+        if (this->IsLocalClientControlled()) {
             this->VehiclePassengerUpdateWorldCameraStateInstantly();
         }
     }
@@ -15259,7 +15259,7 @@ void CGUnit_C::ExecuteClientControlUpdate(WOWGUID guid, uint8_t state) {
     WOWGUID target = camera->m_targetGUID;
 
     if (target == guid) {
-        if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) {
+        if (this->IsLocalClientControlled()) {
             CGUnit_C::SetActiveMover(guid.m_guid);
             return;
         }
@@ -15267,10 +15267,10 @@ void CGUnit_C::ExecuteClientControlUpdate(WOWGUID guid, uint8_t state) {
         if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
             CGUnit_C::SetActiveMover(0);
         }
-    } else if (this->m_obj->m_guid == CGUnit_C::s_activeMover && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED)) {
+    } else if (this->m_obj->m_guid == CGUnit_C::s_activeMover && !(this->IsLocalClientControlled())) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(target, TYPE_OBJECT, __FILE__, __LINE__));
 
-        if (unit && (unit->m_obj->m_type & TYPE_UNIT) && (unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED)) {
+        if (unit && (unit->m_obj->m_type & TYPE_UNIT) && (unit->IsLocalClientControlled())) {
             CGUnit_C::SetActiveMover(target.m_guid);
             return;
         }
@@ -19114,7 +19114,7 @@ flagsDone:
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->IsLocalClientControlled()) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
@@ -19303,7 +19303,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->IsLocalClientControlled()) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
@@ -19481,7 +19481,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         missile->m_arrivalTime = delay + missile->m_castTime;
     }
 
-    if ((this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOCAL_CLIENT_CONTROLLED) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
+    if ((this->IsLocalClientControlled()) || (this->m_obj->m_guid == CGPetInfo::GetPet(0) && !this->m_unit->m_unitFieldCharmedby)) {
         missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION;
     }
 
@@ -22954,7 +22954,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     float dz = position.z - target.z;
     float distSq2 = dx * dx + dy * dy;
     float distSq3 = dz * dz + distSq2;
-    float distSq = ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) ? distSq3 : distSq2;
+    float distSq = ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->GetCanFly())) ? distSq3 : distSq2;
 
     if (s_clickToMoveActions[CGUnit_C::s_trackingType].m_enabled && 0.0f != s_clickToMoveActions[CGUnit_C::s_trackingType].m_stopDistanceSq && !(distSq < s_clickToMoveActions[CGUnit_C::s_trackingType].m_stopDistanceSq)) {
         this->ClearTrackingTarget(false, true);
@@ -23091,7 +23091,7 @@ void CGUnit_C::HandleTracking(float drunkness, float turnOffset) {
     // STATIC: 0x00CA12A8
     static float s_flightAngleCos = cos(0.7853981852531433);
 
-    if (!pitching && useTarget && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && (this->m_movementData.m_flags & MOVEMENTFLAG_CAN_FLY)) {
+    if (!pitching && useTarget && !(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && (this->GetCanFly())) {
         C3Vector dir;
         dir.x = target.x - position.x;
         dir.y = target.y - position.y;

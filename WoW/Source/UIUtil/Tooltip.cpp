@@ -1990,7 +1990,7 @@ int32_t CGTooltip::SetUnit(const WOWGUID& guid, BOOL showHealth, const WOWGUID& 
         }
 
         if (unit->GetCreatureType() == CREATURE_TYPE_NOT_SPECIFIED || activePlayer) {
-            if (activePlayer && unit->UnitReaction(activePlayer) <= UNIT_REACTION_HOSTILE && static_cast<int32_t>(activePlayer->m_unit->m_unitFieldLevel) <= unitLevel - 10) {
+            if (activePlayer && unit->IsHatedTowards(activePlayer) && static_cast<int32_t>(activePlayer->m_unit->m_unitFieldLevel) <= unitLevel - 10) {
                 showLevel = 0;
             }
         }
