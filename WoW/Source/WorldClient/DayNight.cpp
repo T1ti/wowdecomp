@@ -1371,20 +1371,9 @@ void DayNight::DNClouds::SetupBumpMap(C3Vector* shadeColor, C3Vector* sunColor, 
     sunPos->y = uv.y;
     sunPos->z = 64.0f;
 
-    const CImVector& shade = info.m_bands.m_sunCloudColors[2];
-    shadeColor->x = shade.r * 0.0039215689f;
-    shadeColor->y = shade.g * 0.0039215689f;
-    shadeColor->z = shade.b * 0.0039215689f;
-
-    const CImVector& sun = info.m_bands.m_sunCloudColors[1];
-    sunColor->x = sun.r * 0.0039215689f;
-    sunColor->y = sun.g * 0.0039215689f;
-    sunColor->z = sun.b * 0.0039215689f;
-
-    const CImVector& base = info.m_bands.m_sunCloudColors[3];
-    baseColor->x = base.r * 0.0039215689f;
-    baseColor->y = base.g * 0.0039215689f;
-    baseColor->z = 0.0039215689f * base.b;
+    *shadeColor = C3Vector(info.m_bands.m_sunCloudColors[2]);
+    *sunColor = C3Vector(info.m_bands.m_sunCloudColors[1]);
+    *baseColor = C3Vector(info.m_bands.m_sunCloudColors[3]);
 
     *intensity = DayNight::InterpTable(s_cloudLightCurve, 8, info.m_dayProgression) * *intensity;
     sunPos->z = info.m_stormBlend * 192.0f + sunPos->z;

@@ -331,10 +331,7 @@ void CMapRenderChunk::SelectLights(CM2Lighting* lighting) {
     lighting->AddLight(&CMap::s_mapLight->m_light);
 
     DayNight::DNInfo* info = DayNight::GetInfo();
-    C3Vector fogColor;
-    fogColor.x = info->m_fog.m_color.r * 0.0039215689f;
-    fogColor.y = info->m_fog.m_color.g * 0.0039215689f;
-    fogColor.z = info->m_fog.m_color.b * 0.0039215689f;
+    C3Vector fogColor(info->m_fog.m_color);
 
     lighting->SetFog(fogColor, info->m_fog.m_start, info->m_fog.m_end, info->m_fog.m_density);
 }
