@@ -362,7 +362,7 @@ class CMap {
     static CMapObjDef* CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3Vector* center, bool cached);
     static CMapDoodadDef* CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDef, C3Vector* center);
     static CMapDoodadDef* CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, int32_t waitForLoad);
-    static CMapLight* CreateLight(uint8_t dynamic, uint8_t a2);
+    static CMapLight* CreateLight(uint8_t dynamic, uint8_t excludeFromMapObjLighting);
     static CMapDoodadDef* CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef, char* name, uint32_t key, C44Matrix* mat, uint16_t doodadSet);
     static void FreeBaseObjLinksInBounds(CAaBox* box);
     static void FreeBaseObjLink(CMapBaseObjLink* link);
@@ -386,7 +386,7 @@ class CMap {
     static CChunkLiquid* AllocChunkLiquid();
     static void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player);
     static void QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
-    static bool QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* a4, int32_t checkGround);
+    static bool QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* unknown4, int32_t checkGround);
     static bool QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* height, int32_t checkGround);
     static void RenderWaterRipples();
     static void FreeChunkLiquid(CChunkLiquid* liquid);

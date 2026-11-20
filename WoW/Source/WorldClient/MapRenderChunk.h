@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CAaSphere.h"
@@ -120,13 +121,13 @@ class CMapRenderChunk {
     static void RenderMultiPassAdditive(CMapRenderChunk* renderChunk);
     static void SetShaders(int32_t specular, int32_t unlitLayers);
     static void InitializeVertexShaderConstants(const C44Matrix& world, const C44Matrix& view);
-    static CGxShader* GetVertexShader(int32_t pointLights, int32_t layers, int32_t specular, int32_t vertexColor, int32_t a5, int32_t shadow);
+    static CGxShader* GetVertexShader(int32_t pointLights, int32_t layers, int32_t specular, int32_t vertexColor, int32_t chunkSpecular, int32_t shadow);
     static void ComputeTexMatrices(C44Matrix& layerMatrix, C44Matrix& alphaMatrix, const C3Vector& offset, float scale);
     static void RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* renderChunk);
     static void RenderMultiPassPixelShader(CMapRenderChunk* renderChunk);
     static void RenderMultiPassVertexPixelShaderBigAlpha(CMapRenderChunk* renderChunk);
     static void RenderMultiPassVertexPixelShader(CMapRenderChunk* renderChunk);
-    static void SetVertexShader(CMapRenderChunk* renderChunk, int32_t layerCount, int32_t a3);
+    static void SetVertexShader(CMapRenderChunk* renderChunk, int32_t layerCount, BOOL chunkSpecular);
     static uint8_t* DecodeAlphaRLE(uint8_t* src, uint8_t* dst, int32_t count);
     static void SetupAlphaRows(uint8_t** shadowCursor, uint8_t** shadowRow, SLayerAlpha* layers, uint32_t size, uint8_t** alphaRows);
     static void SetupAlphaRows4444(uint32_t size, uint8_t** shadowRow, uint8_t** alphaRows, SLayerAlpha* layers, uint8_t** shadowCursor);
@@ -181,7 +182,7 @@ class CMapRenderChunk {
     void UnpackAlphaBitsFixed8888Mip0(CImVector* dst, uint32_t size, uint8_t* shadowMap);
     void UnpackAlphaBitsFixed8888Mip1(CImVector* dst, uint32_t size, uint8_t* shadowMap);
     void UnpackAlphaBits(void* dst, uint32_t size, SLayerAlpha* layerInfo, uint8_t* shadowMap, int32_t layerMode, int32_t bigAlpha);
-    void RenderSetup(int32_t a2);
+    void RenderSetup(BOOL useVertexShader);
     void RenderSolid();
     void RenderSolidVertexPixelShader();
     void FreeBuf();

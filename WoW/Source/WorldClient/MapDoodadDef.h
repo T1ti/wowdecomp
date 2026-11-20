@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -17,7 +18,7 @@ class CMapObjDef;
 class CMapDoodadDef : public CMapStaticEntity, public TSHashObject<CMapDoodadDef, HASHKEY_DWORD> {
     public:
     ~CMapDoodadDef() override;
-    static void CreateModel(const char* fileName, CMapDoodadDef* doodadDef, int32_t waitForLoad, int32_t a4);
+    static void CreateModel(const char* fileName, CMapDoodadDef* doodadDef, int32_t waitForLoad, BOOL initializeOnDemand);
     static void ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent);
     static void Purge(CMapDoodadDef* doodadDef);
 

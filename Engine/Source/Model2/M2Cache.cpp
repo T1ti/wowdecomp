@@ -236,7 +236,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
 
     char* ext = strrchr(path, '.');
 
-    if (!(flags & 0x1000)) {
+    if (!(flags & M2_MODEL_CREATE_FLAG_ANY_EXTENSION)) {
         if (!ext) {
             DebugLog("Model2: Invalid file extension: %s\n", path);
             return nullptr;
@@ -263,7 +263,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
         *ext = '.';
     }
 
-    uint32_t fullPath = flags & 0x10;
+    uint32_t fullPath = flags & M2_MODEL_CREATE_FLAG_HASH_FULL_PATH;
     char* key;
 
     if (fullPath) {
@@ -317,7 +317,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
 
     SFileImpl* file;
 
-    if (!SFile::OpenEx(nullptr, path, (flags >> 2) & 1, &file)) {
+    if (!SFile::OpenEx(nullptr, path, (flags & M2_MODEL_CREATE_FLAG_DIRECT_ACCESS) != 0, &file)) {
         DebugLog("Model2: File not found: %s\n", path);
         return nullptr;
     }
@@ -329,7 +329,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
         return nullptr;
     }
 
-    if (!shared->Load(file, flags & 4, &boundingBox)) {
+    if (!shared->Load(file, flags & M2_MODEL_CREATE_FLAG_DIRECT_ACCESS, &boundingBox)) {
         SFileCloseFile(file);
         delete shared;
         return nullptr;
@@ -352,7 +352,7 @@ CM2Shared* CM2Cache::CreateShared(const char* name, uint32_t flags) {
         }
     }
 
-    if (!(flags & 8)) {
+    if (!(flags & M2_MODEL_CREATE_FLAG_UNCACHED)) {
         shared->m_previous = link;
         shared->m_next = *link;
 

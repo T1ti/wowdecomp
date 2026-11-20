@@ -1793,10 +1793,10 @@ BOOL CGUnit_C::CanPlayTurnAnim() {
 void CGUnit_C::UpdateBreathState(uint32_t time) {
     int32_t liquidType;
     float height;
-    int32_t a4;
+    int32_t unknown4;
     this->m_clientFlags &= ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_UNDERWATER_BREATH_PARTICLES | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COLD_BREATH_PARTICLES);
 
-    if (World::QueryObjectLiquid(this->m_worldObject, &liquidType, &height, &a4)) {
+    if (World::QueryObjectLiquid(this->m_worldObject, &liquidType, &height, &unknown4)) {
         float headHeight = this->m_height * this->m_scale;
 
         if (headHeight + UNDERWATER_BUBBLE_THRESHOLD < height - this->GetPosition().z) {
@@ -1996,9 +1996,9 @@ void CGUnit_C::RotateWheels() {
 void CGUnit_C::CreateRipple(uint32_t trigger) {
     int32_t liquidType;
     float liquidHeight;
-    int32_t a4;
+    int32_t unknown4;
 
-    if (!World::QueryObjectLiquid(this->m_worldObject, &liquidType, &liquidHeight, &a4)) {
+    if (!World::QueryObjectLiquid(this->m_worldObject, &liquidType, &liquidHeight, &unknown4)) {
         return;
     }
 

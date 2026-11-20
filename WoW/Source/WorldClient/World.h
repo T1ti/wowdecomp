@@ -512,7 +512,7 @@ namespace World {
     void UpdateObjectFadeouts();
     void Update(const C3Vector& position);
     int32_t QueryOutdoors(CMapEntity* entity);
-    int32_t QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* a4);
+    int32_t QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* unknown4);
     void NewFootprint(int32_t textureId, const float* size, const C3Vector* position, float facing, int32_t left, int32_t terrainType, int32_t activePlayer);
     int32_t QueryGroundType(CMapEntity* entity, int32_t* groundType);
     int32_t QueryObjectLiquidFlags(CMapEntity* entity, int32_t* flag8, int32_t* flag9);
@@ -591,7 +591,7 @@ float ValidateFarClip(float farClip, int32_t mapID);
     void ObjectSetRenderEnabled(CMapBaseObj* object, int32_t enable);
     bool GetTris(const CAaBox& box, World::TriData* triData, uint32_t flags);
     uint32_t GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags);
-    void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t a3, int32_t a4);
+    void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t a4);
     void ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask);
     void ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param), uint64_t param, uint16_t doodad);
     bool ObjectTestConvexVolume(CMapEntity* entity, const C3Vector& point);

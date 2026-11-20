@@ -316,7 +316,7 @@ void CSimpleModel::SetModel(const char* fileName) {
     CM2Model* model = nullptr;
 
     if (fileName && *fileName) {
-        model = this->GetScene()->CreateModel(fileName, 1);
+        model = this->GetScene()->CreateModel(fileName, CM2Model::INSTANCE_DISABLE_DEPTH_SORT_AND_CHILD_INHERITANCE);
     }
 
     this->SetModel(model);

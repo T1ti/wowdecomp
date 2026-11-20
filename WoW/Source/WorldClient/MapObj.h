@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C4Plane.h"
 #include "Engine/Source/Tempest/C4Quaternion.h"
@@ -124,7 +125,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     bool TestConvexVolume(const C3Vector& point);
     static void Destroy();
     static void Initialize();
-    static void RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44Matrix** matrices, const C44Matrix* world, int32_t* a5);
+    static void RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44Matrix** matrices, const C44Matrix* world, const int32_t* color);
     static uint32_t CreateWmoIgnoreFlags(uint32_t flags);
     static void PrepareUpdate();
     static CMapObj* Create(char* fileName);
@@ -235,7 +236,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     SMOGroupInfo* GetGroupInfo(int32_t index);
     int32_t IsGroupLoaded(int32_t index);
     char* GetGroupName(int32_t index);
-    CMapObjGroup* GetGroup(int32_t index, int32_t a3);
+    CMapObjGroup* GetGroup(int32_t index, BOOL allowUnloaded);
     int32_t IsGroupLoading(int32_t index);
     void RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)>* frustumList);
     void CreateMaterial(uint8_t texture);
@@ -246,7 +247,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     bool ContainsPointInBounds(C3Vector& point);
     bool TestGroupBounds(C3Vector& start, C3Vector& end, uint32_t groupNum);
     bool TestGroupBounds(const C3Vector& point, uint32_t groupNum);
-    bool TestGroupBounds(CAaBox& box, uint32_t groupNum, int32_t a3);
+    bool TestGroupBounds(CAaBox& box, uint32_t groupNum, BOOL requireLoaded);
     bool GroupBoundingBoxIntersectsSphere(C3Vector& pos, uint32_t groupNum, float radius);
     bool GetTris(const CWFrustum& frustum, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const CAaBox& box, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);

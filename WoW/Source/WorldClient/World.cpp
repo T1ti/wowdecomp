@@ -609,14 +609,14 @@ void DayNight::FindAndAddZoneLight(const C3Vector* position) {
 
 // VERIFY: 4cdcc272 auto
 // OFFSET: 0x0077F1E0
-int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* a4) {
+int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* unknown4) {
     if (!entity || !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         return 0;
     }
 
     *height = entity->m_liquidHeight;
     *liquidType = entity->m_liquidType;
-    *a4 = 0;
+    *unknown4 = 0;
 
     return 1;
 }
@@ -655,8 +655,8 @@ void World::SetObjectCollisionCallback(int32_t (*callback)(WOWGUID* guid, uintpt
 // VERIFY: 305f137e auto
 // OFFSET: 0x0077F360
 int32_t World::QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height) {
-    int32_t a4 = 0;
-    return CMap::QueryLiquidStatus(pos, liquidType, height, &a4, 0);
+    int32_t unknown4 = 0;
+    return CMap::QueryLiquidStatus(pos, liquidType, height, &unknown4, 0);
 }
 
 // VERIFY: 46023465 auto
@@ -896,9 +896,9 @@ void World::ObjectSetDoodadsEnabled(CMapBaseObj* object, int32_t enable, uint16_
 
 // VERIFY: 2c7a8fa7 auto
 // OFFSET: 0x0077FEC0
-void World::ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t a3, int32_t doodadSet) {
+void World::ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t doodadSet) {
     if (entity->m_type & CMapBaseObj::Type_MapObjDef) {
-        reinterpret_cast<CMapObjDef*>(entity)->SetSequence(sequence, a3, static_cast<uint16_t>(doodadSet));
+        reinterpret_cast<CMapObjDef*>(entity)->SetSequence(sequence, unknown3, static_cast<uint16_t>(doodadSet));
     } else if (entity->m_type & CMapBaseObj::Type_DoodadDef) {
         if (entity->m_model) {
             entity->m_model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
@@ -4320,9 +4320,9 @@ void CMap::UpdateEntity(CMapEntity* entity) {
         entity->UpdateMapObjLiquid();
     } else {
         int32_t liquidType;
-        int32_t a4;
+        int32_t unknown4;
 
-        if (CMap::QueryLiquidStatus(&entity->m_position, &liquidType, &entity->m_liquidHeight, &a4, 1)) {
+        if (CMap::QueryLiquidStatus(&entity->m_position, &liquidType, &entity->m_liquidHeight, &unknown4, 1)) {
             entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID;
 
             if (entity->m_liquidHeight <= entity->m_bbox.t.z) {
@@ -4973,8 +4973,8 @@ void CWorldScene::RenderHorizon() {
         GxRsSet(GxRs_FogColor, *reinterpret_cast<int32_t*>(&info->m_fog.m_color));
         GxRsSet(GxRs_Fog, 1);
         GxRsSet(GxRs_Lighting, 0);
-        int32_t a5 = -1;
-        CMapObj::RenderMapObjGroupsColor(groups, count, matrices, &world, &a5);
+        int32_t white = -1;
+        CMapObj::RenderMapObjGroupsColor(groups, count, matrices, &world, &white);
     }
 
     GxXformPop(GxXform_World);

@@ -20,7 +20,7 @@ class CMapLight : public CMapBaseObj {
     /* 00C8 */ float m_attenEnd;
     /* 00CC */ float m_attenDenom;
     /* 00D0 */ uint8_t m_dynamic;
-    /* 00D1 */ uint8_t unk_00D1;
+    /* 00D1 */ uint8_t m_excludeFromMapObjLighting;
     /* 00D2 */ uint8_t unused_00D2;
     /* 00D3 */ uint8_t unused_00D3;
 

@@ -232,8 +232,8 @@ void CMapDoodadDef::Purge(CMapDoodadDef* doodadDef) {
 
 // VERIFY: 9bd1ba20 manual
 // OFFSET: 0x007BDA70
-void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, int32_t waitForLoad, int32_t a4) {
-    CM2Model* model = World::s_m2Scene->CreateModel(fileName, a4 ? 0x20 : 0);
+void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, int32_t waitForLoad, BOOL initializeOnDemand) {
+    CM2Model* model = World::s_m2Scene->CreateModel(fileName, initializeOnDemand ? CM2Model::INSTANCE_INITIALIZE_ON_DEMAND : 0);
     doodadDef->m_model = model;
 
     if (!model) {

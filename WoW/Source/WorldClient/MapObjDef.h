@@ -25,7 +25,7 @@ class CMapObjDefMapObjDefGroupLink;
 class CMapObjDefGroup : public CMapBaseObj {
     public:
     void Update(const C44Matrix& matrix);
-    void SetSequence(uint32_t sequence, int32_t a3, uint16_t doodadSet);
+    void SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet);
     /* 0024 */ CAaBox m_bbox;
     /* 003C */ CAaSphere m_sphere;
     /* 004C */ float m_distanceToCamera;
@@ -96,7 +96,7 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     int32_t GetGroundType(uint32_t groupNum, uint16_t faceIndex);
     void RenderWithCallback(TSGrowableArray<uint32_t>* groups);
     void CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup, CRect* rect, uint32_t skipOcclusion);
-    void SetSequence(uint32_t sequence, int32_t a3, uint16_t doodadSet);
+    void SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet);
 };
 
 #endif

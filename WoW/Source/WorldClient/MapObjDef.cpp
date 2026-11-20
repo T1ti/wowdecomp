@@ -52,7 +52,7 @@ void CMapObjDefGroup::SelectLights(CM2Lighting* lighting) {
         for (CMapBaseObjLink* link = this->m_lightLinkList.Head(); link; link = this->m_lightLinkList.Next(link)) {
             CMapLight* light = static_cast<CMapLight*>(link->m_owner);
 
-            if (light->m_light.m_visible && !light->unk_00D1) {
+            if (light->m_light.m_visible && !light->m_excludeFromMapObjLighting) {
                 lighting->AddLight(&light->m_light);
             }
         }
@@ -237,7 +237,7 @@ void CMapObjDefGroup::Update(const C44Matrix& matrix) {
 
 // VERIFY: 5e0dde28 manual
 // OFFSET: 0x007B4170
-void CMapObjDefGroup::SetSequence(uint32_t sequence, int32_t a3, uint16_t doodadSet) {
+void CMapObjDefGroup::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
@@ -253,9 +253,9 @@ void CMapObjDefGroup::SetSequence(uint32_t sequence, int32_t a3, uint16_t doodad
 
 // VERIFY: b408ed84 manual
 // OFFSET: 0x007B45F0
-void CMapObjDef::SetSequence(uint32_t sequence, int32_t a3, uint16_t doodadSet) {
+void CMapObjDef::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->m_mapObjDefGroupLinkList.Head(); link; link = this->m_mapObjDefGroupLinkList.Next(link)) {
-        static_cast<CMapObjDefGroup*>(link->m_owner)->SetSequence(sequence, a3, doodadSet);
+        static_cast<CMapObjDefGroup*>(link->m_owner)->SetSequence(sequence, unknown3, doodadSet);
     }
 }
 

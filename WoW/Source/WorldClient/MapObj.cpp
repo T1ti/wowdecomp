@@ -2036,14 +2036,14 @@ bool CMapObj::GroupBoundingBoxIntersectsSphere(C3Vector& pos, uint32_t groupNum,
 
 // VERIFY: fa51d8fa manual
 // OFFSET: 0x007AEA80
-CMapObjGroup* CMapObj::GetGroup(int32_t index, int32_t a3) {
+CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
     if (!this->m_isGroupLoaded) {
         return nullptr;
     }
 
     CMapObjGroup* group = this->m_mapObjGroupArray[index];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !a3) {
+    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !allowUnloaded) {
         return nullptr;
     }
 
@@ -3240,11 +3240,11 @@ void CMapObj::DestroyPools() {
 
 // VERIFY: 45ac5b73 manual
 // OFFSET: 0x007ABAC0
-void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44Matrix** matrices, const C44Matrix* world, int32_t* a5) {
-    uint32_t color = static_cast<uint32_t>(*a5);
+void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44Matrix** matrices, const C44Matrix* world, const int32_t* color) {
+    uint32_t vertexColor = static_cast<uint32_t>(*color);
 
     if (g_theGxDevicePtr->Caps().m_colorFormat == GxCF_rgba) {
-        color = (color & 0xFF00FF00) | ((color >> 16) & 0xFF) | ((color & 0xFF) << 16);
+        vertexColor = (vertexColor & 0xFF00FF00) | ((vertexColor >> 16) & 0xFF) | ((vertexColor & 0xFF) << 16);
     }
 
     g_theGxDevicePtr->RsPush();
@@ -3272,7 +3272,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
         for (int32_t j = 0; j < group->m_vertexListCount; j++) {
             vertex->m_position = group->m_vertexList[j];
             vertex->m_normal = group->m_normalList[j];
-            *reinterpret_cast<uint32_t*>(&vertex->m_color) = color;
+            *reinterpret_cast<uint32_t*>(&vertex->m_color) = vertexColor;
             vertex++;
         }
 

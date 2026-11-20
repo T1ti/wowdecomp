@@ -978,8 +978,8 @@ bool CMap::QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float
 
 // VERIFY: 7c5ab3e1 auto
 // OFFSET: 0x007A0B00
-bool CMap::QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* a4, int32_t checkGround) {
-    *a4 = 0;
+bool CMap::QueryLiquidStatus(C3Vector* pos, int32_t* liquidType, float* height, int32_t* unknown4, int32_t checkGround) {
+    *unknown4 = 0;
 
     if (CMap::QueryLiquidStatusMapObjsExt(pos, liquidType, height)) {
         return true;
@@ -2638,7 +2638,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
     mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
     mapDoodadDef->m_lMat = C44Matrix();
 
-    CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0x20);
+    CM2Model* model = World::s_m2Scene->CreateModel(fileName, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
     mapDoodadDef->m_model = model;
 
     if (model) {
@@ -2721,7 +2721,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
     *reinterpret_cast<uint32_t*>(&limit) = MIN_DOODAD_DIRCOLOR;
     mapDoodadDef->AdjustLightmap(&doodadDef->m_color, &mapDoodadDef->m_m2DiffuseColor, limit, &mapDoodadDef->m_m2AmbientColor, MAX_AMBIENT);
 
-    CM2Model* model = World::s_m2Scene->CreateModel(name, 0x20);
+    CM2Model* model = World::s_m2Scene->CreateModel(name, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
     mapDoodadDef->m_model = model;
 
     if (model) {
@@ -4210,7 +4210,7 @@ CMapLight::CMapLight() {
 
 // VERIFY: 0aba9189 manual
 // OFFSET: 0x007D9BD0
-CMapLight* CMap::CreateLight(uint8_t dynamic, uint8_t a2) {
+CMapLight* CMap::CreateLight(uint8_t dynamic, uint8_t excludeFromMapObjLighting) {
     CMapLight* light = CMap::AllocLight();
     light->m_flags = MAPOBJ_FLAG_NONE;
     light->m_position = C3Vector(0.0f, 0.0f, 0.0f);
@@ -4222,7 +4222,7 @@ CMapLight* CMap::CreateLight(uint8_t dynamic, uint8_t a2) {
     light->m_bbox.t = C3Vector(0.0f, 0.0f, 0.0f);
     light->m_attenStart = 0.0f;
     light->m_dynamic = dynamic;
-    light->unk_00D1 = a2;
+    light->m_excludeFromMapObjLighting = excludeFromMapObjLighting;
 
     return light;
 }

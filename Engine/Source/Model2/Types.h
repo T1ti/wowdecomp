@@ -51,9 +51,19 @@ enum M2_BITS : int32_t {
     M2_BIT_IGNORE_PARENT_EMISSIVE = 19,
 };
 
+// CM2Scene::CreateModel flags; the low bits are also CM2Model::INSTANCE_FLAGS (0x1, 0x20).
+// Names describe the 3.3.5 CM2Cache::CreateShared behavior (inferred).
 enum M2_MODEL_CREATE_FLAGS : uint32_t {
+    // Opens the file with SFile::OpenEx flag 1 and sets CM2Shared::FLAG_DIRECT_ACCESS.
+    M2_MODEL_CREATE_FLAG_DIRECT_ACCESS = 0x4,
+    // The new shared model is not linked into the cache hash table.
+    M2_MODEL_CREATE_FLAG_UNCACHED = 0x8,
+    // Hashes the full path instead of the file name without directories.
+    M2_MODEL_CREATE_FLAG_HASH_FULL_PATH = 0x10,
     // CM2Cache::CreateShared forwards this bit to the shared-model flags.
     M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL = 0x40,
+    // Skips the .mdl/.mdx/.m2 extension check and rewrite.
+    M2_MODEL_CREATE_FLAG_ANY_EXTENSION = 0x1000,
 };
 
 // M2 event IDs store the first character in the low byte: "$CPP" is 0x50504324.
