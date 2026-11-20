@@ -15,18 +15,8 @@
 // VERIFY: f2fecb1f auto
 // OFFSET: 0x00530EC0
 static int32_t Script_BNConnected(lua_State* L) {
-    bool connected = false;
     Login* login = ClientServices::LoginConnection();
-
-    if (login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET) {
-        int32_t state = static_cast<BattlenetLogin*>(login)->m_serviceState;
-
-        if (state == 7 || state == 6 || state == 3) {
-            connected = true;
-        }
-    }
-
-    lua_pushboolean(L, connected);
+    lua_pushboolean(L, login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && static_cast<BattlenetLogin*>(login)->IsConnected());
     return 1;
 }
 
