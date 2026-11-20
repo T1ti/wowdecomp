@@ -10384,10 +10384,7 @@ CGUnit_C::~CGUnit_C() {
     this->KillCreatureLoopSound();
     this->DestroyNamePlate();
 
-    if (this->m_chatBubble) {
-        CGChatBubbleFrame::Remove(this->m_chatBubble);
-        this->m_chatBubble = nullptr;
-    }
+    this->ChatBubbleRemove();
 
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         CGUnit_C::s_trackingType = TRACKTYPE_NONE;
@@ -10515,10 +10512,7 @@ void CGUnit_C::Disable() {
         this->ObjectNameVisibilityChanged();
     }
 
-    if (this->m_chatBubble) {
-        CGChatBubbleFrame::Remove(this->m_chatBubble);
-        this->m_chatBubble = nullptr;
-    }
+    this->ChatBubbleRemove();
 
     if (this->m_nameDesc) {
         PlayerNameDelete(this->m_nameDesc);
@@ -10554,10 +10548,7 @@ void CGUnit_C::Disable() {
     if (this->m_castSpellId) {
         this->m_castCount = 0;
         this->m_castSpellId = 0;
-        this->m_castingSpellId = 0;
-        this->m_castStartTime = 0;
-        this->m_castEndTime = 0;
-        this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+        this->ResetUICastingSpell();
 
         SpellRec spell;
 
@@ -10572,14 +10563,8 @@ void CGUnit_C::Disable() {
         uint32_t now = OsGetAsyncTimeMs();
         this->m_channelEndTime = now;
         this->m_channelStartTime = now - elapsed;
-        this->m_castingSpellId = 0;
-        this->m_castStartTime = 0;
-        this->m_castEndTime = 0;
-        this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
-        this->m_channelSpellId = 0;
-        this->m_channelStartTime = 0;
-        this->m_channelEndTime = 0;
-        this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+        this->ResetUICastingSpell();
+        this->ClearUIChannel();
 
         SpellRec spell;
 
@@ -11638,10 +11623,7 @@ void CGUnit_C::OnChannelUpdate(int32_t remaining) {
     uint32_t end = remaining + OsGetAsyncTimeMs();
     this->m_channelEndTime = end;
     this->m_channelStartTime = end - duration;
-    this->m_castingSpellId = 0;
-    this->m_castStartTime = 0;
-    this->m_castEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ResetUICastingSpell();
 }
 
 // VERIFY: 3a616bc4 manual
@@ -15605,10 +15587,7 @@ void CGUnit_C::ClearUIChannel() {
 void CGUnit_C::DelayCast(int32_t delay) {
     this->m_castStartTime += delay;
     this->m_castEndTime += delay;
-    this->m_channelSpellId = 0;
-    this->m_channelStartTime = 0;
-    this->m_channelEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ClearUIChannel();
 }
 
 // VERIFY: 3a39d598 auto
@@ -15627,10 +15606,7 @@ void CGUnit_C::SetUICastingDirect(int32_t spellId, const WOWGUID& target, uint32
         }
     }
 
-    this->m_channelSpellId = 0;
-    this->m_channelStartTime = 0;
-    this->m_channelEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ClearUIChannel();
 }
 
 // VERIFY: acda115f auto
@@ -15648,10 +15624,7 @@ void CGUnit_C::SetUIChannelDirect(int32_t spellId, uint32_t start, uint32_t end)
         }
     }
 
-    this->m_castingSpellId = 0;
-    this->m_castStartTime = 0;
-    this->m_castEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ResetUICastingSpell();
 }
 
 // VERIFY: 49e3df47 auto
@@ -16779,10 +16752,7 @@ void CGUnit_C::SetUICastingSpell(int32_t spellId, const WOWGUID& target, int32_t
         }
     }
 
-    this->m_channelSpellId = 0;
-    this->m_channelStartTime = 0;
-    this->m_channelEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ClearUIChannel();
 }
 
 // VERIFY: 6ca1311a auto
@@ -16802,10 +16772,7 @@ void CGUnit_C::SetUIChannelSpell(int32_t spellId, int32_t duration) {
         }
     }
 
-    this->m_castingSpellId = 0;
-    this->m_castStartTime = 0;
-    this->m_castEndTime = 0;
-    this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
+    this->ResetUICastingSpell();
 }
 
 // VERIFY: 4a2466af manual
@@ -20093,10 +20060,7 @@ void CGUnit_C::NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worl
         NamePlateSort(this->m_namePlateFrame);
         worldFrame->SetNamePlateUpdate();
 
-        if (this->m_chatBubble) {
-            CGChatBubbleFrame::Remove(this->m_chatBubble);
-            this->m_chatBubble = nullptr;
-        }
+        this->ChatBubbleRemove();
 
         this->UpdateSpellCastBars(FrameTime::s_curTimeMs);
         this->ObjectNameVisibilityChanged();

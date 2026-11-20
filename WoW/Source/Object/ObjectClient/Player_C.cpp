@@ -8565,8 +8565,7 @@ int32_t CGPlayer_C::OnLootResponse(uint32_t time, CDataStore* msg) {
                 }
             }
 
-            this->m_lootTarget = WOWGUID();
-            this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
+            this->ClearLootingObject();
             CGGameUI::UnlockItem(guid);
             return 1;
         }
@@ -8666,8 +8665,7 @@ int32_t CGPlayer_C::OnLootResponse(uint32_t time, CDataStore* msg) {
         break;
     }
 
-    this->m_lootTarget = WOWGUID();
-    this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
+    this->ClearLootingObject();
     CGGameUI::UnlockItem(guid);
     this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
     return 1;
@@ -8719,8 +8717,7 @@ int32_t CGPlayer_C::OnLootReleaseResponse(CDataStore* msg) {
     msg->Get(released);
 
     if (released && guid == this->m_lootTarget) {
-        this->m_lootTarget = WOWGUID();
-        this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
+        this->ClearLootingObject();
         CGGameUI::CloseLoot(false, false, false);
     }
 
