@@ -456,7 +456,7 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
         message->m_invoiceRandomPropertiesID = 0;
         message->m_invoiceType = CGMailInfo::INVOICE_TYPE::UNSET;
 
-        if (!type && FriendList::s_friendList->IsIgnored(message->m_sender, true) && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
+        if (type == MAIL_MESSAGE_TYPE_NORMAL && FriendList::s_friendList->IsIgnored(message->m_sender, true) && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
             CDataStore reply;
 
             if (GetNumAttachments(message) || message->m_money) {
@@ -481,10 +481,10 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
                 message->m_stationery = GetStationery(0)->m_id;
             }
 
-            if (type == 2) {
+            if (type == MAIL_MESSAGE_TYPE_AUCTION) {
                 SStrCopy(message->m_invoiceSubject, message->m_subject, sizeof(message->m_invoiceSubject));
                 CGMailInfo::ParseInboxSubject(message);
-            } else if (type == 5) {
+            } else if (type == MAIL_MESSAGE_TYPE_CALENDAR) {
                 message->m_sender.m_guid = SStrToInt64(message->m_subject);
                 SStrCopy(message->m_invoiceSubject, SStrChr(message->m_subject, ':') + 1, sizeof(message->m_invoiceSubject));
                 ProfanityFilter(message->m_invoiceSubject, false, false);
