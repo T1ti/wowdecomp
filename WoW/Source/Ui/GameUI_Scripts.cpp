@@ -588,13 +588,7 @@ static int32_t Script_FrameXML_Debug(lua_State* L) {
 // VERIFY: 4100f310 auto
 // OFFSET: 0x005144C0
 static int32_t Script_IsLeftShiftKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = CGUIBindings::s_bindings->m_heldModifiers & 1;
-    } else {
-        down = EventIsKeyDown(KEY_LSHIFT);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_LSHIFT);
 
     if (down) {
         lua_pushnumber(L, 1.0);
@@ -608,13 +602,7 @@ static int32_t Script_IsLeftShiftKeyDown(lua_State* L) {
 // VERIFY: c4e94562 auto
 // OFFSET: 0x00514520
 static int32_t Script_IsRightShiftKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = (CGUIBindings::s_bindings->m_heldModifiers >> 1) & 1;
-    } else {
-        down = EventIsKeyDown(KEY_RSHIFT);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_RSHIFT);
 
     if (down) {
         lua_pushnumber(L, 1.0);
@@ -628,13 +616,7 @@ static int32_t Script_IsRightShiftKeyDown(lua_State* L) {
 // VERIFY: 898d5169 auto
 // OFFSET: 0x00514610
 static int32_t Script_IsLeftControlKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = (CGUIBindings::s_bindings->m_heldModifiers >> 2) & 1;
-    } else {
-        down = EventIsKeyDown(KEY_LCONTROL);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_LCONTROL);
 
     if (down) {
         lua_pushnumber(L, 1.0);
@@ -648,13 +630,7 @@ static int32_t Script_IsLeftControlKeyDown(lua_State* L) {
 // VERIFY: 946c00ee auto
 // OFFSET: 0x00514670
 static int32_t Script_IsRightControlKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = (CGUIBindings::s_bindings->m_heldModifiers >> 3) & 1;
-    } else {
-        down = EventIsKeyDown(KEY_RCONTROL);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_RCONTROL);
 
     if (down) {
         lua_pushnumber(L, 1.0);
@@ -668,13 +644,7 @@ static int32_t Script_IsRightControlKeyDown(lua_State* L) {
 // VERIFY: 81c65012 auto
 // OFFSET: 0x00514760
 static int32_t Script_IsLeftAltKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = (CGUIBindings::s_bindings->m_heldModifiers >> 4) & 1;
-    } else {
-        down = EventIsKeyDown(KEY_LALT);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_LALT);
 
     if (down) {
         lua_pushnumber(L, 1.0);
@@ -688,13 +658,7 @@ static int32_t Script_IsLeftAltKeyDown(lua_State* L) {
 // VERIFY: 5d240461 auto
 // OFFSET: 0x005147C0
 static int32_t Script_IsRightAltKeyDown(lua_State* L) {
-    int32_t down;
-
-    if (CGUIBindings::s_bindings->m_keyStateOverride) {
-        down = (CGUIBindings::s_bindings->m_heldModifiers >> 5) & 1;
-    } else {
-        down = EventIsKeyDown(KEY_RALT);
-    }
+    BOOL down = CGGameUI::IsKeyDown(KEY_RALT);
 
     if (down) {
         lua_pushnumber(L, 1.0);
