@@ -36,6 +36,15 @@ bool BattlenetLogin::s_monolithicComponent;
 // STATIC: 0x00D45CB0
 char BattlenetLogin::s_monolithicPlatform[5];
 
+// INLINED: asserts the tumor manager exists and sends it a creep event.
+static void SendCreepEvent(Battlenet::Event::Creep::Invoke& invoke) {
+    if (!g_tumorManager) {
+        SErrDisplayAppFatalMessage("", "", 0);
+    }
+
+    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+}
+
 // VERIFY: 4bbf2db9 auto
 // OFFSET: 0x008C51D0
 void BattlenetAssert(const char* message, const char* file, int32_t line) {
@@ -656,11 +665,7 @@ void BattlenetLogin::JoinRealm(uint32_t region, uint32_t battlegroup, uint32_t i
         join->m_exists = false;
     }
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: 102510bd manual
@@ -683,11 +688,7 @@ void BattlenetLogin::GetLogonMethod() {
     SMemFree(this->m_password, __FILE__, __LINE__, 0);
     this->m_password = nullptr;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: a8bc2c7e auto
@@ -834,11 +835,7 @@ void BattlenetLogin::EnterPIN(int32_t count, uint8_t* digits) {
     Battlenet::Authentication::ModuleParam* param = message->m_params.New();
     *param->Set<0, BSN::String<256>>() = pin;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: e5dd91ee manual
@@ -857,11 +854,7 @@ void BattlenetLogin::EnterMatrix(uint8_t value) {
     Battlenet::Authentication::ModuleParam* param = message->m_params.New();
     *param->Set<1, uint32_t>() = value;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: 34fe48e7 manual
@@ -877,11 +870,7 @@ void BattlenetLogin::RevertMatrix() {
     message->m_moduleId = this->m_moduleId;
     message->m_name = Battlenet::Event::AuthModule::RevertMatrixCard;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: 1993fec7 manual
@@ -897,11 +886,7 @@ void BattlenetLogin::CommitMatrix() {
     message->m_moduleId = this->m_moduleId;
     message->m_name = Battlenet::Event::AuthModule::CommitMatrixCard;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: a977f694 manual
@@ -919,11 +904,7 @@ void BattlenetLogin::FinalizeMatrix() {
     message->m_moduleId = this->m_moduleId;
     message->m_name = Battlenet::Event::AuthModule::FinalizeMatrixCard;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: d8ce7391 manual
@@ -944,11 +925,7 @@ void BattlenetLogin::EnterToken(const char* token) {
     Battlenet::Authentication::ModuleParam* param = message->m_params.New();
     *param->Set<0, BSN::String<256>>() = token;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
 }
 
 // VERIFY: efe382b2 manual
@@ -983,11 +960,7 @@ bool BattlenetLogin::SetGameAccount(uint32_t index) {
     param = message->m_params.New();
     *param->Set<0, BSN::String<256>>() = account.m_name;
 
-    if (!g_tumorManager) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    g_tumorManager->SendEvent<Battlenet::Event::Creep::Invoke, Protocol>(Battlenet::Event::CREEP, invoke);
+    SendCreepEvent(invoke);
     this->m_gameAccountSelected = 1;
 
     return true;
