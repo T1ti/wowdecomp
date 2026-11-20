@@ -304,7 +304,7 @@ class CGxDeviceD3d9Ex : public CGxDevice {
     virtual void ShaderDestroy(CGxShader*& shader);
     virtual void IShaderReload(CGxShader* shader, const char* path, const char* name);
     virtual void IShaderCreate(CGxShader* shader);
-    virtual void CursorSetVisible(int32_t visible);
+    virtual void CursorSetVisible(BOOL visible);
     virtual void CursorUnlock(uint32_t x, uint32_t y);
     virtual void StereoSetConvergence(float convergence);
     virtual float StereoGetConvergence();

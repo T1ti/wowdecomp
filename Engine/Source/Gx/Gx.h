@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/CGxDevice/Types.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Gx/CGxTex.h"
@@ -78,8 +79,8 @@ void GxTexParameters(const CGxTex* texId, CGxTexParms& parms);
 void GxTexSetCannotUpdate(CGxTex* texId);
 void GxTexSetDataFormat(CGxTex* texId, EGxTexFormat dataFormat);
 void GxTexSetUserData(CGxTex* texId, GxTexUserFunc userFunc, void* userArg);
-void GxTexUpdate(CGxTex* texId, int32_t minX, int32_t minY, int32_t maxX, int32_t maxY, int32_t immediate);
-void GxTexUpdate(CGxTex* texId, CiRect& updateRect, int32_t immediate);
+void GxTexUpdate(CGxTex* texId, int32_t minX, int32_t minY, int32_t maxX, int32_t maxY, BOOL immediate);
+void GxTexUpdate(CGxTex* texId, CiRect& updateRect, BOOL immediate);
 int32_t GxTexCreate(const CGxTexParms& parms, CGxTex*& texId);
 int32_t GxTexCreate(EGxTexTarget target, uint32_t width, uint32_t height, uint32_t depth, EGxTexFormat format, EGxTexFormat dataFormat, CGxTexFlags flags, void* userArg, GxTexUserFunc userFunc, const char* name, CGxTex*& texId);
 int32_t GxTexStretch(CGxTex* dest, const CiRect* destRect, const CiRect* sourceRect, uint32_t level, uint32_t face);
@@ -104,7 +105,7 @@ void GxLogCrashInfo(char* buffer, uint32_t size);
 void GxLogOpen();
 int32_t GxIsWindowVisible();
 int32_t GxMasterEnable(EGxMasterEnables state);
-void GxMasterEnableSet(EGxMasterEnables state, int32_t enable);
+void GxMasterEnableSet(EGxMasterEnables state, BOOL enable);
 bool GxQueryBegin(CGxQuery* query);
 void GxQueryCreate(CGxQuery*& query, EGxQueryType type);
 void GxQueryDestroy(CGxQuery*& query);

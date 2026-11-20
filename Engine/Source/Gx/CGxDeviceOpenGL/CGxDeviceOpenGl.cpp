@@ -180,7 +180,7 @@ void CGxDeviceOpenGl::DsInit() {
 
 // VERIFY: e94dcc5a manual
 // OFFSET: 0x006918F0
-void CGxDeviceOpenGl::DsSet(EDeviceState state, uint32_t value, int32_t force) {
+void CGxDeviceOpenGl::DsSet(EDeviceState state, uint32_t value, BOOL force) {
     uint32_t current = this->m_deviceStates[state];
 
     if (current == value && !force) {

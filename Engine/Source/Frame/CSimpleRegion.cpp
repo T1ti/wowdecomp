@@ -246,7 +246,7 @@ void CSimpleRegion::OnColorChanged(bool changed) {
 
 // VERIFY: b519be3d manual
 // OFFSET: 0x00487ED0
-void CSimpleRegion::SetFrame(CSimpleFrame* frame, uint32_t drawLayer, int32_t show) {
+void CSimpleRegion::SetFrame(CSimpleFrame* frame, uint32_t drawLayer, BOOL show) {
     if (this->m_parent == frame) {
         if (this->m_drawLayer == drawLayer) {
             if (show == this->m_shown) {
@@ -303,7 +303,7 @@ void CSimpleRegion::SetFrame(CSimpleFrame* frame, uint32_t drawLayer, int32_t sh
 
 // VERIFY: 3115eee5 manual
 // OFFSET: 0x00488000
-void CSimpleRegion::AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha) {
+void CSimpleRegion::AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha) {
     if (first && (!this->m_playingAnimGroups || !this->m_playingAnimGroups->Head())) {
         this->StoreAnimPosition();
     }
@@ -332,7 +332,7 @@ void CSimpleRegion::AnimDeactivated(CSimpleAnimGroup* group, int32_t last) {
 
 // VERIFY: 48ca4759 manual
 // OFFSET: 0x004880E0
-CSimpleRegion::CSimpleRegion(CSimpleFrame* frame, uint32_t drawLayer, int32_t show) {
+CSimpleRegion::CSimpleRegion(CSimpleFrame* frame, uint32_t drawLayer, BOOL show) {
     this->m_alphaCount = 4;
     this->m_colorCount = 4;
     this->m_drawLayer = DRAWLAYER_BACKGROUND;

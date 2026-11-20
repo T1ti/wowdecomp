@@ -884,7 +884,7 @@ FMOD_RESULT SE2::SetDeviceChangeCallback(void (*callback)()) {
 
 // VERIFY: a64b076d auto
 // OFFSET: 0x00878290
-void SE2::EnableReverb(int32_t enable) {
+void SE2::EnableReverb(BOOL enable) {
     s_reverbEnabled = enable;
 }
 
@@ -2119,7 +2119,7 @@ void SESound::SetVolume(float volume) {
 
 // VERIFY: 048d9e21 manual
 // OFFSET: 0x00879840
-void SESound::Stop(int32_t immediate, float fadeOutTime) {
+void SESound::Stop(BOOL immediate, float fadeOutTime) {
     if (!this->m_internal) {
         return;
     }
@@ -2243,7 +2243,7 @@ SESound* SE2::GetSoundFromID(uint32_t id, int32_t* created) {
 
 // VERIFY: 13fd5be3 manual
 // OFFSET: 0x00879AE0
-int32_t SE2::GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCount, int32_t playing, int32_t isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount) {
+int32_t SE2::GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount) {
     if (!info || maxCount <= 0) {
         return 0;
     }
@@ -2371,7 +2371,7 @@ int32_t SE2::GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCou
 
 // VERIFY: 3893736c auto
 // OFFSET: 0x00879F30
-int32_t SE2::GetChannelInfo(SEChannelInfo* info, int32_t maxCount, int32_t playing, int32_t isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount) {
+int32_t SE2::GetChannelInfo(SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount) {
     return SE2::GetChannelInfo(false, info, maxCount, playing, isVirtual, loading, other, hardwareCount, softwareCount, virtualCount, loadingCount, otherCount);
 }
 
@@ -2420,7 +2420,7 @@ static void StopChatSounds() {
 
 // VERIFY: aff3b6de auto
 // OFFSET: 0x0087A210
-static void ProcessDeleteList(int32_t force) {
+static void ProcessDeleteList(BOOL force) {
     // STATIC: 0x00D43930
     static uint32_t s_lastTime = OsGetAsyncTimeMs();
 
@@ -2621,7 +2621,7 @@ static void KillVirtualSounds() {
 
 // VERIFY: bd8b4ce2 manual
 // OFFSET: 0x0087B010
-static void ProcessWaveDataDeleteList(int32_t force) {
+static void ProcessWaveDataDeleteList(BOOL force) {
     // STATIC: 0x00D43948
     static CVar* s_maxCacheSize;
 
@@ -3117,7 +3117,7 @@ void SE2::CreateChatSound(FMOD::System* system, SEStreamCallbacks* callbacks, FM
 
 // VERIFY: 5f70d806 manual
 // OFFSET: 0x0087C710
-int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), int32_t enableReverb, int32_t enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart) {
+int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), BOOL enableReverb, BOOL enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart) {
     FMOD_INITFLAGS flags = FMOD_INIT_NORMAL;
     int32_t success = 1;
 

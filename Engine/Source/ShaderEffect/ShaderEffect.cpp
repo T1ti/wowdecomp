@@ -180,7 +180,7 @@ void CShaderEffect::UpdateProjMatrix() {
 
 // VERIFY: 326b299e auto
 // OFFSET: 0x00872CE0
-void CShaderEffect::InitShaderSystem(int32_t enableShaders, int32_t usePcfFiltering) {
+void CShaderEffect::InitShaderSystem(BOOL enableShaders, BOOL usePcfFiltering) {
     CShaderEffect::s_enableShaders = enableShaders;
     CShaderEffect::SetUsePcfFiltering(usePcfFiltering);
     CShaderEffect::s_fogMul = 1.0f;
@@ -303,7 +303,7 @@ void CShaderEffect::SetDefaultShaders(uint32_t lightCount) {
 
 // VERIFY: 71c6c864 manual
 // OFFSET: 0x008731C0
-void CShaderEffect::SetLightingEnabled(int32_t enabled) {
+void CShaderEffect::SetLightingEnabled(BOOL enabled) {
     CShaderEffect::s_lightEnabled = enabled;
 
     if (!CShaderEffect::s_enableShaders) {
@@ -339,7 +339,7 @@ void CShaderEffect::SetFogParams(float start, float end, float density, const CI
 
 // VERIFY: af8a3952 manual
 // OFFSET: 0x00873390
-void CShaderEffect::SetFogEnabled(int32_t enabled) {
+void CShaderEffect::SetFogEnabled(BOOL enabled) {
     if (enabled && g_theGxDevicePtr->MasterEnable(GxMasterEnable_Fog)) {
         if (CShaderEffect::s_enableShaders) {
             GxShaderConstantsSet(GxSh_Vertex, 30, &CShaderEffect::s_fogParams.x, 1);
@@ -528,7 +528,7 @@ CShaderEffect::~CShaderEffect() {
 
 // VERIFY: 17775013 manual
 // OFFSET: 0x00873CA0
-void CShaderEffect::SetLocalLighting(CM2Lighting* lighting, int32_t enabled, const C3Vector* origin) {
+void CShaderEffect::SetLocalLighting(CM2Lighting* lighting, BOOL enabled, const C3Vector* origin) {
     CShaderEffect::s_lightEnabled = enabled;
 
     if (!CShaderEffect::s_enableShaders) {

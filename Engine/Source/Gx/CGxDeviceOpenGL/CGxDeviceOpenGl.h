@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/CGxDeviceOpenGL/GlExt.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -154,7 +155,7 @@ class CGxDeviceOpenGl : public CGxDevice {
     void DeviceDestroyPoolAPI();
     void DeviceQueryPbuffer();
     void DsInit();
-    void DsSet(EDeviceState state, uint32_t value, int32_t force);
+    void DsSet(EDeviceState state, uint32_t value, BOOL force);
     int32_t IDevAttachGlContext(const CGxFormat& format);
     void IDevRemoveGlContext();
     void IDevSetFocus(int32_t focus, const CGxFormat& format);

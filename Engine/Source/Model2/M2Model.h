@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Model2/Types.h"
 #include "Engine/Source/Gx/CGxVertexPNT0.h"
 #include "Engine/Source/Model2/Attachment.h"
@@ -392,8 +393,8 @@ class CM2Model {
     uint32_t GetNumBatches();
     void GetSequenceInfo(uint32_t id, uint32_t variation, M2SequenceInfo& info);
     void OptimizeVisibleGeometry();
-    void SetGeometryVisible(uint32_t first, uint32_t last, int32_t visible);
-    void SetGeosetVisibilityRange(uint32_t first, uint32_t last, int32_t visible);
+    void SetGeometryVisible(uint32_t first, uint32_t last, BOOL visible);
+    void SetGeosetVisibilityRange(uint32_t first, uint32_t last, BOOL visible);
     void FindKey(M2ModelBoneSeq* sequence, const M2TrackBase& track, uint32_t& key0, uint32_t& key1, float& ratio);
     void FreeExternalResources();
     CCamera* GetCameraById(uint32_t id);
@@ -401,13 +402,13 @@ class CM2Model {
     uint32_t GetNumGeometryBatches();
     uint32_t GetNumPrimitives();
     int32_t HasCamera(uint32_t id);
-    void SetEmittersEnabled(int32_t enabled);
+    void SetEmittersEnabled(BOOL enabled);
     CCamera* GetCameraByIndex(uint32_t index); // Borrowed camera-service handle; the model retains ownership.
     uint32_t GetCurrentLightCount();
     uint32_t GetInstanceCountMax();
     int32_t HasLiveParticles();
     int32_t HasLiveRibbons();
-    uint32_t IsLoaded(int32_t wait, int32_t recursive);
+    uint32_t IsLoaded(BOOL wait, int32_t recursive);
     void LinkToAsyncHead(int32_t textures);
     void LinkToAsyncHeadRecursive(int32_t textures);
     void ReplaceParticleColor(uint32_t id, CImVector color0, CImVector color1, CImVector color2);
@@ -453,10 +454,10 @@ class CM2Model {
     void HideBounds();
     void ShowBoundingBox();
     void ShowBoundingSphere();
-    void ShowCollision(int32_t show);
-    void ShowCollisionAaBox(int32_t show);
+    void ShowCollision(BOOL show);
+    void ShowCollisionAaBox(BOOL show);
     void ShowHitTestGeometry();
-    void ShowMaterialLayer(uint32_t material, uint32_t layer, int32_t show);
+    void ShowMaterialLayer(uint32_t material, uint32_t layer, BOOL show);
     void ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue);
 #endif
 };

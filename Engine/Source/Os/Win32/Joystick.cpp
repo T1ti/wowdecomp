@@ -318,7 +318,7 @@ void OsJoystickMapHat(OsJoystickID index, int32_t hat, int32_t up, int32_t right
 
 // VERIFY: 6a079663 manual
 // OFFSET: 0x008709E0
-void OsJoystickSetMouseMode(OsJoystickID index, int32_t enable) {
+void OsJoystickSetMouseMode(OsJoystickID index, BOOL enable) {
     if (index >= OsJoystickCount()) {
         return;
     }
@@ -385,7 +385,7 @@ void OsJoystickConfigureMouseMode(OsJoystickID index, int32_t stick, int32_t lef
 
 // VERIFY: 91d17e2c manual
 // OFFSET: 0x00870B80
-static void PollJoystick(uint32_t index, int32_t active) {
+static void PollJoystick(uint32_t index, BOOL active) {
     if (index >= OsJoystickCount()) {
         return;
     }
@@ -684,7 +684,7 @@ static void PollJoystick(uint32_t index, int32_t active) {
 
 // VERIFY: ab849292 auto
 // OFFSET: 0x008714B0
-void OsPollJoysticks(int32_t active) {
+void OsPollJoysticks(BOOL active) {
     for (uint32_t i = 0; i < s_joysticks.Count(); i++) {
         PollJoystick(i, active);
     }

@@ -365,7 +365,7 @@ int32_t GxMasterEnable(EGxMasterEnables state) {
 
 // VERIFY: cdcd566a auto
 // OFFSET: 0x00401260
-void GxMasterEnableSet(EGxMasterEnables state, int32_t enable) {
+void GxMasterEnableSet(EGxMasterEnables state, BOOL enable) {
     g_theGxDevicePtr->MasterEnableSet(state, enable);
 }
 
@@ -597,7 +597,7 @@ void GxPrimIndexPtr(uint32_t indexCount, const uint16_t* indices) {
 
 // VERIFY: 75e347bc auto
 // OFFSET: 0x00681F20
-void GxTexUpdate(CGxTex* texId, int32_t minX, int32_t minY, int32_t maxX, int32_t maxY, int32_t immediate) {
+void GxTexUpdate(CGxTex* texId, int32_t minX, int32_t minY, int32_t maxX, int32_t maxY, BOOL immediate) {
     CiRect rect;
     rect.minY = minY;
     rect.minX = minX;
@@ -620,7 +620,7 @@ void GxPrimLockIndexPtr(EGxPrim primType, uint32_t indexCount, const uint16_t* i
 
 // VERIFY: 7adb9aa8 auto
 // OFFSET: 0x006813D0
-void GxTexUpdate(CGxTex* texId, CiRect& updateRect, int32_t immediate) {
+void GxTexUpdate(CGxTex* texId, CiRect& updateRect, BOOL immediate) {
     g_theGxDevicePtr->TexMarkForUpdate(texId, updateRect, immediate);
 }
 

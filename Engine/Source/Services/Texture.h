@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Handle.h"
 #include "Engine/Source/Base/Status.h"
 #include "Engine/Source/BLPFile/Types.h"
@@ -113,7 +114,7 @@ class CTextureAtlas {
 void AsyncTextureDestroyedCallback(CAsyncObject* object);
 void AsyncTextureFailureCallback(CTexture* texture);
 void AsyncTextureHandler();
-void AsyncTextureProcess(CAsyncObject* object, int32_t immediate);
+void AsyncTextureProcess(CAsyncObject* object, BOOL immediate);
 int32_t AsyncTextureStatus();
 void AsyncTextureSuccessCallback(CTexture* texture);
 void AsyncTextureWait(CTexture* texture);
@@ -155,15 +156,15 @@ SFileImpl* TextureCreateOpenFile(const char* fileName, int32_t flags);
 CTexture* TextureCreateSolid(const CImVector& color);
 void TextureDestroy();
 TEXFILETYPE TextureDiscoverFileType(const char* fileName);
-void TextureEnableAtlas(int32_t enable);
+void TextureEnableAtlas(BOOL enable);
 void TextureFreeGxTex(CGxTex* gxTex, const char* name);
 void TextureFreeMippedImg(MipBits* bits);
 void TextureFreeMippedImg(MipBits* bits, PIXEL_FORMAT format, uint32_t width, uint32_t height);
 void TextureGenerateMips(uint32_t width, uint32_t height, uint32_t firstLevel, uint32_t levelCount, MipBits* images);
-CGxTex* TextureGetGxTex(CTexture* texture, int32_t wait, CStatus* status);
+CGxTex* TextureGetGxTex(CTexture* texture, BOOL wait, CStatus* status);
 int32_t TextureGetAtlasOffsetAndScale(CTexture* texture, C2Vector& offset, float& scale);
 uint32_t TextureGetBytesPerBlock(PIXEL_FORMAT format);
-int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* height, int32_t wait);
+int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* height, BOOL wait);
 const char* TextureGetFilename(CTexture* texture);
 void TextureGetGxTexFlags(CTexture* texture, CGxTexFlags* texFlags);
 int32_t TextureGetRefCnt(CTexture* texture);

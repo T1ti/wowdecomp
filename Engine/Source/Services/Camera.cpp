@@ -86,7 +86,7 @@ void CCamera::SetupWorldProjection(const CRect& rect, uint32_t flags) {
 
 // VERIFY: 5a7761be auto
 // OFFSET: 0x004BEE60
-void CameraSetupScreenProjection(const CRect& rect, const C2Vector& offset, float depth, int32_t forceOrtho) {
+void CameraSetupScreenProjection(const CRect& rect, const C2Vector& offset, float depth, BOOL forceOrtho) {
     float centerX = (rect.minX + rect.maxX) * 0.5f;
     float centerY = 0.5f * (rect.minY + rect.maxY);
     float left = rect.minX - centerX;

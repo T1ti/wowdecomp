@@ -171,7 +171,7 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
 
 // VERIFY: 7d576eb4 manual
 // OFFSET: 0x0081C290
-void CM2Cache::GarbageCollect(int32_t force) {
+void CM2Cache::GarbageCollect(BOOL force) {
     uint32_t now = OsGetAsyncTimeMs();
 
     while (this->m_freeList) {

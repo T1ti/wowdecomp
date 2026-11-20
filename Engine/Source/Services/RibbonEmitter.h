@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/CGxVertexPCT.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -101,7 +102,7 @@ class CRibbonEmitter {
     void SetAlpha(float alpha);
     void SetBelow(float below);
     void SetColor(float r, float g, float b);
-    void SetDataEnabled(int32_t enabled);
+    void SetDataEnabled(BOOL enabled);
     void SetGravity(float gravity);
     void SetPos(const C44Matrix& transform, const C3Vector& position, const C44Matrix* frameOfReference);
     void SetTexSlot(uint32_t slot);

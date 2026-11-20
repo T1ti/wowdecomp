@@ -268,7 +268,7 @@ void OsNet::TCPCONN::CloseAndUnlock() {
 
 // VERIFY: 6da2e312 auto
 // OFFSET: 0x0086D8F0
-void OsNet::TCPCONN::SetNagle(int32_t enable) {
+void OsNet::TCPCONN::SetNagle(BOOL enable) {
     BOOL noDelay = !enable;
     setsockopt(this->m_sock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&noDelay), sizeof(noDelay));
 }
@@ -711,7 +711,7 @@ void OsNet::TCPNET::LinkConn(NETCONN* conn, CONNLIST toList) {
 
 // VERIFY: 0f4a1e1c manual
 // OFFSET: 0x0086E4B0
-void OsNet::NETCONN::Disconnect(int32_t notify) {
+void OsNet::NETCONN::Disconnect(BOOL notify) {
     this->Close();
     this->m_net->LinkConn(this, CONNLISTS);
 

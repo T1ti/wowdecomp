@@ -270,7 +270,7 @@ SFileImpl* TextureCreateOpenFile(const char* fileName, int32_t flags) {
 
 // VERIFY: 47fab888 auto
 // OFFSET: 0x004B5390
-void TextureEnableAtlas(int32_t enable) {
+void TextureEnableAtlas(BOOL enable) {
     s_atlasEnable = enable;
 }
 
@@ -1040,7 +1040,7 @@ void CTextureAtlas::Reload() {
 
 // VERIFY: 7f5ee904 manual
 // OFFSET: 0x004B64E0
-void AsyncTextureProcess(CAsyncObject* object, int32_t immediate) {
+void AsyncTextureProcess(CAsyncObject* object, BOOL immediate) {
     object->m_link.Unlink();
     object->m_buffer = SMemAlloc(object->m_size, __FILE__, __LINE__, 0);
     s_asyncLoadBufferUsed += object->m_size;
@@ -1096,7 +1096,7 @@ void TextureNotifyGxRestart() {
 
 // VERIFY: 7a43e0c3 auto
 // OFFSET: 0x004B6610
-int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* height, int32_t wait) {
+int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* height, BOOL wait) {
     CAsyncObject* object = texture->m_asyncObject;
 
     if (object) {
@@ -1310,7 +1310,7 @@ void TextureIncreasePriority(CTexture* texture) {
 
 // VERIFY: 3c936638 auto
 // OFFSET: 0x004B6CB0
-CGxTex* TextureGetGxTex(CTexture* texture, int32_t wait, CStatus* status) {
+CGxTex* TextureGetGxTex(CTexture* texture, BOOL wait, CStatus* status) {
     if (!texture) {
         DebugValidate("textureptr");
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);

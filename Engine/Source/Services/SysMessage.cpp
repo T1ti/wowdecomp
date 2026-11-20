@@ -103,7 +103,7 @@ int32_t SysMsgPrintf(SYSMSG_TYPE severity, const char* format, ...) {
 
 // VERIFY: 75a92c2f auto
 // OFFSET: 0x004B4E50
-void SysMsgEnable(int32_t enable) {
+void SysMsgEnable(BOOL enable) {
     s_enabled = enable;
 }
 

@@ -2361,7 +2361,7 @@ void CSimpleTexture::PreOnAnimUpdate() {
 
 // VERIFY: e87a4320 manual
 // OFFSET: 0x00484470
-CSimpleTexture::CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, int32_t show) : CSimpleRegion(frame, drawLayer, show) {
+CSimpleTexture::CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, BOOL show) : CSimpleRegion(frame, drawLayer, show) {
     this->m_texture = nullptr;
     this->m_alphaMode = GxBlend_Alpha;
     this->m_shader = CSimpleTexture::s_imageModePixelShaders[ImageMode_Normal];

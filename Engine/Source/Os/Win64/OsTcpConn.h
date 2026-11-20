@@ -131,7 +131,7 @@ struct alignas(8) NETCONN : public NETSELSOCK {
     virtual void CompleteRead(NETOVERLAP* overlap, uint32_t bytes);
     virtual void Close();
     void DecRef();
-    void Disconnect(int32_t notify);
+    void Disconnect(BOOL notify);
     void GetEventProcAndUser(NETEVENTPROC& eventProc, void*& user);
     int32_t NoteConnect();
     int32_t NoteData(void* data, uint32_t bytes, uint32_t* bytesProcessed, const NETCONNADDR* connAddr);
@@ -142,7 +142,7 @@ struct NETCONNFULL : public NETCONN {
     NETCONNFULL(TCPNET* net, SOCKET sock, NETEVENTPROC eventProc, void* user, const NETCONNADDR* connAddr);
     virtual void Send(const void* data, uint32_t bytes) = 0;
     virtual OS_SEND SendSync(const void* data, uint32_t bytes, uint32_t* bytesSent, uint32_t timeout) = 0;
-    virtual void SetNagle(int32_t enable) = 0;
+    virtual void SetNagle(BOOL enable) = 0;
     virtual int32_t SetWindow(uint32_t size) = 0;
     virtual void SetRecvTimeout(uint32_t timeout) = 0;
 };
@@ -159,7 +159,7 @@ struct TCPCONN : public NETCONNFULL {
     virtual void CompleteRead(NETOVERLAP* overlap, uint32_t bytes);
     virtual void Send(const void* data, uint32_t bytes);
     virtual OS_SEND SendSync(const void* data, uint32_t bytes, uint32_t* bytesSent, uint32_t timeout);
-    virtual void SetNagle(int32_t enable);
+    virtual void SetNagle(BOOL enable);
     virtual int32_t SetWindow(uint32_t size);
     virtual void SetRecvTimeout(uint32_t timeout);
     virtual void StartWriteAndLeaveLock(OUTPUT* output) = 0;

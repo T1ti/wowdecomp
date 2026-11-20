@@ -94,7 +94,7 @@ bool CSimpleCheckbox::IsA(const char* typeName) {
 
 // VERIFY: 0e5dc769 manual
 // OFFSET: 0x00962340
-void CSimpleCheckbox::SetChecked(int32_t checked, int32_t force) {
+void CSimpleCheckbox::SetChecked(int32_t checked, BOOL force) {
     if (!force && checked == this->m_checked) {
         return;
     }
@@ -178,7 +178,7 @@ void CSimpleCheckbox::SetDisabledCheckedTexture(CSimpleTexture* texture) {
 
 // VERIFY: 1affe968 auto
 // OFFSET: 0x00962490
-void CSimpleCheckbox::Enable(int32_t enabled) {
+void CSimpleCheckbox::Enable(BOOL enabled) {
     CSimpleButton::Enable(enabled);
     this->SetChecked(this->m_checked, 1);
 }

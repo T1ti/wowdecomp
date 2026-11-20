@@ -2,6 +2,7 @@
 #define ENGINE_SOURCE_OS_INPUT_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Event/Types.h"
 
 struct tagRECT;
@@ -59,7 +60,7 @@ void OsInputSetWindowResizeLock(int32_t resizeLock);
 float OsInputGetMouseSpeed();
 void OsInputInitialize();
 void OsInputDestroy();
-void OsInputEnableSecureMode(int32_t enable);
+void OsInputEnableSecureMode(BOOL enable);
 void OsInputSetEventPollProc(void (*pollProc)());
 int32_t OsInputGet(OSINPUT* id, int32_t* param0, int32_t* param1, int32_t* param2, int32_t* param3);
 void OsInputSetMouseMode(OS_MOUSE_MODE mode);

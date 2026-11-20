@@ -2,6 +2,7 @@
 #define ENGINE_SOURCE_OS_JOYSTICK_H
 
 #include <cstdint>
+#include <windows.h>
 
 // Keep the current unsigned joystick index and invalid-ID representation.
 typedef uint32_t OsJoystickID;
@@ -14,7 +15,7 @@ void OsJoystickMapHat(OsJoystickID index, int32_t hat, int32_t up, int32_t right
 void OsJoystickMapSlider(OsJoystickID index, int32_t axis);
 void OsJoystickMapStick(OsJoystickID index, int32_t stick, int32_t xAxis, int32_t yAxis);
 OsJoystickID OsJoystickOpen(OsJoystickID index);
-void OsJoystickSetMouseMode(OsJoystickID index, int32_t enable);
-void OsPollJoysticks(int32_t active);
+void OsJoystickSetMouseMode(OsJoystickID index, BOOL enable);
+void OsPollJoysticks(BOOL active);
 
 #endif

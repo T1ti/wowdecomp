@@ -137,11 +137,11 @@ class CSimpleButton : public CSimpleFrame {
     virtual void OnDragStart(const CMouseEvent& evt);
     virtual void LockHighlight(int32_t lock);
     virtual void LoadXML(XMLNode* node, CStatus* status);
-    virtual void Enable(int32_t enabled);
+    virtual void Enable(BOOL enabled);
     virtual void OnClick(const char* btn, int32_t down);
     virtual void OnDoubleClick(const char* btn);
     virtual void SetButtonState(CSimpleButtonState state, int32_t stateLocked);
-    virtual void SetMotionScriptsWhileDisabled(int32_t enabled);
+    virtual void SetMotionScriptsWhileDisabled(BOOL enabled);
     virtual int32_t GetMotionScriptsWhileDisabled();
 
     CSimpleButton(CSimpleFrame* parent);

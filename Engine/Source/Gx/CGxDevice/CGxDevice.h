@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/CGxDevice/CGxShader.h"
 #include "Engine/Source/Gx/CGxDevice/EmergencyMem.h"
@@ -209,7 +210,7 @@ class CGxDevice {
     virtual void PrimColor(const CImVector& c);
     virtual void PrimPointSize(float size);
     virtual void PrimLineWidth(float width);
-    virtual void MasterEnableSet(EGxMasterEnables state, int32_t enable);
+    virtual void MasterEnableSet(EGxMasterEnables state, BOOL enable);
     virtual void PoolSizeSet(CGxPool* pool, uint32_t size) = 0;
     virtual void PoolDestroy(CGxPool* pool);
     virtual char* BufLock(CGxBuf* buf);
@@ -231,7 +232,7 @@ class CGxDevice {
     virtual void ShaderConstantsSet(EGxShTarget target, uint32_t index, const float* constants, uint32_t count);
     virtual void IShaderReload(CGxShader* shader, const char* path, const char* name) = 0;
     virtual void IShaderCreate(CGxShader* shader) = 0;
-    virtual void CursorSetVisible(int32_t visible);
+    virtual void CursorSetVisible(BOOL visible);
     virtual uint32_t* CursorLock();
     virtual void CursorUnlock(uint32_t x, uint32_t y);
     virtual void StereoSetConvergence(float convergence) = 0;
@@ -292,7 +293,7 @@ class CGxDevice {
     void BufSizeSet(CGxBuf* buf, uint32_t itemSize, uint32_t itemCount);
     CGxCaps& Caps();
     int32_t CapsHasContext(int32_t context);
-    int32_t CapsIsWindowVisible(int32_t visible);
+    int32_t CapsIsWindowVisible(BOOL visible);
     int32_t CapsWindowHasFocus(int32_t focus);
     void ClampRectToWindow(CiRect& rect);
     void Log(const CGxCaps& caps) const;
@@ -301,7 +302,7 @@ class CGxDevice {
     void IRsForceUpdate();
     void IRsForceUpdate(EGxRenderState which);
     void IRsInit();
-    void IRsSync(int32_t force);
+    void IRsSync(BOOL force);
     void RsPop();
     void RsInit();
     void RsPush();
@@ -329,7 +330,7 @@ class CGxDevice {
     uint32_t ITexBitsSize(CGxTex* texId, uint32_t width, uint32_t height);
     void ITexWHDStartEnd(CGxTex* texId, uint32_t& width, uint32_t& height, uint32_t& baseMip, uint32_t& mipCount);
     void Light(uint32_t index, CGxLight& light);
-    void LightEnable(uint32_t index, int32_t enable);
+    void LightEnable(uint32_t index, BOOL enable);
     void LightSet(uint32_t index, const CGxLight& light, const C3Vector& pos);
     int32_t MasterEnable(EGxMasterEnables state);
     int32_t NeedsUpdate(uint32_t app, uint32_t hw, uint32_t appDisables, uint32_t hwDisables, uint32_t flagPos, int32_t& enable);
@@ -344,7 +345,7 @@ class CGxDevice {
     void ShaderConstantsUnlock(EGxShTarget target, uint32_t index, uint32_t count);
     int32_t TexCanUpdate(CGxTex* texId);
     int32_t TexIsReadyNow(CGxTex* texId);
-    void TexMarkForUpdate(CGxTex* texId, const CiRect& updateRect, int32_t immediate);
+    void TexMarkForUpdate(CGxTex* texId, const CiRect& updateRect, BOOL immediate);
     void TexParameters(const CGxTex* texId, CGxTexParms& parms);
     void TexSetCannotUpdate(CGxTex* texId);
     void TexSetDataFormat(CGxTex* texId, EGxTexFormat dataFormat);

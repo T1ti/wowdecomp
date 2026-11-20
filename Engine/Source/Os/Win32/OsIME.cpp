@@ -154,7 +154,7 @@ int32_t OsIMEGetClauseInfo(uint32_t& clauseStart, uint32_t& clauseEnd, uint32_t&
 
 // VERIFY: 2af47370 auto
 // OFFSET: 0x0086CF90
-void OsIMEEnable(int32_t enable) {
+void OsIMEEnable(BOOL enable) {
     HWND window = static_cast<HWND>(OsGuiGetWindow(OSGUI_WINDOW_TYPE_GX));
 
     if (enable) {

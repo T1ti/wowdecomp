@@ -399,7 +399,7 @@ void CM2Light::SetPosition(const C3Vector& pos) {
 
 // VERIFY: 33e205ca auto
 // OFFSET: 0x008356F0
-void CM2Light::SetVisible(int32_t visible) {
+void CM2Light::SetVisible(BOOL visible) {
     if (!this->m_visible == !visible) {
         return;
     }

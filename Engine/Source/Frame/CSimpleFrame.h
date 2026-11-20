@@ -153,7 +153,7 @@ class CSimpleFrame : public CScriptRegion {
     virtual bool IsDragging();
     virtual void PreOnAnimUpdate();
     virtual void StopAnimating();
-    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha);
+    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha);
     virtual void AnimDeactivated(CSimpleAnimGroup* group, int32_t last);
     virtual void AddAnimTranslation(const C2Vector& translation);
     virtual void AddAnimRotation(FRAMEPOINT origin, const C2Vector& offset, float radians);
@@ -203,7 +203,7 @@ class CSimpleFrame : public CScriptRegion {
 
     CSimpleFrame(CSimpleFrame* parent);
     void AddFrameRegion(CSimpleRegion* region, uint32_t drawLayer);
-    void AllowAttributeChanges(int32_t allow);
+    void AllowAttributeChanges(BOOL allow);
     int32_t AttributeChangesAllowed();
     void DisableDrawLayer(uint32_t drawLayer);
     void DisableEvent(CSimpleEventType eventType);

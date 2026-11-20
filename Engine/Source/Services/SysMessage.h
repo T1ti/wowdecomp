@@ -3,6 +3,7 @@
 
 #include <cstdarg>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Status.h"
 
 struct SYSMSGSEVERITY {
@@ -38,7 +39,7 @@ void SysMsgInitialize();
 void SysMsgShutdown();
 void SysMsgSetCallback(void (*callback)(const char* text, SYSMSG_TYPE severity));
 
-void SysMsgEnable(int32_t enable);
+void SysMsgEnable(BOOL enable);
 uint32_t SysMsgGetFilter();
 int32_t SysMsgGetMaxDisplayLevel();
 int32_t SysMsgGetMinDisplayLevel();

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/ShaderEffect/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -44,18 +45,18 @@ class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     static uint32_t s_usePcfFiltering;
 
     static void ComputeLocalLights(LocalLights* localLights, uint32_t lightCount, CM2Light** lights, const C3Vector* origin);
-    static void InitShaderSystem(int32_t enableShaders, int32_t usePcfFiltering);
+    static void InitShaderSystem(BOOL enableShaders, BOOL usePcfFiltering);
     static uint32_t SelectShadowShader();
     static void SetAlphaRef(float alphaRef);
     static void SetAlphaRefDefault();
     static void SetDefaultShaders(uint32_t lightCount);
     static void SetDiffuse(const C4Vector& color);
     static void SetEmissive(const C4Vector& color);
-    static void SetFogEnabled(int32_t enabled);
+    static void SetFogEnabled(BOOL enabled);
     static void SetFogParams(float start, float end, float density, const CImVector& color);
     static void SetGlobalLighting(CM2Light* light);
-    static void SetLightingEnabled(int32_t enabled);
-    static void SetLocalLighting(CM2Lighting* lighting, int32_t enabled, const C3Vector* origin);
+    static void SetLightingEnabled(BOOL enabled);
+    static void SetLocalLighting(CM2Lighting* lighting, BOOL enabled, const C3Vector* origin);
     static void SetShaders(uint32_t vertexPermute, uint32_t pixelPermute);
     static void SetTexMtx(const C44Matrix& matrix, uint32_t stage);
     static void SetTexMtx_Identity(uint32_t stage);

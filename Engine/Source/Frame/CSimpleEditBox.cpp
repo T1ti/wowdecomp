@@ -390,7 +390,7 @@ void CSimpleEditBox::GetScriptTime(lua_State* L, double* time, uint32_t* count, 
 
 // VERIFY: c0664a7f auto
 // OFFSET: 0x00962BB0
-void CSimpleEditBox::SetAutoFocus(int32_t enable) {
+void CSimpleEditBox::SetAutoFocus(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_AUTO_FOCUS;
     } else {
@@ -400,7 +400,7 @@ void CSimpleEditBox::SetAutoFocus(int32_t enable) {
 
 // VERIFY: 22756da1 auto
 // OFFSET: 0x00962BD0
-void CSimpleEditBox::SetCountInvisibleLetters(int32_t enable) {
+void CSimpleEditBox::SetCountInvisibleLetters(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_COUNT_INVISIBLE_LETTERS;
     } else {
@@ -410,7 +410,7 @@ void CSimpleEditBox::SetCountInvisibleLetters(int32_t enable) {
 
 // VERIFY: b113f5ff auto
 // OFFSET: 0x00962BF0
-void CSimpleEditBox::SetNumeric(int32_t enable) {
+void CSimpleEditBox::SetNumeric(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_NUMERIC;
     } else {
@@ -420,7 +420,7 @@ void CSimpleEditBox::SetNumeric(int32_t enable) {
 
 // VERIFY: 253df0e6 auto
 // OFFSET: 0x00962C10
-void CSimpleEditBox::SetPassword(int32_t enable) {
+void CSimpleEditBox::SetPassword(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_PASSWORD;
     } else {
@@ -430,7 +430,7 @@ void CSimpleEditBox::SetPassword(int32_t enable) {
 
 // VERIFY: 237bc021 auto
 // OFFSET: 0x00962C30
-void CSimpleEditBox::SetAltArrowKeyMode(int32_t enable) {
+void CSimpleEditBox::SetAltArrowKeyMode(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_ALT_ARROW_KEY_MODE;
     } else {
@@ -2266,7 +2266,7 @@ void CSimpleEditBox::PasteFromClipboard() {
 
 // VERIFY: 3333ed53 manual
 // OFFSET: 0x00965F20
-void CSimpleEditBox::SetMultiLine(int32_t enable) {
+void CSimpleEditBox::SetMultiLine(BOOL enable) {
     if (enable) {
         this->m_editBoxFlags |= EDITBOX_FLAGS::EDITBOX_MULTILINE;
     } else {

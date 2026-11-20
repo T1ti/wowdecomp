@@ -315,7 +315,7 @@ void CScriptRegion::PreOnAnimUpdate() {
 
 // VERIFY: c64042c5 auto
 // OFFSET: 0x0047ADD0
-void CScriptRegion::AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha) {
+void CScriptRegion::AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha) {
 }
 
 // VERIFY: 83a5621b auto

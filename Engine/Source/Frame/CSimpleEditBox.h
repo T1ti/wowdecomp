@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleFontedFrame.h"
 #include "Engine/Source/Frame/CSimpleFrame.h"
@@ -199,15 +200,15 @@ class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     void RunOnTabPressedScript();
     void RunOnTextChangedScript();
     void RunOnTextSetScript(const char* taint);
-    void SetAltArrowKeyMode(int32_t enable);
-    void SetAutoFocus(int32_t enable);
-    void SetCountInvisibleLetters(int32_t enable);
+    void SetAltArrowKeyMode(BOOL enable);
+    void SetAutoFocus(BOOL enable);
+    void SetCountInvisibleLetters(BOOL enable);
     void SetCursorPosition(int32_t position);
     void SetEditTextInsets(float left, float right, float top, float bottom);
     void SetHistoryLines(int32_t lines);
-    void SetMultiLine(int32_t enable);
-    void SetNumeric(int32_t enable);
-    void SetPassword(int32_t enable);
+    void SetMultiLine(BOOL enable);
+    void SetNumeric(BOOL enable);
+    void SetPassword(BOOL enable);
     void SetText(const char* text, const char* taint);
     void ToggleInputLanguage();
     void UpdateClauseInfo();

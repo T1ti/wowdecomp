@@ -70,7 +70,7 @@ void CSimpleButton::LockHighlight(int32_t lock) {
 
 // VERIFY: ab04eabe manual
 // OFFSET: 0x00962150
-void CSimpleButton::SetMotionScriptsWhileDisabled(int32_t enabled) {
+void CSimpleButton::SetMotionScriptsWhileDisabled(BOOL enabled) {
     this->m_motionScriptsWhileDisabled = enabled;
 }
 
@@ -1058,7 +1058,7 @@ int32_t CSimpleButton::SetStateTexture(CSimpleButtonState state, const char* fil
 
 // VERIFY: 3f2ae434 manual
 // OFFSET: 0x00970440
-void CSimpleButton::Enable(int32_t enabled) {
+void CSimpleButton::Enable(BOOL enabled) {
     if (enabled) {
         if (this->m_state != BUTTONSTATE_DISABLED) {
             return;

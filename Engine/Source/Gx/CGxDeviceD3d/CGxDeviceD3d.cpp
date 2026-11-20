@@ -352,7 +352,7 @@ void CGxDeviceD3d::PoolDestroy(CGxPool* pool) {
 
 // VERIFY: b07d4055 auto
 // OFFSET: 0x0068E750
-void CGxDeviceD3d::CursorSetVisible(int32_t visible) {
+void CGxDeviceD3d::CursorSetVisible(BOOL visible) {
     CGxDevice::CursorSetVisible(visible);
 
     if (this->m_hwCursor && this->m_context) {

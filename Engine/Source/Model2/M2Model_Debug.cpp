@@ -27,14 +27,14 @@ void CM2Model::HideBounds() {
 // 0.5.3 reference: ModelShowCollision (0x004479B0).
 // Built a debug model with CollisionDataCreateModel; queued MODEL_SHOW_COLLISION while loading.
 // TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
-void CM2Model::ShowCollision(int32_t show) {
+void CM2Model::ShowCollision(BOOL show) {
 }
 
 // Debug feature: model collision box display.
 // 0.5.3 reference: ModelShowCollisionAaBox (0x00447A60).
 // Drew the box with CollisionDataRenderAABox; queued MODEL_SHOW_COLLISION_AABOX while loading.
 // TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
-void CM2Model::ShowCollisionAaBox(int32_t show) {
+void CM2Model::ShowCollisionAaBox(BOOL show) {
 }
 
 // Debug feature: model hit-test geometry display.
@@ -52,7 +52,7 @@ void CM2Model::ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue) {
 // Debug feature: material layer toggle.
 // 0.5.3 reference: ModelMaterialShowLayer (0x0043E880).
 // TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
-void CM2Model::ShowMaterialLayer(uint32_t material, uint32_t layer, int32_t show) {
+void CM2Model::ShowMaterialLayer(uint32_t material, uint32_t layer, BOOL show) {
 }
 
 // Debug feature: scene render log.

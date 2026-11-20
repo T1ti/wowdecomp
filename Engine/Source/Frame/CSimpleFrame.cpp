@@ -569,7 +569,7 @@ void CSimpleFrame::RunOnAttributeChangedScript(const char* name, int32_t luaRef)
 
 // VERIFY: 0a1a8e02 manual
 // OFFSET: 0x0048ECF0
-void CSimpleFrame::AllowAttributeChanges(int32_t allow) {
+void CSimpleFrame::AllowAttributeChanges(BOOL allow) {
     if (allow) {
         this->m_frameFlags |= FrameFlags::FRAME_ALLOW_ATTRIBUTE_CHANGES;
         this->m_simpleTop->RegisterForCleanup(this);
@@ -1941,7 +1941,7 @@ void CSimpleFrame::StopAnimating() {
 
 // VERIFY: 8b0118ef manual
 // OFFSET: 0x00491A70
-void CSimpleFrame::AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha) {
+void CSimpleFrame::AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha) {
     if (first && (!this->m_playingAnimGroups || !this->m_playingAnimGroups->Head())) {
         this->StoreAnimPosition();
     }

@@ -42,7 +42,7 @@ void CRibbonEmitter::ConvertTexSlotToTexCoords() {
 
 // VERIFY: 507021d0 manual
 // OFFSET: 0x0097F570
-void CRibbonEmitter::SetDataEnabled(int32_t enabled) {
+void CRibbonEmitter::SetDataEnabled(BOOL enabled) {
     this->m_flags ^= (this->m_flags ^ (4 * enabled)) & CRibbonEmitter::RUNTIME_FLAGS::DATA_ENABLED;
 
     if (!(this->m_flags & CRibbonEmitter::RUNTIME_FLAGS::DATA_ENABLED)) {

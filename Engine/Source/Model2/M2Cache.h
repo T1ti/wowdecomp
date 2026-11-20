@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/Prop.h"
 #include "Engine/Source/Model2/M2Shared.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -67,7 +68,7 @@ class CM2Cache {
     void ClearSharedHash();
     CM2Shared* CreateShared(const char* name, uint32_t flags);
     void Destroy();
-    void GarbageCollect(int32_t force);
+    void GarbageCollect(BOOL force);
     int32_t Initialize(uint32_t flags);
     void LinkToSharedUpdateList(CM2Shared* shared);
     void UpdateShared();

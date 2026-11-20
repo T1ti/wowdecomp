@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/SoundEngine/fmodex/src/fmod.hpp"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -242,7 +243,7 @@ class SESound {
     void SetPosition(uint32_t position);
     void SetUserData(SESoundUserData* userData);
     void SetVolume(float volume);
-    void Stop(int32_t immediate, float fadeOutTime);
+    void Stop(BOOL immediate, float fadeOutTime);
 };
 
 class SE2 {
@@ -265,12 +266,12 @@ class SE2 {
     static void DestroyChatSystem();
     static FMOD_RESULT DspDestroy(FMOD::DSP* dsp);
     static FMOD_RESULT EnableDSP(FMOD::DSP* dsp, bool active);
-    static void EnableReverb(int32_t enable);
+    static void EnableReverb(BOOL enable);
     static void ErrCheck(uint32_t line, const char* file, FMOD_RESULT result);
     static int32_t GetChannelGroupNumChannels(FMOD::ChannelGroup* channelGroup);
     static float GetChannelGroupVolume(const char* name);
-    static int32_t GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCount, int32_t playing, int32_t isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
-    static int32_t GetChannelInfo(SEChannelInfo* info, int32_t maxCount, int32_t playing, int32_t isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
+    static int32_t GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
+    static int32_t GetChannelInfo(SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
     static char* GetCurrentChatInputDeviceName();
     static char* GetCurrentChatOutputDeviceName();
     static char* GetCurrentGameOutputDeviceName();
@@ -285,7 +286,7 @@ class SE2 {
     static bool GetOutputDriverName_Cached(int32_t index, char* name, int32_t nameLength, int32_t chatSystem);
     static SESound* GetSoundFromID(uint32_t id, int32_t* created);
     static int32_t HeartBeat(const void* data, void* param);
-    static int32_t Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), int32_t enableReverb, int32_t enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart);
+    static int32_t Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vector*), BOOL enableReverb, BOOL enableSoftwareHRTF, int32_t* numChannels, int32_t* outputDriverIndex, const char* outputDriverName, float (*volumeCallback)(SESoundUserData*), int32_t restart);
     static void InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, int32_t* inputDriverIndex, const char* inputDriverName, float sampleRate);
     static bool IsCapturing();
     static int32_t IsChatSoundInitialized();

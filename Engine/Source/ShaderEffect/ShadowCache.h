@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/ShaderEffect/Types.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -96,7 +97,7 @@ class CShadowCache {
 
     static void ClearBandTextures();
     static void Destroy();
-    static void GatherBands(CShadowCacheQueryData& data, const C3Vector& pos, CFrustum& frustum, int32_t useCullFrustum);
+    static void GatherBands(CShadowCacheQueryData& data, const C3Vector& pos, CFrustum& frustum, BOOL useCullFrustum);
     static uint32_t GetMaxShadowMode();
     static EShadowMode GetShadowMode();
     static const char* GetShadowModeDesc(uint32_t mode);
@@ -119,7 +120,7 @@ class CShadowCache {
     static void SetShadowMapTerrain();
     static int32_t SetShadowMode(EShadowMode mode);
     static void SetShadowScale(float scale);
-    static int32_t Update(const C3Vector& pos, int32_t useCullFrustum);
+    static int32_t Update(const C3Vector& pos, BOOL useCullFrustum);
     static int32_t ValidateShadowMode(EShadowMode mode);
 };
 

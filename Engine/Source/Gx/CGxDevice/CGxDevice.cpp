@@ -213,7 +213,7 @@ int32_t CGxDevice::BufUnlock(CGxBuf* buf, uint32_t size) {
 
 // VERIFY: 51c4b8e7 auto
 // OFFSET: 0x00683640
-void CGxDevice::CursorSetVisible(int32_t visible) {
+void CGxDevice::CursorSetVisible(BOOL visible) {
     this->m_cursorVisible = visible;
 }
 
@@ -626,7 +626,7 @@ EGxApi CGxDevice::DeviceApi() {
 
 // VERIFY: 8d0aae56 manual
 // OFFSET: 0x00682DC0
-int32_t CGxDevice::CapsIsWindowVisible(int32_t visible) {
+int32_t CGxDevice::CapsIsWindowVisible(BOOL visible) {
     if (visible < 0) {
         return this->m_windowVisible;
     }
@@ -762,7 +762,7 @@ uint32_t CGxDevice::PrimCalcCount(EGxPrim primType, uint32_t indexCount) {
 
 // VERIFY: 341ce950 manual
 // OFFSET: 0x00683080
-void CGxDevice::LightEnable(uint32_t index, int32_t enable) {
+void CGxDevice::LightEnable(uint32_t index, BOOL enable) {
     CGxApiLight& light = this->m_lights[index];
 
     if (light.m_enable != enable) {
@@ -1043,7 +1043,7 @@ CGxBuf* CGxDevice::BufStream(EGxPoolTarget target, uint32_t itemSize, uint32_t i
 
 // VERIFY: 06465d73 auto
 // OFFSET: 0x006848A0
-void CGxDevice::TexMarkForUpdate(CGxTex* texId, const CiRect& updateRect, int32_t immediate) {
+void CGxDevice::TexMarkForUpdate(CGxTex* texId, const CiRect& updateRect, BOOL immediate) {
     texId->m_needsUpdate = 1;
 
     if (updateRect.minY >= updateRect.maxY || updateRect.minX >= updateRect.maxX) {
@@ -1209,7 +1209,7 @@ void CGxDevice::IRsForceUpdate() {
 
 // VERIFY: ef9949e8 manual
 // OFFSET: 0x00685B50
-void CGxDevice::IRsSync(int32_t force) {
+void CGxDevice::IRsSync(BOOL force) {
     if (force) {
         this->IRsForceUpdate();
     }
@@ -1273,7 +1273,7 @@ void CGxDevice::TexSetWrap(CGxTex* texId, EGxTexWrapMode wrapU, EGxTexWrapMode w
 
 // VERIFY: 69ad163c auto
 // OFFSET: 0x00685EB0
-void CGxDevice::MasterEnableSet(EGxMasterEnables state, int32_t enable) {
+void CGxDevice::MasterEnableSet(EGxMasterEnables state, BOOL enable) {
     this->m_appMasterEnables = ((enable & 1) << state) | (this->m_appMasterEnables & ~(1 << state));
 
     switch (state) {

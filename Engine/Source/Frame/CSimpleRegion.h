@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Frame/CScriptRegion.h"
 #include "Engine/Source/Frame/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -33,7 +34,7 @@ class CSimpleRegion : public CScriptRegion {
 
     virtual ~CSimpleRegion();
     virtual void SetParent(CSimpleFrame* parent);
-    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha);
+    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha);
     virtual void AnimDeactivated(CSimpleAnimGroup* group, int32_t last);
     virtual void AddAnimAlpha(int16_t alpha);
     virtual int32_t CanBeAnchorFor(CLayoutFrame* frame);
@@ -43,7 +44,7 @@ class CSimpleRegion : public CScriptRegion {
     virtual void StoreAnimPosition();
     virtual void ResetAnimPosition();
 
-    CSimpleRegion(CSimpleFrame* frame, uint32_t drawLayer, int32_t show);
+    CSimpleRegion(CSimpleFrame* frame, uint32_t drawLayer, BOOL show);
     uint8_t GetVertexAlpha();
     void GetVertexColor(CImVector& color);
     void Hide();
@@ -51,7 +52,7 @@ class CSimpleRegion : public CScriptRegion {
     void NotifyDelayedLoad();
     void OnRegionChanged();
     void PreLoadXML(XMLNode* node, CStatus* status);
-    void SetFrame(CSimpleFrame* frame, uint32_t drawLayer, int32_t show);
+    void SetFrame(CSimpleFrame* frame, uint32_t drawLayer, BOOL show);
     void SetVertexAlpha(uint8_t alpha);
     void SetVertexColor(const CImVector& color);
     void SetVertexColorRGBA(float r, float g, float b, float a);

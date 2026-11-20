@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Frame/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/CRect.h"
@@ -89,7 +90,7 @@ class CLayoutFrame {
     virtual void SetSize(float width, float height);
     virtual float GetWidth();
     virtual float GetHeight();
-    virtual void GetSize(float& width, float& height, int32_t ignoreRect);
+    virtual void GetSize(float& width, float& height, BOOL ignoreRect);
     virtual void GetClampRectInsets(float& left, float& right, float& top, float& bottom);
     virtual int32_t IsAttachmentOrigin();
     virtual int32_t CanBeAnchorFor(CLayoutFrame* frame);
@@ -125,11 +126,11 @@ class CLayoutFrame {
     void ProtectFramepoints(uint32_t flag);
     int32_t PtInFrameRect(const C2Vector& point);
     void RegisterResize(CLayoutFrame* frame, uint32_t dependency);
-    void Resize(int32_t force);
+    void Resize(BOOL force);
     float Right();
     void SetAllPoints(CLayoutFrame* relative, int32_t doResize);
     void SetClampedToScreen(int32_t clamped);
-    void SetDeferredResize(int32_t deferred);
+    void SetDeferredResize(BOOL deferred);
     void SetPoint(FRAMEPOINT point, CLayoutFrame* relative, FRAMEPOINT relativePoint, float offsetX, float offsetY, int32_t doResize);
     void SetProtectFlag(uint32_t flag);
     void SetProtected();

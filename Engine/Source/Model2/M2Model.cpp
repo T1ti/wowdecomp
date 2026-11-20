@@ -588,7 +588,7 @@ int32_t CM2Model::Release() {
 
 // VERIFY: f4fc2dd4 manual
 // OFFSET: 0x00824F00
-uint32_t CM2Model::IsLoaded(int32_t wait, int32_t recursive) {
+uint32_t CM2Model::IsLoaded(BOOL wait, int32_t recursive) {
     if (this->m_creationFlags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             return 1;
@@ -628,7 +628,7 @@ uint32_t CM2Model::IsLoaded(int32_t wait, int32_t recursive) {
 
 // VERIFY: 1574132e auto
 // OFFSET: 0x00824FC0
-int32_t CM2Model::IsDrawable(int32_t wait, int32_t recursive) {
+int32_t CM2Model::IsDrawable(BOOL wait, int32_t recursive) {
     if (!(this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) && wait) {
         this->WaitForLoad(nullptr);
     }
@@ -2131,7 +2131,7 @@ CCamera* CM2Model::GetCameraById(uint32_t id) {
 
 // VERIFY: be32ea2b manual
 // OFFSET: 0x008279F0
-void CM2Model::SetEmittersEnabled(int32_t enabled) {
+void CM2Model::SetEmittersEnabled(BOOL enabled) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         uint32_t count = this->m_shared->m_data->m_particles.m_count;
 
@@ -4026,7 +4026,7 @@ CAaSphere CM2Model::GetCurrentBoundingSphere() {
 
 // VERIFY: 34ca59a5 manual
 // OFFSET: 0x0082C7C0
-void CM2Model::SetGeometryVisible(uint32_t first, uint32_t last, int32_t visible) {
+void CM2Model::SetGeometryVisible(uint32_t first, uint32_t last, BOOL visible) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
         int32_t changed = 0;
@@ -4065,7 +4065,7 @@ void CM2Model::SetGeometryVisible(uint32_t first, uint32_t last, int32_t visible
 
 // VERIFY: 36243f77 manual
 // OFFSET: 0x0082C8A0
-void CM2Model::SetGeosetVisibilityRange(uint32_t first, uint32_t last, int32_t visible) {
+void CM2Model::SetGeosetVisibilityRange(uint32_t first, uint32_t last, BOOL visible) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
         int32_t changed = 0;

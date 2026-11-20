@@ -702,7 +702,7 @@ void CLayoutFrame::UnregisterResize(CLayoutFrame* frame, uint32_t dependency) {
 
 // VERIFY: a6f4615d manual
 // OFFSET: 0x00489DE0
-void CLayoutFrame::Resize(int32_t force) {
+void CLayoutFrame::Resize(BOOL force) {
     if (force && !(this->m_layoutFlags & LayoutFlags::LAYOUT_RECT_UNRESOLVED) && this->OnFrameResize()) {
         if (s_resizePendingList.IsLinked(this)) {
             s_resizePendingList.UnlinkNode(this);
@@ -792,7 +792,7 @@ void CLayoutFrame::SetSize(float width, float height) {
 
 // VERIFY: da7ad489 manual
 // OFFSET: 0x00489FF0
-void CLayoutFrame::GetSize(float& width, float& height, int32_t ignoreRect) {
+void CLayoutFrame::GetSize(float& width, float& height, BOOL ignoreRect) {
     width = this->GetWidth();
     height = this->GetHeight();
 
@@ -959,7 +959,7 @@ void CLayoutFrame::SetAllPoints(CLayoutFrame* relative, int32_t doResize) {
 
 // VERIFY: 155a7ca0 manual
 // OFFSET: 0x0048A520
-void CLayoutFrame::SetDeferredResize(int32_t deferred) {
+void CLayoutFrame::SetDeferredResize(BOOL deferred) {
     if (deferred) {
         this->m_layoutFlags |= LayoutFlags::LAYOUT_DEFERRED_RESIZE;
 

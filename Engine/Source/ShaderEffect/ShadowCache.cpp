@@ -452,7 +452,7 @@ void CShadowCache::SetShadowMapDetailDoodad() {
 
 // VERIFY: 2396207d manual
 // OFFSET: 0x00874890
-void CShadowCache::GatherBands(CShadowCacheQueryData& data, const C3Vector& pos, CFrustum& frustum, int32_t useCullFrustum) {
+void CShadowCache::GatherBands(CShadowCacheQueryData& data, const C3Vector& pos, CFrustum& frustum, BOOL useCullFrustum) {
     uint32_t frame = 0;
 
     if (CShadowCache::GetShadowMode() < SHADOW_VERY_HIGH) {
@@ -937,7 +937,7 @@ void CShadowCache::Init() {
 
 // VERIFY: 2346cbd1 auto
 // OFFSET: 0x00875F80
-int32_t CShadowCache::Update(const C3Vector& pos, int32_t useCullFrustum) {
+int32_t CShadowCache::Update(const C3Vector& pos, BOOL useCullFrustum) {
     int32_t recreate = CShadowCache::s_recreateTextures;
     uint32_t frame = 0;
 

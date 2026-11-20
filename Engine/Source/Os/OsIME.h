@@ -2,6 +2,7 @@
 #define ENGINE_SOURCE_OS_OSIME_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 
 enum OS_IME_LANGUAGEMODE : int32_t {
@@ -19,7 +20,7 @@ OS_IME_LANGUAGEMODE OsIMEGetLanguageMode();
 int32_t OsIMEGetCompositionString(char* buffer, uint32_t bufferSize);
 int32_t OsIMEGetCompositionResult(char* buffer, uint32_t bufferSize);
 int32_t OsIMEGetClauseInfo(uint32_t& clauseStart, uint32_t& clauseEnd, uint32_t& cursor);
-void OsIMEEnable(int32_t enable);
+void OsIMEEnable(BOOL enable);
 void OsIMESync();
 void OsIMESetLanguageMode(int32_t native);
 void OsIMEInitialize();

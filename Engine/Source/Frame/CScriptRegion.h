@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Frame/CLayoutFrame.h"
 #include "Engine/Source/Frame/CScriptObject.h"
 #include "Engine/Source/Frame/CSimpleAnimGroup.h"
@@ -38,7 +39,7 @@ class CScriptRegion : public CScriptObject, public CLayoutFrame {
     virtual void NotifyAnimBegin(CSimpleAnimGroup* group);
     virtual void NotifyAnimEnd(CSimpleAnimGroup* group);
     virtual void StopAnimating();
-    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, int32_t hasAlpha);
+    virtual void AnimActivated(CSimpleAnimGroup* group, int32_t first, BOOL hasAlpha);
     virtual void AnimDeactivated(CSimpleAnimGroup* group, int32_t last);
     virtual void AddAnimTranslation(const C2Vector& translation);
     virtual void AddAnimRotation(FRAMEPOINT origin, const C2Vector& offset, float radians);

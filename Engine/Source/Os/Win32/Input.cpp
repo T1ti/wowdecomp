@@ -1708,7 +1708,7 @@ intptr_t OsWindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t
     return result;
 }
 
-void OsInputEnableSecureMode(int32_t enable) {
+void OsInputEnableSecureMode(BOOL enable) {
 }
 
 #endif

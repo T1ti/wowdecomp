@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleRegion.h"
 #include "Engine/Source/Frame/Types.h"
@@ -80,7 +81,7 @@ class CSimpleTexture : public CSimpleRegion {
     virtual int32_t IsObjectLoaded();
     virtual void OnFrameSizeChanged(const CRect& rect);
 
-    CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, int32_t show);
+    CSimpleTexture(CSimpleFrame* frame, uint32_t drawLayer, BOOL show);
     CGxTex* GetGxTex();
     void GetTexCoord(C2Vector* texCoords);
     int32_t GetTexture(char* buffer, uint32_t bufferLen);

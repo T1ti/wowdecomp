@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Frame/CSimpleButton.h"
 
@@ -37,11 +38,11 @@ class CSimpleCheckbox : public CSimpleButton {
     virtual const char* GetObjectTypeName();
     virtual void UnregisterRegion(CSimpleRegion* region);
     virtual void LoadXML(XMLNode* node, CStatus* status);
-    virtual void Enable(int32_t enabled);
+    virtual void Enable(BOOL enabled);
     virtual void OnClick(const char* btn, int32_t down);
 
     CSimpleCheckbox(CSimpleFrame* parent);
-    void SetChecked(int32_t checked, int32_t force);
+    void SetChecked(int32_t checked, BOOL force);
     int32_t SetCheckedTexture(const char* fileName);
     void SetCheckedTexture(CSimpleTexture* texture);
     int32_t SetDisabledCheckedTexture(const char* fileName);
