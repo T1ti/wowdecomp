@@ -734,7 +734,7 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
 
         CAaBox& lastExtents = data.m_extents[lastBand];
 
-        if (!(lastExtents.Intersects(def->m_bbox))) {
+        if (!lastExtents.Intersects(def->m_bbox)) {
             continue;
         }
 
@@ -822,7 +822,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 continue;
             }
 
-            if (!(extents.Intersects(chunk->m_bbox))) {
+            if (!extents.Intersects(chunk->m_bbox)) {
                 continue;
             }
 
@@ -880,7 +880,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
 
             CAaBox& lastExtents = data.m_extents[lastBand];
 
-            if (!(lastExtents.Intersects(chunk->m_bbox))) {
+            if (!lastExtents.Intersects(chunk->m_bbox)) {
                 continue;
             }
 

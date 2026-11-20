@@ -196,7 +196,7 @@ void CBarrier::AddAxisAlignedWall(const C2Vector& start, const C2Vector& end, fl
 // VERIFY: d2c5f0b9 manual
 // OFFSET: 0x007946D0
 void CBarrier::AddBarrier(const CAaBox& box, float radius) {
-    if (!this->m_mode || !(box.IsValid())) {
+    if (!this->m_mode || !box.IsValid()) {
         return;
     }
 
