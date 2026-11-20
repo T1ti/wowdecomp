@@ -102,10 +102,10 @@ class Instance : public Tendril, public Host {
 // OFFSET: [0x009C2040<1>, 0x009C20A0<2>, 0x009C2100<3>, 0x009C2160<10>, 0x009C21C0<11>, 0x009C2220<5>, 0x009C2280<6>, 0x009C22E0<9>, 0x009C2340<8>, 0x009C23A0<14>, 0x009C2400<15>]
 template <uint8_t EVENT_TYPE>
 int32_t Battlenet::CreepTendril::Instance::ProcessEventData(const Event::Header& header, const BSN::EncodedObject* data) {
-    if (header.m_target.m_type == 0) {
+    if (header.m_target.m_type == Event::Header::Target::TYPE_EVENT_ID) {
         uint8_t eventType = EVENT_TYPE;
         static_cast<Service::Interface*>(this)->SendEvent(eventType, reinterpret_cast<const BSN::FourCC&>(header.m_target.m_value), data);
-    } else if (header.m_target.m_type == 1) {
+    } else if (header.m_target.m_type == Event::Header::Target::TYPE_ADAPTER) {
         uint32_t target = header.m_target.m_value;
         uint8_t eventType = EVENT_TYPE;
         static_cast<Service::Interface*>(this)->SendEvent(eventType, reinterpret_cast<const BSN::FourCC&>(target), data);

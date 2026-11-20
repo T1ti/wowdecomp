@@ -52,7 +52,13 @@ struct Header {
     };
 
     struct Target {
-        /* 0000 */ uint32_t m_type;
+        // How m_value addresses the receiver; names inferred from Tumor::SendEvent.
+        enum TYPE : uint32_t {
+            TYPE_EVENT_ID = 0, // m_value is an event FourCC; every binding for it receives the event.
+            TYPE_ADAPTER = 1, // m_value is an event adapter index.
+        };
+
+        /* 0000 */ uint32_t m_type; // TYPE
         /* 0004 */ uint32_t m_value;
     };
 

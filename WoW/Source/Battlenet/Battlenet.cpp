@@ -46,7 +46,7 @@ Battlenet::Event::Header::Header() {
     this->m_source.m_exists = false;
     this->m_source.m_adapter = 0;
     this->m_source.m_event = static_cast<uint32_t>(-1);
-    this->m_target.m_type = 0;
+    this->m_target.m_type = Target::TYPE_EVENT_ID;
 }
 
 // VERIFY: 4794d187 manual

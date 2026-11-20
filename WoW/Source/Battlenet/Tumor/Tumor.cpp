@@ -336,13 +336,13 @@ bool Battlenet::Tumor::RecvDatagram(uint32_t connection, void* data, uint32_t si
 // VERIFY: 4e7878b6 manual
 // OFFSET: 0x009C1650
 void Battlenet::Tumor::SendEvent(const Event::Header& header, const BSN::EncodedObject* data) {
-    if (header.m_target.m_type == 0) {
+    if (header.m_target.m_type == Event::Header::Target::TYPE_EVENT_ID) {
         for (int32_t i = 0; i < 20; i++) {
             if (this->m_eventBindings[i].m_active && this->m_eventBindings[i].m_eventId.m_value == header.m_target.m_value) {
                 this->m_eventBindings[i].m_subscriber->RecvEvent(header, data);
             }
         }
-    } else if (header.m_target.m_type == 1) {
+    } else if (header.m_target.m_type == Event::Header::Target::TYPE_ADAPTER) {
         EventAdapter* adapter = this->m_eventAdapters[header.m_target.m_value];
 
         if (adapter) {
@@ -506,7 +506,7 @@ void Battlenet::Tumor::EventAdapter::SendEvent(uint8_t eventType, uint32_t adapt
     header.m_source.m_exists = true;
     header.m_source.m_adapter = this->m_index;
     header.m_source.m_event = this->m_eventId.m_value;
-    header.m_target.m_type = 1;
+    header.m_target.m_type = Event::Header::Target::TYPE_ADAPTER;
     header.m_target.m_value = adapter;
     this->m_tumor->SendEvent(header, data);
 }
@@ -519,7 +519,7 @@ void Battlenet::Tumor::EventAdapter::SendEvent(uint8_t eventType, BSN::FourCC ev
     header.m_source.m_exists = true;
     header.m_source.m_adapter = this->m_index;
     header.m_source.m_event = this->m_eventId.m_value;
-    header.m_target.m_type = 0;
+    header.m_target.m_type = Event::Header::Target::TYPE_EVENT_ID;
     header.m_target.m_value = eventId.m_value;
     this->m_tumor->SendEvent(header, data);
 }
