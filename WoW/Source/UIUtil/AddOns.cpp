@@ -705,12 +705,12 @@ void SetAddOnInfoRequest(CDataStore* msg) {
         addon->m_status = UIADDON_SECURITY_INSECURE;
         addon->m_signed = false;
 
-        if (state == 2) {
+        if (state == ADDON_INFO_STATE_BLIZZARD) {
             addon->m_blizzard = true;
         } else {
             addon->m_blizzard = false;
 
-            if (!state) {
+            if (state == ADDON_INFO_STATE_BANNED) {
                 addon->m_status = UIADDON_SECURITY_BANNED;
                 continue;
             }
