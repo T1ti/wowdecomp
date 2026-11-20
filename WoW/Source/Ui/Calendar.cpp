@@ -1889,9 +1889,9 @@ void CGCalendar::RemoveEvent() {
 int32_t CGCalendar::GetTextureIndex(uint32_t type, int32_t textureID) {
     uint32_t list;
 
-    if (type == 1) {
+    if (type == CALENDAR_TYPE_DUNGEON) {
         list = 0;
-    } else if (type == 0) {
+    } else if (type == CALENDAR_TYPE_RAID) {
         list = 1;
     } else {
         return -1;

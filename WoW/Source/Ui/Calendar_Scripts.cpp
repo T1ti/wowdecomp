@@ -1378,9 +1378,10 @@ static int32_t Script_CalendarEventGetTextures(lua_State* L) {
     double type = lua_tonumber(L, 1);
     uint32_t list;
 
-    if (type == 2) {
+    // Lua event types are 1-based.
+    if (type == CALENDAR_TYPE_DUNGEON + 1) {
         list = 0;
-    } else if (type == 1) {
+    } else if (type == CALENDAR_TYPE_RAID + 1) {
         list = 1;
     } else {
         return 0;
