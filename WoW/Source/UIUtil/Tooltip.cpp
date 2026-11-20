@@ -3759,7 +3759,7 @@ int32_t GetEnchantmentConditionText(CGPlayer_C* player, const SpellItemEnchantme
         uint8_t leftType = condition->m_ltOperandType[i];
         uint8_t rightType = condition->m_rtOperandType[i];
         uint32_t leftIndex = s_gemColorIndices[leftType];
-        int32_t left = leftIndex >= 4 ? 0 : player->m_gemCounts[leftIndex];
+        int32_t left = leftIndex >= NUM_SOCKET_COLORS ? 0 : player->m_gemCounts[leftIndex];
 
         if (leftType >= 5) {
             SStrCopy(leftName, FrameScript_GetText("UNKNOWN", -1, GENDER_NOT_APPLICABLE), sizeof(leftName));
@@ -3769,7 +3769,7 @@ int32_t GetEnchantmentConditionText(CGPlayer_C* player, const SpellItemEnchantme
 
         if (rightType) {
             uint32_t rightIndex = s_gemColorIndices[rightType];
-            int32_t right = rightIndex >= 4 ? 0 : player->m_gemCounts[rightIndex];
+            int32_t right = rightIndex >= NUM_SOCKET_COLORS ? 0 : player->m_gemCounts[rightIndex];
 
             if (rightType >= 5) {
                 SStrCopy(rightName, FrameScript_GetText("UNKNOWN", -1, GENDER_NOT_APPLICABLE), sizeof(rightName));

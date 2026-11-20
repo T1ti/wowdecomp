@@ -6027,19 +6027,19 @@ void CGPlayer_C::CountEquippedGems() {
                 continue;
             }
 
-            if (properties->m_type & 1) {
+            if (properties->m_type & SOCKET_COLOR_META) {
                 this->m_gemCounts[0]++;
             }
 
-            if (properties->m_type & 2) {
+            if (properties->m_type & SOCKET_COLOR_RED) {
                 this->m_gemCounts[1]++;
             }
 
-            if (properties->m_type & 4) {
+            if (properties->m_type & SOCKET_COLOR_YELLOW) {
                 this->m_gemCounts[2]++;
             }
 
-            if (properties->m_type & 8) {
+            if (properties->m_type & SOCKET_COLOR_BLUE) {
                 this->m_gemCounts[3]++;
             }
         }

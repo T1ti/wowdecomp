@@ -333,7 +333,7 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     /* 18F0 */ CGBag_C m_bag;
     /* 1908 */ CGUnitVirtualItem m_virtualItems [NUM_VIRTUAL_MONSTER_SLOTS];
     /* 1920 */ UNITSTANDSTATE m_clientStandState;
-    /* 1924 */ int32_t m_gemCounts [4];
+    /* 1924 */ int32_t m_gemCounts [4]; // Equipped gems per SOCKET_COLOR bit index.
     /* 1934 */ uint32_t m_combatModeTime;
     /* 1938 */ WOWGUID m_combatTarget;
     /* 1940 */ uint32_t m_pvpCooldownTimestamp;
