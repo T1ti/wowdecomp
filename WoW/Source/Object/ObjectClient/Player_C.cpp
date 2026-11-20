@@ -939,7 +939,7 @@ void CGPlayer_C::ChangeStandState(UNITSTANDSTATE standState) {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
+    if (this->IsMounted()) {
         return;
     }
 
@@ -4619,7 +4619,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, BOO
 
     int32_t rangedSpell = s_cvAutoRangedCombat->m_intValue ? CGSpellBook::m_autoRangedSpell : 0;
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed()) {
+    if (this->IsMounted() && !this->MountedCombatAllowed()) {
         float minRange;
         float maxRange;
 
@@ -8197,7 +8197,7 @@ void CGPlayer_C::ToggleSheathe() {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
+    if (this->IsMounted()) {
         return;
     }
 
@@ -8788,7 +8788,7 @@ void CGPlayer_C::LootUnit(CGUnit_C* unit, bool autoInteract) {
         return;
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed()) {
+    if (this->IsMounted() && !this->MountedCombatAllowed()) {
         if (!this->CanAutoDismount()) {
             CGGameUI::DisplayError(ERR_NOT_WHILE_MOUNTED);
             return;

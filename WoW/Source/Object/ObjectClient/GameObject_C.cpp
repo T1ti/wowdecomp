@@ -4222,7 +4222,7 @@ bool CGGameObject_C_TypeBase::Use() {
             return false;
         }
 
-        if (player->m_mountDisplayId > 0 && !(player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->m_owner->IsUsableMounted()) {
+        if (player->IsMounted() && !this->m_owner->IsUsableMounted()) {
             player->Dismount();
         }
 

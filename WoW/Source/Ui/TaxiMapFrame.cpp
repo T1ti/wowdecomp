@@ -234,7 +234,7 @@ void CGTaxiMap::TakeTaxiNode(uint32_t index) {
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (player->m_mountDisplayId > 0 && !(player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
+    if (player->IsMounted()) {
         CGGameUI::DisplayError(ERR_TAXIPLAYERALREADYMOUNTED);
         return;
     }
@@ -609,7 +609,7 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
         player->ChangeStandState(UNIT_STANDING);
     }
 
-    if (player->m_mountDisplayId > 0 && !(player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
+    if (player->IsMounted()) {
         player->Dismount();
     }
 

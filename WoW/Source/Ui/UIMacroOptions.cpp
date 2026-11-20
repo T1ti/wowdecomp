@@ -478,7 +478,7 @@ int32_t EvaluateFlying(const WOWGUID* unit, const TSGrowableArray<MacroSubstring
 // OFFSET: 0x005EFB00
 int32_t EvaluateMounted(const WOWGUID* unit, const TSGrowableArray<MacroSubstring>* args) {
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
-    int32_t mounted = player && player->m_mountDisplayId > 0 && !(player->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING);
+    int32_t mounted = player && player->IsMounted();
 
     if (args->m_count) {
         return mounted == args->m_data->ToNumber();

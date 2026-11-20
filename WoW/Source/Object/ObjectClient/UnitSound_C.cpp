@@ -248,7 +248,7 @@ void CGUnit_C::HandleFootfallAnimEvent(const C3Vector& position) {
         return;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state) {
+    if (this->IsInVehicle()) {
         return;
     }
 

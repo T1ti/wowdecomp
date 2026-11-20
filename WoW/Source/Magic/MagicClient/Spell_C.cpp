@@ -5274,7 +5274,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         return;
     }
 
-    if (unit->m_mountDisplayId > 0 && !(unit->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && SpellRec::HasAura(spell, SPELL_AURA_MOUNTED)) {
+    if (unit->IsMounted() && SpellRec::HasAura(spell, SPELL_AURA_MOUNTED)) {
         SpellRec mount;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
@@ -7762,7 +7762,7 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         caster->ChangeStandState(UNIT_STANDING);
     }
 
-    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && !caster->MountedCombatAllowed() && caster->m_mountDisplayId > 0 && !(caster->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING)) {
+    if (!(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && static_cast<int32_t>(caster->m_unit->m_unitFieldMountdisplayid) > 0 && !caster->MountedCombatAllowed() && caster->IsMounted()) {
         if (!caster->CanAutoDismount()) {
             Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_NOT_MOUNTED, -1, -1, false);
             return;

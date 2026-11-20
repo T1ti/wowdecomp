@@ -2414,7 +2414,7 @@ static void SetMemberData(WOWGUID guid, MEMBERINFO* member, CGPlayer_C* player, 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
-        if (unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state) {
+        if (unit->IsInVehicle()) {
             for (uint32_t i = 0; i < CGBattlefieldInfo::m_numVehicles; i++) {
                 WOWGUID vehicleGuid = i < CGBattlefieldInfo::m_numVehicles ? CGBattlefieldInfo::m_vehicleGuids[i] : WOWGUID();
                 CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(vehicleGuid, TYPE_UNIT, __FILE__, __LINE__));

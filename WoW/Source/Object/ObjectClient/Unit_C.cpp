@@ -2797,7 +2797,7 @@ void CGUnit_C::UpdateBaseAnimation(uint32_t playbackFlags, int32_t selectionMask
     uint32_t anim = this->ChooseAnimation(selectionMask, &playbackFlags, nullptr);
 
     if (anim == ANIM_COUNT) {
-        if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state) {
+        if (this->IsInVehicle()) {
             this->PlayBaseAnimation(ANIM_STAND, playbackFlags);
         }
     } else {
@@ -8209,7 +8209,7 @@ const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, boo
 // OFFSET: 0x0071FEF0
 C3Vector CGUnit_C::GetNamePosition() const {
     if (this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED)) {
+        if (this->IsMounted() && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED)) {
             return this->m_worldModel->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAMEMOUNTED);
         }
 
@@ -9761,7 +9761,7 @@ void CGUnit_C::OnCollideFalling() {
         return;
     }
 
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state) {
+    if (this->IsInVehicle()) {
         return;
     }
 
@@ -11826,7 +11826,7 @@ bool CGUnit_C::CanAttackNow(const CGUnit_C* unit) const {
         }
     }
 
-    if (this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT)) && !this->CanAutoDismount()) {
+    if (this->IsMounted() && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT)) && !this->CanAutoDismount()) {
         return false;
     }
 
@@ -14415,7 +14415,7 @@ void CGUnit_C::AnimEndCallback(CM2Model* model, uint32_t boneId, uint32_t sequen
 // VERIFY: a0318ed7 manual
 // OFFSET: 0x0073BBD0
 void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time) {
-    if (this->m_vehiclePassenger && this->m_vehiclePassenger->m_state) {
+    if (this->IsInVehicle()) {
         this->m_vehiclePassenger->OnAnimEnd(boneId);
     }
 
@@ -16037,7 +16037,7 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
         return false;
     }
 
-    if (!(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && this->m_mountDisplayId > 0 && !(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) && !this->MountedCombatAllowed() && !this->CanAutoDismount()) {
+    if (!(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_ALLOW_WHILE_MOUNTED) && this->IsMounted() && !this->MountedCombatAllowed() && !this->CanAutoDismount()) {
         Spell_C_SpellFailed(cast, spell, SPELL_FAILED_NOT_MOUNTED, -1, -1, false);
         return false;
     }

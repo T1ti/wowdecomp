@@ -842,7 +842,7 @@ void CVehicleCamera_C::SetTarget(WOWGUID target, WOWGUID next) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(chosen, TYPE_UNIT, __FILE__, __LINE__));
         BOOL valid = 0;
 
-        if (unit && unit->m_vehiclePassenger && unit->m_vehiclePassenger->m_state) {
+        if (unit && unit->IsInVehicle()) {
             CVehicleCamera_C* camera = unit->m_vehicleCamera;
 
             if (!camera) {
