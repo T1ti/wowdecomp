@@ -316,22 +316,7 @@ CVehicle_C::CVehicle_C() {
 // OFFSET: 0x00757BE0
 void CVehicle_C::BuildWorldMatrix(const C44Matrix* parent) {
     C44Matrix* matrix = &this->m_worldMatrix;
-    matrix->d3 = 1.0f;
-    matrix->c2 = 1.0f;
-    matrix->b1 = 1.0f;
-    matrix->a0 = 1.0f;
-    matrix->d2 = 0.0f;
-    matrix->d1 = 0.0f;
-    matrix->d0 = 0.0f;
-    matrix->c3 = 0.0f;
-    matrix->c1 = 0.0f;
-    matrix->c0 = 0.0f;
-    matrix->b3 = 0.0f;
-    matrix->b2 = 0.0f;
-    matrix->b0 = 0.0f;
-    matrix->a3 = 0.0f;
-    matrix->a2 = 0.0f;
-    matrix->a1 = 0.0f;
+    matrix->Identity();
 
     C3Vector position = this->m_unit->GetRawPosition();
     matrix->d0 = position.x;

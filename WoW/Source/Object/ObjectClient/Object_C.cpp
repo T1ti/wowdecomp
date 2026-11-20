@@ -1964,22 +1964,7 @@ void CGObject_C::SetModel(CM2Model* model) {
 // VERIFY: 51db1246 auto
 // OFFSET: 0x00744150
 void __stdcall CGObject_C::BuildSelectionRotMatrix(C44Matrix* matrix, const C3Vector* position) {
-    matrix->d3 = 1.0f;
-    matrix->c2 = 1.0f;
-    matrix->b1 = 1.0f;
-    matrix->a0 = 1.0f;
-    matrix->d2 = 0.0f;
-    matrix->d1 = 0.0f;
-    matrix->d0 = 0.0f;
-    matrix->c3 = 0.0f;
-    matrix->c1 = 0.0f;
-    matrix->c0 = 0.0f;
-    matrix->b3 = 0.0f;
-    matrix->b2 = 0.0f;
-    matrix->b0 = 0.0f;
-    matrix->a3 = 0.0f;
-    matrix->a2 = 0.0f;
-    matrix->a1 = 0.0f;
+    matrix->Identity();
 
     C3Vector camera(0.0f, 0.0f, 0.0f);
     CGWorldFrame::GetCameraPosition(&camera);

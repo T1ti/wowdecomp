@@ -9,22 +9,7 @@ void CGxMatrixStack::Identity() {
     }
 
     C44Matrix& m = this->m_mtx[this->m_level];
-    m.d3 = 1.0f;
-    m.c2 = 1.0f;
-    m.b1 = 1.0f;
-    m.a0 = 1.0f;
-    m.d2 = 0.0f;
-    m.d1 = 0.0f;
-    m.d0 = 0.0f;
-    m.c3 = 0.0f;
-    m.c1 = 0.0f;
-    m.c0 = 0.0f;
-    m.b3 = 0.0f;
-    m.b2 = 0.0f;
-    m.b0 = 0.0f;
-    m.a3 = 0.0f;
-    m.a2 = 0.0f;
-    m.a1 = 0.0f;
+    m.Identity();
 
     this->m_dirty = 1;
     this->m_flags[this->m_level] = F_Identity;

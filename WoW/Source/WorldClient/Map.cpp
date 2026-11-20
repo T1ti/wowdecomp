@@ -2770,22 +2770,7 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
     mapObjDef->m_doodadSetOverrides[1] = 0;
     mapObjDef->m_doodadSetOverrides[2] = 0;
 
-    mapObjDef->m_mat.d3 = 1.0f;
-    mapObjDef->m_mat.c2 = 1.0f;
-    mapObjDef->m_mat.b1 = 1.0f;
-    mapObjDef->m_mat.a0 = 1.0f;
-    mapObjDef->m_mat.d2 = 0.0f;
-    mapObjDef->m_mat.d1 = 0.0f;
-    mapObjDef->m_mat.d0 = 0.0f;
-    mapObjDef->m_mat.c3 = 0.0f;
-    mapObjDef->m_mat.c1 = 0.0f;
-    mapObjDef->m_mat.c0 = 0.0f;
-    mapObjDef->m_mat.b3 = 0.0f;
-    mapObjDef->m_mat.b2 = 0.0f;
-    mapObjDef->m_mat.b0 = 0.0f;
-    mapObjDef->m_mat.a3 = 0.0f;
-    mapObjDef->m_mat.a2 = 0.0f;
-    mapObjDef->m_mat.a1 = 0.0f;
+    mapObjDef->m_mat.Identity();
     mapObjDef->m_mat.d0 = mapObjDef->m_position.x;
     mapObjDef->m_mat.d1 = mapObjDef->m_position.y;
     mapObjDef->m_mat.d2 = mapObjDef->m_position.z;
@@ -2952,22 +2937,7 @@ void CMap::LoadWdt() {
             mapObjDef->m_doodadSetOverrides[1] = 0;
             mapObjDef->m_doodadSetOverrides[2] = 0;
 
-            mapObjDef->m_mat.d3 = 1.0f;
-            mapObjDef->m_mat.c2 = 1.0f;
-            mapObjDef->m_mat.b1 = 1.0f;
-            mapObjDef->m_mat.a0 = 1.0f;
-            mapObjDef->m_mat.d2 = 0.0f;
-            mapObjDef->m_mat.d1 = 0.0f;
-            mapObjDef->m_mat.d0 = 0.0f;
-            mapObjDef->m_mat.c3 = 0.0f;
-            mapObjDef->m_mat.c1 = 0.0f;
-            mapObjDef->m_mat.c0 = 0.0f;
-            mapObjDef->m_mat.b3 = 0.0f;
-            mapObjDef->m_mat.b2 = 0.0f;
-            mapObjDef->m_mat.b0 = 0.0f;
-            mapObjDef->m_mat.a3 = 0.0f;
-            mapObjDef->m_mat.a2 = 0.0f;
-            mapObjDef->m_mat.a1 = 0.0f;
+            mapObjDef->m_mat.Identity();
             mapObjDef->m_mat.d0 = mapObjDef->m_position.x;
             mapObjDef->m_mat.d1 = mapObjDef->m_position.y;
             mapObjDef->m_mat.d2 = mapObjDef->m_position.z;

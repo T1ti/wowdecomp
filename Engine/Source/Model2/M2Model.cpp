@@ -713,22 +713,7 @@ void CM2Model::SetLoadedCallback(void (*callback)(CM2Model*, void*), void* arg) 
 // OFFSET: 0x008251D0
 void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float scale) {
     C44Matrix& matrix = this->m_worldTransform;
-    matrix.d3 = 1.0f;
-    matrix.c2 = 1.0f;
-    matrix.b1 = 1.0f;
-    matrix.a0 = 1.0f;
-    matrix.d2 = 0.0f;
-    matrix.d1 = 0.0f;
-    matrix.d0 = 0.0f;
-    matrix.c3 = 0.0f;
-    matrix.c1 = 0.0f;
-    matrix.c0 = 0.0f;
-    matrix.b3 = 0.0f;
-    matrix.b2 = 0.0f;
-    matrix.b0 = 0.0f;
-    matrix.a3 = 0.0f;
-    matrix.a2 = 0.0f;
-    matrix.a1 = 0.0f;
+    matrix.Identity();
     matrix.RotateAroundZ(rotation);
     matrix.Scale(scale);
     matrix.d0 = position.x;
@@ -4388,22 +4373,7 @@ void CM2Model::AnimateTextureTransformsMT() {
         M2TextureTransform* transformData = &this->m_shared->m_data->m_textureTransforms[i];
         M2ModelTextureTransform* transform = &this->m_textureTransforms[i];
 
-        matrix->d3 = 1.0f;
-        matrix->c2 = 1.0f;
-        matrix->b1 = 1.0f;
-        matrix->a0 = 1.0f;
-        matrix->d2 = 0.0f;
-        matrix->d1 = 0.0f;
-        matrix->d0 = 0.0f;
-        matrix->c3 = 0.0f;
-        matrix->c1 = 0.0f;
-        matrix->c0 = 0.0f;
-        matrix->b3 = 0.0f;
-        matrix->b2 = 0.0f;
-        matrix->b0 = 0.0f;
-        matrix->a3 = 0.0f;
-        matrix->a2 = 0.0f;
-        matrix->a1 = 0.0f;
+        matrix->Identity();
 
         if (transformData->m_rotation.m_sequenceTimes.m_count) {
             C4Quaternion rotation;
@@ -4482,22 +4452,7 @@ void CM2Model::RenderModelBatchesShadowMap(const CModelBatchList& untextured, co
 // OFFSET: 0x0082DD80
 void CM2Model::SetWorldTransform(const C3Vector& position, float rotation, float scale, const C3Vector& up, uint32_t modelFlags) {
     C44Matrix& transform = this->m_worldTransform;
-    transform.d3 = 1.0f;
-    transform.c2 = 1.0f;
-    transform.b1 = 1.0f;
-    transform.a0 = 1.0f;
-    transform.d2 = 0.0f;
-    transform.d1 = 0.0f;
-    transform.d0 = 0.0f;
-    transform.c3 = 0.0f;
-    transform.c1 = 0.0f;
-    transform.c0 = 0.0f;
-    transform.b3 = 0.0f;
-    transform.b2 = 0.0f;
-    transform.b0 = 0.0f;
-    transform.a3 = 0.0f;
-    transform.a2 = 0.0f;
-    transform.a1 = 0.0f;
+    transform.Identity();
     transform.RotateAroundZ(rotation);
     transform.d0 = position.x;
     transform.d1 = position.y;
@@ -5300,22 +5255,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
 
                 local = C44Matrix(bone->m_rotation.m_currentValue);
             } else {
-                local.d3 = 1.0f;
-                local.c2 = 1.0f;
-                local.b1 = 1.0f;
-                local.a0 = 1.0f;
-                local.d2 = 0.0f;
-                local.d1 = 0.0f;
-                local.d0 = 0.0f;
-                local.c3 = 0.0f;
-                local.c1 = 0.0f;
-                local.c0 = 0.0f;
-                local.b3 = 0.0f;
-                local.b2 = 0.0f;
-                local.b0 = 0.0f;
-                local.a3 = 0.0f;
-                local.a2 = 0.0f;
-                local.a1 = 0.0f;
+                local.Identity();
             }
 
             if (boneData->m_scaleTrack.m_sequenceTimes.m_count) {

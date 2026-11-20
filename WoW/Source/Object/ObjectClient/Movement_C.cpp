@@ -70,22 +70,7 @@ int32_t MovementGetTransportMtxSafe(WOWGUID transport, C44Matrix* matrix) {
         return 1;
     }
 
-    matrix->d3 = 1.0f;
-    matrix->c2 = 1.0f;
-    matrix->b1 = 1.0f;
-    matrix->a0 = 1.0f;
-    matrix->d2 = 0.0f;
-    matrix->d1 = 0.0f;
-    matrix->d0 = 0.0f;
-    matrix->c3 = 0.0f;
-    matrix->c1 = 0.0f;
-    matrix->c0 = 0.0f;
-    matrix->b3 = 0.0f;
-    matrix->b2 = 0.0f;
-    matrix->b0 = 0.0f;
-    matrix->a3 = 0.0f;
-    matrix->a2 = 0.0f;
-    matrix->a1 = 0.0f;
+    matrix->Identity();
     return 0;
 }
 
