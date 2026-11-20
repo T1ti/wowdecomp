@@ -3648,7 +3648,7 @@ uint32_t CGCamera::CollideCameraWithWorld(const C3Vector& target, float& distanc
     float maxHeight = this->m_height;
 
     if (height - this->m_clipRange.m_l > 0.00000095367432f) {
-        if (flags & 0x30000) {
+        if (flags & WORLD_QUERY_LIQUID_MASK) {
             if (state & STATE_FLAGS::STATE_LIQUID_SURFACED) {
                 minHeight = liquid + 0.22222222f;
 

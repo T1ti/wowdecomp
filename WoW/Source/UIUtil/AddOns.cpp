@@ -1399,7 +1399,7 @@ static int32_t EnumAddOnsArchive(const char* fileName, void* param) {
 // VERIFY: 32ba47b7 auto
 // OFFSET: 0x005F8F30
 static int32_t EnumAddOnsDisk(OS_FILE_DATA& data, void* param) {
-    if ((data.flags & 0x10) && data.fileName[0] != '.') {
+    if ((data.flags & OS_FILE_ATTRIBUTE_DIRECTORY) && data.fileName[0] != '.') {
         LoadAddOnInfo(data.fileName);
     }
 

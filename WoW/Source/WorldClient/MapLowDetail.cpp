@@ -99,7 +99,7 @@ void CMapLowDetail::CullHorizonAreas(const C3Vector* pos) {
                 continue;
             }
 
-            if (World::s_farClip > 300.0f && CWorldOcclusion::QueryBuffer(&area->m_bbox, 40)) {
+            if (World::s_farClip > 300.0f && CWorldOcclusion::QueryBuffer(&area->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_20 | CWorldOcclusion::QUERY_FLAG_TEST_NEAR)) {
                 continue;
             }
 

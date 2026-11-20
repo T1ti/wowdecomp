@@ -2352,7 +2352,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
 
         CAaSphere sphere = entity->m_sphere;
 
-        if (!CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(sphere) || CWorldOcclusion::QueryVolumes(&entity->m_sphere) || CWorldOcclusion::QueryBuffer(entity->m_sphere.c, entity->m_sphere.r, 0)) {
+        if (!CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(sphere) || CWorldOcclusion::QueryVolumes(&entity->m_sphere) || CWorldOcclusion::QueryBuffer(entity->m_sphere.c, entity->m_sphere.r, CWorldOcclusion::QUERY_FLAG_NONE)) {
             CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
             entity = next;
             continue;
@@ -2542,7 +2542,7 @@ void CWorldScene::CullLiquid(CSortEntry* entry) {
             CAaBox box;
             liquid->GetAaBox(box);
 
-            if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) && !CWorldOcclusion::QueryBuffer(&box, 0) && !CWorldOcclusion::QueryVolumes(liquid->GetSphere())) {
+            if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) && !CWorldOcclusion::QueryBuffer(&box, CWorldOcclusion::QUERY_FLAG_NONE) && !CWorldOcclusion::QueryVolumes(liquid->GetSphere())) {
                 liquid->RenderPrep();
 
                 if (CWorldScene::s_liquidRenderer && liquid->m_instance) {
@@ -3616,7 +3616,7 @@ void CWorldScene::CullDoodads(CSortEntry* entry, uint16_t fadeLevel) {
 
         if (visible) {
             doodadDef->m_culled = CMapStaticEntity::CULL_VISIBLE;
-            visible = CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, 0x10) < 2;
+            visible = CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, CWorldOcclusion::QUERY_FLAG_UNKNOWN_10) < 2;
         }
 
         if (visible) {
@@ -3882,7 +3882,7 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                     doodadDef->m_culled = CMapStaticEntity::CULL_VISIBLE;
                 }
 
-                if (!culled && CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, 0x10) < 2) {
+                if (!culled && CWorldOcclusion::QueryBuffer(doodadDef->m_sphere.c, doodadDef->m_sphere.r, CWorldOcclusion::QUERY_FLAG_UNKNOWN_10) < 2) {
                     CWorldScene::AddDoodadDefModelToModelScene(doodadDef);
                     CWorldScene::nDoodadsRendered++;
                 } else {
@@ -3976,10 +3976,10 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
         CMapChunk* next = entry->m_mapChunkList.Next(chunk);
         chunk->m_sortListLink.Unlink();
 
-        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox) && !CWorldOcclusion::QueryVolumes(&chunk->m_sphere) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox, 0)) {
+        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox) && !CWorldOcclusion::QueryVolumes(&chunk->m_sphere) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
             CWorldScene::CullDoodadsExterior(&chunk->m_doodadDefLinkList, CWorldView::GetFadeLevelForDistance(chunk->m_distToCamera));
 
-            if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox2) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox2, 0)) {
+            if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox2) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox2, CWorldOcclusion::QUERY_FLAG_NONE)) {
                 if (chunk->m_header->m_holes != 0xFFFF) {
                     CWorldScene::s_chunksRendered++;
                     chunk->RenderPrep();
@@ -4072,7 +4072,7 @@ void CWorldScene::CullMapObjDefGroups(CSortEntry* entry, CRect* rect, uint32_t i
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
 
-        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->m_bbox) && !CWorldOcclusion::QueryVolumes(&group->m_sphere) && !CWorldOcclusion::QueryBuffer(&group->m_bbox, 0)) {
+        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->m_bbox) && !CWorldOcclusion::QueryVolumes(&group->m_sphere) && !CWorldOcclusion::QueryBuffer(&group->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
             mapObjDef->CullMapObjDefGroupFromExterior(group, rect, 0);
             CWorldScene::AddDoodadDefs(&group->m_doodadDefLinkList, index);
         }

@@ -5127,7 +5127,7 @@ int32_t Packet_SMSG_REAL_GROUP_UPDATE(void* param, NETMESSAGE msgId, uint32_t ti
     msg->Get(count);
     msg->Get(leader.m_guid);
 
-    if (flags & 0x2) {
+    if (flags & GROUP_TYPE_FLAG_RAID) {
         if (count) {
             CGRaidInfo::UpdateRealStats(count + 1, leader);
         } else {

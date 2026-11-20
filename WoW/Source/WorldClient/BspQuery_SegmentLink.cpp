@@ -41,7 +41,7 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
         return;
     }
 
-    if (BspQuery::testFaceSub >= 0x2000) {
+    if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
         return;
     }
 
@@ -54,7 +54,7 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
         return;
     }
 
-    if (flags & 0x20) {
+    if (flags & SMOPoly::F_RENDER) {
         if (t < 0.0f) {
             return;
         }
@@ -68,12 +68,12 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
             this->m_groundFace = face;
             this->m_groundT = t;
         }
-    } else if (flags & 0x8) {
+    } else if (flags & SMOPoly::F_COLLISION) {
         if (t >= 0.0f && t <= this->m_interiorT) {
             this->m_interiorFace = face;
             this->m_interiorT = t;
         }
-    } else if (flags & 0x4) {
+    } else if (flags & SMOPoly::F_DETAIL) {
         if (t >= 0.0f && t <= this->m_groundT) {
             this->m_groundFace = face;
             this->m_groundT = t;
@@ -203,7 +203,7 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
             continue;
         }
 
-        if (BspQuery::testFaceSub >= 0x2000) {
+        if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
             continue;
         }
 
@@ -222,7 +222,7 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
             continue;
         }
 
-        if (flags & 0x20) {
+        if (flags & SMOPoly::F_RENDER) {
             if (t < 0.0f) {
                 continue;
             }
@@ -236,12 +236,12 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
                 this->m_groundT = t;
                 this->m_groundFace = face;
             }
-        } else if (flags & 0x8) {
+        } else if (flags & SMOPoly::F_COLLISION) {
             if (t >= 0.0f && t <= this->m_interiorT) {
                 this->m_interiorT = t;
                 this->m_interiorFace = face;
             }
-        } else if (flags & 0x4) {
+        } else if (flags & SMOPoly::F_DETAIL) {
             if (t >= 0.0f && t <= this->m_groundT) {
                 this->m_groundT = t;
                 this->m_groundFace = face;

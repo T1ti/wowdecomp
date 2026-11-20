@@ -493,7 +493,7 @@ uint32_t CWorldOcclusion::QueryBuffer(const C3Vector& center, float radius, uint
     C3Vector view = center * CWorldScene::s_clipBufferMatrix;
     C3Vector extent = C3Vector(radius, radius, 0.0f) * CWorldScene::projMatrix;
 
-    if (!(flags & 0x8) && view.z < 50.0f) {
+    if (!(flags & QUERY_FLAG_TEST_NEAR) && view.z < 50.0f) {
         return 0;
     }
 
@@ -543,7 +543,7 @@ uint32_t CWorldOcclusion::QueryBuffer(CAaBox* box, uint8_t flags) {
         C3Vector corner(corners[aabbCornerSelectX[i]]->x, corners[aabbCornerSelectY[i]]->y, corners[aabbCornerSelectZ[i]]->z);
         corner = corner * CWorldScene::s_clipBufferMatrix;
 
-        if (!(flags & 0x8) && corner.z < 50.0f) {
+        if (!(flags & QUERY_FLAG_TEST_NEAR) && corner.z < 50.0f) {
             return 0;
         }
 

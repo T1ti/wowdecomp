@@ -40,6 +40,15 @@ class CClipVolume {
 
 class CWorldOcclusion {
     public:
+    // QueryBuffer flags. Only QUERY_FLAG_TEST_NEAR is read by the 3.3.5 queries; the other bits are passed but unread.
+    enum QUERY_FLAGS : uint8_t {
+        QUERY_FLAG_NONE = 0x0,
+        QUERY_FLAG_UNKNOWN_1 = 0x1,
+        QUERY_FLAG_TEST_NEAR = 0x8, // Test objects within 50 units of the camera instead of reporting them visible (inferred).
+        QUERY_FLAG_UNKNOWN_10 = 0x10,
+        QUERY_FLAG_UNKNOWN_20 = 0x20,
+    };
+
     static TSGrowableArray<C4Plane> planeArray;
     static TSGrowableArray<CClipVolume> clipVolumeArray;
 

@@ -2624,7 +2624,7 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
 
     uint32_t groupFlags = this->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum);
 
-    if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, 1))) {
+    if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_1))) {
         if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW) {
             this->m_owner->InvokeRenderCallback(mapObjDefGroup->m_groupNum);
             CWorldScene::FrustumPop();

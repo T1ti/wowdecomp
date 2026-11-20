@@ -211,7 +211,7 @@ void CGAutoCompleteName::AddFlags(const WOWGUID& guid, uint32_t flags, int32_t a
         return;
     }
 
-    if (flags & 0x8) {
+    if (flags & AUTOCOMPLETE_FLAG_BNET) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
