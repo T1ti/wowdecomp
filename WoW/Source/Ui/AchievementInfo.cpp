@@ -203,7 +203,7 @@ void CGAchievementInfo::UpdateCriteria(int32_t id, uint64_t counter, uint32_t fl
     criteria->m_timer1 = timer1;
     criteria->m_timer2 = timer2;
 
-    if (flags & 1) {
+    if (flags & CRITERIA_PROGRESS_FLAG_RESET) {
         s_criteria.UnlinkNode(criteria);
         delete criteria;
         return;
