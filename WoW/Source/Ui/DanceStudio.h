@@ -17,6 +17,21 @@ struct KNOWNDANCES : public TSHashObject<KNOWNDANCES, HASHKEY_STR> {
     /* 001C */ uint32_t unk_001C;
 };
 
+// SMSG_NOTIFY_DANCE flags; names inferred from how the handler updates the known dances.
+enum DANCE_NOTIFY_FLAGS : uint32_t {
+    DANCE_NOTIFY_ADD = 0x1,
+    DANCE_NOTIFY_REPLACE = 0x2,
+    DANCE_NOTIFY_DELETE = 0x4,
+    DANCE_NOTIFY_ERROR = 0x8,
+};
+
+// SMSG_NOTIFY_DANCE error codes, named from the ERR_DANCE_* game errors they display.
+enum DANCE_ERROR_CODE : uint32_t {
+    DANCE_ERROR_CREATE_DUPLICATE = 0,
+    DANCE_ERROR_SAVE_FAILED = 1,
+    DANCE_ERROR_DELETE_FAILED = 2,
+};
+
 struct DANCE_REQUEST {
     /* 0000 */ WOWGUID m_guid;
     /* 0008 */ int32_t m_danceId;

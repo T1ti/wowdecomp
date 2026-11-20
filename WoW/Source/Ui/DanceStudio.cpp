@@ -20,6 +20,21 @@ uint64_t CGDanceStudio::m_learnedDanceMoves;
 // STATIC: 0x00BEB638
 static TSHashTable<KNOWNDANCES, HASHKEY_STR> s_knownDances;
 
+// INLINED: drops every known dance entry with this ID.
+static void RemoveKnownDance(uint32_t danceId) {
+    KNOWNDANCES* dance = s_knownDances.m_fulllist.Head();
+
+    while (dance) {
+        KNOWNDANCES* next = s_knownDances.Next(dance);
+
+        if (dance->m_id == danceId) {
+            s_knownDances.Delete(dance);
+        }
+
+        dance = next;
+    }
+}
+
 // VERIFY: 5e35e0a7 manual
 // OFFSET: 0x00576730
 int32_t Packet_SMSG_NOTIFY_DANCE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
@@ -31,7 +46,7 @@ int32_t Packet_SMSG_NOTIFY_DANCE(void* param, NETMESSAGE msgId, uint32_t time, C
     uint32_t unk = 0;
     char name[128];
 
-    if (flags & 8) {
+    if (flags & DANCE_NOTIFY_ERROR) {
         msg->Get(error);
     } else {
         msg->Get(danceId);
@@ -39,7 +54,7 @@ int32_t Packet_SMSG_NOTIFY_DANCE(void* param, NETMESSAGE msgId, uint32_t time, C
         msg->Get(unk);
     }
 
-    if (flags & 1) {
+    if (flags & DANCE_NOTIFY_ADD) {
         KNOWNDANCES* dance = s_knownDances.Ptr(name);
 
         if (!dance) {
@@ -50,47 +65,26 @@ int32_t Packet_SMSG_NOTIFY_DANCE(void* param, NETMESSAGE msgId, uint32_t time, C
         dance->unk_001C = unk;
     }
 
-    if (flags & 2) {
-        KNOWNDANCES* dance = s_knownDances.m_fulllist.Head();
+    if (flags & DANCE_NOTIFY_REPLACE) {
+        RemoveKnownDance(danceId);
 
-        while (dance) {
-            KNOWNDANCES* next = s_knownDances.Next(dance);
-
-            if (dance->m_id == danceId) {
-                s_knownDances.Delete(dance);
-            }
-
-            dance = next;
-        }
-
-        dance = s_knownDances.New(name, 0, 0);
+        KNOWNDANCES* dance = s_knownDances.New(name, 0, 0);
         dance->m_id = danceId;
         dance->unk_001C = unk;
         g_danceCache.Invalidate(danceId);
     }
 
-    if (flags & 4) {
-        KNOWNDANCES* dance = s_knownDances.m_fulllist.Head();
-
-        while (dance) {
-            KNOWNDANCES* next = s_knownDances.Next(dance);
-
-            if (dance->m_id == danceId) {
-                s_knownDances.Delete(dance);
-            }
-
-            dance = next;
-        }
-
+    if (flags & DANCE_NOTIFY_DELETE) {
+        RemoveKnownDance(danceId);
         g_danceCache.Invalidate(danceId);
     }
 
-    if (flags & 8) {
-        if (error == 0) {
+    if (flags & DANCE_NOTIFY_ERROR) {
+        if (error == DANCE_ERROR_CREATE_DUPLICATE) {
             CGGameUI::DisplayError(ERR_DANCE_CREATE_DUPLICATE);
-        } else if (error == 1) {
+        } else if (error == DANCE_ERROR_SAVE_FAILED) {
             CGGameUI::DisplayError(ERR_DANCE_SAVE_FAILED);
-        } else if (error == 2) {
+        } else if (error == DANCE_ERROR_DELETE_FAILED) {
             CGGameUI::DisplayError(ERR_DANCE_DELETE_FAILED);
         }
     }
