@@ -119,6 +119,13 @@ float BattlenetUI::s_broadcastTime;
 // STATIC: 0x00BE5D20
 char BattlenetUI::s_displayName[72];
 
+// INLINED: the Real ID gate behind the BNFeaturesEnabled script: a Battle.net login on a
+// non-trial account with Real ID enabled.
+bool BattlenetUI::BNFeaturesEnabled() {
+    Login* login = ClientServices::LoginConnection();
+    return login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled();
+}
+
 // VERIFY: d9b6deb2 manual
 // OFFSET: 0x00530D00
 char* FilterChatLinks(const char* source, char* dest, uint32_t size) {
@@ -691,9 +698,7 @@ int32_t BattlenetUI::BNGetToonInfoHelper(lua_State* L, uint32_t presenceId) {
 // VERIFY: eb18a89b auto
 // OFFSET: 0x00537B90
 void BattlenetUI::SelfToonOnlineCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -705,9 +710,7 @@ void BattlenetUI::SelfToonOnlineCB(void* param, int32_t argc, const GeneralFunct
 // VERIFY: 8aafec95 auto
 // OFFSET: 0x00537C00
 void BattlenetUI::SelfToonOfflineCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -757,9 +760,7 @@ const char* BattlenetUI::GetNameForPresenceIdHelper(uint32_t presenceId) {
 // VERIFY: e675c286 manual
 // OFFSET: 0x00537D40
 void BattlenetUI::FriendInviteSentCB::Call(int32_t argc, const GeneralFunction::Arg* args) const {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -792,9 +793,7 @@ void BattlenetUI::IgnoredFieldCB(void* param, int32_t argc, const GeneralFunctio
 // VERIFY: 8eee8765 auto
 // OFFSET: 0x00537DF0
 void BattlenetUI::FriendInviteListInitializedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -817,9 +816,7 @@ void BattlenetUI::FriendInviteListInitializedCB(void* param, int32_t argc, const
 // VERIFY: 1fc21d99 auto
 // OFFSET: 0x00537F00
 void BattlenetUI::FriendInviteAddedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -860,9 +857,7 @@ void BattlenetUI::FriendInviteAddedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: 7069b0c1 manual
 // OFFSET: 0x00538060
 void BattlenetUI::FriendInviteRemovedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -892,9 +887,7 @@ void BattlenetUI::FriendInviteRemovedCB(void* param, int32_t argc, const General
 // VERIFY: 6a08abf9 auto
 // OFFSET: 0x00538160
 void BattlenetUI::FriendInfoChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -923,9 +916,7 @@ void BattlenetUI::FriendInfoChangedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: 3e8839d1 auto
 // OFFSET: 0x00538290
 void BattlenetUI::FactionUpdateCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -939,9 +930,7 @@ void BattlenetUI::FactionUpdateCB(void* param, int32_t argc, const GeneralFuncti
 // VERIFY: 63f6b0df auto
 // OFFSET: 0x00538320
 void BattlenetUI::NewPresenceCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -976,9 +965,7 @@ void BattlenetUI::NewPresenceCB(void* param, int32_t argc, const GeneralFunction
 // VERIFY: 9bb49d4e auto
 // OFFSET: 0x00538460
 void BattlenetUI::ToonNameUpdateCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1002,9 +989,7 @@ void BattlenetUI::ToonNameUpdateCB(void* param, int32_t argc, const GeneralFunct
 // VERIFY: bf4a6401 auto
 // OFFSET: 0x00538580
 void BattlenetUI::OnlineTimeChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1058,9 +1043,7 @@ void BattlenetUI::OnlineTimeChangedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: a04df2e0 auto
 // OFFSET: 0x00538790
 void BattlenetUI::LastOnlineChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1080,9 +1063,7 @@ void BattlenetUI::LastOnlineChangedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: 6cd97fa7 manual
 // OFFSET: 0x00538850
 void BattlenetUI::CustomMessageChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1151,9 +1132,7 @@ void BattlenetUI::CustomMessageChangedCB(void* param, int32_t argc, const Genera
 // VERIFY: 4b72e85c manual
 // OFFSET: 0x00538AB0
 void BattlenetUI::ChatWhisperSentCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1191,9 +1170,7 @@ void BattlenetUI::ChatWhisperSentCB(void* param, int32_t argc, const GeneralFunc
 // VERIFY: 869184a5 manual
 // OFFSET: 0x00538C40
 void BattlenetUI::ChatWhisperReceivedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1231,9 +1208,7 @@ void BattlenetUI::ChatWhisperReceivedCB(void* param, int32_t argc, const General
 // VERIFY: 3c7d99a1 manual
 // OFFSET: 0x00538DD0
 void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1290,9 +1265,7 @@ void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: a5450f66 auto
 // OFFSET: 0x00539020
 void BattlenetUI::ChatChannelLeftCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1314,9 +1287,7 @@ void BattlenetUI::ChatChannelLeftCB(void* param, int32_t argc, const GeneralFunc
 // VERIFY: 169ab59f auto
 // OFFSET: 0x00539100
 void BattlenetUI::ChatChannelClosedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1339,9 +1310,7 @@ void BattlenetUI::ChatChannelClosedCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: bbcce2b9 manual
 // OFFSET: 0x005391F0
 void BattlenetUI::ChatChannelMessageReceivedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1372,9 +1341,7 @@ void BattlenetUI::ChatChannelMessageReceivedCB(void* param, int32_t argc, const 
 // VERIFY: 808d4862 auto
 // OFFSET: 0x00539320
 void BattlenetUI::ChatChannelMessageBlockedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1392,9 +1359,7 @@ void BattlenetUI::ChatChannelMessageBlockedCB(void* param, int32_t argc, const G
 // VERIFY: c2ba753f auto
 // OFFSET: 0x005393C0
 void BattlenetUI::ChatChannelMemberJoinedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1419,9 +1384,7 @@ void BattlenetUI::ChatChannelMemberJoinedCB(void* param, int32_t argc, const Gen
 // VERIFY: 6d58d1f8 auto
 // OFFSET: 0x005394D0
 void BattlenetUI::ChatChannelMemberLeftCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1444,9 +1407,7 @@ void BattlenetUI::ChatChannelMemberLeftCB(void* param, int32_t argc, const Gener
 // VERIFY: 6952ac52 auto
 // OFFSET: 0x005395C0
 void BattlenetUI::ChatChannelMemberUpdatedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1501,9 +1462,7 @@ void BattlenetUI::DisplayError(uint16_t error, uint32_t presenceId) {
 // VERIFY: 74ed918e manual
 // OFFSET: 0x00539770
 void BattlenetUI::FriendsOfFriendCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1527,9 +1486,7 @@ void BattlenetUI::FriendsOfFriendCB(void* param, int32_t argc, const GeneralFunc
 // VERIFY: 5ad292f1 auto
 // OFFSET: 0x00539850
 void BattlenetUI::BlockListInitializedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1540,9 +1497,7 @@ void BattlenetUI::BlockListInitializedCB(void* param, int32_t argc, const Genera
 // VERIFY: 40fe5192 auto
 // OFFSET: 0x005398B0
 void BattlenetUI::BlockAddedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1554,9 +1509,7 @@ void BattlenetUI::BlockAddedCB(void* param, int32_t argc, const GeneralFunction:
 // VERIFY: ecddaef1 auto
 // OFFSET: 0x00539910
 void BattlenetUI::BlockRemovedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1568,9 +1521,7 @@ void BattlenetUI::BlockRemovedCB(void* param, int32_t argc, const GeneralFunctio
 // VERIFY: 13cb927d auto
 // OFFSET: 0x00539970
 void BattlenetUI::SystemMessageCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1600,9 +1551,7 @@ void BattlenetUI::SystemMessageCB(void* param, int32_t argc, const GeneralFuncti
 // VERIFY: 2598718e manual
 // OFFSET: 0x00539A20
 void BattlenetUI::SettingChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1648,9 +1597,7 @@ void BattlenetUI::PopulateAutoComplete() {
 // VERIFY: 63ed8bee manual
 // OFFSET: 0x0053A750
 void BattlenetUI::FriendListInitializedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1684,9 +1631,7 @@ void BattlenetUI::FriendListInitializedCB(void* param, int32_t argc, const Gener
 // VERIFY: 07dfe513 auto
 // OFFSET: 0x0053A940
 void BattlenetUI::FriendAddedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1721,9 +1666,7 @@ void BattlenetUI::FriendAddedCB(void* param, int32_t argc, const GeneralFunction
 // VERIFY: dda529af auto
 // OFFSET: 0x0053AA70
 void BattlenetUI::FriendRemovedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1761,9 +1704,7 @@ void BattlenetUI::FriendRemovedCB(void* param, int32_t argc, const GeneralFuncti
 // VERIFY: 36078bc2 auto
 // OFFSET: 0x0053ABC0
 void BattlenetUI::OnlinePresenceChangedCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1817,9 +1758,7 @@ void BattlenetUI::OnlinePresenceChangedCB(void* param, int32_t argc, const Gener
 // VERIFY: 5c45d117 auto
 // OFFSET: 0x0053ADC0
 void BattlenetUI::ChatWhisperUndeliverableCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1831,9 +1770,7 @@ void BattlenetUI::ChatWhisperUndeliverableCB(void* param, int32_t argc, const Ge
 // VERIFY: 0ef6cc1e manual
 // OFFSET: 0x0053AE30
 void BattlenetUI::ChatChannelCreateCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1870,9 +1807,7 @@ void BattlenetUI::ChatChannelCreateCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: 70e39278 manual
 // OFFSET: 0x0053AF70
 void BattlenetUI::ChatChannelInviteCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 
@@ -1899,9 +1834,7 @@ void BattlenetUI::ChatChannelInviteCB(void* param, int32_t argc, const GeneralFu
 // VERIFY: fa26f5b8 auto
 // OFFSET: 0x0053B0D0
 void BattlenetUI::ChatChannelMessageUndeliverableCB(void* param, int32_t argc, const GeneralFunction::Arg* args) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return;
     }
 

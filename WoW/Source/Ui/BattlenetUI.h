@@ -85,6 +85,7 @@ class BattlenetUI {
     static char s_displayName[72];
 
     static bool AddToFriendList(uint32_t presenceId);
+    static bool BNFeaturesEnabled();
     static int32_t BNGetFriendInfoHelper(lua_State* L, uint32_t index);
     static int32_t BNGetToonInfoHelper(lua_State* L, uint32_t presenceId);
     static void BlockAddedCB(void* param, int32_t argc, const GeneralFunction::Arg* args);

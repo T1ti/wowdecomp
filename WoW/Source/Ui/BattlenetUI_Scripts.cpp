@@ -41,9 +41,7 @@ static int32_t Script_IsBNLogin(lua_State* L) {
 // VERIFY: 515f5bba manual
 // OFFSET: 0x005343F0
 static int32_t Script_BNGetInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -81,9 +79,7 @@ static int32_t Script_BNGetInfo(lua_State* L) {
 // VERIFY: f2a0fb12 manual
 // OFFSET: 0x00534590
 static int32_t Script_BNGetNumFriends(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendListLoaded) {
+    if (!BattlenetUI::BNFeaturesEnabled() || !BattlenetUI::m_friendListLoaded) {
         lua_pushnumber(L, 0.0);
         lua_pushnumber(L, 0.0);
         return 2;
@@ -114,9 +110,7 @@ static int32_t Script_BNGetNumFriends(lua_State* L) {
 // VERIFY: ba9e1544 manual
 // OFFSET: 0x005349F0
 static int32_t Script_BNGetNumFriendToons(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -199,9 +193,7 @@ static int32_t Script_BNSetFriendNote(lua_State* L) {
 // VERIFY: 5f5b8f58 manual
 // OFFSET: 0x00535080
 static int32_t Script_BNGetNumFriendInvites(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled() || !BattlenetUI::m_friendInvites) {
+    if (!BattlenetUI::BNFeaturesEnabled() || !BattlenetUI::m_friendInvites) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -221,9 +213,7 @@ static int32_t Script_BNGetNumFriendInvites(lua_State* L) {
 // VERIFY: 0258b95f manual
 // OFFSET: 0x00535180
 static int32_t Script_BNGetFriendInviteInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -542,9 +532,7 @@ static int32_t Script_BNSetFocus(lua_State* L) {
 // VERIFY: a26abed5 manual
 // OFFSET: 0x00535CE0
 static int32_t Script_BNCreateConversation(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -587,9 +575,7 @@ static int32_t Script_BNCreateConversation(lua_State* L) {
 // VERIFY: 72a452b9 manual
 // OFFSET: 0x00535EB0
 static int32_t Script_BNInviteToConversation(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -628,9 +614,7 @@ static int32_t Script_BNInviteToConversation(lua_State* L) {
 // VERIFY: f58e7e6b manual
 // OFFSET: 0x00536030
 static int32_t Script_BNLeaveConversation(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -683,9 +667,7 @@ static int32_t Script_BNSendConversationMessage(lua_State* L) {
 // VERIFY: 84553829 manual
 // OFFSET: 0x00536220
 static int32_t Script_BNGetNumConversationMembers(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -715,9 +697,7 @@ static int32_t Script_BNGetNumConversationMembers(lua_State* L) {
 // VERIFY: 7432c6ae manual
 // OFFSET: 0x00536330
 static int32_t Script_BNGetConversationInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -739,9 +719,7 @@ static int32_t Script_BNGetConversationInfo(lua_State* L) {
 // VERIFY: 3cb99631 manual
 // OFFSET: 0x00536400
 static int32_t Script_BNGetNumBlocked(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -761,9 +739,7 @@ static int32_t Script_BNGetNumBlocked(lua_State* L) {
 // VERIFY: e9831e9e auto
 // OFFSET: 0x005364E0
 static int32_t Script_BNIsBlocked(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -807,9 +783,7 @@ static int32_t Script_BNSetBlocked(lua_State* L) {
 // VERIFY: a99f894a manual
 // OFFSET: 0x005366A0
 static int32_t Script_BNSetSelectedBlock(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -837,9 +811,7 @@ static int32_t Script_BNSetSelectedBlock(lua_State* L) {
 // VERIFY: 4ec1f3a8 manual
 // OFFSET: 0x00536790
 static int32_t Script_BNGetSelectedBlock(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -862,9 +834,7 @@ static int32_t Script_BNGetSelectedBlock(lua_State* L) {
 // VERIFY: 3d19868a manual
 // OFFSET: 0x00536890
 static int32_t Script_BNGetNumBlockedToons(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -884,9 +854,7 @@ static int32_t Script_BNGetNumBlockedToons(lua_State* L) {
 // VERIFY: fa351982 manual
 // OFFSET: 0x00536970
 static int32_t Script_BNGetBlockedToonInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -914,9 +882,7 @@ static int32_t Script_BNGetBlockedToonInfo(lua_State* L) {
 // VERIFY: b9dcb576 auto
 // OFFSET: 0x00536A90
 static int32_t Script_BNIsToonBlocked(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -960,9 +926,7 @@ static int32_t Script_BNSetToonBlocked(lua_State* L) {
 // VERIFY: ae48a591 manual
 // OFFSET: 0x00536C50
 static int32_t Script_BNSetSelectedToonBlock(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -990,9 +954,7 @@ static int32_t Script_BNSetSelectedToonBlock(lua_State* L) {
 // VERIFY: 7ac120a9 manual
 // OFFSET: 0x00536D40
 static int32_t Script_BNGetSelectedToonBlock(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         lua_pushnumber(L, 0.0);
         return 1;
     }
@@ -1068,17 +1030,14 @@ static int32_t Script_BNFeaturesEnabledAndConnected(lua_State* L) {
 // VERIFY: ed1e6ea4 auto
 // OFFSET: 0x00537070
 static int32_t Script_BNFeaturesEnabled(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-    lua_pushboolean(L, login && login->GetLoginServerType() == LOGIN_SERVER_BATTLENET && !login->IsTrialAccount() && BattlenetAPI::IsRIDEnabled());
+    lua_pushboolean(L, BattlenetUI::BNFeaturesEnabled());
     return 1;
 }
 
 // VERIFY: 3eed4bc9 manual
 // OFFSET: 0x005370D0
 static int32_t Script_BNGetNumFOF(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1117,9 +1076,7 @@ static int32_t Script_BNGetNumFOF(lua_State* L) {
 // VERIFY: c5215d9a manual
 // OFFSET: 0x00537240
 static int32_t Script_BNGetFOFInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1199,9 +1156,7 @@ static int32_t Script_BNGetFOFInfo(lua_State* L) {
 // VERIFY: 27fc51cd manual
 // OFFSET: 0x00537510
 static int32_t Script_BNSetSelectedFriend(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1277,9 +1232,7 @@ static int32_t Script_BNSetMatureLanguageFilter(lua_State* L) {
 // VERIFY: 197ffe0c manual
 // OFFSET: 0x005377C0
 static int32_t Script_BNGetMatureLanguageFilter(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1298,9 +1251,7 @@ static int32_t Script_BNGetMatureLanguageFilter(lua_State* L) {
 // VERIFY: a2d38f77 auto
 // OFFSET: 0x005378A0
 static int32_t Script_BNIsSelf(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1315,9 +1266,7 @@ static int32_t Script_BNIsSelf(lua_State* L) {
 // VERIFY: 216d7baa auto
 // OFFSET: 0x00537950
 static int32_t Script_BNIsFriend(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1332,9 +1281,7 @@ static int32_t Script_BNIsFriend(lua_State* L) {
 // VERIFY: 2e29ab78 auto
 // OFFSET: 0x00537A00
 static int32_t Script_BNGetMaxPlayersInConversation(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1345,9 +1292,7 @@ static int32_t Script_BNGetMaxPlayersInConversation(lua_State* L) {
 // VERIFY: ea8efcda manual
 // OFFSET: 0x00539BF0
 static int32_t Script_BNGetFriendInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1371,9 +1316,7 @@ static int32_t Script_BNGetFriendInfo(lua_State* L) {
 // VERIFY: 9d2f21a7 auto
 // OFFSET: 0x00539CC0
 static int32_t Script_BNGetFriendInfoByID(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1393,9 +1336,7 @@ static int32_t Script_BNGetFriendInfoByID(lua_State* L) {
 // VERIFY: e2c4f578 manual
 // OFFSET: 0x00539D70
 static int32_t Script_BNGetFriendToonInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1453,9 +1394,7 @@ static int32_t Script_BNGetFriendToonInfo(lua_State* L) {
 // VERIFY: 0ae9bf15 auto
 // OFFSET: 0x00539F90
 static int32_t Script_BNGetToonInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1499,9 +1438,7 @@ static int32_t Script_BNSendWhisper(lua_State* L) {
 // VERIFY: 2daf6f26 manual
 // OFFSET: 0x0053A150
 static int32_t Script_BNGetConversationMemberInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1592,9 +1529,7 @@ static int32_t Script_BNListConversation(lua_State* L) {
 // VERIFY: 02e4cc86 manual
 // OFFSET: 0x0053A540
 static int32_t Script_BNGetBlockedInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
@@ -1622,9 +1557,7 @@ static int32_t Script_BNGetBlockedInfo(lua_State* L) {
 // VERIFY: c59a8d80 auto
 // OFFSET: 0x0053A660
 static int32_t Script_BNRequestFOFInfo(lua_State* L) {
-    Login* login = ClientServices::LoginConnection();
-
-    if (!login || login->GetLoginServerType() != LOGIN_SERVER_BATTLENET || login->IsTrialAccount() || !BattlenetAPI::IsRIDEnabled()) {
+    if (!BattlenetUI::BNFeaturesEnabled()) {
         return 0;
     }
 
