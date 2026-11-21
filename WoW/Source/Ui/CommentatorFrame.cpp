@@ -175,7 +175,7 @@ void CGCommentator::PostInit(CGPlayer_C* player) {
         World::ObjectSetShadow(player->m_worldObject, 2, 2);
 
         if (CGWorldFrame::s_currentWorldFrame) {
-            CGWorldFrame::GetActiveCamera()->SetView(6, 2, 0);
+            CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, 2, 0);
             CGCommentator::s_Commentator.SnapCameraToPlayer();
         }
     }
@@ -575,14 +575,14 @@ int32_t CGCommentator::OnStateChanged(void* param, NETMESSAGE msgId, uint32_t ti
         World::ObjectSetShadow(player->m_worldObject, 2, 2);
 
         if (CGWorldFrame::s_currentWorldFrame) {
-            CGWorldFrame::GetActiveCamera()->SetView(6, 2, 0);
+            CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, 2, 0);
             CGCommentator::s_Commentator.SnapCameraToPlayer();
         }
     } else {
         World::ObjectSetShadow(player->m_worldObject, 0, 2);
 
         if (CGWorldFrame::s_currentWorldFrame) {
-            CGWorldFrame::GetActiveCamera()->SetView(1, 2, 0);
+            CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_THIRD_PERSON_A, 2, 0);
         }
     }
 

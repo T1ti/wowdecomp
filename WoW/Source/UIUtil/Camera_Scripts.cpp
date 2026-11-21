@@ -182,7 +182,7 @@ static int32_t Script_SetView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (view >= 1 && view <= 5) {
+    if (view >= CGCamera::VIEW_THIRD_PERSON_A && view <= CGCamera::VIEW_THIRD_PERSON_E) {
         CGWorldFrame::GetActiveCamera()->SetView(view, s_cvCameraViewBlendStyle->m_intValue, 0);
     }
 
@@ -199,7 +199,7 @@ static int32_t Script_SaveView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (view >= 1 && view <= 5) {
+    if (view >= CGCamera::VIEW_THIRD_PERSON_A && view <= CGCamera::VIEW_THIRD_PERSON_E) {
         CGWorldFrame::GetActiveCamera()->CreateViewFromCamera(view);
     }
 
@@ -216,7 +216,7 @@ static int32_t Script_ResetView(lua_State* L) {
 
     int32_t view = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    if (view >= 1 && view <= 5) {
+    if (view >= CGCamera::VIEW_THIRD_PERSON_A && view <= CGCamera::VIEW_THIRD_PERSON_E) {
         CGWorldFrame::GetActiveCamera()->ResetView(view);
     }
 
@@ -229,7 +229,7 @@ static int32_t Script_NextView(lua_State* L) {
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
     int32_t view = camera->m_viewIndex;
 
-    if (view < 5) {
+    if (view < CGCamera::VIEW_THIRD_PERSON_E) {
         camera->SetView(view + 1, s_cvCameraViewBlendStyle->m_intValue, 0);
     }
 
@@ -242,7 +242,7 @@ static int32_t Script_PrevView(lua_State* L) {
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
     int32_t view = camera->m_viewIndex;
 
-    if (view > 1) {
+    if (view > CGCamera::VIEW_THIRD_PERSON_A) {
         camera->SetView(view - 1, s_cvCameraViewBlendStyle->m_intValue, 0);
     }
 

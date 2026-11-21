@@ -98,7 +98,7 @@ CVar* s_cvCameraCustomViewSmoothing;
 CVar* s_cvCameraView;
 
 // STATIC: 0x00C24DC8
-CVar* s_cvCameraViewData[8][3];
+CVar* s_cvCameraViewData[CGCamera::NUM_VIEW_MODES][NUM_CAMERA_VIEW_DATA];
 
 // STATIC: 0x00C24E28
 CVar* s_cvCameraViewBlendStyle;
@@ -167,7 +167,7 @@ CVar* s_cvCameraSavedVehicleDistance;
 CVar* s_cvCameraSavedDistance;
 
 // STATIC: 0x00AD1B54
-static const char* s_cameraViewNames[8] = { "", "A", "B", "C", "D", "E", "Com", "Barber Shop" };
+static const char* s_cameraViewNames[CGCamera::NUM_VIEW_MODES] = { "", "A", "B", "C", "D", "E", "Com", "Barber Shop" };
 
 // STATIC: 0x00AD1B74
 static const char* s_cameraViewDataNames[NUM_CAMERA_VIEW_DATA] = { "Distance", "Pitch", "Yaw" };
@@ -445,14 +445,14 @@ static bool ValidateCameraSmoothStyle(CVar* var, const char* oldValue, const cha
 }
 
 // STATIC: 0x00AD2054
-static bool (*s_cameraViewDataValidators[3])(CVar*, const char*, const char*, void*) = { ValidateCameraDistance, ValidateCameraPitch, ValidateCameraYaw };
+static bool (*s_cameraViewDataValidators[NUM_CAMERA_VIEW_DATA])(CVar*, const char*, const char*, void*) = { ValidateCameraDistance, ValidateCameraPitch, ValidateCameraYaw };
 
 // VERIFY: f67b59e2 manual
 // OFFSET: 0x005FD910
 void CameraRegisterCVars() {
-    s_cvCameraSavedDistance = CVar::Register("cameraSavedDistance", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[0], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSavedDistance = CVar::Register("cameraSavedDistance", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[CAMERA_VIEW_DATA_DISTANCE], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     s_cvCameraSavedVehicleDistance = CVar::Register("cameraSavedVehicleDistance", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, "-1.0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
-    s_cvCameraSavedPitch = CVar::Register("cameraSavedPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[1], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    s_cvCameraSavedPitch = CVar::Register("cameraSavedPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_CHARACTER, s_cameraViewDefaults[SStrToInt(s_defaultCameraView)].m_values[CAMERA_VIEW_DATA_PITCH], nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     s_cvMouseInvertYaw = CVar::Register("mouseInvertYaw", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     s_cvMouseInvertPitch = CVar::Register("mouseInvertPitch", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
     s_cvCameraBobbing = CVar::Register("cameraBobbing", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
@@ -476,8 +476,8 @@ void CameraRegisterCVars() {
 
     char name[64];
 
-    for (uint32_t view = 0; view < 8; view++) {
-        for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t view = 0; view < CGCamera::NUM_VIEW_MODES; view++) {
+        for (uint32_t i = 0; i < NUM_CAMERA_VIEW_DATA; i++) {
             name[0] = '\0';
             SStrPack(name, "camera", sizeof(name));
             SStrPack(name, s_cameraViewDataNames[i], sizeof(name));

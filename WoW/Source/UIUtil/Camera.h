@@ -77,6 +77,19 @@ class CGInputControl;
 class CGCamera : public CSimpleCamera {
     public:
     // Vehicle override selector;other raw values keep the user-style fallback.
+    // cameraView values, from s_cameraViewModeNames.
+    enum VIEW_MODE : int32_t {
+        VIEW_FIRST_PERSON = 0,
+        VIEW_THIRD_PERSON_A = 1,
+        VIEW_THIRD_PERSON_B = 2,
+        VIEW_THIRD_PERSON_C = 3,
+        VIEW_THIRD_PERSON_D = 4,
+        VIEW_THIRD_PERSON_E = 5,
+        VIEW_COMMENTATOR = 6,
+        VIEW_BARBER_SHOP = 7,
+        NUM_VIEW_MODES,
+    };
+
     enum VEHICLE_TRACKING_STYLE : uint32_t {
         TRACKING_USER_STYLE = 0,
         TRACKING_IGNORE_FACING = 1,
@@ -196,7 +209,7 @@ class CGCamera : public CSimpleCamera {
     /* 00AC */ int32_t m_ignoreFacingRefs;
     /* 00B0 */ int32_t m_groundTiltRefs;
     /* 00B4 */ uint32_t m_viewIndex;
-    /* 00B8 */ CameraView m_views [8];
+    /* 00B8 */ CameraView m_views [NUM_VIEW_MODES];
     /* 0118 */ float m_distance;
     /* 011C */ float m_yaw;
     /* 0120 */ float m_pitch;
@@ -359,7 +372,7 @@ class CGCamera : public CSimpleCamera {
 extern float MAX_PITCH_ANGLE;
 extern float MIN_PITCH_ANGLE;
 extern int32_t s_cameraViewAngular[3];
-extern CAMERA_DEFAULTS s_cameraViewDefaults[8];
+extern CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::NUM_VIEW_MODES];
 extern const float s_terrainTiltTable[10][2];
 extern float s_targetHeightOffset;
 extern float s_cameraBobFrequency;
@@ -430,7 +443,7 @@ enum CAMERA_TERRAIN_TILT_PARAM : int32_t {
 };
 
 extern CVar* s_cvCameraView;
-extern CVar* s_cvCameraViewData[8][3];
+extern CVar* s_cvCameraViewData[CGCamera::NUM_VIEW_MODES][NUM_CAMERA_VIEW_DATA];
 extern CVar* s_cameraSmooth;
 extern CVar* s_cvCameraSmoothStyle;
 extern CVar* s_cvCameraTerrainTilt;

@@ -30,7 +30,7 @@ uint8_t CGBarberShop::m_barberShopEnabled;
 uint8_t CGBarberShop::m_helmHidden;
 
 // STATIC: 0x00ACC784
-int32_t CGBarberShop::m_prevView = 4;
+int32_t CGBarberShop::m_prevView = CGCamera::VIEW_THIRD_PERSON_D;
 
 // STATIC: 0x00ACC788
 float CGBarberShop::m_minCameraDistance = 1.0f;

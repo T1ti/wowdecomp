@@ -59,10 +59,10 @@ float MAX_PITCH_ANGLE = 1.55334306f;
 float MIN_PITCH_ANGLE = -1.55334306f;
 
 // STATIC: 0x00AD1B80
-int32_t s_cameraViewAngular[3] = { 0, 1, 1 };
+int32_t s_cameraViewAngular[NUM_CAMERA_VIEW_DATA] = { 0, 1, 1 };
 
 // STATIC: 0x00AD1BA8
-CAMERA_DEFAULTS s_cameraViewDefaults[8] = {
+CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::NUM_VIEW_MODES] = {
     { { "0.0", "0.0", "0.0" } },
     { { "0.0", "0.0", "0.0" } },
     { { "5.55", "10.0", "0.0" } },
@@ -91,7 +91,7 @@ const float s_terrainTiltTable[10][2] = {
 float s_targetHeightOffset;
 
 // STATIC: 0x00AD213C
-static const char* s_cameraViewModeNames[8] = { "FIRST_PERSON", "THIRD_PERSON_A", "THIRD_PERSON_B", "THIRD_PERSON_C", "THIRD_PERSON_D", "THIRD_PERSON_E", "VIEW_COMMENTATOR", "VIEW_BARBER_SHOP" };
+static const char* s_cameraViewModeNames[CGCamera::NUM_VIEW_MODES] = { "FIRST_PERSON", "THIRD_PERSON_A", "THIRD_PERSON_B", "THIRD_PERSON_C", "THIRD_PERSON_D", "THIRD_PERSON_E", "VIEW_COMMENTATOR", "VIEW_BARBER_SHOP" };
 
 // STATIC: 0x00A1E368
 static const float s_smoothViewDataMin[NUM_CAMERA_SMOOTH_PARAMS] = { 0.0f, 0.0f };
@@ -212,9 +212,9 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     this->m_groundTiltRefs = 0;
 
     this->m_viewIndex = s_cvCameraView->m_intValue;
-    this->m_distance = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[0]);
+    this->m_distance = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[CAMERA_VIEW_DATA_DISTANCE]);
     this->m_yaw = 0.0f;
-    this->m_pitch = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[1]) * DEG_TO_RAD;
+    this->m_pitch = SStrToFloat(s_cameraViewDefaults[this->m_viewIndex].m_values[CAMERA_VIEW_DATA_PITCH]) * DEG_TO_RAD;
     this->m_roll = 0.0f;
     this->m_height = 0.0f;
     this->m_yawOffset = 0.0f;
@@ -349,7 +349,7 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     ConsoleCommandRegister("pitchLimit", CGCamera::CCommand_PitchLimit, CATEGORY_GAME, nullptr);
 
     this->m_state |= (STATE_FLAGS::STATE_INITIALIZED | STATE_FLAGS::STATE_VIEW_MODIFIED);
-    this->m_prevViewIndex = 2;
+    this->m_prevViewIndex = VIEW_THIRD_PERSON_B;
     this->m_prevDistance = 1.8315002f;
     this->m_preTelescopeDistance = 1.8315002f;
     this->m_telescopePitchOffset = 0.0f;
@@ -384,10 +384,10 @@ CGCamera::~CGCamera() {
 // VERIFY: 6952a863 manual
 // OFFSET: 0x00603900
 void CGCamera::BarberShopSetView(float distance, float facing, float pitch) {
-    this->m_views[7].m_distance = distance;
-    this->m_views[7].m_yaw = facing;
-    this->m_views[7].m_pitch = pitch;
-    this->SetView(7, 1, 0);
+    this->m_views[VIEW_BARBER_SHOP].m_distance = distance;
+    this->m_views[VIEW_BARBER_SHOP].m_yaw = facing;
+    this->m_views[VIEW_BARBER_SHOP].m_pitch = pitch;
+    this->SetView(VIEW_BARBER_SHOP, 1, 0);
 }
 
 // VERIFY: 3e9e8f60 manual
@@ -770,8 +770,8 @@ void CGCamera::IncIgnoreFacing() {
 // VERIFY: 7c4b102e auto
 // OFFSET: 0x005FE510
 void CGCamera::InitializeView() {
-    for (uint32_t i = 0; i < 8; i++) {
-        for (uint32_t j = 0; j < 3; j++) {
+    for (uint32_t i = 0; i < NUM_VIEW_MODES; i++) {
+        for (uint32_t j = 0; j < NUM_CAMERA_VIEW_DATA; j++) {
             float value = s_cvCameraViewData[i][j]->m_floatValue;
 
             if (s_cameraViewAngular[j]) {
@@ -1841,7 +1841,7 @@ void CGCamera::SaveViewToCVars(uint32_t view, float distance, float pitch, float
     this->m_views[view].m_pitch = pitch;
     this->m_views[view].m_yaw = yaw;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_CAMERA_VIEW_DATA; i++) {
         float value = this->m_views[view].Component(i);
 
         if (s_cameraViewAngular[i]) {
@@ -3011,14 +3011,14 @@ void CGCamera::UpdateMotion(uint32_t time) {
 // OFFSET: 0x006048A0
 void CGCamera::ResetView(int32_t view) {
     if (view < 0) {
-        for (int32_t i = 0; i < 8; i++) {
+        for (int32_t i = 0; i < NUM_VIEW_MODES; i++) {
             this->ResetView(i);
         }
 
         return;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < NUM_CAMERA_VIEW_DATA; i++) {
         if (s_cameraViewAngular[i]) {
             this->m_views[view].Component(i) = SStrToFloat(s_cameraViewDefaults[view].m_values[i]) * DEG_TO_RAD;
         } else {
@@ -3038,7 +3038,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         return;
     }
 
-    if (view == 6) {
+    if (view == VIEW_COMMENTATOR) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR)) {
@@ -4235,9 +4235,9 @@ void CGCamera::CalcModelCamera(uint32_t time) {
 // VERIFY: 399367f6 auto
 // OFFSET: 0x006038A0
 void CGCamera::CommentatorSetViewAndPosition(const C3Vector& position, float facing, float pitch) {
-    this->m_views[6].m_distance = 0.0f;
-    this->m_views[6].m_yaw = facing;
-    this->m_views[6].m_pitch = pitch;
+    this->m_views[VIEW_COMMENTATOR].m_distance = 0.0f;
+    this->m_views[VIEW_COMMENTATOR].m_yaw = facing;
+    this->m_views[VIEW_COMMENTATOR].m_pitch = pitch;
     this->m_position = position;
     this->m_position = position;
     this->SetView(6, 2, 0);
