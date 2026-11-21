@@ -10294,11 +10294,7 @@ void CGUnit_C::OnDeath() {
         this->RemoveInteractIcon();
     }
 
-    PlayerNameTriggerColorUpdate(this->m_nameDesc);
-
-    if (this->m_namePlateFrame) {
-        this->m_namePlateFrame->UpdateColorDisplay(this);
-    }
+    this->UpdateUnitNameColor();
 
     while (this->m_missiles) {
         this->m_missiles->DeleteSelf();
@@ -18004,11 +18000,7 @@ void CGUnit_C::OnLife(bool deadFlagCleared) {
     this->m_lootableTime = 0;
     this->SetKeyBoneSequenceSpeed(this->m_worldModel, M2_KEY_BONE_NONE, 1.0f, 0);
     this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
-    PlayerNameTriggerColorUpdate(this->m_nameDesc);
-
-    if (this->m_namePlateFrame) {
-        this->m_namePlateFrame->UpdateColorDisplay(this);
-    }
+    this->UpdateUnitNameColor();
 
     if (this->IsActivePlayer() && !deadFlagCleared) {
         SendQuestGiverStatusMultipleQuery();
@@ -18064,11 +18056,7 @@ static int32_t PetColorUpdateProc(WOWGUID guid, void* param) {
     const WOWGUID& owner = unit->m_unit->m_unitFieldCharmedby ? unit->m_unit->m_unitFieldCharmedby : unit->m_unit->m_unitFieldCreatedby;
 
     if (owner == static_cast<CGUnit_C*>(param)->m_obj->m_guid && !(unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_PC)) {
-        PlayerNameTriggerColorUpdate(unit->m_nameDesc);
-
-        if (unit->m_namePlateFrame) {
-            unit->m_namePlateFrame->UpdateColorDisplay(unit);
-        }
+        unit->UpdateUnitNameColor();
 
         Script_SendUnitSignal(unit->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
     }
@@ -18407,11 +18395,7 @@ static int32_t UnitColorUpdateProc(WOWGUID guid, void* param) {
     const WOWGUID& owner = unit->m_unit->m_unitFieldCharmedby ? unit->m_unit->m_unitFieldCharmedby : unit->m_unit->m_unitFieldCreatedby;
 
     if (owner != ClntObjMgrGetActivePlayer()) {
-        PlayerNameTriggerColorUpdate(unit->m_nameDesc);
-
-        if (unit->m_namePlateFrame) {
-            unit->m_namePlateFrame->UpdateColorDisplay(unit);
-        }
+        unit->UpdateUnitNameColor();
 
         Script_SendUnitSignal(unit->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
     }
@@ -18422,11 +18406,7 @@ static int32_t UnitColorUpdateProc(WOWGUID guid, void* param) {
 // VERIFY: 550305c8 auto
 // OFFSET: 0x0071F8F0
 void CGUnit_C::UpdateReaction(bool updatePetColors) {
-    PlayerNameTriggerColorUpdate(this->m_nameDesc);
-
-    if (this->m_namePlateFrame) {
-        this->m_namePlateFrame->UpdateColorDisplay(this);
-    }
+    this->UpdateUnitNameColor();
 
     Script_SendUnitSignal(this->m_obj->m_guid, SCRIPT_EVENT_UNIT_FACTION);
 
