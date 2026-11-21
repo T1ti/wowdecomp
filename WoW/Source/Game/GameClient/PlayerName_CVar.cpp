@@ -20,7 +20,7 @@ bool ObjectNameShowCallback(CVar* var, const char* oldValue, const char* value, 
     }
 
     for (PLAYERNAMEDESC* desc = s_playerNames.Head(); desc; desc = s_playerNames.Next(desc)) {
-        desc->m_flags |= 1;
+        desc->m_flags |= PLAYERNAMEDESC::NAME_FLAGS::NAME_REGENERATE;
     }
 
     return true;
