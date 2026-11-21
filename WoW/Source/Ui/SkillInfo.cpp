@@ -199,8 +199,8 @@ static int32_t SortSkillLines(const void* a, const void* b) {
         return 1;
     }
 
-    if (lineA->unk_000C != lineB->unk_000C) {
-        return lineA->unk_000C ? 1 : -1;
+    if (lineA->m_unlearned != lineB->m_unlearned) {
+        return lineA->m_unlearned ? 1 : -1;
     }
 
     SkillLineRec* recA = g_skillLineDB.GetRecord(lineA->m_skillLineID);
@@ -242,7 +242,7 @@ void CGSkillInfo::UpdateSkillLines() {
             continue;
         }
 
-        line->m_expanded = !CGSkillInfo::m_types.m_data[type]->m_collapsed && (!CGSkillInfo::unk_C22AFC || !line->unk_000C);
+        line->m_expanded = !CGSkillInfo::m_types.m_data[type]->m_collapsed && (!CGSkillInfo::unk_C22AFC || !line->m_unlearned);
 
         if (!CGSkillInfo::m_lines.m_data[i]->m_expanded) {
             CGSkillInfo::m_numSkillLines--;
@@ -324,7 +324,7 @@ void PlayerSignalSkillStatChanges() {
 
         CGSkillInfo::m_lines.m_data[CGSkillInfo::m_numLines]->m_skillLineID = skillId;
         CGSkillInfo::m_lines.m_data[CGSkillInfo::m_numLines]->m_categoryID = rec->m_categoryID;
-        CGSkillInfo::m_lines.m_data[CGSkillInfo::m_numLines]->unk_000C = rank == 0;
+        CGSkillInfo::m_lines.m_data[CGSkillInfo::m_numLines]->m_unlearned = rank == 0;
         CGSkillInfo::m_lines.m_data[CGSkillInfo::m_numLines]->m_skillUps = 0;
         CGSkillInfo::m_numLines++;
 

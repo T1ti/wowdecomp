@@ -2,6 +2,7 @@
 #define WOW_SOURCE_UI_SKILLINFO_H
 
 #include <cstdint>
+#include <windows.h>
 #include "Engine/Source/Storm/H/stpl.h"
 
 class SkillRaceClassInfoRec;
@@ -11,7 +12,7 @@ struct SkillLineInfo {
     /* 0000 */ int32_t m_skillLineID;
     /* 0004 */ int32_t m_categoryID;
     /* 0008 */ int32_t m_expanded;
-    /* 000C */ int32_t unk_000C;
+    /* 000C */ BOOL m_unlearned; // rank 0, shown via SKILL_RACE_CLASS_FLAG_SHOW_UNLEARNED
     /* 0010 */ int32_t m_skillUps;
 };
 
