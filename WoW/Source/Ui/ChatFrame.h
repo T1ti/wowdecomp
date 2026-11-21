@@ -363,12 +363,12 @@ class ChatWindowInfo {
     /* 0080 */ uint8_t m_messageGroups[NUM_CHAT_MESSAGE_GROUPS];
     /* 00B0 */ TSGrowableArray<char*> m_channels;
     /* 00C0 */ TSGrowableArray<int32_t> m_channelIDs;
-    /* 00D0 */ int32_t m_unkD0;
+    /* 00D0 */ int32_t m_fontSize; // "SIZE" in chat-cache.txt
     /* 00D4 */ CImVector m_color;
     /* 00D8 */ BOOL m_locked; // "LOCKED" in chat-cache.txt
     /* 00DC */ int32_t m_docked;
     /* 00E0 */ uint32_t m_shown;
-    /* 00E4 */ int32_t m_unkE4;
+    /* 00E4 */ BOOL m_uninteractable; // "UNINTERACTABLE" in chat-cache.txt
     /* 00E8 */ FRAMEPOINT m_anchorPoint;
     /* 00EC */ float m_xOffsetRatio; // Saved position ratios, not pixel offsets.
     /* 00F0 */ float m_yOffsetRatio;

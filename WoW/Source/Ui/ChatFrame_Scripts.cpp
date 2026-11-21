@@ -460,7 +460,7 @@ static int32_t Script_SetChatWindowUninteractable(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
     if (index < NUM_CHAT_WINDOWS) {
-        s_chatWindows[index].m_unkE4 = StringToBOOL(L, 2, 0);
+        s_chatWindows[index].m_uninteractable = StringToBOOL(L, 2, 0);
     }
 
     return 0;
@@ -539,7 +539,7 @@ static int32_t Script_SetChatWindowSize(lua_State* L) {
         int32_t size = static_cast<int32_t>(lua_tonumber(L, 2));
 
         if (size > 0) {
-            s_chatWindows[index].m_unkD0 = size;
+            s_chatWindows[index].m_fontSize = size;
         }
     }
 
@@ -787,7 +787,7 @@ static int32_t Script_GetChatWindowInfo(lua_State* L) {
     }
 
     lua_pushstring(L, s_chatWindows[index].m_name);
-    lua_pushnumber(L, s_chatWindows[index].m_unkD0);
+    lua_pushnumber(L, s_chatWindows[index].m_fontSize);
     lua_pushnumber(L, s_chatWindows[index].m_color.r * (1.0f / 255.0f));
     lua_pushnumber(L, s_chatWindows[index].m_color.g * (1.0f / 255.0f));
     lua_pushnumber(L, s_chatWindows[index].m_color.b * (1.0f / 255.0f));
@@ -813,7 +813,7 @@ static int32_t Script_GetChatWindowInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    int32_t uninteractable = s_chatWindows[index].m_unkE4;
+    int32_t uninteractable = s_chatWindows[index].m_uninteractable;
 
     if (uninteractable) {
         lua_pushnumber(L, uninteractable);

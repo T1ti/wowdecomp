@@ -1971,11 +1971,11 @@ void ChatWindowInfo::Init() {
     color.a = 0x28;
 
     this->m_name[0] = 0;
-    this->m_unkD0 = 0;
+    this->m_fontSize = 0;
     this->m_locked = 1;
     this->m_docked = 0;
     this->m_shown = 0;
-    this->m_unkE4 = 0;
+    this->m_uninteractable = 0;
     this->m_color = color;
     this->m_channels.SetCount(MAX_WOW_CHAT_CHANNELS);
     this->m_channelIDs.SetCount(MAX_WOW_CHAT_CHANNELS);
@@ -4730,7 +4730,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                     if (!SStrCmpI(word, "SIZE", STORM_MAX_STR)) {
                         SStrTokenize(&rest, word, sizeof(word), " \r\n", nullptr);
-                        info->m_unkD0 = SStrToInt(word);
+                        info->m_fontSize = SStrToInt(word);
                         break;
                     }
 
@@ -4752,7 +4752,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
                     if (!SStrCmpI(word, "UNINTERACTABLE", STORM_MAX_STR)) {
                         SStrTokenize(&rest, word, sizeof(word), "\r\n", nullptr);
-                        info->m_unkE4 = SStrToInt(word);
+                        info->m_uninteractable = SStrToInt(word);
                     }
 
                     if (!SStrCmpI(word, "DOCKED", STORM_MAX_STR)) {
@@ -5348,13 +5348,13 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             OsWriteFile(file, line, SStrLen(line), &written);
         }
 
-        SStrPrintf(line, sizeof(line), "SIZE %d\n", info->m_unkD0);
+        SStrPrintf(line, sizeof(line), "SIZE %d\n", info->m_fontSize);
         OsWriteFile(file, line, SStrLen(line), &written);
         SStrPrintf(line, sizeof(line), "COLOR %d %d %d %d\n", info->m_color.r, info->m_color.g, info->m_color.b, info->m_color.a);
         OsWriteFile(file, line, SStrLen(line), &written);
         SStrPrintf(line, sizeof(line), "LOCKED %d\n", info->m_locked != 0);
         OsWriteFile(file, line, SStrLen(line), &written);
-        SStrPrintf(line, sizeof(line), "UNINTERACTABLE %d\n", info->m_unkE4 != 0);
+        SStrPrintf(line, sizeof(line), "UNINTERACTABLE %d\n", info->m_uninteractable != 0);
         OsWriteFile(file, line, SStrLen(line), &written);
         SStrPrintf(line, sizeof(line), "DOCKED %d\n", info->m_docked);
         OsWriteFile(file, line, SStrLen(line), &written);
