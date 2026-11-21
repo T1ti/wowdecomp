@@ -717,6 +717,13 @@ void PlayerShutdownSounds();
 int32_t Player_C_ZoneUpdateHandler(const void* data, void* param);
 int32_t GetModalNextSpell();
 
+// SPELL_AURA_CHANGE_MODEL_FOR_ALL_HUMANOIDS misc value B bits (GetVisibleAuraEffectFlags).
+// With HOSTILE_PLAYERS_ONLY, IsHostileCritter keeps only players hated by the active player.
+// Name inferred.
+enum AURA_CHANGE_MODEL_FLAGS : uint32_t {
+    AURA_CHANGE_MODEL_HOSTILE_PLAYERS_ONLY = 0x1,
+};
+
 uint32_t GetVisibleAuraEffectDisplay();
 uint32_t GetVisibleAuraEffectFlags();
 

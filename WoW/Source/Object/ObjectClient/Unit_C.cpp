@@ -21017,7 +21017,7 @@ BOOL CGUnit_C::IsHostileCritter() {
         return FALSE;
     }
 
-    if (!(GetVisibleAuraEffectFlags() & 0x1)) {
+    if (!(GetVisibleAuraEffectFlags() & AURA_CHANGE_MODEL_HOSTILE_PLAYERS_ONLY)) {
         return TRUE;
     }
 
