@@ -72,7 +72,7 @@ HEVENTCONTEXT EventGetCurrentContext() {
 int32_t EventIsButtonDown(MOUSEBUTTON button) {
     int32_t result = 0;
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         result = IEvtQueueCheckSyncMouseState(context, button);
@@ -90,7 +90,7 @@ int32_t EventIsButtonDown(MOUSEBUTTON button) {
 int32_t EventIsKeyDown(KEY key) {
     int32_t result = 0;
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         result = IEvtQueueCheckSyncKeyState(context, key);
@@ -165,7 +165,7 @@ void EventRegisterEx(EVENTID id, EVENTHANDLERFUNC handler, void* param, float pr
     }
 
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         IEvtQueueRegister(context, id, handler, param, priority);
@@ -180,7 +180,7 @@ void EventRegisterEx(EVENTID id, EVENTHANDLERFUNC handler, void* param, float pr
 // OFFSET: 0x0047D450
 void EventUnregisterEx(EVENTID id, EVENTHANDLERFUNC handler, void* param, uint32_t flags) {
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         IEvtQueueUnregister(context, id, handler, param, flags);
@@ -220,7 +220,7 @@ int32_t EventInputProcess(HEVENTCONTEXT contextHandle) {
 uint32_t EventSetTimer(uint32_t delay, EVENTHANDLERFUNC handler, void* param) {
     uint32_t result = 0;
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         result = IEvtTimerSet(context, delay, handler, param, nullptr, 0, nullptr);
@@ -238,7 +238,7 @@ uint32_t EventSetTimer(uint32_t delay, EVENTHANDLERFUNC handler, void* param) {
 uint32_t EventSetTimer(uint32_t delay, EVENTHANDLERGUIDFUNC handler, uint64_t guid, void* param) {
     uint32_t result = 0;
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         result = IEvtTimerSet(context, delay, nullptr, nullptr, handler, guid, param);
@@ -255,7 +255,7 @@ uint32_t EventSetTimer(uint32_t delay, EVENTHANDLERGUIDFUNC handler, uint64_t gu
 // OFFSET: 0x0047D620
 void EventKillTimer(uint32_t id, EVENTHANDLERFUNC handler, const char* name) {
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         IEvtTimerKill(context, id, handler, name);
@@ -275,7 +275,7 @@ void EventSetMouseMode(MOUSEMODE mode, uint32_t holdButton) {
     }
 
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         IEvtInputSetMouseMode(context, mode, holdButton);
@@ -290,7 +290,7 @@ void EventSetMouseMode(MOUSEMODE mode, uint32_t holdButton) {
 // OFFSET: 0x0047D700
 void EventInputGetMousePosition(float* x, float* y) {
     int32_t findMask;
-    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(PropGet(PROP_EVENTCONTEXT))), 0, &findMask, 0, 1);
+    EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 
     if (context) {
         IEvtInputGetMousePosition(x, y);
