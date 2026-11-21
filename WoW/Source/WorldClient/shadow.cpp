@@ -216,8 +216,8 @@ void ShadowSetLOD(int32_t lod) {
     if (lod == 1) {
         TextureSetUserData(s_shadowAddTexture, ShadowAddCallback, nullptr);
         TextureSetUserData(s_shadowModTexture, ShadowModCallback, nullptr);
-        GxTexUpdate(TextureGetGxTex(s_shadowAddTexture, 1, nullptr), rect, 0);
-        GxTexUpdate(TextureGetGxTex(s_shadowModTexture, 1, nullptr), rect, 0);
+        GxTexUpdate(ProjectTex2dGetAddFadeTex(), rect, 0);
+        GxTexUpdate(ProjectTex2dGetModFadeTex(), rect, 0);
     }
 }
 
@@ -514,9 +514,9 @@ void ProjectTex2dDrawShaderEffect(const CAaBox& box, const CImVector& color, uin
     CGxAppRenderState* states = g_theGxDevicePtr->m_appRenderStates.m_data;
 
     if (states[GxRs_BlendingMode].m_value.m_data.i[0] == GxBlend_Mod) {
-        g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_shadowModTexture, 1, nullptr));
+        g_theGxDevicePtr->RsSet(GxRs_Texture1, ProjectTex2dGetModFadeTex());
     } else if (!states[GxRs_Texture1].m_value.m_data.i[0]) {
-        g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_shadowAddTexture, 1, nullptr));
+        g_theGxDevicePtr->RsSet(GxRs_Texture1, ProjectTex2dGetAddFadeTex());
     }
 
     float savedOffset = 0.0f;
@@ -619,11 +619,11 @@ static void ProjectTexRender2d(const CAaBox& box, const CImVector& color, uint32
     CGxAppRenderState* states = g_theGxDevicePtr->m_appRenderStates.m_data;
 
     if (states[GxRs_BlendingMode].m_value.m_data.i[0] == GxBlend_Mod) {
-        g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_shadowModTexture, 1, nullptr));
+        g_theGxDevicePtr->RsSet(GxRs_Texture1, ProjectTex2dGetModFadeTex());
         GxRsSet(GxRs_ColorOp1, GxTexOp_Add);
         GxRsSet(GxRs_AlphaOp1, GxTexOp_Add);
     } else if (!states[GxRs_Texture1].m_value.m_data.i[0]) {
-        g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_shadowAddTexture, 1, nullptr));
+        g_theGxDevicePtr->RsSet(GxRs_Texture1, ProjectTex2dGetAddFadeTex());
         GxRsSet(GxRs_ColorOp1, GxTexOp_Mod);
         GxRsSet(GxRs_AlphaOp1, GxTexOp_Mod);
     }
