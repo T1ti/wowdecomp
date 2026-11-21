@@ -567,7 +567,7 @@ void CEffect::AddSpecialEffect(int32_t type, const WOWGUID& target, void (*callb
         this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     }
 
-    this->m_effectNameRec = g_spellVisualEffectNameDB.GetRecord(s_specialUnitEffectIDs[type]);
+    this->m_effectNameRec = GetSpecialSpellVisualEffectNameRec(type);
     CEffect::DestroyMatchingEffects(unit, this->m_effectNameRec, attachment, 0, 0, nullptr);
     this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
 
@@ -596,7 +596,7 @@ void CEffect::AddSpecialByPosition(int32_t type, C3Vector position, const WOWGUI
     this->m_position.y = position.y;
     this->m_position.z = position.z;
     this->m_transportGuid = WOWGUID();
-    this->m_effectNameRec = g_spellVisualEffectNameDB.GetRecord(s_specialUnitEffectIDs[type]);
+    this->m_effectNameRec = GetSpecialSpellVisualEffectNameRec(type);
     this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
 
     if (this->m_model) {

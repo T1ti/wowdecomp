@@ -737,7 +737,7 @@ int32_t CalendarDayEvent::GetSequenceType() const {
 // OFFSET: 0x005BFAB0
 static bool ComputeEventOccurrence(const WowTime* now, const WowTime* rangeStart, const WowTime* rangeEnd, WowTime* outEnd, HolidaysRec* holiday, int32_t index, bool* weekly, int32_t interval, WowTime* outStart) {
     *weekly = false;
-    DYNAMICHOLIDAYHASH* dynamic = s_dynamicHolidays.Ptr(holiday->m_id, HASHKEY_NONE());
+    DYNAMICHOLIDAYHASH* dynamic = CalendarGetHolidayInfo(holiday->m_id);
     int32_t* durations;
     int32_t* dates;
     int32_t looping;
@@ -1182,7 +1182,7 @@ void CGCalendar::InitHolidays() {
 
     for (int32_t i = 0; i < g_holidaysDB.m_numRecords; i++) {
         HolidaysRec* holiday = i < 0 || i >= g_holidaysDB.m_numRecords ? nullptr : &g_holidaysDB.m_records[i];
-        DYNAMICHOLIDAYHASH* dynamic = s_dynamicHolidays.Ptr(holiday->m_id, HASHKEY_NONE());
+        DYNAMICHOLIDAYHASH* dynamic = CalendarGetHolidayInfo(holiday->m_id);
         int32_t regionMask = dynamic ? dynamic->m_region : holiday->m_region;
 
         if (regionMask && !((1 << (region - 1)) & regionMask)) {

@@ -107,7 +107,7 @@ int32_t EventIsKeyDown(KEY key) {
 // OFFSET: 0x0047D290
 void EventPostCloseEx(HEVENTCONTEXT contextHandle) {
     if (!contextHandle) {
-        contextHandle = static_cast<HEVENTCONTEXT>(PropGet(PROP_EVENTCONTEXT));
+        contextHandle = EventGetCurrentContext();
     }
 
     int32_t findMask;
@@ -126,7 +126,7 @@ void EventPostCloseEx(HEVENTCONTEXT contextHandle) {
 // OFFSET: 0x0047D310
 int32_t EventQueuePost(HEVENTCONTEXT contextHandle, EVENTID id, const void* data, uint32_t bytes) {
     if (!contextHandle) {
-        contextHandle = static_cast<HEVENTCONTEXT>(PropGet(PROP_EVENTCONTEXT));
+        contextHandle = EventGetCurrentContext();
     }
 
     int32_t findMask;
@@ -197,7 +197,7 @@ int32_t EventInputProcess(HEVENTCONTEXT contextHandle) {
     int32_t result = 0;
 
     if (!contextHandle) {
-        contextHandle = static_cast<HEVENTCONTEXT>(PropGet(PROP_EVENTCONTEXT));
+        contextHandle = EventGetCurrentContext();
     }
 
     int32_t findMask;

@@ -597,7 +597,7 @@ int32_t SI2::StopSound(SE2SoundKitObject* object, BOOL immediate, float fadeOutT
 // VERIFY: 8b75cf26 manual
 // OFFSET: 0x004C6410
 int32_t SI2ZoneSoundPair::GetPlayingSoundKitId() {
-    if (this->m_sounds[this->m_current].m_object.m_sound.IsPlaying()) {
+    if (this->IsPlaying()) {
         return this->m_sounds[this->m_current].m_soundKitId;
     }
 
@@ -948,7 +948,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         return result;
     }
 
-    if (soundKitId == this->m_sounds[this->m_current].m_soundKitId && this->m_sounds[this->m_current].m_object.m_sound.IsPlaying()) {
+    if (soundKitId == this->m_sounds[this->m_current].m_soundKitId && this->IsPlaying()) {
         return 15;
     }
 
