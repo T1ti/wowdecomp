@@ -3052,12 +3052,12 @@ void CGxDeviceOpenGl::IStateSyncVertexPtrs() {
 
         if (!(bit & this->m_primVertexMask)) {
             switch (attrib) {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
+                case GxVA_Position:
+                case GxVA_BlendWeight:
+                case GxVA_BlendIndices:
+                case GxVA_Normal:
+                case GxVA_Color0:
+                case GxVA_Color1:
                     this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + attrib), 0, 0);
                     break;
 
@@ -3109,29 +3109,29 @@ void CGxDeviceOpenGl::IStateSyncVertexPtrs() {
 
         if (!this->m_deviceStates[Ds_VertexProgram]) {
             switch (attrib) {
-                case 0:
+                case GxVA_Position:
                     this->DsSet(Ds_VertexArray0, 1, 0);
                     glVertexPointer(s_glAttribSize[vertexAttrib.m_type], s_glAttribType[vertexAttrib.m_type], vertexAttrib.m_bufSize, pointer);
                     break;
 
-                case 3:
+                case GxVA_Normal:
                     glNormalPointer(s_glAttribType[vertexAttrib.m_type], vertexAttrib.m_bufSize, pointer);
-                    this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + 3), 1, 0);
+                    this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + GxVA_Normal), 1, 0);
                     break;
 
-                case 4:
+                case GxVA_Color0:
                     glColorPointer(s_glAttribSize[vertexAttrib.m_type], s_glAttribType[vertexAttrib.m_type], vertexAttrib.m_bufSize, pointer);
-                    this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + 4), 1, 0);
+                    this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + GxVA_Color0), 1, 0);
                     break;
 
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                case 11:
-                case 12:
-                case 13: {
+                case GxVA_TexCoord0:
+                case GxVA_TexCoord1:
+                case GxVA_TexCoord2:
+                case GxVA_TexCoord3:
+                case GxVA_TexCoord4:
+                case GxVA_TexCoord5:
+                case GxVA_TexCoord6:
+                case GxVA_TexCoord7: {
                     uint32_t tmu = 0;
 
                     while (tmu < 8 && this->m_appRenderStates[GxRs_TextureCoord0 + tmu].m_value.m_data.u[0] != attrib - 6) {
@@ -3152,12 +3152,12 @@ void CGxDeviceOpenGl::IStateSyncVertexPtrs() {
             }
         } else {
             switch (attrib) {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
+                case GxVA_Position:
+                case GxVA_BlendWeight:
+                case GxVA_BlendIndices:
+                case GxVA_Normal:
+                case GxVA_Color0:
+                case GxVA_Color1:
                     glVertexAttribPointerARB(attrib, s_glAttribSize[vertexAttrib.m_type], s_glAttribType[vertexAttrib.m_type], s_glAttribNormalized[vertexAttrib.m_type], vertexAttrib.m_bufSize, pointer);
                     this->DsSet(static_cast<EDeviceState>(Ds_VertexArray0 + attrib), 1, 0);
                     break;
