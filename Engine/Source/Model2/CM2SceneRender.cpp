@@ -145,10 +145,7 @@ void CM2SceneRender::SetupBillboardView(const C3Vector& position) {
     view.Translate(position);
     g_theGxDevicePtr->XformSetView(view);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 }
 
 // VERIFY: 83b1c9c6 manual
@@ -157,10 +154,7 @@ void CM2SceneRender::EndFixed() {
     g_theGxDevicePtr->RsPop();
     g_theGxDevicePtr->XformSetView(s_identity);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 }
 
 // VERIFY: fc4925ef auto
@@ -471,19 +465,13 @@ void CM2SceneRender::DrawBatch() {
         batch.m_maxIndex = this->m_curSkinSection->m_vertexCount + this->m_curSkinSection->m_vertexStart - 1;
         g_theGxDevicePtr->Draw(&batch, 1);
     } else if (sharedVertices) {
-        CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-        world.m_dirty = 1;
-        world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-        world.m_mtx[world.m_level] = this->m_curModel->m_boneMatrices[0];
+        GxXformSet(GxXform_World, this->m_curModel->m_boneMatrices[0]);
 
         batch.m_minIndex = this->m_curSkinSection->m_vertexStart;
         batch.m_maxIndex = this->m_curSkinSection->m_vertexCount + this->m_curSkinSection->m_vertexStart - 1;
         g_theGxDevicePtr->Draw(&batch, 1);
 
-        CGxMatrixStack& restore = g_theGxDevicePtr->m_xforms[GxXform_World];
-        restore.m_dirty = 1;
-        restore.m_flags[restore.m_level] &= ~CGxMatrixStack::F_Identity;
-        restore.m_mtx[restore.m_level] = s_identity;
+        GxXformSet(GxXform_World, s_identity);
     } else {
         batch.m_minIndex = 0;
         batch.m_maxIndex = this->m_curSkinSection->m_vertexCount - 1;
@@ -577,10 +565,7 @@ void CM2SceneRender::DrawBatchProj() {
     this->m_scene->m_projectTextureCallback(box, imColor, this->m_curLocalLighting, this->m_scene->m_projectTextureParam, (this->m_curModel->m_runtimeFlags & M2_FLAGS::M2_FORCE_PROJECTED_TEXTURES) != 0);
     g_theGxDevicePtr->XformSetView(s_identity);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 }
 
 // VERIFY: 2ff5e9df manual
@@ -709,10 +694,7 @@ void CM2SceneRender::DrawRibbon() {
     this->m_curModel->m_ribbonEmitters[this->m_curElement->m_index]->Render(this->m_curModel->m_frameOfReference);
     g_theGxDevicePtr->XformSetView(s_identity);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 }
 
 // VERIFY: 693b5e5e manual
@@ -889,10 +871,7 @@ uint32_t CM2SceneRender::DrawParticle(uint32_t index, M2Element* elements, uint3
     emitter->Render(this->m_curModel->m_frameOfReference, nullptr, 1);
     g_theGxDevicePtr->XformSetView(s_identity);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 
     return 0;
 }
@@ -938,10 +917,7 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
 
     g_theGxDevicePtr->XformSetView(s_identity);
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = s_identity;
+    GxXformSet(GxXform_World, s_identity);
 
     GxRsSet(GxRs_DepthFunc, GxCmp_LEqual);
     GxRsSet(GxRs_PolygonOffset, 0);

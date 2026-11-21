@@ -654,10 +654,7 @@ void CGUnit_C::RenderMissileTrajectoryTargetingTexture() {
             texCoord += vehicle->m_msslTrgtArcRepeat;
         }
 
-        CGxMatrixStack& texStack = g_theGxDevicePtr->m_xforms[GxXform_Tex0];
-        texStack.m_dirty = 1;
-        texStack.m_flags[texStack.m_level] &= ~CGxMatrixStack::F_Identity;
-        texStack.m_mtx[texStack.m_level] = C44Matrix();
+        GxXformSet(GxXform_Tex0, C44Matrix());
         g_theGxDevicePtr->RsSet(GxRs_Texture0, arcTex);
         C3Vector normal(0.0f, 0.0f, 1.0f);
         GxRsSet(GxRs_TextureShader0, 1);

@@ -3566,10 +3566,7 @@ void CWorldScene::RenderDetailDoodads() {
             lighting.SetupGxLights(&CWorldScene::s_activeWorldView);
             lighting.SetupGxFog();
 
-            CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_World];
-            stack.m_dirty = 1;
-            stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-            stack.m_mtx[stack.m_level] = world;
+            GxXformSet(GxXform_World, world);
         }
 
         inst->DrawBatches();
@@ -4219,10 +4216,7 @@ void CWorldScene::SetWorldProjection(C44Matrix& mat) {
         g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 31, reinterpret_cast<const float*>(&worldView), 4);
     }
 
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level] = mat;
+    GxXformSet(GxXform_World, mat);
 }
 
 // VERIFY: 1a7d5728 manual

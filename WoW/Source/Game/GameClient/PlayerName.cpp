@@ -453,10 +453,7 @@ void PLAYERNAMEDESC::Render() {
     world.Translate(position * view);
     world *= view.Inverse(view.Determinant());
 
-    CGxMatrixStack& worldStack = g_theGxDevicePtr->m_xforms[GxXform_World];
-    worldStack.m_dirty = 1;
-    worldStack.m_flags[worldStack.m_level] &= ~CGxMatrixStack::F_Identity;
-    worldStack.m_mtx[worldStack.m_level] = world;
+    GxXformSet(GxXform_World, world);
 
     CGxBatch batch;
     batch.m_primType = GxPrim_Triangles;

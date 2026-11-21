@@ -163,10 +163,7 @@ void DayNight::DNSky::Render() {
     g_theGxDevicePtr->m_xforms[GxXform_World].Identity();
 
     C3Vector scale(6.6666665f, 6.6666665f, 6.6666665f);
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level].Scale(scale);
+    GxXformScale(GxXform_World, scale);
 
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_Lighting, 0);

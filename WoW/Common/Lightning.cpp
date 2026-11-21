@@ -854,10 +854,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
         texOffset = texOffset + length / chainEffects->m_textureLength;
     }
 
-    CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_Tex0];
-    stack.m_dirty = 1;
-    stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-    stack.m_mtx[stack.m_level] = C44Matrix(texScale, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -texOffset, 0.0f, 0.0f, 1.0f);
+    GxXformSet(GxXform_Tex0, C44Matrix(texScale, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -texOffset, 0.0f, 0.0f, 1.0f));
 
     CImVector emissive;
     emissive.b = this->m_color.b;
@@ -933,10 +930,7 @@ void CLightningManager::Render(const C3Vector& cameraPos) {
     g_theGxDevicePtr->XformPush(GxXform_Tex0);
 
     C3Vector move(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-    CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];
-    world.m_dirty = 1;
-    world.m_flags[world.m_level] &= ~CGxMatrixStack::F_Identity;
-    world.m_mtx[world.m_level].Translate(move);
+    GxXformTranslate(GxXform_World, move);
 
     g_theGxDevicePtr->RsPush();
     g_theGxDevicePtr->RsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFF000000));

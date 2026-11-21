@@ -3173,10 +3173,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
         CMapObjGroup* group = groupList[i];
         CMapObj* mapObj = group->m_parent;
         C44Matrix world = *matrix * translation;
-        CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_World];
-        stack.m_dirty = 1;
-        stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-        stack.m_mtx[stack.m_level] = world;
+        GxXformSet(GxXform_World, world);
         CWorldMath::TransformAABox(*matrix, group->m_bbox, box);
 
         if (!group->m_batchListCount || !frustum.Cull(box)) {
@@ -3258,10 +3255,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
         CMapObjGroup* group = groups[i];
         CMapObj* mapObj = group->m_parent;
         C44Matrix transform = *matrices[i] * *world;
-        CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_World];
-        stack.m_dirty = 1;
-        stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-        stack.m_mtx[stack.m_level] = transform;
+        GxXformSet(GxXform_World, transform);
 
         if (!group->m_batchListCount) {
             continue;

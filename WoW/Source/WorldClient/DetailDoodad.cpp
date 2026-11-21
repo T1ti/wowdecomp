@@ -613,10 +613,7 @@ int32_t CDetailDoodad::InitializeRenderState() {
     matrix.RotateAroundY(HALF_PI);
     matrix.Translate(C3Vector(0.0f, 0.0f, dist * -0.85f));
 
-    CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_Tex1];
-    stack.m_dirty = 1;
-    stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-    stack.m_mtx[stack.m_level] = matrix;
+    GxXformSet(GxXform_Tex1, matrix);
 
     return 0;
 }

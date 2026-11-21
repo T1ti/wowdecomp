@@ -400,10 +400,7 @@ void CShaderEffect::SetTexMtx(const C44Matrix& matrix, uint32_t stage) {
 
     GxRsSet(static_cast<EGxRenderState>(GxRs_TextureShader0 + stage), 1);
 
-    CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[stage];
-    stack.m_dirty = 1;
-    stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-    stack.m_mtx[stack.m_level] = matrix;
+    GxXformSet(static_cast<EGxXform>(stage), matrix);
 
     GxRsSet(static_cast<EGxRenderState>(GxRs_TexGen0 + stage), GxTexGen_Disabled);
 }
@@ -436,10 +433,7 @@ void CShaderEffect::SetTexMtx_TexGen(EGxTexGen texGen, const C44Matrix& matrix, 
 
     GxRsSet(static_cast<EGxRenderState>(GxRs_TextureShader0 + stage), 1);
 
-    CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[stage];
-    stack.m_dirty = 1;
-    stack.m_flags[stack.m_level] &= ~CGxMatrixStack::F_Identity;
-    stack.m_mtx[stack.m_level] = matrix;
+    GxXformSet(static_cast<EGxXform>(stage), matrix);
 
     GxRsSet(static_cast<EGxRenderState>(GxRs_TexGen0 + stage), GxTexGen_World);
 }
