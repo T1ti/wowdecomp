@@ -1759,9 +1759,7 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
             continue;
         }
 
-        if (this->GetGroup(i, 0) && CMapObj::gRenderCallback) {
-            CMapObj::gRenderCallback(i, CMapObj::gRenderUserParam);
-        }
+        this->InvokeRenderCallback(i);
     }
 }
 

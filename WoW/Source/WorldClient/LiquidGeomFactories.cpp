@@ -177,9 +177,7 @@ void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf**
 // VERIFY: ac0e5a30 manual
 // OFFSET: 0x007D4800
 Liquid::CMeshGeomFactory::~CMeshGeomFactory() {
-    if (this->m_mapObjGroup) {
-        this->m_mapObjGroup->FreeLiquidVB();
-    }
+    this->Liquid::CMeshGeomFactory::Purge();
 }
 
 // VERIFY: 2528fd80 manual
@@ -198,10 +196,7 @@ Liquid::CChunkGeomFactory::CChunkGeomFactory() {
 // VERIFY: ae53ab8b manual
 // OFFSET: 0x007D48C0
 Liquid::CChunkGeomFactory::~CChunkGeomFactory() {
-    if (this->m_buf) {
-        CMapChunkLiquidBuf::Free(this->m_buf);
-        this->m_buf = nullptr;
-    }
+    this->Liquid::CChunkGeomFactory::Purge();
 }
 
 // INLINED

@@ -704,8 +704,7 @@ void CMapChunk::Batch() {
         pos.y = this->m_aIndex.y & ~1;
         area->BatchChunks(pos);
     } else {
-        this->m_renderChunk = CMap::AllocRenderChunk();
-        this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, CMapRenderChunk::BATCH_FLAGS::BATCH_NONE);
+        this->AllocRenderChunkAndBatch();
         this->m_bLoaded = 1;
     }
 }
