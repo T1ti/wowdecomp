@@ -3469,9 +3469,9 @@ int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vect
         static CVar* s_outputQuality = CVar::Lookup("Sound_OutputQuality");
 
         if (s_outputQuality) {
-            if (s_outputQuality->m_intValue == 0) {
+            if (s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_LOW) {
                 sampleRate = 22050;
-            } else if (s_outputQuality->m_intValue == 1) {
+            } else if (s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_MEDIUM) {
                 sampleRate = 44100;
             }
         }
@@ -3479,7 +3479,7 @@ int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vect
         FMOD_DSP_RESAMPLER resampler = FMOD_DSP_RESAMPLER_LINEAR;
 
         if (s_outputQuality) {
-            resampler = static_cast<FMOD_DSP_RESAMPLER>(s_outputQuality->m_intValue == 2);
+            resampler = static_cast<FMOD_DSP_RESAMPLER>(s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_HIGH);
         }
 
         // STATIC: 0x00D43950
@@ -3489,10 +3489,10 @@ int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vect
             SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -###########################################################################################");
             SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# NOTICE:   Using Mix Mode 2.");
 
-            if (s_enableMixMode2->m_intValue == 2) {
+            if (s_enableMixMode2->m_intValue == SE2_MIX_MODE_PCM24) {
                 SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# 2 PCM24");
                 SE_ERRCHECK(s_system->setSoftwareFormat(sampleRate, FMOD_SOUND_FORMAT_PCM24, 0, 0, resampler));
-            } else if (s_enableMixMode2->m_intValue == 3) {
+            } else if (s_enableMixMode2->m_intValue == SE2_MIX_MODE_PCM32) {
                 SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# 3 PCM32");
                 SE_ERRCHECK(s_system->setSoftwareFormat(sampleRate, FMOD_SOUND_FORMAT_PCM32, 0, 0, resampler));
             } else {
@@ -3787,9 +3787,9 @@ void SE2::InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, 
         static CVar* s_outputQuality = CVar::Lookup("Sound_OutputQuality");
 
         if (s_outputQuality) {
-            if (s_outputQuality->m_intValue == 0) {
+            if (s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_LOW) {
                 outputRate = 22050;
-            } else if (s_outputQuality->m_intValue == 1) {
+            } else if (s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_MEDIUM) {
                 outputRate = 44100;
             }
         }
@@ -3797,7 +3797,7 @@ void SE2::InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, 
         FMOD_DSP_RESAMPLER resampler = FMOD_DSP_RESAMPLER_LINEAR;
 
         if (s_outputQuality) {
-            resampler = static_cast<FMOD_DSP_RESAMPLER>(s_outputQuality->m_intValue == 2);
+            resampler = static_cast<FMOD_DSP_RESAMPLER>(s_outputQuality->m_intValue == SE2_OUTPUT_QUALITY_HIGH);
         }
 
         CVar* enableMixMode2 = CVar::Lookup("Sound_EnableMixMode2");
@@ -3806,10 +3806,10 @@ void SE2::InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, 
             SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -###########################################################################################");
             SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# NOTICE:   Using Mix Mode 2.");
 
-            if (enableMixMode2->m_intValue == 2) {
+            if (enableMixMode2->m_intValue == SE2_MIX_MODE_PCM24) {
                 SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# 2 PCM24");
                 SE_ERRCHECK(s_system->setSoftwareFormat(outputRate, FMOD_SOUND_FORMAT_PCM24, 0, 0, resampler));
-            } else if (enableMixMode2->m_intValue == 3) {
+            } else if (enableMixMode2->m_intValue == SE2_MIX_MODE_PCM32) {
                 SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " -# 3 PCM32");
                 SE_ERRCHECK(s_system->setSoftwareFormat(outputRate, FMOD_SOUND_FORMAT_PCM32, 0, 0, resampler));
             } else {

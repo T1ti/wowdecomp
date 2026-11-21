@@ -40,6 +40,22 @@ enum SE2_MAX_AUDIBLE_BEHAVIOR : int32_t {
     SE2_MAX_AUDIBLE_FAIL = 2,
 };
 
+// Sound_OutputQuality values ("sound quality, default 1 (medium)"); LOW/HIGH inferred from the
+// sample rate (22050 for 0, 44100 for 1) and the linear resampler picked only for 2.
+enum SE2_OUTPUT_QUALITY : int32_t {
+    SE2_OUTPUT_QUALITY_LOW = 0,
+    SE2_OUTPUT_QUALITY_MEDIUM = 1,
+    SE2_OUTPUT_QUALITY_HIGH = 2,
+};
+
+// Sound_EnableMixMode2 values, from the " -# n <format>" log lines; 0 leaves mix mode 2 off.
+enum SE2_MIX_MODE : int32_t {
+    SE2_MIX_MODE_OFF = 0,
+    SE2_MIX_MODE_PCMFLOAT = 1,
+    SE2_MIX_MODE_PCM24 = 2,
+    SE2_MIX_MODE_PCM32 = 3,
+};
+
 struct SEDriverInfo {
     /* 0000 */ char m_name[256];
 };
