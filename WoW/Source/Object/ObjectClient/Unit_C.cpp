@@ -7191,7 +7191,7 @@ PetPersonalityRec* CGUnit_C::GetPetPersonality() const {
         return nullptr;
     }
 
-    return g_petPersonalityDB.GetRecord(1);
+    return g_petPersonalityDB.GetRecord(PET_PERSONALITY_ID_STANDARD);
 }
 
 // VERIFY: 1beb8441 auto

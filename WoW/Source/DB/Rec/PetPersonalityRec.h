@@ -6,6 +6,11 @@
 
 class SFileImpl;
 
+// PetPersonality.dbc record IDs the client selects directly, named from their m_name.
+enum PET_PERSONALITY_ID : int32_t {
+    PET_PERSONALITY_ID_STANDARD = 1, // "Personality: Standard"
+};
+
 class PetPersonalityRec {
     public:
     static const int32_t s_numColumns = 24;

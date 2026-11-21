@@ -28,6 +28,7 @@
 #include "WoW/Source/DB/Rec/ItemSetRec.h"
 #include "WoW/Source/DB/Rec/ItemSubClassRec.h"
 #include "WoW/Source/DB/Rec/MapRec.h"
+#include "WoW/Source/DB/Rec/SoundEntriesRec.h"
 #include "WoW/Source/DB/Rec/SpellCastTimesRec.h"
 #include "WoW/Source/DB/Rec/SpellRec.h"
 #include "WoW/Source/DB/Rec/SpellVisualKitRec.h"
@@ -9188,7 +9189,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             msg->Get(binder.m_guid);
             msg->Get(areaId);
             s_lastBinderGuid = binder;
-            SI2::PlaySoundKit(0x475, nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
+            SI2::PlaySoundKit(SOUND_ENTRY_ID_DEATHBIND, nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
             AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
 
             if (area) {
@@ -12116,9 +12117,9 @@ int32_t OnUpdateShapeshiftForm(WOWGUID guid, uint32_t offset, uint32_t count, co
                     properties.ResetToDefaults();
                     properties.m_volumeScale = listenerAtCharacter ? 0.65f : 1.0f;
                     properties.m_priority = 110;
-                    SI2::PlaySoundKit(10063, listenerAtCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
+                    SI2::PlaySoundKit(SOUND_ENTRY_ID_DRUID_MORPH_IMPACT_BASE, listenerAtCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
                 } else {
-                    SI2::PlaySoundKit(10063, &position, nullptr, nullptr, 0, nullptr, 1, 0);
+                    SI2::PlaySoundKit(SOUND_ENTRY_ID_DRUID_MORPH_IMPACT_BASE, &position, nullptr, nullptr, 0, nullptr, 1, 0);
                 }
             }
         }

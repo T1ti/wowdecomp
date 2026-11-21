@@ -6,6 +6,11 @@
 
 class SFileImpl;
 
+// SpellIcon.dbc record IDs the client selects directly, named from their texture file.
+enum SPELL_ICON_ID : int32_t {
+    SPELL_ICON_ID_SACRIFICIAL_SHIELD = 693, // "Interface\Icons\Spell_Shadow_SacrificialShield"
+};
+
 class SpellIconRec {
     public:
     static const int32_t s_numColumns = 2;

@@ -352,7 +352,7 @@ static int32_t Script_GetPossessInfo(lua_State* L) {
                 return 3;
             }
         } else if (index == 2) {
-            SpellIconRec* icon = g_spellIconDB.GetRecord(693);
+            SpellIconRec* icon = g_spellIconDB.GetRecord(SPELL_ICON_ID_SACRIFICIAL_SHIELD);
 
             if (icon) {
                 lua_pushstring(L, icon->m_textureFilename);
