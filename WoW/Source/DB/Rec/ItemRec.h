@@ -8,6 +8,12 @@
 class SFileImpl;
 enum INVENTORY_TYPES : int32_t;
 
+// Item IDs the client tests directly. Item.dbc has no names; HEARTHSTONE is named
+// from the TUTORIAL_HEARTHSTONES trigger in CGGameUI.
+enum ITEM_ID : int32_t {
+    ITEM_ID_HEARTHSTONE = 6948,
+};
+
 class ItemRec {
     public:
     static const int32_t s_numColumns = 8;

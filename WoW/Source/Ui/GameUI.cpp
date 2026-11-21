@@ -2,6 +2,7 @@
 #include "Engine/Source/Tempest/Color.h"
 #include "WoW/Common/Types.h"
 #include "WoW/Source/DB/Rec/FileDataRec.h"
+#include "WoW/Source/DB/Rec/ItemRec.h"
 #include "WoW/Source/DB/Rec/MovieFileDataRec.h"
 #include "WoW/Source/DB/Rec/MovieRec.h"
 #include "WoW/Source/DB/Rec/MovieVariationRec.h"
@@ -3554,7 +3555,7 @@ void OnItemPushResult(WOWGUID guid, uint8_t bag, uint32_t slot, uint32_t itemId,
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_KEYRING);
         }
 
-        if (itemId == 6948) {
+        if (itemId == ITEM_ID_HEARTHSTONE) {
             CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_HEARTHSTONES);
         }
 
