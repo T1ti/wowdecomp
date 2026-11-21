@@ -8971,6 +8971,13 @@ static const UIErrors s_mountResultErrors[] = { ERR_MOUNT_INVALIDMOUNTEE, ERR_MO
 static const UIErrors s_dismountResultErrors[] = { ERR_DISMOUNT_NOPET, ERR_DISMOUNT_NOTMOUNTED, ERR_DISMOUNT_NOTYOURPET, ERR_MAX_VALUE };
 
 // STATIC: 0x00A32618
+// SMSG_REPORT_PVP_AFK_RESULT results the client acts on; names inferred from the
+// PVP_REPORT_AFK_SYSTEM_ENABLED/DISABLED text each one prints.
+enum PVP_REPORT_AFK_RESULT : uint8_t {
+    PVP_REPORT_AFK_SYSTEM_ENABLED = 5,
+    PVP_REPORT_AFK_SYSTEM_DISABLED = 6,
+};
+
 static const UIErrors s_buyBankSlotErrors[] = { ERR_BANKSLOT_FAILED_TOO_MANY, ERR_BANKSLOT_INSUFFICIENT_FUNDS, ERR_BANKSLOT_NOTBANKER };
 
 // VERIFY: eb850af4 auto
@@ -9740,7 +9747,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             msg->Get(guid.m_guid);
             const char* text;
 
-            if (result == 5) {
+            if (result == PVP_REPORT_AFK_SYSTEM_ENABLED) {
                 if (g_enablePVPNotifyAFKCVar->m_intValue) {
                     return 1;
                 }
@@ -9748,7 +9755,7 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
                 g_enablePVPNotifyAFKCVar->Set(1, true, false, false, true);
                 text = FrameScript_GetText("PVP_REPORT_AFK_SYSTEM_ENABLED", -1, GENDER_NOT_APPLICABLE);
             } else {
-                if (result != 6 || !g_enablePVPNotifyAFKCVar->m_intValue) {
+                if (result != PVP_REPORT_AFK_SYSTEM_DISABLED || !g_enablePVPNotifyAFKCVar->m_intValue) {
                     return 1;
                 }
 
