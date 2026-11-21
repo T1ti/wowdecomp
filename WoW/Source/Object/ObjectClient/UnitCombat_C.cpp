@@ -207,7 +207,7 @@ void CGUnit_C::PlayRangedItemPull() {
     M2BoneSequenceInfo info;
     info.m_sequenceId = INVALID_ANIMATION;
 
-    if (this->m_torsoKeyBone == 4) {
+    if (this->m_torsoKeyBone == KEY_BONE_SPINE_LOW) {
         this->m_worldModel->GetBoneSequenceInfo(KEY_BONE_SPINE_LOW, info);
 
         if (info.m_sequenceId == INVALID_ANIMATION) {
