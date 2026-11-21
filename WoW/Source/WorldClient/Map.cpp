@@ -791,7 +791,7 @@ void CMap::Initialize() {
 
     int32_t vendor;
 
-    if (OsGetProcessorFeaturesEx(vendor) & 0x4) {
+    if (OsGetProcessorFeaturesEx(vendor) & OS_PROCESSOR_FEATURE_SSE) {
         CMap::s_useSSE = 1;
     }
 }
