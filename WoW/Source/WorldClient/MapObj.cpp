@@ -1136,7 +1136,7 @@ void CMapObj::RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<
     CMapObjGroup* group = this->GetGroup(groupIndex, 0);
     DebugLog("%s %s", this->m_wmoName, group->m_groupName);
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED)) {
         this->AttenTransVerts(group);
     }
 
@@ -1904,7 +1904,7 @@ void CMapObj::Clear() {
 // OFFSET: 0x007AE4C0
 BOOL CMapObj::IsGroupLoaded(int32_t index) {
     if (this->m_isGroupLoaded) {
-        return this->m_mapObjGroupArray[index]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED;
+        return this->m_mapObjGroupArray[index]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED;
     }
 
     return 0;
@@ -2018,13 +2018,13 @@ bool CMapObj::TestBounds(C3Vector& start, C3Vector& end) {
 // VERIFY: 735b2379 auto
 // OFFSET: 0x007AE880
 bool CMapObj::TestGroupBounds(C3Vector& start, C3Vector& end, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
+    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
 }
 
 // VERIFY: 6fd4dc44 auto
 // OFFSET: 0x007AE970
 bool CMapObj::GroupBoundingBoxIntersectsSphere(C3Vector& pos, uint32_t groupNum, float radius) {
-    if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
     }
 
@@ -2046,7 +2046,7 @@ CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
 
     CMapObjGroup* group = this->m_mapObjGroupArray[index];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !allowUnloaded) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !allowUnloaded) {
         return nullptr;
     }
 
@@ -2069,7 +2069,7 @@ char* CMapObj::GetGroupName(int32_t index) {
     if (this->m_isGroupLoaded) {
         CMapObjGroup* group = this->m_mapObjGroupArray[index];
 
-        if (group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) {
+        if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) {
             return group->m_groupName;
         }
     }
@@ -2126,7 +2126,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
         if (useSphere) {
             hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.01f);
         } else {
-            if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[g]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+            if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[g]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
                 continue;
             }
 
@@ -2139,7 +2139,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
 
         CMapObjGroup* group = this->m_mapObjGroupArray[g];
 
-        if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             continue;
         }
 
@@ -2433,7 +2433,7 @@ bool CMapObj::QueryLiquidStatus(uint32_t ignoreFlags, const C3Vector& pos, int32
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && group->QueryLiquid(pos, liquidType, level)) {
+        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && group->QueryLiquid(pos, liquidType, level)) {
             return true;
         }
     }
@@ -2753,7 +2753,7 @@ bool CMapObj::GetTris(const CAaBox& box, uint32_t flags, World::TriData* triData
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
+        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(box, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -2779,7 +2779,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
+        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
             result |= group->GetLiquidFacets(box, flags, facets, mapObjDef);
         }
     }
@@ -2790,7 +2790,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 // VERIFY: d6cd6b2c auto
 // OFFSET: 0x007AE920
 bool CMapObj::TestGroupBounds(const C3Vector& point, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
+    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
 }
 
 // VERIFY: 15693e65 auto
@@ -2802,7 +2802,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
     }
 
@@ -2815,7 +2815,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 // VERIFY: d090e248 manual
 // OFFSET: 0x007AE8D0
 bool CMapObj::TestGroupBounds(CAaBox& box, uint32_t groupNum, BOOL requireLoaded) {
-    return (!requireLoaded || (this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
+    return (!requireLoaded || (this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
 }
 
 // VERIFY: aacb9f67 manual
@@ -2827,7 +2827,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Vector& point, uint16_t f
 
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
     }
 
@@ -2845,7 +2845,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
 
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
     }
 
@@ -2880,7 +2880,7 @@ bool CMapObj::GetTris(const CWFrustum& frustum, uint32_t flags, World::TriData* 
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if ((group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
+        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(frustum, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -3001,7 +3001,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return;
     }
 
@@ -3050,7 +3050,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
         CMapObjGroup* targetGroup;
 
-        if (!this->m_isGroupLoaded || !((targetGroup = this->m_mapObjGroupArray[target])->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
+        if (!this->m_isGroupLoaded || !((targetGroup = this->m_mapObjGroupArray[target])->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
             this->QueryMapObjMinimapGroup(target, groupNum, box, quads, maxQuads, inside, flagsMask, ++depth);
         }
     }
@@ -3068,7 +3068,7 @@ bool CMapObj::QueryMapObjMinimap(int32_t groupNum, CAaBox* box, TSStackArray<MIN
     CAaBox query = *box;
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
     }
 
@@ -3093,7 +3093,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
 
     CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
 
-    if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
     }
 
@@ -3113,7 +3113,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
     for (int32_t i = 0; i < group->m_portalCount; i++, ref++) {
         SMOPortal& portal = this->m_portalList[ref->m_portalIndex];
 
-        if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[ref->m_groupIndex]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[ref->m_groupIndex]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             continue;
         }
 
@@ -3184,7 +3184,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
         group->SetVertexVB();
         CShaderEffect::UpdateWorldViewMatrix();
 
-        if (group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE) {
+        if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE) {
             CShaderEffect::SetAlphaRef(0.0f);
             CShaderEffect::SetDefaultShaders(0);
             GxRsSet(GxRs_Texture0, 0);
@@ -3278,7 +3278,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
         indexBuf->m_hasData = 1;
         g_theGxDevicePtr->PrimIndexPtr(indexBuf);
 
-        if (group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE) {
+        if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE) {
             GxRsSet(GxRs_Texture0, static_cast<void*>(nullptr));
             CGxBatch batch;
             batch.m_primType = GxPrim_Triangles;
@@ -3334,7 +3334,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
 
         CMapObjGroup* group = this->m_mapObjGroupArray[i];
 
-        if (!(group->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (groupIgnoreFlags & group->m_flags)) {
+        if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (groupIgnoreFlags & group->m_flags)) {
             continue;
         }
 
@@ -4028,7 +4028,7 @@ BOOL CMapObj::IsAllLoaded() {
     }
 
     for (int32_t i = 0; i < this->m_groupInfoCount; i++) {
-        if (!(this->m_mapObjGroupArray[i]->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!(this->m_mapObjGroupArray[i]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             return 0;
         }
     }

@@ -277,7 +277,7 @@ class CMapObjGroup {
     /* 018C */ CMapObj* m_parent;
     /* 0190 */ float unused_0190;
     /* 0194 */ CAsyncObject* m_asyncObjPtr;
-    /* 0198 */ uint32_t m_unkLoadedFlag;
+    /* 0198 */ uint32_t m_runtimeFlags; // RUNTIME_FLAGS
     /* 019C */ uint32_t m_indexMin;
     /* 01A0 */ uint32_t m_indexMax;
     /* 01A4 */ uint16_t m_vertexMin;
