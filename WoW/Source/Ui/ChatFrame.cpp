@@ -4467,7 +4467,7 @@ void CGChat::SetGuildRecruitmentMode(int32_t mode, bool fromJoin) {
         return;
     }
 
-    if (mode == 1) {
+    if (mode == CGChat::GUILD_RECRUITMENT_AUTO) {
         CGChat::UpdateGuildStatus();
     } else if (!fromJoin && FindGuildRecruitmentChannel()) {
         InternalLeaveChannel(s_recruitmentChannelName, false, true);
