@@ -45,6 +45,10 @@ void CollisionInfoAddVector(const C3Vector& start, const C3Vector& end);
 int32_t ToggleCollisionInfo();
 void RenderCollisionInfo();
 
+// Object/ObjectClient/Unit_C_Debug.cpp: the DebugTargetPath ground circles queued this frame (from
+// CGWorldFrame::OnWorldRender, after the selection circles).
+void RenderDebugPathingCircles();
+
 // Object/ObjectClient/Unit_C_Debug.cpp
 void UnitDebugRegisterConsoleCommands();
 void UnitCombatDebugLogEnable(BOOL enable);

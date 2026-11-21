@@ -1811,6 +1811,10 @@ void CGWorldFrame::OnWorldRender() {
     SpellVisualsRender();
     CGUnit_C::RenderMissileTrajectoryTargetingTexture();
     this->ClearTrackedObjects();
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the DebugTargetPath ground circles, projected like the selection circles just drawn.
+    RenderDebugPathingCircles();
+#endif
     CWorldScene::RenderParticulate();
     GxuSortDrawList(GxuCat_1, GxuSort_B2F, *World::GetCamPos());
     GxuFlushDrawList(GxuCat_1, *World::GetCamPos());

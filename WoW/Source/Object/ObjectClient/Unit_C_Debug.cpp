@@ -10,6 +10,10 @@
 #include "WoW/Source/Object/CMoveSpline.h"
 #include "WoW/Source/Object/ObjectClient/Movement_C.h"
 #include "WoW/Source/Ui/GameUI.h"
+#include "WoW/Source/Game/GameClient/ProjectTex.h"
+#include "WoW/Source/WorldClient/World.h"
+#include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
+#include "Engine/Source/Tempest/CAaBox.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
@@ -82,28 +86,89 @@ void UnitDebugCombatLogOnEnable(BOOL enable) {
 }
 
 // Debug feature: unit pathing display.
-// 0.5.3 reference: CGUnit_C::RenderDebugPathing (0x005FD3E0).
+// 0.5.3 reference: CGUnit_C::RenderDebugPathing (0x005FD3E0), fed by CGUnit_C::OnMonsterMove (0x005F8EF0).
 //
-// 0.5.3 drew the path the server sent for debugging (m_debugPathPoints, m_numDebugPathNodes, from a debug opcode): a
-// green solid sphere of radius 0.5 (ModelCreateSolidSphere) at each path node and a white line strip through the
-// remaining points, while the unit followed a spline; otherwise a green ground square at the server location
-// (m_serverLoc) and red squares at the path points (ProjectTex2d).
+// 0.5.3 kept the path of every SMSG_MONSTER_MOVE in the unit (m_debugPathPoints, m_numDebugPathNodes, m_serverLoc):
+// OnMonsterMove stored the spline's control points (with its lead-in points: one behind the unit, then the unit), and
+// for a flying spline (move flag 0x200, the Catmull-Rom splines taxi flights use) appended the unit position and the
+// curve itself, sampled with C3Spline::Frame by arc length every 1 / (3 x length), about every third of a yard.
+// RenderDebugPathing then drew, with DebugTargetPath set:
+//   - flying spline in progress: a green solid sphere of radius 0.5 (ModelCreateSolidSphere, CImVector 0xFF00FF00)
+//     at each control point, and a white line strip (GxPrim_LineStrip, depth tested) through the sampled curve;
+//   - otherwise (ground moves, or the unit stopped): projected selection circles (SetCircleRenderStates +
+//     ProjectTex2d, 1 x 1 yard, 2 yards deep, fade 0.5), green at the server location and red at each path point,
+//     so they lie on the ground.
 //
-// 3.3.5 has neither the debug opcode nor m_serverLoc, but every unit following a server path keeps it as its movement
-// spline (CMoveSpline, the points of SMSG_MONSTER_MOVE). So this draws that spline the 0.5.3 way: green spheres at the
-// spline's points and a white line strip through them, plus a yellow line from the unit to the spline's final
-// destination. Spline points of a unit on a transport are transport-local and are moved to world space with the
-// transport matrix. There is nothing to draw while the unit has no active spline (the 0.5.3 server-location branch).
-//
-// 0.5.3 drew the strip with the world's depth test on, through the server's dense path points, so it followed the
-// ground. A 3.3.5 spline has only its sparse control points, and a straight segment between two of them passes under
-// any rise of the terrain in between. So each segment is drawn twice: depth tested at full strength, as in 0.5.3, and
-// again faint without depth test, so the stretches the terrain hides stay visible (port choice). The spheres stay
-// depth tested; centered on ground-level points they show as half spheres, as in 0.5.3.
-static void DrawPathSegment(const C3Vector& start, const C3Vector& end, CImVector color) {
-    GxuDebugDrawLine(start, end, color, GXUDEBUGSTYLE_SOLID);
-    color.a = 0x50;
-    GxuDebugDrawLine(start, end, color, GXUDEBUGSTYLE_SOLID_NODEPTH);
+// 3.3.5 keeps no copy of the move, but the unit's movement spline (CMoveSpline, built from the same message) holds the
+// same control points and the same Catmull-Rom curve (C3Spline_CatmullRom in MODE_CATMULLROM for flying splines,
+// MODE_LINEAR for ground ones), so this draws from it: spheres and the sampled curve through the Gxu debug-draw module
+// for a Catmull-Rom spline, projected circles for a linear one (queued here, drawn by RenderDebugPathingCircles during
+// the world render, where the client draws its selection circles). The server location is the spline's first point.
+// There is nothing to draw once the spline is done: 3.3.5 does not keep the last path of a stopped unit. Spline points
+// of a unit on a transport are transport-local and are moved to world space with the transport matrix.
+
+// The sampled curve of a flying spline, kept while the same spline (unit, spline id, point count) is shown: 0.5.3
+// sampled once per move message, and a taxi flight's curve runs to thousands of samples.
+struct DebugPathCurve {
+    WOWGUID m_guid;
+    uint32_t m_splineId;
+    uint32_t m_pointCount;
+    TSGrowableArray<C3Vector> m_samples;
+};
+
+static const uint32_t DEBUG_PATH_CURVES = 4; // locked target and player, with room to spare
+static const uint32_t DEBUG_PATH_MAX_SAMPLES = 0x4000; // port cap (0.5.3 had none)
+static DebugPathCurve s_debugPathCurves[DEBUG_PATH_CURVES];
+static uint32_t s_debugPathCurveNext;
+
+static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid, CMoveSpline* spline) {
+    C3Spline_CatmullRom& path = spline->m_spline;
+
+    for (uint32_t i = 0; i < DEBUG_PATH_CURVES; i++) {
+        DebugPathCurve& curve = s_debugPathCurves[i];
+
+        if (curve.m_guid == guid && curve.m_splineId == spline->m_id && curve.m_pointCount == path.m_pointCount) {
+            return curve.m_samples;
+        }
+    }
+
+    DebugPathCurve& curve = s_debugPathCurves[s_debugPathCurveNext];
+    s_debugPathCurveNext = (s_debugPathCurveNext + 1) % DEBUG_PATH_CURVES;
+    curve.m_guid = guid;
+    curve.m_splineId = spline->m_id;
+    curve.m_pointCount = path.m_pointCount;
+    curve.m_samples.SetCount(0);
+
+    // C3Spline::SetPoints computes the length only for more than 3 points; with fewer the curve is not evaluated.
+    if (path.m_pointCount <= 3 || path.cachedLength <= 0.0f) {
+        return curve.m_samples;
+    }
+
+    float step = 1.0f / (path.cachedLength * 3.0f);
+
+    if (step < 1.0f / DEBUG_PATH_MAX_SAMPLES) {
+        step = 1.0f / DEBUG_PATH_MAX_SAMPLES;
+    }
+
+    for (float t = 0.0f; t < 1.0f; t += step) {
+        path.Pos(t, *curve.m_samples.New(), C3Spline::EVAL_ARCLENGTH);
+    }
+
+    return curve.m_samples;
+}
+
+// Circles queued for this frame's world render.
+struct DebugPathCircle {
+    C3Vector m_position;
+    CImVector m_color;
+};
+
+static TSGrowableArray<DebugPathCircle> s_debugPathCircles;
+
+static void QueueDebugPathCircle(const C3Vector& position, uint32_t argb) {
+    DebugPathCircle* circle = s_debugPathCircles.New();
+    circle->m_position = position;
+    *reinterpret_cast<uint32_t*>(&circle->m_color) = argb;
 }
 
 void CGUnit_C::RenderDebugPathing() {
@@ -123,10 +188,23 @@ void CGUnit_C::RenderDebugPathing() {
     C44Matrix transport;
     bool onTransport = this->m_movementData.m_transportGuid && MovementGetTransportMtxSafe(this->m_movementData.m_transportGuid, &transport);
 
+    if (path.GetSplineMode() != MODE_CATMULLROM) {
+        // Ground move: a green circle at the server location, red circles at the path points.
+        for (uint32_t i = 0; i < count; i++) {
+            C3Vector point = path.Point(i);
+
+            if (onTransport) {
+                point = point * transport;
+            }
+
+            QueueDebugPathCircle(point, i ? 0xFFFF0000 : 0xFF00FF00);
+        }
+
+        return;
+    }
+
     CImVector green(0x00, 0xFF, 0x00, 0xFF);
     CImVector white(0xFF, 0xFF, 0xFF, 0xFF);
-    CImVector yellow(0x00, 0xFF, 0xFF, 0xFF);
-    C3Vector previous;
 
     for (uint32_t i = 0; i < count; i++) {
         C3Vector point = path.Point(i);
@@ -143,21 +221,47 @@ void CGUnit_C::RenderDebugPathing() {
         sphere.d1 = point.y;
         sphere.d2 = point.z;
         GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, sphere, green, GXUDEBUGSTYLE_SOLID);
+    }
 
-        if (i) {
-            DrawPathSegment(previous, point, white);
+    // The line strip: the unit, then the curve (0.5.3 appended the unit position before the samples).
+    const TSGrowableArray<C3Vector>& samples = SampleDebugPathCurve(this->m_obj->m_guid, spline);
+    C3Vector previous = this->GetPosition();
+
+    for (uint32_t i = 0; i < samples.m_count; i++) {
+        C3Vector point = samples.m_data[i];
+
+        if (onTransport) {
+            point = point * transport;
         }
 
+        GxuDebugDrawLine(previous, point, white, GXUDEBUGSTYLE_SOLID);
         previous = point;
     }
+}
 
-    C3Vector destination = spline->m_finalDestination;
-
-    if (onTransport) {
-        destination = destination * transport;
+// The 0.5.3 circles: SetCircleRenderStates and a projected 1 x 1 yard box, 2 yards deep, centered on the point (0.5.3
+// built it from the point minus (0.5, 0.5, 1) to the point plus (0.5, 0.5, 1)), fade 0.5. ProjectTex::Render2d is the
+// 3.3.5 form of ProjectTex2d; its query and polygon offset are the ones the selection circles use. Called by
+// CGWorldFrame::OnWorldRender right after the selection circles.
+void RenderDebugPathingCircles() {
+    if (!s_debugPathCircles.m_count) {
+        return;
     }
 
-    DrawPathSegment(this->GetPosition(), destination, yellow);
+    g_theGxDevicePtr->RsPush();
+
+    if (CGObject_C::SetCircleRenderStates()) {
+        for (uint32_t i = 0; i < s_debugPathCircles.m_count; i++) {
+            const DebugPathCircle& circle = s_debugPathCircles.m_data[i];
+            CAaBox box;
+            box.b = C3Vector(circle.m_position.x - 0.5f, circle.m_position.y - 0.5f, circle.m_position.z - 1.0f);
+            box.t = C3Vector(circle.m_position.x + 0.5f, circle.m_position.y + 0.5f, circle.m_position.z + 1.0f);
+            ProjectTex::Render2d(box, circle.m_color, nullptr, 0.5f, WORLD_QUERY_RENDER_MASK, PROJECT_TEX_NONE, 0.4f);
+        }
+    }
+
+    g_theGxDevicePtr->RsPop();
+    s_debugPathCircles.SetCount(0);
 }
 
 // Port: the 0.5.3 CGObject_C::PreAnimate condition, called from CGUnit_C::PreAnimate. With DebugTargetPath set, 0.5.3
