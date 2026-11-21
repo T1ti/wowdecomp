@@ -97,7 +97,7 @@ void CGEquipmentManager::CreateEquipmentSet(const char* name, const char* icon) 
         count++;
     }
 
-    if (count >= 10 || CGEquipmentManager::HasSet(name)) {
+    if (count >= MAX_EQUIPMENT_SETS_PER_PLAYER || CGEquipmentManager::HasSet(name)) {
         return;
     }
 
@@ -218,7 +218,7 @@ int32_t CGEquipmentManager::GetNextFreeSetID() {
 
     while (node) {
         if (node->m_set->m_id == id) {
-            if (++id >= 10) {
+            if (++id >= MAX_EQUIPMENT_SETS_PER_PLAYER) {
                 return -1;
             }
 
@@ -304,7 +304,7 @@ bool CGEquipmentManager::CanCreateSet() {
         count++;
     }
 
-    return count < 10;
+    return count < MAX_EQUIPMENT_SETS_PER_PLAYER;
 }
 
 // VERIFY: 816e8bf2 manual
@@ -332,7 +332,7 @@ int32_t Packet_SMSG_EQUIPMENT_SET_LIST(void* param, NETMESSAGE msgId, uint32_t t
         CGEquipmentManager::s_equipmentSets.Clear();
     }
 
-    for (int32_t i = 0; i < static_cast<int32_t>(count) && i < 10; i++) {
+    for (int32_t i = 0; i < static_cast<int32_t>(count) && i < MAX_EQUIPMENT_SETS_PER_PLAYER; i++) {
         EQUIPMENT_SET* set = nullptr;
         uint32_t handle;
         void* object = nullptr;

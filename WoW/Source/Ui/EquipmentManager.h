@@ -10,6 +10,9 @@
 class CDataStore;
 struct lua_State;
 
+// FrameXML MAX_EQUIPMENT_SETS_PER_PLAYER.
+constexpr int32_t MAX_EQUIPMENT_SETS_PER_PLAYER = 10;
+
 struct EQUIPMENT_SET {
     /* 0000 */ uint32_t m_handle;
     /* 0004 */ uint32_t unused_0004;
