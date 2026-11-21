@@ -358,6 +358,9 @@ float GxuTriangleShapeFactory::GetRadius() const {
 // The sphere grid with the z of rings 0 to 2 doubled: those three rings sit around the +z pole with radii 0, 0.098 and
 // 0.195, so doubling their height pulls them out into a thin spike reaching z=2 (hence the radius of 2). The indices
 // and LOD selection are the sphere's.
+//
+// Blizzard's world editor draws it translucent cyan, centered on the ground with the spike along the facing, to mark a
+// spawn point: the ground hides the lower half, leaving a dome with a pointer.
 
 void GxuDirectionalSphereShapeFactory::WriteVertices(C3Vector* vertices) const {
     for (uint32_t ring = 0; ring < this->m_rings; ring++) {
@@ -385,7 +388,7 @@ float GxuDirectionalSphereShapeFactory::GetRadius() const {
 //
 // A unit-radius band around the z axis: 32 vertex pairs at angle k * pi/16, (cos, sin, 2) and (cos, sin, -2). Each
 // quad between neighbouring pairs is written with both windings, so the band shows from inside and outside under
-// culling. The band is 4 units tall; a gizmo flattens it into a ring with its transform's z scale.
+// culling. The band is 4 units tall; the editor's rotate gizmo flattens it into a ring with its transform's z scale.
 //
 // 4.1 writes 384 indices (32 quads x 12) but GetNumIndices returns 192, which as an index count covers only the first
 // 16 quads, half the ring. 4.1's draw loop is stripped, so whether that half ring was intended cannot be checked; this
@@ -442,6 +445,8 @@ float GxuRotationRingShapeFactory::GetRadius() const {
 //
 // An octahedron squashed into an arrowhead: tip at z=1, back point at z=-0.25, and a waist at z=0 that is 1 wide along
 // x and 0.5 along y. Eight faces, one winding.
+//
+// Blizzard's world editor draws it at path points (flying paths among them), pointing along the path.
 
 void GxuDirectionalDiamondShapeFactory::WriteVertices(C3Vector* vertices) const {
     vertices[0] = C3Vector(0.0f, 0.0f, 1.0f);
@@ -701,6 +706,12 @@ void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objec
 
 static const uint32_t PRIM_BATCH_VERTICES = 0xC000; // a multiple of 2 and 3
 
+// Port: depth bias for depth-tested lines and triangles, in GxRs_PolygonOffset units (1/65536 of the depth range; the D3D
+// device sends it negated as D3DRS_DEPTHBIAS, the GL device as glPolygonOffset(-4, -value * 65536)). Debug prims mostly
+// trace existing surfaces (collision meshes lying on the model they collide for, paths on the ground) and would
+// otherwise z-fight with them. Same order of size as the 3.3.5 shadow bias (2 * 3.0518044e-05 per unit).
+static const float PRIM_DEPTH_BIAS = 2.0f / 65536.0f;
+
 template <class T>
 static void DrawPrimBatches(const TSGrowableArray<T>& objects, GXUDEBUGPHASE phase, bool filled, EGxPrim primType) {
     static TSGrowableArray<C3Vector> s_positions;
@@ -750,6 +761,10 @@ static void DrawPrimBatches(const TSGrowableArray<T>& objects, GXUDEBUGPHASE pha
             GxuDebugShapeRenderStateBlock* block = GxuDebugShapeDrawer::GetStateBlock(static_cast<GXUDEBUGSTYLE>(style));
             block->Apply();
             g_theGxDevicePtr->RsSet(GxRs_Culling, 0);
+
+            if (phase != GXUDEBUGPHASE_NO_DEPTH) {
+                g_theGxDevicePtr->RsSet(GxRs_PolygonOffset, PRIM_DEPTH_BIAS);
+            }
 
             if (phase == GXUDEBUGPHASE_OPAQUE) {
                 g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);

@@ -12,7 +12,7 @@
 // What 4.1 retail kept, and therefore what is known:
 //   - GxuBufferCache in full (CreateBuffer, Exists, AcquireBuffer, ReleaseBuffer, ReleaseCache).
 //   - shape factories (IGxuDebugShapeFactory: CreateVertexBuffer, CreateIndexBuffer, GetNumVertices, GetNumIndices,
-//     GetRadius, GetIdxOffset, SetLOD): Null, Box, Sphere, Cone, Triangle, and the editor gizmos DirectionalSphere,
+//     GetRadius, GetIdxOffset, SetLOD): Null, Box, Sphere, Cone, Triangle, and the editor shapes DirectionalSphere,
 //     RotationRing, DirectionalDiamond, with their exact geometry. Shapes are unit sized and placed by a transform.
 //   - four render-state blocks on GxuDebugShapeDrawer: s_renderStateBlockSolid, SolidBackfacing, SolidNoDepth,
 //     Wireframe (GxuDebugShapeRenderStateBlock / ...NoDepth::Apply, Restore). The 4.1 EGxRenderState values they
@@ -34,8 +34,11 @@
 //     vertices. Textures draw as a fixed-function textured quad;
 //   - text uses GxuFont string batches. Text and textures use a 0..1 screen space with its origin at the top left
 //     (4.1 GxuDebugTextureDrawer::Draw sets GxuXformCreateOrtho(0, 1, 1, 0, -1, 1)).
-// The editor gizmo shapes (DirectionalSphere, RotationRing, DirectionalDiamond) are ported with the others; the
-// editors that would place them (4.x tools) are not part of this client, so only debugDrawTest shows them.
+// The editor shapes (DirectionalSphere, RotationRing, DirectionalDiamond) are ported with the others. Screenshots of
+// Blizzard's world editor show what they are for: the directional sphere, translucent cyan and centered on the ground,
+// marks a spawn point and its facing; the directional diamond marks a (flying) path point and its direction; the
+// rotation ring is the rotate gizmo around a selected object. The editor is not part of this client, so only
+// debugDrawTest shows them.
 //
 // Port addition: line objects (GxuDebugDrawLine). 4.1 has no line shape; the 3.3.5 overlays that need lines (collision
 // info normals, unit pathing) draw GxPrim_Lines batches by hand, which is what the line drawer does too.
@@ -66,11 +69,11 @@ enum GXUDEBUGSHAPE : int32_t {
     GXUDEBUGSHAPE_SPHERE = 2, // unit radius, three LODs (GxuSphereShapeFactory)
     GXUDEBUGSHAPE_CONE = 3, // apex at z=+0.5, unit-radius base at z=-0.5 (GxuConeShapeFactory)
     GXUDEBUGSHAPE_TRIANGLE = 4, // double-sided, in the x=0 plane, apex at z=+0.5 (GxuTriangleShapeFactory)
-    // Editor gizmos. 4.1 builds their factories in the same static initializer as the others; these enum values are
+    // Editor shapes. 4.1 builds their factories in the same static initializer as the others; these enum values are
     // this port's.
-    GXUDEBUGSHAPE_DIRECTIONAL_SPHERE = 5, // unit sphere with a spike along +z to z=2 (GxuDirectionalSphereShapeFactory)
-    GXUDEBUGSHAPE_ROTATION_RING = 6, // unit-radius band around z, z from -2 to 2 (GxuRotationRingShapeFactory)
-    GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND = 7, // flat arrowhead pointing +z (GxuDirectionalDiamondShapeFactory)
+    GXUDEBUGSHAPE_DIRECTIONAL_SPHERE = 5, // unit sphere with a spike along +z to z=2 (GxuDirectionalSphereShapeFactory): spawn point and facing
+    GXUDEBUGSHAPE_ROTATION_RING = 6, // unit-radius band around z, z from -2 to 2 (GxuRotationRingShapeFactory): rotate gizmo
+    GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND = 7, // flat arrowhead pointing +z (GxuDirectionalDiamondShapeFactory): path point
     NUM_GXUDEBUGSHAPES = 8,
 };
 
@@ -221,7 +224,7 @@ class GxuTriangleShapeFactory : public IGxuDebugShapeFactory {
     void WriteIndices(uint16_t* indices) const override;
 };
 
-// 4.1 editor gizmos (vtables 0x011F3840, 0x011F3780, 0x011F3740).
+// 4.1 editor shapes (vtables 0x011F3840, 0x011F3780, 0x011F3740).
 
 // Same fields and LOD scheme as the sphere (4.1 static init writes the identical 32 / 33 / 1056 values and LOD
 // tables), and the same indices; only the vertices differ. 4.1 has it as a separate class with its own copies of

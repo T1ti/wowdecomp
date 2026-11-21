@@ -94,6 +94,18 @@ void UnitDebugCombatLogOnEnable(BOOL enable) {
 // spline's points and a white line strip through them, plus a yellow line from the unit to the spline's final
 // destination. Spline points of a unit on a transport are transport-local and are moved to world space with the
 // transport matrix. There is nothing to draw while the unit has no active spline (the 0.5.3 server-location branch).
+//
+// 0.5.3 drew the strip with the world's depth test on, through the server's dense path points, so it followed the
+// ground. A 3.3.5 spline has only its sparse control points, and a straight segment between two of them passes under
+// any rise of the terrain in between. So each segment is drawn twice: depth tested at full strength, as in 0.5.3, and
+// again faint without depth test, so the stretches the terrain hides stay visible (port choice). The spheres stay
+// depth tested; centered on ground-level points they show as half spheres, as in 0.5.3.
+static void DrawPathSegment(const C3Vector& start, const C3Vector& end, CImVector color) {
+    GxuDebugDrawLine(start, end, color, GXUDEBUGSTYLE_SOLID);
+    color.a = 0x50;
+    GxuDebugDrawLine(start, end, color, GXUDEBUGSTYLE_SOLID_NODEPTH);
+}
+
 void CGUnit_C::RenderDebugPathing() {
     CMoveSpline* spline = this->m_movementData.m_spline;
 
@@ -133,7 +145,7 @@ void CGUnit_C::RenderDebugPathing() {
         GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, sphere, green, GXUDEBUGSTYLE_SOLID);
 
         if (i) {
-            GxuDebugDrawLine(previous, point, white, GXUDEBUGSTYLE_SOLID);
+            DrawPathSegment(previous, point, white);
         }
 
         previous = point;
@@ -145,7 +157,7 @@ void CGUnit_C::RenderDebugPathing() {
         destination = destination * transport;
     }
 
-    GxuDebugDrawLine(this->GetPosition(), destination, yellow, GXUDEBUGSTYLE_SOLID);
+    DrawPathSegment(this->GetPosition(), destination, yellow);
 }
 
 // Port: the 0.5.3 CGObject_C::PreAnimate condition, called from CGUnit_C::PreAnimate. With DebugTargetPath set, 0.5.3
