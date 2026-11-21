@@ -252,7 +252,7 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
 BOOL CGPetInfo::IsAttackAction(uint32_t index) {
     PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
 
-    if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_ORDER && (action->m_data & PetAction::PackingMasks::ID_MASK) == 2) {
+    if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_ORDER && (action->m_data & PetAction::PackingMasks::ID_MASK) == PET_ORDER_ATTACK) {
         return 1;
     }
 
@@ -997,7 +997,7 @@ void CGPetInfo::PetDismiss() {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_PET_ACTION));
     msg.Put(CGPetInfo::GetPet(0).m_guid);
-    msg.Put(static_cast<uint32_t>(0x07000003));
+    msg.Put(static_cast<uint32_t>(PetAction::PackedKind::PACKED_ORDER | PET_ORDER_DISMISS));
     msg.Put(static_cast<uint64_t>(0));
     msg.Finalize();
     ClientServices::Send2(&msg);

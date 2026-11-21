@@ -482,7 +482,7 @@ static int32_t Script_GetPetActionSlotUsable(lua_State* L) {
 static int32_t Script_PetPassiveMode(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = PetAction::PackedKind::PACKED_MODE;
+    action.m_data = PetAction::PackedKind::PACKED_MODE | PET_MODE_PASSIVE;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -492,7 +492,7 @@ static int32_t Script_PetPassiveMode(lua_State* L) {
 static int32_t Script_PetDefensiveMode(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = 0x06000001;
+    action.m_data = PetAction::PackedKind::PACKED_MODE | PET_MODE_DEFENSIVE;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -502,7 +502,7 @@ static int32_t Script_PetDefensiveMode(lua_State* L) {
 static int32_t Script_PetAggressiveMode(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = 0x06000002;
+    action.m_data = PetAction::PackedKind::PACKED_MODE | PET_MODE_AGGRESSIVE;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -512,7 +512,7 @@ static int32_t Script_PetAggressiveMode(lua_State* L) {
 static int32_t Script_PetWait(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = PetAction::PackedKind::PACKED_ORDER;
+    action.m_data = PetAction::PackedKind::PACKED_ORDER | PET_ORDER_WAIT;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -522,7 +522,7 @@ static int32_t Script_PetWait(lua_State* L) {
 static int32_t Script_PetFollow(lua_State* L) {
     WOWGUID target = WOWGUID();
     PetAction action;
-    action.m_data = 0x07000001;
+    action.m_data = PetAction::PackedKind::PACKED_ORDER | PET_ORDER_FOLLOW;
     CGPetInfo::SendPetAction(action, target, 0);
     return 0;
 }
@@ -543,7 +543,7 @@ static int32_t Script_PetAttack(lua_State* L) {
     }
 
     PetAction action;
-    action.m_data = 0x07000002;
+    action.m_data = PetAction::PackedKind::PACKED_ORDER | PET_ORDER_ATTACK;
     CGPetInfo::SendPetAction(action, target, useGiven);
     return 0;
 }
