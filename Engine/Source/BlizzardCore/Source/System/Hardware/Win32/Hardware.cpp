@@ -7,6 +7,15 @@
 #include "Engine/Source/BlizzardCore/Source/System/Hardware/Hardware.h"
 #include "Engine/Source/BlizzardCore/Source/System/Lock/Lock.h"
 
+// CPUID feature bits tested here, named from the processor feature flag each one sets.
+enum : uint32_t {
+    CPUID_1_EDX_TSC = 0x10,
+    CPUID_1_EDX_MMX = 0x800000,
+    CPUID_1_EDX_SSE = 0x2000000,
+    CPUID_1_EDX_SSE2 = 0x4000000,
+    CPUID_80000001_EDX_3DNOW = 0x80000000,
+};
+
 // STATIC: 0x00B33FDC
 Blizzard::Hardware::ProcessorFeatures System_Hardware::s_processorFeatures;
 
@@ -98,19 +107,19 @@ void System_Hardware::InitProcessorFeatures() {
     CPUIDInfo info;
 
     if (ReadCPUID(&info)) {
-        if (info.m_leaf1Edx & 0x10) {
+        if (info.m_leaf1Edx & CPUID_1_EDX_TSC) {
             features = Blizzard::Hardware::PROCESSOR_FEATURE_TSC;
         }
 
-        if (info.m_leaf1Edx & 0x800000) {
+        if (info.m_leaf1Edx & CPUID_1_EDX_MMX) {
             features |= Blizzard::Hardware::PROCESSOR_FEATURE_MMX;
         }
 
-        if (info.m_leaf1Edx & 0x2000000) {
+        if (info.m_leaf1Edx & CPUID_1_EDX_SSE) {
             features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE;
         }
 
-        if (info.m_ext1Edx & 0x80000000) {
+        if (info.m_ext1Edx & CPUID_80000001_EDX_3DNOW) {
             features |= Blizzard::Hardware::PROCESSOR_FEATURE_3DNOW;
         }
 
@@ -120,7 +129,7 @@ void System_Hardware::InitProcessorFeatures() {
         if (!strncmp(vendor, vendors, 12)) {
             s_processorFeatures.m_vendor = Blizzard::Hardware::PROCESSOR_VENDOR_INTEL;
 
-            if (info.m_leaf1Edx & 0x4000000) {
+            if (info.m_leaf1Edx & CPUID_1_EDX_SSE2) {
                 features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE2;
             }
 
@@ -136,7 +145,7 @@ void System_Hardware::InitProcessorFeatures() {
         } else if (!strncmp(vendor, vendors + 12, 12)) {
             s_processorFeatures.m_vendor = Blizzard::Hardware::PROCESSOR_VENDOR_AMD;
 
-            if (info.m_leaf1Edx & 0x4000000) {
+            if (info.m_leaf1Edx & CPUID_1_EDX_SSE2) {
                 features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE2;
             }
 

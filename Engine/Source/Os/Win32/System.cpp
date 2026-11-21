@@ -12,6 +12,15 @@
 #include "Engine/Source/Os/TimeManager.h"
 #include "Engine/Source/Storm/H/storm.h"
 
+// CPUID feature bits tested here, named from the processor feature flag each one sets.
+enum : uint32_t {
+    CPUID_1_EDX_TSC = 0x10,
+    CPUID_1_EDX_MMX = 0x800000,
+    CPUID_1_EDX_SSE = 0x2000000,
+    CPUID_1_EDX_SSE2 = 0x4000000,
+    CPUID_80000001_EDX_3DNOW = 0x80000000,
+};
+
 // STATIC: 0x00B1D2AC
 static int32_t s_sleepInBackground = 1;
 
@@ -605,23 +614,23 @@ uint32_t OsGetProcessorFeaturesEx(int32_t& vendor) {
     CpuIdInfo info;
 
     if (IOsGetProcessorFeatures(&info)) {
-        if (info.m_standard1d & 0x10) {
+        if (info.m_standard1d & CPUID_1_EDX_TSC) {
             features = OS_PROCESSOR_FEATURE_TSC;
         }
 
-        if (info.m_standard1d & 0x800000) {
+        if (info.m_standard1d & CPUID_1_EDX_MMX) {
             features |= OS_PROCESSOR_FEATURE_MMX;
         }
 
-        if (info.m_standard1d & 0x2000000) {
+        if (info.m_standard1d & CPUID_1_EDX_SSE) {
             features |= OS_PROCESSOR_FEATURE_SSE;
         }
 
-        if (info.m_extended1d & 0x80000000) {
+        if (info.m_extended1d & CPUID_80000001_EDX_3DNOW) {
             features |= OS_PROCESSOR_FEATURE_3DNOW;
         }
 
-        if (info.m_standard1d & 0x4000000) {
+        if (info.m_standard1d & CPUID_1_EDX_SSE2) {
             features |= OS_PROCESSOR_FEATURE_SSE2;
         }
 
