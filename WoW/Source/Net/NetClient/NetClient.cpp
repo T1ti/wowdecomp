@@ -761,9 +761,7 @@ void NETEVENTQUEUE::AddEvent(EVENTID eventId, void* connection, NetClient* clien
 // VERIFY: 4d2c7b3d manual
 // OFFSET: 0x00633730
 NETEVENTQUEUE::~NETEVENTQUEUE() {
-    this->m_critSect.Enter();
-    this->m_eventQueue.Clear();
-    this->m_critSect.Leave();
+    this->Clear();
 }
 
 // VERIFY: 75864678 auto

@@ -248,12 +248,7 @@ void WowConnection::Init(WowConnectionResponse* response, void (*threadInit)()) 
     this->m_notifyWriteReady = 0;
     this->unused_0144 = -1;
 
-    WOW_CONN_STATE oldState = this->m_connState;
-    this->m_connState = WOWC_UNINITIALIZED;
-
-    if (WowConnection::s_network) {
-        WowConnection::s_network->PlatformChangeState(this, oldState);
-    }
+    this->SetState(WOWC_UNINITIALIZED);
 
     this->m_response = response;
     this->unused_000C = 0;
@@ -284,12 +279,7 @@ void WowConnection::Init(WowConnectionResponse* response, void (*threadInit)()) 
     memset(this->m_sendKeyInit, 0, sizeof(this->m_sendKeyInit));
     memset(this->m_receiveKeyInit, 0, sizeof(this->m_receiveKeyInit));
 
-    oldState = this->m_connState;
-    this->m_connState = WOWC_INITIALIZED;
-
-    if (WowConnection::s_network) {
-        WowConnection::s_network->PlatformChangeState(this, oldState);
-    }
+    this->SetState(WOWC_INITIALIZED);
 
     this->m_type = WOWC_TYPE_MESSAGES;
 }

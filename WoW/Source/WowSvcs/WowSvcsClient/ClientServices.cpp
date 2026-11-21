@@ -548,12 +548,7 @@ REALM_INFO* ClientServices::GetSelectedRealm() {
 // VERIFY: f41bbd12 auto
 // OFFSET: 0x006B1200
 void ClientConnection::Cancel(int32_t errorCode) {
-    this->Cleanup();
-
-    this->m_statusResult = 0;
-    this->m_errorCode = errorCode;
-    this->m_statusComplete = 1;
-    LogConnectionStatus(this->m_statusOp, errorCode, 0, 0);
+    this->Complete(0, errorCode);
 }
 
 // VERIFY: 625995e6 auto
@@ -627,9 +622,7 @@ void ClientServices::Destroy() {
 
     if (g_clientConnection) {
         if (g_clientConnection->m_connected) {
-            g_clientConnection->NetClient::Disconnect();
-            g_clientConnection->m_connected = 0;
-            WardenClient_Destroy();
+            g_clientConnection->Disconnect();
         }
 
         delete g_clientConnection;
