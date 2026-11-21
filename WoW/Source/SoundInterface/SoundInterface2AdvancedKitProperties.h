@@ -62,7 +62,7 @@ class SI2AdvancedSound {
     SI2AdvancedSound();
     ~SI2AdvancedSound();
     void AddSuppressor();
-    int32_t Play();
+    SI2_RESULT Play();
     void Stop(int32_t remove, float fadeOutTime);
 };
 

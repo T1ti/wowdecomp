@@ -396,7 +396,7 @@ void SI2::SetOverrideZoneSounds(int32_t soundAmbienceId, int32_t zoneMusicId) {
 
 // VERIFY: 039f2ed0 auto
 // OFFSET: 0x004C8FC0
-int32_t SI2::PlayUISound(int32_t soundKitId) {
+SI2_RESULT SI2::PlayUISound(int32_t soundKitId) {
     static int32_t s_voiceChatOn = SI2::LookupSoundKitId("VoiceChatOn");
     static int32_t s_voiceChatOff = SI2::LookupSoundKitId("VoiceChatOff");
 

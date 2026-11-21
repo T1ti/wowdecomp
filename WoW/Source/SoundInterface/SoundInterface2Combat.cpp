@@ -138,9 +138,9 @@ void SI2::PlayHitSound(const CGUnitVirtualItem* weapon, int32_t impactType, int3
 
 // VERIFY: 1275dcb8 manual
 // OFFSET: 0x004D0720
-int32_t SI2::PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, const C3Vector* position, int32_t quiet, int32_t self) {
+SI2_RESULT SI2::PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, const C3Vector* position, int32_t quiet, int32_t self) {
     if (type >= NUM_WEAPONSWINGSOUNDTYPES) {
-        return 0;
+        return SI2_OK;
     }
 
     float volume = quiet ? 0.5f : 1.0f;
@@ -159,15 +159,15 @@ int32_t SI2::PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, co
 
 // VERIFY: 4281e82d manual
 // OFFSET: 0x004D07B0
-int32_t SI2::PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, const C3Vector* position, int32_t self) {
+SI2_RESULT SI2::PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, const C3Vector* position, int32_t self) {
     if (!item) {
-        return 0;
+        return SI2_OK;
     }
 
     MaterialRec* material = g_materialDB.GetRecord(item->m_material);
 
     if (!material) {
-        return 0;
+        return SI2_OK;
     }
 
     C3Vector soundPosition;
@@ -189,7 +189,7 @@ int32_t SI2::PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, co
 
 // VERIFY: c557bfee auto
 // OFFSET: 0x004D0850
-int32_t SI2::PlayMissedSound(bool oneHand, const C3Vector* position, int32_t self) {
+SI2_RESULT SI2::PlayMissedSound(bool oneHand, const C3Vector* position, int32_t self) {
     SE2SoundKitProperties properties;
     properties.ResetToDefaults();
 

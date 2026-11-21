@@ -30,11 +30,11 @@ void SI2::Detach(SE2SoundKitObject* object) {
 
 // VERIFY: f4fa7734 manual
 // OFFSET: 0x004CFC10
-int32_t SI2::PlayFoleySound(int32_t materialId, const C3Vector* position, int32_t self) {
+SI2_RESULT SI2::PlayFoleySound(int32_t materialId, const C3Vector* position, int32_t self) {
     MaterialRec* material = g_materialDB.GetRecord(materialId);
 
     if (!material || !material->m_foleySoundID) {
-        return 0;
+        return SI2_OK;
     }
 
     C3Vector soundPosition;
@@ -93,7 +93,7 @@ BOOL SI2::IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* posit
 
 // VERIFY: 4d8f58a6 manual
 // OFFSET: 0x004D0020
-int32_t SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
+SI2_RESULT SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
     if (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
         if (type == ITEMSOUND_DROP) {
             return SI2::PlaySoundKit("(DONOTRENAME)WrappedItemDrop", nullptr, nullptr, nullptr);
@@ -108,7 +108,7 @@ int32_t SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
         return SI2::PlaySoundKit(sounds->m_sound[type], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
     }
 
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: fc148494 manual

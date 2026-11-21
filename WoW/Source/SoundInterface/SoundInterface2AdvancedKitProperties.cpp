@@ -77,12 +77,12 @@ static int32_t RandomBetween(int32_t min, int32_t max) {
 
 // VERIFY: 3233d57a auto
 // OFFSET: 0x004C9DC0
-int32_t SI2AdvancedSound::Play() {
+SI2_RESULT SI2AdvancedSound::Play() {
     SE2SoundKitProperties properties;
 
     if (this->m_usage) {
         if (this->m_usage < SI2_SOUND_USAGE_INTERVAL || this->m_usage > SI2_SOUND_USAGE_ONESHOT) {
-            return 0;
+            return SI2_OK;
         }
 
         properties.ResetToDefaults();
