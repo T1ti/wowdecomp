@@ -834,12 +834,7 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
 
     if (!this->m_loopType || finishing) {
         this->m_flags |= GROUP_FLAGS::FLAG_FINISHED_CALLBACKS;
-
-        if (this->m_onUpdate.m_luaRef) {
-            lua_State* L = FrameScript_GetContext();
-            lua_pushnumber(L, elapsedSec);
-            this->RunScript(this->m_onUpdate, 1, nullptr);
-        }
+        this->RunOnUpdateScript(elapsedSec);
 
         if (this->m_onFinished.m_luaRef) {
             lua_State* L = FrameScript_GetContext();
