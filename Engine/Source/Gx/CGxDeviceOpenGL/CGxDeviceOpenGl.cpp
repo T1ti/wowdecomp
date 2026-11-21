@@ -1485,7 +1485,7 @@ void CGxDeviceOpenGl::DeviceDestroyPbuffer() {
 void CGxDeviceOpenGl::IDevSetFocus(int32_t focus, const CGxFormat& format) {
     this->m_windowFocus = focus;
 
-    if (!format.m_window || format.m_maximize == 2) {
+    if (!format.m_window || format.m_maximize == CGxFormat::Maximize_Unknown_2) {
         if (focus) {
             DISPLAY_DEVICEA device;
             memset(&device, 0, sizeof(device));
@@ -1645,9 +1645,9 @@ static HWND CreateGameWindow(CGxFormat& format, void* param) {
 
     if (!format.m_window) {
         style = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_MAXIMIZE;
-    } else if (format.m_maximize == 1) {
+    } else if (format.m_maximize == CGxFormat::Maximize_Screen) {
         style = WS_POPUP | WS_VISIBLE;
-    } else if (format.m_maximize == 2) {
+    } else if (format.m_maximize == CGxFormat::Maximize_Unknown_2) {
         style = WS_POPUP;
     } else {
         style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
@@ -1670,7 +1670,7 @@ static HWND CreateGameWindow(CGxFormat& format, void* param) {
     CGxDevice::s_clientAdjust.y = rect.bottom - format.m_size.y - rect.top;
 
     if (format.m_window) {
-        if (format.m_maximize == 1) {
+        if (format.m_maximize == CGxFormat::Maximize_Screen) {
             format.m_pos.x = 0;
             format.m_pos.y = 0;
             format.m_size.x = GetSystemMetrics(SM_CXSCREEN);
@@ -1705,7 +1705,7 @@ static HWND CreateGameWindow(CGxFormat& format, void* param) {
         height = CW_USEDEFAULT;
     }
 
-    if (format.m_window && format.m_maximize != 1 && format.m_size.x && format.m_size.y) {
+    if (format.m_window && format.m_maximize != CGxFormat::Maximize_Screen && format.m_size.x && format.m_size.y) {
         width += CGxDevice::s_clientAdjust.x;
         height += CGxDevice::s_clientAdjust.y;
     }
@@ -2344,7 +2344,7 @@ int32_t CGxDeviceOpenGl::DeviceWM(EGxWM wm, uintptr_t param1, uintptr_t param2) 
             this->IDevRemoveGlContext();
             this->m_windowFocus = 0;
 
-            if (!this->m_format.m_window || this->m_format.m_maximize == 2) {
+            if (!this->m_format.m_window || this->m_format.m_maximize == CGxFormat::Maximize_Unknown_2) {
                 ChangeDisplaySettingsExA(nullptr, nullptr, nullptr, 0, nullptr);
                 ShowWindow(this->m_hwnd, SW_MINIMIZE);
             }
@@ -2362,7 +2362,7 @@ int32_t CGxDeviceOpenGl::DeviceWM(EGxWM wm, uintptr_t param1, uintptr_t param2) 
             if (!s_deviceChanging) {
                 this->m_windowFocus = 0;
 
-                if (!this->m_format.m_window || this->m_format.m_maximize == 2) {
+                if (!this->m_format.m_window || this->m_format.m_maximize == CGxFormat::Maximize_Unknown_2) {
                     ChangeDisplaySettingsExA(nullptr, nullptr, nullptr, 0, nullptr);
                     ShowWindow(this->m_hwnd, SW_MINIMIZE);
                 }

@@ -19,6 +19,14 @@ class CGxFormat {
         Formats_Last = 8,
     };
 
+    // m_maximize; named from the window style ICreateWindow picks (inferred).
+    // The gxMaximize CVar only sets NONE or SCREEN.
+    enum Maximize : int32_t {
+        Maximize_None = 0, // overlapped window
+        Maximize_Screen = 1, // visible popup sized to the screen
+        Maximize_Unknown_2 = 2, // hidden popup
+    };
+
     /* 0000 */ uint32_t m_apiSpecificModeID;
     /* 0004 */ bool m_hwTnL;
     /* 0005 */ bool m_hwCursor;
@@ -26,7 +34,7 @@ class CGxFormat {
     /* 0007 */ int8_t m_window;
     /* 0008 */ bool m_aspect;
     /* 0009 */ uint8_t unused_0009[3];
-    /* 000C */ int32_t m_maximize;
+    /* 000C */ int32_t m_maximize; // Maximize
     /* 0010 */ CGxFormat::Format m_depthFormat;
     /* 0014 */ C2iVector m_size;
     /* 001C */ uint32_t m_backBufferCount;

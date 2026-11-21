@@ -2295,9 +2295,9 @@ int32_t CGxDeviceD3d::ICreateWindow(CGxFormat& format) {
 
     if (!format.m_window) {
         style = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU;
-    } else if (format.m_maximize == 1) {
+    } else if (format.m_maximize == CGxFormat::Maximize_Screen) {
         style = WS_POPUP | WS_VISIBLE;
-    } else if (format.m_maximize == 2) {
+    } else if (format.m_maximize == CGxFormat::Maximize_Unknown_2) {
         style = WS_POPUP;
     } else {
         style = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
@@ -2328,7 +2328,7 @@ int32_t CGxDeviceD3d::ICreateWindow(CGxFormat& format) {
     CGxDevice::s_clientAdjust.y = clientRect.bottom - format.m_size.y - clientRect.top;
 
     if (format.m_window) {
-        if (format.m_maximize == 1) {
+        if (format.m_maximize == CGxFormat::Maximize_Screen) {
             format.m_pos.x = 0;
             format.m_pos.y = 0;
             format.m_size.x = GetSystemMetrics(SM_CXSCREEN);
@@ -2363,14 +2363,14 @@ int32_t CGxDeviceD3d::ICreateWindow(CGxFormat& format) {
         height = CW_USEDEFAULT;
     }
 
-    if (format.m_window && format.m_maximize != 1 && format.m_size.x && format.m_size.y) {
+    if (format.m_window && format.m_maximize != CGxFormat::Maximize_Screen && format.m_size.x && format.m_size.y) {
         width += CGxDevice::s_clientAdjust.x;
         height += CGxDevice::s_clientAdjust.y;
     }
 
     this->m_hwnd = CreateWindowExA(WS_EX_APPWINDOW, "GxWindowClassD3d", CLIENT_NAME, style, format.m_pos.x, format.m_pos.y, width, height, nullptr, nullptr, instance, this);
 
-    if (this->m_hwnd && format.m_maximize != 2) {
+    if (this->m_hwnd && format.m_maximize != CGxFormat::Maximize_Unknown_2) {
         ShowWindow(this->m_hwnd, SW_SHOWNORMAL);
     }
 
