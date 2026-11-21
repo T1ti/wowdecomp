@@ -140,7 +140,7 @@ CGxDeviceOpenGl::CGxDeviceOpenGl() {
     this->m_viewDirty = 0;
     this->m_caps.m_colorFormat = GxCF_rgba;
     this->m_caps.unk_0018 = 0;
-    this->m_renderTargetMode = 0;
+    this->m_renderTargetMode = RENDER_TARGET_MODE_COPY;
     this->m_ambientOnlyMode = 0;
     this->DsInit();
     this->unused_3AD0 = 0;
@@ -1282,9 +1282,9 @@ void CGxDeviceOpenGl::IDeviceSetRenderTargetFBO(EGxBuffer buffer, CGxTex* textur
 // VERIFY: 57fb30e2 manual
 // OFFSET: 0x0068BB90
 void CGxDeviceOpenGl::DeviceSetRenderTarget(EGxBuffer buffer, CGxTex* texture, uint32_t plane) {
-    if (this->m_renderTargetMode == 0) {
+    if (this->m_renderTargetMode == RENDER_TARGET_MODE_COPY) {
         this->IDeviceSetRenderTargetCopy(buffer, texture, plane);
-    } else if (this->m_renderTargetMode == 1) {
+    } else if (this->m_renderTargetMode == RENDER_TARGET_MODE_FBO) {
         this->IDeviceSetRenderTargetFBO(buffer, texture, plane);
     }
 }

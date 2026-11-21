@@ -54,11 +54,18 @@ class CGxDeviceOpenGl : public CGxDevice {
         DeviceStates_Last = 90,
     };
 
+    // m_renderTargetMode; named after the IDeviceSetRenderTarget* path
+    // DeviceSetRenderTarget picks for each value.
+    enum RENDER_TARGET_MODE : int32_t {
+        RENDER_TARGET_MODE_COPY = 0,
+        RENDER_TARGET_MODE_FBO = 1,
+    };
+
     /* 3968 */ uint32_t m_deviceStates [DeviceStates_Last];
     /* 3AD0 */ uint32_t unused_3AD0;
     /* 3AD4 */ uint32_t m_materialDirty;
     /* 3AD8 */ GLenum m_sphereMapMode;
-    /* 3ADC */ int32_t m_renderTargetMode;
+    /* 3ADC */ int32_t m_renderTargetMode; // RENDER_TARGET_MODE
     /* 3AE0 */ const GLubyte* m_glVendor;
     /* 3AE4 */ const GLubyte* m_glRenderer;
     /* 3AE8 */ const GLubyte* m_glVersion;
