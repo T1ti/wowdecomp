@@ -440,10 +440,10 @@ bool CGWorldFrame::GetScreenCoordinates(const C3Vector& world, C3Vector* screen,
         return ddcX >= 0.0f && width >= ddcX && ddcY >= 0.0f && height >= ddcY;
     }
 
-    uint32_t flags = (ddcX >= 0.0f ? 0x1 : 0) | (ddcY >= 0.0f ? 0x2 : 0) | (width >= ddcX ? 0x4 : 0) | (height >= ddcY ? 0x8 : 0);
+    uint32_t flags = (ddcX >= 0.0f ? SCREEN_BOUNDS_LEFT : 0) | (ddcY >= 0.0f ? SCREEN_BOUNDS_BOTTOM : 0) | (width >= ddcX ? SCREEN_BOUNDS_RIGHT : 0) | (height >= ddcY ? SCREEN_BOUNDS_TOP : 0);
     *result = flags;
 
-    return flags == 0xF;
+    return flags == SCREEN_BOUNDS_ALL;
 }
 
 // VERIFY: aaab1f42 manual

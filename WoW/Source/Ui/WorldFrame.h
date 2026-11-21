@@ -219,6 +219,15 @@ class CGWorldFrame : public CSimpleFrame {
     void UpdateObject(CGObject_C* object, uint32_t flags);
     void ClearTrackedObjects();
     int32_t GetLineSegment(float mouseX, float mouseY, C3Vector* start, C3Vector* end);
+    // GetScreenCoordinates result bits: which frame edges the point is inside of (names inferred).
+    enum SCREEN_BOUNDS : uint32_t {
+        SCREEN_BOUNDS_LEFT = 0x1,
+        SCREEN_BOUNDS_BOTTOM = 0x2,
+        SCREEN_BOUNDS_RIGHT = 0x4,
+        SCREEN_BOUNDS_TOP = 0x8,
+        SCREEN_BOUNDS_ALL = SCREEN_BOUNDS_LEFT | SCREEN_BOUNDS_BOTTOM | SCREEN_BOUNDS_RIGHT | SCREEN_BOUNDS_TOP,
+    };
+
     bool GetScreenCoordinates(const C3Vector& world, C3Vector* screen, uint32_t* result);
     bool HitTestModelList(const C3Vector& start, const C3Vector& end);
     void MoveToFreeList(TSList<CModelRecord, TSGetLink<CModelRecord> >* list);

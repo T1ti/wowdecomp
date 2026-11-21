@@ -375,7 +375,7 @@ bool WORLDTEXTSTRING::Update(uint32_t time) {
     uint32_t result = 0;
     worldFrame->GetScreenCoordinates(C3Vector(position), &screen, &result);
 
-    if (!(result & 0x1) || !(result & 0x4)) {
+    if (!(result & CGWorldFrame::SCREEN_BOUNDS_LEFT) || !(result & CGWorldFrame::SCREEN_BOUNDS_RIGHT)) {
         return false;
     }
 
