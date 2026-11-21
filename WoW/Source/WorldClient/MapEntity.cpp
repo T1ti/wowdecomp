@@ -37,7 +37,7 @@ CMapStaticEntity::CMapStaticEntity() {
     this->m_liquidHeight = 0.0f;
     this->m_model = nullptr;
     this->m_diffuseLightScale = 0.0f;
-    this->m_unkCounter = 0;
+    this->m_queryTag = 0;
     this->m_shadowStamps[0] = 0;
     this->m_shadowStamps[1] = 0;
     this->m_shadowStamps[2] = 0;

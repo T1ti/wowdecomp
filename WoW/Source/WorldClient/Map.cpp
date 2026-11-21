@@ -1202,7 +1202,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
             continue;
         }
 
-        if ((doodadDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_unkCounter == CMap::s_queryTag) {
+        if ((doodadDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_queryTag == CMap::s_queryTag) {
             continue;
         }
 
@@ -1246,7 +1246,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
             model->m_hitTestGroup = 0;
         }
 
-        doodadDef->m_unkCounter = CMap::s_queryTag;
+        doodadDef->m_queryTag = CMap::s_queryTag;
     }
 }
 
@@ -1268,7 +1268,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             return;
         }
 
-        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
+        if (entity->m_queryTag == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -1301,7 +1301,7 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             model->m_hitTestOwner = entity;
         }
 
-        entity->m_unkCounter = CMap::s_queryTag;
+        entity->m_queryTag = CMap::s_queryTag;
     }
 }
 
@@ -4334,7 +4334,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
     for (CMapBaseObjLink* link = linkList->Head(); link; link = linkList->Next(link)) {
         CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || def->m_unkCounter == CMap::s_queryTag || !def->m_model) {
+        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || def->m_queryTag == CMap::s_queryTag || !def->m_model) {
             continue;
         }
 
@@ -4358,7 +4358,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
             }
         }
 
-        def->m_unkCounter = CMap::s_queryTag;
+        def->m_queryTag = CMap::s_queryTag;
     }
 
     return true;
@@ -4391,7 +4391,7 @@ void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMa
             break;
         }
 
-        if (entity->m_unkCounter == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
+        if (entity->m_queryTag == CMap::s_queryTag || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -4402,7 +4402,7 @@ void CMap::QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMa
             CMap::AppendDestructibleFacets(&data, box, facets, guid);
         }
 
-        entity->m_unkCounter = CMap::s_queryTag;
+        entity->m_queryTag = CMap::s_queryTag;
     }
 }
 
@@ -5269,7 +5269,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
             CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
-            if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(def->m_flags & MAPOBJ_FLAG_PREPARED) || def->m_unkCounter == CMap::s_queryTag) {
+            if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(def->m_flags & MAPOBJ_FLAG_PREPARED) || def->m_queryTag == CMap::s_queryTag) {
                 continue;
             }
 
@@ -5277,7 +5277,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
 
             if (model && box.Intersects(def->m_collideExt)) {
                 model->GetCollisionFacets(box, def->m_mat, facets->facets);
-                def->m_unkCounter = CMap::s_queryTag;
+                def->m_queryTag = CMap::s_queryTag;
             }
         }
     }
@@ -5539,7 +5539,7 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if (doodadDef->m_unkCounter == CMap::s_queryTag || doodadDef->m_collisionGuid) {
+        if (doodadDef->m_queryTag == CMap::s_queryTag || doodadDef->m_collisionGuid) {
             continue;
         }
 
@@ -5573,7 +5573,7 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             model->m_hitTestOwner = doodadDef;
         }
 
-        doodadDef->m_unkCounter = CMap::s_queryTag;
+        doodadDef->m_queryTag = CMap::s_queryTag;
     }
 }
 
