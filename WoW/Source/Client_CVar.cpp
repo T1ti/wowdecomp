@@ -23,6 +23,7 @@
 #include "WoW/Source/Hardware.h"
 #include "WoW/Source/WowSysMessageOutput.h"
 #include "WoW/Source/DebugFeatures.h"
+#include "WoW/Source/Ui/WorldFrame_DebugDrawTest.h"
 
 // STATIC: 0x00AB6004
 static const char* s_filterNames[] = { "general", "world", "ui", "animation", "models", "objects", "sound", "movement", "network" };
@@ -666,6 +667,9 @@ void ClientRegisterConsoleCommands() {
     g_readEULAVar = CVar::Register("readEULA", "Status of the EULA", CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_GAME, false, nullptr, false);
 #ifdef WOWDECOMP_DEBUG_FEATURES
     ClientDebugRegisterConsoleCommands();
+#endif
+#ifdef WOWDECOMP_TOOL_FEATURES
+    GxuDebugDrawTestRegister();
 #endif
     g_readTerminationWithoutNoticeVar = CVar::Register("readTerminationWithoutNotice", "Status of the Termination without Notice notice", CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_GAME, false, nullptr, false);
     g_readScanningVar = CVar::Register("readScanning", "Status of the Scanning notice", CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_GAME, false, nullptr, false);
