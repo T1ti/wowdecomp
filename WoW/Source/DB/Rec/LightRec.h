@@ -10,6 +10,13 @@ class SFileImpl;
 // Inferred name: LightParams entries of a Light.dbc record.
 constexpr int32_t NUM_LIGHT_PARAMS = 8;
 
+// Light.dbc record IDs the client selects directly. The table has no name
+// column; record 1 is the continent 0 light at the origin, used as the fallback
+// when no default light is found (inferred name).
+enum LIGHT_ID : int32_t {
+    LIGHT_ID_DEFAULT = 1,
+};
+
 class LightRec {
     public:
     static const int32_t s_numColumns = 15;

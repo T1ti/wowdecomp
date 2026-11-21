@@ -6,6 +6,12 @@
 
 class SFileImpl;
 
+// LightParams.dbc record IDs the client selects directly. The table has no name
+// column; the name is inferred from its use for ghosts at character select.
+enum LIGHT_PARAMS_ID : int32_t {
+    LIGHT_PARAMS_ID_GHOST = 3,
+};
+
 class LightParamsRec {
     public:
     static const int32_t s_numColumns = 9;

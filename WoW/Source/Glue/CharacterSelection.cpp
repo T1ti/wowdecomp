@@ -136,7 +136,7 @@ void CGlueMgr::ProcessAttachment(CM2Model* model, int32_t effectID, uint32_t att
 // VERIFY: 01cf543c manual
 // OFFSET: 0x004E2CE0
 void CGlueMgr::AttachCharacterSelectVisuals(CM2Model* model) {
-    SpellVisualKitRec* kitRec = g_spellVisualKitDB.GetRecord(989);
+    SpellVisualKitRec* kitRec = g_spellVisualKitDB.GetRecord(SPELL_VISUAL_KIT_ID_GHOST);
 
     if (!kitRec) {
         return;
@@ -347,7 +347,7 @@ void CCharacterSelection::GenericLightingCallback(CM2Model* model, CM2Lighting* 
             sphere.r = 0.0f;
             lighting->Initialize(model->m_scene, sphere);
 
-            LightParamsRec* paramsRec = g_lightParamsDB.GetRecord(3);
+            LightParamsRec* paramsRec = g_lightParamsDB.GetRecord(LIGHT_PARAMS_ID_GHOST);
             CImVector direct = DayNight::LoadLightIntBand(0, paramsRec, 0);
             CImVector ambient = DayNight::LoadLightIntBand(0, paramsRec, 1);
 

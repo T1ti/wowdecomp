@@ -413,7 +413,7 @@ void DayNight::LightLoad(TSGrowableArray<const LightRec*>& lights, int32_t mapId
     }
 
     if (!hasDefault) {
-        lights.m_data[0] = g_lightDB.GetRecord(1);
+        lights.m_data[0] = g_lightDB.GetRecord(LIGHT_ID_DEFAULT);
     }
 }
 

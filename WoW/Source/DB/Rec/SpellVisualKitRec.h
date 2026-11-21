@@ -12,6 +12,12 @@ constexpr int32_t NUM_SPELL_VISUAL_CHAR_PROCS = 4;
 // Inferred name: length of SpellVisualKitRec::m_specialEffect.
 constexpr int32_t NUM_SPELL_VISUAL_SPECIAL_EFFECTS = 3;
 
+// SpellVisualKit.dbc record IDs the client selects directly, named from their
+// effect model.
+enum SPELL_VISUAL_KIT_ID : int32_t {
+    SPELL_VISUAL_KIT_ID_GHOST = 989, // chest effect "Spells\Ghost_state.mdx"
+};
+
 // Descriptive client behavior. Unresolved meanings remain UNKNOWN, not UNUSED.
 // IDs 0 and 12 share the native chain-lightning branch (0x007265C0).
 enum SPELL_VISUAL_CHAR_PROC : int32_t {
