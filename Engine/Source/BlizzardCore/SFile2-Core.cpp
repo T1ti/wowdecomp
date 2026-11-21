@@ -591,7 +591,7 @@ bool System_SFile2::OldFindFile(const char* name, char* path, uint32_t size, uin
         return true;
     }
 
-    SErrSetLastError(2);
+    SErrSetLastError(STORM_ERROR_FILE_NOT_FOUND);
 
     return false;
 }
@@ -622,7 +622,7 @@ int32_t STORMAPI SFile::FileExistsInArchives(const char* name) {
     int32_t result = Blizzard::Mopaq::SFileFileExists(nullptr, name, 0, nullptr);
 
     if (result) {
-        SErrSetLastError(2);
+        SErrSetLastError(STORM_ERROR_FILE_NOT_FOUND);
     }
 
     return result;
@@ -732,7 +732,7 @@ int32_t STORMAPI SFileReadFile(SFileImpl* file, void* buffer, uint32_t count, ui
                 }
             }
 
-            SErrSetLastError(38);
+            SErrSetLastError(STORM_ERROR_HANDLE_EOF);
             Blizzard::Lock::MutexLeave(file->m_lock->m_mutex);
 
             return 0;
@@ -776,7 +776,7 @@ int32_t STORMAPI SFileReadFile(SFileImpl* file, void* buffer, uint32_t count, ui
                 }
             }
 
-            SErrSetLastError(38);
+            SErrSetLastError(STORM_ERROR_HANDLE_EOF);
             Blizzard::Lock::MutexLeave(file->m_lock->m_mutex);
 
             return result;
@@ -797,7 +797,7 @@ int32_t STORMAPI SFileReadFile(SFileImpl* file, void* buffer, uint32_t count, ui
             }
 
             if (read != count) {
-                SErrSetLastError(38);
+                SErrSetLastError(STORM_ERROR_HANDLE_EOF);
             }
 
             return read == count;
@@ -1056,7 +1056,7 @@ int32_t STORMAPI SFile::OpenEx(SArchive* archive, const char* name, uint32_t fla
 
     if (!archive) {
         if (!System_SFile2::FindFile(name, path, sizeof(path), flags, &type, &handle)) {
-            SErrSetLastError(2);
+            SErrSetLastError(STORM_ERROR_FILE_NOT_FOUND);
             return 0;
         }
     } else if (archive->m_type == SARCHIVE_MPQ) {

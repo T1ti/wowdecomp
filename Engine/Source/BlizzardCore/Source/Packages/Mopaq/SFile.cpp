@@ -324,7 +324,7 @@ bool Blizzard::Mopaq::SFileReadFile(IOMpqUnit* file, void* buffer, uint32_t coun
     }
 
     if (read != count) {
-        System_SFile::s_lastError = 38;
+        System_SFile::s_lastError = STORM_ERROR_HANDLE_EOF;
     }
 
     if (!result) {

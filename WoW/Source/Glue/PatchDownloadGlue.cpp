@@ -372,7 +372,7 @@ void CGlueMgr::PatchDownloadApply() {
             return;
         }
     } else {
-        reason = SErrGetLastError() == ERROR_FILE_NOT_FOUND ? DOWNLOAD_FAILURE_ARCHIVE_NOT_FOUND : DOWNLOAD_FAILURE_ARCHIVE_INVALID;
+        reason = SErrGetLastError() == STORM_ERROR_FILE_NOT_FOUND ? DOWNLOAD_FAILURE_ARCHIVE_NOT_FOUND : DOWNLOAD_FAILURE_ARCHIVE_INVALID;
     }
 
     CGlueMgr::PatchFailed(reason, 0);

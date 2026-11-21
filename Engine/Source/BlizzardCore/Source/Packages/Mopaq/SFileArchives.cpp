@@ -512,7 +512,7 @@ bool Blizzard::Mopaq::SFileSetBasePath(const char* path) {
     }
 
     if (strlen(path) + 1 >= sizeof(globals->m_basePath)) {
-        System_SFile::s_lastError = 161;
+        System_SFile::s_lastError = STORM_ERROR_BAD_PATHNAME;
         Blizzard::String::QuickFormat<1024> message("SFileSetBasePath - SFILE_ERROR_BAD_PATHNAME");
         Blizzard::File::AddToLastErrorStack(161, message.m_buffer, 4);
         return false;
@@ -538,7 +538,7 @@ System_SFile::ARCHIVEREC* System_SFile::GetArchivePtr(ARCHIVEREC* handle, bool a
     System_MPQGlobals::ArchiveList::iterator it = list->find(handle);
 
     if (it == list->end()) {
-        s_lastError = 6;
+        s_lastError = STORM_ERROR_INVALID_HANDLE;
         Blizzard::String::QuickFormat<1024> message("GetArchivePtr - SFILE_ERROR_INVALID_HANDLE");
         Blizzard::File::AddToLastErrorStack(6, message.m_buffer, 4);
     } else {
@@ -644,7 +644,7 @@ bool Blizzard::Mopaq::SFileAuthenticateArchiveEx(System_SFile::ARCHIVEREC* handl
     }
 
     *result = AUTH_FAILED;
-    System_SFile::s_lastError = 1244;
+    System_SFile::s_lastError = STORM_ERROR_NOT_AUTHENTICATED;
     Blizzard::String::QuickFormat<1024> message("SFileAuthenticateArchiveEx - SFILE_ERROR_NOT_AUTHENTICATED");
     Blizzard::File::AddToLastErrorStack(1244, message.m_buffer, 4);
 
@@ -809,7 +809,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
     return true;
 
 fail:
-    s_lastError = 108;
+    s_lastError = STORM_ERROR_DRIVE_LOCKED;
 
     {
         Blizzard::String::QuickFormat<1024> message(error, archive->m_name);
@@ -877,14 +877,14 @@ bool Blizzard::Mopaq::SFileOpenArchive(const char* path, int32_t priority, uint3
         System_File::FileError& fileError = System_File::s_error;
 
         if (fileError.m_errorStack->FindCategoryCode(1, 4)) {
-            System_SFile::s_lastError = 5;
+            System_SFile::s_lastError = STORM_ERROR_ACCESS_DENIED;
             return false;
         }
     } else if (exists == 2) {
         return System_SFile::OpenDirectPathAsArchive(name, priority, flags, result);
     }
 
-    System_SFile::s_lastError = 2;
+    System_SFile::s_lastError = STORM_ERROR_FILE_NOT_FOUND;
     Blizzard::String::QuickFormat<1024> message("SFileOpenArchive - SFILE_ERROR_FILE_NOT_FOUND - %s", name);
     Blizzard::File::AddToLastErrorStack(2, message.m_buffer, 4);
 
@@ -1559,7 +1559,7 @@ bool Blizzard::Mopaq::SFileCreateArchive(const char* path, int32_t priority, uin
     IOUnit* file = IOFileUnit::Create(nullptr, path, 0xC07);
 
     if (!file) {
-        System_SFile::s_lastError = 110;
+        System_SFile::s_lastError = STORM_ERROR_OPEN_FAILED;
         Blizzard::String::QuickFormat<1024> message("SFileCreateArchive - SFILE_ERROR_INVALID_PARAMETERS - %s", path);
         Blizzard::File::AddToLastErrorStack(110, message.m_buffer, 4);
         return false;
@@ -1572,7 +1572,7 @@ bool Blizzard::Mopaq::SFileCreateArchive(const char* path, int32_t priority, uin
         return true;
     }
 
-    System_SFile::s_lastError = 110;
+    System_SFile::s_lastError = STORM_ERROR_OPEN_FAILED;
     Blizzard::String::QuickFormat<1024> message("SFileCreateArchive - SFILE_ERROR_INVALID_PARAMETERS - %s", path);
     Blizzard::File::AddToLastErrorStack(110, message.m_buffer, 4);
     Blizzard::File::Delete(path);
@@ -2268,7 +2268,7 @@ bool System_Mopaq::CreateDiskFile(const char* name, uint32_t flags, const char* 
     *result = IOMpqDiskUnit::Create(&container, archive, name, path, file);
 
     if (!*result) {
-        System_SFile::s_lastError = 1006;
+        System_SFile::s_lastError = STORM_ERROR_FILE_INVALID;
         return false;
     }
 
@@ -3095,7 +3095,7 @@ bool Blizzard::Mopaq::SFileCreateFile(System_SFile::ARCHIVEREC* handle, const ch
     }
 
     if (!*result) {
-        System_SFile::s_lastError = 1006;
+        System_SFile::s_lastError = STORM_ERROR_FILE_INVALID;
         Blizzard::String::QuickFormat<1024> message("SFileCreateFile - SFILE_ERROR_FILE_INVALID");
         Blizzard::File::AddToLastErrorStack(1006, message.m_buffer, 4);
         return false;
