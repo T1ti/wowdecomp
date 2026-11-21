@@ -1802,9 +1802,7 @@ void CMovement_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
 // OFFSET: 0x006EE940
 void CMovement_C::OnSwimStartLocal(uint32_t eventTime) {
     if (this->IsOnSpline()) {
-        this->StartSwim();
-        this->HandlePendingActions();
-        this->RemoveFromMoversList(1);
+        this->OnSplineStartSwim();
         this->m_unit->ProcessLocalMoveEvent(eventTime, MSG_MOVE_START_SWIM, true, 0.0f, 0, 0, 255);
         return;
     }
@@ -5955,9 +5953,7 @@ int32_t CMovement_C::OnStartSwim(uint32_t time, const CMovementStatus& status) {
         return 0;
     }
 
-    this->StartSwim();
-    this->HandlePendingActions();
-    this->RemoveFromMoversList(1);
+    this->OnSplineStartSwim();
     return 1;
 }
 
