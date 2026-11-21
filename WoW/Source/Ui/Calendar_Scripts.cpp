@@ -967,7 +967,7 @@ static int32_t Script_CalendarContextInviteType(lua_State* L) {
         }
     }
 
-    if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
+    if (IsSignUpInvite(event)) {
         lua_pushinteger(L, CALENDAR_INVITE_TYPE_GUILD + 1);
     } else {
         lua_pushinteger(L, CALENDAR_INVITE_TYPE_NORMAL + 1);
@@ -999,7 +999,7 @@ static int32_t Script_CalendarContextInviteAvailable(lua_State* L) {
         }
     }
 
-    if (!CGCalendar::m_actionPending && (!(event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
+    if (!CGCalendar::m_actionPending && !IsSignUpInvite(event)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CALENDAR_EVENT_RSVP));
         msg.Put(event->m_eventID);
@@ -1037,7 +1037,7 @@ static int32_t Script_CalendarContextInviteDecline(lua_State* L) {
         }
     }
 
-    if (!CGCalendar::m_actionPending && (!(event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) || !(event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE))) {
+    if (!CGCalendar::m_actionPending && !IsSignUpInvite(event)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CALENDAR_EVENT_RSVP));
         msg.Put(event->m_eventID);
@@ -1536,7 +1536,7 @@ static int32_t Script_CalendarContextInviteTentative(lua_State* L) {
         }
     }
 
-    if ((event->m_type & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_GUILD_EVENT) && (event->m_flags & CALENDAR_DAY_EVENT_FLAGS::CALENDAR_DAY_FLAG_GUILD_INVITE)) {
+    if (IsSignUpInvite(event)) {
         CGCalendar::ContextMenuEventSignUp(event, 1);
     } else {
         CGCalendar::ContextMenuInviteRSVP(event, 8);
