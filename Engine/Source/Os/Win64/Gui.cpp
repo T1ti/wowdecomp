@@ -295,7 +295,7 @@ int32_t COsDialog::OnControlTab() {
     int32_t count = this->m_controls.Count();
 
     for (int32_t i = 0; i < count; i++) {
-        if (this->m_controls[i]->m_type == 15) {
+        if (this->m_controls[i]->m_type == COsControl::TYPE_TAB_CONTROL) {
             COsTabControl* tabControl = static_cast<COsTabControl*>(this->m_controls[i]);
             return tabControl ? tabControl->OnControlTab() : 0;
         }
@@ -310,7 +310,7 @@ int32_t COsDialog::ProcessMessage(void* message) {
 
     if (msg->wParam == VK_ESCAPE && msg->message == WM_KEYDOWN) {
         COsControl* control = this->FindControl(msg->hwnd);
-        if (control && control->m_type == 4 && (GetWindowLongA(static_cast<HWND>(control->m_handle), GWL_STYLE) & ES_MULTILINE)) {
+        if (control && control->m_type == COsControl::TYPE_EDIT_BOX && (GetWindowLongA(static_cast<HWND>(control->m_handle), GWL_STYLE) & ES_MULTILINE)) {
             return this->OnCancel();
         }
     }
@@ -321,9 +321,9 @@ int32_t COsDialog::ProcessMessage(void* message) {
             char c = static_cast<char>(msg->wParam);
             int32_t allowed = 1;
 
-            if (control->m_type == 4) {
+            if (control->m_type == COsControl::TYPE_EDIT_BOX) {
                 allowed = static_cast<COsEditBox*>(control)->IsCharacterAllowed(c);
-            } else if (control->m_type == 10) {
+            } else if (control->m_type == COsControl::TYPE_TREE_VIEW) {
                 allowed = static_cast<COsTreeView*>(control)->IsCharacterAllowed(c);
             }
 
@@ -336,7 +336,7 @@ int32_t COsDialog::ProcessMessage(void* message) {
 
     if (msg->wParam == VK_RETURN && msg->message == WM_KEYDOWN) {
         COsControl* control = this->FindControl(msg->hwnd);
-        if (control && (control->m_type == 6 || control->m_type == 10 || control->m_type == 16) && control->OnReturn()) {
+        if (control && (control->m_type == COsControl::TYPE_LIST_BOX || control->m_type == COsControl::TYPE_TREE_VIEW || control->m_type == COsControl::TYPE_LIST_VIEW) && control->OnReturn()) {
             return 1;
         }
     }

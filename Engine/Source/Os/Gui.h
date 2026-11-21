@@ -83,10 +83,27 @@ struct OsGuiTreeItemParams {
 
 class COsControl {
     public:
+    // m_type; named from the Win32 window class at that index in the control
+    // class name table (0x00B1D350). Values whose class is shared by several
+    // types (BUTTON, STATIC) are not listed.
+    enum TYPE : int32_t {
+        TYPE_EDIT_BOX = 4, // EDIT
+        TYPE_COMBO_BOX = 5, // COMBOBOX
+        TYPE_LIST_BOX = 6, // LISTBOX
+        TYPE_PROGRESS_BAR = 8, // msctls_progress32
+        TYPE_TRACK_BAR = 9, // msctls_trackbar32
+        TYPE_TREE_VIEW = 10, // SysTreeView32
+        TYPE_UP_DOWN = 13, // msctls_updown32
+        TYPE_TAB_CONTROL = 15, // SysTabControl32
+        TYPE_LIST_VIEW = 16, // SysListView32
+        TYPE_TOOLBAR = 17, // ToolbarWindow32
+        TYPE_SCROLL_BAR = 18, // SCROLLBAR
+    };
+
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ COsDialog* m_dialog;
     /* 000C */ int16_t m_id;
-    /* 0010 */ int32_t m_type;
+    /* 0010 */ int32_t m_type; // TYPE
     /* 0014 */ OsGuiHandle m_handle;
     /* 0018 */ OsGuiCallback m_callback;
     /* 001C */ void* m_callbackParam;
