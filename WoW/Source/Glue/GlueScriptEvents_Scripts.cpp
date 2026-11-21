@@ -428,7 +428,7 @@ static int32_t Script_IsTrialAccount(lua_State* L) {
 // VERIFY: c9c81de1 auto
 // OFFSET: 0x004DD540
 static int32_t Script_IsSystemSupported(lua_State* L) {
-    if (OsGetProcessorFeatures() & 0x4) {
+    if (OsGetProcessorFeatures() & OS_PROCESSOR_FEATURE_SSE) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

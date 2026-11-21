@@ -193,7 +193,7 @@ ComSat::Sound::Manager::Manager(const ComSat::Initialization& init, ComSat::Allo
     this->m_currentFrame = 0;
     this->m_startTime = init.m_time;
     this->m_currentTime = init.m_time;
-    if (OsGetProcessorFeatures() & 4) {
+    if (OsGetProcessorFeatures() & OS_PROCESSOR_FEATURE_SSE) {
         this->m_codec = ComSat::Sound::CODEC::Create(init, allocator);
         int32_t bytesPerSecond = ComSat::Sound::CODECIPMR6000::s_sampleRate * ComSat::Sound::CODECIPMR6000::s_bitsPerSample / 8;
         this->m_framesPerSecond = static_cast<float>(bytesPerSecond) / ComSat::Sound::CODECIPMR6000::s_bytesPerFrame;

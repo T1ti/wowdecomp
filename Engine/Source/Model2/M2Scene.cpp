@@ -12,6 +12,7 @@
 #include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Model2/M2Shared.h"
 #include "Engine/Source/Model2/CM2SceneRender.h"
+#include "Engine/Source/Os/Processor.h"
 #include "Engine/Source/Services/GfxSingletonManager.h"
 #include "Engine/Source/Services/ParticleSystem2.h"
 #include "Engine/Source/Services/RibbonEmitter.h"
@@ -648,7 +649,7 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
 
         if (section->m_boneInfluences == 1) {
             this->TransformHitTestVertices(model, skinData, section, pass, dir, d);
-        } else if (CM2Cache::s_processorFeatures & 4) {
+        } else if (CM2Cache::s_processorFeatures & OS_PROCESSOR_FEATURE_SSE) {
             this->TransformHitTestVerticesBlendSSE(model, skinData, section, pass, dir, d);
         } else {
             this->TransformHitTestVerticesBlend(model, skinData, section, pass, dir, d);

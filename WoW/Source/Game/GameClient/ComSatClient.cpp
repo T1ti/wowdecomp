@@ -1703,7 +1703,7 @@ void ComSatClient_Init() {
     s_cvarPushToTalkButton = CVar::Lookup("PushToTalkButton");
     s_cvarComSatSleepTime = nullptr;
 
-    if (!(OsGetProcessorFeatures() & 4)) {
+    if (!(OsGetProcessorFeatures() & OS_PROCESSOR_FEATURE_SSE)) {
         s_comsatDisabledByClient = 1;
         SE2::Log_Write(" -###########################################################################################");
         SE2::Log_Write(" -# ERROR! SSE support is required for voice chat!");

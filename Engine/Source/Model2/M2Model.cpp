@@ -23,6 +23,7 @@
 #include "Engine/Source/Model2/M2Cache.h"
 #include "Engine/Source/Model2/M2ModelLight.h"
 #include "Engine/Source/Model2/M2Scene.h"
+#include "Engine/Source/Os/Processor.h"
 #include "Engine/Source/Services/AsyncFile.h"
 #include "Engine/Source/Services/Camera.h"
 #include "Engine/Source/Services/ParticleSystem2.h"
@@ -2677,7 +2678,7 @@ int32_t CM2Model::GetRegionBounds(M2SkinSection* section, CAaBox& box, C44Matrix
             weights = *reinterpret_cast<uint32_t*>(&vertex->m_weights);
             indices = *reinterpret_cast<uint32_t*>(&vertex->m_indices);
 
-            if (CM2Cache::s_processorFeatures & 4) {
+            if (CM2Cache::s_processorFeatures & OS_PROCESSOR_FEATURE_SSE) {
                 M2BlendBoneMatricesSSE(this->m_boneMatrices, vertex->m_weights, vertex->m_indices, &transform);
             } else {
                 M2BlendBoneMatrices(this->m_boneMatrices, vertex->m_weights, vertex->m_indices, &transform);
@@ -3792,7 +3793,7 @@ CM2Model::CM2Model() {
         CM2Model::s_transformVertices[3] = CM2Model::TransformVertices_cpp;
         CM2Model::s_transformVertices[4] = CM2Model::TransformVertices_cpp;
 
-        if (CM2Cache::s_processorFeatures & 4) {
+        if (CM2Cache::s_processorFeatures & OS_PROCESSOR_FEATURE_SSE) {
             CM2Model::s_transformVertices[0] = CM2Model::TransformVertices_sse;
             CM2Model::s_transformVertices[1] = CM2Model::TransformVerticesOneBone_sse;
             CM2Model::s_transformVertices[2] = CM2Model::TransformVertices_sse;

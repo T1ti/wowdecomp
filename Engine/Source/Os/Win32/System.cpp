@@ -198,7 +198,7 @@ void IOsSystemCpuLog(const CpuIdInfo* info) {
     }
 
     SLogWrite(log, "vendor: %d", s_processorVendor);
-    SLogWrite(log, "features: %08X", s_processorFeatures & 0x7FFFFFFF);
+    SLogWrite(log, "features: %08X", s_processorFeatures & ~OS_PROCESSOR_FEATURE_VALID);
     SLogWrite(log, "sockets: %d", s_processorSockets);
     SLogWrite(log, "cores: %d", s_processorCores);
     SLogWrite(log, "processors: %d", s_processorCount);
@@ -606,30 +606,30 @@ uint32_t OsGetProcessorFeaturesEx(int32_t& vendor) {
 
     if (IOsGetProcessorFeatures(&info)) {
         if (info.m_standard1d & 0x10) {
-            features = 1;
+            features = OS_PROCESSOR_FEATURE_TSC;
         }
 
         if (info.m_standard1d & 0x800000) {
-            features |= 2;
+            features |= OS_PROCESSOR_FEATURE_MMX;
         }
 
         if (info.m_standard1d & 0x2000000) {
-            features |= 4;
+            features |= OS_PROCESSOR_FEATURE_SSE;
         }
 
         if (info.m_extended1d & 0x80000000) {
-            features |= 8;
+            features |= OS_PROCESSOR_FEATURE_3DNOW;
         }
 
         if (info.m_standard1d & 0x4000000) {
-            features |= 0x10;
+            features |= OS_PROCESSOR_FEATURE_SSE2;
         }
 
         if (!strncmp(info.m_vendor, s_vendorIds, 12)) {
             s_processorVendor = OS_PROCESSOR_VENDOR_INTEL;
 
             if (info.m_maxStandard >= 4 && (info.m_standard4a >> 26)) {
-                features |= 0x40;
+                features |= OS_PROCESSOR_FEATURE_MULTICORE;
                 s_processorCores = static_cast<uint8_t>(info.m_standard4a >> 26) + 1;
             }
         } else if (!strncmp(info.m_vendor, s_vendorIds + 12, 12)) {
@@ -638,7 +638,7 @@ uint32_t OsGetProcessorFeaturesEx(int32_t& vendor) {
             uint8_t cores = static_cast<uint8_t>(info.m_extended8c);
 
             if (cores) {
-                features |= 0x40;
+                features |= OS_PROCESSOR_FEATURE_MULTICORE;
                 s_processorCores = cores + 1;
             }
         } else if (strncmp(info.m_vendor, s_vendorIds + 24, 12)) {
@@ -648,7 +648,7 @@ uint32_t OsGetProcessorFeaturesEx(int32_t& vendor) {
         s_processorVendor = OS_PROCESSOR_VENDOR_CPUID_FAILED;
     }
 
-    s_processorFeatures = features | 0x80000000;
+    s_processorFeatures = features | OS_PROCESSOR_FEATURE_VALID;
 
     IOsSystemCpuLog(&info);
 

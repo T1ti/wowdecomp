@@ -1563,7 +1563,7 @@ static void CompressBlock(const uint8_t* src, uint32_t stride, uint8_t* out) {
 static void ComputeMipLevels(MipBits* src, MipBits* dst) {
     int32_t size = s_textureSize;
 
-    if ((OsGetProcessorFeatures() & 0x14) == 0x14) {
+    if ((OsGetProcessorFeatures() & (OS_PROCESSOR_FEATURE_SSE | OS_PROCESSOR_FEATURE_SSE2)) == (OS_PROCESSOR_FEATURE_SSE | OS_PROCESSOR_FEATURE_SSE2)) {
         for (uint32_t level = 0; level < CCharacterComponent::s_mipLevels; level++, size >>= 1) {
             if (size < 4) {
                 CompressBlockSSE(reinterpret_cast<const uint8_t*>(src->m_mip[CCharacterComponent::s_mipLevels - 2]), 16, reinterpret_cast<uint32_t*>(dst->m_mip[level]));

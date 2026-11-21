@@ -135,7 +135,7 @@ int32_t CM2Cache::Initialize(uint32_t flags) {
         }
     }
 
-    if (!(this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) && !(CM2Cache::s_processorFeatures & 4)) {
+    if (!(this->m_flags & CM2Cache::CACHE_FLAGS::CACHE_GPU_SHADERS) && !(CM2Cache::s_processorFeatures & OS_PROCESSOR_FEATURE_SSE)) {
         this->m_flags |= CM2Cache::CACHE_FLAGS::CACHE_SINGLE_BONE_SHARED_VERTICES;
     }
 
