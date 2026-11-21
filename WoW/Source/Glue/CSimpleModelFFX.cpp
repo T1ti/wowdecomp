@@ -54,9 +54,9 @@ void CSimpleModelFFX::OnLayerShow() {
 CM2LightArray::CM2LightArray() {
     this->m_lightCount = 0;
     this->m_hasCustomLight = 0;
-    this->unk_01B5 = 0;
+    this->m_useFrameFog = 0;
     this->m_modelFrame = nullptr;
-    this->unk_01BC = 0;
+    this->m_ignoreGhostLighting = 0;
 }
 
 // VERIFY: b99cd56f manual

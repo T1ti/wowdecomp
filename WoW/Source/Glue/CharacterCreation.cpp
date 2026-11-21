@@ -186,12 +186,12 @@ void CCharacterCreation::SetCharCustomizeModel(const char* modelName) {
     }
 
     CCharacterCreation::m_charCustomizeFrame->SetModel(modelName);
-    CCharacterCreation::m_charCustomizeFrame->m_lightArray1[0].unk_01B5 = 1;
+    CCharacterCreation::m_charCustomizeFrame->m_lightArray1[0].m_useFrameFog = 1;
 
     CM2Model* model = CCharacterCreation::m_charCustomizeFrame->m_model;
 
     if (model) {
-        CCharacterCreation::m_charCustomizeFrame->m_lightArray1[0].unk_01BC = 1;
+        CCharacterCreation::m_charCustomizeFrame->m_lightArray1[0].m_ignoreGhostLighting = 1;
         model->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
         model->m_lightingArg = CCharacterCreation::m_charCustomizeFrame->m_lightArray1;
         model->IsDrawable(1, 1);
@@ -569,7 +569,7 @@ void CCharacterCreation::InitCharacterComponents(ComponentData* data, bool rando
         return;
     }
 
-    CCharacterCreation::m_charCustomizeFrame->m_lightArray2[0].unk_01BC = 1;
+    CCharacterCreation::m_charCustomizeFrame->m_lightArray2[0].m_ignoreGhostLighting = 1;
     data->m_model->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
     data->m_model->m_lightingArg = CCharacterCreation::m_charCustomizeFrame->m_lightArray2;
     data->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, 0, 0, 1.0f, 1, 1);

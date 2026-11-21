@@ -338,7 +338,7 @@ void CCharacterSelection::GenericLightingCallback(CM2Model* model, CM2Lighting* 
     CM2LightArray* lights = static_cast<CM2LightArray*>(arg);
     CharacterSelectionDisplay* display = CCharacterSelection::s_selectionIndex < 0 || CCharacterSelection::s_selectionIndex >= static_cast<int32_t>(CCharacterSelection::s_characterList.Count()) ? nullptr : &CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex];
 
-    if (!lights->unk_01BC && display && (display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST)) {
+    if (!lights->m_ignoreGhostLighting && display && (display->m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST)) {
         lights = &lights[1];
 
         if (!lights->m_hasCustomLight) {
@@ -371,7 +371,7 @@ void CCharacterSelection::GenericLightingCallback(CM2Model* model, CM2Lighting* 
         }
     }
 
-    if (lights->unk_01B5) {
+    if (lights->m_useFrameFog) {
         CSimpleModelFFX* frame = lights->m_modelFrame;
 
         if (frame->m_flags & CSimpleModel::MODEL_FOGGED) {
@@ -392,7 +392,7 @@ void CCharacterSelection::SetBackgroundModel(const char* modelName) {
     }
 
     CCharacterSelection::m_modelFrame->SetModel(modelName);
-    CCharacterSelection::m_modelFrame->m_lightArray1[0].unk_01B5 = 1;
+    CCharacterSelection::m_modelFrame->m_lightArray1[0].m_useFrameFog = 1;
 
     CM2Model* model = CCharacterSelection::m_modelFrame->m_model;
 

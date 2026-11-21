@@ -18,11 +18,11 @@ class CM2LightArray {
     /* 0000 */ uint32_t m_lightCount;
     /* 0004 */ CM2Light m_lights [4];
     /* 01B4 */ uint8_t m_hasCustomLight;
-    /* 01B5 */ uint8_t unk_01B5;
+    /* 01B5 */ uint8_t m_useFrameFog; // GenericLightingCallback applies the model frame fog (name inferred)
     /* 01B6 */ uint8_t unused_01B6;
     /* 01B7 */ uint8_t unused_01B7;
     /* 01B8 */ CSimpleModelFFX* m_modelFrame;
-    /* 01BC */ uint8_t unk_01BC;
+    /* 01BC */ uint8_t m_ignoreGhostLighting; // GenericLightingCallback skips the ghost light (name inferred)
     /* 01BD */ uint8_t unused_01BD;
     /* 01BE */ uint8_t unused_01BE;
     /* 01BF */ uint8_t unused_01BF;
