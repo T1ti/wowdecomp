@@ -421,11 +421,7 @@ int32_t CEzLcd::ShowPage(int32_t page) {
     }
 #endif
 
-    if (this->m_connection.MonoOutput() == this->m_output) {
-        this->m_currentMonoPage = newPage;
-    } else {
-        this->m_currentColorPage = newPage;
-    }
+    this->SetCurrentPage(newPage);
 
     CLCDOutput* output = this->m_output;
     CEzLcdPage* currentPage;
@@ -573,11 +569,7 @@ HRESULT CEzLcd::ModifyControlsOnPage(int32_t page) {
     if (page == -1) {
         CEzLcdPage* globalPage = this->GetGlobalPage();
 
-        if (this->m_connection.MonoOutput() == this->m_output) {
-            this->m_currentMonoPage = globalPage;
-        } else {
-            this->m_currentColorPage = globalPage;
-        }
+        this->SetCurrentPage(globalPage);
 
         return S_OK;
     }

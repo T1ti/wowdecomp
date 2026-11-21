@@ -67,11 +67,7 @@ HRESULT CLCDOutput::HandleErrorFromAPI(DWORD result) {
             return S_OK;
 
         case ERROR_DEVICE_NOT_CONNECTED:
-            if (this->m_hDevice != LGLCD_INVALID_DEVICE) {
-                this->OnClosingDevice(this->m_hDevice);
-                lgLcdClose(this->m_hDevice);
-                this->m_hDevice = LGLCD_INVALID_DEVICE;
-            }
+            this->Close();
 
             break;
 
@@ -129,11 +125,7 @@ BOOL CLCDOutput::HasDeviceType() {
 // VERIFY: 8757bd4b auto
 // OFFSET: 0x00959E60
 int32_t CLCDOutput::OpenByType(lgLcdOpenByTypeContext& context) {
-    if (this->m_hDevice != LGLCD_INVALID_DEVICE) {
-        this->OnClosingDevice(this->m_hDevice);
-        lgLcdClose(this->m_hDevice);
-        this->m_hDevice = LGLCD_INVALID_DEVICE;
-    }
+    this->Close();
 
     if (lgLcdOpenByType(&context)) {
         return 0;
