@@ -3202,7 +3202,7 @@ void CGPlayer_C::SetCombatMode() {
 
     if (Spell_C_GetAutoRangedCombatSpell()) {
         Spell_C_SetAutoRangedCombatSpell(0);
-        int32_t autoRangedSpell = s_cvAutoRangedCombat->m_intValue ? CGSpellBook::m_autoRangedSpell : 0;
+        int32_t autoRangedSpell = GetModalNextSpell();
 
         if (Spell_C_GetAutoRepeatingSpell() == autoRangedSpell) {
             Spell_C_CancelAutoRepeat(true);
@@ -4615,7 +4615,7 @@ void CGPlayer_C::CombatModeEnter(const WOWGUID& target, int32_t queueRanged, BOO
         return;
     }
 
-    int32_t rangedSpell = s_cvAutoRangedCombat->m_intValue ? CGSpellBook::m_autoRangedSpell : 0;
+    int32_t rangedSpell = GetModalNextSpell();
 
     if (this->IsMounted() && !this->MountedCombatAllowed()) {
         float minRange;

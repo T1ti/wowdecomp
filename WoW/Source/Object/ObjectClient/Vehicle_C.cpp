@@ -277,7 +277,7 @@ int32_t CVehicle_C::GetVirtualSeatInfo(int32_t virtualSeat, const char*& type, c
     const CVehicle_C* vehicle;
     uint8_t seat;
 
-    if (!this->GetVehicleAndSeatFromVirtualSeatsRemaining(virtualSeat, vehicle, seat)) {
+    if (!this->GetVehicleAndSeatFromVirtualSeat(virtualSeat, vehicle, seat)) {
         return 0;
     }
 

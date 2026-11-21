@@ -501,7 +501,7 @@ void CGGameObject_C::GetCursorFile(char* buffer, uint32_t size) const {
         return;
     }
 
-    if (this->m_typeData->CanUseNow(nullptr, nullptr, nullptr)) {
+    if (this->CanUseNow()) {
         SStrPrintf(buffer, size, "Interface\\Cursor\\%s.blp", this->m_stats->m_iconName);
     } else {
         SStrPrintf(buffer, size, "Interface\\Cursor\\Unable%s.blp", this->m_stats->m_iconName);
@@ -2820,7 +2820,7 @@ int32_t CGGameObject_C::CanChangeCursor() const {
 
     char name[40];
 
-    if (this->m_typeData->CanUseNow(nullptr, nullptr, nullptr)) {
+    if (this->CanUseNow()) {
         SStrCopy(name, this->m_stats->m_iconName, sizeof(name));
     } else {
         SStrPrintf(name, sizeof(name), "Unable%s", this->m_stats->m_iconName);

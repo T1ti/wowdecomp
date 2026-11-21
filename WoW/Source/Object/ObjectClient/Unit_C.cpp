@@ -4960,7 +4960,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
 
     CGUnitData* target = unit->m_unit;
 
-    if (target->m_unitFieldHealth <= 0 && !(unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD))) {
+    if (target->m_unitFieldHealth <= 0 && !unit->CanInteractWhileDead()) {
         return false;
     }
 
@@ -6425,7 +6425,7 @@ BOOL CGUnit_C::IsQuestGiver() const {
 // VERIFY: 28dbc451 auto
 // OFFSET: 0x007192E0
 void CGUnit_C::UpdateInteractIcon() {
-    if (this->m_unit->m_unitFieldHealth > 0 || (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD))) {
+    if (this->m_unit->m_unitFieldHealth > 0 || this->CanInteractWhileDead()) {
         CGObject_C::UpdateInteractIcon();
     }
 }
@@ -19676,7 +19676,7 @@ float CGUnit_C::GetMeleeChanceToCrit() const {
         return 0.0f;
     }
 
-    int32_t agility = this->m_unit->m_unitFieldStat[1] < 0 ? 0 : this->m_unit->m_unitFieldStat[1];
+    int32_t agility = this->GetEffectiveStat(STAT_AGILITY);
     return (ratio * agility + base) * 100.0f;
 }
 
@@ -19725,15 +19725,15 @@ double CGUnit_C::GetPowerModifier() {
 // VERIFY: 1cb19458 manual
 // OFFSET: 0x0071B9F0
 float CGUnit_C::GetManaRegenRateFromSpirit() const {
-    int32_t spirit = this->m_unit->m_unitFieldStat[4] < 0 ? 0 : this->m_unit->m_unitFieldStat[4];
-    int32_t intellect = this->m_unit->m_unitFieldStat[3] < 0 ? 0 : this->m_unit->m_unitFieldStat[3];
+    int32_t spirit = this->GetEffectiveStat(STAT_SPIRIT);
+    int32_t intellect = this->GetEffectiveStat(STAT_INTELLECT);
     return GetGameTableValue(GAME_TABLE_REGEN_MP_PER_SPIRIT, this->m_unit->m_unitFieldLevel - 1, this->m_unit->m_classID - 1) * sqrt(static_cast<double>(intellect)) * spirit;
 }
 
 // VERIFY: b1a33141 manual
 // OFFSET: 0x0071BA60
 float CGUnit_C::GetHealthRegenRateFromSpirit() const {
-    int32_t spirit = this->m_unit->m_unitFieldStat[4] < 0 ? 0 : this->m_unit->m_unitFieldStat[4];
+    int32_t spirit = this->GetEffectiveStat(STAT_SPIRIT);
     int32_t baseSpirit = spirit <= s_baseSpiritRegenCap ? spirit : s_baseSpiritRegenCap;
     int32_t classIndex = this->m_unit->m_classID - 1;
     int32_t levelIndex = this->m_unit->m_unitFieldLevel - 1;

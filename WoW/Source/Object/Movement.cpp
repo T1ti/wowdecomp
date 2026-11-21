@@ -3472,7 +3472,7 @@ finish:
                 }
             }
 
-            if ((this->m_flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_fallVelocity && (this->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
+            if (this->IsJumping() && (this->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
                 this->m_currentSpeed = savedSpeed;
                 this->m_moveDir2D = savedDir2D;
                 this->m_moveDir = savedDir;

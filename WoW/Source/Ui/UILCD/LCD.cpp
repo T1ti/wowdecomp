@@ -1015,10 +1015,10 @@ void CGLCD::DisplaySpellStats() {
     int32_t spellDamage = player->IsActivePlayer() ? player->m_player->m_playerFieldModDamageDonePos[SPELL_SCHOOL::SPELL_SCHOOL_HOLY] : 0;
 
     for (int32_t school = SPELL_SCHOOL::SPELL_SCHOOL_FIRE; school < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; school++) {
-        int32_t damage = CGLCD::m_player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;
+        int32_t damage = CGLCD::m_player->IsActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;
 
         if (spellDamage >= damage) {
-            spellDamage = CGLCD::m_player->m_obj->m_guid == ClntObjMgrGetActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;
+            spellDamage = CGLCD::m_player->IsActivePlayer() ? CGLCD::m_player->m_player->m_playerFieldModDamageDonePos[school] : 0;
         }
     }
 
