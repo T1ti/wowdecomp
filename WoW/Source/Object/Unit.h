@@ -220,9 +220,9 @@ class CGUnitData {
     /* 012C */ uint32_t m_unitCreatedBySpell;
     /* 0130 */ uint32_t m_unitNpcFlags; // UNIT_NPC_FLAGS; raw mirror word.
     /* 0134 */ uint32_t m_unitNpcEmotestate;
-    /* 0138 */ int32_t m_unitFieldStat [5];
-    /* 014C */ int32_t m_unitFieldPosstat [5];
-    /* 0160 */ int32_t m_unitFieldNegstat [5];
+    /* 0138 */ int32_t m_unitFieldStat [UNIT_STAT::NUM_UNIT_STATS];
+    /* 014C */ int32_t m_unitFieldPosstat [UNIT_STAT::NUM_UNIT_STATS];
+    /* 0160 */ int32_t m_unitFieldNegstat [UNIT_STAT::NUM_UNIT_STATS];
     /* 0174 */ int32_t m_unitFieldResistances [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 0190 */ int32_t m_unitFieldResistancebuffmodspositive [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];
     /* 01AC */ int32_t m_unitFieldResistancebuffmodsnegative [SPELL_SCHOOL::NUM_SPELL_SCHOOLS];

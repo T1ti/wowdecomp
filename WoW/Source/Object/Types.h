@@ -16,6 +16,17 @@ enum SPELL_SCHOOL : int32_t {
     NUM_SPELL_SCHOOLS = 7,
 };
 
+// Primary stat index into the unit stat fields; names follow the stat names
+// the client passes to its LCD SetStat.
+enum UNIT_STAT : int32_t {
+    STAT_STRENGTH = 0,
+    STAT_AGILITY = 1,
+    STAT_STAMINA = 2,
+    STAT_INTELLECT = 3,
+    STAT_SPIRIT = 4,
+    NUM_UNIT_STATS = 5,
+};
+
 // Byte-sized aura-visual eligibility flags, separate from AuraData packet flags.
 enum AURA_VISION_FLAGS : uint8_t {
     AURA_VISION_FLAG_STEALTH_DETECT = 0x20,

@@ -16334,7 +16334,7 @@ float CGUnit_C::GetSpellChanceToCrit() const {
         return 0.0f;
     }
 
-    int32_t intellect = this->m_unit->m_unitFieldStat[3];
+    int32_t intellect = this->m_unit->m_unitFieldStat[STAT_INTELLECT];
     return (ratio * (intellect < 0 ? 0 : intellect) + base) * 100.0f;
 }
 

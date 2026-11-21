@@ -1226,11 +1226,11 @@ int32_t CGLCD::Update(const void* data, void* param) {
         CGLCD::CheckInput();
 
         if (s_currentScreen == LCD_SCREEN_PLAYER_INFO) {
-            CGLCD::SetStat("STRENGTH", CGLCD::m_player->m_unit->m_unitFieldStat[0]);
-            CGLCD::SetStat("AGILITY", CGLCD::m_player->m_unit->m_unitFieldStat[1]);
-            CGLCD::SetStat("STAMINA", CGLCD::m_player->m_unit->m_unitFieldStat[2]);
-            CGLCD::SetStat("INTELLECT", CGLCD::m_player->m_unit->m_unitFieldStat[3]);
-            CGLCD::SetStat("SPIRIT", CGLCD::m_player->m_unit->m_unitFieldStat[4]);
+            CGLCD::SetStat("STRENGTH", CGLCD::m_player->m_unit->m_unitFieldStat[STAT_STRENGTH]);
+            CGLCD::SetStat("AGILITY", CGLCD::m_player->m_unit->m_unitFieldStat[STAT_AGILITY]);
+            CGLCD::SetStat("STAMINA", CGLCD::m_player->m_unit->m_unitFieldStat[STAT_STAMINA]);
+            CGLCD::SetStat("INTELLECT", CGLCD::m_player->m_unit->m_unitFieldStat[STAT_INTELLECT]);
+            CGLCD::SetStat("SPIRIT", CGLCD::m_player->m_unit->m_unitFieldStat[STAT_SPIRIT]);
 
             if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
                 int32_t base;
