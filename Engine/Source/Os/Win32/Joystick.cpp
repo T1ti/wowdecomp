@@ -514,54 +514,63 @@ static void PollJoystick(uint32_t index, BOOL active) {
         }
     }
 
+    // Hat button bits; named from the POV angle (hundredths of a degree,
+    // clockwise from up) each combination reports.
+    enum : uint32_t {
+        HAT_UP = 0x1,
+        HAT_RIGHT = 0x2,
+        HAT_DOWN = 0x4,
+        HAT_LEFT = 0x8,
+    };
+
     for (int32_t i = 0; i < 4; i++) {
         W32JoystickHat* hat = &joystick->m_hats[i];
 
         if (hat->m_enabled) {
-            uint32_t directions = state->rgbButtons[hat->m_buttons[0]] != 0;
+            uint32_t directions = state->rgbButtons[hat->m_buttons[0]] != 0 ? HAT_UP : 0;
 
             if (state->rgbButtons[hat->m_buttons[1]]) {
-                directions |= 2;
+                directions |= HAT_RIGHT;
             }
 
             if (state->rgbButtons[hat->m_buttons[2]]) {
-                directions |= 4;
+                directions |= HAT_DOWN;
             }
 
             if (state->rgbButtons[hat->m_buttons[3]]) {
-                directions |= 8;
+                directions |= HAT_LEFT;
             }
 
             switch (directions) {
-                case 1:
+                case HAT_UP:
                     state->rgdwPOV[i] = 0;
                     break;
 
-                case 2:
+                case HAT_RIGHT:
                     state->rgdwPOV[i] = 9000;
                     break;
 
-                case 3:
+                case HAT_UP | HAT_RIGHT:
                     state->rgdwPOV[i] = 4500;
                     break;
 
-                case 4:
+                case HAT_DOWN:
                     state->rgdwPOV[i] = 18000;
                     break;
 
-                case 6:
+                case HAT_RIGHT | HAT_DOWN:
                     state->rgdwPOV[i] = 13500;
                     break;
 
-                case 8:
+                case HAT_LEFT:
                     state->rgdwPOV[i] = 27000;
                     break;
 
-                case 9:
+                case HAT_UP | HAT_LEFT:
                     state->rgdwPOV[i] = 31500;
                     break;
 
-                case 12:
+                case HAT_DOWN | HAT_LEFT:
                     state->rgdwPOV[i] = 22500;
                     break;
 
