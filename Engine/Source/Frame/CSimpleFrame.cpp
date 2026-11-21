@@ -759,7 +759,7 @@ void CSimpleFrame::LoadXMLInheritance(XMLNode* node, CStatus* status) {
 // OFFSET: 0x0048F550
 void CSimpleFrame::NotifyDelayedLoad() {
     if (this->m_frameFlags & FrameFlags::FRAME_BEING_SCROLLED) {
-        this->m_batchDirty |= 0x20;
+        this->m_batchDirty |= BATCH_DIRTY_DELAYED_LOAD;
     } else if (this->m_simpleTop && this->m_isVisible) {
         this->m_simpleTop->NotifyFrameDelayedLoad(this);
     }
@@ -1576,7 +1576,7 @@ void CSimpleFrame::SetBeingScrolled(int32_t scrolled, int32_t scrollChild) {
     }
 
     if (scrolled) {
-        this->m_batchDirty |= 0x1F;
+        this->m_batchDirty |= BATCH_DIRTY_ALL_DRAWLAYERS;
     }
 
     for (SIMPLEFRAMENODE* node = this->m_children.Head(); node; node = this->m_children.Next(node)) {
@@ -2040,7 +2040,7 @@ void CSimpleFrame::OnFrameRender() {
             }
         }
 
-        if (this->m_batchDirty & 0x20) {
+        if (this->m_batchDirty & BATCH_DIRTY_DELAYED_LOAD) {
             for (uint32_t layer = 0; layer < NUM_SIMPLEFRAME_DRAWLAYERS; layer++) {
                 this->m_batchDirty |= 1 << layer;
             }

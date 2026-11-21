@@ -74,8 +74,8 @@ int32_t CFrameStrataNode::BuildBatches() {
         }
     }
 
-    if (this->m_batchDirty & 0x20) {
-        this->m_batchDirty |= 0x1F;
+    if (this->m_batchDirty & BATCH_DIRTY_DELAYED_LOAD) {
+        this->m_batchDirty |= BATCH_DIRTY_ALL_DRAWLAYERS;
     }
 
     return 0;

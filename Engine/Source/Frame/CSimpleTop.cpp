@@ -76,7 +76,7 @@ void CSimpleTop::NotifyFrameLayerChanged(CSimpleFrame* frame, uint32_t drawLayer
 // OFFSET: 0x00493C50
 void CSimpleTop::NotifyFrameDelayedLoad(CSimpleFrame* frame) {
     CFrameStrata* strata = this->m_strata[frame->m_strata];
-    strata->m_levels[frame->m_level]->m_batchDirty |= 0x20;
+    strata->m_levels[frame->m_level]->m_batchDirty |= BATCH_DIRTY_DELAYED_LOAD;
     strata->m_batchDirty = 1;
 }
 

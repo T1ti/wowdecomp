@@ -44,6 +44,13 @@ enum : uint32_t {
     NUM_SIMPLEFRAME_DRAWLAYERS = 5,
 };
 
+// m_batchDirty bits: one per draw layer, plus a delayed-load bit that later dirties
+// every layer (name from NotifyDelayedLoad / NotifyFrameDelayedLoad, which set it).
+enum : uint32_t {
+    BATCH_DIRTY_ALL_DRAWLAYERS = (1u << NUM_SIMPLEFRAME_DRAWLAYERS) - 1,
+    BATCH_DIRTY_DELAYED_LOAD = 1u << NUM_SIMPLEFRAME_DRAWLAYERS,
+};
+
 enum CSimpleButtonState {
     BUTTONSTATE_DISABLED = 0,
     BUTTONSTATE_NORMAL = 1,
