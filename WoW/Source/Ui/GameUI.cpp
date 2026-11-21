@@ -2846,7 +2846,7 @@ void CGGameUI::Target(WOWGUID guid) {
                     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TARGETING_ENEMY);
                 } else if (unit->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
                     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TRAVEL);
-                } else if (unit->m_questStatus == 1) {
+                } else if (unit->m_questStatus == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_1) {
                     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_UNAVAILABLE_QUEST_GIVERS);
                 }
             }

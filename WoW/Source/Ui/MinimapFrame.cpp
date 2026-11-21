@@ -2302,11 +2302,11 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
         } else {
             uint32_t status = gameObject->m_questStatus;
 
-            if (status == 10) {
+            if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_10) {
                 type = MINIMAP_QUEST_COMPLETE;
-            } else if (status == 8 || (status == 2 && CGMinimapFrame::IsTrackingTrivialQuests())) {
+            } else if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_8 || (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2 && CGMinimapFrame::IsTrackingTrivialQuests())) {
                 type = MINIMAP_QUEST_AVAILABLE;
-            } else if (status == 7 || (status == 4 && CGMinimapFrame::IsTrackingTrivialQuests())) {
+            } else if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_7 || (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_4 && CGMinimapFrame::IsTrackingTrivialQuests())) {
                 type = MINIMAP_QUEST_REPEATABLE;
             } else {
                 if (!player->CanTrackObject(gameObject)) {
@@ -2344,11 +2344,11 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
             } else {
                 uint32_t status = unit->m_questStatus;
 
-                if (status == 10) {
+                if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_10) {
                     type = MINIMAP_QUEST_COMPLETE;
-                } else if (status == 8 || (status == 2 && CGMinimapFrame::IsTrackingTrivialQuests())) {
+                } else if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_8 || (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2 && CGMinimapFrame::IsTrackingTrivialQuests())) {
                     type = MINIMAP_QUEST_AVAILABLE;
-                } else if (status == 7 || (status == 4 && CGMinimapFrame::IsTrackingTrivialQuests())) {
+                } else if (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_7 || (status == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_4 && CGMinimapFrame::IsTrackingTrivialQuests())) {
                     type = MINIMAP_QUEST_REPEATABLE;
                 } else if (unit->m_interactIconType) {
                     type = MINIMAP_FLIGHTMASTER;
@@ -3306,7 +3306,7 @@ void CGMinimapFrame::RenderInside(float scale, const C2Vector* center, const CIm
 static int32_t UpdateObjectInteractIcon(WOWGUID guid, void* param) {
     CGObject_C* object = ClntObjMgrObjectPtr(guid, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (object && (object->m_questStatus == 2 || object->m_questStatus == 3 || object->m_questStatus == 4)) {
+    if (object && (object->m_questStatus == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2 || object->m_questStatus == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_3 || object->m_questStatus == QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_4)) {
         object->UpdateInteractIcon();
     }
 

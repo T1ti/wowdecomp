@@ -4026,7 +4026,7 @@ void CGGameObject_C::RefreshInteractIcon() {
     if (this->ObjectReaction(player) >= UNIT_REACTION_NEUTRAL && this->IsQuestGiver()) {
         player->UpdateQuestStatus(this);
     } else {
-        this->m_questStatus = 0;
+        this->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
         this->m_interactIconType = INTERACT_ICON_NONE;
         this->RemoveInteractIcon();
     }

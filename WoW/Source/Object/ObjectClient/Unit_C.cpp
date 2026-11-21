@@ -2192,7 +2192,7 @@ void CGUnit_C::RefreshInteractIcon() {
     }
 
     if (this->UnitReaction(player) < UNIT_REACTION_NEUTRAL) {
-        this->m_questStatus = 0;
+        this->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
         this->m_interactIconType = INTERACT_ICON_NONE;
         this->RemoveInteractIcon();
         return;
@@ -2201,7 +2201,7 @@ void CGUnit_C::RefreshInteractIcon() {
     if (this->IsQuestGiver()) {
         player->UpdateQuestStatus(this);
     } else {
-        this->m_questStatus = 0;
+        this->m_questStatus = QUEST_GIVER_STATUS::QUEST_GIVER_NONE;
     }
 
     if (this->m_unit->m_unitNpcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_FLIGHT_MASTER) {
