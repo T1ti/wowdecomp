@@ -26,11 +26,16 @@ enum MAP_INSTANCE_TYPE : int32_t {
 // Map.dbc rows the client tests directly, named after m_directory. Maps below
 // MAP_EXPANSION01 (Outland) are the original game's.
 enum MAP_ID : int32_t {
+    MAP_PVP_ZONE01       = 30,  // Alterac Valley
+    MAP_PVP_ZONE03       = 489, // Warsong Gulch
+    MAP_PVP_ZONE04       = 529, // Arathi Basin
     MAP_EXPANSION01      = 530, // Outland
     MAP_HELLFIRE_RAMPART = 543, // Hellfire Citadel: Ramparts
     MAP_NETHERSTORM_BG   = 566, // Eye of the Storm
     MAP_NORTHREND        = 571,
     MAP_UTGARDE_PINNACLE = 575,
+    MAP_NORTHREND_BG     = 607, // Strand of the Ancients
+    MAP_ISLE_OF_CONQUEST = 628,
 };
 
 class MapRec {

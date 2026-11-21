@@ -317,27 +317,27 @@ HRESULT CEzLcd::SetAlpha(void* handle, int32_t alpha) {
 // OFFSET: 0x00959040
 int32_t CEzLcd::ButtonReleased(int32_t button) {
     switch (button) {
-        case 0:
+        case BUTTON_0:
             return (this->m_buttonsPrevious & LGLCDBUTTON_BUTTON0) && !(this->m_buttonsCurrent & LGLCDBUTTON_BUTTON0);
-        case 1:
+        case BUTTON_1:
             return (this->m_buttonsPrevious & LGLCDBUTTON_BUTTON1) && !(this->m_buttonsCurrent & LGLCDBUTTON_BUTTON1);
-        case 2:
+        case BUTTON_2:
             return (this->m_buttonsPrevious & LGLCDBUTTON_BUTTON2) && !(this->m_buttonsCurrent & LGLCDBUTTON_BUTTON2);
-        case 3:
+        case BUTTON_3:
             return (this->m_buttonsPrevious & LGLCDBUTTON_BUTTON3) && !(this->m_buttonsCurrent & LGLCDBUTTON_BUTTON3);
-        case 4:
+        case BUTTON_LEFT:
             return (this->m_buttonsPrevious & LGLCDBUTTON_LEFT) && !(this->m_buttonsCurrent & LGLCDBUTTON_LEFT);
-        case 5:
+        case BUTTON_RIGHT:
             return (this->m_buttonsPrevious & LGLCDBUTTON_RIGHT) && !(this->m_buttonsCurrent & LGLCDBUTTON_RIGHT);
-        case 6:
+        case BUTTON_UP:
             return (this->m_buttonsPrevious & LGLCDBUTTON_UP) && !(this->m_buttonsCurrent & LGLCDBUTTON_UP);
-        case 7:
+        case BUTTON_DOWN:
             return (this->m_buttonsPrevious & LGLCDBUTTON_DOWN) && !(this->m_buttonsCurrent & LGLCDBUTTON_DOWN);
-        case 8:
+        case BUTTON_OK:
             return (this->m_buttonsPrevious & LGLCDBUTTON_OK) && !(this->m_buttonsCurrent & LGLCDBUTTON_OK);
-        case 9:
+        case BUTTON_CANCEL:
             return (this->m_buttonsPrevious & LGLCDBUTTON_CANCEL) && !(this->m_buttonsCurrent & LGLCDBUTTON_CANCEL);
-        case 10:
+        case BUTTON_MENU:
             return (this->m_buttonsPrevious & LGLCDBUTTON_MENU) && !(this->m_buttonsCurrent & LGLCDBUTTON_MENU);
         default:
             return 0;

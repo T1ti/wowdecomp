@@ -23,6 +23,21 @@ class CEzLcd {
         LCD_TYPE_NONE = 3, // Constructor value before Initialize (name inferred).
     };
 
+    // ButtonReleased index; named from the LGLCDBUTTON_* mask each value tests.
+    enum BUTTON : int32_t {
+        BUTTON_0 = 0,
+        BUTTON_1 = 1,
+        BUTTON_2 = 2,
+        BUTTON_3 = 3,
+        BUTTON_LEFT = 4,
+        BUTTON_RIGHT = 5,
+        BUTTON_UP = 6,
+        BUTTON_DOWN = 7,
+        BUTTON_OK = 8,
+        BUTTON_CANCEL = 9,
+        BUTTON_MENU = 10,
+    };
+
     /* 0004 */ char m_friendlyName[260];
     /* 0108 */ CLCDConnection m_connection;
     /* 0174 */ LCD_TYPE m_lcdType;

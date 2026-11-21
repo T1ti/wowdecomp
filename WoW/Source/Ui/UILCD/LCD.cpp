@@ -35,6 +35,7 @@
 #include "WoW/Source/Ui/UILCD/Windows/LCDText.h"
 #include "WoW/Source/Ui/UILCD/Windows/LCDUtils.h"
 #include "WoW/Source/Ui/WorldMap.h"
+#include "WoW/Source/DB/Rec/MapRec.h"
 #include "WoW/Source/UIUtil/Tooltip.h"
 
 // STATIC: 0x00B1C0BC
@@ -495,10 +496,10 @@ void CGLCD::CheckInput() {
         return;
     }
 
-    if (CGLCD::m_lcd->ButtonReleased(2)) {
+    if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_2)) {
         CGLCD::SetScreen(LCD_SCREEN_CHAT_ALERT);
     } else {
-        if (CGLCD::m_lcd->ButtonReleased(1)) {
+        if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_1)) {
             if (s_inBattlefield) {
                 CGLCD::SetScreen(LCD_SCREEN_BATTLEFIELD_STATUS);
             } else if (s_battlefieldPortExpiration <= OsGetAsyncTimeMs()) {
@@ -506,7 +507,7 @@ void CGLCD::CheckInput() {
             } else {
                 CGLCD::SetScreen(LCD_SCREEN_BATTLEFIELD_ALERT);
             }
-        } else if (CGLCD::m_lcd->ButtonReleased(0)) {
+        } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_0)) {
             if ((!IsAsianLocale() || CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) && s_currentScreen == LCD_SCREEN_PLAYER_INFO) {
                 s_subscreen = (s_subscreen + 1) % 4;
                 SetSubscreen(s_subscreen);
@@ -521,78 +522,78 @@ void CGLCD::CheckInput() {
     }
 
 checkNavigation:
-    if (CGLCD::m_lcd->ButtonReleased(5)) {
+    if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_RIGHT)) {
         switch (s_currentScreen) {
-            case 1:
-                CGLCD::SetScreen(s_inBattlefield ? 3 : 4);
+            case LCD_SCREEN_PLAYER_INFO:
+                CGLCD::SetScreen(s_inBattlefield ? LCD_SCREEN_BATTLEFIELD_STATUS : LCD_SCREEN_NOT_IN_BATTLEFIELD);
                 break;
 
-            case 2:
-            case 3:
-            case 4:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
+            case LCD_SCREEN_BATTLEFIELD_ALERT:
+            case LCD_SCREEN_BATTLEFIELD_STATUS:
+            case LCD_SCREEN_NOT_IN_BATTLEFIELD:
+            case LCD_SCREEN_ARATHI_BASIN_MAP:
+            case LCD_SCREEN_WARSONG_MAP:
+            case LCD_SCREEN_EYE_OF_THE_STORM_MAP:
+            case LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP:
+            case LCD_SCREEN_ALTERAC_VALLEY_MAP:
                 CGLCD::SetScreen(LCD_SCREEN_CHAT_ALERT);
                 break;
 
-            case 6:
+            case LCD_SCREEN_CHAT_ALERT:
                 CGLCD::SetScreen(LCD_SCREEN_PLAYER_INFO);
                 break;
         }
-    } else if (CGLCD::m_lcd->ButtonReleased(4)) {
+    } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_LEFT)) {
         switch (s_currentScreen) {
-            case 1:
+            case LCD_SCREEN_PLAYER_INFO:
                 CGLCD::SetScreen(LCD_SCREEN_CHAT_ALERT);
                 break;
 
-            case 2:
-            case 3:
-            case 4:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
+            case LCD_SCREEN_BATTLEFIELD_ALERT:
+            case LCD_SCREEN_BATTLEFIELD_STATUS:
+            case LCD_SCREEN_NOT_IN_BATTLEFIELD:
+            case LCD_SCREEN_ARATHI_BASIN_MAP:
+            case LCD_SCREEN_WARSONG_MAP:
+            case LCD_SCREEN_EYE_OF_THE_STORM_MAP:
+            case LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP:
+            case LCD_SCREEN_ALTERAC_VALLEY_MAP:
                 CGLCD::SetScreen(LCD_SCREEN_PLAYER_INFO);
                 break;
 
-            case 6:
-                CGLCD::SetScreen(s_inBattlefield ? 3 : 4);
+            case LCD_SCREEN_CHAT_ALERT:
+                CGLCD::SetScreen(s_inBattlefield ? LCD_SCREEN_BATTLEFIELD_STATUS : LCD_SCREEN_NOT_IN_BATTLEFIELD);
                 break;
         }
-    } else if (CGLCD::m_lcd->ButtonReleased(6)) {
+    } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_UP)) {
         switch (s_currentScreen) {
-            case 1:
+            case LCD_SCREEN_PLAYER_INFO:
                 s_subscreen = (s_subscreen + 1) % 4;
                 SetSubscreen(s_subscreen);
                 break;
 
-            case 3:
+            case LCD_SCREEN_BATTLEFIELD_STATUS:
                 switch (CGPlayer_C::GetNewContinentID()) {
-                    case 30:
+                    case MAP_PVP_ZONE01:
                         CGLCD::SetScreen(LCD_SCREEN_ALTERAC_VALLEY_MAP);
                         break;
 
-                    case 489:
+                    case MAP_PVP_ZONE03:
                         CGLCD::SetScreen(LCD_SCREEN_WARSONG_MAP);
                         break;
 
-                    case 529:
+                    case MAP_PVP_ZONE04:
                         CGLCD::SetScreen(LCD_SCREEN_ARATHI_BASIN_MAP);
                         break;
 
-                    case 566:
+                    case MAP_NETHERSTORM_BG:
                         CGLCD::SetScreen(LCD_SCREEN_EYE_OF_THE_STORM_MAP);
                         break;
 
-                    case 607:
+                    case MAP_NORTHREND_BG:
                         CGLCD::SetScreen(LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP);
                         break;
 
-                    case 628:
+                    case MAP_ISLE_OF_CONQUEST:
                         CGLCD::SetScreen(LCD_SCREEN_ISLE_OF_CONQUEST_MAP);
                         break;
                 }
@@ -600,17 +601,17 @@ checkNavigation:
                 CGWorldMap::SetMapToCurrentZone(0);
                 break;
 
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
+            case LCD_SCREEN_ARATHI_BASIN_MAP:
+            case LCD_SCREEN_WARSONG_MAP:
+            case LCD_SCREEN_EYE_OF_THE_STORM_MAP:
+            case LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP:
+            case LCD_SCREEN_ALTERAC_VALLEY_MAP:
                 CGLCD::SetScreen(LCD_SCREEN_BATTLEFIELD_STATUS);
                 break;
         }
-    } else if (CGLCD::m_lcd->ButtonReleased(7)) {
+    } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_DOWN)) {
         switch (s_currentScreen) {
-            case 1:
+            case LCD_SCREEN_PLAYER_INFO:
                 if (s_subscreen) {
                     s_subscreen = (s_subscreen - 1) % 4;
                     SetSubscreen(s_subscreen);
@@ -621,29 +622,29 @@ checkNavigation:
 
                 break;
 
-            case 3:
+            case LCD_SCREEN_BATTLEFIELD_STATUS:
                 switch (CGPlayer_C::GetNewContinentID()) {
-                    case 30:
+                    case MAP_PVP_ZONE01:
                         CGLCD::SetScreen(LCD_SCREEN_ALTERAC_VALLEY_MAP);
                         break;
 
-                    case 489:
+                    case MAP_PVP_ZONE03:
                         CGLCD::SetScreen(LCD_SCREEN_WARSONG_MAP);
                         break;
 
-                    case 529:
+                    case MAP_PVP_ZONE04:
                         CGLCD::SetScreen(LCD_SCREEN_ARATHI_BASIN_MAP);
                         break;
 
-                    case 566:
+                    case MAP_NETHERSTORM_BG:
                         CGLCD::SetScreen(LCD_SCREEN_EYE_OF_THE_STORM_MAP);
                         break;
 
-                    case 607:
+                    case MAP_NORTHREND_BG:
                         CGLCD::SetScreen(LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP);
                         break;
 
-                    case 628:
+                    case MAP_ISLE_OF_CONQUEST:
                         CGLCD::SetScreen(LCD_SCREEN_ISLE_OF_CONQUEST_MAP);
                         break;
                 }
@@ -651,11 +652,11 @@ checkNavigation:
                 CGWorldMap::SetMapToCurrentZone(0);
                 break;
 
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
+            case LCD_SCREEN_ARATHI_BASIN_MAP:
+            case LCD_SCREEN_WARSONG_MAP:
+            case LCD_SCREEN_EYE_OF_THE_STORM_MAP:
+            case LCD_SCREEN_STRAND_OF_THE_ANCIENTS_MAP:
+            case LCD_SCREEN_ALTERAC_VALLEY_MAP:
                 CGLCD::SetScreen(LCD_SCREEN_BATTLEFIELD_STATUS);
                 break;
         }
