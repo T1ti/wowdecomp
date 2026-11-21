@@ -97,51 +97,51 @@ void System_Hardware::InitProcessorFeatures() {
 
     if (ReadCPUID(&info)) {
         if (info.m_leaf1Edx & 0x10) {
-            features = 0x1;
+            features = Blizzard::Hardware::PROCESSOR_FEATURE_TSC;
         }
 
         if (info.m_leaf1Edx & 0x800000) {
-            features |= 0x2;
+            features |= Blizzard::Hardware::PROCESSOR_FEATURE_MMX;
         }
 
         if (info.m_leaf1Edx & 0x2000000) {
-            features |= 0x4;
+            features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE;
         }
 
         if (info.m_ext1Edx & 0x80000000) {
-            features |= 0x8;
+            features |= Blizzard::Hardware::PROCESSOR_FEATURE_3DNOW;
         }
 
         const char* vendors = "GenuineIntel" "AuthenticAMD" "CyrixInstead" "CentaurHalls";
         const char* vendor = reinterpret_cast<const char*>(info.m_vendor);
 
         if (!strncmp(vendor, vendors, 12)) {
-            s_processorFeatures.m_vendor = 1;
+            s_processorFeatures.m_vendor = Blizzard::Hardware::PROCESSOR_VENDOR_INTEL;
 
             if (info.m_leaf1Edx & 0x4000000) {
-                features |= 0x10;
+                features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE2;
             }
 
             if (info.m_maxLeaf >= 4) {
                 uint8_t cores = static_cast<uint8_t>(info.m_leaf4Eax >> 26);
 
                 if (cores) {
-                    s_processorFeatures.m_features = features | 0x40;
+                    s_processorFeatures.m_features = features | Blizzard::Hardware::PROCESSOR_FEATURE_MULTICORE;
                     s_processorFeatures.m_coreCount = cores + 1;
                     return;
                 }
             }
         } else if (!strncmp(vendor, vendors + 12, 12)) {
-            s_processorFeatures.m_vendor = 2;
+            s_processorFeatures.m_vendor = Blizzard::Hardware::PROCESSOR_VENDOR_AMD;
 
             if (info.m_leaf1Edx & 0x4000000) {
-                features |= 0x10;
+                features |= Blizzard::Hardware::PROCESSOR_FEATURE_SSE2;
             }
 
             uint8_t cores = static_cast<uint8_t>(info.m_ext8Ecx);
 
             if (cores) {
-                s_processorFeatures.m_features = features | 0x40;
+                s_processorFeatures.m_features = features | Blizzard::Hardware::PROCESSOR_FEATURE_MULTICORE;
                 s_processorFeatures.m_coreCount = cores + 1;
                 return;
             }
