@@ -10357,10 +10357,7 @@ void CGUnit_C::ClearTrackingTarget(bool faceTarget, bool stopMovement) {
 // OFFSET: 0x00715B70
 void CGUnit_C::ClearWeaponTrailHandles() {
     for (int32_t i = 0; i < 2; i++) {
-        if (this->m_weaponTrails[i]) {
-            WeaponTrailClose(this->m_weaponTrails[i]);
-            this->m_weaponTrails[i] = nullptr;
-        }
+        this->ClearWeaponTrail(i);
     }
 }
 
@@ -10643,12 +10640,7 @@ void CGUnit_C::Disable() {
 
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING_AUTO_REPEAT;
 
-    for (int32_t i = 0; i < 2; i++) {
-        if (this->m_weaponTrails[i]) {
-            WeaponTrailClose(this->m_weaponTrails[i]);
-            this->m_weaponTrails[i] = nullptr;
-        }
-    }
+    this->ClearWeaponTrailHandles();
 
     SI2::StopSound(&this->m_npcInteractSound, 0, 2.0f, 1);
     this->ClearTrackingTarget(false, true);
@@ -15302,13 +15294,7 @@ void CGUnit_C::OnVisFlagChanged(uint8_t oldFlags) {
     if (changed & UNIT_VIS_FLAG_CREEP) {
         this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
 
-        if (this->m_nameDesc) {
-            PlayerNameTriggerNameRegenerate(this->m_nameDesc);
-        }
-
-        if (this->m_namePlateFrame) {
-            this->m_namePlateFrame->UpdateNameDisplay(this);
-        }
+        this->UpdateUnitNameText();
 
         if (this->IsActivePlayer()) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_STEALTH, nullptr);
@@ -15317,13 +15303,7 @@ void CGUnit_C::OnVisFlagChanged(uint8_t oldFlags) {
     }
 
     if (changed & UNIT_VIS_FLAG_UNKNOWN_0) {
-        if (this->m_nameDesc) {
-            PlayerNameTriggerNameRegenerate(this->m_nameDesc);
-        }
-
-        if (this->m_namePlateFrame) {
-            this->m_namePlateFrame->UpdateNameDisplay(this);
-        }
+        this->UpdateUnitNameText();
     }
 }
 
