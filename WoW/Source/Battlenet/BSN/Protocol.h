@@ -42,6 +42,10 @@ uint32_t GetUInt32(const uint8_t*& cursor);
 
 namespace Type {
 struct Bounds {
+    // Non-fixed bounds byte, named after the fields it fills.
+    static const uint8_t VARIABLE_FLAG = 0x80;
+    static const uint8_t BITS_MASK = 0x7F;
+
     /* 0000 */ int32_t m_intType;
     /* 0004 */ uint32_t m_bits;
     /* 0008 */ uint64_t m_min;

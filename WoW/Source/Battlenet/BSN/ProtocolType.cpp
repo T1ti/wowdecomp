@@ -57,8 +57,8 @@ void BSN::Protocol::Type::Bounds::Get(bool fixed, const uint8_t*& cursor, Bounds
         BSN::Protocol::Type::Int::Get(intType, cursor, bounds.m_min);
         bounds.m_max = bounds.m_min;
     } else {
-        bounds.m_variable = *cursor >> 7;
-        bounds.m_bits = *cursor++ & 0x7F;
+        bounds.m_variable = (*cursor & Bounds::VARIABLE_FLAG) != 0;
+        bounds.m_bits = *cursor++ & Bounds::BITS_MASK;
         BSN::Protocol::Type::Int::Get(bounds.m_intType, cursor, bounds.m_min);
         BSN::Protocol::Type::Int::Get(bounds.m_intType, cursor, bounds.m_max);
     }
