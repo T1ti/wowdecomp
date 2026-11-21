@@ -1327,8 +1327,8 @@ static int32_t Script_UnitHasLFGRandomCooldown(lua_State* L) {
         return 0;
     }
 
-    for (int32_t i = 0; i < 64; i++) {
-        if (state->m_auras[i] == 71328) {
+    for (int32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
+        if (state->m_auras[i] == SPELL_ID_DUNGEON_COOLDOWN) {
             lua_pushboolean(L, 1);
             return 1;
         }
@@ -1365,8 +1365,8 @@ static int32_t Script_UnitHasLFGDeserter(lua_State* L) {
         return 0;
     }
 
-    for (int32_t i = 0; i < 64; i++) {
-        if (state->m_auras[i] == 71041) {
+    for (int32_t i = 0; i < MAX_PARTY_MEMBER_AURAS; i++) {
+        if (state->m_auras[i] == SPELL_ID_DUNGEON_DESERTER) {
             lua_pushboolean(L, 1);
             return 1;
         }
