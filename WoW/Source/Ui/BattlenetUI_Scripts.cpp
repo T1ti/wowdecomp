@@ -697,7 +697,7 @@ static int32_t Script_BNGetConversationInfo(lua_State* L) {
 
     double channel = lua_tonumber(L, 1) - 1.0;
 
-    if (BattlenetAPI::GetChatChannelType(static_cast<uint8_t>(channel)) == 2) {
+    if (BattlenetAPI::GetChatChannelType(static_cast<uint8_t>(channel)) == BattlenetUI::CHAT_CHANNEL_TYPE_CONVERSATION) {
         lua_pushstring(L, "conversation");
     } else {
         lua_pushnil(L);
@@ -1477,7 +1477,7 @@ static int32_t Script_BNListConversation(lua_State* L) {
         double channelNumber = lua_tonumber(L, 1) - 1.0;
         uint8_t channel = static_cast<uint8_t>(channelNumber);
 
-        if (BattlenetAPI::GetChatChannelType(channel) == 2) {
+        if (BattlenetAPI::GetChatChannelType(channel) == BattlenetUI::CHAT_CHANNEL_TYPE_CONVERSATION) {
             Battlenet::Chat::MemberList members = BattlenetAPI::GetChatMemberList(static_cast<uint8_t>(channelNumber));
 
             ChatConversation conversation;
