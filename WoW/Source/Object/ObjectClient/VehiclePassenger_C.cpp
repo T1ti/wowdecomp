@@ -1423,19 +1423,19 @@ void CVehiclePassenger_C::ComputeSeatPos(CGUnit_C* vehicle, CM2Model* model, Veh
 // VERIFY: 04e9dae7 auto
 // OFFSET: 0x00749650
 void CVehiclePassenger_C::SignalTransitionUIEvents(WOWGUID guid, const VehicleRec* vehicleRec, const VehicleSeatRec* seatRec, uint32_t events) {
-    if (events & 0x1) {
+    if (events & TRANSITION_EVENT_ENTERING) {
         SignalVehicleTransitionEvent(guid, vehicleRec, seatRec, SCRIPT_EVENT_UNIT_ENTERING_VEHICLE);
     }
 
-    if (events & 0x2) {
+    if (events & TRANSITION_EVENT_ENTERED) {
         SignalVehicleTransitionEvent(guid, vehicleRec, seatRec, SCRIPT_EVENT_UNIT_ENTERED_VEHICLE);
     }
 
-    if (events & 0x4) {
+    if (events & TRANSITION_EVENT_EXITING) {
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_EXITING_VEHICLE);
     }
 
-    if (events & 0x8) {
+    if (events & TRANSITION_EVENT_EXITED) {
         const char* sound = "";
         SoundEntriesRec* soundRec;
 
@@ -1583,9 +1583,9 @@ void CVehiclePassenger_C::OnReloadUI() {
     }
 
     if (state <= TRANSITION_STATE::STATE_ENTERING) {
-        CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, 1);
+        CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERING);
     } else if (state == TRANSITION_STATE::STATE_RIDING) {
-        CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, 3);
+        CVehiclePassenger_C::SignalTransitionUIEvents(player->m_obj->m_guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERING | TRANSITION_EVENT_ENTERED);
     }
 }
 
@@ -1595,22 +1595,22 @@ void CVehiclePassenger_C::SendTransitionUIEvents(WOWGUID guid, const VehicleRec*
     switch (toState) {
         case TRANSITION_STATE::STATE_NONE: {
             if (fromState == TRANSITION_STATE::STATE_RIDING) {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 12);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_EXITING | TRANSITION_EVENT_EXITED);
             } else {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 8);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_EXITED);
             }
 
             return;
         }
 
         case TRANSITION_STATE::STATE_ENTER_DELAY: {
-            CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 1);
+            CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERING);
             return;
         }
 
         case TRANSITION_STATE::STATE_ENTERING: {
             if (fromState != TRANSITION_STATE::STATE_ENTER_DELAY) {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 1);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERING);
             }
 
             return;
@@ -1618,22 +1618,22 @@ void CVehiclePassenger_C::SendTransitionUIEvents(WOWGUID guid, const VehicleRec*
 
         case TRANSITION_STATE::STATE_RIDING: {
             if (!fromState || fromState == TRANSITION_STATE::STATE_RIDING) {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 3);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERING | TRANSITION_EVENT_ENTERED);
             } else {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 2);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_ENTERED);
             }
 
             return;
         }
 
         case TRANSITION_STATE::STATE_EXIT_DELAY: {
-            CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 4);
+            CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_EXITING);
             return;
         }
 
         case TRANSITION_STATE::STATE_EXITING: {
             if (fromState != TRANSITION_STATE::STATE_EXIT_DELAY) {
-                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, 4);
+                CVehiclePassenger_C::SignalTransitionUIEvents(guid, vehicleRec, seatRec, TRANSITION_EVENT_EXITING);
             }
 
             return;

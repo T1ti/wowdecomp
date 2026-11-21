@@ -69,6 +69,14 @@ struct VehiclePassengerRescueTransition {
 
 class CVehiclePassenger_C {
     public:
+    // SignalTransitionUIEvents bits, named after the script event each one signals.
+    enum TRANSITION_UI_EVENTS : uint32_t {
+        TRANSITION_EVENT_ENTERING = 0x1, // UNIT_ENTERING_VEHICLE
+        TRANSITION_EVENT_ENTERED = 0x2,  // UNIT_ENTERED_VEHICLE
+        TRANSITION_EVENT_EXITING = 0x4,  // UNIT_EXITING_VEHICLE
+        TRANSITION_EVENT_EXITED = 0x8,   // UNIT_EXITED_VEHICLE
+    };
+
     enum TRANSITION_STATE : int32_t {
         STATE_NONE = 0,
         STATE_ENTER_DELAY = 1,
