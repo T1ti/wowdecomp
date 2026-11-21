@@ -91,8 +91,7 @@ void CMissile::Initialize() {
 void CMissile::OnRemoteMissileTrajectoryCollision(const MissileCollisionData& data) {
     for (CMissile* missile = s_inFlightMissileList; missile; missile = missile->m_next) {
         if (missile->m_casterGuid == data.m_casterGuid && missile->m_castID == data.m_castID) {
-            missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HAS_REMOTE_COLLISION;
-            missile->m_remoteCollisionPos = data.m_position;
+            missile->SetRemoteCollisionPos(data.m_position);
         }
     }
 }

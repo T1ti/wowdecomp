@@ -5912,13 +5912,7 @@ int32_t CMovement_C::OnMoveUnRoot(uint32_t time, const CMovementStatus& status) 
         return 0;
     }
 
-    this->UnRoot(1);
-
-    if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
-        this->AddToMoversList();
-    }
-
-    this->m_unit->UnRootEffects();
+    this->OnSplineUnRoot();
     return 1;
 }
 
@@ -5941,8 +5935,7 @@ int32_t CMovement_C::OnSetCollisionHeightOther(uint32_t time, const CMovementSta
         return 0;
     }
 
-    this->m_collisionHeight = value;
-    this->ValidateWorldPosition(CPassenger::GetPosition(this->m_position));
+    this->SetCollisionHeight(value);
     return 1;
 }
 
@@ -6256,9 +6249,7 @@ void CMovement_C::OnSplineRoot() {
     this->TryRoot();
 
     if (this->m_spline) {
-        this->SnapToSpline(this->m_spline->m_finalDestination, 0);
-        this->m_spline->m_start = this->m_spline->m_duration;
-        this->m_spline->m_flags |= SPLINEFLAG_DONE;
+        this->FinishSpline(0);
     }
 
     this->RemoveFromMoversList(1);

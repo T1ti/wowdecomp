@@ -9730,11 +9730,7 @@ void CGUnit_C::SetClientInitData(const CClientObjCreate& create, bool reenable) 
     }
 
     BOOL activePlayer = create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF;
-    this->m_movementData.SetUpdateInfo(OsGetAsyncTimeMs(), &create.m_move, activePlayer);
-
-    if (this->m_movementData.m_flags & MOVEMENTFLAG_FALLING_FAR) {
-        this->OnCollideFalling();
-    }
+    this->SetUpdateInfo(create.m_move, activePlayer);
 
     if (create.m_updateFlags & OBJECT_UPDATE_FLAGS::UPDATEFLAG_SELF) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_FALL_UPDATE_PENDING;
@@ -9933,13 +9929,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
 
     this->UpdateScriptRegistration();
 
-    if (this->m_nameDesc) {
-        PlayerNameDelete(this->m_nameDesc);
-    }
-
-    WOWGUID guid = this->m_obj->m_guid;
-    this->m_nameDesc = PlayerNameCreate(guid);
-
+    this->RecreateNamePlate();
     this->UpdateBreathState(FrameTime::s_curTimeMs);
     this->UpdateChannelEffects();
 
@@ -10116,12 +10106,7 @@ void CGUnit_C::SetAttacking(WOWGUID guid) {
 void CGUnit_C::Reenable() {
     CGObject_C::Reenable();
 
-    if (this->m_nameDesc) {
-        PlayerNameDelete(this->m_nameDesc);
-    }
-
-    WOWGUID guid = this->m_obj->m_guid;
-    this->m_nameDesc = PlayerNameCreate(guid);
+    this->RecreateNamePlate();
 
     float facing = this->m_movementData.m_facing;
     this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(facing);
@@ -10398,10 +10383,8 @@ CGUnit_C::~CGUnit_C() {
 
         CCharacterComponent::m_activePlayerComponent = this->m_characterComponent;
         CGPlayer_C::s_displayId = this->m_unit->m_unitFieldDisplayid;
-    } else if (this->m_characterComponent) {
-        CCharacterComponent::FreeComponent(this->m_characterComponent);
-        this->m_characterComponent = nullptr;
-        this->m_clientFlags = (this->m_clientFlags & ~(UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MIRROR_IMAGE_DATA_PENDING | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING)) | UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_COMPONENT_INITIALIZATION_PENDING;
+    } else {
+        this->FreeComponent();
     }
 
     this->ClearWeaponTrailHandles();
@@ -10539,8 +10522,7 @@ void CGUnit_C::Disable() {
     Spell_C_CancelSpellByCaster(guid);
 
     if (this->m_castSpellId) {
-        this->m_castCount = 0;
-        this->m_castSpellId = 0;
+        this->SetCastingSpell(0, 0);
         this->ResetUICastingSpell();
 
         SpellRec spell;
@@ -13147,9 +13129,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
         this->m_vehicle->UpdateWorldMatrix();
     }
 
-    if (this->m_obj->m_type & TYPE_PLAYER) {
-        static_cast<CGPlayer_C*>(this)->ChangeStandState(UNIT_STANDING);
-    }
+    this->ChangeStandState(UNIT_STANDING);
 
     this->CancelRangedMode();
 
@@ -18118,8 +18098,7 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool fullCl
     }
 
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING;
-    this->m_castCount = 0;
-    this->m_castSpellId = 0;
+    this->SetCastingSpell(0, 0);
     this->m_castSchoolImmunities = 0;
     this->m_castImmunities = 0;
 

@@ -2052,10 +2052,7 @@ bool CGGameObject_C_Type_Null::CanUseNow(GAME_ERROR_TYPE* error, float* distance
 // VERIFY: d1466c05 manual
 // OFFSET: 0x0070D900
 CGGameObject_C_Type_WorldObj::~CGGameObject_C_Type_WorldObj() {
-    if (this->m_worldObject) {
-        CWorld::ObjectDestroy(this->m_worldObject);
-        this->m_worldObject = nullptr;
-    }
+    this->CGGameObject_C_Type_WorldObj::DestroyWorldObj();
 }
 
 // VERIFY: 155035c0 auto

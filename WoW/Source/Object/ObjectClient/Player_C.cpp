@@ -3195,10 +3195,7 @@ CGUnit_C* CGPlayer_C::GetPossessedUnit() {
 // VERIFY: 3e8a1a90 manual
 // OFFSET: 0x006E1660
 void CGPlayer_C::SetCombatMode() {
-    if (this->IsActivePlayer() && (this->CGUnit_C::IsInMelee() || this->m_combat.m_attackSent)) {
-        this->StopAttack();
-        Spell_C_CancelMeleeSpells();
-    }
+    this->MeleeModeLeave();
 
     if (Spell_C_GetAutoRangedCombatSpell()) {
         Spell_C_SetAutoRangedCombatSpell(0);
