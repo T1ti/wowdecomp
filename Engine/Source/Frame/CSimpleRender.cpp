@@ -1466,11 +1466,7 @@ void CSimpleFontString::PreOnAnimUpdate() {
     }
 
     if (this->m_animAlpha) {
-        uint8_t alpha = this->m_animSavedAlpha;
-        CImVector color;
-        this->GetVertexColor(color);
-        color.a = alpha;
-        this->SetVertexColor(color);
+        this->SetVertexAlpha(this->m_animSavedAlpha);
     }
 }
 
@@ -2350,11 +2346,7 @@ void CSimpleTexture::PreOnAnimUpdate() {
         memcpy(this->m_positions, this->m_storedPositions, sizeof(this->m_positions));
 
         if (this->m_animAlpha) {
-            uint8_t alpha = this->m_animSavedAlpha;
-            CImVector color;
-            this->GetVertexColor(color);
-            color.a = alpha;
-            this->SetVertexColor(color);
+            this->SetVertexAlpha(this->m_animSavedAlpha);
         }
     }
 }

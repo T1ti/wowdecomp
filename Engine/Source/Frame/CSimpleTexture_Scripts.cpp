@@ -191,10 +191,7 @@ static int32_t Script_SetAlpha(lua_State* L) {
     float alpha = lua_tonumber(L, 2);
     alpha = alpha < 0.0f ? 0.0f : (alpha >= 1.0f ? 1.0f : alpha);
 
-    CImVector color;
-    texture->GetVertexColor(color);
-    color.a = static_cast<uint8_t>(alpha * 255.0f);
-    texture->SetVertexColor(color);
+    texture->SetVertexAlpha(static_cast<uint8_t>(alpha * 255.0f));
 
     return 0;
 }
