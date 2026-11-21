@@ -150,6 +150,11 @@ struct HASHENTRY {
     /* 000C */ uint32_t m_blockIndex;
 };
 
+// Archive block signatures, "MPQ" and "MPQ" read as little-endian
+// uint32. The 0x1B block carries the user data size and the archive offset.
+static const uint32_t MPQ_HEADER_SIGNATURE = 0x1A51504D;
+static const uint32_t MPQ_USER_DATA_SIGNATURE = 0x1B51504D;
+
 #pragma pack(push, 4)
 struct MPQHEADER {
     /* 0000 */ uint32_t m_magic;

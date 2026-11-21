@@ -721,11 +721,11 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
 
             header = reinterpret_cast<const uint32_t*>(buffer + static_cast<uint32_t>(archive->m_archiveOffset - bufferPos));
 
-            if (header[0] == 0x1A51504D) {
+            if (header[0] == MPQ_HEADER_SIGNATURE) {
                 break;
             }
 
-            if (header[0] != 0x1B51504D) {
+            if (header[0] != MPQ_USER_DATA_SIGNATURE) {
                 goto next;
             }
 
@@ -765,7 +765,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
 
             archive->m_archiveEnd = *end + archive->m_archiveOffset;
 
-            if (archive->m_header.m_magic == 0x1A51504D && valid
+            if (archive->m_header.m_magic == MPQ_HEADER_SIGNATURE && valid
                 && ((static_cast<int64_t>(archive->m_header.m_hashTablePosHi) << 32) | archive->m_header.m_hashTablePos) < archive->m_archiveEnd
                 && ((static_cast<int64_t>(archive->m_header.m_blockTablePosHi) << 32) | archive->m_header.m_blockTablePos) < archive->m_archiveEnd) {
                 haveCandidate = true;
@@ -1533,7 +1533,7 @@ bool System_SFile::CreateArchiveView(IOUnit* file, const char* name, int32_t pri
 
         uint32_t header[3];
         header[1] = userDataSize;
-        header[0] = 0x1B51504D;
+        header[0] = MPQ_USER_DATA_SIGNATURE;
         header[2] = static_cast<uint32_t>(archive->m_archiveOffset);
 
         if (!file->Write(header, 0, 12)) {
@@ -2796,7 +2796,7 @@ bool System_SFile::ARCHIVEREC::WriteArchiveChanges(ARCHIVEREC* archive) {
 
     MPQHEADER header;
     header.m_formatVersion = archive->m_header.m_formatVersion;
-    header.m_magic = 0x1A51504D;
+    header.m_magic = MPQ_HEADER_SIGNATURE;
     header.m_headerSize = header.m_formatVersion ? 44 : 32;
     header.m_archiveSize = static_cast<uint32_t>(end - archive->m_archiveOffset);
 
