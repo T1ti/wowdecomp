@@ -905,7 +905,7 @@ CMapChunk::CMapChunk() {
     this->m_entityLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_lightLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_soundHandleList.SetLinkOffset(0);
-    this->m_type |= 4;
+    this->m_type |= CMapBaseObj::Type_Chunk;
     this->m_distToCamera = 0.0f;
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
     this->m_detailDoodadInst = nullptr;
