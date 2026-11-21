@@ -43,8 +43,15 @@ class CAaBsp {
 
 class CAaBspNodeDigest {
     public:
+    // m_status; names inferred from the GenerateDigest checks that set them.
+    enum STATUS : uint8_t {
+        STATUS_OK = 0,
+        STATUS_TOO_MANY_FACES = 1,
+        STATUS_TOO_MANY_VERTICES = 2,
+    };
+
     /* 0000 */ const CAaBspNode* m_node;
-    /* 0004 */ uint8_t m_status;
+    /* 0004 */ uint8_t m_status; // STATUS
     /* 0005 */ uint8_t unused_0005[1];
     /* 0006 */ uint16_t m_nVertices;
     /* 0008 */ C3Vector m_vertices [450];
