@@ -447,9 +447,9 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
             msg->Get(reinterpret_cast<uint32_t&>(attachment->m_spellCharges));
             msg->Get(attachment->m_maxDurability);
             msg->Get(attachment->m_durability);
-            uint8_t unknown;
-            msg->Get(unknown);
-            attachment->unk_0078 = unknown;
+            uint8_t unlocked;
+            msg->Get(unlocked);
+            attachment->m_unlocked = unlocked;
         }
 
         message->m_invoiceItemID = 0;

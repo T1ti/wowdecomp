@@ -2214,7 +2214,7 @@ static int32_t Script_SetInboxItem(lua_State* L) {
         WOWGUID itemGuid = WOWGUID();
         WOWGUID requester = WOWGUID();
 
-        if (tooltip->SetItem(attachment->m_itemID, &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, attachment->unk_0078, 0)) {
+        if (tooltip->SetItem(attachment->m_itemID, &requester, &itemGuid, 0, 0, 1, 0, WOWGUID(), 0, nullptr, 0, nullptr, 0, attachment->m_unlocked, 0)) {
             lua_pushnumber(L, 1.0);
             return 1;
         }

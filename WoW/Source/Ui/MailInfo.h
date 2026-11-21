@@ -50,7 +50,7 @@ struct MailAttachmentInfo {
     /* 0054 */ int32_t m_enchantCharges[NUM_ENCHANTMENTS];
     /* 0070 */ uint32_t m_maxDurability;
     /* 0074 */ uint32_t m_durability;
-    /* 0078 */ uint32_t unk_0078;
+    /* 0078 */ uint32_t m_unlocked; // passed as SetItem skipLock, like ITEM_DFLAG_UNLOCKED (name inferred)
 };
 
 struct MailboxMessageInfo {
