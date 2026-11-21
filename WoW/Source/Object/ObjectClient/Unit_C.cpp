@@ -2332,6 +2332,11 @@ void CGUnit_C::PlayFallLandAnimation(uint32_t oldFlags, int32_t jumping) {
     this->UpdateBaseAnimation(ANIM_PLAY_FLAGS::PLAY_NONE, ANIM_SELECTION_FLAGS::ALL);
 }
 
+// Fall distances that play the injury sound and fall damage visual: past 13 yards for a
+// living unit, from 70 yards for a dead one. Names inferred.
+static const float FALL_INJURY_DISTANCE = 13.0f;
+static const float FALL_INJURY_DISTANCE_DEAD = 70.0f;
+
 // VERIFY: 8a0e5647 manual
 // OFFSET: 0x0073D3D0
 void CGUnit_C::OnCollideFallLand(uint32_t oldFlags, int32_t jumping) {
@@ -2343,7 +2348,7 @@ void CGUnit_C::OnCollideFallLand(uint32_t oldFlags, int32_t jumping) {
 
     float distance = this->m_movementData.GetDistanceFallen();
 
-    if (distance >= 70.0f || (distance > 13.0f && !this->IsDeadOrGhost())) {
+    if (distance >= FALL_INJURY_DISTANCE_DEAD || (distance > FALL_INJURY_DISTANCE && !this->IsDeadOrGhost())) {
         if (!(this->m_obj->m_type & TYPE_PLAYER) || (!(static_cast<CGPlayer_C*>(this)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_OUT_OF_BOUNDS) && this->m_unit->m_unitFieldHealth > 0)) {
             this->PlayUnitSound(UNITSOUNDTYPE_INJURY_FALL, 1);
         }
