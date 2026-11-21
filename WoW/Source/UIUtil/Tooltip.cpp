@@ -1698,9 +1698,7 @@ int32_t CGItemStatsSummary::Create(CGItem_C* item, int32_t level) {
 // VERIFY: fe542a77 manual
 // OFFSET: 0x006207A0
 int32_t CGItemStatsSummary::Fill(const char* link) {
-    memset(this->m_stats, 0, sizeof(this->m_stats));
-    this->m_dps = 0.0f;
-    this->m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
+    this->Create();
     int32_t randomPropertiesId = 0;
     uint32_t seed = 0;
     int32_t level = 0;
@@ -7139,9 +7137,7 @@ const uint32_t* CGTooltip::GetThreatStateColor(uint32_t status) {
 // OFFSET: 0x0061DBC0
 CGItemStatsSummary CGItemStatsSummary::operator-(const CGItemStatsSummary& other) const {
     CGItemStatsSummary result;
-    memset(result.m_stats, 0, sizeof(result.m_stats));
-    result.m_dps = 0.0f;
-    result.m_flags = SUMMARY_FLAGS::SUMMARY_NONE;
+    result.Create();
 
     for (uint32_t i = 0; i < NUM_STAT_SUMMARY; i++) {
         result.m_stats[i] = this->m_stats[i] - other.m_stats[i];
