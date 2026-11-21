@@ -1419,7 +1419,7 @@ SESoundInternal::SESoundInternal() {
     this->m_pitch = 1.0f;
     this->m_randomStart = 0;
     this->m_software = 0;
-    this->m_priority = -1;
+    this->m_priority = SE2_PRIORITY_UNSET;
     this->m_coneOrientation.x = 0.0f;
     this->m_coneOrientation.y = 0.0f;
     this->m_coneOrientation.z = 0.0f;
@@ -1779,7 +1779,7 @@ void SEFileSound::CompleteNonBlockingLoad() {
         }
     }
 
-    if (static_cast<uint32_t>(this->m_priority) != 128 && static_cast<uint32_t>(this->m_priority) <= 256 && this->m_channel) {
+    if (static_cast<uint32_t>(this->m_priority) != SE2_PRIORITY_DEFAULT && static_cast<uint32_t>(this->m_priority) <= SE2_PRIORITY_MAX && this->m_channel) {
         result = this->m_channel->setPriority(this->m_priority);
 
         if (result != FMOD_OK) {
@@ -2577,7 +2577,7 @@ static void KillVirtualSounds() {
                 bool isVirtual = false;
                 fileSound->m_channel->isVirtual(&isVirtual);
 
-                if (fileSound->m_priority == 128 || fileSound->m_priority == -1) {
+                if (fileSound->m_priority == SE2_PRIORITY_DEFAULT || fileSound->m_priority == SE2_PRIORITY_UNSET) {
                     bool isPlaying = false;
                     fileSound->m_channel->isPlaying(&isPlaying);
 
@@ -2586,8 +2586,8 @@ static void KillVirtualSounds() {
                         fileSound->m_channel->getMode(&mode);
 
                         if (!(mode & FMOD_LOOP_NORMAL)) {
-                            fileSound->m_priority = 127;
-                            fileSound->m_channel->setPriority(127);
+                            fileSound->m_priority = SE2_PRIORITY_PLAYING;
+                            fileSound->m_channel->setPriority(SE2_PRIORITY_PLAYING);
                         }
                     }
                 }

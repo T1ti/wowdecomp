@@ -40,6 +40,16 @@ enum SE2_MAX_AUDIBLE_BEHAVIOR : int32_t {
     SE2_MAX_AUDIBLE_FAIL = 2,
 };
 
+// SEFileSound::m_priority values. FMOD channel priorities run 0 (most important) to 256 with
+// 128 as the channel default; UNSET (-1) leaves the channel default in place. PLAYING is the
+// step above the default given to a non-looping sound once it plays (name inferred).
+enum SE2_PRIORITY : int32_t {
+    SE2_PRIORITY_UNSET = -1,
+    SE2_PRIORITY_PLAYING = 127,
+    SE2_PRIORITY_DEFAULT = 128,
+    SE2_PRIORITY_MAX = 256,
+};
+
 // Sound_OutputQuality values ("sound quality, default 1 (medium)"); LOW/HIGH inferred from the
 // sample rate (22050 for 0, 44100 for 1) and the linear resampler picked only for 2.
 enum SE2_OUTPUT_QUALITY : int32_t {
