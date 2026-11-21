@@ -401,7 +401,7 @@ void WowTime::WowDecodeTime(uint32_t value, int32_t* minute, int32_t* hour, int3
 // VERIFY: 0e001625 auto
 // OFFSET: 0x0076CA50
 void WowTime::WowEncodeTime(uint32_t& value, const WowTime* time) {
-    value = time->m_minute & 0x3F | ((time->m_hour & 0x1F | ((time->m_weekDay & 7 | ((time->m_monthDay & 0x3F | ((time->m_month & 0xF | ((time->m_year & 0x1F | ((time->m_flags & 3) << 5)) << 4)) << 6)) << 3)) << 5)) << 6);
+    WowTime::WowEncodeTime(value, time->m_minute, time->m_hour, time->m_weekDay, time->m_monthDay, time->m_month, time->m_year, time->m_flags);
 }
 
 // VERIFY: 847111ea auto
