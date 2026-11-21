@@ -1985,7 +1985,7 @@ void CGGameUI::InitializeGame() {
         }
 
         SetActiveDataSource(1);
-        StreamingSetState(3);
+        StreamingSetState(STREAMING_GAME_STATE_IN_WORLD);
     }
 
     CGGameUI::InitializeFrameXML();
@@ -7551,7 +7551,7 @@ void CGGameUI::Shutdown() {
     CursorDestroy();
 
     if (SFile::IsTrial()) {
-        StreamingSetState(0);
+        StreamingSetState(STREAMING_GAME_STATE_NONE);
     }
 
     UnloadScriptFunctions();
@@ -8229,7 +8229,7 @@ void CGGameUI::LeaveWorld() {
     FrameScript_SignalEvent(SCRIPT_EVENT_INSTANCE_LOCK_STOP, nullptr);
 
     if (SFile::IsTrial()) {
-        StreamingSetState(1);
+        StreamingSetState(STREAMING_GAME_STATE_CHARACTER_SELECT);
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_LEAVING_WORLD, nullptr);

@@ -64,16 +64,16 @@ bool OpenDataArchive(const char* name, System_SFile::ARCHIVEREC** archive) {
 // OFFSET: 0x0041E280
 int32_t StreamingManager::GetNextState() {
     switch (this->m_gameState) {
-        case 1:
+        case STREAMING_GAME_STATE_CHARACTER_SELECT:
             return StreamingManager::STATE::START_CHARACTER;
 
-        case 2:
+        case STREAMING_GAME_STATE_ENTERING_WORLD:
             return StreamingManager::STATE::START_CURRENT_RACE;
 
-        case 3:
+        case STREAMING_GAME_STATE_IN_WORLD:
             return StreamingManager::STATE::BACKGROUND_CURRENT_ZONE;
 
-        case 4:
+        case STREAMING_GAME_STATE_SHUTDOWN:
             return StreamingManager::STATE::SHUTDOWN;
 
         default:
@@ -154,7 +154,7 @@ void StreamingManager::AdvanceState(uint32_t& index) {
 void StreamingManager::Shutdown() {
     if (this->m_state != StreamingManager::STATE::SHUTDOWN) {
         this->m_state = StreamingManager::STATE::SHUTDOWN;
-        this->m_gameState = 4;
+        this->m_gameState = STREAMING_GAME_STATE_SHUTDOWN;
         this->m_dirty = true;
         Blizzard::Lock::EventSet(this->m_event);
     }
@@ -482,7 +482,7 @@ StreamingManager::~StreamingManager() {
 StreamingManager::StreamingManager() {
     this->m_current = nullptr;
     this->m_dirty = true;
-    this->m_gameState = 0;
+    this->m_gameState = STREAMING_GAME_STATE_NONE;
     this->m_enabled = false;
     this->m_zone = -1;
     this->m_mapId = -1;

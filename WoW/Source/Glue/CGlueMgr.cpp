@@ -2051,7 +2051,7 @@ void CGlueMgr::EnterWorld() {
     if (SFile::IsTrial()) {
         bool ready = StreamingIsRaceDataReady(CGlueMgr::m_characterInfo->m_raceID);
         StreamingSetRace(CGlueMgr::m_characterInfo->m_raceID);
-        StreamingSetState(2);
+        StreamingSetState(STREAMING_GAME_STATE_ENTERING_WORLD);
         LoadingScreenSetScreenTipForRaceData(!ready);
     }
 

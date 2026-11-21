@@ -209,6 +209,16 @@ extern void* s_storageEvent;
 }
 }
 
+// StreamingSetState / StreamingManager::m_gameState; named from the function
+// that sets each value (inferred).
+enum STREAMING_GAME_STATE : int32_t {
+    STREAMING_GAME_STATE_NONE = 0, // CGGameUI::Shutdown, constructor
+    STREAMING_GAME_STATE_CHARACTER_SELECT = 1, // CGGameUI::LeaveWorld
+    STREAMING_GAME_STATE_ENTERING_WORLD = 2, // CGlueMgr::EnterWorld
+    STREAMING_GAME_STATE_IN_WORLD = 3, // CGGameUI::InitializeGame
+    STREAMING_GAME_STATE_SHUTDOWN = 4, // StreamingManager::Shutdown
+};
+
 bool CheckIfStreamingAndTrial();
 void StringToLower(char* str);
 StreamingManager* GetStreamingManagerSingleton();
