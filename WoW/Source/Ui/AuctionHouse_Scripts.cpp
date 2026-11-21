@@ -174,11 +174,11 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
 
         if (s_auctionClasses[classIndex].m_classID == ITEM_CLASS::ITEM_CLASS_ARMOR) {
             if (subClass) {
-                if ((subClass != 1 || s_auctionInvTypes[i].m_invType != INVTYPE_CLOAK) && s_auctionInvTypes[i].unk_0028) {
+                if ((subClass != 1 || s_auctionInvTypes[i].m_invType != INVTYPE_CLOAK) && s_auctionInvTypes[i].m_hideForTypedArmor) {
                     lua_pushnil(L);
                     continue;
                 }
-            } else if (!s_auctionInvTypes[i].unk_0024) {
+            } else if (!s_auctionInvTypes[i].m_showForMiscArmor) {
                 lua_pushnil(L);
                 continue;
             }

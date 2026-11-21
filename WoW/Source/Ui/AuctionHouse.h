@@ -51,8 +51,8 @@ struct AuctionItemClass {
 struct AuctionInvType {
     /* 0000 */ int32_t m_invType;
     /* 0004 */ char m_token[32];
-    /* 0024 */ int32_t unk_0024;
-    /* 0028 */ int32_t unk_0028;
+    /* 0024 */ BOOL m_showForMiscArmor;  // listed under armor subclass 0 (Miscellaneous) (name inferred)
+    /* 0028 */ BOOL m_hideForTypedArmor; // not listed under other armor subclasses, except cloaks under Cloth (name inferred)
 };
 
 struct AuctionItemInfo {
