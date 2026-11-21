@@ -354,11 +354,7 @@ CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_P
     this->m_preTelescopeDistance = 1.8315002f;
     this->m_telescopePitchOffset = 0.0f;
 
-    if (g_cvAutoInteract->m_intValue) {
-        this->m_flags |= FLAGS::FLAG_AUTO_INTERACT;
-    } else {
-        this->m_flags &= ~FLAGS::FLAG_AUTO_INTERACT;
-    }
+    this->UpdateAutoInteractState(g_cvAutoInteract->m_intValue);
 }
 
 // VERIFY: 847cb2d7 manual
@@ -3086,10 +3082,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     }
 
     if (transition != VIEW_TRANSITION_TELESCOPE_LEAVE) {
-        this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_YAW;
-        this->m_smoothYaw.m_target = this->m_yaw;
-        this->m_smoothYaw.m_startTimeMs = 0;
-        this->m_smoothYaw.m_rate = 0.0f;
+        this->CancelSmoothYaw();
     }
 
     float yaw = this->m_views[this->m_viewIndex].m_yaw;
@@ -3830,10 +3823,7 @@ void CGCamera::UpdateTargetSmoothing(CGObject_C* target, uint32_t time) {
     }
 
     if (fabsf(this->m_smoothPitch.m_target - this->m_pitch) < 2.3841858e-7f) {
-        this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_PITCH;
-        this->m_smoothPitch.m_target = this->m_pitch;
-        this->m_smoothPitch.m_startTimeMs = 0;
-        this->m_smoothPitch.m_rate = 0.0f;
+        this->CancelSmoothPitch();
     } else if ((this->m_state & STATE_FLAGS::STATE_SMOOTH_PITCH) && static_cast<int32_t>(time - this->m_smoothPitch.m_startTimeMs) >= 0) {
         float t = (time - this->m_smoothPitch.m_startTimeMs) * 0.001f / this->m_smoothPitch.m_rate;
         this->m_pitch = t < 1.0f ? OrganicSmooth(this->m_smoothPitch.m_startValue, this->m_smoothPitch.m_target, t) : this->m_smoothPitch.m_target;
@@ -4188,9 +4178,7 @@ void CGCamera::SetPositionAndTargetWithRoll(const C3Vector& position, const C3Ve
 // OFFSET: 0x006018C0
 int32_t CGCamera::FinishLoadingModel() {
     this->m_state |= STATE_FLAGS::STATE_LOADED;
-    this->m_someTime = OsGetAsyncTimeMs();
-    this->GetScene()->SetTime(0);
-    this->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 0, 1);
+    this->ResetModelCamera();
     this->m_model->SetAnimating(1);
     C3Vector cameraPos;
     this->GetScene()->Animate(cameraPos);

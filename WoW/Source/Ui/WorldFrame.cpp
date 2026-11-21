@@ -2083,8 +2083,7 @@ void CGWorldFrame::OnWorldUpdate() {
 
     CGObject_C::UpdateAllObjectEffectManagers();
     UpdatePendingPortraits();
-    this->MoveToFreeList(&this->m_modelList);
-    this->MoveToFreeList(&this->m_hitModelList);
+    this->UnitClear();
     ClntObjMgrEnumVisibleObjects(UnitUpdateProc, nullptr);
     World::SetObjectCollisionCallback(ObjectCollisionProc);
     CEffect::CleanUpStaticLists();

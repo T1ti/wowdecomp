@@ -24,15 +24,8 @@ CLCDConnection::CLCDConnection() {
 CLCDConnection::~CLCDConnection() {
     this->Disconnect();
 
-    if (this->m_pMonoOutput) {
-        delete this->m_pMonoOutput;
-        this->m_pMonoOutput = nullptr;
-    }
-
-    if (this->m_pColorOutput) {
-        delete this->m_pColorOutput;
-        this->m_pColorOutput = nullptr;
-    }
+    this->CLCDConnection::FreeMonoOutput();
+    this->CLCDConnection::FreeColorOutput();
 
     if (this->m_pGfxMono) {
         delete this->m_pGfxMono;

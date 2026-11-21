@@ -177,13 +177,7 @@ bool LFGLIST::Copy(LFGLIST& source) {
         }
     }
 
-    for (uint32_t i = 0; i < this->m_playerList.Count(); i++) {
-        this->m_playerList.m_data[i]->m_index = i;
-    }
-
-    for (uint32_t i = 0; i < this->m_partyList.Count(); i++) {
-        this->m_partyList.m_data[i]->m_index = i;
-    }
+    this->Reindex();
 
     return true;
 }

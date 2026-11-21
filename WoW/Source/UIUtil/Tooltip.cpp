@@ -1360,11 +1360,7 @@ void CGItemStatsSummary::AccumulateDpsStat(const ItemStats_C* stats) {
 void CGItemStatsSummary::AccumulateStats(const ItemStats_C* stats) {
     this->AddStatMods(stats);
     this->ScanEnchantSpells(stats);
-    this->m_flags |= SUMMARY_FLAGS::SUMMARY_RESISTANCES;
-
-    for (uint32_t i = 0; i < SPELL_SCHOOL::NUM_SPELL_SCHOOLS; i++) {
-        this->m_stats[STAT_SUMMARY_RESISTANCE + i] += stats->m_resistances[i];
-    }
+    this->AddResistances(stats);
 
     this->GetSocketFlags(stats);
     this->m_flags |= SUMMARY_FLAGS::SUMMARY_BLOCK;
