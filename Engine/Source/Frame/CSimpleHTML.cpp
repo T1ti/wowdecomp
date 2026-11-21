@@ -55,7 +55,7 @@ int32_t CSimpleHTML::GetObjectType() {
 // VERIFY: adeee239 auto
 // OFFSET: 0x0096C750
 void CSimpleHTML::FontUpdated(CSimpleFontedFrameFont* font, int32_t flags) {
-    if (flags & 0x11) {
+    if (flags & (FLAG_FONT_UPDATE | FLAG_SPACING_UPDATE)) {
         this->m_hyperlinksDirty = 1;
     }
 }

@@ -411,7 +411,7 @@ CSimpleMessageFrame::~CSimpleMessageFrame() {
 // VERIFY: 3758e948 auto
 // OFFSET: 0x00968C90
 void CSimpleMessageFrame::FontUpdated(CSimpleFontedFrameFont* font, int32_t flags) {
-    if (flags & 0x11) {
+    if (flags & (FLAG_FONT_UPDATE | FLAG_SPACING_UPDATE)) {
         this->UpdateRect();
     }
 }

@@ -1798,11 +1798,11 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
 // VERIFY: c4d888b7 auto
 // OFFSET: 0x009650E0
 void CSimpleEditBox::FontUpdated(CSimpleFontedFrameFont* font, int32_t flags) {
-    if (flags & 0x11) {
+    if (flags & (FLAG_FONT_UPDATE | FLAG_SPACING_UPDATE)) {
         this->UpdateSizes();
     }
 
-    if (flags & 0x4) {
+    if (flags & FLAG_COLOR_UPDATE) {
         this->m_cursor->SetTexture(this->m_font->m_attributes.m_color);
     }
 }

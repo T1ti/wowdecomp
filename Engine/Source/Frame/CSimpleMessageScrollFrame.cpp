@@ -597,7 +597,7 @@ CSimpleMessageScrollFrame::CSimpleMessageScrollFrame(CSimpleFrame* parent, int32
 // VERIFY: 5b3fe8fd auto
 // OFFSET: 0x0096A4B0
 void CSimpleMessageScrollFrame::FontUpdated(CSimpleFontedFrameFont* font, int32_t flags) {
-    if (flags & 0x11) {
+    if (flags & (FLAG_FONT_UPDATE | FLAG_SPACING_UPDATE)) {
         for (uint32_t i = 0; i < this->m_displayNodes.Count(); i++) {
             this->m_displayNodes[i].m_string->SetFontObject(this->m_font);
         }
