@@ -87,7 +87,7 @@ void CGCalendarEvent::Clear() {
     this->m_textureID = -1;
     this->m_pendingNames = 0;
     this->m_signalType = CGCalendarEvent::INVITE_SIGNAL_TYPE::INVITE_SIGNAL_LIST_UPDATE_INITIAL;
-    this->m_sortType = 3;
+    this->m_sortType = INVITE_SORT_STATUS;
 
     for (uint32_t i = 0; i < NUM_INVITE_SORT_CRITERIA; i++) {
         this->m_sortCriteria[i].m_criterion = i;
