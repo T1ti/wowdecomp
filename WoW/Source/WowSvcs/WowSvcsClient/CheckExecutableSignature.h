@@ -3,6 +3,14 @@
 
 #include <cstdint>
 
+// Scan DLL result type, named after the result string ScanFileForHack reports for each.
+enum SCANDLL_RESULT : int32_t {
+    SCANDLL_RESULT_OK = 0,
+    SCANDLL_RESULT_HACK = 1,
+    SCANDLL_RESULT_TROJAN = 2,
+    SCANDLL_RESULT_UNKNOWN_3 = 3, // also reported as "TROJAN"
+};
+
 typedef int32_t (__stdcall* SCANDLL_SCANFUNC)(int32_t* type, char* hackName, uint32_t hackNameSize);
 typedef int32_t (__stdcall* SCANDLL_SCANFUNC2)(int32_t* type, int32_t* shouldBlockPlaying, char* hackName, uint32_t hackNameSize);
 

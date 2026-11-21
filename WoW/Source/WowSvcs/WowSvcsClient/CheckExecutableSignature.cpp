@@ -59,7 +59,7 @@ bool ScanFileForHack(const char* fileName, uint8_t* hackFound, uint8_t* shouldBl
 
             if (scanned) {
                 switch (type) {
-                    case 0: {
+                    case SCANDLL_RESULT_OK: {
                         *hackFound = 0;
                         *result = "OK";
                         hackName[0] = '\0';
@@ -69,7 +69,7 @@ bool ScanFileForHack(const char* fileName, uint8_t* hackFound, uint8_t* shouldBl
                         break;
                     }
 
-                    case 1: {
+                    case SCANDLL_RESULT_HACK: {
                         *hackFound = 1;
                         *result = "HACK";
                         *shouldBlockPlaying = block != 0;
@@ -77,8 +77,8 @@ bool ScanFileForHack(const char* fileName, uint8_t* hackFound, uint8_t* shouldBl
                         break;
                     }
 
-                    case 2:
-                    case 3: {
+                    case SCANDLL_RESULT_TROJAN:
+                    case SCANDLL_RESULT_UNKNOWN_3: {
                         *hackFound = 1;
                         *result = "TROJAN";
                         *shouldBlockPlaying = block != 0;
