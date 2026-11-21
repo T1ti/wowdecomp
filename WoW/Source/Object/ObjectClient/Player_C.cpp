@@ -3976,11 +3976,11 @@ int32_t Packet_Group_13(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
     msg->Get(service);
     msg->Get(reason);
 
-    if (reason == 0) {
+    if (reason == CGPlayer_C::TRAINER_BUY_FAILED_UNAVAILABLE) {
         ConsoleWriteA("Trainer service %d unavailable", DEFAULT_COLOR, service);
-    } else if (reason == 1) {
+    } else if (reason == CGPlayer_C::TRAINER_BUY_FAILED_NOT_ENOUGH_MONEY) {
         ConsoleWriteA("Not enough money for trainer service %d", DEFAULT_COLOR, service);
-    } else if (reason == 2) {
+    } else if (reason == CGPlayer_C::TRAINER_BUY_FAILED_NOT_ENOUGH_SKILL_POINTS) {
         ConsoleWriteA("Not enough skill points for trainer service %d", DEFAULT_COLOR, service);
     }
 

@@ -224,6 +224,13 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
         RG_REASON_UI_REQUIREMENTS_UNMATCH = 4,
     };
 
+    // SMSG_TRAINER_BUY_FAILED reason, named after the console message for each (inferred).
+    enum TRAINER_BUY_FAILED_REASON : uint32_t {
+        TRAINER_BUY_FAILED_UNAVAILABLE = 0,
+        TRAINER_BUY_FAILED_NOT_ENOUGH_MONEY = 1,
+        TRAINER_BUY_FAILED_NOT_ENOUGH_SKILL_POINTS = 2,
+    };
+
     // Quest-failure display selector; original enum ownership is unproved.
     // Sharing BAG_RESULT remains possible despite context-specific messages.
     // Values4/16/50 share a bag-full display without proved distinct causes.
