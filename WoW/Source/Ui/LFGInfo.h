@@ -106,13 +106,17 @@ struct LFGProposalMember {
 };
 
 struct LFGProposal {
+    // Members of a proposed dungeon group; GetLFGProposal returns it as the member count.
+    // Name inferred.
+    static const uint32_t MAX_MEMBERS = 5;
+
     /* 0000 */ uint32_t m_dungeonId;
     /* 0004 */ uint8_t m_state;
     /* 0005 */ uint8_t unused_0005[3];
     /* 0008 */ uint32_t m_proposalId;
     /* 000C */ uint32_t m_completedMask;
     /* 0010 */ uint32_t m_silent;
-    /* 0014 */ LFGProposalMember m_members[5];
+    /* 0014 */ LFGProposalMember m_members[MAX_MEMBERS];
 
     void Clear();
 };

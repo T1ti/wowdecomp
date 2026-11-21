@@ -855,7 +855,7 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
             uint8_t declinedParty = 0;
 
             for (uint32_t i = 0; i < memberCount; i++) {
-                if (i >= 5) {
+                if (i >= LFGProposal::MAX_MEMBERS) {
                     break;
                 }
 

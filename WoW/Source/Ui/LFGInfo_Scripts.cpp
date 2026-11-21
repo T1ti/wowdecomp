@@ -806,7 +806,7 @@ static int32_t PushLFGProposalInfo(lua_State* L) {
     ROLE_FLAGS roles = ROLE_FLAGS::NONE;
     uint32_t accepted = 0;
 
-    for (uint32_t i = 0; i < 5; i++) {
+    for (uint32_t i = 0; i < LFGProposal::MAX_MEMBERS; i++) {
         if (CGLookingForGroup::m_proposal.m_members[i].m_isLocal) {
             roles = CGLookingForGroup::m_proposal.m_members[i].m_roles;
             accepted = CGLookingForGroup::m_proposal.m_members[i].m_answered;
@@ -841,7 +841,7 @@ static int32_t PushLFGProposalInfo(lua_State* L) {
 
     lua_pushnumber(L, total);
     lua_pushnumber(L, completed);
-    lua_pushnumber(L, 5.0);
+    lua_pushnumber(L, LFGProposal::MAX_MEMBERS);
     lua_pushboolean(L, roles & ROLE_FLAGS::LEADER);
     lua_pushboolean(L, (dungeon->m_flags & LFG_DUNGEON_FLAG_HOLIDAY) != 0);
     return 12;
