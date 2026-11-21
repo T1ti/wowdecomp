@@ -421,7 +421,7 @@ void CGBarberShop::DisableBarberShop() {
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
 
     if (camera) {
-        camera->SetView(CGBarberShop::m_prevView, 1, 0);
+        camera->SetView(CGBarberShop::m_prevView, CGCamera::VIEW_BLEND_SMOOTH, CGCamera::VIEW_TRANSITION_NONE);
     }
 
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();

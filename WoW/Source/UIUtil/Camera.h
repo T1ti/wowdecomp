@@ -90,6 +90,22 @@ class CGCamera : public CSimpleCamera {
         NUM_VIEW_MODES,
     };
 
+    // SetView blendStyle (cameraViewBlendStyle). Names inferred from SetView:
+    // 1 smooths to the view, 2 snaps to it, 0 does neither.
+    enum VIEW_BLEND_STYLE : int32_t {
+        VIEW_BLEND_NONE = 0,
+        VIEW_BLEND_SMOOTH = 1,
+        VIEW_BLEND_INSTANT = 2,
+    };
+
+    // SetView transition. Names inferred from SetTelescope, the only caller
+    // passing non-zero values.
+    enum VIEW_TRANSITION : int32_t {
+        VIEW_TRANSITION_NONE = 0,
+        VIEW_TRANSITION_TELESCOPE_ENTER = 1,
+        VIEW_TRANSITION_TELESCOPE_LEAVE = 2,
+    };
+
     enum VEHICLE_TRACKING_STYLE : uint32_t {
         TRACKING_USER_STYLE = 0,
         TRACKING_IGNORE_FACING = 1,

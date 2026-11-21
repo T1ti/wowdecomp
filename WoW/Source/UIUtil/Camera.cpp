@@ -387,7 +387,7 @@ void CGCamera::BarberShopSetView(float distance, float facing, float pitch) {
     this->m_views[VIEW_BARBER_SHOP].m_distance = distance;
     this->m_views[VIEW_BARBER_SHOP].m_yaw = facing;
     this->m_views[VIEW_BARBER_SHOP].m_pitch = pitch;
-    this->SetView(VIEW_BARBER_SHOP, 1, 0);
+    this->SetView(VIEW_BARBER_SHOP, VIEW_BLEND_SMOOTH, VIEW_TRANSITION_NONE);
 }
 
 // VERIFY: 3e9e8f60 manual
@@ -3026,7 +3026,7 @@ void CGCamera::ResetView(int32_t view) {
     }
 
     if (view == this->m_viewIndex) {
-        this->SetView(this->m_viewIndex, s_cvCameraViewBlendStyle->m_intValue, 0);
+        this->SetView(this->m_viewIndex, s_cvCameraViewBlendStyle->m_intValue, VIEW_TRANSITION_NONE);
     }
 }
 
@@ -3046,14 +3046,14 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     }
 
     if (this->m_viewIndex == view && !(this->m_state & STATE_FLAGS::STATE_VIEW_MODIFIED) && blendStyle) {
-        blendStyle = 2;
+        blendStyle = VIEW_BLEND_INSTANT;
     }
 
     SysMsgPrintf(SYSMSG_INFO, SYSMSG_FILTER_UI, "Camera view %s", s_cameraViewModeNames[view]);
     uint32_t time = OsGetAsyncTimeMs();
 
     if (this->m_viewIndex != view) {
-        if (!transition) {
+        if (transition == VIEW_TRANSITION_NONE) {
             char value[16];
             SStrPrintf(value, sizeof(value), "%d", view);
             s_cvCameraView->Set(value, true, false, false, true);
@@ -3065,7 +3065,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     this->m_state &= ~STATE_FLAGS::STATE_VIEW_MODIFIED;
     uint32_t state = this->m_state;
 
-    if (transition == 1) {
+    if (transition == VIEW_TRANSITION_TELESCOPE_ENTER) {
         this->m_preTelescopeDistance = this->m_smoothDistance.m_target;
     }
 
@@ -3078,14 +3078,14 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     this->m_state = state;
     this->m_smoothPitch.m_rate = 0.0f;
 
-    if (transition != 1) {
+    if (transition != VIEW_TRANSITION_TELESCOPE_ENTER) {
         this->m_smoothTargetOffset.m_target = this->m_targetOffset;
         this->m_smoothTargetOffset.m_startTimeMs = 0;
         this->m_state = state & ~STATE_FLAGS::STATE_SMOOTH_TARGET_OFFSET;
         this->m_smoothTargetOffset.m_rate = 0.0f;
     }
 
-    if (transition != 2) {
+    if (transition != VIEW_TRANSITION_TELESCOPE_LEAVE) {
         this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_YAW;
         this->m_smoothYaw.m_target = this->m_yaw;
         this->m_smoothYaw.m_startTimeMs = 0;
@@ -3111,7 +3111,7 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         yaw = CMath::normalizeangle0to2pi_(facing + yaw);
     }
 
-    if (blendStyle == 1) {
+    if (blendStyle == VIEW_BLEND_SMOOTH) {
         int32_t distanceSet = this->SmoothSetDistance(this->m_views[view].m_distance, 0.0f, 1.0f, time);
         int32_t pitchSet = this->SetDesiredPitchAngle(this->m_views[view].m_pitch, 0.0f, 1.0f, time);
         int32_t yawSet = this->SetDesiredYawAngle(yaw, 0.0f, 1.0f, time);
@@ -3168,13 +3168,13 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         return;
     }
 
-    if (blendStyle != 2) {
+    if (blendStyle != VIEW_BLEND_INSTANT) {
         return;
     }
 
     BOOL changed;
 
-    if (!transition) {
+    if (transition == VIEW_TRANSITION_NONE) {
         int32_t distanceChanged = fnotequalz(this->m_distance, this->m_views[view].m_distance, 0.001f) != 0;
         int32_t pitchChanged = fnotequalz(this->m_pitch, this->m_views[view].m_pitch, 0.001f) != 0;
         int32_t yawChanged = fnotequalz(this->m_yaw, yaw, 0.001f) != 0;
@@ -3188,11 +3188,11 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         this->m_targetOffset = 0.0f;
         this->m_smoothTargetOffset.m_target = 0.0f;
         changed = distanceChanged || pitchChanged || yawChanged || offsetChanged;
-    } else if (transition == 1) {
+    } else if (transition == VIEW_TRANSITION_TELESCOPE_ENTER) {
         this->m_prevDistance = this->m_distance;
         this->m_prevViewIndex = this->m_viewIndex;
         changed = 1;
-    } else if (transition == 2) {
+    } else if (transition == VIEW_TRANSITION_TELESCOPE_LEAVE) {
         this->m_smoothDistance.m_target = 0.0f;
         this->m_distance = 0.0f;
         changed = 1;
@@ -4106,7 +4106,7 @@ void CGCamera::SetTelescope(int32_t telescope) {
             uint32_t time = OsGetAsyncTimeMs();
             this->StartSmoothFoV(0.0f, 0.5f, time);
             this->m_state = (this->m_state & ~(STATE_FLAGS::STATE_TELESCOPE | STATE_FLAGS::STATE_TELESCOPE_ENTERING | STATE_FLAGS::STATE_TELESCOPE_LEAVING)) | STATE_FLAGS::STATE_TELESCOPE_LEAVING;
-            this->SetView(this->m_prevViewIndex, 2, 2);
+            this->SetView(this->m_prevViewIndex, VIEW_BLEND_INSTANT, VIEW_TRANSITION_TELESCOPE_LEAVE);
             this->StartSmoothDistance(this->m_preTelescopeDistance, 0.5f, time);
 
             if (fabsf(this->m_telescopePitchOffset) >= 2.3841858e-7f) {
@@ -4119,7 +4119,7 @@ void CGCamera::SetTelescope(int32_t telescope) {
     }
 
     uint32_t time = OsGetAsyncTimeMs();
-    this->SetView(0, 2, 1);
+    this->SetView(VIEW_FIRST_PERSON, VIEW_BLEND_INSTANT, VIEW_TRANSITION_TELESCOPE_ENTER);
     this->m_state = (this->m_state & ~(STATE_FLAGS::STATE_TELESCOPE | STATE_FLAGS::STATE_TELESCOPE_ENTERING | STATE_FLAGS::STATE_TELESCOPE_LEAVING)) | (STATE_FLAGS::STATE_TELESCOPE | STATE_FLAGS::STATE_TELESCOPE_ENTERING);
     this->StartSmoothFoV(telescope * DEG_TO_RAD - this->m_fov, 0.5f, time);
     this->StartSmoothDistance(0.0f, 0.5f, time);
@@ -4239,7 +4239,7 @@ void CGCamera::CommentatorSetViewAndPosition(const C3Vector& position, float fac
     this->m_views[VIEW_COMMENTATOR].m_pitch = pitch;
     this->m_position = position;
     this->m_position = position;
-    this->SetView(6, 2, 0);
+    this->SetView(VIEW_COMMENTATOR, VIEW_BLEND_INSTANT, VIEW_TRANSITION_NONE);
 }
 
 // VERIFY: fcc9622c auto
