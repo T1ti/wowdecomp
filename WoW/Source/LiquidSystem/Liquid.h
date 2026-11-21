@@ -340,7 +340,17 @@ namespace Liquid {
     extern int32_t s_useCameraRelativeCoords;
     extern int32_t s_settingsBankRefCount;
     extern int32_t s_materialBankRefCount;
-    extern uint8_t s_unk_D43B48[4];
+    // Slots of s_procTexturesUpdated, named after the texture UpdateProceduralTextures uploads
+    // for each; slot 0 covers the s_unk_D43B50 array (name inferred).
+    enum PROC_TEXTURE : int32_t {
+        PROC_TEXTURE_UNKNOWN_0 = 0,
+        PROC_TEXTURE_WMO_WATER = 1,
+        PROC_TEXTURE_RIVER_DEPTH = 2,
+        PROC_TEXTURE_OCEAN_DEPTH = 3,
+        NUM_PROC_TEXTURES = 4,
+    };
+
+    extern uint8_t s_procTexturesUpdated[NUM_PROC_TEXTURES];
     extern CTexture* s_unk_D43B4C;
     extern CTexture* s_unk_D43B50[32];
     extern CTexture* s_wmoWaterTex;
