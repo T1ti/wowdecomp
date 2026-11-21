@@ -395,6 +395,11 @@ extern float s_cameraBobFrequency;
 extern float s_cameraBobVerticalAmplitude;
 extern float s_cameraBobHorizontalAmplitude;
 
+// Camera zoom distance bounds; ValidateCameraDistance rejects values outside them
+// ("Value out of range (%f - %f)"). Names inferred.
+constexpr float MIN_CAMERA_DIST = 0.0f;
+constexpr float MAX_CAMERA_DIST = 50.0f;
+
 // cameraSmoothStyle / cameraSmoothTrackingStyle values, from s_cameraSmoothStyleNames.
 enum CAMERA_SMOOTH_STYLE : int32_t {
     CAMERA_SMOOTH_STYLE_NEVER = 0,

@@ -47,7 +47,6 @@ static const float MAX_DELTA = 0.2617994f;
 static const float FOCAL_DISTANCE = 3.3333333f;
 static const float WAIST_HEIGHT = 1.6666666f;
 
-static const float MIN_CAMERA_DIST = 0.0f;
 static const int32_t DELTA_Z_FREQUENCY = 100;
 
 static const float fadeAngle = -1.1868238f;
@@ -1473,7 +1472,7 @@ uint32_t CGCamera::GetCollisionQueryFlags() {
 // VERIFY: cf6cb77a auto
 // OFFSET: 0x005FE570
 float CGCamera::GetDefaultZoomMaxDistance() {
-    return 50.0f;
+    return MAX_CAMERA_DIST;
 }
 
 // VERIFY: cfc63e8a manual
@@ -1767,7 +1766,7 @@ BOOL CGCamera::IsViewDefault(uint32_t view) {
 // OFFSET: 0x005FF3E0
 void CGCamera::LoadCameraSettings() {
     float distance = s_cvCameraSavedDistance->m_floatValue;
-    distance = 0.0f > distance ? 0.0f : (50.0f <= distance ? 50.0f : distance);
+    distance = MIN_CAMERA_DIST > distance ? MIN_CAMERA_DIST : (MAX_CAMERA_DIST <= distance ? MAX_CAMERA_DIST : distance);
     this->m_distance = distance;
     this->m_smoothDistance.m_target = distance;
 
@@ -1965,7 +1964,7 @@ void CGCamera::SetVehicleSeatZoomMaxDistance(float distance) {
 void CGCamera::SetVehicleSeatZoomMaxDistanceToDefault() {
     this->m_flags &= ~FLAGS::FLAG_VEHICLE_ZOOM_MAX;
 
-    if (this->m_smoothDistance.m_target > 50.0f) {
+    if (this->m_smoothDistance.m_target > MAX_CAMERA_DIST) {
         this->m_state &= ~STATE_FLAGS::STATE_SMOOTH_DISTANCE;
         this->m_smoothDistance.m_target = this->m_distance;
         this->m_smoothDistance.m_startTimeMs = 0;
@@ -2025,11 +2024,11 @@ void CGCamera::SetVehicleZoomEnabled(BOOL enabled, float duration, int32_t anima
         distance = s_cvCameraSavedVehicleDistance->m_floatValue;
 
         if (distance < 0.0f) {
-            distance = 50.0f;
+            distance = MAX_CAMERA_DIST;
         }
     } else {
         distance = s_cvCameraSavedDistance->m_floatValue;
-        distance = distance < 0.0f ? 0.0f : (distance >= 50.0f ? 50.0f : distance);
+        distance = distance < MIN_CAMERA_DIST ? MIN_CAMERA_DIST : (distance >= MAX_CAMERA_DIST ? MAX_CAMERA_DIST : distance);
     }
 
     if (animate && fabsf(distance - this->m_distance) >= 0.001f) {
@@ -2869,14 +2868,14 @@ void CGCamera::UpdateMotion(uint32_t time) {
     if (this->m_flags & FLAGS::FLAG_VEHICLE_ZOOM_MAX) {
         maxDistance = this->m_overrideDistanceRange.m_h;
     } else if (this->m_vehicleZoomEnabled) {
-        maxDistance = 50.0f;
+        maxDistance = MAX_CAMERA_DIST;
     } else {
         maxDistance = s_cvCameraDistanceMaxFactor->m_floatValue * s_cvCameraDistanceMax->m_floatValue;
 
-        if (maxDistance < 0.0f) {
-            maxDistance = 0.0f;
-        } else if (50.0f <= maxDistance) {
-            maxDistance = 50.0f;
+        if (maxDistance < MIN_CAMERA_DIST) {
+            maxDistance = MIN_CAMERA_DIST;
+        } else if (MAX_CAMERA_DIST <= maxDistance) {
+            maxDistance = MAX_CAMERA_DIST;
         }
     }
 
@@ -4235,10 +4234,10 @@ void CGCamera::CommentatorSetViewAndPosition(const C3Vector& position, float fac
 void CGCamera::RestoreSavedDistancePitch() {
     float distance = s_cvCameraSavedDistance->m_floatValue;
 
-    if (distance < 0.0f) {
-        distance = 0.0f;
-    } else if (distance >= 50.0f) {
-        distance = 50.0f;
+    if (distance < MIN_CAMERA_DIST) {
+        distance = MIN_CAMERA_DIST;
+    } else if (distance >= MAX_CAMERA_DIST) {
+        distance = MAX_CAMERA_DIST;
     }
 
     this->m_distance = distance;

@@ -356,11 +356,11 @@ static bool ValidateCameraView(CVar* var, const char* oldValue, const char* valu
 static bool ValidateCameraDistance(CVar* var, const char* oldValue, const char* value, void* arg) {
     float distance = SStrToFloat(value);
 
-    if (distance >= 0.0f && distance <= 50.0f) {
+    if (distance >= MIN_CAMERA_DIST && distance <= MAX_CAMERA_DIST) {
         return true;
     }
 
-    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, 0.0, 50.0);
+    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, static_cast<double>(MIN_CAMERA_DIST), static_cast<double>(MAX_CAMERA_DIST));
     return false;
 }
 
