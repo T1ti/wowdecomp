@@ -398,7 +398,7 @@ struct ChatRecord {
 struct ChatColorInfo {
     /* 0000 */ char m_name[64];
     /* 0040 */ uint8_t m_color[4];
-    /* 0044 */ int32_t m_unk44;
+    /* 0044 */ int32_t m_addedVersion; // chat-cache version that introduced this color (like ChatMessageGroup)
     /* 0048 */ uint8_t m_colorNameByClass;
 };
 

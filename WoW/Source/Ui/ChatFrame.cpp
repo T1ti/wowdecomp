@@ -4856,7 +4856,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             }
 
             for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
-                if (s_chatTypeInfo[i].m_unk44 > addedVersion) {
+                if (s_chatTypeInfo[i].m_addedVersion > addedVersion) {
                     s_chatColors[i].m_color[0] = s_chatTypeInfo[i].m_color[0];
                     s_chatColors[i].m_color[1] = s_chatTypeInfo[i].m_color[1];
                     s_chatColors[i].m_color[2] = s_chatTypeInfo[i].m_color[2];
