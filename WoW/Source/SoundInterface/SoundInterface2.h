@@ -39,6 +39,16 @@ enum SE2_FILE_SELECT_MODE : int32_t {
     SE2_FILE_SELECT_WEIGHTED_CYCLE = 2, // Refill from frequencies and retain remaining weights between draws.
 };
 
+// Game-side SE2SoundKitProperties::m_priority values below the SE2_PRIORITY_DEFAULT channel
+// priority (lower is more important). Names inferred from the callers: zone music, zone
+// ambience and script music use ZONE; unit, combat, spell, missile and foley sounds use
+// OBJECT; footsteps use FOOTSTEP.
+enum SI2_PRIORITY : int32_t {
+    SI2_PRIORITY_ZONE = 100,
+    SI2_PRIORITY_OBJECT = 110,
+    SI2_PRIORITY_FOOTSTEP = 115,
+};
+
 class SE2SoundKitProperties {
     public:
     /* 0000 */ SI2_SOUND_GROUP m_group;
@@ -49,7 +59,7 @@ class SE2SoundKitProperties {
     /* 0014 */ float m_fadeOutTime;
     /* 0018 */ SE2_FILE_SELECT_MODE m_selectMode;
     /* 001C */ SE2_LOOP_MODE m_loopMode;
-    /* 0020 */ int32_t m_priority;
+    /* 0020 */ int32_t m_priority; // SE2_PRIORITY or SI2_PRIORITY
     /* 0024 */ SE2_SUPPRESSOR_MODE m_suppressorMode;
     /* 0028 */ uint32_t m_decodeBufferSize;
     /* 002C */ float m_maxDistance;

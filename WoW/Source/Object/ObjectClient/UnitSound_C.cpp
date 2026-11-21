@@ -300,7 +300,7 @@ void CGUnit_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
             properties.m_volumeScale = 0.65f;
         }
 
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
         SI2::PlaySoundKit(soundKitId, listenerAtCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
     } else {
         SE2SoundKitProperties properties;
@@ -372,7 +372,7 @@ void CGUnit_C::PlaySplashSound(const C3Vector* position) {
     properties.ResetToDefaults();
 
     if (activeMover) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
 
         if (listenerAtCharacter) {
             properties.m_volumeScale = 0.65f;
@@ -424,7 +424,7 @@ void CGUnit_C::PlayAISound(int32_t soundKitId) {
         SE2SoundKitProperties properties;
         properties.ResetToDefaults();
         properties.m_volumeScale = 0.65f;
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
         SI2::PlaySoundKit(soundKitId, nullptr, &this->m_aiSound, &properties, 0, nullptr, 1, 0);
     } else {
         C3Vector position = this->GetPosition();
@@ -657,7 +657,7 @@ void CGUnit_C::PlayEmoteSound(int32_t soundKitId, bool checkCVars, int32_t fileI
     properties.m_suppressorMode = SE2_SUPPRESSOR_MODE_HONOR;
 
     if (local) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
 
         if (atCharacter) {
             properties.m_volumeScale = 0.65f;
@@ -698,7 +698,7 @@ void CGUnit_C::PlayDismountSound() {
     properties.ResetToDefaults();
 
     if (activeMover) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
 
         if (listenerAtCharacter) {
             properties.m_volumeScale = 0.65f;
@@ -779,7 +779,7 @@ void CGUnit_C::OnAiReaction(int32_t reaction) {
     properties.ResetToDefaults();
 
     if (activeMover) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
         CGUnit_C* player = ClntObjMgrGetActivePlayerObj();
 
         if (player && player->m_unit->m_classID == CLASS_DEATH_KNIGHT) {

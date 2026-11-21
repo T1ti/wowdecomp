@@ -20506,7 +20506,7 @@ void CGUnit_C::UpdateFlightStatus(uint32_t time) {
                         SE2SoundKitProperties properties;
                         properties.ResetToDefaults();
                         properties.m_volumeScale = atCharacter ? 0.65f : 1.0f;
-                        properties.m_priority = 110;
+                        properties.m_priority = SI2_PRIORITY_OBJECT;
                         SI2::PlaySoundKit(sound->m_soundExertionID, atCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
                     } else {
                         SI2::PlaySoundKit(sound->m_soundExertionID, &position, nullptr, nullptr, 0, nullptr, 1, 0);

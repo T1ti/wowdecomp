@@ -150,7 +150,7 @@ void SE2SoundKitProperties::ResetToDefaults() {
     this->m_volume = -1.0f;
     this->m_volumeScale = 1.0f;
     this->m_fileIndex = -1;
-    this->m_priority = -1;
+    this->m_priority = SE2_PRIORITY_UNSET;
     this->m_fadeInTime = 0.0f;
     this->m_fadeOutTime = 0.0f;
     this->m_group = SI2_SOUND_GROUP_SFX;

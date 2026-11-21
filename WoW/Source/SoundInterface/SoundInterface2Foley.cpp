@@ -57,7 +57,7 @@ int32_t SI2::PlayFoleySound(int32_t materialId, const C3Vector* position, int32_
         properties.m_volumeScale = 0.65f;
     }
 
-    properties.m_priority = 110;
+    properties.m_priority = SI2_PRIORITY_OBJECT;
 
     return SI2::PlaySoundKit(material->m_foleySoundID, listenerAtCharacter == 0 ? &soundPosition : nullptr, nullptr, &properties, 0, nullptr, 1, 0);
 }

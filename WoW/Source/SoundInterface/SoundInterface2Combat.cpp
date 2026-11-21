@@ -94,7 +94,7 @@ void SI2::PlayParrySound(const CGUnitVirtualItem* weapon, const CGUnitVirtualIte
     properties.m_group = SI2_SOUND_GROUP_IMPACT;
 
     if (self) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     SI2::PlaySoundKit(crit != 0 ? sound->m_critSoundId : sound->m_soundId, &soundPosition, nullptr, &properties, 0, nullptr, 1, 0);
@@ -130,7 +130,7 @@ void SI2::PlayHitSound(const CGUnitVirtualItem* weapon, int32_t impactType, int3
     properties.m_group = SI2_SOUND_GROUP_IMPACT;
 
     if (self) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     SI2::PlaySoundKit(crit != 0 ? sound->m_critSoundId : sound->m_soundId, position, nullptr, &properties, 0, nullptr, 1, 0);
@@ -151,7 +151,7 @@ int32_t SI2::PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, co
     properties.m_group = SI2_SOUND_GROUP_WEAPON_SWING;
 
     if (self) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     return SI2::PlaySoundKit(s_swingSounds[type][crit != SWING_NORMAL], position, nullptr, &properties, 0, nullptr, 1, 0);
@@ -181,7 +181,7 @@ int32_t SI2::PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, co
     properties.ResetToDefaults();
 
     if (self) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     return SI2::PlaySoundKit(soundKitId, &soundPosition, nullptr, &properties, 0, nullptr, 1, 0);
@@ -194,7 +194,7 @@ int32_t SI2::PlayMissedSound(bool oneHand, const C3Vector* position, int32_t sel
     properties.ResetToDefaults();
 
     if (self) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     return SI2::PlaySoundKit(oneHand ? "(DONOTRENAME)Combat Miss 1H" : "(DONOTRENAME)Combat Miss 2H", position, nullptr, &properties);

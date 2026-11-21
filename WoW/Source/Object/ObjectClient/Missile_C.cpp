@@ -2156,7 +2156,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         properties.m_streaming = true;
 
         if (this->m_casterGuid == CGUnit_C::s_activeMover || this->m_targetGuid == CGUnit_C::s_activeMover) {
-            properties.m_priority = 110;
+            properties.m_priority = SI2_PRIORITY_OBJECT;
         }
 
         SI2::PlaySoundKit(this->m_soundKitID, &this->m_position, &this->m_missileSound, &properties, 0, nullptr, 1, 0);

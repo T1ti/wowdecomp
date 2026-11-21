@@ -407,7 +407,7 @@ int32_t SI2::PlayUISound(int32_t soundKitId) {
         properties.m_group = SI2_SOUND_GROUP_CINEMATIC;
     }
 
-    properties.m_priority = 128;
+    properties.m_priority = SE2_PRIORITY_DEFAULT;
     properties.m_suppressorMode = SE2_SUPPRESSOR_MODE_HONOR;
     properties.m_reverb = 0;
 
@@ -467,7 +467,7 @@ int32_t SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
     SESound localSound;
     SESound* sound = group == SI2_SOUND_GROUP_SCRIPT_MUSIC ? &s_scriptMusic.m_sound : &localSound;
 
-    sound->Create2D(filename, group != SI2_SOUND_GROUP_SCRIPT_SOUND, nullptr, nullptr, false, false, 0, group != SI2_SOUND_GROUP_SCRIPT_MUSIC ? 128 : 100, 0xFFFFFFFF);
+    sound->Create2D(filename, group != SI2_SOUND_GROUP_SCRIPT_SOUND, nullptr, nullptr, false, false, 0, group != SI2_SOUND_GROUP_SCRIPT_MUSIC ? SE2_PRIORITY_DEFAULT : SI2_PRIORITY_ZONE, 0xFFFFFFFF);
     sound->SetChannelGroup(SI2::s_channelGroupNames[group], true);
 
     SI2SoundUserData* userData = new (SMemAlloc(sizeof(SI2SoundUserData), __FILE__, __LINE__, 0)) SI2SoundUserData();
@@ -588,7 +588,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
         properties.ResetToDefaults();
         properties.m_group = SI2_SOUND_GROUP_AMBIENCE;
         properties.m_loopMode = SE2_LOOP_MODE_LOOPING;
-        properties.m_priority = 100;
+        properties.m_priority = SI2_PRIORITY_ZONE;
         properties.m_reverb = 0;
 
         if (SFile::IsStreamingMode()) {
@@ -629,7 +629,7 @@ int32_t SI2::ZoneSoundsUpdate(const void* data, void* param) {
     properties.m_selectMode = SE2_FILE_SELECT_WEIGHTED_CYCLE;
     properties.m_fadeInTime = s_zoneMusic.IsPlaying() ? 4.0f : 0.01f;
     properties.m_fadeOutTime = 4.0f;
-    properties.m_priority = 100;
+    properties.m_priority = SI2_PRIORITY_ZONE;
     properties.m_reverb = 0;
 
     if (SFile::IsStreamingMode()) {

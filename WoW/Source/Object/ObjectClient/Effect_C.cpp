@@ -386,7 +386,7 @@ void CEffect::EffectEvent(CM2Model* model, uint32_t boneId, uint32_t eventId, ui
                 properties.m_volumeScale = 0.65f;
             }
 
-            properties.m_priority = 110;
+            properties.m_priority = SI2_PRIORITY_OBJECT;
             SI2::PlaySoundKit(data, listenerAtCharacter ? nullptr : position, &effect->m_soundKitObject, &properties, 0, nullptr, 1, 0);
         } else {
             SI2::PlaySoundKit(data, position, &effect->m_soundKitObject, nullptr, 0, nullptr, 1, 0);
@@ -501,7 +501,7 @@ void CEffect::AddSoundEffect(int32_t soundId, int32_t expireTime, int32_t spellI
         properties.m_loopMode = SE2_LOOP_MODE_NONLOOPING;
 
         if (CGUnit_C::s_activeMover == this->m_sourceGuid) {
-            properties.m_priority = 110;
+            properties.m_priority = SI2_PRIORITY_OBJECT;
         }
     }
 
@@ -1367,7 +1367,7 @@ void CEffect::PostInitialize() {
     }
 
     if (focus || this->m_sourceGuid == CGUnit_C::s_activeMover) {
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
     }
 
     if (CGGameUI::SequenceMusicIsPlaying()) {

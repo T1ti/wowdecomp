@@ -12120,7 +12120,7 @@ int32_t OnUpdateShapeshiftForm(WOWGUID guid, uint32_t offset, uint32_t count, co
                     SE2SoundKitProperties properties;
                     properties.ResetToDefaults();
                     properties.m_volumeScale = listenerAtCharacter ? 0.65f : 1.0f;
-                    properties.m_priority = 110;
+                    properties.m_priority = SI2_PRIORITY_OBJECT;
                     SI2::PlaySoundKit(SOUND_ENTRY_ID_DRUID_MORPH_IMPACT_BASE, listenerAtCharacter ? nullptr : &position, nullptr, &properties, 0, nullptr, 1, 0);
                 } else {
                     SI2::PlaySoundKit(SOUND_ENTRY_ID_DRUID_MORPH_IMPACT_BASE, &position, nullptr, nullptr, 0, nullptr, 1, 0);
@@ -13792,7 +13792,7 @@ void CGPlayer_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
             properties.m_volumeScale = 0.65f;
         }
 
-        properties.m_priority = 110;
+        properties.m_priority = SI2_PRIORITY_OBJECT;
 
         if (soundType == UNITSOUNDTYPE_WINGFLAP) {
             properties.m_maxAudibleBehavior = SE2_MAX_AUDIBLE_MUTE;
