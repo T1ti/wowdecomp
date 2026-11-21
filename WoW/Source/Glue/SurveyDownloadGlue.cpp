@@ -125,16 +125,16 @@ void CGlueMgr::SurveyDownloadCancel() {
 // VERIFY: fdd18e3f auto
 // OFFSET: 0x004E4AA0
 void CGlueMgr::SurveyDownloadIdle() {
-    int32_t status = CGlueMgr::m_surveyDownload->GetStatus();
+    FILE_DOWNLOAD_STATUS status = CGlueMgr::m_surveyDownload->GetStatus();
 
-    if (status == 2) {
+    if (status == FILE_DOWNLOAD_STATUS_COMPLETE) {
         if (CGlueMgr::m_surveyDownload->Accepted()) {
             ClientServices::LoginConnection()->FileComplete(true);
         }
 
         CGlueMgr::m_surveyDownload->CompleteDownload();
     } else {
-        if (status != 3) {
+        if (status != FILE_DOWNLOAD_STATUS_FAILED) {
             return;
         }
 
