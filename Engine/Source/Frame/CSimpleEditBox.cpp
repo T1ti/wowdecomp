@@ -1552,7 +1552,7 @@ int32_t CSimpleEditBox::ConvertCoordinateToIndex(float x, float y, int32_t& inde
     float left;
     float right;
 
-    if ((this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) == 2) {
+    if ((this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) == TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER) {
         float textWidth = this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]);
         float width = rect.maxX - rect.minX;
         left = rect.minX + (width - textWidth) * 0.5f;
@@ -1658,7 +1658,7 @@ void CSimpleEditBox::UpdateVisibleCursor() {
     this->m_cursor->MarkFramePointsUnused();
 
     switch (this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
-        case 1:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT:
             x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
@@ -1669,7 +1669,7 @@ void CSimpleEditBox::UpdateVisibleCursor() {
 
             break;
 
-        case 2:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER:
             x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], cursor - this->m_visibleLines.m_data[line]);
             x -= this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
 
@@ -1681,7 +1681,7 @@ void CSimpleEditBox::UpdateVisibleCursor() {
 
             break;
 
-        case 4:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT:
             x = static_cast<uint32_t>(cursor) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_string->GetTextWidth(&text[cursor], this->m_visibleLines.m_data[line + 1] - cursor);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
@@ -1749,7 +1749,7 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
     region->MarkFramePointsUnused();
 
     switch (this->m_string->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
-        case 1:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT:
             x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {
@@ -1760,7 +1760,7 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
 
             break;
 
-        case 2:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER:
             x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line] ? 0.0f : this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], left - this->m_visibleLines.m_data[line]);
             x -= this->m_string->GetTextWidth(&text[this->m_visibleLines.m_data[line]], this->m_visibleLines.m_data[line + 1] - this->m_visibleLines.m_data[line]) * 0.5f;
 
@@ -1772,7 +1772,7 @@ void CSimpleEditBox::UpdateHighlightArea(CSimpleRegion* region, int32_t left, in
 
             break;
 
-        case 4:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT:
             x = static_cast<uint32_t>(left) == this->m_visibleLines.m_data[line + 1] ? 0.0f : -this->m_string->GetTextWidth(&text[left], this->m_visibleLines.m_data[line + 1] - left);
 
             if (this->m_editBoxFlags & EDITBOX_FLAGS::EDITBOX_MULTILINE) {

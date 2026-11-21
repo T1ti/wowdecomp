@@ -60,14 +60,14 @@ void CSimpleHyperlinkButton::SetHyperlink(CSimpleFontString* fontString, const G
     FRAMEPOINT point = FRAMEPOINT_TOPLEFT;
 
     switch (fontString->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_H_MASK) {
-        case 1:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_LEFT:
             x = left;
             break;
-        case 2:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_CENTER:
             point = FRAMEPOINT_TOP;
             x = left + (right - left) * 0.5f;
             break;
-        case 4:
+        case TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_JUSTIFY_RIGHT:
             point = FRAMEPOINT_TOPRIGHT;
             x = right;
             break;
