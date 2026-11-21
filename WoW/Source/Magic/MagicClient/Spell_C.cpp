@@ -2583,11 +2583,11 @@ bool Spell_C_CanTargetCorpse(const CGCorpse_C* corpse) {
         return false;
     }
 
-    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) {
+    if (Spell_C_CanTargetFriendCorpses()) {
         return !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse);
     }
 
-    if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) {
+    if (Spell_C_CanTargetEnemyCorpses()) {
         return !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse);
     }
 
@@ -2856,11 +2856,11 @@ bool Spell_C::HandleSpriteRay(const WOWGUID& guid, bool checkRange) {
         const CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
         bool friendly = false;
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
+        if (Spell_C_CanTargetFriendCorpses() && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
             friendly = true;
         }
 
-        if (!((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) && !friendly) {
+        if (!(Spell_C_CanTargetEnemyCorpses() && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) && !friendly) {
             return false;
         }
     } else {
@@ -5181,7 +5181,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
         return false;
     }
 
-    CGUnit_C* vehicle = unit->m_vehiclePassenger ? unit->m_vehiclePassenger->GetVehicleUnit() : nullptr;
+    CGUnit_C* vehicle = unit->GetVehicleUnit();
 
     for (uint32_t i = 0; i < sizeof(spell->m_effect) / sizeof(spell->m_effect[0]); i++) {
         if (spell->m_effect[i] != SPELL_EFFECT_SUMMON) {
@@ -5364,7 +5364,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         break;
     }
 
-    CGUnit_C* vehicleUnit = unit->m_vehiclePassenger ? unit->m_vehiclePassenger->GetVehicleUnit() : nullptr;
+    CGUnit_C* vehicleUnit = unit->GetVehicleUnit();
 
     for (uint32_t i = 0; i < sizeof(spell->m_effect) / sizeof(spell->m_effect[0]); i++) {
         if (spell->m_effect[i] == SPELL_EFFECT_SUMMON && vehicleUnit && vehicleUnit->m_obj->m_entryID == spell->m_effectMiscValue[i]) {
@@ -8747,7 +8747,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
             }
 
             result = true;
-        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
+        } else if (Spell_C_CanTargetFriendCorpses() && unit->m_unit->m_unitFieldHealth <= 0 && ((unit->m_obj->m_type & TYPE_PLAYER) || unit->m_unit->m_unitFieldPetnumber)) {
             if (!caster->CanAssist(unit, false)) {
                 return result;
             }
@@ -8756,7 +8756,7 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_UNIT;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             result = true;
-        } else if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
+        } else if (Spell_C_CanTargetEnemyCorpses() && unit->m_unit->m_unitFieldHealth <= 0 && (unit->m_obj->m_type & TYPE_PLAYER)) {
             if (caster->CanAssist(unit, false)) {
                 return result;
             }
@@ -8803,14 +8803,14 @@ bool Spell_C_HandleSpriteClick(CGObject_C* object, PendingSpellCast* cast) {
     } else if (type & TYPE_CORPSE) {
         CGCorpse_C* corpse = static_cast<CGCorpse_C*>(object);
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
+        if (Spell_C_CanTargetFriendCorpses() && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ALLY;
             result = true;
         }
 
-        if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY) && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) {
+        if (Spell_C_CanTargetEnemyCorpses() && !(corpse->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && !caster->CanAssist(corpse)) {
             cast->m_data.m_objectTarget = object->m_obj->m_guid;
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_CORPSE_ENEMY;
