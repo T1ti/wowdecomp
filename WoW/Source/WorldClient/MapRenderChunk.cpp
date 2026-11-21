@@ -232,7 +232,7 @@ CMapChunkBuf::CMapChunkBuf() {
     this->m_indexBuf = nullptr;
     this->m_renderChunk = nullptr;
     this->m_block = nullptr;
-    this->m_unkFlags = 0;
+    this->m_batchFlags = 0;
 }
 
 // INLINED
@@ -284,7 +284,7 @@ void CMapRenderChunk::UpdateLoaded() {
         }
     }
 
-    this->m_unkFlags |= BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED;
+    this->m_batchFlags |= BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED;
 }
 
 // VERIFY: ef5458ef auto
@@ -310,7 +310,7 @@ void CMapRenderChunk::AddBatch(CMapChunk* chunk1, CMapChunk* chunk2, C3Vector* p
     this->m_mapChunks[0] = chunk1;
     this->m_mapChunks[1] = chunk2;
     this->m_vec1 = *position;
-    this->m_unkFlags = flags;
+    this->m_batchFlags = flags;
 
     CAaBox box = chunk1->m_bbox;
 
@@ -387,7 +387,7 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
 
         CMapChunkBuf* buf = &block->m_bufs[0];
         buf->m_renderChunk = renderChunk;
-        buf->m_unkFlags = flags;
+        buf->m_batchFlags = flags;
 
         if (buf->m_vertexBuf) {
             buf->m_vertexBuf->m_hasData = 0;
@@ -406,7 +406,7 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
     if (freeBuf) {
         freeBuf->m_freeLink.Unlink();
         freeBuf->m_renderChunk = renderChunk;
-        freeBuf->m_unkFlags = flags;
+        freeBuf->m_batchFlags = flags;
         freeBuf->m_vertexBuf->m_hasData = 0;
         freeBuf->m_indexBuf->m_hasData = 0;
         return freeBuf;
@@ -434,7 +434,7 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
         buf = &block->m_bufs[i];
         buf->m_vertexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxVertexPool, stride, TERRAIN_CHUNK_VERTEX_COUNT, TERRAIN_CHUNK_VERTEX_COUNT * stride * (block->m_vertexCount + i));
         buf->m_indexBuf = g_theGxDevicePtr->BufCreate(CMapRenderChunk::s_gxIndexPool, 2, TERRAIN_INDEX_COUNT_PER_CHUNK, TERRAIN_RENDER_BATCH_INDEX_COUNT * (block->m_vertexCount + i));
-        buf->m_unkFlags = 0;
+        buf->m_batchFlags = 0;
         buf->m_renderChunk = nullptr;
 
         if (i == 0) {
@@ -443,7 +443,7 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
     }
 
     buf->m_renderChunk = renderChunk;
-    buf->m_unkFlags = flags;
+    buf->m_batchFlags = flags;
     return buf;
 }
 
@@ -473,7 +473,7 @@ void CMapRenderChunk::PurgeChunkBufBlocks() {
 
             chunkBuf.m_vertexBuf = nullptr;
             chunkBuf.m_indexBuf = nullptr;
-            chunkBuf.m_unkFlags = 0;
+            chunkBuf.m_batchFlags = 0;
             chunkBuf.m_freeLink.Unlink();
         }
 
@@ -492,7 +492,7 @@ CMapRenderChunk::CMapRenderChunk() {
     this->m_batch.m_minIndex = 0;
     this->m_batch.m_maxIndex = 0;
     this->m_lastUpdateTime = 0.0f;
-    this->m_unkFlags = BATCH_FLAGS::BATCH_NONE;
+    this->m_batchFlags = BATCH_FLAGS::BATCH_NONE;
     this->m_mapChunks[0] = nullptr;
     this->m_mapChunks[1] = nullptr;
     this->m_layersCount = 0;
@@ -545,7 +545,7 @@ void CMapRenderChunk::FreeBuf() {
         return;
     }
 
-    if (chunkBuf->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
+    if (chunkBuf->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
         CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(chunkBuf->m_block);
     } else {
         CMapRenderChunk::s_renderChunkBufFreeList.LinkToHead(this->m_chunkBuf);
@@ -630,7 +630,7 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
         if (this->m_mapChunks[1]) {
             offset.z = this->m_mapChunks[1]->m_topLeftCoords.z - this->m_mapChunks[0]->m_topLeftCoords.z;
 
-            if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
+            if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
                 offset.y = -33.333332f;
             } else {
                 offset.x = -33.333332f;
@@ -672,7 +672,7 @@ void CMapRenderChunk::UseStreamingBufs() {
     uint32_t vertexCount = s_streamVertexCount;
     uint32_t indexCount = s_streamIndexCount;
 
-    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
+    if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
         vertexCount *= 2;
         indexCount *= 2;
     }
@@ -770,7 +770,7 @@ void CMapRenderChunk::RenderSolidVertexPixelShader() {
 // OFFSET: 0x007D3F70
 void CMapRenderChunk::RenderPrep() {
     if (!this->m_chunkBuf) {
-        this->m_chunkBuf = CMapRenderChunk::AllocBuf(this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_MASK, this);
+        this->m_chunkBuf = CMapRenderChunk::AllocBuf(this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK, this);
     }
 
     if (this->m_chunkBuf) {
@@ -782,7 +782,7 @@ void CMapRenderChunk::RenderPrep() {
         this->CreateLayers();
     }
 
-    if (!(this->m_unkFlags & BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED)) {
+    if (!(this->m_batchFlags & BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED)) {
         this->UpdateLoaded();
     }
 }
@@ -1690,7 +1690,7 @@ void CMapRenderChunk::CreateShaderTexture() {
     int32_t size = 64 >> area->m_header->m_mampValue;
     int32_t pitch = size;
 
-    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
+    if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         pitch = size * 2;
     }
 
@@ -1745,13 +1745,13 @@ void CMapRenderChunk::CreateShaderTexture() {
 
     int32_t offset = 0;
 
-    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
+    if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         offset = size * size;
 
         if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
             offset >>= 2;
         }
-    } else if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
+    } else if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         offset = size;
 
         if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
@@ -1899,9 +1899,9 @@ void CMapRenderChunk::AllocShaderTexture() {
         height = width;
     }
 
-    if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
+    if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         height *= 2;
-    } else if (this->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
+    } else if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         width *= 2;
     }
 
@@ -2085,9 +2085,9 @@ void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t laye
     alphaScale.z = 0.0f;
     alphaScale.w = 0.0f;
 
-    if (renderChunk->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
+    if (renderChunk->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         alphaScale.x = CMapChunk::s_geoToTex * -0.0625f;
-    } else if (renderChunk->m_unkFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
+    } else if (renderChunk->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         alphaScale.y = CMapChunk::s_geoToTex * -0.0625f;
     }
 

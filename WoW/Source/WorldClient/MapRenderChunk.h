@@ -33,7 +33,7 @@ class CMapChunkBuf {
     /* 0004 */ CGxBuf* m_indexBuf;
     /* 0008 */ CMapRenderChunk* m_renderChunk;
     /* 000C */ CMapChunkBufBlock* m_block;
-    /* 0010 */ uint32_t m_unkFlags;
+    /* 0010 */ uint32_t m_batchFlags; // BATCH_PAIR_* bits of the owning render chunk
     /* 0014 */ TSLink<CMapChunkBuf> m_freeLink;
 
     CMapChunkBuf();
@@ -148,7 +148,7 @@ class CMapRenderChunk {
     static void __stdcall RecreateAlphaBitsFixed8888Mip1(CImVector* dst, uint32_t size, SLayerAlpha* layer, uint8_t* shadowMap);
 
     /* 0000 */ TSLink<CMapRenderChunk> m_renderChunkLink;
-    /* 0008 */ uint8_t m_unkFlags;
+    /* 0008 */ uint8_t m_batchFlags; // BATCH_FLAGS
     /* 0009 */ uint8_t m_layersCount;
     /* 000A */ int16_t m_renderFlags;
     /* 000C */ float m_lastUpdateTime;
