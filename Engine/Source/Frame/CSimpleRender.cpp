@@ -860,15 +860,15 @@ const char* CSimpleFontString::GetDisplayText(float width, float height) {
         return text;
     }
 
-    if (!(this->m_maxLines & 0xFFFFFF) && height <= 0.0f) {
+    if (!(this->m_maxLines & MAX_LINES_MASK) && height <= 0.0f) {
         return text;
     }
 
     float fontHeight = this->GetFontHeight(true);
     float lineHeight = (CSimpleTop::RoundToPixelHeight(this->m_spacing) + fontHeight) * this->m_layoutScale;
 
-    if (this->m_maxLines & 0xFFFFFF) {
-        height = lineHeight * (this->m_maxLines & 0xFFFFFF);
+    if (this->m_maxLines & MAX_LINES_MASK) {
+        height = lineHeight * (this->m_maxLines & MAX_LINES_MASK);
     } else if (lineHeight >= height) {
         height = lineHeight;
     }
@@ -1050,7 +1050,7 @@ CSimpleFontString::CSimpleFontString(CSimpleFrame* frame, uint32_t drawLayer, bo
     this->m_alphaGradientStart = -1;
     this->m_styleFlags = TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_DEFAULT_STYLE;
     this->m_settableStyleFlags = TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_DEFAULT_SETTABLE_STYLE;
-    this->m_maxLines = (this->m_maxLines & 0xFE000000) | 0x1000000;
+    this->m_maxLines = (this->m_maxLines & ~(MAX_LINES_MASK | MAX_LINES_LOAD_XML_FONT)) | MAX_LINES_LOAD_XML_FONT;
     s_fontStringCount++;
 }
 
@@ -1800,7 +1800,7 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
         CSimpleFont* font = CSimpleFont::GetFont(inherits, 0);
 
         if (font) {
-            if (this->m_maxLines & 0x1000000) {
+            if (this->m_maxLines & MAX_LINES_LOAD_XML_FONT) {
                 this->SetFontObject(font);
             }
         } else {
@@ -1866,10 +1866,10 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
     const char* maxLines = node->GetAttributeByName("maxLines");
 
     if (maxLines && *maxLines) {
-        this->m_maxLines = (this->m_maxLines & ~0xFFFFFFu) | (SStrToUnsigned(maxLines) & 0xFFFFFF);
+        this->m_maxLines = (this->m_maxLines & ~MAX_LINES_MASK) | (SStrToUnsigned(maxLines) & MAX_LINES_MASK);
     }
 
-    if (!(this->m_maxLines & 0x1000000)) {
+    if (!(this->m_maxLines & MAX_LINES_LOAD_XML_FONT)) {
         return;
     }
 

@@ -38,6 +38,13 @@ class CSimpleRender {
 
 class CSimpleFontString : public CSimpleRegion, public CSimpleFontable {
     public:
+    // m_maxLines packing: the XML maxLines count in the low 24 bits, plus a bit the
+    // constructor sets that lets LoadXML apply the inherits/font attributes (inferred name).
+    enum MAX_LINES_BITS : uint32_t {
+        MAX_LINES_MASK = 0xFFFFFF,
+        MAX_LINES_LOAD_XML_FONT = 0x1000000,
+    };
+
     static CDataAllocator s_allocator;
     static int32_t s_metatable;
     static int32_t s_objectType;
@@ -67,7 +74,7 @@ class CSimpleFontString : public CSimpleRegion, public CSimpleFontable {
     /* 011E */ int16_t m_alphaGradientLength;
     /* 0120 */ uint32_t m_styleFlags;
     /* 0124 */ uint32_t m_settableStyleFlags;
-    /* 0128 */ uint32_t m_maxLines;
+    /* 0128 */ uint32_t m_maxLines; // MAX_LINES_BITS
     /* 012C */ C3Vector m_animPosition;
     /* 0138 */ TSExplicitList<CSimpleEmbeddedTexture, offsetof(CSimpleEmbeddedTexture, m_link)> m_textures;
 
