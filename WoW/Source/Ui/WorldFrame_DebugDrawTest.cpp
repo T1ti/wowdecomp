@@ -6,6 +6,8 @@
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
+#include "Engine/Source/Base/Status.h"
+#include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Services/Texture.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
@@ -15,8 +17,8 @@
 // queues one of each Gxu debug-draw primitive in front of the active player, so the module can be checked in game:
 //   - a row of shapes 8 yards ahead, left to right: solid box (red), wireframe sphere (green), inside-faces cone
 //     (blue), double-sided triangle (yellow), always-on-top sphere (half transparent magenta);
-//   - a large wireframe sphere 120 yards ahead, at the lowest sphere LOD;
-//   - a 3D label above each near shape, a line of screen text and an icon texture at the top left.
+//   - three wireframe spheres 25 yards ahead, sized so they draw at sphere LOD 0, 1 and 2;
+//   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame.
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;
@@ -91,20 +93,37 @@ void GxuDebugDrawTestQueue() {
         GxuDebugDrawText3D(shapes[i].label, labelPosition, shapes[i].color);
     }
 
-    C3Vector farPosition(origin.x + forward.x * 120.0f, origin.y + forward.y * 120.0f, origin.z + 10.0f);
-    GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, ShapeTransform(farPosition, facing, 10.0f), CImVector(0x20, 0xFF, 0x20, 0xFF), GXUDEBUGSTYLE_WIREFRAME);
+    // Sphere LODs: the drawer picks the LOD from distance / scale, so at the same distance (about 30 yards from the
+    // camera) radius 1, 0.4 and 0.2 land on LOD 0, 1 and 2 (full, half and quarter grid).
+    const float lodScales[GxuSphereShapeFactory::NUM_LODS] = { 1.0f, 0.4f, 0.2f };
+    const char* lodLabels[GxuSphereShapeFactory::NUM_LODS] = { "LOD 0", "LOD 1", "LOD 2" };
 
-    GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.10f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    for (uint32_t lod = 0; lod < GxuSphereShapeFactory::NUM_LODS; lod++) {
+        float side = (static_cast<float>(lod) - 1.0f) * 3.0f;
+        C3Vector position(
+            origin.x + forward.x * 25.0f + right.x * side,
+            origin.y + forward.y * 25.0f + right.y * side,
+            origin.z + 4.0f);
+        GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, ShapeTransform(position, facing, lodScales[lod]), CImVector(0x20, 0xFF, 0x20, 0xFF), GXUDEBUGSTYLE_WIREFRAME);
 
+        C3Vector labelPosition(position.x, position.y, position.z + 1.5f);
+        GxuDebugDrawText3D(lodLabels[lod], labelPosition, CImVector(0x20, 0xFF, 0x20, 0xFF));
+    }
+
+    // Below the player frame, which covers the top left corner.
+    GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.16f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+
+    // TextureCacheGetTexture only finds textures something else already loaded; TextureCreate loads the file.
     if (!s_debugDrawTestTexture) {
-        s_debugDrawTestTexture = TextureCacheGetTexture("Interface\\Icons\\INV_Misc_QuestionMark");
+        CStatus status;
+        s_debugDrawTestTexture = TextureCreate("Interface\\Icons\\INV_Misc_QuestionMark", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1, 0, 0, 0), &status, 0);
     }
 
     // The texture loads asynchronously; nothing is queued until it is ready.
     CGxTex* gxTex = s_debugDrawTestTexture ? TextureGetGxTex(s_debugDrawTestTexture, 0, nullptr) : nullptr;
 
     if (gxTex) {
-        GxuDebugDrawTexture(gxTex, 0.02f, 0.13f, 0.06f, 0.08f);
+        GxuDebugDrawTexture(gxTex, 0.02f, 0.19f, 0.06f, 0.08f);
     }
 }
 
