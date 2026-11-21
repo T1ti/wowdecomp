@@ -18,7 +18,9 @@
 //   - a row of shapes 8 yards ahead, left to right: solid box (red), wireframe sphere (green), inside-faces cone
 //     (blue), double-sided triangle (yellow), always-on-top sphere (half transparent magenta);
 //   - three wireframe spheres 25 yards ahead, sized so they draw at sphere LOD 0, 1 and 2;
-//   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame.
+//   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame;
+//   - lines: a red/green/blue axis tripod at the player's feet (world X, Y, Z), a white wire box around the shape
+//     row, and an always-on-top cyan line from the player to each LOD sphere.
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;
@@ -108,7 +110,24 @@ void GxuDebugDrawTestQueue() {
 
         C3Vector labelPosition(position.x, position.y, position.z + 1.5f);
         GxuDebugDrawText3D(lodLabels[lod], labelPosition, CImVector(0x20, 0xFF, 0x20, 0xFF));
+
+        C3Vector chest(origin.x, origin.y, origin.z + 1.0f);
+        GxuDebugDrawLine(chest, position, CImVector(0xFF, 0xFF, 0x20, 0xFF), GXUDEBUGSTYLE_SOLID_NODEPTH);
     }
+
+    // Axis tripod at the feet, 2 yards per axis.
+    GxuDebugDrawLine(origin, C3Vector(origin.x + 2.0f, origin.y, origin.z), CImVector(0x20, 0x20, 0xFF, 0xFF));
+    GxuDebugDrawLine(origin, C3Vector(origin.x, origin.y + 2.0f, origin.z), CImVector(0x20, 0xFF, 0x20, 0xFF));
+    GxuDebugDrawLine(origin, C3Vector(origin.x, origin.y, origin.z + 2.0f), CImVector(0xFF, 0x20, 0x20, 0xFF));
+
+    // World-aligned wire box enclosing the shape row (its corners span the row's ends).
+    C3Vector rowCenter(origin.x + forward.x * 8.0f, origin.y + forward.y * 8.0f, origin.z + 1.5f);
+    float halfRow = (static_cast<float>(count - 1) * 0.5f) * 3.0f + 1.5f;
+    C3Vector rowA(rowCenter.x - right.x * halfRow - forward.x * 1.5f, rowCenter.y - right.y * halfRow - forward.y * 1.5f, rowCenter.z - 1.5f);
+    C3Vector rowB(rowCenter.x + right.x * halfRow + forward.x * 1.5f, rowCenter.y + right.y * halfRow + forward.y * 1.5f, rowCenter.z + 1.5f);
+    C3Vector boxMin(rowA.x < rowB.x ? rowA.x : rowB.x, rowA.y < rowB.y ? rowA.y : rowB.y, rowA.z);
+    C3Vector boxMax(rowA.x < rowB.x ? rowB.x : rowA.x, rowA.y < rowB.y ? rowB.y : rowA.y, rowB.z);
+    GxuDebugDrawAaBoxLines(boxMin, boxMax, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
 
     // Below the player frame, which covers the top left corner.
     GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.16f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));

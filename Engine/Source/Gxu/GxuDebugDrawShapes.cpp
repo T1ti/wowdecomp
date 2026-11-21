@@ -1,6 +1,6 @@
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 
-#ifdef WOWDECOMP_TOOL_FEATURES
+#ifdef WOWDECOMP_GXU_DEBUG_DRAW
 
 #include <cmath>
 #include <cstring>
@@ -25,6 +25,7 @@ GxuDebugShapeRenderStateBlock* GxuDebugShapeDrawer::s_renderStateBlockWireframe;
 GxuBufferCache s_debugShapeBufferCache;
 
 static TSGrowableArray<GxuDebugShapeObject> s_shapeObjects;
+static TSGrowableArray<GxuDebugLineObject> s_lineObjects;
 
 static GxuNullShapeFactory s_nullFactory;
 static GxuBoxShapeFactory s_boxFactory;
@@ -525,6 +526,85 @@ void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objec
     }
 }
 
+// ---- Lines (port)
+//
+// Drawn like the 3.3.5 hand-written overlays (RenderCollisionInfo's normal lines): a PC vertex stream, a 0..n index
+// stream and one GxPrim_Lines batch, under the Solid or NoDepth render-state block. Depth-tested lines go first so the
+// always-on-top ones stay on top. Each batch holds at most LINE_BATCH_SIZE lines (16-bit indices).
+
+static const uint32_t LINE_BATCH_SIZE = 0x4000;
+
+static void DrawLineBatch(const TSGrowableArray<GxuDebugLineObject>& objects, bool noDepth) {
+    static TSGrowableArray<C3Vector> s_positions;
+    static TSGrowableArray<CImVector> s_colors;
+    static TSGrowableArray<uint16_t> s_indices;
+
+    uint32_t i = 0;
+
+    while (i < objects.m_count) {
+        s_positions.SetCount(0);
+        s_colors.SetCount(0);
+
+        for (; i < objects.m_count && s_positions.m_count < LINE_BATCH_SIZE * 2; i++) {
+            const GxuDebugLineObject& line = objects.m_data[i];
+
+            if ((line.m_style == GXUDEBUGSTYLE_SOLID_NODEPTH) != noDepth) {
+                continue;
+            }
+
+            CImVector color = line.m_color;
+            GxFormatColor(color);
+            *s_positions.New() = line.m_start;
+            *s_positions.New() = line.m_end;
+            *s_colors.New() = color;
+            *s_colors.New() = color;
+        }
+
+        uint32_t count = s_positions.m_count;
+
+        if (!count) {
+            continue;
+        }
+
+        if (s_indices.m_count < count) {
+            uint32_t first = s_indices.m_count;
+            s_indices.SetCount(count);
+
+            for (uint32_t n = first; n < count; n++) {
+                s_indices.m_data[n] = static_cast<uint16_t>(n);
+            }
+        }
+
+        GxuDebugShapeRenderStateBlock* block = GxuDebugShapeDrawer::GetStateBlock(noDepth ? GXUDEBUGSTYLE_SOLID_NODEPTH : GXUDEBUGSTYLE_SOLID);
+        block->Apply();
+        g_theGxDevicePtr->RsSet(GxRs_Culling, 0);
+
+        GxPrimVertexPtr(count, s_positions.m_data, sizeof(C3Vector), nullptr, 0, s_colors.m_data, sizeof(CImVector), nullptr, 0, nullptr, 0);
+        GxPrimIndexPtr(count, s_indices.m_data);
+
+        CGxBatch batch;
+        batch.m_primType = GxPrim_Lines;
+        batch.m_start = 0;
+        batch.m_count = count;
+        batch.m_minIndex = 0;
+        batch.m_maxIndex = count - 1;
+        g_theGxDevicePtr->Draw(&batch, 1);
+
+        block->Restore();
+    }
+}
+
+void GxuDebugShapeDrawer::DrawLines(const TSGrowableArray<GxuDebugLineObject>& objects, const C3Vector& viewOrigin) {
+    C44Matrix world;
+    world.Translate(C3Vector(-viewOrigin.x, -viewOrigin.y, -viewOrigin.z));
+    g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
+
+    DrawLineBatch(objects, false);
+    DrawLineBatch(objects, true);
+
+    GxXformPop(GxXform_World);
+}
+
 // ---- Port entry points
 
 void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style) {
@@ -535,11 +615,66 @@ void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CI
     object->m_color = color;
 }
 
-// Shapes first, then 3D and 2D text and textures on top of them.
+void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVector& color, GXUDEBUGSTYLE style) {
+    GxuDebugLineObject* object = s_lineObjects.New();
+    object->m_start = start;
+    object->m_end = end;
+    object->m_color = color;
+    object->m_style = style;
+}
+
+void GxuDebugDrawAaBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const CImVector& color, GXUDEBUGSTYLE style) {
+    C3Vector corners[8];
+
+    for (uint32_t i = 0; i < 8; i++) {
+        corners[i] = C3Vector((i & 1) ? maxCorner.x : minCorner.x, (i & 2) ? maxCorner.y : minCorner.y, (i & 4) ? maxCorner.z : minCorner.z);
+    }
+
+    // Each edge joins two corners that differ in one axis bit.
+    for (uint32_t i = 0; i < 8; i++) {
+        for (uint32_t bit = 1; bit < 8; bit <<= 1) {
+            if (!(i & bit)) {
+                GxuDebugDrawLine(corners[i], corners[i | bit], color, style);
+            }
+        }
+    }
+}
+
+// The unit box scaled to the extent and moved to its center, then placed by transform (row vectors: local first).
+void GxuDebugDrawBoundsBox(const C3Vector& minCorner, const C3Vector& maxCorner, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style) {
+    C44Matrix local;
+    local.a0 = maxCorner.x - minCorner.x;
+    local.b1 = maxCorner.y - minCorner.y;
+    local.c2 = maxCorner.z - minCorner.z;
+    local.d0 = (minCorner.x + maxCorner.x) * 0.5f;
+    local.d1 = (minCorner.y + maxCorner.y) * 0.5f;
+    local.d2 = (minCorner.z + maxCorner.z) * 0.5f;
+
+    GxuDebugDrawShape(GXUDEBUGSHAPE_BOX, local * transform, color, style);
+}
+
+void GxuDebugDrawBoundsSphere(const C3Vector& center, float radius, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style) {
+    C44Matrix local;
+    local.a0 = radius;
+    local.b1 = radius;
+    local.c2 = radius;
+    local.d0 = center.x;
+    local.d1 = center.y;
+    local.d2 = center.z;
+
+    GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, local * transform, color, style);
+}
+
+// Shapes first, then lines, then 3D and 2D text and textures on top of them.
 void GxuDebugDrawRender(const C3Vector& viewOrigin) {
     if (s_shapeObjects.m_count) {
         GxuDebugShapeDrawer::Draw(s_shapeObjects, viewOrigin);
         s_shapeObjects.SetCount(0);
+    }
+
+    if (s_lineObjects.m_count) {
+        GxuDebugShapeDrawer::DrawLines(s_lineObjects, viewOrigin);
+        s_lineObjects.SetCount(0);
     }
 
     GxuDebugTextureDrawer::Draw(viewOrigin);
@@ -550,6 +685,7 @@ void GxuDebugDrawRender(const C3Vector& viewOrigin) {
 
 void GxuShutdownDebugDrawList() {
     s_shapeObjects.SetCount(0);
+    s_lineObjects.SetCount(0);
 }
 
 // 4.1 0x00AE6E80 releases the cache. The factories' handles are reset with it, since ReleaseCache drops the entries

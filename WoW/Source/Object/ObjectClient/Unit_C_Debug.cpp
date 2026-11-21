@@ -4,6 +4,8 @@
 #include "WoW/Source/Object/ObjectClient/GameObject_C.h"
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
+#include "Engine/Source/Model2/M2Model.h"
+#include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
@@ -101,9 +103,26 @@ const char* CGGameObject_C::GetDebugStatus() const {
 
 // Debug feature: player bounding sphere display.
 // 0.5.3 reference: CGPlayer_C::TogglePlayerBounds (0x005DCE60).
-// Flipped boundsPresent and called ModelShowBoundingSphere / ModelHideBounds on the active player's model; see CM2Model::ShowBoundingSphere / HideBounds.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Flips boundsPresent and shows or hides the bounding sphere on the active player's model (CM2Model::ShowBoundingSphere
+// / HideBounds, drawn through the Gxu debug-draw module).
+static bool s_boundsPresent; // 0.5.3 boundsPresent
+
 void CGPlayer_C::TogglePlayerBounds() {
+    CGObject_C* player = ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__);
+    CM2Model* model = player ? player->GetObjectModel() : nullptr;
+
+    if (!model) {
+        return;
+    }
+
+    bool wasPresent = s_boundsPresent;
+    s_boundsPresent = !s_boundsPresent;
+
+    if (wasPresent) {
+        model->HideBounds();
+    } else {
+        model->ShowBoundingSphere();
+    }
 }
 
 static CVar* s_cvDebugTargetPath;

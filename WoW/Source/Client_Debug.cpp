@@ -4,7 +4,11 @@
 #include "WoW/Source/Net/Types.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gx/Gx.h"
+#include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Storm/H/storm.h"
+#include "WoW/Source/Object/ObjectClient/Object_C.h"
+#include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
+#include "WoW/Source/Ui/GameUI.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
@@ -134,9 +138,32 @@ static int32_t CCommand_DFacing(const char* command, const char* arguments) {
 
 // Debug feature: console command "showbounds".
 // 0.5.3 reference: CCommand_ShowBounds (0x00404190).
-// Toggled the bounding sphere on the selected model; see CM2Model::ShowBoundingSphere / HideBounds.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Toggles the bounding sphere on the tracked object's model (CGGameUI::m_currentObjectTrack, the object under the
+// cursor), or the active player's when nothing is tracked; see CM2Model::ShowBoundingSphere / HideBounds.
+// Port extension: "showbounds box" toggles the bounding box instead (0.5.3 had ModelShowBoundingBox but no command).
 static int32_t CCommand_ShowBounds(const char* command, const char* arguments) {
+    CGObject_C* object = ClntObjMgrObjectPtr(CGGameUI::m_currentObjectTrack, TYPE_OBJECT, __FILE__, __LINE__);
+
+    if (!object) {
+        object = ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_OBJECT, __FILE__, __LINE__);
+    }
+
+    CM2Model* model = object ? object->GetObjectModel() : nullptr;
+
+    if (!model) {
+        return 0;
+    }
+
+    bool box = arguments && !SStrCmpI(arguments, "box", STORM_MAX_STR);
+
+    if (box ? model->IsShowingBoundingBox() : model->IsShowingBoundingSphere()) {
+        model->HideBounds();
+    } else if (box) {
+        model->ShowBoundingBox();
+    } else {
+        model->ShowBoundingSphere();
+    }
+
     return 1;
 }
 

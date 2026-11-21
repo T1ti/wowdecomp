@@ -1772,6 +1772,12 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
             continue;
         }
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+        // Debug feature: model bounds display (CM2Model::ShowBoundingSphere / ShowBoundingBox), queued once per frame
+        // for each model that draws.
+        model->DebugDrawBounds(this->m_viewInv);
+#endif
+
         CM2Lighting* lighting = model->m_currentLighting;
         M2Data* data = model->m_shared->m_data;
         int32_t above = lighting->m_flags & CM2Lighting::ABOVE_LIQUID;

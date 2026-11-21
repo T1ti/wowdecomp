@@ -299,6 +299,16 @@ class CM2Model {
     /* 02E4 */ uint32_t m_hitTestGroup; // Hit priority; the higher value wins among overlapping hits.
     /* 02E8 */ uint32_t m_handle;
     /* 02EC */ uint32_t unused_02EC;
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: which bounds the model shows (0.5.3 CModelBase::m_boundsModel, with m_flags bit 1 telling a
+    // sphere from a box). Appended after the 3.3.5 layout.
+    enum DEBUG_BOUNDS : uint32_t {
+        DEBUG_BOUNDS_NONE = 0,
+        DEBUG_BOUNDS_SPHERE = 1,
+        DEBUG_BOUNDS_BOX = 2,
+    };
+    DEBUG_BOUNDS m_debugBounds;
+#endif
 
     static void (*s_transformVertices[5])(CM2Model*, M2SkinSection*, uint8_t*, int32_t);
     static TSGrowableArray<M2ModelCallback> s_sequenceCallbacks;
@@ -460,6 +470,9 @@ class CM2Model {
     void HideBounds();
     void ShowBoundingBox();
     void ShowBoundingSphere();
+    BOOL IsShowingBoundingBox() const;
+    BOOL IsShowingBoundingSphere() const;
+    void DebugDrawBounds(const C44Matrix& viewInv) const;
     void ShowCollision(BOOL show);
     void ShowCollisionAaBox(BOOL show);
     void ShowHitTestGeometry();

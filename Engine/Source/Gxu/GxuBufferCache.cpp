@@ -1,6 +1,6 @@
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 
-#ifdef WOWDECOMP_TOOL_FEATURES
+#ifdef WOWDECOMP_GXU_DEBUG_DRAW
 
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"

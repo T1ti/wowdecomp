@@ -3786,6 +3786,10 @@ CM2Model::CM2Model() {
     this->m_hitTestOwner = nullptr;
     this->m_hitTestGroup = 0;
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    this->m_debugBounds = DEBUG_BOUNDS_NONE;
+#endif
+
     if (!CM2Model::s_transformVertices[0]) {
         CM2Model::s_transformVertices[0] = CM2Model::TransformVertices_cpp;
         CM2Model::s_transformVertices[1] = CM2Model::TransformVerticesOneBone_cpp;

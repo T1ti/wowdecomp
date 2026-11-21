@@ -35,8 +35,18 @@
 //   - text uses GxuFont string batches. Text and textures use a 0..1 screen space with its origin at the top left
 //     (4.1 GxuDebugTextureDrawer::Draw sets GxuXformCreateOrtho(0, 1, 1, 0, -1, 1)).
 // The gizmo shapes (DirectionalSphere, RotationRing, DirectionalDiamond) belong to 4.x editing tools and are left out.
+//
+// Port addition: line objects (GxuDebugDrawLine). 4.1 has no line shape; the 3.3.5 overlays that need lines (collision
+// info normals, unit pathing) draw GxPrim_Lines batches by hand, which is what the line drawer does too.
+//
+// Built with either debug or tool features: the debug features (model bounds, pathing) draw through it, and the tool
+// features (the debugDrawTest command) exercise it.
 
-#ifdef WOWDECOMP_TOOL_FEATURES
+#if defined(WOWDECOMP_DEBUG_FEATURES) || defined(WOWDECOMP_TOOL_FEATURES)
+#define WOWDECOMP_GXU_DEBUG_DRAW 1
+#endif
+
+#ifdef WOWDECOMP_GXU_DEBUG_DRAW
 
 #include <cstdint>
 #include "Engine/Source/Gx/Types.h"
@@ -232,6 +242,15 @@ struct GxuDebugShapeObject {
     /* 0048 */ CImVector m_color;
 };
 
+// Port: one world-space segment. The style picks the render-state block: GXUDEBUGSTYLE_SOLID_NODEPTH draws on top of
+// everything, every other style depth tests (culling and fill mode do not apply to lines).
+struct GxuDebugLineObject {
+    /* 0000 */ C3Vector m_start;
+    /* 000C */ C3Vector m_end;
+    /* 0018 */ CImVector m_color;
+    /* 001C */ GXUDEBUGSTYLE m_style;
+};
+
 struct GxuDebugTextObject {
     /* 0000 */ char m_text[128];
     /* 0080 */ float m_x; // 0..1 screen coordinates, origin top-left
@@ -264,6 +283,8 @@ class GxuDebugShapeDrawer {
     static IGxuDebugShapeFactory* GetFactory(GXUDEBUGSHAPE shape);
     static GxuDebugShapeRenderStateBlock* GetStateBlock(GXUDEBUGSTYLE style);
     static void Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin);
+    // Port: all queued lines of one depth mode go out as a single GxPrim_Lines batch.
+    static void DrawLines(const TSGrowableArray<GxuDebugLineObject>& objects, const C3Vector& viewOrigin);
 };
 
 class GxuDebugTextureDrawer {
@@ -282,6 +303,12 @@ class GxuDebugTextDrawer {
 // world view and projection are still set. viewOrigin is the camera-relative rendering origin
 // (CWorldScene::s_activeWorldView): world positions are drawn relative to it.
 void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
+void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
+// Convenience on top of the primitives: the twelve edges of a world axis-aligned box, and the box or sphere of a
+// local-space bounds placed by a transform (used by the model bounds display).
+void GxuDebugDrawAaBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
+void GxuDebugDrawBoundsBox(const C3Vector& minCorner, const C3Vector& maxCorner, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
+void GxuDebugDrawBoundsSphere(const C3Vector& center, float radius, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawText(const char* text, float x, float y, const CImVector& color);
 void GxuDebugDrawText3D(const char* text, const C3Vector& position, const CImVector& color);
 void GxuDebugDrawTexture(CGxTex* texture, float x, float y, float width, float height, EGxBlend blend = GxBlend_Alpha);

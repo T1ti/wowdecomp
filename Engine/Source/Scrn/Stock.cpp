@@ -80,8 +80,8 @@ void IStockDestroy() {
         s_stockObjects[i] = nullptr;
     }
 
-#ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the debug-draw text drawer holds a font and strings, so it goes before GxuFontShutdown.
+#ifdef WOWDECOMP_GXU_DEBUG_DRAW
+    // Debug/tool features: the debug-draw text drawer holds a font and strings, so it goes before GxuFontShutdown.
     GxuShutdownDebugDraw();
 #endif
 

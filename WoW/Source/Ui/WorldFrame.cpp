@@ -1814,10 +1814,12 @@ void CGWorldFrame::OnWorldRender() {
     RenderCollisionInfo();
 #endif
 
+#ifdef WOWDECOMP_GXU_DEBUG_DRAW
+    // Debug/tool features: the Gxu debug-draw queue (shapes, lines, world and screen text, textures), drawn and
+    // cleared once per frame on top of the world, relative to the camera origin the world view uses.
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the Gxu debug-draw queue (shapes, world and screen text, textures), drawn and cleared once per
-    // frame on top of the world, relative to the camera origin the world view uses.
     GxuDebugDrawTestQueue();
+#endif
     GxuDebugDrawRender(CWorldScene::s_activeWorldView);
 #endif
 
