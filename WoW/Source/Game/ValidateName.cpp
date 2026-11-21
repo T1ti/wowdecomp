@@ -173,7 +173,17 @@ struct RussianDeclensionRule {
 };
 
 // STATIC: 0x00ADC0A8
-static const uint16_t s_russianDeclensionEndings[71][5][5] = {
+// Russian declension table sizes. A rule's m_sets entry equal to the ending
+// set count means the rule has no such set.
+static const int32_t NUM_RUSSIAN_DECLENSION_ENDING_SETS = 71;
+static const int32_t NUM_RUSSIAN_DECLENSION_RULES = 55;
+
+// Rules GetNameInfo starts from before matching endings; their m_sex is 0 and 1
+// (names inferred).
+static const int32_t RUSSIAN_DECLENSION_RULE_DEFAULT_MALE = 35;
+static const int32_t RUSSIAN_DECLENSION_RULE_DEFAULT_FEMALE = 36;
+
+static const uint16_t s_russianDeclensionEndings[NUM_RUSSIAN_DECLENSION_ENDING_SETS][5][5] = {
     { { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 } },
     { { 0x044F, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x044E, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x044F, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0435, 0x043C, 0x0000, 0x0000, 0x0000 }, { 0x0435, 0x0000, 0x0000, 0x0000, 0x0000 } },
     { { 0x043A, 0x0430, 0x0000, 0x0000, 0x0000 }, { 0x043A, 0x0443, 0x0000, 0x0000, 0x0000 }, { 0x043A, 0x0430, 0x0000, 0x0000, 0x0000 }, { 0x043A, 0x043E, 0x043C, 0x0000, 0x0000 }, { 0x043A, 0x0435, 0x0000, 0x0000, 0x0000 } },
@@ -248,7 +258,7 @@ static const uint16_t s_russianDeclensionEndings[71][5][5] = {
 };
 
 // STATIC: 0x00ADCE88
-static const RussianDeclensionRule s_russianDeclensionRules[55] = {
+static const RussianDeclensionRule s_russianDeclensionRules[NUM_RUSSIAN_DECLENSION_RULES] = {
     { { { 0x0438, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0443, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x044B, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x044D, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x044E, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0430, 0x0430, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 } }, 2, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0, 71, 71 } },
     { { { 0x0430, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0435, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0443, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044D, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044E, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044F, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0451, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 } }, 0, { 0x0439, 0x0000, 0x0000, 0x0000, 0x0000 }, { 1, 0, 71 } },
     { { { 0x0430, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0435, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0443, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044D, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044E, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x044F, 0x0439, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 } }, 1, { 0x0439, 0x0000, 0x0000, 0x0000, 0x0000 }, { 0, 1, 71 } },
@@ -1151,12 +1161,12 @@ static void GetNameInfo(const char* name, RussianNameInfo* info, int32_t sex) {
     }
 
     info->m_stemLen = length;
-    info->m_rule = sex == UNITSEX_FEMALE ? 36 : 35;
+    info->m_rule = sex == UNITSEX_FEMALE ? RUSSIAN_DECLENSION_RULE_DEFAULT_FEMALE : RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     info->m_hasAltStem = 0;
 
     int32_t bestMatch = 0;
 
-    for (int32_t r = 0; r < 55; r++) {
+    for (int32_t r = 0; r < NUM_RUSSIAN_DECLENSION_RULES; r++) {
         const RussianDeclensionRule* rule = &s_russianDeclensionRules[r];
 
         if (rule->m_sex != UNITSEX_NONE && sex != UNITSEX_NONE && sex != rule->m_sex) {
@@ -1233,7 +1243,7 @@ static void GetNameInfo(const char* name, RussianNameInfo* info, int32_t sex) {
         return;
     }
 
-    if (info->m_rule == 36 || info->m_rule == 35) {
+    if (info->m_rule == RUSSIAN_DECLENSION_RULE_DEFAULT_FEMALE || info->m_rule == RUSSIAN_DECLENSION_RULE_DEFAULT_MALE) {
         alt = length - 2;
     } else {
         if (length <= 3 || info->m_name[length - 1] != 0x44C) {
@@ -1271,7 +1281,7 @@ static int32_t FormatCase(char* declensions, uint32_t set, const RussianNameInfo
     int32_t id = s_russianDeclensionRules[info->m_rule].m_sets[set];
     uint16_t buffer[1024];
 
-    if (id == 71) {
+    if (id == NUM_RUSSIAN_DECLENSION_ENDING_SETS) {
         for (int32_t i = 0; i < NUM_DECLENSIONS; i++) {
             declensions[i * 1024] = '\0';
         }
@@ -1344,7 +1354,7 @@ int32_t RussianNameNeedsDeclensions(const char* name) {
 // OFFSET: 0x0076E2B0
 int32_t GetNumRussianNameDeclensionSets(const char* name, int32_t sex) {
     RussianNameInfo info;
-    info.m_rule = 35;
+    info.m_rule = RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     info.m_stemLen = 0;
     info.m_name[0] = 0;
     info.m_hasAltStem = 0;
@@ -1352,13 +1362,13 @@ int32_t GetNumRussianNameDeclensionSets(const char* name, int32_t sex) {
     GetNameInfo(name, &info, sex);
 
     const RussianDeclensionRule* rule = &s_russianDeclensionRules[info.m_rule];
-    int32_t count = rule->m_sets[0] != 71;
+    int32_t count = rule->m_sets[0] != NUM_RUSSIAN_DECLENSION_ENDING_SETS;
 
-    if (rule->m_sets[1] != 71) {
+    if (rule->m_sets[1] != NUM_RUSSIAN_DECLENSION_ENDING_SETS) {
         count++;
     }
 
-    if (rule->m_sets[2] != 71) {
+    if (rule->m_sets[2] != NUM_RUSSIAN_DECLENSION_ENDING_SETS) {
         count++;
     }
 
@@ -1377,7 +1387,7 @@ int32_t GetRussianNameDeclensions(char* declensions, const char* name, int32_t s
     info.m_name[0] = 0;
     info.m_hasAltStem = 0;
     info.m_altStemLen = 0;
-    info.m_rule = 35;
+    info.m_rule = RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     GetNameInfo(name, &info, sex);
 
     return FormatCase(declensions, set, &info);
@@ -1387,7 +1397,7 @@ int32_t GetRussianNameDeclensions(char* declensions, const char* name, int32_t s
 // OFFSET: 0x0076E390
 bool IsRussianDeclensionValid(const char* name, const char* declension) {
     RussianNameInfo info;
-    info.m_rule = 35;
+    info.m_rule = RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     info.m_stemLen = 0;
     info.m_name[0] = 0;
     info.m_hasAltStem = 0;
