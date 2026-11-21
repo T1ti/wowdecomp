@@ -48,29 +48,29 @@ Blizzard::Lock::Mutex* System_File::s_ioLock;
 
 // OFFSET: 0x00427C20
 int32_t System_File::ToNativeAttributes(int32_t attributes) {
-    int32_t result = (attributes & 0x1) != 0 ? FILE_ATTRIBUTE_READONLY : 0;
+    int32_t result = (attributes & Blizzard::File::ATTRIBUTE_READONLY) != 0 ? FILE_ATTRIBUTE_READONLY : 0;
 
-    if (attributes & 0x2) {
+    if (attributes & Blizzard::File::ATTRIBUTE_HIDDEN) {
         result |= FILE_ATTRIBUTE_HIDDEN;
     }
 
-    if (attributes & 0x4) {
+    if (attributes & Blizzard::File::ATTRIBUTE_SYSTEM) {
         result |= FILE_ATTRIBUTE_SYSTEM;
     }
 
-    if (attributes & 0x8) {
+    if (attributes & Blizzard::File::ATTRIBUTE_ARCHIVE) {
         result |= FILE_ATTRIBUTE_ARCHIVE;
     }
 
-    if (attributes & 0x10) {
+    if (attributes & Blizzard::File::ATTRIBUTE_TEMPORARY) {
         result |= FILE_ATTRIBUTE_TEMPORARY;
     }
 
-    if (attributes & 0x20) {
+    if (attributes & Blizzard::File::ATTRIBUTE_NORMAL) {
         result |= FILE_ATTRIBUTE_NORMAL;
     }
 
-    if (attributes & 0x40) {
+    if (attributes & Blizzard::File::ATTRIBUTE_DIRECTORY) {
         result |= FILE_ATTRIBUTE_DIRECTORY;
     }
 
@@ -79,30 +79,30 @@ int32_t System_File::ToNativeAttributes(int32_t attributes) {
 
 // OFFSET: 0x00427C70
 int32_t System_File::FromNativeAttributes(int32_t attributes) {
-    int32_t result = (attributes & FILE_ATTRIBUTE_READONLY) != 0 ? 0x1 : 0;
+    int32_t result = (attributes & FILE_ATTRIBUTE_READONLY) != 0 ? Blizzard::File::ATTRIBUTE_READONLY : 0;
 
     if (attributes & FILE_ATTRIBUTE_HIDDEN) {
-        result |= 0x2;
+        result |= Blizzard::File::ATTRIBUTE_HIDDEN;
     }
 
     if (attributes & FILE_ATTRIBUTE_SYSTEM) {
-        result |= 0x4;
+        result |= Blizzard::File::ATTRIBUTE_SYSTEM;
     }
 
     if (attributes & FILE_ATTRIBUTE_ARCHIVE) {
-        result |= 0x8;
+        result |= Blizzard::File::ATTRIBUTE_ARCHIVE;
     }
 
     if (attributes & FILE_ATTRIBUTE_TEMPORARY) {
-        result |= 0x10;
+        result |= Blizzard::File::ATTRIBUTE_TEMPORARY;
     }
 
     if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
-        result |= 0x40;
+        result |= Blizzard::File::ATTRIBUTE_DIRECTORY;
     }
 
     if ((attributes & FILE_ATTRIBUTE_NORMAL) || !(attributes & FILE_ATTRIBUTE_DIRECTORY)) {
-        result |= 0x20;
+        result |= Blizzard::File::ATTRIBUTE_NORMAL;
     }
 
     return result;
@@ -216,12 +216,12 @@ void System_File::GetFileInfoByFile(Blizzard::File::StreamRecord* file) {
         file->m_info.m_accessTime = Blizzard::Time::FromFileTime((static_cast<uint64_t>(data.ftLastAccessTime.dwHighDateTime) << 32) | data.ftLastAccessTime.dwLowDateTime);
         int32_t attributes = FromNativeAttributes(data.dwFileAttributes);
         file->m_info.m_attributes = attributes;
-        file->m_info.m_regularFile = (attributes & 0x20) != 0;
+        file->m_info.m_regularFile = (attributes & Blizzard::File::ATTRIBUTE_NORMAL) != 0;
 
         if (data.dwFileAttributes == INVALID_FILE_ATTRIBUTES) {
-            file->m_info.m_existence = 0;
+            file->m_info.m_existence = Blizzard::File::EXISTENCE_NONE;
         } else {
-            file->m_info.m_existence = ((attributes & 0x40) != 0) + 1;
+            file->m_info.m_existence = ((attributes & Blizzard::File::ATTRIBUTE_DIRECTORY) != 0) + Blizzard::File::EXISTENCE_FILE;
         }
     }
 
@@ -241,11 +241,11 @@ bool System_File::Exists(Blizzard::File::Filesystem* fs, System_File::Stacked::F
     }
 
     if (attributes == INVALID_FILE_ATTRIBUTES) {
-        parms->m_info->m_existence = 0;
+        parms->m_info->m_existence = Blizzard::File::EXISTENCE_NONE;
     } else if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
-        parms->m_info->m_existence = 2;
+        parms->m_info->m_existence = Blizzard::File::EXISTENCE_DIRECTORY;
     } else {
-        parms->m_info->m_existence = 1;
+        parms->m_info->m_existence = Blizzard::File::EXISTENCE_FILE;
     }
 
     return true;
@@ -478,12 +478,12 @@ bool System_File::GetFileInfo(Blizzard::File::Filesystem* fs, System_File::Stack
         parms->m_info->m_accessTime = Blizzard::Time::FromFileTime((static_cast<uint64_t>(data.ftLastAccessTime.dwHighDateTime) << 32) | data.ftLastAccessTime.dwLowDateTime);
         parms->m_info->m_path = nullptr;
         parms->m_info->m_attributes = FromNativeAttributes(data.dwFileAttributes);
-        parms->m_info->m_regularFile = (parms->m_info->m_attributes & 0x20) != 0;
+        parms->m_info->m_regularFile = (parms->m_info->m_attributes & Blizzard::File::ATTRIBUTE_NORMAL) != 0;
 
         if (data.dwFileAttributes == INVALID_FILE_ATTRIBUTES) {
-            parms->m_info->m_existence = 0;
+            parms->m_info->m_existence = Blizzard::File::EXISTENCE_NONE;
         } else {
-            parms->m_info->m_existence = ((parms->m_info->m_attributes & 0x40) != 0) + 1;
+            parms->m_info->m_existence = ((parms->m_info->m_attributes & Blizzard::File::ATTRIBUTE_DIRECTORY) != 0) + Blizzard::File::EXISTENCE_FILE;
         }
 
         return true;

@@ -22,16 +22,36 @@ typedef int32_t INODE;
 
 namespace Blizzard {
 namespace File {
+// FileInfo::m_attributes; named from the Win32 FILE_ATTRIBUTE_* each bit maps
+// to in ToNativeAttributes / FromNativeAttributes.
+enum ATTRIBUTE : int32_t {
+    ATTRIBUTE_READONLY = 0x1,
+    ATTRIBUTE_HIDDEN = 0x2,
+    ATTRIBUTE_SYSTEM = 0x4,
+    ATTRIBUTE_ARCHIVE = 0x8,
+    ATTRIBUTE_TEMPORARY = 0x10,
+    ATTRIBUTE_NORMAL = 0x20, // also set for any non-directory
+    ATTRIBUTE_DIRECTORY = 0x40,
+};
+
+// FileInfo::m_existence, as returned by Blizzard::File::Exists; named from the
+// GetFileAttributes result that sets each value in System_File::Exists.
+enum EXISTENCE : int32_t {
+    EXISTENCE_NONE = 0,
+    EXISTENCE_FILE = 1,
+    EXISTENCE_DIRECTORY = 2,
+};
+
 struct FileInfo {
     /* 0000 */ char* m_path;
     /* 0004 */ uint32_t unused_0004;
     /* 0008 */ int64_t m_size;
-    /* 0010 */ int32_t m_attributes;
+    /* 0010 */ int32_t m_attributes; // ATTRIBUTE
     /* 0014 */ uint8_t unused_0014[4];
     /* 0018 */ Blizzard::Time::Timestamp m_createTime;
     /* 0020 */ Blizzard::Time::Timestamp m_modTime;
     /* 0028 */ Blizzard::Time::Timestamp m_accessTime;
-    /* 0030 */ int32_t m_existence;
+    /* 0030 */ int32_t m_existence; // EXISTENCE
     /* 0034 */ bool m_regularFile;
     /* 0035 */ uint8_t unused_0035[3];
 };

@@ -1430,7 +1430,7 @@ bool Blizzard::Streaming::FileManifest::ReadDirectFileFromBuffer(char* buffer, i
             SplitItem(value, &item);
 
             if (!item.m_size) {
-                if (Blizzard::File::Exists(item.m_absolutePath.c_str()) != 2) {
+                if (Blizzard::File::Exists(item.m_absolutePath.c_str()) != Blizzard::File::EXISTENCE_DIRECTORY) {
                     Blizzard::File::CreateDirectory(item.m_absolutePath.c_str(), true);
                 }
             }

@@ -170,7 +170,7 @@ Blizzard::File::StreamRecord* FileStack_Streaming::InitRecord(Blizzard::File::St
     record->m_info.m_createTime = 0;
     record->m_info.m_modTime = 0;
     record->m_info.m_accessTime = 0;
-    record->m_info.m_attributes = 32;
+    record->m_info.m_attributes = Blizzard::File::ATTRIBUTE_NORMAL;
     record->m_streaming->m_entry = m_entry;
     record->m_streaming->m_path = m_key;
 
@@ -282,7 +282,7 @@ bool StreamDirWalk::Walk(Blizzard::File::Filesystem* fs, System_File::Stacked::F
 // OFFSET: 0x00454540
 bool System_File::Stacked::stream_exists(Blizzard::File::Filesystem* fs, FileParms* parms) {
     if (!parms->m_path) {
-        parms->m_info->m_existence = 0;
+        parms->m_info->m_existence = Blizzard::File::EXISTENCE_NONE;
         return true;
     }
 
@@ -290,7 +290,7 @@ bool System_File::Stacked::stream_exists(Blizzard::File::Filesystem* fs, FilePar
     Blizzard::Streaming::Manifests::FileItem* item = Blizzard::Streaming::ManifestInfo::GetFileItem(key);
 
     if (item) {
-        parms->m_info->m_existence = item->m_size ? 1 : 2;
+        parms->m_info->m_existence = item->m_size ? Blizzard::File::EXISTENCE_FILE : Blizzard::File::EXISTENCE_DIRECTORY;
         return true;
     }
 
@@ -334,8 +334,8 @@ bool System_File::Stacked::stream_getfileinfo(Blizzard::File::Filesystem* fs, Fi
         parms->m_info->m_modTime = 0;
         parms->m_info->m_accessTime = 0;
         parms->m_info->m_regularFile = true;
-        parms->m_info->m_existence = item->m_size > 0 ? 1 : 2;
-        parms->m_info->m_attributes = 32;
+        parms->m_info->m_existence = item->m_size > 0 ? Blizzard::File::EXISTENCE_FILE : Blizzard::File::EXISTENCE_DIRECTORY;
+        parms->m_info->m_attributes = Blizzard::File::ATTRIBUTE_NORMAL;
         return true;
     }
 

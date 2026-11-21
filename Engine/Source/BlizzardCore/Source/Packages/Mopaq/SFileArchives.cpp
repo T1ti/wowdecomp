@@ -1423,7 +1423,7 @@ bool System_SFile::CheckFileExistsOnDisk(const char* name, uint32_t flags, char*
     if (flags & 2) {
         ConvertRelativePathName(Blizzard::String::FindFilename(name), result);
 
-        if (Blizzard::File::Exists(result) == 1) {
+        if (Blizzard::File::Exists(result) == Blizzard::File::EXISTENCE_FILE) {
             return true;
         }
     }
@@ -1438,7 +1438,7 @@ bool System_SFile::CheckFileExistsOnDisk(const char* name, uint32_t flags, char*
         ConvertRelativePathName(name, result);
     }
 
-    return Blizzard::File::Exists(result) == 1;
+    return Blizzard::File::Exists(result) == Blizzard::File::EXISTENCE_FILE;
 }
 
 // VERIFY: 138e567c manual

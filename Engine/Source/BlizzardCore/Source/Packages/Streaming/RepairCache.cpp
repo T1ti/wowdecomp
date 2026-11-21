@@ -103,7 +103,7 @@ Blizzard::Repair::RepairCache::RepairCache() {
     this->m_repairedCount = 0;
     this->m_repairedSize = 0;
 
-    if (Blizzard::File::Exists(this->m_headPath) == 1) {
+    if (Blizzard::File::Exists(this->m_headPath) == Blizzard::File::EXISTENCE_FILE) {
         Blizzard::File::StreamRecord* file = nullptr;
 
         if (Blizzard::File::Open(this->m_headPath, 0x1001, file)) {
