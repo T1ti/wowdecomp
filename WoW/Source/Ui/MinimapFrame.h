@@ -116,11 +116,23 @@ struct MINIMAPENUMPARAM {
     /* 0020 */ CGMinimapFrame* m_frame;
 };
 
+// Slots of the client-placed POIs appended after the AreaPOI records. Names inferred from the
+// function that fills each slot (DisplayQuestPoint, MinimapGetGossipPoi, MinimapSetCorpsePOI,
+// MinimapSetSpiritHealerPOI).
+enum DYNAMIC_POI : int32_t {
+    DYNAMIC_POI_NONE = -2, // POIDIRECTIONDATA::m_dynamicIndex of an AreaPOI record
+    DYNAMIC_POI_QUEST = 0,
+    DYNAMIC_POI_GOSSIP = 1,
+    DYNAMIC_POI_CORPSE = 2,
+    DYNAMIC_POI_SPIRIT_HEALER = 3,
+    NUM_DYNAMIC_POIS = 4,
+};
+
 struct POIDIRECTIONDATA {
     /* 0000 */ char m_name[64];
     /* 0040 */ float m_facing;
     /* 0044 */ int32_t m_alwaysShow;
-    /* 0048 */ int32_t m_dynamicIndex;
+    /* 0048 */ int32_t m_dynamicIndex; // DYNAMIC_POI
 };
 
 struct POIINFO {

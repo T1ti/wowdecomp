@@ -259,7 +259,7 @@ static int32_t s_closestPOIs[3];
 static int32_t s_poisChanged;
 
 // STATIC: 0x00D39230
-static char s_dynamicPOINames[4][64];
+static char s_dynamicPOINames[NUM_DYNAMIC_POIS][64];
 
 // STATIC: 0x00D39434
 static uint8_t s_isIndoors;
@@ -277,7 +277,7 @@ static int32_t s_closestPOIsChanged;
 static C3Vector s_playerPosition;
 
 // STATIC: 0x00D39490
-static AreaPOIRec s_dynamicPOIs[4];
+static AreaPOIRec s_dynamicPOIs[NUM_DYNAMIC_POIS];
 
 // STATIC: 0x00D395F0
 static TSFixedArray<AreaPOIRec*> s_pois;
@@ -766,7 +766,7 @@ const TrackingTypeInfo* CGMinimapFrame::GetTrackingTypeByIndex(int32_t index) {
 // VERIFY: aba21c39 auto
 // OFFSET: 0x007F3BE0
 AreaPOIRec* MinimapGetGossipPoi() {
-    return &s_dynamicPOIs[1];
+    return &s_dynamicPOIs[DYNAMIC_POI_GOSSIP];
 }
 
 // VERIFY: 23614ed9 manual
@@ -867,7 +867,7 @@ void UpdatePointsOfInterest() {
         float dx = poi->m_pos[0] - s_playerPosition.x;
         float distance = sqrt(dx * dx + dy * dy);
 
-        if (distance > MAX_POI_DISTANCE && poi != &s_dynamicPOIs[2]) {
+        if (distance > MAX_POI_DISTANCE && poi != &s_dynamicPOIs[DYNAMIC_POI_CORPSE]) {
             continue;
         }
 
@@ -916,13 +916,13 @@ void UpdatePointsOfInterest() {
 // VERIFY: 52931454 auto
 // OFFSET: 0x007F4930
 void DisplayQuestPoint(float x, float y, int32_t importance, const char* name) {
-    s_dynamicPOIs[0].m_pos[0] = x;
-    s_dynamicPOIs[0].m_pos[1] = y;
-    s_dynamicPOIs[0].m_flags = 0;
-    s_dynamicPOIs[0].m_continentID = s_mapId;
-    s_dynamicPOIs[0].m_icon[0] = 6;
-    s_dynamicPOIs[0].m_importance = importance;
-    SStrCopy(s_dynamicPOINames[0], name, sizeof(s_dynamicPOINames[0]));
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_pos[0] = x;
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_pos[1] = y;
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_flags = 0;
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_continentID = s_mapId;
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_icon[0] = 6;
+    s_dynamicPOIs[DYNAMIC_POI_QUEST].m_importance = importance;
+    SStrCopy(s_dynamicPOINames[DYNAMIC_POI_QUEST], name, sizeof(s_dynamicPOINames[DYNAMIC_POI_QUEST]));
     UpdatePointsOfInterest();
     s_closestPOIsChanged = 1;
 }
@@ -938,7 +938,7 @@ void MinimapSetDynamicPOI(int32_t index, int32_t flags, float x, float y, int32_
     s_dynamicPOIs[index].m_importance = importance;
     SStrCopy(s_dynamicPOINames[index], name, sizeof(s_dynamicPOINames[index]));
 
-    if (index == 1) {
+    if (index == DYNAMIC_POI_GOSSIP) {
         s_worldMapRefreshTime = static_cast<uint32_t>(time(nullptr)) + 480;
 
         if (CGWorldMap::m_currentOrphanZone == -1) {
@@ -956,13 +956,13 @@ void MinimapSetDynamicPOI(int32_t index, int32_t flags, float x, float y, int32_
 // OFFSET: 0x007F4990
 void MinimapSetCorpsePOI(float x, float y) {
     const char* name = FrameScript_GetText("CORPSE_RED", -1, GENDER_NOT_APPLICABLE);
-    s_dynamicPOIs[2].m_pos[0] = x;
-    s_dynamicPOIs[2].m_pos[1] = y;
-    s_dynamicPOIs[2].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
-    s_dynamicPOIs[2].m_continentID = s_mapId;
-    s_dynamicPOIs[2].m_icon[0] = 8;
-    s_dynamicPOIs[2].m_importance = -1;
-    SStrCopy(s_dynamicPOINames[2], name, sizeof(s_dynamicPOINames[2]));
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_pos[0] = x;
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_pos[1] = y;
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_continentID = s_mapId;
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_icon[0] = 8;
+    s_dynamicPOIs[DYNAMIC_POI_CORPSE].m_importance = -1;
+    SStrCopy(s_dynamicPOINames[DYNAMIC_POI_CORPSE], name, sizeof(s_dynamicPOINames[DYNAMIC_POI_CORPSE]));
     UpdatePointsOfInterest();
     s_closestPOIsChanged = 1;
 }
@@ -971,13 +971,13 @@ void MinimapSetCorpsePOI(float x, float y) {
 // OFFSET: 0x007F4A00
 void MinimapSetSpiritHealerPOI(float x, float y) {
     const char* name = FrameScript_GetText("SPIRIT_HEALER_RELEASE_RED", -1, GENDER_NOT_APPLICABLE);
-    s_dynamicPOIs[3].m_pos[0] = x;
-    s_dynamicPOIs[3].m_pos[1] = y;
-    s_dynamicPOIs[3].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
-    s_dynamicPOIs[3].m_continentID = s_mapId;
-    s_dynamicPOIs[3].m_icon[0] = 8;
-    s_dynamicPOIs[3].m_importance = -1;
-    SStrCopy(s_dynamicPOINames[3], name, sizeof(s_dynamicPOINames[3]));
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_pos[0] = x;
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_pos[1] = y;
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_flags = AREA_POI_FLAG_SHOW_MINIMAP_ICON;
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_continentID = s_mapId;
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_icon[0] = 8;
+    s_dynamicPOIs[DYNAMIC_POI_SPIRIT_HEALER].m_importance = -1;
+    SStrCopy(s_dynamicPOINames[DYNAMIC_POI_SPIRIT_HEALER], name, sizeof(s_dynamicPOINames[DYNAMIC_POI_SPIRIT_HEALER]));
     UpdatePointsOfInterest();
     s_closestPOIsChanged = 1;
 }
@@ -1073,11 +1073,11 @@ void MinimapInitialize(int32_t mapId) {
             }
         }
 
-        s_numPOIs = count + 4;
+        s_numPOIs = count + NUM_DYNAMIC_POIS;
     }
 
-    for (uint32_t i = 0; i < 4; i++) {
-        s_pois.m_data[s_numPOIs - 4 + i] = &s_dynamicPOIs[i];
+    for (uint32_t i = 0; i < NUM_DYNAMIC_POIS; i++) {
+        s_pois.m_data[s_numPOIs - NUM_DYNAMIC_POIS + i] = &s_dynamicPOIs[i];
         memset(&s_dynamicPOIs[i], 0, sizeof(s_dynamicPOIs[i]));
         s_dynamicPOIs[i].m_name = s_dynamicPOINames[i];
     }
@@ -2588,10 +2588,10 @@ static int32_t MinimapBuildPOIDirectionData(TSGrowableArray<POIDIRECTIONDATA>* d
         SStrCopy(direction->m_name, poi->m_name, sizeof(direction->m_name));
         direction->m_facing = s_closestPOIFacing[i];
         poi = s_pois.m_data[s_closestPOIs[i]];
-        direction->m_alwaysShow = poi == &s_dynamicPOIs[1] || poi == &s_dynamicPOIs[2] || poi == &s_dynamicPOIs[0] || (poi->m_flags & AREA_POI_FLAG_SHOW_WHEN_INDOORS);
-        direction->m_dynamicIndex = -2;
+        direction->m_alwaysShow = poi == &s_dynamicPOIs[DYNAMIC_POI_GOSSIP] || poi == &s_dynamicPOIs[DYNAMIC_POI_CORPSE] || poi == &s_dynamicPOIs[DYNAMIC_POI_QUEST] || (poi->m_flags & AREA_POI_FLAG_SHOW_WHEN_INDOORS);
+        direction->m_dynamicIndex = DYNAMIC_POI_NONE;
 
-        for (uint32_t j = 0; j < 4; j++) {
+        for (uint32_t j = 0; j < NUM_DYNAMIC_POIS; j++) {
             if (s_pois.m_data[s_closestPOIs[i]] == &s_dynamicPOIs[j]) {
                 direction->m_dynamicIndex = j;
                 break;
@@ -2620,9 +2620,9 @@ void CGMinimapFrame::RenderOverlay(const C44Matrix& rotation) {
 
         CTexture* texture;
 
-        if (direction->m_dynamicIndex == 2) {
+        if (direction->m_dynamicIndex == DYNAMIC_POI_CORPSE) {
             texture = s_corpseArrowTexture;
-        } else if (direction->m_dynamicIndex == -2) {
+        } else if (direction->m_dynamicIndex == DYNAMIC_POI_NONE) {
             texture = s_staticPOIArrowTexture;
         } else {
             texture = s_poiArrowTexture;

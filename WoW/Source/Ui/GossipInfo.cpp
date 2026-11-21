@@ -495,7 +495,7 @@ int32_t Packet_SMSG_GOSSIP_POI(void* param, NETMESSAGE msgId, uint32_t time, CDa
     msg->Get(icon);
     msg->Get(importance);
     msg->GetString(name, sizeof(name));
-    MinimapSetDynamicPOI(1, flags, x, y, icon, importance, name);
+    MinimapSetDynamicPOI(DYNAMIC_POI_GOSSIP, flags, x, y, icon, importance, name);
     return 1;
 }
 
