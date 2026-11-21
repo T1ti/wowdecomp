@@ -388,7 +388,8 @@ float GxuDirectionalSphereShapeFactory::GetRadius() const {
 //
 // A unit-radius band around the z axis: 32 vertex pairs at angle k * pi/16, (cos, sin, 2) and (cos, sin, -2). Each
 // quad between neighbouring pairs is written with both windings, so the band shows from inside and outside under
-// culling. The band is 4 units tall; the editor's rotate gizmo flattens it into a ring with its transform's z scale.
+// culling. The band is 4 units tall; the editor flattens it into a ring on the ground around an object, showing its z
+// orientation, with its transform's z scale.
 //
 // 4.1 writes 384 indices (32 quads x 12) but GetNumIndices returns 192, which as an index count covers only the first
 // 16 quads, half the ring. 4.1's draw loop is stripped, so whether that half ring was intended cannot be checked; this

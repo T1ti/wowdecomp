@@ -21,8 +21,8 @@
 //   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame;
 //   - lines: a red/green/blue axis tripod at the player's feet (world X, Y, Z), a white wire box around the shape
 //     row, and an always-on-top cyan line from the player to each LOD sphere;
-//   - the 4.1 editor shapes as Blizzard's world editor uses them, ahead and to the right: spawn points, a flying
-//     path with direction diamonds, and rotation rings around a box.
+//   - the 4.1 editor shapes as screenshots of Blizzard's world editor show them, ahead and to the right: spawn
+//     points with orientation rings, the early editor's half spheres and path, and a flying path with diamonds.
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;
@@ -82,13 +82,15 @@ static C3Vector Along(const C3Vector& from, const C3Vector& forward, const C3Vec
     return C3Vector(from.x + forward.x * ahead + right.x * side, from.y + forward.y * ahead + right.y * side, from.z + up);
 }
 
-// The 4.1 editor shapes used the way Blizzard's world editor shows them, 14 yards ahead and to the right:
-//   - spawn points: translucent cyan directional spheres centered at the player's ground height, the spike along each
-//     spawn's facing (the ground hides the lower half);
+// The 4.1 editor shapes, and the plain spheres, the way screenshots of Blizzard's world editor show them, ahead and
+// to the right of the player (heights are the player's ground height, so on sloped ground some sink or float):
+//   - spawn points: translucent cyan directional spheres centered on the ground, the spike along each spawn's facing
+//     (the ground hides the lower half), each with a rotation ring flat on the ground around it as its orientation
+//     indicator and a red line out to the ring along the facing (the editor also shows a green line, meaning
+//     unknown, left out);
+//   - the early editor's look: translucent green half spheres at spawns, and orange half spheres on a red path;
 //   - a flying path: points in an arc a few yards up, joined by lines, with a red directional diamond at each point
-//     lying flat and pointing to the next one;
-//   - a selected object: a box with a rotation ring around each of its axes (red forward, green left, blue up; the
-//     4 unit tall ring band flattened by the z scale).
+//     lying flat and pointing to the next one.
 static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, const C3Vector& right) {
     const C3Vector up(0.0f, 0.0f, 1.0f);
     const C3Vector left(-right.x, -right.y, 0.0f);
@@ -96,18 +98,48 @@ static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, c
     // Spawn points, facing forward, left and back-right.
     const float spawnTurns[3] = { 0.0f, 1.5707964f, 3.6651914f };
     const CImVector cyan(0xFF, 0xFF, 0x00, 0x80);
+    const CImVector ringColor(0xFF, 0x40, 0x80, 0xFF);
+    const CImVector red(0x20, 0x20, 0xFF, 0xFF);
 
     for (uint32_t i = 0; i < 3; i++) {
-        C3Vector position = Along(origin, forward, right, 12.0f, 4.0f + static_cast<float>(i) * 3.0f, 0.0f);
+        C3Vector position = Along(origin, forward, right, 12.0f, 4.0f + static_cast<float>(i) * 4.0f, 0.0f);
         float c = cosf(spawnTurns[i]);
         float s = sinf(spawnTurns[i]);
         // Facing turned left from forward by the angle; (side, up, facing) is right handed.
         C3Vector facing(forward.x * c + left.x * s, forward.y * c + left.y * s, 0.0f);
         C3Vector side(Cross(up, facing));
         GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_SPHERE, AxesTransform(position, side, up, facing, C3Vector(0.6f, 0.6f, 0.6f)), cyan, GXUDEBUGSTYLE_SOLID);
+
+        // Ring of radius 1.6 around the z axis, its 4 unit band flattened to 0.06.
+        GxuDebugDrawShape(GXUDEBUGSHAPE_ROTATION_RING, AxesTransform(position, facing, side, up, C3Vector(1.6f, 1.6f, 0.015f)), ringColor, GXUDEBUGSTYLE_SOLID);
+        GxuDebugDrawLine(position, C3Vector(position.x + facing.x * 1.6f, position.y + facing.y * 1.6f, position.z), red);
     }
 
-    GxuDebugDrawText3D("spawn points", Along(origin, forward, right, 12.0f, 7.0f, 1.5f), cyan);
+    GxuDebugDrawText3D("spawn points", Along(origin, forward, right, 12.0f, 8.0f, 2.0f), cyan);
+
+    // Early editor: green spawn half spheres, and an orange-pointed red path.
+    const CImVector green(0x20, 0xE0, 0x40, 0xA0);
+    const CImVector orange(0x00, 0xA0, 0xFF, 0xFF);
+
+    for (uint32_t i = 0; i < 2; i++) {
+        C3Vector position = Along(origin, forward, right, 20.0f, 4.0f + static_cast<float>(i) * 3.0f, 0.0f);
+        GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, AxesTransform(position, forward, left, up, C3Vector(1.2f, 1.2f, 1.2f)), green, GXUDEBUGSTYLE_SOLID);
+    }
+
+    C3Vector previous;
+
+    for (uint32_t i = 0; i < 3; i++) {
+        C3Vector point = Along(origin, forward, right, 18.0f + static_cast<float>(i) * 4.0f, 10.0f + static_cast<float>(i & 1) * 2.0f, 0.0f);
+        GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, AxesTransform(point, forward, left, up, C3Vector(0.4f, 0.4f, 0.4f)), orange, GXUDEBUGSTYLE_SOLID);
+
+        if (i) {
+            GxuDebugDrawLine(previous, point, red);
+        }
+
+        previous = point;
+    }
+
+    GxuDebugDrawText3D("early editor", Along(origin, forward, right, 20.0f, 7.0f, 2.0f), green);
 
     // Flying path.
     const uint32_t pathCount = 6;
@@ -115,10 +147,8 @@ static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, c
 
     for (uint32_t i = 0; i < pathCount; i++) {
         float t = static_cast<float>(i) / static_cast<float>(pathCount - 1);
-        path[i] = Along(origin, forward, right, 16.0f + sinf(t * 3.1415927f) * 4.0f, 3.0f + t * 9.0f, 4.0f + t * 3.0f);
+        path[i] = Along(origin, forward, right, 16.0f + sinf(t * 3.1415927f) * 4.0f, 3.0f + t * 9.0f, 5.0f + t * 3.0f);
     }
-
-    const CImVector red(0x20, 0x20, 0xFF, 0xFF);
 
     for (uint32_t i = 0; i < pathCount; i++) {
         uint32_t from = i + 1 < pathCount ? i : i - 1;
@@ -135,21 +165,6 @@ static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, c
 
     const C3Vector& middle = path[pathCount / 2];
     GxuDebugDrawText3D("flying path", C3Vector(middle.x, middle.y, middle.z + 1.5f), red);
-
-    // Selected object with rotation rings.
-    C3Vector center = Along(origin, forward, right, 22.0f, 9.0f, 2.0f);
-    const C3Vector axes[3] = { forward, left, up };
-    // For each axis, two axes perpendicular to it, so that (first, second, axis) stays right handed.
-    const C3Vector perpendicular[3][2] = { { left, up }, { up, forward }, { forward, left } };
-    const CImVector colors[3] = { CImVector(0x20, 0x20, 0xFF, 0xFF), CImVector(0x20, 0xFF, 0x20, 0xFF), CImVector(0xFF, 0x20, 0x20, 0xFF) };
-
-    GxuDebugDrawShape(GXUDEBUGSHAPE_BOX, AxesTransform(center, forward, left, up, C3Vector(1.2f, 1.2f, 1.2f)), CImVector(0x90, 0x90, 0x90, 0xFF), GXUDEBUGSTYLE_SOLID);
-
-    for (uint32_t i = 0; i < 3; i++) {
-        GxuDebugDrawShape(GXUDEBUGSHAPE_ROTATION_RING, AxesTransform(center, perpendicular[i][0], perpendicular[i][1], axes[i], C3Vector(1.4f, 1.4f, 0.015f)), colors[i], GXUDEBUGSTYLE_SOLID);
-    }
-
-    GxuDebugDrawText3D("rotation rings", Along(center, forward, right, 0.0f, 0.0f, 2.0f), CImVector(0xFF, 0xFF, 0xFF, 0xFF));
 }
 
 void GxuDebugDrawTestQueue() {

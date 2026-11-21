@@ -106,7 +106,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | File | Status | Notes |
 |---|---|---|---|
-| `debugDrawTest` | `Ui/WorldFrame_DebugDrawTest.cpp` | works | Toggles a test scene in front of the player that exercises the Gxu debug-draw module: every shape and style, sphere LODs, the 4.1 editor shapes (spawn points, a flying path, rotation rings), lines, an oriented box, a texture and text. |
+| `debugDrawTest` | `Ui/WorldFrame_DebugDrawTest.cpp` | works | Toggles a test scene in front of the player that exercises the Gxu debug-draw module: every shape and style, sphere LODs, the 4.1 editor shapes (spawn points with orientation rings, early-editor half spheres, a flying path), lines, an oriented box, a texture and text. |
 
 ## Lua functions (`WoW/Source/Ui/GameUI_Scripts.cpp`, DEBUG)
 

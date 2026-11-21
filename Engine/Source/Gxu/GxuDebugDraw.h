@@ -34,11 +34,14 @@
 //     vertices. Textures draw as a fixed-function textured quad;
 //   - text uses GxuFont string batches. Text and textures use a 0..1 screen space with its origin at the top left
 //     (4.1 GxuDebugTextureDrawer::Draw sets GxuXformCreateOrtho(0, 1, 1, 0, -1, 1)).
-// The editor shapes (DirectionalSphere, RotationRing, DirectionalDiamond) are ported with the others. Screenshots of
-// Blizzard's world editor show what they are for: the directional sphere, translucent cyan and centered on the ground,
-// marks a spawn point and its facing; the directional diamond marks a (flying) path point and its direction; the
-// rotation ring is the rotate gizmo around a selected object. The editor is not part of this client, so only
-// debugDrawTest shows them.
+// The editor shapes (DirectionalSphere, RotationRing, DirectionalDiamond) are ported with the others. No 4.1 code uses
+// them (their factories are referenced only by the static initializer and its atexit destructors), so what they were
+// for comes from screenshots of Blizzard's world editor: the directional sphere, translucent cyan and centered on the
+// ground, marks a spawn point and its facing; the directional diamond marks a (flying) path point and its direction;
+// the rotation ring lies flat on the ground around an object, as an orientation (z rotation) indicator, with red and
+// green lines out to its radius whose meaning is unknown. The same screenshots show many plain half spheres on the
+// ground (the sphere shape, translucent), and an early editor shows green half spheres at spawns and orange ones on
+// red path lines. The editor is not part of this client, so only debugDrawTest shows them.
 //
 // Port addition: line objects (GxuDebugDrawLine). 4.1 has no line shape; the 3.3.5 overlays that need lines (collision
 // info normals, unit pathing) draw GxPrim_Lines batches by hand, which is what the line drawer does too.
@@ -72,7 +75,7 @@ enum GXUDEBUGSHAPE : int32_t {
     // Editor shapes. 4.1 builds their factories in the same static initializer as the others; these enum values are
     // this port's.
     GXUDEBUGSHAPE_DIRECTIONAL_SPHERE = 5, // unit sphere with a spike along +z to z=2 (GxuDirectionalSphereShapeFactory): spawn point and facing
-    GXUDEBUGSHAPE_ROTATION_RING = 6, // unit-radius band around z, z from -2 to 2 (GxuRotationRingShapeFactory): rotate gizmo
+    GXUDEBUGSHAPE_ROTATION_RING = 6, // unit-radius band around z, z from -2 to 2 (GxuRotationRingShapeFactory): z orientation
     GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND = 7, // flat arrowhead pointing +z (GxuDirectionalDiamondShapeFactory): path point
     NUM_GXUDEBUGSHAPES = 8,
 };
