@@ -94,10 +94,10 @@ float s_targetHeightOffset;
 static const char* s_cameraViewModeNames[8] = { "FIRST_PERSON", "THIRD_PERSON_A", "THIRD_PERSON_B", "THIRD_PERSON_C", "THIRD_PERSON_D", "THIRD_PERSON_E", "VIEW_COMMENTATOR", "VIEW_BARBER_SHOP" };
 
 // STATIC: 0x00A1E368
-static const float s_smoothViewDataMin[2] = { 0.0f, 0.0f };
+static const float s_smoothViewDataMin[NUM_CAMERA_SMOOTH_PARAMS] = { 0.0f, 0.0f };
 
 // STATIC: 0x00A1E370
-static const float s_smoothViewDataMax[2] = { 100.0f, 100.0f };
+static const float s_smoothViewDataMax[NUM_CAMERA_SMOOTH_PARAMS] = { 100.0f, 100.0f };
 
 // STATIC: 0x00AD2178
 static float s_lastLiquidBumpPitch = std::numeric_limits<float>::max();
@@ -875,32 +875,32 @@ void CGCamera::PerformTerrainTilt(CGObject_C* target, uint32_t time, BOOL immedi
     int32_t state;
 
     if (unit->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_ON_TAXI) {
-        state = 7;
+        state = CAMERA_TERRAIN_TILT_STATE_TAXI;
     } else {
         uint32_t moveFlags = unit->m_movement->m_flags;
 
         if (moveFlags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
-            state = 6;
+            state = CAMERA_TERRAIN_TILT_STATE_SWIM;
         } else if (moveFlags & MOVEMENTFLAG_FALLING) {
-            state = 0;
+            state = CAMERA_TERRAIN_TILT_STATE_FALL;
         } else if (unit->IsJumping()) {
-            state = 3;
+            state = CAMERA_TERRAIN_TILT_STATE_JUMP;
         } else if (this->m_state & STATE_FLAGS::STATE_TRACKING) {
-            state = 8;
+            state = CAMERA_TERRAIN_TILT_STATE_TRACK;
         } else if (this->m_state & STATE_FLAGS::STATE_UNCONTROLLED) {
-            state = 1;
+            state = CAMERA_TERRAIN_TILT_STATE_FEAR;
         } else if (moveFlags & MOVEMENTFLAG_MOVE_MASK) {
-            state = 4;
+            state = CAMERA_TERRAIN_TILT_STATE_MOVE;
         } else if (moveFlags & MOVEMENTFLAG_STRAFE_MASK) {
-            state = 5;
+            state = CAMERA_TERRAIN_TILT_STATE_STRAFE;
         } else {
-            state = (moveFlags & MOVEMENTFLAG_TURN_MASK) ? 9 : 2;
+            state = (moveFlags & MOVEMENTFLAG_TURN_MASK) ? CAMERA_TERRAIN_TILT_STATE_TURN : CAMERA_TERRAIN_TILT_STATE_IDLE;
         }
     }
 
-    float delay = s_cvCameraTerrainTiltState[style][state][1]->m_floatValue;
-    float scale = s_cvCameraTerrainTiltState[style][state][2]->m_floatValue;
-    float tilt = s_cvCameraTerrainTiltState[style][state][0]->m_floatValue * this->m_terrainTilt;
+    float delay = s_cvCameraTerrainTiltState[style][state][CAMERA_TERRAIN_TILT_PARAM_DELAY]->m_floatValue;
+    float scale = s_cvCameraTerrainTiltState[style][state][CAMERA_TERRAIN_TILT_PARAM_FACTOR]->m_floatValue;
+    float tilt = s_cvCameraTerrainTiltState[style][state][CAMERA_TERRAIN_TILT_PARAM_ABSORB]->m_floatValue * this->m_terrainTilt;
 
     if (scale < 0.0f) {
         tilt = this->m_groundTilt;
@@ -3232,9 +3232,9 @@ void CGCamera::UpdateTrackingState(int32_t tracking) {
     } else {
         int32_t style = s_cvCameraSmoothTrackingStyle->m_intValue;
 
-        if (!style) {
+        if (style == CAMERA_SMOOTH_STYLE_NEVER) {
             ignore = 1;
-        } else if (style == 2) {
+        } else if (style == CAMERA_SMOOTH_STYLE_ALWAYS) {
             ignore = 0;
         } else {
             uint32_t type = CGUnit_C::GetTrackingType();
@@ -3316,43 +3316,43 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     uint32_t reasons = 0;
 
     if (this->m_state & STATE_FLAGS::STATE_UNCONTROLLED) {
-        reasons = 0x40;
+        reasons = CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_FEAR);
     }
 
     uint32_t flags = input->m_flags;
 
     if (((flags & INPUT_TURN_PLAYER_MASK) && !(flags & INPUT_PLAYER_LOOK_MASK)) || (flags & INPUT_PLAYER_LOOK_MASK)) {
-        reasons |= 0x20;
+        reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_TURN);
     }
 
     if ((flags & INPUT_STRAFE_PLAYER_MASK) || ((flags & INPUT_PLAYER_LOOK_MASK) && (flags & INPUT_TURN_PLAYER_MASK))) {
-        reasons |= 0x10;
+        reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_STRAFE);
     }
 
     if ((flags & INPUT_MOVE_WITH_AUTORUN_MASK) || ((flags & INPUT_TURN_PLAYER) && (flags & INPUT_TURN_CAMERA))) {
-        reasons |= 0x8;
+        reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_MOVE);
     }
 
     if (this->m_state & STATE_FLAGS::STATE_TRACKING) {
         if (CGUnit_C::GetTrackingType() == TRACKTYPE_FOLLOW && !(this->m_flags & FLAGS::FLAG_AUTO_INTERACT)) {
-            reasons |= 0x8;
+            reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_MOVE);
         } else {
-            reasons |= 0x4;
+            reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_TRACK);
         }
     }
 
     if (idle) {
-        reasons |= 0x2;
+        reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_STOP);
     }
 
     flags = input->m_flags;
 
     if (!(flags & INPUT_MOVE_WITH_AUTORUN_MASK) && !(flags & INPUT_STRAFE_PLAYER_MASK) && (!(flags & INPUT_PLAYER_LOOK_MASK) || !(flags & INPUT_TURN_PLAYER_MASK)) && (!(flags & INPUT_TURN_PLAYER_MASK) || (flags & INPUT_PLAYER_LOOK_MASK)) && !(flags & INPUT_TRACKING_MASK)) {
-        reasons |= 0x1;
+        reasons |= CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_IDLE);
     }
 
     this->m_state &= ~STATE_FLAGS::STATE_FREE_LOOK_FACING;
-    reasons &= 0x7F;
+    reasons &= CAMERA_SMOOTH_STATE_ALL_BITS;
 
     if (!reasons || !this->IsCustomViewSmoothingActive()) {
         return;
@@ -3361,11 +3361,11 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     uint32_t time = OsGetAsyncTimeMs();
     uint32_t style;
 
-    if (reasons & 0x44) {
+    if (reasons & (CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_TRACK) | CAMERA_SMOOTH_STATE_BIT(CAMERA_SMOOTH_STATE_FEAR))) {
         if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_IGNORE_FACING) {
-            style = 0;
+            style = CAMERA_SMOOTH_STYLE_NEVER;
         } else if (this->m_vehicleTrackingStyle == CGCamera::VEHICLE_TRACKING_STYLE::TRACKING_FOLLOW_FACING) {
-            style = 3;
+            style = CAMERA_SMOOTH_STYLE_SPLINE;
         } else {
             style = s_cvCameraSmoothTrackingStyle->m_intValue;
         }
@@ -3373,48 +3373,48 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
         style = s_cvCameraSmoothStyle->m_intValue;
     }
 
-    float smoothState[2];
+    float smoothState[NUM_CAMERA_SMOOTH_PARAMS];
 
-    for (int32_t state = 7; state-- > 0;) {
-        if (!((1 << state) & reasons) || style >= 5 || static_cast<uint32_t>(state) >= 7) {
+    for (int32_t state = NUM_CAMERA_SMOOTH_STATES; state-- > 0;) {
+        if (!((1 << state) & reasons) || style >= NUM_CAMERA_SMOOTH_STYLES || static_cast<uint32_t>(state) >= NUM_CAMERA_SMOOTH_STATES) {
             continue;
         }
 
-        smoothState[0] = s_cvCameraSmoothState[style][state][0]->m_floatValue;
+        smoothState[CAMERA_SMOOTH_PARAM_DELAY] = s_cvCameraSmoothState[style][state][CAMERA_SMOOTH_PARAM_DELAY]->m_floatValue;
 
-        if (smoothState[0] < 0.0f) {
-            smoothState[0] = 0.0f;
-        } else if (smoothState[0] >= 100.0f) {
-            smoothState[0] = 99.0f;
+        if (smoothState[CAMERA_SMOOTH_PARAM_DELAY] < 0.0f) {
+            smoothState[CAMERA_SMOOTH_PARAM_DELAY] = 0.0f;
+        } else if (smoothState[CAMERA_SMOOTH_PARAM_DELAY] >= 100.0f) {
+            smoothState[CAMERA_SMOOTH_PARAM_DELAY] = 99.0f;
         }
 
-        smoothState[1] = s_cvCameraSmoothState[style][state][1]->m_floatValue;
+        smoothState[CAMERA_SMOOTH_PARAM_FACTOR] = s_cvCameraSmoothState[style][state][CAMERA_SMOOTH_PARAM_FACTOR]->m_floatValue;
 
-        if (smoothState[1] < 0.0f) {
-            smoothState[1] = 0.0f;
-        } else if (smoothState[1] >= 100.0f) {
-            smoothState[1] = 99.0f;
+        if (smoothState[CAMERA_SMOOTH_PARAM_FACTOR] < 0.0f) {
+            smoothState[CAMERA_SMOOTH_PARAM_FACTOR] = 0.0f;
+        } else if (smoothState[CAMERA_SMOOTH_PARAM_FACTOR] >= 100.0f) {
+            smoothState[CAMERA_SMOOTH_PARAM_FACTOR] = 99.0f;
         }
 
         break;
     }
 
-    float viewData[3][2];
+    float viewData[NUM_CAMERA_VIEW_DATA][NUM_CAMERA_SMOOTH_PARAMS];
 
-    for (uint32_t view = 3; view-- > 0;) {
-        if (style >= 5 || view >= 3) {
+    for (uint32_t view = NUM_CAMERA_VIEW_DATA; view-- > 0;) {
+        if (style >= NUM_CAMERA_SMOOTH_STYLES || view >= NUM_CAMERA_VIEW_DATA) {
             continue;
         }
 
-        for (int32_t i = 2; i-- > 0;) {
+        for (int32_t i = NUM_CAMERA_SMOOTH_PARAMS; i-- > 0;) {
             viewData[view][i] = s_cvCameraSmoothViewData[style][view][i]->m_floatValue;
 
             switch (i) {
-                case 0:
-                    viewData[view][0] = viewData[view][0] + smoothState[0];
+                case CAMERA_SMOOTH_PARAM_DELAY:
+                    viewData[view][CAMERA_SMOOTH_PARAM_DELAY] = viewData[view][CAMERA_SMOOTH_PARAM_DELAY] + smoothState[CAMERA_SMOOTH_PARAM_DELAY];
                     break;
-                case 1:
-                    viewData[view][1] = viewData[view][1] * smoothState[1];
+                case CAMERA_SMOOTH_PARAM_FACTOR:
+                    viewData[view][CAMERA_SMOOTH_PARAM_FACTOR] = viewData[view][CAMERA_SMOOTH_PARAM_FACTOR] * smoothState[CAMERA_SMOOTH_PARAM_FACTOR];
                     break;
             }
 
@@ -3439,7 +3439,7 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     float rate = 0.0f;
 
     if (smoothPitch) {
-        if (viewData[1][1] == 0.0f) {
+        if (viewData[CAMERA_VIEW_DATA_PITCH][CAMERA_SMOOTH_PARAM_FACTOR] == 0.0f) {
             this->CancelSmoothPitch();
             smoothPitch = 0;
         } else {
@@ -3453,7 +3453,7 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
                 pitch = pitchMax;
             }
 
-            smoothPitch = this->SetDesiredPitchAngle(pitch, viewData[1][0], viewData[1][1], time);
+            smoothPitch = this->SetDesiredPitchAngle(pitch, viewData[CAMERA_VIEW_DATA_PITCH][CAMERA_SMOOTH_PARAM_DELAY], viewData[CAMERA_VIEW_DATA_PITCH][CAMERA_SMOOTH_PARAM_FACTOR], time);
 
             if (smoothPitch && this->m_smoothPitch.m_rate >= 0.0f) {
                 rate = this->m_smoothPitch.m_rate;
@@ -3462,11 +3462,11 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     }
 
     if (smoothTarget) {
-        if (smoothState[1] == 0.0f) {
+        if (smoothState[CAMERA_SMOOTH_PARAM_FACTOR] == 0.0f) {
             this->CancelSmoothTargetOffset();
             smoothTarget = 0;
         } else {
-            smoothTarget = this->SetDesiredTargetOffset(0.0f, smoothState[0], smoothState[1], time);
+            smoothTarget = this->SetDesiredTargetOffset(0.0f, smoothState[CAMERA_SMOOTH_PARAM_DELAY], smoothState[CAMERA_SMOOTH_PARAM_FACTOR], time);
 
             if (smoothTarget && rate <= this->m_smoothTargetOffset.m_rate) {
                 rate = this->m_smoothTargetOffset.m_rate;
@@ -3475,7 +3475,7 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
     }
 
     if (smoothYaw) {
-        if (0.0f == viewData[2][1]) {
+        if (0.0f == viewData[CAMERA_VIEW_DATA_YAW][CAMERA_SMOOTH_PARAM_FACTOR]) {
             this->CancelSmoothYaw();
             smoothYaw = 0;
         } else {
@@ -3512,7 +3512,7 @@ void CGCamera::SmoothFreeLook(CGInputControl* input, int32_t idle) {
                 }
             }
 
-            smoothYaw = this->SetDesiredYawAngle(yaw, viewData[2][0], viewData[2][1], time);
+            smoothYaw = this->SetDesiredYawAngle(yaw, viewData[CAMERA_VIEW_DATA_YAW][CAMERA_SMOOTH_PARAM_DELAY], viewData[CAMERA_VIEW_DATA_YAW][CAMERA_SMOOTH_PARAM_FACTOR], time);
 
             if (smoothYaw && rate <= this->m_smoothYaw.m_rate) {
                 rate = this->m_smoothYaw.m_rate;

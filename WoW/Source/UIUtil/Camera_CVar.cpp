@@ -65,7 +65,7 @@ CVar* s_cvCameraTerrainTiltTimeMax;
 CVar* s_cvCameraTerrainTiltTimeMin;
 
 // STATIC: 0x00C249C0
-CVar* s_cvCameraTerrainTiltState[5][10][3];
+CVar* s_cvCameraTerrainTiltState[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_TERRAIN_TILT_STATES][NUM_CAMERA_TERRAIN_TILT_PARAMS];
 
 // STATIC: 0x00C24C18
 CVar* s_cvCameraTerrainTilt;
@@ -74,10 +74,10 @@ CVar* s_cvCameraTerrainTilt;
 CVar* s_cvCameraSmoothStyle;
 
 // STATIC: 0x00C24C20
-CVar* s_cvCameraSmoothViewData[5][3][2];
+CVar* s_cvCameraSmoothViewData[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_VIEW_DATA][NUM_CAMERA_SMOOTH_PARAMS];
 
 // STATIC: 0x00C24C98
-CVar* s_cvCameraSmoothState[5][7][2];
+CVar* s_cvCameraSmoothState[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_SMOOTH_STATES][NUM_CAMERA_SMOOTH_PARAMS];
 
 // STATIC: 0x00C24DB0
 CVar* s_cvCameraSmoothYaw;
@@ -170,7 +170,7 @@ CVar* s_cvCameraSavedDistance;
 static const char* s_cameraViewNames[8] = { "", "A", "B", "C", "D", "E", "Com", "Barber Shop" };
 
 // STATIC: 0x00AD1B74
-static const char* s_cameraViewDataNames[3] = { "Distance", "Pitch", "Yaw" };
+static const char* s_cameraViewDataNames[NUM_CAMERA_VIEW_DATA] = { "Distance", "Pitch", "Yaw" };
 
 // STATIC: 0x00AD1B8C
 static const char* s_defaultCameraViewBlendStyle = "1";
@@ -179,19 +179,19 @@ static const char* s_defaultCameraViewBlendStyle = "1";
 static const char* s_defaultCameraView = "2";
 
 // STATIC: 0x00AD1B94
-static const char* s_cameraSmoothStyleNames[5] = { "Never", "Smart", "Always", "Spline", "Smarter" };
+static const char* s_cameraSmoothStyleNames[NUM_CAMERA_SMOOTH_STYLES] = { "Never", "Smart", "Always", "Spline", "Smarter" };
 
 // STATIC: 0x00AD1C08
-static const char* s_cameraSmoothParamNames[2] = { "Delay", "Factor" };
+static const char* s_cameraSmoothParamNames[NUM_CAMERA_SMOOTH_PARAMS] = { "Delay", "Factor" };
 
 // STATIC: 0x00AD1C10
-static const char* s_cameraSmoothStateNames[7] = { "Idle", "Stop", "Track", "Move", "Strafe", "Turn", "Fear" };
+static const char* s_cameraSmoothStateNames[NUM_CAMERA_SMOOTH_STATES] = { "Idle", "Stop", "Track", "Move", "Strafe", "Turn", "Fear" };
 
 // STATIC: 0x00AD1C2C
 static const char* s_defaultCameraSmoothStyle = "4";
 
 // STATIC: 0x00AD1C30
-static const char* s_cameraSmoothStateDefaults[5][7][2] = {
+static const char* s_cameraSmoothStateDefaults[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_SMOOTH_STATES][NUM_CAMERA_SMOOTH_PARAMS] = {
     {
         { "0.0", "0.0" },
         { "0.0", "0.0" },
@@ -240,7 +240,7 @@ static const char* s_cameraSmoothStateDefaults[5][7][2] = {
 };
 
 // STATIC: 0x00AD1D48
-static const char* s_cameraSmoothViewDataDefaults[5][3][2] = {
+static const char* s_cameraSmoothViewDataDefaults[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_VIEW_DATA][NUM_CAMERA_SMOOTH_PARAMS] = {
     {
         { "0.0", "0.0" },
         { "0.0", "0.0" },
@@ -269,13 +269,13 @@ static const char* s_cameraSmoothViewDataDefaults[5][3][2] = {
 };
 
 // STATIC: 0x00AD1DC0
-static const char* s_cameraTerrainTiltStateNames[10] = { "Fall", "Fear", "Idle", "Jump", "Move", "Strafe", "Swim", "Taxi", "Track", "Turn" };
+static const char* s_cameraTerrainTiltStateNames[NUM_CAMERA_TERRAIN_TILT_STATES] = { "Fall", "Fear", "Idle", "Jump", "Move", "Strafe", "Swim", "Taxi", "Track", "Turn" };
 
 // STATIC: 0x00AD1DE8
-static const char* s_cameraTerrainTiltParamNames[3] = { "Absorb", "Delay", "Factor" };
+static const char* s_cameraTerrainTiltParamNames[NUM_CAMERA_TERRAIN_TILT_PARAMS] = { "Absorb", "Delay", "Factor" };
 
 // STATIC: 0x00AD1DF8
-static const char* s_cameraTerrainTiltStateDefaults[5][10][3] = {
+static const char* s_cameraTerrainTiltStateDefaults[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_TERRAIN_TILT_STATES][NUM_CAMERA_TERRAIN_TILT_PARAMS] = {
     {
         { "0.0", "0.0", "-1.0" },
         { "0.0", "0.0", "-1.0" },
@@ -493,9 +493,9 @@ void CameraRegisterCVars() {
     s_cvCameraSmoothTrackingStyle = CVar::Register("cameraSmoothTrackingStyle", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, s_defaultCameraSmoothStyle, ValidateCameraSmoothStyle, CATEGORY_DEFAULT, false, nullptr, false);
     s_cvCameraCustomViewSmoothing = CVar::Register("cameraCustomViewSmoothing", nullptr, CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
 
-    for (uint32_t style = 0; style < 5; style++) {
-        for (uint32_t state = 0; state < 7; state++) {
-            for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t style = 0; style < NUM_CAMERA_SMOOTH_STYLES; style++) {
+        for (uint32_t state = 0; state < NUM_CAMERA_SMOOTH_STATES; state++) {
+            for (uint32_t i = 0; i < NUM_CAMERA_SMOOTH_PARAMS; i++) {
                 name[0] = '\0';
                 SStrPack(name, "cameraSmooth", sizeof(name));
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));
@@ -505,8 +505,8 @@ void CameraRegisterCVars() {
             }
         }
 
-        for (uint32_t data = 0; data < 3; data++) {
-            for (uint32_t i = 0; i < 2; i++) {
+        for (uint32_t data = 0; data < NUM_CAMERA_VIEW_DATA; data++) {
+            for (uint32_t i = 0; i < NUM_CAMERA_SMOOTH_PARAMS; i++) {
                 name[0] = '\0';
                 SStrPack(name, "cameraSmoothViewData", sizeof(name));
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));
@@ -516,8 +516,8 @@ void CameraRegisterCVars() {
             }
         }
 
-        for (uint32_t state = 0; state < 10; state++) {
-            for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t state = 0; state < NUM_CAMERA_TERRAIN_TILT_STATES; state++) {
+            for (uint32_t i = 0; i < NUM_CAMERA_TERRAIN_TILT_PARAMS; i++) {
                 name[0] = '\0';
                 SStrPack(name, "cameraTerrainTilt", sizeof(name));
                 SStrPack(name, s_cameraSmoothStyleNames[style], sizeof(name));

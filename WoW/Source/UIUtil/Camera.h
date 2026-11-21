@@ -366,12 +366,75 @@ extern float s_cameraBobFrequency;
 extern float s_cameraBobVerticalAmplitude;
 extern float s_cameraBobHorizontalAmplitude;
 
+// cameraSmoothStyle / cameraSmoothTrackingStyle values, from s_cameraSmoothStyleNames.
+enum CAMERA_SMOOTH_STYLE : int32_t {
+    CAMERA_SMOOTH_STYLE_NEVER = 0,
+    CAMERA_SMOOTH_STYLE_SMART = 1,
+    CAMERA_SMOOTH_STYLE_ALWAYS = 2,
+    CAMERA_SMOOTH_STYLE_SPLINE = 3,
+    CAMERA_SMOOTH_STYLE_SMARTER = 4,
+    NUM_CAMERA_SMOOTH_STYLES,
+};
+
+// From s_cameraSmoothStateNames. SmoothFreeLook collects them as (1 << state) reason bits.
+enum CAMERA_SMOOTH_STATE : int32_t {
+    CAMERA_SMOOTH_STATE_IDLE = 0,
+    CAMERA_SMOOTH_STATE_STOP = 1,
+    CAMERA_SMOOTH_STATE_TRACK = 2,
+    CAMERA_SMOOTH_STATE_MOVE = 3,
+    CAMERA_SMOOTH_STATE_STRAFE = 4,
+    CAMERA_SMOOTH_STATE_TURN = 5,
+    CAMERA_SMOOTH_STATE_FEAR = 6,
+    NUM_CAMERA_SMOOTH_STATES,
+};
+
+#define CAMERA_SMOOTH_STATE_BIT(state) (1u << (state))
+#define CAMERA_SMOOTH_STATE_ALL_BITS (CAMERA_SMOOTH_STATE_BIT(NUM_CAMERA_SMOOTH_STATES) - 1)
+
+// From s_cameraSmoothParamNames.
+enum CAMERA_SMOOTH_PARAM : int32_t {
+    CAMERA_SMOOTH_PARAM_DELAY = 0,
+    CAMERA_SMOOTH_PARAM_FACTOR = 1,
+    NUM_CAMERA_SMOOTH_PARAMS,
+};
+
+// From s_cameraViewDataNames.
+enum CAMERA_VIEW_DATA : int32_t {
+    CAMERA_VIEW_DATA_DISTANCE = 0,
+    CAMERA_VIEW_DATA_PITCH = 1,
+    CAMERA_VIEW_DATA_YAW = 2,
+    NUM_CAMERA_VIEW_DATA,
+};
+
+// From s_cameraTerrainTiltStateNames.
+enum CAMERA_TERRAIN_TILT_STATE : int32_t {
+    CAMERA_TERRAIN_TILT_STATE_FALL = 0,
+    CAMERA_TERRAIN_TILT_STATE_FEAR = 1,
+    CAMERA_TERRAIN_TILT_STATE_IDLE = 2,
+    CAMERA_TERRAIN_TILT_STATE_JUMP = 3,
+    CAMERA_TERRAIN_TILT_STATE_MOVE = 4,
+    CAMERA_TERRAIN_TILT_STATE_STRAFE = 5,
+    CAMERA_TERRAIN_TILT_STATE_SWIM = 6,
+    CAMERA_TERRAIN_TILT_STATE_TAXI = 7,
+    CAMERA_TERRAIN_TILT_STATE_TRACK = 8,
+    CAMERA_TERRAIN_TILT_STATE_TURN = 9,
+    NUM_CAMERA_TERRAIN_TILT_STATES,
+};
+
+// From s_cameraTerrainTiltParamNames.
+enum CAMERA_TERRAIN_TILT_PARAM : int32_t {
+    CAMERA_TERRAIN_TILT_PARAM_ABSORB = 0,
+    CAMERA_TERRAIN_TILT_PARAM_DELAY = 1,
+    CAMERA_TERRAIN_TILT_PARAM_FACTOR = 2,
+    NUM_CAMERA_TERRAIN_TILT_PARAMS,
+};
+
 extern CVar* s_cvCameraView;
 extern CVar* s_cvCameraViewData[8][3];
 extern CVar* s_cameraSmooth;
 extern CVar* s_cvCameraSmoothStyle;
 extern CVar* s_cvCameraTerrainTilt;
-extern CVar* s_cvCameraTerrainTiltState[5][10][3];
+extern CVar* s_cvCameraTerrainTiltState[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_TERRAIN_TILT_STATES][NUM_CAMERA_TERRAIN_TILT_PARAMS];
 extern CVar* s_cvCameraTerrainTiltTimeMin;
 extern CVar* s_cvCameraTerrainTiltTimeMax;
 extern CVar* s_cvCameraGroundSmoothSpeed;
@@ -408,8 +471,8 @@ extern CVar* s_cvCameraSurfacePitch;
 extern CVar* s_cvCameraDive;
 extern CVar* s_cvCameraPivotDYMin;
 extern CVar* s_cvCameraPivotDXMax;
-extern CVar* s_cvCameraSmoothViewData[5][3][2];
-extern CVar* s_cvCameraSmoothState[5][7][2];
+extern CVar* s_cvCameraSmoothViewData[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_VIEW_DATA][NUM_CAMERA_SMOOTH_PARAMS];
+extern CVar* s_cvCameraSmoothState[NUM_CAMERA_SMOOTH_STYLES][NUM_CAMERA_SMOOTH_STATES][NUM_CAMERA_SMOOTH_PARAMS];
 extern CVar* s_cvCameraSmoothYaw;
 extern CVar* s_cvCameraSmoothTrackingStyle;
 extern CVar* s_cvCameraViewBlendStyle;
