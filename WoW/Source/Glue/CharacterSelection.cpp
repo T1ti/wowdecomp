@@ -128,8 +128,7 @@ void CGlueMgr::ProcessAttachment(CM2Model* model, int32_t effectID, uint32_t att
 
     C44Matrix matrix;
     matrix.Scale(effectRec->m_scale);
-    effect->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-    effect->m_worldTransform = matrix;
+    effect->SetWorldTransform(matrix);
     effect->AttachToParent(model, attachID, nullptr, 0);
     effect->Release();
 }
@@ -584,8 +583,7 @@ void CCharacterSelection::ShowCharacter() {
             CCharacterComponent::ReplaceMonsterSkin(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel, displayRec, modelRec);
             C44Matrix matrix(scale);
             CM2Model* scaledModel = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel;
-            scaledModel->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-            scaledModel->m_worldTransform = matrix;
+            scaledModel->SetWorldTransform(matrix);
             CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petAlpha = displayRec->m_creatureModelAlpha * (1.0f / 255.0f);
             CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel->m_fadeAlpha = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petAlpha;
         }

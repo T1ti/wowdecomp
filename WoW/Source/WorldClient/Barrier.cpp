@@ -350,8 +350,7 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
             model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
         }
 
-        CBarrier::s_sparkles[i]->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-        CBarrier::s_sparkles[i]->m_worldTransform = transform;
+        CBarrier::s_sparkles[i]->SetWorldTransform(transform);
         CBarrier::s_sparkles[i]->m_fadeAlpha = this->m_contacts.m_data[i].m_strength;
 
         for (uint32_t j = 0; ; j++) {

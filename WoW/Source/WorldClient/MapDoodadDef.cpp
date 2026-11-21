@@ -240,8 +240,7 @@ void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, 
         return;
     }
 
-    model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-    model->m_worldTransform = doodadDef->m_mat;
+    model->SetWorldTransform(doodadDef->m_mat);
     doodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
     doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
     doodadDef->m_model->m_lightingArg = doodadDef;
@@ -294,8 +293,7 @@ void CMapDoodadDef::Update(const C44Matrix& matrix) {
     CWorldMath::TransformAABox(this->m_mat, box, this->m_bbox);
     CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_collideExt);
     CM2Model* model = this->m_model;
-    model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-    model->m_worldTransform = this->m_mat;
+    model->SetWorldTransform(this->m_mat);
     SI2::Set3DPosition(&this->m_soundKitObject, &this->m_position);
 }
 

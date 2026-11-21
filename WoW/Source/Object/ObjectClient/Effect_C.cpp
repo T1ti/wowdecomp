@@ -1204,8 +1204,7 @@ void CEffect::EffectUpdate() {
             }
 
             light.z = 1.0f;
-            this->m_model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-            this->m_model->m_worldTransform = transform;
+            this->m_model->SetWorldTransform(transform);
             C44Matrix world = this->m_model->m_worldTransform;
             CMap::ObjectUpdate(this->m_mapEntity, world, box, sphere, light, false, 0xFFFFFFFF);
         }
@@ -1295,8 +1294,7 @@ void CEffect::PostInitialize() {
         CGObject_C* source = ClntObjMgrObjectPtr(this->m_sourceGuid, TYPE_OBJECT, __FILE__, __LINE__);
         C44Matrix transform;
         C44Matrix* matrix = this->TransformPosition(&transform, source);
-        this->m_model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-        this->m_model->m_worldTransform = *matrix;
+        this->m_model->SetWorldTransform(*matrix);
         C44Matrix world = this->m_model->m_worldTransform;
         this->m_mapEntity = CMap::ObjectCreateStatic(this->m_model, world, &CGWorldFrame::SpellEffectEnumProc, nullptr, reinterpret_cast<uintptr_t>(this));
         CAaBox box;

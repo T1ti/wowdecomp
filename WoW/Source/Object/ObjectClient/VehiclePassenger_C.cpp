@@ -1939,8 +1939,7 @@ void CVehiclePassenger_C::UpdateModel() {
     }
 
     if (useMatrix) {
-        model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-        model->m_worldTransform = matrix;
+        model->SetWorldTransform(matrix);
     } else {
         model->SetWorldTransform(position, facing, scale, up, CM2Model::USE_MODEL_ALIGNMENT);
     }

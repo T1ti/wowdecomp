@@ -1458,8 +1458,7 @@ void CGGameObject_C::ShowLootEffect() {
     matrix.Scale(scale);
 
     CM2Model* effect = this->m_lootEffect;
-    effect->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-    effect->m_worldTransform = matrix;
+    effect->SetWorldTransform(matrix);
 }
 
 // VERIFY: e08bcb80 auto
@@ -2639,8 +2638,7 @@ void CGGameObject_C::UpdateWorldObject(int32_t skipEntityUpdate) {
             center = C3Vector((bounds.t.x + bounds.b.x) * 0.5f, (bounds.t.y + bounds.b.y) * 0.5f, 0.5f * (bounds.t.z + bounds.b.z));
         }
 
-        model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-        model->m_worldTransform = this->m_matrix;
+        model->SetWorldTransform(this->m_matrix);
     }
 
     if (this->m_worldObject) {

@@ -929,8 +929,7 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
     }
 
     CM2Model* model = particle.m_model;
-    model->m_runtimeFlags |= M2_FLAGS::M2_WORLD_TRANSFORM_VALID;
-    model->m_worldTransform = transform;
+    model->SetWorldTransform(transform);
 
     model = particle.m_model;
     model->m_diffuseTintR = color.r * ONE_OVER_255;
