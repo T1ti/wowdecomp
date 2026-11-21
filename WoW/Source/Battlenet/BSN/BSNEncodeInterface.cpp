@@ -9,11 +9,11 @@ void BSN::EncodeContext::ResolveType() {
         return;
     }
 
-    this->m_header = BSN::Protocol::Meta::Base(this->m_protocol, this->m_typeId).m_header & 0x3F;
+    this->m_header = BSN::Protocol::Meta::Base(this->m_protocol, this->m_typeId).m_header & BSN::META_HEADER_TYPE_MASK;
 
     while (this->m_header == BSN::META_USER) {
         this->m_typeId = BSN::Protocol::Meta::User(this->m_protocol, this->m_typeId).m_userTypeId;
-        this->m_header = BSN::Protocol::Meta::Base(this->m_protocol, this->m_typeId).m_header & 0x3F;
+        this->m_header = BSN::Protocol::Meta::Base(this->m_protocol, this->m_typeId).m_header & BSN::META_HEADER_TYPE_MASK;
     }
 }
 

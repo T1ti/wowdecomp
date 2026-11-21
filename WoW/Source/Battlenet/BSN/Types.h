@@ -8,6 +8,11 @@
 #include "Engine/Source/Storm/H/storm.h"
 
 namespace BSN {
+// Protocol type info header byte: the low bits hold the MetaType. FIXED is passed to
+// Bounds::Get as its fixed flag and makes Choice/Enum tags a contiguous range (name inferred).
+static const uint8_t META_HEADER_TYPE_MASK = 0x3F;
+static const uint8_t META_HEADER_FIXED = 0x80;
+
 enum MetaType {
     META_ARRAY = 1,
     META_ASCII_STRING = 2,
