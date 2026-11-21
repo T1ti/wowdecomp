@@ -65,6 +65,9 @@
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/Gx/CGxMatrixStack.h"
 
+// Name inferred: indices streamed per batch by the RenderGroup*Faces debug renderers.
+static const uint32_t FACE_DEBUG_INDEX_BATCH = 3000;
+
 // STATIC: 0x00AEE008
 uint32_t CMapObj::s_maxLiquidQueryDepth = 2;
 
@@ -3414,7 +3417,7 @@ void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
 
     GxBufUnlock(vertexBuf, 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PN);
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     SMOPoly* poly = mapObjGroup->m_polyList;
     uint32_t count = 0;
@@ -3432,7 +3435,7 @@ void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
         count += 3;
         indices += 3;
 
-        if (count == 3000) {
+        if (count == FACE_DEBUG_INDEX_BATCH) {
             count = 0;
             GxBufUnlock(indexBuf, 0);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
@@ -3440,10 +3443,10 @@ void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
             batch.m_maxIndex = mapObjGroup->m_vertexListCount;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = 0;
-            batch.m_count = 3000;
+            batch.m_count = FACE_DEBUG_INDEX_BATCH;
             batch.m_minIndex = 0;
             g_theGxDevicePtr->Draw(&batch, 1);
-            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
             indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
         }
     }
@@ -3625,7 +3628,7 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
 
     GxBufUnlock(vertexBuf, 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PN);
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     SMOPoly* poly = group->m_polyList;
     uint32_t count = 0;
@@ -3641,7 +3644,7 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
         count += 3;
         indices += 3;
 
-        if (count == 3000) {
+        if (count == FACE_DEBUG_INDEX_BATCH) {
             count = 0;
             GxBufUnlock(indexBuf, 0);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
@@ -3649,10 +3652,10 @@ void CMapObj::RenderGroupCollisionFaces(CMapObjGroup* group, uint32_t index) {
             batch.m_maxIndex = group->m_vertexListCount;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = 0;
-            batch.m_count = 3000;
+            batch.m_count = FACE_DEBUG_INDEX_BATCH;
             batch.m_minIndex = 0;
             g_theGxDevicePtr->Draw(&batch, 1);
-            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
             indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
         }
     }
@@ -3702,7 +3705,7 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
 
     GxBufUnlock(vertexBuf, 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PN);
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     SMOPoly* poly = group->m_polyList;
     uint32_t count = 0;
@@ -3718,7 +3721,7 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
         count += 3;
         indices += 3;
 
-        if (count == 3000) {
+        if (count == FACE_DEBUG_INDEX_BATCH) {
             count = 0;
             GxBufUnlock(indexBuf, 0);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
@@ -3726,10 +3729,10 @@ void CMapObj::RenderGroupDetailFaces(CMapObjGroup* group, uint32_t index) {
             batch.m_maxIndex = group->m_vertexListCount;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = 0;
-            batch.m_count = 3000;
+            batch.m_count = FACE_DEBUG_INDEX_BATCH;
             batch.m_minIndex = 0;
             g_theGxDevicePtr->Draw(&batch, 1);
-            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
             indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
         }
     }
@@ -3779,7 +3782,7 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
 
     GxBufUnlock(vertexBuf, 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PN);
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     SMOPoly* poly = group->m_polyList;
     uint32_t count = 0;
@@ -3795,7 +3798,7 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
         count += 3;
         indices += 3;
 
-        if (count == 3000) {
+        if (count == FACE_DEBUG_INDEX_BATCH) {
             count = 0;
             GxBufUnlock(indexBuf, 0);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
@@ -3803,10 +3806,10 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
             batch.m_maxIndex = group->m_vertexListCount;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = 0;
-            batch.m_count = 3000;
+            batch.m_count = FACE_DEBUG_INDEX_BATCH;
             batch.m_minIndex = 0;
             g_theGxDevicePtr->Draw(&batch, 1);
-            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
             indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
         }
     }
@@ -3862,7 +3865,7 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
 
     GxBufUnlock(vertexBuf, 0);
     GxPrimVertexPtr(vertexBuf, GxVBF_PNC);
-    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+    CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
     uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
     SMOPoly* poly = group->m_polyList;
     uint32_t count = 0;
@@ -3878,7 +3881,7 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
         count += 3;
         indices += 3;
 
-        if (count == 3000) {
+        if (count == FACE_DEBUG_INDEX_BATCH) {
             count = 0;
             GxBufUnlock(indexBuf, 0);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
@@ -3886,10 +3889,10 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
             batch.m_maxIndex = group->m_vertexListCount;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = 0;
-            batch.m_count = 3000;
+            batch.m_count = FACE_DEBUG_INDEX_BATCH;
             batch.m_minIndex = 0;
             g_theGxDevicePtr->Draw(&batch, 1);
-            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, 3000);
+            indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, 2, FACE_DEBUG_INDEX_BATCH);
             indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
         }
     }
