@@ -3238,7 +3238,7 @@ void CGCamera::UpdateTrackingState(int32_t tracking) {
             ignore = 0;
         } else {
             uint32_t type = CGUnit_C::GetTrackingType();
-            ignore = type != 1 && type != 3;
+            ignore = type != TRACKTYPE_SPELLCHANNEL && type != TRACKTYPE_FOLLOW;
         }
     }
 
