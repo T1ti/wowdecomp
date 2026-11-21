@@ -34,7 +34,7 @@ bool GruntLogin::Connected(const NETADDR& address) {
 // OFFSET: 0x008CA140
 bool GruntLogin::CantConnect() {
     this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_FAILED, LOGIN_SERVER_DOWN, nullptr, 0);
-    this->m_logonStatus = 1;
+    this->m_logonStatus = LOGON_STATUS_FAILED;
     this->LogonResult(Grunt::GRUNT_RESULT_CANT_CONNECT, nullptr, 0, 0);
     this->m_loggedOn = false;
     this->m_online = false;
@@ -48,7 +48,7 @@ bool GruntLogin::Disconnected() {
     this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_DISCONNECTED, LOGIN_OK, nullptr, 0);
 
     if (!this->m_online) {
-        this->m_logonStatus = 1;
+        this->m_logonStatus = LOGON_STATUS_FAILED;
         this->LogonResult(Grunt::GRUNT_RESULT_DISCONNECTED, nullptr, 0, 0);
     }
 
@@ -103,7 +103,7 @@ void GruntLogin::Logon(const char* loginServer, const char* portal) {
     }
 
     this->m_reconnect = false;
-    this->m_logonStatus = -1;
+    this->m_logonStatus = LOGON_STATUS_PENDING;
     this->m_pinEnabled = false;
     this->m_matrixEnabled = false;
     this->m_tokenEnabled = false;
@@ -168,7 +168,7 @@ void GruntLogin::LogonResult(Grunt::Result result, const uint8_t* sessionKey, ui
     }
 
     if (result == Grunt::GRUNT_RESULT_SUCCESS || result == Grunt::GRUNT_RESULT_SUCCESS_SURVEY) {
-        this->m_logonStatus = 0;
+        this->m_logonStatus = LOGON_STATUS_SUCCESS;
         this->m_pinFailures = 0;
         memcpy(this->m_sessionKey, sessionKey, sessionKeyLength >= sizeof(this->m_sessionKey) ? sizeof(this->m_sessionKey) : sessionKeyLength);
 
@@ -181,7 +181,7 @@ void GruntLogin::LogonResult(Grunt::Result result, const uint8_t* sessionKey, ui
         return;
     }
 
-    this->m_logonStatus = 1;
+    this->m_logonStatus = LOGON_STATUS_FAILED;
 
     switch (result) {
         case Grunt::GRUNT_RESULT_BANNED:
@@ -614,11 +614,11 @@ void GruntLogin::FileComplete(bool success) {
 // VERIFY: 20c829de manual
 // OFFSET: 0x008CA7F0
 int32_t GruntLogin::Wait(const char* message, LoginData& loginData) {
-    while (this->m_logonStatus == -1) {
+    while (this->m_logonStatus == LOGON_STATUS_PENDING) {
         OsSleep(100);
     }
 
-    if (this->m_logonStatus) {
+    if (this->m_logonStatus != LOGON_STATUS_SUCCESS) {
         memset(&loginData, 0, sizeof(loginData));
     } else {
         loginData.m_loginServerID = 0;
@@ -626,7 +626,7 @@ int32_t GruntLogin::Wait(const char* message, LoginData& loginData) {
         memcpy(loginData.m_sessionKey, this->m_sessionKey, sizeof(loginData.m_sessionKey));
     }
 
-    return this->m_logonStatus == 0;
+    return this->m_logonStatus == LOGON_STATUS_SUCCESS;
 }
 
 // VERIFY: 66d294df manual
@@ -676,7 +676,7 @@ void GruntLogin::FinalizeMatrix() {
 // OFFSET: 0x008CB020
 void GruntLogin::ReconnectResult(Grunt::Result result, const uint8_t* sessionKey, uint32_t sessionKeyLength, uint16_t flags) {
     if (!this->IsReconnect()) {
-        this->m_logonStatus = 1;
+        this->m_logonStatus = LOGON_STATUS_FAILED;
         this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_FAILED, LOGIN_FAILED, nullptr, 0);
         return;
     }

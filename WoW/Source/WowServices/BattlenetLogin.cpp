@@ -493,7 +493,7 @@ BattlenetApplication::BattlenetApplication() {
 bool BattlenetLogin::CantConnect() {
     ConsoleWrite("BattlenetLogin was unable to connect to Sunken", DEFAULT_COLOR);
     this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_FAILED, LOGIN_SERVER_DOWN, nullptr, 0);
-    this->m_logonStatus = 1;
+    this->m_logonStatus = LOGON_STATUS_FAILED;
     this->LogonResultBN(BattlenetLogin::LOGON_RESULT::LOGON_RESULT_LOCAL_CONNECTION_FAILURE);
     this->m_loggedOn = false;
     this->m_online = false;
@@ -991,7 +991,7 @@ void BattlenetLogin::Logon(const char* loginServer, const char* portal) {
 
     this->m_reconnect = false;
     this->m_serviceState = SERVICE_STATE::SERVICE_STATE_DISCONNECTED;
-    this->m_logonStatus = -1;
+    this->m_logonStatus = LOGON_STATUS_PENDING;
     this->m_logonResult = BattlenetLogin::LOGON_RESULT::LOGON_RESULT_SUCCESS;
     this->m_loginResponse->UpdateLoginStatus(LOGIN_STATE_CONNECTING, LOGIN_OK, nullptr, 0);
 
@@ -1337,7 +1337,7 @@ void BattlenetLogin::HandleDisconnectEvents(uint32_t index) {
     }
 
     if (!this->m_online) {
-        this->m_logonStatus = 1;
+        this->m_logonStatus = LOGON_STATUS_FAILED;
     }
 
     if (serviceDisconnected) {

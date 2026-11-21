@@ -168,7 +168,7 @@ Login::Login() {
     this->m_password = nullptr;
     this->m_loggedOn = false;
     this->m_online = false;
-    this->m_logonStatus = -1;
+    this->m_logonStatus = LOGON_STATUS_PENDING;
     this->m_pinFailures = 0;
     this->m_reconnect = false;
     memset(this->m_username, 0, sizeof(this->m_username));

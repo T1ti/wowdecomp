@@ -15,12 +15,21 @@ extern const char* g_LoginResultStringNames[41];
 
 class Login : public Grunt::ClientResponse {
     public:
+    // m_logonStatus values. Names inferred: Logon sets PENDING, a successful
+    // logon result sets SUCCESS, failures and disconnects set FAILED, and Wait
+    // spins while PENDING.
+    enum LOGON_STATUS : int32_t {
+        LOGON_STATUS_PENDING = -1,
+        LOGON_STATUS_SUCCESS = 0,
+        LOGON_STATUS_FAILED = 1,
+    };
+
     static uint32_t s_fourCCprogramID;
 
     /* 0004 */ bool m_online;
     /* 0005 */ bool m_loggedOn;
     /* 0006 */ uint8_t unused_0006[2];
-    /* 0008 */ int32_t m_logonStatus;
+    /* 0008 */ int32_t m_logonStatus; // LOGON_STATUS
     /* 000C */ bool m_reconnect;
     /* 000D */ char m_username [1280];
     /* 050D */ char m_rawUsername [1280];
