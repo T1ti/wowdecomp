@@ -11,13 +11,7 @@
 // VERIFY: 6e6904ff manual
 // OFFSET: 0x0070D980
 void CGGameObject_C_Type_TrapDoor::PostInitWithStats() {
-    this->CreateWorldObj();
-
-    if (!this->m_worldObject) {
-        return;
-    }
-
-    MovementAddTransport(this->m_owner);
+    this->CGGameObject_C_Type_TransportBase::PostInitWithStats();
 
     if (!this->m_worldObject) {
         return;
@@ -81,11 +75,7 @@ CGGameObject_C_Type_TrapDoor::CGGameObject_C_Type_TrapDoor(CGGameObject_C* owner
 // VERIFY: 7c534dd2 auto
 // OFFSET: 0x0070B580
 void CGGameObject_C_Type_TrapDoor::PostReenable() {
-    this->CreateWorldObj();
-
-    if (this->m_worldObject) {
-        MovementAddTransport(this->m_owner);
-    }
+    this->CGGameObject_C_Type_TransportBase::PostReenable();
 
     if (this->m_worldObject) {
         World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);

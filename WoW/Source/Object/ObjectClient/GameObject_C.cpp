@@ -1612,11 +1612,7 @@ void CGGameObject_C_Type_TransportBase::PostInitWithStats() {
 // VERIFY: f102a3a9 auto
 // OFFSET: 0x00710190
 void CGGameObject_C_Type_MapObjTransport::PostReenable() {
-    this->CreateWorldObj();
-
-    if (this->m_worldObject) {
-        MovementAddTransport(this->m_owner);
-    }
+    this->CGGameObject_C_Type_TransportBase::PostReenable();
 
     this->InitializeMovement();
 }
@@ -2984,11 +2980,7 @@ void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t state) {
 // VERIFY: a9620568 auto
 // OFFSET: 0x00711B50
 void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
-    this->CreateWorldObj();
-
-    if (this->m_worldObject) {
-        MovementAddTransport(this->m_owner);
-    }
+    this->CGGameObject_C_Type_TransportBase::PostInitWithStats();
 
     uint32_t transportPhysicsPropertyIndex = CGameObjectDef::GetPropNum(this->m_owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_TRANSPORTPHYSICS);
     const GameObjectStats* transportPhysicsStats = this->m_owner->m_stats;

@@ -173,11 +173,7 @@ void CGGameObject_C_Type_Transport::Reenable() {
 // VERIFY: 9abb4c2a auto
 // OFFSET: 0x0070B5C0
 void CGGameObject_C_Type_Transport::PostInitWithStats() {
-    this->CreateWorldObj();
-
-    if (this->m_worldObject) {
-        MovementAddTransport(this->m_owner);
-    }
+    this->CGGameObject_C_Type_TransportBase::PostInitWithStats();
 
     if (this->m_worldObject) {
         World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
@@ -189,11 +185,7 @@ void CGGameObject_C_Type_Transport::PostInitWithStats() {
 // OFFSET: 0x0070B630
 void CGGameObject_C_Type_Transport::PostReenable() {
     this->m_lastSequence = ANIM_COUNT;
-    this->CreateWorldObj();
-
-    if (this->m_worldObject) {
-        MovementAddTransport(this->m_owner);
-    }
+    this->CGGameObject_C_Type_TransportBase::PostReenable();
 
     if (this->m_worldObject) {
         World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
