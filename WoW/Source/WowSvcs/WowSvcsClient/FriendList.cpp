@@ -294,13 +294,11 @@ void FriendList::ReadPacket(CDataStore* msg) {
     }
 
     if ((flags & CONTACT_LIST_IGNORE) && !this->m_pendingIgnoreNames) {
-        qsort(this->m_ignores, FriendList::MAX_IGNORES, sizeof(IgnoreInfo), QSortIgnore);
-        FrameScript_SignalEvent(SCRIPT_EVENT_IGNORELIST_UPDATE, nullptr);
+        this->SortIgnoreList();
     }
 
     if ((flags & CONTACT_LIST_MUTE) && !this->m_pendingMuteNames) {
-        qsort(this->m_mutes, FriendList::MAX_MUTES, sizeof(IgnoreInfo), QSortIgnore);
-        FrameScript_SignalEvent(SCRIPT_EVENT_MUTELIST_UPDATE, nullptr);
+        this->SortMuteList();
     }
 
     if (!msg->IsRead()) {
@@ -1216,8 +1214,7 @@ void FriendList::DecrementPendingIgnoreName() {
         this->m_pendingIgnoreNames = pending - 1;
 
         if (pending == 1) {
-            qsort(this->m_ignores, FriendList::MAX_IGNORES, sizeof(IgnoreInfo), QSortIgnore);
-            FrameScript_SignalEvent(SCRIPT_EVENT_IGNORELIST_UPDATE, nullptr);
+            this->SortIgnoreList();
         }
     }
 }
@@ -1231,8 +1228,7 @@ void FriendList::DecrementPendingMuteName() {
         this->m_pendingMuteNames = pending - 1;
 
         if (pending == 1) {
-            qsort(this->m_mutes, FriendList::MAX_MUTES, sizeof(IgnoreInfo), QSortIgnore);
-            FrameScript_SignalEvent(SCRIPT_EVENT_MUTELIST_UPDATE, nullptr);
+            this->SortMuteList();
         }
     }
 }
@@ -1324,8 +1320,7 @@ void FriendList::IgnoreRemoved(WOWGUID guid) {
             FrameScript_SignalEvent(SCRIPT_EVENT_CALENDAR_UPDATE_PENDING_INVITES, nullptr);
 
             if (!this->m_pendingIgnoreNames) {
-                qsort(this->m_ignores, FriendList::MAX_IGNORES, sizeof(IgnoreInfo), QSortIgnore);
-                FrameScript_SignalEvent(SCRIPT_EVENT_IGNORELIST_UPDATE, nullptr);
+                this->SortIgnoreList();
             }
 
             break;
@@ -1346,8 +1341,7 @@ void FriendList::MuteRemoved(WOWGUID guid) {
             this->m_mutes[i].m_flags = 0;
 
             if (!this->m_pendingMuteNames) {
-                qsort(this->m_mutes, FriendList::MAX_MUTES, sizeof(IgnoreInfo), QSortIgnore);
-                FrameScript_SignalEvent(SCRIPT_EVENT_MUTELIST_UPDATE, nullptr);
+                this->SortMuteList();
             }
 
             break;
@@ -1565,8 +1559,7 @@ void FriendList::IgnoreAdded(WOWGUID guid, int32_t lookupName) {
                 }
 
                 if (!this->m_pendingIgnoreNames) {
-                    qsort(this->m_ignores, FriendList::MAX_IGNORES, sizeof(IgnoreInfo), QSortIgnore);
-                    FrameScript_SignalEvent(SCRIPT_EVENT_IGNORELIST_UPDATE, nullptr);
+                    this->SortIgnoreList();
                 }
             }
 
@@ -1591,8 +1584,7 @@ void FriendList::MuteAdded(WOWGUID guid, int32_t lookupName) {
                 }
 
                 if (!this->m_pendingMuteNames) {
-                    qsort(this->m_mutes, FriendList::MAX_MUTES, sizeof(IgnoreInfo), QSortIgnore);
-                    FrameScript_SignalEvent(SCRIPT_EVENT_MUTELIST_UPDATE, nullptr);
+                    this->SortMuteList();
                 }
             }
 
