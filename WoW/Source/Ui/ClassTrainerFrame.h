@@ -57,7 +57,7 @@ struct TrainerSkillLineInfo {
     /* 0004 */ uint32_t m_stateCounts[NUM_TRAINER_SERVICE_TYPES];
     /* 001C */ BOOL m_visible;
     /* 0020 */ int32_t m_collapsed;
-    /* 0024 */ int32_t unk_0024;
+    /* 0024 */ BOOL m_allServicesCostPoints; // Every service costs talent or profession points; sorted last (name inferred).
 };
 
 class CGClassTrainer {

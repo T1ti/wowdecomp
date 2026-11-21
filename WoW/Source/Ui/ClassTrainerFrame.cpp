@@ -553,7 +553,7 @@ void CGClassTrainer::RefreshList() {
             line->m_stateCounts[state] = 0;
         }
 
-        line->unk_0024 = 1;
+        line->m_allServicesCostPoints = 1;
     }
 
     for (uint32_t s = 0; s < CGClassTrainer::m_numServices; s++) {
@@ -698,8 +698,8 @@ static int32_t QSortSkillLines(const void* a, const void* b) {
         return 0;
     }
 
-    if (infoA->unk_0024 != infoB->unk_0024) {
-        return infoA->unk_0024 ? 1 : -1;
+    if (infoA->m_allServicesCostPoints != infoB->m_allServicesCostPoints) {
+        return infoA->m_allServicesCostPoints ? 1 : -1;
     }
 
     SkillLineRec* lineA = g_skillLineDB.GetRecord(infoA->m_skillLine);
@@ -808,8 +808,8 @@ void CGClassTrainer::AddServices(uint32_t count, const int32_t* spellIds, const 
 
             lineInfo->m_stateCounts[info->m_state]++;
 
-            if (lineInfo->unk_0024) {
-                lineInfo->unk_0024 = info->m_talentCost || info->m_professionCost;
+            if (lineInfo->m_allServicesCostPoints) {
+                lineInfo->m_allServicesCostPoints = info->m_talentCost || info->m_professionCost;
             }
 
             break;
@@ -831,9 +831,9 @@ void CGClassTrainer::AddServices(uint32_t count, const int32_t* spellIds, const 
             lineInfo->m_stateCounts[k] = 0;
         }
 
-        lineInfo->unk_0024 = 1;
+        lineInfo->m_allServicesCostPoints = 1;
         lineInfo->m_stateCounts[info->m_state]++;
-        lineInfo->unk_0024 = info->m_talentCost || info->m_professionCost;
+        lineInfo->m_allServicesCostPoints = info->m_talentCost || info->m_professionCost;
         CGClassTrainer::m_numSkillLines++;
     }
 
