@@ -898,7 +898,7 @@ int32_t CGGameObject_C_TypeAnimated::Animate(float elapsed) {
 // VERIFY: 0af705ec auto
 // OFFSET: 0x0070D160
 void CGGameObject_C_TypeAnimated::OnUpdateFlags(uint32_t changed) {
-    if (!(changed & 0x80)) {
+    if (!(changed & CGGameObjectData::FLAG_KEEP_ANIMATION_TIME)) {
         return;
     }
 
