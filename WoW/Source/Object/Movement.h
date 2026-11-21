@@ -271,7 +271,14 @@ class CMovement_C : public CMovementShared {
     int32_t SetTransport(WOWGUID transport);
     int32_t ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL force);
     uint32_t Swim(uint32_t time, uint32_t elapsed, float distance, C3Vector direction);
-    int32_t TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed);
+    // TryFallingDown results (names inferred from what each return path does).
+    enum FALL_RESULT : int32_t {
+        FALL_RESULT_CLEAR = 0,   // no facet in the way
+        FALL_RESULT_HIT = 1,     // stopped by a facet; onSlope/landed/push say how
+        FALL_RESULT_BLOCKED = 2, // DistanceToMove failed and the move was zeroed
+    };
+
+    FALL_RESULT TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed);
     uint32_t FallDown(uint32_t time, uint32_t elapsed, C3Vector move, BOOL notify);
     uint32_t Fall(uint32_t time, uint32_t elapsed, float distance, const C2Vector& direction);
     int32_t WillPassObstacle(const C2Vector& direction, const C3Vector& position, float height);

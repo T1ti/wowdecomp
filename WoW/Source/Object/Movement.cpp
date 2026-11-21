@@ -3251,14 +3251,14 @@ anchors:
 
 // VERIFY: beee8c35 manual
 // OFFSET: 0x00760FC0
-int32_t CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed) {
+CMovement_C::FALL_RESULT CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed) {
     *landed = 0;
     *onSlope = 0;
     float length = *distance;
 
     if (fabs(length) < 0.00000023841858f) {
         *facetId = 0;
-        return 0;
+        return FALL_RESULT_CLEAR;
     }
 
     C4Plane planes[7];
@@ -3276,12 +3276,12 @@ int32_t CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* dis
         move->x = 0.0f;
         move->y = 0.0f;
         move->z = 0.0f;
-        return 2;
+        return FALL_RESULT_BLOCKED;
     }
 
     if (facetIndex == s_moveFacets.facets.m_count) {
         *facetId = 0;
-        return 0;
+        return FALL_RESULT_CLEAR;
     }
 
     float d = *distance;
@@ -3292,7 +3292,7 @@ int32_t CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* dis
 
     if (this->IsSlopeFallable(facetIndex, *move)) {
         *onSlope = 1;
-        return 1;
+        return FALL_RESULT_HIT;
     }
 
     if (direction.z > 0.0f) {
@@ -3301,12 +3301,12 @@ int32_t CMovement_C::TryFallingDown(float timeFallen, C3Vector* move, float* dis
         if (peak >= 0.0f && peak * this->m_currentSpeed >= *distance && CheckFallingConditions(planes, planeCount)) {
             *landed = 1;
             *facetId = 0;
-            return 1;
+            return FALL_RESULT_HIT;
         }
     }
 
     *push = this->CalcFallObstaclePush(direction, *distance, length, facetIndex, planes, planeCount);
-    return 1;
+    return FALL_RESULT_HIT;
 }
 
 // VERIFY: 8938b491 manual
@@ -3345,9 +3345,9 @@ uint32_t CMovement_C::FallDown(uint32_t time, uint32_t elapsed, C3Vector move, B
             float scale = 1.0f / length;
             C3Vector direction(move.x * scale, move.y * scale, move.z * scale);
             float fallTime = startTime + timeFallen;
-            int32_t result = this->TryFallingDown(fallTime, &move, &distance, &push, &transport, &onSlope, &landed);
+            FALL_RESULT result = this->TryFallingDown(fallTime, &move, &distance, &push, &transport, &onSlope, &landed);
 
-            if (result == 2) {
+            if (result == FALL_RESULT_BLOCKED) {
                 uint32_t skip = static_cast<uint32_t>((totalTime - timeFallen) * 1000.0f);
                 this->m_anchorElapsedMs -= skip;
                 this->m_fallTimeMs -= skip;
