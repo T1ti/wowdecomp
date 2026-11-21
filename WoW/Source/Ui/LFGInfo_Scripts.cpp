@@ -1691,7 +1691,7 @@ static int32_t Script_SearchLFGGetResults(lua_State* L) {
     ProfanityFilter(comment, false, false);
     lua_pushstring(L, comment);
     lua_pushnumber(L, party ? party->GetNumMembers() : 0);
-    lua_pushboolean(L, player->unk_0088 != 0);
+    lua_pushboolean(L, player->m_status != 0);
     ChrClassesRec* classRec;
 
     if (name && (classRec = g_chrClassesDB.GetRecord(name->m_class)) && classRec->m_filename) {

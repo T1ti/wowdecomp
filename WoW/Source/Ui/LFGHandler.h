@@ -12,7 +12,7 @@ enum LFG_LIST_UPDATE_FLAGS : uint32_t {
     LFG_LIST_UPDATE_GROUP_GUID = 0x8,
     LFG_LIST_UPDATE_ROLES = 0x10,
     LFG_LIST_UPDATE_AREA = 0x20,
-    LFG_LIST_UPDATE_UNKNOWN_6 = 0x40,
+    LFG_LIST_UPDATE_STATUS = 0x40, // carries LFGListPlayer::m_status (name inferred)
     LFG_LIST_UPDATE_ENCOUNTERS = 0x80,
 };
 

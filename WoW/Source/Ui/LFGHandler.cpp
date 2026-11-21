@@ -106,8 +106,8 @@ void LFGHandler::ReadPlayerInfo(CDataStore* msg, LFGLIST* list, LFGListPlayer* p
         msg->Get(reinterpret_cast<uint32_t&>(player->m_areaID));
     }
 
-    if (flags & LFG_LIST_UPDATE_UNKNOWN_6) {
-        msg->Get(player->unk_0088);
+    if (flags & LFG_LIST_UPDATE_STATUS) {
+        msg->Get(player->m_status);
     }
 
     if (flags & LFG_LIST_UPDATE_ENCOUNTERS) {

@@ -39,7 +39,7 @@ class LFGListPlayer : public TSHashObject<LFGListPlayer, CHashKeyGUID> {
     /* 007C */ uint32_t m_haste;
     /* 0080 */ uint32_t m_expertise;
     /* 0084 */ int32_t m_areaID;
-    /* 0088 */ uint8_t unk_0088;
+    /* 0088 */ uint8_t m_status; // SearchLFGGetResults "status" (FrameXML LFRFrame.lua)
     /* 008C */ uint32_t m_leader;
     /* 0090 */ ROLE_FLAGS_8 m_roles;
     /* 0091 */ char m_comment[256];
