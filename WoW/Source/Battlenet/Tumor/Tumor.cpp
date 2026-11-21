@@ -9,21 +9,21 @@ Battlenet::Tumor::Tumor(Application& application) {
     this->m_application = &application;
     this->m_nextTendrilId = 1;
 
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_EVENT_BINDINGS; i++) {
         this->m_eventBindings[i].m_subscriber = nullptr;
         this->m_eventBindings[i].m_active = false;
         this->m_eventBindings[i].m_tendrilId = 0;
         this->m_eventBindings[i].m_eventId.m_value = 0;
     }
 
-    for (int32_t i = 0; i < 64; i++) {
+    for (int32_t i = 0; i < NUM_CONNECTION_BINDINGS; i++) {
         this->m_connectionBindings[i].m_connection = 0;
         this->m_connectionBindings[i].m_client = nullptr;
         this->m_connectionBindings[i].m_active = false;
         this->m_connectionBindings[i].m_tendrilId = 0;
     }
 
-    for (int32_t i = 0; i < 64; i++) {
+    for (int32_t i = 0; i < NUM_TOKEN_BINDINGS; i++) {
         this->m_tokenBindings[i].m_token = 0;
         this->m_tokenBindings[i].m_request = 0;
         this->m_tokenBindings[i].m_client = nullptr;
@@ -37,14 +37,14 @@ Battlenet::Tumor::Tumor(Application& application) {
 // VERIFY: 50fa449a manual
 // OFFSET: [0x009C0040, 0x009C10E0]
 Battlenet::Tumor::~Tumor() {
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_ADAPTERS; i++) {
         if (this->m_adapters[i]) {
             Battlenet::Delete(this->m_adapters[i]);
             this->m_adapters[i] = nullptr;
         }
     }
 
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_ADAPTERS; i++) {
         if (this->m_eventAdapters[i]) {
             Battlenet::Delete(this->m_eventAdapters[i]);
             this->m_eventAdapters[i] = nullptr;
@@ -62,7 +62,7 @@ bool Battlenet::Tumor::AllocTendrilId(uint32_t& tendrilId) {
         uint32_t i = 0;
 
         while (!this->m_eventAdapters[i] || this->m_eventAdapters[i]->m_tendrilId != tendrilId) {
-            if (++i >= 20) {
+            if (++i >= NUM_ADAPTERS) {
                 return true;
             }
         }
@@ -76,7 +76,7 @@ bool Battlenet::Tumor::AllocTendrilId(uint32_t& tendrilId) {
 // VERIFY: f13c7f2c manual
 // OFFSET: 0x009C0DA0
 void Battlenet::Tumor::Process(uint32_t time) {
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_ADAPTERS; i++) {
         if (this->m_adapters[i]) {
             static_cast<SystemClient*>(this->m_adapters[i])->Process(time);
         }
@@ -89,7 +89,7 @@ Battlenet::Tumor::ConnectionBinding* Battlenet::Tumor::FindConnectionBinding(uin
     uint32_t i = 0;
 
     while (!this->m_connectionBindings[i].m_active || this->m_connectionBindings[i].m_connection != connection) {
-        if (++i >= 64) {
+        if (++i >= NUM_CONNECTION_BINDINGS) {
             return nullptr;
         }
     }
@@ -103,7 +103,7 @@ Battlenet::Tumor::TokenBinding* Battlenet::Tumor::FindTokenBinding(uint32_t toke
     uint32_t i = 0;
 
     while (!this->m_tokenBindings[i].m_active || this->m_tokenBindings[i].m_token != token) {
-        if (++i >= 64) {
+        if (++i >= NUM_TOKEN_BINDINGS) {
             return nullptr;
         }
     }
@@ -117,7 +117,7 @@ Battlenet::Tumor::EventBinding* Battlenet::Tumor::AllocEventBinding() {
     uint32_t i = 0;
 
     while (this->m_eventBindings[i].m_active) {
-        if (++i >= 20) {
+        if (++i >= NUM_EVENT_BINDINGS) {
             DebugLog("Ran out of room in Tumor::m_eventBindings");
             return nullptr;
         }
@@ -132,7 +132,7 @@ Battlenet::Tumor::ConnectionBinding* Battlenet::Tumor::AllocConnectionBinding() 
     uint32_t i = 0;
 
     while (this->m_connectionBindings[i].m_active) {
-        if (++i >= 64) {
+        if (++i >= NUM_CONNECTION_BINDINGS) {
             DebugLog("Ran out of room in Tumor::m_connectionBindings");
             return nullptr;
         }
@@ -147,7 +147,7 @@ Battlenet::Tumor::TokenBinding* Battlenet::Tumor::AllocTokenBinding() {
     uint32_t i = 0;
 
     while (this->m_tokenBindings[i].m_active) {
-        if (++i >= 64) {
+        if (++i >= NUM_TOKEN_BINDINGS) {
             DebugLog("Ran out of room in Tumor::m_tokenBindings");
             return nullptr;
         }
@@ -177,7 +177,7 @@ Battlenet::Tumor::Adapter* Battlenet::Tumor::AllocAdapter(SystemClient& client, 
     uint32_t index = 0;
 
     while (this->m_adapters[index]) {
-        if (++index >= 20) {
+        if (++index >= NUM_ADAPTERS) {
             DebugLog("No space in Tumor::m_adapters for new Tendril");
             return nullptr;
         }
@@ -195,7 +195,7 @@ Battlenet::Tumor::EventAdapter* Battlenet::Tumor::AllocEventAdapter(BSN::FourCC 
     uint32_t index = 0;
 
     while (this->m_eventAdapters[index]) {
-        if (++index >= 20) {
+        if (++index >= NUM_ADAPTERS) {
             DebugLog("No space in Tumor::m_eventAdapters for new Tendril");
             return nullptr;
         }
@@ -210,27 +210,27 @@ Battlenet::Tumor::EventAdapter* Battlenet::Tumor::AllocEventAdapter(BSN::FourCC 
 // VERIFY: a2168cb9 manual
 // OFFSET: 0x009C12F0
 void Battlenet::Tumor::RemoveTendril(const uint32_t& tendrilId) {
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_ADAPTERS; i++) {
         if (this->m_eventAdapters[i] && this->m_eventAdapters[i]->m_tendrilId == tendrilId) {
             Battlenet::Delete(this->m_eventAdapters[i]);
             this->m_eventAdapters[i] = nullptr;
         }
     }
 
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_ADAPTERS; i++) {
         if (this->m_adapters[i] && this->m_adapters[i]->m_tendrilId == tendrilId) {
             Battlenet::Delete(this->m_adapters[i]);
             this->m_adapters[i] = nullptr;
         }
     }
 
-    for (int32_t i = 0; i < 20; i++) {
+    for (int32_t i = 0; i < NUM_EVENT_BINDINGS; i++) {
         if (this->m_eventBindings[i].m_active && this->m_eventBindings[i].m_tendrilId == tendrilId) {
             this->m_eventBindings[i].m_active = false;
         }
     }
 
-    for (int32_t i = 0; i < 64; i++) {
+    for (int32_t i = 0; i < NUM_CONNECTION_BINDINGS; i++) {
         if (this->m_connectionBindings[i].m_active && this->m_connectionBindings[i].m_tendrilId == tendrilId) {
             this->m_connectionBindings[i].m_active = false;
         }
@@ -337,7 +337,7 @@ bool Battlenet::Tumor::RecvDatagram(uint32_t connection, void* data, uint32_t si
 // OFFSET: 0x009C1650
 void Battlenet::Tumor::SendEvent(const Event::Header& header, const BSN::EncodedObject* data) {
     if (header.m_target.m_type == Event::Header::Target::TYPE_EVENT_ID) {
-        for (int32_t i = 0; i < 20; i++) {
+        for (int32_t i = 0; i < NUM_EVENT_BINDINGS; i++) {
             if (this->m_eventBindings[i].m_active && this->m_eventBindings[i].m_eventId.m_value == header.m_target.m_value) {
                 this->m_eventBindings[i].m_subscriber->RecvEvent(header, data);
             }

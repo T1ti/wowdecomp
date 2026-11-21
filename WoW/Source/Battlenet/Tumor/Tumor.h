@@ -8,6 +8,11 @@
 namespace Battlenet {
 class Tumor : public SystemClient {
     public:
+    static const uint32_t NUM_ADAPTERS = 20;
+    static const uint32_t NUM_EVENT_BINDINGS = 20;
+    static const uint32_t NUM_CONNECTION_BINDINGS = 64;
+    static const uint32_t NUM_TOKEN_BINDINGS = 64;
+
     class Adapter : public SystemServer, public SystemClient {
         public:
         /* 0008 */ uint32_t m_tendrilId;
@@ -76,13 +81,13 @@ class Tumor : public SystemClient {
         /* 000C */ bool m_active;
     };
 
-    /* 0004 */ Adapter* m_adapters[20];
-    /* 0054 */ EventAdapter* m_eventAdapters[20];
+    /* 0004 */ Adapter* m_adapters[NUM_ADAPTERS];
+    /* 0054 */ EventAdapter* m_eventAdapters[NUM_ADAPTERS];
     /* 00A4 */ uint32_t m_nextTendrilId;
     /* 00A8 */ Application* m_application;
-    /* 00AC */ EventBinding m_eventBindings[20];
-    /* 01EC */ ConnectionBinding m_connectionBindings[64];
-    /* 05EC */ TokenBinding m_tokenBindings[64];
+    /* 00AC */ EventBinding m_eventBindings[NUM_EVENT_BINDINGS];
+    /* 01EC */ ConnectionBinding m_connectionBindings[NUM_CONNECTION_BINDINGS];
+    /* 05EC */ TokenBinding m_tokenBindings[NUM_TOKEN_BINDINGS];
 
     void Resolved(uint32_t request, const Client::DNSInfo& info) override;
     void Connected(uint32_t connection, const IP4::AddressPort& address) override;
