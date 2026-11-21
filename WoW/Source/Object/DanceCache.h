@@ -23,6 +23,8 @@ struct DANCEMOVE {
 class DanceCache {
     public:
     static const uint32_t s_cacheVersion = 1;
+    // A response ID with this bit set denies the low-bit ID (name inferred from ReceiveDance).
+    static const uint32_t ID_DENIED_FLAG = 0x80000000;
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ uint32_t unknown_0004;

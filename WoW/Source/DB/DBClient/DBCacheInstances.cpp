@@ -373,8 +373,8 @@ static int32_t ReceiveDance(void* param, NETMESSAGE msgId, uint32_t time, CDataS
     DanceCache dance;
     dance.Unpack(msg);
 
-    if (dance.m_id & 0x80000000) {
-        g_danceCache.DenyItem(dance.m_id & 0x7FFFFFFF);
+    if (dance.m_id & DanceCache::ID_DENIED_FLAG) {
+        g_danceCache.DenyItem(dance.m_id & ~DanceCache::ID_DENIED_FLAG);
     } else {
         g_danceCache.AddItem(&dance, dance.m_id);
     }
