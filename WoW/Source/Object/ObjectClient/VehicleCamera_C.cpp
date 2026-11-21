@@ -199,7 +199,7 @@ BOOL CVehicleCamera_C::IsHierarchyChasingFacing() const {
                     return 1;
                 }
             } else {
-                if (seat->m_field33512213052 > 0.0001f) {
+                if (seat->m_cameraFacingChaseRate > 0.0001f) {
                     return 1;
                 }
 
@@ -603,7 +603,7 @@ void CVehicleCamera_C::UpdatePosition(CGUnit_C* target, uint32_t time, float pro
 
     uint32_t state = this->m_state;
 
-    if (this->m_seatRec && this->m_seatRec->m_field33512213051 > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
+    if (this->m_seatRec && this->m_seatRec->m_cameraPosChaseRate > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
         if (next) {
             end -= next->m_curWorldPos;
         } else {
@@ -614,7 +614,7 @@ void CVehicleCamera_C::UpdatePosition(CGUnit_C* target, uint32_t time, float pro
             this->m_endPosChaser.m_position = end;
             this->m_endPosChaser.m_velocity = C3Vector(0.0f, 0.0f, 0.0f);
         } else {
-            this->m_endPosChaser.ChaserImplementation(end, 20.0f / this->m_seatRec->m_field33512213051, elapsed);
+            this->m_endPosChaser.ChaserImplementation(end, 20.0f / this->m_seatRec->m_cameraPosChaseRate, elapsed);
             end = this->m_endPosChaser.m_position;
         }
 
@@ -708,12 +708,12 @@ void CVehicleCamera_C::UpdateFacing(CGUnit_C* target, uint32_t time, float progr
     float elapsed = static_cast<float>(time - this->m_lastUpdateTime) * 0.001f;
     uint32_t state = this->m_state;
 
-    if (this->m_seatRec && this->m_seatRec->m_field33512213052 > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
+    if (this->m_seatRec && this->m_seatRec->m_cameraFacingChaseRate > 0.0001f && (state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTER_DELAY || state == CVehicleCamera_C::CAMERA_STATE::STATE_ENTERING || state == CVehicleCamera_C::CAMERA_STATE::STATE_ATTACHED)) {
         if (this->m_flags & CAMERA_FLAGS::FLAG_RESET_END_CHASERS) {
             this->m_endFacingChaser.m_value = this->m_targetFacing;
             this->m_endFacingChaser.m_velocity = 0.0f;
         } else {
-            this->m_endFacingChaser.Chase(&this->m_targetFacing, 20.0f / this->m_seatRec->m_field33512213052, elapsed);
+            this->m_endFacingChaser.Chase(&this->m_targetFacing, 20.0f / this->m_seatRec->m_cameraFacingChaseRate, elapsed);
             this->m_targetFacing = this->m_endFacingChaser.m_value;
         }
     }
@@ -943,7 +943,7 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
             exiting = FALSE;
 
             if (this->m_seatRec) {
-                delay = this->m_seatRec->m_field33512213004;
+                delay = this->m_seatRec->m_enterPreDelay;
             }
 
             break;
@@ -957,7 +957,7 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
             exiting = TRUE;
 
             if (this->m_seatRec) {
-                delay = this->m_seatRec->m_field33512213017;
+                delay = this->m_seatRec->m_exitPreDelay;
             }
 
             break;
@@ -975,12 +975,12 @@ void CVehicleCamera_C::BeginTransition(uint32_t time) {
         this->m_motionDuration = static_cast<uint32_t>(500.0f);
         this->m_flags &= ~CAMERA_FLAGS::FLAG_MOTION_TIMING_SET;
     } else if (!exiting && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING)) {
-        delay = seat->m_field33512213044;
-        this->m_motionDuration = CMath::fint_(seat->m_field33512213045 * 1000.0f);
+        delay = seat->m_cameraEnterDelay;
+        this->m_motionDuration = CMath::fint_(seat->m_cameraEnterDuration * 1000.0f);
         this->m_flags |= CAMERA_FLAGS::FLAG_MOTION_TIMING_SET;
     } else if (exiting && (seat->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING)) {
-        delay = seat->m_field33512213046;
-        this->m_motionDuration = CMath::fint_(seat->m_field33512213047 * 1000.0f);
+        delay = seat->m_cameraExitDelay;
+        this->m_motionDuration = CMath::fint_(seat->m_cameraExitDuration * 1000.0f);
         this->m_flags |= CAMERA_FLAGS::FLAG_MOTION_TIMING_SET;
     } else {
         float duration = exiting ? seat->m_exitMaxDuration : seat->m_enterMaxDuration;

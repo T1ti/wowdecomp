@@ -335,7 +335,7 @@ void CVehiclePassenger_C::StartWaitingForVehicleTransitionAnim(WOWGUID guid, uin
     this->m_transitionAnimSeat = seat;
 
     if (seatRec->m_flags & (entering ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_TRANSITION_ANIM_ENTER_TIMER : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_TRANSITION_ANIM_EXIT_TIMER)) {
-        float duration = entering ? seatRec->m_field33512213037 : seatRec->m_field33512213038;
+        float duration = entering ? seatRec->m_enterTransitionAnimTimeout : seatRec->m_exitTransitionAnimTimeout;
         uint32_t timeout = static_cast<uint32_t>(duration * 1000.0f);
 
         if (timeout > 3000) {
@@ -1280,10 +1280,10 @@ void CVehiclePassenger_C::ComputeModelTransform(C44Matrix& matrix, CM2Model*& mo
     }
 
     BOOL hasAttachment = model->HasAttachment(attachment);
-    matrix.RotateAroundZ(facing - seat->m_field33512213027);
+    matrix.RotateAroundZ(facing - seat->m_passengerYaw);
 
-    if (0.0f != seat->m_field33512213029) {
-        matrix.RotateAroundX(seat->m_field33512213029);
+    if (0.0f != seat->m_passengerRoll) {
+        matrix.RotateAroundX(seat->m_passengerRoll);
     }
 
     if (0.0f != seat->m_passengerPitch) {
@@ -1439,7 +1439,7 @@ void CVehiclePassenger_C::SignalTransitionUIEvents(WOWGUID guid, const VehicleRe
         const char* sound = "";
         SoundEntriesRec* soundRec;
 
-        if (seatRec && (soundRec = g_soundEntriesDB.GetRecord(seatRec->m_field33512213041)) != nullptr) {
+        if (seatRec && (soundRec = g_soundEntriesDB.GetRecord(seatRec->m_exitUisoundID)) != nullptr) {
             sound = soundRec->m_name;
         }
 
@@ -1494,14 +1494,14 @@ void CVehiclePassenger_C::BeginTransition(WOWGUID vehicleGuid, uint8_t seat, uin
     if (instant && seatRec) {
         if (!entering) {
             if (this->m_unit->ShouldUseVehicleSeatExitAnimation(seatRec) && seatRec->m_exitSpeed > 0.0001f) {
-                state = seatRec->m_field33512213017 <= 0.0001f ? TRANSITION_STATE::STATE_EXITING : TRANSITION_STATE::STATE_EXIT_DELAY;
+                state = seatRec->m_exitPreDelay <= 0.0001f ? TRANSITION_STATE::STATE_EXITING : TRANSITION_STATE::STATE_EXIT_DELAY;
             }
 
             lookup = this->m_vehicleGuid;
         } else if (!(seatRec->m_flags & VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER) || seatRec->m_enterSpeed <= 0.0001f) {
             lookup = vehicleGuid;
         } else {
-            state = seatRec->m_field33512213004 <= 0.0001f ? TRANSITION_STATE::STATE_ENTERING : TRANSITION_STATE::STATE_ENTER_DELAY;
+            state = seatRec->m_enterPreDelay <= 0.0001f ? TRANSITION_STATE::STATE_ENTERING : TRANSITION_STATE::STATE_ENTER_DELAY;
             lookup = vehicleGuid;
         }
     } else {
@@ -1690,13 +1690,13 @@ void CVehiclePassenger_C::ComputeEndValues(CGUnit_C* vehicle, VehicleSeatRec* se
 
     switch (state) {
         case TRANSITION_STATE::STATE_ENTER_DELAY: {
-            float duration = seatRec->m_field33512213004 < 10.0f ? seatRec->m_field33512213004 : 10.0f;
+            float duration = seatRec->m_enterPreDelay < 10.0f ? seatRec->m_enterPreDelay : 10.0f;
             this->m_endTime = this->m_startTime - static_cast<int32_t>(duration * -1000.0f);
             return;
         }
 
         case TRANSITION_STATE::STATE_EXIT_DELAY: {
-            float duration = seatRec->m_field33512213017 < 10.0f ? seatRec->m_field33512213017 : 10.0f;
+            float duration = seatRec->m_exitPreDelay < 10.0f ? seatRec->m_exitPreDelay : 10.0f;
             this->m_endTime = this->m_startTime - static_cast<int32_t>(duration * -1000.0f);
             return;
         }

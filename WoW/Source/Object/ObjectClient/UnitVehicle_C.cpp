@@ -617,11 +617,11 @@ void CGUnit_C::VehiclePassengerUpdateWorldCameraState(VehicleRec* vehicleRec, Ve
             int32_t hasMax = flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_HAS_ZOOM_MAX;
             uint32_t wasRestore = restoreZoom;
             restoreZoom = 0;
-            float minDistance = hasMin ? seatRec->m_field33512213054 : camera->GetDefaultZoomMinDistance();
-            float maxDistance = hasMax ? seatRec->m_field33512213055 : CGCamera::GetDefaultZoomMaxDistance();
+            float minDistance = hasMin ? seatRec->m_cameraSeatZoomMin : camera->GetDefaultZoomMinDistance();
+            float maxDistance = hasMax ? seatRec->m_cameraSeatZoomMax : CGCamera::GetDefaultZoomMaxDistance();
 
             if (seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_HAS_ENTER_ZOOM) {
-                float preferred = seatRec->m_field33512213053;
+                float preferred = seatRec->m_cameraEnteringZoom;
 
                 if (preferred > current && !(seatRec->m_flagsB & VEHICLE_SEAT_FLAGS_B::VEHICLE_SEAT_FLAG_B_CAMERA_SKIP_ZOOM_OUT)) {
                     target = preferred;

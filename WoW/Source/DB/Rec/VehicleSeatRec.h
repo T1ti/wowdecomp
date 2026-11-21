@@ -99,7 +99,7 @@ class VehicleSeatRec {
     /* 0004 */ int32_t m_flags; // VEHICLE_SEAT_FLAGS
     /* 0008 */ int32_t m_attachmentID;
     /* 000C */ float m_attachmentOffset [3];
-    /* 0018 */ float m_field33512213004;
+    /* 0018 */ float m_enterPreDelay; // STATE_ENTER_DELAY length (name inferred)
     /* 001C */ float m_enterSpeed;
     /* 0020 */ float m_enterGravity;
     /* 0024 */ float m_enterMinDuration;
@@ -112,7 +112,7 @@ class VehicleSeatRec {
     /* 0040 */ int32_t m_rideAnimLoop;
     /* 0044 */ int32_t m_rideUpperAnimStart;
     /* 0048 */ int32_t m_rideUpperAnimLoop;
-    /* 004C */ float m_field33512213017;
+    /* 004C */ float m_exitPreDelay; // STATE_EXIT_DELAY length (name inferred)
     /* 0050 */ float m_exitSpeed;
     /* 0054 */ float m_exitGravity;
     /* 0058 */ float m_exitMinDuration;
@@ -122,9 +122,9 @@ class VehicleSeatRec {
     /* 0068 */ int32_t m_exitAnimStart;
     /* 006C */ int32_t m_exitAnimLoop;
     /* 0070 */ int32_t m_exitAnimEnd;
-    /* 0074 */ float m_field33512213027;
+    /* 0074 */ float m_passengerYaw; // subtracted from the facing before RotateAroundZ (name inferred)
     /* 0078 */ float m_passengerPitch;
-    /* 007C */ float m_field33512213029;
+    /* 007C */ float m_passengerRoll; // RotateAroundX (name inferred)
     /* 0080 */ int32_t m_passengerAttachmentID;
     /* 0084 */ int32_t m_vehicleEnterAnim;
     /* 0088 */ int32_t m_vehicleExitAnim;
@@ -132,25 +132,25 @@ class VehicleSeatRec {
     /* 0090 */ int32_t m_field33512213034;
     /* 0094 */ int32_t m_vehicleExitAnimBone;
     /* 0098 */ int32_t m_vehicleEnterAnimBone;
-    /* 009C */ float m_field33512213037;
-    /* 00A0 */ float m_field33512213038;
+    /* 009C */ float m_enterTransitionAnimTimeout; // seconds, with VEHICLE_SEAT_FLAG_TRANSITION_ANIM_ENTER_TIMER (name inferred)
+    /* 00A0 */ float m_exitTransitionAnimTimeout; // seconds, with VEHICLE_SEAT_FLAG_TRANSITION_ANIM_EXIT_TIMER (name inferred)
     /* 00A4 */ int32_t m_vehicleAbilityDisplay;
     /* 00A8 */ int32_t m_enterUisoundID;
-    /* 00AC */ int32_t m_field33512213041;
+    /* 00AC */ int32_t m_exitUisoundID; // sound passed with UNIT_EXITED_VEHICLE (name inferred)
     /* 00B0 */ int32_t m_uiSkin;
     /* 00B4 */ int32_t m_flagsB; // VEHICLE_SEAT_FLAGS_B
-    /* 00B8 */ float m_field33512213044;
-    /* 00BC */ float m_field33512213045;
-    /* 00C0 */ float m_field33512213046;
-    /* 00C4 */ float m_field33512213047;
+    /* 00B8 */ float m_cameraEnterDelay; // with VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING (name inferred)
+    /* 00BC */ float m_cameraEnterDuration; // with VEHICLE_SEAT_FLAG_B_CAMERA_ENTER_TIMING (name inferred)
+    /* 00C0 */ float m_cameraExitDelay; // with VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING (name inferred)
+    /* 00C4 */ float m_cameraExitDuration; // with VEHICLE_SEAT_FLAG_B_CAMERA_EXIT_TIMING (name inferred)
     /* 00C8 */ float m_field33512213048;
     /* 00CC */ float m_field33512213049;
     /* 00D0 */ float m_field33512213050;
-    /* 00D4 */ float m_field33512213051;
-    /* 00D8 */ float m_field33512213052;
-    /* 00DC */ float m_field33512213053;
-    /* 00E0 */ float m_field33512213054;
-    /* 00E4 */ float m_field33512213055;
+    /* 00D4 */ float m_cameraPosChaseRate; // position chaser time is 20 / rate (name inferred)
+    /* 00D8 */ float m_cameraFacingChaseRate; // facing chaser time is 20 / rate (name inferred)
+    /* 00DC */ float m_cameraEnteringZoom; // with VEHICLE_SEAT_FLAG_B_CAMERA_HAS_ENTER_ZOOM (name inferred)
+    /* 00E0 */ float m_cameraSeatZoomMin; // with VEHICLE_SEAT_FLAG_B_CAMERA_HAS_ZOOM_MIN (name inferred)
+    /* 00E4 */ float m_cameraSeatZoomMax; // with VEHICLE_SEAT_FLAG_B_CAMERA_HAS_ZOOM_MAX (name inferred)
 
     VehicleSeatRec();
     ~VehicleSeatRec();
