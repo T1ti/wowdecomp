@@ -1129,12 +1129,12 @@ static bool OpenArchiveWithRetry(const char* name, int32_t priority, uint32_t sl
         s_archiveHandles[slot] = nullptr;
 
         switch (SErrGetLastError()) {
-            case 5:
-            case 38:
-            case 108:
-            case 131:
-            case 0x8510006C:
-            case 0x85100083:
+            case ERROR_ACCESS_DENIED:
+            case ERROR_HANDLE_EOF:
+            case ERROR_DRIVE_LOCKED:
+            case ERROR_NEGATIVE_SEEK:
+            case STORM_ERROR_NOT_ARCHIVE:
+            case STORM_ERROR_FILE_CORRUPTED:
                 return false;
         }
     }
