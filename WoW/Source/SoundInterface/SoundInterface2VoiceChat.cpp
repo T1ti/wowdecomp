@@ -387,7 +387,7 @@ void SI2::VoiceChat_PlayLoopbackSound() {
 
     s_loopbackSound.m_sound.SetUserData(userData);
     s_loopbackSound.m_sound.SetFinishedCallback(SI2::SoundFinished, nullptr);
-    s_loopbackSound.m_sound.SetChannelGroup(SI2::s_channelGroupNames[userData->m_group], userData->m_group != 3);
+    s_loopbackSound.m_sound.SetChannelGroup(SI2::s_channelGroupNames[userData->m_group], userData->m_group != SI2_SOUND_GROUP_CINEMATIC);
     SE2::AttachMonitorDSP(&s_loopbackSound.m_sound);
     s_loopbackSound.m_sound.Play();
 }
