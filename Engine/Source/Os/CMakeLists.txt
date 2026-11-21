@@ -20,3 +20,8 @@ if(WIN32)
             version
     )
 endif()
+
+if(WIN32 AND WOWDECOMP_TOOL_FEATURES)
+    # Tool features: the OsGui toolkit (Os/GuiToolkit.inl) uses image lists, InitCommonControlsEx and _TrackMouseEvent.
+    target_link_libraries(Os PUBLIC comctl32)
+endif()

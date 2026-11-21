@@ -168,7 +168,7 @@ class COsControl {
     int32_t SendEvent(int32_t event, int32_t code);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     COsControl(COsDialog* dialog, int32_t type, int16_t id, uint32_t flags); // 0.5.3 00454C70
     COsControl(void* window, int32_t type, int16_t id, uint32_t flags); // 0.5.3 00454CE0
     void Initialize(void*, int32_t, int16_t, uint32_t); // 0.5.3 00454D20
@@ -206,7 +206,7 @@ class COsEditBox : public COsControl {
     BOOL IsCharacterAllowed(char c);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     void Initialize(); // 0.5.3 00455D90
     COsEditBox(COsDialog*, int16_t, uint32_t); // 0.5.3 00455D00
     COsEditBox(void*, int16_t, uint32_t); // 0.5.3 00455D60
@@ -244,7 +244,7 @@ class COsTreeView : public COsControl {
     BOOL IsCharacterAllowed(char c);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     void CreateDragImage(void*); // 0.5.3 00457DC0
     void DestroyDragImage(); // 0.5.3 00457DF0
     void* FindItemUnderCursor(); // 0.5.3 004579E0
@@ -318,7 +318,7 @@ class COsTabControl : public COsControl {
     int32_t OnControlTab();
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     int32_t GetValue() override; // 0.5.3 00458D80
     void InsertItem(const char*, int32_t); // 0.5.3 00458DA0
     void SetValue(int32_t) override; // 0.5.3 00458D60
@@ -354,7 +354,7 @@ class COsDialog {
     int32_t ProcessMessage(void* message);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     void ApplyModality(int32_t); // 0.5.3 00453D80
     int32_t FindControl(COsControl*); // 0.5.3 00454130
     void AddControl(COsControl*); // 0.5.3 00454090
@@ -401,7 +401,7 @@ class COsMenuBar {
     /* 0018 */ void* m_accelerators;
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (stub bodies in Os/GuiToolkit.cpp).
+    // Tool features: the rest of the 0.5.3 OsGui.cpp interface (ported in Os/GuiToolkit.inl).
     COsMenuBar(void*); // 0.5.3 00452A90
     void Refresh(); // 0.5.3 00453180
     void Set(TSGrowableArray<COsMenu*>&); // 0.5.3 00452D10
@@ -423,7 +423,7 @@ void OsGuiSetWindowTitle(OsGuiHandle window, const char* title);
 // Tool features: the OsGui Win32 control toolkit of the 0.5.3 ENGINE\Source\Os\W32\OsGui.cpp. The 3.3.5
 // release build keeps COsControl, COsDialog, COsEditBox, COsTreeView, COsTabControl and COsMenuBar (above) and
 // a few of their methods; everything below was compiled out. Layouts are the 0.5.3 ones (32-bit offsets);
-// method bodies are stubs in Os/GuiToolkit.cpp, each naming its 0.5.3 address.
+// method bodies are ported in Os/GuiToolkit.inl, each naming its 0.5.3 address.
 
 class COsMenu {
     public:
@@ -469,7 +469,7 @@ class COsSharedMemory {
     public:
     /* 0000 */ void* m_data;
     /* 0004 */ uint32_t m_size;
-    /* 0008 */ uint8_t m_opaqueData[4];
+    /* 0008 */ void* m_opaqueData; // the mapping HANDLE (0.5.3: uint8_t[4], widened for Win64)
 
     COsSharedMemory(); // 0.5.3 0045B780
     bool ChangeAccess(int32_t); // 0.5.3 0045B860

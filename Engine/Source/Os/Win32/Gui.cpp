@@ -415,4 +415,9 @@ int32_t OsGuiProcessMessage(void* message) {
     return handled;
 }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+// Tool features: the rest of the 0.5.3 OsGui.cpp, sharing this file's statics.
+#include "Engine/Source/Os/GuiToolkit.inl"
+#endif
+
 #endif
