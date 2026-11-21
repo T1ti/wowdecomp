@@ -42,12 +42,17 @@ class CSimpleAnim : public CScriptObject {
     static void DestroyScriptMetaTable();
     static void RegisterScriptMethods(lua_State* L);
 
+    // Same XML load marker bit as CSimpleAnimGroup: set by LoadXML, toggled off by PostLoadXML.
+    enum ANIM_FLAGS : uint8_t {
+        FLAG_XML_LOAD_MARKER = 1,
+    };
+
     /* 0020 */ TSLink<CSimpleAnim> m_link;
     /* 0028 */ CSimpleAnimGroup* m_group;
     /* 002C */ uint8_t unused_002C;
     /* 002D */ uint8_t unused_002D[3];
     /* 0030 */ int8_t m_order;
-    /* 0031 */ uint8_t m_flags;
+    /* 0031 */ uint8_t m_flags; // ANIM_FLAGS
     /* 0032 */ uint8_t unused_0032[2];
     /* 0034 */ uint8_t m_playState;
     /* 0035 */ int8_t m_loopState;

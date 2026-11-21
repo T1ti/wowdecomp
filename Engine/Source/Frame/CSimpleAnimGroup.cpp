@@ -59,7 +59,7 @@ void CSimpleAnimGroup::LoadXML_Anim(XMLNode* node, CStatus* status, CSimpleAnim*
         return;
     }
 
-    anim->m_flags |= 1;
+    anim->m_flags |= CSimpleAnim::ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
 
     const char* name = node->GetAttributeByName("name");
 

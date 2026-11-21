@@ -217,7 +217,7 @@ void CSimpleAnim::LoadXML_Scripts(XMLNode* node, CStatus* status) {
 // VERIFY: eb02a39f manual
 // OFFSET: 0x00497E40
 void CSimpleAnim::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags ^= 1;
+    this->m_flags ^= ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
 
     if (this->m_onLoad.m_luaRef) {
         this->RunScript(this->m_onLoad, 0, nullptr);
@@ -536,7 +536,7 @@ void CSimpleAnim::SetOrder(int32_t order, bool notify, bool wrap) {
 // VERIFY: e53e8fe4 manual
 // OFFSET: 0x0049B810
 void CSimpleAnim::LoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= 1;
+    this->m_flags |= ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
 
     const char* inherits = node->GetAttributeByName("inherits");
 
