@@ -69,7 +69,7 @@ static uint32_t STORMAPI OsUrlDownloadCallback(void* param) {
 static void CALLBACK fnInternetCallback(HINTERNET internet, DWORD_PTR context, DWORD internetStatus, LPVOID statusInformation, DWORD statusInformationLength) {
     OsUrlDownload* download = reinterpret_cast<OsUrlDownload*>(context);
 
-    if (!download->m_state) {
+    if (download->m_state == OsUrlDownload::STATE_CONNECTING) {
         if (internetStatus == INTERNET_STATUS_HANDLE_CREATED) {
             download->m_connect = reinterpret_cast<HINTERNET>(static_cast<INTERNET_ASYNC_RESULT*>(statusInformation)->dwResult);
             SetEvent(download->m_connectEvent);
@@ -121,10 +121,10 @@ static void CALLBACK fnInternetCallback(HINTERNET internet, DWORD_PTR context, D
             break;
 
         case INTERNET_STATUS_REQUEST_COMPLETE:
-            if (download->m_state == 2) {
+            if (download->m_state == OsUrlDownload::STATE_REQUEST_COMPLETE) {
                 SetEvent(download->m_completeEvent);
             } else {
-                download->m_state = 2;
+                download->m_state = OsUrlDownload::STATE_REQUEST_COMPLETE;
                 download->m_error = static_cast<INTERNET_ASYNC_RESULT*>(statusInformation)->dwError;
 
                 uint32_t threadId;
@@ -144,7 +144,7 @@ OsUrlDownload::OsUrlDownload() {
     this->m_requestEvent = nullptr;
     this->m_completeEvent = nullptr;
     this->m_dataEvent = nullptr;
-    this->m_state = 0;
+    this->m_state = OsUrlDownload::STATE_CONNECTING;
     this->m_done = false;
     this->m_statusCode = 0;
     this->m_callback = nullptr;
@@ -184,7 +184,7 @@ bool OsUrlDownload::DownloadString(const char* url, OsURLDownloadCallback callba
     download->m_internet = InternetOpenA("Blizzard Web Client", INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, INTERNET_FLAG_ASYNC);
 
     if (download->m_internet && InternetSetStatusCallback(download->m_internet, fnInternetCallback) != INTERNET_INVALID_STATUS_CALLBACK) {
-        download->m_state = 0;
+        download->m_state = OsUrlDownload::STATE_CONNECTING;
         download->m_connect = InternetConnectA(download->m_internet, hostName, port, nullptr, nullptr, INTERNET_SERVICE_HTTP, 0, reinterpret_cast<DWORD_PTR>(download));
 
         if (download->m_connect || GetLastError() == ERROR_IO_PENDING) {
@@ -197,7 +197,7 @@ bool OsUrlDownload::DownloadString(const char* url, OsURLDownloadCallback callba
                 InternetSetOptionA(download->m_connect, INTERNET_OPTION_RECEIVE_TIMEOUT, &timeout, sizeof(timeout));
             }
 
-            download->m_state = 1;
+            download->m_state = OsUrlDownload::STATE_REQUESTING;
             download->m_request = HttpOpenRequestA(download->m_connect, "GET", urlPath, nullptr, nullptr, nullptr, INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_NO_UI, reinterpret_cast<DWORD_PTR>(download));
 
             if (download->m_request || GetLastError() == ERROR_IO_PENDING) {

@@ -53,6 +53,15 @@ class DownloadCallback {
 
 class HttpRequest {
     public:
+    // m_state; named from the WinINet call made when each value is set
+    // (inferred). The status callback only tracks handle creation while
+    // CONNECTING.
+    enum STATE : int32_t {
+        STATE_CONNECTING = 0, // InternetConnectA
+        STATE_REQUESTING = 1, // HttpOpenRequestA
+        STATE_REQUEST_COMPLETE = 2, // INTERNET_STATUS_REQUEST_COMPLETE
+    };
+
     /* 0000 */ void* m_session;
     /* 0004 */ void* m_connect;
     /* 0008 */ void* m_request;
@@ -60,7 +69,7 @@ class HttpRequest {
     /* 0010 */ void* m_requestEvent;
     /* 0014 */ void* m_completeEvent;
     /* 0018 */ void* m_dataEvent;
-    /* 001C */ int32_t m_state;
+    /* 001C */ int32_t m_state; // STATE
     /* 0020 */ bool m_done;
     /* 0021 */ bool m_connected;
     /* 0024 */ uint32_t m_error;
