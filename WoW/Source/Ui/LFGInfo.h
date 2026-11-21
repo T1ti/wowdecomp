@@ -191,6 +191,7 @@ class CGLookingForGroup {
     enum SLOT_PACKING : int32_t {
         SLOT_DUNGEON_ID_MASK = 0x00FFFFFF,
         SLOT_TYPE_SHIFT = 24,
+        SLOT_TYPE_MASK = static_cast<int32_t>(0xFF000000),
     };
 
     enum SORT_COLUMN : int32_t {

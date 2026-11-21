@@ -1501,7 +1501,7 @@ bool CGLookingForGroup::IsSlotValidForAll(uint32_t slot) {
         }
     }
 
-    if ((slot & 0xFF000000) != 0x2000000 && CGLookingForGroup::m_partyLockInfo.m_valid) {
+    if ((slot & CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_MASK) != (CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT) && CGLookingForGroup::m_partyLockInfo.m_valid) {
         for (LFGLockInfo* member = CGLookingForGroup::m_partyLockInfo.m_members.Head(); member; member = CGLookingForGroup::m_partyLockInfo.m_members.Next(member)) {
             for (LFGDungeonEntry* entry = member->m_dungeons.Head(); entry; entry = member->m_dungeons.Next(entry)) {
                 if (entry->m_slot == slot) {
