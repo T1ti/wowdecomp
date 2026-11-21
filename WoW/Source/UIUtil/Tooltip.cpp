@@ -7267,10 +7267,10 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
 
     CGItem_C* item = nullptr;
 
-    if ((slots & 0x8000) || (slots & 0x10000)) {
+    if ((slots & INVSLOT_MASK_MAINHAND) || (slots & INVSLOT_MASK_OFFHAND)) {
         CGItem_C* mainHand = nullptr;
 
-        if (((slots & 0x8000) && (slots & 0x10000)) || stats->m_inventoryType == INVTYPE_2HWEAPON) {
+        if (((slots & INVSLOT_MASK_MAINHAND) && (slots & INVSLOT_MASK_OFFHAND)) || stats->m_inventoryType == INVTYPE_2HWEAPON) {
             mainHand = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
             CGItem_C* offHand = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
 
@@ -7286,9 +7286,9 @@ int32_t SetCompareItem(CGTooltip* tooltip, uint32_t itemId, int32_t offset, int3
                 return 0;
             }
 
-            if (slots & 0x8000) {
+            if (slots & INVSLOT_MASK_MAINHAND) {
                 item = player->m_bag.GetItemPointer(INVSLOT_MAINHAND);
-            } else if (!(slots & 0x10000)) {
+            } else if (!(slots & INVSLOT_MASK_OFFHAND)) {
                 return 0;
             } else {
                 item = player->m_bag.GetItemPointer(INVSLOT_OFFHAND);
