@@ -21380,6 +21380,11 @@ void CGUnit_C::PostShutdown() {
     CGUnit_C::ShutdownMissileTrajectorySystem();
 }
 
+// Squared camera distances past which a footstep leaves no footprint (50 yards) or no
+// liquid/terrain particles (25 yards). Names inferred.
+static const float FOOTPRINT_MAX_DIST_SQ = 2500.0f;
+static const float FOOTSTEP_PARTICLE_MAX_DIST_SQ = 625.0f;
+
 // VERIFY: dc577adb manual
 // OFFSET: 0x00723A50
 void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
@@ -21397,7 +21402,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
     float dz = position->z - cameraPos.z;
     float distanceSquared = dx * dx + (dy * dy + dz * dz);
 
-    if (distanceSquared > 2500.0f) {
+    if (distanceSquared > FOOTPRINT_MAX_DIST_SQ) {
         return;
     }
 
@@ -21416,7 +21421,7 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         CGWorldFrame::GetActiveCamera()->AddShakeById(this->m_modelData->m_footstepShakeSize, position);
     }
 
-    if (distanceSquared > 625.0f || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_PARTICLES) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
+    if (distanceSquared > FOOTSTEP_PARTICLE_MAX_DIST_SQ || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_PARTICLES) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
         return;
     }
 
