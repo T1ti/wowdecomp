@@ -15,6 +15,18 @@ class CGxTex;
 class CRenderBatch;
 struct lua_State;
 
+// CSimpleMovieFrame::m_layout, an index into the frame and texture tables;
+// named from the video size OpenVideo maps to each value.
+enum MOVIE_LAYOUT : uint32_t {
+    MOVIE_LAYOUT_800 = 0, // 800 wide, other heights
+    MOVIE_LAYOUT_1024 = 1, // 1024 wide, other heights
+    MOVIE_LAYOUT_800X448 = 2,
+    MOVIE_LAYOUT_1024X576 = 3,
+    MOVIE_LAYOUT_800X342 = 4, // also 800x340
+    MOVIE_LAYOUT_1024X436 = 5,
+    NUM_MOVIE_LAYOUTS = 6,
+};
+
 struct MOVIECAPTION {
     /* 0000 */ uint32_t m_startTime;
     /* 0004 */ uint32_t m_endTime;
@@ -77,7 +89,7 @@ class CSimpleMovieFrame : public CSimpleFrame {
     /* 03D0 */ float m_fps;
     /* 03D4 */ C2iVector m_size; // Decoded frame width/height in pixels, from the AVI video format.
     /* 03DC */ int32_t m_frameCount;
-    /* 03E0 */ uint32_t m_layout;
+    /* 03E0 */ uint32_t m_layout; // MOVIE_LAYOUT
     /* 03E4 */ CGxTex* m_textures[6];
     /* 03FC */ MOVIETEXTUREDATA m_textureData[6];
     /* 042C */ uint8_t* m_frameBuffer;
