@@ -10,6 +10,18 @@ class CTexture;
 class CTextureBlob;
 
 struct SBlobTexture {
+    // m_format low nibble; named from the PIXEL_DXT* format CreateTexture picks for each.
+    enum ENCODING : uint8_t {
+        ENCODING_DXT1 = 0,
+        ENCODING_DXT3 = 1,
+        ENCODING_DXT5 = 2,
+        ENCODING_MASK = 0xF,
+    };
+
+    // m_levels high bit (so the field reads negative): HashTexture found the name already
+    // hashed by another blob; RemoveTextures skips the hash delete and clears it (inferred).
+    static constexpr uint8_t LEVELS_DUPLICATE_NAME = 0x80;
+
     /* 0000 */ uint32_t m_nameOffset;
     /* 0004 */ uint32_t m_dataOffset;
     /* 0008 */ uint8_t m_width;
