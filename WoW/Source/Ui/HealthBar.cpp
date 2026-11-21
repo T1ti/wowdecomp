@@ -51,9 +51,7 @@ CGSimpleHealthBar::~CGSimpleHealthBar() {
 // VERIFY: 17ea5cc9 auto
 // OFFSET: 0x009900A0
 void CGSimpleHealthBar::SetStatusBarColor(const CImVector& color) {
-    if (this->m_barTexture) {
-        this->m_barTexture->SetVertexColor(color);
-    }
+    this->CSimpleStatusBar::SetStatusBarColor(color);
 
     this->m_autoColor = 0;
 }
