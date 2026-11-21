@@ -8017,7 +8017,7 @@ void CGTooltip::SetObject(const WOWGUID& guid) {
 
             bool header = false;
 
-            if (CGQuestLog::GetQuestLeaderBoardForObject(quest->m_id, object->m_obj->m_entryID | 0x80000000, &params)) {
+            if (CGQuestLog::GetQuestLeaderBoardForObject(quest->m_id, object->m_obj->m_entryID | QUEST_OBJECTIVE_GAMEOBJECT, &params)) {
                 this->AddLine(quest->m_name, nullptr, titleColor, titleColor, 0);
                 SStrPrintf(buffer, sizeof(buffer), " - %s", objective);
                 this->AddLine(buffer, nullptr, textColor, textColor, 0);

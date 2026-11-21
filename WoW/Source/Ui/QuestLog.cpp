@@ -1430,7 +1430,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
                 SStrPrintf(buffer, sizeof(buffer), format, creature ? creature->GetName(plural) : " ", required);
             }
         } else {
-            GameObjectStats_C* object = g_gameObjectDBCache.GetRecord(objective & 0x7FFFFFFF, none, params->m_objectCallback, params->m_param, false);
+            GameObjectStats_C* object = g_gameObjectDBCache.GetRecord(objective & QUEST_OBJECTIVE_ID_MASK, none, params->m_objectCallback, params->m_param, false);
             uint32_t plural = FrameScript_GetPluralIndex(required);
 
             if (showProgress) {
@@ -1742,7 +1742,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardForObject(int32_t questId, int32_t object
         format = FrameScript_GetText("QUEST_MONSTERS_KILLED", -1, GENDER_NOT_APPLICABLE);
         SStrPrintf(buffer, sizeof(buffer), format, creature ? creature->GetName(plural) : " ", count, quest->m_objectiveRequiredCount[i]);
     } else if (objective < 0 && !*format) {
-        GameObjectStats_C* object = g_gameObjectDBCache.GetRecord(objective & 0x7FFFFFFF, none, params->m_objectCallback, params->m_param, false);
+        GameObjectStats_C* object = g_gameObjectDBCache.GetRecord(objective & QUEST_OBJECTIVE_ID_MASK, none, params->m_objectCallback, params->m_param, false);
         uint32_t plural = FrameScript_GetPluralIndex(quest->m_objectiveRequiredCount[i]);
         format = FrameScript_GetText("QUEST_OBJECTS_FOUND", -1, GENDER_NOT_APPLICABLE);
         SStrPrintf(buffer, sizeof(buffer), format, object ? object->GetName(plural) : " ", count, quest->m_objectiveRequiredCount[i]);

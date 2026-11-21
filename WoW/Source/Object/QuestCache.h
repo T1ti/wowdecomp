@@ -31,6 +31,10 @@ enum QUEST_TEMPLATE_FLAGS : uint32_t {
 static const uint32_t QUEST_REWARD_ITEMS = 4;
 static const uint32_t QUEST_REWARD_CHOICE_ITEMS = 6;
 static const uint32_t QUEST_OBJECTIVES = 4;
+// m_objectiveId high bit marks a game object entry (QUEST_OBJECTS_FOUND text) instead of a
+// creature (QUEST_MONSTERS_KILLED); the low bits hold the entry ID.
+static const uint32_t QUEST_OBJECTIVE_GAMEOBJECT = 0x80000000;
+static const uint32_t QUEST_OBJECTIVE_ID_MASK = 0x7FFFFFFF;
 static const uint32_t QUEST_COLLECT_ITEMS = 6;
 static const uint32_t QUEST_INTERMEDIATE_ITEMS = 4;
 static const uint32_t QUEST_REPUTATION_REWARDS = 5;
