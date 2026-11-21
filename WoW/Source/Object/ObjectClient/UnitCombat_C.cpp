@@ -55,7 +55,7 @@ int32_t CGUnit_C::GetUnitSize() const {
 
 // VERIFY: b8716225 manual
 // OFFSET: 0x00755270
-void CGUnit_C::HandleEnvironmentDamage(uint32_t type, int32_t damage, int32_t absorbed, int32_t resisted) {
+void CGUnit_C::HandleEnvironmentDamage(ENVIRONMENTAL_DAMAGE_TYPE type, int32_t damage, int32_t absorbed, int32_t resisted) {
     if (damage || absorbed || resisted) {
         WOWGUID guid = this->m_obj->m_guid;
         UnitCombatLog(guid, type, damage, absorbed, resisted);
@@ -858,7 +858,7 @@ int32_t Packet_Group_29(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ guid }, TYPE_UNIT, __FILE__, __LINE__));
 
             if (unit) {
-                unit->HandleEnvironmentDamage(type, damage, absorbed, resisted);
+                unit->HandleEnvironmentDamage(static_cast<ENVIRONMENTAL_DAMAGE_TYPE>(type), damage, absorbed, resisted);
             }
 
             return 1;

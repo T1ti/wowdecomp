@@ -2348,7 +2348,7 @@ void CGUnit_C::OnCollideFallLand(uint32_t oldFlags, int32_t jumping) {
             this->PlayUnitSound(UNITSOUNDTYPE_INJURY_FALL, 1);
         }
 
-        this->HandleEnvironmentDamage(2, 0, 0, 0);
+        this->HandleEnvironmentDamage(ENVIRONMENTAL_DAMAGE_FALLING, 0, 0, 0);
     }
 }
 
