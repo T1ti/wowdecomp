@@ -391,7 +391,7 @@ C44Matrix CWorldScene::viewMatrix;
 char* CWorldScene::s_interiorSkybox;
 
 // STATIC: 0x00CD8620
-int32_t CWorldScene::s_unk_CD8620;
+int32_t CWorldScene::s_interiorGroupRendered;
 
 // STATIC: 0x00CD87A4
 CMapObjDef* CWorldScene::s_viewerMapObjDef;
@@ -2790,7 +2790,7 @@ void CWorldScene::Update(C3Vector* camPos, C3Vector* camTarget) {
         CWorldScene::s_liquidRenderer->Validate();
     }
 
-    CWorldScene::s_unk_CD8620 = 0;
+    CWorldScene::s_interiorGroupRendered = 0;
     CWorldScene::s_interiorSkybox = 0;
     CWorldScene::s_worldPortalView = CPortalView();
     CWorldScene::frustumPortalView = CPortalView();

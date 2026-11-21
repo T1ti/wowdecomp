@@ -249,7 +249,8 @@ class CWorldScene {
     // m_maxViewDepth < 0 means none of it is (name inferred).
     static CPortalView s_worldPortalView;
     static char* s_interiorSkybox;
-    static int32_t s_unk_CD8620;
+    // Set by CMapObj::RenderInterior when a viewer group is not exterior-classified (name inferred).
+    static int32_t s_interiorGroupRendered;
     static float s_lodFarClip;
     static C3Vector camVec;
     static C44Matrix projMatrix;

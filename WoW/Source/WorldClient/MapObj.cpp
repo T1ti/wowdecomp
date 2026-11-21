@@ -1711,7 +1711,7 @@ void CMapObj::PrepareUpdate() {
 void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* groups) {
     this->SetupMapObjDefCull(mat, invMat, worldPos, camTarget);
     s_interiorPass = 1;
-    CWorldScene::s_unk_CD8620 = 0;
+    CWorldScene::s_interiorGroupRendered = 0;
 
     if (CWorldScene::s_curMapObjDef != s_stampedMapObjDef) {
         s_portalStamp++;
@@ -1734,7 +1734,7 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
         }
 
         if (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
-            CWorldScene::s_unk_CD8620 = 1;
+            CWorldScene::s_interiorGroupRendered = 1;
         }
 
         this->RenderThruPortals(groups->m_data[i], 0xFFFF, ndcRect, 0, 1);
