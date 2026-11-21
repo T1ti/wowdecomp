@@ -2138,7 +2138,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     data.m_elevation = this->m_data.m_elevation;
                     data.m_missileSpeed = this->m_data.m_missileSpeed;
                     data.m_delay = 0;
-                    data.unk_0038 = 0;
+                    data.m_destLocCastCount = 0;
                     data.m_castCount = this->m_data.m_castCount;
                     Spell_C_PlayDestLocVisualsWithoutCaster(&data);
                 }
@@ -2183,7 +2183,7 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
                     data.m_elevation = this->m_data.m_elevation;
                     data.m_missileSpeed = this->m_data.m_missileSpeed;
                     data.m_delay = 0;
-                    data.unk_0038 = 0;
+                    data.m_destLocCastCount = 0;
                     data.m_castCount = this->m_data.m_castCount;
                     Spell_C_PlayDestLocVisualsWithoutCaster(&data);
                 }
@@ -7389,11 +7389,11 @@ int32_t Packet_SMSG_NOTIFY_DEST_LOC_SPELL_CAST(void* param, NETMESSAGE msgId, ui
         key.m_guid = data.m_caster;
         DESTLOCSPELLCASTINDEXHASHNODE* node = s_destLocSpellCasts.Ptr(data.m_caster.GetLow(), key);
 
-        if (node && static_cast<int8_t>(data.unk_0038 - node->m_castCount) <= 0) {
+        if (node && static_cast<int8_t>(data.m_destLocCastCount - node->m_castCount) <= 0) {
             return 1;
         }
 
-        Spell_C_AddProcessedDestLocSpellCast(data.m_caster, data.unk_0038, OsGetAsyncTimeMs());
+        Spell_C_AddProcessedDestLocSpellCast(data.m_caster, data.m_destLocCastCount, OsGetAsyncTimeMs());
     }
 
     Spell_C_PlayDestLocVisualsWithoutCaster(&data);
@@ -9461,7 +9461,7 @@ int32_t Spell_C_SendDelayedMissileTrajectoryCast(CGUnit_C* unit) {
         item = nullptr;
     }
 
-    int32_t result = Spell_C_CastSpell(unit, cast->m_data.m_spellId, item, cast->m_data.unk_0038, cast, false);
+    int32_t result = Spell_C_CastSpell(unit, cast->m_data.m_spellId, item, cast->m_data.m_castTarget, cast, false);
     s_delayedTrajectoryCast = nullptr;
     return result;
 }

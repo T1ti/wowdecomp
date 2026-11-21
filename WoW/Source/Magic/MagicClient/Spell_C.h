@@ -79,7 +79,7 @@ struct NotifyDestLocSpellCastData {
     /* 002C */ float m_elevation;
     /* 0030 */ float m_missileSpeed;
     /* 0034 */ uint32_t m_delay;
-    /* 0038 */ uint8_t unk_0038;
+    /* 0038 */ uint8_t m_destLocCastCount; // Per-caster sequence checked against s_destLocSpellCasts (name inferred).
     /* 0039 */ uint8_t m_castCount;
     /* 003A */ uint8_t unused_003A[2];
 };

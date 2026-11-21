@@ -38,7 +38,7 @@ class PendingSpellCastData {
     /* 0024 */ uint32_t unused_0024;
     /* 0028 */ WOWGUID m_objectTarget;
     /* 0030 */ WOWGUID m_itemTarget;
-    /* 0038 */ WOWGUID unk_0038;
+    /* 0038 */ WOWGUID m_castTarget; // Target the delayed trajectory cast is sent with (name inferred).
     /* 0040 */ WOWGUID m_sourceTarget;
     /* 0048 */ WOWGUID m_destTarget;
     /* 0050 */ C3Vector m_sourcePos;

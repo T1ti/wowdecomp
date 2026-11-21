@@ -16,7 +16,7 @@ PendingSpellCastData::PendingSpellCastData() {
     this->m_targetFlags = SPELL_TARGET_TYPE::TARGET_FLAG_NONE;
     this->m_objectTarget = WOWGUID{ 0 };
     this->m_itemTarget = WOWGUID{ 0 };
-    this->unk_0038 = WOWGUID{ 0 };
+    this->m_castTarget = WOWGUID{ 0 };
     this->m_sourceTarget = WOWGUID{ 0 };
     this->m_destTarget = WOWGUID{ 0 };
     this->m_sourcePos = C3Vector();
