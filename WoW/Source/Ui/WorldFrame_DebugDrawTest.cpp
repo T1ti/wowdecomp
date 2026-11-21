@@ -120,14 +120,20 @@ void GxuDebugDrawTestQueue() {
     GxuDebugDrawLine(origin, C3Vector(origin.x, origin.y + 2.0f, origin.z), CImVector(0x20, 0xFF, 0x20, 0xFF));
     GxuDebugDrawLine(origin, C3Vector(origin.x, origin.y, origin.z + 2.0f), CImVector(0xFF, 0x20, 0x20, 0xFF));
 
-    // World-aligned wire box enclosing the shape row (its corners span the row's ends).
-    C3Vector rowCenter(origin.x + forward.x * 8.0f, origin.y + forward.y * 8.0f, origin.z + 1.5f);
+    // Wire box enclosing the shape row, turned with the player: local x along forward, y along right, z up. (A
+    // world-aligned box around the turning row would grow and shrink as the facing changes.)
     float halfRow = (static_cast<float>(count - 1) * 0.5f) * 3.0f + 1.5f;
-    C3Vector rowA(rowCenter.x - right.x * halfRow - forward.x * 1.5f, rowCenter.y - right.y * halfRow - forward.y * 1.5f, rowCenter.z - 1.5f);
-    C3Vector rowB(rowCenter.x + right.x * halfRow + forward.x * 1.5f, rowCenter.y + right.y * halfRow + forward.y * 1.5f, rowCenter.z + 1.5f);
-    C3Vector boxMin(rowA.x < rowB.x ? rowA.x : rowB.x, rowA.y < rowB.y ? rowA.y : rowB.y, rowA.z);
-    C3Vector boxMax(rowA.x < rowB.x ? rowB.x : rowA.x, rowA.y < rowB.y ? rowB.y : rowA.y, rowB.z);
-    GxuDebugDrawAaBoxLines(boxMin, boxMax, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+    C44Matrix rowFrame;
+    rowFrame.a0 = forward.x;
+    rowFrame.a1 = forward.y;
+    rowFrame.a2 = 0.0f;
+    rowFrame.b0 = right.x;
+    rowFrame.b1 = right.y;
+    rowFrame.b2 = 0.0f;
+    rowFrame.d0 = origin.x + forward.x * 8.0f;
+    rowFrame.d1 = origin.y + forward.y * 8.0f;
+    rowFrame.d2 = origin.z + 1.5f;
+    GxuDebugDrawBoxLines(C3Vector(-1.5f, -halfRow, -1.5f), C3Vector(1.5f, halfRow, 1.5f), rowFrame, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
 
     // Below the player frame, which covers the top left corner.
     GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.16f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));

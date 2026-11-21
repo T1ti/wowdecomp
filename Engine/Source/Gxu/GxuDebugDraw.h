@@ -304,9 +304,10 @@ class GxuDebugTextDrawer {
 // (CWorldScene::s_activeWorldView): world positions are drawn relative to it.
 void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
-// Convenience on top of the primitives: the twelve edges of a world axis-aligned box, and the box or sphere of a
-// local-space bounds placed by a transform (used by the model bounds display).
+// Convenience on top of the primitives: the twelve edges of a world axis-aligned box or of a local box placed by a
+// transform, and the box or sphere of a local-space bounds placed by a transform (used by the model bounds display).
 void GxuDebugDrawAaBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
+void GxuDebugDrawBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
 void GxuDebugDrawBoundsBox(const C3Vector& minCorner, const C3Vector& maxCorner, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawBoundsSphere(const C3Vector& center, float radius, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawText(const char* text, float x, float y, const CImVector& color);

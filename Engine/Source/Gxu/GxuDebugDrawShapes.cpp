@@ -470,59 +470,82 @@ GxuDebugShapeRenderStateBlock* GxuDebugShapeDrawer::GetStateBlock(GXUDEBUGSTYLE 
 // -viewOrigin (the camera-relative origin the 3.3.5 world view expects, as in CWorldScene::RenderCollisionDebug).
 // Sphere LOD comes from the distance to the view origin divided by the shape's largest axis scale, so a sphere
 // coarsens as it shrinks on screen.
+//
+// Port: depth writes. The 4.1 blocks turn depth writes off, so a debug shape never hides anything drawn after it, and
+// lines drawn after a shape always show through it. Here opaque shapes (alpha 0xFF) of the depth-tested filled styles
+// write depth and are drawn in a first pass, so translucent shapes, wireframes and lines queued in the same frame are
+// hidden behind them like real geometry. Translucent shapes keep the 4.1 behavior (no depth write), so they do not
+// cut holes in each other.
+static bool WritesDepth(const GxuDebugShapeObject& object) {
+    return object.m_color.a == 0xFF && (object.m_style == GXUDEBUGSTYLE_SOLID || object.m_style == GXUDEBUGSTYLE_SOLID_BACKFACING);
+}
+
 void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin) {
-    for (uint32_t i = 0; i < objects.m_count; i++) {
-        const GxuDebugShapeObject& object = objects.m_data[i];
-        IGxuDebugShapeFactory* factory = GetFactory(object.m_shape);
+    for (uint32_t pass = 0; pass < 2; pass++) {
+        for (uint32_t i = 0; i < objects.m_count; i++) {
+            const GxuDebugShapeObject& object = objects.m_data[i];
+            bool writeDepth = WritesDepth(object);
 
-        if (!factory->GetNumVertices()) {
-            continue;
+            if (writeDepth != (pass == 0)) {
+                continue;
+            }
+
+            IGxuDebugShapeFactory* factory = GetFactory(object.m_shape);
+
+            if (!factory->GetNumVertices()) {
+                continue;
+            }
+
+            factory->CreateVertexBuffer();
+            uint32_t indexHandle = factory->CreateIndexBuffer();
+
+            if (!s_debugShapeBufferCache.Exists(indexHandle) || !factory->m_drawVertices.m_count) {
+                continue;
+            }
+
+            const C44Matrix& m = object.m_transform;
+            C3Vector center(m.d0 - viewOrigin.x, m.d1 - viewOrigin.y, m.d2 - viewOrigin.z);
+            float scaleA = m.a0 * m.a0 + m.a1 * m.a1 + m.a2 * m.a2;
+            float scaleB = m.b0 * m.b0 + m.b1 * m.b1 + m.b2 * m.b2;
+            float scaleC = m.c0 * m.c0 + m.c1 * m.c1 + m.c2 * m.c2;
+            float scale = sqrtf(scaleA > scaleB ? (scaleA > scaleC ? scaleA : scaleC) : (scaleB > scaleC ? scaleB : scaleC));
+            float dist = sqrtf(center.x * center.x + center.y * center.y + center.z * center.z);
+            factory->SetLOD(scale > 0.0f ? dist / scale : dist);
+
+            C44Matrix world = m;
+            world.d0 = center.x;
+            world.d1 = center.y;
+            world.d2 = center.z;
+
+            CImVector color = object.m_color;
+            GxFormatColor(color);
+
+            CGxBuf* indexBuf = s_debugShapeBufferCache.AcquireBuffer(indexHandle);
+            GxuDebugShapeRenderStateBlock* block = GetStateBlock(object.m_style);
+            block->Apply();
+
+            if (writeDepth) {
+                g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);
+            }
+
+            g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
+
+            uint32_t numVertices = factory->m_drawVertices.m_count;
+            GxPrimVertexPtr(numVertices, factory->m_drawVertices.m_data, sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, nullptr, 0);
+            g_theGxDevicePtr->PrimIndexPtr(indexBuf);
+
+            CGxBatch batch;
+            batch.m_primType = GxPrim_Triangles;
+            batch.m_start = factory->GetIdxOffset();
+            batch.m_count = factory->GetNumIndices();
+            batch.m_minIndex = 0;
+            batch.m_maxIndex = numVertices - 1;
+            g_theGxDevicePtr->Draw(&batch, 1);
+
+            GxXformPop(GxXform_World);
+            block->Restore();
+            s_debugShapeBufferCache.ReleaseBuffer(indexHandle);
         }
-
-        factory->CreateVertexBuffer();
-        uint32_t indexHandle = factory->CreateIndexBuffer();
-
-        if (!s_debugShapeBufferCache.Exists(indexHandle) || !factory->m_drawVertices.m_count) {
-            continue;
-        }
-
-        const C44Matrix& m = object.m_transform;
-        C3Vector center(m.d0 - viewOrigin.x, m.d1 - viewOrigin.y, m.d2 - viewOrigin.z);
-        float scaleA = m.a0 * m.a0 + m.a1 * m.a1 + m.a2 * m.a2;
-        float scaleB = m.b0 * m.b0 + m.b1 * m.b1 + m.b2 * m.b2;
-        float scaleC = m.c0 * m.c0 + m.c1 * m.c1 + m.c2 * m.c2;
-        float scale = sqrtf(scaleA > scaleB ? (scaleA > scaleC ? scaleA : scaleC) : (scaleB > scaleC ? scaleB : scaleC));
-        float dist = sqrtf(center.x * center.x + center.y * center.y + center.z * center.z);
-        factory->SetLOD(scale > 0.0f ? dist / scale : dist);
-
-        C44Matrix world = m;
-        world.d0 = center.x;
-        world.d1 = center.y;
-        world.d2 = center.z;
-
-        CImVector color = object.m_color;
-        GxFormatColor(color);
-
-        CGxBuf* indexBuf = s_debugShapeBufferCache.AcquireBuffer(indexHandle);
-        GxuDebugShapeRenderStateBlock* block = GetStateBlock(object.m_style);
-        block->Apply();
-        g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
-
-        uint32_t numVertices = factory->m_drawVertices.m_count;
-        GxPrimVertexPtr(numVertices, factory->m_drawVertices.m_data, sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, nullptr, 0);
-        g_theGxDevicePtr->PrimIndexPtr(indexBuf);
-
-        CGxBatch batch;
-        batch.m_primType = GxPrim_Triangles;
-        batch.m_start = factory->GetIdxOffset();
-        batch.m_count = factory->GetNumIndices();
-        batch.m_minIndex = 0;
-        batch.m_maxIndex = numVertices - 1;
-        g_theGxDevicePtr->Draw(&batch, 1);
-
-        GxXformPop(GxXform_World);
-        block->Restore();
-        s_debugShapeBufferCache.ReleaseBuffer(indexHandle);
     }
 }
 
@@ -624,10 +647,18 @@ void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVecto
 }
 
 void GxuDebugDrawAaBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const CImVector& color, GXUDEBUGSTYLE style) {
+    C44Matrix identity;
+    GxuDebugDrawBoxLines(minCorner, maxCorner, identity, color, style);
+}
+
+// The local box's corners are placed by transform (row vectors: corner * transform), so the box keeps its shape and
+// size as the transform turns, unlike a world-aligned box around turning content.
+void GxuDebugDrawBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style) {
     C3Vector corners[8];
 
     for (uint32_t i = 0; i < 8; i++) {
-        corners[i] = C3Vector((i & 1) ? maxCorner.x : minCorner.x, (i & 2) ? maxCorner.y : minCorner.y, (i & 4) ? maxCorner.z : minCorner.z);
+        C3Vector local((i & 1) ? maxCorner.x : minCorner.x, (i & 2) ? maxCorner.y : minCorner.y, (i & 4) ? maxCorner.z : minCorner.z);
+        corners[i] = local * transform;
     }
 
     // Each edge joins two corners that differ in one axis bit.
