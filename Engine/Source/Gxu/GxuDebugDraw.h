@@ -41,7 +41,8 @@
 // the rotation ring lies flat on the ground around an object, as an orientation (z rotation) indicator, with red and
 // green lines out to its radius whose meaning is unknown. The same screenshots show many plain half spheres on the
 // ground (the sphere shape, translucent), and an early editor shows green half spheres at spawns and orange ones on
-// red path lines. The editor is not part of this client, so only debugDrawTest shows them.
+// red path lines. The editor is not part of this client; WoW/Source/WorldClient/WorldEditDraw.h is this port's
+// editor-side layer built on them, and debugDrawTest shows it.
 //
 // Port addition: line objects (GxuDebugDrawLine). 4.1 has no line shape; the 3.3.5 overlays that need lines (collision
 // info normals, unit pathing) draw GxPrim_Lines batches by hand, which is what the line drawer does too.

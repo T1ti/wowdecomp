@@ -639,6 +639,10 @@ void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objec
         }
 
         bool writeDepth = phase == GXUDEBUGPHASE_OPAQUE;
+        // Port: a translucent filled shape first lays down its depth alone, then draws its color against it, so only
+        // its nearest surface blends. Without it, wherever a non-convex shape covers itself on screen (the directional
+        // sphere's spike in front of its body) both layers blend and the overlap shows darker.
+        bool depthPrepass = phase == GXUDEBUGPHASE_DEPTH_TESTED && object.m_style != GXUDEBUGSTYLE_WIREFRAME;
 
         IGxuDebugShapeFactory* factory = GetFactory(object.m_shape);
 
@@ -690,6 +694,15 @@ void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objec
         batch.m_count = factory->GetNumIndices();
         batch.m_minIndex = 0;
         batch.m_maxIndex = numVertices - 1;
+
+        if (depthPrepass) {
+            g_theGxDevicePtr->RsSet(GxRs_ColorWrite, static_cast<int32_t>(GxColorWrite_None));
+            g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);
+            g_theGxDevicePtr->Draw(&batch, 1);
+            g_theGxDevicePtr->RsSet(GxRs_ColorWrite, static_cast<int32_t>(GxColorWrite_All));
+            g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 0);
+        }
+
         g_theGxDevicePtr->Draw(&batch, 1);
 
         GxXformPop(GxXform_World);

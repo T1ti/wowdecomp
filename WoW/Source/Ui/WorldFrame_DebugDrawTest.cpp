@@ -12,6 +12,7 @@
 #include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
+#include "WoW/Source/WorldClient/WorldEditDraw.h"
 
 // Tool features: console command "debugDrawTest [0|1]" (port, not from any client). While on, every world frame
 // queues one of each Gxu debug-draw primitive in front of the active player, so the module can be checked in game:
@@ -21,16 +22,24 @@
 //   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame;
 //   - lines: a red/green/blue axis tripod at the player's feet (world X, Y, Z), a white wire box around the shape
 //     row, and an always-on-top cyan line from the player to each LOD sphere;
-//   - the 4.1 editor shapes as screenshots of Blizzard's world editor show them, ahead and to the right: spawn
-//     points with orientation rings, the early editor's half spheres and path, and a flying path with diamonds.
+//   - through a world editor overlay (WorldEditDraw.h), the editor's markers ahead and to the right: spawn points
+//     with orientation rings, the early editor's half spheres and path, and a flying path with diamonds.
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;
 static CTexture* s_debugDrawTestTexture;
 
+static void DebugDrawTestEditorOverlay(void* param);
+
 static int32_t CCommand_DebugDrawTest(const char* command, const char* arguments) {
     s_debugDrawTest = (arguments && *arguments) ? SStrToInt(arguments) != 0 : !s_debugDrawTest;
     ConsoleWrite(s_debugDrawTest ? "Debug draw test enabled" : "Debug draw test disabled", DEFAULT_COLOR);
+
+    if (s_debugDrawTest) {
+        WorldEditRegisterOverlay(DebugDrawTestEditorOverlay, nullptr);
+    } else {
+        WorldEditUnregisterOverlay(DebugDrawTestEditorOverlay, nullptr);
+    }
 
     return 1;
 }
@@ -49,97 +58,55 @@ static C44Matrix ShapeTransform(const C3Vector& position, float facing, float sc
     return transform;
 }
 
-// Unit shape -> world from explicit axes: the shape's local x, y and z land on xAxis, yAxis and zAxis (scaled), then
-// the result is placed at position.
-static C44Matrix AxesTransform(const C3Vector& position, const C3Vector& xAxis, const C3Vector& yAxis, const C3Vector& zAxis, const C3Vector& scale) {
-    C44Matrix transform;
-    transform.a0 = xAxis.x * scale.x;
-    transform.a1 = xAxis.y * scale.x;
-    transform.a2 = xAxis.z * scale.x;
-    transform.b0 = yAxis.x * scale.y;
-    transform.b1 = yAxis.y * scale.y;
-    transform.b2 = yAxis.z * scale.y;
-    transform.c0 = zAxis.x * scale.z;
-    transform.c1 = zAxis.y * scale.z;
-    transform.c2 = zAxis.z * scale.z;
-    transform.d0 = position.x;
-    transform.d1 = position.y;
-    transform.d2 = position.z;
-
-    return transform;
-}
-
-static C3Vector Normalized(const C3Vector& v) {
-    float length = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
-    return length > 0.0f ? C3Vector(v.x / length, v.y / length, v.z / length) : C3Vector(0.0f, 0.0f, 1.0f);
-}
-
-static C3Vector Cross(const C3Vector& a, const C3Vector& b) {
-    return C3Vector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
-}
-
 static C3Vector Along(const C3Vector& from, const C3Vector& forward, const C3Vector& right, float ahead, float side, float up) {
     return C3Vector(from.x + forward.x * ahead + right.x * side, from.y + forward.y * ahead + right.y * side, from.z + up);
 }
 
-// The 4.1 editor shapes, and the plain spheres, the way screenshots of Blizzard's world editor show them, ahead and
-// to the right of the player (heights are the player's ground height, so on sloped ground some sink or float):
-//   - spawn points: translucent cyan directional spheres centered on the ground, the spike along each spawn's facing
-//     (the ground hides the lower half), each with a rotation ring flat on the ground around it as its orientation
-//     indicator and a red line out to the ring along the facing (the editor also shows a green line, meaning
-//     unknown, left out);
-//   - the early editor's look: translucent green half spheres at spawns, and orange half spheres on a red path;
+// An editor overlay (WorldEditDraw.h), registered while the test is on: the world editor's markers ahead and to the
+// right of the player, the way screenshots of Blizzard's editor show them, placed on the ground under each position
+// and tilted to its slope:
+//   - spawn points: cyan directional spheres, spike along each spawn's facing, inside an orientation ring with a red
+//     facing line (the editor also shows a green line, meaning unknown, left out);
+//   - the early editor's look: green half spheres at spawns, and orange half spheres on a red path;
 //   - a flying path: points in an arc a few yards up, joined by lines, with a red directional diamond at each point
-//     lying flat and pointing to the next one.
-static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, const C3Vector& right) {
-    const C3Vector up(0.0f, 0.0f, 1.0f);
-    const C3Vector left(-right.x, -right.y, 0.0f);
+//     pointing to the next one (in the air, so not placed on the ground).
+static void DebugDrawTestEditorOverlay(void* param) {
+    CGPlayer_C* player = ClntObjMgrGetActivePlayer() ? static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) : nullptr;
 
-    // Spawn points, facing forward, left and back-right.
+    if (!player) {
+        return;
+    }
+
+    C3Vector origin = player->GetPosition();
+    float facing = player->GetFacing();
+    C3Vector forward(cosf(facing), sinf(facing), 0.0f);
+    C3Vector right(sinf(facing), -cosf(facing), 0.0f);
+
+    // Spawn points, facing forward, left and back-right of the player's facing.
     const float spawnTurns[3] = { 0.0f, 1.5707964f, 3.6651914f };
-    const CImVector cyan(0xFF, 0xFF, 0x00, 0x80);
-    const CImVector ringColor(0xFF, 0x40, 0x80, 0xFF);
-    const CImVector red(0x20, 0x20, 0xFF, 0xFF);
 
     for (uint32_t i = 0; i < 3; i++) {
         C3Vector position = Along(origin, forward, right, 12.0f, 4.0f + static_cast<float>(i) * 4.0f, 0.0f);
-        float c = cosf(spawnTurns[i]);
-        float s = sinf(spawnTurns[i]);
-        // Facing turned left from forward by the angle; (side, up, facing) is right handed.
-        C3Vector facing(forward.x * c + left.x * s, forward.y * c + left.y * s, 0.0f);
-        C3Vector side(Cross(up, facing));
-        GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_SPHERE, AxesTransform(position, side, up, facing, C3Vector(0.6f, 0.6f, 0.6f)), cyan, GXUDEBUGSTYLE_SOLID);
-
-        // Ring of radius 1.6 around the z axis, its 4 unit band flattened to 0.06.
-        GxuDebugDrawShape(GXUDEBUGSHAPE_ROTATION_RING, AxesTransform(position, facing, side, up, C3Vector(1.6f, 1.6f, 0.015f)), ringColor, GXUDEBUGSTYLE_SOLID);
-        GxuDebugDrawLine(position, C3Vector(position.x + facing.x * 1.6f, position.y + facing.y * 1.6f, position.z), red);
+        WorldEditDrawSpawn(position, facing + spawnTurns[i], 0.6f, WORLDEDIT_COLOR_SPAWN, WORLDEDIT_ON_GROUND);
+        WorldEditDrawOrientation(position, facing + spawnTurns[i], 1.6f, WORLDEDIT_COLOR_ORIENTATION, WORLDEDIT_COLOR_FACING, WORLDEDIT_ON_GROUND);
     }
 
-    GxuDebugDrawText3D("spawn points", Along(origin, forward, right, 12.0f, 8.0f, 2.0f), cyan);
+    GxuDebugDrawText3D("spawn points", Along(origin, forward, right, 12.0f, 8.0f, 2.0f), WORLDEDIT_COLOR_SPAWN);
 
-    // Early editor: green spawn half spheres, and an orange-pointed red path.
-    const CImVector green(0x20, 0xE0, 0x40, 0xA0);
-    const CImVector orange(0x00, 0xA0, 0xFF, 0xFF);
-
+    // Early editor.
     for (uint32_t i = 0; i < 2; i++) {
         C3Vector position = Along(origin, forward, right, 20.0f, 4.0f + static_cast<float>(i) * 3.0f, 0.0f);
-        GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, AxesTransform(position, forward, left, up, C3Vector(1.2f, 1.2f, 1.2f)), green, GXUDEBUGSTYLE_SOLID);
+        WorldEditDrawPath(&position, 1, 1.2f, WORLDEDIT_COLOR_SPAWN_OLD, WORLDEDIT_COLOR_SPAWN_OLD, WORLDEDIT_ON_GROUND);
     }
 
-    C3Vector previous;
+    C3Vector groundPath[3];
 
     for (uint32_t i = 0; i < 3; i++) {
-        C3Vector point = Along(origin, forward, right, 18.0f + static_cast<float>(i) * 4.0f, 10.0f + static_cast<float>(i & 1) * 2.0f, 0.0f);
-        GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, AxesTransform(point, forward, left, up, C3Vector(0.4f, 0.4f, 0.4f)), orange, GXUDEBUGSTYLE_SOLID);
-
-        if (i) {
-            GxuDebugDrawLine(previous, point, red);
-        }
-
-        previous = point;
+        groundPath[i] = Along(origin, forward, right, 18.0f + static_cast<float>(i) * 4.0f, 10.0f + static_cast<float>(i & 1) * 2.0f, 0.0f);
     }
 
-    GxuDebugDrawText3D("early editor", Along(origin, forward, right, 20.0f, 7.0f, 2.0f), green);
+    WorldEditDrawPath(groundPath, 3, 0.4f, WORLDEDIT_COLOR_PATH_POINT, WORLDEDIT_COLOR_PATH_LINE, WORLDEDIT_ON_GROUND);
+    GxuDebugDrawText3D("early editor", Along(origin, forward, right, 20.0f, 7.0f, 2.0f), WORLDEDIT_COLOR_SPAWN_OLD);
 
     // Flying path.
     const uint32_t pathCount = 6;
@@ -152,19 +119,18 @@ static void QueueEditorShapes(const C3Vector& origin, const C3Vector& forward, c
 
     for (uint32_t i = 0; i < pathCount; i++) {
         uint32_t from = i + 1 < pathCount ? i : i - 1;
-        C3Vector direction = Normalized(C3Vector(path[from + 1].x - path[from].x, path[from + 1].y - path[from].y, path[from + 1].z - path[from].z));
-        // The diamond is wide along x and thin along y: keep x horizontal so it lies flat.
-        C3Vector xAxis = Normalized(Cross(direction, up));
-        C3Vector yAxis = Cross(direction, xAxis);
-        GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND, AxesTransform(path[i], xAxis, yAxis, direction, C3Vector(0.8f, 0.8f, 0.8f)), red, GXUDEBUGSTYLE_SOLID);
+        C3Vector direction(path[from + 1].x - path[from].x, path[from + 1].y - path[from].y, path[from + 1].z - path[from].z);
+        WorldEditDrawPathPoint(path[i], direction, 0.8f, WORLDEDIT_COLOR_FLY_POINT);
 
         if (i) {
-            GxuDebugDrawLine(path[i - 1], path[i], CImVector(0x20, 0x20, 0xFF, 0xA0));
+            CImVector line = WORLDEDIT_COLOR_PATH_LINE;
+            line.a = 0xA0;
+            GxuDebugDrawLine(path[i - 1], path[i], line);
         }
     }
 
     const C3Vector& middle = path[pathCount / 2];
-    GxuDebugDrawText3D("flying path", C3Vector(middle.x, middle.y, middle.z + 1.5f), red);
+    GxuDebugDrawText3D("flying path", C3Vector(middle.x, middle.y, middle.z + 1.5f), WORLDEDIT_COLOR_FLY_POINT);
 }
 
 void GxuDebugDrawTestQueue() {
@@ -255,7 +221,6 @@ void GxuDebugDrawTestQueue() {
     rowFrame.d2 = origin.z + 1.5f;
     GxuDebugDrawBoxLines(C3Vector(-1.5f, -halfRow, -1.5f), C3Vector(1.5f, halfRow, 1.5f), rowFrame, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
 
-    QueueEditorShapes(origin, forward, right);
 
     // Below the player frame, which covers the top left corner.
     GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.16f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
