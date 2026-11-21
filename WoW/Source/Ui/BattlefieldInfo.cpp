@@ -696,11 +696,7 @@ static void BattlegroundPlayerJoinedNameCallback(int32_t id, const WOWGUID& guid
 
     char fullName[305];
 
-    if (name->m_realmName[0]) {
-        SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-    } else {
-        SStrCopy(fullName, name->m_name, sizeof(fullName));
-    }
+    name->FullName(fullName, sizeof(fullName));
 
     CGGameUI::DisplayError(ERR_BG_PLAYER_JOINED_SS, fullName, fullName);
 }
@@ -717,11 +713,7 @@ static void BattlegroundPlayerLeftNameCallback(int32_t id, const WOWGUID& guid, 
 
     char fullName[305];
 
-    if (name->m_realmName[0]) {
-        SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-    } else {
-        SStrCopy(fullName, name->m_name, sizeof(fullName));
-    }
+    name->FullName(fullName, sizeof(fullName));
 
     CGGameUI::DisplayError(ERR_BG_PLAYER_LEFT_S, fullName);
 }
@@ -1051,11 +1043,7 @@ int32_t Packet_Group_3(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
 
     char fullName[305];
 
-    if (name->m_realmName[0]) {
-        SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-    } else {
-        SStrCopy(fullName, name->m_name, sizeof(fullName));
-    }
+    name->FullName(fullName, sizeof(fullName));
 
     if (msgId == SMSG_BATTLEGROUND_PLAYER_JOINED) {
         CGGameUI::DisplayError(ERR_BG_PLAYER_JOINED_SS, fullName, fullName);

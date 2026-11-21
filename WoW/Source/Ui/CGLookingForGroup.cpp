@@ -436,11 +436,7 @@ int32_t CGLookingForGroup::GetLFGBootProposal(lua_State* L) {
     if (name) {
         char fullName[256];
 
-        if (name->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-        } else {
-            SStrCopy(fullName, name->m_name, sizeof(fullName));
-        }
+        name->FullName(fullName, sizeof(fullName));
 
         lua_pushstring(L, fullName);
     } else {

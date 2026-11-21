@@ -5970,11 +5970,7 @@ void CGChat::DisplayPendingUserList(ChatChannel* channel) {
         const char* separator = text[0] ? ", " : "";
         char fullName[305];
 
-        if (name->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-        } else {
-            SStrCopy(fullName, name->m_name, sizeof(fullName));
-        }
+        name->FullName(fullName, sizeof(fullName));
 
         char entry[51];
         SStrPrintf(entry, sizeof(entry), "%s%s%s", separator, prefix, fullName);

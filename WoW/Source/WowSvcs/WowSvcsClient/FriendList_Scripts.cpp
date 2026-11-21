@@ -306,11 +306,7 @@ static int32_t Script_GetIgnoreName(lua_State* L) {
         if ((record = g_nameDBCache.GetRecord(FriendList::s_friendList->m_ignores[index].m_guid.m_guid, none, nullptr, nullptr, false))) {
             char name[308];
 
-            if (record->m_realmName[0]) {
-                SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-            } else {
-                SStrCopy(name, record->m_name, 305);
-            }
+            record->FullName(name, 305);
 
             lua_pushstring(L, name);
             return 1;
@@ -338,11 +334,7 @@ static int32_t Script_GetMuteName(lua_State* L) {
         if ((record = g_nameDBCache.GetRecord(FriendList::s_friendList->m_mutes[index].m_guid.m_guid, none, nullptr, nullptr, false))) {
             char name[308];
 
-            if (record->m_realmName[0]) {
-                SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-            } else {
-                SStrCopy(name, record->m_name, 305);
-            }
+            record->FullName(name, 305);
 
             lua_pushstring(L, name);
             return 1;

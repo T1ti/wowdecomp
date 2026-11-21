@@ -220,11 +220,7 @@ void FriendList::ReadPacket(CDataStore* msg) {
                 if (record) {
                     char name[305];
 
-                    if (!record->m_realmName[0]) {
-                        SStrCopy(name, record->m_name, sizeof(name));
-                    } else {
-                        SStrPrintf(name, sizeof(name), "%s-%s", record->m_name, record->m_realmName);
-                    }
+                    record->FullName(name, sizeof(name));
 
                     info.m_name = SStrDupA(name, __FILE__, __LINE__);
 
@@ -1394,11 +1390,7 @@ void FriendListNameCallback(int32_t id, const WOWGUID& guid, void* param, bool s
 
     char name[308];
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
     CGAutoCompleteName::SetName(guid, name, false);
 
@@ -1439,11 +1431,7 @@ void FriendListNameCallbackWithSort(int32_t id, const WOWGUID& guid, void* param
 
     char name[308];
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
     CGAutoCompleteName::SetName(guid, name, false);
 
@@ -1485,11 +1473,7 @@ void FriendListIgnoreNameCallback(int32_t id, const WOWGUID& guid, void* param, 
 
     char name[308];
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
     if (FriendList::s_friendList) {
         FriendList::s_friendList->DecrementPendingIgnoreName();
@@ -1528,11 +1512,7 @@ void FriendListMuteNameCallback(int32_t id, const WOWGUID& guid, void* param, bo
 
     char name[308];
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
     if (FriendList::s_friendList) {
         FriendList::s_friendList->DecrementPendingMuteName();
@@ -1885,17 +1865,9 @@ resolved:
 
     char name[308];
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
-    if (record->m_realmName[0]) {
-        SStrPrintf(name, 305, "%s-%s", record->m_name, record->m_realmName);
-    } else {
-        SStrCopy(name, record->m_name, 305);
-    }
+    record->FullName(name, 305);
 
     CGAutoCompleteName::SetName(guid, name, false);
 
@@ -2137,11 +2109,7 @@ void FriendList::AddOrDelIgnore(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             CDataStore msg;
@@ -2177,11 +2145,7 @@ void FriendList::AddIgnore(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             CGGameUI::DisplayError(ERR_IGNORE_ALREADY_S, record->m_name);
@@ -2215,11 +2179,7 @@ void FriendList::AddOrDelVoiceIgnore(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             CDataStore msg;
@@ -2255,11 +2215,7 @@ void FriendList::AddVoiceIgnore(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             CGGameUI::DisplayError(ERR_VOICE_IGNORE_ALREADY_S, record->m_name);
@@ -2293,11 +2249,7 @@ void FriendList::AddOrRemoveFriend(const char* name, const char* notes) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             FriendList::RemoveFriend(this->m_friends[i].m_guid);
@@ -2351,11 +2303,7 @@ void FriendList::DelIgnore(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             FriendList::DelIgnore(this->m_ignores[i].m_guid);
@@ -2383,11 +2331,7 @@ void FriendList::DelMute(const char* name) {
 
         char fullName[305];
 
-        if (record->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", record->m_name, record->m_realmName);
-        } else {
-            SStrCopy(fullName, record->m_name, sizeof(fullName));
-        }
+        record->FullName(fullName, sizeof(fullName));
 
         if (!SStrCmpUTF8I(fullName, name, STORM_MAX_STR)) {
             FriendList::DelVoiceIgnore(this->m_mutes[i].m_guid);

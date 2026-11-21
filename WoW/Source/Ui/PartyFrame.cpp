@@ -200,11 +200,7 @@ static void PartyMemberNameCallback(int32_t id, const WOWGUID& guid, void* param
     if (name) {
         char fullName[256];
 
-        if (name->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-        } else {
-            SStrCopy(fullName, name->m_name, sizeof(fullName));
-        }
+        name->FullName(fullName, sizeof(fullName));
 
         CGAutoCompleteName::SetName(guid, fullName, false);
     }
@@ -765,11 +761,7 @@ void CGPartyInfo::AddMember(WOWGUID guid, int32_t online, const CGPartyMemberSta
     if (name) {
         char fullName[256];
 
-        if (name->m_realmName[0]) {
-            SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-        } else {
-            SStrCopy(fullName, name->m_name, sizeof(fullName));
-        }
+        name->FullName(fullName, sizeof(fullName));
 
         CGAutoCompleteName::SetName(guid, fullName, false);
     }

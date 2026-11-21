@@ -262,11 +262,7 @@ static void RaidMemberAddedNameCallback(int32_t id, const WOWGUID& guid, void* p
     CGGameUI::DisplayError(ERR_RAID_MEMBER_ADDED_S, name->m_name);
     char fullName[256];
 
-    if (name->m_realmName[0]) {
-        SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-    } else {
-        SStrCopy(fullName, name->m_name, sizeof(fullName));
-    }
+    name->FullName(fullName, sizeof(fullName));
 
     CGAutoCompleteName::SetName(guid, fullName, false);
 }
@@ -737,11 +733,7 @@ void CGRaidInfo::UpdateRoster(const WOWGUID* guids, const uint32_t* subgroups, c
             if (name) {
                 CGGameUI::DisplayError(ERR_RAID_MEMBER_ADDED_S, name->m_name);
 
-                if (name->m_realmName[0]) {
-                    SStrPrintf(fullName, sizeof(fullName), "%s-%s", name->m_name, name->m_realmName);
-                } else {
-                    SStrCopy(fullName, name->m_name, sizeof(fullName));
-                }
+                name->FullName(fullName, sizeof(fullName));
 
                 fullNamePtr = fullName;
             }
