@@ -1213,7 +1213,7 @@ void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFu
     }
 
     uint8_t channel = static_cast<uint8_t>(args[0].ToUInt64());
-    int32_t type = static_cast<int32_t>(args[1].ToInt64());
+    CHAT_CHANNEL_TYPE type = static_cast<CHAT_CHANNEL_TYPE>(args[1].ToInt64());
 
     if (channel >= BattlenetUI::MAX_CHAT_CHANNELS) {
         SErrDisplayAppFatalMessage("", "", 0);
@@ -1227,7 +1227,7 @@ void BattlenetUI::ChatChannelJoinedCB(void* param, int32_t argc, const GeneralFu
         BattlenetUI::UpdateAutoComplete(presenceId, AUTOCOMPLETE_FLAG_INTERACTED_WITH | AUTOCOMPLETE_FLAG_ONLINE, 1, BattlenetUI::GetNameForPresenceIdHelper(presenceId));
     }
 
-    if (type == 2) {
+    if (type == CHAT_CHANNEL_TYPE_CONVERSATION) {
         ChatConversation conversation;
         conversation.m_presenceID = BattlenetAPI::GetPresenceIDForCurrentAccount();
         conversation.m_index = channel;

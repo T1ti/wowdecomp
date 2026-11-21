@@ -46,6 +46,14 @@ class BattlenetUI {
     // Battle.net conversation channel slots (inferred name).
     static const int32_t MAX_CHAT_CHANNELS = 6;
 
+    // BattlenetEvent_ChannelJoined channel type. CONVERSATION is named from the
+    // YOU_JOINED_CONVERSATION notice; the other values are unknown.
+    enum CHAT_CHANNEL_TYPE : int32_t {
+        CHAT_CHANNEL_TYPE_UNKNOWN_0 = 0,
+        CHAT_CHANNEL_TYPE_UNKNOWN_1 = 1,
+        CHAT_CHANNEL_TYPE_CONVERSATION = 2,
+    };
+
     struct EventCallback {
         /* 0000 */ const char* m_event;
         /* 0004 */ GeneralFunction::SimpleCallbackFunc m_func;
