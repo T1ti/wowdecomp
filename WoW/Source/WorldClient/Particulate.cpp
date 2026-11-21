@@ -157,15 +157,15 @@ void Particulate::SetTexture(const char* textureName) {
 C3Vector Particulate::ComputeMovement(float elapsed) {
     LiquidTypeRec* liquidType = g_liquidTypeDB.GetRecord(this->m_liquidType);
 
-    if (liquidType->m_particleMovement == 1) {
+    if (liquidType->m_particleMovement == LIQUID_PARTICLE_MOVEMENT_SINK) {
         return C3Vector(0.0f, 0.0f, s_sinkSpeed * elapsed);
     }
 
-    if (liquidType->m_particleMovement == 2) {
+    if (liquidType->m_particleMovement == LIQUID_PARTICLE_MOVEMENT_RISE) {
         return C3Vector(0.0f, 0.0f, s_riseSpeed * elapsed);
     }
 
-    if (liquidType->m_particleMovement) {
+    if (liquidType->m_particleMovement != LIQUID_PARTICLE_MOVEMENT_DEFAULT) {
         return C3Vector(0.0f, 0.0f, 0.0f);
     }
 

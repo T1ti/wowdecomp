@@ -53,6 +53,15 @@ enum LIQUID_TYPE_ID : int32_t {
     NUM_BASIC_LIQUID_TYPES         = 21,
 };
 
+// LiquidTypeRec::m_particleMovement. Names inferred from Particulate::ComputeMovement:
+// 0 drifts on the particle's own wave, 1 moves by s_sinkSpeed, 2 by s_riseSpeed and any
+// other value holds still. The 3.3.5 DBC only uses 0 (water/slime) and 1 (magma).
+enum LIQUID_PARTICLE_MOVEMENT : int32_t {
+    LIQUID_PARTICLE_MOVEMENT_DEFAULT = 0,
+    LIQUID_PARTICLE_MOVEMENT_SINK = 1,
+    LIQUID_PARTICLE_MOVEMENT_RISE = 2,
+};
+
 class LiquidTypeRec {
     public:
     static const int32_t s_numColumns = 45;
@@ -71,7 +80,7 @@ class LiquidTypeRec {
     /* 0024 */ float m_dirDarkenIntensity;
     /* 0028 */ int32_t m_lightID;
     /* 002C */ float m_particleScale;
-    /* 0030 */ int32_t m_particleMovement;
+    /* 0030 */ int32_t m_particleMovement; // ENUM LIQUID_PARTICLE_MOVEMENT
     /* 0034 */ int32_t m_particleTexSlots;
     /* 0038 */ int32_t m_materialID;
     /* 003C */ const char* m_texture [6];
