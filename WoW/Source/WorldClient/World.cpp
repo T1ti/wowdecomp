@@ -376,7 +376,7 @@ C3Vector CWorldScene::camVec;
 C4Plane CWorldScene::camPlane;
 
 // STATIC: 0x00ADF570
-CPortalView CWorldScene::s_unk_ADF570;
+CPortalView CWorldScene::s_worldPortalView;
 
 // STATIC: 0x00ADF58C
 CPortalView CWorldScene::frustumPortalView;
@@ -1948,7 +1948,7 @@ void CWorldScene::RenderLiquidPass() {
 // VERIFY: 58728bc0 auto
 // OFFSET: 0x00790AB0
 void CWorldScene::MergeIntoWorldRect(CPortalView* portalView) {
-    CWorldScene::s_unk_ADF570.Merge(*portalView);
+    CWorldScene::s_worldPortalView.Merge(*portalView);
 }
 
 // VERIFY: f4c2895d auto
@@ -2792,7 +2792,7 @@ void CWorldScene::Update(C3Vector* camPos, C3Vector* camTarget) {
 
     CWorldScene::s_unk_CD8620 = 0;
     CWorldScene::s_interiorSkybox = 0;
-    CWorldScene::s_unk_ADF570 = CPortalView();
+    CWorldScene::s_worldPortalView = CPortalView();
     CWorldScene::frustumPortalView = CPortalView();
     CWorldScene::s_exteriorPortalViews.SetCount(0);
     CWorldScene::s_portalViews.SetCount(0);
@@ -2977,7 +2977,7 @@ void CWorldScene::LocateViewer3() {
             rect.maxY = 1.0f;
             rect.maxX = 1.0f;
             CPortalView view(rect, 0.0f);
-            CWorldScene::s_unk_ADF570.Merge(view);
+            CWorldScene::s_worldPortalView.Merge(view);
             CWorldScene::PushPortalView(&view);
         }
     }

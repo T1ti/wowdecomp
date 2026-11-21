@@ -770,7 +770,7 @@ void Rain::RenderDropPackets() {
 void Rain::Render() {
     this->UpdatePackets();
 
-    if (CWorldScene::s_unk_ADF570.m_maxViewDepth < 0.0f) {
+    if (CWorldScene::s_worldPortalView.m_maxViewDepth < 0.0f) {
         return;
     }
 

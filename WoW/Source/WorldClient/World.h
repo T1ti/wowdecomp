@@ -245,7 +245,9 @@ class CWorldScene {
     static CAaBox boundingBox;
     static CiRect s_frustumChunkRect;
     static CPortalView frustumPortalView;
-    static CPortalView s_unk_ADF570;
+    // Screen area through which the exterior world is visible, grown by MergeIntoWorldRect;
+    // m_maxViewDepth < 0 means none of it is (name inferred).
+    static CPortalView s_worldPortalView;
     static char* s_interiorSkybox;
     static int32_t s_unk_CD8620;
     static float s_lodFarClip;

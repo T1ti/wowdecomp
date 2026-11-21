@@ -107,15 +107,15 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
 
         if (CWorldScene::s_viewerMovedMapObjDef) {
             CWorldScene::s_viewerMovedMapObjDef->RenderWithCallback(&CWorldScene::s_viewerMovedMapObjGroups);
-            CWorldScene::s_unk_ADF570.m_rect.minX = FLT_MAX;
-            CWorldScene::s_unk_ADF570.m_rect.minY = FLT_MAX;
-            CWorldScene::s_unk_ADF570.m_verts = nullptr;
-            CWorldScene::s_unk_ADF570.m_rect.maxX = -FLT_MAX;
-            CWorldScene::s_unk_ADF570.m_vertCount = 0;
-            CWorldScene::s_unk_ADF570.m_rect.maxY = -FLT_MAX;
+            CWorldScene::s_worldPortalView.m_rect.minX = FLT_MAX;
+            CWorldScene::s_worldPortalView.m_rect.minY = FLT_MAX;
+            CWorldScene::s_worldPortalView.m_verts = nullptr;
+            CWorldScene::s_worldPortalView.m_rect.maxX = -FLT_MAX;
+            CWorldScene::s_worldPortalView.m_vertCount = 0;
+            CWorldScene::s_worldPortalView.m_rect.maxY = -FLT_MAX;
             CWorldScene::frustumPortalView.m_verts = nullptr;
             CWorldScene::frustumPortalView.m_vertCount = 0;
-            CWorldScene::s_unk_ADF570.m_maxViewDepth = -1.0f;
+            CWorldScene::s_worldPortalView.m_maxViewDepth = -1.0f;
             CWorldScene::frustumPortalView.m_rect.minX = FLT_MAX;
             CWorldScene::frustumPortalView.m_rect.minY = FLT_MAX;
             CWorldScene::frustumPortalView.m_rect.maxX = -FLT_MAX;
@@ -139,9 +139,9 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     } else {
         CWorldScene::s_cullPassStamp++;
         CRect fullRect = { 0.0f, 0.0f, 1.0f, 1.0f };
-        CWorldScene::s_unk_ADF570.m_rect = fullRect;
-        CWorldScene::s_unk_ADF570.m_maxViewDepth = 0.0f;
-        CWorldScene::s_unk_ADF570.m_vertCount = 0;
+        CWorldScene::s_worldPortalView.m_rect = fullRect;
+        CWorldScene::s_worldPortalView.m_maxViewDepth = 0.0f;
+        CWorldScene::s_worldPortalView.m_vertCount = 0;
         CWorldScene::frustumPortalView.m_rect = fullRect;
         CWorldScene::frustumPortalView.m_maxViewDepth = 0.0f;
         CWorldScene::s_occlusionNearDepth = -10000.0f;
@@ -161,7 +161,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         clearColor.g = 0x00;
         clearColor.r = 0x00;
         clearColor.a = 0xFF;
-    } else if (CWorldScene::s_unk_ADF570.m_maxViewDepth < 0.0f) {
+    } else if (CWorldScene::s_worldPortalView.m_maxViewDepth < 0.0f) {
         clearColor = info->m_fogInterior.m_color;
     } else if (s_liquidTypeId || (!info->m_showSky && DayNight::GetFogOverride())) {
         clearColor = info->m_fog.m_color;
@@ -199,7 +199,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CWorldScene::RenderMapObjDefGroups();
     CWorldScene::RenderHorizon();
 
-    if (CWorldScene::s_unk_ADF570.m_maxViewDepth >= 0.0f) {
+    if (CWorldScene::s_worldPortalView.m_maxViewDepth >= 0.0f) {
         if (CWorldScene::s_exteriorPortalViews.Count()) {
             CWorldScene::CreateInversePortalList();
             CWorldScene::RenderPortalList(&CWorldScene::s_exteriorPortalViews, 1);
@@ -215,7 +215,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         }
 
         if (!s_liquidTypeId) {
-            DayNight::RenderSky(&CWorldScene::s_unk_ADF570);
+            DayNight::RenderSky(&CWorldScene::s_worldPortalView);
         }
     }
 
