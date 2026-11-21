@@ -950,24 +950,24 @@ void World::ObjectEnableCollision(CMapBaseObj* object, BOOL enable) {
 // VERIFY: b8f47c0c auto
 // OFFSET: 0x007801C0
 void World::ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask) {
-    if (mask & 0x1) {
-        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) | ((shadow & 0x1) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE : 0u);
+    if (mask & MAP_OBJECT_CREATE_FLAG_COLLIDABLE) {
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) | ((shadow & MAP_OBJECT_CREATE_FLAG_COLLIDABLE) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE : 0u);
     }
 
-    if (mask & 0x2) {
-        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) | (!(shadow & 0x2) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW : 0u);
+    if (mask & MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW) {
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW) | (!(shadow & MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CAST_BLOB_SHADOW : 0u);
     }
 
-    if (mask & 0x4) {
-        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) | ((shadow & 0x4) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE : 0u);
+    if (mask & MAP_OBJECT_CREATE_FLAG_ALWAYS_ANIMATE) {
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) | ((shadow & MAP_OBJECT_CREATE_FLAG_ALWAYS_ANIMATE) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE : 0u);
     }
 
-    if (mask & 0x8) {
-        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) | ((shadow & 0x8) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS : 0u);
+    if (mask & MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS) {
+        entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS) | ((shadow & MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS) ? MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS : 0u);
     }
 
-    if (mask & 0x20) {
-        if (shadow & 0x20) {
+    if (mask & MAP_OBJECT_CREATE_FLAG_UNKNOWN_5) {
+        if (shadow & MAP_OBJECT_CREATE_FLAG_UNKNOWN_5) {
             entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_SHADOW_20000);
         } else {
             entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~MAPOBJ_FLAG_SHADOW_20000);

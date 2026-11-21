@@ -13,6 +13,7 @@
 #include "WoW/Source/UIUtil/Types.h"
 #include "WoW/Source/Ui/Types.h"
 #include "WoW/Source/WorldClient/World.h"
+#include "WoW/Source/WorldClient/Types.h"
 
 // STATIC: 0x00ACE4A8
 CGCommentator CGCommentator::s_Commentator;
@@ -172,7 +173,7 @@ void CGCommentator::SnapCameraToPlayer() {
 // OFFSET: 0x0056B830
 void CGCommentator::PostInit(CGPlayer_C* player) {
     if (player && player->IsCommentatorUberOrInArena()) {
-        World::ObjectSetShadow(player->m_worldObject, 2, 2);
+        World::ObjectSetShadow(player->m_worldObject, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
         if (CGWorldFrame::s_currentWorldFrame) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);
@@ -572,14 +573,14 @@ int32_t CGCommentator::OnStateChanged(void* param, NETMESSAGE msgId, uint32_t ti
     }
 
     if (enabled && player->IsCommentatorUberOrInArena()) {
-        World::ObjectSetShadow(player->m_worldObject, 2, 2);
+        World::ObjectSetShadow(player->m_worldObject, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
         if (CGWorldFrame::s_currentWorldFrame) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);
             CGCommentator::s_Commentator.SnapCameraToPlayer();
         }
     } else {
-        World::ObjectSetShadow(player->m_worldObject, 0, 2);
+        World::ObjectSetShadow(player->m_worldObject, 0, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
         if (CGWorldFrame::s_currentWorldFrame) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_THIRD_PERSON_A, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);

@@ -595,7 +595,7 @@ float ValidateFarClip(float farClip, int32_t mapID);
     bool GetTris(const CAaBox& box, World::TriData* triData, uint32_t flags);
     uint32_t GetIntersectingDoodadModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags);
     void ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t doodadSet);
-    void ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask);
+    void ObjectSetShadow(CMapEntity* entity, uint32_t shadow, uint32_t mask); // shadow and mask use MAP_OBJECT_CREATE_FLAGS bits
     void ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param), uint64_t param, uint16_t doodad);
     bool ObjectTestConvexVolume(CMapEntity* entity, const C3Vector& point);
     void ObjectUpdate(CMapEntity* entity, const C44Matrix& matrix);
