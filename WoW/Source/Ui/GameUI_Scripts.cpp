@@ -1313,7 +1313,7 @@ static int32_t Script_GuildInvite(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(target) > 48) {
+    if (SStrLen(target) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -1336,7 +1336,7 @@ static int32_t Script_GuildUninvite(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(target) > 48) {
+    if (SStrLen(target) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -1359,7 +1359,7 @@ static int32_t Script_GuildPromote(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(target) > 48) {
+    if (SStrLen(target) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -1382,7 +1382,7 @@ static int32_t Script_GuildDemote(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(target) > 48) {
+    if (SStrLen(target) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -1405,7 +1405,7 @@ static int32_t Script_GuildSetLeader(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(target) > 48) {
+    if (SStrLen(target) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -2146,7 +2146,7 @@ static int32_t Script_ArenaTeamInviteByName(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(playerName) > 48) {
+    if (SStrLen(playerName) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -2189,7 +2189,7 @@ static int32_t Script_ArenaTeamUninviteByName(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     const char* playerName = lua_tolstring(L, 2, nullptr);
 
-    if (playerName && SStrLen(playerName) > 48) {
+    if (playerName && SStrLen(playerName) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -2215,7 +2215,7 @@ static int32_t Script_ArenaTeamSetLeaderByName(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     const char* playerName = lua_tolstring(L, 2, nullptr);
 
-    if (playerName && SStrLen(playerName) > 48) {
+    if (playerName && SStrLen(playerName) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }
@@ -4539,7 +4539,7 @@ static int32_t Script_InviteUnit(lua_State* L) {
         return 0;
     }
 
-    if (SStrLen(name) > 48) {
+    if (SStrLen(name) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return 0;
     }

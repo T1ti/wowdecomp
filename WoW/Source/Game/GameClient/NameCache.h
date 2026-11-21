@@ -8,6 +8,9 @@
 
 class CDataStore;
 
+// Longest player name a Lua call accepts before raising "Name too long". Name inferred.
+constexpr uint32_t MAX_PLAYER_NAME_LENGTH = 48;
+
 class NameCache {
     public:
     // SMSG_NAME_QUERY_RESPONSE result byte, named after what ReceiveName does with each value.

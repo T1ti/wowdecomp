@@ -1561,7 +1561,7 @@ static void ChannelPlayerCommand(lua_State* L, uint32_t msgId, const char* name)
 
     const char* player = lua_tolstring(L, 2, nullptr);
 
-    if (player && SStrLen(player) > 48) {
+    if (player && SStrLen(player) > MAX_PLAYER_NAME_LENGTH) {
         luaL_error(L, "Name too long");
         return;
     }
