@@ -17,6 +17,24 @@ struct DBDATESTRUCT {
 
 class WowTime {
     public:
+    // Packed time layout used by WowEncodeTime/WowDecodeTime; an all-ones field decodes to -1.
+    enum PACKED_FIELD : int32_t {
+        PACKED_MINUTE_SHIFT = 0,
+        PACKED_MINUTE_MASK = 0x3F,
+        PACKED_HOUR_SHIFT = 6,
+        PACKED_HOUR_MASK = 0x1F,
+        PACKED_WEEKDAY_SHIFT = 11,
+        PACKED_WEEKDAY_MASK = 7,
+        PACKED_MONTHDAY_SHIFT = 14,
+        PACKED_MONTHDAY_MASK = 0x3F,
+        PACKED_MONTH_SHIFT = 20,
+        PACKED_MONTH_MASK = 0xF,
+        PACKED_YEAR_SHIFT = 24,
+        PACKED_YEAR_MASK = 0x1F,
+        PACKED_FLAGS_SHIFT = 29,
+        PACKED_FLAGS_MASK = 3,
+    };
+
     static void WowDecodeTime(uint32_t value, int32_t* minute, int32_t* hour, int32_t* weekDay, int32_t* monthDay, int32_t* month, int32_t* year, int32_t* flags);
     static void WowDecodeTime(uint32_t value, WowTime* time);
     static void WowDecodeTimeToDbDate(uint32_t value, DBDATESTRUCT* date);
