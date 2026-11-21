@@ -9,6 +9,7 @@
 #include <vector>
 #include <windows.h>
 #include "Engine/Source/BlizzardCore/Include/Blizzard/Util/MD5.h"
+#include "Engine/Source/BlizzardCore/SFile2-Core.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Manifests.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Storage.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Streaming.h"
@@ -611,54 +612,54 @@ int32_t Blizzard::Streaming::CheckFileRange(const char* path, int64_t offset, in
     HashFileName(&digest, name);
 
     DigestStateMap::iterator it = s_digestStates->find(digest);
-    int32_t previous = 0;
+    int32_t previous = SFILE_LOCAL_NO;
 
     if (it != s_digestStates->end()) {
         previous = it->second.m_state;
 
-        if (previous == 1) {
-            return 1;
+        if (previous == SFILE_LOCAL_YES) {
+            return SFILE_LOCAL_YES;
         }
     }
 
     if (!path) {
-        return -1;
+        return SFILE_LOCAL_UNKNOWN;
     }
 
     std::string key = ResolveFilePath(std::string(path));
 
     if (!Blizzard::Storage::s_storage) {
-        return -1;
+        return SFILE_LOCAL_UNKNOWN;
     }
 
     std::map<std::string, StorageEntry>::iterator entry = Blizzard::Storage::s_storage->find(key);
 
     if (entry == Blizzard::Storage::s_storage->end()) {
-        return -1;
+        return SFILE_LOCAL_UNKNOWN;
     }
 
     int32_t count;
     LoadRange* ranges = Blizzard::Storage::GetRange(&entry->second, offset, size, &count, false);
 
     if (!ranges || !count) {
-        return -1;
+        return SFILE_LOCAL_UNKNOWN;
     }
 
-    int32_t result = 1;
+    int32_t result = SFILE_LOCAL_YES;
 
     for (LoadRange* range = ranges; count > 0 && result; range++, count--) {
         switch (range->m_state) {
             case 1:
             case 3:
-                if (result == 1) {
-                    result = 2;
+                if (result == SFILE_LOCAL_YES) {
+                    result = SFILE_LOCAL_PARTIAL;
                 }
 
                 break;
 
             case 2:
             case 4:
-                result = 0;
+                result = SFILE_LOCAL_NO;
                 break;
         }
     }
@@ -680,7 +681,7 @@ int32_t Blizzard::Streaming::GetIsLocalAmount(const char* path, int64_t offset, 
 
     DigestStateMap::iterator it = s_digestStates->find(digest);
 
-    if (it != s_digestStates->end() && it->second.m_state == 1) {
+    if (it != s_digestStates->end() && it->second.m_state == SFILE_LOCAL_YES) {
         return size;
     }
 

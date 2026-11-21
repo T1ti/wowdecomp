@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "Engine/Source/BlizzardCore/SFile2-Core.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/iounit/IOAlignUnit.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/iounit/IOChecksumUnit.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/iounit/IOFileUnit.h"
@@ -1795,7 +1796,7 @@ bool Blizzard::Mopaq::SFileGetFileDetails(System_SFile::ARCHIVEREC* handle, cons
 int32_t Blizzard::Mopaq::SFileFileIsLocal(const char* name, int32_t flags) {
     int32_t result = Blizzard::Streaming::CheckFileRange(nullptr, 0, 0, name, flags);
 
-    if (result == 1) {
+    if (result == SFILE_LOCAL_YES) {
         return result;
     }
 
@@ -1804,7 +1805,7 @@ int32_t Blizzard::Mopaq::SFileFileIsLocal(const char* name, int32_t flags) {
     uint32_t size;
 
     if (!Blizzard::Mopaq::SFileGetFileDetails(nullptr, name, &archive, &offset, &size)) {
-        return 1;
+        return SFILE_LOCAL_YES;
     }
 
     result = Blizzard::Streaming::CheckFileRange(archive->m_name, offset, size, name, flags);

@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
+#include "Engine/Source/BlizzardCore/SFile2-Core.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/iounit/IOFileUnit.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/iounit/IOUnitContainer.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Mopaq/SFile.h"
@@ -49,7 +50,7 @@ bool IOFileUnit::Read(void* buffer, int64_t offset, uint32_t count, uint32_t* by
         const char* path = Blizzard::File::GetFileInfo(this->m_stream)->m_path;
         Blizzard::File::StreamingInfo* streaming = this->m_stream->m_streaming;
 
-        if (!streaming || !streaming->m_entry || Blizzard::Streaming::CheckFileRange(path, offset, count, path, 5) == 1) {
+        if (!streaming || !streaming->m_entry || Blizzard::Streaming::CheckFileRange(path, offset, count, path, 5) == SFILE_LOCAL_YES) {
             return this->ReadNative(static_cast<uint32_t>(offset), path, buffer, count, bytesRead);
         }
     }

@@ -352,13 +352,13 @@ bool Blizzard::Mopaq::SFileReadFile(IOMpqUnit* file, void* buffer, uint32_t coun
 // OFFSET: 0x0045A610
 int32_t Blizzard::Mopaq::SFileFileIsLocal(IOMpqUnit* file, int32_t flags) {
     if (!file) {
-        return 1;
+        return SFILE_LOCAL_YES;
     }
 
     const char* path = file->GetPath();
     int32_t result = Blizzard::Streaming::CheckFileRange(nullptr, 0, 0, path, flags);
 
-    if (result == 1) {
+    if (result == SFILE_LOCAL_YES) {
         return result;
     }
 
@@ -369,7 +369,7 @@ int32_t Blizzard::Mopaq::SFileFileIsLocal(IOMpqUnit* file, int32_t flags) {
 
     if (!archive) {
         file->Release();
-        return 1;
+        return SFILE_LOCAL_YES;
     }
 
     char name[260];
