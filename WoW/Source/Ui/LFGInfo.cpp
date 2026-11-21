@@ -881,12 +881,7 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
             if (declinedParty) {
                 SI2::PlayUISound(0x43BD);
                 CGGameUI::DisplayError(ERR_LFG_PROPOSAL_DECLINED_PARTY);
-                proposal.m_dungeonId = 0;
-                proposal.m_state = 0;
-                proposal.m_proposalId = 0;
-                proposal.m_completedMask = 0;
-                proposal.m_silent = 0;
-                memset(proposal.m_members, 0, sizeof(proposal.m_members));
+                proposal.Clear();
                 FrameScript_SignalEvent(SCRIPT_EVENT_LFG_PROPOSAL_FAILED, nullptr);
             } else if (declinedSelf) {
                 SI2::PlayUISound(0x43BD);
@@ -1157,12 +1152,7 @@ int32_t LFGPacketHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStor
 
             if (CGLookingForGroup::m_proposal.m_dungeonId && (!joined || queued) && (CGPartyInfo::InParty() || CGRaidInfo::m_numMembers)) {
                 LFGProposal& proposal = CGLookingForGroup::m_proposal;
-                proposal.m_dungeonId = 0;
-                proposal.m_state = 0;
-                proposal.m_proposalId = 0;
-                proposal.m_completedMask = 0;
-                proposal.m_silent = 0;
-                memset(proposal.m_members, 0, sizeof(proposal.m_members));
+                proposal.Clear();
 
                 if (joined) {
                     CGGameUI::DisplayError(ERR_LFG_PROPOSAL_FAILED);
