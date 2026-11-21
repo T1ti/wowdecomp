@@ -33,9 +33,7 @@ void EffectGlow::Execute() {
             this->m_altPasses[i]->Execute();
         }
     } else {
-        for (uint32_t i = 0; i < this->m_passes.Count(); i++) {
-            this->m_passes[i]->Execute();
-        }
+        this->FFX::Effect::Execute();
     }
 }
 

@@ -213,10 +213,7 @@ void CRenderBatch::QueueTexture(CSimpleTexture* texture) {
         }
 
         texture->m_textureFlags &= ~CSimpleTexture::TEXTURE_FLAGS::FLAG_TEXCOORDS_DIRTY;
-        texture->m_texCoords[0] = texCoords[0];
-        texture->m_texCoords[1] = texCoords[1];
-        texture->m_texCoords[2] = texCoords[2];
-        texture->m_texCoords[3] = texCoords[3];
+        texture->SetTexCoord(texCoords);
     }
 
     uint32_t colorCount = texture->m_colorCount;

@@ -910,10 +910,7 @@ void CSimpleFrame::AddAnimAlpha(int16_t alpha) {
         newAlpha = static_cast<uint8_t>(value);
     }
 
-    if (newAlpha != this->m_alpha) {
-        this->m_alpha = newAlpha;
-        this->UpdateAlpha();
-    }
+    this->SetFrameAlpha(newAlpha);
 }
 
 // VERIFY: de9aeb94 auto

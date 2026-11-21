@@ -665,13 +665,7 @@ void CLayoutFrame::RegisterResize(CLayoutFrame* frame, uint32_t dependency) {
     node->m_frame = frame;
     node->m_dependency = dependency;
 
-    if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_DIRTY) {
-        this->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
-    }
-
-    if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTED_MASK) {
-        this->SetProtectFlag(CLayoutFrame::PROTECTION_DEPENDENCY_VALUE);
-    }
+    frame->OnProtectedAttach(this);
 }
 
 // VERIFY: a0d5b2b8 manual
@@ -691,9 +685,7 @@ void CLayoutFrame::UnregisterResize(CLayoutFrame* frame, uint32_t dependency) {
             return;
         }
 
-        if (frame->m_layoutFlags & LayoutFlags::LAYOUT_PROTECTION_STATE_MASK) {
-            this->SetProtectFlag(CLayoutFrame::PROTECTION_DIRTY_VALUE);
-        }
+        frame->OnProtectedDetach(this);
 
         this->m_resizeList.DeleteNode(node);
         node = nullptr;

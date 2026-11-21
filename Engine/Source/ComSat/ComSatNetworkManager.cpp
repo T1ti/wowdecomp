@@ -50,8 +50,7 @@ ComSat::Network::Manager::~Manager() {
     }
     while (this->m_sessions.Count()) {
         ComSat::Network::Session* session = this->m_sessions[0];
-        this->m_sessions.Remove(session);
-        ComSat::Delete(*this->m_allocator, session);
+        this->DestroySession(session);
     }
 }
 

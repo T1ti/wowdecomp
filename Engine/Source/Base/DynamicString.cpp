@@ -59,14 +59,7 @@ CDynamicString& CDynamicString::operator=(const char* str) {
 // OFFSET: 0x0095D760
 void CDynamicString::SetCapacity(int32_t capacity) {
     if (capacity < 1) {
-        this->m_length = 0;
-        this->m_capacity = 0;
-
-        if (this->m_buffer) {
-            SMemFree(this->m_buffer, __FILE__, __LINE__, 0);
-        }
-
-        this->m_buffer = nullptr;
+        this->Free();
         return;
     }
 
