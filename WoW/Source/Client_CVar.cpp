@@ -483,7 +483,7 @@ bool UIFasterCallback(CVar* var, const char* oldValue, const char* value, void* 
         Hardware* hardware = ConsoleGetHardware();
 
         if (hardware) {
-            if (!hardware->m_videoHw && hardware->m_videoDevice.m_vendorID == 0x8086) {
+            if (!hardware->m_videoHw && hardware->m_videoDevice.m_vendorID == GX_PCI_VENDOR_INTEL) {
                 faster &= ~1u;
                 ConsoleWrite("Texture atlas disabled.", DEFAULT_COLOR);
             }

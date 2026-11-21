@@ -2465,7 +2465,7 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
     D3DADAPTER_IDENTIFIER9 identifier;
     this->m_d3d->GetAdapterIdentifier(creationParameters.AdapterOrdinal, 0, &identifier);
 
-    if (identifier.VendorId == 0x10DE && identifier.DeviceId - 0x300 <= 0xFF && this->m_caps.m_shaderConstants[GxSh_Vertex] > 192) {
+    if (identifier.VendorId == GX_PCI_VENDOR_NVIDIA && identifier.DeviceId - 0x300 <= 0xFF && this->m_caps.m_shaderConstants[GxSh_Vertex] > 192) {
         this->m_caps.m_shaderConstants[GxSh_Vertex] = 192;
     }
 
@@ -2504,7 +2504,7 @@ void CGxDeviceD3d9Ex::ISetCaps(const CGxFormat& format) {
     if (this->m_caps.m_texTarget[GxTex_NonPow2]) {
         this->m_caps.m_texNonPow2 = (textureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) != 0;
 
-        if (identifier.VendorId == 0x10DE) {
+        if (identifier.VendorId == GX_PCI_VENDOR_NVIDIA) {
             this->m_caps.m_texNonPow2 = 0;
         }
     }

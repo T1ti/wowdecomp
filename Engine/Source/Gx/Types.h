@@ -10,6 +10,12 @@ struct CGxBuf;
 struct CGxPool;
 class CGxQuery;
 
+// PCI vendor IDs compared against the adapter identifier.
+enum GX_PCI_VENDOR : uint16_t {
+    GX_PCI_VENDOR_NVIDIA = 0x10DE,
+    GX_PCI_VENDOR_INTEL = 0x8086,
+};
+
 enum EGxApi {
     GxApi_OpenGl = 0,
     GxApi_D3d9 = 1,
