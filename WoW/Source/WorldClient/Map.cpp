@@ -133,7 +133,7 @@ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > CMap::entityList = TSExplicit
 TSList<CMapLight, TSGetExplicitLink<CMapLight> > CMap::lightList = TSExplicitList<CMapLight, offsetof(CMapLight, m_lameAssLink)>();
 
 // STATIC: 0x00ADFBEC
-TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::s_unk_ADFBEC = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
+TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::areaLinkList = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
 
 // STATIC: 0x00ADFC28
 TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> CMap::s_mapRenderChunkUpdateList;
@@ -358,7 +358,7 @@ bool CMap::enableTerrainShaderVertex;
 HASHKEY_NONE CMap::s_mapObjDefHashKey;
 
 // STATIC: 0x00ADFBF8
-TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::s_unk_ADFBF8 = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
+TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::doodadDefLinkList = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
 
 // STATIC: 0x00ADFC04
 TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::mapObjDefLinkList = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
@@ -2015,11 +2015,11 @@ void CMap::PreUpdateAreas(bool addToScene) {
     CMap::ProcessDetailDoodadUpdateList();
 
     int32_t waitForLoad = !(CMap::s_isStreamingMode || CMap::bPreload);
-    CMapBaseObjLink* link = CMap::s_unk_ADFBEC.Head();
+    CMapBaseObjLink* link = CMap::areaLinkList.Head();
 
     while (link) {
         CMapArea* area = static_cast<CMapArea*>(link->m_owner);
-        CMapBaseObjLink* next = CMap::s_unk_ADFBEC.Next(link);
+        CMapBaseObjLink* next = CMap::areaLinkList.Next(link);
 
         if (area->m_index.x >= minX && area->m_index.x <= maxX && area->m_index.y >= minY && area->m_index.y <= maxY) {
             C2Vector pos(World::s_currentWorldPos.x, World::s_currentWorldPos.y);
@@ -2147,7 +2147,7 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
         box.t.x = World::s_currentWorldPos.x + 16.666666f;
         box.t.y = World::s_currentWorldPos.y + 16.666666f;
         box.t.z = World::s_currentWorldPos.z + 16.666666f;
-        list = &CMap::s_unk_ADFBF8;
+        list = &CMap::doodadDefLinkList;
     } else {
         if (!chunk) {
             return 0;
@@ -3985,10 +3985,10 @@ void CMap::PurgeArea(CMapArea* area) {
 // VERIFY: e2dae8ec manual
 // OFFSET: 0x007C3730
 void CMap::PurgeMaps() {
-    CMapBaseObjLink* link = CMap::s_unk_ADFBEC.Head();
+    CMapBaseObjLink* link = CMap::areaLinkList.Head();
 
     while (link) {
-        CMapBaseObjLink* next = CMap::s_unk_ADFBEC.Next(link);
+        CMapBaseObjLink* next = CMap::areaLinkList.Next(link);
         CMapArea* area = static_cast<CMapArea*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
         CMap::m_areaTable[CMap::GetAreaIndex(area->m_index.x, area->m_index.y)] = nullptr;
@@ -4140,7 +4140,7 @@ void CMap::LoadArea(CMapArea* area) {
 CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
     CMapArea* area = CMap::AllocArea();
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(area);
-    CMap::s_unk_ADFBEC.LinkToTail(link);
+    CMap::areaLinkList.LinkToTail(link);
 
     area->m_tileChunkIndex.x = MAP_CHUNKS_PER_AREA_AXIS * areaIndexX;
     area->m_index.y = areaIndexY;
@@ -5868,8 +5868,8 @@ void CMap::Unload() {
         link = next;
     }
 
-    for (CMapBaseObjLink* link = CMap::s_unk_ADFBF8.Head(); link;) {
-        CMapBaseObjLink* next = CMap::s_unk_ADFBF8.Next(link);
+    for (CMapBaseObjLink* link = CMap::doodadDefLinkList.Head(); link;) {
+        CMapBaseObjLink* next = CMap::doodadDefLinkList.Next(link);
         CMapBaseObj* owner = link->m_owner;
         CMap::FreeBaseObjLink(link);
 

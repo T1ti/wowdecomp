@@ -201,7 +201,8 @@ class CMap {
     static bool enablePixelShaders;
     static bool enableVertexShaders;
     static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > mapObjDefLinkList;
-    static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > s_unk_ADFBF8;
+    // Global doodad defs of a WMO-only map: hit-tested in dungeons, purged with the map (name inferred).
+    static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > doodadDefLinkList;
     static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > s_globalLightList;
     static CGxBuf* lowDetailIndexBuf;
     static CGxPool* lowDetailIndexPool;
@@ -260,7 +261,8 @@ class CMap {
     static TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > mapObjDefGroupList;
     static TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > entityList;
     static TSList<CMapLight, TSGetExplicitLink<CMapLight> > lightList;
-    static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > s_unk_ADFBEC;
+    // Every prepared ADT area (PrepareArea links, PurgeMaps frees). Name inferred, after mapObjDefLinkList.
+    static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > areaLinkList;
     static TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > s_detailDoodadUpdateList;
     static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkUpdateList;
     static bool enableSpecularTerrain;
