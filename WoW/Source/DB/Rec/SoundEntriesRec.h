@@ -21,6 +21,15 @@ enum SOUND_ENTRY_FLAGS : uint32_t {
     SOUND_ENTRY_FLAG_RANDOM_VOLUME = 0x00000800,
 };
 
+// SoundEntries.dbc record IDs the client plays directly, named from their m_name.
+enum SOUND_ENTRY_ID : int32_t {
+    SOUND_ENTRY_ID_PVP_ENTER_QUEUE = 8462, // "PVPENTERQUEUE"
+    SOUND_ENTRY_ID_AGGRO_ENTER_WARNING_STATE = 15262, // "Aggro_Enter_Warning_State"
+    SOUND_ENTRY_ID_AGGRO_PULLED_AGGRO = 15263, // "Aggro_Pulled_Aggro"
+    SOUND_ENTRY_ID_LFG_DUNGEON_READY = 17318, // "LFG_DungeonReady"
+    SOUND_ENTRY_ID_LFG_DENIED = 17341, // "LFG_Denied"
+};
+
 class SoundEntriesRec {
     public:
     static const int32_t s_numColumns = 30;

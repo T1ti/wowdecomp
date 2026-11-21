@@ -100,6 +100,7 @@
 #include "WoW/Source/DB/Rec/MapRec.h"
 #include "WoW/Source/DB/Rec/SkillLineAbilityRec.h"
 #include "WoW/Source/DB/Rec/SkillRaceClassInfoRec.h"
+#include "WoW/Source/DB/Rec/SoundEntriesRec.h"
 #include "WoW/Source/DB/Rec/SpellDispelTypeRec.h"
 #include "WoW/Source/DB/Rec/SpellMissileMotionRec.h"
 #include "WoW/Source/DB/Rec/SpellShapeshiftFormRec.h"
@@ -17542,7 +17543,7 @@ bool CGUnit_C::UpdateThreatEntry(UnitThreat* entry, int32_t highestThreat, bool 
     if (status != entry->m_status) {
         if (activePlayer) {
             if (s_cvThreatPlaySounds->m_intValue && status == UnitThreat::THREAT_STATUS_HIGH && entry->m_status == UnitThreat::THREAT_STATUS_LOW) {
-                SI2::PlayUISound(15262);
+                SI2::PlayUISound(SOUND_ENTRY_ID_AGGRO_ENTER_WARNING_STATE);
             }
 
             if (!(this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_NEW_ACTIVE_PLAYER_THREAT_ENTRY)) {
@@ -17585,7 +17586,7 @@ void CGUnit_C::UpdateThreatStatus() {
             this->AddWorldThreatUpdateText(highest->m_status, status);
 
             if (s_cvThreatPlaySounds->m_intValue) {
-                SI2::PlayUISound(15263);
+                SI2::PlayUISound(SOUND_ENTRY_ID_AGGRO_PULLED_AGGRO);
             }
         }
 
