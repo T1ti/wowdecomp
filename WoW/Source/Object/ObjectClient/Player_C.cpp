@@ -3209,10 +3209,7 @@ void CGPlayer_C::SetCombatMode() {
     }
 
     Spell_C_ClearLastAutoRangedCombatError();
-    Spell_C_SetAutoRangedCombatSpell(0);
-    EventUnregister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_MASK;
-    CGGameUI::UpdateCombatMode();
+    this->ExitAutoCombatMode();
 
     if (static_cast<int32_t>(this->m_unit->m_unitFieldLevel) < 2) {
         return;
@@ -13457,10 +13454,7 @@ void CGPlayer_C::DestructActivePlayer() {
         this->m_playerLocalMirrorLists[i].~TSList<void>();
     }
 
-    Spell_C_SetAutoRangedCombatSpell(0);
-    EventUnregister(EVENT_ID_IDLE, CGPlayer_C::AutoCombatModeEventHandler);
-    this->m_combatModeFlags &= ~COMBAT_MODE_FLAGS::COMBAT_MODE_AUTO_MASK;
-    CGGameUI::UpdateCombatMode();
+    this->ExitAutoCombatMode();
     s_visibleAuraEffectDisplay = 0;
     s_visibleAuraEffectFlags = 0;
 }
