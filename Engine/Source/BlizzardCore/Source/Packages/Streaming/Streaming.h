@@ -108,16 +108,24 @@ struct WriteRequest {
     /* 0020 */ int32_t m_size;
 };
 
+// FILE_THREAD_CMD::m_type; named from the Streaming function that queues
+// each value (inferred). A cancelled command is reset to NONE.
+enum FILE_THREAD_CMD_TYPE : int32_t {
+    FILE_THREAD_CMD_NONE = 0,
+    FILE_THREAD_CMD_LOAD = 1, // QueueLoad
+    FILE_THREAD_CMD_COMPLETION = 2, // QueueCompletion
+};
+
 struct FILE_THREAD_CMD {
     /* 0000 */ Blizzard::File::Filesystem* m_fs;
-    /* 0004 */ int32_t m_type;
+    /* 0004 */ int32_t m_type; // FILE_THREAD_CMD_TYPE
     /* 0008 */ Blizzard::File::StreamRecord* m_file;
     /* 000C */ LoadRange* m_range;
     /* 0010 */ Completion* m_completion;
 };
 
 struct DigestState {
-    /* 0000 */ int32_t m_state;
+    /* 0000 */ int32_t m_state; // SFILE_LOCAL_*, as stored by CheckFileRange
     /* 0004 */ int32_t m_priority;
 };
 
