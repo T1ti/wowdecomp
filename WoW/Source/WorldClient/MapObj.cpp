@@ -42,6 +42,7 @@
 #include "Engine/Source/Tempest/CMath.h"
 #include "Engine/Source/Tempest/CWFrustum.h"
 #include "Engine/Source/Tempest/NTempest.h"
+#include "WoW/Source/DB/Rec/WMOAreaTableRec.h"
 #include "WoW/Source/WorldClient/CMapBaseObjLink.h"
 #include "WoW/Source/WorldClient/CPortalView.h"
 #include "WoW/Source/WorldClient/CWorldMath.h"
@@ -3016,7 +3017,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
     ::GetMinimapQuads(&group->m_bbox, box, groupNum, quads, maxQuads);
     int32_t wmoGroupId = group->m_wmoGroupId;
 
-    if (wmoGroupId == 23015 || wmoGroupId == 23016 || !group->m_portalCount || !g_minimapPortalMaxCVar || depth >= static_cast<uint32_t>(g_minimapPortalMaxCVar->m_intValue)) {
+    if (wmoGroupId == WMO_GROUP_ID_RAVENS_WATCH || wmoGroupId == WMO_GROUP_ID_EAGLES_EYE || !group->m_portalCount || !g_minimapPortalMaxCVar || depth >= static_cast<uint32_t>(g_minimapPortalMaxCVar->m_intValue)) {
         return;
     }
 
@@ -3048,7 +3049,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
         CMapObjGroup* targetGroup;
 
-        if (!this->m_isGroupLoaded || !((targetGroup = this->m_mapObjGroupArray[target])->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != 23015 && targetGroup->m_wmoGroupId != 23016)) {
+        if (!this->m_isGroupLoaded || !((targetGroup = this->m_mapObjGroupArray[target])->m_unkLoadedFlag & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
             this->QueryMapObjMinimapGroup(target, groupNum, box, quads, maxQuads, inside, flagsMask, ++depth);
         }
     }

@@ -664,7 +664,7 @@ void CGUnit_C::PlayEmoteSound(int32_t soundKitId, bool checkCVars, int32_t fileI
         }
     }
 
-    if (soundKitId != 6576 && this->m_unit->m_classID == CLASS_DEATH_KNIGHT) {
+    if (soundKitId != SOUND_ENTRY_ID_CLAP && this->m_unit->m_classID == CLASS_DEATH_KNIGHT) {
         properties.m_useDspChain = 1;
         SI2::DK_GetPlayerFilterName(this, properties.m_dspChainName, sizeof(properties.m_dspChainName));
     }

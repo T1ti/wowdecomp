@@ -18,6 +18,12 @@ enum WMO_AREA_FLAGS : int32_t {
     WMO_AREA_FLAG_CHUNK_USES_TERRAIN_FOR_MINIMAP = 0x00000020,
 };
 
+// WMO group IDs (m_wmogroupID) the client tests directly, named from their m_areaName.
+enum WMO_GROUP_ID : int32_t {
+    WMO_GROUP_ID_RAVENS_WATCH = 23015, // "Raven's Watch"
+    WMO_GROUP_ID_EAGLES_EYE = 23016, // "Eagle's Eye"
+};
+
 class WMOAreaTableRec {
     public:
     static const int32_t s_numColumns = 28;
