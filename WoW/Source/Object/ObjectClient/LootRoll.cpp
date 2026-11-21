@@ -215,20 +215,21 @@ static void LootRollCalculateReasons(PendingLootRoll* roll, const ItemStats_C* s
     bool invalid = !player->m_bag.ItemCountValid(roll->m_itemId, stats, roll->m_count, false);
     uint8_t mask = roll->m_voteMask;
 
-    if (mask & 0x2) {
-        roll->m_reasonNeed = 0;
+    if (mask & (1 << LOOT_ROLL_NEED)) {
+        roll->m_reasonNeed = LOOT_ROLL_ELIGIBLE;
     } else if (invalid) {
-        roll->m_reasonNeed = 2;
+        roll->m_reasonNeed = LOOT_ROLL_INELIGIBLE_MAX_COUNT;
     } else {
-        roll->m_reasonNeed = (stats->m_flags[1] & ITEM_STATIC_FLAGS2::ITEM_FLAG2_CAN_ONLY_ROLL_GREED) ? 5 : 1;
+        roll->m_reasonNeed = (stats->m_flags[1] & ITEM_STATIC_FLAGS2::ITEM_FLAG2_CAN_ONLY_ROLL_GREED) ? LOOT_ROLL_INELIGIBLE_NEED_DISABLED : LOOT_ROLL_INELIGIBLE_CLASS;
     }
 
-    roll->m_reasonGreed = ~(mask >> 1) & 0x2;
+    // The greed bit (1 << LOOT_ROLL_GREED) shifted down onto the reason value: 0 when set.
+    roll->m_reasonGreed = ~(mask >> 1) & LOOT_ROLL_INELIGIBLE_MAX_COUNT;
 
-    if (mask & 0x8) {
-        roll->m_reasonDisenchant = 0;
+    if (mask & (1 << LOOT_ROLL_DISENCHANT)) {
+        roll->m_reasonDisenchant = LOOT_ROLL_ELIGIBLE;
     } else {
-        roll->m_reasonDisenchant = (static_cast<int32_t>(stats->m_requiredDisenchantSkill) >= 0) + 3;
+        roll->m_reasonDisenchant = (static_cast<int32_t>(stats->m_requiredDisenchantSkill) >= 0) + LOOT_ROLL_INELIGIBLE_NO_DISENCHANT;
     }
 }
 

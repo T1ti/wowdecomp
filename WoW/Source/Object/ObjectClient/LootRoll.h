@@ -27,14 +27,14 @@ struct PendingLootRoll : public TSLinkedNode<PendingLootRoll> {
     /* 0042 */ uint8_t m_finished;
     /* 0043 */ uint8_t unknown_0043;
     /* 0044 */ uint32_t m_rollTime;
-    /* 0048 */ uint8_t m_voteMask;
+    /* 0048 */ uint8_t m_voteMask;          // 1 << LOOT_ROLL_TYPE
     /* 0049 */ uint8_t unknown_0049[3];
     /* 004C */ uint32_t m_rollType;
     /* 0050 */ uint8_t m_autoPass;
     /* 0051 */ uint8_t unknown_0051;
-    /* 0052 */ uint8_t m_reasonNeed;
-    /* 0053 */ uint8_t m_reasonGreed;
-    /* 0054 */ uint8_t m_reasonDisenchant;
+    /* 0052 */ uint8_t m_reasonNeed;        // LOOT_ROLL_INELIGIBLE_REASON
+    /* 0053 */ uint8_t m_reasonGreed;       // LOOT_ROLL_INELIGIBLE_REASON
+    /* 0054 */ uint8_t m_reasonDisenchant;  // LOOT_ROLL_INELIGIBLE_REASON
     /* 0055 */ uint8_t unknown_0055 [3];
 };
 
@@ -51,6 +51,16 @@ enum LOOT_ROLL_TYPE : int32_t {
     LOOT_ROLL_NEED = 1,
     LOOT_ROLL_GREED = 2,
     LOOT_ROLL_DISENCHANT = 3,
+};
+
+// GetLootRollItemInfo reason codes; FrameXML shows LOOT_ROLL_INELIGIBLE_REASON<n> for each.
+enum LOOT_ROLL_INELIGIBLE_REASON : uint8_t {
+    LOOT_ROLL_ELIGIBLE = 0,
+    LOOT_ROLL_INELIGIBLE_CLASS = 1,           // "Your class may not roll need on this item."
+    LOOT_ROLL_INELIGIBLE_MAX_COUNT = 2,       // "You already have the maximum amount of this item."
+    LOOT_ROLL_INELIGIBLE_NO_DISENCHANT = 3,   // "This item may not be disenchanted"
+    LOOT_ROLL_INELIGIBLE_NO_ENCHANTER = 4,    // "You do not have an Enchanter of skill %d in your group."
+    LOOT_ROLL_INELIGIBLE_NEED_DISABLED = 5,   // "Need rolls are disabled for this item."
 };
 
 void LootRoll(int32_t id, int32_t rollType, bool confirmed);
