@@ -438,6 +438,9 @@ class M2Data {
         RUNTIME_ALLOCATION_MASK = 0x60,
     };
 
+    static const uint32_t MAGIC = 0x3032444D; // 'MD20'
+    static const uint32_t VERSION = 0x108; // the only version M2Init accepts
+
     /* 0000 */ uint32_t m_magic;
     /* 0004 */ uint32_t m_version;
     /* 0008 */ M2Array<char> m_name;

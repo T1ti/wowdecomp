@@ -1535,11 +1535,11 @@ int32_t M2Init(uint8_t* base, uint32_t size, M2Data& data) {
         return 0;
     }
 
-    if (data.m_magic != 0x3032444D) {
+    if (data.m_magic != M2Data::MAGIC) {
         return 0;
     }
 
-    if (data.m_version < 0x108 || data.m_version > 0x108) {
+    if (data.m_version < M2Data::VERSION || data.m_version > M2Data::VERSION) {
         return 0;
     }
 
