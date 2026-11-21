@@ -75,7 +75,7 @@ CPlayerMoveEvent* CPlayerMoveQueue::AllocEvent(uint32_t eventTime, MoveEventId e
 
     event->m_eventTime = eventTime;
     event->m_eventId = eventId;
-    event->unk_0050 = 0;
+    event->m_hasMoveStatus = 0;
     return event;
 }
 
@@ -486,7 +486,7 @@ BOOL CMovement_C::IsFacetWall(uint32_t facet) const {
 // OFFSET: 0x006EC3B0
 void CMovement_C::FixupQueuedSetFacingEvents(float delta) {
     for (CPlayerMoveEvent* event = this->m_moveQueue.Head(); event; event = event->m_link.Next()) {
-        if (event->m_eventId == PMOVE_SET_FACING || event->unk_0050) {
+        if (event->m_eventId == PMOVE_SET_FACING || event->m_hasMoveStatus) {
             event->m_facing = CMath::normalizeangle0to2pi_(delta + event->m_facing);
         }
     }
@@ -684,7 +684,7 @@ void CMovement_C::SetInterpolation(uint32_t time) {
 
     CPlayerMoveEvent* next = this->m_moveQueue.Head();
 
-    if (!next || !next->unk_0050 || next->m_eventId == MOVEEVENT_TELEPORT) {
+    if (!next || !next->m_hasMoveStatus || next->m_eventId == MOVEEVENT_TELEPORT) {
         return;
     }
 
@@ -4640,7 +4640,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
             int32_t jumping = this->IsJumping();
             int32_t stoppedFalling = 0;
 
-            if (event->unk_0050) {
+            if (event->m_hasMoveStatus) {
                 if (!(event->m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED)) {
                     if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
                         this->m_unit->OnCollideFallLand(0, 1);
@@ -4931,7 +4931,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                 case MOVEEVENT_TELEPORT:
                     this->m_flags2 ^= (this->m_flags2 ^ event->m_moveExtraFlags) & MOVEMENTFLAG2_TELEPORT_MASK;
 
-                    if (event->unk_0050) {
+                    if (event->m_hasMoveStatus) {
                         this->HeartBeat(event);
                     }
 
@@ -5036,7 +5036,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
             if (event->m_eventId != MOVEEVENT_TELEPORT) {
                 this->m_unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
-                if (event->unk_0050 && this->HeartBeat(event) && stoppedFalling) {
+                if (event->m_hasMoveStatus && this->HeartBeat(event) && stoppedFalling) {
                     this->m_unit->OnCollideFallLand(oldFlags, jumping);
                 }
 
@@ -5690,7 +5690,7 @@ void CMovement_C::FlushMoveEvent(CPlayerMoveEvent* event, BOOL removeSpline) {
             break;
     }
 
-    if (event->unk_0050) {
+    if (event->m_hasMoveStatus) {
         this->HeartBeat(event);
     }
 
@@ -6400,11 +6400,11 @@ void CPlayerMoveEvent::FromMoveStatus(const CMovementStatus& status) {
         this->m_facing = status.m_transportFacing;
         this->m_seat = status.m_transportSeat;
         this->m_pitch = status.m_pitch;
-        this->unk_0050 = 1;
+        this->m_hasMoveStatus = 1;
     } else {
         this->m_position = status.m_position;
         this->m_facing = status.m_facing;
-        this->unk_0050 = 1;
+        this->m_hasMoveStatus = 1;
         this->m_pitch = status.m_pitch;
     }
 

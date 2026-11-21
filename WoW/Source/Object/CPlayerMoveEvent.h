@@ -29,7 +29,7 @@ class CPlayerMoveEvent {
     /* 0044 */ float m_launchSpeed;
     /* 0048 */ float m_launchVerticalSpeed;
     /* 004C */ uint32_t m_ackCounter;
-    /* 0050 */ uint8_t unk_0050;
+    /* 0050 */ uint8_t m_hasMoveStatus; // Filled by FromMoveStatus; replayed through HeartBeat (name inferred).
     /* 0051 */ uint8_t m_needAck;
     /* 0052 */ uint8_t m_seat;
     /* 0053 */ uint8_t unknown_0053;
