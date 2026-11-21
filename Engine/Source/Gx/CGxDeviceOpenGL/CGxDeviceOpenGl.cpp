@@ -139,7 +139,7 @@ CGxDeviceOpenGl::CGxDeviceOpenGl() {
     this->unused_3B50 = 0;
     this->m_viewDirty = 0;
     this->m_caps.m_colorFormat = GxCF_rgba;
-    this->m_caps.unk_0018 = 0;
+    this->m_caps.m_buffering = 0;
     this->m_renderTargetMode = RENDER_TARGET_MODE_COPY;
     this->m_ambientOnlyMode = 0;
     this->DsInit();

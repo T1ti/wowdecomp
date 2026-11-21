@@ -138,7 +138,7 @@ static int32_t Script_GetVideoCaps(lua_State* L) {
         lua_pushnil(L);
     }
 
-    lua_pushnumber(L, caps.unk_0018);
+    lua_pushnumber(L, caps.m_buffering);
 
     if (caps.m_maxTexAnisotropy) {
         lua_pushnumber(L, caps.m_maxTexAnisotropy);

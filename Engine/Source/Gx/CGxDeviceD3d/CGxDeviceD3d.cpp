@@ -242,7 +242,7 @@ CGxDeviceD3d::CGxDeviceD3d() : m_desktopDisplayMode() {
     this->m_d3dStereoHandle = 0;
     this->m_d3dStereoDirty = 0;
     this->m_caps.m_colorFormat = GxCF_argb;
-    this->m_caps.unk_0018 = 1;
+    this->m_caps.m_buffering = 1;
     memset(this->m_deviceStates, 0xFF, sizeof(this->m_deviceStates));
     memset(this->m_texEnabled, 0, sizeof(this->m_texEnabled));
     memset(this->m_d3dVertexDecl, 0, sizeof(this->m_d3dVertexDecl));

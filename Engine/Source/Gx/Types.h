@@ -232,7 +232,7 @@ class CGxCaps {
     /* 000C */ int32_t m_numStreams;
     /* 0010 */ int32_t m_streamOffset;
     /* 0014 */ EGxColorFormat m_colorFormat;
-    /* 0018 */ int32_t unk_0018;
+    /* 0018 */ int32_t m_buffering; // GetVideoCaps "buffering" (FrameXML VideoOptionsPanels.lua)
     /* 001C */ uint32_t m_maxIndex;
     /* 0020 */ int32_t m_generateMipMaps;
     /* 0024 */ int32_t m_texFmt [13];
