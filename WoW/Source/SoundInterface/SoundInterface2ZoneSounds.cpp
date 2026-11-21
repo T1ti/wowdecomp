@@ -453,14 +453,14 @@ int32_t SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
 
     if (!s_enableAllSound || !s_enableAllSound->m_intValue || CGGameUI::m_inMovie) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     if (group == SI2_SOUND_GROUP_SCRIPT_MUSIC) {
         static CVar* s_enableMusic = CVar::Lookup("Sound_EnableMusic");
 
         if (!s_enableMusic || !s_enableMusic->m_intValue) {
-            return 10;
+            return SI2_ERR_MUSIC_DISABLED;
         }
     }
 
@@ -487,7 +487,7 @@ int32_t SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
         s_zoneMusic.Stop(0);
     }
 
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: 14578d5d auto

@@ -4,6 +4,30 @@
 #include <cstddef>
 #include <cstdint>
 
+// Results of the SI2 play/attach calls (PlaySoundKit, PlaySoundFile, AddAdvancedSound,
+// SI2ZoneSoundPair::Transition, ...). The client has no strings for them: every name is
+// inferred from the check that returns it. Values 1..4, 13, 19 and 23 are never returned.
+enum SI2_RESULT : int32_t {
+    SI2_OK = 0,
+    SI2_ERR_INVALID_SOUND_KIT = 5,    // ID <= 0 or no SoundEntries row
+    SI2_ERR_NO_FILES = 6,
+    SI2_ERR_SOUND_KIT_NOT_FOUND = 7,  // name lookup failed
+    SI2_ERR_INVALID_GROUP = 8,
+    SI2_ERR_SFX_DISABLED = 9,         // Sound_EnableSFX off, or a 2D sound while chat is paused
+    SI2_ERR_MUSIC_DISABLED = 10,
+    SI2_ERR_AMBIENCE_DISABLED = 11,
+    SI2_ERR_NOT_3D = 12,
+    SI2_ERR_GROUP_FULL = 14,          // channel group at its max sound count
+    SI2_ERR_ALREADY_PLAYING = 15,     // suppressed, already current, or an identical sound nearby
+    SI2_ERR_FILE_FAILED = 16,
+    SI2_ERR_SOUND_DISABLED = 17,      // no sound system, Sound_EnableAllSound off or in a movie
+    SI2_ZONE_SOUND_STOPPED = 18,
+    SI2_DOWNLOAD_PENDING = 20,
+    SI2_ZONE_SOUND_RESUMED = 21,      // fading back in the sound that was fading out
+    SI2_ERR_OUT_OF_MEMORY = 22,
+    SI2_ERR_NO_ADVANCED_RECORD = 24,
+};
+
 enum SNDROOMTYPE : int32_t {
     SNDROOMTYPE_OFF = -1, // Current FMOD disabled-environment sentinel.
     SNDROOMTYPE_GENERIC = 0,

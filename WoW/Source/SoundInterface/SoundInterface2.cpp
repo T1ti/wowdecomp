@@ -337,11 +337,11 @@ int32_t SI2::GetNumSoundsInSoundKit(int32_t soundKitId) {
 // OFFSET: 0x004C5C80
 int32_t SI2::AttachToObject(SE2SoundKitObject* object, WOWGUID guid) {
     if (!object->m_sound.Is3D()) {
-        return 12;
+        return SI2_ERR_NOT_3D;
     }
 
     object->m_sound.AttachToObject(guid.m_guid);
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: f1864be0 auto
@@ -547,22 +547,22 @@ int32_t SI2::ResetSoundKitVariants(const char* name) {
     int32_t soundKitId = SI2::LookupSoundKitId(name);
 
     if (!soundKitId) {
-        return 7;
+        return SI2_ERR_SOUND_KIT_NOT_FOUND;
     }
 
     VSOUNDKITDEF* def = SI2::GetSoundKitDef(soundKitId);
 
     if (!def) {
-        return 5;
+        return SI2_ERR_INVALID_SOUND_KIT;
     }
 
     if (!def->m_numFiles) {
-        return 6;
+        return SI2_ERR_NO_FILES;
     }
 
     def->ResetWeights();
     def->m_lastIndex = -1;
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: 2c0f24c2 auto
@@ -682,27 +682,27 @@ void SI2::RegisterDeviceChangeHandler() {
 // OFFSET: 0x004C6A40
 int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying) {
     if (soundKitId <= 0) {
-        return 5;
+        return SI2_ERR_INVALID_SOUND_KIT;
     }
 
     VSOUNDKITDEF* def = SI2::GetSoundKitDef(soundKitId);
 
     if (!def) {
-        return 5;
+        return SI2_ERR_INVALID_SOUND_KIT;
     }
 
     if (!def->m_numFiles) {
-        return 6;
+        return SI2_ERR_NO_FILES;
     }
 
     if (!SE2::IsInitialized()) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
 
     if (!s_enableAllSound || !s_enableAllSound->m_intValue || CGGameUI::m_inMovie) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     SE2SoundKitProperties defaults;
@@ -713,14 +713,14 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     }
 
     if (SI2::s_channelGroupNumSounds[properties->m_group] >= SI2::s_channelGroupMaxSounds[properties->m_group]) {
-        return 14;
+        return SI2_ERR_GROUP_FULL;
     }
 
     if (!strcmp(SI2::s_channelGroupNames[properties->m_group], "SFX")) {
         static CVar* s_enableSFX = CVar::Lookup("Sound_EnableSFX");
 
         if (!s_enableSFX || !s_enableSFX->m_intValue) {
-            return 9;
+            return SI2_ERR_SFX_DISABLED;
         }
     }
 
@@ -728,7 +728,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         static CVar* s_enableMusic = CVar::Lookup("Sound_EnableMusic");
 
         if (!s_enableMusic || !s_enableMusic->m_intValue) {
-            return 10;
+            return SI2_ERR_MUSIC_DISABLED;
         }
     }
 
@@ -736,16 +736,16 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         static CVar* s_enableAmbience = CVar::Lookup("Sound_EnableAmbience");
 
         if (!s_enableAmbience || !s_enableAmbience->m_intValue) {
-            return 11;
+            return SI2_ERR_AMBIENCE_DISABLED;
         }
     }
 
     if (properties->m_group >= SI2_SOUND_GROUP_COUNT) {
-        return 8;
+        return SI2_ERR_INVALID_GROUP;
     }
 
     if (CGChat::IsPaused() && !position) {
-        return 9;
+        return SI2_ERR_SFX_DISABLED;
     }
 
     if (properties->m_suppressorMode == SE2_SUPPRESSOR_MODE_HONOR) {
@@ -759,7 +759,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     if (def->m_flags & SOUND_ENTRY_FLAG_SUPPRESSIBLE) {
         for (uint32_t i = 0; i < SI2::s_suppressors.Count(); i++) {
             if (SI2::s_suppressors[i] == static_cast<uint32_t>(soundKitId)) {
-                return 15;
+                return SI2_ERR_ALREADY_PLAYING;
             }
         }
     }
@@ -781,7 +781,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     const char* file = def->SelectFile(properties->m_selectMode, nullptr, properties->m_fileIndex, GetDownloadPriority(properties->m_group));
 
     if (!file) {
-        return 16;
+        return SI2_ERR_FILE_FAILED;
     }
 
     if (properties->m_checkStreaming) {
@@ -790,7 +790,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
         if (local != SFILE_LOCAL_YES) {
             if (properties->m_group == SI2_SOUND_GROUP_RACIAL_CINEMATIC) {
                 if (!SFile::MakeFileLocal(file, 2, true)) {
-                    return 16;
+                    return SI2_ERR_FILE_FAILED;
                 }
             } else if (local == SFILE_LOCAL_NO || local == SFILE_LOCAL_PARTIAL) {
                 if (local == SFILE_LOCAL_NO) {
@@ -798,7 +798,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
                 }
 
                 def->m_downloadPending = 1;
-                return 20;
+                return SI2_DOWNLOAD_PENDING;
             }
         }
     }
@@ -806,7 +806,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     def->m_downloadPending = 0;
 
     if (properties->m_blockMusicFiles && (SStrStrI(file, "music") || SStrStrI(file, "ambience") || SStrStrI(file, "cinematic"))) {
-        return 16;
+        return SI2_ERR_FILE_FAILED;
     }
 
     int32_t looping = 0;
@@ -833,20 +833,20 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
     if (def->m_advanced && !advancedId) {
         SI2::AddAdvancedSound(def->m_advanced, soundKitId, position, properties->m_coneOrientation, object, 0, 0, checkDistance, properties->m_loopMode == SE2_LOOP_MODE_LOOPING);
-        return 0;
+        return SI2_OK;
     }
 
     bool randomStart = properties->m_group != SI2_SOUND_GROUP_MUSIC && properties->m_group != SI2_SOUND_GROUP_SCRIPT_MUSIC && !properties->m_noRandomStart;
 
     if (position) {
         if (!sound->Create3D(file, looping, def->m_loadSoundGroup, def->m_soundGroup, randomStart, properties->m_streaming, properties->m_priority, properties->m_software, properties->m_coneInsideAngle, properties->m_coneOutsideAngle, properties->m_coneOutsideVolume, properties->m_coneOrientation)) {
-            return 16;
+            return SI2_ERR_FILE_FAILED;
         }
 
         sound->Set3DPosition(*position);
         sound->Set3DMinMaxDistance(def->m_minDistance, properties->m_maxDistance > -1.0f ? properties->m_maxDistance : def->m_distanceCutoff);
     } else if (!sound->Create2D(file, looping, def->m_loadSoundGroup, def->m_soundGroup, randomStart, properties->m_streaming, properties->m_reverb, properties->m_priority, properties->m_decodeBufferSize)) {
-        return 16;
+        return SI2_ERR_FILE_FAILED;
     }
 
     sound->SetChannelGroup(SI2::s_channelGroupNames[properties->m_group], properties->m_group != SI2_SOUND_GROUP_CINEMATIC);
@@ -920,7 +920,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
     }
 
     sound->Play();
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: 4ec0a358 manual
@@ -930,7 +930,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         SI2::StopSound(&this->m_sounds[this->m_current].m_object, 0, -1.0f, 1);
         this->m_sounds[this->m_current].m_type = type;
         this->m_sounds[this->m_current].m_soundKitId = 0;
-        return 18;
+        return SI2_ZONE_SOUND_STOPPED;
     }
 
     if (immediate) {
@@ -942,14 +942,14 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         if (!result) {
             this->m_sounds[this->m_current].m_soundKitId = soundKitId;
             this->m_sounds[this->m_current].m_type = type;
-            return 0;
+            return SI2_OK;
         }
 
         return result;
     }
 
     if (soundKitId == this->m_sounds[this->m_current].m_soundKitId && this->IsPlaying()) {
-        return 15;
+        return SI2_ERR_ALREADY_PLAYING;
     }
 
     if (soundKitId == this->m_sounds[this->m_next].m_soundKitId && this->m_sounds[this->m_next].m_object.m_sound.IsPlaying()) {
@@ -968,7 +968,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         uint32_t current = this->m_current;
         this->m_next = current;
         this->m_current = 1 - current;
-        return 21;
+        return SI2_ZONE_SOUND_RESUMED;
     }
 
     SI2::StopSound(&this->m_sounds[this->m_next].m_object, 0, -1.0f, 1);
@@ -988,7 +988,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         uint32_t current = this->m_current;
         this->m_next = current;
         this->m_current = 1 - current;
-        return 0;
+        return SI2_OK;
     }
 
     return result;
@@ -1013,13 +1013,13 @@ SE2SoundKitObject::~SE2SoundKitObject() {
 // OFFSET: 0x004C74A0
 int32_t SI2::PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties) {
     if (!SE2::IsInitialized()) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     int32_t soundKitId = SI2::LookupSoundKitId(name);
 
     if (!soundKitId) {
-        return 7;
+        return SI2_ERR_SOUND_KIT_NOT_FOUND;
     }
 
     return SI2::PlaySoundKit(soundKitId, position, object, properties, 0, nullptr, 1, 0);
@@ -1306,7 +1306,7 @@ int32_t SI2::Init(int32_t restart) {
     if (CmdLineGetBool(static_cast<CMDOPT>(CMD_NO_SOUND))) {
         SI2::RegisterSoundEngineCVars();
         SI2::RegisterCVars();
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     if (!restart) {
@@ -1394,7 +1394,7 @@ int32_t SI2::Init(int32_t restart) {
         SI2::DSP_Init();
     }
 
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: db4e7763 manual

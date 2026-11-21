@@ -639,11 +639,11 @@ void SI2::StopAdvancedSound(uint32_t id, int32_t remove, float fadeOutTime) {
 // OFFSET: 0x004CB580
 int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop) {
     if (!rec) {
-        return 24;
+        return SI2_ERR_NO_ADVANCED_RECORD;
     }
 
     if (!s_vsoundLookup) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     C3Vector zero;
@@ -656,13 +656,13 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
     }
 
     if (position && !quickFade && checkDistance && SI2::IsAdvancedSoundNear(rec->m_id, position)) {
-        return 15;
+        return SI2_ERR_ALREADY_PLAYING;
     }
 
     SI2AdvancedSound* sound = new (SMemAlloc(sizeof(SI2AdvancedSound), __FILE__, __LINE__, 0)) SI2AdvancedSound();
 
     if (!sound) {
-        return 22;
+        return SI2_ERR_OUT_OF_MEMORY;
     }
 
     if (object) {
@@ -675,7 +675,7 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
         if (!sound->m_object) {
             sound->~SI2AdvancedSound();
             SMemFree(sound, "delete", -1, 0);
-            return 22;
+            return SI2_ERR_OUT_OF_MEMORY;
         }
     }
 
@@ -759,7 +759,7 @@ int32_t SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, 
         }
     }
 
-    return 0;
+    return SI2_OK;
 }
 
 // INLINED

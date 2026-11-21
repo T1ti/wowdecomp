@@ -154,22 +154,22 @@ int32_t SI2::VoiceChat_GetCurrentMicrophoneSignalLevel() {
 // OFFSET: 0x00986680
 int32_t SI2::VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallbacks* callbacks, int32_t chatSystem) {
     if (!SE2::IsChatSoundInitialized()) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     object->m_sound.CreateChatSound(callbacks, chatSystem);
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: 73c312f2 auto
 // OFFSET: 0x009866B0
 int32_t SI2::VoiceChat_Play(SE2SoundKitObject* object) {
     if (!SE2::IsChatSoundInitialized()) {
-        return 17;
+        return SI2_ERR_SOUND_DISABLED;
     }
 
     object->m_sound.Play();
-    return 0;
+    return SI2_OK;
 }
 
 // VERIFY: eec71328 auto
