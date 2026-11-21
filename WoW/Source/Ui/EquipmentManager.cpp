@@ -36,7 +36,7 @@ uint8_t CGEquipmentManager::m_swapPending;
 int32_t CGEquipmentManager::m_pendingSetID;
 
 // STATIC: 0x00C1E908
-int32_t CGEquipmentManager::m_ignoredSlots[19];
+int32_t CGEquipmentManager::m_ignoredSlots[EQUIPPED_LAST + 1];
 
 // STATIC: 0x00ACFC00
 TSList<EQUIPMENT_SET_NODE> CGEquipmentManager::s_equipmentSets;
