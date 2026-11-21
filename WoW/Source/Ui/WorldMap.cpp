@@ -176,11 +176,11 @@ void CGWorldMap::InitializeGame() {
                 float x = 31.3125f - offset + rec->m_continentOffset[0];
                 float y = 20.875f - offset + rec->m_continentOffset[1];
 
-                continent->unk_10018 = rec->m_leftBoundary * rec->m_scale * 0.015968064f + x * 0.015968064f;
-                continent->unk_10020 = x * 0.015968064f + 0.015968064f * ((rec->m_rightBoundary + 1) * rec->m_scale);
-                continent->unk_10014 = rec->m_topBoundary * rec->m_scale * 0.023952097f + y * 0.023952097f;
-                continent->unk_1001C = y * 0.023952097f + 0.023952097f * ((rec->m_bottomBoundary + 1) * rec->m_scale);
-                continent->unk_10024 = rec->m_worldMapID;
+                continent->m_leftBoundary = rec->m_leftBoundary * rec->m_scale * 0.015968064f + x * 0.015968064f;
+                continent->m_rightBoundary = x * 0.015968064f + 0.015968064f * ((rec->m_rightBoundary + 1) * rec->m_scale);
+                continent->m_topBoundary = rec->m_topBoundary * rec->m_scale * 0.023952097f + y * 0.023952097f;
+                continent->m_bottomBoundary = y * 0.023952097f + 0.023952097f * ((rec->m_bottomBoundary + 1) * rec->m_scale);
+                continent->m_worldMapID = rec->m_worldMapID;
 
                 break;
             }
@@ -1188,7 +1188,7 @@ int32_t CGWorldMap::GetMapHighlight(float x, float y) {
     for (uint32_t i = 0; i < CGWorldMap::m_continents.m_count; i++) {
         WorldMapContinentInfo& entry = CGWorldMap::m_continents.m_data[i];
 
-        if (entry.unk_10024 && x >= entry.unk_10018 && x <= entry.unk_10020 && entry.unk_10014 <= y && entry.unk_1001C >= y) {
+        if (entry.m_worldMapID && x >= entry.m_leftBoundary && x <= entry.m_rightBoundary && entry.m_topBoundary <= y && entry.m_bottomBoundary >= y) {
             return entry.m_areaID;
         }
     }
@@ -1367,7 +1367,7 @@ void CGWorldMap::ProcessClick(float x, float y) {
         for (uint32_t i = 0; i < CGWorldMap::m_continents.Count(); i++) {
             WorldMapContinentInfo& entry = CGWorldMap::m_continents.m_data[i];
 
-            if (entry.unk_10024 && x >= entry.unk_10018 && x <= entry.unk_10020 && entry.unk_10014 <= y && entry.unk_1001C >= y) {
+            if (entry.m_worldMapID && x >= entry.m_leftBoundary && x <= entry.m_rightBoundary && entry.m_topBoundary <= y && entry.m_bottomBoundary >= y) {
                 CGWorldMap::SetMap(i, -1, -1);
                 return;
             }

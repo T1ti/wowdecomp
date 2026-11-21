@@ -41,11 +41,12 @@ struct WorldMapContinentInfo {
     /* 00004 */ int32_t m_areaID;
     /* 00008 */ TSFixedArray<int32_t> m_zones;
     /* 00014 */ uint32_t m_zoneMap[128][128];
-    /* 10014 */ float unk_10014;
-    /* 10018 */ float unk_10018;
-    /* 1001C */ float unk_1001C;
-    /* 10020 */ float unk_10020;
-    /* 10024 */ int32_t unk_10024;
+    // WorldMapContinent.dbc boundaries scaled into world map coordinates, and its world map ID.
+    /* 10014 */ float m_topBoundary;
+    /* 10018 */ float m_leftBoundary;
+    /* 1001C */ float m_bottomBoundary;
+    /* 10020 */ float m_rightBoundary;
+    /* 10024 */ int32_t m_worldMapID;
 
     WorldMapContinentInfo();
 };
@@ -122,10 +123,10 @@ void WorldMapUnregisterScriptFunctions();
 
 // INLINED
 inline WorldMapContinentInfo::WorldMapContinentInfo() {
-    this->unk_10014 = 0.0f;
-    this->unk_10018 = 0.0f;
-    this->unk_1001C = 0.0f;
-    this->unk_10020 = 0.0f;
+    this->m_topBoundary = 0.0f;
+    this->m_leftBoundary = 0.0f;
+    this->m_bottomBoundary = 0.0f;
+    this->m_rightBoundary = 0.0f;
 }
 
 int32_t PlayerExploredZonesUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
