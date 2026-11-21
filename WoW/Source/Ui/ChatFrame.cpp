@@ -2221,7 +2221,7 @@ void CGChat::ResetChannel(uint32_t id, const char* name) {
         channel->m_name[0] = 0;
         channel->m_zoneChannelID = 0;
         channel->m_left = 1;
-        channel->m_unkA0 = 1;
+        channel->m_removed = 1;
     }
 
     CGChat::OnChannelsUpdated();
@@ -2556,7 +2556,7 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
             ChatChannel* channel = zoneChannelID ? CGChat::GetChannelByChatChannelID(zoneChannelID) : GetChannelByName(channelName);
 
             if (channel) {
-                if (channel->m_unkA0 || !suspended) {
+                if (channel->m_removed || !suspended) {
                     SStrCopy(text, "YOU_LEFT", sizeof(text));
                     reset = 1;
                 } else {
@@ -3867,7 +3867,7 @@ void RebuildDisplayChannelList(int32_t signal) {
                 }
 
                 if (!s_collapsedHeaders[DisplayChannel::HEADER_INDEX::CUSTOM_HEADER]) {
-                    if (channel->m_unkA0 == 1) {
+                    if (channel->m_removed == 1) {
                         continue;
                     }
 
@@ -3876,7 +3876,7 @@ void RebuildDisplayChannelList(int32_t signal) {
                     entry->m_collapsed = 0;
                     entry->m_headerIndex = DisplayChannel::HEADER_INDEX::NO_HEADER;
                     entry->m_flags = DisplayChannel::FLAGS::NO_FLAGS;
-                    entry->m_enabled = channel->m_unkA0 == 0;
+                    entry->m_enabled = channel->m_removed == 0;
                     entry->m_type = DisplayChannel::TYPE::CHANNEL;
                     entry->m_voiceEnabled = ComSatClient_HasSession(COMSATDATA::SESSION_TYPE::CHANNEL, channel->m_name);
                     entry->m_count = 0;
@@ -4311,7 +4311,7 @@ int32_t CGChat::AddChatChannel(const char* name, uint32_t id, bool silent, bool 
     SStrCopy(channel->m_name, name, sizeof(channel->m_name));
     channel->m_zoneChannelID = id;
     channel->m_left = 1;
-    channel->m_unkA0 = 0;
+    channel->m_removed = 0;
     channel->m_hasVoice = hasVoice;
     channel->m_permanent = permanent;
     return 1;
@@ -4966,7 +4966,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
         ClientServices::Send2(&msg);
 
         uint32_t id = channel->m_zoneChannelID;
-        channel->m_unkA0 = 1;
+        channel->m_removed = 1;
 
         if (id) {
             s_joinedZoneChannels &= ~(1 << (id - 1));
@@ -4980,7 +4980,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
                 entry->m_name[0] = '\0';
                 entry->m_zoneChannelID = 0;
                 entry->m_left = 1;
-                entry->m_unkA0 = 1;
+                entry->m_removed = 1;
             }
 
             CGChat::OnChannelsUpdated();
@@ -5393,7 +5393,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             }
 
             for (uint32_t j = 0; j < CGChat::s_channels.m_count; j++) {
-                if (!SStrCmpUTF8I(CGChat::s_channels.m_data[j].m_name, info->m_channels.m_data[i], STORM_MAX_STR) && !CGChat::s_channels.m_data[j].m_unkA0) {
+                if (!SStrCmpUTF8I(CGChat::s_channels.m_data[j].m_name, info->m_channels.m_data[i], STORM_MAX_STR) && !CGChat::s_channels.m_data[j].m_removed) {
                     SStrPrintf(line, sizeof(line), "%s\n", info->m_channels.m_data[i]);
                     OsWriteFile(file, line, SStrLen(line), &written);
                     break;
@@ -5622,7 +5622,7 @@ ChatChannel::ChatChannel() {
     this->m_hasVoice = 0;
     this->m_permanent = 0;
     this->m_left = 1;
-    this->m_unkA0 = 1;
+    this->m_removed = 1;
 }
 
 // INLINED

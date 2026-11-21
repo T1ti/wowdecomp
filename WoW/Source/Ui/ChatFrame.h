@@ -192,7 +192,7 @@ class ChatChannel {
     /* 0094 */ uint32_t m_zoneChannelID;
     /* 0098 */ int32_t m_instanceID;
     /* 009C */ int32_t m_left;
-    /* 00A0 */ int32_t m_unkA0;
+    /* 00A0 */ int32_t m_removed; // Left by the player or slot freed; not listed or saved (name inferred).
     /* 00A4 */ uint8_t m_hasVoice;
     /* 00A5 */ uint8_t m_permanent;
 
