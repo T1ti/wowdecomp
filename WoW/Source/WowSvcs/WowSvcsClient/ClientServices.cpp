@@ -548,10 +548,7 @@ REALM_INFO* ClientServices::GetSelectedRealm() {
 // VERIFY: f41bbd12 auto
 // OFFSET: 0x006B1200
 void ClientConnection::Cancel(int32_t errorCode) {
-    if (this->m_cleanup) {
-        this->m_cleanup();
-        this->m_cleanup = nullptr;
-    }
+    this->Cleanup();
 
     this->m_statusResult = 0;
     this->m_errorCode = errorCode;
@@ -1035,10 +1032,7 @@ void ClientServices::GetRealmList() {
 // VERIFY: c726c41b auto
 // OFFSET: 0x006B10B0
 void ClientConnection::Complete(int32_t result, int32_t errorCode) {
-    if (this->m_cleanup) {
-        this->m_cleanup();
-        this->m_cleanup = nullptr;
-    }
+    this->Cleanup();
 
     this->m_statusResult = result;
     this->m_errorCode = errorCode;
@@ -1113,10 +1107,7 @@ int32_t ClientConnection::HandleConnect() {
 // VERIFY: cd1a7c20 auto
 // OFFSET: 0x006B12D0
 int32_t ClientConnection::HandleDisconnect() {
-    if (this->m_cleanup) {
-        this->m_cleanup();
-        this->m_cleanup = nullptr;
-    }
+    this->Cleanup();
 
     this->m_statusComplete = 1;
     this->m_connected = 0;
