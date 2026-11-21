@@ -2438,7 +2438,7 @@ void CM2Model::AnimateST() {
         if (light->m_enabled && light->m_visibilityTrack.m_currentValue) {
             visible = 1;
 
-            if (lightData->m_type == 1) {
+            if (lightData->m_type == M2LIGHT_POINT) {
                 light->m_light.SetPosition(lightData->m_position * this->m_boneMatrices[lightData->m_bone] * this->m_scene->m_viewInv);
             } else {
                 C44Matrix& boneMatrix = this->m_boneMatrices[lightData->m_bone];
