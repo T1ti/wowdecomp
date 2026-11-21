@@ -1898,16 +1898,16 @@ void CSimpleFontString::LoadXML(XMLNode* node, CStatus* status) {
 
             if (outline && *outline) {
                 if (!SStrCmpI(outline, "NORMAL", STORM_MAX_STR)) {
-                    fontFlags = 1;
+                    fontFlags = TEXTBLOCK_FONT_OUTLINE;
                 } else if (!SStrCmpI(outline, "THICK", STORM_MAX_STR)) {
-                    fontFlags = 5;
+                    fontFlags = TEXTBLOCK_FONT_OUTLINE | TEXTBLOCK_FONT_THICKOUTLINE;
                 }
             }
 
             const char* monochrome = node->GetAttributeByName("monochrome");
 
             if (monochrome && *monochrome && StringToBOOL(monochrome)) {
-                fontFlags |= 2;
+                fontFlags |= TEXTBLOCK_FONT_MONOCHROME;
             }
 
             if (this->SetFont(fontName, fontHeight, fontFlags, false)) {

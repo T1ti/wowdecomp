@@ -79,9 +79,9 @@ static const XMLENUMVALUE s_orientations[] = {
 
 // STATIC: 0x00A44050
 static const XMLENUMVALUE s_fontFlags[] = {
-    { 0x1, "OUTLINE" },
-    { 0x4, "THICKOUTLINE" },
-    { 0x2, "MONOCHROME" },
+    { TEXTBLOCK_FONT_OUTLINE, "OUTLINE" },
+    { TEXTBLOCK_FONT_THICKOUTLINE, "THICKOUTLINE" },
+    { TEXTBLOCK_FONT_MONOCHROME, "MONOCHROME" },
 };
 
 // STATIC: 0x00A44068

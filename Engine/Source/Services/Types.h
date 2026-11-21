@@ -35,6 +35,15 @@ class CAsyncObject {
     BOOL IsPending();
 };
 
+// Font flags taken by TextBlockGenerateFont; names from the FrameXML s_fontFlags strings
+// (OUTLINE, MONOCHROME, THICKOUTLINE). TextBlock maps them onto CGxFont::FONT_FLAGS.
+enum TEXTBLOCK_FONT_FLAGS : uint32_t {
+    TEXTBLOCK_FONT_NONE = 0x0,
+    TEXTBLOCK_FONT_OUTLINE = 0x1,
+    TEXTBLOCK_FONT_MONOCHROME = 0x2,
+    TEXTBLOCK_FONT_THICKOUTLINE = 0x4,
+};
+
 enum TEXTBLOCK_STYLE_FLAGS : uint32_t {
     TEXTBLOCK_NONE = 0,
     TEXTBLOCK_JUSTIFY_LEFT = 0x1,
