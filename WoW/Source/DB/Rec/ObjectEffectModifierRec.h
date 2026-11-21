@@ -13,9 +13,9 @@ class ObjectEffectModifierRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_inputType;
-    /* 0008 */ int32_t m_mapType;
-    /* 000C */ int32_t m_outputType;
+    /* 0004 */ int32_t m_inputType; // CObjectEffectModifier::INPUT_TYPE
+    /* 0008 */ int32_t m_mapType; // CObjectEffectModifier::MAP_TYPE
+    /* 000C */ int32_t m_outputType; // CObjectEffectModifier::OUTPUT_TYPE
     /* 0010 */ float m_param [4];
 
     ObjectEffectModifierRec();

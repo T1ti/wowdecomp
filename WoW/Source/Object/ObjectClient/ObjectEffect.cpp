@@ -24,28 +24,28 @@ static TSHashTable<OBJ_EFFECT_GROUP_DEF_LOOKUP, HASHKEY_NONE> s_groupDefLookup;
 static TSHashTable<OBJ_EFFECT_PACKAGE_DEF_LOOKUP, HASHKEY_NONE> s_packageDefLookup;
 
 // STATIC: 0x00ADA37C
-float (*CObjectEffectModifier::s_inputFuncs[2])(CObjectEffectManager* manager) = {
+float (*CObjectEffectModifier::s_inputFuncs[NUM_INPUT_TYPES])(CObjectEffectManager* manager) = {
     &CObjectEffectModifier::InputNone,
     &CObjectEffectModifier::InputSpeed,
 };
 
 // STATIC: 0x00ADA384
-float (*CObjectEffectModifier::s_mapFuncs[2])(float input, const float* params) = {
+float (*CObjectEffectModifier::s_mapFuncs[NUM_MAP_TYPES])(float input, const float* params) = {
     &CObjectEffectModifier::MapNone,
     &CObjectEffectModifier::MapLinear,
 };
 
 // STATIC: 0x00ADA38C
-void (*CObjectEffectModifier::s_outputFuncs[2])(CObjectEffect* effect, float value) = {
+void (*CObjectEffectModifier::s_outputFuncs[NUM_OUTPUT_TYPES])(CObjectEffect* effect, float value) = {
     &CObjectEffectModifier::OutputNone,
     &CObjectEffectModifier::OutputPitch,
 };
 
 // INLINED
 CObjectEffectModifier::CObjectEffectModifier() {
-    this->m_inputType = 0;
-    this->m_mapType = 0;
-    this->m_outputType = 0;
+    this->m_inputType = INPUT_NONE;
+    this->m_mapType = MAP_NONE;
+    this->m_outputType = OUTPUT_NONE;
     this->m_params = nullptr;
     this->m_numParams = 0;
 }
@@ -60,11 +60,11 @@ CObjectEffectModifier::~CObjectEffectModifier() {
 
 // INLINED
 void CObjectEffectModifier::Init(const ObjectEffectModifierRec* rec) {
-    this->m_inputType = rec->m_inputType;
-    this->m_outputType = rec->m_outputType;
-    this->m_mapType = rec->m_mapType;
+    this->m_inputType = static_cast<INPUT_TYPE>(rec->m_inputType);
+    this->m_outputType = static_cast<OUTPUT_TYPE>(rec->m_outputType);
+    this->m_mapType = static_cast<MAP_TYPE>(rec->m_mapType);
     this->m_id = rec->m_id;
-    this->m_numParams = this->m_mapType == 1 ? 4 : 0;
+    this->m_numParams = this->m_mapType == MAP_LINEAR ? NUM_LINEAR_PARAMS : 0;
 
     if (this->m_numParams) {
         this->m_params = new (__FILE__, __LINE__) float[this->m_numParams];
@@ -348,7 +348,7 @@ void ObjectEffectSystem_Initialize() {
 
         ObjectEffectModifierRec* modifierRec = rec->m_objectEffectModifierID ? g_objectEffectModifierDB.GetRecord(rec->m_objectEffectModifierID) : nullptr;
 
-        if (rec->m_objectEffectModifierID && modifierRec->m_inputType > 0 && modifierRec->m_mapType > 0 && modifierRec->m_outputType > 0) {
+        if (rec->m_objectEffectModifierID && modifierRec->m_inputType > CObjectEffectModifier::INPUT_NONE && modifierRec->m_mapType > CObjectEffectModifier::MAP_NONE && modifierRec->m_outputType > CObjectEffectModifier::OUTPUT_NONE) {
             effectLookup->m_objectEffectDef.m_modifier = new (SMemAlloc(sizeof(CObjectEffectModifier), __FILE__, __LINE__, 0)) CObjectEffectModifier();
             effectLookup->m_objectEffectDef.m_modifier->Init(modifierRec);
 
@@ -496,7 +496,7 @@ void CObjectEffectModifier::OutputPitch(CObjectEffect* effect, float value) {
 // VERIFY: 894f2b3c auto
 // OFFSET: 0x006F1790
 void CObjectEffectModifier::Apply(CObjectEffectManager* manager, CObjectEffect* effect) {
-    if (this->m_mapType <= 0) {
+    if (this->m_mapType <= MAP_NONE) {
         return;
     }
 
