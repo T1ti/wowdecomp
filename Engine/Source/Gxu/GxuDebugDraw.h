@@ -10,25 +10,31 @@
 // later addition, kept here because it is exactly the shared helper those overlays lack.
 //
 // What 4.1 retail kept, and therefore what is known:
+//   - GxuBufferCache in full (CreateBuffer, Exists, AcquireBuffer, ReleaseBuffer, ReleaseCache).
 //   - shape factories (IGxuDebugShapeFactory: CreateVertexBuffer, CreateIndexBuffer, GetNumVertices, GetNumIndices,
 //     GetRadius, GetIdxOffset, SetLOD): Null, Box, Sphere, Cone, Triangle, and the editor gizmos DirectionalSphere,
-//     RotationRing, DirectionalDiamond. Shapes are unit sized (the box is the +-0.5 cube, 8 C3Vector vertices) and
-//     placed by a transform; their vertex and index buffers live in a GxuBufferCache.
+//     RotationRing, DirectionalDiamond, with their exact geometry. Shapes are unit sized and placed by a transform.
 //   - four render-state blocks on GxuDebugShapeDrawer: s_renderStateBlockSolid, SolidBackfacing, SolidNoDepth,
-//     Wireframe (GxuDebugShapeRenderStateBlock / ...NoDepth::Apply, Restore). Apply marks depth test, depth func,
-//     depth write, polygon offset, lighting, color write, fog and culling dirty (the 4.1 EGxRenderState values 13, 14,
-//     15, 0, 11, 16, 12, 17 match the 3.3.5 GxRs_* numbering) and sets master enable 8 (GxMasterEnable_PolygonFill
-//     in 3.3.5), the wireframe switch.
+//     Wireframe (GxuDebugShapeRenderStateBlock / ...NoDepth::Apply, Restore). The 4.1 EGxRenderState values they
+//     touch (13, 14, 15, 0, 11, 16, 12, 17) match the 3.3.5 GxRs_* numbering; master enable 8 is
+//     GxMasterEnable_PolygonFill in 3.3.5.
 //   - object lists TSFixedArray<GxuDebugShapeObject / GxuDebugTextObject / GxuDebugText3DObject /
-//     GxuDebugTextureObject>, and GxuDebugTextureDrawer::Draw(const C3Vector&) (orthographic, GxuXformCreateOrtho).
-//   - shutdown: GxuShutdownDebugDraw -> GxuShutdownDebugDrawList, ...ShapeDrawer, ...TextDrawer, ...Text3DDrawer,
-//     ...TextureDrawer.
-// 4.1 retail stripped every function that adds or draws an object, so the GxuDebugDraw* entry points below are
-// named for this port, not recovered.
+//     GxuDebugTextureObject>, and GxuDebugTextureDrawer::Draw(const C3Vector&) (orthographic, shader based).
+//   - shutdown: GxuShutdownDebugDraw -> ...TextDrawer, ...Text3DDrawer, ...TextureDrawer, ...ShapeDrawer, ...DrawList.
+// 4.1 retail stripped every function that adds an object, the shape drawer's draw loop and both text drawers, so the
+// GxuDebugDraw* entry points and those loops are written for this port, not recovered.
 //
-// Fitted to 3.3.5: render states through CGxDevice::RsPush/RsSet/RsPop, vertex and index buffers from CGxPool
-// (GxuBufferCache), immediate-mode GxPrimLockVertexPtrs/GxDrawLockedElements for text-free shapes. The gizmo shapes
-// (DirectionalSphere, RotationRing, DirectionalDiamond) belong to 4.x editing tools and are left out.
+// Fitted to 3.3.5:
+//   - render states go through CGxDevice::RsPush/RsSet/RsPop (4.1 pokes the device's state cache and marks entries
+//     dirty by hand, between its own RsPush and RsPop);
+//   - the factories' buffers are CGxPool/CGxBuf pairs made by CGxDevice::PoolCreate/BufCreate, like 4.1;
+//   - 4.1 colors shapes and textures in vertex/pixel shader pairs; 3.3.5 has no such shaders, so the shape drawer
+//     streams the factory's positions with a constant vertex color (GxPrimVertexPtr, color stride 0) and indexes them
+//     from the cached index buffer (CGxDevice::PrimIndexPtr). Each factory therefore also keeps a CPU copy of its
+//     vertices. Textures draw as a fixed-function textured quad;
+//   - text uses GxuFont string batches. Text and textures use a 0..1 screen space with its origin at the top left
+//     (4.1 GxuDebugTextureDrawer::Draw sets GxuXformCreateOrtho(0, 1, 1, 0, -1, 1)).
+// The gizmo shapes (DirectionalSphere, RotationRing, DirectionalDiamond) belong to 4.x editing tools and are left out.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 
@@ -39,36 +45,38 @@
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CImVector.h"
 
+struct CGxBuf;
+struct CGxPool;
 class CGxTex;
 
 enum GXUDEBUGSHAPE : int32_t {
     GXUDEBUGSHAPE_NULL = 0,
     GXUDEBUGSHAPE_BOX = 1, // unit cube, -0.5..0.5 (4.1 GxuBoxShapeFactory)
-    GXUDEBUGSHAPE_SPHERE = 2, // unit radius, LOD-dependent tessellation (GxuSphereShapeFactory)
-    GXUDEBUGSHAPE_CONE = 3, // GxuConeShapeFactory
-    GXUDEBUGSHAPE_TRIANGLE = 4, // GxuTriangleShapeFactory
+    GXUDEBUGSHAPE_SPHERE = 2, // unit radius, three LODs (GxuSphereShapeFactory)
+    GXUDEBUGSHAPE_CONE = 3, // apex at z=+0.5, unit-radius base at z=-0.5 (GxuConeShapeFactory)
+    GXUDEBUGSHAPE_TRIANGLE = 4, // double-sided, in the x=0 plane, apex at z=+0.5 (GxuTriangleShapeFactory)
     NUM_GXUDEBUGSHAPES = 5,
 };
 
 // Which GxuDebugShapeDrawer render-state block a shape draws with.
 enum GXUDEBUGSTYLE : int32_t {
-    GXUDEBUGSTYLE_SOLID = 0, // s_renderStateBlockSolid
-    GXUDEBUGSTYLE_SOLID_BACKFACING = 1, // s_renderStateBlockSolidBackfacing: culling off
-    GXUDEBUGSTYLE_SOLID_NODEPTH = 2, // s_renderStateBlockSolidNoDepth: always on top
-    GXUDEBUGSTYLE_WIREFRAME = 3, // s_renderStateBlockWireframe
+    GXUDEBUGSTYLE_SOLID = 0, // s_renderStateBlockSolid: back faces culled
+    GXUDEBUGSTYLE_SOLID_BACKFACING = 1, // s_renderStateBlockSolidBackfacing: the other winding culled (the inside)
+    GXUDEBUGSTYLE_SOLID_NODEPTH = 2, // s_renderStateBlockSolidNoDepth: no depth test, always on top
+    GXUDEBUGSTYLE_WIREFRAME = 3, // s_renderStateBlockWireframe: no culling, polygon fill off
     NUM_GXUDEBUGSTYLES = 4,
 };
 
-// Shared vertex and index buffers, keyed by a handle the factories keep (4.1 GxuBufferCache: entries of target, item
-// size, item count, pool, buffer, reference count; 0xFFFF = no buffer yet).
+// Shared vertex and index buffers, keyed by a handle the factories keep (4.1 GxuBufferCache: 24-byte entries of
+// target, item size, item count, pool, buffer, reference count; 0xFFFF = no buffer yet).
 class GxuBufferCache {
     public:
     struct BufferEntry {
         /* 0000 */ EGxPoolTarget m_target;
         /* 0004 */ uint32_t m_itemSize;
         /* 0008 */ uint32_t m_itemCnt;
-        /* 000C */ void* m_pool; // CGxPool*
-        /* 0010 */ void* m_buffer; // CGxBuf*
+        /* 000C */ CGxPool* m_pool;
+        /* 0010 */ CGxBuf* m_buffer;
         /* 0014 */ uint32_t m_refs;
     };
 
@@ -79,25 +87,39 @@ class GxuBufferCache {
     ~GxuBufferCache();
     uint32_t CreateBuffer(uint32_t handle, EGxPoolTarget target, uint32_t itemSize, uint32_t itemCnt);
     bool Exists(uint32_t handle);
-    void* AcquireBuffer(uint32_t handle);
+    CGxBuf* AcquireBuffer(uint32_t handle);
     void ReleaseBuffer(uint32_t handle);
     void ReleaseCache();
 };
+
+// The one cache every factory allocates from (4.1 static at 0x014D5700).
+extern GxuBufferCache s_debugShapeBufferCache;
 
 class IGxuDebugShapeFactory {
     public:
     /* 0004 */ uint32_t m_vertexBuffer; // GxuBufferCache handle
     /* 0008 */ uint32_t m_indexBuffer; // GxuBufferCache handle
+    // Port: CPU copy of the vertices for GxPrimVertexPtr (see the file comment).
+    TSFixedArray<C3Vector> m_drawVertices;
 
     IGxuDebugShapeFactory();
     virtual ~IGxuDebugShapeFactory();
-    virtual uint32_t CreateVertexBuffer() = 0;
-    virtual uint32_t CreateIndexBuffer() = 0;
+    // 4.1 implements these two in every factory with the same Exists / CreateBuffer / AcquireBuffer / BufLock /
+    // write / BufUnlock / ReleaseBuffer sequence; here the sequence is shared and only the writes differ.
+    virtual uint32_t CreateVertexBuffer();
+    virtual uint32_t CreateIndexBuffer();
     virtual uint32_t GetNumVertices() const = 0;
     virtual uint32_t GetNumIndices() const = 0;
     virtual float GetRadius() const = 0;
     virtual uint32_t GetIdxOffset() const;
-    virtual void SetLOD(float lod);
+    virtual void SetLOD(float dist);
+
+    protected:
+    // The body of the 4.1 Create*Buffer between BufLock and BufUnlock.
+    virtual void WriteVertices(C3Vector* vertices) const = 0;
+    virtual void WriteIndices(uint16_t* indices) const = 0;
+    // Index buffer size when it differs from GetNumIndices (the sphere stores every LOD in one buffer).
+    virtual uint32_t GetIndexBufferCount() const;
 };
 
 class GxuNullShapeFactory : public IGxuDebugShapeFactory {
@@ -107,57 +129,90 @@ class GxuNullShapeFactory : public IGxuDebugShapeFactory {
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
     float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
 };
 
 class GxuBoxShapeFactory : public IGxuDebugShapeFactory {
     public:
-    uint32_t CreateVertexBuffer() override;
-    uint32_t CreateIndexBuffer() override;
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
     float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
 };
 
+// 4.1 layout (static init at 0x00083080): LOD, vertex and index handles, segments (32), rings (33), vertex count
+// (1056), then per-LOD index counts and offsets. LOD l steps the same vertex grid by 1 << l.
 class GxuSphereShapeFactory : public IGxuDebugShapeFactory {
     public:
-    /* 000C */ uint32_t m_rings;
-    /* 0010 */ uint32_t m_segments;
+    static const uint32_t NUM_LODS = 3;
 
-    uint32_t CreateVertexBuffer() override;
-    uint32_t CreateIndexBuffer() override;
+    uint32_t m_lod;
+    uint32_t m_segments;
+    uint32_t m_rings;
+    uint32_t m_numVertices;
+    uint32_t m_numIndices[NUM_LODS];
+    uint32_t m_idxOffset[NUM_LODS];
+    uint32_t m_totalIndices;
+
+    GxuSphereShapeFactory();
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
     float GetRadius() const override;
     uint32_t GetIdxOffset() const override;
-    void SetLOD(float lod) override;
+    void SetLOD(float dist) override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
+    uint32_t GetIndexBufferCount() const override;
 };
 
 class GxuConeShapeFactory : public IGxuDebugShapeFactory {
     public:
-    uint32_t CreateVertexBuffer() override;
-    uint32_t CreateIndexBuffer() override;
+    static const uint32_t NUM_SEGMENTS = 12;
+
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
     float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
 };
 
 class GxuTriangleShapeFactory : public IGxuDebugShapeFactory {
     public:
-    uint32_t CreateVertexBuffer() override;
-    uint32_t CreateIndexBuffer() override;
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
     float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
 };
 
-// Pushes the render states a style needs and pops them after the batch.
+// Fill modes of the 4.1 blocks; Apply derives the culling mode and the PolygonFill master enable from them (any other
+// value is the 4.1 "unknown fill mode" assert).
+enum GXUDEBUGFILLMODE : int32_t {
+    GXUDEBUGFILL_SOLID = 0, // GxRs_Culling 1
+    GXUDEBUGFILL_SOLID_BACKFACING = 1, // GxRs_Culling 2
+    GXUDEBUGFILL_WIREFRAME = 3, // GxRs_Culling 0, polygon fill off
+};
+
+// Pushes the render states a style needs and pops them after the batch (4.1 layout: vtable, fill mode, saved
+// PolygonFill master enable).
 class GxuDebugShapeRenderStateBlock {
     public:
-    /* 0004 */ int32_t m_depthTest;
-    /* 0008 */ int32_t m_culling;
-    /* 000C */ int32_t m_wireframe;
+    /* 0004 */ GXUDEBUGFILLMODE m_fillMode;
+    /* 0008 */ int32_t m_savedPolygonFill;
 
-    GxuDebugShapeRenderStateBlock(int32_t depthTest, int32_t culling, int32_t wireframe);
+    explicit GxuDebugShapeRenderStateBlock(GXUDEBUGFILLMODE fillMode);
     virtual ~GxuDebugShapeRenderStateBlock();
     virtual void Apply();
     virtual void Restore();
@@ -173,13 +228,13 @@ class GxuDebugShapeRenderStateBlockNoDepth : public GxuDebugShapeRenderStateBloc
 struct GxuDebugShapeObject {
     /* 0000 */ GXUDEBUGSHAPE m_shape;
     /* 0004 */ GXUDEBUGSTYLE m_style;
-    /* 0008 */ C44Matrix m_transform;
+    /* 0008 */ C44Matrix m_transform; // unit shape to world (row vectors, translation in d0..d2)
     /* 0048 */ CImVector m_color;
 };
 
 struct GxuDebugTextObject {
     /* 0000 */ char m_text[128];
-    /* 0080 */ float m_x; // normalized screen coordinates
+    /* 0080 */ float m_x; // 0..1 screen coordinates, origin top-left
     /* 0084 */ float m_y;
     /* 0088 */ CImVector m_color;
 };
@@ -192,10 +247,11 @@ struct GxuDebugText3DObject {
 
 struct GxuDebugTextureObject {
     /* 0000 */ CGxTex* m_texture;
-    /* 0004 */ float m_x; // normalized screen rectangle
+    /* 0004 */ float m_x; // 0..1 screen rectangle, origin top-left
     /* 0008 */ float m_y;
     /* 000C */ float m_width;
     /* 0010 */ float m_height;
+    /* 0014 */ EGxBlend m_blend; // 4.1 keeps a blend mode per texture object and sets it as GxRs_BlendingMode
 };
 
 class GxuDebugShapeDrawer {
@@ -207,23 +263,32 @@ class GxuDebugShapeDrawer {
 
     static IGxuDebugShapeFactory* GetFactory(GXUDEBUGSHAPE shape);
     static GxuDebugShapeRenderStateBlock* GetStateBlock(GXUDEBUGSTYLE style);
-    static void Draw(const TSGrowableArray<GxuDebugShapeObject>& objects);
+    static void Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin);
 };
 
 class GxuDebugTextureDrawer {
     public:
-    static void Draw(const C3Vector& screenSize);
+    static void Draw(const C3Vector& viewOrigin);
+};
+
+// Port: 4.1 keeps only the text drawers' shutdown functions.
+class GxuDebugTextDrawer {
+    public:
+    static void Draw(const C3Vector& viewOrigin);
 };
 
 // Port entry points (names chosen here; 4.1 retail stripped the originals). Objects queue up during the frame and are
-// drawn and cleared by GxuDebugDrawRender, called once at the end of the world render (after the scene, before UI).
+// drawn and cleared by GxuDebugDrawRender, called once from CGWorldFrame::OnWorldRender after the scene, while the
+// world view and projection are still set. viewOrigin is the camera-relative rendering origin
+// (CWorldScene::s_activeWorldView): world positions are drawn relative to it.
 void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawText(const char* text, float x, float y, const CImVector& color);
 void GxuDebugDrawText3D(const char* text, const C3Vector& position, const CImVector& color);
-void GxuDebugDrawTexture(CGxTex* texture, float x, float y, float width, float height);
-void GxuDebugDrawRender();
+void GxuDebugDrawTexture(CGxTex* texture, float x, float y, float width, float height, EGxBlend blend = GxBlend_Alpha);
+void GxuDebugDrawRender(const C3Vector& viewOrigin);
 
-// 4.1 shutdown chain.
+// 4.1 shutdown chain. GxuShutdownDebugDraw runs before GxuFontShutdown (IStockDestroy), since the text drawer owns a
+// font, a batch and strings.
 void GxuShutdownDebugDraw();
 void GxuShutdownDebugDrawList();
 void GxuShutdownDebugShapeDrawer();

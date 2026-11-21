@@ -1,6 +1,7 @@
 #include <cstdint>
 #include "Engine/Source/Base/Coordinate.h"
 #include "Engine/Source/Base/Handle.h"
+#include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "Engine/Source/Gxu/GxuFont.h"
 #include "Engine/Source/Os/Path.h"
 #include "Engine/Source/Scrn/Scrn.h"
@@ -78,6 +79,11 @@ void IStockDestroy() {
 
         s_stockObjects[i] = nullptr;
     }
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the debug-draw text drawer holds a font and strings, so it goes before GxuFontShutdown.
+    GxuShutdownDebugDraw();
+#endif
 
     GxuFontShutdown();
 }

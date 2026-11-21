@@ -19,6 +19,7 @@
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Gxu/Gxu.h"
+#include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "Engine/Source/Model2/M2Scene.h"
 #include "Engine/Source/Os/Time.h"
 #include "Engine/Source/Os/TimeManager.h"
@@ -1810,6 +1811,12 @@ void CGWorldFrame::OnWorldRender() {
     // the world, models and liquids like 0.5.3 OnWorldRender.
     WorldDebugRenderLate();
     RenderCollisionInfo();
+#endif
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the Gxu debug-draw queue (shapes, world and screen text, textures), drawn and cleared once per
+    // frame on top of the world, relative to the camera origin the world view uses.
+    GxuDebugDrawRender(CWorldScene::s_activeWorldView);
 #endif
 
     PlayerNameUpdateLate();
