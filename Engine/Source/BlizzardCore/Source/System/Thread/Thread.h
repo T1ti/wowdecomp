@@ -22,12 +22,21 @@ namespace Thread {
 
 class ThreadPoolRecord;
 
+// ThreadRecord::m_state (names inferred). A thread created with flag 1 starts
+// SUSPENDED and its entry point waits until the state leaves 0; IsRunning is
+// any state >= 0.
+enum THREAD_STATE : int32_t {
+    THREAD_STATE_FINISHED = -1,
+    THREAD_STATE_SUSPENDED = 0,
+    THREAD_STATE_RUNNING = 1,
+};
+
 struct ThreadRecord {
     /* 0000 */ HANDLE m_handle;
     /* 0004 */ uint32_t m_threadId;
     /* 0008 */ void* m_param;
     /* 000C */ uint32_t (*m_function)(void*);
-    /* 0010 */ volatile int32_t m_state;
+    /* 0010 */ volatile int32_t m_state; // THREAD_STATE
     /* 0014 */ Blizzard::Lock::Atomic m_refCount;
     /* 0018 */ uint32_t m_result;
     /* 001C */ System_Thread::ThreadWorker* m_worker;
