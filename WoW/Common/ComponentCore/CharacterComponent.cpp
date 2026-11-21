@@ -1293,7 +1293,7 @@ void CCharacterComponent::CreateRequestHA() {
 // VERIFY: 8b4affb8 auto
 // OFFSET: 0x004E8FF0
 void CCharacterComponent::CreateRequestHU() {
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         this->m_request->m_baseTextures[SECTION_HEAD_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
@@ -1315,7 +1315,7 @@ void CCharacterComponent::CreateRequestHU() {
 // VERIFY: 6b9fa30d auto
 // OFFSET: 0x004E90E0
 void CCharacterComponent::CreateRequestHL() {
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         this->m_request->m_baseTextures[SECTION_HEAD_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
@@ -1849,7 +1849,7 @@ void CCharacterComponent::SetFace(int32_t faceID, bool loadHair, const char* deb
         return;
     }
 
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         return;
@@ -1917,7 +1917,7 @@ void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool rende
     }
 
     int32_t numColors = ComponentGetNumColors(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0);
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
 
     if (skinID < numColors && skinRec && !(skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
@@ -2251,9 +2251,9 @@ bool CCharacterComponent::SetNextSkin(COMPONENT_CONTEXT context) {
     CharSectionsRec* skinRec;
 
     while (true) {
-        skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
-        CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, skinID, nullptr);
-        CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, skinID, nullptr);
+        skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
+        CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, skinID, nullptr);
+        CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
 
         if (skinRec && ComponentFlagsMatch(skinRec->m_flags, selection) && faceRec && ComponentFlagsMatch(faceRec->m_flags, selection) && (context == COMPONENT_CONTEXT_2 || (underwearRec && ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
             break;
@@ -2296,9 +2296,9 @@ bool CCharacterComponent::SetPrevSkin(COMPONENT_CONTEXT context) {
     CharSectionsRec* skinRec;
 
     while (true) {
-        skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
-        CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, skinID, nullptr);
-        CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, skinID, nullptr);
+        skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
+        CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, skinID, nullptr);
+        CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
 
         if (skinRec && ComponentFlagsMatch(skinRec->m_flags, selection) && faceRec && ComponentFlagsMatch(faceRec->m_flags, selection) && (context == COMPONENT_CONTEXT_2 || (underwearRec && ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
             break;
@@ -2375,7 +2375,7 @@ bool CCharacterComponent::SetNextHairColor(COMPONENT_CONTEXT context) {
     CharSectionsRec* rec;
 
     while (true) {
-        rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, this->m_data.m_preferences.m_hairStyleId, hairColorID, nullptr);
+        rec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, this->m_data.m_preferences.m_hairStyleId, hairColorID, nullptr);
 
         if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
             break;
@@ -2418,7 +2418,7 @@ bool CCharacterComponent::SetPrevHairColor(COMPONENT_CONTEXT context) {
     CharSectionsRec* rec;
 
     while (true) {
-        rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, this->m_data.m_preferences.m_hairStyleId, hairColorID, nullptr);
+        rec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, this->m_data.m_preferences.m_hairStyleId, hairColorID, nullptr);
 
         if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
             break;
@@ -2483,9 +2483,9 @@ bool CCharacterComponent::SetNextFace(COMPONENT_CONTEXT context, int32_t colorOf
 
         for (int32_t i = 0; i < numColors; i = skinID + 1) {
             skinID = (i + colorOffset) % numColors;
-            CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, faceID, skinID, nullptr);
-            CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
-            CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, skinID, nullptr);
+            CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, faceID, skinID, nullptr);
+            CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
+            CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
 
             if (faceRec && ComponentFlagsMatch(faceRec->m_flags, selection) && skinRec && ComponentFlagsMatch(skinRec->m_flags, selection) && (context == COMPONENT_CONTEXT_2 || (underwearRec && ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
                 matched = true;
@@ -2506,9 +2506,9 @@ bool CCharacterComponent::SetNextFace(COMPONENT_CONTEXT context, int32_t colorOf
         }
     }
 
-    CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, faceID, this->m_data.m_preferences.m_skinID, nullptr);
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
-    CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, faceID, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (!faceRec || !ComponentFlagsMatch(faceRec->m_flags, selection) || !skinRec || !ComponentFlagsMatch(skinRec->m_flags, selection) || (context != COMPONENT_CONTEXT_2 && (!underwearRec || !ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
         this->SetSkinColor(skinID, false, true, nullptr);
@@ -2547,9 +2547,9 @@ bool CCharacterComponent::SetPrevFace(COMPONENT_CONTEXT context, int32_t colorOf
 
         for (int32_t i = 0; i < numColors; i = skinID + 1) {
             skinID = (i + colorOffset) % numColors;
-            CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, faceID, skinID, nullptr);
-            CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
-            CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, skinID, nullptr);
+            CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, faceID, skinID, nullptr);
+            CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, skinID, nullptr);
+            CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, skinID, nullptr);
 
             if (faceRec && ComponentFlagsMatch(faceRec->m_flags, selection) && skinRec && ComponentFlagsMatch(skinRec->m_flags, selection) && (context == COMPONENT_CONTEXT_2 || (underwearRec && ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
                 matched = true;
@@ -2570,9 +2570,9 @@ bool CCharacterComponent::SetPrevFace(COMPONENT_CONTEXT context, int32_t colorOf
         }
     }
 
-    CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, faceID, this->m_data.m_preferences.m_skinID, nullptr);
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
-    CharSectionsRec* underwearRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, VARIATION_UNDERWEAR, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, faceID, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* underwearRec = this->GetSectionsRecord(VARIATION_UNDERWEAR, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (!faceRec || !ComponentFlagsMatch(faceRec->m_flags, selection) || !skinRec || !ComponentFlagsMatch(skinRec->m_flags, selection) || (context != COMPONENT_CONTEXT_2 && (!underwearRec || !ComponentFlagsMatch(underwearRec->m_flags, selection)))) {
         this->SetSkinColor(skinID, false, true, nullptr);
@@ -2605,7 +2605,7 @@ bool CCharacterComponent::SetRandomFace(COMPONENT_CONTEXT context) {
 bool CCharacterComponent::SetNextFacialFeature(COMPONENT_CONTEXT context) {
     COMPONENT_SELECTION selection = GetSelectionFromContext(context, this->m_data.m_preferences.m_classId);
     bool found;
-    ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, &found);
+    this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, &found);
 
     if (!found) {
         int32_t count = CCharacterComponent::s_characterFacialHairStylesList[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID];
@@ -2638,7 +2638,7 @@ bool CCharacterComponent::SetNextFacialFeature(COMPONENT_CONTEXT context) {
         int32_t color;
 
         for (color = 0; color < numColors; color++) {
-            rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, facialHairID, color, nullptr);
+            rec = this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, facialHairID, color, nullptr);
 
             if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
                 break;
@@ -2658,7 +2658,7 @@ bool CCharacterComponent::SetNextFacialFeature(COMPONENT_CONTEXT context) {
         }
     }
 
-    CharSectionsRec* keepRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, facialHairID, this->m_data.m_preferences.m_hairColorId, nullptr);
+    CharSectionsRec* keepRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, facialHairID, this->m_data.m_preferences.m_hairColorId, nullptr);
 
     if (keepRec && ComponentFlagsMatch(keepRec->m_flags, selection)) {
         this->SetBeardStyle(keepRec->m_variationIndex, true, nullptr);
@@ -2675,7 +2675,7 @@ bool CCharacterComponent::SetNextFacialFeature(COMPONENT_CONTEXT context) {
 bool CCharacterComponent::SetPrevFacialFeature(COMPONENT_CONTEXT context) {
     COMPONENT_SELECTION selection = GetSelectionFromContext(context, this->m_data.m_preferences.m_classId);
     bool found;
-    ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, &found);
+    this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, this->m_data.m_preferences.m_facialHairId, this->m_data.m_preferences.m_hairColorId, &found);
 
     if (!found) {
         uint32_t count = CCharacterComponent::s_characterFacialHairStylesList[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID];
@@ -2708,7 +2708,7 @@ bool CCharacterComponent::SetPrevFacialFeature(COMPONENT_CONTEXT context) {
         int32_t color;
 
         for (color = 0; color < numColors; color++) {
-            rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, facialHairID, color, nullptr);
+            rec = this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, facialHairID, color, nullptr);
 
             if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
                 break;
@@ -2728,7 +2728,7 @@ bool CCharacterComponent::SetPrevFacialFeature(COMPONENT_CONTEXT context) {
         }
     }
 
-    CharSectionsRec* keepRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACIALHAIR, facialHairID, this->m_data.m_preferences.m_hairColorId, nullptr);
+    CharSectionsRec* keepRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACIALHAIR, facialHairID, this->m_data.m_preferences.m_hairColorId, nullptr);
 
     if (ComponentFlagsMatch(keepRec->m_flags, selection)) {
         this->SetBeardStyle(keepRec->m_variationIndex, true, nullptr);
@@ -3430,7 +3430,7 @@ void CCharacterComponent::GeosRenderPrep() {
     if (this->m_data.m_preferences.m_classId == CLASS_DEATH_KNIGHT) {
         eyeGlow = true;
     } else {
-        CharSectionsRec* faceRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, nullptr);
+        CharSectionsRec* faceRec = this->GetSectionsRecord(CHARTEXTUREVAR_FACE, this->m_data.m_preferences.m_faceId, this->m_data.m_preferences.m_skinID, nullptr);
 
         if (faceRec && (faceRec->m_flags & CharSectionsRec::SECTION_FLAGS::DEATH_KNIGHT)) {
             eyeGlow = true;
@@ -4570,7 +4570,7 @@ bool CCharacterComponent::SetNextHairStyle(COMPONENT_CONTEXT context) {
         int32_t color;
 
         for (color = 0; color < numColors; color++) {
-            rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, hairStyleID, color, nullptr);
+            rec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, hairStyleID, color, nullptr);
 
             if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
                 break;
@@ -4590,7 +4590,7 @@ bool CCharacterComponent::SetNextHairStyle(COMPONENT_CONTEXT context) {
         }
     }
 
-    CharSectionsRec* keepRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, hairStyleID, this->m_data.m_preferences.m_hairColorId, nullptr);
+    CharSectionsRec* keepRec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, hairStyleID, this->m_data.m_preferences.m_hairColorId, nullptr);
 
     if (keepRec && ComponentFlagsMatch(keepRec->m_flags, selection)) {
         this->SetHairStyle(keepRec->m_variationIndex, nullptr);
@@ -4636,7 +4636,7 @@ bool CCharacterComponent::SetPrevHairStyle(COMPONENT_CONTEXT context) {
         int32_t color;
 
         for (color = 0; color < numColors; color++) {
-            rec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, hairStyleID, color, nullptr);
+            rec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, hairStyleID, color, nullptr);
 
             if (rec && ComponentFlagsMatch(rec->m_flags, selection)) {
                 break;
@@ -4656,7 +4656,7 @@ bool CCharacterComponent::SetPrevHairStyle(COMPONENT_CONTEXT context) {
         }
     }
 
-    CharSectionsRec* keepRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_HAIR, hairStyleID, this->m_data.m_preferences.m_hairColorId, nullptr);
+    CharSectionsRec* keepRec = this->GetSectionsRecord(CHARTEXTUREVAR_HAIR, hairStyleID, this->m_data.m_preferences.m_hairColorId, nullptr);
 
     if (keepRec && ComponentFlagsMatch(keepRec->m_flags, selection)) {
         this->SetHairStyle(keepRec->m_variationIndex, nullptr);
@@ -4797,7 +4797,7 @@ void CCharacterComponent::RenderPrepHA() {
 // VERIFY: ba0a1b45 auto
 // OFFSET: 0x004F0AD0
 void CCharacterComponent::RenderPrepHU() {
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         CCharacterComponent::PasteFromSkin(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
@@ -4819,7 +4819,7 @@ void CCharacterComponent::RenderPrepHU() {
 // VERIFY: 617f148e auto
 // OFFSET: 0x004F0B70
 void CCharacterComponent::RenderPrepHL() {
-    CharSectionsRec* skinRec = ComponentGetSectionsRecord(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
+    CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
         CCharacterComponent::PasteFromSkin(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY], CCharacterComponent::s_textureBuffer);
