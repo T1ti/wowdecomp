@@ -26,6 +26,7 @@ GxuBufferCache s_debugShapeBufferCache;
 
 static TSGrowableArray<GxuDebugShapeObject> s_shapeObjects;
 static TSGrowableArray<GxuDebugLineObject> s_lineObjects;
+static TSGrowableArray<GxuDebugTriangleObject> s_triangleObjects;
 
 static GxuNullShapeFactory s_nullFactory;
 static GxuBoxShapeFactory s_boxFactory;
@@ -471,159 +472,185 @@ GxuDebugShapeRenderStateBlock* GxuDebugShapeDrawer::GetStateBlock(GXUDEBUGSTYLE 
 // Sphere LOD comes from the distance to the view origin divided by the shape's largest axis scale, so a sphere
 // coarsens as it shrinks on screen.
 //
-// Port: depth writes. The 4.1 blocks turn depth writes off, so a debug shape never hides anything drawn after it, and
-// lines drawn after a shape always show through it. Here opaque shapes (alpha 0xFF) of the depth-tested filled styles
-// write depth and are drawn in a first pass, so translucent shapes, wireframes and lines queued in the same frame are
-// hidden behind them like real geometry. Translucent shapes keep the 4.1 behavior (no depth write), so they do not
-// cut holes in each other.
-static bool WritesDepth(const GxuDebugShapeObject& object) {
-    return object.m_color.a == 0xFF && (object.m_style == GXUDEBUGSTYLE_SOLID || object.m_style == GXUDEBUGSTYLE_SOLID_BACKFACING);
+// Port: draw phases. The 4.1 blocks turn depth writes off, so a debug shape never hides anything drawn after it. Here
+// every queued object (shape, triangle, line) falls in one phase and GxuDebugDrawRender draws the phases in order:
+//   OPAQUE       opaque (alpha 0xFF) filled shapes and triangles, depth tested, writing depth: they hide what follows
+//                like real geometry;
+//   DEPTH_TESTED everything else that depth tests (translucent shapes and triangles, wireframes, lines), without depth
+//                writes so translucent objects do not cut holes in each other (the 4.1 behavior). Lines go first
+//                within it, so a translucent shape in front of a line tints it instead of being drawn over;
+//   NO_DEPTH     the SOLID_NODEPTH style: no depth test, so always on top of the world and of every other phase.
+static GXUDEBUGPHASE GetPhase(GXUDEBUGSTYLE style, const CImVector& color, bool filled) {
+    if (style == GXUDEBUGSTYLE_SOLID_NODEPTH) {
+        return GXUDEBUGPHASE_NO_DEPTH;
+    }
+
+    if (filled && color.a == 0xFF && (style == GXUDEBUGSTYLE_SOLID || style == GXUDEBUGSTYLE_SOLID_BACKFACING)) {
+        return GXUDEBUGPHASE_OPAQUE;
+    }
+
+    return GXUDEBUGPHASE_DEPTH_TESTED;
 }
 
-void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin) {
-    for (uint32_t pass = 0; pass < 2; pass++) {
-        for (uint32_t i = 0; i < objects.m_count; i++) {
-            const GxuDebugShapeObject& object = objects.m_data[i];
-            bool writeDepth = WritesDepth(object);
+void GxuDebugShapeDrawer::Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin, GXUDEBUGPHASE phase) {
+    for (uint32_t i = 0; i < objects.m_count; i++) {
+        const GxuDebugShapeObject& object = objects.m_data[i];
 
-            if (writeDepth != (pass == 0)) {
-                continue;
-            }
-
-            IGxuDebugShapeFactory* factory = GetFactory(object.m_shape);
-
-            if (!factory->GetNumVertices()) {
-                continue;
-            }
-
-            factory->CreateVertexBuffer();
-            uint32_t indexHandle = factory->CreateIndexBuffer();
-
-            if (!s_debugShapeBufferCache.Exists(indexHandle) || !factory->m_drawVertices.m_count) {
-                continue;
-            }
-
-            const C44Matrix& m = object.m_transform;
-            C3Vector center(m.d0 - viewOrigin.x, m.d1 - viewOrigin.y, m.d2 - viewOrigin.z);
-            float scaleA = m.a0 * m.a0 + m.a1 * m.a1 + m.a2 * m.a2;
-            float scaleB = m.b0 * m.b0 + m.b1 * m.b1 + m.b2 * m.b2;
-            float scaleC = m.c0 * m.c0 + m.c1 * m.c1 + m.c2 * m.c2;
-            float scale = sqrtf(scaleA > scaleB ? (scaleA > scaleC ? scaleA : scaleC) : (scaleB > scaleC ? scaleB : scaleC));
-            float dist = sqrtf(center.x * center.x + center.y * center.y + center.z * center.z);
-            factory->SetLOD(scale > 0.0f ? dist / scale : dist);
-
-            C44Matrix world = m;
-            world.d0 = center.x;
-            world.d1 = center.y;
-            world.d2 = center.z;
-
-            CImVector color = object.m_color;
-            GxFormatColor(color);
-
-            CGxBuf* indexBuf = s_debugShapeBufferCache.AcquireBuffer(indexHandle);
-            GxuDebugShapeRenderStateBlock* block = GetStateBlock(object.m_style);
-            block->Apply();
-
-            if (writeDepth) {
-                g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);
-            }
-
-            g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
-
-            uint32_t numVertices = factory->m_drawVertices.m_count;
-            GxPrimVertexPtr(numVertices, factory->m_drawVertices.m_data, sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, nullptr, 0);
-            g_theGxDevicePtr->PrimIndexPtr(indexBuf);
-
-            CGxBatch batch;
-            batch.m_primType = GxPrim_Triangles;
-            batch.m_start = factory->GetIdxOffset();
-            batch.m_count = factory->GetNumIndices();
-            batch.m_minIndex = 0;
-            batch.m_maxIndex = numVertices - 1;
-            g_theGxDevicePtr->Draw(&batch, 1);
-
-            GxXformPop(GxXform_World);
-            block->Restore();
-            s_debugShapeBufferCache.ReleaseBuffer(indexHandle);
+        if (GetPhase(object.m_style, object.m_color, true) != phase) {
+            continue;
         }
+
+        bool writeDepth = phase == GXUDEBUGPHASE_OPAQUE;
+
+        IGxuDebugShapeFactory* factory = GetFactory(object.m_shape);
+
+        if (!factory->GetNumVertices()) {
+            continue;
+        }
+
+        factory->CreateVertexBuffer();
+        uint32_t indexHandle = factory->CreateIndexBuffer();
+
+        if (!s_debugShapeBufferCache.Exists(indexHandle) || !factory->m_drawVertices.m_count) {
+            continue;
+        }
+
+        const C44Matrix& m = object.m_transform;
+        C3Vector center(m.d0 - viewOrigin.x, m.d1 - viewOrigin.y, m.d2 - viewOrigin.z);
+        float scaleA = m.a0 * m.a0 + m.a1 * m.a1 + m.a2 * m.a2;
+        float scaleB = m.b0 * m.b0 + m.b1 * m.b1 + m.b2 * m.b2;
+        float scaleC = m.c0 * m.c0 + m.c1 * m.c1 + m.c2 * m.c2;
+        float scale = sqrtf(scaleA > scaleB ? (scaleA > scaleC ? scaleA : scaleC) : (scaleB > scaleC ? scaleB : scaleC));
+        float dist = sqrtf(center.x * center.x + center.y * center.y + center.z * center.z);
+        factory->SetLOD(scale > 0.0f ? dist / scale : dist);
+
+        C44Matrix world = m;
+        world.d0 = center.x;
+        world.d1 = center.y;
+        world.d2 = center.z;
+
+        CImVector color = object.m_color;
+        GxFormatColor(color);
+
+        CGxBuf* indexBuf = s_debugShapeBufferCache.AcquireBuffer(indexHandle);
+        GxuDebugShapeRenderStateBlock* block = GetStateBlock(object.m_style);
+        block->Apply();
+
+        if (writeDepth) {
+            g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);
+        }
+
+        g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
+
+        uint32_t numVertices = factory->m_drawVertices.m_count;
+        GxPrimVertexPtr(numVertices, factory->m_drawVertices.m_data, sizeof(C3Vector), nullptr, 0, &color, 0, nullptr, 0, nullptr, 0);
+        g_theGxDevicePtr->PrimIndexPtr(indexBuf);
+
+        CGxBatch batch;
+        batch.m_primType = GxPrim_Triangles;
+        batch.m_start = factory->GetIdxOffset();
+        batch.m_count = factory->GetNumIndices();
+        batch.m_minIndex = 0;
+        batch.m_maxIndex = numVertices - 1;
+        g_theGxDevicePtr->Draw(&batch, 1);
+
+        GxXformPop(GxXform_World);
+        block->Restore();
+        s_debugShapeBufferCache.ReleaseBuffer(indexHandle);
     }
 }
 
-// ---- Lines (port)
+// ---- Lines and triangles (port)
 //
-// Drawn like the 3.3.5 hand-written overlays (RenderCollisionInfo's normal lines): a PC vertex stream, a 0..n index
-// stream and one GxPrim_Lines batch, under the Solid or NoDepth render-state block. Depth-tested lines go first so the
-// always-on-top ones stay on top. Each batch holds at most LINE_BATCH_SIZE lines (16-bit indices).
+// Drawn like the 3.3.5 hand-written overlays (RenderCollisionInfo's facets and normal lines): a PC vertex stream, a
+// 0..n index stream and one GxPrim_Lines or GxPrim_Triangles batch per phase, under the render-state block of the
+// objects' style. Culling is off (debug triangles are usually seen from both sides). Batches are split so 16-bit
+// indices never overflow; objects of different styles within a phase go out as separate batches.
 
-static const uint32_t LINE_BATCH_SIZE = 0x4000;
+static const uint32_t PRIM_BATCH_VERTICES = 0xC000; // a multiple of 2 and 3
 
-static void DrawLineBatch(const TSGrowableArray<GxuDebugLineObject>& objects, bool noDepth) {
+template <class T>
+static void DrawPrimBatches(const TSGrowableArray<T>& objects, GXUDEBUGPHASE phase, bool filled, EGxPrim primType) {
     static TSGrowableArray<C3Vector> s_positions;
     static TSGrowableArray<CImVector> s_colors;
     static TSGrowableArray<uint16_t> s_indices;
 
-    uint32_t i = 0;
+    const uint32_t vertsPerPrim = sizeof(objects.m_data[0].m_vertices) / sizeof(C3Vector);
 
-    while (i < objects.m_count) {
-        s_positions.SetCount(0);
-        s_colors.SetCount(0);
+    for (int32_t style = 0; style < NUM_GXUDEBUGSTYLES; style++) {
+        uint32_t i = 0;
 
-        for (; i < objects.m_count && s_positions.m_count < LINE_BATCH_SIZE * 2; i++) {
-            const GxuDebugLineObject& line = objects.m_data[i];
+        while (i < objects.m_count) {
+            s_positions.SetCount(0);
+            s_colors.SetCount(0);
 
-            if ((line.m_style == GXUDEBUGSTYLE_SOLID_NODEPTH) != noDepth) {
+            for (; i < objects.m_count && s_positions.m_count + vertsPerPrim <= PRIM_BATCH_VERTICES; i++) {
+                const T& object = objects.m_data[i];
+
+                if (object.m_style != style || GetPhase(object.m_style, object.m_color, filled) != phase) {
+                    continue;
+                }
+
+                CImVector color = object.m_color;
+                GxFormatColor(color);
+
+                for (uint32_t v = 0; v < vertsPerPrim; v++) {
+                    *s_positions.New() = object.m_vertices[v];
+                    *s_colors.New() = color;
+                }
+            }
+
+            uint32_t count = s_positions.m_count;
+
+            if (!count) {
                 continue;
             }
 
-            CImVector color = line.m_color;
-            GxFormatColor(color);
-            *s_positions.New() = line.m_start;
-            *s_positions.New() = line.m_end;
-            *s_colors.New() = color;
-            *s_colors.New() = color;
-        }
+            if (s_indices.m_count < count) {
+                uint32_t first = s_indices.m_count;
+                s_indices.SetCount(count);
 
-        uint32_t count = s_positions.m_count;
-
-        if (!count) {
-            continue;
-        }
-
-        if (s_indices.m_count < count) {
-            uint32_t first = s_indices.m_count;
-            s_indices.SetCount(count);
-
-            for (uint32_t n = first; n < count; n++) {
-                s_indices.m_data[n] = static_cast<uint16_t>(n);
+                for (uint32_t n = first; n < count; n++) {
+                    s_indices.m_data[n] = static_cast<uint16_t>(n);
+                }
             }
+
+            GxuDebugShapeRenderStateBlock* block = GxuDebugShapeDrawer::GetStateBlock(static_cast<GXUDEBUGSTYLE>(style));
+            block->Apply();
+            g_theGxDevicePtr->RsSet(GxRs_Culling, 0);
+
+            if (phase == GXUDEBUGPHASE_OPAQUE) {
+                g_theGxDevicePtr->RsSet(GxRs_DepthWrite, 1);
+            }
+
+            GxPrimVertexPtr(count, s_positions.m_data, sizeof(C3Vector), nullptr, 0, s_colors.m_data, sizeof(CImVector), nullptr, 0, nullptr, 0);
+            GxPrimIndexPtr(count, s_indices.m_data);
+
+            CGxBatch batch;
+            batch.m_primType = primType;
+            batch.m_start = 0;
+            batch.m_count = count;
+            batch.m_minIndex = 0;
+            batch.m_maxIndex = count - 1;
+            g_theGxDevicePtr->Draw(&batch, 1);
+
+            block->Restore();
         }
-
-        GxuDebugShapeRenderStateBlock* block = GxuDebugShapeDrawer::GetStateBlock(noDepth ? GXUDEBUGSTYLE_SOLID_NODEPTH : GXUDEBUGSTYLE_SOLID);
-        block->Apply();
-        g_theGxDevicePtr->RsSet(GxRs_Culling, 0);
-
-        GxPrimVertexPtr(count, s_positions.m_data, sizeof(C3Vector), nullptr, 0, s_colors.m_data, sizeof(CImVector), nullptr, 0, nullptr, 0);
-        GxPrimIndexPtr(count, s_indices.m_data);
-
-        CGxBatch batch;
-        batch.m_primType = GxPrim_Lines;
-        batch.m_start = 0;
-        batch.m_count = count;
-        batch.m_minIndex = 0;
-        batch.m_maxIndex = count - 1;
-        g_theGxDevicePtr->Draw(&batch, 1);
-
-        block->Restore();
     }
 }
 
-void GxuDebugShapeDrawer::DrawLines(const TSGrowableArray<GxuDebugLineObject>& objects, const C3Vector& viewOrigin) {
+void GxuDebugShapeDrawer::DrawPrims(const TSGrowableArray<GxuDebugLineObject>& lines, const TSGrowableArray<GxuDebugTriangleObject>& triangles, const C3Vector& viewOrigin, GXUDEBUGPHASE phase) {
+    if (!lines.m_count && !triangles.m_count) {
+        return;
+    }
+
     C44Matrix world;
     world.Translate(C3Vector(-viewOrigin.x, -viewOrigin.y, -viewOrigin.z));
     g_theGxDevicePtr->XformPushAndSet(GxXform_World, world);
 
-    DrawLineBatch(objects, false);
-    DrawLineBatch(objects, true);
+    // Lines before translucent triangles of the same phase, so a translucent face in front of a line tints it.
+    DrawPrimBatches(lines, phase, false, GxPrim_Lines);
+    DrawPrimBatches(triangles, phase, true, GxPrim_Triangles);
 
     GxXformPop(GxXform_World);
 }
@@ -640,8 +667,17 @@ void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CI
 
 void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVector& color, GXUDEBUGSTYLE style) {
     GxuDebugLineObject* object = s_lineObjects.New();
-    object->m_start = start;
-    object->m_end = end;
+    object->m_vertices[0] = start;
+    object->m_vertices[1] = end;
+    object->m_color = color;
+    object->m_style = style;
+}
+
+void GxuDebugDrawTriangle(const C3Vector& a, const C3Vector& b, const C3Vector& c, const CImVector& color, GXUDEBUGSTYLE style) {
+    GxuDebugTriangleObject* object = s_triangleObjects.New();
+    object->m_vertices[0] = a;
+    object->m_vertices[1] = b;
+    object->m_vertices[2] = c;
     object->m_color = color;
     object->m_style = style;
 }
@@ -696,17 +732,25 @@ void GxuDebugDrawBoundsSphere(const C3Vector& center, float radius, const C44Mat
     GxuDebugDrawShape(GXUDEBUGSHAPE_SPHERE, local * transform, color, style);
 }
 
-// Shapes first, then lines, then 3D and 2D text and textures on top of them.
+// The phases in order (see GetPhase), shapes before lines and triangles within each; then 3D and 2D text and textures
+// on top of everything.
 void GxuDebugDrawRender(const C3Vector& viewOrigin) {
-    if (s_shapeObjects.m_count) {
-        GxuDebugShapeDrawer::Draw(s_shapeObjects, viewOrigin);
-        s_shapeObjects.SetCount(0);
+    for (int32_t phase = 0; phase < NUM_GXUDEBUGPHASES; phase++) {
+        GXUDEBUGPHASE current = static_cast<GXUDEBUGPHASE>(phase);
+
+        if (current == GXUDEBUGPHASE_DEPTH_TESTED) {
+            // Lines and translucent triangles before translucent shapes, for the same tinting reason.
+            GxuDebugShapeDrawer::DrawPrims(s_lineObjects, s_triangleObjects, viewOrigin, current);
+            GxuDebugShapeDrawer::Draw(s_shapeObjects, viewOrigin, current);
+        } else {
+            GxuDebugShapeDrawer::Draw(s_shapeObjects, viewOrigin, current);
+            GxuDebugShapeDrawer::DrawPrims(s_lineObjects, s_triangleObjects, viewOrigin, current);
+        }
     }
 
-    if (s_lineObjects.m_count) {
-        GxuDebugShapeDrawer::DrawLines(s_lineObjects, viewOrigin);
-        s_lineObjects.SetCount(0);
-    }
+    s_shapeObjects.SetCount(0);
+    s_lineObjects.SetCount(0);
+    s_triangleObjects.SetCount(0);
 
     GxuDebugTextureDrawer::Draw(viewOrigin);
     GxuDebugTextDrawer::Draw(viewOrigin);
@@ -717,6 +761,7 @@ void GxuDebugDrawRender(const C3Vector& viewOrigin) {
 void GxuShutdownDebugDrawList() {
     s_shapeObjects.SetCount(0);
     s_lineObjects.SetCount(0);
+    s_triangleObjects.SetCount(0);
 }
 
 // 4.1 0x00AE6E80 releases the cache. The factories' handles are reset with it, since ReleaseCache drops the entries

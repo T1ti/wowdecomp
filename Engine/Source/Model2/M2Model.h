@@ -308,6 +308,14 @@ class CM2Model {
         DEBUG_BOUNDS_BOX = 2,
     };
     DEBUG_BOUNDS m_debugBounds;
+    // Debug feature: collision displays (0.5.3 CModelBase::m_collideModel and m_aaBoxCustGeoId).
+    enum DEBUG_COLLISION : uint32_t {
+        DEBUG_COLLISION_MESH = 0x1, // collision triangles and face normals
+        DEBUG_COLLISION_AABOX = 0x2, // collision bounds box
+    };
+    uint32_t m_debugCollision;
+    // World-wide collision displays (DEBUG_COLLISION bits), synced from CWorld::enables every frame.
+    static uint32_t s_debugWorldCollision;
 #endif
 
     static void (*s_transformVertices[5])(CM2Model*, M2SkinSection*, uint8_t*, int32_t);
@@ -472,7 +480,8 @@ class CM2Model {
     void ShowBoundingSphere();
     BOOL IsShowingBoundingBox() const;
     BOOL IsShowingBoundingSphere() const;
-    void DebugDrawBounds(const C44Matrix& viewInv) const;
+    void DebugDraw(const C44Matrix& viewInv) const;
+    static void SetDebugWorldCollision(BOOL mesh, BOOL aaBox);
     void ShowCollision(BOOL show);
     void ShowCollisionAaBox(BOOL show);
     void ShowHitTestGeometry();

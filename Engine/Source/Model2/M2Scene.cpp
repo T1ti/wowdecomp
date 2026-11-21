@@ -1773,9 +1773,9 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
         }
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
-        // Debug feature: model bounds display (CM2Model::ShowBoundingSphere / ShowBoundingBox), queued once per frame
-        // for each model that draws.
-        model->DebugDrawBounds(this->m_viewInv);
+        // Debug feature: model bounds and collision displays (CM2Model::ShowBoundingSphere / ShowBoundingBox /
+        // ShowCollision / ShowCollisionAaBox), queued once per frame for each model that draws.
+        model->DebugDraw(this->m_viewInv);
 #endif
 
         CM2Lighting* lighting = model->m_currentLighting;

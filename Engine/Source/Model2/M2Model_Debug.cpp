@@ -47,21 +47,17 @@ BOOL CM2Model::IsShowingBoundingSphere() const {
     return this->m_debugBounds == DEBUG_BOUNDS_SPHERE;
 }
 
-// Port: queues the shown bounds. Called by CM2Scene::Animate for each model on the draw list, where m_matrixF4 (model
-// to M2 view space) is current; viewInv is the scene's m_viewInv, so m_matrixF4 * viewInv is the model's world
-// transform, as in CM2Model::GetAnimatedWorldTransform. The bounds are the model file's (M2Data m_bounds: the extent
-// box, and a sphere of m_radius around the extent center, as CM2Model::GetBoundingSphere builds it).
-void CM2Model::DebugDrawBounds(const C44Matrix& viewInv) const {
-    if (this->m_debugBounds == DEBUG_BOUNDS_NONE || !this->m_shared || !this->m_shared->m_data) {
-        return;
-    }
-
-    const M2Bounds& bounds = this->m_shared->m_data->m_bounds;
-    C44Matrix world = this->m_matrixF4 * viewInv;
+static CImVector MakeColor(uint32_t argb) {
     CImVector color;
-    *reinterpret_cast<uint32_t*>(&color) = BOUNDS_COLOR;
+    *reinterpret_cast<uint32_t*>(&color) = argb;
+    return color;
+}
 
-    if (this->m_debugBounds == DEBUG_BOUNDS_SPHERE) {
+static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C44Matrix& world) {
+    const M2Bounds& bounds = data->m_bounds;
+    CImVector color = MakeColor(BOUNDS_COLOR);
+
+    if (mode == CM2Model::DEBUG_BOUNDS_SPHERE) {
         C3Vector center((bounds.m_extent.b.x + bounds.m_extent.t.x) * 0.5f, (bounds.m_extent.b.y + bounds.m_extent.t.y) * 0.5f, (bounds.m_extent.b.z + bounds.m_extent.t.z) * 0.5f);
         GxuDebugDrawBoundsSphere(center, bounds.m_radius, world, color, GXUDEBUGSTYLE_SOLID);
     } else {
@@ -69,18 +65,135 @@ void CM2Model::DebugDrawBounds(const C44Matrix& viewInv) const {
     }
 }
 
+// 0.5.3 CreateCollisionDisplayMesh + CreateCollisionDisplayNormals: the collision triangles, and per face a line from
+// the face center along its normal, scaled by the collision box's smallest dimension when that exceeds 1 (opaque red,
+// CImVector::Set(0xFF, 0xFF, 0, 0) = ARGB). 0.5.3 drew the triangles as a plain model; here they are half transparent
+// white so the model stays visible through them.
+static const uint32_t COLLISION_FACE_COLOR = 0x60FFFFFF;
+static const uint32_t COLLISION_NORMAL_COLOR = 0xFFFF0000;
+
+static void DrawCollisionMesh(const M2Data* data, const C44Matrix& world) {
+    uint32_t indexCount = data->m_collisionIndices.m_count;
+    uint32_t positionCount = data->m_collisionPositions.m_count;
+
+    if (indexCount < 3 || !positionCount) {
+        return;
+    }
+
+    const uint16_t* indices = data->m_collisionIndices.Data();
+    const C3Vector* positions = data->m_collisionPositions.Data();
+    const C3Vector* normals = data->m_collisionFaceNormals.m_count ? data->m_collisionFaceNormals.Data() : nullptr;
+    uint32_t faceCount = indexCount / 3;
+
+    const CAaBox& box = data->m_collisionBounds.m_extent;
+    float dimX = box.t.x - box.b.x;
+    float dimY = box.t.y - box.b.y;
+    float dimZ = box.t.z - box.b.z;
+    float smallest = dimX < dimY ? (dimX < dimZ ? dimX : dimZ) : (dimY < dimZ ? dimY : dimZ);
+    float normalScale = smallest > 1.0f ? smallest : 1.0f;
+
+    CImVector faceColor = MakeColor(COLLISION_FACE_COLOR);
+    CImVector normalColor = MakeColor(COLLISION_NORMAL_COLOR);
+
+    for (uint32_t face = 0; face < faceCount; face++) {
+        uint16_t i0 = indices[face * 3 + 0];
+        uint16_t i1 = indices[face * 3 + 1];
+        uint16_t i2 = indices[face * 3 + 2];
+
+        if (i0 >= positionCount || i1 >= positionCount || i2 >= positionCount) {
+            continue;
+        }
+
+        const C3Vector& a = positions[i0];
+        const C3Vector& b = positions[i1];
+        const C3Vector& c = positions[i2];
+        GxuDebugDrawTriangle(a * world, b * world, c * world, faceColor, GXUDEBUGSTYLE_SOLID);
+
+        if (normals && face < data->m_collisionFaceNormals.m_count) {
+            C3Vector center((a.x + b.x + c.x) * (1.0f / 3.0f), (a.y + b.y + c.y) * (1.0f / 3.0f), (a.z + b.z + c.z) * (1.0f / 3.0f));
+            const C3Vector& n = normals[face];
+            C3Vector tip(center.x + n.x * normalScale, center.y + n.y * normalScale, center.z + n.z * normalScale);
+            GxuDebugDrawLine(center * world, tip * world, normalColor, GXUDEBUGSTYLE_SOLID);
+        }
+    }
+}
+
+// 0.5.3 CollisionDataRenderAABox: the collision box, alpha blended, no depth write, material diffuse 0x8000FFFF (half
+// transparent cyan).
+static const uint32_t COLLISION_AABOX_COLOR = 0x8000FFFF;
+
+static void DrawCollisionAaBox(const M2Data* data, const C44Matrix& world) {
+    const CAaBox& box = data->m_collisionBounds.m_extent;
+
+    if (!(box.b.x < box.t.x) && !(box.b.y < box.t.y) && !(box.b.z < box.t.z)) {
+        return;
+    }
+
+    GxuDebugDrawBoundsBox(box.b, box.t, world, MakeColor(COLLISION_AABOX_COLOR), GXUDEBUGSTYLE_SOLID);
+}
+
+// Port: queues the shown bounds and collision displays. Called by CM2Scene::Animate for each model on the draw list,
+// where m_matrixF4 (model to M2 view space) is current; viewInv is the scene's m_viewInv, so m_matrixF4 * viewInv is
+// the model's world transform, as in CM2Model::GetAnimatedWorldTransform. The bounds are the model file's (M2Data
+// m_bounds: the extent box, and a sphere of m_radius around the extent center, as CM2Model::GetBoundingSphere builds
+// it); the collision displays use the file's collision mesh and collision bounds. Models without collision data show
+// no collision display, as in 0.5.3 (which checked the shared collision data first).
+void CM2Model::DebugDraw(const C44Matrix& viewInv) const {
+    uint32_t collision = this->m_debugCollision | CM2Model::s_debugWorldCollision;
+
+    if ((this->m_debugBounds == DEBUG_BOUNDS_NONE && !collision) || !this->m_shared || !this->m_shared->m_data) {
+        return;
+    }
+
+    const M2Data* data = this->m_shared->m_data;
+    C44Matrix world = this->m_matrixF4 * viewInv;
+
+    if (this->m_debugBounds != DEBUG_BOUNDS_NONE) {
+        DrawBounds(data, this->m_debugBounds, world);
+    }
+
+    if (collision & DEBUG_COLLISION_MESH) {
+        DrawCollisionMesh(data, world);
+    }
+
+    if ((collision & DEBUG_COLLISION_AABOX) && data->m_collisionIndices.m_count) {
+        DrawCollisionAaBox(data, world);
+    }
+}
+
 // Debug feature: model collision mesh display.
 // 0.5.3 reference: ModelShowCollision (0x004479B0).
-// Built a debug model with CollisionDataCreateModel; queued MODEL_SHOW_COLLISION while loading.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 built a debug model with CollisionDataCreateModel and kept it in m_collideModel (queued MODEL_SHOW_COLLISION
+// while loading). Here the flag is read when the model draws (CM2Model::DebugDraw).
 void CM2Model::ShowCollision(BOOL show) {
+    if (show) {
+        this->m_debugCollision |= DEBUG_COLLISION_MESH;
+    } else {
+        this->m_debugCollision &= ~DEBUG_COLLISION_MESH;
+    }
 }
 
 // Debug feature: model collision box display.
 // 0.5.3 reference: ModelShowCollisionAaBox (0x00447A60).
-// Drew the box with CollisionDataRenderAABox; queued MODEL_SHOW_COLLISION_AABOX while loading.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 added a custom geoset whose callback drew CollisionDataRenderAABox (queued MODEL_SHOW_COLLISION_AABOX while
+// loading). Here the flag is read when the model draws (CM2Model::DebugDraw).
 void CM2Model::ShowCollisionAaBox(BOOL show) {
+    if (show) {
+        this->m_debugCollision |= DEBUG_COLLISION_AABOX;
+    } else {
+        this->m_debugCollision &= ~DEBUG_COLLISION_AABOX;
+    }
+}
+
+// Port: the world-wide switches. 0.5.3 CWorldScene::RenderDoodads called ModelShowCollision(enables & Enable_Collision)
+// and ModelShowCollisionAaBox(enables & Enable_AABoxes) on every visible doodad each frame, and
+// CGGameObject_C::ObjectPostAnimate the former on game objects. 3.3.5 has no such per-doodad hook, so CGWorldFrame
+// syncs the two bits here every frame and DebugDraw applies them to every drawn M2 that has collision data (doodads
+// and game objects; characters and creatures normally have none).
+uint32_t CM2Model::s_debugWorldCollision;
+
+void CM2Model::SetDebugWorldCollision(BOOL mesh, BOOL aaBox) {
+    CM2Model::s_debugWorldCollision = (mesh ? DEBUG_COLLISION_MESH : 0) | (aaBox ? DEBUG_COLLISION_AABOX : 0);
 }
 
 // Debug feature: model hit-test geometry display.

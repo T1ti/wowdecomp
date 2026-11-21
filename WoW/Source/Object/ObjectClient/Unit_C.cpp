@@ -1476,6 +1476,11 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
 
     this->CGObject_C::PreAnimate(frame);
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: DebugTargetPath (0.5.3 checked it in CGObject_C::PreAnimate, after the target selection circle).
+    this->DebugPathingPreAnimate();
+#endif
+
     while (this->m_pendingMissiles && static_cast<int32_t>(time - this->m_pendingMissiles->m_destroyTime) >= 0) {
         this->m_pendingMissiles->DeleteSelf();
     }

@@ -38,7 +38,7 @@ int32_t CWorld::ConsoleCommand_ShowDoodads(const char* command, const char* argu
 
 // Debug feature: world render mode.
 // 0.5.3 reference: CWorld::ConsoleCommand_ShowCollision (0x00665930).
-// No 3.3.5 code reads Enable_Collision yet, so this has no visible effect.
+// Drawn through CM2Model::SetDebugWorldCollision: collision triangles and face normals on every drawn M2 with collision data.
 int32_t CWorld::ConsoleCommand_ShowCollision(const char* command, const char* arguments) {
     if (CWorld::enables & Enables::Enable_Collision) {
         ConsoleWrite("Terrain doodads collision visuals disabled.", DEFAULT_COLOR);
@@ -53,7 +53,7 @@ int32_t CWorld::ConsoleCommand_ShowCollision(const char* command, const char* ar
 
 // Debug feature: world render mode.
 // 0.5.3 reference: CWorld::ConsoleCommand_ShowAABoxes (0x006658E0).
-// No 3.3.5 code reads Enable_AABoxes yet, so this has no visible effect.
+// Drawn through CM2Model::SetDebugWorldCollision: the collision box on every drawn M2 with collision data.
 int32_t CWorld::ConsoleCommand_ShowAABoxes(const char* command, const char* arguments) {
     if (CWorld::enables & Enables::Enable_AABoxes) {
         ConsoleWrite("Terrain doodads AA Box visuals disabled.", DEFAULT_COLOR);

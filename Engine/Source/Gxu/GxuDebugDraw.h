@@ -77,6 +77,14 @@ enum GXUDEBUGSTYLE : int32_t {
     NUM_GXUDEBUGSTYLES = 4,
 };
 
+// Port: the order GxuDebugDrawRender draws queued objects in (see GetPhase in GxuDebugDrawShapes.cpp).
+enum GXUDEBUGPHASE : int32_t {
+    GXUDEBUGPHASE_OPAQUE = 0, // opaque filled shapes and triangles, writing depth
+    GXUDEBUGPHASE_DEPTH_TESTED = 1, // lines, translucent and wireframe objects, depth tested without depth writes
+    GXUDEBUGPHASE_NO_DEPTH = 2, // GXUDEBUGSTYLE_SOLID_NODEPTH objects, always on top
+    NUM_GXUDEBUGPHASES = 3,
+};
+
 // Shared vertex and index buffers, keyed by a handle the factories keep (4.1 GxuBufferCache: 24-byte entries of
 // target, item size, item count, pool, buffer, reference count; 0xFFFF = no buffer yet).
 class GxuBufferCache {
@@ -245,10 +253,17 @@ struct GxuDebugShapeObject {
 // Port: one world-space segment. The style picks the render-state block: GXUDEBUGSTYLE_SOLID_NODEPTH draws on top of
 // everything, every other style depth tests (culling and fill mode do not apply to lines).
 struct GxuDebugLineObject {
-    /* 0000 */ C3Vector m_start;
-    /* 000C */ C3Vector m_end;
+    /* 0000 */ C3Vector m_vertices[2]; // start, end
     /* 0018 */ CImVector m_color;
     /* 001C */ GXUDEBUGSTYLE m_style;
+};
+
+// Port: one world-space triangle (collision facets and other meshes). Drawn without culling; the style picks depth
+// testing (SOLID_NODEPTH) and fill (WIREFRAME draws the edges only).
+struct GxuDebugTriangleObject {
+    /* 0000 */ C3Vector m_vertices[3];
+    /* 0024 */ CImVector m_color;
+    /* 0028 */ GXUDEBUGSTYLE m_style;
 };
 
 struct GxuDebugTextObject {
@@ -282,9 +297,9 @@ class GxuDebugShapeDrawer {
 
     static IGxuDebugShapeFactory* GetFactory(GXUDEBUGSHAPE shape);
     static GxuDebugShapeRenderStateBlock* GetStateBlock(GXUDEBUGSTYLE style);
-    static void Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin);
-    // Port: all queued lines of one depth mode go out as a single GxPrim_Lines batch.
-    static void DrawLines(const TSGrowableArray<GxuDebugLineObject>& objects, const C3Vector& viewOrigin);
+    static void Draw(const TSGrowableArray<GxuDebugShapeObject>& objects, const C3Vector& viewOrigin, GXUDEBUGPHASE phase);
+    // Port: the lines and triangles of one phase, batched per style into GxPrim_Lines / GxPrim_Triangles draws.
+    static void DrawPrims(const TSGrowableArray<GxuDebugLineObject>& lines, const TSGrowableArray<GxuDebugTriangleObject>& triangles, const C3Vector& viewOrigin, GXUDEBUGPHASE phase);
 };
 
 class GxuDebugTextureDrawer {
@@ -304,6 +319,7 @@ class GxuDebugTextDrawer {
 // (CWorldScene::s_activeWorldView): world positions are drawn relative to it.
 void GxuDebugDrawShape(GXUDEBUGSHAPE shape, const C44Matrix& transform, const CImVector& color, GXUDEBUGSTYLE style);
 void GxuDebugDrawLine(const C3Vector& start, const C3Vector& end, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
+void GxuDebugDrawTriangle(const C3Vector& a, const C3Vector& b, const C3Vector& c, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);
 // Convenience on top of the primitives: the twelve edges of a world axis-aligned box or of a local box placed by a
 // transform, and the box or sphere of a local-space bounds placed by a transform (used by the model bounds display).
 void GxuDebugDrawAaBoxLines(const C3Vector& minCorner, const C3Vector& maxCorner, const CImVector& color, GXUDEBUGSTYLE style = GXUDEBUGSTYLE_SOLID);

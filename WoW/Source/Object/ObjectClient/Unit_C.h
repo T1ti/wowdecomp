@@ -1116,6 +1116,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
 #ifdef WOWDECOMP_DEBUG_FEATURES
     // Debug features (Unit_C_Debug.cpp), stripped from the 3.3.5 release build.
     int32_t GetDebugStateInfo(ATTACKROUNDINFO* info);
+    void DebugPathingPreAnimate();
     void RenderDebugPathing();
     void SetDebugHitRolls(const ATTACKROUNDINFO& info);
 #endif

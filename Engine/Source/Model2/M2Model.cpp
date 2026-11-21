@@ -3788,6 +3788,7 @@ CM2Model::CM2Model() {
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
     this->m_debugBounds = DEBUG_BOUNDS_NONE;
+    this->m_debugCollision = 0;
 #endif
 
     if (!CM2Model::s_transformVertices[0]) {

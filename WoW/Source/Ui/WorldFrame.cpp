@@ -21,6 +21,7 @@
 #include "Engine/Source/Gxu/Gxu.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "WoW/Source/Ui/WorldFrame_DebugDrawTest.h"
+#include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Model2/M2Scene.h"
 #include "Engine/Source/Os/Time.h"
 #include "Engine/Source/Os/TimeManager.h"
@@ -1749,6 +1750,13 @@ void CGWorldFrame::OnWorldRender() {
     }
 
     CShaderEffect::UpdateProjMatrix();
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the world collision displays (showCollision / showAABoxes). 0.5.3 CWorldScene::RenderDoodads
+    // passed these bits to every visible doodad each frame; see CM2Model::SetDebugWorldCollision.
+    CM2Model::SetDebugWorldCollision((CWorld::enables & Enables::Enable_Collision) != 0, (CWorld::enables & Enables::Enable_AABoxes) != 0);
+#endif
+
     CWorld::Render(this->m_camera->m_position, this->m_elapsedSec);
     CMap::RenderFootprints();
     ClntObjMgrEnumVisibleObjects(UnitPostAnimateProc, this);
