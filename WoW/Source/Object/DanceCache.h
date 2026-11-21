@@ -7,10 +7,17 @@
 
 class CDataStore;
 
+// Names inferred from the dance request builder: FALLBACK plays the DanceMoves record's
+// m_fallback move instead of m_moveId itself.
+enum DANCEMOVE_TYPE : uint8_t {
+    DANCEMOVE_TYPE_DIRECT = 0,
+    DANCEMOVE_TYPE_FALLBACK = 1,
+};
+
 struct DANCEMOVE {
     /* 0000 */ int16_t m_moveId;
     /* 0002 */ uint8_t m_chance;
-    /* 0003 */ uint8_t m_type;
+    /* 0003 */ uint8_t m_type; // DANCEMOVE_TYPE
 };
 
 class DanceCache {

@@ -170,7 +170,7 @@ void CGDanceStudio::PlayDance(DanceCache* record, DANCE_REQUEST* request) {
             continue;
         }
 
-        if (i < record->m_dataCount && record->m_data[i].m_type == 1) {
+        if (i < record->m_dataCount && record->m_data[i].m_type == DANCEMOVE_TYPE_FALLBACK) {
             DanceMovesRec* move = g_danceMovesDB.GetRecord(record->m_data[i].m_moveId);
 
             if (move) {
