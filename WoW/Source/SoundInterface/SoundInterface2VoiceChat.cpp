@@ -152,7 +152,7 @@ int32_t SI2::VoiceChat_GetCurrentMicrophoneSignalLevel() {
 
 // VERIFY: 124ffd5f auto
 // OFFSET: 0x00986680
-int32_t SI2::VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallbacks* callbacks, int32_t chatSystem) {
+SI2_RESULT SI2::VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallbacks* callbacks, int32_t chatSystem) {
     if (!SE2::IsChatSoundInitialized()) {
         return SI2_ERR_SOUND_DISABLED;
     }
@@ -163,7 +163,7 @@ int32_t SI2::VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallba
 
 // VERIFY: 73c312f2 auto
 // OFFSET: 0x009866B0
-int32_t SI2::VoiceChat_Play(SE2SoundKitObject* object) {
+SI2_RESULT SI2::VoiceChat_Play(SE2SoundKitObject* object) {
     if (!SE2::IsChatSoundInitialized()) {
         return SI2_ERR_SOUND_DISABLED;
     }

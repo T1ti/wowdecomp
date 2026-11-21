@@ -48,7 +48,7 @@ class SI2ZoneSoundPair {
     bool IsPlaying();
     void SetFinishedCallback(void (*callback)(SESound*, void*), void* param);
     void Stop(BOOL immediate);
-    int32_t Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime);
+    SI2_RESULT Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime);
 };
 
 #endif

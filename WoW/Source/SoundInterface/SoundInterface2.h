@@ -160,10 +160,10 @@ class SI2 {
     static int32_t sm_bLuaMusicPlaying;
     static TSGrowableArray<uint32_t> sm_aIntroMusicNextValidPlayTime;
 
-    static int32_t AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop);
+    static SI2_RESULT AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop);
     static void AIMusicFinished(SESound* sound, void* param);
     static void ApplyReverbSettings();
-    static int32_t AttachToObject(SE2SoundKitObject* object, WOWGUID guid);
+    static SI2_RESULT AttachToObject(SE2SoundKitObject* object, WOWGUID guid);
     static int32_t ChaosModeUpdate(const void* data, void* param);
     static void ClearSuppressors();
     static void ClearSuppressorSounds();
@@ -209,7 +209,7 @@ class SI2 {
     static int32_t GlueMusicUpdate(const void* data, void* param);
     static int32_t HandleSoundDeviceChange(const void* data, void* param);
     static int32_t HandleWaterSounds(const void* data, void* param);
-    static int32_t Init(int32_t restart);
+    static SI2_RESULT Init(int32_t restart);
     static void InitEmoteSounds();
     static void InitFootstepSounds();
     static void InitSoundKitLookup();
@@ -239,12 +239,12 @@ class SI2 {
     static int32_t PlayMissedSound(bool oneHand, const C3Vector* position, int32_t self);
     static void PlayParrySound(const CGUnitVirtualItem* weapon, const CGUnitVirtualItem* defender, int32_t crit, const C3Vector* position, int32_t self);
     static int32_t PlaySheatheSound(const CGUnitVirtualItem* item, int32_t sheathe, const C3Vector* position, int32_t self);
-    static int32_t PlaySoundFile(const char* filename, SI2_SOUND_GROUP group);
-    static int32_t PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties);
+    static SI2_RESULT PlaySoundFile(const char* filename, SI2_SOUND_GROUP group);
+    static SI2_RESULT PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties);
     static void PlayVocalErrorSound(VOCALUISOUNDS error);
     static void PlaySpellFizzleSound(uint32_t spellId, const void* object);
     static void DK_GetPlayerFilterName(CGUnit_C* unit, char* name, uint32_t size);
-    static int32_t PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying);
+    static SI2_RESULT PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying);
     static int32_t PlayUISound(int32_t soundKitId);
     static int32_t PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, const C3Vector* position, int32_t quiet, int32_t self);
     static void RegisterCVars();
@@ -252,7 +252,7 @@ class SI2 {
     static void RegisterScriptFunctions();
     static void RegisterSoundEngineCVars();
     static void ReleaseSoundGroups();
-    static int32_t ResetSoundKitVariants(const char* name);
+    static SI2_RESULT ResetSoundKitVariants(const char* name);
     static int32_t Set3DPosition(SE2SoundKitObject* object, const C3Vector* position);
     static void SetAdvancedSoundPosition(uint32_t id, const C3Vector* position);
     static void SetChannelGroupVolume(SI2_SOUND_GROUP group, float volume);
@@ -299,14 +299,14 @@ class SI2 {
     static void VoiceChat_ActivatePrimaryCaptureCallback();
     static void VoiceChat_AmplifyMicrophoneInput(int16_t* data, uint32_t samples);
     static void VoiceChat_CleanUpLoopbackSound();
-    static int32_t VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallbacks* callbacks, int32_t chatSystem);
+    static SI2_RESULT VoiceChat_CreateChatSound(SE2SoundKitObject* object, SEStreamCallbacks* callbacks, int32_t chatSystem);
     static void VoiceChat_DestroyChatSystem();
     static int32_t VoiceChat_GetCurrentMicrophoneSignalLevel();
     static void VoiceChat_InitCapture(float sampleRate);
     static bool VoiceChat_IsPlayingLoopbackSound();
     static bool VoiceChat_IsRecordingLoopbackSound();
     static int32_t VoiceChat_IsVoiceChatInitialized();
-    static int32_t VoiceChat_Play(SE2SoundKitObject* object);
+    static SI2_RESULT VoiceChat_Play(SE2SoundKitObject* object);
     static void VoiceChat_PlayLoopbackSound();
     static void VoiceChat_RecordLoopbackSound(int32_t seconds);
     static void VoiceChat_SetCaptureDevice(int32_t index);

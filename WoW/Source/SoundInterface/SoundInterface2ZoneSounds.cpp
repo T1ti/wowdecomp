@@ -449,7 +449,7 @@ void SI2::AIMusicFinished(SESound* sound, void* param) {
 
 // VERIFY: 26708b3b manual
 // OFFSET: 0x004C9110
-int32_t SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
+SI2_RESULT SI2::PlaySoundFile(const char* filename, SI2_SOUND_GROUP group) {
     static CVar* s_enableAllSound = CVar::Lookup("Sound_EnableAllSound");
 
     if (!s_enableAllSound || !s_enableAllSound->m_intValue || CGGameUI::m_inMovie) {

@@ -335,7 +335,7 @@ int32_t SI2::GetNumSoundsInSoundKit(int32_t soundKitId) {
 
 // VERIFY: c2c19ed1 auto
 // OFFSET: 0x004C5C80
-int32_t SI2::AttachToObject(SE2SoundKitObject* object, WOWGUID guid) {
+SI2_RESULT SI2::AttachToObject(SE2SoundKitObject* object, WOWGUID guid) {
     if (!object->m_sound.Is3D()) {
         return SI2_ERR_NOT_3D;
     }
@@ -543,7 +543,7 @@ void SI2::SoundFinished(SESound* sound, void* param) {
 
 // VERIFY: 551d00f9 auto
 // OFFSET: 0x004C6330
-int32_t SI2::ResetSoundKitVariants(const char* name) {
+SI2_RESULT SI2::ResetSoundKitVariants(const char* name) {
     int32_t soundKitId = SI2::LookupSoundKitId(name);
 
     if (!soundKitId) {
@@ -680,7 +680,7 @@ void SI2::RegisterDeviceChangeHandler() {
 
 // VERIFY: 5c43095a manual
 // OFFSET: 0x004C6A40
-int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying) {
+SI2_RESULT SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying) {
     if (soundKitId <= 0) {
         return SI2_ERR_INVALID_SOUND_KIT;
     }
@@ -925,7 +925,7 @@ int32_t SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2Sound
 
 // VERIFY: 4ec0a358 manual
 // OFFSET: 0x004C7140
-int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime) {
+SI2_RESULT SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE type, SE2SoundKitProperties* properties, BOOL immediate, float fadeOutTime) {
     if (type >= SI2::ZONE_SOUND_TYPE::NUM_SOURCE_SLOTS) {
         SI2::StopSound(&this->m_sounds[this->m_current].m_object, 0, -1.0f, 1);
         this->m_sounds[this->m_current].m_type = type;
@@ -937,7 +937,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
         SI2::StopSound(&this->m_sounds[this->m_current].m_object, 1, -1.0f, 1);
         SI2::StopSound(&this->m_sounds[this->m_next].m_object, 1, -1.0f, 1);
 
-        int32_t result = SI2::PlaySoundKit(soundKitId, nullptr, &this->m_sounds[this->m_current].m_object, properties, 0, nullptr, 1, 0);
+        SI2_RESULT result = SI2::PlaySoundKit(soundKitId, nullptr, &this->m_sounds[this->m_current].m_object, properties, 0, nullptr, 1, 0);
 
         if (!result) {
             this->m_sounds[this->m_current].m_soundKitId = soundKitId;
@@ -979,7 +979,7 @@ int32_t SI2ZoneSoundPair::Transition(int32_t soundKitId, SI2::ZONE_SOUND_TYPE ty
 
     this->m_sounds[this->m_current].m_object.m_sound.FadeOutNow();
 
-    int32_t result = SI2::PlaySoundKit(soundKitId, nullptr, &this->m_sounds[this->m_next].m_object, properties, 0, nullptr, 1, 0);
+    SI2_RESULT result = SI2::PlaySoundKit(soundKitId, nullptr, &this->m_sounds[this->m_next].m_object, properties, 0, nullptr, 1, 0);
 
     if (!result) {
         this->m_sounds[this->m_next].m_soundKitId = soundKitId;
@@ -1011,7 +1011,7 @@ SE2SoundKitObject::~SE2SoundKitObject() {
 
 // VERIFY: cf497004 auto
 // OFFSET: 0x004C74A0
-int32_t SI2::PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties) {
+SI2_RESULT SI2::PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties) {
     if (!SE2::IsInitialized()) {
         return SI2_ERR_SOUND_DISABLED;
     }
@@ -1302,7 +1302,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
 
 // VERIFY: 3e5c36df auto
 // OFFSET: 0x004C82E0
-int32_t SI2::Init(int32_t restart) {
+SI2_RESULT SI2::Init(int32_t restart) {
     if (CmdLineGetBool(static_cast<CMDOPT>(CMD_NO_SOUND))) {
         SI2::RegisterSoundEngineCVars();
         SI2::RegisterCVars();
