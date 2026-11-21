@@ -371,6 +371,18 @@ float CGTaxiMap::CalculateAccurateDistance(uint32_t index, uint32_t parent) {
     return distance;
 }
 
+// INLINED
+// Name inferred: TaxiNodes m_mountCreatureID values of the Horde flight masters' mounts.
+static bool IsHordeTaxiMount(int32_t creatureId) {
+    return creatureId == 2224 || creatureId == 3574 || creatureId == 19917 || creatureId == 34709;
+}
+
+// INLINED
+// Name inferred: TaxiNodes m_mountCreatureID values of the Alliance flight masters' mounts.
+static bool IsAllianceTaxiMount(int32_t creatureId) {
+    return creatureId == 3837 || creatureId == 541 || creatureId == 28360 || creatureId == 28361 || creatureId == 31315;
+}
+
 // VERIFY: 48c16c0c manual
 // OFFSET: 0x005926C0
 void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
@@ -385,15 +397,15 @@ void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
             int32_t mount1 = node->m_mountCreatureID[1];
 
             if (factionTemplate->m_factionGroup == (FACTION_GROUP_MASK_PLAYER | FACTION_GROUP_MASK_ALLIANCE)) {
-                bool hordeMount = mount0 == 2224 || mount0 == 3574 || mount0 == 19917 || mount0 == 34709 || mount1 == 2224 || mount1 == 3574 || mount1 == 19917 || mount1 == 34709;
-                bool allianceMount = mount0 == 3837 || mount0 == 541 || mount0 == 28360 || mount0 == 28361 || mount0 == 31315 || mount1 == 3837 || mount1 == 541 || mount1 == 28360 || mount1 == 28361 || mount1 == 31315;
+                bool hordeMount = IsHordeTaxiMount(mount0) || IsHordeTaxiMount(mount1);
+                bool allianceMount = IsAllianceTaxiMount(mount0) || IsAllianceTaxiMount(mount1);
 
                 if (hordeMount && !allianceMount) {
                     return;
                 }
             } else if (factionTemplate->m_factionGroup == (FACTION_GROUP_MASK_PLAYER | FACTION_GROUP_MASK_HORDE)) {
-                bool allianceMount = mount0 == 3837 || mount0 == 541 || mount0 == 28360 || mount0 == 28361 || mount0 == 31315 || mount1 == 3837 || mount1 == 541 || mount1 == 28360 || mount1 == 28361 || mount1 == 31315;
-                bool hordeMount = mount0 == 2224 || mount0 == 3574 || mount0 == 19917 || mount0 == 34709 || mount1 == 2224 || mount1 == 3574 || mount1 == 19917 || mount1 == 34709;
+                bool allianceMount = IsAllianceTaxiMount(mount0) || IsAllianceTaxiMount(mount1);
+                bool hordeMount = IsHordeTaxiMount(mount0) || IsHordeTaxiMount(mount1);
 
                 if (allianceMount && !hordeMount) {
                     return;
