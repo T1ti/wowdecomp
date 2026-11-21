@@ -206,7 +206,7 @@ void CGLCD::Shutdown() {
 // OFFSET: 0x0084A530
 void CGLCD::OnWhisper(const char* name) {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete) {
-        CGLCD::PushAlert(name, 1);
+        CGLCD::PushAlert(name, LCD_ALERT_WHISPER);
     }
 }
 
@@ -214,7 +214,7 @@ void CGLCD::OnWhisper(const char* name) {
 // OFFSET: 0x0084A5B0
 void CGLCD::AuctionOutbid(const char* name) {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete) {
-        CGLCD::PushAlert(name, 3);
+        CGLCD::PushAlert(name, LCD_ALERT_AUCTION_OUTBID);
     }
 }
 
@@ -222,7 +222,7 @@ void CGLCD::AuctionOutbid(const char* name) {
 // OFFSET: 0x0084A5F0
 void CGLCD::AuctionExpired(const char* name) {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
-        CGLCD::PushAlert(name, 4);
+        CGLCD::PushAlert(name, LCD_ALERT_AUCTION_EXPIRED);
     }
 }
 
@@ -230,7 +230,7 @@ void CGLCD::AuctionExpired(const char* name) {
 // OFFSET: 0x0084A640
 void CGLCD::AuctionSold(const char* name) {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
-        CGLCD::PushAlert(name, 6);
+        CGLCD::PushAlert(name, LCD_ALERT_AUCTION_SOLD);
     }
 }
 
@@ -238,7 +238,7 @@ void CGLCD::AuctionSold(const char* name) {
 // OFFSET: 0x0084A690
 void CGLCD::AuctionWon(const char* name) {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
-        CGLCD::PushAlert(name, 5);
+        CGLCD::PushAlert(name, LCD_ALERT_AUCTION_WON);
     }
 }
 
@@ -305,7 +305,7 @@ void CGLCD::Login() {
     CGLCD::SetScreen(LCD_SCREEN_PLAYER_INFO);
     CGLCD::m_lcd->ShowSubscreen(0);
     CGPlayer_C* player = CGLCD::m_player;
-    s_subscreen = 0;
+    s_subscreen = LCD_SUBSCREEN_MELEE;
     CGLCD::m_inWorld = 1;
 
     ChrClassesRec* classRec = g_chrClassesDB.GetRecord(player->m_unit->m_classID);
@@ -459,8 +459,8 @@ static bool IsAsianLocale() {
 // VERIFY: f6f78e1f auto
 // OFFSET: 0x008481B0
 static void SetSubscreen(int32_t subscreen) {
-    if (subscreen == 3) {
-        CGLCD::m_lcd->ShowSubscreen(0);
+    if (subscreen == LCD_SUBSCREEN_RANGED) {
+        CGLCD::m_lcd->ShowSubscreen(LCD_SUBSCREEN_MELEE);
         s_subscreen = subscreen;
     } else {
         CGLCD::m_lcd->ShowSubscreen(subscreen);
@@ -509,7 +509,7 @@ void CGLCD::CheckInput() {
             }
         } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_0)) {
             if ((!IsAsianLocale() || CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) && s_currentScreen == LCD_SCREEN_PLAYER_INFO) {
-                s_subscreen = (s_subscreen + 1) % 4;
+                s_subscreen = (s_subscreen + 1) % NUM_LCD_SUBSCREENS;
                 SetSubscreen(s_subscreen);
             }
 
@@ -567,7 +567,7 @@ checkNavigation:
     } else if (CGLCD::m_lcd->ButtonReleased(CEzLcd::BUTTON_UP)) {
         switch (s_currentScreen) {
             case LCD_SCREEN_PLAYER_INFO:
-                s_subscreen = (s_subscreen + 1) % 4;
+                s_subscreen = (s_subscreen + 1) % NUM_LCD_SUBSCREENS;
                 SetSubscreen(s_subscreen);
                 break;
 
@@ -613,11 +613,11 @@ checkNavigation:
         switch (s_currentScreen) {
             case LCD_SCREEN_PLAYER_INFO:
                 if (s_subscreen) {
-                    s_subscreen = (s_subscreen - 1) % 4;
+                    s_subscreen = (s_subscreen - 1) % NUM_LCD_SUBSCREENS;
                     SetSubscreen(s_subscreen);
                 } else {
-                    s_subscreen = 3;
-                    SetSubscreen(3);
+                    s_subscreen = LCD_SUBSCREEN_RANGED;
+                    SetSubscreen(LCD_SUBSCREEN_RANGED);
                 }
 
                 break;
@@ -1056,27 +1056,27 @@ void CGLCD::SetAlertText() {
         char format[64];
 
         switch (message.m_type) {
-            case 1:
+            case LCD_ALERT_WHISPER:
                 SStrCopy(format, s_whisperFromText, STORM_MAX_STR);
                 break;
 
-            case 2:
+            case LCD_ALERT_IDLE_LOGOUT:
                 SStrCopy(format, s_idleLogoutText, STORM_MAX_STR);
                 break;
 
-            case 3:
+            case LCD_ALERT_AUCTION_OUTBID:
                 SStrCopy(format, s_outbidText, STORM_MAX_STR);
                 break;
 
-            case 4:
+            case LCD_ALERT_AUCTION_EXPIRED:
                 SStrCopy(format, FrameScript_GetText("AUCTION_EXPIRED_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE), STORM_MAX_STR);
                 break;
 
-            case 5:
+            case LCD_ALERT_AUCTION_WON:
                 SStrCopy(format, FrameScript_GetText("AUCTION_WON_MAIL_SUBJECT", -1, GENDER_NOT_APPLICABLE), STORM_MAX_STR);
                 break;
 
-            case 6:
+            case LCD_ALERT_AUCTION_SOLD:
                 SStrCopy(format, FrameScript_GetText("AUCTION_ITEM_SOLD", -1, GENDER_NOT_APPLICABLE), STORM_MAX_STR);
                 break;
 
@@ -1172,7 +1172,7 @@ void CGLCD::PushAlert(const char* text, int32_t type) {
 // OFFSET: 0x0084A570
 void CGLCD::IdleDisconnectWarning() {
     if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete) {
-        CGLCD::PushAlert("", 2);
+        CGLCD::PushAlert("", LCD_ALERT_IDLE_LOGOUT);
     }
 }
 
@@ -1190,7 +1190,7 @@ void CGLCD::PostInit() {
 
     for (int32_t i = 0; i < CGLCD::m_chatAlertLines; i++) {
         memset(s_chatMessages[i].m_text, 0, sizeof(s_chatMessages[i].m_text));
-        s_chatMessages[i].m_type = 0;
+        s_chatMessages[i].m_type = LCD_ALERT_NONE;
         char name[64];
         SStrPrintf(name, sizeof(name), "CHAT_ALERT_%d", i + 1);
         s_chatMessages[i].m_handle = CGLCD::GetHandle(name);
@@ -1260,19 +1260,19 @@ int32_t CGLCD::Update(const void* data, void* param) {
             }
 
             switch (s_subscreen) {
-                case 0:
+                case LCD_SUBSCREEN_MELEE:
                     CGLCD::DisplayMeleeStats();
                     break;
 
-                case 1:
+                case LCD_SUBSCREEN_DEFENSE:
                     CGLCD::DisplayDefenseStats();
                     break;
 
-                case 2:
+                case LCD_SUBSCREEN_SPELL:
                     CGLCD::DisplaySpellStats();
                     break;
 
-                case 3:
+                case LCD_SUBSCREEN_RANGED:
                     CGLCD::DisplayRangedStats();
                     break;
             }
@@ -1519,13 +1519,13 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
         return false;
     }
 
-    int32_t type = 0;
+    int32_t type = LCD_BITMAP_NONE;
     char fileName[256];
     const char* typeAttr = node->GetAttributeByName("type");
 
     if (typeAttr && *typeAttr) {
         if (!SStrCmpI("texture", typeAttr, STORM_MAX_STR)) {
-            type = 2;
+            type = LCD_BITMAP_TEXTURE;
             const char* data = node->GetAttributeByName("data");
 
             if (!data || !*data) {
@@ -1535,7 +1535,7 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
 
             SStrCopy(fileName, data, STORM_MAX_STR);
         } else if (!SStrCmpI("prevTexture", typeAttr, STORM_MAX_STR)) {
-            type = 3;
+            type = LCD_BITMAP_PREV_TEXTURE;
         }
     }
 
@@ -1559,7 +1559,7 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
         icon = SStrToInt(iconAttr);
 
         if (icon != -1) {
-            type = 4;
+            type = LCD_BITMAP_ICON;
         }
     }
 
@@ -1622,19 +1622,19 @@ bool CGLCD::LoadLCDBitmap(int32_t screen, XMLNode* node, CStatus* status) {
     C2iVector bitmapSize = { 0, 0 };
 
     switch (type) {
-        case 1:
+        case LCD_BITMAP_UNKNOWN_1:
             bitmap = LoadBitmapA(GetModuleHandleA(nullptr), nullptr);
             break;
 
-        case 2:
+        case LCD_BITMAP_TEXTURE:
             bitmap = CLCDUtils::CreateBitmapFromBLPTex(fileName, mipLevel, &bitmapSize, texTop, texLeft, texBottom, texRight);
             break;
 
-        case 3:
+        case LCD_BITMAP_PREV_TEXTURE:
             bitmap = s_lastBitmap;
             break;
 
-        case 4:
+        case LCD_BITMAP_ICON:
             bitmap = CLCDUtils::GetBitmapForIcon(icon, &bitmapSize);
             break;
     }

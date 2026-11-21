@@ -32,10 +32,42 @@ struct POIIcon : public TSLinkedNode<POIIcon> {
     /* 0010 */ char m_name[128];
 };
 
+// CHATMESSAGE::m_type; named from the CGLCD notifier that pushes each value
+// and the text SetAlertText shows for it.
+enum LCD_ALERT_TYPE : int32_t {
+    LCD_ALERT_NONE = 0,
+    LCD_ALERT_WHISPER = 1, // OnWhisper, WHISPER_FROM
+    LCD_ALERT_IDLE_LOGOUT = 2, // IdleDisconnectWarning, IDLE_LOGOUT_WARNING
+    LCD_ALERT_AUCTION_OUTBID = 3, // AuctionOutbid, OUTBID_ON_SHORT
+    LCD_ALERT_AUCTION_EXPIRED = 4, // AuctionExpired, AUCTION_EXPIRED_MAIL_SUBJECT
+    LCD_ALERT_AUCTION_WON = 5, // AuctionWon, AUCTION_WON_MAIL_SUBJECT
+    LCD_ALERT_AUCTION_SOLD = 6, // AuctionSold, AUCTION_ITEM_SOLD
+};
+
+// Player info subscreens; named from the CGLCD::Display*Stats function each
+// one calls. The ranged stats reuse the melee subscreen layout.
+enum LCD_SUBSCREEN : int32_t {
+    LCD_SUBSCREEN_MELEE = 0,
+    LCD_SUBSCREEN_DEFENSE = 1,
+    LCD_SUBSCREEN_SPELL = 2,
+    LCD_SUBSCREEN_RANGED = 3,
+    NUM_LCD_SUBSCREENS = 4,
+};
+
+// LCD Bitmap source; named from the XML "type" and "icon" attributes that
+// select each value. Value 1 is never set by the XML loader.
+enum LCD_BITMAP_TYPE : int32_t {
+    LCD_BITMAP_NONE = 0,
+    LCD_BITMAP_UNKNOWN_1 = 1,
+    LCD_BITMAP_TEXTURE = 2,
+    LCD_BITMAP_PREV_TEXTURE = 3,
+    LCD_BITMAP_ICON = 4,
+};
+
 struct CHATMESSAGE : public TSLinkedNode<CHATMESSAGE> {
     /* 0008 */ char m_text[64];
     /* 0048 */ void* m_handle;
-    /* 004C */ int32_t m_type;
+    /* 004C */ int32_t m_type; // LCD_ALERT_TYPE
 };
 
 // LCD screens; names follow the screen names CGLCD::GetScreenFromName accepts.
