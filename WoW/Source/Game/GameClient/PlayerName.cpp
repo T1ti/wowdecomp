@@ -298,13 +298,21 @@ float PlayerNameComputeScale(CGObject_C* object) {
     return height * 0.25f * 1.5f;
 }
 
+// Name icons fade from ICON_ALPHA_MIN at ICON_FADE_NEAR_DIST to opaque at ICON_FADE_FAR_DIST
+// from the camera. Names inferred.
+static const float ICON_FADE_NEAR_DIST = 4.0f;
+static const float ICON_FADE_FAR_DIST = 8.0f;
+static const uint8_t ICON_ALPHA_MIN = 34;
+static const uint8_t ICON_ALPHA_MAX = 0xFF;
+static const float ICON_FADE_ALPHA_PER_YARD = 55.25f; // (ICON_ALPHA_MAX - ICON_ALPHA_MIN) / (far - near)
+
 // VERIFY: 90af9757 manual
 // OFFSET: 0x007E52A0
 static uint8_t PlayerNameIconAlpha(const C3Vector& position) {
     CGCamera* camera = CGWorldFrame::s_currentWorldFrame->m_camera;
 
     if (!camera) {
-        return 0xFF;
+        return ICON_ALPHA_MAX;
     }
 
     float dy = position.y - camera->m_position.y;
@@ -312,15 +320,15 @@ static uint8_t PlayerNameIconAlpha(const C3Vector& position) {
     float dx = position.x - camera->m_position.x;
     float distance = sqrtf(dx * dx + dz * dz + dy * dy);
 
-    if (distance >= 8.0f) {
-        return 0xFF;
+    if (distance >= ICON_FADE_FAR_DIST) {
+        return ICON_ALPHA_MAX;
     }
 
-    if (distance > 4.0f) {
-        return static_cast<uint8_t>((distance - 4.0f) * 55.25f + 34.0f);
+    if (distance > ICON_FADE_NEAR_DIST) {
+        return static_cast<uint8_t>((distance - ICON_FADE_NEAR_DIST) * ICON_FADE_ALPHA_PER_YARD + ICON_ALPHA_MIN);
     }
 
-    return 34;
+    return ICON_ALPHA_MIN;
 }
 
 // VERIFY: 64e7e257 manual
