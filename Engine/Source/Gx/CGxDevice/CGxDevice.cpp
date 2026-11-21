@@ -1694,11 +1694,11 @@ void CGxDevice::IShaderLoad(CGxShader** shaders, EGxShTarget target, const char*
             uint32_t magic;
             SFileReadFile(file, &magic, 4, nullptr, nullptr, 0);
 
-            if (magic == 'GXSH') {
+            if (magic == Magic) {
                 uint32_t version;
                 SFileReadFile(file, &version, 4, nullptr, nullptr, 0);
 
-                if (version == 0x10003) {
+                if (version == Version) {
                     uint32_t unknown;
                     SFileReadFile(file, &unknown, 4, nullptr, nullptr, 0);
 
@@ -1717,12 +1717,12 @@ void CGxDevice::IShaderLoad(CGxShader** shaders, EGxShTarget target, const char*
 
         if (target == GxSh_Vertex) {
             switch (profile) {
-                case 2:
-                    profile = 1;
+                case GxShVS_vs_2_0:
+                    profile = GxShVS_vs_1_1;
                     break;
 
-                case 3:
-                    profile = 2;
+                case GxShVS_vs_3_0:
+                    profile = GxShVS_vs_2_0;
                     break;
 
                 default:
@@ -1730,21 +1730,21 @@ void CGxDevice::IShaderLoad(CGxShader** shaders, EGxShTarget target, const char*
             }
         } else if (target == GxSh_Pixel) {
             switch (profile) {
-                case 2:
-                    profile = 1;
+                case GxShPS_ps_1_4:
+                    profile = GxShPS_ps_1_1;
                     break;
 
-                case 3:
-                    profile = 2;
+                case GxShPS_ps_2_0:
+                    profile = GxShPS_ps_1_4;
                     break;
 
-                case 4:
-                    profile = 3;
+                case GxShPS_ps_3_0:
+                    profile = GxShPS_ps_2_0;
                     break;
 
-                case 9:
-                case 10:
-                    profile = 8;
+                case GxShPS_nvts2:
+                case GxShPS_nvts3:
+                    profile = GxShPS_nvts;
                     break;
 
                 default:
