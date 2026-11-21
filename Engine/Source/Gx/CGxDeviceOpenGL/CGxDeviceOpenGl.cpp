@@ -769,8 +769,8 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
     }
 
     switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-        case 6:
-        case 7: {
+        case GxShVS_arbvp1:
+        case GxShVS_arbvp1_cg12: {
             GLint envParameters;
             GLint nativeParameters;
             glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_ENV_PARAMETERS_ARB, &envParameters);
@@ -779,11 +779,11 @@ void CGxDeviceOpenGl::ISetCaps(const CGxFormat& format) {
             break;
         }
 
-        case 8:
+        case GxShVS_nvvp:
             this->m_caps.m_shaderConstants[GxSh_Vertex] = 96;
             break;
 
-        case 9:
+        case GxShVS_nvvp2:
             this->m_caps.m_shaderConstants[GxSh_Vertex] = 256;
             break;
 
@@ -4479,13 +4479,13 @@ void CGxDeviceOpenGl::IShaderDeleteVertex(CGxShader*& shader) {
     }
 
     switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-        case 6:
-        case 7:
+        case GxShVS_arbvp1:
+        case GxShVS_arbvp1_cg12:
             glDeleteProgramsARB(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
             break;
 
-        case 8:
-        case 9:
+        case GxShVS_nvvp:
+        case GxShVS_nvvp2:
             glDeleteProgramsNV(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
             break;
 
@@ -4594,14 +4594,14 @@ void CGxDeviceOpenGl::IShaderCreatePixel(CGxShader* shader) {
 
     int32_t target = this->m_caps.m_shaderTargets[GxSh_Pixel];
 
-    if (target < 7) {
+    if (target < GxShPS_nvrc) {
         return;
     }
 
-    if (target <= 10) {
+    if (target <= GxShPS_nvts3) {
         shader->m_apiSpecific = reinterpret_cast<void*>(1);
         shader->m_valid = 1;
-    } else if (target == 12) {
+    } else if (target == GxShPS_arbfp1) {
         GLint current;
         glGetProgramivARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_BINDING_ARB, &current);
 
@@ -4635,8 +4635,8 @@ void CGxDeviceOpenGl::IShaderCreateVertex(CGxShader* shader) {
     }
 
     switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-        case 6:
-        case 7: {
+        case GxShVS_arbvp1:
+        case GxShVS_arbvp1_cg12: {
             GLint current;
             glGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_BINDING_ARB, &current);
 
@@ -4658,8 +4658,8 @@ void CGxDeviceOpenGl::IShaderCreateVertex(CGxShader* shader) {
             break;
         }
 
-        case 8:
-        case 9: {
+        case GxShVS_nvvp:
+        case GxShVS_nvvp2: {
             glGenProgramsNV(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
             glLoadProgramNV(GL_VERTEX_PROGRAM_ARB, static_cast<GLuint>(reinterpret_cast<uintptr_t>(shader->m_apiSpecific)), shader->m_code.Count() - 1, shader->m_code.Ptr());
 
@@ -4696,7 +4696,7 @@ void CGxDeviceOpenGl::IVertexShaderPatch(CGxShader* shader) {
     char* end = code + shader->m_code.Count();
 
     switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-        case 6: {
+        case GxShVS_arbvp1: {
             uint32_t paramSize = size;
 
             for (char* c = code; c < end; c++) {
@@ -4728,7 +4728,7 @@ void CGxDeviceOpenGl::IVertexShaderPatch(CGxShader* shader) {
             break;
         }
 
-        case 7: {
+        case GxShVS_arbvp1_cg12: {
             for (char* c = code; c < end; c++) {
                 char* start = c;
 
@@ -4887,8 +4887,8 @@ void CGxDeviceOpenGl::IShaderConstantsSend(EGxShTarget target, uint32_t index, c
 
     if (target == GxSh_Vertex) {
         switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-            case 6:
-            case 7:
+            case GxShVS_arbvp1:
+            case GxShVS_arbvp1_cg12:
                 if (glExtGPUProgramParameters) {
                     glProgramEnvParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, index, count, constants);
                 } else {
@@ -4900,8 +4900,8 @@ void CGxDeviceOpenGl::IShaderConstantsSend(EGxShTarget target, uint32_t index, c
 
                 break;
 
-            case 8:
-            case 9:
+            case GxShVS_nvvp:
+            case GxShVS_nvvp2:
                 glProgramParameters4fvNV(GL_VERTEX_PROGRAM_ARB, index, count, constants);
                 break;
 
@@ -4917,7 +4917,7 @@ void CGxDeviceOpenGl::IShaderConstantsSend(EGxShTarget target, uint32_t index, c
     }
 
     switch (this->m_caps.m_shaderTargets[GxSh_Pixel]) {
-        case 7:
+        case GxShPS_nvrc:
             for (uint32_t i = 0; i < count; i++) {
                 glCombinerParameterfvNV(index + i + GL_CONSTANT_COLOR0_NV, constants);
                 constants += 4;
@@ -4925,9 +4925,9 @@ void CGxDeviceOpenGl::IShaderConstantsSend(EGxShTarget target, uint32_t index, c
 
             break;
 
-        case 8:
-        case 9:
-        case 10: {
+        case GxShPS_nvts:
+        case GxShPS_nvts2:
+        case GxShPS_nvts3: {
             CGxShader* shader = static_cast<CGxShader*>(this->m_appRenderStates[GxRs_PixelShader].m_value.m_data.p);
 
             if (!shader) {
@@ -4959,7 +4959,7 @@ void CGxDeviceOpenGl::IShaderConstantsSend(EGxShTarget target, uint32_t index, c
             break;
         }
 
-        case 12:
+        case GxShPS_arbfp1:
             if (glExtGPUProgramParameters) {
                 glProgramEnvParameters4fvEXT(GL_FRAGMENT_PROGRAM_ARB, index, count, constants);
             } else {
@@ -5045,7 +5045,7 @@ void CGxDeviceOpenGl::IBindPixelShader(CGxShader* shader) {
         }
 
         switch (this->m_caps.m_shaderTargets[GxSh_Pixel]) {
-            case 7: {
+            case GxShPS_nvrc: {
                 NvPixelShader* program = reinterpret_cast<NvPixelShader*>(shader->m_code.Ptr());
 
                 if (program) {
@@ -5057,9 +5057,9 @@ void CGxDeviceOpenGl::IBindPixelShader(CGxShader* shader) {
                 break;
             }
 
-            case 8:
-            case 9:
-            case 10: {
+            case GxShPS_nvts:
+            case GxShPS_nvts2:
+            case GxShPS_nvts3: {
                 NvPixelShader* program = reinterpret_cast<NvPixelShader*>(shader->m_code.Ptr());
 
                 if (program) {
@@ -5073,7 +5073,7 @@ void CGxDeviceOpenGl::IBindPixelShader(CGxShader* shader) {
                 break;
             }
 
-            case 12:
+            case GxShPS_arbfp1:
                 glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, static_cast<GLuint>(reinterpret_cast<uintptr_t>(shader->m_apiSpecific)));
                 this->DsSet(Ds_FragmentProgram, 1, 0);
                 break;
@@ -5083,18 +5083,18 @@ void CGxDeviceOpenGl::IBindPixelShader(CGxShader* shader) {
         }
     } else {
         switch (this->m_caps.m_shaderTargets[GxSh_Pixel]) {
-            case 7:
+            case GxShPS_nvrc:
                 this->DsSet(Ds_RegisterCombiners, 0, 0);
                 break;
 
-            case 8:
-            case 9:
-            case 10:
+            case GxShPS_nvts:
+            case GxShPS_nvts2:
+            case GxShPS_nvts3:
                 this->DsSet(Ds_RegisterCombiners, 0, 0);
                 this->DsSet(Ds_TextureShader, 0, 0);
                 break;
 
-            case 12:
+            case GxShPS_arbfp1:
                 this->DsSet(Ds_FragmentProgram, 0, 0);
                 break;
 
@@ -5113,14 +5113,14 @@ void CGxDeviceOpenGl::IBindVertexShader(CGxShader* shader) {
         }
 
         switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-            case 6:
-            case 7:
+            case GxShVS_arbvp1:
+            case GxShVS_arbvp1_cg12:
                 glBindProgramARB(GL_VERTEX_PROGRAM_ARB, static_cast<GLuint>(reinterpret_cast<uintptr_t>(shader->m_apiSpecific)));
                 this->DsSet(Ds_VertexProgram, 1, 0);
                 break;
 
-            case 8:
-            case 9:
+            case GxShVS_nvvp:
+            case GxShVS_nvvp2:
                 glBindProgramNV(GL_VERTEX_PROGRAM_ARB, static_cast<GLuint>(reinterpret_cast<uintptr_t>(shader->m_apiSpecific)));
                 this->DsSet(Ds_VertexProgramNV, 1, 0);
                 break;
@@ -5130,13 +5130,13 @@ void CGxDeviceOpenGl::IBindVertexShader(CGxShader* shader) {
         }
     } else {
         switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-            case 6:
-            case 7:
+            case GxShVS_arbvp1:
+            case GxShVS_arbvp1_cg12:
                 this->DsSet(Ds_VertexProgram, 0, 0);
                 break;
 
-            case 8:
-            case 9:
+            case GxShVS_nvvp:
+            case GxShVS_nvvp2:
                 this->DsSet(Ds_VertexProgramNV, 0, 0);
                 break;
 
@@ -5165,13 +5165,13 @@ void CGxDeviceOpenGl::IShaderForceRecreation() {
     for (CGxShader* shader = vertexShaders.Head(); !vertexShaders.IsEnd(shader); shader = vertexShaders.RawNext(shader)) {
         if (shader->m_apiSpecific) {
             switch (this->m_caps.m_shaderTargets[GxSh_Vertex]) {
-                case 6:
-                case 7:
+                case GxShVS_arbvp1:
+                case GxShVS_arbvp1_cg12:
                     glDeleteProgramsARB(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
                     break;
 
-                case 8:
-                case 9:
+                case GxShVS_nvvp:
+                case GxShVS_nvvp2:
                     glDeleteProgramsNV(1, reinterpret_cast<GLuint*>(&shader->m_apiSpecific));
                     break;
 
