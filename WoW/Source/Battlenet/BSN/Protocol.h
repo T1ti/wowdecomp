@@ -56,6 +56,14 @@ struct Bounds {
 void GetTypeId(const uint8_t*& cursor, uint32_t& typeId);
 
 namespace Int {
+// Int type byte: bit 0 marks an unsigned value, the bits above it hold log2 of the
+// encoded byte size. Names inferred from Int::Get and Bounds::Contains.
+static const int32_t TYPE_UNSIGNED = 0x1;
+
+inline uint32_t ByteSize(int32_t intType) {
+    return 1 << (intType >> 1);
+}
+
 void Get(int32_t intType, const uint8_t*& cursor, uint64_t& value);
 void Get(int32_t intType, const uint8_t*& cursor, uint32_t& value);
 void GetSize(const uint8_t*& cursor, uint32_t& value);

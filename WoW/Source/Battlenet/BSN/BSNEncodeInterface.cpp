@@ -55,13 +55,13 @@ uint64_t BSN::BSNPrimitiveEncoder::GetUInt(const EncodeContext* context) const {
 
     if (context->m_header == BSN::META_INT) {
         BSN::Protocol::Meta::Int meta(context->m_protocol, context->m_typeId);
-        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & 1) == 0, value);
+        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
         return value;
     }
 
     if (context->m_header == BSN::META_ENUM) {
         BSN::Protocol::Meta::Enum meta(context->m_protocol, context->m_typeId);
-        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & 1) == 0, value);
+        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
         return value;
     }
 

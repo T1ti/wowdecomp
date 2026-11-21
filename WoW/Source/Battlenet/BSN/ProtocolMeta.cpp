@@ -44,7 +44,7 @@ BSN::Protocol::Meta::Blob::Blob(const Protocol* protocol, uint32_t typeId) : Bas
 // OFFSET: 0x00888AE0
 bool BSN::Protocol::Meta::Choice::GetTagField(uint64_t tag, uint32_t& field) const {
     if (static_cast<int8_t>(this->m_header) >= 0) {
-        uint32_t size = 1 << (this->m_bounds.m_intType >> 1);
+        uint32_t size = BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType);
         field = 0;
 
         if (this->m_count) {
@@ -71,7 +71,7 @@ bool BSN::Protocol::Meta::Choice::GetTagField(uint64_t tag, uint32_t& field) con
 bool BSN::Protocol::Meta::Choice::GetFieldTag(uint32_t field, uint64_t& tag) const {
     if (static_cast<int8_t>(this->m_header) >= 0) {
         if (field < this->m_count) {
-            const uint8_t* cursor = &this->m_typeInfo[field * (1 << (this->m_bounds.m_intType >> 1))];
+            const uint8_t* cursor = &this->m_typeInfo[field * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType)];
             BSN::Protocol::Type::Int::Get(this->m_bounds.m_intType, cursor, tag);
             return true;
         }
@@ -96,7 +96,7 @@ bool BSN::Protocol::Meta::Choice::GetFieldTypeId(uint32_t field, uint32_t& typeI
     const uint8_t* cursor;
 
     if (static_cast<int8_t>(this->m_header) >= 0) {
-        cursor = &this->m_typeInfo[this->m_count * (1 << (this->m_bounds.m_intType >> 1)) + 4 * field];
+        cursor = &this->m_typeInfo[this->m_count * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType) + 4 * field];
     } else {
         cursor = &this->m_typeInfo[4 * field];
     }
@@ -227,7 +227,7 @@ bool BSN::Protocol::Meta::Struct::GetMember(uint32_t index, uint32_t& offset, ui
     const uint8_t* cursor;
 
     if (static_cast<int8_t>(this->m_header) >= 0) {
-        cursor = &this->m_typeInfo[4 * index + this->m_count * (1 << (this->m_bounds.m_intType >> 1))];
+        cursor = &this->m_typeInfo[4 * index + this->m_count * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType)];
     } else {
         cursor = &this->m_typeInfo[4 * index];
     }
