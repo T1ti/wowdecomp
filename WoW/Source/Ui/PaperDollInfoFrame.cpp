@@ -44,7 +44,7 @@ WOWGUID CGCharacterInfo::m_inspectTarget;
 int32_t CGCharacterInfo::m_hasHonorData = -1;
 
 // STATIC: 0x00C241C0
-InspectArenaTeam CGCharacterInfo::m_inspectArenaTeams[3];
+InspectArenaTeam CGCharacterInfo::m_inspectArenaTeams[MAX_ARENA_TEAMS];
 
 // STATIC: 0x00C24208
 uint32_t CGCharacterInfo::m_inspectLifetimeHonorableKills;
@@ -247,7 +247,7 @@ int32_t Packet_MSG_INSPECT_ARENA_TEAMS(void* param, NETMESSAGE msgId, uint32_t t
     uint8_t slot;
     msg->Get(slot);
 
-    if (slot > 3) {
+    if (slot > MAX_ARENA_TEAMS) { // the binary lets slot == MAX_ARENA_TEAMS through
         msg->m_read = msg->m_size;
         return 1;
     }
@@ -273,7 +273,7 @@ void CGCharacterInfo::SetInspectTarget(const WOWGUID& guid) {
     CGCharacterInfo::m_hasHonorData = 0;
     CGCharacterInfo::m_honorRequestPending = 0;
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
         CGCharacterInfo::m_inspectArenaTeams[i].m_teamId = 0;
     }
 
@@ -854,7 +854,7 @@ void CGCharacterInfo::LeaveWorld() {
         CGCharacterInfo::m_hasHonorData = 0;
         CGCharacterInfo::m_honorRequestPending = 0;
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < MAX_ARENA_TEAMS; i++) {
             CGCharacterInfo::m_inspectArenaTeams[i].m_teamId = 0;
         }
 
