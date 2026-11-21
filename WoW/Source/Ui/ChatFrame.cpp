@@ -2884,7 +2884,7 @@ void CGChat::InitializeGame() {
         s_chatColors[i].m_color[0] = s_chatTypeInfo[i].m_color[0];
         s_chatColors[i].m_color[1] = s_chatTypeInfo[i].m_color[1];
         s_chatColors[i].m_color[2] = s_chatTypeInfo[i].m_color[2];
-        s_chatColors[i].m_unk48 = s_chatTypeInfo[i].m_unk48;
+        s_chatColors[i].m_colorNameByClass = s_chatTypeInfo[i].m_colorNameByClass;
     }
 
     s_channelColors.SetCount(MAX_WOW_CHAT_CHANNELS);
@@ -2894,7 +2894,7 @@ void CGChat::InitializeGame() {
         s_channelColors.m_data[i].m_color[0] = s_chatColors[CHAT_MSG_CHANNEL].m_color[0];
         s_channelColors.m_data[i].m_color[1] = s_chatColors[CHAT_MSG_CHANNEL].m_color[1];
         s_channelColors.m_data[i].m_color[2] = s_chatColors[CHAT_MSG_CHANNEL].m_color[2];
-        s_channelColors.m_data[i].m_unk48 = s_chatColors[CHAT_MSG_CHANNEL].m_unk48;
+        s_channelColors.m_data[i].m_colorNameByClass = s_chatColors[CHAT_MSG_CHANNEL].m_colorNameByClass;
     }
 
     for (uint32_t i = 0; i < sizeof(s_chatWindows) / sizeof(s_chatWindows[0]); i++) {
@@ -4714,7 +4714,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     SStrTokenize(&rest, word, sizeof(word), " \r\n", nullptr);
 
                     if (word[0] == 'Y' || word[0] == 'N') {
-                        color->m_unk48 = word[0] == 'Y';
+                        color->m_colorNameByClass = word[0] == 'Y';
                     }
 
                     break;
@@ -4860,7 +4860,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                     s_chatColors[i].m_color[0] = s_chatTypeInfo[i].m_color[0];
                     s_chatColors[i].m_color[1] = s_chatTypeInfo[i].m_color[1];
                     s_chatColors[i].m_color[2] = s_chatTypeInfo[i].m_color[2];
-                    s_chatColors[i].m_unk48 = s_chatTypeInfo[i].m_unk48;
+                    s_chatColors[i].m_colorNameByClass = s_chatTypeInfo[i].m_colorNameByClass;
                 }
             }
         }
@@ -4869,13 +4869,13 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
         for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", s_chatColors[i].m_name, s_chatColors[i].m_color[0] * (1.0f / 255.0f), s_chatColors[i].m_color[1] * (1.0f / 255.0f), s_chatColors[i].m_color[2] * (1.0f / 255.0f));
-            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_unk48);
+            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_colorNameByClass);
         }
 
         for (uint32_t i = 0; i < s_channelColors.m_count; i++) {
             ChatColorInfo* color = &s_channelColors.m_data[i];
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", color->m_name, color->m_color[0] * (1.0f / 255.0f), color->m_color[1] * (1.0f / 255.0f), color->m_color[2] * (1.0f / 255.0f));
-            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_unk48);
+            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_colorNameByClass);
         }
     } else {
         for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
@@ -4897,13 +4897,13 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
 
         for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", s_chatColors[i].m_name, s_chatColors[i].m_color[0] * (1.0f / 255.0f), s_chatColors[i].m_color[1] * (1.0f / 255.0f), s_chatColors[i].m_color[2] * (1.0f / 255.0f));
-            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_unk48);
+            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_colorNameByClass);
         }
 
         for (uint32_t i = 0; i < s_channelColors.m_count; i++) {
             ChatColorInfo* color = &s_channelColors.m_data[i];
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", color->m_name, color->m_color[0] * (1.0f / 255.0f), color->m_color[1] * (1.0f / 255.0f), color->m_color[2] * (1.0f / 255.0f));
-            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_unk48);
+            FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_colorNameByClass);
         }
     }
 
@@ -5322,7 +5322,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         ChatColorInfo* color = &s_chatColors[i];
 
         if (color->m_name[0]) {
-            SStrPrintf(line, sizeof(line), "%s %d %d %d %c\n", color->m_name, color->m_color[0], color->m_color[1], color->m_color[2], color->m_unk48 ? 'Y' : 'N');
+            SStrPrintf(line, sizeof(line), "%s %d %d %d %c\n", color->m_name, color->m_color[0], color->m_color[1], color->m_color[2], color->m_colorNameByClass ? 'Y' : 'N');
             OsWriteFile(file, line, SStrLen(line), &written);
         }
     }
@@ -5331,7 +5331,7 @@ void CGChat::SaveChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
         ChatColorInfo* color = &s_channelColors.m_data[i];
 
         if (color->m_name[0]) {
-            SStrPrintf(line, sizeof(line), "%s %d %d %d %c\n", color->m_name, color->m_color[0], color->m_color[1], color->m_color[2], color->m_unk48 ? 'Y' : 'N');
+            SStrPrintf(line, sizeof(line), "%s %d %d %d %c\n", color->m_name, color->m_color[0], color->m_color[1], color->m_color[2], color->m_colorNameByClass ? 'Y' : 'N');
             OsWriteFile(file, line, SStrLen(line), &written);
         }
     }

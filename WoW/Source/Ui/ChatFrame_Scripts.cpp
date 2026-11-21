@@ -972,7 +972,7 @@ static int32_t Script_SetChatColorNameByClass(lua_State* L) {
 
     for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
         if (!SStrCmpI(type, s_chatColors[i].m_name, STORM_MAX_STR)) {
-            s_chatColors[i].m_unk48 = colorNameByClass;
+            s_chatColors[i].m_colorNameByClass = colorNameByClass;
             found = 1;
             break;
         }
@@ -980,7 +980,7 @@ static int32_t Script_SetChatColorNameByClass(lua_State* L) {
 
     for (uint32_t i = 0; i < s_channelColors.Count(); i++) {
         if (!SStrCmpI(type, s_channelColors.m_data[i].m_name, STORM_MAX_STR)) {
-            s_channelColors.m_data[i].m_unk48 = colorNameByClass;
+            s_channelColors.m_data[i].m_colorNameByClass = colorNameByClass;
             found = 1;
             break;
         }
@@ -2152,7 +2152,7 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
         s_chatColors[i].m_color[0] = s_chatTypeInfo[i].m_color[0];
         s_chatColors[i].m_color[1] = s_chatTypeInfo[i].m_color[1];
         s_chatColors[i].m_color[2] = s_chatTypeInfo[i].m_color[2];
-        s_chatColors[i].m_unk48 = s_chatTypeInfo[i].m_unk48;
+        s_chatColors[i].m_colorNameByClass = s_chatTypeInfo[i].m_colorNameByClass;
     }
 
     s_channelColors.SetCount(MAX_WOW_CHAT_CHANNELS);
@@ -2162,7 +2162,7 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
         s_channelColors.m_data[i].m_color[0] = s_chatColors[CHAT_MSG_CHANNEL].m_color[0];
         s_channelColors.m_data[i].m_color[1] = s_chatColors[CHAT_MSG_CHANNEL].m_color[1];
         s_channelColors.m_data[i].m_color[2] = s_chatColors[CHAT_MSG_CHANNEL].m_color[2];
-        s_channelColors.m_data[i].m_unk48 = s_chatColors[CHAT_MSG_CHANNEL].m_unk48;
+        s_channelColors.m_data[i].m_colorNameByClass = s_chatColors[CHAT_MSG_CHANNEL].m_colorNameByClass;
     }
 
     for (uint32_t i = 0; i < NUM_CHAT_WINDOWS; i++) {
@@ -2211,13 +2211,13 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
 
     for (uint32_t i = 0; i < CHAT_MSG_MAX; i++) {
         FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", s_chatColors[i].m_name, s_chatColors[i].m_color[0] * (1.0f / 255.0f), s_chatColors[i].m_color[1] * (1.0f / 255.0f), s_chatColors[i].m_color[2] * (1.0f / 255.0f));
-        FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_unk48);
+        FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", s_chatColors[i].m_name, s_chatColors[i].m_colorNameByClass);
     }
 
     for (uint32_t i = 0; i < s_channelColors.Count(); i++) {
         ChatColorInfo* color = &s_channelColors.m_data[i];
         FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR, "%s%f%f%f", color->m_name, color->m_color[0] * (1.0f / 255.0f), color->m_color[1] * (1.0f / 255.0f), color->m_color[2] * (1.0f / 255.0f));
-        FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_unk48);
+        FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_colorNameByClass);
     }
 
     return 0;
