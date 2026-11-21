@@ -69,7 +69,7 @@ TSFixedArray<CGLookingForGroup::LFGEntryInfo> CGLookingForGroup::m_lfdEntries;
 TSFixedArray<CGLookingForGroup::LFGEntryInfo> CGLookingForGroup::m_lfrEntries;
 
 // STATIC: 0x00BEA820
-CGLookingForGroup::LFGEntryInfo CGLookingForGroup::m_unkBEA820[CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS];
+CGLookingForGroup::LFGEntryInfo CGLookingForGroup::m_sortColumns[CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS];
 
 // STATIC: 0x00BEA858
 LFGBootProposal CGLookingForGroup::m_bootProposal;
@@ -84,7 +84,7 @@ uint8_t CGLookingForGroup::m_unkBEAA10;
 LFGLIST CGLookingForGroup::m_prevSearchResults;
 
 // STATIC: 0x00ACD660
-uint8_t CGLookingForGroup::m_unkACD660;
+uint8_t CGLookingForGroup::m_listPlayersFirst;
 
 // STATIC: 0x00BEAB20
 LFGLIST CGLookingForGroup::m_searchResults;
@@ -461,11 +461,11 @@ void CGLookingForGroup::InitializeGame() {
     CGLookingForGroup::m_roleCheckMembers.m_count = 0;
 
     for (uint32_t i = 0; i < CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS; i++) {
-        CGLookingForGroup::m_unkBEA820[i].m_id = i;
-        CGLookingForGroup::m_unkBEA820[i].m_order = 0;
+        CGLookingForGroup::m_sortColumns[i].m_id = i;
+        CGLookingForGroup::m_sortColumns[i].m_order = 0;
     }
 
-    CGLookingForGroup::m_unkACD660 = 1;
+    CGLookingForGroup::m_listPlayersFirst = 1;
 
     ClientServices::SetMessageHandler(SMSG_LFG_LFR_LIST, Packet_SMSG_LFG_SEARCH_RESULTS, nullptr);
     ClientServices::SetMessageHandler(SMSG_LFG_UPDATE_PLAYER, LFGPacketHandler, nullptr);

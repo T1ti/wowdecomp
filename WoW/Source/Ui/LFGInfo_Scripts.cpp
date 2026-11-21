@@ -1475,7 +1475,7 @@ static int32_t Script_GetLFGProposalMember(lua_State* L) {
 static bool GetLFGInfoByIndex(uint32_t index, LFGListParty** party, LFGListPlayer** player) {
     LFGLIST* list = &CGLookingForGroup::m_searchResults;
 
-    if (CGLookingForGroup::m_unkACD660) {
+    if (CGLookingForGroup::m_listPlayersFirst) {
         if (index < list->m_playerList.m_count) {
             *party = nullptr;
             *player = list->m_playerList.m_data[index];
@@ -1978,7 +1978,7 @@ static int32_t Script_SearchLFGSort(lua_State* L) {
     const char* name = lua_tolstring(L, 1, nullptr);
 
     if (!SStrCmpI(name, "group", STORM_MAX_STR)) {
-        CGLookingForGroup::m_unkACD660 = !CGLookingForGroup::m_unkACD660;
+        CGLookingForGroup::m_listPlayersFirst = !CGLookingForGroup::m_listPlayersFirst;
         FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_LFG_LIST, nullptr);
         return 0;
     }
@@ -2001,25 +2001,25 @@ static int32_t Script_SearchLFGSort(lua_State* L) {
 
     int32_t index = 0;
 
-    while (CGLookingForGroup::m_unkBEA820[index].m_id != type) {
+    while (CGLookingForGroup::m_sortColumns[index].m_id != type) {
         if (++index >= CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS) {
             CGLookingForGroup::ResortLFGLists();
             return 0;
         }
     }
 
-    int32_t order = CGLookingForGroup::m_unkBEA820[index].m_order;
+    int32_t order = CGLookingForGroup::m_sortColumns[index].m_order;
 
     if (!index) {
         order = !order;
     }
 
     for (int32_t i = index; i > 0; i--) {
-        CGLookingForGroup::m_unkBEA820[i] = CGLookingForGroup::m_unkBEA820[i - 1];
+        CGLookingForGroup::m_sortColumns[i] = CGLookingForGroup::m_sortColumns[i - 1];
     }
 
-    CGLookingForGroup::m_unkBEA820[0].m_id = type;
-    CGLookingForGroup::m_unkBEA820[0].m_order = order;
+    CGLookingForGroup::m_sortColumns[0].m_id = type;
+    CGLookingForGroup::m_sortColumns[0].m_order = order;
     CGLookingForGroup::ResortLFGLists();
     return 0;
 }

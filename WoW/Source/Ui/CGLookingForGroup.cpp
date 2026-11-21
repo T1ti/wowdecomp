@@ -559,7 +559,7 @@ static int QSortLFGParty(const void* a, const void* b) {
     for (uint32_t i = 0; i < CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS; i++) {
         int32_t result = 0;
 
-        switch (CGLookingForGroup::m_unkBEA820[i].m_id) {
+        switch (CGLookingForGroup::m_sortColumns[i].m_id) {
             case CGLookingForGroup::SORT_COLUMN::ZONE: {
                 AreaTableRec* areaA = g_areaTableDB.GetRecord(leaderA->m_areaID);
                 AreaTableRec* areaB = g_areaTableDB.GetRecord(leaderB->m_areaID);
@@ -607,7 +607,7 @@ static int QSortLFGParty(const void* a, const void* b) {
         }
 
         if (result) {
-            return CGLookingForGroup::m_unkBEA820[i].m_order ? -result : result;
+            return CGLookingForGroup::m_sortColumns[i].m_order ? -result : result;
         }
     }
 
@@ -623,7 +623,7 @@ static int QSortLFGPlayer(const void* a, const void* b) {
     for (uint32_t i = 0; i < CGLookingForGroup::SORT_COLUMN::NUM_SORT_COLUMNS; i++) {
         int32_t result = 0;
 
-        switch (CGLookingForGroup::m_unkBEA820[i].m_id) {
+        switch (CGLookingForGroup::m_sortColumns[i].m_id) {
             case CGLookingForGroup::SORT_COLUMN::ZONE: {
                 AreaTableRec* areaA = g_areaTableDB.GetRecord(playerA->m_areaID);
                 AreaTableRec* areaB = g_areaTableDB.GetRecord(playerB->m_areaID);
@@ -683,7 +683,7 @@ static int QSortLFGPlayer(const void* a, const void* b) {
         }
 
         if (result) {
-            return CGLookingForGroup::m_unkBEA820[i].m_order ? -result : result;
+            return CGLookingForGroup::m_sortColumns[i].m_order ? -result : result;
         }
     }
 

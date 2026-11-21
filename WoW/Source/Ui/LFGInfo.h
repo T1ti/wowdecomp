@@ -218,10 +218,12 @@ class CGLookingForGroup {
     static LFGLIST m_searchResults;
     static LFGLIST m_prevSearchResults;
     static LFGProposal m_proposal;
-    static CGLookingForGroup::LFGEntryInfo m_unkBEA820[SORT_COLUMN::NUM_SORT_COLUMNS];
+    // Search result sort keys, most recent SearchLFGSort column first (name inferred).
+    static CGLookingForGroup::LFGEntryInfo m_sortColumns[SORT_COLUMN::NUM_SORT_COLUMNS];
     static LFGBootProposal m_bootProposal;
     static uint8_t m_unkBEAA10;
-    static uint8_t m_unkACD660;
+    // Lists single players before parties; SearchLFGSort("group") toggles it (name inferred).
+    static uint8_t m_listPlayersFirst;
     static LFGInfo m_localInfo;
     static LFGInfo m_playerInfo;
     static LFGInfo m_partyInfo;
