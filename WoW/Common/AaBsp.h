@@ -39,6 +39,27 @@ class CAaBsp {
     void Clear();
     void Free();
     void Set(CAaBspNode* nodes, uint32_t nNodes, uint16_t* nodeFaceIndices, uint32_t nNodeFaceIndices, const CAaBox& aaBox);
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the tree builder (AaBspBuild.cpp). The WMO exporter builds each group's collision tree with it
+    // (the MOBN nodes and MOBR face indices the client loads through Set). The 3.3.5 release build compiled it out
+    // but kept its fields above (m_nodeSize..m_avgNodeFaces, m_buildFaceIndices*), which only the builder uses.
+    static const C3Vector s_axisNormalTable[3];
+
+    void Create(C3Vector* vertices, uint32_t nVertices, uint16_t* faceVertexIndices, uint32_t nFaceVertexIndices);
+
+    private:
+    uint16_t* AllocBuildFaceIndices(uint32_t count);
+    void FreeBuildFaceIndices(uint32_t count);
+    uint16_t AllocNode();
+    uint32_t AllocNodeFaceIndices(uint32_t count);
+    uint16_t BuildTree(uint16_t* buildFaceIndices, uint32_t count);
+    void GenBoundingBox(CAaBox& aaBox, uint16_t* buildFaceIndices, uint32_t count);
+    void ChoosePlane(uint32_t& bestAxis, float& bestDist, uint16_t* buildFaceIndices, uint32_t count);
+    void PartitionFaceList(uint32_t axis, float dist, uint16_t* buildFaceIndices, uint32_t count, uint16_t* posIndices, uint32_t& posCount, uint16_t* negIndices, uint32_t& negCount);
+
+    public:
+#endif
 };
 
 class CAaBspNodeDigest {

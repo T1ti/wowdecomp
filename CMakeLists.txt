@@ -62,6 +62,14 @@ if (WOWDECOMP_DEBUG_FEATURES)
     add_compile_definitions(WOWDECOMP_DEBUG_FEATURES=1)
 endif ()
 
+# Off by default: tool features (the art-tool and editor code the engine shared with Blizzard's internal tools and
+# that the retail branches compiled out: the OsGui Win32 control toolkit, the M2/skin and WMO writers, the CAaBsp
+# tree builder, the Gxu debug-draw module). Shells and restorations live behind #ifdef WOWDECOMP_TOOL_FEATURES.
+option(WOWDECOMP_TOOL_FEATURES "Build the tool/editor code shells stripped from the release client" OFF)
+if (WOWDECOMP_TOOL_FEATURES)
+    add_compile_definitions(WOWDECOMP_TOOL_FEATURES=1)
+endif ()
+
 # Game identity (build 12340, version 3.3.5, client name) lives in GameVersion.h at the repository root.
 # WaystoneVersion.h is regenerated from git on every build; the login screen shows its build number.
 set(WAYSTONE_VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/WaystoneVersion.h)
