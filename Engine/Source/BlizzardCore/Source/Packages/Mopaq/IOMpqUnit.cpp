@@ -1187,7 +1187,7 @@ bool IOMpqWriteUnit::Write(const void* buffer, int64_t offset, uint32_t count) {
             if (this->m_hasChecksums) {
                 uint32_t size = 4 * this->m_checksums.m_count;
                 Blizzard::Mopaq::CompressionAlgorithm algorithm;
-                algorithm.m_type = 0x20;
+                algorithm.m_type = Blizzard::Mopaq::COMPRESSION_RLE;
                 algorithm.m_level = 0;
                 bool checksum;
 

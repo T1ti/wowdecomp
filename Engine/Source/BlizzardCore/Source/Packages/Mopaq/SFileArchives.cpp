@@ -791,7 +791,7 @@ bool System_SFile::s_OpenArchive(ARCHIVEREC* archive, uint32_t flags, ARCHIVEREC
 
     {
         Blizzard::Mopaq::CompressionAlgorithm algorithm;
-        algorithm.m_type = 2;
+        algorithm.m_type = Blizzard::Mopaq::COMPRESSION_ZLIB;
         algorithm.m_level = 0;
         archive->m_compression.push_back(algorithm);
     }
@@ -1515,7 +1515,7 @@ bool System_SFile::CreateArchiveView(IOUnit* file, const char* name, int32_t pri
 
     {
         Blizzard::Mopaq::CompressionAlgorithm algorithm;
-        algorithm.m_type = 2;
+        algorithm.m_type = Blizzard::Mopaq::COMPRESSION_ZLIB;
         algorithm.m_level = 0;
         archive->m_compression.push_back(algorithm);
     }
@@ -2688,7 +2688,7 @@ bool System_SFile::ARCHIVEREC::WriteArchiveChanges(ARCHIVEREC* archive) {
             data = Blizzard::Memory::Allocate(hashBytes);
 
             Blizzard::Mopaq::CompressionAlgorithm algorithm;
-            algorithm.m_type = 2;
+            algorithm.m_type = Blizzard::Mopaq::COMPRESSION_ZLIB;
             algorithm.m_level = 0;
             bool checksum;
             System_SComp::Compress(data, &hashWritten, &checksum, &hashes[0], hashBytes, 1, &algorithm);
@@ -2745,7 +2745,7 @@ bool System_SFile::ARCHIVEREC::WriteArchiveChanges(ARCHIVEREC* archive) {
             data = Blizzard::Memory::Allocate(blockBytes);
 
             Blizzard::Mopaq::CompressionAlgorithm algorithm;
-            algorithm.m_type = 2;
+            algorithm.m_type = Blizzard::Mopaq::COMPRESSION_ZLIB;
             algorithm.m_level = 0;
             bool checksum;
             System_SComp::Compress(data, &blockWritten, &checksum, &blocks[0], blockBytes, 1, &algorithm);

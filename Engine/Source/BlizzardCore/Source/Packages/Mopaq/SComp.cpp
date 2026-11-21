@@ -309,26 +309,26 @@ bool System_SComp::Decompress(void* dst, uint32_t* dstSize, const void* src, uin
     Decompressor decompressors[2] = { nullptr, nullptr };
 
     switch (type) {
-        case 0x02:
+        case Blizzard::Mopaq::COMPRESSION_ZLIB:
             decompressors[0] = ZlibDecompress;
             break;
-        case 0x08:
+        case Blizzard::Mopaq::COMPRESSION_PKWARE:
             decompressors[0] = PkwareDecompress;
             break;
-        case 0x10:
+        case Blizzard::Mopaq::COMPRESSION_BZIP2:
             decompressors[0] = ::Bzip2Decompress;
             break;
-        case 0x12:
+        case Blizzard::Mopaq::COMPRESSION_LZMA:
             decompressors[0] = LzmaDecompress;
             break;
-        case 0x20:
+        case Blizzard::Mopaq::COMPRESSION_RLE:
             decompressors[0] = RLEZeroDecompress;
             break;
-        case 0x22:
+        case Blizzard::Mopaq::COMPRESSION_RLE_ZLIB:
             decompressors[0] = ZlibDecompress;
             decompressors[1] = RLEZeroDecompress;
             break;
-        case 0x30:
+        case Blizzard::Mopaq::COMPRESSION_RLE_BZIP2:
             decompressors[0] = ::Bzip2Decompress;
             decompressors[1] = RLEZeroDecompress;
             break;
@@ -341,16 +341,16 @@ bool System_SComp::Decompress(void* dst, uint32_t* dstSize, const void* src, uin
 }
 
 // STATIC: 0x009E6DF8
-static const System_SComp::COMPRESSOR s_rleCompressor = { 0x20, System_SComp::RLEZeroCompress };
+static const System_SComp::COMPRESSOR s_rleCompressor = { Blizzard::Mopaq::COMPRESSION_RLE, System_SComp::RLEZeroCompress };
 
 // STATIC: 0x009E6E00
-static const System_SComp::COMPRESSOR s_zlibCompressor = { 0x02, System_SComp::ZlibCompress };
+static const System_SComp::COMPRESSOR s_zlibCompressor = { Blizzard::Mopaq::COMPRESSION_ZLIB, System_SComp::ZlibCompress };
 
 // STATIC: 0x009E6E08
-static const System_SComp::COMPRESSOR s_pkwareCompressor = { 0x08, System_SComp::PkwareCompress };
+static const System_SComp::COMPRESSOR s_pkwareCompressor = { Blizzard::Mopaq::COMPRESSION_PKWARE, System_SComp::PkwareCompress };
 
 // STATIC: 0x009E6E10
-static const System_SComp::COMPRESSOR s_bzip2Compressor = { 0x10, System_SComp::Bzip2Compress };
+static const System_SComp::COMPRESSOR s_bzip2Compressor = { Blizzard::Mopaq::COMPRESSION_BZIP2, System_SComp::Bzip2Compress };
 
 // OFFSET: 0x004268D0
 void System_SComp::PkwareCompress(void* dest, uint32_t* destSize, const void* source, uint32_t sourceSize, uint32_t* hint, uint8_t level) {
@@ -631,11 +631,11 @@ bool System_SComp::Compress(void* dst, uint32_t* dstSize, bool* checksum, const 
 
         for (uint32_t i = 0; i < count; i++) {
             switch (algorithms[i].m_type) {
-                case 0x02:
-                case 0x08:
-                case 0x10:
-                case 0x12:
-                case 0x20:
+                case Blizzard::Mopaq::COMPRESSION_ZLIB:
+                case Blizzard::Mopaq::COMPRESSION_PKWARE:
+                case Blizzard::Mopaq::COMPRESSION_BZIP2:
+                case Blizzard::Mopaq::COMPRESSION_LZMA:
+                case Blizzard::Mopaq::COMPRESSION_RLE:
                     continue;
                 default:
                     twoStage = true;
@@ -663,31 +663,31 @@ bool System_SComp::Compress(void* dst, uint32_t* dstSize, bool* checksum, const 
             uint32_t stageCount;
 
             switch (type) {
-                case 0x02:
+                case Blizzard::Mopaq::COMPRESSION_ZLIB:
                     stages[0] = &s_zlibCompressor;
                     stageCount = 1;
                     break;
-                case 0x08:
+                case Blizzard::Mopaq::COMPRESSION_PKWARE:
                     stages[0] = &s_pkwareCompressor;
                     stageCount = 1;
                     break;
-                case 0x10:
+                case Blizzard::Mopaq::COMPRESSION_BZIP2:
                     stages[0] = &s_bzip2Compressor;
                     stageCount = 1;
                     break;
-                case 0x12:
+                case Blizzard::Mopaq::COMPRESSION_LZMA:
                     Blizzard::File::AddToLastErrorStack(type, "System_SComp::Compress - Lzma compression isn't enabled", 4);
                     return false;
-                case 0x20:
+                case Blizzard::Mopaq::COMPRESSION_RLE:
                     stageCount = 1;
                     stages[0] = &s_rleCompressor;
                     break;
-                case 0x22:
+                case Blizzard::Mopaq::COMPRESSION_RLE_ZLIB:
                     stages[1] = &s_zlibCompressor;
                     stageCount = 2;
                     stages[0] = &s_rleCompressor;
                     break;
-                case 0x30:
+                case Blizzard::Mopaq::COMPRESSION_RLE_BZIP2:
                     stages[1] = &s_bzip2Compressor;
                     stageCount = 2;
                     stages[0] = &s_rleCompressor;
@@ -741,10 +741,10 @@ bool System_SComp::Compress(void* dst, uint32_t* dstSize, bool* checksum, const 
 
                 if (!combined) {
                     combined = static_cast<uint8_t>(stage->m_type);
-                } else if (combined == 0x20 && static_cast<uint8_t>(stage->m_type) == 0x02) {
-                    combined = 0x22;
-                } else if (combined == 0x20 && static_cast<uint8_t>(stage->m_type) == 0x10) {
-                    combined = 0x30;
+                } else if (combined == Blizzard::Mopaq::COMPRESSION_RLE && static_cast<uint8_t>(stage->m_type) == Blizzard::Mopaq::COMPRESSION_ZLIB) {
+                    combined = Blizzard::Mopaq::COMPRESSION_RLE_ZLIB;
+                } else if (combined == Blizzard::Mopaq::COMPRESSION_RLE && static_cast<uint8_t>(stage->m_type) == Blizzard::Mopaq::COMPRESSION_BZIP2) {
+                    combined = Blizzard::Mopaq::COMPRESSION_RLE_BZIP2;
                 } else {
                     size = 0xFFFFFFFF;
                     break;
@@ -838,7 +838,7 @@ bool System_SComp::Compress(void* dst, uint32_t* dstSize, bool* checksum, const 
     }
 
     *dstSize = bestSize;
-    *checksum = !(bestType == 0x02 || bestType == 0x10 || bestType == 0x12);
+    *checksum = !(bestType == Blizzard::Mopaq::COMPRESSION_ZLIB || bestType == Blizzard::Mopaq::COMPRESSION_BZIP2 || bestType == Blizzard::Mopaq::COMPRESSION_LZMA);
 
     return true;
 }
