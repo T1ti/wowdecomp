@@ -27,7 +27,7 @@ CEzLcd::CEzLcd() {
     this->unk_01A8 = 0;
     this->m_currentColorPageIndex = 0;
     this->m_currentMonoPageIndex = 0;
-    this->m_lcdType = 3;
+    this->m_lcdType = LCD_TYPE_NONE;
     this->m_buttonsPending = 0;
     this->m_buttonsCurrent = 0;
     InitializeCriticalSection(&this->m_buttonLock);
@@ -89,7 +89,7 @@ void CEzLcd::OnSoftButtons(uint32_t buttons) {
 
 // VERIFY: 3a32c162 auto
 // OFFSET: 0x009592F0
-int32_t CEzLcd::Initialize(const char* friendlyName, int32_t lcdType, BOOL isAutoStartable, BOOL isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext) {
+int32_t CEzLcd::Initialize(const char* friendlyName, LCD_TYPE lcdType, BOOL isAutoStartable, BOOL isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext) {
     if (this->unk_01A8 || this->unused_01AC) {
         return E_FAIL;
     }
@@ -121,17 +121,17 @@ int32_t CEzLcd::Initialize(const char* friendlyName, int32_t lcdType, BOOL isAut
     }
 
     switch (lcdType) {
-        case 0: {
+        case LCD_TYPE_MONO: {
             connectContext.dwAppletCapabilitiesSupported = LGLCD_APPLET_CAP_BW;
             break;
         }
 
-        case 1: {
+        case LCD_TYPE_COLOR: {
             connectContext.dwAppletCapabilitiesSupported = LGLCD_APPLET_CAP_QVGA;
             break;
         }
 
-        case 2: {
+        case LCD_TYPE_DUAL: {
             connectContext.dwAppletCapabilitiesSupported = LGLCD_APPLET_CAP_BW | LGLCD_APPLET_CAP_QVGA;
             break;
         }
@@ -156,11 +156,11 @@ int32_t CEzLcd::Initialize(const char* friendlyName, int32_t lcdType, BOOL isAut
 
     this->m_initialized = 1;
 
-    if (this->m_lcdType == 1 || this->m_lcdType == 2) {
+    if (this->m_lcdType == LCD_TYPE_COLOR || this->m_lcdType == LCD_TYPE_DUAL) {
         this->m_output = this->m_connection.ColorOutput();
     }
 
-    if (this->m_lcdType == 0 || this->m_lcdType == 2) {
+    if (this->m_lcdType == LCD_TYPE_MONO || this->m_lcdType == LCD_TYPE_DUAL) {
         this->m_output = this->m_connection.MonoOutput();
     }
 
@@ -191,12 +191,12 @@ BOOL CEzLcd::IsConnected() {
 
 // VERIFY: f18f64d0 manual
 // OFFSET: 0x00958E30
-BOOL CEzLcd::IsDeviceAvailable(int32_t type) {
+BOOL CEzLcd::IsDeviceAvailable(LCD_TYPE type) {
     CLCDOutput* output;
 
-    if (type == 0) {
+    if (type == LCD_TYPE_MONO) {
         output = this->m_connection.MonoOutput();
-    } else if (type == 1) {
+    } else if (type == LCD_TYPE_COLOR) {
         output = this->m_connection.ColorOutput();
     } else {
         return 0;

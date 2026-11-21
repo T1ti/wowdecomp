@@ -118,7 +118,7 @@ static HBITMAP s_lastBitmap;
 // VERIFY: d134d241 auto
 // OFFSET: 0x00848030
 static bool IsLCDAvailable() {
-    if (CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         return true;
     }
 
@@ -159,7 +159,7 @@ void CGLCD::ClearWaitQueueScreen() {
 // OFFSET: 0x0084AED0
 void CGLCD::Initialize() {
     CGLCD::m_lcd = new (SMemAlloc(sizeof(CEzLcd), __FILE__, __LINE__, 0)) CEzLcd();
-    CGLCD::m_lcd->Initialize("World of Warcraft", 2, 0, 1, nullptr, nullptr);
+    CGLCD::m_lcd->Initialize("World of Warcraft", CEzLcd::LCD_TYPE_DUAL, 0, 1, nullptr, nullptr);
     CGLCD::m_lcd->Update();
 
     if (!CGLCD::m_lcd->IsConnected()) {
@@ -220,7 +220,7 @@ void CGLCD::AuctionOutbid(const char* name) {
 // VERIFY: 29915760 auto
 // OFFSET: 0x0084A5F0
 void CGLCD::AuctionExpired(const char* name) {
-    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         CGLCD::PushAlert(name, 4);
     }
 }
@@ -228,7 +228,7 @@ void CGLCD::AuctionExpired(const char* name) {
 // VERIFY: ed6aa2a2 auto
 // OFFSET: 0x0084A640
 void CGLCD::AuctionSold(const char* name) {
-    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         CGLCD::PushAlert(name, 6);
     }
 }
@@ -236,7 +236,7 @@ void CGLCD::AuctionSold(const char* name) {
 // VERIFY: e4264b44 auto
 // OFFSET: 0x0084A690
 void CGLCD::AuctionWon(const char* name) {
-    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    if (CGLCD::m_lcd && CGLCD::m_lcd->IsConnected() && IsLCDAvailable() && CGLCD::initComplete && CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         CGLCD::PushAlert(name, 5);
     }
 }
@@ -507,7 +507,7 @@ void CGLCD::CheckInput() {
                 CGLCD::SetScreen(LCD_SCREEN_BATTLEFIELD_ALERT);
             }
         } else if (CGLCD::m_lcd->ButtonReleased(0)) {
-            if ((!IsAsianLocale() || CGLCD::m_lcd->IsDeviceAvailable(1)) && s_currentScreen == LCD_SCREEN_PLAYER_INFO) {
+            if ((!IsAsianLocale() || CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) && s_currentScreen == LCD_SCREEN_PLAYER_INFO) {
                 s_subscreen = (s_subscreen + 1) % 4;
                 SetSubscreen(s_subscreen);
             }
@@ -814,7 +814,7 @@ void CGLCD::SetStat(const char* name, int32_t value) {
 
     if (SStrCmpI(name, "SOUL_SHARD", STORM_MAX_STR)) {
         CEzLcd::SetText(handle->m_handle, FrameScript_GetText(handle->m_text.m_str, -1, GENDER_NOT_APPLICABLE));
-    } else if (CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    } else if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(ITEM_ID_SOUL_SHARD, WOWGUID{ 0 }, nullptr, nullptr, false);
 
         if (stats) {
@@ -840,7 +840,7 @@ void CGLCD::SetStat(const char* name, int32_t value) {
 // VERIFY: 7d51b4c3 auto
 // OFFSET: 0x00849430
 void CGLCD::SetStat(const char* name, float value, bool percent) {
-    bool showPercent = CGLCD::m_lcd->IsDeviceAvailable(1) ? percent : false;
+    bool showPercent = CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR) ? percent : false;
     LCDHANDLE* handle = CGLCD::m_handles.Ptr(name);
 
     if (!handle) {
@@ -1213,7 +1213,7 @@ int32_t CGLCD::Update(const void* data, void* param) {
     if (CGLCD::m_lcd && !CGLCD::initComplete) {
         CGLCD::m_lcd->Update();
 
-        if (CGLCD::m_lcd->IsDeviceAvailable(1) || CGLCD::m_lcd->IsDeviceAvailable(0)) {
+        if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR) || CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_MONO)) {
             CGLCD::PostInit();
         }
     }
@@ -1232,7 +1232,7 @@ int32_t CGLCD::Update(const void* data, void* param) {
             CGLCD::SetStat("INTELLECT", CGLCD::m_player->m_unit->m_unitFieldStat[3]);
             CGLCD::SetStat("SPIRIT", CGLCD::m_player->m_unit->m_unitFieldStat[4]);
 
-            if (CGLCD::m_lcd->IsDeviceAvailable(1)) {
+            if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
                 int32_t base;
                 int32_t total;
                 int32_t effective;
@@ -1240,7 +1240,7 @@ int32_t CGLCD::Update(const void* data, void* param) {
                 int32_t negative;
                 CGLCD::m_player->GetResistanceAndBuffs(GetPhysicalDamageClassID(), &base, &total, &effective, &positive, &negative);
                 CGLCD::SetStat("Armor", effective);
-            } else if (IsAsianLocale() && !CGLCD::m_lcd->IsDeviceAvailable(1)) {
+            } else if (IsAsianLocale() && !CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
                 float minDamage = CGLCD::m_player->m_unit->m_unitFieldMindamage;
                 float maxDamage = CGLCD::m_player->m_unit->m_unitFieldMaxdamage;
                 float percent = CGLCD::m_player->GetModDamageDonePct(SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL);
@@ -1801,10 +1801,10 @@ bool CGLCD::LoadScreen(XMLNode* node, CStatus* status) {
 bool CGLCD::LoadLayout() {
     char fileName[260];
 
-    if (CGLCD::m_lcd->IsDeviceAvailable(1)) {
+    if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_COLOR)) {
         CGLCD::m_lcd->ModifyDisplay(1);
         SStrCopy(fileName, "Interface\\LCDXML\\LCDColorLayout.xml", STORM_MAX_STR);
-    } else if (CGLCD::m_lcd->IsDeviceAvailable(0)) {
+    } else if (CGLCD::m_lcd->IsDeviceAvailable(CEzLcd::LCD_TYPE_MONO)) {
         CGLCD::m_lcd->ModifyDisplay(0);
         SStrCopy(fileName, "Interface\\LCDXML\\LCDLayout.xml", STORM_MAX_STR);
     } else {

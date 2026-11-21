@@ -11,8 +11,15 @@ class CLCDOutput;
 
 class CLCDConnection {
     public:
+    // Named from the handler Update dispatches each queued callback event to.
+    enum CB_EVENT_TYPE : int32_t {
+        CB_EVENT_SOFTBUTTON = 0,
+        CB_EVENT_CONFIGURE = 1,
+        CB_EVENT_NOTIFICATION = 2,
+    };
+
     struct CB_EVENT {
-        /* 0000 */ int32_t m_type;
+        /* 0000 */ CB_EVENT_TYPE m_type;
         /* 0004 */ DWORD m_code;
         /* 0008 */ DWORD m_param1;
         /* 000C */ DWORD m_param2;

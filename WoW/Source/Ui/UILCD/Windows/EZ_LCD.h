@@ -15,9 +15,17 @@ class CLCDText;
 
 class CEzLcd {
     public:
+    // Named from the lgLcd applet capabilities Initialize requests for each value.
+    enum LCD_TYPE : int32_t {
+        LCD_TYPE_MONO = 0, // LGLCD_APPLET_CAP_BW
+        LCD_TYPE_COLOR = 1, // LGLCD_APPLET_CAP_QVGA
+        LCD_TYPE_DUAL = 2, // LGLCD_APPLET_CAP_BW | LGLCD_APPLET_CAP_QVGA
+        LCD_TYPE_NONE = 3, // Constructor value before Initialize (name inferred).
+    };
+
     /* 0004 */ char m_friendlyName[260];
     /* 0108 */ CLCDConnection m_connection;
-    /* 0174 */ int32_t m_lcdType;
+    /* 0174 */ LCD_TYPE m_lcdType;
     /* 0178 */ TSGrowableArray<CEzLcdPage*> m_monoPages;
     /* 0188 */ TSGrowableArray<CEzLcdPage*> m_colorPages;
     /* 0198 */ CEzLcdPage* m_currentMonoPage;
@@ -49,11 +57,11 @@ class CEzLcd {
     CEzLcd();
     ~CEzLcd();
     virtual void OnSoftButtons(uint32_t buttons);
-    int32_t Initialize(const char* friendlyName, int32_t lcdType, BOOL isAutoStartable, BOOL isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext);
+    int32_t Initialize(const char* friendlyName, LCD_TYPE lcdType, BOOL isAutoStartable, BOOL isPersistent, lgLcdConfigureContext* configContext, lgLcdSoftbuttonsChangedContext* softbuttonsChangedContext);
     BOOL IsConnected();
     void ShowSubscreen(int32_t subscreen);
     HRESULT SetVisible(void* handle, BOOL visible);
-    BOOL IsDeviceAvailable(int32_t type);
+    BOOL IsDeviceAvailable(LCD_TYPE type);
     void Update();
     int32_t ShowPage(int32_t page);
     void HideGlobals();
