@@ -3960,7 +3960,7 @@ void CGxDeviceOpenGl::IXformSetModelView(const C44Matrix& matrix) {
 // VERIFY: 0739bf05 auto
 // OFFSET: 0x0069E510
 void CGxDeviceOpenGl::XformSetProjection(const C44Matrix& matrix) {
-    this->m_projection = matrix;
+    CGxDevice::XformSetProjection(matrix);
     this->IXformSetProjection(matrix);
 }
 
