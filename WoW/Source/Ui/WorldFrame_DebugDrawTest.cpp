@@ -20,7 +20,8 @@
 //   - three wireframe spheres 25 yards ahead, sized so they draw at sphere LOD 0, 1 and 2;
 //   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame;
 //   - lines: a red/green/blue axis tripod at the player's feet (world X, Y, Z), a white wire box around the shape
-//     row, and an always-on-top cyan line from the player to each LOD sphere.
+//     row, and an always-on-top cyan line from the player to each LOD sphere;
+//   - the 4.1 editor gizmo shapes assembled into a move/rotate gizmo 14 yards ahead and to the right.
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;
@@ -45,6 +46,51 @@ static C44Matrix ShapeTransform(const C3Vector& position, float facing, float sc
     transform.Scale(scale);
 
     return transform;
+}
+
+// Unit shape -> world from explicit axes: the shape's local x, y and z land on xAxis, yAxis and zAxis (scaled), then
+// the result is placed at position.
+static C44Matrix AxesTransform(const C3Vector& position, const C3Vector& xAxis, const C3Vector& yAxis, const C3Vector& zAxis, const C3Vector& scale) {
+    C44Matrix transform;
+    transform.a0 = xAxis.x * scale.x;
+    transform.a1 = xAxis.y * scale.x;
+    transform.a2 = xAxis.z * scale.x;
+    transform.b0 = yAxis.x * scale.y;
+    transform.b1 = yAxis.y * scale.y;
+    transform.b2 = yAxis.z * scale.y;
+    transform.c0 = zAxis.x * scale.z;
+    transform.c1 = zAxis.y * scale.z;
+    transform.c2 = zAxis.z * scale.z;
+    transform.d0 = position.x;
+    transform.d1 = position.y;
+    transform.d2 = position.z;
+
+    return transform;
+}
+
+// An editor-style gizmo built from the three 4.1 gizmo shapes, on the axes of the player's facing (red forward,
+// green left, blue up): a directional sphere at the center pointing up, a directional diamond move handle out along
+// each axis, and a rotation ring around each axis (the 4 unit tall ring band flattened to a thin ring by its z scale).
+static void QueueGizmo(const C3Vector& center, const C3Vector& forward, const C3Vector& left) {
+    const C3Vector up(0.0f, 0.0f, 1.0f);
+    const C3Vector axes[3] = { forward, left, up };
+    // For each axis, two axes perpendicular to it, so that (first, second, axis) stays right handed.
+    const C3Vector perpendicular[3][2] = { { left, up }, { up, forward }, { forward, left } };
+    const CImVector colors[3] = { CImVector(0x20, 0x20, 0xFF, 0xFF), CImVector(0x20, 0xFF, 0x20, 0xFF), CImVector(0xFF, 0x20, 0x20, 0xFF) };
+
+    GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_SPHERE, AxesTransform(center, forward, left, up, C3Vector(0.25f, 0.25f, 0.25f)), CImVector(0xFF, 0xFF, 0xFF, 0xFF), GXUDEBUGSTYLE_SOLID);
+
+    for (uint32_t i = 0; i < 3; i++) {
+        const C3Vector& axis = axes[i];
+        C3Vector handle(center.x + axis.x * 1.6f, center.y + axis.y * 1.6f, center.z + axis.z * 1.6f);
+
+        GxuDebugDrawLine(center, handle, colors[i]);
+        GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND, AxesTransform(handle, perpendicular[i][0], perpendicular[i][1], axis, C3Vector(0.6f, 0.6f, 0.6f)), colors[i], GXUDEBUGSTYLE_SOLID);
+        GxuDebugDrawShape(GXUDEBUGSHAPE_ROTATION_RING, AxesTransform(center, perpendicular[i][0], perpendicular[i][1], axis, C3Vector(1.2f, 1.2f, 0.015f)), colors[i], GXUDEBUGSTYLE_SOLID);
+    }
+
+    C3Vector labelPosition(center.x, center.y, center.z + 2.2f);
+    GxuDebugDrawText3D("gizmo shapes", labelPosition, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
 }
 
 void GxuDebugDrawTestQueue() {
@@ -134,6 +180,11 @@ void GxuDebugDrawTestQueue() {
     rowFrame.d1 = origin.y + forward.y * 8.0f;
     rowFrame.d2 = origin.z + 1.5f;
     GxuDebugDrawBoxLines(C3Vector(-1.5f, -halfRow, -1.5f), C3Vector(1.5f, halfRow, 1.5f), rowFrame, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+
+    // Gizmo 14 yards ahead, to the right of the LOD spheres' line of sight.
+    C3Vector left(-right.x, -right.y, 0.0f);
+    C3Vector gizmoCenter(origin.x + forward.x * 14.0f + right.x * 6.0f, origin.y + forward.y * 14.0f + right.y * 6.0f, origin.z + 2.0f);
+    QueueGizmo(gizmoCenter, forward, left);
 
     // Below the player frame, which covers the top left corner.
     GxuDebugDrawText("GxuDebugDraw test (debugDrawTest 0 to hide)", 0.02f, 0.16f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));

@@ -33,6 +33,9 @@ static GxuBoxShapeFactory s_boxFactory;
 static GxuSphereShapeFactory s_sphereFactory;
 static GxuConeShapeFactory s_coneFactory;
 static GxuTriangleShapeFactory s_triangleFactory;
+static GxuDirectionalSphereShapeFactory s_directionalSphereFactory;
+static GxuRotationRingShapeFactory s_rotationRingFactory;
+static GxuDirectionalDiamondShapeFactory s_directionalDiamondFactory;
 
 // 4.1 GxuGetLODDistModifier returns a global scale for every LOD distance; 3.3.5 has no such setting, so it is 1.
 static float GxuGetLODDistModifier() {
@@ -349,6 +352,129 @@ float GxuTriangleShapeFactory::GetRadius() const {
     return 0.5f;
 }
 
+// ---- Directional sphere (4.1 CreateVertexBuffer 0x00AE8B10, CreateIndexBuffer 0x00AE88C0, SetLOD 0x00AE6F70,
+// GetRadius 0x00AE6C50, GetIdxOffset 0x00AE6C60, GetNumIndices 0x00AE6C70, GetNumVertices 0x00AE6C80)
+//
+// The sphere grid with the z of rings 0 to 2 doubled: those three rings sit around the +z pole with radii 0, 0.098 and
+// 0.195, so doubling their height pulls them out into a thin spike reaching z=2 (hence the radius of 2). The indices
+// and LOD selection are the sphere's.
+
+void GxuDirectionalSphereShapeFactory::WriteVertices(C3Vector* vertices) const {
+    for (uint32_t ring = 0; ring < this->m_rings; ring++) {
+        float theta = static_cast<float>(ring) / static_cast<float>(this->m_rings - 1) * PI;
+        float sinTheta = fabsf(sinf(theta));
+        float cosTheta = cosf(theta);
+
+        if (ring <= 2) {
+            cosTheta += cosTheta;
+        }
+
+        for (uint32_t segment = 0; segment < this->m_segments; segment++) {
+            float phi = static_cast<float>(segment) / static_cast<float>(this->m_segments) * 2.0f * PI;
+            vertices[ring * this->m_segments + segment] = C3Vector(cosf(phi) * sinTheta, sinTheta * sinf(phi), cosTheta);
+        }
+    }
+}
+
+float GxuDirectionalSphereShapeFactory::GetRadius() const {
+    return 2.0f;
+}
+
+// ---- Rotation ring (4.1 CreateVertexBuffer 0x00AE7F90, CreateIndexBuffer 0x00AE7710, GetRadius 0x00AE6CF0,
+// GetNumVertices 0x00AEA340, GetNumIndices 0x00AEA350)
+//
+// A unit-radius band around the z axis: 32 vertex pairs at angle k * pi/16, (cos, sin, 2) and (cos, sin, -2). Each
+// quad between neighbouring pairs is written with both windings, so the band shows from inside and outside under
+// culling. The band is 4 units tall; a gizmo flattens it into a ring with its transform's z scale.
+//
+// 4.1 writes 384 indices (32 quads x 12) but GetNumIndices returns 192, which as an index count covers only the first
+// 16 quads, half the ring. 4.1's draw loop is stripped, so whether that half ring was intended cannot be checked; this
+// port draws every index written.
+
+void GxuRotationRingShapeFactory::WriteVertices(C3Vector* vertices) const {
+    for (uint32_t k = 0; k < NUM_SEGMENTS; k++) {
+        float angle = static_cast<float>(k) * (PI / 16.0f);
+        vertices[k * 2 + 0] = C3Vector(cosf(angle), sinf(angle), 2.0f);
+        vertices[k * 2 + 1] = C3Vector(cosf(angle), sinf(angle), -2.0f);
+    }
+}
+
+void GxuRotationRingShapeFactory::WriteIndices(uint16_t* indices) const {
+    const uint32_t count = NUM_SEGMENTS * 2;
+    uint32_t n = 0;
+
+    for (uint32_t v = 0; v < count; v += 2) {
+        uint16_t top = static_cast<uint16_t>(v & 0x3F);
+        uint16_t bottom = static_cast<uint16_t>((v + 1) & 0x3F);
+        uint16_t nextTop = static_cast<uint16_t>((v + 2) & 0x3F);
+        uint16_t nextBottom = static_cast<uint16_t>((v + 3) & 0x3F);
+
+        indices[n++] = top;
+        indices[n++] = bottom;
+        indices[n++] = nextBottom;
+        indices[n++] = top;
+        indices[n++] = nextBottom;
+        indices[n++] = nextTop;
+
+        indices[n++] = top;
+        indices[n++] = nextBottom;
+        indices[n++] = bottom;
+        indices[n++] = top;
+        indices[n++] = nextTop;
+        indices[n++] = nextBottom;
+    }
+}
+
+uint32_t GxuRotationRingShapeFactory::GetNumVertices() const {
+    return NUM_SEGMENTS * 2;
+}
+
+uint32_t GxuRotationRingShapeFactory::GetNumIndices() const {
+    return NUM_SEGMENTS * 12; // 4.1: 192, see above
+}
+
+float GxuRotationRingShapeFactory::GetRadius() const {
+    return 2.0f;
+}
+
+// ---- Directional diamond (4.1 CreateVertexBuffer 0x00AE7590, CreateIndexBuffer 0x00AE73A0, GetRadius 0x00AE6D00,
+// GetNumVertices 0x00AE6D10, GetNumIndices 0x00AE6D20)
+//
+// An octahedron squashed into an arrowhead: tip at z=1, back point at z=-0.25, and a waist at z=0 that is 1 wide along
+// x and 0.5 along y. Eight faces, one winding.
+
+void GxuDirectionalDiamondShapeFactory::WriteVertices(C3Vector* vertices) const {
+    vertices[0] = C3Vector(0.0f, 0.0f, 1.0f);
+    vertices[1] = C3Vector(0.0f, -0.25f, 0.0f);
+    vertices[2] = C3Vector(0.0f, 0.25f, 0.0f);
+    vertices[3] = C3Vector(0.0f, 0.0f, -0.25f);
+    vertices[4] = C3Vector(0.5f, 0.0f, 0.0f);
+    vertices[5] = C3Vector(-0.5f, 0.0f, 0.0f);
+}
+
+void GxuDirectionalDiamondShapeFactory::WriteIndices(uint16_t* indices) const {
+    static const uint16_t s_indices[24] = {
+        0, 1, 4, 0, 4, 2, 0, 2, 5, 0, 5, 1,
+        3, 2, 4, 3, 4, 1, 3, 1, 5, 3, 5, 2,
+    };
+
+    for (uint32_t i = 0; i < 24; i++) {
+        indices[i] = s_indices[i];
+    }
+}
+
+uint32_t GxuDirectionalDiamondShapeFactory::GetNumVertices() const {
+    return 6;
+}
+
+uint32_t GxuDirectionalDiamondShapeFactory::GetNumIndices() const {
+    return 24;
+}
+
+float GxuDirectionalDiamondShapeFactory::GetRadius() const {
+    return 1.0f;
+}
+
 // ---- Render-state blocks (4.1 Apply 0x00AE8E10 / NoDepth 0x00AE9A40, Restore 0x00AE7360 / 0x00AE70F0)
 //
 // 4.1 Apply: RsPush, then depth test on, depth func LEqual, depth write off, polygon offset 0, lighting off, color
@@ -441,6 +567,12 @@ IGxuDebugShapeFactory* GxuDebugShapeDrawer::GetFactory(GXUDEBUGSHAPE shape) {
             return &s_coneFactory;
         case GXUDEBUGSHAPE_TRIANGLE:
             return &s_triangleFactory;
+        case GXUDEBUGSHAPE_DIRECTIONAL_SPHERE:
+            return &s_directionalSphereFactory;
+        case GXUDEBUGSHAPE_ROTATION_RING:
+            return &s_rotationRingFactory;
+        case GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND:
+            return &s_directionalDiamondFactory;
         default:
             return &s_nullFactory;
     }
@@ -769,7 +901,7 @@ void GxuShutdownDebugDrawList() {
 void GxuShutdownDebugShapeDrawer() {
     s_debugShapeBufferCache.ReleaseCache();
 
-    IGxuDebugShapeFactory* factories[] = { &s_boxFactory, &s_sphereFactory, &s_coneFactory, &s_triangleFactory };
+    IGxuDebugShapeFactory* factories[] = { &s_boxFactory, &s_sphereFactory, &s_coneFactory, &s_triangleFactory, &s_directionalSphereFactory, &s_rotationRingFactory, &s_directionalDiamondFactory };
 
     for (IGxuDebugShapeFactory* factory : factories) {
         factory->m_vertexBuffer = GxuBufferCache::INVALID_HANDLE;

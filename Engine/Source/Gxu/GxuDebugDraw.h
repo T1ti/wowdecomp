@@ -34,7 +34,8 @@
 //     vertices. Textures draw as a fixed-function textured quad;
 //   - text uses GxuFont string batches. Text and textures use a 0..1 screen space with its origin at the top left
 //     (4.1 GxuDebugTextureDrawer::Draw sets GxuXformCreateOrtho(0, 1, 1, 0, -1, 1)).
-// The gizmo shapes (DirectionalSphere, RotationRing, DirectionalDiamond) belong to 4.x editing tools and are left out.
+// The editor gizmo shapes (DirectionalSphere, RotationRing, DirectionalDiamond) are ported with the others; the
+// editors that would place them (4.x tools) are not part of this client, so only debugDrawTest shows them.
 //
 // Port addition: line objects (GxuDebugDrawLine). 4.1 has no line shape; the 3.3.5 overlays that need lines (collision
 // info normals, unit pathing) draw GxPrim_Lines batches by hand, which is what the line drawer does too.
@@ -65,7 +66,12 @@ enum GXUDEBUGSHAPE : int32_t {
     GXUDEBUGSHAPE_SPHERE = 2, // unit radius, three LODs (GxuSphereShapeFactory)
     GXUDEBUGSHAPE_CONE = 3, // apex at z=+0.5, unit-radius base at z=-0.5 (GxuConeShapeFactory)
     GXUDEBUGSHAPE_TRIANGLE = 4, // double-sided, in the x=0 plane, apex at z=+0.5 (GxuTriangleShapeFactory)
-    NUM_GXUDEBUGSHAPES = 5,
+    // Editor gizmos. 4.1 builds their factories in the same static initializer as the others; these enum values are
+    // this port's.
+    GXUDEBUGSHAPE_DIRECTIONAL_SPHERE = 5, // unit sphere with a spike along +z to z=2 (GxuDirectionalSphereShapeFactory)
+    GXUDEBUGSHAPE_ROTATION_RING = 6, // unit-radius band around z, z from -2 to 2 (GxuRotationRingShapeFactory)
+    GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND = 7, // flat arrowhead pointing +z (GxuDirectionalDiamondShapeFactory)
+    NUM_GXUDEBUGSHAPES = 8,
 };
 
 // Which GxuDebugShapeDrawer render-state block a shape draws with.
@@ -205,6 +211,43 @@ class GxuConeShapeFactory : public IGxuDebugShapeFactory {
 };
 
 class GxuTriangleShapeFactory : public IGxuDebugShapeFactory {
+    public:
+    uint32_t GetNumVertices() const override;
+    uint32_t GetNumIndices() const override;
+    float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
+};
+
+// 4.1 editor gizmos (vtables 0x011F3840, 0x011F3780, 0x011F3740).
+
+// Same fields and LOD scheme as the sphere (4.1 static init writes the identical 32 / 33 / 1056 values and LOD
+// tables), and the same indices; only the vertices differ. 4.1 has it as a separate class with its own copies of
+// every method; here it derives from the sphere and overrides the two that differ.
+class GxuDirectionalSphereShapeFactory : public GxuSphereShapeFactory {
+    public:
+    float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+};
+
+class GxuRotationRingShapeFactory : public IGxuDebugShapeFactory {
+    public:
+    static const uint32_t NUM_SEGMENTS = 32;
+
+    uint32_t GetNumVertices() const override;
+    uint32_t GetNumIndices() const override;
+    float GetRadius() const override;
+
+    protected:
+    void WriteVertices(C3Vector* vertices) const override;
+    void WriteIndices(uint16_t* indices) const override;
+};
+
+class GxuDirectionalDiamondShapeFactory : public IGxuDebugShapeFactory {
     public:
     uint32_t GetNumVertices() const override;
     uint32_t GetNumIndices() const override;
