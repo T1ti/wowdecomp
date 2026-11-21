@@ -35,7 +35,7 @@ void LFGHandler::ReadPlayerInfo(CDataStore* msg, LFGLIST* list, LFGListPlayer* p
         msg->Get(player->m_class);
         msg->Get(player->m_race);
 
-        for (uint32_t i = 0; i < 3; i++) {
+        for (uint32_t i = 0; i < MAX_TALENT_TABS; i++) {
             msg->Get(player->m_talents[i]);
         }
 
