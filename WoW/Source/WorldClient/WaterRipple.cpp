@@ -146,14 +146,7 @@ void CMap::RenderWaterRipples() {
         C44Matrix view;
         view = device->m_xforms[GxXform_View].m_mtx[device->m_xforms[GxXform_View].m_level];
         C44Matrix projection;
-        projection = device->m_projNative;
-
-        if (device->DeviceApi() == GxApi_OpenGl) {
-            projection.c0 = projection.c0 * -1.0f;
-            projection.c1 = projection.c1 * -1.0f;
-            projection.c2 = projection.c2 * -1.0f;
-            projection.c3 = -1.0f * projection.c3;
-        }
+        GxXformProjNative(projection);
 
         C44Matrix worldViewProj = world * view * projection;
         g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 0, &worldViewProj.a0, 4);

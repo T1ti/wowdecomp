@@ -226,14 +226,7 @@ void Liquid::CMaterialProcWater::Render(Liquid::IEnvironment* environment, Liqui
     GxUpdateAlphaRef(GxRs_AlphaRef);
     g_theGxDevicePtr->RsSet(GxRs_Fog, 1);
 
-    Liquid::s_vsConstants.m_projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        Liquid::s_vsConstants.m_projection.c0 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c1 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c2 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(Liquid::s_vsConstants.m_projection);
 
     C44Matrix matrix;
     Liquid::SetShaderTransforms(cameraPos, identity ? matrix : *transform);

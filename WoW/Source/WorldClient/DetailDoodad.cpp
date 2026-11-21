@@ -230,14 +230,7 @@ void CDetailDoodad::InitializeShaderConstants() {
 
     SShaderConstants& consts = CDetailDoodad::s_shaderConstants;
     consts.m_worldView = C44Matrix();
-    consts.m_projection = device->m_projNative;
-
-    if (device->DeviceApi() == GxApi_OpenGl) {
-        consts.m_projection.c0 *= -1.0f;
-        consts.m_projection.c1 *= -1.0f;
-        consts.m_projection.c2 *= -1.0f;
-        consts.m_projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(consts.m_projection);
 
     C3Vector sunDir(0.0f, 0.0f, 0.0f);
     CM2Lighting lighting(sunDir);

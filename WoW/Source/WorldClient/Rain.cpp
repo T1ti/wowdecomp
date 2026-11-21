@@ -636,14 +636,7 @@ void Rain::RenderPatterPackets() {
     C44Matrix view;
     GxXformView(view);
     C44Matrix projection;
-    projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        projection.c0 *= -1.0f;
-        projection.c1 *= -1.0f;
-        projection.c2 *= -1.0f;
-        projection.c3 = -1.0f * projection.c3;
-    }
+    GxXformProjNative(projection);
 
     float camera[4] = { CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z, 1.0f };
     C44Matrix viewProj = (view * projection).Transpose();
@@ -716,14 +709,7 @@ void Rain::RenderDropPackets() {
     C44Matrix view;
     GxXformView(view);
     C44Matrix projection;
-    projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        projection.c0 *= -1.0f;
-        projection.c1 *= -1.0f;
-        projection.c2 *= -1.0f;
-        projection.c3 = -1.0f * projection.c3;
-    }
+    GxXformProjNative(projection);
 
     float camera[4] = { CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z, 1.0f };
     C44Matrix viewProj = (view * projection).Transpose();

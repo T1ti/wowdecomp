@@ -1965,14 +1965,7 @@ void CMapRenderChunk::InitializeVertexShaderConstants(const C44Matrix& world, co
     consts.m_viewTranspose = view.Transpose();
 
     CGxDevice* device = g_theGxDevicePtr;
-    consts.m_projection = device->m_projNative;
-
-    if (device->DeviceApi() == GxApi_OpenGl) {
-        consts.m_projection.c0 *= -1.0f;
-        consts.m_projection.c1 *= -1.0f;
-        consts.m_projection.c2 *= -1.0f;
-        consts.m_projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(consts.m_projection);
 
     consts.m_texOffset[0].x = 0.0f;
     consts.m_texOffset[0].y = 0.0f;

@@ -32,14 +32,7 @@ void Liquid::SetShaderTransforms(const C3Vector& cameraPos, const C44Matrix& tra
     Liquid::s_vsConstants.m_modelView = modelView;
 
     C44Matrix projection;
-    projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        projection.c0 *= -1.0f;
-        projection.c1 *= -1.0f;
-        projection.c2 *= -1.0f;
-        projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(projection);
 
     Liquid::s_psConstants.m_modelViewProj = modelView * projection;
     Liquid::s_psConstants.m_cameraPos.x = cameraPos.x;

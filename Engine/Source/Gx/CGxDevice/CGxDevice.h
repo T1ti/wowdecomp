@@ -357,6 +357,19 @@ class CGxDevice {
 };
 
 extern CGxDevice* g_theGxDevicePtr;
+
+// Inlined helper (name inferred from GxXformViewProjNativeTranspose): the native projection,
+// with its third row (c0..c3) negated on OpenGL.
+inline void GxXformProjNative(C44Matrix& matrix) {
+    matrix = g_theGxDevicePtr->m_projNative;
+
+    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
+        matrix.c0 *= -1.0f;
+        matrix.c1 *= -1.0f;
+        matrix.c2 *= -1.0f;
+        matrix.c3 *= -1.0f;
+    }
+}
 extern const char* s_formatToInt[CGxFormat::Formats_Last];
 
 #endif

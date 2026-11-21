@@ -259,14 +259,7 @@ void GxXformViewProjNativeTranspose(C44Matrix& matrix) {
     C44Matrix proj;
 
     view = device->m_xforms[GxXform_View].m_mtx[device->m_xforms[GxXform_View].m_level];
-    proj = device->m_projNative;
-
-    if (device->DeviceApi() == GxApi_OpenGl) {
-        proj.c0 = proj.c0 * -1.0f;
-        proj.c1 = proj.c1 * -1.0f;
-        proj.c2 = proj.c2 * -1.0f;
-        proj.c3 = -1.0f * proj.c3;
-    }
+    GxXformProjNative(proj);
 
     matrix = (view * proj).Transpose();
 }

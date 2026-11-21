@@ -151,14 +151,7 @@ void Liquid::CMaterialWater::Render(Liquid::IEnvironment* environment, Liquid::I
     GxRsSet(GxRs_DepthWrite, g_theGxDevicePtr->Caps().m_maxClipPlanes == 0);
     g_theGxDevicePtr->RsSet(GxRs_Fog, 1);
 
-    Liquid::s_vsConstants.m_projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        Liquid::s_vsConstants.m_projection.c0 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c1 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c2 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(Liquid::s_vsConstants.m_projection);
 
     C44Matrix matrix;
     Liquid::SetShaderTransforms(cameraPos, geomFactory->SetTransform(const_cast<C44Matrix*>(transform)) ? matrix : *transform);
@@ -230,14 +223,7 @@ void Liquid::CMaterialWaterNoSpec::Render(Liquid::IEnvironment* environment, Liq
     GxRsSet(GxRs_DepthWrite, g_theGxDevicePtr->Caps().m_maxClipPlanes == 0);
     g_theGxDevicePtr->RsSet(GxRs_Fog, 1);
 
-    Liquid::s_vsConstants.m_projection = g_theGxDevicePtr->m_projNative;
-
-    if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-        Liquid::s_vsConstants.m_projection.c0 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c1 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c2 *= -1.0f;
-        Liquid::s_vsConstants.m_projection.c3 *= -1.0f;
-    }
+    GxXformProjNative(Liquid::s_vsConstants.m_projection);
 
     C44Matrix matrix;
     Liquid::SetShaderTransforms(cameraPos, geomFactory->SetTransform(const_cast<C44Matrix*>(transform)) ? matrix : *transform);

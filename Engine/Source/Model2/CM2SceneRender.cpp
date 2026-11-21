@@ -926,14 +926,8 @@ void CM2SceneRender::Draw(M2PASS pass, M2Element* elements, uint32_t* indices, u
     GxRsSet(GxRs_MatSpecularExp, 0.0f);
 
     if (CShaderEffect::s_enableShaders) {
-        C44Matrix projection = g_theGxDevicePtr->m_projNative;
-
-        if (g_theGxDevicePtr->DeviceApi() == GxApi_OpenGl) {
-            projection.c0 = projection.c0 * -1.0f;
-            projection.c1 = projection.c1 * -1.0f;
-            projection.c2 = projection.c2 * -1.0f;
-            projection.c3 = -1.0f * projection.c3;
-        }
+        C44Matrix projection;
+        GxXformProjNative(projection);
 
         this->m_matrix = projection.Inverse(projection.Determinant());
         this->m_matrix = this->m_matrix.Transpose();
