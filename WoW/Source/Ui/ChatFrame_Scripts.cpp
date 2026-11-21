@@ -443,7 +443,7 @@ static int32_t Script_SetChatWindowLocked(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
     if (index < NUM_CHAT_WINDOWS) {
-        s_chatWindows[index].m_unkD8 = StringToBOOL(L, 2, 0);
+        s_chatWindows[index].m_locked = StringToBOOL(L, 2, 0);
     }
 
     return 0;
@@ -799,7 +799,7 @@ static int32_t Script_GetChatWindowInfo(lua_State* L) {
         lua_pushnil(L);
     }
 
-    if (s_chatWindows[index].m_unkD8) {
+    if (s_chatWindows[index].m_locked) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

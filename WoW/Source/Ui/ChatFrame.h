@@ -365,7 +365,7 @@ class ChatWindowInfo {
     /* 00C0 */ TSGrowableArray<int32_t> m_channelIDs;
     /* 00D0 */ int32_t m_unkD0;
     /* 00D4 */ CImVector m_color;
-    /* 00D8 */ uint32_t m_unkD8;
+    /* 00D8 */ BOOL m_locked; // "LOCKED" in chat-cache.txt
     /* 00DC */ int32_t m_docked;
     /* 00E0 */ uint32_t m_shown;
     /* 00E4 */ int32_t m_unkE4;
