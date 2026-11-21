@@ -1477,8 +1477,7 @@ void CSimpleFrame::OnLayerCursorEnter(int32_t motion) {
     }
 
     if (!this->m_highlightLocked) {
-        this->m_drawLayerEnabled[DRAWLAYER_HIGHLIGHT] = 1;
-        this->NotifyDrawLayerChanged(DRAWLAYER_HIGHLIGHT);
+        this->EnableDrawLayer(DRAWLAYER_HIGHLIGHT);
     }
 
     this->RunOnEnterScript(motion);
@@ -1492,8 +1491,7 @@ void CSimpleFrame::OnLayerCursorExit(int32_t motion, BOOL releaseMouse) {
     }
 
     if (!this->m_highlightLocked) {
-        this->m_drawLayerEnabled[DRAWLAYER_HIGHLIGHT] = 0;
-        this->NotifyDrawLayerChanged(DRAWLAYER_HIGHLIGHT);
+        this->DisableDrawLayer(DRAWLAYER_HIGHLIGHT);
     }
 
     if (releaseMouse) {
@@ -1514,11 +1512,9 @@ void CSimpleFrame::LockHighlight(int32_t lock) {
     this->m_highlightLocked = lock;
 
     if (lock) {
-        this->m_drawLayerEnabled[DRAWLAYER_HIGHLIGHT] = 1;
-        this->NotifyDrawLayerChanged(DRAWLAYER_HIGHLIGHT);
+        this->EnableDrawLayer(DRAWLAYER_HIGHLIGHT);
     } else if (this->m_simpleTop->m_mouseFocus != this) {
-        this->m_drawLayerEnabled[DRAWLAYER_HIGHLIGHT] = 0;
-        this->NotifyDrawLayerChanged(DRAWLAYER_HIGHLIGHT);
+        this->DisableDrawLayer(DRAWLAYER_HIGHLIGHT);
     }
 }
 
