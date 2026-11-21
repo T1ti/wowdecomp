@@ -21,7 +21,7 @@
 #include "Engine/Source/Gxu/Gxu.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "WoW/Source/Ui/WorldFrame_DebugDrawTest.h"
-#include "WoW/Source/WorldClient/WorldEditDraw.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
 #include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Model2/M2Scene.h"
 #include "Engine/Source/Os/Time.h"
@@ -1827,7 +1827,7 @@ void CGWorldFrame::OnWorldRender() {
     // Debug/tool features: the Gxu debug-draw queue (shapes, lines, world and screen text, textures), drawn and
     // cleared once per frame on top of the world, relative to the camera origin the world view uses.
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the world editor overlays (WorldEditDraw.h) and the debugDrawTest scene queue their objects.
+    // Tool features: the world editor overlays (WorldEditHooks.h) and the debugDrawTest scene queue their objects.
     WorldEditRenderOverlays();
     GxuDebugDrawTestQueue();
 #endif

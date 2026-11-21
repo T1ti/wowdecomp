@@ -106,7 +106,18 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | File | Status | Notes |
 |---|---|---|---|
-| `debugDrawTest` | `Ui/WorldFrame_DebugDrawTest.cpp` | works | Toggles a test scene in front of the player that exercises the Gxu debug-draw module: every shape and style, sphere LODs, the 4.1 editor shapes (spawn points with orientation rings, early-editor half spheres, a flying path), lines, an oriented box, a texture and text. |
+| `debugDrawTest` | `Ui/WorldFrame_DebugDrawTest.cpp` | works | Toggles a test scene in front of the player that exercises the Gxu debug-draw module: every shape and style, sphere LODs, lines, an oriented box, a texture and text. |
+
+## World editor (`WowEdit/`, tool build)
+
+The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terrain overlays are the 8.1 editor pixel shaders rewritten for Shader Model 3 and compiled at run time. They need the Direct3D device (`gxApi d3d` or `d3d9ex`) and `d3dcompiler_47.dll`.
+
+| Command | Status | Notes |
+|---|---|---|
+| `wowEdit` | works | Prints whether the terrain shaders can run and which overlays are on. |
+| `wowEditGrid [0-3\|off]` | works | Terrain grid, one of the four 8.1 `woweditgrid` permutations. With no argument it toggles permutation 3. 0 shows nothing on its own: it outputs transparent black on chunk borders. 1 draws cells with diagonals. 2 draws chunk and tile lines. 3 draws all three. |
+| `wowEditSlopes [0\|1]` | works | Paints terrain steeper than 50 degrees (the client's walkable limit) red at 25%. |
+| `wowEditMarkers [0\|1]` | works | Sample editor markers ahead of the player, placed on the ground: spawn points with orientation rings, early-editor half spheres and path, and a flying path with direction diamonds. |
 
 ## Lua functions (`WoW/Source/Ui/GameUI_Scripts.cpp`, DEBUG)
 

@@ -101,6 +101,7 @@
 #include <cstring>
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/Game/GameClient/ProjectTex.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
 
 static const float dirLightScaleAmount = 0.5f;
 
@@ -2641,6 +2642,10 @@ void CWorldScene::RenderChunksSolid() {
             }
         }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+        WorldEditCollectTerrainChunk(renderChunk);
+#endif
+
         renderChunk->m_renderChunkLink.Unlink();
         CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
         renderChunk = next;
@@ -3677,6 +3682,10 @@ void CWorldScene::RenderChunksSinglePass() {
                     }
                 }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+                WorldEditCollectTerrainChunk(renderChunk);
+#endif
+
                 renderChunk->m_renderChunkLink.Unlink();
 
                 if (CWorld::enables & Enables::Enable_ShowNormals) {
@@ -3768,6 +3777,11 @@ void CWorldScene::RenderChunks() {
     CWorldScene::RenderChunksSinglePass();
     CWorldScene::RenderChunksSolid();
     CWorldScene::RenderChunksZoneDebug();
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the world editor's terrain pass (WorldEditHooks.h), over every chunk the passes above drew.
+    WorldEditRenderTerrainPass();
+#endif
 
     for (int32_t i = 0; i < 5; i++) {
         g_theGxDevicePtr->m_xforms[i].Identity();

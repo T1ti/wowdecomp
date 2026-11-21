@@ -64,7 +64,8 @@ endif ()
 
 # Off by default: tool features (the art-tool and editor code the engine shared with Blizzard's internal tools and
 # that the retail branches compiled out: the OsGui Win32 control toolkit, the M2/skin and WMO writers, the CAaBsp
-# tree builder, the Gxu debug-draw module). Shells and restorations live behind #ifdef WOWDECOMP_TOOL_FEATURES.
+# tree builder, the Gxu debug-draw module, and the WowEdit/ editor library). Shells and restorations live behind
+# #ifdef WOWDECOMP_TOOL_FEATURES.
 option(WOWDECOMP_TOOL_FEATURES "Build the tool/editor code shells stripped from the release client" OFF)
 if (WOWDECOMP_TOOL_FEATURES)
     add_compile_definitions(WOWDECOMP_TOOL_FEATURES=1)
@@ -131,6 +132,9 @@ add_subdirectory(WoW/Source/WorldClient)
 add_subdirectory(WoW/Source/WowServices)
 add_subdirectory(WoW/Source/WowSvcs)
 add_subdirectory(WoW/Source)
+if (WOWDECOMP_TOOL_FEATURES)
+    add_subdirectory(WowEdit)
+endif ()
 if (WIN32)
     add_subdirectory(Tools/WowClient)
 endif ()

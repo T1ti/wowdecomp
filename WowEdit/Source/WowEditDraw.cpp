@@ -1,4 +1,4 @@
-#include "WoW/Source/WorldClient/WorldEditDraw.h"
+#include "WowEdit/Source/WowEditDraw.h"
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 
@@ -8,15 +8,15 @@
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "WoW/Source/WorldClient/World.h"
 
-// See WorldEditDraw.h. Everything here is a port addition.
+// See WowEditDraw.h. Everything here is a port addition.
 
-const CImVector WORLDEDIT_COLOR_SPAWN(0xC0, 0xC8, 0x30, 0x90);
-const CImVector WORLDEDIT_COLOR_SPAWN_OLD(0x40, 0xE0, 0x50, 0xA0);
-const CImVector WORLDEDIT_COLOR_ORIENTATION(0xFF, 0x30, 0x80, 0xFF);
-const CImVector WORLDEDIT_COLOR_FACING(0x20, 0x20, 0xFF, 0xFF);
-const CImVector WORLDEDIT_COLOR_PATH_POINT(0x00, 0xA0, 0xFF, 0xFF);
-const CImVector WORLDEDIT_COLOR_PATH_LINE(0x20, 0x20, 0xFF, 0xFF);
-const CImVector WORLDEDIT_COLOR_FLY_POINT(0x20, 0x20, 0xFF, 0xFF);
+const CImVector WOWEDIT_COLOR_SPAWN(0xC0, 0xC8, 0x30, 0x90);
+const CImVector WOWEDIT_COLOR_SPAWN_OLD(0x40, 0xE0, 0x50, 0xA0);
+const CImVector WOWEDIT_COLOR_ORIENTATION(0xFF, 0x30, 0x80, 0xFF);
+const CImVector WOWEDIT_COLOR_FACING(0x20, 0x20, 0xFF, 0xFF);
+const CImVector WOWEDIT_COLOR_PATH_POINT(0x00, 0xA0, 0xFF, 0xFF);
+const CImVector WOWEDIT_COLOR_PATH_LINE(0x20, 0x20, 0xFF, 0xFF);
+const CImVector WOWEDIT_COLOR_FLY_POINT(0x20, 0x20, 0xFF, 0xFF);
 
 // ---- Vector helpers
 
@@ -74,7 +74,7 @@ static bool GroundHeight(float x, float y, float z, C3Vector* hit) {
     return World::Intersect(start, end, hit, &distance, WORLD_QUERY_COLLISION_MASK, nullptr) != 0;
 }
 
-bool WorldEditGetGround(const C3Vector& position, C3Vector* ground, C3Vector* normal) {
+bool WowEditGetGround(const C3Vector& position, C3Vector* ground, C3Vector* normal) {
     C3Vector hit;
 
     if (!GroundHeight(position.x, position.y, position.z, &hit)) {
@@ -118,16 +118,16 @@ static MarkerFrame PlaceMarker(const C3Vector& position, float facingAngle, uint
     frame.position = position;
     frame.up = C3Vector(0.0f, 0.0f, 1.0f);
 
-    if (placement & (WORLDEDIT_SNAP_TO_GROUND | WORLDEDIT_ALIGN_TO_GROUND)) {
+    if (placement & (WOWEDIT_SNAP_TO_GROUND | WOWEDIT_ALIGN_TO_GROUND)) {
         C3Vector ground;
         C3Vector normal;
 
-        if (WorldEditGetGround(position, &ground, &normal)) {
-            if (placement & WORLDEDIT_SNAP_TO_GROUND) {
+        if (WowEditGetGround(position, &ground, &normal)) {
+            if (placement & WOWEDIT_SNAP_TO_GROUND) {
                 frame.position = ground;
             }
 
-            if (placement & WORLDEDIT_ALIGN_TO_GROUND) {
+            if (placement & WOWEDIT_ALIGN_TO_GROUND) {
                 frame.up = normal;
             }
         }
@@ -150,7 +150,7 @@ static MarkerFrame PlaceMarker(const C3Vector& position, float facingAngle, uint
 
 // The directional sphere's spike runs along its local +z: put local z on the facing and local y on the up axis, so
 // the spike lies along the ground (half in it, like the body) and turns with the slope when aligned.
-void WorldEditDrawSpawn(const C3Vector& position, float facing, float radius, const CImVector& color, uint32_t placement) {
+void WowEditDrawSpawn(const C3Vector& position, float facing, float radius, const CImVector& color, uint32_t placement) {
     MarkerFrame frame = PlaceMarker(position, facing, placement);
     GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_SPHERE, AxesTransform(frame.position, frame.side, frame.up, frame.facing, C3Vector(radius, radius, radius)), color, GXUDEBUGSTYLE_SOLID);
 }
@@ -158,7 +158,7 @@ void WorldEditDrawSpawn(const C3Vector& position, float facing, float radius, co
 // The ring is a unit-radius band around its local z, 4 units tall: local z on the up axis, flattened to a thin band.
 static const float ORIENTATION_RING_HEIGHT = 0.06f;
 
-void WorldEditDrawOrientation(const C3Vector& position, float facing, float radius, const CImVector& ringColor, const CImVector& lineColor, uint32_t placement) {
+void WowEditDrawOrientation(const C3Vector& position, float facing, float radius, const CImVector& ringColor, const CImVector& lineColor, uint32_t placement) {
     MarkerFrame frame = PlaceMarker(position, facing, placement);
     GxuDebugDrawShape(GXUDEBUGSHAPE_ROTATION_RING, AxesTransform(frame.position, frame.facing, frame.side, frame.up, C3Vector(radius, radius, ORIENTATION_RING_HEIGHT * 0.25f)), ringColor, GXUDEBUGSTYLE_SOLID);
 
@@ -166,7 +166,7 @@ void WorldEditDrawOrientation(const C3Vector& position, float facing, float radi
     GxuDebugDrawLine(frame.position, tip, lineColor);
 }
 
-void WorldEditDrawPath(const C3Vector* points, uint32_t count, float radius, const CImVector& pointColor, const CImVector& lineColor, uint32_t placement) {
+void WowEditDrawPath(const C3Vector* points, uint32_t count, float radius, const CImVector& pointColor, const CImVector& lineColor, uint32_t placement) {
     C3Vector previous;
 
     for (uint32_t i = 0; i < count; i++) {
@@ -182,7 +182,7 @@ void WorldEditDrawPath(const C3Vector* points, uint32_t count, float radius, con
 }
 
 // The diamond points along its local +z, is 1 wide along x and 0.5 along y: keep x horizontal so it lies flat.
-void WorldEditDrawPathPoint(const C3Vector& position, const C3Vector& direction, float size, const CImVector& color) {
+void WowEditDrawPathPoint(const C3Vector& position, const C3Vector& direction, float size, const CImVector& color) {
     C3Vector up(0.0f, 0.0f, 1.0f);
     C3Vector zAxis = direction;
 
@@ -200,41 +200,5 @@ void WorldEditDrawPathPoint(const C3Vector& position, const C3Vector& direction,
     GxuDebugDrawShape(GXUDEBUGSHAPE_DIRECTIONAL_DIAMOND, AxesTransform(position, xAxis, yAxis, zAxis, C3Vector(size, size, size)), color, GXUDEBUGSTYLE_SOLID);
 }
 
-// ---- Overlays
-
-struct WorldEditOverlay {
-    WORLDEDITOVERLAY m_func;
-    void* m_param;
-};
-
-static TSGrowableArray<WorldEditOverlay> s_overlays;
-
-void WorldEditRegisterOverlay(WORLDEDITOVERLAY overlay, void* param) {
-    for (uint32_t i = 0; i < s_overlays.m_count; i++) {
-        if (s_overlays.m_data[i].m_func == overlay && s_overlays.m_data[i].m_param == param) {
-            return;
-        }
-    }
-
-    WorldEditOverlay* entry = s_overlays.New();
-    entry->m_func = overlay;
-    entry->m_param = param;
-}
-
-void WorldEditUnregisterOverlay(WORLDEDITOVERLAY overlay, void* param) {
-    for (uint32_t i = 0; i < s_overlays.m_count; i++) {
-        if (s_overlays.m_data[i].m_func == overlay && s_overlays.m_data[i].m_param == param) {
-            s_overlays.m_data[i] = s_overlays.m_data[s_overlays.m_count - 1];
-            s_overlays.SetCount(s_overlays.m_count - 1);
-            return;
-        }
-    }
-}
-
-void WorldEditRenderOverlays() {
-    for (uint32_t i = 0; i < s_overlays.m_count; i++) {
-        s_overlays.m_data[i].m_func(s_overlays.m_data[i].m_param);
-    }
-}
 
 #endif

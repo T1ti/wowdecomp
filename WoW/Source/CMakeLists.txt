@@ -77,3 +77,7 @@ target_link_libraries(Wow
         WowServices
         WowSvcs
 )
+
+if (WOWDECOMP_TOOL_FEATURES)
+    target_link_libraries(Wow PRIVATE WowEdit)
+endif ()
