@@ -846,7 +846,7 @@ bool Blizzard::Storage::PartialFile::RebuildHeader(Blizzard::File::Filesystem* f
     Blizzard::Streaming::StorageEntry* entry = streaming->m_entry;
 
     Blizzard::Streaming::PartFileHeader header;
-    header.m_magic = 2;
+    header.m_magic = Blizzard::Streaming::PartFileHeader::MAGIC;
     Blizzard::String::Copy(header.m_version, entry->m_version.c_str(), sizeof(header.m_version));
     header.m_flags = entry->m_flags;
     header.m_size = entry->m_size;
@@ -904,7 +904,7 @@ bool Blizzard::Storage::PartialFile::ParseFile(Blizzard::File::Filesystem* fs, B
     int32_t amount = sizeof(header);
     Blizzard::File::Read(fs, file, &header, 0, &amount);
 
-    if (!header.m_blockSize || entry->m_version.compare(header.m_version) || header.m_size != file->m_info.m_size || header.m_magic != 2) {
+    if (!header.m_blockSize || entry->m_version.compare(header.m_version) || header.m_size != file->m_info.m_size || header.m_magic != Blizzard::Streaming::PartFileHeader::MAGIC) {
         return RebuildHeader(fs, file);
     }
 

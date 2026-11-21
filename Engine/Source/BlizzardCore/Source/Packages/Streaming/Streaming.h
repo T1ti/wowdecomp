@@ -76,6 +76,9 @@ struct StorageBlockRecord {
 
 #pragma pack(push, 4)
 struct PartFileHeader {
+    // The only m_magic RebuildHeader writes; ParseFile rebuilds any other.
+    static const int32_t MAGIC = 2;
+
     /* 0000 */ int32_t m_magic;
     /* 0004 */ char m_version[32];
     /* 0024 */ int32_t m_flags;
