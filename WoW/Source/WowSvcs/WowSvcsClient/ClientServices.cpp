@@ -2,6 +2,7 @@
 #include <cstring>
 #include "ClientServices.h"
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
+#include "Engine/Source/BlizzardCore/Source/Packages/Mopaq/Types.h"
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/ConsoleBase/Types.h"
@@ -423,7 +424,7 @@ void ClientServices::LoadCDKey() {
 
     SArchive* archive;
 
-    if (!SFile::OpenArchive("Data\\base.MPQ", 100, 0x800, &archive) || !archive) {
+    if (!SFile::OpenArchive("Data\\base.MPQ", 100, System_SFile::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN, &archive) || !archive) {
         return;
     }
 

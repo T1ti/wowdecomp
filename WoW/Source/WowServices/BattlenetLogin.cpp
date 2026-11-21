@@ -6,6 +6,7 @@
 #include <cstring>
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
+#include "Engine/Source/BlizzardCore/Source/Packages/Mopaq/Types.h"
 #include "Engine/Source/BlizzardCore/Source/System/Version/Version.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
@@ -304,7 +305,7 @@ static uint32_t GetWowLangVersion(const char* locale) {
             }
         }
 
-        if (!SFile::OpenArchive(path, 0, 0x800, &archive)) {
+        if (!SFile::OpenArchive(path, 0, System_SFile::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN, &archive)) {
             return GAME_BUILD;
         }
     }

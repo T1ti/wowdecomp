@@ -7,6 +7,7 @@
 #include "Engine/Source/Base/CmdLine.h"
 #include "Engine/Source/BlizzardCore/OggDecompress.h"
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
+#include "Engine/Source/BlizzardCore/Source/Packages/Mopaq/Types.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Manifests.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Streaming.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Tracker.h"
@@ -1122,7 +1123,7 @@ static bool OpenArchiveWithRetry(const char* name, int32_t priority, uint32_t sl
             continue;
         }
 
-        if (SFile::OpenArchive(path, priority, 0xC00, &s_archiveHandles[slot])) {
+        if (SFile::OpenArchive(path, priority, System_SFile::ARCHIVE_FLAG_CONVERT_LEGACY_TABLES | System_SFile::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN, &s_archiveHandles[slot])) {
             return true;
         }
 
@@ -1370,7 +1371,7 @@ static void OpenArchives() {
     s_archiveHandles.SetCount(64);
 
     for (uint32_t i = patches.m_files.Count(); i; i--) {
-        if (SFile::OpenArchive(patches.m_files[i - 1], priority, 0xC00, &s_archiveHandles[slot])) {
+        if (SFile::OpenArchive(patches.m_files[i - 1], priority, System_SFile::ARCHIVE_FLAG_CONVERT_LEGACY_TABLES | System_SFile::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN, &s_archiveHandles[slot])) {
             if (SStrStrI(patches.m_files[i - 1], "Start.MPQ")) {
                 s_startArchivePriority = priority;
             }

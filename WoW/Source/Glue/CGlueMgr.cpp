@@ -7,6 +7,7 @@
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/Base/Coordinate.h"
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
+#include "Engine/Source/BlizzardCore/Source/Packages/Mopaq/Types.h"
 #include "Engine/Source/BlizzardCore/Source/Packages/Streaming/Streaming.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
@@ -619,7 +620,7 @@ void CGlueMgr::ProcessAgreements(CGlueMgr::Agreements* agreements) {
 
     SArchive* archive;
 
-    if (!SFile::OpenArchive(path, 0, 0x800, &archive)) {
+    if (!SFile::OpenArchive(path, 0, System_SFile::ARCHIVE_FLAG_INITIALIZE_TABLES_ON_OPEN, &archive)) {
         OsDeleteFile(path);
         return;
     }
