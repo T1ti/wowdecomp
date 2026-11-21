@@ -1637,9 +1637,9 @@ void CGWorldFrame::UpdateObject(CGObject_C* object, uint32_t flags) {
     }
 
     int32_t render = 0;
-    int32_t a3 = 0;
-    object->ShouldRender(flags, render, a3);
-    BOOL visible = render || a3 ? 0 : 1;
+    int32_t hidden = 0;
+    object->ShouldRender(flags, render, hidden);
+    BOOL visible = render || hidden ? 0 : 1;
 
     object->PreAnimate(this);
 

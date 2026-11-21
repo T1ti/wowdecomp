@@ -36,10 +36,10 @@ bool CGGameObject_C_Type_DungeonDifficulty::CanUse() const {
 // OFFSET: 0x0070DD70
 void CGGameObject_C_Type_DungeonDifficulty::HandleAnimEvent(uint32_t eventId, uint32_t data, const C3Vector& position, uint32_t time) {
     int32_t render = 0;
-    int32_t a3 = 0;
-    this->ShouldRender(0, render, a3);
+    int32_t hidden = 0;
+    this->ShouldRender(0, render, hidden);
 
-    if (!a3) {
+    if (!hidden) {
         GameObject_C_ProcessAnimEvent(eventId, this->m_owner->m_gameObject->m_displayID, data, position, &this->m_sound);
     }
 }

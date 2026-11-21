@@ -530,7 +530,7 @@ static int32_t Script_PetFollow(lua_State* L) {
 // VERIFY: 4e80b8d7 auto
 // OFFSET: 0x005D55B0
 static int32_t Script_PetAttack(lua_State* L) {
-    int32_t a3 = 0;
+    BOOL useGiven = 0;
     WOWGUID target = WOWGUID();
     const char* token = lua_tolstring(L, 1, nullptr);
 
@@ -539,12 +539,12 @@ static int32_t Script_PetAttack(lua_State* L) {
             target = CGGameUI::ClosestObjectMatch(token, 8, UNIT_TARGET_ENEMY, StringToBOOL(L, 2, 0), FLT_MAX, 1);
         }
 
-        a3 = 1;
+        useGiven = 1;
     }
 
     PetAction action;
     action.m_data = 0x07000002;
-    CGPetInfo::SendPetAction(action, target, a3);
+    CGPetInfo::SendPetAction(action, target, useGiven);
     return 0;
 }
 

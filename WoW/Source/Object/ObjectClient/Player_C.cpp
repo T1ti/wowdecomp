@@ -4320,15 +4320,15 @@ int32_t Packet_Group_18(void* param, NETMESSAGE msgId, uint32_t time, CDataStore
             return 1;
         }
         case SMSG_SOCKET_GEMS: {
-            uint32_t a2 = 0;
-            msg->Get(a2);
-            uint32_t a3 = 0;
-            msg->Get(a3);
-            uint32_t a4 = 0;
-            msg->Get(a4);
-            uint32_t a5 = 0;
-            msg->Get(a5);
-            item->UpdateSockets(a2, a3, a4, a5);
+            uint32_t gem1 = 0;
+            msg->Get(gem1);
+            uint32_t gem2 = 0;
+            msg->Get(gem2);
+            uint32_t gem3 = 0;
+            msg->Get(gem3);
+            uint32_t socketBonus = 0;
+            msg->Get(socketBonus);
+            item->UpdateSockets(gem1, gem2, gem3, socketBonus);
             return 1;
         }
         default:
@@ -9021,10 +9021,10 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
 
     switch (msgId) {
         case SMSG_FORCEACTIONSHOW: {
-            uint32_t a1;
-            uint32_t a2;
-            msg->Get(a1);
-            msg->Get(a2);
+            uint32_t unknown1;
+            uint32_t unknown2;
+            msg->Get(unknown1);
+            msg->Get(unknown2);
             return 1;
         }
 
@@ -9092,15 +9092,15 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
                 }
 
                 case BAG_AUTOEQUIP_BIND_CONFIRM: {
-                    uint64_t a2 = 0;
-                    uint32_t a3 = 0;
-                    uint64_t a4 = 0;
-                    msg->Get(a2);
-                    msg->Get(a3);
-                    msg->Get(a4);
+                    uint64_t srcContainer = 0;
+                    uint32_t srcSlot = 0;
+                    uint64_t dstContainer = 0;
+                    msg->Get(srcContainer);
+                    msg->Get(srcSlot);
+                    msg->Get(dstContainer);
 
                     if (player) {
-                        CGPlayer_C::ServerBindConfirm(item, a2, a3, a4, bag);
+                        CGPlayer_C::ServerBindConfirm(item, srcContainer, srcSlot, dstContainer, bag);
                     }
 
                     break;
@@ -9160,11 +9160,11 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
         case SMSG_INSTANCE_LOCK_WARNING_QUERY: {
             uint32_t lockTime = 0;
             msg->Get(lockTime);
-            uint32_t a2 = 0;
-            msg->Get(a2);
-            uint8_t a3 = 0;
-            msg->Get(a3);
-            CGGameUI::SetInstanceLockTime(lockTime, a2, a3);
+            uint32_t completedMask = 0;
+            msg->Get(completedMask);
+            uint8_t extending = 0;
+            msg->Get(extending);
+            CGGameUI::SetInstanceLockTime(lockTime, completedMask, extending);
             return 1;
         }
 
@@ -9173,10 +9173,10 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
             return 1;
 
         case SMSG_BINDZONEREPLY: {
-            uint32_t a1;
-            uint32_t a2;
-            msg->Get(a1);
-            msg->Get(a2);
+            uint32_t unknown1;
+            uint32_t unknown2;
+            msg->Get(unknown1);
+            msg->Get(unknown2);
             return 1;
         }
 
@@ -9731,12 +9731,12 @@ int32_t Packet_Group_9(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
 
         case SMSG_REPORT_PVP_AFK_RESULT: {
             uint8_t result;
-            uint8_t a2;
-            uint8_t a3;
+            uint8_t unknown1;
+            uint8_t unknown2;
             WOWGUID guid;
             msg->Get(result);
-            msg->Get(a2);
-            msg->Get(a3);
+            msg->Get(unknown1);
+            msg->Get(unknown2);
             msg->Get(guid.m_guid);
             const char* text;
 
