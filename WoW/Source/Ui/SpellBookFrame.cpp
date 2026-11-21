@@ -655,7 +655,7 @@ void CGSpellBook::AddKnownSpell(int32_t spellId, BOOL notify, int32_t replaceSpe
 
         s_skillInfos.m_data[s_numSkillInfos]->m_skillLine = skillLine;
         s_skillInfos.m_data[s_numSkillInfos]->m_count = 1;
-        s_skillInfos.m_data[s_numSkillInfos++]->m_unk08 = 1;
+        s_skillInfos.m_data[s_numSkillInfos++]->m_visibleCount = 1;
     }
 
     s_spellList[s_numSpells++] = spellId;
@@ -773,7 +773,7 @@ void CGSpellBook::UpdateSpells(BOOL sortSpells, BOOL sortPetSpells, BOOL updateS
             }
         }
 
-        s_skillInfos.m_data[tab]->m_unk08 = visible;
+        s_skillInfos.m_data[tab]->m_visibleCount = visible;
         spellIndex += s_skillInfos.m_data[tab]->m_count - 1;
     }
 

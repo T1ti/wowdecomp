@@ -150,12 +150,12 @@ static int32_t Script_GetSpellTabInfo(lua_State* L) {
 
     if (index && static_cast<uint32_t>(index) < s_numSkillInfos) {
         for (int32_t i = index - 1; i >= 0; i--) {
-            visibleOffset += s_skillInfos.m_data[i]->m_unk08;
+            visibleOffset += s_skillInfos.m_data[i]->m_visibleCount;
         }
     }
 
     lua_pushnumber(L, visibleOffset);
-    lua_pushnumber(L, info->m_unk08);
+    lua_pushnumber(L, info->m_visibleCount);
     return 6;
 }
 

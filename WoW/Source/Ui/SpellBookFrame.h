@@ -26,7 +26,7 @@ struct SpellUsableInfo {
 struct SpellBookSkillInfo {
     /* 0000 */ int32_t m_skillLine;
     /* 0004 */ uint32_t m_count;
-    /* 0008 */ uint32_t m_unk08;
+    /* 0008 */ uint32_t m_visibleCount;
 };
 
 struct SPELLRANKNODE : public TSLinkedNode<SPELLRANKNODE> {
