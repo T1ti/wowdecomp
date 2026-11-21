@@ -343,11 +343,11 @@ static const char* s_cameraTerrainTiltStateDefaults[NUM_CAMERA_SMOOTH_STYLES][NU
 static bool ValidateCameraView(CVar* var, const char* oldValue, const char* value, void* arg) {
     float view = SStrToFloat(value);
 
-    if (view >= 0.0f && view <= 7.0f) {
+    if (view >= CGCamera::VIEW_FIRST_PERSON && view <= CGCamera::VIEW_BARBER_SHOP) {
         return true;
     }
 
-    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, 0.0, 7.0);
+    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, static_cast<double>(CGCamera::VIEW_FIRST_PERSON), static_cast<double>(CGCamera::VIEW_BARBER_SHOP));
     return false;
 }
 
@@ -436,11 +436,12 @@ static bool ValidateCameraLinearSpeed(CVar* var, const char* oldValue, const cha
 static bool ValidateCameraSmoothStyle(CVar* var, const char* oldValue, const char* value, void* arg) {
     float style = SStrToFloat(value);
 
-    if (style >= 0.0f && style <= 5.0f) {
+    // The upper bound admits NUM_CAMERA_SMOOTH_STYLES itself.
+    if (style >= CAMERA_SMOOTH_STYLE_NEVER && style <= NUM_CAMERA_SMOOTH_STYLES) {
         return true;
     }
 
-    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, 0.0, 5.0);
+    ConsoleWriteA("Value out of range (%f - %f)\n", DEFAULT_COLOR, static_cast<double>(CAMERA_SMOOTH_STYLE_NEVER), static_cast<double>(NUM_CAMERA_SMOOTH_STYLES));
     return false;
 }
 
