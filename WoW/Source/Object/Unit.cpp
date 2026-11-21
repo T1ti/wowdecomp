@@ -232,13 +232,17 @@ const WOWGUID* CGUnit::GetCharmerOrCreatorGuid() const {
     return &unit->m_unitFieldCreatedby;
 }
 
+// Melee range is both combat reaches plus a 4/3 yard bonus, never below 5 yards. Names inferred.
+static const float MELEE_RANGE_BONUS = 1.3333334f;
+static const float MIN_MELEE_RANGE = 5.0f;
+
 // VERIFY: 5d850478 auto
 // OFFSET: 0x004F5F40
 float CGUnit::GetMeleeRange(const CGUnit* target) const {
-    float range = target->m_unit->m_unitFieldCombatreach + this->m_unit->m_unitFieldCombatreach + 1.3333334f;
+    float range = target->m_unit->m_unitFieldCombatreach + this->m_unit->m_unitFieldCombatreach + MELEE_RANGE_BONUS;
 
-    if (range < 5.0f) {
-        return 5.0f;
+    if (range < MIN_MELEE_RANGE) {
+        return MIN_MELEE_RANGE;
     }
 
     return range;
