@@ -12,9 +12,19 @@ enum MINIGAME_TYPE : uint32_t {
     MINIGAME_TICTACTOE = 1,
 };
 
+// Setup state byte from SMSG_MINIGAME_SETUP, widened to a DWORD in MiniGameData.
+// Names inferred: 0 is the constructor value; only UNKNOWN_2 carries an extra trailing byte.
+enum MINIGAME_STATE : uint32_t {
+    MINIGAME_STATE_NONE = 0,
+    MINIGAME_STATE_UNKNOWN_2 = 2,
+};
+
+static const uint32_t TICTACTOE_NUM_SQUARES = 9;
+static const uint8_t TICTACTOE_SQUARE_EMPTY = 0xFF; // Name inferred from ValidateMove.
+
 struct MiniGameData {
     /* 0000 */ MINIGAME_TYPE m_type; // Runtime DWORD tag; the setup packet supplies a separate byte.
-    /* 0004 */ uint8_t m_state;
+    /* 0004 */ MINIGAME_STATE m_state;
     /* 0008 */ uint64_t m_guid;
     /* 0010 */ uint64_t unk_0010;
     /* 0018 */ uint64_t unk_0018;
