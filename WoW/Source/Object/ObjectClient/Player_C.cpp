@@ -1494,7 +1494,7 @@ int32_t CGPlayer_C::CheckSpiritHealerDistance() {
     float dx = unitPosition.x - position.x;
     float dy = unitPosition.y - position.y;
     float dz = unitPosition.z - position.z;
-    float range = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float range = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     return dy * dy + dx * dx + dz * dz <= range * range;
 }
@@ -1513,7 +1513,7 @@ int32_t CGPlayer_C::CheckTalentMasterDistance() {
     float dx = unitPosition.x - position.x;
     float dy = unitPosition.y - position.y;
     float dz = unitPosition.z - position.z;
-    float range = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float range = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     return dy * dy + dx * dx + dz * dz <= range * range;
 }
@@ -1532,7 +1532,7 @@ int32_t CGPlayer_C::CheckBinderDistance() {
     float dx = unitPosition.x - position.x;
     float dy = unitPosition.y - position.y;
     float dz = unitPosition.z - position.z;
-    float range = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float range = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     return dy * dy + dx * dx + dz * dz <= range * range;
 }
@@ -6089,7 +6089,7 @@ void CGPlayer_C::TalkToBinder(const WOWGUID& guid) {
     float dx = unitPosition.x - position.x;
     float dy = unitPosition.y - position.y;
     float dz = unitPosition.z - position.z;
-    float range = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float range = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     if (dy * dy + dx * dx + dz * dz > range * range) {
         return;
@@ -6182,7 +6182,7 @@ void CGPlayer_C::TalkToSpiritHealer(const WOWGUID& guid) {
     float dx = unitPosition.x - position.x;
     float dy = unitPosition.y - position.y;
     float dz = unitPosition.z - position.z;
-    float range = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float range = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     if (dy * dy + dx * dx + dz * dz > range * range) {
         return;
@@ -6497,7 +6497,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
     float distanceSq = dz * dz + dy * dy + dx * dx;
 
     if (autoInteract) {
-        float reach = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+        float reach = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
         if (reach * reach < distanceSq) {
             WOWGUID guid = unit->m_obj->m_guid;
@@ -6508,7 +6508,7 @@ void CGPlayer_C::HandleOnRightClick(CGUnit_C* unit, bool autoInteract) {
         }
     }
 
-    float reach = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float reach = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     if (reach * reach < distanceSq) {
         if (!autoInteract) {
@@ -14278,7 +14278,7 @@ void CGPlayer_C::TalkToTalentMaster(const WOWGUID& guid, uint32_t cost) {
     C3Vector unitPosition = unit->GetPosition();
     float dy = unitPosition.y - position.y;
     float dx = unitPosition.x - position.x;
-    float reach = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+    float reach = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
 
     if (reach * reach < dx * dx + dy * dy + (unitPosition.z - position.z) * (unitPosition.z - position.z)) {
         return;

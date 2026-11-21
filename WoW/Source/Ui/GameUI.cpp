@@ -4493,7 +4493,7 @@ void CGGameUI::SetInteractTarget(const WOWGUID& guid) {
         }
 
         CGUnit_C* unit = static_cast<CGUnit_C*>(object);
-        float reach = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+        float reach = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
         CGGameUI::m_interactMaxDistSq = reach * reach;
 
         if (!same) {
@@ -6306,7 +6306,7 @@ static int32_t AutoMouseOverProc(WOWGUID guid, void* param) {
         float rangeSq;
 
         if (player->CanInteractNow(unit) && unit->m_unit->m_unitNpcFlags) {
-            rangeSq = (unit->m_unit->m_unitFieldCombatreach + 4.0f) * (unit->m_unit->m_unitFieldCombatreach + 4.0f);
+            rangeSq = (unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE) * (unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE);
         } else if (unit->CanBeLooted(data->m_time)) {
             if (!player->CanLoot(unit) && player->m_lootTarget != unit->m_obj->m_guid) {
                 return 1;

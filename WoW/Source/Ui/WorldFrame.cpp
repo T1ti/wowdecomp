@@ -681,7 +681,7 @@ void __stdcall CGWorldFrame::CursorTrackUnit(CGUnit_C* unit) {
     float distance = player->GetDistanceToPos(unit->GetPosition());
 
     if (player->CanInteractNow(unit) && unit->m_unit->m_unitNpcFlags) {
-        float reach = unit->m_unit->m_unitFieldCombatreach + 4.0f;
+        float reach = unit->m_unit->m_unitFieldCombatreach + NPC_INTERACT_DISTANCE;
         int32_t unable = reach * reach < distance;
         int32_t mode = unit->GetCursorOverride(unable);
 

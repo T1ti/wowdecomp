@@ -183,6 +183,10 @@ enum SKINNING_TYPE : uint32_t {
     NUM_SKINNING_TYPES = 4,
 };
 
+// Added to an NPC's combat reach to get the distance it can be interacted with from
+// (ERR_TOO_FAR_TO_INTERACT past it). Name inferred.
+constexpr float NPC_INTERACT_DISTANCE = 4.0f;
+
 #ifdef WOWDECOMP_DEBUG_FEATURES
 class ATTACKROUNDINFO;
 #endif
