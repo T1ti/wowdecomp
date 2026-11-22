@@ -147,7 +147,7 @@ int32_t MapObjGroupToBin(const CMapObjGroup& group, TSGrowableArray<uint8_t>& ou
     SMOGroupHeader header = {};
     header.m_groupName = group.m_groupName ? static_cast<uint32_t>(group.m_groupName - parent->m_groupNameList) : 0;
     header.m_descriptiveGroupName = 0; // TODO: not kept by the reader; take it from the root MOGN when rebuilding.
-    header.m_flags = group.m_flags; // F_USE_SKYBOX may have been cleared at load when the root has no skybox.
+    header.flags = group.m_flags; // F_USE_SKYBOX may have been cleared at load when the root has no skybox.
     header.m_boundingBox = group.m_bbox;
     header.m_portalStart = static_cast<uint16_t>(group.m_portalStart);
     header.m_portalCount = static_cast<uint16_t>(group.m_portalCount);

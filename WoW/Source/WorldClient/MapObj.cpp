@@ -1036,7 +1036,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             CGxBatch draw;
             draw.m_primType = GxPrim_Triangles;
             draw.m_start = batch.m_indexStart;
-            draw.m_count = batch.m_indexCount;
+            draw.m_count = batch.count;
             draw.m_minIndex = batch.m_vertexStart;
             draw.m_maxIndex = batch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&draw, 1);
@@ -1059,7 +1059,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             CGxBatch draw;
             draw.m_primType = GxPrim_Triangles;
             draw.m_start = batch.m_indexStart;
-            draw.m_count = batch.m_indexCount;
+            draw.m_count = batch.count;
             draw.m_minIndex = batch.m_vertexStart;
             draw.m_maxIndex = batch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&draw, 1);
@@ -1078,7 +1078,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
             CGxBatch draw2;
             draw2.m_primType = GxPrim_Triangles;
             draw2.m_start = batch.m_indexStart;
-            draw2.m_count = batch.m_indexCount;
+            draw2.m_count = batch.count;
             draw2.m_minIndex = batch.m_vertexStart;
             draw2.m_maxIndex = batch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&draw2, 1);
@@ -1094,7 +1094,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch.m_indexStart;
-        draw.m_count = batch.m_indexCount;
+        draw.m_count = batch.count;
         draw.m_minIndex = batch.m_vertexStart;
         draw.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw, 1);
@@ -1106,7 +1106,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw2;
         draw2.m_primType = GxPrim_Triangles;
         draw2.m_start = batch.m_indexStart;
-        draw2.m_count = batch.m_indexCount;
+        draw2.m_count = batch.count;
         draw2.m_minIndex = batch.m_vertexStart;
         draw2.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw2, 1);
@@ -1119,7 +1119,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw3;
         draw3.m_primType = GxPrim_Triangles;
         draw3.m_start = batch.m_indexStart;
-        draw3.m_count = batch.m_indexCount;
+        draw3.m_count = batch.count;
         draw3.m_minIndex = batch.m_vertexStart;
         draw3.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw3, 1);
@@ -1462,7 +1462,7 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch.m_indexStart;
-        draw.m_count = batch.m_indexCount;
+        draw.m_count = batch.count;
         draw.m_minIndex = batch.m_vertexStart;
         draw.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw, 1);
@@ -1581,7 +1581,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
             CGxBatch draw;
             draw.m_primType = GxPrim_Triangles;
             draw.m_start = batch.m_indexStart;
-            draw.m_count = batch.m_indexCount;
+            draw.m_count = batch.count;
             draw.m_minIndex = batch.m_vertexStart;
             draw.m_maxIndex = batch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&draw, 1);
@@ -1602,7 +1602,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch.m_indexStart;
-        draw.m_count = batch.m_indexCount;
+        draw.m_count = batch.count;
         draw.m_minIndex = batch.m_vertexStart;
         draw.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw, 1);
@@ -1621,7 +1621,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw2;
         draw2.m_primType = GxPrim_Triangles;
         draw2.m_start = batch.m_indexStart;
-        draw2.m_count = batch.m_indexCount;
+        draw2.m_count = batch.count;
         draw2.m_minIndex = batch.m_vertexStart;
         draw2.m_maxIndex = batch.m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw2, 1);
@@ -1908,8 +1908,8 @@ void CMapObj::Clear() {
     }
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_mapObjGroupCount); i++) {
-        CMap::FreeMapObjGroup(this->m_mapObjGroupArray[i]);
-        this->m_mapObjGroupArray[i] = nullptr;
+        CMap::FreeMapObjGroup(this->groupPtrList[i]);
+        this->groupPtrList[i] = nullptr;
     }
 
     this->m_mapObjGroupCount = 0;
@@ -1930,7 +1930,7 @@ void CMapObj::Clear() {
 // OFFSET: 0x007AE4C0
 BOOL CMapObj::IsGroupLoaded(int32_t index) {
     if (this->m_isGroupLoaded) {
-        return this->m_mapObjGroupArray[index]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED;
+        return this->groupPtrList[index]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED;
     }
 
     return 0;
@@ -1939,7 +1939,7 @@ BOOL CMapObj::IsGroupLoaded(int32_t index) {
 // VERIFY: 2a027261 manual
 // OFFSET: 0x007AE4F0
 BOOL CMapObj::IsGroupLoading(int32_t index) {
-    return this->m_isGroupLoaded && this->m_mapObjGroupArray[index]->m_asyncObjPtr != nullptr;
+    return this->m_isGroupLoaded && this->groupPtrList[index]->m_asyncObjPtr != nullptr;
 }
 
 // VERIFY: bd150d57 manual
@@ -2044,13 +2044,13 @@ bool CMapObj::TestBounds(C3Vector& start, C3Vector& end) {
 // VERIFY: 735b2379 auto
 // OFFSET: 0x007AE880
 bool CMapObj::TestGroupBounds(C3Vector& start, C3Vector& end, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
+    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
 }
 
 // VERIFY: 6fd4dc44 auto
 // OFFSET: 0x007AE970
 bool CMapObj::GroupBoundingBoxIntersectsSphere(C3Vector& pos, uint32_t groupNum, float radius) {
-    if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!this->m_isGroupLoaded || !(this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
     }
 
@@ -2070,7 +2070,7 @@ CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
         return nullptr;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[index];
+    CMapObjGroup* group = this->groupPtrList[index];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !allowUnloaded) {
         return nullptr;
@@ -2082,7 +2082,7 @@ CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
 // VERIFY: 0d13eb33 auto
 // OFFSET: 0x007AEAB0
 void CMapObj::WaitLoadGroup(uint32_t index) {
-    CMapObjGroup* group = this->m_mapObjGroupArray[index];
+    CMapObjGroup* group = this->groupPtrList[index];
 
     while (group->m_asyncObjPtr) {
         AsyncFileReadWait(group->m_asyncObjPtr);
@@ -2093,7 +2093,7 @@ void CMapObj::WaitLoadGroup(uint32_t index) {
 // OFFSET: 0x007AEAE0
 char* CMapObj::GetGroupName(int32_t index) {
     if (this->m_isGroupLoaded) {
-        CMapObjGroup* group = this->m_mapObjGroupArray[index];
+        CMapObjGroup* group = this->groupPtrList[index];
 
         if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) {
             return group->m_groupName;
@@ -2152,7 +2152,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
         if (useSphere) {
             hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.01f);
         } else {
-            if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[g]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+            if (!this->m_isGroupLoaded || !(this->groupPtrList[g]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
                 continue;
             }
 
@@ -2163,7 +2163,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[g];
+        CMapObjGroup* group = this->groupPtrList[g];
 
         if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             continue;
@@ -2457,7 +2457,7 @@ bool CMapObj::QueryLiquidStatus(uint32_t ignoreFlags, const C3Vector& pos, int32
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[i];
+        CMapObjGroup* group = this->groupPtrList[i];
 
         if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && group->QueryLiquid(pos, liquidType, level)) {
             return true;
@@ -2733,7 +2733,7 @@ void CMapObj::DistFromClosestExtPortal(uint32_t depth, uint32_t flags, CMapObjGr
 
     for (int32_t i = 0; i < group->m_portalCount; i++) {
         SMOPortalRef& ref = this->m_portalRefList[group->m_portalStart + i];
-        CMapObjGroup* other = this->m_mapObjGroupArray[ref.m_groupIndex];
+        CMapObjGroup* other = this->groupPtrList[ref.m_groupIndex];
 
         if (!other || other == fromGroup) {
             continue;
@@ -2779,7 +2779,7 @@ bool CMapObj::GetTris(const CAaBox& box, uint32_t flags, World::TriData* triData
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[i];
+        CMapObjGroup* group = this->groupPtrList[i];
 
         if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(box, flags, ignoreFlags, triData, mapObjDef);
@@ -2805,7 +2805,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[i];
+        CMapObjGroup* group = this->groupPtrList[i];
 
         if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
             result |= group->GetLiquidFacets(box, flags, facets, mapObjDef);
@@ -2818,7 +2818,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 // VERIFY: d6cd6b2c auto
 // OFFSET: 0x007AE920
 bool CMapObj::TestGroupBounds(const C3Vector& point, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
+    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
 }
 
 // VERIFY: 15693e65 auto
@@ -2828,7 +2828,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
         return false;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
@@ -2843,7 +2843,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 // VERIFY: d090e248 manual
 // OFFSET: 0x007AE8D0
 bool CMapObj::TestGroupBounds(CAaBox& box, uint32_t groupNum, BOOL requireLoaded) {
-    return (!requireLoaded || (this->m_isGroupLoaded && (this->m_mapObjGroupArray[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
+    return (!requireLoaded || (this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
 }
 
 // VERIFY: aacb9f67 manual
@@ -2853,7 +2853,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Vector& point, uint16_t f
         return false;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
@@ -2871,7 +2871,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
         return false;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
@@ -2906,7 +2906,7 @@ bool CMapObj::GetTris(const CWFrustum& frustum, uint32_t flags, World::TriData* 
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[i];
+        CMapObjGroup* group = this->groupPtrList[i];
 
         if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(frustum, flags, ignoreFlags, triData, mapObjDef);
@@ -3027,7 +3027,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
         return;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return;
@@ -3078,7 +3078,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
         CMapObjGroup* targetGroup;
 
-        if (!this->m_isGroupLoaded || !((targetGroup = this->m_mapObjGroupArray[target])->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
+        if (!this->m_isGroupLoaded || !((targetGroup = this->groupPtrList[target])->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
             this->QueryMapObjMinimapGroup(target, groupNum, box, quads, maxQuads, inside, flagsMask, ++depth);
         }
     }
@@ -3094,7 +3094,7 @@ bool CMapObj::QueryMapObjMinimap(int32_t groupNum, CAaBox* box, TSStackArray<MIN
     }
 
     CAaBox query = *box;
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
@@ -3119,7 +3119,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
         return false;
     }
 
-    CMapObjGroup* group = this->m_mapObjGroupArray[groupNum];
+    CMapObjGroup* group = this->groupPtrList[groupNum];
 
     if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
         return false;
@@ -3141,7 +3141,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
     for (int32_t i = 0; i < group->m_portalCount; i++, ref++) {
         SMOPortal& portal = this->m_portalList[ref->m_portalIndex];
 
-        if (!this->m_isGroupLoaded || !(this->m_mapObjGroupArray[ref->m_groupIndex]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!this->m_isGroupLoaded || !(this->groupPtrList[ref->m_groupIndex]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             continue;
         }
 
@@ -3246,7 +3246,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
             CGxBatch batch;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = smoBatch.m_indexStart;
-            batch.m_count = smoBatch.m_indexCount;
+            batch.m_count = smoBatch.count;
             batch.m_minIndex = smoBatch.m_vertexStart;
             batch.m_maxIndex = smoBatch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&batch, 1);
@@ -3330,7 +3330,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
             CGxBatch batch;
             batch.m_primType = GxPrim_Triangles;
             batch.m_start = smoBatch.m_indexStart;
-            batch.m_count = smoBatch.m_indexCount;
+            batch.m_count = smoBatch.count;
             batch.m_minIndex = smoBatch.m_vertexStart;
             batch.m_maxIndex = smoBatch.m_vertexEnd;
             g_theGxDevicePtr->Draw(&batch, 1);
@@ -3360,7 +3360,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
             continue;
         }
 
-        CMapObjGroup* group = this->m_mapObjGroupArray[i];
+        CMapObjGroup* group = this->groupPtrList[i];
 
         if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (groupIgnoreFlags & group->m_flags)) {
             continue;
@@ -3513,7 +3513,7 @@ void CMapObj::RenderGroupLightmapTex(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch->m_indexStart;
-        draw.m_count = batch->m_indexCount;
+        draw.m_count = batch->count;
         draw.m_minIndex = batch->m_vertexStart;
         draw.m_maxIndex = batch->m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw, 1);
@@ -3554,7 +3554,7 @@ void CMapObj::RenderGroupColorTex(CMapObjGroup* group, uint32_t index) {
         CGxBatch draw;
         draw.m_primType = GxPrim_Triangles;
         draw.m_start = batch->m_indexStart;
-        draw.m_count = batch->m_indexCount;
+        draw.m_count = batch->count;
         draw.m_minIndex = batch->m_vertexStart;
         draw.m_maxIndex = batch->m_vertexEnd;
         g_theGxDevicePtr->Draw(&draw, 1);
@@ -4056,7 +4056,7 @@ BOOL CMapObj::IsAllLoaded() {
     }
 
     for (int32_t i = 0; i < this->m_groupInfoCount; i++) {
-        if (!(this->m_mapObjGroupArray[i]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!(this->groupPtrList[i]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
             return 0;
         }
     }

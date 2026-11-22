@@ -17,6 +17,7 @@
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include <cstdint>
+#include "MapObjRead.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
 class C3Vector;
@@ -24,48 +25,6 @@ class CAaBsp;
 class CMapObj;
 class CMapObjGroup;
 class CStatus;
-
-// WMO chunk tags (stored byte-reversed on disk like every IFF tag the client reads, see SIffChunk).
-enum WMOTOKEN : uint32_t {
-    WMOTOKEN_MVER = 0x4D564552, // version, both files
-    // root file, in CMapObj::Load order
-    WMOTOKEN_MOHD = 0x4D4F4844,
-    WMOTOKEN_MOTX = 0x4D4F5458,
-    WMOTOKEN_MOMT = 0x4D4F4D54,
-    WMOTOKEN_MOGN = 0x4D4F474E,
-    WMOTOKEN_MOGI = 0x4D4F4749,
-    WMOTOKEN_MOSB = 0x4D4F5342,
-    WMOTOKEN_MOPV = 0x4D4F5056,
-    WMOTOKEN_MOPT = 0x4D4F5054,
-    WMOTOKEN_MOPR = 0x4D4F5052,
-    WMOTOKEN_MOVV = 0x4D4F5656,
-    WMOTOKEN_MOVB = 0x4D4F5642,
-    WMOTOKEN_MOLT = 0x4D4F4C54,
-    WMOTOKEN_MODS = 0x4D4F4453,
-    WMOTOKEN_MODN = 0x4D4F444E,
-    WMOTOKEN_MODD = 0x4D4F4444,
-    WMOTOKEN_MFOG = 0x4D464F47,
-    WMOTOKEN_MCVP = 0x4D435650,
-    // group file, in CreateDataPointers / CreateOptionalDataPointers order
-    WMOTOKEN_MOGP = 0x4D4F4750,
-    WMOTOKEN_MOPY = 0x4D4F5059,
-    WMOTOKEN_MOVI = 0x4D4F5649,
-    WMOTOKEN_MOVT = 0x4D4F5654,
-    WMOTOKEN_MONR = 0x4D4F4E52,
-    WMOTOKEN_MOTV = 0x4D4F5456,
-    WMOTOKEN_MOBA = 0x4D4F4241,
-    WMOTOKEN_MOLR = 0x4D4F4C52,
-    WMOTOKEN_MODR = 0x4D4F4452,
-    WMOTOKEN_MOBN = 0x4D4F424E,
-    WMOTOKEN_MOBR = 0x4D4F4252,
-    WMOTOKEN_MOCV = 0x4D4F4356,
-    WMOTOKEN_MLIQ = 0x4D4C4951,
-    WMOTOKEN_MORI = 0x4D4F5249,
-    WMOTOKEN_MORB = 0x4D4F5242,
-};
-
-// The only WMO version the 3.3.5 client reads.
-static const uint32_t WMO_FILE_VERSION = 17;
 
 // Appends IFF chunks (token, size, data) to a buffer. Chunks may nest (MOGP wraps the whole group body): BeginChunk
 // returns the chunk's offset and EndChunk patches its size.

@@ -134,7 +134,7 @@ struct SIffChunk {
         TOKEN_MWMO = 0x4D574D4F, // 'MWMO'
     };
 
-    /* 0000 */ uint32_t m_token; // TOKEN
+    /* 0000 */ uint32_t token; // TOKEN
     /* 0004 */ uint32_t m_size;
     /* 0008 */ void* m_data;
 };

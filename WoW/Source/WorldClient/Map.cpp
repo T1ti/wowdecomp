@@ -2894,7 +2894,7 @@ void CMap::LoadWdt() {
     }
 
     SIffChunk iffChunk;
-    iffChunk.m_token = 0;
+    iffChunk.token = 0;
     iffChunk.m_size = 0;
 
     SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);

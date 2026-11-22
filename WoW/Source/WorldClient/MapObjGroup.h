@@ -360,7 +360,7 @@ class CMapObjGroup {
 struct SMOGroupHeader {
     /* 0000 */ uint32_t m_groupName;
     /* 0004 */ uint32_t m_descriptiveGroupName;
-    /* 0008 */ uint32_t m_flags;
+    /* 0008 */ uint32_t flags;
     /* 000C */ CAaBox m_boundingBox;
     /* 0024 */ uint16_t m_portalStart;
     /* 0026 */ uint16_t m_portalCount;

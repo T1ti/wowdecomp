@@ -198,7 +198,7 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     /* 01E6 */ uint8_t unused_01E6[2];
     /* 01E8 */ TSExplicitList<CMapObjGroup, offsetof(CMapObjGroup, m_asyncLoadLink)> m_mapObjGroupList;
     /* 01F4 */ int32_t m_mapObjGroupCount;
-    /* 01F8 */ CMapObjGroup* m_mapObjGroupArray [512];
+    /* 01F8 */ CMapObjGroup* groupPtrList [512];
 
     CMapObj();
     ~CMapObj();
@@ -301,7 +301,7 @@ struct SMOBatch {
     /* 0008 */ int16_t m_ty;
     /* 000A */ int16_t m_tz;
     /* 000C */ uint32_t m_indexStart;
-    /* 0010 */ uint16_t m_indexCount;
+    /* 0010 */ uint16_t count;
     /* 0012 */ uint16_t m_vertexStart;
     /* 0014 */ uint16_t m_vertexEnd;
     /* 0016 */ uint8_t m_flags;

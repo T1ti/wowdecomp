@@ -180,7 +180,7 @@ void CMapChunk::ProcessIffChunks(bool firstUse) {
         uint8_t* data = reinterpret_cast<uint8_t*>(&chunk->m_data);
         remaining -= offsetof(SIffChunk, m_data);
 
-        switch (chunk->m_token) {
+        switch (chunk->token) {
             case SIffChunk::TOKEN_MCNR:
                 this->m_normals = reinterpret_cast<int8_t*>(data);
 
