@@ -2248,9 +2248,15 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
 // VERIFY: 300a631e auto
 // OFFSET: 0x00792AD0
 void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup) {
+    STORM_ASSERT(mapObjDef);
+    STORM_ASSERT(mapObjDefGroup);
+
     if (!(mapObjDef->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
         return;
     }
+
+    STORM_ASSERT(mapObjDefGroup->visLink.IsLinked() == 0);
+    STORM_ASSERT(mapObjDefGroup->tableLink.IsLinked() == 0);
 
     if (mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) {
         CWorldScene::sortTable.moveableMapObjDefGroupList.LinkToTail(mapObjDefGroup);
@@ -2282,7 +2288,7 @@ void CWorldScene::ComputeExteriorSortDistances() {
 
     while (group) {
         CMapObjDefGroup* next = CWorldScene::sortTable.moveableMapObjDefGroupList.Next(group);
-        group->m_sortEntryLink.Unlink();
+        group->tableLink.Unlink();
 
         float x = CWorldScene::camTarget.x >= CWorldScene::s_activeWorldView.x ? group->m_bbox.b.x : group->m_bbox.t.x;
         float y = CWorldScene::camTarget.y >= CWorldScene::s_activeWorldView.y ? group->m_bbox.b.y : group->m_bbox.t.y;
@@ -2319,6 +2325,8 @@ void CWorldScene::AddMapChunkToRenderList(CMapChunk* mapChunk, C3Vector* pos) {
 // VERIFY: b58d1116 manual
 // OFFSET: 0x00792DF0
 void CWorldScene::AddToDistanceBucket(CChunkLiquid* liquid, const C3Vector& pos) {
+    STORM_ASSERT(liquid);
+
     int32_t bucket = 0;
     float distance = pos.y * CWorldScene::camPlaneXY.n.y + pos.z * CWorldScene::camPlaneXY.n.z + pos.x * CWorldScene::camPlaneXY.n.x + CWorldScene::camPlaneXY.d;
 
@@ -2386,13 +2394,15 @@ uint32_t CWorldScene::AddViewerGroup(TSGrowableArray<uint32_t>* groups, uint32_t
 
 // VERIFY: 3118c690 manual
 // OFFSET: 0x00793060
-void CWorldScene::CullEntitys(CSortEntry* entry) {
+void CWorldScene::CullEntitys(CSortEntry* sortEntry) {
+    STORM_ASSERT(sortEntry);
+
     s_entityCanLink = 0;
 
-    CMapEntity* entity = static_cast<CMapEntity*>(entry->entityList.Head());
+    CMapEntity* entity = static_cast<CMapEntity*>(sortEntry->entityList.Head());
 
     while (entity) {
-        CMapEntity* next = static_cast<CMapEntity*>(entry->entityList.Next(entity));
+        CMapEntity* next = static_cast<CMapEntity*>(sortEntry->entityList.Next(entity));
         entity->m_sortEntryLink.Unlink();
         entity->m_culled = CMapStaticEntity::CULL_CULLED;
 
@@ -3060,7 +3070,7 @@ void CWorldScene::RenderMapObjDefGroups() {
 
     while (group) {
         CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupList.Next(group);
-        group->m_sortTableLink.Unlink();
+        group->visLink.Unlink();
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
         CMapObj* mapObj = mapObjDef->m_owner;
@@ -3586,6 +3596,7 @@ CWFrustum* CWorldScene::AllocFrustum() {
         void* mem = SMemAlloc(sizeof(CWFrustum), __FILE__, __LINE__, 0x8);
         frustum = mem ? new (mem) CWFrustum : nullptr;
         CWorldScene::frustumFreeList.LinkToTail(frustum);
+        STORM_ASSERT(frustum);
     }
 
     frustum->m_link.Unlink();
@@ -3642,11 +3653,13 @@ void CWorldScene::RenderDetailDoodads() {
 
 // VERIFY: 4aaed5dd manual
 // OFFSET: 0x007987A0
-void CWorldScene::CullDoodads(CSortEntry* entry, uint16_t fadeLevel) {
-    CMapDoodadDef* doodadDef = entry->doodadDefList.Head();
+void CWorldScene::CullDoodads(CSortEntry* sortEntry, uint16_t fadeLevel) {
+    STORM_ASSERT(sortEntry);
+
+    CMapDoodadDef* doodadDef = sortEntry->doodadDefList.Head();
 
     while (doodadDef) {
-        CMapDoodadDef* next = entry->doodadDefList.Next(doodadDef);
+        CMapDoodadDef* next = sortEntry->doodadDefList.Next(doodadDef);
         doodadDef->m_doodadDefLink.Unlink();
 
         if (doodadDef->m_fadeLevel < fadeLevel) {
@@ -3849,7 +3862,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
     CMapObjDefGroup* mapObjDefGroup = mapObjDef->m_defGroups[groupIndex];
     CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
-    if (!mapObjDefGroup->m_sortTableLink.m_next) {
+    if (!mapObjDefGroup->visLink.m_next) {
         CWorldScene::sortTable.visMapObjDefGroupList.LinkToTail(mapObjDefGroup);
 
         if (group && (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) && (CWorld::enables & Enables::Enable_Water)) {
@@ -3880,7 +3893,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
 // OFFSET: 0x00799430
 CSortEntry::CSortEntry() {
     this->chunkList.SetLinkOffset(offsetof(CMapChunk, m_sortListLink));
-    this->mapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
+    this->mapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, tableLink));
     this->entityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
     this->doodadDefList.SetLinkOffset(offsetof(CMapDoodadDef, m_doodadDefLink));
     this->liquidList.SetLinkOffset(offsetof(CChunkLiquid, m_updateLink));
@@ -4029,14 +4042,16 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
 
 // VERIFY: 1b6761ad manual
 // OFFSET: 0x00799D40
-void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
+void CWorldScene::CullChunks(CSortEntry* sortEntry, uint32_t index) {
+    STORM_ASSERT(sortEntry);
+
     C3Vector corner(0.0f, 0.0f, 0.0f);
     int32_t occlude = (CWorld::enables & Enables::Enable_Culling) && index < 63;
 
-    CMapChunk* chunk = entry->chunkList.Head();
+    CMapChunk* chunk = sortEntry->chunkList.Head();
 
     while (chunk) {
-        CMapChunk* next = entry->chunkList.Next(chunk);
+        CMapChunk* next = sortEntry->chunkList.Next(chunk);
         chunk->m_sortListLink.Unlink();
 
         if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox) && !CWorldOcclusion::QueryVolumes(&chunk->m_sphere) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
@@ -4104,7 +4119,7 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
 
     while (group) {
         CMapObjDefGroup* next = CWorldScene::sortTable.moveableMapObjDefGroupList.Next(group);
-        group->m_sortEntryLink.Unlink();
+        group->tableLink.Unlink();
 
         CMapObjDef* def = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
         bool overlaps = false;
@@ -4138,12 +4153,14 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
 
 // VERIFY: 520d6234 manual
 // OFFSET: 0x0079A160
-void CWorldScene::CullMapObjDefGroups(CSortEntry* entry, CRect* rect, uint32_t index) {
-    CMapObjDefGroup* group = entry->mapObjDefGroupList.Head();
+void CWorldScene::CullMapObjDefGroups(CSortEntry* sortEntry, CRect* rect, uint32_t index) {
+    STORM_ASSERT(sortEntry);
+
+    CMapObjDefGroup* group = sortEntry->mapObjDefGroupList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = entry->mapObjDefGroupList.Next(group);
-        group->m_sortEntryLink.Unlink();
+        CMapObjDefGroup* next = sortEntry->mapObjDefGroupList.Next(group);
+        group->tableLink.Unlink();
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
 
@@ -4184,9 +4201,9 @@ CSortTable::CSortTable() {
         this->m_bucketPlanes[i].z = 1.0f;
     }
 
-    this->moveableMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
+    this->moveableMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, tableLink));
     this->visDetailDoodadList.SetLinkOffset(offsetof(CDetailDoodadInst, m_link));
-    this->visMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortTableLink));
+    this->visMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, visLink));
     this->visMapObjDefGroupLiquidList.SetLinkOffset(offsetof(CMapObjDefGroup, m_liquidLink));
     this->visEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
     this->nonVisEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
@@ -4587,24 +4604,28 @@ bool World::GetFacets(CFrustum* frustum, FacetData* facets, uint32_t flags, uint
 
 // VERIFY: 95a6852b manual
 // OFFSET: 0x00791380
-bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint32_t* outCount) {
+bool World::NDCClip(C3Vector* verts, uint32_t p_inCount, C3Vector*** outVerts, uint32_t* outCount) {
+    static const uint32_t POOL_SIZE = 32;
+
     // STATIC: 0x00CDD400
-    static C3Vector s_clipNewVerts[32];
+    static C3Vector sPointPool[POOL_SIZE];
 
     ClipInfo infos[32];
     ClipInfo newInfos[32];
     ClipInfo* outInfos[32];
     ClipInfo* inInfos[32];
-    C3Vector* newVert = s_clipNewVerts;
+    C3Vector* pointPool = sPointPool;
     ClipInfo* newInfo = newInfos;
     uint32_t andCode = 0xFFFFFFFF;
     uint32_t orCode = 0;
 
-    if (!count) {
+    STORM_ASSERT(p_inCount < POOL_SIZE);
+
+    if (!p_inCount) {
         return false;
     }
 
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < p_inCount; i++) {
         infos[i].Set(verts[i]);
         inInfos[i] = &infos[i];
         andCode &= infos[i].mask;
@@ -4618,27 +4639,27 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
 
     if (!orCode) {
         *outVerts = s_clipInVerts;
-        *outCount = count;
+        *outCount = p_inCount;
         return true;
     }
 
     ClipFrame polyA;
     polyA.points = s_clipInVerts;
     polyA.info = inInfos;
-    polyA.count = count;
+    polyA.count = p_inCount;
     ClipFrame polyB;
     polyB.points = s_clipOutVerts;
     polyB.info = outInfos;
     polyB.count = 0;
     ClipFrame* src = &polyA;
-    ClipFrame* dst = &polyB;
+    ClipFrame* oframe = &polyB;
     uint32_t mask = 0x80000000;
 
     for (uint32_t plane = 0; plane < 6; plane++) {
         if (mask & orCode) {
             uint32_t prev = src->count - 1;
             uint32_t prevCode = mask & src->info[prev]->mask;
-            dst->count = 0;
+            oframe->count = 0;
 
             for (uint32_t i = 0; i < src->count; i++) {
                 uint32_t code = mask & src->info[i]->mask;
@@ -4653,34 +4674,37 @@ bool World::NDCClip(C3Vector* verts, uint32_t count, C3Vector*** outVerts, uint3
                     float t = src->info[prev]->bc[plane] / denom;
                     const C3Vector* a = src->points[prev];
                     const C3Vector* b = src->points[i];
-                    newVert->x = (b->x - a->x) * t + a->x;
-                    newVert->y = (b->y - a->y) * t + a->y;
-                    newVert->z = t * (b->z - a->z) + a->z;
-                    newInfo->Set(*newVert);
-                    dst->points[dst->count] = newVert;
-                    dst->info[dst->count] = newInfo;
-                    newVert++;
-                    dst->count++;
+                    pointPool->x = (b->x - a->x) * t + a->x;
+                    pointPool->y = (b->y - a->y) * t + a->y;
+                    pointPool->z = t * (b->z - a->z) + a->z;
+                    newInfo->Set(*pointPool);
+                    oframe->points[oframe->count] = pointPool;
+                    oframe->info[oframe->count] = newInfo;
+                    pointPool++;
+                    oframe->count++;
                     newInfo++;
                 }
 
                 if (!code) {
-                    dst->points[dst->count] = src->points[i];
-                    dst->info[dst->count] = src->info[i];
-                    dst->count++;
+                    oframe->points[oframe->count] = src->points[i];
+                    oframe->info[oframe->count] = src->info[i];
+                    oframe->count++;
                 }
+
+                STORM_ASSERT(oframe->count < POOL_SIZE);
+                STORM_ASSERT(pointPool - sPointPool < ARRSIZE(sPointPool));
 
                 prev = i;
                 prevCode = code;
             }
 
-            if (!dst->count) {
+            if (!oframe->count) {
                 return false;
             }
 
             ClipFrame* swap = src;
-            src = dst;
-            dst = swap;
+            src = oframe;
+            oframe = swap;
         }
 
         mask >>= 1;

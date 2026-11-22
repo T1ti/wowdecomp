@@ -131,6 +131,9 @@ void CWorldScene::Initialize() {
     color.r = 0x00;
     color.a = 0xFF;
     CWorldScene::s_defaultBlendTexture = TextureCreateSolid(color);
+
+    STORM_ASSERT(s_defaultTexture);
+    STORM_ASSERT(s_defaultBlendTexture);
 }
 
 // VERIFY: 45953486 auto

@@ -42,8 +42,8 @@ class CMapObjDefGroup : public CMapBaseObj {
     /* 0084 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_entityLinkList;
     /* 0090 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_lightLinkList;
     /* 009C */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_unkLinkList;
-    /* 00A8 */ TSLink<CMapObjDefGroup> m_sortEntryLink;
-    /* 00B0 */ TSLink<CMapObjDefGroup> m_sortTableLink;
+    /* 00A8 */ TSLink<CMapObjDefGroup> tableLink;
+    /* 00B0 */ TSLink<CMapObjDefGroup> visLink;
     /* 00B8 */ TSLink<CMapObjDefGroup> m_liquidLink;
 
     virtual void SelectLights(CM2Lighting* lighting);
