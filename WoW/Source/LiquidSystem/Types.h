@@ -27,7 +27,7 @@ struct SMLiquidInstance {
     /* 000E */ uint8_t m_width;
     /* 000F */ uint8_t m_height;
     /* 0010 */ uint32_t m_offsetExistsBitmap;
-    /* 0014 */ uint32_t m_offsetVertexData;
+    /* 0014 */ uint32_t vtxOffset;
 };
 
 #endif

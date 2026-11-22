@@ -203,7 +203,7 @@ namespace Liquid {
 
     class CChunkVertexData : public IVertexData {
         public:
-        /* 0008 */ const uint8_t* m_data;
+        /* 0008 */ const uint8_t* vtxData;
         /* 000C */ uint32_t m_format; // LIQUID_VERTEX_FORMAT values in the native unsigned DWORD carrier.
 
         virtual float GetHeight(uint32_t index);
@@ -217,8 +217,8 @@ namespace Liquid {
 
     class CInstanceVertexData : public IVertexData {
         public:
-        /* 0008 */ const uint8_t* m_data;
-        /* 000C */ const SMLiquidInstance* m_instance;
+        /* 0008 */ const uint8_t* dataPtr;
+        /* 000C */ const SMLiquidInstance* instDesc;
         /* 0010 */ uint32_t m_vertexCount;
 
         virtual float GetHeight(uint32_t index);
@@ -235,16 +235,16 @@ namespace Liquid {
         static uint16_t s_defaultTexCoord[2];
 
         /* 0000 */ uint32_t unused_0000;
-        /* 0004 */ const uint8_t* m_data;
+        /* 0004 */ const uint8_t* dataPtr;
 
         CAreaData(const void* data);
         void SetData(const void* data);
         bool HasData() const;
-        const SMLiquidChunkDesc* GetChunkDesc(uint32_t x, uint32_t y) const;
-        const SMLiquidInstance* GetInstanceDesc(const SMLiquidChunkDesc* chunk, uint32_t index) const;
-        const uint8_t* GetFishableTable(const SMLiquidChunkDesc* chunk) const;
-        const uint8_t* GetDeepTable(const SMLiquidChunkDesc* chunk) const;
-        const uint8_t* GetExistsTable(const SMLiquidInstance* instance) const;
+        const SMLiquidChunkDesc* GetChunkDesc(uint32_t cx, uint32_t cy) const;
+        const SMLiquidInstance* GetInstanceDesc(const SMLiquidChunkDesc* chunkDesc, uint32_t index) const;
+        const uint8_t* GetFishableTable(const SMLiquidChunkDesc* chunkDesc) const;
+        const uint8_t* GetDeepTable(const SMLiquidChunkDesc* chunkDesc) const;
+        const uint8_t* GetExistsTable(const SMLiquidInstance* instDesc) const;
     };
 
     class CMaterialSettings {
