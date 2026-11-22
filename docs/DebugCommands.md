@@ -27,7 +27,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `dblbuffer` | works | Toggles double buffering. |
 | `resxy`, `resmode`, `bitdepth`, `3dapi` | no-op | Empty in 0.5.3 too. |
 | `showbounds [box]` | works | Toggles the bounding sphere, or the box with `box`, on the tracked object's model, or on the player's model if nothing is tracked. Uses the Gxu debug-draw module. |
-| `showhittest` | works | Toggles the geometry object picking tests (half transparent red) on the tracked object's model, or on the player's model if nothing is tracked. From 0.8 and 0.9.1, which registered it (0.5.3 did not). Their models had separate hit-test shapes; a 3.3.5 model is picked by its skinned render triangles, or its collision mesh for collision hit tests, so that is what it shows. |
+| `showhittest` | works | Toggles the geometry object picking tests (half transparent red) on the tracked object's model, or on the player's model if nothing is tracked. From 0.8 and 0.9.1, which registered it (0.5.3 did not). Their models had separate hit-test shapes; the M2 format has none, and 3.3.5 picks an object by its model's skinned render triangles (skipping batches flagged not to be hit-tested), so that is what it shows. The collision mesh has its own display (`showCollision`). |
 | `loc`, `dloc`, `tloc` | stub | Prints or sets the player location. |
 | `facing`, `dfacing` | stub | Prints or sets the facing. |
 | `drawlog`, `animlog` | stub | M2 render/animation logs (0.5.3 wrote RenderLog.txt and AnimLog.txt). |
@@ -78,7 +78,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | Status | Notes |
 |---|---|---|
-| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did (no later client has it). Flying (Catmull-Rom) splines, including taxi flights: green spheres at the control points and a white line along the curve. Ground moves: circles projected on the ground, green at the start and red at every spline point, 1 yard across as in 0.5.3 (no spheres or line in 0.5.3). The port centers the circles on the ground below each point and adds green spheres at the path points (half spheres on the ground) and a white line from start to end draped on the ground. The last path stays drawn after the unit stops, as in 0.5.3. Port addition: while the player rides a boat or zeppelin, its path on the current map is drawn like a flight path. |
+| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did (no later client has it). Flying (Catmull-Rom) splines, including taxi flights: green spheres at the control points and a white line along the curve. Ground moves: circles projected on the ground, green at the start and red at every spline point, 1 yard across as in 0.5.3 (no spheres or line in 0.5.3). The port centers the circles on the ground below each point and adds small green spheres inside the circles at the path points (half spheres on the ground) and a white line from start to end draped on the ground. The last path stays drawn after the unit stops, as in 0.5.3. Port addition: while the player rides a boat or zeppelin, its path on the current map is drawn like a flight path. |
 | `CombatDebugForceActionOn` / `Off` | stub | |
 | `CombatDebugForceActionOtherOn` / `Off` | stub | |
 | `CombatDebugShowFlags` | stub | |
@@ -115,7 +115,7 @@ The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terr
 
 | Command | Status | Notes |
 |---|---|---|
-| `wowEdit` | works | Prints whether the terrain shaders can run, the state of each shader, how many frames the terrain pass drew and how many chunks it covered, and which overlays are on. `wowEdit test [0\|1]` draws the terrain pass with a flat magenta shader, a diagnostic that tells a pass that draws nothing from overlay shaders that output nothing. |
+| `wowEdit` | works | Prints whether the terrain shaders can run, the state of each shader, how many frames the terrain pass drew and how many chunks it covered, and which overlays are on. Diagnostics: `wowEdit test [0-3]` draws every chunk the pass covers once more, in flat magenta through the editor shaders (1), the same without the depth test (2), or opaque through the fixed-function pipeline with no shaders (3); `wowEdit probe` makes the next terrain pass print the Direct3D state its first draw ran with (bound shaders, vertex shader constants, vertex declaration, render states, viewport, targets) and where the first chunk lands on screen. |
 | `wowEditGrid [0-3\|off]` | works | Terrain grid, one of the four 8.1 `woweditgrid` permutations. With no argument it toggles permutation 3. 0 shows nothing on its own: it outputs transparent black on chunk borders. 1 draws cells with diagonals. 2 draws chunk and tile lines. 3 draws all three. |
 | `wowEditSlopes [0\|1]` | works | Paints terrain steeper than 50 degrees (the client's walkable limit) red at 25%. |
 | `wowEditMarkers [0\|1]` | works | Sample editor markers ahead of the player, placed on the ground: spawn points with orientation rings, early-editor half spheres and path, and a flying path with direction diamonds. |

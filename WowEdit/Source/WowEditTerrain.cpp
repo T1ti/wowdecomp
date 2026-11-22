@@ -1,8 +1,13 @@
 #include "WowEdit/Source/WowEditTerrain.h"
 
+#include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
+#include "Engine/Source/Gx/CGxDevice/CGxShader.h"
+#include "Engine/Source/Gx/CGxDeviceD3d/CGxDeviceD3d.h"
+#include "Engine/Source/Gx/CGxDeviceD3d9Ex/CGxDeviceD3d9Ex.h"
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/Gx.h"
+#include <cstring>
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "WoW/Source/WorldClient/MapRenderChunk.h"
 #include "WoW/Source/WorldClient/Types.h"
@@ -14,7 +19,8 @@
 
 static int32_t s_grid = WOWEDITGRID_OFF;
 static bool s_slopes;
-static bool s_test;
+static int32_t s_test = WOWEDITTEST_OFF;
+static bool s_probe; // print the device state at the next pass's first draw
 static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
 static uint32_t s_lastChunkCount; // chunks the last pass drew over
 
@@ -66,7 +72,11 @@ static void BindChunkGeometry(CMapRenderChunk* chunk) {
     }
 }
 
-static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& viewProj) {
+static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldViewProj);
+
+// Draws each chunk once with the bound shaders (or, with fixedFunction, through the fixed-function pipeline with the
+// world transform RenderSetup sets).
+static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& viewProj, bool fixedFunction = false) {
     CGxDevice* device = g_theGxDevicePtr;
     const C3Vector& viewOrigin = CWorldScene::s_activeWorldView;
 
@@ -79,6 +89,22 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
         world.d1 = chunk->m_vec1.y - viewOrigin.y;
         world.d2 = chunk->m_vec1.z - viewOrigin.z;
         C44Matrix worldViewProj = world * viewProj;
+
+        if (fixedFunction) {
+            GxXformSet(GxXform_World, world);
+            BindChunkGeometry(chunk);
+
+            if (chunk->m_batch.m_count) {
+                device->Draw(&chunk->m_batch, 1);
+
+                if (s_probe) {
+                    s_probe = false;
+                    ProbeDevice(chunk, worldViewProj);
+                }
+            }
+
+            continue;
+        }
 
         float constants[5][4] = {
             { worldViewProj.a0, worldViewProj.a1, worldViewProj.a2, worldViewProj.a3 },
@@ -93,6 +119,11 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
 
         if (chunk->m_batch.m_count) {
             device->Draw(&chunk->m_batch, 1);
+
+            if (s_probe) {
+                s_probe = false;
+                ProbeDevice(chunk, worldViewProj);
+            }
         }
     }
 }
@@ -105,9 +136,10 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
     CGxShader* vertexShader = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* gridShader = s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
     CGxShader* slopesShader = s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
-    CGxShader* testShader = s_test ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
+    CGxShader* testShader = s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
+    bool fixedTest = s_test == WOWEDITTEST_FIXED;
 
-    if (!vertexShader || (!gridShader && !slopesShader && !testShader)) {
+    if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader))) {
         return;
     }
 
@@ -129,16 +161,40 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
     device->RsSet(GxRs_Texture1, static_cast<void*>(nullptr));
     device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Alpha));
     GxUpdateAlphaRef(GxRs_AlphaRef);
-    device->RsSet(GxRs_VertexShader, vertexShader);
 
     CGxMatrixStack& viewStack = device->m_xforms[GxXform_View];
     C44Matrix projection;
     GxXformProjNative(projection);
     C44Matrix viewProj = viewStack.m_mtx[viewStack.m_level] * projection;
 
+    if (fixedTest) {
+        device->RsSet(GxRs_VertexShader, static_cast<void*>(nullptr));
+        device->RsSet(GxRs_PixelShader, static_cast<void*>(nullptr));
+        device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Opaque));
+        GxUpdateAlphaRef(GxRs_AlphaRef);
+        device->XformPush(GxXform_World);
+        DrawChunks(chunks, count, viewProj, true);
+        GxXformPop(GxXform_World);
+        device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Alpha));
+        GxUpdateAlphaRef(GxRs_AlphaRef);
+    }
+
+    if (!vertexShader) {
+        device->RsPop();
+        return;
+    }
+
+    device->RsSet(GxRs_VertexShader, vertexShader);
+
     if (testShader) {
         device->RsSet(GxRs_PixelShader, testShader);
+
+        if (s_test == WOWEDITTEST_NO_DEPTH) {
+            device->RsSet(GxRs_DepthTest, 0);
+        }
+
         DrawChunks(chunks, count, viewProj);
+        device->RsSet(GxRs_DepthTest, 1);
     }
 
     if (slopesShader) {
@@ -159,7 +215,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
 static void UpdateTerrainPass() {
     s_passCount = 0;
     s_lastChunkCount = 0;
-    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_test ? TerrainPass : nullptr);
+    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_test != WOWEDITTEST_OFF ? TerrainPass : nullptr);
 }
 
 bool WowEditTerrainPrepare() {
@@ -173,7 +229,7 @@ bool WowEditTerrainPrepare() {
         ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
     }
 
-    if (s_test) {
+    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH) {
         ready = WowEditShaderGet(WOWEDITSHADER_TEST) != nullptr && ready;
     }
 
@@ -203,11 +259,222 @@ bool WowEditTerrainGetSlopes() {
     return s_slopes;
 }
 
-void WowEditTerrainSetTest(bool show) {
-    s_test = show;
+void WowEditTerrainSetTest(int32_t mode) {
+    s_test = mode > WOWEDITTEST_OFF && mode < NUM_WOWEDITTESTS ? mode : WOWEDITTEST_OFF;
     UpdateTerrainPass();
 }
 
-bool WowEditTerrainGetTest() {
+int32_t WowEditTerrainGetTest() {
     return s_test;
+}
+
+void WowEditTerrainProbe() {
+    s_probe = true;
+}
+
+// ---- Probe
+
+static IDirect3DDevice9* ProbeD3dDevice() {
+    CGxDevice* device = g_theGxDevicePtr;
+
+    if (device->DeviceApi() == GxApi_D3d9) {
+        return static_cast<CGxDeviceD3d*>(device)->m_d3dDevice;
+    }
+
+    if (device->DeviceApi() == GxApi_D3d9Ex) {
+        return static_cast<CGxDeviceD3d9Ex*>(device)->m_d3dDevice;
+    }
+
+    return nullptr;
+}
+
+static void ProbeShader(const char* label, IUnknown* bound, HRESULT result, const char* entry, CGxShader* ours) {
+    if (FAILED(result)) {
+        ConsoleWriteA("  %s: cannot read back (0x%08X, pure device?)", WARNING_COLOR, label, static_cast<uint32_t>(result));
+        return;
+    }
+
+    const char* match = "another shader";
+
+    if (!bound) {
+        match = "none (fixed function)";
+    } else if (ours && bound == ours->m_apiSpecific) {
+        match = entry;
+    }
+
+    ConsoleWriteA("  %s: %s", DEFAULT_COLOR, label, match);
+}
+
+// Prints the state the first draw of the pass ran with. Called right after that draw, so the device holds what
+// CGxDeviceD3d::IStateSync sent for it.
+static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldViewProj) {
+    IDirect3DDevice9* d3d = ProbeD3dDevice();
+    ConsoleWriteA("WowEdit probe (test mode %d, grid %d, slopes %d):", DEFAULT_COLOR, s_test, s_grid, s_slopes ? 1 : 0);
+
+    if (!d3d) {
+        ConsoleWrite("  not a Direct3D device", WARNING_COLOR);
+        return;
+    }
+
+    // Shaders: the first draw of the pass is the test pass when one is on, then slopes, then the grid.
+    CGxShader* vs = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
+    CGxShader* ps = nullptr;
+
+    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH) {
+        ps = WowEditShaderGet(WOWEDITSHADER_TEST);
+    } else if (s_slopes) {
+        ps = WowEditShaderGet(WOWEDITSHADER_SLOPES);
+    } else if (s_grid >= 0) {
+        ps = WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid));
+    }
+
+    IDirect3DVertexShader9* boundVs = nullptr;
+    IDirect3DPixelShader9* boundPs = nullptr;
+    HRESULT vsResult = d3d->GetVertexShader(&boundVs);
+    HRESULT psResult = d3d->GetPixelShader(&boundPs);
+    ProbeShader("vertex shader", boundVs, vsResult, "TerrainVS", vs);
+    ProbeShader("pixel shader", boundPs, psResult, "the overlay shader", ps);
+
+    if (boundVs) {
+        boundVs->Release();
+    }
+
+    if (boundPs) {
+        boundPs->Release();
+    }
+
+    if (vs) {
+        ConsoleWriteA("  TerrainVS: valid %d, loaded %d, %u bytes", DEFAULT_COLOR, vs->m_valid, vs->m_loaded, vs->m_code.Count());
+    }
+
+    if (ps) {
+        ConsoleWriteA("  overlay pixel shader: valid %d, loaded %d, %u bytes", DEFAULT_COLOR, ps->m_valid, ps->m_loaded, ps->m_code.Count());
+    }
+
+    // Vertex shader constants c0..c4 as the device holds them.
+    float constants[5][4] = {};
+
+    if (SUCCEEDED(d3d->GetVertexShaderConstantF(0, &constants[0][0], 5))) {
+        for (uint32_t i = 0; i < 5; i++) {
+            ConsoleWriteA("  c%u: %.4f %.4f %.4f %.4f", DEFAULT_COLOR, i, constants[i][0], constants[i][1], constants[i][2], constants[i][3]);
+        }
+    }
+
+    // Where the chunk origin lands: clip space, then normalized device coordinates (on screen: x and y in -1..1,
+    // z in 0..1).
+    float clipX = worldViewProj.d0;
+    float clipY = worldViewProj.d1;
+    float clipZ = worldViewProj.d2;
+    float clipW = worldViewProj.d3;
+    float invW = clipW != 0.0f ? 1.0f / clipW : 0.0f;
+    ConsoleWriteA("  chunk origin (%.1f, %.1f, %.1f), camera origin (%.1f, %.1f, %.1f)", DEFAULT_COLOR, chunk->m_vec1.x, chunk->m_vec1.y, chunk->m_vec1.z, CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z);
+    ConsoleWriteA("  chunk origin on screen: w %.3f, ndc %.3f %.3f %.5f", DEFAULT_COLOR, clipW, clipX * invW, clipY * invW, clipZ * invW);
+    ConsoleWriteA("  batch: prim %d, start %u, count %u, indices %u..%u", DEFAULT_COLOR, static_cast<int32_t>(chunk->m_batch.m_primType), chunk->m_batch.m_start, chunk->m_batch.m_count, chunk->m_batch.m_minIndex, chunk->m_batch.m_maxIndex);
+
+    // Vertex declaration and stream 0.
+    IDirect3DVertexDeclaration9* decl = nullptr;
+
+    if (SUCCEEDED(d3d->GetVertexDeclaration(&decl)) && decl) {
+        D3DVERTEXELEMENT9 elements[MAXD3DDECLLENGTH + 1];
+        UINT count = MAXD3DDECLLENGTH + 1;
+
+        if (SUCCEEDED(decl->GetDeclaration(elements, &count))) {
+            for (UINT i = 0; i < count && elements[i].Stream != 0xFF; i++) {
+                ConsoleWriteA("  element %u: stream %u, offset %u, type %u, usage %u.%u", DEFAULT_COLOR, i, elements[i].Stream, elements[i].Offset, elements[i].Type, elements[i].Usage, elements[i].UsageIndex);
+            }
+        }
+
+        decl->Release();
+    } else {
+        DWORD fvf = 0;
+        d3d->GetFVF(&fvf);
+        ConsoleWriteA("  no vertex declaration (FVF 0x%X)", WARNING_COLOR, fvf);
+    }
+
+    IDirect3DVertexBuffer9* stream = nullptr;
+    UINT offset = 0;
+    UINT stride = 0;
+
+    if (SUCCEEDED(d3d->GetStreamSource(0, &stream, &offset, &stride))) {
+        ConsoleWriteA("  stream 0: %s, offset %u, stride %u", DEFAULT_COLOR, stream ? "bound" : "none", offset, stride);
+
+        if (stream) {
+            stream->Release();
+        }
+    }
+
+    // Render states.
+    struct ProbeState {
+        D3DRENDERSTATETYPE m_state;
+        const char* m_name;
+        bool m_float;
+    };
+
+    static const ProbeState s_states[] = {
+        { D3DRS_ZENABLE, "ZENABLE", false },
+        { D3DRS_ZFUNC, "ZFUNC", false },
+        { D3DRS_ZWRITEENABLE, "ZWRITEENABLE", false },
+        { D3DRS_DEPTHBIAS, "DEPTHBIAS", true },
+        { D3DRS_SLOPESCALEDEPTHBIAS, "SLOPESCALEDEPTHBIAS", true },
+        { D3DRS_CULLMODE, "CULLMODE", false },
+        { D3DRS_FILLMODE, "FILLMODE", false },
+        { D3DRS_ALPHABLENDENABLE, "ALPHABLENDENABLE", false },
+        { D3DRS_SRCBLEND, "SRCBLEND", false },
+        { D3DRS_DESTBLEND, "DESTBLEND", false },
+        { D3DRS_BLENDOP, "BLENDOP", false },
+        { D3DRS_ALPHATESTENABLE, "ALPHATESTENABLE", false },
+        { D3DRS_ALPHAFUNC, "ALPHAFUNC", false },
+        { D3DRS_ALPHAREF, "ALPHAREF", false },
+        { D3DRS_COLORWRITEENABLE, "COLORWRITEENABLE", false },
+        { D3DRS_STENCILENABLE, "STENCILENABLE", false },
+        { D3DRS_CLIPPLANEENABLE, "CLIPPLANEENABLE", false },
+        { D3DRS_SCISSORTESTENABLE, "SCISSORTESTENABLE", false },
+        { D3DRS_CLIPPING, "CLIPPING", false },
+        { D3DRS_FOGENABLE, "FOGENABLE", false },
+        { D3DRS_SRGBWRITEENABLE, "SRGBWRITEENABLE", false },
+    };
+
+    for (const ProbeState& state : s_states) {
+        DWORD value = 0;
+
+        if (FAILED(d3d->GetRenderState(state.m_state, &value))) {
+            continue;
+        }
+
+        if (state.m_float) {
+            float number;
+            memcpy(&number, &value, sizeof(number));
+            ConsoleWriteA("  %s: %g", DEFAULT_COLOR, state.m_name, number);
+        } else {
+            ConsoleWriteA("  %s: %u", DEFAULT_COLOR, state.m_name, static_cast<uint32_t>(value));
+        }
+    }
+
+    // Viewport and targets.
+    D3DVIEWPORT9 viewport;
+
+    if (SUCCEEDED(d3d->GetViewport(&viewport))) {
+        ConsoleWriteA("  viewport: %u,%u %ux%u, z %.3f..%.3f", DEFAULT_COLOR, static_cast<uint32_t>(viewport.X), static_cast<uint32_t>(viewport.Y), static_cast<uint32_t>(viewport.Width), static_cast<uint32_t>(viewport.Height), viewport.MinZ, viewport.MaxZ);
+    }
+
+    IDirect3DSurface9* surface = nullptr;
+    D3DSURFACE_DESC desc;
+
+    if (SUCCEEDED(d3d->GetRenderTarget(0, &surface)) && surface) {
+        if (SUCCEEDED(surface->GetDesc(&desc))) {
+            ConsoleWriteA("  render target: %ux%u, format %u, multisample %u", DEFAULT_COLOR, desc.Width, desc.Height, static_cast<uint32_t>(desc.Format), static_cast<uint32_t>(desc.MultiSampleType));
+        }
+
+        surface->Release();
+    }
+
+    surface = nullptr;
+
+    if (SUCCEEDED(d3d->GetDepthStencilSurface(&surface)) && surface) {
+        if (SUCCEEDED(surface->GetDesc(&desc))) {
+            ConsoleWriteA("  depth buffer: %ux%u, format %u, multisample %u", DEFAULT_COLOR, desc.Width, desc.Height, static_cast<uint32_t>(desc.Format), static_cast<uint32_t>(desc.MultiSampleType));
+        }
+
+        surface->Release();
+    }
 }

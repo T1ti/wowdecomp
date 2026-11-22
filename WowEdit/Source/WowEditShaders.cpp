@@ -317,7 +317,7 @@ const char* WowEditShaderState(WOWEDITSHADER id) {
     }
 
     if (s_shaders[id]) {
-        return "ready";
+        return s_shaders[id]->m_valid ? "ready" : "built, but no longer valid";
     }
 
     return s_compileFailed[id] ? "failed" : "not built";

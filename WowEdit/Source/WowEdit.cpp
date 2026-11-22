@@ -130,7 +130,7 @@ static void PrepareTerrainOverlays() {
 }
 
 static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
-    // "wowEdit test [0|1]": the flat magenta diagnostic pass.
+    // "wowEdit test [0-3]": the diagnostic passes (WOWEDITTEST); no number toggles mode 1.
     if (arguments && !SStrCmpI(arguments, "test", 4)) {
         const char* value = arguments + 4;
 
@@ -138,14 +138,36 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
             value++;
         }
 
-        bool show = ParseSwitch(value, WowEditTerrainGetTest());
-        WowEditTerrainSetTest(show);
-        ConsoleWrite(show ? "WowEdit: test overlay on (flat magenta on every terrain chunk)" : "WowEdit: test overlay off", DEFAULT_COLOR);
+        int32_t mode;
 
-        if (show) {
+        if (*value >= '0' && *value <= '9') {
+            mode = *value - '0';
+        } else {
+            mode = ParseSwitch(value, WowEditTerrainGetTest() != WOWEDITTEST_OFF) ? WOWEDITTEST_SHADER : WOWEDITTEST_OFF;
+        }
+
+        WowEditTerrainSetTest(mode);
+
+        static const char* const s_testNames[NUM_WOWEDITTESTS] = {
+            "off",
+            "1: editor shaders, flat magenta, depth tested",
+            "2: editor shaders, flat magenta, no depth test",
+            "3: fixed function, no shaders, opaque",
+        };
+
+        ConsoleWriteA("WowEdit: test overlay %s", DEFAULT_COLOR, s_testNames[WowEditTerrainGetTest()]);
+
+        if (WowEditTerrainGetTest() != WOWEDITTEST_OFF) {
             PrepareTerrainOverlays();
         }
 
+        return 1;
+    }
+
+    // "wowEdit probe": the next terrain pass prints the Direct3D state of its first draw.
+    if (arguments && !SStrCmpI(arguments, "probe", 5)) {
+        WowEditTerrainProbe();
+        ConsoleWrite("WowEdit: probing the next terrain pass (an overlay or a test mode must be on)", DEFAULT_COLOR);
         return 1;
     }
 
@@ -172,7 +194,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
     }
 
     ConsoleWriteA("  slopes: %s", DEFAULT_COLOR, WowEditTerrainGetSlopes() ? "on" : "off");
-    ConsoleWriteA("  test: %s", DEFAULT_COLOR, WowEditTerrainGetTest() ? "on" : "off");
+    ConsoleWriteA("  test: mode %d", DEFAULT_COLOR, WowEditTerrainGetTest());
     ConsoleWriteA("  markers: %s", DEFAULT_COLOR, s_markers ? "on" : "off");
     return 1;
 }

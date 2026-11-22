@@ -22,10 +22,21 @@ void WowEditTerrainSetGrid(int32_t permutation);
 int32_t WowEditTerrainGetGrid();
 void WowEditTerrainSetSlopes(bool show);
 bool WowEditTerrainGetSlopes();
-// Port diagnostic: the pass with a flat magenta pixel shader (WOWEDITSHADER_TEST), to tell a pass that draws nothing
-// from overlay shaders that output nothing.
-void WowEditTerrainSetTest(bool show);
-bool WowEditTerrainGetTest();
+// Port diagnostics, to find where an overlay that draws nothing fails. Each test mode draws every chunk the pass
+// covers once more, before the overlays:
+enum WOWEDITTEST : int32_t {
+    WOWEDITTEST_OFF = 0,
+    WOWEDITTEST_SHADER = 1, // the editor vertex shader and a flat magenta pixel shader (WOWEDITSHADER_TEST), depth tested
+    WOWEDITTEST_NO_DEPTH = 2, // the same without the depth test: shows through anything in front of the terrain
+    WOWEDITTEST_FIXED = 3, // no shaders: the fixed-function pipeline with the chunk transform of RenderSetup, opaque
+    NUM_WOWEDITTESTS = 4,
+};
+
+void WowEditTerrainSetTest(int32_t mode);
+int32_t WowEditTerrainGetTest();
+// Port diagnostic: the next terrain pass prints the Direct3D state its first draw ran with (bound shaders, vertex
+// shader constants, vertex declaration, render states, viewport, targets) and where the first chunk lands on screen.
+void WowEditTerrainProbe();
 // Builds the shaders the enabled overlays need, so a failure shows in the console when the overlay is turned on;
 // false when one is missing.
 bool WowEditTerrainPrepare();
