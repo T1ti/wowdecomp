@@ -15,7 +15,9 @@ enum EMOTE_FLAGS : int32_t {
     EMOTE_FLAG_LAUGH = 0x100,
     EMOTE_FLAG_ALLOW_SLEEPING_OR_DEAD = 0x200,
     EMOTE_FLAG_DISALLOW_TARGETED = 0x400,
-    EMOTE_FLAG_UNKNOWN_13 = 0x2000,
+    // The early clients call this "End emote state". It allows turning and skips
+    // the state animation while interacting with the unit.
+    EMOTE_FLAG_SUPPRESS_STATE_ON_INTERACTION = 0x2000,
     EMOTE_FLAG_STAND_UP_ON_ACTIVE_MOVEMENT = 0x4000,
     EMOTE_FLAG_DISALLOW_FLYING = 0x8000,
 };
@@ -24,14 +26,12 @@ enum EMOTESPECPROCS : int32_t {
     EMOTESPECPROC_NONE = 0,
     EMOTESPECPROC_STANDSTATEHANDLER = 1,
     EMOTESPECPROC_EMOTESTATEHANDLER = 2,
-    // EMOTESPECPROC_NUMSPECPROCS = 3,
+    EMOTESPECPROC_NUMSPECPROCS = 3,
 };
 
 // Bitset indexed by EMOTESPECPROCS, separate from EmotesRec::m_emoteFlags.
 enum EMOTESPECPROC_MASK : uint32_t {
-    allEmoteFlags = (1u << EMOTESPECPROC_NONE)
-        | (1u << EMOTESPECPROC_STANDSTATEHANDLER)
-        | (1u << EMOTESPECPROC_EMOTESTATEHANDLER),
+    allEmoteFlags = (1u << EMOTESPECPROC_NUMSPECPROCS) - 1u,
 };
 
 class SFileImpl;
