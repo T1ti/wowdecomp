@@ -9,6 +9,7 @@
 #include "Engine/Source/Gx/Gx.h"
 #include <cstring>
 #include "Engine/Source/Tempest/C44Matrix.h"
+#include "WoW/Source/WorldClient/Map.h"
 #include "WoW/Source/WorldClient/MapRenderChunk.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
@@ -75,20 +76,33 @@ static void BindChunkGeometry(CMapRenderChunk* chunk) {
 static IDirect3DDevice9* ProbeD3dDevice();
 static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj, int32_t pixels, bool late);
 
+// The origin a chunk's vertices are relative to. CMapChunk::CreateVertices builds them two ways: with the terrain
+// vertex shaders (CMap::enableTerrainShaderVertex) as world positions (CreateVerticesWorld, drawn with the world
+// transform CWorldScene::RenderChunks sets, the camera origin's opposite), otherwise local to the render chunk's
+// m_vec1 (CreateVerticesLocal, drawn with the world transform of CMapRenderChunk::RenderSetup).
+static C3Vector ChunkVertexOrigin(const CMapRenderChunk* chunk) {
+    return CMap::enableTerrainShaderVertex ? C3Vector(0.0f, 0.0f, 0.0f) : chunk->m_vec1;
+}
+
+// The world transform of a chunk's vertices: to positions relative to the camera origin, as the terrain draws them.
+static C44Matrix ChunkWorldTransform(const CMapRenderChunk* chunk) {
+    C3Vector origin = ChunkVertexOrigin(chunk);
+    C44Matrix world;
+    world.d0 = origin.x - CWorldScene::s_activeWorldView.x;
+    world.d1 = origin.y - CWorldScene::s_activeWorldView.y;
+    world.d2 = origin.z - CWorldScene::s_activeWorldView.z;
+    return world;
+}
+
 // Draws each chunk once with the bound shaders (or, with fixedFunction, through the fixed-function pipeline with the
 // world transform RenderSetup sets).
 static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& viewProj, bool fixedFunction = false) {
     CGxDevice* device = g_theGxDevicePtr;
-    const C3Vector& viewOrigin = CWorldScene::s_activeWorldView;
 
     for (uint32_t i = 0; i < count; i++) {
         CMapRenderChunk* chunk = chunks[i];
-
-        // Vertices are local to m_vec1 and drawn relative to the camera origin, as in RenderSetup.
-        C44Matrix world;
-        world.d0 = chunk->m_vec1.x - viewOrigin.x;
-        world.d1 = chunk->m_vec1.y - viewOrigin.y;
-        world.d2 = chunk->m_vec1.z - viewOrigin.z;
+        C3Vector origin = ChunkVertexOrigin(chunk);
+        C44Matrix world = ChunkWorldTransform(chunk);
         C44Matrix worldViewProj = world * viewProj;
 
         if (fixedFunction) {
@@ -107,7 +121,7 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
             { worldViewProj.b0, worldViewProj.b1, worldViewProj.b2, worldViewProj.b3 },
             { worldViewProj.c0, worldViewProj.c1, worldViewProj.c2, worldViewProj.c3 },
             { worldViewProj.d0, worldViewProj.d1, worldViewProj.d2, worldViewProj.d3 },
-            { chunk->m_vec1.x, chunk->m_vec1.y, chunk->m_vec1.z, 1.0f },
+            { origin.x, origin.y, origin.z, 1.0f },
         };
         device->ShaderConstantsSet(GxSh_Vertex, 0, &constants[0][0], 5);
 
@@ -358,11 +372,7 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         ConsoleWrite("  pixels written: occlusion query unavailable", WARNING_COLOR);
     }
 
-    C44Matrix world;
-    world.d0 = chunk->m_vec1.x - CWorldScene::s_activeWorldView.x;
-    world.d1 = chunk->m_vec1.y - CWorldScene::s_activeWorldView.y;
-    world.d2 = chunk->m_vec1.z - CWorldScene::s_activeWorldView.z;
-    C44Matrix worldViewProj = world * viewProj;
+    C44Matrix worldViewProj = ChunkWorldTransform(chunk) * viewProj;
 
     if (!d3d) {
         ConsoleWrite("  not a Direct3D device", WARNING_COLOR);
@@ -420,7 +430,8 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
     float clipZ = worldViewProj.d2;
     float clipW = worldViewProj.d3;
     float invW = clipW != 0.0f ? 1.0f / clipW : 0.0f;
-    ConsoleWriteA("  chunk origin (%.1f, %.1f, %.1f), camera origin (%.1f, %.1f, %.1f)", DEFAULT_COLOR, chunk->m_vec1.x, chunk->m_vec1.y, chunk->m_vec1.z, CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z);
+    C3Vector origin = ChunkVertexOrigin(chunk);
+    ConsoleWriteA("  vertices %s; vertex origin (%.1f, %.1f, %.1f), camera origin (%.1f, %.1f, %.1f)", DEFAULT_COLOR, CMap::enableTerrainShaderVertex ? "in world space (terrain vertex shaders)" : "local to the chunk", origin.x, origin.y, origin.z, CWorldScene::s_activeWorldView.x, CWorldScene::s_activeWorldView.y, CWorldScene::s_activeWorldView.z);
     ConsoleWriteA("  chunk origin on screen: w %.3f, ndc %.3f %.3f %.5f", DEFAULT_COLOR, clipW, clipX * invW, clipY * invW, clipZ * invW);
     ConsoleWriteA("  batch: prim %d, start %u, count %u, indices %u..%u", DEFAULT_COLOR, static_cast<int32_t>(chunk->m_batch.m_primType), chunk->m_batch.m_start, chunk->m_batch.m_count, chunk->m_batch.m_minIndex, chunk->m_batch.m_maxIndex);
 

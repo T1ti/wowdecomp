@@ -27,7 +27,8 @@ void WorldEditRenderOverlays();
 
 // Terrain pass callback (nullptr detaches it). late is false for the call inside CWorldScene::RenderChunks' render-state
 // push, true for the call from CGWorldFrame::OnWorldRender; the world view is set for both, and the pass sets and
-// restores every state it uses. The chunks' vertices are local to CMapRenderChunk::m_vec1.
+// restores every state it uses. The chunks' vertices are world positions when the terrain vertex shaders are on
+// (CMap::enableTerrainShaderVertex), local to CMapRenderChunk::m_vec1 otherwise (CMapChunk::CreateVertices).
 typedef void (*WORLDEDITTERRAINPASS)(CMapRenderChunk* const* chunks, uint32_t count, bool late);
 void WorldEditSetTerrainPass(WORLDEDITTERRAINPASS pass);
 bool WorldEditTerrainPassActive();

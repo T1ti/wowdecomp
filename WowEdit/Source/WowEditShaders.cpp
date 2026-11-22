@@ -22,8 +22,9 @@
 // 64 x 533.33 yards with its center at 0), so the absolute position lines the grid up with the terrain.
 
 static const char* s_shaderSource = R"HLSL(
-// ---- Vertex shader (port): CMapRenderChunk vertices (local to the chunk) to clip space.
-// c0..c3: rows of world * view * projection (row vectors, as C44Matrix); c4.xyz: the chunk's world origin.
+// ---- Vertex shader (port): CMapRenderChunk vertices to clip space.
+// c0..c3: rows of world * view * projection (row vectors, as C44Matrix); c4.xyz: the origin the vertices are relative
+// to (zero when they are world positions, see ChunkVertexOrigin in WowEditTerrain.cpp).
 float4 vsWorldViewProj[4] : register(c0);
 float4 vsChunkOrigin : register(c4);
 
