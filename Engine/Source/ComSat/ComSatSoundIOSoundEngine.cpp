@@ -203,6 +203,8 @@ int32_t ComSat::Sound::IOSoundEngine::ReadDataForPlayer(uint8_t player, uint8_t*
 // VERIFY: 84034483 auto
 // OFFSET: 0x008879D0
 int32_t ComSat::Sound::IOSoundEngine::GetAvailableDataBytes(uint8_t player) {
+    STORM_ASSERT(player == 0);
+
     return 2 * this->m_captureChannel.m_buffer.Count();
 }
 

@@ -1232,9 +1232,9 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
 
         if (mode >= 0 && (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
             if (!model->m_hitTestPrev) {
-                model->m_hitTestPrev = &model->m_scene->m_hitTestList;
-                model->m_hitTestNext = model->m_scene->m_hitTestList;
-                model->m_scene->m_hitTestList = model;
+                model->m_hitTestPrev = &model->m_scene->m_hitList;
+                model->m_hitTestNext = model->m_scene->m_hitList;
+                model->m_scene->m_hitList = model;
 
                 if (model->m_hitTestNext) {
                     model->m_hitTestNext->m_hitTestPrev = &model->m_hitTestNext;
@@ -1287,9 +1287,9 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
 
         if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             if (!model->m_hitTestPrev) {
-                model->m_hitTestPrev = &model->m_scene->m_hitTestList;
-                model->m_hitTestNext = model->m_scene->m_hitTestList;
-                model->m_scene->m_hitTestList = model;
+                model->m_hitTestPrev = &model->m_scene->m_hitList;
+                model->m_hitTestNext = model->m_scene->m_hitList;
+                model->m_scene->m_hitList = model;
 
                 if (model->m_hitTestNext) {
                     model->m_hitTestNext->m_hitTestPrev = &model->m_hitTestNext;
@@ -5419,9 +5419,9 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
 
         if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             if (!model->m_hitTestPrev) {
-                model->m_hitTestPrev = &model->m_scene->m_hitTestList;
-                model->m_hitTestNext = model->m_scene->m_hitTestList;
-                model->m_scene->m_hitTestList = model;
+                model->m_hitTestPrev = &model->m_scene->m_hitList;
+                model->m_hitTestNext = model->m_scene->m_hitList;
+                model->m_scene->m_hitList = model;
 
                 if (model->m_hitTestNext) {
                     model->m_hitTestNext->m_hitTestPrev = &model->m_hitTestNext;

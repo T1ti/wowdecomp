@@ -84,6 +84,11 @@ uint32_t CM2Shared::AddRef() {
 // VERIFY: 306d8f75 manual
 // OFFSET: 0x008359C0
 int32_t CM2Shared::CallbackWhenLoaded(CM2Model* model) {
+    STORM_ASSERT(model);
+    STORM_ASSERT(!model->m_callbackPrev);
+    STORM_ASSERT(!model->m_callbackNext);
+    STORM_ASSERT(m_callbackList != model);
+
     if (!(model->m_creationFlags & CM2Model::INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND)) {
         if ((this->m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED) && (this->m_flags & SHARED_FLAGS::FLAG_SKIN_LOADED)) {
             model->InitializeLoaded();
@@ -2075,6 +2080,8 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
 // VERIFY: 554f14ce auto
 // OFFSET: 0x0083DC90
 void CM2Shared::Release() {
+    STORM_ASSERT((int) m_refCount > 0);
+
     if (this->m_refCount-- != 1) {
         return;
     }

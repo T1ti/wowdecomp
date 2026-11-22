@@ -90,7 +90,7 @@ class CM2Scene {
     /* 0108 */ void* m_projectTextureParam;
     /* 010C */ int32_t (*m_projectPositionCallback)(const C3Vector&, float&, void*);
     /* 0110 */ void* m_projectPositionParam;
-    /* 0114 */ CM2Model* m_hitTestList;
+    /* 0114 */ CM2Model* m_hitList;
     /* 0118 */ M2HitRec* m_hitRecs;
     /* 011C */ uint32_t* m_hitOrder;
     /* 0120 */ uint32_t m_hitCapacity;
@@ -120,6 +120,11 @@ class CM2Scene {
     M2Element* AddParticleElement(CParticleEmitter2* emitter, CM2Model* model, float depth, float alpha, int32_t split, uint32_t& index, uint32_t& additiveCount);
     void AdvanceTime(uint32_t delta);
     void AllocateSpaceForHitList();
+
+    // INLINED
+    int32_t IsHitTesting() const {
+        return (this->m_flags & HIT_TEST_ACTIVE) != 0;
+    }
     int32_t Animate(const C3Vector& cameraPos);
     void BeginHitTest();
     int32_t ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end, float t, float* length, C3Vector* dir);

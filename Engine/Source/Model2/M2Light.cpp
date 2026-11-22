@@ -137,6 +137,8 @@ void CM2Light::GxLightSet(uint32_t index) {
 // VERIFY: a73679ed manual
 // OFFSET: 0x00834C70
 void CM2Light::Link() {
+    STORM_ASSERT(!m_lightPrev && !m_lightNext);
+
     if (!this->m_visible || !this->m_scene) {
         return;
     }

@@ -423,6 +423,8 @@ void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
 // VERIFY: 2ccd62da manual
 // OFFSET: 0x006C5120
 CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t rowNumber, uint32_t cellHeight) {
+    STORM_ASSERT(data);
+
     uint32_t width = data->m_glyphCellWidth;
 
     if (this->m_widestFreeSlot < width) {

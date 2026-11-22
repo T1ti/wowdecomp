@@ -143,6 +143,8 @@ void CM2Model::WaitForLoad(const char* reason) {
 // VERIFY: 240e75c9 auto
 // OFFSET: 0x00823F10
 void CM2Model::SetAnimating(int32_t animating) {
+    STORM_ASSERT(m_scenePrev);
+
     if (this->m_creationFlags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         if (!animating) {
             goto unlink;
@@ -571,6 +573,8 @@ void CM2Model::FreeExternalResources() {
 // VERIFY: 78234ce5 manual
 // OFFSET: 0x00824ED0
 int32_t CM2Model::Release() {
+    STORM_ASSERT((int) m_refCount > 0);
+
     if (this->m_refCount-- == 1) {
         g_modelPool->Delete(this);
         return 0;
@@ -7527,6 +7531,8 @@ int32_t CM2Model::InitializeLoaded() {
 // VERIFY: 320c6ca5 manual
 // OFFSET: 0x00834540
 void CM2Model::AttachToScene(CM2Scene* scene) {
+    STORM_ASSERT(scene);
+
     this->DetachFromScene();
 
     this->m_scenePrev = &scene->m_modelList;

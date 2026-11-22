@@ -127,6 +127,9 @@ void CM2Scene::PurgeModelCache() {
 // VERIFY: e5d07ffa auto
 // OFFSET: 0x0081CAC0
 void CM2Scene::BeginHitTest() {
+    STORM_ASSERT(!IsHitTesting());
+    STORM_ASSERT(!m_hitList);
+
     this->m_flags |= CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 }
 
@@ -135,7 +138,7 @@ void CM2Scene::BeginHitTest() {
 void CM2Scene::AllocateSpaceForHitList() {
     uint32_t count = 0;
 
-    for (CM2Model* model = this->m_hitTestList; model; model = model->m_hitTestNext) {
+    for (CM2Model* model = this->m_hitList; model; model = model->m_hitTestNext) {
         count++;
     }
 
@@ -275,7 +278,7 @@ int32_t CM2Scene::ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end
         }
     }
 
-    for (CM2Model* model = this->m_hitTestList; model; model = model->m_hitTestNext) {
+    for (CM2Model* model = this->m_hitList; model; model = model->m_hitTestNext) {
         *model->m_hitTestPrev = nullptr;
         model->m_hitTestPrev = nullptr;
     }
@@ -290,7 +293,7 @@ int32_t CM2Scene::ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end
 uint32_t CM2Scene::SphereTestModels(const C3Vector& start, const C3Vector& dir, float length, int32_t frameCheck) {
     uint32_t count = 0;
 
-    for (CM2Model* model = this->m_hitTestList; model; model = model->m_hitTestNext) {
+    for (CM2Model* model = this->m_hitList; model; model = model->m_hitTestNext) {
         *model->m_hitTestPrev = nullptr;
         model->m_hitTestPrev = nullptr;
 
@@ -698,6 +701,8 @@ M2HitRec* CM2Scene::HitTestCollision(const CM2Model* model, uint32_t pass, const
 // VERIFY: eaeb7d7b manual
 // OFFSET: 0x0081DF10
 void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t, int32_t twoPass) {
+    STORM_ASSERT(IsHitTesting());
+
     C3Vector dir(0.0f, 0.0f, 0.0f);
     float length;
 
@@ -1615,7 +1620,7 @@ CM2Scene::CM2Scene(CM2Cache* cache) {
     this->m_particleList = nullptr;
     this->m_projectTextureCallback = nullptr;
     this->m_projectPositionCallback = nullptr;
-    this->m_hitTestList = nullptr;
+    this->m_hitList = nullptr;
     this->m_hitRecs = nullptr;
     this->m_hitOrder = nullptr;
     this->m_hitCapacity = 0;
@@ -2213,6 +2218,8 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 // VERIFY: 651a4228 auto
 // OFFSET: 0x00823040
 void CM2Scene::Release() {
+    STORM_ASSERT((int) m_refCount > 0);
+
     if (this->m_refCount-- == 1) {
         delete this;
     }

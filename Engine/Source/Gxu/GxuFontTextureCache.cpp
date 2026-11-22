@@ -401,6 +401,8 @@ void TEXTURECACHE::TextureCallback(EGxTexCommand command, uint32_t width, uint32
 // VERIFY: 0f656a97 auto
 // OFFSET: 0x006CA050
 void TEXTURECACHE::CreateTexture(int32_t filter) {
+    STORM_ASSERT(!m_texture);
+
     CGxTexFlags flags(static_cast<EGxTexFilter>(filter != 0), 0, 0, 0, 0, 0, 1, 0, 0, 0);
     this->m_texture = TextureCreate(256, 256, GxTex_Argb4444, GxTex_Argb4444, flags, this, TEXTURECACHE::TextureCallback, "GxuFont", 0);
 }

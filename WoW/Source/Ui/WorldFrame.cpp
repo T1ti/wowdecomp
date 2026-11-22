@@ -256,7 +256,7 @@ static int32_t GetObjectHitTestType(CGObject_C* object) {
 static void AddModelToHitTest(CM2Model* model, uint32_t group, void* owner, uint32_t mode) {
     if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         if (!model->m_hitTestPrev) {
-            CM2Model** head = &model->m_scene->m_hitTestList;
+            CM2Model** head = &model->m_scene->m_hitList;
             model->m_hitTestPrev = head;
             model->m_hitTestNext = *head;
             *head = model;
