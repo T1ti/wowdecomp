@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include "Engine/Source/Tempest/CRandom.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 // STATIC: 0x009F1700
 static const uint32_t s_rndTable[64] = {
@@ -93,6 +94,7 @@ float CRandom::sfloat_(CRndSeed& seed) {
 // VERIFY: 4687ef93 manual
 // OFFSET: 0x004C1600
 uint32_t CRandom::dice_(uint32_t sides, CRndSeed& seed) {
+    STORM_ASSERT(sides > 0);
     return static_cast<uint32_t>((static_cast<uint64_t>(sides) * CRandom::uint32_(seed)) >> 32);
 }
 
