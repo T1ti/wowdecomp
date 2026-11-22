@@ -12,6 +12,10 @@
 #include "Engine/Source/Frame/CSimpleTop.h"
 #include "Engine/Source/Services/Camera.h"
 #include "WoW/Source/Ui/WorldFrame.h"
+#include "WoW/Source/DB/DBClient/DBClient.h"
+#include "WoW/Source/WorldClient/MapChunk.h"
+#include "Engine/Source/Gxu/GxuDebugDraw.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include <cmath>
 #include <cstring>
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -30,6 +34,7 @@ static int32_t s_test = WOWEDITTEST_OFF;
 static bool s_probe; // print the device state at the next pass's first draw
 static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
 static uint32_t s_lastChunkCount; // chunks the last pass drew over
+static int32_t s_overlay = WOWEDITOVERLAY_OFF;
 static float s_brushRadius; // yards; 0: no brush
 static float s_brushInnerRadius; // yards, the inner (falloff) circle; 0: none
 static C3Vector s_brushPoint; // the terrain point under the cursor
@@ -89,9 +94,9 @@ static void SetSlopesConstants() {
 // samples it with clamped addressing, which repeats the outermost texels forever outside the brush, so those (and
 // everything past the ring) must be fully transparent.
 static const uint32_t BRUSH_TEXTURE_SIZE = 256;
-static const float BRUSH_RING_INNER = 0.93f; // ring band, in brush radii
+static const float BRUSH_RING_INNER = 0.955f; // ring band, in brush radii
 static const float BRUSH_RING_OUTER = 0.975f;
-static const float BRUSH_DASHES = 24.0f;
+static const float BRUSH_DASHES = 16.0f;
 static const float BRUSH_DASH_DUTY = 0.6f; // part of each dash period that is drawn
 static const float s_brushOuterTint[4] = { 1.0f, 0.35f, 0.2f, 1.0f };
 static const float s_brushInnerTint[4] = { 1.0f, 0.85f, 0.2f, 1.0f };
@@ -201,6 +206,138 @@ static void UpdateBrushPoint() {
     }
 }
 
+// ---- Overlays
+
+// The overlays (port): the 8.1 overlays shader filled with 3.3.5 terrain data. The 8.1 editor drew it for a block of
+// 2 x 2 chunks at a time with a color per chunk and per cell; the port draws it per render chunk (one or two map chunks,
+// CMapRenderChunk::m_mapChunks), the block's corner on their outer corner so that both fall in the block on the same
+// side of it.
+//
+// Area IDs (WOWEDITOVERLAY_AREAS): each map chunk in the color of its area (CMapChunk::m_areaId, the MCNK area ID, a
+// zone or a subzone), a color of its own per area ID, so that area borders show as color changes along chunk edges.
+// Chunks without area stay clear. The cell colors are unused (the area ID is per chunk): the cell texture is clear.
+static const float CHUNK_SIZE = 33.333332f;
+static const float OVERLAY_ALPHA = 0.4f;
+static CGxTex* s_overlayCellTexture;
+
+static void UpdateOverlayCellTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    static uint32_t s_texels[16 * 16]; // clear: no per-cell colors yet
+
+    if (command == GxTex_Latch) {
+        texels = s_texels;
+        texelStrideInBytes = width * 4;
+    }
+}
+
+static CGxTex* OverlayCellTexture() {
+    if (!s_overlayCellTexture) {
+        // Point sampled: one texel per cell.
+        GxTexCreate(16, 16, GxTex_Argb8888, CGxTexFlags(GxTex_Nearest), nullptr, UpdateOverlayCellTexture, s_overlayCellTexture);
+    }
+
+    return s_overlayCellTexture;
+}
+
+// A color of its own for an area ID: a hue from a hash of the ID, so that neighboring areas (often consecutive IDs)
+// differ, at full saturation and brightness.
+static void AreaColor(int32_t areaId, float* color) {
+    uint32_t hash = static_cast<uint32_t>(areaId) * 2654435761u;
+    float hue = static_cast<float>(hash >> 8) / 16777216.0f * 6.0f;
+    int32_t sector = static_cast<int32_t>(hue);
+    float f = hue - static_cast<float>(sector);
+    float rgb[6][3] = {
+        { 1.0f, f, 0.0f }, { 1.0f - f, 1.0f, 0.0f }, { 0.0f, 1.0f, f },
+        { 0.0f, 1.0f - f, 1.0f }, { f, 0.0f, 1.0f }, { 1.0f, 0.0f, 1.0f - f },
+    };
+    const float* c = rgb[sector < 6 ? sector : 5];
+    color[0] = c[0];
+    color[1] = c[1];
+    color[2] = c[2];
+    color[3] = OVERLAY_ALPHA;
+}
+
+// Per render chunk: the block corner and the chunk colors. False when no map chunk of it has an area.
+static bool SetAreaOverlayConstants(CMapRenderChunk* renderChunk) {
+    float constants[NUM_WOWEDITCONSTS][4] = {};
+    constants[WOWEDITCONST_PROJECT_X][0] = 1.0f;
+    constants[WOWEDITCONST_PROJECT_Y][1] = 1.0f;
+
+    // The block corner: the largest x and y of the map chunks (CMapChunk::m_bbox.t, the corner world coordinates count
+    // down from), so that every cell lies on the same side of it.
+    float originX = -1.0e30f;
+    float originY = -1.0e30f;
+
+    for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
+        CMapChunk* chunk = renderChunk->m_mapChunks[i];
+
+        if (chunk) {
+            originX = chunk->m_bbox.t.x > originX ? chunk->m_bbox.t.x : originX;
+            originY = chunk->m_bbox.t.y > originY ? chunk->m_bbox.t.y : originY;
+        }
+    }
+
+    constants[WOWEDITCONST_OVERLAY_ORIGIN][0] = originX;
+    constants[WOWEDITCONST_OVERLAY_ORIGIN][1] = originY;
+    bool any = false;
+
+    for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
+        CMapChunk* chunk = renderChunk->m_mapChunks[i];
+
+        if (!chunk || !chunk->m_areaId) {
+            continue;
+        }
+
+        // The chunk's place in the block, as the shader counts it: x along world y, y along world x.
+        int32_t blockX = static_cast<int32_t>((originY - chunk->m_bbox.t.y) / CHUNK_SIZE + 0.5f);
+        int32_t blockY = static_cast<int32_t>((originX - chunk->m_bbox.t.x) / CHUNK_SIZE + 0.5f);
+
+        if (blockX < 0 || blockX > 1 || blockY < 0 || blockY > 1) {
+            continue;
+        }
+
+        AreaColor(chunk->m_areaId, constants[WOWEDITCONST_OVERLAY_CHUNK_COLOR + blockX + 2 * blockY]);
+        any = true;
+    }
+
+    if (any) {
+        g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 0, &constants[0][0], NUM_WOWEDITCONSTS);
+    }
+
+    return any;
+}
+
+// The area under the cursor, as a label above the ground: its name and ID, and its zone's when it is a subzone.
+static void DrawAreaLabel() {
+    if (!s_brushPointValid) {
+        return;
+    }
+
+    int32_t areaId = CMap::QueryAreaIdTerrain(&s_brushPoint);
+
+    if (!areaId) {
+        return;
+    }
+
+    const AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
+    const AreaTableRec* zone = area && area->m_parentAreaID ? g_areaTableDB.GetRecord(area->m_parentAreaID) : nullptr;
+    char text[256];
+
+    if (zone) {
+        SStrPrintf(text, sizeof(text), "%s (%d), in %s (%d)", area->m_areaName ? area->m_areaName : "?", areaId, zone->m_areaName ? zone->m_areaName : "?", zone->m_id);
+    } else {
+        SStrPrintf(text, sizeof(text), "%s (%d)", area && area->m_areaName ? area->m_areaName : "?", areaId);
+    }
+
+    float color[4];
+    AreaColor(areaId, color);
+    CImVector textColor;
+    textColor.r = static_cast<uint8_t>(color[0] * 255.0f);
+    textColor.g = static_cast<uint8_t>(color[1] * 255.0f);
+    textColor.b = static_cast<uint8_t>(color[2] * 255.0f);
+    textColor.a = 0xFF;
+    GxuDebugDrawText3D(text, C3Vector(s_brushPoint.x, s_brushPoint.y, s_brushPoint.z + 1.5f), textColor);
+}
+
 static void SetBrushConstants(float radius, const float* tint) {
     float constants[NUM_WOWEDITCONSTS][4] = {};
     constants[WOWEDITCONST_PROJECT_X][0] = 1.0f;
@@ -272,12 +409,18 @@ static C44Matrix ChunkWorldTransform(const CMapRenderChunk* chunk) {
 // vertex shaders, the world-view and projection are the very matrices the terrain was drawn with
 // (CMapRenderChunk::s_vertexShaderConsts, set by CWorldScene::RenderChunks through InitializeVertexShaderConstants),
 // in the same registers as the Terrain.bls shaders.
-static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& view, const C44Matrix& projection, bool fixedFunction = false) {
+static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& view, const C44Matrix& projection, bool fixedFunction = false, bool (*perChunk)(CMapRenderChunk*) = nullptr) {
     CGxDevice* device = g_theGxDevicePtr;
     const CMapRenderChunk::SVertexShaderConstants& terrainConsts = CMapRenderChunk::s_vertexShaderConsts;
 
     for (uint32_t i = 0; i < count; i++) {
         CMapRenderChunk* chunk = chunks[i];
+
+        // The overlays set their constants per chunk, and skip chunks with nothing to show.
+        if (perChunk && !perChunk(chunk)) {
+            continue;
+        }
+
         C3Vector origin = ChunkVertexOrigin(chunk);
         C44Matrix world = ChunkWorldTransform(chunk);
 
@@ -365,9 +508,14 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     CGxShader* gridShader = !late && s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
     CGxShader* slopesShader = !late && s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
     CGxShader* brushShader = nullptr;
+    CGxShader* overlaysShader = !late && s_overlay != WOWEDITOVERLAY_OFF ? WowEditShaderGet(WOWEDITSHADER_OVERLAYS) : nullptr;
+
+    // The cursor's terrain point, for the brush and the area label.
+    if (!late && (s_brushRadius > 0.0f || s_overlay == WOWEDITOVERLAY_AREAS)) {
+        UpdateBrushPoint();
+    }
 
     if (!late && s_brushRadius > 0.0f) {
-        UpdateBrushPoint();
         brushShader = s_brushPointValid ? WowEditShaderGet(WOWEDITSHADER_BRUSH) : nullptr;
     }
 
@@ -375,7 +523,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     CGxShader* testShader = shaderTest ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
     bool fixedTest = s_test == WOWEDITTEST_FIXED;
 
-    if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader && !brushShader))) {
+    if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader && !brushShader && !overlaysShader))) {
         return;
     }
 
@@ -437,6 +585,20 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
         device->RsSet(GxRs_DepthTest, 1);
     }
 
+    // The overlays first, under the slopes, grid and brush.
+    CGxTex* cellTexture = overlaysShader ? OverlayCellTexture() : nullptr;
+
+    if (cellTexture) {
+        device->RsSet(GxRs_PixelShader, overlaysShader);
+        device->RsSet(GxRs_Texture0, cellTexture);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection, false, SetAreaOverlayConstants); });
+        device->RsSet(GxRs_Texture0, static_cast<void*>(nullptr));
+
+        if (s_overlay == WOWEDITOVERLAY_AREAS) {
+            DrawAreaLabel();
+        }
+    }
+
     if (slopesShader) {
         device->RsSet(GxRs_PixelShader, slopesShader);
         SetSlopesConstants();
@@ -473,7 +635,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
 static void UpdateTerrainPass() {
     s_passCount = 0;
     s_lastChunkCount = 0;
-    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_brushRadius > 0.0f || s_test != WOWEDITTEST_OFF ? TerrainPass : nullptr);
+    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_brushRadius > 0.0f || s_overlay != WOWEDITOVERLAY_OFF || s_test != WOWEDITTEST_OFF ? TerrainPass : nullptr);
 }
 
 bool WowEditTerrainPrepare() {
@@ -489,6 +651,10 @@ bool WowEditTerrainPrepare() {
 
     if (s_brushRadius > 0.0f) {
         ready = WowEditShaderGet(WOWEDITSHADER_BRUSH) != nullptr && ready;
+    }
+
+    if (s_overlay != WOWEDITOVERLAY_OFF) {
+        ready = WowEditShaderGet(WOWEDITSHADER_OVERLAYS) != nullptr && ready;
     }
 
     if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE) {
@@ -519,6 +685,15 @@ void WowEditTerrainSetSlopes(bool show) {
 
 bool WowEditTerrainGetSlopes() {
     return s_slopes;
+}
+
+void WowEditTerrainSetOverlay(int32_t overlay) {
+    s_overlay = overlay > WOWEDITOVERLAY_OFF && overlay < NUM_WOWEDITOVERLAYS ? overlay : WOWEDITOVERLAY_OFF;
+    UpdateTerrainPass();
+}
+
+int32_t WowEditTerrainGetOverlay() {
+    return s_overlay;
 }
 
 void WowEditTerrainSetBrush(float radius, float innerRadius) {
@@ -612,7 +787,7 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         return;
     }
 
-    // Shaders: the first draw of the pass is the test pass when one is on, then slopes, then the grid, then the brush.
+    // Shaders: the first draw of the pass is the test pass when one is on, then the overlays, slopes, grid, brush.
     CGxShader* vs = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* ps = nullptr;
 
@@ -624,6 +799,10 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         ps = WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid));
     } else if (s_brushRadius > 0.0f) {
         ps = WowEditShaderGet(WOWEDITSHADER_BRUSH);
+    }
+
+    if (s_overlay != WOWEDITOVERLAY_OFF && !(s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE)) {
+        ps = WowEditShaderGet(WOWEDITSHADER_OVERLAYS);
     }
 
     IDirect3DVertexShader9* boundVs = nullptr;

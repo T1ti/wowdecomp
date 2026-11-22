@@ -60,7 +60,7 @@ TerrainOutput TerrainVS(TerrainVertex input) {
 }
 
 // ---- Pixel shaders, from 8.1 (cb11[n] is c[n]).
-float4 cb11[8] : register(c0);
+float4 cb11[9] : register(c0);
 
 struct PixelInput {
     float3 position : TEXCOORD0;
@@ -202,6 +202,26 @@ float4 BrushPS(PixelInput input) : COLOR0 {
     float2 uv = normalizedPosition * 0.5f + 0.5f;
     return tex2D(brushTexture, uv) * cb11[5];
 }
+
+// Overlays (8.1 woweditoverlays_internal): colors a block of 2 x 2 chunks, 16 x 16 cells, counted from the block's
+// corner c4.xy (cells of 1/0.24 = 4.1667 yards, in either direction from the corner: abs). Each pixel gets its chunk's
+// color (c5..c8, index x + 2 y) plus its cell's color. 8.1 indexed constant arrays for both (cb11[5 + chunk] and
+// cb12[x + 16 y]); ps_3_0 cannot index constants, so the chunk color is picked by comparisons and the 256 cell colors
+// come from a 16 x 16 texture (s0, point sampled at the cell's texel), the same table laid out the same way. Neither
+// index is clamped, as in 8.1.
+sampler2D overlayCellColors : register(s0);
+
+float4 OverlaysPS(PixelInput input) : COLOR0 {
+    float2 projected = ProjectPosition(input.position);
+    float2 relativePosition = projected.yx - cb11[4].yx;
+    const float frequency = 0.2400000095367431640625f; // 0x3e75c290
+    float2 cell = floor(abs(relativePosition) * frequency);
+    float2 coarseCell = floor(cell * 0.125f);
+    float coarseIndex = coarseCell.x + coarseCell.y * 2.0f;
+    float4 chunkColor = coarseIndex < 0.5f ? cb11[5] : (coarseIndex < 1.5f ? cb11[6] : (coarseIndex < 2.5f ? cb11[7] : cb11[8]));
+    float4 cellColor = tex2D(overlayCellColors, (cell + 0.5f) / 16.0f);
+    return chunkColor + cellColor;
+}
 )HLSL";
 
 struct WowEditShaderDef {
@@ -220,6 +240,7 @@ static const WowEditShaderDef s_shaderDefs[NUM_WOWEDITSHADERS] = {
     { "WowEditImpassableSlopes", "SlopesPS", "ps_3_0", GxSh_Pixel },
     { "WowEditTest", "TestPS", "ps_3_0", GxSh_Pixel },
     { "WowEditTerrainBrush", "BrushPS", "ps_3_0", GxSh_Pixel },
+    { "WowEditOverlays", "OverlaysPS", "ps_3_0", GxSh_Pixel },
 };
 
 static CGxShader* s_shaders[NUM_WOWEDITSHADERS];

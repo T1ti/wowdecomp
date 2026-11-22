@@ -195,6 +195,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
     }
 
     ConsoleWriteA("  slopes: %s", DEFAULT_COLOR, WowEditTerrainGetSlopes() ? "on" : "off");
+    ConsoleWriteA("  overlay: %s", DEFAULT_COLOR, WowEditTerrainGetOverlay() == WOWEDITOVERLAY_AREAS ? "area IDs" : "off");
 
     if (WowEditTerrainGetBrush() > 0.0f) {
         float x;
@@ -247,6 +248,18 @@ static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments
     bool show = ParseSwitch(arguments, WowEditTerrainGetSlopes());
     WowEditTerrainSetSlopes(show);
     ConsoleWrite(show ? "WowEdit: impassable slopes on" : "WowEdit: impassable slopes off", DEFAULT_COLOR);
+
+    if (show) {
+        PrepareTerrainOverlays();
+    }
+
+    return 1;
+}
+
+static int32_t CCommand_WowEditAreas(const char* command, const char* arguments) {
+    bool show = ParseSwitch(arguments, WowEditTerrainGetOverlay() == WOWEDITOVERLAY_AREAS);
+    WowEditTerrainSetOverlay(show ? WOWEDITOVERLAY_AREAS : WOWEDITOVERLAY_OFF);
+    ConsoleWrite(show ? "WowEdit: area overlay on" : "WowEdit: area overlay off", DEFAULT_COLOR);
 
     if (show) {
         PrepareTerrainOverlays();
@@ -319,6 +332,7 @@ void WowEditRegisterConsoleCommands() {
     ConsoleCommandRegister("wowEdit", CCommand_WowEdit, CATEGORY_DEBUG, "WowEdit: shader support and overlays in use");
     ConsoleCommandRegister("wowEditGrid", CCommand_WowEditGrid, CATEGORY_DEBUG, "WowEdit: terrain grid [0-3|off]");
     ConsoleCommandRegister("wowEditSlopes", CCommand_WowEditSlopes, CATEGORY_DEBUG, "WowEdit: impassable slopes [0|1]");
+    ConsoleCommandRegister("wowEditAreas", CCommand_WowEditAreas, CATEGORY_DEBUG, "WowEdit: area ID overlay [0|1]");
     ConsoleCommandRegister("wowEditBrush", CCommand_WowEditBrush, CATEGORY_DEBUG, "WowEdit: terrain brush cursor [radius [inner]|off]");
     ConsoleCommandRegister("wowEditMarkers", CCommand_WowEditMarkers, CATEGORY_DEBUG, "WowEdit: sample editor markers [0|1]");
 }

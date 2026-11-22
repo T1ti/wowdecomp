@@ -22,6 +22,15 @@ void WowEditTerrainSetGrid(int32_t permutation);
 int32_t WowEditTerrainGetGrid();
 void WowEditTerrainSetSlopes(bool show);
 bool WowEditTerrainGetSlopes();
+// Overlays: the 8.1 overlays shader (per-chunk and per-cell colors) showing 3.3.5 terrain data.
+enum WOWEDITOVERLAY : int32_t {
+    WOWEDITOVERLAY_OFF = 0,
+    WOWEDITOVERLAY_AREAS = 1, // each chunk in a color of its area ID, and the area under the cursor named
+    NUM_WOWEDITOVERLAYS = 2,
+};
+
+void WowEditTerrainSetOverlay(int32_t overlay);
+int32_t WowEditTerrainGetOverlay();
 // Terrain brush: the 8.1 editor's brush cursor, laid on the terrain under the mouse cursor: a dashed red-orange circle
 // at radius and a dashed yellow one at innerRadius (the falloff radius; 0 or not below radius: none). Yards; a radius
 // of 0 turns it off.
