@@ -615,7 +615,13 @@ void DayNight::FindAndAddZoneLight(const C3Vector* position) {
 // VERIFY: 4cdcc272 auto
 // OFFSET: 0x0077F1E0
 int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float* height, int32_t* unknown4) {
-    if (!entity || !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
+    if (!entity) {
+        return 0;
+    }
+
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
+
+    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         return 0;
     }
 
@@ -629,7 +635,13 @@ int32_t World::QueryObjectLiquid(CMapEntity* entity, int32_t* liquidType, float*
 // VERIFY: 52533b77 auto
 // OFFSET: 0x0077F220
 int32_t World::QueryObjectLiquidFlags(CMapEntity* entity, int32_t* flag8, int32_t* flag9) {
-    if (!entity || !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
+    if (!entity) {
+        return 0;
+    }
+
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
+
+    if (!(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_IN_LIQUID)) {
         return 0;
     }
 
@@ -780,6 +792,7 @@ int32_t World::QueryObjectInside(CMapEntity* entity) {
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryInterior();
 }
 
@@ -799,16 +812,18 @@ void CWorldScene::RenderParticulate() {
 
 // VERIFY: 623133e8 auto
 // OFFSET: 0x0077FCD0
-int32_t World::ObjectIsDrawable(CMapBaseObj* object) {
-    if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        return static_cast<CMapObjDef*>(object)->IsAllDrawable();
+int32_t World::ObjectIsDrawable(CMapBaseObj* baseObj) {
+    STORM_ASSERT(baseObj);
+
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        return static_cast<CMapObjDef*>(baseObj)->IsAllDrawable();
     }
 
-    if (!(object->m_type & CMapBaseObj::Type_DoodadDef)) {
+    if (!(baseObj->m_type & CMapBaseObj::Type_DoodadDef)) {
         return 0;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(object)->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->m_model;
 
     if (!model) {
         return 1;
@@ -819,9 +834,11 @@ int32_t World::ObjectIsDrawable(CMapBaseObj* object) {
 
 // VERIFY: 86d43bac auto
 // OFFSET: 0x0077FD10
-int32_t World::ObjectIsLoaded(CMapBaseObj* object) {
-    if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(object);
+int32_t World::ObjectIsLoaded(CMapBaseObj* baseObj) {
+    STORM_ASSERT(baseObj);
+
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(baseObj);
 
         if (!mapObjDef->IsAllLoaded()) {
             return 0;
@@ -830,11 +847,11 @@ int32_t World::ObjectIsLoaded(CMapBaseObj* object) {
         return mapObjDef->m_owner->IsAllLoaded();
     }
 
-    if (!(object->m_type & CMapBaseObj::Type_DoodadDef)) {
+    if (!(baseObj->m_type & CMapBaseObj::Type_DoodadDef)) {
         return 0;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(object)->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->m_model;
 
     if (!model) {
         return 1;
@@ -865,11 +882,13 @@ void World::ProjectTextureCallback(const CAaBox& box, const CImVector& color, in
 
 // VERIFY: 7b66e8de auto
 // OFFSET: 0x0077FE20
-void World::ObjectSetAlwaysExterior(CMapBaseObj* object, BOOL enable) {
+void World::ObjectSetAlwaysExterior(CMapBaseObj* baseObj, BOOL enable) {
+    STORM_ASSERT(baseObj);
+
     if (enable) {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags | MAPOBJ_FLAG_NO_MAPOBJ_LINK);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags | MAPOBJ_FLAG_NO_MAPOBJ_LINK);
     } else {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags & ~MAPOBJ_FLAG_NO_MAPOBJ_LINK);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags & ~MAPOBJ_FLAG_NO_MAPOBJ_LINK);
     }
 }
 
@@ -901,23 +920,30 @@ void World::ObjectSetDoodadsEnabled(CMapBaseObj* object, BOOL enable, uint16_t d
 
 // VERIFY: 2c7a8fa7 auto
 // OFFSET: 0x0077FEC0
-void World::ObjectSetSequence(CMapEntity* entity, uint32_t sequence, int32_t unknown3, int32_t doodadSet) {
-    if (entity->m_type & CMapBaseObj::Type_MapObjDef) {
-        reinterpret_cast<CMapObjDef*>(entity)->SetSequence(sequence, unknown3, static_cast<uint16_t>(doodadSet));
-    } else if (entity->m_type & CMapBaseObj::Type_DoodadDef) {
-        if (entity->m_model) {
-            entity->m_model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+void World::ObjectSetSequence(CMapEntity* baseObj, uint32_t sequence, int32_t unknown3, int32_t specialDoodadSet) {
+    STORM_ASSERT(baseObj);
+
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        reinterpret_cast<CMapObjDef*>(baseObj)->SetSequence(sequence, unknown3, static_cast<uint16_t>(specialDoodadSet));
+    } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
+        STORM_ASSERT(specialDoodadSet==0);
+
+        if (baseObj->m_model) {
+            baseObj->m_model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         }
     }
 }
 
 // VERIFY: e33527b6 auto
 // OFFSET: 0x0077FF60
-void World::ObjectSetEventCallback(CMapBaseObj* object, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param), uint64_t param, uint16_t doodadSet) {
-    if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        static_cast<CMapObjDef*>(object)->SetEventCallback(callback, param, doodadSet);
-    } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
-        CM2Model* model = static_cast<CMapDoodadDef*>(object)->m_model;
+void World::ObjectSetEventCallback(CMapBaseObj* baseObj, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param), uint64_t param, uint16_t specialDoodadSet) {
+    STORM_ASSERT(baseObj);
+
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        static_cast<CMapObjDef*>(baseObj)->SetEventCallback(callback, param, specialDoodadSet);
+    } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
+        STORM_ASSERT(specialDoodadSet==0);
+        CM2Model* model = static_cast<CMapDoodadDef*>(baseObj)->m_model;
 
         if (model) {
             model->SetEventCallback(callback, param);
@@ -927,27 +953,33 @@ void World::ObjectSetEventCallback(CMapBaseObj* object, void (*callback)(CM2Mode
 
 // VERIFY: 341fb3f3 auto
 // OFFSET: 0x00780130
-void World::ObjectGetExtents(CMapBaseObj* object, CAaBox* extents) {
-    if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        static_cast<CMapObjDef*>(object)->m_owner->GetBounds(extents);
-    } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
-        *extents = static_cast<CMapDoodadDef*>(object)->m_model->GetBoundingBox();
+void World::ObjectGetExtents(CMapBaseObj* baseObj, CAaBox* extents) {
+    STORM_ASSERT(baseObj);
+
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        static_cast<CMapObjDef*>(baseObj)->m_owner->GetBounds(extents);
+    } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
+        *extents = static_cast<CMapDoodadDef*>(baseObj)->m_model->GetBoundingBox();
     }
 }
 
 // VERIFY: aa9498a7 auto
 // OFFSET: 0x00780190
-int32_t World::ObjectIsWMO(CMapBaseObj* object) {
-    return object->m_type & CMapBaseObj::Type_MapObjDef;
+int32_t World::ObjectIsWMO(CMapBaseObj* baseObj) {
+    STORM_ASSERT(baseObj);
+
+    return baseObj->m_type & CMapBaseObj::Type_MapObjDef;
 }
 
 // VERIFY: 740254e1 auto
 // OFFSET: 0x007801A0
-void World::ObjectEnableCollision(CMapBaseObj* object, BOOL enable) {
+void World::ObjectEnableCollision(CMapBaseObj* baseObj, BOOL enable) {
+    STORM_ASSERT(baseObj);
+
     if (enable) {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags & ~MAPOBJ_FLAG_NO_HITTEST);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags & ~MAPOBJ_FLAG_NO_HITTEST);
     } else {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags | MAPOBJ_FLAG_NO_HITTEST);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags | MAPOBJ_FLAG_NO_HITTEST);
     }
 }
 
@@ -4257,6 +4289,7 @@ int32_t World::QueryObjectVisible(CMapEntity* entity) {
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->m_culled == CMapStaticEntity::CULL_VISIBLE;
 }
 
@@ -4675,6 +4708,7 @@ int32_t World::QueryMapObjZoneName(CMapEntity* entity, const char** zoneName) {
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjZoneName(zoneName);
 }
 
@@ -4685,6 +4719,7 @@ int32_t World::QueryMapObjSubzoneName(CMapEntity* entity, const char** subzoneNa
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjSubzoneName(subzoneName, areaId);
 }
 
@@ -4695,13 +4730,19 @@ bool World::QueryMapObjIDs(CMapEntity* entity, int32_t* wmoId, int32_t* wmoHash,
         return false;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjIDs(wmoId, wmoHash, groupNum);
 }
 
 // VERIFY: 3e1ad2c7 manual
 // OFFSET: 0x0077F1B0
 bool World::QueryMapObjAreaTable(CMapEntity* entity, WMOAreaTableRec** groupRec, WMOAreaTableRec** rootRec, int32_t* wmoGroupId) {
-    return entity && entity->QueryMapObjAreaTable(groupRec, rootRec, wmoGroupId);
+    if (!entity) {
+        return false;
+    }
+
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
+    return entity->QueryMapObjAreaTable(groupRec, rootRec, wmoGroupId);
 }
 
 // VERIFY: 018bde21 auto
@@ -4892,6 +4933,7 @@ int32_t World::QueryMapObjFileName(CMapEntity* entity, const char** fileName) {
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjFileName(fileName);
 }
 
@@ -4902,6 +4944,7 @@ bool World::QueryMapObjMinimap(CMapEntity* entity, CAaBox* box, TSStackArray<MIN
         return false;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjMinimap(box, quads, maxQuads, inside, indoorArea);
 }
 
@@ -4912,6 +4955,7 @@ bool World::QueryMapObjMatrix(CMapEntity* entity, C44Matrix* matrix, C44Matrix* 
         return false;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     return entity->QueryMapObjMatrix(matrix, invMatrix);
 }
 
@@ -5011,18 +5055,20 @@ void CWorldScene::RenderHorizon() {
 
 // VERIFY: 8f0548db manual
 // OFFSET: 0x00783A60
-void World::ObjectSetRenderEnabled(CMapBaseObj* object, BOOL enable) {
+void World::ObjectSetRenderEnabled(CMapBaseObj* baseObj, BOOL enable) {
+    STORM_ASSERT(baseObj);
+
     if (enable) {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags & ~MAPOBJ_FLAG_DISABLED);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags & ~MAPOBJ_FLAG_DISABLED);
     } else {
-        object->m_flags = static_cast<MapObjFlag>(object->m_flags | MAPOBJ_FLAG_DISABLED);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags | MAPOBJ_FLAG_DISABLED);
     }
 
-    if (!(object->m_type & CMapBaseObj::Type_MapObjDef)) {
+    if (!(baseObj->m_type & CMapBaseObj::Type_MapObjDef)) {
         return;
     }
 
-    CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(object);
+    CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(baseObj);
 
     for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
@@ -5056,6 +5102,7 @@ int32_t World::QueryGroundType(CMapEntity* entity, int32_t* groundType) {
         return 0;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     if (entity->m_groundType == -1) {
         return 0;
     }
@@ -5105,11 +5152,13 @@ void World::UpdateObjectFadeouts() {
 
 // VERIFY: 6429c545 auto
 // OFFSET: 0x0077FE00
-void World::ObjectSetMoveable(CMapEntity* entity, int32_t moveable) {
+void World::ObjectSetMoveable(CMapEntity* baseObj, int32_t moveable) {
+    STORM_ASSERT(baseObj);
+
     if (moveable) {
-        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_PROJ_TEX);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags | MAPOBJ_FLAG_PROJ_TEX);
     } else {
-        entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~MAPOBJ_FLAG_PROJ_TEX);
+        baseObj->m_flags = static_cast<MapObjFlag>(baseObj->m_flags & ~MAPOBJ_FLAG_PROJ_TEX);
     }
 }
 
@@ -5221,6 +5270,7 @@ int32_t World::QueryOutdoors(CMapEntity* entity) {
         return 1;
     }
 
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
     CMapObjDef* mapObjDef;
     CMapObj* mapObj;
     CMapObjDefGroup* mapObjDefGroup;
@@ -5289,13 +5339,17 @@ CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, fl
 
 // VERIFY: 1612d04a auto
 // OFFSET: 0x0077FF10
-void World::ObjectSetSequenceFinishedCallback(CMapEntity* entity, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param), uint64_t param, uint16_t doodad) {
-    CMapBaseObj* object = entity;
+void World::ObjectSetSequenceFinishedCallback(CMapEntity* baseObj, void (*callback)(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param), uint64_t param, uint16_t specialDoodadSet) {
+    STORM_ASSERT(baseObj);
 
-    if (object->m_type & CMapBaseObj::Type_MapObjDef) {
-        static_cast<CMapObjDef*>(object)->SetSequenceFinishedCallback(callback, param, doodad);
-    } else if ((object->m_type & CMapBaseObj::Type_DoodadDef) && entity->m_model) {
-        entity->m_model->SetSequenceCallback(callback, param);
+    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+        static_cast<CMapObjDef*>(static_cast<CMapBaseObj*>(baseObj))->SetSequenceFinishedCallback(callback, param, specialDoodadSet);
+    } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
+        STORM_ASSERT(specialDoodadSet==0);
+
+        if (baseObj->m_model) {
+            baseObj->m_model->SetSequenceCallback(callback, param);
+        }
     }
 }
 
@@ -5333,24 +5387,26 @@ void World::SetFrameCntCallback(void (*callback)()) {
 
 // VERIFY: 0bce3425 manual
 // OFFSET: 0x0077FFB0
-bool World::ObjectTestConvexVolume(CMapEntity* entity, const C3Vector& point) {
-    uint16_t type = entity->m_type;
+bool World::ObjectTestConvexVolume(CMapEntity* baseObj, const C3Vector& point) {
+    STORM_ASSERT(baseObj);
+
+    uint16_t type = baseObj->m_type;
 
     if (type & CMapBaseObj::Type_MapObjDef) {
-        return static_cast<CMapObjDef*>(static_cast<CMapBaseObj*>(entity))->m_owner->TestConvexVolume(point);
+        return static_cast<CMapObjDef*>(static_cast<CMapBaseObj*>(baseObj))->m_owner->TestConvexVolume(point);
     }
 
     if (!(type & CMapBaseObj::Type_DoodadDef)) {
         return true;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(entity))->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->m_model;
 
     if (!model || !model->IsLoaded(0, 0)) {
         return false;
     }
 
-    model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(entity))->m_model;
+    model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->m_model;
 
     if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
         model->WaitForLoad(nullptr);
