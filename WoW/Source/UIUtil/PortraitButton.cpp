@@ -34,10 +34,12 @@
 #include "WoW/Source/DebugFeatures.h"
 
 // STATIC: 0x00C5CDF0
-static CTexture* s_portraitMaskTexture;
+static CTexture* s_alphaTex;
+
+static constexpr uint32_t PORTRAIT_SIZE_SMALL = 64;
 
 // STATIC: 0x00C5CDF4
-static CGxTex* s_portraitMaskGxTex;
+static CGxTex* s_gxAlphaTex;
 
 // STATIC: 0x00C5CDF8
 static CTexture* s_portraitDepthTexture;
@@ -120,14 +122,16 @@ void __fastcall UpdateAllPortraits() {
 // VERIFY: 8d2cec8a manual
 // OFFSET: 0x00618010
 void PortraitInitialize() {
+    STORM_ASSERT(s_alphaTex == nullptr); // 12213: "s_alphaTex==__null"
+
     CStatus status;
 
-    s_portraitMaskTexture = TextureCreate("Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall.blp", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 0);
+    s_alphaTex = TextureCreate("Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall.blp", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 0);
 
-    if (s_portraitMaskTexture) {
-        s_portraitMaskGxTex = TextureGetGxTex(s_portraitMaskTexture, 1, nullptr);
+    if (s_alphaTex) {
+        s_gxAlphaTex = TextureGetGxTex(s_alphaTex, 1, nullptr);
     } else {
-        s_portraitMaskGxTex = nullptr;
+        s_gxAlphaTex = nullptr;
     }
 
     s_rtAlphaSupported = RTAlphaSupported();
@@ -364,35 +368,47 @@ static TSFixedArray<uint8_t>* GetAlphaMask(uint32_t size) {
 
     mask->SetCount(size * size);
     BOOL loaded = 0;
-    CTgaFile tga;
+    CTgaFile alpha;
     const char* tgaName = nullptr;
 
     if (size == 128) {
         tgaName = "Interface\\CharacterFrame\\TempPortraitAlphaMask.tga";
     } else if (size == 64) {
         tgaName = "Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall.tga";
+    } else {
+        STORM_ASSERT(!"Unknown portrait size");
     }
 
-    if (tga.Open(tgaName, 1) && tga.LoadImageData(0)) {
-        memcpy(mask->m_data, tga.Image(), mask->m_count);
-        tga.Close();
-        return mask;
+    if (alpha.Open(tgaName, 1)) {
+        STORM_ASSERT(alpha.Width() == size);
+        STORM_ASSERT(alpha.Height() == size);
+
+        if (alpha.LoadImageData(0)) {
+            memcpy(mask->m_data, alpha.Image(), mask->m_count);
+            alpha.Close();
+            return mask;
+        }
     }
 
-    CBLPFile blp;
+    CBLPFile image;
     const char* blpName = nullptr;
 
     if (size == 128) {
         blpName = "Interface\\CharacterFrame\\TempPortraitAlphaMask.blp";
     } else if (size == 64) {
         blpName = "Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall.blp";
+    } else {
+        STORM_ASSERT(!"Unknown portrait size");
     }
 
-    if (blp.Open(blpName, 1)) {
+    if (image.Open(blpName, 1)) {
+        STORM_ASSERT(image.Width(0) == size); // 12213: "image.Width() == size"
+        STORM_ASSERT(image.Height(0) == size); // 12213: "image.Height() == size"
+
         uint8_t* pixels;
         uint32_t stride;
 
-        if (blp.Lock(PIXEL_ARGB8888, 0, pixels, stride)) {
+        if (image.Lock(PIXEL_ARGB8888, 0, pixels, stride)) {
             for (uint32_t i = 0; i < mask->m_count; i++) {
                 mask->m_data[i] = pixels[4 * i];
             }
@@ -400,17 +416,17 @@ static TSFixedArray<uint8_t>* GetAlphaMask(uint32_t size) {
             loaded = 1;
         }
 
-        blp.Unlock(0);
-        blp.Close();
+        image.Unlock(0);
+        image.Close();
     }
 
-    blp.Close();
+    image.Close();
 
     if (!loaded) {
         memset(mask->m_data, 0xFF, mask->m_count);
     }
 
-    tga.Close();
+    alpha.Close();
     return mask;
 }
 
@@ -438,6 +454,10 @@ void SetPortraitTexture(CSimpleTexture* texture, uint32_t race, uint32_t sex, WO
             return;
         }
     }
+
+    STORM_ASSERT(race != 0);
+    STORM_ASSERT(race <= static_cast<uint32_t>(g_chrRacesDB.GetMaxID())); // 12213: "race <= (uint)g_chrRacesDB.GetMaxID()"
+    STORM_ASSERT(sex < UNITSEX_LAST);
 
     ChrRacesRec* raceRec = g_chrRacesDB.GetRecord(race);
     char fileName[64];
@@ -492,30 +512,35 @@ void SetPortraitTexture(CSimpleTexture* texture, const char* fileName) {
     }
 
     portrait = s_itemPortraits.New(fileName, 0, 0);
-    CBLPFile blp;
+    CBLPFile texFile;
     char blpName[260];
     SStrPrintf(blpName, sizeof(blpName), "%s.blp", fileName);
 
-    if (blp.Open(blpName, 1)) {
+    if (texFile.Open(blpName, 1)) {
+        STORM_ASSERT(texFile.Width(0) == PORTRAIT_SIZE_SMALL); // 12213: "texFile.Width() == PORTRAIT_SIZE_SMALL"
+        STORM_ASSERT(texFile.Height(0) == PORTRAIT_SIZE_SMALL); // 12213: "texFile.Height() == PORTRAIT_SIZE_SMALL"
+
         if (!portrait->m_texels.Count()) {
             portrait->m_texels.SetCount(4096);
         }
 
-        uint8_t* pixels;
+        uint8_t* texels;
         uint32_t stride;
 
-        if (blp.Lock(PIXEL_ARGB8888, 0, pixels, stride)) {
+        if (texFile.Lock(PIXEL_ARGB8888, 0, texels, stride)) {
             for (uint32_t i = 0; i < portrait->m_texels.Count(); i++) {
-                portrait->m_texels.m_data[i] = *reinterpret_cast<CImVector*>(&pixels[4 * i]);
+                portrait->m_texels.m_data[i] = *reinterpret_cast<CImVector*>(&texels[4 * i]);
             }
         }
 
-        blp.Unlock(0);
-        blp.Close();
-        TSFixedArray<uint8_t>* mask = GetAlphaMask(64);
+        texFile.Unlock(0);
+        texFile.Close();
+        auto& pixels = portrait->m_texels;
+        TSFixedArray<uint8_t>& alphaMask = *GetAlphaMask(PORTRAIT_SIZE_SMALL);
+        STORM_ASSERT(pixels.Count() == alphaMask.Count());
 
-        for (uint32_t i = 0; i < portrait->m_texels.Count(); i++) {
-            portrait->m_texels.m_data[i].a = mask->m_data[i];
+        for (uint32_t i = 0; i < pixels.Count(); i++) {
+            pixels.m_data[i].a = alphaMask.m_data[i];
         }
 
         CGxTexFlags flags(GxTex_Linear, 0, 0, 0, 0, 0, 1);
@@ -524,7 +549,7 @@ void SetPortraitTexture(CSimpleTexture* texture, const char* fileName) {
         portrait->m_texture = portraitTexture;
     }
 
-    blp.Close();
+    texFile.Close();
 }
 
 // VERIFY: f3347f07 manual
@@ -769,7 +794,8 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         GxuXformCreateOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 500.0f, ortho);
         GxXformSetProjection(ortho);
         g_theGxDevicePtr->RsPush();
-        GxRsSet(GxRs_Texture0, s_portraitMaskGxTex);
+        STORM_ASSERT(s_gxAlphaTex);
+        GxRsSet(GxRs_Texture0, s_gxAlphaTex);
         GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
         GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
         GxRsSet(GxRs_ColorWrite, GxColorWrite_Alpha);
@@ -808,11 +834,14 @@ void RenderPortraitTexture(CSimpleTexture* texture, CGUnit_C* unit) {
         rect.minX = 0;
         rect.maxY = 64;
         rect.maxX = 64;
-        GxReadPixels(rect, cache->m_texels);
-        TSFixedArray<uint8_t>* mask = GetAlphaMask(64);
+        auto& pixels = cache->m_texels;
+        GxReadPixels(rect, pixels);
 
-        for (uint32_t i = 0; i < cache->m_texels.Count(); i++) {
-            cache->m_texels.m_data[i].a = mask->m_data[i];
+        TSFixedArray<uint8_t>& alphaMask = *GetAlphaMask(PORTRAIT_SIZE_SMALL);
+        STORM_ASSERT(pixels.Count() == alphaMask.Count());
+
+        for (uint32_t i = 0; i < pixels.Count(); i++) {
+            pixels.m_data[i].a = alphaMask.m_data[i];
         }
 
         GxTexUpdate(gxTex, rect, 1);
@@ -855,9 +884,9 @@ int32_t ReadyModelForUI(CGUnit_C* unit, uint32_t flags) {
 // VERIFY: 7490c1d9 auto
 // OFFSET: 0x00617860
 void PortraitShutdown() {
-    s_portraitMaskGxTex = nullptr;
-    HandleClose(reinterpret_cast<HOBJECT>(s_portraitMaskTexture));
-    s_portraitMaskTexture = nullptr;
+    s_gxAlphaTex = nullptr;
+    HandleClose(reinterpret_cast<HOBJECT>(s_alphaTex));
+    s_alphaTex = nullptr;
 
     if (s_portraitDepthTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(s_portraitDepthTexture));

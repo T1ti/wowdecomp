@@ -26,6 +26,10 @@ class WowClientDB_Base {
     virtual void Load(const char* file, int32_t line) = 0;
     virtual void Dump(int32_t unknown1) = 0; // DBC dumping (name inferred from the 12213 assertion)
 
+    int32_t GetMaxID() const {
+        return this->m_maxID;
+    }
+
     WowClientDB_Base();
 };
 
