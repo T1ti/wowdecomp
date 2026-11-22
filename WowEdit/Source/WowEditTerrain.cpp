@@ -30,9 +30,12 @@ static const float s_cellColor[4] = { 1.0f, 1.0f, 1.0f, 0.35f }; // c7, cell lin
 static const float s_chunkColor[4] = { 1.0f, 0.85f, 0.1f, 0.8f }; // c5, chunk lines
 static const float s_tileColor[4] = { 1.0f, 0.2f, 0.2f, 1.0f }; // c6, map tile lines
 
-// Depth bias against the terrain the pass repeats (GxRs_PolygonOffset units, see GxuDebugDrawShapes.cpp). The pass
-// goes through the editor vertex shader while the terrain may have gone through the fixed-function pipeline or the
-// terrain vertex shader, so the depths can differ in the last bits.
+// Depth bias against the terrain the pass repeats (GxRs_PolygonOffset units, see GxuDebugDrawShapes.cpp), only when
+// the terrain went through the fixed-function pipeline, whose depths the editor vertex shader cannot reproduce to the
+// last bit. With the terrain vertex shaders the editor shader computes the position with the terrain's own constants
+// and instructions (see TerrainVS), so the depths are equal and no bias is used: a constant bias is worth a few
+// centimeters near the camera but several yards on distant hills, where it lets the overlay of a hill behind show
+// through the hill in front.
 static const float TERRAIN_OVERLAY_DEPTH_BIAS = 2.0f / 65536.0f;
 
 static void SetGridConstants() {
@@ -96,14 +99,19 @@ static C44Matrix ChunkWorldTransform(const CMapRenderChunk* chunk) {
 
 // Draws each chunk once with the bound shaders (or, with fixedFunction, through the fixed-function pipeline with the
 // world transform RenderSetup sets).
-static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& viewProj, bool fixedFunction = false) {
+//
+// TerrainVS constants: c0..c3 the world-view rows, c4..c7 the projection rows, c8 the vertex origin. With the terrain
+// vertex shaders, the world-view and projection are the very matrices the terrain was drawn with
+// (CMapRenderChunk::s_vertexShaderConsts, set by CWorldScene::RenderChunks through InitializeVertexShaderConstants),
+// in the same registers as the Terrain.bls shaders.
+static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44Matrix& view, const C44Matrix& projection, bool fixedFunction = false) {
     CGxDevice* device = g_theGxDevicePtr;
+    const CMapRenderChunk::SVertexShaderConstants& terrainConsts = CMapRenderChunk::s_vertexShaderConsts;
 
     for (uint32_t i = 0; i < count; i++) {
         CMapRenderChunk* chunk = chunks[i];
         C3Vector origin = ChunkVertexOrigin(chunk);
         C44Matrix world = ChunkWorldTransform(chunk);
-        C44Matrix worldViewProj = world * viewProj;
 
         if (fixedFunction) {
             GxXformSet(GxXform_World, world);
@@ -116,14 +124,12 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
             continue;
         }
 
-        float constants[5][4] = {
-            { worldViewProj.a0, worldViewProj.a1, worldViewProj.a2, worldViewProj.a3 },
-            { worldViewProj.b0, worldViewProj.b1, worldViewProj.b2, worldViewProj.b3 },
-            { worldViewProj.c0, worldViewProj.c1, worldViewProj.c2, worldViewProj.c3 },
-            { worldViewProj.d0, worldViewProj.d1, worldViewProj.d2, worldViewProj.d3 },
-            { origin.x, origin.y, origin.z, 1.0f },
-        };
-        device->ShaderConstantsSet(GxSh_Vertex, 0, &constants[0][0], 5);
+        C44Matrix worldView = CMap::enableTerrainShaderVertex ? terrainConsts.m_worldView : world * view;
+        const C44Matrix& chunkProjection = CMap::enableTerrainShaderVertex ? terrainConsts.m_projection : projection;
+        device->ShaderConstantsSet(GxSh_Vertex, 0, reinterpret_cast<const float*>(&worldView), 4);
+        device->ShaderConstantsSet(GxSh_Vertex, 4, reinterpret_cast<const float*>(&chunkProjection), 4);
+        float vertexOrigin[4] = { origin.x, origin.y, origin.z, 1.0f };
+        device->ShaderConstantsSet(GxSh_Vertex, 8, vertexOrigin, 1);
 
         BindChunkGeometry(chunk);
 
@@ -207,7 +213,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     device->RsSet(GxRs_DepthTest, 1);
     device->RsSet(GxRs_DepthFunc, static_cast<int32_t>(GxCmp_LEqual));
     device->RsSet(GxRs_DepthWrite, 0);
-    device->RsSet(GxRs_PolygonOffset, TERRAIN_OVERLAY_DEPTH_BIAS);
+    device->RsSet(GxRs_PolygonOffset, CMap::enableTerrainShaderVertex ? 0.0f : TERRAIN_OVERLAY_DEPTH_BIAS);
     device->RsSet(GxRs_Culling, 0);
     device->RsSet(GxRs_Fog, 0);
     device->RsSet(GxRs_Lighting, 0);
@@ -218,9 +224,10 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     CGxMatrixStack& viewStack = device->m_xforms[GxXform_View];
+    const C44Matrix& view = viewStack.m_mtx[viewStack.m_level];
     C44Matrix projection;
     GxXformProjNative(projection);
-    C44Matrix viewProj = viewStack.m_mtx[viewStack.m_level] * projection;
+    C44Matrix viewProj = view * projection;
 
     if (fixedTest) {
         device->RsSet(GxRs_VertexShader, static_cast<void*>(nullptr));
@@ -228,7 +235,10 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
         device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Opaque));
         GxUpdateAlphaRef(GxRs_AlphaRef);
         device->XformPush(GxXform_World);
-        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj, true); });
+        // The fixed-function pipeline cannot match the terrain shader's depths: keep the bias.
+        device->RsSet(GxRs_PolygonOffset, TERRAIN_OVERLAY_DEPTH_BIAS);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection, true); });
+        device->RsSet(GxRs_PolygonOffset, CMap::enableTerrainShaderVertex ? 0.0f : TERRAIN_OVERLAY_DEPTH_BIAS);
         GxXformPop(GxXform_World);
         device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Alpha));
         GxUpdateAlphaRef(GxRs_AlphaRef);
@@ -248,20 +258,20 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
             device->RsSet(GxRs_DepthTest, 0);
         }
 
-        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection); });
         device->RsSet(GxRs_DepthTest, 1);
     }
 
     if (slopesShader) {
         device->RsSet(GxRs_PixelShader, slopesShader);
         SetSlopesConstants();
-        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection); });
     }
 
     if (gridShader) {
         device->RsSet(GxRs_PixelShader, gridShader);
         SetGridConstants();
-        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection); });
     }
 
     device->RsPop();
@@ -414,11 +424,11 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         ConsoleWriteA("  overlay pixel shader: valid %d, loaded %d, %u bytes", DEFAULT_COLOR, ps->m_valid, ps->m_loaded, ps->m_code.Count());
     }
 
-    // Vertex shader constants c0..c4 as the device holds them.
-    float constants[5][4] = {};
+    // Vertex shader constants c0..c8 as the device holds them.
+    float constants[9][4] = {};
 
-    if (SUCCEEDED(d3d->GetVertexShaderConstantF(0, &constants[0][0], 5))) {
-        for (uint32_t i = 0; i < 5; i++) {
+    if (SUCCEEDED(d3d->GetVertexShaderConstantF(0, &constants[0][0], 9))) {
+        for (uint32_t i = 0; i < 9; i++) {
             ConsoleWriteA("  c%u: %.4f %.4f %.4f %.4f", DEFAULT_COLOR, i, constants[i][0], constants[i][1], constants[i][2], constants[i][3]);
         }
     }

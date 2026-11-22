@@ -23,10 +23,12 @@
 
 static const char* s_shaderSource = R"HLSL(
 // ---- Vertex shader (port): CMapRenderChunk vertices to clip space.
-// c0..c3: rows of world * view * projection (row vectors, as C44Matrix); c4.xyz: the origin the vertices are relative
-// to (zero when they are world positions, see ChunkVertexOrigin in WowEditTerrain.cpp).
-float4 vsWorldViewProj[4] : register(c0);
-float4 vsChunkOrigin : register(c4);
+// c0..c3: rows of world * view, c4..c7: rows of the projection (row vectors, as C44Matrix), the registers of the
+// 3.3.5 Terrain.bls vertex shaders; c8.xyz: the origin the vertices are relative to (zero when they are world
+// positions, see ChunkVertexOrigin in WowEditTerrain.cpp).
+float4 vsWorldView[4] : register(c0);
+float4 vsProjection[4] : register(c4);
+float4 vsVertexOrigin : register(c8);
 
 struct TerrainVertex {
     float3 position : POSITION;
@@ -38,10 +40,21 @@ struct TerrainOutput {
     float2 gridCoord : TEXCOORD1; // world xy in chunks
 };
 
+// The clip-space position is computed with the same instructions, in the same order, as Terrain.bls (vs_3_0,
+// permutation 0: mul/mad/mad/add by c0..c3, then mul/mad/mad/mad by c4..c7), so that from the same constants it gives
+// the terrain's depths exactly and the overlay needs no depth bias. Keep the statements as they are: written as one
+// expression or with mul(), the compiler may order the operations differently and change the last bits.
 TerrainOutput TerrainVS(TerrainVertex input) {
     TerrainOutput output;
-    output.screenPosition = input.position.x * vsWorldViewProj[0] + input.position.y * vsWorldViewProj[1] + input.position.z * vsWorldViewProj[2] + vsWorldViewProj[3];
-    output.position = input.position + vsChunkOrigin.xyz;
+    float4 viewPosition = input.position.y * vsWorldView[1];
+    viewPosition = input.position.x * vsWorldView[0] + viewPosition;
+    viewPosition = input.position.z * vsWorldView[2] + viewPosition;
+    viewPosition = viewPosition + vsWorldView[3];
+    float4 screenPosition = viewPosition.y * vsProjection[1];
+    screenPosition = viewPosition.x * vsProjection[0] + screenPosition;
+    screenPosition = viewPosition.z * vsProjection[2] + screenPosition;
+    output.screenPosition = viewPosition.w * vsProjection[3] + screenPosition;
+    output.position = input.position + vsVertexOrigin.xyz;
     output.gridCoord = output.position.xy * 0.0300000011920928955078125f;
     return output;
 }
