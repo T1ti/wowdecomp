@@ -77,7 +77,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | Status | Notes |
 |---|---|---|
-| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did. For flying (Catmull-Rom) splines, including taxi flights, it draws green spheres at the control points and a white line along the curve. Ground moves get circles projected on the ground (green at the start, red at each path point, 1 yard across as in 0.5.3) and, added by the port, a white line draped on the ground through the points. The last path stays drawn after the unit stops, as in 0.5.3. Port addition: while the player rides a boat or zeppelin, its path on the current map is drawn like a flight path. |
+| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did (no later client has it). Flying (Catmull-Rom) splines, including taxi flights: green spheres at the control points and a white line along the curve. Ground moves: circles projected on the ground, green at the start and red at every spline point, 1 yard across as in 0.5.3 (no spheres or line in 0.5.3). The port centers the circles on the ground below each point and adds a white line from start to end draped on the ground. The last path stays drawn after the unit stops, as in 0.5.3. Port addition: while the player rides a boat or zeppelin, its path on the current map is drawn like a flight path. |
 | `CombatDebugForceActionOn` / `Off` | stub | |
 | `CombatDebugForceActionOtherOn` / `Off` | stub | |
 | `CombatDebugShowFlags` | stub | |
@@ -110,11 +110,11 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 ## World editor (`WowEdit/`, tool build)
 
-The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terrain overlays are the 8.1 editor pixel shaders rewritten for Shader Model 3 and compiled at run time. They need the Direct3D device (`gxApi d3d` or `d3d9ex`) and `d3dcompiler_47.dll`.
+The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terrain overlays are the 8.1 editor pixel shaders rewritten for Shader Model 3 and compiled at run time. They need the Direct3D device (`gxApi d3d` or `d3d9ex`), a card that runs Shader Model 3, and `d3dcompiler_47.dll`. Turning an overlay on builds its shaders and reports any failure in the console.
 
 | Command | Status | Notes |
 |---|---|---|
-| `wowEdit` | works | Prints whether the terrain shaders can run and which overlays are on. |
+| `wowEdit` | works | Prints whether the terrain shaders can run, the state of each shader, how many frames the terrain pass drew and how many chunks it covered, and which overlays are on. |
 | `wowEditGrid [0-3\|off]` | works | Terrain grid, one of the four 8.1 `woweditgrid` permutations. With no argument it toggles permutation 3. 0 shows nothing on its own: it outputs transparent black on chunk borders. 1 draws cells with diagonals. 2 draws chunk and tile lines. 3 draws all three. |
 | `wowEditSlopes [0\|1]` | works | Paints terrain steeper than 50 degrees (the client's walkable limit) red at 25%. |
 | `wowEditMarkers [0\|1]` | works | Sample editor markers ahead of the player, placed on the ground: spawn points with orientation rings, early-editor half spheres and path, and a flying path with direction diamonds. |
