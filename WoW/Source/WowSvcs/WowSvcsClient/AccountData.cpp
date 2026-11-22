@@ -169,6 +169,7 @@ static void SaveCachedChecksums(bool global) {
         AccountDataInfo& info = s_accountData[i];
 
         if (info.m_global == global) {
+            STORM_ASSERT(s_accountData[i].initialized);
             uint32_t bytesWritten;
             OsWriteFile(file, info.m_md5, sizeof(info.m_md5), &bytesWritten);
             OsWriteFile(file, &info.m_time, sizeof(info.m_time), &bytesWritten);
@@ -181,6 +182,7 @@ static void SaveCachedChecksums(bool global) {
 // VERIFY: f49c9f62 auto
 // OFFSET: 0x006B8F50
 static void UpdateCachedChecksum(int32_t type, int32_t time) {
+    STORM_ASSERT(s_accountData[type].initialized);
     AccountDataInfo& info = s_accountData[type];
 
     uint8_t digest[16];
@@ -211,7 +213,7 @@ static int32_t Packet_SMSG_UPDATE_ACCOUNT_DATA_COMPLETE(void* param, NETMESSAGE 
 void AccountDataDestroy(bool global) {
     for (uint32_t i = 0; i < sizeof(s_accountData) / sizeof(s_accountData[0]); i++) {
         if (s_accountData[i].m_global == global) {
-            s_accountData[i].m_active = false;
+            s_accountData[i].initialized = false;
         }
     }
 }
@@ -251,6 +253,8 @@ void SetClearConfigData(int32_t clear) {
 // VERIFY: 61aba3c9 manual
 // OFFSET: 0x006B9100
 void UploadAccountData(int32_t type) {
+    STORM_ASSERT(s_accountData[type].initialized);
+
     HOSFILE file = OpenAccountFile(s_accountData[type].m_global, s_accountData[type].m_cacheFile, false);
     uint32_t size = file == OS_INVALID_FILE ? 0 : static_cast<uint32_t>(OsGetFileSize(file));
 
@@ -264,17 +268,20 @@ void UploadAccountData(int32_t type) {
 
     if (size) {
         void* allocated = nullptr;
-        uint8_t* data;
+        uint8_t* uncompressed;
 
         if (size > 0x1000) {
             allocated = SMemAlloc(size, __FILE__, __LINE__, 0);
-            data = static_cast<uint8_t*>(allocated);
+            uncompressed = static_cast<uint8_t*>(allocated);
         } else {
-            data = static_cast<uint8_t*>(alloca(size));
+            uncompressed = static_cast<uint8_t*>(alloca(size));
         }
 
+        STORM_ASSERT(uncompressed);
+
         uint32_t bytesRead;
-        OsReadFile(file, data, size, &bytesRead);
+        OsReadFile(file, uncompressed, size, &bytesRead);
+        STORM_ASSERT(bytesRead == size);
 
         uint32_t compressedSize = compressBound(size);
         uint8_t* compressedAllocated = nullptr;
@@ -287,7 +294,13 @@ void UploadAccountData(int32_t type) {
             compressed = static_cast<uint8_t*>(alloca(compressedSize));
         }
 
-        zlib_compress(compressed, &compressedSize, data, size, 1);
+        STORM_ASSERT(compressed);
+#if defined(WOWDECOMP_ASSERTIONS)
+        int32_t res = zlib_compress(compressed, &compressedSize, uncompressed, size, 1);
+        STORM_ASSERT(res == 0);
+#else
+        zlib_compress(compressed, &compressedSize, uncompressed, size, 1);
+#endif
         msg.PutData(compressed, compressedSize);
 
         if (allocated) {
@@ -312,6 +325,8 @@ void UploadAccountData(int32_t type) {
 // VERIFY: 7b7683e2 manual
 // OFFSET: 0x006B92C0
 void DownloadAccountData(int32_t type) {
+    STORM_ASSERT(s_accountData[type].initialized);
+
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_REQUEST_ACCOUNT_DATA));
     msg.Put(static_cast<uint32_t>(type));
@@ -325,6 +340,7 @@ void DownloadAccountData(int32_t type) {
 // OFFSET: 0x006B9340
 static int32_t SaveTimerHandler(const void* data, void* param) {
     int32_t type = static_cast<int32_t>(reinterpret_cast<intptr_t>(param));
+    STORM_ASSERT(s_accountData[type].initialized);
     AccountDataInfo& info = s_accountData[type];
     uint8_t digest[16];
     MD5AccountFile(info.m_cacheFile, digest, info.m_global);
@@ -344,6 +360,7 @@ static int32_t SaveTimerHandler(const void* data, void* param) {
 // VERIFY: c002fa95 auto
 // OFFSET: 0x006B9440
 static void ScheduleAccountDataSave(int32_t type) {
+    STORM_ASSERT(s_accountData[type].initialized);
     AccountDataInfo& info = s_accountData[type];
     info.m_changed = true;
 
@@ -356,6 +373,8 @@ static void ScheduleAccountDataSave(int32_t type) {
     if ((cvar && !cvar->m_intValue) || info.m_localOnly) {
         return;
     }
+
+    STORM_ASSERT(s_accountData[type].initialized);
 
     if (info.m_saveTimer) {
         ClientKillTimer(info.m_saveTimer, SaveTimerHandler, "SaveTimerHandler");
@@ -378,15 +397,19 @@ static int32_t Packet_SMSG_ACCOUNT_DATA_TIMES(void* param, NETMESSAGE msgId, uin
     uint32_t mask;
     msg->Get(mask);
 
-    uint32_t count = 0;
+    uint32_t numTimeBits = 0;
 
     for (uint32_t i = 0; i < sizeof(s_accountData) / sizeof(s_accountData[0]); i++) {
         if (mask & (1 << i)) {
-            count++;
+            numTimeBits++;
         }
     }
 
-    if (msg->m_size - msg->m_read != count * sizeof(uint32_t)) {
+    int32_t remaining = msg->m_size - msg->m_read;
+    STORM_ASSERT(remaining >= 0);
+
+    if (static_cast<uint32_t>(remaining) != numTimeBits * sizeof(uint32_t)) {
+        STORM_ASSERT(uint32_t(remaining) == sizeof(uint32_t) * numTimeBits);  // 12213: "uint(remaining) == sizeof(UINT)*numTimeBits"
         return 1;
     }
 
@@ -408,7 +431,7 @@ static int32_t Packet_SMSG_ACCOUNT_DATA_TIMES(void* param, NETMESSAGE msgId, uin
             info.m_serverTime = typeTime;
         }
 
-        if (!info.m_active) {
+        if (!info.initialized) {
             continue;
         }
 
@@ -446,6 +469,8 @@ static int32_t Packet_SMSG_UPDATE_ACCOUNT_DATA(void* param, NETMESSAGE msgId, ui
 
     uint32_t type;
     msg->Get(type);
+    STORM_ASSERT(type >= 0 && type < NUM_ACCOUNT_DATA_TYPES);
+    STORM_ASSERT(s_accountData[type].initialized);
 
     AccountDataInfo& info = s_accountData[type];
 
@@ -480,11 +505,12 @@ static int32_t Packet_SMSG_UPDATE_ACCOUNT_DATA(void* param, NETMESSAGE msgId, ui
                     stackBuffer = true;
                 }
 
-                uint32_t uncompressedSize = size;
+                uint32_t destSize = size;
 
-                if (!zlib_uncompress(buffer, &uncompressedSize, static_cast<const uint8_t*>(compressed), compressedSize)) {
+                if (!zlib_uncompress(buffer, &destSize, static_cast<const uint8_t*>(compressed), compressedSize)) {
                     uint32_t bytesWritten;
-                    OsWriteFile(file, buffer, uncompressedSize, &bytesWritten);
+                    OsWriteFile(file, buffer, destSize, &bytesWritten);
+                    STORM_ASSERT(bytesWritten == destSize);
                 }
 
                 if (!stackBuffer) {
@@ -542,7 +568,7 @@ void AccountDataInitialize(bool global) {
             memset(info.m_md5, 0, sizeof(info.m_md5));
             info.m_time = 0;
             info.m_serverTime = 0;
-            info.m_active = true;
+            info.initialized = true;
         }
     }
 

@@ -25,7 +25,7 @@ enum ACCOUNT_DATA_TYPE : int32_t {
 typedef void (*ACCOUNTDATALOADFUNC)(HOSFILE localFile, HOSFILE cacheFile, void* param);
 
 struct AccountDataInfo {
-    /* 0000 */ bool m_active;
+    /* 0000 */ bool initialized;
     /* 0001 */ bool m_global;
     /* 0004 */ const char* m_localFile;
     /* 0008 */ const char* m_cacheFile;
