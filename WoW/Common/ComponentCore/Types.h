@@ -289,8 +289,8 @@ struct CharVariationList {
 };
 
 struct TCTEXTUREINFO {
-    /* 0000 */ uint16_t m_width;
-    /* 0002 */ uint16_t m_height;
+    /* 0000 */ uint16_t width;
+    /* 0002 */ uint16_t height;
     /* 0004 */ uint32_t m_mipCount : 8;
     /* 0004 */ uint32_t m_alphaSize : 8;
     /* 0004 */ uint32_t m_opaque : 1;

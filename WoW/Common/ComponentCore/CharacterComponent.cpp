@@ -77,13 +77,13 @@ static const char* s_fileDecorations[3] = { "M", "F", "U" };
 static CStatus s_status;
 
 // STATIC: 0x00AC46E4
-TSExplicitList<CCharacterComponent, 0> CCharacterComponent::s_queue;
+TSExplicitList<CCharacterComponent, 0> CCharacterComponent::s_updateList;
 
 // STATIC: 0x00AC46F0
-static TSExplicitList<CComponentRequest, offsetof(CComponentRequest, m_link)> s_requestList;
+static TSExplicitList<CComponentRequest, offsetof(CComponentRequest, m_link)> s_threadComponentRequestList;
 
 // STATIC: 0x00AC46FC
-static TSExplicitList<CComponentRequest, offsetof(CComponentRequest, m_link)> s_finishedList;
+static TSExplicitList<CComponentRequest, offsetof(CComponentRequest, m_link)> s_threadComponentFinishedList;
 
 // STATIC: 0x00AC4708
 static TSExplicitList<CComponentRequest, offsetof(CComponentRequest, m_link)> s_requestFreeList;
@@ -950,10 +950,13 @@ void CCharacterComponent::PasteCrappyGreen(MipBits* dstMips, C2iVector& dstPos, 
 
 // VERIFY: 6c996c19 manual
 // OFFSET: 0x004E83A0
-void CCharacterComponent::PasteOpaque(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
-    uint32_t srcWidth = srcInfo.m_width;
-    uint32_t width = srcSize.x;
-    uint32_t height = srcSize.y;
+void CCharacterComponent::PasteOpaque(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& size, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
+    STORM_ASSERT((int)srcInfo.width >= size.x);
+    STORM_ASSERT((int)srcInfo.height >= size.y);
+
+    uint32_t srcWidth = srcInfo.width;
+    uint32_t width = size.x;
+    uint32_t height = size.y;
 
     if (srcMipLevel) {
         srcWidth >>= srcMipLevel;
@@ -985,10 +988,13 @@ void CCharacterComponent::PasteOpaque(HTEXTURECACHE texture, const BlpPalPixel* 
 
 // VERIFY: 212be31e manual
 // OFFSET: 0x004E84F0
-void CCharacterComponent::PasteTransparent1Bit(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
-    uint32_t srcWidth = srcInfo.m_width;
-    uint32_t width = srcSize.x;
-    uint32_t height = srcSize.y;
+void CCharacterComponent::PasteTransparent1Bit(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& size, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
+    STORM_ASSERT(srcPos.x == 0);
+    STORM_ASSERT(srcPos.y == 0);
+
+    uint32_t srcWidth = srcInfo.width;
+    uint32_t width = size.x;
+    uint32_t height = size.y;
 
     if (srcMipLevel) {
         srcWidth >>= srcMipLevel;
@@ -1025,7 +1031,7 @@ void CCharacterComponent::PasteTransparent1Bit(HTEXTURECACHE texture, const BlpP
 // VERIFY: d1dc9035 manual
 // OFFSET: 0x004E8660
 void CCharacterComponent::PasteTransparent4Bit(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
-    uint32_t srcWidth = srcInfo.m_width;
+    uint32_t srcWidth = srcInfo.width;
     uint32_t width = srcSize.x;
     uint32_t height = srcSize.y;
 
@@ -1068,7 +1074,7 @@ void CCharacterComponent::PasteTransparent4Bit(HTEXTURECACHE texture, const BlpP
 // VERIFY: 4d979816 manual
 // OFFSET: 0x004E8840
 void CCharacterComponent::PasteTransparent8Bit(HTEXTURECACHE texture, const BlpPalPixel* pal, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo, uint32_t srcMipLevel, int32_t dstMipOffset) {
-    uint32_t srcWidth = srcInfo.m_width;
+    uint32_t srcWidth = srcInfo.width;
     uint32_t width = srcSize.x;
     uint32_t height = srcSize.y;
 
@@ -1109,7 +1115,7 @@ void CCharacterComponent::PasteTransparent8Bit(HTEXTURECACHE texture, const BlpP
 // VERIFY: 8ec155b7 manual
 // OFFSET: 0x004E89F0
 void CCharacterComponent::PasteOpaqueScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo) {
-    uint32_t srcWidth = srcInfo.m_width;
+    uint32_t srcWidth = srcInfo.width;
     uint32_t width = srcSize.x;
     uint32_t height = srcSize.y;
     BlpPalPixel* pal = TextureCacheGetPal(texture);
@@ -1239,9 +1245,9 @@ void CComponentRequest::DestroyCachedTextures() {
 void CCharacterComponent::SetDirtySections(uint32_t mask) {
     this->m_dirtySections |= mask;
 
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     this->m_flags &= ~FLAGS::UNKNOWN_8;
@@ -1252,9 +1258,9 @@ void CCharacterComponent::SetDirtySections(uint32_t mask) {
 void CCharacterComponent::SetTexturesDirty() {
     this->m_flags |= FLAGS::TEXTURES_DIRTY;
 
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     this->m_flags &= ~FLAGS::UNKNOWN_8;
@@ -1263,11 +1269,11 @@ void CCharacterComponent::SetTexturesDirty() {
 // VERIFY: ca5f5399 auto
 // OFFSET: 0x004E8E70
 void CCharacterComponent::CreateRequestAU() {
-    this->m_request->m_baseTextures[SECTION_ARM_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_ARM_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < 2; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_UPPER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_ARM_UPPER, this->m_section[SECTION_ARM_UPPER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_ARM_UPPER, this->m_section[SECTION_ARM_UPPER].m_layerTex[layer]);
         }
     }
 }
@@ -1275,11 +1281,11 @@ void CCharacterComponent::CreateRequestAU() {
 // VERIFY: 48a06e0d auto
 // OFFSET: 0x004E8F00
 void CCharacterComponent::CreateRequestAL() {
-    this->m_request->m_baseTextures[SECTION_ARM_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_ARM_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_ARM_LOWER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_ARM_LOWER, this->m_section[SECTION_ARM_LOWER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_ARM_LOWER, this->m_section[SECTION_ARM_LOWER].m_layerTex[layer]);
         }
     }
 }
@@ -1287,10 +1293,10 @@ void CCharacterComponent::CreateRequestAL() {
 // VERIFY: 27aef1fc auto
 // OFFSET: 0x004E8F90
 void CCharacterComponent::CreateRequestHA() {
-    this->m_request->m_baseTextures[SECTION_HAND] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_HAND] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (this->m_section[SECTION_HAND].m_layerMask & 0x1) {
-        this->m_request->AddLayer(SECTION_HAND, this->m_section[SECTION_HAND].m_layerTex[0]);
+        this->m_componentRequest->AddLayer(SECTION_HAND, this->m_section[SECTION_HAND].m_layerTex[0]);
     }
 }
 
@@ -1300,19 +1306,19 @@ void CCharacterComponent::CreateRequestHU() {
     CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
-        this->m_request->m_baseTextures[SECTION_HEAD_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+        this->m_componentRequest->m_baseTextures[SECTION_HEAD_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_UPPER]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_UPPER]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]) {
-        this->m_request->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_UPPER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_UPPER]);
     }
 }
 
@@ -1322,34 +1328,34 @@ void CCharacterComponent::CreateRequestHL() {
     CharSectionsRec* skinRec = this->GetSectionsRecord(CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID, nullptr);
 
     if (skinRec && (skinRec->m_flags & CharSectionsRec::SECTION_FLAGS::NPC_SKIN)) {
-        this->m_request->m_baseTextures[SECTION_HEAD_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+        this->m_componentRequest->m_baseTextures[SECTION_HEAD_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACE].m_texture[CharSectionsRec::TEXTURE_INDEX::FACE_LOWER]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_FACIALHAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::FACIAL_HAIR_LOWER]);
     }
 
     if (this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]) {
-        this->m_request->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]);
+        this->m_componentRequest->AddLayer(SECTION_HEAD_LOWER, this->m_baseVariation[CHARTEXTUREVAR_HAIR].m_texture[CharSectionsRec::TEXTURE_INDEX::HAIR_LOWER]);
     }
 }
 
 // VERIFY: 5d1d019e manual
 // OFFSET: 0x004E91D0
 void CCharacterComponent::CreateRequestTU() {
-    this->m_request->m_baseTextures[SECTION_TORSO_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_TORSO_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (!(this->m_section[SECTION_TORSO_UPPER].m_layerMask & 0x7) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]) {
-        this->m_request->AddLayer(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]);
+        this->m_componentRequest->AddLayer(SECTION_TORSO_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_UPPER]);
     }
 
     for (int32_t layer = 0; layer < 5; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_UPPER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_TORSO_UPPER, this->m_section[SECTION_TORSO_UPPER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_TORSO_UPPER, this->m_section[SECTION_TORSO_UPPER].m_layerTex[layer]);
         }
     }
 }
@@ -1357,11 +1363,11 @@ void CCharacterComponent::CreateRequestTU() {
 // VERIFY: 0a0fcd15 auto
 // OFFSET: 0x004E9280
 void CCharacterComponent::CreateRequestTL() {
-    this->m_request->m_baseTextures[SECTION_TORSO_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_TORSO_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     for (int32_t layer = 0; layer < NUM_SECTION_LAYERS; layer++) {
         if ((1 << layer) & this->m_section[SECTION_TORSO_LOWER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_TORSO_LOWER, this->m_section[SECTION_TORSO_LOWER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_TORSO_LOWER, this->m_section[SECTION_TORSO_LOWER].m_layerTex[layer]);
         }
     }
 }
@@ -1369,10 +1375,10 @@ void CCharacterComponent::CreateRequestTL() {
 // VERIFY: c8aaa938 manual
 // OFFSET: 0x004E9310
 void CCharacterComponent::CreateRequestLU() {
-    this->m_request->m_baseTextures[SECTION_LEG_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_LEG_UPPER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) || !(this->m_section[SECTION_LEG_UPPER].m_layerMask & 0x3)) && this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]) {
-        this->m_request->AddLayer(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]);
+        this->m_componentRequest->AddLayer(SECTION_LEG_UPPER, this->m_baseVariation[VARIATION_UNDERWEAR].m_texture[CharSectionsRec::TEXTURE_INDEX::UNDERWEAR_LOWER]);
     }
 
     int32_t first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
@@ -1380,7 +1386,7 @@ void CCharacterComponent::CreateRequestLU() {
 
     for (int32_t layer = first; layer < last; layer++) {
         if ((1 << layer) & this->m_section[SECTION_LEG_UPPER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_LEG_UPPER, this->m_section[SECTION_LEG_UPPER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_LEG_UPPER, this->m_section[SECTION_LEG_UPPER].m_layerTex[layer]);
         }
     }
 }
@@ -1388,14 +1394,14 @@ void CCharacterComponent::CreateRequestLU() {
 // VERIFY: 6ef99de9 manual
 // OFFSET: 0x004E9400
 void CCharacterComponent::CreateRequestLL() {
-    this->m_request->m_baseTextures[SECTION_LEG_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_LEG_LOWER] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     BOOL first = (this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) != 0;
     int32_t last = 2 * ((this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) == 0) + 4;
 
     for (int32_t layer = first; layer < last; layer++) {
         if ((1 << layer) & this->m_section[SECTION_LEG_LOWER].m_layerMask) {
-            this->m_request->AddLayer(SECTION_LEG_LOWER, this->m_section[SECTION_LEG_LOWER].m_layerTex[layer]);
+            this->m_componentRequest->AddLayer(SECTION_LEG_LOWER, this->m_section[SECTION_LEG_LOWER].m_layerTex[layer]);
         }
     }
 }
@@ -1403,10 +1409,10 @@ void CCharacterComponent::CreateRequestLL() {
 // VERIFY: ce9392ca auto
 // OFFSET: 0x004E94B0
 void CCharacterComponent::CreateRequestFO() {
-    this->m_request->m_baseTextures[SECTION_FOOT] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
+    this->m_componentRequest->m_baseTextures[SECTION_FOOT] = TextureCacheCopyTexture(this->m_baseVariation[CHARTEXTUREVAR_SKIN].m_texture[CharSectionsRec::TEXTURE_INDEX::SKIN_BODY]);
 
     if (this->m_section[SECTION_FOOT].m_layerMask & 0x1) {
-        this->m_request->AddLayer(SECTION_FOOT, this->m_section[SECTION_FOOT].m_layerTex[0]);
+        this->m_componentRequest->AddLayer(SECTION_FOOT, this->m_section[SECTION_FOOT].m_layerTex[0]);
     }
 }
 
@@ -1965,9 +1971,9 @@ void CCharacterComponent::SetSkinColor(int32_t skinID, bool loadHair, bool rende
 
     this->m_dirtySections = 0xFFFFFFFF;
 
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     this->m_flags &= ~FLAGS::UNKNOWN_8;
@@ -2931,7 +2937,7 @@ void CCharacterComponent::Paste(HTEXTURECACHE texture, MipBits* dstMips, const C
 // VERIFY: 4a30e6aa manual
 // OFFSET: 0x004EC690
 void CCharacterComponent::PasteTransparent1BitScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo) {
-    uint32_t srcRowPitch = srcInfo.m_width;
+    uint32_t srcRowPitch = srcInfo.width;
     uint32_t copyWidth = srcSize.x;
     uint32_t copyHeight = srcSize.y;
 
@@ -2945,7 +2951,7 @@ void CCharacterComponent::PasteTransparent1BitScale(HTEXTURECACHE texture, MipBi
     srcPos.y >>= 1;
 
     const uint8_t* srcBase = static_cast<const uint8_t*>(TextureCacheGetMip(texture, 0));
-    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.m_height;
+    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.height;
 
     uint8_t* dstRow = reinterpret_cast<uint8_t*>(dstMips->m_mip[0]) + dstStride * dstPos.y + 4 * dstPos.x;
 
@@ -3065,10 +3071,13 @@ void CCharacterComponent::PasteTransparent1BitScale(HTEXTURECACHE texture, MipBi
 
 // VERIFY: 3cc4e3c5 manual
 // OFFSET: 0x004ECC20
-void CCharacterComponent::PasteTransparent4BitScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo) {
-    uint32_t srcRowPitch = srcInfo.m_width;
-    uint32_t copyWidth = srcSize.x;
-    uint32_t copyHeight = srcSize.y;
+void CCharacterComponent::PasteTransparent4BitScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& size, TCTEXTUREINFO& srcInfo) {
+    STORM_ASSERT(srcPos.x == 0);
+    STORM_ASSERT(srcPos.y == 0);
+
+    uint32_t srcRowPitch = srcInfo.width;
+    uint32_t copyWidth = size.x;
+    uint32_t copyHeight = size.y;
 
     BlpPalPixel* pal = TextureCacheGetPal(texture);
 
@@ -3080,7 +3089,7 @@ void CCharacterComponent::PasteTransparent4BitScale(HTEXTURECACHE texture, MipBi
     srcPos.y >>= 1;
 
     const uint8_t* srcBase = static_cast<const uint8_t*>(TextureCacheGetMip(texture, 0));
-    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.m_height;
+    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.height;
 
     uint8_t* dstRow = reinterpret_cast<uint8_t*>(dstMips->m_mip[0]) + dstStride * dstPos.y + 4 * dstPos.x;
 
@@ -3205,21 +3214,24 @@ void CCharacterComponent::PasteTransparent4BitScale(HTEXTURECACHE texture, MipBi
         dstRow += dstStride;
     }
 
-    srcSize.x = (srcSize.x >> 1) < 1 ? 1 : (srcSize.x >> 1);
-    srcSize.y = (srcSize.y >> 1) < 1 ? 1 : (srcSize.y >> 1);
+    size.x = (size.x >> 1) < 1 ? 1 : (size.x >> 1);
+    size.y = (size.y >> 1) < 1 ? 1 : (size.y >> 1);
 
     dstPos.x >>= 1;
     dstPos.y >>= 1;
 
-    CCharacterComponent::PasteTransparent4Bit(texture, pal, dstMips, dstPos, dstStride >> 1, srcPos, srcSize, srcInfo, 0, 1);
+    CCharacterComponent::PasteTransparent4Bit(texture, pal, dstMips, dstPos, dstStride >> 1, srcPos, size, srcInfo, 0, 1);
 }
 
 // VERIFY: 523c6ae3 manual
 // OFFSET: 0x004ED200
-void CCharacterComponent::PasteTransparent8BitScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& srcSize, TCTEXTUREINFO& srcInfo) {
-    uint32_t srcRowPitch = srcInfo.m_width;
-    uint32_t copyWidth = srcSize.x;
-    uint32_t copyHeight = srcSize.y;
+void CCharacterComponent::PasteTransparent8BitScale(HTEXTURECACHE texture, MipBits* dstMips, C2iVector& dstPos, uint32_t dstStride, C2iVector& srcPos, C2iVector& size, TCTEXTUREINFO& srcInfo) {
+    STORM_ASSERT(srcPos.x == 0);
+    STORM_ASSERT(srcPos.y == 0);
+
+    uint32_t srcRowPitch = srcInfo.width;
+    uint32_t copyWidth = size.x;
+    uint32_t copyHeight = size.y;
 
     BlpPalPixel* pal = TextureCacheGetPal(texture);
 
@@ -3231,7 +3243,7 @@ void CCharacterComponent::PasteTransparent8BitScale(HTEXTURECACHE texture, MipBi
     srcPos.y >>= 1;
 
     const uint8_t* srcBase = static_cast<const uint8_t*>(TextureCacheGetMip(texture, 0));
-    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.m_height;
+    const uint8_t* alphaBase = srcBase + srcRowPitch * srcInfo.height;
 
     uint8_t* dstRow = reinterpret_cast<uint8_t*>(dstMips->m_mip[0]) + dstStride * dstPos.y + 4 * dstPos.x;
 
@@ -3335,21 +3347,21 @@ void CCharacterComponent::PasteTransparent8BitScale(HTEXTURECACHE texture, MipBi
         dstRow += dstStride;
     }
 
-    srcSize.x = (srcSize.x >> 1) < 1 ? 1 : (srcSize.x >> 1);
-    srcSize.y = (srcSize.y >> 1) < 1 ? 1 : (srcSize.y >> 1);
+    size.x = (size.x >> 1) < 1 ? 1 : (size.x >> 1);
+    size.y = (size.y >> 1) < 1 ? 1 : (size.y >> 1);
 
     dstPos.x >>= 1;
     dstPos.y >>= 1;
 
-    CCharacterComponent::PasteTransparent8Bit(texture, pal, dstMips, dstPos, dstStride >> 1, srcPos, srcSize, srcInfo, 0, 1);
+    CCharacterComponent::PasteTransparent8Bit(texture, pal, dstMips, dstPos, dstStride >> 1, srcPos, size, srcInfo, 0, 1);
 }
 
 // VERIFY: 48812964 auto
 // OFFSET: 0x004ED640
 bool CCharacterComponent::VariationsLoaded(BOOL wait) {
     TCTEXTUREINFO info;
-    info.m_width = 0;
-    info.m_height = 0;
+    info.width = 0;
+    info.height = 0;
     info.m_mipCount = 0;
     info.m_alphaSize = 0;
     info.m_opaque = 1;
@@ -3372,8 +3384,8 @@ bool CCharacterComponent::VariationsLoaded(BOOL wait) {
 bool CCharacterComponent::ItemsLoaded(BOOL wait) {
     bool loaded = true;
     TCTEXTUREINFO info;
-    info.m_width = 0;
-    info.m_height = 0;
+    info.width = 0;
+    info.height = 0;
     info.m_mipCount = 0;
     info.m_alphaSize = 0;
     info.m_opaque = 1;
@@ -3609,9 +3621,9 @@ void CCharacterComponent::RenderPrepAll() {
     this->SetTexturesDirty();
     this->m_dirtySections = 0xFFFFFFFF;
 
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     this->m_flags &= ~FLAGS::UNKNOWN_8;
@@ -4207,7 +4219,7 @@ CCharacterComponent::CCharacterComponent() {
     memset(this->m_baseVariation, 0, sizeof(this->m_baseVariation));
     this->m_flags |= FLAGS::INITIAL_FLAGS;
     this->m_dirtySections = 0xFFFFFFFF;
-    this->m_request = nullptr;
+    this->m_componentRequest = nullptr;
     this->m_baseTexture = nullptr;
     this->m_gxTexFormat = CCharacterComponent::s_gxFormat;
     memset(this->m_itemDisplayID, 0, sizeof(this->m_itemDisplayID));
@@ -4219,9 +4231,9 @@ CCharacterComponent::CCharacterComponent() {
 // VERIFY: 4f3c1a66 manual
 // OFFSET: 0x004EFCA0
 CCharacterComponent::~CCharacterComponent() {
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     if (this->m_baseTexture) {
@@ -4265,8 +4277,8 @@ void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t widt
                 texelStrideInBytes = 4 * width;
             }
 
-            if (component->m_request) {
-                texels = component->m_request->m_mipBits->m_mipBits->m_mip[level];
+            if (component->m_componentRequest) {
+                texels = component->m_componentRequest->m_componentMipBits->m_mipBits->m_mip[level];
             } else {
                 MipBits* mipBits = s_compressedTextureBuffer;
 
@@ -4305,7 +4317,7 @@ void CCharacterComponent::Prep() {
 
     if (this->m_dirtySections || (this->m_flags & FLAGS::TEXTURES_DIRTY)) {
         if (!this->m_link.m_next) {
-            CCharacterComponent::s_queue.LinkToTail(this);
+            CCharacterComponent::s_updateList.LinkToTail(this);
         }
     } else if (this->m_flags & FLAGS::GEOSETS_DIRTY) {
         this->GeosRenderPrep();
@@ -4696,16 +4708,16 @@ void CCharacterComponent::PasteFromSkin(COMPONENT_SECTIONS section, HTEXTURECACH
     }
 
     TCTEXTUREINFO info;
-    info.m_width = 0;
-    info.m_height = 0;
+    info.width = 0;
+    info.height = 0;
     info.m_mipCount = 0;
     info.m_alphaSize = 0;
     info.m_opaque = 1;
     TextureCacheGetInfo(texture, info, 1);
-    uint32_t width = info.m_width;
+    uint32_t width = info.width;
     info.m_alphaSize = 0;
 
-    if (info.m_width < s_textureSize && info.m_height < s_textureSize) {
+    if (info.width < s_textureSize && info.height < s_textureSize) {
         CCharacterComponent::PasteScale(texture, dstMips, s_sectionInfo[section].m_pos, s_sectionInfo[section].m_pos, s_sectionInfo[section].m_size, info);
         return;
     }
@@ -4728,17 +4740,17 @@ void CCharacterComponent::PasteToSection(COMPONENT_SECTIONS section, HTEXTURECAC
     }
 
     TCTEXTUREINFO info;
-    info.m_width = 0;
-    info.m_height = 0;
+    info.width = 0;
+    info.height = 0;
     info.m_mipCount = 0;
     info.m_alphaSize = 0;
     info.m_opaque = 1;
     TextureCacheGetInfo(texture, info, 1);
-    uint32_t width = info.m_width;
+    uint32_t width = info.width;
     uint32_t sectionWidth = s_sectionInfo[section].m_size.x;
     C2iVector srcPos;
 
-    if (info.m_width < sectionWidth && info.m_height < static_cast<uint32_t>(s_sectionInfo[section].m_size.y)) {
+    if (info.width < sectionWidth && info.height < static_cast<uint32_t>(s_sectionInfo[section].m_size.y)) {
         srcPos.x = 0;
         srcPos.y = 0;
         CCharacterComponent::PasteScale(texture, dstMips, s_sectionInfo[section].m_pos, srcPos, s_sectionInfo[section].m_size, info);
@@ -4935,9 +4947,9 @@ void CCharacterComponent::ProcessFinishedRequest() {
     }
 
     this->UpdateSections();
-    this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+    this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
     this->m_flags &= ~FLAGS::TEXTURES_DIRTY;
-    this->m_request = nullptr;
+    this->m_componentRequest = nullptr;
     this->m_dirtySections = 0;
     this->DestroyRenderTextures();
     CCharacterComponent::s_bInRenderPrep = 0;
@@ -4946,7 +4958,7 @@ void CCharacterComponent::ProcessFinishedRequest() {
 // VERIFY: f8ef570f auto
 // OFFSET: 0x004F0EE0
 void CCharacterComponent::ProcessComponentRequest(CComponentRequest* request) {
-    MipBits* dstMips = request->m_mipBits->m_mipBits;
+    MipBits* dstMips = request->m_componentMipBits->m_mipBits;
 
     if (request->m_format == GxTex_Dxt1) {
         dstMips = s_threadTextureBuffer;
@@ -4963,7 +4975,7 @@ void CCharacterComponent::ProcessComponentRequest(CComponentRequest* request) {
     }
 
     if (request->m_format == GxTex_Dxt1) {
-        ComputeMipLevels(dstMips, request->m_mipBits->m_mipBits);
+        ComputeMipLevels(dstMips, request->m_componentMipBits->m_mipBits);
     }
 }
 
@@ -5002,7 +5014,7 @@ CComponentRequest* CCharacterComponent::AllocComponentRequest() {
 
     request->m_link.Unlink();
     request->m_flags = (request->m_flags & ~CComponentRequest::REQUEST_FLAGS::STATE_MASK) | CComponentRequest::REQUEST_FLAGS::IN_USE;
-    request->m_mipBits = nullptr;
+    request->m_componentMipBits = nullptr;
     request->m_layerCount = 0;
 
     return request;
@@ -5013,24 +5025,24 @@ CComponentRequest* CCharacterComponent::AllocComponentRequest() {
 void CCharacterComponent::ProcessComponentFinishedList(int32_t all) {
     s_finishedListCritSect.Enter();
 
-    for (CComponentRequest* request = s_finishedList.Head(); request;) {
-        CComponentRequest* next = s_finishedList.Next(request);
+    for (CComponentRequest* request = s_threadComponentFinishedList.Head(); request;) {
+        CComponentRequest* next = s_threadComponentFinishedList.Next(request);
 
         if (all || !(request->m_flags & CComponentRequest::REQUEST_FLAGS::IN_USE)) {
             request->m_link.Unlink();
             request->DestroyCachedTextures();
 
-            if (request->m_mipBits) {
+            if (request->m_componentMipBits) {
                 s_mipBitsCritSect.Enter();
 
-                if (request->m_mipBits->m_format) {
-                    s_mipBitsFreeList.LinkToTail(request->m_mipBits);
+                if (request->m_componentMipBits->m_format) {
+                    s_mipBitsFreeList.LinkToTail(request->m_componentMipBits);
                 } else {
-                    s_mipBitsCompressedFreeList.LinkToTail(request->m_mipBits);
+                    s_mipBitsCompressedFreeList.LinkToTail(request->m_componentMipBits);
                 }
 
                 s_mipBitsCritSect.Leave();
-                request->m_mipBits = nullptr;
+                request->m_componentMipBits = nullptr;
             }
 
             s_requestFreeList.LinkToTail(request);
@@ -5051,7 +5063,7 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
     while (CCharacterComponent::s_bComponentThread) {
         while (true) {
             s_requestListCritSect.Enter();
-            CComponentRequest* request = s_requestList.Head();
+            CComponentRequest* request = s_threadComponentRequestList.Head();
 
             if (request) {
                 request->m_link.Unlink();
@@ -5065,7 +5077,7 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
 
             if (!(request->m_flags & CComponentRequest::REQUEST_FLAGS::IN_USE)) {
                 s_finishedListCritSect.Enter();
-                s_finishedList.LinkToTail(request);
+                s_threadComponentFinishedList.LinkToTail(request);
                 s_finishedListCritSect.Leave();
                 request->m_flags |= CComponentRequest::REQUEST_FLAGS::FINISHED;
                 continue;
@@ -5075,16 +5087,16 @@ uint32_t STORMAPI CCharacterComponent::ThreadProc(void* param) {
 
             if (!mipBits) {
                 s_requestListCritSect.Enter();
-                s_requestList.LinkToHead(request);
+                s_threadComponentRequestList.LinkToHead(request);
                 s_requestListCritSect.Leave();
                 OsSleep(10);
                 continue;
             }
 
-            request->m_mipBits = mipBits;
+            request->m_componentMipBits = mipBits;
             CCharacterComponent::ProcessComponentRequest(request);
             s_finishedListCritSect.Enter();
-            s_finishedList.LinkToTail(request);
+            s_threadComponentFinishedList.LinkToTail(request);
             s_finishedListCritSect.Leave();
             request->m_flags |= CComponentRequest::REQUEST_FLAGS::FINISHED;
             OsSleep(1);
@@ -5139,7 +5151,7 @@ bool CCharacterComponent::RenderPrep(BOOL wait) {
 
     if (!(this->m_flags & FLAGS::TEXTURES_DIRTY)) {
         if (!this->m_link.m_next) {
-            CCharacterComponent::s_queue.LinkToTail(this);
+            CCharacterComponent::s_updateList.LinkToTail(this);
         }
 
         return true;
@@ -5147,15 +5159,15 @@ bool CCharacterComponent::RenderPrep(BOOL wait) {
 
     if (!wait) {
         if (!this->m_link.m_next) {
-            CCharacterComponent::s_queue.LinkToTail(this);
+            CCharacterComponent::s_updateList.LinkToTail(this);
         }
 
         return false;
     }
 
-    if (this->m_request) {
-        this->m_request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        this->m_request = nullptr;
+    if (this->m_componentRequest) {
+        this->m_componentRequest->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
+        this->m_componentRequest = nullptr;
     }
 
     this->VariationsLoaded(1);
@@ -5198,8 +5210,11 @@ int32_t CCharacterComponent::ThreadInitialize() {
 // VERIFY: 672afabf manual
 // OFFSET: 0x004F1790
 void CCharacterComponent::CreateComponentRequest() {
-    this->m_request = CCharacterComponent::AllocComponentRequest();
-    this->m_request->m_format = this->m_gxTexFormat;
+    STORM_ASSERT(m_componentRequest == NULL);
+
+    this->m_componentRequest = CCharacterComponent::AllocComponentRequest();
+    STORM_ASSERT(m_componentRequest);
+    this->m_componentRequest->m_format = this->m_gxTexFormat;
 
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
         if ((1 << section) & this->m_dirtySections) {
@@ -5208,7 +5223,7 @@ void CCharacterComponent::CreateComponentRequest() {
     }
 
     s_requestListCritSect.Enter();
-    s_requestList.LinkToTail(this->m_request);
+    s_threadComponentRequestList.LinkToTail(this->m_componentRequest);
     s_requestListCritSect.Leave();
     s_threadBeginEvent.Set();
 }
@@ -5216,13 +5231,18 @@ void CCharacterComponent::CreateComponentRequest() {
 // VERIFY: bdaa94c5 manual
 // OFFSET: 0x004F1850
 void CCharacterComponent::DestroyComponentFreeLists() {
+    uint32_t mipBitsCount = 0;
+
     for (CComponentMipBits* mipBits = s_mipBitsFreeList.Head(); mipBits; mipBits = s_mipBitsFreeList.Next(mipBits)) {
+        mipBitsCount++;
         TextureFreeMippedImg(mipBits->m_mipBits, mipBits->m_format, s_textureSize, s_textureSize);
     }
 
     for (CComponentMipBits* mipBits = s_mipBitsCompressedFreeList.Head(); mipBits; mipBits = s_mipBitsCompressedFreeList.Next(mipBits)) {
         TextureFreeMippedImg(mipBits->m_mipBits, mipBits->m_format, s_textureSize, s_textureSize);
     }
+
+    STORM_ASSERT(mipBitsCount == 10);
 
     s_mipBitsFreeList.Clear();
     s_mipBitsCompressedFreeList.Clear();
@@ -5234,11 +5254,11 @@ void CCharacterComponent::DestroyComponentFreeLists() {
 int32_t CCharacterComponent::Update(const void* data, void* param) {
     BOOL hasContext = g_theGxDevicePtr ? g_theGxDevicePtr->CapsHasContext(-1) : 0;
 
-    for (CCharacterComponent* component = CCharacterComponent::s_queue.Head(); component;) {
-        CCharacterComponent* next = CCharacterComponent::s_queue.Next(component);
+    for (CCharacterComponent* component = CCharacterComponent::s_updateList.Head(); component;) {
+        CCharacterComponent* next = CCharacterComponent::s_updateList.Next(component);
 
-        if (component->m_request) {
-            if (hasContext && (component->m_request->m_flags & CComponentRequest::REQUEST_FLAGS::FINISHED)) {
+        if (component->m_componentRequest) {
+            if (hasContext && (component->m_componentRequest->m_flags & CComponentRequest::REQUEST_FLAGS::FINISHED)) {
                 component->ProcessFinishedRequest();
                 component->m_link.Unlink();
             }
@@ -5362,14 +5382,18 @@ void CCharacterComponent::ThreadDestroy() {
     s_threadBeginEvent.Set();
     s_thread.Wait(0xFFFFFFFF);
 
-    for (CComponentRequest* request = s_requestList.Head(); request;) {
-        CComponentRequest* next = s_requestList.Next(request);
+    for (CComponentRequest* request = s_threadComponentRequestList.Head(); request;) {
+        CComponentRequest* next = s_threadComponentRequestList.Next(request);
         request->m_flags &= ~CComponentRequest::REQUEST_FLAGS::IN_USE;
-        s_finishedList.LinkToTail(request);
+        s_threadComponentFinishedList.LinkToTail(request);
         request = next;
     }
 
     CCharacterComponent::ProcessComponentFinishedList(1);
+
+    STORM_ASSERT(s_threadComponentRequestList.Head() == NULL);
+    STORM_ASSERT(s_threadComponentFinishedList.Head() == NULL);
+
     CCharacterComponent::DestroyComponentFreeLists();
 
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
@@ -5471,6 +5495,8 @@ bool CCharacterComponent::Destroy() {
         CCharacterComponent::m_activePlayerComponent = nullptr;
     }
 
+    STORM_ASSERT(s_updateList.Head() == NULL);
+
     if (CCharacterComponent::s_bComponentThread) {
         CCharacterComponent::ThreadDestroy();
     }
@@ -5541,7 +5567,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
 
     this->m_flags = (this->m_flags & ~FLAGS::DISPLAY_RESET_MASK) | FLAGS::TEXTURES_AND_GEOSETS_DIRTY;
     this->m_dirtySections = 0xFFFFFFFF;
-    this->m_request = nullptr;
+    this->m_componentRequest = nullptr;
 
     if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) && this->m_baseTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(this->m_baseTexture));
@@ -5649,50 +5675,52 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, int32_t displayID, int32_t
 
 // VERIFY: 433a7621 manual
 // OFFSET: 0x004F2880
-void CCharacterComponent::AddItemBySlot(INVENTORY_SLOTS invSlot, int32_t displayID, int32_t itemVisual) {
+void CCharacterComponent::AddItemBySlot(INVENTORY_SLOTS invSlot, int32_t itemDisplayInfoID, int32_t itemVisual) {
+    STORM_ASSERT(itemDisplayInfoID > 0);
+
     switch (invSlot) {
         case INVSLOT_HEAD:
-            this->AddItem(ITEMSLOT_HEAD, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_HEAD, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_SHOULDER:
-            this->AddItem(ITEMSLOT_SHOULDER, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_SHOULDER, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_BODY:
-            this->AddItem(ITEMSLOT_SHIRT, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_SHIRT, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_CHEST:
-            this->AddItem(ITEMSLOT_CHEST, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_CHEST, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_WAIST:
-            this->AddItem(ITEMSLOT_BELT, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_BELT, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_LEGS:
-            this->AddItem(ITEMSLOT_PANTS, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_PANTS, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_FEET:
-            this->AddItem(ITEMSLOT_BOOTS, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_BOOTS, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_WRIST:
-            this->AddItem(ITEMSLOT_BRACERS, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_BRACERS, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_HAND:
-            this->AddItem(ITEMSLOT_GLOVES, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_GLOVES, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_BACK:
-            this->AddItem(ITEMSLOT_CAPE, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_CAPE, itemDisplayInfoID, itemVisual);
             break;
 
         case INVSLOT_TABARD:
-            this->AddItem(ITEMSLOT_TABARD, displayID, itemVisual);
+            this->AddItem(ITEMSLOT_TABARD, itemDisplayInfoID, itemVisual);
             break;
 
         default:

@@ -42,9 +42,9 @@ static void LoadSuccessCallback(void* param) {
 
     entry->m_info.m_alphaSize = header->m_alphaSize;
     entry->m_info.m_opaque = header->m_alphaSize == 0;
-    entry->m_info.m_width = header->m_width;
-    entry->m_info.m_height = header->m_height;
-    entry->m_info.m_mipCount = TextureCalcMipCount(entry->m_info.m_width, entry->m_info.m_height);
+    entry->m_info.width = header->m_width;
+    entry->m_info.height = header->m_height;
+    entry->m_info.m_mipCount = TextureCalcMipCount(entry->m_info.width, entry->m_info.height);
 }
 
 // VERIFY: ca8c7168 manual
@@ -170,7 +170,7 @@ int32_t TextureCacheGetInfo(HTEXTURECACHE handle, TCTEXTUREINFO& info, BOOL wait
             entry->LoadTexture();
         }
 
-        if (!entry->m_loadFailed && !entry->m_info.m_width && entry->m_asyncObject) {
+        if (!entry->m_loadFailed && !entry->m_info.width && entry->m_asyncObject) {
             if (!wait) {
                 if (SFile::IsStreamingMode()) {
                     AsyncFile::EnterQueueLock();
@@ -219,8 +219,8 @@ CACHEENTRY::~CACHEENTRY() {
 CACHEENTRY::CACHEENTRY() {
     this->m_info.m_mipCount = 0;
     this->m_info.m_opaque = 1;
-    this->m_info.m_width = 0;
-    this->m_info.m_height = 0;
+    this->m_info.width = 0;
+    this->m_info.height = 0;
     this->m_info.m_alphaSize = 0;
     this->m_size = 0;
     this->m_loadFailed = 0;
