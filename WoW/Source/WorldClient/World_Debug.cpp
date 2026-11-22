@@ -93,17 +93,16 @@ static const MapObjRenderModeName s_mapObjRenderModes[] = {
 // PrepareUpdate reads to draw every WMO group with CMapObj::RenderGroupBsp (render faces green, detail faces blue,
 // collision faces red over them).
 // Port addition: with an argument, selects one of the 3.3.5 face renderers instead (s_mapObjRenderModes); "normal"
-// goes back to normal rendering. The BSP display, while on, takes precedence over them.
+// goes back to normal rendering. Selecting one turns the BSP display off, and the BSP display, turned on, takes
+// precedence over the mode.
 int32_t CWorld::ConsoleCommand_ShowMapObjBSP(const char* command, const char* arguments) {
     if (arguments && *arguments) {
         for (const MapObjRenderModeName& mode : s_mapObjRenderModes) {
             if (!SStrCmpI(arguments, mode.m_name, STORM_MAX_STR)) {
+                // The BSP display would take precedence (see CMapObj::PrepareUpdate): a mode replaces it.
+                CWorld::enables &= ~Enables::Enable_MapObjBSP;
                 CMapObj::s_renderMode = mode.m_mode;
                 ConsoleWriteA("WMO render mode: %s.", DEFAULT_COLOR, mode.m_description);
-
-                if (CWorld::enables & Enables::Enable_MapObjBSP) {
-                    ConsoleWrite("The BSP display is still on and takes precedence: showMapObjBSP turns it off.", DEFAULT_COLOR);
-                }
 
                 return 1;
             }

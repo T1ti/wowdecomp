@@ -50,6 +50,11 @@ static const uint32_t BSP_INDEX_BATCH = 3000; // indices per draw, as the 3.3.5 
 static const uint32_t BSP_RENDER_COLOR = 0xFF00FF00;
 static const uint32_t BSP_DETAIL_COLOR = 0xFF807FFF;
 static const uint32_t BSP_COLLISION_COLOR = 0x80FF0000;
+// Port: depth bias of the detail and collision passes (GxRs_PolygonOffset units, see GxuDebugDrawShapes.cpp). Detail
+// faces often lie on render faces (decals, trims) and collision faces on both, or on faces of another group, which
+// z-fight at equal depths; each later pass is drawn slightly nearer so that it wins.
+static const float BSP_DETAIL_DEPTH_BIAS = 1.0f / 65536.0f;
+static const float BSP_COLLISION_DEPTH_BIAS = 2.0f / 65536.0f;
 
 static void DrawBspBatch(CGxBuf* indexBuf, uint32_t count, uint32_t vertexCount) {
     GxBufUnlock(indexBuf, 0);
@@ -101,6 +106,10 @@ void CMapObj::RenderGroupBsp(CMapObjGroup* group, uint32_t index) {
         return;
     }
 
+    // Port: the group counts as drawn, as in the normal renderers (ExteriorRender, InteriorRender), so that
+    // CMapObj::PrepareUpdate does not free its vertex and index buffers after 5 seconds.
+    group->m_timer = 0.0f;
+
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_Fog, 0);
     CMapObj::SetRenderModeLight();
@@ -125,10 +134,14 @@ void CMapObj::RenderGroupBsp(CMapObjGroup* group, uint32_t index) {
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(BSP_RENDER_COLOR));
     DrawBspFaces(group, SMOPoly::F_RENDER, SMOPoly::F_DETAIL);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(BSP_DETAIL_COLOR));
+    g_theGxDevicePtr->RsSet(GxRs_PolygonOffset, BSP_DETAIL_DEPTH_BIAS);
     DrawBspFaces(group, SMOPoly::F_DETAIL, 0);
 
+    // The translucent collision faces lie over the others: no depth write, so they do not hide one another.
     GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxUpdateAlphaRef(GxRs_AlphaRef);
+    g_theGxDevicePtr->RsSet(GxRs_PolygonOffset, BSP_COLLISION_DEPTH_BIAS);
+    GxRsSet(GxRs_DepthWrite, 0);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(BSP_COLLISION_COLOR));
     DrawBspFaces(group, SMOPoly::F_COLLISION, 0);
 

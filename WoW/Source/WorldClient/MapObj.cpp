@@ -1145,6 +1145,13 @@ void CMapObj::RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<
 
     uint32_t index = 0;
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the face renderers showMapObjBSP selects (RenderGroupCollisionFaces and the others, unused in the
+    // release build) draw from the group's own lists without marking it drawn; the group's vertex and index buffers
+    // would then be freed by CMapObj::PrepareUpdate after 5 seconds. The normal renderers set this too.
+    group->m_timer = 0.0f;
+#endif
+
     for (CWFrustum* frustum = frustumList->Head(); frustum; frustum = frustumList->Next(frustum)) {
         CWorldScene::FrustumSet(frustum);
         CWorldScene::FrustumXform(matrix);

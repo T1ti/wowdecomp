@@ -2804,6 +2804,10 @@ void CMapRenderChunk::RenderZoneDebug() {
     }
 
     GxRsSet(GxRs_Lighting, 1);
+    // The terrain vertices may carry a color (GxVBF_PNC). With the default GxRs_ColorMaterial 0, the D3D device takes
+    // the ambient and diffuse colors from it instead of the material, and the chunk comes out black. Any value other
+    // than 0, 1 (specular from the vertex) and 2 (emissive from the vertex) leaves every color to the material.
+    GxRsSet(GxRs_ColorMaterial, 3);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFFFFFFFF));
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);

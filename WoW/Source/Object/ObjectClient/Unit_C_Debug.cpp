@@ -665,8 +665,21 @@ void CGPlayer_C::TogglePlayerBounds() {
 // and the queueing, speeding up and interrupting of its own animation queue, which 3.3.5 does not have.
 // Port: the console command animDebug (an invented name) sets the target, and CM2Model::SetBoneSequence reports every
 // sequence to AnimDebugSequence, which prints those of the target's model to the console: the fallbacks in the 0.8
-// wording ("doesn't have ..., falling back to ...") and the "playing" line, with the key bone id instead of its name.
+// wording ("doesn't have ..., falling back to ...") and the "playing" line, with the 0.8 key bone names.
 static WOWGUID s_animDebugTarget;
+
+// Key bone names, indexed by KEY_BONE_ID (M2Model.h). 0..26 (KEY_BONE_ARM_L..KEY_BONE_ROOT) are the 0.8 names (the table at 0x0088D590 its anim log printed), which
+// match the 3.3.5 key bones one for one; 0.8 had no wheel bones (KEY_BONE_WHEEL1..8), named here after the enum.
+static const char* const s_animDebugKeyBoneNames[NUM_KEY_BONES] = {
+    "ArmL", "ArmR", "ShoulderL", "ShoulderR", "SpineLow", "Waist", "Head", "Jaw",
+    "IndexFingerR", "MiddleFingerR", "PinkyFingerR", "RingFingerR", "ThumbR",
+    "IndexFingerL", "MiddleFingerL", "PinkyFingerL", "RingFingerL", "ThumbL",
+    "$BTH", "$CSR", "$CSL", "_Breath", "_Name", "_NameMount", "$CHD", "$CCH", "Root",
+    "Wheel1", "Wheel2", "Wheel3", "Wheel4", "Wheel5", "Wheel6", "Wheel7", "Wheel8",
+};
+
+// The table follows KEY_BONE_ID (M2Model.h): check a few anchors, so that a change to the enum shows here.
+static_assert(KEY_BONE_THUMB_L == 17 && KEY_BONE_ROOT == 26 && KEY_BONE_WHEEL1 == 27 && NUM_KEY_BONES == 35, "s_animDebugKeyBoneNames follows KEY_BONE_ID");
 
 static const char* AnimDebugName(uint32_t animationId) {
     const AnimationDataRec* rec = g_animationDataDB.GetRecord(animationId);
@@ -693,7 +706,11 @@ static void AnimDebugSequence(CM2Model* model, uint32_t boneId, uint32_t request
     if (boneId == M2_KEY_BONE_NONE) {
         ConsoleWriteA("**** %u \"%s\" \"%s\" playing", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId));
     } else {
-        ConsoleWriteA("**** %u \"%s\" \"%s\" playing on key bone %u", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId), boneId);
+        if (boneId < NUM_KEY_BONES) {
+            ConsoleWriteA("**** %u \"%s\" \"%s\" playing on bone \"%s\"", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId), s_animDebugKeyBoneNames[boneId]);
+        } else {
+            ConsoleWriteA("**** %u \"%s\" \"%s\" playing on key bone %u", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId), boneId);
+        }
     }
 }
 
