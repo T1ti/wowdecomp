@@ -846,6 +846,8 @@ void CGxDevice::ShaderConstantsClear() {
 // VERIFY: 4ce72d69 manual
 // OFFSET: 0x006833E0
 void CGxDevice::ShaderConstantsSet(EGxShTarget target, uint32_t index, const float* constants, uint32_t count) {
+    STORM_ASSERT((index + count - 1) <= 255);
+
     ShadowConstants& shadow = s_shadowConstants[target ? 0 : 1];
     float* dest = &shadow.constants[index * 4];
 
@@ -883,6 +885,8 @@ float* CGxDevice::ShaderConstantsLock(EGxShTarget target) {
 // VERIFY: 636e6d3d manual
 // OFFSET: 0x00683580
 void CGxDevice::ShaderConstantsUnlock(EGxShTarget target, uint32_t index, uint32_t count) {
+    STORM_ASSERT((index + count - 1) <= 255);
+
     ShadowConstants& shadow = s_shadowConstants[target ? 0 : 1];
 
     if (shadow.dirtyMin > index) {
@@ -1115,6 +1119,15 @@ int32_t CGxDevice::TexCreate(EGxTexTarget target, uint32_t width, uint32_t heigh
 // VERIFY: ff832600 manual
 // OFFSET: 0x00687980
 void CGxDevice::TexDestroy(CGxTex* texId) {
+    STORM_ASSERT(texId);
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    for (uint32_t i = GxRs_Texture0; i <= GxRs_Texture15; i++) {
+        const CGxTex* activeTex = static_cast<const CGxTex*>(this->m_appRenderStates[i].m_value.m_data.p);
+        STORM_ASSERT(activeTex != texId);
+    }
+#endif
+
     texId->m_link.Unlink();
     delete texId;
 }
@@ -1613,6 +1626,10 @@ CGxDevice::CGxDevice() : m_defWindowRect(), m_curWindowRect(), m_viewport(), m_s
 // VERIFY: ea9f4c67 manual
 // OFFSET: [0x006890C0, 0x00689690]
 CGxDevice::~CGxDevice() {
+    STORM_ASSERT(m_stereoChangedCallbacks.Count() == 0);
+    STORM_ASSERT(m_textureRecreationCallbacks.Count() == 0);
+    STORM_ASSERT(m_deviceRestoredCallbacks.Count() == 0);
+
     for (CGxTex* texId = this->m_textures.Head(); texId; texId = this->m_textures.Next(texId)) {
         if (texId->m_apiSpecificData) {
             char buffer[256];
@@ -1650,6 +1667,8 @@ CGxPool* CGxDevice::PoolCreate(EGxPoolTarget target, EGxPoolUsage usage, int32_t
 // OFFSET: 0x00688340
 void CGxDevice::PoolDestroy(CGxPool* pool) {
     if (pool) {
+        STORM_ASSERT(pool->m_bufList.IsEmpty());
+
         this->m_poolList.UnlinkNode(pool);
         delete pool;
     }
@@ -1699,8 +1718,9 @@ void CGxDevice::IShaderLoad(CGxShader** shaders, EGxShTarget target, const char*
                 SFileReadFile(file, &version, 4, nullptr, nullptr, 0);
 
                 if (version == Version) {
-                    uint32_t unknown;
-                    SFileReadFile(file, &unknown, 4, nullptr, nullptr, 0);
+                    uint32_t permutationCount;
+                    SFileReadFile(file, &permutationCount, 4, nullptr, nullptr, 0);
+                    STORM_ASSERT(permutationCount == permutations);
 
                     for (uint32_t i = 0; i < permutations; i++) {
                         shaders[i]->Load(file);
