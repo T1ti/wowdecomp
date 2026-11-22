@@ -31,7 +31,7 @@ CMapObjDefGroup::CMapObjDefGroup() {
     this->m_unkLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_type |= CMapBaseObj::Type_MapObjDefGroup;
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
-    this->m_groupNum = -1;
+    this->groupNum = -1;
     this->m_unkFlags = -1;
     this->unused_0058 = 0;
     this->unused_0064 = 0;
@@ -283,7 +283,7 @@ void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
 
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
-        CMapObjGroup* group = owner->GetGroup(defGroup->m_groupNum, 0);
+        CMapObjGroup* group = owner->GetGroup(defGroup->groupNum, 0);
 
         if (group) {
             for (int32_t i = 0; i < group->m_lightRefListCount; i++) {
@@ -303,9 +303,9 @@ void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
         CAaBox groupBox;
         groupBox.b = C3Vector(0.0f, 0.0f, 0.0f);
         groupBox.t = C3Vector(0.0f, 0.0f, 0.0f);
-        owner->GetGroupBounds(&defGroup->m_sphere, defGroup->m_groupNum);
+        owner->GetGroupBounds(&defGroup->m_sphere, defGroup->groupNum);
         defGroup->m_sphere.c *= mapObjDef->m_mat;
-        owner->GetGroupBounds(&groupBox, defGroup->m_groupNum);
+        owner->GetGroupBounds(&groupBox, defGroup->groupNum);
         CWorldMath::TransformAABox(mapObjDef->m_mat, groupBox, defGroup->m_bbox);
         defGroup->Update(mapObjDef->m_mat);
     }
@@ -319,7 +319,7 @@ void CMapObjDef::LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, 
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-        if (mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
+        if (mapObj->GetGroupFlags(group->groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             continue;
         }
 

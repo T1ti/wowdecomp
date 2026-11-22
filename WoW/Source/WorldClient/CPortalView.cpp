@@ -7,7 +7,7 @@ CPortalView::CPortalView(const CRect& rect, float maxViewDepth) {
     this->m_rect = rect;
     this->m_maxViewDepth = maxViewDepth;
     this->m_verts = nullptr;
-    this->m_vertCount = 0;
+    this->m_numVertices = 0;
 }
 
 // VERIFY: 4ae18f01 auto
@@ -15,5 +15,5 @@ CPortalView::CPortalView(const CRect& rect, float maxViewDepth) {
 void CPortalView::Merge(const CPortalView& other) {
     this->m_rect = this->m_rect | other.m_rect;
     this->m_maxViewDepth = other.m_maxViewDepth >= this->m_maxViewDepth ? other.m_maxViewDepth : this->m_maxViewDepth;
-    this->m_vertCount = 0;
+    this->m_numVertices = 0;
 }

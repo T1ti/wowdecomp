@@ -50,8 +50,11 @@ void CBarrier::AddBarrierConvexPoly(C3Vector* verts, uint32_t count, float radiu
         return;
     }
 
-    static CGxVertexPCT0T1 s_polyVerts[12];
-    static C3Vector s_polyPoints[12];
+    constexpr uint32_t BARRIER_VERT_CACHE = 12;
+    STORM_ASSERT(count >= 3 && count <= BARRIER_VERT_CACHE);
+
+    static CGxVertexPCT0T1 s_polyVerts[BARRIER_VERT_CACHE];
+    static C3Vector s_polyPoints[BARRIER_VERT_CACHE];
 
     C3Vector* points = verts;
 

@@ -903,7 +903,7 @@ void CMapObj::AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPorta
         CPortalView view;
         CWorldScene::CalcScreenRectFromVerts(view.m_rect, clipped, clippedCount);
         C3Vector* dst = &s_portalVerts.m_data[s_portalVerts.m_count];
-        view.m_vertCount = clippedCount;
+        view.m_numVertices = clippedCount;
         view.m_rect.minX = (view.m_rect.minX + 1.0f) * 0.5f;
         view.m_verts = dst;
         view.m_rect.maxX = (view.m_rect.maxX + 1.0f) * 0.5f;
@@ -2652,11 +2652,11 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
     CWorldScene::FrustumPush();
     CWorldScene::FrustumSet(CWorldScene::s_frustumCorners, *rect);
 
-    uint32_t groupFlags = this->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum);
+    uint32_t groupFlags = this->m_owner->GetGroupFlags(mapObjDefGroup->groupNum);
 
     if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_1))) {
         if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW) {
-            this->m_owner->InvokeRenderCallback(mapObjDefGroup->m_groupNum);
+            this->m_owner->InvokeRenderCallback(mapObjDefGroup->groupNum);
             CWorldScene::FrustumPop();
             return;
         }
@@ -2667,7 +2667,7 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
             ndcRect.minX = rect->minX * 2.0f - 1.0f;
             ndcRect.maxY = rect->maxY * 2.0f - 1.0f;
             ndcRect.maxX = 2.0f * rect->maxX - 1.0f;
-            this->m_owner->RenderThruPortalsExterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, ndcRect, mapObjDefGroup->m_groupNum);
+            this->m_owner->RenderThruPortalsExterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, ndcRect, mapObjDefGroup->groupNum);
         }
     }
 

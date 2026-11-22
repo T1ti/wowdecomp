@@ -13,7 +13,7 @@ class CPortalView {
     /* 0000 */ CRect m_rect;
     /* 0010 */ float m_maxViewDepth;
     /* 0014 */ C3Vector* m_verts;
-    /* 0018 */ uint32_t m_vertCount;
+    /* 0018 */ uint32_t m_numVertices;
 
     CPortalView();
     CPortalView(const CRect& rect, float maxViewDepth);
@@ -25,7 +25,7 @@ inline CPortalView::CPortalView() {
     this->m_rect.minX = FLT_MAX;
     this->m_verts = nullptr;
     this->m_rect.minY = FLT_MAX;
-    this->m_vertCount = 0;
+    this->m_numVertices = 0;
     this->m_rect.maxX = -FLT_MAX;
     this->m_rect.maxY = -FLT_MAX;
     this->m_maxViewDepth = -1.0f;

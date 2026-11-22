@@ -2192,6 +2192,8 @@ void CWorldScene::CullHorizon(CRect* rect) {
 // VERIFY: b484c5b7 manual
 // OFFSET: 0x00791CB0
 void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
+    STORM_ASSERT(doodadDef->model);
+
     doodadDef->m_doodadDefLink.Unlink();
 
     uint32_t flags = doodadDef->m_flags;
@@ -2251,7 +2253,7 @@ void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapO
     STORM_ASSERT(mapObjDef);
     STORM_ASSERT(mapObjDefGroup);
 
-    if (!(mapObjDef->m_owner->GetGroupFlags(mapObjDefGroup->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
+    if (!(mapObjDef->m_owner->GetGroupFlags(mapObjDefGroup->groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
         return;
     }
 
@@ -2313,12 +2315,14 @@ void CWorldScene::ComputeExteriorSortDistances() {
 
 // VERIFY: 7ea57828 manual
 // OFFSET: 0x00792D80
-void CWorldScene::AddMapChunkToRenderList(CMapChunk* mapChunk, C3Vector* pos) {
+void CWorldScene::AddMapChunkToRenderList(CMapChunk* chunk, C3Vector* pos) {
+    STORM_ASSERT(chunk);
+
     int32_t bucket = 0;
     float distance = pos->y * CWorldScene::camPlaneXY.n.y + pos->z * CWorldScene::camPlaneXY.n.z + pos->x * CWorldScene::camPlaneXY.n.x + CWorldScene::camPlaneXY.d;
 
     if (distance <= 0.0f || (bucket = CMath::fint_(distance * CBDIVISOR - 0.5f)) < 64) {
-        CWorldScene::sortTable.m_table[bucket].chunkList.LinkToTail(mapChunk);
+        CWorldScene::sortTable.m_table[bucket].chunkList.LinkToTail(chunk);
     }
 }
 
@@ -2732,29 +2736,35 @@ void CWorldScene::RenderChunksZoneDebug() {
 // VERIFY: 8ead38ba manual
 // OFFSET: 0x00793D20
 void CWorldScene::PrepareLiquidInstances() {
-    CMapObjDefGroup* group = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Head();
+    CMapObjDefGroup* mapObjDefGroup = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Head();
 
-    while (group) {
-        CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Next(group);
-        group->m_liquidLink.Unlink();
+    while (mapObjDefGroup) {
+        CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Next(mapObjDefGroup);
+        mapObjDefGroup->m_liquidLink.Unlink();
 
         if ((CWorld::enables & Enables::Enable_MapObjs) && CWorldScene::s_liquidRenderer) {
-            if (!group->m_liquidInstance) {
-                CMapObjDef* def = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
-                CMapObj* mapObj = def->m_owner;
-                CMapObjGroup* mapObjGroup = mapObj->GetGroup(group->m_groupNum, 0);
-                uint32_t liquidType = mapObjGroup->GetLiquidType();
+            if (!mapObjDefGroup->m_liquidInstance) {
+                CMapBaseObjLink* parentLink = mapObjDefGroup->m_parentLinkList.Head();
+                STORM_ASSERT(parentLink);
+                CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(parentLink->m_ref);
+                STORM_ASSERT(mapObjDef);
+                CMapObj* mapObj = mapObjDef->m_owner;
+                STORM_ASSERT(mapObj);
+                CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
+                STORM_ASSERT(group);
+                uint32_t liquidType = group->GetLiquidType();
                 const LiquidTypeRec* typeRec = g_liquidTypeDB.GetRecord(liquidType);
 
                 if (!typeRec) {
                     SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "WMO: Liquid type [%d] not found, defaulting to water!", liquidType);
+                    STORM_ASSERT(liquidType != 1);
                     liquidType = 1;
                     typeRec = g_liquidTypeDB.GetRecord(liquidType);
                 }
 
                 int32_t exterior;
 
-                if (((mapObjGroup->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(group->m_flags & MAPOBJ_FLAG_INTERIOR)) || (typeRec->m_flags & LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING)) {
+                if (((group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) && !(mapObjDefGroup->m_flags & MAPOBJ_FLAG_INTERIOR)) || (typeRec->m_flags & LIQUID_TYPE_FLAG_FORCE_EXTERIOR_LIGHTING)) {
                     exterior = 1;
                 } else {
                     exterior = 0;
@@ -2766,7 +2776,7 @@ void CWorldScene::PrepareLiquidInstances() {
                 }
 
                 Liquid::CClientEnvironment* environment = Liquid::CClientEnvironment::Create(exterior == 0);
-                Liquid::CMeshGeomFactory* geomFactory = Liquid::CMeshGeomFactory::Create(mapObj, mapObjGroup);
+                Liquid::CMeshGeomFactory* geomFactory = Liquid::CMeshGeomFactory::Create(mapObj, group);
                 const LiquidMaterialRec* materialRec = g_liquidMaterialDB.GetRecord(typeRec->m_materialID);
                 geomFactory->SetMagma(materialRec->m_lvf == LIQUID_VERTEX_HEIGHT_TEXCOORD);
 
@@ -2775,10 +2785,11 @@ void CWorldScene::PrepareLiquidInstances() {
                 *reinterpret_cast<int32_t*>(&color) = -1;
 
                 if (!exterior) {
-                    SMOMaterial* material = mapObj->GetLiquidMaterial(group->m_groupNum);
+                    SMOMaterial* smoMat = mapObj->GetLiquidMaterial(mapObjDefGroup->groupNum);
+                    STORM_ASSERT(smoMat);
 
-                    if (material) {
-                        color = material->m_diffColor;
+                    if (smoMat) {
+                        color = smoMat->m_diffColor;
                     }
 
                     texCoord1ValueX = 1.0f;
@@ -2787,19 +2798,19 @@ void CWorldScene::PrepareLiquidInstances() {
                 geomFactory->SetDiffuseColor(color);
                 geomFactory->SetTexCoord1ValueX(texCoord1ValueX);
 
-                group->m_liquidInstance = Liquid::CInstance::Create();
-                group->m_liquidInstance->m_material = Liquid::CMaterialBank::GetMaterial(liquidType);
-                group->m_liquidInstance->m_settings = Liquid::CSettingsBank::GetSettings(liquidType);
-                group->m_liquidInstance->m_environment = environment;
-                group->m_liquidInstance->m_geomFactory = geomFactory;
-                group->m_liquidInstance->m_transform = def->m_mat;
-                group->m_liquidInstance->m_bounds = group->m_sphere;
+                mapObjDefGroup->m_liquidInstance = Liquid::CInstance::Create();
+                mapObjDefGroup->m_liquidInstance->m_material = Liquid::CMaterialBank::GetMaterial(liquidType);
+                mapObjDefGroup->m_liquidInstance->m_settings = Liquid::CSettingsBank::GetSettings(liquidType);
+                mapObjDefGroup->m_liquidInstance->m_environment = environment;
+                mapObjDefGroup->m_liquidInstance->m_geomFactory = geomFactory;
+                mapObjDefGroup->m_liquidInstance->m_transform = mapObjDef->m_mat;
+                mapObjDefGroup->m_liquidInstance->m_bounds = mapObjDefGroup->m_sphere;
             }
 
-            CWorldScene::s_liquidRenderer->Draw(group->m_liquidInstance);
+            CWorldScene::s_liquidRenderer->Draw(mapObjDefGroup->m_liquidInstance);
         }
 
-        group = next;
+        mapObjDefGroup = next;
     }
 }
 
@@ -2847,9 +2858,34 @@ void CSortTable::Clear() {
     this->visLowDetailMapObjDefList.UnlinkAll();
 }
 
+#if defined(WOWDECOMP_ASSERTIONS)
+// AssertEmpty (inferred).
+void CSortTable::AssertEmpty() {
+    for (uint32_t i = 0; i < ARRSIZE(visRenderChunkList); i++) {
+        for (uint32_t j = 0; j < ARRSIZE(visRenderChunkList[i]); j++) {
+            STORM_ASSERT(visRenderChunkList[i][j].Head() == NULL);
+        }
+    }
+
+    STORM_ASSERT(visDetailDoodadList.Head() == NULL);
+    STORM_ASSERT(visMapObjDefGroupList.Head() == NULL);
+    STORM_ASSERT(moveableMapObjDefGroupList.Head() == NULL);
+    STORM_ASSERT(visMapObjDefGroupLiquidList.Head() == NULL);
+    STORM_ASSERT(visEntityList.Head() == NULL);
+    STORM_ASSERT(visOccluderList.Head() == NULL);
+    STORM_ASSERT(nonVisEntityList.Head() == NULL);
+    STORM_ASSERT(visLowDetailAreaList.Head() == NULL);
+    STORM_ASSERT(visLowDetailMapObjDefList.Head() == NULL);
+}
+#endif
+
 // VERIFY: fbff50c3 auto
 // OFFSET: 0x00795400
 void CWorldScene::Update(C3Vector* camPos, C3Vector* camTarget) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    CWorldScene::sortTable.AssertEmpty();
+#endif
+
     if (CWorldScene::s_liquidRenderer) {
         CWorldScene::s_liquidRenderer->Validate();
     }
@@ -3072,8 +3108,12 @@ void CWorldScene::RenderMapObjDefGroups() {
         CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupList.Next(group);
         group->visLink.Unlink();
 
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
+        CMapBaseObjLink* parentLink = group->m_parentLinkList.Head();
+        STORM_ASSERT(parentLink);
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(parentLink->m_ref);
+        STORM_ASSERT(mapObjDef);
         CMapObj* mapObj = mapObjDef->m_owner;
+        STORM_ASSERT(mapObj);
 
         if (CWorld::enables & Enables::Enable_MapObjs) {
             C44Matrix view;
@@ -3099,13 +3139,13 @@ void CWorldScene::RenderMapObjDefGroups() {
             }
 
             s_curGroupIsInterior = interior;
-            mapObj->RenderGroup(group->m_groupNum, mapObjDef->m_invMat, &group->m_frustumList);
+            mapObj->RenderGroup(group->groupNum, mapObjDef->m_invMat, &group->frustumList);
         }
 
-        CWFrustum* frustum = group->m_frustumList.Head();
+        CWFrustum* frustum = group->frustumList.Head();
 
         while (frustum) {
-            CWFrustum* nextFrustum = group->m_frustumList.Next(frustum);
+            CWFrustum* nextFrustum = group->frustumList.Next(frustum);
             frustum->m_link.Unlink();
             CWorldScene::frustumFreeList.LinkToTail(frustum);
             frustum = nextFrustum;
@@ -3155,7 +3195,9 @@ void CWorldScene::CreateInversePortalList() {
             break;
         }
 
-        const CRect& portal = views.m_data[index].m_rect;
+        const CPortalView& exteriorView = views.m_data[index];
+        STORM_ASSERT(exteriorView.m_numVertices == 0);
+        const CRect& portal = exteriorView.m_rect;
 
         for (uint32_t i = 0; i < counts[cur]; i++) {
             CRect r = rects[cur][i];
@@ -3261,7 +3303,7 @@ void CWorldScene::RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t 
     uint32_t indexCount = 0;
 
     for (uint32_t i = 0; i < viewCount; i++) {
-        uint32_t n = views->m_data[i].m_vertCount;
+        uint32_t n = views->m_data[i].m_numVertices;
 
         if (n) {
             vertexCount += n;
@@ -3283,15 +3325,15 @@ void CWorldScene::RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t 
         for (uint32_t i = 0; i < viewCount; i++) {
             CPortalView& portal = views->m_data[i];
 
-            if (portal.m_vertCount) {
-                for (uint32_t k = 0; k < portal.m_vertCount; k++) {
+            if (portal.m_numVertices) {
+                for (uint32_t k = 0; k < portal.m_numVertices; k++) {
                     vertices->p = C3Vector(portal.m_verts[k].x, portal.m_verts[k].y, 1.0f);
                     vertices->c = color;
                     vertices++;
                 }
 
-                if (portal.m_vertCount != 2) {
-                    for (uint32_t k = 0; k < portal.m_vertCount - 2; k++) {
+                if (portal.m_numVertices != 2) {
+                    for (uint32_t k = 0; k < portal.m_numVertices - 2; k++) {
                         indices[1] = base + k + 1;
                         indices[2] = base + k + 2;
                         indices[0] = base;
@@ -3299,7 +3341,7 @@ void CWorldScene::RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t 
                     }
                 }
 
-                base += portal.m_vertCount;
+                base += portal.m_numVertices;
             } else {
                 portal.m_rect.minX = portal.m_rect.minX * 2.0f - 1.0f;
                 portal.m_rect.maxX = portal.m_rect.maxX * 2.0f - 1.0f;
@@ -3702,7 +3744,7 @@ void CWorldScene::CullDoodads(CSortEntry* sortEntry, uint16_t fadeLevel) {
 // VERIFY: 1d148ad8 manual
 // OFFSET: 0x007989C0
 void CWorldScene::RenderChunksSinglePass() {
-    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> singlePassList;
+    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> renderChunkNormalList;
 
     for (uint32_t pass = 0; pass < 4; pass++) {
         switch (pass) {
@@ -3720,6 +3762,10 @@ void CWorldScene::RenderChunksSinglePass() {
 
             case 3:
                 CMapRenderChunk::SetShaders(1, 1);
+                break;
+
+            default:
+                STORM_ASSERT(0);
                 break;
         }
 
@@ -3754,7 +3800,7 @@ void CWorldScene::RenderChunksSinglePass() {
                 renderChunk->m_renderChunkLink.Unlink();
 
                 if (CWorld::enables & Enables::Enable_ShowNormals) {
-                    singlePassList.LinkToTail(renderChunk);
+                    renderChunkNormalList.LinkToTail(renderChunk);
                 } else {
                     CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
                 }
@@ -3767,20 +3813,22 @@ void CWorldScene::RenderChunksSinglePass() {
     g_theGxDevicePtr->RsSet(GxRs_VertexShader, static_cast<void*>(nullptr));
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, static_cast<void*>(nullptr));
 
-    if (!singlePassList.IsEnd(singlePassList.Head())) {
+    if (!renderChunkNormalList.IsEnd(renderChunkNormalList.Head())) {
         C44Matrix world;
         world.Translate(-CWorldScene::s_activeWorldView);
         GxXformSet(GxXform_World, world);
 
-        CMapRenderChunk* renderChunk = singlePassList.Head();
+        CMapRenderChunk* renderChunk = renderChunkNormalList.Head();
 
-        while (!singlePassList.IsEnd(renderChunk)) {
-            CMapRenderChunk* next = singlePassList.RawNext(renderChunk);
+        while (!renderChunkNormalList.IsEnd(renderChunk)) {
+            CMapRenderChunk* next = renderChunkNormalList.RawNext(renderChunk);
             renderChunk->RenderSinglePass();
             CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
             renderChunk = next;
         }
     }
+
+    STORM_ASSERT(renderChunkNormalList.Head() == NULL);
 }
 
 // VERIFY: 981a5585 manual
@@ -3857,10 +3905,13 @@ void CWorldScene::RenderChunks() {
 
 // VERIFY: 8c4ec802 manual
 // OFFSET: 0x00799310
-void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param) {
+void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupNum, void* param) {
     CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(param);
-    CMapObjDefGroup* mapObjDefGroup = mapObjDef->m_defGroups[groupIndex];
-    CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
+    STORM_ASSERT(mapObjDef);
+
+    CMapObjDefGroup* mapObjDefGroup = mapObjDef->m_defGroups[groupNum];
+    STORM_ASSERT(mapObjDefGroup->groupNum == groupNum);
+    CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->groupNum, 0);
 
     if (!mapObjDefGroup->visLink.m_next) {
         CWorldScene::sortTable.visMapObjDefGroupList.LinkToTail(mapObjDefGroup);
@@ -3877,6 +3928,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
             CWorldScene::s_hasPendingExteriorGroups = 1;
         }
 
+        STORM_ASSERT(mapObjDefGroup->frustumList.Head() == NULL);
         mapObjDefGroup->m_flags = static_cast<MapObjFlag>(mapObjDefGroup->m_flags & ~MAPOBJ_FLAG_INT_FOG);
     }
 
@@ -3886,7 +3938,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
 
     CWFrustum* frustum = CWorldScene::AllocFrustum();
     *static_cast<CFrustum*>(frustum) = CWorldScene::frustumStack[CWorldScene::frustumIndex];
-    mapObjDefGroup->m_frustumList.LinkToTail(frustum);
+    mapObjDefGroup->frustumList.LinkToTail(frustum);
 }
 
 // VERIFY: dfda4d02 manual
@@ -4139,8 +4191,8 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
 
             uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
             int32_t interior = group->m_flags & MAPOBJ_FLAG_INT_FOG;
-            CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, interior);
-            CWorldScene::CullEntitysInterior(&group->entityLinkList, group->m_frustumList.Head(), 1, interior);
+            CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->frustumList.Head(), fadeLevel, interior);
+            CWorldScene::CullEntitysInterior(&group->entityLinkList, group->frustumList.Head(), 1, interior);
         }
 
         group = next;
@@ -4177,8 +4229,13 @@ void CWorldScene::CullMapObjDefGroups(CSortEntry* sortEntry, CRect* rect, uint32
 // OFFSET: 0x0079A260
 void CWorldScene::CullMapObjDefGroup() {
     for (CMapObjDefGroup* group = CWorldScene::sortTable.visMapObjDefGroupList.Head(); group; group = CWorldScene::sortTable.visMapObjDefGroupList.Next(group)) {
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
-        uint32_t groupFlags = mapObjDef->m_owner->GetGroupFlags(group->m_groupNum);
+        CMapBaseObjLink* parentLink = group->m_parentLinkList.Head();
+        STORM_ASSERT(parentLink);
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(parentLink->m_ref);
+        STORM_ASSERT(mapObjDef);
+        CMapObj* mapObj = mapObjDef->m_owner;
+        STORM_ASSERT(mapObj);
+        uint32_t groupFlags = mapObj->GetGroupFlags(group->groupNum);
 
         if (mapObjDef != CWorldScene::s_viewerMapObjDef && (groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR))) {
             continue;
@@ -4186,8 +4243,8 @@ void CWorldScene::CullMapObjDefGroup() {
 
         uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
         int32_t interior = group->m_flags & MAPOBJ_FLAG_INT_FOG;
-        CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, group->m_flags & MAPOBJ_FLAG_INT_FOG);
-        CWorldScene::CullEntitysInterior(&group->entityLinkList, group->m_frustumList.Head(), 0, interior);
+        CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->frustumList.Head(), fadeLevel, group->m_flags & MAPOBJ_FLAG_INT_FOG);
+        CWorldScene::CullEntitysInterior(&group->entityLinkList, group->frustumList.Head(), 0, interior);
     }
 }
 
@@ -4813,7 +4870,7 @@ int32_t World::QueryAreaIdAtPosition(const C3Vector* position, int32_t* areaId) 
     }
 
     if ((!hitTerrain || (hitObject && objectDistance <= terrainDistance)) && hitObject) {
-        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
+        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->groupNum, 0);
         WMOAreaTableRec* rec = GetWMOAreaRec(mapObjDef->m_owner->m_header->m_wmoID, mapObjDef->m_nameSet, group->m_wmoGroupId);
 
         if (rec && rec->m_areaTableID) {
@@ -5051,7 +5108,7 @@ void CWorldScene::RenderHorizon() {
         area->m_horizonLink.Unlink();
     }
 
-    uint32_t count = 0;
+    uint32_t groupListCount = 0;
     CMapObjGroup** groups = static_cast<CMapObjGroup**>(alloca(256 * sizeof(CMapObjGroup*)));
     C44Matrix** matrices = static_cast<C44Matrix**>(alloca(256 * sizeof(C44Matrix*)));
     CMapObjDef* nextDef;
@@ -5065,9 +5122,10 @@ void CWorldScene::RenderHorizon() {
                 CMapObjGroup* group = mapObj->GetGroup(i, 0);
 
                 if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) {
-                    groups[count] = group;
-                    matrices[count] = &def->m_mat;
-                    count++;
+                    groups[groupListCount] = group;
+                    matrices[groupListCount] = &def->m_mat;
+                    groupListCount++;
+                    STORM_ASSERT(groupListCount < 256);
                 }
             } else if (!mapObj->IsGroupLoading(i)) {
                 mapObj->ReadGroup(i);
@@ -5077,7 +5135,7 @@ void CWorldScene::RenderHorizon() {
         def->m_horizonLink.Unlink();
     }
 
-    if (count) {
+    if (groupListCount) {
         DayNight::DNInfo* info = DayNight::GetInfo();
         GxRsSet(GxRs_FogStart, 0.0f);
         GxRsSet(GxRs_FogEnd, 1.0f);
@@ -5085,7 +5143,7 @@ void CWorldScene::RenderHorizon() {
         GxRsSet(GxRs_Fog, 1);
         GxRsSet(GxRs_Lighting, 0);
         int32_t white = -1;
-        CMapObj::RenderMapObjGroupsColor(groups, count, matrices, &world, &white);
+        CMapObj::RenderMapObjGroupsColor(groups, groupListCount, matrices, &world, &white);
     }
 
     GxXformPop(GxXform_World);

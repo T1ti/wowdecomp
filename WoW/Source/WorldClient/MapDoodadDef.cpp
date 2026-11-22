@@ -179,7 +179,7 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
 
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(parent);
             CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->m_ref);
-            CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->m_groupNum, 0);
+            CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->groupNum, 0);
 
             if (!group) {
                 this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;

@@ -302,8 +302,8 @@ class CWorldScene {
     static void __fastcall AddMapChunk(CMapChunk* mapChunk);
     static void AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup);
     static void ComputeExteriorSortDistances();
-    static void AddMapChunkToRenderList(CMapChunk* mapChunk, C3Vector* pos);
-    static void AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param);
+    static void AddMapChunkToRenderList(CMapChunk* chunk, C3Vector* pos);
+    static void AddMapObjDefGroupToSortTable(uint32_t groupNum, void* param);
     static void MergeIntoWorldRect(CPortalView* portalView);
     static void MergeIntoFrustumRect(CPortalView* portalView);
     static void AddEntityToSortTable(CMapEntity* entity);

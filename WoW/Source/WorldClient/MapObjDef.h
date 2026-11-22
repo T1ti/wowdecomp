@@ -30,14 +30,14 @@ class CMapObjDefGroup : public CMapBaseObj {
     /* 0024 */ CAaBox m_bbox;
     /* 003C */ CAaSphere m_sphere;
     /* 004C */ float m_distanceToCamera;
-    /* 0050 */ uint32_t m_groupNum;
+    /* 0050 */ uint32_t groupNum;
     /* 0054 */ uint32_t m_unkFlags;
     /* 0058 */ int32_t unused_0058;
     /* 005C */ uint32_t m_ambientColor;
     /* 0060 */ const char* m_subzoneName;
     /* 0064 */ int32_t unused_0064;
     /* 0068 */ Liquid::CInstance* m_liquidInstance;
-    /* 006C */ TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)> m_frustumList;
+    /* 006C */ TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)> frustumList;
     /* 0078 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > doodadDefLinkList;
     /* 0084 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > entityLinkList;
     /* 0090 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > lightLinkList;

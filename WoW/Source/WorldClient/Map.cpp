@@ -1843,11 +1843,11 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
             }
 
             if (!(defGroup->m_flags & MAPOBJ_FLAG_PREPARED)) {
-                if (!mapObjDef->m_owner->IsGroupLoading(defGroup->m_groupNum)) {
+                if (!mapObjDef->m_owner->IsGroupLoading(defGroup->groupNum)) {
                     continue;
                 }
 
-                CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->m_groupNum, 0);
+                CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->groupNum, 0);
 
                 if (group && group->m_distToCamera > 0.0f) {
                     group->m_distToCamera = 0.0f;
@@ -2236,17 +2236,17 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
 
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
-            CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 1);
+            CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 1);
             CAaBox& box = defGroup->m_bbox;
 
             if (CWorld::s_objectAreaOfInterest.b.x <= box.t.x && CWorld::s_objectAreaOfInterest.b.y <= box.t.y && CWorld::s_objectAreaOfInterest.b.z <= box.t.z && CWorld::s_objectAreaOfInterest.t.x >= box.b.x && CWorld::s_objectAreaOfInterest.t.y >= box.b.y && CWorld::s_objectAreaOfInterest.t.z >= box.b.z) {
                 if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
                     if (!group->m_asyncObjPtr) {
-                        mapObj->ReadGroup(defGroup->m_groupNum);
+                        mapObj->ReadGroup(defGroup->groupNum);
                     }
 
                     if (waitLoad && CWorld::s_groupAreaOfInterest.b.x <= box.t.x && CWorld::s_groupAreaOfInterest.b.y <= box.t.y && CWorld::s_groupAreaOfInterest.b.z <= box.t.z && CWorld::s_groupAreaOfInterest.t.x >= box.b.x && CWorld::s_groupAreaOfInterest.t.y >= box.b.y && CWorld::s_groupAreaOfInterest.t.z >= box.b.z) {
-                        mapObj->WaitLoadGroup(defGroup->m_groupNum);
+                        mapObj->WaitLoadGroup(defGroup->groupNum);
                     }
                 }
 
@@ -2583,7 +2583,7 @@ void CMap::CreateMapObjDefGroups(CMapObj* mapObj, CMapObjDef* mapObjDef) {
         mapObj->GetGroupBounds(&box, i);
         CWorldMath::TransformAABox(mapObjDef->m_mat, box, group->m_bbox);
 
-        group->m_groupNum = i;
+        group->groupNum = i;
         group->m_ambientColor = mapObjDef->m_argbColor;
         group->m_flags = MAPOBJ_FLAG_NONE;
         group->m_flags = static_cast<MapObjFlag>(group->m_flags | ((mapObj->GetGroupFlags(i) & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) ? MAPOBJ_FLAG_EXTERIOR : MAPOBJ_FLAG_INTERIOR));
@@ -3444,7 +3444,7 @@ void CMap::FreeAreaLow(CMapAreaLow* areaLow) {
 // VERIFY: 9da97e61 auto
 // OFFSET: 0x007C15F0
 void CMap::ClassifyStaticEntityLink(CMapStaticEntity* entity, CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup, uint32_t faceInfo, C3Vector* pos) {
-    CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
+    CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->groupNum, 0);
 
     if (!group) {
         entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_EXTERIOR);
@@ -3457,7 +3457,7 @@ void CMap::ClassifyStaticEntityLink(CMapStaticEntity* entity, CMapObjDef* mapObj
     }
 
     if (entity->m_flags & MAPOBJ_FLAG_INTERIOR) {
-        entity->QueryInteriorLighting(mapObjDef, mapObjDefGroup->m_groupNum, reinterpret_cast<uint16_t*>(&faceInfo), pos);
+        entity->QueryInteriorLighting(mapObjDef, mapObjDefGroup->groupNum, reinterpret_cast<uint16_t*>(&faceInfo), pos);
     }
 }
 
@@ -3490,7 +3490,7 @@ bool CMap::LinkStaticEntityGetChunk(C3Vector& pos, float* outHeight, CMapChunk**
 // OFFSET: 0x007C1DC0
 void CMap::LinkIntersectMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup, C3Vector& start, C3Vector& end, MapObjIntersectData* interiorHit, MapObjIntersectData* groundHit) {
     CMapObj* mapObj = mapObjDef->m_owner;
-    CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->m_groupNum, 0);
+    CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
 
     if (!group) {
         return;
@@ -3528,13 +3528,13 @@ void CMap::LinkIntersectMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* m
     float t = 1.05f;
     int32_t groups[2];
 
-    if (mapObj->VectorIntersectPortals(mapObjDefGroup->m_groupNum, seg, &t, groups) && t - interiorHit->t < 0.0001f) {
+    if (mapObj->VectorIntersectPortals(mapObjDefGroup->groupNum, seg, &t, groups) && t - interiorHit->t < 0.0001f) {
         interiorHit->def = mapObjDef;
         CMapObjDefGroup* portalGroup = mapObjDef->m_defGroups[groups[0]];
         interiorHit->t = t;
         interiorHit->group = portalGroup;
         interiorHit->faceIndex = -1;
-        interiorHit->interior = !(mapObj->GetGroup(portalGroup->m_groupNum, 0)->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR);
+        interiorHit->interior = !(mapObj->GetGroup(portalGroup->groupNum, 0)->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR);
     }
 }
 
@@ -3642,9 +3642,9 @@ bool CMap::LinkIntersectMapObjDef(CMapObjDef* mapObjDef, C3Vector& start, C3Vect
 
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
-        uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
+        uint32_t groupFlags = mapObj->GetGroupFlags(group->groupNum);
 
-        if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && mapObj->TestGroupBounds(localStart, localEnd, group->m_groupNum) && ((!noDepthSort && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) || mapObj->TestGroupBounds(localMid, group->m_groupNum))) {
+        if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && mapObj->TestGroupBounds(localStart, localEnd, group->groupNum) && ((!noDepthSort && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) || mapObj->TestGroupBounds(localMid, group->groupNum))) {
             CMap::LinkIntersectMapObjDefGroup(mapObjDef, group, localStart, localEnd, &interiorHit[noDepthSort == 0], &groundHit[noDepthSort == 0]);
         }
     }
@@ -3826,7 +3826,7 @@ void CMap::LinkStaticEntitySingle2(CMapStaticEntity* entity) {
     }
 
     if (isEntity) {
-        static_cast<CMapEntity*>(entity)->m_groundType = groundHit[index].def->GetGroundType(groundHit[index].group->m_groupNum, groundHit[index].faceIndex);
+        static_cast<CMapEntity*>(entity)->m_groundType = groundHit[index].def->GetGroundType(groundHit[index].group->groupNum, groundHit[index].faceIndex);
     }
 
     entity->m_flags = static_cast<MapObjFlag>(entity->m_flags | MAPOBJ_FLAG_IN_MAPOBJ);
@@ -3865,9 +3865,9 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefExterior(CMapStaticEntity* entity
 
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
-            uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
+            uint32_t groupFlags = mapObj->GetGroupFlags(group->groupNum);
 
-            if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
+            if (!(groupFlags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) && (groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) && mapObj->TestGroupBounds(box, group->groupNum, 1)) {
                 CMap::LinkObjectToMapObjDefGroup(entity, group);
             }
         }
@@ -3895,7 +3895,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefInterior(CMapStaticEntity* entity
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-        if (group != mapObjDefGroup && !(mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
+        if (group != mapObjDefGroup && !(mapObj->GetGroupFlags(group->groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) && mapObj->TestGroupBounds(box, group->groupNum, 1)) {
             CMap::LinkObjectToMapObjDefGroup(entity, group);
         }
     }
@@ -4107,9 +4107,9 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
 
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
-            CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
+            CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
 
-            if (!group || (group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) || !mapObj->TestGroupBounds(localStart, localEnd, defGroup->m_groupNum)) {
+            if (!group || (group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) || !mapObj->TestGroupBounds(localStart, localEnd, defGroup->groupNum)) {
                 continue;
             }
 
@@ -4123,7 +4123,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
             if (group->GetTris(seg, &dists[slot], 0, 0, &triData, mapObjDef)) {
                 exterior = (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) >> 3;
                 outDefs[slot] = mapObjDef;
-                outGroups[2 * slot] = defGroup->m_groupNum;
+                outGroups[2 * slot] = defGroup->groupNum;
                 outGroups[2 * slot + 1] = 0xFFFF;
             }
         }
@@ -4492,7 +4492,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
                 continue;
             }
 
-            if (owner->IsGroupLoaded(group->m_groupNum)) {
+            if (owner->IsGroupLoaded(group->groupNum)) {
                 if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&group->doodadDefLinkList, box, facets, flags)) {
                     return false;
                 }
@@ -4700,7 +4700,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(hitObject);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->m_ref);
         CMapObj* mapObj = mapObjDef->m_owner;
-        CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
+        CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
         World::HitTestDebug::Model* entry = &hitInfo->m_models[hitInfo->m_numModels++];
         hitInfo->m_type = World::HitTestDebug::TYPE_MAP_OBJ_GROUP;
         entry->m_name = PathFileName(mapObj->m_wmoName);
@@ -4719,7 +4719,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         entry->m_numCombinableBatches = 0;
         entry->m_instanceCountMax = 0;
         entry->m_groupName = group->m_groupName;
-        entry->m_groupNum = defGroup->m_groupNum;
+        entry->m_groupNum = defGroup->groupNum;
         entry->m_groupFlags = group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR;
         entry->m_doodadSet = mapObjDef->m_doodadSet;
     }
@@ -4747,7 +4747,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         } else if (parent->m_type & CMapBaseObj::Type_MapObjDefGroup) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(parent);
             CMapObj* mapObj = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->m_ref)->m_owner;
-            CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
+            CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
 
             if (hitInfo->m_numParents < 8) {
                 World::HitTestDebug::Parent* entry = &hitInfo->m_parents[hitInfo->m_numParents++];
@@ -4836,7 +4836,7 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
         C3Vector localStart = *start * def->m_invMat;
         C3Vector localEnd = *end * def->m_invMat;
 
-        if (candidates[i].t <= bestT && mapObj->TestGroupBounds(localStart, localEnd, group->m_groupNum) && mapObj->Intersect(localStart, localEnd, &bestT, flags, ignoreFlags, group->m_groupNum, &bestFace)) {
+        if (candidates[i].t <= bestT && mapObj->TestGroupBounds(localStart, localEnd, group->groupNum) && mapObj->Intersect(localStart, localEnd, &bestT, flags, ignoreFlags, group->groupNum, &bestFace)) {
             hit = true;
 
             if (outMapObj) {
@@ -5024,7 +5024,7 @@ bool CMap::QueryAreaId(CMapEntity* entity, uint32_t& areaId) {
             }
         }
 
-        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(static_cast<CMapObjDefGroup*>(link->m_ref)->m_groupNum, 0);
+        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(static_cast<CMapObjDefGroup*>(link->m_ref)->groupNum, 0);
         WMOAreaTableRec* rec = GetWMOAreaRec(mapObjDef->m_owner->m_header->m_wmoID, mapObjDef->m_nameSet, group->m_wmoGroupId);
 
         if (rec && rec->m_areaTableID) {
@@ -6201,7 +6201,7 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
 
-            if (!mapObj->IsGroupLoaded(defGroup->m_groupNum) || !defGroup->m_bbox.Intersects(box)) {
+            if (!mapObj->IsGroupLoaded(defGroup->groupNum) || !defGroup->m_bbox.Intersects(box)) {
                 continue;
             }
 

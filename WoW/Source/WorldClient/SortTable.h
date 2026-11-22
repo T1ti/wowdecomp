@@ -33,6 +33,9 @@ class CSortTable {
 
     CSortTable();
     void Clear();
+#if defined(WOWDECOMP_ASSERTIONS)
+    void AssertEmpty();
+#endif
     void BuildPlanes(const C3Vector& dir, const C3Vector& origin);
 };
 

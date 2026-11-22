@@ -111,10 +111,10 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
             CWorldScene::s_worldPortalView.m_rect.minY = FLT_MAX;
             CWorldScene::s_worldPortalView.m_verts = nullptr;
             CWorldScene::s_worldPortalView.m_rect.maxX = -FLT_MAX;
-            CWorldScene::s_worldPortalView.m_vertCount = 0;
+            CWorldScene::s_worldPortalView.m_numVertices = 0;
             CWorldScene::s_worldPortalView.m_rect.maxY = -FLT_MAX;
             CWorldScene::frustumPortalView.m_verts = nullptr;
-            CWorldScene::frustumPortalView.m_vertCount = 0;
+            CWorldScene::frustumPortalView.m_numVertices = 0;
             CWorldScene::s_worldPortalView.m_maxViewDepth = -1.0f;
             CWorldScene::frustumPortalView.m_rect.minX = FLT_MAX;
             CWorldScene::frustumPortalView.m_rect.minY = FLT_MAX;
@@ -141,17 +141,18 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         CRect fullRect = { 0.0f, 0.0f, 1.0f, 1.0f };
         CWorldScene::s_worldPortalView.m_rect = fullRect;
         CWorldScene::s_worldPortalView.m_maxViewDepth = 0.0f;
-        CWorldScene::s_worldPortalView.m_vertCount = 0;
+        CWorldScene::s_worldPortalView.m_numVertices = 0;
         CWorldScene::frustumPortalView.m_rect = fullRect;
         CWorldScene::frustumPortalView.m_maxViewDepth = 0.0f;
         CWorldScene::s_occlusionNearDepth = -10000.0f;
-        CWorldScene::frustumPortalView.m_vertCount = 0;
+        CWorldScene::frustumPortalView.m_numVertices = 0;
         CWorldScene::CullSortTable(&CWorldScene::frustumPortalView.m_rect);
     }
 
     CWorldScene::CullMapObjDefGroup();
     CWorldScene::UpdateSortedModels();
 
+#if defined(WOWDECOMP_ASSERTIONS)
     for (uint32_t i = 0; i < 64; i++) {
         CSortEntry& sortEntry = CWorldScene::sortTable.m_table[i];
         STORM_ASSERT(sortEntry.chunkList.Head() == NULL);
@@ -164,6 +165,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         STORM_ASSERT(sortEntry.antiOccluderList.Head() == NULL);
         STORM_ASSERT(sortEntry.portalList.Head() == NULL);
     }
+#endif
 
     CWorldScene::sortTable.moveableMapObjDefGroupList.UnlinkAll();
 
