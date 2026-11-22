@@ -3439,7 +3439,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
     if (emoteState) {
         EmotesRec* emote = g_emotesDB.GetRecord(emoteState);
 
-        if (emote && !(emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_UNKNOWN_13)) {
+        if (emote && !(emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_SUPPRESS_STATE_ON_INTERACTION)) {
             emoteFacing = true;
         }
     }
@@ -6867,7 +6867,7 @@ BOOL CGUnit_C::ChooseEmoteAnim(uint32_t selectionMask, uint32_t* anim) const {
 
     EmotesRec* emote = g_emotesDB.GetRecord(emoteState);
 
-    if (!emote || (CGGameUI::m_interactTarget == this->m_obj->m_guid && (emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_UNKNOWN_13))) {
+    if (!emote || (CGGameUI::m_interactTarget == this->m_obj->m_guid && (emote->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_SUPPRESS_STATE_ON_INTERACTION))) {
         return (selectionMask & ANIM_SELECTION_FLAGS::EMOTE) == 0;
     }
 
