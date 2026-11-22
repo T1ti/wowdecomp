@@ -4,7 +4,9 @@
 
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "Engine/Source/Model2/M2Data.h"
+#include "Engine/Source/Model2/M2Scene.h"
 #include "Engine/Source/Model2/M2Shared.h"
+#include "Engine/Source/Storm/H/stpl.h"
 
 // Model bounds display.
 //
@@ -62,6 +64,99 @@ static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C4
         GxuDebugDrawBoundsSphere(center, bounds.m_radius, world, color, GXUDEBUGSTYLE_SOLID);
     } else {
         GxuDebugDrawBoundsBox(bounds.m_extent.b, bounds.m_extent.t, world, color, GXUDEBUGSTYLE_SOLID);
+    }
+}
+
+// The hit-test display color: 0.9.1 ModelShowHitTestGeometry's solid texture, CImVector 0x7FFF0000.
+static const uint32_t HIT_TEST_COLOR = 0x7FFF0000;
+
+// The triangles CM2Scene::HitTestGeometry tests: the same batch filter (no material layers, no NO_HIT_TEST batches,
+// the model's hit-test mode, invisible batches skipped) and the same skinning (one bone, or the blended bones), with
+// the bone matrices taking the vertices to M2 view space, and viewInv from there to world space. A model last
+// hit-tested in HIT_TEST_COLLISION mode shows its collision mesh instead (CM2Scene::HitTestCollision).
+static void DrawCollisionMesh(const M2Data* data, const C44Matrix& world);
+
+static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv, const C44Matrix& world) {
+    M2Data* data = model->m_shared->m_data;
+
+    if (model->m_hitTestMode == CM2Model::HIT_TEST_COLLISION) {
+        DrawCollisionMesh(data, world);
+        return;
+    }
+
+    M2SkinProfile* skinData = model->m_shared->m_skinData;
+
+    if (!skinData || !model->m_boneMatrices) {
+        return;
+    }
+
+    CImVector color = MakeColor(HIT_TEST_COLOR);
+    static TSGrowableArray<C3Vector> s_vertices;
+
+    for (uint32_t i = 0; i < skinData->m_batches.m_count; i++) {
+        M2Batch* batch = &skinData->m_batches[i];
+
+        if (batch->m_materialLayer || (batch->m_flags & M2Batch::FLAGS::NO_HIT_TEST)) {
+            continue;
+        }
+
+        M2Material* material = &data->m_materials[batch->m_materialIndex];
+
+        if (model->m_hitTestMode == CM2Model::HIT_TEST_NON_OPAQUE && material->m_blendMode == M2BLEND_OPAQUE) {
+            continue;
+        }
+
+        if (model->m_hitTestMode == CM2Model::HIT_TEST_OPAQUE && material->m_blendMode && !(material->m_flags & M2Material::FLAGS::HIT_TEST_NON_OPAQUE)) {
+            continue;
+        }
+
+        if (!model->m_skinSections[batch->m_skinSectionIndex]) {
+            continue;
+        }
+
+        float alpha = model->m_alpha;
+
+        if (batch->m_colorIndex < data->m_colors.m_count) {
+            alpha *= model->m_colors[batch->m_colorIndex].m_alphaTrack.m_currentValue;
+        }
+
+        if (batch->m_textureCount) {
+            alpha *= model->m_textureWeights[data->m_textureWeightCombos[batch->m_textureWeightComboIndex]].m_currentValue;
+        }
+
+        if (alpha <= 0.0f) {
+            continue;
+        }
+
+        M2SkinSection* section = &skinData->m_skinSections[batch->m_skinSectionIndex];
+        s_vertices.SetCount(section->m_vertexCount);
+
+        for (uint32_t v = 0; v < section->m_vertexCount; v++) {
+            M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[section->m_vertexStart + v]];
+            C44Matrix matrix;
+
+            if (section->m_boneInfluences == 1) {
+                matrix = model->m_boneMatrices[vertex->m_indices.b[0]];
+            } else {
+                M2BlendBoneMatrices(model->m_boneMatrices, vertex->m_weights, vertex->m_indices, &matrix);
+            }
+
+            s_vertices.m_data[v] = vertex->m_position * matrix * viewInv;
+        }
+
+        const uint16_t* indices = &skinData->m_indices[section->m_indexStart];
+
+        for (uint32_t t = 0; t + 2 < section->m_indexCount; t += 3) {
+            uint32_t a = indices[t] - section->m_vertexStart;
+            uint32_t b = indices[t + 1] - section->m_vertexStart;
+            uint32_t c = indices[t + 2] - section->m_vertexStart;
+
+            if (a >= section->m_vertexCount || b >= section->m_vertexCount || c >= section->m_vertexCount) {
+                continue;
+            }
+
+            GxuDebugDrawTriangle(s_vertices.m_data[a], s_vertices.m_data[b], s_vertices.m_data[c], color, GXUDEBUGSTYLE_SOLID);
+        }
     }
 }
 
@@ -159,6 +254,10 @@ void CM2Model::DebugDraw(const C44Matrix& viewInv) const {
     if ((collision & DEBUG_COLLISION_AABOX) && data->m_collisionIndices.m_count) {
         DrawCollisionAaBox(data, world);
     }
+
+    if (collision & DEBUG_HIT_TEST) {
+        DrawHitTestGeometry(this, viewInv, world);
+    }
 }
 
 // Debug feature: model collision mesh display.
@@ -197,9 +296,26 @@ void CM2Model::SetDebugWorldCollision(BOOL mesh, BOOL aaBox) {
 }
 
 // Debug feature: model hit-test geometry display.
-// 0.5.3 reference: ModelShowHitTestGeometry (0x00434C80).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 reference: ModelShowHitTestGeometry (0x00434C80); 0.9.1 (Mac symbols) ModelShowHitTestGeometry,
+// ModelHideHitTestGeometry, ModelIsShowingHitTestGeometry, used by the "showhittest" console command 0.8 and 0.9.1
+// register (CCommand in ClientCommands.cpp).
+//
+// The MDL models of those clients carried hit-test shapes of their own (MDLHITTESTSHAPE: spheres, boxes, cylinders and
+// planes on bones), and ModelShowHitTestGeometry, when the model had some, built a display of them with a
+// TextureCreateSolid texture of CImVector 0x7FFF0000 (half transparent red) and set CModelBase flag 8. M2 has no
+// separate shapes: 3.3.5 picks a model with a ray against its skinned render triangles (CM2Scene::HitTestGeometry),
+// or against its collision mesh for HIT_TEST_COLLISION (CM2Scene::HitTestCollision). So the display shows exactly
+// that geometry, in the 0.9.1 color; see DrawHitTestGeometry.
 void CM2Model::ShowHitTestGeometry() {
+    this->m_debugCollision |= DEBUG_HIT_TEST;
+}
+
+void CM2Model::HideHitTestGeometry() {
+    this->m_debugCollision &= ~DEBUG_HIT_TEST;
+}
+
+BOOL CM2Model::IsShowingHitTestGeometry() const {
+    return (this->m_debugCollision & DEBUG_HIT_TEST) != 0;
 }
 
 // Debug feature: unselectable geometry display.

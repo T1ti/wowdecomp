@@ -312,6 +312,7 @@ class CM2Model {
     enum DEBUG_COLLISION : uint32_t {
         DEBUG_COLLISION_MESH = 0x1, // collision triangles and face normals
         DEBUG_COLLISION_AABOX = 0x2, // collision bounds box
+        DEBUG_HIT_TEST = 0x4, // the geometry object picking tests (ShowHitTestGeometry); per model only
     };
     uint32_t m_debugCollision;
     // World-wide collision displays (DEBUG_COLLISION bits), synced from CWorld::enables every frame.
@@ -485,6 +486,8 @@ class CM2Model {
     void ShowCollision(BOOL show);
     void ShowCollisionAaBox(BOOL show);
     void ShowHitTestGeometry();
+    void HideHitTestGeometry();
+    BOOL IsShowingHitTestGeometry() const;
     void ShowMaterialLayer(uint32_t material, uint32_t layer, BOOL show);
     void ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue);
 #endif

@@ -27,6 +27,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `dblbuffer` | works | Toggles double buffering. |
 | `resxy`, `resmode`, `bitdepth`, `3dapi` | no-op | Empty in 0.5.3 too. |
 | `showbounds [box]` | works | Toggles the bounding sphere, or the box with `box`, on the tracked object's model, or on the player's model if nothing is tracked. Uses the Gxu debug-draw module. |
+| `showhittest` | works | Toggles the geometry object picking tests (half transparent red) on the tracked object's model, or on the player's model if nothing is tracked. From 0.8 and 0.9.1, which registered it (0.5.3 did not). Their models had separate hit-test shapes; a 3.3.5 model is picked by its skinned render triangles, or its collision mesh for collision hit tests, so that is what it shows. |
 | `loc`, `dloc`, `tloc` | stub | Prints or sets the player location. |
 | `facing`, `dfacing` | stub | Prints or sets the facing. |
 | `drawlog`, `animlog` | stub | M2 render/animation logs (0.5.3 wrote RenderLog.txt and AnimLog.txt). |
@@ -136,7 +137,6 @@ In the release build, these functions are bound to the shared return-0 stub.
 
 ## Debug-draw features with no command yet
 
-- Model hit-test geometry (`CM2Model::ShowHitTestGeometry`, 0.5.3 `ModelShowHitTestGeometry`).
 - Unselectable geometry (`CM2Model::ShowUnselectable`).
 - WMO BSP display (`showMapObjBSP` / `debugBSP`).
 - Zone bounds (`debugZones`).

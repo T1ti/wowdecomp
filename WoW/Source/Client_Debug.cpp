@@ -167,6 +167,34 @@ static int32_t CCommand_ShowBounds(const char* command, const char* arguments) {
     return 1;
 }
 
+// Debug feature: console command "showhittest".
+// Not in 0.5.3 (which had ModelShowHitTestGeometry but no command); registered by 0.8 and 0.9.1 in
+// InstallGameConsoleCommands next to "showbounds" (0.9.1 Mac symbols, handler in ClientCommands.cpp). Like
+// showbounds, it acts on the tracked object's model (CGGameUI::m_currentObjectTrack), or the active player's when
+// nothing is tracked, and toggles ModelShowHitTestGeometry / ModelHideHitTestGeometry; see
+// CM2Model::ShowHitTestGeometry for what 3.3.5 hit-tests.
+static int32_t CCommand_ShowHitTest(const char* command, const char* arguments) {
+    CGObject_C* object = ClntObjMgrObjectPtr(CGGameUI::m_currentObjectTrack, TYPE_OBJECT, __FILE__, __LINE__);
+
+    if (!object) {
+        object = ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_OBJECT, __FILE__, __LINE__);
+    }
+
+    CM2Model* model = object ? object->GetObjectModel() : nullptr;
+
+    if (!model) {
+        return 0;
+    }
+
+    if (model->IsShowingHitTestGeometry()) {
+        model->HideHitTestGeometry();
+    } else {
+        model->ShowHitTestGeometry();
+    }
+
+    return 1;
+}
+
 // Debug feature: console command "drawlog".
 // 0.5.3 reference: CCommand_DrawLog (0x00404070).
 // Called ModelRenderSceneLogToggle("RenderLog.txt"); see CM2Model::RenderSceneLogToggle.
@@ -287,6 +315,7 @@ void GameClientCommandsDebugInstall() {
     ConsoleCommandRegister("facing", CCommand_Facing, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("dfacing", CCommand_DFacing, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("showbounds", CCommand_ShowBounds, CATEGORY_DEBUG, nullptr);
+    ConsoleCommandRegister("showhittest", CCommand_ShowHitTest, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("drawlog", CCommand_DrawLog, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("animlog", CCommand_AnimLog, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("motionBlend", CCommand_ToggleAnimBlending, CATEGORY_DEBUG, nullptr);
@@ -303,6 +332,7 @@ void GameClientCommandsDebugUninstall() {
     ConsoleCommandUnregister("facing");
     ConsoleCommandUnregister("dfacing");
     ConsoleCommandUnregister("showbounds");
+    ConsoleCommandUnregister("showhittest");
     ConsoleCommandUnregister("drawlog");
     ConsoleCommandUnregister("animlog");
     ConsoleCommandUnregister("motionBlend");
