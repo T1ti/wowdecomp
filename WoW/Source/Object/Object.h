@@ -18,6 +18,9 @@ class CGObject {
     static int32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, uint32_t unused_local);
     static int32_t TotalFieldsSaved();
     static uint32_t GetDataSize();
+    static uint32_t TotalFields() {
+        return GetDataSize() / sizeof(uint32_t);
+    }
 
     /* 0004 */ uint32_t unknown_0004;
     /* 0008 */ CGObjectData* m_obj;

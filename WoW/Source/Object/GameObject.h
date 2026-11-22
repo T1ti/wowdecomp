@@ -18,6 +18,9 @@ class CGGameObject {
     static uint32_t GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
     static uint32_t GetDataSize();
+    static uint32_t TotalFields() {
+        return GetDataSize() / sizeof(uint32_t);
+    }
 
     /* 0000 */ CGGameObjectData* m_gameObject;
     /* 0004 */ void* m_gameObjectMirror;

@@ -25,6 +25,9 @@ class CMath {
     static double exp_(float x);
     static double exp2_(double x);
     static bool fequal(float a, float b);
+    static bool finite_(float x) {
+        return std::isfinite(x);
+    }
     static int32_t fint_(float f);
     static int32_t fint_n(float f);
     static int32_t ftrunc(float f);

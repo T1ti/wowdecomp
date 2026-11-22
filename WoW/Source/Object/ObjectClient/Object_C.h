@@ -163,7 +163,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
         return (this->m_modelFlags & OBJECT_MODEL_FLAG_DISABLED) != 0;
     }
 
-    // s_interactIcons indices, named after the Interface\Buttons\TalkToMe*.mdx model each entry loads.
+    // s_interactIconModelInfo indices, named after the Interface\Buttons\TalkToMe*.mdx model each entry loads.
     enum INTERACT_ICON : uint32_t {
         INTERACT_ICON_NONE = 0,
         INTERACT_ICON_TALK_TO_ME = 1,
@@ -177,16 +177,16 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
         INTERACT_ICON_QUESTION_MARK = 9,
         INTERACT_ICON_QUESTION_LTBLUE_10 = 10,
         INTERACT_ICON_BLUE_11 = 11,
-        NUM_INTERACT_ICONS = 12,
+        INTERACTICON_NUMITEMS = 12,
     };
 
     struct InteractIcon {
-        /* 0000 */ CM2Model* m_model;
+        /* 0000 */ CM2Model* model;
         /* 0004 */ float m_scale;
         /* 0008 */ const char* m_fileName;
     };
 
-    static InteractIcon s_interactIcons[NUM_INTERACT_ICONS];
+    static InteractIcon s_interactIconModelInfo[INTERACTICON_NUMITEMS];
     static const uint32_t s_questStatusIcons[QUEST_GIVER_STATUS::QUEST_GIVER_NUMITEMS];
     static CTexture* s_selectionTexture;
     static CVar* s_cvObjectSelectionCircle;
@@ -315,7 +315,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
     void ReleaseModel();
     void RemoveInteractIcon();
-    void SetBlock(int32_t index, uint32_t value);
+    void SetBlock(int32_t i, uint32_t value);
     void SetBoundsDirty();
     void SetDisablePending(int32_t pending);
     void SetInteractIconVisible(BOOL visible);

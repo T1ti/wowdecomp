@@ -1,4 +1,8 @@
 #include "Object_C.h"
+#include "WoW/Source/Object/Container.h"
+#include "WoW/Source/Object/DynamicObject.h"
+#include "WoW/Source/Object/GameObject.h"
+#include "WoW/Source/Object/Item.h"
 #include "Engine/Source/Tempest/Color.h"
 #include "WoW/Source/UIUtil/Types.h"
 #include "Engine/Source/Gx/Gx.h"
@@ -53,7 +57,7 @@
 #include "Engine/Source/ShaderEffect/Types.h"
 
 // STATIC: 0x00ADAC98
-CGObject_C::InteractIcon CGObject_C::s_interactIcons[NUM_INTERACT_ICONS] = {
+CGObject_C::InteractIcon CGObject_C::s_interactIconModelInfo[INTERACTICON_NUMITEMS] = {
     { nullptr, 1.0f, nullptr },
     { nullptr, 1.0f, "Interface\\Buttons\\TalkToMe.mdx" },
     { nullptr, 1.0f, "Interface\\Buttons\\TalkToMeQuestion_LTBlue.mdx" },
@@ -89,18 +93,19 @@ CTexture* CGObject_C::s_selectionTexture;
 // VERIFY: fe38de3f manual
 // OFFSET: 0x007435E0
 static void LoadInteractIcons(int32_t load) {
-    for (uint32_t i = 0; i < sizeof(CGObject_C::s_interactIcons) / sizeof(CGObject_C::s_interactIcons[0]); i++) {
-        CGObject_C::InteractIcon& icon = CGObject_C::s_interactIcons[i];
+    for (uint32_t i = 0; i < sizeof(CGObject_C::s_interactIconModelInfo) / sizeof(CGObject_C::s_interactIconModelInfo[0]); i++) {
+        CGObject_C::InteractIcon& icon = CGObject_C::s_interactIconModelInfo[i];
 
-        if (icon.m_model) {
-            icon.m_model->Release();
-            icon.m_model = nullptr;
+        if (icon.model) {
+            icon.model->Release();
+            icon.model = nullptr;
         }
 
         if (!load) {
-            icon.m_model = nullptr;
+            icon.model = nullptr;
         } else if (icon.m_fileName && *icon.m_fileName) {
-            icon.m_model = World::s_m2Scene->CreateModel(icon.m_fileName, 0);
+            icon.model = World::s_m2Scene->CreateModel(icon.m_fileName, 0);
+            STORM_ASSERT(CGObject_C::s_interactIconModelInfo[i].model); // 12213: "s_interactIconModelInfo[i].model"
         }
     }
 }
@@ -167,6 +172,8 @@ void CGObject_C::AddWorldObject() {
 
         if (this->GetModelFileName(&fileName)) {
             CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0);
+
+            STORM_ASSERT(model);
 
             if (model != this->m_worldModel) {
                 this->SetModelFinish(this->SetModelStart(model));
@@ -236,28 +243,31 @@ void CGObject_C::UpdateInteractIcon() {
         this->m_interactIcon = nullptr;
     }
 
-    uint32_t icon;
+    uint32_t index;
     uint32_t status = this->m_questStatus;
 
     if (status && (status - QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_2 > 2 || CGMinimapFrame::IsTrackingTrivialQuests())) {
-        icon = CGObject_C::s_questStatusIcons[this->m_questStatus];
+        index = CGObject_C::s_questStatusIcons[this->m_questStatus];
     } else {
-        icon = this->m_interactIconType;
+        index = this->m_interactIconType;
 
-        if (!icon) {
+        if (!index) {
             return;
         }
     }
 
-    if (!icon) {
+    if (!index) {
         return;
     }
 
-    CM2Model* model = World::s_m2Scene->DuplicateModel(CGObject_C::s_interactIcons[icon].m_model, 0);
+    STORM_ASSERT(index < INTERACTICON_NUMITEMS);
+    STORM_ASSERT(s_interactIconModelInfo[index].model);
+
+    CM2Model* model = World::s_m2Scene->DuplicateModel(CGObject_C::s_interactIconModelInfo[index].model, 0);
     this->m_interactIcon = model;
 
     if (model) {
-        model->m_fadeAlpha = CGObject_C::s_interactIcons[icon].m_scale;
+        model->m_fadeAlpha = CGObject_C::s_interactIconModelInfo[index].m_scale;
     }
 
     this->UpdateInteractIconAttach();
@@ -272,13 +282,15 @@ void CGObject_C::UpdateInteractIconScale() {
     }
 
     C44Matrix attachment = this->m_worldModel->GetAttachmentWorldTransform(this->m_interactIcon->m_attachmentId);
-    float lengthSq = attachment.a1 * attachment.a1 + attachment.a2 * attachment.a2 + attachment.a0 * attachment.a0;
+    float scaleSq = attachment.a1 * attachment.a1 + attachment.a2 * attachment.a2 + attachment.a0 * attachment.a0;
 
-    if (!(0.0f < lengthSq)) {
+    STORM_ASSERT(CMath::finite_(scaleSq));
+
+    if (!(0.0f < scaleSq)) {
         return;
     }
 
-    float scale = PlayerNameComputeScale(this) / sqrtf(lengthSq);
+    float scale = PlayerNameComputeScale(this) / sqrtf(scaleSq);
 
     if (fequal(scale, 1.0f) || !(0.0f < scale)) {
         return;
@@ -988,6 +1000,10 @@ int32_t CGObject_C::GetQuestGiverCursor(int32_t highlighted) {
             return highlighted ? QUEST_TURNIN_ERROR_CURSOR : QUEST_TURNIN_CURSOR;
 
         default:
+            STORM_ASSERT(!"Unhandled quest giver status");
+            [[fallthrough]];
+        case QUEST_GIVER_STATUS::QUEST_GIVER_NONE:
+        case QUEST_GIVER_STATUS::QUEST_GIVER_UNKNOWN_1:
             return NO_CURSOR;
     }
 }
@@ -1097,8 +1113,39 @@ void CGObject_C::RemoveInteractIcon() {
 
 // VERIFY: a2fd3997 auto
 // OFFSET: 0x00743BA0
-void CGObject_C::SetBlock(int32_t index, uint32_t value) {
-    reinterpret_cast<uint32_t*>(this->m_obj)[index] = value;
+void CGObject_C::SetBlock(int32_t i, uint32_t value) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    switch (this->m_obj->m_type) {
+        case HEIR_TYPE_OBJECT:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGObject::TotalFields()); // 12213: "i < CGObject::TotalFields()"
+            break;
+        case HEIR_TYPE_ITEM:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGItem::TotalFields()); // 12213: "i < CGItem::TotalFields()"
+            break;
+        case HEIR_TYPE_CONTAINER:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGContainer::TotalFields()); // 12213: "i < CGContainer::TotalFields()"
+            break;
+        case HEIR_TYPE_UNIT:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGUnit::TotalFields()); // 12213: "i < CGUnit::TotalFields()"
+            break;
+        case HEIR_TYPE_PLAYER:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGPlayer::TotalFields()); // 12213: "i < CGPlayer::TotalFields()"
+            break;
+        case HEIR_TYPE_GAMEOBJECT:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGGameObject::TotalFields()); // 12213: "i < CGGameObject::TotalFields()"
+            break;
+        case HEIR_TYPE_DYNAMICOBJECT:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGDynamicObject::TotalFields()); // 12213: "i < CGDynamicObject::TotalFields()"
+            break;
+        case HEIR_TYPE_CORPSE:
+            STORM_ASSERT(static_cast<uint32_t>(i) < CGCorpse::TotalFields()); // 12213: "i < CGCorpse::TotalFields()"
+            break;
+        default:
+            break;
+    }
+#endif
+
+    reinterpret_cast<uint32_t*>(this->m_obj)[i] = value;
 }
 
 // VERIFY: 9a9e12cb auto
@@ -1169,6 +1216,8 @@ void CGObject_C::SetObjectLocked(int32_t locked) {
 // VERIFY: 1393f91e manual
 // OFFSET: 0x00744400
 void CGObject_C::SetQuestStatus(uint32_t status) {
+    STORM_ASSERT(status < QUEST_GIVER_NUMITEMS);
+
     uint32_t previous = this->m_questStatus;
 
     if (status == previous && (!CGObject_C::s_questStatusIcons[status] || this->m_interactIcon)) {
@@ -1230,6 +1279,7 @@ void CGObject_C::SetTypeID(OBJECT_TYPE_ID typeId) {
             break;
 
         default:
+            STORM_ASSERT(0);
             break;
     }
 }
@@ -1237,6 +1287,8 @@ void CGObject_C::SetTypeID(OBJECT_TYPE_ID typeId) {
 // VERIFY: 18198d8d auto
 // OFFSET: 0x00743C70
 void CGObject_C::ShowHighlightType(HIGHLIGHTTYPE type) {
+    STORM_ASSERT(type < NUM_HIGHLIGHTTYPES);
+
     this->m_modelFlags |= 1 << (type + OBJECT_MODEL_HIGHLIGHT_TYPE_SHIFT);
 
     if (this->IsHighlightSuppressed()) {
@@ -1252,6 +1304,7 @@ void CGObject_C::ShowHighlightType(HIGHLIGHTTYPE type) {
     }
 
     DayNight::DNInfo* info = DayNight::GetInfo();
+    STORM_ASSERT(info);
     model->m_emissiveTintR = info->m_light1.m_ambient.r * (1.0f / 255.0f);
     model->m_emissiveTintG = info->m_light1.m_ambient.g * (1.0f / 255.0f);
     model->m_emissiveTintB = info->m_light1.m_ambient.b * (1.0f / 255.0f);

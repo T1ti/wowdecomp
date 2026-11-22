@@ -24,6 +24,9 @@ class CGUnit {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, uint32_t local, uint32_t base);
     static int32_t TotalFieldsSaved();
     static uint32_t GetDataSize();
+    static uint32_t TotalFields() {
+        return GetDataSize() / sizeof(uint32_t);
+    }
     static float __stdcall GetPowerRegenBase(POWER_TYPE powerType, uint8_t inCombat);
 
     /* 0000 */ CGUnitData* m_unit;

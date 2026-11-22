@@ -33,6 +33,9 @@ class CGCorpse {
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
     static uint32_t GetDataSize();
+    static uint32_t TotalFields() {
+        return GetDataSize() / sizeof(uint32_t);
+    }
 
     /* 0000 */ CGCorpseData* m_corpse;
     /* 0004 */ void* m_corpseMirror;

@@ -111,6 +111,9 @@ class CGPlayer {
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local);
     static int32_t TotalFieldsSaved();
     static uint32_t GetDataSize();
+    static uint32_t TotalFields() {
+        return GetDataSize() / sizeof(uint32_t);
+    }
     static int32_t TotalRemoteFieldsSaved();
 
     /* 0000 */ CGPlayerLocalData* m_player;
