@@ -71,6 +71,13 @@ if (WOWDECOMP_TOOL_FEATURES)
     add_compile_definitions(WOWDECOMP_TOOL_FEATURES=1)
 endif ()
 
+# Off by default: the debug assertions found in the 3.3.5.12213 Mac build (SErrDisplayError with
+# STORM_ERROR_ASSERTION). The 3.3.5a Windows release compiled them out; ON restores them (STORM_ASSERT).
+option(WOWDECOMP_ASSERTIONS "Build the debug assertions compiled out of the release client" OFF)
+if (WOWDECOMP_ASSERTIONS)
+    add_compile_definitions(WOWDECOMP_ASSERTIONS=1)
+endif ()
+
 # Game identity (build 12340, version 3.3.5, client name) lives in GameVersion.h at the repository root.
 # WaystoneVersion.h is regenerated from git on every build; the login screen shows its build number.
 set(WAYSTONE_VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/WaystoneVersion.h)
