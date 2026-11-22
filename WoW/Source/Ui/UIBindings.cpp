@@ -440,6 +440,7 @@ void CGUIBindings::Initialize() {
     STORM_ASSERT(!s_bindings);
 
     CGUIBindings::s_bindings = new (SMemAlloc(sizeof(CGUIBindings), __FILE__, __LINE__, 0)) CGUIBindings();
+    STORM_ASSERT(s_bindings);
 
     do {
         s_initRound++;
@@ -508,6 +509,7 @@ void CGUIBindings::LoadBindings() {
 // OFFSET: 0x005641C0
 void CGUIBindings::LoadBindings(BINDING_SET set, const char* data) {
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
 
     if (!bindings) {
         return;
@@ -582,53 +584,60 @@ void CGUIBindings::LoadBindingsCallback(HOSFILE localFile, HOSFILE file, void* p
 
     s_loadPendingMask &= ~(1 << set);
 
-    if (!s_loadPendingMask && CGUIBindings::s_bindings) {
-        CGUIBindings::s_bindings->FinishLoadBindings();
+    if (!s_loadPendingMask) {
+        CGUIBindings* bindings = CGUIBindings::s_bindings;
+        STORM_ASSERT(bindings);
+
+        if (bindings) {
+            bindings->FinishLoadBindings();
+        }
     }
 }
 
 // VERIFY: 05b9e548 auto
 // OFFSET: 0x0055E340
-char* CGUIBindings::MouseEventToString(const CMouseEvent& evt, char* binding, int32_t maxLength) {
-    char* result = binding;
+char* CGUIBindings::MouseEventToString(const CMouseEvent& evt, char* string, int32_t maxLength) {
+    char* result = string;
 
-    if (!CGUIBindings::AddMetaPrefix(evt.m_data.m_metaKeyState, binding, maxLength)) {
+    if (!CGUIBindings::AddMetaPrefix(evt.m_data.m_metaKeyState, string, maxLength)) {
         return nullptr;
     }
 
     if (evt.m_id == EVENT_MOUSE_DOWN || evt.m_id == EVENT_MOUSE_UP) {
         switch (evt.m_data.m_button) {
             case MOUSE_BUTTON_LEFT:
-                SStrCopy(binding, "BUTTON1", maxLength);
+                SStrCopy(string, "BUTTON1", maxLength);
                 return result;
 
             case MOUSE_BUTTON_MIDDLE:
-                SStrCopy(binding, "BUTTON3", maxLength);
+                SStrCopy(string, "BUTTON3", maxLength);
                 return result;
 
             case MOUSE_BUTTON_RIGHT:
-                SStrCopy(binding, "BUTTON2", maxLength);
+                SStrCopy(string, "BUTTON2", maxLength);
                 return result;
 
             default:
-                *binding = '\0';
+                STORM_ASSERT(evt.m_data.m_button > MOUSE_BUTTON_RIGHT);  // 12213: "evt.button > MOUSE_BUTTON_RIGHT"
+                *string = '\0';
 
                 for (int32_t i = 4; i < 32; i++) {
                     if (evt.m_data.m_button == (1u << (i - 1))) {
-                        SStrPrintf(binding, maxLength, "BUTTON%d", i);
+                        SStrPrintf(string, maxLength, "BUTTON%d", i);
                         break;
                     }
                 }
 
+                STORM_ASSERT(*string);
                 return result;
         }
     }
 
     if (evt.m_id == EVENT_MOUSE_WHEEL) {
         if (static_cast<int32_t>(evt.m_data.m_wheelAmount) < 0) {
-            SStrCopy(binding, "MOUSEWHEELDOWN", maxLength);
+            SStrCopy(string, "MOUSEWHEELDOWN", maxLength);
         } else {
-            SStrCopy(binding, "MOUSEWHEELUP", maxLength);
+            SStrCopy(string, "MOUSEWHEELUP", maxLength);
         }
 
         return result;
@@ -644,10 +653,13 @@ void CGUIBindings::SaveBindings() {
         return;
     }
 
-    if (CGUIBindings::s_bindings->m_dirtySets & (1 << BINDING_SET_ACCOUNT)) {
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
+    if (bindings->m_dirtySets & (1 << BINDING_SET_ACCOUNT)) {
         SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_ACCOUNT));
         SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
-    } else if (CGUIBindings::s_bindings->m_dirtySets & (1 << BINDING_SET_CHARACTER)) {
+    } else if (bindings->m_dirtySets & (1 << BINDING_SET_CHARACTER)) {
         SaveAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_BINDINGS, CGUIBindings::SaveBindingsCallback, reinterpret_cast<void*>(BINDING_SET_CHARACTER));
     }
 }
@@ -657,8 +669,13 @@ void CGUIBindings::SaveBindings() {
 void CGUIBindings::SaveBindingsCallback(HOSFILE localFile, HOSFILE file, void* param) {
     BINDING_SET set = static_cast<BINDING_SET>(reinterpret_cast<uintptr_t>(param));
 
-    if (file != OS_INVALID_FILE && (set == BINDING_SET_ACCOUNT || set == CGUIBindings::s_bindings->m_saveSet)) {
-        CGUIBindings::s_bindings->SaveBindings(set, file);
+    if (file != OS_INVALID_FILE) {
+        CGUIBindings* bindings = CGUIBindings::s_bindings;
+        STORM_ASSERT(bindings);
+
+        if (set == BINDING_SET_ACCOUNT || set == bindings->m_saveSet) {
+            bindings->SaveBindings(set, file);
+        }
     }
 }
 
@@ -1021,10 +1038,12 @@ int32_t CGUIBindings::ExecKey(uint32_t modifiers, const char* key, BOOL isDown, 
     CGUIBindings::StripModifiers(this->m_heldModifiers, reducedKey);
 
     CSimpleTop* top = CSimpleTop::s_instance;
+    STORM_ASSERT(top);
     top->unused_1250 = 1;
 
     int32_t result = 0;
     const char* command = this->GetBindingCommand(binding, mode);
+    STORM_ASSERT(command);
 
     if (!SStrCmpI(command, "SPELL ", 6)) {
         if (!isDown) {
@@ -1126,9 +1145,10 @@ void CGUIBindings::FinishLoadBindings() {
     this->CopyBindings(static_cast<BINDING_SET>(this->m_saveSet), BINDING_SET_CURRENT);
 
     if (this->GetCommandKey(BINDING_MODE_0, "TOGGLEMOUSE", 0)) {
-        CGInputControl* inputControl = CGInputControl::GetActive();
-        inputControl->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_DEFAULT_CURSOR_ON;
-        inputControl->UpdateMouseMode(0);
+        CGInputControl* control = CGInputControl::GetActive();
+        STORM_ASSERT(control);
+        control->m_mouseModeFlags &= ~INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_DEFAULT_CURSOR_ON;
+        control->UpdateMouseMode(0);
     }
 }
 
@@ -1167,6 +1187,8 @@ int32_t CGUIBindings::GetBindingIndex(KEYBINDING* binding, BINDING_MODE mode) {
 // VERIFY: c27df5c9 manual
 // OFFSET: 0x0055E700
 void CGUIBindings::GetCommand(int32_t index, const char** command) {
+    STORM_ASSERT(index >= 0 && index < this->m_numCommands);  // 12213: "index >= 0 && index < GetNumCommands()"
+
     for (KEYCOMMAND* keyCommand = this->m_commands.m_fulllist.Head(); keyCommand; keyCommand = this->m_commands.m_fulllist.Next(keyCommand)) {
         if (keyCommand->m_index == index) {
             *command = keyCommand->m_key.m_str;

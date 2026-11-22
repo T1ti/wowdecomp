@@ -30,6 +30,8 @@ static int32_t Script_GetBindingKey(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     int32_t count = 0;
     const char* command = lua_tolstring(L, 1, nullptr);
 
@@ -44,27 +46,39 @@ static int32_t Script_GetBindingKey(lua_State* L) {
 // VERIFY: 81c3e64f auto
 // OFFSET: 0x0055DC00
 static int32_t Script_GetNumBindings(lua_State* L) {
-    lua_pushnumber(L, CGUIBindings::s_bindings->m_numCommands);
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
+    lua_pushnumber(L, bindings->m_numCommands);
     return 1;
 }
 
 // VERIFY: d8644d01 auto
 // OFFSET: 0x0055DC30
 static int32_t Script_GetCurrentBindingSet(lua_State* L) {
-    lua_pushnumber(L, CGUIBindings::s_bindings->m_saveSet);
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
+    lua_pushnumber(L, bindings->m_saveSet);
     return 1;
 }
 
 // VERIFY: 9d1e9643 auto
 // OFFSET: 0x0055DC60
 static int32_t Script_GetNumModifiedClickActions(lua_State* L) {
-    lua_pushnumber(L, CGUIBindings::s_bindings->m_numModifiedClicks);
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
+    lua_pushnumber(L, bindings->m_numModifiedClicks);
     return 1;
 }
 
 // VERIFY: 4918368e auto
 // OFFSET: 0x00564070
 static int32_t Script_LoadBindings(lua_State* L) {
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
     int32_t set = static_cast<int32_t>(lua_tonumber(L, 1));
 
     if (set >= 3) {
@@ -72,26 +86,32 @@ static int32_t Script_LoadBindings(lua_State* L) {
         return 0;
     }
 
-    CGUIBindings::s_bindings->CopyBindings(static_cast<BINDING_SET>(set), BINDING_SET_CURRENT);
+    bindings->CopyBindings(static_cast<BINDING_SET>(set), BINDING_SET_CURRENT);
     return 0;
 }
 
 // VERIFY: 9a8cf3bd manual
 // OFFSET: 0x0055EA70
 static int32_t Script_GetModifiedClickAction(lua_State* L) {
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
     if (!lua_isnumber(L, 1)) {
         luaL_error(L, "Usage: GetModifiedClickAction(index)");
         return 0;
     }
 
-    lua_pushstring(L, CGUIBindings::s_bindings->GetModifiedClick(static_cast<int32_t>(lua_tonumber(L, 1)) - 1));
+    lua_pushstring(L, bindings->GetModifiedClick(static_cast<int32_t>(lua_tonumber(L, 1)) - 1));
     return 1;
 }
 
 // VERIFY: 56bf68fd auto
 // OFFSET: 0x0055FCC0
 static int32_t Script_IsModifiedClick(lua_State* L) {
-    if (CGUIBindings::s_bindings->IsModifiedClick(lua_tolstring(L, 1, nullptr))) {
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
+    if (bindings->IsModifiedClick(lua_tolstring(L, 1, nullptr))) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -111,6 +131,8 @@ static int32_t Script_SaveBindings(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     bindings->m_saveSet = set;
     bindings->CopyBindings(BINDING_SET_CURRENT, static_cast<BINDING_SET>(set));
 
@@ -130,6 +152,8 @@ static int32_t Script_SetModifiedClick(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* action = lua_tolstring(L, 1, nullptr);
     const char* binding = lua_tolstring(L, 2, nullptr);
     MODIFIEDCLICK* click;
@@ -151,6 +175,8 @@ static int32_t Script_GetModifiedClick(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* action = lua_tolstring(L, 1, nullptr);
     MODIFIEDCLICK* click;
 
@@ -184,6 +210,8 @@ static int32_t Script_GetBindingAction(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     int32_t checkOverride = StringToBOOL(L, 2, 0);
     const char* action = bindings->GetCommandAction(mode, lua_tolstring(L, 1, nullptr), checkOverride);
 
@@ -198,6 +226,9 @@ static int32_t Script_GetBindingAction(lua_State* L) {
 // VERIFY: 783d8193 auto
 // OFFSET: 0x00560560
 static int32_t Script_ClearOverrideBindings(lua_State* L) {
+    CGUIBindings* bindings = CGUIBindings::s_bindings;
+    STORM_ASSERT(bindings);
+
     CScriptObject* owner = nullptr;
 
     if (lua_type(L, 1) == LUA_TTABLE) {
@@ -211,7 +242,7 @@ static int32_t Script_ClearOverrideBindings(lua_State* L) {
         return 0;
     }
 
-    CGUIBindings::s_bindings->ClearOverrideBindings(owner, true);
+    bindings->ClearOverrideBindings(owner, true);
     return 0;
 }
 
@@ -234,6 +265,8 @@ static int32_t Script_GetBindingByKey(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     char key[128];
     KEYBINDING* binding = bindings->GetReducedKeyBinding(mode, lua_tolstring(L, 1, nullptr), key, sizeof(key));
 
@@ -254,6 +287,8 @@ static int32_t Script_RunBinding(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     BOOL isDown = 1;
     float pressure;
 
@@ -288,6 +323,8 @@ static int32_t Script_SetBinding(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* command = lua_tolstring(L, 2, nullptr);
 
     if (bindings->Bind(BINDING_SET_CURRENT, mode, lua_tolstring(L, 1, nullptr), command)) {
@@ -309,6 +346,8 @@ static int32_t Script_GetBinding(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     int32_t count = 0;
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     BINDING_MODE mode = BINDING_MODE_0;
@@ -350,6 +389,8 @@ static int32_t Script_SetOverrideBinding(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* command = nullptr;
 
     if (lua_isstring(L, 4)) {
@@ -380,6 +421,8 @@ static int32_t Script_SetBindingSpell(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 2, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -414,6 +457,8 @@ static int32_t Script_SetBindingItem(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 2, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -448,6 +493,8 @@ static int32_t Script_SetBindingMacro(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 2, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -482,6 +529,8 @@ static int32_t Script_SetBindingClick(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* button = lua_tolstring(L, 2, nullptr);
     const char* mouseButton = lua_tolstring(L, 3, nullptr);
 
@@ -520,6 +569,8 @@ static int32_t Script_SetOverrideBindingSpell(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 4, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -546,6 +597,8 @@ static int32_t Script_SetOverrideBindingItem(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 4, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -572,6 +625,8 @@ static int32_t Script_SetOverrideBindingMacro(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* argument = lua_tolstring(L, 4, nullptr);
     size_t length = SStrLen(argument) + 7;
     char* command = static_cast<char*>(alloca(length));
@@ -598,6 +653,8 @@ static int32_t Script_SetOverrideBindingClick(lua_State* L) {
     }
 
     CGUIBindings* bindings = CGUIBindings::s_bindings;
+
+    STORM_ASSERT(bindings);
     const char* button = lua_tolstring(L, 4, nullptr);
     const char* mouseButton = lua_tolstring(L, 5, nullptr);
 

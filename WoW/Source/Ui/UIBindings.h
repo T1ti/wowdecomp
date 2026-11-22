@@ -76,7 +76,7 @@ class CGUIBindings {
     static void LoadBindings();
     static void LoadBindings(BINDING_SET set, const char* data);
     static void LoadBindingsCallback(HOSFILE localFile, HOSFILE file, void* param);
-    static char* MouseEventToString(const CMouseEvent& evt, char* binding, int32_t maxLength);
+    static char* MouseEventToString(const CMouseEvent& evt, char* string, int32_t maxLength);
     static void SaveBindings();
     static void SaveBindingsCallback(HOSFILE localFile, HOSFILE file, void* param);
     static void Shutdown();
