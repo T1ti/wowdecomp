@@ -60,7 +60,7 @@ class CEffect {
         EFFECT_FIXED_FACING                          = 0x00008000u,
         EFFECT_ATTACHMENT_OFFSET                     = 0x00010000u,
         EFFECT_PERSIST_ON_PARTIAL_CLEAR              = 0x00020000u,
-        EFFECT_LIGHTNING_CONNECTION                  = 0x00040000u,
+        EFFECT_LIGHTNING_ENDPOINT                  = 0x00040000u,
         EFFECT_ITEM_VISUAL                           = 0x00080000u,
         EFFECT_SOUND_ONLY                            = 0x00100000u,
         EFFECT_DETACHED_SOUND                        = 0x00200000u,
@@ -71,8 +71,8 @@ class CEffect {
     };
 
     void ApplyItemVisual();
-    static void ApplyItemVisualByItemId(int32_t id, const WOWGUID& guid, void* param, bool success);
-    static void MountTransitionCacheCB(int32_t id, const WOWGUID& guid, void* param, bool success);
+    static void ApplyItemVisualByItemId(int32_t id, const WOWGUID& guid, void* arg, bool success);
+    static void MountTransitionCacheCB(int32_t id, const WOWGUID& guid, void* arg, bool success);
     int32_t LoadMountTransitionModel();
     void ClearItemVisualEffect();
     void ClearLightning();
@@ -88,12 +88,12 @@ class CEffect {
     static void DrawFishingString(CM2Model* model, const CM2Lighting* lighting, void* arg);
 
     /* 0000 */ CM2Model* m_model;
-    /* 0004 */ CM2Model* m_lineModel;
+    /* 0004 */ CM2Model* m_fishingPoleModel;
     /* 0008 */ WOWGUID m_sourceGuid;
     /* 0010 */ WOWGUID m_targetGuid;
     /* 0018 */ uint32_t m_spellId;
     /* 001C */ const SpellVisualKitRec* m_kitRec;
-    /* 0020 */ const SpellVisualEffectNameRec* m_effectNameRec;
+    /* 0020 */ const SpellVisualEffectNameRec* m_effectRec;
     /* 0024 */ int32_t m_attachmentId;
     /* 0028 */ C3Vector m_offset;
     /* 0034 */ SE2SoundKitObject m_soundKitObject;

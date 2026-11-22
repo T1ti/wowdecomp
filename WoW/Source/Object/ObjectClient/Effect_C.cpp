@@ -97,17 +97,13 @@ void CEffect::Destroy() {
     while (s_destroyedEffects) {
         CEffect* effect = s_destroyedEffects;
 
-        if (--effect->m_refCount == 0) {
-            delete effect;
-        }
+        effect->Release();
     }
 
     while (s_orphanedEffects) {
         CEffect* effect = s_orphanedEffects;
 
-        if (--effect->m_refCount == 0) {
-            delete effect;
-        }
+        effect->Release();
     }
 }
 
@@ -206,6 +202,8 @@ void CEffect::SetEnabled(BOOL enabled) {
 // VERIFY: af80ebbc auto
 // OFFSET: 0x006F78B0
 void CEffect::InitLightningEndpoint() {
+    STORM_ASSERT(m_flags & EFFECT_LIGHTNING_ENDPOINT);
+
     this->m_lightningState = 0;
 
     if (!this->m_model) {
@@ -225,6 +223,8 @@ void CEffect::InitLightningEndpoint() {
 // VERIFY: 71fcd0d5 auto
 // OFFSET: 0x006F7900
 void CEffect::ConnectToLightningThisFrame() {
+    STORM_ASSERT(m_flags & EFFECT_LIGHTNING_ENDPOINT);
+
     if (!this->m_lightningState && this->m_model) {
         this->m_model->m_lastAnimTime = 0;
         this->SetEnabled(1);
@@ -248,11 +248,12 @@ void CEffect::AddFishingLine(CGObject_C* object, const WOWGUID& target) {
         line = line->m_attachNext;
     }
 
-    this->m_lineModel = line;
+    this->m_fishingPoleModel = line;
+    STORM_ASSERT(m_fishingPoleModel);
     line->m_refCount++;
-    this->m_lineModel->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_20;
-    this->m_lineModel->m_drawCallback = &CEffect::DrawFishingString;
-    this->m_lineModel->m_drawArg = this;
+    this->m_fishingPoleModel->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_20;
+    this->m_fishingPoleModel->m_drawCallback = &CEffect::DrawFishingString;
+    this->m_fishingPoleModel->m_drawArg = this;
     this->m_sourceGuid = object->m_obj->m_guid;
     this->m_targetGuid = target;
 }
@@ -262,12 +263,12 @@ void CEffect::AddFishingLine(CGObject_C* object, const WOWGUID& target) {
 CEffect::CEffect() {
     this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_model = nullptr;
-    this->m_lineModel = nullptr;
+    this->m_fishingPoleModel = nullptr;
     this->m_sourceGuid = WOWGUID();
     this->m_targetGuid = WOWGUID();
     this->m_spellId = 0;
     this->m_kitRec = nullptr;
-    this->m_effectNameRec = nullptr;
+    this->m_effectRec = nullptr;
     this->m_flags = EFFECT_FLAGS::EFFECT_NONE;
     for (uint32_t i = 0; i < sizeof(this->m_lightning) / sizeof(this->m_lightning[0]); i++) {
         this->m_lightning[i] = nullptr;
@@ -310,6 +311,8 @@ void CEffect::MoveToOrphanList() {
 // VERIFY: 1b5e24a5 manual
 // OFFSET: 0x006FA390
 void CEffect::Release() {
+    STORM_ASSERT(m_refCount > 0);
+
     if (this->m_refCount-- == 1) {
         delete this;
     }
@@ -324,7 +327,8 @@ void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, co
         return;
     }
 
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
+    STORM_ASSERT(m_effectRec);
     this->m_sourceGuid = *guid;
     this->m_position = position;
     this->m_flags = flags | (EFFECT_FLAGS::EFFECT_WORLD_SPACE | EFFECT_FLAGS::EFFECT_FIXED_FACING);
@@ -335,7 +339,7 @@ void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, co
     this->m_fadeTime = fadeTime;
     this->m_facing = unit->GetSmoothFacing();
     this->m_attachRec = attach;
-    this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
+    this->m_model = World::s_m2Scene->CreateModel(this->m_effectRec->m_fileName, 0);
 
     if (this->m_model) {
         this->m_refCount++;
@@ -355,6 +359,9 @@ void CEffect::InitFromUnit(C3Vector position, uint32_t time, int32_t spellId, co
 // OFFSET: 0x006F7680
 void CEffect::CreateModelFromEffect(CM2Model* model, void* arg) {
     CEffect* effect = static_cast<CEffect*>(arg);
+
+    STORM_ASSERT(effect);
+    STORM_ASSERT(model);
 
     if (effect->m_flags & EFFECT_FLAGS::EFFECT_IGNORE_EMISSION_DISTANCE) {
         effect->SetEmissionRateIgnoresDistance(1);
@@ -409,7 +416,8 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
         return;
     }
 
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
+    STORM_ASSERT(m_effectRec);
     CEffect::DestroyMatchingEffects(object, effectName, attachType, spellId, kit ? kit->m_id : 0, attach);
 
     if (attachType == MODEL_ATTACHMENT_ID::ATTACH_NONE) {
@@ -423,7 +431,7 @@ void CEffect::AddEffect(int32_t attachType, int32_t spellId, const SpellVisualKi
     this->m_fadeTime = fadeTime;
     this->m_attachRec = attach;
     this->m_spellId = spellId;
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
     this->m_flags = flags;
 
     if (position) {
@@ -459,7 +467,7 @@ void __stdcall CEffect::DestroyMatchingEffects(CGObject_C* object, const SpellVi
     while (effect) {
         CEffect* next = effect->m_next;
 
-        if (effect->m_effectNameRec && effect->m_effectNameRec->m_id == effectName->m_id && (!effect->m_kitRec || effect->m_kitRec->m_id == kitId) && (!effect->m_attachRec || effect->m_attachRec == attach) && (!spellId || effect->m_spellId == static_cast<uint32_t>(spellId)) && effect->m_attachmentId == attachType) {
+        if (effect->m_effectRec && effect->m_effectRec->m_id == effectName->m_id && (!effect->m_kitRec || effect->m_kitRec->m_id == kitId) && (!effect->m_attachRec || effect->m_attachRec == attach) && (!spellId || effect->m_spellId == static_cast<uint32_t>(spellId)) && effect->m_attachmentId == attachType) {
             effect->MoveToDestroyList();
         }
 
@@ -569,9 +577,10 @@ void CEffect::AddSpecialEffect(int32_t type, const WOWGUID& target, void (*callb
         this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     }
 
-    this->m_effectNameRec = GetSpecialSpellVisualEffectNameRec(type);
-    CEffect::DestroyMatchingEffects(unit, this->m_effectNameRec, attachment, 0, 0, nullptr);
-    this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
+    this->m_effectRec = GetSpecialSpellVisualEffectNameRec(type);
+    STORM_ASSERT(m_effectRec);
+    CEffect::DestroyMatchingEffects(unit, this->m_effectRec, attachment, 0, 0, nullptr);
+    this->m_model = World::s_m2Scene->CreateModel(this->m_effectRec->m_fileName, 0);
 
     if (this->m_model) {
         this->m_refCount++;
@@ -598,8 +607,9 @@ void CEffect::AddSpecialByPosition(int32_t type, C3Vector position, const WOWGUI
     this->m_position.y = position.y;
     this->m_position.z = position.z;
     this->m_transportGuid = WOWGUID();
-    this->m_effectNameRec = GetSpecialSpellVisualEffectNameRec(type);
-    this->m_model = World::s_m2Scene->CreateModel(this->m_effectNameRec->m_fileName, 0);
+    this->m_effectRec = GetSpecialSpellVisualEffectNameRec(type);
+    STORM_ASSERT(m_effectRec);
+    this->m_model = World::s_m2Scene->CreateModel(this->m_effectRec->m_fileName, 0);
 
     if (this->m_model) {
         this->m_refCount++;
@@ -629,17 +639,20 @@ void CEffect::ClearLightning() {
 
 // VERIFY: 4c42526f auto
 // OFFSET: 0x006F8600
-void CEffect::ApplyItemVisualByItemId(int32_t id, const WOWGUID& guid, void* param, bool success) {
+void CEffect::ApplyItemVisualByItemId(int32_t id, const WOWGUID& guid, void* arg, bool success) {
+    STORM_ASSERT(arg);
+    CEffect* effectPtr = static_cast<CEffect*>(arg);
+    STORM_ASSERT(effectPtr);
+
     ItemRec* item = g_itemDB.GetRecord(id);
 
     if (!item) {
         return;
     }
 
-    CEffect* effect = static_cast<CEffect*>(param);
-    effect->m_itemSlot = CCharacterComponent::GetItemSlotForInvType(static_cast<INVENTORY_TYPES>(item->m_inventoryType));
-    effect->m_displayId = item->m_displayInfoID;
-    effect->ApplyItemVisual();
+    effectPtr->m_itemSlot = CCharacterComponent::GetItemSlotForInvType(static_cast<INVENTORY_TYPES>(item->m_inventoryType));
+    effectPtr->m_displayId = item->m_displayInfoID;
+    effectPtr->ApplyItemVisual();
 }
 
 // VERIFY: 57136c38 manual
@@ -783,11 +796,11 @@ CEffect::~CEffect() {
         this->m_model = nullptr;
     }
 
-    if (this->m_lineModel) {
-        this->m_lineModel->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_20;
-        this->m_lineModel->m_drawCallback = nullptr;
-        this->m_lineModel->m_drawArg = nullptr;
-        this->m_lineModel->Release();
+    if (this->m_fishingPoleModel) {
+        this->m_fishingPoleModel->m_runtimeFlags |= M2_FLAGS::M2_UNKNOWN_20;
+        this->m_fishingPoleModel->m_drawCallback = nullptr;
+        this->m_fishingPoleModel->m_drawArg = nullptr;
+        this->m_fishingPoleModel->Release();
     }
 
     this->UnLinkSelf();
@@ -839,9 +852,7 @@ void CEffect::CleanUpStaticLists() {
         if (effect->m_expireTime && static_cast<int32_t>(now - effect->m_expireTime) > 0) {
             effect->UnLinkSelf();
 
-            if (effect->m_refCount-- == 1) {
-                delete effect;
-            }
+            effect->Release();
         }
 
         effect = next;
@@ -855,9 +866,7 @@ void CEffect::CleanUpStaticLists() {
         if (!effect->m_model || !(effect->m_model->m_runtimeFlags & M2_FLAGS::M2_HAS_ACTIVE_PARTICLES)) {
             effect->UnLinkSelf();
 
-            if (effect->m_refCount-- == 1) {
-                delete effect;
-            }
+            effect->Release();
         }
 
         effect = next;
@@ -871,7 +880,8 @@ void CEffect::AddLootEffect(CGUnit_C* unit, void (*callback)(CM2Model* model, ui
     this->m_flags = EFFECT_FLAGS::EFFECT_LOOT_ART;
     this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_UNITEFFECT_BASE;
     const SpellVisualEffectNameRec* effectName = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
+    STORM_ASSERT(m_effectRec);
     this->m_model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0);
 
     if (!this->m_model) {
@@ -1032,10 +1042,10 @@ C44Matrix* CEffect::TransformPosition(C44Matrix* matrix, CGObject_C* object) {
         scale = object->GetTrueScale() * targetScale;
     }
 
-    if (this->m_effectNameRec) {
-        float minScale = this->m_effectNameRec->m_minAllowedScale;
-        float effectScale = scale * this->m_effectNameRec->m_scale;
-        scale = this->m_effectNameRec->m_maxAllowedScale;
+    if (this->m_effectRec) {
+        float minScale = this->m_effectRec->m_minAllowedScale;
+        float effectScale = scale * this->m_effectRec->m_scale;
+        scale = this->m_effectRec->m_maxAllowedScale;
 
         if (effectScale < minScale) {
             scale = minScale;
@@ -1117,16 +1127,16 @@ int32_t CEffect::UpdateAttachment() {
         scale = modelData->m_attachedEffectScale;
     }
 
-    if (this->m_effectNameRec) {
-        scale *= this->m_effectNameRec->m_scale;
+    if (this->m_effectRec) {
+        scale *= this->m_effectRec->m_scale;
         float effectScale = scale;
         float worldScale = parent->GetAttachmentWorldScale(this->m_attachmentId) * scale;
 
         if (worldScale > 0.000001f) {
-            if (this->m_effectNameRec->m_maxAllowedScale < worldScale) {
-                scale = effectScale / worldScale * this->m_effectNameRec->m_maxAllowedScale;
-            } else if (this->m_effectNameRec->m_minAllowedScale > worldScale) {
-                scale = this->m_effectNameRec->m_minAllowedScale / worldScale * effectScale;
+            if (this->m_effectRec->m_maxAllowedScale < worldScale) {
+                scale = effectScale / worldScale * this->m_effectRec->m_maxAllowedScale;
+            } else if (this->m_effectRec->m_minAllowedScale > worldScale) {
+                scale = this->m_effectRec->m_minAllowedScale / worldScale * effectScale;
             }
         }
     }
@@ -1175,7 +1185,7 @@ void CEffect::EffectUpdate() {
         this->PostInitialize();
     }
 
-    if ((this->m_flags & EFFECT_FLAGS::EFFECT_LIGHTNING_CONNECTION) && this->m_lightningState > 0 && !--this->m_lightningState && this->m_model) {
+    if ((this->m_flags & EFFECT_FLAGS::EFFECT_LIGHTNING_ENDPOINT) && this->m_lightningState > 0 && !--this->m_lightningState && this->m_model) {
         this->m_model->m_baseAlpha = 0.0f;
         this->m_model->SetEmittersEnabled(0);
         this->m_model->SetRibbonsEnabled(0);
@@ -1438,7 +1448,8 @@ static void MountTransitionSequenceCB(CM2Model* model, uint32_t boneId, uint32_t
 // VERIFY: 84fadc9f auto
 // OFFSET: 0x006F7D60
 void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, const SpellVisualEffectNameRec* effectName, uint32_t flags, void (*callback)(CM2Model*, uint32_t, uint32_t, int32_t, uint32_t, uint64_t), const C3Vector* position, uint32_t fadeTime, WOWGUID transport) {
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
+    STORM_ASSERT(m_effectRec);
     this->m_attachmentId = MODEL_ATTACHMENT_ID::ATTACH_NONE;
     this->m_sourceGuid = WOWGUID();
     this->m_targetGuid = WOWGUID();
@@ -1446,7 +1457,7 @@ void CEffect::InitAtPosition(int32_t spellId, const SpellVisualKitRec* kit, cons
     this->m_transportGuid = transport;
     this->m_spellId = spellId;
     this->m_kitRec = kit;
-    this->m_effectNameRec = effectName;
+    this->m_effectRec = effectName;
     this->m_flags = flags | EFFECT_FLAGS::EFFECT_WORLD_SPACE;
     this->m_fadeTime = fadeTime;
     this->m_model = World::s_m2Scene->CreateModel(effectName->m_fileName, 0);
@@ -1576,6 +1587,7 @@ int32_t CEffect::LoadMountTransitionModel() {
     }
 
     this->m_model = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
+    STORM_ASSERT(m_model);
     this->m_model->SetSequenceCallback(&MountTransitionSequenceCB, reinterpret_cast<uintptr_t>(this));
     this->m_model->SetEventCallback(&CEffect::EffectEvent, reinterpret_cast<uintptr_t>(this));
     CCharacterComponent::ReplaceMonsterSkin(this->m_model, display, modelData);
@@ -1677,8 +1689,10 @@ void CEffect::DrawFishingString(CM2Model* model, const CM2Lighting* lighting, vo
 
 // VERIFY: 891c7da6 auto
 // OFFSET: 0x006F9610
-void CEffect::MountTransitionCacheCB(int32_t id, const WOWGUID& guid, void* param, bool success) {
-    CEffect* effect = static_cast<CEffect*>(param);
+void CEffect::MountTransitionCacheCB(int32_t id, const WOWGUID& guid, void* arg, bool success) {
+    STORM_ASSERT(arg);
+
+    CEffect* effect = static_cast<CEffect*>(arg);
     WOWGUID key = { static_cast<uint64_t>(effect->m_spellId) | WOWGUID_SPELL_QUERY_TAG };
     CreatureStats_C* stats = g_creatureDBCache.GetRecord(id, key, nullptr, nullptr, false);
 

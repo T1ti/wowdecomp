@@ -1468,7 +1468,7 @@ const SpellVisualRec* CGObject_C::GetAppropriateSpellVisual(const SpellRec* spel
 // OFFSET: 0x00744330
 void CGObject_C::ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment) {
     for (CEffect* effect = this->m_effectList; effect; effect = effect->m_next) {
-        if (effect->m_spellId == spellId && (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_CONNECTION) && effect->m_lightningAttachment == attachment) {
+        if (effect->m_spellId == spellId && (effect->m_flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_ENDPOINT) && effect->m_lightningAttachment == attachment) {
             effect->ConnectToLightningThisFrame();
         }
     }
@@ -1591,7 +1591,7 @@ void CGObject_C::PlayEffectName(int32_t attachType, uint32_t expireTime, int32_t
 
     effect->AddEffect(attachType, spellId, kit, effectName, &target, &source, *flags, callback, position, fadeTime, attach);
 
-    if (*flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_CONNECTION) {
+    if (*flags & CEffect::EFFECT_FLAGS::EFFECT_LIGHTNING_ENDPOINT) {
         effect->SetEnabled(0);
     }
 
