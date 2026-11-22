@@ -148,7 +148,7 @@ void CSimpleHTML::ParseIMG(XMLNode* node, CStatus* status) {
         height = NDCToDDCWidth(SStrToFloat(heightAttr) / (CoordinateGetAspectCompensation() * 1024.0f));
     }
 
-    void* data = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* data = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     CSimpleTexture* texture = data ? new (data) CSimpleTexture(this, 2, 1) : nullptr;
 
     texture->SetWidth(width);
@@ -188,7 +188,7 @@ void CSimpleHTML::ParseIMG(XMLNode* node, CStatus* status) {
 // VERIFY: bbbb23ac manual
 // OFFSET: 0x0096CC90
 void CSimpleHTML::AddText(const char* text, HTML_TEXT_TYPE type, uint32_t justify) {
-    void* data = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+    void* data = CSimpleFontString::Allocate(sizeof(CSimpleFontString));
     CSimpleFontString* string = data ? new (data) CSimpleFontString(this, 2, 1) : nullptr;
 
     if (this->m_layoutAnchor) {

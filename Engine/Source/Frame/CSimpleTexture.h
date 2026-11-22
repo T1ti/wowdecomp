@@ -46,6 +46,10 @@ class CSimpleTexture : public CSimpleRegion {
     static const char* s_objectTypeName;
     static EGxTexFilter s_textureFilterMode;
 
+    static void* Allocate(std::size_t bytes) { // (inferred)
+        STORM_ASSERT(bytes <= s_allocator.BytesPerData());
+        return s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    }
     static void operator delete(void* ptr);
     static void CreateScriptMetaTable();
     static void Destroy();

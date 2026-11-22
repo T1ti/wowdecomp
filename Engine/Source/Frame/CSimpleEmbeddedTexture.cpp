@@ -4,7 +4,7 @@
 
 // INLINED
 CSimpleEmbeddedTexture::CSimpleEmbeddedTexture() {
-    void* data = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* data = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_texture = data ? new (data) CSimpleTexture(nullptr, 2, 1) : nullptr;
 }
 

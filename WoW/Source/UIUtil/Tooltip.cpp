@@ -1638,7 +1638,7 @@ void CGTooltip::AddLine(const char* left, const char* right, const CImVector& le
 
         const char* tooltipName = this->GetName();
         SStrPrintf(name, sizeof(name), "%sTextLeft%d", tooltipName ? tooltipName : "<unnamed>", this->m_maxLines + 1);
-        void* data = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+        void* data = CSimpleFontString::Allocate(sizeof(CSimpleFontString));
         CSimpleFontString* leftString = data ? new (data) CSimpleFontString(this, 2, true) : nullptr;
         leftString->SetName(name);
         leftString->SetFontObject(this->m_leftStrings.m_data[this->m_maxLines - 1]->m_fontObject);
@@ -1649,7 +1649,7 @@ void CGTooltip::AddLine(const char* left, const char* right, const CImVector& le
 
         tooltipName = this->GetName();
         SStrPrintf(name, sizeof(name), "%sTextRight%d", tooltipName ? tooltipName : "<unnamed>", this->m_maxLines + 1);
-        data = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+        data = CSimpleFontString::Allocate(sizeof(CSimpleFontString));
         CSimpleFontString* rightString = data ? new (data) CSimpleFontString(this, 2, true) : nullptr;
         rightString->SetName(name);
         rightString->SetFontObject(this->m_rightStrings.m_data[this->m_maxLines - 1]->m_fontObject);

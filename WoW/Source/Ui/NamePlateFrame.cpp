@@ -554,7 +554,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_casting = 0;
     this->m_channeling = 0;
 
-    void* flashData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* flashData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_targetingFrameFlash = flashData ? new (flashData) CSimpleTexture(this, 0, 1) : nullptr;
     this->m_targetingFrameFlash->SetBlendMode(GxBlend_Alpha);
     this->m_targetingFrameFlash->SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Flash", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
@@ -567,7 +567,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     texCoords.maxY = 0.6f;
     this->m_targetingFrameFlash->SetTexCoord(texCoords);
 
-    void* borderData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* borderData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     CSimpleTexture* healthBorder = borderData ? new (borderData) CSimpleTexture(this, 2, 1) : nullptr;
     healthBorder->SetAllPoints(this, 1);
     healthBorder->SetTexture("Interface\\Tooltips\\Nameplate-Border", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
@@ -579,7 +579,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_healthBar->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
     this->m_healthBar->SetFrameLevel(this->m_level - 1, 1);
 
-    void* castBorderData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* castBorderData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_castBarBorder = castBorderData ? new (castBorderData) CSimpleTexture(this, 2, 1) : nullptr;
     this->m_castBarBorder->SetTexture("Interface\\Tooltips\\Nameplate-Border", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
     texCoords.minX = 1.0f;
@@ -589,7 +589,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_castBarBorder->SetTexCoord(texCoords);
     this->m_castBarBorder->SetBlendMode(GxBlend_Alpha);
 
-    void* shieldData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* shieldData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_castBarShield = shieldData ? new (shieldData) CSimpleTexture(this, 2, 1) : nullptr;
     this->m_castBarShield->SetTexture("Interface\\Tooltips\\Nameplate-CastBar-Shield", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
     this->m_castBarShield->SetBlendMode(GxBlend_Alpha);
@@ -600,12 +600,12 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_castBar->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_HIDE_SCRIPT_DEPTH, 1);
     this->m_castBar->SetFrameLevel(this->m_level - 1, 1);
 
-    void* iconData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* iconData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_castBarIcon = iconData ? new (iconData) CSimpleTexture(this, 3, 1) : nullptr;
     this->m_castBarIcon->SetWidth(0.01f);
     this->m_castBarIcon->SetHeight(0.01f);
 
-    void* glowData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* glowData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_namePlateGlow = glowData ? new (glowData) CSimpleTexture(this, 4, 1) : nullptr;
     this->m_namePlateGlow->SetBlendMode(GxBlend_Add);
     this->m_namePlateGlow->SetTexture("Interface\\Tooltips\\Nameplate-Glow", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
@@ -613,21 +613,21 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_namePlateGlow->m_shown = 0;
     this->m_namePlateGlow->HideThis();
 
-    void* nameData = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+    void* nameData = CSimpleFontString::Allocate(sizeof(CSimpleFontString));
     this->m_unitNameText = nameData ? new (nameData) CSimpleFontString(this, 2, 1) : nullptr;
     this->m_unitNameText->SetFont(FrameScript_GetText("NAMEPLATE_FONT", -1, GENDER_NOT_APPLICABLE), 0.01f, 0, false);
     this->m_unitNameText->AddShadow(CImVector(COLOR_BLACK_BGRA), C2Vector(0.001f, -0.001f));
     this->m_unitNameText->SetFrame(this, 3, 1);
     this->m_unitNameText->SetPoint(FRAMEPOINT_BOTTOM, this, FRAMEPOINT_CENTER, 0.0f, 0.0f, 1);
 
-    void* levelData = CSimpleFontString::s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+    void* levelData = CSimpleFontString::Allocate(sizeof(CSimpleFontString));
     this->m_levelText = levelData ? new (levelData) CSimpleFontString(this, 2, 1) : nullptr;
     this->m_levelText->SetFont(FrameScript_GetText("NAMEPLATE_FONT", -1, GENDER_NOT_APPLICABLE), 0.009f, 0, false);
     this->m_levelText->SetVertexColor(s_levelTextColor);
     this->m_levelText->AddShadow(CImVector(COLOR_BLACK_BGRA), C2Vector(0.001f, -0.001f));
     this->m_levelText->SetFrame(this, 3, 1);
 
-    void* skullData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* skullData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_targetingFrameSkull = skullData ? new (skullData) CSimpleTexture(this, 3, 1) : nullptr;
     this->m_targetingFrameSkull->SetBlendMode(GxBlend_Alpha);
     this->m_targetingFrameSkull->SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Skull", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
@@ -635,7 +635,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_targetingFrameSkull->SetHeight(0.01f);
     this->m_targetingFrameSkull->SetPoint(FRAMEPOINT_CENTER, this->m_levelText, FRAMEPOINT_CENTER, 0.0f, 0.0f, 1);
 
-    void* raidData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* raidData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_raidTargetingIcon = raidData ? new (raidData) CSimpleTexture(this, 2, 1) : nullptr;
     this->m_raidTargetingIcon->SetBlendMode(GxBlend_Alpha);
     this->m_raidTargetingIcon->SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
@@ -643,7 +643,7 @@ CGNamePlateFrame::CGNamePlateFrame(CSimpleFrame* parent) : CSimpleFrame(parent),
     this->m_raidTargetingIcon->SetHeight(0.02f);
     this->m_raidTargetingIcon->SetPoint(FRAMEPOINT_RIGHT, healthBorder, FRAMEPOINT_LEFT, 0.0f, 0.0f, 1);
 
-    void* eliteData = CSimpleTexture::s_allocator.GetData(0, typeid(CSimpleTexture).raw_name(), SLOG_OBJECT);
+    void* eliteData = CSimpleTexture::Allocate(sizeof(CSimpleTexture));
     this->m_eliteNameplateIcon = eliteData ? new (eliteData) CSimpleTexture(this, 1, 1) : nullptr;
     this->m_eliteNameplateIcon->SetTexture("Interface\\Tooltips\\EliteNameplateIcon", 0, 0, CSimpleTexture::s_textureFilterMode, ImageMode_Normal);
     this->m_eliteNameplateIcon->SetWidth(0.0294f);

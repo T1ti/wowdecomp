@@ -30,7 +30,7 @@ class CSimpleRender {
     static CGxShader* s_vertexShader[2];
     static int32_t s_mergeEnable;
 
-    static int32_t CalcBatchCounts(CRenderBatch* batch, uint32_t* vertCounts, uint32_t* idxCounts);
+    static int32_t CalcBatchCounts(CRenderBatch* batch, uint32_t* batchVertices, uint32_t* batchIndices);
     static void Destroy();
     static void DrawBatch(CRenderBatch* batch);
     static void Init();
@@ -50,6 +50,10 @@ class CSimpleFontString : public CSimpleRegion, public CSimpleFontable {
     static int32_t s_objectType;
     static const char* s_objectTypeName;
 
+    static void* Allocate(std::size_t bytes) { // (inferred)
+        STORM_ASSERT(bytes <= s_allocator.BytesPerData());
+        return s_allocator.GetData(0, typeid(CSimpleFontString).raw_name(), SLOG_OBJECT);
+    }
     static void operator delete(void* ptr);
     static void CreateScriptMetaTable();
     static void DestroyScriptMetaTable();

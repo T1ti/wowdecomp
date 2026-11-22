@@ -217,6 +217,12 @@ static char* LanguageRule1(const char* text) {
     *dest = 0;
     SUniConvertUTF16to8(s_languageBuffer, sizeof(s_languageBuffer), s_languageWideBuffer, STORM_MAX_STR, nullptr, nullptr);
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (text && SStrLen(text) >= sizeof(s_languageBuffer)) {
+        STORM_ASSERT(0);
+    }
+#endif
+
     return s_languageBuffer;
 }
 
@@ -315,6 +321,12 @@ static char* LanguageRule2(const char* text) {
     *dest = 0;
     SUniConvertUTF16to8(s_languageBuffer, sizeof(s_languageBuffer), s_languageWideBuffer, STORM_MAX_STR, nullptr, nullptr);
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (text && SStrLen(text) >= sizeof(s_languageBuffer)) {
+        STORM_ASSERT(0);
+    }
+#endif
+
     return s_languageBuffer;
 }
 
@@ -378,6 +390,12 @@ static char* LanguageRule3(const char* text) {
     }
 
     *dest = 0;
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (text && SStrLen(text) >= sizeof(s_languageBuffer)) {
+        STORM_ASSERT(0);
+    }
+#endif
 
     return s_languageBuffer;
 }
@@ -468,6 +486,12 @@ static char* LanguageRule4(const char* text) {
     }
 
     *dest = 0;
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (text && SStrLen(text) >= sizeof(s_languageBuffer)) {
+        STORM_ASSERT(0);
+    }
+#endif
 
     return s_languageBuffer;
 }
@@ -597,7 +621,7 @@ void CSimpleRender::Destroy() {
 
 // VERIFY: d4f7147d manual
 // OFFSET: 0x00482F00
-int32_t CSimpleRender::CalcBatchCounts(CRenderBatch* batch, uint32_t* vertCounts, uint32_t* idxCounts) {
+int32_t CSimpleRender::CalcBatchCounts(CRenderBatch* batch, uint32_t* batchVertices, uint32_t* batchIndices) {
     CGxTex* textureID = reinterpret_cast<CGxTex*>(-1);
     int32_t alphaMode = GxBlends_Last;
     CGxShader* shader = nullptr;
@@ -606,30 +630,34 @@ int32_t CSimpleRender::CalcBatchCounts(CRenderBatch* batch, uint32_t* vertCounts
     uint32_t idxTotal = 0;
 
     for (uint32_t i = 0; i < batch->m_texturelist.Count(); i++) {
-        CSimpleBatchedMesh* mesh = &batch->m_texturelist[i];
+        CSimpleBatchedMesh* entry = &batch->m_texturelist[i];
+        STORM_ASSERT(entry->m_positionCount > 0);
+        STORM_ASSERT(entry->m_indexCount > 0);
+        STORM_ASSERT(entry->m_texSort);
+
         BOOL changed = 0;
 
-        if (mesh->m_textureID != textureID) {
-            textureID = mesh->m_textureID;
+        if (entry->m_texSort != textureID) {
+            textureID = entry->m_texSort;
             changed = 1;
         }
 
-        int32_t meshAlphaMode = (mesh->m_color && mesh->m_alphaMode < GxBlend_Alpha) ? GxBlend_Alpha : mesh->m_alphaMode;
+        int32_t meshAlphaMode = (entry->m_color && entry->m_alphaMode < GxBlend_Alpha) ? GxBlend_Alpha : entry->m_alphaMode;
 
         if (meshAlphaMode != alphaMode) {
             alphaMode = meshAlphaMode;
             changed = 1;
         }
 
-        if (mesh->m_shader != shader) {
-            shader = mesh->m_shader;
+        if (entry->m_shader != shader) {
+            shader = entry->m_shader;
             changed = 1;
         }
 
-        if (!CSimpleRender::s_mergeEnable || changed || idxTotal + mesh->m_idxCount >= 0x20000 || vertTotal + mesh->m_posCount >= 0x10000) {
+        if (!CSimpleRender::s_mergeEnable || changed || idxTotal + entry->m_indexCount >= 0x20000 || vertTotal + entry->m_positionCount >= 0x10000) {
             if (batchIndex > -1) {
-                vertCounts[batchIndex] = vertTotal;
-                idxCounts[batchIndex] = idxTotal;
+                batchVertices[batchIndex] = vertTotal;
+                batchIndices[batchIndex] = idxTotal;
             }
 
             batchIndex++;
@@ -637,13 +665,13 @@ int32_t CSimpleRender::CalcBatchCounts(CRenderBatch* batch, uint32_t* vertCounts
             idxTotal = 0;
         }
 
-        vertTotal += mesh->m_posCount;
-        idxTotal += mesh->m_idxCount;
+        vertTotal += entry->m_positionCount;
+        idxTotal += entry->m_indexCount;
     }
 
     if (idxTotal) {
-        vertCounts[batchIndex] = vertTotal;
-        idxCounts[batchIndex] = idxTotal;
+        batchVertices[batchIndex] = vertTotal;
+        batchIndices[batchIndex] = idxTotal;
         batchIndex++;
     }
 
@@ -677,83 +705,91 @@ void CSimpleRender::DrawBatch(CRenderBatch* batch) {
         GxRsSet(GxRs_DepthTest, 0);
         GxRsSet(GxRs_DepthWrite, 0);
 
-        uint32_t* vertCounts = static_cast<uint32_t*>(alloca(sizeof(uint32_t) * meshCount));
-        uint32_t* idxCounts = static_cast<uint32_t*>(alloca(sizeof(uint32_t) * meshCount));
-        CSimpleRender::CalcBatchCounts(batch, vertCounts, idxCounts);
+        uint32_t* batchVertices = static_cast<uint32_t*>(alloca(sizeof(uint32_t) * meshCount));
+        uint32_t* batchIndices = static_cast<uint32_t*>(alloca(sizeof(uint32_t) * meshCount));
+        CSimpleRender::CalcBatchCounts(batch, batchVertices, batchIndices);
 
         CGxBuf* vertexBuf = nullptr;
         CGxBuf* indexBuf = nullptr;
         CGxVertexPCT* vertices = nullptr;
         uint16_t* indices = nullptr;
-        uint32_t vertTotal = 0;
-        int32_t idxTotal = 0;
-        int32_t batchIndex = -1;
+        uint32_t nBufVertices = 0;
+        int32_t nBufIndices = 0;
+        int32_t currentBatchIndex = -1;
 
         for (uint32_t i = 0; i < meshCount; i++) {
-            CSimpleBatchedMesh* mesh = &batch->m_texturelist[i];
+            CSimpleBatchedMesh* entry = &batch->m_texturelist[i];
+            STORM_ASSERT(entry->m_indices);
+
             BOOL changed = 0;
 
-            if (mesh->m_textureID != textureID) {
-                textureID = mesh->m_textureID;
+            if (entry->m_texSort != textureID) {
+                textureID = entry->m_texSort;
                 changed = 1;
             }
 
-            int32_t meshAlphaMode = (mesh->m_color && mesh->m_alphaMode < GxBlend_Alpha) ? GxBlend_Alpha : mesh->m_alphaMode;
+            int32_t meshAlphaMode = (entry->m_color && entry->m_alphaMode < GxBlend_Alpha) ? GxBlend_Alpha : entry->m_alphaMode;
 
             if (meshAlphaMode != alphaMode) {
                 alphaMode = meshAlphaMode;
                 changed = 1;
             }
 
-            if (mesh->m_shader != shader) {
-                shader = mesh->m_shader;
+            if (entry->m_shader != shader) {
+                shader = entry->m_shader;
                 changed = 1;
             }
 
-            bool newBatch = !CSimpleRender::s_mergeEnable || changed || idxTotal + mesh->m_idxCount >= 0x20000 || vertTotal + mesh->m_posCount >= 0x10000;
+            bool newBatch = !CSimpleRender::s_mergeEnable || changed || nBufIndices + entry->m_indexCount >= 0x20000 || nBufVertices + entry->m_positionCount >= 0x10000;
 
             if (newBatch) {
-                if (idxTotal > 0) {
+                if (nBufIndices > 0) {
                     GxBufUnlock(vertexBuf, 0);
                     GxBufUnlock(indexBuf, 0);
                     GxPrimVertexPtr(vertexBuf, GxVBF_PCT);
                     g_theGxDevicePtr->PrimIndexPtr(indexBuf);
 
+                    STORM_ASSERT(batchIndices[currentBatchIndex] == nBufIndices);
+                    STORM_ASSERT(batchVertices[currentBatchIndex] == nBufVertices);
+
                     CGxBatch gxBatch;
                     gxBatch.m_primType = GxPrim_Triangles;
                     gxBatch.m_start = 0;
-                    gxBatch.m_count = idxCounts[batchIndex];
+                    gxBatch.m_count = batchIndices[currentBatchIndex];
                     gxBatch.m_minIndex = 0;
-                    gxBatch.m_maxIndex = vertCounts[batchIndex] - 1;
+                    gxBatch.m_maxIndex = batchVertices[currentBatchIndex] - 1;
                     GxDraw(&gxBatch, 1);
                 }
 
-                batchIndex++;
-                idxTotal = 0;
-                vertTotal = 0;
+                currentBatchIndex++;
+                nBufIndices = 0;
+                nBufVertices = 0;
 
-                GxRsSet(GxRs_Texture0, TextureGetGxTex(mesh->m_texture, 1, nullptr));
+                GxRsSet(GxRs_Texture0, TextureGetGxTex(entry->m_texture, 1, nullptr));
                 GxRsSet(GxRs_BlendingMode, alphaMode);
                 GxUpdateAlphaRef(GxRs_AlphaRef);
                 GxRsSet(GxRs_PixelShader, shader);
             }
 
             if (newBatch || !vertices) {
-                vertexBuf = GxBufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), vertCounts[batchIndex]);
-                indexBuf = GxBufStream(GxPoolTarget_Index, sizeof(uint16_t), idxCounts[batchIndex]);
+                STORM_ASSERT(batchVertices[currentBatchIndex] < 65536);
+                STORM_ASSERT(batchIndices[currentBatchIndex] < 131072);
+
+                vertexBuf = GxBufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), batchVertices[currentBatchIndex]);
+                indexBuf = GxBufStream(GxPoolTarget_Index, sizeof(uint16_t), batchIndices[currentBatchIndex]);
                 vertices = reinterpret_cast<CGxVertexPCT*>(GxBufLock(vertexBuf));
                 indices = reinterpret_cast<uint16_t*>(GxBufLock(indexBuf));
             }
 
-            if (!mesh->m_indices) {
+            if (!entry->m_indices) {
                 continue;
             }
 
-            for (uint32_t v = 0; v < mesh->m_posCount; v++) {
-                vertices->p = mesh->m_position[v];
+            for (uint32_t v = 0; v < entry->m_positionCount; v++) {
+                vertices->p = entry->m_position[v];
 
-                if (mesh->m_color) {
-                    CImVector color = mesh->m_color[(v * mesh->m_colorCount) >> 2];
+                if (entry->m_color) {
+                    CImVector color = entry->m_color[(v * entry->m_colorCount) >> 2];
                     GxFormatColor(color);
                     vertices->c = color;
                 } else {
@@ -765,37 +801,40 @@ void CSimpleRender::DrawBatch(CRenderBatch* batch) {
                     vertices->c = white;
                 }
 
-                if (mesh->m_onAtlas) {
-                    vertices->tc.x = mesh->m_atlasScale * mesh->m_texCoord[v].x + mesh->m_atlasOffset.x;
-                    vertices->tc.y = mesh->m_atlasScale * mesh->m_texCoord[v].y + mesh->m_atlasOffset.y;
+                if (entry->m_onAtlas) {
+                    vertices->tc.x = entry->m_atlasScale * entry->m_texCoord[v].x + entry->m_atlasOffset.x;
+                    vertices->tc.y = entry->m_atlasScale * entry->m_texCoord[v].y + entry->m_atlasOffset.y;
                 } else {
-                    vertices->tc = mesh->m_texCoord[v];
+                    vertices->tc = entry->m_texCoord[v];
                 }
 
                 vertices++;
             }
 
-            for (uint32_t j = 0; j < mesh->m_idxCount; j++) {
-                *indices = vertTotal + mesh->m_indices[j];
+            for (uint32_t j = 0; j < entry->m_indexCount; j++) {
+                *indices = nBufVertices + entry->m_indices[j];
                 indices++;
             }
 
-            vertTotal += mesh->m_posCount;
-            idxTotal += mesh->m_idxCount;
+            nBufVertices += entry->m_positionCount;
+            nBufIndices += entry->m_indexCount;
         }
 
-        if (idxTotal > 0) {
-            GxBufUnlock(vertexBuf, sizeof(CGxVertexPCT) * vertTotal);
-            GxBufUnlock(indexBuf, sizeof(uint16_t) * idxTotal);
+        if (nBufIndices > 0) {
+            GxBufUnlock(vertexBuf, sizeof(CGxVertexPCT) * nBufVertices);
+            GxBufUnlock(indexBuf, sizeof(uint16_t) * nBufIndices);
             GxPrimVertexPtr(vertexBuf, GxVBF_PCT);
             g_theGxDevicePtr->PrimIndexPtr(indexBuf);
+
+            STORM_ASSERT(batchIndices[currentBatchIndex] == nBufIndices);
+            STORM_ASSERT(batchVertices[currentBatchIndex] == nBufVertices);
 
             CGxBatch gxBatch;
             gxBatch.m_primType = GxPrim_Triangles;
             gxBatch.m_start = 0;
-            gxBatch.m_count = idxCounts[batchIndex];
+            gxBatch.m_count = batchIndices[currentBatchIndex];
             gxBatch.m_minIndex = 0;
-            gxBatch.m_maxIndex = vertCounts[batchIndex] - 1;
+            gxBatch.m_maxIndex = batchVertices[currentBatchIndex] - 1;
             GxDraw(&gxBatch, 1);
         }
 
@@ -1080,6 +1119,8 @@ void CSimpleFontString::SetTextLength(uint32_t length) {
         char* text = static_cast<char*>(SMemAlloc(length + 1, __FILE__, __LINE__, 0));
         *text = 0;
 
+        STORM_ASSERT(!m_text || !*m_text);
+
         if (this->m_text) {
             SMemFree(this->m_text, __FILE__, __LINE__, 0);
         }
@@ -1269,6 +1310,8 @@ int32_t CSimpleFontString::SetFont(const char* fontName, float fontHeight, uint3
 // VERIFY: 3d8d8078 auto
 // OFFSET: 0x00483890
 void CSimpleFontString::SetTextHeight(float height) {
+    STORM_ASSERT(height > 0);
+
     if (fabsf(height - this->m_fontHeight) >= 0.00000023841858f) {
         this->m_fontHeight = height;
         this->m_styleFlags &= ~TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_FIXED_SIZE;
@@ -1610,6 +1653,8 @@ void CSimpleFontString::UpdateString() {
         }
 
         this->m_string = TextBlockCreate(this->m_fontHandle, text, color, position, this->GetFontHeight(true) * this->m_layoutScale, width, height, styleFlags, 0.0f, this->m_spacing * this->m_layoutScale, this->m_layoutScale);
+
+        STORM_ASSERT(m_string);
 
         if (this->m_styleFlags & TEXTBLOCK_STYLE_FLAGS::TEXTBLOCK_SHADOW) {
             CImVector shadowColor = this->m_shadowColor;

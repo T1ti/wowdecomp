@@ -25,6 +25,10 @@ class CDataAllocator {
     CDataAllocator(uint32_t bytesPerData, uint32_t dataPerBlock);
     ~CDataAllocator();
     void Clear(const char* fileName, int32_t lineNumber, int32_t reportLeaks);
+    uint32_t BytesPerData() const {
+        return this->m_bytesPerData;
+    }
+
     void* GetData(int32_t zero, const char* fileName, int32_t lineNumber);
     void PutData(void* data, const char* fileName, int32_t lineNumber);
 
