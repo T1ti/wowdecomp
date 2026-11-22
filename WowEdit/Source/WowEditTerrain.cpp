@@ -210,7 +210,7 @@ static void UpdateBrushPoint() {
 
 // The overlays (port): the 8.1 overlays shader filled with 3.3.5 terrain data. The 8.1 editor drew it for a block of
 // 2 x 2 chunks at a time with a color per chunk and per cell; the port draws it per render chunk (one or two map chunks,
-// CMapRenderChunk::m_mapChunks), the block's corner on their outer corner so that both fall in the block on the same
+// CMapRenderChunk::m_chunks), the block's corner on their outer corner so that both fall in the block on the same
 // side of it.
 //
 // Area IDs (WOWEDITOVERLAY_AREAS): each map chunk in the color of its area (CMapChunk::m_areaId, the MCNK area ID, a
@@ -268,7 +268,7 @@ static bool SetAreaOverlayConstants(CMapRenderChunk* renderChunk) {
     float originY = -1.0e30f;
 
     for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
-        CMapChunk* chunk = renderChunk->m_mapChunks[i];
+        CMapChunk* chunk = renderChunk->m_chunks[i];
 
         if (chunk) {
             originX = chunk->m_bbox.t.x > originX ? chunk->m_bbox.t.x : originX;
@@ -281,7 +281,7 @@ static bool SetAreaOverlayConstants(CMapRenderChunk* renderChunk) {
     bool any = false;
 
     for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
-        CMapChunk* chunk = renderChunk->m_mapChunks[i];
+        CMapChunk* chunk = renderChunk->m_chunks[i];
 
         if (!chunk || !chunk->m_areaId) {
             continue;
@@ -373,9 +373,9 @@ static uint32_t BrushChunks(CMapRenderChunk* const* chunks, uint32_t count, TSGr
 
 // Binds a chunk's vertices and indices the way CMapRenderChunk::RenderSetup does, without its transform and lights.
 static void BindChunkGeometry(CMapRenderChunk* chunk) {
-    if (chunk->m_chunkBuf) {
-        GxPrimVertexPtr(chunk->m_chunkBuf->m_vertexBuf, CMapRenderChunk::s_gxBufVertexFormat);
-        g_theGxDevicePtr->PrimIndexPtr(chunk->m_chunkBuf->m_indexBuf);
+    if (chunk->m_buf) {
+        GxPrimVertexPtr(chunk->m_buf->m_vertexBuf, CMapRenderChunk::s_gxBufVertexFormat);
+        g_theGxDevicePtr->PrimIndexPtr(chunk->m_buf->m_indexBuf);
     } else {
         chunk->UseStreamingBufs();
     }

@@ -80,13 +80,13 @@ static uint8_t s_defaultAlphaRow[64];
 static float s_layerChannel[4][4] = { { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 0.0f } };
 
 // STATIC: 0x00AEEC70
-TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_blockLink)> CMapRenderChunk::s_chunkBufBlockFreeList;
+TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_link)> CMapRenderChunk::s_chunkBufBlockFreeList;
 
 // STATIC: 0x00AEEC7C
 TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_bufLink)> CMapRenderChunk::s_bufList;
 
 // STATIC: 0x00AEEC88
-TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_freeLink)> CMapRenderChunk::s_renderChunkBufFreeList;
+TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> CMapRenderChunk::s_renderChunkBufFreeList;
 
 // STATIC: 0x00AEEC60
 CGxBatch CMapRenderChunk::s_chunkBatch;
@@ -184,7 +184,7 @@ void CMapRenderChunk::DestroyBufs() {
 
     while (buf) {
         CMapChunkBuf* next = CMapRenderChunk::s_renderChunkBufFreeList.Next(buf);
-        buf->m_freeLink.Unlink();
+        buf->m_link.Unlink();
         buf = next;
     }
 
@@ -192,33 +192,37 @@ void CMapRenderChunk::DestroyBufs() {
 
     while (block) {
         CMapChunkBufBlock* next = CMapRenderChunk::s_chunkBufBlockFreeList.Next(block);
-        block->m_blockLink.Unlink();
+        block->m_link.Unlink();
         block->m_bufLink.Unlink();
         block = next;
     }
 
     for (uint32_t i = 0; i < CMapRenderChunk::s_chunkBlockArray.Count(); i++) {
-        for (uint32_t j = 0; j < 2; j++) {
-            CMapChunkBuf& chunkBuf = CMapRenderChunk::s_chunkBlockArray[i].m_bufs[j];
+        CMapChunkBufBlock& block = CMapRenderChunk::s_chunkBlockArray[i];
+        STORM_ASSERT(block.m_link.Next() == NULL);
 
-            if (chunkBuf.m_vertexBuf) {
-                CGxBuf* vertexBuf = chunkBuf.m_vertexBuf;
+        for (uint32_t j = 0; j < 2; j++) {
+            CMapChunkBuf* buf = &block.m_bufs[j];
+            STORM_ASSERT(buf->m_link.Next() == NULL);
+
+            if (buf->m_vertexBuf) {
+                CGxBuf* vertexBuf = buf->m_vertexBuf;
 
                 if (vertexBuf != g_theGxDevicePtr->BufStream(vertexBuf->m_pool->m_target, 0, 0)) {
                     g_theGxDevicePtr->BufDestroy(vertexBuf);
                 }
 
-                chunkBuf.m_vertexBuf = nullptr;
+                buf->m_vertexBuf = nullptr;
             }
 
-            if (chunkBuf.m_indexBuf) {
-                CGxBuf* indexBuf = chunkBuf.m_indexBuf;
+            if (buf->m_indexBuf) {
+                CGxBuf* indexBuf = buf->m_indexBuf;
 
                 if (indexBuf != g_theGxDevicePtr->BufStream(indexBuf->m_pool->m_target, 0, 0)) {
                     g_theGxDevicePtr->BufDestroy(indexBuf);
                 }
 
-                chunkBuf.m_indexBuf = nullptr;
+                buf->m_indexBuf = nullptr;
             }
         }
     }
@@ -250,7 +254,7 @@ void CMapRenderChunk::SetVertexFormat(EGxVertexBufferFormat format) {
 // VERIFY: 75114f19 auto
 // OFFSET: 0x007B7350
 void CMapRenderChunk::FreeLayers() {
-    for (uint32_t i = 0; i < this->m_layersCount; i++) {
+    for (uint32_t i = 0; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer& layer = this->m_layers[i];
         layer.m_texture = nullptr;
         layer.m_textureId = -1;
@@ -262,23 +266,24 @@ void CMapRenderChunk::FreeLayers() {
         }
     }
 
-    this->m_layersCount = 0;
+    this->m_nLayers = 0;
+    STORM_ASSERT((m_layerFlags & LayerFlags_ShouldMip) == 0);
 
     if (this->m_shadowTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(this->m_shadowTexture));
         this->m_shadowTexture = nullptr;
     }
 
-    if (this->m_terrainBlendTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(this->m_terrainBlendTexture));
-        this->m_terrainBlendTexture = nullptr;
+    if (this->m_shaderTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_shaderTexture));
+        this->m_shaderTexture = nullptr;
     }
 }
 
 // VERIFY: 6909fb20 auto
 // OFFSET: 0x007B73E0
 void CMapRenderChunk::UpdateLoaded() {
-    for (int32_t i = 0; i < this->m_layersCount; i++) {
+    for (int32_t i = 0; i < this->m_nLayers; i++) {
         if (!TextureGetGxTex(this->m_layers[i].m_texture, 0, nullptr)) {
             return;
         }
@@ -307,8 +312,8 @@ CTexture* CMapRenderChunk::AllocTexture(uint32_t width, uint32_t height, void* u
 // VERIFY: 686076da auto
 // OFFSET: 0x007B7AF0
 void CMapRenderChunk::AddBatch(CMapChunk* chunk1, CMapChunk* chunk2, C3Vector* position, uint8_t flags) {
-    this->m_mapChunks[0] = chunk1;
-    this->m_mapChunks[1] = chunk2;
+    this->m_chunks[0] = chunk1;
+    this->m_chunks[1] = chunk2;
     this->m_vec1 = *position;
     this->m_batchFlags = flags;
 
@@ -339,17 +344,22 @@ void CMapRenderChunk::SelectLights(CM2Lighting* lighting) {
 // VERIFY: bc2de872 manual
 // OFFSET: 0x007B9250
 void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkDuplicate) {
+    STORM_ASSERT(area);
+    STORM_ASSERT(layer);
+
     if (checkDuplicate) {
-        for (int32_t i = 0; i < this->m_layersCount; i++) {
+        for (int32_t i = 0; i < this->m_nLayers; i++) {
             if (this->m_layers[i].m_textureId == layer->m_textureId) {
                 return;
             }
         }
     }
 
-    CMapRenderChunkLayer* renderLayer = &this->m_layers[this->m_layersCount];
+    STORM_ASSERT(m_nLayers <= 3);
+
+    CMapRenderChunkLayer* renderLayer = &this->m_layers[this->m_nLayers];
     renderLayer->m_flags = layer->m_flags;
-    renderLayer->m_layerIndex = this->m_layersCount;
+    renderLayer->m_layerIndex = this->m_nLayers;
 
     CMapAreaTexture* areaTexture = &area->m_textures[layer->m_textureId];
 
@@ -363,14 +373,14 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
     renderLayer->m_owner = this;
 
     if (renderLayer->m_flags & SMLayer::LAYER_FLAGS::OVERBRIGHT) {
-        this->m_renderFlags |= RENDER_FLAGS::FLAG_UNLIT_LAYERS;
+        this->m_layerFlags |= RENDER_FLAGS::FLAG_UNLIT_LAYERS;
     }
 
     if (g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] && (renderLayer->m_flags & SMLayer::LAYER_FLAGS::USE_CUBE_MAP_REFLECTION)) {
-        this->m_renderFlags |= RENDER_FLAGS::FLAG_SPECULAR;
+        this->m_layerFlags |= RENDER_FLAGS::FLAG_SPECULAR;
     }
 
-    this->m_layersCount++;
+    this->m_nLayers++;
 }
 
 // VERIFY: 6c5dc3eb manual
@@ -383,7 +393,8 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
             return nullptr;
         }
 
-        block->m_blockLink.Unlink();
+        block->m_link.Unlink();
+        STORM_ASSERT(block->m_bufs[1].m_vertexBuf == NULL);
 
         CMapChunkBuf* buf = &block->m_bufs[0];
         buf->m_renderChunk = renderChunk;
@@ -401,15 +412,15 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
         return buf;
     }
 
-    CMapChunkBuf* freeBuf = CMapRenderChunk::s_renderChunkBufFreeList.Tail();
-
-    if (freeBuf) {
-        freeBuf->m_freeLink.Unlink();
-        freeBuf->m_renderChunk = renderChunk;
-        freeBuf->m_batchFlags = flags;
-        freeBuf->m_vertexBuf->m_hasData = 0;
-        freeBuf->m_indexBuf->m_hasData = 0;
-        return freeBuf;
+    if (CMapChunkBuf* buf = CMapRenderChunk::s_renderChunkBufFreeList.Tail()) {
+        buf->m_link.Unlink();
+        buf->m_renderChunk = renderChunk;
+        buf->m_batchFlags = flags;
+        STORM_ASSERT(buf->m_vertexBuf);
+        STORM_ASSERT(buf->m_indexBuf);
+        buf->m_vertexBuf->m_hasData = 0;
+        buf->m_indexBuf->m_hasData = 0;
+        return buf;
     }
 
     CMapChunkBufBlock* block = CMapRenderChunk::s_chunkBufBlockFreeList.Tail();
@@ -418,7 +429,7 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
         return nullptr;
     }
 
-    block->m_blockLink.Unlink();
+    block->m_link.Unlink();
 
     if (block->m_bufs[0].m_vertexBuf) {
         GxBufDestroy(block->m_bufs[0].m_vertexBuf);
@@ -451,33 +462,42 @@ CMapChunkBuf* CMapRenderChunk::AllocBuf(int32_t flags, CMapRenderChunk* renderCh
 // OFFSET: 0x007B9560
 void CMapRenderChunk::PurgeChunkBufBlocks() {
     for (uint32_t i = 0; i < CMapRenderChunk::s_chunkBlockArray.Count(); i++) {
-        CMapChunkBufBlock& block = CMapRenderChunk::s_chunkBlockArray[i];
+        CMapChunkBufBlock* block = &CMapRenderChunk::s_chunkBlockArray[i];
 
-        if (block.m_blockLink.IsLinked() || !block.m_bufs[0].m_freeLink.IsLinked() || !block.m_bufs[1].m_freeLink.IsLinked()) {
+        if (block->m_link.IsLinked() || !block->m_bufs[0].m_link.IsLinked() || !block->m_bufs[1].m_link.IsLinked()) {
+#if defined(WOWDECOMP_ASSERTIONS)
+            if (block->m_link.IsLinked()) {
+                STORM_ASSERT(block->m_bufs[0].m_link.IsLinked() == 0);
+                STORM_ASSERT(block->m_bufs[1].m_link.IsLinked() == 0);
+            }
+#endif
             continue;
         }
 
         for (uint32_t j = 0; j < 2; j++) {
-            CMapChunkBuf& chunkBuf = block.m_bufs[j];
-            CGxBuf* vertexBuf = chunkBuf.m_vertexBuf;
+            CMapChunkBuf* buf = &block->m_bufs[j];
+            STORM_ASSERT(buf->m_vertexBuf);
+            STORM_ASSERT(buf->m_indexBuf);
+            STORM_ASSERT(buf->m_renderChunk == NULL);
+            CGxBuf* vertexBuf = buf->m_vertexBuf;
 
             if (vertexBuf && vertexBuf != g_theGxDevicePtr->BufStream(vertexBuf->m_pool->m_target, 0, 0)) {
                 g_theGxDevicePtr->BufDestroy(vertexBuf);
             }
 
-            CGxBuf* indexBuf = chunkBuf.m_indexBuf;
+            CGxBuf* indexBuf = buf->m_indexBuf;
 
             if (indexBuf && indexBuf != g_theGxDevicePtr->BufStream(indexBuf->m_pool->m_target, 0, 0)) {
                 g_theGxDevicePtr->BufDestroy(indexBuf);
             }
 
-            chunkBuf.m_vertexBuf = nullptr;
-            chunkBuf.m_indexBuf = nullptr;
-            chunkBuf.m_batchFlags = 0;
-            chunkBuf.m_freeLink.Unlink();
+            buf->m_vertexBuf = nullptr;
+            buf->m_indexBuf = nullptr;
+            buf->m_batchFlags = 0;
+            buf->m_link.Unlink();
         }
 
-        CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(&block);
+        CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(block);
     }
 }
 
@@ -493,13 +513,13 @@ CMapRenderChunk::CMapRenderChunk() {
     this->m_batch.m_maxIndex = 0;
     this->m_lastUpdateTime = 0.0f;
     this->m_batchFlags = BATCH_FLAGS::BATCH_NONE;
-    this->m_mapChunks[0] = nullptr;
-    this->m_mapChunks[1] = nullptr;
-    this->m_layersCount = 0;
-    this->m_renderFlags = RENDER_FLAGS::FLAG_NONE;
-    this->m_terrainBlendTexture = nullptr;
+    this->m_chunks[0] = nullptr;
+    this->m_chunks[1] = nullptr;
+    this->m_nLayers = 0;
+    this->m_layerFlags = RENDER_FLAGS::FLAG_NONE;
+    this->m_shaderTexture = nullptr;
     this->m_shadowTexture = nullptr;
-    this->m_chunkBuf = nullptr;
+    this->m_buf = nullptr;
 }
 
 // VERIFY: fad72c2f manual
@@ -512,7 +532,7 @@ void CMapRenderChunk::CreateLayers() {
     }
 
     for (int32_t i = 0; i < chunkCount; i++) {
-        CMapChunk* chunk = this->m_mapChunks[i];
+        CMapChunk* chunk = this->m_chunks[i];
 
         if (!chunk) {
             continue;
@@ -533,26 +553,37 @@ void CMapRenderChunk::CreateLayers() {
         }
     }
 
-    this->m_renderFlags |= RENDER_FLAGS::FLAG_LAYER_TEXTURES_DIRTY;
+    this->m_layerFlags |= RENDER_FLAGS::FLAG_LAYER_TEXTURES_DIRTY;
+}
+
+// INLINED
+// FreeChunkBuf (inferred).
+static inline void FreeChunkBuf(CMapChunkBuf* buf) {
+    STORM_ASSERT(buf);
+
+    if (buf->m_batchFlags & CMapRenderChunk::BATCH_FLAGS::BATCH_PAIR_MASK) {
+        CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(buf->m_block);
+        STORM_ASSERT(buf->m_block->m_bufs[0].m_link.IsLinked() == 0);
+        STORM_ASSERT(buf->m_block->m_bufs[1].m_link.IsLinked() == 0);
+    } else {
+        CMapRenderChunk::s_renderChunkBufFreeList.LinkToHead(buf);
+        STORM_ASSERT(buf->m_block->m_link.IsLinked() == 0);
+    }
+
+    buf->m_renderChunk = nullptr;
 }
 
 // VERIFY: eb3e1413 auto
 // OFFSET: 0x007B9830
 void CMapRenderChunk::FreeBuf() {
-    CMapChunkBuf* chunkBuf = this->m_chunkBuf;
+    CMapChunkBuf* chunkBuf = this->m_buf;
 
     if (!chunkBuf) {
         return;
     }
 
-    if (chunkBuf->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK) {
-        CMapRenderChunk::s_chunkBufBlockFreeList.LinkToHead(chunkBuf->m_block);
-    } else {
-        CMapRenderChunk::s_renderChunkBufFreeList.LinkToHead(this->m_chunkBuf);
-    }
-
-    chunkBuf->m_renderChunk = nullptr;
-    this->m_chunkBuf = nullptr;
+    FreeChunkBuf(chunkBuf);
+    this->m_buf = nullptr;
 }
 
 // VERIFY: c324fde5 manual
@@ -566,19 +597,22 @@ CMapRenderChunk::~CMapRenderChunk() {
     this->FreeBuf();
     this->FreeLayers();
 
-    if (this->m_mapChunks[0]) {
-        this->m_mapChunks[0]->m_renderChunk = nullptr;
-        this->m_mapChunks[0]->m_bLoaded = 0;
-        this->m_mapChunks[0] = nullptr;
+    if (this->m_chunks[0]) {
+        this->m_chunks[0]->m_renderChunk = nullptr;
+        this->m_chunks[0]->m_bLoaded = 0;
+        this->m_chunks[0] = nullptr;
     }
 
-    if (this->m_mapChunks[1]) {
-        this->m_mapChunks[1]->m_renderChunk = nullptr;
-        this->m_mapChunks[1]->m_bLoaded = 0;
-        this->m_mapChunks[1] = nullptr;
+    if (this->m_chunks[1]) {
+        this->m_chunks[1]->m_renderChunk = nullptr;
+        this->m_chunks[1]->m_bLoaded = 0;
+        this->m_chunks[1] = nullptr;
     }
+
+    STORM_ASSERT(m_shaderTexture == NULL);
+    STORM_ASSERT(m_shadowTexture == NULL);
+    STORM_ASSERT(m_buf == NULL);
 }
-
 // VERIFY: 2d552482 manual
 // OFFSET: 0x007BA600
 void CMapRenderChunk::UpdatePools() {
@@ -623,12 +657,12 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
         C3Vector offset;
         char* vertices = g_theGxDevicePtr->BufLock(vertexBuf);
 
-        if (this->m_mapChunks[0]) {
-            this->m_mapChunks[0]->CreateVertices(vertices, 0, offset);
+        if (this->m_chunks[0]) {
+            this->m_chunks[0]->CreateVertices(vertices, 0, offset);
         }
 
-        if (this->m_mapChunks[1]) {
-            offset.z = this->m_mapChunks[1]->m_topLeftCoords.z - this->m_mapChunks[0]->m_topLeftCoords.z;
+        if (this->m_chunks[1]) {
+            offset.z = this->m_chunks[1]->m_topLeftCoords.z - this->m_chunks[0]->m_topLeftCoords.z;
 
             if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
                 offset.y = -33.333332f;
@@ -636,7 +670,7 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
                 offset.x = -33.333332f;
             }
 
-            this->m_mapChunks[1]->CreateVertices(vertices, TERRAIN_CHUNK_VERTEX_COUNT, offset);
+            this->m_chunks[1]->CreateVertices(vertices, TERRAIN_CHUNK_VERTEX_COUNT, offset);
         }
 
         g_theGxDevicePtr->BufUnlock(vertexBuf, 0);
@@ -652,12 +686,12 @@ void CMapRenderChunk::RenderPrepBufs(CGxBuf* vertexBuf, CGxBuf* indexBuf) {
 
         uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(indexBuf));
 
-        if (this->m_mapChunks[0]) {
-            this->m_mapChunks[0]->CreateIndices(indices, &this->m_batch);
+        if (this->m_chunks[0]) {
+            this->m_chunks[0]->CreateIndices(indices, &this->m_batch);
         }
 
-        if (this->m_mapChunks[1]) {
-            this->m_mapChunks[1]->CreateIndices(&indices[this->m_batch.m_count], &this->m_batch);
+        if (this->m_chunks[1]) {
+            this->m_chunks[1]->CreateIndices(&indices[this->m_batch.m_count], &this->m_batch);
         }
 
         g_theGxDevicePtr->BufUnlock(indexBuf, 0);
@@ -707,9 +741,9 @@ void CMapRenderChunk::RenderSetup(BOOL useVertexShader) {
         lighting.SetupGxFog();
     }
 
-    if (this->m_chunkBuf) {
-        GxPrimVertexPtr(this->m_chunkBuf->m_vertexBuf, CMapRenderChunk::s_gxBufVertexFormat);
-        g_theGxDevicePtr->PrimIndexPtr(this->m_chunkBuf->m_indexBuf);
+    if (this->m_buf) {
+        GxPrimVertexPtr(this->m_buf->m_vertexBuf, CMapRenderChunk::s_gxBufVertexFormat);
+        g_theGxDevicePtr->PrimIndexPtr(this->m_buf->m_indexBuf);
     } else {
         this->UseStreamingBufs();
     }
@@ -769,16 +803,16 @@ void CMapRenderChunk::RenderSolidVertexPixelShader() {
 // VERIFY: 6e2aac38 auto
 // OFFSET: 0x007D3F70
 void CMapRenderChunk::RenderPrep() {
-    if (!this->m_chunkBuf) {
-        this->m_chunkBuf = CMapRenderChunk::AllocBuf(this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK, this);
+    if (!this->m_buf) {
+        this->m_buf = CMapRenderChunk::AllocBuf(this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_MASK, this);
     }
 
-    if (this->m_chunkBuf) {
-        CMapRenderChunk::s_bufList.LinkToHead(this->m_chunkBuf->m_block);
-        this->RenderPrepBufs(this->m_chunkBuf->m_vertexBuf, this->m_chunkBuf->m_indexBuf);
+    if (this->m_buf) {
+        CMapRenderChunk::s_bufList.LinkToHead(this->m_buf->m_block);
+        this->RenderPrepBufs(this->m_buf->m_vertexBuf, this->m_buf->m_indexBuf);
     }
 
-    if (!this->m_layersCount) {
+    if (!this->m_nLayers) {
         this->CreateLayers();
     }
 
@@ -796,7 +830,7 @@ void CMapRenderChunk::RenderSinglePass() {
     GxRsSet(GxRs_VertexShader, 0);
     GxRsSet(GxRs_PixelShader, 0);
 
-    uint32_t vertexCount = this->m_mapChunks[1] ? TERRAIN_RENDER_BATCH_VERTEX_COUNT : TERRAIN_CHUNK_VERTEX_COUNT;
+    uint32_t vertexCount = this->m_chunks[1] ? TERRAIN_RENDER_BATCH_VERTEX_COUNT : TERRAIN_CHUNK_VERTEX_COUNT;
     CGxBuf* vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPC), 2 * vertexCount);
     CGxVertexPC* vertices = reinterpret_cast<CGxVertexPC*>(g_theGxDevicePtr->BufLock(vertexBuf));
     CGxBuf* indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), 2 * vertexCount);
@@ -805,7 +839,7 @@ void CMapRenderChunk::RenderSinglePass() {
     uint16_t index = 0;
 
     for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
-        CMapChunk* chunk = this->m_mapChunks[i];
+        CMapChunk* chunk = this->m_chunks[i];
 
         if (!chunk) {
             continue;
@@ -897,14 +931,14 @@ void CMapRenderChunk::SetupAlphaRows(uint8_t** shadowCursor, uint8_t** shadowRow
     }
 
     for (int32_t i = 0; i < 4; i++) {
-        if (!layers[i].m_alphaData) {
+        if (!layers[i].m_alpha) {
             alphaRows[i] = s_defaultAlphaRow;
         } else if (layers[i].m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP_COMPRESSED) {
             alphaRows[i] = s_alphaRowBuf[i];
-            layers[i].m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layers[i].m_alphaData, s_alphaRowBuf[i], size);
+            layers[i].m_alpha = CMapRenderChunk::DecodeAlphaRLE(layers[i].m_alpha, s_alphaRowBuf[i], size);
         } else {
-            alphaRows[i] = layers[i].m_alphaData;
-            layers[i].m_alphaData += size;
+            alphaRows[i] = layers[i].m_alpha;
+            layers[i].m_alpha += size;
         }
     }
 }
@@ -920,9 +954,9 @@ void CMapRenderChunk::SetupAlphaRows4444(uint32_t size, uint8_t** shadowRow, uin
     }
 
     for (int32_t i = 0; i < 4; i++) {
-        if (layers[i].m_alphaData) {
-            alphaRows[i] = layers[i].m_alphaData;
-            layers[i].m_alphaData += size >> 1;
+        if (layers[i].m_alpha) {
+            alphaRows[i] = layers[i].m_alpha;
+            layers[i].m_alpha += size >> 1;
         } else {
             alphaRows[i] = s_defaultAlphaRow;
         }
@@ -932,7 +966,7 @@ void CMapRenderChunk::SetupAlphaRows4444(uint32_t size, uint8_t** shadowRow, uin
 // VERIFY: 25ebba41 manual
 // OFFSET: 0x007B75B0
 void __stdcall CMapRenderChunk::UnpackAlphaBitsFixed4444Mip0(uint16_t* dst, uint32_t size, SLayerAlpha* layer) {
-    uint8_t* alphaData = layer->m_alphaData;
+    uint8_t* alphaData = layer->m_alpha;
     uint32_t i = 0;
 
     for (uint32_t y = 0; y < size; y++) {
@@ -947,7 +981,7 @@ void __stdcall CMapRenderChunk::UnpackAlphaBitsFixed4444Mip0(uint16_t* dst, uint
 // VERIFY: ede6e802 manual
 // OFFSET: 0x007B7620
 void __stdcall CMapRenderChunk::UnpackAlphaBitsFixed4444Mip1(uint16_t* dst, uint32_t size, SLayerAlpha* layer) {
-    uint8_t* alphaData = layer->m_alphaData;
+    uint8_t* alphaData = layer->m_alpha;
     uint32_t i = 0;
 
     for (uint32_t y = 0; y < size; y += 2) {
@@ -973,7 +1007,7 @@ void __stdcall CMapRenderChunk::UnpackAlphaBitsFixed4444Mip1(uint16_t* dst, uint
 // VERIFY: 152a7dd5 manual
 // OFFSET: 0x007B76F0
 void __stdcall CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip0(uint16_t* dst, uint32_t size, SLayerAlpha* layer) {
-    uint8_t* alphaData = layer->m_alphaData;
+    uint8_t* alphaData = layer->m_alpha;
     uint32_t i = 0;
     uint16_t texel = 0xFFF;
 
@@ -1005,7 +1039,7 @@ void __stdcall CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip0(uint16_t* dst, ui
 // VERIFY: 8998a684 manual
 // OFFSET: 0x007B77D0
 void __stdcall CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip1(uint16_t* dst, uint32_t size, SLayerAlpha* layer) {
-    uint8_t* alphaData = layer->m_alphaData;
+    uint8_t* alphaData = layer->m_alpha;
     uint32_t i = 0;
 
     for (uint32_t y = 0; y < size - 1; y += 2) {
@@ -1023,13 +1057,13 @@ void __stdcall CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip1(uint16_t* dst, ui
 // OFFSET: 0x007B7860
 void CMapRenderChunk::CollectLayerAlphaPtrs(CMapChunk* chunk, SLayerAlpha* layers) {
     for (uint32_t i = 0; i < 4; i++) {
-        layers[i].m_alphaData = nullptr;
+        layers[i].m_alpha = nullptr;
 
-        if (this->m_layersCount > i) {
+        if (this->m_nLayers > i) {
             SMLayer* layer = &chunk->m_layers[i];
 
             if (layer->m_flags & SMLayer::LAYER_FLAGS::USE_ALPHA_MAP) {
-                layers[i].m_alphaData = &chunk->m_additionalShadowmap[layer->m_offsetInMCAL];
+                layers[i].m_alpha = &chunk->m_additionalShadowmap[layer->m_offsetInMCAL];
             }
 
             layers[i].m_flags = layer->m_flags;
@@ -1320,13 +1354,13 @@ void __stdcall CMapRenderChunk::UnpackAlphaShadowBitsUnfixed4444Mip1(uint16_t* d
 void CMapRenderChunk::UnpackAlphaShadowBits(void* dstBase, int32_t dstOffset, int32_t dstPitch, uint32_t size, SLayerAlpha* cursors, int32_t alphaSlot, uint8_t* shadowMap, int32_t genFormat, int32_t doNotFixAlphaMap) {
     if (doNotFixAlphaMap) {
         if (genFormat == 3) {
-            if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+            if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
                 CMapRenderChunk::UnpackAlphaShadowBitsFixed4444Mip1(static_cast<uint16_t*>(dstBase), dstOffset, dstPitch, size, cursors, shadowMap);
             } else {
                 CMapRenderChunk::UnpackAlphaShadowBitsFixed4444Mip0(static_cast<uint16_t*>(dstBase), dstOffset, dstPitch, size, cursors, shadowMap);
             }
         } else {
-            if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+            if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
                 CMapRenderChunk::UnpackAlphaShadowBitsFixed8888Mip1(static_cast<CImVector*>(dstBase), dstOffset, dstPitch, size, cursors, alphaSlot, shadowMap);
             } else {
                 CMapRenderChunk::UnpackAlphaShadowBitsFixed8888Mip0(static_cast<CImVector*>(dstBase), dstOffset, dstPitch, size, cursors, alphaSlot, shadowMap);
@@ -1340,7 +1374,7 @@ void CMapRenderChunk::UnpackAlphaShadowBits(void* dstBase, int32_t dstOffset, in
         SErrDisplayAppFatal("CMapChunk::UnpackAlphaShadowBits(): Bad genformat.");
     }
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         CMapRenderChunk::UnpackAlphaShadowBitsUnfixed4444Mip1(static_cast<uint16_t*>(dstBase), dstOffset, dstPitch, size, cursors, shadowMap);
     } else {
         CMapRenderChunk::UnpackAlphaShadowBitsUnfixed4444Mip0(static_cast<uint16_t*>(dstBase), dstOffset, dstPitch, size, cursors, shadowMap);
@@ -1364,10 +1398,10 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip0(CImVector* dst, u
 
         if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP_COMPRESSED) {
             alphaRow = s_alphaRowBuf[0];
-            layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
+            layer->m_alpha = CMapRenderChunk::DecodeAlphaRLE(layer->m_alpha, s_alphaRowBuf[0], size);
         } else {
-            alphaRow = layer->m_alphaData;
-            layer->m_alphaData += size;
+            alphaRow = layer->m_alpha;
+            layer->m_alpha += size;
         }
 
         for (uint32_t x = 0; x < size; x++) {
@@ -1405,10 +1439,10 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
 
         if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP_COMPRESSED) {
             alphaRow = s_alphaRowBuf[0];
-            layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
+            layer->m_alpha = CMapRenderChunk::DecodeAlphaRLE(layer->m_alpha, s_alphaRowBuf[0], size);
         } else {
-            alphaRow = layer->m_alphaData;
-            layer->m_alphaData += size;
+            alphaRow = layer->m_alpha;
+            layer->m_alpha += size;
         }
 
         uint32_t x = 0;
@@ -1451,9 +1485,9 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
             }
 
             if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP_COMPRESSED) {
-                layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
+                layer->m_alpha = CMapRenderChunk::DecodeAlphaRLE(layer->m_alpha, s_alphaRowBuf[0], size);
             } else {
-                layer->m_alphaData += size;
+                layer->m_alpha += size;
             }
         }
 
@@ -1463,9 +1497,9 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
             }
 
             if (layer->m_flags & SMLayer::LAYER_FLAGS::ALPHA_MAP_COMPRESSED) {
-                layer->m_alphaData = CMapRenderChunk::DecodeAlphaRLE(layer->m_alphaData, s_alphaRowBuf[0], size);
+                layer->m_alpha = CMapRenderChunk::DecodeAlphaRLE(layer->m_alpha, s_alphaRowBuf[0], size);
             } else {
-                layer->m_alphaData += size;
+                layer->m_alpha += size;
             }
         }
     }
@@ -1475,7 +1509,7 @@ void __stdcall CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(CImVector* dst, u
 // OFFSET: 0x007B8B80
 void CMapRenderChunk::UnpackAlphaBitsFixed8888Mip0(CImVector* dst, uint32_t size, uint8_t* shadowMap) {
     SLayerAlpha layers[4];
-    this->CollectLayerAlphaPtrs(this->m_mapChunks[0], layers);
+    this->CollectLayerAlphaPtrs(this->m_chunks[0], layers);
 
     for (uint32_t y = 0; y < size; y++) {
         uint8_t* shadowRow;
@@ -1504,7 +1538,7 @@ void CMapRenderChunk::UnpackAlphaBitsFixed8888Mip0(CImVector* dst, uint32_t size
 // OFFSET: 0x007B8C70
 void CMapRenderChunk::UnpackAlphaBitsFixed8888Mip1(CImVector* dst, uint32_t size, uint8_t* shadowMap) {
     SLayerAlpha layers[4];
-    this->CollectLayerAlphaPtrs(this->m_mapChunks[0], layers);
+    this->CollectLayerAlphaPtrs(this->m_chunks[0], layers);
 
     for (uint32_t y = 0; y < size; y += 2) {
         uint8_t* shadowRow;
@@ -1557,40 +1591,50 @@ void CMapRenderChunk::UnpackAlphaBitsFixed8888Mip1(CImVector* dst, uint32_t size
 
 // VERIFY: 4cab62df manual
 // OFFSET: 0x007B8E20
-void CMapRenderChunk::UnpackAlphaBits(void* dst, uint32_t size, SLayerAlpha* layerInfo, uint8_t* shadowMap, int32_t layerMode, int32_t bigAlpha) {
+void CMapRenderChunk::UnpackAlphaBits(void* pixels, uint32_t size, SLayerAlpha* layerAlpha, uint8_t* shadowMap, int32_t layerMode, int32_t bigAlpha) {
+    STORM_ASSERT(pixels);
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (!bigAlpha) {
+        STORM_ASSERT(layerAlpha->m_alpha);
+    }
+#endif
+
     if (bigAlpha) {
         if (layerMode == 3) {
-            if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
-                CMapRenderChunk::UnpackAlphaBitsFixed4444Mip1(static_cast<uint16_t*>(dst), size, layerInfo);
+            STORM_ASSERT(layerAlpha->m_alpha);
+
+            if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+                CMapRenderChunk::UnpackAlphaBitsFixed4444Mip1(static_cast<uint16_t*>(pixels), size, layerAlpha);
             } else {
-                CMapRenderChunk::UnpackAlphaBitsFixed4444Mip0(static_cast<uint16_t*>(dst), size, layerInfo);
+                CMapRenderChunk::UnpackAlphaBitsFixed4444Mip0(static_cast<uint16_t*>(pixels), size, layerAlpha);
             }
 
             return;
         }
 
         if (layerMode == 2) {
-            if (layerInfo->m_alphaData) {
-                if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
-                    CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(static_cast<CImVector*>(dst), size, layerInfo, shadowMap);
+            if (layerAlpha->m_alpha) {
+                if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+                    CMapRenderChunk::RecreateAlphaBitsFixed8888Mip1(static_cast<CImVector*>(pixels), size, layerAlpha, shadowMap);
                 } else {
-                    CMapRenderChunk::RecreateAlphaBitsFixed8888Mip0(static_cast<CImVector*>(dst), size, layerInfo, shadowMap);
+                    CMapRenderChunk::RecreateAlphaBitsFixed8888Mip0(static_cast<CImVector*>(pixels), size, layerAlpha, shadowMap);
                 }
             } else {
-                if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
-                    this->UnpackAlphaBitsFixed8888Mip1(static_cast<CImVector*>(dst), size, shadowMap);
+                if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+                    this->UnpackAlphaBitsFixed8888Mip1(static_cast<CImVector*>(pixels), size, shadowMap);
                 } else {
-                    this->UnpackAlphaBitsFixed8888Mip0(static_cast<CImVector*>(dst), size, shadowMap);
+                    this->UnpackAlphaBitsFixed8888Mip0(static_cast<CImVector*>(pixels), size, shadowMap);
                 }
             }
 
             return;
         }
     } else if (layerMode == 3) {
-        if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
-            CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip1(static_cast<uint16_t*>(dst), size, layerInfo);
+        if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+            CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip1(static_cast<uint16_t*>(pixels), size, layerAlpha);
         } else {
-            CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip0(static_cast<uint16_t*>(dst), size, layerInfo);
+            CMapRenderChunk::UnpackAlphaBitsUnfixed4444Mip0(static_cast<uint16_t*>(pixels), size, layerAlpha);
         }
 
         return;
@@ -1602,13 +1646,15 @@ void CMapRenderChunk::UnpackAlphaBits(void* dst, uint32_t size, SLayerAlpha* lay
 // VERIFY: 97b6c842 manual
 // OFFSET: 0x007B9890
 void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
+    STORM_ASSERT(layer);
+
     int32_t genFormat = 3;
 
     if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) {
         genFormat = 2;
     }
 
-    CMapChunk* chunk = this->m_mapChunks[0];
+    CMapChunk* chunk = this->m_chunks[0];
     SMLayer* chunkLayer = &chunk->m_layers[static_cast<uint16_t>(layer->m_layerIndex)];
     uint32_t layerFlags = chunkLayer->m_flags;
     uint8_t* alphaData = nullptr;
@@ -1626,16 +1672,28 @@ void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
 
     SLayerAlpha layerAlpha;
     layerAlpha.m_flags = layerFlags;
-    layerAlpha.m_alphaData = alphaData;
+    layerAlpha.m_alpha = alphaData;
 
     CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
     this->UnpackAlphaBits(CMapRenderChunk::s_defaultTex, 64 >> area->m_header->m_mampValue, &layerAlpha, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 }
 
+// INLINED
+static inline void UnpackShadowBits(CMapRenderChunk* renderChunk, uint16_t* pixels, uint32_t size, uint8_t* shadow) {
+    STORM_ASSERT(pixels);
+    STORM_ASSERT(shadow);
+
+    if (renderChunk->m_layerFlags & CMapRenderChunk::RENDER_FLAGS::FLAG_BLEND_MIP1) {
+        CMapRenderChunk::ExpandShadowBitsToTexelsMip(pixels, size, shadow);
+    } else {
+        CMapRenderChunk::ExpandShadowBitsToTexels(pixels, size, shadow);
+    }
+}
+
 // VERIFY: ffeb78ca manual
 // OFFSET: 0x007B9950
 void CMapRenderChunk::CreateShadowTex() {
-    CMapChunk* chunk = this->m_mapChunks[0];
+    CMapChunk* chunk = this->m_chunks[0];
     uint8_t* shadowMap = nullptr;
 
     if (chunk->m_header->m_flags & SMChunk::FLAGS::HAS_SHADOW_MAP) {
@@ -1645,11 +1703,7 @@ void CMapRenderChunk::CreateShadowTex() {
     CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
     uint32_t size = 64 >> area->m_header->m_mampValue;
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
-        CMapRenderChunk::ExpandShadowBitsToTexelsMip(reinterpret_cast<uint16_t*>(CMapRenderChunk::s_defaultTex), size, shadowMap);
-    } else {
-        CMapRenderChunk::ExpandShadowBitsToTexels(reinterpret_cast<uint16_t*>(CMapRenderChunk::s_defaultTex), size, shadowMap);
-    }
+    UnpackShadowBits(this, reinterpret_cast<uint16_t*>(CMapRenderChunk::s_defaultTex), size, shadowMap);
 }
 
 // VERIFY: f4962761 manual
@@ -1661,23 +1715,23 @@ void CMapRenderChunk::CreateShaderTexture() {
         genFormat = 2;
     }
 
-    CMapChunk* chunk = this->m_mapChunks[0];
+    CMapChunk* chunk = this->m_chunks[0];
     uint32_t layerCount = chunk->m_header->m_nLayers;
     uint8_t* shadowMap = nullptr;
-    SLayerAlpha layers[4];
-    layers[0].m_alphaData = nullptr;
-    layers[1].m_alphaData = nullptr;
-    layers[2].m_alphaData = nullptr;
-    layers[3].m_alphaData = nullptr;
+    SLayerAlpha layerAlphas[4];
+    layerAlphas[0].m_alpha = nullptr;
+    layerAlphas[1].m_alpha = nullptr;
+    layerAlphas[2].m_alpha = nullptr;
+    layerAlphas[3].m_alpha = nullptr;
 
     for (uint32_t i = 0; i < layerCount; i++) {
         uint32_t layerFlags = chunk->m_layers[i].m_flags;
 
         if (layerFlags & SMLayer::LAYER_FLAGS::USE_ALPHA_MAP) {
-            layers[i].m_alphaData = &chunk->m_additionalShadowmap[chunk->m_layers[i].m_offsetInMCAL];
+            layerAlphas[i].m_alpha = &chunk->m_additionalShadowmap[chunk->m_layers[i].m_offsetInMCAL];
         }
 
-        layers[i].m_flags = layerFlags;
+        layerAlphas[i].m_flags = layerFlags;
     }
 
     uint32_t chunkFlags = chunk->m_header->m_flags;
@@ -1694,42 +1748,43 @@ void CMapRenderChunk::CreateShaderTexture() {
         pitch = size * 2;
     }
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         pitch >>= 1;
     }
 
-    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, 0, pitch, size, layers, 0, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
+    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, 0, pitch, size, layerAlphas, 0, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 
-    if (!this->m_mapChunks[1]) {
+    if (!this->m_chunks[1]) {
         return;
     }
 
-    SMChunk* header = this->m_mapChunks[1]->m_header;
+    SMChunk* header = this->m_chunks[1]->m_header;
     int32_t alphaSlot = 0;
-    layers[0].m_alphaData = nullptr;
-    layers[1].m_alphaData = nullptr;
-    layers[2].m_alphaData = nullptr;
-    layers[3].m_alphaData = nullptr;
+    layerAlphas[0].m_alpha = nullptr;
+    layerAlphas[1].m_alpha = nullptr;
+    layerAlphas[2].m_alpha = nullptr;
+    layerAlphas[3].m_alpha = nullptr;
     uint32_t chunkLayerCount = header->m_nLayers;
 
-    for (uint32_t j = 0; j < chunkLayerCount; j++) {
-        SMLayer* chunkLayer = &this->m_mapChunks[1]->m_layers[j];
+    for (uint32_t chunkLayerIndex = 0; chunkLayerIndex < chunkLayerCount; chunkLayerIndex++) {
+        SMLayer* chunkLayer = &this->m_chunks[1]->m_layers[chunkLayerIndex];
 
-        for (uint32_t i = 0; i < this->m_layersCount; i++) {
-            if (this->m_layers[i].m_textureId != chunkLayer->m_textureId) {
+        for (uint32_t j = 0; j < this->m_nLayers; j++) {
+            if (this->m_layers[j].m_textureId != chunkLayer->m_textureId) {
                 continue;
             }
 
             uint32_t layerFlags = chunkLayer->m_flags;
 
             if (layerFlags & SMLayer::LAYER_FLAGS::USE_ALPHA_MAP) {
-                layers[i].m_alphaData = &this->m_mapChunks[1]->m_additionalShadowmap[chunkLayer->m_offsetInMCAL];
+                layerAlphas[j].m_alpha = &this->m_chunks[1]->m_additionalShadowmap[chunkLayer->m_offsetInMCAL];
             }
 
-            layers[i].m_flags = layerFlags;
+            layerAlphas[j].m_flags = layerFlags;
 
-            if (j == 0) {
-                alphaSlot = i;
+            if (chunkLayerIndex == 0) {
+                STORM_ASSERT(layerAlphas[j].m_alpha == NULL);
+                alphaSlot = j;
             }
 
             break;
@@ -1740,7 +1795,7 @@ void CMapRenderChunk::CreateShaderTexture() {
     uint8_t* shadowMap2 = nullptr;
 
     if ((chunk2Flags & SMChunk::FLAGS::HAS_SHADOW_MAP) && (CWorld::enables & Enables::Enable_Shadow)) {
-        shadowMap2 = this->m_mapChunks[1]->m_shadowMap;
+        shadowMap2 = this->m_chunks[1]->m_shadowMap;
     }
 
     int32_t offset = 0;
@@ -1748,29 +1803,33 @@ void CMapRenderChunk::CreateShaderTexture() {
     if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_VERTICAL) {
         offset = size * size;
 
-        if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+        if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
             offset >>= 2;
         }
     } else if (this->m_batchFlags & BATCH_FLAGS::BATCH_PAIR_HORIZONTAL) {
         offset = size;
 
-        if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+        if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
             offset = size >> 1;
         }
     }
 
-    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, offset, pitch, size, layers, alphaSlot, shadowMap2, genFormat, chunk2Flags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
+    this->UnpackAlphaShadowBits(CMapRenderChunk::s_defaultTex, offset, pitch, size, layerAlphas, alphaSlot, shadowMap2, genFormat, chunk2Flags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 }
 
 // VERIFY: ee6e5438 manual
 // OFFSET: 0x007B9BC0
 void CMapRenderChunk::UpdateLayerGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    CMapRenderChunkLayer* layer = static_cast<CMapRenderChunkLayer*>(userArg);
+    STORM_ASSERT(layer);
+
     if (cmd != GxTex_Latch) {
         return;
     }
 
-    CMapRenderChunkLayer* layer = static_cast<CMapRenderChunkLayer*>(userArg);
-    layer->m_owner->CreateChunkLayerTex(layer);
+    CMapRenderChunk* renderChunk = layer->m_owner;
+    STORM_ASSERT(renderChunk);
+    renderChunk->CreateChunkLayerTex(layer);
 
     uint32_t stride = 4 * w;
 
@@ -1785,11 +1844,14 @@ void CMapRenderChunk::UpdateLayerGxTexture(EGxTexCommand cmd, uint32_t w, uint32
 // VERIFY: ea80bed7 manual
 // OFFSET: 0x007B9C20
 void CMapRenderChunk::UpdateShadowGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    CMapRenderChunk* renderChunk = static_cast<CMapRenderChunk*>(userArg);
+    STORM_ASSERT(renderChunk);
+
     if (cmd != GxTex_Latch) {
         return;
     }
 
-    static_cast<CMapRenderChunk*>(userArg)->CreateShadowTex();
+    renderChunk->CreateShadowTex();
     texelStrideInBytes = 2 * w;
     texels = CMapRenderChunk::s_defaultTex;
 }
@@ -1819,6 +1881,8 @@ void CMapRenderChunk::UpdateShaderGxTexture(EGxTexCommand cmd, uint32_t w, uint3
 // VERIFY: db4ab7ce manual
 // OFFSET: 0x007B9DE0
 void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
+    STORM_ASSERT(m_chunks[1] == NULL);
+
     if (layer->m_layerTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(layer->m_layerTexture));
     }
@@ -1832,11 +1896,11 @@ void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
         return;
     }
 
-    CMapChunk* chunk = this->m_mapChunks[0];
+    CMapChunk* chunk = this->m_chunks[0];
     int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
     int32_t height = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         width /= 2;
         height /= 2;
     }
@@ -1856,6 +1920,8 @@ void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
 // VERIFY: 20e9adae auto
 // OFFSET: 0x007B9EE0
 void CMapRenderChunk::AllocShadowTexture() {
+    STORM_ASSERT(m_chunks[1] == NULL);
+
     if (this->m_shadowTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(this->m_shadowTexture));
     }
@@ -1866,7 +1932,7 @@ void CMapRenderChunk::AllocShadowTexture() {
         return;
     }
 
-    CMapChunk* chunk = this->m_mapChunks[0];
+    CMapChunk* chunk = this->m_chunks[0];
 
     if (!(chunk->m_header->m_flags & SMChunk::FLAGS::HAS_SHADOW_MAP)) {
         return;
@@ -1875,7 +1941,7 @@ void CMapRenderChunk::AllocShadowTexture() {
     int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
     int32_t height = width;
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         width /= 2;
         height = width;
     }
@@ -1888,16 +1954,16 @@ void CMapRenderChunk::AllocShadowTexture() {
 // VERIFY: fad6a25c manual
 // OFFSET: 0x007B9F90
 void CMapRenderChunk::AllocShaderTexture() {
-    if (this->m_terrainBlendTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(this->m_terrainBlendTexture));
+    if (this->m_shaderTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_shaderTexture));
     }
 
-    this->m_terrainBlendTexture = nullptr;
+    this->m_shaderTexture = nullptr;
 
-    int32_t width = 64 >> static_cast<CMapArea*>(this->m_mapChunks[0]->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
+    int32_t width = 64 >> static_cast<CMapArea*>(this->m_chunks[0]->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
     int32_t height = width;
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         width /= 2;
         height = width;
     }
@@ -1916,29 +1982,29 @@ void CMapRenderChunk::AllocShaderTexture() {
         texture = CMapRenderChunk::AllocTexture(width, height, this, CMapRenderChunk::UpdateShaderGxTexture, GxTex_Argb4444, GxTex_Argb4444);
     }
 
-    this->m_terrainBlendTexture = texture;
+    this->m_shaderTexture = texture;
     GxTexUpdate(TextureGetGxTex(texture, 1, nullptr), 0, 0, width, height, 1);
 }
 
 // VERIFY: 913e0d32 manual
 // OFFSET: 0x007BA050
 void CMapRenderChunk::AllocLayerTextures() {
-    if (this->m_layersCount) {
-        int16_t flags = this->m_renderFlags;
-        int32_t wantMip = (flags & RENDER_FLAGS::FLAG_REQUEST_BLEND_MIP1) != 0;
+    if (this->m_nLayers) {
+        int16_t flags = this->m_layerFlags;
+        int32_t wantMip = (flags & RENDER_FLAGS::LayerFlags_ShouldMip) != 0;
         int32_t haveMip = (flags & RENDER_FLAGS::FLAG_BLEND_MIP1) != 0;
 
         if ((flags & RENDER_FLAGS::FLAG_LAYER_TEXTURES_DIRTY) || wantMip != haveMip) {
-            this->m_renderFlags = flags & ~RENDER_FLAGS::FLAG_BLEND_MIP1;
+            this->m_layerFlags = flags & ~RENDER_FLAGS::FLAG_BLEND_MIP1;
 
-            if (this->m_renderFlags & RENDER_FLAGS::FLAG_REQUEST_BLEND_MIP1) {
-                this->m_renderFlags |= RENDER_FLAGS::FLAG_BLEND_MIP1;
+            if (this->m_layerFlags & RENDER_FLAGS::LayerFlags_ShouldMip) {
+                this->m_layerFlags |= RENDER_FLAGS::FLAG_BLEND_MIP1;
             }
 
             if (CMap::gTerrainPixelShadersValid || CMap::enableSpecularTerrain) {
                 this->AllocShaderTexture();
             } else {
-                for (uint32_t i = 0; i < this->m_layersCount; i++) {
+                for (uint32_t i = 0; i < this->m_nLayers; i++) {
                     this->AllocLayerTexture(&this->m_layers[i]);
                 }
 
@@ -1949,7 +2015,7 @@ void CMapRenderChunk::AllocLayerTextures() {
         }
     }
 
-    this->m_renderFlags &= ~RENDER_FLAGS::FLAG_TEXTURE_UPDATE_REQUESTS;
+    this->m_layerFlags &= ~RENDER_FLAGS::FLAG_TEXTURE_UPDATE_REQUESTS;
 }
 
 // VERIFY: 7488cd14 manual
@@ -2150,9 +2216,9 @@ void CMapRenderChunk::RenderMultiPassAdditive(CMapRenderChunk* renderChunk) {
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2228,9 +2294,9 @@ void CMapRenderChunk::RenderMultiPassAlpha(CMapRenderChunk* renderChunk) {
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2306,12 +2372,12 @@ void CMapRenderChunk::RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* render
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_terrainBlendTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_shaderTexture, 1, nullptr));
 
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, CMapRenderChunk::s_pixelShader[1]);
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2401,12 +2467,12 @@ void CMapRenderChunk::RenderMultiPassPixelShader(CMapRenderChunk* renderChunk) {
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_terrainBlendTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_shaderTexture, 1, nullptr));
 
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, CMapRenderChunk::s_pixelShader[1]);
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2472,14 +2538,14 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShaderBigAlpha(CMapRenderChunk* 
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_terrainBlendTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_shaderTexture, 1, nullptr));
 
     CGxShader* pixelShader = CMapRenderChunk::s_pixelShader[1];
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     CMapRenderChunk::SetVertexShader(renderChunk, 2, specular);
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, pixelShader);
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2564,14 +2630,14 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShader(CMapRenderChunk* renderCh
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_terrainBlendTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(renderChunk->m_shaderTexture, 1, nullptr));
 
     CGxShader* pixelShader = CMapRenderChunk::s_pixelShader[1];
-    int32_t specular = (renderChunk->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (renderChunk->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     CMapRenderChunk::SetVertexShader(renderChunk, 2, specular);
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, pixelShader);
 
-    for (int32_t i = 0; i < renderChunk->m_layersCount; i++) {
+    for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -2630,10 +2696,10 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
     C3Vector offset = CWorldScene::s_activeWorldView - this->m_vec1;
     CMapRenderChunk::ComputeTexMatrices(layerMatrix, alphaMatrix, offset, -CMapChunk::s_geoToTex);
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_UNLIT_LAYERS) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_UNLIT_LAYERS) {
         float lighting[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-        for (uint32_t i = 0; i < this->m_layersCount; i++) {
+        for (uint32_t i = 0; i < this->m_nLayers; i++) {
             if (this->m_layers[i].m_flags & SMLayer::LAYER_FLAGS::OVERBRIGHT) {
                 lighting[i] = 0.0f;
             }
@@ -2642,10 +2708,10 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
         GxShaderConstantsSet(GxSh_Pixel, 1, lighting, 1);
     }
 
-    int32_t specular = (this->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (this->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     int32_t i = 0;
 
-    for (; i < this->m_layersCount; i++) {
+    for (; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &this->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), gxTex);
@@ -2669,7 +2735,7 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
         }
     }
 
-    g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), TextureGetGxTex(this->m_terrainBlendTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), TextureGetGxTex(this->m_shaderTexture, 1, nullptr));
     GxXformSet(static_cast<EGxXform>(GxXform_Tex0 + i), alphaMatrix);
     g_theGxDevicePtr->Draw(&this->m_batch, 1);
 
@@ -2686,10 +2752,10 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
     GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
-    if (this->m_renderFlags & RENDER_FLAGS::FLAG_UNLIT_LAYERS) {
+    if (this->m_layerFlags & RENDER_FLAGS::FLAG_UNLIT_LAYERS) {
         float lighting[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-        for (uint32_t i = 0; i < this->m_layersCount; i++) {
+        for (uint32_t i = 0; i < this->m_nLayers; i++) {
             if (this->m_layers[i].m_flags & SMLayer::LAYER_FLAGS::OVERBRIGHT) {
                 lighting[i] = 0.0f;
             }
@@ -2698,10 +2764,10 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
         GxShaderConstantsSet(GxSh_Pixel, 1, lighting, 1);
     }
 
-    int32_t specular = (this->m_renderFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
+    int32_t specular = (this->m_layerFlags & RENDER_FLAGS::FLAG_SPECULAR) != 0;
     int32_t i = 0;
 
-    for (; i < this->m_layersCount; i++) {
+    for (; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &this->m_layers[i];
         CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
         g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), gxTex);
@@ -2715,13 +2781,13 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
         }
     }
 
-    CGxTex* blendTex = this->m_terrainBlendTexture ? TextureGetGxTex(this->m_terrainBlendTexture, 1, nullptr) : nullptr;
+    CGxTex* blendTex = this->m_shaderTexture ? TextureGetGxTex(this->m_shaderTexture, 1, nullptr) : nullptr;
     g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), blendTex);
 
-    CMapRenderChunk::SetVertexShader(this, this->m_layersCount + 1, specular);
+    CMapRenderChunk::SetVertexShader(this, this->m_nLayers + 1, specular);
     g_theGxDevicePtr->Draw(&this->m_batch, 1);
 
-    for (uint32_t j = 0; j < this->m_layersCount; j++) {
+    for (uint32_t j = 0; j < this->m_nLayers; j++) {
         if (this->m_layers[j].m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             consts.m_texOffset[j].x = 0.0f;
             consts.m_texOffset[j].y = 0.0f;

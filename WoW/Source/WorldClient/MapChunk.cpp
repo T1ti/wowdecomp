@@ -1359,7 +1359,7 @@ void CMapChunk::RenderPrep() {
         float dx = CWorldScene::s_activeWorldView.x - this->m_sphere.c.x;
 
         if (CWorld::shadowMipLevel || dx * dx + dz * dz + dy * dy > 603729.0f) {
-            this->m_renderChunk->m_renderFlags |= CMapRenderChunk::RENDER_FLAGS::FLAG_REQUEST_BLEND_MIP1;
+            this->m_renderChunk->m_layerFlags |= CMapRenderChunk::LayerFlags_ShouldMip;
         }
 
         this->m_renderChunk->RenderPrep();

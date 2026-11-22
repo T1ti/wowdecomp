@@ -4065,11 +4065,11 @@ void CWorldScene::CullChunks(CSortEntry* sortEntry, uint32_t index) {
                     CMapRenderChunk* renderChunk = chunk->m_renderChunk;
 
                     if (renderChunk) {
-                        uint32_t layerCount = (renderChunk->m_batchFlags & CMapRenderChunk::BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED) ? renderChunk->m_layersCount : 0;
+                        uint32_t layerCount = (renderChunk->m_batchFlags & CMapRenderChunk::BATCH_FLAGS::BATCH_LAYER_TEXTURES_LOADED) ? renderChunk->m_nLayers : 0;
                         uint32_t variant = 0;
 
                         if (layerCount) {
-                            uint32_t flags = renderChunk->m_renderFlags;
+                            uint32_t flags = renderChunk->m_layerFlags;
                             variant = (flags & CMapRenderChunk::RENDER_FLAGS::FLAG_UNLIT_LAYERS) ? ((flags & CMapRenderChunk::RENDER_FLAGS::FLAG_SPECULAR) | 2) >> 1 : (flags >> 1) & 2;
                         }
 

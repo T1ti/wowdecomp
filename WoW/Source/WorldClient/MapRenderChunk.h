@@ -34,7 +34,7 @@ class CMapChunkBuf {
     /* 0008 */ CMapRenderChunk* m_renderChunk;
     /* 000C */ CMapChunkBufBlock* m_block;
     /* 0010 */ uint32_t m_batchFlags; // BATCH_PAIR_* bits of the owning render chunk
-    /* 0014 */ TSLink<CMapChunkBuf> m_freeLink;
+    /* 0014 */ TSLink<CMapChunkBuf> m_link;
 
     CMapChunkBuf();
 };
@@ -43,7 +43,7 @@ class CMapChunkBufBlock {
     public:
     /* 0000 */ uint32_t m_vertexCount;
     /* 0004 */ CMapChunkBuf m_bufs [2];
-    /* 003C */ TSLink<CMapChunkBufBlock> m_blockLink;
+    /* 003C */ TSLink<CMapChunkBufBlock> m_link;
     /* 0044 */ TSLink<CMapChunkBufBlock> m_bufLink;
 
     CMapChunkBufBlock();
@@ -69,7 +69,7 @@ class CMapRenderChunk {
         FLAG_UNLIT_LAYERS = 0x1,
         FLAG_SPECULAR = 0x4,
         FLAG_BLEND_MIP1 = 0x8,
-        FLAG_REQUEST_BLEND_MIP1 = 0x10,
+        LayerFlags_ShouldMip = 0x10,
         FLAG_LAYER_TEXTURES_DIRTY = 0x20,
         FLAG_TEXTURE_UPDATE_REQUESTS = 0x30,
     };
@@ -93,8 +93,8 @@ class CMapRenderChunk {
     static CGxPool* s_gxVertexPool;
     static CGxPool* s_gxIndexPool;
     static TSGrowableArray<CMapChunkBufBlock> s_chunkBlockArray;
-    static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_freeLink)> s_renderChunkBufFreeList;
-    static TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_blockLink)> s_chunkBufBlockFreeList;
+    static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> s_renderChunkBufFreeList;
+    static TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_link)> s_chunkBufBlockFreeList;
     static TSExplicitList<CMapChunkBufBlock, offsetof(CMapChunkBufBlock, m_bufLink)> s_bufList;
     static CGxBatch s_chunkBatch;
     static uint32_t s_defaultTex[8192];
@@ -149,16 +149,16 @@ class CMapRenderChunk {
 
     /* 0000 */ TSLink<CMapRenderChunk> m_renderChunkLink;
     /* 0008 */ uint8_t m_batchFlags; // BATCH_FLAGS
-    /* 0009 */ uint8_t m_layersCount;
-    /* 000A */ int16_t m_renderFlags;
+    /* 0009 */ uint8_t m_nLayers;
+    /* 000A */ int16_t m_layerFlags;
     /* 000C */ float m_lastUpdateTime;
-    /* 0010 */ CMapChunk* m_mapChunks [MAP_CHUNKS_PER_RENDER_BATCH];
+    /* 0010 */ CMapChunk* m_chunks [MAP_CHUNKS_PER_RENDER_BATCH];
     /* 0018 */ C3Vector m_vec1;
     /* 0024 */ CAaSphere m_sphere;
     /* 0034 */ CMapRenderChunkLayer m_layers [4];
-    /* 0084 */ CTexture* m_terrainBlendTexture;
+    /* 0084 */ CTexture* m_shaderTexture;
     /* 0088 */ CTexture* m_shadowTexture;
-    /* 008C */ CMapChunkBuf* m_chunkBuf;
+    /* 008C */ CMapChunkBuf* m_buf;
     /* 0090 */ CGxBatch m_batch;
 
     ~CMapRenderChunk();
@@ -181,7 +181,7 @@ class CMapRenderChunk {
     void UnpackAlphaShadowBits(void* dstBase, int32_t dstOffset, int32_t dstPitch, uint32_t size, SLayerAlpha* cursors, int32_t alphaSlot, uint8_t* shadowMap, int32_t genFormat, int32_t doNotFixAlphaMap);
     void UnpackAlphaBitsFixed8888Mip0(CImVector* dst, uint32_t size, uint8_t* shadowMap);
     void UnpackAlphaBitsFixed8888Mip1(CImVector* dst, uint32_t size, uint8_t* shadowMap);
-    void UnpackAlphaBits(void* dst, uint32_t size, SLayerAlpha* layerInfo, uint8_t* shadowMap, int32_t layerMode, int32_t bigAlpha);
+    void UnpackAlphaBits(void* pixels, uint32_t size, SLayerAlpha* layerAlpha, uint8_t* shadowMap, int32_t layerMode, int32_t bigAlpha);
     void RenderSetup(BOOL useVertexShader);
     void RenderSolid();
     void RenderSolidVertexPixelShader();
@@ -241,7 +241,7 @@ struct SMMapHeader {
 
 struct CMapRenderChunk::SLayerAlpha {
     /* 0000 */ uint32_t m_flags;
-    /* 0004 */ uint8_t* m_alphaData;
+    /* 0004 */ uint8_t* m_alpha;
 };
 
 #endif

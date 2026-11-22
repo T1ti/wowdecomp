@@ -254,7 +254,7 @@ class CMap {
     static uint32_t* chunkLiquidHeap;
     static FVBBList s_vbbList;
     static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkFreeList;
-    static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_freeLink)> s_chunkBufFreeList;
+    static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> s_chunkBufFreeList;
     static TSList<CMapArea, TSGetExplicitLink<CMapArea> > s_allocatedAreas;
     static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > s_mapChunkList;
     static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > s_mapChunkSortList;

@@ -115,7 +115,7 @@ FVBBList CMap::s_vbbList;
 TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> CMap::s_mapRenderChunkFreeList;
 
 // STATIC: 0x00AEED80
-TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_freeLink)> CMap::s_chunkBufFreeList;
+TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> CMap::s_chunkBufFreeList;
 
 // STATIC: 0x00AEED8C
 TSList<CMapArea, TSGetExplicitLink<CMapArea> > CMap::s_allocatedAreas = TSExplicitList<CMapArea, offsetof(CMapArea, m_lameAssLink)>();
@@ -1945,7 +1945,7 @@ void CMap::ProcessRenderChunkUpdateList() {
             renderChunk->FreeBuf();
         }
 
-        if (!renderChunk->m_chunkBuf) {
+        if (!renderChunk->m_buf) {
             renderChunk->m_renderChunkLink.Unlink();
         }
 
