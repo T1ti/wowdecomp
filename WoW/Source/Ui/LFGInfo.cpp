@@ -140,14 +140,16 @@ bool CGLookingForGroup::HasRaidDungeon(LFGInfo* info) {
 // VERIFY: 9c153620 manual
 // OFFSET: 0x005536A0
 static int QSortLFGDungeons(const void* a, const void* b) {
-    const CGLookingForGroup::LFGEntryInfo* left = static_cast<const CGLookingForGroup::LFGEntryInfo*>(a);
-    const CGLookingForGroup::LFGEntryInfo* right = static_cast<const CGLookingForGroup::LFGEntryInfo*>(b);
-    int32_t leftID = left->m_id;
-    int32_t rightID = right->m_id;
+    const CGLookingForGroup::LFGEntryInfo* info1 = static_cast<const CGLookingForGroup::LFGEntryInfo*>(a);
+    const CGLookingForGroup::LFGEntryInfo* info2 = static_cast<const CGLookingForGroup::LFGEntryInfo*>(b);
+    STORM_ASSERT(info1 && info2);
+
+    int32_t leftID = info1->m_id;
+    int32_t rightID = info2->m_id;
     bool leftIsGroup = leftID < 0;
     bool rightIsGroup = rightID < 0;
-    int32_t leftGroupID = leftIsGroup ? -leftID : left->m_order;
-    int32_t rightGroupID = rightIsGroup ? -rightID : right->m_order;
+    int32_t leftGroupID = leftIsGroup ? -leftID : info1->m_order;
+    int32_t rightGroupID = rightIsGroup ? -rightID : info2->m_order;
 
     if (leftGroupID != rightGroupID) {
         int32_t leftOrder = -1;
@@ -172,23 +174,25 @@ static int QSortLFGDungeons(const void* a, const void* b) {
         return 2 * !leftIsGroup - 1;
     }
 
-    LfgDungeonsRec* leftRec = g_lfgDungeonsDB.GetRecord(leftID);
-    LfgDungeonsRec* rightRec = g_lfgDungeonsDB.GetRecord(rightID);
+    LfgDungeonsRec* rec1 = g_lfgDungeonsDB.GetRecord(leftID);
+    LfgDungeonsRec* rec2 = g_lfgDungeonsDB.GetRecord(rightID);
+    STORM_ASSERT(rec1);
+    STORM_ASSERT(rec2);
 
-    if (leftRec->m_orderIndex != rightRec->m_orderIndex) {
-        return leftRec->m_orderIndex - rightRec->m_orderIndex;
+    if (rec1->m_orderIndex != rec2->m_orderIndex) {
+        return rec1->m_orderIndex - rec2->m_orderIndex;
     }
 
-    LfgDungeonExpansionRec* leftExpansion = GetLfgDungeonExpansionRec(leftRec->m_id, ClientServices::Connection()->m_accountExpansion);
-    LfgDungeonExpansionRec* rightExpansion = GetLfgDungeonExpansionRec(rightRec->m_id, ClientServices::Connection()->m_accountExpansion);
-    int32_t leftLevel = leftExpansion ? leftExpansion->m_hardLevelMin + leftExpansion->m_hardLevelMax : leftRec->m_minLevel + leftRec->m_maxLevel;
-    int32_t rightLevel = rightExpansion ? rightExpansion->m_hardLevelMin + rightExpansion->m_hardLevelMax : rightRec->m_minLevel + rightRec->m_maxLevel;
+    LfgDungeonExpansionRec* leftExpansion = GetLfgDungeonExpansionRec(rec1->m_id, ClientServices::Connection()->m_accountExpansion);
+    LfgDungeonExpansionRec* rightExpansion = GetLfgDungeonExpansionRec(rec2->m_id, ClientServices::Connection()->m_accountExpansion);
+    int32_t leftLevel = leftExpansion ? leftExpansion->m_hardLevelMin + leftExpansion->m_hardLevelMax : rec1->m_minLevel + rec1->m_maxLevel;
+    int32_t rightLevel = rightExpansion ? rightExpansion->m_hardLevelMin + rightExpansion->m_hardLevelMax : rec2->m_minLevel + rec2->m_maxLevel;
 
     if (leftLevel / 2 != rightLevel / 2) {
         return leftLevel / 2 - rightLevel / 2;
     }
 
-    return SStrCmpUTF8I(leftRec->m_name, rightRec->m_name, STORM_MAX_STR);
+    return SStrCmpUTF8I(rec1->m_name, rec2->m_name, STORM_MAX_STR);
 }
 
 // VERIFY: 2c369f9d manual
@@ -238,15 +242,15 @@ void CGLookingForGroup::UpdateLFDEntries() {
 
     CGLookingForGroup::m_lfdEntries.SetCount(count);
 
-    uint32_t index = 0;
+    uint32_t currNum = 0;
 
     for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && (rec->m_flags & LFG_DUNGEON_FLAG_LFD_LISTED) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
-            CGLookingForGroup::m_lfdEntries.m_data[index].m_id = rec->m_id;
-            CGLookingForGroup::m_lfdEntries.m_data[index].m_order = rec->m_groupID;
-            index++;
+            CGLookingForGroup::m_lfdEntries.m_data[currNum].m_id = rec->m_id;
+            CGLookingForGroup::m_lfdEntries.m_data[currNum].m_order = rec->m_groupID;
+            currNum++;
         }
     }
 
@@ -254,11 +258,13 @@ void CGLookingForGroup::UpdateLFDEntries() {
         LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID) {
-            CGLookingForGroup::m_lfdEntries.m_data[index].m_id = -rec->m_id;
-            CGLookingForGroup::m_lfdEntries.m_data[index].m_order = rec->m_parentGroupID;
-            index++;
+            CGLookingForGroup::m_lfdEntries.m_data[currNum].m_id = -rec->m_id;
+            CGLookingForGroup::m_lfdEntries.m_data[currNum].m_order = rec->m_parentGroupID;
+            currNum++;
         }
     }
+
+    STORM_ASSERT(currNum == count);
 
     qsort(CGLookingForGroup::m_lfdEntries.m_data, count, sizeof(CGLookingForGroup::LFGEntryInfo), QSortLFGDungeons);
 }
@@ -284,15 +290,15 @@ void CGLookingForGroup::UpdateLFREntries() {
 
     CGLookingForGroup::m_lfrEntries.SetCount(count);
 
-    uint32_t index = 0;
+    uint32_t currNum = 0;
 
     for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
-            CGLookingForGroup::m_lfrEntries.m_data[index].m_id = rec->m_id;
-            CGLookingForGroup::m_lfrEntries.m_data[index].m_order = rec->m_groupID;
-            index++;
+            CGLookingForGroup::m_lfrEntries.m_data[currNum].m_id = rec->m_id;
+            CGLookingForGroup::m_lfrEntries.m_data[currNum].m_order = rec->m_groupID;
+            currNum++;
         }
     }
 
@@ -300,11 +306,13 @@ void CGLookingForGroup::UpdateLFREntries() {
         LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecordByIndex(i);
 
         if (rec) {
-            CGLookingForGroup::m_lfrEntries.m_data[index].m_id = -rec->m_id;
-            CGLookingForGroup::m_lfrEntries.m_data[index].m_order = rec->m_parentGroupID;
-            index++;
+            CGLookingForGroup::m_lfrEntries.m_data[currNum].m_id = -rec->m_id;
+            CGLookingForGroup::m_lfrEntries.m_data[currNum].m_order = rec->m_parentGroupID;
+            currNum++;
         }
     }
+
+    STORM_ASSERT(currNum == count);
 
     qsort(CGLookingForGroup::m_lfrEntries.m_data, count, sizeof(CGLookingForGroup::LFGEntryInfo), QSortLFGDungeons);
 }
@@ -1422,19 +1430,19 @@ void CGLookingForGroup::UpdateRandomDungeons() {
     }
 
     CGLookingForGroup::m_randomDungeons.SetCount(count);
-    uint32_t index = 0;
+    uint32_t currIndex = 0;
 
     for (int32_t i = 0; i < numRecords; i++) {
         LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_nNumRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
         uint32_t slot = (rec->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
         if (rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON) {
-            CGLookingForGroup::m_randomDungeons.m_data[index++] = slot;
+            CGLookingForGroup::m_randomDungeons.m_data[currIndex++] = slot;
         } else if (rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY) {
             for (LFGDungeonEntry* entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Head(); entry; entry = CGLookingForGroup::m_playerLockInfo.m_dungeons.Next(entry)) {
                 if (entry->m_slot == slot) {
                     if (!entry->m_locked) {
-                        CGLookingForGroup::m_randomDungeons.m_data[index++] = slot;
+                        CGLookingForGroup::m_randomDungeons.m_data[currIndex++] = slot;
                     }
 
                     break;
@@ -1442,6 +1450,8 @@ void CGLookingForGroup::UpdateRandomDungeons() {
             }
         }
     }
+
+    STORM_ASSERT(currIndex == count);
 
     CGLookingForGroup::UpdateRandomDungeonBestChoice();
 }
