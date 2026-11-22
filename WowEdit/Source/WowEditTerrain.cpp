@@ -8,6 +8,10 @@
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Gx/CGxTexFlags.h"
+#include "Engine/Source/Base/Coordinate.h"
+#include "Engine/Source/Frame/CSimpleTop.h"
+#include "Engine/Source/Services/Camera.h"
+#include "WoW/Source/Ui/WorldFrame.h"
 #include <cmath>
 #include <cstring>
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -148,16 +152,45 @@ static CGxTex* BrushTexture() {
     return s_brushTexture;
 }
 
-// The terrain point under the cursor: the picking segment of CGWorldFrame::OnLayerUpdate (WorldEditHooks.h) against
-// the terrain alone, so that the brush passes under buildings, doodads and units to the ground they stand on.
+// The terrain point under the cursor, against the terrain alone, so that the brush passes under buildings, doodads and
+// units to the ground they stand on.
+//
+// The picking segment CGWorldFrame::OnLayerUpdate leaves (WorldEditHooks.h) only says whether the cursor is over the
+// world: it is built in the update, from the camera of that moment, and the frame is then drawn from the camera of the
+// render. While the camera slides across the view (strafing, jumping, flying up), the two differ by about a frame's
+// movement and a brush placed from the update's segment wavers between two places, a ghost. So the segment is built
+// again here, from the cursor's position in the world frame's viewport, the way CGWorldFrame::GetLineSegment does it,
+// but with the view and projection this frame is drawn with (CameraGetLineSegment reads the device's): camera-relative,
+// so the camera origin the scene is drawn around (CWorldScene::s_activeWorldView) is added.
 static void UpdateBrushPoint() {
     C3Vector start;
     C3Vector end;
     s_brushPointValid = false;
+    CGWorldFrame* frame = CGWorldFrame::s_currentWorldFrame;
 
-    if (!WorldEditGetCursorSegment(&start, &end)) {
+    if (!WorldEditGetCursorSegment(&start, &end) || !frame || !frame->m_simpleTop) {
         return;
     }
+
+    float x;
+    float y;
+    NDCToDDC(frame->m_simpleTop->m_mousePosition.m_x, frame->m_simpleTop->m_mousePosition.m_y, &x, &y);
+    const CRect& viewport = frame->m_viewportDDC;
+
+    if (viewport.maxX <= viewport.minX || viewport.maxY <= viewport.minY) {
+        return;
+    }
+
+    x = (x - viewport.minX) / (viewport.maxX - viewport.minX);
+    y = (y - viewport.minY) / (viewport.maxY - viewport.minY);
+
+    if (x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f) {
+        return;
+    }
+
+    CameraGetLineSegment(x, y, &start, &end);
+    start += CWorldScene::s_activeWorldView;
+    end += CWorldScene::s_activeWorldView;
 
     C3Vector hit;
     float distance = 1.0f;
