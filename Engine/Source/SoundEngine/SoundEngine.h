@@ -120,11 +120,11 @@ class SEStreamCallbacks {
 
 class SEWaveDataNode : public TSLinkedNode<SEWaveDataNode> {
     public:
-    /* 0008 */ FMOD::Sound* m_sound;
+    /* 0008 */ FMOD::Sound* pSound;
     /* 000C */ BOOL m_loaded;
     /* 0010 */ char m_name[128];
     /* 0090 */ uint32_t m_hash;
-    /* 0094 */ int32_t m_refCount;
+    /* 0094 */ int32_t nRefCount;
     /* 0098 */ uint32_t m_size;
 
     SEWaveDataNode();
@@ -134,15 +134,15 @@ class SEWaveDataNode : public TSLinkedNode<SEWaveDataNode> {
 class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     public:
     /* 0010 */ FMOD::System* m_system;
-    /* 0014 */ FMOD::Channel* m_channel;
+    /* 0014 */ FMOD::Channel* m_pFMODChannel;
     /* 0018 */ SESound* m_handle;
     /* 001C */ SESoundUserData* m_userData;
     /* 0020 */ float m_volume;
     /* 0024 */ float m_fadeVolume;
     /* 0028 */ float m_fadeInTime;
     /* 002C */ float m_fadeOutTime;
-    /* 0030 */ uint8_t m_fadingIn;
-    /* 0031 */ uint8_t m_fadingOut;
+    /* 0030 */ uint8_t m_bFadingIn;
+    /* 0031 */ uint8_t m_bFadingOut;
     /* 0034 */ uint32_t m_playTime;
     /* 0038 */ int32_t m_cached;
     /* 003C */ SESOUNDTYPE m_type;
@@ -173,7 +173,7 @@ class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     /* 00B8 */ void* m_finishedParam2;
     /* 00BC */ void (*m_fadeOutCallback)(SESound*);
     /* 00C0 */ void (*m_dspChainCallback)(FMOD::Channel*, char*);
-    /* 00C4 */ char* m_dspChainName;
+    /* 00C4 */ char* m_pszCustomDSPChainName;
     /* 00C8 */ uint64_t m_objectGUID;
     /* 00D0 */ uint32_t m_id;
 
@@ -193,11 +193,11 @@ class SEFileSound : public SESoundInternal {
     /* 00E0 */ SFileImpl* m_file;
     /* 00E4 */ uint32_t unused_00E4;
     /* 00E8 */ uint32_t unused_00E8;
-    /* 00EC */ FMOD::Sound* m_sound;
+    /* 00EC */ FMOD::Sound* m_pFMODSound;
     /* 00F0 */ FMOD::SoundGroup* m_loadSoundGroup;
     /* 00F4 */ FMOD::SoundGroup* m_soundGroup;
     /* 00F8 */ uint8_t m_loadCompleted;
-    /* 00FC */ SEWaveDataNode* m_waveData;
+    /* 00FC */ SEWaveDataNode* m_pSoundCacheNode;
 
     virtual ~SEFileSound();
     virtual BOOL IsReadyForRelease();
@@ -236,14 +236,14 @@ struct SOUND_INTERNAL_LOOKUP : public TSHashObject<SOUND_INTERNAL_LOOKUP, HASHKE
 
 class SESound {
     public:
-    /* 0000 */ SESoundInternal* m_internal;
+    /* 0000 */ SESoundInternal* m_pMySESound;
 
     SESound();
     ~SESound();
     void AttachToObject(uint64_t guid);
     void CompleteNonBlockingLoad();
-    int32_t Create2D(const char* filename, int32_t looping, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, bool streaming, int32_t reverb, int32_t priority, uint32_t decodeBufferSize);
-    int32_t Create3D(const char* filename, int32_t looping, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, bool streaming, int32_t priority, int32_t software, float coneInsideAngle, float coneOutsideAngle, float coneOutsideVolume, const C3Vector* coneOrientation);
+    int32_t Create2D(const char* pszFilename, int32_t looping, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, bool streaming, int32_t reverb, int32_t priority, uint32_t decodeBufferSize);
+    int32_t Create3D(const char* pszFilename, int32_t looping, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, bool streaming, int32_t priority, int32_t software, float coneInsideAngle, float coneOutsideAngle, float coneOutsideVolume, const C3Vector* coneOrientation);
     void CreateChatSound(SEStreamCallbacks* callbacks, int32_t chatSystem);
     void Detach();
     void FadeInNow();
@@ -259,7 +259,7 @@ class SESound {
     void Set3DMinMaxDistance(float minDistance, float maxDistance);
     void Set3DPanLevel(float level);
     void Set3DPosition(const C3Vector& position);
-    void SetAttachCustomDSPChainCallback(void (*callback)(FMOD::Channel*, char*), const char* name);
+    void SetAttachCustomDSPChainCallback(void (*fpCallback)(FMOD::Channel*, char*), const char* pszCustomDSPChainName);
     void SetChannelGroup(const char* name, bool childOfMaster);
     void SetFadeInTime(float seconds);
     void SetFadeOutTime(float seconds);
@@ -267,7 +267,7 @@ class SESound {
     void SetFinishedCallback2(void (*callback)(SESound*, void*), void* param);
     void SetPitch(float pitch);
     void SetPosition(uint32_t position);
-    void SetUserData(SESoundUserData* userData);
+    void SetUserData(SESoundUserData* pUserData);
     void SetVolume(float volume);
     void Stop(BOOL immediate, float fadeOutTime);
 };
@@ -287,7 +287,7 @@ class SE2 {
     static FMOD::ChannelGroup* CreateChannelGroup(const char* name);
     static FMOD_RESULT CreateDSPByType(FMOD_DSP_TYPE type, FMOD::DSP** dsp);
     static FMOD::SoundGroup* CreateSoundGroup(const char* name, int32_t maxAudible);
-    static int32_t CreateWaveData(FMOD::System* system, const char* filename, FMOD_MODE mode, SESound* sound, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, int32_t priority, int32_t reverb, bool streaming, uint32_t decodeBufferSize, int32_t software, float coneInsideAngle, float coneOutsideAngle, float coneOutsideVolume, const C3Vector* coneOrientation);
+    static int32_t CreateWaveData(FMOD::System* pSystem, const char* filename, FMOD_MODE mode, SESound* pSoundHandle, FMOD::SoundGroup* loadSoundGroup, FMOD::SoundGroup* soundGroup, bool randomStart, int32_t priority, int32_t reverb, bool streaming, uint32_t decodeBufferSize, int32_t software, float coneInsideAngle, float coneOutsideAngle, float coneOutsideVolume, const C3Vector* coneOrientation);
     static FMOD_RESULT DestroyChannelGroup(FMOD::ChannelGroup* channelGroup);
     static void DestroyChatSystem();
     static FMOD_RESULT DspDestroy(FMOD::DSP* dsp);
@@ -323,8 +323,8 @@ class SE2 {
     static void Log_Write(uint32_t line, const char* file, FMOD_RESULT result, const char* format, ...);
     static void MuteAllSound(bool mute);
     static void MuteChannelGroup(const char* name, bool mute);
-    static void PlaySoundFromMemory(FMOD::System* system, const char* data, uint32_t length, FMOD_MODE mode, SESound* sound);
-    static void CreateChatSound(FMOD::System* system, SEStreamCallbacks* callbacks, FMOD_MODE mode, SESound* sound);
+    static void PlaySoundFromMemory(FMOD::System* pSystem, const char* data, uint32_t length, FMOD_MODE mode, SESound* pSoundHandle);
+    static void CreateChatSound(FMOD::System* pSystem, SEStreamCallbacks* callbacks, FMOD_MODE mode, SESound* pSoundHandle);
     static FMOD_RESULT ReleaseSoundGroup(FMOD::SoundGroup* soundGroup);
     static void SetAlternateCaptureCallback(SECaptureCallbacks* callbacks);
     static void SetChannelGroupVolume(const char* name, float volume);
