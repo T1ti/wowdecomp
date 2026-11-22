@@ -494,8 +494,8 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
     SMOPortalRef* refs = &this->m_portalRefList[group->m_portalStart];
     SMOLTile* tile = group->m_liquidTileList;
 
-    for (int32_t y = 0; y < group->m_liquidTiles.y; y++) {
-        for (int32_t x = 0; x < group->m_liquidTiles.x; x++, tile++) {
+    for (int32_t y = 0; y < group->liquidTiles.y; y++) {
+        for (int32_t x = 0; x < group->liquidTiles.x; x++, tile++) {
             if ((tile->m_flags & SMOLTile::LIQUID_TYPE_MASK) == SMOLTile::LIQUID_TYPE_NONE || !(tile->m_flags & SMOLTile::SHARED_MASK)) {
                 continue;
             }
@@ -522,7 +522,7 @@ uint16_t CMapObj::ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix
                 SMOPortalRef& ref = refs[p];
                 CMapObjGroup* other = this->GetGroup(ref.m_groupIndex, 0);
 
-                if (other && other->m_liquidCorner.x < points[2].x && other->m_liquidCorner.y < points[2].y && other->m_liquidTiles.x * SMOLTILE_SIZE + other->m_liquidCorner.x > points[0].x && SMOLTILE_SIZE * other->m_liquidTiles.y + other->m_liquidCorner.y > points[0].y) {
+                if (other && other->m_liquidCorner.x < points[2].x && other->m_liquidCorner.y < points[2].y && other->liquidTiles.x * SMOLTILE_SIZE + other->m_liquidCorner.x > points[0].x && SMOLTILE_SIZE * other->liquidTiles.y + other->m_liquidCorner.y > points[0].y) {
                     clipper.Clip(this->m_portalList[ref.m_portalIndex].m_plane, ref.m_side);
                 }
             }
@@ -1156,7 +1156,7 @@ void CMapObj::RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<
         CWorldScene::FrustumSet(frustum);
         CWorldScene::FrustumXform(matrix);
 
-        if (group->m_colorVertexList) {
+        if (group->cvertexList) {
             (this->*CMapObj::s_renderGroupInterior)(group, index);
         } else {
             (this->*CMapObj::s_renderGroupExterior)(group, index);
@@ -2476,7 +2476,7 @@ void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint
     uint32_t sharedRow = 0;
     int32_t outRow = 0;
 
-    for (int32_t y = 0; y < group->m_liquidTiles.y; y++) {
+    for (int32_t y = 0; y < group->liquidTiles.y; y++) {
         int32_t duplicate = 0;
 
         if (sharedRow < sharedVerts[1].m_count && sharedVerts[1].m_data[sharedRow] == y) {
@@ -2491,8 +2491,8 @@ void CMapObj::BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint
             uint16_t bottom = nextRow + top;
             uint32_t sharedCol = 0;
 
-            for (int32_t x = 0; x < group->m_liquidTiles.x; x++) {
-                uint8_t flags = group->m_liquidTileList[group->m_liquidTiles.x * y + x].m_flags;
+            for (int32_t x = 0; x < group->liquidTiles.x; x++) {
+                uint8_t flags = group->m_liquidTileList[group->liquidTiles.x * y + x].m_flags;
                 BOOL visible = (flags & SMOLTile::LIQUID_TYPE_MASK) != SMOLTile::LIQUID_TYPE_NONE && !(flags & SMOLTile::SHARED_MASK) ? 1 : 0;
                 int32_t duplicateCol = 0;
 
@@ -3490,7 +3490,7 @@ void __stdcall CMapObj::RenderGroupCollidableFaces(CMapObjGroup* mapObjGroup) {
 void CMapObj::RenderGroupLightmapTex(CMapObjGroup* group, uint32_t index) {
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_Lighting, 0);
-    GxPrimVertexPtr(group->m_vertexListCount, group->m_vertexList, 12, nullptr, 0, group->m_colorVertexList, 4, nullptr, 0, nullptr, 0);
+    GxPrimVertexPtr(group->m_vertexListCount, group->m_vertexList, 12, nullptr, 0, group->cvertexList, 4, nullptr, 0, nullptr, 0);
 
     if (group->m_stripIndices && CMap::s_enableTriangleStrips) {
         GxPrimIndexPtr(group->m_stripIndexCount, group->m_stripIndices);
@@ -3876,7 +3876,7 @@ void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
         vertices->m_normal.x = group->m_normalList[i].x;
         vertices->m_normal.y = group->m_normalList[i].y;
         vertices->m_normal.z = group->m_normalList[i].z;
-        color.b = group->m_colorVertexList[i].a; // Visualize source vertex alpha as opaque grayscale.
+        color.b = group->cvertexList[i].a; // Visualize source vertex alpha as opaque grayscale.
         color.g = color.b;
         color.r = color.b;
         vertices->m_color = color;

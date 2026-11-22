@@ -34,7 +34,7 @@ void CMapObjGroup::FixColorVertexAlpha() {
     uint32_t firstExterior = this->m_transparencyBatchesCount ? this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1 : 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_colorVertexListSize); i++) {
-        CImVector& color = this->m_colorVertexList[i];
+        CImVector& color = this->cvertexList[i];
 
         if (i >= firstExterior) {
             uint32_t alpha = color.a;
@@ -215,7 +215,7 @@ CMapObjGroup* CMapObj::AttenTransVerts(CMapObjGroup* group) {
 
     for (uint32_t i = 0; i <= vertexEnd; i++) {
         C3Vector& vert = group->m_vertexList[i];
-        CImVector& color = group->m_colorVertexList[i];
+        CImVector& color = group->cvertexList[i];
         float atten = 0.0f;
 
         if (group->m_portalCount) {
@@ -318,7 +318,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
 
     if (this->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_VERTEX_COLORS) {
         CMapObj* parent = this->m_parent;
-        this->m_colorVertexList = reinterpret_cast<CImVector*>(&chunk->m_data);
+        this->cvertexList = reinterpret_cast<CImVector*>(&chunk->m_data);
         this->m_colorVertexListSize = chunk->m_size >> 2;
         chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
 
@@ -331,8 +331,8 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         uint32_t* header = reinterpret_cast<uint32_t*>(&chunk->m_data);
         this->m_liquidVerts.x = header[0];
         this->m_liquidVerts.y = header[1];
-        this->m_liquidTiles.x = header[2];
-        this->m_liquidTiles.y = header[3];
+        this->liquidTiles.x = header[2];
+        this->liquidTiles.y = header[3];
         this->m_liquidCorner = *reinterpret_cast<C3Vector*>(&header[4]);
 
         uint16_t materialId = *reinterpret_cast<uint16_t*>(&header[7]);
@@ -340,7 +340,7 @@ void CMapObjGroup::CreateOptionalDataPointers(SIffChunk* dataChunk) {
         this->m_liquidVertexList = reinterpret_cast<SMOLVert*>(data);
         data += 8 * this->m_liquidVerts.x * this->m_liquidVerts.y;
         this->m_liquidTileList = reinterpret_cast<SMOLTile*>(data);
-        data += this->m_liquidTiles.x * this->m_liquidTiles.y;
+        data += this->liquidTiles.x * this->liquidTiles.y;
         chunk = reinterpret_cast<SIffChunk*>(data);
         this->m_liquidMaterialId = materialId;
 

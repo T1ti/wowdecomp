@@ -189,7 +189,7 @@ int32_t MapObjGroupToBin(const CMapObjGroup& group, TSGrowableArray<uint8_t>& ou
 
     if (group.m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_VERTEX_COLORS) {
         // TODO: MOCV. Unless the root has SMOHeader::NO_VERTEX_ALPHA_FIX the reader rewrites the colors in place
-        // (FixColorVertexAlpha), so writing m_colorVertexList as is does not give back the file values.
+        // (FixColorVertexAlpha), so writing cvertexList as is does not give back the file values.
     }
 
     if (group.m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) {

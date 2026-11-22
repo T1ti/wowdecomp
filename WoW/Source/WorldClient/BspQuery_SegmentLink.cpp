@@ -41,7 +41,7 @@ void BspQuery_SegmentLink::operator()(uint16_t face) {
         return;
     }
 
-    if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
+    if (BspQuery::testFaceSub >= BspQuery::MAX_FACES) {
         return;
     }
 
@@ -203,7 +203,7 @@ bool BspQuery_SegmentLink::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const C
             continue;
         }
 
-        if (BspQuery::testFaceSub >= BspQuery::FACE_CAPACITY) {
+        if (BspQuery::testFaceSub >= BspQuery::MAX_FACES) {
             continue;
         }
 

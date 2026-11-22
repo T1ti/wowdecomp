@@ -101,8 +101,8 @@ void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf**
     uint32_t vertexCount = (sharedRows + this->m_mapObjGroup->m_liquidVerts.y) * (sharedCols + this->m_mapObjGroup->m_liquidVerts.x) + 6 * sharedTiles;
     this->m_mapObjGroup->AllocLiquidVB(format, vertexCount, 3 * vertexCount, &this->m_batch);
 
-    *vertexBuf = this->m_mapObjGroup->m_liquidVertsBlock->m_buffer;
-    *indexBuf = this->m_mapObjGroup->m_liquidIndicesBlock->m_buffer;
+    *vertexBuf = this->m_mapObjGroup->m_liquidVertsBlock->buf;
+    *indexBuf = this->m_mapObjGroup->m_liquidIndicesBlock->buf;
 
     if (!(*vertexBuf)->m_hasData || !(*vertexBuf)->m_valid || !(*indexBuf)->m_hasData || !(*indexBuf)->m_valid) {
         char* vertices = g_theGxDevicePtr->BufLock(*vertexBuf);

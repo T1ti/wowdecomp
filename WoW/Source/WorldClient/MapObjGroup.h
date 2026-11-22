@@ -36,8 +36,6 @@ struct SMOLTile;
 struct SMOLVert;
 struct SMOMaterial;
 struct SMOPoly;
-class VBBList;
-class VBBList_Block;
 
 namespace World {
     struct LiquidQueryResult;
@@ -61,11 +59,11 @@ enum WORLD_TRI_POOL_LIMITS : int32_t {
 
 struct BspQuery {
     enum QueryLimits : int32_t {
-        FACE_CAPACITY = 8192,
+        MAX_FACES = 8192,
     };
 
-    static uint16_t testFaces[BspQuery::FACE_CAPACITY];
-    static uint16_t hitFaces[BspQuery::FACE_CAPACITY];
+    static uint16_t testFaces[BspQuery::MAX_FACES];
+    static uint16_t hitFaces[BspQuery::MAX_FACES];
     static uint32_t testFaceSub;
     static uint32_t hitFaceSub;
 
@@ -149,6 +147,35 @@ class CMapObjOccluder {
     /* 001C */ TSLink<CMapObjOccluder> m_link;
 };
 
+class VBBList {
+    public:
+    class Block {
+        public:
+        /* 0000 */ TSLink<VBBList::Block> m_link;
+        /* 0008 */ float unused_0008;
+        /* 000C */ uint32_t m_offset;
+        /* 0010 */ uint32_t m_capacity;
+        /* 0014 */ CGxPool* bufPool;
+        /* 0018 */ CGxBuf* buf;
+        /* 001C */ VBBList::Block** clientPtr;
+
+        void Set(uint32_t itemSize, uint32_t itemCount, uint32_t offset);
+    };
+
+    /* 0000 */ int32_t singlePool;
+    /* 0004 */ EGxPoolTarget m_target;
+    /* 0008 */ EGxPoolUsage m_usage;
+    /* 000C */ CGxPool* pool;
+    /* 0010 */ TSExplicitList<VBBList::Block, offsetof(VBBList::Block, m_link)> unk_0010;
+    /* 001C */ TSExplicitList<VBBList::Block, offsetof(VBBList::Block, m_link)> unk_001C;
+
+    void Destroy();
+    VBBList::Block* AllocBlock();
+    void AllocVBB(VBBList::Block** slot, uint32_t itemSize, uint32_t itemCount);
+    void FreeVBB(VBBList::Block* block);
+    void AssignBlock(VBBList::Block* block, VBBList::Block** slot, uint32_t itemSize, uint32_t itemCount);
+};
+
 class CMapObjGroup {
     public:
     // Liquid vertex-cull scratch limit, separate from the BSP face-buffer count.
@@ -210,11 +237,11 @@ class CMapObjGroup {
     static void AllocVertArray(CMapObjGroup::VertArray** vertArray, uint32_t count);
 
     /* 0000 */ int32_t m_objectIndex;
-    /* 0004 */ VBBList_Block* m_vertsBlock;
-    /* 0008 */ VBBList_Block* m_transparencyVertsBlock;
-    /* 000C */ VBBList_Block* m_indicesBlock;
-    /* 0010 */ VBBList_Block* m_liquidVertsBlock;
-    /* 0014 */ VBBList_Block* m_liquidIndicesBlock;
+    /* 0004 */ VBBList::Block* m_vertsBlock;
+    /* 0008 */ VBBList::Block* m_transparencyVertsBlock;
+    /* 000C */ VBBList::Block* m_indicesBlock;
+    /* 0010 */ VBBList::Block* m_liquidVertsBlock;
+    /* 0014 */ VBBList::Block* m_liquidIndicesBlock;
     /* 0018 */ float m_timer;
     /* 001C */ CMapObjGroup::VertArray* m_liquidVertArray;
     /* 0020 */ CGxBatch m_liquidBatch;
@@ -244,11 +271,11 @@ class CMapObjGroup {
     /* 00FC */ uint8_t* m_stripBatches;
     /* 0100 */ uint16_t* m_lightRefList;
     /* 0104 */ uint16_t* m_doodadRefList;
-    /* 0108 */ CImVector* m_colorVertexList;
+    /* 0108 */ CImVector* cvertexList;
     /* 010C */ CImVector* m_colorVertexListExtra;
     /* 0110 */ int32_t m_liquidVBRefCount;
     /* 0114 */ C2iVector m_liquidVerts;
-    /* 011C */ C2iVector m_liquidTiles;
+    /* 011C */ C2iVector liquidTiles;
     /* 0124 */ C3Vector m_liquidCorner;
     /* 0130 */ uint16_t m_liquidMaterialId;
     /* 0132 */ uint8_t unused_0132[2];
@@ -309,7 +336,7 @@ class CMapObjGroup {
     bool GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
-    void GetTrisFromQuery(World::TriData* triData, BspQuery* query, CMapObjDef* mapObjDef, uint32_t statusFlags);
+    void GetTrisFromQuery(World::TriData* triData, BspQuery& q, CMapObjDef* mapObjDef, uint32_t statusFlags);
     static void SetLighting(CMapObjGroup* group, uint32_t mode);
     bool Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, int32_t* hitIndex);
     bool GetFacesForLinking(C3Segment& seg, float* t0, int32_t* face0, float* t1, int32_t* face1);
@@ -324,10 +351,10 @@ class CMapObjGroup {
     bool GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetData* facets, CMapObjDef* mapObjDef);
     bool VectorIntersectLiquid(const C3Segment& seg, float* t, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool VectorIntersectLiquidTiles(const C3Segment& seg, float* t, uint32_t flags, uint32_t* tileCount, uint8_t* tiles, World::TriData* triData, CMapObjDef* mapObjDef);
-    void VectorIntersectLiquidSX(const C3Vector& start, const C3Vector& end, uint32_t* tileCount, uint8_t* tiles, uint32_t maxTiles);
-    void VectorIntersectLiquidSY(const C3Vector& start, const C3Vector& end, uint32_t* tileCount, uint8_t* tiles, uint32_t maxTiles);
-    void VectorIntersectLiquidDX(const C3Vector& start, const C3Vector& end, uint32_t* tileCount, uint8_t* tiles, uint32_t maxTiles);
-    void VectorIntersectLiquidDY(const C3Vector& start, const C3Vector& end, uint32_t* tileCount, uint8_t* tiles, uint32_t maxTiles);
+    void VectorIntersectLiquidSX(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
+    void VectorIntersectLiquidSY(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
+    void VectorIntersectLiquidDX(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
+    void VectorIntersectLiquidDY(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
 };
 
 struct SMOGroupHeader {
@@ -382,35 +409,6 @@ struct SMOLVert {
         /* 0000 */ SMOWVert m_waterVert;
         /* 0000 */ SMOMVert m_magmaVert;
     };
-};
-
-class VBBList_Block {
-    public:
-    /* 0000 */ TSLink<VBBList_Block> m_link;
-    /* 0008 */ float unused_0008;
-    /* 000C */ uint32_t m_offset;
-    /* 0010 */ uint32_t m_capacity;
-    /* 0014 */ CGxPool* m_pool;
-    /* 0018 */ CGxBuf* m_buffer;
-    /* 001C */ VBBList_Block** m_listHead;
-
-    void Set(uint32_t itemSize, uint32_t itemCount, uint32_t offset);
-};
-
-class VBBList {
-    public:
-    /* 0000 */ int32_t m_singlePool;
-    /* 0004 */ EGxPoolTarget m_target;
-    /* 0008 */ EGxPoolUsage m_usage;
-    /* 000C */ CGxPool* m_pool;
-    /* 0010 */ TSExplicitList<VBBList_Block, offsetof(VBBList_Block, m_link)> unk_0010;
-    /* 001C */ TSExplicitList<VBBList_Block, offsetof(VBBList_Block, m_link)> unk_001C;
-
-    void Destroy();
-    VBBList_Block* AllocBlock();
-    void AllocVBB(VBBList_Block** slot, uint32_t itemSize, uint32_t itemCount);
-    void FreeVBB(VBBList_Block* block);
-    void AssignBlock(VBBList_Block* block, VBBList_Block** slot, uint32_t itemSize, uint32_t itemCount);
 };
 
 namespace World {
