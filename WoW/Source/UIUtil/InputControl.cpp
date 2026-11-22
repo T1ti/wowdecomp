@@ -58,6 +58,7 @@ float s_vehicleAimNormPower;
 // VERIFY: 13a95e59 auto
 // OFFSET: 0x005F95D0
 CGInputControl* CGInputControl::GetActive() {
+    STORM_ASSERT(s_inputControl);
     return CGInputControl::s_inputControl;
 }
 
