@@ -9060,7 +9060,7 @@ bool CGUnit_C::GetFlashColor(uint32_t time, CImVector& color) {
 // OFFSET: 0x0071AE80
 BOOL CGUnit_C::IsFacingUnchangedSinceSent() const {
     if (fabs(this->GetRawFacing() - this->m_lastSentFacing) < MOUSE_LOOK_SEND_FACING_DELTA) {
-        if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+        if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING)) {
             return TRUE;
         }
 
@@ -10976,7 +10976,7 @@ int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value,
     CDataStore msg;
     this->m_lastSentFacing = this->GetRawFacing();
 
-    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING)) {
         this->m_lastSentPitch = this->GetPitch();
     }
 
@@ -11430,7 +11430,7 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
         case MSG_MOVE_START_PITCH_DOWN:
         case MSG_MOVE_STOP_PITCH:
         case MSG_MOVE_SET_PITCH:
-            if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+            if (!(this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && !(this->m_movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING)) {
                 return 0;
             }
 
@@ -11447,9 +11447,9 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
     int32_t sent = 0;
 
     if (send) {
-        if (msgId >= MSG_MOVE_START_TURN_LEFT && msgId <= MSG_MOVE_STOP_TURN && (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING)) {
+        if (msgId >= MSG_MOVE_START_TURN_LEFT && msgId <= MSG_MOVE_STOP_TURN && (this->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_TURNING)) {
             sent = this->HandleFloodsafeTurnEvent(eventTime, msgId);
-        } else if (msgId >= MSG_MOVE_START_PITCH_UP && msgId <= MSG_MOVE_STOP_PITCH && (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_PITCHING)) {
+        } else if (msgId >= MSG_MOVE_START_PITCH_UP && msgId <= MSG_MOVE_STOP_PITCH && (this->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_PITCHING)) {
             sent = this->HandleFloodsafePitchEvent(eventTime, msgId);
         } else if ((msgId == MSG_MOVE_SET_FACING || msgId == MSG_MOVE_SET_PITCH) && this->IsFacingUnchangedSinceSent()) {
             sent = 0;
@@ -12251,7 +12251,7 @@ int32_t CGUnit_C::OnMoveUnRoot(uint32_t time, const CMovementStatus& status) {
 // VERIFY: 9c252b1d auto
 // OFFSET: 0x007189A0
 int32_t CGUnit_C::OnUnitMoveEvent(uint32_t time, const CMovementStatus& status) {
-    if (this->m_vehiclePassenger && (status.m_moveExtraFlags & MOVEMENTFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM)) {
+    if (this->m_vehiclePassenger && (status.m_moveExtraFlags & MOVEFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM)) {
         this->VehiclePassengerStartWaitingForVehicleTransitionAnim(status.m_transportGuid.m_guid, status.m_transportSeat);
     }
 
@@ -20446,7 +20446,7 @@ void CGUnit_C::StopSwimming(uint32_t time, int32_t spline) {
 // VERIFY: 4865e105 manual
 // OFFSET: 0x00730D10
 void CGUnit_C::UpdateSwimmingStatus(uint32_t time, int32_t spline) {
-    if (this->m_movement->m_flags2 & MOVEMENTFLAG2_DISABLE_GRAVITY) {
+    if (this->m_movement->m_moveFlags2 & MOVEFLAG2_DISABLE_GRAVITY) {
         return;
     }
 
@@ -22456,7 +22456,7 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
     CGUnit_C::s_trackingDirection = facing;
     CGUnit_C::s_trackingGUID = *guid;
     CGUnit_C::s_trackingPosition = *position;
-    s_trackingTurnRate = (this->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : PI;
+    s_trackingTurnRate = (this->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_TURNING) ? this->m_movement->m_turnRate : PI;
     CGUnit_C::s_trackingStuckCount = 0;
     s_trackingInteractDistance = sqrt(s_trackingInteractDistanceSq);
     CGUnit_C::s_unknown_CA11D0 = 0.0f;
@@ -22839,7 +22839,7 @@ bool CGUnit_C::HandleTrackingFacing(float facing, float maxTurn, uint32_t time) 
 
     CMovementShared* movement = this->m_movement;
 
-    if (movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) {
+    if (movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_TURNING) {
         s_trackingTurnRate = movement->m_turnRate;
     } else if (PI == s_trackingTurnRate) {
         s_trackingTurnRate = (delta <= 2.0943952f || delta >= 4.1887903f ? 800.0f : 1200.0f) * DEG_TO_RAD;

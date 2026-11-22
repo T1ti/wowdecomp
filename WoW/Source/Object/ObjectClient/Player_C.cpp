@@ -3026,7 +3026,7 @@ void CGPlayer_C::UpdateActiveMoverDisplay(uint32_t time) {
         this->OnSetRawFacingLocal(time, CMath::normalizeangle0to2pi_(this->GetRawFacing() + offset));
     }
 
-    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+    if ((this->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (this->m_movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING)) {
         if (CGInputControl::GetActive()->CameraCanTurnPlayer() || !(this->m_movementData.m_flags & MOVEMENTFLAG_PITCH_MASK)) {
             this->OnSetPitchLocal(time, ClampPitch(this->GetPitch() + offset * 4.0f));
         }

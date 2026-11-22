@@ -243,7 +243,7 @@ int32_t CGUnit_C::VehiclePassengerShouldWaitForVehicleTransitionAnim(uint64_t tr
         return animVehicle->CanPlayBoneAnim(anim) ? 1 : 0;
     }
 
-    if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+    if (!(seatRec->m_flags & ((this->m_movementData.m_moveFlags2 & MovementFlags2::MOVEFLAG2_VEHICLE_EXIT_VOLUNTARY)
         ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT
         : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT))) {
         return 0;
@@ -307,7 +307,7 @@ int32_t CGUnit_C::VehiclePassengerStartWaitingForVehicleTransitionAnim(uint64_t 
             animVehicle->SetBoneAnimForceFacing(this->m_obj->m_guid, seatRec->m_field33512213034);
         }
     } else {
-        if (!(seatRec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+        if (!(seatRec->m_flags & ((this->m_movementData.m_moveFlags2 & MovementFlags2::MOVEFLAG2_VEHICLE_EXIT_VOLUNTARY)
             ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_VOLUNTARY_EXIT
             : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_HAS_VEHICLE_EXIT_ANIM_ON_FORCED_EXIT))
             || static_cast<uint32_t>(seatRec->m_vehicleExitAnim) > (ANIM_COUNT - 1)
@@ -478,7 +478,7 @@ void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat
 // VERIFY: c6051623 auto
 // OFFSET: 0x0074B9A0
 uint32_t CGUnit_C::IsStrafingDisabled() const {
-    return this->m_movementData.m_flags2 & MOVEMENTFLAG2_NO_STRAFE;
+    return this->m_movementData.m_moveFlags2 & MOVEFLAG2_NO_STRAFE;
 }
 
 // VERIFY: dcad4d49 auto
@@ -504,7 +504,7 @@ void CGUnit_C::OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWGUID
 BOOL CGUnit_C::ShouldUseVehicleSeatExitAnimation(const VehicleSeatRec* rec) const {
     STORM_ASSERT(rec);
 
-    return rec->m_flags & ((this->m_movementData.m_flags2 & MovementFlags2::MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY)
+    return rec->m_flags & ((this->m_movementData.m_moveFlags2 & MovementFlags2::MOVEFLAG2_VEHICLE_EXIT_VOLUNTARY)
         ? VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_VOLUNTARY_EXIT
         : VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_FORCED_EXIT);
 }

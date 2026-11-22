@@ -14,7 +14,7 @@ enum VEHICLE_SEAT_FLAGS : int32_t {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                     = 0x00000001,
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE                      = 0x00000002,
     VEHICLE_SEAT_FLAG_HAS_UPPER_ANIM_FOR_RIDE                      = 0x00000004,
-    // Exit mode follows MOVEMENTFLAG2_VEHICLE_EXIT_VOLUNTARY (0x40).
+    // Exit mode follows MOVEFLAG2_VEHICLE_EXIT_VOLUNTARY (0x40).
     // A cleared movement bit selects the forced-exit animation.
     VEHICLE_SEAT_FLAG_USE_EXIT_ANIM_ON_VOLUNTARY_EXIT              = 0x00000008,
     VEHICLE_SEAT_FLAG_UNKNOWN_4                                    = 0x00000010,

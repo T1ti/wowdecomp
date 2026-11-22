@@ -532,7 +532,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
 
     CMovement_C* movement = mover->m_movement;
 
-    if ((movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING) && !(movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
+    if ((movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING) && !(movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         VehicleRec* rec = mover->GetVehicleRec();
 
         if (!rec || !(rec->m_flags & VehicleRec::FLAGS::ALLOW_CAMERA_PITCH_INPUT)) {
@@ -718,7 +718,7 @@ void CGInputControl::CameraTurnPlayer(uint32_t time, float facing) {
         mover->ConvertVehicleCameraRelativeFacingToTransportRelativeFacing(facing);
     }
 
-    if (mover->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_TURNING) {
+    if (mover->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_TURNING) {
         if (!this->m_facingOverrideActive || this->m_facingOverride != facing) {
             mover->OnTurnToAngleLocal(time, facing);
             this->m_facingOverride = facing;
@@ -766,7 +766,7 @@ void CGInputControl::SetPlayerPitch(CGUnit_C* unit, uint32_t time, float pitch) 
         }
     }
 
-    if (unit->m_movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_PITCHING) {
+    if (unit->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_PITCHING) {
         if (!this->m_vehicleAimValid || this->m_vehicleAim != pitch) {
             unit->OnPitchToAngleLocal(time, pitch);
             this->m_vehicleAim = pitch;
@@ -1004,7 +1004,7 @@ void CGInputControl::AscendDescendPlayer(uint32_t time, CGUnit_C* unit) {
         direction--;
     }
 
-    if (movement->m_flags2 & MOVEMENTFLAG2_FULL_SPEED_PITCHING) {
+    if (movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_PITCHING) {
         if (direction > 0) {
             if (!(flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) || (moveFlags & MOVEMENTFLAG_PITCH_DOWN)) {
                 unit->OnPitchStartLocal(time, 1);
@@ -1292,7 +1292,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
     if (canTurn) {
         this->TurnPlayer(time, mover);
 
-        if ((mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (mover->m_movement->m_flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING)) {
+        if ((mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) || (mover->m_movement->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING)) {
             this->PitchPlayer(time, mover);
         }
     } else {

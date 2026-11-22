@@ -570,14 +570,14 @@ int32_t CMovement_C::Interpolate(uint32_t now, uint32_t elapsed, C3Vector* posit
     int32_t delta;
 
     if (!next || (delta = next->m_eventTime - now) < 0) {
-        this->m_flags2 &= ~MOVEMENTFLAG2_INTERPOLATED_MASK;
+        this->m_moveFlags2 &= ~MOVEFLAG2_INTERP_MASK;
         return 0;
     }
 
     float t = (float)delta / (float)this->m_interpolation;
     float inverse = 1.0f - t;
 
-    if (this->m_flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT) {
+    if (this->m_moveFlags2 & MOVEFLAG2_INTERPOLATED_MOVEMENT) {
         C3Vector interpolated;
         interpolated.x = (next->m_position.x - this->m_interpolationPos.x * t) * inverse + position->x * t;
         interpolated.y = (next->m_position.y - this->m_interpolationPos.y * t) * inverse + position->y * t;
@@ -590,21 +590,21 @@ int32_t CMovement_C::Interpolate(uint32_t now, uint32_t elapsed, C3Vector* posit
         if (dx * dx + dy * dy + 0.00000095367432f <= maxDistance * maxDistance) {
             *position = interpolated;
         } else {
-            this->m_flags2 &= ~MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
+            this->m_moveFlags2 &= ~MOVEFLAG2_INTERPOLATED_MOVEMENT;
         }
     }
 
-    if (this->m_flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING) {
+    if (this->m_moveFlags2 & MOVEFLAG2_INTERPOLATED_TURNING) {
         float target = CMath::normalizeangle0to2pi_(next->m_facing - t * this->m_interpolationFacing);
         *facing = CMath::normalizeangle0to2pi_(CMath::normalizeAngleNegPiToPi_(target - *facing) * inverse + *facing);
     }
 
-    if (this->m_flags2 & MOVEMENTFLAG2_INTERPOLATED_PITCHING) {
+    if (this->m_moveFlags2 & MOVEFLAG2_INTERPOLATED_PITCHING) {
         float target = CMath::normalizeangle0to2pi_(next->m_pitch - t * this->m_interpolationPitch);
         *pitch = CMath::normalizeangle0to2pi_(CMath::normalizeAngleNegPiToPi_(target - *pitch) * inverse + *pitch);
     }
 
-    return this->m_flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
+    return this->m_moveFlags2 & MOVEFLAG2_INTERPOLATED_MOVEMENT;
 }
 
 // VERIFY: 14204d2d auto
@@ -679,7 +679,7 @@ void CMovement_C::SendTimeSyncResp(uint32_t clientTime, uint32_t counter) {
 // VERIFY: dea84484 manual
 // OFFSET: 0x006EA6A0
 void CMovement_C::SetInterpolation(uint32_t time) {
-    this->m_flags2 &= ~MOVEMENTFLAG2_INTERPOLATED_MASK;
+    this->m_moveFlags2 &= ~MOVEFLAG2_INTERP_MASK;
     this->m_interpolation = 0;
 
     CPlayerMoveEvent* next = this->m_moveQueue.Head();
@@ -699,15 +699,15 @@ void CMovement_C::SetInterpolation(uint32_t time) {
     }
 
     if (this->m_flags & MOVEMENTFLAG_MOVING_MASK) {
-        this->m_flags2 |= MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
+        this->m_moveFlags2 |= MOVEFLAG2_INTERPOLATED_MOVEMENT;
     }
 
     if (CMath::fnotequal(this->m_facing, next->m_facing)) {
-        this->m_flags2 |= MOVEMENTFLAG2_INTERPOLATED_TURNING;
+        this->m_moveFlags2 |= MOVEFLAG2_INTERPOLATED_TURNING;
     }
 
     if ((this->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) && CMath::fnotequal(this->m_pitch, next->m_pitch)) {
-        this->m_flags2 |= MOVEMENTFLAG2_INTERPOLATED_PITCHING;
+        this->m_moveFlags2 |= MOVEFLAG2_INTERPOLATED_PITCHING;
     }
 
     this->m_interpolationPos = next->m_position - this->m_position;
@@ -750,7 +750,7 @@ void CMovement_C::AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId even
     event->m_needAck = needAck;
     event->m_seat = seat;
     event->m_ackCounter = 0;
-    event->m_moveExtraFlags = MOVEMENTFLAG2_NONE;
+    event->m_moveExtraFlags = MOVEFLAG2_NONE;
     this->m_moveQueue.Enqueue(event);
     this->AddToMoversList();
 }
@@ -1362,14 +1362,14 @@ uint32_t CMovement_C::GetFacetQueryFlags() const {
 
     uint32_t moveFlags = this->m_flags;
 
-    if ((moveFlags & MOVEMENTFLAG_WATERWALKING) && !(moveFlags & MOVEMENTFLAG_SWIMMING) && (-0.6457718f < this->m_pitch || (this->m_flags2 & MOVEMENTFLAG2_UNKNOWN_9))) {
+    if ((moveFlags & MOVEMENTFLAG_WATERWALKING) && !(moveFlags & MOVEMENTFLAG_SWIMMING) && (-0.6457718f < this->m_pitch || (this->m_moveFlags2 & MOVEFLAG2_UNKNOWN_9))) {
         flags |= WORLD_QUERY_WATER_WALK_LIQUID;
     }
 
     if (moveFlags & MOVEMENTFLAG_FLYING) {
         flags |= WORLD_QUERY_FLIGHT_BOUNDS;
 
-        if (!(this->m_flags2 & MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY)) {
+        if (!(this->m_moveFlags2 & MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY)) {
             flags |= WORLD_QUERY_LIQUID;
         }
     }
@@ -2667,7 +2667,7 @@ void CMovement_C::MoveSplineMoverWithoutCollision(const C3Vector& position, uint
     this->m_groundNormal.y = -(dz * px);
     this->m_groundNormal.z = dy * px - dx * py;
     this->m_position = position;
-    this->CallMoveEventHandlers(elapsed + time, 0, this->m_flags, this->m_flags2, 0, 0);
+    this->CallMoveEventHandlers(elapsed + time, 0, this->m_flags, this->m_moveFlags2, 0, 0);
 }
 
 // VERIFY: d19c5dcd manual
@@ -4136,7 +4136,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
             break;
         }
 
-        uint32_t oldFlags2 = this->m_flags2;
+        uint32_t oldFlags2 = this->m_moveFlags2;
         uint32_t oldFlags = this->m_flags;
         int32_t jumping = this->IsJumping();
         WOWGUID oldTransport = this->m_transportGuid;
@@ -4484,7 +4484,7 @@ void CMovement_C::GravityStateChanged() {
         goto falling;
     }
 
-    if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (this->m_flags2 & MOVEMENTFLAG2_DISABLE_GRAVITY) || (this->m_flags & MOVEMENTFLAG_DISABLE_GRAVITY)) {
+    if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (this->m_moveFlags2 & MOVEFLAG2_DISABLE_GRAVITY) || (this->m_flags & MOVEMENTFLAG_DISABLE_GRAVITY)) {
         uint32_t flags = this->m_flags;
         int32_t jumping = (flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_fallVelocity;
         uint32_t oldFlags = flags & ~MOVEMENTFLAG_DISABLE_GRAVITY;
@@ -4912,7 +4912,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
 
                     int32_t wasJumping = this->IsJumping();
                     uint32_t rootFlags = this->m_flags;
-                    uint32_t rootFlags2 = this->m_flags2;
+                    uint32_t rootFlags2 = this->m_moveFlags2;
                     this->TryRoot();
                     sent = this->m_unit->ProcessLocalMoveEvent(time, CMSG_FORCE_MOVE_ROOT_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 255);
                     this->CallMoveEventHandlers(time, 0, rootFlags, rootFlags2, wasJumping, 0);
@@ -4922,7 +4922,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                 case MOVEEVENT_UNROOT: {
                     BOOL wasJumping = this->IsJumping();
                     uint32_t rootFlags = this->m_flags;
-                    uint32_t rootFlags2 = this->m_flags2;
+                    uint32_t rootFlags2 = this->m_moveFlags2;
                     this->UnRoot(!event->m_needAck || this->m_unit->IsActiveMover());
                     this->m_unit->UnRootEffects();
                     sent = this->m_unit->ProcessLocalMoveEvent(time, CMSG_FORCE_MOVE_UNROOT_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 255);
@@ -4931,7 +4931,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                 }
 
                 case MOVEEVENT_TELEPORT:
-                    this->m_flags2 ^= (this->m_flags2 ^ event->m_moveExtraFlags) & MOVEMENTFLAG2_TELEPORT_MASK;
+                    this->m_moveFlags2 ^= (this->m_moveFlags2 ^ event->m_moveExtraFlags) & MOVEFLAG2_TELEPORT_MASK;
 
                     if (event->m_hasMoveStatus) {
                         this->HeartBeat(event);
@@ -4943,7 +4943,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
 
                 case MOVEEVENT_SET_FLYING: {
                     uint32_t flyFlags = this->m_flags;
-                    uint32_t flyFlags2 = this->m_flags2;
+                    uint32_t flyFlags2 = this->m_moveFlags2;
 
                     if (this->TryStartFlight()) {
                         sent = this->FallStateChangedLocal(time, CMSG_MOVE_SET_FLY, flyFlags, flyFlags2, event->m_needAck, 0.0f);
@@ -5012,12 +5012,12 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                     break;
 
                 case MOVEEVENT_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
-                    this->m_flags2 |= MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+                    this->m_moveFlags2 |= MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
                     this->m_unit->ProcessLocalMoveEvent(time, CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, event->m_needAck, 1.0f, event->m_ackCounter, 0, 255);
                     break;
 
                 case MOVEEVENT_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
-                    this->m_flags2 &= ~MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+                    this->m_moveFlags2 &= ~MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
                     this->m_unit->ProcessLocalMoveEvent(time, CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 255);
                     break;
 
@@ -5099,7 +5099,7 @@ void CMovement_C::ApplyMovement(uint32_t time, uint32_t elapsed) {
                 return;
             }
 
-            if (this->m_flags2 & MOVEMENTFLAG2_INTERPOLATED_MASK) {
+            if (this->m_moveFlags2 & MOVEFLAG2_INTERP_MASK) {
                 C3Vector target(this->m_anchorPos.x + move.x, this->m_anchorPos.y + move.y, this->m_anchorPos.z + move.z);
 
                 if (this->Interpolate(time - step, step, &target, &this->m_facing, &this->m_pitch)) {
@@ -5255,18 +5255,18 @@ void CMovement_C::MoveUnits(uint32_t time, uint32_t lastUpdateTime) {
 // VERIFY: 1ce66aca manual
 // OFFSET: 0x006E9C30
 int32_t CMovement_C::PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position) {
-    BOOL wasInAir = (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
-    BOOL wasAnimTier = (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
+    BOOL wasInAir = (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
+    BOOL wasAnimTier = (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
 
     if (!this->CMovementShared::PlotUnitSplineMovement(time, position)) {
         return 0;
     }
 
-    if (!wasInAir && (this->m_flags2 & MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if (!wasInAir && (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
         this->m_unit->ProcessLocalMoveEvent(time, MSG_MOVE_JUMP, true, 0.0f, 0, 0, 255);
     }
 
-    if (!wasAnimTier && (this->m_flags2 & MOVEMENTFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION)) {
+    if (!wasAnimTier && (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION)) {
         this->m_unit->SetAnimType(static_cast<uint8_t>(this->m_spline->m_flags));
     }
 
@@ -5394,7 +5394,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL 
 // VERIFY: 0fab2c50 manual
 // OFFSET: 0x006ECF80
 void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float facing, BOOL removeSpline, BOOL needAck, uint8_t seat) {
-    if (this->m_flags2 & MOVEMENTFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM) {
+    if (this->m_moveFlags2 & MOVEFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM) {
         this->m_unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
     } else {
         this->m_unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
@@ -5423,7 +5423,7 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
     this->ValidateWorldPosition(world);
     MovementUpdateCameraYaw(*this->m_ownerGuid, WOWGUID{ this->m_unit->GetCameraRelativeTo() });
     MovementUpdateWorld(*this->m_ownerGuid, world, preload);
-    this->m_flags2 &= (MOVEMENTFLAG2_ALL_MASK & ~MOVEMENTFLAG2_INTERPOLATED_MASK);
+    this->m_moveFlags2 &= (MOVEFLAG2_ALL_MASK & ~MOVEFLAG2_INTERP_MASK);
 }
 
 // VERIFY: 930c3840 manual
@@ -5494,7 +5494,7 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
         this->m_flags = oldFlags ^ ((status.m_moveFlags ^ oldFlags) & ~MOVEMENTFLAG_LOCAL_MASK);
     }
 
-    this->m_flags2 = status.m_moveExtraFlags;
+    this->m_moveFlags2 = status.m_moveExtraFlags;
     this->UpdateBaseStatus(status);
 
     if (this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) {
@@ -5653,7 +5653,7 @@ void CMovement_C::FlushMoveEvent(CPlayerMoveEvent* event, BOOL removeSpline) {
             this->m_unit->ProcessLocalMoveEvent(time, CMSG_FORCE_MOVE_UNROOT_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 0xFF);
             break;
         case MOVEEVENT_TELEPORT:
-            this->m_flags2 ^= (this->m_flags2 ^ event->m_moveExtraFlags) & MOVEMENTFLAG2_TELEPORT_MASK;
+            this->m_moveFlags2 ^= (this->m_moveFlags2 ^ event->m_moveExtraFlags) & MOVEFLAG2_TELEPORT_MASK;
             this->Teleport(event->m_transportGuid, event->m_position, event->m_facing, removeSpline, event->m_needAck, event->m_seat);
             this->m_unit->ProcessLocalMoveEvent(time, MSG_MOVE_TELEPORT_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 0xFF);
             break;
@@ -5677,11 +5677,11 @@ void CMovement_C::FlushMoveEvent(CPlayerMoveEvent* event, BOOL removeSpline) {
             this->SendTimeSyncResp(event->m_eventTime, event->m_ackCounter);
             break;
         case MOVEEVENT_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
-            this->m_flags2 |= MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+            this->m_moveFlags2 |= MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
             this->m_unit->ProcessLocalMoveEvent(time, CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, event->m_needAck, 1.0f, event->m_ackCounter, 0, 0xFF);
             break;
         case MOVEEVENT_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
-            this->m_flags2 &= ~MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+            this->m_moveFlags2 &= ~MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
             this->m_unit->ProcessLocalMoveEvent(time, CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 0xFF);
             break;
         case MOVEEVENT_SET_COLLISION_HEIGHT:
@@ -5706,7 +5706,7 @@ void CMovement_C::FlushMoveQueue(BOOL removeSpline, BOOL halt) {
         return;
     }
 
-    this->m_flags2 &= (MOVEMENTFLAG2_ALL_MASK & ~MOVEMENTFLAG2_INTERPOLATED_MASK);
+    this->m_moveFlags2 &= (MOVEFLAG2_ALL_MASK & ~MOVEFLAG2_INTERP_MASK);
     CVehiclePassenger_C* passenger = this->m_unit->m_vehiclePassenger;
     s_flushingQueue = 1;
 
@@ -6060,14 +6060,14 @@ int32_t CMovement_C::OnUpdateCanFly(uint32_t time, const CMovementStatus& status
 // VERIFY: a2673483 manual
 // OFFSET: 0x006EF1C0
 int32_t CMovement_C::OnUpdateCanTransitionBetweenSwimAndFly(uint32_t time, const CMovementStatus& status) {
-    if (!this->UpdateStatus(time, status, (status.m_moveExtraFlags & MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY) ? MOVEEVENT_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : MOVEEVENT_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 0.0f)) {
+    if (!this->UpdateStatus(time, status, (status.m_moveExtraFlags & MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY) ? MOVEEVENT_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : MOVEEVENT_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 0.0f)) {
         return 0;
     }
 
-    if (status.m_moveExtraFlags & MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY) {
-        this->m_flags2 |= MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+    if (status.m_moveExtraFlags & MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY) {
+        this->m_moveFlags2 |= MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
     } else {
-        this->m_flags2 &= ~MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
+        this->m_moveFlags2 &= ~MOVEFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY;
     }
 
     return 1;
@@ -6499,7 +6499,7 @@ void CMovement_C::AddPlayerTeleportEvent(uint32_t eventTime, bool needAck, uint3
 
     this->AddToMoversList();
 
-    if (status.m_moveExtraFlags & MOVEMENTFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM) {
+    if (status.m_moveExtraFlags & MOVEFLAG2_WAIT_FOR_VEHICLE_TRANSITION_ANIM) {
         this->m_unit->VehiclePassengerStartWaitingForVehicleTransitionAnim(status.m_transportGuid.m_guid, status.m_transportSeat);
     }
 }
