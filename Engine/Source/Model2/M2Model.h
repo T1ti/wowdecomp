@@ -432,7 +432,12 @@ class CM2Model {
     uint32_t GetInstanceCountMax();
     BOOL HasLiveParticles();
     BOOL HasLiveRibbons();
-    uint32_t IsLoaded(BOOL wait, int32_t recursive);
+    uint32_t IsLoaded(BOOL wait = 0, int32_t recursive = 0);
+
+    // INLINED
+    CM2Model* GetParent() const {
+        return this->m_attachParent;
+    }
     void LinkToAsyncHead(int32_t textures);
     void LinkToAsyncHeadRecursive(int32_t textures);
     void ReplaceParticleColor(uint32_t id, CImVector color0, CImVector color1, CImVector color2);

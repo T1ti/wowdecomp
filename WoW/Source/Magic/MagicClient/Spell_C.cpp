@@ -1317,15 +1317,15 @@ void HandleSpellFailedOrGo(CGUnit_C* unit, PendingSpellCast* cast, const SpellRe
         return;
     }
 
-    if (spell && spell->m_spellVisualID[0] > 0 && unit->m_worldModel && unit->m_worldModel->IsLoaded(0, 0) && unit->m_torsoKeyBone != -1) {
+    if (spell && spell->m_spellVisualID[0] > 0 && unit->m_worldModel && unit->m_worldModel->IsLoaded(0, 0) && unit->m_splitBone != -1) {
         SpellVisualRec* visual = g_spellVisualDB.GetRecord(spell->m_spellVisualID[0]);
 
         if (visual && visual->m_precastKit > 0) {
-            uint32_t sequenceId = unit->m_worldModel->GetBoneSequenceId(unit->m_torsoKeyBone);
+            uint32_t sequenceId = unit->m_worldModel->GetBoneSequenceId(unit->m_splitBone);
             SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_precastKit);
 
             if (kit && kit->m_animID > 0 && sequenceId != INVALID_ANIMATION && static_cast<uint32_t>(kit->m_animID) == sequenceId) {
-                unit->OnKeyBoneAnimEnd(unit->m_worldModel, unit->m_torsoKeyBone, kit->m_animID);
+                unit->OnKeyBoneAnimEnd(unit->m_worldModel, unit->m_splitBone, kit->m_animID);
             }
         }
     }
@@ -4564,7 +4564,7 @@ bool Spell_C_CancelsAuraEffect(const CGUnit_C* unit, const SpellRec* spell, int3
     SpellRec aura;
 
     for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
-        int32_t spellId = const_cast<CGUnit_C*>(unit)->m_auras[i].m_spellId;
+        int32_t spellId = const_cast<CGUnit_C*>(unit)->m_auraData[i].m_spellId;
 
         if (!spellId || !g_spellDB.GetRecord(spellId, &aura)) {
             continue;
@@ -5231,7 +5231,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
     CGUnit_C* self = const_cast<CGUnit_C*>(unit);
 
     for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
-        if (self->m_auras[i].m_spellId != spell->m_id) {
+        if (self->m_auraData[i].m_spellId != spell->m_id) {
             continue;
         }
 
@@ -5239,7 +5239,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
             break;
         }
 
-        if (self->m_auras[i].m_flags & AURA_FLAG_CANCELABLE) {
+        if (self->m_auraData[i].m_flags & AURA_FLAG_CANCELABLE) {
             return true;
         }
     }
@@ -5248,7 +5248,7 @@ bool Spell_C_IsActiveSpell(const SpellRec* spell, const CGUnit_C* unit) {
         SpellRec aura;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
-            if (g_spellDB.GetRecord(self->m_auras[i].m_spellId, &aura) && aura.m_effectAura[0] == SPELL_AURA_MOUNTED && aura.m_effectMiscValue[0] == spell->m_effectMiscValue[0]) {
+            if (g_spellDB.GetRecord(self->m_auraData[i].m_spellId, &aura) && aura.m_effectAura[0] == SPELL_AURA_MOUNTED && aura.m_effectMiscValue[0] == spell->m_effectMiscValue[0]) {
                 active = true;
                 break;
             }
@@ -5306,7 +5306,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
         SpellRec mount;
 
         for (uint32_t i = 0; i < unit->GetAuraCount(); i++) {
-            if (g_spellDB.GetRecord(unit->m_auras[i].m_spellId, &mount) && mount.m_effectAura[0] == SPELL_AURA_MOUNTED && mount.m_effectMiscValue[0] == spell->m_effectMiscValue[0] && mount.m_id != spell->m_id) {
+            if (g_spellDB.GetRecord(unit->m_auraData[i].m_spellId, &mount) && mount.m_effectAura[0] == SPELL_AURA_MOUNTED && mount.m_effectMiscValue[0] == spell->m_effectMiscValue[0] && mount.m_id != spell->m_id) {
                 Spell_C_CancelAura(&mount, unit, -1);
                 return;
             }
@@ -9347,7 +9347,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
 
         CMissile* missile = CMissile::NewMissile();
         missile->m_model = model;
-        missile->m_casterGuid = data->m_caster;
+        missile->m_caster = data->m_caster;
         missile->m_targetGuid = WOWGUID();
         missile->m_spellID = data->m_spellId;
         missile->m_castID = data->m_castCount;

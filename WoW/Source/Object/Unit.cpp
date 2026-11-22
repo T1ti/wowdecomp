@@ -222,7 +222,7 @@ void CGUnit::GetResistanceAndBuffs(int32_t school, int32_t* baseValue, int32_t* 
 
 // VERIFY: fca45f02 auto
 // OFFSET: 0x004F5F20
-const WOWGUID* CGUnit::GetCharmerOrCreatorGuid() const {
+const WOWGUID* CGUnit::GetOwnerGUID() const {
     CGUnitData* unit = this->m_unit;
 
     if (unit->m_unitFieldCharmedby) {
@@ -339,7 +339,7 @@ float CGUnit::GetPowerRegen(POWER_TYPE powerType, bool inCombat) const {
 // VERIFY: 90149eb1 manual
 // OFFSET: 0x004F7250
 bool CGUnit::IsPossessedBy(const WOWGUID& guid) const {
-    return (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && *this->GetCharmerOrCreatorGuid() == guid;
+    return (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) && *this->GetOwnerGUID() == guid;
 }
 
 // VERIFY: 3c755101 auto

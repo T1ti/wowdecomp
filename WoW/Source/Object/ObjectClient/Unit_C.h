@@ -266,7 +266,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     static uint32_t s_namePlateFlags; // NAMEPLATE_FLAGS
     static uint32_t s_missileTrajectoryTargetingSpell;
     static uint32_t s_pitchMissileTrajectoryTargetingNextFrame;
-    static CVar* s_cvShowFootPrintParticles;
+    static CVar* s_showFootPrintParticles;
     static CVar* s_cvPathingDistTolerance;
     static const uint32_t s_impactTypes[4];
     static C3Vector s_trackingPosition;
@@ -346,7 +346,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0970 */ const CreatureModelDataRec* m_modelData;
     /* 0974 */ const CreatureSoundDataRec* m_soundData;
     /* 0978 */ const CreatureSoundDataRec* m_soundDataOverride;
-    /* 097C */ const UnitBloodLevelsRec* m_bloodlevels;
+    /* 097C */ const UnitBloodLevelsRec* m_bloodRec;
     /* 0980 */ CEffect* m_fishingLineEffect;
     /* 0984 */ CEffect* m_auraEffects;
     /* 0988 */ CMissile* unk_0988;
@@ -365,7 +365,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 09D8 */ C3Vector m_groundNormal;
     /* 09E4 */ uint32_t m_targetChangeTime;
     /* 09E8 */ uint32_t m_lastMissileTime;
-    /* 09EC */ CMissile* m_missiles;
+    /* 09EC */ CMissile* m_missileList;
     /* 09F0 */ CMissile* m_pendingMissiles;
     /* 09F4 */ uint8_t m_shapeshiftSuppressed;
     /* 09F8 */ UNITSTANDSTATE m_animStandState;
@@ -438,7 +438,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0B70 */ C3Vector m_chainSpellLocation;
     /* 0B7C */ int32_t m_mountAnimBehaviorId;
     /* 0B80 */ int32_t m_animTier;
-    /* 0B84 */ int32_t m_torsoKeyBone;
+    /* 0B84 */ int32_t m_splitBone;
     /* 0B88 */ int32_t m_meleeAttackAnimId;
     /* 0B8C */ int32_t m_pendingAnimId;
     /* 0B90 */ int32_t m_awaitingEndAnimId;
@@ -448,7 +448,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0C3C */ CGChatBubbleFrame* m_chatBubble;
     /* 0C40 */ WOWGUID m_masterLooter;
     /* 0C48 */ WOWGUID m_looter;
-    /* 0C50 */ TSCGrowableArray<AuraData, 16> m_auras;
+    /* 0C50 */ TSCGrowableArray<AuraData, 16> m_auraData;
     /* 0DD4 */ TSCGrowableArray<SortedAuraInfo, 16> m_sortedAuras [2];
     /* 0EDC */ TSCGrowableArray<uint32_t, 16> m_handItemSpellIds;
     /* 0F20 */ uint8_t m_auraEffectMask [(TOTAL_AURAS + 7) / 8]; // One bit per SPELL_AURA present
@@ -503,6 +503,21 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     BOOL CanBeTargetted() const override;
     BOOL IsHighlightSuppressed() const override;
     CM2Model* GetObjectModel() const override;
+
+    // INLINED
+    bool IsVehicle() const {
+        return this->GetVehicleRec() != nullptr;
+    }
+
+    // INLINED
+    CM2Model* GetCharacterModel() const {
+        return this->m_worldModel;
+    }
+
+    // INLINED
+    const WOWGUID& GetGUID() const {
+        return this->m_obj->m_guid;
+    }
     float GetBaseAlpha() const override;
     BOOL IsQuestGiver() const override;
     void UpdateInteractIcon() override;
@@ -544,7 +559,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void RenderTargetSelection() const override;
     void RenderPetTargetSelection() const override;
     void OnSpecialMountAnim() override;
-    const SpellVisualRec* GetAppropriateSpellVisual(const SpellRec* spell, SpellVisualRec& visual, int32_t visualId, int32_t lowViolenceVisualId) const override;
+    const SpellVisualRec* GetAppropriateSpellVisual(const SpellRec* spellRec, SpellVisualRec& visual, int32_t visualId, int32_t lowViolenceVisualId) const override;
     void ConnectToLightningThisFrame(uint32_t spellId, int32_t attachment) override;
 
     bool IsActivePlayer() const;
@@ -766,7 +781,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void ChangeStandState(UNITSTANDSTATE standState);
     void TryJumpOrAscend(uint32_t eventTime);
     int32_t ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool send, float value, uint32_t index, uint64_t transport, uint8_t seat);
-    int32_t SendMovementUpdate(uint32_t time, uint32_t msgId, float value, uint32_t index, uint64_t transport, uint8_t seat);
+    int32_t SendMovementUpdate(uint32_t time, uint32_t messageId, float value, uint32_t index, uint64_t transport, uint8_t seat);
     int32_t BuildMovementUpdate(uint32_t time, uint32_t msgId, CDataStore* msg, float value, uint32_t index);
     BOOL IsAllowedToSendMessage(uint32_t msgId) const;
     void SendTimeSkip(uint32_t skip);
@@ -819,7 +834,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void PlayEmotes(const QUESTGIVEREMOTEQUEUE& emotes);
     DelayedSpellVisualKit* DelaySpellVisualKit(int32_t spellId, int32_t kitId, SPELL_VISUAL_KIT_TYPE kitType, const C3Vector* position, WOWGUID targetGuid, BOOL playAnim, BOOL harmful, int32_t lightningAttachment, DelayedSpellVisualKit::ACTIVATION_TYPE activationType, int32_t activationTime);
     C3Vector GetGroundNormal() const;
-    bool IsMovingToward(CGObject_C* target) const;
+    bool IsMovingToward(CGObject_C* unitptr) const;
     BOOL ChooseLootAnim(uint32_t selectionMask, uint32_t* animId);
     void OnChangeSeatsOnControlledVehicleLocal(uint32_t eventTime, WOWGUID transport, uint8_t seat);
     BOOL IsInFrontOfTargetWithGuid(const WOWGUID& guid) const;
@@ -1078,11 +1093,12 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     void AddWorldHealingText(const WOWGUID& source, int32_t amount, const SpellRec* spell, bool crit, int32_t unused6);
     void AddWorldHonorGainText(int32_t honor, int32_t pvpRank, const char* victimName);
     void PlayCombatSpellMissEffects(uint32_t reason, const WOWGUID& source);
-    void CreateMissile(const SpellCastTargetPoint* point, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay);
-    void CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay);
+    void CreateMissile(const SpellCastTargetPoint* point, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* rec, int32_t spellId, uint32_t delay);
+    void CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* rec, int32_t spellId, uint32_t delay);
     CM2Model* CreateItemModel(uint32_t displayId, uint32_t inventoryType, float* scale);
     CM2Model* CreateItemModel(uint32_t hand, float* scale);
-    void CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay);
+    void CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* rec, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay);
+    inline void DeleteMissiles(); // (inferred)
     void OnAuraUpdate(CDataStore* msg, bool updateAll);
     void OnAttackStop(uint64_t target, int32_t faceTarget);
     void PlayAttackerRound(const ATTACKROUNDINFO& info);

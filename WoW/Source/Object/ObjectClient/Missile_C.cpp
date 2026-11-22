@@ -90,7 +90,7 @@ void CMissile::Initialize() {
 // OFFSET: 0x006FF2C0
 void CMissile::OnRemoteMissileTrajectoryCollision(const MissileCollisionData& data) {
     for (CMissile* missile = s_inFlightMissileList; missile; missile = missile->m_next) {
-        if (missile->m_casterGuid == data.m_casterGuid && missile->m_castID == data.m_castID) {
+        if (missile->m_caster == data.m_casterGuid && missile->m_castID == data.m_castID) {
             missile->SetRemoteCollisionPos(data.m_position);
         }
     }
@@ -100,7 +100,7 @@ void CMissile::OnRemoteMissileTrajectoryCollision(const MissileCollisionData& da
 // OFFSET: 0x006FF250
 void CMissile::StartFizzling(WOWGUID caster, uint8_t castID, uint32_t spellID) {
     for (CMissile* missile = s_inFlightMissileList; missile; missile = missile->m_next) {
-        if (missile->m_casterGuid == caster && missile->m_castID == castID && missile->m_spellID == spellID && !missile->m_fizzleTime) {
+        if (missile->m_caster == caster && missile->m_castID == castID && missile->m_spellID == spellID && !missile->m_fizzleTime) {
             missile->m_fizzleTime = OsGetAsyncTimeMs() + 500;
 
             if (!missile->m_fizzleTime) {
@@ -902,7 +902,7 @@ void CMissile::BeginWaitingForModelFX(int32_t disableEffects) {
 CMissile::CMissile() {
     this->m_speed = 0.0f;
     this->m_baseSpeed = 0.0f;
-    this->m_casterGuid = WOWGUID();
+    this->m_caster = WOWGUID();
     this->m_targetGuid = WOWGUID();
     this->m_transportGuid = WOWGUID();
     this->m_model = nullptr;
@@ -1033,7 +1033,7 @@ CMissile* CMissile::CopyMissile(const CMissile* source) {
         missile = nullptr;
     }
 
-    missile->m_casterGuid = source->m_casterGuid;
+    missile->m_caster = source->m_caster;
     missile->m_targetGuid = source->m_targetGuid;
     missile->m_spellID = source->m_spellID;
     missile->m_speed = source->m_speed;
@@ -1272,7 +1272,7 @@ void CMissile::InitializeTrajectory() {
     }
 
     if ((this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION) && (missile->m_flags & SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK)) {
-        CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
+        CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__));
         this->m_missileCollision = CMissileCollision::Alloc();
         CGUnit_C* root = caster && caster->m_vehiclePassenger && caster->m_vehiclePassenger->m_transitionVehicleGuid ? caster->m_vehiclePassenger->GetStoredRootVehicleUnit() : caster;
         C3Vector end = this->TransformPositionByTransport();
@@ -1283,7 +1283,7 @@ void CMissile::InitializeTrajectory() {
 // VERIFY: 859a92cc manual
 // OFFSET: 0x00700E20
 void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* visual) {
-    CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__));
     SpellVisualKitRec* areaKit = g_spellVisualKitDB.GetRecord(visual->m_impactAreaKit);
 
     if (areaKit && !this->m_fizzleTime) {
@@ -1295,7 +1295,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
             PlaySpellVisuaKitData data(spell, areaKit, SPELL_VISUAL_KIT_AT_POSITION);
             data.m_position = &position;
             data.m_transportGUID = transport;
-            data.m_someGUID = this->m_casterGuid;
+            data.m_someGUID = this->m_caster;
             caster->PlaySpellVisualKit(data);
         } else {
             CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
@@ -1304,7 +1304,7 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
                 PlaySpellVisuaKitData data(spell, areaKit, SPELL_VISUAL_KIT_AT_POSITION);
                 data.m_transportGUID = transport;
                 data.m_position = &position;
-                data.m_someGUID = this->m_casterGuid;
+                data.m_someGUID = this->m_caster;
                 data.m_playAnim = FALSE;
                 player->PlaySpellVisualKit(data);
             }
@@ -1330,24 +1330,24 @@ void CMissile::HitTargetAreaEffect(const SpellRec* spell, const SpellVisualRec* 
 
             if (result && !(this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_FEEDBACK_REPORTED) && !this->m_missileIndex) {
                 if (spell && !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) {
-                    unit->AddWorldText(this->m_casterGuid, result, spell, 0);
+                    unit->AddWorldText(this->m_caster, result, spell, 0);
                     CGGameUI::ShowSpellMissFeedback(unit->m_obj->m_guid, result);
                 }
 
-                UnitCombatLogSpellMissed(this->m_casterGuid, unit->m_obj->m_guid, this->m_spellID, result, 0, 0, 0);
+                UnitCombatLogSpellMissed(this->m_caster, unit->m_obj->m_guid, this->m_spellID, result, 0, 0, 0);
             }
         } else if (!this->m_fizzleTime) {
             const SpellVisualKitRec* kit = unit != caster ? targetKit : casterKit;
 
             if (kit) {
                 PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_IMPACT);
-                data.m_someGUID = this->m_casterGuid;
+                data.m_someGUID = this->m_caster;
                 unit->PlaySpellVisualKit(data);
             }
 
             if (stateKit && unit->m_unit->m_unitFieldHealth > 0 && unit->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRES_ACTIVE_SPELL_EFFECT) || unit->HasAuraActive(spell->m_id))) {
                 PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
-                data.m_someGUID = this->m_casterGuid;
+                data.m_someGUID = this->m_caster;
                 unit->PlaySpellVisualKit(data);
             }
         }
@@ -1527,7 +1527,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
     }
 
     if (spell && visual && !this->m_fizzleTime) {
-        CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
+        CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__));
         const SpellVisualKitRec* kit = Spell_C_GetAppropriateImpactKit(visual, target == caster);
         C3Vector position(0.0f, 0.0f, 0.0f);
         C3Vector* positionPtr = nullptr;
@@ -1545,7 +1545,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
         if (kit) {
             PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_IMPACT);
             data.m_transportGUID = transport;
-            data.m_someGUID = this->m_casterGuid;
+            data.m_someGUID = this->m_caster;
             data.m_position = positionPtr;
             target->PlaySpellVisualKit(data);
         }
@@ -1554,7 +1554,7 @@ void CMissile::HitTarget(CGUnit_C* target, const SpellRec* spell, const SpellVis
 
         if (stateKit && target->m_unit->m_unitFieldHealth > 0 && target->HasAuraBySpellId(spell->m_id) && (!(stateKit->m_flags & SpellVisualKitRec::KIT_FLAGS::REQUIRES_ACTIVE_SPELL_EFFECT) || target->HasAuraActive(spell->m_id))) {
             PlaySpellVisuaKitData data(spell, stateKit, SPELL_VISUAL_KIT_STATE);
-            data.m_someGUID = this->m_casterGuid;
+            data.m_someGUID = this->m_caster;
             target->PlaySpellVisualKit(data);
         }
     }
@@ -1619,7 +1619,7 @@ void CMissile::ReachedTarget(CGUnit_C* target, const C3Vector* direction) {
 void CMissile::HandleMissileTrajectoryCollision(const C3Vector* direction) {
     CDataStore msg;
     msg.Put(static_cast<uint32_t>(CMSG_UPDATE_PROJECTILE_POSITION));
-    msg.Put(this->m_casterGuid.m_guid);
+    msg.Put(this->m_caster.m_guid);
     msg.Put(this->m_spellID);
     msg.Put(this->m_castID);
     msg.Put(this->m_position.x);
@@ -1860,9 +1860,9 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
             SpellRec spell;
 
             if (g_spellDB.GetRecord(this->m_spellID, &spell) && !(spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG) && !this->m_missileIndex) {
-                target->AddWorldText(this->m_casterGuid, this->GetHitResult(), &spell, 0);
+                target->AddWorldText(this->m_caster, this->GetHitResult(), &spell, 0);
                 CGGameUI::ShowSpellMissFeedback(target->m_obj->m_guid, this->GetHitResult());
-                UnitCombatLogSpellMissed(this->m_casterGuid, target->m_obj->m_guid, this->m_spellID, this->GetHitResult(), 0, 0, 0);
+                UnitCombatLogSpellMissed(this->m_caster, target->m_obj->m_guid, this->m_spellID, this->GetHitResult(), 0, 0, 0);
             }
 
             this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MISS_FEEDBACK_REPORTED;
@@ -1939,7 +1939,7 @@ void CMissile::MissedTarget(CGUnit_C* target, const C3Vector* direction) {
                 return;
             }
         } else if (flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_REFLECT) {
-            this->m_targetGuid = this->m_casterGuid;
+            this->m_targetGuid = this->m_caster;
             this->m_flags = (flags & ~MISSILE_FLAGS::MISSILE_FLAG_REFLECTION_RESET_MASK) | MISSILE_FLAGS::MISSILE_FLAG_REFLECTED;
             MISS_REASON reason = this->GetMissReason();
             this->SetHitResult(reason);
@@ -2045,7 +2045,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
             distance = this->m_initialDistance;
         } else {
             float maxSpeed = this->m_speed + this->m_speed;
-            CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__));
+            CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__));
 
             if (visual && (visual->m_flags & SPELL_VISUAL_FLAG_USE_CLIENT_ANIMATED_TIME_FOR_MISSILE)) {
                 if (caster) {
@@ -2122,7 +2122,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         if (kit) {
             CGUnit_C* unit = target;
 
-            if (unit || (this->m_casterGuid && !this->m_missileIndex && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_casterGuid, TYPE_UNIT, __FILE__, __LINE__))))) {
+            if (unit || (this->m_caster && !this->m_missileIndex && (unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__))))) {
                 this->m_targetingEffectTime = OsGetAsyncTimeMs();
 
                 if (!target) {
@@ -2132,13 +2132,13 @@ void CMissile::FireMissiles(const C3Vector* position) {
                     PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_MISSILE_TARGETING);
                     data.m_position = &targetPos;
                     data.m_transportGUID = transport;
-                    data.m_someGUID = this->m_casterGuid;
+                    data.m_someGUID = this->m_caster;
                     data.m_playAnim = FALSE;
                     data.m_effectFadeTime = this->m_targetingEffectTime;
                     unit->PlaySpellVisualKit(data);
                 } else {
                     PlaySpellVisuaKitData data(&spell, kit, SPELL_VISUAL_KIT_STATE);
-                    data.m_someGUID = this->m_casterGuid;
+                    data.m_someGUID = this->m_caster;
                     data.m_effectFadeTime = this->m_targetingEffectTime;
                     unit->PlaySpellVisualKit(data);
                 }
@@ -2157,7 +2157,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
         properties.m_maxAudibleBehavior = SE2_MAX_AUDIBLE_MUTE;
         properties.m_streaming = true;
 
-        if (this->m_casterGuid == CGUnit_C::s_activeMover || this->m_targetGuid == CGUnit_C::s_activeMover) {
+        if (this->m_caster == CGUnit_C::s_activeMover || this->m_targetGuid == CGUnit_C::s_activeMover) {
             properties.m_priority = SI2_PRIORITY_OBJECT;
         }
 

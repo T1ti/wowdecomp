@@ -1764,7 +1764,7 @@ BOOL CGSpellBook::IsAuraCaster(WOWGUID guid, const WOWGUID* caster) {
 
     const WOWGUID& pet = unit->m_unit->m_unitFieldCharm.m_guid ? unit->m_unit->m_unitFieldCharm : unit->m_unit->m_unitFieldSummon;
 
-    return guid == pet || guid == *unit->GetCharmerOrCreatorGuid();
+    return guid == pet || guid == *unit->GetOwnerGUID();
 }
 
 // VERIFY: 586419fd auto

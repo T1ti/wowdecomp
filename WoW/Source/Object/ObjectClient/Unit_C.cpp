@@ -219,7 +219,7 @@ static uint32_t s_attackFlashTime;
 extern const uint32_t s_environmentalDamageSchools[ENVIRONMENTAL_DAMAGE_TYPE::NUM_ENVIRONMENTAL_DAMAGE_TYPES] = { SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL, SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL, SPELL_SCHOOL::SPELL_SCHOOL_PHYSICAL, SPELL_SCHOOL::SPELL_SCHOOL_FIRE, SPELL_SCHOOL::SPELL_SCHOOL_NATURE, SPELL_SCHOOL::SPELL_SCHOOL_FIRE };
 
 // STATIC: 0x00A349B4
-static const int32_t s_animTierFallback[ANIM_TIER_COUNT] = { ANIM_TIER_GROUND, ANIM_TIER_GROUND, ANIM_TIER_FLY, ANIM_TIER_GROUND, ANIM_TIER_GROUND };
+static const int32_t s_animCategoryFallbacks[ANIM_TIER_COUNT] = { ANIM_TIER_GROUND, ANIM_TIER_GROUND, ANIM_TIER_FLY, ANIM_TIER_GROUND, ANIM_TIER_GROUND };
 
 // STATIC: 0x00ADAC0C
 static float s_trackCursorMinSize = 0.5f;
@@ -319,7 +319,7 @@ static TSList<CGNamePlateFrame> s_namePlates;
 static TSList<CGNamePlateFrame> s_unusedNamePlates;
 
 // STATIC: 0x00ADAAB8
-static ClickToMoveActionInfo s_clickToMoveActions[12] = {
+static ClickToMoveActionInfo s_clickToMoveActions[TRACKTYPE_NUMTRACKTYPES] = {
     { 0, { 0, 0, 0 }, 0.0f, 0, 0, { 0, 0 } },
     { 0, { 0, 0, 0 }, 0.0f, 0, 0, { 0, 0 } },
     { 0, { 0, 0, 0 }, 0.0f, 0, 0, { 0, 0 } },
@@ -438,12 +438,13 @@ int32_t NPCFlagsHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, 
 // VERIFY: 1cda89af manual
 // OFFSET: 0x007234D0
 int32_t UnitPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
     POWER_TYPE powerType = static_cast<POWER_TYPE>((fieldOffset - offsetof(CGUnitData, m_unitFieldPower)) / sizeof(uint32_t));
 
     if (g_predictedPowerCVar->m_intValue && (guid == ClntObjMgrGetActivePlayer() || guid == CGPetInfo::GetPet(0))) {
-        int32_t power = powerType == POWER_TYPE_HEALTH ? unit->m_unit->m_unitFieldHealth : unit->m_unit->m_unitFieldPower[powerType];
-        int32_t predicted = g_predictedPowerCVar->m_intValue ? unit->m_predictedPower[powerType] : (powerType == POWER_TYPE_HEALTH ? unit->m_unit->m_unitFieldHealth : unit->m_unit->m_unitFieldPower[powerType]);
+        int32_t power = powerType == POWER_TYPE_HEALTH ? unitPtr->m_unit->m_unitFieldHealth : unitPtr->m_unit->m_unitFieldPower[powerType];
+        int32_t predicted = g_predictedPowerCVar->m_intValue ? unitPtr->m_predictedPower[powerType] : (powerType == POWER_TYPE_HEALTH ? unitPtr->m_unit->m_unitFieldHealth : unitPtr->m_unit->m_unitFieldPower[powerType]);
 
         if (power <= predicted) {
             return 1;
@@ -451,11 +452,11 @@ int32_t UnitPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
     }
 
     if (powerType == POWER_TYPE_HEALTH) {
-        unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldHealth);
+        unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldHealth);
         return 1;
     }
 
-    unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldPower[powerType]);
+    unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldPower[powerType]);
 
     return 1;
 }
@@ -463,15 +464,16 @@ int32_t UnitPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
 // VERIFY: 7059bc7b manual
 // OFFSET: 0x007235C0
 int32_t UnitMaxPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
     POWER_TYPE powerType = static_cast<POWER_TYPE>((fieldOffset - offsetof(CGUnitData, m_unitFieldMaxpower)) / sizeof(uint32_t));
 
     if (powerType == POWER_TYPE_HEALTH) {
-        unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldHealth);
+        unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldHealth);
         return 1;
     }
 
-    unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldPower[powerType]);
+    unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldPower[powerType]);
 
     return 1;
 }
@@ -479,15 +481,16 @@ int32_t UnitMaxPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t f
 // VERIFY: 7de81979 manual
 // OFFSET: 0x00723620
 int32_t UnitDisplayPowerUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
-    POWER_TYPE powerType = static_cast<POWER_TYPE>(unit->m_unit->m_displayPower);
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+    POWER_TYPE powerType = static_cast<POWER_TYPE>(unitPtr->m_unit->m_displayPower);
 
     if (powerType == POWER_TYPE_HEALTH) {
-        unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldHealth);
+        unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldHealth);
         return 1;
     }
 
-    unit->SetPredictedPower(powerType, unit->m_unit->m_unitFieldPower[powerType]);
+    unitPtr->SetPredictedPower(powerType, unitPtr->m_unit->m_unitFieldPower[powerType]);
 
     return 1;
 }
@@ -507,10 +510,13 @@ int32_t UnitFactionUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fi
 // VERIFY: 999f5087 manual
 // OFFSET: 0x00728D20
 int32_t UnitPvPFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(oldValue);
 
-    if (unit) {
-        unit->OnPvPFlagChanged(*static_cast<const uint8_t*>(oldValue));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+
+    if (unitPtr) {
+        unitPtr->OnPvPFlagChanged(*static_cast<const uint8_t*>(oldValue));
     }
 
     return 1;
@@ -670,10 +676,13 @@ int32_t SheatheStateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSi
 // VERIFY: 42cd1170 manual
 // OFFSET: 0x0073F270
 int32_t UnitFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(oldValue);
 
-    if (unit) {
-        unit->OnFlagChanged(*static_cast<const uint32_t*>(oldValue));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+
+    if (unitPtr) {
+        unitPtr->OnFlagChanged(*static_cast<const uint32_t*>(oldValue));
     }
 
     return 1;
@@ -682,10 +691,13 @@ int32_t UnitFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t field
 // VERIFY: 2c27c5d6 manual
 // OFFSET: 0x0073F2B0
 int32_t UnitFlag2UpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(oldValue);
 
-    if (unit) {
-        unit->OnFlag2Changed(*static_cast<const uint32_t*>(oldValue));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+
+    if (unitPtr) {
+        unitPtr->OnFlag2Changed(*static_cast<const uint32_t*>(oldValue));
     }
 
     return 1;
@@ -694,10 +706,13 @@ int32_t UnitFlag2UpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
 // VERIFY: fff011c6 manual
 // OFFSET: 0x0073F2F0
 int32_t UnitVisFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(oldValue);
 
-    if (unit) {
-        unit->OnVisFlagChanged(*static_cast<const uint8_t*>(oldValue));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+
+    if (unitPtr) {
+        unitPtr->OnVisFlagChanged(*static_cast<const uint8_t*>(oldValue));
     }
 
     return 1;
@@ -706,22 +721,25 @@ int32_t UnitVisFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fi
 // VERIFY: acc767d0 manual
 // OFFSET: 0x0073F330
 int32_t UnitHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
-    unit->m_predictedHealth = unit->m_unit->m_unitFieldHealth;
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
+    unitPtr->m_predictedHealth = unitPtr->m_unit->m_unitFieldHealth;
 
-    if (!(static_cast<float>(unit->m_unit->m_unitFieldHealth) / static_cast<int32_t>(unit->m_unit->m_unitFieldMaxhealth) < 0.2f) || unit->IsDeadOrGhost()) {
-        unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
-    } else if (unit->m_bloodlevels) {
-        unit->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
+    STORM_ASSERT(unitPtr->GetMaxHealth());
+
+    if (!(static_cast<float>(unitPtr->m_unit->m_unitFieldHealth) / static_cast<int32_t>(unitPtr->m_unit->m_unitFieldMaxhealth) < 0.2f) || unitPtr->IsDeadOrGhost()) {
+        unitPtr->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
+    } else if (unitPtr->m_bloodRec) {
+        unitPtr->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
     int32_t oldHealth = *static_cast<const int32_t*>(oldValue);
 
-    if (oldHealth > unit->m_unit->m_unitFieldHealth && unit->m_namePlateFrame) {
-        unit->m_namePlateFrame->TriggerDamageFeedback();
+    if (oldHealth > unitPtr->m_unit->m_unitFieldHealth && unitPtr->m_namePlateFrame) {
+        unitPtr->m_namePlateFrame->TriggerDamageFeedback();
     }
 
-    int32_t health = unit->m_unit->m_unitFieldHealth;
+    int32_t health = unitPtr->m_unit->m_unitFieldHealth;
 
     if (health <= 0) {
         if (oldHealth > 0) {
@@ -729,17 +747,17 @@ int32_t UnitHealthUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
                 CGInputControl::GetActive()->UpdatePlayer(OsGetAsyncTimeMs(), 1);
             }
 
-            unit->OnDeath();
+            unitPtr->OnDeath();
         }
     } else if (oldHealth <= 0) {
         if (guid == CGUnit_C::s_activeMover) {
             CGInputControl::GetActive()->UpdatePlayer(OsGetAsyncTimeMs(), 1);
         }
 
-        unit->OnLife(false);
+        unitPtr->OnLife(false);
     }
 
-    if (unit->IsActivePlayer()) {
+    if (unitPtr->IsActivePlayer()) {
         CGSpellBook::UpdateUsable();
     }
 
@@ -790,10 +808,11 @@ int32_t ChannelSpellOrObjectChangeHandler(WOWGUID guid, uint32_t fieldOffset, ui
 // VERIFY: 1cb365b5 manual
 // OFFSET: 0x007419C0
 int32_t MountDisplayIDUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
 
-    if (unit) {
-        unit->OnMountDisplayChanged(unit->m_unit->m_unitFieldMountdisplayid);
+    if (unitPtr) {
+        unitPtr->OnMountDisplayChanged(unitPtr->m_unit->m_unitFieldMountdisplayid);
     }
 
     return 1;
@@ -849,7 +868,7 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
         this->ModelChanged();
     }
 
-    if (this->m_missiles) {
+    if (this->m_missileList) {
         if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_ANIM_EVENT_POSITION) {
             this->ReleaseMissiles(this->m_animEventPosition);
         }
@@ -870,8 +889,8 @@ void CGUnit_C::UpdateDisplay(uint32_t time) {
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_HAS_ANIM_EVENT_POSITION;
 
     if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING) {
-        if (this->m_missiles && this->m_missiles->m_model) {
-            if (this->m_missiles->m_model->IsLoaded(0, 0)) {
+        if (this->m_missileList && this->m_missileList->m_model) {
+            if (this->m_missileList->m_model->IsLoaded(0, 0)) {
                 this->ReleaseMissiles();
                 this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_MISSILE_RELEASE_PENDING;
             }
@@ -946,6 +965,9 @@ static float GetExtraDisplayScale(const CreatureDisplayInfoRec* displayInfo) {
 // VERIFY: 411bfb59 auto
 // OFFSET: 0x0071C110
 float CGUnit_C::GetModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData) {
+    STORM_ASSERT(displayInfo);
+    STORM_ASSERT(modelData);
+
     CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_stats ? this->m_stats->m_family : 0);
     float scale = GetExtraDisplayScale(displayInfo) * displayInfo->m_creatureModelScale * modelData->m_modelScale;
     float fraction = 0.0f;
@@ -1023,12 +1045,13 @@ void CGUnit_C::UpdateWorldObject(int32_t skipEntityUpdate) {
             }
         }
 
-        CMap::ObjectUpdate(this->m_worldObject, matrix, box, sphere, vec, skipEntityUpdate, this->m_torsoKeyBone);
+        CMap::ObjectUpdate(this->m_worldObject, matrix, box, sphere, vec, skipEntityUpdate, this->m_splitBone);
     }
 
     if (this->m_vehicle && this->m_vehicle->m_vehicleRec) {
         for (CPassenger* passenger = this->m_vehicle->m_passengers.Head(); passenger; passenger = this->m_vehicle->m_passengers.Next(passenger)) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
+            STORM_ASSERT(unit);
             unit->UpdateWorldObject(0);
         }
     }
@@ -1105,12 +1128,13 @@ void CGUnit_C::UpdateDisplayInfo(BOOL force) {
     const CreatureModelDataRec* oldModelData = this->m_modelData;
     this->RefreshDataPointers();
     this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_TORSO_BONES;
-    this->m_torsoKeyBone = -1;
+    this->m_splitBone = -1;
 
     const char* fileName;
     this->GetModelFileName(&fileName);
 
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, 0);
+    STORM_ASSERT(model);
 
     if (!model) {
         return;
@@ -1352,9 +1376,9 @@ void CGUnit_C::ModelLoaded(CM2Model* model) {
         }
 
         if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_SPINE_LOW_BONE) {
-            this->m_torsoKeyBone = KEY_BONE_SPINE_LOW;
+            this->m_splitBone = KEY_BONE_SPINE_LOW;
         } else {
-            this->m_torsoKeyBone = (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_HEAD_BONE) ? KEY_BONE_HEAD : -1;
+            this->m_splitBone = (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_HEAD_BONE) ? KEY_BONE_HEAD : -1;
         }
 
         this->UpdateInteractIconAttach();
@@ -1925,6 +1949,7 @@ void CGUnit_C::RotateWheels() {
     }
 
     CM2Model* model = this->GetObjectModel();
+    STORM_ASSERT(model->IsLoaded());
     int32_t elapsedMs = FrameTime::s_curTimeMs - this->m_lastWheelUpdateTime;
 
     if (elapsedMs <= 1) {
@@ -2374,6 +2399,7 @@ int32_t CGUnit_C::OnCollideFallLandNotify(uint32_t time, uint32_t oldFlags, uint
 
     if (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING) {
         this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING;
+        STORM_ASSERT(IsA(TYPE_PLAYER));
         static_cast<CGPlayer_C*>(this)->HandleRepopRequest(true);
     }
 
@@ -2391,8 +2417,12 @@ void CGUnit_C::OnCollideFallReset(uint32_t time) {
 // VERIFY: d938b9d8 manual
 // OFFSET: 0x0071F210
 void CGUnit_C::SendSplineDone(uint32_t time, uint32_t splineId) {
+    STORM_ASSERT(!IsSplineMover());
+    STORM_ASSERT(IsActiveMover());
+
     CDataStore msg;
-    this->BuildMovementUpdate(time, CMSG_MOVE_SPLINE_DONE, &msg, 0.0f, 0);
+    [[maybe_unused]] int32_t allowedToSendMsg = this->BuildMovementUpdate(time, CMSG_MOVE_SPLINE_DONE, &msg, 0.0f, 0);
+    STORM_ASSERT(allowedToSendMsg);
     msg.Put(splineId);
     msg.Finalize();
     ClientServices::Send2(&msg);
@@ -3210,10 +3240,11 @@ bool CGUnit_C::CanAttack(const CGUnit_C* unit) const {
             CGUnit_C* otherController = other->GetControllingPlayer();
 
             if (controller && otherController) {
-                CGPlayerLocalData* player = static_cast<CGPlayer_C*>(controller)->m_player;
-                CGPlayerLocalData* otherPlayer = static_cast<CGPlayer_C*>(otherController)->m_player;
+                CGPlayer_C* player1 = static_cast<CGPlayer_C*>(controller);
+                CGPlayer_C* player2 = static_cast<CGPlayer_C*>(otherController);
 
-                if (player->m_playerDuelTeam && otherPlayer->m_playerDuelTeam && player->m_playerDuelArbiter == otherPlayer->m_playerDuelArbiter) {
+                if (player1->GetDuelTeam() && player2->GetDuelTeam() && player1->m_player->m_playerDuelArbiter == player2->m_player->m_playerDuelArbiter) {
+                    STORM_ASSERT(player1->GetDuelTeam() != player2->GetDuelTeam());
                     result = true;
                 } else {
                     uint8_t otherPvp = unit->m_unit->m_pvpFlags;
@@ -3338,9 +3369,12 @@ uint64_t CGUnit_C::GetComboPointTarget() const {
 // VERIFY: 98235d06 manual
 // OFFSET: 0x00735EF0
 void CGUnit_C::PropagateSmoothFacing(float facing) {
+    STORM_ASSERT(IsVehicle());
+
     for (CPassenger* passenger = this->m_vehicle->m_passengers.Head(); passenger; passenger = this->m_vehicle->m_passengers.Next(passenger)) {
-        CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
-        unit->UpdateSmoothFacing(&facing);
+        CGUnit_C* passengerUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_UNIT, __FILE__, __LINE__));
+        STORM_ASSERT(passengerUnit);
+        passengerUnit->UpdateSmoothFacing(&facing);
     }
 }
 
@@ -3377,11 +3411,11 @@ bool CGUnit_C::IsDuelingWith(CGUnit_C* unit) {
     }
 
     if (this->IsActivePlayer() && !otherController) {
-        if (unit->GetCharmerOrCreatorGuid()->m_guid && *unit->GetCharmerOrCreatorGuid() == CGDuelInfo::m_dueler) {
+        if (unit->GetOwnerGUID()->m_guid && *unit->GetOwnerGUID() == CGDuelInfo::m_dueler) {
             dueling = true;
         }
     } else if (unit->IsActivePlayer() && !controller) {
-        if (this->GetCharmerOrCreatorGuid()->m_guid && *this->GetCharmerOrCreatorGuid() == CGDuelInfo::m_dueler) {
+        if (this->GetOwnerGUID()->m_guid && *this->GetOwnerGUID() == CGDuelInfo::m_dueler) {
             dueling = true;
         }
     }
@@ -4013,7 +4047,7 @@ int32_t AnimationData::FindIdByBehaviorAndTier(uint32_t behavior, int32_t tier, 
 // VERIFY: fea936b3 manual
 // OFFSET: 0x007176F0
 uint32_t CGUnit_C::ResolveAnimForModel(uint32_t animId, CM2Model* model) {
-    int32_t tier = this->m_animTier;
+    int32_t currentTier = this->m_animTier;
 
     if (!(this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED)
         || (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_REENABLE_PENDING)
@@ -4035,15 +4069,16 @@ uint32_t CGUnit_C::ResolveAnimForModel(uint32_t animId, CM2Model* model) {
     memset(visited, 0, sizeof(visited));
     uint32_t current = animId;
 
-    while (!AnimationData::FindIdByBehaviorAndTier(current, tier, &result) || !model->IsSequenceLoaded(result)) {
+    while (!AnimationData::FindIdByBehaviorAndTier(current, currentTier, &result) || !model->IsSequenceLoaded(result)) {
         AnimationDataRec* rec = g_animationDataDB.GetRecord(current);
 
         if (current >= ANIM_COUNT || visited[current] || !rec || static_cast<int32_t>(current) == rec->m_fallback) {
-            if (this->FindDefaultAnimForTier(tier, &result)) {
+            if (this->FindDefaultAnimForTier(currentTier, &result)) {
                 return result;
             }
 
-            tier = s_animTierFallback[tier];
+            STORM_ASSERT(currentTier != s_animCategoryFallbacks[currentTier]);
+            currentTier = s_animCategoryFallbacks[currentTier];
             memset(visited, 0, sizeof(visited));
             current = animId;
             continue;
@@ -4198,7 +4233,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         }
     }
 
-    uint32_t bone = torso ? this->m_torsoKeyBone : M2_KEY_BONE_NONE;
+    uint32_t bone = torso ? this->m_splitBone : M2_KEY_BONE_NONE;
 
     if (currentAnim == playing) {
         if (!(fabsf(this->m_worldModel->GetBoneSequenceSpeed(bone) - slot->m_speed) < 2.3841858e-7f)) {
@@ -4208,7 +4243,7 @@ void CGUnit_C::ProcessAnimationEvent(M2BoneSequenceInfo* slot, uint32_t currentA
         return;
     }
 
-    if (playing == INVALID_ANIMATION || (torso && this->m_torsoKeyBone == -1)) {
+    if (playing == INVALID_ANIMATION || (torso && this->m_splitBone == -1)) {
         return;
     }
 
@@ -4262,7 +4297,7 @@ BOOL CGUnit_C::ShouldSplitTorsoAnimation(uint32_t animId, uint32_t currentAnim) 
         return TRUE;
     }
 
-    if (this->m_torsoKeyBone != -1 && this->m_vehicle && this->m_vehicle->m_vehicleRec && this->m_vehicle->IsBoneAnimPlaying(this->m_torsoKeyBone)) {
+    if (this->m_splitBone != -1 && this->m_vehicle && this->m_vehicle->m_vehicleRec && this->m_vehicle->IsBoneAnimPlaying(this->m_splitBone)) {
         return FALSE;
     }
 
@@ -4312,7 +4347,7 @@ void CGUnit_C::UpdateHandItemAnimEffects(bool force) {
     uint32_t sequence;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
+        if (this->m_splitBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
@@ -4480,7 +4515,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     }
 
     if ((this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_UPDATE_TORSO) && IsMeleeAttackAnim(previousAnim) && IsMeleeAttackAnim(anim)) {
-        this->SetKeyBoneSequenceSpeed(this->m_worldModel, hasTorso ? this->m_torsoKeyBone : M2_KEY_BONE_NONE, 2.0f, 0);
+        this->SetKeyBoneSequenceSpeed(this->m_worldModel, hasTorso ? this->m_splitBone : M2_KEY_BONE_NONE, 2.0f, 0);
         this->m_meleeAttackAnimId = anim;
         return;
     }
@@ -4546,7 +4581,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
         split = FALSE;
     }
 
-    BOOL vehicleBoneAnim = (this->m_torsoKeyBone != -1 && this->GetVehicleRec() && this->m_vehicle->IsBoneAnimPlaying(this->m_torsoKeyBone));
+    BOOL vehicleBoneAnim = (this->m_splitBone != -1 && this->GetVehicleRec() && this->m_vehicle->IsBoneAnimPlaying(this->m_splitBone));
 
     if (IsWeaponSpecialAnim(anim) || IsDeadOrDyingAnim(anim) || (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_NO_TORSO_SPLIT)) {
         split = FALSE;
@@ -4708,7 +4743,7 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     if (this->m_mountModel && torsoSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId) && baseSlot.m_sequenceId == static_cast<uint32_t>(this->m_mountAnimBehaviorId)) {
         updateTorso = 0;
         previousAnim = INVALID_ANIMATION;
-        this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, TRUE, FALSE, FALSE);
+        this->UnsetKeyBoneSequence(this->m_worldModel, this->m_splitBone, TRUE, FALSE, FALSE);
     }
 
     if (updateMount && this->m_mountModel && mountSlot.m_sequenceId != INVALID_ANIMATION && (mount.m_sequenceId != mountSlot.m_sequenceId || fabsf(mount.m_speed - mountSlot.m_speed) > 0.01f)) {
@@ -4718,9 +4753,9 @@ void CGUnit_C::PlayBaseAnimation(uint32_t animId, int32_t playbackFlags) {
     if (IsDeadOrDyingAnim(anim)) {
         updateTorso = 0;
 
-        if (this->m_torsoKeyBone != -1) {
-            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, TRUE, FALSE, FALSE);
-            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_torsoKeyBone, TRUE, TRUE, FALSE);
+        if (this->m_splitBone != -1) {
+            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_splitBone, TRUE, FALSE, FALSE);
+            this->UnsetKeyBoneSequence(this->m_worldModel, this->m_splitBone, TRUE, TRUE, FALSE);
         }
 
         this->UnsetKeyBoneSequence(this->m_worldModel, M2_KEY_BONE_NONE, TRUE, FALSE, FALSE);
@@ -5034,6 +5069,8 @@ void CGUnit_C::OnRightClick() {
                     return;
                 }
 
+                STORM_ASSERT(g_spellDB.RecordExists(CGSpellBook::GetSkinningSpell(this)));
+
                 SpellRec spell;
                 int32_t minPoints = 0;
                 int32_t maxPoints;
@@ -5105,6 +5142,7 @@ static void CacheEmoteRecords() {
 
     while (index--) {
         EmotesRec* rec = index >= 0 && index < g_emotesDB.m_nNumRecords ? &g_emotesDB.m_records[index] : nullptr;
+        STORM_ASSERT(rec);
 
         if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_TALK) {
             s_talkEmotes[TALKANIM_TALK] = rec;
@@ -5619,17 +5657,13 @@ VehicleRec* CGUnit_C::GetVehicleRec() const {
 // VERIFY: c3019c7e auto
 // OFFSET: 0x004F8850
 uint32_t CGUnit_C::GetAuraCount() const {
-    if (this->m_auras.m_count == 0xFFFFFFFF) {
-        return this->m_auras.m_dynamic.m_count;
-    }
-
-    return this->m_auras.m_count;
+    return this->m_auraData.Count();
 }
 
 // VERIFY: 540bfe58 manual
 // OFFSET: 0x004F8870
 int32_t CGUnit_C::GetAuraSpellId(uint32_t index) {
-    return this->m_auras[index].m_spellId;
+    return this->m_auraData[index].m_spellId;
 }
 
 // VERIFY: 43e20507 auto
@@ -5645,13 +5679,13 @@ AuraData* CGUnit_C::GetAura(uint32_t index) {
         return nullptr;
     }
 
-    return &this->m_auras[index];
+    return &this->m_auraData[index];
 }
 
 // VERIFY: ee76539f manual
 // OFFSET: 0x00565510
 uint8_t CGUnit_C::GetAuraFlags(uint32_t index) {
-    return this->m_auras[index].m_flags;
+    return this->m_auraData[index].m_flags;
 }
 
 // VERIFY: 649f7610 manual
@@ -6298,6 +6332,7 @@ uint64_t CGUnit_C::GetMasterLooter() const {
 void CGUnit_C::InitWheels() {
     this->m_wheelMask = 0;
     CM2Model* model = this->GetObjectModel();
+    STORM_ASSERT(model->IsLoaded());
 
     for (uint32_t bone = KEY_BONE_WHEEL1; bone <= KEY_BONE_WHEEL8; bone++) {
         if (model->HasBone(bone)) {
@@ -6373,18 +6408,23 @@ uint32_t CGUnit_C::GetVirtualItemDisplayID(VIRTUAL_MONSTER_SLOT slot) const {
 // VERIFY: 349e3c57 auto
 // OFFSET: 0x00718B30
 bool CGUnit_C::FactionHasReputation(int32_t factionId) {
-    FactionRec* faction = g_factionDB.GetRecord(factionId);
-    return faction && faction->m_reputationIndex >= 0;
+    FactionRec* rec = g_factionDB.GetRecord(factionId);
+    if (!rec) {
+        return false;
+    }
+
+    STORM_ASSERT(rec->m_reputationIndex < MAX_REPUTATION_FACTIONS);
+    return rec->m_reputationIndex >= 0;
 }
 
 // VERIFY: 60955254 manual
 // OFFSET: 0x00718B70
 CGUnit_C* CGUnit_C::GetControllingPlayer() {
     CGUnit_C* unit = this;
-    const WOWGUID* controller = this->GetCharmerOrCreatorGuid();
+    const WOWGUID* controller = this->GetOwnerGUID();
 
     if (*controller) {
-        controller = this->GetCharmerOrCreatorGuid();
+        controller = this->GetOwnerGUID();
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*controller, TYPE_UNIT, __FILE__, __LINE__));
     }
 
@@ -6393,7 +6433,7 @@ CGUnit_C* CGUnit_C::GetControllingPlayer() {
     }
 
     if (!(unit->m_obj->m_type & TYPE_PLAYER)) {
-        controller = unit->GetCharmerOrCreatorGuid();
+        controller = unit->GetOwnerGUID();
         unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*controller, TYPE_UNIT, __FILE__, __LINE__));
 
         if (!unit || !(unit->m_obj->m_type & TYPE_PLAYER)) {
@@ -6782,6 +6822,8 @@ uint32_t CGUnit_C::GetCanFly() const {
 // VERIFY: 54d048fe manual
 // OFFSET: 0x0071B820
 BOOL CGUnit_C::IsInMeleeRange(CGUnit_C* target) const {
+    STORM_ASSERT(target);
+
     CGUnit* targetUnit = target ? static_cast<CGUnit*>(target) : nullptr;
     float range = this->m_unit->m_unitFieldCombatreach + targetUnit->m_unit->m_unitFieldCombatreach + MELEE_COMBAT_REACH_OFFSET;
 
@@ -6808,7 +6850,8 @@ bool CGUnit_C::IsClientControlled() const {
     uint32_t flags = unit->m_unitFieldFlags;
 
     if (flags & UNIT_FLAGS::UNIT_FLAG_POSSESSED) {
-        const WOWGUID* controller = this->GetCharmerOrCreatorGuid();
+        const WOWGUID* controller = this->GetOwnerGUID();
+        STORM_ASSERT(*controller != GetGUID()); // 12213: "GetOwnerGUID() != GetGUID()"
         CGUnit_C* owner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*controller, TYPE_UNIT, __FILE__, __LINE__));
 
         if (!owner || !(owner->m_obj->m_type & TYPE_PLAYER)) {
@@ -6891,11 +6934,11 @@ uint32_t CGUnit_C::GetCurrentTorsoAnimId() const {
         return INVALID_ANIMATION;
     }
 
-    if (this->m_torsoKeyBone == -1) {
+    if (this->m_splitBone == -1) {
         return this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
-    uint32_t anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone);
+    uint32_t anim = this->m_worldModel->GetBoneSequenceId(this->m_splitBone);
 
     if (anim == INVALID_ANIMATION) {
         return this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
@@ -6983,10 +7026,10 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
     torso->m_finished = 0;
     torso->m_complete = 0;
 
-    if (this->m_torsoKeyBone == -1) {
+    if (this->m_splitBone == -1) {
         torso->m_finished = 1;
     } else {
-        this->m_worldModel->GetBoneSequenceInfo(this->m_torsoKeyBone, *torso);
+        this->m_worldModel->GetBoneSequenceInfo(this->m_splitBone, *torso);
     }
 
     if (torso->m_complete) {
@@ -7207,22 +7250,27 @@ PetPersonalityRec* CGUnit_C::GetPetPersonality() const {
         return nullptr;
     }
 
-    return g_petPersonalityDB.GetRecord(PET_PERSONALITY_ID_STANDARD);
+    PetPersonalityRec* prec = g_petPersonalityDB.GetRecord(PET_PERSONALITY_ID_STANDARD);
+    STORM_ASSERT(prec);
+    return prec;
 }
 
 // VERIFY: 1beb8441 auto
 // OFFSET: 0x0071FB60
-void CGUnit_C::GetFootprintInfo(int32_t* textureId, float* size) const {
+void CGUnit_C::GetFootprintInfo(int32_t* id, float* size) const {
+    STORM_ASSERT(id);
+    STORM_ASSERT(size);
+
     float length;
     float width;
 
     if (this->m_mountDisplayId <= 0 || (this->m_clientFlags & UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_DISMOUNT_PENDING) || !this->m_mountModel) {
-        *textureId = this->m_footprintTextureId;
+        *id = this->m_footprintTextureId;
         float scale = this->GetTrueScale();
         length = this->m_footprintLength * scale;
         width = scale * this->m_footprintWidth;
     } else {
-        *textureId = this->m_mountFootprintTextureId;
+        *id = this->m_mountFootprintTextureId;
         float scale = this->GetTrueScale();
         length = this->m_mountFootprintLength * scale;
         width = scale * this->m_mountFootprintWidth;
@@ -7285,7 +7333,9 @@ bool CGUnit_C::IsShapeShifted() const {
         return false;
     }
 
-    return !(g_spellShapeshiftFormDB.GetRecord(form)->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE);
+    const SpellShapeshiftFormRec* shape = g_spellShapeshiftFormDB.GetRecord(form);
+    STORM_ASSERT(shape);
+    return !(shape->m_flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE);
 }
 
 // VERIFY: ea61250a manual
@@ -7327,7 +7377,9 @@ bool CGUnit_C::IsCancelShapeshiftAtFlightMaster() const {
         return false;
     }
 
-    int32_t flags = g_spellShapeshiftFormDB.GetRecord(form)->m_flags;
+    const SpellShapeshiftFormRec* shape = g_spellShapeshiftFormDB.GetRecord(form);
+    STORM_ASSERT(shape);
+    int32_t flags = shape->m_flags;
     return !(flags & SPELL_SHAPESHIFT_FORM_FLAG_STANCE) || (flags & SPELL_SHAPESHIFT_FORM_FLAG_CANCEL_STANCE_AT_FLIGHT_MASTER);
 }
 
@@ -7400,6 +7452,7 @@ C44Matrix CGUnit_C::GetMatrix() const {
 
     if (this->GetTransportGUID()) {
         CGObject_C* transport = ClntObjMgrObjectPtr(WOWGUID{ this->GetTransportGUID() }, TYPE_OBJECT, __FILE__, __LINE__);
+        STORM_ASSERT(transport);
         matrix *= transport->GetMatrix();
     }
 
@@ -7409,7 +7462,7 @@ C44Matrix CGUnit_C::GetMatrix() const {
 // VERIFY: d769e18c manual
 // OFFSET: 0x00723490
 uint64_t CGUnit_C::GetAuraCaster(uint32_t index) {
-    const WOWGUID& creator = this->m_auras[index].m_creator;
+    const WOWGUID& creator = this->m_auraData[index].m_creator;
     return creator.m_guid;
 }
 
@@ -7470,13 +7523,14 @@ float CopySign(float value, float sign) {
 // VERIFY: d2d3074a manual
 // OFFSET: 0x007167C0
 int32_t AnimTierChangeHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unitPtr = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unitPtr);
 
-    if (unit) {
-        int32_t tier = unit->m_unit->m_animTier;
+    if (unitPtr) {
+        int32_t tier = unitPtr->m_unit->m_animTier;
 
-        if (tier != unit->m_animTier) {
-            unit->m_animTier = tier;
+        if (tier != unitPtr->m_animTier) {
+            unitPtr->m_animTier = tier;
         }
     }
 
@@ -7539,8 +7593,8 @@ float CGUnit_C::GetTorsoAnimProgress() const {
     info.m_complete = 0;
     info.m_endTime = 0;
 
-    if (this->m_torsoKeyBone != -1) {
-        this->m_worldModel->GetBoneSequenceInfo(this->m_torsoKeyBone, info);
+    if (this->m_splitBone != -1) {
+        this->m_worldModel->GetBoneSequenceInfo(this->m_splitBone, info);
     }
 
     if (info.m_sequenceId == INVALID_ANIMATION) {
@@ -7668,6 +7722,13 @@ void CGUnit_C::ClearPrecastMissileModel(uint8_t castCount) {
     }
 
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
+}
+
+inline void CGUnit_C::DeleteMissiles() {
+    while (this->m_missileList) {
+        STORM_ASSERT(m_missileList->m_caster == GetGUID());
+        this->m_missileList->DeleteSelf();
+    }
 }
 
 // VERIFY: 991ba226 manual
@@ -8055,7 +8116,7 @@ bool CGUnit_C::AnimSuppressesMovement() const {
 
     uint32_t anim;
 
-    if (this->m_torsoKeyBone == -1 || (anim = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
+    if (this->m_splitBone == -1 || (anim = this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == INVALID_ANIMATION) {
         anim = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
     }
 
@@ -8069,6 +8130,8 @@ bool CGUnit_C::AnimSuppressesMovement() const {
 // VERIFY: 75c2d34b manual
 // OFFSET: 0x0071CB30
 BOOL Packet_SMSG_MOUNTSPECIAL_ANIM(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     WOWGUID guid;
     msg->Get(guid.m_guid);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -8316,7 +8379,7 @@ bool CGUnit_C::HasAuraBySpellId(int32_t spellId) {
     uint32_t count = this->GetAuraCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (this->m_auras[i].m_spellId == spellId) {
+        if (this->m_auraData[i].m_spellId == spellId) {
             return true;
         }
     }
@@ -8350,7 +8413,7 @@ int32_t CGUnit_C::GetAuraIndex(int32_t spellId) {
     uint32_t count = this->GetAuraCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (this->m_auras[i].m_spellId == spellId) {
+        if (this->m_auraData[i].m_spellId == spellId) {
             return i;
         }
     }
@@ -8914,6 +8977,8 @@ WEAPONMODE __stdcall CGUnit_C::ResolveSheathState(WEAPONMODE weaponMode, const C
 // VERIFY: 4b3a0738 auto
 // OFFSET: 0x00716040
 void CGUnit_C::RequestRepopOnLanding() {
+    STORM_ASSERT(IsA(TYPE_PLAYER));
+
     this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_REPOP_ON_LANDING_PENDING;
 }
 
@@ -9202,9 +9267,11 @@ C3Vector CGUnit_C::GetGroundNormal() const {
 
 // VERIFY: 2f69446a manual
 // OFFSET: 0x0071BC50
-bool CGUnit_C::IsMovingToward(CGObject_C* target) const {
+bool CGUnit_C::IsMovingToward(CGObject_C* unitptr) const {
+    STORM_ASSERT(unitptr);
+
     C3Vector position = this->GetPosition();
-    C3Vector targetPosition = target->GetPosition();
+    C3Vector targetPosition = unitptr->GetPosition();
     C3Vector delta(targetPosition.x - position.x, targetPosition.y - position.y, targetPosition.z - position.z);
     C3Vector direction = this->m_movement->GetDirection();
     return direction.x * delta.x + direction.y * delta.y + direction.z * delta.z >= 0.0f;
@@ -9473,7 +9540,8 @@ void CGUnit_C::ResetKeyBoneSequences() {
 
     if (model) {
         if (this->m_animFlags & UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_HAS_SPINE_LOW_BONE) {
-            uint32_t torsoBone = this->m_torsoKeyBone;
+            STORM_ASSERT(m_splitBone != -1); // 12213: "m_splitBone != ((uint32) 0xffffffff)"
+            uint32_t torsoBone = this->m_splitBone;
 
             if (!this->m_vehiclePassenger || !this->m_vehiclePassenger->OverridesModelAnimation()) {
                 if (model->IsLoaded(0, 0) && model->BoneHasParent(torsoBone)) {
@@ -9505,13 +9573,13 @@ void CGUnit_C::ResetKeyBoneSequences() {
 // VERIFY: 9afd57a2 manual
 // OFFSET: 0x0061F890
 uint8_t CGUnit_C::GetAuraLevel(uint32_t index) {
-    return this->m_auras[index].m_level;
+    return this->m_auraData[index].m_level;
 }
 
 // VERIFY: 8b0d6c44 manual
 // OFFSET: 0x0061F8D0
 uint8_t CGUnit_C::GetAuraStackCount(uint32_t index) {
-    return this->m_auras[index].m_stackCount;
+    return this->m_auraData[index].m_stackCount;
 }
 
 // VERIFY: 4d921ef3 auto
@@ -9585,7 +9653,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_modelData(nullptr),
       m_soundData(nullptr),
       m_soundDataOverride(nullptr),
-      m_bloodlevels(nullptr),
+      m_bloodRec(nullptr),
       m_fishingLineEffect(nullptr),
       m_auraEffects(nullptr),
       unk_0988(nullptr),
@@ -9599,7 +9667,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_displayId(0),
       m_groundNormal(0.0f, 0.0f, 1.0f),
       m_lastMissileTime(0),
-      m_missiles(nullptr),
+      m_missileList(nullptr),
       m_pendingMissiles(nullptr),
       m_shapeshiftSuppressed(0),
       m_animStandState(UNIT_STANDING),
@@ -9655,7 +9723,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_chainSpellLocation(0.0f, 0.0f, 0.0f),
       m_mountAnimBehaviorId(ANIM_MOUNT),
       m_animTier(ANIM_TIER_GROUND),
-      m_torsoKeyBone(-1),
+      m_splitBone(-1),
       m_meleeAttackAnimId(INVALID_ANIMATION),
       m_pendingAnimId(INVALID_ANIMATION),
       m_awaitingEndAnimId(INVALID_ANIMATION),
@@ -9685,7 +9753,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
 
     this->SetClientInitData(create, false);
 
-    if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && this->m_unit->m_unitFieldHealth > 0 && this->m_bloodlevels) {
+    if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && this->m_unit->m_unitFieldHealth > 0 && this->m_bloodRec) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
@@ -9803,11 +9871,14 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_displayInfo = g_creatureDisplayInfoDB.m_nNumRecords > 0 ? g_creatureDisplayInfoDB.m_records : nullptr;
     }
 
+    STORM_ASSERT(m_displayInfo);
+
     const CreatureDisplayInfoRec* displayInfo = this->m_displayInfo;
     this->m_displayInfoExtra = g_creatureDisplayInfoExtraDB.GetRecord(displayInfo->m_extendedDisplayInfoID);
 
     CreatureModelDataRec* modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
     this->m_modelData = modelData;
+    STORM_ASSERT(m_modelData);
 
     this->m_soundData = g_creatureSoundDataDB.GetRecord(displayInfo->m_soundID);
 
@@ -9815,15 +9886,17 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_soundData = g_creatureSoundDataDB.GetRecord(modelData->m_soundID);
     }
 
-    this->m_bloodlevels = g_unitBloodLevelsDB.GetRecord(displayInfo->m_bloodID);
+    this->m_bloodRec = g_unitBloodLevelsDB.GetRecord(displayInfo->m_bloodID);
 
-    if (!this->m_bloodlevels) {
-        this->m_bloodlevels = g_unitBloodLevelsDB.GetRecord(modelData->m_bloodID);
+    if (!this->m_bloodRec) {
+        this->m_bloodRec = g_unitBloodLevelsDB.GetRecord(modelData->m_bloodID);
 
-        if (!this->m_bloodlevels) {
-            this->m_bloodlevels = g_unitBloodLevelsDB.m_nNumRecords > 0 ? g_unitBloodLevelsDB.m_records : nullptr;
+        if (!this->m_bloodRec) {
+            this->m_bloodRec = g_unitBloodLevelsDB.m_nNumRecords > 0 ? g_unitBloodLevelsDB.m_records : nullptr;
         }
     }
+
+    STORM_ASSERT(m_bloodRec);
 
     if (this->m_obj->m_type == (TYPE_UNIT | TYPE_OBJECT)) {
         this->m_stats = g_creatureDBCache.GetRecord(this->m_obj->m_entryID, this->m_obj->m_guid, &CreatureQueryCallback, nullptr, false);
@@ -9883,7 +9956,9 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     this->VehiclePassengerInit();
     MovementUpdateCameraYaw(this->m_obj->m_guid, this->m_movementData.m_transportGuid);
 
-    CM2Model* model = this->m_worldModel;
+    STORM_ASSERT(GetCharacterModel());
+
+    CM2Model* model = this->GetCharacterModel();
     model->SetSequenceCallback(&CGUnit_C::AnimEndCallback, this->m_obj->m_guid.m_guid);
     model->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
 
@@ -9897,6 +9972,8 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     }
 
     this->m_mountDisplayId = this->m_unit->m_unitFieldMountdisplayid;
+
+    STORM_ASSERT(m_modelData);
 
     const CreatureModelDataRec* modelData = this->m_modelData;
     this->m_footprintTextureId = modelData->m_footprintTextureID;
@@ -9975,7 +10052,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     uint32_t sequenceId;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequenceId = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == 0xFFFFFFFF) {
+        if (this->m_splitBone == -1 || (sequenceId = this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == 0xFFFFFFFF) {
             sequenceId = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
@@ -10146,15 +10223,13 @@ void CGUnit_C::Reenable() {
     this->m_powerRegenRemainder = 0;
     this->m_manaRegenInterruptTime = 0;
 
-    if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && !this->IsDeadOrGhost() && this->m_bloodlevels) {
+    if (static_cast<float>(this->m_unit->m_unitFieldHealth) / static_cast<int32_t>(this->m_unit->m_unitFieldMaxhealth) < 0.2f && !this->IsDeadOrGhost() && this->m_bloodRec) {
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_LOW_HEALTH_BLOOD_POOL;
     }
 
     this->m_animFlags &= ~(UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_CASTING | UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_FULL_BODY_ACTION);
 
-    while (this->m_missiles) {
-        this->m_missiles->DeleteSelf();
-    }
+    this->DeleteMissiles();
 
     while (this->m_pendingMissiles) {
         this->m_pendingMissiles->DeleteSelf();
@@ -10304,8 +10379,8 @@ void CGUnit_C::OnDeath() {
 
     this->UpdateUnitNameColor();
 
-    while (this->m_missiles) {
-        this->m_missiles->DeleteSelf();
+    while (this->m_missileList) {
+        this->m_missileList->DeleteSelf();
     }
 
     while (this->m_pendingMissiles) {
@@ -10372,9 +10447,7 @@ void CGUnit_C::ClearWeaponTrailHandles() {
 // VERIFY: e7c232db manual
 // OFFSET: [0x00734B50, 0x00737BA0]
 CGUnit_C::~CGUnit_C() {
-    while (this->m_missiles) {
-        this->m_missiles->DeleteSelf();
-    }
+    this->DeleteMissiles();
 
     while (this->m_pendingMissiles) {
         this->m_pendingMissiles->DeleteSelf();
@@ -10462,6 +10535,11 @@ CGUnit_C::~CGUnit_C() {
     }
 
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (this->m_vehicle) {
+        STORM_ASSERT(m_vehicle->GetPassengerList().IsEmpty());
+    }
+#endif
     this->DestroyVehicleData(0);
 
     if (this->m_vehiclePassenger) {
@@ -10629,9 +10707,7 @@ void CGUnit_C::Disable() {
         }
     }
 
-    while (this->m_missiles) {
-        this->m_missiles->DeleteSelf();
-    }
+    this->DeleteMissiles();
 
     while (this->m_pendingMissiles) {
         this->m_pendingMissiles->DeleteSelf();
@@ -10810,6 +10886,8 @@ void CGUnit_C::OnTurnStopLocal(uint32_t eventTime) {
 // VERIFY: c9647570 manual
 // OFFSET: 0x0072E5D0
 void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
+    STORM_ASSERT(CanMove());
+
     this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnMoveStartLocal(eventTime, forward);
@@ -10818,6 +10896,8 @@ void CGUnit_C::OnMoveStartLocal(uint32_t eventTime, int32_t forward) {
 // VERIFY: 97b45c2f manual
 // OFFSET: 0x0072E680
 void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
+    STORM_ASSERT(CanMove());
+
     this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnStrafeStartLocal(eventTime, left);
@@ -10826,6 +10906,8 @@ void CGUnit_C::OnStrafeStartLocal(uint32_t eventTime, int32_t left) {
 // VERIFY: 779d8288 manual
 // OFFSET: 0x0072E730
 void CGUnit_C::OnAscendDescendStartLocal(uint32_t eventTime, int32_t ascend) {
+    STORM_ASSERT(CanMove());
+
     this->OnMovementInitiated(true, false);
 
     this->m_movementData.OnAscendDescendStartLocal(eventTime, ascend);
@@ -10839,6 +10921,8 @@ void CGUnit_C::OnTurnStartLocal(uint32_t eventTime, int32_t left) {
     if (g_spellDB.GetRecord(this->m_unit->m_unitChannelSpell, &spell) && (spell.m_channelInterruptFlags & SpellRec::ChannelInterruptFlags::CHANNEL_INTERRUPT_ON_TURN) && (spell.m_attributesEx & SPELL_ATTR1::SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) && this->IsAutoTracking()) {
         Spell_C_CancelChannelSpell(this->m_unit->m_unitChannelSpell);
     }
+
+    STORM_ASSERT(!IsStunned());
 
     this->OnMovementInitiated(true, false);
 
@@ -10864,6 +10948,8 @@ void CGUnit_C::OnPitchStopLocal(uint32_t eventTime) {
 // VERIFY: 6f683f46 manual
 // OFFSET: 0x0072EB80
 void CGUnit_C::TryJumpOrAscend(uint32_t eventTime) {
+    STORM_ASSERT(CanMove());
+
     this->OnMovementInitiated(false, false);
 
     CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_mountDisplayId);
@@ -10911,6 +10997,8 @@ static int32_t AckMessageHasValue(uint32_t msgId) {
 // VERIFY: 4658bf14 manual
 // OFFSET: 0x00717D90
 void CGUnit_C::SendTimeSkip(uint32_t skip) {
+    STORM_ASSERT(IsActiveMover());
+
     if (this->m_movement->IsOnSpline() || (this->m_movementData.m_flags & MOVEMENTFLAG_ONTRANSPORT)) {
         return;
     }
@@ -10972,7 +11060,9 @@ int32_t CGUnit_C::BuildMovementUpdate(uint32_t time, uint32_t msgId, CDataStore*
 
 // VERIFY: fbc23c4e manual
 // OFFSET: 0x0071F0C0
-int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value, uint32_t index, uint64_t transport, uint8_t seat) {
+int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t messageId, float value, uint32_t index, uint64_t transport, uint8_t seat) {
+    STORM_ASSERT(messageId < NUM_MSG_TYPES);
+
     CDataStore msg;
     this->m_lastSentFacing = this->GetRawFacing();
 
@@ -10980,11 +11070,11 @@ int32_t CGUnit_C::SendMovementUpdate(uint32_t time, uint32_t msgId, float value,
         this->m_lastSentPitch = this->GetPitch();
     }
 
-    if (!this->BuildMovementUpdate(time, msgId, &msg, value, index)) {
+    if (!this->BuildMovementUpdate(time, messageId, &msg, value, index)) {
         return 0;
     }
 
-    if (msgId == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE) {
+    if (messageId == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE) {
         SmartGUID transportGuid;
         transportGuid.m_guid = transport;
         msg << transportGuid;
@@ -11447,6 +11537,7 @@ int32_t CGUnit_C::ProcessLocalMoveEvent(uint32_t eventTime, uint32_t msgId, bool
     int32_t sent = 0;
 
     if (send) {
+        STORM_ASSERT(msgId != MSG_NULL_ACTION);
         if (msgId >= MSG_MOVE_START_TURN_LEFT && msgId <= MSG_MOVE_STOP_TURN && (this->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_TURNING)) {
             sent = this->HandleFloodsafeTurnEvent(eventTime, msgId);
         } else if (msgId >= MSG_MOVE_START_PITCH_UP && msgId <= MSG_MOVE_STOP_PITCH && (this->m_movement->m_moveFlags2 & MOVEFLAG2_FULL_SPEED_PITCHING)) {
@@ -12128,6 +12219,8 @@ void CGUnit_C::SetHandItemSpellEffectsVisible(BOOL visible) {
 // VERIFY: 45efb9de manual
 // OFFSET: 0x00741B60
 BOOL CGUnit_C::HandleMovementPacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12143,6 +12236,8 @@ BOOL CGUnit_C::HandleMovementPacket(void* param, NETMESSAGE msgId, uint32_t time
 // VERIFY: 775607d3 manual
 // OFFSET: 0x00741B00
 BOOL CGUnit_C::HandleSpeedChangePacket(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12172,6 +12267,8 @@ BOOL Packet_MoveMode(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* m
 // VERIFY: 4a4be5b9 manual
 // OFFSET: 0x00741C30
 BOOL Packet_SplineMoveEffect(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12187,6 +12284,8 @@ BOOL Packet_SplineMoveEffect(void* param, NETMESSAGE msgId, uint32_t time, CData
 // VERIFY: 773da535 manual
 // OFFSET: 0x00741BC0
 BOOL Packet_SplineSpeedChange(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     float value;
@@ -12204,6 +12303,8 @@ BOOL Packet_SplineSpeedChange(void* param, NETMESSAGE msgId, uint32_t time, CDat
 // VERIFY: 8d4c4c67 manual
 // OFFSET: 0x0071CAB0
 BOOL Packet_MSG_MOVE_TIME_SKIPPED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -12900,6 +13001,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
     if (this->m_movementData.m_transportGuid.m_guid != transport) {
+        STORM_ASSERT(!IsActiveMover());
         return;
     }
 
@@ -12945,12 +13047,12 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     uint8_t animType = 0;
     uint32_t duration;
     uint32_t splineFlags;
-    uint32_t waypoints;
+    uint32_t numPoints;
 
     if (faceType == MONSTER_MOVE_STOP) {
         duration = 0;
         splineFlags = SPLINEFLAG_CAN_SWIM;
-        waypoints = 1;
+        numPoints = 1;
     } else {
         msg->Get(splineFlags);
 
@@ -12966,10 +13068,12 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
             msg->Get(parabolicStart);
         }
 
-        msg->Get(waypoints);
+        msg->Get(numPoints);
     }
 
-    C3Vector* points = static_cast<C3Vector*>(alloca(sizeof(C3Vector) * (waypoints + 4)));
+    STORM_ASSERT(numPoints > 0);
+
+    C3Vector* points = static_cast<C3Vector*>(alloca(sizeof(C3Vector) * (numPoints + 4)));
     C3Vector direction = { 0.0f, 0.0f, 0.0f };
     C3Vector end = { 0.0f, 0.0f, 0.0f };
     float facing = this->GetRawFacing();
@@ -12991,7 +13095,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
         path[0] = start;
         uint32_t count = 1;
 
-        if (waypoints <= 1) {
+        if (numPoints <= 1) {
             if ((end.x - start.x) * (end.x - start.x) + (end.y - start.y) * (end.y - start.y) + (end.z - start.z) * (end.z - start.z) > 0.00077160494f) {
                 path[1] = end;
                 count = 2;
@@ -12999,7 +13103,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
         } else {
             C3Vector middle = { (start.x + end.x) * 0.5f, (end.y + start.y) * 0.5f, 0.5f * (end.z + start.z) };
 
-            for (uint32_t i = 0; i < waypoints - 1; i++) {
+            for (uint32_t i = 0; i < numPoints - 1; i++) {
                 C3Vector offset;
                 ReadPackedVector3(msg, middle, &offset);
                 path[count] = offset;
@@ -13037,7 +13141,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
             count = 3;
         }
 
-        for (uint32_t i = 1; i < waypoints; i++) {
+        for (uint32_t i = 1; i < numPoints; i++) {
             msg->Get(point.x);
             msg->Get(point.y);
             msg->Get(point.z);
@@ -13483,16 +13587,16 @@ void AuraData::Unpack(CGUnit_C* unit, uint32_t time, CDataStore* msg) {
 // VERIFY: 32bbf304 manual
 // OFFSET: 0x0072F360
 void CGUnit_C::AddAuraSlot(uint8_t slot) {
-    uint32_t count = this->m_auras.m_count == 0xFFFFFFFF ? this->m_auras.m_dynamic.m_count : this->m_auras.m_count;
+    uint32_t count = this->m_auraData.m_count == 0xFFFFFFFF ? this->m_auraData.m_dynamic.m_count : this->m_auraData.m_count;
 
     if (count > slot) {
         return;
     }
 
-    this->m_auras.SetCount(slot + 1);
+    this->m_auraData.SetCount(slot + 1);
 
     for (uint32_t i = count; i <= slot; i++) {
-        this->m_auras[i].m_spellId = 0;
+        this->m_auraData[i].m_spellId = 0;
     }
 
     for (uint32_t j = 0; j < sizeof(this->m_sortedAuras) / sizeof(this->m_sortedAuras[0]); j++) {
@@ -13517,11 +13621,11 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
     uint32_t time = OsGetAsyncTimeMs();
     uint32_t oldCount = this->GetAuraCount();
     AuraData* oldAuras = static_cast<AuraData*>(alloca(sizeof(AuraData) * oldCount));
-    memcpy(oldAuras, &this->m_auras[0], sizeof(AuraData) * oldCount);
+    memcpy(oldAuras, &this->m_auraData[0], sizeof(AuraData) * oldCount);
     uint8_t updated[256];
 
     if (updateAll) {
-        memset(&this->m_auras[0], 0, sizeof(AuraData) * this->GetAuraCount());
+        memset(&this->m_auraData[0], 0, sizeof(AuraData) * this->GetAuraCount());
         memset(updated, 1, sizeof(updated));
     } else {
         memset(updated, 0, sizeof(updated));
@@ -13532,7 +13636,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
         msg->Get(slot);
         updated[slot] = 1;
         this->AddAuraSlot(slot);
-        this->m_auras[slot].Unpack(this, time, msg);
+        this->m_auraData[slot].Unpack(this, time, msg);
     }
 
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_SORTED_AURAS_VALID;
@@ -13546,9 +13650,9 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
 
         int32_t oldSpellId = oldAuras[i].m_spellId;
         uint32_t oldActive = oldAuras[i].m_flags & AURA_FLAG_EFFECT_MASK;
-        int32_t spellId = this->m_auras[i].m_spellId;
+        int32_t spellId = this->m_auraData[i].m_spellId;
         bool wasActive = oldSpellId && oldActive;
-        bool stillActive = oldSpellId == spellId && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_MASK);
+        bool stillActive = oldSpellId == spellId && (this->m_auraData[i].m_flags & AURA_FLAG_EFFECT_MASK);
 
         if ((wasActive && !stillActive) || !spellId) {
             if (updateAll) {
@@ -13572,7 +13676,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
         bool hadOld = i < oldCount;
         int32_t oldSpellId = hadOld ? oldAuras[i].m_spellId : 0;
         uint32_t oldActive = hadOld ? oldAuras[i].m_flags & AURA_FLAG_EFFECT_MASK : 0;
-        AuraData& aura = this->m_auras[i];
+        AuraData& aura = this->m_auraData[i];
         int32_t spellId = aura.m_spellId;
         bool same = oldSpellId == spellId && oldActive;
 
@@ -13610,7 +13714,7 @@ void CGUnit_C::OnAuraUpdate(CDataStore* msg, bool updateAll) {
     int32_t arenaIndex;
     int32_t arenaOpponent = CGBattlefieldInfo::GetArenaOpponentIndex(guid, &arenaIndex);
 
-    if ((changed && (guid == ClntObjMgrGetActivePlayer() || this->m_unit->m_unitFieldCharmedby == ClntObjMgrGetActivePlayer() || *this->GetCharmerOrCreatorGuid() == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == CGGameUI::m_lockedTarget || this->m_obj->m_guid == CGGameUI::m_focusTarget)) || arenaOpponent) {
+    if ((changed && (guid == ClntObjMgrGetActivePlayer() || this->m_unit->m_unitFieldCharmedby == ClntObjMgrGetActivePlayer() || *this->GetOwnerGUID() == ClntObjMgrGetActivePlayer() || this->m_obj->m_guid == CGGameUI::m_lockedTarget || this->m_obj->m_guid == CGGameUI::m_focusTarget)) || arenaOpponent) {
         CGSpellBook::UpdateUsable();
 
         if (this->m_obj->m_guid == CGGameUI::m_lockedTarget || this->m_obj->m_guid == CGGameUI::m_focusTarget || arenaOpponent) {
@@ -13732,13 +13836,14 @@ void CGUnit_C::InitActiveMover(const WOWGUID& guid) {
 
     uint32_t time = OsGetAsyncTimeMs();
     CGInputControl::GetActive()->UpdatePlayer(time, 1);
-    CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
+    STORM_ASSERT(unit);
 
-    if (mover->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) {
-        mover->m_movementData.UpdateHeartbeatTimerA(time);
+    if (unit->m_movement->m_flags & MOVEMENTFLAG_MOVING_MASK) {
+        unit->m_movementData.UpdateHeartbeatTimerA(time);
     }
 
-    WOWGUID transportGuid = WOWGUID{ mover->GetTransportGUID() };
+    WOWGUID transportGuid = WOWGUID{ unit->GetTransportGUID() };
 
     if (transportGuid) {
         CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(transportGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
@@ -13748,7 +13853,7 @@ void CGUnit_C::InitActiveMover(const WOWGUID& guid) {
         }
     }
 
-    CVehiclePassenger_C::OnSetActiveMover(mover);
+    CVehiclePassenger_C::OnSetActiveMover(unit);
 }
 
 // VERIFY: 5f5b6429 manual
@@ -13809,19 +13914,21 @@ int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, BOOL hasDisplayI
                 return 0;
             }
 
-            const char* bakeName = this->m_displayInfoExtra->m_bakeName;
+            const char* textureName = this->m_displayInfoExtra->m_bakeName;
+            STORM_ASSERT(textureName);
 
-            if (!bakeName || !*bakeName) {
+            if (!textureName || !*textureName) {
                 return 0;
             }
 
             data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
-            SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
+            SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", textureName);
         }
     }
 
     data.model2 = this->m_worldModel;
     data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
+    STORM_ASSERT(data.model2);
     data.model2->m_refCount++;
 
     if (player) {
@@ -14412,7 +14519,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
     }
 
     if (this->m_specialIdleAnim != INVALID_ANIMATION && this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        BOOL torso = this->m_torsoKeyBone != -1 && static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == this->m_specialIdleAnim;
+        BOOL torso = this->m_splitBone != -1 && static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == this->m_specialIdleAnim;
         int32_t special = this->m_specialIdleAnim;
         BOOL base = static_cast<int32_t>(this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE)) == special;
 
@@ -14832,14 +14939,14 @@ void CGUnit_C::OnKeyBoneAnimEnd(CM2Model* model, uint32_t boneId, uint32_t seque
         const VehicleSeatRec* seat = passenger ? passenger->m_seatRec : nullptr;
         BOOL ridingLower = passenger && passenger->m_state == CVehiclePassenger_C::TRANSITION_STATE::STATE_RIDING && passenger->GetLowerAnim(seat) != ANIM_COUNT;
 
-        if (static_cast<int32_t>(boneId) == this->m_torsoKeyBone) {
+        if (static_cast<int32_t>(boneId) == this->m_splitBone) {
             if (!usedDefault && chosen == ANIM_COUNT && ridingLower) {
                 this->UpdateObjectEffectAnimationStates();
                 return;
             }
         }
 
-        if (static_cast<int32_t>(boneId) != this->m_torsoKeyBone || !ridingLower || this->m_vehiclePassenger->GetUpperAnim(seat) == ANIM_COUNT) {
+        if (static_cast<int32_t>(boneId) != this->m_splitBone || !ridingLower || this->m_vehiclePassenger->GetUpperAnim(seat) == ANIM_COUNT) {
             uint32_t current = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
 
             if (!IsUpperBodyAnim(anim) || !this->ShouldSplitTorsoAnimation(anim, current) || anim == current) {
@@ -14963,13 +15070,13 @@ static bool IsOwnedByActivePlayer(const WOWGUID& guid, bool* isPlayer) {
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!unit || !unit->GetCharmerOrCreatorGuid()->m_guid) {
+    if (!unit || !unit->GetOwnerGUID()->m_guid) {
         return false;
     }
 
-    CGUnit_C* owner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*unit->GetCharmerOrCreatorGuid(), TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* owner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*unit->GetOwnerGUID(), TYPE_UNIT, __FILE__, __LINE__));
 
-    if (*unit->GetCharmerOrCreatorGuid() == ClntObjMgrGetActivePlayer() || (owner && *owner->GetCharmerOrCreatorGuid() == ClntObjMgrGetActivePlayer())) {
+    if (*unit->GetOwnerGUID() == ClntObjMgrGetActivePlayer() || (owner && *owner->GetOwnerGUID() == ClntObjMgrGetActivePlayer())) {
         *isPlayer = false;
         return true;
     }
@@ -15006,6 +15113,8 @@ void CGUnit_C::AddWorldText(const WOWGUID& source, MISS_REASON reason, const Spe
 
         color = reinterpret_cast<const CImVector*>(&s_petSpellDamageColor);
     }
+
+    STORM_ASSERT(reason < MISS_NUMMISSTYPES);
 
     const char* text = FrameScript_GetText(s_combatTextTokens[reason], -1, GENDER_NOT_APPLICABLE);
 
@@ -15436,7 +15545,7 @@ bool CGUnit_C::AffectedByAura(int32_t auraType, const SpellRec* spell) const {
     SpellRec auraSpell;
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        const AuraData* aura = &const_cast<CGUnit_C*>(this)->m_auras[i];
+        const AuraData* aura = &const_cast<CGUnit_C*>(this)->m_auraData[i];
 
         if (!g_spellDB.GetRecord(aura->m_spellId, &auraSpell)) {
             continue;
@@ -15669,8 +15778,8 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
     }
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        uint32_t count = this->m_auras.m_count == 0xFFFFFFFF ? this->m_auras.m_dynamic.m_count : this->m_auras.m_count;
-        AuraData* aura = i < count ? &this->m_auras[i] : nullptr;
+        uint32_t count = this->m_auraData.m_count == 0xFFFFFFFF ? this->m_auraData.m_dynamic.m_count : this->m_auraData.m_count;
+        AuraData* aura = i < count ? &this->m_auraData[i] : nullptr;
 
         if (harmful == 1 && (aura->m_flags & AURA_FLAG_HARMFUL)) {
             continue;
@@ -15678,7 +15787,7 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
 
         SpellRec spell;
 
-        if (!g_spellDB.GetRecord(this->m_auras[i].m_spellId, &spell) || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
+        if (!g_spellDB.GetRecord(this->m_auraData[i].m_spellId, &spell) || (spell.m_attributes & SPELL_ATTR0::SPELL_ATTR0_PASSIVE)) {
             continue;
         }
 
@@ -15698,15 +15807,15 @@ bool CGUnit_C::HasDispellableAura(int32_t dispelType, int32_t harmful, bool mech
         if (charmed) {
             bool charm = false;
 
-            if ((spell.m_effect[0] == SPELL_AURA_MOD_CHARM || spell.m_effect[0] == SPELL_AURA_AOE_CHARM || spell.m_effect[0] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_0)) {
+            if ((spell.m_effect[0] == SPELL_AURA_MOD_CHARM || spell.m_effect[0] == SPELL_AURA_AOE_CHARM || spell.m_effect[0] == SPELL_AURA_MOD_POSSESS) && (this->m_auraData[i].m_flags & AURA_FLAG_EFFECT_0)) {
                 charm = true;
             }
 
-            if ((spell.m_effect[1] == SPELL_AURA_MOD_CHARM || spell.m_effect[1] == SPELL_AURA_AOE_CHARM || spell.m_effect[1] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_1)) {
+            if ((spell.m_effect[1] == SPELL_AURA_MOD_CHARM || spell.m_effect[1] == SPELL_AURA_AOE_CHARM || spell.m_effect[1] == SPELL_AURA_MOD_POSSESS) && (this->m_auraData[i].m_flags & AURA_FLAG_EFFECT_1)) {
                 charm = true;
             }
 
-            if ((spell.m_effect[2] == SPELL_AURA_MOD_CHARM || spell.m_effect[2] == SPELL_AURA_AOE_CHARM || spell.m_effect[2] == SPELL_AURA_MOD_POSSESS) && (this->m_auras[i].m_flags & AURA_FLAG_EFFECT_2)) {
+            if ((spell.m_effect[2] == SPELL_AURA_MOD_CHARM || spell.m_effect[2] == SPELL_AURA_AOE_CHARM || spell.m_effect[2] == SPELL_AURA_MOD_POSSESS) && (this->m_auraData[i].m_flags & AURA_FLAG_EFFECT_2)) {
                 charm = true;
             }
 
@@ -16152,18 +16261,21 @@ bool CGUnit_C::CheckAndReportSpellInhibitFlags(PendingSpellCast* cast, const Spe
 
 // VERIFY: 90d66722 manual
 // OFFSET: 0x00727C00
-void CGUnit_C::InsertSortedAura(uint32_t list, uint32_t auraIndex, int32_t position) {
-    AuraData* aura = auraIndex < this->GetAuraCount() ? &this->m_auras[auraIndex] : nullptr;
-    WOWGUID player = ClntObjMgrGetActivePlayer();
-    TSCGrowableArray<SortedAuraInfo, 16>& sorted = this->m_sortedAuras[list];
+void CGUnit_C::InsertSortedAura(uint32_t sortedAurasIndex, uint32_t auraSlot, int32_t sortedAurasSlot) {
+    STORM_ASSERT(auraSlot < m_auraData.Count());
+    STORM_ASSERT(static_cast<uint32_t>(sortedAurasSlot) < m_sortedAuras[sortedAurasIndex].Count()); // 12213: "sortedAurasSlot < m_sortedAuras[sortedAurasIndex].Count()"
 
-    if (position) {
+    AuraData* aura = auraSlot < this->GetAuraCount() ? &this->m_auraData[auraSlot] : nullptr;
+    WOWGUID player = ClntObjMgrGetActivePlayer();
+    TSCGrowableArray<SortedAuraInfo, 16>& sorted = this->m_sortedAuras[sortedAurasIndex];
+
+    if (sortedAurasSlot) {
         if (CGSpellBook::IsAuraCaster(player, &aura->m_creator)) {
-            int32_t i = position - 1;
+            int32_t i = sortedAurasSlot - 1;
 
             for (; i >= 0; i--) {
                 uint32_t otherIndex = sorted[i].m_auraIndex;
-                AuraData* other = otherIndex < this->GetAuraCount() ? &this->m_auras[otherIndex] : nullptr;
+                AuraData* other = otherIndex < this->GetAuraCount() ? &this->m_auraData[otherIndex] : nullptr;
 
                 if (CGSpellBook::IsAuraCaster(player, &other->m_creator)) {
                     break;
@@ -16172,9 +16284,9 @@ void CGUnit_C::InsertSortedAura(uint32_t list, uint32_t auraIndex, int32_t posit
                 sorted[i + 1] = sorted[i];
             }
 
-            position = i + 1;
+            sortedAurasSlot = i + 1;
         } else if (CGSpellBook::CanApplyAura(aura)) {
-            int32_t i = position - 1;
+            int32_t i = sortedAurasSlot - 1;
 
             for (; i >= 0; i--) {
                 AuraData* other = this->GetAura(sorted[i].m_auraIndex);
@@ -16186,12 +16298,12 @@ void CGUnit_C::InsertSortedAura(uint32_t list, uint32_t auraIndex, int32_t posit
                 sorted[i + 1] = sorted[i];
             }
 
-            position = i + 1;
+            sortedAurasSlot = i + 1;
         }
     }
 
-    sorted[position].m_auraIndex = auraIndex;
-    sorted[position].m_spellId = aura->m_spellId;
+    sorted[sortedAurasSlot].m_auraIndex = auraSlot;
+    sorted[sortedAurasSlot].m_spellId = aura->m_spellId;
 }
 
 // VERIFY: 2d8ce268 manual
@@ -16202,7 +16314,7 @@ void CGUnit_C::SortAuras() {
         uint32_t i = 0;
 
         while (i < this->GetAuraCount() && sorted[i].m_spellId) {
-            AuraData& aura = this->m_auras[sorted[i].m_auraIndex];
+            AuraData& aura = this->m_auraData[sorted[i].m_auraIndex];
 
             if (aura.m_spellId == sorted[i].m_spellId && (aura.m_flags & AURA_FLAG_EFFECT_MASK)) {
                 i++;
@@ -16225,13 +16337,13 @@ void CGUnit_C::SortAuras() {
     for (uint32_t index = this->GetAuraCount(); index; ) {
         index--;
 
-        AuraData* aura = index < this->GetAuraCount() ? &this->m_auras[index] : nullptr;
+        AuraData* aura = index < this->GetAuraCount() ? &this->m_auraData[index] : nullptr;
 
         if (!aura->m_spellId || !(aura->m_flags & AURA_FLAG_EFFECT_MASK) || !g_spellDB.GetRecord(aura->m_spellId, &spell)) {
             continue;
         }
 
-        if (!CGSpellBook::CanShowAura(&spell, &aura->m_creator, (this->m_auras[index].m_flags & AURA_FLAG_SELF_CAST) != 0)) {
+        if (!CGSpellBook::CanShowAura(&spell, &aura->m_creator, (this->m_auraData[index].m_flags & AURA_FLAG_SELF_CAST) != 0)) {
             continue;
         }
 
@@ -16287,7 +16399,7 @@ uint32_t CGUnit_C::GetSortedAuraSlot(int32_t index, const char* name, const char
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         uint32_t auraIndex = sorted[i].m_auraIndex;
-        AuraData* aura = auraIndex < this->GetAuraCount() ? &this->m_auras[auraIndex] : nullptr;
+        AuraData* aura = auraIndex < this->GetAuraCount() ? &this->m_auraData[auraIndex] : nullptr;
 
         if (!aura || !aura->m_spellId || helpful != !(aura->m_flags & AURA_FLAG_HARMFUL)) {
             continue;
@@ -16404,19 +16516,22 @@ void CGUnit_C::AuraVisionUpdated(uint8_t vision) {
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
         SpellRec spell;
 
-        if (!g_spellDB.GetRecord(this->m_auras[i].m_spellId, &spell)) {
+        if (!g_spellDB.GetRecord(this->m_auraData[i].m_spellId, &spell)) {
             continue;
         }
 
-        uint8_t mask = GetRequiredAuraVisionBitmask(&spell);
+        int32_t requiredAuraVisionBitmask = static_cast<int32_t>(GetRequiredAuraVisionBitmask(&spell));
+        STORM_ASSERT((requiredAuraVisionBitmask >= 0) && (requiredAuraVisionBitmask <= 0xFF));
 
-        if (!(mask & vision)) {
+        if (!(static_cast<uint8_t>(requiredAuraVisionBitmask) & vision)) {
             continue;
         }
 
         CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
-        if (mask & player->m_player->m_auraVision) {
+        STORM_ASSERT(player);
+
+        if (static_cast<uint8_t>(requiredAuraVisionBitmask) & player->m_player->m_auraVision) {
             this->AddAuraEffect(i, &spell);
         } else {
             this->RemoveAuraEffect(i, &spell);
@@ -16438,7 +16553,7 @@ void CGUnit_C::ScanAuraSpellsOnDisplayUpdate() {
     for (uint32_t i = this->GetAuraCount(); i; ) {
         i--;
 
-        int32_t spellId = this->m_auras[i].m_spellId;
+        int32_t spellId = this->m_auraData[i].m_spellId;
 
         if (spellId && g_spellDB.GetRecord(spellId, &spell)) {
             this->AddAuraEffect(i, &spell);
@@ -16455,7 +16570,7 @@ void CGUnit_C::AddAuraEffect(uint32_t index, const SpellRec* spell) {
         return;
     }
 
-    int32_t spellId = this->m_auras[index].m_spellId;
+    int32_t spellId = this->m_auraData[index].m_spellId;
     bool hasSpell = spell != nullptr;
 
     if (this->m_handItemSpellIds[index]) {
@@ -16566,7 +16681,7 @@ store:
     }
 
     if (visual->m_hasMissile) {
-        for (CMissile* missile = this->m_missiles; missile; missile = missile->m_next) {
+        for (CMissile* missile = this->m_missileList; missile; missile = missile->m_next) {
             if (missile->m_spellID == static_cast<uint32_t>(spellId)) {
                 return;
             }
@@ -16588,7 +16703,7 @@ store:
 
     {
         PlaySpellVisuaKitData data(spell, kit, SPELL_VISUAL_KIT_STATE);
-        data.m_someGUID = this->m_auras[index].m_creator;
+        data.m_someGUID = this->m_auraData[index].m_creator;
         this->PlaySpellVisualKit(data);
     }
 
@@ -16869,6 +16984,12 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
 
     SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_leftWeaponEffect);
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (effectName) {
+        STORM_ASSERT(GetModelData());
+    }
+#endif
+
     if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
             this->SetSheatheState(WEAPONMODE_SHEATHEDMODE, TRUE, FALSE);
@@ -16879,6 +17000,12 @@ void CGUnit_C::PlaySpellVisualKit_HandleWeapons(const SpellRec* spell, const Spe
     }
 
     effectName = g_spellVisualEffectNameDB.GetRecord(kit->m_rightWeaponEffect);
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (effectName) {
+        STORM_ASSERT(GetModelData());
+    }
+#endif
 
     if (effectName && !(this->GetModelData()->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_ATTACHED_WEAPONS)) {
         if (!spell || !(spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_DO_NOT_SHEATH)) {
@@ -17035,7 +17162,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
     }
 
     uint32_t animId;
-    uint32_t keyBone = this->m_torsoKeyBone;
+    uint32_t keyBone = this->m_splitBone;
 
     if (crit) {
         animId = ANIM_COMBAT_CRITICAL;
@@ -17049,7 +17176,7 @@ void CGUnit_C::PlayWoundAnimKit(int32_t crit) {
         }
     }
 
-    if (keyBone == static_cast<uint32_t>(this->m_torsoKeyBone)) {
+    if (keyBone == static_cast<uint32_t>(this->m_splitBone)) {
         uint32_t sequenceId = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
 
         if (IsWeaponReadyAnim(sequenceId) || !sequenceId) {
@@ -17640,6 +17767,7 @@ void CGUnit_C::UpdateThreat(CDataStore* msg, bool highest) {
         msg->Get(threat);
         WOWGUID target = guid;
         UnitThreat* entry = this->CreateThreatEntry(target);
+        STORM_ASSERT(entry);
         entry->m_threat = threat;
 
         if (guid == this->m_highestThreatGuid) {
@@ -17717,6 +17845,8 @@ void CGUnit_C::RemoveThreat(const WOWGUID& guid) {
 // VERIFY: 57fe3eca manual
 // OFFSET: 0x00741C90
 BOOL Packet_ThreatUpdate(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -17774,6 +17904,8 @@ BOOL Packet_SMSG_AI_REACTION(void* param, NETMESSAGE msgId, uint32_t time, CData
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
+        STORM_ASSERT(reaction < NUM_AI_REACTIONS);
+
         if (reaction == AI_REACT_ALERT) {
             unit->PlayUnitSound(UNITSOUNDTYPE_ALERT, 0);
         } else if (reaction == AI_REACT_HOSTILE) {
@@ -17935,11 +18067,11 @@ void CGUnit_C::OnLevelChange() {
 // VERIFY: 0e2e20d4 manual
 // OFFSET: 0x00720220
 void CGUnit_C::HandleBloodPool(uint32_t time) {
-    if (!this->m_bloodlevels) {
+    if (!this->m_bloodRec) {
         return;
     }
 
-    if (!g_unitBloodDB.GetRecord(this->m_bloodlevels->m_violencelevel[ViolenceGetLevel()])) {
+    if (!g_unitBloodDB.GetRecord(this->m_bloodRec->m_violencelevel[ViolenceGetLevel()])) {
         return;
     }
 
@@ -18089,6 +18221,8 @@ void CGUnit_C::ShowLootEffect() {
 // VERIFY: 6fa47b02 auto
 // OFFSET: 0x007412B0
 void CGUnit_C::CompleteMountTransition() {
+    STORM_ASSERT(m_mountTransitionEffect);
+
     if (this->m_mountTransitionEffect) {
         this->OnMountDisplayChanged(this->m_mountTransitionEffect->m_displayId);
     }
@@ -18102,7 +18236,10 @@ void CGUnit_C::CompleteMountTransition() {
 void CGUnit_C::RefreshComponentItem(int32_t slot) {
     STORM_ASSERT(slot < NUM_ITEM_SLOT);
     if (this->CanEquipItemsInThisForm() && (this->m_obj->m_type & TYPE_PLAYER)) {
-        if (!this->GetBag()) {
+        CGPlayer_C* playerPtr = static_cast<CGPlayer_C*>(this);
+        STORM_ASSERT(playerPtr);
+
+        if (!playerPtr->GetBag()) {
             return;
         }
 
@@ -18113,10 +18250,10 @@ void CGUnit_C::RefreshComponentItem(int32_t slot) {
         }
 
         this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(slot));
-        const VisibleItem_C* item = static_cast<CGPlayer_C*>(this)->GetVisibleItem(invSlot);
+        const VisibleItem_C* item = playerPtr->GetVisibleItem(invSlot);
 
         if (item && abs(item->m_itemId)) {
-            static_cast<CGPlayer_C*>(this)->EquipVisibleItem(item, invSlot);
+            playerPtr->EquipVisibleItem(item, invSlot);
         }
     } else if (this->m_characterComponent && this->m_displayInfoExtra) {
         this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(slot));
@@ -18184,14 +18321,15 @@ void CGUnit_C::ClearCastingSpell(int32_t spellId, bool clearChannel, bool fullCl
 // VERIFY: d1a0635a manual
 // OFFSET: 0x0072DF00
 void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
-    if (this->m_missiles) {
+    if (this->m_missileList) {
         this->CancelRangedMode();
     }
 
     SpellRec spell;
 
-    while (this->m_missiles) {
-        CM2Model* model = this->m_missiles->m_model;
+    while (this->m_missileList) {
+        STORM_ASSERT(m_missileList->m_caster == GetGUID());
+        CM2Model* model = this->m_missileList->m_model;
 
         if (model) {
             if (!model->IsLoaded(0, 0)) {
@@ -18199,22 +18337,22 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
                 break;
             }
 
-            this->m_missiles->m_model->m_fadeAlpha = 1.0f;
+            this->m_missileList->m_model->m_fadeAlpha = 1.0f;
         }
 
-        if (this->IsMissileTrajectoryUpdateWaitingForMissileRelease() && this->m_missileTrajectoryReleased == this->m_missiles->m_castID) {
+        if (this->IsMissileTrajectoryUpdateWaitingForMissileRelease() && this->m_missileTrajectoryReleased == this->m_missileList->m_castID) {
             this->SendFinalMissileTrajectoryUpdate();
         }
 
         PendingSpellCast* cast = Spell_C_GetDelayedTrajectoryCast();
 
-        if (cast && this->m_missiles->m_castID == cast->m_data.m_castCount) {
+        if (cast && this->m_missileList->m_castID == cast->m_data.m_castCount) {
             if (!Spell_C_SendDelayedMissileTrajectoryCast(this)) {
-                if (!this->m_missiles) {
+                if (!this->m_missileList) {
                     break;
                 }
 
-                if (this->m_precastMissileModel == this->m_missiles->m_model) {
+                if (this->m_precastMissileModel == this->m_missileList->m_model) {
                     if (this->m_precastMissileModel) {
                         if (this->m_precastMissileModel->m_attachParent) {
                             this->m_precastMissileModel->DetachFromParent();
@@ -18228,18 +18366,18 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
                     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
                 }
 
-                this->m_missiles->DeleteSelf();
+                this->m_missileList->DeleteSelf();
                 continue;
             }
 
-            if (!this->m_missiles) {
+            if (!this->m_missileList) {
                 break;
             }
         }
 
         CM2Model* precast = this->m_precastMissileModel;
 
-        if (precast && precast == this->m_missiles->m_model) {
+        if (precast && precast == this->m_missileList->m_model) {
             precast->Animate();
             C44Matrix transform = precast->m_matrixF4 * precast->m_scene->m_viewInv;
 
@@ -18254,24 +18392,24 @@ void CGUnit_C::ReleaseMissiles(const C3Vector& position) {
             }
 
             this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
-            this->m_missiles->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_USE_ANIMATED_MODEL_TRANSFORM;
-            CM2Model* missileModel = this->m_missiles->m_model;
+            this->m_missileList->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_USE_ANIMATED_MODEL_TRANSFORM;
+            CM2Model* missileModel = this->m_missileList->m_model;
             missileModel->SetWorldTransform(transform);
             C3Vector firePosition(transform.d0, transform.d1, transform.d2);
-            this->m_missiles->FireMissiles(&firePosition);
+            this->m_missileList->FireMissiles(&firePosition);
             continue;
         }
 
-        if (!g_spellDB.GetRecord(this->m_missiles->m_spellID, &spell)) {
+        if (!g_spellDB.GetRecord(this->m_missileList->m_spellID, &spell)) {
             continue;
         }
 
         C3Vector overridePosition = C3Vector();
 
         if (this->OverrideMissileFirePos(&overridePosition, &spell)) {
-            this->m_missiles->FireMissiles(&overridePosition);
+            this->m_missileList->FireMissiles(&overridePosition);
         } else {
-            this->m_missiles->FireMissiles(&position);
+            this->m_missileList->FireMissiles(&position);
         }
     }
 
@@ -18564,7 +18702,7 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
         case M2_EVENT_ID::MissileReleaseLeft_CSL:
         case M2_EVENT_ID::MissileReleaseRight_CSR:
         case M2_EVENT_ID::MissileRelease_CST:
-            if (this->m_missiles) {
+            if (this->m_missileList) {
                 this->SetAnimEventPosition(position);
             }
             return;
@@ -18736,7 +18874,7 @@ void CGUnit_C::HandleAnimEvent(uint32_t boneId, uint32_t eventId, uint32_t data,
                 this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RANGED_WEAPON_LOADED;
             }
 
-            if (this->m_missiles) {
+            if (this->m_missileList) {
                 C3Vector eventPosition;
 
                 if (IsBowAnim(this->GetCurrentTorsoAnimId()) && this->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_HANDARROW)) {
@@ -18821,7 +18959,9 @@ void CGUnit_C::PlayParryAnimation() {
 
 // VERIFY: bb462764 manual
 // OFFSET: 0x00732FF0
-void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* visual, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay) {
+void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, int32_t hit, MISS_REASON missReason, MISS_REASON reflectResult, const SpellVisualRec* rec, int32_t spellId, const TSStackArray<WOWGUID>* targets, const TSStackArray<MISS_REASON>* missReasons, const TSStackArray<MISS_REASON>* reflectResults, uint32_t delay) {
+    STORM_ASSERT(rec);
+
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -18835,13 +18975,13 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         this->m_precastMissileModel->m_refCount++;
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
-        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
         if (effectName && *effectName->m_fileName) {
             scale = effectName->m_scale;
         }
-    } else if (visual->m_missileModel) {
-        switch (visual->m_missileModel) {
+    } else if (rec->m_missileModel) {
+        switch (rec->m_missileModel) {
             case SPELL_MISSILE_MODEL_AMMUNITION_5:
             case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
@@ -18860,7 +19000,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
                 break;
 
             default: {
-                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
                     model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
@@ -18890,7 +19030,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
 
     CMissile* missile = CMissile::NewMissile();
     missile->m_model = model;
-    missile->m_casterGuid = this->m_obj->m_guid;
+    missile->m_caster = this->m_obj->m_guid;
     missile->m_targetGuid = *target;
     missile->m_spellID = spell.m_id;
     missile->m_castID = data->m_castCount;
@@ -18916,7 +19056,7 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
     }
 
     missile->m_scale = scale;
-    missile->m_soundKitID = visual->m_missileSound;
+    missile->m_soundKitID = rec->m_missileSound;
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
@@ -18950,8 +19090,8 @@ void CGUnit_C::CreateMissile(const WOWGUID* target, PendingSpellCastData* data, 
         }
     }
 
-    int32_t attachment = (visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
-    C3Vector offset(visual->m_missileImpactOffset[0], -visual->m_missileImpactOffset[1], visual->m_missileImpactOffset[2]);
+    int32_t attachment = (rec->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? rec->m_missileDestinationAttachment : s_effectAttachmentIds[rec->m_missileDestinationAttachment];
+    C3Vector offset(rec->m_missileImpactOffset[0], -rec->m_missileImpactOffset[1], rec->m_missileImpactOffset[2]);
     bool hasOffset = 0.0f != offset.x || 0.0f != offset.y || offset.z != 0.0f;
 
     if (*target) {
@@ -19047,7 +19187,7 @@ flagsDone:
     }
 
     missile->m_castTime = OsGetAsyncTimeMs();
-    missile->SetReadyToFire(&this->m_missiles);
+    missile->SetReadyToFire(&this->m_missileList);
     this->m_lastMissileTime = missile->m_castTime;
 
     if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
@@ -19069,11 +19209,11 @@ flagsDone:
         for (int32_t i = 1; i < missileCount; i++) {
             missile = CMissile::CopyMissile(missile);
             missile->m_missileIndex = i;
-            missile->SetReadyToFire(&this->m_missiles);
+            missile->SetReadyToFire(&this->m_missileList);
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
+    if (rec->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19081,7 +19221,9 @@ flagsDone:
 
 // VERIFY: 9a6a877b manual
 // OFFSET: 0x00733820
-void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay) {
+void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* rec, int32_t spellId, uint32_t delay) {
+    STORM_ASSERT(rec);
+
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -19095,13 +19237,13 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         this->m_precastMissileModel->m_refCount++;
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
-        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
         if (effectName && *effectName->m_fileName) {
             scale = effectName->m_scale;
         }
-    } else if (visual->m_missileModel) {
-        switch (visual->m_missileModel) {
+    } else if (rec->m_missileModel) {
+        switch (rec->m_missileModel) {
             case SPELL_MISSILE_MODEL_AMMUNITION_5:
             case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
@@ -19120,7 +19262,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
                 break;
 
             default: {
-                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
                     model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
@@ -19150,7 +19292,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
 
     CMissile* missile = CMissile::NewMissile();
     missile->m_model = model;
-    missile->m_casterGuid = this->m_obj->m_guid;
+    missile->m_caster = this->m_obj->m_guid;
     missile->m_targetGuid = WOWGUID();
     missile->m_spellID = spell.m_id;
     missile->m_castID = data->m_castCount;
@@ -19169,7 +19311,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     }
 
     missile->m_scale = scale;
-    missile->m_soundKitID = visual->m_missileSound;
+    missile->m_soundKitID = rec->m_missileSound;
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
@@ -19203,7 +19345,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         }
     }
 
-    C3Vector offset(visual->m_missileImpactOffset[0], -visual->m_missileImpactOffset[1], visual->m_missileImpactOffset[2]);
+    C3Vector offset(rec->m_missileImpactOffset[0], -rec->m_missileImpactOffset[1], rec->m_missileImpactOffset[2]);
     bool hasOffset = 0.0f != offset.x || 0.0f != offset.y || offset.z != 0.0f;
     missile->m_impactPos = point->m_position;
     missile->m_transportGuid = point->m_transport;
@@ -19236,7 +19378,7 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
     }
 
     missile->m_castTime = OsGetAsyncTimeMs();
-    missile->SetReadyToFire(&this->m_missiles);
+    missile->SetReadyToFire(&this->m_missileList);
     this->m_lastMissileTime = missile->m_castTime;
 
     if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
@@ -19258,11 +19400,11 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
         for (int32_t i = 1; i < missileCount; i++) {
             missile = CMissile::CopyMissile(missile);
             missile->m_missileIndex = i;
-            missile->SetReadyToFire(&this->m_missiles);
+            missile->SetReadyToFire(&this->m_missileList);
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
+    if (rec->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19270,7 +19412,9 @@ void CGUnit_C::CreateMissile(const SpellCastTargetPoint* point, PendingSpellCast
 
 // VERIFY: e1531680 manual
 // OFFSET: 0x00733E20
-void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* visual, int32_t spellId, uint32_t delay) {
+void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, PendingSpellCastData* data, uint32_t ammoDisplayId, uint32_t ammoInventoryType, const SpellVisualRec* rec, int32_t spellId, uint32_t delay) {
+    STORM_ASSERT(rec);
+
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(spellId, &spell)) {
@@ -19284,13 +19428,13 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         this->m_precastMissileModel->m_refCount++;
         this->m_clientFlags |= UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_PRECAST_MISSILE_MODEL_USED;
         model = this->m_precastMissileModel;
-        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+        SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
         if (effectName && *effectName->m_fileName) {
             scale = effectName->m_scale;
         }
-    } else if (visual->m_missileModel) {
-        switch (visual->m_missileModel) {
+    } else if (rec->m_missileModel) {
+        switch (rec->m_missileModel) {
             case SPELL_MISSILE_MODEL_AMMUNITION_5:
             case SPELL_MISSILE_MODEL_AMMUNITION:
                 model = this->CreateItemModel(ammoDisplayId, ammoInventoryType, nullptr);
@@ -19309,7 +19453,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
                 break;
 
             default: {
-                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(visual->m_missileModel);
+                SpellVisualEffectNameRec* effectName = g_spellVisualEffectNameDB.GetRecord(rec->m_missileModel);
 
                 if (effectName && *effectName->m_fileName) {
                     model = World::s_m2Scene->CreateModel(effectName->m_fileName, M2_MODEL_CREATE_FLAG_TEXTURE_PRIORITY_AND_DEFERRED_CANCEL);
@@ -19339,7 +19483,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
 
     CMissile* missile = CMissile::NewMissile();
     missile->m_model = model;
-    missile->m_casterGuid = this->m_obj->m_guid;
+    missile->m_caster = this->m_obj->m_guid;
     missile->m_targetGuid = WOWGUID();
     missile->m_spellID = spell.m_id;
     missile->m_castID = data->m_castCount;
@@ -19358,7 +19502,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     }
 
     missile->m_scale = scale;
-    missile->m_soundKitID = visual->m_missileSound;
+    missile->m_soundKitID = rec->m_missileSound;
     const SpellVisualRec* spellVisual = GetSpellVisual(&spell);
 
     if (spellVisual) {
@@ -19392,12 +19536,12 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         }
     }
 
-    int32_t attachment = (visual->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? visual->m_missileDestinationAttachment : s_effectAttachmentIds[visual->m_missileDestinationAttachment];
+    int32_t attachment = (rec->m_flags & SPELL_VISUAL_FLAG_RAW_ATTACHMENT_IDS) ? rec->m_missileDestinationAttachment : s_effectAttachmentIds[rec->m_missileDestinationAttachment];
     missile->m_impactPos = points->m_data[0].m_position;
     missile->m_transportGuid = points->m_data[0].m_transport;
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_HIT;
     missile->m_attachmentID = attachment;
-    missile->m_attachOffset = C3Vector(visual->m_missileImpactOffset[0], -visual->m_missileImpactOffset[1], visual->m_missileImpactOffset[2]);
+    missile->m_attachOffset = C3Vector(rec->m_missileImpactOffset[0], -rec->m_missileImpactOffset[1], rec->m_missileImpactOffset[2]);
     missile->m_targetPoints.Set(points->m_count, points->m_data);
     missile->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_BOUNCING;
     missile->m_currentTarget = 0;
@@ -19414,7 +19558,7 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
     }
 
     missile->m_castTime = OsGetAsyncTimeMs();
-    missile->SetReadyToFire(&this->m_missiles);
+    missile->SetReadyToFire(&this->m_missileList);
     this->m_lastMissileTime = missile->m_castTime;
 
     if (data->m_castFlags & PendingSpellCastData::CastFlags::CAST_HAS_TRAJECTORY) {
@@ -19436,11 +19580,11 @@ void CGUnit_C::CreateMissile(const TSStackArray<SpellCastTargetPoint>* points, P
         for (int32_t i = 1; i < missileCount; i++) {
             missile = CMissile::CopyMissile(missile);
             missile->m_missileIndex = i;
-            missile->SetReadyToFire(&this->m_missiles);
+            missile->SetReadyToFire(&this->m_missileList);
         }
     }
 
-    if (visual->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
+    if (rec->m_flags & SPELL_VISUAL_FLAG_FIRE_ALL_MISSILES_INSTANTLY) {
         C3Vector position = this->GetMissileFirePosition();
         this->ReleaseMissiles(position);
     }
@@ -19551,7 +19695,7 @@ BOOL CGUnit_C::IsPlayingUnarmedAnim() {
     uint32_t sequence = INVALID_ANIMATION;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
+        if (this->m_splitBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     }
@@ -19647,13 +19791,13 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         return;
     }
 
-    CM2Model* detached = nullptr;
+    CM2Model* model = nullptr;
 
     if (this->m_sheatheState == WEAPONMODE_RANGEDMODE) {
         for (CM2Model* attached = this->m_worldModel->m_attachList; attached; attached = attached->m_attachNext) {
             if (attached->m_attachmentId == attachId) {
                 attached->m_refCount++;
-                detached = attached;
+                model = attached;
                 attached->DetachFromParent();
                 break;
             }
@@ -19671,9 +19815,10 @@ void CGUnit_C::AddHandItem(int32_t hand) {
         static_cast<CGPlayer_C*>(this)->UpdateHandItemVisual(visualLink, hand);
     }
 
-    if (detached) {
-        detached->AttachToParent(this->m_worldModel, attachId, nullptr, 0);
-        detached->Release();
+    if (model) {
+        STORM_ASSERT(model->GetParent() == NULL);
+        model->AttachToParent(this->m_worldModel, attachId, nullptr, 0);
+        model->Release();
     }
 }
 
@@ -20127,7 +20272,7 @@ void CGUnit_C::CancelShapeshiftForMount() {
     SpellRec spell;
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        AuraData& aura = this->m_auras[i];
+        AuraData& aura = this->m_auraData[i];
 
         if (!(aura.m_flags & AURA_FLAG_CANCELABLE) || !g_spellDB.GetRecord(aura.m_spellId, &spell)) {
             continue;
@@ -20300,7 +20445,7 @@ BOOL CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* position)
         }
     }
 
-    CGUnit_C* owner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*this->GetCharmerOrCreatorGuid(), TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* owner = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(*this->GetOwnerGUID(), TYPE_UNIT, __FILE__, __LINE__));
 
     if (owner && (owner->m_obj->m_type & TYPE_PLAYER)) {
         if (this->HasCreator() && !this->HasSummoner() && (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_IMMUNE_TO_NPC)) {
@@ -21099,15 +21244,16 @@ void CGUnit_C::UpdateCritterDisplay() {
         return;
     }
 
-    uint32_t count = (stats->m_displayId[3] != 0) + (stats->m_displayId[2] != 0) + (stats->m_displayId[1] != 0) + (stats->m_displayId[0] != 0);
+    uint32_t numDisplayIDs = (stats->m_displayId[3] != 0) + (stats->m_displayId[2] != 0) + (stats->m_displayId[1] != 0) + (stats->m_displayId[0] != 0);
 
-    if (!count) {
+    if (!numDisplayIDs) {
         return;
     }
 
-    uint32_t index = static_cast<uint32_t>(rand()) % count;
+    uint32_t displayIDIndex = static_cast<uint32_t>(rand()) % numDisplayIDs;
+    STORM_ASSERT(displayIDIndex < numDisplayIDs);
     this->m_critterDisplayCreatureId = GetVisibleAuraEffectDisplay();
-    this->m_displayId = stats->m_displayId[index];
+    this->m_displayId = stats->m_displayId[displayIDIndex];
     this->UpdateDisplayInfo(0);
 }
 
@@ -21136,7 +21282,7 @@ bool CGUnit_C::IsPlayingWeaponAnim() const {
     uint32_t sequence;
 
     if (this->m_worldModel && this->m_worldModel->IsLoaded(0, 0)) {
-        if (this->m_torsoKeyBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_torsoKeyBone)) == INVALID_ANIMATION) {
+        if (this->m_splitBone == -1 || (sequence = this->m_worldModel->GetBoneSequenceId(this->m_splitBone)) == INVALID_ANIMATION) {
             sequence = this->m_worldModel->GetBoneSequenceId(M2_KEY_BONE_NONE);
         }
     } else {
@@ -21293,15 +21439,16 @@ void CGUnit_C::CreateUnitMount(BOOL force, int32_t updateCollisionBox) {
         }
 
         this->m_mountScale = displayInfo->m_creatureModelScale;
-        CM2Model* mount = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
-        mount->SetSequenceCallback(&CGUnit_C::MountAnimEndCallback, this->m_obj->m_guid.m_guid);
-        mount->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
+        CM2Model* mountModel = World::s_m2Scene->CreateModel(modelData->m_modelName, 0);
+        STORM_ASSERT(mountModel);
+        mountModel->SetSequenceCallback(&CGUnit_C::MountAnimEndCallback, this->m_obj->m_guid.m_guid);
+        mountModel->SetEventCallback(&CGUnit_C::AnimEventCallback, this->m_obj->m_guid.m_guid);
         C44Matrix transform = this->m_worldModel->m_worldTransform;
-        mount->SetWorldTransform(transform);
-        CCharacterComponent::ApplyMonsterGeosets(mount, displayInfo);
-        CCharacterComponent::ReplaceMonsterSkin(mount, displayInfo, modelData);
-        this->SetMountModel(mount);
-        mount->Release();
+        mountModel->SetWorldTransform(transform);
+        CCharacterComponent::ApplyMonsterGeosets(mountModel, displayInfo);
+        CCharacterComponent::ReplaceMonsterSkin(mountModel, displayInfo, modelData);
+        this->SetMountModel(mountModel);
+        mountModel->Release();
         this->m_mountFootprintTextureId = modelData->m_footprintTextureID;
         this->m_mountFootprintLength = modelData->m_footprintTextureWidth * 0.027777778f;
         this->m_mountFootprintWidth = 0.027777778f * modelData->m_footprintTextureLength;
@@ -21324,9 +21471,9 @@ void CGUnit_C::CreateUnitMount(BOOL force, int32_t updateCollisionBox) {
         this->SetKeyBoneSequence(this->m_worldModel, M2_KEY_BONE_NONE, this->m_mountAnimBehaviorId, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1, 0);
         C44Matrix scale(1.0f / this->m_mountScale);
         this->m_worldModel->SetWorldTransform(scale);
-        mount->m_diffuseTintR = this->m_worldModel->m_diffuseTintR;
-        mount->m_diffuseTintG = this->m_worldModel->m_diffuseTintG;
-        mount->m_diffuseTintB = this->m_worldModel->m_diffuseTintB;
+        mountModel->m_diffuseTintR = this->m_worldModel->m_diffuseTintR;
+        mountModel->m_diffuseTintG = this->m_worldModel->m_diffuseTintG;
+        mountModel->m_diffuseTintB = this->m_worldModel->m_diffuseTintB;
         this->m_worldModel->m_fadeAlpha = 1.0f;
         this->m_worldModel->m_diffuseTintR = 1.0f;
         this->m_worldModel->m_diffuseTintG = 1.0f;
@@ -21448,6 +21595,8 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         return;
     }
 
+    STORM_ASSERT(m_modelData);
+
     if ((CWorld::enables & Enables::Enable_Footprints) && !(this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_TRAIL_TEXTURES)) {
         float size[2];
         size[0] = 0.0f;
@@ -21463,7 +21612,13 @@ void CGUnit_C::FootstepAnimEventHit(const C3Vector* position, int32_t left) {
         CGWorldFrame::GetActiveCamera()->AddShakeById(this->m_modelData->m_footstepShakeSize, position);
     }
 
-    if (distanceSquared > FOOTSTEP_PARTICLE_MAX_DIST_SQ || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_PARTICLES) || !CGUnit_C::s_cvShowFootPrintParticles->m_intValue) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (distanceSquared <= FOOTSTEP_PARTICLE_MAX_DIST_SQ) {
+        STORM_ASSERT(s_showFootPrintParticles);
+    }
+#endif
+
+    if (distanceSquared > FOOTSTEP_PARTICLE_MAX_DIST_SQ || (this->m_movement->m_flags & MOVEMENTFLAG_BACKWARD) || (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::NO_FOOTPRINT_PARTICLES) || !CGUnit_C::s_showFootPrintParticles->m_intValue) {
         return;
     }
 
@@ -21748,11 +21903,11 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t displayId, uint32_t inventoryType, 
 // VERIFY: 0a6c1295 auto
 // OFFSET: 0x00719FF0
 UnitBloodRec* CGUnit_C::GetBloodRecord() {
-    if (!this->m_bloodlevels) {
+    if (!this->m_bloodRec) {
         return nullptr;
     }
 
-    return g_unitBloodDB.GetRecord(this->m_bloodlevels->m_violencelevel[ViolenceGetLevel()]);
+    return g_unitBloodDB.GetRecord(this->m_bloodRec->m_violencelevel[ViolenceGetLevel()]);
 }
 
 // VERIFY: ce51319d auto
@@ -22007,26 +22162,28 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
 // VERIFY: 37162a11 manual
 // OFFSET: 0x007169A0
 static int32_t UnpackAndProcessOpcodes(CDataStore* msg, uint32_t time, int32_t compressed) {
-    uint32_t size;
-    msg->Get(size);
-    uint32_t unpackedSize = size;
+    uint32_t origSize;
+    msg->Get(origSize);
+    uint32_t destSize = origSize;
     void* data;
 
     if (compressed) {
-        uint8_t* buffer = static_cast<uint8_t*>(alloca(size));
+        uint8_t* buffer = static_cast<uint8_t*>(alloca(origSize));
         uint32_t packedSize = msg->m_size - msg->m_read;
         void* packed;
         msg->GetDataInSitu(packed, packedSize);
-        zlib_uncompress(buffer, &unpackedSize, static_cast<const uint8_t*>(packed), packedSize);
+        zlib_uncompress(buffer, &destSize, static_cast<const uint8_t*>(packed), packedSize);
         data = buffer;
     } else {
-        unpackedSize = msg->m_size - msg->m_read;
-        msg->GetDataInSitu(data, unpackedSize);
+        destSize = msg->m_size - msg->m_read;
+        msg->GetDataInSitu(data, destSize);
     }
 
-    CDataStore stream(static_cast<uint8_t*>(data), unpackedSize);
+    STORM_ASSERT(origSize == destSize);
 
-    if (unpackedSize) {
+    CDataStore stream(static_cast<uint8_t*>(data), destSize);
+
+    if (destSize) {
         do {
             uint8_t length;
             stream.Get(length);
@@ -22446,7 +22603,13 @@ bool CGPlayer_C::ClickToMove(int32_t type, const WOWGUID* guid, const C3Vector* 
         CGUnit_C::s_trackingType = TRACKTYPE_NONE;
     }
 
-    if (!this->CanMoveTo(type, *position) || !this->GetInteractDistanceOfAction(type, *guid, &s_trackingInteractDistanceSq)) {
+    if (!this->CanMoveTo(type, *position)) {
+        return false;
+    }
+
+    STORM_ASSERT((type >= 0) && (type < TRACKTYPE_NUMTRACKTYPES));
+
+    if (!this->GetInteractDistanceOfAction(type, *guid, &s_trackingInteractDistanceSq)) {
         return false;
     }
 
@@ -23208,7 +23371,9 @@ void CGUnit_C::OnSpecialMountAnim() {
 
 // VERIFY: d5c90727 manual
 // OFFSET: 0x00720F80
-const SpellVisualRec* CGUnit_C::GetAppropriateSpellVisual(const SpellRec* spell, SpellVisualRec& visual, int32_t visualId, int32_t lowViolenceVisualId) const {
+const SpellVisualRec* CGUnit_C::GetAppropriateSpellVisual(const SpellRec* spellRec, SpellVisualRec& visual, int32_t visualId, int32_t lowViolenceVisualId) const {
+    STORM_ASSERT(spellRec);
+
     int32_t id = visualId;
     const SpellVisualRec* weapon = nullptr;
     const SpellVisualRec* base;
@@ -23220,12 +23385,12 @@ const SpellVisualRec* CGUnit_C::GetAppropriateSpellVisual(const SpellRec* spell,
         }
 
         base = g_spellVisualDB.GetRecord(id);
-        primary = GetSpellVisual(spell);
+        primary = GetSpellVisual(spellRec);
     } else {
-        base = GetSpellVisual(spell);
+        base = GetSpellVisual(spellRec);
     }
 
-    if (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
+    if (spellRec->m_attributes & SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT) {
         uint32_t displayId = this->GetVirtualItemDisplayID(VIRTUAL_MONSTER_SLOT_RANGED);
         ItemDisplayInfoRec itemRec;
 
@@ -23485,7 +23650,7 @@ bool CGUnit_C::CheckSelfResurrect() {
     }
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        if (!g_spellDB.GetRecord(this->m_auras[i].m_spellId, &spell)) {
+        if (!g_spellDB.GetRecord(this->m_auraData[i].m_spellId, &spell)) {
             continue;
         }
 
@@ -23507,7 +23672,7 @@ void CGUnit_C::CheckApplyPeriodicClientTriggers() {
     SpellRec spell;
 
     for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-        if (!g_spellDB.GetRecord(this->m_auras[i].m_spellId, &spell)) {
+        if (!g_spellDB.GetRecord(this->m_auraData[i].m_spellId, &spell)) {
             continue;
         }
 
@@ -23543,6 +23708,8 @@ void CGUnit_C::HandleScaleUpdate(float scale) {
     }
 
     if (!updated) {
+        STORM_ASSERT(IsActivePlayer());
+
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CANCEL_GROWTH_AURA));
         msg.Finalize();
@@ -23630,6 +23797,7 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         this->m_characterComponent = CCharacterComponent::AllocComponent();
         data.model2 = this->m_worldModel;
         data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
+        STORM_ASSERT(data.model2);
         data.model2->m_refCount++;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_1);
         this->m_characterComponent->Init(&data, nullptr);
@@ -23713,9 +23881,10 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         }
     } else if (this->m_displayInfoExtra) {
         this->m_characterComponent = CCharacterComponent::AllocComponent();
-        const char* bakeName = this->GetDisplayBakeName();
+        const char* textureName = this->GetDisplayBakeName();
+        STORM_ASSERT(textureName);
 
-        if (!bakeName || !*bakeName) {
+        if (!textureName || !*textureName) {
             return;
         }
 
@@ -23729,8 +23898,9 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         data.m_preferences.m_hairColorId = extra->m_hairColorID;
         data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
         data.m_preferences.m_facialHairId = extra->m_facialHairID;
-        SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
+        SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", textureName);
         data.model2 = this->m_worldModel;
+        STORM_ASSERT(data.model2);
         data.model2->m_refCount++;
         this->m_characterComponent->Init(&data, nullptr);
 

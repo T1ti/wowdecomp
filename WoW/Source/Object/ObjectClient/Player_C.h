@@ -536,6 +536,11 @@ class CGPlayer_C : public CGUnit_C, public CGPlayer {
     void FillPartyMemberState(CGPartyMemberState* state);
     static uint32_t BuildPartyMemberStatsChanges(const CGPartyMemberState* oldState, const CGPartyMemberState* newState);
     static void DispatchPartyMemberStatsChanges(const WOWGUID& guid, uint32_t changes, const CGPartyMemberState* oldState, const CGPartyMemberState* newState);
+    // INLINED
+    uint32_t GetDuelTeam() const {
+        return this->m_player->m_playerDuelTeam;
+    }
+
     const char* GetPlayerGuildNameText();
     void TogglePlayerFlag(uint32_t oldFlags);
     void UpdateGhostStatus();

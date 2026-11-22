@@ -752,7 +752,7 @@ void CMissileCollision::ComputeHitSpheres(CAaSphere* spheres) {
 void CGUnit_C::RecordMissileTrajectoryUpdate(uint8_t castId, const C3Vector* impact, float pitch, float speed, float time) {
     uint32_t now = FrameTime::s_curTimeMs;
 
-    for (CMissile* missile = this->m_missiles; missile; missile = missile->m_next) {
+    for (CMissile* missile = this->m_missileList; missile; missile = missile->m_next) {
         if (missile->m_castID == castId) {
             missile->m_castTime = now;
             missile->m_impactPos = *impact;
@@ -1420,8 +1420,8 @@ void CGUnit_C::SetMissileTrajectoryTargetingSpell(uint32_t spellId) {
 // VERIFY: 9082d6a5 auto
 // OFFSET: 0x006FC290
 void CGUnit_C::OnRemoteMissileTrajectoryCollision(MissileCollisionData* data) {
-    for (CMissile* missile = this->m_missiles; missile; missile = missile->m_next) {
-        if (missile->m_casterGuid == data->m_casterGuid && missile->m_castID == data->m_castID) {
+    for (CMissile* missile = this->m_missileList; missile; missile = missile->m_next) {
+        if (missile->m_caster == data->m_casterGuid && missile->m_castID == data->m_castID) {
             missile->SetRemoteCollisionPos(data->m_position);
         }
     }

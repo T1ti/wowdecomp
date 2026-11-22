@@ -140,7 +140,7 @@ class CMissile {
     static void StartFizzling(WOWGUID caster, uint8_t castID, uint32_t spellID);
     static void UpdateAttachments(WOWGUID guid);
 
-    /* 0000 */ WOWGUID m_casterGuid;
+    /* 0000 */ WOWGUID m_caster;
     /* 0008 */ WOWGUID m_targetGuid;
     /* 0010 */ WOWGUID m_transportGuid;
     /* 0018 */ CM2Model* m_model;

@@ -35,7 +35,8 @@ class CGUnit {
     bool CanSwim() const;
     BOOL CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* standUp) const;
     void GetResistanceAndBuffs(int32_t school, int32_t* baseValue, int32_t* total, int32_t* effective, int32_t* positive, int32_t* negative) const;
-    const WOWGUID* GetCharmerOrCreatorGuid() const;
+    const WOWGUID* GetOwnerGUID() const;
+    uint32_t GetMaxHealth() const;
     bool HasCreator() const;
     bool HasSummoner() const;
     bool IsPossessedBy(const WOWGUID& guid) const;
@@ -49,6 +50,8 @@ class CGUnit {
     BOOL HasAuraState(int32_t state) const;
     BOOL IsOnFlyingSpline() const;
     BOOL IsOnSpline() const;
+    BOOL IsSplineMover() const;
+    bool IsStunned() const;
     BOOL IsJumping() const;
     BOOL CanMove() const;
     float GetFacing(float facing) const;
@@ -252,6 +255,21 @@ class CGUnitData {
 // INLINED
 inline uint32_t CGUnit::GetDataSize() {
     return sizeof(CGObjectData) + sizeof(CGUnitData);
+}
+
+// INLINED
+inline BOOL CGUnit::IsSplineMover() const {
+    return this->IsOnSpline();
+}
+
+// INLINED
+inline bool CGUnit::IsStunned() const {
+    return (this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_STUNNED) != 0;
+}
+
+// INLINED
+inline uint32_t CGUnit::GetMaxHealth() const {
+    return this->m_unit->m_unitFieldMaxhealth;
 }
 
 #endif

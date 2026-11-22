@@ -65,6 +65,11 @@ class CVehicle_C {
     /* 016C */ uint8_t m_mirroringAnimsMask;
     /* 016D */ uint8_t m_freeSeatMask;
     /* 0170 */ TSExplicitList<CPassenger, offsetof(CPassenger, m_link)> m_passengers;
+
+    // INLINED
+    TSExplicitList<CPassenger, offsetof(CPassenger, m_link)>& GetPassengerList() {
+        return this->m_passengers;
+    }
     /* 017C */ uint32_t unknown_017C;
 
     CVehicle_C();

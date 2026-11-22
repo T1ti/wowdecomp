@@ -1563,7 +1563,7 @@ void CGTooltip::GetSummonedByString(CGUnit_C* unit, char* buffer, uint32_t size)
         return;
     }
 
-    WOWGUID owner = *unit->GetCharmerOrCreatorGuid();
+    WOWGUID owner = *unit->GetOwnerGUID();
 
     if (!owner) {
         return;
@@ -1571,8 +1571,8 @@ void CGTooltip::GetSummonedByString(CGUnit_C* unit, char* buffer, uint32_t size)
 
     CGUnit_C* ownerUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(owner, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (ownerUnit && *ownerUnit->GetCharmerOrCreatorGuid()) {
-        owner = *ownerUnit->GetCharmerOrCreatorGuid();
+    if (ownerUnit && *ownerUnit->GetOwnerGUID()) {
+        owner = *ownerUnit->GetOwnerGUID();
     }
 
     char token[1024];

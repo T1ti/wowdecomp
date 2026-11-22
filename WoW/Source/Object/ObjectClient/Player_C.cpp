@@ -4697,7 +4697,7 @@ int32_t CGPlayer_C::GetLanguageSkill(uint32_t language, uint32_t& skill) {
         SpellRec spell;
 
         for (uint32_t i = 0; i < this->GetAuraCount(); i++) {
-            if (!g_spellDB.GetRecord(this->m_auras[i].m_spellId, &spell)) {
+            if (!g_spellDB.GetRecord(this->m_auraData[i].m_spellId, &spell)) {
                 continue;
             }
 

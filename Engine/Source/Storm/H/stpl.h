@@ -183,6 +183,10 @@ class TSCGrowableArray {
     TSCGrowableArray();
     ~TSCGrowableArray();
     T& operator[](uint32_t index);
+    uint32_t Count() const {
+        return this->m_count == 0xFFFFFFFF ? this->m_dynamic.m_count : this->m_count;
+    }
+
     void BecomeDynamic();
     T* New(const T& source);
     void SetCount(uint32_t count);

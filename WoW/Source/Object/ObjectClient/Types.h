@@ -181,8 +181,9 @@ enum TRACKTYPE : int32_t {
     TRACKTYPE_SKIN = 9,
     TRACKTYPE_ATTACK = 10,
     TRACKTYPE_RANGED_ATTACK = 11,
+    TRACKTYPE_NUMTRACKTYPES = 12,
     TRACKTYPE_NONE = 13,
-    // Value 12 has no verified role; NONE is not an action-table count.
+    // TRACKTYPE_NONE is outside the action table.
 };
 
 enum UNIT_SEX : uint32_t {
@@ -384,7 +385,7 @@ enum AI_REACTION : uint32_t {
     AI_REACT_HOSTILE = 2,
     // AI_REACT_FRIENDLY = 1,
     // AI_REACT_AFRAID = 3,
-    // NUM_AI_REACTIONS = 4,
+    NUM_AI_REACTIONS = 5,
 };
 
 // CGUnit_C::OnAiReaction reaction, also kept as m_reactionSoundPriority (a playing sound is only

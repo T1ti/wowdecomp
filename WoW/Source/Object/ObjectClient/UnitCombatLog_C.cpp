@@ -691,8 +691,8 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
         if (object->m_obj->m_type & TYPE_UNIT) {
             unit = static_cast<CGUnit_C*>(object);
 
-            if (unit->GetCharmerOrCreatorGuid()->m_guid) {
-                owner = *unit->GetCharmerOrCreatorGuid();
+            if (unit->GetOwnerGUID()->m_guid) {
+                owner = *unit->GetOwnerGUID();
             }
         } else if (object->m_obj->m_type & TYPE_GAMEOBJECT) {
             owner = static_cast<CGGameObject_C*>(object)->m_gameObject->m_createdBy;
@@ -701,8 +701,8 @@ uint32_t GetCombatLogFlags(const WOWGUID& guid) {
         if (owner != guid && !owner.IsPlayer()) {
             CGUnit_C* ownerUnit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(owner, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (ownerUnit && ownerUnit->GetCharmerOrCreatorGuid()->m_guid) {
-                owner = *ownerUnit->GetCharmerOrCreatorGuid();
+            if (ownerUnit && ownerUnit->GetOwnerGUID()->m_guid) {
+                owner = *ownerUnit->GetOwnerGUID();
             }
         }
     }
