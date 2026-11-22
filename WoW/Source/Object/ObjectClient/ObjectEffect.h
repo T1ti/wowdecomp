@@ -20,9 +20,9 @@ class CObjectEffect : public TSLinkedNode<CObjectEffect> {
     public:
     /* 0008 */ SE2SoundKitObject m_soundKitObject;
     /* 001C */ CObjectEffectDef* m_def;
-    /* 0020 */ CObjectEffectManager* m_manager;
-    /* 0024 */ int32_t m_playCount;
-    /* 0028 */ int32_t m_refCount;
+    /* 0020 */ CObjectEffectManager* m_pManager;
+    /* 0024 */ int32_t m_nRefCount;
+    /* 0028 */ int32_t m_nPlayingRefCount;
 
     CObjectEffect();
     ~CObjectEffect();
@@ -40,7 +40,7 @@ class CObjectEffectRef : public TSLinkedNode<CObjectEffectRef> {
 };
 
 struct OBJ_EFFECT_REF_LOOKUP : public TSHashObject<OBJ_EFFECT_REF_LOOKUP, HASHKEY_NONE> {
-    /* 0018 */ CObjectEffect* m_effect;
+    /* 0018 */ CObjectEffect* m_pObjectEffect;
 };
 
 struct OBJ_EFFECT_GROUP_LOOKUP : public TSHashObject<OBJ_EFFECT_GROUP_LOOKUP, HASHKEY_NONE> {
@@ -57,7 +57,7 @@ class CObjectEffectManager {
     public:
     /* 0000 */ int32_t m_packageId;
     /* 0004 */ CBitArray m_states;
-    /* 0010 */ CGObject_C* m_owner;
+    /* 0010 */ CGObject_C* m_pOwningObject;
     /* 0014 */ CObjectEffectPackageDef* m_packageDef;
     /* 0018 */ TSHashTable<OBJ_EFFECT_GROUP_LOOKUP, HASHKEY_NONE> m_groups;
     /* 0040 */ TSHashTable<OBJ_EFFECT_REF_LIST_LOOKUP, HASHKEY_NONE> m_refLists;
@@ -77,9 +77,9 @@ class CObjectEffectManager {
 };
 
 struct ObjectEffectAnimState {
-    /* 0000 */ int32_t m_animID;
-    /* 0004 */ OBJECT_EFFECT_STATE m_stateID;
-    /* 0008 */ OBJECT_EFFECT_STATE m_altStateID;
+    /* 0000 */ int32_t animID;
+    /* 0004 */ OBJECT_EFFECT_STATE stateID;
+    /* 0008 */ OBJECT_EFFECT_STATE altStateID;  // (inferred)
 };
 
 class CObjectEffectModifier {
@@ -152,7 +152,7 @@ class CObjectEffectDef : public TSLinkedNode<CObjectEffectDef> {
     /* 0010 */ int32_t m_effectRecID;
     /* 0014 */ int32_t m_attachment;
     /* 0018 */ C3Vector m_offset;
-    /* 0024 */ CObjectEffectModifier* m_modifier;
+    /* 0024 */ CObjectEffectModifier* m_pModifier;
 
     ~CObjectEffectDef();
 };
