@@ -7,6 +7,14 @@
 #include <new>
 #include "Engine/Source/Storm/H/storm.h"
 
+// BSN container checks. The 12213 Mac build reports the failed expression (STORM_ASSERT); the 3.3.5a release keeps
+// the check as an empty fatal message. Macro name inferred.
+#if defined(WOWDECOMP_ASSERTIONS)
+#define BSN_ASSERT(x) STORM_ASSERT(x)
+#else
+#define BSN_ASSERT(x) ((x) ? (void)0 : SErrDisplayAppFatalMessage("", "", 0))
+#endif
+
 namespace BSN {
 // Protocol type info header byte: the low bits hold the MetaType. FIXED is passed to
 // Bounds::Get as its fixed flag and makes Choice/Enum tags a contiguous range (name inferred).
@@ -95,11 +103,11 @@ class Array {
     /* 0004 */ T m_data[N];
 
     Array();
-    T& operator[](uint32_t index);
-    const T& operator[](uint32_t index) const;
+    T& operator[](uint32_t i);
+    const T& operator[](uint32_t i) const;
     T* New();
     void Remove(uint32_t index);
-    void SetCount(uint32_t count);
+    void SetCount(uint32_t newCount);
 };
 
 template <class T, uint32_t SIZE>
@@ -216,43 +224,31 @@ BSN::Array<T, N>::Array() {
 // VERIFY: 902008f6 auto
 // OFFSET: [0x008C6390<Battlenet::IP4::Address, 127>, 0x00531000<Battlenet::Friends::FriendInvite, 100>, 0x005310C0<BattlenetUIFriend, 100>]
 template <class T, uint32_t N>
-T& BSN::Array<T, N>::operator[](uint32_t index) {
-    if (index >= this->m_count) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    return this->m_data[index];
+T& BSN::Array<T, N>::operator[](uint32_t i) {
+    BSN_ASSERT(i < this->m_count);
+    return this->m_data[i];
 }
 
 // VERIFY: ae8dfdec auto
 // OFFSET: [0x008C6420<Battlenet::Authentication::ModuleParam, 4>, 0x008C6450<Battlenet::Realm::CharacterCount, 64>]
 template <class T, uint32_t N>
-const T& BSN::Array<T, N>::operator[](uint32_t index) const {
-    if (index >= this->m_count) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
-    return this->m_data[index];
+const T& BSN::Array<T, N>::operator[](uint32_t i) const {
+    BSN_ASSERT(i < this->m_count);
+    return this->m_data[i];
 }
 
 // VERIFY: 566cee18 auto
 // OFFSET: 0x00531030<Battlenet::Friends::FriendInvite, 100>
 template <class T, uint32_t N>
 T* BSN::Array<T, N>::New() {
-    if (this->m_count >= N) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
+    BSN_ASSERT(this->m_count < N);
     return &this->m_data[this->m_count++];
 }
 
 // INLINED
 template <class T, uint32_t SIZE>
 const T& BSN::FixedArray<T, SIZE>::operator[](uint32_t index) const {
-    if (index >= SIZE) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
+    BSN_ASSERT(index < SIZE);
     return this->m_data[index];
 }
 
@@ -285,20 +281,14 @@ BSN::Optional<T>& BSN::Optional<T>::operator=(const Optional<T>& other) {
 // OFFSET: 0x00530FE0<BSN::String<127>>
 template <class T>
 const T& BSN::Optional<T>::Get() const {
-    if (!this->m_exists) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
+    BSN_ASSERT(this->m_exists);
     return this->m_value;
 }
 
 // INLINED
 template <int32_t TAG, class T>
 T& BSN::Choice::Get() {
-    if (this->m_tag != TAG) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
+    BSN_ASSERT(this->m_tag == TAG);
     return *reinterpret_cast<T*>(this + 1);
 }
 
@@ -306,9 +296,7 @@ T& BSN::Choice::Get() {
 // OFFSET: [0x00531060<Battlenet::Friends::FriendInvite, 100>, 0x005310F0<BattlenetUIFriend, 100>]
 template <class T, uint32_t N>
 void BSN::Array<T, N>::Remove(uint32_t index) {
-    if (index >= this->m_count) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
+    BSN_ASSERT(index < this->m_count);
 
     if (this->m_count - index > 1) {
         memmove(&this->m_data[index], &this->m_data[index + 1], (this->m_count - index - 1) * sizeof(T));
@@ -319,26 +307,21 @@ void BSN::Array<T, N>::Remove(uint32_t index) {
 
 // INLINED
 template <class T, uint32_t N>
-void BSN::Array<T, N>::SetCount(uint32_t count) {
-    if (count > N) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
+void BSN::Array<T, N>::SetCount(uint32_t newCount) {
+    BSN_ASSERT(newCount <= N);
 
-    for (uint32_t i = this->m_count; i < count; i++) {
+    for (uint32_t i = this->m_count; i < newCount; i++) {
         this->m_data[i] = T();
     }
 
-    this->m_count = count;
+    this->m_count = newCount;
 }
 
 // VERIFY: df702c9e auto
 // OFFSET: [0x008C66E0<2, Battlenet::Realm::JoinResponse>, 0x008C6700<3, uint32_t>, 0x008C6720<0, Battlenet::Authentication::ModuleRequest>, 0x008C6740<1, uint32_t>, 0x008C6760<9, Battlenet::Realm::Response>, 0x00531180<6, int32_t>, 0x005311A0<17, Battlenet::Toon::FullName>, 0x005311C0<18, Battlenet::Presence::AccountName>]
 template <int32_t TAG, class T>
 const T& BSN::Choice::Get() const {
-    if (this->m_tag != TAG) {
-        SErrDisplayAppFatalMessage("", "", 0);
-    }
-
+    BSN_ASSERT(this->m_tag == TAG);
     return *reinterpret_cast<const T*>(this + 1);
 }
 
