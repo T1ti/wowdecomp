@@ -542,6 +542,7 @@ DBCache<NameCache, uint64_t, CHashKeyGUID>::REVERSEENTRY* DBCache<NameCache, uin
 // OFFSET: 0x006701F0
 template <>
 NameCache* DBCache<NameCache, uint64_t, CHashKeyGUID>::GetRecordByName(const char* name) {
+    STORM_ASSERT(this->m_created);
     REVERSEENTRY* entry = this->FindReverseEntry(name);
     return entry ? entry->m_record : nullptr;
 }
@@ -569,6 +570,7 @@ DBCache<PetNameCache, int32_t, HASHKEY_INT>::REVERSEENTRY* DBCache<PetNameCache,
 // OFFSET: 0x006701F0
 template <>
 PetNameCache* DBCache<PetNameCache, int32_t, HASHKEY_INT>::GetRecordByName(const char* name) {
+    STORM_ASSERT(this->m_created);
     REVERSEENTRY* entry = this->FindReverseEntry(name);
     return entry ? entry->m_record : nullptr;
 }
