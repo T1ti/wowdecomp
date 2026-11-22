@@ -92,6 +92,9 @@ uint32_t ParticleBlendToM2Blend(uint32_t blend) {
         case EGxBlend::GxBlend_NoAlphaAdd:
             return M2BLEND_NO_ALPHA_ADD;
         default:
+            STORM_ASSERT(0);
+            [[fallthrough]];
+        case EGxBlend::GxBlend_Opaque:
             return M2BLEND_OPAQUE;
     }
 }
@@ -283,6 +286,7 @@ int32_t CM2Scene::ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end
         model->m_hitTestPrev = nullptr;
     }
 
+    STORM_ASSERT(!m_hitList);
     this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     return 0;
@@ -749,6 +753,7 @@ void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t,
         tMax = length;
     }
 
+    STORM_ASSERT(!m_hitList);
     this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     if (!best) {
@@ -775,6 +780,8 @@ void* CM2Scene::EndHitTest(const C3Vector& start, const C3Vector& end, float& t,
 // VERIFY: 9a48c159 manual
 // OFFSET: 0x0081E110
 void* CM2Scene::EndHitTestCollisionWorld(const C3Vector& start, const C3Vector& end, float& t) {
+    STORM_ASSERT(IsHitTesting());
+
     C3Vector dir(0.0f, 0.0f, 0.0f);
     float length;
 
@@ -845,6 +852,7 @@ void* CM2Scene::EndHitTestCollisionWorld(const C3Vector& start, const C3Vector& 
         }
     }
 
+    STORM_ASSERT(!m_hitList);
     this->m_flags &= ~CM2Scene::SCENE_FLAGS::HIT_TEST_ACTIVE;
 
     if (!best) {
@@ -1209,9 +1217,12 @@ int32_t CM2Scene::SortOpaqueRibbons(M2Element* a, M2Element* b) {
 
 // VERIFY: b3646c2c manual
 // OFFSET: 0x0081EDF0
-int32_t CM2Scene::SortOpaqueParticles(M2Element* a, M2Element* b) {
-    CParticleEmitter2* emitterA = a->m_emitter;
-    CParticleEmitter2* emitterB = b->m_emitter;
+int32_t CM2Scene::SortOpaqueParticles(M2Element* A, M2Element* B) {
+    STORM_ASSERT(!A->emitter->IsModelEmitter());
+    STORM_ASSERT(!B->emitter->IsModelEmitter());
+
+    CParticleEmitter2* emitterA = A->emitter;
+    CParticleEmitter2* emitterB = B->emitter;
     int32_t blendA = emitterA->m_params.m_material.m_blendMode;
     int32_t blendB = emitterB->m_params.m_material.m_blendMode;
 
@@ -1417,8 +1428,8 @@ int32_t CM2Scene::SortAdditiveParticles(uint32_t a, uint32_t b, const void* para
         return CM2Scene::SortTransparent(a, b, param);
     }
 
-    CParticleEmitter2* emitterA = elementA->m_emitter;
-    CParticleEmitter2* emitterB = elementB->m_emitter;
+    CParticleEmitter2* emitterA = elementA->emitter;
+    CParticleEmitter2* emitterB = elementB->emitter;
     int32_t blendA = emitterA->m_params.m_material.m_blendMode;
     int32_t blendB = emitterB->m_params.m_material.m_blendMode;
 
@@ -1529,6 +1540,7 @@ CM2Model* CM2Scene::CreateModel(const char* fileName, uint32_t flags) {
     CM2Model* model = nullptr;
 
     if (shared) {
+        STORM_ASSERT(g_modelPool);
         model = g_modelPool->New();
 
         if (model && !model->Initialize(this, shared, nullptr, flags)) {
@@ -1549,6 +1561,7 @@ CM2Model* CM2Scene::DuplicateModel(CM2Model* source, uint32_t flags) {
         return nullptr;
     }
 
+    STORM_ASSERT(g_modelPool);
     CM2Model* model = g_modelPool->New();
 
     if (model && !model->Initialize(this, source->m_shared, source, flags)) {
@@ -1582,9 +1595,12 @@ void CM2Scene::SortAdditiveParticleElements(uint32_t pass) {
             case M2_ELEMENT_RIBBON:
                 blend = data->m_materials[data->m_ribbons[element->m_index].m_materialIndices[0]].m_blendMode;
                 break;
-            case M2_ELEMENT_PARTICLE:
-                blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(element->m_emitter->m_params.m_material.m_blendMode);
+            case M2_ELEMENT_PARTICLE: {
+                CParticleEmitter2* emitter = element->emitter;
+                STORM_ASSERT(!emitter->IsModelEmitter());
+                blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(emitter->m_params.m_material.m_blendMode);
                 break;
+            }
             default:
                 break;
         }
@@ -1662,7 +1678,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
     element->m_model = model;
     element->m_type = M2_ELEMENT_PARTICLE;
     element->m_flags = M2Element::FLAGS::NONE;
-    element->m_emitter = emitter;
+    element->emitter = emitter;
     element->m_priorityPlane = emitter->m_priorityPlane;
     element->m_sortDepth = model->m_scaleSq;
     element->m_effect = nullptr;

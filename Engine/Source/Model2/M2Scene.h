@@ -44,7 +44,7 @@ class M2Element {
     /* 0014 */ float m_depth;
     union {
         /* 0018 */ int32_t m_index;
-        /* 0018 */ CParticleEmitter2* m_emitter;
+        /* 0018 */ CParticleEmitter2* emitter;
     };
     /* 001C */ uint32_t m_count;
     /* 0020 */ uint32_t m_doodadKey;
@@ -111,7 +111,7 @@ class CM2Scene {
     static int32_t SortHitNear(uint32_t a, uint32_t b, const void* param);
     static int32_t SortOpaque(uint32_t a, uint32_t b, const void* param);
     static int32_t SortOpaqueGeoBatches(M2Element* a, M2Element* b);
-    static int32_t SortOpaqueParticles(M2Element* a, M2Element* b);
+    static int32_t SortOpaqueParticles(M2Element* A, M2Element* B);
     static int32_t SortOpaqueRibbons(M2Element* a, M2Element* b);
     static int32_t SortTransparent(uint32_t a, uint32_t b, const void* param);
 

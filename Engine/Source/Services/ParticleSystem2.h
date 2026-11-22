@@ -279,6 +279,9 @@ class CParticleEmitter2 {
     uint32_t GetNumPrimitives();
     CM2Model* GetParticleModelInternal(uint32_t& index);
     void GetReplacementColors(CImVector& color0, CImVector& color1, CImVector& color2);
+    bool IsModelEmitter() const {
+        return this->m_params.m_particleType == PT_MODEL;
+    }
     BOOL HasLiveParticles();
     void InternalUpdate(float deltaTime, int32_t child);
     void InterpolateAllTracks(const CParticle2& particle, CImVector* color, C2Vector* scale, int32_t* headCell, int32_t* tailCell);

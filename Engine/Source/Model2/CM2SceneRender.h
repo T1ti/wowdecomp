@@ -52,16 +52,16 @@ class CM2SceneRender {
     /* 0084 */ FOG_MODE m_prevFogMode;
     /* 0088 */ M2Batch* m_curBatch;
     /* 008C */ M2Batch* m_prevBatch;
-    /* 0090 */ M2SkinSection* m_curSkinSection;
+    /* 0090 */ M2SkinSection* m_skinSection;
     /* 0094 */ M2SkinSection* m_prevSkinSection;
     /* 0098 */ M2Material* m_curMaterial;
     /* 009C */ M2Material* m_prevMaterial;
-    /* 00A0 */ CShaderEffect* m_particleEffect;
-    /* 00A4 */ CShaderEffect* m_particleUnlitEffect;
-    /* 00A8 */ CShaderEffect* m_projectedModModEffect;
-    /* 00AC */ CShaderEffect* m_projectedModModUnlitEffect;
-    /* 00B0 */ CShaderEffect* m_projectedModAddEffect;
-    /* 00B4 */ CShaderEffect* m_projectedModAddUnlitEffect;
+    /* 00A0 */ CShaderEffect* m_hParticleEffect;
+    /* 00A4 */ CShaderEffect* m_hParticleUnlitEffect;
+    /* 00A8 */ CShaderEffect* m_hProjOpaqueEffect;
+    /* 00AC */ CShaderEffect* m_hProjOpaqueUnlitEffect;
+    /* 00B0 */ CShaderEffect* m_hProjAddEffect;
+    /* 00B4 */ CShaderEffect* m_hProjAddUnlitEffect;
     /* 00B8 */ M2Material m_defaultMaterial;
 
     static void EndFixed();
