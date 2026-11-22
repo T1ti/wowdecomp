@@ -3,7 +3,7 @@
 // INLINED
 WowClientDB_Base::WowClientDB_Base() {
     this->m_loaded = 0;
-    this->m_numRecords = 0;
+    this->m_nNumRecords = 0;
     this->m_maxID = -1;
     this->m_minID = 0xFFFFFFF;
     this->m_strings = nullptr;
@@ -17,30 +17,31 @@ WowClientDB_Base::~WowClientDB_Base() {
 // VERIFY: 60c92aa6 auto
 // OFFSET: 0x004CFBB0
 uint8_t* DecompressRow(const uint8_t* src, uint32_t size, uint8_t* dst) {
-    uint8_t* end = &dst[size];
+    uint8_t* pEnd = &dst[size];
     *dst = *src;
-    uint8_t* out = dst + 1;
+    uint8_t* pDestByte = dst + 1;
 
-    for (const uint8_t* p = src + 1; out < end; p++) {
-        *out++ = *p;
+    for (const uint8_t* p = src + 1; pDestByte < pEnd; p++) {
+        *pDestByte++ = *p;
 
         if (*p == p[-1]) {
             int32_t run = p[1];
 
             while (run) {
                 run--;
-                *out++ = *p;
+                *pDestByte++ = *p;
             }
 
             p += 2;
 
-            if (out < end) {
-                *out++ = *p;
+            if (pDestByte < pEnd) {
+                *pDestByte++ = *p;
             }
         }
     }
 
-    return out;
+    STORM_ASSERT(pDestByte == pEnd);
+    return pDestByte;
 }
 
 // VERIFY: bbb5632f manual

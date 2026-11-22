@@ -495,7 +495,7 @@ int32_t Packet_SMSG_BATTLEFIELD_STATUS(void* param, NETMESSAGE msgId, uint32_t t
         int32_t first = 0;
         CGBattlefieldInfo::m_numWorldStateStats = 0;
 
-        for (int32_t i = 0; i < g_worldStateUIDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_worldStateUIDB.m_nNumRecords; i++) {
             WorldStateUIRec* rec = g_worldStateUIDB.GetRecordByIndex(i);
 
             if ((rec->m_mapID == static_cast<int32_t>(CGBattlefieldInfo::m_activeMapID) || rec->m_mapID == -1) && rec->m_type == WORLD_STATE_UI_TYPE_BATTLEFIELD_STAT) {
@@ -804,8 +804,8 @@ void CGBattlefieldInfo::InitializeGame() {
         CGBattlefieldInfo::m_scoreSortCriteria[i].m_descending = 0;
     }
 
-    for (int32_t i = 0; i < g_battlemasterListDB.m_numRecords; i++) {
-        BattlemasterListRec* rec = i < 0 || i >= g_battlemasterListDB.m_numRecords ? nullptr : &g_battlemasterListDB.m_records[i];
+    for (int32_t i = 0; i < g_battlemasterListDB.m_nNumRecords; i++) {
+        BattlemasterListRec* rec = i < 0 || i >= g_battlemasterListDB.m_nNumRecords ? nullptr : &g_battlemasterListDB.m_records[i];
 
         if (rec && rec->m_instanceType == MAP_INSTANCE_TYPE_PVP_BATTLEFIELD) {
             CGBattlefieldInfo::m_battlegroundTypes.New(rec->m_id);
@@ -1155,7 +1155,7 @@ bool CGBattlefieldInfo::GetBracketForLevel(uint32_t level, const BattlemasterLis
 
     bool foundMap = false;
 
-    for (int32_t i = 0; i < g_pvpDifficultyDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_pvpDifficultyDB.m_nNumRecords; i++) {
         PvpDifficultyRec* difficulty = g_pvpDifficultyDB.GetRecordByIndex(i);
 
         if (!difficulty || difficulty->m_mapID != rec->m_mapID[0]) {

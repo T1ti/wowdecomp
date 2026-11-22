@@ -175,8 +175,8 @@ int32_t ResolveInventorySlotArg(lua_State* L, int32_t index, int32_t& slot) {
     } else if (lua_isstring(L, index)) {
         const char* name = lua_tolstring(L, index, nullptr);
 
-        for (int32_t i = 0; i < g_paperDollItemFrameDB.m_numRecords; i++) {
-            PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.m_numRecords ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
+        for (int32_t i = 0; i < g_paperDollItemFrameDB.m_nNumRecords; i++) {
+            PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.m_nNumRecords ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
 
             if (!SStrCmpI(rec->m_itemButtonName, name, STORM_MAX_STR)) {
                 slot = rec->m_slotNumber;
@@ -605,7 +605,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
     int32_t allowed = 1;
 
     if (!((stats->m_allowableRace - 1) & stats->m_allowableRace) && !((stats->m_allowableClass - 1) & stats->m_allowableClass)) {
-        for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
             if (race && !(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_raceID != race->m_id) {
@@ -613,7 +613,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
             }
         }
 
-        for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
             ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
             if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_classID != chrClass->m_id) {
@@ -627,7 +627,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
     int32_t allRaces = 1;
     int32_t allClasses = 1;
 
-    for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
         ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
         if (race && !(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && !((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
@@ -636,7 +636,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
         }
     }
 
-    for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
         ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
         if (chrClass && !((1 << (chrClass->m_id - 1)) & stats->m_allowableClass)) {
@@ -648,7 +648,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
     if (!allRaces) {
         allowed = 0;
 
-        for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
             if (race && !(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && ((1 << (race->m_id - 1)) & stats->m_allowableRace) && player->m_unit->m_raceID == race->m_id) {
@@ -664,7 +664,7 @@ bool CGCharacterInfo::CanEquipItemInSlot(const ItemStats_C* stats, uint32_t slot
     if (!allClasses) {
         allowed = 0;
 
-        for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
             ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
             if (chrClass && ((1 << (chrClass->m_id - 1)) & stats->m_allowableClass) && player->m_unit->m_classID == chrClass->m_id) {

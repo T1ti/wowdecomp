@@ -648,10 +648,10 @@ static int32_t Script_GetNumLanguages(lua_State* L) {
     }
 
     int32_t count = 0;
-    int32_t numRecords = g_languagesDB.m_numRecords;
+    int32_t numRecords = g_languagesDB.m_nNumRecords;
 
     for (int32_t i = 0; i < numRecords; i++) {
-        const LanguagesRec* rec = (i >= 0 && i < g_languagesDB.m_numRecords) ? &g_languagesDB.m_records[i] : nullptr;
+        const LanguagesRec* rec = (i >= 0 && i < g_languagesDB.m_nNumRecords) ? &g_languagesDB.m_records[i] : nullptr;
         uint32_t skill;
 
         if (rec && player->GetLanguageSkill(rec->m_id, skill)) {
@@ -678,11 +678,11 @@ static int32_t Script_GetLanguageByIndex(lua_State* L) {
     }
 
     int32_t wanted = static_cast<int32_t>(lua_tonumber(L, 1));
-    int32_t numRecords = g_languagesDB.m_numRecords;
+    int32_t numRecords = g_languagesDB.m_nNumRecords;
     int32_t found = 0;
 
     for (int32_t i = 0; i < numRecords; i++) {
-        const LanguagesRec* rec = (i >= 0 && i < g_languagesDB.m_numRecords) ? &g_languagesDB.m_records[i] : nullptr;
+        const LanguagesRec* rec = (i >= 0 && i < g_languagesDB.m_nNumRecords) ? &g_languagesDB.m_records[i] : nullptr;
         uint32_t skill;
 
         if (rec && player->GetLanguageSkill(rec->m_id, skill) && ++found == wanted) {
@@ -1750,7 +1750,7 @@ static int32_t Script_RemoveChatWindowChannel(lua_State* L) {
 
     const char* zoneText = CGGameUI::m_zoneText;
 
-    for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
         if (SStrCmpUTF8I(rec->m_shortcut, channel, STORM_MAX_STR)) {
@@ -1776,7 +1776,7 @@ static int32_t Script_RemoveChatWindowChannel(lua_State* L) {
 // VERIFY: 42e197eb manual
 // OFFSET: 0x004FF200
 static int32_t Script_EnumerateServerChannels(lua_State* L) {
-    int32_t count = g_chatChannelsDB.m_numRecords;
+    int32_t count = g_chatChannelsDB.m_nNumRecords;
     lua_checkstack(L, count);
     AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_areaID);
 
@@ -1933,7 +1933,7 @@ static int32_t Script_DoEmote(lua_State* L) {
         return 0;
     }
 
-    int32_t i = g_emotesTextDB.m_numRecords;
+    int32_t i = g_emotesTextDB.m_nNumRecords;
 
     if (!i) {
         return 0;
@@ -2123,7 +2123,7 @@ static int32_t Script_AddChatWindowChannel(lua_State* L) {
     int32_t channelId = 0;
     const char* zoneText = CGGameUI::m_zoneText;
 
-    for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
         if (SStrCmpUTF8I(rec->m_shortcut, channel, STORM_MAX_STR)) {
@@ -2190,7 +2190,7 @@ static int32_t Script_ResetChatWindows(lua_State* L) {
         }
     }
 
-    int32_t count = g_chatChannelsDB.m_numRecords;
+    int32_t count = g_chatChannelsDB.m_nNumRecords;
 
     for (int32_t i = 0; i < count; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);

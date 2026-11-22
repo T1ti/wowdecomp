@@ -220,7 +220,7 @@ LFGRewardItem* CGLookingForGroup::GetDungeonRewardItem(uint32_t slot, int32_t in
 void CGLookingForGroup::UpdateLFDEntries() {
     uint32_t count = 0;
 
-    for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && (rec->m_flags & LFG_DUNGEON_FLAG_LFD_LISTED) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
@@ -228,7 +228,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
         }
     }
 
-    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_nNumRecords; i++) {
         LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID) {
@@ -240,7 +240,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
 
     uint32_t index = 0;
 
-    for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && (rec->m_flags & LFG_DUNGEON_FLAG_LFD_LISTED) && rec->m_typeID != CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON && !(rec->m_flags & LFG_DUNGEON_FLAG_HOLIDAY)) {
@@ -250,7 +250,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
         }
     }
 
-    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_nNumRecords; i++) {
         LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID) {
@@ -268,7 +268,7 @@ void CGLookingForGroup::UpdateLFDEntries() {
 void CGLookingForGroup::UpdateLFREntries() {
     uint32_t count = 0;
 
-    for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
@@ -276,7 +276,7 @@ void CGLookingForGroup::UpdateLFREntries() {
         }
     }
 
-    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_nNumRecords; i++) {
         if (g_lfgDungeonGroupDB.GetRecordByIndex(i)) {
             count++;
         }
@@ -286,7 +286,7 @@ void CGLookingForGroup::UpdateLFREntries() {
 
     uint32_t index = 0;
 
-    for (int32_t i = 0; i < g_lfgDungeonsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonsDB.m_nNumRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
 
         if (rec && rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RAID) {
@@ -296,7 +296,7 @@ void CGLookingForGroup::UpdateLFREntries() {
         }
     }
 
-    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonGroupDB.m_nNumRecords; i++) {
         LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecordByIndex(i);
 
         if (rec) {
@@ -489,12 +489,12 @@ void CGLookingForGroup::InitializeGame() {
 // VERIFY: 40f0cb62 manual
 // OFFSET: 0x006349F0
 LfgDungeonExpansionRec* GetLfgDungeonExpansionRec(int32_t dungeonID, int32_t expansionLevel) {
-    for (int32_t i = 0; i < g_lfgDungeonExpansionDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_lfgDungeonExpansionDB.m_nNumRecords; i++) {
         if (g_lfgDungeonExpansionDB.GetRecordByIndex(i)->m_lfgID != dungeonID) {
             continue;
         }
 
-        for (int32_t j = i; j < g_lfgDungeonExpansionDB.m_numRecords; j++) {
+        for (int32_t j = i; j < g_lfgDungeonExpansionDB.m_nNumRecords; j++) {
             LfgDungeonExpansionRec* rec = g_lfgDungeonExpansionDB.GetRecordByIndex(j);
 
             if (rec->m_lfgID != dungeonID) {
@@ -1410,11 +1410,11 @@ bool CGLookingForGroup::IsRandomDungeonUnlocked(const LfgDungeonsRec* rec) {
 // VERIFY: 589ed3a1 manual
 // OFFSET: 0x0055AAF0
 void CGLookingForGroup::UpdateRandomDungeons() {
-    int32_t numRecords = g_lfgDungeonsDB.m_numRecords;
+    int32_t numRecords = g_lfgDungeonsDB.m_nNumRecords;
     uint32_t count = 0;
 
     for (int32_t i = 0; i < numRecords; i++) {
-        LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_numRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
+        LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_nNumRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
 
         if (rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON || CGLookingForGroup::IsRandomDungeonUnlocked(rec)) {
             count++;
@@ -1425,7 +1425,7 @@ void CGLookingForGroup::UpdateRandomDungeons() {
     uint32_t index = 0;
 
     for (int32_t i = 0; i < numRecords; i++) {
-        LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_numRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
+        LfgDungeonsRec* rec = i < 0 || i >= g_lfgDungeonsDB.m_nNumRecords ? nullptr : &g_lfgDungeonsDB.m_records[i];
         uint32_t slot = (rec->m_id & CGLookingForGroup::SLOT_PACKING::SLOT_DUNGEON_ID_MASK) | (rec->m_typeID << CGLookingForGroup::SLOT_PACKING::SLOT_TYPE_SHIFT);
 
         if (rec->m_typeID == CGLookingForGroup::DUNGEON_TYPE::LFG_TYPE_RANDOM_DUNGEON) {

@@ -1275,8 +1275,8 @@ void ClientInitializeGame(uint32_t mapId, C3Vector position) {
 
     REALM_INFO* realm = ClientServices::GetSelectedRealm();
 
-    for (uint32_t i = 0; i < g_cfg_ConfigsDB.m_numRecords; i++) {
-        Cfg_ConfigsRec* config = i < g_cfg_ConfigsDB.m_numRecords ? &g_cfg_ConfigsDB.m_records[i] : nullptr;
+    for (uint32_t i = 0; i < g_cfg_ConfigsDB.m_nNumRecords; i++) {
+        Cfg_ConfigsRec* config = i < g_cfg_ConfigsDB.m_nNumRecords ? &g_cfg_ConfigsDB.m_records[i] : nullptr;
 
         if (config->m_realmType == realm->m_type) {
             s_isPvPRealm = config->m_playerKillingAllowed != 0;

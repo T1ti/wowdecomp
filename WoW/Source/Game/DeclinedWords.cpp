@@ -26,9 +26,9 @@ void DeclinedWordsInitialize() {
     g_declinedWordDB.Load(__FILE__, __LINE__);
     g_declinedWordCasesDB.Load(__FILE__, __LINE__);
     int32_t caseIndex = 0;
-    DeclinedWordCasesRec* cases = g_declinedWordCasesDB.m_numRecords <= 0 ? nullptr : g_declinedWordCasesDB.m_records;
+    DeclinedWordCasesRec* cases = g_declinedWordCasesDB.m_nNumRecords <= 0 ? nullptr : g_declinedWordCasesDB.m_records;
 
-    for (int32_t i = 0; i < g_declinedWordDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_declinedWordDB.m_nNumRecords; i++) {
         DeclinedWordRec* word = g_declinedWordDB.GetRecordByIndex(i);
 
         if (!cases) {

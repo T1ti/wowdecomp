@@ -3974,7 +3974,7 @@ BOOL IsRangedWeaponAnim(uint32_t animId) {
 // VERIFY: d076d5ef manual
 // OFFSET: 0x00717540
 int32_t AnimationData::FindIdByBehaviorAndTier(uint32_t behavior, int32_t tier, uint32_t* anim) {
-    int32_t count = g_animationDataDB.m_numRecords;
+    int32_t count = g_animationDataDB.m_nNumRecords;
 
     if (static_cast<int32_t>(behavior) >= count) {
         return 0;
@@ -5101,10 +5101,10 @@ void CGUnit_C::OnRightClick() {
 // VERIFY: b45861d0 auto
 // OFFSET: 0x007165D0
 static void CacheEmoteRecords() {
-    int32_t index = g_emotesDB.m_numRecords;
+    int32_t index = g_emotesDB.m_nNumRecords;
 
     while (index--) {
-        EmotesRec* rec = index >= 0 && index < g_emotesDB.m_numRecords ? &g_emotesDB.m_records[index] : nullptr;
+        EmotesRec* rec = index >= 0 && index < g_emotesDB.m_nNumRecords ? &g_emotesDB.m_records[index] : nullptr;
 
         if (rec->m_emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_TALK) {
             s_talkEmotes[TALKANIM_TALK] = rec;
@@ -5337,10 +5337,10 @@ void CGUnit_C::Initialize() {
 
     memset(g_environmentalDamageVisualKits, 0, sizeof(g_environmentalDamageVisualKits));
 
-    int32_t index = g_environmentalDamageDB.m_numRecords;
+    int32_t index = g_environmentalDamageDB.m_nNumRecords;
 
     while (index--) {
-        EnvironmentalDamageRec* rec = index >= 0 && index < g_environmentalDamageDB.m_numRecords ? &g_environmentalDamageDB.m_records[index] : nullptr;
+        EnvironmentalDamageRec* rec = index >= 0 && index < g_environmentalDamageDB.m_nNumRecords ? &g_environmentalDamageDB.m_records[index] : nullptr;
 
         if (static_cast<uint32_t>(rec->m_enumID) < sizeof(g_environmentalDamageVisualKits) / sizeof(g_environmentalDamageVisualKits[0])) {
             g_environmentalDamageVisualKits[rec->m_enumID] = rec->m_visualkitID;
@@ -6498,8 +6498,8 @@ const CreatureSoundDataRec* CGUnit_C::GetMountSoundDataRec() const {
 // VERIFY: 7bdb435b manual
 // OFFSET: 0x00719900
 int32_t __stdcall CGUnit_C::GetRecordForTitle(int32_t maskId) {
-    for (int32_t i = 0; i < g_charTitlesDB.m_numRecords; i++) {
-        CharTitlesRec* rec = (i < 0 || i >= g_charTitlesDB.m_numRecords) ? nullptr : &g_charTitlesDB.m_records[i];
+    for (int32_t i = 0; i < g_charTitlesDB.m_nNumRecords; i++) {
+        CharTitlesRec* rec = (i < 0 || i >= g_charTitlesDB.m_nNumRecords) ? nullptr : &g_charTitlesDB.m_records[i];
 
         if (rec && rec->m_maskID == maskId) {
             return rec->m_id;
@@ -6998,7 +6998,7 @@ void CGUnit_C::GetCurrentAnimationInfo(M2BoneSequenceInfo* mount, M2BoneSequence
 // VERIFY: 71fe5a98 manual
 // OFFSET: 0x00717600
 int32_t CGUnit_C::FindDefaultAnimForTier(int32_t tier, uint32_t* anim) const {
-    if (g_animationDataDB.m_numRecords <= 0) {
+    if (g_animationDataDB.m_nNumRecords <= 0) {
         return 0;
     }
 
@@ -7016,7 +7016,7 @@ int32_t CGUnit_C::FindDefaultAnimForTier(int32_t tier, uint32_t* anim) const {
             int32_t i = 0;
 
             while (true) {
-                AnimationDataRec* candidate = (i < 0 || i >= g_animationDataDB.m_numRecords) ? nullptr : rec;
+                AnimationDataRec* candidate = (i < 0 || i >= g_animationDataDB.m_nNumRecords) ? nullptr : rec;
 
                 if (!candidate->m_behaviorID && candidate->m_behaviorTier == tier) {
                     id = candidate->m_id;
@@ -7026,7 +7026,7 @@ int32_t CGUnit_C::FindDefaultAnimForTier(int32_t tier, uint32_t* anim) const {
                 i++;
                 rec++;
 
-                if (i >= g_animationDataDB.m_numRecords) {
+                if (i >= g_animationDataDB.m_nNumRecords) {
                     return 0;
                 }
             }
@@ -9787,7 +9787,7 @@ void CGUnit_C::RefreshDataPointers() {
 
     if (!this->m_displayInfo) {
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOUNITDISPLAYID|%d|%s", displayId, this->GetUnitName(nullptr, 1));
-        this->m_displayInfo = g_creatureDisplayInfoDB.m_numRecords > 0 ? g_creatureDisplayInfoDB.m_records : nullptr;
+        this->m_displayInfo = g_creatureDisplayInfoDB.m_nNumRecords > 0 ? g_creatureDisplayInfoDB.m_records : nullptr;
     }
 
     const CreatureDisplayInfoRec* displayInfo = this->m_displayInfo;
@@ -9808,7 +9808,7 @@ void CGUnit_C::RefreshDataPointers() {
         this->m_bloodlevels = g_unitBloodLevelsDB.GetRecord(modelData->m_bloodID);
 
         if (!this->m_bloodlevels) {
-            this->m_bloodlevels = g_unitBloodLevelsDB.m_numRecords > 0 ? g_unitBloodLevelsDB.m_records : nullptr;
+            this->m_bloodlevels = g_unitBloodLevelsDB.m_nNumRecords > 0 ? g_unitBloodLevelsDB.m_records : nullptr;
         }
     }
 

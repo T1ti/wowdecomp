@@ -518,11 +518,11 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
 // VERIFY: c5353046 manual
 // OFFSET: 0x00572210
 void CGMailInfo::InitializeGame() {
-    uint32_t numStationeries = g_stationeryDB.m_numRecords;
+    uint32_t numStationeries = g_stationeryDB.m_nNumRecords;
     CGMailInfo::m_stationeries.SetCount(numStationeries);
 
     for (int32_t i = 0; i < static_cast<int32_t>(numStationeries); i++) {
-        StationeryRec* rec = i < 0 || i >= g_stationeryDB.m_numRecords ? nullptr : &g_stationeryDB.m_records[i];
+        StationeryRec* rec = i < 0 || i >= g_stationeryDB.m_nNumRecords ? nullptr : &g_stationeryDB.m_records[i];
 
         CGMailInfo::m_stationeries.m_data[i] = static_cast<StationeryInfo*>(SMemAlloc(sizeof(StationeryInfo), __FILE__, __LINE__, 0));
         CGMailInfo::m_stationeries.m_data[i]->m_id = rec->m_id;

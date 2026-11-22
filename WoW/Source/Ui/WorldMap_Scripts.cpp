@@ -615,8 +615,8 @@ static int32_t Script_UpdateMapHighlight(lua_State* L) {
         height = area->m_locTop - area->m_locBottom;
         size = static_cast<int32_t>(128.0 * height / width);
     } else {
-        for (int32_t i = 0; i < g_worldMapContinentDB.m_numRecords; i++) {
-            WorldMapContinentRec* rec = i < 0 || i >= g_worldMapContinentDB.m_numRecords ? nullptr : &g_worldMapContinentDB.m_records[i];
+        for (int32_t i = 0; i < g_worldMapContinentDB.m_nNumRecords; i++) {
+            WorldMapContinentRec* rec = i < 0 || i >= g_worldMapContinentDB.m_nNumRecords ? nullptr : &g_worldMapContinentDB.m_records[i];
 
             if (rec->m_mapID == area->m_mapID) {
                 continentRec = rec;
@@ -676,8 +676,8 @@ static int32_t Script_UpdateMapHighlight(lua_State* L) {
         lua_pushnumber(L, static_cast<double>(size) / textureSize);
         int32_t displayMapID = area->m_displayMapID;
 
-        for (int32_t i = 0; i < g_worldMapAreaDB.m_numRecords; i++) {
-            WorldMapAreaRec* rec = i < 0 || i >= g_worldMapAreaDB.m_numRecords ? nullptr : &g_worldMapAreaDB.m_records[i];
+        for (int32_t i = 0; i < g_worldMapAreaDB.m_nNumRecords; i++) {
+            WorldMapAreaRec* rec = i < 0 || i >= g_worldMapAreaDB.m_nNumRecords ? nullptr : &g_worldMapAreaDB.m_records[i];
             int32_t recMapID = rec->m_displayMapID < 0 ? rec->m_mapID : rec->m_displayMapID;
 
             if (rec->m_areaID || recMapID != (displayMapID >= 0 ? displayMapID : area->m_mapID)) {
@@ -968,7 +968,7 @@ static int32_t Script_ZoomOut(lua_State* L) {
         parent = area->m_parentWorldMapID;
 
         if (!parent) {
-            for (int32_t i = 0; i < g_dungeonMapDB.m_numRecords; i++) {
+            for (int32_t i = 0; i < g_dungeonMapDB.m_nNumRecords; i++) {
                 DungeonMapRec* dungeonMap = g_dungeonMapDB.GetRecordByIndex(i);
 
                 if (dungeonMap && dungeonMap->m_mapID == area->m_mapID && dungeonMap->m_floorIndex == 1) {
@@ -1069,7 +1069,7 @@ static int32_t Script_SetMapByID(lua_State* L) {
         return 1;
     }
 
-    for (int32_t i = 0; i < g_dungeonMapDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_dungeonMapDB.m_nNumRecords; i++) {
         DungeonMapRec* dungeonMap = g_dungeonMapDB.GetRecordByIndex(i);
 
         if (dungeonMap && dungeonMap->m_mapID == area->m_mapID && dungeonMap->m_floorIndex == 1) {

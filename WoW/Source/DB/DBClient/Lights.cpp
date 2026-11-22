@@ -99,8 +99,8 @@ static void TransformMapCoord(LightRec* rec, bool transform) {
 // VERIFY: c7d146ee auto
 // OFFSET: 0x007EB010
 static void TransformLights(bool transform) {
-    for (int32_t i = 0; i < g_lightDB.m_numRecords; i++) {
-        LightRec* rec = i >= 0 && i < g_lightDB.m_numRecords ? &g_lightDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_lightDB.m_nNumRecords; i++) {
+        LightRec* rec = i >= 0 && i < g_lightDB.m_nNumRecords ? &g_lightDB.m_records[i] : nullptr;
         TransformMapCoord(rec, transform);
     }
 }

@@ -247,13 +247,13 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
     st_race* lookup = new (__FILE__, __LINE__) st_race[count];
 
     int32_t variationIndex = 0;
-    CharSectionsRec* first = (0 >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[0];
+    CharSectionsRec* first = (0 >= g_charSectionsDB.m_nNumRecords) ? nullptr : &g_charSectionsDB.m_records[0];
     int32_t raceID = first->m_raceID;
     int32_t sexID = first->m_sexID;
     COMPONENT_VARIATIONS baseSection = first->m_baseSection;
 
-    for (int32_t i = 0; i < g_charSectionsDB.m_numRecords; i++) {
-        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[i];
+    for (int32_t i = 0; i < g_charSectionsDB.m_nNumRecords; i++) {
+        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_nNumRecords) ? nullptr : &g_charSectionsDB.m_records[i];
 
         if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
             continue;
@@ -292,8 +292,8 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
     variationIndex = 0;
     int32_t colorIndex = 0;
 
-    for (int32_t i = 0; i < g_charSectionsDB.m_numRecords; i++) {
-        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[i];
+    for (int32_t i = 0; i < g_charSectionsDB.m_nNumRecords; i++) {
+        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_nNumRecords) ? nullptr : &g_charSectionsDB.m_records[i];
 
         if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
             continue;
@@ -335,8 +335,8 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
         }
     }
 
-    for (int32_t i = 0; i < g_charSectionsDB.m_numRecords; i++) {
-        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_numRecords) ? nullptr : &g_charSectionsDB.m_records[i];
+    for (int32_t i = 0; i < g_charSectionsDB.m_nNumRecords; i++) {
+        CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.m_nNumRecords) ? nullptr : &g_charSectionsDB.m_records[i];
 
         if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
             continue;
@@ -369,8 +369,8 @@ int32_t CountFacialFeatures(uint32_t count, uint32_t** facialFeatures) {
         return 0;
     }
 
-    for (int32_t i = 0; i < g_characterFacialHairStylesDB.m_numRecords; i++) {
-        CharacterFacialHairStylesRec* rec = (i < 0 || i >= g_characterFacialHairStylesDB.m_numRecords) ? nullptr : &g_characterFacialHairStylesDB.m_records[i];
+    for (int32_t i = 0; i < g_characterFacialHairStylesDB.m_nNumRecords; i++) {
+        CharacterFacialHairStylesRec* rec = (i < 0 || i >= g_characterFacialHairStylesDB.m_nNumRecords) ? nullptr : &g_characterFacialHairStylesDB.m_records[i];
 
         if (!rec) {
             return 0;

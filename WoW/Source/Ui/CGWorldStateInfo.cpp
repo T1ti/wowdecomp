@@ -145,7 +145,7 @@ void CGWorldStateInfo::OnUITime(uint32_t time) {
 void CGWorldStateInfo::ResetWorldStateUI() {
     CGWorldStateInfo::m_worldStateUI.m_count = 0;
 
-    for (int32_t i = 0; i < g_worldStateUIDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_worldStateUIDB.m_nNumRecords; i++) {
         WorldStateUIRec* rec = g_worldStateUIDB.GetRecordByIndex(i);
 
         if (rec->m_mapID != -1 && rec->m_mapID != CGWorldStateInfo::m_mapID) {

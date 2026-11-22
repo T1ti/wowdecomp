@@ -645,7 +645,7 @@ void FriendList::SendWho(const char* filter) {
                         const char* zoneText = &word[SStrLen(tag)];
 
                         if (zoneCount < 10) {
-                            for (int32_t i = 0; i < g_areaTableDB.m_numRecords; i++) {
+                            for (int32_t i = 0; i < g_areaTableDB.m_nNumRecords; i++) {
                                 AreaTableRec* area = g_areaTableDB.GetRecordByIndex(i);
 
                                 if (!area->m_parentAreaID && zoneCount < 10 && SStrStrUTF8I(area->m_areaName, zoneText)) {
@@ -668,7 +668,7 @@ void FriendList::SendWho(const char* filter) {
                                 raceMask = 0;
                             }
 
-                            for (int32_t i = 0; i < g_chrRacesDB.m_numRecords; i++) {
+                            for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
                                 ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
                                 if (SStrStrUTF8I(race->m_name, raceText)) {
@@ -685,7 +685,7 @@ void FriendList::SendWho(const char* filter) {
                                     classMask = 0;
                                 }
 
-                                for (int32_t i = 0; i < g_chrClassesDB.m_numRecords; i++) {
+                                for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
                                     ChrClassesRec* chrClass = g_chrClassesDB.GetRecordByIndex(i);
 
                                     if (SStrStrUTF8I(chrClass->m_name, classText)) {

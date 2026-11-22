@@ -171,7 +171,7 @@ static int32_t Script_GetCategoryList(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    for (int32_t i = 0; i < g_achievement_CategoryDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievement_CategoryDB.m_nNumRecords; i++) {
         Achievement_CategoryRec* category = g_achievement_CategoryDB.GetRecordByIndex(i);
 
         if (!category || category->m_id == ACHIEVEMENT_CATEGORY_STATISTICS) {
@@ -250,7 +250,7 @@ static int32_t Script_GetCategoryNumAchievements(lua_State* L) {
 
     int32_t categoryId = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
         bool anyCategory = false;
         bool includeAll = false;
@@ -338,7 +338,7 @@ static int32_t Script_GetNumCompletedAchievements(lua_State* L) {
     int32_t total = 0;
     int32_t completed = 0;
 
-    for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
         if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
@@ -422,7 +422,7 @@ static int32_t Script_GetStatisticsCategoryList(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    for (int32_t i = 0; i < g_achievement_CategoryDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievement_CategoryDB.m_nNumRecords; i++) {
         Achievement_CategoryRec* category = g_achievement_CategoryDB.GetRecordByIndex(i);
 
         if (!category) {
@@ -607,7 +607,7 @@ static int32_t Script_GetComparisonCategoryNumAchievements(lua_State* L) {
 
     int32_t categoryId = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
         bool includeAll = false;
 
@@ -648,7 +648,7 @@ static int32_t Script_GetNumComparisonCompletedAchievements(lua_State* L) {
     int32_t total = 0;
     int32_t completed = 0;
 
-    for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
         if (!achievement || !CGAchievementInfo::IsRealAchievement(achievement->m_id) || (achievement->m_flags & ACHIEVEMENT_FLAGS::ACHIEVEMENT_FLAG_HIDDEN)) {
@@ -697,7 +697,7 @@ static int32_t Script_GetNextAchievement(lua_State* L) {
 
     int32_t id = static_cast<int32_t>(lua_tonumber(L, 1));
 
-    for (int32_t i = 0; i < g_achievementDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
         if (!achievement || achievement->m_supercedes != id) {
@@ -856,7 +856,7 @@ static int32_t Script_GetAchievementInfo(lua_State* L) {
                 return 0;
             }
 
-            for (int32_t i = 0; i < g_achievementDB.m_numRecords && id == -1; i++) {
+            for (int32_t i = 0; i < g_achievementDB.m_nNumRecords && id == -1; i++) {
                 AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
                 CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 

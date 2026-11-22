@@ -86,8 +86,8 @@ void CLoadingScreenShipInfo<T>::Initialize(WowClientDB<T>* nodeDB, uint32_t path
     int32_t startNodeID = 0;
     int32_t endNodeID = 0;
 
-    for (int32_t i = 0; i < nodeDB->m_numRecords; i++) {
-        T* node = i >= 0 && i < nodeDB->m_numRecords ? &nodeDB->m_records[i] : nullptr;
+    for (int32_t i = 0; i < nodeDB->m_nNumRecords; i++) {
+        T* node = i >= 0 && i < nodeDB->m_nNumRecords ? &nodeDB->m_records[i] : nullptr;
 
         if (!prev || prev->m_pathID != node->m_pathID) {
             if (prev && startNodeID > 0) {

@@ -151,22 +151,22 @@ void CNameGen::LoadNames(int32_t raceID, int32_t sexID) {
 
     int32_t start;
 
-    for (start = 0; start < g_nameGenDB.m_numRecords; start++) {
-        NameGenRec* rec = start >= 0 && start < g_nameGenDB.m_numRecords ? &g_nameGenDB.m_records[start] : nullptr;
+    for (start = 0; start < g_nameGenDB.m_nNumRecords; start++) {
+        NameGenRec* rec = start >= 0 && start < g_nameGenDB.m_nNumRecords ? &g_nameGenDB.m_records[start] : nullptr;
 
         if (rec->m_raceID == raceID && rec->m_sex == sexID) {
             break;
         }
     }
 
-    if (start >= g_nameGenDB.m_numRecords) {
+    if (start >= g_nameGenDB.m_nNumRecords) {
         return;
     }
 
     int32_t end;
 
-    for (end = start; end < g_nameGenDB.m_numRecords; end++) {
-        NameGenRec* rec = end >= 0 && end < g_nameGenDB.m_numRecords ? &g_nameGenDB.m_records[end] : nullptr;
+    for (end = start; end < g_nameGenDB.m_nNumRecords; end++) {
+        NameGenRec* rec = end >= 0 && end < g_nameGenDB.m_nNumRecords ? &g_nameGenDB.m_records[end] : nullptr;
 
         if (rec->m_raceID != raceID || rec->m_sex != sexID) {
             break;
@@ -178,7 +178,7 @@ void CNameGen::LoadNames(int32_t raceID, int32_t sexID) {
 
     for (int32_t i = 0; i < count; i++) {
         int32_t index = start + i;
-        NameGenRec* rec = index >= 0 && index < g_nameGenDB.m_numRecords ? &g_nameGenDB.m_records[index] : nullptr;
+        NameGenRec* rec = index >= 0 && index < g_nameGenDB.m_nNumRecords ? &g_nameGenDB.m_records[index] : nullptr;
         this->m_names.m_data[i] = rec->m_name;
     }
 

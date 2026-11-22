@@ -48,7 +48,7 @@ void ShipPath::SetTotalPathTime(uint32_t time) {
 // VERIFY: b2be9152 auto
 // OFFSET: 0x007F7AD0
 static int32_t FindFirstPathNode(uint32_t pathId) {
-    int32_t high = g_taxiPathNodeDB.m_numRecords;
+    int32_t high = g_taxiPathNodeDB.m_nNumRecords;
     int32_t low = 0;
 
     if (high <= 0) {
@@ -57,7 +57,7 @@ static int32_t FindFirstPathNode(uint32_t pathId) {
 
     do {
         int32_t mid = (high + low) / 2;
-        TaxiPathNodeRec* records = g_taxiPathNodeDB.m_numRecords <= 0 ? nullptr : g_taxiPathNodeDB.m_records;
+        TaxiPathNodeRec* records = g_taxiPathNodeDB.m_nNumRecords <= 0 ? nullptr : g_taxiPathNodeDB.m_records;
 
         if (records[mid].m_pathID >= static_cast<int32_t>(pathId)) {
             high = mid;
@@ -66,8 +66,8 @@ static int32_t FindFirstPathNode(uint32_t pathId) {
         }
     } while (low < high);
 
-    if (low < g_taxiPathNodeDB.m_numRecords) {
-        TaxiPathNodeRec* records = g_taxiPathNodeDB.m_numRecords <= 0 ? nullptr : g_taxiPathNodeDB.m_records;
+    if (low < g_taxiPathNodeDB.m_nNumRecords) {
+        TaxiPathNodeRec* records = g_taxiPathNodeDB.m_nNumRecords <= 0 ? nullptr : g_taxiPathNodeDB.m_records;
 
         if (records[low].m_pathID == static_cast<int32_t>(pathId)) {
             return low;
@@ -115,7 +115,7 @@ void ShipPath::BuildLegs() {
 
     TaxiPathNodeRec* node = nullptr;
 
-    if (index >= 0 && index < g_taxiPathNodeDB.m_numRecords) {
+    if (index >= 0 && index < g_taxiPathNodeDB.m_nNumRecords) {
         node = &g_taxiPathNodeDB.m_records[index];
     }
 
@@ -171,7 +171,7 @@ void ShipPath::BuildLegs() {
         teleport = node->m_flags & TAXI_PATH_NODE_FLAG_TELEPORT;
         index++;
 
-        if (index < 0 || index >= g_taxiPathNodeDB.m_numRecords) {
+        if (index < 0 || index >= g_taxiPathNodeDB.m_nNumRecords) {
             break;
         }
 

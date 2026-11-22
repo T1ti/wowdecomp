@@ -126,7 +126,7 @@ static int32_t Script_GetStablePetInfo(lua_State* L) {
         return 4;
     }
 
-    for (int32_t i = 0; i < g_talentTabDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_talentTabDB.m_nNumRecords; i++) {
         TalentTabRec* tab = g_talentTabDB.GetRecordByIndex(i);
 
         if ((1 << family->m_petTalentType) & tab->m_categoryEnumID) {
@@ -240,7 +240,7 @@ static int32_t Script_GetStablePetFoodTypes(lua_State* L) {
         return count;
     }
 
-    for (int32_t i = 0; i < g_itemPetFoodDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_itemPetFoodDB.m_nNumRecords; i++) {
         ItemPetFoodRec* food = g_itemPetFoodDB.GetRecordByIndex(i);
 
         if (food && ((1 << (food->m_id - 1)) & family->m_petFoodMask)) {

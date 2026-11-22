@@ -178,8 +178,8 @@ void SI2::DSP_AttachCustomDspChain(FMOD::Channel* channel, char* name) {
 // VERIFY: 1f3d2404 manual
 // OFFSET: 0x004CE7C0
 void SI2::DSP_Init() {
-    for (int32_t i = 0; i < g_soundFilterDB.m_numRecords; i++) {
-        SoundFilterRec* rec = (i < 0 || i >= g_soundFilterDB.m_numRecords) ? nullptr : &g_soundFilterDB.m_records[i];
+    for (int32_t i = 0; i < g_soundFilterDB.m_nNumRecords; i++) {
+        SoundFilterRec* rec = (i < 0 || i >= g_soundFilterDB.m_nNumRecords) ? nullptr : &g_soundFilterDB.m_records[i];
 
         if (s_dspChains.Ptr(rec->m_name)) {
             continue;
@@ -200,8 +200,8 @@ void SI2::DSP_Init() {
         }
     }
 
-    for (int32_t i = 0; i < g_soundFilterElemDB.m_numRecords; i++) {
-        SoundFilterElemRec* elem = (i < 0 || i >= g_soundFilterElemDB.m_numRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
+    for (int32_t i = 0; i < g_soundFilterElemDB.m_nNumRecords; i++) {
+        SoundFilterElemRec* elem = (i < 0 || i >= g_soundFilterElemDB.m_nNumRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
         SoundFilterRec* filter = g_soundFilterDB.GetRecord(elem->m_soundFilterID);
 
         SI2::DSP_CreateDsp(filter->m_name, elem->m_filterType, elem->m_params);

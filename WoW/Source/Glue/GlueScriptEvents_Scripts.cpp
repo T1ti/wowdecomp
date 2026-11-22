@@ -582,8 +582,8 @@ static int32_t Script_GetServerName(lua_State* L) {
     REALM_INFO* realm = ClientServices::GetSelectedRealm();
 
     if (realm) {
-        for (int32_t i = 0; i < g_cfg_ConfigsDB.m_numRecords; i++) {
-            Cfg_ConfigsRec* config = i >= 0 && i < g_cfg_ConfigsDB.m_numRecords ? &g_cfg_ConfigsDB.m_records[i] : nullptr;
+        for (int32_t i = 0; i < g_cfg_ConfigsDB.m_nNumRecords; i++) {
+            Cfg_ConfigsRec* config = i >= 0 && i < g_cfg_ConfigsDB.m_nNumRecords ? &g_cfg_ConfigsDB.m_records[i] : nullptr;
 
             if (config->m_realmType == realm->m_type) {
                 pvp = config->m_playerKillingAllowed != 0;

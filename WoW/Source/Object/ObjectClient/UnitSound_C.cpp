@@ -49,9 +49,9 @@ static void UnitSoundLoadDeathThuds() {
         s_deathThudSounds[i].SetCount(maxSoundId + 1);
     }
 
-    for (int32_t i = g_deathThudLookupsDB.m_numRecords; i; ) {
+    for (int32_t i = g_deathThudLookupsDB.m_nNumRecords; i; ) {
         i--;
-        DeathThudLookupsRec* rec = i >= 0 && i < g_deathThudLookupsDB.m_numRecords ? &g_deathThudLookupsDB.m_records[i] : nullptr;
+        DeathThudLookupsRec* rec = i >= 0 && i < g_deathThudLookupsDB.m_nNumRecords ? &g_deathThudLookupsDB.m_records[i] : nullptr;
 
         if (static_cast<uint32_t>(rec->m_sizeClass) < 5 && rec->m_terrainTypeSoundID <= maxSoundId) {
             s_deathThudSounds[rec->m_sizeClass].m_data[rec->m_terrainTypeSoundID].m_soundEntryId = rec->m_soundEntryID;
@@ -83,8 +83,8 @@ void UnitSoundInitialize() {
     s_cvFootstepSounds = CVar::Register("FootstepSounds", nullptr, CVAR_FLAGS::CVAR_NONE, "1", nullptr, 5, false, nullptr, false);
     s_lastStandSoundTime = FrameTime::s_curTimeMs;
 
-    for (int32_t i = 0; i < g_soundEntriesDB.m_numRecords; i++) {
-        SoundEntriesRec* rec = i >= 0 && i < g_soundEntriesDB.m_numRecords ? &g_soundEntriesDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_soundEntriesDB.m_nNumRecords; i++) {
+        SoundEntriesRec* rec = i >= 0 && i < g_soundEntriesDB.m_nNumRecords ? &g_soundEntriesDB.m_records[i] : nullptr;
 
         if (!SStrCmp(rec->m_name, "SpiritWolf (DONOTRENAME)", STORM_MAX_STR)) {
             CGUnit_C::s_dismountSoundKitId = rec->m_id;

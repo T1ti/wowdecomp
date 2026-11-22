@@ -469,10 +469,10 @@ static int32_t GetWeaponSubClassCount(int32_t* count) {
 
     int32_t maxSubClass = 0;
     BOOL found = 0;
-    int32_t index = g_itemSubClassDB.m_numRecords;
+    int32_t index = g_itemSubClassDB.m_nNumRecords;
 
     while (index--) {
-        const ItemSubClassRec* rec = index >= 0 && index < g_itemSubClassDB.m_numRecords ? &g_itemSubClassDB.m_records[index] : nullptr;
+        const ItemSubClassRec* rec = index >= 0 && index < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[index] : nullptr;
 
         if (rec->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             found = 1;
@@ -635,7 +635,7 @@ static void InitWeaponSkills() {
     s_defenseSpellId = 0;
 
     SpellRec rec;
-    int32_t index = g_spellDB.m_numRecords;
+    int32_t index = g_spellDB.m_nNumRecords;
 
     while (index--) {
         if (!g_spellDB.GetRecordByIndex(index, &rec)) {
@@ -4805,8 +4805,8 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32
         }
 
         if (proficiency) {
-            for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
-                ItemSubClassRec* rec = (i < 0 || i >= g_itemSubClassDB.m_numRecords) ? nullptr : &g_itemSubClassDB.m_records[i];
+            for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+                ItemSubClassRec* rec = (i < 0 || i >= g_itemSubClassDB.m_nNumRecords) ? nullptr : &g_itemSubClassDB.m_records[i];
 
                 if (rec->m_classID <= 0 || rec->m_classID != spell.m_equippedItemClass || 1 << rec->m_subClassID != spell.m_equippedItemSubclass) {
                     continue;
@@ -10829,7 +10829,7 @@ static int32_t SoulStoneCompare(const CGItem_C* item, void* param) {
     for (uint32_t i = 0; i < NUM_ITEM_SPELLS; i++) {
         int32_t spellId = stats->m_spellId[i];
 
-        if (spellId < g_spellDB.m_minID || spellId > g_spellDB.m_maxID || !g_spellDB.m_recordsById[spellId - g_spellDB.m_minID] || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
+        if (!g_spellDB.RecordExists(spellId) || stats->m_spellTrigger[i] != ITEM_SPELL_TRIGGER::ITEM_SPELL_TRIGGER_ON_USE) {
             continue;
         }
 
@@ -10918,7 +10918,7 @@ void AreaTriggersInitialize(uint32_t mapId) {
     s_areaTriggerMapID = mapId;
     s_areaTriggerStart = -1;
 
-    for (; i < g_areaTriggerDB.m_numRecords; i++) {
+    for (; i < g_areaTriggerDB.m_nNumRecords; i++) {
         AreaTriggerRec* rec = g_areaTriggerDB.GetRecordByIndex(i);
 
         if (!rec) {
@@ -14655,7 +14655,7 @@ float CGPlayer_C::CalcRewardHonor(float honor) {
 
     int32_t index = this->m_unit->m_unitFieldLevel - 1;
 
-    if (index >= g_teamContributionPointsDB.m_numRecords) {
+    if (index >= g_teamContributionPointsDB.m_nNumRecords) {
         return 0.0f;
     }
 

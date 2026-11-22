@@ -792,7 +792,7 @@ int32_t QSortSubClasses(const void* a, const void* b) {
     ItemSubClassRec* recA = nullptr;
     ItemSubClassRec* recB = nullptr;
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
         ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(i);
 
         if (rec->m_classID == subClassA->m_itemClass && rec->m_subClassID == subClassA->m_itemSubClass) {

@@ -1011,8 +1011,8 @@ int32_t ClientDBGetUnarmedWeapon() {
 static void LocateWeaponSubclass() {
     s_weaponItemClass = nullptr;
 
-    for (int32_t i = g_itemClassDB.m_numRecords - 1; i >= 0; i--) {
-        const ItemClassRec* rec = i >= 0 && i < g_itemClassDB.m_numRecords ? &g_itemClassDB.m_records[i] : nullptr;
+    for (int32_t i = g_itemClassDB.m_nNumRecords - 1; i >= 0; i--) {
+        const ItemClassRec* rec = i >= 0 && i < g_itemClassDB.m_nNumRecords ? &g_itemClassDB.m_records[i] : nullptr;
 
         if (rec->m_flags & ITEM_CLASS_FLAG_WEAPON) {
             s_weaponItemClass = rec;
@@ -1041,7 +1041,7 @@ int32_t GetMapResetTime(int32_t mapId, uint32_t difficulty) {
 // VERIFY: d0ca7548 manual
 // OFFSET: 0x00634AE0
 void InitResistances() {
-    uint32_t count = g_resistancesDB.m_numRecords;
+    uint32_t count = g_resistancesDB.m_nNumRecords;
     s_physicalDamageClassID = -1;
 
     if (count != 7) {
@@ -1055,7 +1055,7 @@ void InitResistances() {
     s_resistances.SetCount(count);
 
     for (int32_t i = 0; static_cast<uint32_t>(i) < count; i++) {
-        const ResistancesRec* rec = i >= 0 && i < g_resistancesDB.m_numRecords ? &g_resistancesDB.m_records[i] : nullptr;
+        const ResistancesRec* rec = i >= 0 && i < g_resistancesDB.m_nNumRecords ? &g_resistancesDB.m_records[i] : nullptr;
 
         if (rec->m_flags & RESISTANCE_FLAG_PHYSICAL) {
             s_physicalDamageClassID = i;
@@ -1099,8 +1099,8 @@ void InitWeaponSubclasses() {
     ITEM_CLASS weaponClass = s_weaponItemClass->m_classID;
     int32_t count = 0;
 
-    for (int32_t i = g_itemSubClassDB.m_numRecords - 1; i >= 0; i--) {
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_numRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+    for (int32_t i = g_itemSubClassDB.m_nNumRecords - 1; i >= 0; i--) {
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
 
 #if defined(WOWDECOMP_ARCH_64)
         if (rec->m_subClassID < 0 || rec->m_subClassID == INT32_MAX) {
@@ -1115,8 +1115,8 @@ void InitWeaponSubclasses() {
 
     s_weaponSubclasses.SetCount(count);
 
-    for (int32_t i = g_itemSubClassDB.m_numRecords - 1; i >= 0; i--) {
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_numRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+    for (int32_t i = g_itemSubClassDB.m_nNumRecords - 1; i >= 0; i--) {
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
 
         if (rec->m_classID == weaponClass) {
 #if defined(WOWDECOMP_ARCH_64)
@@ -1183,15 +1183,15 @@ const char* ClientDBStringLookup(STRINGLOOKUP lookup) {
 // VERIFY: 3260ed78 manual
 // OFFSET: 0x00634950
 MapDifficultyRec* GetMapDifficultyEntryByMapIdAndDifficulty(int32_t mapId, uint32_t difficulty, int32_t* index) {
-    for (int32_t i = 0; i < g_mapDifficultyDB.m_numRecords; i++) {
-        MapDifficultyRec* rec = i < 0 || i >= g_mapDifficultyDB.m_numRecords ? nullptr : &g_mapDifficultyDB.m_records[i];
+    for (int32_t i = 0; i < g_mapDifficultyDB.m_nNumRecords; i++) {
+        MapDifficultyRec* rec = i < 0 || i >= g_mapDifficultyDB.m_nNumRecords ? nullptr : &g_mapDifficultyDB.m_records[i];
 
         if (rec->m_mapID != mapId) {
             continue;
         }
 
-        for (int32_t j = i; j < g_mapDifficultyDB.m_numRecords; j++) {
-            MapDifficultyRec* entry = j < 0 || j >= g_mapDifficultyDB.m_numRecords ? nullptr : &g_mapDifficultyDB.m_records[j];
+        for (int32_t j = i; j < g_mapDifficultyDB.m_nNumRecords; j++) {
+            MapDifficultyRec* entry = j < 0 || j >= g_mapDifficultyDB.m_nNumRecords ? nullptr : &g_mapDifficultyDB.m_records[j];
 
             if (entry->m_mapID != mapId) {
                 break;

@@ -708,9 +708,9 @@ void CGReputationInfo::EnterWorld() {
     CGReputationInfo::m_numShownFactions = 0;
     CGReputationInfo::m_numHeaders = 0;
 
-    for (int32_t i = g_factionDB.m_numRecords; i;) {
+    for (int32_t i = g_factionDB.m_nNumRecords; i;) {
         i--;
-        FactionRec* faction = i >= 0 && i < g_factionDB.m_numRecords ? &g_factionDB.m_records[i] : nullptr;
+        FactionRec* faction = i >= 0 && i < g_factionDB.m_nNumRecords ? &g_factionDB.m_records[i] : nullptr;
 
         if (static_cast<uint32_t>(faction->m_reputationIndex) >= NUM_FACTION_STANDINGS) {
             continue;

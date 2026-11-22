@@ -638,11 +638,11 @@ static int32_t Script_FillLocalizedClassList(lua_State* L) {
     }
 
     int32_t female = StringToBOOL(L, 2, 0) != 0;
-    uint32_t count = g_chrClassesDB.m_numRecords;
+    uint32_t count = g_chrClassesDB.m_nNumRecords;
     lua_settop(L, 1);
 
     for (int32_t i = 0; static_cast<uint32_t>(i) < count; i++) {
-        ChrClassesRec* rec = (i < 0 || i >= g_chrClassesDB.m_numRecords) ? nullptr : &g_chrClassesDB.m_records[i];
+        ChrClassesRec* rec = (i < 0 || i >= g_chrClassesDB.m_nNumRecords) ? nullptr : &g_chrClassesDB.m_records[i];
 
         if (rec) {
             lua_pushstring(L, rec->m_filename);
@@ -1101,8 +1101,8 @@ static int32_t Script_UnitFactionGroup(lua_State* L) {
     FactionTemplateRec* faction = factionTemplate ? g_factionTemplateDB.GetRecord(factionTemplate) : nullptr;
 
     if (faction) {
-        for (int32_t i = 0; i < g_factionGroupDB.m_numRecords; i++) {
-            FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.m_numRecords ? &g_factionGroupDB.m_records[i] : nullptr;
+        for (int32_t i = 0; i < g_factionGroupDB.m_nNumRecords; i++) {
+            FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.m_nNumRecords ? &g_factionGroupDB.m_records[i] : nullptr;
 
             if (((1 << group->m_maskID) & faction->m_factionGroup) && *group->m_name) {
                 lua_pushstring(L, group->m_internalName);

@@ -106,7 +106,7 @@ void CGSkillInfo::RemoveSkillUp(uint32_t index) {
 // VERIFY: 579e798b manual
 // OFFSET: 0x005CE880
 void CGSkillInfo::InitializeGame() {
-    uint32_t numTypes = g_skillLineCategoryDB.m_numRecords;
+    uint32_t numTypes = g_skillLineCategoryDB.m_nNumRecords;
     uint32_t numLines = numTypes + 128;
 
     CGSkillInfo::m_lines.SetCount(numLines);

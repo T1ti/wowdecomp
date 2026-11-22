@@ -185,7 +185,7 @@ int32_t CCommand_WorldTeleport(const char* command, const char* arguments) {
         WorldSafeLocsRec* loc = nullptr;
         int32_t i;
 
-        for (i = 0; i < g_worldSafeLocsDB.m_numRecords; i++) {
+        for (i = 0; i < g_worldSafeLocsDB.m_nNumRecords; i++) {
             loc = g_worldSafeLocsDB.GetRecordByIndex(i);
 
             if (SStrStrI(loc->m_areaName, arguments)) {
@@ -193,7 +193,7 @@ int32_t CCommand_WorldTeleport(const char* command, const char* arguments) {
             }
         }
 
-        if (i >= g_worldSafeLocsDB.m_numRecords) {
+        if (i >= g_worldSafeLocsDB.m_nNumRecords) {
             ConsolePrintf("Could not find location: %s", arguments);
             return 1;
         }

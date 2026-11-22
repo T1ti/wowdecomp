@@ -377,7 +377,7 @@ static void BuildTabInfo(CGPlayer_C* player, TSFixedArray<TalentTabInfo*>* tabs,
         }
     }
 
-    uint32_t numTabs = g_talentTabDB.m_numRecords;
+    uint32_t numTabs = g_talentTabDB.m_nNumRecords;
     uint32_t count = 0;
 
     for (uint32_t i = 0; i < numTabs; i++) {
@@ -446,7 +446,7 @@ static void BuildTabInfo(CGPlayer_C* player, TSFixedArray<TalentTabInfo*>* tabs,
 
     int32_t lastTabId = -1;
     TalentTabInfo* info = nullptr;
-    int32_t numTalents = g_talentDB.m_numRecords;
+    int32_t numTalents = g_talentDB.m_nNumRecords;
 
     for (int32_t i = 0; i < numTalents; i++) {
         TalentRec* talent = g_talentDB.GetRecordByIndex(i);

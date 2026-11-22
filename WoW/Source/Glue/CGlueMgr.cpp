@@ -2035,12 +2035,12 @@ void CGlueMgr::EnterWorld() {
     if (!CGlueMgr::m_characterInfo->m_firstLogin && s_showGameTips->m_intValue) {
         int32_t tip = s_curGameTip->m_intValue;
 
-        if (tip < 0 || tip >= g_gameTipsDB.m_numRecords) {
+        if (tip < 0 || tip >= g_gameTipsDB.m_nNumRecords) {
             tip = 0;
         }
 
-        if (g_gameTipsDB.m_numRecords > 0) {
-            GameTipsRec* tipRec = tip >= 0 && tip < g_gameTipsDB.m_numRecords ? &g_gameTipsDB.m_records[tip] : nullptr;
+        if (g_gameTipsDB.m_nNumRecords > 0) {
+            GameTipsRec* tipRec = tip >= 0 && tip < g_gameTipsDB.m_nNumRecords ? &g_gameTipsDB.m_records[tip] : nullptr;
             LoadingScreenSetTip(tipRec->m_text);
 
             char tipString[40];

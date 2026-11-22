@@ -59,7 +59,7 @@ const char* CGGMSurveyInfo::GetAnswer(uint32_t index, int32_t answer) {
         return nullptr;
     }
 
-    for (int32_t i = 0; i < g_gmSurveyAnswersDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_gmSurveyAnswersDB.m_nNumRecords; i++) {
         GMSurveyAnswersRec* rec = g_gmSurveyAnswersDB.GetRecordByIndex(i);
 
         if (rec && rec->m_gmsurveyQuestionID == questionId && rec->m_sortIndex == answer - 1) {
@@ -89,7 +89,7 @@ int32_t CGGMSurveyInfo::GetNumAnswers(uint32_t index) {
 
     int32_t count = 0;
 
-    for (int32_t i = 0; i < g_gmSurveyAnswersDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_gmSurveyAnswersDB.m_nNumRecords; i++) {
         GMSurveyAnswersRec* rec = g_gmSurveyAnswersDB.GetRecord(i);
 
         if (rec && rec->m_gmsurveyQuestionID == static_cast<int32_t>(index - 1)) {

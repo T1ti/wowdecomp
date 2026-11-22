@@ -763,8 +763,8 @@ ChatChannel* GetChannelByName(const char* name) {
 // VERIFY: bc0234ac manual
 // OFFSET: 0x004FE2D0
 int32_t StringToLanguage(const char* string, uint32_t* language) {
-    for (int32_t i = 0; i < g_languagesDB.m_numRecords; i++) {
-        LanguagesRec* rec = (i < 0 || i >= g_languagesDB.m_numRecords) ? nullptr : &g_languagesDB.m_records[i];
+    for (int32_t i = 0; i < g_languagesDB.m_nNumRecords; i++) {
+        LanguagesRec* rec = (i < 0 || i >= g_languagesDB.m_nNumRecords) ? nullptr : &g_languagesDB.m_records[i];
 
         if (rec && !SStrCmpUTF8I(string, rec->m_name, STORM_MAX_STR)) {
             *language = rec->m_id;
@@ -2860,8 +2860,8 @@ int32_t CGChat::OnChannelNotify(void* param, NETMESSAGE msgId, uint32_t time, CD
 // VERIFY: 34edfdb5 manual
 // OFFSET: 0x0050EDD0
 void CGChat::InitializeGame() {
-    for (int32_t i = 0; i < g_languageWordsDB.m_numRecords; i++) {
-        LanguageWordsRec* rec = (i < 0 || i >= g_languageWordsDB.m_numRecords) ? nullptr : &g_languageWordsDB.m_records[i];
+    for (int32_t i = 0; i < g_languageWordsDB.m_nNumRecords; i++) {
+        LanguageWordsRec* rec = (i < 0 || i >= g_languageWordsDB.m_nNumRecords) ? nullptr : &g_languageWordsDB.m_records[i];
 
         if (!rec || !rec->m_word || !*rec->m_word) {
             continue;
@@ -2916,9 +2916,9 @@ void CGChat::InitializeGame() {
         }
     }
 
-    for (int32_t i = g_areaTableDB.m_numRecords; i;) {
+    for (int32_t i = g_areaTableDB.m_nNumRecords; i;) {
         i--;
-        AreaTableRec* area = (i < 0 || i >= g_areaTableDB.m_numRecords) ? nullptr : &g_areaTableDB.m_records[i];
+        AreaTableRec* area = (i < 0 || i >= g_areaTableDB.m_nNumRecords) ? nullptr : &g_areaTableDB.m_records[i];
 
         if (area->m_flags & AREA_FLAG_LINKED_CHAT_SPECIAL_AREA) {
             s_cityArea = area;
@@ -4215,7 +4215,7 @@ static bool FindGuildRecruitmentChannel() {
     bool found = s_recruitmentChannelFound;
 
     if (!found) {
-        for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
             ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
             if (rec && (rec->m_flags & CHAT_CHANNEL_FLAG_GUILD_RECRUITMENT)) {
@@ -4328,7 +4328,7 @@ bool InternalJoinChannel(const char* channelName, const char* password, uint32_t
     const char* zoneText = CGGameUI::m_zoneText;
     AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_areaID);
 
-    for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
         if (SStrCmpUTF8I(rec->m_shortcut, channelName, STORM_MAX_STR)) {
@@ -4425,7 +4425,7 @@ void CGChat::ZoneUpdate() {
             const char* zoneChannelName;
             int32_t zoneChannelID;
 
-            for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+            for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
                 ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
                 if ((1 << (rec->m_id - 1)) & s_joinedZoneChannels) {
@@ -4493,7 +4493,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
     int32_t addedVersion = 0;
     uint32_t allChannels = 0;
 
-    for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
         if (rec->m_id > 32) {
@@ -4791,7 +4791,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
                         SStrTokenize(&rest, word, sizeof(word), "\r\n", nullptr);
                         uint32_t channels = SStrToInt(word) & allChannels;
 
-                        for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+                        for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
                             ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
                             if (channels & (1 << (rec->m_id - 1))) {
@@ -4878,7 +4878,7 @@ void CGChat::LoadChatSettingsCallback(HOSFILE localFile, HOSFILE file, void* par
             FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_CHAT_COLOR_NAME_BY_CLASS, "%s%b", color->m_name, color->m_colorNameByClass);
         }
     } else {
-        for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+        for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
             ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
             if (!(rec->m_flags & CHAT_CHANNEL_FLAG_AUTO_JOIN)) {
@@ -4927,7 +4927,7 @@ int32_t InternalLeaveChannel(const char* channelName, bool clearRecruitment, boo
     int32_t zoneChannelID = 0;
     AreaTableRec* area = g_areaTableDB.GetRecord(CGGameUI::m_areaID);
 
-    for (int32_t i = 0; i < g_chatChannelsDB.m_numRecords; i++) {
+    for (int32_t i = 0; i < g_chatChannelsDB.m_nNumRecords; i++) {
         ChatChannelsRec* rec = g_chatChannelsDB.GetRecordByIndex(i);
 
         if (SStrCmpUTF8I(rec->m_shortcut, channelName, STORM_MAX_STR)) {

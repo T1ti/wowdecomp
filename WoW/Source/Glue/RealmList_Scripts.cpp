@@ -150,8 +150,8 @@ static int32_t Script_GetRealmInfo(lua_State* L) {
     bool roleplaying = false;
     bool pvp = false;
 
-    for (int32_t i = 0; i < g_cfg_ConfigsDB.m_numRecords; i++) {
-        Cfg_ConfigsRec* config = i < 0 || i >= g_cfg_ConfigsDB.m_numRecords ? nullptr : &g_cfg_ConfigsDB.m_records[i];
+    for (int32_t i = 0; i < g_cfg_ConfigsDB.m_nNumRecords; i++) {
+        Cfg_ConfigsRec* config = i < 0 || i >= g_cfg_ConfigsDB.m_nNumRecords ? nullptr : &g_cfg_ConfigsDB.m_records[i];
 
         if (config->m_realmType == realm->m_type) {
             roleplaying = config->m_roleplaying != 0;

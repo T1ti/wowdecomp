@@ -356,14 +356,14 @@ VSOUNDKITDEF* SI2::GetSoundKitDef(int32_t soundKitId) {
 // VERIFY: 76ad8733 manual
 // OFFSET: 0x004CC1B0
 void SI2::InitWorldStateZoneSoundOverrides() {
-    uint32_t count = g_worldStateZoneSoundsDB.m_numRecords;
+    uint32_t count = g_worldStateZoneSoundsDB.m_nNumRecords;
     s_worldStateZoneSoundOverrides.SetCount(count);
     memset(s_worldStateZoneSoundOverrides.Ptr(), 0, sizeof(WorldStateZoneSoundOverride*) * count);
 
     for (uint32_t i = 0; i < s_worldStateZoneSoundOverrides.Count(); i++) {
         s_worldStateZoneSoundOverrides[i] = static_cast<WorldStateZoneSoundOverride*>(SMemAlloc(sizeof(WorldStateZoneSoundOverride), __FILE__, __LINE__, 0));
 
-        WorldStateZoneSoundsRec* rec = (static_cast<int32_t>(i) < 0 || static_cast<int32_t>(i) >= g_worldStateZoneSoundsDB.m_numRecords) ? nullptr : &g_worldStateZoneSoundsDB.m_records[i];
+        WorldStateZoneSoundsRec* rec = (static_cast<int32_t>(i) < 0 || static_cast<int32_t>(i) >= g_worldStateZoneSoundsDB.m_nNumRecords) ? nullptr : &g_worldStateZoneSoundsDB.m_records[i];
 
         s_worldStateZoneSoundOverrides[i]->m_areaId = rec->m_areaID;
         s_worldStateZoneSoundOverrides[i]->m_wmoAreaId = rec->m_wmoareaID;
@@ -445,8 +445,8 @@ void SI2::InitSoundKitLookup() {
     s_soundKitDefs.SetCount(count);
     memset(s_soundKitDefs.Ptr(), 0, sizeof(VSOUNDKITDEF*) * count);
 
-    for (int32_t i = 0; i < g_soundEntriesDB.m_numRecords; i++) {
-        SoundEntriesRec* rec = (i < 0 || i >= g_soundEntriesDB.m_numRecords) ? nullptr : &g_soundEntriesDB.m_records[i];
+    for (int32_t i = 0; i < g_soundEntriesDB.m_nNumRecords; i++) {
+        SoundEntriesRec* rec = (i < 0 || i >= g_soundEntriesDB.m_nNumRecords) ? nullptr : &g_soundEntriesDB.m_records[i];
 
         if (!rec) {
             continue;
@@ -514,8 +514,8 @@ void SI2::InitSoundKitLookup() {
 void SI2::InitZoneSoundOverrides() {
     char key[64];
 
-    for (int32_t i = 0; i < g_worldChunkSoundsDB.m_numRecords; i++) {
-        WorldChunkSoundsRec* rec = (i < 0 || i >= g_worldChunkSoundsDB.m_numRecords) ? nullptr : &g_worldChunkSoundsDB.m_records[i];
+    for (int32_t i = 0; i < g_worldChunkSoundsDB.m_nNumRecords; i++) {
+        WorldChunkSoundsRec* rec = (i < 0 || i >= g_worldChunkSoundsDB.m_nNumRecords) ? nullptr : &g_worldChunkSoundsDB.m_records[i];
 
         SStrPrintf(key, sizeof(key), "%010d_%010d_%010d_%010d_%010d", rec->m_id, rec->m_chunkX, rec->m_chunkY, rec->m_subchunkX, rec->m_subchunkY);
 
