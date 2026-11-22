@@ -30,7 +30,14 @@ int32_t CDataStore::FetchWrite(uint32_t pos, uint32_t bytes, const char* fileNam
         return 1;
     }
 
-    return this->InternalFetchWrite(pos, bytes, this->m_data, this->m_base, this->m_alloc, fileName, lineNumber) ? 1 : 0;
+    if (!this->InternalFetchWrite(pos, bytes, this->m_data, this->m_base, this->m_alloc, fileName, lineNumber)) {
+        return 0;
+    }
+
+    STORM_ASSERT(pos >= this->m_base);
+    STORM_ASSERT(pos + bytes <= this->m_base + this->m_alloc);
+
+    return 1;
 }
 
 // VERIFY: 4e4a9229 auto
@@ -55,6 +62,7 @@ void CDataStore::Reset() {
 // VERIFY: 3e14d491 auto
 // OFFSET: 0x00401130
 void CDataStore::Finalize() {
+    STORM_ASSERT(!this->IsFinal());
     this->m_read = 0;
 }
 
@@ -136,6 +144,8 @@ int32_t CDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
 // VERIFY: 54ecbc33 manual
 // OFFSET: 0x0047AEF0
 CDataStore& CDataStore::Set(uint32_t pos, uint8_t val) {
+    STORM_ASSERT(!this->IsFinal());
+    STORM_ASSERT(pos + sizeof(val) <= this->m_size);
     this->FetchWrite(pos, sizeof(val), nullptr, 0);
     this->m_data[pos - this->m_base] = val;
 
@@ -145,6 +155,8 @@ CDataStore& CDataStore::Set(uint32_t pos, uint8_t val) {
 // VERIFY: b25daa57 manual
 // OFFSET: 0x0047AF40
 CDataStore& CDataStore::Set(uint32_t pos, uint16_t val) {
+    STORM_ASSERT(!this->IsFinal());
+    STORM_ASSERT(pos + sizeof(val) <= this->m_size);
     this->FetchWrite(pos, sizeof(val), nullptr, 0);
     *reinterpret_cast<uint16_t*>(&this->m_data[pos - this->m_base]) = val;
 
@@ -154,6 +166,8 @@ CDataStore& CDataStore::Set(uint32_t pos, uint16_t val) {
 // VERIFY: 15a69477 manual
 // OFFSET: 0x0047AF90
 CDataStore& CDataStore::Set(uint32_t pos, uint32_t val) {
+    STORM_ASSERT(!this->IsFinal());
+    STORM_ASSERT(pos + sizeof(val) <= this->m_size);
     this->FetchWrite(pos, sizeof(val), nullptr, 0);
     *reinterpret_cast<uint32_t*>(&this->m_data[pos - this->m_base]) = val;
 
@@ -163,6 +177,7 @@ CDataStore& CDataStore::Set(uint32_t pos, uint32_t val) {
 // VERIFY: 1c0da3b2 manual
 // OFFSET: 0x0047AFE0
 CDataStore& CDataStore::Put(uint8_t val) {
+    STORM_ASSERT(!this->IsFinal());
     this->FetchWrite(this->m_size, sizeof(val), nullptr, 0);
     this->m_data[this->m_size - this->m_base] = val;
     this->m_size += sizeof(val);
@@ -173,6 +188,7 @@ CDataStore& CDataStore::Put(uint8_t val) {
 // VERIFY: f2e75ec1 manual
 // OFFSET: 0x0047B040
 CDataStore& CDataStore::Put(uint16_t val) {
+    STORM_ASSERT(!this->IsFinal());
     this->FetchWrite(this->m_size, sizeof(val), nullptr, 0);
     *reinterpret_cast<uint16_t*>(&this->m_data[this->m_size - this->m_base]) = val;
     this->m_size += sizeof(val);
@@ -183,6 +199,7 @@ CDataStore& CDataStore::Put(uint16_t val) {
 // VERIFY: 3667bd7a manual
 // OFFSET: 0x0047B0A0
 CDataStore& CDataStore::Put(uint32_t val) {
+    STORM_ASSERT(!this->IsFinal());
     this->FetchWrite(this->m_size, sizeof(val), nullptr, 0);
     *reinterpret_cast<uint32_t*>(&this->m_data[this->m_size - this->m_base]) = val;
     this->m_size += sizeof(val);
@@ -193,6 +210,7 @@ CDataStore& CDataStore::Put(uint32_t val) {
 // VERIFY: d0461454 manual
 // OFFSET: 0x0047B100
 CDataStore& CDataStore::Put(uint64_t val) {
+    STORM_ASSERT(!this->IsFinal());
     this->FetchWrite(this->m_size, sizeof(val), nullptr, 0);
     *reinterpret_cast<uint64_t*>(&this->m_data[this->m_size - this->m_base]) = val;
     this->m_size += sizeof(val);
@@ -203,6 +221,7 @@ CDataStore& CDataStore::Put(uint64_t val) {
 // VERIFY: fb92f4e9 manual
 // OFFSET: 0x0047B160
 CDataStore& CDataStore::Put(float val) {
+    STORM_ASSERT(!this->IsFinal());
     this->FetchWrite(this->m_size, sizeof(val), nullptr, 0);
     *reinterpret_cast<float*>(&this->m_data[this->m_size - this->m_base]) = val;
     this->m_size += sizeof(val);
@@ -213,6 +232,8 @@ CDataStore& CDataStore::Put(float val) {
 // VERIFY: 16d8b8ae manual
 // OFFSET: 0x0047B1C0
 CDataStore& CDataStore::PutArray(const uint8_t* pval, uint32_t count) {
+    STORM_ASSERT(!this->IsFinal());
+
     if (!pval) {
         if (count) {
             SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
@@ -248,6 +269,7 @@ CDataStore& CDataStore::PutArray(const uint8_t* pval, uint32_t count) {
 // VERIFY: ebebf2be manual
 // OFFSET: 0x0047B280
 CDataStore& CDataStore::PutData(const void* data, uint32_t bytes) {
+    STORM_ASSERT(bytes <= 0x7FFFFFF);
     return this->PutArray(static_cast<const uint8_t*>(data), bytes);
 }
 
@@ -255,6 +277,7 @@ CDataStore& CDataStore::PutData(const void* data, uint32_t bytes) {
 // OFFSET: 0x0047B290
 int32_t CDataStore::FetchRead(uint32_t pos, uint32_t bytes) {
     if (pos + bytes > this->m_size) {
+        STORM_ASSERT(this->IsFinal());
         this->m_read = this->m_size + 1;
         return 0;
     }
@@ -264,9 +287,12 @@ int32_t CDataStore::FetchRead(uint32_t pos, uint32_t bytes) {
     }
 
     if (this->InternalFetchRead(pos, bytes, this->m_data, this->m_base, this->m_alloc)) {
+        STORM_ASSERT(pos >= this->m_base);
+        STORM_ASSERT(pos + bytes <= this->m_base + this->m_alloc);
         return 1;
     }
 
+    STORM_ASSERT(this->IsFinal());
     this->m_read = this->m_size + 1;
     return 0;
 }
@@ -274,6 +300,8 @@ int32_t CDataStore::FetchRead(uint32_t pos, uint32_t bytes) {
 // VERIFY: 05c2b42b manual
 // OFFSET: 0x0047B300
 CDataStore& CDataStore::PutString(const char* string) {
+    STORM_ASSERT(!this->IsFinal());
+
     if (string) {
         this->PutArray(reinterpret_cast<const uint8_t*>(string), static_cast<uint32_t>(SStrLen(string)) + 1);
     } else {
@@ -286,6 +314,8 @@ CDataStore& CDataStore::PutString(const char* string) {
 // VERIFY: c61d4ce4 manual
 // OFFSET: 0x0047B340
 CDataStore& CDataStore::Get(uint8_t& val) {
+    STORM_ASSERT(this->IsFinal());
+
     if (this->FetchRead(this->m_read, sizeof(val))) {
         val = this->m_data[this->m_read - this->m_base];
         this->m_read += sizeof(val);
@@ -297,6 +327,8 @@ CDataStore& CDataStore::Get(uint8_t& val) {
 // VERIFY: 2b9a91aa auto
 // OFFSET: 0x0047B380
 CDataStore& CDataStore::Get(uint16_t& val) {
+    STORM_ASSERT(this->IsFinal());
+
     if (this->FetchRead(this->m_read, sizeof(val))) {
         val = *reinterpret_cast<uint16_t*>(&this->m_data[this->m_read - this->m_base]);
         this->m_read += sizeof(val);
@@ -308,6 +340,8 @@ CDataStore& CDataStore::Get(uint16_t& val) {
 // VERIFY: 9852bc19 auto
 // OFFSET: 0x0047B3C0
 CDataStore& CDataStore::Get(uint32_t& val) {
+    STORM_ASSERT(this->IsFinal());
+
     if (this->FetchRead(this->m_read, sizeof(val))) {
         val = *reinterpret_cast<uint32_t*>(&this->m_data[this->m_read - this->m_base]);
         this->m_read += sizeof(val);
@@ -319,6 +353,8 @@ CDataStore& CDataStore::Get(uint32_t& val) {
 // VERIFY: 1e1f3874 auto
 // OFFSET: 0x0047B400
 CDataStore& CDataStore::Get(uint64_t& val) {
+    STORM_ASSERT(this->IsFinal());
+
     if (this->FetchRead(this->m_read, sizeof(val))) {
         val = *reinterpret_cast<uint64_t*>(&this->m_data[this->m_read - this->m_base]);
         this->m_read += sizeof(val);
@@ -330,6 +366,8 @@ CDataStore& CDataStore::Get(uint64_t& val) {
 // VERIFY: d6408fc8 manual
 // OFFSET: 0x0047B440
 CDataStore& CDataStore::Get(float& val) {
+    STORM_ASSERT(this->IsFinal());
+
     if (this->FetchRead(this->m_read, sizeof(val))) {
         val = *reinterpret_cast<float*>(&this->m_data[this->m_read - this->m_base]);
         this->m_read += sizeof(val);
@@ -341,6 +379,8 @@ CDataStore& CDataStore::Get(float& val) {
 // VERIFY: e39fa63b manual
 // OFFSET: 0x0047B480
 CDataStore& CDataStore::GetString(char* string, uint32_t maxChars) {
+    STORM_ASSERT(this->IsFinal());
+
     if (!string) {
         if (maxChars) {
             SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
@@ -397,6 +437,8 @@ CDataStore& CDataStore::GetString(char* string, uint32_t maxChars) {
 // VERIFY: 35d578c9 manual
 // OFFSET: 0x0047B560
 CDataStore& CDataStore::GetArray(uint8_t* pval, uint32_t count) {
+    STORM_ASSERT(this->IsFinal());
+
     if (!pval && count) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return *this;
@@ -433,6 +475,8 @@ CDataStore& CDataStore::GetArray(uint8_t* pval, uint32_t count) {
 // VERIFY: 97a1b952 auto
 // OFFSET: 0x0047B5F0
 CDataStore& CDataStore::GetArray(uint32_t* pval, uint32_t count) {
+    STORM_ASSERT(this->IsFinal());
+
     if (!pval && count) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return *this;
@@ -468,6 +512,7 @@ CDataStore& CDataStore::GetArray(uint32_t* pval, uint32_t count) {
 // VERIFY: f83befa5 manual
 // OFFSET: 0x0047B6A0
 CDataStore& CDataStore::GetData(void* data, uint32_t bytes) {
+    STORM_ASSERT(bytes <= 0x7FFFFFF);
     return this->GetArray(static_cast<uint8_t*>(data), bytes);
 }
 
