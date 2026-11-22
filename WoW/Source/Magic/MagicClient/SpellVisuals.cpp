@@ -217,6 +217,8 @@ bool LightningObject::Tick(uint32_t time) {
 // VERIFY: a8f49189 manual
 // OFFSET: 0x007FB6E0
 LightningObject::~LightningObject() {
+    STORM_ASSERT(s_lightningManager);
+
     for (uint32_t i = 0; i < this->m_bolts.Count(); i++) {
         if (this->m_bolts[i].m_lightning != 0xFFFFFFFF) {
             s_lightningManager->Remove(this->m_bolts[i].m_lightning);

@@ -1126,7 +1126,7 @@ int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* heigh
 // OFFSET: 0x004B6700
 CTextureAtlas::CTextureAtlas() {
     this->m_slots = 64;
-    this->m_count = 0;
+    this->m_refCount = 0;
     this->m_dirty = 0;
     this->m_width = 0;
     this->m_height = 0;
@@ -1574,6 +1574,8 @@ void TextureFreeMippedImg(MipBits* bits, PIXEL_FORMAT format, uint32_t width, ui
 // VERIFY: a81fc586 manual
 // OFFSET: 0x004B76E0
 CTextureAtlas::~CTextureAtlas() {
+    STORM_ASSERT(m_refCount == 0);
+
     if (this->m_gxTex) {
         TextureFreeGxTex(this->m_gxTex, "ATLAS");
     }
@@ -1625,7 +1627,7 @@ CTextureAtlas* CTextureAtlas::Get(CTexture* texture) {
     }
 
     atlas->m_used++;
-    atlas->m_count++;
+    atlas->m_refCount++;
     atlas->m_textures[texture->m_atlasBlockIndex] = texture;
 
     return atlas;
@@ -2079,11 +2081,11 @@ void TextureDestroy() {
 // OFFSET: 0x004B8720
 void CTextureAtlas::Free(CTextureAtlas* atlas, CTexture* texture) {
     atlas->m_textures[texture->m_atlasBlockIndex] = nullptr;
-    atlas->m_count--;
+    atlas->m_refCount--;
     atlas->m_used--;
     atlas->m_freeSlot = texture->m_atlasBlockIndex;
 
-    if (static_cast<int16_t>(atlas->m_count) < 1) {
+    if (static_cast<int16_t>(atlas->m_refCount) < 1) {
         delete atlas;
     }
 

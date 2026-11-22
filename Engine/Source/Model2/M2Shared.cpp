@@ -1852,6 +1852,9 @@ void CM2Shared::CancelAllDeferredSequences() {
 // VERIFY: 7f65a462 manual
 // OFFSET: 0x0083D5B0
 CM2Shared::~CM2Shared() {
+    STORM_ASSERT(!m_freePrev);
+    STORM_ASSERT(!m_freeNext);
+
     this->CancelAllDeferredSequences();
 
     int32_t pending = 0;

@@ -89,7 +89,7 @@ class CTextureAtlas {
     static void Free(CTextureAtlas* atlas, CTexture* texture);
     static CTextureAtlas* Get(CTexture* texture);
 
-    /* 0000 */ uint16_t m_count;
+    /* 0000 */ uint16_t m_refCount;
     /* 0002 */ uint16_t m_dirty;
     /* 0004 */ uint32_t m_width;
     /* 0008 */ uint32_t m_height;
