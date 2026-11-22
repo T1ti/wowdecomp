@@ -161,6 +161,11 @@ float4 GridPS3(PixelInput input) : COLOR0 {
 
 // Impassable slopes: the face normal from the position's screen-space derivatives, compared with c0.xyz against
 // cos(50 degrees), the same walkable limit as the client's World::GetFacets (WORLD_QUERY_WALKABLE_ONLY).
+// Port diagnostic, not an 8.1 shader: every terrain pixel the pass reaches, flat magenta.
+float4 TestPS(PixelInput input) : COLOR0 {
+    return float4(1.0f, 0.0f, 1.0f, 0.4f);
+}
+
 float4 SlopesPS(PixelInput input) : COLOR0 {
     float3 tangentX = ddx(input.position);
     float3 tangentY = ddy(input.position);
@@ -186,6 +191,7 @@ static const WowEditShaderDef s_shaderDefs[NUM_WOWEDITSHADERS] = {
     { "WowEditGrid2", "GridPS2", "ps_3_0", GxSh_Pixel },
     { "WowEditGrid3", "GridPS3", "ps_3_0", GxSh_Pixel },
     { "WowEditImpassableSlopes", "SlopesPS", "ps_3_0", GxSh_Pixel },
+    { "WowEditTest", "TestPS", "ps_3_0", GxSh_Pixel },
 };
 
 static CGxShader* s_shaders[NUM_WOWEDITSHADERS];

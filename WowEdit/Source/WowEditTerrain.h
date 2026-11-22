@@ -22,6 +22,10 @@ void WowEditTerrainSetGrid(int32_t permutation);
 int32_t WowEditTerrainGetGrid();
 void WowEditTerrainSetSlopes(bool show);
 bool WowEditTerrainGetSlopes();
+// Port diagnostic: the pass with a flat magenta pixel shader (WOWEDITSHADER_TEST), to tell a pass that draws nothing
+// from overlay shaders that output nothing.
+void WowEditTerrainSetTest(bool show);
+bool WowEditTerrainGetTest();
 // Builds the shaders the enabled overlays need, so a failure shows in the console when the overlay is turned on;
 // false when one is missing.
 bool WowEditTerrainPrepare();

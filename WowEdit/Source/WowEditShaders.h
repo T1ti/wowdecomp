@@ -30,7 +30,8 @@ enum WOWEDITSHADER : uint32_t {
     WOWEDITSHADER_GRID2 = 3, // permutation 2: chunk border band only, chunk (c5) and tile (c6) lines
     WOWEDITSHADER_GRID3 = 4, // permutation 3: cell grid with diagonals (c7), chunk (c5) and tile (c6) lines
     WOWEDITSHADER_SLOPES = 5, // 8.1 woweditimpassableslopes_internal: red at 25% where steeper than 50 degrees
-    NUM_WOWEDITSHADERS = 6,
+    WOWEDITSHADER_TEST = 6, // port diagnostic: flat magenta at 40%, to tell the pass from the overlay shaders
+    NUM_WOWEDITSHADERS = 7,
 };
 
 // Pixel shader constant registers, after 8.1 cb11.

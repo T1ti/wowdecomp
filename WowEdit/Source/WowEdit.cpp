@@ -130,6 +130,25 @@ static void PrepareTerrainOverlays() {
 }
 
 static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
+    // "wowEdit test [0|1]": the flat magenta diagnostic pass.
+    if (arguments && !SStrCmpI(arguments, "test", 4)) {
+        const char* value = arguments + 4;
+
+        while (*value == ' ') {
+            value++;
+        }
+
+        bool show = ParseSwitch(value, WowEditTerrainGetTest());
+        WowEditTerrainSetTest(show);
+        ConsoleWrite(show ? "WowEdit: test overlay on (flat magenta on every terrain chunk)" : "WowEdit: test overlay off", DEFAULT_COLOR);
+
+        if (show) {
+            PrepareTerrainOverlays();
+        }
+
+        return 1;
+    }
+
     const char* reason = nullptr;
     bool supported = WowEditShadersSupported(&reason);
     ConsoleWriteA("WowEdit: terrain shaders %s%s%s", DEFAULT_COLOR, supported ? "available" : "unavailable (", supported ? "" : reason, supported ? "" : ")");
@@ -153,6 +172,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
     }
 
     ConsoleWriteA("  slopes: %s", DEFAULT_COLOR, WowEditTerrainGetSlopes() ? "on" : "off");
+    ConsoleWriteA("  test: %s", DEFAULT_COLOR, WowEditTerrainGetTest() ? "on" : "off");
     ConsoleWriteA("  markers: %s", DEFAULT_COLOR, s_markers ? "on" : "off");
     return 1;
 }

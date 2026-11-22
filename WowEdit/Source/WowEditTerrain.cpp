@@ -14,6 +14,7 @@
 
 static int32_t s_grid = WOWEDITGRID_OFF;
 static bool s_slopes;
+static bool s_test;
 static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
 static uint32_t s_lastChunkCount; // chunks the last pass drew over
 
@@ -104,8 +105,9 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
     CGxShader* vertexShader = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* gridShader = s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
     CGxShader* slopesShader = s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
+    CGxShader* testShader = s_test ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
 
-    if (!vertexShader || (!gridShader && !slopesShader)) {
+    if (!vertexShader || (!gridShader && !slopesShader && !testShader)) {
         return;
     }
 
@@ -134,6 +136,11 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
     GxXformProjNative(projection);
     C44Matrix viewProj = viewStack.m_mtx[viewStack.m_level] * projection;
 
+    if (testShader) {
+        device->RsSet(GxRs_PixelShader, testShader);
+        DrawChunks(chunks, count, viewProj);
+    }
+
     if (slopesShader) {
         device->RsSet(GxRs_PixelShader, slopesShader);
         SetSlopesConstants();
@@ -152,7 +159,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
 static void UpdateTerrainPass() {
     s_passCount = 0;
     s_lastChunkCount = 0;
-    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes ? TerrainPass : nullptr);
+    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_test ? TerrainPass : nullptr);
 }
 
 bool WowEditTerrainPrepare() {
@@ -164,6 +171,10 @@ bool WowEditTerrainPrepare() {
 
     if (s_slopes) {
         ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
+    }
+
+    if (s_test) {
+        ready = WowEditShaderGet(WOWEDITSHADER_TEST) != nullptr && ready;
     }
 
     return ready;
@@ -190,4 +201,13 @@ void WowEditTerrainSetSlopes(bool show) {
 
 bool WowEditTerrainGetSlopes() {
     return s_slopes;
+}
+
+void WowEditTerrainSetTest(bool show) {
+    s_test = show;
+    UpdateTerrainPass();
+}
+
+bool WowEditTerrainGetTest() {
+    return s_test;
 }
