@@ -158,7 +158,7 @@ class CMapStaticEntity : public CMapBaseObj {
     /* 002B */ uint8_t unused_002B;
     /* 002C */ int32_t m_queryTag; // CMap::s_queryTag of the last query that visited this object
     /* 0030 */ float m_distanceToCamera;
-    /* 0034 */ CM2Model* m_model;
+    /* 0034 */ CM2Model* model;
     /* 0038 */ CAaSphere m_sphere;
     /* 0048 */ CAaBox m_bbox;
     /* 0060 */ C3Vector m_vec2;

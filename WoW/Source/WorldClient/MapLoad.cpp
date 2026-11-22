@@ -35,10 +35,10 @@ void CMapStaticEntity::ModelLightingCallback(CM2Model* model, CM2Lighting* light
 // VERIFY: 1601e867 manual
 // OFFSET: 0x007A0C10
 CMapStaticEntity::~CMapStaticEntity() {
-    if (this->m_model) {
-        this->m_model->m_lightingCallback = nullptr;
-        this->m_model->m_lightingArg = nullptr;
-        this->m_model->Release();
+    if (this->model) {
+        this->model->m_lightingCallback = nullptr;
+        this->model->m_lightingArg = nullptr;
+        this->model->Release();
     }
 }
 

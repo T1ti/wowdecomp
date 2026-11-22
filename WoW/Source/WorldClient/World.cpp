@@ -823,7 +823,7 @@ int32_t World::ObjectIsDrawable(CMapBaseObj* baseObj) {
         return 0;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->model;
 
     if (!model) {
         return 1;
@@ -851,7 +851,7 @@ int32_t World::ObjectIsLoaded(CMapBaseObj* baseObj) {
         return 0;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(baseObj)->model;
 
     if (!model) {
         return 1;
@@ -928,8 +928,8 @@ void World::ObjectSetSequence(CMapEntity* baseObj, uint32_t sequence, int32_t un
     } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
         STORM_ASSERT(specialDoodadSet==0);
 
-        if (baseObj->m_model) {
-            baseObj->m_model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        if (baseObj->model) {
+            baseObj->model->SetBoneSequence(M2_KEY_BONE_NONE, sequence, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
         }
     }
 }
@@ -943,7 +943,7 @@ void World::ObjectSetEventCallback(CMapBaseObj* baseObj, void (*callback)(CM2Mod
         static_cast<CMapObjDef*>(baseObj)->SetEventCallback(callback, param, specialDoodadSet);
     } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
         STORM_ASSERT(specialDoodadSet==0);
-        CM2Model* model = static_cast<CMapDoodadDef*>(baseObj)->m_model;
+        CM2Model* model = static_cast<CMapDoodadDef*>(baseObj)->model;
 
         if (model) {
             model->SetEventCallback(callback, param);
@@ -959,7 +959,7 @@ void World::ObjectGetExtents(CMapBaseObj* baseObj, CAaBox* extents) {
     if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
         static_cast<CMapObjDef*>(baseObj)->m_owner->GetBounds(extents);
     } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
-        *extents = static_cast<CMapDoodadDef*>(baseObj)->m_model->GetBoundingBox();
+        *extents = static_cast<CMapDoodadDef*>(baseObj)->model->GetBoundingBox();
     }
 }
 
@@ -1111,7 +1111,7 @@ uint64_t World::QueryObjectParentParam64(CMapBaseObj* entity) {
 // OFFSET: 0x00781A10
 CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* funcParam, uint64_t param64, uintptr_t param32, uint32_t flags) {
     CMapEntity* entity = CMap::AllocEntity((flags >> MAP_OBJECT_CREATE_MULTIPLE_GROUPS_SHIFT) & 0x1);
-    entity->m_model = model;
+    entity->model = model;
     entity->m_funcParam64 = param64;
     entity->m_funcParam32 = param32;
     entity->m_position = C3Vector(10000000.0f, 10000000.0f, 10000000.0f);
@@ -1137,14 +1137,14 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->m_targetAmbientColor = color;
     entity->m_m2AmbientColor = color;
 
-    if (entity->m_model) {
+    if (entity->model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
             entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
-        entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        entity->m_model->m_lightingArg = entity;
-        entity->m_model->m_refCount++;
+        entity->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        entity->model->m_lightingArg = entity;
+        entity->model->m_refCount++;
     }
 
     entity->m_func = func;
@@ -1155,14 +1155,14 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
 // VERIFY: 6292bfdd auto
 // OFFSET: 0x00782350
 void World::ObjectSetModel(CMapEntity* entity, CM2Model* model) {
-    if (entity->m_model) {
-        entity->m_model->m_lightingCallback = nullptr;
-        entity->m_model->m_lightingArg = nullptr;
-        entity->m_model->Release();
+    if (entity->model) {
+        entity->model->m_lightingCallback = nullptr;
+        entity->model->m_lightingArg = nullptr;
+        entity->model->Release();
     }
 
     entity->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
-    entity->m_model = model;
+    entity->model = model;
 
     if (!model) {
         return;
@@ -1172,9 +1172,9 @@ void World::ObjectSetModel(CMapEntity* entity, CM2Model* model) {
         entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
     }
 
-    entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-    entity->m_model->m_lightingArg = entity;
-    entity->m_model->m_refCount++;
+    entity->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+    entity->model->m_lightingArg = entity;
+    entity->model->m_refCount++;
 }
 
 // VERIFY: f8350d49 manual
@@ -1211,8 +1211,8 @@ void World::ObjectDestroy(CMapEntity* baseObj) {
         link = next;
     }
 
-    if (baseObj->m_model && baseObj->m_model->m_attachParent) {
-        baseObj->m_model->DetachFromParent();
+    if (baseObj->model && baseObj->model->m_attachParent) {
+        baseObj->model->DetachFromParent();
     }
 
     CMap::FreeEntity(baseObj);
@@ -2226,9 +2226,9 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
         }
     }
 
-    doodadDef->m_model->SetAnimating(1);
+    doodadDef->model->SetAnimating(1);
 
-    CM2Model* model = doodadDef->m_model;
+    CM2Model* model = doodadDef->model;
 
     if (model->m_attachParent) {
         model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
@@ -2242,7 +2242,7 @@ void CWorldScene::AddDoodadDefModelToModelScene(CMapDoodadDef* doodadDef) {
         model->m_runtimeFlags |= M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
-    doodadDef->m_model->m_fadeAlpha = alpha;
+    doodadDef->model->m_fadeAlpha = alpha;
 }
 
 // VERIFY: 300a631e auto
@@ -2415,7 +2415,7 @@ void CWorldScene::CullEntitys(CSortEntry* sortEntry) {
         }
 
         entity->m_culled = CMapStaticEntity::CULL_VISIBLE;
-        CM2Model* model = entity->m_model;
+        CM2Model* model = entity->model;
 
         if (model) {
             model->SetAnimating(1);
@@ -2485,7 +2485,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 entity->m_flags = static_cast<MapObjFlag>(entity->m_flags & ~MAPOBJ_FLAG_INT_FOG);
             }
 
-            CM2Model* model = entity->m_model;
+            CM2Model* model = entity->model;
 
             if (model) {
                 model->SetAnimating(1);
@@ -2535,7 +2535,7 @@ void CWorldScene::UpdateSortedModels() {
         uint32_t nearFlags = MAP_OBJECT_FUNC_NONE;
         entity->m_sortEntryLink.Unlink();
 
-        CM2Model* model = entity->m_model;
+        CM2Model* model = entity->model;
 
         if (model) {
             int32_t animating = 0;
@@ -2565,7 +2565,7 @@ void CWorldScene::UpdateSortedModels() {
                 }
             }
 
-            entity->m_model->SetAnimating(animating);
+            entity->model->SetAnimating(animating);
         }
 
         if (entity->m_func) {
@@ -3667,9 +3667,9 @@ void CWorldScene::CullDoodads(CSortEntry* sortEntry, uint16_t fadeLevel) {
             continue;
         }
 
-        if (!doodadDef->m_model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
+        if (!doodadDef->model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             CAaBox box;
-            CAaBox bounds = doodadDef->m_model->m_shared->m_boundingBox;
+            CAaBox bounds = doodadDef->model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(doodadDef->m_mat, bounds, box);
             CWorldScene::s_barrier.AddBarrier(box, 10.0f);
             doodadDef = next;
@@ -3690,9 +3690,9 @@ void CWorldScene::CullDoodads(CSortEntry* sortEntry, uint16_t fadeLevel) {
             CWorldScene::AddDoodadDefModelToModelScene(doodadDef);
             CWorldScene::nDoodadsRendered++;
         } else if ((doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) || (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) * (doodadDef->m_sphere.c.x - CWorldScene::s_activeWorldView.x) + ((doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) * (doodadDef->m_sphere.c.y - CWorldScene::s_activeWorldView.y) + (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z) * (doodadDef->m_sphere.c.z - CWorldScene::s_activeWorldView.z)) < 100.0f) {
-            doodadDef->m_model->SetAnimating(1);
+            doodadDef->model->SetAnimating(1);
         } else {
-            doodadDef->m_model->SetAnimating(0);
+            doodadDef->model->SetAnimating(0);
         }
 
         doodadDef = next;
@@ -3913,7 +3913,7 @@ void CWorldScene::AddDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBa
     for (CMapBaseObjLink* link = linkList->Head(); link; link = linkList->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if (!(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_doodadDefLink.m_next || !doodadDef->m_model) {
+        if (!(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_doodadDefLink.m_next || !doodadDef->model) {
             continue;
         }
 
@@ -3948,7 +3948,7 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::UNKNOWN_8) {
                 return;
             }
-        } else if (doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
+        } else if (doodadDef->model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             if (doodadDef->m_cullPassStamp != CWorldScene::s_cullPassStamp) {
                 doodadDef->m_cullPassStamp = CWorldScene::s_cullPassStamp;
                 doodadDef->m_culled = CMapStaticEntity::CULL_CULLED;
@@ -3965,15 +3965,15 @@ void CWorldScene::CullDoodadsExterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                     C3Vector delta = doodadDef->m_sphere.c - CWorldScene::s_activeWorldView;
 
                     if ((doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_ALWAYS_ANIMATE) || delta.x * delta.x + delta.z * delta.z + delta.y * delta.y < 100.0f) {
-                        doodadDef->m_model->SetAnimating(1);
+                        doodadDef->model->SetAnimating(1);
                     } else {
-                        doodadDef->m_model->SetAnimating(0);
+                        doodadDef->model->SetAnimating(0);
                     }
                 }
             }
         } else {
             CAaBox box;
-            CAaBox bounds = doodadDef->m_model->m_shared->m_boundingBox;
+            CAaBox bounds = doodadDef->model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(doodadDef->m_mat, bounds, box);
             CWorldScene::s_barrier.AddBarrier(box, 10.0f);
         }
@@ -3992,9 +3992,9 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             continue;
         }
 
-        if (!doodadDef->m_model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
+        if (!doodadDef->model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             CAaBox box;
-            CAaBox bounds = doodadDef->m_model->m_shared->m_boundingBox;
+            CAaBox bounds = doodadDef->model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(doodadDef->m_mat, bounds, box);
             CWorldScene::s_barrier.AddBarrier(box, 10.0f);
             continue;
@@ -4015,7 +4015,7 @@ void CWorldScene::CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
                 }
             }
 
-            doodadDef->m_model->SetAnimating(animate);
+            doodadDef->model->SetAnimating(animate);
         }
 
         if (doodadDef->m_culled == CMapStaticEntity::CULL_VISIBLE) {
@@ -4055,7 +4055,7 @@ void CWorldScene::CullChunks(CSortEntry* sortEntry, uint32_t index) {
         chunk->m_sortListLink.Unlink();
 
         if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox) && !CWorldOcclusion::QueryVolumes(&chunk->m_sphere) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
-            CWorldScene::CullDoodadsExterior(&chunk->m_doodadDefLinkList, CWorldView::GetFadeLevelForDistance(chunk->m_distToCamera));
+            CWorldScene::CullDoodadsExterior(&chunk->doodadDefLinkList, CWorldView::GetFadeLevelForDistance(chunk->m_distToCamera));
 
             if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox2) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox2, CWorldOcclusion::QUERY_FLAG_NONE)) {
                 if (chunk->m_header->m_holes != 0xFFFF) {
@@ -4139,8 +4139,8 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
 
             uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
             int32_t interior = group->m_flags & MAPOBJ_FLAG_INT_FOG;
-            CWorldScene::CullDoodadsInterior(&group->m_doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, interior);
-            CWorldScene::CullEntitysInterior(&group->m_entityLinkList, group->m_frustumList.Head(), 1, interior);
+            CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, interior);
+            CWorldScene::CullEntitysInterior(&group->entityLinkList, group->m_frustumList.Head(), 1, interior);
         }
 
         group = next;
@@ -4166,7 +4166,7 @@ void CWorldScene::CullMapObjDefGroups(CSortEntry* sortEntry, CRect* rect, uint32
 
         if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->m_bbox) && !CWorldOcclusion::QueryVolumes(&group->m_sphere) && !CWorldOcclusion::QueryBuffer(&group->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
             mapObjDef->CullMapObjDefGroupFromExterior(group, rect, 0);
-            CWorldScene::AddDoodadDefs(&group->m_doodadDefLinkList, index);
+            CWorldScene::AddDoodadDefs(&group->doodadDefLinkList, index);
         }
 
         group = next;
@@ -4186,8 +4186,8 @@ void CWorldScene::CullMapObjDefGroup() {
 
         uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
         int32_t interior = group->m_flags & MAPOBJ_FLAG_INT_FOG;
-        CWorldScene::CullDoodadsInterior(&group->m_doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, group->m_flags & MAPOBJ_FLAG_INT_FOG);
-        CWorldScene::CullEntitysInterior(&group->m_entityLinkList, group->m_frustumList.Head(), 0, interior);
+        CWorldScene::CullDoodadsInterior(&group->doodadDefLinkList, group->m_frustumList.Head(), fadeLevel, group->m_flags & MAPOBJ_FLAG_INT_FOG);
+        CWorldScene::CullEntitysInterior(&group->entityLinkList, group->m_frustumList.Head(), 0, interior);
     }
 }
 
@@ -4350,7 +4350,7 @@ int32_t World::Intersect(const C3Vector& start, const C3Vector& end, C3Vector* h
 void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
     uint32_t flags = entity->m_staticFlags;
 
-    if ((flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) && !entity->m_model->m_attachList) {
+    if ((flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) && !entity->model->m_attachList) {
         CWorldScene::sortTable.nonVisEntityList.LinkToTail(entity);
         return;
     }
@@ -4496,15 +4496,15 @@ void CWorldScene::RenderEntitys() {
         CMapEntity* next = CWorldScene::sortTable.visEntityList.Next(entity);
         entity->m_sortEntryLink.Unlink();
 
-        if (entity->m_model) {
-            if (entity->m_model->IsLoaded(0, 1)) {
-                CWorldScene::CullModelSplitBody(entity->m_model, entity->m_splitBodyBone, (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) != 0);
+        if (entity->model) {
+            if (entity->model->IsLoaded(0, 1)) {
+                CWorldScene::CullModelSplitBody(entity->model, entity->m_splitBodyBone, (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) != 0);
             } else if (streaming) {
-                entity->m_model->LinkToAsyncHead(0);
+                entity->model->LinkToAsyncHead(0);
             }
         }
 
-        CM2Model* model = entity->m_model;
+        CM2Model* model = entity->model;
 
         if (model && model->IsLoaded(0, 0) && !(entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(WOWGUID{ entity->m_funcParam64 }, TYPE_UNIT, __FILE__, __LINE__));
@@ -4874,7 +4874,7 @@ CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, M
     entity->m_targetAmbientColor = color;
     entity->m_m2AmbientColor = color;
     entity->m_funcParam32 = param32;
-    entity->m_model = model;
+    entity->model = model;
     entity->m_sphere.c.x = matrix.d0;
     entity->m_sphere.c.y = matrix.d1;
     entity->m_diffuseLightScale = 1.0f;
@@ -4896,14 +4896,14 @@ CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, M
     entity->m_position.z = matrix.d2;
     CMap::LinkStaticEntity(entity);
 
-    if (entity->m_model) {
+    if (entity->model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
             entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
-        entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        entity->m_model->m_lightingArg = entity;
-        entity->m_model->m_refCount++;
+        entity->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        entity->model->m_lightingArg = entity;
+        entity->model->m_refCount++;
     }
 
     entity->m_func = func;
@@ -4931,7 +4931,7 @@ CMapEntity* CMap::ObjectCreateStaticEx(CM2Model* model, const C44Matrix& matrix,
     entity->m_flags = MAPOBJ_FLAG_UNPLACED;
     entity->m_funcParam32 = param32;
     entity->m_funcParam64 = param64;
-    entity->m_model = model;
+    entity->model = model;
     entity->m_sphere.c.x = matrix.d0;
     entity->m_sphere.c.y = matrix.d1;
     entity->m_diffuseLightScale = 1.0f;
@@ -4952,14 +4952,14 @@ CMapEntity* CMap::ObjectCreateStaticEx(CM2Model* model, const C44Matrix& matrix,
     entity->m_position.z = matrix.d2;
     CMap::LinkStaticEntity(entity);
 
-    if (entity->m_model) {
+    if (entity->model) {
         if (!SStrCmpI(s_invisibleStalkerModel, model->m_shared->m_fileNameWithoutPath, STORM_MAX_STR)) {
             entity->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER;
         }
 
-        entity->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        entity->m_model->m_lightingArg = entity;
-        entity->m_model->m_refCount++;
+        entity->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        entity->model->m_lightingArg = entity;
+        entity->model->m_refCount++;
     }
 
     entity->m_func = func;
@@ -5111,12 +5111,12 @@ void World::ObjectSetRenderEnabled(CMapBaseObj* baseObj, BOOL enable) {
 
     CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(baseObj);
 
-    for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
         CMapBaseObjLink* next;
 
-        for (CMapBaseObjLink* entityLink = group->m_entityLinkList.Head(); entityLink; entityLink = next) {
-            next = group->m_entityLinkList.Next(entityLink);
+        for (CMapBaseObjLink* entityLink = group->entityLinkList.Head(); entityLink; entityLink = next) {
+            next = group->entityLinkList.Next(entityLink);
             CMapEntity* entity = static_cast<CMapEntity*>(entityLink->m_owner);
             CMap::FreeBaseObjLink(entityLink);
             CMap::UpdateEntity(entity);
@@ -5159,7 +5159,7 @@ void World::UpdateObjectFadeouts() {
 
     for (SWModelFadeout* fadeout = s_fadeoutList.Head(); fadeout; ) {
         int32_t elapsed = now - fadeout->m_startTime;
-        CM2Model* model = fadeout->m_entity->m_model;
+        CM2Model* model = fadeout->m_entity->model;
         SWModelFadeout* next = s_fadeoutList.Next(fadeout);
 
         if (elapsed <= 2000 && model->CanUpdateNonReadyTextures()) {
@@ -5213,8 +5213,8 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
     }
 
     if (flags & MAP_OBJECT_FUNC_VISIBLE) {
-        entity->m_model->SetAnimating(1);
-        CM2Model* model = entity->m_model;
+        entity->model->SetAnimating(1);
+        CM2Model* model = entity->model;
 
         if (model->m_attachParent) {
             model->m_runtimeFlags |= M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
@@ -5231,7 +5231,7 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
         return 1;
     }
 
-    CM2Model* model = entity->m_model;
+    CM2Model* model = entity->model;
 
     if (model->m_attachParent) {
         model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
@@ -5245,8 +5245,8 @@ static int32_t ObjectFadeoutCallback(void* param, uint32_t flags, uint64_t param
         model->m_runtimeFlags &= ~M2_FLAGS::M2_PARTICLES_ENABLED;
     }
 
-    entity->m_model->SetAnimating(0);
-    model = entity->m_model;
+    entity->model->SetAnimating(0);
+    model = entity->model;
 
     if (model->m_attachParent) {
         model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_PARTICLES_ENABLED;
@@ -5264,7 +5264,7 @@ void CGObject_C::PrepareToFadeInt(CMapEntity* entity, float alpha, uint64_t tran
         return;
     }
 
-    if (!entity->m_model || !entity->m_model->IsDrawable(0, 0) || alpha < 0.01f || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
+    if (!entity->model || !entity->model->IsDrawable(0, 0) || alpha < 0.01f || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_HIDDEN)) {
         World::ObjectDestroy(entity);
         return;
     }
@@ -5284,7 +5284,7 @@ void CGObject_C::PrepareToFadeInt(CMapEntity* entity, float alpha, uint64_t tran
 
         if (transport) {
             fadeout->m_transportGuid.m_guid = transportGuid;
-            C44Matrix world = entity->m_model->m_worldTransform;
+            C44Matrix world = entity->model->m_worldTransform;
             fadeout->m_localTransform = world * transport->GetMatrix().AffineInverse();
         } else {
             fadeout->m_transportGuid = WOWGUID();
@@ -5388,8 +5388,8 @@ void World::ObjectSetSequenceFinishedCallback(CMapEntity* baseObj, void (*callba
     } else if (baseObj->m_type & CMapBaseObj::Type_DoodadDef) {
         STORM_ASSERT(specialDoodadSet==0);
 
-        if (baseObj->m_model) {
-            baseObj->m_model->SetSequenceCallback(callback, param);
+        if (baseObj->model) {
+            baseObj->model->SetSequenceCallback(callback, param);
         }
     }
 }
@@ -5441,13 +5441,13 @@ bool World::ObjectTestConvexVolume(CMapEntity* baseObj, const C3Vector& point) {
         return true;
     }
 
-    CM2Model* model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->m_model;
+    CM2Model* model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->model;
 
     if (!model || !model->IsLoaded(0, 0)) {
         return false;
     }
 
-    model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->m_model;
+    model = static_cast<CMapStaticEntity*>(static_cast<CMapBaseObj*>(baseObj))->model;
 
     if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
         model->WaitForLoad(nullptr);

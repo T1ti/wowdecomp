@@ -462,7 +462,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
             continue;
         }
 
-        CM2Model* model = entity->m_model;
+        CM2Model* model = entity->model;
 
         if (!model) {
             continue;
@@ -700,7 +700,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                 buffers.m_groups[buffers.m_groupCount++] = group;
             }
 
-            for (CMapBaseObjLink* link = defGroup->m_doodadDefLinkList.Head(); link; link = defGroup->m_doodadDefLinkList.Next(link)) {
+            for (CMapBaseObjLink* link = defGroup->doodadDefLinkList.Head(); link; link = defGroup->doodadDefLinkList.Next(link)) {
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
 
                 if (doodad->m_shadowStamps[band] == CShadowQuery::s_stamp) {
@@ -708,7 +708,7 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                 }
 
                 doodad->m_shadowStamps[band] = CShadowQuery::s_stamp;
-                CM2Model* model = doodad->m_model;
+                CM2Model* model = doodad->model;
 
                 if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxDoodadSize < doodad->m_sphere.r) {
                     continue;
@@ -771,10 +771,10 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
                 }
             }
 
-            for (CMapBaseObjLink* link = defGroup->m_doodadDefLinkList.Head(); link; link = defGroup->m_doodadDefLinkList.Next(link)) {
+            for (CMapBaseObjLink* link = defGroup->doodadDefLinkList.Head(); link; link = defGroup->doodadDefLinkList.Next(link)) {
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
 
-                if (!doodad->m_model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED)) {
+                if (!doodad->model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED)) {
                     continue;
                 }
 
@@ -786,7 +786,7 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
                     doodad->m_shadowStamps[band] = CShadowQuery::s_stamp;
 
                     if (!CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) && data.m_extents[band].Intersects(doodad->m_bbox) && data.m_bandFrustums[band].Cull(doodad->m_bbox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(doodad->m_bbox) != WorldCull_notOutside)) {
-                        doodad->m_model->GatherModelBatchesShadowMap(CShadowQuery::s_bandBuffers[band].m_untextured, CShadowQuery::s_bandBuffers[band].m_textured);
+                        doodad->model->GatherModelBatchesShadowMap(CShadowQuery::s_bandBuffers[band].m_untextured, CShadowQuery::s_bandBuffers[band].m_textured);
                     }
                 }
             }
@@ -830,7 +830,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 continue;
             }
 
-            for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
+            for (CMapBaseObjLink* link = chunk->doodadDefLinkList.Head(); link; link = chunk->doodadDefLinkList.Next(link)) {
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
 
                 if (doodad->m_shadowStamps[band] == CShadowQuery::s_stamp) {
@@ -838,7 +838,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
                 }
 
                 doodad->m_shadowStamps[band] = CShadowQuery::s_stamp;
-                CM2Model* model = doodad->m_model;
+                CM2Model* model = doodad->model;
 
                 if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED) || CWorldScene::IsBeyondFadeDistance(doodad->m_sphere.c, doodad->m_fadeLevel) || maxSize < doodad->m_sphere.r) {
                     continue;
@@ -888,9 +888,9 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
                 continue;
             }
 
-            for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
+            for (CMapBaseObjLink* link = chunk->doodadDefLinkList.Head(); link; link = chunk->doodadDefLinkList.Next(link)) {
                 CMapDoodadDef* doodad = static_cast<CMapDoodadDef*>(link->m_owner);
-                CM2Model* model = doodad->m_model;
+                CM2Model* model = doodad->model;
 
                 if (!model || !(doodad->m_flags & MAPOBJ_FLAG_PREPARED)) {
                     continue;

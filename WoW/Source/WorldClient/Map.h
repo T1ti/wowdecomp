@@ -354,7 +354,7 @@ class CMap {
     static void FreeRenderChunk(CMapRenderChunk* renderChunk);
     static CMapChunk* AllocMapChunk();
     static CMapRenderChunk* AllocRenderChunk();
-    static CMapBaseObjLink* AllocBaseObjLink(CMapBaseObj* baseObj);
+    static CMapBaseObjLink* AllocBaseObjLink(CMapBaseObj* owner);
     static CMapDoodadDef* AllocDoodadDef();
     static CMapObjDef* AllocMapObjDef();
     static CMapObj* AllocMapObj();

@@ -54,11 +54,11 @@ void CMapDoodadDef::UpdateBounds() {
     sphere.r = 0.0f;
     CAaBox collisionBox;
 
-    if (this->m_model) {
-        box = this->m_model->GetBoundingBox();
-        sphere = this->m_model->GetBoundingSphere();
+    if (this->model) {
+        box = this->model->GetBoundingBox();
+        sphere = this->model->GetBoundingSphere();
 
-        CM2Model* model = this->m_model;
+        CM2Model* model = this->model;
 
         if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             model->WaitForLoad(nullptr);
@@ -106,7 +106,7 @@ void CMapDoodadDef::UpdateBounds() {
     this->m_fadeLevel = fadeLevel;
 
     if (!(CWorld::enables & Enables::Enable_ObjectFadeZFill) && fadeLevel < 3) {
-        this->m_model->m_runtimeFlags &= ~M2_FLAGS::M2_DEPTH_SORT_ALLOWED;
+        this->model->m_runtimeFlags &= ~M2_FLAGS::M2_DEPTH_SORT_ALLOWED;
     }
 }
 
@@ -144,7 +144,7 @@ void CMapDoodadDef::SelectLights(CM2Lighting* lighting) {
 // OFFSET: 0x007C21E0
 CMapDoodadDef::CMapDoodadDef() {
     this->m_type |= CMapBaseObj::Type_DoodadDef;
-    this->m_model = nullptr;
+    this->model = nullptr;
     this->m_collisionGuid = WOWGUID();
     this->m_doodadSet = 0;
 }
@@ -217,13 +217,13 @@ void CMapDoodadDef::Purge(CMapDoodadDef* doodadDef) {
         return;
     }
 
-    if (doodadDef->m_model) {
-        doodadDef->m_model->SetSequenceCallback(nullptr, 0);
-        doodadDef->m_model->SetEventCallback(nullptr, 0);
-        doodadDef->m_model->m_lightingCallback = nullptr;
-        doodadDef->m_model->m_lightingArg = nullptr;
-        doodadDef->m_model->Release();
-        doodadDef->m_model = nullptr;
+    if (doodadDef->model) {
+        doodadDef->model->SetSequenceCallback(nullptr, 0);
+        doodadDef->model->SetEventCallback(nullptr, 0);
+        doodadDef->model->m_lightingCallback = nullptr;
+        doodadDef->model->m_lightingArg = nullptr;
+        doodadDef->model->Release();
+        doodadDef->model = nullptr;
     }
 
     doodadDef->m_doodadDefLink.Unlink();
@@ -234,27 +234,27 @@ void CMapDoodadDef::Purge(CMapDoodadDef* doodadDef) {
 // OFFSET: 0x007BDA70
 void CMapDoodadDef::CreateModel(const char* fileName, CMapDoodadDef* doodadDef, BOOL waitForLoad, BOOL initializeOnDemand) {
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, initializeOnDemand ? CM2Model::INSTANCE_INITIALIZE_ON_DEMAND : 0);
-    doodadDef->m_model = model;
+    doodadDef->model = model;
 
     if (!model) {
         return;
     }
 
     model->SetWorldTransform(doodadDef->m_mat);
-    doodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
-    doodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-    doodadDef->m_model->m_lightingArg = doodadDef;
-    doodadDef->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+    doodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
+    doodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+    doodadDef->model->m_lightingArg = doodadDef;
+    doodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 
     if (waitForLoad) {
-        doodadDef->m_model->IsLoaded(1, 0);
+        doodadDef->model->IsLoaded(1, 0);
     }
 }
 
 // VERIFY: 5cc39abd manual
 // OFFSET: 0x007C1380
 void CMapDoodadDef::Update(const C44Matrix& matrix) {
-    if (!this->m_model) {
+    if (!this->model) {
         return;
     }
 
@@ -274,25 +274,25 @@ void CMapDoodadDef::Update(const C44Matrix& matrix) {
     sphere.c = C3Vector(0.0f, 0.0f, 0.0f);
     sphere.r = 0.0f;
 
-    if (this->m_model->IsLoaded(0, 0)) {
-        box = this->m_model->GetBoundingBox();
-        CM2Model* model = this->m_model;
+    if (this->model->IsLoaded(0, 0)) {
+        box = this->model->GetBoundingBox();
+        CM2Model* model = this->model;
 
         if (!(model->m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED)) {
             model->WaitForLoad(nullptr);
         }
 
         collisionBox = model->m_shared->m_data->m_collisionBounds.m_extent;
-        sphere = this->m_model->GetBoundingSphere();
+        sphere = this->model->GetBoundingSphere();
     } else {
-        collisionBox = this->m_model->m_shared->m_boundingBox;
+        collisionBox = this->model->m_shared->m_boundingBox;
     }
 
     this->m_sphere.c = sphere.c * this->m_mat;
     this->m_sphere.r = this->m_scale * sphere.r;
     CWorldMath::TransformAABox(this->m_mat, box, this->m_bbox);
     CWorldMath::TransformAABox(this->m_mat, collisionBox, this->m_collideExt);
-    CM2Model* model = this->m_model;
+    CM2Model* model = this->model;
     model->SetWorldTransform(this->m_mat);
     SI2::Set3DPosition(&this->m_soundKitObject, &this->m_position);
 }

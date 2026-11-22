@@ -2708,9 +2708,9 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
         link->m_ref = mapObjDefGroup;
 
         if (overrideSet) {
-            mapObjDefGroup->m_doodadDefLinkList.LinkToHead(link);
+            mapObjDefGroup->doodadDefLinkList.LinkToHead(link);
         } else {
-            mapObjDefGroup->m_doodadDefLinkList.LinkToTail(link);
+            mapObjDefGroup->doodadDefLinkList.LinkToTail(link);
         }
 
         if (!(mapObjDefGroup->m_flags & MAPOBJ_FLAG_INTERIOR) || (mapDoodadDef->m_flags & MAPOBJ_FLAG_EXTERIOR)) {

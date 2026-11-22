@@ -91,9 +91,9 @@ void CMapChunk::Purge() {
         this->m_renderChunk = nullptr;
     }
 
-    if (this->m_detailDoodadInst) {
-        CDetailDoodad::FreeInst(this->m_detailDoodadInst);
-        this->m_detailDoodadInst = nullptr;
+    if (this->detailDoodadInst) {
+        CDetailDoodad::FreeInst(this->detailDoodadInst);
+        this->detailDoodadInst = nullptr;
     }
 
     CChunkLiquid* liquid = this->m_liquidChunkLinkList.Head();
@@ -108,8 +108,8 @@ void CMapChunk::Purge() {
 
     this->m_sortListLink.Unlink();
 
-    for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link;) {
-        CMapBaseObjLink* next = this->m_doodadDefLinkList.Next(link);
+    for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link;) {
+        CMapBaseObjLink* next = this->doodadDefLinkList.Next(link);
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
 
@@ -120,8 +120,8 @@ void CMapChunk::Purge() {
         link = next;
     }
 
-    for (CMapBaseObjLink* link = this->m_mapObjDefLinkList.Head(); link;) {
-        CMapBaseObjLink* next = this->m_mapObjDefLinkList.Next(link);
+    for (CMapBaseObjLink* link = this->mapObjDefLinkList.Head(); link;) {
+        CMapBaseObjLink* next = this->mapObjDefLinkList.Next(link);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
         CMap::PurgeMapObjDef(mapObjDef);
@@ -134,8 +134,8 @@ void CMapChunk::Purge() {
         link = next;
     }
 
-    for (CMapBaseObjLink* link = this->m_entityLinkList.Head(); link;) {
-        CMapBaseObjLink* next = this->m_entityLinkList.Next(link);
+    for (CMapBaseObjLink* link = this->entityLinkList.Head(); link;) {
+        CMapBaseObjLink* next = this->entityLinkList.Next(link);
         CMap::FreeBaseObjLink(link);
         link = next;
     }
@@ -900,15 +900,15 @@ CMapChunk::CMapChunk() {
     this->m_link.m_next = nullptr;
     this->m_sortListLink.m_prevLink = nullptr;
     this->m_sortListLink.m_next = nullptr;
-    this->m_doodadDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
-    this->m_mapObjDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
-    this->m_entityLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
+    this->doodadDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
+    this->mapObjDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
+    this->entityLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_lightLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_soundHandleList.SetLinkOffset(0);
     this->m_type |= CMapBaseObj::Type_Chunk;
     this->m_distToCamera = 0.0f;
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
-    this->m_detailDoodadInst = nullptr;
+    this->detailDoodadInst = nullptr;
     this->m_renderChunk = nullptr;
     this->m_chunkInfoBeginPtr = nullptr;
     this->m_header = nullptr;
@@ -993,7 +993,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
             CMapObjDef* mapObjDef = CMap::CreateMapObjDef(&area->m_wmoFileNames[area->m_wmoFilenamesOffsets[def->m_nameId]], def, &center, true);
             CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapObjDef);
             link->m_ref = this;
-            this->m_mapObjDefLinkList.LinkToTail(link);
+            this->mapObjDefLinkList.LinkToTail(link);
         }
     }
 
@@ -1002,7 +1002,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
         CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(&area->m_m2FileNames[area->m_modelFilenamesOffsets[def->m_nameId]], def, &center);
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(doodadDef);
         link->m_ref = this;
-        this->m_doodadDefLinkList.LinkToTail(link);
+        this->doodadDefLinkList.LinkToTail(link);
         doodadDef->m_diffuseLightScale = 1.0f;
         doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_EXTERIOR);
 
@@ -1045,11 +1045,11 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
 // VERIFY: 1d9777de manual
 // OFFSET: 0x007C65A0
 void CMapChunk::UpdateLights() {
-    for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
         link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 
-    for (CMapBaseObjLink* link = this->m_entityLinkList.Head(); link; link = this->m_entityLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = this->entityLinkList.Head(); link; link = this->entityLinkList.Next(link)) {
         link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 }
@@ -1123,9 +1123,9 @@ void CMapChunk::CreateDetailDoodads() {
     seed.SetSeed(0);
     seed.SetSeed(this->m_cOffset.x | (this->m_cOffset.y << 16));
 
-    this->m_detailDoodadInst = CDetailDoodad::AllocInst();
-    this->m_detailDoodadInst->m_chunk = this;
-    CDetailDoodadInst* inst = this->m_detailDoodadInst;
+    this->detailDoodadInst = CDetailDoodad::AllocInst();
+    this->detailDoodadInst->m_chunk = this;
+    CDetailDoodadInst* inst = this->detailDoodadInst;
 
     if (CWorld::detailDoodadTest) {
         return;
@@ -1366,12 +1366,12 @@ void CMapChunk::RenderPrep() {
     }
 
     if ((CWorld::enables & Enables::Enable_DetailDoodads) && CWorld::detailDoodadDist > this->m_distToCamera) {
-        if (!this->m_detailDoodadInst) {
+        if (!this->detailDoodadInst) {
             this->CreateDetailDoodads();
         }
 
-        if (this->m_detailDoodadInst) {
-            CWorldScene::AddChunkToSortList(this->m_detailDoodadInst);
+        if (this->detailDoodadInst) {
+            CWorldScene::AddChunkToSortList(this->detailDoodadInst);
         }
     }
 }

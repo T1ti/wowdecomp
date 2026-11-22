@@ -35,7 +35,7 @@ CMapStaticEntity::CMapStaticEntity() {
     this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CONSTRUCTOR_CLEAR_MASK;
     this->m_distanceToCamera = 0.0f;
     this->m_liquidHeight = 0.0f;
-    this->m_model = nullptr;
+    this->model = nullptr;
     this->m_diffuseLightScale = 0.0f;
     this->m_queryTag = 0;
     this->m_shadowStamps[0] = 0;

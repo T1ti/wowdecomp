@@ -38,9 +38,9 @@ class CMapObjDefGroup : public CMapBaseObj {
     /* 0064 */ int32_t unused_0064;
     /* 0068 */ Liquid::CInstance* m_liquidInstance;
     /* 006C */ TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)> m_frustumList;
-    /* 0078 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_doodadDefLinkList;
-    /* 0084 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_entityLinkList;
-    /* 0090 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_lightLinkList;
+    /* 0078 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > doodadDefLinkList;
+    /* 0084 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > entityLinkList;
+    /* 0090 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > lightLinkList;
     /* 009C */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_unkLinkList;
     /* 00A8 */ TSLink<CMapObjDefGroup> tableLink;
     /* 00B0 */ TSLink<CMapObjDefGroup> visLink;
@@ -80,7 +80,7 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     /* 0104 */ int32_t m_nameSet;
     /* 0108 */ int32_t unused_0108;
     /* 010C */ TSLink<CMapObjDef> m_horizonLink;
-    /* 0114 */ TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)> m_mapObjDefGroupLinkList;
+    /* 0114 */ TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)> groupLinkList;
     /* 0120 */ TSCGrowableArray<CMapObjDefGroup*, 4> m_defGroups;
     /* 0134 */ TSGrowableArray<CMapLight*> m_lightsArray;
     /* 0144 */ uint32_t m_argbColor;

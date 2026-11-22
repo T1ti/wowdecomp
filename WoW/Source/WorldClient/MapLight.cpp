@@ -164,13 +164,13 @@ void CMap::LinkLightToMapObjDefs(CMapLight* light) {
             CMapObj* mapObj = mapObjDef->m_owner;
 
             if (mapObj && mapObj->TestBounds(box)) {
-                for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+                for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
                     CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
                     if (!(group->m_flags & MAPOBJ_FLAG_INTERIOR) && light->m_bbox.Intersects(group->m_bbox)) {
                         CMapBaseObjLink* lightLink = CMap::AllocBaseObjLink(light);
                         lightLink->m_ref = group;
-                        group->m_lightLinkList.LinkToTail(lightLink);
+                        group->lightLinkList.LinkToTail(lightLink);
                         group->UpdateLights();
                     }
                 }

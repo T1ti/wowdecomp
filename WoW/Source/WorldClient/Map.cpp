@@ -466,9 +466,9 @@ CGxShader* CMap::GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t
 // OFFSET: 0x0079E730
 void CMap::ClearChunkDetailDoodads() {
     for (CMapChunk* chunk = CMap::s_mapChunkList.Head(); chunk; chunk = CMap::s_mapChunkList.Next(chunk)) {
-        if (chunk->m_detailDoodadInst) {
-            CDetailDoodad::FreeInst(chunk->m_detailDoodadInst);
-            chunk->m_detailDoodadInst = nullptr;
+        if (chunk->detailDoodadInst) {
+            CDetailDoodad::FreeInst(chunk->detailDoodadInst);
+            chunk->detailDoodadInst = nullptr;
         }
     }
 }
@@ -1206,7 +1206,7 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
             continue;
         }
 
-        CM2Model* model = doodadDef->m_model;
+        CM2Model* model = doodadDef->model;
 
         if (!model) {
             continue;
@@ -1363,11 +1363,11 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             origin.z = start->z - chunk->m_topLeftCoords.z;
 
             if (modelFlags) {
-                CMap::VectorIntersectDoodadDefs(&chunk->m_doodadDefLinkList, flags);
+                CMap::VectorIntersectDoodadDefs(&chunk->doodadDefLinkList, flags);
             }
 
             if (flags & WORLD_QUERY_ENTITY_MASK) {
-                CMap::VectorIntersectEntitys(&chunk->m_entityLinkList, flags);
+                CMap::VectorIntersectEntitys(&chunk->entityLinkList, flags);
             }
         }
 
@@ -1550,7 +1550,7 @@ void CMap::CreateImpassableFacets(CMapChunk* chunk, CAaBox* box, World::FacetDat
 void CMap::AppendMapObjFacets(CMapDoodadDef* def, CAaBox* box, World::FacetData* facets) {
     uint32_t first = facets->facets.Count();
 
-    def->m_model->GetCollisionFacets(*box, def->m_mat, facets->facets);
+    def->model->GetCollisionFacets(*box, def->m_mat, facets->facets);
 
     uint32_t count = facets->facets.Count();
     facets->facetIds.SetCount(count);
@@ -1643,11 +1643,11 @@ bool CMap::GetHeightTerrain(CMapChunk* chunk, C3Vector& pos, int32_t cellX, int3
 // VERIFY: 468f4c9b manual
 // OFFSET: 0x007B4090
 void CMapObjDefGroup::UpdateLights() {
-    for (CMapBaseObjLink* link = this->m_doodadDefLinkList.Head(); link; link = this->m_doodadDefLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
         link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 
-    for (CMapBaseObjLink* link = this->m_entityLinkList.Head(); link; link = this->m_entityLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = this->entityLinkList.Head(); link; link = this->entityLinkList.Next(link)) {
         link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 }
@@ -1823,7 +1823,7 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
         box = chunk->m_bbox;
         box.b.z = World::s_currentWorldPos.z - 16.666666f;
         box.t.z = World::s_currentWorldPos.z + 16.666666f;
-        list = &chunk->m_mapObjDefLinkList;
+        list = &chunk->mapObjDefLinkList;
     }
 
     uint32_t remaining = 0;
@@ -1835,7 +1835,7 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
             continue;
         }
 
-        for (CMapBaseObjLink* groupLink = mapObjDef->m_mapObjDefGroupLinkList.Head(); groupLink; groupLink = mapObjDef->m_mapObjDefGroupLinkList.Next(groupLink)) {
+        for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(groupLink->m_owner);
 
             if (box.t.x < defGroup->m_bbox.b.x || box.t.y < defGroup->m_bbox.b.y || box.t.z < defGroup->m_bbox.b.z || box.b.x > defGroup->m_bbox.t.x || box.b.y > defGroup->m_bbox.t.y || box.b.z > defGroup->m_bbox.t.z) {
@@ -1859,10 +1859,10 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
 
             int32_t pending = 0;
 
-            for (CMapBaseObjLink* doodadLink = defGroup->m_doodadDefLinkList.Head(); doodadLink; doodadLink = defGroup->m_doodadDefLinkList.Next(doodadLink)) {
+            for (CMapBaseObjLink* doodadLink = defGroup->doodadDefLinkList.Head(); doodadLink; doodadLink = defGroup->doodadDefLinkList.Next(doodadLink)) {
                 CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->m_owner);
 
-                if ((!doodadDef->m_model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) && !(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
+                if ((!doodadDef->model || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) && !(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
                     doodadDef->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
 
                     if (!pending) {
@@ -1974,7 +1974,7 @@ void CMap::PrepareMapDoodadDefs() {
     CMapDoodadDef* doodadDef = CMap::doodadDefList.Head();
 
     while (doodadDef) {
-        CM2Model* model = doodadDef->m_model;
+        CM2Model* model = doodadDef->model;
         CMapDoodadDef* next = CMap::doodadDefList.Next(doodadDef);
 
         if (!model || model->IsLoaded(0, 0)) {
@@ -1991,7 +1991,7 @@ void CMap::PrepareMapDoodadDefs() {
 
             doodadDef->m_doodadDefLink.Unlink();
         } else if (streaming && (doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
-            doodadDef->m_model->LinkToAsyncHead(1);
+            doodadDef->model->LinkToAsyncHead(1);
             doodadDef->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
         }
 
@@ -2156,7 +2156,7 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
         box = chunk->m_bbox;
         box.b.z = World::s_currentWorldPos.z - 16.666666f;
         box.t.z = World::s_currentWorldPos.z + 16.666666f;
-        list = &chunk->m_doodadDefLinkList;
+        list = &chunk->doodadDefLinkList;
     }
 
     uint32_t remaining = 0;
@@ -2164,14 +2164,14 @@ uint32_t CMap::ComputeDoodadLoadProgress(CMapChunk* chunk, float* progress, uint
     for (CMapBaseObjLink* link = list->Head(); link; link = list->Next(link)) {
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((doodadDef->m_model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) || (doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
+        if ((doodadDef->model && (doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) || (doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING)) {
             continue;
         }
 
         if (total) {
             int64_t loaded = 0;
             int64_t size = 0;
-            doodadDef->m_model->ComputeLoadProgress(loaded, size);
+            doodadDef->model->ComputeLoadProgress(loaded, size);
             *progress += static_cast<float>(loaded) / static_cast<float>(size) * scale;
         }
 
@@ -2234,7 +2234,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
             mapObj->m_distToCamera = dist;
         }
 
-        for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
             CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 1);
             CAaBox& box = defGroup->m_bbox;
@@ -2574,7 +2574,7 @@ void CMap::CreateMapObjDefGroups(CMapObj* mapObj, CMapObjDef* mapObjDef) {
         CMapObjDefGroup* group = CMap::AllocMapObjDefGroup();
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(group);
         link->m_ref = mapObjDef;
-        mapObjDef->m_mapObjDefGroupLinkList.LinkToTail(link);
+        mapObjDef->groupLinkList.LinkToTail(link);
         mapObjDef->m_defGroups[i] = group;
 
         CAaBox box;
@@ -2623,7 +2623,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
         mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_BIODOME | MAPOBJ_FLAG_UNPLACED);
     }
 
-    mapDoodadDef->m_model = nullptr;
+    mapDoodadDef->model = nullptr;
 
     float rotX = doodadDef->m_rotation.z * DEG_TO_RAD;
     float rotY = doodadDef->m_rotation.x * DEG_TO_RAD;
@@ -2640,14 +2640,14 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDe
     mapDoodadDef->m_lMat = C44Matrix();
 
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
-    mapDoodadDef->m_model = model;
+    mapDoodadDef->model = model;
 
     if (model) {
         model->SetWorldTransform(mapDoodadDef->m_mat);
-        mapDoodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
-        mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        mapDoodadDef->m_model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        mapDoodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
+        mapDoodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        mapDoodadDef->model->m_lightingArg = mapDoodadDef;
+        mapDoodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 
     return mapDoodadDef;
@@ -2675,7 +2675,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* posit
     doodadDef->m_mat.RotateAroundZ(facing);
     doodadDef->m_lMat = C44Matrix();
     doodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
-    doodadDef->m_model = nullptr;
+    doodadDef->model = nullptr;
     CMapDoodadDef::CreateModel(fileName, doodadDef, waitForLoad, 0);
 
     return doodadDef;
@@ -2709,7 +2709,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
         mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_PROJ_TEX | MAPOBJ_FLAG_UNPLACED);
     }
 
-    mapDoodadDef->m_model = nullptr;
+    mapDoodadDef->model = nullptr;
     mapDoodadDef->m_mat = C44Matrix();
     mapDoodadDef->m_mat.Translate(doodadDef->m_position);
     mapDoodadDef->m_mat.Rotate(doodadDef->m_orientation);
@@ -2722,14 +2722,14 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef
     mapDoodadDef->AdjustLightmap(&doodadDef->m_color, &mapDoodadDef->m_m2DiffuseColor, limit, &mapDoodadDef->m_m2AmbientColor, MAX_AMBIENT);
 
     CM2Model* model = World::s_m2Scene->CreateModel(name, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
-    mapDoodadDef->m_model = model;
+    mapDoodadDef->model = model;
 
     if (model) {
         model->SetWorldTransform(mapDoodadDef->m_mat);
-        mapDoodadDef->m_model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
-        mapDoodadDef->m_model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        mapDoodadDef->m_model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        mapDoodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
+        mapDoodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        mapDoodadDef->model->m_lightingArg = mapDoodadDef;
+        mapDoodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 
     return mapDoodadDef;
@@ -3084,6 +3084,10 @@ void CMap::FreeMapObjGroup(CMapObjGroup* group) {
 void CMap::FreeArea(CMapArea* area) {
     STORM_ASSERT(area);
 
+    STORM_ASSERT(area->m_parentLinkList.Head() == NULL);
+    STORM_ASSERT(area->chunkLinkList.Head() == NULL);
+    STORM_ASSERT(area->m_textures.Count() == 0);
+
     area->m_lameAssLink.Unlink();
     area->~CMapArea();
     ObjectFree(*CMap::areaHeap, area->m_objectIndex);
@@ -3092,6 +3096,8 @@ void CMap::FreeArea(CMapArea* area) {
 // VERIFY: 53440967 manual
 // OFFSET: 0x007C0110
 void CMap::FreeAreaMed(CMapAreaMed* areaMed) {
+    STORM_ASSERT(areaMed);
+
     areaMed->m_lameAssLink.Unlink();
     areaMed->~CMapAreaMed();
     ObjectFree(*CMap::areaMedHeap, areaMed->m_objectIndex);
@@ -3101,6 +3107,13 @@ void CMap::FreeAreaMed(CMapAreaMed* areaMed) {
 // OFFSET: 0x007C0180
 void CMap::FreeChunk(CMapChunk* chunk) {
     STORM_ASSERT(chunk);
+
+    STORM_ASSERT(chunk->m_parentLinkList.Head() == NULL);
+    STORM_ASSERT(chunk->doodadDefLinkList.Head() == NULL);
+    STORM_ASSERT(chunk->mapObjDefLinkList.Head() == NULL);
+    STORM_ASSERT(chunk->entityLinkList.Head() == NULL);
+    STORM_ASSERT(chunk->detailDoodadInst == NULL);
+    STORM_ASSERT(chunk->m_renderChunk == NULL);
 
     chunk->m_lameAssLink.Unlink();
     chunk->~CMapChunk();
@@ -3129,6 +3142,9 @@ void CMap::FreeDoodadDef(CMapDoodadDef* doodadDef) {
     STORM_ASSERT(doodadDef);
 
     SI2::StopSound(&doodadDef->m_soundKitObject, 0, -1.0f, 1);
+    STORM_ASSERT(doodadDef->m_parentLinkList.Head() == NULL);
+    STORM_ASSERT(doodadDef->model == NULL);
+
     doodadDef->m_lameAssLink.Unlink();
     CMap::doodadDefHash.Unlink(doodadDef);
     uint32_t* heap = CMap::doodadDefHeap;
@@ -3141,6 +3157,8 @@ void CMap::FreeDoodadDef(CMapDoodadDef* doodadDef) {
 void CMap::FreeEntity(CMapEntity* entity) {
     STORM_ASSERT(entity);
 
+    STORM_ASSERT(entity->m_parentLinkList.Head() == NULL);
+
     entity->m_lameAssLink.Unlink();
     entity->~CMapEntity();
     ObjectFree(*CMap::entityHeap, entity->m_objectIndex);
@@ -3149,6 +3167,9 @@ void CMap::FreeEntity(CMapEntity* entity) {
 // VERIFY: 56cb0afe auto
 // OFFSET: 0x007C0340
 void CMap::FreeLight(CMapLight* light) {
+    STORM_ASSERT(light);
+    STORM_ASSERT(light->m_parentLinkList.Head() == NULL);
+
     light->~CMapLight();
     ObjectFree(*CMap::lightHeap, light->m_objectIndex);
 }
@@ -3157,6 +3178,11 @@ void CMap::FreeLight(CMapLight* light) {
 // OFFSET: 0x007C0370
 void CMap::FreeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
     STORM_ASSERT(mapObjDefGroup);
+
+    STORM_ASSERT(mapObjDefGroup->m_parentLinkList.Head() == NULL);
+    STORM_ASSERT(mapObjDefGroup->doodadDefLinkList.Head() == NULL);
+    STORM_ASSERT(mapObjDefGroup->entityLinkList.Head() == NULL);
+    STORM_ASSERT(mapObjDefGroup->lightLinkList.Head() == NULL);
 
     mapObjDefGroup->m_lameAssLink.Unlink();
     mapObjDefGroup->~CMapObjDefGroup();
@@ -3183,6 +3209,9 @@ CMapObjDef* CMap::AllocMapObjDef() {
 // OFFSET: 0x007C0430
 void CMap::FreeMapObjDef(CMapObjDef* mapObjDef) {
     STORM_ASSERT(mapObjDef);
+
+    STORM_ASSERT(mapObjDef->m_parentLinkList.Head() == NULL);
+    STORM_ASSERT(mapObjDef->groupLinkList.Head() == NULL);
 
     mapObjDef->m_lameAssLink.Unlink();
     CMap::mapObjDefHash.Unlink(mapObjDef);
@@ -3253,7 +3282,9 @@ CMapEntity* CMap::AllocEntity(int32_t linkToHead) {
 
 // VERIFY: 3adb704b manual
 // OFFSET: 0x007C0750
-CMapBaseObjLink* CMap::AllocBaseObjLink(CMapBaseObj* baseObj) {
+CMapBaseObjLink* CMap::AllocBaseObjLink(CMapBaseObj* owner) {
+    STORM_ASSERT(owner);
+
     uint32_t memHandle;
     void* object = nullptr;
     CMapBaseObjLink* link;
@@ -3265,10 +3296,10 @@ CMapBaseObjLink* CMap::AllocBaseObjLink(CMapBaseObj* baseObj) {
         link = nullptr;
     }
 
-    baseObj->m_refCount++;
-    link->m_owner = baseObj;
+    owner->m_refCount++;
+    link->m_owner = owner;
     link->m_ref = nullptr;
-    baseObj->m_parentLinkList.LinkToTail(link);
+    owner->m_parentLinkList.LinkToTail(link);
 
     return link;
 }
@@ -3366,9 +3397,13 @@ CChunkLiquid* CMap::AllocChunkLiquid() {
 // VERIFY: c9309208 manual
 // OFFSET: 0x007C09F0
 void CMap::FreeBaseObjLink(CMapBaseObjLink* link) {
+    STORM_ASSERT(link);
+
     link->m_ownerLink.Unlink();
     link->m_refLink.Unlink();
-    link->m_owner->m_refCount--;
+    CMapBaseObj* owner = link->m_owner;
+    STORM_ASSERT(owner);
+    owner->m_refCount--;
     link->m_ref = nullptr;
     link->m_owner = nullptr;
     link->~CMapBaseObjLink();
@@ -3527,13 +3562,13 @@ void CMap::LinkObjectToMapObjDefGroup(CMapStaticEntity* object, CMapObjDefGroup*
 
     if (object->m_type & CMapBaseObj::Type_Entity) {
         if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
-            mapObjDefGroup->m_entityLinkList.LinkToHead(link);
+            mapObjDefGroup->entityLinkList.LinkToHead(link);
             return;
         }
 
-        mapObjDefGroup->m_entityLinkList.LinkToTail(link);
+        mapObjDefGroup->entityLinkList.LinkToTail(link);
     } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
-        mapObjDefGroup->m_doodadDefLinkList.LinkToTail(link);
+        mapObjDefGroup->doodadDefLinkList.LinkToTail(link);
     }
 }
 
@@ -3574,12 +3609,12 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
 
             if (object->m_type & CMapBaseObj::Type_Entity) {
                 if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
-                    chunk->m_entityLinkList.LinkToHead(link);
+                    chunk->entityLinkList.LinkToHead(link);
                 } else {
-                    chunk->m_entityLinkList.LinkToTail(link);
+                    chunk->entityLinkList.LinkToTail(link);
                 }
             } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
-                chunk->m_doodadDefLinkList.LinkToTail(link);
+                chunk->doodadDefLinkList.LinkToTail(link);
             }
 
             object->m_flags = static_cast<MapObjFlag>(object->m_flags | MAPOBJ_FLAG_EXTERIOR);
@@ -3605,7 +3640,7 @@ bool CMap::LinkIntersectMapObjDef(CMapObjDef* mapObjDef, C3Vector& start, C3Vect
 
     uint32_t noDepthSort = mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT;
 
-    for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
         uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
 
@@ -3630,7 +3665,7 @@ bool CMap::LinkIntersectMapObjDefs(C3Vector& start, C3Vector& end, C3Vector& mid
     interiorHit[1].def = nullptr;
 
     if (chunk) {
-        for (CMapBaseObjLink* link = chunk->m_mapObjDefLinkList.Head(); link; link = chunk->m_mapObjDefLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = chunk->mapObjDefLinkList.Head(); link; link = chunk->mapObjDefLinkList.Next(link)) {
             CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
 
             if (!(mapObjDef->m_flags & MAPOBJ_FLAG_DISABLED) && mapObjDef->TestAABox(start, end)) {
@@ -3828,7 +3863,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefExterior(CMapStaticEntity* entity
             continue;
         }
 
-        for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
             uint32_t groupFlags = mapObj->GetGroupFlags(group->m_groupNum);
 
@@ -3857,7 +3892,7 @@ void CMap::LinkStaticEntityMultiple2ToMapObjDefInterior(CMapStaticEntity* entity
 
     CMap::LinkObjectToMapObjDefGroup(entity, mapObjDefGroup);
 
-    for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+    for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
         if (group != mapObjDefGroup && !(mapObj->GetGroupFlags(group->m_groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE | CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) && mapObj->TestGroupBounds(box, group->m_groupNum, 1)) {
@@ -3924,8 +3959,8 @@ void CMap::LinkStaticEntity(CMapStaticEntity* entity) {
 // VERIFY: 04f6c26e manual
 // OFFSET: 0x007C3150
 void CMap::PurgeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
-    for (CMapBaseObjLink* link = mapObjDefGroup->m_doodadDefLinkList.Head(); link;) {
-        CMapBaseObjLink* next = mapObjDefGroup->m_doodadDefLinkList.Next(link);
+    for (CMapBaseObjLink* link = mapObjDefGroup->doodadDefLinkList.Head(); link;) {
+        CMapBaseObjLink* next = mapObjDefGroup->doodadDefLinkList.Next(link);
         CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
 
@@ -3936,14 +3971,14 @@ void CMap::PurgeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
         link = next;
     }
 
-    for (CMapBaseObjLink* link = mapObjDefGroup->m_entityLinkList.Head(); link;) {
-        CMapBaseObjLink* next = mapObjDefGroup->m_entityLinkList.Next(link);
+    for (CMapBaseObjLink* link = mapObjDefGroup->entityLinkList.Head(); link;) {
+        CMapBaseObjLink* next = mapObjDefGroup->entityLinkList.Next(link);
         CMap::FreeBaseObjLink(link);
         link = next;
     }
 
-    for (CMapBaseObjLink* link = mapObjDefGroup->m_lightLinkList.Head(); link;) {
-        CMapBaseObjLink* next = mapObjDefGroup->m_lightLinkList.Next(link);
+    for (CMapBaseObjLink* link = mapObjDefGroup->lightLinkList.Head(); link;) {
+        CMapBaseObjLink* next = mapObjDefGroup->lightLinkList.Next(link);
         CMap::FreeBaseObjLink(link);
         link = next;
     }
@@ -3964,8 +3999,8 @@ void CMap::PurgeMapObjDef(CMapObjDef* mapObjDef) {
         return;
     }
 
-    for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link;) {
-        CMapBaseObjLink* next = mapObjDef->m_mapObjDefGroupLinkList.Next(link);
+    for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link;) {
+        CMapBaseObjLink* next = mapObjDef->groupLinkList.Next(link);
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
         CMap::FreeBaseObjLink(link);
         CMap::PurgeMapObjDefGroup(mapObjDefGroup);
@@ -4070,7 +4105,7 @@ bool CMap::LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapO
 
         uint32_t exterior = 0;
 
-        for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
             CMapObjGroup* group = mapObj->GetGroup(defGroup->m_groupNum, 0);
 
@@ -4194,7 +4229,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
     for (CMapBaseObjLink* link = linkList->Head(); link; link = linkList->Next(link)) {
         CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
-        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || def->m_queryTag == CMap::s_queryTag || !def->m_model) {
+        if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || def->m_queryTag == CMap::s_queryTag || !def->model) {
             continue;
         }
 
@@ -4206,7 +4241,7 @@ bool CMap::GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBase
 
         if (!(def->m_flags & MAPOBJ_FLAG_PREPARED)) {
             def->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_STREAMING_LOAD_PENDING;
-            CAaBox modelBox = def->m_model->m_shared->m_boundingBox;
+            CAaBox modelBox = def->model->m_shared->m_boundingBox;
             CWorldMath::TransformAABox(def->m_mat, modelBox, bbox);
         }
 
@@ -4344,12 +4379,12 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
             memset(&facets->facetIds.m_data[first], 0, sizeof(uint64_t) * (count - first));
         }
 
-        if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&chunk->m_doodadDefLinkList, box, facets, flags)) {
+        if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&chunk->doodadDefLinkList, box, facets, flags)) {
             return false;
         }
 
         if (flags & WORLD_QUERY_OBJECT_MASK) {
-            CMap::QueryDestructibleFacets(&chunk->m_entityLinkList, box, facets, flags);
+            CMap::QueryDestructibleFacets(&chunk->entityLinkList, box, facets, flags);
         }
 
         return true;
@@ -4418,7 +4453,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
             continue;
         }
 
-        if (!owner->m_isGroupLoaded || !def->m_mapObjDefGroupLinkList.Head()) {
+        if (!owner->m_isGroupLoaded || !def->groupLinkList.Head()) {
             if (!(flags & WORLD_QUERY_UNLOADED_AS_BOUNDS) || def->m_bbox.Intersects(*queryBox)) {
                 return false;
             }
@@ -4450,7 +4485,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
             }
         }
 
-        for (CMapBaseObjLink* link = def->m_mapObjDefGroupLinkList.Head(); link; link = def->m_mapObjDefGroupLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = def->groupLinkList.Head(); link; link = def->groupLinkList.Next(link)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
 
             if (box->t.x < group->m_bbox.b.x || box->t.y < group->m_bbox.b.y || box->t.z < group->m_bbox.b.z || box->b.x > group->m_bbox.t.x || box->b.y > group->m_bbox.t.y || box->b.z > group->m_bbox.t.z) {
@@ -4458,12 +4493,12 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
             }
 
             if (owner->IsGroupLoaded(group->m_groupNum)) {
-                if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&group->m_doodadDefLinkList, box, facets, flags)) {
+                if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&group->doodadDefLinkList, box, facets, flags)) {
                     return false;
                 }
 
                 if (flags & WORLD_QUERY_OBJECT_MASK) {
-                    CMap::QueryDestructibleFacets(&group->m_entityLinkList, box, facets, flags);
+                    CMap::QueryDestructibleFacets(&group->entityLinkList, box, facets, flags);
                 }
             } else {
                 if (!(flags & WORLD_QUERY_UNLOADED_AS_BOUNDS)) {
@@ -4646,7 +4681,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         hitInfo->m_sphere = entity->m_sphere;
         hitInfo->m_labelPos = entity->m_vec2;
         hitInfo->m_labelPos.z += 0.1f;
-        model = entity->m_model;
+        model = entity->model;
     } else if (hitObject->m_type & CMapBaseObj::Type_Entity) {
         CMapStaticEntity* entity = static_cast<CMapStaticEntity*>(hitObject);
         hitInfo->m_type = World::HitTestDebug::TYPE_ENTITY;
@@ -4660,7 +4695,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
             hitInfo->m_labelPos.z = top > raised ? raised : top;
         }
 
-        model = entity->m_model;
+        model = entity->model;
     } else if (hitObject->m_type & CMapBaseObj::Type_MapObjDefGroup) {
         CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(hitObject);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->m_ref);
@@ -4818,11 +4853,11 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
         }
 
         if (modelFlags) {
-            CMap::VectorIntersectDoodadDefs(&group->m_doodadDefLinkList, flags);
+            CMap::VectorIntersectDoodadDefs(&group->doodadDefLinkList, flags);
         }
 
         if (flags & WORLD_QUERY_ENTITY_MASK) {
-            CMap::VectorIntersectEntitys(&group->m_entityLinkList, flags);
+            CMap::VectorIntersectEntitys(&group->entityLinkList, flags);
         }
     }
 
@@ -5126,14 +5161,14 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     if (flags & WORLD_QUERY_M2_MASK) {
         CAaBox box = CAaBox::Bounding(frustum->corners, 8);
 
-        for (CMapBaseObjLink* link = chunk->m_doodadDefLinkList.Head(); link; link = chunk->m_doodadDefLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = chunk->doodadDefLinkList.Head(); link; link = chunk->doodadDefLinkList.Next(link)) {
             CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->m_owner);
 
             if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(def->m_flags & MAPOBJ_FLAG_PREPARED) || def->m_queryTag == CMap::s_queryTag) {
                 continue;
             }
 
-            CM2Model* model = def->m_model;
+            CM2Model* model = def->model;
 
             if (model && box.Intersects(def->m_collideExt)) {
                 model->GetCollisionFacets(box, def->m_mat, facets->facets);
@@ -5407,7 +5442,7 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
             continue;
         }
 
-        CM2Model* model = doodadDef->m_model;
+        CM2Model* model = doodadDef->model;
 
         if (!model) {
             continue;
@@ -5445,7 +5480,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
     if (chunk) {
         float hitT = 1.0f;
 
-        for (CMapBaseObjLink* link = chunk->m_mapObjDefLinkList.Head(); link; link = chunk->m_mapObjDefLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = chunk->mapObjDefLinkList.Head(); link; link = chunk->mapObjDefLinkList.Next(link)) {
             CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
 
             if (mapObjDef->m_flags & (MAPOBJ_FLAG_NO_HITTEST | MAPOBJ_FLAG_NO_DEPTH_SORT)) {
@@ -5477,11 +5512,11 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
                 }
             }
 
-            for (CMapBaseObjLink* groupLink = mapObjDef->m_mapObjDefGroupLinkList.Head(); groupLink; groupLink = mapObjDef->m_mapObjDefGroupLinkList.Next(groupLink)) {
+            for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
                 CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(groupLink->m_owner);
 
                 if (start.x <= group->m_bbox.t.x && start.x >= group->m_bbox.b.x && start.y <= group->m_bbox.t.y && start.y >= group->m_bbox.b.y && end.z <= group->m_bbox.t.z && start.z >= group->m_bbox.b.z) {
-                    CMap::QueryDoodadDefHitTests(&group->m_doodadDefLinkList, start, end);
+                    CMap::QueryDoodadDefHitTests(&group->doodadDefLinkList, start, end);
                 }
             }
         }
@@ -5523,11 +5558,11 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
             }
         }
 
-        for (CMapBaseObjLink* groupLink = mapObjDef->m_mapObjDefGroupLinkList.Head(); groupLink; groupLink = mapObjDef->m_mapObjDefGroupLinkList.Next(groupLink)) {
+        for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(groupLink->m_owner);
 
             if (start.x <= group->m_bbox.t.x && start.x >= group->m_bbox.b.x && start.y <= group->m_bbox.t.y && start.y >= group->m_bbox.b.y && end.z <= group->m_bbox.t.z && start.z >= group->m_bbox.b.z) {
-                CMap::QueryDoodadDefHitTests(&group->m_doodadDefLinkList, start, end);
+                CMap::QueryDoodadDefHitTests(&group->doodadDefLinkList, start, end);
             }
         }
     }
@@ -5577,7 +5612,7 @@ bool CMap::QueryHeight(const C3Vector& position, float range, float* height) {
     CMap::VectorIntersectMapObjs(chunk, top, bottom, &t);
 
     if (chunk) {
-        CMap::QueryDoodadDefHitTests(&chunk->m_doodadDefLinkList, top, bottom);
+        CMap::QueryDoodadDefHitTests(&chunk->doodadDefLinkList, top, bottom);
     }
 
     World::s_m2Scene->EndHitTestCollisionWorld(top, bottom, t);
@@ -5797,7 +5832,7 @@ void CMap::SnapBaseObjToSubChunk(CMapBaseObj* baseObj, const C3Vector* position,
     if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
         static_cast<CMapObjDef*>(baseObj)->m_owner->GetBounds(&bounds);
     } else {
-        bounds = static_cast<CMapStaticEntity*>(baseObj)->m_model->GetBoundingBox();
+        bounds = static_cast<CMapStaticEntity*>(baseObj)->model->GetBoundingBox();
     }
 
     float centerX = (bounds.t.x + bounds.b.x) * 0.5f;
@@ -6163,16 +6198,16 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
 
         CMapObj* mapObj = mapObjDef->m_owner;
 
-        for (CMapBaseObjLink* link = mapObjDef->m_mapObjDefGroupLinkList.Head(); link; link = mapObjDef->m_mapObjDefGroupLinkList.Next(link)) {
+        for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
 
             if (!mapObj->IsGroupLoaded(defGroup->m_groupNum) || !defGroup->m_bbox.Intersects(box)) {
                 continue;
             }
 
-            for (CMapBaseObjLink* doodadLink = defGroup->m_doodadDefLinkList.Head(); doodadLink; doodadLink = defGroup->m_doodadDefLinkList.Next(doodadLink)) {
+            for (CMapBaseObjLink* doodadLink = defGroup->doodadDefLinkList.Head(); doodadLink; doodadLink = defGroup->doodadDefLinkList.Next(doodadLink)) {
                 CMapStaticEntity* doodadDef = static_cast<CMapStaticEntity*>(doodadLink->m_owner);
-                CM2Model* model = doodadDef->m_model;
+                CM2Model* model = doodadDef->model;
 
                 if (!model) {
                     continue;
@@ -6211,7 +6246,7 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
 // VERIFY: d3ebe146 manual
 // OFFSET: 0x007B5740
 void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
-    CM2Model* model = doodadDef->m_model;
+    CM2Model* model = doodadDef->model;
     doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_UNPLACED);
 
     if (model) {
@@ -6219,7 +6254,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
             doodadDef->UpdateBounds();
             doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_PREPARED);
         } else {
-            doodadDef->m_bbox = doodadDef->m_model->m_shared->m_boundingBox;
+            doodadDef->m_bbox = doodadDef->model->m_shared->m_boundingBox;
             doodadDef->m_bbox.b.x = doodadDef->m_position.x + doodadDef->m_bbox.b.x;
             doodadDef->m_bbox.b.y = doodadDef->m_bbox.b.y + doodadDef->m_position.y;
             doodadDef->m_bbox.b.z = doodadDef->m_position.z + doodadDef->m_bbox.b.z;
@@ -6233,7 +6268,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
             doodadDef->m_sphere.r = sqrtf(dx * dx + (dy * dy + dz * dz));
         }
 
-        CM2Model* current = doodadDef->m_model;
+        CM2Model* current = doodadDef->model;
         current->SetWorldTransform(doodadDef->m_mat);
     }
 

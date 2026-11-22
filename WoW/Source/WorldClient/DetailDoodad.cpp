@@ -780,7 +780,7 @@ int32_t CDetailDoodad::LoadModel(uint32_t id) {
 // OFFSET: 0x007B3560
 void CDetailDoodadInst::Free() {
     if (this->m_chunk) {
-        this->m_chunk->m_detailDoodadInst = nullptr;
+        this->m_chunk->detailDoodadInst = nullptr;
         this->m_chunk = nullptr;
     }
 

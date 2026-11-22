@@ -59,7 +59,7 @@ class CMapArea : public CMapBaseObj {
     /* 0068 */ SMAreaHeader* m_header;
     /* 006C */ SFileImpl* adtFile;
     /* 0070 */ CAsyncObject* asyncObject;
-    /* 0074 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_chunkLinkList;
+    /* 0074 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > chunkLinkList;
     /* 0080 */ void* rawAreaData;
     /* 0084 */ int32_t rawAreaDataSize;
     /* 0088 */ SMChunkInfo* m_chunkInfo;

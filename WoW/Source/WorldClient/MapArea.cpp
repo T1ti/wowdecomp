@@ -53,9 +53,9 @@ void CMapArea::Purge() {
         this->adtFile = nullptr;
     }
 
-    for (CMapBaseObjLink* link = this->m_chunkLinkList.Head(); link;) {
+    for (CMapBaseObjLink* link = this->chunkLinkList.Head(); link;) {
         CMapChunk* chunk = static_cast<CMapChunk*>(link->m_owner);
-        CMapBaseObjLink* next = this->m_chunkLinkList.Next(link);
+        CMapBaseObjLink* next = this->chunkLinkList.Next(link);
         this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
         this->m_chunkInfo[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x].m_flags = 0;
         CMap::FreeBaseObjLink(link);
@@ -229,7 +229,7 @@ CMapChunk* CMapArea::PrepareChunk(int32_t x, int32_t y) {
     CMapChunk* chunk = CMap::AllocMapChunk();
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(chunk);
     link->m_ref = this;
-    this->m_chunkLinkList.LinkToTail(link);
+    this->chunkLinkList.LinkToTail(link);
 
     chunk->m_aIndex.x = x;
     chunk->m_flags = MAPOBJ_FLAG_NONE;
@@ -367,7 +367,7 @@ CMapArea::CMapArea() {
     this->m_index.y = 0;
     this->m_tileChunkIndex.x = 0;
     this->m_tileChunkIndex.y = 0;
-    this->m_chunkLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
+    this->chunkLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->adtFile = nullptr;
     this->asyncObject = nullptr;
     memset(this->m_mapChunks, 0, sizeof(this->m_mapChunks));
