@@ -17,8 +17,8 @@ enum SCREENRECT_CLAMP_FLAGS : uint32_t {
     SRECTCLAMP_RIGHT = 2,
     SRECTCLAMP_TOP = 4,
     SRECTCLAMP_BOTTOM = 8,
-    SRECTCLAMP_HORIZONTAL = 3,
-    SRECTCLAMP_VERTICAL = 12,
+    HORZ_FLAGS = 3,
+    VERT_FLAGS = 12,
 };
 
 struct BFSNODE : public TSLinkedNode<BFSNODE> {
@@ -39,7 +39,7 @@ static const float BOTTOMBORDER = 0.01875f;
 static const float LEFTBORDER = 0.0f;
 
 // STATIC: 0x00A23C08
-static TEST_DIRECTION s_searchDirections[9][NUM_TESTDIRECTIONS] = {
+static TEST_DIRECTION s_testDirections[9][NUM_TESTDIRECTIONS] = {
     { TEST_UP, TEST_RIGHT, TEST_DOWN, TEST_LEFT },
     { TEST_LEFT, TEST_UP, TEST_RIGHT, TEST_UP },
     { TEST_LEFT, TEST_DOWN, TEST_RIGHT, TEST_DOWN },
@@ -52,7 +52,7 @@ static TEST_DIRECTION s_searchDirections[9][NUM_TESTDIRECTIONS] = {
 };
 
 // STATIC: 0x00A23C98
-static CRect (*s_moveFunctions[NUM_TESTDIRECTIONS])(SCREENRECTGRIDS grid, CRect rect) = {
+static CRect (*s_testFunctions[NUM_TESTDIRECTIONS])(SCREENRECTGRIDS grid, CRect rect) = {
     SmartScreenRectMoveUp,
     SmartScreenRectMoveLeft,
     SmartScreenRectMoveRight,
@@ -82,70 +82,85 @@ inline BFSNODE::BFSNODE() {
 
 // VERIFY: f32025e7 auto
 // OFFSET: 0x00615050
-static uint32_t SmartScreenRectClampToScreen(CRect* out, CRect rect, int32_t testOnly) {
+static uint32_t RectOutsideBorder(CRect* clippedRect, CRect rect, int32_t testOnly) {
     float screenWidth = NDCToDDCWidth(1.0f);
     float top = NDCToDDCHeight(1.0f) - TOPBORDER;
 
-    static float s_screenWidth = screenWidth;
-    static float s_bottom = top - BOTTOMBORDER;
+    static float VIEWABLE_WIDTH = screenWidth;
+    static float VIEWABLE_HEIGHT = top - BOTTOMBORDER;
 
-    uint32_t flags = SRECTCLAMP_NONE;
+    uint32_t hitFlags = SRECTCLAMP_NONE;
     float width = rect.maxX - rect.minX;
     float height = rect.minY - rect.maxY;
+    STORM_ASSERT(rect.minY >= rect.maxY);  // 12213: "rect.t >= rect.b"
+    STORM_ASSERT(rect.maxX >= rect.minX);  // 12213: "rect.r >= rect.l"
+    STORM_ASSERT(VIEWABLE_WIDTH > width);
+    STORM_ASSERT(VIEWABLE_HEIGHT > height);
 
     if (rect.minX < LEFTBORDER) {
-        flags = SRECTCLAMP_LEFT;
+        hitFlags = SRECTCLAMP_LEFT;
     }
 
     if (screenWidth < rect.maxX) {
-        flags |= SRECTCLAMP_RIGHT;
+        hitFlags |= SRECTCLAMP_RIGHT;
     }
 
     if (rect.maxY < BOTTOMBORDER) {
-        flags |= SRECTCLAMP_BOTTOM;
+        hitFlags |= SRECTCLAMP_BOTTOM;
     }
 
     if (rect.minY > top) {
-        flags |= SRECTCLAMP_TOP;
+        hitFlags |= SRECTCLAMP_TOP;
     }
 
     if (testOnly) {
-        return flags;
+        return hitFlags;
     }
 
-    if (!flags) {
-        *out = rect;
+    STORM_ASSERT(clippedRect);
+
+    if (!hitFlags) {
+        *clippedRect = rect;
         return 0;
     }
 
-    if (flags & SRECTCLAMP_VERTICAL) {
-        if (flags & SRECTCLAMP_TOP) {
+    STORM_ASSERT((hitFlags & VERT_FLAGS) != VERT_FLAGS);
+    STORM_ASSERT((hitFlags & HORZ_FLAGS) != HORZ_FLAGS);
+
+    if (hitFlags & VERT_FLAGS) {
+        if (hitFlags & SRECTCLAMP_TOP) {
             rect.minY = top;
             rect.maxY = top - height;
-        } else if (flags & SRECTCLAMP_BOTTOM) {
+        } else if (hitFlags & SRECTCLAMP_BOTTOM) {
             rect.maxY = BOTTOMBORDER;
             rect.minY = height + BOTTOMBORDER;
         }
     }
 
-    if (flags & SRECTCLAMP_HORIZONTAL) {
-        if (flags & SRECTCLAMP_LEFT) {
+    if (hitFlags & HORZ_FLAGS) {
+        if (hitFlags & SRECTCLAMP_LEFT) {
             rect.minX = LEFTBORDER;
             rect.maxX = width;
-        } else if (flags & SRECTCLAMP_RIGHT) {
+        } else if (hitFlags & SRECTCLAMP_RIGHT) {
             rect.maxX = screenWidth;
             rect.minX = screenWidth - width;
         }
     }
 
-    *out = rect;
+    // 12213: "!RectOutsideBorder( rect, clippedRect, 1 )"
+    STORM_ASSERT(!RectOutsideBorder(clippedRect, rect, 1));
 
-    return flags;
+    *clippedRect = rect;
+
+    return hitFlags;
 }
 
 // VERIFY: 986986ac manual
 // OFFSET: 0x006151C0
 static uint32_t SmartScreenRectGridPos(const CRect& rect) {
+    STORM_ASSERT(rect.minY > rect.maxY);  // 12213: "rect.t > rect.b"
+    STORM_ASSERT(rect.maxX > rect.minX);  // 12213: "rect.r > rect.l"
+
     float screenWidth = NDCToDDCWidth(1.0f);
     float screenHeight = NDCToDDCHeight(1.0f);
 
@@ -160,6 +175,8 @@ static uint32_t SmartScreenRectGridPos(const CRect& rect) {
 static void SmartScreenRectClipRect(CRect& rect) {
     float height = rect.minY - rect.maxY;
     float width = rect.maxX - rect.minX;
+    STORM_ASSERT(height >= 0);
+    STORM_ASSERT(width >= 0);
     float screenWidth = NDCToDDCWidth(1.0f);
     float screenHeight = NDCToDDCHeight(1.0f);
 
@@ -186,31 +203,35 @@ static void SmartScreenRectClipRect(CRect& rect) {
 
 // VERIFY: d59ec448 manual
 // OFFSET: 0x00615380
-static int32_t SmartScreenRectFindOverlap(SCREENRECTGRIDS grid, const CRect& rect, uint32_t direction, float* distance) {
+static int32_t SmartScreenRectFindOverlap(SCREENRECTGRIDS grid, const CRect& rect, uint32_t direction, float* offset) {
+    STORM_ASSERT(offset);
+    STORM_ASSERT((rect.minY >= rect.maxY) && (rect.maxX >= rect.minX));  // 12213: "( rect.t >= rect.b ) && ( rect.r >= rect.l )"
+
     TSGrowableArray<CRect>& rects = s_grids[grid];
 
     for (uint32_t i = 0; i < rects.Count(); i++) {
-        const CRect& other = rects.m_data[i];
+        const CRect& ptr = rects.m_data[i];
+        STORM_ASSERT((ptr.minY >= ptr.maxY) && (ptr.maxX >= ptr.minX));  // 12213: "( ptr->t >= ptr->b ) && ( ptr->r >= ptr->l )"
 
-        if (!(other.minX < rect.maxX && other.maxX > rect.minX && other.maxY < rect.minY && other.minY > rect.maxY)) {
+        if (!(ptr.minX < rect.maxX && ptr.maxX > rect.minX && ptr.maxY < rect.minY && ptr.minY > rect.maxY)) {
             continue;
         }
 
         switch (direction) {
             case TEST_UP:
-                *distance = other.minY - rect.maxY;
+                *offset = ptr.minY - rect.maxY;
                 return 1;
 
             case TEST_LEFT:
-                *distance = rect.maxX - other.minX;
+                *offset = rect.maxX - ptr.minX;
                 return 1;
 
             case TEST_RIGHT:
-                *distance = other.maxX - rect.minX;
+                *offset = ptr.maxX - rect.minX;
                 return 1;
 
             case TEST_DOWN:
-                *distance = rect.minY - other.maxY;
+                *offset = rect.minY - ptr.maxY;
                 return 1;
         }
     }
@@ -318,20 +339,23 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
     result.maxY = 0.0f;
     result.maxX = 0.0f;
 
-    uint32_t flags = SmartScreenRectClampToScreen(&result, rect, 0);
-    int32_t start;
+    uint32_t hitFlags = RectOutsideBorder(&result, rect, 0);
+    STORM_ASSERT((hitFlags & VERT_FLAGS) != VERT_FLAGS);
+    STORM_ASSERT((hitFlags & HORZ_FLAGS) != HORZ_FLAGS);
+    int32_t currentSearchPattern;
 
-    if (flags & SRECTCLAMP_LEFT) {
-        start = (flags & SRECTCLAMP_TOP) ? 8 : ((flags & SRECTCLAMP_BOTTOM) | 0x10) >> 2;
-    } else if (flags & SRECTCLAMP_TOP) {
-        start = (flags & SRECTCLAMP_RIGHT) ? 7 : 2;
-    } else if (flags & SRECTCLAMP_RIGHT) {
-        start = (flags & SRECTCLAMP_BOTTOM) ? 5 : 3;
+    if (hitFlags & SRECTCLAMP_LEFT) {
+        currentSearchPattern = (hitFlags & SRECTCLAMP_TOP) ? 8 : ((hitFlags & SRECTCLAMP_BOTTOM) | 0x10) >> 2;
+    } else if (hitFlags & SRECTCLAMP_TOP) {
+        currentSearchPattern = (hitFlags & SRECTCLAMP_RIGHT) ? 7 : 2;
+    } else if (hitFlags & SRECTCLAMP_RIGHT) {
+        currentSearchPattern = (hitFlags & SRECTCLAMP_BOTTOM) ? 5 : 3;
     } else {
-        start = (flags >> 3) & 1;
+        currentSearchPattern = (hitFlags >> 3) & 1;
     }
 
     BFSNODE* root = SmartScreenRectAllocNode();
+    STORM_ASSERT(root);  // 12213: "node"
     root->m_rect = result;
 
     uint32_t maxSteps = SmartScreenRectGridPos(rect);
@@ -344,21 +368,25 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
         }
 
         for (uint32_t i = 0; i < NUM_TESTDIRECTIONS; i++) {
-            if (node->m_dontTestDirection != TEST_INVALID && node->m_dontTestDirection == s_searchDirections[start][i]) {
+            if (node->m_dontTestDirection != TEST_INVALID && node->m_dontTestDirection == s_testDirections[currentSearchPattern][i]) {
                 continue;
             }
 
-            if (SmartScreenRectClampToScreen(nullptr, node->m_rect, 1)) {
+            if (RectOutsideBorder(nullptr, node->m_rect, 1)) {
                 continue;
             }
 
-            TEST_DIRECTION direction = s_searchDirections[start][i];
+            TEST_DIRECTION direction = s_testDirections[currentSearchPattern][i];
 
             if (direction == TEST_INVALID) {
                 continue;
             }
 
-            CRect moved = s_moveFunctions[direction](grid, node->m_rect);
+            STORM_ASSERT(s_testDirections[currentSearchPattern][i] < NUM_TESTDIRECTIONS);
+            // 12213: "s_testFunctions[s_testDirections[currentSearchPattern][i]].function"
+            STORM_ASSERT(s_testFunctions[s_testDirections[currentSearchPattern][i]]);
+
+            CRect moved = s_testFunctions[direction](grid, node->m_rect);
 
             if (node->m_rect.minY == moved.minY && node->m_rect.minX == moved.minX && node->m_rect.maxY == moved.maxY && node->m_rect.maxX == moved.maxX) {
                 result = moved;
@@ -382,10 +410,12 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
 
 // VERIFY: 392e628c auto
 // OFFSET: 0x00615C50
-static C2Vector SmartScreenRectFindPosition(SCREENRECTGRIDS grid, const CRect& rect, int32_t* changed) {
+static C2Vector SmartScreenRectFindPosition(SCREENRECTGRIDS grid, const CRect& rect, int32_t* repositioned) {
+    STORM_ASSERT(repositioned);
+
     CRect found = SmartScreenRectFindFreeRect(grid, rect);
 
-    *changed = found.minY != rect.minY || found.minX != rect.minX || found.maxY != rect.maxY || found.maxX != rect.maxX;
+    *repositioned = found.minY != rect.minY || found.minX != rect.minX || found.maxY != rect.maxY || found.maxX != rect.maxX;
 
     C2Vector position;
     position.x = (found.maxX + found.minX) * 0.5f;
