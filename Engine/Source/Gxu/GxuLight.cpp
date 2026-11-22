@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include "Engine/Source/Gxu/GxuLight.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
+#include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/CMath.h"
 
@@ -223,8 +224,7 @@ static void GxuLightApplyImpl(float x, float y, int32_t unused, const C3Vector& 
     uint32_t index = 0;
 
     for (CGxuLightLink* link = s_globalLights.m_links.Head(); link; link = s_globalLights.m_links.Next(link)) {
-        g_theGxDevicePtr->LightSet(index, link->m_light->m_light, viewPos);
-        g_theGxDevicePtr->LightEnable(index, 1);
+        GxLightSet(index, link->m_light->m_light, viewPos, 1);
         link->m_light->m_frame = s_frame;
         link->m_light->m_index = index;
         index++;
@@ -232,8 +232,7 @@ static void GxuLightApplyImpl(float x, float y, int32_t unused, const C3Vector& 
 
     if (list) {
         for (CGxuLightLink* link = list->m_links.Head(); link && index < maxLights; link = list->m_links.Next(link)) {
-            g_theGxDevicePtr->LightSet(index, link->m_light->m_light, viewPos);
-            g_theGxDevicePtr->LightEnable(index, 1);
+            GxLightSet(index, link->m_light->m_light, viewPos, 1);
             link->m_light->m_frame = s_frame;
             link->m_light->m_index = index;
             index++;
@@ -241,7 +240,7 @@ static void GxuLightApplyImpl(float x, float y, int32_t unused, const C3Vector& 
     }
 
     for (; index != 4; index++) {
-        g_theGxDevicePtr->LightEnable(index, 0);
+        GxLightEnable(index, 0);
     }
 
     s_dirty = 0;

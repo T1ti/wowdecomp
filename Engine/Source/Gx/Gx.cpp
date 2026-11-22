@@ -275,12 +275,14 @@ void GxShaderConstantsSet(EGxShTarget target, uint32_t index, const float* const
 // VERIFY: 2d7b5b76 manual
 // OFFSET: 0x004829D0
 char* GxBufLock(CGxBuf* buf) {
+    STORM_ASSERT(buf);
     return g_theGxDevicePtr->BufLock(buf);
 }
 
 // VERIFY: d2aedfb6 manual
 // OFFSET: 0x004829F0
 void GxBufUnlock(CGxBuf* buf, uint32_t size) {
+    STORM_ASSERT(buf);
     g_theGxDevicePtr->BufUnlock(buf, size);
     buf->m_hasData = 1;
 }
@@ -288,6 +290,7 @@ void GxBufUnlock(CGxBuf* buf, uint32_t size) {
 // VERIFY: 13b86081 manual
 // OFFSET: 0x00482A40
 void GxDraw(CGxBatch* batch, int32_t count) {
+    STORM_ASSERT(batch->m_count > 0);
     g_theGxDevicePtr->Draw(batch, count);
 }
 
@@ -353,12 +356,14 @@ int32_t GxIsWindowVisible() {
 // VERIFY: 4ed7a557 auto
 // OFFSET: 0x00616AF0
 int32_t GxMasterEnable(EGxMasterEnables state) {
+    STORM_ASSERT(state < GxMasterEnables_Last);
     return g_theGxDevicePtr->MasterEnable(state);
 }
 
 // VERIFY: cdcd566a auto
 // OFFSET: 0x00401260
 void GxMasterEnableSet(EGxMasterEnables state, BOOL enable) {
+    STORM_ASSERT(state < GxMasterEnables_Last);
     g_theGxDevicePtr->MasterEnableSet(state, enable);
 }
 
@@ -813,12 +818,15 @@ void GxPrimLockVertexPtrs(uint32_t vertexCount, const C3Vector* pos, uint32_t po
 // VERIFY: 5e637469 auto
 // OFFSET: 0x00408240
 void GxRsSet(EGxRenderState which, void* value) {
+    STORM_ASSERT(which < GxRenderStates_Last);
     g_theGxDevicePtr->RsSet(which, value);
 }
 
 // VERIFY: 194fac0e auto
 // OFFSET: 0x00408BF0
 void GxRsSet(EGxRenderState which, int32_t value) {
+    STORM_ASSERT(which < GxRenderStates_Last);
+
     if (!g_theGxDevicePtr->m_context) {
         return;
     }
@@ -850,6 +858,8 @@ void GxUpdateAlphaRef(EGxRenderState which) {
 // VERIFY: 3f036f15 auto
 // OFFSET: 0x00763C70
 void GxRsSet(EGxRenderState which, float value) {
+    STORM_ASSERT(which < GxRenderStates_Last);
+
     if (!g_theGxDevicePtr->m_context) {
         return;
     }
@@ -937,8 +947,23 @@ void GxFormatColor(CImVector& color) {
 // VERIFY: 25db0bac manual
 // OFFSET: 0x0057E4F0
 void GxRenderTargetSet(EGxBuffer buffer, CGxTex* texture, uint32_t plane) {
+    STORM_ASSERT(texture ? texture->m_flags.m_renderTarget : 1);
     GxRsSet(GxRs_ScissorTest, 0);
     g_theGxDevicePtr->DeviceSetRenderTarget(buffer, texture, plane);
+}
+
+// INLINED
+void GxLightSet(uint32_t whichLight, const CGxLight& lightInfo, const C3Vector& pos, BOOL enable) {
+    STORM_ASSERT(whichLight < 4);
+    STORM_ASSERT(lightInfo.m_flags & CGxLight::F_ENABLED);
+    g_theGxDevicePtr->LightSet(whichLight, lightInfo, pos);
+    g_theGxDevicePtr->LightEnable(whichLight, enable);
+}
+
+// INLINED
+void GxLightEnable(uint32_t whichLight, BOOL enable) {
+    STORM_ASSERT(whichLight < 4);
+    g_theGxDevicePtr->LightEnable(whichLight, enable);
 }
 
 // VERIFY: 9ee00156 manual
