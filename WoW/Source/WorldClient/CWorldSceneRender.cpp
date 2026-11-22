@@ -84,7 +84,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CWorldScene::s_unused_CD8624 = 0;
     CWorldScene::frustumStack[CWorldScene::frustumIndex].CalcPlanesFromCorners(CWorldScene::s_frustumCorners);
     CWorldScene::s_occlusionFarDepth = World::s_farClip - 33.333332f;
-    CWorldScene::s_hasPendingExteriorGroups = CWorldScene::sortTable.m_pendingExteriorGroupList.Head() != nullptr;
+    CWorldScene::s_hasPendingExteriorGroups = CWorldScene::sortTable.moveableMapObjDefGroupList.Head() != nullptr;
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
     CWorldScene::s_fogFovPadding = CWorld::farFog / cosf(camera->FOV() * 0.5f) - CWorld::farFog;
@@ -151,7 +151,21 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
 
     CWorldScene::CullMapObjDefGroup();
     CWorldScene::UpdateSortedModels();
-    CWorldScene::sortTable.m_pendingExteriorGroupList.UnlinkAll();
+
+    for (uint32_t i = 0; i < 64; i++) {
+        CSortEntry& sortEntry = CWorldScene::sortTable.m_table[i];
+        STORM_ASSERT(sortEntry.chunkList.Head() == NULL);
+        STORM_ASSERT(sortEntry.liquidList.Head() == NULL);
+        STORM_ASSERT(sortEntry.mapObjDefGroupList.Head() == NULL);
+        STORM_ASSERT(sortEntry.doodadDefList.Head() == NULL);
+        STORM_ASSERT(sortEntry.entityList.Head() == NULL);
+        STORM_ASSERT(sortEntry.chunkOcclusionList.Head() == NULL);
+        STORM_ASSERT(sortEntry.occluderList.Head() == NULL);
+        STORM_ASSERT(sortEntry.antiOccluderList.Head() == NULL);
+        STORM_ASSERT(sortEntry.portalList.Head() == NULL);
+    }
+
+    CWorldScene::sortTable.moveableMapObjDefGroupList.UnlinkAll();
 
     DayNight::DNInfo* info = DayNight::GetInfo();
     CImVector clearColor;

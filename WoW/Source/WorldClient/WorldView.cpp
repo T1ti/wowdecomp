@@ -111,7 +111,7 @@ void CWorldView::AddOccluder(const C3Vector& a, const C3Vector& b) {
                 CWorldOccluder* piece = CWorldOccluder::Alloc();
                 piece->m_points[0] = nearPoint;
                 piece->m_points[1] = point;
-                CWorldScene::sortTable.m_table[i].m_occluderList.LinkToTail(piece);
+                CWorldScene::sortTable.m_table[i].occluderList.LinkToTail(piece);
                 nearPoint = point;
             }
 
@@ -123,5 +123,5 @@ void CWorldView::AddOccluder(const C3Vector& a, const C3Vector& b) {
         bucket = first;
     }
 
-    CWorldScene::sortTable.m_table[bucket].m_occluderList.LinkToTail(occluder);
+    CWorldScene::sortTable.m_table[bucket].occluderList.LinkToTail(occluder);
 }

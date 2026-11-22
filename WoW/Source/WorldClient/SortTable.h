@@ -12,24 +12,24 @@
 
 class CDetailDoodadInst;
 
-// The terrain render list CWorldScene::RenderChunksZoneDebug draws (debugZones); lists 0..19 are
-// 4 * layer count + shader variant, filled by CWorldScene::CullChunks.
-static const uint32_t ZONE_DEBUG_RENDER_LIST = 20;
+// The visRenderChunkList row CWorldScene::RenderChunksZoneDebug draws (debugZones); rows 0..4 are
+// the layer count and columns the shader variant, filled by CWorldScene::CullChunks.
+static const uint32_t ZONE_DEBUG_RENDER_LIST = 5;
 
 class CSortTable {
     public:
     /* 0000 */ CSortEntry m_table [64];
     /* 1B00 */ C4Vector m_bucketPlanes [64];
-    /* 1F00 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > m_pendingExteriorGroupList;
-    /* 1F0C */ TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > m_detailDoodadInstList;
-    /* 1F18 */ TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> m_renderChunkList [24];
-    /* 2038 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > m_mapObjDefGroup;
-    /* 2044 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > m_interiorLiquidGroupList;
-    /* 2050 */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > m_visibleEntityList;
-    /* 205C */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > m_culledEntityList;
-    /* 2068 */ TSList<CWorldOccluder, TSGetExplicitLink<CWorldOccluder> > m_visibleOccluderList;
-    /* 2074 */ TSList<CMapAreaLow, TSGetExplicitLink<CMapAreaLow> > m_horizonChunkList;
-    /* 2080 */ TSList<CMapObjDef, TSGetExplicitLink<CMapObjDef> > m_horizonMapObjList;
+    /* 1F00 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > moveableMapObjDefGroupList;
+    /* 1F0C */ TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > visDetailDoodadList;
+    /* 1F18 */ TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> visRenderChunkList [6][4];
+    /* 2038 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > visMapObjDefGroupList;
+    /* 2044 */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > visMapObjDefGroupLiquidList;
+    /* 2050 */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > visEntityList;
+    /* 205C */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > nonVisEntityList;
+    /* 2068 */ TSList<CWorldOccluder, TSGetExplicitLink<CWorldOccluder> > visOccluderList;
+    /* 2074 */ TSList<CMapAreaLow, TSGetExplicitLink<CMapAreaLow> > visLowDetailAreaList;
+    /* 2080 */ TSList<CMapObjDef, TSGetExplicitLink<CMapObjDef> > visLowDetailMapObjDefList;
 
     CSortTable();
     void Clear();

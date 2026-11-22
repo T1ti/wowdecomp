@@ -131,15 +131,15 @@ struct SMOFog;
 
 class CSortEntry {
     public:
-    /* 0000 */ TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > m_mapChunkList;
-    /* 000C */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > m_exteriorGroupList;
-    /* 0018 */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > m_entityList;
-    /* 0024 */ TSList<CMapDoodadDef, TSGetExplicitLink<CMapDoodadDef> > m_doodadDefList;
-    /* 0030 */ TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > m_liquidList;
-    /* 003C */ TSList<CWorldOccluder, TSGetExplicitLink<CWorldOccluder> > m_occluderList;
-    /* 0048 */ TSList<CWorldAntiOccluder, TSGetExplicitLink<CWorldAntiOccluder> > m_antiOccluderList;
-    /* 0054 */ TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > m_holedChunkList;
-    /* 0060 */ TSList<void> m_unkList9;
+    /* 0000 */ TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > chunkList;
+    /* 000C */ TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > mapObjDefGroupList;
+    /* 0018 */ TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > entityList;
+    /* 0024 */ TSList<CMapDoodadDef, TSGetExplicitLink<CMapDoodadDef> > doodadDefList;
+    /* 0030 */ TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > liquidList;
+    /* 003C */ TSList<CWorldOccluder, TSGetExplicitLink<CWorldOccluder> > occluderList;
+    /* 0048 */ TSList<CWorldAntiOccluder, TSGetExplicitLink<CWorldAntiOccluder> > antiOccluderList;
+    /* 0054 */ TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > chunkOcclusionList;
+    /* 0060 */ TSList<void> portalList;
 
     CSortEntry();
 };

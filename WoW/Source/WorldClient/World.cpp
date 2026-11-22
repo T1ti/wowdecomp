@@ -1882,6 +1882,7 @@ int32_t CWorldScene::FrustumCull(CAaBox* box) {
 // VERIFY: 7ebc59b0 auto
 // OFFSET: 0x0078FB50
 void CWorldScene::FrustumPop() {
+    STORM_ASSERT(frustumIndex > 0);
     CWorldScene::frustumIndex--;
 }
 
@@ -2145,6 +2146,7 @@ bool World::NDCXform(CFrustum* frustum, C44Matrix* out, bool includeTranslation)
 // VERIFY: 4c456906 auto
 // OFFSET: 0x00791950
 void CWorldScene::FrustumPush() {
+    STORM_ASSERT(frustumIndex < (32 - 1));
     CWorldScene::frustumIndex++;
     static_cast<CFrustum&>(CWorldScene::frustumStack[CWorldScene::frustumIndex]) = CWorldScene::frustumStack[CWorldScene::frustumIndex - 1];
 }
@@ -2175,10 +2177,13 @@ void CWorldScene::CullHorizon(CRect* rect) {
         corners[i].z = corners[i].z + CWorldScene::s_activeWorldView.z;
     }
 
+    STORM_ASSERT(frustumIndex < (32 - 1));
+
     CWorldScene::frustumIndex++;
     CWorldScene::frustumStack[CWorldScene::frustumIndex] = CWorldScene::frustumStack[CWorldScene::frustumIndex - 1];
     CWorldScene::FrustumSet(corners, *rect);
     CMap::s_lowDetail.CullHorizonAreas(&CWorldScene::s_activeWorldView);
+    STORM_ASSERT(frustumIndex > 0);
     CWorldScene::frustumIndex--;
 
     g_theGxDevicePtr->XformSetProjection(savedProjection);
@@ -2248,7 +2253,7 @@ void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapO
     }
 
     if (mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) {
-        CWorldScene::sortTable.m_pendingExteriorGroupList.LinkToTail(mapObjDefGroup);
+        CWorldScene::sortTable.moveableMapObjDefGroupList.LinkToTail(mapObjDefGroup);
         return;
     }
 
@@ -2267,16 +2272,16 @@ void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapO
         }
     }
 
-    CWorldScene::sortTable.m_table[bucket].m_exteriorGroupList.LinkToTail(mapObjDefGroup);
+    CWorldScene::sortTable.m_table[bucket].mapObjDefGroupList.LinkToTail(mapObjDefGroup);
 }
 
 // VERIFY: 0086281a manual
 // OFFSET: 0x00792BD0
 void CWorldScene::ComputeExteriorSortDistances() {
-    CMapObjDefGroup* group = CWorldScene::sortTable.m_pendingExteriorGroupList.Head();
+    CMapObjDefGroup* group = CWorldScene::sortTable.moveableMapObjDefGroupList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = CWorldScene::sortTable.m_pendingExteriorGroupList.Next(group);
+        CMapObjDefGroup* next = CWorldScene::sortTable.moveableMapObjDefGroupList.Next(group);
         group->m_sortEntryLink.Unlink();
 
         float x = CWorldScene::camTarget.x >= CWorldScene::s_activeWorldView.x ? group->m_bbox.b.x : group->m_bbox.t.x;
@@ -2295,7 +2300,7 @@ void CWorldScene::ComputeExteriorSortDistances() {
             }
         }
 
-        CWorldScene::sortTable.m_table[bucket].m_exteriorGroupList.LinkToTail(group);
+        CWorldScene::sortTable.m_table[bucket].mapObjDefGroupList.LinkToTail(group);
         group = next;
     }
 }
@@ -2307,7 +2312,7 @@ void CWorldScene::AddMapChunkToRenderList(CMapChunk* mapChunk, C3Vector* pos) {
     float distance = pos->y * CWorldScene::camPlaneXY.n.y + pos->z * CWorldScene::camPlaneXY.n.z + pos->x * CWorldScene::camPlaneXY.n.x + CWorldScene::camPlaneXY.d;
 
     if (distance <= 0.0f || (bucket = CMath::fint_(distance * CBDIVISOR - 0.5f)) < 64) {
-        CWorldScene::sortTable.m_table[bucket].m_mapChunkList.LinkToTail(mapChunk);
+        CWorldScene::sortTable.m_table[bucket].chunkList.LinkToTail(mapChunk);
     }
 }
 
@@ -2326,25 +2331,25 @@ void CWorldScene::AddToDistanceBucket(CChunkLiquid* liquid, const C3Vector& pos)
         }
     }
 
-    CWorldScene::sortTable.m_table[bucket].m_liquidList.LinkToTail(liquid);
+    CWorldScene::sortTable.m_table[bucket].liquidList.LinkToTail(liquid);
 }
 
 // VERIFY: 82a2066d auto
 // OFFSET: 0x00792F60
 void CWorldScene::AddHorizonChunk(CMapAreaLow* area) {
-    CWorldScene::sortTable.m_horizonChunkList.LinkToTail(area);
+    CWorldScene::sortTable.visLowDetailAreaList.LinkToTail(area);
 }
 
 // VERIFY: d71b0b88 auto
 // OFFSET: 0x00792F80
 void CWorldScene::AddHorizonMapObjDef(CMapObjDef* def) {
-    CWorldScene::sortTable.m_horizonMapObjList.LinkToTail(def);
+    CWorldScene::sortTable.visLowDetailMapObjDefList.LinkToTail(def);
 }
 
 // VERIFY: 140835b8 auto
 // OFFSET: 0x00792FA0
 void CWorldScene::AddChunkToSortList(CDetailDoodadInst* inst) {
-    CWorldScene::sortTable.m_detailDoodadInstList.LinkToTail(inst);
+    CWorldScene::sortTable.visDetailDoodadList.LinkToTail(inst);
 }
 
 // VERIFY: 648c17d7 manual
@@ -2384,17 +2389,17 @@ uint32_t CWorldScene::AddViewerGroup(TSGrowableArray<uint32_t>* groups, uint32_t
 void CWorldScene::CullEntitys(CSortEntry* entry) {
     s_entityCanLink = 0;
 
-    CMapEntity* entity = static_cast<CMapEntity*>(entry->m_entityList.Head());
+    CMapEntity* entity = static_cast<CMapEntity*>(entry->entityList.Head());
 
     while (entity) {
-        CMapEntity* next = static_cast<CMapEntity*>(entry->m_entityList.Next(entity));
+        CMapEntity* next = static_cast<CMapEntity*>(entry->entityList.Next(entity));
         entity->m_sortEntryLink.Unlink();
         entity->m_culled = CMapStaticEntity::CULL_CULLED;
 
         CAaSphere sphere = entity->m_sphere;
 
         if (!CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(sphere) || CWorldOcclusion::QueryVolumes(&entity->m_sphere) || CWorldOcclusion::QueryBuffer(entity->m_sphere.c, entity->m_sphere.r, CWorldOcclusion::QUERY_FLAG_NONE)) {
-            CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
+            CWorldScene::sortTable.nonVisEntityList.LinkToTail(entity);
             entity = next;
             continue;
         }
@@ -2428,7 +2433,7 @@ void CWorldScene::CullEntitys(CSortEntry* entry) {
         }
 
         if (!entity->m_func || entity->m_func(entity->m_funcParam, MAP_OBJECT_FUNC_VISIBLE | MAP_OBJECT_FUNC_IN_SCENE, entity->m_funcParam64, entity->m_funcParam32)) {
-            CWorldScene::sortTable.m_visibleEntityList.LinkToTail(entity);
+            CWorldScene::sortTable.visEntityList.LinkToTail(entity);
         }
 
         entity = next;
@@ -2498,7 +2503,7 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
             }
 
             if (!entity->m_func || entity->m_func(entity->m_funcParam, MAP_OBJECT_FUNC_VISIBLE | MAP_OBJECT_FUNC_IN_SCENE, entity->m_funcParam64, entity->m_funcParam32)) {
-                CWorldScene::sortTable.m_visibleEntityList.LinkToTail(entity);
+                CWorldScene::sortTable.visEntityList.LinkToTail(entity);
             }
 
             break;
@@ -2513,10 +2518,10 @@ void CWorldScene::CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<
 // VERIFY: e5eeddd6 manual
 // OFFSET: 0x00793450
 void CWorldScene::UpdateSortedModels() {
-    CMapEntity* entity = static_cast<CMapEntity*>(CWorldScene::sortTable.m_culledEntityList.Head());
+    CMapEntity* entity = static_cast<CMapEntity*>(CWorldScene::sortTable.nonVisEntityList.Head());
 
     while (entity) {
-        CMapEntity* next = static_cast<CMapEntity*>(CWorldScene::sortTable.m_culledEntityList.Next(entity));
+        CMapEntity* next = static_cast<CMapEntity*>(CWorldScene::sortTable.nonVisEntityList.Next(entity));
         uint32_t nearFlags = MAP_OBJECT_FUNC_NONE;
         entity->m_sortEntryLink.Unlink();
 
@@ -2566,18 +2571,18 @@ void CWorldScene::UpdateSortedModels() {
 // OFFSET: 0x007935A0
 void CWorldScene::CullLiquid(CSortEntry* entry) {
     if (!(CWorld::enables & Enables::Enable_Water)) {
-        CChunkLiquid* liquid = entry->m_liquidList.Head();
+        CChunkLiquid* liquid = entry->liquidList.Head();
 
         while (liquid) {
-            CChunkLiquid* next = entry->m_liquidList.Next(liquid);
+            CChunkLiquid* next = entry->liquidList.Next(liquid);
             CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
             liquid = next;
         }
     } else {
-        CChunkLiquid* liquid = entry->m_liquidList.Head();
+        CChunkLiquid* liquid = entry->liquidList.Head();
 
         while (liquid) {
-            CChunkLiquid* next = entry->m_liquidList.Next(liquid);
+            CChunkLiquid* next = entry->liquidList.Next(liquid);
             CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
 
             CAaBox box;
@@ -2600,12 +2605,12 @@ void CWorldScene::CullLiquid(CSortEntry* entry) {
 // OFFSET: 0x00793760
 void CWorldScene::UpdateOcclusion(CSortEntry* entry) {
     if (!(CWorld::enables & Enables::Enable_Culling)) {
-        entry->m_holedChunkList.UnlinkAll();
+        entry->chunkOcclusionList.UnlinkAll();
 
-        CWorldOccluder* occluder = entry->m_occluderList.Head();
+        CWorldOccluder* occluder = entry->occluderList.Head();
 
         while (occluder) {
-            CWorldOccluder* next = entry->m_occluderList.Next(occluder);
+            CWorldOccluder* next = entry->occluderList.Next(occluder);
             occluder->Recycle();
             occluder = next;
         }
@@ -2613,10 +2618,10 @@ void CWorldScene::UpdateOcclusion(CSortEntry* entry) {
         return;
     }
 
-    CMapChunk* chunk = entry->m_holedChunkList.Head();
+    CMapChunk* chunk = entry->chunkOcclusionList.Head();
 
     while (chunk) {
-        CMapChunk* next = entry->m_holedChunkList.Next(chunk);
+        CMapChunk* next = entry->chunkOcclusionList.Next(chunk);
 
         if (!chunk->m_header->m_holes) {
             chunk->m_sortListLink.Unlink();
@@ -2629,23 +2634,23 @@ void CWorldScene::UpdateOcclusion(CSortEntry* entry) {
         chunk = next;
     }
 
-    chunk = entry->m_holedChunkList.Head();
+    chunk = entry->chunkOcclusionList.Head();
 
     while (chunk) {
-        CMapChunk* next = entry->m_holedChunkList.Next(chunk);
+        CMapChunk* next = entry->chunkOcclusionList.Next(chunk);
         chunk->m_sortListLink.Unlink();
         chunk->ClipBufferUpdate();
         chunk = next;
     }
 
-    CWorldOccluder* occluder = entry->m_occluderList.Head();
+    CWorldOccluder* occluder = entry->occluderList.Head();
 
     while (occluder) {
-        CWorldOccluder* next = entry->m_occluderList.Next(occluder);
+        CWorldOccluder* next = entry->occluderList.Next(occluder);
         occluder->ClipBufferUpdate();
 
         if (CWorld::enables & Enables::Enable_PortalVis) {
-            CWorldScene::sortTable.m_visibleOccluderList.LinkToTail(occluder);
+            CWorldScene::sortTable.visOccluderList.LinkToTail(occluder);
         } else {
             occluder->Recycle();
         }
@@ -2663,7 +2668,7 @@ void CWorldScene::RenderChunksSolid() {
         g_theGxDevicePtr->RsSet(GxRs_PixelShader, CMapRenderChunk::s_currentShaderX[0]);
     }
 
-    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.m_renderChunkList[0];
+    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.visRenderChunkList[0][0];
     CMapRenderChunk* renderChunk = list.Head();
 
     while (!list.IsEnd(renderChunk)) {
@@ -2697,7 +2702,7 @@ void CWorldScene::RenderChunksSolid() {
 void CWorldScene::RenderChunksZoneDebug() {
     CMapRenderChunk::SetShaders(0, 0);
 
-    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.m_renderChunkList[ZONE_DEBUG_RENDER_LIST];
+    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.visRenderChunkList[ZONE_DEBUG_RENDER_LIST][0];
     CMapRenderChunk* renderChunk = list.Head();
 
     while (!list.IsEnd(renderChunk)) {
@@ -2717,10 +2722,10 @@ void CWorldScene::RenderChunksZoneDebug() {
 // VERIFY: 8ead38ba manual
 // OFFSET: 0x00793D20
 void CWorldScene::PrepareLiquidInstances() {
-    CMapObjDefGroup* group = CWorldScene::sortTable.m_interiorLiquidGroupList.Head();
+    CMapObjDefGroup* group = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = CWorldScene::sortTable.m_interiorLiquidGroupList.Next(group);
+        CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupLiquidList.Next(group);
         group->m_liquidLink.Unlink();
 
         if ((CWorld::enables & Enables::Enable_MapObjs) && CWorldScene::s_liquidRenderer) {
@@ -2792,40 +2797,44 @@ void CWorldScene::PrepareLiquidInstances() {
 // OFFSET: 0x00794250
 void CSortTable::Clear() {
     for (uint32_t i = 0; i < 64; i++) {
-        CSortEntry& entry = this->m_table[i];
-        entry.m_mapChunkList.UnlinkAll();
+        CSortEntry& sortEntry = this->m_table[i];
+        sortEntry.chunkList.UnlinkAll();
 
-        CChunkLiquid* liquid = entry.m_liquidList.Head();
+        CChunkLiquid* liquid = sortEntry.liquidList.Head();
 
         while (liquid) {
-            CChunkLiquid* next = entry.m_liquidList.Next(liquid);
+            CChunkLiquid* next = sortEntry.liquidList.Next(liquid);
             CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
             liquid = next;
         }
 
-        entry.m_exteriorGroupList.UnlinkAll();
-        this->m_culledEntityList.Combine(&entry.m_entityList, 2, nullptr);
+        sortEntry.mapObjDefGroupList.UnlinkAll();
+        STORM_ASSERT(sortEntry.doodadDefList.Head() == NULL);
+        this->nonVisEntityList.Combine(&sortEntry.entityList, 2, nullptr);
+        STORM_ASSERT(sortEntry.chunkOcclusionList.Head() == NULL);
 
-        CWorldOccluder* occluder = entry.m_occluderList.Head();
+        CWorldOccluder* occluder = sortEntry.occluderList.Head();
 
         while (occluder) {
-            CWorldOccluder* next = entry.m_occluderList.Next(occluder);
+            CWorldOccluder* next = sortEntry.occluderList.Next(occluder);
             occluder->Recycle();
             occluder = next;
         }
 
-        void* item = entry.m_unkList9.Head();
+        STORM_ASSERT(sortEntry.antiOccluderList.Head() == NULL);
+
+        void* item = sortEntry.portalList.Head();
 
         while (item) {
-            void* next = entry.m_unkList9.Next(item);
-            entry.m_unkList9.UnlinkNode(item);
+            void* next = sortEntry.portalList.Next(item);
+            sortEntry.portalList.UnlinkNode(item);
             CWorldScene::s_unkList9FreeList.LinkToTail(item);
             item = next;
         }
     }
 
-    this->m_horizonChunkList.UnlinkAll();
-    this->m_horizonMapObjList.UnlinkAll();
+    this->visLowDetailAreaList.UnlinkAll();
+    this->visLowDetailMapObjDefList.UnlinkAll();
 }
 
 // VERIFY: fbff50c3 auto
@@ -3042,14 +3051,15 @@ void CWorldScene::LocateViewer3() {
 // OFFSET: 0x007964A0
 void CWorldScene::RenderMapObjDefGroups() {
     g_theGxDevicePtr->RsPush();
+    STORM_ASSERT(frustumIndex < (32 - 1));
     CWorldScene::frustumIndex++;
     CWorldScene::frustumStack[CWorldScene::frustumIndex] = CWorldScene::frustumStack[CWorldScene::frustumIndex - 1];
     CShadowCache::SetShadowMapGenericGlobal();
 
-    CMapObjDefGroup* group = CWorldScene::sortTable.m_mapObjDefGroup.Head();
+    CMapObjDefGroup* group = CWorldScene::sortTable.visMapObjDefGroupList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = CWorldScene::sortTable.m_mapObjDefGroup.Next(group);
+        CMapObjDefGroup* next = CWorldScene::sortTable.visMapObjDefGroupList.Next(group);
         group->m_sortTableLink.Unlink();
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
@@ -3093,6 +3103,8 @@ void CWorldScene::RenderMapObjDefGroups() {
 
         group = next;
     }
+
+    STORM_ASSERT(frustumIndex > 0);
 
     CWorldScene::frustumIndex--;
     g_theGxDevicePtr->RsPop();
@@ -3331,7 +3343,7 @@ void CWorldScene::RenderPortalList(TSGrowableArray<CPortalView>* views, int32_t 
 // VERIFY: 3633b96c manual
 // OFFSET: 0x00797280
 void CWorldScene::RenderOccluders() {
-    CWorldOccluder* occluder = CWorldScene::sortTable.m_visibleOccluderList.Head();
+    CWorldOccluder* occluder = CWorldScene::sortTable.visOccluderList.Head();
 
     if (!occluder) {
         return;
@@ -3339,7 +3351,7 @@ void CWorldScene::RenderOccluders() {
 
     int32_t count = 0;
 
-    for (CWorldOccluder* it = occluder; it; it = CWorldScene::sortTable.m_visibleOccluderList.Next(it)) {
+    for (CWorldOccluder* it = occluder; it; it = CWorldScene::sortTable.visOccluderList.Next(it)) {
         count++;
     }
 
@@ -3369,7 +3381,7 @@ void CWorldScene::RenderOccluders() {
     C3Vector normal3(1.0f, 0.0f, 0.0f);
 
     while (occluder) {
-        CWorldOccluder* next = CWorldScene::sortTable.m_visibleOccluderList.Next(occluder);
+        CWorldOccluder* next = CWorldScene::sortTable.visOccluderList.Next(occluder);
 
         vertex[0].m_position = occluder->m_points[0];
         vertex[0].m_normal = normal0;
@@ -3593,8 +3605,8 @@ void CWorldScene::RenderDetailDoodads() {
 
     CDetailDoodadInst* next;
 
-    for (CDetailDoodadInst* inst = CWorldScene::sortTable.m_detailDoodadInstList.Head(); inst; inst = next) {
-        next = CWorldScene::sortTable.m_detailDoodadInstList.Next(inst);
+    for (CDetailDoodadInst* inst = CWorldScene::sortTable.visDetailDoodadList.Head(); inst; inst = next) {
+        next = CWorldScene::sortTable.visDetailDoodadList.Next(inst);
         CMapChunk* chunk = inst->m_chunk;
         inst->m_age = 0;
 
@@ -3631,10 +3643,10 @@ void CWorldScene::RenderDetailDoodads() {
 // VERIFY: 4aaed5dd manual
 // OFFSET: 0x007987A0
 void CWorldScene::CullDoodads(CSortEntry* entry, uint16_t fadeLevel) {
-    CMapDoodadDef* doodadDef = entry->m_doodadDefList.Head();
+    CMapDoodadDef* doodadDef = entry->doodadDefList.Head();
 
     while (doodadDef) {
-        CMapDoodadDef* next = entry->m_doodadDefList.Next(doodadDef);
+        CMapDoodadDef* next = entry->doodadDefList.Next(doodadDef);
         doodadDef->m_doodadDefLink.Unlink();
 
         if (doodadDef->m_fadeLevel < fadeLevel) {
@@ -3703,7 +3715,7 @@ void CWorldScene::RenderChunksSinglePass() {
                 g_theGxDevicePtr->RsSet(GxRs_PixelShader, CMapRenderChunk::s_currentShaderX[layers - 1]);
             }
 
-            TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.m_renderChunkList[4 * layers + pass];
+            TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.visRenderChunkList[layers][pass];
             CMapRenderChunk* renderChunk = list.Head();
 
             while (!list.IsEnd(renderChunk)) {
@@ -3838,10 +3850,10 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
     CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->m_groupNum, 0);
 
     if (!mapObjDefGroup->m_sortTableLink.m_next) {
-        CWorldScene::sortTable.m_mapObjDefGroup.LinkToTail(mapObjDefGroup);
+        CWorldScene::sortTable.visMapObjDefGroupList.LinkToTail(mapObjDefGroup);
 
         if (group && (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_HAS_LIQUID) && (CWorld::enables & Enables::Enable_Water)) {
-            CWorldScene::sortTable.m_interiorLiquidGroupList.LinkToTail(mapObjDefGroup);
+            CWorldScene::sortTable.visMapObjDefGroupLiquidList.LinkToTail(mapObjDefGroup);
         }
 
         C3Vector nearest(0.0f, 0.0f, 0.0f);
@@ -3867,15 +3879,15 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupIndex, void* param)
 // VERIFY: dfda4d02 manual
 // OFFSET: 0x00799430
 CSortEntry::CSortEntry() {
-    this->m_mapChunkList.SetLinkOffset(offsetof(CMapChunk, m_sortListLink));
-    this->m_exteriorGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
-    this->m_entityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
-    this->m_doodadDefList.SetLinkOffset(offsetof(CMapDoodadDef, m_doodadDefLink));
-    this->m_liquidList.SetLinkOffset(offsetof(CChunkLiquid, m_updateLink));
-    this->m_occluderList.SetLinkOffset(offsetof(CWorldOccluder, m_link));
-    this->m_antiOccluderList.SetLinkOffset(offsetof(CWorldAntiOccluder, m_link));
-    this->m_holedChunkList.SetLinkOffset(offsetof(CMapChunk, m_sortListLink));
-    this->m_unkList9.SetLinkOffset(8);
+    this->chunkList.SetLinkOffset(offsetof(CMapChunk, m_sortListLink));
+    this->mapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
+    this->entityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
+    this->doodadDefList.SetLinkOffset(offsetof(CMapDoodadDef, m_doodadDefLink));
+    this->liquidList.SetLinkOffset(offsetof(CChunkLiquid, m_updateLink));
+    this->occluderList.SetLinkOffset(offsetof(CWorldOccluder, m_link));
+    this->antiOccluderList.SetLinkOffset(offsetof(CWorldAntiOccluder, m_link));
+    this->chunkOcclusionList.SetLinkOffset(offsetof(CMapChunk, m_sortListLink));
+    this->portalList.SetLinkOffset(8);
 }
 
 // VERIFY: 8dcf7c04 manual
@@ -3907,7 +3919,7 @@ void CWorldScene::AddDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBa
             }
         }
 
-        CWorldScene::sortTable.m_table[bucket].m_doodadDefList.LinkToTail(doodadDef);
+        CWorldScene::sortTable.m_table[bucket].doodadDefList.LinkToTail(doodadDef);
     }
 }
 
@@ -4021,10 +4033,10 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
     C3Vector corner(0.0f, 0.0f, 0.0f);
     int32_t occlude = (CWorld::enables & Enables::Enable_Culling) && index < 63;
 
-    CMapChunk* chunk = entry->m_mapChunkList.Head();
+    CMapChunk* chunk = entry->chunkList.Head();
 
     while (chunk) {
-        CMapChunk* next = entry->m_mapChunkList.Next(chunk);
+        CMapChunk* next = entry->chunkList.Next(chunk);
         chunk->m_sortListLink.Unlink();
 
         if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(chunk->m_bbox) && !CWorldOcclusion::QueryVolumes(&chunk->m_sphere) && !CWorldOcclusion::QueryBuffer(&chunk->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
@@ -4052,16 +4064,16 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
                         // CMapRenderChunk::RenderZoneDebug; the release build keeps that pass but never fills the list.
                         // 0.9.1 made the same test per chunk in CMapChunk::RenderLayers.
                         if ((CWorld::enables & Enables::Enable_ZoneBounds) && !ZoneDebugIsInCurrentZone(chunk->m_sphere.c.x, chunk->m_sphere.c.y)) {
-                            CWorldScene::sortTable.m_renderChunkList[ZONE_DEBUG_RENDER_LIST].LinkToTail(chunk->m_renderChunk);
+                            CWorldScene::sortTable.visRenderChunkList[ZONE_DEBUG_RENDER_LIST][0].LinkToTail(chunk->m_renderChunk);
                         } else
 #endif
-                        CWorldScene::sortTable.m_renderChunkList[4 * layerCount + variant].LinkToTail(chunk->m_renderChunk);
+                        CWorldScene::sortTable.visRenderChunkList[layerCount][variant].LinkToTail(chunk->m_renderChunk);
                     }
                 }
 
                 if (occlude) {
                     if (chunk->m_header->m_holes) {
-                        CWorldScene::sortTable.m_table[index].m_holedChunkList.LinkToTail(chunk);
+                        CWorldScene::sortTable.m_table[index].chunkOcclusionList.LinkToTail(chunk);
                     } else {
                         chunk->GetVertexPosition(CMapChunk::cornerVertexIndex[CMapChunk::nearCornerIndex], &corner);
 
@@ -4069,7 +4081,7 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
                         float distance = CWorldScene::DistanceToCamPlaneXY(&corner);
 
                         if (distance <= 0.0f || (bucket = CMath::fint_(distance * CBDIVISOR - 0.5f)) < 64) {
-                            CWorldScene::sortTable.m_table[bucket].m_holedChunkList.LinkToTail(chunk);
+                            CWorldScene::sortTable.m_table[bucket].chunkOcclusionList.LinkToTail(chunk);
                         }
                     }
                 }
@@ -4083,20 +4095,21 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
 // VERIFY: 19b0b167 manual
 // OFFSET: 0x00799F80
 void CWorldScene::CullThroughPortal(CRect* rect) {
+    STORM_ASSERT(frustumIndex < (32 - 1));
     CWorldScene::frustumIndex++;
     CWorldScene::frustumStack[CWorldScene::frustumIndex] = CWorldScene::frustumStack[CWorldScene::frustumIndex - 1];
     CWorldScene::FrustumSet(rect);
 
-    CMapObjDefGroup* group = CWorldScene::sortTable.m_pendingExteriorGroupList.Head();
+    CMapObjDefGroup* group = CWorldScene::sortTable.moveableMapObjDefGroupList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = CWorldScene::sortTable.m_pendingExteriorGroupList.Next(group);
+        CMapObjDefGroup* next = CWorldScene::sortTable.moveableMapObjDefGroupList.Next(group);
         group->m_sortEntryLink.Unlink();
 
         CMapObjDef* def = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
         bool overlaps = false;
 
-        for (CMapObjDefGroup* visible = CWorldScene::sortTable.m_mapObjDefGroup.Head(); visible; visible = CWorldScene::sortTable.m_mapObjDefGroup.Next(visible)) {
+        for (CMapObjDefGroup* visible = CWorldScene::sortTable.visMapObjDefGroupList.Head(); visible; visible = CWorldScene::sortTable.visMapObjDefGroupList.Next(visible)) {
             const CAaBox& a = visible->m_bbox;
             const CAaBox& b = group->m_bbox;
 
@@ -4118,16 +4131,18 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
         group = next;
     }
 
+    STORM_ASSERT(frustumIndex > 0);
+
     CWorldScene::frustumIndex--;
 }
 
 // VERIFY: 520d6234 manual
 // OFFSET: 0x0079A160
 void CWorldScene::CullMapObjDefGroups(CSortEntry* entry, CRect* rect, uint32_t index) {
-    CMapObjDefGroup* group = entry->m_exteriorGroupList.Head();
+    CMapObjDefGroup* group = entry->mapObjDefGroupList.Head();
 
     while (group) {
-        CMapObjDefGroup* next = entry->m_exteriorGroupList.Next(group);
+        CMapObjDefGroup* next = entry->mapObjDefGroupList.Next(group);
         group->m_sortEntryLink.Unlink();
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
@@ -4144,7 +4159,7 @@ void CWorldScene::CullMapObjDefGroups(CSortEntry* entry, CRect* rect, uint32_t i
 // VERIFY: da3cee1d manual
 // OFFSET: 0x0079A260
 void CWorldScene::CullMapObjDefGroup() {
-    for (CMapObjDefGroup* group = CWorldScene::sortTable.m_mapObjDefGroup.Head(); group; group = CWorldScene::sortTable.m_mapObjDefGroup.Next(group)) {
+    for (CMapObjDefGroup* group = CWorldScene::sortTable.visMapObjDefGroupList.Head(); group; group = CWorldScene::sortTable.visMapObjDefGroupList.Next(group)) {
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->m_ref);
         uint32_t groupFlags = mapObjDef->m_owner->GetGroupFlags(group->m_groupNum);
 
@@ -4169,21 +4184,22 @@ CSortTable::CSortTable() {
         this->m_bucketPlanes[i].z = 1.0f;
     }
 
-    this->m_pendingExteriorGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
-    this->m_detailDoodadInstList.SetLinkOffset(offsetof(CDetailDoodadInst, m_link));
-    this->m_mapObjDefGroup.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortTableLink));
-    this->m_interiorLiquidGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_liquidLink));
-    this->m_visibleEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
-    this->m_culledEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
-    this->m_visibleOccluderList.SetLinkOffset(offsetof(CWorldOccluder, m_link));
-    this->m_horizonChunkList.SetLinkOffset(offsetof(CMapAreaLow, m_horizonLink));
-    this->m_horizonMapObjList.SetLinkOffset(offsetof(CMapObjDef, m_horizonLink));
+    this->moveableMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortEntryLink));
+    this->visDetailDoodadList.SetLinkOffset(offsetof(CDetailDoodadInst, m_link));
+    this->visMapObjDefGroupList.SetLinkOffset(offsetof(CMapObjDefGroup, m_sortTableLink));
+    this->visMapObjDefGroupLiquidList.SetLinkOffset(offsetof(CMapObjDefGroup, m_liquidLink));
+    this->visEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
+    this->nonVisEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
+    this->visOccluderList.SetLinkOffset(offsetof(CWorldOccluder, m_link));
+    this->visLowDetailAreaList.SetLinkOffset(offsetof(CMapAreaLow, m_horizonLink));
+    this->visLowDetailMapObjDefList.SetLinkOffset(offsetof(CMapObjDef, m_horizonLink));
 }
 
 // VERIFY: 4e2f336e manual
 // OFFSET: 0x0079A790
 void CWorldScene::CullSortTable(CRect* rect) {
     CWorldScene::CreateOcclusionVolumes(&CWorldScene::s_activeWorldView, CWorldScene::s_frustumCorners, 0);
+    STORM_ASSERT(frustumIndex < (32 - 1));
     CWorldScene::frustumIndex++;
     CWorldScene::frustumStack[CWorldScene::frustumIndex] = CWorldScene::frustumStack[CWorldScene::frustumIndex - 1];
     CWorldScene::FrustumSet(rect);
@@ -4201,6 +4217,7 @@ void CWorldScene::CullSortTable(CRect* rect) {
     }
 
     CWorldScene::CullHorizon(rect);
+    STORM_ASSERT(frustumIndex > 0);
     CWorldScene::frustumIndex--;
 }
 
@@ -4317,7 +4334,7 @@ void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
     uint32_t flags = entity->m_staticFlags;
 
     if ((flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INVISIBLE_STALKER) && !entity->m_model->m_attachList) {
-        CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
+        CWorldScene::sortTable.nonVisEntityList.LinkToTail(entity);
         return;
     }
 
@@ -4327,7 +4344,7 @@ void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
     entity->m_distanceToCamera = CWorldScene::camPlane.n.x * corner.x + CWorldScene::camPlane.n.y * corner.y + CWorldScene::camPlane.n.z * corner.z + CWorldScene::camPlane.d;
 
     if (flags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_INSIDE) {
-        CWorldScene::sortTable.m_culledEntityList.LinkToTail(entity);
+        CWorldScene::sortTable.nonVisEntityList.LinkToTail(entity);
         return;
     }
 
@@ -4342,7 +4359,7 @@ void CWorldScene::AddEntityToSortTable(CMapEntity* entity) {
         }
     }
 
-    CWorldScene::sortTable.m_table[bucket].m_entityList.LinkToHead(entity);
+    CWorldScene::sortTable.m_table[bucket].entityList.LinkToHead(entity);
 }
 
 // VERIFY: a1012270 manual
@@ -4456,10 +4473,10 @@ void CWorldScene::CullModelSplitBody(CM2Model* model, uint32_t boneId, int32_t s
 // OFFSET: 0x00793980
 void CWorldScene::RenderEntitys() {
     int32_t streaming = SFile::IsStreamingMode();
-    CMapEntity* entity = CWorldScene::sortTable.m_visibleEntityList.Head();
+    CMapEntity* entity = CWorldScene::sortTable.visEntityList.Head();
 
     while (entity) {
-        CMapEntity* next = CWorldScene::sortTable.m_visibleEntityList.Next(entity);
+        CMapEntity* next = CWorldScene::sortTable.visEntityList.Next(entity);
         entity->m_sortEntryLink.Unlink();
 
         if (entity->m_model) {
@@ -5004,8 +5021,8 @@ void CWorldScene::RenderHorizon() {
 
     CMapAreaLow* nextArea;
 
-    for (CMapAreaLow* area = CWorldScene::sortTable.m_horizonChunkList.Head(); area; area = nextArea) {
-        nextArea = CWorldScene::sortTable.m_horizonChunkList.Next(area);
+    for (CMapAreaLow* area = CWorldScene::sortTable.visLowDetailAreaList.Head(); area; area = nextArea) {
+        nextArea = CWorldScene::sortTable.visLowDetailAreaList.Next(area);
         CMap::RenderLowDetail(area);
         area->m_horizonLink.Unlink();
     }
@@ -5015,9 +5032,9 @@ void CWorldScene::RenderHorizon() {
     C44Matrix** matrices = static_cast<C44Matrix**>(alloca(256 * sizeof(C44Matrix*)));
     CMapObjDef* nextDef;
 
-    for (CMapObjDef* def = CWorldScene::sortTable.m_horizonMapObjList.Head(); def; def = nextDef) {
+    for (CMapObjDef* def = CWorldScene::sortTable.visLowDetailMapObjDefList.Head(); def; def = nextDef) {
         CMapObj* mapObj = def->m_owner;
-        nextDef = CWorldScene::sortTable.m_horizonMapObjList.Next(def);
+        nextDef = CWorldScene::sortTable.visLowDetailMapObjDefList.Next(def);
 
         for (int32_t i = 0; i < mapObj->m_groupInfoCount; i++) {
             if (mapObj->IsGroupLoaded(i)) {
