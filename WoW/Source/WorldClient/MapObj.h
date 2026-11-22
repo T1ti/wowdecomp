@@ -263,6 +263,11 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     void DebugDeferPortals(CMapObjGroup* group);
     // Debug feature (WorldRender_Debug.cpp): the 0.5.3 / 0.9.1 BSP display (showMapObjBSP), a group renderer.
     void RenderGroupBsp(CMapObjGroup* group, uint32_t index);
+    // Debug feature (WorldRender_Debug.cpp): the showMapObjBSP face modes as an overlay on the normal rendering.
+    void RenderGroupFaceOverlayExterior(CMapObjGroup* group, uint32_t index);
+    void RenderGroupFaceOverlayInterior(CMapObjGroup* group, uint32_t index);
+    void RenderGroupFaceOverlay(CMapObjGroup* group, uint32_t index, void (CMapObj::*normalRender)(CMapObjGroup*, uint32_t));
+    static void (CMapObj::*s_debugFaceRenderer)(CMapObjGroup* group, uint32_t index);
 #endif
     CMapObjGroup* AttenTransVerts(CMapObjGroup* group);
     void SetupMapObjDefCull(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget);

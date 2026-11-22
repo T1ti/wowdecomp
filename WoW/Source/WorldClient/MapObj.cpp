@@ -1678,6 +1678,15 @@ void CMapObj::PrepareUpdate() {
     }
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the face modes (showMapObjBSP collision, detail, ...). In 3.3.5 the face renderer the switch above
+    // chose replaces the group renderer, so the faces it does not select are not drawn at all. The port draws the
+    // group normally and the selected faces over it instead (RenderGroupFaceOverlay).
+    if (CMapObj::s_renderMode != CMapObj::RENDER_MODE::DEFAULT_RENDER) {
+        CMapObj::s_debugFaceRenderer = CMapObj::s_renderGroupExterior;
+        CMapObj::s_renderGroupExterior = &CMapObj::RenderGroupFaceOverlayExterior;
+        CMapObj::s_renderGroupInterior = &CMapObj::RenderGroupFaceOverlayInterior;
+    }
+
     // Debug feature: the BSP display (showMapObjBSP). 0.5.3 CMapObj::PrepareUpdate (0x0069B3C0) and 0.9.1
     // CMapObj::Update ended their renderer choice the same way: with Enable_MapObjBSP set, RenderGroupBsp draws both
     // exterior and interior groups.

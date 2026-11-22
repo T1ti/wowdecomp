@@ -148,6 +148,46 @@ void CMapObj::RenderGroupBsp(CMapObjGroup* group, uint32_t index) {
     g_theGxDevicePtr->RsPop();
 }
 
+// Debug feature: the showMapObjBSP face modes, as an overlay.
+// The 3.3.5 face renderers (RenderGroupCollisionFaces, RenderGroupDetailFaces, RenderGroupRenderFaces,
+// RenderGroupTransFaces, RenderGroupCollidable; CMapObj::s_renderMode, never set in the release build) draw only the
+// faces they select, in place of the group. Port: the group is drawn by its normal renderer first (as the default
+// branch of CMapObj::PrepareUpdate chooses it), then the selected faces over it, slightly nearer so that they do not
+// z-fight with the textured faces they cover (the face renderers go through the fixed-function pipeline, the normal
+// ones through the WMO shaders, so the depths differ in the last bits).
+static const float FACE_OVERLAY_DEPTH_BIAS = 2.0f / 65536.0f;
+
+void (CMapObj::*CMapObj::s_debugFaceRenderer)(CMapObjGroup* group, uint32_t index);
+
+void CMapObj::RenderGroupFaceOverlayExterior(CMapObjGroup* group, uint32_t index) {
+    this->RenderGroupFaceOverlay(group, index, &CMapObj::ExteriorRender);
+}
+
+void CMapObj::RenderGroupFaceOverlayInterior(CMapObjGroup* group, uint32_t index) {
+    void (CMapObj::*normalRender)(CMapObjGroup*, uint32_t) = &CMapObj::InteriorRender;
+
+    if (!(CWorld::enables & Enables::Enable_MapObjTex)) {
+        normalRender = &CMapObj::RenderGroupLightmapTex;
+    } else if (!(CWorld::enables & Enables::Enable_MapObjLight)) {
+        normalRender = &CMapObj::RenderGroupColorTex;
+    }
+
+    this->RenderGroupFaceOverlay(group, index, normalRender);
+}
+
+void CMapObj::RenderGroupFaceOverlay(CMapObjGroup* group, uint32_t index, void (CMapObj::*normalRender)(CMapObjGroup*, uint32_t)) {
+    (this->*normalRender)(group, index);
+
+    if (!CMapObj::s_debugFaceRenderer) {
+        return;
+    }
+
+    g_theGxDevicePtr->RsPush();
+    g_theGxDevicePtr->RsSet(GxRs_PolygonOffset, FACE_OVERLAY_DEPTH_BIAS);
+    (this->*CMapObj::s_debugFaceRenderer)(group, index);
+    g_theGxDevicePtr->RsPop();
+}
+
 // Records one WMO group's portal planes with the world transform RenderGroup set for it.
 void CMapObj::DebugDeferPortals(CMapObjGroup* group) {
     const CGxMatrixStack& world = g_theGxDevicePtr->m_xforms[GxXform_World];

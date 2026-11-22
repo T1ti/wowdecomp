@@ -92,7 +92,8 @@ static const MapObjRenderModeName s_mapObjRenderModes[] = {
 // 0.5.3 reference: CWorld::ConsoleCommand_ShowMapObjBSP (0x006657C0): toggles Enable_MapObjBSP, which CMapObj::
 // PrepareUpdate reads to draw every WMO group with CMapObj::RenderGroupBsp (render faces green, detail faces blue,
 // collision faces red over them).
-// Port addition: with an argument, selects one of the 3.3.5 face renderers instead (s_mapObjRenderModes); "normal"
+// Port addition: with an argument, draws the faces of one of the 3.3.5 face renderers (s_mapObjRenderModes) over the
+// normal rendering (see CMapObj::RenderGroupFaceOverlay); "normal"
 // goes back to normal rendering. Selecting one turns the BSP display off, and the BSP display, turned on, takes
 // precedence over the mode.
 int32_t CWorld::ConsoleCommand_ShowMapObjBSP(const char* command, const char* arguments) {
