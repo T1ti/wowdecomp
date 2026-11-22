@@ -32,6 +32,8 @@ class CDataStore {
     CDataStore(uint8_t* data, uint32_t size);
     int32_t IsFinal() const;
     int32_t IsReadOnly() const;
+    uint32_t Size() const;
+    uint32_t Tell() const;
     int32_t FetchRead(uint32_t pos, uint32_t bytes);
     int32_t FetchWrite(uint32_t pos, uint32_t bytes, const char* fileName, int32_t lineNumber);
     CDataStore& Get(uint8_t& val);
@@ -70,6 +72,17 @@ inline int32_t CDataStore::IsFinal() const {
 // A store wrapping caller memory (CDataStore(data, size)) can't grow.
 inline int32_t CDataStore::IsReadOnly() const {
     return this->m_alloc == static_cast<uint32_t>(-1);
+}
+
+// INLINED
+inline uint32_t CDataStore::Size() const {
+    return this->m_size;
+}
+
+// INLINED
+inline uint32_t CDataStore::Tell() const {
+    STORM_ASSERT(IsFinal());
+    return this->m_read;
 }
 
 template <uint32_t size>

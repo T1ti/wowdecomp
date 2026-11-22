@@ -216,9 +216,9 @@ class SpellRec {
     ~SpellRec();
     static const char* GetFilename();
     static bool HasAura(const SpellRec* spell, int32_t aura);
-    static int32_t IsHelpfulOrHarmful(const SpellRec* spell);
+    static int32_t IsHelpfulOrHarmful(const SpellRec* srec);
     static bool WillSummonCritter(const SpellRec* spell);
-    static const int32_t* GetClassMask(const SpellRec* spell, int32_t effect);
+    static const int32_t* GetClassMask(const SpellRec* spell, int32_t effectIndex);
     static bool IsAffectedBy(const SpellRec* spell, const SpellRec* modifier, int32_t effect);
     static bool UsableInShapeshift(const SpellRec* spell, int32_t form);
     static bool NotUsableInShapeshiftForm(const SpellRec* spell, int32_t form);

@@ -130,7 +130,7 @@ struct DESTLOCSPELLCASTINDEXHASHNODE : public TSHashObject<DESTLOCSPELLCASTINDEX
 };
 
 struct ITEMCOOLDOWNHASHNODE : public TSHashObject<ITEMCOOLDOWNHASHNODE, HASHKEY_NONE> {
-    /* 0018 */ int32_t m_spellId;
+    /* 0018 */ int32_t spellID;
     /* 001C */ uint32_t m_time;
     /* 0020 */ bool m_onHold;
     /* 0021 */ uint8_t unused_0021[3];
@@ -225,7 +225,7 @@ void Spell_C_CancelMeleeSpells();
 bool Spell_C_IsRestrictedAbility(const SpellRec* spell);
 bool Spell_C_HasEffect(const SpellRec* spell, int32_t effect);
 int32_t Spell_C_IsOverride(int32_t spellId, const OverrideSpellDataRec* rec);
-int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit);
+int32_t Spell_C_GetPowerCost(const SpellRec* srec, const CGUnit_C* unit);
 bool Spell_C_HaveSpellPower(CGUnit_C* unit, const SpellRec* spell);
 int32_t Spell_C_IsActionOnHold(const int32_t* spellId, int32_t index);
 int32_t Spell_C_NeedsCooldownEvent(int32_t itemId);
@@ -284,7 +284,7 @@ void Spell_C_ModifyCategoryRecovery(int32_t& recovery, const SpellRec* spell, in
 bool Spell_C_ModifySpellValue(const SpellRec* spell, int32_t& value, SPELL_MOD_OP modifier);
 bool Spell_C_ModifySpellValue(const SpellRec* spell, float& value, SPELL_MOD_OP modifier);
 uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, BOOL isPet, BOOL isUnit);
-int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* unit);
+int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* srec, const CGUnit_C* unit);
 void Spell_C_GetMinMaxPoints(const SpellRec* spell, uint32_t effectIndex, float* minPoints, float* maxPoints, int32_t spellLevel, BOOL isPet, BOOL isUnit, int32_t noModifiers);
 void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minRange, float* maxRange, int32_t friendly, CGObject_C* target);
 void Spell_C_GetMinMaxRange(CGUnit_C* caster, const SpellRec* spell, float* minRange, float* maxRange, CGObject_C* target);
@@ -330,7 +330,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
 uint32_t Spell_C_EncodeSequenceIntoMissileTrajectory(uint32_t* pitch, uint32_t* speed, uint32_t* source, uint32_t* dest);
 ItemSubClassRec* FindAnyItemSubclassRec(int32_t classId, int32_t subclassMask);
 void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t reason, int32_t misc1, int32_t misc2);
-void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit);
+void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* caster);
 int32_t Spell_C_WasSpellRecentlyUsed(int32_t spellId, int32_t pet);
 int32_t Spell_C_WasItemRecentlyUsed(int32_t itemId);
 bool Spell_C_IsCastingInterruptedByCombat(const WOWGUID& guid);

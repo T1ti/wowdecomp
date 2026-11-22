@@ -161,7 +161,7 @@ uint32_t s_needTargets; // SPELL_TARGET_TYPE
 PendingSpellCast* s_targetingSpell;
 
 // STATIC: 0x00D3F4E8
-static PendingSpellCast* s_delayedTrajectoryCast;
+static PendingSpellCast* s_delayedMissileTrajectoryCast;
 
 // STATIC: 0x00D397B0
 static CVar* s_enableErrorSpeechCVar;
@@ -378,28 +378,30 @@ int32_t Spell_C_IsOverride(int32_t spellId, const OverrideSpellDataRec* rec) {
 
 // VERIFY: da3d51b4 manual
 // OFFSET: 0x008012F0
-int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
+int32_t Spell_C_GetPowerCost(const SpellRec* srec, const CGUnit_C* unit) {
+    STORM_ASSERT(srec);
+
     if (!unit) {
         return -1;
     }
 
-    uint32_t rank = unit->GetSpellRank(spell);
-    int32_t cost = spell->m_manaCost + spell->m_manaCostPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - spell->m_baseLevel);
+    uint32_t rank = unit->GetSpellRank(srec);
+    int32_t cost = srec->m_manaCost + srec->m_manaCostPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - srec->m_baseLevel);
 
-    if (spell->m_manaCostPct) {
-        cost += spell->m_manaCostPct * static_cast<int32_t>(unit->GetBasePowerForType(static_cast<POWER_TYPE>(spell->m_powerType))) / SPELL_PERCENT_BASE;
+    if (srec->m_manaCostPct) {
+        cost += srec->m_manaCostPct * static_cast<int32_t>(unit->GetBasePowerForType(static_cast<POWER_TYPE>(srec->m_powerType))) / SPELL_PERCENT_BASE;
     }
 
-    if ((spell->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_WEAPON_SPEED_COST_SCALING) && const_cast<CGUnit_C*>(unit)->IsActivePlayer()) {
+    if ((srec->m_attributesExD & SPELL_ATTR4::SPELL_ATTR4_WEAPON_SPEED_COST_SCALING) && const_cast<CGUnit_C*>(unit)->IsActivePlayer()) {
         uint32_t speed = 0;
         SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(unit->GetShapeshiftForm());
 
         if (form && form->m_combatRoundTime) {
             speed = form->m_combatRoundTime;
         } else {
-            const CGItem_C* item = const_cast<CGUnit_C*>(unit)->GetBag()->GetItemPointer(((spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0) + INVSLOT_MAINHAND);
+            const CGItem_C* item = const_cast<CGUnit_C*>(unit)->GetBag()->GetItemPointer(((srec->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0) + INVSLOT_MAINHAND);
 
-            if (item && item->IsUsable() && !unit->IsDisarmed((spell->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0)) {
+            if (item && item->IsUsable() && !unit->IsDisarmed((srec->m_attributesExC & SPELL_ATTR3::SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) != 0)) {
                 WOWGUID none = { 0 };
                 ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, none, nullptr, nullptr, false);
 
@@ -414,7 +416,7 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
         cost += speed / SPELL_WEAPON_SPEED_COST_MS_PER_POINT;
     }
 
-    int32_t school = spell->m_schoolMask;
+    int32_t school = srec->m_schoolMask;
     float modified = static_cast<float>(cost + unit->GetSpellCostModifier(school));
     int32_t base = CMath::fint_(unit->GetSpellCostMultiplier(school) * modified);
     cost = base;
@@ -422,12 +424,12 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
     int32_t flat;
     int32_t pct;
 
-    if (Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
+    if (Spell_C_GetSpellModifiers(srec, SPELLMOD_COST, flat, pct)) {
         cost = (flat + base) * pct / SPELL_PERCENT_BASE;
     }
 
-    if (!(unit->m_obj->m_type & TYPE_PLAYER) && (spell->m_attributes & SPELL_ATTR0::SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL) && spell->m_spellLevel) {
-        float spellLevelValue = GetGameTableValue(GAME_TABLE_NPC_MANA_COST_SCALER, spell->m_spellLevel - 1, 0);
+    if (!(unit->m_obj->m_type & TYPE_PLAYER) && (srec->m_attributes & SPELL_ATTR0::SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL) && srec->m_spellLevel) {
+        float spellLevelValue = GetGameTableValue(GAME_TABLE_NPC_MANA_COST_SCALER, srec->m_spellLevel - 1, 0);
         float unitLevelValue = GetGameTableValue(GAME_TABLE_NPC_MANA_COST_SCALER, unit->m_unit->m_unitFieldLevel - 1, 0);
 
         if (spellLevelValue > 0.0f && unitLevelValue > 0.0f) {
@@ -435,14 +437,14 @@ int32_t Spell_C_GetPowerCost(const SpellRec* spell, const CGUnit_C* unit) {
         }
     }
 
-    if ((unit->m_obj->m_type & TYPE_PLAYER) && Spell_C_HasEffect(spell, SPELL_EFFECT_CAST_BUTTON)) {
-        for (uint32_t i = 0; i < sizeof(spell->m_effect) / sizeof(spell->m_effect[0]); i++) {
-            if (spell->m_effect[i] != SPELL_EFFECT_CAST_BUTTON) {
+    if ((unit->m_obj->m_type & TYPE_PLAYER) && Spell_C_HasEffect(srec, SPELL_EFFECT_CAST_BUTTON)) {
+        for (uint32_t i = 0; i < sizeof(srec->m_effect) / sizeof(srec->m_effect[0]); i++) {
+            if (srec->m_effect[i] != SPELL_EFFECT_CAST_BUTTON) {
                 continue;
             }
 
-            uint32_t first = spell->m_effectMiscValue[i];
-            int32_t count = spell->m_effectMiscValueB[i];
+            uint32_t first = srec->m_effectMiscValue[i];
+            int32_t count = srec->m_effectMiscValueB[i];
 
             if (first >= CGActionBar::NUM_MULTICAST_ACTION_SLOTS || first + count > CGActionBar::NUM_MULTICAST_ACTION_SLOTS) {
                 continue;
@@ -499,9 +501,9 @@ int32_t QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(int32_t spellId) {
         return spellId;
     }
 
-    SpellDifficultyRec* difficulty = g_spellDifficultyDB.GetRecord(spell.m_difficulty);
+    SpellDifficultyRec* drec = g_spellDifficultyDB.GetRecord(spell.m_difficulty);
 
-    if (!difficulty) {
+    if (!drec) {
         return spellId;
     }
 
@@ -511,23 +513,25 @@ int32_t QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(int32_t spellId) {
         return spellId;
     }
 
-    uint32_t index;
+    uint32_t difficulty;
 
     if (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_RAID_DUNGEON) {
-        index = CGGameUI::GetCurrentRaidDifficulty();
+        difficulty = CGGameUI::GetCurrentRaidDifficulty();
     } else if (map->m_instanceType == MAP_INSTANCE_TYPE::MAP_INSTANCE_TYPE_PARTY_DUNGEON) {
-        index = CGGameUI::GetCurrentDungeonDifficulty();
+        difficulty = CGGameUI::GetCurrentDungeonDifficulty();
     } else {
         return spellId;
     }
 
-    int32_t result = difficulty->m_difficultySpellID[index];
+    STORM_ASSERT(difficulty < ARRSIZE(drec->m_difficultySpellID));
 
-    if (result || (index == RAID_DIFFICULTY_25MAN_HEROIC && (result = difficulty->m_difficultySpellID[RAID_DIFFICULTY_25MAN_NORMAL]) != 0)) {
+    int32_t result = drec->m_difficultySpellID[difficulty];
+
+    if (result || (difficulty == RAID_DIFFICULTY_25MAN_HEROIC && (result = drec->m_difficultySpellID[RAID_DIFFICULTY_25MAN_NORMAL]) != 0)) {
         return result;
     }
 
-    result = difficulty->m_difficultySpellID[MAP_DIFFICULTY_DEFAULT];
+    result = drec->m_difficultySpellID[MAP_DIFFICULTY_DEFAULT];
     return result ? result : spellId;
 }
 
@@ -797,7 +801,7 @@ void Spell_C_Initialize() {
     s_lastFailedSpellId = 0;
     s_feedPetSpell = 0;
     s_spellClassSet = 0;
-    s_delayedTrajectoryCast = nullptr;
+    s_delayedMissileTrajectoryCast = nullptr;
     s_enableErrorSpeechCVar = CVar::Lookup("Sound_EnableErrorSpeech");
 }
 
@@ -1075,6 +1079,8 @@ void PendingSpellCast::OnSpellStartPacket(CDataStore* msg) {
         msg->Get(schoolImmunities);
         msg->Get(immunities);
     }
+
+    STORM_ASSERT(msg->IsRead());
 
     SpellRec spell;
 
@@ -1467,25 +1473,26 @@ void SpellHistory::AddHistory(int32_t spellId, int32_t itemId, uint32_t time, ui
         return;
     }
 
-    SPELLHISTORY* history = this->m_free.Head();
+    SPELLHISTORY* node = this->m_free.Head();
 
-    if (history) {
-        this->m_free.UnlinkNode(history);
-        this->m_history.LinkToTail(history);
+    if (node) {
+        this->m_free.UnlinkNode(node);
+        this->m_history.LinkToTail(node);
     } else {
-        history = this->m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
+        node = this->m_history.NewNode(TSLIST_LINK_BEFORE, 0, SMEM_FLAG_ZEROMEMORY);
+        STORM_ASSERT(node);
     }
 
-    history->m_spellId = spellId;
-    history->m_itemId = itemId;
-    history->m_recoveryStart = time;
-    history->m_recoveryTime = recoveryTime;
-    history->m_category = category;
-    history->m_categoryRecoveryStart = categoryTime;
-    history->m_categoryRecoveryTime = categoryRecoveryTime;
-    history->m_onHold = onHold;
-    history->m_startRecoveryCategory = startRecoveryCategory;
-    history->m_startRecoveryTime = startRecoveryTime;
+    node->m_spellId = spellId;
+    node->m_itemId = itemId;
+    node->m_recoveryStart = time;
+    node->m_recoveryTime = recoveryTime;
+    node->m_category = category;
+    node->m_categoryRecoveryStart = categoryTime;
+    node->m_categoryRecoveryTime = categoryRecoveryTime;
+    node->m_onHold = onHold;
+    node->m_startRecoveryCategory = startRecoveryCategory;
+    node->m_startRecoveryTime = startRecoveryTime;
 }
 
 // VERIFY: ab11e157 manual
@@ -1581,6 +1588,8 @@ int32_t Packet_SMSG_PET_CAST_FAILED(void* param, NETMESSAGE msgId, uint32_t time
     if (msg->m_read < msg->m_size) {
         msg->Get(misc2);
     }
+
+    STORM_ASSERT(msg->Tell() >= msg->Size());
 
     SpellRec spell;
 
@@ -1713,6 +1722,8 @@ int32_t Packet_SMSG_CAST_FAILED(void* param, NETMESSAGE msgId, uint32_t time, CD
     if (msg->m_read < msg->m_size) {
         msg->Get(reinterpret_cast<uint32_t&>(customArg));
     }
+
+    STORM_ASSERT(msg->Tell() >= msg->Size());
 
     SpellRec spell;
 
@@ -1931,6 +1942,8 @@ void PendingSpellCast::OnSpellGo(CDataStore* msg) {
 
         points.SetCount(valid);
     }
+
+    STORM_ASSERT(msg->IsRead());
 
     SpellRec spell;
 
@@ -3046,17 +3059,19 @@ bool SpellRec::HasAura(const SpellRec* spell, int32_t aura) {
 
 // VERIFY: 86c68872 auto
 // OFFSET: 0x007FE1B0
-int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
-    if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) {
+int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* srec) {
+    STORM_ASSERT(srec);
+
+    if (srec->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ALLY) {
         return SPELL_DISPOSITION_HELPFUL;
     }
 
-    if (spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
+    if (srec->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_UNIT_ENEMY) {
         return SPELL_DISPOSITION_HARMFUL;
     }
 
     for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
-        switch (spell->m_implicitTargetA[i]) {
+        switch (srec->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ENEMY:
@@ -3069,7 +3084,7 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
                 return SPELL_DISPOSITION_HARMFUL;
         }
 
-        switch (spell->m_implicitTargetB[i]) {
+        switch (srec->m_implicitTargetB[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_NEARBY_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_TARGET_ENEMY:
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_SRC_AREA_ENEMY:
@@ -3084,9 +3099,9 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
     }
 
     for (uint32_t i = 0; i < NUM_SPELL_EFFECTS; i++) {
-        switch (spell->m_implicitTargetA[i]) {
+        switch (srec->m_implicitTargetA[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
-                if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
+                if (srec->m_effectAura[i] != SPELL_AURA_DUMMY) {
                     return SPELL_DISPOSITION_HELPFUL;
                 }
 
@@ -3114,9 +3129,9 @@ int32_t SpellRec::IsHelpfulOrHarmful(const SpellRec* spell) {
                 return SPELL_DISPOSITION_HELPFUL;
         }
 
-        switch (spell->m_implicitTargetB[i]) {
+        switch (srec->m_implicitTargetB[i]) {
             case SPELL_IMPLICIT_TARGET::TARGET_UNIT_CASTER:
-                if (spell->m_effectAura[i] != SPELL_AURA_DUMMY) {
+                if (srec->m_effectAura[i] != SPELL_AURA_DUMMY) {
                     return SPELL_DISPOSITION_HELPFUL;
                 }
 
@@ -3437,8 +3452,8 @@ static bool Spell_C_ModifySpellValue(const SpellRec* spell, CSoftFloat& value, S
 
 // VERIFY: 49227fd2 auto
 // OFFSET: 0x007FDE80
-const int32_t* SpellRec::GetClassMask(const SpellRec* spell, int32_t effect) {
-    switch (effect) {
+const int32_t* SpellRec::GetClassMask(const SpellRec* spell, int32_t effectIndex) {
+    switch (effectIndex) {
         case 0:
             return spell->m_effectSpellClassMaskA;
 
@@ -3449,6 +3464,7 @@ const int32_t* SpellRec::GetClassMask(const SpellRec* spell, int32_t effect) {
             return spell->m_effectSpellClassMaskC;
     }
 
+    STORM_ASSERT(!"effectIndex is out of bounds!?");
     return nullptr;
 }
 
@@ -3498,17 +3514,19 @@ uint32_t Spell_C_GetSpellLevel(const SpellRec* spell, BOOL isPet, BOOL isUnit) {
 
 // VERIFY: afcd1587 auto
 // OFFSET: 0x007FF100
-int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* spell, const CGUnit_C* unit) {
+int32_t Spell_C_GetPowerCostPerSecond(const SpellRec* srec, const CGUnit_C* unit) {
+    STORM_ASSERT(srec);
+
     if (!unit) {
         return 0;
     }
 
-    uint32_t rank = unit->GetSpellRank(spell);
-    int32_t cost = spell->m_manaPerSecond + spell->m_manaPerSecondPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - spell->m_baseLevel);
+    uint32_t rank = unit->GetSpellRank(srec);
+    int32_t cost = srec->m_manaPerSecond + srec->m_manaPerSecondPerLevel * (static_cast<int32_t>(rank / SPELL_RANK_POINTS_PER_LEVEL) - srec->m_baseLevel);
     int32_t flat;
     int32_t pct;
 
-    if (cost > 0 && Spell_C_GetSpellModifiers(spell, SPELLMOD_COST, flat, pct)) {
+    if (cost > 0 && Spell_C_GetSpellModifiers(srec, SPELLMOD_COST, flat, pct)) {
         return cost * pct / SPELL_PERCENT_BASE;
     }
 
@@ -4753,7 +4771,7 @@ void Spell_C_AddPendingItemCooldown(int32_t itemId, int32_t spellId, uint32_t ti
         node = s_itemCooldowns.New(itemId, key, 0, 0);
     }
 
-    node->m_spellId = spellId;
+    node->spellID = spellId;
     node->m_time = time;
     node->m_onHold = onHold;
 }
@@ -5023,20 +5041,21 @@ SpellVisualKitRec* Spell_C_GetAppropriateImpactKit(const SpellVisualRec* visual,
 // VERIFY: 50dd76ca manual
 // OFFSET: 0x008019C0
 float Spell_C_GetSpellRadius() {
-    PendingSpellCast* cast = s_targetingSpell;
+    PendingSpellCast* targetingSpell = s_targetingSpell;
+    STORM_ASSERT(targetingSpell);
 
-    if (!cast) {
+    if (!targetingSpell) {
         return 0.0f;
     }
 
-    CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(cast->m_data.m_caster, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(targetingSpell->m_data.m_caster, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!caster) {
         return 0.0f;
     }
 
     SpellRec spell;
-    g_spellDB.GetRecord(cast->m_data.m_spellId, &spell);
+    g_spellDB.GetRecord(targetingSpell->m_data.m_spellId, &spell);
 
     SpellRadiusRec* radiusRec = g_spellRadiusDB.GetRecord(spell.m_effectRadiusIndex[0]);
     float radius = radiusRec ? radiusRec->m_radius + static_cast<int32_t>(caster->m_unit->m_unitFieldLevel) * radiusRec->m_radiusPerLevel : 0.0f;
@@ -5377,10 +5396,12 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
 
     for (uint32_t i = 0; i < sizeof(spell->m_effect) / sizeof(spell->m_effect[0]); i++) {
         if (spell->m_effect[i] == SPELL_EFFECT_SUMMON && vehicleUnit && vehicleUnit->m_obj->m_entryID == spell->m_effectMiscValue[i]) {
-            CGInputControl* input = CGInputControl::GetActive();
+            CGInputControl* control = CGInputControl::GetActive();
+            STORM_ASSERT(control);
+
             CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
-            if (mover && input->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
+            if (mover && control->IsVehicleSeatFlagSet(VEHICLE_SEAT_FLAGS::VEHICLE_SEAT_FLAG_CAN_EXIT)) {
                 mover->VehicleExit();
             }
         }
@@ -5547,6 +5568,8 @@ PendingSpellCast* Spell_C_GetActivePlayerPendingCast() {
 // VERIFY: fd2d4d6a manual
 // OFFSET: 0x00806200
 void Spell_C_CancelSpell(PendingSpellCast* cast, bool stopRecast, bool notifyServer, int32_t reason) {
+    STORM_ASSERT(cast);
+
     SpellRec spell;
 
     if (!g_spellDB.GetRecord(cast->m_data.m_spellId, &spell)) {
@@ -6114,7 +6137,9 @@ void Spell_C_SetCooldownLeft(int32_t spellId, uint32_t itemId, uint32_t category
 
 // VERIFY: 8f7722c4 manual
 // OFFSET: 0x00805D70
-void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
+void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* caster) {
+    STORM_ASSERT(caster);
+
     if (!spell->m_startRecoveryCategory && !spell->m_startRecoveryTime) {
         return;
     }
@@ -6133,7 +6158,7 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
         && spell->m_defenseType != SPELL_DAMAGE_CLASS_MELEE
         && spell->m_defenseType != SPELL_DAMAGE_CLASS_RANGED
         && !(spell->m_attributes & (SPELL_ATTR0::SPELL_ATTR0_USES_RANGED_SLOT | SPELL_ATTR0::SPELL_ATTR0_IS_ABILITY))) {
-        float scaled = recovery * unit->m_unit->m_unitModCastSpeed;
+        float scaled = recovery * caster->m_unit->m_unitModCastSpeed;
         recovery = CMath::fint_(scaled - SPELL_RECOVERY_ROUNDING_BIAS);
 
         if (static_cast<uint32_t>(recovery - SPELL_GLOBAL_COOLDOWN_MIN_MS) > (SPELL_GLOBAL_COOLDOWN_DEFAULT_MS - SPELL_GLOBAL_COOLDOWN_MIN_MS)) {
@@ -6146,8 +6171,8 @@ void Spell_C_StartSpellCooldown(const SpellRec* spell, CGUnit_C* unit) {
         return;
     }
 
-    bool pet = unit->m_obj->m_guid == CGPetInfo::GetPet(0);
-    bool onHold = Spell_C_HasCooldownOnEvent(spell, unit->m_obj->m_guid);
+    bool pet = caster->m_obj->m_guid == CGPetInfo::GetPet(0);
+    bool onHold = Spell_C_HasCooldownOnEvent(spell, caster->m_obj->m_guid);
     s_spellHistory[pet].AddHistory(spell->m_id, 0, OsGetAsyncTimeMs(), 0, 0, OsGetAsyncTimeMs(), 0, onHold, spell->m_startRecoveryCategory, recovery);
     CGSpellBook::UpdateCooldowns();
 
@@ -6323,11 +6348,13 @@ static UIErrors GetSpellFailedError(int32_t reason, const SpellRec* spell, int32
 // VERIFY: 613e78c7 manual
 // OFFSET: 0x00808200
 void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t reason, int32_t misc1, int32_t misc2, bool resetCooldown) {
+    STORM_ASSERT(cast);
+
     int32_t spellId = cast->m_data.m_spellId;
     bool suppress = false;
 
-    if (cast == s_delayedTrajectoryCast) {
-        s_delayedTrajectoryCast = nullptr;
+    if (cast == s_delayedMissileTrajectoryCast) {
+        s_delayedMissileTrajectoryCast = nullptr;
     }
 
     UpdateTradeSkillRecast(spellId);
@@ -6787,14 +6814,16 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
         uint32_t index;
 
         for (index = 0; index < NUM_ITEM_SPELLS; index++) {
-            if (stats->m_spellId[index] == static_cast<uint32_t>(node->m_spellId)) {
+            if (stats->m_spellId[index] == static_cast<uint32_t>(node->spellID)) {
                 break;
             }
         }
 
         if (index < NUM_ITEM_SPELLS) {
+            STORM_ASSERT(g_spellDB.RecordExists(node->spellID));
+
             SpellRec spell;
-            g_spellDB.GetRecord(node->m_spellId, &spell);
+            g_spellDB.GetRecord(node->spellID, &spell);
             int32_t recovery = static_cast<int32_t>(stats->m_spellCooldown[index]) >= 0 ? static_cast<int32_t>(stats->m_spellCooldown[index]) : spell.m_recoveryTime;
             int32_t category = 0;
             int32_t categoryRecovery = 0;
@@ -6806,7 +6835,7 @@ void Spell_C_PendingItemCooldownCallback(int32_t id, const WOWGUID& guid, void* 
 
             if (recovery || categoryRecovery) {
                 bool onHold = node->m_onHold;
-                int32_t spellId = node->m_spellId;
+                int32_t spellId = node->spellID;
                 uint32_t time = node->m_time;
 
                 if (recovery || categoryRecovery || onHold) {
@@ -6947,6 +6976,8 @@ bool Spell_C_HaveSpellTokens(CGUnit_C* unit, const SpellRec* spell, bool report,
         return true;
     }
 
+    STORM_ASSERT(!report || (report && cast));
+
     CGPlayer_C* player = static_cast<CGPlayer_C*>(unit);
 
     for (uint32_t i = 0; i < sizeof(spell->m_totem) / sizeof(spell->m_totem[0]); i++) {
@@ -7009,6 +7040,8 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
     if (!unit->IsActivePlayer()) {
         return true;
     }
+
+    STORM_ASSERT(!report || (report && cast));
 
     if ((spell->m_targets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM) || spell->m_equippedItemClass < 0 || !spell->m_equippedItemSubclass) {
         return true;
@@ -7117,6 +7150,8 @@ bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID
     if (!object) {
         return false;
     }
+
+    STORM_ASSERT(!report || (report && cast));
 
     uint32_t needTargets = static_cast<uint16_t>(spell->m_targets);
     bool pet = false;
@@ -7643,7 +7678,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
     }
 
     if (playNow) {
-        if (s_delayedTrajectoryCast || (kit && kit->m_animID >= 0 && caster->m_specialIdleAnim == kit->m_animID)) {
+        if (s_delayedMissileTrajectoryCast || (kit && kit->m_animID >= 0 && caster->m_specialIdleAnim == kit->m_animID)) {
             Spell_C_SpellFailed(cast, spell, SPELL_FAILED_SPELL_IN_PROGRESS, -1, -1, false);
             return 0;
         }
@@ -7659,7 +7694,7 @@ int32_t Spell_C_PrepareMissileTrajectoryCast(CGUnit_C* caster, PendingSpellCast*
         }
 
         Spell_C_PlayMissileTrajectoryCastVisuals(caster, cast, spell, visual, kit, targets, 1.0f);
-        s_delayedTrajectoryCast = cast;
+        s_delayedMissileTrajectoryCast = cast;
         return 0;
     }
 
@@ -7738,7 +7773,8 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
     }
 
     SpellRec spell;
-    g_spellDB.GetRecord(cast->m_data.m_spellId, &spell);
+    [[maybe_unused]] bool validSpell = g_spellDB.GetRecord(cast->m_data.m_spellId, &spell);
+    STORM_ASSERT(validSpell);
     TSStackArray<CGUnit_C*> targets(static_cast<CGUnit_C**>(alloca(sizeof(CGUnit_C*) * 2)), 2, 0);
     bool casterIncluded = false;
 
@@ -7912,8 +7948,8 @@ void Spell_C::SendPendingCast(PendingSpellCast* cast, bool hideVisuals) {
         PendingSpellCastData::WriteTargetInfo(&cast->m_data, &msg);
     }
 
-    if (cast == s_delayedTrajectoryCast) {
-        s_delayedTrajectoryCast = nullptr;
+    if (cast == s_delayedMissileTrajectoryCast) {
+        s_delayedMissileTrajectoryCast = nullptr;
     }
 
     if (mover && mover == caster && (spell.m_attributesExG & SPELL_ATTR7::SPELL_ATTR7_PREPARE_FOR_VEHICLE_CONTROL_END)) {
@@ -7967,8 +8003,11 @@ static int32_t Spell_C_UpdateSpellWorldObject(void* param, uint32_t flags, uint6
 
 // VERIFY: d383a005 manual
 // OFFSET: 0x007FE9E0
-static void Spell_C_CreateSpellWorldObject(const GameObjectDisplayInfoRec* display) {
-    s_spellWorldModel = World::s_m2Scene->CreateModel(display->m_modelName, 0);
+static void Spell_C_CreateSpellWorldObject(const GameObjectDisplayInfoRec* rec) {
+    STORM_ASSERT(rec);
+    STORM_ASSERT(!s_spellWorldObject);
+
+    s_spellWorldModel = World::s_m2Scene->CreateModel(rec->m_modelName, 0);
 
     if (s_spellWorldModel) {
         s_spellWorldObject = CMap::ObjectCreate(s_spellWorldModel, Spell_C_UpdateSpellWorldObject, nullptr, 0, 0, (MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW | MAP_OBJECT_CREATE_FLAG_LINK_MULTIPLE_WMO_GROUPS));
@@ -8921,18 +8960,20 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
 // VERIFY: d31bf1c5 auto
 // OFFSET: 0x0080C5F0
 int32_t Spell_C_TargetTradeItem() {
+    PendingSpellCast* targetingSpell = s_targetingSpell;
+    STORM_ASSERT(targetingSpell);
+
     if (!(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) || !CGTradeInfo::m_targetItemID[TRADE_SLOT_NONTRADED]) {
         return 0;
     }
 
-    PendingSpellCast* cast = s_targetingSpell;
-    cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_TRADE_ITEM;
+    targetingSpell->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_TRADE_ITEM;
     s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK;
-    cast->m_data.m_itemTarget.m_guid = TRADE_SLOT_NONTRADED;
+    targetingSpell->m_data.m_itemTarget.m_guid = TRADE_SLOT_NONTRADED;
 
     if (!s_needTargets) {
-        Spell_C::SendPendingCast(cast, true);
-        Spell_C_CancelSpell(cast, false, false, SpellCastResult::SPELL_FAILED_DONT_REPORT);
+        Spell_C::SendPendingCast(targetingSpell, true);
+        Spell_C_CancelSpell(targetingSpell, false, false, SpellCastResult::SPELL_FAILED_DONT_REPORT);
     }
 
     return 1;
@@ -9243,6 +9284,8 @@ void PlayImpactVisual(const SpellRec* spell, const TSStackArray<WOWGUID>& target
 // VERIFY: 3a61b823 manual
 // OFFSET: 0x00802040
 void PlayImpactVisualOnTarget(const SpellRec* spell, const SpellVisualRec* visual, CGUnit_C* target, CGUnit_C* caster) {
+    STORM_ASSERT(target);
+
     TSStackArray<WOWGUID> targets(static_cast<WOWGUID*>(alloca(sizeof(WOWGUID))), 1, 1);
     targets.m_data[0] = target->m_obj->m_guid;
     PlayImpactVisual(spell, targets, caster, visual);
@@ -9410,7 +9453,7 @@ void Spell_C_PlayDestLocVisualsWithoutCaster(NotifyDestLocSpellCastData* data) {
 // VERIFY: 7d12c6fb auto
 // OFFSET: 0x007FE500
 PendingSpellCast* Spell_C_GetDelayedTrajectoryCast() {
-    return s_delayedTrajectoryCast;
+    return s_delayedMissileTrajectoryCast;
 }
 
 // VERIFY: 4bee51ef auto
@@ -9444,14 +9487,15 @@ void Spell_C_ExpireDestLocSpellCasts(uint32_t time) {
 // VERIFY: 2e242e97 manual
 // OFFSET: 0x0080DE60
 int32_t Spell_C_SendDelayedMissileTrajectoryCast(CGUnit_C* unit) {
-    PendingSpellCast* cast = s_delayedTrajectoryCast;
+    PendingSpellCast* cast = s_delayedMissileTrajectoryCast;
 
     if (!cast) {
+        STORM_ASSERT(!"!s_delayedMissileTrajectoryCast");
         return 0;
     }
 
     if (unit->m_obj->m_guid != CGUnit_C::s_activeMover) {
-        s_delayedTrajectoryCast = nullptr;
+        s_delayedMissileTrajectoryCast = nullptr;
         return 0;
     }
 
@@ -9465,12 +9509,12 @@ int32_t Spell_C_SendDelayedMissileTrajectoryCast(CGUnit_C* unit) {
         }
 
         item = static_cast<CGItem_C*>(object);
-        cast = s_delayedTrajectoryCast;
+        cast = s_delayedMissileTrajectoryCast;
     } else {
         item = nullptr;
     }
 
     int32_t result = Spell_C_CastSpell(unit, cast->m_data.m_spellId, item, cast->m_data.m_castTarget, cast, false);
-    s_delayedTrajectoryCast = nullptr;
+    s_delayedMissileTrajectoryCast = nullptr;
     return result;
 }
