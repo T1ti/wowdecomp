@@ -34,7 +34,7 @@ void CMapDoodadDef::ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent) 
         group->m_bbox |= doodadDef->m_bbox;
 
         CMapBaseObjLink* link = group->m_parentLinkList.Head();
-        static_cast<CMapObjDef*>(link->m_ref)->m_bbox |= doodadDef->m_bbox;
+        static_cast<CMapObjDef*>(link->ref)->m_bbox |= doodadDef->m_bbox;
     }
 }
 
@@ -42,7 +42,7 @@ void CMapDoodadDef::ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent) 
 // OFFSET: 0x007B55E0
 void CMapDoodadDef::ExtendChunkBounds() {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapDoodadDef::ExtendBounds(this, link->m_ref);
+        CMapDoodadDef::ExtendBounds(this, link->ref);
     }
 }
 
@@ -156,7 +156,7 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
         this->m_staticFlags = (this->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_CACHE_MASK) | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
 
         for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-            CMapBaseObj* parent = link->m_ref;
+            CMapBaseObj* parent = link->ref;
 
             if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup)) {
                 this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
@@ -178,8 +178,8 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
             }
 
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(parent);
-            CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->m_ref);
-            CMapObjGroup* group = mapObjDef->m_owner->GetGroup(defGroup->groupNum, 0);
+            CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref);
+            CMapObjGroup* group = mapObjDef->mapObj->GetGroup(defGroup->groupNum, 0);
 
             if (!group) {
                 this->m_staticFlags &= ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
@@ -307,7 +307,7 @@ bool CMapDoodadDef::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNu
 
     if (faceIndex) {
         C3Vector local = *pos * mapObjDef->m_invMat;
-        result = mapObjDef->m_owner->QueryLighting(groupNum, local, *faceIndex, &color, &flag);
+        result = mapObjDef->mapObj->QueryLighting(groupNum, local, *faceIndex, &color, &flag);
     } else {
         C3Vector top(this->m_position.x, this->m_position.y, this->m_position.z + 1.5f);
         C3Vector start = top * mapObjDef->m_invMat;
@@ -316,7 +316,7 @@ bool CMapDoodadDef::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNu
         C3Segment seg;
         seg.start = start;
         seg.end = end;
-        result = mapObjDef->m_owner->QueryLighting(groupNum, seg, &color, &flag);
+        result = mapObjDef->mapObj->QueryLighting(groupNum, seg, &color, &flag);
     }
 
     if (!result) {

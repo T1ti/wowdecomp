@@ -110,7 +110,7 @@ void CMapChunk::Purge() {
 
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link;) {
         CMapBaseObjLink* next = this->doodadDefLinkList.Next(link);
-        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
+        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->owner);
         CMap::FreeBaseObjLink(link);
 
         if (!(doodadDef->m_flags & MAPOBJ_FLAG_IN_MAPOBJ)) {
@@ -122,7 +122,7 @@ void CMapChunk::Purge() {
 
     for (CMapBaseObjLink* link = this->mapObjDefLinkList.Head(); link;) {
         CMapBaseObjLink* next = this->mapObjDefLinkList.Next(link);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->m_owner);
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(link->owner);
         CMap::FreeBaseObjLink(link);
         CMap::PurgeMapObjDef(mapObjDef);
         link = next;
@@ -697,7 +697,7 @@ void CMapChunk::Batch() {
     }
 
     if (CMap::enableChunkBatching) {
-        CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->m_ref);
+        CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
 
         C2iVector pos;
         pos.x = this->m_aIndex.x & ~1;
@@ -821,7 +821,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
         }
     }
 
-    CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->m_ref);
+    CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
 
     if (area->m_liquid && area->m_liquid->HasData()) {
         const SMLiquidChunkDesc* chunkDesc = area->m_liquid->GetChunkDesc(this->m_aIndex.x, this->m_aIndex.y);
@@ -992,7 +992,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
         } else {
             CMapObjDef* mapObjDef = CMap::CreateMapObjDef(&area->m_wmoFileNames[area->m_wmoFilenamesOffsets[def->m_nameId]], def, &center, true);
             CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapObjDef);
-            link->m_ref = this;
+            link->ref = this;
             this->mapObjDefLinkList.LinkToTail(link);
         }
     }
@@ -1001,7 +1001,7 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
         SMDoodadDef* def = &area->m_doodadDef[mcrfPtr[i]];
         CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(&area->m_m2FileNames[area->m_modelFilenamesOffsets[def->m_nameId]], def, &center);
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(doodadDef);
-        link->m_ref = this;
+        link->ref = this;
         this->doodadDefLinkList.LinkToTail(link);
         doodadDef->m_diffuseLightScale = 1.0f;
         doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_EXTERIOR);
@@ -1036,7 +1036,7 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
         this->m_flags = MAPOBJ_FLAG_IMPASSABLE;
     }
 
-    CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->m_ref);
+    CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
     this->CreateRefs(area, reinterpret_cast<uint32_t*>(this->m_mcrfPtr), this->m_header->m_nDoodadRefs, this->m_header->m_nMapObjRefs);
     area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * this->m_aIndex.y + this->m_aIndex.x] = this;
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_PREPARED);
@@ -1046,11 +1046,11 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
 // OFFSET: 0x007C65A0
 void CMapChunk::UpdateLights() {
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
+        link->owner->m_flags = static_cast<MapObjFlag>(link->owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 
     for (CMapBaseObjLink* link = this->entityLinkList.Head(); link; link = this->entityLinkList.Next(link)) {
-        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
+        link->owner->m_flags = static_cast<MapObjFlag>(link->owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 }
 

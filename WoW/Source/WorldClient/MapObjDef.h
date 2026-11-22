@@ -73,7 +73,7 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     /* 0070 */ C44Matrix m_mat;
     /* 00B0 */ C44Matrix m_invMat;
     /* 00F0 */ int32_t m_nameId;
-    /* 00F4 */ CMapObj* m_owner;
+    /* 00F4 */ CMapObj* mapObj;
     /* 00F8 */ int32_t unused_00F8;
     /* 00FC */ uint32_t m_unkFlags;
     /* 0100 */ int32_t m_doodadSet;

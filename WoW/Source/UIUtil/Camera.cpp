@@ -183,7 +183,7 @@ C3Vector CGCamera::Up() const {
 
 // VERIFY: 6dc11132 auto
 // OFFSET: 0x00606B30
-CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::s_farClip, HALF_PI) {
+CGCamera::CGCamera() : CSimpleCamera(World::s_nearClip, World::farClip, HALF_PI) {
     this->m_model = nullptr;
     this->m_someTime = OsGetAsyncTimeMs();
     this->m_modelCameraHandle = nullptr;
@@ -2677,7 +2677,7 @@ int32_t CGCamera::UpdateCallback(const void* data, void* param) {
 
     uint32_t time = OsGetAsyncTimeMs();
     camera->m_clipRange.m_l = World::s_nearClip;
-    camera->m_clipRange.m_h = World::s_farClip;
+    camera->m_clipRange.m_h = World::farClip;
 
     if (camera->m_model) {
         camera->CalcModelCamera(time);

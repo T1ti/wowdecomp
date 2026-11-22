@@ -68,7 +68,7 @@ void CMapLowDetail::CullHorizonAreas(const C3Vector* pos) {
     int32_t row = CMath::fint_(x - 0.5f);
     y = y * OO_COORD_TO_CHUNK;
     int32_t col = CMath::fint_(y - 0.5f);
-    int32_t radius = static_cast<int32_t>(static_cast<int64_t>(World::s_horizonFarClipScale * World::s_farClip * 0.030000001f));
+    int32_t radius = static_cast<int32_t>(static_cast<int64_t>(World::s_horizonFarClipScale * World::farClip * 0.030000001f));
 
     int32_t minCol = ((col - radius) >> 4) - 2;
     int32_t minRow = ((row - radius) >> 4) - 2;
@@ -99,7 +99,7 @@ void CMapLowDetail::CullHorizonAreas(const C3Vector* pos) {
                 continue;
             }
 
-            if (World::s_farClip > 300.0f && CWorldOcclusion::QueryBuffer(&area->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_20 | CWorldOcclusion::QUERY_FLAG_TEST_NEAR)) {
+            if (World::farClip > 300.0f && CWorldOcclusion::QueryBuffer(&area->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_20 | CWorldOcclusion::QUERY_FLAG_TEST_NEAR)) {
                 continue;
             }
 
@@ -110,7 +110,7 @@ void CMapLowDetail::CullHorizonAreas(const C3Vector* pos) {
     for (uint32_t i = 0; i < this->m_mapObjDefList.Count(); i++) {
         CMapObjDef* def = this->m_mapObjDefList.m_data[i];
 
-        if (def->m_owner->m_isGroupLoaded && !CWorldScene::FrustumCull(&def->m_bbox) && !CWorldOcclusion::QueryVolumes(&def->m_sphere)) {
+        if (def->mapObj->m_isGroupLoaded && !CWorldScene::FrustumCull(&def->m_bbox) && !CWorldOcclusion::QueryVolumes(&def->m_sphere)) {
             CWorldScene::AddHorizonMapObjDef(def);
         }
     }
@@ -228,7 +228,7 @@ void CMapLowDetail::Load(const char* mapPath, const char* mapName) {
         CMapObjDef* mapObjDef = CMap::CreateMapObjDef(this->m_mapObjNames + this->m_mapObjNameOffsets[def->m_nameId], def, &center, false);
 
         if (!CMap::s_isStreamingMode) {
-            CMapObj* mapObj = mapObjDef->m_owner;
+            CMapObj* mapObj = mapObjDef->mapObj;
 
             if (!mapObj->m_isGroupLoaded) {
                 mapObj->WaitLoad();

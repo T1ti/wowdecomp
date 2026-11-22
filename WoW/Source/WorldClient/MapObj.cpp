@@ -2652,11 +2652,11 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
     CWorldScene::FrustumPush();
     CWorldScene::FrustumSet(CWorldScene::s_frustumCorners, *rect);
 
-    uint32_t groupFlags = this->m_owner->GetGroupFlags(mapObjDefGroup->groupNum);
+    uint32_t groupFlags = this->mapObj->GetGroupFlags(mapObjDefGroup->groupNum);
 
     if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_1))) {
         if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW) {
-            this->m_owner->InvokeRenderCallback(mapObjDefGroup->groupNum);
+            this->mapObj->InvokeRenderCallback(mapObjDefGroup->groupNum);
             CWorldScene::FrustumPop();
             return;
         }
@@ -2667,7 +2667,7 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
             ndcRect.minX = rect->minX * 2.0f - 1.0f;
             ndcRect.maxY = rect->maxY * 2.0f - 1.0f;
             ndcRect.maxX = 2.0f * rect->maxX - 1.0f;
-            this->m_owner->RenderThruPortalsExterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, ndcRect, mapObjDefGroup->groupNum);
+            this->mapObj->RenderThruPortalsExterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, ndcRect, mapObjDefGroup->groupNum);
         }
     }
 
@@ -2705,7 +2705,7 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
         SMODoodadDef* doodadDef = &mapObj->m_doodadDefList[doodadRef];
         CMapDoodadDef* mapDoodadDef = CMap::CreateDoodadDef(doodadRef, doodadDef, &mapObj->m_doodadNameList[doodadDef->m_flags & SMODoodadDef::NAME_INDEX_MASK], mapObjDef->m_hashval + 1, &mapObjDef->m_mat, static_cast<uint16_t>(overrideSet));
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapDoodadDef);
-        link->m_ref = mapObjDefGroup;
+        link->ref = mapObjDefGroup;
 
         if (overrideSet) {
             mapObjDefGroup->doodadDefLinkList.LinkToHead(link);

@@ -538,7 +538,7 @@ void CMapRenderChunk::CreateLayers() {
             continue;
         }
 
-        CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
+        CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref);
         SMChunk* header = chunk->m_header;
 
         if (!header->m_nLayers) {
@@ -623,7 +623,7 @@ void CMapRenderChunk::UpdatePools() {
     CMap::ClearAllRenderChunks();
     CMapRenderChunk::Destroy();
 
-    int32_t radius = 1 - static_cast<int32_t>(World::s_farClip * -OO_COORD_TO_CHUNK);
+    int32_t radius = 1 - static_cast<int32_t>(World::farClip * -OO_COORD_TO_CHUNK);
     uint32_t count = (2 * radius * radius + 1) & ~1u;
 
     CMapRenderChunk::s_pnEstimateVertex = TERRAIN_CHUNK_VERTEX_COUNT * count;
@@ -1674,7 +1674,7 @@ void CMapRenderChunk::CreateChunkLayerTex(CMapRenderChunkLayer* layer) {
     layerAlpha.m_flags = layerFlags;
     layerAlpha.m_alpha = alphaData;
 
-    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
+    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref);
     this->UnpackAlphaBits(CMapRenderChunk::s_defaultTex, 64 >> area->m_header->m_mampValue, &layerAlpha, shadowMap, genFormat, chunkFlags & SMChunk::FLAGS::DO_NOT_FIX_ALPHA_MAP);
 }
 
@@ -1700,7 +1700,7 @@ void CMapRenderChunk::CreateShadowTex() {
         shadowMap = chunk->m_shadowMap;
     }
 
-    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
+    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref);
     uint32_t size = 64 >> area->m_header->m_mampValue;
 
     UnpackShadowBits(this, reinterpret_cast<uint16_t*>(CMapRenderChunk::s_defaultTex), size, shadowMap);
@@ -1740,7 +1740,7 @@ void CMapRenderChunk::CreateShaderTexture() {
         shadowMap = chunk->m_shadowMap;
     }
 
-    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref);
+    CMapArea* area = static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref);
     int32_t size = 64 >> area->m_header->m_mampValue;
     int32_t pitch = size;
 
@@ -1897,8 +1897,8 @@ void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
     }
 
     CMapChunk* chunk = this->m_chunks[0];
-    int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
-    int32_t height = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
+    int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref)->m_header->m_mampValue;
+    int32_t height = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref)->m_header->m_mampValue;
 
     if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
         width /= 2;
@@ -1938,7 +1938,7 @@ void CMapRenderChunk::AllocShadowTexture() {
         return;
     }
 
-    int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
+    int32_t width = 64 >> static_cast<CMapArea*>(chunk->m_parentLinkList.Head()->ref)->m_header->m_mampValue;
     int32_t height = width;
 
     if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {
@@ -1960,7 +1960,7 @@ void CMapRenderChunk::AllocShaderTexture() {
 
     this->m_shaderTexture = nullptr;
 
-    int32_t width = 64 >> static_cast<CMapArea*>(this->m_chunks[0]->m_parentLinkList.Head()->m_ref)->m_header->m_mampValue;
+    int32_t width = 64 >> static_cast<CMapArea*>(this->m_chunks[0]->m_parentLinkList.Head()->ref)->m_header->m_mampValue;
     int32_t height = width;
 
     if (this->m_layerFlags & RENDER_FLAGS::FLAG_BLEND_MIP1) {

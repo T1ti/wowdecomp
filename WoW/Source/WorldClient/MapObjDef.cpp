@@ -50,7 +50,7 @@ void CMapObjDefGroup::SelectLights(CM2Lighting* lighting) {
         }
 
         for (CMapBaseObjLink* link = this->lightLinkList.Head(); link; link = this->lightLinkList.Next(link)) {
-            CMapLight* light = static_cast<CMapLight*>(link->m_owner);
+            CMapLight* light = static_cast<CMapLight*>(link->owner);
 
             if (light->m_light.m_visible && !light->m_excludeFromMapObjLighting) {
                 lighting->AddLight(&light->m_light);
@@ -74,7 +74,7 @@ CMapObjDef::CMapObjDef() {
     this->m_sphere.r = 0.0f;
     this->m_argbColor = 0;
     this->m_nameId = 0;
-    this->m_owner = nullptr;
+    this->mapObj = nullptr;
     this->unused_00F8 = 0;
     this->m_type |= CMapBaseObj::Type_MapObjDef;
     this->m_doodadSet = 0;
@@ -92,13 +92,13 @@ CMapObjDef::~CMapObjDef() {
 // VERIFY: 3113f3c8 manual
 // OFFSET: 0x007B39B0
 int32_t CMapObjDef::GetGroundType(uint32_t groupNum, uint16_t faceIndex) {
-    CMapObjGroup* group = this->m_owner->GetGroup(groupNum, 0);
+    CMapObjGroup* group = this->mapObj->GetGroup(groupNum, 0);
 
     if (group && faceIndex < group->m_polyListSize) {
         SMOPoly* poly = &group->m_polyList[faceIndex];
 
         if (poly) {
-            return this->m_owner->m_materialList[poly->m_materialId].m_groundType;
+            return this->mapObj->m_materialList[poly->m_materialId].m_groundType;
         }
     }
 
@@ -124,7 +124,7 @@ void CMapObjDef::UpdatePos(CMapObjDef* mapObjDef, const C3Vector* position, floa
 // OFFSET: 0x007B41F0
 void CMapObjDefGroup::SetSequenceFinishedCallback(M2SequenceCallback callback, uint64_t param, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
+        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->owner);
 
         if (doodadSet && !doodadDef->m_doodadSet) {
             break;
@@ -140,7 +140,7 @@ void CMapObjDefGroup::SetSequenceFinishedCallback(M2SequenceCallback callback, u
 // OFFSET: 0x007B4640
 void CMapObjDef::SetSequenceFinishedCallback(M2SequenceCallback callback, uint64_t param, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->groupLinkList.Head(); link; link = this->groupLinkList.Next(link)) {
-        static_cast<CMapObjDefGroup*>(link->m_owner)->SetSequenceFinishedCallback(callback, param, doodadSet);
+        static_cast<CMapObjDefGroup*>(link->owner)->SetSequenceFinishedCallback(callback, param, doodadSet);
     }
 }
 
@@ -159,7 +159,7 @@ void CMapObjDef::UpdateMatrix(CMapObjDef* mapObjDef, const C44Matrix& matrix) {
 // OFFSET: 0x007B4270
 void CMapObjDefGroup::SetEventCallback(M2EventCallback callback, uint64_t param, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
+        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->owner);
 
         if (doodadSet && !doodadDef->m_doodadSet) {
             break;
@@ -179,7 +179,7 @@ bool CMapObjDefGroup::IsAllLoaded() {
     }
 
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        CMapStaticEntity* doodadDef = static_cast<CMapStaticEntity*>(link->m_owner);
+        CMapStaticEntity* doodadDef = static_cast<CMapStaticEntity*>(link->owner);
 
         if (doodadDef->model && !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED)) {
             if (SFile::IsStreamingMode()) {
@@ -197,7 +197,7 @@ bool CMapObjDefGroup::IsAllLoaded() {
 // OFFSET: 0x007B46A0
 void CMapObjDef::SetEventCallback(M2EventCallback callback, uint64_t param, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->groupLinkList.Head(); link; link = this->groupLinkList.Next(link)) {
-        static_cast<CMapObjDefGroup*>(link->m_owner)->SetEventCallback(callback, param, doodadSet);
+        static_cast<CMapObjDefGroup*>(link->owner)->SetEventCallback(callback, param, doodadSet);
     }
 }
 
@@ -210,7 +210,7 @@ bool CMapObjDef::IsAllLoaded() {
 
     if (!(this->m_flags & MAPOBJ_FLAG_ALL_LOADED)) {
         for (CMapBaseObjLink* link = this->groupLinkList.Head(); link; link = this->groupLinkList.Next(link)) {
-            if (!static_cast<CMapObjDefGroup*>(link->m_owner)->IsAllLoaded()) {
+            if (!static_cast<CMapObjDefGroup*>(link->owner)->IsAllLoaded()) {
                 return false;
             }
         }
@@ -227,11 +227,11 @@ void CMapObjDefGroup::Update(const C44Matrix& matrix) {
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
 
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        static_cast<CMapDoodadDef*>(link->m_owner)->Update(matrix);
+        static_cast<CMapDoodadDef*>(link->owner)->Update(matrix);
     }
 
     for (CMapBaseObjLink* link = this->entityLinkList.Head(); link; link = this->entityLinkList.Next(link)) {
-        link->m_owner->m_flags = static_cast<MapObjFlag>(link->m_owner->m_flags | MAPOBJ_FLAG_UNPLACED);
+        link->owner->m_flags = static_cast<MapObjFlag>(link->owner->m_flags | MAPOBJ_FLAG_UNPLACED);
     }
 }
 
@@ -239,7 +239,7 @@ void CMapObjDefGroup::Update(const C44Matrix& matrix) {
 // OFFSET: 0x007B4170
 void CMapObjDefGroup::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->doodadDefLinkList.Head(); link; link = this->doodadDefLinkList.Next(link)) {
-        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->m_owner);
+        CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->owner);
 
         if (doodadSet && !doodadDef->m_doodadSet) {
             break;
@@ -255,7 +255,7 @@ void CMapObjDefGroup::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t 
 // OFFSET: 0x007B45F0
 void CMapObjDef::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = this->groupLinkList.Head(); link; link = this->groupLinkList.Next(link)) {
-        static_cast<CMapObjDefGroup*>(link->m_owner)->SetSequence(sequence, unknown3, doodadSet);
+        static_cast<CMapObjDefGroup*>(link->owner)->SetSequence(sequence, unknown3, doodadSet);
     }
 }
 
@@ -263,7 +263,7 @@ void CMapObjDef::SetSequence(uint32_t sequence, int32_t unknown3, uint16_t dooda
 // OFFSET: 0x007B64F0
 void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
     mapObjDef->m_flags = static_cast<MapObjFlag>(mapObjDef->m_flags | MAPOBJ_FLAG_NO_DEPTH_SORT);
-    CMapObj* owner = mapObjDef->m_owner;
+    CMapObj* owner = mapObjDef->mapObj;
 
     if (!owner->m_isGroupLoaded) {
         mapObjDef->m_sphere.r = 0.0f;
@@ -282,7 +282,7 @@ void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
     CWorldMath::TransformAABox(mapObjDef->m_mat, box, mapObjDef->m_bbox);
 
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
-        CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->m_owner);
+        CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->owner);
         CMapObjGroup* group = owner->GetGroup(defGroup->groupNum, 0);
 
         if (group) {
@@ -314,10 +314,10 @@ void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
 // VERIFY: cfdd9f32 manual
 // OFFSET: 0x007B6800
 void CMapObjDef::LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, int32_t testBounds) {
-    CMapObj* mapObj = mapObjDef->m_owner;
+    CMapObj* mapObj = mapObjDef->mapObj;
 
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
-        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
+        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
 
         if (mapObj->GetGroupFlags(group->groupNum) & (CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW | CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             continue;
@@ -328,7 +328,7 @@ void CMapObjDef::LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, 
         }
 
         CMapBaseObjLink* doodadLink = CMap::AllocBaseObjLink(doodadDef);
-        doodadLink->m_ref = group;
+        doodadLink->ref = group;
         group->doodadDefLinkList.LinkToHead(doodadLink);
         CMapDoodadDef::ExtendBounds(doodadDef, group);
     }
@@ -342,11 +342,11 @@ int32_t CMapObjDef::MoveDoodadDefs(CMapObjDef* source, uint16_t doodadSet, CMapO
     }
 
     for (CMapBaseObjLink* link = source->groupLinkList.Head(); link; link = source->groupLinkList.Next(link)) {
-        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
+        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
         CMapBaseObjLink* next;
 
         for (CMapBaseObjLink* doodadLink = group->doodadDefLinkList.Head(); doodadLink; doodadLink = next) {
-            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->m_owner);
+            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->owner);
             next = group->doodadDefLinkList.Next(doodadLink);
 
             if (!doodadDef->m_doodadSet) {
@@ -376,10 +376,10 @@ int32_t CMapObjDef::MoveDoodadDefs(CMapObjDef* source, uint16_t doodadSet, CMapO
 // OFFSET: 0x007B69C0
 void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ignore, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
-        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
+        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
 
         for (CMapBaseObjLink* doodadLink = group->doodadDefLinkList.Head(); doodadLink; doodadLink = group->doodadDefLinkList.Next(doodadLink)) {
-            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->m_owner);
+            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->owner);
 
             if (!doodadDef->m_doodadSet) {
                 break;
@@ -432,11 +432,11 @@ void CMap::LinkDoodadDefToMapObjDefs(CMapDoodadDef* doodadDef, CMapObjDef* skip)
 // OFFSET: 0x007B6F60
 void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t doodadSet) {
     for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
-        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
+        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
         CMapBaseObjLink* next;
 
         for (CMapBaseObjLink* doodadLink = group->doodadDefLinkList.Head(); doodadLink; doodadLink = next) {
-            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->m_owner);
+            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(doodadLink->owner);
             next = group->doodadDefLinkList.Next(doodadLink);
 
             if (!doodadDef->m_doodadSet) {
@@ -459,9 +459,9 @@ void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t 
 
             for (CMapBaseObjLink* parentLink = doodadDef->m_parentLinkList.Head(); parentLink; parentLink = parentNext) {
                 parentNext = doodadDef->m_parentLinkList.Next(parentLink);
-                CMapBaseObj* parent = parentLink->m_ref;
+                CMapBaseObj* parent = parentLink->ref;
 
-                if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup) || parent->m_parentLinkList.Head()->m_ref != mapObjDef) {
+                if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup) || parent->m_parentLinkList.Head()->ref != mapObjDef) {
                     CMap::FreeBaseObjLink(parentLink);
                 }
             }
@@ -481,12 +481,12 @@ CMapObjDefGroup::~CMapObjDefGroup() {
 // VERIFY: d684d55b manual
 // OFFSET: 0x007B4700
 bool CMapObjDef::IsAllDrawable() {
-    if (!this->m_owner->IsAllDrawable()) {
+    if (!this->mapObj->IsAllDrawable()) {
         return false;
     }
 
     for (CMapBaseObjLink* link = this->groupLinkList.Head(); link; link = this->groupLinkList.Next(link)) {
-        if (!static_cast<CMapObjDefGroup*>(link->m_owner)->IsAllLoaded()) {
+        if (!static_cast<CMapObjDefGroup*>(link->owner)->IsAllLoaded()) {
             return false;
         }
     }

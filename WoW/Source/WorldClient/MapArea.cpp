@@ -54,7 +54,7 @@ void CMapArea::Purge() {
     }
 
     for (CMapBaseObjLink* link = this->chunkLinkList.Head(); link;) {
-        CMapChunk* chunk = static_cast<CMapChunk*>(link->m_owner);
+        CMapChunk* chunk = static_cast<CMapChunk*>(link->owner);
         CMapBaseObjLink* next = this->chunkLinkList.Next(link);
         this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
         this->m_chunkInfo[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x].m_flags = 0;
@@ -228,7 +228,7 @@ CMapChunk* CMapArea::PrepareChunk(int32_t x, int32_t y) {
 
     CMapChunk* chunk = CMap::AllocMapChunk();
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(chunk);
-    link->m_ref = this;
+    link->ref = this;
     this->chunkLinkList.LinkToTail(link);
 
     chunk->m_aIndex.x = x;

@@ -175,5 +175,5 @@ void CWorldScene::ScaleFadeDist(float scale) {
 void CMapObjDef::RenderWithCallback(TSGrowableArray<uint32_t>* groups) {
     CMapObj::SetGroupRenderCallback(reinterpret_cast<RENDER_CALLBACK>(CWorldScene::AddMapObjDefGroupToSortTable), this);
     CWorldScene::s_curMapObjDef = this;
-    this->m_owner->RenderInterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, groups);
+    this->mapObj->RenderInterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, groups);
 }

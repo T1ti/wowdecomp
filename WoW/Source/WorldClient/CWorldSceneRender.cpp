@@ -83,7 +83,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CWorldScene::nDoodadsRendered = 0;
     CWorldScene::s_unused_CD8624 = 0;
     CWorldScene::frustumStack[CWorldScene::frustumIndex].CalcPlanesFromCorners(CWorldScene::s_frustumCorners);
-    CWorldScene::s_occlusionFarDepth = World::s_farClip - 33.333332f;
+    CWorldScene::s_occlusionFarDepth = World::farClip - 33.333332f;
     CWorldScene::s_hasPendingExteriorGroups = CWorldScene::sortTable.moveableMapObjDefGroupList.Head() != nullptr;
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();

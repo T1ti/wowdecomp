@@ -178,7 +178,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
         return 0;
     }
 
-    CMapObj* owner = CWorldScene::s_viewerMapObjDef->m_owner;
+    CMapObj* owner = CWorldScene::s_viewerMapObjDef->mapObj;
 
     if (!owner || owner->m_fogsCount == 1) {
         return 0;
@@ -392,15 +392,15 @@ void CMapEntity::QueryLiquidSounds(TSGrowableArray<World::LiquidQueryResult>& re
     }
 
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (!(ref->m_type & CMapBaseObj::Type_MapObjDefGroup)) {
             continue;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObj* mapObj = mapObjDef->m_owner;
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObj* mapObj = mapObjDef->mapObj;
         C3Vector position = this->m_position * mapObjDef->m_invMat;
         mapObj->QueryLiquidSounds(mapObjDefGroup->groupNum, mapObjDefGroup->groupNum, 0, distance, position, results);
     }
@@ -519,22 +519,22 @@ void CMapEntity::Tick() {
 // OFFSET: 0x007A13E0
 bool CMapStaticEntity::GetMapObjAndGroup(CMapObjDef** mapObjDef, CMapObj** mapObj, CMapObjDefGroup** mapObjDefGroup, CMapObjGroup** mapObjGroup, int32_t skipHidden) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (!(ref->m_type & CMapBaseObj::Type_MapObjDefGroup)) {
             continue;
         }
 
         *mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* def = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
+        CMapObjDef* def = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
         *mapObjDef = def;
 
         if (skipHidden && (def->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
             continue;
         }
 
-        *mapObj = def->m_owner;
-        *mapObjGroup = def->m_owner->GetGroup((*mapObjDefGroup)->groupNum, 0);
+        *mapObj = def->mapObj;
+        *mapObjGroup = def->mapObj->GetGroup((*mapObjDefGroup)->groupNum, 0);
 
         if (*mapObjGroup) {
             return true;
@@ -589,13 +589,13 @@ bool CMapEntity::QueryInteriorLighting(CMapObjDef* mapObjDef, int32_t groupNum, 
 
     if (faceIndex) {
         C3Vector local = *pos * mapObjDef->m_invMat;
-        result = mapObjDef->m_owner->QueryLighting(groupNum, local, *faceIndex, &color, &flag);
+        result = mapObjDef->mapObj->QueryLighting(groupNum, local, *faceIndex, &color, &flag);
     } else {
         C3Vector local = this->m_position * mapObjDef->m_invMat;
         C3Segment seg;
         seg.start = C3Vector(local.x, local.y, local.z + 1.0f);
         seg.end = C3Vector(local.x, local.y, local.z - 12.0f);
-        result = mapObjDef->m_owner->QueryLighting(groupNum, seg, &color, &flag);
+        result = mapObjDef->mapObj->QueryLighting(groupNum, seg, &color, &flag);
     }
 
     if (!result) {
@@ -637,7 +637,7 @@ int32_t CMapEntity::QueryMapObjZoneName(const char** zoneName) {
     }
 
     *zoneName = "";
-    WMOAreaTableRec* rec = GetWMOAreaRec(mapObjDef->m_owner->m_header->m_wmoID, mapObjDef->m_nameSet, -1);
+    WMOAreaTableRec* rec = GetWMOAreaRec(mapObjDef->mapObj->m_header->m_wmoID, mapObjDef->m_nameSet, -1);
 
     if (rec) {
         const char* name = rec->m_areaName;
@@ -698,15 +698,15 @@ int32_t CMapEntity::QueryMapObjSubzoneName(const char** subzoneName, int32_t* ar
 // OFFSET: 0x007A1640
 bool CMapEntity::QueryMapObjAreaTable(WMOAreaTableRec** groupRec, WMOAreaTableRec** rootRec, int32_t* wmoGroupId) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             break;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObj* mapObj = mapObjDef->m_owner;
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObj* mapObj = mapObjDef->mapObj;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
 
         if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT))) {
@@ -725,20 +725,20 @@ bool CMapEntity::QueryMapObjAreaTable(WMOAreaTableRec** groupRec, WMOAreaTableRe
 // OFFSET: 0x007A18D0
 bool CMapEntity::QueryMapObjIDs(int32_t* wmoId, int32_t* wmoHash, int32_t* groupNum) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             break;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObj* mapObj = mapObjDef->m_owner;
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObj* mapObj = mapObjDef->mapObj;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->groupNum));
 
         if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             *wmoId = mapObj->m_header->m_wmoID;
-            *wmoHash = mapObjDef->m_owner->m_hashval;
+            *wmoHash = mapObjDef->mapObj->m_hashval;
             *groupNum = mapObjDefGroup->groupNum;
             return true;
         }
@@ -751,15 +751,15 @@ bool CMapEntity::QueryMapObjIDs(int32_t* wmoId, int32_t* wmoHash, int32_t* group
 // OFFSET: 0x007A1480
 int32_t CMapEntity::QueryInterior() {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             break;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->groupNum, 0);
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObjGroup* group = mapObjDef->mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
 
         if (group) {
             if (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
@@ -779,7 +779,7 @@ int32_t CMapEntity::QueryInterior() {
 // OFFSET: 0x007A1730
 int32_t CMapEntity::QueryMapObjFileName(const char** fileName) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             *fileName = nullptr;
@@ -787,8 +787,8 @@ int32_t CMapEntity::QueryMapObjFileName(const char** fileName) {
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObj* mapObj = mapObjDef->m_owner;
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObj* mapObj = mapObjDef->mapObj;
         CMapObjGroup* group = mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
 
         if (group && (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) || !(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT))) {
@@ -804,15 +804,15 @@ int32_t CMapEntity::QueryMapObjFileName(const char** fileName) {
 // OFFSET: 0x007A17E0
 bool CMapEntity::QueryMapObjMinimap(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads, int32_t inside, uint8_t indoorArea) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             return false;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
-        CMapObj* mapObj = mapObjDef->m_owner;
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
+        CMapObj* mapObj = mapObjDef->mapObj;
         uint8_t groupFlags = static_cast<uint8_t>(mapObj->GetGroupFlags(mapObjDefGroup->groupNum));
 
         if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT) || !(groupFlags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
@@ -835,14 +835,14 @@ bool CMapEntity::QueryMapObjMinimap(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* 
 // OFFSET: 0x007A1980
 bool CMapEntity::QueryMapObjMatrix(C44Matrix* matrix, C44Matrix* invMatrix) {
     for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
 
         if (ref->m_type & CMapBaseObj::Type_Chunk) {
             return false;
         }
 
         CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(ref);
-        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->m_ref);
+        CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(ref->m_parentLinkList.Head()->ref);
 
         if (!(mapObjDef->m_flags & MAPOBJ_FLAG_NO_DEPTH_SORT)) {
             if (matrix) {
@@ -856,7 +856,7 @@ bool CMapEntity::QueryMapObjMatrix(C44Matrix* matrix, C44Matrix* invMatrix) {
             return true;
         }
 
-        CMapObjGroup* group = mapObjDef->m_owner->GetGroup(mapObjDefGroup->groupNum, 0);
+        CMapObjGroup* group = mapObjDef->mapObj->GetGroup(mapObjDefGroup->groupNum, 0);
 
         if (group && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR)) {
             if (matrix) {

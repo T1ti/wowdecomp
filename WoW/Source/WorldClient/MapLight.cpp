@@ -82,7 +82,7 @@ void CMap::DestroyLight(CMapLight* light) {
     CMapBaseObjLink* link = light->m_parentLinkList.Head();
 
     while (link) {
-        CMapBaseObj* ref = link->m_ref;
+        CMapBaseObj* ref = link->ref;
         CMapBaseObjLink* next = light->m_parentLinkList.Next(link);
 
         if (ref) {
@@ -140,7 +140,7 @@ void CMap::LinkLightToChunks(CMapLight* light) {
             }
 
             CMapBaseObjLink* link = CMap::AllocBaseObjLink(light);
-            link->m_ref = chunk;
+            link->ref = chunk;
             chunk->m_lightLinkList.LinkToTail(link);
             chunk->UpdateLights();
         }
@@ -161,15 +161,15 @@ void CMap::LinkLightToMapObjDefs(CMapLight* light) {
 
         if (light->m_bbox.t.x >= mapObjDef->m_bbox.b.x && light->m_bbox.t.y >= mapObjDef->m_bbox.b.y && light->m_bbox.t.z >= mapObjDef->m_bbox.b.z
             && light->m_bbox.b.x <= mapObjDef->m_bbox.t.x && light->m_bbox.b.y <= mapObjDef->m_bbox.t.y && light->m_bbox.b.z <= mapObjDef->m_bbox.t.z) {
-            CMapObj* mapObj = mapObjDef->m_owner;
+            CMapObj* mapObj = mapObjDef->mapObj;
 
             if (mapObj && mapObj->TestBounds(box)) {
                 for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
-                    CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->m_owner);
+                    CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
 
                     if (!(group->m_flags & MAPOBJ_FLAG_INTERIOR) && light->m_bbox.Intersects(group->m_bbox)) {
                         CMapBaseObjLink* lightLink = CMap::AllocBaseObjLink(light);
-                        lightLink->m_ref = group;
+                        lightLink->ref = group;
                         group->lightLinkList.LinkToTail(lightLink);
                         group->UpdateLights();
                     }
@@ -186,7 +186,7 @@ void CMap::UpdateLight(CMapLight* light) {
 
     if (!light->m_parentLinkList.Head() && !light->m_light.m_type) {
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(light);
-        link->m_ref = nullptr;
+        link->ref = nullptr;
         CMap::s_globalLightList.LinkToTail(link);
     }
 

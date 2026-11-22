@@ -430,7 +430,7 @@ void CChunkLiquid::Batch() {
     s_batch.ReallocData(32);
 
     if (CMap::enableChunkBatching) {
-        CMapArea* area = static_cast<CMapArea*>(this->m_owner->m_parentLinkList.Head()->m_ref);
+        CMapArea* area = static_cast<CMapArea*>(this->m_owner->m_parentLinkList.Head()->ref);
         CMapChunk** row = &area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (this->m_owner->m_aIndex.y & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1)) + (this->m_owner->m_aIndex.x & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1))];
 
         for (int32_t y = 0; y < MAP_CHUNKS_PER_BATCH_AXIS; y++) {
