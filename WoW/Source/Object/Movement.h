@@ -78,8 +78,8 @@ class CMovement_C : public CMovementShared {
     CMovement_C(const C3Vector& position, float facing, const WOWGUID& ownerGuid, CGUnit_C* unit);
     ~CMovement_C();
     void SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, int32_t activePlayer);
-    void AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, WOWGUID transport, uint8_t seat);
-    void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float facing, float pitch, uint16_t extraFlags);
+    void AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, WOWGUID transport, uint8_t seat);
+    void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, float facing, float pitch, uint16_t extraFlags);
     int32_t AddTimeSkewSample(uint32_t localTime, uint32_t serverTime);
     void BuildCollisionBox(const C3Vector& position, CAaBox& box) const;
     void BuildCollisionVolume(const C3Vector& position, float height, C4Plane* planes, C3Vector* points, uint8_t* faces) const;
@@ -195,8 +195,8 @@ class CMovement_C : public CMovementShared {
     void AddToMoversList();
     void RemoveFromMoversList(BOOL stopSpline);
     int32_t UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, BOOL force);
-    void AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status);
-    void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, const C2Vector& direction, float speed, float verticalSpeed, const CMovementStatus* status);
+    void AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status);
+    void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, const C2Vector& direction, float speed, float verticalSpeed, const CMovementStatus* status);
     void AddPlayerTeleportEvent(uint32_t eventTime, bool needAck, uint32_t ackCounter, const CMovementStatus& status);
     void OnTeleportLocal(uint32_t eventTime, uint32_t ackCounter, const CMovementStatus& status);
     int32_t UpdateLaunchStatus(uint32_t time, const CMovementStatus& status, MoveEventId eventId, const C2Vector& direction, float speed, float verticalSpeed);

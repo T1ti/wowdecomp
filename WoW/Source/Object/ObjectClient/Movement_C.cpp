@@ -177,6 +177,9 @@ int32_t MovementGetLastUpdateTime(uint32_t* time) {
 int32_t MovementIdleMoveUnits(const void* data, void* param) {
     uint32_t now = OsGetAsyncTimeMs();
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
+    // 12213: "globals->initialized"
+    STORM_ASSERT(globals->m_flags & CMovementGlobals::FLAG_INITIALIZED);
     int32_t elapsed = now - globals->m_lastUpdateTime;
 
     if (elapsed > 0) {
@@ -254,6 +257,7 @@ uint32_t MovementGetIdleTime() {
 // OFFSET: 0x006E8F70
 void MovementSetTransportUpdateTime(uint32_t time) {
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
     globals->m_transportTime2 = globals->m_transportTime;
     globals->m_transportTime = time;
 }

@@ -73,6 +73,8 @@ CPlayerMoveEvent* CPlayerMoveQueue::AllocEvent(uint32_t eventTime, MoveEventId e
         event = s_freeList.NewNode(TSLIST_NEWNODE_UNLINKED, 0, 0);
     }
 
+    STORM_ASSERT(event);
+
     event->m_eventTime = eventTime;
     event->m_eventId = eventId;
     event->m_hasMoveStatus = 0;
@@ -116,9 +118,12 @@ CMovementGlobals::CMovementGlobals() {
 // VERIFY: 67bd1f8c manual
 // OFFSET: 0x006EC2C0
 void MovementInitialize(const char* logFile) {
+    STORM_ASSERT(MovementGetGlobals() == NULL);
+
     MovementSetGlobals(new (SMemAlloc(sizeof(CMovementGlobals), __FILE__, __LINE__, 0)) CMovementGlobals());
 
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
     SStrCopy(globals->m_logFileName, logFile, sizeof(globals->m_logFileName));
 
     uint32_t now = OsGetAsyncTimeMs();
@@ -566,6 +571,8 @@ uint32_t CMovement_C::GetMoveStartTime(uint32_t elapsed) {
 // VERIFY: 27d22089 manual
 // OFFSET: 0x006EA7E0
 int32_t CMovement_C::Interpolate(uint32_t now, uint32_t elapsed, C3Vector* position, float* facing, float* pitch) {
+    STORM_ASSERT(m_moveFlags2 & MOVEFLAG2_INTERP_MASK);
+
     CPlayerMoveEvent* next = this->m_moveQueue.Head();
     int32_t delta;
 
@@ -742,8 +749,11 @@ void CMovement_C::SetSplineFaceTarget(const WOWGUID& target) {
 
 // VERIFY: 50aa2f7e auto
 // OFFSET: 0x006ECAE0
-void CMovement_C::AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, WOWGUID transport, uint8_t seat) {
-    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventId);
+void CMovement_C::AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, WOWGUID transport, uint8_t seat) {
+    // 12213: "uint(eventType) < NUM_PMOVE_EVTS"
+    STORM_ASSERT(uint32_t(eventType) < NUM_PMOVE_EVTS);
+
+    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventType);
     event->m_facing = 0.0f;
     event->m_pitch = 0.0f;
     event->m_transportGuid = transport;
@@ -757,8 +767,11 @@ void CMovement_C::AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId even
 
 // VERIFY: ea0758f0 auto
 // OFFSET: 0x006EC840
-void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float facing, float pitch, uint16_t extraFlags) {
-    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventId);
+void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, float facing, float pitch, uint16_t extraFlags) {
+    // 12213: "uint(eventType) < NUM_PMOVE_EVTS"
+    STORM_ASSERT(uint32_t(eventType) < NUM_PMOVE_EVTS);
+
+    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventType);
     event->m_facing = facing;
     event->m_pitch = pitch;
     event->m_needAck = needAck;
@@ -4251,6 +4264,7 @@ void CMovement_C::SkipTime(uint32_t time) {
     }
 
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
     this->m_unit->SendTimeSkip(time);
     globals->m_timeCounterMaybe += time;
 }
@@ -5143,6 +5157,7 @@ void CMovement_C::ExecuteMovement(uint32_t time, uint32_t lastTime) {
     uint32_t total = delta;
     uint32_t processed = 0;
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
     int32_t result;
 
     if (delta > 250) {
@@ -5446,6 +5461,7 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
     }
 
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
 
     if (static_cast<int32_t>(time - globals->m_lastUpdateTime) < 0) {
         time = globals->m_lastUpdateTime;
@@ -5526,8 +5542,11 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
 
 // VERIFY: cb3d6470 auto
 // OFFSET: 0x006EC8B0
-void CMovement_C::AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status) {
-    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventId);
+void CMovement_C::AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, float value, const CMovementStatus* status) {
+    // 12213: "uint(eventType) < NUM_PMOVE_EVTS"
+    STORM_ASSERT(uint32_t(eventType) < NUM_PMOVE_EVTS);
+
+    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventType);
     event->m_value = value;
     event->m_needAck = needAck;
     event->m_ackCounter = ackCounter;
@@ -6452,8 +6471,11 @@ void CMovement_C::Extrapolate(uint32_t time, uint32_t elapsed) {
 
 // VERIFY: 760d3d30 auto
 // OFFSET: 0x006EC950
-void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventId, bool needAck, uint32_t ackCounter, const C2Vector& direction, float speed, float verticalSpeed, const CMovementStatus* status) {
-    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventId);
+void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, const C2Vector& direction, float speed, float verticalSpeed, const CMovementStatus* status) {
+    // 12213: "uint(eventType) < NUM_PMOVE_EVTS"
+    STORM_ASSERT(uint32_t(eventType) < NUM_PMOVE_EVTS);
+
+    CPlayerMoveEvent* event = CPlayerMoveQueue::AllocEvent(eventTime, eventType);
     event->m_ackCounter = ackCounter;
     event->m_needAck = needAck;
     event->m_value = direction.x;
