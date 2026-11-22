@@ -104,8 +104,21 @@ void UnitDebugCombatLogOnEnable(BOOL enable) {
 // MODE_LINEAR for ground ones), so this draws from it: spheres and the sampled curve through the Gxu debug-draw module
 // for a Catmull-Rom spline, projected circles for a linear one (queued here, drawn by RenderDebugPathingCircles during
 // the world render, where the client draws its selection circles). The server location is the spline's first point.
-// There is nothing to draw once the spline is done: 3.3.5 does not keep the last path of a stopped unit. Spline points
-// of a unit on a transport are transport-local and are moved to world space with the transport matrix.
+// 3.3.5 does not keep the path of a stopped unit, so this keeps a copy of the last spline's points for the shown
+// units (DebugPathLast), and draws its circles once the spline is done, as 0.5.3 drew the stored path of a stopped
+// unit. Spline points of a unit on a transport are transport-local and are moved to world space with the transport
+// matrix.
+//
+// The circles are the 0.5.3 size, 1 yard across, so they are small from the usual camera distance.
+
+// The last path of a shown unit: its spline's control points, still drawn after the spline is done (0.5.3 kept
+// m_debugPathPoints in the unit until the next move message).
+struct DebugPathLast {
+    WOWGUID m_guid;
+    uint32_t m_splineId;
+    WOWGUID m_transportGuid;
+    TSGrowableArray<C3Vector> m_points;
+};
 
 // The sampled curve of a flying spline, kept while the same spline (unit, spline id, point count) is shown: 0.5.3
 // sampled once per move message, and a taxi flight's curve runs to thousands of samples.
@@ -120,6 +133,40 @@ static const uint32_t DEBUG_PATH_CURVES = 4; // locked target and player, with r
 static const uint32_t DEBUG_PATH_MAX_SAMPLES = 0x4000; // port cap (0.5.3 had none)
 static DebugPathCurve s_debugPathCurves[DEBUG_PATH_CURVES];
 static uint32_t s_debugPathCurveNext;
+static DebugPathLast s_debugPathLast[DEBUG_PATH_CURVES];
+static uint32_t s_debugPathLastNext;
+
+static DebugPathLast* FindDebugPathLast(const WOWGUID& guid) {
+    for (uint32_t i = 0; i < DEBUG_PATH_CURVES; i++) {
+        if (s_debugPathLast[i].m_guid == guid) {
+            return &s_debugPathLast[i];
+        }
+    }
+
+    return nullptr;
+}
+
+// Copies the points of the unit's spline when it is a new one.
+static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WOWGUID& transportGuid) {
+    DebugPathLast* last = FindDebugPathLast(guid);
+
+    if (!last) {
+        last = &s_debugPathLast[s_debugPathLastNext];
+        s_debugPathLastNext = (s_debugPathLastNext + 1) % DEBUG_PATH_CURVES;
+        last->m_guid = guid;
+    } else if (last->m_splineId == spline->m_id && last->m_points.m_count == spline->m_spline.m_pointCount) {
+        return;
+    }
+
+    C3Spline_CatmullRom& path = spline->m_spline;
+    last->m_splineId = spline->m_id;
+    last->m_transportGuid = transportGuid;
+    last->m_points.SetCount(path.m_pointCount);
+
+    for (uint32_t i = 0; i < path.m_pointCount; i++) {
+        last->m_points.m_data[i] = path.Point(i);
+    }
+}
 
 static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid, CMoveSpline* spline) {
     C3Spline_CatmullRom& path = spline->m_spline;
@@ -172,29 +219,30 @@ static void QueueDebugPathCircle(const C3Vector& position, uint32_t argb) {
 }
 
 void CGUnit_C::RenderDebugPathing() {
+    const WOWGUID& guid = this->m_obj->m_guid;
     CMoveSpline* spline = this->m_movementData.m_spline;
+    bool moving = spline && !(spline->m_flags & SPLINEFLAG_DONE) && spline->m_spline.m_pointCount;
 
-    if (!spline || (spline->m_flags & SPLINEFLAG_DONE)) {
-        return;
+    if (moving) {
+        RememberDebugPath(guid, spline, this->m_movementData.m_transportGuid);
     }
 
-    C3Spline_CatmullRom& path = spline->m_spline;
-    uint32_t count = path.m_pointCount;
+    if (!moving || spline->m_spline.GetSplineMode() != MODE_CATMULLROM) {
+        // Ground move, or the unit stopped: a green circle at the server location, red circles at the path points.
+        DebugPathLast* last = FindDebugPathLast(guid);
 
-    if (!count) {
-        return;
-    }
+        if (!last) {
+            return;
+        }
 
-    C44Matrix transport;
-    bool onTransport = this->m_movementData.m_transportGuid && MovementGetTransportMtxSafe(this->m_movementData.m_transportGuid, &transport);
+        C44Matrix lastTransport;
+        bool lastOnTransport = last->m_transportGuid && MovementGetTransportMtxSafe(last->m_transportGuid, &lastTransport);
 
-    if (path.GetSplineMode() != MODE_CATMULLROM) {
-        // Ground move: a green circle at the server location, red circles at the path points.
-        for (uint32_t i = 0; i < count; i++) {
-            C3Vector point = path.Point(i);
+        for (uint32_t i = 0; i < last->m_points.m_count; i++) {
+            C3Vector point = last->m_points.m_data[i];
 
-            if (onTransport) {
-                point = point * transport;
+            if (lastOnTransport) {
+                point = point * lastTransport;
             }
 
             QueueDebugPathCircle(point, i ? 0xFFFF0000 : 0xFF00FF00);
@@ -202,6 +250,11 @@ void CGUnit_C::RenderDebugPathing() {
 
         return;
     }
+
+    C3Spline_CatmullRom& path = spline->m_spline;
+    uint32_t count = path.m_pointCount;
+    C44Matrix transport;
+    bool onTransport = this->m_movementData.m_transportGuid && MovementGetTransportMtxSafe(this->m_movementData.m_transportGuid, &transport);
 
     CImVector green(0x00, 0xFF, 0x00, 0xFF);
     CImVector white(0xFF, 0xFF, 0xFF, 0xFF);

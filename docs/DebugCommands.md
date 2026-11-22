@@ -77,7 +77,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | Status | Notes |
 |---|---|---|
-| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did. For flying (Catmull-Rom) splines, including taxi flights, it draws green spheres at the control points and a white line along the curve. Ground moves get circles projected on the ground: green at the start, red at each path point. |
+| `DebugTargetPath` (CVar) | works | When set to 1, draws the movement path of the locked target and of the player, as 0.5.3 did. For flying (Catmull-Rom) splines, including taxi flights, it draws green spheres at the control points and a white line along the curve. Ground moves get circles projected on the ground: green at the start, red at each path point. The circles are 1 yard across (the 0.5.3 size) and stay on the last path after the unit stops, as in 0.5.3. |
 | `CombatDebugForceActionOn` / `Off` | stub | |
 | `CombatDebugForceActionOtherOn` / `Off` | stub | |
 | `CombatDebugShowFlags` | stub | |
