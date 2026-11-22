@@ -59,7 +59,7 @@ struct MINIMAPTILE {
     /* 0098 */ C2iVector m_tileCoords; // Signed texture tile/quad indices; LeaveWorld resets both to -1.
     /* 00A0 */ int32_t m_groupId;
 
-    void BuildQuad(const CRect& rect, uint32_t index, const C2Vector* center, float scale, const CRect& bounds, float layoutScale, float width);
+    void BuildQuad(const CRect& rect, uint32_t index, const C2Vector* centerPoint, float radius, const CRect& maskBox, float layoutScale, float width);
     void Render(uint32_t index, const CImVector* color);
     void UpdateQuad(uint32_t index, C2Vector center, float scale, float layoutScale, float width);
 };
@@ -262,12 +262,12 @@ void MinimapSetSpiritHealerPOI(float x, float y);
 int32_t MinimapGetZoom();
 int32_t MinimapGetZoomLevels();
 
-extern CTexture* s_staticPOIArrowTexture;
-extern CTexture* s_corpseArrowTexture;
-extern CTexture* s_poiArrowTexture;
-extern CTexture* s_maskTexture;
+extern CTexture* s_arrowStaticTexture;
+extern CTexture* s_arrowCorpseTexture;
+extern CTexture* s_arrowPOITexture;
+extern CTexture* s_minimapMaskTexture;
 extern CTexture* s_classBlipTexture;
-extern CTexture* s_blipTexture;
+extern CTexture* s_objectBlipTexture;
 extern CTexture* s_iconTexture;
 
 void MinimapSetZoom(uint32_t zoom);

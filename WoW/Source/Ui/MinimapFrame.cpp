@@ -125,28 +125,28 @@ const TrackingTypeInfo* CGMinimapFrame::s_trackingInfo;
 int32_t CGMinimapFrame::s_trackingSpell;
 
 // STATIC: 0x00BEBA04
-static CTexture* s_vehicleTextures[7];
+static CTexture* s_vehicleBlipTextures[7];
 
 // STATIC: 0x00BEBA20
-static CTexture* s_groupArrowTexture;
+static CTexture* s_arrowPartyTexture;
 
 // STATIC: 0x00BEBA24
-CTexture* s_staticPOIArrowTexture;
+CTexture* s_arrowStaticTexture;
 
 // STATIC: 0x00BEBA28
-CTexture* s_corpseArrowTexture;
+CTexture* s_arrowCorpseTexture;
 
 // STATIC: 0x00BEBA2C
-CTexture* s_poiArrowTexture;
+CTexture* s_arrowPOITexture;
 
 // STATIC: 0x00BEBA30
-CTexture* s_maskTexture;
+CTexture* s_minimapMaskTexture;
 
 // STATIC: 0x00BEBA34
 CTexture* s_classBlipTexture;
 
 // STATIC: 0x00BEBA38
-CTexture* s_blipTexture;
+CTexture* s_objectBlipTexture;
 
 // STATIC: 0x00BEBA3C
 CTexture* s_iconTexture;
@@ -633,6 +633,8 @@ void CGMinimapFrame::EnterWorld() {
         format = GxTex_Abgr8888;
     } else if (g_theGxDevicePtr->Caps().m_rttFormat[GxTex_Rgb565]) {
         format = GxTex_Rgb565;
+    } else {
+        STORM_ASSERT(!("CGMinimapFrame::Initialize(): can't get render target for minimap"));
     }
 
     CGxTexFlags flags(GxTex_Linear, 0, 0, 0, 0, 1, 1, 0, 0, 0);
@@ -645,21 +647,36 @@ void CGMinimapFrame::EnterWorld() {
 void CGMinimapFrame::InitializeGame() {
     CStatus status;
 
-    s_maskTexture = TextureCreate("Textures\\MinimapMask", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_minimapMaskTexture = TextureCreate("Textures\\MinimapMask", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_minimapMaskTexture);
     s_iconTexture = TextureCreate("Interface\\Minimap\\POIIcons", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_blipTexture = TextureCreate("Interface\\Minimap\\ObjectIcons", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_iconTexture);
+    s_objectBlipTexture = TextureCreate("Interface\\Minimap\\ObjectIcons", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_objectBlipTexture);
     s_classBlipTexture = TextureCreate("Interface\\Minimap\\PartyRaidBlips", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[0] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[1] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Occupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[2] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[3] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Occupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[4] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[5] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Horde", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_vehicleTextures[6] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Alliance", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_staticPOIArrowTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_poiArrowTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapGuideArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_corpseArrowTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapCorpseArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
-    s_groupArrowTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapGroupArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_classBlipTexture);
+    s_vehicleBlipTextures[0] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[1] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Occupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[2] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[3] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Occupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[4] = TextureCreate("Interface\\Minimap\\Vehicle-Ground-Unoccupied", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[5] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Horde", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    s_vehicleBlipTextures[6] = TextureCreate("Interface\\Minimap\\Vehicle-Air-Alliance", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    for (uint32_t i = 0; i < ARRSIZE(s_vehicleBlipTextures); i++) {
+        STORM_ASSERT(s_vehicleBlipTextures[i]);
+    }
+#endif
+
+    s_arrowStaticTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_arrowStaticTexture);
+    s_arrowPOITexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapGuideArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_arrowPOITexture);
+    s_arrowCorpseTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapCorpseArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_arrowCorpseTexture);
+    s_arrowPartyTexture = TextureCreate("Interface\\Minimap\\Rotating-MinimapGroupArrow", CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &status, 1);
+    STORM_ASSERT(s_arrowPartyTexture);
 
     uint32_t width = 256;
     uint32_t height = 256;
@@ -1112,17 +1129,26 @@ void CGMinimapFrame::SetCompassRotation(float rotation) {
 
 // VERIFY: 7d85819d manual
 // OFFSET: 0x0057D5F0
-void MINIMAPTILE::BuildQuad(const CRect& rect, uint32_t index, const C2Vector* center, float scale, const CRect& bounds, float layoutScale, float width) {
-    float size = scale * 2.0f;
+void MINIMAPTILE::BuildQuad(const CRect& rect, uint32_t index, const C2Vector* centerPoint, float radius, const CRect& maskBox, float layoutScale, float width) {
+    STORM_ASSERT((centerPoint->x + radius) <= 1.0f);  // 12213: "( centerPoint.x + radius ) <= 1.0f"
+    STORM_ASSERT((centerPoint->y + radius) <= 1.0f);  // 12213: "( centerPoint.y + radius ) <= 1.0f"
+    STORM_ASSERT(centerPoint->x >= radius);  // 12213: "centerPoint.x >= radius"
+    STORM_ASSERT(centerPoint->y >= radius);  // 12213: "centerPoint.y >= radius"
+    STORM_ASSERT(rect.minX >= maskBox.minX);  // 12213: "rect.minx >= maskBox.minx"
+    STORM_ASSERT(rect.maxX <= maskBox.maxX);  // 12213: "rect.maxx <= maskBox.maxx"
+    STORM_ASSERT(rect.minY >= maskBox.minY);  // 12213: "rect.miny >= maskBox.miny"
+    STORM_ASSERT(rect.maxY <= maskBox.maxY);  // 12213: "rect.maxy <= maskBox.maxy"
+
+    float size = radius * 2.0f;
     float inv = 1.0f / size;
-    this->m_maskCoords[0].x = (rect.minX - bounds.minX) * inv;
-    this->m_maskCoords[0].y = (rect.maxY - bounds.minY) * inv;
-    this->m_maskCoords[1].x = (rect.maxX - bounds.minX) * inv;
-    this->m_maskCoords[1].y = (rect.maxY - bounds.minY) * inv;
-    this->m_maskCoords[2].x = (rect.minX - bounds.minX) * inv;
-    this->m_maskCoords[2].y = (rect.minY - bounds.minY) * inv;
-    this->m_maskCoords[3].x = (rect.maxX - bounds.minX) * inv;
-    this->m_maskCoords[3].y = (rect.minY - bounds.minY) * inv;
+    this->m_maskCoords[0].x = (rect.minX - maskBox.minX) * inv;
+    this->m_maskCoords[0].y = (rect.maxY - maskBox.minY) * inv;
+    this->m_maskCoords[1].x = (rect.maxX - maskBox.minX) * inv;
+    this->m_maskCoords[1].y = (rect.maxY - maskBox.minY) * inv;
+    this->m_maskCoords[2].x = (rect.minX - maskBox.minX) * inv;
+    this->m_maskCoords[2].y = (rect.minY - maskBox.minY) * inv;
+    this->m_maskCoords[3].x = (rect.maxX - maskBox.minX) * inv;
+    this->m_maskCoords[3].y = (rect.minY - maskBox.minY) * inv;
 
     const CRect& quad = s_quads[index].m_rect;
     this->m_texCoords[0].x = (rect.minX - quad.minY) * 2.0f;
@@ -1136,10 +1162,10 @@ void MINIMAPTILE::BuildQuad(const CRect& rect, uint32_t index, const C2Vector* c
 
     float vertexInv = 1.0f / size;
     float extent = layoutScale * width;
-    float left = (rect.minX - bounds.minX) * vertexInv * extent;
-    float right = vertexInv * (rect.maxX - bounds.minX) * extent;
-    float top = extent - vertexInv * (rect.maxY - bounds.minY) * extent;
-    float bottom = extent - (rect.minY - bounds.minY) * vertexInv * extent;
+    float left = (rect.minX - maskBox.minX) * vertexInv * extent;
+    float right = vertexInv * (rect.maxX - maskBox.minX) * extent;
+    float top = extent - vertexInv * (rect.maxY - maskBox.minY) * extent;
+    float bottom = extent - (rect.minY - maskBox.minY) * vertexInv * extent;
     this->m_vertices[0].x = left;
     this->m_vertices[0].y = top;
     this->m_vertices[0].z = 0.0f;
@@ -1170,7 +1196,7 @@ void MINIMAPTILE::Render(uint32_t index, const CImVector* color) {
     g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
     GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
     GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_maskTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_minimapMaskTexture, 1, nullptr));
     GxRsSet(GxRs_ColorOp1, GxTexOp_Mod);
     GxRsSet(GxRs_AlphaOp1, GxTexOp_Mod);
     C3Vector normal(0.0f, 0.0f, 1.0f);
@@ -1772,7 +1798,7 @@ done:
 // VERIFY: 49439d70 manual
 // OFFSET: 0x00581E80
 void CGMinimapFrame::Render() {
-    if (!s_maskTexture || !(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID) || !s_inWorld) {
+    if (!s_minimapMaskTexture || !(this->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_RECT_VALID) || !s_inWorld) {
         return;
     }
 
@@ -1846,6 +1872,7 @@ void CGMinimapFrame::Render() {
     int32_t updated = MinimapUpdate(worldObject, CGPlayer_C::GetNewContinentID(), &position, &center, &scale, s_tiles, &s_indoor, s_scaleChanged);
 
     if ((updated || s_scaleChanged) && !s_indoor.m_active) {
+        STORM_ASSERT(scale >= 0.0f);  // 12213: "radius >= 0.0f"
         this->UpdateQuads(center, scale);
         s_scaleChanged = 0;
     }
@@ -2274,12 +2301,14 @@ void CGMinimapFrame::SetPingPosition(const WOWGUID& guid, const C2Vector& positi
 // VERIFY: 7e3ce000 manual
 // OFFSET: 0x0057F7F0
 int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
+    MINIMAPENUMPARAM* info = static_cast<MINIMAPENUMPARAM*>(param);
+    STORM_ASSERT(info);
+
     if (guid == ClntObjMgrGetActivePlayer()) {
         return 1;
     }
 
-    MINIMAPENUMPARAM* data = static_cast<MINIMAPENUMPARAM*>(param);
-    CGPlayer_C* player = data->m_player;
+    CGPlayer_C* player = info->m_player;
     CGObject_C* object = ClntObjMgrObjectPtr(guid, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!object) {
@@ -2287,9 +2316,9 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
     }
 
     C3Vector position = object->GetPosition();
-    float centerX = data->m_position.x;
-    float centerY = data->m_position.y;
-    float radius = data->m_radius;
+    float centerX = info->m_position.x;
+    float centerY = info->m_position.y;
+    float radius = info->m_radius;
 
     if (radius * 0.8f * (radius * 0.8f) < (position.x - centerX) * (position.x - centerX) + (position.y - centerY) * (position.y - centerY)) {
         return 1;
@@ -2342,7 +2371,10 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
             }
 
             if (unit->IsTracked() && player->CanInteract(unit)) {
-                if (CGMinimapFrame::s_trackingInfo->m_npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_PROFESSION) {
+                const TrackingTypeInfo* info = CGMinimapFrame::s_trackingInfo;
+                STORM_ASSERT(info);
+
+                if (info->m_npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_TRAINER_PROFESSION) {
                     tracked = 1;
                 }
 
@@ -2393,19 +2425,19 @@ int32_t CGMinimapFrame::ObjectEnumProc(WOWGUID guid, void* param) {
         World::QueryMapObjIDs(object->m_worldObject, &wmoId, &wmoHash, &groupNum);
     }
 
-    if (!data->m_wmoId || (wmoId == data->m_wmoId && wmoHash == data->m_wmoHash)) {
-        OBJINFO* info = s_objInfo[type].New();
+    if (!info->m_wmoId || (wmoId == info->m_wmoId && wmoHash == info->m_wmoHash)) {
+        OBJINFO* objInfo = s_objInfo[type].New();
         C3Vector objectPosition = object->GetPosition();
-        float width = data->m_frame->GetWidth();
-        C2Vector coords = CGMinimapFrame::WorldPosToMinimapFrameCoords(data->m_position, data->m_radius, objectPosition.x, objectPosition.y, data->m_scale, width);
-        info->m_guid = guid;
-        info->m_rotated.x = coords.x;
-        info->m_rotated.y = coords.y;
-        info->m_position.y = coords.y;
-        info->m_position.x = coords.x;
-        info->m_otherFloor = wmoId != data->m_wmoId;
-        info->m_tracked = tracked;
-        info->m_questGiver = questGiver;
+        float width = info->m_frame->GetWidth();
+        C2Vector coords = CGMinimapFrame::WorldPosToMinimapFrameCoords(info->m_position, info->m_radius, objectPosition.x, objectPosition.y, info->m_scale, width);
+        objInfo->m_guid = guid;
+        objInfo->m_rotated.x = coords.x;
+        objInfo->m_rotated.y = coords.y;
+        objInfo->m_position.y = coords.y;
+        objInfo->m_position.x = coords.x;
+        objInfo->m_otherFloor = wmoId != info->m_wmoId;
+        objInfo->m_tracked = tracked;
+        objInfo->m_questGiver = questGiver;
     }
 
     return 1;
@@ -2627,11 +2659,11 @@ void CGMinimapFrame::RenderOverlay(const C44Matrix& rotation) {
         CTexture* texture;
 
         if (direction->m_dynamicIndex == DYNAMIC_POI_CORPSE) {
-            texture = s_corpseArrowTexture;
+            texture = s_arrowCorpseTexture;
         } else if (direction->m_dynamicIndex == DYNAMIC_POI_NONE) {
-            texture = s_staticPOIArrowTexture;
+            texture = s_arrowStaticTexture;
         } else {
-            texture = s_poiArrowTexture;
+            texture = s_arrowPOITexture;
         }
 
         if (!texture) {
@@ -2799,7 +2831,7 @@ void CGMinimapFrame::RenderGroupBlips(const C44Matrix& rotation) {
 // VERIFY: a2aea681 manual
 // OFFSET: 0x00580380
 void CGMinimapFrame::RenderObjectBlips(const C44Matrix& rotation, bool otherFloor) {
-    if (!s_blipTexture) {
+    if (!s_objectBlipTexture) {
         return;
     }
 
@@ -2846,7 +2878,7 @@ void CGMinimapFrame::RenderObjectBlips(const C44Matrix& rotation, bool otherFloo
         return;
     }
 
-    CGxTex* gxTex = TextureGetGxTex(s_blipTexture, 0, nullptr);
+    CGxTex* gxTex = TextureGetGxTex(s_objectBlipTexture, 0, nullptr);
 
     if (!gxTex) {
         return;
@@ -2869,7 +2901,7 @@ void CGMinimapFrame::RenderObjectBlips(const C44Matrix& rotation, bool otherFloo
 // OFFSET: 0x00580720
 void CGMinimapFrame::RenderVehicleBlips(const C44Matrix& rotation) {
     for (uint32_t list = MINIMAP_VEHICLE_GROUND_UNOCCUPIED; list < MINIMAP_NUM_TYPES; list++) {
-        CTexture* texture = s_vehicleTextures[list - MINIMAP_VEHICLE_GROUND_UNOCCUPIED];
+        CTexture* texture = s_vehicleBlipTextures[list - MINIMAP_VEHICLE_GROUND_UNOCCUPIED];
 
         if (!s_objInfo[list].m_count || !texture) {
             continue;
@@ -2953,7 +2985,7 @@ void CGMinimapFrame::RenderVehicleBlips(const C44Matrix& rotation) {
 void CGMinimapFrame::RenderPartyBlips(const C44Matrix& rotation) {
     static C3Vector s_normal(0.0f, 0.0f, 1.0f);
 
-    if (!s_groupArrowTexture) {
+    if (!s_arrowPartyTexture) {
         return;
     }
 
@@ -3017,7 +3049,7 @@ void CGMinimapFrame::RenderPartyBlips(const C44Matrix& rotation) {
         return;
     }
 
-    CGxTex* gxTex = TextureGetGxTex(s_groupArrowTexture, 0, nullptr);
+    CGxTex* gxTex = TextureGetGxTex(s_arrowPartyTexture, 0, nullptr);
 
     if (!gxTex) {
         return;
@@ -3037,7 +3069,7 @@ void CGMinimapFrame::RenderPartyBlips(const C44Matrix& rotation) {
 // VERIFY: d41dccb8 manual
 // OFFSET: 0x00580EC0
 void CGMinimapFrame::RenderRaidArrows(const C44Matrix& rotation) {
-    if (!s_groupArrowTexture) {
+    if (!s_arrowPartyTexture) {
         return;
     }
 
@@ -3101,7 +3133,7 @@ void CGMinimapFrame::RenderRaidArrows(const C44Matrix& rotation) {
         return;
     }
 
-    CGxTex* gxTex = TextureGetGxTex(s_groupArrowTexture, 0, nullptr);
+    CGxTex* gxTex = TextureGetGxTex(s_arrowPartyTexture, 0, nullptr);
 
     if (!gxTex) {
         return;
@@ -3284,7 +3316,7 @@ void CGMinimapFrame::RenderInside(float scale, const C2Vector* center, const CIm
 
     GxXformSet(GxXform_Tex0, texMatrix);
     GxRsSet(GxRs_TextureShader1, 1);
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_maskTexture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(s_minimapMaskTexture, 1, nullptr));
     g_theGxDevicePtr->XformPush(GxXform_Tex1);
     GxXformTranslate(GxXform_Tex1, C3Vector(0.0f, 1.0f, 0.0f));
     GxXformScale(GxXform_Tex1, C3Vector(1.0f, -1.0f, 1.0f));
@@ -3580,6 +3612,7 @@ int32_t CGMinimapFrame::OnLayerTrackUpdate(const CMouseEvent& evt) {
             }
 
             if (s_objInfo[i][j].m_tracked && object) {
+                STORM_ASSERT(object->IsA(TYPE_UNIT));
                 const char* title = static_cast<CGUnit_C*>(object)->GetUnitTitle();
 
                 if (title) {
@@ -3642,11 +3675,11 @@ void RefreshWorldStatePOIs(uint32_t state) {
 // VERIFY: ac080634 manual
 // OFFSET: 0x0057BD90
 void CGMinimapFrame::ShutdownGame() {
-    if (s_maskTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_maskTexture));
+    if (s_minimapMaskTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_minimapMaskTexture));
     }
 
-    s_maskTexture = nullptr;
+    s_minimapMaskTexture = nullptr;
 
     if (s_iconTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(s_iconTexture));
@@ -3654,11 +3687,11 @@ void CGMinimapFrame::ShutdownGame() {
 
     s_iconTexture = nullptr;
 
-    if (s_blipTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_blipTexture));
+    if (s_objectBlipTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_objectBlipTexture));
     }
 
-    s_blipTexture = nullptr;
+    s_objectBlipTexture = nullptr;
 
     if (s_classBlipTexture) {
         HandleClose(reinterpret_cast<HOBJECT>(s_classBlipTexture));
@@ -3667,31 +3700,31 @@ void CGMinimapFrame::ShutdownGame() {
     s_classBlipTexture = nullptr;
 
     for (uint32_t i = 0; i < 7; i++) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_vehicleTextures[i]));
-        s_vehicleTextures[i] = nullptr;
+        HandleClose(reinterpret_cast<HOBJECT>(s_vehicleBlipTextures[i]));
+        s_vehicleBlipTextures[i] = nullptr;
     }
 
-    if (s_staticPOIArrowTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_staticPOIArrowTexture));
+    if (s_arrowStaticTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_arrowStaticTexture));
     }
 
-    s_staticPOIArrowTexture = nullptr;
+    s_arrowStaticTexture = nullptr;
 
-    if (s_poiArrowTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_poiArrowTexture));
+    if (s_arrowPOITexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_arrowPOITexture));
     }
 
-    s_poiArrowTexture = nullptr;
+    s_arrowPOITexture = nullptr;
 
-    if (s_corpseArrowTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_corpseArrowTexture));
+    if (s_arrowCorpseTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_arrowCorpseTexture));
     }
 
-    s_corpseArrowTexture = nullptr;
+    s_arrowCorpseTexture = nullptr;
 
-    if (s_groupArrowTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(s_groupArrowTexture));
+    if (s_arrowPartyTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(s_arrowPartyTexture));
     }
 
-    s_groupArrowTexture = nullptr;
+    s_arrowPartyTexture = nullptr;
 }
