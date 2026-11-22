@@ -456,7 +456,7 @@ static int32_t Script_SetShapeshift(lua_State* L) {
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2));
 
     if (slot - 1 < s_shapeshiftSpells.m_count) {
-        int32_t spellId = s_shapeshiftSpells.m_data[slot - 1].m_spellId;
+        int32_t spellId = s_shapeshiftSpells.m_data[slot - 1].spellID;
         uint32_t duration = 0;
         uint32_t start = 0;
         uint32_t enable = 0;

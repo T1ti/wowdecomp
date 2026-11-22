@@ -566,7 +566,7 @@ static int32_t Script_ToggleSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAXIMUM_LEARNED_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], -1);
     }
 
@@ -579,7 +579,7 @@ static int32_t Script_EnableSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAXIMUM_LEARNED_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], 1);
     }
 
@@ -592,7 +592,7 @@ static int32_t Script_DisableSpellAutocast(lua_State* L) {
     uint32_t slot = 0;
     int32_t petSpell;
 
-    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAX_SPELLS && s_petSpellList[slot]) {
+    if (GetSlotFromLua(L, &slot, &petSpell, nullptr, 1) && petSpell && slot < MAXIMUM_LEARNED_SPELLS && s_petSpellList[slot]) {
         CGPetInfo::SetSpellAutocast(s_petSpellList[slot], 0);
     }
 
@@ -761,7 +761,7 @@ static int32_t Script_CastShapeshiftForm(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
     if (index < s_shapeshiftSpells.m_count) {
-        Spell_C_ClickSpell(s_shapeshiftSpells.m_data[index].m_spellId, nullptr, WOWGUID{ 0 });
+        Spell_C_ClickSpell(s_shapeshiftSpells.m_data[index].spellID, nullptr, WOWGUID{ 0 });
     }
 
     return 0;
@@ -787,7 +787,7 @@ static int32_t Script_GetShapeshiftFormCooldown(lua_State* L) {
     uint32_t start = 0;
     uint32_t duration = 0;
     uint32_t enable = 0;
-    Spell_C_GetSpellCooldown(s_shapeshiftSpells.m_data[index].m_spellId, 0, &duration, &start, &enable);
+    Spell_C_GetSpellCooldown(s_shapeshiftSpells.m_data[index].spellID, 0, &duration, &start, &enable);
     lua_pushnumber(L, start * 0.001);
     lua_pushnumber(L, duration * 0.001);
     lua_pushnumber(L, enable);
@@ -845,7 +845,7 @@ static int32_t Script_GetShapeshiftFormInfo(lua_State* L) {
     SpellRec spell;
     SpellUsableInfo* info = &s_shapeshiftSpells.m_data[index];
 
-    if (!g_spellDB.GetRecord(info->m_spellId, &spell)) {
+    if (!g_spellDB.GetRecord(info->spellID, &spell)) {
         return 0;
     }
 

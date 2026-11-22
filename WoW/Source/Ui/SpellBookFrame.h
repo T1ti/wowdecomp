@@ -13,11 +13,11 @@ class CGUnit_C;
 class CGObject_C;
 class AuraData;
 
-// Spellbook slot capacity for the player and pet spell lists (FrameXML MAX_SPELLS).
-static const uint32_t MAX_SPELLS = 1024;
+// Spellbook slot capacity for the player and pet spell lists (FrameXML MAXIMUM_LEARNED_SPELLS).
+static const uint32_t MAXIMUM_LEARNED_SPELLS = 1024;
 
 struct SpellUsableInfo {
-    /* 0000 */ int32_t m_spellId;
+    /* 0000 */ int32_t spellID;
     /* 0004 */ uint8_t m_usable;
     /* 0005 */ uint8_t m_noMana;
     /* 0006 */ uint8_t unused_0006[2];
@@ -122,8 +122,8 @@ void ClearPetSpellInfo();
 extern const char* s_companionTypes[NUM_COMPANION_TYPES];
 extern TSGrowableArray<SpellUsableInfo> s_shapeshiftSpells;
 extern uint32_t s_numSkillInfos;
-extern uint32_t s_displayedSpells[MAX_SPELLS];
-extern int32_t s_spellList[MAX_SPELLS];
+extern uint32_t s_displayedSpells[MAXIMUM_LEARNED_SPELLS];
+extern int32_t s_spellList[MAXIMUM_LEARNED_SPELLS];
 extern uint32_t s_numSpells;
 extern uint32_t s_displayedSpellCount;
 extern TSGrowableArray<SpellBookSkillInfo*> s_skillInfos;
@@ -141,9 +141,9 @@ int __cdecl SortCompanions(const void* a, const void* b);
 
 extern TSGrowableArray<int32_t> s_trackingSpells;
 
-extern int32_t s_spellList[MAX_SPELLS];
+extern int32_t s_spellList[MAXIMUM_LEARNED_SPELLS];
 extern uint32_t s_numSpells;
-extern uint32_t s_petSpellList[MAX_SPELLS];
+extern uint32_t s_petSpellList[MAXIMUM_LEARNED_SPELLS];
 extern TSBitField<TSFixedArray<uint32_t> > s_knownSpellBits;
 
 int32_t FindSpellSlotByName(const char* name, const char* subtext, int32_t* petSpell);

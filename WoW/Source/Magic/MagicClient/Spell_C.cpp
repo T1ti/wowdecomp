@@ -5301,7 +5301,7 @@ void Spell_C_CancelAura(const SpellRec* spell, CGUnit_C* unit, int32_t auraIndex
             for (uint32_t i = s_shapeshiftSpells.Count(); i; ) {
                 i--;
 
-                if (s_shapeshiftSpells.m_data[i].m_spellId == spell->m_id) {
+                if (s_shapeshiftSpells.m_data[i].spellID == spell->m_id) {
                     return;
                 }
             }
