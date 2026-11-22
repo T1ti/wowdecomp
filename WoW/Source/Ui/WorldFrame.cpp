@@ -1959,6 +1959,12 @@ void CGWorldFrame::OnLayerUpdate(float elapsedSec) {
         }
     }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the world editor's cursor (WorldEditHooks.h), along this frame's picking segment. HitTestPoint
+    // leaves the segment zero when it did not run or found the cursor hidden.
+    WorldEditSetCursorSegment(focus == this ? &hit.m_segment.start : nullptr, focus == this ? &hit.m_segment.end : nullptr);
+#endif
+
     s_spellShadowStyle = SPELL_NONE;
 
     switch (kind) {

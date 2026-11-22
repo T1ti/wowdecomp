@@ -195,6 +195,21 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
     }
 
     ConsoleWriteA("  slopes: %s", DEFAULT_COLOR, WowEditTerrainGetSlopes() ? "on" : "off");
+
+    if (WowEditTerrainGetBrush() > 0.0f) {
+        float x;
+        float y;
+        float z;
+
+        if (WowEditTerrainGetBrushPoint(&x, &y, &z)) {
+            ConsoleWriteA("  brush: %.2f yards, at %.2f %.2f %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), x, y, z);
+        } else {
+            ConsoleWriteA("  brush: %.2f yards, cursor not over terrain", DEFAULT_COLOR, WowEditTerrainGetBrush());
+        }
+    } else {
+        ConsoleWrite("  brush: off", DEFAULT_COLOR);
+    }
+
     ConsoleWriteA("  test: mode %d", DEFAULT_COLOR, WowEditTerrainGetTest());
     ConsoleWriteA("  markers: %s", DEFAULT_COLOR, s_markers ? "on" : "off");
     return 1;
@@ -240,6 +255,37 @@ static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments
     return 1;
 }
 
+// "wowEditBrush [radius|off]": the brush cursor; no argument toggles a 10-yard brush.
+static const float DEFAULT_BRUSH_RADIUS = 10.0f;
+
+static int32_t CCommand_WowEditBrush(const char* command, const char* arguments) {
+    float radius;
+
+    if (!arguments || !*arguments) {
+        radius = WowEditTerrainGetBrush() > 0.0f ? 0.0f : DEFAULT_BRUSH_RADIUS;
+    } else if (!SStrCmpI(arguments, "off", STORM_MAX_STR)) {
+        radius = 0.0f;
+    } else {
+        radius = SStrToFloat(arguments);
+
+        if (!(radius >= 0.0f)) {
+            ConsoleWrite("Usage: wowEditBrush [radius in yards|off]", ERROR_COLOR);
+            return 1;
+        }
+    }
+
+    WowEditTerrainSetBrush(radius);
+
+    if (WowEditTerrainGetBrush() > 0.0f) {
+        ConsoleWriteA("WowEdit: brush, %.2f yards", DEFAULT_COLOR, WowEditTerrainGetBrush());
+        PrepareTerrainOverlays();
+    } else {
+        ConsoleWrite("WowEdit: brush off", DEFAULT_COLOR);
+    }
+
+    return 1;
+}
+
 static int32_t CCommand_WowEditMarkers(const char* command, const char* arguments) {
     s_markers = ParseSwitch(arguments, s_markers);
 
@@ -257,6 +303,7 @@ void WowEditRegisterConsoleCommands() {
     ConsoleCommandRegister("wowEdit", CCommand_WowEdit, CATEGORY_DEBUG, "WowEdit: shader support and overlays in use");
     ConsoleCommandRegister("wowEditGrid", CCommand_WowEditGrid, CATEGORY_DEBUG, "WowEdit: terrain grid [0-3|off]");
     ConsoleCommandRegister("wowEditSlopes", CCommand_WowEditSlopes, CATEGORY_DEBUG, "WowEdit: impassable slopes [0|1]");
+    ConsoleCommandRegister("wowEditBrush", CCommand_WowEditBrush, CATEGORY_DEBUG, "WowEdit: terrain brush cursor [radius|off]");
     ConsoleCommandRegister("wowEditMarkers", CCommand_WowEditMarkers, CATEGORY_DEBUG, "WowEdit: sample editor markers [0|1]");
 }
 

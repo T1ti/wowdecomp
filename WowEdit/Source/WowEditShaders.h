@@ -8,11 +8,12 @@
 // BLS containers, decompiled to HLSL with guessed names). The "_internal" suffix sets them apart from the client's
 // shipped shaders: they belong to the tool. No 3.3.x build of them survives.
 //
-// Port: grid (all four permutations) and impassable slopes are rewritten for Shader Model 3 (ps_3_0, with a vs_3_0
-// vertex shader, since D3D9 pairs a 3.0 pixel shader only with a 3.0 vertex shader). Their constants keep the 8.1
-// register layout (8.1 cb11[n] is c[n] here), so each function can be compared with its 8.1 counterpart line by line.
-// The overlay, pathing and brush shaders are not ported: they read editor data (per-cell colors, pathing and brush
-// textures) this client does not have.
+// Port: grid (all four permutations), impassable slopes and the terrain brush are rewritten for Shader Model 3 (ps_3_0,
+// with a vs_3_0 vertex shader, since D3D9 pairs a 3.0 pixel shader only with a 3.0 vertex shader). Their constants keep
+// the 8.1 register layout (8.1 cb11[n] is c[n] here), so each function can be compared with its 8.1 counterpart line
+// by line. The brush reads a brush texture, which the port generates (WowEditTerrain.cpp), the 8.1 ones being
+// unknown. The overlay and pathing shaders are not ported: they read editor data (per-cell colors, pathing textures)
+// this client does not have.
 //
 // Instead of BLS files, the HLSL text is compiled when first needed with D3DCompile from the system's
 // d3dcompiler_47.dll, and the bytecode goes into ordinary CGxShader objects (CGxShader::m_code, then
@@ -31,7 +32,8 @@ enum WOWEDITSHADER : uint32_t {
     WOWEDITSHADER_GRID3 = 4, // permutation 3: cell grid with diagonals (c7), chunk (c5) and tile (c6) lines
     WOWEDITSHADER_SLOPES = 5, // 8.1 woweditimpassableslopes_internal: red at 25% where steeper than 50 degrees
     WOWEDITSHADER_TEST = 6, // port diagnostic: flat magenta at 40%, to tell the pass from the overlay shaders
-    NUM_WOWEDITSHADERS = 7,
+    WOWEDITSHADER_BRUSH = 7, // 8.1 woweditterrainbrush_internal: the brush texture (s0) around c4.xy, radius c6.x, tint c5
+    NUM_WOWEDITSHADERS = 8,
 };
 
 // Pixel shader constant registers, after 8.1 cb11.
@@ -42,6 +44,9 @@ enum WOWEDITSHADERCONST : uint32_t {
     WOWEDITCONST_CHUNK_COLOR = 5, // grid: chunk lines (8.1 "medium")
     WOWEDITCONST_TILE_COLOR = 6, // grid: map tile lines (8.1 "coarse")
     WOWEDITCONST_CELL_COLOR = 7, // grid: cell lines and diagonals (8.1 "fine")
+    WOWEDITCONST_BRUSH_CENTER = 4, // brush: world xy of the brush center
+    WOWEDITCONST_BRUSH_TINT = 5, // brush: color the texture is multiplied by
+    WOWEDITCONST_BRUSH_RADIUS = 6, // brush: radius in yards (x)
     NUM_WOWEDITCONSTS = 8,
 };
 

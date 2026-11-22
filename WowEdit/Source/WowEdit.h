@@ -19,6 +19,7 @@
 //   wowEdit                     status: shader support and which overlays are on
 //   wowEditGrid [0-3|off]       terrain grid, an 8.1 woweditgrid permutation (no argument: toggles permutation 3)
 //   wowEditSlopes [0|1]         impassable slopes (steeper than 50 degrees) in red
+//   wowEditBrush [radius|off]   the terrain brush cursor under the mouse (no argument: toggles a 10-yard brush)
 //   wowEditMarkers [0|1]        a sample of the editor's markers ahead of the player
 
 #ifdef WOWDECOMP_TOOL_FEATURES

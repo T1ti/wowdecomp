@@ -16,6 +16,7 @@
 
 #include <cstdint>
 
+class C3Vector;
 class CMapRenderChunk;
 
 // Overlay callbacks. Registering the same callback and parameter twice keeps one entry.
@@ -39,6 +40,14 @@ void WorldEditCollectTerrainChunk(CMapRenderChunk* chunk);
 void WorldEditRenderTerrainPass();
 // From CGWorldFrame::OnWorldRender, with the overlays: runs the terrain pass again, late.
 void WorldEditRenderTerrainPassLate();
+
+// The cursor: the world segment under the mouse, the one CGWorldFrame::OnLayerUpdate picks objects and ground along
+// each frame (CGWorldFrame::HitTestPoint, HITTESTRESULT::m_segment: from the near to the far plane, in world
+// coordinates). From OnLayerUpdate; nullptr, or a segment of zero length, when the cursor is not over the world (the
+// mouse is over another frame, the camera is being turned with the cursor hidden, or a nameplate took the pick).
+void WorldEditSetCursorSegment(const C3Vector* start, const C3Vector* end);
+// The segment of the last update; false when there is none.
+bool WorldEditGetCursorSegment(C3Vector* start, C3Vector* end);
 
 #endif
 

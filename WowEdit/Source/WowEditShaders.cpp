@@ -173,13 +173,13 @@ float4 GridPS3(PixelInput input) : COLOR0 {
     return coarseFade * (fineMediumColor - cb11[6]) + cb11[6];
 }
 
-// Impassable slopes: the face normal from the position's screen-space derivatives, compared with c0.xyz against
-// cos(50 degrees), the same walkable limit as the client's World::GetFacets (WORLD_QUERY_WALKABLE_ONLY).
 // Port diagnostic, not an 8.1 shader: every terrain pixel the pass reaches, flat magenta.
 float4 TestPS(PixelInput input) : COLOR0 {
     return float4(1.0f, 0.0f, 1.0f, 0.4f);
 }
 
+// Impassable slopes: the face normal from the position's screen-space derivatives, compared with c0.xyz against
+// cos(50 degrees), the same walkable limit as the client's World::GetFacets (WORLD_QUERY_WALKABLE_ONLY).
 float4 SlopesPS(PixelInput input) : COLOR0 {
     float3 tangentX = ddx(input.position);
     float3 tangentY = ddy(input.position);
@@ -188,6 +188,19 @@ float4 SlopesPS(PixelInput input) : COLOR0 {
     float alignment = dot(surfaceNormal, cb11[0].xyz);
     const float slopeThreshold = 0.642787635326385498046875f; // 0x3f248dbb
     return (alignment < slopeThreshold) ? float4(1.0f, 0.0f, 0.0f, 0.25f) : float4(0.0f, 0.0f, 0.0f, 0.0f);
+}
+
+// Terrain brush (8.1 woweditterrainbrush_internal): the brush texture laid flat on the terrain, centered on the world
+// xy c4.xy, the texture's edges at c6.x yards from it, multiplied by the tint c5. The texture is sampled from above:
+// the brush keeps its size on slopes, as seen from the top.
+sampler2D brushTexture : register(s0);
+
+float4 BrushPS(PixelInput input) : COLOR0 {
+    float2 projected = ProjectPosition(input.position);
+    float2 relativePosition = projected - cb11[4].xy;
+    float2 normalizedPosition = relativePosition / cb11[6].xx;
+    float2 uv = normalizedPosition * 0.5f + 0.5f;
+    return tex2D(brushTexture, uv) * cb11[5];
 }
 )HLSL";
 
@@ -206,6 +219,7 @@ static const WowEditShaderDef s_shaderDefs[NUM_WOWEDITSHADERS] = {
     { "WowEditGrid3", "GridPS3", "ps_3_0", GxSh_Pixel },
     { "WowEditImpassableSlopes", "SlopesPS", "ps_3_0", GxSh_Pixel },
     { "WowEditTest", "TestPS", "ps_3_0", GxSh_Pixel },
+    { "WowEditTerrainBrush", "BrushPS", "ps_3_0", GxSh_Pixel },
 };
 
 static CGxShader* s_shaders[NUM_WOWEDITSHADERS];

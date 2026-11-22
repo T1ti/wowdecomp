@@ -22,6 +22,13 @@ void WowEditTerrainSetGrid(int32_t permutation);
 int32_t WowEditTerrainGetGrid();
 void WowEditTerrainSetSlopes(bool show);
 bool WowEditTerrainGetSlopes();
+// Terrain brush: the 8.1 editor's brush cursor, a soft disc with a ring at its edge, laid on the terrain under the
+// mouse cursor. radius in yards; 0 turns it off.
+static const float WOWEDITBRUSH_MAX_RADIUS = 533.33333f; // one map tile
+void WowEditTerrainSetBrush(float radius);
+float WowEditTerrainGetBrush();
+// The terrain point the brush is on, from the last terrain pass; false when the cursor is not over terrain.
+bool WowEditTerrainGetBrushPoint(float* x, float* y, float* z);
 // Port diagnostics, to find where an overlay that draws nothing fails. Each test mode draws every chunk the pass
 // covers once more, before the overlays:
 enum WOWEDITTEST : int32_t {

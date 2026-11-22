@@ -7,6 +7,8 @@
 #include "Engine/Source/Gx/CGxDeviceD3d9Ex/CGxDeviceD3d9Ex.h"
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/Gx.h"
+#include "Engine/Source/Gx/CGxTexFlags.h"
+#include <cmath>
 #include <cstring>
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "WoW/Source/WorldClient/Map.h"
@@ -24,6 +26,10 @@ static int32_t s_test = WOWEDITTEST_OFF;
 static bool s_probe; // print the device state at the next pass's first draw
 static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
 static uint32_t s_lastChunkCount; // chunks the last pass drew over
+static float s_brushRadius; // yards; 0: no brush
+static C3Vector s_brushPoint; // the terrain point under the cursor
+static bool s_brushPointValid;
+static CGxTex* s_brushTexture;
 
 // Grid colors (RGBA), port defaults: the 8.1 editor sets them from its options, which are not known.
 static const float s_cellColor[4] = { 1.0f, 1.0f, 1.0f, 0.35f }; // c7, cell lines and diagonals
@@ -64,6 +70,110 @@ static void SetSlopesConstants() {
     float constants[NUM_WOWEDITCONSTS][4] = {};
     constants[0][2] = -1.0f;
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 0, &constants[0][0], NUM_WOWEDITCONSTS);
+}
+
+// ---- Brush
+
+// Brush look (port): the 8.1 editor sampled brush textures this client does not have, so the port draws its own: a
+// faint disc fading toward the edge, for the brush's reach, and a sharp ring at the radius, for the cursor. White, so
+// that the tint sets the color.
+static const uint32_t BRUSH_TEXTURE_SIZE = 128;
+static const float s_brushTint[4] = { 0.35f, 0.85f, 1.0f, 1.0f };
+
+static void UpdateBrushTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    static uint32_t s_texels[BRUSH_TEXTURE_SIZE * BRUSH_TEXTURE_SIZE];
+
+    if (command != GxTex_Latch) {
+        return;
+    }
+
+    for (uint32_t y = 0; y < BRUSH_TEXTURE_SIZE; y++) {
+        for (uint32_t x = 0; x < BRUSH_TEXTURE_SIZE; x++) {
+            // Distance from the center, 1 at the texture's edge (the brush radius), at the texel center.
+            float dx = (static_cast<float>(x) + 0.5f) / (BRUSH_TEXTURE_SIZE * 0.5f) - 1.0f;
+            float dy = (static_cast<float>(y) + 0.5f) / (BRUSH_TEXTURE_SIZE * 0.5f) - 1.0f;
+            float r = sqrtf(dx * dx + dy * dy);
+            float alpha = 0.0f;
+
+            if (r < 1.0f) {
+                // Disc: 30% at the center, falling to 8% at the edge.
+                float disc = 0.08f + 0.22f * (1.0f - r * r);
+                // Ring: full in the last 4% of the radius, fading over 3% on each side.
+                float ringDistance = fabsf(r - 0.95f);
+                float ring = ringDistance < 0.02f ? 1.0f : (ringDistance < 0.05f ? 1.0f - (ringDistance - 0.02f) / 0.03f : 0.0f);
+                alpha = disc > ring ? disc : ring;
+            }
+
+            // Clamped addressing repeats the edge texels outside the brush: they stay transparent (r >= 1).
+            uint32_t a = static_cast<uint32_t>(alpha * 255.0f + 0.5f);
+            s_texels[y * BRUSH_TEXTURE_SIZE + x] = (a << 24) | 0x00FFFFFF;
+        }
+    }
+
+    texels = s_texels;
+    texelStrideInBytes = width * 4;
+}
+
+static CGxTex* BrushTexture() {
+    if (!s_brushTexture) {
+        // Linear filtering, clamped (CGxTexFlags wrap 0), no mipmaps.
+        GxTexCreate(BRUSH_TEXTURE_SIZE, BRUSH_TEXTURE_SIZE, GxTex_Argb8888, CGxTexFlags(GxTex_Linear), nullptr, UpdateBrushTexture, s_brushTexture);
+    }
+
+    return s_brushTexture;
+}
+
+// The terrain point under the cursor: the picking segment of CGWorldFrame::OnLayerUpdate (WorldEditHooks.h) against
+// the terrain alone, so that the brush passes under buildings, doodads and units to the ground they stand on.
+static void UpdateBrushPoint() {
+    C3Vector start;
+    C3Vector end;
+    s_brushPointValid = false;
+
+    if (!WorldEditGetCursorSegment(&start, &end)) {
+        return;
+    }
+
+    C3Vector hit;
+    float distance = 1.0f;
+    s_brushPointValid = World::Intersect(start, end, &hit, &distance, WORLD_QUERY_TERRAIN, nullptr) != 0;
+
+    if (s_brushPointValid) {
+        s_brushPoint = hit;
+    }
+}
+
+static void SetBrushConstants() {
+    float constants[NUM_WOWEDITCONSTS][4] = {};
+    constants[WOWEDITCONST_PROJECT_X][0] = 1.0f;
+    constants[WOWEDITCONST_PROJECT_Y][1] = 1.0f;
+    constants[WOWEDITCONST_BRUSH_CENTER][0] = s_brushPoint.x;
+    constants[WOWEDITCONST_BRUSH_CENTER][1] = s_brushPoint.y;
+    constants[WOWEDITCONST_BRUSH_RADIUS][0] = s_brushRadius;
+
+    for (uint32_t i = 0; i < 4; i++) {
+        constants[WOWEDITCONST_BRUSH_TINT][i] = s_brushTint[i];
+    }
+
+    g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 0, &constants[0][0], NUM_WOWEDITCONSTS);
+}
+
+// The chunks the brush reaches, from their bounding spheres (world coordinates), seen from above.
+static uint32_t BrushChunks(CMapRenderChunk* const* chunks, uint32_t count, TSGrowableArray<CMapRenderChunk*>& reached) {
+    reached.SetCount(0);
+
+    for (uint32_t i = 0; i < count; i++) {
+        const CAaSphere& sphere = chunks[i]->m_sphere;
+        float dx = sphere.c.x - s_brushPoint.x;
+        float dy = sphere.c.y - s_brushPoint.y;
+        float reach = sphere.r + s_brushRadius;
+
+        if (dx * dx + dy * dy <= reach * reach) {
+            *reached.New() = chunks[i];
+        }
+    }
+
+    return reached.Count();
 }
 
 // Binds a chunk's vertices and indices the way CMapRenderChunk::RenderSetup does, without its transform and lights.
@@ -196,11 +306,18 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     CGxShader* vertexShader = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* gridShader = !late && s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
     CGxShader* slopesShader = !late && s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
+    CGxShader* brushShader = nullptr;
+
+    if (!late && s_brushRadius > 0.0f) {
+        UpdateBrushPoint();
+        brushShader = s_brushPointValid ? WowEditShaderGet(WOWEDITSHADER_BRUSH) : nullptr;
+    }
+
     bool shaderTest = s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE;
     CGxShader* testShader = shaderTest ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
     bool fixedTest = s_test == WOWEDITTEST_FIXED;
 
-    if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader))) {
+    if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader && !brushShader))) {
         return;
     }
 
@@ -274,13 +391,26 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
         DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, view, projection); });
     }
 
+    // The brush last, over the other overlays, on the chunks it reaches.
+    static TSGrowableArray<CMapRenderChunk*> s_brushChunks;
+    CGxTex* brushTexture = brushShader ? BrushTexture() : nullptr;
+
+    if (brushTexture && BrushChunks(chunks, count, s_brushChunks)) {
+        device->RsSet(GxRs_PixelShader, brushShader);
+        device->RsSet(GxRs_Texture0, brushTexture);
+        SetBrushConstants();
+        CMapRenderChunk* const* reached = s_brushChunks.m_data;
+        uint32_t reachedCount = s_brushChunks.Count();
+        DrawGroup(reached, viewProj, late, [&] { DrawChunks(reached, reachedCount, view, projection); });
+    }
+
     device->RsPop();
 }
 
 static void UpdateTerrainPass() {
     s_passCount = 0;
     s_lastChunkCount = 0;
-    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_test != WOWEDITTEST_OFF ? TerrainPass : nullptr);
+    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_brushRadius > 0.0f || s_test != WOWEDITTEST_OFF ? TerrainPass : nullptr);
 }
 
 bool WowEditTerrainPrepare() {
@@ -292,6 +422,10 @@ bool WowEditTerrainPrepare() {
 
     if (s_slopes) {
         ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
+    }
+
+    if (s_brushRadius > 0.0f) {
+        ready = WowEditShaderGet(WOWEDITSHADER_BRUSH) != nullptr && ready;
     }
 
     if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE) {
@@ -322,6 +456,27 @@ void WowEditTerrainSetSlopes(bool show) {
 
 bool WowEditTerrainGetSlopes() {
     return s_slopes;
+}
+
+void WowEditTerrainSetBrush(float radius) {
+    s_brushRadius = radius > 0.0f ? (radius < WOWEDITBRUSH_MAX_RADIUS ? radius : WOWEDITBRUSH_MAX_RADIUS) : 0.0f;
+    s_brushPointValid = false;
+    UpdateTerrainPass();
+}
+
+float WowEditTerrainGetBrush() {
+    return s_brushRadius;
+}
+
+bool WowEditTerrainGetBrushPoint(float* x, float* y, float* z) {
+    if (!s_brushPointValid) {
+        return false;
+    }
+
+    *x = s_brushPoint.x;
+    *y = s_brushPoint.y;
+    *z = s_brushPoint.z;
+    return true;
 }
 
 void WowEditTerrainSetTest(int32_t mode) {
@@ -389,7 +544,7 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         return;
     }
 
-    // Shaders: the first draw of the pass is the test pass when one is on, then slopes, then the grid.
+    // Shaders: the first draw of the pass is the test pass when one is on, then slopes, then the grid, then the brush.
     CGxShader* vs = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* ps = nullptr;
 
@@ -399,6 +554,8 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj,
         ps = WowEditShaderGet(WOWEDITSHADER_SLOPES);
     } else if (s_grid >= 0) {
         ps = WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid));
+    } else if (s_brushRadius > 0.0f) {
+        ps = WowEditShaderGet(WOWEDITSHADER_BRUSH);
     }
 
     IDirect3DVertexShader9* boundVs = nullptr;

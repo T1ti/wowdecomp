@@ -3,6 +3,7 @@
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Tempest/C3Vector.h"
 
 // See WorldEditHooks.h. Everything here is a port addition.
 
@@ -85,6 +86,30 @@ void WorldEditRenderTerrainPassLate() {
     if (s_terrainPass && s_terrainChunksDrawn && s_terrainChunks.m_count) {
         s_terrainPass(s_terrainChunks.m_data, s_terrainChunks.m_count, true);
     }
+}
+
+// ---- Cursor
+
+static C3Vector s_cursorStart;
+static C3Vector s_cursorEnd;
+static bool s_cursorValid;
+
+void WorldEditSetCursorSegment(const C3Vector* start, const C3Vector* end) {
+    s_cursorValid = start && end && (start->x != end->x || start->y != end->y || start->z != end->z);
+
+    if (s_cursorValid) {
+        s_cursorStart = *start;
+        s_cursorEnd = *end;
+    }
+}
+
+bool WorldEditGetCursorSegment(C3Vector* start, C3Vector* end) {
+    if (s_cursorValid) {
+        *start = s_cursorStart;
+        *end = s_cursorEnd;
+    }
+
+    return s_cursorValid;
 }
 
 #endif
