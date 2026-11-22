@@ -87,7 +87,7 @@ class CGCamera : public CSimpleCamera {
         VIEW_THIRD_PERSON_E = 5,
         VIEW_COMMENTATOR = 6,
         VIEW_BARBER_SHOP = 7,
-        NUM_VIEW_MODES,
+        MAX_CAMERA_VIEWS,
     };
 
     // SetView blendStyle (cameraViewBlendStyle). Names inferred from SetView:
@@ -182,7 +182,7 @@ class CGCamera : public CSimpleCamera {
 
     int32_t GetCameraDistance(float& distance, const C3Vector& position, const C3Vector& target, uint32_t flags);
     void ResetView(int32_t view);
-    void SetView(int32_t view, int32_t blendStyle, int32_t transition);
+    void SetView(int32_t newView, int32_t blendStyle, int32_t transition);
     C3Vector BumpCameraPositionFromLiquid(const C3Vector& target, float distance, const C3Vector& position);
     BOOL CanSmoothTarget();
     BOOL CanSmoothYaw(float yawMin, float yawMax);
@@ -225,7 +225,7 @@ class CGCamera : public CSimpleCamera {
     /* 00AC */ int32_t m_ignoreFacingRefs;
     /* 00B0 */ int32_t m_groundTiltRefs;
     /* 00B4 */ uint32_t m_viewIndex;
-    /* 00B8 */ CameraView m_views [NUM_VIEW_MODES];
+    /* 00B8 */ CameraView m_views [MAX_CAMERA_VIEWS];
     /* 0118 */ float m_distance;
     /* 011C */ float m_yaw;
     /* 0120 */ float m_pitch;
@@ -360,7 +360,7 @@ class CGCamera : public CSimpleCamera {
     int32_t SmoothSetFlyingMountHeight(float height, float delay, float scale, uint32_t time);
     int32_t SmoothSetHeight(float height, float delay, float scale, uint32_t time);
     float SmoothTargetFacing(float facing, int32_t moved);
-    void StartMotion(CGCameraMotion motion, uint32_t time, uint32_t duration, float speed);
+    void StartMotion(CGCameraMotion move, uint32_t time, uint32_t duration, float speed);
     int32_t StartSmoothDistance(float distance, float rate, uint32_t startTime);
     int32_t StartSmoothFlyingMountHeight(float height, float rate, uint32_t startTime);
     int32_t StartSmoothFoV(float offset, float rate, uint32_t startTime);
@@ -388,7 +388,7 @@ class CGCamera : public CSimpleCamera {
 extern float MAX_PITCH_ANGLE;
 extern float MIN_PITCH_ANGLE;
 extern int32_t s_cameraViewAngular[3];
-extern CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::NUM_VIEW_MODES];
+extern CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::MAX_CAMERA_VIEWS];
 extern const float s_terrainTiltTable[10][2];
 extern float s_targetHeightOffset;
 extern float s_cameraBobFrequency;
@@ -464,7 +464,7 @@ enum CAMERA_TERRAIN_TILT_PARAM : int32_t {
 };
 
 extern CVar* s_cvCameraView;
-extern CVar* s_cvCameraViewData[CGCamera::NUM_VIEW_MODES][NUM_CAMERA_VIEW_DATA];
+extern CVar* s_cvCameraViewData[CGCamera::MAX_CAMERA_VIEWS][NUM_CAMERA_VIEW_DATA];
 extern CVar* s_cameraSmooth;
 extern CVar* s_cvCameraSmoothStyle;
 extern CVar* s_cvCameraTerrainTilt;

@@ -98,7 +98,7 @@ CVar* s_cvCameraCustomViewSmoothing;
 CVar* s_cvCameraView;
 
 // STATIC: 0x00C24DC8
-CVar* s_cvCameraViewData[CGCamera::NUM_VIEW_MODES][NUM_CAMERA_VIEW_DATA];
+CVar* s_cvCameraViewData[CGCamera::MAX_CAMERA_VIEWS][NUM_CAMERA_VIEW_DATA];
 
 // STATIC: 0x00C24E28
 CVar* s_cvCameraViewBlendStyle;
@@ -167,7 +167,7 @@ CVar* s_cvCameraSavedVehicleDistance;
 CVar* s_cvCameraSavedDistance;
 
 // STATIC: 0x00AD1B54
-static const char* s_cameraViewNames[CGCamera::NUM_VIEW_MODES] = { "", "A", "B", "C", "D", "E", "Com", "Barber Shop" };
+static const char* s_cameraViewNames[CGCamera::MAX_CAMERA_VIEWS] = { "", "A", "B", "C", "D", "E", "Com", "Barber Shop" };
 
 // STATIC: 0x00AD1B74
 static const char* s_cameraViewDataNames[NUM_CAMERA_VIEW_DATA] = { "Distance", "Pitch", "Yaw" };
@@ -340,8 +340,10 @@ static const char* s_cameraTerrainTiltStateDefaults[NUM_CAMERA_SMOOTH_STYLES][NU
 
 // VERIFY: 53117c38 auto
 // OFFSET: 0x005FD630
-static bool ValidateCameraView(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float view = SStrToFloat(value);
+static bool ValidateCameraView(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float view = SStrToFloat(newValue);
 
     if (view >= CGCamera::VIEW_FIRST_PERSON && view <= CGCamera::VIEW_BARBER_SHOP) {
         return true;
@@ -353,8 +355,10 @@ static bool ValidateCameraView(CVar* var, const char* oldValue, const char* valu
 
 // VERIFY: 35928b19 auto
 // OFFSET: 0x005FD680
-static bool ValidateCameraDistance(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float distance = SStrToFloat(value);
+static bool ValidateCameraDistance(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float distance = SStrToFloat(newValue);
 
     if (distance >= MIN_CAMERA_DIST && distance <= MAX_CAMERA_DIST) {
         return true;
@@ -366,10 +370,12 @@ static bool ValidateCameraDistance(CVar* var, const char* oldValue, const char* 
 
 // VERIFY: c58861df auto
 // OFFSET: 0x005FD6D0
-static bool ValidateCameraPitch(CVar* var, const char* oldValue, const char* value, void* arg) {
+static bool ValidateCameraPitch(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
     float minPitch = MIN_PITCH_ANGLE * RAD_TO_DEG;
     float maxPitch = MAX_PITCH_ANGLE * RAD_TO_DEG;
-    float pitch = SStrToFloat(value);
+    float pitch = SStrToFloat(newValue);
 
     if (pitch >= minPitch && pitch <= maxPitch) {
         return true;
@@ -381,8 +387,10 @@ static bool ValidateCameraPitch(CVar* var, const char* oldValue, const char* val
 
 // VERIFY: 72713edf auto
 // OFFSET: 0x005FD750
-static bool ValidateCameraTime(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float time = SStrToFloat(value);
+static bool ValidateCameraTime(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float time = SStrToFloat(newValue);
 
     if (time >= 0.001f && time <= 300.0f) {
         return true;
@@ -394,8 +402,10 @@ static bool ValidateCameraTime(CVar* var, const char* oldValue, const char* valu
 
 // VERIFY: 513f85d3 auto
 // OFFSET: 0x005FD7B0
-static bool ValidateCameraYaw(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float yaw = SStrToFloat(value);
+static bool ValidateCameraYaw(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float yaw = SStrToFloat(newValue);
 
     if (yaw >= 0.0f && yaw <= 360.0f) {
         return true;
@@ -407,8 +417,10 @@ static bool ValidateCameraYaw(CVar* var, const char* oldValue, const char* value
 
 // VERIFY: a191501b auto
 // OFFSET: 0x005FD800
-static bool ValidateCameraAngularSpeed(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float speed = SStrToFloat(value);
+static bool ValidateCameraAngularSpeed(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float speed = SStrToFloat(newValue);
 
     if (speed >= 0.1f && speed <= 360.0f) {
         return true;
@@ -420,8 +432,10 @@ static bool ValidateCameraAngularSpeed(CVar* var, const char* oldValue, const ch
 
 // VERIFY: 73659631 auto
 // OFFSET: 0x005FD860
-static bool ValidateCameraLinearSpeed(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float speed = SStrToFloat(value);
+static bool ValidateCameraLinearSpeed(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float speed = SStrToFloat(newValue);
 
     if (speed >= 0.0027777778f && speed <= 50.0f) {
         return true;
@@ -433,8 +447,10 @@ static bool ValidateCameraLinearSpeed(CVar* var, const char* oldValue, const cha
 
 // VERIFY: 09a53f38 auto
 // OFFSET: 0x005FD8C0
-static bool ValidateCameraSmoothStyle(CVar* var, const char* oldValue, const char* value, void* arg) {
-    float style = SStrToFloat(value);
+static bool ValidateCameraSmoothStyle(CVar* var, const char* oldValue, const char* newValue, void* arg) {
+    STORM_ASSERT(newValue);
+
+    float style = SStrToFloat(newValue);
 
     // The upper bound admits NUM_CAMERA_SMOOTH_STYLES itself.
     if (style >= CAMERA_SMOOTH_STYLE_NEVER && style <= NUM_CAMERA_SMOOTH_STYLES) {
@@ -477,7 +493,7 @@ void CameraRegisterCVars() {
 
     char name[64];
 
-    for (uint32_t view = 0; view < CGCamera::NUM_VIEW_MODES; view++) {
+    for (uint32_t view = 0; view < CGCamera::MAX_CAMERA_VIEWS; view++) {
         for (uint32_t i = 0; i < NUM_CAMERA_VIEW_DATA; i++) {
             name[0] = '\0';
             SStrPack(name, "camera", sizeof(name));

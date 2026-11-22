@@ -61,7 +61,7 @@ float MIN_PITCH_ANGLE = -1.55334306f;
 int32_t s_cameraViewAngular[NUM_CAMERA_VIEW_DATA] = { 0, 1, 1 };
 
 // STATIC: 0x00AD1BA8
-CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::NUM_VIEW_MODES] = {
+CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::MAX_CAMERA_VIEWS] = {
     { { "0.0", "0.0", "0.0" } },
     { { "0.0", "0.0", "0.0" } },
     { { "5.55", "10.0", "0.0" } },
@@ -90,7 +90,7 @@ const float s_terrainTiltTable[10][2] = {
 float s_targetHeightOffset;
 
 // STATIC: 0x00AD213C
-static const char* s_cameraViewModeNames[CGCamera::NUM_VIEW_MODES] = { "FIRST_PERSON", "THIRD_PERSON_A", "THIRD_PERSON_B", "THIRD_PERSON_C", "THIRD_PERSON_D", "THIRD_PERSON_E", "VIEW_COMMENTATOR", "VIEW_BARBER_SHOP" };
+static const char* s_cameraViewModeNames[CGCamera::MAX_CAMERA_VIEWS] = { "FIRST_PERSON", "THIRD_PERSON_A", "THIRD_PERSON_B", "THIRD_PERSON_C", "THIRD_PERSON_D", "THIRD_PERSON_E", "VIEW_COMMENTATOR", "VIEW_BARBER_SHOP" };
 
 // STATIC: 0x00A1E368
 static const float s_smoothViewDataMin[NUM_CAMERA_SMOOTH_PARAMS] = { 0.0f, 0.0f };
@@ -765,7 +765,7 @@ void CGCamera::IncIgnoreFacing() {
 // VERIFY: 7c4b102e auto
 // OFFSET: 0x005FE510
 void CGCamera::InitializeView() {
-    for (uint32_t i = 0; i < NUM_VIEW_MODES; i++) {
+    for (uint32_t i = 0; i < MAX_CAMERA_VIEWS; i++) {
         for (uint32_t j = 0; j < NUM_CAMERA_VIEW_DATA; j++) {
             float value = s_cvCameraViewData[i][j]->m_floatValue;
 
@@ -2071,20 +2071,22 @@ int32_t CGCamera::SmoothSetDistance(float distance, float delay, float scale, ui
 
 // VERIFY: 6daea45a auto
 // OFFSET: 0x005FE580
-void CGCamera::StartMotion(CGCameraMotion motion, uint32_t time, uint32_t duration, float speed) {
+void CGCamera::StartMotion(CGCameraMotion move, uint32_t time, uint32_t duration, float speed) {
+    STORM_ASSERT(move < NUM_CAMERA_MOTIONS);
+
     if (this->m_flags & FLAGS::FLAG_ZOOM_TO_DISTANCE) {
         return;
     }
 
-    uint32_t bit = 1 << (2 * motion);
+    uint32_t bit = 1 << (2 * move);
 
     if (!(this->m_motionFlags & bit)) {
         this->m_motionFlags |= bit;
-        this->m_motionStartTime[motion] = time;
+        this->m_motionStartTime[move] = time;
     }
 
-    this->m_motionSpeed[motion] = speed;
-    this->m_motionEndTime[motion] = duration ? duration + time : 0;
+    this->m_motionSpeed[move] = speed;
+    this->m_motionEndTime[move] = duration ? duration + time : 0;
 }
 
 // VERIFY: f3b61fd8 auto
@@ -3005,12 +3007,14 @@ void CGCamera::UpdateMotion(uint32_t time) {
 // OFFSET: 0x006048A0
 void CGCamera::ResetView(int32_t view) {
     if (view < 0) {
-        for (int32_t i = 0; i < NUM_VIEW_MODES; i++) {
+        for (int32_t i = 0; i < MAX_CAMERA_VIEWS; i++) {
             this->ResetView(i);
         }
 
         return;
     }
+
+    STORM_ASSERT(view < MAX_CAMERA_VIEWS);
 
     for (uint32_t i = 0; i < NUM_CAMERA_VIEW_DATA; i++) {
         if (s_cameraViewAngular[i]) {
@@ -3027,12 +3031,15 @@ void CGCamera::ResetView(int32_t view) {
 
 // VERIFY: 9a9cfabb manual
 // OFFSET: 0x00603330
-void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
+void CGCamera::SetView(int32_t newView, int32_t blendStyle, int32_t transition) {
+    STORM_ASSERT(newView >= VIEW_FIRST_PERSON);
+    STORM_ASSERT(newView < MAX_CAMERA_VIEWS);
+
     if (this->m_state & STATE_FLAGS::STATE_TELESCOPE) {
         return;
     }
 
-    if (view == VIEW_COMMENTATOR) {
+    if (newView == VIEW_COMMENTATOR) {
         CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
         if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_COMMENTATOR)) {
@@ -3040,21 +3047,21 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
         }
     }
 
-    if (this->m_viewIndex == view && !(this->m_state & STATE_FLAGS::STATE_VIEW_MODIFIED) && blendStyle) {
+    if (this->m_viewIndex == newView && !(this->m_state & STATE_FLAGS::STATE_VIEW_MODIFIED) && blendStyle) {
         blendStyle = VIEW_BLEND_INSTANT;
     }
 
-    SysMsgPrintf(SYSMSG_INFO, SYSMSG_FILTER_UI, "Camera view %s", s_cameraViewModeNames[view]);
+    SysMsgPrintf(SYSMSG_INFO, SYSMSG_FILTER_UI, "Camera newView %s", s_cameraViewModeNames[newView]);
     uint32_t time = OsGetAsyncTimeMs();
 
-    if (this->m_viewIndex != view) {
+    if (this->m_viewIndex != newView) {
         if (transition == VIEW_TRANSITION_NONE) {
             char value[16];
-            SStrPrintf(value, sizeof(value), "%d", view);
+            SStrPrintf(value, sizeof(value), "%d", newView);
             s_cvCameraView->Set(value, true, false, false, true);
         }
 
-        this->m_viewIndex = view;
+        this->m_viewIndex = newView;
     }
 
     this->m_state &= ~STATE_FLAGS::STATE_VIEW_MODIFIED;
@@ -3104,8 +3111,8 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     }
 
     if (blendStyle == VIEW_BLEND_SMOOTH) {
-        int32_t distanceSet = this->SmoothSetDistance(this->m_views[view].m_distance, 0.0f, 1.0f, time);
-        int32_t pitchSet = this->SetDesiredPitchAngle(this->m_views[view].m_pitch, 0.0f, 1.0f, time);
+        int32_t distanceSet = this->SmoothSetDistance(this->m_views[newView].m_distance, 0.0f, 1.0f, time);
+        int32_t pitchSet = this->SetDesiredPitchAngle(this->m_views[newView].m_pitch, 0.0f, 1.0f, time);
         int32_t yawSet = this->SetDesiredYawAngle(yaw, 0.0f, 1.0f, time);
         int32_t offsetSet = this->SetDesiredTargetOffset(0.0f, 0.0f, 1.0f, time);
         float rate = 0.0f;
@@ -3167,14 +3174,14 @@ void CGCamera::SetView(int32_t view, int32_t blendStyle, int32_t transition) {
     BOOL changed;
 
     if (transition == VIEW_TRANSITION_NONE) {
-        int32_t distanceChanged = fnotequalz(this->m_distance, this->m_views[view].m_distance, 0.001f) != 0;
-        int32_t pitchChanged = fnotequalz(this->m_pitch, this->m_views[view].m_pitch, 0.001f) != 0;
+        int32_t distanceChanged = fnotequalz(this->m_distance, this->m_views[newView].m_distance, 0.001f) != 0;
+        int32_t pitchChanged = fnotequalz(this->m_pitch, this->m_views[newView].m_pitch, 0.001f) != 0;
         int32_t yawChanged = fnotequalz(this->m_yaw, yaw, 0.001f) != 0;
         int32_t offsetChanged = fnotequalz(this->m_targetOffset, 0.0f, 0.001f) != 0;
-        this->m_distance = this->m_views[view].m_distance;
-        this->m_smoothDistance.m_target = this->m_views[view].m_distance;
-        this->m_pitch = this->m_views[view].m_pitch;
-        this->m_smoothPitch.m_target = this->m_views[view].m_pitch;
+        this->m_distance = this->m_views[newView].m_distance;
+        this->m_smoothDistance.m_target = this->m_views[newView].m_distance;
+        this->m_pitch = this->m_views[newView].m_pitch;
+        this->m_smoothPitch.m_target = this->m_views[newView].m_pitch;
         this->m_yaw = yaw;
         this->m_smoothYaw.m_target = yaw;
         this->m_targetOffset = 0.0f;
