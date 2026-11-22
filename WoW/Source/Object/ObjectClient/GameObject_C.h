@@ -339,7 +339,7 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     /* 00D8 */ CPassenger m_passenger;
     /* 0108 */ TSList<void> m_gameObjectMirrorLists [CGGameObjectData::NUM_FIELDS];
     /* 0198 */ TSLink<CGGameObject_C> m_transportLink;
-    /* 01A0 */ CGGameObject_C_TypeBase* m_typeData;
+    /* 01A0 */ CGGameObject_C_TypeBase* m_baseObj;
     /* 01A4 */ const GameObjectStats* m_stats;
     /* 01A8 */ C44Matrix m_matrix;
     /* 01E8 */ CAaBox m_worldBounds;

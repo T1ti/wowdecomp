@@ -120,7 +120,7 @@ void CGGameObject_C::AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(WOWGUID{ param }, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
     if (object) {
-        object->m_typeData->HandleAnimEvent(eventId, data, *position, time);
+        object->m_baseObj->HandleAnimEvent(eventId, data, *position, time);
     }
 }
 
@@ -129,8 +129,8 @@ void CGGameObject_C::AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_
 int32_t CGGameObject_C::OnAnimProgressChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
-    if (object->m_typeData) {
-        object->m_typeData->OnUpdateAnimProgress();
+    if (object->m_baseObj) {
+        object->m_baseObj->OnUpdateAnimProgress();
     }
 
     return 1;
@@ -141,8 +141,8 @@ int32_t CGGameObject_C::OnAnimProgressChanged(WOWGUID guid, uint32_t fieldOffset
 int32_t CGGameObject_C::OnFlagsChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
-    if (object->m_typeData) {
-        object->m_typeData->OnUpdateFlags(*static_cast<const uint32_t*>(oldValue) ^ object->m_gameObject->m_flags);
+    if (object->m_baseObj) {
+        object->m_baseObj->OnUpdateFlags(*static_cast<const uint32_t*>(oldValue) ^ object->m_gameObject->m_flags);
     }
 
     return 1;
@@ -275,8 +275,8 @@ int32_t CGGameObject_C::OnStateChanged(WOWGUID guid, uint32_t fieldOffset, uint3
     if (state != oldState || object->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         object->m_displayState = state;
 
-        if (object->m_typeData) {
-            object->m_typeData->UpdateState(oldState, state);
+        if (object->m_baseObj) {
+            object->m_baseObj->UpdateState(oldState, state);
         }
     }
 
@@ -384,7 +384,7 @@ static int32_t OnUpdateArtKit(WOWGUID guid, uint32_t fieldOffset, uint32_t field
 // VERIFY: 4d2fc566 auto
 // OFFSET: 0x0070D040
 void CGGameObject_C::UpdateDisplay(uint32_t time) {
-    this->m_typeData->UpdateDisplay(time);
+    this->m_baseObj->UpdateDisplay(time);
 
     if (this->m_worldObject) {
         World::TickObject(this->m_worldObject);
@@ -427,61 +427,61 @@ void CGGameObject_C::SequenceCallback(CM2Model* model, uint32_t boneId, uint32_t
     }
 
     if (interrupted) {
-        object->m_typeData->HandleAnimInterrupted();
+        object->m_baseObj->HandleAnimInterrupted();
     } else {
-        object->m_typeData->HandleAnimFinished();
+        object->m_baseObj->HandleAnimFinished();
     }
 }
 
 // VERIFY: 6d6cb557 manual
 // OFFSET: 0x0070BA40
 void CGGameObject_C::AddToolTipInfo(CGTooltip* tooltip) {
-    if (this->m_typeData) {
-        this->m_typeData->AddToolTipInfo(tooltip);
+    if (this->m_baseObj) {
+        this->m_baseObj->AddToolTipInfo(tooltip);
     }
 }
 
 // VERIFY: 5a089c89 auto
 // OFFSET: 0x00712EB0
 int32_t CGGameObject_C::AddPassenger(CPassenger* passenger, int32_t reason) {
-    this->m_typeData->AddPassenger(passenger, reason);
+    this->m_baseObj->AddPassenger(passenger, reason);
     return 1;
 }
 
 // VERIFY: d2a54236 auto
 // OFFSET: 0x0070B930
 int32_t CGGameObject_C::Animate(float elapsed) {
-    return this->m_typeData->Animate(elapsed) != 0;
+    return this->m_baseObj->Animate(elapsed) != 0;
 }
 
 // VERIFY: 297d76f4 auto
 // OFFSET: 0x0070BA00
 bool CGGameObject_C::CanUse() const {
-    return this->m_typeData->CanUse();
+    return this->m_baseObj->CanUse();
 }
 
 // VERIFY: 6c3c1365 auto
 // OFFSET: 0x0070BA10
 BOOL CGGameObject_C::CanUseNow() const {
-    return this->m_typeData->CanUseNow(nullptr, nullptr, nullptr);
+    return this->m_baseObj->CanUseNow(nullptr, nullptr, nullptr);
 }
 
 // VERIFY: fc3ac502 manual
 // OFFSET: 0x0070BA30
 int32_t CGGameObject_C::CheckRange() const {
-    return this->m_typeData->CheckRange();
+    return this->m_baseObj->CheckRange();
 }
 
 // VERIFY: e2291194 manual
 // OFFSET: 0x0070BAC0
 void CGGameObject_C::CloseInteraction() {
-    this->m_typeData->CloseInteraction();
+    this->m_baseObj->CloseInteraction();
 }
 
 // VERIFY: c0263fe5 auto
 // OFFSET: 0x0070B9A0
 float CGGameObject_C::GetBaseAlpha() const {
-    return this->m_typeData->GetBaseAlpha();
+    return this->m_baseObj->GetBaseAlpha();
 }
 
 // VERIFY: f4df747d auto
@@ -511,11 +511,11 @@ void CGGameObject_C::GetCursorFile(char* buffer, uint32_t size) const {
 // VERIFY: ee92213d manual
 // OFFSET: 0x0070BAD0
 float CGGameObject_C::GetInteractDistanceSquared() const {
-    if (!this->m_typeData) {
+    if (!this->m_baseObj) {
         return 0.0f;
     }
 
-    CGGameObject_C_TypeBase* type = this->m_typeData;
+    CGGameObject_C_TypeBase* type = this->m_baseObj;
     float distance = type->GetInteractDistance();
     return type->GetInteractDistance() * distance;
 }
@@ -593,15 +593,15 @@ uint32_t CGGameObject_C::GetPropertyValue(uint32_t propertyIndex) const {
 // VERIFY: 44b076db auto
 // OFFSET: 0x00712D50
 C3Vector CGGameObject_C::GetRawPosition() const {
-    C3Vector position = this->m_typeData ? this->m_typeData->GetRawPosition() : this->m_passenger.m_position;
+    C3Vector position = this->m_baseObj ? this->m_baseObj->GetRawPosition() : this->m_passenger.m_position;
     return position;
 }
 
 // VERIFY: 9ad4d30c manual
 // OFFSET: 0x00712E40
 ShipPath* CGGameObject_C::GetShipPath() const {
-    if (this->m_typeData) {
-        return this->m_typeData->GetShipPath();
+    if (this->m_baseObj) {
+        return this->m_baseObj->GetShipPath();
     }
 
     return nullptr;
@@ -610,8 +610,8 @@ ShipPath* CGGameObject_C::GetShipPath() const {
 // VERIFY: f6bd5400 manual
 // OFFSET: 0x00712F00
 float CGGameObject_C::GetSpeed() const {
-    if (this->m_typeData) {
-        return this->m_typeData->GetSpeed();
+    if (this->m_baseObj) {
+        return this->m_baseObj->GetSpeed();
     }
 
     return -1.0f;
@@ -626,13 +626,13 @@ uint64_t CGGameObject_C::GetTransportGUID() const {
 // VERIFY: 551dd805 manual
 // OFFSET: 0x00712E80
 BOOL CGGameObject_C::IsHighlightSuppressed() const {
-    return this->m_typeData->IsHighlightSuppressed();
+    return this->m_baseObj->IsHighlightSuppressed();
 }
 
 // VERIFY: 4bfff0e2 manual
 // OFFSET: 0x00712E90
 BOOL CGGameObject_C::IsPointInside(const C3Vector& point) const {
-    return this->m_typeData->IsPointInside(point);
+    return this->m_baseObj->IsPointInside(point);
 }
 
 // VERIFY: de769fdd auto
@@ -699,7 +699,7 @@ void CGGameObject_C::PlayCustomAnim(uint32_t anim) {
     uint32_t pending = anim + ONE_SHOT_ANIM_CUSTOM0;
 
     if (this->IsObjectModelLoaded()) {
-        this->m_typeData->ActivateOneShotAnim(s_oneShotAnims[pending]);
+        this->m_baseObj->ActivateOneShotAnim(s_oneShotAnims[pending]);
         this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         this->m_pendingOneShotAnim = pending;
@@ -715,8 +715,8 @@ void CGGameObject_C::ResetDisplayState() {
     if (state != oldState || this->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         this->m_displayState = state;
 
-        if (this->m_typeData) {
-            this->m_typeData->UpdateState(oldState, state);
+        if (this->m_baseObj) {
+            this->m_baseObj->UpdateState(oldState, state);
         }
     }
 }
@@ -729,8 +729,8 @@ void CGGameObject_C::SetDisplayState(int32_t state) {
     if (state != oldState || this->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
         this->m_displayState = state;
 
-        if (this->m_typeData) {
-            this->m_typeData->UpdateState(oldState, state);
+        if (this->m_baseObj) {
+            this->m_baseObj->UpdateState(oldState, state);
         }
     }
 }
@@ -744,20 +744,20 @@ void CGGameObject_C::SetPathProgress(float progress) {
 // VERIFY: 562579c7 auto
 // OFFSET: 0x0070B9E0
 BOOL CGGameObject_C::ShouldFadeIn() const {
-    return this->m_typeData->ShouldFadeIn();
+    return this->m_baseObj->ShouldFadeIn();
 }
 
 // VERIFY: 9a0a90f2 manual
 // OFFSET: 0x0070B960
 void CGGameObject_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) {
     CGObject_C::ShouldRender(flags, render, hidden);
-    this->m_typeData->ShouldRender(flags, render, hidden);
+    this->m_baseObj->ShouldRender(flags, render, hidden);
 }
 
 // VERIFY: 981f9d46 manual
 // OFFSET: 0x0070BAB0
 void CGGameObject_C::StartInteraction() {
-    this->m_typeData->StartInteraction();
+    this->m_baseObj->StartInteraction();
 }
 
 // VERIFY: ac212d62 auto
@@ -939,7 +939,7 @@ void CGGameObject_C_TypeAnimated::PostInit(bool reenable) {
     CGGameObject_C* owner = this->m_owner;
 
     if (owner->IsObjectModelLoaded()) {
-        owner->m_typeData->ActivateOneShotAnim(ANIMSTATE_SPAWN);
+        owner->m_baseObj->ActivateOneShotAnim(ANIMSTATE_SPAWN);
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_SPAWN;
@@ -1196,7 +1196,7 @@ void CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback(CM2Model* model
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(WOWGUID{ param }, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
     if (object) {
-        object->m_typeData->HandleAnimEvent(eventId, data, *position, time);
+        object->m_baseObj->HandleAnimEvent(eventId, data, *position, time);
     }
 }
 
@@ -1384,7 +1384,7 @@ int32_t Packet_SMSG_GAMEOBJECT_DESPAWN_ANIM(void* param, NETMESSAGE msgId, uint3
             return 1;
         }
 
-        object->m_typeData->ActivateOneShotAnim(ANIMSTATE_DESPAWN);
+        object->m_baseObj->ActivateOneShotAnim(ANIMSTATE_DESPAWN);
         object->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     }
 
@@ -1446,8 +1446,9 @@ void CGGameObject_C::ShowLootEffect() {
         return;
     }
 
-    const SpellVisualEffectNameRec* rec = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
-    this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(rec->m_fileName, 0);
+    const SpellVisualEffectNameRec* effectRec = GetSpecialSpellVisualEffectNameRec(SPECIALEFFECT_LOOTART);
+    STORM_ASSERT(effectRec);
+    this->m_lootEffect = this->m_worldModel->m_scene->CreateModel(effectRec->m_fileName, 0);
 
     if (!this->m_lootEffect) {
         return;
@@ -1565,7 +1566,7 @@ void CGGameObject_C::Disable() {
     CGObject_C::Disable();
 
     if (this->m_stats) {
-        this->m_typeData->Disable();
+        this->m_baseObj->Disable();
     } else {
         g_gameObjectDBCache.CancelCallback(this->m_obj->m_entryID, &GameObjectStatsCallback, this);
     }
@@ -1648,16 +1649,16 @@ CGGameObject_C::~CGGameObject_C() {
 
     this->m_nameDesc = nullptr;
 
-    if (this->m_typeData) {
-        delete this->m_typeData;
+    if (this->m_baseObj) {
+        delete this->m_baseObj;
     }
 }
 
 // VERIFY: 9c20623b manual
 // OFFSET: 0x00712CF0
 C3Vector CGGameObject_C::GetPosition() const {
-    if (this->m_typeData) {
-        return this->m_typeData->GetPosition();
+    if (this->m_baseObj) {
+        return this->m_baseObj->GetPosition();
     }
 
     return this->m_passenger.GetPosition(this->m_passenger.m_position);
@@ -1881,7 +1882,7 @@ void CGGameObject_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 
 // VERIFY: dfb71ec2 manual
 // OFFSET: 0x00714250
-CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_typeData(nullptr), m_stats(nullptr) {
+CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_baseObj(nullptr), m_stats(nullptr) {
     this->m_worldBounds.b = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_worldBounds.t = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
@@ -1899,106 +1900,106 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
 
     switch (this->m_gameObject->m_typeID) {
         case TYPE_DOOR:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Door), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Door(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Door), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Door(this);
             break;
         case TYPE_BUTTON:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Button), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Button(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Button), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Button(this);
             break;
         case TYPE_CHEST:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Chest), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Chest(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Chest), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Chest(this);
             break;
         case TYPE_TRAP:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Trap), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Trap(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Trap), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Trap(this);
             break;
         case TYPE_AREADAMAGE:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_AreaDamage), __FILE__, __LINE__, 0)) CGGameObject_C_Type_AreaDamage(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_AreaDamage), __FILE__, __LINE__, 0)) CGGameObject_C_Type_AreaDamage(this);
             break;
         case TYPE_QUESTGIVER:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_QuestGiver), __FILE__, __LINE__, 0)) CGGameObject_C_Type_QuestGiver(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_QuestGiver), __FILE__, __LINE__, 0)) CGGameObject_C_Type_QuestGiver(this);
             break;
         case TYPE_BINDER:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Binder), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Binder(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Binder), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Binder(this);
             break;
         case TYPE_GENERIC:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Generic), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Generic(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Generic), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Generic(this);
             break;
         case TYPE_CHAIR:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Chair), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Chair(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Chair), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Chair(this);
             break;
         case TYPE_SPELL_FOCUS:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_SpellFocus), __FILE__, __LINE__, 0)) CGGameObject_C_Type_SpellFocus(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_SpellFocus), __FILE__, __LINE__, 0)) CGGameObject_C_Type_SpellFocus(this);
             break;
         case TYPE_TEXT:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Text), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Text(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Text), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Text(this);
             break;
         case TYPE_GOOBER:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Goober), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Goober(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Goober), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Goober(this);
             break;
         case TYPE_TRANSPORT:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Transport), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Transport(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Transport), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Transport(this);
             break;
         case TYPE_TRAPDOOR:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_TrapDoor), __FILE__, __LINE__, 0)) CGGameObject_C_Type_TrapDoor(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_TrapDoor), __FILE__, __LINE__, 0)) CGGameObject_C_Type_TrapDoor(this);
             break;
         case TYPE_CAMERA:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Camera), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Camera(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Camera), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Camera(this);
             break;
         case TYPE_MAP_OBJECT:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_MapObj), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MapObj(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_MapObj), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MapObj(this);
             break;
         case TYPE_MO_TRANSPORT:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_MapObjTransport), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MapObjTransport(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_MapObjTransport), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MapObjTransport(this);
             break;
         case TYPE_DUEL_ARBITER:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_DuelArbiter), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DuelArbiter(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_DuelArbiter), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DuelArbiter(this);
             break;
         case TYPE_FISHINGHOLE:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_FishingHole), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FishingHole(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_FishingHole), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FishingHole(this);
             break;
         case TYPE_FISHINGNODE:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_FishingNode), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FishingNode(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_FishingNode), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FishingNode(this);
             break;
         case TYPE_RITUAL:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Ritual), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Ritual(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Ritual), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Ritual(this);
             break;
         case TYPE_MAILBOX:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Mailbox), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Mailbox(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Mailbox), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Mailbox(this);
             break;
         case TYPE_SPELLCASTER:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_SpellCaster), __FILE__, __LINE__, 0)) CGGameObject_C_Type_SpellCaster(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_SpellCaster), __FILE__, __LINE__, 0)) CGGameObject_C_Type_SpellCaster(this);
             break;
         case TYPE_MEETINGSTONE:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_MeetingStone), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MeetingStone(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_MeetingStone), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MeetingStone(this);
             break;
         case TYPE_FLAGSTAND:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_FlagStand), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FlagStand(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_FlagStand), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FlagStand(this);
             break;
         case TYPE_FLAGDROP:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_FlagDrop), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FlagDrop(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_FlagDrop), __FILE__, __LINE__, 0)) CGGameObject_C_Type_FlagDrop(this);
             break;
         case TYPE_MINIGAME:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_MiniGame), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MiniGame(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_MiniGame), __FILE__, __LINE__, 0)) CGGameObject_C_Type_MiniGame(this);
             break;
         case TYPE_CAPTUREPOINT:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_CapturePoint), __FILE__, __LINE__, 0)) CGGameObject_C_Type_CapturePoint(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_CapturePoint), __FILE__, __LINE__, 0)) CGGameObject_C_Type_CapturePoint(this);
             break;
         case TYPE_AURAGENERATOR:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_AuraGenerator), __FILE__, __LINE__, 0)) CGGameObject_C_Type_AuraGenerator(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_AuraGenerator), __FILE__, __LINE__, 0)) CGGameObject_C_Type_AuraGenerator(this);
             break;
         case TYPE_DUNGEON_DIFFICULTY:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_DungeonDifficulty), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DungeonDifficulty(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_DungeonDifficulty), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DungeonDifficulty(this);
             break;
         case TYPE_BARBER_CHAIR:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_BarberChair), __FILE__, __LINE__, 0)) CGGameObject_C_Type_BarberChair(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_BarberChair), __FILE__, __LINE__, 0)) CGGameObject_C_Type_BarberChair(this);
             break;
         case TYPE_DESTRUCTIBLE_BUILDING:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_DestructibleBuilding), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DestructibleBuilding(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_DestructibleBuilding), __FILE__, __LINE__, 0)) CGGameObject_C_Type_DestructibleBuilding(this);
             break;
         case TYPE_GUILD_BANK:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_GuildBank), __FILE__, __LINE__, 0)) CGGameObject_C_Type_GuildBank(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_GuildBank), __FILE__, __LINE__, 0)) CGGameObject_C_Type_GuildBank(this);
             break;
         default:
-            this->m_typeData = new (SMemAlloc(sizeof(CGGameObject_C_Type_Null), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Null(this);
+            this->m_baseObj = new (SMemAlloc(sizeof(CGGameObject_C_Type_Null), __FILE__, __LINE__, 0)) CGGameObject_C_Type_Null(this);
             SysMsgPrintf(SYSMSG_FATAL, SYSMSG_FILTER_WORLD, "BADBASEGAMEOBJECT|%d", this->m_gameObject->m_typeID);
             break;
     }
@@ -2029,13 +2030,13 @@ void CGGameObject_C::PostInit(uint32_t time, const CClientObjCreate& create, boo
             CAaBox bounds = worldModel->m_shared->m_data->m_collisionBounds.m_extent;
             CWorldMath::TransformAABox(this->m_matrix, bounds, this->m_worldBounds);
 
-            if (this->m_typeData->CanBeSolid()) {
+            if (this->m_baseObj->CanBeSolid()) {
                 this->m_hasWorldBounds = !this->m_worldBounds.IsEmpty();
             }
         }
     }
 
-    this->m_typeData->PostInit(reenable);
+    this->m_baseObj->PostInit(reenable);
 
     WOWGUID guid = this->m_obj->m_guid;
     GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(this->m_obj->m_entryID, guid, &GameObjectStatsCallback, this, false);
@@ -2227,14 +2228,16 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         current++;
     } while (current < NUM_DESTRUCTIBLE_STATES);
 
-    int32_t state = ((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT;
+    int32_t newDblState = ((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT;
 
-    if (state == current) {
+    STORM_ASSERT(newDblState < NUM_DESTRUCTIBLE_STATES);
+
+    if (newDblState == current) {
         return;
     }
 
     SI2::StopSound(&this->m_sound, 0, -1.0f, 1);
-    DestructibleBuildingState& entry = this->m_states[state];
+    DestructibleBuildingState& entry = this->m_states[newDblState];
     CMapEntity* object = entry.m_object;
 
     if (object) {
@@ -2247,7 +2250,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         World::ObjectEnableCollision(this->m_worldObject, 0);
     }
 
-    if (this->m_worldObject && state > current && state != DESTRUCTIBLE_STATE_REBUILDING && state != DESTRUCTIBLE_STATE_INTACT) {
+    if (this->m_worldObject && newDblState > current && newDblState != DESTRUCTIBLE_STATE_REBUILDING && newDblState != DESTRUCTIBLE_STATE_INTACT) {
         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
         if (mover && !mover->HasVehicleTransport() && !(mover->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
@@ -2301,7 +2304,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
 
     this->m_worldObject = object;
     this->m_previousState = current;
-    entry.m_animate = state == DESTRUCTIBLE_STATE_INTACT || state == DESTRUCTIBLE_STATE_REBUILDING;
+    entry.m_animate = newDblState == DESTRUCTIBLE_STATE_INTACT || newDblState == DESTRUCTIBLE_STATE_REBUILDING;
 
     if (!this->m_worldObject || entry.m_loading) {
         return;
@@ -2597,7 +2600,7 @@ void CGGameObject_C_Type_GuildBank::StartInteraction() {
     CGGameObject_C* owner = this->m_owner;
 
     if (owner->IsObjectModelLoaded()) {
-        owner->m_typeData->ActivateOneShotAnim(ANIMSTATE_CUSTOM0);
+        owner->m_baseObj->ActivateOneShotAnim(ANIMSTATE_CUSTOM0);
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_CUSTOM0;
@@ -2648,8 +2651,8 @@ void CGGameObject_C::UpdateWorldObject(int32_t skipEntityUpdate) {
 // VERIFY: 68b8aeae auto
 // OFFSET: 0x00712DB0
 float CGGameObject_C::GetFacing() const {
-    if (this->m_typeData) {
-        return this->m_typeData->GetFacing();
+    if (this->m_baseObj) {
+        return this->m_baseObj->GetFacing();
     }
 
     return this->m_passenger.GetFacing(this->m_passenger.GetRawFacingFromRotation());
@@ -2658,8 +2661,8 @@ float CGGameObject_C::GetFacing() const {
 // VERIFY: e7d3bbca manual
 // OFFSET: 0x00712DF0
 float CGGameObject_C::GetRawFacing() const {
-    if (this->m_typeData) {
-        return this->m_typeData->GetRawFacing();
+    if (this->m_baseObj) {
+        return this->m_baseObj->GetRawFacing();
     }
 
     return this->m_passenger.GetRawFacingFromRotation();
@@ -2683,12 +2686,12 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
         this->UpdateWorldObject(0);
     }
 
-    if (this->m_typeData->CanBeSolid()) {
+    if (this->m_baseObj->CanBeSolid()) {
         this->m_hasWorldBounds = !this->m_worldBounds.IsEmpty();
     }
 
     ApplyGameObjectArtKit(model, this->m_gameObject->m_artKit);
-    this->m_typeData->UpdateDisabled();
+    this->m_baseObj->UpdateDisabled();
     this->UpdateInteractIconAttach();
 
     if (this->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_PASSIVE_HIGHLIGHT) {
@@ -2705,7 +2708,7 @@ void CGGameObject_C::ModelLoaded(CM2Model* model) {
             return;
         }
 
-        this->m_typeData->ActivateOneShotAnim(s_oneShotAnims[pending]);
+        this->m_baseObj->ActivateOneShotAnim(s_oneShotAnims[pending]);
         this->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     }
 
@@ -2811,12 +2814,12 @@ bool CGGameObject_C::IsValidTargetForSpell(const WOWGUID& item, int32_t spellId)
 // VERIFY: 81b3c5cd auto
 // OFFSET: 0x0070CE10
 int32_t CGGameObject_C::CanChangeCursor() const {
-    if (!this->m_typeData->CanUse()) {
+    if (!this->m_baseObj->CanUse()) {
         return NO_CURSOR;
     }
 
     if (!this->m_stats || !this->m_stats->m_iconName || !*this->m_stats->m_iconName) {
-        return this->m_typeData->CanChangeCursor();
+        return this->m_baseObj->CanChangeCursor();
     }
 
     char name[40];
@@ -2866,7 +2869,7 @@ void CGGameObject_C::Reenable() {
     CGObject_C::Reenable();
 
     if (this->m_stats) {
-        this->m_typeData->Reenable();
+        this->m_baseObj->Reenable();
     } else {
         ClntObjMgrHideObject(this->m_obj->m_guid);
     }
@@ -2927,7 +2930,7 @@ void CGGameObject_C::AddWorldHealingText(int32_t amount, const SpellRec* spell) 
 // OFFSET: 0x00712400
 void CGGameObject_C::LoadBaseObject(GameObjectStats_C* stats) {
     this->m_stats = stats;
-    this->m_typeData->PostInitWithStats();
+    this->m_baseObj->PostInitWithStats();
 
     GameObjectDisplayInfoRec* displayInfo = g_gameObjectDisplayInfoDB.GetRecord(this->m_stats->m_displayID);
 
@@ -3771,7 +3774,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
 // VERIFY: a7ddafb5 manual
 // OFFSET: 0x0070F580
 BOOL CGGameObject_C::CanHighlight() const {
-    if (!this->m_typeData->CanHighlight()) {
+    if (!this->m_baseObj->CanHighlight()) {
         return 0;
     }
 
@@ -3809,8 +3812,8 @@ void CGGameObject_C::UseObject() {
     float distance;
     const char* errorText = nullptr;
 
-    if (this->m_typeData->CanUseNow(&error, &distance, &errorText)) {
-        this->m_typeData->Use();
+    if (this->m_baseObj->CanUseNow(&error, &distance, &errorText)) {
+        this->m_baseObj->Use();
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_GAME_OBJ_REPORT_USE));
         msg.Put(this->m_obj->m_guid.m_guid);
@@ -3839,7 +3842,7 @@ void CGGameObject_C::UseObject() {
 // OFFSET: 0x0070F940
 C3Vector CGGameObject_C::GetNamePosition() const {
     if (this->m_gameObject->m_typeID == TYPE_DESTRUCTIBLE_BUILDING) {
-        return static_cast<CGGameObject_C_Type_DestructibleBuilding*>(this->m_typeData)->GetNamePosition();
+        return static_cast<CGGameObject_C_Type_DestructibleBuilding*>(this->m_baseObj)->GetNamePosition();
     }
 
     C3Vector position = this->GetPosition();
@@ -4005,7 +4008,7 @@ void CGGameObject_C_Type_MeetingStone::AddToolTipInfo(CGTooltip* tip) {
 // VERIFY: 76e49e4b manual
 // OFFSET: 0x00711140
 void CGGameObject_C::OnRightClick() {
-    if (!this->m_typeData->CanUse()) {
+    if (!this->m_baseObj->CanUse()) {
         return;
     }
 
@@ -4144,6 +4147,7 @@ bool CGGameObject_C_TypeBase::Use() {
 
     if (this->m_owner->IsLocked(&spellId, nullptr, nullptr, &key, &entry)) {
         LockRec* lock = this->m_owner->GetLockRec();
+        STORM_ASSERT(lock);
         CGGameObject_C* owner = this->m_owner;
 
         if (!owner->IsValidOpenAction(lock->m_action[0])) {
@@ -4343,7 +4347,7 @@ void CGGameObject_C::PostReenable() {
     this->CGObject_C::PostReenable();
 
     if (this->m_stats) {
-        this->m_typeData->PostReenable();
+        this->m_baseObj->PostReenable();
         this->CheckForPassiveHighlight();
         return;
     }

@@ -532,7 +532,7 @@ BOOL IsStillLoading() {
     CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(WOWGUID{ player->GetTransportGUID() }, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
     if (transport) {
-        CMapBaseObj* object = transport->m_typeData->GetMapObjectTransportID();
+        CMapBaseObj* object = transport->m_baseObj->GetMapObjectTransportID();
 
         if (!object || !World::ObjectIsDrawable(object)) {
             return 1;

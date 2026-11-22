@@ -118,7 +118,7 @@ int32_t MovementInsideTransport(WOWGUID transport, const C3Vector& point) {
 // OFFSET: 0x0074B6E0
 void MovementMoveTransports(uint32_t time, uint32_t elapsed) {
     for (CGGameObject_C* transport = s_transports.Head(); transport; transport = s_transports.Next(transport)) {
-        transport->m_typeData->UpdateMovement(time, elapsed);
+        transport->m_baseObj->UpdateMovement(time, elapsed);
     }
 }
 
