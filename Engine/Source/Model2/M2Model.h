@@ -317,6 +317,11 @@ class CM2Model {
     uint32_t m_debugCollision;
     // World-wide collision displays (DEBUG_COLLISION bits), synced from CWorld::enables every frame.
     static uint32_t s_debugWorldCollision;
+    // Debug feature: while set, SetBoneSequence calls it for every sequence a model starts, with the requested
+    // animation id and the one it plays after the fallbacks (SequenceFallbackById). The WoW layer sets it for its
+    // anim debug target (animDebug, Unit_C_Debug.cpp) and filters by model.
+    typedef void (*DebugSequenceCallback)(CM2Model* model, uint32_t boneId, uint32_t requestedId, uint32_t playedId);
+    static DebugSequenceCallback s_debugSequenceCallback;
 #endif
 
     static void (*s_transformVertices[5])(CM2Model*, M2SkinSection*, uint8_t*, int32_t);

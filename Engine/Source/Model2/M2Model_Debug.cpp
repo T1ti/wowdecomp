@@ -293,6 +293,7 @@ void CM2Model::ShowCollisionAaBox(BOOL show) {
 // syncs the two bits here every frame and DebugDraw applies them to every drawn M2 that has collision data (doodads
 // and game objects; characters and creatures normally have none).
 uint32_t CM2Model::s_debugWorldCollision;
+CM2Model::DebugSequenceCallback CM2Model::s_debugSequenceCallback;
 
 void CM2Model::SetDebugWorldCollision(BOOL mesh, BOOL aaBox) {
     CM2Model::s_debugWorldCollision = (mesh ? DEBUG_COLLISION_MESH : 0) | (aaBox ? DEBUG_COLLISION_AABOX : 0);

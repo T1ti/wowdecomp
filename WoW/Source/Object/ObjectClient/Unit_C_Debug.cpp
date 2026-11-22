@@ -15,6 +15,8 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
 #include "Engine/Source/Tempest/CAaBox.h"
+#include "Engine/Source/Os/TimeManager.h"
+#include "WoW/Source/DB/DBClient/DBClient.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
 
@@ -655,6 +657,63 @@ void CGPlayer_C::TogglePlayerBounds() {
     }
 }
 
+// Debug feature: the anim debug target.
+// 0.8 reference: an unnamed setter at 0x00628810 (no caller found; no console command in 0.8 either) copied
+// CGGameUI::m_lockedTarget into the anim debug target and printed "Debugging anims for %s" with the unit's name, or
+// "No anim debug target". The 0.8 unit animation code (0x00616B10, 0x00616BF0, 0x00616EF0, 0x00627A60) then logged
+// that unit's animation changes to the client log (channel 8): "**** <time> "<unit>" "<anim>" playing [on bone ...]",
+// and the queueing, speeding up and interrupting of its own animation queue, which 3.3.5 does not have.
+// Port: the console command animDebug (an invented name) sets the target, and CM2Model::SetBoneSequence reports every
+// sequence to AnimDebugSequence, which prints those of the target's model to the console: the fallbacks in the 0.8
+// wording ("doesn't have ..., falling back to ...") and the "playing" line, with the key bone id instead of its name.
+static WOWGUID s_animDebugTarget;
+
+static const char* AnimDebugName(uint32_t animationId) {
+    const AnimationDataRec* rec = g_animationDataDB.GetRecord(animationId);
+    return rec && rec->m_name ? rec->m_name : "?";
+}
+
+static void AnimDebugSequence(CM2Model* model, uint32_t boneId, uint32_t requestedId, uint32_t playedId) {
+    CGObject_C* object = ClntObjMgrObjectPtr(s_animDebugTarget, TYPE_UNIT, __FILE__, __LINE__);
+
+    if (!object || object->m_worldModel != model) {
+        return;
+    }
+
+    const char* unitName = object->GetObjectName();
+
+    if (!unitName) {
+        unitName = "?";
+    }
+
+    if (requestedId != playedId) {
+        ConsoleWriteA("**** \"%s\" doesn't have \"%s\", falling back to \"%s\"", DEFAULT_COLOR, unitName, AnimDebugName(requestedId), AnimDebugName(playedId));
+    }
+
+    if (boneId == M2_KEY_BONE_NONE) {
+        ConsoleWriteA("**** %u \"%s\" \"%s\" playing", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId));
+    } else {
+        ConsoleWriteA("**** %u \"%s\" \"%s\" playing on key bone %u", DEFAULT_COLOR, OsGetAsyncTimeMs(), unitName, AnimDebugName(playedId), boneId);
+    }
+}
+
+static int32_t CCommand_AnimDebug(const char* command, const char* arguments) {
+    s_animDebugTarget = CGGameUI::m_lockedTarget;
+    CGObject_C* object = s_animDebugTarget ? ClntObjMgrObjectPtr(s_animDebugTarget, TYPE_UNIT, __FILE__, __LINE__) : nullptr;
+
+    if (object) {
+        const char* unitName = object->GetObjectName();
+        ConsoleWriteA("Debugging anims for %s", DEFAULT_COLOR, unitName ? unitName : "?");
+        CM2Model::s_debugSequenceCallback = AnimDebugSequence;
+    } else {
+        s_animDebugTarget = WOWGUID();
+        ConsoleWrite("No anim debug target", DEFAULT_COLOR);
+        CM2Model::s_debugSequenceCallback = nullptr;
+    }
+
+    return 1;
+}
+
 static CVar* s_cvShowEffectsStandalone;
 
 // Debug feature: registers the 0.5.3 PlayerClientInitialize / UnitCombatLogInitialize debug commands and the
@@ -667,6 +726,7 @@ void UnitDebugRegisterConsoleCommands() {
     ConsoleCommandRegister("CombatDebugShowFlags", CCommand_ForceActionShowFlags, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("DumpDeathHoldLogs", CCommand_DumpDeathHoldLogs, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("playercombatlogdebug", DebugCombatLogHandler, CATEGORY_DEBUG, nullptr);
+    ConsoleCommandRegister("animDebug", CCommand_AnimDebug, CATEGORY_DEBUG, "Logs the animations of the target (no target: off)");
     // 0.5.3 registered DebugTargetPath from CGObject_C::Initialize and showEffectsStandalone from UnitEffectsInitialize.
     s_cvDebugTargetPath = CVar::Register("DebugTargetPath", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEBUG, false, nullptr, false);
     s_cvShowEffectsStandalone = CVar::Register("showEffectsStandalone", nullptr, CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEBUG, false, nullptr, false);

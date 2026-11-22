@@ -6702,6 +6702,14 @@ void CM2Model::SetBoneSequence(uint32_t boneId, uint32_t sequenceId, uint32_t va
 
     M2SequenceFallback fallback;
     this->SequenceFallbackById(&fallback, sequenceId);
+
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the anim debug log (see s_debugSequenceCallback).
+    if (CM2Model::s_debugSequenceCallback) {
+        CM2Model::s_debugSequenceCallback(this, boneId, sequenceId, fallback.m_id);
+    }
+#endif
+
     int32_t pickRandom = variation == M2_RANDOM_VARIATION;
     uint16_t index = this->FindSequenceIndex(data, fallback.m_id, variation != M2_RANDOM_VARIATION ? variation : 0);
 
