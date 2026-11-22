@@ -14,6 +14,8 @@
 
 static int32_t s_grid = WOWEDITGRID_OFF;
 static bool s_slopes;
+static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
+static uint32_t s_lastChunkCount; // chunks the last pass drew over
 
 // Grid colors (RGBA), port defaults: the 8.1 editor sets them from its options, which are not known.
 static const float s_cellColor[4] = { 1.0f, 1.0f, 1.0f, 0.35f }; // c7, cell lines and diagonals
@@ -107,6 +109,9 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
         return;
     }
 
+    s_passCount++;
+    s_lastChunkCount = count;
+
     CGxDevice* device = g_theGxDevicePtr;
     device->RsPush();
 
@@ -145,7 +150,28 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
 }
 
 static void UpdateTerrainPass() {
+    s_passCount = 0;
+    s_lastChunkCount = 0;
     WorldEditSetTerrainPass(s_grid >= 0 || s_slopes ? TerrainPass : nullptr);
+}
+
+bool WowEditTerrainPrepare() {
+    bool ready = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS) != nullptr;
+
+    if (s_grid >= 0) {
+        ready = WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) != nullptr && ready;
+    }
+
+    if (s_slopes) {
+        ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
+    }
+
+    return ready;
+}
+
+void WowEditTerrainGetStats(uint32_t* passes, uint32_t* chunks) {
+    *passes = s_passCount;
+    *chunks = s_lastChunkCount;
 }
 
 void WowEditTerrainSetGrid(int32_t permutation) {

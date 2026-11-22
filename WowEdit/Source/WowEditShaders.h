@@ -44,10 +44,13 @@ enum WOWEDITSHADERCONST : uint32_t {
     NUM_WOWEDITCONSTS = 8,
 };
 
-// True when the device can run the shaders (a Direct3D device with vs_3_0 and ps_3_0). reason, when given, receives
-// a short explanation when it cannot.
+// True when the device can take the shaders (a Direct3D device; whether the card runs Shader Model 3 shows when a
+// shader is built). reason, when given, receives a short explanation when it cannot.
 bool WowEditShadersSupported(const char** reason);
 // The shader, compiled on first use; nullptr when unsupported or when compilation failed (the console shows why).
 CGxShader* WowEditShaderGet(WOWEDITSHADER shader);
+// For the status command: "ready", "failed" or "not built", and the HLSL entry point.
+const char* WowEditShaderState(WOWEDITSHADER shader);
+const char* WowEditShaderName(WOWEDITSHADER shader);
 
 #endif

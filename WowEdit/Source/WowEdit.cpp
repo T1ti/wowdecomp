@@ -114,12 +114,18 @@ static bool ParseSwitch(const char* arguments, bool current) {
     return !current;
 }
 
-// Warns once per command use when the terrain overlays cannot run on this device.
-static void WarnIfUnsupported() {
+// After an overlay is turned on: builds its shaders now, so a missing compiler, a compile error or a card without
+// Shader Model 3 shows in the console at once rather than as an overlay that never appears.
+static void PrepareTerrainOverlays() {
     const char* reason = nullptr;
 
     if (!WowEditShadersSupported(&reason)) {
         ConsoleWriteA("WowEdit: terrain overlays unavailable: %s", ERROR_COLOR, reason);
+        return;
+    }
+
+    if (!WowEditTerrainPrepare()) {
+        ConsoleWrite("WowEdit: terrain overlays unavailable: a shader could not be built (see above)", ERROR_COLOR);
     }
 }
 
@@ -127,6 +133,16 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
     const char* reason = nullptr;
     bool supported = WowEditShadersSupported(&reason);
     ConsoleWriteA("WowEdit: terrain shaders %s%s%s", DEFAULT_COLOR, supported ? "available" : "unavailable (", supported ? "" : reason, supported ? "" : ")");
+
+    for (uint32_t i = 0; i < NUM_WOWEDITSHADERS; i++) {
+        WOWEDITSHADER id = static_cast<WOWEDITSHADER>(i);
+        ConsoleWriteA("  shader %s: %s", DEFAULT_COLOR, WowEditShaderName(id), WowEditShaderState(id));
+    }
+
+    uint32_t passes;
+    uint32_t chunks;
+    WowEditTerrainGetStats(&passes, &chunks);
+    ConsoleWriteA("  terrain pass: %u frames drawn, %u chunks in the last", DEFAULT_COLOR, passes, chunks);
 
     int32_t grid = WowEditTerrainGetGrid();
 
@@ -161,7 +177,7 @@ static int32_t CCommand_WowEditGrid(const char* command, const char* arguments) 
 
     if (grid >= 0) {
         ConsoleWriteA("WowEdit: grid permutation %d", DEFAULT_COLOR, grid);
-        WarnIfUnsupported();
+        PrepareTerrainOverlays();
     } else {
         ConsoleWrite("WowEdit: grid off", DEFAULT_COLOR);
     }
@@ -175,7 +191,7 @@ static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments
     ConsoleWrite(show ? "WowEdit: impassable slopes on" : "WowEdit: impassable slopes off", DEFAULT_COLOR);
 
     if (show) {
-        WarnIfUnsupported();
+        PrepareTerrainOverlays();
     }
 
     return 1;

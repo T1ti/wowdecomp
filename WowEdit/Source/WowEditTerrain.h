@@ -22,5 +22,10 @@ void WowEditTerrainSetGrid(int32_t permutation);
 int32_t WowEditTerrainGetGrid();
 void WowEditTerrainSetSlopes(bool show);
 bool WowEditTerrainGetSlopes();
+// Builds the shaders the enabled overlays need, so a failure shows in the console when the overlay is turned on;
+// false when one is missing.
+bool WowEditTerrainPrepare();
+// For the status command: terrain passes drawn since an overlay was last switched, and the chunk count of the last.
+void WowEditTerrainGetStats(uint32_t* passes, uint32_t* chunks);
 
 #endif

@@ -201,9 +201,13 @@ bool WowEditShadersSupported(const char** reason) {
         why = "no graphics device";
     } else if (device->DeviceApi() != GxApi_D3d9 && device->DeviceApi() != GxApi_D3d9Ex) {
         why = "the editor shaders need the Direct3D device (gxApi d3d or d3d9ex)";
-    } else if (device->Caps().m_shaderTargets[GxSh_Vertex] < GxShVS_vs_3_0 || device->Caps().m_shaderTargets[GxSh_Pixel] < GxShPS_ps_3_0) {
-        why = "the editor shaders need vertex and pixel shader model 3.0";
     }
+
+    // No check of Caps().m_shaderTargets: that is the profile the client picked for its own shaders, which the
+    // hardware detection and the pixel shader override lower below what the card runs (CGxDeviceD3d::ICapsInit
+    // replaces it with CGxFormat::m_fixedFunction, often ps_2_0). The editor shaders bring their own bytecode, so the
+    // only test that matters is whether Direct3D accepts it (CreatePixelShader / CreateVertexShader in
+    // IShaderCreate), which CompileShader reports.
 
     if (reason) {
         *reason = why;
@@ -278,8 +282,9 @@ static CGxShader* CompileShader(WOWEDITSHADER id) {
         g_theGxDevicePtr->IShaderCreate(shader);
 
         if (!shader->Valid()) {
-            ConsoleWriteA("WowEdit: the device rejected %s", ERROR_COLOR, def.m_entry);
+            ConsoleWriteA("WowEdit: the device rejected %s (%s): the card does not run Shader Model 3", ERROR_COLOR, def.m_entry, def.m_profile);
             g_theGxDevicePtr->ShaderDestroy(shader);
+            shader = nullptr;
         }
     }
 
@@ -298,4 +303,20 @@ CGxShader* WowEditShaderGet(WOWEDITSHADER id) {
     }
 
     return s_shaders[id];
+}
+
+const char* WowEditShaderState(WOWEDITSHADER id) {
+    if (id >= NUM_WOWEDITSHADERS) {
+        return "unknown";
+    }
+
+    if (s_shaders[id]) {
+        return "ready";
+    }
+
+    return s_compileFailed[id] ? "failed" : "not built";
+}
+
+const char* WowEditShaderName(WOWEDITSHADER id) {
+    return id < NUM_WOWEDITSHADERS ? s_shaderDefs[id].m_entry : "unknown";
 }
