@@ -72,7 +72,8 @@ static void BindChunkGeometry(CMapRenderChunk* chunk) {
     }
 }
 
-static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldViewProj);
+static IDirect3DDevice9* ProbeD3dDevice();
+static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj, int32_t pixels, bool late);
 
 // Draws each chunk once with the bound shaders (or, with fixedFunction, through the fixed-function pipeline with the
 // world transform RenderSetup sets).
@@ -96,11 +97,6 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
 
             if (chunk->m_batch.m_count) {
                 device->Draw(&chunk->m_batch, 1);
-
-                if (s_probe) {
-                    s_probe = false;
-                    ProbeDevice(chunk, worldViewProj);
-                }
             }
 
             continue;
@@ -119,24 +115,69 @@ static void DrawChunks(CMapRenderChunk* const* chunks, uint32_t count, const C44
 
         if (chunk->m_batch.m_count) {
             device->Draw(&chunk->m_batch, 1);
-
-            if (s_probe) {
-                s_probe = false;
-                ProbeDevice(chunk, worldViewProj);
-            }
         }
     }
 }
 
-static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
+// Probe support: an occlusion query around the first draw group of the pass counts the pixels it wrote.
+static IDirect3DQuery9* BeginProbeQuery() {
+    IDirect3DDevice9* d3d = ProbeD3dDevice();
+    IDirect3DQuery9* query = nullptr;
+
+    if (d3d && SUCCEEDED(d3d->CreateQuery(D3DQUERYTYPE_OCCLUSION, &query)) && query) {
+        query->Issue(D3DISSUE_BEGIN);
+    }
+
+    return query;
+}
+
+static int32_t EndProbeQuery(IDirect3DQuery9* query) {
+    if (!query) {
+        return -1;
+    }
+
+    query->Issue(D3DISSUE_END);
+    DWORD pixels = 0;
+    HRESULT result = S_FALSE;
+    DWORD start = GetTickCount();
+
+    while ((result = query->GetData(&pixels, sizeof(pixels), D3DGETDATA_FLUSH)) == S_FALSE && GetTickCount() - start < 500) {
+    }
+
+    query->Release();
+    return result == S_OK ? static_cast<int32_t>(pixels) : -1;
+}
+
+// Runs one draw group, under the probe's occlusion query when a probe is pending (the first group of the pass).
+template <typename DRAW>
+static void DrawGroup(CMapRenderChunk* const* chunks, const C44Matrix& viewProj, bool late, DRAW draw) {
+    if (!s_probe) {
+        draw();
+        return;
+    }
+
+    s_probe = false;
+    IDirect3DQuery9* query = BeginProbeQuery();
+    draw();
+    int32_t pixels = EndProbeQuery(query);
+    ProbeDevice(chunks[0], viewProj, pixels, late);
+}
+
+static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool late) {
     if (!(CWorld::enables & Enables::Enable_Chunks)) {
         return;
     }
 
+    // The late test draws only in the late call; everything else only in the terrain call.
+    if (late != (s_test == WOWEDITTEST_LATE)) {
+        return;
+    }
+
     CGxShader* vertexShader = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
-    CGxShader* gridShader = s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
-    CGxShader* slopesShader = s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
-    CGxShader* testShader = s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
+    CGxShader* gridShader = !late && s_grid >= 0 ? WowEditShaderGet(static_cast<WOWEDITSHADER>(WOWEDITSHADER_GRID0 + s_grid)) : nullptr;
+    CGxShader* slopesShader = !late && s_slopes ? WowEditShaderGet(WOWEDITSHADER_SLOPES) : nullptr;
+    bool shaderTest = s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE;
+    CGxShader* testShader = shaderTest ? WowEditShaderGet(WOWEDITSHADER_TEST) : nullptr;
     bool fixedTest = s_test == WOWEDITTEST_FIXED;
 
     if (!fixedTest && (!vertexShader || (!gridShader && !slopesShader && !testShader))) {
@@ -173,7 +214,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
         device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Opaque));
         GxUpdateAlphaRef(GxRs_AlphaRef);
         device->XformPush(GxXform_World);
-        DrawChunks(chunks, count, viewProj, true);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj, true); });
         GxXformPop(GxXform_World);
         device->RsSet(GxRs_BlendingMode, static_cast<int32_t>(GxBlend_Alpha));
         GxUpdateAlphaRef(GxRs_AlphaRef);
@@ -193,20 +234,20 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
             device->RsSet(GxRs_DepthTest, 0);
         }
 
-        DrawChunks(chunks, count, viewProj);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
         device->RsSet(GxRs_DepthTest, 1);
     }
 
     if (slopesShader) {
         device->RsSet(GxRs_PixelShader, slopesShader);
         SetSlopesConstants();
-        DrawChunks(chunks, count, viewProj);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
     }
 
     if (gridShader) {
         device->RsSet(GxRs_PixelShader, gridShader);
         SetGridConstants();
-        DrawChunks(chunks, count, viewProj);
+        DrawGroup(chunks, viewProj, late, [&] { DrawChunks(chunks, count, viewProj); });
     }
 
     device->RsPop();
@@ -229,7 +270,7 @@ bool WowEditTerrainPrepare() {
         ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
     }
 
-    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH) {
+    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE) {
         ready = WowEditShaderGet(WOWEDITSHADER_TEST) != nullptr && ready;
     }
 
@@ -307,9 +348,21 @@ static void ProbeShader(const char* label, IUnknown* bound, HRESULT result, cons
 
 // Prints the state the first draw of the pass ran with. Called right after that draw, so the device holds what
 // CGxDeviceD3d::IStateSync sent for it.
-static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldViewProj) {
+static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& viewProj, int32_t pixels, bool late) {
     IDirect3DDevice9* d3d = ProbeD3dDevice();
-    ConsoleWriteA("WowEdit probe (test mode %d, grid %d, slopes %d):", DEFAULT_COLOR, s_test, s_grid, s_slopes ? 1 : 0);
+    ConsoleWriteA("WowEdit probe (test mode %d, grid %d, slopes %d, %s pass):", DEFAULT_COLOR, s_test, s_grid, s_slopes ? 1 : 0, late ? "late" : "terrain");
+
+    if (pixels >= 0) {
+        ConsoleWriteA("  pixels written by the first draw group (occlusion query): %d", DEFAULT_COLOR, pixels);
+    } else {
+        ConsoleWrite("  pixels written: occlusion query unavailable", WARNING_COLOR);
+    }
+
+    C44Matrix world;
+    world.d0 = chunk->m_vec1.x - CWorldScene::s_activeWorldView.x;
+    world.d1 = chunk->m_vec1.y - CWorldScene::s_activeWorldView.y;
+    world.d2 = chunk->m_vec1.z - CWorldScene::s_activeWorldView.z;
+    C44Matrix worldViewProj = world * viewProj;
 
     if (!d3d) {
         ConsoleWrite("  not a Direct3D device", WARNING_COLOR);
@@ -320,7 +373,7 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldView
     CGxShader* vs = WowEditShaderGet(WOWEDITSHADER_TERRAIN_VS);
     CGxShader* ps = nullptr;
 
-    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH) {
+    if (s_test == WOWEDITTEST_SHADER || s_test == WOWEDITTEST_NO_DEPTH || s_test == WOWEDITTEST_LATE) {
         ps = WowEditShaderGet(WOWEDITSHADER_TEST);
     } else if (s_slopes) {
         ps = WowEditShaderGet(WOWEDITSHADER_SLOPES);
@@ -397,6 +450,30 @@ static void ProbeDevice(const CMapRenderChunk* chunk, const C44Matrix& worldView
 
     if (SUCCEEDED(d3d->GetStreamSource(0, &stream, &offset, &stride))) {
         ConsoleWriteA("  stream 0: %s, offset %u, stride %u", DEFAULT_COLOR, stream ? "bound" : "none", offset, stride);
+
+        // The first vertices of the last draw (position first, as the declaration has it) and where they land, taken
+        // with the first chunk's transform: right only when the last chunk drawn is also the first.
+        if (stream && stride >= sizeof(C3Vector)) {
+            void* data = nullptr;
+            HRESULT lock = stream->Lock(offset, stride * 3, &data, D3DLOCK_READONLY);
+
+            if (SUCCEEDED(lock) && data) {
+                for (uint32_t v = 0; v < 3; v++) {
+                    C3Vector position;
+                    memcpy(&position, static_cast<const uint8_t*>(data) + v * stride, sizeof(position));
+                    float x = position.x * worldViewProj.a0 + position.y * worldViewProj.b0 + position.z * worldViewProj.c0 + worldViewProj.d0;
+                    float y = position.x * worldViewProj.a1 + position.y * worldViewProj.b1 + position.z * worldViewProj.c1 + worldViewProj.d1;
+                    float z = position.x * worldViewProj.a2 + position.y * worldViewProj.b2 + position.z * worldViewProj.c2 + worldViewProj.d2;
+                    float w = position.x * worldViewProj.a3 + position.y * worldViewProj.b3 + position.z * worldViewProj.c3 + worldViewProj.d3;
+                    float invW = w != 0.0f ? 1.0f / w : 0.0f;
+                    ConsoleWriteA("  vertex %u: (%.2f, %.2f, %.2f), ndc %.3f %.3f %.5f", DEFAULT_COLOR, v, position.x, position.y, position.z, x * invW, y * invW, z * invW);
+                }
+
+                stream->Unlock();
+            } else {
+                ConsoleWriteA("  vertices: cannot read the vertex buffer (0x%08X)", WARNING_COLOR, static_cast<uint32_t>(lock));
+            }
+        }
 
         if (stream) {
             stream->Release();

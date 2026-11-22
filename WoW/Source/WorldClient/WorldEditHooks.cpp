@@ -47,10 +47,12 @@ void WorldEditRenderOverlays() {
 
 static WORLDEDITTERRAINPASS s_terrainPass;
 static TSGrowableArray<CMapRenderChunk*> s_terrainChunks;
+static bool s_terrainChunksDrawn; // the list holds the last frame's chunks; the next collection starts a new one
 
 void WorldEditSetTerrainPass(WORLDEDITTERRAINPASS pass) {
     s_terrainPass = pass;
     s_terrainChunks.SetCount(0);
+    s_terrainChunksDrawn = false;
 }
 
 bool WorldEditTerrainPassActive() {
@@ -59,18 +61,30 @@ bool WorldEditTerrainPassActive() {
 
 void WorldEditCollectTerrainChunk(CMapRenderChunk* chunk) {
     if (s_terrainPass) {
+        if (s_terrainChunksDrawn) {
+            s_terrainChunks.SetCount(0);
+            s_terrainChunksDrawn = false;
+        }
+
         *s_terrainChunks.New() = chunk;
     }
 }
 
 // The chunks stay valid here: the terrain passes only move them to CMap::s_mapRenderChunkUpdateList, and
-// CMap::ProcessRenderChunkUpdateList frees a chunk's buffers only after it has gone 2 seconds without being drawn.
+// CMap::ProcessRenderChunkUpdateList frees a chunk's buffers only after it has gone 2 seconds without being drawn, so
+// they also last until the late call of the same frame.
 void WorldEditRenderTerrainPass() {
     if (s_terrainPass && s_terrainChunks.m_count) {
-        s_terrainPass(s_terrainChunks.m_data, s_terrainChunks.m_count);
+        s_terrainPass(s_terrainChunks.m_data, s_terrainChunks.m_count, false);
     }
 
-    s_terrainChunks.SetCount(0);
+    s_terrainChunksDrawn = true;
+}
+
+void WorldEditRenderTerrainPassLate() {
+    if (s_terrainPass && s_terrainChunksDrawn && s_terrainChunks.m_count) {
+        s_terrainPass(s_terrainChunks.m_data, s_terrainChunks.m_count, true);
+    }
 }
 
 #endif

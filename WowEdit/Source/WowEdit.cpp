@@ -130,7 +130,7 @@ static void PrepareTerrainOverlays() {
 }
 
 static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
-    // "wowEdit test [0-3]": the diagnostic passes (WOWEDITTEST); no number toggles mode 1.
+    // "wowEdit test [0-4]": the diagnostic passes (WOWEDITTEST); no number toggles mode 1.
     if (arguments && !SStrCmpI(arguments, "test", 4)) {
         const char* value = arguments + 4;
 
@@ -153,6 +153,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
             "1: editor shaders, flat magenta, depth tested",
             "2: editor shaders, flat magenta, no depth test",
             "3: fixed function, no shaders, opaque",
+            "4: editor shaders, flat magenta, depth tested, drawn late (after the scene)",
         };
 
         ConsoleWriteA("WowEdit: test overlay %s", DEFAULT_COLOR, s_testNames[WowEditTerrainGetTest()]);

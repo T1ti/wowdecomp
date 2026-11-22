@@ -29,13 +29,15 @@ enum WOWEDITTEST : int32_t {
     WOWEDITTEST_SHADER = 1, // the editor vertex shader and a flat magenta pixel shader (WOWEDITSHADER_TEST), depth tested
     WOWEDITTEST_NO_DEPTH = 2, // the same without the depth test: shows through anything in front of the terrain
     WOWEDITTEST_FIXED = 3, // no shaders: the fixed-function pipeline with the chunk transform of RenderSetup, opaque
-    NUM_WOWEDITTESTS = 4,
+    WOWEDITTEST_LATE = 4, // as 1, drawn late (CGWorldFrame::OnWorldRender, with the overlays) instead of after the terrain
+    NUM_WOWEDITTESTS = 5,
 };
 
 void WowEditTerrainSetTest(int32_t mode);
 int32_t WowEditTerrainGetTest();
-// Port diagnostic: the next terrain pass prints the Direct3D state its first draw ran with (bound shaders, vertex
-// shader constants, vertex declaration, render states, viewport, targets) and where the first chunk lands on screen.
+// Port diagnostic: the next terrain pass prints how many pixels its first draw group wrote (an occlusion query), the
+// Direct3D state that group ran with (bound shaders, vertex shader constants, vertex declaration, render states,
+// viewport, targets), the first vertices it read, and where the first chunk lands on screen.
 void WowEditTerrainProbe();
 // Builds the shaders the enabled overlays need, so a failure shows in the console when the overlay is turned on;
 // false when one is missing.

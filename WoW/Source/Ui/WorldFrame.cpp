@@ -1833,6 +1833,7 @@ void CGWorldFrame::OnWorldRender() {
 #ifdef WOWDECOMP_TOOL_FEATURES
     // Tool features: the world editor overlays (WorldEditHooks.h) and the debugDrawTest scene queue their objects.
     WorldEditRenderOverlays();
+    WorldEditRenderTerrainPassLate();
     GxuDebugDrawTestQueue();
 #endif
     GxuDebugDrawRender(CWorldScene::s_activeWorldView);

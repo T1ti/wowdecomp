@@ -69,7 +69,7 @@ static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C4
 
 // The hit-test display color: 0.9.1 ModelShowHitTestGeometry's solid texture, CImVector 0x7FFF0000.
 static const uint32_t HIT_TEST_COLOR = 0x7FFF0000;
-static const float HIT_TEST_LIFT = 0.02f; // yards the display sits outside the model's surface
+static const float HIT_TEST_LIFT = 0.06f; // yards the display sits outside the model's surface
 
 // The triangles the cursor picks an object by: CM2Scene::HitTestGeometry in the mode CGWorldFrame::
 // AddObjectToHitTestList gives object models (HIT_TEST_RENDER, or HIT_TEST_UNKNOWN_4, which no reader tells apart).
