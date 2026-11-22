@@ -1389,6 +1389,8 @@ void TSHashTableReuse<T, TKey>::InternalDelete(T* ptr) {
 // OFFSET: [0x004B9240<CTexture, HASHKEY_TEXTUREFILE>, 0x004BB670<CModelBlob::CHashEntry, HASHKEY_MODELBLOBFILE>, 0x004C0C90<CTextureBlobTexture, HASHKEY_TEXTUREBLOBFILE>, 0x006BC770<CLightList, HASHKEY_DWORD>, 0x00776F90<RGN, HASHKEY_NONE>]
 template <class T, class TKey>
 T* TSHashTableReuse<T, TKey>::InternalNew(TSExplicitList<T>* listptr, size_t extrabytes, uint32_t flags) {
+    STORM_ASSERT(!extrabytes);
+
     T* node = this->m_reuseList.Head();
 
     if (!node) {
