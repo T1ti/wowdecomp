@@ -112,13 +112,14 @@ void UnitDebugCombatLogOnEnable(BOOL enable) {
 // draws its circles once the spline is done, as 0.5.3 drew the stored path of a stopped unit. Spline points of a unit
 // on a transport are transport-local and are moved to world space with the transport matrix.
 //
-// Port changes to the ground display:
+// Port changes to the ground display (0.5.3, 0.8 and 0.9.1 all drew it with circles only):
 //   - The circles are centered on the ground below each point (World::Intersect against the collision geometry)
 //     rather than on the point: 3.3.5 server paths can sit more than the circle's 1 yard half-depth under the ground,
 //     and then the projection finds no terrain to draw on.
 //   - A white line from the start to the end, draped on the ground (sampled every yard and dropped onto the collision
 //     geometry), since 1 yard additive circles on a 3.3.5 spline's few points are hard to follow. 0.5.3 had the
 //     server's dense debug path for that.
+//   - Green spheres at the path points, as the flying display has (half spheres, being centered on the ground).
 //
 // Port addition: transports. A transport (boat, zeppelin) is a game object moving along its ShipPath, the TaxiPath
 // curve CGGameObject_C_Type_MapObjTransport builds (ShipPath::BuildLegs), not a unit spline. While the active player
@@ -142,6 +143,7 @@ struct DebugPathLast {
     uint32_t m_splineId;
     uint32_t m_pointCount;
     WOWGUID m_transportGuid;
+    bool m_ground; // a ground (linear) path, drawn with spheres and the draped line
     TSGrowableArray<DebugPathCircle> m_circles;
     TSGrowableArray<C3Vector> m_draped;
 };
@@ -282,6 +284,7 @@ static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WO
     // its circles there too, where they find nothing to project on), and a transport deck is not below a
     // transport-local point until the point is moved.
     bool ground = path.GetSplineMode() != MODE_CATMULLROM && !transportGuid;
+    last->m_ground = path.GetSplineMode() != MODE_CATMULLROM;
 
     // The circle centers: every point, dropped onto the ground for a ground path (DrapeDebugPath lifts them by
     // DEBUG_PATH_DRAPE_LIFT, taken off again: the projection box is centered on the ground).
@@ -520,6 +523,18 @@ void CGUnit_C::RenderDebugPathing() {
             }
 
             QueueDebugPathCircle(point, circle.m_color);
+        }
+
+        // Port addition: green spheres at the ground path's points, from the start (circle 2, point 1) to the end
+        // (point count - 2), as the flying display has. Centered on the ground, they show as half spheres.
+        for (uint32_t i = 2; last->m_ground && i + 1 < last->m_circles.m_count; i++) {
+            C3Vector point = last->m_circles.m_data[i].m_position;
+
+            if (lastOnTransport) {
+                point = point * lastTransport;
+            }
+
+            DrawDebugPathSphere(point);
         }
 
         DrawDebugPathStrip(last->m_draped.m_data, last->m_draped.m_count, lastOnTransport ? &lastTransport : nullptr);

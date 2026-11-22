@@ -69,6 +69,7 @@ static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C4
 
 // The hit-test display color: 0.9.1 ModelShowHitTestGeometry's solid texture, CImVector 0x7FFF0000.
 static const uint32_t HIT_TEST_COLOR = 0x7FFF0000;
+static const float HIT_TEST_LIFT = 0.02f; // yards the display sits outside the model's surface
 
 // The triangles CM2Scene::HitTestGeometry tests: the same batch filter (no material layers, no NO_HIT_TEST batches,
 // the model's hit-test mode, invisible batches skipped) and the same skinning (one bone, or the blended bones), with
@@ -141,7 +142,22 @@ static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv,
                 M2BlendBoneMatrices(model->m_boneMatrices, vertex->m_weights, vertex->m_indices, &matrix);
             }
 
-            s_vertices.m_data[v] = vertex->m_position * matrix * viewInv;
+            // Pushed out along the skinned normal so the display does not z-fight with the model it covers (the CPU
+            // skinning here and the GPU skinning of the model differ in the last bits, more than the debug-draw depth
+            // bias absorbs).
+            C3Vector position = vertex->m_position * matrix * viewInv;
+            C3Vector tip = (vertex->m_position + vertex->m_normal) * matrix * viewInv;
+            C3Vector normal(tip.x - position.x, tip.y - position.y, tip.z - position.z);
+            float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+
+            if (length > 0.0001f) {
+                float scale = HIT_TEST_LIFT / length;
+                position.x += normal.x * scale;
+                position.y += normal.y * scale;
+                position.z += normal.z * scale;
+            }
+
+            s_vertices.m_data[v] = position;
         }
 
         const uint16_t* indices = &skinData->m_indices[section->m_indexStart];
