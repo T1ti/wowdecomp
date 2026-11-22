@@ -62,6 +62,8 @@ void ComSat::Sound::OutputChannel::Delete() {
 // VERIFY: fb0351ec manual
 // OFFSET: 0x00887A10
 ComSat::Sound::IOSoundEngine::IOSoundEngine(const ComSat::Initialization& init, ComSat::Sound::IOCallback& callback, ComSat::Allocator& allocator) : m_allocator(&allocator), m_callback(&callback), m_captureChannel(allocator) {
+    STORM_ASSERT(init.m_maxLocalPlayers == 1);
+
     this->m_outputDevice = 0;
     this->m_captureDevice = 0;
     this->m_channels.SetCount(init.m_maxChannels);
@@ -164,12 +166,18 @@ void ComSat::Sound::IOSoundEngine::ShutDownCapture() {
 // VERIFY: 157b0a60 auto
 // OFFSET: 0x008877E0
 void ComSat::Sound::IOSoundEngine::SetPlayerPlaybackVolume(uint8_t player, int32_t channel, float volume) {
+    STORM_ASSERT(player == 0);
+    STORM_ASSERT(size_t(channel) < m_channels.Count());
+
     SI2::SetVolume(&this->m_channels[channel]->m_object, volume);
 }
 
 // VERIFY: 4c066a98 manual
 // OFFSET: 0x00887860
 bool ComSat::Sound::IOSoundEngine::PlayDataForPlayer(uint8_t player, int32_t channel, uint8_t* data, uint32_t size, double rate) {
+    STORM_ASSERT(player == 0);
+    STORM_ASSERT(size_t(channel) < m_channels.Count());
+
     double pitch = 0.9;
     if (rate >= 0.9) {
         pitch = rate;
@@ -191,13 +199,19 @@ bool ComSat::Sound::IOSoundEngine::PlayDataForPlayer(uint8_t player, int32_t cha
 // VERIFY: ffd08db7 manual
 // OFFSET: 0x00887980
 int32_t ComSat::Sound::IOSoundEngine::GetRemainingPlaybackBytes(uint8_t player, int32_t channel) {
+    STORM_ASSERT(player == 0);
+    STORM_ASSERT(size_t(channel) < m_channels.Count());
+
     return 2 * this->m_channels[channel]->m_buffer.Count();
 }
 
 // VERIFY: 11476088 auto
 // OFFSET: 0x008879B0
-int32_t ComSat::Sound::IOSoundEngine::ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t size) {
-    return 2 * this->m_captureChannel.m_buffer.Read(reinterpret_cast<int16_t*>(data), static_cast<uint32_t>(size) >> 1);
+int32_t ComSat::Sound::IOSoundEngine::ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t bytesToRead) {
+    STORM_ASSERT(player == 0);
+    STORM_ASSERT((bytesToRead & 1) == 0);
+
+    return 2 * this->m_captureChannel.m_buffer.Read(reinterpret_cast<int16_t*>(data), static_cast<uint32_t>(bytesToRead) >> 1);
 }
 
 // VERIFY: 84034483 auto
@@ -241,6 +255,9 @@ void ComSat::Sound::IOSoundEngine::InitCapture() {
 // VERIFY: ed3c735f auto
 // OFFSET: 0x00887D10
 bool ComSat::Sound::IOSoundEngine::InitLocalPlayer(uint8_t player, int32_t outputDevice, int32_t captureDevice, int32_t sampleRate, int32_t bitsPerSample, int32_t samplesPerFrame) {
+    STORM_ASSERT(player == 0);
+    STORM_ASSERT(bitsPerSample == 16);
+
     this->m_outputDevice = outputDevice;
     this->m_sampleRate = static_cast<float>(sampleRate);
     this->m_captureDevice = captureDevice;

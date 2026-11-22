@@ -38,7 +38,7 @@ class IO {
     virtual int32_t GetRemainingPlaybackBytes(uint8_t player, int32_t channel) = 0;
     virtual int32_t GetInputBlockSize(uint8_t player) = 0;
     virtual int32_t GetPlaybackBlockSize(uint8_t player) = 0;
-    virtual int32_t ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t size) = 0;
+    virtual int32_t ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t bytesToRead) = 0;
     virtual int32_t GetAvailableDataBytes(uint8_t player) = 0;
     virtual int32_t EnumerateOutputDevices(DeviceInfo* devices, int32_t maxDevices) = 0;
     virtual int32_t EnumerateCaptureDevices(DeviceInfo* devices, int32_t maxDevices) = 0;
@@ -110,7 +110,7 @@ class IOSoundEngine : public IO {
     virtual int32_t GetRemainingPlaybackBytes(uint8_t player, int32_t channel);
     virtual int32_t GetInputBlockSize(uint8_t player);
     virtual int32_t GetPlaybackBlockSize(uint8_t player);
-    virtual int32_t ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t size);
+    virtual int32_t ReadDataForPlayer(uint8_t player, uint8_t* data, int32_t bytesToRead);
     virtual int32_t GetAvailableDataBytes(uint8_t player);
     virtual int32_t EnumerateOutputDevices(DeviceInfo* devices, int32_t maxDevices);
     virtual int32_t EnumerateCaptureDevices(DeviceInfo* devices, int32_t maxDevices);
