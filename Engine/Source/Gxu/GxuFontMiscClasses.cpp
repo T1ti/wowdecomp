@@ -37,7 +37,7 @@ uint8_t BATCHEDRENDERFONTDESC::s_billboarded;
 CHARCODEDESC::CHARCODEDESC() {
     this->m_textureNumber = 0xFFFFFFFF;
     this->m_rowNumber = 0xFFFFFFFF;
-    this->m_glyphStartPixel = 0xFFFFFFFF;
+    this->glyphStartPixel = 0xFFFFFFFF;
     this->m_glyphEndPixel = 0;
 }
 
@@ -80,14 +80,16 @@ GLYPHBITMAPDATA::~GLYPHBITMAPDATA() {
 
 // VERIFY: d966ef03 manual
 // OFFSET: 0x006C4380
-void CHARCODEDESC::GenerateTextureCoords(uint32_t rowNumber, uint32_t cellHeight) {
-    int32_t top = rowNumber * cellHeight;
-    float left = this->m_glyphStartPixel;
+void CHARCODEDESC::GenerateTextureCoords(uint32_t rowNumber, uint32_t glyphSide) {
+    STORM_ASSERT(glyphSide);
+
+    int32_t top = rowNumber * glyphSide;
+    float left = this->glyphStartPixel;
 
     CRect coords;
     coords.minY = top * ONEOVERTEXSIZE;
     coords.minX = left * ONEOVERTEXSIZE;
-    coords.maxY = (top + cellHeight) * ONEOVERTEXSIZE;
+    coords.maxY = (top + glyphSide) * ONEOVERTEXSIZE;
 
     float right = left + this->m_bitmapData.m_glyphCellWidth;
     coords.maxX = ONEOVERTEXSIZE * right;
@@ -98,13 +100,29 @@ void CHARCODEDESC::GenerateTextureCoords(uint32_t rowNumber, uint32_t cellHeight
 // VERIFY: 132485d8 auto
 // OFFSET: 0x006C4420
 uint32_t CHARCODEDESC::GapToPrevious() {
-    CHARCODEDESC* previous = this->m_textureRowLink.Prev();
+    STORM_ASSERT(ValidBlockEndPoints());
 
-    if (!previous) {
-        return this->m_glyphStartPixel;
+    CHARCODEDESC* prev = this->m_textureRowLink.Prev();
+
+    if (!prev) {
+        return this->glyphStartPixel;
     }
 
-    return this->m_glyphStartPixel - previous->m_glyphEndPixel - 1;
+    STORM_ASSERT(prev->ValidBlockEndPoints());
+    return this->glyphStartPixel - prev->m_glyphEndPixel - 1;
+}
+
+inline uint32_t CHARCODEDESC::GapToNext() {
+    STORM_ASSERT(ValidBlockEndPoints());
+
+    CHARCODEDESC* next = this->m_textureRowLink.Next();
+
+    if (!next) {
+        return 255 - this->m_glyphEndPixel;
+    }
+
+    STORM_ASSERT(next->ValidBlockEndPoints());
+    return next->glyphStartPixel - this->m_glyphEndPixel - 1;
 }
 
 // VERIFY: 6fcf1d8c manual
@@ -263,8 +281,10 @@ void BATCHEDRENDERFONTDESC::Shutdown() {
 
 // VERIFY: 36c33614 manual
 // OFFSET: 0x006C48D0
-CGxVertexPCT* BATCHEDRENDERFONTDESC::UnlockVertexPtrAndRender(CGxBuf*& buf, int32_t count) {
-    GxBufUnlock(buf, sizeof(CGxVertexPCT) * count);
+CGxVertexPCT* BATCHEDRENDERFONTDESC::UnlockVertexPtrAndRender(CGxBuf*& buf, int32_t numVerts) {
+    STORM_ASSERT(!( numVerts % 4 ));
+
+    GxBufUnlock(buf, sizeof(CGxVertexPCT) * numVerts);
 
     if (!BATCHEDRENDERFONTDESC::s_indexBuf->m_hasData || !BATCHEDRENDERFONTDESC::s_indexBuf->m_valid) {
         BATCHEDRENDERFONTDESC::InitializeIndexBuff();
@@ -277,9 +297,9 @@ CGxVertexPCT* BATCHEDRENDERFONTDESC::UnlockVertexPtrAndRender(CGxBuf*& buf, int3
         CGxBatch batch;
         batch.m_primType = GxPrim_Triangles;
         batch.m_start = 0;
-        batch.m_count = 6 * (count / 4);
+        batch.m_count = 6 * (numVerts / 4);
         batch.m_minIndex = 0;
-        batch.m_maxIndex = count - 1;
+        batch.m_maxIndex = numVerts - 1;
 
         GxDraw(&batch, 1);
     }
@@ -294,12 +314,14 @@ void BATCHEDRENDERFONTDESC::RenderBatch() {
         return;
     }
 
+    STORM_ASSERT(face);
+
     for (CGxString* string = this->m_strings.Head(); string; string = this->m_strings.Next(string)) {
         string->CheckGeometry();
     }
 
     for (uint32_t i = 0; i < 8; i++) {
-        this->m_face->m_textureCache[i].UpdateDirty();
+        this->face->m_textureCache[i].UpdateDirty();
     }
 
     CGxBuf* buf = GxBufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPCT), 2048);
@@ -307,7 +329,7 @@ void BATCHEDRENDERFONTDESC::RenderBatch() {
     int32_t space = 2048;
 
     for (int32_t texturePage = 0; texturePage < 8; texturePage++) {
-        CTexture* texture = this->m_face->m_textureCache[texturePage].m_texture;
+        CTexture* texture = this->face->m_textureCache[texturePage].m_texture;
 
         if (!texture) {
             continue;
@@ -380,7 +402,8 @@ TEXTLINETEXTURE* TEXTLINETEXTURE::NewTextLineTexture() {
 // VERIFY: be22d63b manual
 // OFFSET: 0x006C4F80
 void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
-    uint32_t needed = desc->m_bitmapData.m_glyphCellWidth;
+    uint32_t pixelsNeeded = desc->m_bitmapData.m_glyphCellWidth;
+    STORM_ASSERT(pixelsNeeded);
 
     CHARCODEDESC* glyph = this->m_glyphlist.Head();
 
@@ -388,18 +411,20 @@ void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
         glyph = this->m_glyphlist.Next(glyph);
     }
 
-    uint32_t freed = 0;
+    uint32_t freedPixels = 0;
 
-    while (freed < needed) {
-        CHARCODEDESC* next = this->m_glyphlist.Next(desc);
-        uint32_t gap = next ? next->m_glyphStartPixel - desc->m_glyphEndPixel - 1 : 255 - desc->m_glyphEndPixel;
-        freed += desc->m_glyphEndPixel - desc->m_glyphStartPixel + 1 + gap;
+    while (freedPixels < pixelsNeeded) {
+        uint32_t currentCellUsage = desc->m_glyphEndPixel - desc->glyphStartPixel + 1;
+        STORM_ASSERT(currentCellUsage);
+        freedPixels += currentCellUsage + desc->GapToNext();
 
         desc = this->m_glyphlist.DeleteNode(desc);
 
         if (!desc) {
-            for (CHARCODEDESC* last = this->m_glyphlist.Tail(); last && freed < needed; ) {
-                freed += last->m_glyphEndPixel - last->m_glyphStartPixel + 1 + last->GapToPrevious();
+            for (CHARCODEDESC* last = this->m_glyphlist.Tail(); last && freedPixels < pixelsNeeded; ) {
+                uint32_t currentCellUsage = last->m_glyphEndPixel - last->glyphStartPixel + 1;
+                STORM_ASSERT(currentCellUsage);
+                freedPixels += currentCellUsage + last->GapToPrevious();
                 last = this->m_glyphlist.DeleteNode(last);
             }
 
@@ -407,12 +432,13 @@ void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
         }
     }
 
+    STORM_ASSERT(freedPixels >= pixelsNeeded);
+
     CHARCODEDESC* head = this->m_glyphlist.Head();
     this->m_widestFreeSlot = head ? head->GapToPrevious() : 0;
 
     for (glyph = this->m_glyphlist.Head(); glyph; glyph = this->m_glyphlist.Next(glyph)) {
-        CHARCODEDESC* next = this->m_glyphlist.Next(glyph);
-        uint32_t gap = next ? next->m_glyphStartPixel - glyph->m_glyphEndPixel - 1 : 255 - glyph->m_glyphEndPixel;
+        uint32_t gap = glyph->GapToNext();
 
         if (gap > this->m_widestFreeSlot) {
             this->m_widestFreeSlot = gap;
@@ -422,47 +448,49 @@ void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
 
 // VERIFY: 2ccd62da manual
 // OFFSET: 0x006C5120
-CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t rowNumber, uint32_t cellHeight) {
+CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t rowNumber, uint32_t glyphSide) {
     STORM_ASSERT(data);
 
-    uint32_t width = data->m_glyphCellWidth;
+    uint32_t glyphWidth = data->m_glyphCellWidth;
 
-    if (this->m_widestFreeSlot < width) {
+    STORM_ASSERT(glyphWidth);
+
+    if (this->m_widestFreeSlot < glyphWidth) {
         return nullptr;
     }
 
-    CHARCODEDESC* head = this->m_glyphlist.Head();
+    CHARCODEDESC* current = this->m_glyphlist.Head();
 
-    if (!head) {
+    if (!current) {
         CHARCODEDESC* desc = new (__FILE__, __LINE__) CHARCODEDESC;
         this->m_glyphlist.LinkToTail(desc);
-        this->m_widestFreeSlot -= width;
-        desc->m_glyphStartPixel = 0;
-        desc->m_glyphEndPixel = width - 1;
+        this->m_widestFreeSlot -= glyphWidth;
+        desc->glyphStartPixel = 0;
+        desc->m_glyphEndPixel = glyphWidth - 1;
         desc->m_rowNumber = rowNumber;
         desc->m_bitmapData.CopyFrom(data);
-        desc->GenerateTextureCoords(rowNumber, cellHeight);
+        desc->GenerateTextureCoords(rowNumber, glyphSide);
 
         return desc;
     }
 
-    this->m_widestFreeSlot = head->GapToPrevious();
+    this->m_widestFreeSlot = current->GapToPrevious();
 
-    if (this->m_widestFreeSlot >= width) {
+    if (this->m_widestFreeSlot >= glyphWidth) {
         CHARCODEDESC* desc = new (__FILE__, __LINE__) CHARCODEDESC;
-        this->m_glyphlist.LinkNode(desc, TSLIST_LINK_BEFORE, head);
-        desc->m_glyphEndPixel = head->m_glyphStartPixel - 1;
-        desc->m_glyphStartPixel = desc->m_glyphEndPixel - width + 1;
+        this->m_glyphlist.LinkNode(desc, TSLIST_LINK_BEFORE, current);
+        STORM_ASSERT(current->glyphStartPixel >= 1);
+        desc->m_glyphEndPixel = current->glyphStartPixel - 1;
+        desc->glyphStartPixel = desc->m_glyphEndPixel - glyphWidth + 1;
         desc->m_rowNumber = rowNumber;
         desc->m_bitmapData.CopyFrom(data);
-        desc->GenerateTextureCoords(rowNumber, cellHeight);
+        desc->GenerateTextureCoords(rowNumber, glyphSide);
 
         CHARCODEDESC* first = this->m_glyphlist.Head();
         this->m_widestFreeSlot = first ? first->GapToPrevious() : 0;
 
         for (CHARCODEDESC* glyph = this->m_glyphlist.Head(); glyph; glyph = this->m_glyphlist.Next(glyph)) {
-            CHARCODEDESC* next = this->m_glyphlist.Next(glyph);
-            uint32_t gap = next ? next->m_glyphStartPixel - glyph->m_glyphEndPixel - 1 : 255 - glyph->m_glyphEndPixel;
+            uint32_t gap = glyph->GapToNext();
 
             if (gap > this->m_widestFreeSlot) {
                 this->m_widestFreeSlot = gap;
@@ -475,22 +503,22 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
     CHARCODEDESC* desc = nullptr;
     int32_t inserted = 0;
 
-    for (CHARCODEDESC* glyph = head; glyph; ) {
+    for (CHARCODEDESC* glyph = current; glyph; ) {
         CHARCODEDESC* next = this->m_glyphlist.Next(glyph);
-        uint32_t gap = next ? next->m_glyphStartPixel - glyph->m_glyphEndPixel - 1 : 255 - glyph->m_glyphEndPixel;
+        uint32_t gap = glyph->GapToNext();
 
         if (inserted) {
             if (gap > this->m_widestFreeSlot) {
                 this->m_widestFreeSlot = gap;
             }
-        } else if (gap >= width) {
+        } else if (gap >= glyphWidth) {
             desc = new (__FILE__, __LINE__) CHARCODEDESC;
             this->m_glyphlist.LinkNode(desc, TSLIST_LINK_AFTER, glyph);
-            desc->m_glyphStartPixel = glyph->m_glyphEndPixel + 1;
-            desc->m_glyphEndPixel = glyph->m_glyphEndPixel + width;
+            desc->glyphStartPixel = glyph->m_glyphEndPixel + 1;
+            desc->m_glyphEndPixel = glyph->m_glyphEndPixel + glyphWidth;
             desc->m_rowNumber = rowNumber;
             desc->m_bitmapData.CopyFrom(data);
-            desc->GenerateTextureCoords(rowNumber, cellHeight);
+            desc->GenerateTextureCoords(rowNumber, glyphSide);
             inserted = 1;
             next = desc;
         } else if (!next) {
@@ -617,20 +645,25 @@ CGxStringBatch::CGxStringBatch() : m_flags(CGxStringBatch::STRING_BATCH_FLAGS::B
 // VERIFY: a85538e9 manual
 // OFFSET: 0x006C5E10
 void CGxStringBatch::AddString(CGxString* string) {
-    CGxFont* face = string->m_currentFace;
-    uint32_t hashval = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(face));
+    STORM_ASSERT(string);
+
+    CGxFont* currentFace = string->m_currentFace;
+    STORM_ASSERT(currentFace);
+    uint32_t hashval = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(currentFace));
 
     HASHKEY_PTR key;
-    key.m_key = face;
+    key.m_key = currentFace;
 
-    BATCHEDRENDERFONTDESC* desc = this->m_fontBatch.Ptr(hashval, key);
+    BATCHEDRENDERFONTDESC* batchDesc = this->m_fontBatch.Ptr(hashval, key);
 
-    if (!desc) {
-        desc = this->m_fontBatch.New(hashval, key, 0, 0);
-        desc->m_face = face;
+    if (!batchDesc) {
+        batchDesc = this->m_fontBatch.New(hashval, key, 0, 0);
+        batchDesc->face = currentFace;
+    } else {
+        STORM_ASSERT(batchDesc->face == currentFace);
     }
 
-    desc->m_strings.LinkToTail(string);
+    batchDesc->m_strings.LinkToTail(string);
 }
 
 // INLINED

@@ -40,13 +40,18 @@ struct CHARCODEDESC : public TSHashObject<CHARCODEDESC, HASHKEY_NONE> {
     /* 0020 */ TSLink<CHARCODEDESC> m_fontGlyphLink;
     /* 0028 */ uint32_t m_textureNumber;
     /* 002C */ uint32_t m_rowNumber;
-    /* 0030 */ uint32_t m_glyphStartPixel;
+    /* 0030 */ uint32_t glyphStartPixel;
     /* 0034 */ uint32_t m_glyphEndPixel;
     /* 0038 */ GLYPHBITMAPDATA m_bitmapData;
 
     CHARCODEDESC();
-    void GenerateTextureCoords(uint32_t rowNumber, uint32_t cellHeight);
+    void GenerateTextureCoords(uint32_t rowNumber, uint32_t glyphSide);
+    bool ValidBlockEndPoints() const {
+        return this->glyphStartPixel <= this->m_glyphEndPixel;
+    }
+
     uint32_t GapToPrevious();
+    inline uint32_t GapToNext(); // (inferred)
 };
 
 struct TEXTLINETEXTURE : public TSLinkedNode<TEXTLINETEXTURE> {
@@ -73,9 +78,9 @@ struct BATCHEDRENDERFONTDESC : public TSHashObject<BATCHEDRENDERFONTDESC, HASHKE
     static void Initialize();
     static void InitializeIndexBuff();
     static void Shutdown();
-    static CGxVertexPCT* UnlockVertexPtrAndRender(CGxBuf*& buf, int32_t count);
+    static CGxVertexPCT* UnlockVertexPtrAndRender(CGxBuf*& buf, int32_t numVerts);
 
-    /* 0018 */ CGxFont* m_face;
+    /* 0018 */ CGxFont* face;
     /* 001C */ TSExplicitList<CGxString, offsetof(CGxString, m_batchedStringLink)> m_strings;
 
     ~BATCHEDRENDERFONTDESC();
@@ -103,7 +108,7 @@ struct TEXTURECACHEROW {
     /* 0004 */ TSExplicitList<CHARCODEDESC, offsetof(CHARCODEDESC, m_textureRowLink)> m_glyphlist;
 
     TEXTURECACHEROW();
-    CHARCODEDESC* CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t rowNumber, uint32_t cellHeight);
+    CHARCODEDESC* CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t rowNumber, uint32_t glyphSide);
     void EvictGlyph(CHARCODEDESC* desc);
 };
 

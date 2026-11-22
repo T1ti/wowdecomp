@@ -378,7 +378,7 @@ void TEXTURECACHE::TextureCallback(EGxTexCommand command, uint32_t width, uint32
             }
 
             CGxFont* font = cache->m_theFace;
-            uint16_t* dest = &s_textureData[glyph->m_glyphStartPixel + ((glyph->m_rowNumber * font->m_cellHeight) << 8)];
+            uint16_t* dest = &s_textureData[glyph->glyphStartPixel + ((glyph->m_rowNumber * font->m_cellHeight) << 8)];
 
             if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
                 if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
