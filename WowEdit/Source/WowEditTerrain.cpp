@@ -27,6 +27,7 @@ static bool s_probe; // print the device state at the next pass's first draw
 static uint32_t s_passCount; // terrain passes drawn since an overlay was turned on
 static uint32_t s_lastChunkCount; // chunks the last pass drew over
 static float s_brushRadius; // yards; 0: no brush
+static float s_brushInnerRadius; // yards, the inner (falloff) circle; 0: none
 static C3Vector s_brushPoint; // the terrain point under the cursor
 static bool s_brushPointValid;
 static CGxTex* s_brushTexture;
@@ -74,11 +75,28 @@ static void SetSlopesConstants() {
 
 // ---- Brush
 
-// Brush look (port): the 8.1 editor sampled brush textures this client does not have, so the port draws its own: a
-// faint disc fading toward the edge, for the brush's reach, and a sharp ring at the radius, for the cursor. White, so
-// that the tint sets the color.
-static const uint32_t BRUSH_TEXTURE_SIZE = 128;
-static const float s_brushTint[4] = { 0.35f, 0.85f, 1.0f, 1.0f };
+// Brush look (port). The 8.1 shader draws nothing of its own: it lays the brush texture on the terrain and multiplies it
+// by the tint, so the look is all in the texture, which is not known. Screenshots and videos of the editor show two
+// dashed circles and nothing inside them: an outer one in red-orange and an inner one in yellow, with about the same
+// number of dashes, shorter on the inner circle. That is one dashed-ring texture drawn twice with the same shader, at
+// the brush radius and at the inner (falloff) radius, with two tints, which is what the port does.
+//
+// The texture: a white ring of BRUSH_DASHES dashes just inside the texture's edge, transparent elsewhere. The shader
+// samples it with clamped addressing, which repeats the outermost texels forever outside the brush, so those (and
+// everything past the ring) must be fully transparent.
+static const uint32_t BRUSH_TEXTURE_SIZE = 256;
+static const float BRUSH_RING_INNER = 0.93f; // ring band, in brush radii
+static const float BRUSH_RING_OUTER = 0.975f;
+static const float BRUSH_DASHES = 24.0f;
+static const float BRUSH_DASH_DUTY = 0.6f; // part of each dash period that is drawn
+static const float s_brushOuterTint[4] = { 1.0f, 0.35f, 0.2f, 1.0f };
+static const float s_brushInnerTint[4] = { 1.0f, 0.85f, 0.2f, 1.0f };
+
+// A linear ramp from 0 at edge0 to 1 at edge1, clamped.
+static float Ramp(float value, float edge0, float edge1) {
+    float t = (value - edge0) / (edge1 - edge0);
+    return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+}
 
 static void UpdateBrushTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
     static uint32_t s_texels[BRUSH_TEXTURE_SIZE * BRUSH_TEXTURE_SIZE];
@@ -87,24 +105,31 @@ static void UpdateBrushTexture(EGxTexCommand command, uint32_t width, uint32_t h
         return;
     }
 
+    const float texel = 2.0f / static_cast<float>(BRUSH_TEXTURE_SIZE); // one texel, in brush radii
+    const float pi = 3.14159265f;
+
     for (uint32_t y = 0; y < BRUSH_TEXTURE_SIZE; y++) {
         for (uint32_t x = 0; x < BRUSH_TEXTURE_SIZE; x++) {
-            // Distance from the center, 1 at the texture's edge (the brush radius), at the texel center.
-            float dx = (static_cast<float>(x) + 0.5f) / (BRUSH_TEXTURE_SIZE * 0.5f) - 1.0f;
-            float dy = (static_cast<float>(y) + 0.5f) / (BRUSH_TEXTURE_SIZE * 0.5f) - 1.0f;
+            // Position from the center, 1 at the texture's edge (the brush radius), at the texel center.
+            float dx = (static_cast<float>(x) + 0.5f) * texel - 1.0f;
+            float dy = (static_cast<float>(y) + 0.5f) * texel - 1.0f;
             float r = sqrtf(dx * dx + dy * dy);
-            float alpha = 0.0f;
 
-            if (r < 1.0f) {
-                // Disc: 30% at the center, falling to 8% at the edge.
-                float disc = 0.08f + 0.22f * (1.0f - r * r);
-                // Ring: full in the last 4% of the radius, fading over 3% on each side.
-                float ringDistance = fabsf(r - 0.95f);
-                float ring = ringDistance < 0.02f ? 1.0f : (ringDistance < 0.05f ? 1.0f - (ringDistance - 0.02f) / 0.03f : 0.0f);
-                alpha = disc > ring ? disc : ring;
+            // The ring band, its edges smoothed over a texel.
+            float band = Ramp(r, BRUSH_RING_INNER - texel, BRUSH_RING_INNER) * (1.0f - Ramp(r, BRUSH_RING_OUTER, BRUSH_RING_OUTER + texel));
+
+            // The dashes: the angle around the center in dash periods, each dash's ends smoothed over a texel of arc.
+            float period = (atan2f(dy, dx) / (2.0f * pi) + 0.5f) * BRUSH_DASHES;
+            float phase = period - floorf(period);
+            float end = texel * BRUSH_DASHES / (2.0f * pi * (r > 0.5f ? r : 0.5f)); // a texel of arc, in periods
+            float dash = Ramp(phase, 0.0f, end) * (1.0f - Ramp(phase, BRUSH_DASH_DUTY - end, BRUSH_DASH_DUTY));
+
+            float alpha = band * dash;
+
+            if (x == 0 || y == 0 || x == BRUSH_TEXTURE_SIZE - 1 || y == BRUSH_TEXTURE_SIZE - 1) {
+                alpha = 0.0f;
             }
 
-            // Clamped addressing repeats the edge texels outside the brush: they stay transparent (r >= 1).
             uint32_t a = static_cast<uint32_t>(alpha * 255.0f + 0.5f);
             s_texels[y * BRUSH_TEXTURE_SIZE + x] = (a << 24) | 0x00FFFFFF;
         }
@@ -143,16 +168,16 @@ static void UpdateBrushPoint() {
     }
 }
 
-static void SetBrushConstants() {
+static void SetBrushConstants(float radius, const float* tint) {
     float constants[NUM_WOWEDITCONSTS][4] = {};
     constants[WOWEDITCONST_PROJECT_X][0] = 1.0f;
     constants[WOWEDITCONST_PROJECT_Y][1] = 1.0f;
     constants[WOWEDITCONST_BRUSH_CENTER][0] = s_brushPoint.x;
     constants[WOWEDITCONST_BRUSH_CENTER][1] = s_brushPoint.y;
-    constants[WOWEDITCONST_BRUSH_RADIUS][0] = s_brushRadius;
+    constants[WOWEDITCONST_BRUSH_RADIUS][0] = radius;
 
     for (uint32_t i = 0; i < 4; i++) {
-        constants[WOWEDITCONST_BRUSH_TINT][i] = s_brushTint[i];
+        constants[WOWEDITCONST_BRUSH_TINT][i] = tint[i];
     }
 
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 0, &constants[0][0], NUM_WOWEDITCONSTS);
@@ -398,10 +423,15 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool lat
     if (brushTexture && BrushChunks(chunks, count, s_brushChunks)) {
         device->RsSet(GxRs_PixelShader, brushShader);
         device->RsSet(GxRs_Texture0, brushTexture);
-        SetBrushConstants();
         CMapRenderChunk* const* reached = s_brushChunks.m_data;
         uint32_t reachedCount = s_brushChunks.Count();
+        SetBrushConstants(s_brushRadius, s_brushOuterTint);
         DrawGroup(reached, viewProj, late, [&] { DrawChunks(reached, reachedCount, view, projection); });
+
+        if (s_brushInnerRadius > 0.0f) {
+            SetBrushConstants(s_brushInnerRadius, s_brushInnerTint);
+            DrawChunks(reached, reachedCount, view, projection);
+        }
     }
 
     device->RsPop();
@@ -458,14 +488,19 @@ bool WowEditTerrainGetSlopes() {
     return s_slopes;
 }
 
-void WowEditTerrainSetBrush(float radius) {
+void WowEditTerrainSetBrush(float radius, float innerRadius) {
     s_brushRadius = radius > 0.0f ? (radius < WOWEDITBRUSH_MAX_RADIUS ? radius : WOWEDITBRUSH_MAX_RADIUS) : 0.0f;
+    s_brushInnerRadius = innerRadius > 0.0f && innerRadius < s_brushRadius ? innerRadius : 0.0f;
     s_brushPointValid = false;
     UpdateTerrainPass();
 }
 
 float WowEditTerrainGetBrush() {
     return s_brushRadius;
+}
+
+float WowEditTerrainGetBrushInner() {
+    return s_brushInnerRadius;
 }
 
 bool WowEditTerrainGetBrushPoint(float* x, float* y, float* z) {

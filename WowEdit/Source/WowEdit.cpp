@@ -202,7 +202,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
         float z;
 
         if (WowEditTerrainGetBrushPoint(&x, &y, &z)) {
-            ConsoleWriteA("  brush: %.2f yards, at %.2f %.2f %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), x, y, z);
+            ConsoleWriteA("  brush: %.2f yards (inner %.2f), at %.2f %.2f %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), WowEditTerrainGetBrushInner(), x, y, z);
         } else {
             ConsoleWriteA("  brush: %.2f yards, cursor not over terrain", DEFAULT_COLOR, WowEditTerrainGetBrush());
         }
@@ -255,29 +255,45 @@ static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments
     return 1;
 }
 
-// "wowEditBrush [radius|off]": the brush cursor; no argument toggles a 10-yard brush.
+// "wowEditBrush [radius [inner]|off]": the brush cursor; no argument toggles a 10-yard brush. The inner (falloff)
+// circle defaults to half the radius; 0 hides it.
 static const float DEFAULT_BRUSH_RADIUS = 10.0f;
+static const float DEFAULT_BRUSH_INNER = 0.5f; // of the radius
 
 static int32_t CCommand_WowEditBrush(const char* command, const char* arguments) {
     float radius;
+    float inner;
 
     if (!arguments || !*arguments) {
         radius = WowEditTerrainGetBrush() > 0.0f ? 0.0f : DEFAULT_BRUSH_RADIUS;
+        inner = radius * DEFAULT_BRUSH_INNER;
     } else if (!SStrCmpI(arguments, "off", STORM_MAX_STR)) {
         radius = 0.0f;
+        inner = 0.0f;
     } else {
         radius = SStrToFloat(arguments);
+        const char* second = arguments;
 
-        if (!(radius >= 0.0f)) {
-            ConsoleWrite("Usage: wowEditBrush [radius in yards|off]", ERROR_COLOR);
+        while (*second && *second != ' ') {
+            second++;
+        }
+
+        while (*second == ' ') {
+            second++;
+        }
+
+        inner = *second ? SStrToFloat(second) : radius * DEFAULT_BRUSH_INNER;
+
+        if (!(radius >= 0.0f) || !(inner >= 0.0f)) {
+            ConsoleWrite("Usage: wowEditBrush [radius [inner radius]|off] (yards)", ERROR_COLOR);
             return 1;
         }
     }
 
-    WowEditTerrainSetBrush(radius);
+    WowEditTerrainSetBrush(radius, inner);
 
     if (WowEditTerrainGetBrush() > 0.0f) {
-        ConsoleWriteA("WowEdit: brush, %.2f yards", DEFAULT_COLOR, WowEditTerrainGetBrush());
+        ConsoleWriteA("WowEdit: brush, %.2f yards, inner circle %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), WowEditTerrainGetBrushInner());
         PrepareTerrainOverlays();
     } else {
         ConsoleWrite("WowEdit: brush off", DEFAULT_COLOR);
@@ -303,7 +319,7 @@ void WowEditRegisterConsoleCommands() {
     ConsoleCommandRegister("wowEdit", CCommand_WowEdit, CATEGORY_DEBUG, "WowEdit: shader support and overlays in use");
     ConsoleCommandRegister("wowEditGrid", CCommand_WowEditGrid, CATEGORY_DEBUG, "WowEdit: terrain grid [0-3|off]");
     ConsoleCommandRegister("wowEditSlopes", CCommand_WowEditSlopes, CATEGORY_DEBUG, "WowEdit: impassable slopes [0|1]");
-    ConsoleCommandRegister("wowEditBrush", CCommand_WowEditBrush, CATEGORY_DEBUG, "WowEdit: terrain brush cursor [radius|off]");
+    ConsoleCommandRegister("wowEditBrush", CCommand_WowEditBrush, CATEGORY_DEBUG, "WowEdit: terrain brush cursor [radius [inner]|off]");
     ConsoleCommandRegister("wowEditMarkers", CCommand_WowEditMarkers, CATEGORY_DEBUG, "WowEdit: sample editor markers [0|1]");
 }
 

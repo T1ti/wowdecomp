@@ -11,8 +11,8 @@
 // Port: grid (all four permutations), impassable slopes and the terrain brush are rewritten for Shader Model 3 (ps_3_0,
 // with a vs_3_0 vertex shader, since D3D9 pairs a 3.0 pixel shader only with a 3.0 vertex shader). Their constants keep
 // the 8.1 register layout (8.1 cb11[n] is c[n] here), so each function can be compared with its 8.1 counterpart line
-// by line. The brush reads a brush texture, which the port generates (WowEditTerrain.cpp), the 8.1 ones being
-// unknown. The overlay and pathing shaders are not ported: they read editor data (per-cell colors, pathing textures)
+// by line. The brush reads a brush texture, which the port generates (a dashed ring, WowEditTerrain.cpp), the 8.1 ones
+// being unknown. The overlay and pathing shaders are not ported: they read editor data (per-cell colors, pathing textures)
 // this client does not have.
 //
 // Instead of BLS files, the HLSL text is compiled when first needed with D3DCompile from the system's
