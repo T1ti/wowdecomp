@@ -505,9 +505,9 @@ void CM2Scene::TransformHitTestVerticesBlendSSE(const CM2Model* model, const M2S
     C44Matrix matrix;
     uint32_t weights = 0;
     uint32_t indices = 0;
-    uint32_t end = section->m_vertexStart + section->m_vertexCount;
+    uint32_t end = section->vertexStart + section->vertexCount;
 
-    for (uint32_t i = section->m_vertexStart; i < end; i++) {
+    for (uint32_t i = section->vertexStart; i < end; i++) {
         M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[i]];
 
         if (*reinterpret_cast<uint32_t*>(&vertex->m_weights) != weights || *reinterpret_cast<uint32_t*>(&vertex->m_indices) != indices) {
@@ -540,9 +540,9 @@ void CM2Scene::TransformHitTestVerticesBlend(const CM2Model* model, const M2Skin
     C44Matrix matrix;
     uint32_t weights = 0;
     uint32_t indices = 0;
-    uint32_t end = section->m_vertexStart + section->m_vertexCount;
+    uint32_t end = section->vertexStart + section->vertexCount;
 
-    for (uint32_t i = section->m_vertexStart; i < end; i++) {
+    for (uint32_t i = section->vertexStart; i < end; i++) {
         M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[i]];
 
         if (*reinterpret_cast<uint32_t*>(&vertex->m_weights) != weights || *reinterpret_cast<uint32_t*>(&vertex->m_indices) != indices) {
@@ -572,9 +572,9 @@ void CM2Scene::TransformHitTestVerticesBlend(const CM2Model* model, const M2Skin
 void CM2Scene::TransformHitTestVertices(const CM2Model* model, const M2SkinProfile* skinData, const M2SkinSection* section, int32_t normals, const C3Vector& dir, float d) {
     M2Data* data = model->m_shared->m_data;
     C3Vector* out = this->m_hitVerts;
-    uint32_t end = section->m_vertexStart + section->m_vertexCount;
+    uint32_t end = section->vertexStart + section->vertexCount;
 
-    for (uint32_t i = section->m_vertexStart; i < end; i++) {
+    for (uint32_t i = section->vertexStart; i < end; i++) {
         M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[i]];
         const C44Matrix& matrix = model->m_boneMatrices[vertex->m_indices.b[0]];
         C3Vector p = vertex->m_position * matrix;
@@ -636,21 +636,21 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
 
         M2SkinSection* section = &skinData->m_skinSections[batch->m_skinSectionIndex];
 
-        if (section->m_vertexCount > this->m_hitVertCapacity) {
+        if (section->vertexCount > this->m_hitVertCapacity) {
             delete[] this->m_hitVerts;
 
             if (!this->m_hitVertCapacity) {
                 this->m_hitVertCapacity = 1;
             }
 
-            while (this->m_hitVertCapacity < section->m_vertexCount) {
+            while (this->m_hitVertCapacity < section->vertexCount) {
                 this->m_hitVertCapacity *= 2;
             }
 
             this->m_hitVerts = new (__FILE__, __LINE__) C3Vector[this->m_hitVertCapacity];
         }
 
-        if (section->m_boneInfluences == 1) {
+        if (section->boneInfluences == 1) {
             this->TransformHitTestVertices(model, skinData, section, pass, dir, d);
         } else if (CM2Cache::s_processorFeatures & OS_PROCESSOR_FEATURE_SSE) {
             this->TransformHitTestVerticesBlendSSE(model, skinData, section, pass, dir, d);
@@ -659,7 +659,7 @@ M2HitRec* CM2Scene::HitTestGeometry(const CM2Model* model, uint32_t pass, const 
         }
 
         const uint16_t* indices = &skinData->m_indices[section->m_indexStart];
-        best = this->IntersectHitTestTriangles(indices, indices + section->m_indexCount, section->m_vertexStart, start, pass, rec, t, best);
+        best = this->IntersectHitTestTriangles(indices, indices + section->m_indexCount, section->vertexStart, start, pass, rec, t, best);
     }
 
     return best;
@@ -1468,7 +1468,7 @@ void __stdcall CM2Scene::ComputeElementShaders(M2Element* element) {
         shadow = 0;
     }
 
-    uint32_t boneInfluences = element->m_skinSection->m_boneInfluences;
+    uint32_t boneInfluences = element->m_skinSection->boneInfluences;
     int32_t alphaTest;
 
     if (material->m_blendMode == M2BLEND_OPAQUE) {

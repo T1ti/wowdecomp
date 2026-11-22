@@ -52,7 +52,7 @@ TSGrowableArray<C3Vector> CM2Model::s_collisionPositions;
 TSGrowableArray<uint32_t> CM2Model::s_collisionCodes;
 
 // STATIC: 0x00D411C0
-TSGrowableArray<M2ModelCallback> CM2Model::s_sequenceCallbacks;
+TSGrowableArray<M2ModelCallback> CM2Model::s_callbacks;
 
 // INLINED
 CM2ModelCall::CM2ModelCall() {
@@ -130,13 +130,18 @@ void CM2Model::WaitForLoad(const char* reason) {
     if (this->m_shared->m_asyncObject) {
         AsyncFileReadWait(this->m_shared->m_asyncObject);
     }
+    STORM_ASSERT(m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED); // 12213: "m_shared->m_m2DataLoaded"
 
     if (this->m_shared->m_asyncObject) {
         AsyncFileReadWait(this->m_shared->m_asyncObject);
     }
+    STORM_ASSERT(m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SKIN_LOADED); // 12213: "m_shared->m_skinProfileLoaded"
 
     if (this->m_creationFlags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
+        STORM_ASSERT(!(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)); // 12213: "!m_loaded"
         this->InitializeLoaded();
+    } else {
+        STORM_ASSERT(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "m_loaded"
     }
 }
 
@@ -144,6 +149,7 @@ void CM2Model::WaitForLoad(const char* reason) {
 // OFFSET: 0x00823F10
 void CM2Model::SetAnimating(int32_t animating) {
     STORM_ASSERT(m_scenePrev);
+    STORM_ASSERT(*m_scenePrev == this);
 
     if (this->m_creationFlags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
         if (!animating) {
@@ -237,9 +243,10 @@ void CM2Model::SetEventCallback(M2EventCallback callback, uint64_t param) {
 
 // VERIFY: af6c7545 manual
 // OFFSET: 0x008240F0
-void CM2Model::SetLightEnabled(uint32_t index, uint32_t enabled) {
+void CM2Model::SetLightEnabled(uint32_t lightIndex, uint32_t enabled) {
     if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
-        this->m_lights[index].m_enabled = enabled;
+        STORM_ASSERT(lightIndex < m_shared->m_data->m_lights.m_count); // 12213: "lightIndex < m_shared->m_data->lights.count"
+        this->m_lights[lightIndex].m_enabled = enabled;
         return;
     }
 
@@ -249,7 +256,7 @@ void CM2Model::SetLightEnabled(uint32_t index, uint32_t enabled) {
         call->m_type = EModelModQ::MODEL_SET_LIGHT_ENABLED;
         call->m_next = nullptr;
         call->m_time = this->m_scene->m_time;
-        call->m_args[0] = index;
+        call->m_args[0] = lightIndex;
         call->m_args[1] = enabled;
         *this->m_modelCallTail = call;
         this->m_modelCallTail = &call->m_next;
@@ -258,10 +265,11 @@ void CM2Model::SetLightEnabled(uint32_t index, uint32_t enabled) {
 
 // VERIFY: 15a8f3dc auto
 // OFFSET: 0x00824170
-CCamera* CM2Model::GetCameraByIndex(uint32_t index) {
+CCamera* CM2Model::GetCameraByIndex(uint32_t cameraIndex) {
     this->EnsureInitialized();
 
-    return this->m_cameras[index].m_camera;
+    STORM_ASSERT(cameraIndex < m_shared->m_data->m_cameras.m_count); // 12213: "cameraIndex < m_shared->m_data->cameras.count"
+    return this->m_cameras[cameraIndex].m_camera;
 }
 
 // VERIFY: 38985dd6 auto
@@ -576,6 +584,7 @@ int32_t CM2Model::Release() {
     STORM_ASSERT((int) m_refCount > 0);
 
     if (this->m_refCount-- == 1) {
+        STORM_ASSERT(g_modelPool);
         g_modelPool->Delete(this);
         return 0;
     }
@@ -585,8 +594,10 @@ int32_t CM2Model::Release() {
 
 // VERIFY: f4fc2dd4 manual
 // OFFSET: 0x00824F00
-uint32_t CM2Model::IsLoaded(BOOL wait, int32_t recursive) {
+uint32_t CM2Model::IsLoaded(BOOL wait, int32_t attachments) {
     if (this->m_creationFlags & INSTANCE_FLAGS::INSTANCE_INITIALIZE_ON_DEMAND) {
+        STORM_ASSERT(attachments == 0);
+
         if (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             return 1;
         }
@@ -608,7 +619,7 @@ uint32_t CM2Model::IsLoaded(BOOL wait, int32_t recursive) {
         return 0;
     }
 
-    if (!recursive || (this->m_runtimeFlags & M2_FLAGS::M2_ATTACHMENTS_LOADED)) {
+    if (!attachments || (this->m_runtimeFlags & M2_FLAGS::M2_ATTACHMENTS_LOADED)) {
         return 1;
     }
 
@@ -1223,6 +1234,8 @@ uint32_t CM2Model::GetSequenceVariationCount(uint32_t id) {
 // VERIFY: 0ce274db manual
 // OFFSET: 0x00826350
 M2SequenceFallback* CM2Model::SequenceFallbackById(M2SequenceFallback* result, uint32_t id) {
+    STORM_ASSERT(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "m_loaded"
+
     M2Data* data = this->m_shared->m_data;
     uint32_t defaultId;
 
@@ -1292,6 +1305,15 @@ BOOL CM2Model::HasBone(uint32_t boneId) {
 
     M2Data* data = this->m_shared->m_data;
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (data->m_bones.m_count && boneId < data->m_boneIndicesById.m_count) {
+        uint16_t boneIndex = data->m_boneIndicesById[boneId];
+        if (boneIndex != 0xFFFF) {
+            STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+        }
+    }
+#endif
+
     return data->m_bones.m_count && (boneId == M2_KEY_BONE_NONE || (boneId < data->m_boneIndicesById.m_count && data->m_boneIndicesById[boneId] != 0xFFFF));
 }
 
@@ -1301,18 +1323,20 @@ C3Vector CM2Model::GetBonePivot(uint32_t boneId) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    if (index < data->m_bones.m_count) {
-        return data->m_bones[index].m_pivot;
+    STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+
+    if (boneIndex < data->m_bones.m_count) {
+        return data->m_bones[boneIndex].m_pivot;
     }
 
     return C3Vector(0.0f, 0.0f, 0.0f);
@@ -1360,21 +1384,23 @@ int32_t CM2Model::GetBoneSequenceInfo(uint32_t boneId, M2BoneSequenceInfo& info)
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    if (index >= data->m_bones.m_count) {
+    STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+
+    if (boneIndex >= data->m_bones.m_count) {
         return 0;
     }
 
-    M2ModelBone* bone = &this->m_bones[index];
+    M2ModelBone* bone = &this->m_bones[boneIndex];
     info.m_sequenceId = bone->m_sequenceId;
     info.m_variationIndex = bone->m_variationIndex;
     info.m_time = bone->m_sequence.m_startOffset + static_cast<uint32_t>((this->m_scene->m_time - bone->m_sequence.m_startTime) * bone->m_sequence.m_speed);
@@ -1400,18 +1426,20 @@ uint32_t CM2Model::GetBoneSequenceId(uint32_t boneId) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    if (index < data->m_bones.m_count) {
-        return this->m_bones[index].m_sequenceId;
+    STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+
+    if (boneIndex < data->m_bones.m_count) {
+        return this->m_bones[boneIndex].m_sequenceId;
     }
 
     return 0;
@@ -1427,21 +1455,23 @@ uint32_t CM2Model::GetBoneSequenceAnimId(uint32_t boneId, uint32_t* variation) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    if (index >= data->m_bones.m_count) {
+    STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+
+    if (boneIndex >= data->m_bones.m_count) {
         return INVALID_ANIMATION;
     }
 
-    uint16_t sequenceIndex = this->m_bones[index].m_sequence.m_sequenceIndex;
+    uint16_t sequenceIndex = this->m_bones[boneIndex].m_sequence.m_sequenceIndex;
 
     if (sequenceIndex >= data->m_sequences.m_count) {
         return INVALID_ANIMATION;
@@ -1460,18 +1490,20 @@ float CM2Model::GetBoneSequenceSpeed(uint32_t boneId) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    if (index < data->m_bones.m_count) {
-        return this->m_bones[index].m_sequence.m_speed;
+    STORM_ASSERT(boneIndex < data->m_bones.m_count); // 12213: "boneIndex < data->bones.count"
+
+    if (boneIndex < data->m_bones.m_count) {
+        return this->m_bones[boneIndex].m_sequence.m_speed;
     }
 
     return 1.0f;
@@ -1493,7 +1525,7 @@ int32_t CM2Model::OnSequenceInterrupted(uint32_t boneId, uint16_t boneIndex) {
         return 1;
     }
 
-    uint32_t id = compBone->m_parentIndex == 0xFFFF ? 0xFFFFFFFF : boneId;
+    uint32_t id = compBone->parentIndex == 0xFFFF ? 0xFFFFFFFF : boneId;
     this->m_refCount++;
     callback(this, id, bone->m_sequenceId, 1, 0, this->m_sequenceCallbackParam);
 
@@ -1508,17 +1540,24 @@ int32_t CM2Model::BoneHasParent(uint32_t boneId) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint32_t index;
+    uint32_t boneIndex;
 
     if (boneId == M2_KEY_BONE_NONE) {
-        index = 0;
+        boneIndex = 0;
     } else if (boneId < data->m_boneIndicesById.m_count) {
-        index = data->m_boneIndicesById[boneId];
+        boneIndex = data->m_boneIndicesById[boneId];
     } else {
-        index = 0xFFFFFFFF;
+        boneIndex = 0xFFFFFFFF;
     }
 
-    return index < data->m_bones.m_count && index && data->m_bones[index].m_parentIndex != 0xFFFF;
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (boneIndex < data->m_bones.m_count) {
+        STORM_ASSERT(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "m_loaded"
+        STORM_ASSERT(boneIndex < m_shared->m_data->m_bones.m_count); // 12213: "boneIndex < m_shared->m_data->bones.count"
+    }
+#endif
+
+    return boneIndex < data->m_bones.m_count && boneIndex && data->m_bones[boneIndex].parentIndex != 0xFFFF;
 }
 
 // VERIFY: 781d6a98 manual
@@ -1605,10 +1644,10 @@ void CM2Model::SetPrimaryBoneSequence(uint16_t sequenceIndex, uint16_t boneIndex
 
     if (!bone->m_animListPrev) {
         bone->m_animListPrev = &this->m_animListHead;
-        bone->m_animListNext = this->m_animListHead;
+        bone->activeNext = this->m_animListHead;
 
         if (this->m_animListHead != 0xFFFF) {
-            this->m_bones[this->m_animListHead].m_animListPrev = &bone->m_animListNext;
+            this->m_bones[this->m_animListHead].m_animListPrev = &bone->activeNext;
         }
 
         this->m_animListHead = boneIndex;
@@ -1886,6 +1925,8 @@ C3Vector CM2Model::GetAttachmentPivot(uint32_t id) {
 // VERIFY: dca38176 manual
 // OFFSET: 0x008274F0
 void CM2Model::DetachFromParent() {
+    STORM_ASSERT(m_attachParent);
+
     if (this->m_attachPrev) {
         *this->m_attachPrev = this->m_attachNext;
     }
@@ -1896,6 +1937,7 @@ void CM2Model::DetachFromParent() {
 
     this->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_TO_ROOT;
 
+    STORM_ASSERT((int) m_refCount > 0);
     bool release = this->m_refCount-- == 1;
     this->m_attachPrev = nullptr;
     this->m_attachNext = nullptr;
@@ -1904,6 +1946,7 @@ void CM2Model::DetachFromParent() {
     this->m_frameOfReference = nullptr;
 
     if (release) {
+        STORM_ASSERT(g_modelPool);
         g_modelPool->Delete(this);
     }
 }
@@ -1917,6 +1960,8 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
         CM2Model* next = model->m_attachNext;
 
         if (model->m_attachmentId == id) {
+            STORM_ASSERT(model->m_attachParent); // 12213: "m_attachParent"
+
             if (model->m_attachPrev) {
                 *model->m_attachPrev = model->m_attachNext;
             }
@@ -1927,6 +1972,7 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
 
             model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_TO_ROOT;
 
+            STORM_ASSERT((int) model->m_refCount > 0); // 12213: "(int) m_refCount > 0"
             bool release = model->m_refCount-- == 1;
             model->m_attachPrev = nullptr;
             model->m_attachNext = nullptr;
@@ -1935,6 +1981,7 @@ void CM2Model::DetachAllChildrenById(uint32_t id) {
             model->m_frameOfReference = nullptr;
 
             if (release) {
+                STORM_ASSERT(g_modelPool);
                 g_modelPool->Delete(model);
             }
         }
@@ -2046,6 +2093,15 @@ BOOL CM2Model::HasCamera(uint32_t id) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (id < data->m_cameraIndicesById.m_count) {
+        uint16_t cameraIndex = data->m_cameraIndicesById[id];
+        if (cameraIndex != 0xFFFF) {
+            STORM_ASSERT(cameraIndex < data->m_cameras.m_count); // 12213: "cameraIndex < data->cameras.count"
+        }
+    }
+#endif
+
     return id < data->m_cameraIndicesById.m_count && data->m_cameraIndicesById[id] != 0xFFFF;
 }
 
@@ -2060,13 +2116,14 @@ CCamera* CM2Model::GetCameraById(uint32_t id) {
         return nullptr;
     }
 
-    uint16_t index = data->m_cameraIndicesById[id];
+    uint16_t cameraIndex = data->m_cameraIndicesById[id];
 
-    if (index == 0xFFFF) {
+    if (cameraIndex == 0xFFFF) {
         return nullptr;
     }
 
-    return this->m_cameras[index].m_camera;
+    STORM_ASSERT(cameraIndex < data->m_cameras.m_count); // 12213: "cameraIndex < data->cameras.count"
+    return this->m_cameras[cameraIndex].m_camera;
 }
 
 // VERIFY: be32ea2b manual
@@ -2316,15 +2373,16 @@ void CM2Model::FindKey(M2ModelBoneSeq* sequence, const M2TrackBase& track, uint3
             uint32_t high = count;
 
             while (key < high) {
-                uint32_t mid = (high + key) >> 1;
+                uint32_t keyIndexMid = (high + key) >> 1;
 
-                if (time < keys[mid]) {
-                    high = mid - 1;
+                if (time < keys[keyIndexMid]) {
+                    STORM_ASSERT(keyIndexMid > 0);
+                    high = keyIndexMid - 1;
                 } else {
-                    key = mid + 1;
+                    key = keyIndexMid + 1;
 
                     if (key >= count || time < keys[key]) {
-                        key = mid;
+                        key = keyIndexMid;
                         break;
                     }
                 }
@@ -2606,11 +2664,11 @@ int32_t CM2Model::SetIndices() {
                     memcpy(indices, &skin->m_indices[section->m_indexStart], section->m_indexCount * sizeof(uint16_t));
                 } else {
                     for (uint32_t j = 0; j < section->m_indexCount; j++) {
-                        indices[j] = vertexBase + skin->m_indices[j + section->m_indexStart] - section->m_vertexStart;
+                        indices[j] = vertexBase + skin->m_indices[j + section->m_indexStart] - section->vertexStart;
                     }
                 }
 
-                vertexBase += section->m_vertexCount;
+                vertexBase += section->vertexCount;
                 indices += section->m_indexCount;
             }
         }
@@ -2626,8 +2684,10 @@ int32_t CM2Model::SetIndices() {
 
 // VERIFY: d0a96bb9 manual
 // OFFSET: 0x00829160
-int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* section, int32_t texCoord) {
-    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), section->m_vertexCount);
+int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* skinSection, int32_t texCoord) {
+    STORM_ASSERT(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "m_loaded"
+
+    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), skinSection->vertexCount);
     uint8_t* vertices = reinterpret_cast<uint8_t*>(g_theGxDevicePtr->BufLock(buf));
 
     if (!vertices) {
@@ -2636,19 +2696,21 @@ int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* section, int32_t
 
     if (optimized) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
-        M2BatchRange* range = &this->m_optGeo->m_batchRanges[section->m_skinSectionId];
+        M2BatchRange* range = &this->m_optGeo->m_batchRanges[skinSection->m_skinSectionId];
 
         for (uint32_t b = range->m_first; b <= range->m_last; b++) {
             uint16_t sectionIndex = skin->m_batches[b].m_skinSectionIndex;
 
             if (this->m_skinSections[sectionIndex]) {
-                M2SkinSection* batchSection = &skin->m_skinSections[sectionIndex];
-                CM2Model::s_transformVertices[batchSection->m_boneInfluences](this, batchSection, vertices, texCoord);
-                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * batchSection->m_vertexCount;
+                M2SkinSection* subRegion = &skin->m_skinSections[sectionIndex];
+                STORM_ASSERT(subRegion->boneInfluences <= 4);
+                CM2Model::s_transformVertices[subRegion->boneInfluences](this, subRegion, vertices, texCoord);
+                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * subRegion->vertexCount;
             }
         }
     } else {
-        CM2Model::s_transformVertices[section->m_boneInfluences](this, section, vertices, texCoord);
+        STORM_ASSERT(skinSection->boneInfluences <= 4);
+        CM2Model::s_transformVertices[skinSection->boneInfluences](this, skinSection, vertices, texCoord);
     }
 
     g_theGxDevicePtr->BufUnlock(buf, 0);
@@ -2660,7 +2722,7 @@ int32_t CM2Model::SetVertices(int32_t optimized, M2SkinSection* section, int32_t
 // VERIFY: 78ff9dca manual
 // OFFSET: 0x008292A0
 int32_t CM2Model::GetRegionBounds(M2SkinSection* section, CAaBox& box, C44Matrix& matrix) {
-    if (section->m_vertexCount < 4) {
+    if (section->vertexCount < 4) {
         return 0;
     }
 
@@ -2675,8 +2737,8 @@ int32_t CM2Model::GetRegionBounds(M2SkinSection* section, CAaBox& box, C44Matrix
     box.b = C3Vector(FLT_MAX, FLT_MAX, FLT_MAX);
     box.t = C3Vector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-    for (uint32_t i = 0; i < section->m_vertexCount; i++) {
-        M2Vertex* vertex = &data->m_vertices[skin->m_vertices[i + section->m_vertexStart]];
+    for (uint32_t i = 0; i < section->vertexCount; i++) {
+        M2Vertex* vertex = &data->m_vertices[skin->m_vertices[i + section->vertexStart]];
 
         if (*reinterpret_cast<uint32_t*>(&vertex->m_weights) != weights || *reinterpret_cast<uint32_t*>(&vertex->m_indices) != indices) {
             weights = *reinterpret_cast<uint32_t*>(&vertex->m_weights);
@@ -2908,8 +2970,8 @@ void CM2Model::RenderBatchShadowMap(int32_t untextured, M2Batch* batch, const CM
             g_theGxDevicePtr->ShaderConstantsUnlock(GxSh_Vertex, 31, 3 * registers);
         }
 
-        if (!prevSection || section->m_boneInfluences != prevSection->m_boneInfluences) {
-            CShaderEffect::SetDefaultShaders(section->m_boneInfluences);
+        if (!prevSection || section->boneInfluences != prevSection->boneInfluences) {
+            CShaderEffect::SetDefaultShaders(section->boneInfluences);
         }
 
         gxBatch.m_count = instances * section->m_indexCount;
@@ -2964,12 +3026,14 @@ void CM2Model::RenderModelBatchListShadowMap(int32_t untextured, const CModelBat
 // VERIFY: 0efd8ae8 manual
 // OFFSET: 0x00829F40
 void CM2Model::TransformVerticesNoUVSelect_cpp(const CM2Model* model, const M2SkinSection* section, M2VertexPNT2* out) {
+    STORM_ASSERT(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "model->m_loaded"
+
     C44Matrix matrix;
     uint32_t weights = 0;
     uint32_t indices = 0;
     const C44Matrix* bones = model->m_boneMatrices;
-    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
-    M2Vertex* end = vertex + section->m_vertexCount;
+    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->vertexStart];
+    M2Vertex* end = vertex + section->vertexCount;
 
     for (; vertex < end; vertex++, out++) {
         if (*reinterpret_cast<uint32_t*>(&vertex->m_weights) != weights || *reinterpret_cast<uint32_t*>(&vertex->m_indices) != indices) {
@@ -3021,12 +3085,14 @@ void CM2Model::TransformVerticesNoUVSelect_cpp(const CM2Model* model, const M2Sk
 // VERIFY: 3101ba14 manual
 // OFFSET: 0x0082A210
 void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, uint8_t* vertices, int32_t texCoord) {
+    STORM_ASSERT(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "model->m_loaded"
+
     C44Matrix matrix;
     uint32_t weights = 0;
     uint32_t indices = 0;
     const C44Matrix* bones = model->m_boneMatrices;
-    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
-    M2Vertex* end = vertex + section->m_vertexCount;
+    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->vertexStart];
+    M2Vertex* end = vertex + section->vertexCount;
     CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
     for (; vertex < end; vertex++, out++) {
@@ -3082,9 +3148,11 @@ void CM2Model::TransformVertices_cpp(CM2Model* model, M2SkinSection* section, ui
 // VERIFY: 3dfd45aa manual
 // OFFSET: 0x0082A4E0
 void CM2Model::TransformVerticesOneBone_cpp(CM2Model* model, M2SkinSection* section, uint8_t* vertices, int32_t texCoord) {
+    STORM_ASSERT(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "model->m_loaded"
+
     const C44Matrix* bones = model->m_boneMatrices;
-    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
-    M2Vertex* end = vertex + section->m_vertexCount;
+    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->vertexStart];
+    M2Vertex* end = vertex + section->vertexCount;
     CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
     for (; vertex < end; vertex++, out++) {
@@ -3103,6 +3171,8 @@ void CM2Model::TransformVerticesOneBone_cpp(CM2Model* model, M2SkinSection* sect
 // VERIFY: edef765a manual
 // OFFSET: 0x0082A600
 void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, uint8_t* vertices, int32_t texCoord) {
+    STORM_ASSERT(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "model->m_loaded"
+
     if (reinterpret_cast<uintptr_t>(vertices) & 0xF) {
         CM2Model::TransformVertices_cpp(model, section, vertices, texCoord);
         return;
@@ -3110,9 +3180,10 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
 
     uint32_t weights = 0;
     uint32_t indices = 0;
-    const C44Matrix* bones = model->m_boneMatrices;
-    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
-    M2Vertex* end = vertex + section->m_vertexCount;
+    const C44Matrix* boneMatrices = model->m_boneMatrices;
+    STORM_ASSERT(!(reinterpret_cast<uintptr_t>(boneMatrices) & 0xf)); // 12213: "!((uint) boneMatrices & 0xf)"
+    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->vertexStart];
+    M2Vertex* end = vertex + section->vertexCount;
     CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
     __m128 row0;
     __m128 row1;
@@ -3125,7 +3196,7 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
             indices = static_cast<uint32_t>(vertex->m_indices);
 
             __m128 weight = _mm_set1_ps(vertex->m_weights[0] * ONE_OVER_255);
-            const float* bone = reinterpret_cast<const float*>(&bones[vertex->m_indices[0]]);
+            const float* bone = reinterpret_cast<const float*>(&boneMatrices[vertex->m_indices[0]]);
             row0 = _mm_mul_ps(_mm_load_ps(&bone[0]), weight);
             row1 = _mm_mul_ps(_mm_load_ps(&bone[4]), weight);
             row2 = _mm_mul_ps(_mm_load_ps(&bone[8]), weight);
@@ -3133,7 +3204,7 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
 
             for (uint32_t i = 1; i < 4 && vertex->m_weights[i]; i++) {
                 weight = _mm_set1_ps(vertex->m_weights[i] * ONE_OVER_255);
-                bone = reinterpret_cast<const float*>(&bones[vertex->m_indices[i]]);
+                bone = reinterpret_cast<const float*>(&boneMatrices[vertex->m_indices[i]]);
                 row0 = _mm_add_ps(row0, _mm_mul_ps(_mm_load_ps(&bone[0]), weight));
                 row1 = _mm_add_ps(row1, _mm_mul_ps(_mm_load_ps(&bone[4]), weight));
                 row2 = _mm_add_ps(row2, _mm_mul_ps(_mm_load_ps(&bone[8]), weight));
@@ -3155,14 +3226,17 @@ void CM2Model::TransformVertices_sse(CM2Model* model, M2SkinSection* section, ui
 // VERIFY: 9d870aa4 manual
 // OFFSET: 0x0082AC10
 void CM2Model::TransformVerticesOneBone_sse(CM2Model* model, M2SkinSection* section, uint8_t* vertices, int32_t texCoord) {
+    STORM_ASSERT(model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "model->m_loaded"
+
     if (reinterpret_cast<uintptr_t>(vertices) & 0xF) {
         CM2Model::TransformVerticesOneBone_cpp(model, section, vertices, texCoord);
         return;
     }
 
+    STORM_ASSERT(!(reinterpret_cast<uintptr_t>(model->m_boneMatrices) & 0xf)); // 12213: "!((uint) model->m_boneMatrices & 0xf)"
     const C44Matrix* bones = model->m_boneMatrices;
-    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->m_vertexStart];
-    M2Vertex* end = vertex + section->m_vertexCount;
+    M2Vertex* vertex = &model->m_shared->m_data->m_vertices[section->vertexStart];
+    M2Vertex* end = vertex + section->vertexCount;
     CGxVertexPNT0* out = reinterpret_cast<CGxVertexPNT0*>(vertices);
 
     for (; vertex < end; vertex++, out++) {
@@ -3647,7 +3721,7 @@ M2ModelBone::M2ModelBone() {
     this->m_variationIndex = 0;
     this->m_blendEndTime = 0;
     this->m_animListPrev = nullptr;
-    this->m_animListNext = 0xFFFF;
+    this->activeNext = 0xFFFF;
 }
 
 // INLINED
@@ -3822,6 +3896,12 @@ void CM2Model::FreeInternalResources() {
     }
 
     M2Data* data = this->m_shared->m_data;
+    STORM_ASSERT(data);
+#if defined(WOWDECOMP_ASSERTIONS)
+    const M2SkinProfile* skinProfile = this->m_shared->m_skinData;
+    STORM_ASSERT(skinProfile);
+#endif
+
     this->m_bones = nullptr;
 
     if (this->m_loops) {
@@ -4073,13 +4153,13 @@ void CM2Model::OptimizeVisibleGeometry() {
 
         if (this->m_skinSections[sectionIndex]) {
             visibleCount++;
-            M2SkinSection* section = &skin->m_skinSections[sectionIndex];
+            M2SkinSection* skinSectionA = &skin->m_skinSections[sectionIndex];
 
-            if (!prevBatch || !BatchesMatch(batch, prevBatch, section, prevSection)) {
+            if (!prevBatch || !BatchesMatch(batch, prevBatch, skinSectionA, prevSection)) {
                 batchCount++;
                 sectionCount++;
                 prevBatch = batch;
-                prevSection = section;
+                prevSection = skinSectionA;
             }
         }
     }
@@ -4118,7 +4198,7 @@ void CM2Model::OptimizeVisibleGeometry() {
 
     M2Batch* lastBatch = nullptr;
     M2SkinSection* lastSection = nullptr;
-    M2SkinSection* target = nullptr;
+    M2SkinSection* optRegion = nullptr;
     M2BatchRange* range = nullptr;
     uint32_t indexCount = 0;
     batchCount = 0;
@@ -4138,42 +4218,44 @@ void CM2Model::OptimizeVisibleGeometry() {
             continue;
         }
 
-        M2SkinSection* section = &skin->m_skinSections[sectionIndex];
+        M2SkinSection* skinSectionA = &skin->m_skinSections[sectionIndex];
 
-        if (lastBatch && BatchesMatch(batch, lastBatch, section, lastSection)) {
+        if (lastBatch && BatchesMatch(batch, lastBatch, skinSectionA, lastSection)) {
             if (keepVertices) {
-                if (target->m_vertexStart > section->m_vertexStart) {
-                    target->m_vertexCount += target->m_vertexStart - section->m_vertexStart;
-                    target->m_vertexStart = section->m_vertexStart;
+                if (optRegion->vertexStart > skinSectionA->vertexStart) {
+                    optRegion->vertexCount += optRegion->vertexStart - skinSectionA->vertexStart;
+                    optRegion->vertexStart = skinSectionA->vertexStart;
                 }
 
-                if (target->m_vertexCount + target->m_vertexStart < section->m_vertexStart + section->m_vertexCount) {
-                    target->m_vertexCount = section->m_vertexStart + section->m_vertexCount - target->m_vertexStart;
+                if (optRegion->vertexCount + optRegion->vertexStart < skinSectionA->vertexStart + skinSectionA->vertexCount) {
+                    optRegion->vertexCount = skinSectionA->vertexStart + skinSectionA->vertexCount - optRegion->vertexStart;
                 }
+                STORM_ASSERT(optRegion->vertexStart <= skinSectionA->vertexStart);
+                STORM_ASSERT(optRegion->vertexStart + optRegion->vertexCount >= skinSectionA->vertexStart + skinSectionA->vertexCount);
             } else {
-                target->m_vertexCount += section->m_vertexCount;
+                optRegion->vertexCount += skinSectionA->vertexCount;
             }
 
-            target->m_indexCount += section->m_indexCount;
+            optRegion->m_indexCount += skinSectionA->m_indexCount;
 
-            if (target->m_boneCount < section->m_boneCount) {
-                target->m_boneCount = section->m_boneCount;
+            if (optRegion->m_boneCount < skinSectionA->m_boneCount) {
+                optRegion->m_boneCount = skinSectionA->m_boneCount;
             }
 
-            if (target->m_boneInfluences < section->m_boneInfluences) {
-                target->m_boneInfluences = section->m_boneInfluences;
+            if (optRegion->boneInfluences < skinSectionA->boneInfluences) {
+                optRegion->boneInfluences = skinSectionA->boneInfluences;
             }
 
             range->m_last = i;
         } else {
             M2Batch* newBatch = &optGeo->m_batches[batchCount];
-            target = &optGeo->m_skinSections[sectionCount];
+            optRegion = &optGeo->m_skinSections[sectionCount];
             range = &optGeo->m_batchRanges[sectionCount];
             *newBatch = *batch;
             newBatch->m_skinSectionIndex = sectionCount;
-            lastSection = section;
-            *target = *section;
-            target->m_skinSectionId = sectionCount;
+            lastSection = skinSectionA;
+            *optRegion = *skinSectionA;
+            optRegion->m_skinSectionId = sectionCount;
             lastBatch = batch;
 
             int32_t indexStart = indexStarts[batch->m_skinSectionIndex];
@@ -4183,10 +4265,10 @@ void CM2Model::OptimizeVisibleGeometry() {
                 indexStarts[batch->m_skinSectionIndex] = indexCount;
             }
 
-            target->m_indexStart = indexStart;
+            optRegion->m_indexStart = indexStart;
 
             if (!keepVertices) {
-                target->m_vertexStart = 0;
+                optRegion->vertexStart = 0;
             }
 
             range->m_last = i;
@@ -4195,7 +4277,7 @@ void CM2Model::OptimizeVisibleGeometry() {
             sectionCount++;
         }
 
-        indexCount += section->m_indexCount;
+        indexCount += skinSectionA->m_indexCount;
     }
 
     optGeo->m_batchCount = batchCount;
@@ -4415,8 +4497,10 @@ void CM2Model::AnimateTextureTransformsMT() {
 
 // VERIFY: bbe25130 manual
 // OFFSET: 0x0082D910
-int32_t CM2Model::SetVerticesMultiSample(int32_t optimized, M2SkinSection* section) {
-    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(M2VertexPNT2), section->m_vertexCount);
+int32_t CM2Model::SetVerticesMultiSample(int32_t optimized, M2SkinSection* skinSection) {
+    STORM_ASSERT(m_runtimeFlags & M2_FLAGS::M2_INITIALIZED); // 12213: "m_loaded"
+
+    CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(M2VertexPNT2), skinSection->vertexCount);
     M2VertexPNT2* vertices = reinterpret_cast<M2VertexPNT2*>(g_theGxDevicePtr->BufLock(buf));
 
     if (!vertices) {
@@ -4425,19 +4509,21 @@ int32_t CM2Model::SetVerticesMultiSample(int32_t optimized, M2SkinSection* secti
 
     if (optimized) {
         M2SkinProfile* skin = this->m_shared->m_skinData;
-        M2BatchRange* range = &this->m_optGeo->m_batchRanges[section->m_skinSectionId];
+        M2BatchRange* range = &this->m_optGeo->m_batchRanges[skinSection->m_skinSectionId];
 
         for (uint32_t b = range->m_first; b <= range->m_last; b++) {
             uint16_t sectionIndex = skin->m_batches[b].m_skinSectionIndex;
 
             if (this->m_skinSections[sectionIndex]) {
-                M2SkinSection* batchSection = &skin->m_skinSections[sectionIndex];
-                CM2Model::TransformVerticesNoUVSelect_cpp(this, batchSection, vertices);
-                vertices += batchSection->m_vertexCount;
+                M2SkinSection* subRegion = &skin->m_skinSections[sectionIndex];
+                STORM_ASSERT(subRegion->boneInfluences <= 4);
+                CM2Model::TransformVerticesNoUVSelect_cpp(this, subRegion, vertices);
+                vertices += subRegion->vertexCount;
             }
         }
     } else {
-        CM2Model::TransformVerticesNoUVSelect_cpp(this, section, vertices);
+        STORM_ASSERT(skinSection->boneInfluences <= 4);
+        CM2Model::TransformVerticesNoUVSelect_cpp(this, skinSection, vertices);
     }
 
     g_theGxDevicePtr->BufUnlock(buf, 0);
@@ -4738,7 +4824,7 @@ void CM2Model::AnimateAttachmentsMT() {
 
         if (count > 1 || (count == 1 && attachment->m_animateAttached.m_sequenceTimes[0].m_count > this->m_uint90)) {
             uint8_t visible = 1;
-            M2AnimateTrack<uint8_t, uint8_t>(this, &this->m_bones[attachment->m_bone], attachment->m_animateAttached, this->m_attachments[i], visible);
+            M2AnimateTrack<uint8_t, uint8_t>(this, &this->m_bones[attachment->boneIndex], attachment->m_animateAttached, this->m_attachments[i], visible);
         }
 
         data = this->m_shared->m_data;
@@ -4759,7 +4845,7 @@ void CM2Model::AnimateAttachmentsMT() {
             }
 
             M2Attachment* attachment = &this->m_shared->m_data->m_attachments[child->m_attachmentIndex];
-            matrix = this->m_boneMatrices[attachment->m_bone];
+            matrix = this->m_boneMatrices[attachment->boneIndex];
             matrix.Translate(attachment->m_position);
         }
 
@@ -4774,15 +4860,18 @@ void CM2Model::AnimateAttachmentsMT() {
 // VERIFY: a16ddee7 auto
 // OFFSET: 0x0082E720
 int32_t __stdcall CM2Model::SequenceCallback(M2SequenceCallback callback, CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint32_t sequenceIndex, uint32_t startTime, uint64_t param) {
-    if (CM2Model::s_sequenceCallbacks.Count() >= 0x10000) {
+    if (CM2Model::s_callbacks.Count() >= 0x10000) {
+        STORM_ASSERT(0);
         return 0;
     }
 
-    M2ModelCallback* entry = CM2Model::s_sequenceCallbacks.New();
+    M2ModelCallback* entry = CM2Model::s_callbacks.New();
 
     if (!entry) {
         return 0;
     }
+
+    STORM_ASSERT(sequenceId != static_cast<uint32_t>(0xffffffff)); // 12213: "sequenceId != ((uint32) 0xffffffff)"
 
     entry->m_callback = reinterpret_cast<void*>(callback);
     entry->m_model = model;
@@ -4805,12 +4894,12 @@ uint32_t CM2Model::ProcessSequenceCallback(uint32_t boneIndex, uint32_t frame, u
 
     if (data->m_bones[boneIndex].m_boneId != M2_KEY_BONE_NONE || !boneIndex) {
         if (frame - time != lastFrame) {
-            CM2Model::s_sequenceCallbacks.SetCount(0);
+            CM2Model::s_callbacks.SetCount(0);
             lastFrame = frame - time;
         }
 
         M2CompBone* compBone = &data->m_bones[boneIndex];
-        uint32_t boneId = compBone->m_parentIndex == 0xFFFF ? 0xFFFFFFFF : compBone->m_boneId;
+        uint32_t boneId = compBone->parentIndex == 0xFFFF ? 0xFFFFFFFF : compBone->m_boneId;
         CM2Model::SequenceCallback(this->m_sequenceCallback, this, boneId, bone->m_sequenceId, 0, time, bone->m_sequence.m_sequenceIndex, bone->m_sequence.m_startTime, this->m_sequenceCallbackParam);
     }
 
@@ -5015,9 +5104,11 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         this->m_lastAnimTime = time;
     }
 
-    for (uint32_t i = 0; i < data->m_bones.m_count; i++) {
-        M2ModelBone* bone = &this->m_bones[i];
-        M2CompBone* boneData = &data->m_bones[i];
+    STORM_ASSERT(data->m_bones.m_count > 0); // 12213: "data->bones.count > 0"
+
+    for (uint32_t boneIndex = 0; boneIndex < data->m_bones.m_count; boneIndex++) {
+        M2ModelBone* bone = &this->m_bones[boneIndex];
+        M2CompBone* shared = &data->m_bones[boneIndex];
 
         if (bone->m_sequence.m_sequenceIndex != 0xFFFF) {
             if (this->m_lastAnimTime) {
@@ -5056,15 +5147,17 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
 
             bone->m_sequence.m_currentTime = time;
             bone->m_sequence.m_animIndex = bone->m_sequence.m_sequenceIndex;
-            bone->m_sequence.m_sourceBoneIndex = i;
+            bone->m_sequence.m_sourceBoneIndex = boneIndex;
         } else {
-            uint16_t parentIndex = boneData->m_parentIndex;
+            uint16_t parentIndex = shared->parentIndex;
 
             if (parentIndex >= data->m_bones.m_count) {
-                if (i) {
+                if (boneIndex) {
                     bone->m_sequence.m_currentTime = this->m_bones->m_sequence.m_currentTime;
                     bone->m_sequence.m_animIndex = this->m_bones->m_sequence.m_animIndex;
                     bone->m_sequence.m_sourceBoneIndex = this->m_bones->m_sequence.m_sourceBoneIndex;
+                } else {
+                    STORM_ASSERT(0);
                 }
             } else {
                 M2ModelBone* parentBone = &this->m_bones[parentIndex];
@@ -5075,10 +5168,10 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         }
 
         if (bone->m_secondarySequence.m_sequenceIndex == 0xFFFF) {
-            uint16_t parentIndex = boneData->m_parentIndex;
+            uint16_t parentIndex = shared->parentIndex;
 
             if (parentIndex >= data->m_bones.m_count) {
-                if (!i) {
+                if (!boneIndex) {
                     bone->m_secondarySequence.m_currentTime = bone->m_sequence.m_currentTime;
                     bone->m_secondarySequence.m_animIndex = bone->m_sequence.m_animIndex;
                 } else {
@@ -5134,11 +5227,11 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         }
 
         if (bone->m_sequence.m_sequenceIndex == 0xFFFF && bone->m_secondarySequence.m_sequenceIndex == 0xFFFF) {
-            uint16_t parentIndex = boneData->m_parentIndex;
+            uint16_t parentIndex = shared->parentIndex;
 
             if (parentIndex < data->m_bones.m_count) {
                 bone->m_blendFactor = this->m_bones[parentIndex].m_blendFactor;
-            } else if (i) {
+            } else if (boneIndex) {
                 bone->m_blendFactor = this->m_bones->m_blendFactor;
             } else {
                 bone->m_blendFactor = 0.0f;
@@ -5161,19 +5254,20 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             }
         }
 
-        uint16_t parentIndex = boneData->m_parentIndex;
-        uint32_t boneFlags = boneData->m_flags | bone->m_flags;
+        uint16_t parentIndex = shared->parentIndex;
+        uint32_t boneFlags = shared->m_flags | bone->m_flags;
         const C44Matrix* parentMatrix;
 
         if (parentIndex == 0xFFFF) {
             parentMatrix = &this->m_matrixF4;
         } else {
+            STORM_ASSERT(shared->parentIndex < boneIndex);
             parentMatrix = &this->m_boneMatrices[parentIndex];
 
             if (boneFlags & M2CompBone::FLAGS::PARENT_OVERRIDE_MASK) {
                 parentTransform = this->m_boneMatrices[parentIndex];
                 parentMatrix = &parentTransform;
-                C3Vector pivot = boneData->m_pivot * parentTransform;
+                C3Vector pivot = shared->m_pivot * parentTransform;
                 C3Vector& rowA = *reinterpret_cast<C3Vector*>(&parentTransform.a0);
                 C3Vector& rowB = *reinterpret_cast<C3Vector*>(&parentTransform.b0);
                 C3Vector& rowC = *reinterpret_cast<C3Vector*>(&parentTransform.c0);
@@ -5237,7 +5331,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                     parentTransform.d1 = world.d1;
                     parentTransform.d2 = world.d2;
                 } else {
-                    const C3Vector& p = boneData->m_pivot;
+                    const C3Vector& p = shared->m_pivot;
                     float y = p.y * parentTransform.b1 + p.x * parentTransform.a1 + p.z * parentTransform.c1;
                     float z = p.y * parentTransform.b2 + p.x * parentTransform.a2 + p.z * parentTransform.c2;
                     parentTransform.d0 = pivot.x - (p.y * parentTransform.b0 + p.z * parentTransform.c0 + parentTransform.a0 * p.x);
@@ -5248,19 +5342,19 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
         }
 
         int32_t animated = boneFlags & M2CompBone::FLAGS::LOCAL_TRANSFORM_MASK;
-        C44Matrix& boneMatrix = this->m_boneMatrices[i];
+        C44Matrix& boneMatrix = this->m_boneMatrices[boneIndex];
 
         if (animated) {
-            if (boneData->m_rotationTrack.m_sequenceTimes.m_count) {
-                uint32_t count = boneData->m_rotationTrack.m_sequenceTimes.m_count;
+            if (shared->m_rotationTrack.m_sequenceTimes.m_count) {
+                uint32_t count = shared->m_rotationTrack.m_sequenceTimes.m_count;
 
-                if (count > 1 || (count == 1 && boneData->m_rotationTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
+                if (count > 1 || (count == 1 && shared->m_rotationTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
                     C4Quaternion rotation;
                     rotation.x = 0.0f;
                     rotation.y = 0.0f;
                     rotation.z = 0.0f;
                     rotation.w = 1.0f;
-                    M2AnimateTrack<M2CompQuat, C4Quaternion>(this, bone, boneData->m_rotationTrack, bone->m_rotation, rotation);
+                    M2AnimateTrack<M2CompQuat, C4Quaternion>(this, bone, shared->m_rotationTrack, bone->m_rotation, rotation);
                 }
 
                 local = C44Matrix(bone->m_rotation.m_currentValue);
@@ -5268,12 +5362,12 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                 local.Identity();
             }
 
-            if (boneData->m_scaleTrack.m_sequenceTimes.m_count) {
-                uint32_t count = boneData->m_scaleTrack.m_sequenceTimes.m_count;
+            if (shared->m_scaleTrack.m_sequenceTimes.m_count) {
+                uint32_t count = shared->m_scaleTrack.m_sequenceTimes.m_count;
 
-                if (count > 1 || (count == 1 && boneData->m_scaleTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
+                if (count > 1 || (count == 1 && shared->m_scaleTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
                     C3Vector one(1.0f, 1.0f, 1.0f);
-                    M2AnimateTrack<C3Vector, C3Vector>(this, bone, boneData->m_scaleTrack, bone->m_scale, one);
+                    M2AnimateTrack<C3Vector, C3Vector>(this, bone, shared->m_scaleTrack, bone->m_scale, one);
                 }
 
                 local.Scale(bone->m_scale.m_currentValue);
@@ -5283,14 +5377,14 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
                 local *= *bone->m_proceduralTransform;
             }
 
-            C3Vector offset = boneData->m_pivot;
+            C3Vector offset = shared->m_pivot;
 
-            if (boneData->m_translationTrack.m_sequenceTimes.m_count) {
-                uint32_t count = boneData->m_translationTrack.m_sequenceTimes.m_count;
+            if (shared->m_translationTrack.m_sequenceTimes.m_count) {
+                uint32_t count = shared->m_translationTrack.m_sequenceTimes.m_count;
 
-                if (count > 1 || (count == 1 && boneData->m_translationTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
+                if (count > 1 || (count == 1 && shared->m_translationTrack.m_sequenceTimes[0].m_count > this->m_uint90)) {
                     C3Vector zero(0.0f, 0.0f, 0.0f);
-                    M2AnimateTrack<C3Vector, C3Vector>(this, bone, boneData->m_translationTrack, bone->m_translation, zero);
+                    M2AnimateTrack<C3Vector, C3Vector>(this, bone, shared->m_translationTrack, bone->m_translation, zero);
                 }
 
                 offset.x = offset.x + bone->m_translation.m_currentValue.x;
@@ -5301,7 +5395,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             local.d0 = offset.x + local.d0;
             local.d1 = offset.y + local.d1;
             local.d2 = offset.z + local.d2;
-            local.Translate(C3Vector(-boneData->m_pivot.x, -boneData->m_pivot.y, -boneData->m_pivot.z));
+            local.Translate(C3Vector(-shared->m_pivot.x, -shared->m_pivot.y, -shared->m_pivot.z));
             boneMatrix = local * *parentMatrix;
         } else {
             boneMatrix = *parentMatrix;
@@ -5316,7 +5410,7 @@ void CM2Model::AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C
             scale.x = sqrtf(boneMatrix.a0 * boneMatrix.a0 + boneMatrix.a1 * boneMatrix.a1 + boneMatrix.a2 * boneMatrix.a2);
             scale.y = sqrtf(boneMatrix.b2 * boneMatrix.b2 + boneMatrix.b1 * boneMatrix.b1 + boneMatrix.b0 * boneMatrix.b0);
             scale.z = sqrtf(boneMatrix.c2 * boneMatrix.c2 + boneMatrix.c1 * boneMatrix.c1 + boneMatrix.c0 * boneMatrix.c0);
-            const C3Vector& p = boneData->m_pivot;
+            const C3Vector& p = shared->m_pivot;
             C3Vector pivot = p * boneMatrix;
 
             switch (billboard) {
@@ -5742,7 +5836,7 @@ void CM2Model::Animate() {
 
         if ((parent->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) && parent->m_frameStamp == scene->m_frameStamp && this->m_attachmentIndex != 0xFFFF) {
             M2Attachment* attachment = &parent->m_shared->m_data->m_attachments[this->m_attachmentIndex];
-            matrix = parent->m_boneMatrices[attachment->m_bone];
+            matrix = parent->m_boneMatrices[attachment->boneIndex];
             C3Vector position = attachment->m_position;
             matrix.Translate(position);
             transform = &matrix;
@@ -5808,11 +5902,11 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
         }
 
         if (boneIndex) {
-            uint16_t parentIndex = data->m_bones[event->m_bone].m_parentIndex;
+            uint16_t parentIndex = data->m_bones[event->m_bone].parentIndex;
 
             if (parentIndex != 0xFFFF && parentIndex != boneIndex) {
                 while (parentIndex != 0xFFFF) {
-                    parentIndex = data->m_bones[parentIndex].m_parentIndex;
+                    parentIndex = data->m_bones[parentIndex].parentIndex;
 
                     if (parentIndex == boneIndex) {
                         break;
@@ -5834,7 +5928,7 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
 
                 if (static_cast<int32_t>(time - startTime) > 0 && static_cast<int32_t>(time - endTime) <= 0) {
                     if (time != endTime) {
-                        CM2Model::s_sequenceCallbacks.SetCount(0);
+                        CM2Model::s_callbacks.SetCount(0);
                         endTime = time;
                     }
 
@@ -5842,10 +5936,11 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
 
                     C3Vector position = event->m_position * this->m_boneMatrices[event->m_bone] * this->m_scene->m_viewInv;
 
-                    if (CM2Model::s_sequenceCallbacks.Count() < 0x10000) {
-                        M2ModelCallback* entry = CM2Model::s_sequenceCallbacks.New();
+                    if (CM2Model::s_callbacks.Count() < 0x10000) {
+                        M2ModelCallback* entry = CM2Model::s_callbacks.New();
 
                         if (entry) {
+                            STORM_ASSERT(event->m_eventId != static_cast<uint32_t>(0xffffffff)); // 12213: "eventId != ((uint32) 0xffffffff)"
                             entry->m_boneId = data->m_bones[event->m_bone].m_boneId;
                             entry->m_callback = reinterpret_cast<void*>(this->m_eventCallback);
                             entry->m_value = event->m_data;
@@ -5856,6 +5951,8 @@ uint32_t CM2Model::ProcessEventCallbacks(uint32_t boneIndex, uint32_t sequenceIn
                             entry->m_time = callbackTime - time;
                             entry->m_param = this->m_eventCallbackParam;
                         }
+                    } else {
+                        STORM_ASSERT(0);
                     }
                 }
             }
@@ -5873,16 +5970,21 @@ C3Vector CM2Model::GetAttachmentPosition(uint32_t id) {
     this->EnsureInitialized();
 
     M2Data* data = this->m_shared->m_data;
-    uint16_t bone = 0xFFFF;
+    uint16_t boneIdx = 0xFFFF;
     uint16_t index = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFF;
 
     if (index < data->m_attachments.m_count) {
-        bone = data->m_attachments[index].m_bone;
+        boneIdx = data->m_attachments[index].boneIndex;
     }
 
+    STORM_ASSERT(boneIdx != static_cast<uint16_t>(0xFFFF)); // 12213: "boneIdx != ((uint16) 0xffff)"
     this->Animate();
 
-    return data->m_attachments[index].m_position * this->m_boneMatrices[bone] * this->m_scene->m_viewInv;
+    const M2Attachment* attachment = &data->m_attachments[index];
+    STORM_ASSERT(attachment->boneIndex < data->m_bones.m_count); // 12213: "attachment->boneIndex < data->bones.count"
+    STORM_ASSERT(m_scene);
+
+    return attachment->m_position * this->m_boneMatrices[boneIdx] * this->m_scene->m_viewInv;
 }
 
 // VERIFY: 726b46b5 manual
@@ -5892,20 +5994,21 @@ C44Matrix CM2Model::GetAttachmentWorldTransform(uint32_t id) {
 
     M2Data* data = this->m_shared->m_data;
     uint16_t bone = 0xFFFF;
-    uint16_t index = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFF;
+    uint16_t attachmentIndex = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFF;
 
-    if (index < data->m_attachments.m_count) {
-        bone = data->m_attachments[index].m_bone;
+    if (attachmentIndex < data->m_attachments.m_count) {
+        bone = data->m_attachments[attachmentIndex].boneIndex;
     }
 
     this->Animate();
 
     C44Matrix transform;
 
-    if (index == 0xFFFF) {
+    if (attachmentIndex == 0xFFFF) {
         transform = *this->m_boneMatrices;
     } else {
-        M2Attachment* attachment = &data->m_attachments[index];
+        M2Attachment* attachment = &data->m_attachments[attachmentIndex];
+        STORM_ASSERT(attachmentIndex < data->m_attachments.m_count); // 12213: "attachmentIndex < data->attachments.count"
         transform = this->m_boneMatrices[bone];
         transform.Translate(attachment->m_position);
     }
@@ -5921,19 +6024,20 @@ float CM2Model::GetAttachmentWorldScale(uint32_t id) {
 
     M2Data* data = this->m_shared->m_data;
     uint16_t bone = 0xFFFF;
-    uint16_t index = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFF;
+    uint16_t attachmentIndex = id < data->m_attachmentIndicesById.m_count ? data->m_attachmentIndicesById[id] : 0xFFFF;
 
-    if (index < data->m_attachments.m_count) {
-        bone = data->m_attachments[index].m_bone;
+    if (attachmentIndex < data->m_attachments.m_count) {
+        bone = data->m_attachments[attachmentIndex].boneIndex;
     }
 
     this->Animate();
 
     C44Matrix transform;
 
-    if (index == 0xFFFF) {
+    if (attachmentIndex == 0xFFFF) {
         transform = *this->m_boneMatrices;
     } else {
+        STORM_ASSERT(attachmentIndex < data->m_attachments.m_count); // 12213: "attachmentIndex < data->attachments.count"
         transform = this->m_boneMatrices[bone];
     }
 
@@ -5943,6 +6047,8 @@ float CM2Model::GetAttachmentWorldScale(uint32_t id) {
 // VERIFY: dcb378e1 manual
 // OFFSET: 0x00831630
 void CM2Model::AttachToParent(CM2Model* parent, uint32_t id, const C3Vector* position, int32_t attachToRoot) {
+    STORM_ASSERT(parent);
+
     if (this->m_attachParent) {
         this->DetachFromParent();
     }
@@ -6257,14 +6363,20 @@ void CM2Model::CallSequenceCallback(M2ModelCallback* entry) {
     }
 
     M2ModelBone* bone = &this->m_bones[boneIndex];
-    uint16_t sequenceIndex = bone->m_sequence.m_sequenceIndex;
+    uint16_t sequenceIdx = bone->m_sequence.m_sequenceIndex;
     uint32_t startTime = bone->m_sequence.m_startTime;
 
-    if (entry->m_args[1] != startTime || entry->m_args[0] != sequenceIndex || sequenceIndex == 0xFFFF) {
+    if (entry->m_args[1] != startTime || entry->m_args[0] != sequenceIdx) {
         return;
     }
 
-    M2Sequence* sequence = &data->m_sequences[sequenceIndex];
+    STORM_ASSERT(sequenceIdx != static_cast<uint16_t>(0xffff)); // 12213: "sequenceIdx != ((uint16) 0xffff)"
+
+    if (sequenceIdx == 0xFFFF) {
+        return;
+    }
+
+    M2Sequence* sequence = &data->m_sequences[sequenceIdx];
 
     if (sequence->m_flags & M2Sequence::FLAGS::NON_LOOPING) {
         bone->m_sequence.m_finished = 1;
@@ -6275,7 +6387,7 @@ void CM2Model::CallSequenceCallback(M2ModelCallback* entry) {
     if (callback) {
         callback(entry->m_model, entry->m_boneId, entry->m_id, entry->m_value, entry->m_time, entry->m_param);
 
-        if (startTime != bone->m_sequence.m_startTime || sequenceIndex != bone->m_sequence.m_sequenceIndex) {
+        if (startTime != bone->m_sequence.m_startTime || sequenceIdx != bone->m_sequence.m_sequenceIndex) {
             return;
         }
     }
@@ -6287,9 +6399,11 @@ void CM2Model::CallSequenceCallback(M2ModelCallback* entry) {
     float speed = bone->m_sequence.m_speed;
     M2SequenceFallback fallback;
     this->SequenceFallbackById(&fallback, entry->m_id);
-    uint16_t index = this->FindSequenceIndex(data, fallback.m_id, 0);
+    uint16_t sequenceIndex = this->FindSequenceIndex(data, fallback.m_id, 0);
     uint32_t variation;
-    this->PickRandomSequenceVariation(&variation, &index);
+    this->PickRandomSequenceVariation(&variation, &sequenceIndex);
+
+    STORM_ASSERT(sequenceIndex != static_cast<uint16_t>(0xffff)); // 12213: "sequenceIndex != ((uint16) 0xffff)"
 
     uint32_t time;
 
@@ -6299,23 +6413,23 @@ void CM2Model::CallSequenceCallback(M2ModelCallback* entry) {
         time = static_cast<uint32_t>(entry->m_time * bone->m_sequence.m_invSpeed);
     }
 
-    if (data->m_sequences[index].m_flags & M2Sequence::FLAGS::LOADED) {
+    if (data->m_sequences[sequenceIndex].m_flags & M2Sequence::FLAGS::LOADED) {
         float currentSpeed = bone->m_sequence.m_speed;
         bone->m_sequenceId = entry->m_id;
         bone->m_variationIndex = variation;
-        this->SetPrimaryBoneSequence(index, boneIndex, fallback, time, currentSpeed, 1);
+        this->SetPrimaryBoneSequence(sequenceIndex, boneIndex, fallback, time, currentSpeed, 1);
     } else if (!this->HasDeferredSequence(boneIndex, true)) {
-        this->SetBoneSequenceDeferred(index, data, boneIndex, time, bone->m_sequence.m_speed, fallback, 1, 1, 1);
+        this->SetBoneSequenceDeferred(sequenceIndex, data, boneIndex, time, bone->m_sequence.m_speed, fallback, 1, 1, 1);
     }
 }
 
 // VERIFY: e7e49f5d manual
 // OFFSET: 0x008321E0
 void CM2Model::CallCallbacks() {
-    uint32_t count = CM2Model::s_sequenceCallbacks.Count();
+    uint32_t count = CM2Model::s_callbacks.Count();
 
     for (uint32_t i = 0; i < count; i++) {
-        M2ModelCallback* entry = &CM2Model::s_sequenceCallbacks.m_data[i];
+        M2ModelCallback* entry = &CM2Model::s_callbacks.m_data[i];
 
         if (entry->m_type == M2ModelCallback::SEQUENCE) {
             this->CallSequenceCallback(entry);
@@ -6325,7 +6439,7 @@ void CM2Model::CallCallbacks() {
         }
     }
 
-    CM2Model::s_sequenceCallbacks.SetCount(0);
+    CM2Model::s_callbacks.SetCount(0);
 }
 
 // VERIFY: 7263f300 manual
@@ -6347,6 +6461,8 @@ int32_t CM2Model::ProcessCallbacks() {
     uint32_t current;
 
     do {
+        STORM_ASSERT(s_callbacks.Count() == 0);
+
         uint16_t boneIndex = this->m_animListHead;
         current = now;
 
@@ -6356,6 +6472,7 @@ int32_t CM2Model::ProcessCallbacks() {
             if (!bone->m_sequence.m_finished) {
                 float speed = fabsf(bone->m_sequence.m_invSpeed);
                 uint16_t sequenceIndex = bone->m_sequence.m_sequenceIndex;
+                STORM_ASSERT(static_cast<uint16_t>(0xffff) != sequenceIndex); // 12213: "((uint16) 0xffff) != sequenceIndex"
                 M2Sequence* sequence = &data->m_sequences[sequenceIndex];
                 uint32_t duration;
 
@@ -6395,10 +6512,10 @@ int32_t CM2Model::ProcessCallbacks() {
                 }
             }
 
-            boneIndex = this->m_bones[boneIndex].m_animListNext;
+            boneIndex = this->m_bones[boneIndex].activeNext;
         }
 
-        if (!CM2Model::s_sequenceCallbacks.Count()) {
+        if (!CM2Model::s_callbacks.Count()) {
             break;
         }
 
@@ -6439,7 +6556,9 @@ void CM2Model::ProcessCallbacksRecursive() {
         }
     }
 
+    STORM_ASSERT((int) m_refCount > 0);
     if (this->m_refCount-- == 1) {
+        STORM_ASSERT(g_modelPool);
         g_modelPool->Delete(this);
     }
 }
@@ -6449,7 +6568,10 @@ void CM2Model::ProcessCallbacksRecursive() {
 CM2Model::~CM2Model() {
     CM2Model* model30 = this->m_model30;
 
+    STORM_ASSERT(!model30 || (int) model30->m_refCount > 0); // 12213: "(int) m_refCount > 0"
+
     if (model30 && model30->m_refCount-- == 1) {
+        STORM_ASSERT(g_modelPool);
         g_modelPool->Delete(model30);
     }
 
@@ -6467,6 +6589,8 @@ CM2Model::~CM2Model() {
         this->m_callbackPrev = nullptr;
         this->m_callbackNext = nullptr;
     }
+
+    STORM_ASSERT(m_scene);
 
     if (this->m_animatePrev) {
         *this->m_animatePrev = this->m_animateNext;
@@ -6512,6 +6636,8 @@ CM2Model::~CM2Model() {
     while (this->m_attachList) {
         CM2Model* child = this->m_attachList;
 
+        STORM_ASSERT(child->m_attachParent); // 12213: "m_attachParent"
+
         if (child->m_attachPrev) {
             *child->m_attachPrev = child->m_attachNext;
         }
@@ -6521,6 +6647,7 @@ CM2Model::~CM2Model() {
         }
 
         child->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_TO_ROOT;
+        STORM_ASSERT((int) child->m_refCount > 0); // 12213: "(int) m_refCount > 0"
         bool release = child->m_refCount-- == 1;
         child->m_attachPrev = nullptr;
         child->m_attachNext = nullptr;
@@ -6529,6 +6656,7 @@ CM2Model::~CM2Model() {
         child->m_frameOfReference = nullptr;
 
         if (release) {
+            STORM_ASSERT(g_modelPool);
             g_modelPool->Delete(child);
         }
     }
@@ -6594,7 +6722,7 @@ void CM2Model::UnsetBoneSequence(uint32_t boneId, int32_t blend, int32_t primary
         boneIndex = 0xFFFF;
     }
 
-    if (boneIndex >= data->m_bones.m_count || !boneIndex || data->m_bones[boneIndex].m_parentIndex == 0xFFFF || !this->OnSequenceInterrupted(boneId, boneIndex)) {
+    if (boneIndex >= data->m_bones.m_count || !boneIndex || data->m_bones[boneIndex].parentIndex == 0xFFFF || !this->OnSequenceInterrupted(boneId, boneIndex)) {
         return;
     }
 
@@ -6603,15 +6731,19 @@ void CM2Model::UnsetBoneSequence(uint32_t boneId, int32_t blend, int32_t primary
 
     if (primary) {
         if (bone->m_animListPrev) {
-            *bone->m_animListPrev = bone->m_animListNext;
+            *bone->m_animListPrev = bone->activeNext;
         }
 
-        if (bone->m_animListNext != 0xFFFF) {
-            this->m_bones[bone->m_animListNext].m_animListPrev = bone->m_animListPrev;
+        if (bone->activeNext != 0xFFFF) {
+#if defined(WOWDECOMP_ASSERTIONS)
+            uint32_t numBones = data->m_bones.m_count;
+            STORM_ASSERT(bone->activeNext < numBones);
+#endif
+            this->m_bones[bone->activeNext].m_animListPrev = bone->m_animListPrev;
         }
 
         bone->m_animListPrev = nullptr;
-        bone->m_animListNext = 0xFFFF;
+        bone->activeNext = 0xFFFF;
 
         if (blend) {
             float weight;
@@ -6798,8 +6930,8 @@ bool SModelBatchLessThan::operator()(const CModelBatch& a, const CModelBatch& b)
         sectionB = &modelB->m_shared->m_skinSections[modelB->m_shared->m_skinData->m_batches[batchB].m_skinSectionIndex];
     }
 
-    uint16_t influencesA = sectionA->m_boneInfluences;
-    uint16_t influencesB = sectionB->m_boneInfluences;
+    uint16_t influencesA = sectionA->boneInfluences;
+    uint16_t influencesB = sectionB->boneInfluences;
 
     if (influencesA < influencesB) {
         return true;
@@ -6855,7 +6987,7 @@ static bool CanCombineBatches(const CModelBatch& a, const CModelBatch& b) {
         sectionB = &modelB->m_shared->m_skinSections[modelB->m_shared->m_skinData->m_batches[b.m_batchIndex].m_skinSectionIndex];
     }
 
-    return sectionA->m_boneInfluences == sectionB->m_boneInfluences;
+    return sectionA->boneInfluences == sectionB->boneInfluences;
 }
 
 // VERIFY: 01820d35 manual
@@ -6882,11 +7014,16 @@ void CModelBatchList::Optimize() {
 // VERIFY: 0f5f3316 manual
 // OFFSET: 0x00832EA0
 int32_t CM2Model::InitializeLoaded() {
+    STORM_ASSERT(m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED); // 12213: "m_shared->m_m2DataLoaded"
+    STORM_ASSERT(m_shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SKIN_LOADED); // 12213: "m_shared->m_skinProfileLoaded"
+
     CM2Shared* shared = this->m_shared;
 
     if (!(shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_MODEL_LOADED) || !(shared->m_flags & CM2Shared::SHARED_FLAGS::FLAG_SKIN_LOADED)) {
         return 1;
     }
+
+    STORM_ASSERT((m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) == 0); // 12213: "m_loaded == 0"
 
     M2Data* data = shared->m_data;
     M2SkinProfile* skin = shared->m_skinData;
@@ -7397,7 +7534,9 @@ int32_t CM2Model::InitializeLoaded() {
     this->m_runtimeFlags = (this->m_runtimeFlags & ~M2_FLAGS::M2_UNKNOWN_10) | (optimize << M2_BITS::M2_BIT_UNKNOWN_10);
 
     if (source) {
+        STORM_ASSERT((int) source->m_refCount > 0); // 12213: "(int) m_refCount > 0"
         if (source->m_refCount-- == 1) {
+            STORM_ASSERT(g_modelPool);
             g_modelPool->Delete(source);
         }
 
@@ -7434,6 +7573,7 @@ int32_t CM2Model::InitializeLoaded() {
     this->m_runtimeFlags = (this->m_runtimeFlags & M2_FLAGS::M2_INITIALIZE_KEEP_MASK) | M2_FLAGS::M2_INITIALIZE_SET_MASK;
 
     M2SequenceFallback fallback;
+    STORM_ASSERT(m_scene);
     uint16_t standId = this->SequenceFallbackById(&fallback, ANIM_STAND)->m_id;
 
     this->EnsureInitialized();
@@ -7643,6 +7783,7 @@ void CM2Model::GatherModelBatchesShadowMap(CModelBatchList& untextured, CModelBa
 int32_t CM2Model::Initialize(CM2Scene* scene, CM2Shared* shared, CM2Model* source, uint32_t flags) {
     this->AttachToScene(scene);
     this->m_lastEmitterTime = this->m_scene->m_time;
+    STORM_ASSERT(shared);
     this->m_shared = shared;
     shared->AddRef();
     this->m_model30 = source;
@@ -7662,7 +7803,9 @@ int32_t CM2Model::Initialize(CM2Scene* scene, CM2Shared* shared, CM2Model* sourc
             if (copy) {
                 copy->AttachToParent(this, child->m_attachmentId, nullptr, 0);
 
+                STORM_ASSERT((int) copy->m_refCount > 0); // 12213: "(int) m_refCount > 0"
                 if (copy->m_refCount-- == 1) {
+                    STORM_ASSERT(g_modelPool);
                     g_modelPool->Delete(copy);
                 }
             }

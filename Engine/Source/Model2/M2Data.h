@@ -135,7 +135,7 @@ class M2CompBone {
 
     /* 0000 */ uint32_t m_boneId;
     /* 0004 */ FLAGS m_flags;
-    /* 0008 */ uint16_t m_parentIndex;
+    /* 0008 */ uint16_t parentIndex;
     /* 000A */ uint16_t m_uDistToParent;
     /* 000C */ uint32_t m_boneNameCRC;
     /* 0010 */ M2Track<C3Vector> m_translationTrack;
@@ -210,7 +210,7 @@ class M2Material {
 class M2Attachment {
     public:
     /* 0000 */ uint32_t m_id;
-    /* 0004 */ uint16_t m_bone;
+    /* 0004 */ uint16_t boneIndex;
     /* 0006 */ uint16_t unused_0006;
     /* 0008 */ C3Vector m_position;
     /* 0014 */ M2Track<uint8_t> m_animateAttached;
@@ -409,13 +409,13 @@ class M2Batch {
 class M2SkinSection {
     public:
     /* 0000 */ uint32_t m_skinSectionId;
-    /* 0004 */ uint16_t m_vertexStart;
-    /* 0006 */ uint16_t m_vertexCount;
+    /* 0004 */ uint16_t vertexStart;
+    /* 0006 */ uint16_t vertexCount;
     /* 0008 */ uint16_t m_indexStart;
     /* 000A */ uint16_t m_indexCount;
     /* 000C */ uint16_t m_boneCount;
     /* 000E */ uint16_t m_boneComboIndex;
-    /* 0010 */ uint16_t m_boneInfluences;
+    /* 0010 */ uint16_t boneInfluences;
     /* 0012 */ uint16_t m_centerBoneIndex;
     /* 0014 */ C3Vector m_centerPosition;
     /* 0020 */ C3Vector m_sortCenterPosition;

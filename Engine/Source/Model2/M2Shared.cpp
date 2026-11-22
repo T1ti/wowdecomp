@@ -363,7 +363,7 @@ int32_t CM2Shared::SetIndices() {
         for (uint32_t i = 0; i < this->m_skinData->m_skinSections.m_count; i++) {
             M2SkinSection* section = &this->m_skinSections[i];
             uint32_t start = this->m_skinData->m_skinSections[i].m_indexStart;
-            uint16_t offset = sharedVertices ? 0 : static_cast<uint16_t>(-section->m_vertexStart);
+            uint16_t offset = sharedVertices ? 0 : static_cast<uint16_t>(-section->vertexStart);
 
             for (uint32_t instance = 0; instance < this->m_instances; instance++) {
                 for (uint32_t j = 0; j < section->m_indexCount; j++) {
@@ -371,7 +371,7 @@ int32_t CM2Shared::SetIndices() {
                 }
 
                 indices += section->m_indexCount;
-                offset += sharedVertices ? static_cast<uint16_t>(this->m_skinData->m_vertices.m_count) : section->m_vertexCount;
+                offset += sharedVertices ? static_cast<uint16_t>(this->m_skinData->m_vertices.m_count) : section->vertexCount;
             }
 
             section->m_indexStart = static_cast<uint16_t>(indexStart);
@@ -410,9 +410,9 @@ int32_t CM2Shared::SetVertices(uint32_t texCoordIndex) {
 
             for (uint32_t i = 0; i < this->m_skinData->m_skinSections.m_count; i++) {
                 M2SkinSection* section = &this->m_skinData->m_skinSections[i];
-                uint32_t end = section->m_vertexStart + section->m_vertexCount;
+                uint32_t end = section->vertexStart + section->vertexCount;
 
-                for (uint32_t j = section->m_vertexStart; j < end; j++) {
+                for (uint32_t j = section->vertexStart; j < end; j++) {
                     M2Vertex* source = &this->m_data->m_vertices[this->m_skinData->m_vertices[j]];
                     M2VertexPNT2* vertex = &vertices[j];
                     vertex->m_position = source->m_position;
@@ -443,9 +443,9 @@ int32_t CM2Shared::SetVertices(uint32_t texCoordIndex) {
             for (uint32_t i = 0; i < this->m_skinData->m_skinSections.m_count; i++) {
                 M2SkinSection* section = &this->m_skinData->m_skinSections[i];
                 uint32_t boneOffset = 0x01010101 * instance * section->m_boneCount;
-                uint32_t end = section->m_vertexStart + section->m_vertexCount;
+                uint32_t end = section->vertexStart + section->vertexCount;
 
-                for (uint32_t j = section->m_vertexStart; j < end; j++) {
+                for (uint32_t j = section->vertexStart; j < end; j++) {
                     memcpy(&vertices[j], &this->m_data->m_vertices[this->m_skinData->m_vertices[j]], sizeof(M2Vertex));
                     *reinterpret_cast<uint32_t*>(&vertices[j].m_indices) = boneOffset + *reinterpret_cast<uint32_t*>(&this->m_skinData->m_bones[j]);
                 }
@@ -1195,12 +1195,12 @@ int32_t CM2Shared::InitializeSkinProfile() {
 
         for (uint32_t i = 0; i < this->m_skinData->m_skinSections.m_count; i++) {
             M2SkinSection* section = &this->m_skinData->m_skinSections[i];
-            uint32_t end = section->m_vertexStart + section->m_vertexCount;
+            uint32_t end = section->vertexStart + section->vertexCount;
 
-            for (uint32_t j = section->m_vertexStart; j < end; j++) {
+            for (uint32_t j = section->vertexStart; j < end; j++) {
                 vertices[j] = this->m_data->m_vertices[this->m_skinData->m_vertices[j]];
 
-                for (uint32_t k = 0; k < section->m_boneInfluences; k++) {
+                for (uint32_t k = 0; k < section->boneInfluences; k++) {
                     vertices[j].m_indices.b[k] = static_cast<uint8_t>(this->m_data->m_boneCombos[section->m_boneComboIndex + this->m_skinData->m_bones[j].b[k]]);
                 }
             }

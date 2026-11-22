@@ -325,7 +325,7 @@ class CM2Model {
 #endif
 
     static void (*s_transformVertices[5])(CM2Model*, M2SkinSection*, uint8_t*, int32_t);
-    static TSGrowableArray<M2ModelCallback> s_sequenceCallbacks;
+    static TSGrowableArray<M2ModelCallback> s_callbacks;
     static TSGrowableArray<C3Vector> s_collisionPositions;
     static TSGrowableArray<uint32_t> s_collisionCodes;
 
@@ -427,12 +427,12 @@ class CM2Model {
     uint32_t GetNumPrimitives();
     BOOL HasCamera(uint32_t id);
     void SetEmittersEnabled(BOOL enabled);
-    CCamera* GetCameraByIndex(uint32_t index); // Borrowed camera-service handle; the model retains ownership.
+    CCamera* GetCameraByIndex(uint32_t cameraIndex); // Borrowed camera-service handle; the model retains ownership.
     uint32_t GetCurrentLightCount();
     uint32_t GetInstanceCountMax();
     BOOL HasLiveParticles();
     BOOL HasLiveRibbons();
-    uint32_t IsLoaded(BOOL wait = 0, int32_t recursive = 0);
+    uint32_t IsLoaded(BOOL wait = 0, int32_t attachments = 0);
 
     // INLINED
     CM2Model* GetParent() const {
@@ -444,7 +444,7 @@ class CM2Model {
     void ReplaceTexture(uint32_t type, CTexture* texture);
     void SetAnimating(int32_t animating);
     void SetEventCallback(M2EventCallback callback, uint64_t param);
-    void SetLightEnabled(uint32_t index, uint32_t enabled);
+    void SetLightEnabled(uint32_t lightIndex, uint32_t enabled);
     void SetLoadedCallback(void (*callback)(CM2Model*, void*), void* arg);
     void SetRibbonsEnabled(uint32_t enabled);
     void SetSequenceCallback(M2SequenceCallback callback, uint64_t param);
@@ -478,8 +478,8 @@ class CM2Model {
     void SetPrimaryBoneSequence(uint16_t sequenceIndex, uint16_t boneIndex, M2SequenceFallback fallback, uint32_t time, float speed, int32_t blend);
     void SetSecondaryBoneSequence(uint16_t sequenceIndex, uint16_t boneIndex, M2SequenceFallback fallback, uint32_t time, float speed);
     void SetupLighting();
-    int32_t SetVertices(int32_t optimized, M2SkinSection* section, int32_t texCoord);
-    int32_t SetVerticesMultiSample(int32_t optimized, M2SkinSection* section);
+    int32_t SetVertices(int32_t optimized, M2SkinSection* skinSection, int32_t texCoord);
+    int32_t SetVerticesMultiSample(int32_t optimized, M2SkinSection* skinSection);
     void UnlinkFromCallbackList();
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
@@ -578,7 +578,7 @@ class M2ModelBone {
     /* 008C */ uint32_t m_flags;
     /* 0090 */ uint32_t m_sequenceId;
     /* 0094 */ uint16_t m_variationIndex;
-    /* 0096 */ uint16_t m_animListNext;
+    /* 0096 */ uint16_t activeNext;
     /* 0098 */ uint16_t* m_animListPrev;
     /* 009C */ uint32_t m_blendEndTime;
     /* 00A0 */ float m_invBlendDuration;

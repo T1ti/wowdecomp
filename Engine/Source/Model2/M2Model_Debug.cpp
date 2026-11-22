@@ -117,13 +117,13 @@ static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv)
         }
 
         M2SkinSection* section = &skinData->m_skinSections[batch->m_skinSectionIndex];
-        s_vertices.SetCount(section->m_vertexCount);
+        s_vertices.SetCount(section->vertexCount);
 
-        for (uint32_t v = 0; v < section->m_vertexCount; v++) {
-            M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[section->m_vertexStart + v]];
+        for (uint32_t v = 0; v < section->vertexCount; v++) {
+            M2Vertex* vertex = &data->m_vertices[skinData->m_vertices[section->vertexStart + v]];
             C44Matrix matrix;
 
-            if (section->m_boneInfluences == 1) {
+            if (section->boneInfluences == 1) {
                 matrix = model->m_boneMatrices[vertex->m_indices.b[0]];
             } else {
                 M2BlendBoneMatrices(model->m_boneMatrices, vertex->m_weights, vertex->m_indices, &matrix);
@@ -150,11 +150,11 @@ static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv)
         const uint16_t* indices = &skinData->m_indices[section->m_indexStart];
 
         for (uint32_t t = 0; t + 2 < section->m_indexCount; t += 3) {
-            uint32_t a = indices[t] - section->m_vertexStart;
-            uint32_t b = indices[t + 1] - section->m_vertexStart;
-            uint32_t c = indices[t + 2] - section->m_vertexStart;
+            uint32_t a = indices[t] - section->vertexStart;
+            uint32_t b = indices[t + 1] - section->vertexStart;
+            uint32_t c = indices[t + 2] - section->vertexStart;
 
-            if (a >= section->m_vertexCount || b >= section->m_vertexCount || c >= section->m_vertexCount) {
+            if (a >= section->vertexCount || b >= section->vertexCount || c >= section->vertexCount) {
                 continue;
             }
 

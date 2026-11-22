@@ -461,20 +461,20 @@ void CM2SceneRender::DrawBatch() {
     batch.m_count = this->m_curSkinSection->m_indexCount;
 
     if (CShaderEffect::s_enableShaders) {
-        batch.m_minIndex = this->m_curSkinSection->m_vertexStart;
-        batch.m_maxIndex = this->m_curSkinSection->m_vertexCount + this->m_curSkinSection->m_vertexStart - 1;
+        batch.m_minIndex = this->m_curSkinSection->vertexStart;
+        batch.m_maxIndex = this->m_curSkinSection->vertexCount + this->m_curSkinSection->vertexStart - 1;
         g_theGxDevicePtr->Draw(&batch, 1);
     } else if (sharedVertices) {
         GxXformSet(GxXform_World, this->m_curModel->m_boneMatrices[0]);
 
-        batch.m_minIndex = this->m_curSkinSection->m_vertexStart;
-        batch.m_maxIndex = this->m_curSkinSection->m_vertexCount + this->m_curSkinSection->m_vertexStart - 1;
+        batch.m_minIndex = this->m_curSkinSection->vertexStart;
+        batch.m_maxIndex = this->m_curSkinSection->vertexCount + this->m_curSkinSection->vertexStart - 1;
         g_theGxDevicePtr->Draw(&batch, 1);
 
         GxXformSet(GxXform_World, s_identity);
     } else {
         batch.m_minIndex = 0;
-        batch.m_maxIndex = this->m_curSkinSection->m_vertexCount - 1;
+        batch.m_maxIndex = this->m_curSkinSection->vertexCount - 1;
         g_theGxDevicePtr->Draw(&batch, 1);
     }
 }
@@ -645,7 +645,7 @@ void CM2SceneRender::DrawBatchDoodad(M2Element* elements, uint32_t* indices) {
                 instances = total - done;
             }
 
-            CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), instances * this->m_curSkinSection->m_vertexCount);
+            CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNT0), instances * this->m_curSkinSection->vertexCount);
             uint8_t* vertices = reinterpret_cast<uint8_t*>(g_theGxDevicePtr->BufLock(buf));
 
             if (!vertices) {
@@ -657,9 +657,9 @@ void CM2SceneRender::DrawBatchDoodad(M2Element* elements, uint32_t* indices) {
 
             for (uint32_t n = 0; n < instances; n++) {
                 CM2Model* model = elements[indices[done + n]].m_model;
-                CM2Model::s_transformVertices[section->m_boneInfluences](model, section, vertices, 0);
+                CM2Model::s_transformVertices[section->boneInfluences](model, section, vertices, 0);
                 section = this->m_curSkinSection;
-                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * section->m_vertexCount;
+                vertices += static_cast<int32_t>(sizeof(CGxVertexPNT0)) * section->vertexCount;
 
                 if (!normalize) {
                     const C44Matrix& bone = model->m_boneMatrices[this->m_data->m_boneCombos[section->m_boneComboIndex]];
@@ -673,7 +673,7 @@ void CM2SceneRender::DrawBatchDoodad(M2Element* elements, uint32_t* indices) {
             GxRsSet(GxRs_NormalizeNormals, normalize);
 
             batch.m_count = instances * this->m_curSkinSection->m_indexCount;
-            batch.m_maxIndex = static_cast<uint16_t>(instances * this->m_curSkinSection->m_vertexCount - 1);
+            batch.m_maxIndex = static_cast<uint16_t>(instances * this->m_curSkinSection->vertexCount - 1);
             g_theGxDevicePtr->Draw(&batch, 1);
         }
     }
