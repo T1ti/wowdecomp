@@ -4,6 +4,7 @@
 #include "WoW/Source/Object/ObjectClient/GameObject_C.h"
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
+#include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Model2/M2Model.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
@@ -148,6 +149,7 @@ struct DebugPathLast {
 static const float DEBUG_PATH_DRAPE_STEP = 1.0f; // yards between ground samples
 static const float DEBUG_PATH_GROUND_ABOVE = 3.0f; // ground search from this far above the point
 static const float DEBUG_PATH_GROUND_BELOW = 10.0f; // to this far below it
+static const float DEBUG_PATH_GROUND_FAR = 60.0f; // then, on a miss, from this far above to this far below
 static const float DEBUG_PATH_DRAPE_LIFT = 0.1f; // the line sits this far above the ground
 
 // The sampled curve of a flying spline, kept while the same spline (unit, spline id, point count) is shown: 0.5.3
@@ -181,13 +183,65 @@ static void AddDebugPathCircle(TSGrowableArray<DebugPathCircle>& circles, const 
     *reinterpret_cast<uint32_t*>(&circle->m_color) = argb;
 }
 
-// The ground below (or a little above) a point.
+// The ground below (or a little above) a point: first close to it, so a bridge or a roof overhead is not taken for the
+// ground, then over a wider range for a server point well under (or over) the terrain.
 static bool DebugPathGround(const C3Vector& point, C3Vector* ground) {
-    C3Vector start(point.x, point.y, point.z + DEBUG_PATH_GROUND_ABOVE);
-    C3Vector end(point.x, point.y, point.z - DEBUG_PATH_GROUND_BELOW);
     float distance = 1.0f;
 
-    return World::Intersect(start, end, ground, &distance, WORLD_QUERY_COLLISION_MASK, nullptr) != 0;
+    if (World::Intersect(C3Vector(point.x, point.y, point.z + DEBUG_PATH_GROUND_ABOVE), C3Vector(point.x, point.y, point.z - DEBUG_PATH_GROUND_BELOW), ground, &distance, WORLD_QUERY_COLLISION_MASK, nullptr)) {
+        return true;
+    }
+
+    distance = 1.0f;
+    return World::Intersect(C3Vector(point.x, point.y, point.z + DEBUG_PATH_GROUND_FAR), C3Vector(point.x, point.y, point.z - DEBUG_PATH_GROUND_FAR), ground, &distance, WORLD_QUERY_COLLISION_MASK, nullptr) != 0;
+}
+
+// Drops the points of a line onto the ground. A point with no ground below takes the height of the nearest point that
+// has some, so a miss never pulls the line down to the server height under the terrain; with no ground anywhere, the
+// points keep their height. Returns the number of misses.
+static uint32_t DrapeDebugPath(C3Vector* points, uint32_t count) {
+    static TSGrowableArray<uint8_t> found;
+    found.SetCount(count);
+    uint32_t misses = 0;
+    int32_t lastFound = -1;
+
+    for (uint32_t i = 0; i < count; i++) {
+        C3Vector hit;
+        found.m_data[i] = DebugPathGround(points[i], &hit);
+
+        if (found.m_data[i]) {
+            points[i].z = hit.z + DEBUG_PATH_DRAPE_LIFT;
+            lastFound = static_cast<int32_t>(i);
+        } else {
+            misses++;
+        }
+    }
+
+    if (!misses || lastFound < 0) {
+        return misses;
+    }
+
+    for (uint32_t i = 0; i < count; i++) {
+        if (found.m_data[i]) {
+            continue;
+        }
+
+        float best = 0.0f;
+        uint32_t bestDistance = UINT32_MAX;
+
+        for (uint32_t j = 0; j < count; j++) {
+            uint32_t d = j > i ? j - i : i - j;
+
+            if (found.m_data[j] && d < bestDistance) {
+                bestDistance = d;
+                best = points[j].z;
+            }
+        }
+
+        points[i].z = best;
+    }
+
+    return misses;
 }
 
 static DebugPathLast* FindDebugPathLast(const WOWGUID& guid) {
@@ -229,24 +283,30 @@ static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WO
     // transport-local point until the point is moved.
     bool ground = path.GetSplineMode() != MODE_CATMULLROM && !transportGuid;
 
-    // 0.5.3: green at the server location, then red at every point.
-    C3Vector serverLoc = path.Point(count > 1 ? 1 : 0);
-    C3Vector hit;
-
-    if (ground && DebugPathGround(serverLoc, &hit)) {
-        serverLoc = hit;
-    }
-
-    AddDebugPathCircle(last->m_circles, serverLoc, DEBUG_PATH_GREEN);
+    // The circle centers: every point, dropped onto the ground for a ground path (DrapeDebugPath lifts them by
+    // DEBUG_PATH_DRAPE_LIFT, taken off again: the projection box is centered on the ground).
+    static TSGrowableArray<C3Vector> centers;
+    centers.SetCount(count);
 
     for (uint32_t i = 0; i < count; i++) {
-        C3Vector point = path.Point(i);
+        centers.m_data[i] = path.Point(i);
+    }
 
-        if (ground && DebugPathGround(point, &hit)) {
-            point = hit;
+    uint32_t misses = 0;
+
+    if (ground) {
+        misses += DrapeDebugPath(centers.m_data, count);
+
+        for (uint32_t i = 0; i < count; i++) {
+            centers.m_data[i].z -= DEBUG_PATH_DRAPE_LIFT;
         }
+    }
 
-        AddDebugPathCircle(last->m_circles, point, DEBUG_PATH_RED);
+    // 0.5.3: green at the server location, then red at every point.
+    AddDebugPathCircle(last->m_circles, centers.m_data[count > 1 ? 1 : 0], DEBUG_PATH_GREEN);
+
+    for (uint32_t i = 0; i < count; i++) {
+        AddDebugPathCircle(last->m_circles, centers.m_data[i], DEBUG_PATH_RED);
     }
 
     if (path.GetSplineMode() == MODE_CATMULLROM || count < 3) {
@@ -254,7 +314,7 @@ static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WO
     }
 
     // The line, from the start (point 1) to the end (point count - 2), leaving out the extrapolated lead-in and the
-    // repeated end. Draped on the ground in world space; straight on a transport.
+    // repeated end, sampled every yard. Draped on the ground in world space; straight on a transport.
     for (uint32_t i = 1; i + 2 < count; i++) {
         const C3Vector& a = path.Point(i);
         const C3Vector& b = path.Point(i + 1);
@@ -268,23 +328,23 @@ static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WO
 
         for (uint32_t s = 0; s < steps; s++) {
             float t = static_cast<float>(s) / steps;
-            C3Vector point(a.x + dx * t, a.y + dy * t, a.z + (b.z - a.z) * t);
-
-            if (ground && DebugPathGround(point, &hit)) {
-                point.z = hit.z + DEBUG_PATH_DRAPE_LIFT;
-            }
-
-            *last->m_draped.New() = point;
+            *last->m_draped.New() = C3Vector(a.x + dx * t, a.y + dy * t, a.z + (b.z - a.z) * t);
         }
     }
 
-    C3Vector end = path.Point(count - 2);
+    *last->m_draped.New() = path.Point(count - 2);
 
-    if (ground && DebugPathGround(end, &hit)) {
-        end.z = hit.z + DEBUG_PATH_DRAPE_LIFT;
+    if (ground) {
+        misses += DrapeDebugPath(last->m_draped.m_data, last->m_draped.m_count);
     }
 
-    *last->m_draped.New() = end;
+    // Port diagnostic: a server path the ground lookups could not follow (out of the loaded map, or far from the
+    // terrain), with the end's server height and the height drawn.
+    if (misses) {
+        const C3Vector& end = path.Point(count - 2);
+        const C3Vector& drawn = last->m_draped.m_data[last->m_draped.m_count - 1];
+        ConsoleWriteA("DebugTargetPath: no ground under %u of %u path samples; end at server z %.2f, drawn at z %.2f", WARNING_COLOR, misses, count + last->m_draped.m_count, end.z, drawn.z);
+    }
 }
 
 // Draws a white line strip through points, moved to world space by an optional transport matrix.
