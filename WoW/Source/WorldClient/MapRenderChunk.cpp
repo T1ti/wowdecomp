@@ -2785,7 +2785,32 @@ void CMapRenderChunk::SetShaders(int32_t specular, int32_t unlitLayers) {
 // OFFSET: 0x005EEB70
 void CMapRenderChunk::RenderZoneDebug() {
 #ifdef WOWDECOMP_DEBUG_FEATURES
-    // TODO: debug-only, compiled out of the 3.3.5 release build (body folds into the shared empty stub).
-    // No 0.5.3 reference.
+    // Debug feature: the zone display (debugZones). The release body is the shared empty stub; CWorldScene::
+    // RenderChunksZoneDebug calls it, after RenderSetup(0), for the chunks CWorldScene::CullChunks put in
+    // ZONE_DEBUG_RENDER_LIST (chunks outside the player's zone while Enable_ZoneBounds is set).
+    // 0.9.1 reference: the head of CMapChunk::RenderLayers (0x002B3FEC) drew such a chunk in plain white, lit and
+    // untextured (material diffuse 0xFFFFFFFF, no textures, no pixel shader). Same here, through the fixed-function
+    // pipeline (RenderChunksZoneDebug has unbound the terrain shaders).
+    g_theGxDevicePtr->RsPush();
+
+    // RenderSetup(0) sets the world transform for vertices relative to m_vec1, but with the terrain vertex shaders
+    // the chunk vertices are world positions (CMapRenderChunk::CreateVerticesWorld).
+    if (CMap::enableTerrainShaderVertex) {
+        C44Matrix world;
+        world.d0 = -CWorldScene::s_activeWorldView.x;
+        world.d1 = -CWorldScene::s_activeWorldView.y;
+        world.d2 = -CWorldScene::s_activeWorldView.z;
+        GxXformSet(GxXform_World, world);
+    }
+
+    GxRsSet(GxRs_Lighting, 1);
+    GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFFFFFFFF));
+    GxRsSet(GxRs_BlendingMode, GxBlend_Opaque);
+    GxUpdateAlphaRef(GxRs_AlphaRef);
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, static_cast<void*>(nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, static_cast<void*>(nullptr));
+    g_theGxDevicePtr->Draw(&this->m_batch, 1);
+
+    g_theGxDevicePtr->RsPop();
 #endif
 }

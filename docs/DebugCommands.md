@@ -49,15 +49,16 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `showPortals` | works | Draws WMO portals. |
 | `portalVis` | works | Toggles portal culling. |
 | `showTris` | works | Wireframe. |
-| `showNormals` | works | |
-| `showQuery` | works | |
+| `showNormals` | works | Also draws the WMO vertex normals (3.3.5 `CMapObj::RenderNormals`, the 0.9.1 `RenderGroupNormals`). |
+| `showQuery` | works | Draws the world collision queries (3.3.5 `TestQueryAdd`, the 0.9.1 `TestQueryRender`). |
 | `proj` | works | |
 | `detailDoodadTest` | works | |
 | `showCollision` | works | Draws the collision mesh (translucent triangles and red face normals) of every drawn M2 that has collision data. |
 | `showAABoxes` | works | Draws the collision box (translucent cyan) of every drawn M2 that has collision data. 0.5.3 called this "Terrain doodads AA Box visuals". |
-| `showMapObjBSP`, `debugBSP` | flag only | Should draw the WMO BSP (0.5.3 `RenderGroupBsp`, 0x0069DF60); no reader yet. |
+| `showMapObjBSP` | untested | Toggles the 0.5.3 / 0.9.1 WMO BSP display (`CMapObj::RenderGroupBsp`): every WMO group draws its faces by kind, lit and untextured. Render faces are green, detail faces blue, and collision faces translucent red over them. Port addition: `showMapObjBSP collision`, `detail`, `render`, `transition` or `collidable` picks one of the 3.3.5 face renderers instead (the release build has them but never selects them), and `showMapObjBSP normal` goes back to normal rendering. The BSP display, while on, takes precedence over them. |
+| `debugBSP` | flag only | No client reads the bit: 0.5.3 sets it and nothing tests it, and by 0.9.1 the bit had become `CMap::enableTriangleStrips`. |
 | `showCrappyBatches` | flag only | No reader yet. |
-| `debugZones` | flag only | Sets a local bit only. |
+| `debugZones` | untested | Draws the terrain outside the player's zone plain white, untextured, as 0.9.1 did. 0.9.1 got the zone map from the server (message 11, one byte per world cell), which 3.3.5 does not have. The port compares the top-level zone of each chunk's area (`AreaTable` parent chain) with the player's zone instead. |
 | `groupOnly` | stub | |
 | `mapObjLightMode` | stub | |
 | `waterMaxLOD`, `waterWaves`, `waterSpecular` | stub | |
@@ -85,6 +86,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `DumpDeathHoldLogs` | stub | |
 | `playercombatlogdebug` | stub | |
 | `showEffectsStandalone` (CVar) | stub | |
+| `animDebug` | untested | Makes the locked target the anim debug target (no target: off), from 0.8. Every animation its model starts is printed to the console, with the 0.8 wording: `**** <time> "<unit>" "<anim>" playing [on key bone <id>]`. When the model lacks the animation, a `doesn't have "<anim>", falling back to "<anim>"` line comes first. The command name is the port's; 0.8 had the setter without a command. Its queueing and interrupting lines are not ported, because they came from the 0.8 unit animation queue, which 3.3.5 does not have. |
 
 ## Sound (`WoW/Source/SoundInterface/SndDebug.cpp`, DEBUG)
 
@@ -138,5 +140,10 @@ In the release build, these functions are bound to the shared return-0 stub.
 ## Debug-draw features with no command yet
 
 - Unselectable geometry (`CM2Model::ShowUnselectable`).
-- WMO BSP display (`showMapObjBSP` / `debugBSP`).
-- Zone bounds (`debugZones`).
+
+## 0.8 / 0.9.1 debug features not ported
+
+- `showfootprints`: already a retail 3.3.5 CVar (`CWorldParam::ShowFootprintsCallback`).
+- The movement speed and turn rate cheats (0.9.1 `CGUnit_C::OnAllSpeedChangeCheat` / `OnTurnRateChangeCheat`):
+  they read the speed from the gamepad axes and send server cheat opcodes, so they need server support.
+- The collision toggle (`CMovement::ToggleCollision`): a pending move action the server sends.

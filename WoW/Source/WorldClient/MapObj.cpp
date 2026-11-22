@@ -1670,6 +1670,16 @@ void CMapObj::PrepareUpdate() {
             break;
     }
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+    // Debug feature: the BSP display (showMapObjBSP). 0.5.3 CMapObj::PrepareUpdate (0x0069B3C0) and 0.9.1
+    // CMapObj::Update ended their renderer choice the same way: with Enable_MapObjBSP set, RenderGroupBsp draws both
+    // exterior and interior groups.
+    if (CWorld::enables & Enables::Enable_MapObjBSP) {
+        CMapObj::s_renderGroupExterior = &CMapObj::RenderGroupBsp;
+        CMapObj::s_renderGroupInterior = &CMapObj::RenderGroupBsp;
+    }
+#endif
+
     CMapObj* mapObj = CMapObj::mapObjHash.m_fulllist.Head();
 
     while (mapObj) {

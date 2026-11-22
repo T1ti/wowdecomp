@@ -98,6 +98,9 @@
 #include "WoW/Source/WorldClient/Zones.h"
 #include "WoW/Source/Ui/MinimapFrame.h"
 #include <malloc.h>
+#ifdef WOWDECOMP_DEBUG_FEATURES
+#include "WoW/Source/DebugFeatures.h"
+#endif
 #include <cstring>
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/Game/GameClient/ProjectTex.h"
@@ -2657,7 +2660,7 @@ void CWorldScene::RenderChunksSolid() {
 void CWorldScene::RenderChunksZoneDebug() {
     CMapRenderChunk::SetShaders(0, 0);
 
-    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.m_renderChunkList[20];
+    TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)>& list = CWorldScene::sortTable.m_renderChunkList[ZONE_DEBUG_RENDER_LIST];
     CMapRenderChunk* renderChunk = list.Head();
 
     while (!list.IsEnd(renderChunk)) {
@@ -4006,6 +4009,15 @@ void CWorldScene::CullChunks(CSortEntry* entry, uint32_t index) {
                             variant = (flags & CMapRenderChunk::RENDER_FLAGS::FLAG_UNLIT_LAYERS) ? ((flags & CMapRenderChunk::RENDER_FLAGS::FLAG_SPECULAR) | 2) >> 1 : (flags >> 1) & 2;
                         }
 
+#ifdef WOWDECOMP_DEBUG_FEATURES
+                        // Debug feature: the zone display (debugZones). With Enable_ZoneBounds, a chunk outside the
+                        // player's zone goes to render list 20, which CWorldScene::RenderChunksZoneDebug draws with
+                        // CMapRenderChunk::RenderZoneDebug; the release build keeps that pass but never fills the list.
+                        // 0.9.1 made the same test per chunk in CMapChunk::RenderLayers.
+                        if ((CWorld::enables & Enables::Enable_ZoneBounds) && !ZoneDebugIsInCurrentZone(chunk->m_sphere.c.x, chunk->m_sphere.c.y)) {
+                            CWorldScene::sortTable.m_renderChunkList[ZONE_DEBUG_RENDER_LIST].LinkToTail(chunk->m_renderChunk);
+                        } else
+#endif
                         CWorldScene::sortTable.m_renderChunkList[4 * layerCount + variant].LinkToTail(chunk->m_renderChunk);
                     }
                 }

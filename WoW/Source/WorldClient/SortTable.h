@@ -12,6 +12,10 @@
 
 class CDetailDoodadInst;
 
+// The terrain render list CWorldScene::RenderChunksZoneDebug draws (debugZones); lists 0..19 are
+// 4 * layer count + shader variant, filled by CWorldScene::CullChunks.
+static const uint32_t ZONE_DEBUG_RENDER_LIST = 20;
+
 class CSortTable {
     public:
     /* 0000 */ CSortEntry m_table [64];

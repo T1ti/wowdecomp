@@ -4,6 +4,11 @@
 #include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gx/Gx.h"
+#include "Engine/Source/Storm/H/storm.h"
+#include "WoW/Source/DB/DBClient/DBClient.h"
+#include "WoW/Source/Ui/GameUI.h"
+#include "WoW/Source/WorldClient/Map.h"
+#include "WoW/Source/WorldClient/MapObj.h"
 #include "WoW/Source/WorldClient/Types.h"
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
@@ -66,10 +71,48 @@ int32_t CWorld::ConsoleCommand_ShowAABoxes(const char* command, const char* argu
     return 1;
 }
 
+// Port: the 3.3.5 WMO face renderers CMapObj::PrepareUpdate chooses by CMapObj::s_renderMode, which the release build
+// keeps but never sets (always DEFAULT_RENDER). Their names here are the port's, after the renderers.
+struct MapObjRenderModeName {
+    const char* m_name;
+    CMapObj::RENDER_MODE m_mode;
+    const char* m_description;
+};
+
+static const MapObjRenderModeName s_mapObjRenderModes[] = {
+    { "collision", CMapObj::RENDER_MODE::COLLISION_FACES, "collision faces, red (RenderGroupCollisionFaces)" },
+    { "detail", CMapObj::RENDER_MODE::DETAIL_FACES, "detail faces, blue (RenderGroupDetailFaces)" },
+    { "render", CMapObj::RENDER_MODE::RENDER_FACES, "render faces that are not detail faces, green (RenderGroupRenderFaces)" },
+    { "transition", CMapObj::RENDER_MODE::TRANSPARENT_FACES, "transition faces that render, in their vertex colors (RenderGroupTransFaces)" },
+    { "collidable", CMapObj::RENDER_MODE::COLLIDABLE, "collision faces and non-detail render faces, grey with a dark wireframe (RenderGroupCollidable)" },
+    { "normal", CMapObj::RENDER_MODE::DEFAULT_RENDER, "normal rendering" },
+};
+
 // Debug feature: world render mode.
-// 0.5.3 reference: CWorld::ConsoleCommand_ShowMapObjBSP (0x006657C0).
-// No 3.3.5 code reads Enable_MapObjBSP yet, so this has no visible effect.
+// 0.5.3 reference: CWorld::ConsoleCommand_ShowMapObjBSP (0x006657C0): toggles Enable_MapObjBSP, which CMapObj::
+// PrepareUpdate reads to draw every WMO group with CMapObj::RenderGroupBsp (render faces green, detail faces blue,
+// collision faces red over them).
+// Port addition: with an argument, selects one of the 3.3.5 face renderers instead (s_mapObjRenderModes); "normal"
+// goes back to normal rendering. The BSP display, while on, takes precedence over them.
 int32_t CWorld::ConsoleCommand_ShowMapObjBSP(const char* command, const char* arguments) {
+    if (arguments && *arguments) {
+        for (const MapObjRenderModeName& mode : s_mapObjRenderModes) {
+            if (!SStrCmpI(arguments, mode.m_name, STORM_MAX_STR)) {
+                CMapObj::s_renderMode = mode.m_mode;
+                ConsoleWriteA("WMO render mode: %s.", DEFAULT_COLOR, mode.m_description);
+
+                if (CWorld::enables & Enables::Enable_MapObjBSP) {
+                    ConsoleWrite("The BSP display is still on and takes precedence: showMapObjBSP turns it off.", DEFAULT_COLOR);
+                }
+
+                return 1;
+            }
+        }
+
+        ConsoleWrite("Usage: showMapObjBSP [collision | detail | render | transition | collidable | normal]", DEFAULT_COLOR);
+        return 1;
+    }
+
     if (CWorld::enables & Enables::Enable_MapObjBSP) {
         ConsoleWrite("BSP render disabled.", DEFAULT_COLOR);
         CWorld::enables &= ~Enables::Enable_MapObjBSP;
@@ -83,7 +126,8 @@ int32_t CWorld::ConsoleCommand_ShowMapObjBSP(const char* command, const char* ar
 
 // Debug feature: world render mode.
 // 0.5.3 reference: CWorld::ConsoleCommand_DebugBSP (0x00665810).
-// No 3.3.5 code reads Enable_DebugBSP yet, so this has no visible effect.
+// Has no visible effect: no client reads Enable_DebugBSP. 0.5.3 sets it and nothing tests it; by 0.9.1 the bit had
+// become CMap::enableTriangleStrips (read by CMap::Load), and 3.3.5 does not read it at all.
 int32_t CWorld::ConsoleCommand_DebugBSP(const char* command, const char* arguments) {
     if (CWorld::enables & Enables::Enable_DebugBSP) {
         ConsoleWrite("BSP debug disabled.", DEFAULT_COLOR);
@@ -238,8 +282,10 @@ int32_t CWorld::ConsoleCommand_ShowQuery(const char* command, const char* argume
 
 // Debug feature: world render mode.
 // 0.5.3 reference: CWorld::ConsoleCommand_DebugZones (0x00665E80).
-// TODO: 0.5.3 also sent a client message (opcode 10, the on/off byte) so the server would show zone boundaries;
-// that opcode does not map to 3.3.5, so only the local bit is toggled. No 3.3.5 code reads Enable_ZoneBounds yet.
+// With Enable_ZoneBounds set, the terrain outside the player's zone draws plain white (see ZoneDebugIsInCurrentZone and
+// CMapRenderChunk::RenderZoneDebug). 0.5.3 also sent a client message (opcode 10, the on/off byte) asking the server
+// for its zone map (server message 11, see ZoneDebugInitialize); that opcode does not map to 3.3.5, so the port
+// uses the client's own area data and only the local bit is toggled.
 int32_t CWorld::ConsoleCommand_DebugZones(const char* command, const char* arguments) {
     if (CWorld::enables & Enables::Enable_ZoneBounds) {
         ConsoleWrite("Zone boundary visuals disabled", DEFAULT_COLOR);
@@ -329,17 +375,46 @@ int32_t CWorld::ConsoleCommand_EnumTextureGxCache(const char* command, const cha
     return 1;
 }
 
-// Debug feature: zone debug.
-// 0.5.3 reference: ZoneDebugInitialize (0x0060F1A0).
-// 0.5.3 called it from WowClientInit; not called here yet.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Debug feature: zone debug (debugZones, Enable_ZoneBounds).
+// 0.5.3 reference: ZoneDebugInitialize (0x0060F1A0); 0.9.1 ZoneDebugInitialize (0x00423E28).
+// 0.5.3 and 0.9.1 cleared a 256 x 256 byte map of zone numbers, one per world prox-map cell, and registered the
+// handler of server message 11, which filled it. 3.3.5 has neither the message nor the map: ZoneDebugIsInCurrentZone
+// uses the client's own area data instead, so there is nothing to initialize and nothing calls this.
 void ZoneDebugInitialize() {
 }
 
-// 0.5.3 reference: ZoneDebugIsInCurrentZone (0x0060F290).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Port: the top-level zone of an area (its last m_parentAreaID ancestor), or 0 for no area.
+static int32_t ZoneDebugTopZone(int32_t areaId) {
+    // Bounded, in case of a parent loop in the data.
+    for (int32_t depth = 0; areaId && depth < 8; depth++) {
+        const AreaTableRec* area = g_areaTableDB.GetRecord(areaId);
+
+        if (!area || !area->m_parentAreaID) {
+            break;
+        }
+
+        areaId = area->m_parentAreaID;
+    }
+
+    return areaId;
+}
+
+// 0.5.3 reference: ZoneDebugIsInCurrentZone (0x0060F290); 0.9.1 ZoneDebugIsInCurrentZone (0x002B483C).
+// 0.9.1 compared the zone numbers of the server map at (x, y) and at the active player's position, and returned true
+// without a player. Port: compares the top-level zone of the terrain area at (x, y) (the MCNK area id, through
+// CMap::QueryAreaIdTerrain) with that of the player's zone (CGGameUI::m_areaID, from CGGameUI::NewZoneFeedback). It
+// returns true when either is unknown (no player zone yet, an unloaded chunk, a chunk without area), so that only the
+// terrain known to be in another zone turns white.
 bool ZoneDebugIsInCurrentZone(float x, float y) {
-    return false;
+    int32_t playerZone = ZoneDebugTopZone(CGGameUI::m_areaID);
+
+    if (!playerZone) {
+        return true;
+    }
+
+    C3Vector position(x, y, 0.0f);
+    int32_t zone = ZoneDebugTopZone(CMap::QueryAreaIdTerrain(&position));
+    return !zone || zone == playerZone;
 }
 
 // Debug feature: registers the 0.5.3 CWorld::Initialize console commands missing from 3.3.5.

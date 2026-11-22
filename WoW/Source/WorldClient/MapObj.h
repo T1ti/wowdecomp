@@ -261,6 +261,8 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
 #ifdef WOWDECOMP_DEBUG_FEATURES
     // Debug feature (WorldRender_Debug.cpp): holds the portal planes back until WorldDebugRenderLate.
     void DebugDeferPortals(CMapObjGroup* group);
+    // Debug feature (WorldRender_Debug.cpp): the 0.5.3 / 0.9.1 BSP display (showMapObjBSP), a group renderer.
+    void RenderGroupBsp(CMapObjGroup* group, uint32_t index);
 #endif
     CMapObjGroup* AttenTransVerts(CMapObjGroup* group);
     void SetupMapObjDefCull(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget);
