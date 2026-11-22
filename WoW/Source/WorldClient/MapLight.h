@@ -25,6 +25,7 @@ class CMapLight : public CMapBaseObj {
     /* 00D3 */ uint8_t unused_00D3;
 
     CMapLight();
+    ~CMapLight();
 };
 
 class CMapCacheLight {
