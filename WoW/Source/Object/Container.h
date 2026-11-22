@@ -3,6 +3,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/Object.h"
+#include "WoW/Source/Object/Item.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CGContainerData;
@@ -15,6 +17,7 @@ class CGContainer {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0000 */ CGContainerData* m_container;
     /* 0004 */ void* m_containerMirror;
@@ -41,5 +44,10 @@ class CGContainerData {
     /* 0004 */ uint8_t m_containerAlignPad [4];
     /* 0008 */ WOWGUID m_containerFieldSlot1 [36];
 };
+
+// INLINED
+inline uint32_t CGContainer::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGItemData) + sizeof(CGContainerData);
+}
 
 #endif

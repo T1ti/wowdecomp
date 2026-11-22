@@ -38,7 +38,7 @@
 static thread_local ObjectMgr* s_curMgr;
 
 // STATIC: 0x00B4B014
-static ObjectMgr* s_savedObjMgr;
+static ObjectMgr* s_savMgr;
 
 // STATIC: 0x00B4B020
 static TSList<CMirrorHandler, TSGetLink<CMirrorHandler> > s_typeMirrorHandlers[NUM_CLIENT_OBJECT_TYPES][1326];
@@ -114,38 +114,46 @@ static uint32_t GetObjectTypeFieldByteOffset(OBJECT_TYPE_ID typeId) {
 
 // VERIFY: 846bf934 auto
 // OFFSET: 0x004D44F0
-static uint32_t TypeDescriptorToMirrorOffset(OBJECT_TYPE_ID typeId, uint32_t offset, uint32_t size) {
+static uint32_t TypeDescriptorToMirrorOffset(OBJECT_TYPE_ID typeId, uint32_t dataOffset, uint32_t size) {
     switch (typeId) {
         case ID_ITEM: {
-            return CGItem::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGItem::GetDataSize());
+            return CGItem::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_CONTAINER: {
-            return CGContainer::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGContainer::GetDataSize());
+            return CGContainer::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_UNIT: {
-            return CGUnit::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGUnit::GetDataSize());
+            return CGUnit::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_PLAYER: {
-            return CGPlayer::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGPlayer::GetDataSize());
+            return CGPlayer::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_GAMEOBJECT: {
-            return CGGameObject::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGGameObject::GetDataSize());
+            return CGGameObject::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_DYNAMICOBJECT: {
-            return CGDynamicObject::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGDynamicObject::GetDataSize());
+            return CGDynamicObject::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         case ID_CORPSE: {
-            return CGCorpse::DescriptorToMirrorOffset(offset, size, 0, 0);
+            STORM_ASSERT(dataOffset < CGCorpse::GetDataSize());
+            return CGCorpse::DescriptorToMirrorOffset(dataOffset, size, 0, 0);
         }
 
         default: {
-            return (offset & 3) + 4 * CGObject::GetSavedIndexFromDataIndex(offset >> 2, (size + 3) >> 2, 0);
+            STORM_ASSERT(dataOffset < CGObject::GetDataSize());
+            return (dataOffset & 3) + 4 * CGObject::GetSavedIndexFromDataIndex(dataOffset >> 2, (size + 3) >> 2, 0);
         }
     }
 }
@@ -169,14 +177,16 @@ static void UnassignMirrorHandler(TSList<CMirrorHandler, TSGetLink<CMirrorHandle
 // VERIFY: d1ddc062 manual
 // OFFSET: 0x004D36C0
 void NetClient::PushObjMgr(ClntObjMgr* mgr) {
-    if (s_savedObjMgr) {
+    STORM_ASSERT(s_savMgr == NULL);
+
+    if (s_savMgr) {
         return;
     }
 
     ObjectMgr* current = s_curMgr;
 
     if (reinterpret_cast<ObjectMgr*>(mgr) != current) {
-        s_savedObjMgr = current;
+        s_savMgr = current;
         s_curMgr = reinterpret_cast<ObjectMgr*>(mgr);
     }
 }
@@ -184,9 +194,9 @@ void NetClient::PushObjMgr(ClntObjMgr* mgr) {
 // VERIFY: a15d9aa7 manual
 // OFFSET: 0x004D3700
 void NetClient::PopObjMgr() {
-    if (s_savedObjMgr) {
-        s_curMgr = s_savedObjMgr;
-        s_savedObjMgr = nullptr;
+    if (s_savMgr) {
+        s_curMgr = s_savMgr;
+        s_savMgr = nullptr;
     }
 }
 
@@ -315,9 +325,11 @@ void ClntObjMgrSetMovementGlobals(CMovementGlobals* globals) {
 
 // VERIFY: ba2b5330 manual
 // OFFSET: 0x004D5BA0
-void ClntObjMgrSetTypeMirrorHandler(OBJECT_TYPE_ID typeId, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire) {
-    uint32_t mirrorOffset = TypeDescriptorToMirrorOffset(typeId, fieldOffset, fieldSize);
-    AssignMirrorHandler(&s_typeMirrorHandlers[typeId][fieldOffset >> 2], fieldOffset + GetObjectTypeFieldByteOffset(typeId), mirrorOffset, fieldSize, function, param, priority, alwaysFire);
+void ClntObjMgrSetTypeMirrorHandler(OBJECT_TYPE_ID type, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire) {
+    STORM_ASSERT(type < NUM_CLIENT_OBJECT_TYPES);
+
+    uint32_t mirrorOffset = TypeDescriptorToMirrorOffset(type, fieldOffset, fieldSize);
+    AssignMirrorHandler(&s_typeMirrorHandlers[type][fieldOffset >> 2], fieldOffset + GetObjectTypeFieldByteOffset(type), mirrorOffset, fieldSize, function, param, priority, alwaysFire);
 }
 
 // VERIFY: df93f0c4 manual
@@ -397,54 +409,70 @@ static OBJECT_TYPE_ID IncTypeId(CGObject_C* object, OBJECT_TYPE_ID typeId) {
 
 // VERIFY: de904275 manual
 // OFFSET: 0x004D3D40
-static TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* GetObjectMirrorList(OBJECT_TYPE_ID typeId, CGObject_C* object, uint32_t index) {
+static TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* GetObjectMirrorList(OBJECT_TYPE_ID typeId, CGObject_C* object, uint32_t blockId) {
     TSList<void>* list;
 
     switch (typeId) {
         case ID_OBJECT: {
-            list = &object->m_objMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGObjectData)/sizeof(DWORD));
+            list = &object->m_objMirrorLists[blockId];
             break;
         }
 
         case ID_ITEM: {
-            list = &static_cast<CGItem_C*>(object)->m_itemMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGItemData)/sizeof(DWORD));
+            list = &static_cast<CGItem_C*>(object)->m_itemMirrorLists[blockId];
             break;
         }
 
         case ID_CONTAINER: {
-            list = &static_cast<CGContainer_C*>(object)->m_containerMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGContainerData)/sizeof(DWORD));
+            list = &static_cast<CGContainer_C*>(object)->m_containerMirrorLists[blockId];
             break;
         }
 
         case ID_UNIT: {
-            list = &static_cast<CGUnit_C*>(object)->m_unitMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGUnitData)/sizeof(DWORD));
+            list = &static_cast<CGUnit_C*>(object)->m_unitMirrorLists[blockId];
             break;
         }
 
         case ID_PLAYER: {
             CGPlayer_C* player = static_cast<CGPlayer_C*>(object);
 
-            if (player->IsActivePlayer() && index >= 176) {
-                list = &player->m_playerLocalMirrorLists[index - 176];
+            if (player->IsActivePlayer()) {
+                // 12213: "blockId < sizeof(CGPlayerData)/sizeof(DWORD)"; its CGPlayerData is our CGPlayerLocalData.
+                STORM_ASSERT(blockId < sizeof(CGPlayerLocalData)/sizeof(DWORD));
+
+                if (blockId >= 176) {
+                    list = &player->m_playerLocalMirrorLists[blockId - 176];
+                } else {
+                    list = &player->m_playerMirrorLists[blockId];
+                }
             } else {
-                list = &player->m_playerMirrorLists[index];
+                // 12213: "blockId < ((sizeof(CGPlayerData)-sizeof(CGLocalPlayerData))/sizeof(DWORD))"
+                STORM_ASSERT(blockId < sizeof(CGPlayerData)/sizeof(DWORD));
+                list = &player->m_playerMirrorLists[blockId];
             }
 
             break;
         }
 
         case ID_GAMEOBJECT: {
-            list = &static_cast<CGGameObject_C*>(object)->m_gameObjectMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGGameObjectData)/sizeof(DWORD));
+            list = &static_cast<CGGameObject_C*>(object)->m_gameObjectMirrorLists[blockId];
             break;
         }
 
         case ID_DYNAMICOBJECT: {
-            list = &static_cast<CGDynamicObject_C*>(object)->m_dynamicObjectMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGDynamicObjectData)/sizeof(DWORD));
+            list = &static_cast<CGDynamicObject_C*>(object)->m_dynamicObjectMirrorLists[blockId];
             break;
         }
 
         case ID_CORPSE: {
-            list = &static_cast<CGCorpse_C*>(object)->m_corpseMirrorLists[index];
+            STORM_ASSERT(blockId < sizeof(CGCorpseData)/sizeof(DWORD));
+            list = &static_cast<CGCorpse_C*>(object)->m_corpseMirrorLists[blockId];
             break;
         }
 
@@ -893,25 +921,29 @@ static void CallMirrorFunctions(TSExplicitList<CMirrorHandler, offsetof(CMirrorH
 
 // VERIFY: 5369b3f6 manual
 // OFFSET: 0x004D52B0
-static void CopyMirrorFields(TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list, CGObject_C* object) {
-    int32_t local = object->m_obj->m_guid == ClntObjMgrGetActivePlayer();
+static void CopyMirrorFields(TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list, CGObject_C* obj) {
+    STORM_ASSERT(obj);
+
+    int32_t local = obj->m_obj->m_guid == ClntObjMgrGetActivePlayer();
 
     for (CMirrorHandler* handler = list->Head(); handler; handler = handler->m_link.Next()) {
-        uint32_t mirrorOffset = ObjDescriptorToMirrorOffset(object->m_typeId, local, handler->m_fieldByteOffset, handler->m_fieldByteSize);
-        memcpy(static_cast<uint8_t*>(object->m_objMirror) + mirrorOffset, reinterpret_cast<uint8_t*>(object->m_obj) + handler->m_fieldByteOffset, handler->m_fieldByteSize);
+        uint32_t mirrorOffset = ObjDescriptorToMirrorOffset(obj->m_typeId, local, handler->m_fieldByteOffset, handler->m_fieldByteSize);
+        memcpy(static_cast<uint8_t*>(obj->m_objMirror) + mirrorOffset, reinterpret_cast<uint8_t*>(obj->m_obj) + handler->m_fieldByteOffset, handler->m_fieldByteSize);
     }
 }
 
 // VERIFY: 199f0f4a manual
 // OFFSET: 0x004D5350
-static int32_t LinkPendingNodes(TSExplicitList<CMirrorHandler, offsetof(CMirrorHandler, m_link2)>* pending, TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list) {
+static int32_t LinkPendingNodes(TSExplicitList<CMirrorHandler, offsetof(CMirrorHandler, m_link2)>* handlerList, TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list) {
+    STORM_ASSERT(handlerList);
+
     if (!list || !list->Head()) {
         return 0;
     }
 
     for (CMirrorHandler* handler = list->Head(); handler; handler = handler->m_link.Next()) {
         uint32_t misalign = handler->m_fieldByteOffset & 3;
-        pending->LinkNode(handler, (handler->m_linkPositionSelector != HANDLER_PRIORITY_HIGH) + 1, nullptr);
+        handlerList->LinkNode(handler, (handler->m_linkPositionSelector != HANDLER_PRIORITY_HIGH) + 1, nullptr);
         handler->m_count = (handler->m_fieldByteSize + misalign + 3) >> 2;
     }
 
@@ -920,7 +952,10 @@ static int32_t LinkPendingNodes(TSExplicitList<CMirrorHandler, offsetof(CMirrorH
 
 // VERIFY: 5cf2342e manual
 // OFFSET: 0x004D53C0
-static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataStore* msg, bool skipMirrorUpdate, bool zeroFillAbsent) {
+static int32_t FillInPartialObjectData(CGObject_C* obj, WOWGUID guid, CDataStore* msg, bool skipMirrorUpdate, bool zeroFillAbsent) {
+    STORM_ASSERT(obj);
+    STORM_ASSERT(msg);
+
     uint32_t masks[MAX_DIRTY_MASK_BLOCKS];
     uint8_t blockCount;
 
@@ -930,13 +965,13 @@ static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataSt
 
     OBJECT_TYPE_ID typeId = ID_OBJECT;
     uint32_t typeBase = 0;
-    uint32_t numBlocks = GetNumDwordBlocks(object->m_obj->m_type, guid);
+    uint32_t numBlocks = GetNumDwordBlocks(obj->m_obj->m_type, guid);
     TSExplicitList<CMirrorHandler, offsetof(CMirrorHandler, m_link2)> pending;
 
     for (uint32_t i = 0; i < numBlocks; i++) {
         if (i >= s_objDwordCount[typeId]) {
             typeBase = s_objDwordCount[typeId];
-            typeId = IncTypeId(object, typeId);
+            typeId = IncTypeId(obj, typeId);
         }
 
         if (!skipMirrorUpdate) {
@@ -945,13 +980,13 @@ static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataSt
             TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list = &s_typeMirrorHandlers[typeId][i - typeBase];
 
             if (LinkPendingNodes(&pending, list)) {
-                CopyMirrorFields(list, object);
+                CopyMirrorFields(list, obj);
             }
 
-            list = GetObjectMirrorList(typeId, object, i - typeBase);
+            list = GetObjectMirrorList(typeId, obj, i - typeBase);
 
             if (LinkPendingNodes(&pending, list)) {
-                CopyMirrorFields(list, object);
+                CopyMirrorFields(list, obj);
             }
         }
 
@@ -965,7 +1000,7 @@ static int32_t FillInPartialObjectData(CGObject_C* object, WOWGUID guid, CDataSt
             continue;
         }
 
-        object->SetBlock(i, value);
+        obj->SetBlock(i, value);
     }
 
     return 1;
@@ -1166,8 +1201,8 @@ ObjectMgr::~ObjectMgr() {
         this->m_realmConnection->m_objMgr = nullptr;
     }
 
-    if (this == s_savedObjMgr) {
-        s_savedObjMgr = nullptr;
+    if (this == s_savMgr) {
+        s_savMgr = nullptr;
     }
 }
 
@@ -1267,6 +1302,8 @@ void ClntObjMgrDestroy() {
 // VERIFY: 362ba495 manual
 // OFFSET: 0x004D6AE0
 static CGObject_C* GetUpdateObject(WOWGUID guid, int32_t* reenabled) {
+    STORM_ASSERT(s_curMgr);
+
     *reenabled = 0;
 
     ObjectMgr* mgr = s_curMgr;
@@ -1311,6 +1348,8 @@ void ClntObjMgrReenableObject(WOWGUID guid) {
 // VERIFY: 3154e6f8 manual
 // OFFSET: 0x004D6C00
 static int32_t CreateObject(CDataStore* msg, uint32_t time) {
+    STORM_ASSERT(msg);
+
     SmartGUID guid;
     *msg >> guid;
 
@@ -1658,8 +1697,8 @@ int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, 
 // VERIFY: d5d28268 manual
 // OFFSET: 0x004D74D0
 int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint32_t size;
-    msg->Get(size);
+    uint32_t origSize;
+    msg->Get(origSize);
 
     uint32_t compressedSize = msg->m_size - msg->m_read;
     void* compressed;
@@ -1668,22 +1707,24 @@ int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint
     uint8_t* buffer;
     bool stackBuffer;
 
-    if (size >= 0x2000) {
-        buffer = static_cast<uint8_t*>(SMemAlloc(size, __FILE__, __LINE__, 0));
+    if (origSize >= 0x2000) {
+        buffer = static_cast<uint8_t*>(SMemAlloc(origSize, __FILE__, __LINE__, 0));
         stackBuffer = false;
     } else {
-        buffer = static_cast<uint8_t*>(alloca(size));
+        buffer = static_cast<uint8_t*>(alloca(origSize));
         stackBuffer = true;
     }
 
-    uint32_t uncompressedSize = size;
+    uint32_t destSize = origSize;
     int32_t result;
 
-    if (zlib_uncompress(buffer, &uncompressedSize, static_cast<const uint8_t*>(compressed), compressedSize)) {
+    if (zlib_uncompress(buffer, &destSize, static_cast<const uint8_t*>(compressed), compressedSize)) {
         result = 0;
     } else {
+        STORM_ASSERT(destSize == origSize);
+
         WDataStore data;
-        data.PutData(buffer, uncompressedSize);
+        data.PutData(buffer, destSize);
         data.m_read = 0;
         result = Packet_SMSG_UPDATE_OBJECT(nullptr, SMSG_UPDATE_OBJECT, time, &data);
     }
@@ -1730,6 +1771,8 @@ int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time,
 // VERIFY: ed7998e3 manual
 // OFFSET: 0x004D76E0
 void ClntObjMgrInitialize() {
+    STORM_ASSERT(s_curMgr);
+
     s_curMgr->m_realmConnection->SetMessageHandler(SMSG_UPDATE_OBJECT, Packet_SMSG_UPDATE_OBJECT, nullptr);
     s_curMgr->m_realmConnection->SetMessageHandler(SMSG_COMPRESSED_UPDATE_OBJECT, Packet_SMSG_COMPRESSED_UPDATE_OBJECT, nullptr);
     s_curMgr->m_realmConnection->SetMessageHandler(SMSG_DESTROY_OBJECT, Packet_SMSG_DESTROY_OBJECT, nullptr);
@@ -1740,9 +1783,13 @@ void ClntObjMgrInitialize() {
 void ClntObjMgrInitializeStd(uint32_t mapId) {
     CGGameUI::SetLastInstanceTime(static_cast<int32_t>(time(nullptr)), CGGameUI::m_iCurrentMapID, mapId);
 
+    STORM_ASSERT(g_clientConnection != NULL);
+    STORM_ASSERT(s_curMgr == NULL);
+
     ObjectMgr* mgr = new (__FILE__, __LINE__) ObjectMgr(PLAYER_NORMAL);
     g_clientConnection->m_objMgr = reinterpret_cast<ClntObjMgr*>(mgr);
     s_curMgr = mgr;
+    STORM_ASSERT(s_curMgr);
     mgr->m_realmConnection = g_clientConnection;
     ClntObjMgrInitialize();
     s_curMgr->m_mapId = mapId;

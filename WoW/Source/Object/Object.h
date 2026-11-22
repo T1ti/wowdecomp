@@ -17,6 +17,7 @@ class CGObject {
 
     static int32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, uint32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0004 */ uint32_t unknown_0004;
     /* 0008 */ CGObjectData* m_obj;
@@ -41,5 +42,10 @@ class CGObjectData {
     /* 0010 */ float m_scale;
     /* 0014 */ uint32_t m_pad;
 };
+
+// INLINED
+inline uint32_t CGObject::GetDataSize() {
+    return sizeof(CGObjectData);
+}
 
 #endif

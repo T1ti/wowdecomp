@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/Object.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CGCorpseData;
@@ -31,6 +32,7 @@ class CGCorpse {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0000 */ CGCorpseData* m_corpse;
     /* 0004 */ void* m_corpseMirror;
@@ -73,5 +75,10 @@ class CGCorpseData {
     /* 0070 */ uint32_t m_corpseFieldDynamicFlags;
     /* 0074 */ uint32_t m_corpseFieldPad;
 };
+
+// INLINED
+inline uint32_t CGCorpse::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGCorpseData);
+}
 
 #endif

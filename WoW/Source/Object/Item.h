@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <windows.h>
+#include "WoW/Source/Object/Object.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CGItemData;
@@ -16,6 +17,7 @@ class CGItem {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0004 */ CGItemData* m_item;
     /* 0008 */ void* m_itemMirror;
@@ -145,5 +147,10 @@ class CGItemData {
     /* 00E0 */ uint32_t m_itemFieldCreatePlayedTime;
     /* 00E4 */ uint32_t m_itemFieldPad;
 };
+
+// INLINED
+inline uint32_t CGItem::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGItemData);
+}
 
 #endif

@@ -81,7 +81,7 @@ void ClntObjMgrReenableObject(WOWGUID guid);
 CGObject_C* ClntObjMgrObjectPtr(WOWGUID guid, OBJECT_TYPE mask, const char* fileName, int32_t lineNumber);
 void ClntObjMgrSetMovementGlobals(CMovementGlobals* globals);
 void ClntObjMgrSetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire);
-void ClntObjMgrSetTypeMirrorHandler(OBJECT_TYPE_ID typeId, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire);
+void ClntObjMgrSetTypeMirrorHandler(OBJECT_TYPE_ID type, uint32_t fieldOffset, uint32_t fieldSize, MIRRORHANDLERFUNC function, void* param, HANDLER_PRIORITY priority, int32_t alwaysFire);
 void ClntObjMgrShowObject(WOWGUID guid);
 void ClntObjMgrUnlockObject(WOWGUID guid, const char* fileName, int32_t lineNumber);
 void ClntObjMgrUnsetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t fieldOffset, MIRRORHANDLERFUNC function, void* param);

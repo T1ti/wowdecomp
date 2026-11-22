@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <windows.h>
 #include "WoW/Source/Object/Types.h"
+#include "WoW/Source/Object/Object.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 
@@ -22,6 +23,7 @@ class CGUnit {
     static uint32_t GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, uint32_t unused_local);
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, uint32_t local, uint32_t base);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
     static float __stdcall GetPowerRegenBase(POWER_TYPE powerType, uint8_t inCombat);
 
     /* 0000 */ CGUnitData* m_unit;
@@ -246,5 +248,10 @@ class CGUnitData {
     /* 0230 */ float m_unitFieldHoverheight;
     /* 0234 */ uint32_t m_unitFieldPadding;
 };
+
+// INLINED
+inline uint32_t CGUnit::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGUnitData);
+}
 
 #endif

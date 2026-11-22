@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/Object.h"
 #include "WoW/Source/Object/WGUID.h"
 #include "Engine/Source/Tempest/C4Quaternion.h"
 
@@ -16,6 +17,7 @@ class CGGameObject {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t fieldIndex, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0000 */ CGGameObjectData* m_gameObject;
     /* 0004 */ void* m_gameObjectMirror;
@@ -103,5 +105,10 @@ class CGGameObjectData {
     /* 002E */ int8_t m_artKit;
     /* 002F */ uint8_t m_animProgress;
 };
+
+// INLINED
+inline uint32_t CGGameObject::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGGameObjectData);
+}
 
 #endif

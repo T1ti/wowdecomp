@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "WoW/Source/Object/Object.h"
 #include "WoW/Source/Object/WGUID.h"
 
 class CGDynamicObjectData;
@@ -12,6 +13,7 @@ class CGDynamicObject {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t unused_index, uint32_t unused_count, int32_t unused_local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
 
     /* 0000 */ CGDynamicObjectData* m_dynamicObject;
     /* 0004 */ void* m_dynamicObjectMirror;
@@ -42,5 +44,10 @@ class CGDynamicObjectData {
     /* 0010 */ float m_radius;
     /* 0014 */ uint32_t m_castTime;
 };
+
+// INLINED
+inline uint32_t CGDynamicObject::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGDynamicObjectData);
+}
 
 #endif

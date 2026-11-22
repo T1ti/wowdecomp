@@ -8,6 +8,8 @@
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
 #include "WoW/Source/Object/QuestCache.h"
+#include "WoW/Source/Object/Object.h"
+#include "WoW/Source/Object/Unit.h"
 #include "WoW/Source/Object/WGUID.h"
 
 // Combat rating index; names follow FrameXML CR_* (whose Lua values are this index + 1).
@@ -108,6 +110,7 @@ class CGPlayer {
     static uint32_t DescriptorToMirrorOffset(uint32_t offset, uint32_t size, int32_t local, uint32_t base);
     static uint32_t GetSavedIndexFromDataIndex(uint32_t index, uint32_t count, int32_t local);
     static int32_t TotalFieldsSaved();
+    static uint32_t GetDataSize();
     static int32_t TotalRemoteFieldsSaved();
 
     /* 0000 */ CGPlayerLocalData* m_player;
@@ -509,5 +512,10 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 1260 */ uint32_t m_playerGlyphsEnabled;
     /* 1264 */ uint32_t m_playerPetSpellPower;
 };
+
+// INLINED
+inline uint32_t CGPlayer::GetDataSize() {
+    return sizeof(CGObjectData) + sizeof(CGUnitData) + sizeof(CGPlayerLocalData);
+}
 
 #endif
