@@ -1,6 +1,7 @@
 #ifndef WOW_SOURCE_UI_MATHSTATE_H
 #define WOW_SOURCE_UI_MATHSTATE_H
 
+#include "Engine/Source/Storm/H/storm.h"
 #include <cstddef>
 #include <cstdint>
 
@@ -173,7 +174,25 @@ enum MATHOP : uint8_t {
 
 struct MathStack {
     /* 0000 */ float m_values[32];
-    /* 0080 */ int32_t m_top;
+    /* 0080 */ int32_t m_top; // Grows downward: 32 is empty, 0 is full.
+
+    bool IsEmpty() const {
+        return this->m_top == 32;
+    }
+
+    bool IsFull() const {
+        return this->m_top == 0;
+    }
+
+    float Pop() {
+        STORM_ASSERT(!IsEmpty());
+        return this->m_values[this->m_top++];
+    }
+
+    void Push(float value) {
+        STORM_ASSERT(!IsFull());
+        this->m_values[--this->m_top] = value;
+    }
 };
 
 // MathState::m_status: compiling, failed (compile or evaluate), or evaluating,

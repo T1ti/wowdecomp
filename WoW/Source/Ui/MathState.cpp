@@ -403,8 +403,7 @@ void MathState::ExecuteFunction(uint32_t op, MathStack* stack) {
             break;
     }
 
-    stack->m_top--;
-    stack->m_values[stack->m_top] = result;
+    stack->Push(result);
 }
 
 // VERIFY: e745ead3 auto
@@ -414,33 +413,33 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
 
     switch (op) {
         case MATHOP_POW: {
-            float exponent = stack->m_values[stack->m_top++];
-            float base = stack->m_values[stack->m_top++];
+            float exponent = stack->Pop();
+            float base = stack->Pop();
             result = static_cast<float>(pow(base, exponent));
             break;
         }
 
         case MATHOP_NEGATE:
-            result = -stack->m_values[stack->m_top++];
+            result = -stack->Pop();
             break;
 
         case MATHOP_MUL: {
-            float right = stack->m_values[stack->m_top++];
-            float left = stack->m_values[stack->m_top++];
+            float right = stack->Pop();
+            float left = stack->Pop();
             result = right * left;
             break;
         }
 
         case MATHOP_DIV: {
-            float right = stack->m_values[stack->m_top++];
-            float left = stack->m_values[stack->m_top++];
+            float right = stack->Pop();
+            float left = stack->Pop();
             result = left / right;
             break;
         }
 
         case MATHOP_MOD: {
-            float right = stack->m_values[stack->m_top++];
-            float left = stack->m_values[stack->m_top++];
+            float right = stack->Pop();
+            float left = stack->Pop();
             double quotient = left / right;
             float fraction = static_cast<float>(quotient);
             result = static_cast<float>(left - (fraction - floor(quotient)) * right);
@@ -448,15 +447,15 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
         }
 
         case MATHOP_ADD: {
-            float right = stack->m_values[stack->m_top++];
-            float left = stack->m_values[stack->m_top++];
+            float right = stack->Pop();
+            float left = stack->Pop();
             result = right + left;
             break;
         }
 
         case MATHOP_SUB: {
-            float right = stack->m_values[stack->m_top++];
-            float left = stack->m_values[stack->m_top++];
+            float right = stack->Pop();
+            float left = stack->Pop();
             result = left - right;
             break;
         }
@@ -467,8 +466,7 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
             break;
     }
 
-    stack->m_top--;
-    stack->m_values[stack->m_top] = result;
+    stack->Push(result);
 }
 
 // VERIFY: ef1f3713 manual
@@ -909,8 +907,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
         }
     }
 
-    stack->m_top--;
-    stack->m_values[stack->m_top] = value;
+    stack->Push(value);
 }
 
 // VERIFY: 1749bc57 manual
@@ -939,11 +936,11 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
 
         switch (op) {
             case MATHOP_CONSTANT:
-                stack.m_values[--stack.m_top] = *constant++;
+                stack.Push(*constant++);
                 break;
 
             case MATHOP_SPELL_VARIABLE:
-                stack.m_values[--stack.m_top] = *variable++;
+                stack.Push(*variable++);
                 break;
 
             case MATHOP_POW:
