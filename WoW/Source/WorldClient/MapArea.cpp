@@ -44,13 +44,13 @@ void CMapArea::PurgeChunk(CMapChunk* chunk) {
 // VERIFY: 3489b6fa manual
 // OFFSET: 0x007C35F0
 void CMapArea::Purge() {
-    if (this->m_asyncObject) {
-        if (!AsyncFile::Cancel(this->m_asyncObject, CMapArea::FreeAsyncObject)) {
-            this->m_fileBuffer = nullptr;
+    if (this->asyncObject) {
+        if (!AsyncFile::Cancel(this->asyncObject, CMapArea::FreeAsyncObject)) {
+            this->rawAreaData = nullptr;
         }
 
-        this->m_asyncObject = nullptr;
-        this->m_file = nullptr;
+        this->asyncObject = nullptr;
+        this->adtFile = nullptr;
     }
 
     for (CMapBaseObjLink* link = this->m_chunkLinkList.Head(); link;) {
@@ -158,7 +158,9 @@ void CMapArea::BatchChunks(const C2iVector& pos) {
 
 // VERIFY: bb694f33 manual
 // OFFSET: 0x007D6980
-void CMapArea::LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureId) {
+void CMapArea::LoadTerrainTexture(CMapAreaTexture* mapAreaTexture, int32_t textureId) {
+    STORM_ASSERT(mapAreaTexture->m_texture == NULL);  // 12213: "mapAreaTexture.m_texture == __null"
+
     bool shaders = g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel];
 
     uint8_t flags = 0;
@@ -169,21 +171,22 @@ void CMapArea::LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureI
 
     if ((flags & TEXTURE_FLAG_NO_SPECULAR) || !CMap::enableSpecularTerrain) {
         if (!(flags & TEXTURE_FLAG_NO_SPECULAR) || shaders) {
-            areaTexture->m_texture = CMap::LoadTexture(areaTexture->m_textureName);
+            mapAreaTexture->m_texture = CMap::LoadTexture(mapAreaTexture->m_texName);
         } else {
             CImVector color;
             color.b = 0x00;
             color.g = 0x00;
             color.r = 0x00;
             color.a = 0xFF;
-            areaTexture->m_texture = TextureCreateSolid(color);
+            mapAreaTexture->m_texture = TextureCreateSolid(color);
         }
     } else {
         char fileName[256];
-        SStrCopy(fileName, areaTexture->m_textureName, STORM_MAX_STR);
-        char* ext = SStrChrR(fileName, '.');
-        SStrCopy(ext, "_s.blp", STORM_MAX_STR);
-        areaTexture->m_texture = CMap::LoadTexture(fileName);
+        SStrCopy(fileName, mapAreaTexture->m_texName, STORM_MAX_STR);
+        char* dot = SStrChrR(fileName, '.');
+        STORM_ASSERT(dot);
+        SStrCopy(dot, "_s.blp", STORM_MAX_STR);
+        mapAreaTexture->m_texture = CMap::LoadTexture(fileName);
     }
 }
 
@@ -210,8 +213,10 @@ void CMapArea::PurgeChunks(CiRect* chunkRect) {
 
 // VERIFY: 4696cf2f manual
 // OFFSET: 0x007D6B30
-CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
-    int32_t index = chunkX + MAP_CHUNKS_PER_AREA_AXIS * chunkY;
+CMapChunk* CMapArea::PrepareChunk(int32_t x, int32_t y) {
+    STORM_ASSERT(GetChunk(x, y) == NULL);
+
+    int32_t index = x + MAP_CHUNKS_PER_AREA_AXIS * y;
 
     bool firstUse = true;
 
@@ -226,14 +231,14 @@ CMapChunk* CMapArea::PrepareChunk(int32_t chunkX, int32_t chunkY) {
     link->m_ref = this;
     this->m_chunkLinkList.LinkToTail(link);
 
-    chunk->m_aIndex.x = chunkX;
+    chunk->m_aIndex.x = x;
     chunk->m_flags = MAPOBJ_FLAG_NONE;
-    chunk->m_aIndex.y = chunkY;
-    chunk->m_cOffset.x = chunkX + this->m_tileChunkIndex.x;
-    chunk->m_cOffset.y = chunkY + this->m_tileChunkIndex.y;
-    chunk->m_sOffset.x = 8 * (chunkX + this->m_tileChunkIndex.x);
-    chunk->m_sOffset.y = 8 * (chunkY + this->m_tileChunkIndex.y);
-    chunk->Create(reinterpret_cast<SIffChunk*>(static_cast<uint8_t*>(this->m_fileBuffer) + this->m_chunkInfo[index].m_offset), firstUse);
+    chunk->m_aIndex.y = y;
+    chunk->m_cOffset.x = x + this->m_tileChunkIndex.x;
+    chunk->m_cOffset.y = y + this->m_tileChunkIndex.y;
+    chunk->m_sOffset.x = 8 * (x + this->m_tileChunkIndex.x);
+    chunk->m_sOffset.y = 8 * (y + this->m_tileChunkIndex.y);
+    chunk->Create(reinterpret_cast<SIffChunk*>(static_cast<uint8_t*>(this->rawAreaData) + this->m_chunkInfo[index].m_offset), firstUse);
 
     return chunk;
 }
@@ -275,7 +280,9 @@ void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
 
 // VERIFY: 1e0fb652 manual
 // OFFSET: 0x007D6D20
-void CMapArea::LoadTextures(char* fileNames, uint32_t fileNamesSize) {
+void CMapArea::LoadTextures(char* texNames, uint32_t fileNamesSize) {
+    STORM_ASSERT(texNames);
+
     uint32_t offset = 0;
     int32_t streaming = SFile::IsStreamingMode();
 
@@ -287,14 +294,14 @@ void CMapArea::LoadTextures(char* fileNames, uint32_t fileNamesSize) {
 
     do {
         CMapAreaTexture* areaTexture = this->m_textures.New();
-        areaTexture->m_textureName = &fileNames[offset];
+        areaTexture->m_texName = &texNames[offset];
         areaTexture->m_texture = nullptr;
 
         if (!streaming) {
             this->LoadTerrainTexture(&this->m_textures.m_data[this->m_textures.Count() - 1], this->m_textures.Count() - 1);
         }
 
-        while (fileNames[offset]) {
+        while (texNames[offset]) {
             offset++;
         }
 
@@ -305,7 +312,10 @@ void CMapArea::LoadTextures(char* fileNames, uint32_t fileNamesSize) {
 // VERIFY: 2e3ea90a manual
 // OFFSET: 0x007D6EF0
 void CMapArea::ProcessIffChunks() {
-    SIffChunk* version = static_cast<SIffChunk*>(this->m_fileBuffer);
+    STORM_ASSERT(CMap::bActive);
+    STORM_ASSERT(this->rawAreaData);  // 12213: "data"
+
+    SIffChunk* version = static_cast<SIffChunk*>(this->rawAreaData);
     uint8_t* header = reinterpret_cast<uint8_t*>(&version->m_data) + version->m_size + offsetof(SIffChunk, m_data);
 
     this->m_header = reinterpret_cast<SMAreaHeader*>(header);
@@ -345,9 +355,9 @@ void CMapArea::AsyncCallback(void* param) {
     CMapArea* area = static_cast<CMapArea*>(param);
 
     area->ProcessIffChunks();
-    AsyncFileReadDestroyObject(area->m_asyncObject);
-    area->m_asyncObject = nullptr;
-    area->m_file = nullptr;
+    AsyncFileReadDestroyObject(area->asyncObject);
+    area->asyncObject = nullptr;
+    area->adtFile = nullptr;
 }
 
 // VERIFY: e0ce6011 manual
@@ -358,11 +368,11 @@ CMapArea::CMapArea() {
     this->m_tileChunkIndex.x = 0;
     this->m_tileChunkIndex.y = 0;
     this->m_chunkLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
-    this->m_file = nullptr;
-    this->m_asyncObject = nullptr;
+    this->adtFile = nullptr;
+    this->asyncObject = nullptr;
     memset(this->m_mapChunks, 0, sizeof(this->m_mapChunks));
-    this->m_fileBuffer = nullptr;
-    this->m_fileSize = 0;
+    this->rawAreaData = nullptr;
+    this->rawAreaDataSize = 0;
     this->unused_008C = 0;
     this->m_doodadDef = nullptr;
     this->m_mapObjDef = nullptr;
@@ -381,16 +391,20 @@ CMapArea::CMapArea() {
 // VERIFY: 09d8cf56 auto
 // OFFSET: 0x007D7150
 void CMapArea::Load(const char* fileName) {
-    CMap::SafeOpen(fileName, &this->m_file);
-    this->m_fileSize = SFileGetFileSize(this->m_file, nullptr);
-    this->m_fileBuffer = CMapArea::AllocAsyncLoadBuffer(this->m_fileSize);
-    this->m_asyncObject = AsyncFileReadAllocObject();
-    this->m_asyncObject->file = this->m_file;
-    this->m_asyncObject->buffer = this->m_fileBuffer;
-    this->m_asyncObject->size = this->m_fileSize;
-    this->m_asyncObject->userArg = this;
-    this->m_asyncObject->userPostloadCallback = &CMapArea::AsyncCallback;
-    AsyncFileReadObject(this->m_asyncObject, 0);
+    CMap::SafeOpen(fileName, &this->adtFile);
+    this->rawAreaDataSize = SFileGetFileSize(this->adtFile, nullptr);
+    STORM_ASSERT(rawAreaDataSize > 0);
+    STORM_ASSERT(rawAreaData == NULL);
+    this->rawAreaData = CMapArea::AllocAsyncLoadBuffer(this->rawAreaDataSize);
+    STORM_ASSERT(rawAreaData != NULL);
+    this->asyncObject = AsyncFileReadAllocObject();
+    STORM_ASSERT(asyncObject);
+    this->asyncObject->file = this->adtFile;
+    this->asyncObject->buffer = this->rawAreaData;
+    this->asyncObject->size = this->rawAreaDataSize;
+    this->asyncObject->userArg = this;
+    this->asyncObject->userPostloadCallback = &CMapArea::AsyncCallback;
+    AsyncFileReadObject(this->asyncObject, 0);
 }
 
 namespace {
@@ -598,13 +612,16 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
 // VERIFY: e54d69d6 manual
 // OFFSET: [0x007D6E10, 0x007D7120]
 CMapArea::~CMapArea() {
+    STORM_ASSERT(adtFile == NULL);
+    STORM_ASSERT(asyncObject == NULL);
+
     if (this->m_liquid) {
         SMemFree(this->m_liquid, __FILE__, __LINE__, 0);
         this->m_liquid = nullptr;
     }
 
-    if (this->m_fileBuffer) {
-        CMapArea::FreeAsyncLoadBuffer(this->m_fileBuffer, this->m_fileSize);
+    if (this->rawAreaData) {
+        CMapArea::FreeAsyncLoadBuffer(this->rawAreaData, this->rawAreaDataSize);
     }
 
     this->unused_008C = 0;

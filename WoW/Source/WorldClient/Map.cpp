@@ -408,7 +408,7 @@ WOWGUID s_lastCollisionGUID;
 CMapArea* CMap::GetLoadedArea(int32_t areaX, int32_t areaY) {
     CMapArea* area = CMap::GetArea(areaX, areaY);
 
-    if (area && area->m_asyncObject) {
+    if (area && area->asyncObject) {
         return nullptr;
     }
 
@@ -913,7 +913,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
 
     CMapArea* area = CMap::GetAreaForCell(cellX, cellY);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return false;
     }
 
@@ -1346,7 +1346,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         if (chunkCellX != lastChunkCellX || chunkCellY != lastChunkCellY) {
             CMapArea* area = CMap::GetAreaForCell(cellX, cellY);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 break;
             }
 
@@ -1716,13 +1716,13 @@ void CMap::UpdateBarriers() {
 
             CMapArea* area = CMap::m_areaTable[index];
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 
             CMapArea* neighbor = CMap::m_areaTable[index - 1];
 
-            if (!neighbor || neighbor->m_asyncObject || mode == 2) {
+            if (!neighbor || neighbor->asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.b.x, area->m_bounds.t.y);
                 C2Vector end(area->m_bounds.t.x, area->m_bounds.t.y);
                 CWorldScene::s_barrier.AddAxisAlignedWall(start, end, 40.0f);
@@ -1731,7 +1731,7 @@ void CMap::UpdateBarriers() {
 
             neighbor = CMap::m_areaTable[index - MAP_AREAS_PER_AXIS];
 
-            if (!neighbor || neighbor->m_asyncObject || mode == 2) {
+            if (!neighbor || neighbor->asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.t.x, area->m_bounds.t.y);
                 C2Vector end(area->m_bounds.t.x, area->m_bounds.b.y);
                 CWorldScene::s_barrier.AddAxisAlignedWall(start, end, 40.0f);
@@ -1740,7 +1740,7 @@ void CMap::UpdateBarriers() {
 
             neighbor = CMap::m_areaTable[index + 1];
 
-            if (!neighbor || neighbor->m_asyncObject || mode == 2) {
+            if (!neighbor || neighbor->asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.t.x, area->m_bounds.b.y);
                 C2Vector end(area->m_bounds.b.x, area->m_bounds.b.y);
                 CWorldScene::s_barrier.AddAxisAlignedWall(start, end, 40.0f);
@@ -1749,7 +1749,7 @@ void CMap::UpdateBarriers() {
 
             neighbor = CMap::m_areaTable[index + MAP_AREAS_PER_AXIS];
 
-            if (!neighbor || neighbor->m_asyncObject || mode == 2) {
+            if (!neighbor || neighbor->asyncObject || mode == 2) {
                 C2Vector start(area->m_bounds.b.x, area->m_bounds.b.y);
                 C2Vector end(area->m_bounds.b.x, area->m_bounds.t.y);
                 CWorldScene::s_barrier.AddAxisAlignedWall(start, end, 40.0f);
@@ -2026,7 +2026,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
             entries[entryCount].m_dist = NTempest::DistanceSquared(area->m_bounds, pos);
             entries[entryCount].m_area = area;
             entryCount++;
-        } else if (!area->m_asyncObject || !area->m_asyncObject->isCurrent) {
+        } else if (!area->asyncObject || !area->asyncObject->isCurrent) {
             CMap::FreeBaseObjLink(link);
             CMap::PurgeArea(area);
         }
@@ -2059,7 +2059,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
     for (int32_t i = 0; i < entryCount; i++) {
         CMapArea* area = entries[i].m_area;
 
-        if (!area->m_fileBuffer) {
+        if (!area->rawAreaData) {
             CMap::LoadArea(area);
         }
 
@@ -2072,11 +2072,11 @@ void CMap::PreUpdateAreas(bool addToScene) {
         rect.maxX = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.x + MAP_CHUNKS_PER_AREA_AXIS - 1;
         rect.maxY = MAP_CHUNKS_PER_AREA_AXIS * area->m_index.y + MAP_CHUNKS_PER_AREA_AXIS - 1;
 
-        if (rect.minX <= CWorld::chunkRect.maxX && rect.minY <= CWorld::chunkRect.maxY && rect.maxX >= CWorld::chunkRect.minX && rect.maxY >= CWorld::chunkRect.minY && waitForLoad && area->m_asyncObject) {
-            AsyncFileReadWait(area->m_asyncObject);
+        if (rect.minX <= CWorld::chunkRect.maxX && rect.minY <= CWorld::chunkRect.maxY && rect.maxX >= CWorld::chunkRect.minX && rect.maxY >= CWorld::chunkRect.minY && waitForLoad && area->asyncObject) {
+            AsyncFileReadWait(area->asyncObject);
         }
 
-        if (area->m_asyncObject) {
+        if (area->asyncObject) {
             if (CMap::s_isStreamingMode && entries[i].m_dist < 71111.109f) {
                 lastPending = i;
             }
@@ -2095,8 +2095,8 @@ void CMap::PreUpdateAreas(bool addToScene) {
         for (int32_t i = lastPending; i >= 0; i--) {
             CMapArea* area = entries[i].m_area;
 
-            if (area->m_asyncObject && (entries[i].m_dist < 1111.1111f || (entries[i].m_dist < 71111.109f && !CWorldScene::FrustumCull(&area->m_bounds)))) {
-                AsyncFileReadLinkObject(area->m_asyncObject, 1);
+            if (area->asyncObject && (entries[i].m_dist < 1111.1111f || (entries[i].m_dist < 71111.109f && !CWorldScene::FrustumCull(&area->m_bounds)))) {
+                AsyncFileReadLinkObject(area->asyncObject, 1);
             }
         }
 
@@ -2366,14 +2366,14 @@ void CMap::PrepareUpdate(bool addToScene) {
 
     CMapArea* area = CMap::GetAreaAtPosition(reinterpret_cast<const C2Vector*>(&World::s_currentWorldPos));
 
-    if (area && area->m_asyncObject) {
+    if (area && area->asyncObject) {
         char fileName[260];
-        SFile::GetActualFileName(area->m_asyncObject->file, fileName, sizeof(fileName));
+        SFile::GetActualFileName(area->asyncObject->file, fileName, sizeof(fileName));
         AsyncFile::EnterQueueLock();
-        AsyncFileReadLinkObject(area->m_asyncObject, 1);
+        AsyncFileReadLinkObject(area->asyncObject, 1);
         AsyncFile::LeaveQueueLock();
 
-        while (area->m_asyncObject) {
+        while (area->asyncObject) {
             int64_t local = 0;
             int64_t total = 0;
             SFile::FileGetIsLocalAmount(fileName, local, total);
@@ -3436,7 +3436,7 @@ bool CMap::LinkStaticEntityGetChunk(C3Vector& pos, float* outHeight, CMapChunk**
 
     CMapArea* area = CMap::GetAreaForCell(cellX, cellY);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return false;
     }
 
@@ -3559,7 +3559,7 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
         for (int32_t col = firstCol; col <= lastCol; col++) {
             CMapArea* area = CMap::GetAreaForChunk(col, row);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 
@@ -4286,7 +4286,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
     int32_t areaIndex = CMap::GetAreaIndex((chunkX >> 4) & MAP_AREA_INDEX_MASK, (chunkY >> 4) & MAP_AREA_INDEX_MASK);
     CMapArea* area = CMap::m_areaTable[areaIndex];
 
-    if (area && !area->m_asyncObject) {
+    if (area && !area->asyncObject) {
         CMapChunk* chunk = area->GetChunk(chunkX, chunkY);
 
         if (!chunk) {
@@ -4483,7 +4483,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
 bool CMap::CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, World::FacetData* facets) {
     CMapArea* area = CMap::GetArea(areaX, areaY);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return false;
     }
 
@@ -4932,7 +4932,7 @@ int32_t CMap::QueryAreaIdTerrain(const C3Vector* pos) {
     int32_t cellX = CMath::fint_(x - 0.5f);
     CMapArea* area = CMap::GetAreaForChunk(cellY, cellX);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return 0;
     }
 
@@ -5074,7 +5074,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     uint32_t first = facets->facets.Count();
     CMapArea* area = CMap::GetAreaForChunk(chunkX, chunkY);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return false;
     }
 
@@ -5282,7 +5282,7 @@ void CMap::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World:
         for (int32_t col = minCol; col <= maxCol; col++) {
             CMapArea* area = CMap::GetArea(col, row);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 
@@ -5342,7 +5342,7 @@ int32_t CMap::GetFlightBounds(const C3Vector& pos, float* height, int32_t which)
 
     CMapArea* area = CMap::GetArea(cellY >> 1, cellX >> 1);
 
-    if (!area || area->m_asyncObject || !area->m_flyingBbox) {
+    if (!area || area->asyncObject || !area->m_flyingBbox) {
         return 0;
     }
 
@@ -5552,7 +5552,7 @@ bool CMap::QueryHeight(const C3Vector& position, float range, float* height) {
         int32_t cellX = CMath::fint_(chunkX - 0.5f);
         CMapArea* area = CMap::GetAreaForCell(cellY, cellX);
 
-        if (!area || area->m_asyncObject) {
+        if (!area || area->asyncObject) {
             return false;
         }
 
@@ -6030,7 +6030,7 @@ bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* bo
 bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, const CAaBox& box, World::TriData* triData, uint32_t flags) {
     CMapArea* area = CMap::GetAreaForChunk(chunkX, chunkY);
 
-    if (!area || area->m_asyncObject) {
+    if (!area || area->asyncObject) {
         return false;
     }
 

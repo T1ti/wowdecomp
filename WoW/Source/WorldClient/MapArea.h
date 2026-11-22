@@ -57,11 +57,11 @@ class CMapArea : public CMapBaseObj {
     /* 0050 */ C2iVector m_tileChunkIndex;
     /* 0058 */ TSGrowableArray<CMapAreaTexture> m_textures;
     /* 0068 */ SMAreaHeader* m_header;
-    /* 006C */ SFileImpl* m_file;
-    /* 0070 */ CAsyncObject* m_asyncObject;
+    /* 006C */ SFileImpl* adtFile;
+    /* 0070 */ CAsyncObject* asyncObject;
     /* 0074 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_chunkLinkList;
-    /* 0080 */ void* m_fileBuffer;
-    /* 0084 */ int32_t m_fileSize;
+    /* 0080 */ void* rawAreaData;
+    /* 0084 */ int32_t rawAreaDataSize;
     /* 0088 */ SMChunkInfo* m_chunkInfo;
     /* 008C */ int32_t unused_008C;
     /* 0090 */ SMDoodadDef* m_doodadDef;
@@ -87,10 +87,10 @@ class CMapArea : public CMapBaseObj {
         return this->GetChunk(cellX >> MAP_CELL_TO_CHUNK_SHIFT, cellY >> MAP_CELL_TO_CHUNK_SHIFT);
     }
     void Load(const char* fileName);
-    void LoadTextures(char* fileNames, uint32_t fileNamesSize);
-    void LoadTerrainTexture(CMapAreaTexture* areaTexture, int32_t textureId);
+    void LoadTextures(char* texNames, uint32_t fileNamesSize);
+    void LoadTerrainTexture(CMapAreaTexture* mapAreaTexture, int32_t textureId);
     void ProcessIffChunks();
-    CMapChunk* PrepareChunk(int32_t chunkX, int32_t chunkY);
+    CMapChunk* PrepareChunk(int32_t x, int32_t y);
     void PurgeChunks(CiRect* chunkRect);
     static void PurgeChunk(CMapChunk* chunk);
     void Purge();

@@ -129,7 +129,7 @@ void CMap::LinkLightToChunks(CMapLight* light) {
         for (int32_t y = minY; y <= maxY; y++) {
             CMapArea* area = CMap::GetAreaForChunk(y, x);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 

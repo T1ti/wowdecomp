@@ -29,7 +29,7 @@ class CTexture;
 
 class CMapAreaTexture {
     public:
-    /* 0000 */ char* m_textureName;
+    /* 0000 */ char* m_texName;
     /* 0004 */ CTexture* m_texture;
 };
 

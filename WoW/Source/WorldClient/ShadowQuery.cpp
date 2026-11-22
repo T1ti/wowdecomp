@@ -812,7 +812,7 @@ void CShadowQuery::QueryTerrainBand(CShadowCacheQueryData& data, int32_t band) {
         for (int32_t col = rect.minX; col <= rect.maxX; col++) {
             CMapArea* area = CMap::GetAreaForChunk(col, row);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 
@@ -868,7 +868,7 @@ void CShadowQuery::QueryTerrain(CShadowCacheQueryData& data, int32_t firstBand, 
         for (int32_t col = rect.minX; col <= rect.maxX; col++) {
             CMapArea* area = CMap::GetAreaForChunk(col, row);
 
-            if (!area || area->m_asyncObject) {
+            if (!area || area->asyncObject) {
                 continue;
             }
 
