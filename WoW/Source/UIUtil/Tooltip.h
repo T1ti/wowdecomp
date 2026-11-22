@@ -325,15 +325,15 @@ enum ITEM_STAT_SUMMARY : int32_t {
 class CGItemStatsSummary {
     public:
     enum SUMMARY_FLAGS : uint32_t {
-        SUMMARY_NONE = 0,
-        SUMMARY_ITEM_SPELLS = 0x1,
-        SUMMARY_RANDOM_PROPERTIES = 0x2,
-        SUMMARY_DPS = 0x4,
-        SUMMARY_RESISTANCES = 0x8,
-        SUMMARY_SOCKETS = 0x10,
-        SUMMARY_STAT_MODS = 0x20,
-        SUMMARY_BLOCK = 0x40,
-        SUMMARY_SCALING_ITEM = 0x80,
+        ITEM_SUMMARY_PARSED_NONE = 0, // (inferred)
+        ITEM_SUMMARY_PARSED_AURAS = 0x1,
+        ITEM_SUMMARY_PARSED_RANDOM_PROPERTIES = 0x2,
+        ITEM_SUMMARY_PARSED_WEAPON_DPS = 0x4,
+        ITEM_SUMMARY_PARSED_RESISTANCES = 0x8,
+        ITEM_SUMMARY_PARSED_NUM_GEMS = 0x10,
+        ITEM_SUMMARY_PARSED_BASIC_STATS = 0x20,
+        ITEM_SUMMARY_PARSED_BLOCK_VALUE = 0x40,
+        ITEM_SUMMARY_PARSED_SCALING_ITEM = 0x80,
     };
 
     static int32_t GetItemComparison(CGTooltip* first, CGTooltip* second, CGItemStatsSummary* result);
