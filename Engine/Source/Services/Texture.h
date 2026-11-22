@@ -32,7 +32,7 @@ enum TEXFILETYPE {
 
 class CGxTexCache {
     public:
-    /* 0000 */ CGxTex* m_gxTex;
+    /* 0000 */ CGxTex* gxTex;
     /* 0004 */ uint32_t m_time;
     /* 0008 */ uint32_t m_size;
     /* 000C */ TSLink<CGxTexCache> m_link;
@@ -64,7 +64,7 @@ class CTexture : public CHandleObject, public TSHashObject<CTexture, HASHKEY_TEX
     /* 002A */ uint8_t m_bestMip;
     /* 002B */ uint8_t m_alphaBits;
     /* 002C */ CStatus m_status;
-    /* 0040 */ CAsyncObject* m_asyncObject;
+    /* 0040 */ CAsyncObject* asyncObject;
     /* 0044 */ CGxTex* m_gxTex;
     /* 0048 */ EGxTexTarget m_gxTexTarget;
     /* 004C */ uint16_t m_gxWidth;
@@ -72,8 +72,8 @@ class CTexture : public CHandleObject, public TSHashObject<CTexture, HASHKEY_TEX
     /* 0050 */ EGxTexFormat m_gxTexFormat;
     /* 0054 */ EGxTexFormat m_dataFormat;
     /* 0058 */ CGxTexFlags m_gxTexFlags;
-    /* 005C */ CTextureAtlas* m_atlas;
-    /* 0060 */ int32_t m_atlasBlockIndex;
+    /* 005C */ CTextureAtlas* atlas;
+    /* 0060 */ int32_t atlasBlockIndex;
     /* 0064 */ TSLink<CTexture> m_link;
     /* 006C */ char m_filename[260];
 
