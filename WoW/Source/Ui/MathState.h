@@ -172,7 +172,7 @@ enum MATHOP : uint8_t {
     MATHOP_BONUS_COEFFICIENT_3_UPPER = 161,
 };
 
-struct MathStack {
+struct CFloatStack {
     /* 0000 */ float m_values[32];
     /* 0080 */ int32_t m_top; // Grows downward: 32 is empty, 0 is full.
 
@@ -195,24 +195,23 @@ struct MathStack {
     }
 };
 
-// MathState::m_status: compiling, failed (compile or evaluate), or evaluating,
-// as QuestTextParser drives it (inferred names).
-enum MATH_STATUS : uint32_t {
-    MATH_STATUS_COMPILING  = 0,
-    MATH_STATUS_ERROR      = 1,
-    MATH_STATUS_EVALUATING = 2,
-};
-
-class MathState {
+class CFormula {
     public:
-    /* 0000 */ MATH_STATUS m_status;
+    // m_status: compiling, failed (compile or evaluate), or ready to evaluate, as QuestTextParser drives it.
+    enum STATUS : uint32_t {
+        STATUS_COMPILING = 0, // (inferred)
+        STATUS_ERROR = 1, // (inferred)
+        STATUS_OK = 2,
+    };
+
+    /* 0000 */ STATUS m_status;
     /* 0004 */ uint32_t m_numOps;
     /* 0008 */ MATHOP m_ops[128]; // Packed opcodes; integer operands are stored separately.
-    /* 0088 */ uint32_t m_numConstants;
+    /* 0088 */ uint32_t m_constantsCount;
     /* 008C */ float m_constants[64];
-    /* 018C */ uint32_t m_numIntArgs;
-    /* 0190 */ int32_t m_intArgs[64];
-    /* 0290 */ uint32_t m_numVariables;
+    /* 018C */ uint32_t m_otherSpellIDCount;
+    /* 0190 */ int32_t m_otherSpellIDs[64]; // (inferred)
+    /* 0290 */ uint32_t m_spellVariablesCount;
     /* 0294 */ float m_variables[32];
     /* 0314 */ const char* m_name;
     /* 0318 */ const char* m_text;
@@ -224,9 +223,9 @@ class MathState {
     int32_t CompilePower(int32_t pos);
     int32_t CompileProduct(int32_t pos);
     int32_t CompileSum(int32_t pos);
-    void ExecuteFunction(uint32_t op, MathStack* stack);
-    void ExecuteOperator(uint32_t op, MathStack* stack);
-    void GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers);
+    void ExecuteFunction(uint32_t op, CFloatStack* stack);
+    void ExecuteOperator(uint32_t op, CFloatStack* stack);
+    void GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers);
     float Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers);
 };
 

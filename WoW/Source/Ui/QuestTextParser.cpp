@@ -38,7 +38,7 @@ static int32_t s_lastNumber;
 TSGrowableArray<SpellVariable> s_spellVariables;
 
 // STATIC: 0x00BEB678
-static MathState s_mathState;
+static CFormula s_mathState;
 
 static int32_t SpellParserReplaceText(const SpellRec* spell, char* buffer, uint32_t size, int32_t parsePet, int32_t parseUnit, int32_t spellLevel, int32_t scale, int32_t noModifiers, const char** cursor);
 
@@ -448,21 +448,21 @@ static int32_t SpellParserExpression(const SpellRec* spell, char* buffer, uint32
 
     s_mathState.m_text = expression;
     s_mathState.m_numOps = 0;
-    s_mathState.m_numConstants = 0;
-    s_mathState.m_numIntArgs = 0;
-    s_mathState.m_numVariables = 0;
+    s_mathState.m_constantsCount = 0;
+    s_mathState.m_otherSpellIDCount = 0;
+    s_mathState.m_spellVariablesCount = 0;
     s_mathState.m_name = "TomT";
-    s_mathState.m_status = MATH_STATUS_COMPILING;
+    s_mathState.m_status = CFormula::STATUS_COMPILING;
     s_mathState.CompileSum(0);
 
-    if (s_mathState.m_status == MATH_STATUS_ERROR) {
+    if (s_mathState.m_status == CFormula::STATUS_ERROR) {
         return 0;
     }
 
-    s_mathState.m_status = MATH_STATUS_EVALUATING;
+    s_mathState.m_status = CFormula::STATUS_OK;
     *value = s_mathState.Evaluate(spell, spellLevel, scale, parseUnit, parsePet, noModifiers);
 
-    if (s_mathState.m_status != MATH_STATUS_EVALUATING) {
+    if (s_mathState.m_status != CFormula::STATUS_OK) {
         return 0;
     }
 
@@ -1098,6 +1098,8 @@ static int32_t SpellParserParseSubText(const SpellRec* spell, char* buffer, uint
 // VERIFY: 17c38493 auto
 // OFFSET: 0x0057ABC0
 int32_t SpellParserParseText(const SpellRec* spell, char* buffer, uint32_t size, int32_t parsePet, int32_t parseUnit, int32_t spellLevel, BOOL useAuraDescription, int32_t scale, int32_t noModifiers) {
+    STORM_ASSERT(spell);
+
     *buffer = '\0';
 
     if (!spellLevel) {
@@ -1126,6 +1128,8 @@ int32_t SpellParserParseText(const SpellRec* spell, char* buffer, uint32_t size,
 // VERIFY: b9d5f6fa manual
 // OFFSET: 0x00579590
 int32_t QuestParserParseText(const char* text, char* buffer, uint32_t size, const WOWGUID& guid, const char* name, int32_t achievement) {
+    STORM_ASSERT(text);
+
     bool failed = false;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
     NameCache* record;

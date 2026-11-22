@@ -84,16 +84,16 @@ static MATHOP LookupMathVariable(const char* name) {
 
 // VERIFY: 217b88e2 auto
 // OFFSET: 0x00576B90
-uint32_t MathState::AddIntArg(int32_t value) {
-    uint32_t index = this->m_numIntArgs;
-    this->m_intArgs[index] = value;
-    this->m_numIntArgs++;
+uint32_t CFormula::AddIntArg(int32_t value) {
+    uint32_t index = this->m_otherSpellIDCount;
+    this->m_otherSpellIDs[index] = value;
+    this->m_otherSpellIDCount++;
     return index;
 }
 
 // VERIFY: 307e2467 auto
 // OFFSET: 0x00576BB0
-int32_t MathState::NextToken(char* token, int32_t* pos, int32_t* length) {
+int32_t CFormula::NextToken(char* token, int32_t* pos, int32_t* length) {
     *length = 0;
     const char* text = this->m_text + *pos;
 
@@ -131,12 +131,12 @@ int32_t MathState::NextToken(char* token, int32_t* pos, int32_t* length) {
 
 // VERIFY: 364d741d auto
 // OFFSET: 0x00576C80
-int32_t MathState::Expect(const char* expected, int32_t* pos) {
+int32_t CFormula::Expect(const char* expected, int32_t* pos) {
     char token[32];
     int32_t length;
 
     if (!this->NextToken(token, pos, &length) || SStrCmpI(token, expected, STORM_MAX_STR)) {
-        this->m_status = MATH_STATUS_ERROR;
+        this->m_status = STATUS_ERROR;
         return 0;
     }
 
@@ -161,7 +161,7 @@ static float GetSpellVariableValue(const char* name) {
 
 // VERIFY: 53ef7008 manual
 // OFFSET: 0x00577530
-int32_t MathState::CompilePrimary(int32_t pos) {
+int32_t CFormula::CompilePrimary(int32_t pos) {
     char token[32];
     char separator[32];
     char digits[8];
@@ -192,8 +192,8 @@ int32_t MathState::CompilePrimary(int32_t pos) {
         const char* name = &token[1];
 
         if (token[1] == '<') {
-            this->m_variables[this->m_numVariables] = GetSpellVariableValue(&token[2]);
-            this->m_numVariables++;
+            this->m_variables[this->m_spellVariablesCount] = GetSpellVariableValue(&token[2]);
+            this->m_spellVariablesCount++;
             this->m_ops[this->m_numOps] = MATHOP_SPELL_VARIABLE;
             this->m_numOps++;
             this->Expect(">", &pos);
@@ -209,7 +209,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
 
             for (int32_t i = argCount - 1; i; i--) {
                 if (!this->NextToken(separator, &pos, &length) || SStrCmpI(separator, ",", STORM_MAX_STR)) {
-                    this->m_status = MATH_STATUS_ERROR;
+                    this->m_status = STATUS_ERROR;
                 }
 
                 pos = this->CompileSum(pos);
@@ -248,12 +248,12 @@ int32_t MathState::CompilePrimary(int32_t pos) {
     }
 
     if (!isdigit(first) && first != '.') {
-        this->m_status = MATH_STATUS_ERROR;
+        this->m_status = STATUS_ERROR;
         return pos;
     }
 
-    this->m_constants[this->m_numConstants] = static_cast<float>(atof(token));
-    this->m_numConstants++;
+    this->m_constants[this->m_constantsCount] = static_cast<float>(atof(token));
+    this->m_constantsCount++;
     this->m_ops[this->m_numOps] = MATHOP_CONSTANT;
     this->m_numOps++;
     return pos;
@@ -261,7 +261,7 @@ int32_t MathState::CompilePrimary(int32_t pos) {
 
 // VERIFY: c2929519 auto
 // OFFSET: 0x005777A0
-int32_t MathState::CompilePower(int32_t pos) {
+int32_t CFormula::CompilePower(int32_t pos) {
     pos = this->CompilePrimary(pos);
 
     while (this->m_text[pos] == '^') {
@@ -275,7 +275,7 @@ int32_t MathState::CompilePower(int32_t pos) {
 
 // VERIFY: b6d928a9 manual
 // OFFSET: 0x005777F0
-int32_t MathState::CompileProduct(int32_t pos) {
+int32_t CFormula::CompileProduct(int32_t pos) {
     pos = this->CompilePower(pos);
 
     while (true) {
@@ -309,7 +309,7 @@ int32_t MathState::CompileProduct(int32_t pos) {
 
 // VERIFY: 99fe2678 auto
 // OFFSET: 0x005778B0
-int32_t MathState::CompileSum(int32_t pos) {
+int32_t CFormula::CompileSum(int32_t pos) {
     pos = this->CompileProduct(pos);
 
     while (true) {
@@ -329,7 +329,7 @@ int32_t MathState::CompileSum(int32_t pos) {
 
 // VERIFY: fa170935 manual
 // OFFSET: 0x00577900
-void MathState::ExecuteFunction(uint32_t op, MathStack* stack) {
+void CFormula::ExecuteFunction(uint32_t op, CFloatStack* stack) {
     float args[3];
 
     for (int32_t i = s_mathFunctions[op - MATHOP_ABS].m_argCount; i; stack->m_top++) {
@@ -398,7 +398,7 @@ void MathState::ExecuteFunction(uint32_t op, MathStack* stack) {
         }
 
         default:
-            this->m_status = MATH_STATUS_ERROR;
+            this->m_status = STATUS_ERROR;
             result = 0.0f;
             break;
     }
@@ -408,7 +408,7 @@ void MathState::ExecuteFunction(uint32_t op, MathStack* stack) {
 
 // VERIFY: e745ead3 auto
 // OFFSET: 0x00577AD0
-void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
+void CFormula::ExecuteOperator(uint32_t op, CFloatStack* stack) {
     float result;
 
     switch (op) {
@@ -462,7 +462,7 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
 
         default:
             result = 0.0f;
-            this->m_status = MATH_STATUS_ERROR;
+            this->m_status = STATUS_ERROR;
             break;
     }
 
@@ -471,7 +471,7 @@ void MathState::ExecuteOperator(uint32_t op, MathStack* stack) {
 
 // VERIFY: ef1f3713 manual
 // OFFSET: 0x005782D0
-void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers) {
+void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers) {
     float value = 0.0f;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
@@ -902,7 +902,7 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
             default:
                 value = 0.0f;
-                this->m_status = MATH_STATUS_ERROR;
+                this->m_status = STATUS_ERROR;
                 break;
         }
     }
@@ -912,21 +912,24 @@ void MathState::GetVariableValue(uint32_t op, MathStack* stack, const SpellRec* 
 
 // VERIFY: 1749bc57 manual
 // OFFSET: 0x00578D10
-float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers) {
-    MathStack stack;
+float CFormula::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers) {
+    STORM_ASSERT(m_status == STATUS_OK);
+
+    CFloatStack stack;
     stack.m_top = 32;
     BOOL useLoaded = 0;
     SpellRec loaded;
     const float* constant = this->m_constants;
     const float* variable = this->m_variables;
-    const int32_t* intArg = this->m_intArgs;
+    const int32_t* intArg = this->m_otherSpellIDs;
 
     for (uint32_t i = 0; i < this->m_numOps; i++) {
         MATHOP op = this->m_ops[i];
 
         if (op == MATHOP_SPELL) {
+            STORM_ASSERT(uint32_t(intArg - this->m_otherSpellIDs) < this->m_otherSpellIDCount);  // 12213: "spellIDIndex < m_otherSpellIDCount"
             if (!g_spellDB.GetRecord(QuestTextParser::Spell_C_SpellGetSpellIDForDifficulty(*intArg++), &loaded)) {
-                this->m_status = MATH_STATUS_ERROR;
+                this->m_status = STATUS_ERROR;
                 return 0.0f;
             }
 
@@ -936,10 +939,12 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
 
         switch (op) {
             case MATHOP_CONSTANT:
+                STORM_ASSERT(uint32_t(constant - this->m_constants) < this->m_constantsCount);  // 12213: "constantIndex < m_constantsCount"
                 stack.Push(*constant++);
                 break;
 
             case MATHOP_SPELL_VARIABLE:
+                STORM_ASSERT(uint32_t(variable - this->m_variables) < this->m_spellVariablesCount);  // 12213: "spellVariablesIndex < m_spellVariablesCount"
                 stack.Push(*variable++);
                 break;
 
@@ -977,7 +982,7 @@ float MathState::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t sca
 
     float result = 0.0f;
 
-    if (this->m_status == MATH_STATUS_EVALUATING) {
+    if (this->m_status == STATUS_OK) {
         result = stack.m_values[stack.m_top];
     }
 
